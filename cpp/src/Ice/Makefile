@@ -84,7 +84,8 @@ OBJS		= Initialize.o \
 		  PluginManagerI.o \
 		  ProtocolPluginFacade.o \
 		  Locator.o \
-		  LocatorInfo.o
+		  LocatorInfo.o \
+		  StringUtil.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
