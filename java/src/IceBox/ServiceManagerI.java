@@ -327,84 +327,111 @@ public final class ServiceManagerI extends _ServiceManagerDisp
     }
 
     private void
-    stop(String service)
-        throws FailureException
+    stopAll()
     {
-        ServiceInfo info = (ServiceInfo)_services.remove(service);
-        assert(info != null);
-
-	FailureException failureEx = null;
-
-        try
-        {
-            info.service.stop();
-
-	    if(info.communicator != null)
+	//
+	// First, for each service, we call stop on the service and flush its database environment to 
+	// the disk.
+	//
+	java.util.Iterator p = _services.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    String name = (String)entry.getKey();
+	    ServiceInfo info = (ServiceInfo)entry.getValue();
+	    try
 	    {
-		info.communicator.shutdown();
-		info.communicator.waitForShutdown();
+		info.service.stop();
+	    }
+	    catch(Exception e)
+	    {
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                e.printStackTrace(pw);
+                pw.flush();
+                _logger.warning("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
 	    }
 
 	    if(info.dbEnv != null)
 	    {
-		info.dbEnv.close();
+		try
+		{
+		    info.dbEnv.sync();
+		}
+		catch(Exception e)
+		{
+		    java.io.StringWriter sw = new java.io.StringWriter();
+		    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		    e.printStackTrace(pw);
+		    pw.flush();
+		    _logger.warning("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
+		}
 	    }
-        }
-	catch(Freeze.DBException ex)
-	{
-            failureEx = new FailureException();
-            failureEx.reason = "ServiceManager: database exception in stop for service " + service + ": " + ex;
-            failureEx.initCause(ex);
 	}
-        catch(Exception ex)
-        {
-            failureEx = new FailureException();
-            failureEx.reason = "ServiceManager: exception in stop for service " + service + ": " + ex;
-            failureEx.initCause(ex);
-        }
 
-	if(info.communicator != null)
+	//
+	// Finally, for each service, we shutdown and wait for the service communicator to be shutdown, 
+	// close the service database environment (must be done after waitForShutdown returns and before
+	// destroy) and destroy the service communicator.
+	//
+	p = _services.entrySet().iterator();
+	while(p.hasNext())
 	{
-	    try
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    String name = (String)entry.getKey();
+	    ServiceInfo info = (ServiceInfo)entry.getValue();
+
+	    if(info.communicator != null)
 	    {
-		info.communicator.destroy();
+		try
+		{
+		    info.communicator.shutdown();
+		    info.communicator.waitForShutdown();
+		}
+		catch(Exception e)
+		{
+		    java.io.StringWriter sw = new java.io.StringWriter();
+		    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		    e.printStackTrace(pw);
+		    pw.flush();
+		    _logger.warning("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
+		}
 	    }
-	    catch(Exception ex)
+
+	    if(info.dbEnv != null)
 	    {
-		failureEx = new FailureException();
-		failureEx.reason = "ServiceManager: exception in stop for service " + service + ": " + ex;
-		failureEx.initCause(ex);
+		try
+		{
+		    info.dbEnv.close();
+		}
+		catch(Exception e)
+		{
+		    java.io.StringWriter sw = new java.io.StringWriter();
+		    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		    e.printStackTrace(pw);
+		    pw.flush();
+		    _logger.warning("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
+		}
+	    }
+	    
+	    if(info.communicator != null)
+	    {
+		try
+		{
+		    info.communicator.destroy();
+		}
+		catch(Exception e)
+		{
+		    java.io.StringWriter sw = new java.io.StringWriter();
+		    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		    e.printStackTrace(pw);
+		    pw.flush();
+		    _logger.warning("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
+		}
 	    }
 	}
 
-	if(failureEx != null)
-	{
-	    throw failureEx;
-	}
-    }
-
-    private void
-    stopAll()
-    {
-	Object[] services = _services.keySet().toArray();
-	for(int i = 0; i < services.length; i++)
-	{
-            try
-            {
-		stop((String)services[i]);
-            }
-            catch(Exception ex)
-            {
-                java.io.StringWriter sw = new java.io.StringWriter();
-                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                ex.printStackTrace(pw);
-                pw.flush();
-                _logger.error("ServiceManager: exception in stop for service " + (String)services[i] + "\n" + 
-			      sw.toString());
-            }
-	}
-
-	assert(_services.isEmpty());
+	_services.clear();
     }
 
     class ServiceInfo

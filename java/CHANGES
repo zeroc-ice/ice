@@ -1,6 +1,10 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Improved IceBox service deactivation. Instead of successively
+  stoping a service and destroying its communicator, services are now
+  all stopped first and then their communicators are destroyed.
+
 - Added version negotiation to the Ice protocol. This permits future protocol
   extensions to be added without breaking interoperability with older
   deployed clients and servers. Unfortunately, doing this broke compatibility
@@ -36,3 +40,5 @@ Changes since version 1.0.0
 
 - Fixed a bug with throwing exceptions in AMI from within
   ice_response().
+
+
