@@ -312,6 +312,10 @@ Ice::ObjectAdapterI::identityToServant(const Identity& ident)
 ObjectPtr
 Ice::ObjectAdapterI::proxyToServant(const ObjectPrx& proxy)
 {
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+    checkForDeactivation();
+
     ReferencePtr ref = proxy->__reference();
     return identityToServant(ref->identity);
 }
@@ -502,12 +506,12 @@ ThreadPoolPtr
 Ice::ObjectAdapterI::getThreadPool() const
 {
     // No mutex lock necessary, _threadPool and _instance are
-    // immutable after creation until it is removed in
+    // immutable after creation until they are removed in
     // waitForDeactivate().
 
     // Not check for deactivation here!
 
-    assert(_threadPool || _instance); // Must not be called after waitForDeactivate().
+    assert(_instance); // Must not be called after waitForDeactivate().
 
     if(_threadPool)
     {
@@ -517,8 +521,6 @@ Ice::ObjectAdapterI::getThreadPool() const
     {
 	return _instance->serverThreadPool();
     }
-
-    return _threadPool;
 }
 
 ServantManagerPtr

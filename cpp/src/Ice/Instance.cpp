@@ -189,13 +189,12 @@ IceInternal::Instance::clientThreadPool()
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(!_destroyed) // Not destroyed?
+    assert(!_destroyed);
+
+    if(!_clientThreadPool) // Lazy initialization.
     {
-	if(!_clientThreadPool) // Lazy initialization.
-	{
-	    int threadNum = _properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Client.Size", 1);
-	    _clientThreadPool = new ThreadPool(this, threadNum, 0);
-	}
+	int threadNum = _properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Client.Size", 1);
+	_clientThreadPool = new ThreadPool(this, threadNum, 0);
     }
 
     return _clientThreadPool;
@@ -206,14 +205,13 @@ IceInternal::Instance::serverThreadPool()
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(!_destroyed) // Not destroyed?
+    assert(!_destroyed);
+    
+    if(!_serverThreadPool) // Lazy initialization.
     {
-	if(!_serverThreadPool) // Lazy initialization.
-	{
-	    int threadNum = _properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 10);
-	    int timeout = _properties->getPropertyAsInt("Ice.ServerIdleTime");
-	    _serverThreadPool = new ThreadPool(this, threadNum, timeout);
-	}
+	int threadNum = _properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 10);
+	int timeout = _properties->getPropertyAsInt("Ice.ServerIdleTime");
+	_serverThreadPool = new ThreadPool(this, threadNum, timeout);
     }
 
     return _serverThreadPool;
