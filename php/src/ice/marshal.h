@@ -15,15 +15,11 @@
 #ifndef ICE_PHP_MARSHAL_H
 #define ICE_PHP_MARSHAL_H
 
-extern "C"
-{
-#include "php.h"
-#include "php_ini.h"
-#include "ext/standard/info.h"
-}
-
-#include <Ice/Ice.h>
+#include "common.h"
 #include <Slice/Parser.h>
+
+void Marshal_initObjectMap(TSRMLS_D);
+void Marshal_destroyObjectMap(TSRMLS_D);
 
 class Marshaler;
 typedef IceUtil::Handle<Marshaler> MarshalerPtr;
@@ -33,9 +29,9 @@ class Marshaler : public IceUtil::SimpleShared
 public:
     virtual ~Marshaler();
 
-    static MarshalerPtr createMarshaler(const Slice::TypePtr&);
-    static MarshalerPtr createMemberMarshaler(const std::string&, const Slice::TypePtr&);
-    static MarshalerPtr createExceptionMarshaler(const Slice::ExceptionPtr&);
+    static MarshalerPtr createMarshaler(const Slice::TypePtr& TSRMLS_DC);
+    static MarshalerPtr createMemberMarshaler(const std::string&, const Slice::TypePtr& TSRMLS_DC);
+    static MarshalerPtr createExceptionMarshaler(const Slice::ExceptionPtr& TSRMLS_DC);
 
     virtual bool marshal(zval*, IceInternal::BasicStream& TSRMLS_DC) = 0;
     virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC) = 0;
