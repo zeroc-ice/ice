@@ -1,35 +1,30 @@
-**********************************************************************
+This demo illustrates how to use MFC to create a simple IcePatch2
+client application.
 
-Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
+The IcePatch2 server must be running before the client can patch,
+but a data directory must be prepared in order to run the server.
+The contents of the data directory are what the client will receive
+during the patch process. For convenience, this example uses its own
+source files as the data to be patched.
 
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-
-This demo illustrates how to use MFC to create a simple client side 
-patch application.
-
-Before the client can patch anything the IcePatch2 server must be
-running. In order to run the IcePatch2 server a data directory must be
-prepared. The contents of the data directory is what the client will 
-receive during the patch procedure. For convenience, this demo will 
-uses it own files as the data to be patched.
-
-Assuming that the current working directory is .../demo/IcePatch2/MFC
-prepare the data files:
+Assuming that the current working directory is demo/IcePatch2/MFC,
+you can prepare the data files with the following command:
 
 $ icepatch2calc .
 
-Start the IcePatch2 server:
+Next, start the IcePatch2 server:
 
 $ icepatch2server --IcePatch2.Endpoints="tcp -h 127.0.0.1 -p 10000" .
 
-Start the demo client:
+The last argument (".") tells the server to use the current directory
+as its data directory.
 
-$ client --IcePatch2.Endpoints="tcp -h 127.0.0.1 -p 10000"
+In another window, start the client:
+
+$ patch --IcePatch2.Endpoints="tcp -h 127.0.0.1 -p 10000"
 
 Before the actual patching can begin, the client needs to know the 
-patch directory in which to place the patch data. Click the "Browse
-for Folder" button and select the .../demo/IcePatch2/Patch directory.
-Finally, click the "Patch" button to begin the patch procedure.
+patch directory in which to place the downloaded files. Click the
+"..." button to the right of the Patch Directory field and select
+the demo/IcePatch2/Patch directory. Finally, click the "Patch"
+button to begin the patch process.
