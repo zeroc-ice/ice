@@ -709,12 +709,6 @@ def usage():
 def main():
 
     buildEnvironment = dict()
-    environmentDefaults = dict([
-	    ("BZIP2_HOME", "/opt/bzip2"),
-	    ("DB_HOME", "/opt/db"),
-	    ("OPENSSL_HOME", "/opt/openssl"),
-	    ("EXPAT_HOME", "/opt/expat")
-	    ])
     buildDir = None
     installDir = None
     sources = None
@@ -781,15 +775,8 @@ def main():
     #
     # Configure environment.
     #
-    for k, v in environmentDefaults.iteritems():
-	if buildEnvironment.has_key(k):
-	    os.environ[k] = buildEnvironment[k] 
-	#
-	# We pick up defaults for non-linux platforms only.  Our binary build platform is Linux and should
-	# come with all of the required packages installed in 'system' locations.
-	#
-	elif not os.environ.has_key(k) and getPlatform() <> "linux":
-	    os.environ[k] = v
+    for k, v in buildEnvironment.iteritems():
+	os.environ[k] = buildEnvironment[k] 
 
     if buildDir == None:
         logging.info("No build directory specified, defaulting to $HOME/tmp/icebuild")
