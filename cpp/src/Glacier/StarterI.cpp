@@ -231,7 +231,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	ostringstream s;
 	s << "--Glacier.Router.PrintProxyOnFd=" << fds[1];
 	args.push_back(s.str());
-	string overwrite = _properties->getProperty("Glacier.Starter.PropertiesOverwrite");
+	string overwrite = _properties->getProperty("Glacier.Starter.PropertiesOverride");
 	if(!overwrite.empty())
 	{
 	    string::size_type end = 0;

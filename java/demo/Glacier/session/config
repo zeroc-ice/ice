@@ -13,4 +13,4 @@ Glacier.Router.Trace.RoutingTable=1
 Glacier.Starter.PasswordVerifier=PasswordVerifier:tcp -p 10000
 Glacier.Starter.AddUserToAllowCategories=1
 Glacier.Starter.Endpoints=tcp -p 11000
-Glacier.Starter.PropertiesOverwrite=Ice.ServerIdleTime=60
+Glacier.Starter.PropertiesOverride=Ice.ServerIdleTime=60

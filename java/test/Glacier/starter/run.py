@@ -37,7 +37,7 @@ router = os.path.join(ice_home, "bin", "glacierrouter")
 command = starter + TestUtil.clientServerOptions + \
           r' --Ice.PrintProcessId' \
           r' --Glacier.Starter.RouterPath=' + router + \
-          r' --Glacier.Starter.PropertiesOverwrite=Ice.ServerIdleTime=10' \
+          r' --Glacier.Starter.PropertiesOverride=Ice.ServerIdleTime=10' \
           r' --Glacier.Starter.CryptPasswords="' + toplevel + r'/test/Glacier/starter/passwords"' + \
           r' --Glacier.Starter.Endpoints="default -p 12346 -t 5000"' + \
           r' --Glacier.Router.Endpoints="default"' + \
