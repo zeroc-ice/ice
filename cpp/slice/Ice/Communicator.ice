@@ -349,15 +349,15 @@ local interface Communicator
 
     /**
      *
-     * Get an [IceSSL::SslExtension] instance. The SSL extension
-     * instance can then be used as a factory for generation of some
-     * stock worker objects.
-     // ML: What "are stock worker objects"?
+     * Get an [IceSSL::SslExtension] intance, which can be used as a
+     * factory for generation of stock [IceSSL::CertificateVerifier]
+     * instances.
      *
-     * @return An SSL extension object representing the SSL
+     * @return An [SslExtension] instance representing the SSL
      * implementation.
      *
      * @see IceSSL::SslExtension
+     * @see IceSSL::CertificateVerifier
      *
      **/
     IceSSL::SslExtension getSslExtension();
