@@ -63,6 +63,9 @@ public:
     void writeBlob(const std::vector<Ice::Byte>&);
     void readBlob(std::vector<Ice::Byte>&, Ice::Int);
 
+    void writeBlob(const Ice::Byte*, size_t);
+    void readBlob(Ice::Byte*, size_t);
+
     // Performance critical function inlined, as writing single bytes
     // is used in many places in Ice code.
     void write(Ice::Byte v)
@@ -133,7 +136,8 @@ private:
     struct ReadEncaps
     {
 	Container::size_type start;
-	Ice::Byte encoding;
+	Ice::Byte encodingMajor;
+	Ice::Byte encodingMinor;
 	std::vector<Ice::ObjectPtr> objectsRead;
     };
 

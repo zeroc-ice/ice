@@ -60,6 +60,10 @@ private:
     const InstancePtr _instance;
     const std::string _host;
     const Ice::Int _port;
+    const Ice::Byte _protocolMajor;
+    const Ice::Byte _protocolMinor;
+    const Ice::Byte _encodingMajor;
+    const Ice::Byte _encodingMinor;
     const bool _connect;
     const bool _compress;
 };

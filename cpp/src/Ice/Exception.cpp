@@ -19,6 +19,7 @@
 #include <Ice/IdentityUtil.h>
 #include <Ice/StringUtil.h>
 #include <Ice/Plugin.h>
+#include <iomanip>
 
 using namespace std;
 using namespace Ice;
@@ -257,17 +258,40 @@ Ice::ProtocolException::ice_print(ostream& out) const
 }
 
 void
+Ice::BadMagicException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nunknown magic number: ";
+
+    ios_base::fmtflags originalFlags = out.flags();	// Save stream state
+    ostream::char_type originalFill = out.fill();
+
+    out.flags(ios_base::hex);				// Change to hex
+    out.fill('0');					// Fill with leading zeros
+
+    out << "0x" << setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(badMagic[0])) << ", ";
+    out << "0x" << setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(badMagic[1])) << ", ";
+    out << "0x" << setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(badMagic[2])) << ", ";
+    out << "0x" << setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(badMagic[3]));
+
+    out.fill(originalFill);				// Restore stream state
+    out.flags(originalFlags);
+}
+
+void
 Ice::UnsupportedProtocolException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nprotocol error: unsupported protocol version";
+    out << ":\nprotocol error: unsupported protocol version: " << badMajor << "." << badMinor;
+    out << "\n(can only support protocols compatible with version " << major << "." << minor << ")";
 }
 
 void
 Ice::UnsupportedEncodingException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nprotocol error: unsupported encoding version";
+    out << ":\nprotocol error: unsupported encoding version: " << badMajor << "." << badMinor;
+    out << "\n(can only support encodings compatible with version " << major << "." << major << ")";
 }
 
 void

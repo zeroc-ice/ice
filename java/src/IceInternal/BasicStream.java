@@ -171,8 +171,9 @@ public class BasicStream
     public void
     startWriteEncaps()
     {
-        writeByte((byte)0); // Encoding
         writeInt(0); // Placeholder for the encapsulation length
+        writeByte(Protocol.encodingMajor);
+        writeByte(Protocol.encodingMinor);
         WriteEncaps curr = _writeEncapsCache;
         if(curr != null)
         {
@@ -182,7 +183,6 @@ public class BasicStream
         {
             curr = new WriteEncaps();
         }
-        curr.encoding = 0;
         curr.start = _buf.position();
         curr.next = _writeEncapsStack;
         _writeEncapsStack = curr;
@@ -201,18 +201,13 @@ public class BasicStream
         {
             _writeEncapsCache.objectsWritten.clear();
         }
-        final int sz = _buf.position() - start;
-        _buf.putInt(start - 4, sz);
+        final int sz = _buf.position() - start + 6;	// size includes size and version bytes
+        _buf.putInt(start - 6, sz);
     }
 
     public void
     startReadEncaps()
     {
-        byte encoding = readByte();
-        if(encoding != 0)
-        {
-            throw new Ice.UnsupportedEncodingException();
-        }
 	//
 	// I don't use readSize() and writeSize() for encapsulations,
 	// because when creating an encapsulation, I must know in
@@ -225,6 +220,19 @@ public class BasicStream
 	{
 	    throw new Ice.NegativeSizeException();
 	}
+
+        byte eMajor = readByte();
+        byte eMinor = readByte();
+	if(eMajor != Protocol.encodingMajor || eMinor > Protocol.encodingMinor)
+	{
+	    Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
+	    e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
+	    e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
+	    e.major = Protocol.encodingMajor;
+	    e.minor = Protocol.encodingMinor;
+	    throw e;
+	}
+
         ReadEncaps curr = _readEncapsCache;
         if(curr != null)
         {
@@ -235,7 +243,8 @@ public class BasicStream
         {
             curr = new ReadEncaps();
         }
-        curr.encoding = encoding;
+        curr.encodingMajor = eMajor;
+        curr.encodingMinor = eMinor;
         curr.start = _buf.position();
         curr.next = _readEncapsStack;
         _readEncapsStack = curr;
@@ -269,14 +278,14 @@ public class BasicStream
         {
             _readEncapsCache.objectsRead.clear();
         }
-        final int sz = _buf.getInt(start - 4);
+        final int sz = _buf.getInt(start - 6);	// - 4 bytes for size, - 2 bytes for version
 	if(sz < 0)
 	{
 	    throw new Ice.NegativeSizeException();
 	}
         try
         {
-            _buf.position(start + sz);
+            _buf.position(start + sz - 6);
         }
         catch(IllegalArgumentException ex)
         {
@@ -288,12 +297,12 @@ public class BasicStream
     checkReadEncaps()
     {
         assert(_readEncapsStack != null);
-        final int sz = _buf.getInt(_readEncapsStack.start - 4);
+        final int sz = _buf.getInt(_readEncapsStack.start - 6);	// - 4 bytes for size, - 2 bytes for version
 	if(sz < 0)
 	{
 	    throw new Ice.NegativeSizeException();
 	}
-        if(sz != _buf.position() - _readEncapsStack.start)
+        if(sz != _buf.position() - _readEncapsStack.start + 6)
         {
             throw new Ice.EncapsulationException();
         }
@@ -303,22 +312,30 @@ public class BasicStream
     getReadEncapsSize()
     {
         assert(_readEncapsStack != null);
-        int sz = _buf.getInt(_readEncapsStack.start - 4);
+        int sz = _buf.getInt(_readEncapsStack.start - 6);	// - 4 bytes for size, - 2 bytes for version
 	if(sz < 0)
 	{
 	    throw new Ice.NegativeSizeException();
 	}
-	return sz;
+
+        byte eMajor = readByte();
+        byte eMinor = readByte();
+	if(eMajor != Protocol.encodingMajor || eMinor > Protocol.encodingMinor)
+	{
+	    Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
+	    e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
+	    e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
+	    e.major = Protocol.encodingMajor;
+	    e.minor = Protocol.encodingMinor;
+	    throw e;
+	}
+
+	return sz - 6;	// - 4 bytes for size, - 2 bytes for version
     }
 
     public void
     skipEncaps()
     {
-        byte encoding = readByte();
-        if(encoding != 0)
-        {
-            throw new Ice.UnsupportedEncodingException();
-        }
         int sz = readInt();
 	if(sz < 0)
 	{
@@ -326,7 +343,7 @@ public class BasicStream
 	}
         try
         {
-            _buf.position(_buf.position() + sz);
+            _buf.position(_buf.position() + sz - 4);
         }
         catch(IllegalArgumentException ex)
         {
@@ -1323,7 +1340,8 @@ public class BasicStream
     private static final class ReadEncaps
     {
         int start;
-        byte encoding;
+        byte encodingMajor;
+        byte encodingMinor;
         java.util.ArrayList objectsRead;
         ReadEncaps next;
     }
@@ -1331,7 +1349,6 @@ public class BasicStream
     private static final class WriteEncaps
     {
         int start;
-        byte encoding;
         java.util.IdentityHashMap objectsWritten;
         WriteEncaps next;
     }

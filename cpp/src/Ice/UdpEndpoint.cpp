@@ -19,6 +19,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
 #include <Ice/DefaultsAndOverrides.h>
+#include <Ice/Protocol.h>
 
 using namespace std;
 using namespace Ice;
@@ -28,6 +29,10 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
     _instance(instance),
     _host(ho),
     _port(po),
+    _protocolMajor(protocolMajor),
+    _protocolMinor(protocolMinor),
+    _encodingMajor(encodingMajor),
+    _encodingMinor(encodingMinor),
     _connect(false),
     _compress(co)
 {
@@ -36,6 +41,10 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string& str) :
     _instance(instance),
     _port(0),
+    _protocolMajor(protocolMajor),
+    _protocolMinor(protocolMinor),
+    _encodingMajor(encodingMajor),
+    _encodingMinor(encodingMinor),
     _connect(false),
     _compress(false)
 {
@@ -81,6 +90,119 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 
 	switch(option[1])
 	{
+	    case 'v':
+	    {
+		if(argument.empty())
+		{
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "udp " + str;
+		    throw ex;
+		}
+
+		string::size_type pos = argument.find('.');
+		if(pos == string::npos)
+		{
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "udp " + str;
+		    throw ex;
+		}
+		string majorStr = argument.substr(0, pos);
+		string minorStr = argument.substr(pos + 1, string::npos);
+
+		istringstream majStr(majorStr);
+		Int majVersion;
+		if(!(majStr >> majVersion) || !majStr.eof())
+		{
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "udp " + str;
+		    throw ex;
+		}
+
+		istringstream minStr(minorStr);
+		Int minVersion;
+		if(!(minStr >> minVersion) || !minStr.eof())
+		{
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "udp " + str;
+		    throw ex;
+		}
+
+		if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
+		{
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "udp " + str;
+		    throw ex;
+		}
+
+		if(majVersion != protocolMajor)
+		{
+		    UnsupportedProtocolException ex(__FILE__, __LINE__);
+		    ex.badMajor = majVersion;
+		    ex.badMinor = minVersion;
+		    ex.major = static_cast<unsigned char>(protocolMajor);
+		    ex.minor = static_cast<unsigned char>(protocolMinor);
+		    throw ex;
+		}
+
+		const_cast<Byte&>(_protocolMajor) = majVersion;
+		const_cast<Byte&>(_protocolMinor) = minVersion;
+
+		break;
+	    }
+
+	    case 'e':
+	    {
+		if(argument.empty())
+		{
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "udp " + str;
+		    throw ex;
+		}
+		string::size_type pos = argument.find('.');
+		string majorStr = argument.substr(0, pos);
+		string minorStr = argument.substr(pos + 1, string::npos);
+
+		istringstream majStr(majorStr);
+		Int majVersion;
+		if(!(majStr >> majVersion) || !majStr.eof())
+		{
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "udp " + str;
+		    throw ex;
+		}
+
+		istringstream minStr(minorStr);
+		Int minVersion;
+		if(!(minStr >> minVersion) || !minStr.eof())
+		{
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "udp " + str;
+		    throw ex;
+		}
+
+		if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
+		{
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "udp " + str;
+		    throw ex;
+		}
+
+		if(majVersion != static_cast<unsigned char>(encodingMajor))
+		{
+		    UnsupportedEncodingException ex(__FILE__, __LINE__);
+		    ex.badMajor = majVersion;
+		    ex.badMinor = minVersion;
+		    ex.major = static_cast<unsigned char>(encodingMajor);
+		    ex.minor = static_cast<unsigned char>(encodingMinor);
+		    throw ex;
+		}
+
+		const_cast<Byte&>(_encodingMajor) = majVersion;
+		const_cast<Byte&>(_encodingMinor) = minVersion;
+
+		break;
+	    }
+
 	    case 'h':
 	    {
 		if(argument.empty())
@@ -153,6 +275,28 @@ IceInternal::UdpEndpoint::UdpEndpoint(BasicStream* s) :
     s->startReadEncaps();
     s->read(const_cast<string&>(_host));
     s->read(const_cast<Int&>(_port));
+    s->read(const_cast<Byte&>(_protocolMajor));
+    s->read(const_cast<Byte&>(_protocolMinor));
+    s->read(const_cast<Byte&>(_encodingMajor));
+    s->read(const_cast<Byte&>(_encodingMinor));
+    if(_protocolMajor != protocolMajor)
+    {
+	UnsupportedProtocolException ex(__FILE__, __LINE__);
+	ex.badMajor = _protocolMajor;
+	ex.badMinor = _protocolMinor;
+	ex.major = static_cast<unsigned char>(protocolMajor);
+	ex.minor = static_cast<unsigned char>(protocolMinor);
+	throw ex;
+    }
+    if(_encodingMajor != encodingMajor)
+    {
+	UnsupportedEncodingException ex(__FILE__, __LINE__);
+	ex.badMajor = _encodingMajor;
+	ex.badMinor = _encodingMinor;
+	ex.major = static_cast<unsigned char>(encodingMajor);
+	ex.minor = static_cast<unsigned char>(encodingMinor);
+	throw ex;
+    }
     // Not transmitted.
     //s->read(const_cast<bool&>(_connect));
     s->read(const_cast<bool&>(_compress));
@@ -166,6 +310,10 @@ IceInternal::UdpEndpoint::streamWrite(BasicStream* s) const
     s->startWriteEncaps();
     s->write(_host);
     s->write(_port);
+    s->write(_protocolMajor);
+    s->write(_protocolMinor);
+    s->write(_encodingMajor);
+    s->write(_encodingMinor);
     // Not transmitted.
     //s->write(_connect);
     s->write(_compress);
@@ -176,7 +324,14 @@ string
 IceInternal::UdpEndpoint::toString() const
 {
     ostringstream s;
-    s << "udp -h " << _host << " -p " << _port;
+    s << "udp";
+    s << " -v "
+      << static_cast<unsigned>(static_cast<unsigned char>(_protocolMajor)) << "."
+      << static_cast<unsigned>(static_cast<unsigned char>(_protocolMinor));
+    s << " -e "
+      << static_cast<unsigned>(static_cast<unsigned char>(_encodingMajor)) << "."
+      << static_cast<unsigned>(static_cast<unsigned char>(_encodingMinor));
+    s << " -h " << _host << " -p " << _port;
     if(_connect)
     {
 	s << " -c";
@@ -316,6 +471,26 @@ IceInternal::UdpEndpoint::operator==(const Endpoint& r) const
 	return false;
     }
 
+    if(_protocolMajor != p->_protocolMajor)
+    {
+	return false;
+    }
+
+    if(_protocolMinor != p->_protocolMinor)
+    {
+	return false;
+    }
+
+    if(_encodingMajor != p->_encodingMajor)
+    {
+	return false;
+    }
+
+    if(_encodingMinor != p->_encodingMinor)
+    {
+	return false;
+    }
+
     if(_host != p->_host)
     {
 	//
@@ -374,6 +549,42 @@ IceInternal::UdpEndpoint::operator<(const Endpoint& r) const
 	return true;
     }
     else if(!p->_connect && _connect)
+    {
+	return false;
+    }
+
+    if(_protocolMajor < p->_protocolMajor)
+    {
+	return true;
+    }
+    else if(p->_protocolMajor < _protocolMajor)
+    {
+	return false;
+    }
+
+    if(_protocolMinor < p->_protocolMinor)
+    {
+	return true;
+    }
+    else if(p->_protocolMinor < _protocolMinor)
+    {
+	return false;
+    }
+
+    if(_encodingMajor < p->_encodingMajor)
+    {
+	return true;
+    }
+    else if(p->_encodingMajor < _encodingMajor)
+    {
+	return false;
+    }
+
+    if(_encodingMinor < p->_encodingMinor)
+    {
+	return true;
+    }
+    else if(p->_encodingMinor < _encodingMinor)
     {
 	return false;
     }

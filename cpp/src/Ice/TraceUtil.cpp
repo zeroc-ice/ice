@@ -82,13 +82,25 @@ printRequestHeader(ostream& s, BasicStream& stream)
 static void
 printHeader(ostream& s, BasicStream& stream)
 {
-    Byte protVer;
-    stream.read(protVer);
-//    s << "\nprotocol version = " << static_cast<int>(protVer);
+    Byte magic;
+    stream.read(magic);	// Don't bother printing the magic number
+    stream.read(magic);
+    stream.read(magic);
+    stream.read(magic);
 
-    Byte encVer;
-    stream.read(encVer);
-//    s << "\nencoding version = " << static_cast<int>(encVer);
+    Byte pMajor;
+    Byte pMinor;
+    stream.read(pMajor);
+    stream.read(pMinor);
+//    s << "\nprotocol version = " << static_cast<unsigned>(pMajor)
+//      << "." << static_cast<unsigned>(pMinor);
+
+    Byte eMajor;
+    Byte eMinor;
+    stream.read(eMajor);
+    stream.read(eMinor);
+//    s << "\nencoding version = " << static_cast<unsigned>(eMajor)
+//      << "." << static_cast<unsigned>(eMinor);
 
     Byte type;
     stream.read(type);

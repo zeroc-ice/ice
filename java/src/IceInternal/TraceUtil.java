@@ -333,11 +333,19 @@ final class TraceUtil
     {
         try
         {
-            byte protVer = stream.readByte();
-//            out.write("\nprotocol version = " + (int)protVer);
+	    byte magic;
+	    magic = stream.readByte();	// Don't bother printing the magic number
+	    magic = stream.readByte();
+	    magic = stream.readByte();
+	    magic = stream.readByte();
 
-            byte encVer = stream.readByte();
-//            out.write("\nencoding version = " + (int)encVer);
+	    byte pMajor = stream.readByte();
+	    byte pMinor = stream.readByte();
+//            out.write("\nprotocol version = " + (int)pMajor + "." + (int)pMinor);
+
+	    byte eMajor = stream.readByte();
+	    byte eMinor = stream.readByte();
+//            out.write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
 
             byte type = stream.readByte();
             out.write("\nmessage type = " + (int)type + ' ');

@@ -381,6 +381,30 @@ local exception ProtocolException
 };
 
 /**
+ * TODO: ML: Seems a bit like an overkill to me. Why not use ByteSeq from BuiltinSequence.ice?
+ * A sequence containing the first four
+ * bytes of a message with a bad magic number.
+ **/
+sequence<byte> MagicBytes;
+
+/**
+ *
+ * This exception is a specialization of [ProtocolException],
+ * indicating that a message did not start with the expected
+ * magic number ('I', 'c', 'e', 'P').
+ *
+ **/
+local exception BadMagicException extends ProtocolException
+{
+    /**
+     *
+     * A sequence containing the first four bytes of the incorrect message.
+     *
+     **/
+    MagicBytes badMagic;
+};
+
+/**
  *
  * This exception is a specialization of [ProtocolException],
  * indicating that an unsupported protocol version has been
@@ -389,6 +413,33 @@ local exception ProtocolException
  **/
 local exception UnsupportedProtocolException extends ProtocolException
 {
+    /**
+     *
+     * The major version number of the unsupported protocol.
+     *
+     **/
+    int badMajor;
+
+    /**
+     *
+     * The minor version number of the unsupported protocol.
+     *
+     **/
+    int badMinor;
+
+    /**
+     *
+     * The major version number of the protocol that is supported.
+     *
+     **/
+    int major;
+
+    /**
+     *
+     * The highest minor version number of the protocol that can be supported.
+     *
+     **/
+    int minor;
 };
 
 /**
@@ -400,6 +451,33 @@ local exception UnsupportedProtocolException extends ProtocolException
  **/
 local exception UnsupportedEncodingException extends ProtocolException
 {
+    /**
+     *
+     * The major version number of the unsupported encoding.
+     *
+     **/
+    int badMajor;
+
+    /**
+     *
+     * The minor version number of the unsupported encoding.
+     *
+     **/
+    int badMinor;
+
+    /**
+     *
+     * The major version number of the encoding that is supported.
+     *
+     **/
+    int major;
+
+    /**
+     *
+     * The highest minor version number of the encoding that can be supported.
+     *
+     **/
+    int minor;
 };
 
 /**

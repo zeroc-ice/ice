@@ -22,6 +22,7 @@
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/UserExceptionFactoryManager.h>
 #include <Ice/LocalException.h>
+#include <Ice/Protocol.h>
 
 using namespace std;
 using namespace Ice;
@@ -80,8 +81,9 @@ IceInternal::BasicStream::reserve(int total)
 void
 IceInternal::BasicStream::startWriteEncaps()
 {
-    write(Byte(0)); // Encoding
     write(Int(0)); // Placeholder for the encapsulation length
+    write(encodingMajor);
+    write(encodingMinor);
     _writeEncapsStack.resize(_writeEncapsStack.size() + 1);
     _currentWriteEncaps = &_writeEncapsStack.back();
     _currentWriteEncaps->start = b.size();
@@ -101,24 +103,18 @@ IceInternal::BasicStream::endWriteEncaps()
     {
 	_currentWriteEncaps = &_writeEncapsStack.back();
     }
-    Int sz = b.size() - start;
+    Int sz = b.size() - start + sizeof(Int) + 2;				// Size includes size and version
     const Byte* p = reinterpret_cast<const Byte*>(&sz);
 #ifdef ICE_UTIL_BIGENDIAN
-    reverse_copy(p, p + sizeof(Int), b.begin() + start - sizeof(Int));
+    reverse_copy(p, p + sizeof(Int), b.begin() + start - sizeof(Int) - 2);	// - 2 for major and minor version byte
 #else
-    copy(p, p + sizeof(Int), b.begin() + start - sizeof(Int));
+    copy(p, p + sizeof(Int), b.begin() + start - sizeof(Int) - 2); 		// - 2 for major and minor version byte
 #endif
 }
 
 void
 IceInternal::BasicStream::startReadEncaps()
 {
-    Byte encoding;
-    read(encoding);
-    if(encoding != 0)
-    {
-	throw UnsupportedEncodingException(__FILE__, __LINE__);
-    }
     Int sz;
     //
     // I don't use readSize() and writeSize() for encapsulations,
@@ -132,9 +128,26 @@ IceInternal::BasicStream::startReadEncaps()
     {
 	throw NegativeSizeException(__FILE__, __LINE__);
     }
+
+    Byte eMajor;
+    Byte eMinor;
+    read(eMajor);
+    read(eMinor);
+    if(eMajor != encodingMajor
+       || static_cast<unsigned char>(eMinor) > static_cast<unsigned char>(encodingMinor))
+    {
+	UnsupportedEncodingException ex(__FILE__, __LINE__);
+	ex.badMajor = static_cast<unsigned char>(eMajor);
+	ex.badMinor = static_cast<unsigned char>(eMinor);
+	ex.major = static_cast<unsigned char>(encodingMajor);
+	ex.minor = static_cast<unsigned char>(encodingMinor);
+	throw ex;
+    }
+
     _readEncapsStack.resize(_readEncapsStack.size() + 1);
     _currentReadEncaps = &_readEncapsStack.back();
-    _currentReadEncaps->encoding = encoding;
+    _currentReadEncaps->encodingMajor = eMajor;
+    _currentReadEncaps->encodingMinor = eMinor;
     _currentReadEncaps->start = i - b.begin();
 }
 
@@ -167,14 +180,14 @@ IceInternal::BasicStream::skipReadEncaps()
     {
 	_currentReadEncaps = &_readEncapsStack.back();
     }
-    i = b.begin() + start - sizeof(Int);
+    i = b.begin() + start - sizeof(Int) - 2;	// - 2 for major and minor version byte
     Int sz;
     read(sz);
     if(sz < 0)
     {
 	throw NegativeSizeException(__FILE__, __LINE__);
     }
-    i += sz;
+    i += sz - sizeof(Int);
     if(i > b.end())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
@@ -187,7 +200,7 @@ IceInternal::BasicStream::checkReadEncaps()
     assert(_currentReadEncaps);
     int start = _currentReadEncaps->start;
     Container::iterator save = i;
-    i = b.begin() + start - sizeof(Int);
+    i = b.begin() + start - sizeof(Int) - 2;	// - 2 for major and minor version byte
     Int sz;
     read(sz);
     if(sz < 0)
@@ -195,7 +208,7 @@ IceInternal::BasicStream::checkReadEncaps()
 	throw NegativeSizeException(__FILE__, __LINE__);
     }
     i = save;
-    if(sz != i - (b.begin() + start))
+    if(static_cast<unsigned>(sz) != i - (b.begin() + start) + sizeof(Int) + 2)
     {
         throw EncapsulationException(__FILE__, __LINE__);
     }
@@ -207,33 +220,43 @@ IceInternal::BasicStream::getReadEncapsSize()
     assert(_currentReadEncaps);
     int start = _currentReadEncaps->start;
     Container::iterator save = i;
-    i = b.begin() + start - sizeof(Int);
+    i = b.begin() + start - sizeof(Int) - 2;	// - 2 for major and minor version byte
     Int sz;
     read(sz);
     if(sz < 0)
     {
 	throw NegativeSizeException(__FILE__, __LINE__);
     }
+
+    Byte eMajor;
+    Byte eMinor;
+    read(eMajor);
+    read(eMinor);
+    if(eMajor != encodingMajor
+       || static_cast<unsigned char>(eMinor) > static_cast<unsigned char>(encodingMinor))
+    {
+	UnsupportedEncodingException ex(__FILE__, __LINE__);
+	ex.badMajor = static_cast<unsigned char>(eMajor);
+	ex.badMinor = static_cast<unsigned char>(eMinor);
+	ex.major = static_cast<unsigned char>(encodingMajor);
+	ex.minor = static_cast<unsigned char>(encodingMinor);
+	throw ex;
+    }
+
     i = save;
-    return sz;
+    return sz - sizeof(Int) - 2;
 }
 
 void
 IceInternal::BasicStream::skipEncaps()
 {
-    Byte encoding;
-    read(encoding);
-    if(encoding != 0)
-    {
-	throw UnsupportedEncodingException(__FILE__, __LINE__);
-    }
     Int sz;
     read(sz);
     if(sz < 0)
     {
 	throw NegativeSizeException(__FILE__, __LINE__);
     }
-    i += sz;
+    i += sz - sizeof(Int);
     if(i > b.end())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
@@ -292,6 +315,26 @@ IceInternal::BasicStream::readBlob(vector<Byte>& v, Int sz)
     i += sz;
     v.resize(sz);
     copy(begin, i, v.begin());
+}
+
+void
+IceInternal::BasicStream::writeBlob(const Ice::Byte* v, size_t len)
+{
+    int pos = b.size();
+    resize(pos + len);
+    copy(&v[0], &v[0 + len], b.begin() + pos);
+}
+
+void
+IceInternal::BasicStream::readBlob(Ice::Byte* v, size_t len)
+{
+    if(static_cast<size_t>(b.end() - i) < len)
+    {
+	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+    }
+    Container::iterator begin = i;
+    i += len;
+    copy(begin, i, &v[0]);
 }
 
 void

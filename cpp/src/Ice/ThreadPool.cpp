@@ -522,17 +522,41 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
     int pos = stream.i - stream.b.begin();
     assert(pos >= headerSize);
     stream.i = stream.b.begin();
-    Byte protVer;
-    stream.read(protVer);
-    if(protVer != protocolVersion)
+    MagicBytes m(sizeof(magic), 0);
+    stream.readBlob(m, sizeof(magic));
+    if(!equal(m.begin(), m.end(), magic))
     {
-	throw UnsupportedProtocolException(__FILE__, __LINE__);
+	BadMagicException ex(__FILE__, __LINE__);
+	ex.badMagic = m;
+	throw ex;
     }
-    Byte encVer;
-    stream.read(encVer);
-    if(encVer != encodingVersion)
+    Byte pMajor;
+    Byte pMinor;
+    stream.read(pMajor);
+    stream.read(pMinor);
+    if(pMajor != protocolMajor
+       || static_cast<unsigned char>(pMinor) > static_cast<unsigned char>(protocolMinor))
     {
-	throw UnsupportedEncodingException(__FILE__, __LINE__);
+	UnsupportedProtocolException ex(__FILE__, __LINE__);
+	ex.badMajor = static_cast<unsigned char>(pMajor);
+	ex.badMinor = static_cast<unsigned char>(pMinor);
+	ex.major = static_cast<unsigned char>(protocolMajor);
+	ex.minor = static_cast<unsigned char>(protocolMinor);
+	throw ex;
+    }
+    Byte eMajor;
+    Byte eMinor;
+    stream.read(eMajor);
+    stream.read(eMinor);
+    if(eMajor != encodingMajor
+       || static_cast<unsigned char>(eMinor) > static_cast<unsigned char>(encodingMinor))
+    {
+	UnsupportedEncodingException ex(__FILE__, __LINE__);
+	ex.badMajor = static_cast<unsigned char>(eMajor);
+	ex.badMinor = static_cast<unsigned char>(eMinor);
+	ex.major = static_cast<unsigned char>(encodingMajor);
+	ex.minor = static_cast<unsigned char>(encodingMinor);
+	throw ex;
     }
     Byte messageType;
     stream.read(messageType);

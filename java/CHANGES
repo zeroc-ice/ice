@@ -1,3 +1,30 @@
+Changes since version 1.0.1
+---------------------------
+
+- Added version negotiation to the Ice protocol. This permits future protocol
+  extensions to be added without breaking interoperability with older
+  deployed clients and servers. Unfortunately, doing this broke compatibility
+  with the existing protocol so, when upgrading to this version, you must
+  make sure that clients and servers use the same version of Ice.jar.
+
+- Added a magic number to the Ice protocol. All Ice protocol messages
+  have 'I', 'c', 'e', 'P' (encoded as ASCII) in the first four bytes.
+  This is useful to allow protocol analyzers to recognize Ice messages.
+
+- Changed the encoding of encapsulations. An encapsulation now looks like:
+
+	size (4 bytes)
+	major version number (1 byte)
+	minor version number (1 byte)
+	data (n bytes)
+
+  The size includes the count of bytes for the size and versions, so
+  the value of size is n + 6.
+
+- Added -v and -e options to stringified UDP endpoints. -v sets the
+  protocol version and -e sets the encoding version. (The current
+  version for both protocol and encoding is 1.0.)
+
 Changes since version 1.0.0
 ---------------------------
 

@@ -182,8 +182,11 @@ IceInternal::Connection::validate()
 		// connection validation.
 		//
 		BasicStream os(_instance.get());
-		os.write(protocolVersion);
-		os.write(encodingVersion);
+		os.writeBlob(magic, sizeof(magic));
+		os.write(protocolMajor);
+		os.write(protocolMinor);
+		os.write(encodingMajor);
+		os.write(encodingMinor);
 		os.write(validateConnectionMsg);
 		os.write(headerSize); // Message size.
 		os.i = os.b.begin();
@@ -203,24 +206,69 @@ IceInternal::Connection::validate()
 		assert(is.i == is.b.end());
 		assert(is.i - is.b.begin() >= headerSize);
 		is.i = is.b.begin();
-		Byte protVer;
-		is.read(protVer);
-		if(protVer != protocolVersion)
+		MagicBytes m(sizeof(magic), 0);
+		is.readBlob(m, sizeof(magic));
+		if(!equal(m.begin(), m.end(), magic))
 		{
-		    throw UnsupportedProtocolException(__FILE__, __LINE__);
+		    BadMagicException ex(__FILE__, __LINE__);
+		    ex.badMagic = m;
+		    throw ex;
 		}
-		Byte encVer;
-		is.read(encVer);
-		if(encVer != encodingVersion)
+
+		Byte pMajor;
+		Byte pMinor;
+		is.read(pMajor);
+		is.read(pMinor);
+
+		//
+		// We only check the major version number here. The minor version
+		// number is irrelevant -- no matter what minor version number is offered
+		// by the server, we can be certain that the server supports at least minor version 0.
+		// As the client, we are obliged to never produce a message with a minor
+		// version number that is larger than what the server can understand, but we don't
+		// care if the server understands more than we do.
+		//
+		// Note: Once we add minor versions, we need to modify the client side to never produce
+		// a message with a minor number that is greater than what the server can handle. Similarly,
+		// the server side will have to be modified so it never replies with a minor version that is
+		// greater than what the client can handle.
+		//
+		if(pMajor != protocolMajor)
 		{
-		    throw UnsupportedEncodingException(__FILE__, __LINE__);
+		    UnsupportedProtocolException ex(__FILE__, __LINE__);
+		    ex.badMajor = static_cast<unsigned char>(pMajor);
+		    ex.badMinor = static_cast<unsigned char>(pMinor);
+		    ex.major = static_cast<unsigned char>(protocolMajor);
+		    ex.minor = static_cast<unsigned char>(protocolMinor);
+		    throw ex;
 		}
+
+		Byte eMajor;
+		Byte eMinor;
+		is.read(eMajor);
+		is.read(eMinor);
+
+		//
+		// The same applies here as above -- only the major version number
+		// of the encoding is relevant.
+		//
+		if(eMajor != encodingMajor)
+		{
+		    UnsupportedEncodingException ex(__FILE__, __LINE__);
+		    ex.badMajor = static_cast<unsigned char>(eMajor);
+		    ex.badMinor = static_cast<unsigned char>(eMinor);
+		    ex.major = static_cast<unsigned char>(encodingMajor);
+		    ex.minor = static_cast<unsigned char>(encodingMinor);
+		    throw ex;
+		}
+
 		Byte messageType;
 		is.read(messageType);
 		if(messageType != validateConnectionMsg)
 		{
 		    throw ConnectionNotValidatedException(__FILE__, __LINE__);
 		}
+
 		Int size;
 		is.read(size);
 		if(size != headerSize)
@@ -346,7 +394,7 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
 	    //
 	    // Change message type.
 	    //
-	    os->b[2] = compressedRequestMsg;
+	    os->b[8] = compressedRequestMsg;
 
 	    //
 	    // Do compression.
@@ -370,7 +418,7 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
 	    const Byte* p;
 	    Int sz = os->b.size();
 	    p = reinterpret_cast<const Byte*>(&sz);
-	    copy(p, p + sizeof(Int), os->b.begin() + 3);
+	    copy(p, p + sizeof(Int), os->b.begin() + 9);
 
 	    //
 	    // Send the request.
@@ -447,7 +495,7 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out)
 	    //
 	    // Change message type.
 	    //
-	    os->b[2] = compressedRequestMsg;
+	    os->b[8] = compressedRequestMsg;
 
 	    //
 	    // Do compression.
@@ -471,7 +519,7 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out)
 	    const Byte* p;
 	    Int sz = os->b.size();
 	    p = reinterpret_cast<const Byte*>(&sz);
-	    copy(p, p + sizeof(Int), os->b.begin() + 3);
+	    copy(p, p + sizeof(Int), os->b.begin() + 9);
 
 	    //
 	    // Send the request.
@@ -597,7 +645,7 @@ IceInternal::Connection::flushBatchRequest()
 	    //
 	    // Change message type.
 	    //
-	    _batchStream.b[2] = compressedRequestBatchMsg;
+	    _batchStream.b[8] = compressedRequestBatchMsg;
 
 	    //
 	    // Do compression.
@@ -621,7 +669,7 @@ IceInternal::Connection::flushBatchRequest()
 	    const Byte* p;
 	    Int sz = _batchStream.b.size();
 	    p = reinterpret_cast<const Byte*>(&sz);
-	    copy(p, p + sizeof(Int), _batchStream.b.begin() + 3);
+	    copy(p, p + sizeof(Int), _batchStream.b.begin() + 9);
 
 	    //
 	    // Send the batch request.
@@ -685,7 +733,7 @@ IceInternal::Connection::sendResponse(BasicStream* os)
 	    //
 	    // Change message type.
 	    //
-	    os->b[2] = compressedReplyMsg;
+	    os->b[8] = compressedReplyMsg;
 	    
 	    //
 	    // Do compression.
@@ -709,7 +757,7 @@ IceInternal::Connection::sendResponse(BasicStream* os)
 	    const Byte* p;
 	    Int sz = os->b.size();
 	    p = reinterpret_cast<const Byte*>(&sz);
-	    copy(p, p + sizeof(Int), os->b.begin() + 3);
+	    copy(p, p + sizeof(Int), os->b.begin() + 9);
 	    
 	    //
 	    // Send the reply.
@@ -864,12 +912,50 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
 	}
 
-	Byte messageType;
-
 	try
 	{
 	    assert(stream.i == stream.b.end());
-	    stream.i = stream.b.begin() + 2;
+	    stream.i = stream.b.begin();
+
+	    MagicBytes m(sizeof(magic), 0);
+	    stream.readBlob(m, sizeof(magic));
+	    if(!equal(m.begin(), m.end(), magic))
+	    {
+		BadMagicException ex(__FILE__, __LINE__);
+		ex.badMagic = m;
+		throw ex;
+	    }
+
+	    Byte pMajor;
+	    Byte pMinor;
+	    stream.read(pMajor);
+	    stream.read(pMinor);
+	    if(pMajor != protocolMajor
+	       || static_cast<unsigned char>(pMinor) > static_cast<unsigned char>(protocolMinor))
+	    {
+		UnsupportedProtocolException ex(__FILE__, __LINE__);
+		ex.badMajor = static_cast<unsigned char>(pMajor);
+		ex.badMinor = static_cast<unsigned char>(pMinor);
+		ex.major = static_cast<unsigned char>(protocolMajor);
+		ex.minor = static_cast<unsigned char>(protocolMinor);
+		throw ex;
+	    }
+	    Byte eMajor;
+	    Byte eMinor;
+	    stream.read(eMajor);
+	    stream.read(eMinor);
+	    if(eMajor != encodingMajor
+	       || static_cast<unsigned char>(eMinor) > static_cast<unsigned char>(encodingMinor))
+	    {
+		UnsupportedEncodingException ex(__FILE__, __LINE__);
+		ex.badMajor = static_cast<unsigned char>(eMajor);
+		ex.badMinor = static_cast<unsigned char>(eMinor);
+		ex.major = static_cast<unsigned char>(encodingMajor);
+		ex.minor = static_cast<unsigned char>(encodingMinor);
+		throw ex;
+	    }
+
+	    Byte messageType;
 	    stream.read(messageType);
 
 	    //
@@ -1228,13 +1314,13 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _transceiver(transceiver),
     _endpoint(endpoint),
     _adapter(adapter),
-    _logger(_instance->logger()), // Chached for better performance.
-    _traceLevels(_instance->traceLevels()), // Chached for better performance.
+    _logger(_instance->logger()), // Cached for better performance.
+    _traceLevels(_instance->traceLevels()), // Cached for better performance.
     _registeredWithPool(false),
     _warn(false),
     _acmTimeout(0),
-    _requestHdr(headerSize + 4, 0),
-    _requestBatchHdr(headerSize + 4, 0),
+    _requestHdr(headerSize + sizeof(Int), 0),
+    _requestBatchHdr(headerSize + sizeof(Int), 0),
     _replyHdr(headerSize, 0),
     _nextRequestId(1),
     _requestsHint(_requests.end()),
@@ -1255,19 +1341,37 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     }
 
     vector<Byte>& requestHdr = const_cast<vector<Byte>&>(_requestHdr);
-    requestHdr[0] = protocolVersion;
-    requestHdr[1] = encodingVersion;
-    requestHdr[2] = requestMsg;
+    requestHdr[0] = magic[0];
+    requestHdr[1] = magic[1];
+    requestHdr[2] = magic[2];
+    requestHdr[3] = magic[3];
+    requestHdr[4] = protocolMajor;
+    requestHdr[5] = protocolMinor;
+    requestHdr[6] = encodingMajor;
+    requestHdr[7] = encodingMinor;
+    requestHdr[8] = requestMsg;
 
     vector<Byte>& requestBatchHdr = const_cast<vector<Byte>&>(_requestBatchHdr);
-    requestBatchHdr[0] = protocolVersion;
-    requestBatchHdr[1] = encodingVersion;
-    requestBatchHdr[2] = requestBatchMsg;
+    requestBatchHdr[0] = magic[0];
+    requestBatchHdr[1] = magic[1];
+    requestBatchHdr[2] = magic[2];
+    requestBatchHdr[3] = magic[3];
+    requestBatchHdr[4] = protocolMajor;
+    requestBatchHdr[5] = protocolMinor;
+    requestBatchHdr[6] = encodingMajor;
+    requestBatchHdr[7] = encodingMinor;
+    requestBatchHdr[8] = requestBatchMsg;
 
     vector<Byte>& replyHdr = const_cast<vector<Byte>&>(_replyHdr);
-    replyHdr[0] = protocolVersion;
-    replyHdr[1] = encodingVersion;
-    replyHdr[2] = replyMsg;
+    replyHdr[0] = magic[0];
+    replyHdr[1] = magic[1];
+    replyHdr[2] = magic[2];
+    replyHdr[3] = magic[3];
+    replyHdr[4] = protocolMajor;
+    replyHdr[5] = protocolMinor;
+    replyHdr[6] = encodingMajor;
+    replyHdr[7] = encodingMinor;
+    replyHdr[8] = replyMsg;
 }
 
 IceInternal::Connection::~Connection()
@@ -1441,8 +1545,11 @@ IceInternal::Connection::initiateShutdown() const
 	// Before we shut down, we send a close connection message.
 	//
 	BasicStream os(_instance.get());
-	os.write(protocolVersion);
-	os.write(encodingVersion);
+	os.writeBlob(magic, sizeof(magic));
+	os.write(protocolMajor);
+	os.write(protocolMinor);
+	os.write(encodingMajor);
+	os.write(encodingMinor);
 	os.write(closeConnectionMsg);
 	os.write(headerSize); // Message size.
 	os.i = os.b.begin();
@@ -1590,7 +1697,7 @@ IceInternal::Connection::doCompress(BasicStream& uncompressed, BasicStream& comp
     //
     Int compressedSize = compressed.b.size();
     p = reinterpret_cast<const Byte*>(&compressedSize);
-    copy(p, p + sizeof(Int), uncompressed.b.begin() + 3);
+    copy(p, p + sizeof(Int), uncompressed.b.begin() + 9);
 
     //
     // Add the size of the uncompressed stream before the message body
