@@ -600,9 +600,10 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << sb;
 	    out << nl << "int sz = " << stream << ".readSize();";
 	    out << nl << stream << ".startSeq(sz, " << static_cast<unsigned>(type->minWireSize()) << ");";
+	    out << nl << param << " = new ";
 	    if(isArray)
 	    {
-	        out << nl << param << " = new " << typeS << "[sz]";
+	        out << typeS << "[sz]";
 	    }
 	    else
 	    {

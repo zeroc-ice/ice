@@ -1211,9 +1211,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 		    patchParams << ", " << classMemberCount++;
 		}
 	    }
-	    _out << sb;
 	    writeMarshalUnmarshalCode(_out, (*d)->type(), fixId((*d)->name()), false, false, patchParams.str());
-	    _out << eb;
 	}
 	_out << nl << "__is.endReadSlice();";
 	_out << nl << "base.__read(__is, true);";
