@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 case $1 in
   "full" | "incremental") echo "Performing $1 recovery"
@@ -30,8 +30,7 @@ case $1 in
           echo "% db_recover -c -h db"
           echo "or"
           echo "client with Freeze.db.DbRecoverFatal=1"
-
-          break ;;
+          ;;
 
   *) echo "Usage: $0 [full | incremental]"
      exit 1 ;;
