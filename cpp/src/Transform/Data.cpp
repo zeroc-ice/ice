@@ -753,9 +753,20 @@ Transform::Data::checkClasses(const Slice::ClassDeclPtr& dest, const Slice::Clas
         {
             return checkClasses(dest, s, interceptor);
         }
-        else if(dest->unit().get() == src->unit().get())
+
+        if(dest->unit().get() != src->unit().get())
         {
-            Slice::ClassDefPtr def = src->definition();
+            Slice::TypeList l = dest->unit()->lookupTypeNoBuiltin(s2, false);
+            if(l.empty())
+            {
+                _errorReporter->error("class " + s2 + " not found in new Slice definitions");
+            }
+            s = Slice::ClassDeclPtr::dynamicCast(l.front());
+        }
+
+        if(s)
+        {
+            Slice::ClassDefPtr def = s->definition();
             if(!def)
             {
                 _errorReporter->error("class " + s2 + " declared but not defined");
