@@ -360,7 +360,7 @@ MyDerivedClassI::opDerived(const Ice::Current&)
 {
 }
 
-::Ice::Context
+Ice::Context
 TestCheckedCastI::getContext(const Ice::Current& c)
 {
     return _ctx;
@@ -372,9 +372,9 @@ TestCheckedCastI::setContext(const Ice::Context& ctx)
     _ctx = ctx;
 }
 
-CheckedCastLocator::CheckedCastLocator()
+CheckedCastLocator::CheckedCastLocator() :
+    _servant(new TestCheckedCastI)
 {
-    _servant = new TestCheckedCastI;
 }
 
 Ice::ObjectPtr
@@ -388,11 +388,11 @@ CheckedCastLocator::locate(const Ice::Current& c, Ice::LocalObjectPtr&)
 }
 
 void
-CheckedCastLocator::finished(const ::Ice::Current&, const ::Ice::ObjectPtr&, const ::Ice::LocalObjectPtr&)
+CheckedCastLocator::finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&)
 {
 }
 
 void
-CheckedCastLocator::deactivate(const ::std::string&)
+CheckedCastLocator::deactivate(const std::string&)
 {
 }

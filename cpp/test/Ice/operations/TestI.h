@@ -168,6 +168,7 @@ public:
     void setContext(const Ice::Context& c);
 
 private:
+
     Ice::Context _ctx;
 };
 

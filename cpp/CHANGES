@@ -1,37 +1,37 @@
 Changes since version 2.0.0
 ---------------------------
 
-- Fixed a race condition in the IcePack on demand server activation code which
-  could cause clients to hang under rare conditions if the server couldn't be 
-  activated.
+- Fixed a race condition in the IcePack on demand server activation
+  code which could cause clients to hang under rare conditions if the
+  server couldn't be activated.
 
-- Fixed a small memory leak in the IcePack node that would occur each time a 
-  process is forked (Unix only).
+- Fixed a small memory leak in the IcePack node that would occur each
+  time a process is forked (Unix only).
 
 - Added 'object list' and 'object describe' IcePack admin commands.
 
-- Changed the signature of IcePack::Admin::removeObject() to take the identity
-  of the object instead of its proxy.
+- Changed the signature of IcePack::Admin::removeObject() to take the
+  identity of the object instead of its proxy.
 
-- Connection validation now checks for the timeout specified by the property
-  Ice.Override.ConnectTimeout and will raise Ice::ConnectTimeoutException if
-  the connection validation times out.
+- Connection validation now checks for the timeout specified by the
+  property Ice.Override.ConnectTimeout and will raise
+  Ice::ConnectTimeoutException if the connection validation times out.
 
-- Fixed an assert which could occur on connection establishment if there 
-  wasn't anymore file descriptors available.
+- Fixed an assert which could occur on connection establishment if
+  there wasn't anymore file descriptors available.
 
 - Improved support for on demand server activation in IcePack.
 
-- Improved the IcePack registry to prevent potential deadlocks caused by
-  thread starvation. NOTE: it's now required to configure the endpoints of
-  IcePack.Registry.Internal object adapter.
+- Improved the IcePack registry to prevent potential deadlocks caused
+  by thread starvation. NOTE: it's now required to configure the
+  endpoints of IcePack.Registry.Internal object adapter.
 
-- Fixed a bug where Ice::ObjectAdapter::activate() could throw 
-  Ice::ObjectAdapterDeactivatedException if the object adapter was deactivated
-  concurrently.
+- Fixed a bug where Ice::ObjectAdapter::activate() could throw
+  Ice::ObjectAdapterDeactivatedException if the object adapter was
+  deactivated concurrently.
 
-- Fixed a bug where setting the locator proxy on a indirect proxy could
-  cause an assert.
+- Fixed a bug where setting the locator proxy on a indirect proxy
+  could cause an assert.
 
 - Fixed a bug in IceSSL when multiple communicators are used.
 
@@ -42,11 +42,12 @@ Changes since version 2.0.0
 - Fixed a slice2cpp failure when the --output-dir option specified a
   directory containing backslashes.
 
-- Changed the signature of Ice::Service::main() and Ice::Service::run()
-  to accept a reference to argc (int & argc) rather than passing argc
-  by value (int argc). This is to ensure that, if Ice::initialize() or
-  Ice::Service::initializeCommunicator() rewrites argv, argc reflects
-  the number of elements of the rewritten argument vector.
+- Changed the signature of Ice::Service::main() and
+  Ice::Service::run() to accept a reference to argc (int & argc)
+  rather than passing argc by value (int argc). This is to ensure
+  that, if Ice::initialize() or Ice::Service::initializeCommunicator()
+  rewrites argv, argc reflects the number of elements of the rewritten
+  argument vector.
 
 - Fixed an encoding bug in IceSSL.
 

@@ -381,8 +381,7 @@ MyDerivedClassI::opContext_async(const Test::AMD_MyClass_opContextPtr& cb, const
 }
 
 void
-MyDerivedClassI::opDerived_async(const Test::AMD_MyDerivedClass_opDerivedPtr& cb,
-				 const Ice::Current&)
+MyDerivedClassI::opDerived_async(const Test::AMD_MyDerivedClass_opDerivedPtr& cb, const Ice::Current&)
 {
     cb->ice_response();
 }
@@ -399,9 +398,9 @@ TestCheckedCastI::setContext(const Ice::Context& ctx)
     _ctx = ctx;
 }
 
-CheckedCastLocator::CheckedCastLocator()
+CheckedCastLocator::CheckedCastLocator() :
+    _servant(new TestCheckedCastI)
 {
-    _servant = new TestCheckedCastI;
 }
 
 Ice::ObjectPtr
@@ -415,11 +414,11 @@ CheckedCastLocator::locate(const Ice::Current& c, Ice::LocalObjectPtr&)
 }
 
 void
-CheckedCastLocator::finished(const ::Ice::Current&, const ::Ice::ObjectPtr&, const ::Ice::LocalObjectPtr&)
+CheckedCastLocator::finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&)
 {
 }
 
 void
-CheckedCastLocator::deactivate(const ::std::string&)
+CheckedCastLocator::deactivate(const std::string&)
 {
 }

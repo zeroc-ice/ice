@@ -227,7 +227,6 @@ IceInternal::BasicStream::startSeq(int numElements, int minSize)
     {
 	checkSeq(bytesLeft);
     }
-
 }
 
 //
