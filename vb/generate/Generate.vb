@@ -192,6 +192,7 @@ Module Generate
 	    usage()
 	End If
 
+        Const slice2vbName As String = "slice2vb"
 	Dim solDir As String = args(0)
 	Dim action As BuildAction
 	If args(1).Equals("build") Then
@@ -208,8 +209,16 @@ Module Generate
 	' Work out where slice2vb is. If neither in $(SolutionDir) nor in %ICE_HOME%\bin,
 	' assume that slice2vb is in PATH.
 	'
-	Const slice2vbName As String = "slice2vb"
 	Dim iceHome As String = Environment.GetEnvironmentVariable("ICE_HOME")
+	If iceHome Is Nothing Then
+	    iceHome = Path.Combine(Path.Combine(solDir, ".."), "ice")
+	    If Not Directory.Exists(iceHome) Then
+		iceHome = Path.Combine(Path.Combine(Path.Combine(solDir, ".."), ".."), "ice")
+		If Not Directory.Exists(iceHome) Then
+		    iceHome = Path.Combine(solDir, "..")
+		End If
+	    End If
+	End If
 
 	Dim slice2vb As String = Path.Combine(Path.Combine(solDir, "bin"), slice2vbName)
 	If Not File.Exists(slice2vb) And Not File.Exists(slice2vb & ".exe") Then
@@ -227,10 +236,8 @@ Module Generate
 	If Directory.Exists(Path.Combine(solDir, "slice")) Then
 	    includes = "-I" & Path.Combine(solDir, "slice")
 	End If
-	If Not iceHome Is Nothing Then
-	    If Directory.Exists(Path.Combine(iceHome, "slice")) Then
-		includes = includes & " -I" & Path.Combine(iceHome, "slice")
-	    End If
+	If Directory.Exists(Path.Combine(iceHome, "slice")) Then
+	    includes = includes & " -I" & Path.Combine(iceHome, "slice")
 	End If
 
 	'

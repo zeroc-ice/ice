@@ -21,8 +21,6 @@ namespace Generate
 	{   
 	    try
 	    {
-		const string slice2csName = "slice2cs";
-		string iceHome = Environment.GetEnvironmentVariable("ICE_HOME");
 
 		string progName = AppDomain.CurrentDomain.FriendlyName;
 		if(args.Length < 3)
@@ -31,9 +29,23 @@ namespace Generate
 		    Environment.Exit(1);
 		}
 
+		const string slice2csName = "slice2cs";
 		string solDir = args[0];
 		string projDir = args[1];
 		string projName = args[2];
+		string iceHome = Environment.GetEnvironmentVariable("ICE_HOME");
+		if(iceHome == null)
+		{
+		    iceHome = Path.Combine(Path.Combine(solDir, ".."), "ice");
+		    if(!Directory.Exists(iceHome))
+		    {
+		        iceHome = Path.Combine(Path.Combine(Path.Combine(solDir, ".."), ".."), "ice");
+			if(!Directory.Exists(iceHome))
+			{
+			    iceHome = Path.Combine(solDir, "..");
+			}
+		    }
+		}
 
 		Directory.SetCurrentDirectory(projDir);
 
@@ -46,12 +58,9 @@ namespace Generate
 		{
 		    includes = "-I" + Path.Combine(solDir, "slice");
 		}
-		if(iceHome != null)
+		if(Directory.Exists(Path.Combine(iceHome, "slice")))
 		{
-		    if(Directory.Exists(Path.Combine(iceHome, "slice")))
-		    {
-			includes += " -I" + Path.Combine(iceHome, "slice");
-		    }
+		    includes += " -I" + Path.Combine(iceHome, "slice");
 		}
 
 		if(sliceFiles.Length == 0)
@@ -64,13 +73,10 @@ namespace Generate
 		}
 		if(sliceFiles.Length == 0)
 		{
-		    if(iceHome != null)
+		    sliceDir = Path.Combine(Path.Combine(iceHome, "slice"), projName);
+		    if(Directory.Exists(sliceDir))
 		    {
-			sliceDir = Path.Combine(Path.Combine(iceHome, "slice"), projName);
-			if(Directory.Exists(sliceDir))
-			{
-			    sliceFiles = Directory.GetFiles(sliceDir, slicePat);
-			}
+			sliceFiles = Directory.GetFiles(sliceDir, slicePat);
 		    }
 		}
 		if(sliceFiles.Length == 0)
