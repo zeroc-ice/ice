@@ -22,11 +22,8 @@ class CommunicatorI extends LocalObjectImpl implements Communicator
         if(!_destroyed) // Don't destroy twice.
         {
 	    _destroyed = true;
-
-            _instance.objectAdapterFactory().shutdown();
-            _instance.destroy();
-
 	    _serverThreadPool = null;
+	    _instance.destroy();
         }
     }
 
@@ -45,14 +42,23 @@ class CommunicatorI extends LocalObjectImpl implements Communicator
     public void
     waitForShutdown()
     {
-        //
-        // No mutex locking here, otherwise the communicator is blocked
-        // while waiting for shutdown.
-        //
-	if(_serverThreadPool != null)
+	IceInternal.ObjectAdapterFactory objectAdapterFactory;
+	
+	synchronized(this)
 	{
-	    _serverThreadPool.waitUntilFinished();
+	    if(_destroyed)
+	    {
+		throw new CommunicatorDestroyedException();
+	    }
+	    objectAdapterFactory = _instance.objectAdapterFactory();
 	}
+	
+	//
+	// We must call waitForShutdown on the object adapter factory
+	// outside the synchronization, otherwise the communicator is
+	// blocked while we wait for shutdown.
+	//
+	objectAdapterFactory.waitForShutdown();
     }
 
     public synchronized Ice.ObjectPrx
@@ -281,7 +287,7 @@ class CommunicatorI extends LocalObjectImpl implements Communicator
     // We need _serverThreadPool directly in CommunicatorI. That's
     // because the shutdown() operation is signal-safe, and thus must
     // not access any mutex locks or _instance. It may only access
-    // _serverThreadPool->initiateShutdown(), which is signal-safe as
+    // _serverThreadPool.initiateShutdown(), which is signal-safe as
     // well.
     //
     private IceInternal.ThreadPool _serverThreadPool;

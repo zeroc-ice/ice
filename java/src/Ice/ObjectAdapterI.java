@@ -19,18 +19,16 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public String
     getName()
     {
-        return _name; // _name is immutable
+	//
+        // No mutex lock necessary, _name is immutable.
+	//
+        return _name;
     }
 
     public synchronized Communicator
     getCommunicator()
     {
-	if(_instance == null)
-	{
-            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
-	    e.name = _name;
-	    throw e;
-	}
+	checkForDeactivation();
 	
 	return _communicator;
     }
@@ -38,13 +36,8 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized void
     activate()
     {
-        if(_instance == null)
-        {
-            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
-	    e.name = _name;
-	    throw e;
-        }
-
+	checkForDeactivation();
+	
 	if(!_printAdapterReadyDone)
 	{
 	    if(_locatorInfo != null && _id.length() > 0)
@@ -101,13 +94,8 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized void
     hold()
     {
-        if(_instance == null)
-        {
-            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
-	    e.name = _name;
-	    throw e;
-        }
-
+	checkForDeactivation();
+	
         final int sz = _incomingConnectionFactories.size();
         for(int i = 0; i < sz; ++i)
         {
@@ -120,72 +108,119 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized void
     waitForHold()
     {
-	// TODO: Not implemented yet.
+	checkForDeactivation();
+
+	final int sz = _incomingConnectionFactories.size();
+	for(int i = 0; i < sz; ++i)
+	{
+	    IceInternal.IncomingConnectionFactory factory =
+		(IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
+	    factory.waitUntilHolding();
+	}
     } 
 
-    public void
+    public synchronized void
     deactivate()
     {
-	synchronized(this)
+	//
+	// Ignore deactivation requests if the object adapter has
+	// already been deactivated.
+	//
+	if(_instance == null)
 	{
-	    if(_instance == null)
-	    {
-		//
-		// Ignore deactivation requests if the Object Adapter has
-		// already been deactivated.
-		//
-		return;
-	    }
-	    
-	    final int sz = _incomingConnectionFactories.size();
-	    for(int i = 0; i < sz; ++i)
-	    {
-		IceInternal.IncomingConnectionFactory factory =
-		    (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
-		factory.destroy();
-	    }
-	    _incomingConnectionFactories.clear();
-	    
-	    _instance.outgoingConnectionFactory().removeAdapter(this);
-	    
-	    _instance = null;
-	    _communicator = null;
+	    return;
 	}
-
-	decUsageCount();
+	
+	final int sz = _incomingConnectionFactories.size();
+	for(int i = 0; i < sz; ++i)
+	{
+	    IceInternal.IncomingConnectionFactory factory =
+		(IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
+	    factory.destroy();
+	}
+	
+	_instance.outgoingConnectionFactory().removeAdapter(this);
+	
+	_instance = null;
+	_communicator = null;
+	
+	notifyAll();
     }
 
     public synchronized void
     waitForDeactivate()
     {
-	assert(_usageCount >= 0);
-
-	while(_usageCount > 0)
+	//
+	// First we wait for deactivation of the adapter itself, and
+	// for the return of all direct method calls using this
+	// adapter.
+	//
+	while(_instance != null || _directCount > 0)
 	{
 	    try
 	    {
 		wait();
 	    }
-	    catch(java.lang.InterruptedException ex)
+	    catch(InterruptedException ex)
 	    {
 	    }
 	}
 
-	assert(_usageCount == 0);
+	//
+	// Now we wait for until all incoming connection factories are
+	// finished.
+	//
+	final int sz = _incomingConnectionFactories.size();
+	for(int i = 0; i < sz; ++i)
+	{
+	    IceInternal.IncomingConnectionFactory factory =
+		(IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
+	    factory.waitUntilFinished();
+	}
+
+	//
+	// We're done, now we can throw away all incoming connection
+	// factories.
+	//
+	_incomingConnectionFactories.clear();
+	
+	//
+	// Now it's also time to clean up the active servant map.
+	//
+	_activeServantMap.clear();
+	
+	//
+	// And the servant locators, too.
+	//
+	java.util.Iterator p = _locatorMap.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry e = (java.util.Map.Entry)p.next();
+	    ServantLocator locator = (ServantLocator)e.getValue();
+	    try
+	    {
+		locator.deactivate();
+	    }
+	    catch(RuntimeException ex)
+	    {
+		java.io.StringWriter sw = new java.io.StringWriter();
+		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		ex.printStackTrace(pw);
+		pw.flush();
+		String s = "exception during locator deactivation:\n" + "object adapter: `" + _name + "'\n" +
+		    "locator prefix: `" + e.getKey() + "'\n" + sw.toString();
+		_logger.error(s);
+	    }
+	}
+	_locatorMap.clear();
     }
 
     public synchronized ObjectPrx
     add(Ice.Object servant, Identity ident)
     {
-        if(_instance == null)
-        {
-            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
-	    e.name = _name;
-	    throw e;
-        }
-
-        checkIdentity(ident);
-
+	checkForDeactivation();
+	checkIdentity(ident);
+	
 	Ice.Object o = (Ice.Object)_activeServantMap.get(ident);
 	if(o != null)
 	{
@@ -210,12 +245,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized ObjectPrx
     addWithUUID(Ice.Object servant)
     {
-        if(_instance == null)
-        {
-            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
-	    e.name = _name;
-	    throw e;
-        }
+	checkForDeactivation();
 
         long now = System.currentTimeMillis();
         Identity ident = new Identity();
@@ -230,13 +260,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized void
     remove(Identity ident)
     {
-        if(_instance == null)
-        {
-            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
-	    e.name = _name;
-	    throw e;
-        }
-
+	checkForDeactivation();
         checkIdentity(ident);
 
 	Ice.Object o = (Ice.Object)_activeServantMap.get(ident);
@@ -254,12 +278,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized void
     addServantLocator(ServantLocator locator, String prefix)
     {
-        if(_instance == null)
-        {
-            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
-	    e.name = _name;
-	    throw e;
-        }
+	checkForDeactivation();
 
 	ServantLocator l = (ServantLocator)_locatorMap.get(prefix);
 	if(l != null)
@@ -276,12 +295,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized void
     removeServantLocator(String prefix)
     {
-        if(_instance == null)
-        {
-            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
-	    e.name = _name;
-	    throw e;
-        }
+	checkForDeactivation();
 
 	ServantLocator l = (ServantLocator)_locatorMap.get(prefix);
 	if(l == null)
@@ -302,20 +316,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized ServantLocator
     findServantLocator(String prefix)
     {
-	//
-	// Don't check whether deactivation has been initiated. This
-	// operation might be called (e.g., from Incoming or Direct)
-	// after deactivation has been initiated, but before
-	// deactivation has been completed.
-	//
-	/*
-        if(_instance == null)
-        {
-            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
-	    e.name = _name;
-	    throw e;
-        }
-	*/
+	checkForDeactivation();
 
         return (ServantLocator)_locatorMap.get(prefix);
     }
@@ -323,20 +324,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized Ice.Object
     identityToServant(Identity ident)
     {
-	//
-	// Don't check whether deactivation has been initiated. This
-	// operation might be called (e.g., from Incoming or Direct)
-	// after deactivation has been initiated, but before
-	// deactivation has been completed.
-	//
-	/*
-        if(_instance == null)
-        {
-            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
-	    e.name = _name;
-	    throw e;
-        }
-	*/
+	checkForDeactivation();
 
 	//
 	// Don't call checkIdentity. We simply want null to be
@@ -360,13 +348,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized ObjectPrx
     createProxy(Identity ident)
     {
-        if(_instance == null)
-        {
-            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
-	    e.name = _name;
-	    throw e;
-        }
-
+	checkForDeactivation();
         checkIdentity(ident);
 
         return newProxy(ident);
@@ -375,13 +357,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized ObjectPrx
     createDirectProxy(Identity ident)
     {
-        if(_instance == null)
-        {
-            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
-	    e.name = _name;
-	    throw e;
-        }
-
+	checkForDeactivation();
         checkIdentity(ident);
 
         return newDirectProxy(ident);
@@ -390,13 +366,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized ObjectPrx
     createReverseProxy(Identity ident)
     {
-        if(_instance == null)
-        {
-            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
-	    e.name = _name;
-	    throw e;
-        }
-
+	checkForDeactivation();
         checkIdentity(ident);
 
         //
@@ -413,12 +383,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized void
     addRouter(RouterPrx router)
     {
-        if(_instance == null)
-        {
-            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
-	    e.name = _name;
-	    throw e;
-        }
+	checkForDeactivation();
 
         IceInternal.RouterInfo routerInfo = _instance.routerManager().get(router);
         if(routerInfo != null)
@@ -463,12 +428,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized void
     setLocator(LocatorPrx locator)
     {
-	if(_instance == null)
-	{
-	    ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
-	    e.name = _name;
-	    throw e;
-	}
+	checkForDeactivation();
 
 	_locatorInfo = _instance.locatorManager().get(locator);
     }
@@ -476,10 +436,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized IceInternal.Connection[]
     getIncomingConnections()
     {
-	if(_instance == null)
-	{
-	    throw new ObjectAdapterDeactivatedException();
-	}
+	checkForDeactivation();
 
         java.util.ArrayList connections = new java.util.ArrayList();
         final int sz = _incomingConnectionFactories.size();
@@ -499,58 +456,28 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     }
 
     public synchronized void
-    incUsageCount()
+    incDirectCount()
     {
-	if(_instance == null)
-	{
-	    throw new ObjectAdapterDeactivatedException();
-	}
+	checkForDeactivation();
 
-	assert(_usageCount >= 0);
-	++_usageCount;
+	assert(_directCount >= 0);
+	++_directCount;
     }
 
     public synchronized void
-    decUsageCount()
+    decDirectCount()
     {
 	//
 	// The object adapter may already have been deactivated when
-	// the usage count is decremented, thus there is no check for
+	// the direct count is decremented, thus there is no check for
 	// prior deactivation.
 	//
 
-	assert(_usageCount > 0);
-	--_usageCount;
-
-	if(_usageCount == 0)
+	assert(_directCount > 0);
+	if(--_directCount == 0)
 	{
-	    _activeServantMap.clear();
-	    
-	    java.util.Iterator p = _locatorMap.entrySet().iterator();
-	    while(p.hasNext())
-	    {
-                java.util.Map.Entry e = (java.util.Map.Entry)p.next();
-		ServantLocator locator = (ServantLocator)e.getValue();
-                try
-                {
-                    locator.deactivate();
-                }
-                catch(RuntimeException ex)
-                {
-                    java.io.StringWriter sw = new java.io.StringWriter();
-                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                    ex.printStackTrace(pw);
-                    pw.flush();
-                    String s = "exception during locator deactivation:\n" + "object adapter: `" + _name + "'\n" +
-                        "locator prefix: `" + e.getKey() + "'\n" + sw.toString();
-                    _logger.error(s);
-                }
-	    }
-
-	    _locatorMap.clear();
-
 	    notifyAll();
-        }
+	}
     }
 
     //
@@ -565,7 +492,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
         _name = name;
 	_id = id;
         _logger = instance.logger();
-	_usageCount = 1;
+	_directCount = 0;
 	
 	String s = endpts.toLowerCase();
 
@@ -616,12 +543,18 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     finalize()
         throws Throwable
     {
-	assert(_usageCount == 0);
-
         if(_instance != null)
         {
-            _instance.logger().warning("object adapter has not been deactivated");
+            _instance.logger().warning("object adapter `" + _name + "' has not been deactivated");
         }
+	else
+	{
+	    assert(_communicator == null);
+	    assert(_incomingConnectionFactories.size() == 0);
+	    assert(_activeServantMap.size() == 0);
+	    assert(_locatorMap.size() == 0);
+	    assert(_directCount == 0);
+	}
 
         super.finalize();
     }
@@ -629,6 +562,8 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     private ObjectPrx
     newProxy(Identity ident)
     {
+	checkForDeactivation();
+
 	if(_id.length() == 0)
 	{
 	    return newDirectProxy(ident);
@@ -651,6 +586,8 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     private ObjectPrx
     newDirectProxy(Identity ident)
     {
+	checkForDeactivation();
+
         IceInternal.Endpoint[] endpoints =
             new IceInternal.Endpoint[_incomingConnectionFactories.size() + _routerEndpoints.size()];
 
@@ -687,32 +624,11 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
         return _instance.proxyFactory().referenceToProxy(reference);
     }
 
-    private static void
-    checkIdentity(Identity ident)
-    {
-        if(ident.name == null || ident.name.length() == 0)
-        {
-            IllegalIdentityException e = new IllegalIdentityException();
-            try
-            {
-                e.id = (Identity)ident.clone();
-            }
-            catch(CloneNotSupportedException ex)
-            {
-                assert(false);
-            }
-            throw e;
-        }
-
-        if(ident.category == null)
-        {
-            ident.category = "";
-        }
-    }
-
     public boolean
     isLocal(ObjectPrx proxy)
     {
+	checkForDeactivation();
+
         IceInternal.Reference ref = ((ObjectPrxHelper)proxy).__reference();
         final IceInternal.Endpoint[] endpoints = ref.endpoints;
 
@@ -771,6 +687,40 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
         return false;
     }
 
+    private void
+    checkForDeactivation()
+    {
+	if(_instance == null)
+	{
+            ObjectAdapterDeactivatedException ex = new ObjectAdapterDeactivatedException();
+	    ex.name = _name;
+	    throw ex;
+	}
+    }
+
+    private static void
+    checkIdentity(Identity ident)
+    {
+        if(ident.name == null || ident.name.length() == 0)
+        {
+            IllegalIdentityException e = new IllegalIdentityException();
+            try
+            {
+                e.id = (Identity)ident.clone();
+            }
+            catch(CloneNotSupportedException ex)
+            {
+                assert(false);
+            }
+            throw e;
+        }
+
+        if(ident.category == null)
+        {
+            ident.category = "";
+        }
+    }
+
     private IceInternal.Instance _instance;
     private Communicator _communicator;
     private boolean _printAdapterReadyDone;
@@ -782,5 +732,5 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     private java.util.ArrayList _incomingConnectionFactories = new java.util.ArrayList();
     private java.util.ArrayList _routerEndpoints = new java.util.ArrayList();
     private IceInternal.LocatorInfo _locatorInfo;
-    private int _usageCount;
+    private int _directCount;
 }

@@ -17,33 +17,16 @@ package IceInternal;
 public class Incoming
 {
     public
-    Incoming(Instance instance, Ice.ObjectAdapter adapter)
+    Incoming(Instance instance, Ice.ObjectAdapter adapter, Connection connection, boolean response)
     {
+        _current = new Ice.Current();
+        _current.id = new Ice.Identity();
+        _current.adapter = adapter;
+        _cookie = new Ice.LocalObjectHolder();
+	_connection = connection;
+	_response = response;
         _is = new BasicStream(instance);
         _os = new BasicStream(instance);
-        _current = new Ice.Current();
-        _current.adapter = adapter;
-        _current.id = new Ice.Identity();
-        _cookie = new Ice.LocalObjectHolder();
-
-	if(_current.adapter != null)
-	{
-	    ((Ice.ObjectAdapterI)(_current.adapter)).incUsageCount();
-	}
-    }
-
-    //
-    // Must be called immediately after this object is no longer
-    // needed, in order to update the object adapter usage count.
-    //
-    public void
-    finished()
-    {
-        if(_current.adapter != null)
-        {
-            ((Ice.ObjectAdapterI)(_current.adapter)).decUsageCount();
-            _current.adapter = null;
-        }
     }
 
     //
@@ -51,23 +34,20 @@ public class Incoming
     // reallocated.
     //
     public void
-    reset(Ice.ObjectAdapter adapter)
+    reset(Ice.ObjectAdapter adapter, Connection connection, boolean response)
     {
-        _is.reset();
-        _os.reset();
+        _current.adapter = adapter;
         if(_current.ctx != null)
         {
             _current.ctx.clear();
         }
-
-        //assert(_current.adapter == null); // finished() should have been called
-
-        _current.adapter = adapter;
-
-        if(_current.adapter != null)
-        {
-            ((Ice.ObjectAdapterI)(_current.adapter)).incUsageCount();
-        }
+	_servant = null;
+	_locator = null;
+        _cookie.value = null;
+	_connection = connection;
+	_response = response;
+        _is.reset();
+        _os.reset();
     }
 
     //
@@ -81,7 +61,7 @@ public class Incoming
     }
 
     public void
-    invoke(boolean response)
+    invoke()
     {
 	//
 	// Read the current.
@@ -104,16 +84,13 @@ public class Incoming
 
         _is.startReadEncaps();
 
-        if(response)
+        if(_response)
         {
             assert(_os.size() == Protocol.headerSize + 4); // Dispatch status position.
             _os.writeByte((byte)0);
             _os.startWriteEncaps();
         }
 
-        Ice.Object servant = null;
-        Ice.ServantLocator locator = null;
-        _cookie.value = null;
 	DispatchStatus status;
 	
 	//
@@ -126,28 +103,28 @@ public class Incoming
         {
 	    if(_current.adapter != null)
 	    {
-		servant = _current.adapter.identityToServant(_current.id);
+		_servant = _current.adapter.identityToServant(_current.id);
 		
-		if(servant == null && _current.id.category.length() > 0)
+		if(_servant == null && _current.id.category.length() > 0)
 		{
-		    locator = _current.adapter.findServantLocator(_current.id.category);
-		    if(locator != null)
+		    _locator = _current.adapter.findServantLocator(_current.id.category);
+		    if(_locator != null)
 		    {
-			servant = locator.locate(_current, _cookie);
+			_servant = _locator.locate(_current, _cookie);
 		    }
 		}
 		
-		if(servant == null)
+		if(_servant == null)
 		{
-		    locator = _current.adapter.findServantLocator("");
-		    if(locator != null)
+		    _locator = _current.adapter.findServantLocator("");
+		    if(_locator != null)
 		    {
-			servant = locator.locate(_current, _cookie);
+			_servant = _locator.locate(_current, _cookie);
 		    }
 		}
 	    }
 
-            if(servant == null)
+            if(_servant == null)
             {
                 status = DispatchStatus.DispatchObjectNotExist;
             }
@@ -155,7 +132,7 @@ public class Incoming
             {
                 if(_current.facet.length > 0)
                 {
-                    Ice.Object facetServant = servant.ice_findFacetPath(_current.facet, 0);
+                    Ice.Object facetServant = _servant.ice_findFacetPath(_current.facet, 0);
                     if(facetServant == null)
                     {
                         status = DispatchStatus.DispatchFacetNotExist;
@@ -167,19 +144,12 @@ public class Incoming
                 }
                 else
                 {
-                    status = servant.__dispatch(this, _current);
+                    status = _servant.__dispatch(this, _current);
                 }
             }
         }
         catch(Ice.RequestFailedException ex)
         {
-            if(locator != null && servant != null)
-            {
-                locator.finished(_current, servant, _cookie.value);
-            }
-
-            _is.endReadEncaps();
-
 	    if(ex.id == null)
 	    {
 		ex.id = _current.id;
@@ -195,7 +165,9 @@ public class Incoming
 		ex.operation = _current.operation;
 	    }
 
-            if(response)
+	    warning(ex);
+
+            if(_response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
@@ -220,19 +192,14 @@ public class Incoming
 		_os.writeString(ex.operation);
             }
 
-	    warning(ex);
+	    finishInvoke();
 	    return;
         }
         catch(Ice.LocalException ex)
         {
-            if(locator != null && servant != null)
-            {
-                locator.finished(_current, servant, _cookie.value);
-            }
+	    warning(ex);
 
-            _is.endReadEncaps();
-
-            if(response)
+            if(_response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
@@ -240,7 +207,7 @@ public class Incoming
 		_os.writeString(ex.toString());
             }
 
-	    warning(ex);
+	    finishInvoke();
 	    return;
         }
         /* Not possible in Java - UserExceptions are checked exceptions
@@ -251,14 +218,9 @@ public class Incoming
 	*/
         catch(RuntimeException ex)
         {
-            if(locator != null && servant != null)
-            {
-                locator.finished(_current, servant, _cookie.value);
-            }
+	    warning(ex);
 
-            _is.endReadEncaps();
-
-            if(response)
+            if(_response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
@@ -266,18 +228,17 @@ public class Incoming
 		_os.writeString(ex.toString());
             }
 	    
-	    warning(ex);
+	    finishInvoke();
 	    return;
         }
 	
-	if(locator != null && servant != null)
-	{
-	    locator.finished(_current, servant, _cookie.value);
-	}
-	
-	_is.endReadEncaps();
+	//
+	// Don't put the code below into the try block above. Exceptions
+	// in the code below are considered fatal, and must propagate to
+	// the caller of this operation.
+	//
 
-	if(response)
+	if(_response)
 	{
 	    _os.endWriteEncaps();
 	    
@@ -302,6 +263,8 @@ public class Incoming
 		_os.pos(save);
 	    }
 	}
+
+	finishInvoke();
     }
 
     public BasicStream
@@ -314,6 +277,31 @@ public class Incoming
     os()
     {
         return _os;
+    }
+
+    private void
+    finishInvoke()
+    {
+	if(_locator != null && _servant != null)
+	{
+	    _locator.finished(_current, _servant, _cookie.value);
+	}
+	
+	_is.endReadEncaps();
+	
+	//
+	// Send a response if necessary. If we don't need to send a
+	// response, we still need to tell the connection that we're
+	// finished with dispatching.
+	//
+	if(_response)
+	{
+	    _connection.sendResponse(_os);
+	}
+	else
+	{
+	    _connection.sendNoResponse();
+	}
     }
 
     private void
@@ -356,10 +344,16 @@ public class Incoming
 	}
     }
 
-    private BasicStream _is;
-    private BasicStream _os;
     private Ice.Current _current;
+    private Ice.Object _servant;
+    private Ice.ServantLocator _locator;
     private Ice.LocalObjectHolder _cookie;
 
-    Incoming next; // For use by Connection
+    private Connection _connection;
+    private boolean _response;
+
+    private BasicStream _is;
+    private BasicStream _os;
+
+    Incoming next; // For use by Connection.
 }

@@ -164,7 +164,7 @@ public class _ObjectDelM implements _ObjectDel
 
         __reference = from.__reference;
         __connection = from.__connection;
-	__connection.incUsageCount();
+	__connection.incProxyCount();
     }
 
     protected IceInternal.Connection __connection;
@@ -212,7 +212,7 @@ public class _ObjectDelM implements _ObjectDel
             }
             assert(j < connections.length);
             __connection = connections[j];
-	    __connection.incUsageCount();
+	    __connection.incProxyCount();
         }
         else
         {
@@ -257,7 +257,7 @@ public class _ObjectDelM implements _ObjectDel
 		    IceInternal.OutgoingConnectionFactory factory = __reference.instance.outgoingConnectionFactory();
 		    __connection = factory.create(filteredEndpoints);
 		    assert(__connection != null);
-		    __connection.incUsageCount();
+		    __connection.incProxyCount();
 		}
 		catch (LocalException ex)
 		{
@@ -453,7 +453,7 @@ public class _ObjectDelM implements _ObjectDel
     {
 	if(__connection != null)
 	{
-	    __connection.decUsageCount();
+	    __connection.decProxyCount();
 	}
 	
         while(__outgoingCache != null)

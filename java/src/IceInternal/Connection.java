@@ -16,160 +16,173 @@ package IceInternal;
 
 public final class Connection extends EventHandler
 {
-    public boolean
-    destroyed()
-    {
-        _mutex.lock();
-        try
-        {
-            return _state >= StateClosing;
-        }
-        finally
-        {
-            _mutex.unlock();
-        }
-    }
-
-    public void
-    validate()
-    {
-        _mutex.lock();
-        try
-        {
-	    if(_endpoint.datagram())
-	    {
-		//
-		// Datagram connections are always implicitly validated.
-		//
-		return;
-	    }
-
-	    try
-	    {
-		if(_adapter != null)
-		{
-		    //
-		    // Incoming connections play the active role with
-		    // respect to connection validation.
-		    //
-		    BasicStream os = new BasicStream(_instance);
-		    os.writeByte(Protocol.protocolVersion);
-		    os.writeByte(Protocol.encodingVersion);
-		    os.writeByte(Protocol.validateConnectionMsg);
-		    os.writeInt(Protocol.headerSize); // Message size.
-		    TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
-		    _transceiver.write(os, _endpoint.timeout());
-		}
-		else
-		{
-		    //
-		    // Outgoing connection play the passive role with
-		    // respect to connection validation.
-		    //
-		    BasicStream is = new BasicStream(_instance);
-		    is.resize(Protocol.headerSize, true);
-		    is.pos(0);
-		    _transceiver.read(is, _endpoint.timeout());
-		    int pos = is.pos();
-		    assert(pos >= Protocol.headerSize);
-		    is.pos(0);
-		    byte protVer = is.readByte();
-		    if(protVer != Protocol.protocolVersion)
-		    {
-			throw new Ice.UnsupportedProtocolException();
-		    }
-		    byte encVer = is.readByte();
-		    if(encVer != Protocol.encodingVersion)
-		    {
-			throw new Ice.UnsupportedEncodingException();
-		    }
-		    byte messageType = is.readByte();
-		    if(messageType != Protocol.validateConnectionMsg)
-		    {
-			throw new Ice.ConnectionNotValidatedException();
-		    }
-		    int size = is.readInt();
-		    if(size != Protocol.headerSize)
-		    {
-			throw new Ice.IllegalMessageSizeException();
-		    }
-		    TraceUtil.traceHeader("received validate connection", is, _logger, _traceLevels);
-		}
-	    }
-            catch(Ice.LocalException ex)
-            {
-                setState(StateClosed, ex);
-		assert(_exception != null);
-		throw _exception;
-            }
-	}
-        finally
-        {
-            _mutex.unlock();
-        }
-    }
-
-    public void
-    hold()
-    {
-        _mutex.lock();
-        try
-        {
-            setState(StateHolding);
-        }
-        finally
-        {
-            _mutex.unlock();
-        }
-    }
-
-    public void
+    public synchronized void
     activate()
     {
-        _mutex.lock();
-        try
-        {
-            setState(StateActive);
-        }
-        finally
-        {
-            _mutex.unlock();
-        }
+	setState(StateActive);
     }
 
-    public void
-    incUsageCount()
+    public synchronized void
+    hold()
     {
-	_mutex.lock();
-        try
-        {
-	    assert(_usageCount >= 0);
-	    ++_usageCount;
-	}
-        finally
-        {
-            _mutex.unlock();
-        }
+	setState(StateHolding);
     }
 
-    public void
-    decUsageCount()
+    // DestructionReason
+    public final static int ObjectAdapterDeactivated = 0;
+    public final static int CommunicatorDestroyed = 1;
+
+    public synchronized void
+    destroy(int reason)
     {
-	_mutex.lock();
-        try
-        {
-            assert(_usageCount > 0);
-	    --_usageCount;
-	    if(_usageCount == 0 && _adapter == null)
+	_batchStream.destroy();
+	
+	switch(reason)
+	{
+	    case ObjectAdapterDeactivated:
 	    {
-		assert(_requests.isEmpty());
-		setState(StateClosing, new Ice.CloseConnectionException());
+		setState(StateClosing, new Ice.ObjectAdapterDeactivatedException());
+		break;
+	    }
+	    
+	    case CommunicatorDestroyed:
+	    {
+		setState(StateClosing, new Ice.CommunicatorDestroyedException());
+		break;
 	    }
 	}
-        finally
-        {
-            _mutex.unlock();
+    }
+
+    public synchronized boolean
+    isDestroyed()
+    {
+	return _state >= StateClosing;
+    }
+
+    public synchronized boolean
+    isFinished()
+    {
+	return _transceiver == null;
+    }
+
+    public synchronized void
+    waitUntilHolding()
+    {
+	while(_state < StateHolding || _dispatchCount > 0)
+	{
+	    try
+	    {
+		wait();
+	    }
+	    catch(InterruptedException ex)
+	    {
+	    }
         }
+    }
+
+    public synchronized void
+    waitUntilFinished()
+    {
+	while(_transceiver != null)
+	{
+	    try
+	    {
+		wait();
+	    }
+	    catch(InterruptedException ex)
+	    {
+	    }
+	}
+    }
+
+    public synchronized void
+    validate()
+    {
+	if(_endpoint.datagram())
+	{
+	    //
+	    // Datagram connections are always implicitly validated.
+	    //
+	    return;
+	}
+	
+	try
+	{
+	    if(_adapter != null)
+	    {
+		//
+		// Incoming connections play the active role with
+		// respect to connection validation.
+		//
+		BasicStream os = new BasicStream(_instance);
+		os.writeByte(Protocol.protocolVersion);
+		os.writeByte(Protocol.encodingVersion);
+		os.writeByte(Protocol.validateConnectionMsg);
+		os.writeInt(Protocol.headerSize); // Message size.
+		TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
+		_transceiver.write(os, _endpoint.timeout());
+	    }
+	    else
+	    {
+		//
+		// Outgoing connection play the passive role with
+		// respect to connection validation.
+		//
+		BasicStream is = new BasicStream(_instance);
+		is.resize(Protocol.headerSize, true);
+		is.pos(0);
+		_transceiver.read(is, _endpoint.timeout());
+		int pos = is.pos();
+		assert(pos >= Protocol.headerSize);
+		is.pos(0);
+		byte protVer = is.readByte();
+		if(protVer != Protocol.protocolVersion)
+		{
+		    throw new Ice.UnsupportedProtocolException();
+		}
+		byte encVer = is.readByte();
+		if(encVer != Protocol.encodingVersion)
+		{
+		    throw new Ice.UnsupportedEncodingException();
+		}
+		byte messageType = is.readByte();
+		if(messageType != Protocol.validateConnectionMsg)
+		{
+		    throw new Ice.ConnectionNotValidatedException();
+		}
+		int size = is.readInt();
+		if(size != Protocol.headerSize)
+		{
+		    throw new Ice.IllegalMessageSizeException();
+		}
+		TraceUtil.traceHeader("received validate connection", is, _logger, _traceLevels);
+	    }
+	}
+	catch(Ice.LocalException ex)
+	{
+	    setState(StateClosed, ex);
+	    assert(_exception != null);
+	    throw _exception;
+	}
+    }
+
+    public synchronized void
+    incProxyCount()
+    {
+	assert(_proxyCount >= 0);
+	++_proxyCount;
+    }
+
+    public synchronized void
+    decProxyCount()
+    {
+	assert(_proxyCount > 0);
+	--_proxyCount;
+	if(_proxyCount == 0 && _adapter == null)
+	{
+	    assert(_requests.isEmpty());
+	    setState(StateClosing, new Ice.CloseConnectionException());
+	}
     }
 
     private final static byte[] _requestHdr =
@@ -187,62 +200,58 @@ public final class Connection extends EventHandler
         os.writeBlob(_requestHdr);
     }
 
-    public void
+    public synchronized void
     sendRequest(Outgoing out, boolean oneway)
     {
-        _mutex.lock();
-        try
-        {
-            if(_exception != null)
-            {
-                throw _exception;
-            }
-            assert(_state < StateClosing);
-
-            int requestId = 0;
-
-            try
-            {
-                BasicStream os = out.os();
-                os.pos(3);
-
-                //
-                // Fill in the message size and request ID.
-                //
-                os.writeInt(os.size());
-                if(!_endpoint.datagram() && !oneway)
-                {
-                    requestId = _nextRequestId++;
-                    if(requestId <= 0)
-                    {
-                        _nextRequestId = 1;
-                        requestId = _nextRequestId++;
-                    }
-                    os.writeInt(requestId);
-                }
-                TraceUtil.traceRequest("sending request", os, _logger, _traceLevels);
-                _transceiver.write(os, _endpoint.timeout());
-            }
-            catch(Ice.LocalException ex)
-            {
-                setState(StateClosed, ex);
-		assert(_exception != null);
-		throw _exception;
-            }
-
-            //
-            // Only add to the request map if there was no exception, and if
-            // the operation is not oneway.
-            //
-            if(!_endpoint.datagram() && !oneway)
-            {
-                _requests.put(requestId, out);
-            }
-        }
-        finally
-        {
-            _mutex.unlock();
-        }
+	if(_exception != null)
+	{
+	    throw _exception;
+	}
+	assert(_state < StateClosing);
+	
+	int requestId = 0;
+	
+	try
+	{
+	    BasicStream os = out.os();
+	    os.pos(3);
+	    
+	    //
+	    // Fill in the message size and request ID.
+	    //
+	    os.writeInt(os.size());
+	    if(!_endpoint.datagram() && !oneway)
+	    {
+		requestId = _nextRequestId++;
+		if(requestId <= 0)
+		{
+		    _nextRequestId = 1;
+		    requestId = _nextRequestId++;
+		}
+		os.writeInt(requestId);
+	    }
+	    
+	    //
+	    // Send the request.
+	    //
+	    TraceUtil.traceRequest("sending request", os, _logger, _traceLevels);
+	    _transceiver.write(os, _endpoint.timeout());
+	}
+	catch(Ice.LocalException ex)
+	{
+	    setState(StateClosed, ex);
+	    assert(_exception != null);
+	    throw _exception;
+	}
+	
+	//
+	// Only add to the request map if there was no exception, and if
+	// the operation is not oneway.
+	//
+	if(!_endpoint.datagram() && !oneway)
+	{
+	    _requests.put(requestId, out);
+	}
     }
 
     private final static byte[] _requestBatchHdr =
@@ -253,14 +262,22 @@ public final class Connection extends EventHandler
         (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder).
     };
 
-    public void
+    public synchronized void
     prepareBatchRequest(BasicStream os)
     {
-        _mutex.lock();
+	while(_batchStreamInUse && _exception == null)
+	{
+	    try
+	    {
+		wait();
+	    }
+	    catch(InterruptedException ex)
+	    {
+	    }
+	}
 
         if(_exception != null)
         {
-            _mutex.unlock();
             throw _exception;
         }
         assert(_state < StateClosing);
@@ -277,77 +294,165 @@ public final class Connection extends EventHandler
 
         //
         // Give the batch stream to caller, until finishBatchRequest()
-        // is called.
+        // or abortBatchRequest() is called.
         //
-        _batchStream.swap(os);
+        _batchStreamInUse = true;
     }
 
-    public void
+    public synchronized void
     finishBatchRequest(BasicStream os)
     {
+	assert(_batchStreamInUse);
+
         if(_exception != null)
         {
-            _mutex.unlock();
             throw _exception;
         }
         assert(_state < StateClosing);
 
         _batchStream.swap(os); // Get the batch stream back.
-        _mutex.unlock(); // Give the Connection back.
+	++_batchRequestNum; // Increment the number of requests in the batch.
+
+	//
+	// Give the Connection back.
+	//
+        _batchStreamInUse = false;
+	notifyAll();
     }
 
-    public void
+    public synchronized void
     abortBatchRequest()
     {
+	assert(_batchStreamInUse);
+
         setState(StateClosed, new Ice.AbortBatchRequestException());
-        _mutex.unlock(); // Give the Connection back.
+
+	//
+	// Give the Connection back.
+	//
+        _batchStreamInUse = false;
+	notifyAll();
     }
 
-    public void
+    public synchronized void
     flushBatchRequest()
     {
-        _mutex.lock();
-        try
-        {
-            if(_exception != null)
-            {
-                throw _exception;
-            }
-            assert(_state < StateClosing);
+	while(_batchStreamInUse && _exception == null)
+	{
+	    try
+	    {
+		wait();
+	    }
+	    catch(InterruptedException ex)
+	    {
+	    }
+	}
 
-            try
-            {
-                if(_batchStream.size() == 0)
-                {
-                    return; // Nothing to send.
-                }
+	if(_exception != null)
+	{
+	    throw _exception;
+	}
+	assert(_state < StateClosing);
+	
+	try
+	{
+	    if(_batchStream.size() == 0)
+	    {
+		return; // Nothing to send.
+	    }
+	    
+	    _batchStream.pos(3);
+	    
+	    //
+	    // Fill in the message size the number of requests in the batch.
+	    //
+	    _batchStream.writeInt(_batchStream.size());
+	    _batchStream.writeInt(_batchRequestNum);
+	    
+	    //
+	    // Send the batch request.
+	    //
+	    TraceUtil.traceBatchRequest("sending batch request", _batchStream, _logger, _traceLevels);
+	    _transceiver.write(_batchStream, _endpoint.timeout());
+	    
+	    //
+	    // Reset _batchStream so that new batch messages can be sent.
+	    //
+	    _batchStream.destroy();
+	    _batchStream = new BasicStream(_instance);
+	    _batchRequestNum = 0;
+	}
+	catch(Ice.LocalException ex)
+	{
+	    setState(StateClosed, ex);
+	    assert(_exception != null);
+	    throw _exception;
+	}
+    }
 
-                _batchStream.pos(3);
+    public synchronized void
+    sendResponse(BasicStream os)
+    {
+	try
+	{
+	    if(_state == StateClosed)
+	    {
+		return;
+	    }
+	    
+	    //
+	    // Fill in the message size.
+	    //
+	    os.pos(3);
+	    final int sz = os.size();
+	    os.writeInt(sz);
+	    
+	    //
+	    // Send the reply.
+	    //
+	    TraceUtil.traceReply("sending reply", os, _logger, _traceLevels);
+	    _transceiver.write(os, _endpoint.timeout());
+	    
+	    if(--_dispatchCount == 0)
+	    {
+		notifyAll();
+	    }
+	    
+	    if(_state == StateClosing && _dispatchCount == 0)
+	    {
+		initiateShutdown();
+	    }
+	}
+	catch(Ice.LocalException ex)
+	{
+	    setState(StateClosed, ex);
+	}
+    }
 
-                //
-                // Fill in the message size.
-                //
-                _batchStream.writeInt(_batchStream.size());
-                TraceUtil.traceBatchRequest("sending batch request", _batchStream, _logger, _traceLevels);
-                _transceiver.write(_batchStream, _endpoint.timeout());
-
-                //
-                // Reset _batchStream so that new batch messages can be sent.
-                //
-                _batchStream.destroy();
-                _batchStream = new BasicStream(_instance);
-            }
-            catch(Ice.LocalException ex)
-            {
-                setState(StateClosed, ex);
-		assert(_exception != null);
-		throw _exception;
-            }
-        }
-        finally
-        {
-            _mutex.unlock();
-        }
+    public synchronized void
+    sendNoResponse()
+    {
+	try
+	{
+	    if(_state == StateClosed)
+	    {
+		return;
+	    }
+	    
+	    if(--_dispatchCount == 0)
+	    {
+		notifyAll();
+	    }
+	    
+	    if(_state == StateClosing && _dispatchCount == 0)
+	    {
+		initiateShutdown();
+	    }
+	}
+	catch(Ice.LocalException ex)
+	{
+	    setState(StateClosed, ex);
+	}
     }
 
     public int
@@ -364,56 +469,40 @@ public final class Connection extends EventHandler
         return _endpoint;
     }
 
-    public void
+    public synchronized void
     setAdapter(Ice.ObjectAdapter adapter)
     {
-        _mutex.lock();
-        try
-        {
-            //
-            // We are registered with a thread pool in active and closing
-            // mode. However, we only change subscription if we're in active
-            // mode, and thus ignore closing mode here.
-            //
-            if(_state == StateActive)
-            {
-                if(adapter != null && _adapter == null)
-                {
-                    //
-                    // Client is now server.
-                    //
-                    unregisterWithPool();
-                }
-                
-                if(adapter == null && _adapter != null)
-                {
-                    //
-                    // Server is now client.
-                    //
-                    unregisterWithPool();
-                }
-            }
-
-            _adapter = adapter;
-        }
-        finally
-        {
-            _mutex.unlock();
-        }
+	//
+	// We are registered with a thread pool in active and closing
+	// mode. However, we only change subscription if we're in active
+	// mode, and thus ignore closing mode here.
+	//
+	if(_state == StateActive)
+	{
+	    if(adapter != null && _adapter == null)
+	    {
+		//
+		// Client is now server.
+		//
+		unregisterWithPool();
+	    }
+	    
+	    if(adapter == null && _adapter != null)
+	    {
+		//
+		// Server is now client.
+		//
+		unregisterWithPool();
+	    }
+	}
+	
+	_adapter = adapter;
     }
 
-    public Ice.ObjectAdapter
+    public synchronized Ice.ObjectAdapter
     getAdapter()
     {
-        _mutex.lock();
-        try
-        {
-            return _adapter;
-        }
-        finally
-        {
-            _mutex.unlock();
-        }
+	return _adapter;
     }
 
     //
@@ -442,11 +531,10 @@ public final class Connection extends EventHandler
     public void
     message(BasicStream stream, ThreadPool threadPool)
     {
-        Incoming in = null;
-        boolean batch = false;
+	int invoke = 0;
+	int requestId = 0;
 
-        _mutex.lock();
-        try
+        synchronized(this)
         {
             threadPool.promoteFollower();
 
@@ -483,7 +571,9 @@ public final class Connection extends EventHandler
                         else
                         {
                             TraceUtil.traceRequest("received request", stream, _logger, _traceLevels);
-                            in = getIncoming();
+			    requestId = stream.readInt();
+			    invoke = 1;
+			    ++_dispatchCount;
                         }
                         break;
                     }
@@ -499,8 +589,12 @@ public final class Connection extends EventHandler
                         else
                         {
                             TraceUtil.traceBatchRequest("received batch request", stream, _logger, _traceLevels);
-                            in = getIncoming();
-                            batch = true;
+			    invoke = stream.readInt();
+			    if(invoke < 0)
+			    {
+				throw new Ice.NegativeSizeException();
+			    }
+			    _dispatchCount += invoke;
                         }
                         break;
                     }
@@ -508,7 +602,7 @@ public final class Connection extends EventHandler
                     case Protocol.replyMsg:
                     {
                         TraceUtil.traceReply("received reply", stream, _logger, _traceLevels);
-                        int requestId = stream.readInt();
+                        requestId = stream.readInt();
                         Outgoing out = (Outgoing)_requests.remove(requestId);
                         if(out == null)
                         {
@@ -562,111 +656,58 @@ public final class Connection extends EventHandler
                 return;
             }
         }
-        finally
-        {
-            _mutex.unlock();
-        }
 
         //
         // Method invocation must be done outside the thread
         // synchronization, so that nested calls are possible.
         //
-        if(in != null)
+        if(invoke > 0)
         {
+	    Incoming in = null;
+
             try
             {
 		//
 		// Prepare the invocation.
 		//
+		boolean response = !_endpoint.datagram() && requestId != 0;
+		in = getIncoming(response);
                 BasicStream is = in.is();
                 stream.swap(is);
-                BasicStream os = null;
+		BasicStream os = in.os();
 
                 try
                 {
 		    //
 		    // Prepare the response if necessary.
 		    //
-                    if(!batch)
+                    if(response)
                     {
-                        int requestId = is.readInt();
-                        if(!_endpoint.datagram() && requestId != 0) // 0 means oneway.
-                        {
-                            ++_responseCount;
-			    os = in.os();
-                            os.writeBlob(_replyHdr);
-                            os.writeInt(requestId);
-                        }
+			assert(invoke == 1);
+			os.writeBlob(_replyHdr);
+
+			//
+			// Fill in the request ID.
+			//
+			os.writeInt(requestId);
                     }
 		    
 		    //
-		    // Do the invocation, or multiple invocations for
-		    // batch messages.
+		    // Do the invocation, or multiple invocations for batch
+		    // messages.
 		    //
-                    do
+		    while(invoke-- > 0)
                     {
-			in.invoke(os != null);
+			in.invoke();
                     }
-                    while(batch && is.pos() < is.size());
                 }
                 catch(Ice.LocalException ex)
                 {
-                    reclaimIncoming(in); // Must be called outside of synchronization on _mutex.
+                    reclaimIncoming(in); // Must be called outside the synchronization.
                     in = null;
-                    _mutex.lock();
-                    try
+                    synchronized(this)
                     {
                         setState(StateClosed, ex);
-                        return;
-                    }
-                    finally
-                    {
-                        _mutex.unlock();
-                    }
-                }
-
-		//
-		// Send a response if necessary.
-		//
-                if(os != null)
-                {
-                    _mutex.lock();
-
-                    try
-                    {
-                        try
-                        {
-                            if(_state == StateClosed)
-                            {
-                                return;
-                            }
-
-                            //
-                            // Fill in the message size.
-                            //
-                            os.pos(3);
-                            final int sz = os.size();
-                            os.writeInt(sz);
-
-                            TraceUtil.traceReply("sending reply", os, _logger, _traceLevels);
-                            _transceiver.write(os, _endpoint.timeout());
-
-                            --_responseCount;
-
-                            if(_state == StateClosing && _responseCount == 0)
-                            {
-                                initiateShutdown();
-                            }
-                        }
-                        catch(Ice.LocalException ex)
-                        {
-                            setState(StateClosed, ex);
-                            return;
-                        }
-                    }
-                    finally
-                    {
-                        _mutex.unlock();
                     }
                 }
             }
@@ -674,52 +715,39 @@ public final class Connection extends EventHandler
             {
                 if(in != null)
                 {
-                    reclaimIncoming(in); // Must be called outside of synchronization on _mutex.
+                    reclaimIncoming(in); // Must be called outside the synchronization.
                 }
             }
         }
     }
 
-    public void
+    public synchronized void
     finished(ThreadPool threadPool)
     {
-        _mutex.lock();
-        try
-        {
-            threadPool.promoteFollower();
-
-            if(_state == StateActive || _state == StateClosing)
-            {
-                registerWithPool();
-            }
-            else if(_state == StateClosed)
-            {
-                _transceiver.close();
-            }
-        }
-        finally
-        {
-            _mutex.unlock();
-        }
+	threadPool.promoteFollower();
+	
+	if(_state == StateActive || _state == StateClosing)
+	{
+	    registerWithPool();
+	}
+	else if(_state == StateClosed)
+	{
+	    _transceiver.close();
+	    _transceiver = null;
+	    notifyAll();
+	}
     }
 
-    public void
+    public synchronized void
     exception(Ice.LocalException ex)
     {
-        _mutex.lock();
-        try
-        {
-            setState(StateClosed, ex);
-        }
-        finally
-        {
-            _mutex.unlock();
-        }
+	setState(StateClosed, ex);
     }
 
-    public String
+    public synchronized String
     toString()
     {
+	assert(_transceiver != null);
 	return _transceiver.toString();
     }
 
@@ -731,21 +759,25 @@ public final class Connection extends EventHandler
         _adapter = adapter;
         _logger = instance.logger();
         _traceLevels = instance.traceLevels();
+	_registeredWithPool = false;
 	_warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
         _nextRequestId = 1;
         _batchStream = new BasicStream(instance);
-        _responseCount = 0;
-	_usageCount = 0;
+	_batchStreamInUse = false;
+	_batchRequestNum = 0;
+        _dispatchCount = 0;
+	_proxyCount = 0;
         _state = StateHolding;
-	_registeredWithPool = false;
     }
 
     protected void
     finalize()
         throws Throwable
     {
-	assert(_usageCount == 0);
         assert(_state == StateClosed);
+	assert(_transceiver == null);
+	assert(_dispatchCount == 0);
+	assert(_proxyCount == 0);
         assert(_incomingCache == null);
 
         //
@@ -755,39 +787,6 @@ public final class Connection extends EventHandler
         super._stream.destroy();
 
         super.finalize();
-    }
-
-    // DestructionReason
-    public final static int ObjectAdapterDeactivated = 0;
-    public final static int CommunicatorDestroyed = 1;
-
-    public void
-    destroy(int reason)
-    {
-        _mutex.lock();
-        try
-        {
-            _batchStream.destroy();
-
-            switch(reason)
-            {
-                case ObjectAdapterDeactivated:
-                {
-                    setState(StateClosing, new Ice.ObjectAdapterDeactivatedException());
-                    break;
-                }
-
-                case CommunicatorDestroyed:
-                {
-                    setState(StateClosing, new Ice.CommunicatorDestroyedException());
-                    break;
-                }
-            }
-        }
-        finally
-        {
-            _mutex.unlock();
-        }
     }
 
     private static final int StateActive = 0;
@@ -902,13 +901,15 @@ public final class Connection extends EventHandler
                 }
                 unregisterWithPool();
                 destroyIncomingCache();
+		_dispatchCount = 0;
                 break;
             }
         }
 
         _state = state;
+	notifyAll();
 
-        if(_state == StateClosing && _responseCount == 0)
+        if(_state == StateClosing && _dispatchCount == 0)
         {
             try
             {
@@ -925,7 +926,7 @@ public final class Connection extends EventHandler
     initiateShutdown()
     {
 	assert(_state == StateClosing);
-	assert(_responseCount == 0);
+	assert(_dispatchCount == 0);
 
 	if(!_endpoint.datagram())
 	{
@@ -1013,7 +1014,7 @@ public final class Connection extends EventHandler
     }
 
     private Incoming
-    getIncoming()
+    getIncoming(boolean response)
     {
         Incoming in = null;
 
@@ -1021,14 +1022,14 @@ public final class Connection extends EventHandler
         {
             if(_incomingCache == null)
             {
-                in = new Incoming(_instance, _adapter);
+                in = new Incoming(_instance, _adapter, this, response);
             }
             else
             {
                 in = _incomingCache;
                 _incomingCache = _incomingCache.next;
                 in.next = null;
-                in.reset(_adapter);
+                in.reset(_adapter, this, response);
             }
         }
 
@@ -1038,8 +1039,6 @@ public final class Connection extends EventHandler
     private void
     reclaimIncoming(Incoming in)
     {
-        in.finished();
-
         synchronized(_incomingCacheMutex)
         {
             in.next = _incomingCache;
@@ -1065,23 +1064,34 @@ public final class Connection extends EventHandler
         }
     }
 
-    private final Transceiver _transceiver;
+    private Transceiver _transceiver;
     private final Endpoint _endpoint;
+
     private Ice.ObjectAdapter _adapter;
+
     private final Ice.Logger _logger;
     private final TraceLevels _traceLevels;
+
     private ThreadPool _clientThreadPool;
     private ThreadPool _serverThreadPool;
+    private boolean _registeredWithPool;
+
     private final boolean _warn;
+
     private int _nextRequestId;
     private IntMap _requests = new IntMap();
+
     private Ice.LocalException _exception;
+
     private BasicStream _batchStream;
-    private int _responseCount;
-    private int _usageCount;
+    private boolean _batchStreamInUse;
+    private int _batchRequestNum;
+
+    private int _dispatchCount; // The number of requests currently being dispatched.
+    private int _proxyCount; // The number of proxies using this connection.
+
     private int _state;
-    private boolean _registeredWithPool;
-    private RecursiveMutex _mutex = new RecursiveMutex();
+
     private Incoming _incomingCache;
     private java.lang.Object _incomingCacheMutex = new java.lang.Object();
 }

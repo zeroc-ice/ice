@@ -21,10 +21,10 @@ public final class Direct
     {
         _current = current;
 
+	((Ice.ObjectAdapterI)(_current.adapter)).incDirectCount();
+
         try
         {
-	    ((Ice.ObjectAdapterI)(_current.adapter)).incUsageCount();
-
 	    _servant = _current.adapter.identityToServant(_current.id);
 	    
 	    if(_servant == null && _current.id.category.length() > 0)
@@ -32,7 +32,7 @@ public final class Direct
 		_locator = _current.adapter.findServantLocator(_current.id.category);
 		if(_locator != null)
 		{
-		    _cookie = new Ice.LocalObjectHolder(); // Lazy creation
+		    _cookie = new Ice.LocalObjectHolder(); // Lazy creation.
 		    _servant = _locator.locate(_current, _cookie);
 		}
 	    }
@@ -42,7 +42,7 @@ public final class Direct
 		_locator = _current.adapter.findServantLocator("");
 		if(_locator != null)
 		{
-		    _cookie = new Ice.LocalObjectHolder(); // Lazy creation
+		    _cookie = new Ice.LocalObjectHolder(); // Lazy creation.
 		    _servant = _locator.locate(_current, _cookie);
 		}
 	    }
@@ -81,7 +81,7 @@ public final class Direct
 	    }
 	    finally
 	    {
-		((Ice.ObjectAdapterI)(_current.adapter)).decUsageCount();
+		((Ice.ObjectAdapterI)(_current.adapter)).decDirectCount();
 	    }
         }
     }
@@ -98,7 +98,7 @@ public final class Direct
 	}
 	finally
 	{
-	    ((Ice.ObjectAdapterI)(_current.adapter)).decUsageCount();
+	    ((Ice.ObjectAdapterI)(_current.adapter)).decDirectCount();
 	}
     }
 
@@ -115,7 +115,7 @@ public final class Direct
         }
     }
 
-    private Ice.Current _current;
+    private final Ice.Current _current;
     private Ice.Object _servant;
     private Ice.Object _facetServant;
     private Ice.ServantLocator _locator;

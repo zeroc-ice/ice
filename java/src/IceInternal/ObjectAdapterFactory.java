@@ -19,6 +19,15 @@ public final class ObjectAdapterFactory
     public synchronized void
     shutdown()
     {
+	//
+	// Ignore shutdown requests if the object adapter factory has
+	// already been shut down.
+	//
+	if(_instance == null)
+	{
+	    return;
+	}
+
         java.util.Iterator i = _adapters.values().iterator();
         while(i.hasNext())
         {
@@ -26,12 +35,53 @@ public final class ObjectAdapterFactory
             adapter.deactivate();
         }
 
-        _adapters.clear();
+	_instance = null;
+	_communicator = null;
+	
+	notifyAll();
     }
 
+    public synchronized void
+    waitForShutdown()
+    {
+	//
+	// First we wait for the shutdown of the factory itself.
+	//
+	while(_instance != null)
+	{
+	    try
+	    {
+		wait();
+	    }
+	    catch(InterruptedException ex)
+	    {
+	    }
+	}
+	
+	//
+	// Now we wait for deactivation of each object adapter.
+	//
+        java.util.Iterator i = _adapters.values().iterator();
+        while(i.hasNext())
+        {
+            Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.next();
+            adapter.waitForDeactivate();
+        }
+	
+	//
+	// We're done, now we can throw away the object adapters.
+	//
+	_adapters.clear();
+    }
+    
     public synchronized Ice.ObjectAdapter
     createObjectAdapter(String name, String endpts, String id)
     {
+	if(_instance == null)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
         Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)_adapters.get(name);
         if(adapter != null)
         {
@@ -46,26 +96,49 @@ public final class ObjectAdapterFactory
     public synchronized Ice.ObjectAdapter
     findObjectAdapter(Ice.ObjectPrx proxy)
     {
+	if(_instance == null)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
         java.util.Iterator i = _adapters.values().iterator();
         while(i.hasNext())
         {
             Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)i.next();
-            if(adapter.isLocal(proxy))
-            {
-                return adapter;
-            }
-        }
+	    try
+	    {
+		if(adapter.isLocal(proxy))
+		{
+		    return adapter;
+		}
+	    }
+	    catch(Ice.ObjectAdapterDeactivatedException ex)
+	    {
+		// Ignore.
+	    }
+	}
 
         return null;
     }
 
     //
-    // Only for use by Instance
+    // Only for use by Instance.
     //
     ObjectAdapterFactory(Instance instance, Ice.Communicator communicator)
     {
         _instance = instance;
 	_communicator = communicator;
+    }
+
+    protected void
+    finalize()
+        throws Throwable
+    {
+	assert(_instance == null);
+	assert(_communicator == null);
+	assert(_adapters.size() == 0);
+
+        super.finalize();
     }
 
     private Instance _instance;

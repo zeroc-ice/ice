@@ -17,15 +17,84 @@ package IceInternal;
 public class IncomingConnectionFactory extends EventHandler
 {
     public synchronized void
+    activate()
+    {
+        setState(StateActive);
+    }
+
+    public synchronized void
     hold()
     {
         setState(StateHolding);
     }
 
     public synchronized void
-    activate()
+    destroy()
     {
-        setState(StateActive);
+        setState(StateClosed);
+    }
+
+    public synchronized void
+    waitUntilHolding()
+    {
+	//
+	// First we wait until the connection factory itself is in
+	// holding state.
+	//
+	while(_state < StateHolding)
+	{
+	    try
+	    {
+		wait();
+	    }
+	    catch(InterruptedException ex)
+	    {
+	    }
+	}
+	
+	//
+	// Now we wait until each connection is in holding state.
+	//
+	java.util.ListIterator iter = _connections.listIterator();
+	while(iter.hasNext())
+	{
+	    Connection connection = (Connection)iter.next();
+	    connection.waitUntilHolding();
+	}
+    }
+
+    public synchronized void
+    waitUntilFinished()
+    {
+	//
+	// First we wait until the factory is destroyed.
+	//
+	while(_acceptor != null)
+	{
+	    try
+	    {
+		wait();
+	    }
+	    catch(InterruptedException ex)
+	    {
+	    }
+	}
+	
+	//
+	// Now we wait for until the destruction of each connection is
+	// finished.
+	//
+	java.util.ListIterator iter = _connections.listIterator();
+	while(iter.hasNext())
+	{
+	    Connection connection = (Connection)iter.next();
+	    connection.waitUntilFinished();
+	}
+	
+	//
+	// We're done, now we can throw away all connections.
+	//
+	_connections.clear();
     }
 
     public Endpoint
@@ -50,21 +119,23 @@ public class IncomingConnectionFactory extends EventHandler
     public synchronized Connection[]
     connections()
     {
-        //
-        // Reap destroyed connections.
-        //
+	java.util.LinkedList connections = new java.util.LinkedList();
+
+	//
+	// Only copy connections which have not been destroyed.
+	//
         java.util.ListIterator iter = _connections.listIterator();
         while(iter.hasNext())
         {
             Connection connection = (Connection)iter.next();
-            if(connection.destroyed())
+            if(!connection.isDestroyed())
             {
-                iter.remove();
+                connections.add(connection);
             }
         }
 
-        Connection[] arr = new Connection[_connections.size()];
-        _connections.toArray(arr);
+        Connection[] arr = new Connection[connections.size()];
+        connections.toArray(arr);
         return arr;
     }
 
@@ -93,14 +164,14 @@ public class IncomingConnectionFactory extends EventHandler
             return;
         }
 
-        //
-        // Reap destroyed connections.
-        //
+	//
+	// Reap connections for which destruction has completed.
+	//
         java.util.ListIterator iter = _connections.listIterator();
         while(iter.hasNext())
         {
             Connection connection = (Connection)iter.next();
-            if(connection.destroyed())
+            if(connection.isFinished())
             {
                 iter.remove();
             }
@@ -169,20 +240,16 @@ public class IncomingConnectionFactory extends EventHandler
     {
         threadPool.promoteFollower();
 
-        if(_state == StateActive)
-        {
-            registerWithPool();
-        }
-        else if(_state == StateClosed)
-        {
-            _acceptor.close();
-
-	    //
-	    // We don't need the adapter anymore after we closed the
-	    // acceptor.
-	    //
-	    _adapter = null;
-        }
+	if(_state == StateActive)
+	{
+	    registerWithPool();
+	}
+	else if(_state == StateClosed)
+	{
+	    _acceptor.close();
+	    _acceptor = null;
+	    notifyAll();
+	}
     }
 
     public void
@@ -191,7 +258,8 @@ public class IncomingConnectionFactory extends EventHandler
         assert(false); // Must not be called.
     }
 
-    public String toString()
+    public synchronized String
+    toString()
     {
         if(_transceiver != null)
         {
@@ -208,9 +276,9 @@ public class IncomingConnectionFactory extends EventHandler
         super(instance);
         _endpoint = endpoint;
         _adapter = adapter;
+	_registeredWithPool = false;
 	_warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
         _state = StateHolding;
-	_registeredWithPool = false;
 
 	DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
 	if(defaultsAndOverrides.overrideTimeout)
@@ -229,12 +297,6 @@ public class IncomingConnectionFactory extends EventHandler
                 Connection connection = new Connection(_instance, _transceiver, _endpoint, _adapter);
 		connection.validate();
                 _connections.add(connection);
-		
-		//
-		// We don't need an adapter anymore if we don't use an
-		// acceptor.
-		//
-		_adapter = null;
             }
             else
             {
@@ -256,8 +318,9 @@ public class IncomingConnectionFactory extends EventHandler
     finalize()
         throws Throwable
     {
-        assert(_state == StateClosed);
-	assert(_adapter == null);
+	assert(_state == StateClosed);
+	assert(_acceptor == null);
+	assert(_connections.size() == 0);
 
         //
         // Destroy the EventHandler's stream, so that its buffer
@@ -266,12 +329,6 @@ public class IncomingConnectionFactory extends EventHandler
         super._stream.destroy();
 
         super.finalize();
-    }
-
-    public synchronized void
-    destroy()
-    {
-        setState(StateClosed);
     }
 
     private static final int StateActive = 0;
@@ -307,7 +364,7 @@ public class IncomingConnectionFactory extends EventHandler
 
             case StateHolding:
             {
-                if(_state != StateActive) // Can only switch from active to holding
+                if(_state != StateActive) // Can only switch from active to holding.
                 {
                     return;
                 }
@@ -340,13 +397,12 @@ public class IncomingConnectionFactory extends EventHandler
                     Connection connection = (Connection)iter.next();
                     connection.destroy(Connection.ObjectAdapterDeactivated);
                 }
-                _connections.clear();
-
-                break;
+		break;
             }
         }
 
         _state = state;
+	notifyAll();
     }
 
     private void
@@ -392,13 +448,18 @@ public class IncomingConnectionFactory extends EventHandler
         _instance.logger().warning(s);
     }
 
-    private Endpoint _endpoint;
-    private Ice.ObjectAdapter _adapter; // Cannot be final, because it must be set to null to break cyclic dependency.
     private Acceptor _acceptor;
     private final Transceiver _transceiver;
+    private Endpoint _endpoint;
+
+    private final Ice.ObjectAdapter _adapter;
+
     private ThreadPool _serverThreadPool;
-    private final boolean _warn;
-    private java.util.LinkedList _connections = new java.util.LinkedList();
-    private int _state;
     private boolean _registeredWithPool;
+
+    private final boolean _warn;
+
+    private java.util.LinkedList _connections = new java.util.LinkedList();
+
+    private int _state;
 }

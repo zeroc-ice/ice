@@ -71,11 +71,12 @@ final class TraceUtil
             s.write(heading);
             printHeader(s, str);
 
-            int cnt = 0;
-            while(str.pos() != str.size())
+            int batchRequestNum = str.readInt();
+	    s.write("\nnumber of requests = " + batchRequestNum);
+		
+	    for(int i = 0; i < batchRequestNum; ++i)
             {
-                s.write("\nrequest #" + cnt + ':');
-                cnt++;
+                s.write("\nrequest #" + i + ':');
                 printRequestHeader(s, str);
                 str.skipEncaps();
             }

@@ -16,6 +16,58 @@ package IceInternal;
 
 public class OutgoingConnectionFactory
 {
+    public synchronized void
+    destroy()
+    {
+        if(_instance == null)
+        {
+            return;
+        }
+
+        java.util.Iterator p = _connections.values().iterator();
+        while(p.hasNext())
+        {
+            Connection connection = (Connection)p.next();
+            connection.destroy(Connection.CommunicatorDestroyed);
+        }
+
+        _instance = null;
+    }
+
+    public synchronized void
+    waitUntilFinished()
+    {
+	//
+	// First we wait until the factory is destroyed.
+	//
+	while(_instance != null)
+	{
+	    try
+	    {
+		wait();
+	    }
+	    catch(InterruptedException ex)
+	    {
+	    }
+	}
+	
+	//
+	// Now we wait for until the destruction of each connection is
+	// finished.
+	//
+        java.util.Iterator p = _connections.values().iterator();
+        while(p.hasNext())
+        {
+            Connection connection = (Connection)p.next();
+            connection.waitUntilFinished();
+        }
+
+	//
+	// We're done, now we can throw away all connections.
+	//
+        _connections.clear();
+    }
+
     public synchronized Connection
     create(Endpoint[] endpoints)
     {
@@ -26,14 +78,14 @@ public class OutgoingConnectionFactory
 
         assert(endpoints.length > 0);
 
-        //
-        // Reap destroyed connections.
-        //
+	//
+	// Reap connections for which destruction has completed.
+	//
         java.util.Iterator p = _connections.values().iterator();
         while(p.hasNext())
         {
             Connection connection = (Connection)p.next();
-            if(connection.destroyed())
+            if(connection.isFinished())
             {
                 p.remove();
             }
@@ -54,12 +106,19 @@ public class OutgoingConnectionFactory
             Connection connection = (Connection)_connections.get(endpoint);
             if(connection != null)
             {
-                return connection;
+		//
+		// Don't return connections for which destruction has
+		// been initiated.
+		//
+		if(!connection.isDestroyed())
+		{
+		    return connection;
+		}
             }
         }
 
         //
-        // No connections exist, try to create one
+        // No connections exist, try to create one.
         //
         TraceLevels traceLevels = _instance.traceLevels();
         Ice.Logger logger = _instance.logger();
@@ -193,24 +252,6 @@ public class OutgoingConnectionFactory
         assert(_instance == null);
 
         super.finalize();
-    }
-
-    public synchronized void
-    destroy()
-    {
-        if(_instance == null)
-        {
-            return;
-        }
-
-        java.util.Iterator p = _connections.values().iterator();
-        while(p.hasNext())
-        {
-            Connection connection = (Connection)p.next();
-            connection.destroy(Connection.CommunicatorDestroyed);
-        }
-        _connections.clear();
-        _instance = null;
     }
 
     private Instance _instance;

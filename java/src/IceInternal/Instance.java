@@ -265,113 +265,59 @@ public class Instance
     public void
     destroy()
     {
-        ThreadPool clientThreadPool;
-        ThreadPool serverThreadPool;
-
+	assert(!_destroyed);
+	
+	_objectAdapterFactory.shutdown();
+	_objectAdapterFactory.waitForShutdown();
+	
+	_outgoingConnectionFactory.destroy();
+	_outgoingConnectionFactory.waitUntilFinished();
+	
 	synchronized(this)
 	{
-	    if(_destroyed)
+	    _objectAdapterFactory = null;
+	    _outgoingConnectionFactory = null;
+	    
+	    if(_serverThreadPool != null)
 	    {
-		return; // Don't destroy twice.
+		_serverThreadPool.destroy();
+		_serverThreadPool.joinWithAllThreads();
+		_serverThreadPool = null;	
 	    }
+	    
+	    if(_clientThreadPool != null)
+	    {
+		_clientThreadPool.destroy();
+		_clientThreadPool.joinWithAllThreads();
+		_clientThreadPool = null;
+	    }
+	    
+	    _servantFactoryManager.destroy();
+	    _servantFactoryManager = null;
+	    
+	    _userExceptionFactoryManager.destroy();
+	    _userExceptionFactoryManager = null;
+	    
+	    _referenceFactory.destroy();
+	    _referenceFactory = null;
+	    
+	    // No destroy function defined.
+	    // _proxyFactory.destroy();
+	    _proxyFactory = null;
+	    
+	    _routerManager.destroy();
+	    _routerManager = null;
+	    
+	    _locatorManager.destroy();
+	    _locatorManager = null;
+	    
+	    _endpointFactoryManager.destroy();
+	    _endpointFactoryManager = null;
+	    
+	    _pluginManager.destroy();
+	    _pluginManager = null;
 	    
 	    _destroyed = true;
-
-	    if(_objectAdapterFactory != null)
-	    {
-		// Don't shut down the object adapters -- the communicator
-		// must do this before it destroys this object.
-		_objectAdapterFactory = null;
-	    }
-	    
-	    if(_outgoingConnectionFactory != null)
-	    {
-		_outgoingConnectionFactory.destroy();
-		_outgoingConnectionFactory = null;
-	    }
-
-            //
-            // We destroy the thread pool outside the thread
-            // synchronization.
-            //  
-            clientThreadPool = _clientThreadPool;
-            _clientThreadPool = null;
-            serverThreadPool = _serverThreadPool;
-            _serverThreadPool = null;
-        }   
-
-	//
-	// We must destroy the outgoing connection factory before we
-	// destroy the client thread pool.
-	//
-        if(clientThreadPool != null)
-        {       
-            clientThreadPool.waitUntilFinished();
-            clientThreadPool.destroy();
-            clientThreadPool.joinWithAllThreads();
-        }   
-
-	//
-	// We must destroy the object adapter factory before we destroy
-	// the server thread pool.
-	//
-        if(serverThreadPool != null)
-        {   
-            serverThreadPool.waitUntilFinished();
-            serverThreadPool.destroy();
-            serverThreadPool.joinWithAllThreads();
-        }
-
-	synchronized(this)
-	{
-	    if(_servantFactoryManager != null)
-	    {
-		_servantFactoryManager.destroy();
-		_servantFactoryManager = null;
-	    }
-	    
-	    if(_userExceptionFactoryManager != null)
-	    {
-		_userExceptionFactoryManager.destroy();
-		_userExceptionFactoryManager = null;
-	    }
-	    
-	    if(_referenceFactory != null)
-	    {
-		_referenceFactory.destroy();
-		_referenceFactory = null;
-	    }
-	    
-	    if(_proxyFactory != null)
-	    {
-		// No destroy function defined
-		// _proxyFactory.destroy();
-		_proxyFactory = null;
-	    }
-
-	    if(_routerManager != null)
-	    {
-		_routerManager.destroy();
-		_routerManager = null;
-	    }
-
-	    if(_locatorManager != null)
-	    {
-		_locatorManager.destroy();
-		_locatorManager = null;
-	    }
-
-            if(_endpointFactoryManager != null)
-            {
-                _endpointFactoryManager.destroy();
-                _endpointFactoryManager = null;
-            }
-
-	    if(_pluginManager != null)
-	    {
-		_pluginManager.destroy();
-		_pluginManager = null;
-	    }
 	}
     }
 
