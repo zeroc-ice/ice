@@ -113,7 +113,10 @@ public:
 
 private:
 
-    void dump(const DataPtr&);
+    //
+    // Returns true if the contents of the data should be visited.
+    //
+    bool dump(const DataPtr&);
 
     DataFactoryPtr _factory;
     Slice::UnitPtr _unit;
@@ -1154,18 +1157,52 @@ FreezeScript::DumpDescriptor::DumpDescriptor(const DescriptorPtr& parent, int li
                                              const IceXML::Attributes& attributes,
                                              const Slice::UnitPtr& unit) :
     ExecutableContainerDescriptor(parent, line, factory, errorReporter, attributes, "dump"),
-    Descriptor(parent, line, factory, errorReporter)
+    Descriptor(parent, line, factory, errorReporter), _base(true), _contents(true)
 {
     DescriptorErrorContext ctx(_errorReporter, "dump", _line);
 
-    IceXML::Attributes::const_iterator p;
+    for(IceXML::Attributes::const_iterator p = attributes.begin(); p != attributes.end(); ++p)
+    {
+        if(p->first == "type")
+        {
+            if(_type)
+            {
+                _errorReporter->error("duplicate attribute `type'");
+            }
+            _type = findType(unit, p->second);
+        }
+        else if(p->first == "base")
+        {
+            if(p->second == "false")
+            {
+                _base = false;
+            }
+            else if(p->second != "true")
+            {
+                _errorReporter->error("invalid value `" + p->second + "' for attribute `base'");
+            }
+        }
+        else if(p->first == "contents")
+        {
+            if(p->second == "false")
+            {
+                _contents = false;
+            }
+            else if(p->second != "true")
+            {
+                _errorReporter->error("invalid value `" + p->second + "' for attribute `contents'");
+            }
+        }
+        else
+        {
+            _errorReporter->error("unknown attribute `" + p->first + "'");
+        }
+    }
 
-    p = attributes.find("type");
-    if(p == attributes.end())
+    if(!_type)
     {
         _errorReporter->error("required attribute `type' is missing");
     }
-    _type = findType(unit, p->second);
 }
 
 Slice::TypePtr
@@ -1178,6 +1215,18 @@ string
 FreezeScript::DumpDescriptor::typeName() const
 {
     return typeToString(_type);
+}
+
+bool
+FreezeScript::DumpDescriptor::base() const
+{
+    return _base;
+}
+
+bool
+FreezeScript::DumpDescriptor::contents() const
+{
+    return _contents;
 }
 
 //
@@ -1767,18 +1816,27 @@ FreezeScript::DumpVisitor::visitProxy(const ProxyDataPtr& data)
 void
 FreezeScript::DumpVisitor::visitStruct(const StructDataPtr& data)
 {
-    dump(data);
-    DataMemberMap& members = data->getMembers();
-    for(DataMemberMap::iterator p = members.begin(); p != members.end(); ++p)
+    if(dump(data))
     {
-        p->second->visit(*this);
+        DataMemberMap& members = data->getMembers();
+        for(DataMemberMap::iterator p = members.begin(); p != members.end(); ++p)
+        {
+            p->second->visit(*this);
+        }
     }
 }
 
 void
 FreezeScript::DumpVisitor::visitSequence(const SequenceDataPtr& data)
 {
-    dump(data);
+    if(dump(data))
+    {
+        DataList& elements = data->getElements();
+        for(DataList::iterator p = elements.begin(); p != elements.end(); ++p)
+        {
+            (*p)->visit(*this);
+        }
+    }
 }
 
 void
@@ -1790,27 +1848,38 @@ FreezeScript::DumpVisitor::visitEnum(const EnumDataPtr& data)
 void
 FreezeScript::DumpVisitor::visitDictionary(const DictionaryDataPtr& data)
 {
-    dump(data);
-}
-
-void
-FreezeScript::DumpVisitor::visitObject(const ObjectRefPtr& data)
-{
-    dump(data);
-    ObjectDataPtr value = data->getValue();
-    if(value)
+    if(dump(data))
     {
-        DataMemberMap& members = value->getMembers();
-        for(DataMemberMap::iterator p = members.begin(); p != members.end(); ++p)
+        DataMap& elements = data->getElements();
+        for(DataMap::iterator p = elements.begin(); p != elements.end(); ++p)
         {
+            p->first->visit(*this);
             p->second->visit(*this);
         }
     }
 }
 
 void
+FreezeScript::DumpVisitor::visitObject(const ObjectRefPtr& data)
+{
+    if(dump(data))
+    {
+        ObjectDataPtr value = data->getValue();
+        if(value)
+        {
+            DataMemberMap& members = value->getMembers();
+            for(DataMemberMap::iterator p = members.begin(); p != members.end(); ++p)
+            {
+                p->second->visit(*this);
+            }
+        }
+    }
+}
+
+bool
 FreezeScript::DumpVisitor::dump(const DataPtr& data)
 {
+    bool result = true;
     ObjectRefPtr obj = ObjectRefPtr::dynamicCast(data);
     if(obj && obj->getValue())
     {
@@ -1821,33 +1890,38 @@ FreezeScript::DumpVisitor::dump(const DataPtr& data)
         //
         ObjectDataPtr data = obj->getValue();
         Slice::TypePtr cls = data->getType(); // Actual type
+        bool checkContents = true;
         while(cls)
         {
             string type = typeToString(cls);
-            cls = 0;
+            bool base = true;
             DumpMap::const_iterator p = _info->dumpMap.find(type);
             if(p != _info->dumpMap.end())
             {
                 SymbolTablePtr sym = new SymbolTableI(_factory, _unit, _errorReporter, _info, _info->symbolTable);
                 sym->add("value", data);
                 p->second->execute(sym, _info);
-            }
-            else
-            {
-                Slice::ClassDeclPtr decl = Slice::ClassDeclPtr::dynamicCast(cls);
-                if(decl)
+                base = p->second->base();
+                if(checkContents)
                 {
-                    Slice::ClassDefPtr def = decl->definition();
-                    assert(def);
-                    Slice::ClassList bases = def->bases();
-                    if(!bases.empty() && !bases.front()->isInterface())
-                    {
-                        cls = bases.front()->declaration();
-                    }
-                    else
-                    {
-                        cls = _unit->builtin(Slice::Builtin::KindObject);
-                    }
+                    result = p->second->contents();
+                    checkContents = false;
+                }
+            }
+            Slice::ClassDeclPtr decl = Slice::ClassDeclPtr::dynamicCast(cls);
+            cls = 0;
+            if(base && decl)
+            {
+                Slice::ClassDefPtr def = decl->definition();
+                assert(def);
+                Slice::ClassList bases = def->bases();
+                if(!bases.empty() && !bases.front()->isInterface())
+                {
+                    cls = bases.front()->declaration();
+                }
+                else
+                {
+                    cls = _unit->builtin(Slice::Builtin::KindObject);
                 }
             }
         }
@@ -1861,7 +1935,10 @@ FreezeScript::DumpVisitor::dump(const DataPtr& data)
             SymbolTablePtr st = new SymbolTableI(_factory, _unit, _errorReporter, _info, _info->symbolTable);
             st->add("value", data);
             p->second->execute(st, _info);
+            result = p->second->contents();
         }
 
     }
+
+    return result;
 }

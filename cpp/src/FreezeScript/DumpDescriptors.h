@@ -235,10 +235,14 @@ public:
 
     Slice::TypePtr type() const;
     std::string typeName() const;
+    bool base() const;
+    bool contents() const;
 
 private:
 
     Slice::TypePtr _type;
+    bool _base;
+    bool _contents;
 };
 typedef IceUtil::Handle<DumpDescriptor> DumpDescriptorPtr;
 
