@@ -94,6 +94,9 @@ main(int, char**)
     b = stringToInt64("-9223372036854775809Q", result, pos);
     test(!b && result == INT64MIN && pos == 20);
 
+    b = stringToInt64("-9223372036854775809999Q", result, pos);
+    test(!b && result == INT64MIN && pos == 23);
+
     cout << "ok" << endl;
 
     return EXIT_SUCCESS;

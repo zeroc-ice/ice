@@ -97,26 +97,25 @@ static const char digitVal[] =
     {
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9,			// '0' - '9'
 	100, 100, 100, 100, 100, 100, 100,		// punctuation
-	10, 11, 12, 13, 14, 15, 16, 17, 18, 19,	// 'A' - 'J'
-	20, 21, 22, 23, 24, 25, 26, 27, 28, 29,	// 'K' - 'T'
-	30, 31, 32, 33, 34, 35					// 'U' - 'Z'
+	10, 11, 12, 13, 14, 15, 16, 17, 18, 19,		// 'A' - 'J'
+	20, 21, 22, 23, 24, 25, 26, 27, 28, 29,		// 'K' - 'T'
+	30, 31, 32, 33, 34, 35				// 'U' - 'Z'
     };
 
     Int64 result = 0;
     bool overflow = false;
-const __int64 limit = INT64MAX;
     while(*s && validDigits.find_first_of(toupper(*s)) != validDigits.npos)
     {	
 	if(!overflow)
 	{
 	    int digit = digitVal[toupper(*s++) - '0'];
 	    assert(digit != 100);
-	    if(result < limit / base)
+	    if(result < INT64MAX / base)
 	    {
 		result *= base;
 		result += digit;
 	    }
-	    else if((digit <= limit % base) || (sign == -1 && digit == limit % base + 1))
+	    else if((digit <= INT64MAX % base) || (sign == -1 && digit == INT64MAX % base + 1))
 	    {
 		result *= base;
 		result += digit;
@@ -170,7 +169,7 @@ stringToInt64(const string& stringToParse, Int64& result, string::size_type& pos
 	++j;
     }					// j now points at last non-whitespace char
 
-    string nonWhite(i, j.base());	// nonWhite has leading and trailing whitespace stripped
+    string nonWhite(i, j.base());	// nonWhite has trailing whitespace stripped
 
     errno = 0;
     const char* startp = nonWhite.c_str();
