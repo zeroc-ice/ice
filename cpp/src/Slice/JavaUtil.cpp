@@ -30,9 +30,8 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 
-Slice::JavaGenerator::JavaGenerator(const string& dir, const string& package) :
+Slice::JavaGenerator::JavaGenerator(const string& dir) :
     _dir(dir),
-    _package(package),
     _out(0)
 {
 }
@@ -239,35 +238,11 @@ Slice::JavaGenerator::fixKwd(const string& name) const
 }
 
 string
-Slice::JavaGenerator::getAbsolute(const string& scoped,
-                                  const string& scope,
-                                  const string& prefix,
-                                  const string& suffix) const
+Slice::JavaGenerator::convertScopedName(const string& scoped, const string& prefix, const string& suffix) const
 {
     string result;
     string::size_type start = 0;
     string fscoped = fixKwd(scoped);
-    string fscope = fixKwd(scope);
-
-    if(!fscope.empty())
-    {
-        //
-        // Only remove the scope if the resulting symbol is unscoped.
-        // For example:
-        //
-        // scope=::A, scoped=::A::B, result=B
-        // scope=::A, scoped=::A::B::C, result=::A::B::C
-        //
-	string::size_type fscopeSize = fscope.size();
-	if(fscoped.compare(0, fscopeSize, fscope) == 0)
-	{
-	    if(fscoped.size() > fscopeSize && fscoped[fscopeSize - 1] == ':' &&
-               fscoped.find(':', fscopeSize) == string::npos)
-	    {
-		start = fscopeSize;
-	    }
-	}
-    }
 
     //
     // Skip leading "::"
@@ -288,7 +263,11 @@ Slice::JavaGenerator::getAbsolute(const string& scoped,
         string fix;
         if(pos == string::npos)
         {
-            fix = prefix + fixKwd(fscoped.substr(start)) + suffix;
+            string s = fscoped.substr(start);
+            if(!s.empty())
+            {
+                fix = prefix + fixKwd(s) + suffix;
+            }
         }
         else
         {
@@ -297,7 +276,7 @@ Slice::JavaGenerator::getAbsolute(const string& scoped,
             start = pos + 2;
         }
 
-        if(!result.empty())
+        if(!result.empty() && !fix.empty())
         {
             result += ".";
         }
@@ -305,21 +284,62 @@ Slice::JavaGenerator::getAbsolute(const string& scoped,
     }
     while(pos != string::npos);
 
-    if(!_package.empty())
+    return result;
+}
+
+string
+Slice::JavaGenerator::getPackage(const ContainedPtr& cont) const
+{
+    string scope = convertScopedName(cont->scope());
+
+    DefinitionContextPtr dc = cont->definitionContext();
+    if(dc)
     {
-        return _package + "." + result;
+        static const string prefix = "java:package:";
+        string package = dc->findMetaData(prefix);
+        if(!package.empty())
+        {
+            if(!scope.empty())
+            {
+                return package.substr(prefix.size()) + "." + scope;
+            }
+            else
+            {
+                return package.substr(prefix.size());
+            }
+        }
+    }
+
+    return scope;
+}
+
+string
+Slice::JavaGenerator::getAbsolute(const ContainedPtr& cont,
+                                  const string& package,
+                                  const string& prefix,
+                                  const string& suffix) const
+{
+    string name = fixKwd(cont->name());
+    string contPkg = getPackage(cont);
+    if(contPkg == package)
+    {
+        return prefix + name + suffix;
+    }
+    else if(!contPkg.empty())
+    {
+        return contPkg + "." + prefix + name + suffix;
     }
     else
     {
-        return result;
+        return prefix + name + suffix;
     }
 }
 
 string
 Slice::JavaGenerator::typeToString(const TypePtr& type,
                                    TypeMode mode,
-                                   const string& scope,
-                                   const list<string>& metaData) const
+                                   const string& package,
+                                   const StringList& metaData) const
 {
     static const char* builtinTable[] =
     {
@@ -372,23 +392,13 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-        string result = getAbsolute(cl->scoped(), scope);
-        if(mode == TypeModeOut)
-        {
-            result += "Holder";
-        }
-        return result;
+        return getAbsolute(cl, package, "", mode == TypeModeOut ? "Holder" : "");
     }
 
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-        string result = getAbsolute(proxy->_class()->scoped() + "Prx", scope);
-        if(mode == TypeModeOut)
-        {
-            result += "Holder";
-        }
-        return result;
+        return getAbsolute(proxy->_class(), package, "", mode == TypeModeOut ? "PrxHolder" : "Prx");
     }
 
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
@@ -396,7 +406,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     {
         if(mode == TypeModeOut)
         {
-            return getAbsolute(dict->scoped(), scope) + "Holder";
+            return getAbsolute(dict, package, "", "Holder");
         }
         else
         {
@@ -409,14 +419,14 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     {
         if(mode == TypeModeOut)
         {
-            return getAbsolute(seq->scoped(), scope) + "Holder";
+            return getAbsolute(seq, package, "", "Holder");
         }
         else
         {
             string listType = findMetaData(metaData);
             if(listType.empty())
             {
-                list<string> l = seq->getMetaData();
+                StringList l = seq->getMetaData();
                 listType = findMetaData(l);
             }
             if(!listType.empty())
@@ -425,8 +435,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
             }
             else
             {
-                TypePtr content = seq->type();
-                return typeToString(content, mode, scope) + "[]";
+                return typeToString(seq->type(), mode, package) + "[]";
             }
         }
     }
@@ -436,11 +445,11 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     {
         if(mode == TypeModeOut)
         {
-            return getAbsolute(contained->scoped(), scope) + "Holder";
+            return getAbsolute(contained, package, "", "Holder");
         }
         else
         {
-            return getAbsolute(contained->scoped(), scope);
+            return getAbsolute(contained, package);
         }
     }
 
@@ -449,13 +458,13 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
 
 void
 Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
-                                                const string& scope,
+                                                const string& package,
                                                 const TypePtr& type,
                                                 const string& param,
                                                 bool marshal,
                                                 int& iter,
                                                 bool holder,
-                                                const list<string>& metaData,
+                                                const StringList& metaData,
 						const string& patchParams)
 {
     string stream = marshal ? "__os" : "__is";
@@ -620,7 +629,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
     ProxyPtr prx = ProxyPtr::dynamicCast(type);
     if(prx)
     {
-        string typeS = typeToString(type, TypeModeIn, scope);
+        string typeS = typeToString(type, TypeModeIn, package);
         if(marshal)
         {
             out << nl << typeS << "Helper.__write(" << stream << ", " << v << ");";
@@ -641,7 +650,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         }
         else
         {
-            string typeS = typeToString(type, TypeModeIn, scope);
+            string typeS = typeToString(type, TypeModeIn, package);
 	    if(holder)
 	    {
 		out << nl << stream << ".readObject(" << param << ".getPatcher());";
@@ -670,7 +679,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         }
         else
         {
-            string typeS = typeToString(type, TypeModeIn, scope);
+            string typeS = typeToString(type, TypeModeIn, package);
             out << nl << v << " = new " << typeS << "();";
             out << nl << v << ".__read(" << stream << ");";
         }
@@ -686,7 +695,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         }
         else
         {
-            string typeS = typeToString(type, TypeModeIn, scope);
+            string typeS = typeToString(type, TypeModeIn, package);
             out << nl << v << " = " << typeS << ".__read(" << stream << ");";
         }
         return;
@@ -695,13 +704,13 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        writeSequenceMarshalUnmarshalCode(out, scope, seq, v, marshal, iter, true, metaData);
+        writeSequenceMarshalUnmarshalCode(out, package, seq, v, marshal, iter, true, metaData);
         return;
     }
 
     ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
     assert(constructed);
-    string typeS = getAbsolute(constructed->scoped(), scope);
+    string typeS = getAbsolute(constructed, package);
     if(marshal)
     {
         out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
@@ -714,13 +723,13 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
 
 void
 Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
-                                                        const string& scope,
+                                                        const string& package,
                                                         const SequencePtr& seq,
                                                         const string& param,
                                                         bool marshal,
                                                         int& iter,
                                                         bool useHelper,
-                                                        const list<string>& metaData)
+                                                        const StringList& metaData)
 {
     string stream = marshal ? "__os" : "__is";
     string v = param;
@@ -741,7 +750,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     // generate marshalling code inline.
     //
     string listType = findMetaData(metaData);
-    list<string> typeMetaData = seq->getMetaData();
+    StringList typeMetaData = seq->getMetaData();
     if(listType.empty())
     {
         listType = findMetaData(typeMetaData);
@@ -760,7 +769,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     //
     if(useHelper)
     {
-        string typeS = getAbsolute(seq->scoped(), scope);
+        string typeS = getAbsolute(seq, package);
         if(marshal)
         {
             out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
@@ -792,7 +801,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         origContent = s->type();
         s = SequencePtr::dynamicCast(origContent);
     }
-    string origContentS = typeToString(origContent, TypeModeIn, scope);
+    string origContentS = typeToString(origContent, TypeModeIn, package);
 
     if(!listType.empty())
     {
@@ -993,7 +1002,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         }
         else
         {
-            string typeS = getAbsolute(seq->scoped(), scope);
+            string typeS = getAbsolute(seq, package);
             if(marshal)
             {
                 out << nl << "if(" << v << " == null)";
@@ -1011,7 +1020,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << "while(" << it << ".hasNext())";
                 out << sb;
                 out << nl << origContentS << " __elem = (" << origContentS << ")" << it << ".next();";
-                writeMarshalUnmarshalCode(out, scope, seq->type(), "__elem", true, iter, false);
+                writeMarshalUnmarshalCode(out, package, seq->type(), "__elem", true, iter, false);
                 out << eb; // while
                 out << eb; // else
             }
@@ -1048,13 +1057,13 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		    ostringstream patchParams;
 		    patchParams << "new IceInternal.ListPatcher(" << v << ", " << origContentS << ".class, __type"
                                 << iter << ", __i" << iter << ')';
-		    writeMarshalUnmarshalCode(out, scope, seq->type(), "__elem", false, iter, false,
-			                      list<string>(), patchParams.str());
+		    writeMarshalUnmarshalCode(out, package, seq->type(), "__elem", false, iter, false,
+			                      StringList(), patchParams.str());
 		}
 		else
 		{
 		    out << nl << origContentS << " __elem;";
-		    writeMarshalUnmarshalCode(out, scope, seq->type(), "__elem", false, iter, false);
+		    writeMarshalUnmarshalCode(out, package, seq->type(), "__elem", false, iter, false);
 		}
                 iter++;
 		if(!isObject)
@@ -1194,7 +1203,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 ostringstream o;
                 o << v << "[__i" << iter << "]";
                 iter++;
-                writeMarshalUnmarshalCode(out, scope, seq->type(), o.str(), true, iter, false);
+                writeMarshalUnmarshalCode(out, package, seq->type(), o.str(), true, iter, false);
                 out << eb;
                 out << eb;
             }
@@ -1234,12 +1243,12 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 {
                     patchParams << "new IceInternal.SequencePatcher(" << v << ", " << origContentS
                                 << ".class, __type" << iter << ", __i" << iter << ')';
-                    writeMarshalUnmarshalCode(out, scope, seq->type(), o.str(), false, iter, false,
-                                              list<string>(), patchParams.str());
+                    writeMarshalUnmarshalCode(out, package, seq->type(), o.str(), false, iter, false,
+                                              StringList(), patchParams.str());
                 }
                 else
                 {
-                    writeMarshalUnmarshalCode(out, scope, seq->type(), o.str(), false, iter, false);
+                    writeMarshalUnmarshalCode(out, package, seq->type(), o.str(), false, iter, false);
                 }
                 iter++;
                 out << eb;
@@ -1273,14 +1282,32 @@ Slice::JavaGenerator::printHeader()
 }
 
 string
-Slice::JavaGenerator::findMetaData(const list<string>& metaData)
+Slice::JavaGenerator::findMetaData(const StringList& metaData)
 {
     static const string prefix = "java:";
-    for(list<string>::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
     {
-        if((*q).find(prefix) == 0)
+        string str = *q;
+        if(str.find(prefix) == 0)
         {
-            return (*q).substr(prefix.size());
+            string::size_type pos = str.find(':', prefix.size());
+            if(pos != string::npos)
+            {
+                //
+                // Correct syntax is "java:type:java.util.LinkedList".
+                //
+                if(str.substr(prefix.size(), pos - prefix.size()) == "type")
+                {
+                    return str.substr(pos + 1);
+                }
+            }
+            else
+            {
+                //
+                // Deprecated "java:java.util.LinkedList" syntax.
+                //
+                return str.substr(prefix.size());
+            }
         }
     }
 

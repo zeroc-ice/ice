@@ -44,6 +44,45 @@ slice_error(const char* s)
     }
 }
 
+static void
+validateGlobalMetaData(const StringList& l)
+{
+    for(StringList::const_iterator p = l.begin(); p != l.end(); ++p)
+    {
+        string s = *p;
+        if(s.find("java:package:") != 0)
+        {
+            unit->warning("unknown metadata `" + s + "'");
+        }
+    }
+}
+
+static void
+validateLocalMetaData(const StringList& l)
+{
+    for(StringList::const_iterator p = l.begin(); p != l.end(); ++p)
+    {
+        string s = *p;
+        static const string prefix = "java:";
+        if(s.find(prefix) == 0)
+        {
+            string::size_type pos = s.find(':', prefix.size());
+            if(pos == string::npos)
+            {
+                unit->warning("use of deprecated metadata syntax in `" + s + "'");
+            }
+            else if(s.substr(prefix.size(), pos - prefix.size()) != "type")
+            {
+                unit->warning("unknown metadata `" + s + "'");
+            }
+        }
+        else if(s != "amd" && s != "ami")
+        {
+            unit->warning("unknown metadata `" + s + "'");
+        }
+    }
+}
+
 %}
 
 %pure_parser
@@ -107,11 +146,24 @@ start
 ;
 
 // ----------------------------------------------------------------------
+global_meta_data
+// ----------------------------------------------------------------------
+: '[' '[' string_list ']' ']'
+{
+    $$ = $3;
+    StringListTokPtr metaData = StringListTokPtr::dynamicCast($$);
+    validateGlobalMetaData(metaData->v);
+}
+;
+
+// ----------------------------------------------------------------------
 meta_data
 // ----------------------------------------------------------------------
 : '[' string_list ']'
 {
     $$ = $2;
+    StringListTokPtr metaData = StringListTokPtr::dynamicCast($$);
+    validateLocalMetaData(metaData->v);
 }
 |
 {
@@ -122,7 +174,16 @@ meta_data
 // ----------------------------------------------------------------------
 definitions
 // ----------------------------------------------------------------------
-: meta_data definition ';' definitions
+: global_meta_data
+{
+    StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
+    if(!metaData->v.empty())
+    {
+        unit->setGlobalMetaData(metaData->v);
+    }
+}
+definitions
+| meta_data definition
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
@@ -130,7 +191,9 @@ definitions
     {
 	contained->setMetaData(metaData->v);
     }
+    unit->setSeenDefinition();
 }
+';' definitions
 | error ';' definitions
 {
     yyerrok;

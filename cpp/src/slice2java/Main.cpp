@@ -31,7 +31,6 @@ usage(const char* n)
         "-UNAME                  Remove any definition for NAME.\n"
         "-IDIR                   Put DIR in the include file search path.\n"
         "--output-dir DIR        Create files in the directory DIR.\n"
-        "--package PKG           Generate everything in package PKG.\n"
         "--tie                   Generate TIE classes.\n"
         "--impl                  Generate sample implementations.\n"
         "--impl-tie              Generate sample TIE implementations.\n"
@@ -48,7 +47,6 @@ main(int argc, char* argv[])
     string cppArgs;
     vector<string> includePaths;
     string output;
-    string package;
     bool tie = false;
     bool impl = false;
     bool implTie = false;
@@ -140,23 +138,6 @@ main(int argc, char* argv[])
             }
 
             output = argv[idx + 1];
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(strcmp(argv[idx], "--package") == 0)
-        {
-            if(idx + 1 >= argc)
-            {
-                cerr << argv[0] << ": argument expected for`" << argv[idx]
-                     << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            package = argv[idx + 1];
             for(int i = idx ; i + 2 < argc ; ++i)
             {
                 argv[i] = argv[i + 2];
@@ -259,7 +240,7 @@ main(int argc, char* argv[])
 	    }
 	    else
 	    {
-		Gen gen(argv[0], icecpp.getBaseName(), includePaths, package, output);
+		Gen gen(argv[0], icecpp.getBaseName(), includePaths, output);
 		if(!gen)
 		{
 		    p->destroy();

@@ -1,9 +1,15 @@
 Changes since version 1.2.0
 ---------------------------
 
-- The IcePatch server now doesn't change the working directory
-  anymore. This avoids potential problems with core files being
-  generated in the data directory.
+- Added support for "global" metadata, which can only be specified
+  once in a file and must appear before any definitions. The syntax
+  is similar to that of local metadata, but with an extra set of
+  brackets: [["metadata1","metadata2","etc."]]. The first use of this
+  metadata is for specifying a package in Java.
+
+- The IcePatch server no longer changes the working directory.
+  This avoids potential problems with core files being generated in
+  the data directory.
 
 - Ice now uses gethostbyname_r() if available.
 

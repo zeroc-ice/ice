@@ -39,6 +39,76 @@ toLower(string& s)
     transform(s.begin(), s.end(), s.begin(), ::tolower);
 }
 
+// ----------------------------------------------------------------------
+// DefinitionContext
+// ----------------------------------------------------------------------
+
+Slice::DefinitionContext::DefinitionContext(int includeLevel) :
+    _includeLevel(includeLevel), _seenDefinition(false)
+{
+}
+
+string
+Slice::DefinitionContext::filename() const
+{
+    return _filename;
+}
+
+int
+Slice::DefinitionContext::includeLevel() const
+{
+    return _includeLevel;
+}
+
+bool
+Slice::DefinitionContext::seenDefinition() const
+{
+    return _seenDefinition;
+}
+
+void
+Slice::DefinitionContext::setFilename(const string& filename)
+{
+    _filename = filename;
+}
+
+void
+Slice::DefinitionContext::setSeenDefinition()
+{
+    _seenDefinition = true;
+}
+
+bool
+Slice::DefinitionContext::hasMetaData() const
+{
+    return !_metaData.empty();
+}
+
+void
+Slice::DefinitionContext::setMetaData(const StringList& metaData)
+{
+    _metaData= metaData;
+}
+
+string
+Slice::DefinitionContext::findMetaData(const string& prefix) const
+{
+    for(StringList::const_iterator p = _metaData.begin(); p != _metaData.end(); ++p)
+    {
+        if((*p).find(prefix) == 0)
+        {
+            return *p;
+        }
+    }
+
+    return string();
+}
+
+StringList
+Slice::DefinitionContext::getMetaData() const
+{
+    return _metaData;
+}
 
 // ----------------------------------------------------------------------
 // SyntaxTreeBase
@@ -56,6 +126,12 @@ Slice::SyntaxTreeBase::unit() const
     return _unit;
 }
 
+DefinitionContextPtr
+Slice::SyntaxTreeBase::definitionContext() const
+{
+    return _definitionContext;
+}
+
 void
 Slice::SyntaxTreeBase::visit(ParserVisitor*)
 {
@@ -64,6 +140,10 @@ Slice::SyntaxTreeBase::visit(ParserVisitor*)
 Slice::SyntaxTreeBase::SyntaxTreeBase(const UnitPtr& unit) :
     _unit(unit)
 {
+    if(_unit)
+    {
+        _definitionContext = unit->currentDefinitionContext();
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -188,6 +268,10 @@ Slice::Builtin::Builtin(const UnitPtr& unit, Kind kind) :
     SyntaxTreeBase(unit),
     _kind(kind)
 {
+    //
+    // Builtin types do not have a definition context.
+    //
+    _definitionContext = 0;
 }
 
 // ----------------------------------------------------------------------
@@ -1367,6 +1451,12 @@ Slice::Container::mergeModules()
 	    continue;
 	}
 	
+        DefinitionContextPtr dc1 = mod1->definitionContext();
+        assert(dc1);
+        StringList metaData1 = dc1->getMetaData();
+        metaData1.sort();
+        metaData1.unique();
+
 	ContainedList::iterator q = p;
 	++q;
 	while(q != _contents.end())
@@ -1383,6 +1473,20 @@ Slice::Container::mergeModules()
 		++q;
 		continue;
 	    }
+
+            //
+            // Compare the global metadata of the two modules being merged.
+            //
+            DefinitionContextPtr dc2 = mod2->definitionContext();
+            assert(dc2);
+            StringList metaData2 = dc2->getMetaData();
+            metaData2.sort();
+            metaData2.unique();
+            if(metaData1 != metaData2)
+            {
+                unit()->warning("global metadata mismatch for module `" + mod1->name() + "' in files " +
+                                dc1->filename() + " and " + dc2->filename());
+            }
 
 	    mod1->_contents.splice(mod1->_contents.end(), mod2->_contents);
 
@@ -3980,7 +4084,15 @@ Slice::Unit::currentComment()
 string
 Slice::Unit::currentFile() const
 {
-    return _currentFile;
+    DefinitionContextPtr dc = currentDefinitionContext();
+    if(dc)
+    {
+        return dc->filename();
+    }
+    else
+    {
+        return string();
+    }
 }
 
 int
@@ -4026,15 +4138,17 @@ Slice::Unit::scanPosition(const char* s)
     {
 	line.erase(0, idx);
 
+        string currentFile;
+
 	idx = line.find_first_of(" \t\r\"");
 	if(idx != string::npos)
 	{
-	    _currentFile = line.substr(0, idx);
+	    currentFile = line.substr(0, idx);
 	    line.erase(0, idx + 1);
 	}
 	else
 	{
-	    _currentFile = line;
+	    currentFile = line;
 	}
 
 	idx = line.find_first_not_of(" \t\r");
@@ -4046,25 +4160,24 @@ Slice::Unit::scanPosition(const char* s)
 	    {
 		if(++_currentIncludeLevel == 1)
 		{
-		    if(find(_includeFiles.begin(), _includeFiles.end(), _currentFile) == _includeFiles.end())
+		    if(find(_includeFiles.begin(), _includeFiles.end(), currentFile) == _includeFiles.end())
 		    {
-			_includeFiles.push_back(_currentFile);
+			_includeFiles.push_back(currentFile);
 		    }
 		}
+                pushDefinitionContext();
 	    }
 	    else if(val == 2)
 	    {
 		--_currentIncludeLevel;
+                popDefinitionContext();
 	    }
 	    _currentComment = "";
 	}
-	else
-	{
-	    if(_currentIncludeLevel == 0)
-	    {
-		_topLevelFile = _currentFile;
-	    }
-	}
+
+        DefinitionContextPtr dc = currentDefinitionContext();
+        assert(dc);
+        dc->setFilename(currentFile);
     }
 }
 
@@ -4082,9 +4195,41 @@ Slice::Unit::currentIncludeLevel() const
 }
 
 void
+Slice::Unit::setGlobalMetaData(const StringList& metaData)
+{
+    DefinitionContextPtr dc = currentDefinitionContext();
+    assert(dc);
+    if(dc->hasMetaData())
+    {
+        error("global metadata can only be set once per file");
+    }
+    else if(dc->seenDefinition())
+    {
+        error("global metadata must appear before any definitions");
+    }
+    else
+    {
+        dc->setMetaData(metaData);
+    }
+}
+
+void
+Slice::Unit::setSeenDefinition()
+{
+    DefinitionContextPtr dc = currentDefinitionContext();
+    assert(dc);
+    dc->setSeenDefinition();
+}
+
+void
 Slice::Unit::error(const char* s)
 {
-    cout << _currentFile << ':' << _currentLine << ": " << s << endl;
+    string file = currentFile();
+    if(!file.empty())
+    {
+        cout << file << ':' << _currentLine << ": ";
+    }
+    cout << s << endl;
     _errors++;
 }
 
@@ -4097,7 +4242,12 @@ Slice::Unit::error(const string& s)
 void
 Slice::Unit::warning(const char* s) const
 {
-    cout << _currentFile << ':' << _currentLine << ": warning: " << s << endl;
+    string file = currentFile();
+    if(!file.empty())
+    {
+        cout << file << ':' << _currentLine << ": ";
+    }
+    cout << "warning: " << s << endl;
 }
 
 void
@@ -4124,6 +4274,30 @@ Slice::Unit::popContainer()
 {
     assert(!_containerStack.empty());
     _containerStack.pop();
+}
+
+DefinitionContextPtr
+Slice::Unit::currentDefinitionContext() const
+{
+    DefinitionContextPtr dc;
+    if(!_definitionContextStack.empty())
+    {
+        dc = _definitionContextStack.top();
+    }
+    return dc;
+}
+
+void
+Slice::Unit::pushDefinitionContext()
+{
+    _definitionContextStack.push(new DefinitionContext(_currentIncludeLevel));
+}
+
+void
+Slice::Unit::popDefinitionContext()
+{
+    assert(!_definitionContextStack.empty());
+    _definitionContextStack.pop();
 }
 
 void
@@ -4341,9 +4515,8 @@ Slice::Unit::parse(FILE* file, bool debug)
     _currentComment = "";
     _currentLine = 1;
     _currentIncludeLevel = 0;
-    _currentFile = "";
-    _topLevelFile = "";
     pushContainer(this);
+    pushDefinitionContext();
 
     slice_in = file;
     int status = slice_parse();
@@ -4358,11 +4531,17 @@ Slice::Unit::parse(FILE* file, bool debug)
 	{
 	    popContainer();
 	}
+        while(!_definitionContextStack.empty())
+        {
+            popDefinitionContext();
+        }
     }
     else
     {
 	assert(_containerStack.size() == 1);
 	popContainer();
+        assert(_definitionContextStack.size() == 1);
+        popDefinitionContext();
     }
 
     Slice::unit = 0;

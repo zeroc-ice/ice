@@ -171,6 +171,37 @@ public:
 };
 
 // ----------------------------------------------------------------------
+// DefinitionContext
+// ----------------------------------------------------------------------
+
+class SLICE_API DefinitionContext : public ::IceUtil::SimpleShared
+{
+public:
+
+    DefinitionContext(int);
+
+    std::string filename() const;
+    int includeLevel() const;
+    bool seenDefinition() const;
+
+    void setFilename(const std::string&);
+    void setSeenDefinition();
+
+    bool hasMetaData() const;
+    void setMetaData(const StringList&);
+    std::string findMetaData(const std::string&) const;
+    StringList getMetaData() const;
+
+private:
+
+    int _includeLevel;
+    std::string _filename;
+    bool _seenDefinition;
+    StringList _metaData;
+};
+typedef ::IceUtil::Handle<DefinitionContext> DefinitionContextPtr;
+
+// ----------------------------------------------------------------------
 // GrammarBase
 // ----------------------------------------------------------------------
 
@@ -188,6 +219,7 @@ public:
 
     virtual void destroy();
     UnitPtr unit() const;
+    DefinitionContextPtr definitionContext() const; // May be nil
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -195,6 +227,7 @@ protected:
     SyntaxTreeBase(const UnitPtr&);
 
     UnitPtr _unit;
+    DefinitionContextPtr _definitionContext;
 };
 
 // ----------------------------------------------------------------------
@@ -819,6 +852,9 @@ public:
     void scanPosition(const char*);
     int currentIncludeLevel() const;
 
+    void setGlobalMetaData(const StringList&);
+    void setSeenDefinition();
+
     void error(const char*); // Not const, because error count is increased.
     void error(const std::string&); // Ditto.
 
@@ -828,6 +864,10 @@ public:
     ContainerPtr currentContainer() const;
     void pushContainer(const ContainerPtr&);
     void popContainer();
+
+    DefinitionContextPtr currentDefinitionContext() const;
+    void pushDefinitionContext();
+    void popDefinitionContext();
 
     void addContent(const ContainedPtr&);
     void removeContent(const ContainedPtr&);
@@ -863,6 +903,7 @@ private:
     int _currentIncludeLevel;
     std::string _currentFile;
     std::string _topLevelFile;
+    std::stack<DefinitionContextPtr> _definitionContextStack;
     StringList _includeFiles;
     std::stack<ContainerPtr> _containerStack;
     std::map<Builtin::Kind, BuiltinPtr> _builtins;

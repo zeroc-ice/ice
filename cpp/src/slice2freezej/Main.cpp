@@ -48,7 +48,7 @@ private:
 };
 
 FreezeGenerator::FreezeGenerator(const string& prog, const string& dir)
-    : JavaGenerator(dir, string()),
+    : JavaGenerator(dir),
       _prog(prog)
 {
 }
