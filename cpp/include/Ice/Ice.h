@@ -23,7 +23,6 @@
 #include <Ice/Stats.h>
 #include <Ice/Communicator.h>
 #include <Ice/ObjectFactory.h>
-#include <Ice/UserExceptionFactory.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/ServantLocator.h>
 #include <Ice/Proxy.h>
@@ -32,7 +31,5 @@
 #include <Ice/OutgoingAsync.h>
 #include <Ice/IncomingAsync.h>
 #include <Ice/Application.h>
-
-//#include <Ice/Stream.h>
 
 #endif

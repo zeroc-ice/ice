@@ -84,6 +84,12 @@ Slice::Builtin::isLocal() const
     return _kind == KindLocalObject;
 }
 
+bool
+Slice::Builtin::usesClasses() const
+{
+    return _kind == KindObject;
+}
+
 Builtin::Kind
 Slice::Builtin::kind() const
 {
@@ -1197,6 +1203,51 @@ Slice::Container::hasClassDefs() const
 }
 
 bool
+Slice::Container::hasDataOnlyClasses() const
+{
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+	ClassDefPtr q = ClassDefPtr::dynamicCast(*p);
+	if(q)
+	{
+	    if(!q->isAbstract())
+	    {
+		return true;
+	    }
+	}
+
+	ContainerPtr container = ContainerPtr::dynamicCast(*p);
+	if(container && container->hasDataOnlyClasses())
+	{
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+bool
+Slice::Container::hasNonLocalExceptions() const
+{
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+	ExceptionPtr q = ExceptionPtr::dynamicCast(*p);
+	if(q && !q->isLocal())
+	{
+	    return true;
+	}
+
+	ContainerPtr container = ContainerPtr::dynamicCast(*p);
+	if(container && container->hasNonLocalExceptions())
+	{
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+bool
 Slice::Container::hasOtherConstructedOrExceptions() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -1624,6 +1675,12 @@ Slice::ClassDecl::uses(const ContainedPtr&) const
     return false;
 }
 
+bool
+Slice::ClassDecl::usesClasses() const
+{
+    return !isLocal() && !_interface;
+}
+
 string
 Slice::ClassDecl::kindOf() const
 {
@@ -1675,7 +1732,7 @@ Slice::ClassDecl::checkBasesAreLegal(const string& name, bool local, const Class
 	    }
 	}
     }
-    
+
     //
     // Check whether, for multiple inheritance, any of the bases define
     // the same operations.
@@ -2286,6 +2343,12 @@ Slice::Proxy::isLocal() const
     return __class->isLocal();
 }
 
+bool
+Slice::Proxy::usesClasses() const
+{
+    return false;
+}
+
 ClassDeclPtr
 Slice::Proxy::_class() const
 {
@@ -2465,6 +2528,24 @@ Slice::Exception::uses(const ContainedPtr&) const
     return false;
 }
 
+bool
+Slice::Exception::usesClasses() const
+{
+    DataMemberList dml = dataMembers();
+    for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    {
+	if((*i)->type()->usesClasses())
+	{
+	    return true;
+	}
+    }
+    if(_base)
+    {
+	return _base->usesClasses();
+    }
+    return false;
+}
+
 string
 Slice::Exception::kindOf() const
 {
@@ -2603,6 +2684,24 @@ Slice::Struct::uses(const ContainedPtr&) const
     return false;
 }
 
+bool
+Slice::Struct::usesClasses() const
+{
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+	DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
+	if(q)
+	{
+	    TypePtr t = q->type();
+	    if(t->usesClasses())
+	    {
+		return true;
+	    }
+	}
+    }
+    return false;
+}
+
 string
 Slice::Struct::kindOf() const
 {
@@ -2660,6 +2759,12 @@ Slice::Sequence::uses(const ContainedPtr& contained) const
     }
 
     return false;
+}
+
+bool
+Slice::Sequence::usesClasses() const
+{
+    return _type->usesClasses();
 }
 
 string
@@ -2736,6 +2841,12 @@ Slice::Dictionary::uses(const ContainedPtr& contained) const
     }
 
     return false;
+}
+
+bool
+Slice::Dictionary::usesClasses() const
+{
+    return _valueType->usesClasses();
 }
 
 string
@@ -2872,6 +2983,12 @@ Slice::Enum::containedType() const
 
 bool
 Slice::Enum::uses(const ContainedPtr&) const
+{
+    return false;
+}
+
+bool
+Slice::Enum::usesClasses() const
 {
     return false;
 }
@@ -3386,6 +3503,39 @@ Slice::Operation::uses(const ContainedPtr& contained) const
 	}
     }
 
+    return false;
+}
+
+bool
+Slice::Operation::sendsClasses() const
+{
+    ParamDeclList pdl = parameters();
+    for(ParamDeclList::const_iterator i = pdl.begin(); i != pdl.end(); ++i)
+    {
+	if(!(*i)->isOutParam() && (*i)->type()->usesClasses())
+	{
+	    return true;
+	}
+    }
+    return false;
+}
+
+bool
+Slice::Operation::returnsClasses() const
+{
+    TypePtr t = returnType();
+    if(t && t->usesClasses())
+    {
+	return true;
+    }
+    ParamDeclList pdl = parameters();
+    for(ParamDeclList::const_iterator i = pdl.begin(); i != pdl.end(); ++i)
+    {
+	if((*i)->isOutParam() && (*i)->type()->usesClasses())
+	{
+	    return true;
+	}
+    }
     return false;
 }
 

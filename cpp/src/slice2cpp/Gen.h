@@ -228,7 +228,7 @@ private:
 
     private:
 
-	void emitClassBase(const ClassDefPtr&, const std::string&);
+	void emitClassBase(const ClassDefPtr&, const std::string&, const std::string&);
 
 	::IceUtil::Output& H;
 	::IceUtil::Output& C;

@@ -12,30 +12,36 @@
 //
 // **********************************************************************
 
-interface Base1 {
+interface Base1
+{
     void op();
     void op2();
 };
 
-interface Derived1 extends Base1 {
+interface Derived1 extends Base1
+{
     void op();				// error
     long op();				// error
     void foo();
 };
 
-interface Base2 {
+interface Base2
+{
     void op();
 };
 
-interface D1 extends Base1 {
+interface D1 extends Base1
+{
     void foo();				// OK
 };
 
-interface D2 extends D1 {
+interface D2 extends D1
+{
     void op();				// error, op() in Base1
 };
 
-interface D3 extends D1, Base2 {
+interface D3 extends D1, Base2
+{
     void bar();				// error, op() in Base1 and Base2
 };
 

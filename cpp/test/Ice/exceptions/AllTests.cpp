@@ -38,37 +38,6 @@ public:
     virtual void destroy() {}
 };
 
-class MyExceptionFactory : public Ice::UserExceptionFactory
-{
-public:
-
-    virtual void createAndThrow(const string& type)
-    {
-	if(type == "::A")
-	{
-	    throw A();
-	}
-	else if(type == "::B")
-	{
-	    throw B();
-	}
-	else if(type == "::C")
-	{
-	    throw C();
-	}
-	else if(type == "::D")
-	{
-	    throw D();
-	}
-	assert(false); // Should never be reached
-    }
-
-    virtual void destroy()
-    {
-	// Nothing to do
-    }
-};
-
 class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
@@ -263,34 +232,6 @@ public:
 
 typedef ::IceUtil::Handle< ::AMI_Thrower_throwAorDasAorDI> AMI_Thrower_throwAorDasAorDIPtr;
 
-class AMI_Thrower_throwBasANoFactoryI : public AMI_Thrower_throwBasA, public CallbackBase
-{
-public:
-
-    virtual void ice_response()
-    {
-	test(false);
-    }
-
-    virtual void ice_exception(const Ice::Exception& exc)
-    {
-	try
-	{
-	    exc.ice_throw();
-	}
-	catch(const Ice::NoUserExceptionFactoryException&)
-	{
-	}
-	catch(...)
-	{
-	    test(false);
-	}
-	called();
-    }
-};
-
-typedef ::IceUtil::Handle< ::AMI_Thrower_throwBasANoFactoryI> AMI_Thrower_throwBasANoFactoryIPtr;
-
 class AMI_Thrower_throwBasAI : public AMI_Thrower_throwBasA, public CallbackBase
 {
 public:
@@ -320,34 +261,6 @@ public:
 };
 
 typedef ::IceUtil::Handle< ::AMI_Thrower_throwBasAI> AMI_Thrower_throwBasAIPtr;
-
-class AMI_Thrower_throwCasANoFactoryI : public AMI_Thrower_throwCasA, public CallbackBase
-{
-public:
-
-    virtual void ice_response()
-    {
-	test(false);
-    }
-
-    virtual void ice_exception(const Ice::Exception& exc)
-    {
-	try
-	{
-	    exc.ice_throw();
-	}
-	catch(const Ice::NoUserExceptionFactoryException&)
-	{
-	}
-	catch(...)
-	{
-	    test(false);
-	}
-	called();
-    }
-};
-
-typedef ::IceUtil::Handle< ::AMI_Thrower_throwCasANoFactoryI> AMI_Thrower_throwCasANoFactoryIPtr;
 
 class AMI_Thrower_throwCasAI : public AMI_Thrower_throwCasA, public CallbackBase
 {
@@ -409,34 +322,6 @@ public:
 };
 
 typedef ::IceUtil::Handle< ::AMI_Thrower_throwBasBI> AMI_Thrower_throwBasBIPtr;
-
-class AMI_Thrower_throwCasBNoFactoryI : public AMI_Thrower_throwCasB, public CallbackBase
-{
-public:
-
-    virtual void ice_response()
-    {
-	test(false);
-    }
-
-    virtual void ice_exception(const Ice::Exception& exc)
-    {
-	try
-	{
-	    exc.ice_throw();
-	}
-	catch(const Ice::NoUserExceptionFactoryException&)
-	{
-	}
-	catch(...)
-	{
-	    test(false);
-	}
-	called();
-    }
-};
-
-typedef ::IceUtil::Handle< ::AMI_Thrower_throwCasBNoFactoryI> AMI_Thrower_throwCasBNoFactoryIPtr;
 
 class AMI_Thrower_throwCasBI : public AMI_Thrower_throwCasB, public CallbackBase
 {
@@ -765,35 +650,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     cout << "ok" << endl;
 
-    cout << "testing user exception factory registration exceptions... " << flush;
-    {
-	Ice::UserExceptionFactoryPtr f = new MyExceptionFactory;
-	communicator->addUserExceptionFactory(f, "::x");
-	bool gotException = false;
-	try
-	{
-	    communicator->addUserExceptionFactory(f, "::x");
-	}
-	catch(const Ice::AlreadyRegisteredException&)
-	{
-	    gotException = true;
-	}
-	test(gotException);
-
-	gotException = false;
-	communicator->removeUserExceptionFactory("::x");
-	try
-	{
-	    communicator->removeUserExceptionFactory("::x");
-	}
-	catch(const Ice::NotRegisteredException&)
-	{
-	    gotException = true;
-	}
-	test(gotException);
-    }
-    cout << "ok" << endl;
-
     cout << "testing stringToProxy... " << flush;
     string ref = "thrower:default -p 12345 -t 2000";
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
@@ -921,63 +777,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     cout << "ok" << endl;
 
-    if(!collocated) // If the server is collocated, exception factories are not needed.
-    {
-	cout << "catching derived types w/o exception factories... " << flush;
-	
-	try
-	{
-	    thrower->throwBasA(1, 2);
-	    test(false);
-	}
-	catch(const Ice::NoUserExceptionFactoryException&)
-	{
-	}
-	catch(...)
-	{
-	    test(false);
-	}
-	
-	try
-	{
-	    thrower->throwCasA(1, 2, 3);
-	    test(false);
-	}
-	catch(const Ice::NoUserExceptionFactoryException&)
-	{
-	}
-	catch(...)
-	{
-	    test(false);
-	}
-	
-	try
-	{
-	    thrower->throwCasB(1, 2, 3);
-	    test(false);
-	}
-	catch(const Ice::NoUserExceptionFactoryException&)
-	{
-	}
-	catch(...)
-	{
-	    test(false);
-	}
-	
-	cout << "ok" << endl;
-	
-	cout << "catching derived types w/ exception factories... " << flush;
-	
-	Ice::UserExceptionFactoryPtr factory = new MyExceptionFactory;
-	communicator->addUserExceptionFactory(factory, "::A");
-	communicator->addUserExceptionFactory(factory, "::B");
-	communicator->addUserExceptionFactory(factory, "::C");
-	communicator->addUserExceptionFactory(factory, "::D");
-    }
-    else
-    {
-	cout << "catching derived types... " << flush;
-    }
+    cout << "catching derived types... " << flush;
 	
     try
     {
@@ -1049,7 +849,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	catch(const Ice::UnknownUserException&)
 	{
 	    //
-	    // We get the an unknown user exception without
+	    // We get the unknown user exception without
 	    // collocation optimization.
 	    //
 	    test(!collocated);
@@ -1077,7 +877,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	catch(const Ice::UnknownUserException&)
 	{
 	    //
-	    // We get the an unknown user exception without
+	    // We get the unknown user exception without
 	    // collocation optimization.
 	    //
 	    test(!collocated);
@@ -1106,7 +906,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	catch(const Ice::UnknownUserException&)
 	{
 	    //
-	    // We get the an unknown user exception without
+	    // We get the unknown user exception without
 	    // collocation optimization.
 	    //
 	    test(!collocated);
@@ -1213,7 +1013,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     catch(const Ice::UnknownLocalException&)
     {
 	//
-	// We get the an unknown local exception without collocation
+	// We get the unknown local exception without collocation
 	// optimization.
 	//
 	test(!collocated);
@@ -1235,7 +1035,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     catch(const Ice::UnknownException&)
     {
 	//
-	// We get the an unknown exception without collocation
+	// We get the unknown exception without collocation
 	// optimization.
 	//
 	assert(!collocated);
@@ -1250,14 +1050,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     
     cout << "ok" << endl;
-
-    if(!collocated) // Remove exception factories if they have been installed before.
-    {
-	communicator->removeUserExceptionFactory("::A");
-	communicator->removeUserExceptionFactory("::B");
-	communicator->removeUserExceptionFactory("::C");
-	communicator->removeUserExceptionFactory("::D");
-    }
 
     if(!collocated)
     {
@@ -1295,35 +1087,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	
 	cout << "ok" << endl;
 	
-	cout << "catching derived types w/o exception factories with AMI... " << flush;
-	
-	{
-	    AMI_Thrower_throwBasANoFactoryIPtr cb = new AMI_Thrower_throwBasANoFactoryI;
-	    thrower->throwBasA_async(cb, 1, 2);
-	    test(cb->check());
-	}
-
-	{
-	    AMI_Thrower_throwCasANoFactoryIPtr cb = new AMI_Thrower_throwCasANoFactoryI;
-	    thrower->throwCasA_async(cb, 1, 2, 3);
-	    test(cb->check());
-	}
-	
-	{
-	    AMI_Thrower_throwCasBNoFactoryIPtr cb = new AMI_Thrower_throwCasBNoFactoryI;
-	    thrower->throwCasB_async(cb, 1, 2, 3);
-	    test(cb->check());
-	}
-	
-	cout << "ok" << endl;
-
-	cout << "catching derived types w/ exception factories with AMI... " << flush;
-	
-	Ice::UserExceptionFactoryPtr factory = new MyExceptionFactory;
-	communicator->addUserExceptionFactory(factory, "::A");
-	communicator->addUserExceptionFactory(factory, "::B");
-	communicator->addUserExceptionFactory(factory, "::C");
-	communicator->addUserExceptionFactory(factory, "::D");
+	cout << "catching derived types... " << flush;
 	
 	{
 	    AMI_Thrower_throwBasAIPtr cb = new AMI_Thrower_throwBasAI;
@@ -1429,11 +1193,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	
 	cout << "ok" << endl;
 	
-	communicator->removeUserExceptionFactory("::A");
-	communicator->removeUserExceptionFactory("::B");
-	communicator->removeUserExceptionFactory("::C");
-	communicator->removeUserExceptionFactory("::D");
-
     }
 
     return thrower;

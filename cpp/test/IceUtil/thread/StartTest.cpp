@@ -54,7 +54,8 @@ StartTest::run()
     ThreadControl control = t->start();
     control.join();
     bool gotException = false;
-    try {
+    try
+    {
 	t->start();
     }
     catch(const ThreadStartedException&)

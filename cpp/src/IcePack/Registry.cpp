@@ -27,7 +27,6 @@
 #include <IcePack/LocatorRegistryI.h>
 #include <IcePack/AdminI.h>
 #include <IcePack/QueryI.h>
-#include <IcePack/ExceptionFactory.h>
 #include <IcePack/TraceLevels.h>
 
 #include <sys/types.h>
@@ -146,11 +145,6 @@ IcePack::Registry::start(bool nowarn, bool requiresInternalEndpoints)
     properties->setProperty("Ice.PrintProcessId", "0");
     properties->setProperty("Ice.Warn.Leaks", "0");
 
-    //
-    // Register IcePack exception factory with the communicator.
-    //
-    UserExceptionFactoryPtr(new ExceptionFactory(_communicator));
-    
     TraceLevelsPtr traceLevels = new TraceLevels(properties, _communicator->getLogger());
 
     //

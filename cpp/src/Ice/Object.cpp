@@ -62,31 +62,31 @@ const string Ice::Object::__ids[] =
 };
 
 bool
-Ice::Object::ice_isA(const string& s, const Current&)
+Ice::Object::ice_isA(const string& s, const Current&) const
 {
     return s == __ids[0];
 }
 
 void
-Ice::Object::ice_ping(const Current&)
+Ice::Object::ice_ping(const Current&) const
 {
     // Nothing to do.
 }
 
 vector<string>
-Ice::Object::ice_ids(const Current&)
+Ice::Object::ice_ids(const Current&) const
 {
     return vector<string>(&__ids[0], &__ids[1]);
 }
 
 const string&
-Ice::Object::ice_id(const Current&)
+Ice::Object::ice_id(const Current&) const
 {
     return __ids[0];
 }
 
 vector<string>
-Ice::Object::ice_facets(const Current&)
+Ice::Object::ice_facets(const Current&) const
 {
     IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
 
@@ -205,18 +205,29 @@ Ice::Object::__write(::IceInternal::BasicStream* __os) const
 {
     IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
     
+    __os->writeTypeId(ice_staticId());
+    __os->startWriteSlice();
     __os->writeSize(Int(_activeFacetMap.size()));
     for(map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
     {
 	__os->write(p->first);
 	__os->write(p->second);
     }
+    __os->endWriteSlice();
 }
 
 void
-Ice::Object::__read(::IceInternal::BasicStream* __is)
+Ice::Object::__read(::IceInternal::BasicStream* __is, bool __rid)
 {
     IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
+
+    if(__rid)
+    {
+	string myId;
+	__is->readTypeId(myId);
+    }
+
+    __is->startReadSlice();
 
     Int sz;
     __is->readSize(sz);
@@ -226,11 +237,14 @@ Ice::Object::__read(::IceInternal::BasicStream* __is)
 
     while(sz-- > 0)
     {
-	pair<const string, ObjectPtr> v;
-	__is->read(const_cast<string&>(v.first));
-	__is->read("", 0, v.second);
+	string s;
+	__is->read(s);
+	pair<const string, ObjectPtr> v(s, ObjectPtr());
 	_activeFacetMapHint = _activeFacetMap.insert(_activeFacetMapHint, v);
+	__is->read(::__patch__ObjectPtr, &_activeFacetMapHint->second);
     }
+
+    __is->endReadSlice();
 }
 
 void
@@ -409,6 +423,13 @@ Ice::Object::ice_findFacetPath(const vector<string>& path, int start)
     {
 	return f;
     }
+}
+
+void
+Ice::__patch__ObjectPtr(void* __addr, ObjectPtr& v)
+{
+    ObjectPtr* p = static_cast<ObjectPtr*>(__addr);
+    *p = v;
 }
 
 DispatchStatus

@@ -236,6 +236,7 @@ class SLICE_API Type : virtual public SyntaxTreeBase
 public:
 
     virtual bool isLocal() const = 0;
+    virtual bool usesClasses() const = 0;
 
 protected:
 
@@ -266,6 +267,7 @@ public:
     };
 
     virtual bool isLocal() const;
+    virtual bool usesClasses() const;
 
     Kind kind() const;
     std::string kindAsString() const;
@@ -373,6 +375,8 @@ public:
     bool hasNonLocalClassDecls() const;
     bool hasClassDecls() const;
     bool hasClassDefs() const;
+    bool hasDataOnlyClasses() const;
+    bool hasNonLocalExceptions() const;
     bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
     bool hasContentsWithMetaData(const std::string&) const;
     std::string thisScope() const;
@@ -446,6 +450,7 @@ public:
     bool isInterface() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
+    virtual bool usesClasses() const;
     virtual void visit(ParserVisitor*);
     virtual std::string kindOf() const;
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
@@ -499,6 +504,8 @@ public:
     void setExceptionList(const ExceptionList&);
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
+    bool sendsClasses() const;
+    bool returnsClasses() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
 
@@ -567,6 +574,7 @@ class SLICE_API Proxy : virtual public Type
 public:
 
     virtual bool isLocal() const;
+    virtual bool usesClasses() const;
 
     ClassDeclPtr _class() const;
 
@@ -594,6 +602,7 @@ public:
     bool isLocal() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
+    bool usesClasses() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
 
@@ -618,6 +627,7 @@ public:
     DataMemberList dataMembers() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
+    virtual bool usesClasses() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
@@ -639,6 +649,7 @@ public:
     TypePtr type() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
+    virtual bool usesClasses() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
@@ -663,6 +674,7 @@ public:
     TypePtr valueType() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
+    virtual bool usesClasses() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
@@ -690,6 +702,7 @@ public:
     void setEnumerators(const EnumeratorList&);
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
+    virtual bool usesClasses() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.

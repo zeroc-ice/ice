@@ -18,7 +18,6 @@
 #include <Ice/ReferenceFactory.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/ObjectFactoryManager.h>
-#include <Ice/UserExceptionFactoryManager.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/LocalException.h>
@@ -167,39 +166,6 @@ Ice::CommunicatorI::findObjectFactory(const string& id)
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
     return _instance->servantFactoryManager()->find(id);
-}
-
-void
-Ice::CommunicatorI::addUserExceptionFactory(const UserExceptionFactoryPtr& factory, const string& id)
-{
-    RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-    _instance->userExceptionFactoryManager()->add(factory, id);
-}
-
-void
-Ice::CommunicatorI::removeUserExceptionFactory(const string& id)
-{
-    RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-    _instance->userExceptionFactoryManager()->remove(id);
-}
-
-UserExceptionFactoryPtr
-Ice::CommunicatorI::findUserExceptionFactory(const string& id)
-{
-    RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-    return _instance->userExceptionFactoryManager()->find(id);
 }
 
 PropertiesPtr

@@ -25,8 +25,7 @@ TARGETS		= $(NAME) $(VERSIONED_NAME) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
 LIB_OBJS	= Admin.o \
 		  Query.o \
-	 	  Exception.o \
-		  ExceptionFactory.o
+	 	  Exception.o
 
 ADMIN_OBJS	= Grammar.o \
 		  Scanner.o \

@@ -28,7 +28,8 @@ struct Key
 //
 // A set of classes that represents a numeric parse tree.
 //
-class Node {
+class Node
+{
     int calc();
 };
 

@@ -12,24 +12,15 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PACK_EXCEPTION_FACTORY_H
-#define ICE_PACK_EXCEPTION_FACTORY_H
+#ifndef CLIENTPRIVATE_ICE
+#define CLIENTPRIVATE_ICE
 
-#include <Ice/UserExceptionFactory.h>
+#include <ClientTest.ice>
 
-namespace IcePack
+class D3 extends B
 {
-
-class ExceptionFactory : public Ice::UserExceptionFactory
-{
-public:
-    
-    ExceptionFactory(const Ice::CommunicatorPtr&);
-
-    virtual void createAndThrow(const std::string&);
-    virtual void destroy();
+    string sd3;
+    B pd3;
 };
-
-}
 
 #endif

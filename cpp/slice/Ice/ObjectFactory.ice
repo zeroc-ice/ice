@@ -27,7 +27,6 @@ module Ice
  * with the communicator.
  *
  * @see Freeze
- * @see UserExceptionFactory
  *
  **/
 local interface ObjectFactory

@@ -25,6 +25,12 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+bool
+Ice::UserException::__usesClasses() const
+{
+    return false;
+}
+
 void
 Ice::UserException::ice_marshal(const ::std::string& __name, const ::Ice::StreamPtr& __os)
 {
@@ -380,13 +386,6 @@ Ice::NoObjectFactoryException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: no suitable object factory found for `" << type << "'";
-}
-
-void
-Ice::NoUserExceptionFactoryException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: no suitable user exception factory found for `" << type << "'";
 }
 
 void

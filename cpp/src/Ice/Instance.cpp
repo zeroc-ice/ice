@@ -23,7 +23,6 @@
 #include <Ice/ConnectionFactory.h>
 #include <Ice/ConnectionMonitor.h>
 #include <Ice/ObjectFactoryManager.h>
-#include <Ice/UserExceptionFactoryManager.h>
 #include <Ice/LocalException.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Exception.h>
@@ -247,19 +246,6 @@ IceInternal::Instance::servantFactoryManager()
     }
 
     return _servantFactoryManager;
-}
-
-UserExceptionFactoryManagerPtr
-IceInternal::Instance::userExceptionFactoryManager()
-{
-    IceUtil::RecMutex::Lock sync(*this);
-
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
-    return _userExceptionFactoryManager;
 }
 
 ObjectAdapterFactoryPtr
@@ -497,8 +483,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 
 	_servantFactoryManager = new ObjectFactoryManager();
 
-	_userExceptionFactoryManager = new UserExceptionFactoryManager();
-
 	_objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
 	__setNoDelete(false);
@@ -520,7 +504,6 @@ IceInternal::Instance::~Instance()
     assert(!_outgoingConnectionFactory);
     assert(!_connectionMonitor);
     assert(!_servantFactoryManager);
-    assert(!_userExceptionFactoryManager);
     assert(!_objectAdapterFactory);
     assert(!_clientThreadPool);
     assert(!_serverThreadPool);
@@ -692,9 +675,6 @@ IceInternal::Instance::destroy()
 
 	_servantFactoryManager->destroy();
 	_servantFactoryManager = 0;
-	
-	_userExceptionFactoryManager->destroy();
-	_userExceptionFactoryManager = 0;
 	
 	_referenceFactory->destroy();
 	_referenceFactory = 0;

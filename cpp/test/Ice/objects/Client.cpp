@@ -69,6 +69,8 @@ main(int argc, char* argv[])
     try
     {
 	communicator = Ice::initialize(argc, argv);
+	communicator->getProperties()->setProperty("Ice.Trace.Network", "3");
+	communicator->getProperties()->setProperty("Ice.Trace.Protocol", "3");
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

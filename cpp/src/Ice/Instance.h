@@ -33,7 +33,6 @@
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ConnectionMonitorF.h>
 #include <Ice/ObjectFactoryManagerF.h>
-#include <Ice/UserExceptionFactoryManagerF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
 #include <Ice/EndpointFactoryManagerF.h>
 #include <Ice/DynamicLibraryF.h>
@@ -68,7 +67,6 @@ public:
     OutgoingConnectionFactoryPtr outgoingConnectionFactory();
     ConnectionMonitorPtr connectionMonitor();
     ObjectFactoryManagerPtr servantFactoryManager();
-    UserExceptionFactoryManagerPtr userExceptionFactoryManager();
     ObjectAdapterFactoryPtr objectAdapterFactory();
     ThreadPoolPtr clientThreadPool();
     ThreadPoolPtr serverThreadPool();
@@ -97,7 +95,6 @@ private:
     OutgoingConnectionFactoryPtr _outgoingConnectionFactory;
     ConnectionMonitorPtr _connectionMonitor;
     ObjectFactoryManagerPtr _servantFactoryManager;
-    UserExceptionFactoryManagerPtr _userExceptionFactoryManager;
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ThreadPoolPtr _clientThreadPool;
     ThreadPoolPtr _serverThreadPool;

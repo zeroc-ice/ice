@@ -12,133 +12,166 @@
 //
 // **********************************************************************
 
-interface i1 {
+interface i1
+{
     void op();
     void op();
 };
 
-interface i2 {
+interface i2
+{
     void op();
     void oP();
 };
 
-class c1 {
+class c1
+{
     long l;
     void l();
 };
 
-class c2 {
+class c2
+{
     long l;
     void L();
 };
 
-module m1 {};
-module m1 {};
-module M1 {};
-module c1 {};
-module C1 {};
+module m1
+{};
+module m1
+{};
+module M1
+{};
+module c1
+{};
+module C1
+{};
 
-interface i3 {
+interface i3
+{
     void op(long aa, int aa);
     void op2(long bb, out int BB);
 };
 
-interface i4 {
+interface i4
+{
     void I4();
 };
 
-interface i5 {
+interface i5
+{
     void i5();
 };
 
-interface i6 {
+interface i6
+{
     void op();
 };
 
-interface i7 extends i6 {
+interface i7 extends i6
+{
     void op();
 };
 
-interface i8 extends i6 {
+interface i8 extends i6
+{
     void OP();
 };
 
-class c3 {
+class c3
+{
     long l;
 };
 
-class c4 extends c3 {
+class c4 extends c3
+{
     void l();
 };
 
-class c5 extends c3 {
+class c5 extends c3
+{
     void L();
 };
 
-class c6 {
+class c6
+{
     long l;
     void L();
 };
 
-class c7 extends c3 {
+class c7 extends c3
+{
     long l;
 };
 
-class c8 extends c3 {
+class c8 extends c3
+{
     long L;
 };
 
-class c9 {
+class c9
+{
      void L();
      long l;
 };
 
-exception e1 {
+exception e1
+{
     long l;
     string l;
 };
 
-exception e2 {
+exception e2
+{
     long l;
     string L;
 };
 
-exception e3 {
+exception e3
+{
     long e3;
 };
 
-exception e4 {
+exception e4
+{
     long E4;
 };
 
-exception e5 {
+exception e5
+{
     long l;
 };
 
-exception e6 extends e5 {
+exception e6 extends e5
+{
     string l;
 };
 
-exception e7 extends e5 {
+exception e7 extends e5
+{
     string L;
 };
 
-struct s1 {
+struct s1
+{
     long l;
     string l;
 };
 
-struct s2 {
+struct s2
+{
     long l;
     string L;
 };
 
-struct s3 {
+struct s3
+{
     long s3;
     string x;
 };
 
-struct s4 {
+struct s4
+{
     long S4;
     string x;
 };
@@ -169,25 +202,38 @@ module xxx
 module xx
 {
 
-interface Base { void op(); };
+interface Base
+{
+    void op();
+};
 
-interface Derived extends Base {};
+interface Derived extends Base
+{
+};
 
-interface Derived extends base {};
+interface Derived extends base
+{
+};
 
-exception e1 {};
+exception e1
+{
+};
 
-exception e2 extends E1 {};
+exception e2 extends E1
+{
+};
 
 sequence<long> s1;
-struct s {
+struct s
+{
     S1 x;
     ::xxx::xx::S1 y;
     ::xxx::XX::s1 z;
     xxx::XX::s1 w;
 };
 
-struct s2 {
+struct s2
+{
     Derived* blah;
     derived* bletch;
 };
@@ -196,7 +242,8 @@ struct s2 {
 
 };
 
-interface Foo {
+interface Foo
+{
     void op(long param, string Param);
     void op2() throws e1;
     void op3() throws E1;
@@ -214,13 +261,17 @@ interface Foo {
 
 module CI
 {
-    interface base1 {
+    interface base1
+    {
     	void op();
     };
 
-    interface base2 {
+    interface base2
+    {
     	void OP();
     };
 
-    interface derived extends base1, base2 {};
+    interface derived extends base1, base2
+    {
+    };
 };

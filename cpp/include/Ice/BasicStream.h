@@ -35,7 +35,9 @@ class ICE_API BasicStream : public Buffer
 {
 public:
 
-    BasicStream(Instance*);
+    typedef void (*PatchFunc)(void*, Ice::ObjectPtr&);
+
+    BasicStream(Instance* = 0);
 
     //
     // Must return Instance*, because we don't hold an InstancePtr for
@@ -57,8 +59,17 @@ public:
     Ice::Int getReadEncapsSize();
     void skipEncaps();
 
+    void startWriteSlice();
+    void endWriteSlice();
+    void startReadSlice();
+    void endReadSlice();
+    void skipSlice();
+
     void writeSize(Ice::Int);
     void readSize(Ice::Int&);
+
+    void writeTypeId(const std::string&);
+    void readTypeId(std::string&);
 
     void writeBlob(const std::vector<Ice::Byte>&);
     void readBlob(std::vector<Ice::Byte>&, Ice::Int);
@@ -120,10 +131,13 @@ public:
     void read(Ice::ObjectPrx&);
 
     void write(const Ice::ObjectPtr&);
-    void read(const std::string&, const ::Ice::ObjectFactoryPtr&, Ice::ObjectPtr&);
+    void read(PatchFunc, void*);
 
     void write(const Ice::UserException&);
-    ::Ice::Int throwException(const std::string*, const std::string*);
+    void throwException();
+
+    void writePendingObjects();
+    void readPendingObjects();
 
 private:
 
@@ -133,28 +147,62 @@ private:
     //
     Instance* _instance;
 
-    struct ReadEncaps
+    struct PatchEntry {
+	PatchFunc patchFunc;
+	void* patchAddr;
+    };
+    typedef std::vector<PatchEntry> PatchList;
+    typedef std::map<Ice::Int, PatchList> PatchMap;
+    typedef std::map<Ice::Int, Ice::ObjectPtr> IndexToPtrMap;
+    typedef std::map<Ice::Int, std::string> TypeIdReadMap;
+
+    class ReadEncaps
     {
+    public:
+	ReadEncaps();
+	ReadEncaps(const ReadEncaps&);
+	~ReadEncaps();
+
 	Container::size_type start;
 	Ice::Byte encodingMajor;
 	Ice::Byte encodingMinor;
-	std::vector<Ice::ObjectPtr> objectsRead;
+	PatchMap* patchMap;
+	IndexToPtrMap* unmarshaledMap;
+	Ice::Int typeIdIndex;
+	TypeIdReadMap* typeIdMap;
     };
 
-    struct WriteEncaps
+    typedef std::map<Ice::ObjectPtr, Ice::Int> PtrToIndexMap;
+    typedef std::map<std::string, Ice::Int> TypeIdWriteMap;
+
+    class WriteEncaps
     {
+    public:
+
+	WriteEncaps();
+	WriteEncaps(const WriteEncaps&);
+	~WriteEncaps();
+
 	Container::size_type start;
-	std::map<Ice::ObjectPtr, Ice::Int> objectsWritten;
+	Ice::Int writeIndex;
+	PtrToIndexMap* toBeMarshaledMap;
+	PtrToIndexMap* marshaledMap;
+	Ice::Int typeIdIndex;
+	TypeIdWriteMap* typeIdMap;
     };
 
     std::vector<ReadEncaps> _readEncapsStack;
     std::vector<WriteEncaps> _writeEncapsStack;
     ReadEncaps* _currentReadEncaps;
     WriteEncaps* _currentWriteEncaps;
+    Container::size_type _readSlice;
+    Container::size_type _writeSlice;
 
-    static const std::string _emptyString;
     static const std::string _iceObjectId;
     static const std::string _userExceptionId;
+
+    void writeInstance(const Ice::ObjectPtr&, Ice::Int);
+    void patchPointers(::Ice::Int, PatchMap::iterator, IndexToPtrMap::const_iterator);
 };
 
 }

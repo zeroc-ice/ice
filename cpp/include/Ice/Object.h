@@ -59,19 +59,19 @@ public:
 
     static const ::std::string __ids[];
 
-    virtual bool ice_isA(const ::std::string&, const Current& = Current());
+    virtual bool ice_isA(const ::std::string&, const Current& = Current()) const;
     ::IceInternal::DispatchStatus ___ice_isA(::IceInternal::Incoming&, const Current&);
 
-    virtual void ice_ping(const Current&  = Current());
+    virtual void ice_ping(const Current&  = Current()) const;
     ::IceInternal::DispatchStatus ___ice_ping(::IceInternal::Incoming&, const Current&);
 
-    virtual ::std::vector< ::std::string> ice_ids(const Current& = Current());
+    virtual ::std::vector< ::std::string> ice_ids(const Current& = Current()) const;
     ::IceInternal::DispatchStatus ___ice_ids(::IceInternal::Incoming&, const Current&);
 
-    virtual const ::std::string& ice_id(const Current& = Current());
+    virtual const ::std::string& ice_id(const Current& = Current()) const;
     ::IceInternal::DispatchStatus ___ice_id(::IceInternal::Incoming&, const Current&);
 
-    ::std::vector< ::std::string> ice_facets(const Current& = Current());
+    ::std::vector< ::std::string> ice_facets(const Current& = Current()) const;
     ::IceInternal::DispatchStatus ___ice_facets(::IceInternal::Incoming&, const Current&);
 
     static const ::std::string& ice_staticId();
@@ -80,7 +80,7 @@ public:
     virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);
 
     virtual void __write(::IceInternal::BasicStream*) const;
-    virtual void __read(::IceInternal::BasicStream*);
+    virtual void __read(::IceInternal::BasicStream*, bool = true);
 
     virtual void __marshal(const ::Ice::StreamPtr&) const;
     virtual void __unmarshal(const ::Ice::StreamPtr&);
@@ -101,6 +101,8 @@ private:
     ::IceUtil::Mutex _activeFacetMapMutex;
     static const char * const _kindOfObject;
 };
+
+void ICE_API __patch__ObjectPtr(void*, ObjectPtr&);
 
 class ICE_API Blobject : virtual public Object
 {

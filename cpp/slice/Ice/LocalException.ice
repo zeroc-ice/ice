@@ -634,29 +634,6 @@ local exception NoObjectFactoryException extends MarshalException
 /**
  *
  * This exception is a specialization of [MarshalException] that is
- * raised if no suitable user exception factory was found during user
- * exception unmarshaling.
- *
- * @see UserExceptionFactory
- * @see Communicator::addUserExceptionFactory
- * @see Communicator::removeUserExceptionFactory
- * @see Communicator::findUserExceptionFactory
- *
- **/
-local exception NoUserExceptionFactoryException extends MarshalException
-{
-    /**
-     *
-     * The absolute Slice type name of the exception for which we
-     * could not find a factory.
-     *
-     **/
-    string type;
-};
-
-/**
- *
- * This exception is a specialization of [MarshalException] that is
  * raised if inconsistent data is received while unmarshaling a proxy.
  *
  **/

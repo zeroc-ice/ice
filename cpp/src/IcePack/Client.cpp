@@ -13,7 +13,6 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
-#include <IcePack/ExceptionFactory.h>
 #include <IcePack/Parser.h>
 #include <fstream>
 
@@ -161,12 +160,8 @@ Client::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    //
-    // Register IcePack exception factory with the communicator.
-    //
-    Ice::UserExceptionFactoryPtr(new ExceptionFactory(communicator()));
-
     ParserPtr p = Parser::createParser(communicator(), admin, query);
+
     int status = EXIT_SUCCESS;
 
     if(argc < 2) // No files given

@@ -1,6 +1,32 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Ice now implements slicing for exceptions and classes: if process
+  receives an exception or class that is of a more derived type than
+  the receiver understands, the exception or class is automatically
+  sliced. (Previously, this situation resulted in an exception.)
+
+- Class factories are no longer necessary for non-abstract classes
+  (that is, for classes that do not have operations). For non-abstract
+  classes, the necessary factories are automatically installed by
+  the Ice run time. If you have existing code that implements
+  factories for non-abstract classes, you can simply delete that code.
+  (Note that for abstract classes (that is, classes with operations),
+  it is necessary to install a factory for each abstract class, exactly
+  as in version 1.0.1.
+
+- User exception factories and user exception factory
+  managers no longer exist. The factories for user exceptions
+  are now automatically installed by the Ice run time.
+  If you have existing code that implements user exception factories,
+  you can simply delete it.
+
+- If a client receives a derived exception for which it does
+  not have a user exception factory installed, the client
+  receives the exception sliced to its base instead of
+  getting NoUserExceptionFactoryException.
+  (NoUserExceptionFactoryException no longer exists.)
+
 - Fixed a bug with connections being closed even though they have
   outstanding batch requests.
 
@@ -95,8 +121,6 @@ Changes since version 1.0.1
   declared and used as a class member, but the definition of the class
   was not supplied in the same Slice compilation unit, invalid code
   was generated.
-
-- Fixed filedescriptor leak in the Glacier router starter.
 
 - Inlined most operators in IceUtil::Time for performance reasons.
 

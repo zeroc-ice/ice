@@ -46,8 +46,6 @@ OBJS		= Initialize.o \
 		  ObjectAdapterFactory.o \
 		  ServantManager.o \
 		  ServantLocator.o \
-		  UserExceptionFactory.o \
-		  UserExceptionFactoryManager.o \
 		  Endpoint.o \
 		  EndpointFactory.o \
 		  EndpointFactoryManager.o \
@@ -91,7 +89,9 @@ OBJS		= Initialize.o \
 		  ProtocolPluginFacade.o \
 		  Locator.o \
 		  LocatorInfo.o \
-		  StringUtil.o
+		  StringUtil.o \
+		  FactoryTableDef.o \
+		  FactoryTable.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -111,8 +111,6 @@ SLICE_SRCS	= $(SDIR)/LocalException.ice \
 		  $(SDIR)/PropertiesF.ice \
 		  $(SDIR)/ObjectFactory.ice \
 		  $(SDIR)/ObjectFactoryF.ice \
-		  $(SDIR)/UserExceptionFactory.ice \
-		  $(SDIR)/UserExceptionFactoryF.ice \
 		  $(SDIR)/Identity.ice \
 		  $(SDIR)/Facet.ice \
 		  $(SDIR)/Current.ice \

@@ -42,6 +42,8 @@ tests = [ \
     "Ice/faultTolerance", \
     "Ice/location", \
     "Ice/adapterDeactivation", \
+    "Ice/slicing/exceptions", \
+    "Ice/slicing/objects", \
     "IceSSL/configuration", \
     "IceSSL/loadPEM", \
     "IceSSL/certificateAndKeyParsing", \

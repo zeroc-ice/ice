@@ -23,7 +23,8 @@ SUBDIRS		= operations \
 		  objects \
 		  faultTolerance \
 		  location \
-		  adapterDeactivation
+		  adapterDeactivation \
+		  slicing
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

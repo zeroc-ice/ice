@@ -20,7 +20,6 @@
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/PropertiesF.ice>
 #include <Ice/ObjectFactoryF.ice>
-#include <Ice/UserExceptionFactoryF.ice>
 #include <Ice/RouterF.ice>
 #include <Ice/LocatorF.ice>
 #include <Ice/PluginF.ice>
@@ -48,7 +47,6 @@ module Ice
  * @see ObjectAdapter
  * @see Properties
  * @see ObjectFactory
- * @see UserExceptionFactory
  *
  **/
 local interface Communicator
@@ -223,56 +221,6 @@ local interface Communicator
      *
      **/
     ObjectFactory findObjectFactory(string id);
-
-    /**
-     *
-     * Add a user exception factory to this communicator. Adding a
-     * factory with an id for which a factory is already registered
-     * throws [AlreadyRegisteredException].
-     *
-     * @param factory The factory to add.
-     *
-     * @param id The type id for which the factory can create user
-     * exceptions.
-     *
-     * @see removeUserExceptionFactory
-     * @see findUserExceptionFactory
-     * @see UserExceptionFactory
-     *
-     **/
-    void addUserExceptionFactory(UserExceptionFactory factory, string id);
-
-    /**
-     *
-     * Remove a user exception factory from this communicator. Removing
-     * an id for which no factory is registered throws [NotRegisteredException].
-     *
-     * @param id The type id for which the factory can create user
-     * exceptions.
-     *
-     * @see addUserExceptionFactory
-     * @see findUserExceptionFactory
-     * @see UserExceptionFactory
-     *
-     **/
-    void removeUserExceptionFactory(string id);
-
-    /**
-     *
-     * Find a user exception factory registered with this communicator.
-     *
-     * @param id The type id for which the factory can create user
-     * exceptions.
-     *
-     * @return The user exception factory, or null if no user
-     * exception factory was found for the given id.
-     *
-     * @see addUserExceptionFactory
-     * @see removeUserExceptionFactory
-     * @see UserExceptionFactory
-     *
-     **/
-    UserExceptionFactory findUserExceptionFactory(string id);
 
     /**
      *

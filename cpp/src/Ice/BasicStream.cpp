@@ -19,10 +19,9 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/ObjectFactory.h>
 #include <Ice/ObjectFactoryManager.h>
-#include <Ice/UserExceptionFactory.h>
-#include <Ice/UserExceptionFactoryManager.h>
 #include <Ice/LocalException.h>
 #include <Ice/Protocol.h>
+#include <Ice/FactoryTable.h>
 
 template<typename InputIter, typename OutputIter>
 void
@@ -46,8 +45,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-const string IceInternal::BasicStream::_emptyString;
-const string IceInternal::BasicStream::_iceObjectId("::Ice::Object");
 const string IceInternal::BasicStream::_userExceptionId("::Ice::UserException");
 
 IceInternal::BasicStream::BasicStream(Instance* instance) :
@@ -110,6 +107,40 @@ IceInternal::BasicStream::reserve(int total)
     b.reserve(total);
 }
 
+IceInternal::BasicStream::WriteEncaps::WriteEncaps()
+    : writeIndex(0), toBeMarshaledMap(0), marshaledMap(0), typeIdIndex(0), typeIdMap(0)
+{
+}
+
+IceInternal::BasicStream::WriteEncaps::WriteEncaps(const WriteEncaps& rhs)
+{
+    start = rhs.start;
+    writeIndex = rhs.writeIndex;
+    typeIdIndex = rhs.typeIdIndex;
+    if(rhs.toBeMarshaledMap)
+    {
+	toBeMarshaledMap = new PtrToIndexMap(*rhs.toBeMarshaledMap);
+	marshaledMap = new PtrToIndexMap(*rhs.marshaledMap);
+	typeIdMap = new TypeIdWriteMap(*rhs.typeIdMap);
+    }
+    else
+    {
+	toBeMarshaledMap = 0;
+	marshaledMap = 0;
+	typeIdMap = 0;
+    }
+}
+
+IceInternal::BasicStream::WriteEncaps::~WriteEncaps()
+{
+    if(toBeMarshaledMap)
+    {
+	delete toBeMarshaledMap;
+	delete marshaledMap;
+	delete typeIdMap;
+    }
+}
+
 void
 IceInternal::BasicStream::startWriteEncaps()
 {
@@ -142,6 +173,41 @@ IceInternal::BasicStream::endWriteEncaps()
 #else
     ice_copy(p, p + sizeof(Int), b.begin() + start - sizeof(Int) - 2); 		// - 2 for major and minor version byte
 #endif
+}
+
+IceInternal::BasicStream::ReadEncaps::ReadEncaps()
+    : patchMap(0), unmarshaledMap(0), typeIdIndex(0), typeIdMap(0)
+{
+}
+
+IceInternal::BasicStream::ReadEncaps::ReadEncaps(const ReadEncaps& rhs)
+{
+    start = rhs.start;
+    encodingMajor = rhs.encodingMajor;
+    encodingMinor = rhs.encodingMinor;
+    typeIdIndex = rhs.typeIdIndex;
+    if(rhs.patchMap)
+    {
+	patchMap = new PatchMap(*rhs.patchMap);
+	unmarshaledMap = new IndexToPtrMap(*rhs.unmarshaledMap);
+	typeIdMap = new TypeIdReadMap(*rhs.typeIdMap);
+    }
+    else
+    {
+	patchMap = 0;
+	unmarshaledMap = 0;
+	typeIdMap = 0;
+    }
+}
+
+IceInternal::BasicStream::ReadEncaps::~ReadEncaps()
+{
+    if(patchMap)
+    {
+	delete patchMap;
+	delete unmarshaledMap;
+	delete typeIdMap;
+    }
 }
 
 void
@@ -280,6 +346,58 @@ IceInternal::BasicStream::skipEncaps()
 }
 
 void
+IceInternal::BasicStream::startWriteSlice()
+{
+    write(Int(0)); // Placeholder for the slice length
+    _writeSlice = b.size();
+}
+
+void
+IceInternal::BasicStream::endWriteSlice()
+{
+    Int sz = b.size() - _writeSlice + sizeof(Int);
+    const Byte* p = reinterpret_cast<const Byte*>(&sz);
+#ifdef ICE_UTIL_BIGENDIAN
+    reverse_copy(p, p + sizeof(Int), b.begin() + _writeSlice - sizeof(Int));
+#else
+    copy(p, p + sizeof(Int), b.begin() + _writeSlice - sizeof(Int));
+#endif
+}
+
+void
+IceInternal::BasicStream::startReadSlice()
+{
+    Int sz;
+    read(sz);
+    if(sz < 0)
+    {
+	throw NegativeSizeException(__FILE__, __LINE__);
+    }
+    _readSlice = i - b.begin();
+}
+
+void
+IceInternal::BasicStream::endReadSlice()
+{
+}
+
+void
+IceInternal::BasicStream::skipSlice()
+{
+    Int sz;
+    read(sz);
+    if(sz < 0)
+    {
+	throw NegativeSizeException(__FILE__, __LINE__);
+    }
+    i += sz - sizeof(Int);
+    if(i > b.end())
+    {
+	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+    }
+}
+
+void
 IceInternal::BasicStream::writeSize(Int v)
 {
     if(v > 127)
@@ -309,6 +427,46 @@ IceInternal::BasicStream::readSize(Ice::Int& v)
     else
     {
 	v = static_cast<Int>(byte);
+    }
+}
+
+void
+BasicStream::writeTypeId(const string& id)
+{
+    TypeIdWriteMap::const_iterator i = _currentWriteEncaps->typeIdMap->find(id);
+    if(i != _currentWriteEncaps->typeIdMap->end())
+    {
+	write(true);
+	writeSize(i->second);
+    }
+    else
+    {
+	_currentWriteEncaps->typeIdMap->insert(make_pair(id, ++_currentWriteEncaps->typeIdIndex));
+	write(false);
+	write(id);
+    }
+}
+
+void
+BasicStream::readTypeId(string& id)
+{
+    bool isIndex;
+    read(isIndex);
+    if(isIndex)
+    {
+	Ice::Int index;
+	readSize(index);
+	TypeIdReadMap::const_iterator i = _currentReadEncaps->typeIdMap->find(index);
+	if(i == _currentReadEncaps->typeIdMap->end())
+	{
+	    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	}
+	id = i->second;
+    }
+    else
+    {
+	read(id);
+	_currentReadEncaps->typeIdMap->insert(make_pair(++_currentReadEncaps->typeIdIndex, id));
     }
 }
 
@@ -893,66 +1051,111 @@ IceInternal::BasicStream::read(ObjectPrx& v)
 void
 IceInternal::BasicStream::write(const ObjectPtr& v)
 {
-    if(!_currentWriteEncaps) // Lazy initialization
+    if(!_currentWriteEncaps) 			// Lazy initialization
     {
 	_writeEncapsStack.resize(1);
 	_currentWriteEncaps = &_writeEncapsStack.back();
+	_currentWriteEncaps->start = b.size();
+	_currentWriteEncaps->toBeMarshaledMap = 0;
     }
 
-    map<ObjectPtr, Int>::const_iterator p = _currentWriteEncaps->objectsWritten.find(v.get());
-    if(p != _currentWriteEncaps->objectsWritten.end())
+    if(!_currentWriteEncaps->toBeMarshaledMap)	// Lazy initialization
     {
-	write(p->second);
+	_currentWriteEncaps->toBeMarshaledMap = new PtrToIndexMap;
+	_currentWriteEncaps->marshaledMap = new PtrToIndexMap;
+	_currentWriteEncaps->typeIdMap = new TypeIdWriteMap;
+    }
+
+    if(v)
+    {
+	//
+	// Look for this instance in the to-be-marshaled map.
+	//
+	PtrToIndexMap::iterator p = _currentWriteEncaps->toBeMarshaledMap->find(v);
+	if(p == _currentWriteEncaps->toBeMarshaledMap->end())
+	{
+	    //
+	    // Didn't find it, try the marshaled map next.
+	    //
+	    PtrToIndexMap::iterator q = _currentWriteEncaps->marshaledMap->find(v);
+	    if(q == _currentWriteEncaps->marshaledMap->end())
+	    {
+		//
+		// We haven't seen this instance previously, create a new index, and
+		// insert it into the to-be-marshaled map.
+		//
+		q = _currentWriteEncaps->toBeMarshaledMap->insert(
+			_currentWriteEncaps->toBeMarshaledMap->end(),
+			make_pair(v, ++_currentWriteEncaps->writeIndex));
+	    }
+	    p = q;
+	}
+	//
+	// Write the index for the instance.
+	//
+	write(-(p->second));
     }
     else
     {
-	write(Int(-1));
-	
-	if(v)
-	{
-	    Int num = static_cast<Int>(_currentWriteEncaps->objectsWritten.size());
-	    _currentWriteEncaps->objectsWritten[v.get()] = num;
-	    write(v->ice_id());
-	    v->__write(this);
-	}
-	else
-	{
-	    write(_emptyString);
-	}
+	write(0);	// Write null pointer
     }
 }
 
 void
-IceInternal::BasicStream::read(const string& signatureType, const ObjectFactoryPtr& factory, ObjectPtr& v)
+IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
 {
-    if(!_currentReadEncaps) // Lazy initialization
+    if(!_currentReadEncaps) 		// Lazy initialization
     {
 	_readEncapsStack.resize(1);
 	_currentReadEncaps = &_readEncapsStack.back();
     }
 
-    Int pos;
-    read(pos);
-    
-    if(pos >= 0)
+    if(!_currentReadEncaps->patchMap)	// Lazy initialization
     {
-	if(static_cast<vector<ObjectPtr>::size_type>(pos) >= _currentReadEncaps->objectsRead.size())
-	{
-	    throw IllegalIndirectionException(__FILE__, __LINE__);
-	}
-	v = _currentReadEncaps->objectsRead[pos];
+	_currentReadEncaps->patchMap = new PatchMap;
+	_currentReadEncaps->unmarshaledMap = new IndexToPtrMap;
+	_currentReadEncaps->typeIdMap = new TypeIdReadMap;
     }
-    else
+
+    ObjectPtr v;
+
+    Int index;
+    read(index);
+
+    if(index == 0)
+    {
+	patchFunc(patchAddr, v);	// Null Ptr
+	return;
+    }
+
+    if(index < 0 && patchAddr)
+    {
+	PatchMap::iterator p = _currentReadEncaps->patchMap->find(-index);
+	if(p == _currentReadEncaps->patchMap->end())
+	{
+	    //
+	    // We have no outstanding instances to be patched for this index, so make a new entry
+	    // in the patch map.
+	    //
+	    p = _currentReadEncaps->patchMap->insert(make_pair(-index, PatchList())).first;
+	}
+	//
+	// Append a patch entry for this instance.
+	//
+	PatchEntry e;
+	e.patchFunc = patchFunc;
+	e.patchAddr = patchAddr;
+	p->second.push_back(e);
+	patchPointers(-index, p, _currentReadEncaps->unmarshaledMap->end());
+	return;
+    }
+    assert(index > 0);
+
+    while(1)
     {
 	string id;
-	read(id);
-
-	if(id.empty())
-	{
-	    v = 0;
-	    return;
-	}
-	else if(id == _iceObjectId)
+	readTypeId(id);
+	if(id == Ice::Object::ice_staticId())
 	{
 	    v = new ::Ice::Object;
 	}
@@ -963,68 +1166,179 @@ IceInternal::BasicStream::read(const string& signatureType, const ObjectFactoryP
 	    {
 		v = userFactory->create(id);
 	    }
-
-	    if(!v && id == signatureType)
-	    {
-		assert(factory);
-		v = factory->create(id);
-		assert(v);
-	    }
-	    
 	    if(!v)
 	    {
-		NoObjectFactoryException ex(__FILE__, __LINE__);
-		ex.type = id;
-		throw ex;
+		ObjectFactoryPtr of = Ice::factoryTable->getObjectFactory(id);
+		if(of)
+		{
+		    v = of->create(id);
+		    assert(v);
+		}
+	    }
+	    if(!v)
+	    {
+		skipSlice();	// Slice off this derived part -- we don't understand it.
+		continue;
 	    }
 	}
-	_currentReadEncaps->objectsRead.push_back(v.get());
-	v->__read(this);
+
+	IndexToPtrMap::const_iterator unmarshaledPos =
+			    _currentReadEncaps->unmarshaledMap->insert(make_pair(index, v)).first;
+
+	v->__read(this, false);
+	patchPointers(index, _currentReadEncaps->patchMap->end(), unmarshaledPos);
+	return;
     }
+
+    //
+    // We can't possibly end up here: at the very least, the type ID "::Ice::Object" must be recognized, or
+    // client and server were compiled with mismatched Slice definitions.
+    //
+    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
 }
 
 void
 IceInternal::BasicStream::write(const UserException& v)
 {
-    write(v.__getExceptionIds()[0]);
+    write(v.__usesClasses());
     v.__write(this);
+    if(v.__usesClasses())
+    {
+	writePendingObjects();
+    }
 }
 
-Int
-IceInternal::BasicStream::throwException(const string* throwsBegin, const string* throwsEnd)
+void
+IceInternal::BasicStream::throwException()
 {
+    bool usesClasses;
+    read(usesClasses);
+
     string id;
     read(id);
-    UserExceptionFactoryPtr factory = _instance->userExceptionFactoryManager()->find(id);
-	
-    if(factory)
+    while(!id.empty())
     {
-	try
+	//
+	// Look for a factory for this ID.
+	//
+	UserExceptionFactoryPtr factory = factoryTable->getExceptionFactory(id);
+	if(factory)
 	{
-	    factory->createAndThrow(id);
-	}
-	catch(UserException& ex)
-	{
-	    for(const string* p = ex.__getExceptionIds(); *p != _userExceptionId != 0; ++p)
+	    //
+	    // Got factory -- get the factory to instantiate the exception, initialize the
+	    // exception members, and throw the exception.
+	    //
+	    try
 	    {
-		if(binary_search(throwsBegin, throwsEnd, string(*p)))
-		{
-		    ex.__read(this);
-		    ex.ice_throw();
-		}
+		factory->createAndThrow();
 	    }
-	
-	    throw UnknownUserException(__FILE__, __LINE__);
+	    catch(UserException& ex)
+	    {
+		ex.__read(this, false);
+		if(usesClasses)
+		{
+		    readPendingObjects();
+		}
+		ex.ice_throw();
+	    }
+	}
+	else
+	{
+	    skipSlice();	// Slice off what we don't understand
+	    read(id);		// Read type id for next encapsulation
+	}
+    }
+    //
+    // Getting here should be impossible: we can get here only if the sender has marshaled a sequence
+    // of type IDs, none of which we have factory for. this means that sender and receiver disagree
+    // about the Slice definitions they use.
+    //
+    throw UnknownUserException(__FILE__, __LINE__);
+}
+
+void
+BasicStream::writePendingObjects()
+{
+    while(_currentWriteEncaps->toBeMarshaledMap->size())
+    {
+	PtrToIndexMap savedMap = *_currentWriteEncaps->toBeMarshaledMap;
+	writeSize(static_cast<Int>(savedMap.size()));
+	for(PtrToIndexMap::iterator p = savedMap.begin(); p != savedMap.end(); ++p)
+	{
+	    //
+	    // Add an instance from the old to-be-marshaled map to the marshaled map and then
+	    // ask the instance to marshal itself. Any new class instances that are triggered
+	    // by the classes marshaled are added to toBeMarshaledMap.
+	    //
+	    _currentWriteEncaps->marshaledMap->insert(*p);
+	    writeInstance(p->first, p->second);
+	}
+
+        //
+	// We have marshaled all the instances for this pass, substract what we have
+	// marshaled from the toBeMarshaledMap.
+	//
+	PtrToIndexMap newMap;
+	set_difference(_currentWriteEncaps->toBeMarshaledMap->begin(), _currentWriteEncaps->toBeMarshaledMap->end(),
+		       savedMap.begin(), savedMap.end(),
+		       insert_iterator<PtrToIndexMap>(newMap, newMap.begin()));
+	*_currentWriteEncaps->toBeMarshaledMap = newMap;
+    }
+    writeSize(0);	// Zero marker indicates end of sequence of sequences of instances.
+}
+
+void
+BasicStream::readPendingObjects()
+{
+    Int num;
+    do
+    {
+	readSize(num);
+	for(int i = num; i > 0; --i)
+	{
+	    read(0, 0);
+	}
+    }
+    while(num);
+}
+
+void
+BasicStream::writeInstance(const ObjectPtr& v, Int index)
+{
+    write(index);
+    v->__write(this);
+}
+
+void
+BasicStream::patchPointers(Int index, PatchMap::iterator patchPos, IndexToPtrMap::const_iterator unmarshaledPos)
+{
+    //
+    // Called whenever we have unmarshaled a new instance. The index is the index of the instance just unmarshaled
+    // and patchPos is an iterator into the patch map at that index. (Either may be null, in which case we
+    // search the patch map and/or the unmarshaled map.)
+    // Patch any pointers in the patch map with the new address.
+    //
+    if(patchPos == _currentReadEncaps->patchMap->end())
+    {
+	patchPos = _currentReadEncaps->patchMap->find(index);
+    }
+
+    if(unmarshaledPos == _currentReadEncaps->unmarshaledMap->end())
+    {
+	unmarshaledPos = _currentReadEncaps->unmarshaledMap->find(index);
+	if(unmarshaledPos == _currentReadEncaps->unmarshaledMap->end())
+	{
+	    return;	// Nothing to do
 	}
     }
 
-    pair<const string*, const string*> p = equal_range(throwsBegin, throwsEnd, id);
-    if(p.first != p.second)
+    if(patchPos != _currentReadEncaps->patchMap->end())
     {
-	return static_cast<Int>(p.first - throwsBegin);
+	ObjectPtr v = unmarshaledPos->second;
+	for(PatchList::iterator i = patchPos->second.begin(); i != patchPos->second.end(); ++i)
+	{
+	    (*i->patchFunc)(i->patchAddr, v);
+	}
+	_currentReadEncaps->patchMap->erase(patchPos);
     }
-    
-    NoUserExceptionFactoryException ex(__FILE__, __LINE__);
-    ex.type = id;
-    throw ex;
 }
