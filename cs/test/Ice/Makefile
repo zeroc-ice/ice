@@ -19,7 +19,8 @@ SUBDIRS		= adapterDeactivation \
 		  location \
 		  objects \
 		  operations \
-		  slicing
+		  slicing \
+		  checksum
 
 install::
 	@if test ! -d $(prefix) ; \

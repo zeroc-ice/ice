@@ -224,7 +224,6 @@ namespace IceInternal
         {
             lock(this)
             {
-                // System.Console.WriteLine("IsFinished"); // TODO remove this
                 if(_transceiver == null && _dispatchCount == 0)
                 {
                     //
@@ -233,7 +232,6 @@ namespace IceInternal
                     //
                     lock(_incomingCacheMutex)
                     {
-                        // System.Console.WriteLine("isFinished: cleaning up"); // TODO: remove this
                         while(_incomingCache != null)
                         {
                             _incomingCache.__destroy();
@@ -329,7 +327,6 @@ namespace IceInternal
             //
             lock(_incomingCacheMutex)
             {
-                // System.Console.WriteLine("waitUntilFinished: cleaning up"); // TODO: remove this
                 while(_incomingCache != null)
                 {
                     _incomingCache.__destroy();
@@ -1383,11 +1380,6 @@ namespace IceInternal
 	    Debug.Assert(_state == StateClosed);
 	    Debug.Assert(_transceiver == null);
 	    Debug.Assert(_dispatchCount == 0);
-	    if(_incomingCache != null)
-	    {
-		// System.Console.WriteLine("HOY!!!"); // TODO, remove this
-	    }
-	    // Debug.Assert(_incomingCache == null); // TODO, reenable this
 
 	    _batchStream.destroy();
 	}
@@ -1668,7 +1660,6 @@ namespace IceInternal
 	{
             lock(_incomingCacheMutex)
             {
-		// System.Console.WriteLine("Reclaiming incoming"); // TODO: remove this
                 inc.next = _incomingCache;
                 _incomingCache = inc;
             }

@@ -15,6 +15,7 @@ TARGETS		= $(libdir)/$(LIBNAME)
 SRCS		= Acceptor.cs \
 		  Application.cs \
 		  AssemblyInfo.cs \
+		  AssemblyUtil.cs \
 		  BasicStream.cs \
 		  ByteBuffer.cs \
 		  CommunicatorI.cs \
@@ -56,6 +57,7 @@ SRCS		= Acceptor.cs \
 		  RoutingTable.cs \
 		  ServantManager.cs \
 		  Set.cs \
+		  SliceChecksums.cs \
 		  StringUtil.cs \
 		  SupportClass.cs \
 		  SysLoggerI.cs \
@@ -102,6 +104,7 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/Router.ice \
 		  $(SDIR)/ServantLocatorF.ice \
 		  $(SDIR)/ServantLocator.ice \
+		  $(SDIR)/SliceChecksumDict.ice \
 		  $(SDIR)/StatsF.ice \
 		  $(SDIR)/Stats.ice
 

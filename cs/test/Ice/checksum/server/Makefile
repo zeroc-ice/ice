@@ -11,7 +11,7 @@ top_srcdir	= ../../../..
 
 TARGETS		= server.exe
 
-SRCS		= Server.cs ChecksumI.cs
+SRCS		= Server.cs TestI.cs
 
 SLICE_SRCS	= $(SDIR)/Test.ice $(SDIR)/Types.ice
 

@@ -23,5 +23,6 @@ RouterF.cs: ../../../ice/slice/Ice/RouterF.ice
 Router.cs: ../../../ice/slice/Ice/Router.ice
 ServantLocatorF.cs: ../../../ice/slice/Ice/ServantLocatorF.ice
 ServantLocator.cs: ../../../ice/slice/Ice/ServantLocator.ice ../../../ice/slice/Ice/ObjectAdapterF.ice ../../../ice/slice/Ice/Current.ice ../../../ice/slice/Ice/Identity.ice
+SliceChecksumDict.cs: ../../../ice/slice/Ice/SliceChecksumDict.ice
 StatsF.cs: ../../../ice/slice/Ice/StatsF.ice
 Stats.cs: ../../../ice/slice/Ice/Stats.ice

@@ -1775,7 +1775,6 @@ namespace IceInternal
 	{
 	    Ice.ObjectFactory factory = null;
 	    
-	    //UPGRADE_NOTE: Exception 'java.lang.ClassNotFoundException' was converted to 'Exception' which has different behavior. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1100"'
 	    try
 	    {
 		AssemblyUtil.loadAssemblies(); // Lazy initialization

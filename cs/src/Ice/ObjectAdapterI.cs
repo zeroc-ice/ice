@@ -708,8 +708,7 @@ namespace Ice
 			break;
 		    }
 		    
-		    //UPGRADE_WARNING: Method 'java.lang.String.indexOf' was converted to 'string.IndexOf' which may throw an exception. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1101"'
-		    end = endpts.IndexOf((System.Char) ':', beg); // TODO
+		    end = endpts.IndexOf((System.Char) ':', beg);
 		    if(end == -1)
 		    {
 			end = endpts.Length;
@@ -799,7 +798,6 @@ namespace Ice
 		// proxy for the reference.
 		//
 		IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
-		//UPGRADE_TODO: Field java.util was not converted. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1095"'
 		IceInternal.Reference reference =
 		    _instance.referenceFactory().create(ident, new Context(), "",
 							IceInternal.Reference.ModeTwoway, false,
