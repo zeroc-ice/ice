@@ -111,9 +111,7 @@ private:
 };
 
 //
-// TODO: Check if all the functions below are really performance
-// critical. Those which are not performance critical shouldn't be
-// inlined.
+// For performance reasons the following functions are inlined.
 //
 
 #ifdef WIN32

@@ -150,10 +150,8 @@ private:
 	//
 	if (_traceLevels->flush > 0)
 	{
-	    ostringstream s;
-	    s << _subscribers.size() << " object(s)";
-	    
-	    _traceLevels->logger->trace(_traceLevels->flushCat, s.str());
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->flushCat);
+	    out << _subscribers.size() << " object(s)";
 	}
     }
 

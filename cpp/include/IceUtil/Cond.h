@@ -175,104 +175,16 @@ private:
     }
  */
 
-    //
-    // TODO: Should not be inlined, not performance critical.
-    //
-    void
-    waitImpl(const RecMutex& mutex) const
-    {
-	preWait();
-
-	RecMutex::LockState state;
-	mutex.unlock(state);
-
-	try
-	{
-	    dowait(-1);
-	    mutex.lock(state);
-	}
-	catch(...)
-	{
-	    mutex.lock(state);
-	    throw;
-	}
-    }
-
-    //
-    // TODO: Should not be inlined, not performance critical.
-    //
-    void
-    waitImpl(const Mutex& mutex) const
-    {
-	preWait();
-
-	Mutex::LockState state;
-	mutex.unlock(state);
-
-	try
-	{
-	    dowait(-1);
-	    mutex.lock(state);
-	}
-	catch(...)
-	{
-	    mutex.lock(state);
-	    throw;
-	}
-    }
-    
-    //
-    // TODO: Should not be inlined, not performance critical.
-    //
-    bool
-    timedwaitImpl(const RecMutex& mutex, long msec) const
-    {
-	preWait();
-
-	RecMutex::LockState state;
-	mutex.unlock(state);
-
-	try
-	{
-	    bool rc = dowait(msec);
-	    mutex.lock(state);
-	    return rc;
-	}
-	catch(...)
-	{
-	    mutex.lock(state);
-	    throw;
-	}
-    }
-
-    //
-    // TODO: Should not be inlined, not performance critical.
-    //
-    bool
-    timedwaitImpl(const Mutex& mutex, long msec) const
-    {
-	preWait();
-
-	Mutex::LockState state;
-	mutex.unlock(state);
-
-	try
-	{
-	    bool rc = dowait(msec);
-	    mutex.lock(state);
-	    return rc;
-	}
-	catch(...)
-	{
-	    mutex.lock(state);
-	    throw;
-	}
-    }
+    void waitImpl(const RecMutex&) const;
+    void waitImpl(const Mutex&) const;
+    bool timedwaitImpl(const RecMutex&, long) const;
+    bool timedwaitImpl(const Mutex&, long) const;
 
 #else
 
     template <typename M> void waitImpl(const M&) const;
     template <typename M> bool timedwaitImpl(const M&, long) const;
+
 
 #endif
 

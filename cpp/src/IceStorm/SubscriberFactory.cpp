@@ -56,9 +56,8 @@ SubscriberFactory::createSubscriber(const QoS& qos, const Ice::ObjectPrx& obj)
 	{
 	    if (_traceLevels->subscriber > 0)
 	    {
-		ostringstream s;
-		s << reliability <<" mode not understood.";
-		_traceLevels->logger->trace(_traceLevels->subscriberCat, s.str());
+		Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
+		out << reliability <<" mode not understood.";
 	    }
 	}
 	return new OnewaySubscriber(_traceLevels, obj->ice_oneway());

@@ -145,9 +145,8 @@ public:
 	{
 	    if (_traceLevels->topic > 0)
 	    {
-		ostringstream s;
-		s << id << ": not subscribed.";
-		_traceLevels->logger->trace(_traceLevels->topicCat, s.str());
+		Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
+		out << id << ": not subscribed.";
 	    }
 	}
     }
@@ -334,9 +333,8 @@ TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& trace
     {
 	if (_traceLevels->topic > 0)
 	{
-	    ostringstream s;
-	    s << _name << " relink " << p->second.obj->ice_getIdentity();
-	    _traceLevels->logger->trace(_traceLevels->topicCat, s.str());
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
+	    out << _name << " relink " << p->second.obj->ice_getIdentity();
 	}
 	
 	SubscriberPtr subscriber = _factory->createLinkSubscriber(p->second.obj, p->second.info.cost);
@@ -383,9 +381,8 @@ TopicI::destroy(const Ice::Current&)
 
     if (_traceLevels->topic > 0)
     {
-	ostringstream s;
-	s << "destroying " << id;
-	_traceLevels->logger->trace(_traceLevels->topicCat, s.str());
+	Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
+	out << "destroying " << id;
     }
 
     _adapter->remove(id);
@@ -409,9 +406,8 @@ TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
     string name = topic->getName();
     if (_traceLevels->topic > 0)
     {
-	ostringstream s;
-	s << _name << " link " << name << " cost " << cost;
-	_traceLevels->logger->trace(_traceLevels->topicCat, s.str());
+	Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
+	out << _name << " link " << name << " cost " << cost;
     }
 
     //
@@ -465,9 +461,8 @@ TopicI::unlink(const TopicPrx& topic, const Ice::Current&)
     {
 	if (_traceLevels->topic > 0)
 	{
-	    ostringstream s;
-	    s << _name << " unlink " << topic->getName();
-	    _traceLevels->logger->trace(_traceLevels->topicCat, s.str());
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
+	    out << _name << " unlink " << topic->getName();
 	}
 	_subscribers->unsubscribe(link->ice_getIdentity());
     }
@@ -475,9 +470,8 @@ TopicI::unlink(const TopicPrx& topic, const Ice::Current&)
     {
 	if (_traceLevels->topic > 0)
 	{
-	    ostringstream s;
-	    s << _name << " unlink " << topic->getName() << " failed - not linked";
-	    _traceLevels->logger->trace(_traceLevels->topicCat, s.str());
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
+	    out << _name << " unlink " << topic->getName() << " failed - not linked";
 	}
     }
 }
@@ -597,18 +591,16 @@ TopicI::reap()
 	    {
 		if (_traceLevels->topic > 0)
 		{
-		    ostringstream s;
-		    s << "reaping " << subscriber->id();
-		    _traceLevels->logger->trace(_traceLevels->topicCat, s.str());
+		    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
+		    out << "reaping " << subscriber->id();
 		}
 	    }
 	    else
 	    {
 		if (_traceLevels->topic > 0)
 		{
-		    ostringstream s;
-		    s << "reaping " << subscriber->id() << " failed - not in database";
-		    _traceLevels->logger->trace(_traceLevels->topicCat, s.str());
+		    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
+		    out << "reaping " << subscriber->id() << " failed - not in database";
 		}
 	    }
 	}

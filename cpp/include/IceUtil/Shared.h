@@ -52,8 +52,10 @@ struct ice_atomic_t
  * Atomically sets the value of @v to @i. Note that the guaranteed
  * useful range of an ice_atomic_t is only 24 bits.
  */
-// TODO: Does this really need to be a macro?t
-#define ice_atomic_set(v, i) (((v)->counter) = (i))
+inline void ice_atomic_set(ice_atomic_t* v, int i)
+{
+    v->counter = i;
+}
 
 /*
  * ice_atomic_inc - increment ice_atomic variable
@@ -64,8 +66,7 @@ struct ice_atomic_t
  *
  * Inlined because this operation is performance critical.
  */
-// TODO: Why static?
-static inline void ice_atomic_inc(ice_atomic_t *v)
+inline void ice_atomic_inc(ice_atomic_t *v)
 {
     __asm__ __volatile__(
 	"lock ; incl %0"
@@ -83,8 +84,7 @@ static inline void ice_atomic_inc(ice_atomic_t *v)
  *
  * Inlined because this operation is performance critical.
  */
-// TODO: Why static?
-static inline int ice_atomic_dec_and_test(ice_atomic_t *v)
+inline int ice_atomic_dec_and_test(ice_atomic_t *v)
 {
     unsigned char c;
     __asm__ __volatile__(
@@ -101,8 +101,7 @@ static inline int ice_atomic_dec_and_test(ice_atomic_t *v)
  *
  * Inlined because this operation is performance critical.
  */
-// TODO: Why static?
-static inline int ice_atomic_exchange_add(int i, ice_atomic_t* v)
+inline int ice_atomic_exchange_add(int i, ice_atomic_t* v)
 {
     int tmp = i;
     __asm__ __volatile__(

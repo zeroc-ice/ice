@@ -48,9 +48,8 @@ LinkSubscriber::unsubscribe()
 
     if (_traceLevels->subscriber > 0)
     {
-	ostringstream s;
-	s << "Unsubscribe " << _obj->ice_getIdentity();
-	_traceLevels->logger->trace(_traceLevels->subscriberCat, s.str());
+	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
+	out << "Unsubscribe " << _obj->ice_getIdentity();
     }
 }
 
@@ -79,18 +78,16 @@ LinkSubscriber::publish(const Event& event)
 
 	if (_traceLevels->subscriber > 0)
 	{
-	    ostringstream s;
-	    s << _obj->ice_getIdentity() << ": link topic publish failed: " << e;
-	    _traceLevels->logger->trace(_traceLevels->subscriberCat, s.str());
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
+	    out << _obj->ice_getIdentity() << ": link topic publish failed: " << e;
 	}
     }
     catch(const Ice::LocalException& e)
     {
 	if (_traceLevels->subscriber > 0)
 	{
-	    ostringstream s;
-	    s << _obj->ice_getIdentity() << ": link topic publish failed: " << e;
-	    _traceLevels->logger->trace(_traceLevels->subscriberCat, s.str());
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
+	    out << _obj->ice_getIdentity() << ": link topic publish failed: " << e;
 	}
     }
 }
@@ -112,18 +109,16 @@ LinkSubscriber::flush()
 
 	if (_traceLevels->subscriber > 0)
 	{
-	    ostringstream s;
-	    s << _obj->ice_getIdentity() << ": link topic flush failed: " << e;
-	    _traceLevels->logger->trace(_traceLevels->subscriberCat, s.str());
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
+	    out << _obj->ice_getIdentity() << ": link topic flush failed: " << e;
 	}
     }
     catch(const Ice::LocalException& e)
     {
 	if (_traceLevels->subscriber > 0)
 	{
-	    ostringstream s;
-	    s << _obj->ice_getIdentity() << ": link topic flush failed: " << e;
-	    _traceLevels->logger->trace(_traceLevels->subscriberCat, s.str());
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
+	    out << _obj->ice_getIdentity() << ": link topic flush failed: " << e;
 	}
     }
 }

@@ -80,6 +80,88 @@ IceUtil::Cond::broadcast()
 }
 
 void
+IceUtil::Cond::waitImpl(const RecMutex& mutex) const
+{
+    preWait();
+
+    RecMutex::LockState state;
+    mutex.unlock(state);
+
+    try
+    {
+	dowait(-1);
+	mutex.lock(state);
+    }
+    catch(...)
+    {
+	mutex.lock(state);
+	throw;
+    }
+}
+
+void
+IceUtil::Cond::waitImpl(const Mutex& mutex) const
+{
+    preWait();
+
+    Mutex::LockState state;
+    mutex.unlock(state);
+
+    try
+    {
+	dowait(-1);
+	mutex.lock(state);
+    }
+    catch(...)
+    {
+	mutex.lock(state);
+	throw;
+    }
+}
+
+bool
+IceUtil::Cond::timedwaitImpl(const RecMutex& mutex, long msec) const
+{
+    preWait();
+
+    RecMutex::LockState state;
+    mutex.unlock(state);
+
+    try
+    {
+	bool rc = dowait(msec);
+	mutex.lock(state);
+	return rc;
+    }
+    catch(...)
+    {
+	mutex.lock(state);
+	throw;
+    }
+}
+
+bool
+IceUtil::Cond::timedwaitImpl(const Mutex& mutex, long msec) const
+{
+    preWait();
+
+    Mutex::LockState state;
+    mutex.unlock(state);
+
+    try
+    {
+	bool rc = dowait(msec);
+	mutex.lock(state);
+	return rc;
+    }
+    catch(...)
+    {
+	mutex.lock(state);
+	throw;
+    }
+}
+
+void
 IceUtil::Cond::wake(bool broadcast)
 {
     //

@@ -37,9 +37,8 @@ OnewayBatchSubscriber::unsubscribe()
 
     if (_traceLevels->subscriber > 0)
     {
-	ostringstream s;
-	s << "Unsubscribe " << _obj->ice_getIdentity();
-	_traceLevels->logger->trace(_traceLevels->subscriberCat, s.str());
+	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
+	out << "Unsubscribe " << _obj->ice_getIdentity();
     }
 
     //
@@ -74,9 +73,8 @@ OnewayBatchSubscriber::flush()
 	{
 	    if (_traceLevels->subscriber > 0)
 	    {
-		ostringstream s;
-		s << _obj->ice_getIdentity() << ": flush failed: " << e;
-		_traceLevels->logger->trace(_traceLevels->subscriberCat, s.str());
+		Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
+		out << _obj->ice_getIdentity() << ": flush failed: " << e;
 	    }
 	    _state = StateError;
 	}
