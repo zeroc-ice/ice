@@ -22,7 +22,7 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
     //
     
     public int
-    secondary_key_create(com.sleepycat.db.Db secondary,
+    secondaryKeyCreate(com.sleepycat.db.Db secondary,
 			 com.sleepycat.db.Dbt key,
 			 com.sleepycat.db.Dbt value,
 			 com.sleepycat.db.Dbt result)
@@ -47,6 +47,18 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 	// Don't want to index this one
 	//
 	return com.sleepycat.db.Db.DB_DONOTINDEX;
+    }
+    
+    //
+    // Alias for Berkeley DB 4.1.25
+    //
+    public int
+    secondary_key_create(com.sleepycat.db.Db secondary,
+			 com.sleepycat.db.Dbt key,
+			 com.sleepycat.db.Dbt value,
+			 com.sleepycat.db.Dbt result)
+    {
+	return secondaryKeyCreate(secondary, key, value, result);
     }
 
     protected Index(String name)

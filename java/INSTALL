@@ -64,9 +64,10 @@ be run without building Ice for C++ yourself.
 Berkeley DB
 -----------
 
-Freeze for Java uses Berkeley DB as its underlying database. Even
-though Berkeley DB is included with many Linux distributions, the Java
-files for Berkeley DB are usually not available. This means that you
+Freeze for Java uses Berkeley DB as its underlying database. It requires
+Berkeley DB 4.1.25 or 4.2.52.
+Even though Berkeley DB is included with many Linux distributions, the 
+Java files for Berkeley DB are usually not available. This means that you
 must build Berkeley DB manually.
 
 You can download Berkeley DB from:
@@ -88,11 +89,7 @@ for example:
 $ export LD_LIBRARY_PATH=/opt/db4/lib:$LD_LIBRARY_PATH
 
 Note that the Ice for Java distribution is compiled against Berkeley
-DB 4.1.25. If you are using an older version of Berkeley DB, you
-may encounter problems using Freeze. In this case, either upgrade
-your version of Berkeley DB, or recompile the Ice for Java sources
-against your existing version (see "Compiling the Source" below).
-
+DB 4.1.25.
 
 Python 2.2
 ----------

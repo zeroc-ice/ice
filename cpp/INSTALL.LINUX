@@ -34,7 +34,7 @@ and installing STLport is not required for these compilers.
 Third-party libraries
 ---------------------
 
-- Berkeley DB 4.1.25 configured with --enable-cxx
+- Berkeley DB 4.1.25 or 4.2.52 configured with --enable-cxx
   You can download the Berkeley DB 4.1.25 source distribution 
   from http://www.sleepycat.com/download/patchlogsdb.shtml
 

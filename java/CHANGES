@@ -1,6 +1,8 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Added support for Berkeley DB 4.2.52.
+
 - The default thread pool size is now just one thread. This is the
   fastest possible setting, still allows one level of nesting, and
   doesn't require to make the servants thread safe. (Please see the
