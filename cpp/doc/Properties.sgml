@@ -16,6 +16,63 @@ string is interpreted as zero.
 </para>
 
 <!-- ********************************************************************** -->
+<section><title>&Ice; Configuration Property</title>
+<!-- ********************************************************************** -->
+
+<section><title>Ice.Config</title>
+<section><title>Synopsis</title>
+<synopsis>
+--Ice.Config
+--Ice.Config=1
+--Ice.Config=<replaceable>config_file</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+This property must be set from the command line with the <literal>--Ice.Config</literal>,
+<literal>--Ice.Config=1</literal>, or <literal>--Ice.Config=</literal><replaceable>config_file</replaceable> option.
+</para>
+<para>
+If the <literal>Ice.Config</literal> property is empty or set to <literal>1</literal>,
+the Ice run time examines the contents of the <literal>ICE_CONFIG</literal> environment
+variable to retrieve the pathname of a configuration file. Otherwise, <literal>Ice.Config</literal>
+must be set to the pathname of a configuration file. (Pathnames can be relative or absolute.)
+Further property values are read from the configuration file thus specified.
+</para>
+
+<section><title>Configuration File Syntax</title>
+<para>
+A configuration file contains a number of property settings, one setting per line.
+Property settings have one of the forms
+</para>
+<synopsis>
+<literal><replaceable>property_name</replaceable>       # Clear property</literal>
+<literal><replaceable>property_name</replaceable>=      # Set property to the empty string or zero</literal>
+<literal><replaceable>property_name</replaceable>=<replaceable>value</replaceable> # Assign value to property</literal>
+</synopsis>
+<para>
+The <literal>#</literal> character indicates a comment: the
+<literal>#</literal> character and anything following the <literal>#</literal> character on the same
+line are ignored. A line that has the <literal>#</literal> character as its first non-whitespace character
+is ignored in its entirety.
+</para>
+<para>
+A configuration file is free-form: blank, tab, and newline characters
+serve as token delimiters and are otherwise ignored.
+</para>
+<para>
+Any setting of the <literal>Ice.Config</literal> property inside the configuration file itself is ignored.
+</para>
+</section>
+
+</section>
+
+</section>
+
+</section>
+
+<!-- ********************************************************************** -->
 <section><title>&Ice; Tracing Properties</title>
 <!-- ********************************************************************** -->
 
@@ -779,6 +836,24 @@ If <replaceable>num</replaceable> is set to a value larger than zero,
 invoking an operation using a null smart pointer (i.e., a handle)
 causes the program to abort immediately instead of raising
 <literal>IceUtil::NullHandleException</literal>. (C++ only.)
+</para>
+</section>
+</section>
+
+<section><title>Ice.Nohup</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Nohup=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the C++ <literal>Ice::Application</literal> class ignores <literal>SIGHUP</literal>
+(for UNIX) and <literal>CTRL_LOGOFF_EVENT</literal> (for Windows). As a
+result, an application that sets <literal>Ice.Nohup</literal> continues
+to run if the user that started the application logs off. (C++ only.)
 </para>
 </section>
 </section>
