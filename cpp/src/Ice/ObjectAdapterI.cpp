@@ -240,18 +240,6 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix)
     }
 }
 
-RequestQueuePtr
-Ice::ObjectAdapterI::createRequestQueue(const std::string&)
-{
-    return 0; // Not implemented yet.
-}
-
-RequestQueuePtr
-Ice::ObjectAdapterI::findRequestQueue(const std::string&)
-{
-    return 0; // Not implemented yet.
-}
-
 ObjectPtr
 Ice::ObjectAdapterI::identityToServant(const Identity& ident)
 {

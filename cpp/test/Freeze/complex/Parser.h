@@ -44,7 +44,7 @@ int yyparse();
 // Newer bison versions allow to disable stack resizing by defining
 // yyoverflow.
 //
-#define yyoverflow
+#define yyoverflow(a, b, c, d, e, f) yyerror(a)
 
 //
 // unput() isn't needed. This prevents the function being defined, and

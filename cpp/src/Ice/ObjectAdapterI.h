@@ -49,9 +49,6 @@ public:
     virtual void removeServantLocator(const std::string&);
     virtual ServantLocatorPtr findServantLocator(const std::string&);
 
-    virtual RequestQueuePtr createRequestQueue(const std::string&);
-    virtual RequestQueuePtr findRequestQueue(const std::string&);
-
     virtual ObjectPtr identityToServant(const Identity&);
     virtual ObjectPtr proxyToServant(const ObjectPrx&);
 

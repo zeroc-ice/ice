@@ -308,10 +308,6 @@ SOURCE=.\ReferenceFactory.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\RequestQueue.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Router.cpp
 # End Source File
 # Begin Source File
@@ -793,14 +789,6 @@ SOURCE=.\ReferenceFactory.h
 # Begin Source File
 
 SOURCE=.\ReferenceFactoryF.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\RequestQueue.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\RequestQueueF.h
 # End Source File
 # Begin Source File
 
@@ -1690,86 +1678,6 @@ InputPath=..\..\slice\Ice\PropertiesF.ice
 	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/PropertiesF.ice 
 	move PropertiesF.h ..\..\include\Ice 
 	del PropertiesF.cpp 
-	
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\RequestQueue.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-USERDEP__REQUE="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\RequestQueue.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RequestQueue.ice \
-	move RequestQueue.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\RequestQueue.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"RequestQueue.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-USERDEP__REQUE="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\RequestQueue.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RequestQueue.ice \
-	move RequestQueue.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\RequestQueue.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"RequestQueue.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\RequestQueueF.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-USERDEP__REQUES="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\RequestQueueF.ice
-
-"..\..\include\Ice\RequestQueueF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RequestQueueF.ice 
-	move RequestQueueF.h ..\..\include\Ice 
-	del RequestQueueF.cpp 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-USERDEP__REQUES="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\RequestQueueF.ice
-
-"..\..\include\Ice\RequestQueueF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RequestQueueF.ice 
-	move RequestQueueF.h ..\..\include\Ice 
-	del RequestQueueF.cpp 
 	
 # End Custom Build
 
