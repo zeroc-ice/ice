@@ -403,6 +403,22 @@ public class ObjectPrxHelper implements ObjectPrx
     }
 
     public final ObjectPrx
+    ice_collocationOptimization(boolean b)
+    {
+        IceInternal.Reference ref = _reference.changeCollocationOptimization(b);
+        if(ref.equals(_reference))
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelper proxy = new ObjectPrxHelper();
+            proxy.setup(ref);
+            return proxy;
+        }
+    }
+
+    public final ObjectPrx
     ice_default()
     {
         IceInternal.Reference ref = _reference.changeDefault();
@@ -579,24 +595,28 @@ public class ObjectPrxHelper implements ObjectPrx
     {
         if(_delegate == null)
         {
-            IceInternal.ObjectAdapterFactory objectAdapterFactory = _reference.instance.objectAdapterFactory();
+	    if(_reference.collocationOptimization)
+	    {
+		IceInternal.ObjectAdapterFactory objectAdapterFactory = _reference.instance.objectAdapterFactory();
+		
+		//
+		// Instance components may be null if communicator has been destroyed.
+		//
+		if(objectAdapterFactory == null)
+		{
+		    throw new CommunicatorDestroyedException();
+		}
+		
+		ObjectAdapter adapter = objectAdapterFactory.findObjectAdapter(this);
+		if(adapter != null)
+		{
+		    _ObjectDelD delegate = __createDelegateD();
+		    delegate.setup(_reference, adapter);
+		    _delegate = delegate;
+		}
+	    }
 
-            //
-            // Instance components may be null if Communicator has been destroyed.
-            //
-            if(objectAdapterFactory == null)
-            {
-                throw new CommunicatorDestroyedException();
-            }
-
-            ObjectAdapter adapter = objectAdapterFactory.findObjectAdapter(this);
-            if(adapter != null)
-            {
-                _ObjectDelD delegate = __createDelegateD();
-                delegate.setup(_reference, adapter);
-                _delegate = delegate;
-            }
-            else
+	    if(_delegate == null)
             {
                 _ObjectDelM delegate = __createDelegateM();
                 delegate.setup(_reference);

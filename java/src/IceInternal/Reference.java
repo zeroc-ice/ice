@@ -111,6 +111,11 @@ public final class Reference
             return false;
         }
 
+        if(collocationOptimization != r.collocationOptimization)
+        {
+            return false;
+        }
+	
         return true;
     }
 
@@ -297,6 +302,7 @@ public final class Reference
     final public RouterInfo routerInfo; // Null if no router is used.
     final public LocatorInfo locatorInfo; // Null if no locator is used.
     final public Ice.ObjectAdapter reverseAdapter; // For reverse comm. using the adapter's incoming connections.
+    final public boolean collocationOptimization;
     final public int hashValue;
 
     //
@@ -313,7 +319,8 @@ public final class Reference
         else
         {
             return instance.referenceFactory().create(newIdentity, facet, mode, secure, compress, adapterId,
- 						      endpoints, routerInfo, locatorInfo, reverseAdapter);
+ 						      endpoints, routerInfo, locatorInfo, reverseAdapter,
+						      collocationOptimization);
         }
     }
 
@@ -327,7 +334,8 @@ public final class Reference
         else
         {
             return instance.referenceFactory().create(identity, newFacet, mode, secure, compress, adapterId,
-						      endpoints, routerInfo, locatorInfo, reverseAdapter);
+						      endpoints, routerInfo, locatorInfo, reverseAdapter,
+						      collocationOptimization);
         }
     }
 
@@ -353,7 +361,7 @@ public final class Reference
             try
             {
                 Ice.RouterPrx newRouter =
-                    Ice.RouterPrxHelper.uncheckedCast(routerInfo.getRouter().ice_timeout(timeout));
+		    Ice.RouterPrxHelper.uncheckedCast(routerInfo.getRouter().ice_timeout(timeout));
                 Ice.ObjectPrx newClientProxy = routerInfo.getClientProxy().ice_timeout(timeout);
                 newRouterInfo = instance.routerManager().get(newRouter);
                 newRouterInfo.setClientProxy(newClientProxy);
@@ -377,7 +385,8 @@ public final class Reference
 	}
 
         return instance.referenceFactory().create(identity, facet, mode, secure, compress, adapterId, 
-						  newEndpoints, newRouterInfo, newLocatorInfo, reverseAdapter);
+						  newEndpoints, newRouterInfo, newLocatorInfo, reverseAdapter,
+						  collocationOptimization);
     }
 
     public Reference
@@ -390,7 +399,8 @@ public final class Reference
         else
         {
             return instance.referenceFactory().create(identity, facet, newMode, secure, compress, adapterId,
-						      endpoints, routerInfo, locatorInfo, reverseAdapter);
+						      endpoints, routerInfo, locatorInfo, reverseAdapter,
+						      collocationOptimization);
         }
     }
 
@@ -404,7 +414,8 @@ public final class Reference
         else
         {
             return instance.referenceFactory().create(identity, facet, mode, newSecure, compress, adapterId,
-						      endpoints, routerInfo, locatorInfo, reverseAdapter);
+						      endpoints, routerInfo, locatorInfo, reverseAdapter,
+						      collocationOptimization);
         }
     }
 
@@ -418,7 +429,8 @@ public final class Reference
         else
         {
             return instance.referenceFactory().create(identity, facet, mode, secure, newCompress, adapterId,
-						      endpoints, routerInfo, locatorInfo, reverseAdapter);
+						      endpoints, routerInfo, locatorInfo, reverseAdapter,
+						      collocationOptimization);
         }
     }
 
@@ -432,7 +444,8 @@ public final class Reference
 	else
 	{
 	    return instance.referenceFactory().create(identity, facet, mode, secure, compress, newAdapterId,
-						      endpoints, routerInfo, locatorInfo, reverseAdapter);
+						      endpoints, routerInfo, locatorInfo, reverseAdapter,
+						      collocationOptimization);
 	}
     }
 
@@ -446,7 +459,8 @@ public final class Reference
         else
         {
             return instance.referenceFactory().create(identity, facet, mode, secure, compress, adapterId,
-						      newEndpoints, routerInfo, locatorInfo, reverseAdapter);
+						      newEndpoints, routerInfo, locatorInfo, reverseAdapter,
+						      collocationOptimization);
         }
     }
 
@@ -463,7 +477,8 @@ public final class Reference
         else
         {
             return instance.referenceFactory().create(identity, facet, mode, secure, compress, adapterId,
-						      endpoints, newRouterInfo, locatorInfo, reverseAdapter);
+						      endpoints, newRouterInfo, locatorInfo, reverseAdapter,
+						      collocationOptimization);
         }
     }
 
@@ -480,7 +495,23 @@ public final class Reference
         else
         {
             return instance.referenceFactory().create(identity, facet, mode, secure, compress, adapterId,
-						      endpoints, routerInfo, newLocatorInfo, reverseAdapter);
+						      endpoints, routerInfo, newLocatorInfo, reverseAdapter,
+						      collocationOptimization);
+        }
+    }
+
+    public Reference
+    changeCollocationOptimization(boolean newCollocationOptimization)
+    {
+        if(newCollocationOptimization == collocationOptimization)
+        {
+            return this;
+        }
+        else
+        {
+            return instance.referenceFactory().create(identity, facet, mode, secure, compress, adapterId,
+						      endpoints, routerInfo, locatorInfo, reverseAdapter,
+						      newCollocationOptimization);
         }
     }
 
@@ -492,7 +523,7 @@ public final class Reference
 
         return instance.referenceFactory().create(identity, new String[0], ModeTwoway, false, false,
 						  adapterId, endpoints,
-                                                  routerInfo, locatorInfo, null);
+                                                  routerInfo, locatorInfo, null, true);
     }
 
     //
@@ -508,7 +539,8 @@ public final class Reference
               Endpoint[] endpts,
               RouterInfo rtrInfo,
 	      LocatorInfo locInfo,
-              Ice.ObjectAdapter rvAdapter)
+              Ice.ObjectAdapter rvAdapter,
+	      boolean collocationOpt)
     {
 	//
 	// It's either adapter id or endpoints, it can't be both.
@@ -526,6 +558,7 @@ public final class Reference
         routerInfo = rtrInfo;
         locatorInfo = locInfo;
         reverseAdapter = rvAdapter;
+	collocationOptimization = collocationOpt;
 
         int h = 0;
 
