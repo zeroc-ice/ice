@@ -127,8 +127,6 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	}
     }
 
-    createLock(lockfile);
-
     const char* managerProxyProperty = "IceStorm.TopicManager.Proxy";
     string managerProxy = properties->getProperty(managerProxyProperty);
     if(managerProxy.empty())
@@ -179,6 +177,8 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
 	return EXIT_FAILURE;
     }
+
+    createLock(lockfile);
 
     communicator->waitForShutdown();
 

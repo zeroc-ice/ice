@@ -72,10 +72,14 @@ def doTest(batch):
     print "ok"
 
     print "checking " + name + " lockfile creation...",
-    if not os.path.isfile(subscriberLockFile):
-        print "failed!"
-        TestUtil.killServers()
-        sys.exit(1)
+    lockCount = 0
+    while not os.path.isfile(subscriberLockFile):
+        if lockCount > 10:
+            print "failed!"
+            TestUtil.killServers()
+            sys.exit(1)
+        time.sleep(1)
+        lockCount = lockCount + 1    
     print "ok"
 
     #
@@ -129,16 +133,12 @@ if iceStormAdminStatus:
     sys.exit(1)
 print "ok"
 
-#
-# TODO: for a an unknown reason, we get a status failure on Solaris
-# This needs to be investigated and fixed.
-#
 print "linking topics...",
 graph = os.path.join(testdir, "fed.xml");
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "graph ' + graph + r' 10"'
+command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "graph ' + graph + r' 10" > /dev/null'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
-if iceStormAdminStatus and TestUtil.isSolaris() == 0:
+if iceStormAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
 print "ok"
@@ -156,19 +156,7 @@ batchStatus = doTest(1)
 # Destroy the topic.
 #
 print "destroying topics...",
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy fed1"'
-iceStormAdminPipe = os.popen(command)
-iceStormAdminStatus = iceStormAdminPipe.close()
-if iceStormAdminStatus:
-    TestUtil.killServers()
-    sys.exit(1)
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy fed2"'
-iceStormAdminPipe = os.popen(command)
-iceStormAdminStatus = iceStormAdminPipe.close()
-if iceStormAdminStatus:
-    TestUtil.killServers()
-    sys.exit(1)
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy fed3"'
+command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy fed1 fed2 fed3"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:

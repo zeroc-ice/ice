@@ -70,10 +70,14 @@ def doTest(batch):
     print "ok"
 
     print "checking " + name + " lockfile creation...",
-    if not os.path.isfile(subscriberLockFile):
-        print "failed!"
-        TestUtil.killServers()
-        sys.exit(1)
+    lockCount = 0
+    while not os.path.isfile(subscriberLockFile):
+        if lockCount > 10:
+            print "failed!"
+            TestUtil.killServers()
+            sys.exit(1)
+        time.sleep(1)
+        lockCount = lockCount + 1    
     print "ok"
 
     #
@@ -152,22 +156,10 @@ onewayStatus = doTest(0)
 batchStatus = doTest(1)
 
 #
-# Destroy the topic.
+# Destroy the topics.
 #
 print "destroying topics...",
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy fed1"'
-iceStormAdminPipe = os.popen(command)
-iceStormAdminStatus = iceStormAdminPipe.close()
-if iceStormAdminStatus:
-    TestUtil.killServers()
-    sys.exit(1)
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy fed2"'
-iceStormAdminPipe = os.popen(command)
-iceStormAdminStatus = iceStormAdminPipe.close()
-if iceStormAdminStatus:
-    TestUtil.killServers()
-    sys.exit(1)
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy fed3"'
+command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy fed1 fed2 fed3"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
