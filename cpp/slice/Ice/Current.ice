@@ -30,7 +30,7 @@ module Ice
  * its implicit final parameter.
  *
  **/
-local dictionary<string, string> Context;
+dictionary<string, string> Context;
 
 /**
  *
