@@ -18,8 +18,7 @@ void
 inline testFailed(const char* expr, const char* file, unsigned int line)
 {
     std::cout << "failed!" << std::endl;
-    std::cout << file << ':' << line << ": assertion `" << expr << "' failed"
-	      << std::endl;
+    std::cout << file << ':' << line << ": assertion `" << expr << "' failed" << std::endl;
     abort();
 }
 
