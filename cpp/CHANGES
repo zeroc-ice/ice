@@ -1,6 +1,10 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Fixed a bug in the Windows IcePack registry project that would 
+  cause a compilation error if the registry was compiled before the
+  node.
+
 - Fixed a hang in the IcePack registry that would occur if multiple
   node were started simultaneously.
 
