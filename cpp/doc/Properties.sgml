@@ -217,48 +217,60 @@ The number of threads in the thread pool. Default is 10.
 <section><title>&Ice; Security Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>Ice.Security.Ssl.CertPath</title>
+<!--
+Ice.SSL.Server.Overrides.RSA.PrivateKey
+Ice.SSL.Server.Overrides.RSA.Certificate
+Ice.SSL.Client.Overrides.RSA.PrivateKey
+Ice.SSL.Client.Overrides.RSA.Certificate
+Ice.SSL.Server.Overrides.DSA.PrivateKey
+Ice.SSL.Server.Overrides.DSA.Certificate
+Ice.SSL.Client.Overrides.DSA.PrivateKey
+Ice.SSL.Client.Overrides.DSA.Certificate
+Ice.SSL.Client.Overrides.CACertificate
+Ice.SSL.Server.Overrides.CACertificate
+-->
+
+<section><title>Ice.SSL.<replaceable>Client/Server</replaceable>.CertPath=<replaceable>path</replaceable></title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.Security.Ssl.CertPath=<replaceable>path</replaceable>
+Ice.SSL.<replaceable>Client/Server</replaceable>.CertPath=<replaceable>path</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the path (relative or absolute) where the SSL Security Extension can
+Defines the path (relative or absolute) where the SSL Extension can
 find PEM format certificate files (RSA and DSA) and Diffie-Hellman group
 parameter files.
-In the case that the <literal>Ice.Security.Ssl.Config</literal> is a relative
-path, it will be relative to the value of
-<literal>Ice.Security.Ssl.CertPath</literal>
+In the case that the <literal>Ice.SSL.<replaceable>Client/Server</replaceable>.Config</literal> is a relative
+path, it will be relative to the value of <literal>Ice.SSL.<replaceable>Client/Server</replaceable>.CertPath</literal>.
 </para>
 </section>
 </section>
 
-<section><title>Ice.Security.Ssl.Config</title>
+<section><title>Ice.SSL.<replaceable>Client/Server</replaceable>.Config</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.Security.Ssl.Config=<replaceable>config_file</replaceable>
+Ice.SSL.<replaceable>Client/Server</replaceable>.Config=<replaceable>config_file</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the XML-based configuration file that the SSL Security Extension will
+Defines the XML-based configuration file that the SSL Extension will
 use to load initialization information and certificates from. If this property
 contains a relative path, the path will be interpreted in terms of
-<literal>Ice.Security.Ssl.CertPath</literal>. Xerces-c, the XML parser used to
-read this file, will look for the DTD file in the same directory that it finds
-the XML configuration file.
+<literal>Ice.SSL.<replaceable>Client/Server</replaceable>.CertPath</literal>.
+Xerces-c, the XML parser used to read this file, will look for the DTD file in
+the same directory that it finds the XML configuration file.
 </para>
 </section>
 </section>
 
-<section><title>Ice.Security.Ssl.Handshake.ReadTimeout</title>
+<section><title>Ice.SSL.<replaceable>Client/Server</replaceable>.Handshake.ReadTimeout</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.Security.Ssl.Handshake.ReadTimeout=<replaceable>ms</replaceable>
+Ice.SSL.<replaceable>Client/Server</replaceable>.Handshake.ReadTimeout=<replaceable>ms</replaceable>
 </synopsis>
 </section>
 <section>
