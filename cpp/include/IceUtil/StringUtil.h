@@ -41,7 +41,7 @@ ICE_UTIL_API std::string::size_type checkQuote(const std::string&, std::string::
 // other than a period (`.'). We match by hand here because
 // it's portable across platforms (whereas regex() isn't).
 //
-ICE_UTIL_API bool match(const std::string&, const std::string&);
+ICE_UTIL_API bool match(const std::string&, const std::string&, bool = false);
 
 }
 

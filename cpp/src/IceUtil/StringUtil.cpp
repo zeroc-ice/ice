@@ -263,7 +263,7 @@ IceUtil::checkQuote(const string& s, string::size_type start)
 // it's portable across platforms (whereas regex() isn't).
 //
 bool
-IceUtil::match(const string& s, const string& pat)
+IceUtil::match(const string& s, const string& pat, bool matchPeriod)
 {
     assert(!s.empty());
     assert(!pat.empty());
@@ -279,11 +279,14 @@ IceUtil::match(const string& s, const string& pat)
     {
         if(pat[patIndex] == '*')
 	{
-	    if(s[sIndex] == '.') // Don't allow matching x..y against x.*.y -- star matches non-empty sequence only.
+	    //
+	    // Don't allow matching x..y against x.*.y if requested -- star matches non-empty sequence only.
+	    //
+	    if(!matchPeriod && s[sIndex] == '.')
 	    {
 		return false;
 	    }
-	    while(sIndex < s.size() && s[sIndex] != '.')
+	    while(sIndex < s.size() && (matchPeriod || s[sIndex] != '.'))
 	    {
 	        ++sIndex;
 	    }

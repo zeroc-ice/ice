@@ -218,7 +218,7 @@ ObjectRegistryI::findAll(const string& expression, const Ice::Current&) const
     for(IdentityObjectDescDict::const_iterator p = objects.begin(); p != objects.end(); ++p)
     {
 	if(expression.empty() ||
-	   IceUtil::match(Ice::identityToString(p->second.proxy->ice_getIdentity()), expression))
+	   IceUtil::match(Ice::identityToString(p->second.proxy->ice_getIdentity()), expression, true))
 	{
 	    result.push_back(p->second);
 	}

@@ -461,10 +461,6 @@ local interface ObjectAdapter
      * the given identity. A direct proxy always contains the current
      * adapter endpoints.
      *
-     * <note><para> This operation is intended to be used by locator
-     * implementations. Regular user code should not attempt to use
-     * this operation.</para></note>
-     *
      * @param id The identity for which a proxy is to be created.
      *
      * @return A proxy that matches the given identity and this object
