@@ -23,6 +23,7 @@
 #include <Ice/ServantFactoryManagerF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
 #include <Ice/PicklerF.h>
+#include <list>
 
 namespace Ice
 {
@@ -44,11 +45,11 @@ public:
     void logger(const ::Ice::LoggerPtr&);
     TraceLevelsPtr traceLevels();
     ProxyFactoryPtr proxyFactory();
-    ThreadPoolPtr threadPool();
     EmitterFactoryPtr emitterFactory();
     ServantFactoryManagerPtr servantFactoryManager();
     ObjectAdapterFactoryPtr objectAdapterFactory();
     ::Ice::PicklerPtr pickler();
+    ThreadPoolPtr threadPool();
     
 private:
 
@@ -62,22 +63,22 @@ private:
     ::Ice::LoggerPtr _logger;
     TraceLevelsPtr _traceLevels;
     ProxyFactoryPtr _proxyFactory;
-    ThreadPoolPtr _threadPool;
     EmitterFactoryPtr _emitterFactory;
     ServantFactoryManagerPtr _servantFactoryManager;
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ::Ice::PicklerPtr _pickler;
+    ThreadPoolPtr _threadPool;
 
     //
     // Global state management
     //
     friend class GlobalStateMutexDestroyer;
+    static int _globalStateCounter;
     static JTCMutex* _globalStateMutex;
     static JTCInitialize* _globalStateJTC;
 #ifndef WIN32
     static std::string _identForOpenlog;
 #endif
-    static int _globalStateCounter;
 };
 
 }

@@ -36,6 +36,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+int Instance::_globalStateCounter = 0;
 JTCMutex* Instance::_globalStateMutex = new JTCMutex;
 JTCInitialize* Instance::_globalStateJTC = 0;
 #ifndef WIN32
@@ -59,8 +60,6 @@ public:
 static GlobalStateMutexDestroyer destroyer;
 
 }
-
-int Instance::_globalStateCounter = 0;
 
 void IceInternal::incRef(Instance* p) { p->__incRef(); }
 void IceInternal::decRef(Instance* p) { p->__decRef(); }
@@ -107,13 +106,6 @@ IceInternal::Instance::proxyFactory()
     return _proxyFactory;
 }
 
-ThreadPoolPtr
-IceInternal::Instance::threadPool()
-{
-    JTCSyncT<JTCMutex> sync(*this);
-    return _threadPool;
-}
-
 EmitterFactoryPtr
 IceInternal::Instance::emitterFactory()
 {
@@ -142,19 +134,25 @@ IceInternal::Instance::pickler()
     return _pickler;
 }
 
-IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties)
+ThreadPoolPtr
+IceInternal::Instance::threadPool()
 {
-    if (_globalStateMutex != 0)
-    {
-	_globalStateMutex->lock();
-    }
+    JTCSyncT<JTCMutex> sync(*this);
+    return _threadPool;
+}
+
+IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
+    _communicator(communicator),
+    _properties(properties)
+{
+    _globalStateMutex->lock();
 
     if (++_globalStateCounter == 1) // Only on first call
     {
 	string value;
 
 	// Must be done before "Ice.Daemon" is checked
-	value = properties->getProperty("Ice.PrintProcessId");
+	value = _properties->getProperty("Ice.PrintProcessId");
 	if (atoi(value.c_str()) >= 1)
 	{
 #ifdef WIN32
@@ -165,32 +163,29 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	}
 
 #ifndef WIN32
-	value = properties->getProperty("Ice.Daemon");
+	value = _properties->getProperty("Ice.Daemon");
 	if (atoi(value.c_str()) >= 1)
 	{
-	    value = properties->getProperty("Ice.DaemonNoClose");
+	    value = _properties->getProperty("Ice.DaemonNoClose");
 	    int noclose = atoi(value.c_str());
 
-	    value = properties->getProperty("Ice.DaemonNoChdir");
+	    value = _properties->getProperty("Ice.DaemonNoChdir");
 	    int nochdir = atoi(value.c_str());
 
 	    if (daemon(nochdir, noclose) == -1)
 	    {
 		--_globalStateCounter;
-		if (_globalStateMutex != 0)
-		{
-		    _globalStateMutex->unlock();
-		}
+		_globalStateMutex->unlock();
 		throw SystemException(__FILE__, __LINE__);
 	    }
 	}
 #endif
 	
 #ifndef WIN32
-	value = properties->getProperty("Ice.UseSyslog");
+	value = _properties->getProperty("Ice.UseSyslog");
 	if (atoi(value.c_str()) >= 1)
 	{
-	    _identForOpenlog = properties->getProperty("Ice.ProgramName");
+	    _identForOpenlog = _properties->getProperty("Ice.ProgramName");
 	    if (_identForOpenlog.empty())
 	    {
 		_identForOpenlog = "<Unknown Ice Program>";
@@ -204,10 +199,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	WSADATA data;
 	if (WSAStartup(version, &data) != 0)
 	{
-	    if (_globalStateMutex != 0)
-	    {
-		_globalStateMutex->unlock();
-	    }
+	    _globalStateMutex->unlock();
 	    throw SocketException(__FILE__, __LINE__);
 	}
 #endif
@@ -235,18 +227,13 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    _globalStateJTC = new JTCInitialize();
 	}
     }
-    
-    if (_globalStateMutex != 0)
-    {
-	_globalStateMutex->unlock();
-    }
+
+    _globalStateMutex->unlock();
 
     try
     {
-	_communicator = communicator;
-	_properties = properties;
 #ifndef WIN32
-	string value = properties->getProperty("Ice.UseSyslog");
+	string value = _properties->getProperty("Ice.UseSyslog");
 	if (atoi(value.c_str()) >= 1)
 	{
 	    _logger = new SysLoggerI;
@@ -260,11 +247,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 #endif
 	_traceLevels = new TraceLevels(_properties);
 	_proxyFactory = new ProxyFactory(this);
-	_threadPool = new ThreadPool(this);
 	_emitterFactory = new EmitterFactory(this);
 	_servantFactoryManager = new ServantFactoryManager();
 	_objectAdapterFactory = new ObjectAdapterFactory(this);
 	_pickler = new PicklerI(this);
+	_threadPool = new ThreadPool(this);
     }
     catch(...)
     {
@@ -280,11 +267,11 @@ IceInternal::Instance::~Instance()
     assert(!_logger);
     assert(!_traceLevels);
     assert(!_proxyFactory);
-    assert(!_threadPool);
     assert(!_emitterFactory);
     assert(!_servantFactoryManager);
     assert(!_objectAdapterFactory);
     assert(!_pickler);
+    assert(!_threadPool);
 
     if (_globalStateMutex != 0)
     {
