@@ -940,7 +940,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     Output& out = output();
 
     //
-    // Local interfaces map to Java interfaces
+    // Slice interfaces map to Java interfaces.
     //
     if(p->isInterface())
     {
@@ -1003,10 +1003,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 q++;
             }
         }
-        if(_clone && !p->isAbstract())
-        {
-            implements.push_back("java.lang.Cloneable");
-        }
 
         if(!implements.empty())
         {
@@ -1037,6 +1033,9 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     if(!p->isInterface())
     {
+        //
+        // Does the class have (or inherit) any data members?
+        //
         bool baseHasDataMembers = false;
         ClassList l = p->bases();
         while(!l.empty() && !l.front()->isInterface())
@@ -1083,48 +1082,36 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     //
-    // clone
+    // ice_copyStateFrom
     //
-    if(_clone && !p->isAbstract())
+    if(_clone && !p->isInterface() && p->hasDataMembers())
     {
-        out << sp << nl << "public java.lang.Object"
-            << nl << "clone()";
+        out << sp << nl << "protected void"
+            << nl << "ice_copyStateFrom(Ice.Object __obj)";
+        out.inc();
+        out << nl << "throws java.lang.CloneNotSupportedException";
+        out.dec();
         out << sb;
-        out << nl << name << " __result = new " << name << "();";
+        out << nl << "super.ice_copyStateFrom(__obj);";
+        out << nl << name << " __v = (" << name << ")__obj;";
 
         //
-        // Perform a shallow copy. Start with the base members.
+        // Perform a shallow copy.
         //
-        ClassList cl = p->bases();
-        while(!cl.empty())
-        {
-            if(cl.front()->isAbstract())
-            {
-                break;
-            }
-            DataMemberList members = cl.front()->dataMembers();
-            DataMemberList::const_iterator d;
-            for(d = members.begin(); d != members.end(); ++d)
-            {
-                string memberName = fixKwd((*d)->name());
-                out << nl << "__result." << memberName << " = " << memberName << ';';
-            }
-
-            cl = cl.front()->bases();
-        }
-
         DataMemberList members = p->dataMembers();
         DataMemberList::const_iterator d;
         for(d = members.begin(); d != members.end(); ++d)
         {
             string memberName = fixKwd((*d)->name());
-            out << nl << "__result." << memberName << " = " << memberName << ';';
+            out << nl << "this." << memberName << " = __v." << memberName << ';';
         }
 
-        out << nl << "return __result;";
         out << eb;
     }
 
+    //
+    // Default factory for non-abstract classes.
+    //
     if(!p->isAbstract())
     {
         out << sp;
@@ -1147,6 +1134,9 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
     }
 
+    //
+    // Marshalling & dispatch support.
+    //
     if(!p->isInterface() && !p->isLocal())
     {
         //

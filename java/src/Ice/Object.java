@@ -31,6 +31,55 @@ public class Object
         return false;
     }
 
+    public java.lang.Object
+    clone()
+        throws java.lang.CloneNotSupportedException
+    {
+        Object result = null;
+
+        try
+        {
+            result = (Object)getClass().newInstance();
+            result.ice_copyStateFrom(this);
+        }
+        catch(InstantiationException ex)
+        {
+            CloneNotSupportedException e = new CloneNotSupportedException();
+            e.initCause(ex);
+            throw e;
+        }
+        catch(IllegalAccessException ex)
+        {
+            CloneNotSupportedException e = new CloneNotSupportedException();
+            e.initCause(ex);
+            throw e;
+        }
+
+        return result;
+    }
+
+    protected void
+    ice_copyStateFrom(Object obj)
+        throws java.lang.CloneNotSupportedException
+    {
+        //
+        // Clone facets.
+        //
+        synchronized(obj._activeFacetMap)
+        {
+            if(!obj._activeFacetMap.isEmpty())
+            {
+                java.util.Iterator p = obj._activeFacetMap.entrySet().iterator();
+                while(p.hasNext())
+                {
+                    java.util.Map.Entry e = (java.util.Map.Entry)p.next();
+                    Object facet = (Object)e.getValue();
+                    _activeFacetMap.put(e.getKey(), facet.clone());
+                }
+            }
+        }
+    }
+
     public int
     ice_hash()
     {
