@@ -96,7 +96,7 @@ main(int argc, char* argv[])
 	if(getcwd(cwd, PATH_MAX) == NULL)
 #endif
 	{
-	    throw "cannot get the current directory: " + lastError();
+	    throw "cannot get the current directory:\n" + lastError();
 	}
 
 	dataDir = normalize(string(cwd) + '/' + dataDir);

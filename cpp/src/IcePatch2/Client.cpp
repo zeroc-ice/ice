@@ -22,23 +22,6 @@ using namespace std;
 using namespace Ice;
 using namespace IcePatch2;
 
-namespace IcePatch2
-{
-
-class Client : public Application
-{
-public:
-
-    void usage();
-    virtual int run(int, char*[]);
-
-private:
-
-    void usage(const std::string&);
-};
-
-};
-
 class TextPatcherFeedback : public PatcherFeedback
 {
 public:
@@ -183,8 +166,19 @@ private:
 #endif
 };
 
+class Client : public Application
+{
+public:
+
+    virtual int run(int, char*[]);
+
+private:
+
+    void usage(const std::string&);
+};
+
 int
-IcePatch2::Client::run(int argc, char* argv[])
+Client::run(int argc, char* argv[])
 {
     PropertiesPtr properties = communicator()->getProperties();
 
@@ -237,20 +231,14 @@ IcePatch2::Client::run(int argc, char* argv[])
 	PatcherFeedbackPtr feedback = new TextPatcherFeedback;
 	PatcherPtr patcher = new Patcher(communicator(), feedback);
 
-	if(!aborted)
-	{
-	    aborted = !patcher->prepare();
-	}
+	aborted = !patcher->prepare();
 
 	if(!aborted)
 	{
 	    aborted = !patcher->patch("");
 	}
 
-	if(!aborted)
-	{
-	    patcher->finish();
-	}
+	patcher->finish();
     }
     catch(const string& ex)
     {
@@ -270,7 +258,7 @@ IcePatch2::Client::run(int argc, char* argv[])
 }
 
 void
-IcePatch2::Client::usage(const string& appName)
+Client::usage(const string& appName)
 {
     string options =
 	"Options:\n"

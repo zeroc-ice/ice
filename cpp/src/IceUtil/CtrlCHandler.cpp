@@ -73,10 +73,32 @@ static BOOL WINAPI handlerRoutine(DWORD dwCtrlType)
 	{
 	    callback(dwCtrlType);
 	}
-	catch(...)
-	{
-	    assert(0);
-	}
+    catch(const IceUtil::Exception& ex)
+    {
+	cerr  << " (while destroying in response to signal " 
+	     << "): " << ex << endl;
+    }
+    catch(const std::exception& ex)
+    {
+	cerr  << " (while destroying in response to signal " 
+	     << "): std::exception: " << ex.what() << endl;
+    }
+    catch(const std::string& msg)
+    {
+	cerr  << " (while destroying in response to signal "
+	     << "): " << msg << endl;
+    }
+    catch(const char * msg)
+    {
+	cerr  << " (while destroying in response to signal "
+	     << "): " << msg << endl;
+    }
+    catch(...)
+    {
+	cerr  << " (while destroying in response to signal " 
+	     << "): unknown exception" << endl;
+    }
+
     }
     return TRUE;
 }
@@ -155,12 +177,33 @@ sigwaitThread(void*)
 	{
 	    try
 	    {
-		callback(signal);
-	    }
-	    catch(...)
-	    {
-		assert(0);
-	    }
+	    callback(signal);
+	}
+    catch(const IceUtil::Exception& ex)
+    {
+	cerr  << " (while destroying in response to signal " 
+	     << "): " << ex << endl;
+    }
+    catch(const std::exception& ex)
+    {
+	cerr  << " (while destroying in response to signal " 
+	     << "): std::exception: " << ex.what() << endl;
+    }
+    catch(const std::string& msg)
+    {
+	cerr  << " (while destroying in response to signal "
+	     << "): " << msg << endl;
+    }
+    catch(const char * msg)
+    {
+	cerr  << " (while destroying in response to signal "
+	     << "): " << msg << endl;
+    }
+    catch(...)
+    {
+	cerr  << " (while destroying in response to signal " 
+	     << "): unknown exception" << endl;
+    }
 	}
 
 	rc = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);

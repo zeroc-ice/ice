@@ -164,7 +164,7 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
     if(getcwd(cwd, PATH_MAX) == NULL)
 #endif
     {
-	throw "cannot get the current directory: " + lastError();
+	throw "cannot get the current directory:\n" + lastError();
     }
     
     const_cast<string&>(_dataDir) = normalize(string(cwd) + '/' + _dataDir);
@@ -282,7 +282,7 @@ IcePatch2::Patcher::prepare()
     _log.open(pathLog.c_str());
     if(!_log)
     {
-	throw "cannot open `" + pathLog + "' for writing: " + lastError();
+	throw "cannot open `" + pathLog + "' for writing:\n" + lastError();
     }
 
     return true;
@@ -466,70 +466,77 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 		return false;
 	    }
 
-	    string pathBZ2 = _dataDir + '/' + p->path + ".bz2";
-	    ofstream fileBZ2;
+	    if(p->size == 0)
+	    {
+		string path = _dataDir + '/' + p->path + ".bz2";
+		ofstream file(path.c_str(), ios::binary);
+	    }
+	    else
+	    {
+		string pathBZ2 = _dataDir + '/' + p->path + ".bz2";
 	    
-	    string dir = getDirname(pathBZ2);
-	    if(!dir.empty())
-	    {
-		createDirectoryRecursive(dir);
-	    }
-		
-	    try
-	    {
-		removeRecursive(pathBZ2);
-	    }
-	    catch(...)
-	    {
-	    }
-		
-	    fileBZ2.open(pathBZ2.c_str(), ios::binary);
-	    if(!fileBZ2)
-	    {
-		throw "cannot open `" + pathBZ2 + "' for writing: " + lastError();
-	    }
-	    
-	    Int pos = 0;
-	    string progress;
-	    
-	    while(pos < p->size)
-	    {
-		ByteSeq bytes;
+		string dir = getDirname(pathBZ2);
+		if(!dir.empty())
+		{
+		    createDirectoryRecursive(dir);
+		}
 		
 		try
 		{
-		    bytes = _serverNoCompress->getFileCompressed(p->path, pos, _chunkSize);
+		    removeRecursive(pathBZ2);
 		}
-		catch(const FileAccessException& ex)
+		catch(...)
 		{
-		    throw "server error for `" + p->path + "':" + ex.reason;
 		}
 		
-		if(bytes.empty())
-		{
-		    throw "size mismatch for `" + p->path + "'";
-		}
-		
-		fileBZ2.write(reinterpret_cast<char*>(&bytes[0]), bytes.size());
-		
+		ofstream fileBZ2(pathBZ2.c_str(), ios::binary);
 		if(!fileBZ2)
 		{
-		    throw ": cannot write `" + pathBZ2 + "': " + lastError();
+		    throw "cannot open `" + pathBZ2 + "' for writing:\n" + lastError();
 		}
-		
-		pos += bytes.size();
-		updated += bytes.size();
-		
-		if(!_feedback->patchProgress(pos, p->size, updated, total))
-		{
-		    return false;
-		}
-	    }
 	    
-	    fileBZ2.close();
+		Int pos = 0;
+		string progress;
+	    
+		while(pos < p->size)
+		{
+		    ByteSeq bytes;
+		
+		    try
+		    {
+			bytes = _serverNoCompress->getFileCompressed(p->path, pos, _chunkSize);
+		    }
+		    catch(const FileAccessException& ex)
+		    {
+			throw "server error for `" + p->path + "':" + ex.reason;
+		    }
+		
+		    if(bytes.empty())
+		    {
+			throw "size mismatch for `" + p->path + "'";
+		    }
+		
+		    fileBZ2.write(reinterpret_cast<char*>(&bytes[0]), bytes.size());
+		
+		    if(!fileBZ2)
+		    {
+			throw ": cannot write `" + pathBZ2 + "':\n" + lastError();
+		    }
+		
+		    pos += bytes.size();
+		    updated += bytes.size();
+		
+		    if(!_feedback->patchProgress(pos, p->size, updated, total))
+		    {
+			return false;
+		    }
+		}
+	    
+		fileBZ2.close();
 
-	    decompressor->log(_log);
-	    decompressor->add(*p);
+		decompressor->log(_log);
+		decompressor->add(*p);
+	    }
 	
 	    if(!_feedback->patchEnd())
 	    {

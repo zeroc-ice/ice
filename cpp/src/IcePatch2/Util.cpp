@@ -338,7 +338,7 @@ IcePatch2::remove(const string& pa)
     struct stat buf;
     if(stat(path.c_str(), &buf) == -1)
     {
-	throw "cannot stat `" + path + "': " + lastError();
+	throw "cannot stat `" + path + "':\n" + lastError();
     }
 
     if(S_ISDIR(buf.st_mode))
@@ -349,14 +349,14 @@ IcePatch2::remove(const string& pa)
 	if(rmdir(path.c_str()) == -1)
 #endif
 	{
-	    throw "cannot remove directory `" + path + "': " + lastError();
+	    throw "cannot remove directory `" + path + "':\n" + lastError();
 	}
     }
     else
     {
 	if(::remove(path.c_str()) == -1)
 	{
-	    throw "cannot remove file `" + path + "': " + lastError();
+	    throw "cannot remove file `" + path + "':\n" + lastError();
 	}
     }
 }
@@ -369,7 +369,7 @@ IcePatch2::removeRecursive(const string& pa)
     struct stat buf;
     if(stat(path.c_str(), &buf) == -1)
     {
-	throw "cannot stat `" + path + "': " + lastError();
+	throw "cannot stat `" + path + "':\n" + lastError();
     }
 
     if(S_ISDIR(buf.st_mode))
@@ -386,14 +386,14 @@ IcePatch2::removeRecursive(const string& pa)
 	if(rmdir(path.c_str()) == -1)
 #endif
 	{
-	    throw "cannot remove directory `" + path + "': " + lastError();
+	    throw "cannot remove directory `" + path + "':\n" + lastError();
 	}
     }
     else
     {
 	if(::remove(path.c_str()) == -1)
 	{
-	    throw "cannot remove file `" + path + "': " + lastError();
+	    throw "cannot remove file `" + path + "':\n" + lastError();
 	}
     }
 }
@@ -409,7 +409,7 @@ IcePatch2::readDirectory(const string& pa)
     long h = _findfirst((path + "/*").c_str(), &data);
     if(h == -1)
     {
-	throw "cannot read directory `" + path + "': " + lastError();
+	throw "cannot read directory `" + path + "':\n" + lastError();
     }
 
     StringSeq result;
@@ -431,7 +431,7 @@ IcePatch2::readDirectory(const string& pa)
 		break;
 	    }
 
-	    string ex = "cannot read directory `" + path + "': " + lastError();
+	    string ex = "cannot read directory `" + path + "':\n" + lastError();
 	    _findclose(h);
 	    throw ex;
 	}
@@ -449,7 +449,7 @@ IcePatch2::readDirectory(const string& pa)
     int n = scandir(path.c_str(), &namelist, 0, alphasort);
     if(n < 0)
     {
-	throw "cannot read directory `" + path + "': " + lastError();
+	throw "cannot read directory `" + path + "':\n" + lastError();
     }
 
     StringSeq result;
@@ -487,7 +487,7 @@ IcePatch2::createDirectory(const string& pa)
     {
 	if(errno != EEXIST)
 	{
-	    throw "cannot create directory `" + path + "': " + lastError();
+	    throw "cannot create directory `" + path + "':\n" + lastError();
 	}
     }
 }
@@ -511,7 +511,7 @@ IcePatch2::createDirectoryRecursive(const string& pa)
     {
 	if(errno != EEXIST)
 	{
-	    throw "cannot create directory `" + path + "': " + lastError();
+	    throw "cannot create directory `" + path + "':\n" + lastError();
 	}
     }
 }
@@ -524,7 +524,7 @@ IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
     FILE* stdioFile = fopen(path.c_str(), "wb");
     if(!stdioFile)
     {
-	throw "cannot open `" + path + "' for writing: " + lastError();
+	throw "cannot open `" + path + "' for writing:\n" + lastError();
     }
 
     int bzError;
@@ -577,13 +577,13 @@ IcePatch2::decompressFile(const string& pa)
     ofstream file(path.c_str(), ios::binary);
     if(!file)
     {
-	throw "cannot open `" + path + "' for writing: " + lastError();
+	throw "cannot open `" + path + "' for writing:\n" + lastError();
     }
 
     FILE* stdioFileBZ2 = fopen(pathBZ2.c_str(), "rb");
     if(!stdioFileBZ2)
     {
-	throw "cannot open `" + pathBZ2 + "' for reading: " + lastError();
+	throw "cannot open `" + pathBZ2 + "' for reading:\n" + lastError();
     }
 
     int bzError;
@@ -624,7 +624,7 @@ IcePatch2::decompressFile(const string& pa)
 	    {
 		BZ2_bzReadClose(&bzError, bzFile);
 		fclose(stdioFileBZ2);
-		throw "cannot get read position for `" + pathBZ2 + "': " + lastError();
+		throw "cannot get read position for `" + pathBZ2 + "':\n" + lastError();
 	    }
 
 	    file.write(reinterpret_cast<char*>(bytesBZ2), sz);
@@ -632,7 +632,7 @@ IcePatch2::decompressFile(const string& pa)
 	    {
 		BZ2_bzReadClose(&bzError, bzFile);
 		fclose(stdioFileBZ2);
-		throw "cannot write `" + path + "': " + lastError();
+		throw "cannot write to `" + path + "':\n" + lastError();
 	    }
 	}
     }
@@ -687,7 +687,7 @@ getFileInfoSeqInternal(const string& basePath, const string& relativePath, FileI
 		}
 		else
 		{
-		    throw "cannot stat `" + path + "': " + lastError();
+		    throw "cannot stat `" + path + "':\n" + lastError();
 		}
 	    }
 	    else if(buf.st_size == 0)
@@ -706,7 +706,7 @@ getFileInfoSeqInternal(const string& basePath, const string& relativePath, FileI
     struct stat buf;
     if(stat(path.c_str(), &buf) == -1)
     {
-	throw "cannot stat `" + path + "': " + lastError();
+	throw "cannot stat `" + path + "':\n" + lastError();
     }
 
     if(S_ISDIR(buf.st_mode))
@@ -719,8 +719,15 @@ getFileInfoSeqInternal(const string& basePath, const string& relativePath, FileI
 	copy(relativePath.begin(), relativePath.end(), bytes.begin());
 
 	ByteSeq bytesSHA(20);
-	SHA1(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(),
-	     reinterpret_cast<unsigned char*>(&bytesSHA[0]));
+	if(!bytes.empty())
+	{
+	    SHA1(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(),
+		 reinterpret_cast<unsigned char*>(&bytesSHA[0]));
+	}
+	else
+	{
+	    fill(bytesSHA.begin(), bytesSHA.end(), 0);
+	}
 	info.checksum.swap(bytesSHA);
 
 	infoSeq.push_back(info);
@@ -761,13 +768,13 @@ getFileInfoSeqInternal(const string& basePath, const string& relativePath, FileI
 #endif
 	    if(fd == -1)
 	    {
-		throw "cannot open `" + path + "' for reading: " + lastError();
+		throw "cannot open `" + path + "' for reading:\n" + lastError();
 	    }
 
 	    if(read(fd, &bytes[relativePath.size()], buf.st_size) == -1)
 	    {
 		close(fd);
-		throw "cannot read `" + path + "': " + lastError();
+		throw "cannot read from `" + path + "':\n" + lastError();
 	    }
 
 	    close(fd);
@@ -785,7 +792,7 @@ getFileInfoSeqInternal(const string& basePath, const string& relativePath, FileI
 		struct stat bufBZ2;
 		if(stat(pathBZ2.c_str(), &bufBZ2) == -1)
 		{
-		    throw "cannot stat `" + pathBZ2 + "': " + lastError();
+		    throw "cannot stat `" + pathBZ2 + "':\n" + lastError();
 		}
 
 		info.size = bufBZ2.st_size;
@@ -800,8 +807,15 @@ getFileInfoSeqInternal(const string& basePath, const string& relativePath, FileI
 	}
 
 	ByteSeq bytesSHA(20);
-	SHA1(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(),
-	     reinterpret_cast<unsigned char*>(&bytesSHA[0]));
+	if(!bytes.empty())
+	{
+	    SHA1(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(),
+		 reinterpret_cast<unsigned char*>(&bytesSHA[0]));
+	}
+	else
+	{
+	    fill(bytesSHA.begin(), bytesSHA.end(), 0);
+	}
 	info.checksum.swap(bytesSHA);
 
 	infoSeq.push_back(info);
@@ -835,7 +849,7 @@ IcePatch2::saveFileInfoSeq(const string& pa, const FileInfoSeq& infoSeq)
 	ofstream os(path.c_str());
 	if(!os)
 	{
-	    throw "cannot open `" + path + "' for writing: " + lastError();
+	    throw "cannot open `" + path + "' for writing:\n" + lastError();
 	}
 	
 	for(FileInfoSeq::const_iterator p = infoSeq.begin(); p != infoSeq.end(); ++p)
@@ -866,7 +880,7 @@ IcePatch2::loadFileInfoSeq(const string& pa, FileInfoSeq& infoSeq)
 	ifstream is(path.c_str());
 	if(!is)
 	{
-	    throw "cannot open `" + path + "' for reading: " + lastError();
+	    throw "cannot open `" + path + "' for reading:\n" + lastError();
 	}
 
 	while(is.good())
@@ -985,14 +999,28 @@ IcePatch2::getFileTree0(const FileInfoSeq& infoSeq, FileTree0& tree0)
 	    copy(p->checksum.begin(), p->checksum.end(), c1);
 	}
 	
-	SHA1(reinterpret_cast<unsigned char*>(&allChecksums1[0]), allChecksums1.size(),
-	     reinterpret_cast<unsigned char*>(&tree1.checksum[0]));
+	if(!allChecksums1.empty())
+	{
+	    SHA1(reinterpret_cast<unsigned char*>(&allChecksums1[0]), allChecksums1.size(),
+		 reinterpret_cast<unsigned char*>(&tree1.checksum[0]));
+	}
+	else
+	{
+	    fill(tree1.checksum.begin(), tree1.checksum.end(), 0);
+	}
 
 	copy(tree1.checksum.begin(), tree1.checksum.end(), c0);
     }
 
-    SHA1(reinterpret_cast<unsigned char*>(&allChecksums0[0]), allChecksums0.size(),
-	 reinterpret_cast<unsigned char*>(&tree0.checksum[0]));
+    if(!allChecksums0.empty())
+    {
+	SHA1(reinterpret_cast<unsigned char*>(&allChecksums0[0]), allChecksums0.size(),
+	     reinterpret_cast<unsigned char*>(&tree0.checksum[0]));
+    }
+    else
+    {
+	fill(tree0.checksum.begin(), tree0.checksum.end(), 0);
+    }
 }
 
 ostream&
