@@ -148,6 +148,9 @@ public class AllTests
 	    catch(Ice.ConnectFailedException exc)
 	    {
 	    }
+	    catch(Ice.SocketException exc)
+	    {
+	    }
 	    catch(Exception exc)
 	    {
 		test(false);
@@ -319,6 +322,10 @@ public class AllTests
 		    {
 			System.out.println("ok");
 		    }
+		    catch(Ice.SocketException ex)
+		    {
+			System.out.println("ok");
+		    }
 		}
 		else
 		{
@@ -346,6 +353,10 @@ public class AllTests
 			System.out.println("ok");
 		    }
 		    catch(Ice.ConnectFailedException exc)
+		    {
+			System.out.println("ok");
+		    }
+		    catch(Ice.SocketException ex)
 		    {
 			System.out.println("ok");
 		    }
@@ -378,6 +389,10 @@ public class AllTests
 			System.out.println("ok");
 		    }
 		    catch(Ice.ConnectFailedException exc)
+		    {
+			System.out.println("ok");
+		    }
+		    catch(Ice.SocketException ex)
 		    {
 			System.out.println("ok");
 		    }
