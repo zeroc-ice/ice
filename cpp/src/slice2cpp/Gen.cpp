@@ -1612,7 +1612,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
     {
 	string scoped = (*i)->scoped();
-	C << nl << "catch(const " << (*i)->scoped() << "&)";
+	C << nl << "catch(const " << fixKwd((*i)->scoped()) << "&)";
 	C << sb;
 	C << nl << "throw;";
 	C << eb;
@@ -3578,7 +3578,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
 	{
 	    string scoped = (*i)->scoped();
-	    C << nl << "catch(const " << (*i)->scoped() << "& __ex)";
+	    C << nl << "catch(const " << fixKwd((*i)->scoped()) << "& __ex)";
 	    C << sb;
 	    C << nl << "ice_exception(__ex);";
 	    C << nl << "return;";
