@@ -380,6 +380,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name dbmap
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name singleP
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name singleS
+    End Project Dependency
 }}}
 
 ###############################################################################
