@@ -160,7 +160,14 @@ public class Instance
 
         try
         {
-            _logger = new Ice.LoggerI(_properties.getProperty("Ice.ProgramName"));
+	    if(_properties.getPropertyAsInt("Ice.UseSyslog") > 0)
+	    {
+		_logger = new Ice.SysLoggerI(_properties.getProperty("Ice.ProgramName"));
+	    }
+	    else
+	    {
+		_logger = new Ice.LoggerI(_properties.getProperty("Ice.ProgramName"));
+	    }
 
             _traceLevels = new TraceLevels(_properties);
 
