@@ -34,6 +34,30 @@ void IceInternal::decRef(Collector* p) { p->__decRef(); }
 void IceInternal::incRef(CollectorFactory* p) { p->__incRef(); }
 void IceInternal::decRef(CollectorFactory* p) { p->__decRef(); }
 
+IceInternal::Collector::Collector(const InstancePtr& instance,
+				  const ObjectAdapterPtr& adapter,
+				  const TransceiverPtr& transceiver,
+				  const EndpointPtr& endpoint) :
+    EventHandler(instance),
+    _adapter(adapter),
+    _transceiver(transceiver),
+    _endpoint(endpoint),
+    _traceLevels(instance->traceLevels()),
+    _logger(instance->logger()),
+    _responseCount(0),
+    _state(StateHolding)
+{
+    _warnAboutExceptions =
+	atoi(_instance->properties()->getProperty("Ice.WarnAboutServerExceptions").c_str()) > 0 ? true : false;
+
+    _threadPool = _instance->threadPool();
+}
+
+IceInternal::Collector::~Collector()
+{
+    assert(_state == StateClosed);
+}
+
 void
 IceInternal::Collector::destroy()
 {
@@ -321,28 +345,25 @@ IceInternal::Collector::tryDestroy()
     return true;
 }
 
-IceInternal::Collector::Collector(const InstancePtr& instance,
-				  const ObjectAdapterPtr& adapter,
-				  const TransceiverPtr& transceiver,
-				  const EndpointPtr& endpoint) :
-    EventHandler(instance),
-    _adapter(adapter),
-    _transceiver(transceiver),
-    _endpoint(endpoint),
-    _traceLevels(instance->traceLevels()),
-    _logger(instance->logger()),
-    _responseCount(0),
-    _state(StateHolding)
+InternetAddress
+IceInternal::Collector::getLocalAddress()
 {
-    _warnAboutExceptions =
-	atoi(_instance->properties()->getProperty("Ice.WarnAboutServerExceptions").c_str()) > 0 ? true : false;
-
-    _threadPool = _instance->threadPool();
+    assert(false); // TODO: Not implemented yet.
+    return InternetAddress();
 }
 
-IceInternal::Collector::~Collector()
+InternetAddress
+IceInternal::Collector::getRemoteAddress()
 {
-    assert(_state == StateClosed);
+    assert(false); // TODO: Not implemented yet.
+    return InternetAddress();
+}
+
+ProtocolInfoPtr
+IceInternal::Collector::getProtocolInfo()
+{
+    assert(false); // TODO: Not implemented yet.
+    return 0;
 }
 
 void
@@ -458,6 +479,47 @@ IceInternal::Collector::warning(const Exception& ex) const
 	s << "server exception:\n" << ex << '\n' << _transceiver->toString();
 	_logger->warning(s.str());
     }
+}
+
+IceInternal::CollectorFactory::CollectorFactory(const InstancePtr& instance,
+						const ObjectAdapterPtr& adapter,
+						const EndpointPtr& endpoint) :
+    EventHandler(instance),
+    _adapter(adapter),
+    _endpoint(endpoint),
+    _traceLevels(instance->traceLevels()),
+    _logger(instance->logger()),
+    _state(StateHolding)
+{
+    _warnAboutExceptions =
+	atoi(_instance->properties()->getProperty("Ice.WarnAboutServerExceptions").c_str()) > 0 ? true : false;
+
+    try
+    {
+	_transceiver = _endpoint->serverTransceiver(_endpoint);
+	if (_transceiver)
+	{
+	    CollectorPtr collector = new Collector(_instance, _adapter, _transceiver, _endpoint);
+	    _collectors.push_back(collector);
+	}
+	else
+	{
+	    _acceptor = _endpoint->acceptor(_endpoint);
+	    assert(_acceptor);
+	    _acceptor->listen();
+	    _threadPool = _instance->threadPool();
+	}
+    }
+    catch (...)
+    {
+	setState(StateClosed);
+	throw;
+    }
+}
+
+IceInternal::CollectorFactory::~CollectorFactory()
+{
+    assert(_state == StateClosed);
 }
 
 void
@@ -596,47 +658,6 @@ IceInternal::CollectorFactory::tryDestroy()
     // active connection management.
     //
     return false;
-}
-
-IceInternal::CollectorFactory::CollectorFactory(const InstancePtr& instance,
-						const ObjectAdapterPtr& adapter,
-						const EndpointPtr& endpoint) :
-    EventHandler(instance),
-    _adapter(adapter),
-    _endpoint(endpoint),
-    _traceLevels(instance->traceLevels()),
-    _logger(instance->logger()),
-    _state(StateHolding)
-{
-    _warnAboutExceptions =
-	atoi(_instance->properties()->getProperty("Ice.WarnAboutServerExceptions").c_str()) > 0 ? true : false;
-
-    try
-    {
-	_transceiver = _endpoint->serverTransceiver(_endpoint);
-	if (_transceiver)
-	{
-	    CollectorPtr collector = new Collector(_instance, _adapter, _transceiver, _endpoint);
-	    _collectors.push_back(collector);
-	}
-	else
-	{
-	    _acceptor = _endpoint->acceptor(_endpoint);
-	    assert(_acceptor);
-	    _acceptor->listen();
-	    _threadPool = _instance->threadPool();
-	}
-    }
-    catch (...)
-    {
-	setState(StateClosed);
-	throw;
-    }
-}
-
-IceInternal::CollectorFactory::~CollectorFactory()
-{
-    assert(_state == StateClosed);
 }
 
 void

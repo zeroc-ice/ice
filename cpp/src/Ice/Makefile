@@ -49,6 +49,7 @@ OBJS		= Initialize.o \
 		  IdentityUtil.o \
 		  Current.o \
 		  Connection.o \
+		  ConnectionI.o \
 		  LocalObject.o \
 		  Object.o \
 		  ProxyFactory.o \

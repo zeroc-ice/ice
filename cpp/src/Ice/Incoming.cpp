@@ -72,26 +72,29 @@ IceInternal::Incoming::invoke()
 	
     try
     {
-	servant = _adapter->identityToServant(current.identity);
-
-	if (!servant && !current.identity.category.empty())
+	if (_adapter)
 	{
-	    locator = _adapter->findServantLocator(current.identity.category);
-	    if (locator)
+	    servant = _adapter->identityToServant(current.identity);
+	    
+	    if (!servant && !current.identity.category.empty())
 	    {
-		servant = locator->locate(_adapter, current, cookie);
+		locator = _adapter->findServantLocator(current.identity.category);
+		if (locator)
+		{
+		    servant = locator->locate(_adapter, current, cookie);
+		}
+	    }
+	    
+	    if (!servant)
+	    {
+		locator = _adapter->findServantLocator("");
+		if (locator)
+		{
+		    servant = locator->locate(_adapter, current, cookie);
+		}
 	    }
 	}
-
-	if (!servant)
-	{
-	    locator = _adapter->findServantLocator("");
-	    if (locator)
-	    {
-		servant = locator->locate(_adapter, current, cookie);
-	    }
-	}
-
+	    
 	DispatchStatus status;
 
 	if (!servant)
@@ -120,6 +123,7 @@ IceInternal::Incoming::invoke()
 
 	if (locator && servant)
 	{
+	    assert(_adapter);
 	    locator->finished(_adapter, current, servant, cookie);
 	}
 	
@@ -140,6 +144,7 @@ IceInternal::Incoming::invoke()
     {
 	if (locator && servant)
 	{
+	    assert(_adapter);
 	    locator->finished(_adapter, current, servant, cookie);
 	}
 
@@ -154,6 +159,7 @@ IceInternal::Incoming::invoke()
     {
 	if (locator && servant)
 	{
+	    assert(_adapter);
 	    locator->finished(_adapter, current, servant, cookie);
 	}
 
@@ -167,6 +173,7 @@ IceInternal::Incoming::invoke()
     {
 	if (locator && servant)
 	{
+	    assert(_adapter);
 	    locator->finished(_adapter, current, servant, cookie);
 	}
 
@@ -182,6 +189,7 @@ IceInternal::Incoming::invoke()
     {
 	if (locator && servant)
 	{
+	    assert(_adapter);
 	    locator->finished(_adapter, current, servant, cookie);
 	}
 
@@ -197,6 +205,7 @@ IceInternal::Incoming::invoke()
     {
 	if (locator && servant)
 	{
+	    assert(_adapter);
 	    locator->finished(_adapter, current, servant, cookie);
 	}
 

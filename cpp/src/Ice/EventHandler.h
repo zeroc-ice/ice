@@ -27,7 +27,7 @@ class LocalException;
 namespace IceInternal
 {
 
-class EventHandler : public ::IceUtil::Shared
+class EventHandler : virtual public ::IceUtil::Shared
 {
 public:
     
@@ -54,7 +54,7 @@ public:
     virtual void message(BasicStream&) = 0;
 
     //
-    // Signal exception during reading or unmarshaling.
+    // Propagate an exception to the event handler.
     //
     virtual void exception(const ::Ice::LocalException&) = 0;
 
@@ -70,7 +70,7 @@ public:
     // handler cannot be destroyed because it is in use, or true
     // otherwise.
     //
-    virtual bool tryDestroy() = 0;
+//    virtual bool tryDestroy() = 0;
 
 protected:
     

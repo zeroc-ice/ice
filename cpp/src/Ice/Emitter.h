@@ -20,6 +20,7 @@
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/EventHandler.h>
+#include <Ice/Connection.h>
 
 namespace Ice
 {
@@ -33,9 +34,12 @@ namespace IceInternal
 
 class Outgoing;
 
-class Emitter : public EventHandler, public JTCMutex
+class Emitter : virtual public EventHandler, virtual public ::Ice::OutgoingConnection, public JTCMutex
 {
 public:
+
+    Emitter(const InstancePtr&, const TransceiverPtr&, const EndpointPtr&);
+    virtual ~Emitter();
 
     void destroy();
     bool destroyed() const;
@@ -59,17 +63,19 @@ public:
     virtual void finished();
     virtual bool tryDestroy();
 
-private:
+    //
+    // Operations from OutgoingConnection
+    //
+    virtual ::Ice::InternetAddress getLocalAddress();
+    virtual ::Ice::InternetAddress getRemoteAddress();
+    virtual ::Ice::ProtocolInfoPtr getProtocolInfo();
+    virtual void flush();
 
-    Emitter(const InstancePtr&, const TransceiverPtr&, const EndpointPtr&);
-    virtual ~Emitter();
-    friend class EmitterFactory;
+private:
 
     enum State
     {
 	StateActive,
-	StateHolding,
-	StateClosing,
 	StateClosed
     };
 
@@ -77,8 +83,8 @@ private:
 
     TransceiverPtr _transceiver;
     EndpointPtr _endpoint;
-    TraceLevelsPtr _traceLevels;
     ::Ice::LoggerPtr _logger;
+    TraceLevelsPtr _traceLevels;
     ThreadPoolPtr _threadPool;
     ::Ice::Int _nextRequestId;
     std::map< ::Ice::Int, Outgoing*> _requests;
@@ -92,14 +98,13 @@ class EmitterFactory : public ::IceUtil::Shared, public JTCMutex
 {
 public:
 
+    EmitterFactory(const InstancePtr&);
+    virtual ~EmitterFactory();
+
+    void destroy();
     EmitterPtr create(const std::vector<EndpointPtr>&);
 
 private:
-
-    EmitterFactory(const InstancePtr&);
-    virtual ~EmitterFactory();
-    void destroy();
-    friend class Instance;
 
     InstancePtr _instance;
     std::map<EndpointPtr, EmitterPtr> _emitters;

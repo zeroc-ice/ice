@@ -11,8 +11,8 @@
 #include <Ice/Emitter.h>
 #include <Ice/Instance.h>
 #include <Ice/Logger.h>
-#include <Ice/TraceLevels.h>
 #include <Ice/TraceUtil.h>
+#include <Ice/TraceLevels.h>
 #include <Ice/Transceiver.h>
 #include <Ice/Connector.h>
 #include <Ice/ThreadPool.h>
@@ -33,6 +33,31 @@ void IceInternal::decRef(Emitter* p) { p->__decRef(); }
 void IceInternal::incRef(EmitterFactory* p) { p->__incRef(); }
 void IceInternal::decRef(EmitterFactory* p) { p->__decRef(); }
 
+IceInternal::Emitter::Emitter(const InstancePtr& instance,
+			      const TransceiverPtr& transceiver,
+			      const EndpointPtr& endpoint) :
+    EventHandler(instance),
+    _transceiver(transceiver),
+    _endpoint(endpoint),
+    _logger(instance->logger()),
+    _traceLevels(instance->traceLevels()),
+    _nextRequestId(1),
+    _requestsHint(_requests.end()),
+    _batchStream(instance),
+    _state(StateActive)
+{
+    if (!_endpoint->oneway())
+    {
+	_threadPool = _instance->threadPool();
+	_threadPool->_register(_transceiver->fd(), this);
+    }
+}
+
+IceInternal::Emitter::~Emitter()
+{
+    assert(_state == StateClosed);
+}
+
 void
 IceInternal::Emitter::destroy()
 {
@@ -44,7 +69,7 @@ bool
 IceInternal::Emitter::destroyed() const
 {
     JTCSyncT<JTCMutex> sync(*this);
-    return _state >= StateClosing;
+    return _state == StateClosed;
 }
 
 void
@@ -371,30 +396,31 @@ IceInternal::Emitter::tryDestroy()
     return true;
 }
 
-IceInternal::Emitter::Emitter(const InstancePtr& instance,
-			      const TransceiverPtr& transceiver,
-			      const EndpointPtr& endpoint) :
-    EventHandler(instance),
-    _transceiver(transceiver),
-    _endpoint(endpoint),
-    _nextRequestId(1),
-    _requestsHint(_requests.end()),
-    _batchStream(instance),
-    _state(StateActive)
+InternetAddress
+IceInternal::Emitter::getLocalAddress()
 {
-    _traceLevels = _instance->traceLevels();
-    _logger = _instance->logger();
-
-    if (!_endpoint->oneway())
-    {
-	_threadPool = _instance->threadPool();
-	_threadPool->_register(_transceiver->fd(), this);
-    }
+    assert(false); // TODO: Not implemented yet.
+    return InternetAddress();
 }
 
-IceInternal::Emitter::~Emitter()
+InternetAddress
+IceInternal::Emitter::getRemoteAddress()
 {
-    assert(_state == StateClosed);
+    assert(false); // TODO: Not implemented yet.
+    return InternetAddress();
+}
+
+ProtocolInfoPtr
+IceInternal::Emitter::getProtocolInfo()
+{
+    assert(false); // TODO: Not implemented yet.
+    return 0;
+}
+
+void
+IceInternal::Emitter::flush()
+{
+    flushBatchRequest();
 }
 
 void
@@ -439,6 +465,16 @@ IceInternal::Emitter::setState(State state, const LocalException& ex)
     _requestsHint = _requests.end();
     
     _state = state;
+}
+
+IceInternal::EmitterFactory::EmitterFactory(const InstancePtr& instance) :
+    _instance(instance)
+{
+}
+
+IceInternal::EmitterFactory::~EmitterFactory()
+{
+    assert(!_instance);
 }
 
 EmitterPtr
@@ -552,16 +588,6 @@ IceInternal::EmitterFactory::create(const vector<EndpointPtr>& endpoints)
     }
 
     return emitter;
-}
-
-IceInternal::EmitterFactory::EmitterFactory(const InstancePtr& instance) :
-    _instance(instance)
-{
-}
-
-IceInternal::EmitterFactory::~EmitterFactory()
-{
-    assert(!_instance);
 }
 
 void

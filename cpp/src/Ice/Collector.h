@@ -21,13 +21,13 @@
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/EventHandler.h>
+#include <Ice/Connection.h>
 #include <list>
 
 namespace Ice
 {
 
 class LocalException;
-class ObjectAdapterI;
 
 }
 
@@ -36,9 +36,12 @@ namespace IceInternal
 
 class Incoming;
 
-class Collector : public EventHandler, public JTCRecursiveMutex
+class Collector : virtual public EventHandler, virtual public ::Ice::IncomingConnection, public JTCRecursiveMutex
 {
 public:
+
+    Collector(const InstancePtr&, const ::Ice::ObjectAdapterPtr&, const TransceiverPtr&, const EndpointPtr&);
+    virtual ~Collector();
 
     void destroy();
     bool destroyed() const;
@@ -56,11 +59,14 @@ public:
     virtual void finished();
     virtual bool tryDestroy();
 
-private:
+    //
+    // Operations from IncomingConnection
+    //
+    virtual ::Ice::InternetAddress getLocalAddress();
+    virtual ::Ice::InternetAddress getRemoteAddress();
+    virtual ::Ice::ProtocolInfoPtr getProtocolInfo();
 
-    Collector(const InstancePtr&, const ::Ice::ObjectAdapterPtr&, const TransceiverPtr&, const EndpointPtr&);
-    virtual ~Collector();
-    friend class CollectorFactory;
+private:
 
     enum State
     {
@@ -89,6 +95,9 @@ class CollectorFactory : public EventHandler, public JTCMutex
 {
 public:
 
+    CollectorFactory(const InstancePtr&, const ::Ice::ObjectAdapterPtr&, const EndpointPtr&);
+    virtual ~CollectorFactory();
+
     void destroy();
     void hold();
     void activate();
@@ -108,10 +117,6 @@ public:
     virtual bool tryDestroy();
     
 private:
-
-    CollectorFactory(const InstancePtr&, const ::Ice::ObjectAdapterPtr&, const EndpointPtr&);
-    virtual ~CollectorFactory();
-    friend class ::Ice::ObjectAdapterI;
 
     enum State
     {
