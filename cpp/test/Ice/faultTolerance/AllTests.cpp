@@ -35,7 +35,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
     cout << "ok" << endl;
 
     int oldPid = 0;
-    for(unsigned int i = 1, j = 0; i <= ports.size(); ++i, j = j >= 2 ? 0 : j + 1)
+    for(unsigned int i = 1, j = 0; i <= ports.size(); ++i, j = j >= 3 ? 0 : j + 1)
     {
 	cout << "testing server #" << i << "... " << flush;
 	int pid = obj->pid();
@@ -68,6 +68,20 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 	    try
 	    {
 		obj->idempotentAbort();
+		test(false);
+	    }
+	    catch(const Ice::SocketException&)
+	    {
+		cout << "ok" << endl;
+	    }
+	    ++i;
+	}
+	else if(j == 3)
+	{
+	    cout << "aborting server #" << i << " and #" << i + 1 << " with nonmutating call... " << flush;
+	    try
+	    {
+		obj->nonmutatingAbort();
 		test(false);
 	    }
 	    catch(const Ice::SocketException&)

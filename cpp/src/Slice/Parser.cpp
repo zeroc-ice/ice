@@ -1450,11 +1450,6 @@ Slice::Module::kindOf() const
 void
 Slice::Module::visit(ParserVisitor* visitor)
 {
-    if(_includeLevel > 0)
-    {
-	return;
-    }
-   
     if(visitor->visitModuleStart(this))
     {
 	Container::visit(visitor);
@@ -2140,11 +2135,6 @@ Slice::ClassDef::kindOf() const
 void
 Slice::ClassDef::visit(ParserVisitor* visitor)
 {
-    if(_includeLevel > 0)
-    {
-	return;
-    }
-
     if(visitor->visitClassDefStart(this))
     {
 	Container::visit(visitor);
@@ -2366,11 +2356,6 @@ Slice::Exception::kindOf() const
 void
 Slice::Exception::visit(ParserVisitor* visitor)
 {
-    if(_includeLevel > 0)
-    {
-	return;
-    }
-
     if(visitor->visitExceptionStart(this))
     {
 	Container::visit(visitor);
@@ -2503,11 +2488,6 @@ Slice::Struct::kindOf() const
 void
 Slice::Struct::visit(ParserVisitor* visitor)
 {
-    if(_includeLevel > 0)
-    {
-	return;
-    }
-
     if(visitor->visitStructStart(this))
     {
 	Container::visit(visitor);
