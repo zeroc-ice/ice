@@ -230,23 +230,6 @@ Parser::removeCurrent()
 }
 
 void
-Parser::listNames()
-{
-    try
-    {
-	Names names = _phoneBook->getAllNames();
-	for (Names::iterator p = names.begin(); p != names.end(); ++p)
-	{
-	    cout << *p << endl;
-	}
-    }
-    catch(const LocalException& ex)
-    {
-	error(ex.toString());
-    }
-}
-
-void
 Parser::shutdown()
 {
     try

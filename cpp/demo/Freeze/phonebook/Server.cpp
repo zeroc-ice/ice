@@ -90,14 +90,15 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     string value;
 
     //
-    // Open the phonebook database.
+    // Open the phonebook and contacts database.
     //
-    DBPtr db = dbEnv->openDB("phonebook");
+    DBPtr dbPhoneBook = dbEnv->openDB("phonebook");
+    DBPtr dbContacts = dbEnv->openDB("contacts");
 
     //
-    // Create an Evictor.
+    // Create an Evictor for contacts.
     //
-    EvictorPtr evictor = db->createEvictor();
+    EvictorPtr evictor = dbContacts->createEvictor();
     value = properties->getProperty("PhoneBook.EvictorSize");
     if(!value.empty())
     {
@@ -122,7 +123,7 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     //
     // Create the phonebook, and add it to the Object Adapter.
     //
-    PhoneBookIPtr phoneBook = new PhoneBookI(adapter, evictor);
+    PhoneBookIPtr phoneBook = new PhoneBookI(adapter, dbPhoneBook, evictor);
     adapter->add(phoneBook, "phonebook");
 
     //

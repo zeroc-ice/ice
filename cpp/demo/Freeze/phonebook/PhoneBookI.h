@@ -53,11 +53,10 @@ class PhoneBookI : public PhoneBook, public JTCRecursiveMutex
 {
 public: 
 
-    PhoneBookI(const Ice::ObjectAdapterPtr&, const Freeze::EvictorPtr&);
+    PhoneBookI(const Ice::ObjectAdapterPtr&, const Freeze::DBPtr&, const Freeze::EvictorPtr&);
 
     virtual ContactPrx createContact();
     virtual Contacts findContacts(const std::string&);
-    virtual Names getAllNames();
     virtual void shutdown();
     
     void remove(const std::string&, const std::string&);
@@ -66,10 +65,10 @@ public:
 private:
 
     Ice::ObjectAdapterPtr _adapter;
+    Freeze::DBPtr _db;
     Freeze::EvictorPtr _evictor;
     Ice::Long _nextContactIdentity;
     NameIdentitiesDictPtr _nameIdentitiesDict;
-    
 };
 
 #endif

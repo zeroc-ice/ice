@@ -175,7 +175,7 @@ main(int argc, char* argv[])
 #else
 	FILE* cppHandle = popen(cmd.c_str(), "r");
 #endif
-	if (cppHandle == NULL)
+	if (cppHandle == 0)
 	{
 	    cerr << argv[0] << ": can't run C++ preprocessor: " << strerror(errno) << endl;
 	    return EXIT_FAILURE;

@@ -220,10 +220,6 @@ NL	[\n\r]
     return TOK_REMOVE_CURRENT;
 }
 
-"list" {
-    return TOK_LIST_NAMES;
-}
-
 "shutdown" {
     return TOK_SHUTDOWN;
 }

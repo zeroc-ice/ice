@@ -131,27 +131,22 @@ Slice::Gen::generate(const UnitPtr& unit)
     }
 
     H << sp;
-    H.zeroIndent();
     H << "\n#ifndef ICE_IGNORE_VERSION";
     H << "\n#   if ICE_INT_VERSION != 0x" << hex << ICE_INT_VERSION;
     H << "\n#       error Ice version mismatch!";
     H << "\n#   endif";
     H << "\n#endif";
-    H.restoreIndent();
 
     C << sp;
-    C.zeroIndent();
     C << "\n#ifndef ICE_IGNORE_VERSION";
     C << "\n#   if ICE_INT_VERSION != 0x" << hex << ICE_INT_VERSION;
     C << "\n#       error Ice version mismatch!";
     C << "\n#   endif";
     C << "\n#endif";
-    C.restoreIndent();
 
     if (_dllExport.size())
     {
 	H << sp;
-	H.zeroIndent();
 	H << "\n#ifdef WIN32";
 	H << "\n#   ifdef " << _dllExport.substr(0, _dllExport.size() - 1) << "_EXPORTS";
 	H << "\n#       define " << _dllExport << "__declspec(dllexport)";
@@ -161,7 +156,6 @@ Slice::Gen::generate(const UnitPtr& unit)
 	H << "\n#else";
 	H << "\n#   define " << _dllExport << "/**/";
 	H << "\n#endif";
-	H.restoreIndent();
     }
 
     ProxyDeclVisitor proxyDeclVisitor(H, C, _dllExport);

@@ -80,11 +80,11 @@ ContactI::destroy()
     _evictor->destroyObject(_identity);
 }
 
-PhoneBookI::PhoneBookI(const ObjectAdapterPtr& adapter, const EvictorPtr& evictor) :
+PhoneBookI::PhoneBookI(const ObjectAdapterPtr& adapter, const DBPtr& db, const EvictorPtr& evictor) :
     _adapter(adapter),
+    _db(db),
     _evictor(evictor),
-    _nextContactIdentity(0),
-    _nameIdentitiesDict(new NameIdentitiesDict(evictor->getDB()))
+    _nameIdentitiesDict(new NameIdentitiesDict(db))
 {
 }
 
@@ -139,19 +139,20 @@ PhoneBookI::createContact()
     _evictor->createObject(identity, contact);
 
     //
-    // Add identity to our name/identity map. The initial name is the
-    // empty string.
+    // Add the identity to our name/identities map. The initial name
+    // is the empty string.
     //
-//    _nameIdentitiesDict[""].push_back(identity);
+    Identities identities;
+    try
+    {
+	identities = _nameIdentitiesDict->get("");
+    }
+    catch(const DBNotFoundException&)
+    {
+    }
+    identities.push_back(identity);
+    _nameIdentitiesDict->put("", identities);
     
-    //
-    // TODO: Of course it's inefficient to always save the whole phone
-    // book. This will be changed in the future when we have a
-    // dictionary type that directly reads from and writes to the
-    // database.
-    //
-//    _evictor->getDB()->put("phonebook", this, true);
-
     //
     // Turn the identity into a Proxy and return the Proxy to the
     // caller.
@@ -168,45 +169,19 @@ PhoneBookI::findContacts(const string& name)
     // Lookup all phone book contacts that match a name, and return
     // them to the caller.
     //
-/*
-    NameIdentitiesDict::iterator p = _nameIdentitiesDict.find(name);
-    if (p != _nameIdentitiesDict.end())
+    Identities identities;
+    try
     {
-	Contacts contacts;
-	contacts.reserve(p->second.size());
-	transform(p->second.begin(), p->second.end(), back_inserter(contacts), IdentityToContact(_adapter));
-	return contacts;
+	identities = _nameIdentitiesDict->get(name);
     }
-    else*/
+    catch(const DBNotFoundException&)
     {
-	return Contacts();
     }
-}
 
-Names
-PhoneBookI::getAllNames()
-{
-    JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
-
-    //
-    // Get all names from this phone book.
-    //
-    Names names;
-/*
-    for (NameIdentitiesDict::iterator p = _nameIdentitiesDict.begin(); p != _nameIdentitiesDict.end(); ++p)
-    {
-	//
-	// If there are multiple contacts for one name, I want the name
-	// listed just as many times.
-	//
-	for (Identities::size_type i = 0; i < p->second.size(); ++i)
-	{
-	    names.push_back(p->first);
-	}
-    }
-*/
-
-    return names;
+    Contacts contacts;
+    contacts.reserve(identities.size());
+    transform(identities.begin(), identities.end(), back_inserter(contacts), IdentityToContact(_adapter));
+    return contacts;
 }
 
 void
@@ -222,23 +197,14 @@ PhoneBookI::remove(const string& identity, const string& name)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
-/*
     //
-    // Called by ContactI to remove itself from the phone book.
+    // We do not catch DBNotFoundException, because it is an
+    // application error if name is not found.
     //
-    NameIdentitiesDict::iterator p = _nameIdentitiesDict.find(name);
-    assert(p != _nameIdentitiesDict.end());
-    p->second.erase(remove_if(p->second.begin(), p->second.end(), bind2nd(equal_to<string>(), identity)),
-		    p->second.end());
-
-    //
-    // TODO: Of course it's inefficient to always save the whole phone
-    // book. This will be changed in the future when we have a
-    // dictionary type that directly reads from and writes to the
-    // database.
-    //
-    _evictor->getDB()->put("phonebook", this);
-*/
+    Identities identities  = _nameIdentitiesDict->get(name);
+    identities.erase(remove_if(identities.begin(), identities.end(), bind2nd(equal_to<string>(), identity)),
+		     identities.end());
+    _nameIdentitiesDict->put(name, identities);
 }
 
 void
@@ -246,19 +212,18 @@ PhoneBookI::move(const string& identity, const string& oldName, const string& ne
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
-/*
     //
     // Called by ContactI in case the name has been changed.
     //
     remove(identity, oldName);
-    _nameIdentitiesDict[newName].push_back(identity);
-
-    //
-    // TODO: Of course it's inefficient to always save the whole phone
-    // book. This will be changed in the future when we have a
-    // dictionary type that directly reads from and writes to the
-    // database.
-    //
-    _evictor->getDB()->put("phonebook", this);
-*/
+    Identities identities;
+    try
+    {
+	identities = _nameIdentitiesDict->get(newName);
+    }
+    catch(const DBNotFoundException&)
+    {
+    }
+    identities.push_back(identity);
+    _nameIdentitiesDict->put(newName, identities);
 }

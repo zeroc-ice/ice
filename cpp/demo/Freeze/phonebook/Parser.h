@@ -62,7 +62,6 @@ public:
     void setCurrentAddress(const std::list<std::string>&);
     void setCurrentPhone(const std::list<std::string>&);
     void removeCurrent();
-    void listNames();
     void shutdown();
 
     void getInput(char*, int&, int);

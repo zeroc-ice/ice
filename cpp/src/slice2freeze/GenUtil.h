@@ -23,10 +23,9 @@ namespace Slice
 {
 
 std::string typeToString(const TypePtr&);
-std::string returnTypeToString(const TypePtr&);
 std::string inputTypeToString(const TypePtr&);
 
-void writeMarshalUnmarshalCode(Output&, const TypePtr&, const std::string&, bool);
+void writeMarshalUnmarshalCode(Output&, const TypePtr&, const std::string&, const std::string&, bool);
 
 }
 

@@ -2204,13 +2204,11 @@ Slice::Unit::parse(FILE* file, bool debug)
     assert(!Slice::unit);
     Slice::unit = this;
 
-    _errors = 0;
     _currentComment = "";
     _currentLine = 1;
     _currentIncludeLevel = 0;
     _currentFile = "";
     _topLevelFile = "";
-    _includeFiles.clear();
     pushContainer(this);
 
     extern FILE* yyin;
@@ -2273,7 +2271,8 @@ Slice::Unit::Unit(bool ignRedefs, bool all) :
     SyntaxTreeBase(0),
     Container(0),
     _ignRedefs(ignRedefs),
-    _all(all)
+    _all(all),
+    _errors(0)
 {
     _unit = this;
 }

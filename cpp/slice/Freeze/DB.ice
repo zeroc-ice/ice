@@ -11,6 +11,7 @@
 #ifndef FREEZE_DB_ICE
 #define FREEZE_DB_ICE
 
+#include <Ice/CommunicatorF.ice>
 #include <Freeze/DBF.ice>
 #include <Freeze/EvictorF.ice>
 
@@ -74,6 +75,15 @@ local class DBDeadlockException extends DBException
  **/
 local interface DBEnvironment
 {
+    /**
+     *
+     * Get the Communicator for this database environment.
+     *
+     * @return The Communicator for this database environment.
+     *
+     **/
+    Ice::Communicator getCommunicator();
+     
     /**
      *
      * Get the name of the database environment.
@@ -190,6 +200,15 @@ sequence<byte> Value;
  **/
 local interface DB
 {
+    /**
+     *
+     * Get the Communicator for this database.
+     *
+     * @return The Communicator for this database.
+     *
+     **/
+    Ice::Communicator getCommunicator();
+
     /**
      *
      * Get the name of the database.

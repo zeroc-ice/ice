@@ -66,7 +66,7 @@ clean::
 
 NameIdentitiesDict.h NameIdentitiesDict.cpp: PhoneBook.ice $(SLICE2FREEZE)
 	rm -f NameIdentitiesDict.h NameIdentitiesDict.cpp
-	$(SLICE2FREEZE) --dict NameIdentitiesDict,string,string NameIdentitiesDict PhoneBook.ice
+	$(SLICE2FREEZE) --dict NameIdentitiesDict,string,Identities NameIdentitiesDict PhoneBook.ice
 
 clean::
 	rm -f NameIdentitiesDict.h NameIdentitiesDict.cpp

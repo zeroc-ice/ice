@@ -65,17 +65,6 @@ Slice::typeToString(const TypePtr& type)
 }
 
 string
-Slice::returnTypeToString(const TypePtr& type)
-{
-    if (!type)
-    {
-	return "void";
-    }
-
-    return typeToString(type);
-}
-
-string
 Slice::inputTypeToString(const TypePtr& type)
 {
     static const char* inputBuiltinTable[] =
@@ -134,14 +123,14 @@ Slice::inputTypeToString(const TypePtr& type)
 }
 
 void
-Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, bool marshal)
+Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, const string& stream,
+				 bool marshal)
 {
     const char* func = marshal ? "write(" : "read(";
-    const char* stream = marshal ? "__os" : "__is";
 
     if (BuiltinPtr::dynamicCast(type))
     {
-	out << nl << stream << "->" << func << param << ");";
+	out << nl << stream << '.' << func << param << ");";
 	return;
     }
     
@@ -151,27 +140,27 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	out << sb;
 	if (marshal)
 	{
-	    out << nl << "::Ice::ObjectPtr __obj = " << param << ';';
-	    out << nl << stream << "->write(__obj);";
+	    out << nl << "::Ice::ObjectPtr obj = " << param << ';';
+	    out << nl << stream << ".write(obj);";
 	}
 	else
 	{
-	    out << nl << "::Ice::ObjectPtr __obj;";
-	    out << nl << stream << "->read(__obj, " << cl->scoped() << "::__classIds[0]);";
-	    out << nl << "if (!__obj)";
+	    out << nl << "::Ice::ObjectPtr obj;";
+	    out << nl << stream << ".read(obj, " << cl->scoped() << "::__classIds[0]);";
+	    out << nl << "if (!obj)";
 	    out << sb;
 	    ClassDefPtr def = cl->definition();
 	    if (def && !def->isAbstract())
 	    {
-		out << nl << "__obj = new " << cl->scoped() << ";";
-		out << nl << "__obj->__read(__is);";
+		out << nl << "obj = new " << cl->scoped() << ";";
+		out << nl << "obj->__read(&" << stream << ");";
 	    }
 	    else
 	    {
 		out << nl << "throw ::Ice::NoServantFactoryException(__FILE__, __LINE__);";
 	    }
 	    out << eb;
-	    out << nl << param << " = " << cl->scoped() << "Ptr::dynamicCast(__obj);";
+	    out << nl << param << " = " << cl->scoped() << "Ptr::dynamicCast(obj);";
 	    out << nl << "if (!" << param << ')';
 	    out << sb;
 	    out << nl << "throw ::Ice::ServantUnmarshalException(__FILE__, __LINE__);";
@@ -185,7 +174,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     StructPtr st = StructPtr::dynamicCast(type);
     if (st)
     {
-	out << nl << param << ".__" << func << stream << ");";
+	out << nl << param << ".__" << func << '&' << stream << ");";
 	return;
     }
     
@@ -194,11 +183,11 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     {
 	if (BuiltinPtr::dynamicCast(seq->type()))
 	{
-	    out << nl << stream << "->" << func << param << ");";
+	    out << nl << stream << '.' << func << param << ");";
 	}
 	else
 	{
-	    out << nl << seq->scope() << "__" << func << stream << ", " << param << ", " << seq->scope()
+	    out << nl << seq->scope() << "__" << func << '&' << stream << ", " << param << ", " << seq->scope()
 		<< "__U__" << seq->name() << "());";
 	}
 	return;
@@ -207,7 +196,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if (dict)
     {
-	out << nl << dict->scope() << "__" << func << stream << ", " << param << ", " << dict->scope()
+	out << nl << dict->scope() << "__" << func << '&' << stream << ", " << param << ", " << dict->scope()
 	    << "__U__" << dict->name() << "());";
 	return;
     }
@@ -223,5 +212,5 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	constructed = proxy->_class();
     }
 
-    out << nl << constructed->scope() << "__" << func << stream << ", " << param << ");";
+    out << nl << constructed->scope() << "__" << func << '&' << stream << ", " << param << ");";
 }

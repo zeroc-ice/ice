@@ -81,6 +81,24 @@ checkIdentifier(string n, string t, string s)
     return true;
 }
 
+string
+changeInclude(const string& orig, const vector<string>& includePaths)
+{
+    string file = orig;
+    for (vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
+    {
+	if (orig.compare(0, p->length(), *p) == 0)
+	{
+	    string s = orig.substr(p->length());
+	    if (s.size() < file.size())
+	    {
+		file = s;
+	    }
+	}
+    }
+    return file;
+}
+
 void
 printHeader(Output& out, const vector<Dict>& dicts)
 {
@@ -108,7 +126,7 @@ printHeader(Output& out, const vector<Dict>& dicts)
 }
 
 bool
-writeDict(string n, UnitPtr& unit, const Dict& dict, Output& H, Output& C)
+writeDict(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output& C, const string& dllExport)
 {
     string absolute = dict.name;
     if (absolute.find("::") == 0)
@@ -160,7 +178,7 @@ writeDict(string n, UnitPtr& unit, const Dict& dict, Output& H, Output& C)
 	H << nl << "namespace " << *q << nl << '{';
     }
     
-    H << sp << nl << "class " << name << " : public ::IceUtil::Shared, public JTCMutex";
+    H << sp << nl << dllExport << "class " << name << " : public ::IceUtil::Shared";
     H << sb;
     H.dec();
     H << sp << nl << "public:";
@@ -168,7 +186,7 @@ writeDict(string n, UnitPtr& unit, const Dict& dict, Output& H, Output& C)
     H << sp << nl << name << "(const ::Freeze::DBPtr&);";
     H << sp;
     H << nl << "void put(" << inputTypeToString(keyType) << ", " << inputTypeToString(valueType) << ");";
-    H << nl << returnTypeToString(valueType) << " get(" << inputTypeToString(keyType) << ");";
+    H << nl << typeToString(valueType) << " get(" << inputTypeToString(keyType) << ");";
     H << nl << "void del(" << inputTypeToString(keyType) << ");";
     H.dec();
     H << sp << nl << "private:";
@@ -177,29 +195,49 @@ writeDict(string n, UnitPtr& unit, const Dict& dict, Output& H, Output& C)
     H << eb << ';';
     H << sp << nl << "typedef IceUtil::Handle<" << name << "> " << name << "Ptr;";
     
-    C << sp << nl << absolute << "::" << absolute << "(const ::Freeze::DBPtr& db) :";
-    C.inc();
-    C << nl << "_db(db)";
-    C.dec();
-    C << sb;
-    C << eb;
-    C << sp << nl << "void" << nl << "put(" << inputTypeToString(keyType) << " key, " << inputTypeToString(valueType)
-      << " value)";
-    C << sb;
-    C << eb;
-    C << sp << nl << returnTypeToString(valueType) << nl << "get(" << inputTypeToString(keyType) << " key)";
-    C << sb;
-    C << eb;
-    C << sp << nl << "void" << nl << "del(" << inputTypeToString(keyType) << " key)";
-    C << sb;
-    C << eb;
-    
     for (q = scope.begin(); q != scope.end(); ++q)
     {
 	H << sp;
 	H << nl << '}';
     }
 
+    C << sp << nl << absolute << "::" << name << "(const ::Freeze::DBPtr& db) :";
+    C.inc();
+    C << nl << "_db(db)";
+    C.dec();
+    C << sb;
+    C << eb;
+    C << sp << nl << "void" << nl << absolute << "::put(" << inputTypeToString(keyType) << " key, "
+      << inputTypeToString(valueType) << " value)";
+    C << sb;
+    C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());";
+    C << nl << "IceInternal::Stream keyStream(instance);";
+    writeMarshalUnmarshalCode(C, keyType, "key", "keyStream", true);
+    C << nl << "IceInternal::Stream valueStream(instance);";
+    writeMarshalUnmarshalCode(C, keyType, "key", "valueStream", true);
+    C << nl << "_db->put(keyStream.b, valueStream.b);";
+    C << eb;
+    C << sp << nl << typeToString(valueType) << nl << absolute << "::get(" << inputTypeToString(keyType)
+      << " key)";
+    C << sb;
+    C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());";
+    C << nl << "IceInternal::Stream keyStream(instance);";
+    writeMarshalUnmarshalCode(C, keyType, "key", "keyStream", true);
+    C << nl << "IceInternal::Stream valueStream(instance);";
+    C << nl << "valueStream.b = _db->get(keyStream.b);";
+    C << nl << "valueStream.i = valueStream.b.begin();";
+    C << nl << typeToString(valueType) << " value;";
+    writeMarshalUnmarshalCode(C, keyType, "value", "valueStream", false);
+    C << nl << "return value;";
+    C << eb;
+    C << sp << nl << "void" << nl << absolute << "::del(" << inputTypeToString(keyType) << " key)";
+    C << sb;
+    C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());";
+    C << nl << "IceInternal::Stream keyStream(instance);";
+    writeMarshalUnmarshalCode(C, keyType, "key", "keyStream", true);
+    C << nl << "_db->del(keyStream.b);";
+    C << eb;
+    
     return true;
 }
 
@@ -207,6 +245,7 @@ int
 main(int argc, char* argv[])
 {
     string cpp("cpp");
+    vector<string> includePaths;
     string include;
     string dllExport;
     bool debug = false;
@@ -219,6 +258,12 @@ main(int argc, char* argv[])
 	{
 	    cpp += ' ';
 	    cpp += argv[idx];
+
+	    string path = argv[idx] + 2;
+	    if (path.length())
+	    {
+		includePaths.push_back(path);
+	    }
 
 	    for (int i = idx ; i + 1 < argc ; ++i)
 	    {
@@ -379,30 +424,33 @@ main(int argc, char* argv[])
 
     UnitPtr unit = Unit::createUnit(true, false);
 
+    StringList includes;
+
     int status = EXIT_SUCCESS;
 
     for (idx = 2 ; idx < argc ; ++idx)
     {
-	string file(argv[idx]);
+	string base(argv[idx]);
 	string suffix;
-	string::size_type pos = file.rfind('.');
+	string::size_type pos = base.rfind('.');
 	if (pos != string::npos)
 	{
-	    suffix = file.substr(pos);
+	    suffix = base.substr(pos);
 	    transform(suffix.begin(), suffix.end(), suffix.begin(), tolower);
 	}
 	if (suffix != ".ice")
 	{
 	    cerr << argv[0] << ": input files must end with `.ice'" << endl;
-	    unit->destroy();
 	    return EXIT_FAILURE;
 	}
+	base.erase(pos);
+
+	includes.push_back(base + ".h");
 
 	ifstream test(argv[idx]);
 	if (!test)
 	{
 	    cerr << argv[0] << ": can't open `" << argv[idx] << "' for reading: " << strerror(errno) << endl;
-	    unit->destroy();
 	    return EXIT_FAILURE;
 	}
 	test.close();
@@ -413,18 +461,14 @@ main(int argc, char* argv[])
 #else
 	FILE* cppHandle = popen(cmd.c_str(), "r");
 #endif
-	if (cppHandle == NULL)
+	if (cppHandle == 0)
 	{
 	    cerr << argv[0] << ": can't run C++ preprocessor: " << strerror(errno) << endl;
 	    unit->destroy();
 	    return EXIT_FAILURE;
 	}
 	
-	int parseStatus = unit->parse(cppHandle, debug);
-	if (parseStatus == EXIT_FAILURE)
-	{
-	    status = EXIT_FAILURE;
-	}
+	status = unit->parse(cppHandle, debug);
 	
 #ifdef WIN32
 	_pclose(cppHandle);
@@ -439,6 +483,14 @@ main(int argc, char* argv[])
 	unit->mergeModules();
 	unit->sort();
 
+	for (vector<string>::iterator p = includePaths.begin(); p != includePaths.end(); ++p)
+	{
+	    if (p->length() && (*p)[p->length() - 1] != '/')
+	    {
+		*p += '/';
+	    }
+	}
+
 	Output H;
 	H.open(fileH.c_str());
 	if (!H)
@@ -449,13 +501,6 @@ main(int argc, char* argv[])
 	}
 	printHeader(H, dicts);
 
-	string s = fileH;
-	transform(s.begin(), s.end(), s.begin(), ToIfdef());
-	H << "\n#ifndef __" << s << "__";
-	H << "\n#define __" << s << "__";
-	H << '\n';
-	H << "\n#include <Freeze/DB.h>";
-	
 	Output C;
 	C.open(fileC.c_str());
 	if (!C)
@@ -466,6 +511,46 @@ main(int argc, char* argv[])
 	}
 	printHeader(C, dicts);
 	
+	string s = fileH;
+	transform(s.begin(), s.end(), s.begin(), ToIfdef());
+	H << "\n#ifndef __" << s << "__";
+	H << "\n#define __" << s << "__";
+	H << '\n';
+	H << "\n#include <Ice/Ice.h>";
+	H << "\n#include <Ice/Stream.h>";
+	H << "\n#include <Freeze/DB.h>";
+	
+	for (StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
+	{
+	    H << "\n#include <" << changeInclude(*q, includePaths) << '>';
+	}
+	
+	H << sp;
+	H << "\n#ifndef ICE_IGNORE_VERSION";
+	H << "\n#   if ICE_INT_VERSION != 0x" << hex << ICE_INT_VERSION;
+	H << "\n#       error Ice version mismatch!";
+	H << "\n#   endif";
+	H << "\n#endif";
+	
+	if (dllExport.size())
+	{
+	    dllExport += " ";
+	}
+	
+	if (dllExport.size())
+	{
+	    H << sp;
+	    H << "\n#ifdef WIN32";
+	    H << "\n#   ifdef " << dllExport.substr(0, dllExport.size() - 1) << "_EXPORTS";
+	    H << "\n#       define " << dllExport << "__declspec(dllexport)";
+	    H << "\n#   else";
+	    H << "\n#       define " << dllExport << "__declspec(dllimport)";
+	    H << "\n#   endif";
+	    H << "\n#else";
+	    H << "\n#   define " << dllExport << "/**/";
+	    H << "\n#endif";
+	}
+
 	C << "\n#include <";
 	if (include.size())
 	{
@@ -473,11 +558,18 @@ main(int argc, char* argv[])
 	}
 	C << fileH << '>';
 
+	C << sp;
+	C << "\n#ifndef ICE_IGNORE_VERSION";
+	C << "\n#   if ICE_INT_VERSION != 0x" << hex << ICE_INT_VERSION;
+	C << "\n#       error Ice version mismatch!";
+	C << "\n#   endif";
+	C << "\n#endif";
+	
 	for (vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
 	{
 	    try
 	    {
-		if (!writeDict(argv[0], unit, *p, H, C))
+		if (!writeDict(argv[0], unit, *p, H, C, dllExport))
 		{
 		    unit->destroy();
 		    return EXIT_FAILURE;

@@ -117,6 +117,13 @@ Freeze::DBEnvironmentI::getName()
     return _name;
 }
 
+CommunicatorPtr
+Freeze::DBEnvironmentI::getCommunicator()
+{
+    // No mutex lock necessary, _communicator is immutable
+    return _communicator;
+}
+
 DBPtr
 Freeze::DBEnvironmentI::openDB(const string& name)
 {
@@ -329,6 +336,13 @@ Freeze::DBI::~DBI()
 	s << _errorPrefix << "\"" << _name << "\" has not been closed";
 	_communicator->getLogger()->warning(s.str());
     }
+}
+
+CommunicatorPtr
+Freeze::DBI::getCommunicator()
+{
+    // No mutex lock necessary, _communicator is immutable
+    return _communicator;
 }
 
 string

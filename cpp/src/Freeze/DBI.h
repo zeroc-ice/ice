@@ -35,9 +35,13 @@ public:
     DBEnvironmentI(const ::Ice::CommunicatorPtr&, const std::string&);
     virtual ~DBEnvironmentI();
 
+    virtual ::Ice::CommunicatorPtr getCommunicator();
     virtual std::string getName();
+
     virtual DBPtr openDB(const std::string&);
+
     virtual DBTransactionPtr startTransaction();
+
     virtual void close();
 
 private:
@@ -88,6 +92,7 @@ public:
     DBI(const ::Ice::CommunicatorPtr&, const DBEnvironmentIPtr&, ::DB*, const std::string&);
     virtual ~DBI();
 
+    virtual ::Ice::CommunicatorPtr getCommunicator();
     virtual std::string getName();
 
     virtual void put(const Key&, const Value&);

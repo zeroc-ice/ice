@@ -35,22 +35,13 @@ class Contact
 };
 
 sequence<Contact*> Contacts;
-sequence<string> Identities;
-sequence<string> Names;
+sequence<string> Identities; // Needed for slice2freeze
 
 interface PhoneBook
 {
     Contact* createContact();
-
-    nonmutating Contacts findContacts(string name);
-
-    nonmutating Names getAllNames();
-
-    //
-    // shutdown() is nonmutating. It doesn't change any state, it only
-    // shuts down the application.
-    //
-    nonmutating void shutdown();
+    Contacts findContacts(string name);
+    void shutdown();
 };
 
 #endif

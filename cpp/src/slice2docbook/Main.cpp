@@ -190,18 +190,14 @@ main(int argc, char* argv[])
 #else
 	FILE* cppHandle = popen(cmd.c_str(), "r");
 #endif
-	if (cppHandle == NULL)
+	if (cppHandle == 0)
 	{
 	    cerr << argv[0] << ": can't run C++ preprocessor: " << strerror(errno) << endl;
 	    unit->destroy();
 	    return EXIT_FAILURE;
 	}
 	
-	int parseStatus = unit->parse(cppHandle, debug);
-	if (parseStatus == EXIT_FAILURE)
-	{
-	    status = EXIT_FAILURE;
-	}
+	status = unit->parse(cppHandle, debug);
 	
 #ifdef WIN32
 	_pclose(cppHandle);
