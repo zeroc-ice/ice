@@ -12,6 +12,6 @@
 
 #include <Python.h>
 
-extern "C" PyObject* Ice_loadSlice(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_loadSlice(PyObject*, PyObject*);
 
 #endif

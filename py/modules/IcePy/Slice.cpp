@@ -25,7 +25,7 @@ using namespace Slice::Python;
 
 extern "C"
 PyObject*
-Ice_loadSlice(PyObject* /*self*/, PyObject* args)
+IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
 {
     char* cmd;
     if(!PyArg_ParseTuple(args, "s", &cmd))
@@ -118,6 +118,7 @@ Ice_loadSlice(PyObject* /*self*/, PyObject* args)
         //
         ostringstream codeStream;
         IceUtil::Output out(codeStream);
+        out.setUseTab(false);
         generate(unit, all, out);
         unit->destroy();
 
