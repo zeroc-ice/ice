@@ -107,7 +107,7 @@ writeCodecC(const TypePtr& type, const string& name, const string& freezeType, O
     C << nl << "os << \"<data>\";";
     C << nl << "::Ice::StreamPtr stream = new ::IceXML::StreamI(communicator, os);";
     writeGenericMarshalUnmarshalCode(C, type, "v", true, tagName, "stream", true);
-    C << nl << "os << \"\n</data>\";";
+    C << nl << "os << \"\\n</data>\";";
     C << nl << "bytes.resize(os.str().size());";
     C << nl << "memcpy(&bytes[0], os.str().data(), os.str().size());";
     C << eb;
