@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <IceXML/XMLOutput.h>
+#include <IceXML/Output.h>
 
 using namespace std;
 using namespace IceXML;

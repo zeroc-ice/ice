@@ -18,8 +18,8 @@ VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
 
 TARGETS		= $(NAME) $(VERSIONED_NAME)
 
-OBJS		= XMLStream.o \
-		  XMLOutput.o
+OBJS		= StreamI.o \
+		  Output.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

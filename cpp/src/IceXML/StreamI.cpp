@@ -14,7 +14,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/ObjectFactory.h>
 
-#include <IceXML/XMLStream.h>
+#include <IceXML/StreamI.h>
 
 //
 // For input streaming
@@ -132,15 +132,15 @@ namespace IceXML
 // This is used to reduce the external dependencies on the xerces
 // headers.
 //
-struct XMLStreamInputImpl
+struct StreamInputImpl
 {
-    XMLStreamInputImpl() :
+    StreamInputImpl() :
 	source(0),
 	parser(0),
 	errReporter(0)
     {
     }
-    ~XMLStreamInputImpl()
+    ~StreamInputImpl()
     {
 	delete parser;
 	delete errReporter;
@@ -162,9 +162,9 @@ struct XMLStreamInputImpl
 //
 // A constant string which is used as the name of collection elements.
 //
-const string XMLStream::seqElementName("e");
+const string IceXML::StreamI::seqElementName("e");
 
-XMLStream::XMLStream(const ::Ice::CommunicatorPtr& communicator, std::ostream& os) :
+IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::ostream& os) :
     _communicator(communicator),
     _input(0),
     _os(os),
@@ -189,7 +189,7 @@ XMLStream::XMLStream(const ::Ice::CommunicatorPtr& communicator, std::ostream& o
 }
 
 
-XMLStream::XMLStream(const ::Ice::CommunicatorPtr& communicator, std::istream& is) :
+IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::istream& is) :
     _communicator(communicator),
     _nextId(0)
 {
@@ -221,7 +221,7 @@ XMLStream::XMLStream(const ::Ice::CommunicatorPtr& communicator, std::istream& i
 	_content.append(buf, is.gcount());
     }
     
-    _input = new XMLStreamInputImpl();
+    _input = new StreamInputImpl();
     _input->source = new MemBufInputSource((const XMLByte*)_content.data(), _content.size(), "inputsource");
 
     //
@@ -287,7 +287,7 @@ XMLStream::XMLStream(const ::Ice::CommunicatorPtr& communicator, std::istream& i
     _input->current = _input->current.getFirstChild();
 }
 
-XMLStream::~XMLStream()
+IceXML::StreamI::~StreamI()
 {
     delete _input;
 
@@ -299,7 +299,7 @@ XMLStream::~XMLStream()
 }
 
 void
-XMLStream::startWriteDictionary(const string& name, ::Ice::Int size)
+IceXML::StreamI::startWriteDictionary(const string& name, ::Ice::Int size)
 {
     ostringstream os;
     os << name << " length=\"" << size << "\"";
@@ -307,25 +307,25 @@ XMLStream::startWriteDictionary(const string& name, ::Ice::Int size)
 }
 
 void
-XMLStream::endWriteDictionary()
+IceXML::StreamI::endWriteDictionary()
 {
     endWrite();
 }
 
 void
-XMLStream::startWriteDictionaryElement()
+IceXML::StreamI::startWriteDictionaryElement()
 {
     startWrite(seqElementName);
 }
 
 void
-XMLStream::endWriteDictionaryElement()
+IceXML::StreamI::endWriteDictionaryElement()
 {
     endWrite();
 }
 
 void
-XMLStream::startReadDictionary(const string& name, ::Ice::Int& size)
+IceXML::StreamI::startReadDictionary(const string& name, ::Ice::Int& size)
 {
     startRead(name);
     size = readLength();
@@ -333,25 +333,25 @@ XMLStream::startReadDictionary(const string& name, ::Ice::Int& size)
 }
 
 void
-XMLStream::endReadDictionary()
+IceXML::StreamI::endReadDictionary()
 {
     endRead();
 }
 
 void
-XMLStream::startReadDictionaryElement()
+IceXML::StreamI::startReadDictionaryElement()
 {
     startRead(seqElementName);
 }
 
 void
-XMLStream::endReadDictionaryElement()
+IceXML::StreamI::endReadDictionaryElement()
 {
     endRead();
 }
 
 void
-XMLStream::startWriteSequence(const string& name, ::Ice::Int size)
+IceXML::StreamI::startWriteSequence(const string& name, ::Ice::Int size)
 {
     ostringstream os;
     os << name << " length=\"" << size << "\"";
@@ -359,25 +359,25 @@ XMLStream::startWriteSequence(const string& name, ::Ice::Int size)
 }
 
 void
-XMLStream::endWriteSequence()
+IceXML::StreamI::endWriteSequence()
 {
     endWrite();
 }
 
 void
-XMLStream::startWriteSequenceElement()
+IceXML::StreamI::startWriteSequenceElement()
 {
     startWrite(seqElementName);
 }
 
 void
-XMLStream::endWriteSequenceElement()
+IceXML::StreamI::endWriteSequenceElement()
 {
     endWrite();
 }
 
 void
-XMLStream::startReadSequence(const string& name, ::Ice::Int& size)
+IceXML::StreamI::startReadSequence(const string& name, ::Ice::Int& size)
 {
     startRead(name);
     size = readLength();
@@ -385,75 +385,75 @@ XMLStream::startReadSequence(const string& name, ::Ice::Int& size)
 }
 
 void
-XMLStream::endReadSequence()
+IceXML::StreamI::endReadSequence()
 {
     endRead();
 }
 
 void
-XMLStream::startReadSequenceElement()
+IceXML::StreamI::startReadSequenceElement()
 {
     startRead(seqElementName);
 }
 
 void
-XMLStream::endReadSequenceElement()
+IceXML::StreamI::endReadSequenceElement()
 {
     endRead();
 }
 
 void
-XMLStream::startWriteStruct(const string& name)
+IceXML::StreamI::startWriteStruct(const string& name)
 {
     startWrite(name);
 }
 
 void
-XMLStream::endWriteStruct()
+IceXML::StreamI::endWriteStruct()
 {
     endWrite();
 }
 
 void
-XMLStream::startReadStruct(const string& name)
+IceXML::StreamI::startReadStruct(const string& name)
 {
     startRead(name);
     _input->current = _input->current.getFirstChild();
 }
 
 void
-XMLStream::endReadStruct()
+IceXML::StreamI::endReadStruct()
 {
     endRead();
 }
 
 void
-XMLStream::startWriteException(const string& name)
+IceXML::StreamI::startWriteException(const string& name)
 {
     startWrite(name);
 }
 
 void
-XMLStream::endWriteException()
+IceXML::StreamI::endWriteException()
 {
     endWrite();
 }
 
 void
-XMLStream::startReadException(const string& name)
+IceXML::StreamI::startReadException(const string& name)
 {
     startRead(name);
     _input->current = _input->current.getFirstChild();
 }
 
 void
-XMLStream::endReadException()
+IceXML::StreamI::endReadException()
 {
     endRead();
 }
 
 void
-XMLStream::writeEnum(const string& name, const ::Ice::StringSeq& table, ::Ice::Int ordinal)
+IceXML::StreamI::writeEnum(const string& name, const ::Ice::StringSeq& table, ::Ice::Int ordinal)
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
@@ -461,7 +461,7 @@ XMLStream::writeEnum(const string& name, const ::Ice::StringSeq& table, ::Ice::I
 }
 
 void
-XMLStream::readEnum(const string& name, const ::Ice::StringSeq& table, ::Ice::Int& ordinal)
+IceXML::StreamI::readEnum(const string& name, const ::Ice::StringSeq& table, ::Ice::Int& ordinal)
 {
     startRead(name);
 
@@ -483,7 +483,7 @@ XMLStream::readEnum(const string& name, const ::Ice::StringSeq& table, ::Ice::In
 }
 
 void
-XMLStream::writeByte(const string& name, ::Ice::Byte value)
+IceXML::StreamI::writeByte(const string& name, ::Ice::Byte value)
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
@@ -493,7 +493,7 @@ XMLStream::writeByte(const string& name, ::Ice::Byte value)
 }
 
 void
-XMLStream::writeByteSeq(const string& name, const ::Ice::ByteSeq& seq)
+IceXML::StreamI::writeByteSeq(const string& name, const ::Ice::ByteSeq& seq)
 {
     startWrite(name);
     for (::Ice::ByteSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
@@ -504,7 +504,7 @@ XMLStream::writeByteSeq(const string& name, const ::Ice::ByteSeq& seq)
 }
 
 void
-XMLStream::readByte(const string& name, ::Ice::Byte& value)
+IceXML::StreamI::readByte(const string& name, ::Ice::Byte& value)
 {
     startRead(name);
 
@@ -566,7 +566,7 @@ XMLStream::readByte(const string& name, ::Ice::Byte& value)
 //
 
 void
-XMLStream::readByteSeq(const string& name, ::Ice::ByteSeq& value)
+IceXML::StreamI::readByteSeq(const string& name, ::Ice::ByteSeq& value)
 {
     startRead(name);
 
@@ -585,7 +585,7 @@ XMLStream::readByteSeq(const string& name, ::Ice::ByteSeq& value)
 }
 
 void
-XMLStream::writeBool(const string& name, bool value)
+IceXML::StreamI::writeBool(const string& name, bool value)
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
@@ -593,7 +593,7 @@ XMLStream::writeBool(const string& name, bool value)
 }
 
 void
-XMLStream::writeBoolSeq(const string& name, const ::Ice::BoolSeq& seq)
+IceXML::StreamI::writeBoolSeq(const string& name, const ::Ice::BoolSeq& seq)
 {
     startWrite(name);
     for (::Ice::BoolSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
@@ -604,7 +604,7 @@ XMLStream::writeBoolSeq(const string& name, const ::Ice::BoolSeq& seq)
 }
 
 void
-XMLStream::readBool(const string& name, bool& value)
+IceXML::StreamI::readBool(const string& name, bool& value)
 {
     startRead(name);
 
@@ -621,7 +621,7 @@ XMLStream::readBool(const string& name, bool& value)
 }
 
 void
-XMLStream::readBoolSeq(const string& name, ::Ice::BoolSeq& value)
+IceXML::StreamI::readBoolSeq(const string& name, ::Ice::BoolSeq& value)
 {
     startRead(name);
 
@@ -642,7 +642,7 @@ XMLStream::readBoolSeq(const string& name, ::Ice::BoolSeq& value)
 }
 
 void
-XMLStream::writeShort(const string& name, ::Ice::Short value)
+IceXML::StreamI::writeShort(const string& name, ::Ice::Short value)
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
@@ -650,7 +650,7 @@ XMLStream::writeShort(const string& name, ::Ice::Short value)
 }
 
 void
-XMLStream::writeShortSeq(const string& name, const ::Ice::ShortSeq& seq)
+IceXML::StreamI::writeShortSeq(const string& name, const ::Ice::ShortSeq& seq)
 {
     startWrite(name);
     for (::Ice::ShortSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
@@ -661,7 +661,7 @@ XMLStream::writeShortSeq(const string& name, const ::Ice::ShortSeq& seq)
 }
 
 void
-XMLStream::readShort(const string& name, ::Ice::Short& value)
+IceXML::StreamI::readShort(const string& name, ::Ice::Short& value)
 {
     startRead(name);
 
@@ -678,7 +678,7 @@ XMLStream::readShort(const string& name, ::Ice::Short& value)
 }
 
 void
-XMLStream::readShortSeq(const string& name, ::Ice::ShortSeq& value)
+IceXML::StreamI::readShortSeq(const string& name, ::Ice::ShortSeq& value)
 {
     startRead(name);
 
@@ -697,7 +697,7 @@ XMLStream::readShortSeq(const string& name, ::Ice::ShortSeq& value)
 }
 
 void
-XMLStream::writeInt(const string& name, ::Ice::Int value)
+IceXML::StreamI::writeInt(const string& name, ::Ice::Int value)
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
@@ -705,7 +705,7 @@ XMLStream::writeInt(const string& name, ::Ice::Int value)
 }
 
 void
-XMLStream::writeIntSeq(const string& name, const ::Ice::IntSeq& seq)
+IceXML::StreamI::writeIntSeq(const string& name, const ::Ice::IntSeq& seq)
 {
     startWrite(name);
     for (::Ice::IntSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
@@ -716,7 +716,7 @@ XMLStream::writeIntSeq(const string& name, const ::Ice::IntSeq& seq)
 }
 
 void
-XMLStream::readInt(const string& name, ::Ice::Int& value)
+IceXML::StreamI::readInt(const string& name, ::Ice::Int& value)
 {
     startRead(name);
 
@@ -733,7 +733,7 @@ XMLStream::readInt(const string& name, ::Ice::Int& value)
 }
 
 void
-XMLStream::readIntSeq(const string& name, ::Ice::IntSeq& value)
+IceXML::StreamI::readIntSeq(const string& name, ::Ice::IntSeq& value)
 {
     startRead(name);
 
@@ -752,7 +752,7 @@ XMLStream::readIntSeq(const string& name, ::Ice::IntSeq& value)
 }
 
 void
-XMLStream::writeLong(const string& name, ::Ice::Long value)
+IceXML::StreamI::writeLong(const string& name, ::Ice::Long value)
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
@@ -760,7 +760,7 @@ XMLStream::writeLong(const string& name, ::Ice::Long value)
 }
 
 void
-XMLStream::writeLongSeq(const string& name, const ::Ice::LongSeq& seq)
+IceXML::StreamI::writeLongSeq(const string& name, const ::Ice::LongSeq& seq)
 {
     startWrite(name);
     for (::Ice::LongSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
@@ -771,7 +771,7 @@ XMLStream::writeLongSeq(const string& name, const ::Ice::LongSeq& seq)
 }
 
 void
-XMLStream::readLong(const string& name, ::Ice::Long& value)
+IceXML::StreamI::readLong(const string& name, ::Ice::Long& value)
 {
     startRead(name);
 
@@ -788,7 +788,7 @@ XMLStream::readLong(const string& name, ::Ice::Long& value)
 }
 
 void
-XMLStream::readLongSeq(const string& name, ::Ice::LongSeq& value)
+IceXML::StreamI::readLongSeq(const string& name, ::Ice::LongSeq& value)
 {
     startRead(name);
 
@@ -807,7 +807,7 @@ XMLStream::readLongSeq(const string& name, ::Ice::LongSeq& value)
 }
 
 void
-XMLStream::writeFloat(const string& name, ::Ice::Float value)
+IceXML::StreamI::writeFloat(const string& name, ::Ice::Float value)
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
@@ -815,7 +815,7 @@ XMLStream::writeFloat(const string& name, ::Ice::Float value)
 }
 
 void
-XMLStream::writeFloatSeq(const string& name, const ::Ice::FloatSeq& seq)
+IceXML::StreamI::writeFloatSeq(const string& name, const ::Ice::FloatSeq& seq)
 {
     startWrite(name);
     for (::Ice::FloatSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
@@ -826,7 +826,7 @@ XMLStream::writeFloatSeq(const string& name, const ::Ice::FloatSeq& seq)
 }
 
 void
-XMLStream::readFloat(const string& name, ::Ice::Float& value)
+IceXML::StreamI::readFloat(const string& name, ::Ice::Float& value)
 {
     startRead(name);
 
@@ -843,7 +843,7 @@ XMLStream::readFloat(const string& name, ::Ice::Float& value)
 }
 
 void
-XMLStream::readFloatSeq(const string& name, ::Ice::FloatSeq& value)
+IceXML::StreamI::readFloatSeq(const string& name, ::Ice::FloatSeq& value)
 {
     startRead(name);
 
@@ -862,7 +862,7 @@ XMLStream::readFloatSeq(const string& name, ::Ice::FloatSeq& value)
 }
 
 void
-XMLStream::writeDouble(const string& name, ::Ice::Double value)
+IceXML::StreamI::writeDouble(const string& name, ::Ice::Double value)
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
@@ -870,7 +870,7 @@ XMLStream::writeDouble(const string& name, ::Ice::Double value)
 }
 
 void
-XMLStream::writeDoubleSeq(const string& name, const ::Ice::DoubleSeq& seq)
+IceXML::StreamI::writeDoubleSeq(const string& name, const ::Ice::DoubleSeq& seq)
 {
     startWrite(name);
     for (::Ice::DoubleSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
@@ -881,7 +881,7 @@ XMLStream::writeDoubleSeq(const string& name, const ::Ice::DoubleSeq& seq)
 }
 
 void
-XMLStream::readDouble(const string& name, ::Ice::Double& value)
+IceXML::StreamI::readDouble(const string& name, ::Ice::Double& value)
 {
     startRead(name);
 
@@ -898,7 +898,7 @@ XMLStream::readDouble(const string& name, ::Ice::Double& value)
 }
 
 void
-XMLStream::readDoubleSeq(const string& name, ::Ice::DoubleSeq& value)
+IceXML::StreamI::readDoubleSeq(const string& name, ::Ice::DoubleSeq& value)
 {
     startRead(name);
 
@@ -917,7 +917,7 @@ XMLStream::readDoubleSeq(const string& name, ::Ice::DoubleSeq& value)
 }
 
 void
-XMLStream::writeString(const string& name, const string& value)
+IceXML::StreamI::writeString(const string& name, const string& value)
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
@@ -925,7 +925,7 @@ XMLStream::writeString(const string& name, const string& value)
 }
 
 void
-XMLStream::writeStringSeq(const string& name, const ::Ice::StringSeq& seq)
+IceXML::StreamI::writeStringSeq(const string& name, const ::Ice::StringSeq& seq)
 {
     startWrite(name);
     for (::Ice::StringSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
@@ -936,7 +936,7 @@ XMLStream::writeStringSeq(const string& name, const ::Ice::StringSeq& seq)
 }
 
 void
-XMLStream::readString(const string& name, string& value)
+IceXML::StreamI::readString(const string& name, string& value)
 {
     startRead(name);
 
@@ -959,7 +959,7 @@ XMLStream::readString(const string& name, string& value)
 }
 
 void
-XMLStream::readStringSeq(const string& name, ::Ice::StringSeq& value)
+IceXML::StreamI::readStringSeq(const string& name, ::Ice::StringSeq& value)
 {
     startRead(name);
 
@@ -978,7 +978,7 @@ XMLStream::readStringSeq(const string& name, ::Ice::StringSeq& value)
 }
 
 void
-XMLStream::writeProxy(const string& name, const ::Ice::ObjectPrx& proxy)
+IceXML::StreamI::writeProxy(const string& name, const ::Ice::ObjectPrx& proxy)
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
@@ -987,7 +987,7 @@ XMLStream::writeProxy(const string& name, const ::Ice::ObjectPrx& proxy)
 }
 
 void
-XMLStream::readProxy(const string& name, ::Ice::ObjectPrx& value)
+IceXML::StreamI::readProxy(const string& name, ::Ice::ObjectPrx& value)
 {
     startRead(name);
 
@@ -1008,7 +1008,7 @@ XMLStream::readProxy(const string& name, ::Ice::ObjectPrx& value)
 }
 
 void
-XMLStream::writeObject(const string& name, const ::Ice::ObjectPtr& obj)
+IceXML::StreamI::writeObject(const string& name, const ::Ice::ObjectPtr& obj)
 {
     //
     // If at the top level of the document then the object itself must
@@ -1044,7 +1044,7 @@ XMLStream::writeObject(const string& name, const ::Ice::ObjectPtr& obj)
 }
 
 void
-XMLStream::readObject(const string& name, const string& signatureType, const ::Ice::ObjectFactoryPtr& factory,
+IceXML::StreamI::readObject(const string& name, const string& signatureType, const ::Ice::ObjectFactoryPtr& factory,
 		      ::Ice::ObjectPtr& value)
 {
     startRead(name);
@@ -1157,7 +1157,7 @@ XMLStream::readObject(const string& name, const string& signatureType, const ::I
 }
 
 void
-XMLStream::startWrite(const string& element)
+IceXML::StreamI::startWrite(const string& element)
 {
     _os << nl << '<' << element << '>';
     _os.inc();
@@ -1174,7 +1174,7 @@ XMLStream::startWrite(const string& element)
 }
 
 void
-XMLStream::endWrite()
+IceXML::StreamI::endWrite()
 {
     string element = _elementStack.top();
     _elementStack.pop();
@@ -1190,7 +1190,7 @@ XMLStream::endWrite()
 
 
 void
-XMLStream::startRead(const ::std::string& element)
+IceXML::StreamI::startRead(const ::std::string& element)
 {
     while (!_input->current.isNull() && _input->current.getNodeType() != DOM_Node::ELEMENT_NODE)
     {
@@ -1212,7 +1212,7 @@ XMLStream::startRead(const ::std::string& element)
 }
 
 void
-XMLStream::endRead()
+IceXML::StreamI::endRead()
 {
     _input->current = _input->nodeStack.back();
     _input->nodeStack.pop_back();
@@ -1220,7 +1220,7 @@ XMLStream::endRead()
 }
 
 void
-XMLStream::dumpUnwrittenObjects()
+IceXML::StreamI::dumpUnwrittenObjects()
 {
     //
     // Precondition: Must be at the top-level.
@@ -1256,7 +1256,7 @@ XMLStream::dumpUnwrittenObjects()
 }
 
 void
-XMLStream::writeObjectData(const string& name, const string& id, const Ice::ObjectPtr& obj)
+IceXML::StreamI::writeObjectData(const string& name, const string& id, const Ice::ObjectPtr& obj)
 {
     string xsdType;
     string typeId;
@@ -1314,7 +1314,7 @@ XMLStream::writeObjectData(const string& name, const string& id, const Ice::Obje
 }
 
 void
-XMLStream::readAttributes(::std::string& id, ::std::string& type, ::std::string& href)
+IceXML::StreamI::readAttributes(::std::string& id, ::std::string& type, ::std::string& href)
 {
     static const string idStr("id");
     static const string typeStr("type");
@@ -1342,7 +1342,7 @@ XMLStream::readAttributes(::std::string& id, ::std::string& type, ::std::string&
 }
 
 ::Ice::Int
-XMLStream::readLength()
+IceXML::StreamI::readLength()
 {
     static const string lengthStr("length");
 
