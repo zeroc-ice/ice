@@ -167,7 +167,6 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
     {
 	try
 	{
-	    __checkTwowayOnly("ice_ping");
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    __del->ice_ping(__context);
 	    return;
