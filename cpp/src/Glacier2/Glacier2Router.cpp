@@ -276,20 +276,6 @@ Glacier2::RouterService::initializeCommunicator(int& argc, char* argv[])
     }
 
     //
-    // If we have a session timeout, then we must use the same value
-    // also for request timeouts, otherwise sessions might expire, but
-    // sending of requests that are already queued for this session
-    // block indefinitely.
-    //
-    int sessionTimeout = defaultProperties->getPropertyAsInt("Glacier2.SessionTimeout"); 
-    if(sessionTimeout > 0)
-    {
-	ostringstream s;
-	s << sessionTimeout * 1000;
-	defaultProperties->setProperty("Ice.Override.Timeout", s.str());
-    }
-    
-    //
     // We do not need to set Ice.RetryIntervals to -1, i.e., we do
     // not have to disable connection retry. It is safe for
     // Glacier2 to retry outgoing connections to servers. Retry
