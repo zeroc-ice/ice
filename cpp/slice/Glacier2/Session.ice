@@ -26,7 +26,7 @@ exception CannotCreateSessionException
 {
     /**
      *
-     * Details as to why session creation has failed.
+     * The reason why session creation has failed.
      *
      **/
     string reason;

@@ -26,8 +26,8 @@ module Glacier2
 
 /**
  *
- * This exception is raised if a client is denied to create a session
- * with the router.
+ * This exception is raised if a client is denied the ability to create
+ * a session with the router.
  *
  * @see Router::createSession
  *
@@ -36,7 +36,7 @@ exception PermissionDeniedException
 {
     /**
      *
-     * Details as to why the permission was denied.
+     * The reason why permission was denied.
      *
      **/
     string reason;
@@ -45,7 +45,7 @@ exception PermissionDeniedException
 /**
  *
  * This exception is raised if a client tries to destroy a session
- * with a router, but not session for the client exists.
+ * with a router, but no session exists for the client.
  *
  * @see Router::destroySession
  *
@@ -72,7 +72,7 @@ interface Router extends Ice::Router
      *
      * @see Session
      * @see SessionManager
-     * @see PermssionVerifier
+     * @see PermissionsVerifier
      *
      * @return A proxy for the newly created session, or null if no
      * [SessionManager] has been installed.
@@ -82,7 +82,7 @@ interface Router extends Ice::Router
      * @param password The password for the given user id.
      *
      * @throws PermissionDeniedException Raised if the password for
-     * the given user id is not correct, or if the user isn't allowed
+     * the given user id is not correct, or if the user is not allowed
      * access.
      *
      * @throws CannotCreateSessionException Raised if the session
