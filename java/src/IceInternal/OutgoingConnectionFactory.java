@@ -435,7 +435,16 @@ public class OutgoingConnectionFactory
 		    while(p.hasNext())
 		    {
 			Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
-			connection.setAdapter(adapter);
+			try
+			{
+			    connection.setAdapter(adapter);
+			}
+			catch(Ice.LocalException ex)
+			{
+			    //
+			    // Ignore, the connection is being closed or closed.
+			    //
+			}
 		    }
                 }
             }
@@ -461,7 +470,16 @@ public class OutgoingConnectionFactory
 		Ice.ConnectionI connection = (Ice.ConnectionI)q.next();
 		if(connection.getAdapter() == adapter)
 		{
-		    connection.setAdapter(null);
+		    try
+		    {
+			connection.setAdapter(null);
+		    }
+		    catch(Ice.LocalException ex)
+		    {
+			//
+			// Ignore, the connection is being closed or closed.
+			//
+		    }
 		}
 	    }
 	}
