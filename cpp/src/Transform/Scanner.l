@@ -54,11 +54,11 @@ StringTokPtr parseString(char);
 %option prefix="transform_"
 %option outfile="lex.yy.c"
 
-identifier              [[:alpha:]_][[:alnum:]_]*
-integer_constant        (\+|-)?((0[0-7]+)|(0x[[:xdigit:]]+)|([[:digit:]]+))
-fractional_constant     ([[:digit:]]*\.[[:digit:]]+)|([[:digit:]]+\.)
-exponent_part           (e|E)(\+|-)?[[:digit:]]+
-floating_literal        (({fractional_constant}{exponent_part}?)|([[:digit:]]+{exponent_part}))[fF]?
+identifier		[[:alpha:]_][[:alnum:]_]*
+integer_constant	(\+|-)?((0[0-7]+)|(0x[[:xdigit:]]+)|([[:digit:]]+))
+fractional_constant	(\+|-)?(([[:digit:]]*\.[[:digit:]]+)|([[:digit:]]+\.))
+exponent_part		(e|E)(\+|-)?[[:digit:]]+
+floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{exponent_part}))[fF]?
 
 %%
 
