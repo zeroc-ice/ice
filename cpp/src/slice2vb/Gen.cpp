@@ -127,8 +127,12 @@ Slice::VbVisitor::writeInheritedOperations(const ClassDefPtr& p)
 		_out << nl << "End " << vbOp;
 
 		_out << sp << nl << "Public MustOverride " << vbOp << ' ' << fixId(name)
-		     << spar << params << "ByVal __current As Ice.Current" << epar
-		     << " Implements " << fixId(containingClass->scope()) << "_" << containingClass->name()
+		     << spar << params << "ByVal __current As Ice.Current" << epar;
+		if(ret)
+		{
+		    _out << " As " << retS;
+		}
+		_out << " Implements " << fixId(containingClass->scope()) << "_" << containingClass->name()
 		     << "Operations." << fixId(name);
 	    }
 	    else
@@ -694,7 +698,7 @@ Slice::VbVisitor::getParams(const OperationPtr& op)
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-	string param = ((*q)->isOutParam() ? "ByRef " : "ByVal ")
+	string param = ((*q)->isOutParam() ? "<_System.Runtime.InteropServices.Out()> ByRef " : "ByVal ")
 	               + fixId((*q)->name()) + " As " + typeToString((*q)->type());
 	params.push_back(param);
     }
@@ -1306,14 +1310,16 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     ParamDeclList paramList = p->parameters();
     vector<string> params;
     vector<string> args;
-    TypePtr ret = p->returnType();
-    string retS = typeToString(ret);
+    TypePtr ret;
+    string retS;
 
     if(!amd)
     {
 	params = getParams(p);
 	args = getArgs(p);
 	name = fixId(name);
+	ret = p->returnType();
+	retS = typeToString(ret);
     }
     else
     {
@@ -1426,7 +1432,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp << nl << "Public Function ToArray() As " << s << "()";
     _out.inc();
-    _out << nl << "Dim __a() As " << s << " = New " << s << "(InnerList.Count) {}";
+    _out << nl << "Dim __a() As " << s << " = New " << s << "(InnerList.Count - 1) {}";
     _out << nl << "InnerList.CopyTo(__a)";
     _out << nl << "Return __a";
     _out.dec();
@@ -2543,10 +2549,10 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << "Return False";
     _out.dec();
     _out << nl << "End If";
-    _out << nl << "Dim __klhs() As " << ks << " = New " << ks << "(Count) {}";
+    _out << nl << "Dim __klhs() As " << ks << " = New " << ks << "(Count - 1) {}";
     _out << nl << "Keys.CopyTo(__klhs, 0)";
     _out << nl << "_System.Array.Sort(__klhs)";
-    _out << nl << "Dim __krhs() As " << ks << " = New " << ks << "(CType(other, " << name << ").Count) {}";
+    _out << nl << "Dim __krhs() As " << ks << " = New " << ks << "(CType(other, " << name << ").Count - 1) {}";
     _out << nl << "CType(other, " << name << ").Keys.CopyTo(__krhs, 0)";
     _out << nl << "_System.Array.Sort(__krhs)";
     _out << nl << "For i As Integer = 0 To Count - 1";
@@ -2558,10 +2564,10 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << "End If";
     _out.dec();
     _out << nl << "Next";
-    _out << nl << "Dim __vlhs() As " << vs << " = New " << vs << "(Count) {}";
+    _out << nl << "Dim __vlhs() As " << vs << " = New " << vs << "(Count - 1) {}";
     _out << nl << "Values.CopyTo(__vlhs, 0)";
     _out << nl << "_System.Array.Sort(__vlhs)";
-    _out << nl << "Dim __vrhs() As " << vs << " = New " << vs << "(CType(other, " << name << ").Count) {}";
+    _out << nl << "Dim __vrhs() As " << vs << " = New " << vs << "(CType(other, " << name << ").Count - 1) {}";
     _out << nl << "CType(other, " << name << ").Values.CopyTo(__vrhs, 0)";
     _out << nl << "_System.Array.Sort(__vrhs)";
     _out << nl << "For i As Integer = 0 To Count - 1";
@@ -3969,6 +3975,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 	vector<string> params;
 	vector<string> args;
 	TypePtr ret;
+
 	if(amd)
 	{
 	    name = name + "_async";

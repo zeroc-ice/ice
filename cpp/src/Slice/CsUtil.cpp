@@ -60,8 +60,9 @@ lookupKwd(const string& name)
     };
     found = binary_search(&memberList[0],
                            &memberList[sizeof(memberList) / sizeof(*memberList)],
-			   name);
-    return found ? "_cs_" + name : name;
+			   name,
+			   Slice::CICompare());
+    return found ? "_Ice_" + name : name;
 }
 
 //

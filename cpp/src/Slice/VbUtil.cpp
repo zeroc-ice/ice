@@ -71,7 +71,7 @@ lookupKwd(const string& name)
                            &memberList[sizeof(memberList) / sizeof(*memberList)],
 			   name,
 			   Slice::CICompare());
-    return found ? "_vb_" + name : name;
+    return found ? "_Ice_" + name : name;
 }
 
 //
@@ -552,7 +552,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		    {
 			if(isArray)
 			{
-			    out << "Ice.Object(__len) {}";
+			    out << "Ice.Object(__len - 1) {}";
 			}
 			else
 			{
@@ -569,7 +569,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		    {
 		        if(isArray)
 			{
-			    out << "Ice.ObjectPrx(__len) {}";
+			    out << "Ice.ObjectPrx(__len - 1) {}";
 			}
 			else
 			{
@@ -632,14 +632,14 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         }
         else
         {
-	    out << nl << "For __block As Integer = 0 To 1";
+	    out << nl << "For __block As Integer = 0 To 0";
 	    out.inc();
 	    out << nl << "Dim sz As Integer = " << stream << ".readSize()";
 	    out << nl << stream << ".startSeq(sz, " << static_cast<unsigned>(type->minWireSize()) << ')';
 	    out << nl << param << " = New ";
 	    if(isArray)
 	    {
-		out << toArrayAlloc(typeS + "()", "sz") << " {}";
+		out << toArrayAlloc(typeS + "()", "sz - 1") << " {}";
 	    }
 	    else
 	    {
@@ -675,14 +675,14 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	}
 	else
 	{
-	    out << nl << "For __block As Integer = 0 To 1";
+	    out << nl << "For __block As Integer = 0 To 0";
 	    out.inc();
 	    out << nl << "Dim sz As Integer = " << stream << ".readSize()";
 	    out << nl << stream << ".startSeq(sz, " << static_cast<unsigned>(type->minWireSize()) << ')';
 	    out << nl << param << " = New ";
 	    if(isArray)
 	    {
-		out << toArrayAlloc(typeS + "()", "sz") << " {}";
+		out << toArrayAlloc(typeS + "()", "sz - 1") << " {}";
 	    }
 	    else
 	    {
@@ -720,14 +720,14 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	}
 	else
 	{
-	    out << nl << "For __block As Integer = 0 To 1";
+	    out << nl << "For __block As Integer = 0 To 0";
 	    out.inc();
 	    out << nl << "Dim sz As Integer = " << stream << ".readSize()";
 	    out << nl << stream << ".startSeq(sz, " << static_cast<unsigned>(type->minWireSize()) << ')';
 	    out << nl << param << " = New ";
 	    if(isArray)
 	    {
-		out << toArrayAlloc(typeS + "()", "sz") << " {}";
+		out << toArrayAlloc(typeS + "()", "sz - 1") << " {}";
 	    }
 	    else
 	    {
@@ -775,14 +775,14 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     else
     {
         string func = ProxyPtr::dynamicCast(type) ? "__read" : "read";
-	out << nl << "For __block As Integer = 0 To 1";
+	out << nl << "For __block As Integer = 0 To 0";
 	out.inc();
 	out << nl << "Dim sz As Integer = " << stream << ".readSize()";
 	out << nl << stream << ".startSeq(sz, " << static_cast<unsigned>(type->minWireSize()) << ")";
 	out << nl << param << " = New ";
 	if(isArray)
 	{
-	    out << toArrayAlloc(typeS + "()", "sz") << " {}";
+	    out << toArrayAlloc(typeS + "()", "sz - 1") << " {}";
 	}
 	else
 	{
