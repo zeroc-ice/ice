@@ -18,11 +18,13 @@ final class TraceUtil
     {
         if (tl.protocol >= 1)
         {
-            // TODO: stream stuff
+            int pos = stream.pos();
+            stream.pos(0);
             java.io.StringWriter s = new java.io.StringWriter();
             s.write(heading);
             printHeader(s, stream);
             logger.trace(tl.protocolCat, s.toString());
+            stream.pos(pos);
         }
     }
 
@@ -32,7 +34,8 @@ final class TraceUtil
     {
         if (tl.protocol >= 1)
         {
-            // TODO: stream stuff
+            int pos = stream.pos();
+            stream.pos(0);
             java.io.StringWriter s = new java.io.StringWriter();
             s.write(heading);
             printHeader(s, stream);
@@ -49,6 +52,7 @@ final class TraceUtil
             String operation = stream.readString();
             s.write("\noperation name = " + operation);
             logger.trace(tl.protocolCat, s.toString());
+            stream.pos(pos);
         }
     }
 
@@ -58,7 +62,8 @@ final class TraceUtil
     {
         if (tl.protocol >= 1)
         {
-            // TODO: stream stuff
+            int pos = stream.pos();
+            stream.pos(0);
             java.io.StringWriter s = new java.io.StringWriter();
             s.write(heading);
             printHeader(s, stream);
@@ -67,7 +72,7 @@ final class TraceUtil
             {
                 s.write("\nrequest #" + cnt + ':');
                 cnt++;
-                // TODO
+                int pos2 = stream.pos();
                 stream.startReadEncaps();
                 String identity = stream.readString();
                 s.write("\nidentity = " + identity);
@@ -75,10 +80,11 @@ final class TraceUtil
                 s.write("\nfacet = " + facet);
                 String operation = stream.readString();
                 s.write("\noperation name = " + operation);
-                // TODO
+                stream.pos(pos2);
                 stream.skipEncaps();
             }
             logger.trace(tl.protocolCat, s.toString());
+            stream.pos(pos);
         }
     }
 
@@ -88,7 +94,8 @@ final class TraceUtil
     {
         if (tl.protocol >= 1)
         {
-            // TODO: stream stuff
+            int pos = stream.pos();
+            stream.pos(0);
             java.io.StringWriter s = new java.io.StringWriter();
             s.write(heading);
             printHeader(s, stream);
@@ -140,6 +147,7 @@ final class TraceUtil
                 }
             }
             logger.trace(tl.protocolCat, s.toString());
+            stream.pos(pos);
         }
     }
 

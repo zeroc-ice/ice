@@ -28,7 +28,7 @@ public final class Incoming
         String facet = _is.readString();
         String operation = _is.readString();
 
-        int statusPos = ...; // TODO
+        int statusPos = _os.size();
 
         Ice.Object servant = null;
         Ice.ServantLocator locator = null;
@@ -82,7 +82,10 @@ public final class Incoming
                         _os.writeByte((byte)DispatchStatus._DispatchOK);
                         DispatchStatus status =
                             facetServant.__dispatch(this, operation);
-                        // TODO: Patch new status back into _os
+                        int save = _os.pos();
+                        _os.pos(statusPos);
+                        _os.writeByte((byte)status.value());
+                        _os.pos(save);
                     }
                 }
                 else
@@ -90,7 +93,10 @@ public final class Incoming
                     _os.writeByte((byte)DispatchStatus._DispatchOK);
                     DispatchStatus status =
                         servant.__dispatch(this, operation);
-                    // TODO: Patch new status back into _os
+                    int save = _os.pos();
+                    _os.pos(statusPos);
+                    _os.writeByte((byte)status.value());
+                    _os.pos(save);
                 }
             }
 
@@ -107,8 +113,10 @@ public final class Incoming
                 locator.finished(_adapter, identity, operation, servant,
                                  cookie.value);
             }
+            _os.resize(statusPos);
+            // TODO: Update position?
             _os.writeByte((byte)DispatchStatus._DispatchLocationForward);
-            // TODO
+            _os.writeProxy(ex._prx);
             return;
         }
         catch (Ice.LocalException ex)
@@ -118,7 +126,8 @@ public final class Incoming
                 locator.finished(_adapter, identity, operation, servant,
                                  cookie.value);
             }
-            // TODO
+            _os.resize(statusPos);
+            // TODO: Update position?
             _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
             throw ex;
         }
@@ -129,8 +138,10 @@ public final class Incoming
                 locator.finished(_adapter, identity, operation, servant,
                                  cookie.value);
             }
-            // TODO
+            _os.resize(statusPos);
+            // TODO: Update position?
             _os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
+            // TODO: Throw UserException here?
             // throw ex;
             return;
         }
@@ -141,7 +152,8 @@ public final class Incoming
                 locator.finished(_adapter, identity, operation, servant,
                                  cookie.value);
             }
-            // TODO
+            _os.resize(statusPos);
+            // TODO: Update position?
             _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
             throw new Ice.UnknownException(); // TODO: Chain?
         }
