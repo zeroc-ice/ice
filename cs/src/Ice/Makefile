@@ -30,7 +30,6 @@ SRCS		= Acceptor.cs \
 		  EventHandler.cs \
 		  Exception.cs \
 		  IncomingAsync.cs \
-		  IncomingBase.cs \
 		  Incoming.cs \
 		  Instance.cs \
 		  LinkedList.cs \

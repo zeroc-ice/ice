@@ -319,9 +319,15 @@ namespace IceInternal
 	    _state = StateHolding;
 	    
 	    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+
 	    if(defaultsAndOverrides.overrideTimeout)
 	    {
 		_endpoint = _endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
+	    }
+
+	    if(defaultsAndOverrides.overrideCompress)
+	    {
+	        _endpoint = _endpoint.compress(defaultsAndOverrides.overrideCompressValue);
 	    }
 	    
 	    try
@@ -528,10 +534,12 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual Connection create(Endpoint[] endpoints)
+	public virtual Connection create(Endpoint[] endpoints, out bool compress)
 	{
 	    Debug.Assert(endpoints.Length > 0);
 	    
+            compress = false;
+
 	    lock(this)
 	    {
 		if(_destroyed)
@@ -574,6 +582,17 @@ namespace IceInternal
 		    {
 			endpoints[j] = endpoints[j].timeout(defaultsAndOverrides.overrideTimeoutValue);
 		    }
+
+                    //
+                    // The Connection object does not take the compression flag of
+                    // endpoints into account, but instead gets the information
+                    // about whether messages should be compressed or not from
+                    // other sources. In order to allow connection sharing for
+                    // endpoints that differ in the value of the compression flag
+                    // only, we always set the compression flag to false here in
+                    // this connection factory.
+                    //
+                    endpoints[j] = endpoints[j].compress(false);
 		}
 		
 		//
@@ -586,8 +605,20 @@ namespace IceInternal
 		    {
 			foreach(Connection connection in connectionList)
 			{
+                            //
+                            // Don't return connections for which destruction has
+                            // been initiated.
+                            //
 			    if(!connection.isDestroyed())
 			    {
+                                if(_instance.defaultsAndOverrides().overrideCompress)
+                                {
+                                    compress = _instance.defaultsAndOverrides().overrideCompressValue;
+                                }
+                                else
+                                {
+                                    compress = endpoints[j].compress();
+                                }
 				return connection;
 			    }
 			}
@@ -638,13 +669,25 @@ namespace IceInternal
 			LinkedList connectionList = (LinkedList)_connections[endpoints[j]];
 			if(connectionList != null)
 			{
-			    foreach(Connection connection in connectionList)
-			    {
-				if(!connection.isDestroyed())
-				{
-				    return connection;
-				}
-			    }
+                            foreach(Connection connection in connectionList)
+                            {
+                                //
+                                // Don't return connections for which destruction has
+                                // been initiated.
+                                //
+                                if(!connection.isDestroyed())
+                                {
+                                    if(_instance.defaultsAndOverrides().overrideCompress)
+                                    {
+                                        compress = _instance.defaultsAndOverrides().overrideCompressValue;
+                                    }
+                                    else
+                                    {
+                                        compress = endpoints[j].compress();
+                                    }
+                                    return connection;
+                                }
+                            }
 			}
 		    }
 		}
@@ -695,6 +738,14 @@ namespace IceInternal
 		    }
 		    newConnection = new Connection(_instance, transceiver, endpoint, null);
 		    newConnection.validate();
+                    if(_instance.defaultsAndOverrides().overrideCompress)
+                    {
+                        compress = _instance.defaultsAndOverrides().overrideCompressValue;
+                    }
+                    else
+                    {
+                        compress = endpoint.compress();
+                    }
 		    break;
 		}
 		catch(Ice.LocalException ex)
@@ -792,6 +843,17 @@ namespace IceInternal
 			{
 			    endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
 			}
+
+                        //
+                        // The Connection object does not take the compression flag of
+                        // endpoints into account, but instead gets the information
+                        // about whether messages should be compressed or not from
+                        // other sources. In order to allow connection sharing for
+                        // endpoints that differ in the value of the compression flag
+                        // only, we always set the compression flag to false here in
+                        // this connection factory.
+                        //
+                        endpoint = endpoint.compress(false);
 			
 			LinkedList connectionList = (LinkedList)_connections[endpoints[i]];
 			if(connectionList != null)

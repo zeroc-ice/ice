@@ -840,6 +840,17 @@ namespace IceInternal
 	    return _bytes;
 	}
 
+        internal byte[] rawBytes(int offset, int len)
+        {
+            if(offset + len > _limit)
+            {
+                throw new InvalidOperationException("buffer underflow");
+            }
+            byte[] rc = new byte[len];
+            Array.Copy(_bytes, offset, rc, 0, len);
+            return rc;
+        }
+
 	private void checkUnderflow(int size)
 	{
 	    if(_position + size > _limit)

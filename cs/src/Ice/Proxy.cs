@@ -706,7 +706,7 @@ namespace Ice
             ObjectPrx d = null;
             if(b != null)
             {
-                try 
+                try
                 {
                     Ice.ObjectPrx bb = b.ice_newFacet(f);
                     bool ok = bb.ice_isA("::Object");
@@ -891,7 +891,7 @@ namespace Ice
 
         public virtual bool ice_isA(string __id, Ice.Context __context)
         {
-            IceInternal.Outgoing __out = getOutgoing("ice_isA", OperationMode.Nonmutating, __context);
+            IceInternal.Outgoing __out = getOutgoing("ice_isA", OperationMode.Nonmutating, __context, __compress);
             try
             {
                 IceInternal.BasicStream __is = __out.istr();
@@ -918,7 +918,7 @@ namespace Ice
 	
         public virtual void ice_ping(Ice.Context __context)
         {
-            IceInternal.Outgoing __out = getOutgoing("ice_ping", OperationMode.Nonmutating, __context);
+            IceInternal.Outgoing __out = getOutgoing("ice_ping", OperationMode.Nonmutating, __context, __compress);
             try
             {
                 if(!__out.invoke())
@@ -934,7 +934,7 @@ namespace Ice
 	
         public virtual string[] ice_ids(Ice.Context __context)
         {
-            IceInternal.Outgoing __out = getOutgoing("ice_ids", OperationMode.Nonmutating, __context);
+            IceInternal.Outgoing __out = getOutgoing("ice_ids", OperationMode.Nonmutating, __context, __compress);
             try
             {
                 IceInternal.BasicStream __is = __out.istr();
@@ -959,7 +959,7 @@ namespace Ice
 	
         public virtual string ice_id(Ice.Context __context)
         {
-            IceInternal.Outgoing __out = getOutgoing("ice_id", OperationMode.Nonmutating, __context);
+            IceInternal.Outgoing __out = getOutgoing("ice_id", OperationMode.Nonmutating, __context, __compress);
             try
             {
                 IceInternal.BasicStream __is = __out.istr();
@@ -983,9 +983,9 @@ namespace Ice
         }
 	
         public virtual bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
-            Ice.Context __context)
+                                       Ice.Context __context)
         {
-            IceInternal.Outgoing __out = getOutgoing(operation, mode, __context);
+            IceInternal.Outgoing __out = getOutgoing(operation, mode, __context, __compress);
             try
             {
                 IceInternal.BasicStream __os = __out.ostr();
@@ -1033,6 +1033,7 @@ namespace Ice
 	    
             __reference = from.__reference;
             __connection = from.__connection;
+	    __compress = from.__compress;
         }
 	
         protected internal IceInternal.Reference __reference;
@@ -1049,11 +1050,11 @@ namespace Ice
             Debug.Assert(__connection == null);
 	    
             __reference = rf;
-            __connection = __reference.getConnection();
+            __connection = __reference.getConnection(out __compress);
         }
 	
         protected internal virtual IceInternal.Outgoing getOutgoing(string operation, OperationMode mode,
-            Ice.Context context)
+            Ice.Context context, bool compress)
         {
             IceInternal.Outgoing outg;
 	    
@@ -1061,7 +1062,7 @@ namespace Ice
             {
                 if(__outgoingCache == null)
                 {
-                    outg = new IceInternal.Outgoing(__connection, __reference, operation, mode, context);
+                    outg = new IceInternal.Outgoing(__connection, __reference, operation, mode, context, compress);
                 }
                 else
                 {
@@ -1096,6 +1097,7 @@ namespace Ice
 	
         private IceInternal.Outgoing __outgoingCache;
         private System.Object __outgoingMutex;
+        protected bool __compress;
     }
 
 }

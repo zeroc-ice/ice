@@ -553,7 +553,7 @@ namespace IceInternal
 	//
 	// Get a suitable connection for this reference.
 	//
-	public Connection getConnection()
+	public Connection getConnection(out bool compress)
 	{
 	    Connection connection;
 
@@ -590,6 +590,7 @@ namespace IceInternal
 		}
 		Debug.Assert(j < connections.Length);
 		connection = connections[j];
+                compress = connection.endpoint().compress();
 	    }
 	    else
 	    {
@@ -627,7 +628,7 @@ namespace IceInternal
 		    try
 		    {
 			OutgoingConnectionFactory factory = instance.outgoingConnectionFactory();
-			connection = factory.create(filteredEndpts);
+			connection = factory.create(filteredEndpts, out compress);
 			Debug.Assert(connection != null);
 		    }
 		    catch(Ice.LocalException ex)

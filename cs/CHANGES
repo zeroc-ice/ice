@@ -1,3 +1,31 @@
+Changes since Alpha 2
+---------------------
+
+- Added support for protocol compression.
+
+- Added extensive documentation for the language mapping
+  to "Distributed Programming with Ice" (http://www.zeroc.com/Ice-Manual.pdf).
+
+- Added support for AMI and AMD.
+
+- Removed "cs:array" directive for sequences. Sequences are now mapped
+  to arrays by default. If you want a sequence to map to a container
+  derived from System.Collections.CollectionBase, you need to use
+  the "cs:collection" metadata directive.
+
+- Added "cs:class" metadata directive for Slice structures. Without this
+  directive, Slice structures map to C# structures. With this directive,
+  Slice structures map to C# classes.
+
+- Added a key pair to the distribution so the assembly has a strong name
+  and can be added to the global assembly cache. If you want to use your
+  own key pair, you can replace the contents of src/Ice/IcicleKey.snk with
+  your own key pair. See
+  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpguide/html/cpconcreatingkeypairforuseincreatingstrongly-namedassembly.asp for more detail.
+
+- The generated code is more efficient and smaller than it was previously.
+
+
 Changes since Alpha 1
 ---------------------
 

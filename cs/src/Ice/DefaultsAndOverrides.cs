@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+using System;
 
 namespace IceInternal
 {
@@ -60,13 +61,17 @@ namespace IceInternal
 	    {
 		overrideCompress = true;
 		overrideCompressValue = properties.getPropertyAsInt("Ice.Override.Compress") != 0;
+	    	if(!BasicStream.Compressible() && overrideCompressValue)
+		{
+		    Console.Error.WriteLine("warning: libbz2.dll not installed, Ice.Override.Compress changed to 0");
+		    overrideCompressValue = false;
+		}
 	    }
 	    else
 	    {
 		overrideCompress = false;
 		overrideCompressValue = false;
 	    }
-	    
 	    defaultLocator = properties.getProperty("Ice.Default.Locator");
 	}
 	

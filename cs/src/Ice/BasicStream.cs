@@ -14,10 +14,33 @@ namespace IceInternal
     using System.Collections;
     using System.Diagnostics;
     using System.Reflection;
+    using System.Runtime.InteropServices;
     using System.Threading;
 
     public class BasicStream
     {
+        [DllImport("libbz2.dll")]
+        static extern String BZ2_bzlibVersion();
+
+        static BasicStream()
+        {
+            //
+            // Simple trick to find out whether libbz2.dll is installed:
+            // Call the BZ2_bzlibVersion() function in the library. If we get
+            // a DllImportException, the library is not available.
+            //
+
+            _bzlibInstalled = true;
+            try
+            {
+                BZ2_bzlibVersion();
+            }
+            catch(System.DllNotFoundException)
+            {
+                _bzlibInstalled = false;
+            }
+        }
+
 	public BasicStream(IceInternal.Instance instance)
 	{
 	    _instance = instance;
@@ -1494,6 +1517,183 @@ namespace IceInternal
 	    //
 	    _readEncapsStack.patchMap.Remove(patchIndex);
 	}
+
+        static string getBZ2Error(int error)
+        {
+            string rc;
+
+            switch(error)
+            {
+                case BZ_SEQUENCE_ERROR:
+                {
+                    rc = "BZ_SEQUENCE_ERROR";
+                    break;
+                }
+                case BZ_PARAM_ERROR:
+                {
+                    rc = "BZ_PARAM_ERROR";
+                    break;
+                }
+                case BZ_MEM_ERROR:
+                {
+                    rc = "BZ_MEM_ERROR";
+                    break;
+                }
+                case BZ_DATA_ERROR:
+                {
+                    rc = "BZ_DATA_ERROR";
+                    break;
+                }
+                case BZ_DATA_ERROR_MAGIC:
+                {
+                    rc = "BZ_DATA_ERROR_MAGIC";
+                    break;
+                }
+                case BZ_IO_ERROR:
+                {
+                    rc = "BZ_IO_ERROR";
+                    break;
+                }
+                case BZ_UNEXPECTED_EOF:
+                {
+                    rc = "BZ_UNEXPECTED_EOF";
+                    break;
+                }
+                case BZ_OUTBUFF_FULL:
+                {
+                    rc = "BZ_OUTBUFF_FULL";
+                    break;
+                }
+                case BZ_CONFIG_ERROR:
+                {
+                    rc = "BZ_CONFIG_ERROR";
+                    break;
+                }
+                default:
+                {
+                    rc = "Unknown bzip2 error: " + error;
+                    break;
+                }
+            }
+            return rc;
+        }
+
+        public static bool Compressible()
+        {
+            return _bzlibInstalled;
+        }
+
+        [DllImport("libbz2.dll")]
+        extern static int BZ2_bzBuffToBuffCompress(byte[] dest,
+                                                   ref int destLen,
+                                                   byte[] source,
+                                                   int sourceLen,
+                                                   int blockSize100k,
+                                                   int verbosity,
+                                                   int workFactor);
+
+        public bool compress(ref BasicStream cstream)
+        {
+            if(!_bzlibInstalled)
+            {
+                cstream = this;
+                return false;
+            }
+
+            //
+            // Compress the message body, but not the header.
+            //
+            int uncompressedLen = size() - Protocol.headerSize;
+            byte[] uncompressed = _buf.rawBytes(Protocol.headerSize, uncompressedLen);
+            int compressedLen = (int)(uncompressedLen * 1.01 + 600);
+            byte[] compressed = new byte[compressedLen];
+
+            int rc = BZ2_bzBuffToBuffCompress(compressed, ref compressedLen, uncompressed, uncompressedLen, 1, 0, 0);
+            if(rc == BZ_OUTBUFF_FULL)
+            {
+                cstream = null;
+                return false;
+            }
+            else if(rc < 0)
+            {
+                Ice.CompressionException ex = new Ice.CompressionException("BZ2_bzBuffToBuffCompress failed");
+                ex.reason = getBZ2Error(rc);
+                throw ex;
+            }
+            if(compressedLen >= uncompressedLen)
+            {
+                return false; // Don't bother if the compressed data is larger than the uncompressed data.
+            }
+
+            cstream = new BasicStream(_instance);
+            cstream.resize(Protocol.headerSize + 4 + compressedLen, false);
+            cstream.pos(0);
+            
+            //
+            // Copy the header from the uncompressed stream to the compressed one.
+            //
+            cstream._buf.put(_buf.rawBytes(0, Protocol.headerSize));
+
+            //
+            // Add the size of the uncompressed stream before the message body.
+            //
+            cstream.writeInt(size());
+
+            //
+            // Add the compressed message body.
+            //
+            cstream._buf.put(compressed, 0, compressedLen);
+
+            //
+            // Write the size of the compressed stream into the header.
+            //
+            cstream.pos(10);
+            cstream.writeInt(cstream.size());       
+            
+            return true;
+        }
+
+        [DllImport("libbz2.dll")]
+        extern static int BZ2_bzBuffToBuffDecompress(byte[] dest,
+                                                     ref int destLen,
+                                                     byte[] source,
+                                                     int sourceLen,
+                                                     int small,
+                                                     int verbosity);
+
+        public BasicStream uncompress()
+        {
+            if(!_bzlibInstalled)
+            {
+                return this;
+            }
+
+            pos(Protocol.headerSize);
+            int uncompressedSize = readInt();
+            if(uncompressedSize <= Protocol.headerSize)
+            {
+                throw new Ice.IllegalMessageSizeException("compressed size <= header size");
+            }
+            //resize(uncompressedSize, true);
+
+            int compressedLen = size() - Protocol.headerSize - 4;
+            byte[] compressed = _buf.rawBytes(Protocol.headerSize + 4, compressedLen);
+            int uncompressedLen = uncompressedSize - Protocol.headerSize;
+            byte[] uncompressed = new byte[uncompressedLen];
+            int rc = BZ2_bzBuffToBuffDecompress(uncompressed, ref uncompressedLen, compressed, compressedLen, 0, 0);
+            if(rc < 0)
+            {
+                Ice.CompressionException ex = new Ice.CompressionException("BZ2_bzBuffToBuffDecompress failed");
+                ex.reason = getBZ2Error(rc);
+                throw ex;
+            }
+            BasicStream ucStream = new BasicStream(_instance);
+            ucStream.resize(uncompressedSize, false);
+            ucStream.pos(0);
+            ucStream._buf.put(_buf.rawBytes(0, Protocol.headerSize));
+            ucStream._buf.put(uncompressed, 0, uncompressedLen);
+            return ucStream;
+        }
 	
 	internal virtual int pos()
 	{
@@ -1849,6 +2049,18 @@ namespace IceInternal
 	private static Hashtable _typeTable = new Hashtable(); // <type name, Type> pairs.
 	private static Hashtable _exceptionFactories = new Hashtable(); // <type name, factory> pairs.
 	private static Mutex _assemblyMutex = new Mutex(); // Protects the above four members.
+
+        private static volatile bool _bzlibInstalled;
+
+        const int BZ_SEQUENCE_ERROR = -1;
+        const int BZ_PARAM_ERROR = -2;
+        const int BZ_MEM_ERROR = -3;
+        const int BZ_DATA_ERROR = -4;
+        const int BZ_DATA_ERROR_MAGIC = -5;
+        const int BZ_IO_ERROR = -6;
+        const int BZ_UNEXPECTED_EOF = -7;
+        const int BZ_OUTBUFF_FULL = -8;
+        const int BZ_CONFIG_ERROR = -9;
     }
 
 }

@@ -398,19 +398,19 @@ namespace IceInternal
 		{
 		    case (byte)0: 
 		    {
-			o.Write("(compression not supported)");
+			o.Write("(not compressed; do not compress response, if any)");
 			break;
 		    }
 		    
 		    case (byte)1: 
 		    {
-			o.Write("(not compressed)");
+			o.Write("(not compressed; compress response, if any)");
 			break;
 		    }
 		    
 		    case (byte)2: 
 		    {
-			o.Write("(compressed)");
+			o.Write("(compressed; compress response, if any)");
 			break;
 		    }
 		    

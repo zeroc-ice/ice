@@ -17,13 +17,14 @@ namespace IceInternal
     public class Outgoing
     {
 	public Outgoing(Connection connection, Reference r, string operation, Ice.OperationMode mode,
-	                Ice.Context context)
+	                Ice.Context context, bool compress)
 	{
 	    _connection = connection;
 	    _reference = r;
 	    _state = StateUnsent;
 	    _is = new BasicStream(r.instance);
 	    _os = new BasicStream(r.instance);
+	    _compress = compress;
 	    
 	    writeHeader(operation, mode, context);
 	}
@@ -79,7 +80,7 @@ namespace IceInternal
 		    // call back on this object, so we don't need to lock
 		    // the mutex, keep track of state, or save exceptions.
 		    //
-		    _connection.sendRequest(_os, this);
+		    _connection.sendRequest(_os, this, _compress);
 
 		    //
 		    // Wait until the request has completed, or until the
@@ -185,7 +186,7 @@ namespace IceInternal
 		    // because such exceptions can be retried without
 		    // violating "at-most-once".
 		    //
-		    _connection.sendRequest(_os, null);
+		    _connection.sendRequest(_os, null, _compress);
 		    break;
 		}
 		
@@ -197,7 +198,7 @@ namespace IceInternal
 		    // regular oneways and datagrams (see comment above)
 		    // apply.
 		    //
-		    _connection.finishBatchRequest(_os);
+		    _connection.finishBatchRequest(_os, _compress);
 		    break;
 		}
 	    }
@@ -454,6 +455,8 @@ namespace IceInternal
 	
 	private BasicStream _is;
 	private BasicStream _os;
+
+	private volatile bool _compress; // Immutable after construction
 	
 	public Outgoing next; // For use by Ice._ObjectDelM
     }

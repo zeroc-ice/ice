@@ -11,15 +11,19 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-[assembly: AssemblyTitle("Ice")]
+[assembly: AssemblyTitle("Icicle")]
 [assembly: AssemblyDescription("Ice core run-time support")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("Icicle")]
+[assembly: AssemblyProduct("Ice")]
 [assembly: AssemblyCopyright("Copyright (c) 2003-2004, ZeroC, Inc.")]
 [assembly: AssemblyTrademark("Ice")]
 [assembly: AssemblyCulture("")]		
 [assembly: AssemblyVersion("1.5.0")]
 [assembly: AssemblyDelaySign(false)]
-[assembly: AssemblyKeyFile("")]
+#if __MonoCS__
+[assembly: AssemblyKeyFile("IcicleKey.snk")] // mcs uses different search algorithm
+#else
+[assembly: AssemblyKeyFile(@"..\..\IcicleKey.snk")]
+#endif
 [assembly: AssemblyKeyName("")]

@@ -16,10 +16,6 @@ namespace IceInternal
 
     public abstract class OutgoingAsync
     {
-        public OutgoingAsync()
-        {
-        }
-	
         public abstract void ice_exception(Ice.Exception ex);
 	
         public void __finished(BasicStream istr)
@@ -268,7 +264,7 @@ namespace IceInternal
 		    
                     _reference = ((Ice.ObjectPrxHelperBase)prx).__reference();;
                     Debug.Assert(_connection == null);
-                    _connection = _reference.getConnection();
+                    _connection = _reference.getConnection(out _compress);
                     _cnt = 0;
                     _mode = mode;
                     Debug.Assert(__is == null);
@@ -343,7 +339,7 @@ namespace IceInternal
                     {
                         if(_connection == null)
                         {
-                            _connection = _reference.getConnection();
+                            _connection = _reference.getConnection(out _compress);
                         }
 			
                         _timeoutMutex.WaitOne();
@@ -359,7 +355,7 @@ namespace IceInternal
 			
                         try
                         {
-                            _connection.sendAsyncRequest(__os, this);
+                            _connection.sendAsyncRequest(__os, this, _compress);
 			    
                             //
                             // Don't do anything after sendAsyncRequest() returned
@@ -441,6 +437,7 @@ namespace IceInternal
         private Connection _connection;
         private int _cnt;
         private Ice.OperationMode _mode;
+        private bool _compress;
 
         //
         // Must be volatile, because we don't want to lock the monitor

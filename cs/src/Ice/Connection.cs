@@ -17,218 +17,214 @@ namespace IceInternal
 
     public sealed class Connection : EventHandler
     {
-	public void validate()
-	{
-	    lock(this)
-	    {
-	        Debug.Assert(_state == StateNotValidated);
-
-		if(!endpoint().datagram()) // Datagram connections are always implicitly validated.
-		{
-		    try
-		    {
-			if(_adapter != null)
-			{
-			    lock(_sendMutex)
-			    {
-				//
-				// Incoming connections play the active role with
-				// respect to connection validation.
-				//
-				BasicStream os = new BasicStream(_instance);
-				os.writeByte(Protocol.magic[0]);
-				os.writeByte(Protocol.magic[1]);
-				os.writeByte(Protocol.magic[2]);
-				os.writeByte(Protocol.magic[3]);
-				os.writeByte(Protocol.protocolMajor);
-				os.writeByte(Protocol.protocolMinor);
-				os.writeByte(Protocol.encodingMajor);
-				os.writeByte(Protocol.encodingMinor);
-				os.writeByte(Protocol.validateConnectionMsg);
-				os.writeByte((byte)0); // Compression status.
-				os.writeInt(Protocol.headerSize); // Message size.
-				TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
-				_transceiver.write(os, _endpoint.timeout());
-			    }
-			}
-			else
-			{
-			    //
-			    // Outgoing connections play the passive role with
-			    // respect to connection validation.
-			    //
-			    BasicStream ins = new BasicStream(_instance);
-			    ins.resize(Protocol.headerSize, true);
-			    ins.pos(0);
-			    _transceiver.read(ins, _endpoint.timeout());
-			    int pos = ins.pos();
-			    Debug.Assert(pos >= Protocol.headerSize);
-			    ins.pos(0);
-			    byte[] m = new byte[4];
-			    m[0] = ins.readByte();
-			    m[1] = ins.readByte();
-			    m[2] = ins.readByte();
-			    m[3] = ins.readByte();
-			    if(m[0] != Protocol.magic[0] || m[1] != Protocol.magic[1] ||
-			       m[2] != Protocol.magic[2] || m[3] != Protocol.magic[3])
-			    {
-				Ice.BadMagicException ex = new Ice.BadMagicException();
-				ex.badMagic = m;
-				throw ex;
-			    }
-			    byte pMajor = ins.readByte();
-			    byte pMinor = ins.readByte();
-			    
-			    //
-			    // We only check the major version number
-			    // here. The minor version number is irrelevant --
-			    // no matter what minor version number is offered
-			    // by the server, we can be certain that the
-			    // server supports at least minor version 0.  As
-			    // the client, we are obliged to never produce a
-			    // message with a minor version number that is
-			    // larger than what the server can understand, but
-			    // we don't care if the server understands more
-			    // than we do.
-			    //
-			    // Note: Once we add minor versions, we need to
-			    // modify the client side to never produce a
-			    // message with a minor number that is greater
-			    // than what the server can handle. Similarly, the
-			    // server side will have to be modified so it
-			    // never replies with a minor version that is
-			    // greater than what the client can handle.
-			    //
-			    if(pMajor != Protocol.protocolMajor)
-			    {
-				Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
-				e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
-				e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
-				e.major = Protocol.protocolMajor;
-				e.minor = Protocol.protocolMinor;
-				throw e;
-			    }
-			    
-			    byte eMajor = ins.readByte();
-			    byte eMinor = ins.readByte();
-			    
-			    //
-			    // The same applies here as above -- only the
-			    // major version number of the encoding is
-			    // relevant.
-			    //
-			    if(eMajor != Protocol.encodingMajor)
-			    {
-				Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
-				e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
-				e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
-				e.major = Protocol.encodingMajor;
-				e.minor = Protocol.encodingMinor;
-				throw e;
-			    }
-			    
-			    byte messageType = ins.readByte();
-			    if(messageType != Protocol.validateConnectionMsg)
-			    {
-				throw new Ice.ConnectionNotValidatedException();
-			    }
-			    
-			    byte compress = ins.readByte();
-			    if(compress == (byte)2)
-			    {
-				throw new Ice.CompressionNotSupportedException();
-			    }
-			    
-			    int size = ins.readInt();
-			    if(size != Protocol.headerSize)
-			    {
-				throw new Ice.IllegalMessageSizeException();
-			    }
-			    TraceUtil.traceHeader("received validate connection", ins, _logger, _traceLevels);
-			}
-		    }
-		    catch(Ice.LocalException ex)
-		    {
-			setState(StateClosed, ex);
-			Debug.Assert(_exception != null);
-			throw _exception;
-		    }
-		}
-		
-		if(_acmTimeout > 0)
-		{
-		    long _acmAbsolutetimoutMillis = System.DateTime.Now.Ticks / 10 + _acmTimeout * 1000;
-		}
-
-		//
-		// We start out in holding state.
-		//
-		setState(StateHolding);
-	    }
-	}
-	
-	public void activate()
-	{
-	    lock(this)
-	    {
-		setState(StateActive);
-	    }
-	}
-	
-	public void hold()
-	{
-	    lock(this)
-	    {
-		setState(StateHolding);
-	    }
-	}
-	
-	// DestructionReason.
-	public const int ObjectAdapterDeactivated = 0;
-	public const int CommunicatorDestroyed = 1;
-	
-	public void destroy(int reason)
-	{
-	    lock(this)
-	    {
-		switch(reason)
-		{
-		    case ObjectAdapterDeactivated: 
-		    {
-			setState(StateClosing, new Ice.ObjectAdapterDeactivatedException());
-			break;
-		    }
-		    
-		    case CommunicatorDestroyed: 
-		    {
-			setState(StateClosing, new Ice.CommunicatorDestroyedException());
-			break;
-		    }
-		}
-	    }
-	}
-	
-	public bool isValidated()
-	{
-	    lock(this)
-	    {
-		return _state > StateNotValidated;
-	    }
-	}
-
-	public bool isDestroyed()
-	{
-	    lock(this)
-	    {
-		return _state >= StateClosing;
-	    }
-	}
-
-	public bool isFinished()
-	{
+        public void validate()
+        {
             lock(this)
             {
-	        // System.Console.WriteLine("IsFinished"); // TODO remove this
+                Debug.Assert(_state == StateNotValidated);
+
+                if(!endpoint().datagram()) // Datagram connections are always implicitly validated.
+                {
+                    try
+                    {
+                        if(_adapter != null)
+                        {
+                            lock(_sendMutex)
+                            {
+                                //
+                                // Incoming connections play the active role with
+                                // respect to connection validation.
+                                //
+                                BasicStream os = new BasicStream(_instance);
+                                os.writeByte(Protocol.magic[0]);
+                                os.writeByte(Protocol.magic[1]);
+                                os.writeByte(Protocol.magic[2]);
+                                os.writeByte(Protocol.magic[3]);
+                                os.writeByte(Protocol.protocolMajor);
+                                os.writeByte(Protocol.protocolMinor);
+                                os.writeByte(Protocol.encodingMajor);
+                                os.writeByte(Protocol.encodingMinor);
+                                os.writeByte(Protocol.validateConnectionMsg);
+                                os.writeByte((byte)0); // Compression status (always zero for validate connection).
+                                os.writeInt(Protocol.headerSize); // Message size.
+                                TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
+                                _transceiver.write(os, _endpoint.timeout());
+                            }
+                        }
+                        else
+                        {
+                            //
+                            // Outgoing connections play the passive role with
+                            // respect to connection validation.
+                            //
+                            BasicStream ins = new BasicStream(_instance);
+                            ins.resize(Protocol.headerSize, true);
+                            ins.pos(0);
+                            _transceiver.read(ins, _endpoint.timeout());
+                            int pos = ins.pos();
+                            Debug.Assert(pos >= Protocol.headerSize);
+                            ins.pos(0);
+                            byte[] m = new byte[4];
+                            m[0] = ins.readByte();
+                            m[1] = ins.readByte();
+                            m[2] = ins.readByte();
+                            m[3] = ins.readByte();
+                            if(m[0] != Protocol.magic[0] || m[1] != Protocol.magic[1] ||
+                                m[2] != Protocol.magic[2] || m[3] != Protocol.magic[3])
+                            {
+                                Ice.BadMagicException ex = new Ice.BadMagicException();
+                                ex.badMagic = m;
+                                throw ex;
+                            }
+                            byte pMajor = ins.readByte();
+                            byte pMinor = ins.readByte();
+			    
+                            //
+                            // We only check the major version number
+                            // here. The minor version number is irrelevant --
+                            // no matter what minor version number is offered
+                            // by the server, we can be certain that the
+                            // server supports at least minor version 0.  As
+                            // the client, we are obliged to never produce a
+                            // message with a minor version number that is
+                            // larger than what the server can understand, but
+                            // we don't care if the server understands more
+                            // than we do.
+                            //
+                            // Note: Once we add minor versions, we need to
+                            // modify the client side to never produce a
+                            // message with a minor number that is greater
+                            // than what the server can handle. Similarly, the
+                            // server side will have to be modified so it
+                            // never replies with a minor version that is
+                            // greater than what the client can handle.
+                            //
+                            if(pMajor != Protocol.protocolMajor)
+                            {
+                                Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
+                                e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
+                                e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
+                                e.major = Protocol.protocolMajor;
+                                e.minor = Protocol.protocolMinor;
+                                throw e;
+                            }
+			    
+                            byte eMajor = ins.readByte();
+                            byte eMinor = ins.readByte();
+			    
+                            //
+                            // The same applies here as above -- only the
+                            // major version number of the encoding is
+                            // relevant.
+                            //
+                            if(eMajor != Protocol.encodingMajor)
+                            {
+                                Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
+                                e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
+                                e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
+                                e.major = Protocol.encodingMajor;
+                                e.minor = Protocol.encodingMinor;
+                                throw e;
+                            }
+			    
+                            byte messageType = ins.readByte();
+                            if(messageType != Protocol.validateConnectionMsg)
+                            {
+                                throw new Ice.ConnectionNotValidatedException();
+                            }
+			    
+                            byte compress = ins.readByte(); // Ignore compression status for validate connection.
+			    
+                            int size = ins.readInt();
+                            if(size != Protocol.headerSize)
+                            {
+                                throw new Ice.IllegalMessageSizeException();
+                            }
+                            TraceUtil.traceHeader("received validate connection", ins, _logger, _traceLevels);
+                        }
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        setState(StateClosed, ex);
+                        Debug.Assert(_exception != null);
+                        throw _exception;
+                    }
+                }
+		
+                if(_acmTimeout > 0)
+                {
+                    long _acmAbsolutetimoutMillis = System.DateTime.Now.Ticks / 10 + _acmTimeout * 1000;
+                }
+
+                //
+                // We start out in holding state.
+                //
+                setState(StateHolding);
+            }
+        }
+	
+        public void activate()
+        {
+            lock(this)
+            {
+                setState(StateActive);
+            }
+        }
+	
+        public void hold()
+        {
+            lock(this)
+            {
+                setState(StateHolding);
+            }
+        }
+	
+        // DestructionReason.
+        public const int ObjectAdapterDeactivated = 0;
+        public const int CommunicatorDestroyed = 1;
+	
+        public void destroy(int reason)
+        {
+            lock(this)
+            {
+                switch(reason)
+                {
+                    case ObjectAdapterDeactivated: 
+                    {
+                        setState(StateClosing, new Ice.ObjectAdapterDeactivatedException());
+                        break;
+                    }
+		    
+                    case CommunicatorDestroyed: 
+                    {
+                        setState(StateClosing, new Ice.CommunicatorDestroyedException());
+                        break;
+                    }
+                }
+            }
+        }
+	
+        public bool isValidated()
+        {
+            lock(this)
+            {
+                return _state > StateNotValidated;
+            }
+        }
+
+        public bool isDestroyed()
+        {
+            lock(this)
+            {
+                return _state >= StateClosing;
+            }
+        }
+
+        public bool isFinished()
+        {
+            lock(this)
+            {
+                // System.Console.WriteLine("IsFinished"); // TODO remove this
                 if(_transceiver == null && _dispatchCount == 0)
                 {
                     //
@@ -237,7 +233,7 @@ namespace IceInternal
                     //
                     lock(_incomingCacheMutex)
                     {
-		// System.Console.WriteLine("isFinished: cleaning up"); // TODO: remove this
+                        // System.Console.WriteLine("isFinished: cleaning up"); // TODO: remove this
                         while(_incomingCache != null)
                         {
                             _incomingCache.__destroy();
@@ -252,173 +248,205 @@ namespace IceInternal
                     return false;
                 }
             }
-	}
+        }
 
-	public void waitUntilHolding()
-	{
-	    lock(this)
-	    {
-		while(_state < StateHolding || _dispatchCount > 0)
-		{
-		    Monitor.Wait(this);
-		}
-	    }
-	}
+        public void waitUntilHolding()
+        {
+            lock(this)
+            {
+                while(_state < StateHolding || _dispatchCount > 0)
+                {
+                    Monitor.Wait(this);
+                }
+            }
+        }
 	
-	public void waitUntilFinished()
-	{
-	    lock(this)
-	    {
-		//
-		// We wait indefinitely until connection closing has been
-		// initiated. We also wait indefinitely until all outstanding
-		// requests are completed. Otherwise we couldn't guarantee
-		// that there are no outstanding calls when deactivate() is
-		// called on the servant locators.
-		//
-		while(_state < StateClosing || _dispatchCount > 0)
-		{
-		    Monitor.Wait(this);
-		}
+        public void waitUntilFinished()
+        {
+            lock(this)
+            {
+                //
+                // We wait indefinitely until connection closing has been
+                // initiated. We also wait indefinitely until all outstanding
+                // requests are completed. Otherwise we couldn't guarantee
+                // that there are no outstanding calls when deactivate() is
+                // called on the servant locators.
+                //
+                while(_state < StateClosing || _dispatchCount > 0)
+                {
+                    Monitor.Wait(this);
+                }
 		
-		//
-		// Now we must wait until close() has been called on the
-		// transceiver.
-		//
-		while(_transceiver != null)
-		{
-		    if(_state != StateClosed && _endpoint.timeout() >= 0)
-		    {
-			long absoluteWaitTime = _stateTime + _endpoint.timeout();
-			int waitTime = (int)(absoluteWaitTime - System.DateTime.Now.Ticks / 10);
+                //
+                // Now we must wait until close() has been called on the
+                // transceiver.
+                //
+                while(_transceiver != null)
+                {
+                    if(_state != StateClosed && _endpoint.timeout() >= 0)
+                    {
+                        long absoluteWaitTime = _stateTime + _endpoint.timeout();
+                        int waitTime = (int)(absoluteWaitTime - System.DateTime.Now.Ticks / 10);
 			
-			if(waitTime > 0)
-			{
-			    //
-			    // We must wait a bit longer until we close
-			    // this connection.
-			    //
-			    Monitor.Wait(this, waitTime);
-			    if(System.DateTime.Now.Ticks / 10 >= absoluteWaitTime)
-			    {
-				setState(StateClosed, new Ice.CloseTimeoutException());
-			    }
-			}
-			else
-			{
-			    //
-			    // We already waited long enough, so let's
-			    // close this connection!
-			    //
-			    setState(StateClosed, new Ice.CloseTimeoutException());
-			}
+                        if(waitTime > 0)
+                        {
+                            //
+                            // We must wait a bit longer until we close
+                            // this connection.
+                            //
+                            Monitor.Wait(this, waitTime);
+                            if(System.DateTime.Now.Ticks / 10 >= absoluteWaitTime)
+                            {
+                                setState(StateClosed, new Ice.CloseTimeoutException());
+                            }
+                        }
+                        else
+                        {
+                            //
+                            // We already waited long enough, so let's
+                            // close this connection!
+                            //
+                            setState(StateClosed, new Ice.CloseTimeoutException());
+                        }
 
-			//
-			// No return here, we must still wait until
-			// close() is called on the _transceiver.
-			//
-		    }
-		    else
-		    {
-			Monitor.Wait(this);
-		    }
-		}
-	    }
+                        //
+                        // No return here, we must still wait until
+                        // close() is called on the _transceiver.
+                        //
+                    }
+                    else
+                    {
+                        Monitor.Wait(this);
+                    }
+                }
+            }
 
-	    Debug.Assert(_state == StateClosed);
+            Debug.Assert(_state == StateClosed);
 
-	    //
-	    // We must destroy the incoming cache. It is now not
-	    // needed anymore.
-	    //
+            //
+            // We must destroy the incoming cache. It is now not
+            // needed anymore.
+            //
             lock(_incomingCacheMutex)
             {
-		// System.Console.WriteLine("waitUntilFinished: cleaning up"); // TODO: remove this
+                // System.Console.WriteLine("waitUntilFinished: cleaning up"); // TODO: remove this
                 while(_incomingCache != null)
                 {
                     _incomingCache.__destroy();
                     _incomingCache = _incomingCache.next;
                 }
             }
-	}
+        }
 	
-	public void monitor()
-	{
-	    lock(this)
-	    {
-		if(_state != StateActive)
-		{
-		    return;
-		}
+        public void monitor()
+        {
+            lock(this)
+            {
+                if(_state != StateActive)
+                {
+                    return;
+                }
 		
-		//
-		// Check for timed out async requests.
-		//
-		foreach(OutgoingAsync og in _asyncRequests.Values)
-		{
-		    if(og.__timedOut())
+                //
+                // Check for timed out async requests.
+                //
+                foreach(OutgoingAsync og in _asyncRequests.Values)
+                {
+                    if(og.__timedOut())
+                    {
+                        setState(StateClosed, new Ice.TimeoutException());
+                        return;
+                    }
+                }
+		
+                //
+                // Active connection management for idle connections.
+                //
+                //
+                if(_acmTimeout > 0 &&
+                    _requests.Count == 0 && _asyncRequests.Count == 0 &&
+                    !_batchStreamInUse && _batchStream.isEmpty() &&
+                    _dispatchCount == 0)
+                {
+                    if(System.DateTime.Now.Ticks / 10 >= _acmAbsoluteTimeoutMillis)
+                    {
+                        setState(StateClosing, new Ice.ConnectionTimeoutException());
+                        return;
+                    }
+                }
+            }
+        }
+	
+        private static readonly byte[] _requestHdr = new byte[]
+        {
+            Protocol.magic[0], Protocol.magic[1], Protocol.magic[2], Protocol.magic[3],
+            Protocol.protocolMajor, Protocol.protocolMinor,
+            Protocol.encodingMajor, Protocol.encodingMinor,
+            Protocol.requestMsg,
+            BasicStream.Compressible() ? (byte)1 : (byte)0,
+	    (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0
+        };
+	
+        //
+        // TODO:  Should not be a member function of Connection.
+        //
+        public void prepareRequest(BasicStream os)
+        {
+            os.writeBlob(_requestHdr);
+        }
+
+	private BasicStream doCompress(BasicStream uncompressed, bool compress)
+	{
+            if(_compressionEnabled)
+            {
+                if(uncompressed.size() < 100 && compress)
+                {
+                    BasicStream cstream = null;
+
+                    //
+                    // Do compression.
+                    //
+                    bool wasCompressed = uncompressed.compress(ref cstream);
+
+                    //
+                    // Set compression status.
+                    //
+		    if(wasCompressed)
 		    {
-			setState(StateClosed, new Ice.TimeoutException());
-			return;
+			cstream.pos(9);
+			cstream.writeByte((byte)2);
+			return cstream;
 		    }
-		}
-		
-		//
-		// Active connection management for idle connections.
-		//
-		//
-		if(_acmTimeout > 0 &&
-		   _requests.Count == 0 && _asyncRequests.Count == 0 &&
-		   !_batchStreamInUse && _batchStream.isEmpty() &&
-		   _dispatchCount == 0)
-		{
-		    if(System.DateTime.Now.Ticks / 10 >= _acmAbsoluteTimeoutMillis)
-		    {
-			setState(StateClosing, new Ice.ConnectionTimeoutException());
-			return;
-		    }
-		}
-	    }
+                }
+            }
+
+            uncompressed.pos(9);
+            uncompressed.writeByte((byte)(_compressionEnabled ? 1 : 0));
+
+	    //
+	    // Not compressed, fill in the message size.
+	    //
+	    uncompressed.pos(10);
+	    uncompressed.writeInt(uncompressed.size());
+	    return uncompressed;
 	}
 	
-	private static readonly byte[] _requestHdr = new byte[]
-	{
-	    Protocol.magic[0], Protocol.magic[1], Protocol.magic[2], Protocol.magic[3],
-	    Protocol.protocolMajor, Protocol.protocolMinor,
-	    Protocol.encodingMajor, Protocol.encodingMinor,
-	    Protocol.requestMsg,
-	    (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0
-	};
-	
-	//
-	// TODO:  Should not be a member function of Connection.
-	//
-	public void prepareRequest(BasicStream os)
-	{
-	    os.writeBlob(_requestHdr);
-	}
-	
-	public void sendRequest(BasicStream os, Outgoing og)
-	{
-	    int requestId = 0;
+        public void sendRequest(BasicStream os, Outgoing og, bool compress)
+        {
+            int requestId = 0;
+            BasicStream stream;
 
-	    lock(this)
-	    {
-		Debug.Assert(!(og != null && _endpoint.datagram())); // Twoway requests cannot be datagrams.
+            lock(this)
+            {
+                Debug.Assert(!(og != null && _endpoint.datagram())); // Twoway requests cannot be datagrams.
 
-		if(_exception != null)
-		{
-		    throw _exception;
-		}
+                if(_exception != null)
+                {
+                    throw _exception;
+                }
 
-		Debug.Assert(_state > StateNotValidated);
-		Debug.Assert(_state < StateClosing);
-		
-		//
-		// Fill in the message size.
-		//
-		os.pos(10);
-		os.writeInt(os.size());
+                Debug.Assert(_state > StateNotValidated);
+                Debug.Assert(_state < StateClosing);
 
 		//
 		// Only add to the request map if this is a twoway call.
@@ -445,6 +473,8 @@ namespace IceInternal
 		    //
 		    _requests[requestId] = og;
 		}
+
+                stream = doCompress(os, compress);
 		
 		if(_acmTimeout > 0)
 		{
@@ -466,7 +496,7 @@ namespace IceInternal
 		    // Send the request.
 		    //
 		    TraceUtil.traceRequest("sending request", os, _logger, _traceLevels);
-		    _transceiver.write(os, _endpoint.timeout());
+		    _transceiver.write(stream, _endpoint.timeout());
 		}
 	    }
 	    catch(Ice.LocalException ex)
@@ -510,9 +540,10 @@ namespace IceInternal
 	    }
 	}
 	
-	public void sendAsyncRequest(BasicStream os, OutgoingAsync og)
+	public void sendAsyncRequest(BasicStream os, OutgoingAsync og, bool compress)
 	{
 	    int requestId = 0;
+            BasicStream stream;
 
 	    lock(this)
 	    {
@@ -525,13 +556,7 @@ namespace IceInternal
 
 		Debug.Assert(_state > StateNotValidated);
 		Debug.Assert(_state < StateClosing);
-		
-		//
-		// Fill in the message size.
-		//
-		os.pos(10);
-		os.writeInt(os.size());
-		    
+
 		//
 		// Create a new unique request ID.
 		//
@@ -553,6 +578,8 @@ namespace IceInternal
 		//
 		_asyncRequests[requestId] = og;
 		    
+                stream = doCompress(os, compress);
+
 		if(_acmTimeout > 0)
 		{
 		    _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10  + _acmTimeout * 1000;
@@ -573,7 +600,7 @@ namespace IceInternal
 		    // Send the request.
 		    //
 		    TraceUtil.traceRequest("sending asynchronous request", os, _logger, _traceLevels);
-		    _transceiver.write(os, _endpoint.timeout());
+		    _transceiver.write(stream, _endpoint.timeout());
 		}
 	    }
 	    catch(Ice.LocalException ex)
@@ -615,8 +642,12 @@ namespace IceInternal
 	    Protocol.protocolMajor, Protocol.protocolMinor,
 	    Protocol.encodingMajor, Protocol.encodingMinor,
 	    Protocol.requestBatchMsg,
-	    0,
-	    (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0
+#if COMPRESS
+	    (byte)1, // Default cmopression status: compression supported but not used.
+#else
+	    (byte)0,
+#endif
+	    (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0
 	};
 	
 	public void prepareBatchRequest(BasicStream os)
@@ -659,7 +690,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public void finishBatchRequest(BasicStream os)
+	public void finishBatchRequest(BasicStream os, bool compress)
 	{
 	    lock(this)
 	    {
@@ -673,6 +704,14 @@ namespace IceInternal
 		
 		_batchStream.swap(os); // Get the batch stream back.
 		++_batchRequestNum; // Increment the number of requests in the batch.
+
+		// We compress the whole batch if there is at least one compressed
+		// message.
+		//
+		if(compress)
+		{
+		    _batchRequestCompress = true;
+		}
 		
 		//
 		// Give the Connection back.
@@ -685,6 +724,8 @@ namespace IceInternal
 	
 	public void flushBatchRequest()
 	{
+            BasicStream stream;
+
 	    lock(this)
 	    {
 		while(_batchStreamInUse && _exception == null)
@@ -715,6 +756,8 @@ namespace IceInternal
 		// Fill in the number of requests in the batch.
 		//
 		_batchStream.writeInt(_batchRequestNum);
+
+		stream = doCompress(_batchStream, _batchRequestCompress);
 			
 		if(_acmTimeout > 0)
 		{
@@ -742,7 +785,7 @@ namespace IceInternal
 		    // Send the batch request.
 		    //
 		    TraceUtil.traceBatchRequest("sending batch request", _batchStream, _logger, _traceLevels);
-		    _transceiver.write(_batchStream, _endpoint.timeout());
+		    _transceiver.write(stream, _endpoint.timeout());
 		}
 	    }
 	    catch(Ice.LocalException ex)
@@ -768,6 +811,7 @@ namespace IceInternal
 		_batchStream.destroy();
 		_batchStream = new BasicStream(_instance);
 		_batchRequestNum = 0;
+                _batchRequestCompress = false;
 		_batchStreamInUse = false;
 		Monitor.PulseAll(this);
 	    }
@@ -779,23 +823,19 @@ namespace IceInternal
 	    {
 		lock(_sendMutex)
 		{
-		    if(_transceiver == null) // Ha sthe transceiver already been closed?
+		    if(_transceiver == null) // Has the transceiver already been closed?
 		    {
 		        Debug.Assert(_exception != null);
 			throw _exception; // The exception is immutable at this point.
 		    }
 
-		    //
-		    // Fill in the message size.
-		    //
-		    os.pos(10);
-		    os.writeInt(os.size());
-		    
+		    BasicStream stream = doCompress(os, compress != 0);
+
 		    //
 		    // Send the reply.
 		    //
 		    TraceUtil.traceReply("sending reply", os, _logger, _traceLevels);
-		    _transceiver.write(os, _endpoint.timeout());
+		    _transceiver.write(stream, _endpoint.timeout());
 		}
 	    }
 	    catch(Ice.LocalException ex)
@@ -944,7 +984,12 @@ namespace IceInternal
 	    Protocol.protocolMajor, Protocol.protocolMinor,
 	    Protocol.encodingMajor, Protocol.encodingMinor,
 	    Protocol.replyMsg,
-	    (byte)0, (byte)0, (byte)0, (byte)0, (byte)0
+#if COMPRESS
+	    (byte)1, // Default compression status: compression supported but not used.
+#else
+	    (byte)0,
+#endif
+	    (byte)0, (byte)0, (byte)0, (byte)0
 	};
 	
 	public override void message(BasicStream stream, ThreadPool threadPool)
@@ -988,7 +1033,11 @@ namespace IceInternal
 		    compress = stream.readByte();
 		    if(compress == (byte)2)
 		    {
+#if COMPRESS
+			stream = stream.uncompress();
+#else
 			throw new Ice.CompressionNotSupportedException();
+#endif
 		    }
 		    stream.pos(Protocol.headerSize);
 		    
@@ -1289,6 +1338,11 @@ namespace IceInternal
 	    return _desc; // No mutex lock, _desc is immutable.
 	}
 	
+        static Connection()
+        {
+            _compressionEnabled = BasicStream.Compressible();
+        }
+
 	internal Connection(Instance instance, Transceiver transceiver,
 			    Endpoint endpoint, Ice.ObjectAdapter adapter)
 	    : base(instance)
@@ -1307,6 +1361,7 @@ namespace IceInternal
 	    _batchStream = new BasicStream(instance);
 	    _batchStreamInUse = false;
 	    _batchRequestNum = 0;
+            _batchRequestCompress = false;
 	    _dispatchCount = 0;
 	    _state = StateNotValidated;
 	    _stateTime = System.DateTime.Now.Ticks / 10;
@@ -1535,7 +1590,11 @@ namespace IceInternal
 		    os.writeByte(Protocol.encodingMajor);
 		    os.writeByte(Protocol.encodingMinor);
 		    os.writeByte(Protocol.closeConnectionMsg);
-		    os.writeByte((byte)0); // Compression status.
+#if COMPRESS
+		    os.writeByte((byte)1); // Compression status: compression supported but not used.
+#else
+		    os.writeByte((byte)0); // Compression not supported.
+#endif
 		    os.writeInt(Protocol.headerSize); // Message size.
 
 		    //
@@ -1591,7 +1650,6 @@ namespace IceInternal
             {
                 if(_incomingCache == null)
                 {
-		// System.Console.WriteLine("Adding first incoming"); // TODO: remove this
                     inc = new Incoming(_instance, this, _adapter, response, compress);
                 }
                 else
@@ -1600,7 +1658,6 @@ namespace IceInternal
                     _incomingCache = _incomingCache.next;
                     inc.next = null;
                     inc.reset(_instance, this, _adapter, response, compress);
-		//System.Console.WriteLine("Adding subsequent incoming"); // TODO: remove this
                 }
             }
 	    
@@ -1654,6 +1711,7 @@ namespace IceInternal
 	private BasicStream _batchStream;
 	private bool _batchStreamInUse;
 	private int _batchRequestNum;
+        private bool _batchRequestCompress;
 	
 	private volatile int _dispatchCount;
 	
@@ -1668,5 +1726,7 @@ namespace IceInternal
 
 	private Incoming _incomingCache;
 	private object _incomingCacheMutex = new object();
+
+        private static volatile bool _compressionEnabled;
     }
 }
