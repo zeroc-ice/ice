@@ -196,11 +196,11 @@ SOURCE=.\Logger.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\LoggerUtil.cpp
+SOURCE=.\LoggerI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\LoggerI.cpp
+SOURCE=.\LoggerUtil.cpp
 # End Source File
 # Begin Source File
 
@@ -584,15 +584,15 @@ SOURCE=..\..\include\Ice\Logger.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\LoggerUtil.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\include\Ice\LoggerF.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\LoggerI.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\LoggerUtil.h
 # End Source File
 # Begin Source File
 

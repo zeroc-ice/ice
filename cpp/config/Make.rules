@@ -38,8 +38,8 @@ XERCESC_HOME    ?= /opt/xerces-c
 # set different compilation options for debug or optimization
 #
 CXX		= c++
-CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
-#CXXFLAGS	= -O3 -DNDEBUG -ftemplate-depth-128 -fPIC -Wall
+#CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
+CXXFLAGS	= -O3 -DNDEBUG -ftemplate-depth-128 -fPIC -Wall
 CPPFLAGS	= -I$(includedir) -I$(STLPORT_HOME)/include/stlport
 LDFLAGS		= -L$(libdir) -L$(STLPORT_HOME)/lib -L$(OPENSSL_HOME)/lib -L$(XERCESC_HOME)/lib
 BASELIBS	= -lIceUtil -lstlport_gcc -lpthread -luuid
