@@ -717,26 +717,17 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	// be checked whether sz is a reasonable value.
 	//
 	// Michi: I don't think it matters -- if the size is unreasonable, we just fall over after having
-	// unmarshaled a whole lot of stuff instead of falling over straight away.
+	// unmarshaled a whole lot of stuff instead of falling over straight away. I need to preallocate
+	// space for the entire sequence up-front because, otherwise, resizing the sequence may move it in
+	// memory and cause the wrong locations to be patched for classes. Also, doing a single large allocation
+	// up-front will be faster the repeatedly growing the vector.
 	//
-	if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type))
-	{
-	    C << nl << "v.resize(sz);";
-	    C << nl << "for(int i = 0; i < sz; ++i)";
-	    C << sb;
-	    writeMarshalUnmarshalCode(C, type, "v[i]", false);
-	    C << eb;
-	    C << eb;
-	}
-	else
-	{
-	    C << nl << "while(sz--)";
-	    C << sb;
-	    C << nl << "v.resize(v.size() + 1);";
-	    writeMarshalUnmarshalCode(C, type, "v.back()", false);
-	    C << eb;
-	    C << eb;
-	}
+	C << nl << "v.resize(sz);";
+	C << nl << "for(int i = 0; i < sz; ++i)";
+	C << sb;
+	writeMarshalUnmarshalCode(C, type, "v[i]", false);
+	C << eb;
+	C << eb;
 
 	C << sp << nl << "void" << nl << scope.substr(2)
           << "ice_marshal(const ::std::string& __name, const ::Ice::StreamPtr& __os, const "
@@ -763,25 +754,12 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	// Michi: I don't think it matters -- if the size is unreasonable, we just fall over after having
 	// unmarshaled a whole lot of stuff instead of falling over straight away.
 	//
-	if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type))
-	{
-	    C << nl << "v.resize(sz);";
-	    C << nl << "for(int i = 0; i < sz; ++i)";
-	    C << sb;
-	    writeGenericMarshalUnmarshalCode(C, type, "v[i]", false);
-	    C << eb;
-	    C << eb;
-	}
-	else
-	{
-	    C << nl << "while(sz--)";
-	    C << sb;
-	    C << nl << "v.resize(v.size() + 1);";
-	    writeGenericMarshalUnmarshalCode(C, type, "v.back()", false, "\"e\"");
-	    C << eb;
-	    C << nl << "__is->endReadSequence();";
-	    C << eb;
-	}
+	C << nl << "v.resize(sz);";
+	C << nl << "for(int i = 0; i < sz; ++i)";
+	C << sb;
+	writeGenericMarshalUnmarshalCode(C, type, "v[i]", false);
+	C << eb;
+	C << eb;
 
 	C << sp << nl << "void" << nl << scope.substr(2) << name << "Helper::"
 	  << "ice_marshal(const ::std::string& __name, const ::Ice::StreamPtr& __os, const "
