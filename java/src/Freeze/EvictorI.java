@@ -105,7 +105,9 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor
 	// Delete the Ice Object from the database.
 	//
 	_dict.fastRemove(ident);
-	remove(ident);
+	EvictorElement element = remove(ident);
+        assert(element != null);
+        element.destroyed = true;
 	
 	if(_trace >= 1)
 	{
@@ -205,7 +207,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor
 	    }
 	    
 	    //
-	    // Load the Ice Object from database and create and add a
+	    // Load the Ice Object from database and add a
 	    // Servant for it.
 	    //
 	    Ice.Object servant = (Ice.Object)_dict.get(ident);
@@ -271,11 +273,12 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor
 	
 	//
 	// If we are in SaveAfterMutatingOperation mode, we must save the
-	// Ice Object if this was a mutating call.
+	// Ice Object if this was a mutating call and the object has not
+        // been destroyed.
 	//
 	if(_persistenceMode == EvictorPersistenceMode.SaveAfterMutatingOperation)
 	{
-	    if(current.mode != Ice.OperationMode.Nonmutating)
+	    if(current.mode != Ice.OperationMode.Nonmutating && !element.destroyed)
 	    {
 		_dict.fastPut(current.id, servant);
 	    }
@@ -401,7 +404,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor
 	return element;
     }
     
-    private void
+    private EvictorElement
     remove(Ice.Identity ident)
     {
 	//
@@ -411,14 +414,16 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor
 	if(element != null)
 	{
 	    element.position.remove();
-	}    
+	}
+        return element;
     }
 
     class EvictorElement extends Ice.LocalObjectImpl
     {
-	public Ice.Object servant;
+	Ice.Object servant;
 	java.util.Iterator position;
-	public int usageCount;
+	int usageCount;
+        boolean destroyed;
     };
 
     //
