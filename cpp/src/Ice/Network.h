@@ -72,6 +72,7 @@ ICE_PROTOCOL_API bool connectFailed();
 ICE_PROTOCOL_API bool connectInProgress();
 ICE_PROTOCOL_API bool connectionLost();
 ICE_PROTOCOL_API bool notConnected();
+ICE_PROTOCOL_API bool recvTruncated();
 
 ICE_PROTOCOL_API SOCKET createSocket(bool);
 ICE_PROTOCOL_API void closeSocket(SOCKET);
@@ -80,7 +81,9 @@ ICE_PROTOCOL_API void setBlock(SOCKET, bool);
 ICE_PROTOCOL_API void setTcpNoDelay(SOCKET);
 ICE_PROTOCOL_API void setKeepAlive(SOCKET);
 ICE_PROTOCOL_API void setSendBufferSize(SOCKET, int);
+ICE_PROTOCOL_API int getSendBufferSize(SOCKET);
 ICE_PROTOCOL_API void setRecvBufferSize(SOCKET, int);
+ICE_PROTOCOL_API int getRecvBufferSize(SOCKET);
 
 ICE_PROTOCOL_API void doBind(SOCKET, struct sockaddr_in&);
 ICE_PROTOCOL_API void doListen(SOCKET, int);

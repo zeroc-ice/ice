@@ -382,6 +382,13 @@ Ice::MarshalException::ice_print(ostream& out) const
 }
 
 void
+Ice::DatagramLimitException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: maximum datagram payload size of " << maxSize << " bytes exceeded";
+}
+
+void
 Ice::NoObjectFactoryException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

@@ -472,7 +472,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 	Int num = _properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
 	if(num < 1)
 	{
-	    _messageSizeMax = defaultMessageSizeMax; // Ignore stupid values.
+	    _messageSizeMax = defaultMessageSizeMax * 1024; // Ignore stupid values.
 	}
 	else if(static_cast<size_t>(num) > (size_t)(0x7fffffff / 1024))
 	{

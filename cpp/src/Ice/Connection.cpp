@@ -1019,6 +1019,23 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		doUncompress(stream, ustream);
 		stream.b.swap(ustream.b);
 	    }
+
+	    if(_endpoint->datagram())
+	    {
+		Int messageSize;
+		stream.read(messageSize);
+		if(messageSize > _maxRecvSize)		// Truncated datagram
+		{
+		    DatagramLimitException ex(__FILE__, __LINE__);
+		    ex.maxSize = _maxRecvSize;
+		    if(_warnUdp)
+		    {
+			Warning out(_logger);
+			out << "datagram exception:\n" << ex << '\n' << _transceiver->toString();
+		    }
+		    throw ex;
+		}
+	    }
 	    
 	    stream.i = stream.b.begin() + headerSize;
 	    
@@ -1327,7 +1344,8 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _batchRequestNum(0),
     _dispatchCount(0),
     _proxyCount(0),
-    _state(StateNotValidated)
+    _state(StateNotValidated),
+    _maxRecvSize(transceiver->maxRecvSize())
 {
     if(_adapter)
     {
@@ -1373,6 +1391,8 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     replyHdr[7] = encodingMinor;
     replyHdr[8] = replyMsg;
     replyHdr[9] = 1; // Default compression status: compression supported but not used.
+
+    _warnUdp = _instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 }
 
 IceInternal::Connection::~Connection()

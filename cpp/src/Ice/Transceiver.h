@@ -39,6 +39,8 @@ public:
     virtual void write(Buffer&, int) = 0;
     virtual void read(Buffer&, int) = 0;
     virtual std::string toString() const = 0;
+    virtual int maxRecvSize() const = 0;
+    virtual int maxSendSize() const = 0;
 };
 
 }

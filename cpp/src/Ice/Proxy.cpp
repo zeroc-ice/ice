@@ -578,6 +578,10 @@ IceProxy::Ice::Object::ice_flush()
 	    __del->ice_flush();
 	    return;
 	}
+	catch(const DatagramLimitException&)
+	{
+	    throw; // DatagramLimitExcpetion is not repeatable.
+	}
 	catch(const LocalException& __ex)
 	{
 	    __handleException(__ex, __cnt);

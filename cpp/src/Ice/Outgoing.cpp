@@ -175,7 +175,14 @@ IceInternal::Outgoing::invoke()
 	case Reference::ModeOneway:
 	case Reference::ModeDatagram:
 	{
-	    _connection->sendRequest(this, true);
+	    try
+	    {
+		_connection->sendRequest(this, true);
+	    }
+	    catch(const DatagramLimitException& ex)
+	    {
+		throw NonRepeatable(ex);
+	    }
 	    _state = StateInProgress;
 	    break;
 	}

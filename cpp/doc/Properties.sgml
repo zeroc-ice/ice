@@ -222,6 +222,24 @@ conditions in connections. The default value is 0.
 </section>
 </section>
 
+<section><title>Ice.Warn.Datagrams</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Warn.Datagrams=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+servers will print a warning message if they receive a datagram that exceeds the
+servers' receive buffer size. (Note that this condition is not detected
+by all UDP implementations -- some implementations silently drop received
+datagrams that are too large.) The default value is 0.
+</para>
+</section>
+</section>
+
 <section><title>Ice.Warn.Dispatch</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -673,6 +691,12 @@ than this size cause a [MemoryLimitException].
 The default size is 1024 (1 Megabyte).
 Settings with a value less than 1 are ignored.
 </para>
+<para>
+This property adjusts the value of <literal>Ice.UDP.RcvSize</literal> and <literal>Ice.UDP.SndSize</literal>, that
+is, if <literal>Ice.UDP.RcvSize</literal> or <literal>Ice.UDP.SndSize</literal> are larger than
+<literal>Ice.MessageSizeMax * 1024 + 28</literal>, they are adjusted to
+<literal>Ice.MessageSizeMax * 1024 + 28</literal>.
+</para>
 </section>
 </section>
 
@@ -869,6 +893,47 @@ the C++ <literal>Ice::Application</literal> class ignores <literal>SIGHUP</liter
 (for UNIX) and <literal>CTRL_LOGOFF_EVENT</literal> (for Windows). As a
 result, an application that sets <literal>Ice.Nohup</literal> continues
 to run if the user that started the application logs off. (C++ only.)
+</para>
+</section>
+</section>
+
+<section><title>Ice.UDP.RcvSize, Ice.UDP.SndSize</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.UDP.RcvSize=<replaceable>num</replaceable>
+Ice.UDP.SndSize=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+These properties set the UDP receive and send buffer sizes to the specified value
+in bytes. Ice messages larger than <literal><replaceable>num</replaceable> - 28</literal> bytes
+cause a <literal>DatagramLimitException</literal>. The default value depends on the configuration
+of the local UDP stack. (Common default values are <literal>65535</literal> and <literal>8192</literal> bytes.)
+</para>
+<para>
+The OS may impose lower and upper limits on the receive and send buffer sizes or otherwise adjust the buffer sizes.
+If a limit is requested that is lower than the OS-imposed minimum, the value is silently adjusted to the
+OS-imposed minimum. If a limit is requested that is larger than the OS-imposed maximum, the value is adjusted
+to the OS-imposed maximum; in addition, &Ice; logs a warning showing the requested size and the adjusted size.
+</para>
+<para>
+Settings of these properties less than <literal>28</literal> are ignored.
+</para>
+<para>
+Note that, on many operating systems, it is possible to set buffer sizes greater than <literal>65535</literal>.
+Such settings do not change the hard limit of <literal>65507</literal> bytes for the payload of a UDP packet,
+but merely affect how much data can be buffered by the kernel.
+</para>
+<para>
+Settings less than <literal>65535</literal> limit the size of &Ice; datagrams as well as adjust the kernel
+buffer sizes.
+</para>
+<para>
+If <literal>Ice.MessageSizeMax</literal> is set and <literal>Ice.MessageSizeMax * 1024 + 28</literal>
+is smaller than the UDP receive or send buffer size, the corresponding UDP buffer size is reduced to
+<literal>Ice.MessageSizeMax * 1024 + 28</literal>.
 </para>
 </section>
 </section>

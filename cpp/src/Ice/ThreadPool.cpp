@@ -39,6 +39,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _size(0),
     _sizeMax(0),
     _sizeWarn(0),
+    _messageSizeMax(0),
     _running(0),
     _inUse(0),
     _load(0)
@@ -70,6 +71,8 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
 
     int sizeWarn = _instance->properties()->getPropertyAsIntWithDefault(_prefix + ".SizeWarn", _sizeMax * 80 / 100);
     const_cast<int&>(_sizeWarn) = sizeWarn;
+
+    const_cast<int&>(_messageSizeMax) = instance->messageSizeMax();
 
     __setNoDelete(true);
     try
@@ -539,6 +542,10 @@ IceInternal::ThreadPool::run()
 		    {
 			continue;
 		    }
+		    catch(const DatagramLimitException&) // Expected.
+		    {
+			continue;
+		    }
 		    catch(const LocalException& ex)
 		    {
 			handler->exception(ex);
@@ -683,7 +690,7 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
     {
 	throw IllegalMessageSizeException(__FILE__, __LINE__);
     }
-    if(size > 1024 * 1024) // TODO: configurable
+    if(size > _messageSizeMax)
     {
 	throw MemoryLimitException(__FILE__, __LINE__);
     }

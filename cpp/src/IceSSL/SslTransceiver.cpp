@@ -17,6 +17,7 @@
 #include <Ice/Buffer.h>
 #include <Ice/Network.h>
 #include <Ice/LocalException.h>
+#include <Ice/Properties.h>
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/SslTransceiver.h>
 #include <IceSSL/OpenSSLPluginI.h>
@@ -275,6 +276,17 @@ IceSSL::SslTransceiver::toString() const
     return _desc;
 }
 
+int
+IceSSL::SslTransceiver::maxRecvSize() const
+{
+    return _messageSizeMax;
+}
+
+int
+IceSSL::SslTransceiver::maxSendSize() const
+{
+    return _messageSizeMax;
+}
 void
 IceSSL::SslTransceiver::forceHandshake()
 {
@@ -1021,6 +1033,24 @@ IceSSL::SslTransceiver::SslTransceiver(const OpenSSLPluginIPtr& plugin,
     // fdToString may raise a socket exception.
     //
     const_cast<string&>(_desc) = fdToString(_fd);
+
+    //
+    // Initialize max message size.
+    //
+    static const int defaultMessageSizeMax = 1024;
+    Int num = plugin->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+    if(num < 1)
+    {
+	_messageSizeMax = defaultMessageSizeMax; // Ignore stupid values.
+    }
+    else if(static_cast<size_t>(num) > (size_t)(0x7fffffff / 1024))
+    {
+	_messageSizeMax = static_cast<size_t>(0x7fffffff);
+    }
+    else
+    {
+	_messageSizeMax = static_cast<size_t>(num) * 1024; // Property is in kilobytes, _messageSizeMax in bytes.
+    }
 }
 
 IceSSL::SslTransceiver::~SslTransceiver()

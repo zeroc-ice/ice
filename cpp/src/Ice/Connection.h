@@ -144,6 +144,7 @@ private:
     bool _registeredWithPool;
 
     bool _warn;
+    bool _warnUdp;
 
     int _acmTimeout;
     IceUtil::Time _acmAbsoluteTimeout;
@@ -167,6 +168,8 @@ private:
     int _proxyCount; // The number of proxies using this connection.
 
     State _state;
+
+    int _maxRecvSize;
 };
 
 }

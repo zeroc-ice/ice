@@ -138,6 +138,8 @@ public:
     virtual void write(IceInternal::Buffer&, int) = 0;
     virtual void read(IceInternal::Buffer&, int);
     virtual std::string toString() const;
+    virtual int maxRecvSize() const;
+    virtual int maxSendSize() const;
 
     void forceHandshake();
     virtual int handshake(int timeout = 0) = 0;
@@ -216,6 +218,7 @@ protected:
     SOCKET _fd;
     fd_set _rFdSet;
     fd_set _wFdSet;
+    int _messageSizeMax;
 
     IceSSL::CertificateVerifierPtr _certificateVerifier;
 };

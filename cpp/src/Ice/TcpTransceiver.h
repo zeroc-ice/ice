@@ -37,6 +37,8 @@ public:
     virtual void write(Buffer&, int);
     virtual void read(Buffer&, int);
     virtual std::string toString() const;
+    virtual int maxRecvSize() const;
+    virtual int maxSendSize() const;
 
 private:
 
@@ -54,6 +56,7 @@ private:
     SOCKET _fd;
     fd_set _rFdSet;
     fd_set _wFdSet;
+    int _maxSize;
 };
 
 }

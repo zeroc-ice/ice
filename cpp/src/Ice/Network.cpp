@@ -24,29 +24,14 @@ bool
 IceInternal::interrupted()
 {
 #ifdef _WIN32
-    int error = WSAGetLastError();
-    if(error == WSAEINTR)
-    {
-	return true;
-    }
+    return WSAGetLastError() == WSAEINTR;
 #else
 #   ifdef EPROTO
-    if(errno == EINTR ||
-       errno == EPROTO)
-    {
-	return true;
-    }
+    return errno == EINTR || errno == EPROTO;
 #   else
-    if(errno == EINTR)
-    {
-	return true;
-    }
+    return errno == EINTR;
 #   endif
 #endif
-    else
-    {
-	return false;
-    }
 }
 
 bool
@@ -59,24 +44,14 @@ IceInternal::acceptInterrupted()
 
 #ifdef _WIN32
     int error = WSAGetLastError();
-    if(error == WSAECONNABORTED ||
-       error == WSAECONNRESET ||
-       error == WSAETIMEDOUT)
-    {
-	return true;
-    }
+    return error == WSAECONNABORTED ||
+           error == WSAECONNRESET ||
+           error == WSAETIMEDOUT;
 #else
-    if(errno == ECONNABORTED ||
-       errno == ECONNRESET ||
-       errno == ETIMEDOUT)
-    {
-	return true;
-    }
+    return errno == ECONNABORTED ||
+           errno == ECONNRESET ||
+           errno == ETIMEDOUT;
 #endif
-    else
-    {
-	return false;
-    }
 }
 
 bool
@@ -84,43 +59,21 @@ IceInternal::noBuffers()
 {
 #ifdef _WIN32
     int error = WSAGetLastError();
-    if(error == WSAENOBUFS ||
-       error == WSAEFAULT)
-    {
-	return true;
-    }
+    return error == WSAENOBUFS ||
+           error == WSAEFAULT;
 #else
-    if(errno == ENOBUFS)
-    {
-	return true;
-    }
+    return errno == ENOBUFS;
 #endif
-    else
-    {
-	return false;
-    }
 }
 
 bool
 IceInternal::wouldBlock()
 {
 #ifdef _WIN32
-    int error = WSAGetLastError();
-    if(error == WSAEWOULDBLOCK)
-    {
-	return true;
-    }
+    return WSAGetLastError() == WSAEWOULDBLOCK;
 #else
-    if(errno == EAGAIN ||
-       errno == EWOULDBLOCK)
-    {
-	return true;
-    }
+    return errno == EAGAIN || errno == EWOULDBLOCK;
 #endif
-    else
-    {
-	return false;
-    }
 }
 
 bool
@@ -128,51 +81,30 @@ IceInternal::connectFailed()
 {
 #ifdef _WIN32
     int error = WSAGetLastError();
-    if(error == WSAECONNREFUSED ||
-       error == WSAETIMEDOUT ||
-       error == WSAENETUNREACH ||
-       error == WSAECONNRESET ||
-       error == WSAESHUTDOWN ||
-       error == WSAECONNABORTED)
-    {
-	return true;
-    }
+    return error == WSAECONNREFUSED ||
+           error == WSAETIMEDOUT ||
+           error == WSAENETUNREACH ||
+           error == WSAECONNRESET ||
+           error == WSAESHUTDOWN ||
+           error == WSAECONNABORTED;
 #else
-    if(errno == ECONNREFUSED ||
-       errno == ETIMEDOUT ||
-       errno == ENETUNREACH ||
-       errno == ECONNRESET ||
-       errno == ESHUTDOWN ||
-       errno == ECONNABORTED)
-    {
-	return true;
-    }
+    return errno == ECONNREFUSED ||
+           errno == ETIMEDOUT ||
+           errno == ENETUNREACH ||
+           errno == ECONNRESET ||
+           errno == ESHUTDOWN ||
+           errno == ECONNABORTED;
 #endif
-    else
-    {
-	return false;
-    }
 }
 
 bool
 IceInternal::connectInProgress()
 {
 #ifdef _WIN32
-    int error = WSAGetLastError();
-    if(error == WSAEWOULDBLOCK)
-    {
-	return true;
-    }
+    return WSAGetLastError() == WSAEWOULDBLOCK;
 #else
-    if(errno == EINPROGRESS)
-    {
-	return true;
-    }
+    return errno == EINPROGRESS;
 #endif
-    else
-    {
-	return false;
-    }
 }
 
 bool
@@ -180,45 +112,35 @@ IceInternal::connectionLost()
 {
 #ifdef _WIN32
     int error = WSAGetLastError();
-    if(error == WSAECONNRESET ||
-       error == WSAESHUTDOWN ||
-       error == WSAECONNABORTED)
-    {
-	return true;
-    }
+    return error == WSAECONNRESET ||
+           error == WSAESHUTDOWN ||
+           error == WSAECONNABORTED;
 #else
-    if(errno == ECONNRESET ||
-       errno == ESHUTDOWN ||
-       errno == ECONNABORTED)
-    {
-	return true;
-    }
+    return errno == ECONNRESET ||
+           errno == ESHUTDOWN ||
+           errno == ECONNABORTED;
 #endif
-    else
-    {
-	return false;
-    }
 }
 
 bool
 IceInternal::notConnected()
 {
 #ifdef _WIN32
-    int error = WSAGetLastError();
-    if(error == WSAENOTCONN)
-    {
-	return true;
-    }
+    return WSAGetLastError() == WSAENOTCONN;
 #else
-    if(errno == ENOTCONN)
-    {
-	return true;
-    }
+    return errno == ENOTCONN;
 #endif
-    else
-    {
-	return false;
-    }
+}
+
+bool
+IceInternal::recvTruncated()
+{
+#ifdef _WIN32
+    return WSAGetLastError() == WSAEMSGSIZE;
+#else
+    // We don't get an error under Linux if a datagram is truncated.
+    return false;
+#endif
 }
 
 SOCKET
@@ -330,6 +252,21 @@ IceInternal::setSendBufferSize(SOCKET fd, int sz)
     }
 }
 
+int
+IceInternal::getSendBufferSize(SOCKET fd)
+{
+    int sz;
+    socklen_t len = sizeof(sz);
+    if(getsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char*)&sz, &len) == SOCKET_ERROR || len != sizeof(sz))
+    {
+	closeSocket(fd);
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
+    }
+    return sz;
+}
+
 void
 IceInternal::setRecvBufferSize(SOCKET fd, int sz)
 {
@@ -340,6 +277,21 @@ IceInternal::setRecvBufferSize(SOCKET fd, int sz)
 	ex.error = getSocketErrno();
 	throw ex;
     }
+}
+
+int
+IceInternal::getRecvBufferSize(SOCKET fd)
+{
+    int sz;
+    socklen_t len = sizeof(sz);
+    if(getsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char*)&sz, &len) == SOCKET_ERROR || len != sizeof(sz))
+    {
+	closeSocket(fd);
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
+    }
+    return sz;
 }
 
 void

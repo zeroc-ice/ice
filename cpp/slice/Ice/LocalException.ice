@@ -604,6 +604,23 @@ local exception MarshalException extends ProtocolException
 
 /**
  *
+ * This exception is a specialization of [ProtocolException] that is
+ * raised if a datagram exceeds the configured send or receive buffer
+ * size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
+ *
+ **/
+local exception DatagramLimitException extends ProtocolException
+{
+    /**
+     *
+     * The maximum message size that can be used.
+     *
+     **/
+    int maxSize;
+};
+
+/**
+ *
  * This exception is a specialization of [MarshalException] that is
  * raised if no suitable object factory was found during object
  * unmarshaling.

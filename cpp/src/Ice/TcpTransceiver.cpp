@@ -283,12 +283,25 @@ IceInternal::TcpTransceiver::toString() const
     return _desc;
 }
 
+int
+IceInternal::TcpTransceiver::maxRecvSize() const
+{
+    return _maxSize;
+}
+
+int
+IceInternal::TcpTransceiver::maxSendSize() const
+{
+    return _maxSize;
+}
+
 IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET fd) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
     _stats(instance->stats()),
     _name("tcp"),
-    _fd(fd)
+    _fd(fd),
+    _maxSize(instance->messageSizeMax())
 {
     FD_ZERO(&_rFdSet);
     FD_ZERO(&_wFdSet);
