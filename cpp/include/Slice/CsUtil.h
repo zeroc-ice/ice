@@ -31,8 +31,8 @@ public:
     //
     // Generate code to marshal or unmarshal a type
     //
-    void writeMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, const std::string&,
-                                   bool, int&);
+    void writeMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, const std::string&, bool);
+    void writeSequenceMarshalUnmarshalCode(::IceUtil::Output&, const SequencePtr&, const std::string&, bool);
 
 #if 0
 protected:
