@@ -56,6 +56,7 @@ public:
     bool operator!=(const ObjectI&) const;
 
     ::_Ice::Reference _reference() const;
+    void _copyTo(ObjectI*) const;
 
 protected:
 
