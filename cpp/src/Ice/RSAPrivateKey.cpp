@@ -44,6 +44,12 @@ IceSSL::OpenSSL::RSAPrivateKey::RSAPrivateKey(const ByteSeq& keySeq)
     byteSeqToKey(keySeq);
 }
 
+IceSSL::OpenSSL::RSAPrivateKey::RSAPrivateKey(RSA* rsa) :
+                               _privateKey(rsa)
+{
+    assert(_privateKey != 0);
+}
+
 IceSSL::OpenSSL::RSAPrivateKey::~RSAPrivateKey()
 {
     if (_privateKey != 0)
@@ -83,15 +89,9 @@ IceSSL::OpenSSL::RSAPrivateKey::keyToByteSeq(ByteSeq& keySeq)
 }
 
 RSA*
-IceSSL::OpenSSL::RSAPrivateKey::getRSAPrivateKey() const
+IceSSL::OpenSSL::RSAPrivateKey::get() const
 {
     return _privateKey;
-}
-
-IceSSL::OpenSSL::RSAPrivateKey::RSAPrivateKey(RSA* rsa) :
-                               _privateKey(rsa)
-{
-    assert(_privateKey != 0);
 }
 
 void

@@ -57,7 +57,7 @@ public:
     void keyToByteSeq(Ice::ByteSeq&);
 
     // Get the internal key structure as per the OpenSSL implementation.
-    RSA* getRSAPrivateKey() const;
+    RSA* get() const;
 
 private:
 

@@ -70,7 +70,7 @@ IceSSL::OpenSSL::RSAKeyPair::certToByteSeq(ByteSeq& certSeq)
 RSA*
 IceSSL::OpenSSL::RSAKeyPair::getRSAPrivateKey() const
 {
-    return _privateKey->getRSAPrivateKey();
+    return _privateKey->get();
 }
 
 X509*

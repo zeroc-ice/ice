@@ -32,6 +32,9 @@
 #include <string>
 #include <map>
 
+#include <Ice/RSAPrivateKeyF.h>
+#include <Ice/DHParamsF.h>
+
 namespace IceSSL
 {
 
@@ -40,9 +43,8 @@ class GeneralConfig;
 namespace OpenSSL
 {
 
-// TODO: Make these map<int, RSAPrivateKeyPtr> and something similar for DH.
-typedef std::map<int,RSA*> RSAMap;
-typedef std::map<int,DH*>  DHMap;
+typedef std::map<int,RSAPrivateKeyPtr> RSAMap;
+typedef std::map<int,DHParamsPtr> DHMap;
 
 typedef std::map<int,CertificateDesc> RSACertMap;
 typedef std::map<int,DiffieHellmanParamsFile> DHParamsMap;

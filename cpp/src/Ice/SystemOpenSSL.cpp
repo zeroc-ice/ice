@@ -32,6 +32,9 @@
 #include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
 
+#include <Ice/RSAPrivateKey.h>
+#include <Ice/DHParams.h>
+
 #include <openssl/e_os.h>
 #include <openssl/rand.h>
 
@@ -82,6 +85,7 @@ IceSSL::OpenSSL::System::createConnection(ContextType connectionType, int socket
 void
 IceSSL::OpenSSL::System::shutdown()
 {
+/*
     // Free our temporary RSA keys.
     RSAMap::iterator iRSA = _tempRSAKeys.begin();
     RSAMap::iterator eRSA = _tempRSAKeys.end();
@@ -101,6 +105,7 @@ IceSSL::OpenSSL::System::shutdown()
         DH_free((*iDH).second);
         iDH++;
     }
+*/
 }
 
 bool
@@ -284,7 +289,7 @@ IceSSL::OpenSSL::System::getRSAKey(int isExport, int keyLength)
     if (retVal != _tempRSAKeys.end())
     {
         // Yes!  Use it.
-        rsa_tmp = (*retVal).second;
+        rsa_tmp = (*retVal).second->get();
 
         assert(rsa_tmp != 0);
     }
@@ -331,8 +336,11 @@ IceSSL::OpenSSL::System::getRSAKey(int isExport, int keyLength)
             }
             else
             {
-                RSA_free(rsaCert);
-                rsaCert = 0;
+                if (rsaCert != 0)
+                {
+                    RSA_free(rsaCert);
+                    rsaCert = 0;
+                }
             }
         }
 
@@ -345,7 +353,7 @@ IceSSL::OpenSSL::System::getRSAKey(int isExport, int keyLength)
         // Save in our temporary key cache.
         if (rsa_tmp != 0)
         {
-            _tempRSAKeys[keyLength] = rsa_tmp;
+            _tempRSAKeys[keyLength] = new RSAPrivateKey(rsa_tmp);
         }
     }
 
@@ -365,7 +373,7 @@ IceSSL::OpenSSL::System::getDHParams(int isExport, int keyLength)
     if (retVal != _tempDHKeys.end())
     {
         // Yes!  Use it.
-        dh_tmp = (*retVal).second;
+        dh_tmp = (*retVal).second->get();
     }
     else
     {
@@ -382,7 +390,7 @@ IceSSL::OpenSSL::System::getDHParams(int isExport, int keyLength)
 
             if (dh_tmp != 0)
             {
-                _tempDHKeys[keyLength] = dh_tmp;
+                _tempDHKeys[keyLength] = new DHParams(dh_tmp);
             }
         }
     }

@@ -104,6 +104,7 @@ OBJS		= Initialize.o \
                   RSAPrivateKey.o \
                   RSAPublicKey.o \
                   RSAKeyPair.o \
+                  DHParams.o \
                   OpenSSLUtils.o \
                   DefaultCertificateVerifier.o \
                   SingleCertificateVerifier.o \

@@ -184,6 +184,10 @@ SOURCE=.\DefaultCertificateVerifier.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\DHParams.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Direct.cpp
 # End Source File
 # Begin Source File
@@ -573,6 +577,14 @@ SOURCE=..\..\include\Ice\Current.h
 # Begin Source File
 
 SOURCE=.\DefaultCertificateVerifier.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\DHParams.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\DHParamsF.h
 # End Source File
 # Begin Source File
 
