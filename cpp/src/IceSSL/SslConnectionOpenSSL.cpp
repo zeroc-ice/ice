@@ -269,7 +269,7 @@ IceSSL::OpenSSL::Connection::verifyCertificate(int preVerifyOkay, X509_STORE_CTX
         {
             preVerifyOkay = verifier->verify(preVerifyOkay, x509StoreContext, _sslConnection);
         }
-        catch (const Ice::LocalException& localEx)
+        catch(const Ice::LocalException& localEx)
         {
             if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
             {

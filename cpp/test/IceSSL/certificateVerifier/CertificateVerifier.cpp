@@ -53,11 +53,11 @@ testExpectCertificateVerifierTypeException(const IceSSL::PluginPtr& plugin,
         plugin->setCertificateVerifier(context, verifier);
         test(false);
     }
-    catch (const IceSSL::CertificateVerifierTypeException&)
+    catch(const IceSSL::CertificateVerifierTypeException&)
     {
         std::cout << "ok" << std::endl;
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
@@ -85,7 +85,7 @@ testExpectNoException(const IceSSL::PluginPtr& plugin,
         plugin->setCertificateVerifier(context, verifier);
         std::cout << "ok" << std::endl;
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.

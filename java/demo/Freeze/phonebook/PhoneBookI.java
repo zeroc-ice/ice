@@ -203,7 +203,7 @@ class PhoneBookI extends _PhoneBookDisp
 		{
 		    n = Long.parseLong(ids[0].name) + 1;
 		}
-		catch (NumberFormatException ex)
+		catch(NumberFormatException ex)
 		{
 		    // TODO: Do anything?
 		}

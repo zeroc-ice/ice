@@ -45,29 +45,29 @@ using namespace Slice;
     do
     {
 	c = yyinput();
-	if (c == '\n')
+	if(c == '\n')
 	{
 	    unit->nextLine();
 	}
     }
-    while (c != '\n' && c != EOF);
+    while(c != '\n' && c != EOF);
 }
 
 "/*" {
     // C-style comment
     string comment = yytext + 2;
-    while (true)
+    while(true)
     {
 	int c = yyinput();
-	if (c == '\n')
+	if(c == '\n')
 	{
 	    comment += static_cast<char>(c);
 	    unit->nextLine();
 	}
-	else if (c == '*')
+	else if(c == '*')
 	{
 	    int next = yyinput();
-	    if (next == '/')
+	    if(next == '/')
 	    {
 		break;
 	    }
@@ -77,7 +77,7 @@ using namespace Slice;
 		unput(next);
 	    }
 	}
-	else if (c == EOF)
+	else if(c == EOF)
 	{
 	    unit->warning("EOF in comment");
 	    break;
@@ -87,7 +87,7 @@ using namespace Slice;
 	    comment += static_cast<char>(c);
 	}
     }
-    if (comment[0] == '*')
+    if(comment[0] == '*')
     {
 	unit->setComment(comment);
     }
@@ -383,27 +383,27 @@ using namespace Slice;
 \" {
     // "..."-type strings
     StringTokPtr str = new StringTok;
-    while (true)
+    while(true)
     {
 	char c = static_cast<char>(yyinput());
-	if (c == '"')
+	if(c == '"')
 	{
 	    break;
 	}
-	else if (c == EOF)
+	else if(c == EOF)
 	{
 	    unit->warning("EOF in string");
 	    break;
 	}
-	else if (c == '\n')
+	else if(c == '\n')
 	{
 	    str->v += c;
 	    unit->nextLine();
 	}
-	else if (c == '\\')
+	else if(c == '\\')
 	{
 	    char next = static_cast<char>(yyinput());
-	    switch (next)
+	    switch(next)
 	    {
 		case '\\':
 		case '"':
@@ -461,19 +461,19 @@ using namespace Slice;
 \' {
     // '...'-type strings
     StringTokPtr str = new StringTok;
-    while (true)
+    while(true)
     {
 	char c = static_cast<char>(yyinput());
-	if (c == '\'')
+	if(c == '\'')
 	{
 	    break;
 	}
-	else if (c == EOF)
+	else if(c == EOF)
 	{
 	    unit->warning("EOF in string");
 	    break;
 	}
-	else if (c == '\n')
+	else if(c == '\n')
 	{
 	    str->v += c;
 	    unit->nextLine();
@@ -490,7 +490,7 @@ using namespace Slice;
 [[:space:]] {
     // Igore white-space
     
-    if (yytext[0] == '\n')
+    if(yytext[0] == '\n')
     {
 	unit->nextLine();
     }

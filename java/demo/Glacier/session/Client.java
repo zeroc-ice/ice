@@ -69,17 +69,17 @@ public class Client
 
                 router = starter.startRouter(id, pw, privateKey, publicKey, routerCert);
             }
-            catch (java.io.IOException ex)
+            catch(java.io.IOException ex)
             {
                 ex.printStackTrace();
                 return 1;
             }
-            catch (Glacier.CannotStartRouterException ex)
+            catch(Glacier.CannotStartRouterException ex)
             {
                 System.err.println("Client: " + ex + ":\n" + ex.reason);
                 return 1;
             }
-            catch (Glacier.InvalidPasswordException ex)
+            catch(Glacier.InvalidPasswordException ex)
             {
                 System.err.println("password is invalid, try again");
                 continue;
@@ -94,7 +94,7 @@ public class Client
         {
             session = router.createSession();
         }
-        catch (Glacier.NoSessionManagerException ex)
+        catch(Glacier.NoSessionManagerException ex)
         {
             ex.printStackTrace();
             return 1;
@@ -212,11 +212,11 @@ public class Client
                     menu();
                 }
             }
-            catch (java.io.IOException ex)
+            catch(java.io.IOException ex)
             {
                 ex.printStackTrace();
             }
-            catch (Ice.LocalException ex)
+            catch(Ice.LocalException ex)
             {
                 ex.printStackTrace();
             }
@@ -239,7 +239,7 @@ public class Client
             communicator = Ice.Util.initializeWithProperties(args, properties);
             status = run(args, communicator);
         }
-        catch (Ice.LocalException ex)
+        catch(Ice.LocalException ex)
         {
             ex.printStackTrace();
             status = 1;
@@ -251,7 +251,7 @@ public class Client
             {
                 communicator.destroy();
             }
-            catch (Ice.LocalException ex)
+            catch(Ice.LocalException ex)
             {
                 ex.printStackTrace();
                 status = 1;

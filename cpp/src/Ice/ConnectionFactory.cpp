@@ -116,15 +116,15 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
 	    _connections.insert(make_pair(endpoint, connection));
 	    break;
 	}
-	catch (const SocketException& ex)
+	catch(const SocketException& ex)
 	{
 	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 	}
-	catch (const DNSException& ex)
+	catch(const DNSException& ex)
 	{
 	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 	}
-	catch (const TimeoutException& ex)
+	catch(const TimeoutException& ex)
 	{
 	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 	}
@@ -338,16 +338,16 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
 	connection->activate();
 	_connections.push_back(connection);
     }
-    catch (const SocketException&)
+    catch(const SocketException&)
     {
         // TODO: bandaid. Takes care of SSL Handshake problems during
         // creation of a Transceiver. Ignore, nothing we can do here.
     }
-    catch (const TimeoutException&)
+    catch(const TimeoutException&)
     {
 	// Ignore timeouts.
     }
-    catch (const LocalException& ex)
+    catch(const LocalException& ex)
     {
 	if(_warn)
 	{
@@ -385,13 +385,13 @@ IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool
 		    ConnectionPtr connection = new Connection(_instance, transceiver, _endpoint, _adapter);
 		    connection->destroy(Connection::ObjectAdapterDeactivated);
 		}
-		catch (const TimeoutException&)
+		catch(const TimeoutException&)
 		{
 		    break; // Exit loop on timeout.
 		}
 	    }
 	}
-	catch (const LocalException& ex)
+	catch(const LocalException& ex)
 	{
 	    if(_warn)
 	    {

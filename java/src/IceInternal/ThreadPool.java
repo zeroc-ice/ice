@@ -46,7 +46,7 @@ public final class ThreadPool
                 {
                     throw new RuntimeException();
                 }
-                catch (RuntimeException ex)
+                catch(RuntimeException ex)
                 {
                     java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                     ex.printStackTrace(pw);
@@ -98,7 +98,7 @@ public final class ThreadPool
             {
                 wait();
             }
-            catch (InterruptedException ex)
+            catch(InterruptedException ex)
             {
             }
         }
@@ -137,7 +137,7 @@ public final class ThreadPool
                     _threads[i].join();
                     break;
                 }
-                catch (InterruptedException ex)
+                catch(InterruptedException ex)
                 {
                 }
             }
@@ -166,7 +166,7 @@ public final class ThreadPool
             pair.source.configureBlocking(false);
             _fdIntrReadKey = pair.source.register(_selector, java.nio.channels.SelectionKey.OP_READ);
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
             Ice.SystemException sys = new Ice.SystemException();
             sys.initCause(ex);
@@ -209,7 +209,7 @@ public final class ThreadPool
                 _threads[i].start();
             }
         }
-        catch (RuntimeException ex)
+        catch(RuntimeException ex)
         {
 	    java.io.StringWriter sw = new java.io.StringWriter();
 	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -235,7 +235,7 @@ public final class ThreadPool
             {
                 _selector.close();
             }
-            catch (java.io.IOException ex)
+            catch(java.io.IOException ex)
             {
             }
         }
@@ -245,7 +245,7 @@ public final class ThreadPool
             {
                 _fdIntrWrite.close();
             }
-            catch (java.io.IOException ex)
+            catch(java.io.IOException ex)
             {
             }
         }
@@ -255,7 +255,7 @@ public final class ThreadPool
             {
                 _fdIntrRead.close();
             }
-            catch (java.io.IOException ex)
+            catch(java.io.IOException ex)
             {
             }
         }
@@ -291,7 +291,7 @@ public final class ThreadPool
                 {
                     throw new RuntimeException();
                 }
-                catch (RuntimeException ex)
+                catch(RuntimeException ex)
                 {
                     ex.printStackTrace();
                 }
@@ -320,7 +320,7 @@ public final class ThreadPool
                 break;
             }
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
             Ice.SocketException se = new Ice.SocketException();
             se.initCause(ex);
@@ -342,7 +342,7 @@ public final class ThreadPool
                 {
                     throw new RuntimeException();
                 }
-                catch (RuntimeException ex)
+                catch(RuntimeException ex)
                 {
                     ex.printStackTrace();
                 }
@@ -357,7 +357,7 @@ public final class ThreadPool
             {
                 _fdIntrWrite.write(buf);
             }
-            catch (java.io.IOException ex)
+            catch(java.io.IOException ex)
             {
                 Ice.SocketException se = new Ice.SocketException();
                 se.initCause(ex);
@@ -535,7 +535,7 @@ public final class ThreadPool
                             {
                                 key = change.fd.register(_selector, op, change.handler);
                             }
-                            catch (java.nio.channels.ClosedChannelException ex)
+                            catch(java.nio.channels.ClosedChannelException ex)
                             {
                                 assert(false);
                             }
@@ -648,11 +648,11 @@ public final class ThreadPool
                                     continue repeatSelect;
                                 }
                             }
-                            catch (Ice.TimeoutException ex) // Expected
+                            catch(Ice.TimeoutException ex) // Expected
                             {
                                 continue repeatSelect;
                             }
-                            catch (Ice.LocalException ex)
+                            catch(Ice.LocalException ex)
                             {
                                 if(TRACE_EXCEPTION)
                                 {
@@ -782,11 +782,11 @@ public final class ThreadPool
 
                 break;
             }
-            catch (java.io.InterruptedIOException ex)
+            catch(java.io.InterruptedIOException ex)
             {
                 continue;
             }
-            catch (java.io.IOException ex)
+            catch(java.io.IOException ex)
             {
                 //
                 // Pressing Ctrl-C causes select() to raise an
@@ -837,11 +837,11 @@ public final class ThreadPool
 
                 ret = _selector.select(timeoutMillis);
             }
-            catch (java.io.InterruptedIOException ex)
+            catch(java.io.InterruptedIOException ex)
             {
                 continue;
             }
-            catch (java.io.IOException ex)
+            catch(java.io.IOException ex)
             {
                 //
                 // Pressing Ctrl-C causes select() to raise an
@@ -976,7 +976,7 @@ public final class ThreadPool
             {
 		ThreadPool.this.run(stream);
             }
-            catch (Ice.LocalException ex)
+            catch(Ice.LocalException ex)
             {
                 java.io.StringWriter sw = new java.io.StringWriter();
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -985,7 +985,7 @@ public final class ThreadPool
                 String s = "exception in thread pool:\n" + sw.toString();
                 _instance.logger().error(s);
             }
-            catch (RuntimeException ex)
+            catch(RuntimeException ex)
             {
                 java.io.StringWriter sw = new java.io.StringWriter();
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);

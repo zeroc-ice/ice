@@ -120,11 +120,11 @@ public class IncomingConnectionFactory extends EventHandler
             connection.activate();
             _connections.add(connection);
         }
-        catch (Ice.TimeoutException ex)
+        catch(Ice.TimeoutException ex)
         {
             // Ignore timeouts.
         }
-        catch (Ice.LocalException ex)
+        catch(Ice.LocalException ex)
         {
             if(_warn)
             {
@@ -159,13 +159,13 @@ public class IncomingConnectionFactory extends EventHandler
                         Connection connection = new Connection(_instance, transceiver, _endpoint, _adapter);
                         connection.destroy(Connection.ObjectAdapterDeactivated);
                     }
-                    catch (Ice.TimeoutException ex)
+                    catch(Ice.TimeoutException ex)
                     {
                         break; // Exit loop on timeout.
                     }
                 }
             }
-            catch (Ice.LocalException ex)
+            catch(Ice.LocalException ex)
             {
                 if(_warn)
                 {
@@ -239,7 +239,7 @@ public class IncomingConnectionFactory extends EventHandler
                 _acceptor.listen();
             }
         }
-        catch (RuntimeException ex)
+        catch(RuntimeException ex)
         {
             setState(StateClosed);
             throw ex;
@@ -277,7 +277,7 @@ public class IncomingConnectionFactory extends EventHandler
 	    {
 		wait();
 	    }
-	    catch (InterruptedException ex)
+	    catch(InterruptedException ex)
 	    {
 	    }
 	}

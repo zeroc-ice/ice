@@ -72,12 +72,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	{
 	    router = starter->startRouter(id, pw, privateKey, publicKey, routerCert);
 	}
-	catch (const Glacier::CannotStartRouterException& ex)
+	catch(const Glacier::CannotStartRouterException& ex)
 	{
 	    cerr << argv[0] << ": " << ex << ":\n" << ex.reason << endl;
 	    return EXIT_FAILURE;
 	}
-	catch (const Glacier::InvalidPasswordException&)
+	catch(const Glacier::InvalidPasswordException&)
 	{
 	    cout << "password is invalid, try again" << endl;
 	    continue;

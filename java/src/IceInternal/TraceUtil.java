@@ -245,7 +245,7 @@ final class TraceUtil
             int size = stream.readInt();
             out.write("\nmessage size = " + size);
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
             assert(false);
         }
@@ -278,7 +278,7 @@ final class TraceUtil
                 }
             }
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
             assert(false);
         }

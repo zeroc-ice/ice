@@ -57,7 +57,7 @@ IcePack::Activator::run()
     {
 	terminationListener();
     }
-    catch (const LocalException& ex)
+    catch(const LocalException& ex)
     {
 	Error out(_communicator->getLogger());
 	out << "exception in process termination listener:\n" << ex;

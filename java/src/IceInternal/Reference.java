@@ -298,7 +298,7 @@ public final class Reference
                 newRouterInfo = instance.routerManager().get(newRouter);
                 newRouterInfo.setClientProxy(newClientProxy);
             }
-            catch (Ice.NoEndpointException ex)
+            catch(Ice.NoEndpointException ex)
             {
                 // Ignore non-existing client proxies.
             }

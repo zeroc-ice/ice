@@ -31,13 +31,13 @@ testExpectCertificateAndPrivateKeyParseException(const IceSSL::PluginPtr& plugin
         plugin->setRSAKeysBase64(IceSSL::Client, key, cert);
         test(false);
     }
-    catch (const IceSSL::CertificateParseException&)
+    catch(const IceSSL::CertificateParseException&)
     {
     }
-    catch (const IceSSL::PrivateKeyParseException&)
+    catch(const IceSSL::PrivateKeyParseException&)
     {
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
@@ -67,13 +67,13 @@ testExpectCertificateAndPrivateKeyParseException(const IceSSL::PluginPtr& plugin
         plugin->setRSAKeys(IceSSL::Client, key, cert);
         test(false);
     }
-    catch (const IceSSL::CertificateParseException&)
+    catch(const IceSSL::CertificateParseException&)
     {
     }
-    catch (const IceSSL::PrivateKeyParseException&)
+    catch(const IceSSL::PrivateKeyParseException&)
     {
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
@@ -101,10 +101,10 @@ testExpectPrivateKeyParseException(const IceSSL::PluginPtr& plugin, const string
         plugin->setRSAKeysBase64(IceSSL::Client, key, cert);
         test(false);
     }
-    catch (const IceSSL::PrivateKeyParseException&)
+    catch(const IceSSL::PrivateKeyParseException&)
     {
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
@@ -132,10 +132,10 @@ testExpectPrivateKeyParseException(const IceSSL::PluginPtr& plugin, const Ice::B
         plugin->setRSAKeys(IceSSL::Client, key, cert);
         test(false);
     }
-    catch (const IceSSL::PrivateKeyParseException&)
+    catch(const IceSSL::PrivateKeyParseException&)
     {
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
@@ -163,10 +163,10 @@ testExpectCertificateParseException(const IceSSL::PluginPtr& plugin, const strin
         plugin->setRSAKeysBase64(IceSSL::Client, key, cert);
         test(false);
     }
-    catch (const IceSSL::CertificateParseException&)
+    catch(const IceSSL::CertificateParseException&)
     {
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
@@ -194,10 +194,10 @@ testExpectCertificateParseException(const IceSSL::PluginPtr& plugin, const Ice::
         plugin->setRSAKeys(IceSSL::Client, key, cert);
         test(false);
     }
-    catch (const IceSSL::CertificateParseException&)
+    catch(const IceSSL::CertificateParseException&)
     {
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
@@ -225,10 +225,10 @@ testExpectCertificateParseException(const IceSSL::PluginPtr& plugin, const strin
         plugin->addTrustedCertificateBase64(IceSSL::Client, cert);
         test(false);
     }
-    catch (const IceSSL::CertificateParseException&)
+    catch(const IceSSL::CertificateParseException&)
     {
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
@@ -256,10 +256,10 @@ testExpectCertificateParseException(const IceSSL::PluginPtr& plugin, const Ice::
         plugin->addTrustedCertificate(IceSSL::Client, cert);
         test(false);
     }
-    catch (const IceSSL::CertificateParseException&)
+    catch(const IceSSL::CertificateParseException&)
     {
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
@@ -289,10 +289,10 @@ testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin,
         plugin->setRSAKeysBase64(IceSSL::Client, key, cert);
         test(false);
     }
-    catch (const IceSSL::OpenSSL::ContextNotConfiguredException&)
+    catch(const IceSSL::OpenSSL::ContextNotConfiguredException&)
     {
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
@@ -322,10 +322,10 @@ testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin,
         plugin->setRSAKeys(IceSSL::Client, key, cert);
         test(false);
     }
-    catch (const IceSSL::OpenSSL::ContextNotConfiguredException&)
+    catch(const IceSSL::OpenSSL::ContextNotConfiguredException&)
     {
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
@@ -353,10 +353,10 @@ testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin, const s
         plugin->addTrustedCertificateBase64(IceSSL::Client, cert);
         test(false);
     }
-    catch (const IceSSL::OpenSSL::ContextNotConfiguredException&)
+    catch(const IceSSL::OpenSSL::ContextNotConfiguredException&)
     {
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
@@ -384,10 +384,10 @@ testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin, const I
         plugin->addTrustedCertificate(IceSSL::Client, cert);
         test(false);
     }
-    catch (const IceSSL::OpenSSL::ContextNotConfiguredException&)
+    catch(const IceSSL::OpenSSL::ContextNotConfiguredException&)
     {
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
@@ -417,10 +417,10 @@ testExpectCertificateKeyMatchException(const IceSSL::PluginPtr& plugin,
         plugin->setRSAKeysBase64(IceSSL::Client, key, cert);
         test(false);
     }
-    catch (const IceSSL::OpenSSL::CertificateKeyMatchException&)
+    catch(const IceSSL::OpenSSL::CertificateKeyMatchException&)
     {
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
@@ -450,10 +450,10 @@ testExpectCertificateKeyMatchException(const IceSSL::PluginPtr& plugin,
         plugin->setRSAKeys(IceSSL::Client, key, cert);
         test(false);
     }
-    catch (const IceSSL::OpenSSL::CertificateKeyMatchException&)
+    catch(const IceSSL::OpenSSL::CertificateKeyMatchException&)
     {
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
@@ -480,7 +480,7 @@ testNoException(const IceSSL::PluginPtr& plugin, const string& key, const string
     {
         plugin->setRSAKeysBase64(IceSSL::Client, key, cert);
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
@@ -507,7 +507,7 @@ testNoException(const IceSSL::PluginPtr& plugin, const Ice::ByteSeq& key, const 
     {
         plugin->setRSAKeys(IceSSL::Client, key, cert);
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
@@ -534,7 +534,7 @@ testNoException(const IceSSL::PluginPtr& plugin, const string& cert)
     {
         plugin->addTrustedCertificateBase64(IceSSL::Client, cert);
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
@@ -561,7 +561,7 @@ testNoException(const IceSSL::PluginPtr& plugin, const Ice::ByteSeq& cert)
     {
         plugin->addTrustedCertificate(IceSSL::Client, cert);
     }
-    catch (const Ice::LocalException&)
+    catch(const Ice::LocalException&)
     {
         //
         // Any other exception is bad.

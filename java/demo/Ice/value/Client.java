@@ -17,7 +17,7 @@ public class Client
         {
             in.readLine();
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
             ex.printStackTrace();
         }
@@ -68,7 +68,7 @@ public class Client
         {
             initial.printer(printer, printerProxy);
         }
-        catch (Ice.NoObjectFactoryException ex)
+        catch(Ice.NoObjectFactoryException ex)
         {
             System.out.println("==> " + ex);
         }
@@ -116,7 +116,7 @@ public class Client
             derivedAsBase = initial.derivedPrinter();
             assert(false);
         }
-        catch (Ice.NoObjectFactoryException ex)
+        catch(Ice.NoObjectFactoryException ex)
         {
             System.out.println("==> " + ex);
         }
@@ -158,7 +158,7 @@ public class Client
         {
             initial.throwDerivedPrinter();
         }
-        catch (DerivedPrinterException ex)
+        catch(DerivedPrinterException ex)
         {
             derived = ex.derived;
             assert(derived != null);
@@ -187,7 +187,7 @@ public class Client
             communicator = Ice.Util.initializeWithProperties(args, properties);
             status = run(args, communicator);
         }
-        catch (Ice.LocalException ex)
+        catch(Ice.LocalException ex)
         {
             ex.printStackTrace();
             status = 1;
@@ -199,7 +199,7 @@ public class Client
             {
                 communicator.destroy();
             }
-            catch (Ice.LocalException ex)
+            catch(Ice.LocalException ex)
             {
                 ex.printStackTrace();
                 status = 1;

@@ -66,7 +66,7 @@ IceInternal::checkedCast(const ObjectPrx& b, const string& f, ObjectPrx& d)
 #endif
 		d = bb;
 	    }
-	    catch (const FacetNotExistException&)
+	    catch(const FacetNotExistException&)
 	    {
 	    }
 	}
@@ -117,15 +117,15 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_isA(__id, __context);
 	}
-	catch (const LocationForward& __ex)
+	catch(const LocationForward& __ex)
 	{
 	    __locationForward(__ex);
 	}
-	catch (const NonRepeatable& __ex)
+	catch(const NonRepeatable& __ex)
 	{
 	    __handleException(*__ex.get(), __cnt);
 	}
-	catch (const LocalException& __ex)
+	catch(const LocalException& __ex)
 	{
 	    __handleException(__ex, __cnt);
 	}
@@ -144,15 +144,15 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
 	    __del->ice_ping(__context);
 	    return;
 	}
-	catch (const LocationForward& __ex)
+	catch(const LocationForward& __ex)
 	{
 	    __locationForward(__ex);
 	}
-	catch (const NonRepeatable& __ex)
+	catch(const NonRepeatable& __ex)
 	{
 	    __handleException(*__ex.get(), __cnt);
 	}
-	catch (const LocalException& __ex)
+	catch(const LocalException& __ex)
 	{
 	    __handleException(__ex, __cnt);
 	}
@@ -170,15 +170,15 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_ids(__context);
 	}
-	catch (const LocationForward& __ex)
+	catch(const LocationForward& __ex)
 	{
 	    __locationForward(__ex);
 	}
-	catch (const NonRepeatable& __ex)
+	catch(const NonRepeatable& __ex)
 	{
 	    __handleException(*__ex.get(), __cnt);
 	}
-	catch (const LocalException& __ex)
+	catch(const LocalException& __ex)
 	{
 	    __handleException(__ex, __cnt);
 	}
@@ -196,15 +196,15 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_id(__context);
 	}
-	catch (const LocationForward& __ex)
+	catch(const LocationForward& __ex)
 	{
 	    __locationForward(__ex);
 	}
-	catch (const NonRepeatable& __ex)
+	catch(const NonRepeatable& __ex)
 	{
 	    __handleException(*__ex.get(), __cnt);
 	}
-	catch (const LocalException& __ex)
+	catch(const LocalException& __ex)
 	{
 	    __handleException(__ex, __cnt);
 	}
@@ -222,15 +222,15 @@ IceProxy::Ice::Object::ice_facets(const Context& __context)
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_facets(__context);
 	}
-	catch (const LocationForward& __ex)
+	catch(const LocationForward& __ex)
 	{
 	    __locationForward(__ex);
 	}
-	catch (const NonRepeatable& __ex)
+	catch(const NonRepeatable& __ex)
 	{
 	    __handleException(*__ex.get(), __cnt);
 	}
-	catch (const LocalException& __ex)
+	catch(const LocalException& __ex)
 	{
 	    __handleException(__ex, __cnt);
 	}
@@ -252,11 +252,11 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_invoke(operation, nonmutating, inParams, outParams, context);
 	}
-	catch (const LocationForward& __ex)
+	catch(const LocationForward& __ex)
 	{
 	    __locationForward(__ex);
 	}
-	catch (const NonRepeatable& __ex)
+	catch(const NonRepeatable& __ex)
 	{
 	    if(nonmutating)
 	    {
@@ -267,7 +267,7 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 		__rethrowException(*__ex.get());
 	    }
 	}
-	catch (const LocalException& __ex)
+	catch(const LocalException& __ex)
 	{
 	    __handleException(__ex, __cnt);
 	}
@@ -538,7 +538,7 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
     {
 	ex.ice_throw();
     }
-    catch (const CloseConnectionException&)
+    catch(const CloseConnectionException&)
     {
 	//
 	// We always retry on a close connection exception, as this
@@ -546,15 +546,15 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 	//
 	// TODO: configurable timeout before we try again?
     }
-    catch (const SocketException&)
+    catch(const SocketException&)
     {
 	++cnt;
     }
-    catch (const DNSException&)
+    catch(const DNSException&)
     {
 	++cnt;
     }
-    catch (const TimeoutException&)
+    catch(const TimeoutException&)
     {
 	++cnt;
     }
@@ -967,11 +967,11 @@ IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	{
 	    return __direct.facetServant()->ice_isA(__id, __current);
 	}
-	catch (const LocalException&)
+	catch(const LocalException&)
 	{
 	    throw UnknownLocalException(__FILE__, __LINE__);
 	}
-	catch (const UserException&)
+	catch(const UserException&)
 	{
 	    throw UnknownUserException(__FILE__, __LINE__);
 	}
@@ -995,11 +995,11 @@ IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context& __context)
 	    __direct.facetServant()->ice_ping(__current);
 	    return;
 	}
-	catch (const LocalException&)
+	catch(const LocalException&)
 	{
 	    throw UnknownLocalException(__FILE__, __LINE__);
 	}
-	catch (const UserException&)
+	catch(const UserException&)
 	{
 	    throw UnknownUserException(__FILE__, __LINE__);
 	}
@@ -1022,11 +1022,11 @@ IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context& __context)
 	{
 	    return __direct.facetServant()->ice_ids(__current);
 	}
-	catch (const LocalException&)
+	catch(const LocalException&)
 	{
 	    throw UnknownLocalException(__FILE__, __LINE__);
 	}
-	catch (const UserException&)
+	catch(const UserException&)
 	{
 	    throw UnknownUserException(__FILE__, __LINE__);
 	}
@@ -1049,11 +1049,11 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context& __context)
 	{
 	    return __direct.facetServant()->ice_id(__current);
 	}
-	catch (const LocalException&)
+	catch(const LocalException&)
 	{
 	    throw UnknownLocalException(__FILE__, __LINE__);
 	}
-	catch (const UserException&)
+	catch(const UserException&)
 	{
 	    throw UnknownUserException(__FILE__, __LINE__);
 	}
@@ -1076,11 +1076,11 @@ IceDelegateD::Ice::Object::ice_facets(const ::Ice::Context& __context)
 	{
 	    return __direct.facetServant()->ice_facets(__current);
 	}
-	catch (const LocalException&)
+	catch(const LocalException&)
 	{
 	    throw UnknownLocalException(__FILE__, __LINE__);
 	}
-	catch (const UserException&)
+	catch(const UserException&)
 	{
 	    throw UnknownUserException(__FILE__, __LINE__);
 	}
@@ -1114,11 +1114,11 @@ IceDelegateD::Ice::Object::ice_invoke(const string& operation,
 	{
 	    return __servant->ice_invoke(inParams, outParams, current);
 	}
-	catch (const LocalException&)
+	catch(const LocalException&)
 	{
 	    throw UnknownLocalException(__FILE__, __LINE__);
 	}
-	catch (const UserException&)
+	catch(const UserException&)
 	{
 	    throw UnknownUserException(__FILE__, __LINE__);
 	}

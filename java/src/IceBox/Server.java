@@ -54,7 +54,7 @@ public final class Server
             ServiceManagerI serviceManagerImpl = new ServiceManagerI(communicator, argsH.value);
             status = serviceManagerImpl.run();
         }
-        catch (Ice.LocalException ex)
+        catch(Ice.LocalException ex)
         {
             ex.printStackTrace();
             status = 1;
@@ -66,7 +66,7 @@ public final class Server
             {
                 communicator.destroy();
             }
-            catch (Ice.LocalException ex)
+            catch(Ice.LocalException ex)
             {
                 ex.printStackTrace();
                 status = 1;

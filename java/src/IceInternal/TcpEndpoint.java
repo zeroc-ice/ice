@@ -79,7 +79,7 @@ final class TcpEndpoint implements Endpoint
                     {
                         _port = Integer.parseInt(argument);
                     }
-                    catch (NumberFormatException ex)
+                    catch(NumberFormatException ex)
                     {
                         throw new Ice.EndpointParseException();
                     }
@@ -98,7 +98,7 @@ final class TcpEndpoint implements Endpoint
                     {
                         _timeout = Integer.parseInt(argument);
                     }
-                    catch (NumberFormatException ex)
+                    catch(NumberFormatException ex)
                     {
                         throw new Ice.EndpointParseException();
                     }
@@ -292,7 +292,7 @@ final class TcpEndpoint implements Endpoint
         {
             tcpAcceptor = (TcpAcceptor)acceptor;
         }
-        catch (ClassCastException ex)
+        catch(ClassCastException ex)
         {
             return false;
         }
@@ -323,7 +323,7 @@ final class TcpEndpoint implements Endpoint
         {
             p = (TcpEndpoint)obj;
         }
-        catch (ClassCastException ex)
+        catch(ClassCastException ex)
         {
             return 1;
         }

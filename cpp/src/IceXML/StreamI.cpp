@@ -183,7 +183,7 @@ IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::ostrea
     {
          XMLPlatformUtils::Initialize();
     }
-    catch (const XMLException& ex)
+    catch(const XMLException& ex)
     {
 	string err = "xerces: initialize failed: ";
 	err += toString(ex.getMessage());
@@ -207,7 +207,7 @@ IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::istrea
     {
          XMLPlatformUtils::Initialize();
     }
-    catch (const XMLException& ex)
+    catch(const XMLException& ex)
     {
 	string err = "xerces: initialize failed: ";
 	err += toString(ex.getMessage());
@@ -265,14 +265,14 @@ IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::istrea
             errorsOccured = true;
 	}
     }
-    catch (const XMLException& ex)
+    catch(const XMLException& ex)
     {
 	ostringstream os;
 	os << "xerces: parsing error: " << toString(ex.getMessage());
 	logger->error(os.str());
         errorsOccured = true;
     }
-    catch (const DOM_DOMException& ex)
+    catch(const DOM_DOMException& ex)
     {
 	ostringstream os;
 	os << "xerces: DOM parsing error: " << toString(ex.msg);

@@ -165,7 +165,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& entryPoint, co
     {
         info.plugin = factory(_instance->communicator(), name, args);
     }
-    catch (const Exception& ex)
+    catch(const Exception& ex)
     {
         //
         // Do NOT propagate the exception from the entry point,

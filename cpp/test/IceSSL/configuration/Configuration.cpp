@@ -102,7 +102,7 @@ testContextWithConfig(const Ice::CommunicatorPtr& communicator,
             std::cout << "ok" << std::endl;
         }
     }
-    catch (const IceSSL::ConfigurationLoadingException&)
+    catch(const IceSSL::ConfigurationLoadingException&)
     {
         //
         // Depending on the context type, and if we supplied
@@ -151,7 +151,7 @@ testContextWithConfig(const Ice::CommunicatorPtr& communicator,
             }
         }
     }
-    catch (const LocalException&)
+    catch(const LocalException&)
     {
         //
         // Any other exception is bad.

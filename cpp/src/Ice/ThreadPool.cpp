@@ -143,7 +143,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, bool server) :
 	    _threads.push_back(thread->start());
 	}
     }
-    catch (const IceUtil::Exception& ex)
+    catch(const IceUtil::Exception& ex)
     {
 	{
 	    Error out(_instance->logger());
@@ -498,11 +498,11 @@ IceInternal::ThreadPool::run()
 		{
 		    read(handler);
 		}
-		catch (const TimeoutException&) // Expected.
+		catch(const TimeoutException&) // Expected.
 		{
 		    goto repeatSelect;
 		}
-		catch (const LocalException& ex)
+		catch(const LocalException& ex)
 		{
 		    handler->exception(ex);
 		    goto repeatSelect;
@@ -586,7 +586,7 @@ IceInternal::ThreadPool::EventHandlerThread::run()
     {
 	_pool->run();
     }
-    catch (const Exception& ex)
+    catch(const Exception& ex)
     {	
 	Error out(_pool->_instance->logger());
 	out << "exception in thread pool:\n" << ex;

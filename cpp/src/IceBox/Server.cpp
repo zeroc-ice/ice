@@ -66,7 +66,7 @@ main(int argc, char* argv[])
         serviceManager = serviceManagerImpl;
         status = serviceManagerImpl->run();
     }
-    catch (const Exception& ex)
+    catch(const Exception& ex)
     {
         cerr << ex << endl;
         status = EXIT_FAILURE;
@@ -78,7 +78,7 @@ main(int argc, char* argv[])
         {
             communicator->destroy();
         }
-        catch (const Exception& ex)
+        catch(const Exception& ex)
         {
             cerr << ex << endl;
             status = EXIT_FAILURE;

@@ -151,7 +151,7 @@ IceInternal::Incoming::invoke(bool response)
 	    }
 	}
     }
-    catch (const LocationForward& ex)
+    catch(const LocationForward& ex)
     {
 	if(locator && servant)
 	{
@@ -168,7 +168,7 @@ IceInternal::Incoming::invoke(bool response)
 	    _os.write(ex._prx);
 	}
     }
-    catch (const ObjectNotExistException& ex)
+    catch(const ObjectNotExistException& ex)
     {
 	if(locator && servant)
 	{
@@ -190,7 +190,7 @@ IceInternal::Incoming::invoke(bool response)
 	// Rethrow, so that the caller can print a warning.
 	ex.ice_throw();
     }
-    catch (const FacetNotExistException& ex)
+    catch(const FacetNotExistException& ex)
     {
 	if(locator && servant)
 	{
@@ -212,7 +212,7 @@ IceInternal::Incoming::invoke(bool response)
 	// Rethrow, so that the caller can print a warning.
 	ex.ice_throw();
     }
-    catch (const OperationNotExistException& ex)
+    catch(const OperationNotExistException& ex)
     {
 	if(locator && servant)
 	{
@@ -234,7 +234,7 @@ IceInternal::Incoming::invoke(bool response)
 	// Rethrow, so that the caller can print a warning.
 	ex.ice_throw();
     }
-    catch (const LocalException& ex)
+    catch(const LocalException& ex)
     {
 	if(locator && servant)
 	{
@@ -253,7 +253,7 @@ IceInternal::Incoming::invoke(bool response)
 	// Rethrow, so that the caller can print a warning.
 	ex.ice_throw();
     }
-    catch (const UserException& ex)
+    catch(const UserException& ex)
     {
 	if(locator && servant)
 	{

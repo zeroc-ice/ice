@@ -259,7 +259,7 @@ public class BasicStream
         {
             _buf.position(start + sz);
         }
-        catch (IllegalArgumentException ex)
+        catch(IllegalArgumentException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -309,7 +309,7 @@ public class BasicStream
         {
             _buf.position(_buf.position() + sz);
         }
-        catch (IllegalArgumentException ex)
+        catch(IllegalArgumentException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -351,7 +351,7 @@ public class BasicStream
 		return (int)b;
 	    }
         }
-        catch (java.nio.BufferUnderflowException ex)
+        catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -373,7 +373,7 @@ public class BasicStream
             _buf.get(v);
             return v;
         }
-        catch (java.nio.BufferUnderflowException ex)
+        catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -401,7 +401,7 @@ public class BasicStream
         {
             return _buf.get();
         }
-        catch (java.nio.BufferUnderflowException ex)
+        catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -417,7 +417,7 @@ public class BasicStream
             _buf.get(v);
             return v;
         }
-        catch (java.nio.BufferUnderflowException ex)
+        catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -448,7 +448,7 @@ public class BasicStream
         {
             return _buf.get() == 1;
         }
-        catch (java.nio.BufferUnderflowException ex)
+        catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -467,7 +467,7 @@ public class BasicStream
             }
             return v;
         }
-        catch (java.nio.BufferUnderflowException ex)
+        catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -497,7 +497,7 @@ public class BasicStream
         {
             return _buf.getShort();
         }
-        catch (java.nio.BufferUnderflowException ex)
+        catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -515,7 +515,7 @@ public class BasicStream
             _buf.position(_buf.position() + sz * 2);
             return v;
         }
-        catch (java.nio.BufferUnderflowException ex)
+        catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -545,7 +545,7 @@ public class BasicStream
         {
             return _buf.getInt();
         }
-        catch (java.nio.BufferUnderflowException ex)
+        catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -563,7 +563,7 @@ public class BasicStream
             _buf.position(_buf.position() + sz * 4);
             return v;
         }
-        catch (java.nio.BufferUnderflowException ex)
+        catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -593,7 +593,7 @@ public class BasicStream
         {
             return _buf.getLong();
         }
-        catch (java.nio.BufferUnderflowException ex)
+        catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -611,7 +611,7 @@ public class BasicStream
             _buf.position(_buf.position() + sz * 8);
             return v;
         }
-        catch (java.nio.BufferUnderflowException ex)
+        catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -641,7 +641,7 @@ public class BasicStream
         {
             return _buf.getFloat();
         }
-        catch (java.nio.BufferUnderflowException ex)
+        catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -659,7 +659,7 @@ public class BasicStream
             _buf.position(_buf.position() + sz * 4);
             return v;
         }
-        catch (java.nio.BufferUnderflowException ex)
+        catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -689,7 +689,7 @@ public class BasicStream
         {
             return _buf.getDouble();
         }
-        catch (java.nio.BufferUnderflowException ex)
+        catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -707,7 +707,7 @@ public class BasicStream
             _buf.position(_buf.position() + sz * 8);
             return v;
         }
-        catch (java.nio.BufferUnderflowException ex)
+        catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -732,7 +732,7 @@ public class BasicStream
                     expand(arr.length);
                     _buf.put(arr);
                 }
-                catch (java.io.UnsupportedEncodingException ex)
+                catch(java.io.UnsupportedEncodingException ex)
                 {
                     assert(false);
                 }
@@ -800,12 +800,12 @@ public class BasicStream
                 }
                 return new String(_stringChars, 0, len);
             }
-            catch (java.io.UnsupportedEncodingException ex)
+            catch(java.io.UnsupportedEncodingException ex)
             {
                 assert(false);
                 return "";
             }
-            catch (java.nio.BufferUnderflowException ex)
+            catch(java.nio.BufferUnderflowException ex)
             {
                 throw new Ice.UnmarshalOutOfBoundsException();
             }
@@ -1000,7 +1000,7 @@ public class BasicStream
             {
                 factory.createAndThrow(id);
             }
-            catch (Ice.UserException ex)
+            catch(Ice.UserException ex)
             {
                 String[] arr = ex.__getExceptionIds();
                 for(int i = 0; !arr[i].equals("::Ice::UserException"); i++)
@@ -1078,7 +1078,7 @@ public class BasicStream
             {
                 return (Ice.Object)_class.newInstance();
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Ice.SystemException e = new Ice.SystemException();
                 e.initCause(ex);
@@ -1114,11 +1114,11 @@ public class BasicStream
                 _instance.servantFactoryManager().add(factory, id);
             }
         }
-        catch (ClassNotFoundException ex)
+        catch(ClassNotFoundException ex)
         {
             // Ignore
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             Ice.NoObjectFactoryException e = new Ice.NoObjectFactoryException();
             e.initCause(ex);
@@ -1143,11 +1143,11 @@ public class BasicStream
             {
                 throw (Ice.UserException)_class.newInstance();
             }
-            catch (Ice.UserException ex)
+            catch(Ice.UserException ex)
             {
                 throw ex;
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Ice.SystemException e = new Ice.SystemException();
                 e.initCause(ex);
@@ -1181,11 +1181,11 @@ public class BasicStream
             factory = new DynamicUserExceptionFactory(c);
             _instance.userExceptionFactoryManager().add(factory, id);
         }
-        catch (ClassNotFoundException ex)
+        catch(ClassNotFoundException ex)
         {
             // Ignore
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             Ice.NoUserExceptionFactoryException e = new Ice.NoUserExceptionFactoryException();
             e.initCause(ex);

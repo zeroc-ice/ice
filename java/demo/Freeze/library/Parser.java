@@ -271,7 +271,7 @@ class Parser
 	{
 	    _library.setEvictorSize(Integer.parseInt(s));
 	}
-	catch (NumberFormatException ex)
+	catch(NumberFormatException ex)
 	{
 	    error("not a number " + s);
 	}

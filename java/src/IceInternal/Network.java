@@ -57,7 +57,7 @@ public final class Network
             socket.setKeepAlive(true);
             return fd;
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
             Ice.SocketException se = new Ice.SocketException();
             se.initCause(ex);
@@ -80,7 +80,7 @@ public final class Network
             //socket.setKeepAlive(true);
             return fd;
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
             Ice.SocketException se = new Ice.SocketException();
             se.initCause(ex);
@@ -95,7 +95,7 @@ public final class Network
         {
             return java.nio.channels.DatagramChannel.open();
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
             Ice.SocketException se = new Ice.SocketException();
             se.initCause(ex);
@@ -110,7 +110,7 @@ public final class Network
         {
             fd.configureBlocking(block);
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
             Ice.SocketException se = new Ice.SocketException();
             se.initCause(ex);
@@ -127,7 +127,7 @@ public final class Network
             sock.bind(addr);
             return (java.net.InetSocketAddress)sock.getLocalSocketAddress();
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
             Ice.SocketException se = new Ice.SocketException();
             se.initCause(ex);
@@ -144,7 +144,7 @@ public final class Network
             sock.bind(addr);
             return (java.net.InetSocketAddress)sock.getLocalSocketAddress();
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
             Ice.SocketException se = new Ice.SocketException();
             se.initCause(ex);
@@ -182,19 +182,19 @@ public final class Network
                         Thread.sleep(delay);
                         timer += delay;
                     }
-                    catch (InterruptedException ex)
+                    catch(InterruptedException ex)
                     {
                     }
                 }
             }
         }
-        catch (java.net.ConnectException ex)
+        catch(java.net.ConnectException ex)
         {
             try
             {
                 fd.close();
             }
-            catch (java.io.IOException e)
+            catch(java.io.IOException e)
             {
                 // ignore
             }
@@ -202,13 +202,13 @@ public final class Network
             se.initCause(ex);
             throw se;
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
             try
             {
                 fd.close();
             }
-            catch (java.io.IOException e)
+            catch(java.io.IOException e)
             {
                 // ignore
             }
@@ -225,13 +225,13 @@ public final class Network
         {
             fd.connect(addr);
         }
-        catch (java.net.ConnectException ex)
+        catch(java.net.ConnectException ex)
         {
             try
             {
                 fd.close();
             }
-            catch (java.io.IOException e)
+            catch(java.io.IOException e)
             {
                 // ignore
             }
@@ -239,13 +239,13 @@ public final class Network
             se.initCause(ex);
             throw se;
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
             try
             {
                 fd.close();
             }
-            catch (java.io.IOException e)
+            catch(java.io.IOException e)
             {
                 // ignore
             }
@@ -298,11 +298,11 @@ public final class Network
 
                                 break;
                             }
-                            catch (java.io.InterruptedIOException ex)
+                            catch(java.io.InterruptedIOException ex)
                             {
                                 continue;
                             }
-                            catch (java.io.IOException ex)
+                            catch(java.io.IOException ex)
                             {
                                 Ice.SocketException se =
                                     new Ice.SocketException();
@@ -317,24 +317,24 @@ public final class Network
                         {
                             selector.close();
                         }
-                        catch (java.io.IOException ex)
+                        catch(java.io.IOException ex)
                         {
                             // Ignore
                         }
                     }
                 }
             }
-            catch (java.io.InterruptedIOException ex)
+            catch(java.io.InterruptedIOException ex)
             {
                 continue;
             }
-            catch (java.io.IOException ex)
+            catch(java.io.IOException ex)
             {
                 try
                 {
                     fd.close();
                 }
-                catch (java.io.IOException e)
+                catch(java.io.IOException e)
                 {
                     // Ignore
                 }
@@ -350,7 +350,7 @@ public final class Network
             socket.setTcpNoDelay(true);
             socket.setKeepAlive(true);
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
             Ice.SocketException se = new Ice.SocketException();
             se.initCause(ex);
@@ -368,7 +368,7 @@ public final class Network
             java.net.InetAddress addr = java.net.InetAddress.getByName(host);
             return new java.net.InetSocketAddress(addr, port);
         }
-        catch (java.net.UnknownHostException ex)
+        catch(java.net.UnknownHostException ex)
         {
             throw new Ice.DNSException();
         }
@@ -436,13 +436,13 @@ public final class Network
                 doConnect(sink, addr, -1);
                 fds.source = doAccept(fd, -1);
             }
-            catch (Ice.LocalException ex)
+            catch(Ice.LocalException ex)
             {
                 try
                 {
                     fds.sink.close();
                 }
-                catch (java.io.IOException e)
+                catch(java.io.IOException e)
                 {
                 }
                 throw ex;
@@ -454,7 +454,7 @@ public final class Network
             {
                 fd.close();
             }
-            catch (java.io.IOException ex)
+            catch(java.io.IOException ex)
             {
             }
         }

@@ -167,7 +167,7 @@ Glacier::MissiveQueue::run()
 		    (*p)->invoke();
 		    proxies.push_back(proxy);
 		}
-		catch (const Ice::Exception& ex)
+		catch(const Ice::Exception& ex)
 		{
 		    if(_traceLevel >= 1)
 		    {
@@ -211,7 +211,7 @@ Glacier::MissiveQueue::run()
 		IceUtil::ThreadControl::sleep(_sleepTime);
 	    }
         }
-        catch (const Ice::Exception& ex)
+        catch(const Ice::Exception& ex)
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
             

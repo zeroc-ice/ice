@@ -51,27 +51,27 @@ NL	[\n]
     do
     {
 	c = yyinput();
-	if (c == '\n')
+	if(c == '\n')
 	{
 	    parser->nextLine();
 	}
     }
-    while (c != '\n' && c != EOF);
+    while(c != '\n' && c != EOF);
 }
 
 "/*" {
     // C-style comment
-    while (true)
+    while(true)
     {
 	int c = yyinput();
-	if (c == '\n')
+	if(c == '\n')
 	{
 	    parser->nextLine();
 	}
-	else if (c == '*')
+	else if(c == '*')
 	{
 	    int next = yyinput();
-	    if (next == '/')
+	    if(next == '/')
 	    {
 		break;
 	    }
@@ -80,7 +80,7 @@ NL	[\n]
 		unput(next);
 	    }
 	}
-	else if (c == EOF)
+	else if(c == EOF)
 	{
 	    parser->warning("EOF in comment");
 	    break;
@@ -126,13 +126,13 @@ NL	[\n]
 
 {WS}*(\\{WS}*{NL})? {
     int len = strlen(yytext);
-    for (int i = 0; i < len; ++i)
+    for(int i = 0; i < len; ++i)
     {
-	if (yytext[i] == '\\')
+	if(yytext[i] == '\\')
 	{
 	    parser->continueLine();
 	}
-	else if (yytext[i] == '\n')
+	else if(yytext[i] == '\n')
 	{
 	    parser->nextLine();
 	}
@@ -141,9 +141,9 @@ NL	[\n]
 
 {NL}|; {
     int len = strlen(yytext);
-    for (int i = 0; i < len; ++i)
+    for(int i = 0; i < len; ++i)
     {
-	if (yytext[i] == '\n')
+	if(yytext[i] == '\n')
 	{
 	    parser->nextLine();
 	}
@@ -154,27 +154,27 @@ NL	[\n]
 \" {
     // "..."-type strings
     string s;
-    while (true)
+    while(true)
     {
 	char c = static_cast<char>(yyinput());
-	if (c == '"')
+	if(c == '"')
 	{
 	    break;
 	}
-	else if (c == EOF)
+	else if(c == EOF)
 	{
 	    parser->warning("EOF in string");
 	    break;
 	}
-	else if (c == '\n')
+	else if(c == '\n')
 	{
 	    s += c;
 	    parser->nextLine();
 	}
-	else if (c == '\\')
+	else if(c == '\\')
 	{
 	    char next = static_cast<char>(yyinput());
-	    switch (next)
+	    switch(next)
 	    {
 		case '\\':
 		case '"':
@@ -233,19 +233,19 @@ NL	[\n]
 \' {
     // '...'-type strings
     string s;
-    while (true)
+    while(true)
     {
 	char c = static_cast<char>(yyinput());
-	if (c == '\'')
+	if(c == '\'')
 	{
 	    break;
 	}
-	else if (c == EOF)
+	else if(c == EOF)
 	{
 	    parser->warning("EOF in string");
 	    break;
 	}
-	else if (c == '\n')
+	else if(c == '\n')
 	{
 	    s += c;
 	    parser->nextLine();
@@ -264,14 +264,14 @@ NL	[\n]
     // Simple strings
     string s;
     s += yytext[0];
-    while (true)
+    while(true)
     {
 	char c = static_cast<char>(yyinput());
-	if (c == EOF)
+	if(c == EOF)
 	{
 	    break;
 	}
-	else if (isspace(c) || c == ';')
+	else if(isspace(c) || c == ';')
 	{
 	    unput(c);
 	    break;

@@ -65,7 +65,7 @@ public class AllTests
                     obj.abort();
                     test(false);
                 }
-                catch (Ice.SocketException ex)
+                catch(Ice.SocketException ex)
                 {
                     System.out.println("ok");
                 }
@@ -80,7 +80,7 @@ public class AllTests
                     obj.nonmutatingAbort();
                     test(false);
                 }
-                catch (Ice.SocketException ex)
+                catch(Ice.SocketException ex)
                 {
                     System.out.println("ok");
                 }
@@ -99,7 +99,7 @@ public class AllTests
             obj.ice_ping();
             test(false);
         }
-        catch (Ice.SocketException ex)
+        catch(Ice.SocketException ex)
         {
             System.out.println("ok");
         }

@@ -47,7 +47,7 @@ final class CallbackReceiverI extends CallbackReceiver
                     return false;
                 }
             }
-            catch (InterruptedException ex)
+            catch(InterruptedException ex)
             {
             }
         }

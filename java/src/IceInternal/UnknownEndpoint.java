@@ -190,7 +190,7 @@ final class UnknownEndpoint implements Endpoint
         {
             p = (UnknownEndpoint)obj;
         }
-        catch (ClassCastException ex)
+        catch(ClassCastException ex)
         {
             return 1;
         }

@@ -53,7 +53,7 @@ public final class Direct
                 }
             }
         }
-        catch (RuntimeException ex)
+        catch(RuntimeException ex)
         {
             if(_locator != null && _servant != null)
             {

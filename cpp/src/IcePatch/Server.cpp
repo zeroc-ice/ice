@@ -178,18 +178,18 @@ IcePatch::Updater::run()
 	    assert(topDesc);
 	    cleanup(topDesc->directory->getContents());
 	}
-	catch (const FileAccessException& ex)
+	catch(const FileAccessException& ex)
 	{
 	    Error out(_adapter->getCommunicator()->getLogger());
 	    out << "exception during update:\n" << ex << ":\n" << ex.reason;
 	}
-	catch (const BusyException&)
+	catch(const BusyException&)
 	{
 	    //
 	    // Just loop if we're busy.
 	    //
 	}
-	catch (const ConnectFailedException&)
+	catch(const ConnectFailedException&)
 	{
 	    //
 	    // This exception can be raised if the adapter is shutdown
@@ -198,7 +198,7 @@ IcePatch::Updater::run()
 	    //
 	    break;
 	}
-	catch (const Exception& ex)
+	catch(const Exception& ex)
 	{
 	    Error out(_adapter->getCommunicator()->getLogger());
 	    out << "exception during update:\n" << ex;

@@ -56,7 +56,7 @@ public class OutputBase
             java.io.BufferedWriter bw = new java.io.BufferedWriter(fw);
             _out = new java.io.PrintWriter(bw);
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
         }
     }

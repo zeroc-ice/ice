@@ -356,7 +356,7 @@ IceInternal::Reference::changeTimeout(int timeout) const
 	    newRouterInfo = instance->routerManager()->get(newRouter);
 	    newRouterInfo->setClientProxy(newClientProxy);
 	}
-	catch (const NoEndpointException&)
+	catch(const NoEndpointException&)
 	{
 	    // Ignore non-existing client proxies.
 	}

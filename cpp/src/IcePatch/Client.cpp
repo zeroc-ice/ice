@@ -131,12 +131,12 @@ IcePatch::Client::run(int argc, char* argv[])
 		{
 		    router = starter->startRouter(id, pw, privateKey, publicKey, routerCert);
 		}
-		catch (const Glacier::CannotStartRouterException& ex)
+		catch(const Glacier::CannotStartRouterException& ex)
 		{
 		    cerr << appName() << ": " << ex << ":\n" << ex.reason << endl;
 		    return EXIT_FAILURE;
 		}
-		catch (const Glacier::InvalidPasswordException&)
+		catch(const Glacier::InvalidPasswordException&)
 		{
 		    cout << "password is invalid, try again" << endl;
 		}
@@ -232,7 +232,7 @@ IcePatch::Client::run(int argc, char* argv[])
 	    patch(topDesc->directory->getContents(), "");
 	}
     }
-    catch (const FileAccessException& ex)
+    catch(const FileAccessException& ex)
     {
 	cout << endl; // There might still be a non-terminated line on cout.
 	cerr << appName() << ": " << ex << ":\n" << ex.reason << endl;
@@ -242,7 +242,7 @@ IcePatch::Client::run(int argc, char* argv[])
 	}
 	return EXIT_FAILURE;
     }
-    catch (const BusyException&)
+    catch(const BusyException&)
     {
 	cout << endl; // There might still be a non-terminated line on cout.
 	cerr << appName() << ": patching service busy, try again later" << endl;

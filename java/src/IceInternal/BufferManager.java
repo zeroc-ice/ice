@@ -28,7 +28,7 @@ final class BufferManager
                 //buf = java.nio.ByteBuffer.allocateDirect(size);
                 buf = java.nio.ByteBuffer.allocate(size);
             }
-            catch (OutOfMemoryError ex)
+            catch(OutOfMemoryError ex)
             {
                 Ice.MemoryLimitException e = new Ice.MemoryLimitException();
                 e.initCause(ex);
@@ -50,7 +50,7 @@ final class BufferManager
                 //buf = java.nio.ByteBuffer.allocateDirect(size);
                 buf = java.nio.ByteBuffer.allocate(size);
             }
-            catch (OutOfMemoryError ex)
+            catch(OutOfMemoryError ex)
             {
                 Ice.MemoryLimitException e = new Ice.MemoryLimitException();
                 e.initCause(ex);

@@ -129,7 +129,7 @@ class Twoways
                 c2.value.opVoid();
                 test(false);
             }
-            catch (Ice.ObjectNotExistException ex)
+            catch(Ice.ObjectNotExistException ex)
             {
             }
 

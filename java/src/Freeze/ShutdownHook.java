@@ -24,7 +24,7 @@ public class ShutdownHook extends Thread
         {
             _env.close();
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             ex.printStackTrace();
         }

@@ -65,7 +65,7 @@ class PropertiesI implements Properties
 	{
 	    return Integer.parseInt(result);
 	}
-	catch (NumberFormatException ex)
+	catch(NumberFormatException ex)
 	{
 	    return 0;
 	}
@@ -145,7 +145,7 @@ class PropertiesI implements Properties
             java.io.BufferedReader br = new java.io.BufferedReader(fr);
             parse(br);
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
             SystemException se = new SystemException();
             se.initCause(ex); // Exception chaining
@@ -219,7 +219,7 @@ class PropertiesI implements Properties
                 parseLine(line);
             }
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
             SystemException se = new SystemException();
             se.initCause(ex); // Exception chaining

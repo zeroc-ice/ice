@@ -153,7 +153,7 @@ public class Incoming
                 }
             }
         }
-        catch (Ice.LocationForward ex)
+        catch(Ice.LocationForward ex)
         {
             if(locator != null && servant != null)
             {
@@ -170,7 +170,7 @@ public class Incoming
                 _os.writeProxy(ex._prx);
             }
         }
-        catch (Ice.ObjectNotExistException ex)
+        catch(Ice.ObjectNotExistException ex)
         {
             if(locator != null && servant != null)
             {
@@ -192,7 +192,7 @@ public class Incoming
 	    // Rethrow, so that the caller can print a warning.
             throw ex;
         }
-        catch (Ice.FacetNotExistException ex)
+        catch(Ice.FacetNotExistException ex)
         {
             if(locator != null && servant != null)
             {
@@ -214,7 +214,7 @@ public class Incoming
 	    // Rethrow, so that the caller can print a warning.
             throw ex;
         }
-        catch (Ice.OperationNotExistException ex)
+        catch(Ice.OperationNotExistException ex)
         {
             if(locator != null && servant != null)
             {
@@ -236,7 +236,7 @@ public class Incoming
 	    // Rethrow, so that the caller can print a warning.
             throw ex;
         }
-        catch (Ice.LocalException ex)
+        catch(Ice.LocalException ex)
         {
             if(locator != null && servant != null)
             {
@@ -257,7 +257,7 @@ public class Incoming
             throw ex;
         }
         /* Not possible in Java - UserExceptions are checked exceptions
-        catch (Ice.UserException ex)
+        catch(Ice.UserException ex)
         {
             if(locator != null && servant != null)
             {
@@ -277,7 +277,7 @@ public class Incoming
             throw ex;
         }
         */
-        catch (RuntimeException ex)
+        catch(RuntimeException ex)
         {
             if(locator != null && servant != null)
             {

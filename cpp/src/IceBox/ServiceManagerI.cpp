@@ -122,11 +122,11 @@ IceBox::ServiceManagerI::run()
             {
                 r->second.service->start();
             }
-            catch (const FailureException&)
+            catch(const FailureException&)
             {
                 throw;
             }
-            catch (const Exception& ex)
+            catch(const Exception& ex)
             {
                 FailureException e;
                 e.reason = "ServiceManager: exception in start for service " + r->first + ": " + ex.ice_name();
@@ -164,14 +164,14 @@ IceBox::ServiceManagerI::run()
         //
         stopAll();
     }
-    catch (const FailureException& ex)
+    catch(const FailureException& ex)
     {
         Error out(_logger);
         out << ex.reason;
         stopAll();
         return EXIT_FAILURE;
     }
-    catch (const Exception& ex)
+    catch(const Exception& ex)
     {
         Error out(_logger);
         out << "ServiceManager: " << ex;
@@ -251,7 +251,7 @@ IceBox::ServiceManagerI::init(const string& service, const string& entryPoint, c
     {
         info.service = factory(_communicator);
     }
-    catch (const Exception& ex)
+    catch(const Exception& ex)
     {
         FailureException e;
         e.reason = "ServiceManager: exception in entry point `" + entryPoint + "': " + ex.ice_name();
@@ -273,11 +273,11 @@ IceBox::ServiceManagerI::init(const string& service, const string& entryPoint, c
         info.library = library;
         _services[service] = info;
     }
-    catch (const FailureException&)
+    catch(const FailureException&)
     {
         throw;
     }
-    catch (const Exception& ex)
+    catch(const Exception& ex)
     {
         FailureException e;
         e.reason = "ServiceManager: exception while initializing service " + service + ": " + ex.ice_name();
@@ -299,7 +299,7 @@ IceBox::ServiceManagerI::stop(const string& service)
     {
         info.service->stop();
     }
-    catch (const Exception& ex)
+    catch(const Exception& ex)
     {
         //
         // Release the service before the library
@@ -329,7 +329,7 @@ IceBox::ServiceManagerI::stopAll()
         {
             stop((*r++).first);
         }
-        catch (const FailureException& ex)
+        catch(const FailureException& ex)
         {
             Error out(_logger);
             out << ex.reason;

@@ -141,7 +141,7 @@ public final class Connection extends EventHandler
                 TraceUtil.traceRequest("sending request", os, _logger, _traceLevels);
                 _transceiver.write(os, _endpoint.timeout());
             }
-            catch (Ice.LocalException ex)
+            catch(Ice.LocalException ex)
             {
                 setState(StateClosed, ex);
                 throw ex;
@@ -254,7 +254,7 @@ public final class Connection extends EventHandler
                 _batchStream.destroy();
                 _batchStream = new BasicStream(_instance);
             }
-            catch (Ice.LocalException ex)
+            catch(Ice.LocalException ex)
             {
                 setState(StateClosed, ex);
                 throw ex;
@@ -467,7 +467,7 @@ public final class Connection extends EventHandler
                     }
                 }
             }
-            catch (Ice.LocalException ex)
+            catch(Ice.LocalException ex)
             {
                 setState(StateClosed, ex);
                 return;
@@ -512,7 +512,7 @@ public final class Connection extends EventHandler
                         {
                             in.invoke(response);
                         }
-                        catch (Ice.LocalException ex)
+                        catch(Ice.LocalException ex)
                         {
                             _mutex.lock();
                             reclaimIncoming(in);
@@ -529,7 +529,7 @@ public final class Connection extends EventHandler
                                 _mutex.unlock();
                             }
                         }
-                        catch (Exception ex)
+                        catch(Exception ex)
                         {
                             _mutex.lock();
                             reclaimIncoming(in);
@@ -549,7 +549,7 @@ public final class Connection extends EventHandler
                     }
                     while(batch && is.pos() < is.size());
                 }
-                catch (Ice.LocalException ex)
+                catch(Ice.LocalException ex)
                 {
                     _mutex.lock();
                     reclaimIncoming(in);
@@ -594,7 +594,7 @@ public final class Connection extends EventHandler
                                 closeConnection();
                             }
                         }
-                        catch (Ice.LocalException ex)
+                        catch(Ice.LocalException ex)
                         {
                             setState(StateClosed, ex);
                             return;
@@ -872,7 +872,7 @@ public final class Connection extends EventHandler
             {
                 closeConnection();
             }
-            catch (Ice.LocalException ex)
+            catch(Ice.LocalException ex)
             {
                 setState(StateClosed, ex);
             }

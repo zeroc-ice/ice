@@ -67,7 +67,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	thrower->throwAasA(1);
 	test(false);
     }
-    catch (const A& ex)
+    catch(const A& ex)
     {
 	test(ex.a == 1);
     }
@@ -81,7 +81,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	thrower->throwAorDasAorD(1);
 	test(false);
     }
-    catch (const A& ex)
+    catch(const A& ex)
     {
 	test(ex.a == 1);
     }
@@ -95,7 +95,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	thrower->throwAorDasAorD(-1);
 	test(false);
     }
-    catch (const D& ex)
+    catch(const D& ex)
     {
 	test(ex.d == -1);
     }
@@ -109,7 +109,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	thrower->throwBasB(1, 2);
 	test(false);
     }
-    catch (const B& ex)
+    catch(const B& ex)
     {
 	test(ex.a == 1);
 	test(ex.b == 2);
@@ -124,7 +124,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	thrower->throwCasC(1, 2, 3);
 	test(false);
     }
-    catch (const C& ex)
+    catch(const C& ex)
     {
 	test(ex.a == 1);
 	test(ex.b == 2);
@@ -144,7 +144,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	thrower->throwBasB(1, 2);
 	test(false);
     }
-    catch (const A& ex)
+    catch(const A& ex)
     {
 	test(ex.a == 1);
     }
@@ -158,7 +158,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	thrower->throwCasC(1, 2, 3);
 	test(false);
     }
-    catch (const B& ex)
+    catch(const B& ex)
     {
 	test(ex.a == 1);
 	test(ex.b == 2);
@@ -179,7 +179,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	    thrower->throwBasA(1, 2);
 	    test(false);
 	}
-	catch (const Ice::NoUserExceptionFactoryException&)
+	catch(const Ice::NoUserExceptionFactoryException&)
 	{
 	}
 	catch (...)
@@ -192,7 +192,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	    thrower->throwCasA(1, 2, 3);
 	    test(false);
 	}
-	catch (const Ice::NoUserExceptionFactoryException&)
+	catch(const Ice::NoUserExceptionFactoryException&)
 	{
 	}
 	catch (...)
@@ -205,7 +205,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	    thrower->throwCasB(1, 2, 3);
 	    test(false);
 	}
-	catch (const Ice::NoUserExceptionFactoryException&)
+	catch(const Ice::NoUserExceptionFactoryException&)
 	{
 	}
 	catch (...)
@@ -233,7 +233,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	thrower->throwBasA(1, 2);
 	test(false);
     }
-    catch (const B& ex)
+    catch(const B& ex)
     {
 	test(ex.a == 1);
 	test(ex.b == 2);
@@ -248,7 +248,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	thrower->throwCasA(1, 2, 3);
 	test(false);
     }
-    catch (const C& ex)
+    catch(const C& ex)
     {
 	test(ex.a == 1);
     	test(ex.b == 2);
@@ -264,7 +264,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	thrower->throwCasB(1, 2, 3);
 	test(false);
     }
-    catch (const C& ex)
+    catch(const C& ex)
     {
 	test(ex.a == 1);
 	test(ex.b == 2);
@@ -286,10 +286,10 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             thrower->throwUndeclaredA(1);
             test(false);
         }
-        catch (const Ice::UnknownUserException&)
+        catch(const Ice::UnknownUserException&)
         {
         }
-        catch (const Ice::Exception& ex)
+        catch(const Ice::Exception& ex)
         {
             cout << ex << endl;
             test(false);
@@ -304,7 +304,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             thrower->throwUndeclaredB(1, 2);
             test(false);
         }
-        catch (const Ice::UnknownUserException&)
+        catch(const Ice::UnknownUserException&)
         {
         }
         catch (...)
@@ -317,7 +317,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             thrower->throwUndeclaredC(1, 2, 3);
             test(false);
         }
-        catch (const Ice::UnknownUserException&)
+        catch(const Ice::UnknownUserException&)
         {
         }
         catch (...)
@@ -337,7 +337,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	thrower2->ice_ping();
 	test(false);
     }
-    catch (const Ice::ObjectNotExistException& ex)
+    catch(const Ice::ObjectNotExistException& ex)
     {
 	test(ex.identity == id);
     }
@@ -356,7 +356,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	thrower2->ice_ping();
 	test(false);
     }
-    catch (const Ice::FacetNotExistException& ex)
+    catch(const Ice::FacetNotExistException& ex)
     {
 	test(ex.facet == "no such facet");
     }
@@ -375,7 +375,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	thrower2->noSuchOperation();
 	test(false);
     }
-    catch (const Ice::OperationNotExistException& ex)
+    catch(const Ice::OperationNotExistException& ex)
     {
 	test(ex.operation == "noSuchOperation");
     }
@@ -393,7 +393,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	thrower->throwLocalException();
 	test(false);
     }
-    catch (const Ice::UnknownLocalException&)
+    catch(const Ice::UnknownLocalException&)
     {
     }
     catch (...)
@@ -410,7 +410,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	thrower->throwNonIceException();
 	test(false);
     }
-    catch (const Ice::UnknownException&)
+    catch(const Ice::UnknownException&)
     {
     }
     catch (...)

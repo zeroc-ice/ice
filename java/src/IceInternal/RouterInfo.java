@@ -28,7 +28,7 @@ public final class RouterInfo
         {
             rhs = (RouterInfo)obj;
         }
-        catch (ClassCastException ex)
+        catch(ClassCastException ex)
         {
             return false;
         }

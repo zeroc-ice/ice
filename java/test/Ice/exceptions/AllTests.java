@@ -76,11 +76,11 @@ public class AllTests
             thrower.throwAasA(1);
             test(false);
         }
-        catch (A ex)
+        catch(A ex)
         {
             test(ex.a == 1);
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             test(false);
         }
@@ -90,11 +90,11 @@ public class AllTests
             thrower.throwAorDasAorD(1);
             test(false);
         }
-        catch (A ex)
+        catch(A ex)
         {
             test(ex.a == 1);
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             test(false);
         }
@@ -104,11 +104,11 @@ public class AllTests
             thrower.throwAorDasAorD(-1);
             test(false);
         }
-        catch (D ex)
+        catch(D ex)
         {
             test(ex.d == -1);
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             test(false);
         }
@@ -118,12 +118,12 @@ public class AllTests
             thrower.throwBasB(1, 2);
             test(false);
         }
-        catch (B ex)
+        catch(B ex)
         {
             test(ex.a == 1);
             test(ex.b == 2);
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             test(false);
         }
@@ -133,13 +133,13 @@ public class AllTests
             thrower.throwCasC(1, 2, 3);
             test(false);
         }
-        catch (C ex)
+        catch(C ex)
         {
             test(ex.a == 1);
             test(ex.b == 2);
             test(ex.c == 3);
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             test(false);
         }
@@ -154,11 +154,11 @@ public class AllTests
             thrower.throwBasB(1, 2);
             test(false);
         }
-        catch (A ex)
+        catch(A ex)
         {
             test(ex.a == 1);
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             test(false);
         }
@@ -168,12 +168,12 @@ public class AllTests
             thrower.throwCasC(1, 2, 3);
             test(false);
         }
-        catch (B ex)
+        catch(B ex)
         {
             test(ex.a == 1);
             test(ex.b == 2);
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             test(false);
         }
@@ -194,11 +194,11 @@ public class AllTests
                 thrower.throwBasA(1, 2);
                 test(false);
             }
-            catch (Ice.NoUserExceptionFactoryException ex)
+            catch(Ice.NoUserExceptionFactoryException ex)
             {
                 test(false);
             }
-            catch (A ex)
+            catch(A ex)
             {
                 assert(ex instanceof B);
             }
@@ -208,10 +208,10 @@ public class AllTests
                 thrower.throwCasA(1, 2, 3);
                 test(false);
             }
-            catch (Ice.NoUserExceptionFactoryException ex)
+            catch(Ice.NoUserExceptionFactoryException ex)
             {
             }
-            catch (A ex)
+            catch(A ex)
             {
                 assert(ex instanceof C);
             }
@@ -221,11 +221,11 @@ public class AllTests
                 thrower.throwCasB(1, 2, 3);
                 test(false);
             }
-            catch (Ice.NoUserExceptionFactoryException ex)
+            catch(Ice.NoUserExceptionFactoryException ex)
             {
                 test(false);
             }
-            catch (B ex)
+            catch(B ex)
             {
                 assert(ex instanceof C);
             }
@@ -252,12 +252,12 @@ public class AllTests
             thrower.throwBasA(1, 2);
             test(false);
         }
-        catch (B ex)
+        catch(B ex)
         {
             test(ex.a == 1);
             test(ex.b == 2);
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             test(false);
         }
@@ -267,13 +267,13 @@ public class AllTests
             thrower.throwCasA(1, 2, 3);
             test(false);
         }
-        catch (C ex)
+        catch(C ex)
         {
             test(ex.a == 1);
             test(ex.b == 2);
             test(ex.c == 3);
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             test(false);
         }
@@ -283,13 +283,13 @@ public class AllTests
             thrower.throwCasB(1, 2, 3);
             test(false);
         }
-        catch (C ex)
+        catch(C ex)
         {
             test(ex.a == 1);
             test(ex.b == 2);
             test(ex.c == 3);
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             test(false);
         }
@@ -306,10 +306,10 @@ public class AllTests
                 thrower.throwUndeclaredA(1);
                 test(false);
             }
-            catch (Ice.UnknownUserException ex)
+            catch(Ice.UnknownUserException ex)
             {
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 test(false);
             }
@@ -319,10 +319,10 @@ public class AllTests
                 thrower.throwUndeclaredB(1, 2);
                 test(false);
             }
-            catch (Ice.UnknownUserException ex)
+            catch(Ice.UnknownUserException ex)
             {
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 test(false);
             }
@@ -332,10 +332,10 @@ public class AllTests
                 thrower.throwUndeclaredC(1, 2, 3);
                 test(false);
             }
-            catch (Ice.UnknownUserException ex)
+            catch(Ice.UnknownUserException ex)
             {
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 test(false);
             }
@@ -353,11 +353,11 @@ public class AllTests
 	    thrower2.ice_ping();
 	    test(false);
         }
-        catch (Ice.ObjectNotExistException ex)
+        catch(Ice.ObjectNotExistException ex)
         {
 	    test(ex.identity.equals(id));
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             test(false);
         }
@@ -373,11 +373,11 @@ public class AllTests
 	    thrower2.ice_ping();
 	    test(false);
         }
-        catch (Ice.FacetNotExistException ex)
+        catch(Ice.FacetNotExistException ex)
         {
 	    test(ex.facet.equals("no such facet"));
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             test(false);
         }
@@ -393,11 +393,11 @@ public class AllTests
 	    thrower2.noSuchOperation();
 	    test(false);
         }
-        catch (Ice.OperationNotExistException ex)
+        catch(Ice.OperationNotExistException ex)
         {
 	    test(ex.operation.equals("noSuchOperation"));
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             test(false);
         }
@@ -412,10 +412,10 @@ public class AllTests
             thrower.throwLocalException();
             test(false);
         }
-        catch (Ice.UnknownLocalException ex)
+        catch(Ice.UnknownLocalException ex)
         {
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             test(false);
         }
@@ -430,10 +430,10 @@ public class AllTests
             thrower.throwNonIceException();
             test(false);
         }
-        catch (Ice.UnknownException ex)
+        catch(Ice.UnknownException ex)
         {
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             test(false);
         }

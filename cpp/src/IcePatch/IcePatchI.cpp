@@ -87,7 +87,7 @@ IcePatch::DirectoryI::getContents(const Ice::Current& current)
 	    }
 	}
     }
-    catch (const IceUtil::LockedException&)
+    catch(const IceUtil::LockedException&)
     {
 	throw BusyException();
     }
@@ -105,7 +105,7 @@ IcePatch::DirectoryI::getContents(const Ice::Current& current)
 	{
 	    result.push_back(file->describe());
 	}
-	catch (const ObjectNotExistException&)
+	catch(const ObjectNotExistException&)
 	{
 	    //
 	    // Ignore. This can for example happen if the file
@@ -152,7 +152,7 @@ IcePatch::RegularI::describe(const Ice::Current& current)
 	desc->md5 = getMD5(path);
 	return desc;
     }
-    catch (const IceUtil::LockedException&)
+    catch(const IceUtil::LockedException&)
     {
 	throw BusyException();
     }
@@ -191,7 +191,7 @@ IcePatch::RegularI::getBZ2Size(const Ice::Current& current)
 	
 	return infoBZ2.size;
     }
-    catch (const IceUtil::LockedException&)
+    catch(const IceUtil::LockedException&)
     {
 	throw BusyException();
     }
@@ -225,7 +225,7 @@ IcePatch::RegularI::getBZ2(Ice::Int pos, Ice::Int num, const Ice::Current& curre
 	
 	return IcePatch::getBZ2(path, pos, num);
     }
-    catch (const IceUtil::LockedException&)
+    catch(const IceUtil::LockedException&)
     {
 	throw BusyException();
     }
@@ -259,7 +259,7 @@ IcePatch::RegularI::getBZ2MD5(Ice::Int size, const Ice::Current& current)
 	
 	return IcePatch::getPartialMD5(path + ".bz2", size);
     }
-    catch (const IceUtil::LockedException&)
+    catch(const IceUtil::LockedException&)
     {
 	throw BusyException();
     }

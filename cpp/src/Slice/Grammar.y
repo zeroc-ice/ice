@@ -120,7 +120,7 @@ definitions
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
-    if (contained && !metaData->v.empty())
+    if(contained && !metaData->v.empty())
     {
 	contained->setMetaData(metaData->v);
     }
@@ -267,7 +267,7 @@ exception_exports
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
-    if (contained && !metaData->v.empty())
+    if(contained && !metaData->v.empty())
     {
 	contained->setMetaData(metaData->v);
     }
@@ -331,7 +331,7 @@ struct_def
     //
     StructPtr st = StructPtr::dynamicCast($$);
     assert(st);
-    if (st->dataMembers().empty())
+    if(st->dataMembers().empty())
     {
     	unit->error("structs must have at least one member");
     }
@@ -352,7 +352,7 @@ struct_exports
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
-    if (contained && !metaData->v.empty())
+    if(contained && !metaData->v.empty())
     {
 	contained->setMetaData(metaData->v);
     }
@@ -404,7 +404,7 @@ class_def
     ContainerPtr cont = unit->currentContainer();
     ClassDefPtr base = ClassDefPtr::dynamicCast($3);
     ClassListTokPtr bases = ClassListTokPtr::dynamicCast($4);
-    if (base)
+    if(base)
     {
 	bases->v.push_front(base);
     }
@@ -492,7 +492,7 @@ class_exports
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
-    if (contained && !metaData->v.empty())
+    if(contained && !metaData->v.empty())
     {
 	contained->setMetaData(metaData->v);
     }
@@ -567,7 +567,7 @@ interface_def
     //
     ClassDefPtr cd = ClassDefPtr::dynamicCast($$);
     assert(cd);
-    if (cd->operations().empty())
+    if(cd->operations().empty())
     {
      	unit->error("interfaces must have at least one operation");
     }
@@ -675,7 +675,7 @@ interface_exports
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
-    if (contained && !metaData->v.empty())
+    if(contained && !metaData->v.empty())
     {
 	contained->setMetaData(metaData->v);
     }
@@ -785,7 +785,7 @@ enum_def
 '{' enumerator_list '}'
 {
     EnumPtr en = EnumPtr::dynamicCast($3);
-    if (en)
+    if(en)
     {
 	EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
 	en->setEnumerators(enumerators->v);
@@ -825,7 +825,7 @@ enumerator
     EnumeratorListTokPtr ens = new EnumeratorListTok;
     ContainerPtr cont = unit->currentContainer();
     EnumeratorPtr en = cont->createEnumerator(ident->v);
-    if (en)
+    if(en)
     {
 	ens->v.push_front(en);
     }
@@ -850,7 +850,7 @@ operation
     TypeStringListTokPtr outParms = TypeStringListTokPtr::dynamicCast($4);
     ExceptionListTokPtr throws = ExceptionListTokPtr::dynamicCast($6);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    if (cl)
+    if(cl)
     {
 	$$ = cl->createOperation(name->v, returnType, inParms->v, outParms->v, throws->v);
     }
@@ -979,17 +979,17 @@ data_member
     TypePtr type = TypePtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    if (cl)
+    if(cl)
     {
 	$$ = cl->createDataMember(ident->v, type);
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    if (st)
+    if(st)
     {
 	$$ = st->createDataMember(ident->v, type);
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
-    if (ex)
+    if(ex)
     {
 	$$ = ex->createDataMember(ident->v, type);
     }
@@ -1079,7 +1079,7 @@ type
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
-    if (types.empty())
+    if(types.empty())
     {
 	YYERROR; // Can't continue, jump to next yyerrok
     }
@@ -1090,11 +1090,11 @@ type
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
-    if (types.empty())
+    if(types.empty())
     {
 	YYERROR; // Can't continue, jump to next yyerrok
     }
-    for (TypeList::iterator p = types.begin(); p != types.end(); ++p)
+    for(TypeList::iterator p = types.begin(); p != types.end(); ++p)
     {
 	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(*p);
 	if (!cl)

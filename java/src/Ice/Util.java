@@ -146,7 +146,7 @@ public final class Util
             {
                 addr = java.net.InetAddress.getLocalHost();
             }
-            catch (java.net.UnknownHostException ex)
+            catch(java.net.UnknownHostException ex)
             {
                 throw new DNSException();
             }

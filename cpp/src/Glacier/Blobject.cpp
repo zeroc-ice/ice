@@ -87,7 +87,7 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const vector<Byte>& inParams, vector
 	    }
 	}
     }
-    catch (const Exception& ex)
+    catch(const Exception& ex)
     {
 	if(_traceLevel >= 1)
 	{

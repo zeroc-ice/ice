@@ -74,12 +74,12 @@ CallbackClient::run(int argc, char* argv[])
     {
 	router = starter->startRouter("dummy", "abc123", privateKey, publicKey, routerCert);
     }
-    catch (const Glacier::CannotStartRouterException& ex)
+    catch(const Glacier::CannotStartRouterException& ex)
     {
 	cerr << appName() << ": " << ex << ":\n" << ex.reason << endl;
 	return EXIT_FAILURE;
     }
-    catch (const Glacier::InvalidPasswordException& ex)
+    catch(const Glacier::InvalidPasswordException& ex)
     {
 	cerr << appName() << ": " << ex << endl;
 	return EXIT_FAILURE;
@@ -167,7 +167,7 @@ CallbackClient::run(int argc, char* argv[])
 	    twoway->initiateCallbackEx(twowayR, context);
 	    test(false);
 	}
-	catch (const CallbackException& ex)
+	catch(const CallbackException& ex)
 	{
 	    test(ex.someValue == 3.14);
 	    test(ex.someString == "3.14");

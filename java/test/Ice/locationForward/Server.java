@@ -58,7 +58,7 @@ public class Server
             {
                 port = Integer.parseInt(args[i]);
             }
-            catch (NumberFormatException ex)
+            catch(NumberFormatException ex)
             {
                 System.err.println("Server: invalid port");
                 usage();

@@ -369,7 +369,7 @@ public class ObjectAdapterI implements ObjectAdapter
                 beg = end + 1;
             }
         }
-        catch (LocalException ex)
+        catch(LocalException ex)
         {
 	    deactivate();
             throw ex;

@@ -168,7 +168,7 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway, bool comp)
 	    _transceiver->write(*os, _endpoint->timeout());
 	}
     }
-    catch (const LocalException& ex)
+    catch(const LocalException& ex)
     {
 	setState(StateClosed, ex);
 	ex.ice_throw();
@@ -315,7 +315,7 @@ IceInternal::Connection::flushBatchRequest(bool comp)
 	_batchStream.swap(dummy);
 	assert(_batchStream.b.empty());
     }
-    catch (const LocalException& ex)
+    catch(const LocalException& ex)
     {
 	setState(StateClosed, ex);
 	ex.ice_throw();
@@ -575,7 +575,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		}
 	    }
 	}
-	catch (const LocalException& ex)
+	catch(const LocalException& ex)
 	{
 	    setState(StateClosed, ex);
 	    return;
@@ -619,7 +619,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		{
 		    in.invoke(response);
 		}
-		catch (const LocalException& ex)
+		catch(const LocalException& ex)
 		{
 		    IceUtil::RecMutex::Lock sync(*this);
 		    if(_warn)
@@ -628,7 +628,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 			out << "connection exception:\n" << ex << '\n' << _transceiver->toString();
 		    }
 		}
-		catch (const UserException& ex)
+		catch(const UserException& ex)
 		{
 		    IceUtil::RecMutex::Lock sync(*this);
 		    if(_warn)
@@ -649,7 +649,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    }
 	    while(batch && is->i < is->b.end());
 	}
-	catch (const LocalException& ex)
+	catch(const LocalException& ex)
 	{
 	    IceUtil::RecMutex::Lock sync(*this);
 	    setState(StateClosed, ex);
@@ -726,7 +726,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		    closeConnection();
 		}
 	    }
-	    catch (const LocalException& ex)
+	    catch(const LocalException& ex)
 	    {
 		setState(StateClosed, ex);
 		return;
@@ -951,7 +951,7 @@ IceInternal::Connection::setState(State state)
 	{
 	    closeConnection();
 	}
-	catch (const LocalException& ex)
+	catch(const LocalException& ex)
 	{
 	    setState(StateClosed, ex);
 	}

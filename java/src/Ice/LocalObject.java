@@ -20,7 +20,7 @@ public abstract class LocalObject
             LocalObject r = (LocalObject)rhs;
             return this == r;
         }
-        catch (ClassCastException ex)
+        catch(ClassCastException ex)
         {
         }
         return false;

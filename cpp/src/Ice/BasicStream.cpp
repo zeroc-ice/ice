@@ -918,7 +918,7 @@ IceInternal::BasicStream::throwException(const string* throwsBegin, const string
 	{
 	    factory->createAndThrow(id);
 	}
-	catch (UserException& ex)
+	catch(UserException& ex)
 	{
 	    static const string userException("::Ice::UserException");
 	    for(const string* p = ex.__getExceptionIds(); *p != userException != 0; ++p)

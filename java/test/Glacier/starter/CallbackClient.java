@@ -58,12 +58,12 @@ class CallbackClient extends Ice.Application
         {
             router = starter.startRouter("dummy", "abc123", privateKey, publicKey, routerCert);
         }
-        catch (Glacier.CannotStartRouterException ex)
+        catch(Glacier.CannotStartRouterException ex)
         {
             System.out.println(appName() + ": " + ex + ":\n" + ex.reason);
             return 1;
         }
-        catch (Glacier.InvalidPasswordException ex)
+        catch(Glacier.InvalidPasswordException ex)
         {
             System.out.println(appName() + ": " + ex);
             return 1;
@@ -130,7 +130,7 @@ class CallbackClient extends Ice.Application
                 twoway.initiateCallbackEx(twowayR, context);
                 test(false);
             }
-            catch (CallbackException ex)
+            catch(CallbackException ex)
             {
                 test(ex.someValue == 3.14);
                 test(ex.someString.equals("3.14"));
@@ -153,8 +153,8 @@ class CallbackClient extends Ice.Application
         }
         // If we use the glacier router, the exact exception reason gets
         // lost.
-        //catch (Ice.ConnectFailedException ex)
-        catch (Ice.UnknownLocalException ex)
+        //catch(Ice.ConnectFailedException ex)
+        catch(Ice.UnknownLocalException ex)
         {
             System.out.println("ok");
         }
@@ -168,7 +168,7 @@ class CallbackClient extends Ice.Application
             router.ice_ping();
             test(false);
         }
-        catch (Ice.ConnectFailedException ex)
+        catch(Ice.ConnectFailedException ex)
         {
             System.out.println("ok");
         }

@@ -186,11 +186,11 @@ class CallbackClient extends Ice.Application
                     menu();
                 }
             }
-            catch (java.io.IOException ex)
+            catch(java.io.IOException ex)
             {
                 ex.printStackTrace();
             }
-            catch (Ice.LocalException ex)
+            catch(Ice.LocalException ex)
             {
                 ex.printStackTrace();
             }

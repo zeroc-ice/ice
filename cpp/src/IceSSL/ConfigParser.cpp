@@ -121,7 +121,7 @@ IceSSL::ConfigParser::process()
             _root = parser.getDocument();
         }
     }
-    catch (const XMLException& e)
+    catch(const XMLException& e)
     {
         ConfigParseException configEx(__FILE__, __LINE__);
 
@@ -133,7 +133,7 @@ IceSSL::ConfigParser::process()
 
         throw configEx;
     }
-    catch (const DOM_DOMException& e)
+    catch(const DOM_DOMException& e)
     {
         ConfigParseException configEx(__FILE__, __LINE__);
 
@@ -196,7 +196,7 @@ IceSSL::ConfigParser::loadClientConfig(GeneralConfig& general,
             return true;
         }
     }
-    catch (const DOM_DOMException& e)
+    catch(const DOM_DOMException& e)
     {
         ConfigParseException configEx(__FILE__, __LINE__);
 
@@ -234,7 +234,7 @@ IceSSL::ConfigParser::loadServerConfig(GeneralConfig& general,
             return true;
         }
     }
-    catch (const DOM_DOMException& e)
+    catch(const DOM_DOMException& e)
     {
         ConfigParseException configEx(__FILE__, __LINE__);
 

@@ -1209,11 +1209,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "return;";
     }
     C << eb;
-    C << nl << "catch (const ::Ice::LocationForward& __ex)";
+    C << nl << "catch(const ::Ice::LocationForward& __ex)";
     C << sb;
     C << nl << "__locationForward(__ex);";
     C << eb;
-    C << nl << "catch (const ::IceInternal::NonRepeatable& __ex)";
+    C << nl << "catch(const ::IceInternal::NonRepeatable& __ex)";
     C << sb;
     list<string> metaData = p->getMetaData();
     bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
@@ -1226,7 +1226,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "__rethrowException(*__ex.get());";
     }
     C << eb;
-    C << nl << "catch (const ::Ice::LocalException& __ex)";
+    C << nl << "catch(const ::Ice::LocalException& __ex)";
     C << sb;
     C << nl << "__handleException(__ex, __cnt);";
     C << eb;
@@ -1732,16 +1732,16 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     ExceptionList::const_iterator r;
     for(r = throws.begin(); r != throws.end(); ++r)
     {
-	C << nl << "catch (const " << (*r)->scoped() << "&)";
+	C << nl << "catch(const " << (*r)->scoped() << "&)";
 	C << sb;
 	C << nl << "throw;";
 	C << eb;
     }
-    C << nl << "catch (const ::Ice::LocalException&)";
+    C << nl << "catch(const ::Ice::LocalException&)";
     C << sb;
     C << nl << "throw ::Ice::UnknownLocalException(__FILE__, __LINE__);";
     C << eb;
-    C << nl << "catch (const ::Ice::UserException&)";
+    C << nl << "catch(const ::Ice::UserException&)";
     C << sb;
     C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__);";
     C << eb;
@@ -2294,7 +2294,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	    ExceptionList::const_iterator r;
 	    for(r = throws.begin(); r != throws.end(); ++r)
 	    {
-		C << nl << "catch (const " << (*r)->scoped() << "& __ex)";
+		C << nl << "catch(const " << (*r)->scoped() << "& __ex)";
 		C << sb;
 		C << nl << "__os->write(__ex);";
 		C << nl << "return ::IceInternal::DispatchUserException;";
@@ -2456,7 +2456,7 @@ Slice::Gen::IceInternalVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << "d->__copyFrom(bb);";
 	C << eb;
 	C << eb;
-	C << nl << "catch (const ::Ice::FacetNotExistException&)";
+	C << nl << "catch(const ::Ice::FacetNotExistException&)";
 	C << sb;
 	C << eb;
 	C << eb;

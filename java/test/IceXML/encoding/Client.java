@@ -630,7 +630,7 @@ public class Client
             communicator = Ice.Util.initialize(args);
             status = run(args, communicator);
         }
-        catch (Ice.LocalException ex)
+        catch(Ice.LocalException ex)
         {
             ex.printStackTrace();
             status = 1;
@@ -642,7 +642,7 @@ public class Client
             {
                 communicator.destroy();
             }
-            catch (Ice.LocalException ex)
+            catch(Ice.LocalException ex)
             {
                 ex.printStackTrace();
                 status = 1;

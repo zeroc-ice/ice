@@ -30,15 +30,15 @@ testExpectCertificateAndPrivateKeyLoadException(const Ice::CommunicatorPtr& comm
         sslPlugin->configure(IceSSL::Client);
         test(false);
     }
-    catch (const IceSSL::OpenSSL::CertificateLoadException&)
+    catch(const IceSSL::OpenSSL::CertificateLoadException&)
     {
         std::cout << "ok" << std::endl;
     }
-    catch (const IceSSL::OpenSSL::PrivateKeyLoadException&)
+    catch(const IceSSL::OpenSSL::PrivateKeyLoadException&)
     {
         std::cout << "ok" << std::endl;
     }
-    catch (const LocalException&)
+    catch(const LocalException&)
     {
         //
         // Any other exception is bad.
@@ -69,11 +69,11 @@ testExpectPrivateKeyLoadException(const Ice::CommunicatorPtr& communicator, cons
         sslPlugin->configure(IceSSL::Client);
         test(false);
     }
-    catch (const IceSSL::OpenSSL::PrivateKeyLoadException&)
+    catch(const IceSSL::OpenSSL::PrivateKeyLoadException&)
     {
         std::cout << "ok" << std::endl;
     }
-    catch (const LocalException&)
+    catch(const LocalException&)
     {
         //
         // Any other exception is bad.
@@ -104,11 +104,11 @@ testExpectCertificateLoadException(const Ice::CommunicatorPtr& communicator, con
         sslPlugin->configure(IceSSL::Client);
         test(false);
     }
-    catch (const IceSSL::OpenSSL::CertificateLoadException&)
+    catch(const IceSSL::OpenSSL::CertificateLoadException&)
     {
         std::cout << "ok" << std::endl;
     }
-    catch (const LocalException&)
+    catch(const LocalException&)
     {
         //
         // Any other exception is bad.
@@ -139,11 +139,11 @@ testExpectCertificateKeyMatchException(const Ice::CommunicatorPtr& communicator,
         sslPlugin->configure(IceSSL::Client);
         test(false);
     }
-    catch (const IceSSL::OpenSSL::CertificateKeyMatchException&)
+    catch(const IceSSL::OpenSSL::CertificateKeyMatchException&)
     {
         std::cout << "ok" << std::endl;
     }
-    catch (const LocalException&)
+    catch(const LocalException&)
     {
         //
         // Any other exception is bad.
@@ -174,7 +174,7 @@ testNoException(const Ice::CommunicatorPtr& communicator, const std::string& con
         sslPlugin->configure(IceSSL::Client);
         std::cout << "ok" << std::endl;
     }
-    catch (const LocalException&)
+    catch(const LocalException&)
     {
         //
         // Any other exception is bad.

@@ -35,7 +35,7 @@ class TcpAcceptor implements Acceptor
             {
                 fd.close();
             }
-            catch (java.io.IOException ex)
+            catch(java.io.IOException ex)
             {
                 // Ignore.
             }
@@ -107,7 +107,7 @@ class TcpAcceptor implements Acceptor
             java.net.InetSocketAddress addr = new java.net.InetSocketAddress(host, port);
             _addr = Network.doBind(_fd, addr);
         }
-        catch (RuntimeException ex)
+        catch(RuntimeException ex)
         {
             _fd = null;
             throw ex;

@@ -41,15 +41,15 @@ public class ObjectPrxHelper implements ObjectPrx
                 _ObjectDel __del = __getDelegate();
                 return __del.ice_isA(__id, __context);
             }
-            catch (LocationForward __ex)
+            catch(LocationForward __ex)
             {
                 __locationForward(__ex);
             }
-            catch (IceInternal.NonRepeatable __ex)
+            catch(IceInternal.NonRepeatable __ex)
             {
                 __cnt = __handleException(__ex.get(), __cnt);
             }
-            catch (LocalException __ex)
+            catch(LocalException __ex)
             {
                 __cnt = __handleException(__ex, __cnt);
             }
@@ -74,15 +74,15 @@ public class ObjectPrxHelper implements ObjectPrx
                 __del.ice_ping(__context);
                 return;
             }
-            catch (LocationForward __ex)
+            catch(LocationForward __ex)
             {
                 __locationForward(__ex);
             }
-            catch (IceInternal.NonRepeatable __ex)
+            catch(IceInternal.NonRepeatable __ex)
             {
                 __cnt = __handleException(__ex.get(), __cnt);
             }
-            catch (LocalException __ex)
+            catch(LocalException __ex)
             {
                 __cnt = __handleException(__ex, __cnt);
             }
@@ -106,15 +106,15 @@ public class ObjectPrxHelper implements ObjectPrx
                 _ObjectDel __del = __getDelegate();
                 return __del.ice_ids(__context);
             }
-            catch (LocationForward __ex)
+            catch(LocationForward __ex)
             {
                 __locationForward(__ex);
             }
-            catch (IceInternal.NonRepeatable __ex)
+            catch(IceInternal.NonRepeatable __ex)
             {
                 __cnt = __handleException(__ex.get(), __cnt);
             }
-            catch (LocalException __ex)
+            catch(LocalException __ex)
             {
                 __cnt = __handleException(__ex, __cnt);
             }
@@ -138,15 +138,15 @@ public class ObjectPrxHelper implements ObjectPrx
                 _ObjectDel __del = __getDelegate();
                 return __del.ice_id(__context);
             }
-            catch (LocationForward __ex)
+            catch(LocationForward __ex)
             {
                 __locationForward(__ex);
             }
-            catch (IceInternal.NonRepeatable __ex)
+            catch(IceInternal.NonRepeatable __ex)
             {
                 __cnt = __handleException(__ex.get(), __cnt);
             }
-            catch (LocalException __ex)
+            catch(LocalException __ex)
             {
                 __cnt = __handleException(__ex, __cnt);
             }
@@ -170,15 +170,15 @@ public class ObjectPrxHelper implements ObjectPrx
                 _ObjectDel __del = __getDelegate();
                 return __del.ice_facets(__context);
             }
-            catch (LocationForward __ex)
+            catch(LocationForward __ex)
             {
                 __locationForward(__ex);
             }
-            catch (IceInternal.NonRepeatable __ex)
+            catch(IceInternal.NonRepeatable __ex)
             {
                 __cnt = __handleException(__ex.get(), __cnt);
             }
-            catch (LocalException __ex)
+            catch(LocalException __ex)
             {
                 __cnt = __handleException(__ex, __cnt);
             }
@@ -203,11 +203,11 @@ public class ObjectPrxHelper implements ObjectPrx
                 _ObjectDel __del = __getDelegate();
                 return __del.ice_invoke(operation, nonmutating, inParams, outParams, __context);
             }
-            catch (LocationForward __ex)
+            catch(LocationForward __ex)
             {
                 __locationForward(__ex);
             }
-            catch (IceInternal.NonRepeatable __ex)
+            catch(IceInternal.NonRepeatable __ex)
             {
                 if(nonmutating)
                 {
@@ -218,7 +218,7 @@ public class ObjectPrxHelper implements ObjectPrx
                     __rethrowException(__ex.get());
                 }
             }
-            catch (LocalException __ex)
+            catch(LocalException __ex)
             {
                 __cnt = __handleException(__ex, __cnt);
             }
@@ -446,14 +446,14 @@ public class ObjectPrxHelper implements ObjectPrx
             {
                 delegateM = (_ObjectDelM)h._delegate;
             }
-            catch (ClassCastException ex)
+            catch(ClassCastException ex)
             {
             }
             try
             {
                 delegateD = (_ObjectDelD)h._delegate;
             }
-            catch (ClassCastException ex)
+            catch(ClassCastException ex)
             {
             }
         }
@@ -490,7 +490,7 @@ public class ObjectPrxHelper implements ObjectPrx
         {
             throw ex;
         }
-        catch (CloseConnectionException e)
+        catch(CloseConnectionException e)
         {
             //
             // We always retry on a close connection exception, as this
@@ -498,15 +498,15 @@ public class ObjectPrxHelper implements ObjectPrx
             //
             // TODO: configurable timeout before we try again?
         }
-        catch (SocketException e)
+        catch(SocketException e)
         {
             ++cnt;
         }
-        catch (DNSException e)
+        catch(DNSException e)
         {
             ++cnt;
         }
-        catch (TimeoutException e)
+        catch(TimeoutException e)
         {
             ++cnt;
         }

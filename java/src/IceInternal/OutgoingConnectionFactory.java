@@ -85,15 +85,15 @@ public class OutgoingConnectionFactory
                 _connections.put(endpoint, connection);
                 break;
             }
-            catch (Ice.SocketException ex)
+            catch(Ice.SocketException ex)
             {
                 exception = ex;
             }
-            catch (Ice.DNSException ex)
+            catch(Ice.DNSException ex)
             {
                 exception = ex;
             }
-            catch (Ice.TimeoutException ex)
+            catch(Ice.TimeoutException ex)
             {
                 exception = ex;
             }

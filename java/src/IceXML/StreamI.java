@@ -67,7 +67,7 @@ public class StreamI implements Ice.Stream
         {
             parser = factory.newDocumentBuilder();
         }
-        catch (javax.xml.parsers.ParserConfigurationException ex)
+        catch(javax.xml.parsers.ParserConfigurationException ex)
         {
             logger.error("parser configuration error: " + ex.getMessage());
             Ice.MarshalException e = new Ice.MarshalException();
@@ -91,12 +91,12 @@ public class StreamI implements Ice.Stream
         {
             _document = parser.parse(new org.xml.sax.InputSource(input));
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
             logger.error("I/O error during parsing: " + ex.getMessage());
             errorsOccurred = true;
         }
-        catch (org.xml.sax.SAXException ex)
+        catch(org.xml.sax.SAXException ex)
         {
             logger.error("parsing error: " + ex.getMessage());
             errorsOccurred = true;
@@ -366,7 +366,7 @@ public class StreamI implements Ice.Stream
         {
             i = Integer.parseInt(s);
         }
-        catch (NumberFormatException ex)
+        catch(NumberFormatException ex)
         {
             Ice.MarshalException e = new Ice.MarshalException();
             e.initCause(ex);
@@ -498,7 +498,7 @@ public class StreamI implements Ice.Stream
         {
             i = Short.parseShort(s);
         }
-        catch (NumberFormatException ex)
+        catch(NumberFormatException ex)
         {
             Ice.MarshalException e = new Ice.MarshalException();
             e.initCause(ex);
@@ -569,7 +569,7 @@ public class StreamI implements Ice.Stream
         {
             i = Integer.parseInt(s);
         }
-        catch (NumberFormatException ex)
+        catch(NumberFormatException ex)
         {
             Ice.MarshalException e = new Ice.MarshalException();
             e.initCause(ex);
@@ -640,7 +640,7 @@ public class StreamI implements Ice.Stream
         {
             i = Long.parseLong(s);
         }
-        catch (NumberFormatException ex)
+        catch(NumberFormatException ex)
         {
             Ice.MarshalException e = new Ice.MarshalException();
             e.initCause(ex);
@@ -711,7 +711,7 @@ public class StreamI implements Ice.Stream
         {
             i = Float.parseFloat(s);
         }
-        catch (NumberFormatException ex)
+        catch(NumberFormatException ex)
         {
             Ice.MarshalException e = new Ice.MarshalException();
             e.initCause(ex);
@@ -782,7 +782,7 @@ public class StreamI implements Ice.Stream
         {
             i = Double.parseDouble(s);
         }
-        catch (NumberFormatException ex)
+        catch(NumberFormatException ex)
         {
             Ice.MarshalException e = new Ice.MarshalException();
             e.initCause(ex);
@@ -1268,7 +1268,7 @@ public class StreamI implements Ice.Stream
                 {
                     return Integer.parseInt(attribute.getNodeValue());
                 }
-                catch (NumberFormatException ex)
+                catch(NumberFormatException ex)
                 {
                     throw new Ice.MarshalException();
                 }

@@ -102,11 +102,11 @@ public final class ServiceManagerI extends _ServiceManagerDisp
                 {
                     svc.start();
                 }
-                catch (FailureException ex)
+                catch(FailureException ex)
                 {
                     throw ex;
                 }
-                catch (Exception ex)
+                catch(Exception ex)
                 {
                     FailureException e = new FailureException();
                     e.reason = "ServiceManager: exception in start for service " + name + ": " + ex;
@@ -145,7 +145,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             //
             stopAll();
         }
-        catch (FailureException ex)
+        catch(FailureException ex)
         {
             java.io.StringWriter sw = new java.io.StringWriter();
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -156,7 +156,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             stopAll();
             return 1;
         }
-        catch (Ice.LocalException ex)
+        catch(Ice.LocalException ex)
         {
             java.io.StringWriter sw = new java.io.StringWriter();
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -166,7 +166,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             stopAll();
             return 1;
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             java.io.StringWriter sw = new java.io.StringWriter();
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -238,28 +238,28 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             {
                 svc = (Service)obj;
             }
-            catch (ClassCastException ex)
+            catch(ClassCastException ex)
             {
                 FailureException e = new FailureException();
                 e.reason = "ServiceManager: class " + className + " does not implement IceBox.Service";
                 throw e;
             }
         }
-        catch (ClassNotFoundException ex)
+        catch(ClassNotFoundException ex)
         {
             FailureException e = new FailureException();
             e.reason = "ServiceManager: class " + className + " not found";
             e.initCause(ex);
             throw e;
         }
-        catch (IllegalAccessException ex)
+        catch(IllegalAccessException ex)
         {
             FailureException e = new FailureException();
             e.reason = "ServiceManager: unable to access default constructor in class " + className;
             e.initCause(ex);
             throw e;
         }
-        catch (InstantiationException ex)
+        catch(InstantiationException ex)
         {
             FailureException e = new FailureException();
             e.reason = "ServiceManager: unable to instantiate class " + className;
@@ -275,11 +275,11 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             svc.init(service, _communicator, serviceProperties, serviceArgs.value);
             _services.put(service, svc);
         }
-        catch (FailureException ex)
+        catch(FailureException ex)
         {
             throw ex;
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             FailureException e = new FailureException();
             e.reason = "ServiceManager: exception while initializing service " + service + ": " + ex;
@@ -301,7 +301,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         {
             svc.stop();
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             FailureException e = new FailureException();
             e.reason = "ServiceManager: exception in stop for service " + service + ": " + ex;
@@ -323,7 +323,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             {
                 service.stop();
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 java.io.StringWriter sw = new java.io.StringWriter();
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);

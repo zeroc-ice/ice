@@ -122,7 +122,7 @@ public final class PluginManagerI implements PluginManager
             {
                 factory = (PluginFactory)obj;
             }
-            catch (ClassCastException ex)
+            catch(ClassCastException ex)
             {
                 PluginInitializationException e = new PluginInitializationException();
                 e.reason = "class " + className + " does not implement Ice.PluginFactory";
@@ -130,21 +130,21 @@ public final class PluginManagerI implements PluginManager
                 throw e;
             }
         }
-        catch (ClassNotFoundException ex)
+        catch(ClassNotFoundException ex)
         {
             PluginInitializationException e = new PluginInitializationException();
             e.reason = "class " + className + " not found";
             e.initCause(ex);
             throw e;
         }
-        catch (IllegalAccessException ex)
+        catch(IllegalAccessException ex)
         {
             PluginInitializationException e = new PluginInitializationException();
             e.reason = "unable to access default constructor in class " + className;
             e.initCause(ex);
             throw e;
         }
-        catch (InstantiationException ex)
+        catch(InstantiationException ex)
         {
             PluginInitializationException e = new PluginInitializationException();
             e.reason = "unable to instantiate class " + className;
@@ -160,7 +160,7 @@ public final class PluginManagerI implements PluginManager
         {
             plugin = factory.create(_instance.communicator(), name, args);
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
             PluginInitializationException e = new PluginInitializationException();
             e.reason = "exception in factory " + className;

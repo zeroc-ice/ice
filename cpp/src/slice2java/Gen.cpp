@@ -1475,7 +1475,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         out << sb;
         out << nl << "_r = (" << typeS << ")rhs;";
         out << eb;
-        out << nl << "catch (ClassCastException ex)";
+        out << nl << "catch(ClassCastException ex)";
         out << sb;
         out << eb;
         out << sp << nl << "if(_r != null)";
@@ -1988,11 +1988,11 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "return;";
         }
         out << eb;
-        out << nl << "catch (Ice.LocationForward __ex)";
+        out << nl << "catch(Ice.LocationForward __ex)";
         out << sb;
         out << nl << "__locationForward(__ex);";
         out << eb;
-        out << nl << "catch (IceInternal.NonRepeatable __ex)";
+        out << nl << "catch(IceInternal.NonRepeatable __ex)";
         out << sb;
 	list<string> metaData = op->getMetaData();
 	bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
@@ -2005,7 +2005,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "__rethrowException(__ex.get());";
         }
         out << eb;
-        out << nl << "catch (Ice.LocalException __ex)";
+        out << nl << "catch(Ice.LocalException __ex)";
         out << sb;
         out << nl << "__cnt = __handleException(__ex, __cnt);";
         out << eb;
@@ -2034,7 +2034,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sb;
     out << nl << "result = (" << name << "Prx)p;";
     out << eb;
-    out << nl << "catch (ClassCastException ex)";
+    out << nl << "catch(ClassCastException ex)";
     out << sb;
     out << nl << "if(p.ice_isA(\"" << scoped << "\"))";
     out << sb;
@@ -2056,7 +2056,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "result = h;";
     out << eb;
     out << eb;
-    out << nl << "catch (Ice.FacetNotExistException ex)";
+    out << nl << "catch(Ice.FacetNotExistException ex)";
     out << sb;
     out << eb;
     out << eb;
@@ -2086,7 +2086,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sb;
     out << nl << "result = (" << name << "Prx)p;";
     out << eb;
-    out << nl << "catch (ClassCastException ex)";
+    out << nl << "catch(ClassCastException ex)";
     out << sb;
     out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
     out << nl << "h.__copyFrom(p);";
@@ -3008,7 +3008,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << nl << "throw __ex;";
                 out << eb;
             }
-            out << nl << "catch (Ice.UserException __ex)";
+            out << nl << "catch(Ice.UserException __ex)";
             out << sb;
             out << eb;
         }
@@ -3126,7 +3126,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
         out << nl << "__servant = (" << name << ")__direct.facetServant();";
         out << eb;
-        out << nl << "catch (ClassCastException __ex)";
+        out << nl << "catch(ClassCastException __ex)";
         out << sb;
         out << nl << "Ice.OperationNotExistException __opEx = new Ice.OperationNotExistException();";
 	out << nl << "__opEx.operation = __current.operation;";
@@ -3158,7 +3158,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "throw __ex;";
             out << eb;
         }
-        out << nl << "catch (Ice.LocalException __ex)";
+        out << nl << "catch(Ice.LocalException __ex)";
         out << sb;
         out << nl << "Ice.UnknownLocalException __e = new Ice.UnknownLocalException();";
         out << nl << "__e.initCause(__ex);";
@@ -3167,7 +3167,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // No need to catch UserException because it's not possible in Java
         //
-        out << nl << "catch (RuntimeException __ex)";
+        out << nl << "catch(RuntimeException __ex)";
         out << sb;
         out << nl << "Ice.UnknownException __e = new Ice.UnknownException();";
         out << nl << "__e.initCause(__ex);";

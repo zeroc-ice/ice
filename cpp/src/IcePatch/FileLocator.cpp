@@ -60,7 +60,7 @@ IcePatch::FileLocator::locate(const ObjectAdapterPtr& adapter, const Current& cu
     {
 	info = getFileInfo(path, true);
     }
-    catch (const FileAccessException& ex)
+    catch(const FileAccessException& ex)
     {
 	Warning out(adapter->getCommunicator()->getLogger());
 	out << ex << ":\n" << ex.reason;

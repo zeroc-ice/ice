@@ -79,7 +79,7 @@ final class UdpEndpoint implements Endpoint
                     {
                         _port = Integer.parseInt(argument);
                     }
-                    catch (NumberFormatException ex)
+                    catch(NumberFormatException ex)
                     {
                         throw new Ice.EndpointParseException();
                     }
@@ -274,7 +274,7 @@ final class UdpEndpoint implements Endpoint
         {
             udpTransceiver = (UdpTransceiver)transceiver;
         }
-        catch (ClassCastException ex)
+        catch(ClassCastException ex)
         {
             return false;
         }
@@ -311,7 +311,7 @@ final class UdpEndpoint implements Endpoint
         {
             p = (UdpEndpoint)obj;
         }
-        catch (ClassCastException ex)
+        catch(ClassCastException ex)
         {
             return 1;
         }

@@ -34,21 +34,21 @@ final class TcpTransceiver implements Transceiver
         {
             socket.shutdownInput(); // helps to unblock threads in recv()
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
         }
         try
         {
             socket.shutdownOutput();
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
         }
         try
         {
             fd.close();
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
         }
     }
@@ -67,7 +67,7 @@ final class TcpTransceiver implements Transceiver
         {
             socket.shutdownOutput(); // Shutdown socket for writing
         }
-        catch (java.io.IOException ex)
+        catch(java.io.IOException ex)
         {
         }
     }
@@ -96,11 +96,11 @@ final class TcpTransceiver implements Transceiver
                     _logger.trace(_traceLevels.networkCat, s);
                 }
             }
-            catch (java.io.InterruptedIOException ex)
+            catch(java.io.InterruptedIOException ex)
             {
                 continue;
             }
-            catch (java.io.IOException ex)
+            catch(java.io.IOException ex)
             {
                 Ice.SocketException se = new Ice.SocketException();
                 se.initCause(ex);
@@ -139,11 +139,11 @@ final class TcpTransceiver implements Transceiver
 
                 break;
             }
-            catch (java.io.InterruptedIOException ex)
+            catch(java.io.InterruptedIOException ex)
             {
                 continue;
             }
-            catch (java.io.IOException ex)
+            catch(java.io.IOException ex)
             {
                 if(Network.connectionLost(ex))
                 {
@@ -219,7 +219,7 @@ final class TcpTransceiver implements Transceiver
 
                             break;
                         }
-                        catch (java.io.InterruptedIOException ex)
+                        catch(java.io.InterruptedIOException ex)
                         {
                             continue;
                         }
@@ -232,11 +232,11 @@ final class TcpTransceiver implements Transceiver
                     _logger.trace(_traceLevels.networkCat, s);
                 }
             }
-            catch (java.io.InterruptedIOException ex)
+            catch(java.io.InterruptedIOException ex)
             {
                 continue;
             }
-            catch (java.io.IOException ex)
+            catch(java.io.IOException ex)
             {
                 if(Network.connectionLost(ex))
                 {
@@ -281,7 +281,7 @@ final class TcpTransceiver implements Transceiver
             {
                 _selector.close();
             }
-            catch (java.io.IOException ex)
+            catch(java.io.IOException ex)
             {
             }
         }
