@@ -9,7 +9,7 @@
 
 package Freeze;
 
-class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbErrcall, Runnable
+class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
 {
     public static SharedDbEnv
     get(Ice.Communicator communicator, String envName)
@@ -121,7 +121,7 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
     {
 	try
 	{
-	    String[] list = log_archive(com.sleepycat.db.Db.DB_ARCH_ABS);
+	    String[] list = logArchive(com.sleepycat.db.Db.DB_ARCH_ABS);
 	    
 	    if(list != null)
 	    {
@@ -182,7 +182,7 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 
 	    try
 	    {
-		txn_checkpoint(_kbyte, 0, 0);
+		txnCheckpoint(_kbyte, 0, 0);
 	    }
 	    catch(com.sleepycat.db.DbException dx)
 	    {
@@ -209,7 +209,7 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
     }
     
     public void 
-    errcall(String errorPrefix, String message)
+    error(String errorPrefix, String message)
     {
 	_key.communicator.getLogger().error
 	    ("Freeze database error in DbEnv \"" + _key.envName + "\": " + message);
@@ -237,12 +237,12 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 
 	String propertyPrefix = "Freeze.DbEnv." + _key.envName;
 	
-	set_errcall(this);
+	setErrorHandler(this);
 	
 	//
 	// Deadlock detection
 	//
-	set_lk_detect(com.sleepycat.db.Db.DB_LOCK_YOUNGEST);
+	setLockDetect(com.sleepycat.db.Db.DB_LOCK_YOUNGEST);
 
 	int flags = com.sleepycat.db.Db.DB_INIT_LOCK |
 	    com.sleepycat.db.Db.DB_INIT_LOG |
