@@ -42,8 +42,8 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /D "NDEBUG" /D "_USRDLL" /D "_CONSOLE" /D "_UNICODE" /D "WIN32" /D "PHP_WIN32" /D "ZEND_WIN32" /D "ZTS" /D ZEND_DEBUG=0 /FD /c
+# ADD BASE CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "ICE_EXPORTS" /Yu"stdafx.h" /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /D HAVE_ICE=1 /D "NDEBUG" /D "_WINDOWS" /D "_UNICODE" /D "WIN32" /D "PHP_WIN32" /D "ZEND_WIN32" /D "ZTS" /D ZEND_DEBUG=0 /D "COMPILE_DL_ICE" /FD /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
@@ -54,12 +54,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 Ice.lib Slice.lib IceUtil.lib /nologo /dll /machine:I386
-# SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
+# ADD LINK32 Ice.lib Slice.lib IceUtil.lib php4ts.lib /nologo /dll /machine:I386
+# SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\php_ice.lib ..\..\lib	copy $(OutDir)\php_ice.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\php_ice.dll ..\..\bin\release
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "php_ice - Win32 Debug"
@@ -75,8 +75,8 @@ PostBuild_Cmds=copy $(OutDir)\php_ice.lib ..\..\lib	copy $(OutDir)\php_ice.dll .
 # PROP Intermediate_Dir "Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "_DEBUG" /D "_USRDLL" /D "_CONSOLE" /D "_UNICODE" /D "WIN32" /D "PHP_WIN32" /D "ZEND_WIN32" /D "ZTS" /D ZEND_DEBUG=1 /FD /GZ /c
+# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "ICE_EXPORTS" /Yu"stdafx.h" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /D "_DEBUG" /D HAVE_ICE=1 /D "_WINDOWS" /D "_UNICODE" /D "WIN32" /D "PHP_WIN32" /D "ZEND_WIN32" /D "ZTS" /D ZEND_DEBUG=1 /D "COMPILE_DL_ICE" /FD /GZ /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -87,12 +87,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386
-# ADD LINK32 Iced.lib Sliced.lib IceUtild.lib php4ts.lib /nologo /dll /debug /machine:I386 /out:"Debug/php_iced.dll"
+# ADD LINK32 Iced.lib Sliced.lib IceUtild.lib php4ts.lib /nologo /dll /debug /machine:I386
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\php_iced.lib ..\..\lib	copy $(OutDir)\php_iced.pdb ..\..\bin	copy $(OutDir)\php_iced.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\php_ice.pdb ..\..\bin\debug	copy $(OutDir)\php_ice.dll ..\..\bin\debug
 # End Special Build Tool
 
 !ENDIF 
@@ -110,15 +110,7 @@ SOURCE=.\communicator.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\exception.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\ice.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\identity.cpp
 # End Source File
 # Begin Source File
 
@@ -126,11 +118,11 @@ SOURCE=.\marshal.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\proxy.cpp
+SOURCE=.\profile.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\slice.cpp
+SOURCE=.\proxy.cpp
 # End Source File
 # Begin Source File
 
@@ -150,23 +142,15 @@ SOURCE=.\ice_communicator.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ice_exception.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ice_identity.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\ice_marshal.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ice_proxy.h
+SOURCE=.\ice_profile.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ice_slice.h
+SOURCE=.\ice_proxy.h
 # End Source File
 # Begin Source File
 
