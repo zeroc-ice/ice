@@ -234,6 +234,7 @@ void
 Ice::ConnectionI::close(bool force)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
     if(force)
     {
 	setState(StateClosed, ForcedCloseConnectionException(__FILE__, __LINE__));
@@ -247,12 +248,12 @@ Ice::ConnectionI::close(bool force)
 bool
 Ice::ConnectionI::isDestroyed() const
 {
-    IceUtil::Monitor<IceUtil::Mutex>::TryLock sync(*this);
-    
-    if(!sync.acquired())
-    {
-	return false;
-    }
+    //
+    // We can not use trylock here, otherwise the outgoing connection
+    // factory might return destroyed (closing or closed) connections,
+    // resulting in connection retry exhaustion.
+    //
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     return _state >= StateClosing;
 }
@@ -263,6 +264,11 @@ Ice::ConnectionI::isFinished() const
     IceUtil::ThreadPtr threadPerConnection;
 
     {
+	//
+	// We can use trylock here, because as long as there are still
+	// threads operating in this connection object, connection
+	// destruction is considered as not yet finished.
+	//
 	IceUtil::Monitor<IceUtil::Mutex>::TryLock sync(*this);
 	
 	if(!sync.acquired())
