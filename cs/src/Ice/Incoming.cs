@@ -38,6 +38,7 @@ namespace IceInternal
 	protected internal IncomingBase(IncomingBase inc)
 	{
 	    _current = inc._current;
+	    inc._current = null;
 	    
 	    _servant = inc._servant;
 	    inc._servant = null;
@@ -82,6 +83,9 @@ namespace IceInternal
 	public virtual void reset(Instance instance, Ice.ConnectionI connection,
 	                          Ice.ObjectAdapter adapter, bool response, byte compress)
 	{
+            //
+            // Don't recycle the Current object, because servants may keep a reference to it.
+            //
 	    _current = new Ice.Current();
 	    _current.id = new Ice.Identity();
 	    _current.adapter = adapter;
@@ -359,6 +363,78 @@ namespace IceInternal
                     }
 
 		    _os.writeString(ex.operation);
+		}
+		
+		//
+		// Must be called last, so that if an exception is raised,
+		// this function is definitely *not* called.
+		//
+		__finishInvoke();
+		return;
+	    }
+	    catch(Ice.UnknownLocalException ex)
+	    {
+	        _is.endReadEncaps();
+		
+		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		{
+		    __warning(ex);
+		}
+		
+		if(_response)
+		{
+		    _os.endWriteEncaps();
+		    _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+		    _os.writeByte((byte)DispatchStatus.DispatchUnknownLocalException);
+		    _os.writeString(ex.unknown);
+		}
+		
+		//
+		// Must be called last, so that if an exception is raised,
+		// this function is definitely *not* called.
+		//
+		__finishInvoke();
+		return;
+	    }
+	    catch(Ice.UnknownUserException ex)
+	    {
+	        _is.endReadEncaps();
+		
+		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		{
+		    __warning(ex);
+		}
+		
+		if(_response)
+		{
+		    _os.endWriteEncaps();
+		    _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+		    _os.writeByte((byte)DispatchStatus.DispatchUnknownUserException);
+		    _os.writeString(ex.unknown);
+		}
+		
+		//
+		// Must be called last, so that if an exception is raised,
+		// this function is definitely *not* called.
+		//
+		__finishInvoke();
+		return;
+	    }
+	    catch(Ice.UnknownException ex)
+	    {
+	        _is.endReadEncaps();
+		
+		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		{
+		    __warning(ex);
+		}
+		
+		if(_response)
+		{
+		    _os.endWriteEncaps();
+		    _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+		    _os.writeByte((byte)DispatchStatus.DispatchUnknownException);
+		    _os.writeString(ex.unknown);
 		}
 		
 		//
