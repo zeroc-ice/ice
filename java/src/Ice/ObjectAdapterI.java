@@ -873,6 +873,24 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
             _communicator.shutdown();
         }
 
+	public void
+	writeMessage(String message, int fd, Ice.Current current)
+	{
+	    switch(fd)
+	    {
+		case 1:
+		{
+		    System.out.println(message);
+		    break;
+		}
+		case 2:
+		{
+		    System.err.println(message);
+		    break;
+		}
+	    }
+	}
+
         private Communicator _communicator;
     }
 

@@ -121,6 +121,8 @@ static const string iceProps[] =
     "RetryIntervals",
     "ServerId",
     "ServerIdleTime",
+    "StdErr",
+    "StdOut",
     "ThreadPool.Client.Size",
     "ThreadPool.Client.SizeMax",
     "ThreadPool.Client.SizeWarn",

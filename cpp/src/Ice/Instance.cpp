@@ -33,6 +33,8 @@
 #include <Ice/PluginManagerI.h>
 #include <Ice/Initialize.h>
 
+#include <stdio.h>
+
 #ifdef _WIN32
 #   include <Ice/EventLoggerI.h>
 #else
@@ -50,38 +52,16 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-int Instance::_globalStateCounter = 0;
-
-IceUtil::Mutex* Instance::_globalStateMutex = new IceUtil::Mutex;
-
-#ifndef _WIN32
-string Instance::_identForOpenlog;
-#endif
+static IceUtil::StaticMutex staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
+static bool oneOffDone = false;
+static int instanceCount = 0;
+static bool printProcessIdDone = false;
+static string identForOpenlog;
 
 namespace IceUtil
 {
 
 extern bool ICE_UTIL_API nullHandleAbort;
-
-};
-
-namespace IceInternal
-{
-
-class GlobalStateMutexDestroyer
-{
-public:
-    
-    ~GlobalStateMutexDestroyer()
-    {
-	delete Instance::_globalStateMutex;
-	Instance::_globalStateMutex = 0;
-    }
-};
-
-static GlobalStateMutexDestroyer destroyer;
-
-volatile bool Instance::_printProcessIdDone = false;
 
 }
 
@@ -382,42 +362,54 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     _messageSizeMax(0),
     _connectionIdleTime(0)
 {
-    IceUtil::Mutex::Lock sync(*_globalStateMutex);
-    ++_globalStateCounter;
-
+    
     try
     {
 	__setNoDelete(true);
 
-	if(_globalStateCounter == 1) // Only on first call
+	IceUtil::StaticMutex::Lock sync(staticMutex);
+	instanceCount++;
+
+	if(!oneOffDone)
 	{
-	    unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
+	    //
+	    // StdOut and StdErr redirection
+	    //
+	    string stdOutFilename = _properties->getProperty("Ice.StdOut");
+	    string stdErrFilename = _properties->getProperty("Ice.StdErr");
+	    
+	    if(stdOutFilename != "")
+	    {
+		FILE* file = freopen(stdOutFilename.c_str(), "a", ::stdout);
+		if(file == 0)
+		{
+		    SyscallException ex(__FILE__, __LINE__);
+		    ex.error = getSystemErrno();
+		    throw ex;
+		}
+	    }
+	    
+	    if(stdErrFilename != "")
+	    {
+		FILE* file = freopen(stdErrFilename.c_str(), "a", ::stderr);
+		if(file == 0)
+		{
+		    SyscallException ex(__FILE__, __LINE__);
+		    ex.error = getSystemErrno();
+		    throw ex;
+		}
+	    }
+	    
+	    unsigned int seed = 
+		static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
 	    srand(seed);
 	    
 	    if(_properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
 	    {
 		IceUtil::nullHandleAbort = true;
 	    }
-
-#ifdef _WIN32
-	    WORD version = MAKEWORD(1, 1);
-	    WSADATA data;
-	    if(WSAStartup(version, &data) != 0)
-	    {
-		_globalStateMutex->unlock();
-		SocketException ex(__FILE__, __LINE__);
-		ex.error = getSocketErrno();
-		throw ex;
-	    }
-#endif
 	    
 #ifndef _WIN32
-	    struct sigaction action;
-	    action.sa_handler = SIG_IGN;
-	    sigemptyset(&action.sa_mask);
-	    action.sa_flags = 0;
-	    sigaction(SIGPIPE, &action, 0);
-
 	    string newUser = _properties->getProperty("Ice.ChangeUser");
 	    if(!newUser.empty())
 	    {
@@ -443,29 +435,56 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 		    throw ex;
 		}
 	    }
+#endif
+	    oneOffDone = true;
+	}   
+	
+	if(instanceCount == 1)
+	{	 	    
+	    
+#ifdef _WIN32
+	    WORD version = MAKEWORD(1, 1);
+	    WSADATA data;
+	    if(WSAStartup(version, &data) != 0)
+	    {
+		SocketException ex(__FILE__, __LINE__);
+		ex.error = getSocketErrno();
+		throw ex;
+	    }
+#endif
+	    
+#ifndef _WIN32
+	    struct sigaction action;
+	    action.sa_handler = SIG_IGN;
+	    sigemptyset(&action.sa_mask);
+	    action.sa_flags = 0;
+	    sigaction(SIGPIPE, &action, 0);
 	    
 	    if(_properties->getPropertyAsInt("Ice.UseSyslog") > 0)
 	    {
-		_identForOpenlog = _properties->getProperty("Ice.ProgramName");
-		if(_identForOpenlog.empty())
+		identForOpenlog = _properties->getProperty("Ice.ProgramName");
+		if(identForOpenlog.empty())
 		{
-		    _identForOpenlog = "<Unknown Ice Program>";
+		    identForOpenlog = "<Unknown Ice Program>";
 		}
-		openlog(_identForOpenlog.c_str(), LOG_PID, LOG_USER);
+		openlog(identForOpenlog.c_str(), LOG_PID, LOG_USER);
 	    }
 #endif
 	}
+	
+	sync.release();
+	
 
 #ifdef _WIN32
-        if(_properties->getPropertyAsInt("Ice.UseEventLog") > 0)
-        {
-            _logger = new EventLoggerI(_properties->getProperty("Ice.ProgramName"));
-        }
-        else
-        {
-            _logger = new LoggerI(_properties->getProperty("Ice.ProgramName"), 
-                                  _properties->getPropertyAsInt("Ice.Logger.Timestamp") > 0);
-        }
+	if(_properties->getPropertyAsInt("Ice.UseEventLog") > 0)
+	{
+	    _logger = new EventLoggerI(_properties->getProperty("Ice.ProgramName"));
+	}
+	else
+	{
+	    _logger = new LoggerI(_properties->getProperty("Ice.ProgramName"), 
+				  _properties->getPropertyAsInt("Ice.Logger.Timestamp") > 0);
+	}
 #else
 	if(_properties->getPropertyAsInt("Ice.UseSyslog") > 0)
 	{
@@ -542,9 +561,12 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     }
     catch(...)
     {
+	{
+	    IceUtil::StaticMutex::Lock sync(staticMutex);
+	    --instanceCount;
+	}
 	destroy();
 	__setNoDelete(false);
-	--_globalStateCounter;
 	throw;
     }
 }
@@ -566,13 +588,8 @@ IceInternal::Instance::~Instance()
     assert(!_dynamicLibraryList);
     assert(!_pluginManager);
 
-    if(_globalStateMutex != 0)
-    {
-	_globalStateMutex->lock();
-    }
-
-    assert(_globalStateCounter > 0);
-    if(--_globalStateCounter == 0) // Only on last call
+    IceUtil::StaticMutex::Lock sync(staticMutex);
+    if(--instanceCount == 0)
     {
 #ifdef _WIN32
 	WSACleanup();
@@ -584,20 +601,13 @@ IceInternal::Instance::~Instance()
 	sigemptyset(&action.sa_mask);
 	action.sa_flags = 0;
 	sigaction(SIGPIPE, &action, 0);
-#endif
 	
-#ifndef _WIN32
-	if(!_identForOpenlog.empty())
+	if(!identForOpenlog.empty())
 	{
 	    closelog();
-	    _identForOpenlog.clear();
+	    identForOpenlog.clear();
 	}
 #endif
-    }
-    
-    if(_globalStateMutex != 0)
-    {
-	_globalStateMutex->unlock();
     }
 }
 
@@ -631,18 +641,28 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     //
     // Show process id if requested (but only once).
     //
-    if(!_printProcessIdDone && _properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
+    bool printProcessId = false;
+    if(!printProcessIdDone && _properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
     {
-	IceUtil::RecMutex::Lock sync(*this); // Double-checked locking
-	if(!_printProcessIdDone)
-	{
+	//
+	// Safe double-check locking (no dependent variable!)
+	// 
+	IceUtil::StaticMutex::Lock sync(staticMutex);
+	printProcessId = !printProcessIdDone;
+	
+	//
+	// We anticipate: we want to print it once, and we don't care when.
+	//
+	printProcessIdDone = true;
+    }
+
+    if(printProcessId)
+    {
 #ifdef _WIN32
-	    cout << _getpid() << endl;
+	cout << _getpid() << endl;
 #else
-	    cout << getpid() << endl;
+	cout << getpid() << endl;
 #endif
-	    _printProcessIdDone = true;
-	}
     }
 
     //

@@ -185,7 +185,17 @@ ServerI::sendSignal(const string& signal, const Ice::Current& current)
 void
 ServerI::writeMessage(const string& message, Ice::Int fd, const Ice::Current& current)
 {
-    _activator->writeMessage(name, message, fd);
+    IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    if(_process != 0)
+    {
+	try
+	{
+	    _process->writeMessage(message, fd);
+	}
+	catch(const Ice::LocalException&)
+	{
+	}
+    }
 }
 
 void

@@ -101,25 +101,6 @@ private:
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;
     Ice::PluginManagerPtr _pluginManager;
-    volatile static bool _printProcessIdDone;
-
-    //
-    // Global state management
-    //
-
-    friend class GlobalStateMutexDestroyer;
-
-    static int _globalStateCounter;
-
-    //
-    // This is *not* a StaticMutex. Only the pointer is static, but not
-    // the mutex itself.
-    //
-    static IceUtil::Mutex* _globalStateMutex;
-
-#ifndef _WIN32
-    static std::string _identForOpenlog;
-#endif
 };
 
 }

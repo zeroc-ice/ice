@@ -272,6 +272,44 @@ public class Instance
 
         try
         {
+	    try
+	    {
+		synchronized(Instance.class)
+		{
+		    if(!_oneOffDone)
+		    {
+			String stdOut = _properties.getProperty("Ice.StdOut");
+			String stdErr = _properties.getProperty("Ice.StdErr");
+			
+			java.io.PrintStream outStream = null;
+			
+			if(stdOut.length() > 0)
+			{
+			    outStream = new java.io.PrintStream(new java.io.FileOutputStream(stdOut, true));
+			    System.setOut(outStream);
+			}
+			if(stdErr.length() > 0)
+			{
+			    if(stdErr.equals(stdOut))
+			    {
+				System.setErr(outStream); 
+			    }
+			    else
+			    {
+				System.setErr(new java.io.PrintStream(new java.io.FileOutputStream(stdErr, true)));
+			    }
+			}
+			_oneOffDone = true;
+		    }
+		}
+	    }
+	    catch(java.io.FileNotFoundException ex)
+	    {
+		Ice.SyscallException se = new Ice.SyscallException();
+		se.initCause(ex);
+		throw se;
+	    }
+
 	    if(_properties.getPropertyAsInt("Ice.UseSyslog") > 0)
 	    {
 		_logger = new Ice.SysLoggerI(_properties.getProperty("Ice.ProgramName"));
@@ -545,4 +583,6 @@ public class Instance
     private EndpointFactoryManager _endpointFactoryManager;
     private Ice.PluginManager _pluginManager;
     private final BufferManager _bufferManager; // Immutable, not reset by destroy().
+
+    private static boolean _oneOffDone = false;
 }

@@ -419,6 +419,15 @@ Activator::activate(const string& name,
     args.insert(args.end(), _propertiesOverride.begin(), _propertiesOverride.end());
     args.push_back("--Ice.Default.Locator=" + _properties->getProperty("Ice.Default.Locator"));
     args.push_back("--Ice.ServerId=" + name);
+    
+    if(_outputDir.size() > 0)
+    {
+	string outFile = _outputDir + "/" + name + ".out";
+	string errFile = _redirectErrToOut ? outFile : _outputDir + "/" + name + ".err";
+	args.push_back("--Ice.StdOut=" + outFile);
+	args.push_back("--Ice.StdErr=" + errFile);
+    }
+
 
     if(_traceLevels->activator > 1)
     {
@@ -544,116 +553,7 @@ Activator::activate(const string& name,
     STARTUPINFO si;
     ZeroMemory(&si, sizeof(si));
     si.cb = sizeof(si);
-    if(_outputDir.size() > 0)
-    {
-	string outFile = _outputDir + "/" + name + ".out";
-
-	SECURITY_ATTRIBUTES sec = { 0 };
-	sec.nLength = sizeof(sec);
-	sec.bInheritHandle = true;
-	
-	process.outHandle = CreateFile(outFile.c_str(),
-				       GENERIC_WRITE, 
-				       FILE_SHARE_READ, 
-				       &sec,
-				       OPEN_ALWAYS,
-				       FILE_ATTRIBUTE_NORMAL,
-				       NULL);
-	if(process.outHandle == INVALID_HANDLE_VALUE)
-	{
-	    SyscallException ex(__FILE__, __LINE__);
-	    ex.error = getSystemErrno();
-	    throw ex;
-	}
-        //
-        // NOTE: INVALID_SET_FILE_POINTER is not defined in VC6.
-        //
-	//if(SetFilePointer(process.outHandle, 0, NULL, FILE_END) == INVALID_SET_FILE_POINTER)
-	if(SetFilePointer(process.outHandle, 0, NULL, FILE_END) == (DWORD)-1)
-	{
-	    SyscallException ex(__FILE__, __LINE__);
-	    ex.error = getSystemErrno();
-	    throw ex;
-	}
-	
-	if(_redirectErrToOut)
-	{
-	    process.errHandle = process.outHandle;
-	}
-	else
-	{
-	    string errFile = _outputDir + "/" + name + ".err";
-
-	    process.errHandle = CreateFile(errFile.c_str(),
-					   GENERIC_WRITE, 
-					   FILE_SHARE_READ, 
-					   &sec,
-					   OPEN_ALWAYS,
-					   FILE_ATTRIBUTE_NORMAL,
-					   NULL);
-	    if(process.errHandle == INVALID_HANDLE_VALUE)
-	    {
-		SyscallException ex(__FILE__, __LINE__);
-		ex.error = getSystemErrno();
-		throw ex;
-	    }
-            //
-            // NOTE: INVALID_SET_FILE_POINTER is not defined in VC6.
-            //
-	    //if(SetFilePointer(process.errHandle, 0, NULL, FILE_END) == INVALID_SET_FILE_POINTER)
-	    if(SetFilePointer(process.errHandle, 0, NULL, FILE_END) == (DWORD)-1)
-	    {
-		SyscallException ex(__FILE__, __LINE__);
-		ex.error = getSystemErrno();
-		throw ex;
-	    }
-
-	}
-
-	si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
-	if(si.hStdInput == INVALID_HANDLE_VALUE)
-	{
-	    SyscallException ex(__FILE__, __LINE__);
-	    ex.error = getSystemErrno();
-	    throw ex;
-	}
-	si.hStdOutput = process.outHandle;
-	si.hStdError = process.errHandle;
-	si.dwFlags = STARTF_USESTDHANDLES;
-    }
-    else
-    {
-	process.outHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-	if(process.outHandle == INVALID_HANDLE_VALUE)
-	{
-	    SyscallException ex(__FILE__, __LINE__);
-	    ex.error = getSystemErrno();
-	    throw ex;
-	}
-	if(_redirectErrToOut)
-	{
-	    //
-	    // Note: very partial implementation, since we don't pass this 
-	    // info to the child
-	    //
-	    process.errHandle = process.outHandle;
-	}
-	else
-	{
-	    process.errHandle = GetStdHandle(STD_ERROR_HANDLE);
-	    if(process.errHandle == INVALID_HANDLE_VALUE)
-	    {
-		SyscallException ex(__FILE__, __LINE__);
-		ex.error = getSystemErrno();
-		throw ex;
-	    }
-	}
-	//
-	// Note: we don't set si.hStdOutput or si.hStdError, and use
-	// Windows default behavior.
-	//
-    }
-
+    
     PROCESS_INFORMATION pi;
     ZeroMemory(&pi, sizeof(pi));
 
@@ -662,7 +562,7 @@ Activator::activate(const string& name,
         cmdbuf,                   // Command line
         NULL,                     // Process attributes
         NULL,                     // Thread attributes
-        _outputDir.size() > 0,    // Inherit handles only when redirecting (Temporary, should always be FALSE)
+        FALSE,                    // Do NOT inherit handles
         CREATE_NEW_PROCESS_GROUP, // Process creation flags
         (LPVOID)env,              // Process environment
         dir,                      // Current directory
@@ -730,55 +630,6 @@ Activator::activate(const string& name,
     }
 
     //
-    // stdout and stderr redirection
-    //
-    int flags = O_WRONLY | O_APPEND | O_CREAT;
-    mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
-   
-    int outFd;;
-    string outFile;
-    int errFd;
-    string errFile;
-
-    if(_outputDir.size() == 0)
-    {
-	outFd = STDOUT_FILENO;
-	errFd = _redirectErrToOut ? outFd : STDERR_FILENO;
-    }
-    else
-    {
-	outFile = _outputDir + "/" + name + ".out";
-	outFd = open(outFile.c_str(), flags, mode);
-	if(outFd < 0)
-	{
-	    SyscallException ex(__FILE__, __LINE__);
-	    ex.error = getSystemErrno();
-	    throw ex;
-	}
-	
-	if(_redirectErrToOut)
-	{
-	    errFile = outFile;
-	    errFd = outFd;
-	}
-	else
-	{
-	    errFile = _outputDir + "/" + name + ".err";
-	    errFd = open(errFile.c_str(), flags, mode);
-	    
-	    if(errFd < 0)
-	    {
-		SyscallException ex(__FILE__, __LINE__);
-		ex.error = getSystemErrno();
-		throw ex;
-	    }   
-	}
-    }
-    
-    const char* outFileCStr = outFile.c_str();
-    const char* errFileCStr = errFile.c_str();
-
-    //
     // Current directory
     //
     const char* pwdCStr = pwd.c_str();
@@ -805,22 +656,6 @@ Activator::activate(const string& name,
 	//
 	setpgrp();
 #endif
-
-	//
-	// stdout and stderr redirection
-	//
-	if(_outputDir.size() > 0)
-	{
-	    if(dup2(outFd, STDOUT_FILENO) != STDOUT_FILENO)
-	    {
-		reportChildError(errno, fds[1], "cannot associate stdout with opened file",  outFileCStr);
-	    }
-	    
-	    if(dup2(errFd, STDERR_FILENO) != STDERR_FILENO)
-	    {
-		reportChildError(errno, fds[1], "cannot associate stderr with opened file",  errFileCStr);
-	    }
-	}
 
 	//
 	// Close all file descriptors, except for standard input,
@@ -877,8 +712,6 @@ Activator::activate(const string& name,
 	Process process;
 	process.pid = pid;
 	process.pipeFd = fds[0];
-	process.outFd = outFd;
-	process.errFd = errFd;
 	process.server = server;
 	_processes.insert(make_pair(name, process));
 	
@@ -1056,62 +889,6 @@ Activator::sendSignal(const string& name, int signal)
     }
 #endif
 }
-
-void 
-Activator::writeMessage(const string& name, const string& message, Ice::Int fd)
-{
-    assert(fd == 1 || fd == 2);
-    
-    string msg = message + "\n";
-
-#ifdef _WIN32
-    HANDLE handle = 0;
-#else
-    int actualFd = -1;
-#endif
-    {
-	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
-
-	map<string, Process>::const_iterator p = _processes.find(name);
-	if(p == _processes.end())
-	{
-	    return;
-	}
-	
-#ifdef _WIN32
-	handle = (fd == 1 ? p->second.outHandle : p->second.errHandle);
-#else
-	actualFd = (fd == 1 ? p->second.outFd : p->second.errFd);
-#endif
-    }
-
-#ifdef _WIN32
-    if(handle != 0)
-    {
-	DWORD written = 0;
-	if(!WriteFile(handle, msg.c_str(), msg.size(), &written, NULL))
-	{
-	    SyscallException ex(__FILE__, __LINE__);
-	    ex.error = getSystemErrno();
-	    throw ex;
-	} 
-	assert(written == msg.size());
-    }
-#else
-    if(actualFd > 0)
-    {
-	ssize_t written = write(actualFd, msg.c_str(), msg.size());
-	if(written == -1)
-	{
-	    SyscallException ex(__FILE__, __LINE__);
-	    ex.error = getSystemErrno();
-	    throw ex;
-	}
-	assert(written == static_cast<ssize_t>(msg.size()));
-    }
-#endif
-}
-   
 
 Ice::Int
 Activator::getServerPid(const string& name)
@@ -1301,17 +1078,6 @@ Activator::terminationListener()
                     }
                             
 		    CloseHandle(hnd);
-		    if(_outputDir.size() > 0)
-		    {
-			//
-			// STDOUT and STDERR should not be closed
-			//
-			CloseHandle(p->second.outHandle);
-			if(!_redirectErrToOut)
-			{
-			    CloseHandle(p->second.errHandle);
-			}
-		    }
                     _processes.erase(p);
                     break;
                 }
@@ -1436,14 +1202,6 @@ Activator::terminationListener()
 			out << "unexpected exception raised by server `" << p->first << "' termination:\n" << ex;
 		    }
 			    
-		    if(p->second.errFd != p->second.outFd && p->second.errFd != STDERR_FILENO)
-		    {
-			close(p->second.errFd);
-		    }
-		    if(p->second.outFd != STDOUT_FILENO)
-		    {
-			close(p->second.outFd);
-		    }
 		    close(p->second.pipeFd);
 		    _processes.erase(p++);
 

@@ -31,8 +31,7 @@ public:
     virtual void deactivate(const std::string&, const Ice::ProcessPrx&);
     virtual void kill(const std::string&);
     virtual void sendSignal(const std::string&, const std::string&);
-    virtual void writeMessage(const std::string&, const std::string&, Ice::Int);
-
+  
     virtual Ice::Int getServerPid(const std::string&);
     
     virtual void start();
@@ -57,13 +56,9 @@ private:
 #ifdef _WIN32
         DWORD pid;
         HANDLE hnd;
-	HANDLE outHandle;
-	HANDLE errHandle;
 #else
 	pid_t pid;
 	int pipeFd;
-	int outFd;
-	int errFd;
 #endif
 	ServerPrx server;
     };

@@ -949,6 +949,41 @@ automatically.
 </section>
 </section>
 
+
+<section><title>Ice.StdErr</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.StdErr=<replaceable>filename</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>filename</replaceable> is not empty, the standard
+error stream of this process is redirected to this file, in
+append mode. This property is checked only for the first
+Communicator created in a given process.
+</para>
+</section>
+</section>
+
+<section><title>Ice.StdOut</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.StdOut=<replaceable>filename</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>filename</replaceable> is not empty, the standard
+output stream of this process is redirected to this file, in
+append mode. This property is checked only for the first
+Communicator created in a given process.
+</para>
+</section>
+</section>
+
 <section><title>Ice.UseEventLog</title>
 <section><title>Synopsis</title>
 <synopsis>

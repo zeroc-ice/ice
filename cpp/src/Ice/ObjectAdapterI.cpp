@@ -892,3 +892,21 @@ Ice::ObjectAdapterI::ProcessI::shutdown(const Current&)
 {
     _communicator->shutdown();
 }
+
+void
+Ice::ObjectAdapterI::ProcessI::writeMessage(const string& message, Int fd, const Current&)
+{
+    switch(fd)
+    {
+	case 1:
+	{
+	    cout << message << endl;
+	    break;
+	}
+	case 2:
+	{
+	    cerr << message << endl;
+	    break;
+	}
+    }
+}

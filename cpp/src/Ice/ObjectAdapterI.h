@@ -117,6 +117,8 @@ private:
 
         virtual void shutdown(const Current&);
 
+	virtual void writeMessage(const std::string&, Int, const Current&);
+
     private:
 
         CommunicatorPtr _communicator;
