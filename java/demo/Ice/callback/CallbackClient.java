@@ -104,13 +104,13 @@ class CallbackClient extends Ice.Application
                 {
                     java.util.HashMap context = new java.util.HashMap();
                     context.put("_fwd", "o" + secureStr);
-                    batchOneway.initiateCallback(onewayR, context);
+                    oneway.initiateCallback(onewayR, context);
                 }
                 else if (line.equals("O"))
                 {
                     java.util.HashMap context = new java.util.HashMap();
                     context.put("_fwd", "o" + secureStr);
-                    oneway.initiateCallback(onewayR, context);
+                    batchOneway.initiateCallback(onewayR, context);
                 }
                 else if (line.equals("d"))
                 {
