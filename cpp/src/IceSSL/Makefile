@@ -57,9 +57,16 @@ OBJS		= Plugin.o \
 
 SRCS		= $(OBJS:.o=.cpp)
 
+SLICE_SRCS	= $(SDIR)/Exception.ice \
+		  $(SDIR)/Plugin.ice \
+		  $(SDIR)/PluginF.ice \
+	 	  $(SDIR)/CertificateVerifier.ice \
+	 	  $(SDIR)/CertificateVerifierF.ice
+
 HDIR		= $(includedir)/IceSSL
 SDIR		= $(slicedir)/IceSSL
-SLICECMD	= $(SLICE2CPP) --ice --include-dir IceSSL --dll-export ICE_SSL_API -I$(slicedir)
+SLICE2CPPFLAGS	= -I$(slicedir)
+SLICECMD	= $(SLICE2CPP) --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 

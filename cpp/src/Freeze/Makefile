@@ -28,9 +28,16 @@ OBJS		= DB.o \
 
 SRCS		= $(OBJS:.o=.cpp)
 
+SLICE_SRCS	= $(SDIR)/DB.ice \
+		  $(SDIR)/DBF.ice \
+		  $(SDIR)/DBException.ice \
+		  $(SDIR)/Evictor.ice \
+		  $(SDIR)/EvictorF.ice
+
 HDIR		= $(includedir)/Freeze
 SDIR		= $(slicedir)/Freeze
-SLICECMD	= $(SLICE2CPP) --ice --include-dir Freeze --dll-export FREEZE_API -I$(slicedir)
+SLICE2CPPFLAGS	= -I$(slicedir)
+SLICECMD	= $(SLICE2CPP) --ice --include-dir Freeze --dll-export FREEZE_API $(SLICE2CPPFLAGS)
 SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir Freeze -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules

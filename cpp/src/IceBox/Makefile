@@ -32,9 +32,12 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
 		  $(AOBJS:.o=.cpp)
 
+SLICE_SRCS	= $(SDIR)/IceBox.ice
+
 HDIR		= $(includedir)/IceBox
 SDIR		= $(slicedir)/IceBox
-SLICECMD	= $(SLICE2CPP) --ice --include-dir IceBox -I$(slicedir)
+SLICE2CPPFLAGS	= -I$(slicedir)
+SLICECMD	= $(SLICE2CPP) --ice --include-dir IceBox $(SLICE2CPPFLAGS)
 SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceBox -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules

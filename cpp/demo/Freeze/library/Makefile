@@ -43,6 +43,8 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
 		  $(COLOBJS:.o=.cpp)
 
+SLICE_SRCS	= Library.ice
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I$(DB_HOME)/include $(CPPFLAGS)

@@ -40,9 +40,17 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(ROBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
+SLICE_SRCS	= $(SDIR)/Starter.ice \
+		  $(SDIR)/Router.ice \
+		  $(SDIR)/Session.ice \
+		  $(SDIR)/SessionManager.ice \
+		  $(SDIR)/SessionF.ice \
+		  $(SDIR)/SessionManagerF.ice
+
 HDIR		= $(includedir)/Glacier
 SDIR		= $(slicedir)/Glacier
-SLICECMD	= $(SLICE2CPP) --include-dir Glacier --dll-export GLACIER_API -I$(slicedir)
+SLICE2CPPFLAGS	= -I$(slicedir)
+SLICECMD	= $(SLICE2CPP) --include-dir Glacier --dll-export GLACIER_API $(SLICE2CPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 

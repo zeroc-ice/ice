@@ -23,6 +23,8 @@ OBJS		= ComplexDict.o \
 
 SRCS		= $(OBJS:.o=.cpp)
 
+SLICE_SRCS	= Complex.ice
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include -I$(DB_HOME)/include $(CPPFLAGS)

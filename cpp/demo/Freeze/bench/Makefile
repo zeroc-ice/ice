@@ -18,6 +18,8 @@ OBJS		= Client.o BenchTypes.o Test.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
+SLICE_SRCS	= Test.ice
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I$(DB_HOME)/include $(CPPFLAGS)

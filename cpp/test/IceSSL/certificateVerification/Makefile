@@ -25,6 +25,10 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
+SLICE_SRCS	= Pinger.ice
+
+SLICE2CPPFLAGS	= -I$(slicedir)
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
@@ -39,7 +43,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 
 Pinger.h Pinger.cpp: Pinger.ice $(SLICE2CPP)
 	rm -f Pinger.h Pinger.cpp
-	$(SLICE2CPP) -I$(slicedir) Pinger.ice
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) Pinger.ice
 
 clean::
 	rm -f Pinger.h Pinger.cpp

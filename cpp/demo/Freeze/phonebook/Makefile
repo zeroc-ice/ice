@@ -43,6 +43,10 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
 		  $(COLOBJS:.o=.cpp)
 
+SLICE_SRCS	= PhoneBook.ice
+
+SLICE2CPPFLAGS	= -I$(slicedir)
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I$(DB_HOME)/include $(CPPFLAGS)
@@ -77,7 +81,7 @@ clean::
 
 PhoneBook.h PhoneBook.cpp: PhoneBook.ice $(SLICE2CPP)
 	rm -f PhoneBook.h PhoneBook.cpp
-	$(SLICE2CPP) -I$(slicedir) PhoneBook.ice
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) PhoneBook.ice
 
 clean::
 	rm -f PhoneBook.h PhoneBook.cpp

@@ -26,6 +26,8 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(POBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
+SLICE_SRCS	= Clock.ice
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)

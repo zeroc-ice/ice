@@ -55,9 +55,14 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(SERVER_OBJS:.o=.cpp) \
 		  $(AOBJS:.o=.cpp)
 
+SLICE_SRCS	= $(SDIR)/IceStorm.ice \
+		  IceStormInternal.ice \
+		  LinkDB.ice
+
 HDIR		= $(includedir)/IceStorm
 SDIR		= $(slicedir)/IceStorm
-SLICECMD	= $(SLICE2CPP) --ice --include-dir IceStorm -I$(slicedir) -I..
+SLICE2CPPFLAGS	= -I.. -I$(slicedir)
+SLICECMD	= $(SLICE2CPP) --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
 SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceStorm -I$(slicedir) -I..
 
 include $(top_srcdir)/config/Make.rules

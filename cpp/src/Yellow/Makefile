@@ -43,10 +43,13 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(SERVICE_OBJS:.o=.cpp) \
 		  $(AOBJS:.o=.cpp)
 
+SLICE_SRCS	= $(SDIR)/Yellow.ice
+
 HDIR		= $(includedir)/Yellow
 SDIR		= $(slicedir)/Yellow
-SLICECMD	= $(SLICE2CPP) --ice --include-dir Yellow -I$(slicedir) -I..
-SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir Yellow -I$(slicedir) -I..
+SLICE2CPPFLAGS	= -I$(slicedir)
+SLICECMD	= $(SLICE2CPP) --ice --include-dir Yellow $(SLICE2CPPFLAGS)
+SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir Yellow -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -84,7 +87,7 @@ clean::
 StringObjectProxySeqDict.h StringObjectProxySeqDict.cpp: $(SLICE2FREEZE)
 	rm -f StringObjectProxySeqDict.h StringObjectProxySeqDict.cpp
 	$(SLICE2FREEZECMD) --dict Yellow::StringObjectProxySeqDict,string,Ice::ObjectProxySeq \
-	StringObjectProxySeqDict ../../slice/Ice/BuiltinSequences.ice
+	StringObjectProxySeqDict $(slicedir)/Ice/BuiltinSequences.ice
 
 clean::
 	rm -f StringObjectProxySeqDict.h StringObjectProxySeqDict.cpp
