@@ -14,9 +14,41 @@
 
 using namespace std;
 
+class MyObjectFactory : public Ice::ObjectFactory
+{
+public:
+
+    virtual Ice::ObjectPtr create(const string& type)
+    {
+	if (type == "::B")
+	{
+	    return new B;
+	}
+	else if (type == "::C")
+	{
+	    return new C;
+	}
+	else if (type == "::D")
+	{
+	    return new D;
+	}
+	assert(false); // Should never be reached
+    }
+
+    virtual void destroy()
+    {
+	// Nothing to do
+    }
+};
+
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
+    Ice::ObjectFactoryPtr factory = new MyObjectFactory;
+    communicator->addObjectFactory(factory, "::B");
+    communicator->addObjectFactory(factory, "::C");
+    communicator->addObjectFactory(factory, "::D");
+
     InitialPrx allTests(const Ice::CommunicatorPtr&);
     InitialPrx initial = allTests(communicator);
     initial->shutdown();

@@ -617,11 +617,11 @@ IceInternal::BasicStream::write(const string& v)
 	write(len);
 	if (len > 0)
 	{
+	    Int num = _encapsStack.back().stringsWritten.size();
+	    _encapsStack.back().stringsWritten[v] = -(num + 1);
 	    int pos = b.size();
 	    resize(pos + len);
 	    copy(v.begin(), v.end(), b.begin() + pos);
-	    Int num = _encapsStack.back().stringsWritten.size();
-	    _encapsStack.back().stringsWritten[v] = -(num + 1);
 	}
     }
 }
@@ -710,13 +710,13 @@ IceInternal::BasicStream::write(const wstring& v)
 	write(len);
 	if (len > 0)
 	{
+	    Int num = _encapsStack.back().wstringsWritten.size();
+	    _encapsStack.back().wstringsWritten[v] = -(num + 1);
 	    wstring::const_iterator p;
 	    for (p = v.begin(); p != v.end(); ++p)
 	    {
 		write(static_cast<Short>(*p));
 	    }
-	    Int num = _encapsStack.back().wstringsWritten.size();
-	    _encapsStack.back().wstringsWritten[v] = -(num + 1);
 	}
     }
 }
@@ -809,10 +809,18 @@ IceInternal::BasicStream::write(const ObjectPtr& v)
     else
     {
 	write(Int(-1));
-	write(v->__getClassIds()[0]);
-	v->__write(this);
-	Int num = _encapsStack.back().objectsWritten.size();
-	_encapsStack.back().objectsWritten[v] = num;
+	
+	if (v)
+	{
+	    Int num = _encapsStack.back().objectsWritten.size();
+	    _encapsStack.back().objectsWritten[v] = num;
+	    write(v->__getClassIds()[0]);
+	    v->__write(this);
+	}
+	else
+	{
+	    write("");
+	}
     }
 }
 
@@ -835,24 +843,35 @@ IceInternal::BasicStream::read(const char* signatureType, ObjectPtr& v)
     {
 	string id;
 	read(id);
-	ObjectFactoryPtr factory = _instance->servantFactoryManager()->find(id);
-	
-	if (factory)
-	{
-	    v = factory->create(id);
-	    if (v)
-	    {
-		v->__read(this);
-		return true;
-	    }
-	}
-	
-	if (id == signatureType)
-	{
-	    return false;
-	}
 
-	throw NoObjectFactoryException(__FILE__, __LINE__);
+	if (id.empty())
+	{
+	    v = 0;
+	    return true;
+	}
+	else
+	{
+	    ObjectFactoryPtr factory = _instance->servantFactoryManager()->find(id);
+	    
+	    if (factory)
+	    {
+		v = factory->create(id);
+		if (v)
+		{
+		    _encapsStack.back().objectsRead.push_back(v);
+		    v->__read(this);
+		    return true;
+		}
+	    }
+	    
+	    if (id == signatureType)
+	    {
+		_encapsStack.back().objectsRead.push_back(v);
+		return false;
+	    }
+	    
+	    throw NoObjectFactoryException(__FILE__, __LINE__);
+	}
     }
 }
 

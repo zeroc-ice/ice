@@ -299,6 +299,112 @@ IceInternal::Reference::Reference(const string& ident, BasicStream* s) :
     calcHashValue();
 }
 
+bool
+IceInternal::Reference::operator==(const Reference& r) const
+{
+    if (this == &r)
+    {
+	return true;
+    }
+    
+    if (identity != r.identity)
+    {
+	return false;
+    }
+
+    if (facet != r.facet)
+    {
+	return false;
+    }
+
+    if (mode != r.mode)
+    {
+	return false;
+    }
+
+    if (secure != r.secure)
+    {
+	return false;
+    }
+
+    if (origEndpoints != r.origEndpoints)
+    {
+	return false;
+    }
+
+    if (endpoints != r.endpoints)
+    {
+	return false;
+    }
+
+    return true;
+}
+
+bool
+IceInternal::Reference::operator<(const Reference& r) const
+{
+    if (this == &r)
+    {
+	return false;
+    }
+    
+    if (identity < r.identity)
+    {
+	return true;
+    }
+    else if (identity != r.identity)
+    {
+	return false;
+    }
+
+    if (facet < r.facet)
+    {
+	return true;
+    }
+    else if (facet != r.facet)
+    {
+	return false;
+    }
+
+    if (mode < r.mode)
+    {
+	return true;
+    }
+    else if (mode != r.mode)
+    {
+	return false;
+    }
+    
+    if (!secure && r.secure)
+    {
+	return true;
+    }
+    else if (secure != r.secure)
+    {
+	return false;
+    }
+    
+    if (origEndpoints < r.origEndpoints)
+    {
+	return true;
+    }
+    else if (origEndpoints != r.origEndpoints)
+    {
+	return false;
+    }
+    
+    if (endpoints < r.endpoints)
+    {
+	return true;
+    }
+    else if (endpoints != r.endpoints)
+    {
+	return false;
+    }
+    
+    return false;
+}
+
 void
 IceInternal::Reference::streamWrite(BasicStream* s) const
 {
@@ -451,112 +557,6 @@ IceInternal::Reference::changeEndpoints(const std::vector<EndpointPtr>& newEndpo
     {
 	return new Reference(instance, identity, facet, mode, secure, origEndpoints, newEndpoints);
     }
-}
-
-bool
-IceInternal::Reference::operator==(const Reference& r) const
-{
-    if (this == &r)
-    {
-	return true;
-    }
-    
-    if (identity != r.identity)
-    {
-	return false;
-    }
-
-    if (facet != r.facet)
-    {
-	return false;
-    }
-
-    if (mode != r.mode)
-    {
-	return false;
-    }
-
-    if (secure != r.secure)
-    {
-	return false;
-    }
-
-    if (origEndpoints != r.origEndpoints)
-    {
-	return false;
-    }
-
-    if (endpoints != r.endpoints)
-    {
-	return false;
-    }
-
-    return true;
-}
-
-bool
-IceInternal::Reference::operator<(const Reference& r) const
-{
-    if (this == &r)
-    {
-	return false;
-    }
-    
-    if (identity < r.identity)
-    {
-	return true;
-    }
-    else if (identity != r.identity)
-    {
-	return false;
-    }
-
-    if (facet < r.facet)
-    {
-	return true;
-    }
-    else if (facet != r.facet)
-    {
-	return false;
-    }
-
-    if (mode < r.mode)
-    {
-	return true;
-    }
-    else if (mode != r.mode)
-    {
-	return false;
-    }
-    
-    if (!secure && r.secure)
-    {
-	return true;
-    }
-    else if (secure != r.secure)
-    {
-	return false;
-    }
-    
-    if (origEndpoints < r.origEndpoints)
-    {
-	return true;
-    }
-    else if (origEndpoints != r.origEndpoints)
-    {
-	return false;
-    }
-    
-    if (endpoints < r.endpoints)
-    {
-	return true;
-    }
-    else if (endpoints != r.endpoints)
-    {
-	return false;
-    }
-    
-    return false;
 }
 
 void

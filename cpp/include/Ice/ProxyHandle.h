@@ -182,54 +182,6 @@ public:
     }
 };
 
-template<typename T, typename U>
-inline bool operator==(const ProxyHandle<T>& a, const ProxyHandle<U>& b)
-{
-    T* ap = a.get();
-    U* bp = b.get();
-    if (ap == bp)
-    {
-	return true;
-    }
-    else if (!ap)
-    {
-	assert(bp);
-	return false;
-    }
-    else
-    {
-	return *ap == *bp;
-    }
-}
-
-template<typename T, typename U>
-inline bool operator!=(const ProxyHandle<T>& a, const ProxyHandle<U>& b)
-{
-    return !operator==(a, b);
-}
-
-template<typename T, typename U>
-inline bool operator<(const ProxyHandle<T>& a, const ProxyHandle<U>& b)
-{
-    T* ap = a.get();
-    U* bp = b.get();
-    if (!ap || !bp)
-    {
-	if (!ap && bp)
-	{
-	    return true;
-	}
-	else
-	{
-	    return false;
-	}
-    }
-    else
-    {
-	return *a.get() < *b.get();
-    }
-}
-
 }
 
 #endif

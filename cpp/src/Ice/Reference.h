@@ -40,6 +40,9 @@ public:
     Reference(const InstancePtr&, const std::string&);
     Reference(const std::string&, BasicStream*);
 
+    bool operator==(const Reference&) const;
+    bool operator<(const Reference&) const;
+
     //
     // Marshal the reference
     //
@@ -73,9 +76,6 @@ public:
     ReferencePtr changeSecure(bool) const;
     ReferencePtr changeEndpoints(const std::vector<EndpointPtr>&) const;
  
-    bool operator==(const Reference&) const;
-    bool operator<(const Reference&) const;
-
 private:
 
     void calcHashValue();

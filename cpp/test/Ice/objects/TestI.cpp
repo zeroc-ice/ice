@@ -18,6 +18,19 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
     _c(new C),
     _d(new D)
 {
+    _b1->a = _b2; // Cyclic reference to another B
+    _b1->b = _b1; // Self reference.
+    _b1->c = 0; // Null reference.
+
+    _b2->a = _b2; // Self reference, using base.
+    _b2->b = _b1; // Cyclic reference to another B
+    _b2->c = _c; // Cyclic reference to a C.
+
+    _c->b = _b2; // Cyclic reference to a B.
+
+    _d->a = _b1; // Reference to a B.
+    _d->b = _b2; // Reference to a B.
+    _d->c = 0; // Reference to a C.
 }
 
 void
