@@ -36,6 +36,7 @@ updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR",
 
 command = starter + updatedClientServerOptions + \
           r' --Ice.PrintProcessId' \
+          r' --Ice.Plugin.IceSSL=IceSSL:create' \
           r' --Glacier.Starter.RouterPath=' + router + \
           r' --Glacier.Starter.PropertiesOverwrite=Ice.ServerIdleTime=10' \
           r' --Glacier.Starter.CryptPasswords="' + toplevel + r'/test/Glacier/starter/passwords"' + \
