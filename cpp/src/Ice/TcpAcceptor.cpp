@@ -20,7 +20,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-int
+SOCKET
 IceInternal::TcpAcceptor::fd()
 {
     return _fd;
@@ -36,7 +36,7 @@ IceInternal::TcpAcceptor::close()
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
-    int fd = _fd;
+    SOCKET fd = _fd;
     _fd = INVALID_SOCKET;
     closeSocket(fd);
 }
@@ -78,7 +78,7 @@ IceInternal::TcpAcceptor::listen()
 TransceiverPtr
 IceInternal::TcpAcceptor::accept(int timeout)
 {
-    int fd = doAccept(_fd, timeout);
+    SOCKET fd = doAccept(_fd, timeout);
 
     if (_traceLevels->network >= 1)
     {

@@ -27,7 +27,7 @@ void IceInternal::incRef(ThreadPool* p) { p->__incRef(); }
 void IceInternal::decRef(ThreadPool* p) { p->__decRef(); }
 
 void
-IceInternal::ThreadPool::_register(int fd, const EventHandlerPtr& handler)
+IceInternal::ThreadPool::_register(SOCKET fd, const EventHandlerPtr& handler)
 {
     JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
     if (handler->server())
@@ -39,7 +39,7 @@ IceInternal::ThreadPool::_register(int fd, const EventHandlerPtr& handler)
 }
 
 void
-IceInternal::ThreadPool::unregister(int fd)
+IceInternal::ThreadPool::unregister(SOCKET fd)
 {
     JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
     _removes.push_back(fd);
@@ -148,11 +148,11 @@ IceInternal::ThreadPool::getMaxConnections()
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
     _instance(instance),
     _destroyed(false),
-    _lastFd(-1),
+    _lastFd(INVALID_SOCKET),
     _servers(0),
     _timeout(0)
 {
-    int fds[2];
+    SOCKET fds[2];
     createPipe(fds);
     _fdIntrRead = fds[0];
     _fdIntrWrite = fds[1];
@@ -321,11 +321,11 @@ IceInternal::ThreadPool::run()
 	    // filedescriptor has priority.
 	    //
 	    assert(fdSet.fd_count > 0);
-	    int largerFd = _maxFd + 1;
-	    int smallestFd = _maxFd + 1;
+	    SOCKET largerFd = _maxFd + 1;
+	    SOCKET smallestFd = _maxFd + 1;
 	    for (u_short i = 0; i < fdSet.fd_count; ++i)
 	    {
-		int fd = static_cast<int>(fdSet.fd_array[i]);
+		SOCKET fd = fdSet.fd_array[i];
 
 		if (fd == _fdIntrRead)
 		{
@@ -334,7 +334,7 @@ IceInternal::ThreadPool::run()
 		    break;
 		}
 
-		if (fd > _lastFd)
+		if (_lastFd == INVALID_SOCKET || fd > _lastFd)
 		{
 		    largerFd = min(largerFd, fd);
 		}
@@ -368,7 +368,7 @@ IceInternal::ThreadPool::run()
 		//
 		// New handlers have been added.
 		//
-		for (vector<pair<int, EventHandlerPtr> >::iterator p = _adds.begin(); p != _adds.end(); ++p)
+		for (vector<pair<SOCKET, EventHandlerPtr> >::iterator p = _adds.begin(); p != _adds.end(); ++p)
 		{
 		    _reapList.push_front(p->first);
 		    _handlerMap[p->first] = make_pair(p->second, _reapList.begin());
@@ -384,15 +384,11 @@ IceInternal::ThreadPool::run()
 		//
 		// Handlers are permanently removed.
 		//
-		for (vector<int>::iterator p = _removes.begin(); p != _removes.end(); ++p)
+		for (vector<SOCKET>::iterator p = _removes.begin(); p != _removes.end(); ++p)
 		{
-		    map<int, pair<EventHandlerPtr, list<int>::iterator> >::iterator q =	_handlerMap.find(*p);
+		    map<SOCKET, pair<EventHandlerPtr, list<SOCKET>::iterator> >::iterator q = _handlerMap.find(*p);
 		    assert(q != _handlerMap.end());
-#ifdef WIN32
-		    FD_CLR(static_cast<u_int>(*p), &_fdSet);
-#else
 		    FD_CLR(*p, &_fdSet);
-#endif
 		    q->second.first->finished();
 		    if (q->second.first->server())
 		    {
@@ -426,16 +422,16 @@ IceInternal::ThreadPool::run()
 	    //
 	    reap = false;
             // _handlerMap.size() is faster than _reapList() with most STLs.
-	    if (_maxConnections > 0 && _handlerMap.size() > static_cast<list<int>::size_type>(_maxConnections))
+	    if (_maxConnections > 0 && _handlerMap.size() > static_cast<list<SOCKET>::size_type>(_maxConnections))
 	    {
-		for (list<int>::reverse_iterator p = _reapList.rbegin(); p != _reapList.rend(); ++p)
+		for (list<SOCKET>::reverse_iterator p = _reapList.rbegin(); p != _reapList.rend(); ++p)
 		{
-		    int fd = *p;
+		    SOCKET fd = *p;
 		    if (fd != -1)
 		    {
 			_reapList.pop_back();
 			_reapList.push_front(-1);
-			map<int, pair<EventHandlerPtr, list<int>::iterator> >::iterator q = _handlerMap.find(fd);
+			map<SOCKET, pair<EventHandlerPtr, list<SOCKET>::iterator> >::iterator q = _handlerMap.find(fd);
 			q->second.second = _reapList.begin();
 			handler = q->second.first;
 			reap = true;
@@ -476,7 +472,7 @@ IceInternal::ThreadPool::run()
 		}
 #endif
 		
-		map<int, pair<EventHandlerPtr, list<int>::iterator> >::iterator p = _handlerMap.find(_lastFd);
+		map<SOCKET, pair<EventHandlerPtr, list<SOCKET>::iterator> >::iterator p = _handlerMap.find(_lastFd);
 		if(p == _handlerMap.end())
 		{
 		    ostringstream s;

@@ -20,7 +20,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-int
+SOCKET
 IceInternal::TcpTransceiver::fd()
 {
     return _fd;
@@ -36,7 +36,7 @@ IceInternal::TcpTransceiver::close()
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
-    int fd = _fd;
+    SOCKET fd = _fd;
     _fd = INVALID_SOCKET;
     ::shutdown(fd, SHUT_RDWR); // helps to unblock threads in recv()
     closeSocket(fd);
@@ -96,8 +96,8 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 
 	    if (wouldBlock())
 	    {
-		int fd = _fd; // Copy fd, in case another thread calls close()
-		if (fd != -1)
+		SOCKET fd = _fd; // Copy fd, in case another thread calls close()
+		if (fd != INVALID_SOCKET)
 		{
 		repeatSelect:
 		    int ret;
@@ -196,8 +196,8 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 
 	    if (wouldBlock())
 	    {
-		int fd = _fd; // Copy fd, in case another thread calls close()
-		if (fd != -1)
+		SOCKET fd = _fd; // Copy fd, in case another thread calls close()
+		if (fd != INVALID_SOCKET)
 		{
 		repeatSelect:
 		    int ret;
@@ -271,7 +271,7 @@ IceInternal::TcpTransceiver::toString() const
     return fdToString(_fd);
 }
 
-IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, int fd) :
+IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET fd) :
     _instance(instance),
     _fd(fd),
     _traceLevels(instance->traceLevels()),

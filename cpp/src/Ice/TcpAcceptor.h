@@ -30,7 +30,7 @@ class TcpAcceptor : public Acceptor
 {
 public:
 
-    virtual int fd();
+    virtual SOCKET fd();
     virtual void close();
     virtual void shutdown();
     virtual void listen();
@@ -50,7 +50,7 @@ private:
     InstancePtr _instance;
     TraceLevelsPtr _traceLevels;
     ::Ice::LoggerPtr _logger;
-    int _fd;
+    SOCKET _fd;
     int _backlog;
     struct sockaddr_in _addr;
 };

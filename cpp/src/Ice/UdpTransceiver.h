@@ -29,7 +29,7 @@ class UdpTransceiver : public Transceiver
 {
 public:
 
-    virtual int fd();
+    virtual SOCKET fd();
     virtual void close();
     virtual void shutdown();
     virtual void write(Buffer&, int);
@@ -51,7 +51,7 @@ private:
     TraceLevelsPtr _traceLevels;
     ::Ice::LoggerPtr _logger;
     bool _sender;
-    int _fd;
+    SOCKET _fd;
     struct sockaddr_in _addr;
 };
 

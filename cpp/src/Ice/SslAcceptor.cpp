@@ -7,6 +7,7 @@
 // All Rights Reserved
 //
 // **********************************************************************
+
 #ifdef WIN32
 #pragma warning(disable:4786)
 #endif
@@ -35,7 +36,7 @@ using IceSecurity::Ssl::Factory;
 using IceSecurity::Ssl::System;
 using IceSecurity::Ssl::ShutdownException;
 
-int
+SOCKET
 IceInternal::SslAcceptor::fd()
 {
     return _fd;
@@ -51,7 +52,7 @@ IceInternal::SslAcceptor::close()
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
-    int fd = _fd;
+    SOCKET fd = _fd;
     _fd = INVALID_SOCKET;
     closeSocket(fd);
 }
@@ -93,7 +94,7 @@ IceInternal::SslAcceptor::listen()
 TransceiverPtr
 IceInternal::SslAcceptor::accept(int timeout)
 {
-    int fd = doAccept(_fd, timeout);
+    SOCKET fd = doAccept(_fd, timeout);
 
     if (_traceLevels->network >= 1)
     {

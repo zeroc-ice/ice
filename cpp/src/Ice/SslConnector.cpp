@@ -7,6 +7,7 @@
 // All Rights Reserved
 //
 // **********************************************************************
+
 #ifdef WIN32
 #pragma warning(disable:4786)
 #endif
@@ -44,7 +45,7 @@ IceInternal::SslConnector::connect(int timeout)
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
-    int fd = createSocket(false);
+    SOCKET fd = createSocket(false);
     doConnect(fd, _addr, timeout);
 
     if (_traceLevels->network >= 1)

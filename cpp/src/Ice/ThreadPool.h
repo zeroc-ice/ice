@@ -26,8 +26,8 @@ class ThreadPool : public ::IceUtil::Shared, public JTCMonitorT<JTCMutex>
 {
 public:
 
-    void _register(int, const EventHandlerPtr&);
-    void unregister(int);
+    void _register(SOCKET, const EventHandlerPtr&);
+    void unregister(SOCKET);
     void promoteFollower();
     void initiateServerShutdown(); // Signal-safe shutdown initiation.
     void waitUntilServerFinished();
@@ -52,16 +52,16 @@ private:
 
     InstancePtr _instance;
     bool _destroyed;
-    int _maxFd;
-    int _minFd;
-    int _lastFd;
-    int _fdIntrRead;
-    int _fdIntrWrite;
+    SOCKET _maxFd;
+    SOCKET _minFd;
+    SOCKET _lastFd;
+    SOCKET _fdIntrRead;
+    SOCKET _fdIntrWrite;
     fd_set _fdSet;
-    std::vector<std::pair<int, EventHandlerPtr> > _adds;
-    std::vector<int> _removes;
-    std::map<int, std::pair<EventHandlerPtr, std::list<int>::iterator> > _handlerMap;
-    std::list<int> _reapList;
+    std::vector<std::pair<SOCKET, EventHandlerPtr> > _adds;
+    std::vector<SOCKET> _removes;
+    std::map<SOCKET, std::pair<EventHandlerPtr, std::list<SOCKET>::iterator> > _handlerMap;
+    std::list<SOCKET> _reapList;
     int _servers;
     int _timeout;
     JTCMutex _threadMutex;

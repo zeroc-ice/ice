@@ -26,7 +26,7 @@ class TcpTransceiver : public Transceiver
 {
 public:
 
-    virtual int fd();
+    virtual SOCKET fd();
     virtual void close();
     virtual void shutdown();
     virtual void write(Buffer&, int);
@@ -35,13 +35,13 @@ public:
 
 private:
 
-    TcpTransceiver(const InstancePtr&, int);
+    TcpTransceiver(const InstancePtr&, SOCKET);
     virtual ~TcpTransceiver();
     friend class TcpConnector;
     friend class TcpAcceptor;
 
     InstancePtr _instance;
-    int _fd;
+    SOCKET _fd;
     TraceLevelsPtr _traceLevels;
     ::Ice::LoggerPtr _logger;
     fd_set _rFdSet;

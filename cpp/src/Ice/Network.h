@@ -30,11 +30,9 @@
 typedef int socklen_t;
 #endif
 
-#ifndef SOCKET_ERROR
+#ifndef WIN32
+#   define SOCKET int
 #   define SOCKET_ERROR -1
-#endif
-
-#ifndef INVALID_SOCKET
 #   define INVALID_SOCKET -1
 #endif
 
@@ -70,31 +68,31 @@ bool connectInProgress();
 bool connectionLost();
 bool notConnected();
 
-int createSocket(bool);
-void closeSocket(int);
+SOCKET createSocket(bool);
+void closeSocket(SOCKET);
 
-void setBlock(int, bool);
-void setTcpNoDelay(int);
-void setKeepAlive(int);
-void setSendBufferSize(int, int);
+void setBlock(SOCKET, bool);
+void setTcpNoDelay(SOCKET);
+void setKeepAlive(SOCKET);
+void setSendBufferSize(SOCKET, int);
 
-void doBind(int, struct sockaddr_in&);
-void doListen(int, int);
-void doConnect(int, struct sockaddr_in&, int);
-int doAccept(int, int);
+void doBind(SOCKET, struct sockaddr_in&);
+void doListen(SOCKET, int);
+void doConnect(SOCKET, struct sockaddr_in&, int);
+SOCKET doAccept(SOCKET, int);
 
 void getAddress(const char*, int, struct sockaddr_in&);
 void getLocalAddress(int, struct sockaddr_in&);
 std::string getLocalHost(bool);
 
-void createPipe(int fds[2]);
+void createPipe(SOCKET fds[2]);
 
 std::string errorToString(int);
 std::string errorToStringDNS(int);
 std::string lastErrorToString();
 std::string lastErrorToStringDNS();
 
-std::string fdToString(int);
+std::string fdToString(SOCKET);
 std::string addrToString(const struct sockaddr_in&);
 
 }

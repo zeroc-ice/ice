@@ -413,9 +413,13 @@ IceInternal::Emitter::setState(State state, const LocalException& ex)
 	case StateClosed:
 	{
 	    if (_threadPool)
+	    {
 		_threadPool->unregister(_transceiver->fd());
+	    }
 	    else
+	    {
 		_transceiver->close();
+	    }
 	    break;
 	}
     }

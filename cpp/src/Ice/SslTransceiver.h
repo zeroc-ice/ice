@@ -29,7 +29,7 @@ class SslTransceiver : public Transceiver
 {
 public:
 
-    virtual int fd();
+    virtual SOCKET fd();
     virtual void close();
     virtual void shutdown();
     virtual void write(Buffer&, int);
@@ -38,7 +38,7 @@ public:
 
 private:
 
-    SslTransceiver(const InstancePtr&, int, Connection*);
+    SslTransceiver(const InstancePtr&, SOCKET, Connection*);
 
     virtual ~SslTransceiver();
     void cleanUpSSL();
@@ -46,7 +46,7 @@ private:
     friend class SslAcceptor;
 
     InstancePtr _instance;
-    int _fd;
+    SOCKET _fd;
     TraceLevelsPtr _traceLevels;
     ::Ice::LoggerPtr _logger;
     fd_set _rFdSet;

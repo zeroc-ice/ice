@@ -30,7 +30,7 @@ IceInternal::TcpConnector::connect(int timeout)
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
-    int fd = createSocket(false);
+    SOCKET fd = createSocket(false);
     doConnect(fd, _addr, timeout);
 
     if (_traceLevels->network >= 1)

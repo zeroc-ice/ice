@@ -15,6 +15,10 @@
 #include <Ice/AcceptorF.h>
 #include <Ice/TransceiverF.h>
 
+#ifndef WIN32
+#   define SOCKET int
+#endif
+
 namespace IceInternal
 {
 
@@ -22,7 +26,7 @@ class Acceptor : public ::IceUtil::Shared
 {
 public:
 
-    virtual int fd() = 0;
+    virtual SOCKET fd() = 0;
     virtual void close() = 0;
     virtual void shutdown() = 0;
     virtual void listen() = 0;

@@ -207,10 +207,10 @@ IceInternal::notConnected()
     }
 }
 
-int
+SOCKET
 IceInternal::createSocket(bool udp)
 {
-    int fd;
+    SOCKET fd;
 
     if (udp)
     {
@@ -240,7 +240,7 @@ IceInternal::createSocket(bool udp)
 }
 
 void
-IceInternal::closeSocket(int fd)
+IceInternal::closeSocket(SOCKET fd)
 {
 #ifdef WIN32
     int error = WSAGetLastError();
@@ -254,7 +254,7 @@ IceInternal::closeSocket(int fd)
 }
     
 void
-IceInternal::setBlock(int fd, bool block)
+IceInternal::setBlock(SOCKET fd, bool block)
 {
     if (block)
     {
@@ -281,7 +281,7 @@ IceInternal::setBlock(int fd, bool block)
 }
 
 void
-IceInternal::setTcpNoDelay(int fd)
+IceInternal::setTcpNoDelay(SOCKET fd)
 {
     int flag = 1;
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, sizeof(int)) == SOCKET_ERROR)
@@ -294,7 +294,7 @@ IceInternal::setTcpNoDelay(int fd)
 }
     
 void
-IceInternal::setKeepAlive(int fd)
+IceInternal::setKeepAlive(SOCKET fd)
 {
     int flag = 1;
     if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char*)&flag, sizeof(int)) == SOCKET_ERROR)
@@ -307,7 +307,7 @@ IceInternal::setKeepAlive(int fd)
 }
 
 void
-IceInternal::setSendBufferSize(int fd, int sz)
+IceInternal::setSendBufferSize(SOCKET fd, int sz)
 {
     if (setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char*)&sz, sizeof(int)) == SOCKET_ERROR)
     {
@@ -319,7 +319,7 @@ IceInternal::setSendBufferSize(int fd, int sz)
 }
 
 void
-IceInternal::doBind(int fd, struct sockaddr_in& addr)
+IceInternal::doBind(SOCKET fd, struct sockaddr_in& addr)
 {
 #ifndef WIN32
     int flag = 1;
@@ -350,7 +350,7 @@ IceInternal::doBind(int fd, struct sockaddr_in& addr)
 }
 
 void
-IceInternal::doListen(int fd, int backlog)
+IceInternal::doListen(SOCKET fd, int backlog)
 {
 repeatListen:
     if (::listen(fd, backlog) == SOCKET_ERROR)
@@ -368,7 +368,7 @@ repeatListen:
 }
 
 void
-IceInternal::doConnect(int fd, struct sockaddr_in& addr, int timeout)
+IceInternal::doConnect(SOCKET fd, struct sockaddr_in& addr, int timeout)
 {
 #ifdef WIN32
     //
@@ -498,8 +498,8 @@ repeatConnect:
     }
 }
 
-int
-IceInternal::doAccept(int fd, int timeout)
+SOCKET
+IceInternal::doAccept(SOCKET fd, int timeout)
 {
     int ret;
 
@@ -699,11 +699,11 @@ IceInternal::getLocalHost(bool numeric)
 }
 
 void
-IceInternal::createPipe(int fds[2])
+IceInternal::createPipe(SOCKET fds[2])
 {
 #ifdef WIN32
 
-    int fd = createSocket(false);
+    SOCKET fd = createSocket(false);
     
     struct sockaddr_in addr;
     memset(&addr, 0, sizeof(addr));
@@ -997,7 +997,7 @@ IceInternal::lastErrorToStringDNS()
 static JTCMutex inetNtoaMutex;
 
 std::string
-IceInternal::fdToString(int fd)
+IceInternal::fdToString(SOCKET fd)
 {
     if(fd == INVALID_SOCKET)
     {

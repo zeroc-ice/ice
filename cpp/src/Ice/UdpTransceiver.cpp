@@ -20,7 +20,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-int
+SOCKET
 IceInternal::UdpTransceiver::fd()
 {
     return _fd;
@@ -43,7 +43,7 @@ IceInternal::UdpTransceiver::close()
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
-    int fd = _fd;
+    SOCKET fd = _fd;
     _fd = INVALID_SOCKET;
     closeSocket(fd);
 }

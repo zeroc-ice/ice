@@ -23,7 +23,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-int
+SOCKET
 IceInternal::SslTransceiver::fd()
 {
     return _fd;
@@ -41,7 +41,7 @@ IceInternal::SslTransceiver::close()
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
-    int fd = _fd;
+    SOCKET fd = _fd;
     cleanUpSSL();
     _fd = INVALID_SOCKET;
     ::shutdown(fd, SHUT_RDWR); // helps to unblock threads in recv()
@@ -96,7 +96,7 @@ IceInternal::SslTransceiver::toString() const
     return fdToString(_fd);
 }
 
-IceInternal::SslTransceiver::SslTransceiver(const InstancePtr& instance, int fd, Connection* sslConnection) :
+IceInternal::SslTransceiver::SslTransceiver(const InstancePtr& instance, SOCKET fd, Connection* sslConnection) :
     _instance(instance),
     _fd(fd),
     _traceLevels(instance->traceLevels()),
