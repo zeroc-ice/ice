@@ -69,7 +69,7 @@ Ice for Java
 ------------
 
 The Java demos require that you have Ice.jar, the Ice ant task classes
-and the Berkeley DB db.jar in your CLASSPATH. 
+and the Berkeley DB db.jar in your CLASSPATH.
 
 If Ice was installed from RPMs, Ice.jar and the ant task classes are in
 /usr/lib/Ice-<version>/Ice.jar and /usr/lib/Ice-<version>/ant,
@@ -79,6 +79,11 @@ Ice installation's lib and ant directories, respectively.
 If BerkeleyDB was installed from RPMs, db.jar is in
 /usr/share/java/db.jar. Otherwise, db.jar will be in the Berkeley DB
 installation's lib directory.
+
+Also make sure that the Berkeley DB shared libraries are in your
+java.library.path. On Linux, this can be achieved by adding <Berkeley
+DB home>/lib to your LD_LIBRARY_PATH (NOTE: this is required even if
+the BerkeleyDB shared libraries are installed in /usr/lib).
  
 Ice for C#
 ----------
