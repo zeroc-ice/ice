@@ -83,7 +83,11 @@ static const char* _coreTypes =
     "define(\"ICE_STRING_VERSION\", \"1.1.0\");\n"
     "define(\"ICE_INT_VERSION\", 10100);\n"
     "\n"
-    "abstract class Ice_LocalException\n"
+    "abstract class Ice_Exception\n"
+    "{\n"
+    "}\n"
+    "\n"
+    "abstract class Ice_LocalException extends Ice_Exception\n"
     "{\n"
     "}\n"
     "\n"
@@ -132,7 +136,7 @@ static const char* _coreTypes =
     "    var $type;\n"
     "}\n"
     "\n"
-    "abstract class Ice_UserException\n"
+    "abstract class Ice_UserException extends Ice_Exception\n"
     "{\n"
     "}\n"
     "\n"
@@ -827,7 +831,7 @@ IcePHP::CodeVisitor::visitOperation(const Slice::OperationPtr& p)
 
     if(!cl->isInterface())
     {
-        _out << "abstract public ";
+        _out << "abstract ";
     }
     _out << "function " << name << '(';
     for(Slice::ParamDeclList::const_iterator q = params.begin(); q != params.end(); ++q)
