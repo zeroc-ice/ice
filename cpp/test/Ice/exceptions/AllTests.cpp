@@ -1216,34 +1216,31 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     cout << "ok" << endl;
     
-    if(thrower->supportsNonIceExceptions())
+    cout << "catching unknown non-Ice exception... " << flush;
+    
+    try
     {
-	cout << "catching unknown non-Ice exception... " << flush;
-
-	try
-	{
-	    thrower->throwNonIceException();
-	    test(false);
-	}
-	catch(const Ice::UnknownException&)
-	{
-	    //
-	    // We get the an unknown exception without collocation
-	    // optimization.
-	    //
-	    assert(!collocated);
-	}
-	catch(...)
-	{
-	    //
-	    // We get the original exception with collocation
-	    // optimization.
-	    //
-	    assert(collocated);
-	}
-
-	cout << "ok" << endl;
+	thrower->throwNonIceException();
+	test(false);
     }
+    catch(const Ice::UnknownException&)
+    {
+	//
+	// We get the an unknown exception without collocation
+	// optimization.
+	//
+	assert(!collocated);
+    }
+    catch(...)
+    {
+	//
+	// We get the original exception with collocation
+	// optimization.
+	//
+	assert(collocated);
+    }
+    
+    cout << "ok" << endl;
 
     if(!collocated) // If the server is collocated, exception factories are not needed.
     {
@@ -1415,16 +1412,13 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	
 	cout << "ok" << endl;
 
-	if(thrower->supportsNonIceExceptions())
-	{
-	    cout << "catching unknown non-Ice exception with AMI... " << flush;
-
-	    AMI_Thrower_throwNonIceExceptionIPtr cb = new AMI_Thrower_throwNonIceExceptionI;
-	    thrower->throwNonIceException_async(cb);
-	    test(cb->check());
-
-	    cout << "ok" << endl;
-	}
+	cout << "catching unknown non-Ice exception with AMI... " << flush;
+	
+	AMI_Thrower_throwNonIceExceptionIPtr cb = new AMI_Thrower_throwNonIceExceptionI;
+	thrower->throwNonIceException_async(cb);
+	test(cb->check());
+	
+	cout << "ok" << endl;
 	
 	communicator->removeUserExceptionFactory("::A");
 	communicator->removeUserExceptionFactory("::B");

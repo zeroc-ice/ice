@@ -35,12 +35,13 @@ class ICE_API IncomingAsync : virtual public ::IceUtil::Shared
 public:
 
     IncomingAsync(Incoming&); // Adopts the Incoming argument. It must not be used afterwards.
-    void __restore(Incoming&); // Restores the Incoming from the IncomingAsync.
 
 protected:
 
     void __response(bool);
     void __exception(const ::Ice::Exception&);
+    void __exception(const ::std::exception&);
+    void __exception();
     void __fatal(const ::Ice::LocalException&);
 
     BasicStream* __is();
@@ -79,6 +80,8 @@ public:
     
     virtual void ice_response(bool, const ::std::vector< ::Ice::Byte>&) = 0;
     virtual void ice_exception(const ::IceUtil::Exception&) = 0;
+    virtual void ice_exception(const ::std::exception&) = 0;
+    virtual void ice_exception() = 0;
 };
 
 }
@@ -97,6 +100,8 @@ public:
     
     virtual void ice_response(bool, const ::std::vector< ::Ice::Byte>&);
     virtual void ice_exception(const ::IceUtil::Exception&);
+    virtual void ice_exception(const ::std::exception&);
+    virtual void ice_exception();
 };
 
 }

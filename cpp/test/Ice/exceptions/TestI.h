@@ -25,7 +25,6 @@ public:
 
     virtual void shutdown(const Ice::Current&);
     virtual bool supportsUndeclaredExceptions(const Ice::Current&);
-    virtual bool supportsNonIceExceptions(const Ice::Current&);
 
     virtual void throwAasA(Ice::Int, const Ice::Current&);
     virtual void throwAorDasAorD(Ice::Int, const Ice::Current&);

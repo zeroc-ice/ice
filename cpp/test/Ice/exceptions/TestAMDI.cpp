@@ -36,13 +36,6 @@ ThrowerI::supportsUndeclaredExceptions_async(const AMD_Thrower_supportsUndeclare
 }
 
 void
-ThrowerI::supportsNonIceExceptions_async(const AMD_Thrower_supportsNonIceExceptionsPtr& cb,
-					     const Ice::Current&)
-{
-    cb->ice_response(false);
-}
-
-void
 ThrowerI::throwAasA_async(const AMD_Thrower_throwAasAPtr& cb,
 			  Ice::Int a, const Ice::Current&)
 {
@@ -76,7 +69,8 @@ ThrowerI::throwBasA_async(const AMD_Thrower_throwBasAPtr& cb,
     B ex;
     ex.aMem = a;
     ex.bMem = b;
-    cb->ice_exception(ex);
+    throw ex;
+    //cb->ice_exception(ex);
 }
 
 void
@@ -97,7 +91,8 @@ ThrowerI::throwBasB_async(const AMD_Thrower_throwBasBPtr& cb,
     B ex;
     ex.aMem = a;
     ex.bMem = b;
-    cb->ice_exception(ex);
+    throw ex;
+    //cb->ice_exception(ex);
 }
 
 void
@@ -138,7 +133,8 @@ ThrowerI::throwUndeclaredB_async(const AMD_Thrower_throwUndeclaredBPtr& cb,
     B ex;
     ex.aMem = a;
     ex.bMem = b;
-    cb->ice_exception(ex);
+    throw ex;
+//    cb->ice_exception(ex);
 }
 
 void
@@ -163,5 +159,5 @@ void
 ThrowerI::throwNonIceException_async(const AMD_Thrower_throwNonIceExceptionPtr&,
 				     const Ice::Current&)
 {
-    assert(false); // We cannot throw non-Ice exceptions with AMD.
+    throw int(12345);
 }

@@ -437,6 +437,21 @@ Ice::BlobjectAsync::__dispatch(Incoming& in, const Current& current)
     Int sz = in.is()->getReadEncapsSize();
     in.is()->readBlob(inParams, sz);
     AMD_Object_ice_invokePtr cb = new ::IceAsync::Ice::AMD_Object_ice_invoke(in);
-    ice_invoke_async(cb, inParams, current);
+    try
+    {
+	ice_invoke_async(cb, inParams, current);
+    }
+    catch(const Exception& ex)
+    {
+	cb->ice_exception(ex);
+    }
+    catch(const ::std::exception& ex)
+    {
+	cb->ice_exception(ex);
+    }
+    catch(...)
+    {
+	cb->ice_exception();
+    }
     return ::IceInternal::DispatchOK;
 }

@@ -32,12 +32,6 @@ ThrowerI::supportsUndeclaredExceptions(const Ice::Current&)
     return true;
 }
 
-bool
-ThrowerI::supportsNonIceExceptions(const Ice::Current&)
-{
-    return true;
-}
-
 void
 ThrowerI::throwAasA(Ice::Int a, const Ice::Current&)
 {

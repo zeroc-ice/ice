@@ -41,7 +41,6 @@ exception D
 {
     void shutdown();
     bool supportsUndeclaredExceptions();
-    bool supportsNonIceExceptions();
 
     void throwAasA(int a) throws A;
     void throwAorDasAorD(int a) throws A, D;
