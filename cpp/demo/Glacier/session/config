@@ -63,6 +63,7 @@ Glacier.Router.Trace.RoutingTable=1
 Glacier.Starter.PasswordVerifier=PasswordVerifier:tcp -p 10000:ssl -p 10001
 Glacier.Starter.AddUserToAllowCategories=true
 Glacier.Starter.Endpoints=tcp -p 11000:ssl -p 11001
+Glacier.Starter.PropertiesOverwrite=Ice.ServerIdleTime=60
 
 #
 # Uncomment the following lines if you want to run this demo with Glacier

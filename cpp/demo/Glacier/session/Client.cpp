@@ -201,6 +201,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
     while (cin.good() && c != 'x');
 
+    //
+    // Shutdown the router.
+    //
+    router->shutdown();
+
     return EXIT_SUCCESS;
 }
 
