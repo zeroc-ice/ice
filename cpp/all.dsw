@@ -3101,6 +3101,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name Ice
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -3115,6 +3118,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
     End Project Dependency
 }}}
 

@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="clockS" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="routerS" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=clockS - Win32 Debug
+CFG=routerS - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "clockS.mak".
+!MESSAGE NMAKE /f "routerS.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "clockS.mak" CFG="clockS - Win32 Debug"
+!MESSAGE NMAKE /f "routerS.mak" CFG="routerS - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "clockS - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "clockS - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "routerS - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "routerS - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=clockS - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "clockS - Win32 Release"
+!IF  "$(CFG)" == "routerS - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -51,10 +51,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 /nologo /subsystem:console /machine:I386 /out:"subscriber.exe" /libpath:"../../../lib"
+# ADD LINK32 /nologo /subsystem:console /machine:I386 /out:"server.exe"
 # SUBTRACT LINK32 /debug /nodefaultlib
 
-!ELSEIF  "$(CFG)" == "clockS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "routerS - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -77,29 +77,29 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"subscriber.exe" /pdbtype:sept /libpath:"../../../lib"
+# ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"server.exe" /pdbtype:sept
 # SUBTRACT LINK32 /nodefaultlib
 
 !ENDIF 
 
 # Begin Target
 
-# Name "clockS - Win32 Release"
-# Name "clockS - Win32 Debug"
+# Name "routerS - Win32 Release"
+# Name "routerS - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Clock.cpp
+SOURCE=.\Server.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ClockI.cpp
+SOURCE=.\CallbackI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Subscriber.cpp
+SOURCE=.\Callback.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -107,11 +107,11 @@ SOURCE=.\Subscriber.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\Clock.h
+SOURCE=.\Callback.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ClockI.h
+SOURCE=.\CallbackI.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -119,37 +119,37 @@ SOURCE=.\ClockI.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\Clock.ice
+SOURCE=.\Callback.ice
 
-!IF  "$(CFG)" == "clockS - Win32 Release"
+!IF  "$(CFG)" == "routerS - Win32 Release"
 
-USERDEP__CLOCK="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
+USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=.\Clock.ice
+InputPath=.\Callback.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Clock.ice
+	..\..\..\bin\slice2cpp.exe -I../../../slice Callback.ice
 
-"Clock.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Callback.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Clock.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Callback.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "clockS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "routerS - Win32 Debug"
 
-USERDEP__CLOCK="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
+USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=.\Clock.ice
+InputPath=.\Callback.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Clock.ice
+	..\..\..\bin\slice2cpp.exe -I../../../slice Callback.ice
 
-"Clock.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Callback.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Clock.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Callback.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
