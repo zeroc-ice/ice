@@ -143,20 +143,60 @@ Slice::Preprocessor::printMakefileDependencies(Language lang)
 	}
 	case Java:
 	{
+            //
+            // We want to shift the files left one position, so that
+            // "x.cpp: x.ice y.ice" becomes "x.ice: y.ice".
+            //
+            // Since the pipe input can be returned a line at a time, we collect
+            // all of the output into one string before manipulating it.
+            //
+            string deps;
 	    char buf[1024];
 	    while(fgets(buf, sizeof(buf), cppHandle) != NULL)
 	    {
-                //
-                // Change the extension of the leading file from .cpp to .ice.
-                // This filename is ignored by Slice2JavaTask.
-                //
-                char* p = strstr(buf, ".cpp:");
-                if(p != NULL)
+                deps.append(buf, strlen(buf));
+            }
+
+            //
+            // Remove the first file.
+            //
+            string::size_type start = deps.find(".cpp:");
+            assert(start != string::npos);
+            start = deps.find_first_not_of(" \t\r\n\\", start + 5); // Skip to beginning of next file.
+            assert(start != string::npos);
+            deps.erase(0, start);
+
+            //
+            // Find end of next file.
+            //
+            string::size_type pos = 0;
+            while((pos = deps.find_first_of(" :\t\r\n\\", pos + 1)) != string::npos)
+            {
+                if(deps[pos] == ':')
                 {
-                    strncpy(p + 1, "ice", 3);
+                    deps.insert(pos, 1, '\\'); // Escape colons.
+                    ++pos;
                 }
-	        fputs(buf, stdout);
-	    }
+                else if(deps[pos] == '\\') // Ignore escaped characters.
+                {
+                    ++pos;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if(pos == string::npos)
+            {
+                deps.append(":");
+            }
+            else
+            {
+                deps.insert(pos, 1, ':');
+            }
+
+            fputs(deps.c_str(), stdout);
 	    break;
 	}
 	case CSharp:
