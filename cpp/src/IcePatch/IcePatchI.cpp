@@ -83,7 +83,7 @@ IcePatch::DirectoryI::describe(const Current& current) const
     // No mutex lock necessary.
     DirectoryDescPtr desc = new DirectoryDesc;
     desc->md5 = readMD5(current);
-    desc->directory = DirectoryPrx::uncheckedCast(_adapter->createProxy(current.id));
+    desc->dir = DirectoryPrx::uncheckedCast(_adapter->createProxy(current.id));
     return desc;
 }
 
@@ -174,7 +174,7 @@ IcePatch::RegularI::describe(const Current& current) const
     // No mutex lock necessary.
     RegularDescPtr desc = new RegularDesc;
     desc->md5 = readMD5(current);
-    desc->regular = RegularPrx::uncheckedCast(_adapter->createProxy(current.id));
+    desc->reg = RegularPrx::uncheckedCast(_adapter->createProxy(current.id));
     return desc;
 }
 

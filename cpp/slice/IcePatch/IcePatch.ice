@@ -46,7 +46,7 @@ interface Directory extends File
 
 class DirectoryDesc extends FileDesc
 {
-    Directory* directory;
+    Directory* dir;
 };
 
 interface Regular extends File
@@ -63,7 +63,7 @@ interface Regular extends File
 
 class RegularDesc extends FileDesc
 {
-    Regular* regular;
+    Regular* reg;
 };
 
 };

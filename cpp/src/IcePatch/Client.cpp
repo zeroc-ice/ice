@@ -19,6 +19,7 @@
 #ifdef _WIN32
 #   include <direct.h>
 #endif
+#include <set>
 
 using namespace std;
 using namespace Ice;
@@ -372,15 +373,14 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
     set<string> orphaned;
     if(_remove)
     {
-	StringSeq fullDirectoryListing = readDirectory(identityToPath(dirDesc->directory->ice_getIdentity()));
-	orphaned.reserve(fullDirectoryListing.size());
+	StringSeq fullDirectoryListing = readDirectory(identityToPath(dirDesc->dir->ice_getIdentity()));
 	for(StringSeq::const_iterator p = fullDirectoryListing.begin(); p != fullDirectoryListing.end(); ++p)
 	{
-	    orphaned.insert(*p)
+	    orphaned.insert(*p);
 	}
     }
     
-    FileDescSeq fileDescSeq = dirDesc->directory->getContents();
+    FileDescSeq fileDescSeq = dirDesc->dir->getContents();
 
     for(unsigned int i = 0; i < fileDescSeq.size(); ++i)
     {
@@ -389,13 +389,13 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
 	RegularDescPtr regDesc;
 	if(subDirDesc)
 	{
-	    path = identityToPath(subDirDesc->directory->ice_getIdentity());
+	    path = identityToPath(subDirDesc->dir->ice_getIdentity());
 	}
 	else
 	{
 	    regDesc = RegularDescPtr::dynamicCast(fileDescSeq[i]);
 	    assert(regDesc);
-	    path = identityToPath(regDesc->regular->ice_getIdentity());
+	    path = identityToPath(regDesc->reg->ice_getIdentity());
 	}
 
 	if(_remove)
@@ -483,14 +483,14 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
 	    {
 		case FileTypeNotExist:
 		{
-		    getRegular(regDesc->regular, progressCB);
+		    getRegular(regDesc->reg, progressCB);
 		    break;
 		}
 
 		case FileTypeDirectory:
 		{
 		    removeRecursive(path);
-		    getRegular(regDesc->regular, progressCB);
+		    getRegular(regDesc->reg, progressCB);
 		    break;
 		}
 
@@ -508,7 +508,7 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
 		    if(md5 != regDesc->md5)
 		    {
 			removeRecursive(path);
-			getRegular(regDesc->regular, progressCB);
+			getRegular(regDesc->reg, progressCB);
 		    }
 		    else
 		    {
@@ -521,7 +521,7 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
 	}
     }
 
-    for(StringSeq::const_iterator p = orphaned.begin(); p != orphaned.end(); ++p)
+    for(set<string>::const_iterator p = orphaned.begin(); p != orphaned.end(); ++p)
     {
 	cout << indent << "+-" << pathToName(*p) << ": removing orphaned file" << endl;
 	removeRecursive(*p);

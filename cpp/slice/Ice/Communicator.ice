@@ -271,12 +271,12 @@ local interface Communicator
      *
      * Set the logger for this communicator.
      *
-     * @param logger The logger to use for this communicator.
+     * @param log The logger to use for this communicator.
      *
      * @see Logger
      *
      **/
-    void setLogger(Logger logger);
+    void setLogger(Logger log);
 
     /**
      *
@@ -289,13 +289,13 @@ local interface Communicator
      * by calling the operation [ice_router] on such
      * proxy.</para></note>
      *
-     * @param router The default router to use for this communicator.
+     * @param rtr The default router to use for this communicator.
      *
      * @see Router
      * @see ObjectAdapter::addRouter
      *
      **/
-    void setDefaultRouter(Router* router);
+    void setDefaultRouter(Router* rtr);
 
     /**
      *
@@ -310,13 +310,13 @@ local interface Communicator
      * object adapter by calling the operation [setLocator] on such
      * object adapter</para></note>
      *
-     * @param router The default router to use for this communicator.
+     * @param loc The default locator to use for this communicator.
      *
      * @see Locator
      * @see ObjectAdapter::setLocator
      *
      **/
-    void setDefaultLocator(Locator* locator);
+    void setDefaultLocator(Locator* loc);
 
     /**
      *

@@ -112,7 +112,7 @@ local interface ObjectAdapter
      *
      * @param servant The Servant to add.
      *
-     * @param identity The identity of the &Ice; object that is
+     * @param id The identity of the &Ice; object that is
      * implemented by the Servant.
      *
      * @return A proxy that matches the given identity and this object
@@ -123,7 +123,7 @@ local interface ObjectAdapter
      * @see remove
      *
      **/
-    Object* add(Object servant, Identity identity);
+    Object* add(Object servant, Identity id);
 
     /**
      *
@@ -148,7 +148,7 @@ local interface ObjectAdapter
      *
      * Remove a Servant from the object adapter's Active Servant Map.
      *
-     * @param identity The identity of the &Ice; object that is
+     * @param id The identity of the &Ice; object that is
      * implemented by the Servant. If the Servant implements multiple
      * &Ice; objects, [remove] has to be called for all such &Ice;
      * objects.
@@ -158,7 +158,7 @@ local interface ObjectAdapter
      * @see addWithUUID
      *
      **/
-    void remove(Identity identity);
+    void remove(Identity id);
 
     /**
      *
@@ -254,7 +254,7 @@ local interface ObjectAdapter
      * the Active Servant Map. It does not attempt to find a Servant
      * by using any installed [ServantLocator].</para></note>
      *
-     * @param identity The identity of the &&Ice;; object for which the
+     * @param id The identity of the &&Ice;; object for which the
      * Servant should be returned.
      *
      * @return The Servant that implements the &&Ice;; object with the
@@ -264,7 +264,7 @@ local interface ObjectAdapter
      * @see proxyToServant
      *
      **/
-    Object identityToServant(Identity identity);
+    Object identityToServant(Identity id);
 
     /**
      *
@@ -290,7 +290,7 @@ local interface ObjectAdapter
      * Create a proxy that matches this object adapter and the given
      * identity.
      *
-     * @param identity The identity for which a proxy is to be created.
+     * @param id The identity for which a proxy is to be created.
      *
      * @return A proxy that matches the given identity and this object
      * adapter.
@@ -298,7 +298,7 @@ local interface ObjectAdapter
      * @see Identity
      *
      **/
-    Object* createProxy(Identity identity);
+    Object* createProxy(Identity id);
 
     /**
      *
@@ -310,7 +310,7 @@ local interface ObjectAdapter
      * implementations. Regular user code should not attempt to use
      * this operation.</para></note>
      *
-     * @param identity The identity for which a proxy is to be created.
+     * @param id The identity for which a proxy is to be created.
      *
      * @return A proxy that matches the given identity and this object
      * adapter.
@@ -318,7 +318,7 @@ local interface ObjectAdapter
      * @see Identity
      *
      **/
-    Object* createDirectProxy(Identity identity);
+    Object* createDirectProxy(Identity id);
 
     /**
      *
@@ -331,7 +331,7 @@ local interface ObjectAdapter
      * code should not attempt to use this operation.
      * </para></note>
      *
-     * @param identity The identity for which a proxy is to be created.
+     * @param id The identity for which a proxy is to be created.
      *
      * @return A "reverse proxy" that matches the given identity and
      * this object adapter.
@@ -339,7 +339,7 @@ local interface ObjectAdapter
      * @see Identity
      *
      **/
-    Object* createReverseProxy(Identity identity);
+    Object* createReverseProxy(Identity id);
 
     /**
      *
@@ -355,13 +355,13 @@ local interface ObjectAdapter
      * add different routers to different object
      * adapters. </para></note>
      *
-     * @param router The router to add to this object adapter.
+     * @param rtr The router to add to this object adapter.
      *
      * @see Router
      * @see Communicator::setDefaultRouter
      *
      **/
-    void addRouter(Router* router);
+    void addRouter(Router* rtr);
 
     /**
      * Set an &Ice; locator for this object adapter. By doing so, the
@@ -370,14 +370,14 @@ local interface ObjectAdapter
      * with the object adapter will contain the adapter name instead
      * of its endpoints.
      *
-     * @param locator The locator used by this object adapter.
+     * @param loc The locator used by this object adapter.
      *
      * @see createDirectProxy
      * @see Locator
      * @see LocatorRegistry
      * 
      **/
-    void setLocator(Locator* locator);
+    void setLocator(Locator* loc);
 };
 
 };

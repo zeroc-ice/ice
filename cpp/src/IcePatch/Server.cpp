@@ -185,7 +185,7 @@ IcePatch::Updater::run()
 	    assert(top);
 	    DirectoryDescPtr topDesc = DirectoryDescPtr::dynamicCast(top->describe());
 	    assert(topDesc);
-	    cleanup(topDesc->directory->getContents());
+	    cleanup(topDesc->dir->getContents());
 	}
 	catch(const FileAccessException& ex)
 	{
@@ -247,14 +247,14 @@ IcePatch::Updater::cleanup(const FileDescSeq& fileDescSeq)
 	    // Force MD5 files to be created and orphaned files to be
 	    // removed.
 	    //
-	    cleanup(directoryDesc->directory->getContents());
+	    cleanup(directoryDesc->dir->getContents());
 
 	    //
 	    // Call describe(), because MD5 files in subdirectories
 	    // might have changed, resulting in a different summary
 	    // MD5 for this directory.
 	    //
-	    directoryDesc->directory->describe();
+	    directoryDesc->dir->describe();
 	}
 	else
 	{
@@ -264,7 +264,7 @@ IcePatch::Updater::cleanup(const FileDescSeq& fileDescSeq)
 	    //
 	    // Force BZ2 files to be created for all regular files.
 	    //
-	    regularDesc->regular->getBZ2Size();
+	    regularDesc->reg->getBZ2Size();
 	}
     }
 }
