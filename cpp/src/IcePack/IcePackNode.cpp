@@ -77,9 +77,13 @@ childHandler(int)
     // process and avoid zombie processes. See man wait or waitpid for
     // more information.
     //
-    wait(0);
+    pid_t childPid;
+    do
+    { 
+        int status;
+        childPid = waitpid(-1, &status, WNOHANG);
+    } while(childPid > 0);
 }
-
 }
 #endif
 
@@ -342,16 +346,17 @@ main(int argc, char* argv[])
     int status;
     try
     {
-	//
-	// Initialize the communicator.
-	//
-	communicator = Ice::initialize(argc, argv);
-
-	//
+        //
 	// Handles CTRL+C like signals. Initially, just ignore them
 	//
 	IceUtil::CtrlCHandler ctrlCHandler;
 	_ctrlCHandler = &ctrlCHandler;
+
+	//
+	// Initialize the communicator.
+	//
+	communicator = Ice::initialize(argc, argv);
+	
 	
 	Ice::PropertiesPtr properties = communicator->getProperties();
 
