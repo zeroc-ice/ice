@@ -227,42 +227,40 @@ public class SliceTask extends org.apache.tools.ant.Task
 
 		    //
 		    // Split the dependencies up into filenames. Note that filenames containing
-		    // spaces are escaped (e.g., "C:/Program\ Files/...").
-		    //
-                    // We skip the initial file (which is not a complete path) that is terminated
-                    // with a colon.
+		    // spaces are escaped (e.g., "C:/Program\ Files/..."), and the initial file
+                    // may have escaped colons.
                     //
 		    String str = depline.toString();
 		    int len = str.length();
 		    java.util.ArrayList l = new java.util.ArrayList();
 		    int start = -1;
-		    int pos = str.indexOf(':') + 1;
-		    assert(pos > 0);
+		    int pos = 0;
+                    StringBuffer file = new StringBuffer();
 		    while(pos < len)
 		    {
 			char ch = str.charAt(pos);
 			if(Character.isWhitespace(ch))
 			{
-			    if(start != -1)
+			    if(file.length() > 0)
 			    {
-				l.add(str.substring(start, pos));
-				start = -1;
+				l.add(file.toString());
+				file = new StringBuffer();
 			    }
 			}
-			else if(ch == '\\') // Ignore escaped character.
-			{
-			    ++pos;
-			}
-			else if(start == -1)
-			{
-			    start = pos;
-			}
+                        else
+                        {
+                            if(ch == '\\') // Ignore escaped character.
+                            {
+                                ++pos;
+                            }
+                            file.append(ch);
+                        }
 			++pos;
 		    }
-		    if(start != -1);
-		    {
-			l.add(str.substring(start));
-		    }
+                    if(file.length() > 0)
+                    {
+                        l.add(file.toString());
+                    }
 
 		    //
 		    // Create SliceDependency. We need to remove the trailing colon from the first file.
@@ -271,6 +269,9 @@ public class SliceTask extends org.apache.tools.ant.Task
 		    depend._dependencies = new String[l.size()];
 		    l.toArray(depend._dependencies);
 		    depend._timeStamp = new java.util.Date().getTime();
+                    pos = depend._dependencies[0].lastIndexOf(':');
+                    assert(pos > 0);
+                    depend._dependencies[0] = depend._dependencies[0].substring(0, pos);
 		    dependencies.add(depend);
 
 		    depline = new StringBuffer();
