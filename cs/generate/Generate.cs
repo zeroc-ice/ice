@@ -78,8 +78,6 @@ namespace Generate
 		Environment.Exit(1);
 	    }
 
-
-
 	    string slice2cs = Path.Combine(Path.Combine(solDir, "bin"), slice2csName);
 	    if(!File.Exists(slice2cs) && !File.Exists(slice2cs + ".exe"))
 	    {
