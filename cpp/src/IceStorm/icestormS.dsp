@@ -138,7 +138,7 @@ SOURCE=.\Service.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\StringBoolDict.cpp
+SOURCE=.\StringStringDict.cpp
 # End Source File
 # Begin Source File
 
@@ -202,7 +202,7 @@ SOURCE=.\OnewaySubscriber.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\StringBoolDict.h
+SOURCE=.\StringStringDict.h
 # End Source File
 # Begin Source File
 
@@ -239,12 +239,12 @@ USERDEP__DUMMY="..\..\bin\slice2freeze.exe"
 InputPath=.\dummy.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --include-dir IceStorm  --dict IceStorm::StringBoolDict,string,bool StringBoolDict
+	..\..\bin\slice2freeze.exe --include-dir IceStorm  --dict IceStorm::StringStringDict,string,string StringStringDict
 
-"StringBoolDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"StringStringDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"StringBoolDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"StringStringDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -255,12 +255,12 @@ USERDEP__DUMMY="..\..\bin\slice2freeze.exe"
 InputPath=.\dummy.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --include-dir IceStorm  --dict IceStorm::StringBoolDict,string,bool StringBoolDict
+	..\..\bin\slice2freeze.exe --include-dir IceStorm  --dict IceStorm::StringStringDict,string,string StringStringDict
 
-"StringBoolDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"StringStringDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"StringBoolDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"StringStringDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

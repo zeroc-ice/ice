@@ -309,7 +309,11 @@ PublisherProxyI::ice_invoke(const vector< Ice::Byte>& inParams, vector< Ice::Byt
         }
         else
         {
+#ifdef _WIN32
+            b = Blobject::ice_isA(type);
+#else
             b = Ice::Blobject::ice_isA(type);
+#endif
         }
         IceInternal::BasicStream os(instance.get());
         os.write(b);
@@ -326,7 +330,11 @@ PublisherProxyI::ice_invoke(const vector< Ice::Byte>& inParams, vector< Ice::Byt
     {
         IceInternal::InstancePtr instance = IceInternal::getInstance(current.adapter->getCommunicator());
         IceInternal::BasicStream os(instance.get());
+#ifdef _WIN32
+        vector<string> ids = Blobject::ice_ids();
+#else
         vector<string> ids = Ice::Blobject::ice_ids();
+#endif
         ids.insert(ids.begin(), _type);
         os.write(ids);
         outParam = os.b;
