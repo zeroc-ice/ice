@@ -87,10 +87,9 @@ Make sure to add db.jar to your CLASSPATH.
 
 Note that the Ice for Java distribution is compiled against Berkeley
 DB 4.1.25. If you are using an older version of Berkeley DB, you
-may encounter problems using Freeze. If this is the case, either
-upgrade your version of Berkeley DB, or recompile the Ice for Java
-sources against your existing version (see "Compiling the Source"
-below).
+may encounter problems using Freeze. In this case, either upgrade
+your version of Berkeley DB, or recompile the Ice for Java sources
+against your existing version (see "Compiling the Source" below).
 
 
 Python 2.2
