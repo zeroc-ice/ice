@@ -28,8 +28,9 @@ public:
     bool operator==(const ObjectI&) const;
     bool operator!=(const ObjectI&) const;
 
-    Object _oneway() const;
     Object _twoway() const;
+    Object _oneway() const;
+    Object _datagram() const;
     Object _timeout(int) const;
 
     ::__Ice::Reference __reference() const;

@@ -39,6 +39,7 @@ class ICE_API EmitterI : public EventHandlerI, public JTCMutex
 public:
 
     void destroy();
+    const Endpoint& endpoint(); // const& for performance reasons
     void prepareRequest(Outgoing*);
     void sendRequest(Outgoing*, bool);
 
