@@ -62,9 +62,10 @@ public class StreamI implements Ice.Stream
             //factory.setDoSchema(true); // TODO
         }
 
+        javax.xml.parsers.DocumentBuilder parser = null;
         try
         {
-            _parser = factory.newDocumentBuilder();
+            parser = factory.newDocumentBuilder();
         }
         catch (javax.xml.parsers.ParserConfigurationException ex)
         {
@@ -74,12 +75,12 @@ public class StreamI implements Ice.Stream
             throw e;
         }
 
-        _parser.setErrorHandler(new DOMTreeErrorReporter(logger));
-        //_parser.setCreateEntityReferenceNodes(false); // TODO
-        //_parser.setToCreateXMLDeclTypeNode(true); // TODO
+        parser.setErrorHandler(new DOMTreeErrorReporter(logger));
+        //parser.setCreateEntityReferenceNodes(false); // TODO
+        //parser.setToCreateXMLDeclTypeNode(true); // TODO
 
         // TODO:
-        // _parser.setEntityResolver
+        // parser.setEntityResolver
 
         //
         // Parse the XML file, catching any XML exceptions that might propagate
@@ -88,7 +89,7 @@ public class StreamI implements Ice.Stream
         boolean errorsOccurred = false;
         try
         {
-            _document = _parser.parse(new org.xml.sax.InputSource(input));
+            _document = parser.parse(new org.xml.sax.InputSource(input));
         }
         catch (java.io.IOException ex)
         {
@@ -105,6 +106,23 @@ public class StreamI implements Ice.Stream
         {
             throw new Ice.UnmarshalException();
         }
+
+        //
+        // The first child of the document is the root node - ignore
+        // that. Move to the top-level node in the document content.
+        //
+        _current = _document.getFirstChild();
+        _current = _current.getFirstChild();
+    }
+
+    public
+    StreamI(Ice.Communicator communicator, org.w3c.dom.Document document)
+    {
+        _communicator = communicator;
+        _nodeStack = new java.util.LinkedList();
+        _readObjects = new java.util.HashMap();
+        _nextId = 0;
+        _document = document;
 
         //
         // The first child of the document is the root node - ignore
@@ -1270,7 +1288,6 @@ public class StreamI implements Ice.Stream
     //
     // For reading.
     //
-    private javax.xml.parsers.DocumentBuilder _parser;
     private org.w3c.dom.Document _document;
     private org.w3c.dom.Node _current;
     private java.util.LinkedList _nodeStack;
