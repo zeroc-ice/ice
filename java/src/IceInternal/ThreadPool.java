@@ -741,12 +741,10 @@ public final class ThreadPool
                 // for that special case here and ignore it.
                 // Hopefully we're not masking something important!
                 //
-/*
                 if(ex.getMessage().indexOf("Interrupted system call") != -1)
                 {
                     continue;
                 }
-*/
 
                 Ice.SocketException se = new Ice.SocketException();
                 se.initCause(ex);
@@ -783,12 +781,10 @@ public final class ThreadPool
                 // for that special case here and ignore it.
                 // Hopefully we're not masking something important!
                 //
-/*
                 if(ex.getMessage().indexOf("Interrupted system call") != -1)
                 {
                     continue;
                 }
-*/
 
                 Ice.SocketException se = new Ice.SocketException();
                 se.initCause(ex);
