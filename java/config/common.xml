@@ -36,6 +36,15 @@
             </not>
 	</and>
     </condition>
+
+    <condition property="installtype" value="opt">
+	<and>
+	     <available file="${env.ICE_HOME}/slice" />
+            <not>
+                <isset property="installtype"/>
+	    </not>
+	</and>
+    </condition>
     
     <fail message="Unable to detect a valid Ice installtion.">
 	<condition>
