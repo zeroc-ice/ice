@@ -17,6 +17,7 @@
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
+#include <IceUtil/Mutex.h>
 
 namespace IceUtil
 {
@@ -47,6 +48,12 @@ struct HandleWrapper : public Shared
 typedef Handle<HandleWrapper> HandleWrapperPtr;
 #endif
 
+#ifdef _WIN32
+    typedef unsigned int ThreadId;
+#else
+    typedef pthread_t ThreadId;
+#endif
+
 class ICE_UTIL_API ThreadControl
 {
 public:
@@ -62,6 +69,11 @@ public:
     bool operator==(const ThreadControl&) const;
     bool operator!=(const ThreadControl&) const;
     bool operator<(const ThreadControl&) const;
+
+    //
+    // Return the ID of the thread underlying this ThreadControl.
+    //
+    ThreadId id() const;
 
     //
     // Wait until the controlled thread terminates. The call has POSIX
@@ -97,10 +109,8 @@ private:
 
 #ifdef _WIN32
     HandleWrapperPtr _handle;
-    unsigned int _id;
-#else
-    pthread_t _id;
 #endif
+    ThreadId _id;
 
     bool _detached;
 };
@@ -108,11 +118,6 @@ private:
 class ICE_UTIL_API Thread : virtual public IceUtil::Shared
 {
 public:
-#ifdef _WIN32
-    typedef unsigned int ThreadId;
-#else
-    typedef pthread_t ThreadId;
-#endif
 
     Thread();
     virtual ~Thread();
@@ -131,13 +136,13 @@ public:
 
 private:
 
+    Mutex _stateMutex;
+
     bool _started;
 #ifdef _WIN32
-    unsigned int _id;
     HandleWrapperPtr _handle;
-#else
-    pthread_t _id;
 #endif
+    ThreadId _id;
 };
 
 typedef Handle<Thread> ThreadPtr;

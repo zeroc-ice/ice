@@ -20,6 +20,7 @@
 
 IceUtil::RWRecMutex::RWRecMutex() :
     _count(0),
+    _writerId(0),
     _waitingWriters(0)
 {
 }
@@ -95,7 +96,7 @@ IceUtil::RWRecMutex::writelock() const
     // If the mutex is already write locked by this writer then
     // decrement _count, and return.
     //
-    if(_count < 0 && _writerControl == ThreadControl())
+    if(_count < 0 && _writerId == ThreadControl().id())
     {
 	--_count;
 	return;
@@ -124,7 +125,7 @@ IceUtil::RWRecMutex::writelock() const
     // Got the lock, indicate it's held by a writer.
     //
     _count = -1;
-    _writerControl = ThreadControl();
+    _writerId = ThreadControl().id();
 }
 
 void
@@ -136,7 +137,7 @@ IceUtil::RWRecMutex::tryWritelock() const
     // If the mutex is already write locked by this writer then
     // decrement _count, and return.
     //
-    if(_count < 0 && _writerControl == ThreadControl())
+    if(_count < 0 && _writerId == ThreadControl().id())
     {
 	--_count;
 	return;
@@ -154,7 +155,7 @@ IceUtil::RWRecMutex::tryWritelock() const
     // Got the lock, indicate it's held by a writer.
     //
     _count = -1;
-    _writerControl = ThreadControl();
+    _writerId = ThreadControl().id();
 }
 
 void
@@ -165,7 +166,7 @@ IceUtil::RWRecMutex::timedTryWritelock(const Time& timeout) const
     //
     // If the mutex is already write locked by this writer then
     // decrement _count, and return.
-    if(_count < 0 && _writerControl == ThreadControl())
+    if(_count < 0 && _writerId == ThreadControl().id())
     {
 	--_count;
 	return;
@@ -203,7 +204,7 @@ IceUtil::RWRecMutex::timedTryWritelock(const Time& timeout) const
     // Got the lock, indicate it's held by a writer.
     //
     _count = -1;
-    _writerControl = ThreadControl();
+    _writerId = ThreadControl().id();
 }
 
 void
@@ -267,6 +268,7 @@ IceUtil::RWRecMutex::unlock() const
     }
     else if(wr)
     {
+	_writerId = 0;
 	//
 	// Wake readers
 	//
@@ -309,7 +311,7 @@ IceUtil::RWRecMutex::upgrade() const
     // Got the lock, indicate it's held by a writer.
     //
     _count = -1;
-    _writerControl = ThreadControl();
+    _writerId = ThreadControl().id();
 }
 
 void
@@ -359,5 +361,5 @@ IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
     // Got the lock, indicate it's held by a writer.
     //
     _count = -1;
-    _writerControl = ThreadControl();
+    _writerId = ThreadControl().id();
 }

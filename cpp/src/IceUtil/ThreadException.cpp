@@ -125,3 +125,26 @@ IceUtil::ThreadStartedException::ice_throw() const
 {
     throw *this;
 }
+
+IceUtil::ThreadNotStartedException::ThreadNotStartedException(const char* file, int line) :
+    Exception(file, line)
+{
+}
+
+string
+IceUtil::ThreadNotStartedException::ice_name() const
+{
+    return "IceUtil::ThreadNotStartedException";
+}
+
+IceUtil::Exception*
+IceUtil::ThreadNotStartedException::ice_clone() const
+{
+    return new ThreadNotStartedException(*this);
+}
+
+void
+IceUtil::ThreadNotStartedException::ice_throw() const
+{
+    throw *this;
+}

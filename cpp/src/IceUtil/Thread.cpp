@@ -59,45 +59,40 @@ IceUtil::ThreadControl::operator<(const ThreadControl& rhs) const
     return _id != rhs._id;
 }
 
+IceUtil::ThreadId
+IceUtil::ThreadControl::id() const
+{
+    return _id;
+}
+
 void
 IceUtil::ThreadControl::join()
 {
-    if(_handle->handle)
+    if(_detached)
     {
-	if (_detached)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__);
-	}
-	_detached = true;
-	int rc = WaitForSingleObject(_handle->handle, INFINITE);
-	if(rc != WAIT_OBJECT_0)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__);
-	}
+	throw ThreadSyscallException(__FILE__, __LINE__);
     }
+    int rc = WaitForSingleObject(_handle->handle, INFINITE);
+    if(rc != WAIT_OBJECT_0)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__);
+    }
+    _detached = true;
 }
 
 void
 IceUtil::ThreadControl::detach()
 {
-    if(_handle->handle)
+    if(_detached)
     {
-	if (_detached)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__);
-	}
-	_detached = true;
+	throw ThreadSyscallException(__FILE__, __LINE__);
     }
+    _detached = true;
 }
 
 bool
 IceUtil::ThreadControl::isAlive() const
 {
-    if(!_handle->handle)
-    {
-	return false;
-    }
-
     DWORD rc;
     if(GetExitCodeThread(_handle->handle, &rc) == 0)
     {
@@ -139,6 +134,11 @@ IceUtil::Thread::~Thread()
 IceUtil::Thread::ThreadId
 IceUtil::Thread::id() const
 {
+    IceUtil::Mutex::Lock lock(_stateMutex);
+    if(!_started)
+    {
+	throw ThreadNotStartedException(__FILE__, __LINE__);
+    }
     return _id;
 }
 
@@ -174,11 +174,12 @@ startHook(void* arg)
 IceUtil::ThreadControl
 IceUtil::Thread::start()
 {
+    IceUtil::Mutex::Lock lock(_stateMutex);
+
     if(_started)
     {
 	throw ThreadStartedException(__FILE__, __LINE__);
     }
-    _started = true;
 
     //
     // It's necessary to increment the reference count since
@@ -197,6 +198,8 @@ IceUtil::Thread::start()
 	__decRef();
 	throw ThreadSyscallException(__FILE__, __LINE__);
     }
+
+    _started = true;
 			
     return ThreadControl(_handle, _id);
 }
@@ -204,24 +207,71 @@ IceUtil::Thread::start()
 IceUtil::ThreadControl
 IceUtil::Thread::getThreadControl() const
 {
+    IceUtil::Mutex::Lock lock(_stateMutex);
+    if(!_started)
+    {
+	throw ThreadNotStartedException(__FILE__, __LINE__);
+    }
     return ThreadControl(_handle, _id);
 }
 
 bool
 IceUtil::Thread::operator==(const Thread& rhs) const
 {
+    {
+	IceUtil::Mutex::Lock lock(_stateMutex);
+	if(!_started)
+	{
+	    throw ThreadNotStartedException(__FILE__, __LINE__);
+	}
+    }
+    {
+	IceUtil::Mutex::Lock lock(rhs._stateMutex);
+	if(!rhs._started)
+	{
+	    throw ThreadNotStartedException(__FILE__, __LINE__);
+	}
+    }
     return _id == rhs._id;
 }
 
 bool
 IceUtil::Thread::operator!=(const Thread& rhs) const
 {
+    {
+	IceUtil::Mutex::Lock lock(_stateMutex);
+	if(!_started)
+	{
+	    throw ThreadNotStartedException(__FILE__, __LINE__);
+	}
+    }
+    {
+	IceUtil::Mutex::Lock lock(rhs._stateMutex);
+	if(!rhs._started)
+	{
+	    throw ThreadNotStartedException(__FILE__, __LINE__);
+	}
+    }
     return _id != rhs._id;
 }
 
 bool
 IceUtil::Thread::operator<(const Thread& rhs) const
 {
+    {
+	IceUtil::Mutex::Lock lock(_stateMutex);
+	if(!_started)
+	{
+	    throw ThreadNotStartedException(__FILE__, __LINE__);
+	}
+    }
+    {
+	IceUtil::Mutex::Lock lock(rhs._stateMutex);
+	if(!rhs._started)
+	{
+	    throw ThreadNotStartedException(__FILE__, __LINE__);
+	}
+    }
     return _id < rhs._id;
 }
 
@@ -258,41 +308,41 @@ IceUtil::ThreadControl::operator<(const ThreadControl& rhs) const
     return _id < rhs._id;
 }
 
+IceUtil::ThreadId
+IceUtil::ThreadControl::id() const
+{
+    return _id;
+}
+
 void
 IceUtil::ThreadControl::join()
 {
-    if(_id)
+    if(_detached)
     {
-	if (_detached)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__);
-	}
-	_detached = true;
-	void* ignore = 0;
-	int rc = pthread_join(_id, &ignore);
-	if(rc != 0)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__);
-	}
+	throw ThreadSyscallException(__FILE__, __LINE__);
     }
+    void* ignore = 0;
+    int rc = pthread_join(_id, &ignore);
+    if(rc != 0)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__);
+    }
+    _detached = true;
 }
 
 void
 IceUtil::ThreadControl::detach()
 {
-    if(_id)
+    if(_detached)
     {
-	if (_detached)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__);
-	}
-	_detached = true;
-	int rc = pthread_detach(_id);
-	if(rc != 0)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__);
-	}
+	throw ThreadSyscallException(__FILE__, __LINE__);
     }
+    int rc = pthread_detach(_id);
+    if(rc != 0)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__);
+    }
+    _detached = true;
 }
 
 bool
@@ -329,9 +379,14 @@ IceUtil::Thread::~Thread()
 {
 }
 
-IceUtil::Thread::ThreadId
+IceUtil::ThreadId
 IceUtil::Thread::id() const
 {
+    IceUtil::Mutex::Lock lock(_stateMutex);
+    if(!_started)
+    {
+	throw ThreadNotStartedException(__FILE__, __LINE__);
+    }
     return _id;
 }
 
@@ -367,11 +422,12 @@ startHook(void* arg)
 IceUtil::ThreadControl
 IceUtil::Thread::start()
 {
+    IceUtil::Mutex::Lock lock(_stateMutex);
+
     if(_started)
     {
 	throw ThreadStartedException(__FILE__, __LINE__);
     }
-    _started = true;
 
     //
     // It's necessary to increment the reference count since
@@ -389,33 +445,82 @@ IceUtil::Thread::start()
 	__decRef();
 	throw ThreadSyscallException(__FILE__, __LINE__);
     }
+
+    _started = true;
+
     return ThreadControl(_id);
 }
 
 IceUtil::ThreadControl
 IceUtil::Thread::getThreadControl() const
 {
+    IceUtil::Mutex::Lock lock(_stateMutex);
+    if(!_started)
+    {
+	throw ThreadNotStartedException(__FILE__, __LINE__);
+    }
     return ThreadControl(_id);
 }
 
 bool
 IceUtil::Thread::operator==(const Thread& rhs) const
 {
+    {
+	IceUtil::Mutex::Lock lock(_stateMutex);
+	if(!_started)
+	{
+	    throw ThreadNotStartedException(__FILE__, __LINE__);
+	}
+    }
+    {
+	IceUtil::Mutex::Lock lock(rhs._stateMutex);
+	if(!rhs._started)
+	{
+	    throw ThreadNotStartedException(__FILE__, __LINE__);
+	}
+    }
     return pthread_equal(_id, rhs._id);
 }
 
 bool
 IceUtil::Thread::operator!=(const Thread& rhs) const
 {
+    {
+	IceUtil::Mutex::Lock lock(_stateMutex);
+	if(!_started)
+	{
+	    throw ThreadNotStartedException(__FILE__, __LINE__);
+	}
+    }
+    {
+	IceUtil::Mutex::Lock lock(rhs._stateMutex);
+	if(!rhs._started)
+	{
+	    throw ThreadNotStartedException(__FILE__, __LINE__);
+	}
+    }
     return !pthread_equal(_id, rhs._id);
 }
 
 bool
 IceUtil::Thread::operator<(const Thread& rhs) const
 {
+    {
+	IceUtil::Mutex::Lock lock(_stateMutex);
+	if(!_started)
+	{
+	    throw ThreadNotStartedException(__FILE__, __LINE__);
+	}
+    }
+    {
+	IceUtil::Mutex::Lock lock(rhs._stateMutex);
+	if(!rhs._started)
+	{
+	    throw ThreadNotStartedException(__FILE__, __LINE__);
+	}
+    }
     // NOTE: Linux specific
     return _id < rhs._id;
 }
 
 #endif
-

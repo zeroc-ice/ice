@@ -234,9 +234,9 @@ private:
     mutable int _count;
 
     //
-    // If there is an active writer this is a control for thread.
+    // If there is an active writer this is the ID of the writer thread.
     //
-    mutable ThreadControl _writerControl;
+    mutable ThreadId _writerId;
 
     //
     // Number of waiting writers.

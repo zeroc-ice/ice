@@ -24,23 +24,23 @@ using namespace IceUtil;
 
 static const string createTestName("thread alive");
 
-class Synchronizer : public IceUtil::Monitor<IceUtil::Mutex>
+class CondVar : public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
-    Synchronizer() : _done(false)
+    CondVar() : _done(false)
     {
     }
 
-    void p()
+    void wait()
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 	while (!_done)
 	{
-	    wait();
+	    this->IceUtil::Monitor<IceUtil::Mutex>::wait();
 	}
     }
 
-    void v()
+    void signal()
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 	_done = true;
@@ -54,7 +54,8 @@ private:
 class AliveTestThread : public Thread
 {
 public:
-    AliveTestThread(Synchronizer& child, Synchronizer& parent) : _child(child), _parent(parent)
+    AliveTestThread(CondVar& childCreated, CondVar& parentReady) :
+	_childCreated(childCreated), _parentReady(parentReady)
     {
     }
 
@@ -62,8 +63,8 @@ public:
     {
 	try
 	{
-	   _child.v();
-	   _parent.p();
+	   _childCreated.signal();
+	   _parentReady.wait();
 	}
 	catch(IceUtil::ThreadLockedException &)
 	{
@@ -71,8 +72,8 @@ public:
     }
 
 private:
-    Synchronizer& _child;
-    Synchronizer& _parent;
+    CondVar& _childCreated;
+    CondVar& _parentReady;
 };
 
 typedef Handle<AliveTestThread> AliveTestThreadPtr;
@@ -89,13 +90,13 @@ AliveTest::run()
     // Check that calling isAlive() returns the correct result for alive and
     // and dead threads.
     //
-    Synchronizer parentReady;
-    Synchronizer childReady;
-    AliveTestThreadPtr t = new AliveTestThread(childReady, parentReady);
+    CondVar childCreated;
+    CondVar parentReady;
+    AliveTestThreadPtr t = new AliveTestThread(childCreated, parentReady);
     IceUtil::ThreadControl c = t->start();
-    childReady.p();
+    childCreated.wait();
     test(c.isAlive());
-    parentReady.v();
+    parentReady.signal();
     c.join();
     test(!c.isAlive());
 }
