@@ -52,7 +52,9 @@ public:
     Options();
     void addOpt(const ::std::string&, const ::std::string& = "",
                 ArgType = NoArg, ::std::string = "", RepeatType = NoRepeat);
-    ::std::vector< ::std::string> parse(const ::std::string&);
+
+    static ::std::vector< ::std::string> split(const ::std::string&);
+    ::std::vector< ::std::string> parse(const ::std::vector< ::std::string>&);
     ::std::vector< ::std::string> parse(int, char*[]);
     bool isSet(const ::std::string&) const;
     ::std::string optArg(const ::std::string&) const;

@@ -90,23 +90,32 @@ IceUtil::Options::addOpt(const string& shortOpt, const string& longOpt, ArgType 
     addValidOpt(longOpt, LongOpt, at, dflt, rt);
 }
 
+
+//
+// Split a command line into argv-style arguments, applying
+// bash quoting rules. The return value is the arguments
+// in the command line, with all shell escapes applied, and
+// quotes removed.
+//
+
 vector<string>
-IceUtil::Options::parse(const string& line)
+IceUtil::Options::split(const string& line)
 {
     const string IFS = " \t\n"; // Internal Field Separator.
 
     //
-    // Strip leading whitespace.
+    // Strip leading and trailing whitespace.
     //
     string::size_type start = line.find_first_not_of(IFS);
     if(start == string::npos)
     {
         return vector<string>();
     }
-    string l(line, start);
+    string::size_type end = line.find_last_not_of(IFS);
+    assert(end != string::npos);
+    string l(line, start, end - start + 1);
 
     vector<string> vec;
-    vec.push_back(""); // Push dummy argv[0].
 
     enum ParseState { Normal, DoubleQuote, SingleQuote, ANSIQuote };
     ParseState state = Normal;
@@ -162,14 +171,12 @@ IceUtil::Options::parse(const string& line)
 		    {
 			if(IFS.find(l[i]) != string::npos)
 			{
-			    //
-			    // We just saw the end of an argument.
-			    // Push it onto the end of the argument
-			    // vector and eat up any trailing consecutive
-			    // whitespace characters.
-			    //
 			    vec.push_back(arg);
 			    arg.clear();
+
+			    //
+			    // Move to start of next argument.
+			    //
 			    while(++i < l.size() && IFS.find(l[i]) != string::npos)
 			    {
 				;
@@ -212,17 +219,21 @@ IceUtil::Options::parse(const string& line)
 			}
 		    }
 		}
+		else if(c == '"') // End of double-quote mode.
+		{
+		    state = Normal;
+		}
 		else
 		{
-		    arg.push_back(c);
+		    arg.push_back(c); // Everything else is taken literally.
 		}
 		break;
 	    }
 	    case SingleQuote:
 	    {
-		if(c == '\'')
+		if(c == '\'') // End of single-quote mode.
 		{
-		   state = Normal; // End of single-quote mode.
+		    state = Normal;
 		}
 		else
 		{
@@ -384,14 +395,14 @@ IceUtil::Options::parse(const string& line)
 			}
 			break;
 		    }
-		    case '\'':
+		    case '\'': // End of ANSI-quote mode.
 		    {
 			state = Normal;
 			break;
 		    }
 		    default:
 		    {
-			arg.push_back(c);
+			arg.push_back(c); // Everything else is taken literally.
 			break;
 		    }
 		}
@@ -409,7 +420,8 @@ IceUtil::Options::parse(const string& line)
     {
 	case Normal:
 	{
-	    break; // Everything worked fine.
+	    vec.push_back(arg);
+	    break;
 	}
 	case SingleQuote:
 	{
@@ -433,46 +445,19 @@ IceUtil::Options::parse(const string& line)
 	}
     }
 
-    if(!arg.empty())
-    {
-	vec.push_back(arg);
-    }
-
-    //
-    // Make an artificial argc/argv pair, and call the
-    // normal parse() below to take care of the options.
-    //
-    int argc = vec.size();
-    char **argv = new char*[argc + 1]; // + 1 for terminating null pointer.
-    int j;
-    for(j = 0; j < argc; ++j)
-    {
-	argv[j] = strdup(vec[j].c_str());
-    }
-    argv[j] = 0; // Required by ISO standard C++.
-    try
-    {
-	vector<string> result = parse(argc, argv);
-        for(j = 0; j < argc; ++j)
-	{
-	    free(argv[j]);
-	}
-	delete[] argv;
-	return result;
-    }
-    catch(...)
-    {
-        for(j = 0; j < argc; ++j)
-	{
-	    free(argv[j]);
-	}
-	delete[] argv;
-        throw;
-    }
+    return vec;
 }
 
+//
+// Parse a vector of arguments and return the non-option
+// arguments as the return value. Throw BadOpt if any of the
+// options are invalid.
+// Note that args[0] is ignored because that is the name
+// of the executable.
+//
+
 vector<string>
-IceUtil::Options::parse(int argc, char* argv[])
+IceUtil::Options::parse(const vector<string>& args)
 {
     IceUtil::RecMutex::Lock sync(_m);
 
@@ -486,10 +471,10 @@ IceUtil::Options::parse(int argc, char* argv[])
 
     vector<string> result;
 
-    int i;
-    for(i = 1; i < argc; ++i)
+    string::size_type i;
+    for(i = 1; i < args.size(); ++i)
     {
-	if(strcmp(argv[i], "-") == 0 || strcmp(argv[i], "--") == 0)
+	if(args[i] == "-" || args[i] == "--")
 	{
 	    ++i;
 	    break; // "-" and "--" indicate end of options.
@@ -499,41 +484,35 @@ IceUtil::Options::parse(int argc, char* argv[])
 	ValidOpts::iterator pos;
         bool argDone = false;
 
-	if(strncmp(argv[i], "--", 2) == 0)
+	if(args[i].compare(0, 2, "--") == 0)
 	{
 	    //
 	    // Long option. If the option has an argument, it can either be separated by '='
 	    // or appear as a separate argument. For example, "--name value" is the same
 	    // as "--name=value".
 	    //
-	    const char *p = argv[i] + 2;
-	    while(*p != '=' && *p != '\0')
+	    string::size_type p = args[i].find('=', 2);
+	    if(p != string::npos)
 	    {
-		++p;
-	    }
-	    if(*p == '=')
-	    {
-		opt.assign(argv[i] + 2, p - (argv[i] + 2));
+	        opt = args[i].substr(2, p - 2);
 	    }
 	    else
 	    {
-		opt = argv[i] + 2;
+		opt = args[i].substr(2);
 	    }
 
 	    pos = checkOpt(opt, LongOpt);
 
-	    if(*p == '=')
+	    if(p != string::npos)
 	    {
-	        if(pos->second.arg == NoArg)
+	        if(pos->second.arg == NoArg && p != args[i].size() - 1)
 		{
-		    string err = "--";
-		    err += opt;
-		    err.push_back('=');
-		    err += p + 1;
+		    string err = "`";
+		    err += args[i];
 		    err += "': option does not take an argument";
 		    throw BadOpt(err);
 		}
-		setOpt(opt, p + 1, pos->second.repeat);
+		setOpt(opt, args[i].substr(p + 1), pos->second.repeat);
 		argDone = true;
 	    }
 
@@ -549,28 +528,22 @@ IceUtil::Options::parse(int argc, char* argv[])
 		seenNonRepeatableOpts.insert(seenPos, opt);
 	    }
 	}
-	else if(*argv[i] == '-')
+	else if(!args[i].empty() && args[i][0] == '-')
 	{
 	    //
 	    // Short option.
 	    //
-	    const char *p = argv[i];
-	    char c;
-	    while((c = *++p) != '\0')
+	    for(string::size_type p = 1; p < args[i].size(); ++p)
 	    {
-		opt.clear();
-		opt.push_back(c);
+	        opt.clear();
+		opt.push_back(args[i][p]);
 		pos = checkOpt(opt, ShortOpt);
-		if(pos->second.arg == NeedArg && *(p + 1) != '\0')
+		if(pos->second.arg == NeedArg && p != args[i].size() - 1)
 		{
-		    string optArg;
-		    while(*++p != '\0')
-		    {
-			optArg.push_back(*p);
-		    }
-		    --p;
+		    string optArg = args[i].substr(p + 1);
 		    setOpt(opt, optArg, pos->second.repeat);
 		    argDone = true;
+		    break;
 		}
 	    }
 
@@ -591,7 +564,7 @@ IceUtil::Options::parse(int argc, char* argv[])
 	    //
 	    // Not an option or option argument.
 	    //
-	    result.push_back(argv[i]);
+	    result.push_back(args[i]);
 	    argDone = true;
 	}
 
@@ -599,7 +572,7 @@ IceUtil::Options::parse(int argc, char* argv[])
 	{
 	    if(pos->second.arg == NeedArg) // Need an argument that is separated by whitespace.
 	    {
-		if(i == argc - 1)
+		if(i == args.size() - 1)
 		{
 		    string err = "`-";
 		    if(opt.size() != 1)
@@ -610,7 +583,7 @@ IceUtil::Options::parse(int argc, char* argv[])
 		    err += "' option requires an argument";
 		    throw BadOpt(err);
 		}
-		setOpt(opt, argv[++i], pos->second.repeat);
+		setOpt(opt, args[++i], pos->second.repeat);
 	    }
 	    else
 	    {
@@ -619,12 +592,28 @@ IceUtil::Options::parse(int argc, char* argv[])
 	}
     }
 
-    while(i < argc)
+    while(i < args.size())
     {
-        result.push_back(argv[i++]);
+        result.push_back(args[i++]);
     }
 
     return result;
+}
+
+//
+// Parse a normal argc/argv pair and return the non-option
+// arguments as the return value.
+//
+
+vector<string>
+IceUtil::Options::parse(int argc, char* argv[])
+{
+    vector<string> vec;
+    for(int i = 0; i < argc; ++i)
+    {
+        vec.push_back(argv[i]);
+    }
+    return parse(vec);
 }
 
 bool
