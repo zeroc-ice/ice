@@ -123,6 +123,25 @@ public abstract class Application
         return _communicator;
     }
 
+    //
+    // TODO: These need to be implemented.
+    //
+    public static void
+    shutdownOnInterrupt()
+    {
+    }
+
+    public static void
+    ignoreInterrupt()
+    {
+    }
+
+    public static void
+    defaultInterrupt()
+    {
+    }
+
+
     private static String _appName;
     private static Communicator _communicator;
 }
