@@ -105,7 +105,7 @@ public:
     ::Ice::Context ice_getContext() const;
     ::Ice::ObjectPrx ice_newContext(const ::Ice::Context&) const;
 
-    ::std::string ice_getFacet() const;
+    const ::std::string& ice_getFacet() const;
     ::Ice::ObjectPrx ice_newFacet(const ::std::string&) const;
 
     ::Ice::ObjectPrx ice_twoway() const;

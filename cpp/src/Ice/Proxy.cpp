@@ -316,7 +316,7 @@ IceProxy::Ice::Object::ice_newIdentity(const Identity& newIdentity) const
     }
 }
 
-string
+const string&
 IceProxy::Ice::Object::ice_getFacet() const
 {
     return _reference->facet;
