@@ -19,7 +19,7 @@ public:
 
     ThroughputI() :
 	_byteSeq(500000, 0),
-	_stringSeq(100000, "hello"),
+	_stringSeq(50000, "hello"),
 	_structSeq(50000)
     {
         for(int i = 0; i < 50000; ++i)
