@@ -20,17 +20,38 @@
 using namespace IceUtil;
 using namespace std;
 
-int
-main()
-{
-    const int howMany = 100000;
 
+inline void usage(const char* myName)
+{
+    cerr << "Usage: " << myName << " [number of UUIDs to generate]" << endl;
+}
+
+int main(int argc, char* argv[])
+{
+
+    long howMany = 10000;
+
+    if(argc > 2)
+    {
+	usage(argv[0]);
+	return EXIT_FAILURE;
+    }
+    else if(argc == 2)
+    {
+	howMany = atol(argv[1]);
+	if (howMany == 0)
+	{
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+    }
+    
     cout << "Generating " << howMany << " UUIds ... " << endl;
 
     set<string> uuidSet;
     
     Time start = Time::now();
-    for (int i = 0; i < howMany; i++)
+    for (long i = 0; i < howMany; i++)
     {
 	pair<set<string>::iterator, bool> ok
 	    = uuidSet.insert(generateUUID());
@@ -38,9 +59,11 @@ main()
     }
     Time finish = Time::now();
   
-    cout << "UUIDs generated every 100 ns: " 
-	 << (double) howMany / ((finish - start).toMicroSeconds() * 10) 
+    cout << "Each UUID took an average of "  
+	 << (double) ((finish - start).toMicroSeconds()) / howMany 
+	 << " micro seconds to generate and insert into a set<string>." 
 	 << endl;
+
     cout << "ok" << endl;
     
     return EXIT_SUCCESS;
