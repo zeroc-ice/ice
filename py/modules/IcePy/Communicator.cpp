@@ -22,16 +22,28 @@
 #include <Ice/Properties.h>
 #include <Ice/Router.h>
 
+#include <pythread.h>
+
 using namespace std;
 using namespace IcePy;
 
+static long _mainThreadId;
+
 namespace IcePy
 {
+
+struct CommunicatorObject;
+
+typedef InvokeThread<Ice::Communicator> WaitForShutdownThread;
+typedef IceUtil::Handle<WaitForShutdownThread> WaitForShutdownThreadPtr;
 
 struct CommunicatorObject
 {
     PyObject_HEAD
     Ice::CommunicatorPtr* communicator;
+    IceUtil::Monitor<IceUtil::Mutex>* shutdownMonitor;
+    WaitForShutdownThreadPtr* shutdownThread;
+    bool shutdown;
 };
 
 }
@@ -48,6 +60,9 @@ communicatorNew(PyObject* /*arg*/)
         return NULL;
     }
     self->communicator = 0;
+    self->shutdownMonitor = new IceUtil::Monitor<IceUtil::Mutex>;
+    self->shutdownThread = 0;
+    self->shutdown = false;
     return self;
 }
 
@@ -123,7 +138,13 @@ extern "C"
 static void
 communicatorDealloc(CommunicatorObject* self)
 {
+    if(self->shutdownThread)
+    {
+        (*self->shutdownThread)->getThreadControl().join();
+    }
     delete self->communicator;
+    delete self->shutdownMonitor;
+    delete self->shutdownThread;
     PyObject_Del(self);
 }
 
@@ -173,22 +194,83 @@ communicatorShutdown(CommunicatorObject* self)
 extern "C"
 #endif
 static PyObject*
-communicatorWaitForShutdown(CommunicatorObject* self)
+communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
 {
-    assert(self->communicator);
-    try
+    //
+    // This method differs somewhat from the standard Ice API because of
+    // signal issues. This method expects an integer timeout value, and
+    // returns a boolean to indicate whether it was successful. When
+    // called from the main thread, the timeout is used to allow control
+    // to return to the caller (the Python interpreter) periodically.
+    // When called from any other thread, we call waitForShutdown directly
+    // and ignore the timeout.
+    //
+    int timeout = 0;
+    if(!PyArg_ParseTuple(args, "i", &timeout))
     {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-        (*self->communicator)->waitForShutdown();
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
         return NULL;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    assert(timeout > 0);
+    assert(self->communicator);
+
+    //
+    // Do not call waitForShutdown from the main thread, because it prevents
+    // signals (such as keyboard interrupts) from being delivered to Python.
+    //
+    if(PyThread_get_thread_ident() == _mainThreadId)
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*self->shutdownMonitor);
+
+        if(!self->shutdown)
+        {
+            if(self->shutdownThread == 0)
+            {
+                WaitForShutdownThreadPtr t = new WaitForShutdownThread(*self->communicator,
+                                                                       &Ice::Communicator::waitForShutdown,
+                                                                       *self->shutdownMonitor, self->shutdown);
+                self->shutdownThread = new WaitForShutdownThreadPtr(t);
+                t->start();
+            }
+
+            bool done;
+            {
+                AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+                done = (*self->shutdownMonitor).timedWait(IceUtil::Time::milliSeconds(timeout));
+            }
+
+            if(!done)
+            {
+                Py_INCREF(Py_False);
+                return Py_False;
+            }
+        }
+
+        assert(self->shutdown);
+
+        Ice::Exception* ex = (*self->shutdownThread)->getException();
+        if(ex)
+        {
+            setPythonException(*ex);
+            return NULL;
+        }
+    }
+    else
+    {
+        try
+        {
+            AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+            (*self->communicator)->waitForShutdown();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            setPythonException(ex);
+            return NULL;
+        }
+    }
+
+    Py_INCREF(Py_True);
+    return Py_True;
 }
 
 #ifdef WIN32
@@ -633,7 +715,7 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR("destroy() -> None") },
     { "shutdown", (PyCFunction)communicatorShutdown, METH_NOARGS,
         PyDoc_STR("shutdown() -> None") },
-    { "waitForShutdown", (PyCFunction)communicatorWaitForShutdown, METH_NOARGS,
+    { "waitForShutdown", (PyCFunction)communicatorWaitForShutdown, METH_VARARGS,
         PyDoc_STR("waitForShutdown() -> None") },
     { "stringToProxy", (PyCFunction)communicatorStringToProxy, METH_VARARGS,
         PyDoc_STR("stringToProxy(str) -> Ice.ObjectPrx") },
@@ -724,6 +806,8 @@ PyTypeObject CommunicatorType =
 bool
 IcePy::initCommunicator(PyObject* module)
 {
+    _mainThreadId = PyThread_get_thread_ident();
+
     if(PyType_Ready(&CommunicatorType) < 0)
     {
         return false;
