@@ -20,7 +20,8 @@ namespace IcePack
 
 class LocatorI : public ::Ice::Locator
 {
-public: // TODO: ML: Add empty line.
+public:
+
     LocatorI(const AdapterManagerPrx&, const ::Ice::LocatorRegistryPrx&);
 
     virtual ::Ice::ObjectPrx findAdapterByName(const std::string&, const ::Ice::Current&);
