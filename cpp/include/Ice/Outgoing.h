@@ -32,7 +32,7 @@ public:
     Outgoing(const Emitter_ptr&, const Reference_ptr&);
     ~Outgoing();
 
-    void invoke();
+    bool invoke();
     void finished(Stream&);
     void finished(const ::Ice::LocalException&);
 
@@ -48,7 +48,9 @@ private:
     enum
     {
 	StateInProgress,
-	StateFinished
+	StateOK,
+	StateException,
+	StateLocalException,
     } state_;
 
     Stream is_;

@@ -40,6 +40,18 @@ private:
 
 ICE_API std::ostream& operator<<(std::ostream&, const LocalException&);
 
+class ICE_API UnknownUserException : public LocalException
+{
+public:    
+
+    UnknownUserException(const char*, int);
+    UnknownUserException(const UnknownUserException&);
+    UnknownUserException& operator=(const UnknownUserException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
 class ICE_API CommunicatorDestroyedException : public LocalException
 {
 public:    

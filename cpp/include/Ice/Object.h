@@ -20,6 +20,14 @@ namespace __Ice
 class Incoming;
 class Stream;
 
+enum DispatchStatus
+{
+    DispatchOK,
+    DispatchObjectNotExist,
+    DispatchOperationNotExist,
+    DispatchException
+};
+
 }
 
 namespace Ice
@@ -34,13 +42,14 @@ public:
     virtual ~Object();
 
     virtual bool _implements(const std::string&);
-    void ____implements(::__Ice::Incoming&);
+    ::__Ice::DispatchStatus ____implements(::__Ice::Incoming&);
     virtual const std::string* __ids() = 0;
 
-    typedef void (Object::*__Op)(::__Ice::Incoming&);
+    typedef ::__Ice::DispatchStatus (Object::*__Op)(::__Ice::Incoming&);
     static __Op __ops[];
     static std::string __names[];
-    virtual bool __dispatch(::__Ice::Incoming&, const std::string&);
+    virtual ::__Ice::DispatchStatus __dispatch(::__Ice::Incoming&,
+					       const std::string&);
 
     virtual void __write(::__Ice::Stream*) = 0;
     virtual void __read(::__Ice::Stream*) = 0;
