@@ -15,16 +15,14 @@
 namespace IceInternal
 {
 
-using System.Net.Sockets;
-
-public interface Transceiver
-{
-    Socket fd();
-    void close();
-    void shutdown();
-    void write(BasicStream stream, int timeout);
-    void read(BasicStream stream, int timeout);
-    //string toString(); // TODO
-}
+    public interface Transceiver
+    {
+	System.Net.Sockets.Socket fd();
+	void close();
+	void shutdown();
+	void write(BasicStream stream, int timeout);
+	void read(BasicStream stream, int timeout);
+	//string toString(); // TODO
+    }
 
 }

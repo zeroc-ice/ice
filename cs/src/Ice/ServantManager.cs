@@ -20,8 +20,7 @@ using System.Diagnostics;
 
 public sealed class ServantManager : SupportClass.ThreadClass
 {
-    public void
-    addServant(Ice.Object servant, Ice.Identity ident)
+    public void addServant(Ice.Object servant, Ice.Identity ident)
     {
 	lock(this)
 	{
@@ -40,8 +39,7 @@ public sealed class ServantManager : SupportClass.ThreadClass
 	}
     }
     
-    public void
-    removeServant(Ice.Identity ident)
+    public void removeServant(Ice.Identity ident)
     {
 	lock(this)
 	{
@@ -60,8 +58,7 @@ public sealed class ServantManager : SupportClass.ThreadClass
 	}
     }
     
-    public Ice.Object
-    findServant(Ice.Identity ident)
+    public Ice.Object findServant(Ice.Identity ident)
     {
 	lock(this)
 	{
@@ -71,8 +68,7 @@ public sealed class ServantManager : SupportClass.ThreadClass
 	}
     }
     
-    public void
-    addServantLocator(Ice.ServantLocator locator, string prefix)
+    public void addServantLocator(Ice.ServantLocator locator, string prefix)
     {
 	lock(this)
 	{
@@ -91,8 +87,7 @@ public sealed class ServantManager : SupportClass.ThreadClass
 	}
     }
     
-    public Ice.ServantLocator
-    findServantLocator(string prefix)
+    public Ice.ServantLocator findServantLocator(string prefix)
     {
 	lock(this)
 	{
@@ -105,8 +100,7 @@ public sealed class ServantManager : SupportClass.ThreadClass
     //
     // Only for use by Ice.ObjectAdapterI.
     //
-    public
-    ServantManager(Instance instance, string adapterName)
+    public ServantManager(Instance instance, string adapterName)
     {
 	//UPGRADE_TODO: Field java.util was not converted. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1095"'
 	_servantMap = new Hashtable();
@@ -129,8 +123,7 @@ public sealed class ServantManager : SupportClass.ThreadClass
     //
     // Only for use by Ice.ObjectAdatperI.
     //
-    public void
-    destroy()
+    public void destroy()
     {
 	lock(this)
 	{
@@ -147,7 +140,8 @@ public sealed class ServantManager : SupportClass.ThreadClass
 		}
 		catch(System.Exception ex)
 		{
-		    string s = "exception during locator deactivation:\n" + "object adapter: `" + _adapterName + "'\n" + "locator prefix: `" + p.Key + "'\n" + ex;
+		    string s = "exception during locator deactivation:\n" + "object adapter: `"
+		               + _adapterName + "'\n" + "locator prefix: `" + p.Key + "'\n" + ex;
 		    _instance.logger().error(s);
 		}
 	    }

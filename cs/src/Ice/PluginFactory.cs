@@ -14,9 +14,9 @@
 namespace Ice
 {
 	
-public interface PluginFactory
-{
-    Plugin create(Communicator communicator, System.String name, StringSeq args);
-}
+    public interface PluginFactory
+    {
+	Plugin create(Communicator communicator, System.String name, StringSeq args);
+    }
 
 }

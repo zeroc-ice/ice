@@ -14,9 +14,9 @@
 namespace Ice
 {
 
-public interface LocalObject
-{
-    int ice_hash();
-}
+    public interface LocalObject
+    {
+	int ice_hash();
+    }
 
 }

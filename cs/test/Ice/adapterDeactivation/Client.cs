@@ -38,8 +38,6 @@ public class Client
     
     public static void Main(string[] args)
     {
-	System.Console.Write(Ice.Util.generateUUID().ToUpper());
-	System.Environment.Exit(0);
         TestClient app = new TestClient();
         int result = app.main(args);
         System.Environment.Exit(result);

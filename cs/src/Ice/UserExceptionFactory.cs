@@ -15,10 +15,10 @@
 namespace IceInternal
 {
 
-public interface UserExceptionFactory
-{
-    void createAndThrow();
-    void destroy();
+    public interface UserExceptionFactory
+    {
+	void createAndThrow();
+	void destroy();
 }
 
 }

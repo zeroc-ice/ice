@@ -14,10 +14,10 @@
 namespace Ice
 {
 
-public interface AMD_Object_ice_invoke
-{
-    void ice_response(bool ok, byte[] outParams);
-    void ice_exception(System.Exception ex);
-}
+    public interface AMD_Object_ice_invoke
+    {
+	void ice_response(bool ok, byte[] outParams);
+	void ice_exception(System.Exception ex);
+    }
 
 }

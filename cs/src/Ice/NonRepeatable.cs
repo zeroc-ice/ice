@@ -15,19 +15,19 @@
 namespace IceInternal
 {
 
-public class NonRepeatable : Ice.Exception
-{
-    public NonRepeatable(Ice.LocalException ex)
+    public class NonRepeatable : Ice.Exception
     {
-	_ex = ex;
+	public NonRepeatable(Ice.LocalException ex)
+	{
+	    _ex = ex;
+	}
+	
+	public virtual Ice.LocalException get()
+	{
+	    return _ex;
+	}
+	
+	private Ice.LocalException _ex;
     }
-    
-    public virtual Ice.LocalException get()
-    {
-	return _ex;
-    }
-    
-    private Ice.LocalException _ex;
-}
 
 }

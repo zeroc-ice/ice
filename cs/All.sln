@@ -113,6 +113,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adapterDeactivationS", "tes
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tryC", "test\Ice\try\tryC.csproj", "{556D9B14-74E2-450C-ABC2-F26FE5633C9F}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tryS", "test\Ice\try\tryS.csproj", "{1052A2BE-DFE0-424B-88BA-29A3F55FD2CB}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -231,6 +239,14 @@ Global
 		{78F2C2EA-871B-4674-BB7E-E2B25279F48F}.Debug.Build.0 = Debug|.NET
 		{78F2C2EA-871B-4674-BB7E-E2B25279F48F}.Release.ActiveCfg = Release|.NET
 		{78F2C2EA-871B-4674-BB7E-E2B25279F48F}.Release.Build.0 = Release|.NET
+		{556D9B14-74E2-450C-ABC2-F26FE5633C9F}.Debug.ActiveCfg = Debug|.NET
+		{556D9B14-74E2-450C-ABC2-F26FE5633C9F}.Debug.Build.0 = Debug|.NET
+		{556D9B14-74E2-450C-ABC2-F26FE5633C9F}.Release.ActiveCfg = Release|.NET
+		{556D9B14-74E2-450C-ABC2-F26FE5633C9F}.Release.Build.0 = Release|.NET
+		{1052A2BE-DFE0-424B-88BA-29A3F55FD2CB}.Debug.ActiveCfg = Debug|.NET
+		{1052A2BE-DFE0-424B-88BA-29A3F55FD2CB}.Debug.Build.0 = Debug|.NET
+		{1052A2BE-DFE0-424B-88BA-29A3F55FD2CB}.Release.ActiveCfg = Release|.NET
+		{1052A2BE-DFE0-424B-88BA-29A3F55FD2CB}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

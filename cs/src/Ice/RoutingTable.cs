@@ -14,73 +14,69 @@
 namespace Ice
 {
 
-using System.Collections;
-	
-public sealed class RoutingTable
-{
-    public
-    RoutingTable()
+    using System.Collections;
+	    
+    public sealed class RoutingTable
     {
-	_table = new Hashtable();
-    }
-    
-    //
-    // Clear the contents of the routing table.
-    //
-    public void
-    clear()
-    {
-	lock(this)
+	public RoutingTable()
 	{
-	    _table.Clear();
-	}
-    }
-    
-    //
-    // Returns false if the Proxy exists already.
-    //
-    public bool
-    add(ObjectPrx prx)
-    {
-	if(prx == null)
-	{
-	    return false;
+	    _table = new Hashtable();
 	}
 	
-	ObjectPrx proxy = prx.ice_default(); // We insert the proxy in it's default form into the routing table.
-	
-	lock(this)
+	//
+	// Clear the contents of the routing table.
+	//
+	public void clear()
 	{
-	    if(!_table.Contains(proxy.ice_getIdentity()))
+	    lock(this)
 	    {
-		_table[proxy.ice_getIdentity()] = proxy;
-		return true;
+		_table.Clear();
 	    }
-	    else
+	}
+	
+	//
+	// Returns false if the Proxy exists already.
+	//
+	public bool add(ObjectPrx prx)
+	{
+	    if(prx == null)
 	    {
 		return false;
 	    }
-	}
-    }
-    
-    //
-    // Returns null if no Proxy exists for the given identity.
-    //
-    public ObjectPrx
-    get(Identity ident)
-    {
-	if(ident.name.Length == 0)
-	{
-	    return null;
+	    
+	    ObjectPrx proxy = prx.ice_default(); // We insert the proxy in it's default form into the routing table.
+	    
+	    lock(this)
+	    {
+		if(!_table.Contains(proxy.ice_getIdentity()))
+		{
+		    _table[proxy.ice_getIdentity()] = proxy;
+		    return true;
+		}
+		else
+		{
+		    return false;
+		}
+	    }
 	}
 	
-	lock(this)
+	//
+	// Returns null if no Proxy exists for the given identity.
+	//
+	public ObjectPrx get(Identity ident)
 	{
-	    return (ObjectPrx)_table[ident];
+	    if(ident.name.Length == 0)
+	    {
+		return null;
+	    }
+	    
+	    lock(this)
+	    {
+		return (ObjectPrx)_table[ident];
+	    }
 	}
+	
+	private Hashtable _table;
     }
-    
-    private Hashtable _table;
-}
 
 }

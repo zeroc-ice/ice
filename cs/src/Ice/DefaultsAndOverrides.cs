@@ -15,62 +15,62 @@
 namespace IceInternal
 {
 
-public sealed class DefaultsAndOverrides
-{
-    internal DefaultsAndOverrides(Ice.Properties properties)
+    public sealed class DefaultsAndOverrides
     {
-	string val;
-	
-	defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-	
-	val = properties.getProperty("Ice.Default.Host");
-	if(val.Length != 0)
+	internal DefaultsAndOverrides(Ice.Properties properties)
 	{
-	    defaultHost = val;
-	}
-	else
-	{
-	    defaultHost = Network.getLocalHost(true);
+	    string val;
+	    
+	    defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+	    
+	    val = properties.getProperty("Ice.Default.Host");
+	    if(val.Length != 0)
+	    {
+		defaultHost = val;
+	    }
+	    else
+	    {
+		defaultHost = Network.getLocalHost(true);
+	    }
+	    
+	    defaultRouter = properties.getProperty("Ice.Default.Router");
+	    
+	    val = properties.getProperty("Ice.Override.Timeout");
+	    if(val.Length > 0)
+	    {
+		overrideTimeout = true;
+		overrideTimeoutValue = properties.getPropertyAsInt("Ice.Override.Timeout");
+	    }
+	    else
+	    {
+		overrideTimeout = false;
+		overrideTimeoutValue = - 1;
+	    }
+	    
+	    val = properties.getProperty("Ice.Override.Compress");
+	    if(val.Length > 0)
+	    {
+		overrideCompress = true;
+		overrideCompressValue = properties.getPropertyAsInt("Ice.Override.Compress") != 0;
+	    }
+	    else
+	    {
+		overrideCompress = false;
+		overrideCompressValue = false;
+	    }
+	    
+	    defaultLocator = properties.getProperty("Ice.Default.Locator");
 	}
 	
-	defaultRouter = properties.getProperty("Ice.Default.Router");
+	public string defaultHost;
+	public string defaultProtocol;
+	public string defaultRouter;
+	public string defaultLocator;
 	
-	val = properties.getProperty("Ice.Override.Timeout");
-	if(val.Length > 0)
-	{
-	    overrideTimeout = true;
-	    overrideTimeoutValue = properties.getPropertyAsInt("Ice.Override.Timeout");
-	}
-	else
-	{
-	    overrideTimeout = false;
-	    overrideTimeoutValue = - 1;
-	}
-	
-	val = properties.getProperty("Ice.Override.Compress");
-	if(val.Length > 0)
-	{
-	    overrideCompress = true;
-	    overrideCompressValue = properties.getPropertyAsInt("Ice.Override.Compress") != 0;
-	}
-	else
-	{
-	    overrideCompress = false;
-	    overrideCompressValue = false;
-	}
-	
-	defaultLocator = properties.getProperty("Ice.Default.Locator");
+	public bool overrideTimeout;
+	public int overrideTimeoutValue;
+	public bool overrideCompress;
+	public bool overrideCompressValue;
     }
-    
-    public string defaultHost;
-    public string defaultProtocol;
-    public string defaultRouter;
-    public string defaultLocator;
-    
-    public bool overrideTimeout;
-    public int overrideTimeoutValue;
-    public bool overrideCompress;
-    public bool overrideCompressValue;
-}
 
 }

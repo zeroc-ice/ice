@@ -24,8 +24,7 @@ namespace IceInternal
 	// appear in match, starting from 0. Returns -1 if none is
 	// found.
 	//
-	public static int
-	findFirstOf(string str, string match)
+	public static int findFirstOf(string str, string match)
 	{
 	    return findFirstOf(str, match, 0);
 	}
@@ -35,8 +34,7 @@ namespace IceInternal
 	// appear in match, starting from start. Returns -1 if none is
 	// found.
 	//
-	public static int
-	findFirstOf(string str, string match, int start)
+	public static int findFirstOf(string str, string match, int start)
 	{
 	    int len = str.Length;
 	    for(int i = start; i < len; i++)
@@ -56,8 +54,7 @@ namespace IceInternal
 	// not appear in match, starting from 0. Returns -1 if none is
 	// found.
 	//
-	public static int
-	findFirstNotOf(string str, string match)
+	public static int findFirstNotOf(string str, string match)
 	{
 	    return findFirstNotOf(str, match, 0);
 	}
@@ -67,8 +64,7 @@ namespace IceInternal
 	// not appear in match, starting from start. Returns -1 if none is
 	// found.
 	//
-	public static int
-	findFirstNotOf(string str, string match, int start)
+	public static int findFirstNotOf(string str, string match, int start)
 	{
 	    int len = str.Length;
 	    for(int i = start; i < len; i++)
@@ -83,8 +79,7 @@ namespace IceInternal
 	    return -1;
 	}
 	
-	private static void
-	encodeChar(byte b, System.Text.StringBuilder s, string special)
+	private static void encodeChar(byte b, System.Text.StringBuilder s, string special)
 	{
 	    switch((char)b)
 	    {
@@ -174,8 +169,7 @@ namespace IceInternal
 	// Encodes a string into UTF8, escaping all characters outside the range [32-126]
 	// as well as any special characters determined by the caller.
 	//
-	public static string
-	encodeString(string s, string special)
+	public static string encodeString(string s, string special)
 	{
 	    System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding();
 	    byte[] bytes = utf8.GetBytes(s);
@@ -195,8 +189,7 @@ namespace IceInternal
 	// the result parameter holds the decoded string and true is returned.
 	// A return value of false indicates an error was detected in the encoding.
 	//
-	public static bool
-	decodeString(string s, int start, int end, out string result)
+	public static bool decodeString(string s, int start, int end, out string result)
 	{
 	    Debug.Assert(start >= 0);
 	    Debug.Assert(end <= s.Length);
@@ -221,8 +214,7 @@ namespace IceInternal
 	    }
 	}
 
-	public static int
-	checkQuote(string s)
+	public static int checkQuote(string s)
 	{
 	    return checkQuote(s, 0);
 	}
@@ -233,8 +225,7 @@ namespace IceInternal
 	// quotation mark is found at the start position, then 0 is returned.
 	// If no matching closing quote is found, then -1 is returned.
 	//
-	public static int
-	checkQuote(string s, int start)
+	public static int checkQuote(string s, int start)
 	{
 	    char quoteChar = s[start];
 	    if(quoteChar == '"' || quoteChar == '\'')

@@ -15,148 +15,145 @@
 namespace IceInternal
 {
 
-using System.Collections;
-using System.Diagnostics;
-using System.Reflection;
-using IceUtil;
+    using System.Collections;
+    using System.Diagnostics;
+    using System.Reflection;
+    using IceUtil;
 
-public sealed class ValueWriter
-{
-    public static void
-    write(object obj, OutputBase output)
+    public sealed class ValueWriter
     {
-	writeValue(null, obj, null, output);
-    }
-    
-    private static void
-    writeValue(string name, object val, Hashtable objectTable, OutputBase output)
-    {
-	if(val == null)
+	public static void write(object obj, OutputBase output)
 	{
-	    writeName(name, output);
-	    output.print("(null)");
+	    writeValue(null, obj, null, output);
 	}
-	else
+	
+	private static void writeValue(string name, object val, Hashtable objectTable, OutputBase output)
 	{
-	    System.Type c = val.GetType();
-	    if(c.Equals(typeof(byte)) || c.Equals(typeof(short)) || c.Equals(typeof(int)) || c.Equals(typeof(long)) ||
-	        c.Equals(typeof(double)) || c.Equals(typeof(float)) || c.Equals(typeof(bool)))
+	    if(val == null)
 	    {
 		writeName(name, output);
-		output.print(val.ToString());
-	    }
-	    else if(c.Equals(typeof(string)))
-	    {
-		writeName(name, output);
-		output.print("\"");
-		output.print(val.ToString());
-		output.print("\"");
-	    }
-	    else if(val is CollectionBase)
-	    {
-		int n = 0;
-		IEnumerator i = ((CollectionBase)val).GetEnumerator();
-		while(i.MoveNext())
-		{
-		    string elem = (name != null ? name : "");
-		    elem += "[" + n++ + "]";
-		    writeValue(elem, i.Current, objectTable, output);
-		}
+		output.print("(null)");
 	    }
 	    else
 	    {
-		if(val is DictionaryBase)
-		{
-		    foreach(DictionaryEntry entry in (Hashtable)val)
-		    {
-			string elem = name != null ? name + "." : "";
-			writeValue(elem + "key", entry.Key, objectTable, output);
-			writeValue(elem + "value", entry.Value, objectTable, output);
-		    }
-		}
-		else if(val is Ice.ObjectPrxHelper)
+		System.Type c = val.GetType();
+		if(c.Equals(typeof(byte)) || c.Equals(typeof(short)) || c.Equals(typeof(int)) || c.Equals(typeof(long)) ||
+		    c.Equals(typeof(double)) || c.Equals(typeof(float)) || c.Equals(typeof(bool)))
 		{
 		    writeName(name, output);
-		    Ice.ObjectPrxHelper proxy = (Ice.ObjectPrxHelper)val;
-		    output.print(proxy.__reference().ToString());
+		    output.print(val.ToString());
 		}
-		else if(val is Ice.Object)
+		else if(c.Equals(typeof(string)))
 		{
-		    //
-		    // Check for recursion.
-		    //
-		    if(objectTable != null && objectTable.Contains(val))
+		    writeName(name, output);
+		    output.print("\"");
+		    output.print(val.ToString());
+		    output.print("\"");
+		}
+		else if(val is CollectionBase)
+		{
+		    int n = 0;
+		    IEnumerator i = ((CollectionBase)val).GetEnumerator();
+		    while(i.MoveNext())
+		    {
+			string elem = (name != null ? name : "");
+			elem += "[" + n++ + "]";
+			writeValue(elem, i.Current, objectTable, output);
+		    }
+		}
+		else
+		{
+		    if(val is DictionaryBase)
+		    {
+			foreach(DictionaryEntry entry in (Hashtable)val)
+			{
+			    string elem = name != null ? name + "." : "";
+			    writeValue(elem + "key", entry.Key, objectTable, output);
+			    writeValue(elem + "value", entry.Value, objectTable, output);
+			}
+		    }
+		    else if(val is Ice.ObjectPrxHelper)
 		    {
 			writeName(name, output);
-			output.print("(recursive)");
+			Ice.ObjectPrxHelper proxy = (Ice.ObjectPrxHelper)val;
+			output.print(proxy.__reference().ToString());
+		    }
+		    else if(val is Ice.Object)
+		    {
+			//
+			// Check for recursion.
+			//
+			if(objectTable != null && objectTable.Contains(val))
+			{
+			    writeName(name, output);
+			    output.print("(recursive)");
+			}
+			else
+			{
+			    if(objectTable == null)
+			    {
+				objectTable = new Hashtable();
+			    }
+			    objectTable[val] = null;
+			    writeFields(name, val, c, objectTable, output);
+			}
+		    }
+		    else if(c.IsEnum)
+		    {
+			writeName(name, output);
+			output.print(val.ToString());		 
 		    }
 		    else
-		    {
-			if(objectTable == null)
-			{
-			    objectTable = new Hashtable();
-			}
-			objectTable[val] = null;
+		    {	    
+			//
+			// Must be struct.
+			//
 			writeFields(name, val, c, objectTable, output);
 		    }
 		}
-		else if(c.IsEnum)
-		{
-		    writeName(name, output);
-		    output.print(val.ToString());		 
-		}
-		else
-		{	    
-		    //
-		    // Must be struct.
-		    //
-		    writeFields(name, val, c, objectTable, output);
-		}
 	    }
 	}
-    }
-    
-    private static void
-    writeFields(string name, object obj, System.Type c, Hashtable objectTable, OutputBase output)
-    {
-	if(!c.Equals(typeof(object)))
+	
+	private static void writeFields(string name, object obj, System.Type c, Hashtable objectTable,
+	                                OutputBase output)
 	{
-	    //
-	    // Write the superclass first.
-	    //
-	    writeFields(name, obj, c.BaseType, objectTable, output);
-	    
-	    //
-	    // Write the declared fields of the given class.
-	    //
-	    FieldInfo[] fields = c.GetFields(BindingFlags.Instance | BindingFlags.Public);
-
-	    for(int i = 0; i < fields.Length; i++)
+	    if(!c.Equals(typeof(object)))
 	    {
-		string fieldName = (name != null ? name + '.' + fields[i].Name : fields[i].Name);
+		//
+		// Write the superclass first.
+		//
+		writeFields(name, obj, c.BaseType, objectTable, output);
 		
-		try
+		//
+		// Write the declared fields of the given class.
+		//
+		FieldInfo[] fields = c.GetFields(BindingFlags.Instance | BindingFlags.Public);
+
+		for(int i = 0; i < fields.Length; i++)
 		{
-		    object val = fields[i].GetValue(obj);
-		    writeValue(fieldName, val, objectTable, output);
-		}
-		catch(System.UnauthorizedAccessException)
-		{
-		    Debug.Assert(false);
+		    string fieldName = (name != null ? name + '.' + fields[i].Name : fields[i].Name);
+		    
+		    try
+		    {
+			object val = fields[i].GetValue(obj);
+			writeValue(fieldName, val, objectTable, output);
+		    }
+		    catch(System.UnauthorizedAccessException)
+		    {
+			Debug.Assert(false);
+		    }
 		}
 	    }
 	}
-    }
-    
-    private static void
-    writeName(string name, OutputBase output)
-    {
-	if(name != null)
+	
+	private static void writeName(string name, OutputBase output)
 	{
-	    output.nl();
-	    output.print(name + " = ");
+	    if(name != null)
+	    {
+		output.nl();
+		output.print(name + " = ");
+	    }
 	}
     }
-}
 
 }

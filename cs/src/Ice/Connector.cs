@@ -15,10 +15,10 @@
 namespace IceInternal
 {
 
-public interface Connector
-{
-    Transceiver connect(int timeout);
-    //string toString(); // TODO
-}
+    public interface Connector
+    {
+	Transceiver connect(int timeout);
+	//string toString(); // TODO
+    }
 
 }

@@ -15,71 +15,68 @@
 namespace IceInternal
 {
 
-using System.Collections;
+    using System.Collections;
 
-public sealed class ObjectFactoryManager
-{
-    public void
-    add(Ice.ObjectFactory factory, string id)
+    public sealed class ObjectFactoryManager
     {
-	lock(this)
+	public void add(Ice.ObjectFactory factory, string id)
 	{
-	    object o = _factoryMap[id];
-	    if(o != null)
+	    lock(this)
 	    {
-		Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-		ex.id = id;
-		ex.kindOfObject = "user exception factory";
-		throw ex;
+		object o = _factoryMap[id];
+		if(o != null)
+		{
+		    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
+		    ex.id = id;
+		    ex.kindOfObject = "user exception factory";
+		    throw ex;
+		}
+		_factoryMap[id] = factory;
 	    }
-	    _factoryMap[id] = factory;
 	}
-    }
-    
-    public void
-    remove(string id)
-    {
-	lock(this)
+	
+	public void remove(string id)
 	{
-	    object o = _factoryMap[id];
-	    if(o == null)
+	    lock(this)
 	    {
-		Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-		ex.id = id;
-		ex.kindOfObject = "user exception factory";
-		throw ex;
+		object o = _factoryMap[id];
+		if(o == null)
+		{
+		    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
+		    ex.id = id;
+		    ex.kindOfObject = "user exception factory";
+		    throw ex;
+		}
+		_factoryMap.Remove(id);
 	    }
-	    _factoryMap.Remove(id);
 	}
-    }
-    
-    public Ice.ObjectFactory
-    find(string id)
-    {
-	lock(this)
+	
+	public Ice.ObjectFactory find(string id)
 	{
-	    return (Ice.ObjectFactory)_factoryMap[id];
+	    lock(this)
+	    {
+		return (Ice.ObjectFactory)_factoryMap[id];
+	    }
 	}
-    }
-    
-    //
-    // Only for use by Instance
-    //
-    internal ObjectFactoryManager()
-    {
-	_factoryMap = new Hashtable();
-    }
-    
-    internal void  destroy()
-    {
-	foreach(Ice.ObjectFactory factory in _factoryMap.Values)
+	
+	//
+	// Only for use by Instance
+	//
+	internal ObjectFactoryManager()
 	{
-	    factory.destroy();
+	    _factoryMap = new Hashtable();
 	}
-	_factoryMap.Clear();
+	
+	internal void destroy()
+	{
+	    foreach(Ice.ObjectFactory factory in _factoryMap.Values)
+	    {
+		factory.destroy();
+	    }
+	    _factoryMap.Clear();
+	}
+	
+	private Hashtable _factoryMap;
     }
-    
-    private Hashtable _factoryMap;
-}
 
 }

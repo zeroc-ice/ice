@@ -15,13 +15,13 @@
 namespace IceInternal
 {
 
-public interface EndpointFactory
-{
-    short type();
-    string protocol();
-    Endpoint create(string str);
-    Endpoint read(BasicStream s);
-    void destroy();
-}
+    public interface EndpointFactory
+    {
+	short type();
+	string protocol();
+	Endpoint create(string str);
+	Endpoint read(BasicStream s);
+	void destroy();
+    }
 
 }

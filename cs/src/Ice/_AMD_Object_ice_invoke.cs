@@ -14,34 +14,32 @@
 namespace Ice
 {
 	
-sealed class _AMD_Object_ice_invoke : IceInternal.IncomingAsync, AMD_Object_ice_invoke
-{
-    public _AMD_Object_ice_invoke(IceInternal.Incoming inc)
-	: base(inc)
+    sealed class _AMD_Object_ice_invoke : IceInternal.IncomingAsync, AMD_Object_ice_invoke
     {
-    }
-    
-    public void
-    ice_response(bool ok, byte[] outParams)
-    {
-	try
+	public _AMD_Object_ice_invoke(IceInternal.Incoming inc)
+	    : base(inc)
 	{
-	    __os().writeBlob(outParams);
-	}
-	catch(Ice.LocalException ex)
-	{
-	    __exception(ex);
-	    return ;
 	}
 	
-	__response(ok);
+	public void ice_response(bool ok, byte[] outParams)
+	{
+	    try
+	    {
+		__os().writeBlob(outParams);
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		__exception(ex);
+		return ;
+	    }
+	    
+	    __response(ok);
+	}
+	
+	public void ice_exception(System.Exception ex)
+	{
+	    __exception(ex);
+	}
     }
-    
-    public void
-    ice_exception(System.Exception ex)
-    {
-	__exception(ex);
-    }
-}
 	
 }

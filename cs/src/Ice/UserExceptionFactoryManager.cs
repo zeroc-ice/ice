@@ -15,73 +15,68 @@
 namespace IceInternal
 {
 
-using System.Collections;
+    using System.Collections;
 
-public sealed class UserExceptionFactoryManager
-{
-    public void
-    add(UserExceptionFactory factory, string id)
+    public sealed class UserExceptionFactoryManager
     {
-	lock(this)
+	public void add(UserExceptionFactory factory, string id)
 	{
-	    object o = _factoryMap[id];
-	    if(o != null)
+	    lock(this)
 	    {
-		Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-		ex.id = id;
-		ex.kindOfObject = "user exception factory";
-		throw ex;
+		object o = _factoryMap[id];
+		if(o != null)
+		{
+		    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
+		    ex.id = id;
+		    ex.kindOfObject = "user exception factory";
+		    throw ex;
+		}
+		_factoryMap[id] = factory;
 	    }
-	    _factoryMap[id] = factory;
 	}
-    }
-    
-    public void
-    remove(string id)
-    {
-	lock(this)
+	
+	public void remove(string id)
 	{
-	    object o = _factoryMap[id];
-	    if(o == null)
+	    lock(this)
 	    {
-		Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-		ex.id = id;
-		ex.kindOfObject = "user exception factory";
-		throw ex;
+		object o = _factoryMap[id];
+		if(o == null)
+		{
+		    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
+		    ex.id = id;
+		    ex.kindOfObject = "user exception factory";
+		    throw ex;
+		}
+		_factoryMap.Remove(id);
 	    }
-	    _factoryMap.Remove(id);
 	}
-    }
-    
-    public UserExceptionFactory
-    find(string id)
-    {
-	lock(this)
+	
+	public UserExceptionFactory find(string id)
 	{
-	    return (UserExceptionFactory)_factoryMap[id];
+	    lock(this)
+	    {
+		return (UserExceptionFactory)_factoryMap[id];
+	    }
 	}
-    }
-    
-    //
-    // Only for use by Instance
-    //
-    internal
-    UserExceptionFactoryManager()
-    {
-	_factoryMap = new Hashtable();
-    }
-    
-    internal void
-    destroy()
-    {
-	foreach(UserExceptionFactory factory in _factoryMap.Values)
+	
+	//
+	// Only for use by Instance
+	//
+	internal UserExceptionFactoryManager()
 	{
-	    factory.destroy();
+	    _factoryMap = new Hashtable();
 	}
-	_factoryMap.Clear();
+	
+	internal void destroy()
+	{
+	    foreach(UserExceptionFactory factory in _factoryMap.Values)
+	    {
+		factory.destroy();
+	    }
+	    _factoryMap.Clear();
+	}
+	
+	private Hashtable _factoryMap;
     }
-    
-    private Hashtable _factoryMap;
-}
 
 }

@@ -15,16 +15,16 @@
 namespace IceInternal
 {
 
-public enum DispatchStatus {
-				DispatchOK,
-				DispatchUserException,
-				DispatchObjectNotExist,
-				DispatchFacetNotExist,
-				DispatchOperationNotExist,
-				DispatchUnknownLocalException,
-				DispatchUnknownUserException,
-				DispatchUnknownException,
-				DispatchAsync
-			    };
+    public enum DispatchStatus {
+				    DispatchOK,
+				    DispatchUserException,
+				    DispatchObjectNotExist,
+				    DispatchFacetNotExist,
+				    DispatchOperationNotExist,
+				    DispatchUnknownLocalException,
+				    DispatchUnknownUserException,
+				    DispatchUnknownException,
+				    DispatchAsync
+				};
 
 }

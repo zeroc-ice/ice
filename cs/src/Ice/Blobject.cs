@@ -14,33 +14,31 @@
 namespace Ice
 {
 
-public abstract class Blobject : Ice.ObjectImpl
-{
-    // Returns true if ok, false if user exception.
-    public abstract bool
-    ice_invoke(ByteSeq inParams, out ByteSeq outParams, Current current);
-    
-    public override IceInternal.DispatchStatus
-    __dispatch(IceInternal.Incoming inc, Current current)
+    public abstract class Blobject : Ice.ObjectImpl
     {
-	ByteSeq inParams;
-	ByteSeq outParams;
-	int sz = inc.istr().getReadEncapsSize();
-	inParams = inc.istr().readBlob(sz);
-	bool ok = ice_invoke(inParams, out outParams, current);
-	if(outParams != null)
+	// Returns true if ok, false if user exception.
+	public abstract bool ice_invoke(ByteSeq inParams, out ByteSeq outParams, Current current);
+	
+	public override IceInternal.DispatchStatus __dispatch(IceInternal.Incoming inc, Current current)
 	{
-	    inc.ostr().writeBlob(outParams);
-	}
-	if(ok)
-	{
-	    return IceInternal.DispatchStatus.DispatchOK;
-	}
-	else
-	{
-	    return IceInternal.DispatchStatus.DispatchUserException;
+	    ByteSeq inParams;
+	    ByteSeq outParams;
+	    int sz = inc.istr().getReadEncapsSize();
+	    inParams = inc.istr().readBlob(sz);
+	    bool ok = ice_invoke(inParams, out outParams, current);
+	    if(outParams != null)
+	    {
+		inc.ostr().writeBlob(outParams);
+	    }
+	    if(ok)
+	    {
+		return IceInternal.DispatchStatus.DispatchOK;
+	    }
+	    else
+	    {
+		return IceInternal.DispatchStatus.DispatchUserException;
+	    }
 	}
     }
-}
 
 }

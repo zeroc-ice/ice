@@ -15,247 +15,240 @@
 namespace IceInternal
 {
 
-using System.Collections;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Net.Sockets;
+    using System.Collections;
+    using System.ComponentModel;
+    using System.Diagnostics;
+    using System.Net.Sockets;
 
-sealed class TcpTransceiver : Transceiver
-{
-    public Socket
-    fd()
+    sealed class TcpTransceiver : Transceiver
     {
-	Debug.Assert(_fd != null);
-	return _fd;
-    }
-    
-    public void
-    close()
-    {
-	if(_traceLevels.network >= 1)
+	public Socket fd()
 	{
-	    string s = "closing tcp connection\n" + ToString();
-	    _logger.trace(_traceLevels.networkCat, s);
+	    Debug.Assert(_fd != null);
+	    return _fd;
 	}
 	
-	Debug.Assert(_fd != null);
-	try
+	public void close()
 	{
-	    _fd.Close();
-	}
-	catch(System.IO.IOException)
-	{
-	}
-	_fd = null;
-    }
-    
-    public void
-    shutdown()
-    {
-	if(_traceLevels.network >= 2)
-	{
-	    string s = "shutting down tcp connection\n" + ToString();
-	    _logger.trace(_traceLevels.networkCat, s);
+	    if(_traceLevels.network >= 1)
+	    {
+		string s = "closing tcp connection\n" + ToString();
+		_logger.trace(_traceLevels.networkCat, s);
+	    }
+	    
+	    Debug.Assert(_fd != null);
+	    try
+	    {
+		_fd.Close();
+	    }
+	    catch(System.IO.IOException)
+	    {
+	    }
+	    _fd = null;
 	}
 	
-	Debug.Assert(_fd != null);
-	try
+	public void shutdown()
 	{
-	    _fd.Shutdown(SocketShutdown.Send); // Shutdown socket for writing
+	    if(_traceLevels.network >= 2)
+	    {
+		string s = "shutting down tcp connection\n" + ToString();
+		_logger.trace(_traceLevels.networkCat, s);
+	    }
+	    
+	    Debug.Assert(_fd != null);
+	    try
+	    {
+		_fd.Shutdown(SocketShutdown.Send); // Shutdown socket for writing
+	    }
+	    catch(System.IO.IOException)
+	    {
+	    }
 	}
-	catch(System.IO.IOException)
-	{
-	}
-    }
-    
-    public void
-    write(BasicStream stream, int timeout)
-    {
-	ByteBuffer buf = stream.prepareWrite();
 	
-	byte[] bytes = buf.toArray();
-	int remaining = bytes.Length;
-	try
+	public void write(BasicStream stream, int timeout)
 	{
-	    while(remaining > 0)
-	    {   
-		int ret;
+	    ByteBuffer buf = stream.prepareWrite();
+	    
+	    byte[] bytes = buf.toArray();
+	    int remaining = bytes.Length;
+	    try
+	    {
+		while(remaining > 0)
+		{   
+		    int ret;
 
-		Debug.Assert(_fd != null);
-		try
-		{
-		    ret = _fd.Send(bytes);
-		}
-		catch(Win32Exception e)
-		{
-		    if(Network.wouldBlock(e))
+		    Debug.Assert(_fd != null);
+		    try
 		    {
-			ret = 0;
+			ret = _fd.Send(bytes);
 		    }
-		    else
+		    catch(Win32Exception e)
 		    {
-			throw;
-		    }
-		}
-    	    
-		if(ret == 0)
-		{
-		    if(timeout == 0)
-		    {
-			throw new Ice.TimeoutException();
-		    }
-		    ArrayList sendList = new ArrayList();
-		    sendList.Add(_fd);
-		    ArrayList errorList = new ArrayList();
-		    errorList.Add(_fd);
-		    Network.doSelect(null, sendList, errorList, timeout);
-		    if(errorList.Count != 0)
-		    {
-			 throw new Ice.ConnectionLostException();
-		    }
-		    if(sendList.Count == 0)
-		    {
-			if(timeout > 0)
+			if(Network.wouldBlock(e))
 			{
-			    throw new Ice.TimeoutException();
+			    ret = 0;
 			}
 			else
 			{
-			    throw new Ice.ConnectionLostException();
+			    throw;
 			}
 		    }
-		}
-    	    
-		if(_traceLevels.network >= 3)
-		{
-		    string s = "sent " + ret + " of " + remaining + " bytes via tcp\n" + ToString();
-		    _logger.trace(_traceLevels.networkCat, s);
-		}
-    	    
-		if(_stats != null)
-		{
-		    _stats.bytesSent("tcp", ret);
-		}
-
-		remaining -= ret;	
-	    }
-	}
-	catch(Ice.Exception)
-	{
-	    throw;
-	}
-	catch(SocketException ex)
-	{
-	    if(Network.connectionLost(ex))
-	    {
-		throw new Ice.ConnectionLostException(ex);
-	    }
-	    throw new Ice.SocketException(ex);
-	}
-	catch(System.Exception ex)
-	{
-	    throw new Ice.SyscallException(ex);
-	}
-    }
-    
-    public void
-    read(BasicStream stream, int timeout)
-    {
-	ByteBuffer buf = stream.prepareRead();
-	
-	int remaining = buf.remaining();
-	
-	try
-	{
-	    while(remaining > 0)
-	    {
-		Debug.Assert(_fd != null);
-		ArrayList readList = new ArrayList();
-		readList.Add(_fd);
-		Network.doSelect(readList, null, null, timeout);
-		if(readList.Count != 0 && _fd.Available == 0)
-		{
-		    throw new Ice.ConnectionLostException();
-		}
-		else if(readList.Count == 0 && timeout >= 0)
-		{
-		    throw new Ice.TimeoutException();
-		}
-		Debug.Assert(readList.Count != 0);
 		
-		if(_bytes.Length < remaining) // Go easy on the garbage collector, if possible
-		{
-		    _bytes = new byte[remaining];
-		}
-		int ret = _fd.Receive(_bytes, 0, remaining, SocketFlags.None);
-		if(ret == 0) // Need to re-test here because the connection can go down in between the Select() and the Receive().
-		{
-		    throw new Ice.ConnectionLostException();
-		}
-		if(_traceLevels.network >= 3)
-		{
-		    string s = "received " + ret + " of " + remaining + " bytes via tcp\n" + ToString();
-		    _logger.trace(_traceLevels.networkCat, s);
-		}
+		    if(ret == 0)
+		    {
+			if(timeout == 0)
+			{
+			    throw new Ice.TimeoutException();
+			}
+			ArrayList sendList = new ArrayList();
+			sendList.Add(_fd);
+			ArrayList errorList = new ArrayList();
+			errorList.Add(_fd);
+			Network.doSelect(null, sendList, errorList, timeout);
+			if(errorList.Count != 0)
+			{
+			     throw new Ice.ConnectionLostException();
+			}
+			if(sendList.Count == 0)
+			{
+			    if(timeout > 0)
+			    {
+				throw new Ice.TimeoutException();
+			    }
+			    else
+			    {
+				throw new Ice.ConnectionLostException();
+			    }
+			}
+		    }
 		
-		if(_stats != null)
-		{
-		    _stats.bytesReceived("tcp", ret);
-		}
+		    if(_traceLevels.network >= 3)
+		    {
+			string s = "sent " + ret + " of " + remaining + " bytes via tcp\n" + ToString();
+			_logger.trace(_traceLevels.networkCat, s);
+		    }
+		
+		    if(_stats != null)
+		    {
+			_stats.bytesSent("tcp", ret);
+		    }
 
-		buf.put(_bytes, 0, ret);
-		remaining -= ret;
+		    remaining -= ret;	
+		}
 	    }
-	}
-	catch(Ice.Exception)
-	{
-	    throw;
-	}
-	catch(SocketException ex)
-	{
-	    if(Network.connectionLost(ex))
+	    catch(Ice.Exception)
 	    {
-		throw new Ice.ConnectionLostException(ex);
+		throw;
 	    }
-	    throw new Ice.SocketException(ex);
+	    catch(SocketException ex)
+	    {
+		if(Network.connectionLost(ex))
+		{
+		    throw new Ice.ConnectionLostException(ex);
+		}
+		throw new Ice.SocketException(ex);
+	    }
+	    catch(System.Exception ex)
+	    {
+		throw new Ice.SyscallException(ex);
+	    }
 	}
-	catch(System.Exception ex)
+	
+	public void read(BasicStream stream, int timeout)
 	{
-	    throw new Ice.SyscallException(ex);
+	    ByteBuffer buf = stream.prepareRead();
+	    
+	    int remaining = buf.remaining();
+	    
+	    try
+	    {
+		while(remaining > 0)
+		{
+		    Debug.Assert(_fd != null);
+		    ArrayList readList = new ArrayList();
+		    readList.Add(_fd);
+		    Network.doSelect(readList, null, null, timeout);
+		    if(readList.Count != 0 && _fd.Available == 0)
+		    {
+			throw new Ice.ConnectionLostException();
+		    }
+		    else if(readList.Count == 0 && timeout >= 0)
+		    {
+			throw new Ice.TimeoutException();
+		    }
+		    Debug.Assert(readList.Count != 0);
+		    
+		    if(_bytes.Length < remaining) // Go easy on the garbage collector, if possible
+		    {
+			_bytes = new byte[remaining];
+		    }
+		    int ret = _fd.Receive(_bytes, 0, remaining, SocketFlags.None);
+		    if(ret == 0) // Need to re-test here because the connection can go down in between the Select() and the Receive().
+		    {
+			throw new Ice.ConnectionLostException();
+		    }
+		    if(_traceLevels.network >= 3)
+		    {
+			string s = "received " + ret + " of " + remaining + " bytes via tcp\n" + ToString();
+			_logger.trace(_traceLevels.networkCat, s);
+		    }
+		    
+		    if(_stats != null)
+		    {
+			_stats.bytesReceived("tcp", ret);
+		    }
+
+		    buf.put(_bytes, 0, ret);
+		    remaining -= ret;
+		}
+	    }
+	    catch(Ice.Exception)
+	    {
+		throw;
+	    }
+	    catch(SocketException ex)
+	    {
+		if(Network.connectionLost(ex))
+		{
+		    throw new Ice.ConnectionLostException(ex);
+		}
+		throw new Ice.SocketException(ex);
+	    }
+	    catch(System.Exception ex)
+	    {
+		throw new Ice.SyscallException(ex);
+	    }
 	}
+	
+	public override string ToString()
+	{
+	    return _desc;
+	}
+	
+	//
+	// Only for use by TcpConnector, TcpAcceptor
+	//
+	internal TcpTransceiver(Instance instance, Socket fd)
+	{
+	    _fd = fd;
+	    _traceLevels = instance.traceLevels();
+	    _logger = instance.logger();
+	    _stats = instance.stats();
+	    _desc = Network.fdToString(_fd);
+	    _bytes = new byte[Protocol.headerSize];
+	}
+	
+	~TcpTransceiver()
+	{
+	    Debug.Assert(_fd == null);
+	}
+	
+	private Socket _fd;
+	private TraceLevels _traceLevels;
+	private Ice.Logger _logger;
+	private Ice.Stats _stats;
+	private string _desc;
+	private byte[] _bytes;
     }
-    
-    public override string
-    ToString()
-    {
-	return _desc;
-    }
-    
-    //
-    // Only for use by TcpConnector, TcpAcceptor
-    //
-    internal
-    TcpTransceiver(Instance instance, Socket fd)
-    {
-	_fd = fd;
-	_traceLevels = instance.traceLevels();
-	_logger = instance.logger();
-	_stats = instance.stats();
-	_desc = Network.fdToString(_fd);
-	_bytes = new byte[Protocol.headerSize];
-    }
-    
-    ~TcpTransceiver()
-    {
-	Debug.Assert(_fd == null);
-    }
-    
-    private Socket _fd;
-    private TraceLevels _traceLevels;
-    private Ice.Logger _logger;
-    private Ice.Stats _stats;
-    private string _desc;
-    private byte[] _bytes;
-}
 
 }

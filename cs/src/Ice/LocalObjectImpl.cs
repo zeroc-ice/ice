@@ -14,13 +14,13 @@
 namespace Ice
 {
 
-public abstract class LocalObjectImpl : LocalObject
-{
-    public virtual int
-    ice_hash()
+    public abstract class LocalObjectImpl : LocalObject
     {
-	return GetHashCode();
+	public virtual int
+	ice_hash()
+	{
+	    return GetHashCode();
+	}
     }
-}
 
 }

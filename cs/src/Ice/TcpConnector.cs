@@ -15,56 +15,53 @@
 namespace IceInternal
 {
 
-using System.Net;
-using System.Net.Sockets;
+    using System.Net;
+    using System.Net.Sockets;
 
-sealed class TcpConnector : Connector
-{
-    public Transceiver
-    connect(int timeout)
+    sealed class TcpConnector : Connector
     {
-	if(_traceLevels.network >= 2)
+	public Transceiver connect(int timeout)
 	{
-	    string s = "trying to establish tcp connection to " + ToString();
-	    _logger.trace(_traceLevels.networkCat, s);
+	    if(_traceLevels.network >= 2)
+	    {
+		string s = "trying to establish tcp connection to " + ToString();
+		_logger.trace(_traceLevels.networkCat, s);
+	    }
+	    
+	    Socket fd = Network.createSocket(false);
+	    Network.setBlock(fd, false);
+	    Network.doConnect(fd, _addr, timeout);
+	    
+	    if(_traceLevels.network >= 1)
+	    {
+		string s = "tcp connection established\n" + Network.fdToString(fd);
+		_logger.trace(_traceLevels.networkCat, s);
+	    }
+	    
+	    return new TcpTransceiver(_instance, fd);
 	}
 	
-	Socket fd = Network.createSocket(false);
-	Network.setBlock(fd, false);
-	Network.doConnect(fd, _addr, timeout);
-	
-	if(_traceLevels.network >= 1)
+	public override string ToString()
 	{
-	    string s = "tcp connection established\n" + Network.fdToString(fd);
-	    _logger.trace(_traceLevels.networkCat, s);
+	    return Network.addrToString(_addr);
 	}
 	
-	return new TcpTransceiver(_instance, fd);
-    }
-    
-    public override string
-    ToString()
-    {
-	return Network.addrToString(_addr);
-    }
-    
-    //
-    // Only for use by TcpEndpoint
-    //
-    internal
-    TcpConnector(Instance instance, string host, int port)
-    {
-	_instance = instance;
-	_traceLevels = instance.traceLevels();
-	_logger = instance.logger();
+	//
+	// Only for use by TcpEndpoint
+	//
+	internal TcpConnector(Instance instance, string host, int port)
+	{
+	    _instance = instance;
+	    _traceLevels = instance.traceLevels();
+	    _logger = instance.logger();
+	    
+	    _addr = Network.getAddress(host, port);
+	}
 	
-	_addr = Network.getAddress(host, port);
+	private Instance _instance;
+	private TraceLevels _traceLevels;
+	private Ice.Logger _logger;
+	private IPEndPoint _addr;
     }
-    
-    private Instance _instance;
-    private TraceLevels _traceLevels;
-    private Ice.Logger _logger;
-    private IPEndPoint _addr;
-}
 
 }

@@ -15,41 +15,39 @@
 namespace IceInternal
 {
 
-public class SequencePatcher : Patcher
-{
-    public
-    SequencePatcher(System.Object[] seq, System.Type cls, string type, int index)
+    public class SequencePatcher : Patcher
     {
-	_seq = seq;
-	_cls = cls;
-	_type = type;
-	_index = index;
-    }
-    
-    public virtual void
-    patch(Ice.Object v)
-    {
-	//
-	// Raise ClassCastException if the element doesn't match the expected type.
-	//
-	if (!_cls.IsInstanceOfType(v.GetType()))
+	public SequencePatcher(System.Object[] seq, System.Type cls, string type, int index)
 	{
-	    throw new System.InvalidCastException("expected element of type " + _cls.FullName + " but received " + v.GetType().FullName);
+	    _seq = seq;
+	    _cls = cls;
+	    _type = type;
+	    _index = index;
 	}
 	
-	_seq[_index] = v;
+	public virtual void patch(Ice.Object v)
+	{
+	    //
+	    // Raise ClassCastException if the element doesn't match the expected type.
+	    //
+	    if(!_cls.IsInstanceOfType(v.GetType()))
+	    {
+		throw new System.InvalidCastException("expected element of type " + _cls.FullName
+		                                      + " but received " + v.GetType().FullName);
+	    }
+	    
+	    _seq[_index] = v;
+	}
+	
+	public virtual string type()
+	{
+	    return _type;
+	}
+	
+	private System.Object[] _seq;
+	private System.Type _cls;
+	private string _type;
+	private int _index;
     }
-    
-    public virtual string
-    type()
-    {
-	return _type;
-    }
-    
-    private System.Object[] _seq;
-    private System.Type _cls;
-    private string _type;
-    private int _index;
-}
 
 }

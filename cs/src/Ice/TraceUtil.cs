@@ -15,444 +15,433 @@
 namespace IceInternal
 {
 
-using System.Collections;
-using System.Diagnostics;
-using IceUtil;
+    using System.Collections;
+    using System.Diagnostics;
+    using IceUtil;
 
-sealed class TraceUtil
-{
-    internal static void
-    traceHeader(string heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
+    sealed class TraceUtil
     {
-	if(tl.protocol >= 1)
+	internal static void traceHeader(string heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
 	{
-	    int p = str.pos();
-	    str.pos(0);
-	    
-	    System.IO.StringWriter s = new System.IO.StringWriter();
-	    s.Write(heading);
-	    printHeader(s, str);
-	    
-	    logger.trace(tl.protocolCat, s.ToString());
-	    str.pos(p);
-	}
-    }
-    
-    internal static void
-    traceRequest(string heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
-    {
-	if(tl.protocol >= 1)
-	{
-	    int p = str.pos();
-	    str.pos(0);
-	    
-	    System.IO.StringWriter s = new System.IO.StringWriter();
-	    s.Write(heading);
-	    printHeader(s, str);
-	    
-	    int requestId = str.readInt();
-	    s.Write("\nrequest id = " + requestId);
-	    if(requestId == 0)
+	    if(tl.protocol >= 1)
 	    {
-		s.Write(" (oneway)");
-	    }
-	    
-	    printRequestHeader(s, str);
-	    
-	    logger.trace(tl.protocolCat, s.ToString());
-	    str.pos(p);
-	}
-    }
-    
-    internal static void
-    traceBatchRequest(string heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
-    {
-	if(tl.protocol >= 1)
-	{
-	    int p = str.pos();
-	    str.pos(0);
-	    
-	    System.IO.StringWriter s = new System.IO.StringWriter();
-	    s.Write(heading);
-	    printHeader(s, str);
-	    
-	    int batchRequestNum = str.readInt();
-	    s.Write("\nnumber of requests = " + batchRequestNum);
-	    
-	    for(int i = 0; i < batchRequestNum; ++i)
-	    {
-		s.Write("\nrequest #" + i + ':');
-		printRequestHeader(s, str);
-		str.skipEncaps();
-	    }
-	    
-	    logger.trace(tl.protocolCat, s.ToString());
-	    str.pos(p);
-	}
-    }
-    
-    internal static void
-    traceReply(string heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
-    {
-	if(tl.protocol >= 1)
-	{
-	    int p = str.pos();
-	    str.pos(0);
-	    
-	    System.IO.StringWriter s = new System.IO.StringWriter();
-	    s.Write(heading);
-	    printHeader(s, str);
-	    
-	    int requestId = str.readInt();
-	    s.Write("\nrequest id = " + requestId);
-	    
-	    byte status = str.readByte();
-	    s.Write("\nreply status = " + (int) status + ' ');
-	    
-	    switch((DispatchStatus)status)
-	    {
-		case DispatchStatus.DispatchOK: 
-		{
-		    s.Write("(ok)");
-		    break;
-		}
+		int p = str.pos();
+		str.pos(0);
 		
-		case DispatchStatus.DispatchUserException: 
-		{
-		    s.Write("(user exception)");
-		    break;
-		}
-		
-		case DispatchStatus.DispatchObjectNotExist: 
-		case DispatchStatus.DispatchFacetNotExist: 
-		case DispatchStatus.DispatchOperationNotExist: 
-		{
-		    switch((DispatchStatus)status)
-		    {
-			case DispatchStatus.DispatchObjectNotExist: 
-			{
-			    s.Write("(object not exist)");
-			    break;
-			}
-			
-			case DispatchStatus.DispatchFacetNotExist: 
-			{
-			    s.Write("(facet not exist)");
-			    break;
-			}
-			
-			case DispatchStatus.DispatchOperationNotExist: 
-			{
-			    s.Write("(operation not exist)");
-			    break;
-			}
-			
-			default: 
-			{
-			    Debug.Assert(false);
-			    break;
-			}
-		    }
-		    
-		    printIdentityFacetOperation(s, str);
-		    break;
-		}
-		
-		case DispatchStatus.DispatchUnknownException: 
-		case DispatchStatus.DispatchUnknownLocalException: 
-		case DispatchStatus.DispatchUnknownUserException: 
-		{
-		    switch((DispatchStatus)status)
-		    {
-			case DispatchStatus.DispatchUnknownException: 
-			{
-			    s.Write("(unknown exception)");
-			    break;
-			}
-			
-			case DispatchStatus.DispatchUnknownLocalException: 
-			{
-			    s.Write("(unknown local exception)");
-			    break;
-			}
-			
-			case DispatchStatus.DispatchUnknownUserException: 
-			{
-			    s.Write("(unknown user exception)");
-			    break;
-			}
-			
-			default: 
-			{
-			    Debug.Assert(false);
-			    break;
-			}
-		    }
-		    
-		    string unknown = str.readString();
-		    s.Write("\nunknown = " + unknown);
-		    break;
-		}
-		
-		default: 
-		{
-		    s.Write("(unknown)");
-		    break;
-		}
-		
-	    }
-	    
-	    logger.trace(tl.protocolCat, s.ToString());
-	    str.pos(p);
-	}
-    }
-    
-    private static Set slicingIds;
-    
-    internal static void
-    traceSlicing(string kind, string typeId, string slicingCat, Ice.Logger logger)
-    {
-	lock (typeof(IceInternal.TraceUtil))
-	{
-	    if(slicingIds.Add(typeId))
-	    {
 		System.IO.StringWriter s = new System.IO.StringWriter();
-		s.Write("unknown " + kind + " type `" + typeId + "'");
-		logger.trace(slicingCat, s.ToString());
+		s.Write(heading);
+		printHeader(s, str);
+		
+		logger.trace(tl.protocolCat, s.ToString());
+		str.pos(p);
 	    }
 	}
-    }
-    
-    public static void
-    dumpStream(BasicStream stream)
-    {	
-	int pos = stream.pos();
-	stream.pos(0);
 	
-	byte[] data = new byte[stream.size()];
-	stream.readBlob(data);
-	dumpOctets(data);
-	
-	stream.pos(pos);
-    }
-    
-    public static void
-    dumpOctets(byte[] data)
-    {
-	const int inc = 8;
-	
-	for(int i = 0; i < data.Length; i += inc)
+	internal static void traceRequest(string heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
 	{
-	    for(int j = i; j - i < inc; j++)
+	    if(tl.protocol >= 1)
 	    {
-		if(j < data.Length)
+		int p = str.pos();
+		str.pos(0);
+		
+		System.IO.StringWriter s = new System.IO.StringWriter();
+		s.Write(heading);
+		printHeader(s, str);
+		
+		int requestId = str.readInt();
+		s.Write("\nrequest id = " + requestId);
+		if(requestId == 0)
 		{
-		    int n = (int) data[j];
-		    if(n < 0)
+		    s.Write(" (oneway)");
+		}
+		
+		printRequestHeader(s, str);
+		
+		logger.trace(tl.protocolCat, s.ToString());
+		str.pos(p);
+	    }
+	}
+	
+	internal static void traceBatchRequest(string heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
+	{
+	    if(tl.protocol >= 1)
+	    {
+		int p = str.pos();
+		str.pos(0);
+		
+		System.IO.StringWriter s = new System.IO.StringWriter();
+		s.Write(heading);
+		printHeader(s, str);
+		
+		int batchRequestNum = str.readInt();
+		s.Write("\nnumber of requests = " + batchRequestNum);
+		
+		for(int i = 0; i < batchRequestNum; ++i)
+		{
+		    s.Write("\nrequest #" + i + ':');
+		    printRequestHeader(s, str);
+		    str.skipEncaps();
+		}
+		
+		logger.trace(tl.protocolCat, s.ToString());
+		str.pos(p);
+	    }
+	}
+	
+	internal static void traceReply(string heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
+	{
+	    if(tl.protocol >= 1)
+	    {
+		int p = str.pos();
+		str.pos(0);
+		
+		System.IO.StringWriter s = new System.IO.StringWriter();
+		s.Write(heading);
+		printHeader(s, str);
+		
+		int requestId = str.readInt();
+		s.Write("\nrequest id = " + requestId);
+		
+		byte status = str.readByte();
+		s.Write("\nreply status = " + (int) status + ' ');
+		
+		switch((DispatchStatus)status)
+		{
+		    case DispatchStatus.DispatchOK: 
 		    {
-			n += 256;
+			s.Write("(ok)");
+			break;
 		    }
-		    string s;
-		    if(n < 10)
+		    
+		    case DispatchStatus.DispatchUserException: 
 		    {
-			s = "  " + n;
+			s.Write("(user exception)");
+			break;
 		    }
-		    else if(n < 100)
+		    
+		    case DispatchStatus.DispatchObjectNotExist: 
+		    case DispatchStatus.DispatchFacetNotExist: 
+		    case DispatchStatus.DispatchOperationNotExist: 
 		    {
-			s = " " + n;
+			switch((DispatchStatus)status)
+			{
+			    case DispatchStatus.DispatchObjectNotExist: 
+			    {
+				s.Write("(object not exist)");
+				break;
+			    }
+			    
+			    case DispatchStatus.DispatchFacetNotExist: 
+			    {
+				s.Write("(facet not exist)");
+				break;
+			    }
+			    
+			    case DispatchStatus.DispatchOperationNotExist: 
+			    {
+				s.Write("(operation not exist)");
+				break;
+			    }
+			    
+			    default: 
+			    {
+				Debug.Assert(false);
+				break;
+			    }
+			}
+			
+			printIdentityFacetOperation(s, str);
+			break;
+		    }
+		    
+		    case DispatchStatus.DispatchUnknownException: 
+		    case DispatchStatus.DispatchUnknownLocalException: 
+		    case DispatchStatus.DispatchUnknownUserException: 
+		    {
+			switch((DispatchStatus)status)
+			{
+			    case DispatchStatus.DispatchUnknownException: 
+			    {
+				s.Write("(unknown exception)");
+				break;
+			    }
+			    
+			    case DispatchStatus.DispatchUnknownLocalException: 
+			    {
+				s.Write("(unknown local exception)");
+				break;
+			    }
+			    
+			    case DispatchStatus.DispatchUnknownUserException: 
+			    {
+				s.Write("(unknown user exception)");
+				break;
+			    }
+			    
+			    default: 
+			    {
+				Debug.Assert(false);
+				break;
+			    }
+			}
+			
+			string unknown = str.readString();
+			s.Write("\nunknown = " + unknown);
+			break;
+		    }
+		    
+		    default: 
+		    {
+			s.Write("(unknown)");
+			break;
+		    }
+		    
+		}
+		
+		logger.trace(tl.protocolCat, s.ToString());
+		str.pos(p);
+	    }
+	}
+	
+	private static Set slicingIds;
+	
+	internal static void traceSlicing(string kind, string typeId, string slicingCat, Ice.Logger logger)
+	{
+	    lock(typeof(IceInternal.TraceUtil))
+	    {
+		if(slicingIds.Add(typeId))
+		{
+		    System.IO.StringWriter s = new System.IO.StringWriter();
+		    s.Write("unknown " + kind + " type `" + typeId + "'");
+		    logger.trace(slicingCat, s.ToString());
+		}
+	    }
+	}
+	
+	public static void dumpStream(BasicStream stream)
+	{	
+	    int pos = stream.pos();
+	    stream.pos(0);
+	    
+	    byte[] data = new byte[stream.size()];
+	    stream.readBlob(data);
+	    dumpOctets(data);
+	    
+	    stream.pos(pos);
+	}
+	
+	public static void dumpOctets(byte[] data)
+	{
+	    const int inc = 8;
+	    
+	    for(int i = 0; i < data.Length; i += inc)
+	    {
+		for(int j = i; j - i < inc; j++)
+		{
+		    if(j < data.Length)
+		    {
+			int n = (int) data[j];
+			if(n < 0)
+			{
+			    n += 256;
+			}
+			string s;
+			if(n < 10)
+			{
+			    s = "  " + n;
+			}
+			else if(n < 100)
+			{
+			    s = " " + n;
+			}
+			else
+			{
+			    s = "" + n;
+			}
+			System.Console.Out.Write(s + " ");
 		    }
 		    else
 		    {
-			s = "" + n;
+			System.Console.Out.Write("    ");
 		    }
-		    System.Console.Out.Write(s + " ");
 		}
-		else
+		
+		System.Console.Out.Write('"');
+		
+		for(int j = i; j < data.Length && j - i < inc; j++)
 		{
-		    System.Console.Out.Write("    ");
+		    // TODO: this needs fixing
+		    if(data[j] >= (byte)32 && data[j] < (byte)127)
+		    {
+			System.Console.Out.Write((char) data[j]);
+		    }
+		    else
+		    {
+			System.Console.Out.Write('.');
+		    }
 		}
+		
+		System.Console.Out.WriteLine('"');
 	    }
-	    
-	    System.Console.Out.Write('"');
-	    
-	    for(int j = i; j < data.Length && j - i < inc; j++)
-	    {
-		// TODO: this needs fixing
-		if(data[j] >= (byte)32 && data[j] < (byte)127)
-		{
-		    System.Console.Out.Write((char) data[j]);
-		}
-		else
-		{
-		    System.Console.Out.Write('.');
-		}
-	    }
-	    
-	    System.Console.Out.WriteLine('"');
 	}
-    }
-    
-    private static void
-    printIdentityFacetOperation(System.IO.StringWriter o, BasicStream stream)
-    {
-	try
-	{
-	    Ice.Identity identity = new Ice.Identity();
-	    identity.__read(stream);
-	    o.Write("\nidentity = " + Ice.Util.identityToString(identity));
-	    
-	    Ice.FacetPath facet = stream.readFacetPath();
-	    o.Write("\nfacet = ");
-	    for(int i = 0; i < facet.Count; i++)
-	    {
-		o.Write(StringUtil.encodeString(facet[i], "/"));
-		if(i < facet.Count - 1)
-		{
-		    o.Write('/');
-		}
-	    }
-	    
-	    string operation = stream.readString();
-	    o.Write("\noperation = " + operation);
-	}
-	catch(System.IO.IOException)
-	{
-	    Debug.Assert(false);
-	}
-    }
-    
-    private static void
-    printRequestHeader(System.IO.StringWriter o, BasicStream stream)
-    {
-	printIdentityFacetOperation(o, stream);
 	
-	try
+	private static void printIdentityFacetOperation(System.IO.StringWriter o, BasicStream stream)
 	{
-	    bool nonmutating = stream.readBool();
-	    o.Write("\nnonmutating = " + nonmutating);
-	    
-	    int sz = stream.readSize();
-	    o.Write("\ncontext = ");
-	    while(sz-- > 0)
+	    try
 	    {
-		string key = stream.readString();
-		string val = stream.readString();
-		o.Write(key + '/' + val);
-		if(sz > 0)
+		Ice.Identity identity = new Ice.Identity();
+		identity.__read(stream);
+		o.Write("\nidentity = " + Ice.Util.identityToString(identity));
+		
+		Ice.FacetPath facet = stream.readFacetPath();
+		o.Write("\nfacet = ");
+		for(int i = 0; i < facet.Count; i++)
 		{
-		    o.Write(", ");
+		    o.Write(StringUtil.encodeString(facet[i], "/"));
+		    if(i < facet.Count - 1)
+		    {
+			o.Write('/');
+		    }
 		}
+		
+		string operation = stream.readString();
+		o.Write("\noperation = " + operation);
+	    }
+	    catch(System.IO.IOException)
+	    {
+		Debug.Assert(false);
 	    }
 	}
-	catch(System.IO.IOException)
+	
+	private static void printRequestHeader(System.IO.StringWriter o, BasicStream stream)
 	{
-	    Debug.Assert(false);
-	}
-    }
-    
-    private static void
-    printHeader(System.IO.StringWriter o, BasicStream stream)
-    {
-	try
-	{
-	    byte magic;
-	    magic = stream.readByte(); // Don't bother printing the magic number
-	    magic = stream.readByte();
-	    magic = stream.readByte();
-	    magic = stream.readByte();
+	    printIdentityFacetOperation(o, stream);
 	    
-	    byte pMajor = stream.readByte();
-	    byte pMinor = stream.readByte();
-	    //o.Write("\nprotocol version = " + (int)pMajor + "." + (int)pMinor);
-	    
-	    byte eMajor = stream.readByte();
-	    byte eMinor = stream.readByte();
-	    //o.Write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
-	    
-	    byte type = stream.readByte();
-	    o.Write("\nmessage type = " + (int) type + ' ');
-	    switch(type)
+	    try
 	    {
-		case Protocol.requestMsg: 
-		{
-		    o.Write("(request)");
-		    break;
-		}
+		bool nonmutating = stream.readBool();
+		o.Write("\nnonmutating = " + nonmutating);
 		
-		case Protocol.requestBatchMsg: 
+		int sz = stream.readSize();
+		o.Write("\ncontext = ");
+		while(sz-- > 0)
 		{
-		    o.Write("(batch request)");
-		    break;
-		}
-		
-		case Protocol.replyMsg: 
-		{
-		    o.Write("(reply)");
-		    break;
-		}
-		
-		case Protocol.closeConnectionMsg: 
-		{
-		    o.Write("(close connection)");
-		    break;
-		}
-		
-		case Protocol.validateConnectionMsg: 
-		{
-		    o.Write("(validate connection)");
-		    break;
-		}
-		
-		default: 
-		{
-		    o.Write("(unknown)");
-		    break;
+		    string key = stream.readString();
+		    string val = stream.readString();
+		    o.Write(key + '/' + val);
+		    if(sz > 0)
+		    {
+			o.Write(", ");
+		    }
 		}
 	    }
-	    
-	    byte compress = stream.readByte();
-	    o.Write("\ncompression status = " + (int) compress + ' ');
-	    switch(compress)
+	    catch(System.IO.IOException)
 	    {
-		case (byte)0: 
-		{
-		    o.Write("(compression not used, not supported by sender)");
-		    break;
-		}
-		
-		case (byte)1: 
-		{
-		    o.Write("(compression not used, supported by sender)");
-		    break;
-		}
-		
-		case (byte)2: 
-		{
-		    o.Write("(compression used, supported by sender)");
-		    break;
-		}
-		
-		default: 
-		{
-		    o.Write("(unknown)");
-		    break;
-		}
+		Debug.Assert(false);
 	    }
-	    
-	    int size = stream.readInt();
-	    o.Write("\nmessage size = " + size);
 	}
-	catch(System.IO.IOException)
+	
+	private static void printHeader(System.IO.StringWriter o, BasicStream stream)
 	{
-	    Debug.Assert(false);
+	    try
+	    {
+		byte magic;
+		magic = stream.readByte(); // Don't bother printing the magic number
+		magic = stream.readByte();
+		magic = stream.readByte();
+		magic = stream.readByte();
+		
+		byte pMajor = stream.readByte();
+		byte pMinor = stream.readByte();
+		//o.Write("\nprotocol version = " + (int)pMajor + "." + (int)pMinor);
+		
+		byte eMajor = stream.readByte();
+		byte eMinor = stream.readByte();
+		//o.Write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
+		
+		byte type = stream.readByte();
+		o.Write("\nmessage type = " + (int) type + ' ');
+		switch(type)
+		{
+		    case Protocol.requestMsg: 
+		    {
+			o.Write("(request)");
+			break;
+		    }
+		    
+		    case Protocol.requestBatchMsg: 
+		    {
+			o.Write("(batch request)");
+			break;
+		    }
+		    
+		    case Protocol.replyMsg: 
+		    {
+			o.Write("(reply)");
+			break;
+		    }
+		    
+		    case Protocol.closeConnectionMsg: 
+		    {
+			o.Write("(close connection)");
+			break;
+		    }
+		    
+		    case Protocol.validateConnectionMsg: 
+		    {
+			o.Write("(validate connection)");
+			break;
+		    }
+		    
+		    default: 
+		    {
+			o.Write("(unknown)");
+			break;
+		    }
+		}
+		
+		byte compress = stream.readByte();
+		o.Write("\ncompression status = " + (int) compress + ' ');
+		switch(compress)
+		{
+		    case (byte)0: 
+		    {
+			o.Write("(compression not used, not supported by sender)");
+			break;
+		    }
+		    
+		    case (byte)1: 
+		    {
+			o.Write("(compression not used, supported by sender)");
+			break;
+		    }
+		    
+		    case (byte)2: 
+		    {
+			o.Write("(compression used, supported by sender)");
+			break;
+		    }
+		    
+		    default: 
+		    {
+			o.Write("(unknown)");
+			break;
+		    }
+		}
+		
+		int size = stream.readInt();
+		o.Write("\nmessage size = " + size);
+	    }
+	    catch(System.IO.IOException)
+	    {
+		Debug.Assert(false);
+	    }
 	}
-    }
 
-    static
-    TraceUtil()
-    {
-	slicingIds = new Set();
+	static TraceUtil()
+	{
+	    slicingIds = new Set();
+	}
     }
-}
 
 }

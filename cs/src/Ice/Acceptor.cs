@@ -15,15 +15,15 @@
 namespace IceInternal
 {
 
-using System.Net.Sockets;
+    using System.Net.Sockets;
 
-public interface Acceptor
-{
-    Socket fd();
-    void close();
-    void listen();
-    Transceiver accept(int timeout);
-    string ToString();
-}
+    public interface Acceptor
+    {
+	Socket fd();
+	void close();
+	void listen();
+	Transceiver accept(int timeout);
+	string ToString();
+    }
 
 }

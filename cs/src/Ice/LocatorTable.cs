@@ -15,86 +15,79 @@
 namespace IceInternal
 {
 
-using System.Collections;
+    using System.Collections;
 
-sealed class LocatorTable
-{
-    internal LocatorTable()
+    sealed class LocatorTable
     {
-	_adapterEndpointsTable = new Hashtable();
-	_objectTable = new Hashtable();
-    }
-    
-    internal void
-    clear()
-    {
-	lock(this)
+	internal LocatorTable()
 	{
-	    _adapterEndpointsTable.Clear();
-	    _objectTable.Clear();
+	    _adapterEndpointsTable = new Hashtable();
+	    _objectTable = new Hashtable();
 	}
-    }
-    
-    internal IceInternal.Endpoint[]
-    getAdapterEndpoints(string adapter)
-    {
-	lock(this)
+	
+	internal void clear()
 	{
-	    return (IceInternal.Endpoint[])_adapterEndpointsTable[adapter];
+	    lock(this)
+	    {
+		_adapterEndpointsTable.Clear();
+		_objectTable.Clear();
+	    }
 	}
-    }
-    
-    internal void
-    addAdapterEndpoints(string adapter, IceInternal.Endpoint[] endpoints)
-    {
-	lock(this)
+	
+	internal IceInternal.Endpoint[] getAdapterEndpoints(string adapter)
 	{
-	    _adapterEndpointsTable[adapter] = endpoints;
+	    lock(this)
+	    {
+		return (IceInternal.Endpoint[])_adapterEndpointsTable[adapter];
+	    }
 	}
-    }
-    
-    internal IceInternal.Endpoint[]
-    removeAdapterEndpoints(string adapter)
-    {
-	lock(this)
+	
+	internal void addAdapterEndpoints(string adapter, IceInternal.Endpoint[] endpoints)
 	{
-	    IceInternal.Endpoint[] endpoints = (IceInternal.Endpoint[])_adapterEndpointsTable[adapter];
-	    _adapterEndpointsTable.Remove(adapter);
-	    return endpoints;
+	    lock(this)
+	    {
+		_adapterEndpointsTable[adapter] = endpoints;
+	    }
 	}
-    }
-    
-    internal Ice.ObjectPrx
-    getProxy(Ice.Identity id)
-    {
-	lock(this)
+	
+	internal IceInternal.Endpoint[] removeAdapterEndpoints(string adapter)
 	{
-	    return (Ice.ObjectPrx)_objectTable[id];
+	    lock(this)
+	    {
+		IceInternal.Endpoint[] endpoints = (IceInternal.Endpoint[])_adapterEndpointsTable[adapter];
+		_adapterEndpointsTable.Remove(adapter);
+		return endpoints;
+	    }
 	}
-    }
-    
-    internal void
-    addProxy(Ice.Identity id, Ice.ObjectPrx proxy)
-    {
-	lock(this)
+	
+	internal Ice.ObjectPrx getProxy(Ice.Identity id)
 	{
-	    _objectTable[id] = proxy;
+	    lock(this)
+	    {
+		return (Ice.ObjectPrx)_objectTable[id];
+	    }
 	}
-    }
-    
-    internal Ice.ObjectPrx
-    removeProxy(Ice.Identity id)
-    {
-	lock(this)
+	
+	internal void addProxy(Ice.Identity id, Ice.ObjectPrx proxy)
 	{
-	    Ice.ObjectPrx obj = (Ice.ObjectPrx)_objectTable[id];
-	    _objectTable.Remove(id);
-	    return obj;
+	    lock(this)
+	    {
+		_objectTable[id] = proxy;
+	    }
 	}
+	
+	internal Ice.ObjectPrx removeProxy(Ice.Identity id)
+	{
+	    lock(this)
+	    {
+		Ice.ObjectPrx obj = (Ice.ObjectPrx)_objectTable[id];
+		_objectTable.Remove(id);
+		return obj;
+	    }
+	}
+	
+	private Hashtable _adapterEndpointsTable;
+	private Hashtable _objectTable;
     }
-    
-    private Hashtable _adapterEndpointsTable;
-    private Hashtable _objectTable;
-}
     
 }

@@ -15,13 +15,13 @@
 namespace Ice
 {
 
-public abstract class byteHelper
-{
-    public static void
-    write(IceInternal.BasicStream __os, ByteSeq __v)
+    public abstract class byteHelper
     {
+	public static void
+	write(IceInternal.BasicStream __os, ByteSeq __v)
+	{
 
+	}
     }
-}
 
 }
