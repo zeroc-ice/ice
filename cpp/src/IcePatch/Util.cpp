@@ -13,10 +13,18 @@
 #include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
-#include <dirent.h>
 #include <openssl/md5.h>
 #include <bzlib.h>
+
+#ifndef WIN32
+#   include <unistd.h>
+#   include <dirent.h>
+#else
+#   include <direct.h>
+#   include <io.h>
+#   define S_ISDIR(mode) ((mode) & _S_IFDIR)
+#   define S_ISREG(mode) ((mode) & _S_IFREG)
+#endif
 
 using namespace std;
 using namespace Ice;
@@ -55,19 +63,19 @@ normalizePath(const string& path)
 }
 
 string
-IcePatch::identityToPath(const Identity& identity)
+IcePatch::identityToPath(const Identity& ident)
 {
-    assert(identity.category == "IcePatch");
-    return normalizePath(identity.name);
+    assert(ident.category == "IcePatch");
+    return normalizePath(ident.name);
 }
 
 Identity
 IcePatch::pathToIdentity(const string& path)
 {
-    Identity identity;
-    identity.category = "IcePatch";
-    identity.name = normalizePath(path);
-    return identity;
+    Identity ident;
+    ident.category = "IcePatch";
+    ident.name = normalizePath(path);
+    return ident;
 }
 
 string
@@ -132,6 +140,48 @@ IcePatch::getFileInfo(const string& path)
 StringSeq
 IcePatch::readDirectory(const string& path)
 {
+#ifdef WIN32
+
+    struct _finddata_t data;
+    long h = _findfirst(path.c_str(), &data);
+    if (h == -1)
+    {
+	NodeAccessException ex;
+	ex.reason = "cannot read directory `" + path + "': " + strerror(errno);
+	throw ex;
+    }
+    
+    StringSeq result;
+
+    while (true)
+    {
+	string name = data.name;
+
+	if (name != ".." && name != ".")
+	{
+	    result.push_back(path + '/' + name);
+	}
+
+        if (_findnext(h, &data) == -1)
+        {
+            if (errno == ENOENT)
+            {
+                break;
+            }
+
+            NodeAccessException ex;
+            ex.reason = "cannot read directory `" + path + "': " + strerror(errno);
+            _findclose(h);
+            throw ex;
+        }
+    }
+
+    _findclose(h);
+
+    return result;
+
+#else
+
     struct dirent **namelist;
     int n = ::scandir(path.c_str(), &namelist, 0, alphasort);
     if (n < 0)
@@ -149,7 +199,7 @@ IcePatch::readDirectory(const string& path)
 	string name = namelist[i]->d_name;
 
 	free(namelist[i]);
-	
+
 	if (name != ".." && name != ".")
 	{
 	    result.push_back(path + '/' + name);
@@ -158,6 +208,8 @@ IcePatch::readDirectory(const string& path)
     
     free(namelist);
     return result;
+
+#endif
 }
 
 void
@@ -184,7 +236,11 @@ IcePatch::removeRecursive(const string& path)
 void
 IcePatch::createDirectory(const string& path)
 {
+#ifdef WIN32
+    if (::_mkdir(path.c_str()) == -1)
+#else
     if (::mkdir(path.c_str(), 00777) == -1)
+#endif
     {
 	NodeAccessException ex;
 	ex.reason = "cannot create directory `" + path + "': " + strerror(errno);
