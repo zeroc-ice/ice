@@ -478,7 +478,7 @@ main(int argc, char* argv[])
 	{
 	    for (StringList::const_iterator p = includes.begin(); p != includes.end(); ++p)
 	    {
-		H << "\n#include <" << changeInclude(*p, includePaths) << '>';
+		H << "\n#include <" << changeInclude(*p, includePaths) << ".h>";
 	    }
 	}
 	

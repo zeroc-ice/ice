@@ -360,10 +360,6 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     }
 
     string func = marshal ? "write(" : "read(";
-    if (!pointer)
-    {
-	func += '&';
-    }
 
     if (BuiltinPtr::dynamicCast(type))
     {
@@ -377,20 +373,20 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	out << sb;
 	if (marshal)
 	{
-	    out << nl << "::Ice::ObjectPtr " << obj << ' ' << param << ';';
+	    out << nl << "::Ice::ObjectPtr " << obj << " = " << param << ';';
 	    out << nl << stream << deref << "write(" << obj << ");";
 	}
 	else
 	{
 	    out << nl << "::Ice::ObjectPtr " << obj << ';';
-	    out << nl << stream << deref << func << obj << ", " << cl->scoped() << "::__classIds[0]);";
+	    out << nl << stream << deref << "read(" << obj << ", " << cl->scoped() << "::__classIds[0]);";
 	    out << nl << "if (!" << obj << ')';
 	    out << sb;
 	    ClassDefPtr def = cl->definition();
 	    if (def && !def->isAbstract())
 	    {
-		out << nl << obj << " = new " << cl->scoped() << ";";
-		out << nl << obj << "->" << func << stream << ");";
+		out << nl << obj << " = new " << cl->scoped() << ';';
+		out << nl << obj << "->__read(" << (pointer ? "" : "&") << stream << ");";
 	    }
 	    else
 	    {
@@ -411,7 +407,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     StructPtr st = StructPtr::dynamicCast(type);
     if (st)
     {
-	out << nl << param << ".__" << func << stream << ");";
+	out << nl << param << ".__" << func << (pointer ? "" : "&") << stream << ");";
 	return;
     }
     
@@ -424,8 +420,8 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	}
 	else
 	{
-	    out << nl << seq->scope() << "__" << func << stream << ", " << param << ", " << seq->scope()
-		<< "__U__" << seq->name() << "());";
+	    out << nl << seq->scope() << "__" << func << (pointer ? "" : "&") << stream << ", " << param << ", "
+		<< seq->scope() << "__U__" << seq->name() << "());";
 	}
 	return;
     }
@@ -433,8 +429,8 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if (dict)
     {
-	out << nl << dict->scope() << "__" << func << stream << ", " << param << ", " << dict->scope()
-	    << "__U__" << dict->name() << "());";
+	out << nl << dict->scope() << "__" << func << (pointer ? "" : "&") << stream << ", " << param << ", "
+	    << dict->scope() << "__U__" << dict->name() << "());";
 	return;
     }
     
@@ -449,7 +445,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	constructed = proxy->_class();
     }
 
-    out << nl << constructed->scope() << "__" << func << stream << ", " << param << ");";
+    out << nl << constructed->scope() << "__" << func << (pointer ? "" : "&") << stream << ", " << param << ");";
 }
 
 void
