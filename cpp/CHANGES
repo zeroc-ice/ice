@@ -1,6 +1,14 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Fixed a code generation problem in slice2cpp. This problem showed up
+  only for the --impl option.
+
+- Changed the way C++ keywords are escaped. Previously, a Slice identifier
+  that is a C++ keyword was escaped everywhere. For example, Slice "while"
+  was mapped to "_cpp_while" and _cpp_whilePrx". With the change, Slice
+  "while" mapped to "_cpp_while" and "whilePrx".
+
 - Fixed the slice2java and slice2cs compilers for operations with multiple
   exceptions in an exception specification: if an exception was a base of one or
   more other exceptions in the same exception specification, the code
