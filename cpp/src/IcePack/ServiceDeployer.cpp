@@ -55,6 +55,12 @@ IcePack::ServiceDeployHandler::startElement(const XMLCh *const name, AttributeLi
 
     if(str == "service")
     {
+	string basedir = getAttributeValueWithDefault(attrs, "basedir", "");
+	if(!basedir.empty())
+	{
+	    _deployer.overrideBaseDir(basedir);
+	}
+
 	string kind = getAttributeValue(attrs, "kind");
 	if(kind == "standard")
 	{

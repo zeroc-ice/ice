@@ -103,6 +103,12 @@ IcePack::ServerDeployHandler::startElement(const XMLCh *const name, AttributeLis
 
     if(str == "server")
     {
+	string basedir = getAttributeValueWithDefault(attrs, "basedir", "");
+	if(!basedir.empty())
+	{
+	    _deployer.overrideBaseDir(basedir);
+	}
+
 	string kind = getAttributeValue(attrs, "kind");
 	if(kind == "cpp")
 	{
@@ -126,7 +132,6 @@ IcePack::ServerDeployHandler::startElement(const XMLCh *const name, AttributeLis
 	    _deployer.addProperty("IceBox.ServiceManager.Endpoints", getAttributeValue(attrs, "endpoints"));
 	    _deployer.createConfigFile("/config/config_icebox");
 	}
-
     }
     else if(str == "service")
     {

@@ -102,6 +102,7 @@ public:
     void createConfigFile(const std::string&);
     void addProperty(const std::string&, const std::string&);
     void addOffer(const std::string&, const std::string&, const std::string&);
+    void overrideBaseDir(const std::string&);
 
 protected:
 

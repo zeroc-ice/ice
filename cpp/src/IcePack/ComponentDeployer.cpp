@@ -550,6 +550,20 @@ IcePack::ComponentDeployer::addOffer(const string& offer, const string& adapter,
     _tasks.push_back(new RegisterOffer(yellowAdmin, offer, object));
 }
 
+void
+IcePack::ComponentDeployer::overrideBaseDir(const string& basedir)
+{    
+    if(basedir[0] == '/')
+    {
+	_variables["basedir"] = basedir;
+    }
+    else
+    {
+	_variables["basedir"] += "/" + basedir;
+    }
+}
+
+
 //
 // Substitute variables with their values.
 //
