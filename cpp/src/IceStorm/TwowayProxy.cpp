@@ -152,6 +152,7 @@ IceStorm::OrderedTwowayProxy::publish(const EventPtr& event)
     catch(const Ice::LocalException& ex)
     {
 	exception(ex);
+	throw;
     }
 }
 
