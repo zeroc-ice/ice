@@ -19,10 +19,15 @@
 #include <Ice/Logger.h>
 
 using IceSecurity::Ssl::ShutdownException;
+using IceSecurity::Ssl::SystemPtr;
+
 using namespace IceInternal;
 using namespace std;
 
-using IceSecurity::Ssl::SystemPtr;
+using std::string;
+using std::ostringstream;
+using std::hex;
+using std::dec;
 
 ////////////////////////////////////////////////
 ////////// SslConnectionOpenSSLClient //////////

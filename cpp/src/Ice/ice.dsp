@@ -312,6 +312,10 @@ SOURCE=.\SslConfigErrorReporter.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\SslConnection.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\SslConnectionOpenSSL.cpp
 # End Source File
 # Begin Source File
@@ -1618,6 +1622,26 @@ BuildCmds= \
 
 "SecureUdp.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\SecureUdpF.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\SecureUdpF.ice
+
+"../../include/Ice/SecureUdpF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --include-dir Ice -I../../slice ../../slice/Ice/SecureUdpF.ice 
+	
 # End Custom Build
 
 !ENDIF 

@@ -20,10 +20,15 @@
 
 using IceSecurity::Ssl::CertificateException;
 using IceSecurity::Ssl::ProtocolException;
+using IceSecurity::Ssl::SystemPtr;
+
 using namespace IceInternal;
 using namespace std;
 
-using IceSecurity::Ssl::SystemPtr;
+using std::string;
+using std::ostringstream;
+using std::hex;
+using std::dec;
 
 //////////////////////////////////////
 ////////// ServerConnection //////////
