@@ -350,7 +350,7 @@ def getVersion(cvsTag, buildDir):
     os.chdir(buildDir)
     if getPlatform() == "aix":
         os.environ["LIBPATH"] = ""
-        os.system("cvs -d cvsint.mutablerealms.com:/home/cvsroot export -r " + cvsTag + " ice/include/IceUtil/Config.h")
+        os.system("cvs -d cvs.mutablerealms.com:/home/cvsroot export -r " + cvsTag + " ice/include/IceUtil/Config.h")
     else:
         os.system("cvs -d cvs.mutablerealms.com:/home/cvsroot export -r " + cvsTag + " ice/include/IceUtil/Config.h")
 
@@ -574,14 +574,10 @@ def makeInstall(buildDir, installDir, distro, clean):
 	    os.system("perl -pi -e 's/^#(EXPAT_HOME)/$1/' config/Make.rules")
 	    os.system("perl -pi -e 's/^#(READLINE_HOME)/$1/' config/Make.rules")
 	elif distro.startswith("IcePy"):
-	    os.system("perl -pi -e 's/^PYTHON_INCLUDE_DIR.*$/PYTHON_INCLUDE_DIR = \$\(PYTHON_HOME\)\/include\/" + \
+	    os.system("perl -pi -e 's/^PYTHON.INCLUDE.DIR.*$/PYTHON_INCLUDE_DIR = \$\(PYTHON_HOME\)\/include\/" + \
 		      "\$\(PYTHON_VERSION\)/' config/Make.rules")
-	    if getPlatform() == "hpux":
-		os.system("perl -pi -e 's/^PYTHON_LIB_DIR.*$/PYTHON_LIB_DIR = \$\(PYTHON_HOME\)\/lib/" + \
-			  " config/Make.rules")
-	    else:
-		os.system("perl -pi -e 's/^PYTHON_LIB_DIR.*$/PYTHON_LIB_DIR = \$\(PYTHON_HOME\)\/lib\/" + \
-			  "\$\(PYTHON_VERSION\)\/config/' config/Make.rules")
+	    os.system("perl -pi -e 's/^PYTHON.LIB.DIR.*$/PYTHON_LIB_DIR = \$\(PYTHON_HOME\)\/lib\/" + \
+		      "\$\(PYTHON_VERSION\)\/config/' config/Make.rules")
 
     os.system("gmake OPTIMIZE=yes RPM_BUILD_ROOT=" + installDir + " install")
     os.chdir(cwd)
