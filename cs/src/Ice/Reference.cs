@@ -165,7 +165,7 @@ namespace IceInternal
 	    // the identity string in quotes.
 	    //
 	    string id = Ice.Util.identityToString(identity);
-	    if(StringUtil.findFirstOf(id, " \t\n\r:@") != - 1)
+	    if(StringUtil.findFirstOf(id, " \t\n\r:@") != -1)
 	    {
 		s.Append('"');
 		s.Append(id);
@@ -195,7 +195,7 @@ namespace IceInternal
 		//
 		s.Append(" -f ");
 		string fs = f.ToString();
-		if(StringUtil.findFirstOf(fs, " \t\n\r:@") != - 1)
+		if(StringUtil.findFirstOf(fs, " \t\n\r:@") != -1)
 		{
 		    s.Append('"');
 		    s.Append(fs);
@@ -268,7 +268,7 @@ namespace IceInternal
 		// the adapter id string in quotes.
 		//
 		s.Append(" @ ");
-		if(StringUtil.findFirstOf(a, " \t\n\r") != - 1)
+		if(StringUtil.findFirstOf(a, " \t\n\r") != -1)
 		{
 		    s.Append('"');
 		    s.Append(a);

@@ -1,0 +1,27 @@
+// **********************************************************************
+//
+// Copyright (c) 2003
+// ZeroC, Inc.
+// Billerica, MA, USA
+//
+// All Rights Reserved.
+//
+// Ice is free software; you can redistribute it and/or modify it under
+// the terms of the GNU General Public License version 2 as published by
+// the Free Software Foundation.
+//
+// **********************************************************************
+
+public class HelloI : Hello
+{
+    public override void sayHello(Ice.Current current)
+    {
+        System.Console.Out.WriteLine("Hello World!");
+    }
+    
+    public override void shutdown(Ice.Current current)
+    {
+        System.Console.Out.WriteLine("Shutting down...");
+        current.adapter.getCommunicator().shutdown();
+    }
+}

@@ -85,7 +85,7 @@ namespace IceInternal
 			}
 			
 			int pos = argument.IndexOf((System.Char) '.');
-			if(pos == - 1)
+			if(pos == -1)
 			{
 			    Ice.EndpointParseException e = new Ice.EndpointParseException();
 			    e.str = "udp " + str;
@@ -141,7 +141,7 @@ namespace IceInternal
 			}
 			
 			int pos = argument.IndexOf((System.Char) '.');
-			if(pos == - 1)
+			if(pos == -1)
 			{
 			    Ice.EndpointParseException e = new Ice.EndpointParseException();
 			    e.str = "udp " + str;
@@ -357,7 +357,7 @@ namespace IceInternal
 	//
 	public int timeout()
 	{
-	    return - 1;
+	    return -1;
 	}
 	
 	//

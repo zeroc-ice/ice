@@ -66,21 +66,19 @@ namespace IceInternal
 		//
 		throw new Ice.DatagramLimitException();
 	    }
-	    
-	    byte[] bytes = buf.toArray();
-	    int remaining = bytes.Length;
 
 	    try
 	    {
 		Debug.Assert(_fd != null);
+		int remaining = buf.remaining();
 		int ret;
 		try
 		{
-		    ret = _fd.Send(bytes);
+		    ret = _fd.Send(buf.rawBytes(), 0, remaining, SocketFlags.None);
 		}
 		catch(Win32Exception e)
 		{
-		    if(Network.wouldBlock(e))
+		    if(Network.wouldBlock(e)) // Not sure whether this is possible on a UDP socket.
 		    {
 			ret = 0;
 		    }
@@ -97,35 +95,12 @@ namespace IceInternal
 		    }
 		    ArrayList sendList = new ArrayList();
 		    sendList.Add(_fd);
-		    ArrayList errorList = new ArrayList();
-		    errorList.Add(_fd);
-		    Network.doSelect(null, sendList, errorList, timeout);
-		    if(errorList.Count != 0)
-		    {
-			throw new Ice.SocketException();
-		    }
+		    Network.doSelect(null, sendList, null, timeout);
 		    if(sendList.Count == 0)
 		    {
-			if(timeout > 0)
-			{
-			    throw new Ice.TimeoutException();
-			}
-			else
-			{
-			    throw new Ice.ConnectionLostException();
-			}
+			throw new Ice.TimeoutException();
 		    }
-		    else
-		    {
-			try
-			{
-			    ret = _fd.Send(bytes);
-			}
-			catch(System.Exception e)
-			{
-			    throw new Ice.SocketException(e);
-			}
-		    }
+		    ret = _fd.Send(buf.rawBytes(), 0, buf.remaining(), SocketFlags.None);
 		}
 		if(ret != remaining)
 		{
@@ -142,10 +117,6 @@ namespace IceInternal
 		{
 		    _stats.bytesSent("udp", ret);
 		}
-	    }
-	    catch(Ice.Exception)
-	    {
-		throw;
 	    }
 	    catch(SocketException ex)
 	    {
@@ -177,41 +148,17 @@ namespace IceInternal
 	    ByteBuffer buf = stream.prepareRead();
 	    buf.position(0);
 	    
-	    int ret;
-	    byte[] bytes;
 	    try
 	    {
 		Debug.Assert(_fd != null);
-		int available = _fd.Available;
-		if(available == 0)
+		ArrayList readList = new ArrayList();
+		readList.Add(_fd);
+		Network.doSelect(readList, null, null, timeout);
+		if(readList.Count == 0)
 		{
-		    if(timeout == 0)
-		    {
-			throw new Ice.TimeoutException();
-		    }
-		    ArrayList recvList = new ArrayList();
-		    recvList.Add(_fd);
-		    ArrayList errorList = new ArrayList();
-		    errorList.Add(_fd);
-		    Network.doSelect(recvList, null, errorList, timeout);
-		    if(errorList.Count != 0)
-		    {
-			throw new Ice.SocketException("Select on UDP socket returned an error");
-		    }
-		    if(recvList.Count == 0)
-		    {
-			throw new Ice.TimeoutException();
-		    }
-		    bytes = new byte[available = _fd.Available];
-
+		    throw new Ice.TimeoutException();
 		}
-		else
-		{
-		    bytes = new byte[available];
-		}
-		ret = _fd.Receive(bytes);
-		Debug.Assert(ret == available);
-
+		int ret = _fd.Receive(buf.rawBytes(), 0, buf.limit(), SocketFlags.None);
 		if(_connect)
 		{
 		    //
@@ -230,35 +177,23 @@ namespace IceInternal
 			}
 		    }
 		}
-	    }
-	    catch(Ice.Exception)
-	    {
-		throw;
-	    }
-	    catch(SocketException ex)
-	    {
-		Ice.SocketException se = new Ice.SocketException(ex);
-		throw se;
+		if(_traceLevels.network >= 3)
+		{
+		    string s = "received " + ret + " bytes via udp\n" + ToString();
+		    _logger.trace(_traceLevels.networkCat, s);
+		}
+
+		if(_stats != null)
+		{
+		    _stats.bytesReceived("udp", ret);
+		}
+
+		stream.resize(ret, true);
 	    }
 	    catch(System.Exception ex)
 	    {
 		throw new Ice.SyscallException(ex);
 	    }
-	    
-	    if(_traceLevels.network >= 3)
-	    {
-		string s = "received " + ret + " bytes via udp\n" + ToString();
-		_logger.trace(_traceLevels.networkCat, s);
-	    }
-	    
-	    if(_stats != null)
-	    {
-		_stats.bytesReceived("udp", ret);
-	    }
-
-	    stream.resize(ret, true);
-	    buf.put(bytes);
-	    stream.pos(ret);
 	}
 	
 	public override string ToString()
@@ -294,7 +229,7 @@ namespace IceInternal
 		setBufSize(instance);
 		Network.setBlock(_fd, false);
 		_addr = Network.getAddress(host, port);
-		Network.doConnect(_fd, _addr, - 1);
+		Network.doConnect(_fd, _addr, -1);
 		_connect = false; // We're connected now
 		
 		if(_traceLevels.network >= 1)

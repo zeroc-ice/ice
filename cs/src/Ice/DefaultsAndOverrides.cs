@@ -44,7 +44,7 @@ namespace IceInternal
 	    else
 	    {
 		overrideTimeout = false;
-		overrideTimeoutValue = - 1;
+		overrideTimeoutValue = -1;
 	    }
 	    
 	    val = properties.getProperty("Ice.Override.Compress");

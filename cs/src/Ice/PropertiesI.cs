@@ -107,7 +107,7 @@ namespace Ice
 			for(int j = 0; j < validProps.Length && !found; ++j)
 			{
 			    int starPos = validProps[j].IndexOf('*');
-			    if(starPos == - 1)
+			    if(starPos == -1)
 			    {
 				found = validProps[j].Equals(suffix);
 			    }

@@ -38,7 +38,7 @@ namespace IceInternal
 	    _readEncapsCache = null;
 	    _writeEncapsCache = null;
 	    
-	    _traceSlicing = - 1;
+	    _traceSlicing = -1;
 	    
 	    _marshalFacets = true;
 	    
@@ -1104,7 +1104,7 @@ namespace IceInternal
 		    //
 		    // Performance sensitive, so we use lazy initialization for tracing.
 		    //
-		    if(_traceSlicing == - 1)
+		    if(_traceSlicing == -1)
 		    {
 			_traceSlicing = _instance.traceLevels().slicing;
 			_slicingCat = _instance.traceLevels().slicingCat;
@@ -1177,7 +1177,7 @@ namespace IceInternal
 		    //
 		    // Performance sensitive, so we use lazy initialization for tracing.
 		    //
-		    if(_traceSlicing == - 1)
+		    if(_traceSlicing == -1)
 		    {
 			_traceSlicing = _instance.traceLevels().slicing;
 			_slicingCat = _instance.traceLevels().slicingCat;

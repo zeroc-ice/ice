@@ -461,7 +461,7 @@ namespace Ice
 		}
 		else if(!ls && rs)
 		{
-		    return - 1;
+		    return -1;
 		}
 		else
 		{

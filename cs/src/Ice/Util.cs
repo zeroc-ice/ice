@@ -74,12 +74,12 @@ namespace Ice
 	    //
 	    // Find unescaped separator.
 	    //
-	    int slash = - 1, pos = 0;
-	    while((pos = s.IndexOf((System.Char) '/', pos)) != - 1)
+	    int slash = -1, pos = 0;
+	    while((pos = s.IndexOf((System.Char) '/', pos)) != -1)
 	    {
 		if(pos == 0 || s[pos - 1] != '\\')
 		{
-		    if(slash == - 1)
+		    if(slash == -1)
 		    {
 			slash = pos;
 		    }
@@ -96,7 +96,7 @@ namespace Ice
 		pos++;
 	    }
 	    
-	    if(slash == - 1)
+	    if(slash == -1)
 	    {
 		if(!IceInternal.StringUtil.decodeString(s, 0, s.Length, out ident.name))
 		{
@@ -224,7 +224,7 @@ namespace Ice
 	    }
 	    else if(lhs == null && rhs != null)
 	    {
-		return - 1;
+		return -1;
 	    }
 	    else if(lhs != null && rhs == null)
 	    {
@@ -251,7 +251,7 @@ namespace Ice
 	    }
 	    else if(lhs == null && rhs != null)
 	    {
-		return - 1;
+		return -1;
 	    }
 	    else if(lhs != null && rhs == null)
 	    {

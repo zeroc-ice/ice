@@ -724,6 +724,11 @@ namespace IceInternal
 	    return this;
 	}
 
+	internal byte[] rawBytes()
+	{
+	    return _bytes;
+	}
+
 	private void checkUnderflow(int size)
 	{
 	    if(_position + size > _limit)

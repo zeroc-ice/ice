@@ -114,7 +114,7 @@ namespace IceInternal
 		    //
 		    // If -1 is the first value, no retry and wait intervals.
 		    // 
-		    if(i == 0 && v == - 1)
+		    if(i == 0 && v == -1)
 		    {
 			_retryIntervals = new int[0];
 			break;

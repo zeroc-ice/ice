@@ -36,7 +36,7 @@ namespace IceInternal
 	    _instance = instance;
 	    _host = null;
 	    _port = 0;
-	    _timeout = - 1;
+	    _timeout = -1;
 	    _compress = false;
 	    
 	    char[] separators = { ' ', '\t', '\n', '\r' };
@@ -188,7 +188,7 @@ namespace IceInternal
 	public override string ToString()
 	{
 	    string s = "tcp -h " + _host + " -p " + _port;
-	    if(_timeout != - 1)
+	    if(_timeout != -1)
 	    {
 		    s += " -t " + _timeout;
 	    }

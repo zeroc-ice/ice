@@ -617,14 +617,14 @@ namespace Ice
 		while(end < endpts.Length)
 		{
 		    beg = IceInternal.StringUtil.findFirstNotOf(endpts, delim, end);
-		    if(beg == - 1)
+		    if(beg == -1)
 		    {
 			break;
 		    }
 		    
 		    //UPGRADE_WARNING: Method 'java.lang.String.indexOf' was converted to 'string.IndexOf' which may throw an exception. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1101"'
 		    end = endpts.IndexOf((System.Char) ':', beg); // TODO
-		    if(end == - 1)
+		    if(end == -1)
 		    {
 			end = endpts.Length;
 		    }
