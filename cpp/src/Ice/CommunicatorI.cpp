@@ -30,6 +30,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 int Ice::CommunicatorI::_communicatorCount = 0;
+IceUtil::StaticMutex Ice::CommunicatorI::_gcMutex = ICE_STATIC_MUTEX_INITIALIZER;
 Ice::CommunicatorI::GarbageCollectorStats Ice::CommunicatorI::_gcStats;
 int Ice::CommunicatorI::_gcTraceLevel;
 string Ice::CommunicatorI::_gcTraceCat;
@@ -69,6 +70,8 @@ Ice::CommunicatorI::destroy()
 
     if(last)
     {
+	IceUtil::StaticMutex::Lock l(_gcMutex);
+
 	if(_gcTraceLevel)
 	{
 	    Trace out(_gcLogger, _gcTraceCat);
@@ -79,6 +82,7 @@ Ice::CommunicatorI::destroy()
 		out << "s";
 	    }
 	}
+	_gcTraceLevel = 0;
 	_gcLogger = 0;
     }
 
@@ -336,9 +340,12 @@ Ice::CommunicatorI::CommunicatorI(int& argc, char* argv[], const PropertiesPtr& 
 	IceUtil::RecMutex::Lock sync(*this);
 	if(++_communicatorCount == 1)
 	{
-	    _gcTraceLevel = _instance->traceLevels()->gc;
-	    _gcTraceCat = _instance->traceLevels()->gcCat;
-	    _gcLogger = _instance->logger();
+	    {
+		IceUtil::StaticMutex::Lock l(_gcMutex);
+		_gcTraceLevel = _instance->traceLevels()->gc;
+		_gcTraceCat = _instance->traceLevels()->gcCat;
+		_gcLogger = _instance->logger();
+	    }
 	    theCollector = new IceUtil::GC(properties->getPropertyAsInt("Ice.GC.Interval"), printGCStats);
 	    theCollector->start();
 	}
@@ -376,6 +383,8 @@ Ice::CommunicatorI::finishSetup(int& argc, char* argv[])
 void
 Ice::CommunicatorI::printGCStats(const ::IceUtil::GCStats& stats)
 {
+    IceUtil::StaticMutex::Lock l(_gcMutex);
+
     if(_gcTraceLevel)
     {
 	if(_gcTraceLevel > 1)

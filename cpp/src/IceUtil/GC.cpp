@@ -14,7 +14,7 @@
 
 #include <IceUtil/GC.h>
 #include <IceUtil/Time.h>
-#include <IceUtil/ObjectBase.h>
+#include <IceUtil/GCShared.h>
 #include <map>
 
 
@@ -22,15 +22,15 @@ namespace IceUtil
 {
 
 void
-recursivelyReachable(ObjectBase* p, ObjectSet& o)
+recursivelyReachable(GCShared* p, GCObjectSet& o)
 {
     if(o.find(p) == o.end())
     {
 	assert(p);
 	o.insert(p);
-	ObjectMultiSet tmp;
+	GCObjectMultiSet tmp;
 	p->__gcReachable(tmp);
-	for(ObjectMultiSet::const_iterator i = tmp.begin(); i != tmp.end(); ++i)
+	for(GCObjectMultiSet::const_iterator i = tmp.begin(); i != tmp.end(); ++i)
 	{
 	    recursivelyReachable(*i, o);
 	}
@@ -129,7 +129,7 @@ IceUtil::GC::collectGarbage()
 	_collecting = true;
     }
 
-    typedef map<ObjectBase*, int> ObjectCounts;
+    typedef map<GCShared*, int> ObjectCounts;
     ObjectCounts counts;
 
     Time t;
@@ -144,10 +144,10 @@ IceUtil::GC::collectGarbage()
     }
 
     //
-    // Initialize a set of pairs <ObjectBase*, ref count> for all class instances.
+    // Initialize a set of pairs <GCShared*, ref count> for all class instances.
     //
     {
-	for(ObjectSet::const_iterator i = objects.begin(); i != objects.end(); ++i)
+	for(GCObjectSet::const_iterator i = gcObjects.begin(); i != gcObjects.end(); ++i)
 	{
 	    assert(*i);
 	    counts[*i] = (*i)->_ref;
@@ -165,11 +165,11 @@ IceUtil::GC::collectGarbage()
     // For each reachable instance, decrement the reachable instance's ref count.
     //
     {
-	for(ObjectSet::const_iterator i = objects.begin(); i != objects.end(); ++i)
+	for(GCObjectSet::const_iterator i = gcObjects.begin(); i != gcObjects.end(); ++i)
 	{
-	    ObjectMultiSet reachable;
+	    GCObjectMultiSet reachable;
 	    (*i)->__gcReachable(reachable);
-	    for(ObjectMultiSet::const_iterator j = reachable.begin(); j != reachable.end(); ++j)
+	    for(GCObjectMultiSet::const_iterator j = reachable.begin(); j != reachable.end(); ++j)
 	    {
 		--(counts.find(*j)->second);
 	    }
@@ -182,7 +182,7 @@ IceUtil::GC::collectGarbage()
     // (and all instances reachable from them) from the overall set of objects.
     //
     {
-	ObjectSet reachable;
+	GCObjectSet reachable;
 	for(ObjectCounts::const_iterator i = counts.begin(); i != counts.end(); ++i)
 	{
 	    if(i->second > 0)
@@ -191,7 +191,7 @@ IceUtil::GC::collectGarbage()
 	    }
 	}
 
-	for(ObjectSet::const_iterator k = reachable.begin(); k != reachable.end(); ++k)
+	for(GCObjectSet::const_iterator k = reachable.begin(); k != reachable.end(); ++k)
 	{
 	    counts.erase(*k);
 	}

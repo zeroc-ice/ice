@@ -33,7 +33,7 @@ OBJS		= Exception.o \
 		  InputUtil.o \
 		  OutputUtil.o \
                   Base64.o \
-		  ObjectBase.o \
+		  GCShared.o \
 		  GCRecMutex.o \
 		  GC.o
 

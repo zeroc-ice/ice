@@ -20,7 +20,7 @@
 
 //
 // "Handle" or "smart pointer" class for classes derived from
-// IceUtil::ObjectBase, IceUtil::Shared, or IceUtil::SimpleShared.
+// IceUtil::GCShared, IceUtil::Shared, or IceUtil::SimpleShared.
 //
 // In constrast to IceUtil::Handle, IceInternal::Handle requires the
 // declaration of the two global operations IceInternal::incRef(T*)

@@ -16,6 +16,7 @@
 #define ICE_COMMUNICATOR_I_H
 
 #include <IceUtil/RecMutex.h>
+#include <IceUtil/StaticMutex.h>
 #include <IceUtil/GCF.h>
 
 #include <Ice/DynamicLibraryF.h>
@@ -98,6 +99,7 @@ private:
     static void printGCStats(const ::IceUtil::GCStats&);
 
     static int _communicatorCount;
+    static ::IceUtil::StaticMutex _gcMutex;
     static GarbageCollectorStats _gcStats;
     static int _gcTraceLevel;
     static std::string _gcTraceCat;

@@ -63,6 +63,8 @@ public:
 
     virtual void run()
     {
+	::IceUtil::ThreadControl t = getThreadControl();
+
 	while(true)
 	{
 	    {
@@ -72,6 +74,8 @@ public:
 		    return;
 		}
 	    }
+
+	    t.yield();
 
 	    {
 		NPtr n = new N;
@@ -485,11 +489,12 @@ MyApplication::run(int argc, char* argv[])
 
     for(int i = 0; i < 50; ++i)
     {
-	if(!interrupted())
+	if(interrupted())
 	{
-	    garbageThread->randomWait();
-	    Ice::collectGarbage();
+	    return EXIT_SUCCESS;
 	}
+	garbageThread->randomWait();
+	Ice::collectGarbage();
     }
 
     garbageThread->stop();

@@ -12,6 +12,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/ObjectBase.h>
+#include <IceUtil/GCShared.h>
 
-IceUtil::ObjectSet IceUtil::objects;
+IceUtil::GCObjectSet IceUtil::gcObjects;

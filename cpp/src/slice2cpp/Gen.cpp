@@ -2606,9 +2606,9 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
     ClassList bases = p->bases();
     DataMemberList dataMembers = p->dataMembers();
 
-    H << nl << "virtual void __gcReachable(::IceUtil::ObjectMultiSet&) const;";
+    H << nl << "virtual void __gcReachable(::IceUtil::GCObjectMultiSet&) const;";
 
-    C << sp << nl << "void" << nl << scoped.substr(2) << "::__gcReachable(::IceUtil::ObjectMultiSet& _c) const";
+    C << sp << nl << "void" << nl << scoped.substr(2) << "::__gcReachable(::IceUtil::GCObjectMultiSet& _c) const";
     C << sb;
     if(bases.empty() || bases.front()->isInterface())
     {

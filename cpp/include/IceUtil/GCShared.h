@@ -12,8 +12,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_OBJECTBASE_H
-#define ICE_UTIL_OBJECTBASE_H
+#ifndef ICE_UTIL_GCShared_H
+#define ICE_UTIL_GCShared_H
 
 #include <IceUtil/GCRecMutex.h>
 #include <set>
@@ -22,30 +22,30 @@ namespace IceUtil
 {
 
 class GC;
-class ObjectBase;
+class GCShared;
 
-typedef std::set<ObjectBase*> ObjectSet;
-extern ICE_UTIL_API ObjectSet objects; // Set of pointers to all existing classes.
+typedef std::set<GCShared*> GCObjectSet;
+extern ICE_UTIL_API GCObjectSet gcObjects; // Set of pointers to all existing classes.
 
-typedef std::multiset<ObjectBase*> ObjectMultiSet;
+typedef std::multiset<GCShared*> GCObjectMultiSet;
 
-class ICE_UTIL_API ObjectBase : public noncopyable
+class ICE_UTIL_API GCShared : public noncopyable
 {
 public:
 
-    ObjectBase();
-    virtual ~ObjectBase();
+    GCShared();
+    virtual ~GCShared();
     void __incRef();
     void __decRef();
     int __getRef() const;
     void __setNoDelete(bool);
     void __decRefUnsafe();
-    virtual void __gcReachable(ObjectMultiSet&) const = 0;
+    virtual void __gcReachable(GCObjectMultiSet&) const = 0;
     virtual void __gcClear() = 0;
 
 protected:
 
-    static void __addObject(ObjectMultiSet&, ObjectBase*);
+    static void __addObject(GCObjectMultiSet&, GCShared*);
 
 private:
 
@@ -57,7 +57,7 @@ private:
 };
 
 inline
-ObjectBase::ObjectBase()
+GCShared::GCShared()
 {
     gcRecMutex._m->lock();
     _ref = 0;
@@ -67,23 +67,23 @@ ObjectBase::ObjectBase()
 }
 
 inline
-ObjectBase::~ObjectBase()
+GCShared::~GCShared()
 {
     gcRecMutex._m->lock();
-    ObjectSet::size_type num = objects.erase(this);
+    GCObjectSet::size_type num = gcObjects.erase(this);
     assert(num == 1);
     gcRecMutex._m->unlock();
 }
 
 inline void
-ObjectBase::__incRef()
+GCShared::__incRef()
 {
     gcRecMutex._m->lock();
     assert(_ref >= 0);
     if(!_adopted && _ref == 0)
     {
         _adopted = true;
-	std::pair<ObjectSet::iterator, bool> rc = objects.insert(this);
+	std::pair<GCObjectSet::iterator, bool> rc = gcObjects.insert(this);
 	assert(rc.second);
     }
     ++_ref;
@@ -91,7 +91,7 @@ ObjectBase::__incRef()
 }
 
 inline void
-ObjectBase::__decRef()
+GCShared::__decRef()
 {
     gcRecMutex._m->lock();
     bool doDelete = false;
@@ -109,7 +109,7 @@ ObjectBase::__decRef()
 }
 
 inline int
-ObjectBase::__getRef() const
+GCShared::__getRef() const
 {
     gcRecMutex._m->lock();
     int ref = _ref;
@@ -118,7 +118,7 @@ ObjectBase::__getRef() const
 }
 
 inline void
-ObjectBase::__setNoDelete(bool b)
+GCShared::__setNoDelete(bool b)
 {
     gcRecMutex._m->lock();
     _noDelete = b;
@@ -126,13 +126,13 @@ ObjectBase::__setNoDelete(bool b)
 }
 
 inline void
-ObjectBase::__decRefUnsafe()
+GCShared::__decRefUnsafe()
 {
     --_ref;
 }
 
 inline void
-ObjectBase::__addObject(ObjectMultiSet& c, ObjectBase* p)
+GCShared::__addObject(GCObjectMultiSet& c, GCShared* p)
 {
     gcRecMutex._m->lock();
     if(p)

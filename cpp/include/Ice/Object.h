@@ -15,7 +15,7 @@
 #ifndef ICE_OBJECT_H
 #define ICE_OBJECT_H
 
-#include <IceUtil/ObjectBase.h>
+#include <IceUtil/GCShared.h>
 #include <IceUtil/Mutex.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
@@ -46,7 +46,7 @@ enum DispatchStatus
 namespace Ice
 {
 
-class ICE_API Object : virtual public ::IceUtil::ObjectBase
+class ICE_API Object : virtual public ::IceUtil::GCShared
 {
 public:
 
@@ -85,7 +85,7 @@ public:
     virtual void __write(::IceInternal::BasicStream*, bool) const;
     virtual void __read(::IceInternal::BasicStream*, bool = true);
 
-    virtual void __gcReachable(::IceUtil::ObjectMultiSet&) const;
+    virtual void __gcReachable(::IceUtil::GCObjectMultiSet&) const;
     virtual void __gcClear();
 
     void ice_addFacet(const ObjectPtr&, const ::std::string&);

@@ -272,7 +272,7 @@ Ice::Object::__read(BasicStream* __is, bool __rid)
 }
 
 void
-Ice::Object::__gcReachable(::IceUtil::ObjectMultiSet& c) const
+Ice::Object::__gcReachable(::IceUtil::GCObjectMultiSet& c) const
 {
     ::IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
 
