@@ -69,6 +69,10 @@ Glacier2::RouterI::destroy()
 
     if(_session)
     {
+	//
+	// This can raise an exception, therefore it must be the last
+	// statement in this destroy() function.
+	//
 	_session->destroy();
     }
 }

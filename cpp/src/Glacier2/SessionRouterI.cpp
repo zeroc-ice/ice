@@ -302,13 +302,6 @@ Glacier2::SessionRouterI::destroySession(const Current& current)
 	    _routersByCategory.erase(category);
 	    _routersByCategoryHint = _routersByCategory.end();
 	}
-	
-	if(_traceLevel >= 1)
-	{
-	    Trace out(_logger, "Glacier2");
-	    out << "destroying session\n";
-	    out << router->toString();
-	}
     }
 
     //
@@ -317,14 +310,24 @@ Glacier2::SessionRouterI::destroySession(const Current& current)
     //
     try
     {
+	if(_traceLevel >= 1)
+	{
+	    Trace out(_logger, "Glacier2");
+	    out << "destroying session\n";
+	    out << router->toString();
+	}
+
 	router->destroy();
     }
     catch(const Ice::Exception& ex)
     {
-	Trace out(_logger, "Glacier2");
-	out << "exception while destroying session\n";
-	out << ex;
-	ex.ice_throw();
+	if(_traceLevel >= 1)
+	{
+	    Trace out(_logger, "Glacier2");
+	    out << "exception while destroying session\n";
+	    out << ex;
+	    ex.ice_throw();
+	}
     }
 }
 
@@ -432,13 +435,6 @@ Glacier2::SessionRouterI::run()
 			_routersByCategory.erase(category);
 			_routersByCategoryHint = _routersByCategory.end();
 		    }
-
-		    if(_traceLevel >= 1)
-		    {
-			Trace out(_logger, "Glacier2");
-			out << "expiring session\n";
-			out << router->toString();
-		    }
 		}
 		else
 		{
@@ -451,7 +447,32 @@ Glacier2::SessionRouterI::run()
 	// We destroy the expired routers outside the thread
 	// synchronization, to avoid deadlocks.
 	//
-	for_each(routers.begin(), routers.end(), IceUtil::voidMemFun(&RouterI::destroy));
+	for(vector<RouterIPtr>::iterator p = routers.begin(); p != routers.end(); ++p)
+	{
+	    RouterIPtr router = *p;
+
+	    try
+	    {
+		if(_traceLevel >= 1)
+		{
+		    Trace out(_logger, "Glacier2");
+		    out << "expiring session\n";
+		    out << router->toString();
+		}
+
+		router->destroy();
+	    }
+	    catch(const Ice::Exception& ex)
+	    {
+		if(_traceLevel >= 1)
+		{
+		    Trace out(_logger, "Glacier2");
+		    out << "exception while expiring session\n";
+		    out << ex;
+		    ex.ice_throw();
+		}
+	    }
+	}
     }
 }
 
