@@ -114,6 +114,19 @@ exceptions(Test::MyClassPrx p)
 	p->opEx(10);
 	test(false);
     }
+    catch(const Test::Struct& ex)
+    {
+	test(ex.p == p);
+	test(ex.e == Test::enum2);
+	test(ex.s.s == "xxx");
+	ex.p->opVoid();
+    }
+
+    try
+    {
+	p->opEx(11);
+	test(false);
+    }
     catch(const Test::ByteS& ex)
     {
 	test(ex.size() == 2);
@@ -123,7 +136,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(11);
+	p->opEx(12);
 	test(false);
     }
     catch(const Test::BoolS& ex)
@@ -135,7 +148,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(12);
+	p->opEx(13);
 	test(false);
     }
     catch(const Test::ShortS& ex)
@@ -147,7 +160,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(13);
+	p->opEx(14);
 	test(false);
     }
     catch(const Test::IntS& ex)
@@ -159,7 +172,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(14);
+	p->opEx(15);
 	test(false);
     }
     catch(const Test::LongS& ex)
@@ -171,7 +184,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(15);
+	p->opEx(16);
 	test(false);
     }
     catch(const Test::FloatS& ex)
@@ -183,7 +196,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(16);
+	p->opEx(17);
 	test(false);
     }
     catch(const Test::DoubleS& ex)
@@ -195,7 +208,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(17);
+	p->opEx(18);
 	test(false);
     }
     catch(const Test::StringS& ex)
@@ -207,7 +220,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(18);
+	p->opEx(19);
 	test(false);
     }
     catch(const Test::WStringS& ex)
@@ -219,7 +232,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(19);
+	p->opEx(20);
 	test(false);
     }
     catch(const Test::ByteSS& ex)
@@ -234,7 +247,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(20);
+	p->opEx(21);
 	test(false);
     }
     catch(const Test::BoolSS& ex)
@@ -249,7 +262,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(21);
+	p->opEx(22);
 	test(false);
     }
     catch(const Test::ShortSS& ex)
@@ -264,7 +277,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(22);
+	p->opEx(23);
 	test(false);
     }
     catch(const Test::IntSS& ex)
@@ -279,7 +292,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(23);
+	p->opEx(24);
 	test(false);
     }
     catch(const Test::LongSS& ex)
@@ -294,7 +307,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(24);
+	p->opEx(25);
 	test(false);
     }
     catch(const Test::FloatSS& ex)
@@ -309,7 +322,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(25);
+	p->opEx(26);
 	test(false);
     }
     catch(const Test::DoubleSS& ex)
@@ -324,7 +337,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(26);
+	p->opEx(27);
 	test(false);
     }
     catch(const Test::StringSS& ex)
@@ -339,7 +352,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(27);
+	p->opEx(28);
 	test(false);
     }
     catch(const Test::WStringSS& ex)
@@ -354,7 +367,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(28);
+	p->opEx(29);
 	test(false);
     }
     catch(const Test::ByteBoolD& ex)
@@ -368,7 +381,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(29);
+	p->opEx(30);
 	test(false);
     }
     catch(const Test::ShortIntD& ex)
@@ -384,7 +397,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(30);
+	p->opEx(31);
 	test(false);
     }
     catch(const Test::LongFloatD& ex)
@@ -396,7 +409,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(31);
+	p->opEx(32);
 	test(false);
     }
     catch(const Test::DoubleStringD& ex)
@@ -412,7 +425,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(32);
+	p->opEx(33);
 	test(false);
     }
     catch(const Test::WStringMyEnumD& ex)
@@ -424,7 +437,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(33);
+	p->opEx(34);
 	test(false);
     }
     catch(const Test::MyClassStringD& ex)
@@ -454,7 +467,7 @@ exceptions(Test::MyClassPrx p)
 
     try
     {
-	p->opEx(34);
+	p->opEx(35);
 	test(false);
     }
     catch(const Test::MyClassPrxE& ex)

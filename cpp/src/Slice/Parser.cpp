@@ -1023,9 +1023,11 @@ Slice::Module::visit(ParserVisitor* visitor)
 	return;
     }
    
-    visitor->visitModuleStart(this);
-    Container::visit(visitor);
-    visitor->visitModuleEnd(this);
+    if (visitor->visitModuleStart(this))
+    {
+	Container::visit(visitor);
+	visitor->visitModuleEnd(this);
+    }
 }
 
 Slice::Module::Module(const ContainerPtr& container, const string& name) :
@@ -1342,9 +1344,11 @@ Slice::ClassDef::visit(ParserVisitor* visitor)
 	return;
     }
    
-    visitor->visitClassDefStart(this);
-    Container::visit(visitor);
-    visitor->visitClassDefEnd(this);
+    if (visitor->visitClassDefStart(this))
+    {
+	Container::visit(visitor);
+	visitor->visitClassDefEnd(this);
+    }
 }
 
 Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, bool local, bool intf,
@@ -1469,9 +1473,11 @@ Slice::Struct::visit(ParserVisitor* visitor)
 	return;
     }
 
-    visitor->visitStructStart(this);
-    Container::visit(visitor);
-    visitor->visitStructEnd(this);
+    if (visitor->visitStructStart(this))
+    {
+	Container::visit(visitor);
+	visitor->visitStructEnd(this);
+    }
 }
 
 Slice::Struct::Struct(const ContainerPtr& container, const string& name) :
@@ -1994,9 +2000,11 @@ Slice::Unit::destroy()
 void
 Slice::Unit::visit(ParserVisitor* visitor)
 {
-    visitor->visitUnitStart(this);
-    Container::visit(visitor);
-    visitor->visitUnitEnd(this);
+    if (visitor->visitUnitStart(this))
+    {
+	Container::visit(visitor);
+	visitor->visitUnitEnd(this);
+    }
 }
 
 BuiltinPtr

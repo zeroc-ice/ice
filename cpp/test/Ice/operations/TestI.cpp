@@ -104,6 +104,14 @@ MyDerivedClassI::opMyClass(const Test::MyClassPrx& p1,
     return Test::MyClassPrx::uncheckedCast(_adapter->objectToProxy(this));
 }
 
+Test::Struct
+MyDerivedClassI::opStruct(const Test::Struct& p1, const ::Test::Struct& p2, ::Test::Struct& p3)
+{
+    p3 = p1;
+    p3.s.s = "a new string";
+    return p2;
+}
+
 Test::ByteS
 MyDerivedClassI::opByteS(const Test::ByteS& p1,
 			 const Test::ByteS& p2,
@@ -386,13 +394,22 @@ MyDerivedClassI::opEx(Ice::Int p)
 
 	case 10:
 	{
+	    Test::Struct ex;
+	    ex.p = Test::MyClassPrx::uncheckedCast(_adapter->objectToProxy(this));
+	    ex.e = Test::enum2;
+	    ex.s.s = "xxx";
+	    throw ex;
+	}
+	
+	case 11:
+	{
 	    Test::ByteS ex;
 	    ex.push_back(Ice::Byte(0x0f));
 	    ex.push_back(Ice::Byte(0xf0));
 	    throw ex;
 	}
 	
-	case 11:
+	case 12:
 	{
 	    Test::BoolS ex;
 	    ex.push_back(true);
@@ -400,7 +417,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 	
-	case 12:
+	case 13:
 	{
 	    Test::ShortS ex;
 	    ex.push_back(1);
@@ -408,7 +425,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 	
-	case 13:
+	case 14:
 	{
 	    Test::IntS ex;
 	    ex.push_back(3);
@@ -416,7 +433,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 	
-	case 14:
+	case 15:
 	{
 	    Test::LongS ex;
 	    ex.push_back(5);
@@ -424,7 +441,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 	
-	case 15:
+	case 16:
 	{
 	    Test::FloatS ex;
 	    ex.push_back(Ice::Float(7.7));
@@ -432,7 +449,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 	
-	case 16:
+	case 17:
 	{
 	    Test::DoubleS ex;
 	    ex.push_back(Ice::Double(9.9));
@@ -440,7 +457,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 	
-	case 17:
+	case 18:
 	{
 	    Test::StringS ex;
 	    ex.push_back("abc");
@@ -448,7 +465,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 	
-	case 18:
+	case 19:
 	{
 	    Test::WStringS ex;
 	    ex.push_back(L"xxx");
@@ -456,7 +473,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 	
-	case 19:
+	case 20:
 	{
 	    Test::ByteS v1;
 	    Test::ByteS v2;
@@ -469,7 +486,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 	
-	case 20:
+	case 21:
 	{
 	    Test::BoolS v1;
 	    Test::BoolS v2;
@@ -482,7 +499,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 	
-	case 21:
+	case 22:
 	{
 	    Test::ShortS v1;
 	    Test::ShortS v2;
@@ -495,7 +512,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 	
-	case 22:
+	case 23:
 	{
 	    Test::IntS v1;
 	    Test::IntS v2;
@@ -508,7 +525,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 	
-	case 23:
+	case 24:
 	{
 	    Test::LongS v1;
 	    Test::LongS v2;
@@ -521,7 +538,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 	
-	case 24:
+	case 25:
 	{
 	    Test::FloatS v1;
 	    Test::FloatS v2;
@@ -534,7 +551,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 	
-	case 25:
+	case 26:
 	{
 	    Test::DoubleS v1;
 	    Test::DoubleS v2;
@@ -547,7 +564,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 	
-	case 26:
+	case 27:
 	{
 	    Test::StringS v1;
 	    Test::StringS v2;
@@ -560,7 +577,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 	
-	case 27:
+	case 28:
 	{
 	    Test::WStringS v1;
 	    Test::WStringS v2;
@@ -573,7 +590,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 	
-	case 28:
+	case 29:
 	{
 	    Test::ByteBoolD ex;
 	    ex[0] = true;
@@ -581,7 +598,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 
-	case 29:
+	case 30:
 	{
 	    Test::ShortIntD ex;
 	    ex[-10] = 10;
@@ -590,14 +607,14 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 
-	case 30:
+	case 31:
 	{
 	    Test::LongFloatD ex;
 	    ex[0x7fffffffffffffff] = Ice::Float(3.14);
 	    throw ex;
 	}
 
-	case 31:
+	case 32:
 	{
 	    Test::DoubleStringD ex;
 	    ex[-10.1E1] = "abc";
@@ -606,14 +623,14 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 
-	case 32:
+	case 33:
 	{
 	    Test::WStringMyEnumD ex;
 	    ex[L"Hello"] = Test::enum2;
 	    throw ex;
 	}
 
-	case 33:
+	case 34:
 	{
 	    Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(_adapter->objectToProxy(this));
 	    Test::MyClassStringD ex;
@@ -622,7 +639,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	    throw ex;
 	}
 
-	case 34:
+	case 35:
 	{
 	    Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(_adapter->objectToProxy(this));
 	    p->_throw();

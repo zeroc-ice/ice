@@ -287,6 +287,13 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	return;
     }
     
+    StructPtr st = StructPtr::dynamicCast(type);
+    if (st)
+    {
+	out << nl << param << ".__" << func << stream << ");";
+	return;
+    }
+    
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if (seq)
     {

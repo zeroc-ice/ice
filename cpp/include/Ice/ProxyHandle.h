@@ -18,8 +18,9 @@ namespace IceInternal
 {
 
 //
-// Like Handle<>, but specifically for proxies, with support for
-// checkedCast() and uncheckedCast().
+// Like IceInternal::Handle, but specifically for proxies, with
+// support for checkedCast() and uncheckedCast() instead of
+// dynamicCast().
 //
 template<typename T>
 class ProxyHandle

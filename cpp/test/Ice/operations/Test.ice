@@ -23,6 +23,18 @@ enum MyEnum
 
 class MyClass;
 
+struct AnotherStruct
+{
+    string s;
+};
+
+struct Struct
+{
+    MyClass* p;
+    MyEnum e;
+    AnotherStruct s;
+};
+
 sequence<byte> ByteS;
 sequence<bool> BoolS;
 sequence<short> ShortS;
@@ -81,6 +93,9 @@ class MyClass
     MyEnum opMyEnum(MyEnum p1; MyEnum p2);
 
     MyClass* opMyClass(MyClass* p1; MyClass* p2);
+
+    Struct opStruct(Struct p1, Struct p2;
+		    Struct p3);
 
     ByteS opByteS(ByteS p1, ByteS p2;
 		  ByteS p3);
@@ -147,6 +162,7 @@ class MyClass
 	double,
 	string,
 	wstring,
+	Struct,
 	ByteS,
 	BoolS,
 	ShortS,

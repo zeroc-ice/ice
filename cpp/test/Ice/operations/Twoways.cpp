@@ -142,6 +142,27 @@ twoways(Test::MyClassPrx p)
     }
 
     {
+	Test::Struct si1;
+	si1.p = p;
+	si1.e = Test::enum3;
+	si1.s.s = "abc";
+	Test::Struct si2;
+	si2.p = 0;
+	si2.e = Test::enum2;
+	si2.s.s = "def";
+	
+	Test::Struct so;
+	Test::Struct rso = p->opStruct(si1, si2, so);
+	test(rso.p == 0);
+	test(rso.e == Test::enum2);
+	test(rso.s.s == "def");
+	test(so.p == p);
+	test(so.e == Test::enum3);
+	test(so.s.s == "a new string");
+	so.p->opVoid();
+    }
+
+    {
 	Test::ByteS bsi1;
 	Test::ByteS bsi2;
 
@@ -155,24 +176,24 @@ twoways(Test::MyClassPrx p)
 	bsi2.push_back(Ice::Byte(0xf3));
 	bsi2.push_back(Ice::Byte(0xf4));
 
-	Test::ByteS bvo;
-	Test::ByteS rvo;
+	Test::ByteS bso;
+	Test::ByteS rso;
 
-	rvo = p->opByteS(bsi1, bsi2, bvo);
-	test(bvo.size() == 4);
-	test(bvo[0] == Ice::Byte(0x22));
-	test(bvo[1] == Ice::Byte(0x12));
-	test(bvo[2] == Ice::Byte(0x11));
-	test(bvo[3] == Ice::Byte(0x01));
-	test(rvo.size() == 8);
-	test(rvo[0] == Ice::Byte(0x01));
-	test(rvo[1] == Ice::Byte(0x11));
-	test(rvo[2] == Ice::Byte(0x12));
-	test(rvo[3] == Ice::Byte(0x22));
-	test(rvo[4] == Ice::Byte(0xf1));
-	test(rvo[5] == Ice::Byte(0xf2));
-	test(rvo[6] == Ice::Byte(0xf3));
-	test(rvo[7] == Ice::Byte(0xf4));
+	rso = p->opByteS(bsi1, bsi2, bso);
+	test(bso.size() == 4);
+	test(bso[0] == Ice::Byte(0x22));
+	test(bso[1] == Ice::Byte(0x12));
+	test(bso[2] == Ice::Byte(0x11));
+	test(bso[3] == Ice::Byte(0x01));
+	test(rso.size() == 8);
+	test(rso[0] == Ice::Byte(0x01));
+	test(rso[1] == Ice::Byte(0x11));
+	test(rso[2] == Ice::Byte(0x12));
+	test(rso[3] == Ice::Byte(0x22));
+	test(rso[4] == Ice::Byte(0xf1));
+	test(rso[5] == Ice::Byte(0xf2));
+	test(rso[6] == Ice::Byte(0xf3));
+	test(rso[7] == Ice::Byte(0xf4));
     }
 
     {
@@ -185,19 +206,19 @@ twoways(Test::MyClassPrx p)
 
 	bsi2.push_back(false);
 
-	Test::BoolS bvo;
-	Test::BoolS rvo;
+	Test::BoolS bso;
+	Test::BoolS rso;
 
-	rvo = p->opBoolS(bsi1, bsi2, bvo);
-	test(bvo.size() == 4);
-	test(bvo[0]);
-	test(bvo[1]);
-	test(!bvo[2]);
-	test(!bvo[3]);
-	test(rvo.size() == 3);
-	test(!rvo[0]);
-	test(rvo[1]);
-	test(rvo[2]);
+	rso = p->opBoolS(bsi1, bsi2, bso);
+	test(bso.size() == 4);
+	test(bso[0]);
+	test(bso[1]);
+	test(!bso[2]);
+	test(!bso[3]);
+	test(rso.size() == 3);
+	test(!rso[0]);
+	test(rso[1]);
+	test(rso[2]);
     }
 
     {
@@ -218,32 +239,32 @@ twoways(Test::MyClassPrx p)
 	lsi.push_back(30);
 	lsi.push_back(20);
 
-	Test::ShortS svo;
-	Test::IntS ivo;
-	Test::LongS lvo;
-	Test::LongS rvo;
+	Test::ShortS sso;
+	Test::IntS iso;
+	Test::LongS lso;
+	Test::LongS rso;
 
-	rvo = p->opShortIntLongS(ssi, isi, lsi, svo, ivo, lvo);
-	test(svo.size() == 3);
-	test(svo[0] == 1);
-	test(svo[1] == 2);
-	test(svo[2] == 3);
-	test(ivo.size() == 4);
-	test(ivo[0] == 8);
-	test(ivo[1] == 7);
-	test(ivo[2] == 6);
-	test(ivo[3] == 5);
-	test(lvo.size() == 6);
-	test(lvo[0] == 10);
-	test(lvo[1] == 30);
-	test(lvo[2] == 20);
-	test(lvo[3] == 10);
-	test(lvo[4] == 30);
-	test(lvo[5] == 20);
-	test(rvo.size() == 3);
-	test(rvo[0] == 10);
-	test(rvo[1] == 30);
-	test(rvo[2] == 20);
+	rso = p->opShortIntLongS(ssi, isi, lsi, sso, iso, lso);
+	test(sso.size() == 3);
+	test(sso[0] == 1);
+	test(sso[1] == 2);
+	test(sso[2] == 3);
+	test(iso.size() == 4);
+	test(iso[0] == 8);
+	test(iso[1] == 7);
+	test(iso[2] == 6);
+	test(iso[3] == 5);
+	test(lso.size() == 6);
+	test(lso[0] == 10);
+	test(lso[1] == 30);
+	test(lso[2] == 20);
+	test(lso[3] == 10);
+	test(lso[4] == 30);
+	test(lso[5] == 20);
+	test(rso.size() == 3);
+	test(rso[0] == 10);
+	test(rso[1] == 30);
+	test(rso[2] == 20);
     }
 
     {
@@ -257,24 +278,24 @@ twoways(Test::MyClassPrx p)
 	dsi.push_back(Ice::Double(1.2E10));
 	dsi.push_back(Ice::Double(1.3E10));
 
-	Test::FloatS fvo;
-	Test::DoubleS dvo;
-	Test::DoubleS rvo;
+	Test::FloatS fso;
+	Test::DoubleS dso;
+	Test::DoubleS rso;
 
-	rvo = p->opFloatDoubleS(fsi, dsi, fvo, dvo);
-	test(fvo.size() == 2);
-	test(fvo[0] == ::Ice::Float(3.14));
-	test(fvo[1] == ::Ice::Float(1.11));
-	test(dvo.size() == 3);
-	test(dvo[0] == ::Ice::Double(1.3E10));
-	test(dvo[1] == ::Ice::Double(1.2E10));
-	test(dvo[2] == ::Ice::Double(1.1E10));
-	test(rvo.size() == 5);
-	test(rvo[0] == ::Ice::Double(1.1E10));
-	test(rvo[1] == ::Ice::Double(1.2E10));
-	test(rvo[2] == ::Ice::Double(1.3E10));
-	test(::Ice::Float(rvo[3]) == ::Ice::Float(3.14));
-	test(::Ice::Float(rvo[4]) == ::Ice::Float(1.11));
+	rso = p->opFloatDoubleS(fsi, dsi, fso, dso);
+	test(fso.size() == 2);
+	test(fso[0] == ::Ice::Float(3.14));
+	test(fso[1] == ::Ice::Float(1.11));
+	test(dso.size() == 3);
+	test(dso[0] == ::Ice::Double(1.3E10));
+	test(dso[1] == ::Ice::Double(1.2E10));
+	test(dso[2] == ::Ice::Double(1.1E10));
+	test(rso.size() == 5);
+	test(rso[0] == ::Ice::Double(1.1E10));
+	test(rso[1] == ::Ice::Double(1.2E10));
+	test(rso[2] == ::Ice::Double(1.3E10));
+	test(::Ice::Float(rso[3]) == ::Ice::Float(3.14));
+	test(::Ice::Float(rso[4]) == ::Ice::Float(1.11));
     }
 
     {
@@ -287,19 +308,19 @@ twoways(Test::MyClassPrx p)
 
 	ssi2.push_back("xyz");
 
-	Test::StringS svo;
-	Test::StringS rvo;
+	Test::StringS sso;
+	Test::StringS rso;
 
-	rvo = p->opStringS(ssi1, ssi2, svo);
-	test(svo.size() == 4);
-	test(svo[0] == "abc");
-	test(svo[1] == "de");
-	test(svo[2] == "fghi");
-	test(svo[3] == "xyz");
-	test(rvo.size() == 3);
-	test(rvo[0] == "fghi");
-	test(rvo[1] == "de");
-	test(rvo[2] == "abc");
+	rso = p->opStringS(ssi1, ssi2, sso);
+	test(sso.size() == 4);
+	test(sso[0] == "abc");
+	test(sso[1] == "de");
+	test(sso[2] == "fghi");
+	test(sso[3] == "xyz");
+	test(rso.size() == 3);
+	test(rso[0] == "fghi");
+	test(rso[1] == "de");
+	test(rso[2] == "abc");
     }
 
     {
@@ -312,19 +333,19 @@ twoways(Test::MyClassPrx p)
 
 	ssi2.push_back(L"xyz");
 
-	Test::WStringS svo;
-	Test::WStringS rvo;
+	Test::WStringS sso;
+	Test::WStringS rso;
 
-	rvo = p->opWStringS(ssi1, ssi2, svo);
-	test(svo.size() == 4);
-	test(svo[0] == L"abc");
-	test(svo[1] == L"de");
-	test(svo[2] == L"fghi");
-	test(svo[3] == L"xyz");
-	test(rvo.size() == 3);
-	test(rvo[0] == L"fghi");
-	test(rvo[1] == L"de");
-	test(rvo[2] == L"abc");
+	rso = p->opWStringS(ssi1, ssi2, sso);
+	test(sso.size() == 4);
+	test(sso[0] == L"abc");
+	test(sso[1] == L"de");
+	test(sso[2] == L"fghi");
+	test(sso[3] == L"xyz");
+	test(rso.size() == 3);
+	test(rso[0] == L"fghi");
+	test(rso[1] == L"de");
+	test(rso[2] == L"abc");
     }
 
     {
@@ -342,29 +363,29 @@ twoways(Test::MyClassPrx p)
 	bsi2[1].push_back(Ice::Byte(0xf2));
 	bsi2[1].push_back(Ice::Byte(0xf1));
 
-	Test::ByteSS bvo;
-	Test::ByteSS rvo;
+	Test::ByteSS bso;
+	Test::ByteSS rso;
 
-	rvo = p->opByteSS(bsi1, bsi2, bvo);
-	test(bvo.size() == 2);
-	test(bvo[0].size() == 1);
-	test(bvo[0][0] == Ice::Byte(0xff));
-	test(bvo[1].size() == 3);
-	test(bvo[1][0] == Ice::Byte(0x01));
-	test(bvo[1][1] == Ice::Byte(0x11));
-	test(bvo[1][2] == Ice::Byte(0x12));
-	test(rvo.size() == 4);
-	test(rvo[0].size() == 3);
-	test(rvo[0][0] == Ice::Byte(0x01));
-	test(rvo[0][1] == Ice::Byte(0x11));
-	test(rvo[0][2] == Ice::Byte(0x12));
-	test(rvo[1].size() == 1);
-	test(rvo[1][0] == Ice::Byte(0xff));
-	test(rvo[2].size() == 1);
-	test(rvo[2][0] == Ice::Byte(0x0e));
-	test(rvo[3].size() == 2);
-	test(rvo[3][0] == Ice::Byte(0xf2));
-	test(rvo[3][1] == Ice::Byte(0xf1));
+	rso = p->opByteSS(bsi1, bsi2, bso);
+	test(bso.size() == 2);
+	test(bso[0].size() == 1);
+	test(bso[0][0] == Ice::Byte(0xff));
+	test(bso[1].size() == 3);
+	test(bso[1][0] == Ice::Byte(0x01));
+	test(bso[1][1] == Ice::Byte(0x11));
+	test(bso[1][2] == Ice::Byte(0x12));
+	test(rso.size() == 4);
+	test(rso[0].size() == 3);
+	test(rso[0][0] == Ice::Byte(0x01));
+	test(rso[0][1] == Ice::Byte(0x11));
+	test(rso[0][2] == Ice::Byte(0x12));
+	test(rso[1].size() == 1);
+	test(rso[1][0] == Ice::Byte(0xff));
+	test(rso[2].size() == 1);
+	test(rso[2][0] == Ice::Byte(0x0e));
+	test(rso[3].size() == 2);
+	test(rso[3][0] == Ice::Byte(0xf2));
+	test(rso[3][1] == Ice::Byte(0xf1));
     }
 
     {
@@ -380,31 +401,31 @@ twoways(Test::MyClassPrx p)
 	dsi[0].push_back(Ice::Double(1.2E10));
 	dsi[0].push_back(Ice::Double(1.3E10));
 
-	Test::FloatSS fvo;
-	Test::DoubleSS dvo;
-	Test::DoubleSS rvo;
+	Test::FloatSS fso;
+	Test::DoubleSS dso;
+	Test::DoubleSS rso;
 
-	rvo = p->opFloatDoubleSS(fsi, dsi, fvo, dvo);
-	test(fvo.size() == 3);
-	test(fvo[0].size() == 1);
-	test(fvo[0][0] == ::Ice::Float(3.14));
-	test(fvo[1].size() == 1);
-	test(fvo[1][0] == ::Ice::Float(1.11));
-	test(fvo[2].size() == 0);
-	test(dvo.size() == 1);
-	test(dvo[0].size() == 3);
-	test(dvo[0][0] == ::Ice::Double(1.1E10));
-	test(dvo[0][1] == ::Ice::Double(1.2E10));
-	test(dvo[0][2] == ::Ice::Double(1.3E10));
-	test(rvo.size() == 2);
-	test(rvo[0].size() == 3);
-	test(rvo[0][0] == ::Ice::Double(1.1E10));
-	test(rvo[0][1] == ::Ice::Double(1.2E10));
-	test(rvo[0][2] == ::Ice::Double(1.3E10));
-	test(rvo[1].size() == 3);
-	test(rvo[1][0] == ::Ice::Double(1.1E10));
-	test(rvo[1][1] == ::Ice::Double(1.2E10));
-	test(rvo[1][2] == ::Ice::Double(1.3E10));
+	rso = p->opFloatDoubleSS(fsi, dsi, fso, dso);
+	test(fso.size() == 3);
+	test(fso[0].size() == 1);
+	test(fso[0][0] == ::Ice::Float(3.14));
+	test(fso[1].size() == 1);
+	test(fso[1][0] == ::Ice::Float(1.11));
+	test(fso[2].size() == 0);
+	test(dso.size() == 1);
+	test(dso[0].size() == 3);
+	test(dso[0][0] == ::Ice::Double(1.1E10));
+	test(dso[0][1] == ::Ice::Double(1.2E10));
+	test(dso[0][2] == ::Ice::Double(1.3E10));
+	test(rso.size() == 2);
+	test(rso[0].size() == 3);
+	test(rso[0][0] == ::Ice::Double(1.1E10));
+	test(rso[0][1] == ::Ice::Double(1.2E10));
+	test(rso[0][2] == ::Ice::Double(1.3E10));
+	test(rso[1].size() == 3);
+	test(rso[1][0] == ::Ice::Double(1.1E10));
+	test(rso[1][1] == ::Ice::Double(1.2E10));
+	test(rso[1][2] == ::Ice::Double(1.3E10));
     }
 
     {
@@ -419,25 +440,25 @@ twoways(Test::MyClassPrx p)
 
 	ssi2[2].push_back("xyz");
 
-	Test::StringSS svo;
-	Test::StringSS rvo;
+	Test::StringSS sso;
+	Test::StringSS rso;
 
-	rvo = p->opStringSS(ssi1, ssi2, svo);
-	test(svo.size() == 5);
-	test(svo[0].size() == 1);
-	test(svo[0][0] == "abc");
-	test(svo[1].size() == 2);
-	test(svo[1][0] == "de");
-	test(svo[1][1] == "fghi");
-	test(svo[2].size() == 0);
-	test(svo[3].size() == 0);
-	test(svo[4].size() == 1);
-	test(svo[4][0] == "xyz");
-	test(rvo.size() == 3);
-	test(rvo[0].size() == 1);
-	test(rvo[0][0] == "xyz");
-	test(rvo[1].size() == 0);
-	test(rvo[2].size() == 0);
+	rso = p->opStringSS(ssi1, ssi2, sso);
+	test(sso.size() == 5);
+	test(sso[0].size() == 1);
+	test(sso[0][0] == "abc");
+	test(sso[1].size() == 2);
+	test(sso[1][0] == "de");
+	test(sso[1][1] == "fghi");
+	test(sso[2].size() == 0);
+	test(sso[3].size() == 0);
+	test(sso[4].size() == 1);
+	test(sso[4][0] == "xyz");
+	test(rso.size() == 3);
+	test(rso[0].size() == 1);
+	test(rso[0][0] == "xyz");
+	test(rso[1].size() == 0);
+	test(rso[2].size() == 0);
     }
 
     {
@@ -452,25 +473,25 @@ twoways(Test::MyClassPrx p)
 
 	ssi2[2].push_back(L"xyz");
 
-	Test::WStringSS svo;
-	Test::WStringSS rvo;
+	Test::WStringSS sso;
+	Test::WStringSS rso;
 
-	rvo = p->opWStringSS(ssi1, ssi2, svo);
-	test(svo.size() == 5);
-	test(svo[0].size() == 1);
-	test(svo[0][0] == L"abc");
-	test(svo[1].size() == 2);
-	test(svo[1][0] == L"de");
-	test(svo[1][1] == L"fghi");
-	test(svo[2].size() == 0);
-	test(svo[3].size() == 0);
-	test(svo[4].size() == 1);
-	test(svo[4][0] == L"xyz");
-	test(rvo.size() == 3);
-	test(rvo[0].size() == 1);
-	test(rvo[0][0] == L"xyz");
-	test(rvo[1].size() == 0);
-	test(rvo[2].size() == 0);
+	rso = p->opWStringSS(ssi1, ssi2, sso);
+	test(sso.size() == 5);
+	test(sso[0].size() == 1);
+	test(sso[0][0] == L"abc");
+	test(sso[1].size() == 2);
+	test(sso[1][0] == L"de");
+	test(sso[1][1] == L"fghi");
+	test(sso[2].size() == 0);
+	test(sso[3].size() == 0);
+	test(sso[4].size() == 1);
+	test(sso[4][0] == L"xyz");
+	test(rso.size() == 3);
+	test(rso[0].size() == 1);
+	test(rso[0][0] == L"xyz");
+	test(rso[1].size() == 0);
+	test(rso[2].size() == 0);
     }
 
     {

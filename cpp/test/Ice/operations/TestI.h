@@ -57,6 +57,9 @@ public:
     virtual Test::MyClassPrx opMyClass(const Test::MyClassPrx&,
 				       Test::MyClassPrx&);
 
+    virtual Test::Struct opStruct(const Test::Struct&, const Test::Struct&,
+				  Test::Struct&);
+
     virtual Test::ByteS opByteS(const Test::ByteS&,
 				const Test::ByteS&,
 				Test::ByteS&);

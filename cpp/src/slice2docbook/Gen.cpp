@@ -53,7 +53,7 @@ Slice::Gen::generate(const UnitPtr& unit)
     unit->visit(this);
 }
 
-void
+bool
 Slice::Gen::visitUnitStart(const UnitPtr& p)
 {
     if (_standAlone)
@@ -73,6 +73,8 @@ Slice::Gen::visitUnitStart(const UnitPtr& p)
 	start("section", "Overview");
 	visitContainer(p);
     }
+
+    return true;
 }
 
 void
@@ -84,7 +86,7 @@ Slice::Gen::visitUnitEnd(const UnitPtr& p)
     }
 }
 
-void
+bool
 Slice::Gen::visitModuleStart(const ModulePtr& p)
 {
     start(_chapter + " id=" + scopedToId(p->scoped()), p->scoped().substr(2));
@@ -94,6 +96,8 @@ Slice::Gen::visitModuleStart(const ModulePtr& p)
     O.restoreIndent();
     printComment(p);
     visitContainer(p);
+
+    return true;
 }
 
 void
@@ -372,7 +376,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     end();
 }
 
-void
+bool
 Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 {
     start(_chapter + " id=" + scopedToId(p->scoped()), p->scoped().substr(2));
@@ -566,9 +570,11 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     }
 	
     end();
+
+    return true;
 }
 
-void
+bool
 Slice::Gen::visitStructStart(const StructPtr& p)
 {
     start(_chapter + " id=" + scopedToId(p->scoped()), p->scoped().substr(2));
@@ -626,6 +632,8 @@ Slice::Gen::visitStructStart(const StructPtr& p)
     }
 	
     end();
+
+    return true;
 }
 
 void

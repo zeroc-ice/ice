@@ -29,12 +29,12 @@ public:
 
     void generate(const UnitPtr&);
 
-    virtual void visitUnitStart(const UnitPtr&);
+    virtual bool visitUnitStart(const UnitPtr&);
     virtual void visitUnitEnd(const UnitPtr&);
-    virtual void visitModuleStart(const ModulePtr&);
+    virtual bool visitModuleStart(const ModulePtr&);
     virtual void visitContainer(const ContainerPtr&);
-    virtual void visitClassDefStart(const ClassDefPtr&);
-    virtual void visitStructStart(const StructPtr&);
+    virtual bool visitClassDefStart(const ClassDefPtr&);
+    virtual bool visitStructStart(const StructPtr&);
 
 private:
 

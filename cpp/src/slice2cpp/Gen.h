@@ -51,12 +51,15 @@ private:
 
 	TypesVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitModuleStart(const ModulePtr&);
+	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
+	virtual bool visitStructStart(const StructPtr&);
+	virtual void visitStructEnd(const StructPtr&);
 	virtual void visitSequence(const SequencePtr&);
 	virtual void visitDictionary(const DictionaryPtr&);
 	virtual void visitEnum(const EnumPtr&);
 	virtual void visitNative(const NativePtr&);
+	virtual void visitDataMember(const DataMemberPtr&);
 
     private:
 
@@ -72,9 +75,9 @@ private:
 
 	ProxyDeclVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitUnitStart(const UnitPtr&);
+	virtual bool visitUnitStart(const UnitPtr&);
 	virtual void visitUnitEnd(const UnitPtr&);
-	virtual void visitModuleStart(const ModulePtr&);
+	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
 	virtual void visitClassDecl(const ClassDeclPtr&);
 
@@ -92,11 +95,11 @@ private:
 
 	ProxyVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitUnitStart(const UnitPtr&);
+	virtual bool visitUnitStart(const UnitPtr&);
 	virtual void visitUnitEnd(const UnitPtr&);
-	virtual void visitModuleStart(const ModulePtr&);
+	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
-	virtual void visitClassDefStart(const ClassDefPtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
 	virtual void visitClassDefEnd(const ClassDefPtr&);
 	virtual void visitOperation(const OperationPtr&);
 
@@ -114,11 +117,11 @@ private:
 
 	DelegateVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitUnitStart(const UnitPtr&);
+	virtual bool visitUnitStart(const UnitPtr&);
 	virtual void visitUnitEnd(const UnitPtr&);
-	virtual void visitModuleStart(const ModulePtr&);
+	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
-	virtual void visitClassDefStart(const ClassDefPtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
 	virtual void visitClassDefEnd(const ClassDefPtr&);
 	virtual void visitOperation(const OperationPtr&);
 
@@ -136,11 +139,11 @@ private:
 
 	DelegateMVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitUnitStart(const UnitPtr&);
+	virtual bool visitUnitStart(const UnitPtr&);
 	virtual void visitUnitEnd(const UnitPtr&);
-	virtual void visitModuleStart(const ModulePtr&);
+	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
-	virtual void visitClassDefStart(const ClassDefPtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
 	virtual void visitClassDefEnd(const ClassDefPtr&);
 	virtual void visitOperation(const OperationPtr&);
 
@@ -158,7 +161,7 @@ private:
 
 	ObjectDeclVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitModuleStart(const ModulePtr&);
+	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
 	virtual void visitClassDecl(const ClassDeclPtr&);
 
@@ -176,10 +179,11 @@ private:
 
 	ObjectVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitModuleStart(const ModulePtr&);
+	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
-	virtual void visitClassDefStart(const ClassDefPtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
 	virtual void visitClassDefEnd(const ClassDefPtr&);
+	virtual bool visitStructStart(const StructPtr&);
 	virtual void visitOperation(const OperationPtr&);
 	virtual void visitDataMember(const DataMemberPtr&);
 
@@ -197,10 +201,10 @@ private:
 
 	IceVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitUnitStart(const UnitPtr&);
+	virtual bool visitUnitStart(const UnitPtr&);
 	virtual void visitUnitEnd(const UnitPtr&);
 	virtual void visitClassDecl(const ClassDeclPtr&);
-	virtual void visitClassDefStart(const ClassDefPtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
 
     private:
 
@@ -216,10 +220,10 @@ private:
 
 	HandleVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitModuleStart(const ModulePtr&);
+	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
 	virtual void visitClassDecl(const ClassDeclPtr&);
-	virtual void visitClassDefStart(const ClassDefPtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
 
     private:
 

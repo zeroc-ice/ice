@@ -122,14 +122,14 @@ class SLICE_API ParserVisitor
 public:
 
     virtual ~ParserVisitor() { }
-    virtual void visitUnitStart(const UnitPtr&) { }
+    virtual bool visitUnitStart(const UnitPtr&) { return true; }
     virtual void visitUnitEnd(const UnitPtr&) { }
-    virtual void visitModuleStart(const ModulePtr&) { }
+    virtual bool visitModuleStart(const ModulePtr&) { return true; }
     virtual void visitModuleEnd(const ModulePtr&) { }
     virtual void visitClassDecl(const ClassDeclPtr&) { }
-    virtual void visitClassDefStart(const ClassDefPtr&) { }
+    virtual bool visitClassDefStart(const ClassDefPtr&) { return true; }
     virtual void visitClassDefEnd(const ClassDefPtr&) { }
-    virtual void visitStructStart(const StructPtr&) { }
+    virtual bool visitStructStart(const StructPtr&) { return true; }
     virtual void visitStructEnd(const StructPtr&) { }
     virtual void visitOperation(const OperationPtr&) { }
     virtual void visitDataMember(const DataMemberPtr&) { }

@@ -15,7 +15,7 @@
 #include <algorithm>
 
 //
-// "Handle" or "smart pointer" classes for classes derived from
+// "Handle" or "smart pointer" class for classes derived from
 // IceUtil::Shared or IceUtil::SimpleShared.
 //
 namespace IceUtil

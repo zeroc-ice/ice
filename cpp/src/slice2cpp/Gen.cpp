@@ -253,30 +253,78 @@ Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllEx
 {
 }
 
-void
+bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
     if (!p->hasOtherConstructedTypes())
     {
-	return;
+	return false;
     }
 
     string name = p->name();
     
     H << sp;
     H << nl << "namespace " << name << nl << '{';
+
+    return true;
 }
 
 void
 Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    if (!p->hasOtherConstructedTypes())
-    {
-	return;
-    }
-
     H << sp;
     H << nl << '}';
+}
+
+bool
+Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
+{
+    string name = p->name();
+
+    H << sp;
+    H << nl << "struct" << _dllExport << ' ' << name;
+    H << sb;
+
+    return true;
+}
+
+void
+Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
+{
+    string name = p->name();
+    string scoped = p->scoped();
+
+    H << sp;
+    H << nl << "void __write(::IceInternal::Stream*) const;"; // NOT virtual!
+    H << nl << "void __read(::IceInternal::Stream*);"; // NOT virtual!
+    H << eb << ';';
+    
+    TypeStringList memberList;
+    DataMemberList dataMembers = p->dataMembers();
+    DataMemberList::const_iterator q;
+    for (q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+	memberList.push_back(make_pair((*q)->type(), (*q)->name()));
+    }
+    C << sp;
+    C << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::Stream* __os) const";
+    C << sb;
+    writeMarshalCode(C, memberList, 0);
+    C << eb;
+    C << sp;
+    C << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::Stream* __is)";
+    C << sb;
+    writeUnmarshalCode(C, memberList, 0);
+    C << eb;
+}
+
+void
+Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
+{
+    string name = p->name();
+    string s = typeToString(p->type());
+    H << sp;
+    H << nl << s << ' ' << name << ';';
 }
 
 void
@@ -494,52 +542,46 @@ Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& h, Output& c, const strin
 {
 }
 
-void
+bool
 Slice::Gen::ProxyDeclVisitor::visitUnitStart(const UnitPtr& p)
 {
     if (!p->hasProxies())
     {
-	return;
+	return false;
     }
 
     H << sp;
     H << nl << "namespace IceProxy" << nl << '{';
+
+    return true;
 }
 
 void
 Slice::Gen::ProxyDeclVisitor::visitUnitEnd(const UnitPtr& p)
 {
-    if (!p->hasProxies())
-    {
-	return;
-    }
-
     H << sp;
     H << nl << '}';
 }
     
-void
+bool
 Slice::Gen::ProxyDeclVisitor::visitModuleStart(const ModulePtr& p)
 {
     if (!p->hasProxies())
     {
-	return;
+	return false;
     }
 
     string name = p->name();
     
     H << sp;
     H << nl << "namespace " << name << nl << '{';
+
+    return true;
 }
 
 void
 Slice::Gen::ProxyDeclVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    if (!p->hasProxies())
-    {
-	return;
-    }
-
     H << sp;
     H << nl << '}';
 }
@@ -563,62 +605,56 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllEx
 {
 }
 
-void
+bool
 Slice::Gen::ProxyVisitor::visitUnitStart(const UnitPtr& p)
 {
     if (!p->hasProxies())
     {
-	return;
+	return false;
     }
 
     H << sp;
     H << nl << "namespace IceProxy" << nl << '{';
+
+    return true;
 }
 
 void
 Slice::Gen::ProxyVisitor::visitUnitEnd(const UnitPtr& p)
 {
-    if (!p->hasProxies())
-    {
-	return;
-    }
-
     H << sp;
     H << nl << '}';
 }
     
-void
+bool
 Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
     if (!p->hasProxies())
     {
-	return;
+	return false;
     }
 
     string name = p->name();
     
     H << sp;
     H << nl << "namespace " << name << nl << '{';
+
+    return true;
 }
 
 void
 Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    if (!p->hasProxies())
-    {
-	return;
-    }
-
     H << sp;
     H << nl << '}';
 }
 
-void
+bool
 Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     if (p->isLocal())
     {
-	return;
+	return false;
     }
 
     string name = p->name();
@@ -657,16 +693,13 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << sb;
     C << nl << "throw " << scoped << "PrxE(this);";
     C << eb;
+
+    return true;
 }
 
 void
 Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
-    if (p->isLocal())
-    {
-	return;
-    }
-
     string scoped = p->scoped();
     
     H.dec();
@@ -687,13 +720,6 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
 void
 Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 {
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    if (cl->isLocal())
-    {
-	return;
-    }
-
     string name = p->name();
     string scoped = p->scoped();
     string scope = p->scope();
@@ -800,62 +826,56 @@ Slice::Gen::DelegateVisitor::DelegateVisitor(Output& h, Output& c, const string&
 {
 }
 
-void
+bool
 Slice::Gen::DelegateVisitor::visitUnitStart(const UnitPtr& p)
 {
     if (!p->hasProxies())
     {
-	return;
+	return false;
     }
 
     H << sp;
     H << nl << "namespace IceDelegate" << nl << '{';
+
+    return true;
 }
 
 void
 Slice::Gen::DelegateVisitor::visitUnitEnd(const UnitPtr& p)
 {
-    if (!p->hasProxies())
-    {
-	return;
-    }
-
     H << sp;
     H << nl << '}';
 }
     
-void
+bool
 Slice::Gen::DelegateVisitor::visitModuleStart(const ModulePtr& p)
 {
     if (!p->hasProxies())
     {
-	return;
+	return false;
     }
 
     string name = p->name();
     
     H << sp;
     H << nl << "namespace " << name << nl << '{';
+
+    return true;
 }
 
 void
 Slice::Gen::DelegateVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    if (!p->hasProxies())
-    {
-	return;
-    }
-
     H << sp;
     H << nl << '}';
 }
 
-void
+bool
 Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     if (p->isLocal())
     {
-	return;
+	return false;
     }
 
     string name = p->name();
@@ -885,29 +905,19 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
     H.dec();
     H << nl << "public: ";
     H.inc();
+
+    return true;
 }
 
 void
 Slice::Gen::DelegateVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
-    if (p->isLocal())
-    {
-	return;
-    }
-
     H << eb << ';';
 }
 
 void
 Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 {
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    if (cl->isLocal())
-    {
-	return;
-    }
-
     string name = p->name();
 
     TypePtr ret = p->returnType();
@@ -960,62 +970,56 @@ Slice::Gen::DelegateMVisitor::DelegateMVisitor(Output& h, Output& c, const strin
 {
 }
 
-void
+bool
 Slice::Gen::DelegateMVisitor::visitUnitStart(const UnitPtr& p)
 {
     if (!p->hasProxies())
     {
-	return;
+	return false;
     }
 
     H << sp;
     H << nl << "namespace IceDelegateM" << nl << '{';
+
+    return true;
 }
 
 void
 Slice::Gen::DelegateMVisitor::visitUnitEnd(const UnitPtr& p)
 {
-    if (!p->hasProxies())
-    {
-	return;
-    }
-
     H << sp;
     H << nl << '}';
 }
     
-void
+bool
 Slice::Gen::DelegateMVisitor::visitModuleStart(const ModulePtr& p)
 {
     if (!p->hasProxies())
     {
-	return;
+	return false;
     }
 
     string name = p->name();
     
     H << sp;
     H << nl << "namespace " << name << nl << '{';
+
+    return true;
 }
 
 void
 Slice::Gen::DelegateMVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    if (!p->hasProxies())
-    {
-	return;
-    }
-
     H << sp;
     H << nl << '}';
 }
 
-void
+bool
 Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     if (p->isLocal())
     {
-	return;
+	return false;
     }
 
     string name = p->name();
@@ -1047,29 +1051,19 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
     H.dec();
     H << nl << "public: ";
     H.inc();
+
+    return true;
 }
 
 void
 Slice::Gen::DelegateMVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
-    if (p->isLocal())
-    {
-	return;
-    }
-
     H << eb << ';';
 }
 
 void
 Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 {
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    if (cl->isLocal())
-    {
-	return;
-    }
-
     string name = p->name();
     string scoped = p->scoped();
     string scope = p->scope();
@@ -1188,28 +1182,25 @@ Slice::Gen::ObjectDeclVisitor::ObjectDeclVisitor(Output& h, Output& c, const str
 {
 }
 
-void
+bool
 Slice::Gen::ObjectDeclVisitor::visitModuleStart(const ModulePtr& p)
 {
     if (!p->hasClassDecls())
     {
-	return;
+	return false;
     }
 
     string name = p->name();
     
     H << sp;
     H << nl << "namespace " << name << nl << '{';
+
+    return true;
 }
 
 void
 Slice::Gen::ObjectDeclVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    if (!p->hasClassDecls())
-    {
-	return;
-    }
-
     H << sp;
     H << nl << '}';
 }
@@ -1228,33 +1219,30 @@ Slice::Gen::ObjectVisitor::ObjectVisitor(Output& h, Output& c, const string& dll
 {
 }
 
-void
+bool
 Slice::Gen::ObjectVisitor::visitModuleStart(const ModulePtr& p)
 {
     if (!p->hasClassDefs())
     {
-	return;
+	return false;
     }
 
     string name = p->name();
     
     H << sp;
     H << nl << "namespace " << name << nl << '{';
+
+    return true;
 }
 
 void
 Slice::Gen::ObjectVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    if (!p->hasClassDefs())
-    {
-	return;
-    }
-
     H << sp;
     H << nl << '}';
 }
 
-void
+bool
 Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     string name = p->name();
@@ -1505,6 +1493,8 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << "return __classIds;";
 	C << eb;
     }
+
+    return true;
 }
     
 void
@@ -1634,6 +1624,12 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	C << eb;
     }
     H << eb << ';';
+}
+
+bool
+Slice::Gen::ObjectVisitor::visitStructStart(const StructPtr&)
+{
+    return false;
 }
 
 void
@@ -1773,26 +1769,23 @@ Slice::Gen::IceVisitor::IceVisitor(Output& h, Output& c, const string& dllExport
 {
 }
 
-void
+bool
 Slice::Gen::IceVisitor::visitUnitStart(const UnitPtr& p)
 {
     if (!p->hasClassDecls())
     {
-	return;
+	return false;
     }
 
     H << sp;
     H << nl << "namespace IceInternal" << nl << '{';
+
+    return true;
 }
 
 void
 Slice::Gen::IceVisitor::visitUnitEnd(const UnitPtr& p)
 {
-    if (!p->hasClassDecls())
-    {
-	return;
-    }
-
     H << sp;
     H << nl << '}';
 }
@@ -1816,7 +1809,7 @@ Slice::Gen::IceVisitor::visitClassDecl(const ClassDeclPtr& p)
     }
 }
 
-void
+bool
 Slice::Gen::IceVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     string scoped = p->scoped();
@@ -1851,6 +1844,8 @@ Slice::Gen::IceVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << eb;
 	C << eb;
     }
+
+    return true;
 }
 
 Slice::Gen::HandleVisitor::HandleVisitor(Output& h, Output& c, const string& dllExport) :
@@ -1858,28 +1853,25 @@ Slice::Gen::HandleVisitor::HandleVisitor(Output& h, Output& c, const string& dll
 {
 }
 
-void
+bool
 Slice::Gen::HandleVisitor::visitModuleStart(const ModulePtr& p)
 {
     if (!p->hasClassDecls())
     {
-	return;
+	return false;
     }
 
     string name = p->name();
     
     H << sp;
     H << nl << "namespace " << name << nl << '{';
+
+    return true;
 }
 
 void
 Slice::Gen::HandleVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    if (!p->hasClassDecls())
-    {
-	return;
-    }
-
     H << sp;
     H << nl << '}';
 }
@@ -1901,12 +1893,12 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
     }
 }
 
-void
+bool
 Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     if (p->isLocal())
     {
-	return;
+	return false;
     }
 
     string scoped = p->scoped();
@@ -1936,4 +1928,6 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << nl << "proxy->__copyTo(v.get());";
     C << eb;
     C << eb;
+
+    return true;
 }
