@@ -60,7 +60,6 @@ Yellow::Parser::addOffer(const list<string>& args)
     string intf = args.front();
     string offer = args.back();
 
-    cout << "adding offer: " << intf << " " << offer << endl;
     _admin->add(intf, _communicator->stringToProxy(offer));
 }
 
