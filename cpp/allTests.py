@@ -36,9 +36,9 @@ for i in \
 
     try:
         execfile(os.path.normpath(dir + "/run.py"))
-    except SystemExit, (ex,):
-        if ex:
-            sys.exit(ex)
+    except SystemExit, (status,):
+        if status:
+            sys.exit(status)
 
 
 
