@@ -96,12 +96,25 @@ class DBEnvironmentI implements DBEnvironment
 	    return;
 	}
 
+	//
+	// Build a list of values from the iterator. The iterator
+	// cannot be used directly since closing each database
+	// modifies the content of the map (hence invalidating the
+	// iterator).
+	//
+	java.util.List dbs = new java.util.ArrayList();
         java.util.Iterator p = _dbMap.values().iterator();
         while (p.hasNext())
         {
+	    dbs.add(p.next());
+        }
+
+	p = dbs.iterator();
+	while (p.hasNext())
+	{
             DB db = (DB)p.next();
 	    db.close();
-        }
+	}
 	
 	if (_trace >= 1)
 	{

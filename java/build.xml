@@ -3,6 +3,9 @@
     <!-- install slice2java task -->
     <taskdef name="slice2java" classpath="ant" classname="Slice2JavaTask" />
 
+    <!-- install slice2freezej task -->
+    <taskdef name="slice2freezej" classpath="ant" classname="Slice2FreezeJTask" />
+
     <!-- set global properties for this build -->
     <property name="slice.dir" value="../ice/slice"/>
     <property name="src.dir" value="src"/>
@@ -51,6 +54,15 @@
                 <include name="Evictor.ice" />
             </fileset>
         </slice2java>
+        <slice2freezej tagdir="${tags.dir}" outputdir="${generated.dir}">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="${slice.dir}/Ice">
+                <include name="Identity.ice"/>
+            </fileset>
+            <dict name="Freeze.IdentityObjectDict" key="Ice::Identity" value="Object"/>
+        </slice2freezej>
     </target>
 
     <target name="compile" depends="generate">

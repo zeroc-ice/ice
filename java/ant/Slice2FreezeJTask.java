@@ -243,9 +243,11 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 	//
 	// Add the slice files.
 	//
-	for (int i = 0; i < files.length; i++)
+	p = sliceFiles.iterator();
+	while (p.hasNext())
 	{
-	    cmd.append(" " + files[i]);
+	    File f = (File)p.next();
+	    cmd.append(" " + f);
 	}
 	
 	//

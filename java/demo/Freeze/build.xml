@@ -1,0 +1,11 @@
+<project name="demo_Ice" default="all" basedir=".">
+
+    <target name="all">
+        <ant dir="phonebook"/>
+    </target>
+
+    <target name="clean">
+        <ant dir="phonebook" target="clean"/>
+    </target>
+
+</project>

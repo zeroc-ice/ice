@@ -72,7 +72,7 @@ class DBCursorI implements DBCursor
 	    throw ex;
 	}
 
-	com.sleepycat.db.Dbt dbKey = null; // TODO: new com.sleepycat.db.Dbt();
+	com.sleepycat.db.Dbt dbKey = null;
 	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt(v);
 	
 	if (_trace >= 1)

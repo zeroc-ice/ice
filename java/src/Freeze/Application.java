@@ -42,11 +42,13 @@ public abstract class Application extends Ice.Application
 	catch(Ice.LocalException ex)
 	{
 	    System.err.println(appName() + ": " + ex);
+	    ex.printStackTrace();
 	    status = 1;
 	}
 	catch(Exception ex)
 	{
 	    System.err.println(appName() + ": unknown exception");
+	    ex.printStackTrace();
 	    status = 1;
 	}
 	
@@ -59,11 +61,13 @@ public abstract class Application extends Ice.Application
 	    catch(DBException ex)
 	    {
 		System.err.println(appName() + ": " + ex + ": " + ex.message);
+		ex.printStackTrace();
 		status = 1;
 	    }
 	    catch(Exception ex)
 	    {
 		System.err.println(appName() + ": unknown exception");
+		ex.printStackTrace();
 		status = 1;
 	    }
 	    dbEnv = null;
