@@ -42,7 +42,7 @@ SDIR		= $(slicedir)/Glacier2
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DGLACIER2_API_EXPORTS
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DGLACIER2_API_EXPORTS $(OPENSSL_FLAGS)
 SLICE2CPPFLAGS	:= --checksum --include-dir Glacier2 --dll-export GLACIER2_API $(SLICE2CPPFLAGS)
 LINKWITH	:= -lIce -lIceUtil
 

@@ -993,7 +993,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
             _out.inc();
             _out << nl;
         }
-        for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        for(q = members.begin(); q != members.end(); ++q)
         {
             if(q != members.begin())
             {
@@ -1123,13 +1123,13 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     {
         _out << sp << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineEnum('" << scoped << "', " << name
              << ", (";
-        for(EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q)
+        for(EnumeratorList::iterator r = enums.begin(); r != enums.end(); ++r)
         {
-            if(q != enums.begin())
+            if(r != enums.begin())
             {
                 _out << ", ";
             }
-            string fixedEnum = fixIdent((*q)->name());
+            string fixedEnum = fixIdent((*r)->name());
             _out << name << '.' << fixedEnum;
         }
         if(enums.size() == 1)
@@ -1533,7 +1533,7 @@ changeInclude(const string& orig, const vector<string>& includePaths)
 }
 
 void
-Slice::Python::generate(const UnitPtr& unit, bool all, bool checksum, const vector<string>& includePaths, Output& out)
+Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, const vector<string>& includePaths, Output& out)
 {
     out << nl << "import Ice, IcePy, __builtin__";
 
@@ -1548,7 +1548,7 @@ Slice::Python::generate(const UnitPtr& unit, bool all, bool checksum, const vect
             }
         }
 
-        StringList includes = unit->includeFiles();
+        StringList includes = un->includeFiles();
         for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
         {
             string file = changeInclude(*q, paths);
@@ -1560,14 +1560,14 @@ Slice::Python::generate(const UnitPtr& unit, bool all, bool checksum, const vect
     set<string> moduleHistory;
 
     ModuleVisitor moduleVisitor(out, moduleHistory);
-    unit->visit(&moduleVisitor, true);
+    un->visit(&moduleVisitor, true);
 
     CodeVisitor codeVisitor(out, moduleHistory);
-    unit->visit(&codeVisitor, false);
+    un->visit(&codeVisitor, false);
 
     if(checksum)
     {
-        ChecksumMap checksums = createChecksums(unit);
+        ChecksumMap checksums = createChecksums(un);
         if(!checksums.empty())
         {
             out << sp;

@@ -75,7 +75,7 @@ Glacier2::SessionRouterI::destroy()
 	_destroy = true;
 	
 	for_each(_routers.begin(), _routers.end(),
-		 Ice::secondVoidMemFun<const ConnectionPtr, RouterI>(&RouterI::destroy));
+		 IceUtil::secondVoidMemFun<const ConnectionPtr, RouterI>(&RouterI::destroy));
 	_routers.clear();
 	_routersHint = _routers.end();
 	
@@ -131,15 +131,16 @@ Glacier2::SessionRouterI::getRouter(const ConnectionPtr& connection) const
 
     assert(!_destroy);
 
-    if(_routersHint != _routers.end() && _routersHint->first == connection)
+    map<ConnectionPtr, RouterIPtr>& routers = const_cast<map<ConnectionPtr, RouterIPtr>&>(_routers);
+
+    if(_routersHint != routers.end() && _routersHint->first == connection)
     {
 	return _routersHint->second;
     }
     
-    map<ConnectionPtr, RouterIPtr>::iterator p =
-	const_cast<map<ConnectionPtr, RouterIPtr>&>(_routers).find(connection);
+    map<ConnectionPtr, RouterIPtr>::iterator p = routers.find(connection);
 
-    if(p != _routers.end())
+    if(p != routers.end())
     {
 	_routersHint = p;
 	return p->second;
