@@ -21,6 +21,7 @@ struct ToIfdef
     SLICE_API char operator()(char);
 };
 
+SLICE_API std::string normalizePath(const std::string&);
 SLICE_API std::string changeInclude(const std::string&, const std::vector<std::string>&);
 SLICE_API void printHeader(::IceUtil::Output&);
 SLICE_API void printVersionCheck(::IceUtil::Output&);
