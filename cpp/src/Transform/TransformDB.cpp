@@ -355,14 +355,14 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         dbNameNew = argv[3];
     }
 
-    Slice::UnitPtr oldUnit = Slice::Unit::createUnit(true, false, ice, caseSensitive);
+    Slice::UnitPtr oldUnit = Slice::Unit::createUnit(true, true, ice, caseSensitive);
     Transform::Destroyer<Slice::UnitPtr> oldD(oldUnit);
     if(!parseSlice(argv[0], oldUnit, oldSlice, oldCppArgs, debug))
     {
         return EXIT_FAILURE;
     }
 
-    Slice::UnitPtr newUnit = Slice::Unit::createUnit(true, false, ice, caseSensitive);
+    Slice::UnitPtr newUnit = Slice::Unit::createUnit(true, true, ice, caseSensitive);
     Transform::Destroyer<Slice::UnitPtr> newD(newUnit);
     if(!parseSlice(argv[0], newUnit, newSlice, newCppArgs, debug))
     {
