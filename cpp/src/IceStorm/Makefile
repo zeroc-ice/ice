@@ -68,7 +68,7 @@ $(NAME): $(VERSIONED_NAME)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIceStorm -lFreeze -lIceXML -ldb $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIceStorm -lFreeze -ldb $(LIBS)
 
 $(ADMIN): $(AOBJS)
 	rm -f $@
