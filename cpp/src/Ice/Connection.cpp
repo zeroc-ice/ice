@@ -114,77 +114,77 @@ IceInternal::Connection::validate()
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
-    if(_endpoint->datagram())
+    if(!_endpoint->datagram()) // Datagram connections are always implicitly validated.
     {
-	//
-	// Datagram connections are always implicitly validated.
-	//
-	return;
+	try
+	{
+	    if(_adapter)
+	    {
+		//
+		// Incoming connections play the active role with respect to
+		// connection validation.
+		//
+		BasicStream os(_instance);
+		os.write(protocolVersion);
+		os.write(encodingVersion);
+		os.write(validateConnectionMsg);
+		os.write(headerSize); // Message size.
+		os.i = os.b.begin();
+		traceHeader("sending validate connection", os, _logger, _traceLevels);
+		_transceiver->write(os, _endpoint->timeout());
+	    }
+	    else
+	    {
+		//
+		// Outgoing connection play the passive role with respect to
+		// connection validation.
+		//
+		BasicStream is(_instance);
+		is.b.resize(headerSize);
+		is.i = is.b.begin();
+		_transceiver->read(is, _endpoint->timeout());
+		assert(is.i == is.b.end());
+		assert(is.i - is.b.begin() >= headerSize);
+		is.i = is.b.begin();
+		Byte protVer;
+		is.read(protVer);
+		if(protVer != protocolVersion)
+		{
+		    throw UnsupportedProtocolException(__FILE__, __LINE__);
+		}
+		Byte encVer;
+		is.read(encVer);
+		if(encVer != encodingVersion)
+		{
+		    throw UnsupportedEncodingException(__FILE__, __LINE__);
+		}
+		Byte messageType;
+		is.read(messageType);
+		if(messageType != validateConnectionMsg)
+		{
+		    throw ConnectionNotValidatedException(__FILE__, __LINE__);
+		}
+		Int size;
+		is.read(size);
+		if(size != headerSize)
+		{
+		    throw IllegalMessageSizeException(__FILE__, __LINE__);
+		}
+		traceHeader("received validate connection", is, _logger, _traceLevels);
+	    }
+	}
+	catch(const LocalException& ex)
+	{
+	    setState(StateClosed, ex);
+	    assert(_exception.get());
+	    _exception->ice_throw();
+	}
     }
 
-    try
-    {
-	if(_adapter)
-	{
-	    //
-	    // Incoming connections play the active role with respect to
-	    // connection validation.
-	    //
-	    BasicStream os(_instance);
-	    os.write(protocolVersion);
-	    os.write(encodingVersion);
-	    os.write(validateConnectionMsg);
-	    os.write(headerSize); // Message size.
-	    os.i = os.b.begin();
-	    traceHeader("sending validate connection", os, _logger, _traceLevels);
-	    _transceiver->write(os, _endpoint->timeout());
-	}
-	else
-	{
-	    //
-	    // Outgoing connection play the passive role with respect to
-	    // connection validation.
-	    //
-	    BasicStream is(_instance);
-	    is.b.resize(headerSize);
-	    is.i = is.b.begin();
-	    _transceiver->read(is, _endpoint->timeout());
-            assert(is.i == is.b.end());
-            assert(is.i - is.b.begin() >= headerSize);
-	    is.i = is.b.begin();
-	    Byte protVer;
-	    is.read(protVer);
-	    if(protVer != protocolVersion)
-	    {
-		throw UnsupportedProtocolException(__FILE__, __LINE__);
-	    }
-	    Byte encVer;
-	    is.read(encVer);
-	    if(encVer != encodingVersion)
-	    {
-		throw UnsupportedEncodingException(__FILE__, __LINE__);
-	    }
-	    Byte messageType;
-	    is.read(messageType);
-	    if(messageType != validateConnectionMsg)
-	    {
-		throw ConnectionNotValidatedException(__FILE__, __LINE__);
-	    }
-	    Int size;
-	    is.read(size);
-	    if(size != headerSize)
-	    {
-		throw IllegalMessageSizeException(__FILE__, __LINE__);
-	    }
-	    traceHeader("received validate connection", is, _logger, _traceLevels);
-	}
-    }
-    catch(const LocalException& ex)
-    {
-	setState(StateClosed, ex);
-	assert(_exception.get());
-	_exception->ice_throw();
-    }
+    //
+    // We only print warnings after successful connection validation.
+    //
+    _warn = _instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0;
 }
 
 void
@@ -1089,7 +1089,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _traceLevels(_instance->traceLevels()),
     _defaultsAndOverrides(_instance->defaultsAndOverrides()),
     _registeredWithPool(false),
-    _warn(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0),
+    _warn(false),
     _requestHdr(headerSize + 4, 0),
     _requestBatchHdr(headerSize + 4, 0),
     _replyHdr(headerSize + 4, 0),
@@ -1150,6 +1150,7 @@ IceInternal::Connection::setState(State state, const LocalException& ex)
 	    {
 		Warning out(_logger);
 		out << "connection exception:\n" << *_exception.get() << '\n' << _transceiver->toString();
+		out << '\n' << (int)_state << " -> " << (int)state;
 	    }
 	}
     }

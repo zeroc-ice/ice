@@ -98,72 +98,72 @@ public final class Connection extends EventHandler
     public synchronized void
     validate()
     {
-	if(_endpoint.datagram())
+	if(!_endpoint.datagram()) // Datagram connections are always implicitly validated.
 	{
-	    //
-	    // Datagram connections are always implicitly validated.
-	    //
-	    return;
+	    try
+	    {
+		if(_adapter != null)
+		{
+		    //
+		    // Incoming connections play the active role with
+		    // respect to connection validation.
+		    //
+		    BasicStream os = new BasicStream(_instance);
+		    os.writeByte(Protocol.protocolVersion);
+		    os.writeByte(Protocol.encodingVersion);
+		    os.writeByte(Protocol.validateConnectionMsg);
+		    os.writeInt(Protocol.headerSize); // Message size.
+		    TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
+		    _transceiver.write(os, _endpoint.timeout());
+		}
+		else
+		{
+		    //
+		    // Outgoing connection play the passive role with
+		    // respect to connection validation.
+		    //
+		    BasicStream is = new BasicStream(_instance);
+		    is.resize(Protocol.headerSize, true);
+		    is.pos(0);
+		    _transceiver.read(is, _endpoint.timeout());
+		    int pos = is.pos();
+		    assert(pos >= Protocol.headerSize);
+		    is.pos(0);
+		    byte protVer = is.readByte();
+		    if(protVer != Protocol.protocolVersion)
+		    {
+			throw new Ice.UnsupportedProtocolException();
+		    }
+		    byte encVer = is.readByte();
+		    if(encVer != Protocol.encodingVersion)
+		    {
+			throw new Ice.UnsupportedEncodingException();
+		    }
+		    byte messageType = is.readByte();
+		    if(messageType != Protocol.validateConnectionMsg)
+		    {
+			throw new Ice.ConnectionNotValidatedException();
+		    }
+		    int size = is.readInt();
+		    if(size != Protocol.headerSize)
+		    {
+			throw new Ice.IllegalMessageSizeException();
+		    }
+		    TraceUtil.traceHeader("received validate connection", is, _logger, _traceLevels);
+		}
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		setState(StateClosed, ex);
+		assert(_exception != null);
+		throw _exception;
+	    }
 	}
 	
-	try
-	{
-	    if(_adapter != null)
-	    {
-		//
-		// Incoming connections play the active role with
-		// respect to connection validation.
-		//
-		BasicStream os = new BasicStream(_instance);
-		os.writeByte(Protocol.protocolVersion);
-		os.writeByte(Protocol.encodingVersion);
-		os.writeByte(Protocol.validateConnectionMsg);
-		os.writeInt(Protocol.headerSize); // Message size.
-		TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
-		_transceiver.write(os, _endpoint.timeout());
-	    }
-	    else
-	    {
-		//
-		// Outgoing connection play the passive role with
-		// respect to connection validation.
-		//
-		BasicStream is = new BasicStream(_instance);
-		is.resize(Protocol.headerSize, true);
-		is.pos(0);
-		_transceiver.read(is, _endpoint.timeout());
-		int pos = is.pos();
-		assert(pos >= Protocol.headerSize);
-		is.pos(0);
-		byte protVer = is.readByte();
-		if(protVer != Protocol.protocolVersion)
-		{
-		    throw new Ice.UnsupportedProtocolException();
-		}
-		byte encVer = is.readByte();
-		if(encVer != Protocol.encodingVersion)
-		{
-		    throw new Ice.UnsupportedEncodingException();
-		}
-		byte messageType = is.readByte();
-		if(messageType != Protocol.validateConnectionMsg)
-		{
-		    throw new Ice.ConnectionNotValidatedException();
-		}
-		int size = is.readInt();
-		if(size != Protocol.headerSize)
-		{
-		    throw new Ice.IllegalMessageSizeException();
-		}
-		TraceUtil.traceHeader("received validate connection", is, _logger, _traceLevels);
-	    }
-	}
-	catch(Ice.LocalException ex)
-	{
-	    setState(StateClosed, ex);
-	    assert(_exception != null);
-	    throw _exception;
-	}
+	//
+	// We only print warnings after successful connection validation.
+	//
+	_warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
     }
 
     public synchronized void
@@ -760,7 +760,7 @@ public final class Connection extends EventHandler
         _logger = instance.logger();
         _traceLevels = instance.traceLevels();
 	_registeredWithPool = false;
-	_warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
+	_warn = false;
         _nextRequestId = 1;
         _batchStream = new BasicStream(instance);
 	_batchStreamInUse = false;
@@ -1076,7 +1076,7 @@ public final class Connection extends EventHandler
     private ThreadPool _serverThreadPool;
     private boolean _registeredWithPool;
 
-    private final boolean _warn;
+    private boolean _warn;
 
     private int _nextRequestId;
     private IntMap _requests = new IntMap();

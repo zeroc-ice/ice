@@ -154,9 +154,7 @@ class CallbackClient extends Ice.Application
             twoway.ice_ping();
             test(false);
         }
-        // If we use the glacier router, the exact exception reason gets
-        // lost.
-        catch(Ice.UnknownLocalException ex)
+        catch(Ice.LocalException ex)
         {
             System.out.println("ok");
         }

@@ -133,7 +133,7 @@ private:
     const ThreadPoolPtr _serverThreadPool;
     bool _registeredWithPool;
 
-    const bool _warn;
+    bool _warn;
 
     const std::vector< ::Ice::Byte> _requestHdr;
     const std::vector< ::Ice::Byte> _requestBatchHdr;
