@@ -841,7 +841,14 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	C << sb;
 	C << nl << "::Ice::Int sz;";
 	C << nl << "__is->readSize(sz);";
-	C << nl << "__is->startSeq(sz, " << type->minWireSize() << ");"; // Protect against bogus sequence sizes.
+	if(type->isVariableLength())
+	{
+	    C << nl << "__is->startSeq(sz, " << type->minWireSize() << ");"; // Protect against bogus sequence sizes.
+	}
+	else
+	{
+	    C << nl << "__is->checkFixedSeq(sz, " << type->minWireSize() << ");";
+	}
 	C << nl << "v.resize(sz);";
 	C << nl << "for(int i = 0; i < sz; ++i)";
 	C << sb;
@@ -861,7 +868,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	    if(!SequencePtr::dynamicCast(type))
 	    {
 		//
-		// No need to check for directly nested sequences because, at the at start of each
+		// No need to check for directly nested sequences because, at the start of each
 		// sequence, we check anyway.
 		//
 		C << nl << "__is->checkSeq();";
@@ -869,7 +876,10 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	    C << nl << "__is->endElement();";
 	}
 	C << eb;
-	C << nl << "__is->endSeq(sz);";
+	if(type->isVariableLength())
+	{
+	    C << nl << "__is->endSeq(sz);";
+	}
 	C << eb;
 
         if(_stream)

@@ -77,6 +77,7 @@ public:
 	--_seqDataStack->numElements;
     }
     void endSeq(int);
+    void checkFixedSeq(int, int); // For sequences of fixed-size types.
 
     void startWriteEncaps();
     void endWriteEncaps();
