@@ -18,7 +18,7 @@ namespace IceUtil
 {
 
 //
-// See java.util.CountDownLatch in Java 1.5
+// See java.util.concurrent.CountDownLatch in Java 1.5
 //
 
 class ICE_UTIL_API CountDownLatch
