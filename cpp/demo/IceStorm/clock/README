@@ -8,6 +8,8 @@ Start the IceStorm daemon:
 
 ../../bin/icestorm
 
+This currently assumes there is a directory called db in the cwd.
+
 In a seperate window:
 
 ../../../bin/icestormadmin -e "create time"
