@@ -1259,47 +1259,53 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         bool status = _proxy->ice_invoke(_op->name(), mode, os.b, is.b, ctx);
 
         //
-        // Reset the input stream's iterator.
+        // Process the reply.
         //
-        is.i = is.b.begin();
+        if(_proxy->ice_isTwoway())
+        {
+            //
+            // Reset the input stream's iterator.
+            //
+            is.i = is.b.begin();
 
-        if(status)
-        {
-            //
-            // Unmarshal the results.
-            //
-            // TODO: Check for oneway/datagram errors
-            //
-            for(i = _inParams.size(), p = _outParams.begin(); p != _outParams.end(); ++i, ++p)
+            if(status)
             {
                 //
-                // We must explicitly destroy the existing contents of all zvals passed
-                // as out parameters, otherwise leaks occur.
+                // Unmarshal the results.
                 //
-                zval_dtor(*args[i]);
-                if(!(*p)->unmarshal(*args[i], is TSRMLS_CC))
+                // TODO: Check for oneway/datagram errors
+                //
+                for(i = _inParams.size(), p = _outParams.begin(); p != _outParams.end(); ++i, ++p)
                 {
-                    return;
+                    //
+                    // We must explicitly destroy the existing contents of all zvals passed
+                    // as out parameters, otherwise leaks occur.
+                    //
+                    zval_dtor(*args[i]);
+                    if(!(*p)->unmarshal(*args[i], is TSRMLS_CC))
+                    {
+                        return;
+                    }
+                }
+                if(_result)
+                {
+                    if(!_result->unmarshal(return_value, is TSRMLS_CC))
+                    {
+                        return;
+                    }
+                }
+                if(_op->returnsClasses())
+                {
+                    is.readPendingObjects();
                 }
             }
-            if(_result)
+            else
             {
-                if(!_result->unmarshal(return_value, is TSRMLS_CC))
-                {
-                    return;
-                }
+                //
+                // Unmarshal and "throw" a user exception.
+                //
+                throwUserException(is TSRMLS_CC);
             }
-            if(_op->returnsClasses())
-            {
-                is.readPendingObjects();
-            }
-        }
-        else
-        {
-            //
-            // Unmarshal and "throw" a user exception.
-            //
-            throwUserException(is TSRMLS_CC);
         }
     }
     catch(const IceUtil::Exception& ex)
