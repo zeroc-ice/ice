@@ -121,7 +121,7 @@ IcePack::ServerRegistryI::getAll(const Ice::Current&) const
     Ice::StringSeq names;
     names.reserve(dict.size());
 
-    for(StringObjectProxyDict::const_iterator p = dict.begin(); p != dict.end(); ++p)
+    for(StringObjectProxyDict::iterator p = dict.begin(); p != dict.end(); ++p)
     {
 	names.push_back(p->first);
     }

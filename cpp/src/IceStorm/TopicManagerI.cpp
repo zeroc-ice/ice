@@ -38,7 +38,7 @@ TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice
     //
     // Recreate each of the topics in the persistent map
     //
-    for(PersistentTopicMap::const_iterator p = _topics.begin(); p != _topics.end(); ++p)
+    for(PersistentTopicMap::iterator p = _topics.begin(); p != _topics.end(); ++p)
     {
 	installTopic(p->first, p->second, false);
     }

@@ -30,7 +30,7 @@ IcePack::NodeRegistryI::NodeRegistryI(const Ice::CommunicatorPtr& communicator,
     _communicator(communicator),
     _dbName(dbName)
 {
-    for(StringObjectProxyDict::const_iterator p = _dictCache.begin(); p != _dictCache.end(); ++p)
+    for(StringObjectProxyDict::iterator p = _dictCache.begin(); p != _dictCache.end(); ++p)
     {
 	NodePrx node = NodePrx::uncheckedCast(p->second);
 	try
@@ -164,7 +164,7 @@ IcePack::NodeRegistryI::findByName(const string& name, const Ice::Current&)
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     StringObjectProxyDict dict(connection, _dbName); 
 
-    StringObjectProxyDict::const_iterator p = dict.find(name);
+    StringObjectProxyDict::iterator p = dict.find(name);
     if(p != dict.end())
     {
 	try
@@ -191,7 +191,7 @@ IcePack::NodeRegistryI::getAll(const Ice::Current&) const
     Ice::StringSeq names;
     names.reserve(dict.size());
 
-    for(StringObjectProxyDict::const_iterator p = dict.begin(); p != dict.end(); ++p)
+    for(StringObjectProxyDict::iterator p = dict.begin(); p != dict.end(); ++p)
     {
 	names.push_back(p->first);
     }

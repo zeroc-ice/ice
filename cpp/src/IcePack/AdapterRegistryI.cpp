@@ -120,7 +120,7 @@ IcePack::AdapterRegistryI::getAll(const Ice::Current&) const
     Ice::StringSeq ids;
     ids.reserve(dict.size());
 
-    for(StringObjectProxyDict::const_iterator p = dict.begin(); p != dict.end(); ++p)
+    for(StringObjectProxyDict::iterator p = dict.begin(); p != dict.end(); ++p)
     {
 	ids.push_back(p->first);
     }
