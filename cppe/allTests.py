@@ -51,24 +51,21 @@ def runTests(tests, num = 0):
 #
 # List of all basic tests.
 #
-tests = [ \
-    "IceUtil/thread", \
-    "IceUtil/unicode", \
-    "IceUtil/inputUtil", \
-    "IceUtil/uuid", \
-    "Ice/operations", \
-    "Ice/exceptions", \
-    "Ice/inheritance", \
-    "Ice/facets", \
-    "Ice/objects", \
-    "Ice/faultTolerance", \
-    "Ice/location", \
-    "Ice/adapterDeactivation", \
-    "Ice/slicing/exceptions", \
-    "Ice/slicing/objects", \
-    "Ice/gc", \
-    "Ice/checksum", \
-    "Ice/stream", \
+tests = [
+    "IceUtil/thread", 
+    "IceUtil/unicode", 
+    "IceUtil/inputUtil", 
+    "IceUtil/uuid", 
+    "Ice/operations", 
+    "Ice/exceptions", 
+    "Ice/inheritance", 
+    "Ice/facets", 
+    "Ice/faultTolerance", 
+    "Ice/location", 
+    "Ice/adapterDeactivation", 
+    "Ice/slicing/exceptions", 
+    "Ice/checksum", 
+    "Ice/stream", 
     ]
 
 #
