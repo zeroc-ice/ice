@@ -330,7 +330,13 @@ TestClass2Rec(const Ice::CommunicatorPtr& communicator)
     test(out->r->r);
     test(in->c == out->c && in->name == out->name);
     test(in->r->c == out->r->c && in->r->name == out->r->name);
-    test(in == in->r->r);
+    test(out == out->r->r);
+
+    //
+    // Clear recursive fields to avoid memory leak complains from Purify
+    //
+    in->r = 0;
+    out->r = 0;
 }
 
 class Class3I : public Test::Class3
@@ -411,7 +417,13 @@ TestClass3Rec(const Ice::CommunicatorPtr& communicator)
     test(out->r->r);
     test(in->c == out->c && in->name == out->name);
     test(in->r->c == out->r->c && in->r->name == out->r->name);
-    test(in == in->r->r);
+    test(out == out->r->r);
+
+    //
+    // Clear recursive fields to avoid memory leak complains from Purify
+    //
+    in->r = 0;
+    out->r = 0;
 }
 
 void
@@ -449,7 +461,7 @@ TestFacets(const Ice::CommunicatorPtr& communicator)
     test(out->r->r);
     test(in->c == out->c && in->name == out->name);
     test(in->r->c == out->r->c && in->r->name == out->r->name);
-    test(in == in->r->r);
+    test(out == out->r->r);
     Ice::ObjectPtr obj = out->ice_findFacet("red");
     test(obj);
     Test::Class1Ptr outFacet = Test::Class1Ptr::dynamicCast(obj);
@@ -458,6 +470,12 @@ TestFacets(const Ice::CommunicatorPtr& communicator)
 
     communicator->removeObjectFactory(Test::Class1::ice_staticId());
     communicator->removeObjectFactory(Test::Class2::ice_staticId());
+
+    //
+    // Clear recursive fields to avoid memory leak complains from Purify
+    //
+    in->r = 0;
+    out->r = 0;
 }
 
 void
