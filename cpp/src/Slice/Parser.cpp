@@ -204,7 +204,11 @@ Slice::Container::createModule(const string& name)
 	if(module)
 	    continue; // Reopening modules is permissible
 	
-	assert(false); // TODO: Already exists and not a module
+	string msg = "redefinition of `";
+	msg += name;
+	msg += "' as module";
+	yyerror(msg);
+	return 0;
     }
 
     Module_ptr q = new Module(this, name);
@@ -223,16 +227,42 @@ Slice::Container::createClassDef(const string& name, bool local, bool intf,
     {
 	ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(*p);
 	if(cl)
-	    continue; // TODO: Check whether local and interface matches
-
-	if(unit_ -> ignRedefs())
 	{
-	    ClassDef_ptr def = ClassDef_ptr::dynamicCast(*p);
-	    if(def)
-		return def;
+	    if(checkInterfaceAndLocal(name, false,
+				      intf, cl -> isInterface(),
+				      local, cl -> isLocal()))
+		continue;
+	    
+	    return 0;
 	}
 
-	assert(false); // TODO: Already exists and not a class declaration
+	ClassDef_ptr def = ClassDef_ptr::dynamicCast(*p);
+	if(def)
+	{
+	    if(unit_ -> ignRedefs())
+		return def;
+
+	    string msg = "redefinition of ";
+	    if(intf)
+		msg += "interface";
+	    else
+		msg += "class";
+	    msg += " `";
+	    msg += name;
+	    msg += "'";
+	    yyerror(msg);
+	    return 0;
+	}
+	
+	string msg = "redefinition of `";
+	msg += name;
+	msg += "' as ";
+	if(intf)
+	    msg += "interface";
+	else
+	    msg += "class";
+	yyerror(msg);
+	return 0;
     }
     
     ClassDef_ptr def = new ClassDef(this, name, local, intf, bases);
@@ -269,17 +299,38 @@ Slice::Container::createClassDecl(const string& name, bool local, bool intf)
 	ClassDef_ptr clDef = ClassDef_ptr::dynamicCast(*p);
 	if(clDef)
 	{
-	    assert(!def);
-	    def = clDef;
-	    continue; // TODO: Check whether local and interface matches
+	    if(checkInterfaceAndLocal(name, true,
+				      intf, clDef -> isInterface(),
+				      local, clDef -> isLocal()))
+	    {
+		assert(!def);
+		def = clDef;
+		continue;
+	    }
+
+	    return 0;
 	}
 	
 	ClassDecl_ptr clDecl = ClassDecl_ptr::dynamicCast(*p);
 	if(clDecl)
-	    continue; // TODO: Check whether local and interface matches
-
-	// TODO: Already defined as something other than a class
-	assert(false);
+	{
+	    if(checkInterfaceAndLocal(name, false,
+				      intf, clDecl -> isInterface(),
+				      local, clDecl -> isLocal()))
+		continue;
+	    
+	    return 0;
+	}
+	
+	string msg = "declaration of already defined `";
+	msg += name;
+	msg += "' as ";
+	if(intf)
+	    msg += "interface";
+	else
+	    msg += "class";
+	yyerror(msg);
+	return 0;
     }
 
     //
@@ -316,14 +367,24 @@ Slice::Container::createVector(const string& name, const Type_ptr& type)
     ContainedList matches = unit_ -> findContents(thisScope() + name);
     if(!matches.empty())
     {
-	if(unit_ -> ignRedefs())
+	Vector_ptr p = Vector_ptr::dynamicCast(matches.front());
+	if(p)
 	{
-	    Vector_ptr p = Vector_ptr::dynamicCast(matches.front());
-	    if(p)
+	    if(unit_ -> ignRedefs())
 		return p;
+
+	    string msg = "redefinition of vector `";
+	    msg += name;
+	    msg += "'";
+	    yyerror(msg);
+	    return 0;
 	}
 	
-	assert(false); // TODO: Already exits
+	string msg = "redefinition of `";
+	msg += name;
+	msg += "' as vector";
+	yyerror(msg);
+	return 0;
     }
 
     Vector_ptr p = new Vector(this, name, type);
@@ -337,14 +398,24 @@ Slice::Container::createEnum(const string& name, const StringList& enumerators)
     ContainedList matches = unit_ -> findContents(thisScope() + name);
     if(!matches.empty())
     {
-	if(unit_ -> ignRedefs())
+	Enum_ptr p = Enum_ptr::dynamicCast(matches.front());
+	if(p)
 	{
-	    Enum_ptr p = Enum_ptr::dynamicCast(matches.front());
-	    if(p)
+	    if(unit_ -> ignRedefs())
 		return p;
+
+	    string msg = "redefinition of enum `";
+	    msg += name;
+	    msg += "'";
+	    yyerror(msg);
+	    return 0;
 	}
 	
-	assert(false); // TODO: Already exits
+	string msg = "redefinition of `";
+	msg += name;
+	msg += "' as enum";
+	yyerror(msg);
+	return 0;
     }
 
     Enum_ptr p = new Enum(this, name, enumerators);
@@ -358,14 +429,24 @@ Slice::Container::createEnumerator(const std::string& name)
     ContainedList matches = unit_ -> findContents(thisScope() + name);
     if(!matches.empty())
     {
-	if(unit_ -> ignRedefs())
+	Enumerator_ptr p = Enumerator_ptr::dynamicCast(matches.front());
+	if(p)
 	{
-	    Enumerator_ptr p = Enumerator_ptr::dynamicCast(matches.front());
-	    if(p)
+	    if(unit_ -> ignRedefs())
 		return p;
+
+	    string msg = "redefinition of enumerator `";
+	    msg += name;
+	    msg += "'";
+	    yyerror(msg);
+	    return 0;
 	}
 	
-	assert(false); // TODO: Already exits
+	string msg = "redefinition of `";
+	msg += name;
+	msg += "' as enumerator";
+	yyerror(msg);
+	return 0;
     }
 
     Enumerator_ptr p = new Enumerator(this, name);
@@ -379,14 +460,24 @@ Slice::Container::createNative(const string& name)
     ContainedList matches = unit_ -> findContents(thisScope() + name);
     if(!matches.empty())
     {
-	if(unit_ -> ignRedefs())
+	Native_ptr p = Native_ptr::dynamicCast(matches.front());
+	if(p)
 	{
-	    Native_ptr p = Native_ptr::dynamicCast(matches.front());
-	    if(p)
+	    if(unit_ -> ignRedefs())
 		return p;
+
+	    string msg = "redefinition of native `";
+	    msg += name;
+	    msg += "'";
+	    yyerror(msg);
+	    return 0;
 	}
 	
-	assert(false); // TODO: Already exits
+	string msg = "redefinition of `";
+	msg += name;
+	msg += "' as native";
+	yyerror(msg);
+	return 0;
     }
 
     Native_ptr p = new Native(this, name);
@@ -407,7 +498,14 @@ Slice::Container::lookupType(const string& scoped)
     if(matches.empty())
     {
 	Contained_ptr contained = Contained_ptr::dynamicCast(this);
-	assert(contained); // TODO: Not found error
+	if(!contained)
+	{
+	    string msg = "`";
+	    msg += scoped;
+	    msg += "' is not defined";
+	    yyerror(msg);
+	    return TypeList();
+	}
 	return contained -> container() -> lookupType(scoped);
     }
     else
@@ -422,7 +520,14 @@ Slice::Container::lookupType(const string& scoped)
 		continue; // Ignore class definitions
 
 	    Type_ptr type = Type_ptr::dynamicCast(*p);
-	    assert(type); // TODO: Not a type error
+	    if(!type)
+	    {
+		string msg = "`";
+		msg += scoped;
+		msg += "' is not a type";
+		yyerror(msg);
+		return TypeList();
+	    }
 	    results.push_back(type);
 	}
 	return results;
@@ -598,6 +703,64 @@ Slice::Container::Container(const Unit_ptr& unit)
 	includeLevel_ = 0;
 }
 
+bool
+Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
+					 bool intf, bool intfOther,
+					 bool local, bool localOther)
+{
+    string definedOrDeclared;
+    if(defined)
+	definedOrDeclared = "defined";
+    else
+	definedOrDeclared = "declared";
+
+    if(!intf && intfOther)
+    {
+	string msg = "class `";
+	msg += name;
+	msg += "' was ";
+	msg += definedOrDeclared;
+	msg += " as interface";
+	yyerror(msg);
+	return false;
+    }
+    
+    if(intf && !intfOther)
+    {
+	string msg = "interface `";
+	msg += name;
+	msg += "' was ";
+	msg += definedOrDeclared;
+	msg += " as class";
+	yyerror(msg);
+	return false;
+    }
+    
+    if(!local && localOther)
+    {
+	string msg = "non-local `";
+	msg += name;
+	msg += "' was ";
+	msg += definedOrDeclared;
+	msg += " local";
+	yyerror(msg);
+	return false;
+    }
+    
+    if(local && !localOther)
+    {
+	string msg = "local `";
+	msg += name;
+	msg += "' was ";
+	msg += definedOrDeclared;
+	msg += " non-local";
+	yyerror(msg);
+	return false;
+    }
+    
+    return true;
+}
+
 // ----------------------------------------------------------------------
 // Module
 // ----------------------------------------------------------------------
@@ -707,14 +870,24 @@ Slice::ClassDef::createOperation(const string& name,
     ContainedList matches = unit_ -> findContents(thisScope() + name);
     if(!matches.empty())
     {
-	if(unit_ -> ignRedefs())
+	Operation_ptr p = Operation_ptr::dynamicCast(matches.front());
+	if(p)
 	{
-	    Operation_ptr p = Operation_ptr::dynamicCast(matches.front());
-	    if(p)
+	    if(unit_ -> ignRedefs())
 		return p;
+
+	    string msg = "redefinition of operation `";
+	    msg += name;
+	    msg += "'";
+	    yyerror(msg);
+	    return 0;
 	}
 	
-	assert(false); // TODO: Already exits
+	string msg = "redefinition of `";
+	msg += name;
+	msg += "' as operation";
+	yyerror(msg);
+	return 0;
     }
 
     Operation_ptr p = new Operation(this, name, returnType,
@@ -731,14 +904,24 @@ Slice::ClassDef::createDataMember(const string& name, const Type_ptr& type)
     ContainedList matches = unit_ -> findContents(thisScope() + name);
     if(!matches.empty())
     {
-	if(unit_ -> ignRedefs())
+	DataMember_ptr p = DataMember_ptr::dynamicCast(matches.front());
+	if(p)
 	{
-	    DataMember_ptr p = DataMember_ptr::dynamicCast(matches.front());
-	    if(p)
+	    if(unit_ -> ignRedefs())
 		return p;
-	}
 
-	assert(false); // TODO: Already exits
+	    string msg = "redefinition of data member `";
+	    msg += name;
+	    msg += "'";
+	    yyerror(msg);
+	    return 0;
+	}
+	
+	string msg = "redefinition of `";
+	msg += name;
+	msg += "' as data member";
+	yyerror(msg);
+	return 0;
     }
 
     DataMember_ptr p = new DataMember(this, name, type);
@@ -1317,6 +1500,8 @@ Slice::Unit::parse(FILE* file, bool debug)
     extern FILE* yyin;
     yyin = file;
     int status = yyparse();
+    if(yynerrs)
+	status = EXIT_FAILURE;
 
     assert(containerStack_.size() == 1);
     popContainer();

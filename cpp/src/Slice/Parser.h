@@ -22,6 +22,7 @@ extern int yynerrs;
 int yyparse();
 int yylex();
 void yyerror(const char* s);
+void yyerror(const std::string& s);
 
 namespace Slice
 {
@@ -296,6 +297,9 @@ public:
 protected:
 
     Container(const Unit_ptr&);
+
+    bool checkInterfaceAndLocal(const std::string&, bool,
+				bool, bool, bool, bool);
 
     int includeLevel_;
     ContainedList contents_;

@@ -128,6 +128,8 @@ main(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
+    int status = EXIT_SUCCESS;
+
     for(idx = 1 ; idx < argc ; ++idx)
     {
 	string base(argv[idx]);
@@ -169,7 +171,7 @@ main(int argc, char* argv[])
 	}
 	
 	Unit_ptr unit = Unit::createUnit(false, false);
-	int status = unit -> parse(cppHandle, debug);
+	int parseStatus = unit -> parse(cppHandle, debug);
 	
 #ifdef WIN32
 	_pclose(cppHandle);
@@ -177,16 +179,20 @@ main(int argc, char* argv[])
 	pclose(cppHandle);
 #endif
 	
-	if(status == EXIT_FAILURE)
-	    return status;
-
-	Gen gen(argv[0], base, include, includePaths, dllExport);
-	if(!gen)
-	    return EXIT_FAILURE;
-	gen.generate(unit);
+	if(parseStatus == EXIT_FAILURE)
+	{
+	    status = EXIT_FAILURE;
+	}
+	else
+	{
+	    Gen gen(argv[0], base, include, includePaths, dllExport);
+	    if(!gen)
+		status = EXIT_FAILURE;
+	    gen.generate(unit);
+	}
 
 	unit -> destroy();
     }
 
-    return EXIT_SUCCESS;
+    return status;
 }

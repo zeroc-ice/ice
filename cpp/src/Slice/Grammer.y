@@ -21,6 +21,12 @@ yyerror(const char* s)
     unit -> error(s);
 }
 
+void
+yyerror(const string& s)
+{
+    unit -> error(s.c_str());
+}
+
 %}
 
 %token ICE_SCOPE_DELIMITOR
@@ -170,6 +176,8 @@ module_def
     StringTok_ptr ident = StringTok_ptr::dynamicCast($2);
     Container_ptr cont = unit -> currentContainer();
     Module_ptr module = cont -> createModule(ident -> v);
+    if(!module)
+	YYERROR; // Can't continue, jump to next yyerrok
     unit -> pushContainer(module);
 }
 '{' definitions '}'
@@ -225,6 +233,8 @@ class_def
 					     local -> v,
 					     false,
 					     bases -> v);
+    if(!cl)
+	YYERROR; // Can't continue, jump to next yyerrok
     unit -> pushContainer(cl);
 }
 '{' class_exports '}'
@@ -241,30 +251,31 @@ class_extends
     StringTok_ptr scoped = StringTok_ptr::dynamicCast($2);
     Container_ptr cont = unit -> currentContainer();
     list<Type_ptr> types = cont -> lookupType(scoped -> v);
-    assert(!types.empty()); // TODO
-    ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(types.front());
-    if(!cl)
+    $$ = 0;
+    if(!types.empty())
     {
-	string msg = "`";
-	msg += scoped -> v;
-	msg += "' is not a class";
-	yyerror(msg.c_str());
-	$$ = 0;
-    }
-    else
-    {
-	ClassDef_ptr def = cl -> definition();
-	if(!def)
+	ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(types.front());
+	if(!cl)
 	{
 	    string msg = "`";
 	    msg += scoped -> v;
-	    msg += "' has been declared but not defined";
-	    yyerror(msg.c_str());
-	    $$ = 0;
+	    msg += "' is not a class";
+	    yyerror(msg);
 	}
 	else
 	{
-	    $$ = def;
+	    ClassDef_ptr def = cl -> definition();
+	    if(!def)
+	    {
+		string msg = "`";
+		msg += scoped -> v;
+		msg += "' has been declared but not defined";
+		yyerror(msg);
+	    }
+	    else
+	    {
+		$$ = def;
+	    }
 	}
     }
 }
@@ -314,6 +325,8 @@ interface_def
 					     local -> v,
 					     true,
 					     bases -> v);
+    if(!cl)
+	YYERROR; // Can't continue, jump to next yyerrok
     unit -> pushContainer(cl);
 }
 '{' interface_exports '}'
@@ -332,28 +345,30 @@ interface_list
     StringTok_ptr scoped = StringTok_ptr::dynamicCast($1);
     Container_ptr cont = unit -> currentContainer();
     list<Type_ptr> types = cont -> lookupType(scoped -> v);
-    assert(!types.empty()); // TODO
-    ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(types.front());
-    if(!cl || !cl -> isInterface())
+    if(!types.empty())
     {
-	string msg = "`";
-	msg += scoped -> v;
-	msg += "' is not an interface";
-	yyerror(msg.c_str());
-    }
-    else
-    {
-	ClassDef_ptr def = cl -> definition();
-	if(!def)
+	ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(types.front());
+	if(!cl || !cl -> isInterface())
 	{
 	    string msg = "`";
 	    msg += scoped -> v;
-	    msg += "' has been declared but not defined";
-	    yyerror(msg.c_str());
+	    msg += "' is not an interface";
+	    yyerror(msg);
 	}
 	else
 	{
-	    intfs -> v.push_front(def);
+	    ClassDef_ptr def = cl -> definition();
+	    if(!def)
+	    {
+		string msg = "`";
+		msg += scoped -> v;
+		msg += "' has been declared but not defined";
+		yyerror(msg);
+	    }
+	    else
+	    {
+		intfs -> v.push_front(def);
+	    }
 	}
     }
 }
@@ -364,28 +379,30 @@ interface_list
     StringTok_ptr scoped = StringTok_ptr::dynamicCast($1);
     Container_ptr cont = unit -> currentContainer();
     list<Type_ptr> types = cont -> lookupType(scoped -> v);
-    assert(!types.empty()); // TODO
-    ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(types.front());
-    if(!cl || !cl -> isInterface())
+    if(!types.empty())
     {
-	string msg = "`";
-	msg += scoped -> v;
-	msg += "' is not an interface";
-	yyerror(msg.c_str());
-    }
-    else
-    {
-	ClassDef_ptr def = cl -> definition();
-	if(!def)
+	ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(types.front());
+	if(!cl || !cl -> isInterface())
 	{
 	    string msg = "`";
 	    msg += scoped -> v;
-	    msg += "' has been declared but not defined";
-	    yyerror(msg.c_str());
+	    msg += "' is not an interface";
+	    yyerror(msg);
 	}
 	else
 	{
-	    intfs -> v.push_front(def);
+	    ClassDef_ptr def = cl -> definition();
+	    if(!def)
+	    {
+		string msg = "`";
+		msg += scoped -> v;
+		msg += "' has been declared but not defined";
+		yyerror(msg);
+	    }
+	    else
+	    {
+		intfs -> v.push_front(def);
+	    }
 	}
     }
 }
@@ -554,7 +571,14 @@ type
 	++p)
     {
 	ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(*p);
-	assert(cl); // TODO: Only classes can be passed as proxy
+	if(!cl)
+	{
+	    string msg = "`";
+	    msg += scoped -> v;
+	    msg += "' must be class or interface";
+	    yyerror(msg);
+	    YYERROR; // Can't continue, jump to next yyerrok
+	}
 	*p = new Proxy(cl);
     }
     $$ = types.front();
@@ -634,20 +658,22 @@ identifier_list
 : ICE_IDENTIFIER ',' identifier_list
 {
     StringTok_ptr ident = StringTok_ptr::dynamicCast($1);
+    StringListTok_ptr ens = StringListTok_ptr::dynamicCast($3);
+    $$ = ens;
     Container_ptr cont = unit -> currentContainer();
     Enumerator_ptr en = cont -> createEnumerator(ident -> v);
-    StringListTok_ptr ens = StringListTok_ptr::dynamicCast($3);
-    ens -> v.push_front(ident -> v);
-    $$ = ens;
+    if(en)
+	ens -> v.push_front(ident -> v);
 }
 | ICE_IDENTIFIER
 {
     StringTok_ptr ident = StringTok_ptr::dynamicCast($1);
+    StringListTok_ptr ens = new StringListTok;
+    $$ = ens;
     Container_ptr cont = unit -> currentContainer();
     Enumerator_ptr en = cont -> createEnumerator(ident -> v);
-    StringListTok_ptr ens = new StringListTok;
-    ens -> v.push_front(ident -> v);
-    $$ = ens;
+    if(en)
+	ens -> v.push_front(ident -> v);
 }
 ;
 
