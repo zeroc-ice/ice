@@ -23,17 +23,17 @@ namespace IceUtil
 {
 
 template <typename T>
-class RLock
+class RLockT
 {
 public:
 
-    RLock(const T& mutex) :
+    RLockT(const T& mutex) :
 	_mutex(mutex)
     {
 	_mutex.readlock();
     }
 
-    ~RLock()
+    ~RLockT()
     {
 	_mutex.unlock();
     }
@@ -56,23 +56,23 @@ private:
 };
 
 template <typename T>
-class TryRLock
+class TryRLockT
 {
 public:
 
-    TryRLock(const T& mutex) :
+    TryRLockT(const T& mutex) :
 	_mutex(mutex)
     {
 	_mutex.tryReadlock();
     }
 
-    TryRLock(const T& mutex, const Time& timeout) :
+    TryRLockT(const T& mutex, const Time& timeout) :
 	_mutex(mutex)
     {
 	_mutex.timedTryReadlock(timeout);
     }
 
-    ~TryRLock()
+    ~TryRLockT()
     {
 	_mutex.unlock();
     }
@@ -95,17 +95,17 @@ private:
 };
 
 template <typename T>
-class WLock
+class WLockT
 {
 public:
 
-    WLock(const T& mutex) :
+    WLockT(const T& mutex) :
 	_mutex(mutex)
     {
 	_mutex.writelock();
     }
 
-    ~WLock()
+    ~WLockT()
     {
 	_mutex.unlock();
     }
@@ -116,23 +116,23 @@ private:
 };
 
 template <typename T>
-class TryWLock
+class TryWLockT
 {
 public:
 
-    TryWLock(const T& mutex) :
+    TryWLockT(const T& mutex) :
 	_mutex(mutex)
     {
 	_mutex.tryWritelock();
     }
 
-    TryWLock(const T& mutex, const Time& timeout) :
+    TryWLockT(const T& mutex, const Time& timeout) :
 	_mutex(mutex)
     {
 	_mutex.timedTryWritelock(timeout);
     }
 
-    ~TryWLock()
+    ~TryWLockT()
     {
 	_mutex.unlock();
     }
@@ -159,10 +159,10 @@ public:
     //
     // RLock (reader) & WLock (writer) typedefs.
     //
-    typedef RLock<RWRecMutex> RLock;
-    typedef TryRLock<RWRecMutex> TryRLock;
-    typedef WLock<RWRecMutex> WLock;
-    typedef TryWLock<RWRecMutex> TryWLock;
+    typedef RLockT<RWRecMutex> RLock;
+    typedef TryRLockT<RWRecMutex> TryRLock;
+    typedef WLockT<RWRecMutex> WLock;
+    typedef TryWLockT<RWRecMutex> TryWLock;
 
     RWRecMutex();
     ~RWRecMutex();

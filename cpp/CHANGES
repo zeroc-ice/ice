@@ -1,6 +1,8 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Build system and IceUtil improvements for Sun port.
+
 - Added support for GCC 2.95.3.
 
 - Several incompatible IceStorm changes:

@@ -75,7 +75,7 @@ inline int getSystemErrno() { return GetLastError(); }
 inline int getSocketErrno() { return WSAGetLastError(); }
 inline int getDNSErrno() { return WSAGetLastError(); }
 
-#elif (defined(__linux__) || defined(__FreeBSD__)) && defined(i386)
+#elif (defined(__linux__) || defined(__FreeBSD__)) && defined(i386) || defined (__sun)
 
 #   include <sys/types.h>
 #   include <unistd.h>
@@ -89,7 +89,13 @@ namespace Ice
 typedef char Byte;
 typedef short Short;
 typedef int Int;
+
+#ifdef __sparcv9
+typedef long Long
+#else
 typedef long long Long;
+#endif
+
 typedef float Float;
 typedef double Double;
 

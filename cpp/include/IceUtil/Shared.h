@@ -20,7 +20,7 @@
 //
 // The inline assembler causes problems with shared libraries.
 //
-#if defined(__ICC) && !defined(_WIN32)
+#if (defined(__ICC) && !defined(_WIN32)) || defined (__sun)
 #   define ICE_USE_MUTEX_SHARED
 #endif
 

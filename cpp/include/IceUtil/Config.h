@@ -76,6 +76,12 @@
 #   define __STDC_LIMIT_MACROS
 #   include <stdint.h>
 
+#elif defined(__sun) && defined(__sparc)
+
+#   define ICE_UTIL_API /**/
+#   define SIZEOF_WCHAR_T 4
+#   include <inttypes.h>
+
 #else
 
 #   error "unsupported operating system or platform"

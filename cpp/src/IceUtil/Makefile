@@ -35,9 +35,12 @@ SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
+CPPFLAGS	:= $(CPPFLAGS) $(E2FSPROGS_FLAGS)
+LINKWITH        := $(STLPORT_LIBS) $(E2FSPROGS_LIBS)
+
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
-	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS)
+	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(LINKWITH)
 
 install:: all
 	$(INSTALL_LIBRARY) $(VERSIONED_NAME) $(install_libdir)
