@@ -15,7 +15,9 @@
 #include <Util.h>
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
+#include <Ice/Locator.h>
 #include <Ice/ObjectAdapter.h>
+#include <Ice/Router.h>
 #include <Ice/ServantLocator.h>
 
 using namespace std;
@@ -124,6 +126,10 @@ IcePy::ServantWrapper::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice:
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
+    //
+    // Locate the Operation object. As an optimization we keep a reference
+    // to the most recent operation we've dispatched, so check that first.
+    //
     OperationPtr op;
     if(_lastOp != _operationMap.end() && _lastOp->first == current.operation)
     {
@@ -131,11 +137,19 @@ IcePy::ServantWrapper::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice:
     }
     else
     {
+        //
+        // Next check our cache of operations.
+        //
         _lastOp = _operationMap.find(current.operation);
         if(_lastOp == _operationMap.end())
         {
-            op = getOperation(_id, current.operation);
-            if(!op)
+            //
+            // Look for the Operation object in the servant's type.
+            //
+            string attrName = "_op_" + current.operation;
+            PyObjectHandle h = PyObject_GetAttrString((PyObject*)_servant->ob_type,
+                                                      const_cast<char*>(attrName.c_str()));
+            if(h.get() == NULL)
             {
                 Ice::OperationNotExistException ex(__FILE__, __LINE__);
                 ex.id = current.id;
@@ -144,6 +158,7 @@ IcePy::ServantWrapper::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice:
                 throw ex;
             }
 
+            op = getOperation(h.get());
             _lastOp = _operationMap.insert(OperationMap::value_type(current.operation, op)).first;
         }
         else
@@ -239,8 +254,7 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, Ice::LocalObje
 }
 
 void
-IcePy::ServantLocatorWrapper::finished(const Ice::Current& current, const Ice::ObjectPtr& servant,
-                                       const Ice::LocalObjectPtr& cookie)
+IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr& cookie)
 {
     CookiePtr c = CookiePtr::dynamicCast(cookie);
     assert(c);
@@ -336,7 +350,18 @@ static PyObject*
 adapterGetCommunicator(ObjectAdapterObject* self)
 {
     assert(self->adapter);
-    return createCommunicator((*self->adapter)->getCommunicator());
+    Ice::CommunicatorPtr communicator;
+    try
+    {
+        communicator = (*self->adapter)->getCommunicator();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    return createCommunicator(communicator);
 }
 
 #ifdef WIN32
@@ -1042,8 +1067,65 @@ adapterCreateReverseProxy(ObjectAdapterObject* self, PyObject* args)
     return createProxy(proxy, (*self->adapter)->getCommunicator());
 }
 
-// TODO: addRouter
-// TODO: setLocator
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+adapterAddRouter(ObjectAdapterObject* self, PyObject* args)
+{
+    PyObject* proxyType = lookupType("Ice.RouterPrx");
+    PyObject* proxy;
+    if(!PyArg_ParseTuple(args, "O!", proxyType, &proxy))
+    {
+        return NULL;
+    }
+
+    Ice::RouterPrx router = Ice::RouterPrx::uncheckedCast(getProxy(proxy));
+
+    assert(self->adapter);
+    try
+    {
+        (*self->adapter)->addRouter(router);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+adapterSetLocator(ObjectAdapterObject* self, PyObject* args)
+{
+    PyObject* proxyType = lookupType("Ice.LocatorPrx");
+    PyObject* proxy;
+    if(!PyArg_ParseTuple(args, "O!", proxyType, &proxy))
+    {
+        return NULL;
+    }
+
+    Ice::LocatorPrx locator = Ice::LocatorPrx::uncheckedCast(getProxy(proxy));
+
+    assert(self->adapter);
+    try
+    {
+        (*self->adapter)->setLocator(locator);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
 
 static PyMethodDef AdapterMethods[] =
 {
@@ -1093,6 +1175,10 @@ static PyMethodDef AdapterMethods[] =
         PyDoc_STR("createDirectProxy(identity) -> Ice.ObjectPrx") },
     { "createReverseProxy", (PyCFunction)adapterCreateReverseProxy, METH_VARARGS,
         PyDoc_STR("createReverseProxy(identity) -> Ice.ObjectPrx") },
+    { "addRouter", (PyCFunction)adapterAddRouter, METH_VARARGS,
+        PyDoc_STR("addRouter(proxy) -> None") },
+    { "setLocator", (PyCFunction)adapterSetLocator, METH_VARARGS,
+        PyDoc_STR("setLocator(proxy) -> None") },
     { NULL, NULL} /* sentinel */
 };
 
@@ -1160,6 +1246,7 @@ IcePy::initObjectAdapter(PyObject* module)
     {
         return false;
     }
+
     return true;
 }
 
