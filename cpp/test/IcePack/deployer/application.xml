@@ -2,7 +2,7 @@
 
    <node name="localnode" basedir="${basedir}">
 
-     <server name="Yellow" descriptor="yellow_icebox.xml"/>
+     <server name="Yellow"  binpath="../../../bin/icebox" descriptor="yellow_icebox.xml"/>
      <server name="IceBox1" binpath="../../../bin/icebox" descriptor="icebox.xml"/>
      <server name="IceBox2" binpath="../../../bin/icebox" descriptor="icebox.xml"/>
      <server name="Server1" binpath="./server" descriptor="server.xml"/>
