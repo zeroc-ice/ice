@@ -40,6 +40,7 @@ public:
     virtual void activate();
     virtual void hold();
     virtual void deactivate();
+    virtual void waitForDeactivate();
 
     virtual ObjectPrx add(const ObjectPtr&, const Identity&);
     virtual ObjectPrx addWithUUID(const ObjectPtr&);

@@ -33,7 +33,7 @@ public class ObjectAdapterI implements ObjectAdapter
         }
 
         final int sz = _incomingConnectionFactories.size();
-        for (int i = 0; i < sz; i++)
+        for (int i = 0; i < sz; ++i)
         {
             IceInternal.IncomingConnectionFactory factory =
                 (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
@@ -60,7 +60,7 @@ public class ObjectAdapterI implements ObjectAdapter
         }
 
         final int sz = _incomingConnectionFactories.size();
-        for (int i = 0; i < sz; i++)
+        for (int i = 0; i < sz; ++i)
         {
             IceInternal.IncomingConnectionFactory factory =
                 (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
@@ -81,13 +81,12 @@ public class ObjectAdapterI implements ObjectAdapter
         }
 
         final int sz = _incomingConnectionFactories.size();
-        for (int i = 0; i < sz; i++)
+        for (int i = 0; i < sz; ++i)
         {
             IceInternal.IncomingConnectionFactory factory =
                 (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
             factory.destroy();
         }
-        _incomingConnectionFactories.clear();
 
         _instance.outgoingConnectionFactory().removeAdapter(this);
 
@@ -102,6 +101,18 @@ public class ObjectAdapterI implements ObjectAdapter
         _locatorMap.clear();
 
         _deactivated = true;
+    }
+
+    public synchronized void
+    waitForDeactivate()
+    {
+        final int sz = _incomingConnectionFactories.size();
+        for (int i = 0; i < sz; ++i)
+        {
+            IceInternal.IncomingConnectionFactory factory =
+                (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
+            factory.waitUntilFinished();
+        }
     }
 
     public synchronized ObjectPrx
@@ -250,12 +261,12 @@ public class ObjectAdapterI implements ObjectAdapter
             //
             ObjectPrxHelper proxy = (ObjectPrxHelper)routerInfo.getServerProxy();
             IceInternal.Endpoint[] endpoints = proxy.__reference().endpoints;
-            for (int i = 0; i < endpoints.length; i++)
+            for (int i = 0; i < endpoints.length; ++i)
             {
                 _routerEndpoints.add(endpoints[i]);
             }
             java.util.Collections.sort(_routerEndpoints); // Must be sorted.
-            for (int i = 0; i < _routerEndpoints.size() - 1; i++)
+            for (int i = 0; i < _routerEndpoints.size() - 1; ++i)
             {
                 java.lang.Object o1 = _routerEndpoints.get(i);
                 java.lang.Object o2 = _routerEndpoints.get(i + 1);
@@ -286,7 +297,7 @@ public class ObjectAdapterI implements ObjectAdapter
     {
         java.util.ArrayList connections = new java.util.ArrayList();
         final int sz = _incomingConnectionFactories.size();
-        for (int i = 0; i < sz; i++)
+        for (int i = 0; i < sz; ++i)
         {
             IceInternal.IncomingConnectionFactory factory =
                 (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
@@ -396,7 +407,7 @@ public class ObjectAdapterI implements ObjectAdapter
         // factories.
         //
         int sz = _incomingConnectionFactories.size();
-        for (int i = 0; i < sz; i++)
+        for (int i = 0; i < sz; ++i)
         {
             IceInternal.IncomingConnectionFactory factory =
                 (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
@@ -409,7 +420,7 @@ public class ObjectAdapterI implements ObjectAdapter
         // will also point to the router's server proxy endpoints.
         //
         sz = _routerEndpoints.size();
-        for (int i = 0; i < sz; i++)
+        for (int i = 0; i < sz; ++i)
         {
             endpoints[_incomingConnectionFactories.size() + i] = (IceInternal.Endpoint)_routerEndpoints.get(i);
         }
@@ -435,7 +446,7 @@ public class ObjectAdapterI implements ObjectAdapter
         // endpoints used by this object adapter's incoming connection
         // factories are considered local.
         //
-        for (int i = 0; i < endpoints.length; i++)
+        for (int i = 0; i < endpoints.length; ++i)
         {
             final int sz = _incomingConnectionFactories.size();
             for (int j = 0; j < sz; j++)
@@ -454,7 +465,7 @@ public class ObjectAdapterI implements ObjectAdapter
         // router's server proxy endpoints (if any), are also considered
         // local.
         //
-        for (int i = 0; i < endpoints.length; i++)
+        for (int i = 0; i < endpoints.length; ++i)
         {
             if (java.util.Collections.binarySearch(_routerEndpoints, endpoints[i]) >= 0) // _routerEndpoints is sorted.
             {

@@ -174,6 +174,9 @@ public class IncomingConnectionFactory extends EventHandler
             }
 
             _acceptor.close();
+
+	    _finished = true;
+	    notifyAll(); // For waitUntilFinished().
         }
     }
 
@@ -209,6 +212,7 @@ public class IncomingConnectionFactory extends EventHandler
         _adapter = adapter;
         _state = StateHolding;
 	_warn = _instance.properties().getPropertyAsInt("Ice.ConnectionWarnings") > 0 ? true : false;
+	_finished = false;
 
         try
         {
@@ -242,6 +246,7 @@ public class IncomingConnectionFactory extends EventHandler
         throws Throwable
     {
         assert(_state == StateClosed);
+	assert(_finished);
 
         //
         // Destroy the EventHandler's stream, so that its buffer
@@ -256,6 +261,21 @@ public class IncomingConnectionFactory extends EventHandler
     destroy()
     {
         setState(StateClosed);
+    }
+
+    public synchronized void
+    waitUntilFinished()
+    {
+	while (!_finished)
+	{
+	    try
+	    {
+		wait();
+	    }
+	    catch (InterruptedException ex)
+	    {
+	    }
+	}
     }
 
     private static final int StateActive = 0;
@@ -376,4 +396,5 @@ public class IncomingConnectionFactory extends EventHandler
     private java.util.LinkedList _connections = new java.util.LinkedList();
     private int _state;
     private boolean _warn;
+    private boolean _finished;
 }

@@ -67,8 +67,8 @@ local interface Communicator
      *
      * <note><para> Shutdown is not immediate, i.e., after [shutdown]
      * returns, the server-side of the application might still be
-     * active. You can use [waitForShutdown] to wait until shutdown is
-     * complete. </para></note>
+     * active for some time. You can use [waitForShutdown] to wait
+     * until shutdown is complete. </para></note>
      *
      * @see destroy
      * @see waitForShutdown
@@ -91,6 +91,7 @@ local interface Communicator
      *
      * @see shutdown
      * @see destroy
+     * @see ObjectAdapter::waitForDeactivate
      *
      **/
     void waitForShutdown();

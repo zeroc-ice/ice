@@ -89,12 +89,31 @@ local interface ObjectAdapter
      * to [deactivate] on an already deactivated object adapter are
      * ignored.
      *
+     * <note><para> Deactivate is not immediate, i.e., after
+     * [deactivate] returns, the object adapter might still be active
+     * for some time. You can use [waitForDeactivate] to wait until
+     * deactivation is complete. </para></note>
+     *
      * @see activate
      * @see hold
+     * @see waitForDeactivate
      * @see Communicator::shutdown
      *
      **/
     void deactivate();
+
+    /**
+     *
+     * Wait until the object adapter has deactivated. Calling
+     * [deactivate] initiates object adapter deactivation, and
+     * [waitForDeactivate] only returns when such deactivation has
+     * been completed.
+     *
+     * @see deactivate
+     * @see Communicator::waitForShutdown
+     *
+     **/
+    void waitForDeactivate();
 
     /**
      *

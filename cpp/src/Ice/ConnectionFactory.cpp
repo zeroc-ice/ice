@@ -39,7 +39,7 @@ void IceInternal::decRef(IncomingConnectionFactory* p) { p->__decRef(); }
 ConnectionPtr
 IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoints)
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_instance)
     {
@@ -159,7 +159,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
 void
 IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_instance)
     {
@@ -199,7 +199,7 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 void
 IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& adapter)
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     
     if (!_instance)
     {
@@ -228,7 +228,7 @@ IceInternal::OutgoingConnectionFactory::~OutgoingConnectionFactory()
 void
 IceInternal::OutgoingConnectionFactory::destroy()
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_instance)
     {
@@ -252,14 +252,14 @@ IceInternal::OutgoingConnectionFactory::destroy()
 void
 IceInternal::IncomingConnectionFactory::hold()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
     setState(StateHolding);
 }
 
 void
 IceInternal::IncomingConnectionFactory::activate()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
     setState(StateActive);
 }
 
@@ -285,7 +285,7 @@ IceInternal::IncomingConnectionFactory::equivalent(const EndpointPtr& endp) cons
 list<ConnectionPtr>
 IceInternal::IncomingConnectionFactory::connections() const
 {
-    IceUtil::Mutex::Lock sync(*this);
+    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
 
     //
     // Reap destroyed connections.
@@ -312,7 +312,7 @@ IceInternal::IncomingConnectionFactory::read(BasicStream&)
 void
 IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPtr& threadPool)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
 
     threadPool->promoteFollower();
 
@@ -361,7 +361,7 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
 void
 IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
 
     threadPool->promoteFollower();
     
@@ -401,6 +401,9 @@ IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool
 	}
 	
 	_acceptor->close();
+
+	_finished = true;
+	notifyAll(); // For waitUntilFinished().
     }
 }
 
@@ -428,7 +431,8 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
     EventHandler(instance),
     _endpoint(endpoint),
     _adapter(adapter),
-    _state(StateHolding)
+    _state(StateHolding),
+    _finished(false)
 {
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
     if (defaultsAndOverrides->overrideTimeout)
@@ -463,13 +467,25 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 IceInternal::IncomingConnectionFactory::~IncomingConnectionFactory()
 {
     assert(_state == StateClosed);
+    assert(_finished);
 }
 
 void
 IceInternal::IncomingConnectionFactory::destroy()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
     setState(StateClosed);
+}
+
+void
+IceInternal::IncomingConnectionFactory::waitUntilFinished()
+{
+    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+
+    while (!_finished)
+    {
+	wait();
+    }
 }
 
 void

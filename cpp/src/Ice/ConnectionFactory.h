@@ -34,7 +34,7 @@ class ObjectAdapterI;
 namespace IceInternal
 {
 
-class OutgoingConnectionFactory : public ::IceUtil::Shared, public ::IceUtil::RecMutex
+class OutgoingConnectionFactory : public ::IceUtil::Shared, public ::IceUtil::Mutex
 {
 public:
 
@@ -53,7 +53,7 @@ private:
     std::map<EndpointPtr, ConnectionPtr> _connections;
 };
 
-class IncomingConnectionFactory : public EventHandler, public ::IceUtil::Mutex
+class IncomingConnectionFactory : public EventHandler, public ::IceUtil::Monitor< ::IceUtil::Mutex>
 {
 public:
 
@@ -78,6 +78,7 @@ private:
     IncomingConnectionFactory(const InstancePtr&, const EndpointPtr&, const ::Ice::ObjectAdapterPtr&);
     virtual ~IncomingConnectionFactory();
     void destroy();
+    void waitUntilFinished();
     friend class ::Ice::ObjectAdapterI;
 
     enum State
@@ -99,6 +100,7 @@ private:
     std::list<ConnectionPtr> _connections;
     State _state;
     bool _warn;
+    bool _finished;
 };
 
 }

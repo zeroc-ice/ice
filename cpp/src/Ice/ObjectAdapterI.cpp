@@ -99,7 +99,6 @@ Ice::ObjectAdapterI::deactivate()
 
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
 	     Ice::voidMemFun(&IncomingConnectionFactory::destroy));
-    _incomingConnectionFactories.clear();
 
     _instance->outgoingConnectionFactory()->removeAdapter(this);
 
@@ -112,6 +111,15 @@ Ice::ObjectAdapterI::deactivate()
     _locatorMapHint = _locatorMap.end();
 
     _deactivated = true;
+}
+
+void
+Ice::ObjectAdapterI::waitForDeactivate()
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+	     Ice::voidMemFun(&IncomingConnectionFactory::waitUntilFinished));
 }
 
 ObjectPrx
