@@ -30,6 +30,11 @@ RSC=rc.exe
 
 !IF  "$(CFG)" == "phonebookC - Win32 Release"
 
+"NameIdentitiesDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"NameIdentitiesDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
 # PROP BASE Output_Dir "Release"
@@ -187,20 +192,12 @@ USERDEP__PHONE="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\
 InputPath=.\PhoneBook.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe -I../../../slice PhoneBook.ice \
-	..\..\..\bin\slice2freeze.exe -I../../../slice --dict NameIdentitiesDict,string,Identities NameIdentitiesDict PhoneBook.ice \
-	
+	..\..\..\bin\slice2cpp.exe -I../../../slice PhoneBook.ice
 
 "PhoneBook.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "PhoneBook.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"NameIdentitiesDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"NameIdentitiesDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -212,7 +209,6 @@ InputPath=.\PhoneBook.ice
 
 BuildCmds= \
 	..\..\..\bin\slice2cpp.exe -I../../../slice PhoneBook.ice \
-	..\..\..\bin\slice2freeze.exe -I../../../slice --dict NameIdentitiesDict,string,Identities NameIdentitiesDict PhoneBook.ice \
 	
 
 "PhoneBook.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -221,11 +217,6 @@ BuildCmds= \
 "PhoneBook.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"NameIdentitiesDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"NameIdentitiesDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
 # End Custom Build
 
 !ENDIF 
