@@ -43,6 +43,17 @@ class C2
     S2Seq theS2Seq;
 };
 
+class Leaf
+{
+    int i;
+};
+
+class Node
+{
+    Leaf l;
+    Node n;
+};
+
 //
 // Remainder of definitions are there to test that the generated code compiles;
 // they are not used for the actual run-time tests.

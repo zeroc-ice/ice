@@ -48,6 +48,36 @@ struct N2 : public C2
 
 typedef ::IceInternal::Handle<N2> N2Ptr;
 
+struct NN : public Node
+{
+    NN()
+    {
+	++num;
+    }
+
+    ~NN()
+    {
+	--num;
+    }
+};
+
+typedef ::IceInternal::Handle<NN> NNPtr;
+
+struct NL : public Leaf
+{
+    NL()
+    {
+	++num;
+    }
+
+    ~NL()
+    {
+	--num;
+    }
+};
+
+typedef ::IceInternal::Handle<NL> NLPtr;
+
 class GarbageProducer : public ::IceUtil::Thread, public ::IceUtil::Monitor< ::IceUtil::Mutex>
 {
 public:
@@ -470,6 +500,47 @@ MyApplication::run(int argc, char* argv[])
     }
     Ice::collectGarbage();
     test(num == 0);
+    cout << "ok" << endl;
+
+    cout << "testing leaf nodes... " << flush;
+
+    {
+	NNPtr nn = new NN;
+	NLPtr nl = new NL;
+	nn->l = nl;
+	nn->n = nn;
+	test(num == 2);
+	Ice::collectGarbage();
+	test(num == 2);
+    }
+    test(num == 2);
+    Ice::collectGarbage();
+    test(num == 0);
+
+    {
+	NNPtr nn1 = new NN;
+	NNPtr nn2 = new NN;
+	NLPtr nl = new NL;
+	nn1->l = nl;
+	nn1->n = nn2;
+	nn2->l = nl;
+	nn2->n = nn1;
+	test(num == 3);
+	Ice::collectGarbage();
+	test(num == 3);
+    }
+    test(num == 3);
+    Ice::collectGarbage();
+    test(num == 0);
+
+    {
+	NLPtr nl = new NL;
+	test(num == 1);
+    }
+    test(num == 0);
+    Ice::collectGarbage();
+    test(num == 0);
+
     cout << "ok" << endl;
     
 #if defined(_AIX)
