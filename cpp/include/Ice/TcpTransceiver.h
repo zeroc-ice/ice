@@ -8,10 +8,10 @@
 //
 // **********************************************************************
 
-#ifndef ICE_TRANSCEIVER_H
-#define ICE_TRANSCEIVER_H
+#ifndef ICE_TCP_TRANSCEIVER_H
+#define ICE_TCP_TRANSCEIVER_H
 
-#include <Ice/TransceiverF.h>
+#include <Ice/TcpTransceiverF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
@@ -26,7 +26,7 @@ namespace __Ice
 
 class Buffer;
 
-class TransceiverI : public Shared
+class TcpTransceiverI : public Shared
 {
 public:
 
@@ -39,13 +39,13 @@ public:
     
 private:
 
-    TransceiverI(const TransceiverI&);
-    void operator=(const TransceiverI&);
+    TcpTransceiverI(const TcpTransceiverI&);
+    void operator=(const TcpTransceiverI&);
 
-    TransceiverI(Instance, int);
-    virtual ~TransceiverI();
-    friend class ConnectorI; // May create TransceiverIs
-    friend class AcceptorI; // May create TransceiverIs
+    TcpTransceiverI(Instance, int);
+    virtual ~TcpTransceiverI();
+    friend class TcpConnectorI; // May create TcpTransceiverIs
+    friend class TcpAcceptorI; // May create TcpTransceiverIs
 
     Instance instance_;
     int fd_;

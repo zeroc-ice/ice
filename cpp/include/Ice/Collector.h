@@ -13,8 +13,8 @@
 
 #include <Ice/CollectorF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/TransceiverF.h>
-#include <Ice/AcceptorF.h>
+#include <Ice/TcpTransceiverF.h>
+#include <Ice/TcpAcceptorF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/EndpointF.h>
@@ -22,7 +22,6 @@
 #include <Ice/LoggerF.h>
 #include <Ice/EventHandler.h>
 #include <list>
-#include <map>
 
 namespace Ice
 {
@@ -63,7 +62,7 @@ private:
     void operator=(const CollectorI&);
 
     CollectorI(const ::Ice::ObjectAdapter&, const Endpoint&,
-	       const Transceiver&);
+	       const TcpTransceiver&);
     virtual ~CollectorI();
     friend class CollectorFactoryI; // May create CollectorIs
 
@@ -81,7 +80,7 @@ private:
 
     ::Ice::ObjectAdapter adapter_;
     Endpoint endpoint_;
-    Transceiver transceiver_;
+    TcpTransceiver transceiver_;
     ThreadPool threadPool_;
     int responseCount_;
     State state_;
@@ -116,7 +115,7 @@ private:
 
     CollectorFactoryI(const ::Ice::ObjectAdapter&, const Endpoint&);
     virtual ~CollectorFactoryI();
-    friend class CollectorFactoryFactoryI; // May create CollectorFactoryIs
+    friend class ::Ice::ObjectAdapterI; // May create CollectorFactoryIs
 
     enum State
     {
@@ -132,7 +131,7 @@ private:
 
     ::Ice::ObjectAdapter adapter_;
     Endpoint endpoint_;
-    Acceptor acceptor_;
+    TcpAcceptor acceptor_;
     ThreadPool threadPool_;
     std::list<Collector> collectors_;
     State state_;
@@ -140,25 +139,6 @@ private:
     TraceLevels traceLevels_;
     ::Ice::Logger logger_;
 #endif
-};
-
-class ICE_API CollectorFactoryFactoryI : public Shared, public JTCMutex
-{
-public:
-
-    CollectorFactory create(const ::Ice::ObjectAdapter&, const Endpoint&);
-
-private:
-
-    CollectorFactoryFactoryI(const CollectorFactoryFactoryI&);
-    void operator=(const CollectorFactoryFactoryI&);
-
-    CollectorFactoryFactoryI(const Instance&);
-    virtual ~CollectorFactoryFactoryI();
-    void destroy();
-    friend class InstanceI; // May create and destroy CollectorFactoryFactoryIs
-
-    Instance instance_;
 };
 
 }

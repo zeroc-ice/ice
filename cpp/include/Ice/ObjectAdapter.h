@@ -50,7 +50,7 @@ private:
     void operator=(const ObjectAdapterI&);
 
     ::__Ice::Instance instance_;
-    std::vector< __Ice::CollectorFactory> factories_;
+    std::vector< __Ice::CollectorFactory> collectorFactories_;
     std::map<std::string, ::IceServant::Ice::Object> servants_;
 };
 

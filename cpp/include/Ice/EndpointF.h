@@ -21,11 +21,6 @@ void ICE_API incRef(EndpointI*);
 void ICE_API decRef(EndpointI*);
 typedef __Ice::Handle<EndpointI> Endpoint;
 
-class DgEndpointI;
-void ICE_API incRef(DgEndpointI*);
-void ICE_API decRef(DgEndpointI*);
-typedef __Ice::Handle<DgEndpointI> DgEndpoint;
-
 }
 
 #endif

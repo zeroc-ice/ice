@@ -44,32 +44,6 @@ private:
     void operator=(const EndpointI&);
 };
 
-//
-// Datagram endpoint using a packet oriented protocol
-//
-class ICE_API DgEndpointI : virtual public Shared
-{
-public:
-
-    DgEndpointI(const std::string&, int);
-    virtual ~DgEndpointI();
-
-    //
-    // All  members are const, because DgEndpoints are immutable.
-    //
-    const std::string host;
-    const int port;
-
-    bool operator==(const DgEndpointI&) const;
-    bool operator!=(const DgEndpointI&) const;
-    bool operator<(const DgEndpointI&) const;
-
-private:
-
-    DgEndpointI(const DgEndpointI&);
-    void operator=(const DgEndpointI&);
-};
-
 }
 
 #endif

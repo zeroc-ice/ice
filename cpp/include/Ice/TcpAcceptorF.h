@@ -8,18 +8,18 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ACCEPTOR_F_H
-#define ICE_ACCEPTOR_F_H
+#ifndef ICE_TCP_ACCEPTOR_F_H
+#define ICE_TCP_ACCEPTOR_F_H
 
 #include <Ice/Handle.h>
 
 namespace __Ice
 {
 
-class AcceptorI;
-void ICE_API incRef(AcceptorI*);
-void ICE_API decRef(AcceptorI*);
-typedef __Ice::Handle<AcceptorI> Acceptor;
+class TcpAcceptorI;
+void ICE_API incRef(TcpAcceptorI*);
+void ICE_API decRef(TcpAcceptorI*);
+typedef __Ice::Handle<TcpAcceptorI> TcpAcceptor;
 
 }
 

@@ -24,7 +24,7 @@ class ICE_API ReferenceI : virtual public Shared
 public:
 
     ReferenceI(const Instance&, const std::string&,
-	       const std::vector<Endpoint>&, const std::vector<DgEndpoint>&);
+	       const std::vector<Endpoint>&);
     virtual ~ReferenceI();
 
     //
@@ -33,7 +33,6 @@ public:
     const Instance instance;
     const std::string identity;
     const std::vector<Endpoint> endpoints;
-    const std::vector<DgEndpoint> dgendpoints;
 
     enum Mode
     {

@@ -13,8 +13,8 @@
 
 #include <Ice/EmitterF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/TransceiverF.h>
-#include <Ice/ConnectorF.h>
+#include <Ice/TcpTransceiverF.h>
+#include <Ice/TcpConnectorF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/EndpointF.h>
 #include <Ice/TraceLevelsF.h>
@@ -57,7 +57,7 @@ private:
     EmitterI(const EmitterI&);
     void operator=(const EmitterI&);
 
-    EmitterI(const Instance&, const Endpoint&, const Transceiver&);
+    EmitterI(const Instance&, const Endpoint&, const TcpTransceiver&);
     virtual ~EmitterI();
     friend class EmitterFactoryI; // May create EmitterIs
 
@@ -72,7 +72,7 @@ private:
     void setState(State, const ::Ice::LocalException&);
 
     Endpoint endpoint_;
-    Transceiver transceiver_;
+    TcpTransceiver transceiver_;
     ThreadPool threadPool_;
     ::Ice::Int nextRequestId_;
     std::map< ::Ice::Int, Outgoing*> requests_;
@@ -102,7 +102,7 @@ private:
 
     Instance instance_;
     Endpoint endpoint_;
-    Connector connector_;
+    TcpConnector connector_;
     Emitter emitter_;
 };
 

@@ -8,12 +8,12 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ACCEPTOR_H
-#define ICE_ACCEPTOR_H
+#ifndef ICE_TCP_CONNECTOR_H
+#define ICE_TCP_CONNECTOR_H
 
-#include <Ice/AcceptorF.h>
+#include <Ice/TcpConnectorF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/TransceiverF.h>
+#include <Ice/TcpTransceiverF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/Shared.h>
@@ -25,34 +25,25 @@
 namespace __Ice
 {
 
-class CollectorFactoryI;
+class EmitterFactoryI;
 
-class AcceptorI : public Shared
+class TcpConnectorI : public Shared
 {
 public:
-
-    int fd();
-    void close();
-    void shutdown();
-    void listen();
-    Transceiver accept(int);
+    
+    TcpTransceiver connect(int);
     std::string toString() const;
-
+    
 private:
 
-    AcceptorI(const AcceptorI&);
-    void operator=(const AcceptorI&);
+    TcpConnectorI(const TcpConnectorI&);
+    void operator=(const TcpConnectorI&);
 
-    AcceptorI(Instance, int);
-    virtual ~AcceptorI();
-    friend class CollectorFactoryI; // May create AcceptorIs
-
-    void block(bool);
+    TcpConnectorI(Instance, const std::string&, int);
+    virtual ~TcpConnectorI();
+    friend class EmitterFactoryI; // May create TcpConnectorIs
 
     Instance instance_;
-    int fd_;
-    bool block_;
-    int backlog_;
     struct sockaddr_in addr_;
 #ifndef ICE_NO_TRACE
     TraceLevels traceLevels_;

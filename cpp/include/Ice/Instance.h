@@ -34,7 +34,6 @@ public:
     ObjectFactory objectFactory();
     ThreadPool threadPool();
     EmitterFactoryFactory emitterFactoryFactory();
-    CollectorFactoryFactory collectorFactoryFactory();
     
 private:
 
@@ -51,7 +50,6 @@ private:
     ObjectFactory objectFactory_;
     ThreadPool threadPool_;
     EmitterFactoryFactory emitterFactoryFactory_;
-    CollectorFactoryFactory collectorFactoryFactory_;
 
     //
     // Global state management

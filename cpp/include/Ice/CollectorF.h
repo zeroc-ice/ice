@@ -26,11 +26,6 @@ void ICE_API incRef(CollectorFactoryI*);
 void ICE_API decRef(CollectorFactoryI*);
 typedef __Ice::Handle<CollectorFactoryI> CollectorFactory;
 
-class CollectorFactoryFactoryI;
-void ICE_API incRef(CollectorFactoryFactoryI*);
-void ICE_API decRef(CollectorFactoryFactoryI*);
-typedef __Ice::Handle<CollectorFactoryFactoryI> CollectorFactoryFactory;
-
 }
 
 #endif
