@@ -1,4 +1,4 @@
-This is the 1.5.0 release of Icicle (Ice for C#).
+This is the 1.5.0 release of Ice for C#.
 
 The following features of Ice for C++ are currently not supported:
 
@@ -26,7 +26,7 @@ actively working with the Mono developers to resolve these problems.
 Build instructions
 ------------------
 
-Unpack the archive. The sources will be contained in the 'icicle'
+Unpack the archive. The sources will be contained in the 'icecs'
 subdirectory.
 
 You can either build the slice2cs compiler by
@@ -34,9 +34,9 @@ from the Ice for C++ source distribution, or you can download
 the Ice binary package for Windows, which contains a compiled
 versions of slice2cs. If you build slice2cs yourself, make sure
 it is in your PATH or, alternatively, place slice2cs.exe into the
-bin directory of the Icicle distribution.
+bin directory of the Ice for C# distribution.
 
-Open icicle/All.sln in Visual C# and build the "All" solution
+Open icecs/All.sln in Visual C# and build the "All" solution
 (both debug and release builds are supported).
 
 Note: The first time you build, you will most likely find that you get
@@ -50,12 +50,12 @@ happening, please let us know!)
 Installation
 ------------
 
-You can copy the generated icicle/lib/Ice.dll file where you want it
+You can copy the generated icecs/lib/Ice.dll file where you want it
 and then reference it in your appliation code.
 
-Alternatively, you can add the generated Icicle.dll to the global
+Alternatively, you can add the generated Icecs.dll to the global
 assembly cache. To do this, open Explorer and navigate to
-C:\WINDOWS\assembly. Then drag and drop (or copy and paste) Icicle.dll
+C:\WINDOWS\assembly. Then drag and drop (or copy and paste) Icecs.dll
 into the right-hand pane to install it in the cache. Once installed in
 the cache, the assembly will always be located correctly without having
 to set environment variables.
@@ -68,7 +68,7 @@ To run the tests, you will need Python:
 
 http://www.activestate.com/Products/ActivePython/
 
-Run "python allTests.py" from the icicle directory to run all of the
+Run "python allTests.py" from the icecs directory to run all of the
 tests, or "python allTests.py -l" to run the tests in an endless loop.
 
 You can also run individual tests in the various test directories with

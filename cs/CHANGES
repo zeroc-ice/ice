@@ -1,6 +1,9 @@
 Changes since Alpha 2
 ---------------------
 
+- The DLL that contains the Ice for C# run time has been renamed from
+  Icicle.dll to Icecs.dll.
+
 - Added support for protocol compression.
 
 - Added extensive documentation for the language mapping
@@ -19,7 +22,7 @@ Changes since Alpha 2
 
 - Added a key pair to the distribution so the assembly has a strong name
   and can be added to the global assembly cache. If you want to use your
-  own key pair, you can replace the contents of src/Ice/IcicleKey.snk with
+  own key pair, you can replace the contents of src/Ice/IcecsKey.snk with
   your own key pair. See
   http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpguide/html/cpconcreatingkeypairforuseincreatingstrongly-namedassembly.asp for more detail.
 

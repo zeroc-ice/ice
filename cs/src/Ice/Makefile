@@ -9,7 +9,7 @@
 
 top_srcdir	= ../..
 
-LIBNAME		= Icicle.dll
+LIBNAME		= Icecs.dll
 TARGETS		= $(libdir)/$(LIBNAME)
 
 SRCS		= Acceptor.cs \
