@@ -225,8 +225,7 @@ main(int argc, char* argv[])
 	}
 	else
 	{
-	    Gen gen(argv[0], base, include, includePaths, dllExport, output,
-                    impl);
+	    Gen gen(argv[0], base, include, includePaths, dllExport, output, impl);
 	    if(!gen)
 	    {
 		unit->destroy();

@@ -218,6 +218,7 @@ Slice::Container::destroy()
 {
     for_each(_contents.begin(), _contents.end(), ::IceUtil::voidMemFun(&Contained::destroy));
     _contents.clear();
+    _introducedMap.clear();
     SyntaxTreeBase::destroy();
 }
 
