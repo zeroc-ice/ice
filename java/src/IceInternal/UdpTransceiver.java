@@ -27,32 +27,47 @@ final class UdpTransceiver implements Transceiver
             _logger.trace(_traceLevels.networkCat, s);
         }
 
-        assert(_fd != null);
-        try
-        {
-            _fd.close();
-        }
-        catch(java.io.IOException ex)
-        {
-        }
-        _fd = null;
+	//
+	// NOTE: close() may have already been invoked by shutdownReadWrite().
+	//
+        if(_fd != null)
+	{
+	    try
+	    {
+		_fd.close();
+	    }
+	    catch(java.io.IOException ex)
+	    {
+	    }
+	    _fd = null;
+	}
     }
 
     public void
     shutdownWrite()
     {
+	//
+	// NOTE: DatagramSocket does not support shutdownOutput.
+	//
     }
 
     public void
     shutdownReadWrite()
     {
+	//
+	// NOTE: DatagramSocket does not support shutdownInput, and we
+	// cannot use the C++ technique of sending a "wakeup" packet to
+	// this socket because the Java implementation deadlocks when we
+	// call disconnect() while receive() is in progress. Therefore
+	// we close the socket here, which causes receive() to raise
+	// AsynchronousCloseException.
+	//
+	close();
     }
 
     public void
-    write(BasicStream stream, int timeout)
+    write(BasicStream stream, int timeout) // NOTE: timeout is not used
     {
-	// TODO: Timeouts are ignored!!
-
         java.nio.ByteBuffer buf = stream.prepareWrite();
 
         assert(buf.position() == 0);
@@ -86,6 +101,10 @@ final class UdpTransceiver implements Transceiver
                 assert(ret == buf.limit());
                 break;
             }
+	    catch(java.nio.channels.AsynchronousCloseException ex)
+	    {
+		throw new Ice.ConnectionLostException();
+	    }
             catch(java.io.InterruptedIOException ex)
             {
                 continue;
@@ -100,7 +119,7 @@ final class UdpTransceiver implements Transceiver
     }
 
     public void
-    read(BasicStream stream, int timeout) // NOTE: timeout is ignored
+    read(BasicStream stream, int timeout) // NOTE: timeout is not used
     {
 	assert(stream.pos() == 0);
 
@@ -167,6 +186,10 @@ final class UdpTransceiver implements Transceiver
 			continue;
 		    }
                 }
+		catch(java.nio.channels.AsynchronousCloseException ex)
+		{
+		    throw new Ice.ConnectionLostException();
+		}
                 catch(java.io.InterruptedIOException ex)
                 {
                     continue;
@@ -234,12 +257,14 @@ final class UdpTransceiver implements Transceiver
         _connect = true;
 	_warn = instance.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
-
         try
         {
             _fd = Network.createUdpSocket();
 	    setBufSize(instance);
-            Network.setBlock(_fd, false);
+	    if(!instance.threadPerConnection())
+	    {
+		Network.setBlock(_fd, false);
+	    }
             _addr = Network.getAddress(host, port);
             Network.doConnect(_fd, _addr, -1);
             _connect = false; // We're connected now
@@ -269,12 +294,14 @@ final class UdpTransceiver implements Transceiver
         _connect = connect;
 	_warn = instance.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
-
         try
         {
             _fd = Network.createUdpSocket();
 	    setBufSize(instance);
-            Network.setBlock(_fd, false);
+	    if(!instance.threadPerConnection())
+	    {
+		Network.setBlock(_fd, false);
+	    }
             _addr = new java.net.InetSocketAddress(host, port);
 	    if(_traceLevels.network >= 2)
 	    {
