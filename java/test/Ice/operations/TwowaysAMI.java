@@ -1014,14 +1014,14 @@ class TwowaysAMI
 		    (byte)0x11,
 		    (byte)0x12,
 		    (byte)0x22
-		}
+		};
             final byte[] bsi2 =
 		{
 		    (byte)0xf1,
 		    (byte)0xf2,
 		    (byte)0xf3,
 		    (byte)0xf4
-		}
+		};
 	    
 	    AMI_MyClass_opByteSI cb = new AMI_MyClass_opByteSI();
 	    p.opByteS_async(cb, bsi1, bsi2);
@@ -1029,8 +1029,8 @@ class TwowaysAMI
 	}
 	
 	{
-            final boolean[] bsi1 = { true, true, false }
-            final boolean[] bsi2 = { false }
+            final boolean[] bsi1 = { true, true, false };
+            final boolean[] bsi2 = { false };
 	    
 	    AMI_MyClass_opBoolSI cb = new AMI_MyClass_opBoolSI();
 	    p.opBoolS_async(cb, bsi1, bsi2);
@@ -1038,9 +1038,9 @@ class TwowaysAMI
 	}
 	
 	{
-            final short[] ssi = { 1, 2, 3 }
-            final int[] isi = { 5, 6, 7, 8 }
-            final long[] lsi = { 10, 30, 20 }
+            final short[] ssi = { 1, 2, 3 };
+            final int[] isi = { 5, 6, 7, 8 };
+            final long[] lsi = { 10, 30, 20 };
 	    
 	    AMI_MyClass_opShortIntLongSI cb = new AMI_MyClass_opShortIntLongSI();
 	    p.opShortIntLongS_async(cb, ssi, isi, lsi);
@@ -1048,8 +1048,8 @@ class TwowaysAMI
 	}
 	
 	{
-            final float[] fsi = { 3.14f, 1.11f }
-            final double[] dsi = { 1.1E10, 1.2E10, 1.3E10 }
+            final float[] fsi = { 3.14f, 1.11f };
+            final double[] dsi = { 1.1E10, 1.2E10, 1.3E10 };
 	    
 	    AMI_MyClass_opFloatDoubleSI cb = new AMI_MyClass_opFloatDoubleSI();
 	    p.opFloatDoubleS_async(cb, fsi, dsi);
@@ -1057,8 +1057,8 @@ class TwowaysAMI
 	}
 	
 	{
-            final String[] ssi1 = { "abc", "de", "fghi" }
-            final String[] ssi2 = { "xyz" }
+            final String[] ssi1 = { "abc", "de", "fghi" };
+            final String[] ssi2 = { "xyz" };
 	    
 	    AMI_MyClass_opStringSI cb = new AMI_MyClass_opStringSI();
 	    p.opStringS_async(cb, ssi1, ssi2);
@@ -1070,12 +1070,12 @@ class TwowaysAMI
 		{
 		    { (byte)0x01, (byte)0x11, (byte)0x12 },
 		    { (byte)0xff }
-		}
+		};
             final byte[][] bsi2 =
 		{
 		    { (byte)0x0e },
 		    { (byte)0xf2, (byte)0xf1 }
-		}
+		};
 
 	    AMI_MyClass_opByteSSI cb = new AMI_MyClass_opByteSSI();
 	    p.opByteSS_async(cb, bsi1, bsi2);
@@ -1088,11 +1088,11 @@ class TwowaysAMI
 		    { 3.14f },
 		    { 1.11f },
 		    { },
-		}
+		};
             final double[][] dsi =
 		{
 		    { 1.1E10, 1.2E10, 1.3E10 }
-		}
+		};
 
 	    AMI_MyClass_opFloatDoubleSSI cb = new AMI_MyClass_opFloatDoubleSSI();
 	    p.opFloatDoubleSS_async(cb, fsi, dsi);
@@ -1104,13 +1104,13 @@ class TwowaysAMI
 		{
 		    { "abc" },
 		    { "de", "fghi" }
-		}
+		};
             final String[][] ssi2 =
 		{
 		    { },
 		    { },
 		    { "xyz" }
-		}
+		};
 
 	    AMI_MyClass_opStringSSI cb = new AMI_MyClass_opStringSSI();
 	    p.opStringSS_async(cb, ssi1, ssi2);
@@ -1188,7 +1188,7 @@ class TwowaysAMI
 	}
 
 	{
-	    int[] lengths = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 }
+	    int[] lengths = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
 
 	    for(int l = 0; l < lengths.length; ++l)
 	    {

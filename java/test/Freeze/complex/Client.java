@@ -80,7 +80,7 @@ public class Client
 	    "2+(5*3)",
 	    "5*(2+3)",
 	    "10+(10+(20+(8*(2*(3*2+4+5+6)))))"
-	}
+	};
 	
 	Complex.ComplexDict m = new Complex.ComplexDict(_connection, dbName, true);
 
