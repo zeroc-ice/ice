@@ -42,7 +42,7 @@ sealed class CallbackReceiverI:CallbackReceiver
         {
             while(!_callback)
             {
-		Monitor.Wait(5000);
+		Monitor.Wait(this, 5000);
 		if(!_callback)
 		{
 		    return false;

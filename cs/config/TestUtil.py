@@ -26,13 +26,14 @@ compress = 0
 
 #
 # Set the host to the host name the test servers are running on. If
-# not set, Ice will try to find out the IP address for the
+# set to the empty string, Ice will try to find out the IP address for the
 # hostname. If you DNS isn't set up propertly, you should therefore
 # use "localhost".
 #
 
 #host = "someotherhost"
-host = "localhost"
+#host = "localhost"
+host = ""
 
 #
 # Don't change anything below this line!
@@ -68,7 +69,7 @@ def killServers():
 	# TODO: Michi: Not sure why exit(1) was here. This means that, when
 	# we run the test suite with allTests.py under Cygwin, the first sub-test that
 	# calls killServers will return non-zero exit status and, therefore,
-	# terminate allTests.py, so the subsequence tests are never run.
+	# terminate allTests.py, so the subsequent tests are never run.
 	#
 	#sys.exit(1)
 
@@ -176,7 +177,7 @@ else:
 commonClientOptions = " --Ice.NullHandleAbort --Ice.Warn.Connections"
 
 commonServerOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.NullHandleAbort" + \
-                      " --Ice.Warn.Connections --Ice.ServerIdleTime=30" + \
+                      " --Ice.Warn.Connections --Ice.ServerIdleTime=10" + \
                       " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
                       " --Ice.ThreadPool.Server.SizeWarn=0"
 

@@ -90,7 +90,7 @@ class CallbackClient : Ice.Application
         
         Console.Out.Write("testing checked cast... ");
         Console.Out.Flush();
-        CallbackPrx twoway = CallbackPrxHelper.checkedCast(@base.ice_twoway().ice_timeout(- 1).ice_secure(false));
+        CallbackPrx twoway = CallbackPrxHelper.checkedCast(@base.ice_twoway().ice_timeout(-1).ice_secure(false));
         test(twoway != null);
         Console.Out.WriteLine("ok");
         
