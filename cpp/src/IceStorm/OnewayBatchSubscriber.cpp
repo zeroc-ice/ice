@@ -9,7 +9,6 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-
 #include <IceStorm/OnewayBatchSubscriber.h>
 #include <IceStorm/TraceLevels.h>
 #include <IceStorm/Flusher.h>

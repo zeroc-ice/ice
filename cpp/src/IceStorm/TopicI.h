@@ -12,10 +12,8 @@
 #define TOPIC_I_H
 
 #include <IceUtil/RecMutex.h>
-
 #include <IceStorm/IceStormInternal.h>
 #include <IceStorm/IdentityLinkDict.h>
-
 #include <IceStorm/SubscriberFactory.h>
 
 namespace IceStorm

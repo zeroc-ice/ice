@@ -9,9 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-
 #include <IceStorm/SubscriberFactory.h>
-
 #include <IceStorm/LinkSubscriber.h>
 #include <IceStorm/OnewaySubscriber.h>
 #include <IceStorm/OnewayBatchSubscriber.h>

@@ -9,7 +9,6 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-
 #include <IceStorm/OnewaySubscriber.h>
 #include <IceStorm/TraceLevels.h>
 

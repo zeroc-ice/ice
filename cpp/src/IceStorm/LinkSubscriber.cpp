@@ -8,11 +8,9 @@
 //
 // **********************************************************************
 
-
+#include <Ice/Ice.h>
 #include <IceStorm/LinkSubscriber.h>
 #include <IceStorm/TraceLevels.h>
-#include <Ice/Ice.h>
-
 
 using namespace IceStorm;
 using namespace std;

@@ -10,14 +10,11 @@
 
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
-
 #include <Ice/Ice.h>
 #include <Ice/Functional.h>
-
 #include <IceStorm/Flushable.h>
 #include <IceStorm/TraceLevels.h>
 #include <IceStorm/Flusher.h>
-
 #include <algorithm>
 #include <list>
 

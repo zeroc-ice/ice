@@ -11,6 +11,7 @@
 #ifndef WEIGHTED_GRAPH_H
 #define WEIGHTED_GRAPH_H
 
+#include <IceUtil/Config.h>
 #include <vector>
 #include <list>
 #include <map>

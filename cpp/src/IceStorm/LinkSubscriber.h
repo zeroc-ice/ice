@@ -13,7 +13,6 @@
 
 #include <IceStorm/Flushable.h>
 #include <IceStorm/Subscriber.h>
-
 #include <IceStorm/IceStormInternal.h> // For TopicLink
 
 namespace IceStorm

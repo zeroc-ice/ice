@@ -651,17 +651,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	//
 	C << nl << "while (sz--)";
 	C << sb;
-	C.zeroIndent();
-	C << nl << "#ifdef _WIN32"; // STLBUG
-	C.restoreIndent();
-	C << nl << "v.push_back(" << typeToString(type) << "());";
-	C.zeroIndent();
-	C << nl << "#else";
-	C.restoreIndent();
-	C << nl << "v.push_back();";
-	C.zeroIndent();
-	C << nl << "#endif";
-	C.restoreIndent();
+	C << nl << "v.resize(v.size() + 1);";
 	writeMarshalUnmarshalCode(C, type, "v.back()", false);
 	C << eb;
 	C << eb;
@@ -683,19 +673,13 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	  << "const ::Ice::StreamPtr& __is, " << scoped << "& v, " << scope << "__U__" << name << ')';
 	C << sb;
 	C << nl << "::Ice::Int sz = __is->startReadSequence(__name);";
+	//
+	// Don't use v.resize(sz) or v.reserve(sz) here, as it cannot
+	// be checked whether sz is a reasonable value.
+	//
 	C << nl << "while (sz--)";
 	C << sb;
-	C.zeroIndent();
-	C << nl << "#ifdef _WIN32"; // STLBUG
-	C.restoreIndent();
-	C << nl << "v.push_back(" << typeToString(type) << "());";
-	C.zeroIndent();
-	C << nl << "#else";
-	C.restoreIndent();
-	C << nl << "v.push_back();";
-	C.zeroIndent();
-	C << nl << "#endif";
-	C.restoreIndent();
+	C << nl << "v.resize(v.size() + 1);";
 	writeGenericMarshalUnmarshalCode(C, type, "v.back()", false, "\"e\"");
 	C << eb;
 	C << nl << "__is->endReadSequence();";

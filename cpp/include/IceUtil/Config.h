@@ -11,6 +11,15 @@
 #ifndef ICE_UTIL_CONFIG_H
 #define ICE_UTIL_CONFIG_H
 
+//
+// For STLport. If we compile in debug mode, we want to use the debug
+// STLport library. This is done by setting _STLP_DEBUG before any
+// STLport header files are included.
+//
+#   if !defined(NDEBUG) && !defined(_STLP_DEBUG)
+#       define _STLP_DEBUG
+#   endif
+
 #if defined(_WIN32)
 
 // Necessary for TryEnterCriticalSection.
@@ -22,12 +31,6 @@
 
 #   if !defined(_DLL) || !defined(_MT)
 #       error "Only multi-threaded DLL libraries can be used with Ice!"
-#   endif
-
-// For STLport. If we compile in debug mode, we want to use the debug
-// STLport library.
-#   if !defined(NDEBUG) && !defined(_STLP_DEBUG)
-#       define _STLP_DEBUG
 #   endif
 
 #   ifdef ICE_UTIL_API_EXPORTS

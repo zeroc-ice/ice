@@ -8,16 +8,12 @@
 //
 // **********************************************************************
 
+#include <IceStorm/WeightedGraph.h>
+#include <parsers/SAXParser.hpp>
+#include <sax/HandlerBase.hpp>
 #include <map>
 #include <list>
 #include <iostream>
-
-#include <assert.h>
-
-#include <parsers/SAXParser.hpp>
-#include <sax/HandlerBase.hpp>
-
-#include <IceStorm/WeightedGraph.h>
 
 using namespace std;
 using namespace IceStorm;

@@ -11,7 +11,6 @@
 #include <Ice/Ice.h>
 #include <IceStorm/Parser.h>
 #include <IceStorm/WeightedGraph.h>
-
 #include <algorithm>
 
 #ifdef HAVE_READLINE

@@ -10,12 +10,10 @@
 
 #include <Ice/Ice.h>
 #include <Ice/Functional.h>
-
 #include <IceStorm/TopicI.h>
 #include <IceStorm/SubscriberFactory.h>
 #include <IceStorm/Subscriber.h>
 #include <IceStorm/TraceLevels.h>
-
 #include <algorithm>
 #include <list>
 

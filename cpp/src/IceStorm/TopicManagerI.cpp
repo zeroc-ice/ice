@@ -9,7 +9,6 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-
 #include <IceStorm/TopicManagerI.h>
 #include <IceStorm/TopicI.h>
 #include <IceStorm/Flusher.h>
