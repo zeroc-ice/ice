@@ -92,25 +92,25 @@ IceInternal::ServantManager::findServant(const Identity& ident) const
 }
 
 void
-IceInternal::ServantManager::addServantLocator(const ServantLocatorPtr& locator, const string& prefix)
+IceInternal::ServantManager::addServantLocator(const ServantLocatorPtr& locator, const string& category)
 {
     IceUtil::Mutex::Lock sync(*this);
 
     assert(_instance); // Must not be called after destruction.
 
-    if(_locatorMap.find(prefix) != _locatorMap.end())
+    if(_locatorMap.find(category) != _locatorMap.end())
     {
 	AlreadyRegisteredException ex(__FILE__, __LINE__);
 	ex.kindOfObject = "servant locator";
-	ex.id = prefix;
+	ex.id = category;
 	throw ex;
     }
     
-    _locatorMapHint = _locatorMap.insert(_locatorMapHint, pair<const string, ServantLocatorPtr>(prefix, locator));
+    _locatorMapHint = _locatorMap.insert(_locatorMapHint, pair<const string, ServantLocatorPtr>(category, locator));
 }
 
 ServantLocatorPtr
-IceInternal::ServantManager::findServantLocator(const string& prefix) const
+IceInternal::ServantManager::findServantLocator(const string& category) const
 {
     IceUtil::Mutex::Lock sync(*this);
     
@@ -118,13 +118,14 @@ IceInternal::ServantManager::findServantLocator(const string& prefix) const
 
     if(_locatorMap.end() != _locatorMapHint)
     {
-	if(_locatorMapHint->first == prefix)
+	if(_locatorMapHint->first == category)
 	{
 	    return _locatorMapHint->second;
 	}
     }
     
-    map<string, ServantLocatorPtr>::iterator p = const_cast<map<string, ServantLocatorPtr>&>(_locatorMap).find(prefix);
+    map<string, ServantLocatorPtr>::iterator p =
+	const_cast<map<string, ServantLocatorPtr>&>(_locatorMap).find(category);
     if(_locatorMap.end() != p)
     {
 	_locatorMapHint = p;
@@ -176,7 +177,7 @@ IceInternal::ServantManager::destroy()
 	    Error out(_instance->logger());
 	    out << "exception during locator deactivation:\n"
 		<< "object adapter: `" << _adapterName << "'\n"
-		<< "locator prefix: `" << p->first << "'\n"
+		<< "locator category: `" << p->first << "'\n"
 		<< ex;
 	}
 	catch(...)
@@ -184,7 +185,7 @@ IceInternal::ServantManager::destroy()
 	    Error out(_instance->logger());
 	    out << "unknown exception during locator deactivation:\n"
 		<< "object adapter: `" << _adapterName << "'\n"
-		<< "locator prefix: `" << p->first << "'";
+		<< "locator category: `" << p->first << "'";
 	}
     }
 

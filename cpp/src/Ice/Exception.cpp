@@ -369,7 +369,7 @@ void
 Ice::MarshalException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nprotocol error: error during unmarshaling";
+    out << ":\nprotocol error: error during marshaling or unmarshaling";
 }
 
 void

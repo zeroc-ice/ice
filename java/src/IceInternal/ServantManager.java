@@ -59,28 +59,28 @@ public final class ServantManager extends Thread
     }
 
     public synchronized void
-    addServantLocator(Ice.ServantLocator locator, String prefix)
+    addServantLocator(Ice.ServantLocator locator, String category)
     {
 	assert(_instance != null); // Must not be called after destruction.
 
-	Ice.ServantLocator l = (Ice.ServantLocator)_locatorMap.get(prefix);
+	Ice.ServantLocator l = (Ice.ServantLocator)_locatorMap.get(category);
 	if(l != null)
 	{
 	    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-	    ex.id = prefix;
+	    ex.id = category;
 	    ex.kindOfObject = "servant locator";
 	    throw ex;
 	}
 
-        _locatorMap.put(prefix, locator);
+        _locatorMap.put(category, locator);
     }
 
     public synchronized Ice.ServantLocator
-    findServantLocator(String prefix)
+    findServantLocator(String category)
     {
 	assert(_instance != null); // Must not be called after destruction.
 
-        return (Ice.ServantLocator)_locatorMap.get(prefix);
+        return (Ice.ServantLocator)_locatorMap.get(category);
     }
 
     //
@@ -133,7 +133,7 @@ public final class ServantManager extends Thread
 		ex.printStackTrace(pw);
 		pw.flush();
 		String s = "exception during locator deactivation:\n" + "object adapter: `" + _adapterName + "'\n" +
-		    "locator prefix: `" + e.getKey() + "'\n" + sw.toString();
+		    "locator category: `" + e.getKey() + "'\n" + sw.toString();
 		_instance.logger().error(s);
 	    }
 	}
