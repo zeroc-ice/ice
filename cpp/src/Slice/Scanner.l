@@ -16,7 +16,53 @@
 using namespace std;
 using namespace Slice;
 
-#define	YY_USER_INIT initialize();
+namespace Slice
+{
+
+//
+// Function object to do case-insensitive string comparison.
+//
+struct CICompare : public std::binary_function<std::string, std::string, bool>
+{
+    bool operator()(const std::string& s1, const std::string& s2) const
+    {
+	std::string::const_iterator p1 = s1.begin();
+	std::string::const_iterator p2 = s2.begin();
+	while(p1 != s1.end() && p2 != s2.end() && tolower(*p1) == tolower(*p2))
+	{
+	    ++p1;
+	    ++p2;
+	}
+	if(p1 == s1.end() && p2 == s2.end())
+	{
+	    return false;
+	}
+	else if(p1 == s1.end())
+	{
+	    return true;
+	}
+	else if(p2 == s2.end())
+	{
+	    return false;
+	}
+	else
+	{
+	    return tolower(*p1) < tolower(*p2);
+	}
+    }
+};
+
+//
+// Definitions for the case-insensitive keyword-token map.
+//
+typedef std::map<std::string, int, CICompare> StringTokenMap;
+static StringTokenMap keywordMap;
+
+void Slice::initScanner();
+
+}
+
+#define	YY_USER_INIT initScanner();
 
 %}
 
@@ -111,17 +157,16 @@ using namespace Slice;
     }
     *yylvalp = ident;
 
-    stringTokenMap::const_iterator pos = keywordMap.find(ident->v);
+    StringTokenMap::const_iterator pos = keywordMap.find(ident->v);
     if(pos != keywordMap.end())
     {
     	if(pos->first != ident->v)
 	{
-// TODO: ML: Indentation.
-		string msg;
-		msg = "illegal identifier: `" + ident->v + "' differs from keyword `";
-		msg += pos->first + "' only in capitalization";
-		unit->error(msg);
-		ident->v = pos->first;
+	    string msg;
+	    msg = "illegal identifier: `" + ident->v + "' differs from keyword `";
+	    msg += pos->first + "' only in capitalization";
+	    unit->error(msg);
+	    ident->v = pos->first;
 	}
 	return pos->second;
     }
@@ -250,39 +295,39 @@ using namespace Slice;
 
 %%
 
-// TODO: ML: Coding conventions.
 namespace Slice {
 
-stringTokenMap keywordMap;
+//
+// initScanner() fills the keyword map with all keyword-token pairs.
+//
 
 void
-initialize()
+initScanner()
 {
-// TODO: ML: Indentation is 4 char positions, not 8.
-	keywordMap["module"] = ICE_MODULE;
-	keywordMap["class"] = ICE_CLASS;
-	keywordMap["interface"] = ICE_INTERFACE;
-	keywordMap["exception"] = ICE_EXCEPTION;
-	keywordMap["struct"] = ICE_STRUCT;
-	keywordMap["sequence"] = ICE_SEQUENCE;
-	keywordMap["dictionary"] = ICE_DICTIONARY;
-	keywordMap["enum"] = ICE_ENUM;
-	keywordMap["out"] = ICE_OUT;
-	keywordMap["extends"] = ICE_EXTENDS;
-	keywordMap["implements"] = ICE_IMPLEMENTS;
-	keywordMap["throws"] = ICE_THROWS;
-	keywordMap["void"] = ICE_VOID;
-	keywordMap["byte"] = ICE_BYTE;
-	keywordMap["bool"] = ICE_BOOL;
-	keywordMap["short"] = ICE_SHORT;
-	keywordMap["int"] = ICE_INT;
-	keywordMap["long"] = ICE_LONG;
-	keywordMap["float"] = ICE_FLOAT;
-	keywordMap["double"] = ICE_DOUBLE;
-	keywordMap["string"] = ICE_STRING;
-	keywordMap["Object"] = ICE_OBJECT;
-	keywordMap["LocalObject"] = ICE_LOCAL_OBJECT;
-	keywordMap["local"] = ICE_LOCAL;
+    keywordMap["module"] = ICE_MODULE;
+    keywordMap["class"] = ICE_CLASS;
+    keywordMap["interface"] = ICE_INTERFACE;
+    keywordMap["exception"] = ICE_EXCEPTION;
+    keywordMap["struct"] = ICE_STRUCT;
+    keywordMap["sequence"] = ICE_SEQUENCE;
+    keywordMap["dictionary"] = ICE_DICTIONARY;
+    keywordMap["enum"] = ICE_ENUM;
+    keywordMap["out"] = ICE_OUT;
+    keywordMap["extends"] = ICE_EXTENDS;
+    keywordMap["implements"] = ICE_IMPLEMENTS;
+    keywordMap["throws"] = ICE_THROWS;
+    keywordMap["void"] = ICE_VOID;
+    keywordMap["byte"] = ICE_BYTE;
+    keywordMap["bool"] = ICE_BOOL;
+    keywordMap["short"] = ICE_SHORT;
+    keywordMap["int"] = ICE_INT;
+    keywordMap["long"] = ICE_LONG;
+    keywordMap["float"] = ICE_FLOAT;
+    keywordMap["double"] = ICE_DOUBLE;
+    keywordMap["string"] = ICE_STRING;
+    keywordMap["Object"] = ICE_OBJECT;
+    keywordMap["LocalObject"] = ICE_LOCAL_OBJECT;
+    keywordMap["local"] = ICE_LOCAL;
 }
 
 }

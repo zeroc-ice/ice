@@ -17,55 +17,6 @@
 namespace Slice
 {
 
-// TODO: ML: Consider moving to Scanner.l, as it is only used there.
-//
-// Function object to do case-insensitive string comparison.
-//
-struct CICompare : public std::binary_function<std::string, std::string, bool>
-{
-    // TODO: ML: Make non-inline. (Not necessary if moved to Scanner.l)
-    bool operator()(const std::string& s1, const std::string& s2) const
-    {
-	std::string::const_iterator p1 = s1.begin();
-	std::string::const_iterator p2 = s2.begin();
-	while(p1 != s1.end() && p2 != s2.end() && tolower(*p1) == tolower(*p2))
-	{
-	    ++p1;
-	    ++p2;
-	}
-	if(p1 == s1.end() && p2 == s2.end())
-	{
-	    return false;
-	}
-	else if(p1 == s1.end())
-	{
-	    return true;
-	}
-	else if(p2 == s2.end())
-	{
-	    return false;
-	}
-	else
-	{
-	    return tolower(*p1) < tolower(*p2);
-	}
-    }
-};
-
-//
-// Definitions for the case-insensitive keyword-token map.
-//
-// TODO: ML: Naming conventions for types. (Should be StringTokenMap.)
-// TODO: ML: Consider moving to Scanner.l, as it is only used there. Then keywordMap can also be static.
-typedef std::map<std::string, int, CICompare> stringTokenMap;
-extern stringTokenMap keywordMap;
-
-//
-// initialize() fills the keyword map with all keyword-token pairs.
-//
-// TODO: ML: Perhaps initializeKeywordMap() would be a better name?
-void initialize();
-
 class StringTok;
 class StringListTok;
 class TypeStringTok;

@@ -34,7 +34,7 @@ for file in files:
 
     command = slice2cpp + " " + os.path.join(directory, file);
     stdin, stdout, stderr = os.popen3(command)
-    lines1 = stderr.readlines()
+    lines1 = stdout.readlines()
     lines2 = open(os.path.join(directory, regex1.sub(".err", file)), "r").readlines()
     if len(lines1) != len(lines2):
         print "failed!"

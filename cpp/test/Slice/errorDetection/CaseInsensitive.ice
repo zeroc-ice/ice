@@ -158,3 +158,33 @@ enum en2 { en1 };
 enum en3 { EN1 };
 enum en4 { m1 };
 enum en5 { M1 };
+
+module xxx {
+
+module xx {
+
+interface Base { void op(); };
+
+interface Derived extends Base {};
+
+interface Derived extends base {};
+
+exception e1 {};
+
+exception e2 extends E1 {};
+
+sequence<long> s1;
+struct s {
+    S1 x;
+    ::xx::S1 y;
+    XX::s1 z;
+};
+
+struct s2 {
+    Derived* blah;
+    derived* bletch;
+};
+
+};
+
+};
