@@ -249,14 +249,21 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	}
     }
     
-/*
-  StringSeq::iterator seqElem = args.begin();
-  while(seqElem != args.end())
-  {
-  cerr << *seqElem << endl;
-  seqElem++;
-  }
-*/	
+    //
+    // Convert to standard argc/argv.
+    //
+    int argc = static_cast<int>(args.size()) + 1;
+    char** argv = static_cast<char**>(malloc((argc + 1) * sizeof(char*)));
+    StringSeq::iterator p;
+    int i;
+    for(p = args.begin(), i = 1; p != args.end(); ++p, ++i)
+    {
+	assert(i < argc);
+	argv[i] = strdup(p->c_str());
+    }
+    assert(i == argc);
+    argv[0] = strdup(path.c_str());
+    argv[argc] = 0;
     
     //
     // Start a router.
@@ -284,6 +291,10 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 
     if(pid == 0) // Child process.
     {
+	//
+	// Until exec, we can only use async-signal safe functions
+	//
+
 #ifdef __linux
 	//
 	// Create a process group for this child, to be able to send 
@@ -307,22 +318,6 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	}
 	
 	//
-	// Convert to standard argc/argv.
-	//
-	int argc = static_cast<int>(args.size()) + 1;
-	char** argv = static_cast<char**>(malloc((argc + 1) * sizeof(char*)));
-	StringSeq::iterator p;
-	int i;
-	for(p = args.begin(), i = 1; p != args.end(); ++p, ++i)
-	{
-	    assert(i < argc);
-	    argv[i] = strdup(p->c_str());
-	}
-	assert(i == argc);
-	argv[0] = strdup(path.c_str());
-	argv[argc] = 0;
-
-	//
 	// Try to start the router.
 	//
 	if(execvp(argv[0], argv) == -1)
@@ -331,11 +326,20 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	    // Send any errors to the parent process, using the write
 	    // end of the pipe.
 	    //
-	    string msg = "can't execute `" + path + "': " + strerror(errno);
-	    write(fds[1], msg.c_str(), msg.length());
+	    char msg[500];
+	    strcpy(msg,  "can't execute `");
+	    strcat(msg, argv[0]);
+	    strcat(msg, "':  ");
+	    strcat(msg, strerror(errno));
+
+	    write(fds[1], msg, strlen(msg));
 	    close(fds[1]);
-	    //sleep(100000); //XXX
-	    exit(EXIT_FAILURE);
+
+	    //
+	    // _exit instead of exit to avoid interferences with
+	    // the parent process
+	    //
+	    _exit(EXIT_FAILURE);
 	}
     }
     else // Parent process.
