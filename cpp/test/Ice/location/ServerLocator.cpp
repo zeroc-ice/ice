@@ -30,6 +30,10 @@ ServerLocatorRegistry::setAdapterDirectProxy(const ::std::string& adapter, const
 Ice::ObjectPrx
 ServerLocatorRegistry::getAdapter(const ::std::string& adapter)
 {
+    if(_adapters.find(adapter) == _adapters.end())
+    {
+	throw Ice::AdapterNotRegisteredException();
+    }
     return _adapters[adapter];
 }
 

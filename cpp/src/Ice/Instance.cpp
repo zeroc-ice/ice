@@ -57,6 +57,13 @@ IceUtil::Mutex* Instance::_globalStateMutex = new IceUtil::Mutex;
 string Instance::_identForOpenlog;
 #endif
 
+namespace IceUtil
+{
+
+extern bool nullHandleAbort;
+
+};
+
 namespace IceInternal
 {
 
@@ -298,6 +305,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 		    _identForOpenlog = "<Unknown Ice Program>";
 		}
 		openlog(_identForOpenlog.c_str(), LOG_PID, LOG_USER);
+	    }
+
+	    if(_properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
+	    {
+		IceUtil::nullHandleAbort = true;
 	    }
 #endif
 	}

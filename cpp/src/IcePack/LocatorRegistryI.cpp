@@ -43,7 +43,7 @@ IcePack::LocatorRegistryI::setAdapterDirectProxy(const string& id, const Ice::Ob
 	}
 	catch(const AdapterActiveException&)
 	{
-	    throw Ice::AdapterAlreadyActive();
+	    throw Ice::AdapterAlreadyActiveException();
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
@@ -96,7 +96,7 @@ IcePack::LocatorRegistryI::setAdapterDirectProxy(const string& id, const Ice::Ob
 	}
 	else
 	{
-	    throw Ice::AdapterNotRegistered();
+	    throw Ice::AdapterNotRegisteredException();
 	}
     }
 }

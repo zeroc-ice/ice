@@ -249,6 +249,14 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, bool& cached)
 		    endpoints = object->__reference()->endpoints;
 		}
 	    }
+	    catch(const AdapterNotRegisteredException&)
+	    {
+		if(ref->instance->traceLevels()->location >= 1)
+		{
+		    Trace out(ref->instance->logger(), ref->instance->traceLevels()->locationCat);
+		    out << "adapter `" << ref->adapterId << "' is not registered";
+		}
+	    }
 	    catch(const LocalException& ex)
 	    {
 		//

@@ -44,12 +44,14 @@ IcePack::LocatorI::findAdapterById(const string& id, const Ice::Current&) const
     }
     catch(const AdapterNotExistException&)
     {
+	throw Ice::AdapterNotRegisteredException();
     }
     catch(const Ice::ObjectNotExistException&)
     {
 	//
 	// Expected if the adapter is destroyed.
 	//
+	throw Ice::AdapterNotRegisteredException();
     }
     catch(const Ice::NoEndpointException&)
     {

@@ -16,6 +16,13 @@
 
 using namespace std;
 
+namespace IceUtil
+{
+
+bool nullHandleAbort = false;
+
+};
+
 IceUtil::Exception::Exception() :
     _file(0),
     _line(0)
@@ -82,6 +89,10 @@ IceUtil::operator<<(ostream& out, const IceUtil::Exception& ex)
 IceUtil::NullHandleException::NullHandleException(const char* file, int line) :
     Exception(file, line)
 {
+    if(nullHandleAbort)
+    {
+	assert(false);
+    }
 }
 
 string

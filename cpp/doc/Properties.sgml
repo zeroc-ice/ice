@@ -603,6 +603,23 @@ value of <literal>Ice.ProgramName</literal>. (Unix only.)
 </section>
 </section>
 
+<section><title>Ice.NullHandleAbort</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.NullHandleAbort=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+IceUtil smart pointers will cause the program to abort instead of
+raising an <literal>IceUtil::NullHandleException</literal> exception
+if a null smart pointer is accessed. (C++ only.)
+</para>
+</section>
+</section>
+
 </section>
 
 <!-- ********************************************************************** -->

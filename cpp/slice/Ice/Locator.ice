@@ -18,6 +18,26 @@
 module Ice
 {
 
+/**
+ *
+ * This exception is raised if the server tries to set endpoints for
+ * an adapter which is not registered with the locator.
+ *
+ **/
+exception AdapterNotRegisteredException
+{
+};
+
+/**
+ *
+ * This exception is raised if the server tries to set endpoints for
+ * an adapter which is already active.
+ *
+ **/
+exception AdapterAlreadyActiveException
+{
+};
+
 interface LocatorRegistry;
 
 /**
@@ -40,10 +60,14 @@ interface Locator
      *
      * @param id The adapter id.
      *
-     * @return The adapter proxy or null if the adapter is not found.
+     * @return The adapter proxy or null if the adapter is not active.
+     * 
+     * @throws AdapterNotRegisteredException Raised if the adapter
+     * can't be found.
      *
      **/
-    nonmutating Object* findAdapterById(string id);
+    nonmutating Object* findAdapterById(string id)
+	throws AdapterNotRegisteredException;
 
     /**
      *
@@ -53,26 +77,6 @@ interface Locator
      *
      **/
     nonmutating LocatorRegistry* getRegistry();
-};
-
-/**
- *
- * This exception is raised if the server tries to set endpoints for
- * an adapter which is not registered with the locator.
- *
- **/
-exception AdapterNotRegistered
-{
-};
-
-/**
- *
- * This exception is raised if the server tries to set endpoints for
- * an adapter which is already active.
- *
- **/
-exception AdapterAlreadyActive
-{
 };
 
 /**
@@ -107,7 +111,7 @@ interface LocatorRegistry
      *
      */
     idempotent void setAdapterDirectProxy(string id, Object* proxy)
-	throws AdapterNotRegistered, AdapterAlreadyActive;
+	throws AdapterNotRegisteredException, AdapterAlreadyActiveException;
 };
 
 };

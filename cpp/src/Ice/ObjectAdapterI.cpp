@@ -84,13 +84,13 @@ Ice::ObjectAdapterI::activate()
 	    {
 		_locatorInfo->getLocatorRegistry()->setAdapterDirectProxy(_id, newDirectProxy(ident));
 	    }
-	    catch(const Ice::AdapterNotRegistered&)
+	    catch(const Ice::AdapterNotRegisteredException&)
 	    {
 		ObjectAdapterNotRegisteredException ex(__FILE__, __LINE__);
 		ex.name = _name;
 		throw ex;
 	    }
-	    catch(const Ice::AdapterAlreadyActive&)
+	    catch(const Ice::AdapterAlreadyActiveException&)
 	    {
 		ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
 		ex.id = _id;
