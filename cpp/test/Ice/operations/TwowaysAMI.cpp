@@ -1096,16 +1096,19 @@ twowaysAMI(const Test::MyClassPrx& p)
 	ctx["two"] = "TWO";
 	ctx["three"] = "THREE";
 	{
+	    test(p->ice_getContext().empty());
 	    AMI_MyClass_opContextNotEqualIPtr cb = new AMI_MyClass_opContextNotEqualI(ctx);
 	    p->opContext_async(cb);
 	    test(cb->check());
 	}
 	{
+	    test(p->ice_getContext().empty());
 	    AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(ctx);
 	    p->opContext_async(cb, ctx);
 	    test(cb->check());
 	}
 	Test::MyClassPrx p2 = Test::MyClassPrx::checkedCast(p->ice_newContext(ctx));
+	test(p2->ice_getContext() == ctx);
 	{
 	    AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(ctx);
 	    p2->opContext_async(cb);
