@@ -22,27 +22,29 @@ Changes since Alpha 2
   derived from System.Collections.CollectionBase, you need to use
   the "cs:collection" metadata directive.
 
-- Added "cs:class" metadata directive for Slice structures. Without this
-  directive, Slice structures map to C# structures. With this directive,
-  Slice structures map to C# classes.
+- Added "cs:class" metadata directive for Slice structures. Without
+  this directive, Slice structures map to C# structures. With this
+  directive, Slice structures map to C# classes.
 
-- Added a key pair to the distribution so the assembly has a strong name
-  and can be added to the global assembly cache. If you want to use your
-  own key pair, you can replace the contents of src/Ice/IcecsKey.snk with
-  your own key pair. See
-  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpguide/html/cpconcreatingkeypairforuseincreatingstrongly-namedassembly.asp for more detail.
+- Added a key pair to the distribution so the assembly has a strong
+  name and can be added to the global assembly cache. If you want to
+  use your own key pair, you can replace the contents of
+  src/Ice/IcecsKey.snk with your own key pair. See
+  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpguide/html/cpconcreatingkeypairforuseincreatingstrongly-namedassembly.asp
+  for more detail.
 
-- The generated code is more efficient and smaller than it was previously.
+- The generated code is more efficient and smaller than it was
+  previously.
 
 
 Changes since Alpha 1
 ---------------------
 
-- Changed the generate.cs code to look for slice2cs
-  in ${SolutionDir}/bin.
+- Changed the generate.cs code to look for slice2cs in
+  ${SolutionDir}/bin.
 
-- Added "cs:array" metadata directive for sequences.
-  Sequences with this directive are mapped to arrays
-  instead of being derived from Collections.CollectionBase.
+- Added "cs:array" metadata directive for sequences.  Sequences with
+  this directive are mapped to arrays instead of being derived from
+  Collections.CollectionBase.
 
 - Improved marshaling speed.

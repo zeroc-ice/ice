@@ -16,11 +16,11 @@ C++ compiler
 Third-party libraries
 ---------------------
 
-- Berkeley DB 4.1.25 or 4.2.52 configured with --enable-cxx
-  You can download the Berkeley DB source distribution 
-  from http://www.sleepycat.com
+- Berkeley DB 4.1.25 or 4.2.52 configured with --enable-cxx You can
+  download the Berkeley DB source distribution from
+  http://www.sleepycat.com
 
-- expat 1.9x. You can download expat from 
+- expat 1.9x. You can download expat from
   http://sourceforge.net/projects/expat/
 
 
