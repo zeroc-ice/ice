@@ -50,7 +50,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 HDIR		= $(includedir)/IcePack
 LOCAL_HDIR	= ../IcePack
 SDIR		= $(slicedir)/IcePack
-SLICECMD	= $(SLICE2CPP) --include-dir IcePack --dll-export ICE_PACK_API -I$(slicedir)
+SLICECMD	= $(SLICE2CPP) --ice --include-dir IcePack --dll-export ICE_PACK_API -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 

@@ -77,14 +77,14 @@ clean::
 
 Library.h Library.cpp: Library.ice $(SLICE2CPP)
 	rm -f Library.h Library.cpp
-	$(SLICE2CPP) -I$(slicedir) Library.ice
+	$(SLICE2CPP) --ice -I$(slicedir) Library.ice
 
 clean::
 	rm -f Library.h Library.cpp
 
 LibraryTypes.h LibraryTypes.cpp: Library.ice $(SLICE2FREEZE)
 	rm -f LibraryTypes.h LibraryTypes.cpp
-	$(SLICE2FREEZE) -I$(slicedir) --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes $(slicedir)/Ice/BuiltinSequences.ice Library.ice
+	$(SLICE2FREEZE) --ice -I$(slicedir) --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes $(slicedir)/Ice/BuiltinSequences.ice Library.ice
 
 clean::
 	rm -f LibraryTypes.h LibraryTypes.cpp

@@ -59,7 +59,7 @@ SRCS		= $(OBJS:.o=.cpp)
 
 HDIR		= $(includedir)/IceSSL
 SDIR		= $(slicedir)/IceSSL
-SLICECMD	= $(SLICE2CPP) --include-dir IceSSL --dll-export ICE_SSL_API -I$(slicedir)
+SLICECMD	= $(SLICE2CPP) --ice --include-dir IceSSL --dll-export ICE_SSL_API -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 

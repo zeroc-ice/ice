@@ -30,8 +30,8 @@ SRCS		= $(OBJS:.o=.cpp)
 
 HDIR		= $(includedir)/Freeze
 SDIR		= $(slicedir)/Freeze
-SLICECMD	= $(SLICE2CPP) --include-dir Freeze --dll-export FREEZE_API -I$(slicedir)
-SLICE2FREEZECMD = $(SLICE2FREEZE) --include-dir Freeze -I$(slicedir)
+SLICECMD	= $(SLICE2CPP) --ice --include-dir Freeze --dll-export FREEZE_API -I$(slicedir)
+SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir Freeze -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 

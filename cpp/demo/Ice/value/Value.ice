@@ -13,18 +13,18 @@
 
 class Simple
 {
-    string _message;
+    string message;
 };
 
 class Printer
 {
-    string _message;
+    string message;
     void printBackwards();
 };
 
 class DerivedPrinter extends Printer
 {
-    string _derivedMessage;
+    string derivedMessage;
     void printUppercase();
 };
 

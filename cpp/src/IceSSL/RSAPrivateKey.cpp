@@ -112,7 +112,7 @@ IceSSL::OpenSSL::RSAPrivateKey::byteSeqToKey(const ByteSeq& keySeq)
     {
         IceSSL::PrivateKeyParseException pkParseException(__FILE__, __LINE__);
 
-        pkParseException._message = "unable to parse provided private key\n" + sslGetErrors();
+        pkParseException.message = "unable to parse provided private key\n" + sslGetErrors();
 
         throw pkParseException;
     }

@@ -43,6 +43,7 @@ usage(const char* n)
 	"                      different names. NAME may be a scoped name.\n"
 	"--output-dir DIR      Create files in the directory DIR.\n"
 	"-d, --debug           Print debug messages.\n"
+        "--ice                 Permit `Ice' prefix (for building Ice source code only)\n"
 	;
 }
 
@@ -198,6 +199,7 @@ main(int argc, char* argv[])
     string dllExport;
     string output;
     bool debug = false;
+    bool ice = false;
     vector<Dict> dicts;
 
     int idx = 1;
@@ -308,6 +310,15 @@ main(int argc, char* argv[])
 	    }
 	    --argc;
 	}
+	else if(strcmp(argv[idx], "--ice") == 0)
+	{
+	    ice = true;
+	    for(int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
+	}
 	else if(strcmp(argv[idx], "--include-dir") == 0)
 	{
 	    if(idx + 1 >= argc)
@@ -392,7 +403,7 @@ main(int argc, char* argv[])
 	fileC = output + '/' + fileC;
     }
 
-    UnitPtr unit = Unit::createUnit(true, false);
+    UnitPtr unit = Unit::createUnit(true, false, ice);
 
     StringList includes;
 

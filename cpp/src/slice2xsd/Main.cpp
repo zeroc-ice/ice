@@ -26,8 +26,8 @@ usage(const char* n)
 	"-DNAME=DEF	      Define NAME as DEF.\n"
 	"-UNAME		      Remove any definition for NAME.\n"
 	"-IDIR		      Put DIR in the include file search path.\n"
-	"--ice                TBD.\n"
 	"-d, --debug	      Print debug messages.\n"
+        "--ice                Permit `Ice' prefix (for building Ice source code only)\n"
 	;
 }
 
@@ -36,6 +36,7 @@ main(int argc, char* argv[])
 {
     string cpp("cpp -C");
     bool debug = false;
+    bool ice = false;
     string include;
     string output;
     vector<string> includePaths;
@@ -90,6 +91,15 @@ main(int argc, char* argv[])
 	    }
 	    --argc;
 	}
+	else if(strcmp(argv[idx], "--ice") == 0)
+	{
+	    ice = true;
+	    for(int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
+	}
 	else if(strcmp(argv[idx], "--include-dir") == 0)
 	{
 	    if(idx + 1 >= argc)
@@ -122,15 +132,6 @@ main(int argc, char* argv[])
 	    }
 	    argc -= 2;
 	}
-        else if(strcmp(argv[idx], "--ice") == 0)
-        {
-	    // TBD
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
 	else if(argv[idx][0] == '-')
 	{
 	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
@@ -191,7 +192,7 @@ main(int argc, char* argv[])
 	    return EXIT_FAILURE;
 	}
 
-	UnitPtr unit = Unit::createUnit(false, false);
+	UnitPtr unit = Unit::createUnit(false, false, ice);
 	int parseStatus = unit->parse(cppHandle, debug);
 	
 #ifdef _WIN32

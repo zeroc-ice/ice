@@ -18,9 +18,9 @@ void
 IceSSL::SslException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    if(!_message.empty())
+    if(!message.empty())
     {
-        out << ":\n" << _message;
+        out << ":\n" << message;
     }
 }
 

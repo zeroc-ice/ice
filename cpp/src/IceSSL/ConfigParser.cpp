@@ -66,7 +66,7 @@ IceSSL::ConfigParser::process()
         s << "while parsing " << _configFile << ": " << endl;
 	s << "xerces-c init exception: " << DOMString(toCatch.getMessage());
 
-        configEx._message = s.str();
+        configEx.message = s.str();
 
         throw configEx;
     }
@@ -129,7 +129,7 @@ IceSSL::ConfigParser::process()
         s << "while parsing " << _configFile << ": " << endl;
 	s << "xerces-c parsing error: " << DOMString(e.getMessage());
 
-        configEx._message = s.str();
+        configEx.message = s.str();
 
         throw configEx;
     }
@@ -142,7 +142,7 @@ IceSSL::ConfigParser::process()
 	s << "xerces-c DOM parsing error, DOMException code: " << e.code;
         s << ", message: " << e.msg;
 
-        configEx._message = s.str();
+        configEx.message = s.str();
 
         throw configEx;
     }
@@ -150,7 +150,7 @@ IceSSL::ConfigParser::process()
     {
         ConfigParseException configEx(__FILE__, __LINE__);
 
-        configEx._message = "while parsing " + _configFile + "\n" + "unknown error occured during parsing";
+        configEx.message = "while parsing " + _configFile + "\n" + "unknown error occured during parsing";
 
         throw configEx;
     }
@@ -163,14 +163,14 @@ IceSSL::ConfigParser::process()
 
         errStr << dec << errorCount << " errors occured during parsing";
 
-        configEx._message = errStr.str();
+        configEx.message = errStr.str();
 
         string reporterErrors = errReporter->getErrors();
 
         if(!reporterErrors.empty())
         {
-            configEx._message += "\n";
-            configEx._message += reporterErrors;
+            configEx.message += "\n";
+            configEx.message += reporterErrors;
         }
 
         throw configEx;
@@ -205,7 +205,7 @@ IceSSL::ConfigParser::loadClientConfig(GeneralConfig& general,
 	s << "xerces-c DOM parsing error, DOMException code: " << e.code;
         s << ", message: " << e.msg;
 
-        configEx._message = s.str();
+        configEx.message = s.str();
 
         throw configEx;
     }
@@ -243,7 +243,7 @@ IceSSL::ConfigParser::loadServerConfig(GeneralConfig& general,
 	s << "xerces-c DOM parsing error, DOMException code: " << e.code;
         s << ", message: " << e.msg;
 
-        configEx._message = s.str();
+        configEx.message = s.str();
 
         throw configEx;
     }

@@ -110,14 +110,14 @@ class Adapter
      * The description of this objet adapter. 
      *
      */
-    AdapterDescription _description;
+    AdapterDescription description;
 
     /**
      *
      * A direct proxy created from the adapter.
      *
      */
-    Object* _proxy;
+    Object* proxy;
 };
 
 /**

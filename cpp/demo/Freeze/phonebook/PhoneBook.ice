@@ -38,9 +38,9 @@ class Contact
     ["nonmutating"] void destroy()
 	throws DatabaseException;
 
-    string _name;
-    string _address;
-    string _phone;
+    string name;
+    string address;
+    string phone;
 };
 
 sequence<Contact*> Contacts;

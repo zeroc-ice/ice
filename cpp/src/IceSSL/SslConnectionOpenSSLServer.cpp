@@ -107,8 +107,8 @@ IceSSL::OpenSSL::ServerConnection::handshake(int timeout)
             {
                 ProtocolException protocolEx(__FILE__, __LINE__);
 
-                protocolEx._message = "encountered an ssl protocol violation during handshake\n";
-                protocolEx._message += sslGetErrors();
+                protocolEx.message = "encountered an ssl protocol violation during handshake\n";
+                protocolEx.message += sslGetErrors();
 
                 throw protocolEx;
             }
@@ -170,8 +170,8 @@ IceSSL::OpenSSL::ServerConnection::handshake(int timeout)
                     ProtocolException protocolEx(__FILE__, __LINE__);
 
                     // Protocol Error: Unexpected EOF
-                    protocolEx._message = "encountered an eof during handshake that violates the ssl protocol\n";
-                    protocolEx._message += sslGetErrors();
+                    protocolEx.message = "encountered an eof during handshake that violates the ssl protocol\n";
+                    protocolEx.message += sslGetErrors();
 
                     throw protocolEx;
                 }
@@ -181,8 +181,8 @@ IceSSL::OpenSSL::ServerConnection::handshake(int timeout)
             {
                 ProtocolException protocolEx(__FILE__, __LINE__);
 
-                protocolEx._message = "encountered a violation of the ssl protocol during handshake\n";
-                protocolEx._message += sslGetErrors();
+                protocolEx.message = "encountered a violation of the ssl protocol during handshake\n";
+                protocolEx.message += sslGetErrors();
 
                 throw protocolEx;
             }
@@ -310,8 +310,8 @@ IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
                     ProtocolException protocolEx(__FILE__, __LINE__);
 
                     // Protocol Error: Unexpected EOF.
-                    protocolEx._message = "encountered an EOF that violates the ssl protocol\n";
-                    protocolEx._message += sslGetErrors();
+                    protocolEx.message = "encountered an EOF that violates the ssl protocol\n";
+                    protocolEx.message += sslGetErrors();
 
                     throw protocolEx;
                 }
@@ -321,8 +321,8 @@ IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
             {
                 ProtocolException protocolEx(__FILE__, __LINE__);
 
-                protocolEx._message = "encountered a violation of the ssl protocol\n";
-                protocolEx._message += sslGetErrors();
+                protocolEx.message = "encountered a violation of the ssl protocol\n";
+                protocolEx.message += sslGetErrors();
 
                 throw protocolEx;
             }

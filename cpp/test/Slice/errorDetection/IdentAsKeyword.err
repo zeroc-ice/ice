@@ -84,3 +84,6 @@ IdentAsKeyword.ice:77: keyword `byte' cannot be used as parameter name
 IdentAsKeyword.ice:79: keyword `byte' cannot be used as parameter name
 IdentAsKeyword.ice:80: illegal identifier: `BYTE' differs from keyword `byte' only in capitalization
 IdentAsKeyword.ice:80: keyword `byte' cannot be used as parameter name
+IdentAsKeyword.ice:84: illegal leading underscore for identifier `_a'
+IdentAsKeyword.ice:85: illegal leading underscore for identifier `_true'
+IdentAsKeyword.ice:86: illegal leading underscore for identifier `_true'

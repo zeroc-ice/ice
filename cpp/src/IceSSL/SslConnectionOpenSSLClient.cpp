@@ -169,14 +169,14 @@ IceSSL::OpenSSL::ClientConnection::handshake(int timeout)
 	        {
                     CertificateVerificationException certVerEx(__FILE__, __LINE__);
 
-                    certVerEx._message = getVerificationError(verifyError);
+                    certVerEx.message = getVerificationError(verifyError);
 
                     string errors = sslGetErrors();
 
                     if(!errors.empty())
                     {
-                        certVerEx._message += "\n";
-                        certVerEx._message += errors;
+                        certVerEx.message += "\n";
+                        certVerEx.message += errors;
                     }
 
                     throw certVerEx;
@@ -185,8 +185,8 @@ IceSSL::OpenSSL::ClientConnection::handshake(int timeout)
                 {
                     ProtocolException protocolEx(__FILE__, __LINE__);
 
-                    protocolEx._message = "encountered a violation of the ssl protocol during handshake\n";
-                    protocolEx._message += sslGetErrors();
+                    protocolEx.message = "encountered a violation of the ssl protocol during handshake\n";
+                    protocolEx.message += sslGetErrors();
 
                     throw protocolEx;
                 }
@@ -329,8 +329,8 @@ IceSSL::OpenSSL::ClientConnection::write(Buffer& buf, int timeout)
                     ProtocolException protocolEx(__FILE__, __LINE__);
 
                     // Protocol Error: Unexpected EOF
-                    protocolEx._message = "encountered an EOF that violates the ssl protocol\n";
-                    protocolEx._message += sslGetErrors();
+                    protocolEx.message = "encountered an EOF that violates the ssl protocol\n";
+                    protocolEx.message += sslGetErrors();
 
                     throw protocolEx;
                 }
@@ -345,8 +345,8 @@ IceSSL::OpenSSL::ClientConnection::write(Buffer& buf, int timeout)
             {
                 ProtocolException protocolEx(__FILE__, __LINE__);
 
-                protocolEx._message = "encountered a violation of the ssl protocol\n";
-                protocolEx._message += sslGetErrors();
+                protocolEx.message = "encountered a violation of the ssl protocol\n";
+                protocolEx.message += sslGetErrors();
 
                 throw protocolEx;
             }

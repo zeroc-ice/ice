@@ -202,8 +202,8 @@ IceSSL::OpenSSL::Connection::shutdown(int timeout)
 
                 ProtocolException protocolEx(__FILE__, __LINE__);
 
-                protocolEx._message = "encountered a violation of the ssl protocol during shutdown\n";
-                protocolEx._message += sslGetErrors();
+                protocolEx.message = "encountered a violation of the ssl protocol during shutdown\n";
+                protocolEx.message += sslGetErrors();
 
                 throw protocolEx;
             }
@@ -671,8 +671,8 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
             {
                 ProtocolException protocolEx(__FILE__, __LINE__);
 
-                protocolEx._message = "encountered a violation of the ssl protocol\n";
-                protocolEx._message += sslGetErrors();
+                protocolEx.message = "encountered a violation of the ssl protocol\n";
+                protocolEx.message += sslGetErrors();
 
                 throw protocolEx;
             }

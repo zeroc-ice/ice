@@ -80,3 +80,7 @@ interface i9 { void op(out double byte); };
 interface i10 { void op(out double BYTE); };
 
 interface \true {};	// OK, escaped keyword
+
+interface _a;		// Illegal leading underscore
+interface _true;	// Illegal leading underscore
+interface \_true;	// Illegal leading underscore

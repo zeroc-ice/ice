@@ -32,8 +32,8 @@ usage(const char* n)
         "--impl                  Generate sample implementations.\n"
         "--impl-tie              Generate sample TIE implementations.\n"
         "--clone                 Generate clone().\n"
-	"--ice                   TBD.\n"
         "-d, --debug             Print debug messages.\n"
+        "--ice                   Permit `Ice' prefix (for building Ice source code only)\n"
         ;
 }
 
@@ -49,6 +49,7 @@ main(int argc, char* argv[])
     bool implTie = false;
     bool clone = false;
     bool debug = false;
+    bool ice = false;
 
     int idx = 1;
     while(idx < argc)
@@ -104,6 +105,15 @@ main(int argc, char* argv[])
             }
             --argc;
         }
+	else if(strcmp(argv[idx], "--ice") == 0)
+	{
+	    ice = true;
+	    for(int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
+	}
         else if(strcmp(argv[idx], "--output-dir") == 0)
         {
             if(idx + 1 >= argc)
@@ -168,15 +178,6 @@ main(int argc, char* argv[])
         else if(strcmp(argv[idx], "--clone") == 0)
         {
             clone = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "--ice") == 0)
-        {
-	    // TBD
             for(int i = idx ; i + 1 < argc ; ++i)
             {
                 argv[i] = argv[i + 1];
@@ -251,7 +252,7 @@ main(int argc, char* argv[])
             return EXIT_FAILURE;
         }
 
-        UnitPtr unit = Unit::createUnit(false, false);
+        UnitPtr unit = Unit::createUnit(false, false, ice);
         int parseStatus = unit->parse(cppHandle, debug);
 
 #ifdef _WIN32

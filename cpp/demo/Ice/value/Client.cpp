@@ -44,7 +44,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     cin.getline(&c, 1);
 
     SimplePtr simple = initial->getSimple();
-    cout << "==> " << simple->_message << endl;
+    cout << "==> " << simple->message << endl;
 
     cout << '\n'
 	 << "Ok, this worked. Now let's try to transfer an object for a class\n"
@@ -75,7 +75,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     communicator->addObjectFactory(factory, "::Printer");
 
     initial->getPrinter(printer, printerProxy);
-    cout << "==> " << printer->_message << endl;
+    cout << "==> " << printer->message << endl;
 
     cout << '\n'
 	 << "Cool, it worked! Let's try calling the printBackwards() method\n"
@@ -135,7 +135,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "[press enter]\n";
     cin.getline(&c, 1);
 
-    cout << "==> " << derived->_derivedMessage << endl;
+    cout << "==> " << derived->derivedMessage << endl;
     cout << "==> ";
     derived->printUppercase();
 
@@ -156,7 +156,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	assert(derived);
     }
 
-    cout << "==> " << derived->_derivedMessage << endl;
+    cout << "==> " << derived->derivedMessage << endl;
     cout << "==> ";
     derived->printUppercase();
 

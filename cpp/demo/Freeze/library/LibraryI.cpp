@@ -29,7 +29,7 @@ BookI::destroy(const Ice::Current&)
 
     try
     {
-	_library->remove(_description);
+	_library->remove(description);
     }
     catch(const Freeze::DBNotFoundException&)
     {
@@ -49,7 +49,7 @@ BookI::destroy(const Ice::Current&)
 BookI::getBookDescription(const Ice::Current&)
 {
     // Immutable
-    return _description;
+    return description;
 }
 
 ::std::string
@@ -57,11 +57,11 @@ BookI::getRenterName(const Ice::Current&)
 {
     IceUtil::RWRecMutex::RLock sync(*this);
 
-    if(_rentalCustomerName.empty())
+    if(rentalCustomerName.empty())
     {
 	throw BookNotRentedException();
     }
-    return _rentalCustomerName;
+    return rentalCustomerName;
 }
 
 void
@@ -69,11 +69,11 @@ BookI::rentBook(const ::std::string& name, const Ice::Current&)
 {
     IceUtil::RWRecMutex::WLock sync(*this);
 
-    if(!_rentalCustomerName.empty())
+    if(!rentalCustomerName.empty())
     {
 	throw BookRentedException();
     }
-    _rentalCustomerName = name;
+    rentalCustomerName = name;
 }
 
 void
@@ -81,11 +81,11 @@ BookI::returnBook(const Ice::Current&)
 {
     IceUtil::RWRecMutex::WLock sync(*this);
 
-    if(_rentalCustomerName.empty())
+    if(rentalCustomerName.empty())
     {
 	throw BookNotRentedException();
     }
-    _rentalCustomerName.clear();;
+    rentalCustomerName.clear();;
 }
 
 static Ice::Identity
@@ -156,7 +156,7 @@ LibraryI::createBook(const ::BookDescription& description, const Ice::Current&)
     }
 
     BookPtr bookI = new BookI(this);
-    bookI->_description = description;
+    bookI->description = description;
 
     //
     // Create a new Ice Object in the evictor, using the new identity

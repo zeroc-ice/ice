@@ -90,7 +90,7 @@ SRCS		= $(OBJS:.o=.cpp)
 
 HDIR		= $(includedir)/Ice
 SDIR		= $(slicedir)/Ice
-SLICECMD	= $(SLICE2CPP) --include-dir Ice --dll-export ICE_API -I$(slicedir)
+SLICECMD	= $(SLICE2CPP) --ice --include-dir Ice --dll-export ICE_API -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 

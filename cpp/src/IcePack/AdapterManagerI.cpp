@@ -87,7 +87,7 @@ IcePack::AdapterI::~AdapterI()
 AdapterDescription
 IcePack::AdapterI::getAdapterDescription(const Current&)
 {
-    return _description;
+    return description;
 }
 
 ObjectPrx
@@ -95,16 +95,16 @@ IcePack::AdapterI::getDirectProxy(bool activate, const Current&)
 {
     ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
 
-    if(!activate || !_description.server || _active)
+    if(!activate || !description.server || _active)
     {
-	return _proxy;
+	return proxy;
     }
 
     //
     // If there's a server associated to this adapter, try to start
     // the server and wait for the adapter state to change.
     //
-    if(_description.server && _description.server->start())
+    if(description.server && description.server->start())
     {
 	//
 	// Wait for this adapter to be marked as active or the
@@ -120,14 +120,14 @@ IcePack::AdapterI::getDirectProxy(bool activate, const Current&)
 	}
     }
     
-    return _proxy;
+    return proxy;
 }
 
 void
 IcePack::AdapterI::setDirectProxy(const ObjectPrx& proxy, const Current&)
 {
     ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
-    _proxy = proxy;
+    this->proxy = proxy;
 }
 
 void
@@ -194,8 +194,8 @@ IcePack::AdapterManagerI::create(const AdapterDescription& description, const Cu
     }
     
     AdapterPtr adapterI = new AdapterI(_waitTime);
-    adapterI->_description = description;
-    adapterI->_proxy = 0;
+    adapterI->description = description;
+    adapterI->proxy = 0;
 
     //
     // Add this adapter name to our adapter names internal set.

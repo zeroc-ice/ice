@@ -231,6 +231,7 @@ Slice::Container::destroy()
 ModulePtr
 Slice::Container::createModule(const string& name)
 {
+    checkPrefix(name);
     ContainedList matches = _unit->findContents(thisScope() + name);
     matches.sort();	// Modules can occur many times...
     matches.unique();	// ... but we only want one instance of each
@@ -276,6 +277,7 @@ Slice::Container::createModule(const string& name)
 ClassDefPtr
 Slice::Container::createClassDef(const string& name, bool intf, const ClassList& bases, bool local)
 {
+    checkPrefix(name);
     ContainedList matches = _unit->findContents(thisScope() + name);
     for(ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
     {
@@ -359,6 +361,8 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
 ClassDeclPtr
 Slice::Container::createClassDecl(const string& name, bool intf, bool local)
 {
+    checkPrefix(name);
+
     ClassDefPtr def;
 
     ContainedList matches = _unit->findContents(thisScope() + name);
@@ -440,6 +444,8 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
 ExceptionPtr
 Slice::Container::createException(const string& name, const ExceptionPtr& base, bool local)
 {
+    checkPrefix(name);
+
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -481,6 +487,8 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
 StructPtr
 Slice::Container::createStruct(const string& name, bool local)
 {
+    checkPrefix(name);
+
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -514,6 +522,8 @@ Slice::Container::createStruct(const string& name, bool local)
 SequencePtr
 Slice::Container::createSequence(const string& name, const TypePtr& type, bool local)
 {
+    checkPrefix(name);
+
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -555,6 +565,8 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, bool l
 DictionaryPtr
 Slice::Container::createDictionary(const string& name, const TypePtr& keyType, const TypePtr& valueType, bool local)
 {
+    checkPrefix(name);
+
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -607,6 +619,8 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 EnumPtr
 Slice::Container::createEnum(const string& name, bool local)
 {
+    checkPrefix(name);
+
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -639,6 +653,8 @@ Slice::Container::createEnum(const string& name, bool local)
 EnumeratorPtr
 Slice::Container::createEnumerator(const string& name)
 {
+    checkPrefix(name);
+
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -672,9 +688,8 @@ ConstDefPtr
 Slice::Container::createConstDef(const string name, const TypePtr& constType,
 	                         const SyntaxTreeBasePtr& literalType, const string& value)
 {
-    //
-    // Check that the constant name is legal
-    //
+    checkPrefix(name);
+
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -1395,6 +1410,18 @@ Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
     return true;
 }
 
+void
+Slice::Container::checkPrefix(const string& name) const
+{
+    if(_unit->currentIncludeLevel() == 0 && !_unit->allowIcePrefix())
+    {
+    	if(name.find("Ice", 0) == 0)
+	{
+	    _unit->error("illegal identifier `" + name + "': `Ice' prefix is reserved");
+	}
+    }
+}
+
 // ----------------------------------------------------------------------
 // Module
 // ----------------------------------------------------------------------
@@ -1738,6 +1765,8 @@ OperationPtr
 Slice::ClassDef::createOperation(const string& name,
 				 const TypePtr& returnType)
 {
+    checkPrefix(name);
+
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -1843,6 +1872,8 @@ Slice::ClassDef::createOperation(const string& name,
 DataMemberPtr
 Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
 {
+    checkPrefix(name);
+
     assert(!isInterface()); 
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -2176,6 +2207,8 @@ Slice::Exception::destroy()
 DataMemberPtr
 Slice::Exception::createDataMember(const string& name, const TypePtr& type)
 {
+    checkPrefix(name);
+
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -2357,6 +2390,8 @@ Slice::Exception::Exception(const ContainerPtr& container, const string& name, c
 DataMemberPtr
 Slice::Struct::createDataMember(const string& name, const TypePtr& type)
 {
+    checkPrefix(name);
+
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -3021,6 +3056,8 @@ Slice::Operation::returnType() const
 ParamDeclPtr
 Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool isOutParam)
 {
+    checkPrefix(name);
+
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -3344,15 +3381,21 @@ Slice::DataMember::DataMember(const ContainerPtr& container, const string& name,
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(bool ignRedefs, bool all)
+Slice::Unit::createUnit(bool ignRedefs, bool all, bool allowIcePrefix)
 {
-    return new Unit(ignRedefs, all);
+    return new Unit(ignRedefs, all, allowIcePrefix);
 }
 
 bool
 Slice::Unit::ignRedefs() const
 {
     return _ignRedefs;
+}
+
+bool
+Slice::Unit::allowIcePrefix() const
+{
+    return _allowIcePrefix;
 }
 
 void
@@ -3814,11 +3857,12 @@ Slice::Unit::builtin(Builtin::Kind kind)
     return builtin;
 }
 
-Slice::Unit::Unit(bool ignRedefs, bool all) :
+Slice::Unit::Unit(bool ignRedefs, bool all, bool allowIcePrefix) :
     SyntaxTreeBase(0),
     Container(0),
     _ignRedefs(ignRedefs),
     _all(all),
+    _allowIcePrefix(allowIcePrefix),
     _errors(0)
 {
     _unit = this;

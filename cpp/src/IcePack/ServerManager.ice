@@ -66,14 +66,14 @@ class Server
      * The description of this server.
      *
      */
-    ServerDescription _description;
+    ServerDescription description;
 
     /**
      *
      * The adapter proxies.
      *
      **/
-    Adapters _adapters;
+    Adapters adapters;
 };
 
 class ServerManager

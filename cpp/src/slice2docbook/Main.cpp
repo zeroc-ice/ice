@@ -32,6 +32,7 @@ usage(const char* n)
         "--chapter            Use \"chapter\" instead of \"section\" as\n"
         "                     top-level element.\n"
         "-d, --debug          Print debug messages.\n"
+        "--ice                Permit `Ice' prefix (for building Ice source code only)\n"
         ;
 }
 
@@ -40,6 +41,7 @@ main(int argc, char* argv[])
 {
     string cpp("cpp -C");
     bool debug = false;
+    bool ice = false;
     bool standAlone = false;
     bool noGlobals = false;
     bool chapter = false;
@@ -115,6 +117,15 @@ main(int argc, char* argv[])
 	    }
 	    --argc;
 	}
+	else if(strcmp(argv[idx], "--ice") == 0)
+	{
+	    ice = true;
+	    for(int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
+	}
 	else if(argv[idx][0] == '-')
 	{
 	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
@@ -155,7 +166,7 @@ main(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    UnitPtr unit = Unit::createUnit(true, false);
+    UnitPtr unit = Unit::createUnit(true, false, ice);
 
     int status = EXIT_SUCCESS;
 

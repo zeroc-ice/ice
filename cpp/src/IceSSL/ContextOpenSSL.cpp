@@ -78,7 +78,7 @@ IceSSL::OpenSSL::Context::setRSAKeysBase64(const string& privateKey,
     {
         IceSSL::PrivateKeyException privateKeyEx(__FILE__, __LINE__);
 
-        privateKeyEx._message = "Empty private key supplied.";
+        privateKeyEx.message = "Empty private key supplied.";
 
         throw privateKeyEx;
     }
@@ -93,7 +93,7 @@ IceSSL::OpenSSL::Context::setRSAKeys(const Ice::ByteSeq& privateKey, const Ice::
     {
         IceSSL::PrivateKeyException privateKeyEx(__FILE__, __LINE__);
 
-        privateKeyEx._message = "Empty private key supplied.";
+        privateKeyEx.message = "Empty private key supplied.";
 
         throw privateKeyEx;
     }
@@ -219,7 +219,7 @@ IceSSL::OpenSSL::Context::createContext(SslProtocol sslProtocol)
     {
         ContextInitializationException contextInitEx(__FILE__, __LINE__);
 
-        contextInitEx._message = "unable to create ssl context\n" + sslGetErrors();
+        contextInitEx.message = "unable to create ssl context\n" + sslGetErrors();
 
         throw contextInitEx;
     }
@@ -325,13 +325,13 @@ IceSSL::OpenSSL::Context::checkKeyCert()
     {
         CertificateKeyMatchException certKeyMatchEx(__FILE__, __LINE__);
 
-        certKeyMatchEx._message = "private key does not match the certificate public key";
+        certKeyMatchEx.message = "private key does not match the certificate public key";
         string sslError = sslGetErrors();
 
         if(!sslError.empty())
         {
-            certKeyMatchEx._message += "\n";
-            certKeyMatchEx._message += sslError;
+            certKeyMatchEx.message += "\n";
+            certKeyMatchEx.message += sslError;
         }
 
         throw certKeyMatchEx;
@@ -345,7 +345,7 @@ IceSSL::OpenSSL::Context::addTrustedCertificate(const RSAPublicKey& trustedCerti
     {
         ContextNotConfiguredException contextConfigEx(__FILE__, __LINE__);
 
-        contextConfigEx._message = "ssl context not configured";
+        contextConfigEx.message = "ssl context not configured";
 
         throw contextConfigEx;
     }
@@ -358,7 +358,7 @@ IceSSL::OpenSSL::Context::addTrustedCertificate(const RSAPublicKey& trustedCerti
     {
         TrustedCertificateAddException trustEx(__FILE__, __LINE__);
 
-        trustEx._message = sslGetErrors();
+        trustEx.message = sslGetErrors();
 
         throw trustEx;
     }
@@ -384,10 +384,10 @@ IceSSL::OpenSSL::Context::addKeyCert(const CertificateFile& privateKey, const Ce
         {
             CertificateLoadException certLoadEx(__FILE__, __LINE__);
 
-            certLoadEx._message = "unable to load certificate from '";
-            certLoadEx._message += publicFile;
-            certLoadEx._message += "'\n";
-            certLoadEx._message += sslGetErrors();
+            certLoadEx.message = "unable to load certificate from '";
+            certLoadEx.message += publicFile;
+            certLoadEx.message += "'\n";
+            certLoadEx.message += sslGetErrors();
 
             throw certLoadEx;
         }
@@ -449,13 +449,13 @@ IceSSL::OpenSSL::Context::addKeyCert(const CertificateFile& privateKey, const Ce
             {
                 CertificateKeyMatchException certKeyMatchEx(__FILE__, __LINE__);
 
-                certKeyMatchEx._message = "private key does not match the certificate public key";
+                certKeyMatchEx.message = "private key does not match the certificate public key";
                 string sslError = sslGetErrors();
 
                 if(!sslError.empty())
                 {
-                    certKeyMatchEx._message += "\n";
-                    certKeyMatchEx._message += sslError;
+                    certKeyMatchEx.message += "\n";
+                    certKeyMatchEx.message += sslError;
                 }
 
                 throw certKeyMatchEx;
@@ -464,10 +464,10 @@ IceSSL::OpenSSL::Context::addKeyCert(const CertificateFile& privateKey, const Ce
             {
                 PrivateKeyLoadException pklEx(__FILE__, __LINE__);
 
-                pklEx._message = "unable to load private key from '";
-                pklEx._message += privKeyFile;
-                pklEx._message += "'\n";
-                pklEx._message += sslGetErrors();
+                pklEx.message = "unable to load private key from '";
+                pklEx.message += privKeyFile;
+                pklEx.message += "'\n";
+                pklEx.message += sslGetErrors();
 
 	        throw pklEx;
             }
@@ -484,7 +484,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const RSAKeyPair& keyPair)
     {
         ContextNotConfiguredException contextConfigEx(__FILE__, __LINE__);
 
-        contextConfigEx._message = "ssl context not configured";
+        contextConfigEx.message = "ssl context not configured";
 
         throw contextConfigEx;
     }
@@ -499,13 +499,13 @@ IceSSL::OpenSSL::Context::addKeyCert(const RSAKeyPair& keyPair)
     {
         CertificateLoadException certLoadEx(__FILE__, __LINE__);
 
-        certLoadEx._message = "unable to set certificate from memory";
+        certLoadEx.message = "unable to set certificate from memory";
         string sslError = sslGetErrors();
 
         if(!sslError.empty())
         {
-            certLoadEx._message += "\n";
-            certLoadEx._message += sslError;
+            certLoadEx.message += "\n";
+            certLoadEx.message += sslError;
         }
 
         throw certLoadEx;
@@ -522,13 +522,13 @@ IceSSL::OpenSSL::Context::addKeyCert(const RSAKeyPair& keyPair)
         {
             CertificateKeyMatchException certKeyMatchEx(__FILE__, __LINE__);
 
-            certKeyMatchEx._message = "private key does not match the certificate public key";
+            certKeyMatchEx.message = "private key does not match the certificate public key";
             string sslError = sslGetErrors();
 
             if(!sslError.empty())
             {
-                certKeyMatchEx._message += "\n";
-                certKeyMatchEx._message += sslError;
+                certKeyMatchEx.message += "\n";
+                certKeyMatchEx.message += sslError;
             }
 
             throw certKeyMatchEx;
@@ -537,13 +537,13 @@ IceSSL::OpenSSL::Context::addKeyCert(const RSAKeyPair& keyPair)
         {
             PrivateKeyLoadException pklEx(__FILE__, __LINE__);
 
-            pklEx._message = "unable to set private key from memory";
+            pklEx.message = "unable to set private key from memory";
             string sslError = sslGetErrors();
 
             if(!sslError.empty())
             {
-                pklEx._message += "\n";
-                pklEx._message += sslError;
+                pklEx.message += "\n";
+                pklEx.message += sslError;
             }
 
             throw pklEx;

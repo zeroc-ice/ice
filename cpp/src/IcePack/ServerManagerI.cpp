@@ -94,7 +94,7 @@ IcePack::ServerI::~ServerI()
 ServerDescription
 IcePack::ServerI::getServerDescription(const Current&)
 {
-    return _description;
+    return description;
 }
 
 bool
@@ -131,14 +131,14 @@ IcePack::ServerI::start(const Current&)
 
     try
     {
-	bool activated = _activator->activate(ServerNameToServer(_adapter)(_description.name));
+	bool activated = _activator->activate(ServerNameToServer(_adapter)(description.name));
 	setState(activated ? Active : Inactive);
 	return activated;
     }
     catch (const SystemException& ex)
     {
 	Warning out(_adapter->getCommunicator()->getLogger());
-	out << "activation failed for server `" << _description.name << "':\n";
+	out << "activation failed for server `" << description.name << "':\n";
 	out << ex;
 
 	setState(Inactive);
@@ -157,10 +157,10 @@ IcePack::ServerI::terminationCallback(const Current&)
     setState(Deactivating);
 
     //
-    // Mark each adapter as inactive. _adapters is immutable when
+    // Mark each adapter as inactive. adapters is immutable when
     // state == Deactivating.
     //
-    for(Adapters::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+    for(Adapters::iterator p = adapters.begin(); p != adapters.end(); ++p)
     {
 	(*p)->markAsInactive();
     }
@@ -238,11 +238,11 @@ IcePack::ServerManagerI::create(const ServerDescription& desc, const Current&)
     }
     
     ServerPtr serverI = new ServerI(_adapter, _activator);
-    serverI->_description = desc;
+    serverI->description = desc;
     for(AdapterNames::const_iterator p = desc.adapters.begin(); p != desc.adapters.end(); ++p)
     {
 	AdapterPrx adapter = _adapterManager->findByName(*p);
-	serverI->_adapters.push_back(adapter);
+	serverI->adapters.push_back(adapter);
     }
 
     _evictor->createObject(server->ice_getIdentity(), serverI);

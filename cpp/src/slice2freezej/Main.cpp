@@ -308,8 +308,8 @@ usage(const char* n)
         "                      option may be specified multiple times for\n"
         "                      different names. NAME may be a scoped name.\n"
         "--output-dir DIR      Create files in the directory DIR.\n"
-	"--ice                 TBD.\n"
         "-d, --debug           Print debug messages.\n"
+        "--ice                 Permit `Ice' prefix (for building Ice source code only)\n"
         ;
 }
 
@@ -321,6 +321,7 @@ main(int argc, char* argv[])
     string include;
     string output;
     bool debug = false;
+    bool ice = false;
     vector<Dict> dicts;
 
     int idx = 1;
@@ -431,6 +432,15 @@ main(int argc, char* argv[])
             }
             --argc;
         }
+	else if(strcmp(argv[idx], "--ice") == 0)
+	{
+	    ice = true;
+	    for(int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
+	}
         else if(strcmp(argv[idx], "--include-dir") == 0)
         {
             if(idx + 1 >= argc)
@@ -463,15 +473,6 @@ main(int argc, char* argv[])
             }
             argc -= 2;
         }
-        else if(strcmp(argv[idx], "--ice") == 0)
-        {
-	    // TBD
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
         else if(argv[idx][0] == '-')
         {
             cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
@@ -491,7 +492,7 @@ main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    UnitPtr unit = Unit::createUnit(true, false);
+    UnitPtr unit = Unit::createUnit(true, false, ice);
 
     StringList includes;
 

@@ -301,10 +301,10 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
     {
         IceSSL::OpenSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
 
-        certLoadEx._message = "unable to load certificate from '";
-        certLoadEx._message += certFile;
-        certLoadEx._message += "'\n";
-        certLoadEx._message += sslGetErrors();
+        certLoadEx.message = "unable to load certificate from '";
+        certLoadEx.message += certFile;
+        certLoadEx.message += "'\n";
+        certLoadEx.message += sslGetErrors();
 
         throw certLoadEx;
     }
@@ -315,10 +315,10 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
     {
         IceSSL::OpenSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
 
-        certLoadEx._message = "unable to load certificate from '";
-        certLoadEx._message += certFile;
-        certLoadEx._message += "'\n";
-        certLoadEx._message += sslGetErrors();
+        certLoadEx.message = "unable to load certificate from '";
+        certLoadEx.message += certFile;
+        certLoadEx.message += "'\n";
+        certLoadEx.message += sslGetErrors();
 
         throw certLoadEx;
     }
@@ -331,10 +331,10 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
     {
         IceSSL::OpenSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
 
-        pklEx._message = "unable to load private key from '";
-        pklEx._message += keyFile;
-        pklEx._message += "'\n";
-        pklEx._message += sslGetErrors();
+        pklEx.message = "unable to load private key from '";
+        pklEx.message += keyFile;
+        pklEx.message += "'\n";
+        pklEx.message += sslGetErrors();
 
         throw pklEx;
     }
@@ -345,10 +345,10 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
     {
         IceSSL::OpenSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
 
-        pklEx._message = "unable to load private key from '";
-        pklEx._message += keyFile;
-        pklEx._message += "'\n";
-        pklEx._message += sslGetErrors();
+        pklEx.message = "unable to load private key from '";
+        pklEx.message += keyFile;
+        pklEx.message += "'\n";
+        pklEx.message += sslGetErrors();
 
         throw pklEx;
     }

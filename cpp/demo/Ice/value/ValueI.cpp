@@ -17,15 +17,15 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter)
 {
     _simple = new Simple;
-    _simple->_message = "a message 4 u";
+    _simple->message = "a message 4 u";
 
     _printer = new PrinterI;
-    _printer->_message = "Ice rulez!";
+    _printer->message = "Ice rulez!";
     _printerProxy = PrinterPrx::uncheckedCast(adapter->addWithUUID(_printer));
 
     _derivedPrinter = new DerivedPrinterI;
-    _derivedPrinter->_message = _printer->_message;
-    _derivedPrinter->_derivedMessage = "Coming soon: the ultimate online game from MutableRealms!";
+    _derivedPrinter->message = _printer->message;
+    _derivedPrinter->derivedMessage = "Coming soon: the ultimate online game from MutableRealms!";
     adapter->addWithUUID(_derivedPrinter);
 }
 
@@ -60,8 +60,8 @@ void
 PrinterI::printBackwards(const Ice::Current&)
 {
     string s;
-    s.resize(_message.length());
-    reverse_copy(_message.begin(), _message.end(), s.begin());
+    s.resize(message.length());
+    reverse_copy(message.begin(), message.end(), s.begin());
     cout << s << endl;
 }
 
@@ -69,7 +69,7 @@ void
 DerivedPrinterI::printUppercase(const Ice::Current&)
 {
     string s;
-    s.resize(_derivedMessage.length());
-    transform(_derivedMessage.begin(), _derivedMessage.end(), s.begin(), toupper);
+    s.resize(derivedMessage.length());
+    transform(derivedMessage.begin(), derivedMessage.end(), s.begin(), toupper);
     cout << s << endl;
 }

@@ -37,7 +37,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 
 HDIR		= $(includedir)/IcePatch
 SDIR		= $(slicedir)/IcePatch
-SLICECMD	= $(SLICE2CPP) --include-dir IcePatch --dll-export ICE_PATCH_API -I$(slicedir)
+SLICECMD	= $(SLICE2CPP) --ice --include-dir IcePatch --dll-export ICE_PATCH_API -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 

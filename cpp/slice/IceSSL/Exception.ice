@@ -33,7 +33,7 @@ local exception SslException
      * implementation and/or debugging trace.
      *
      **/
-    string _message;
+    string message;
 };
 
 /**

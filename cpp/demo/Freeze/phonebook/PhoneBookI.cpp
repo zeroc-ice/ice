@@ -30,7 +30,7 @@ string
 ContactI::getName(const Ice::Current&)
 {
     IceUtil::RWRecMutex::RLock sync(*this);
-    return _name;
+    return name;
 }
 
 void
@@ -39,36 +39,36 @@ ContactI::setName(const string& name, const Ice::Current&)
     IceUtil::RWRecMutex::WLock sync(*this);
 
     assert(!_identity.name.empty());
-    _phoneBook->move(_identity, _name, name);
-    _name = name;
+    _phoneBook->move(_identity, this->name, name);
+    this->name = name;
 }
 
 string
 ContactI::getAddress(const Ice::Current&)
 {
     IceUtil::RWRecMutex::RLock sync(*this);
-    return _address;
+    return address;
 }
 
 void
 ContactI::setAddress(const string& address, const Ice::Current&)
 {
     IceUtil::RWRecMutex::WLock sync(*this);
-    _address = address;
+    this->address = address;
 }
 
 string
 ContactI::getPhone(const Ice::Current&)
 {
     IceUtil::RWRecMutex::RLock sync(*this);
-    return _phone;
+    return phone;
 }
 
 void
 ContactI::setPhone(const string& phone, const Ice::Current&)
 {
     IceUtil::RWRecMutex::WLock sync(*this);
-    _phone = phone;
+    this->phone = phone;
 }
 
 void
@@ -79,7 +79,7 @@ ContactI::destroy(const Ice::Current&)
     try
     {
 	assert(!_identity.name.empty());
-	_phoneBook->remove(_identity, _name);
+	_phoneBook->remove(_identity, name);
 
 	//
 	// This can throw EvictorDeactivatedException (which indicates

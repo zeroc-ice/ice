@@ -27,12 +27,12 @@ public:
 
     NumberNodeI(int number)
     {
-	_number = number;
+	this->number = number;
     }
 
     virtual int calc(const Ice::Current&)
     {
-	return _number;
+	return number;
     }
 };
 
@@ -46,13 +46,13 @@ public:
 
     AddNodeI(const NodePtr& left, const NodePtr& right)
     {
-	_left = left;
-	_right = right;
+	this->left = left;
+	this->right = right;
     }
 
     virtual int calc(const Ice::Current&)
     {
-	return _left->calc() + _right->calc();
+	return left->calc() + right->calc();
     }
 };
 
@@ -66,13 +66,13 @@ public:
 
     MultiplyNodeI(const NodePtr& left, const NodePtr& right)
     {
-	_left = left;
-	_right = right;
+	this->left = left;
+	this->right = right;
     }
 
     virtual int calc(const Ice::Current&)
     {
-	return _left->calc() * _right->calc();
+	return left->calc() * right->calc();
     }
 };
 

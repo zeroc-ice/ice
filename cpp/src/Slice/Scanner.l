@@ -118,21 +118,29 @@ floating_literal	(({fractional_constant}{exponent_part}?)|([[:digit:]]+{exponent
 }
 
 "::" {
-    return ICE_SCOPE_DELIMITOR;
+    return ICE_SCOPE_DELIMITER;
 }
 
 \\?[[:alpha:]_][[:alnum:]_]* {
     StringTokPtr ident = new StringTok;
-    if(*yytext == '\\')			// Backslash escapes keyword meaning
+    ident->v = *yytext == '\\' ? yytext + 1 : yytext;
+    *yylvalp = ident;
+    if(ident->v[0] == '_')
     {
-	ident->v = yytext + 1;
-	*yylvalp = ident;
-	return ICE_IDENTIFIER;
+	unit->error("illegal leading underscore for identifier `" + ident->v + "'");
     }
-    else
+    static const string suffixBlacklist[] = { "Helper", "Holder", "Operations", "Prx", "Ptr" };
+    for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
     {
-	ident->v = yytext;
-	*yylvalp = ident;
+    	if(ident->v.find(suffixBlacklist[i], ident->v.size() - suffixBlacklist[i].size()) != string::npos)
+	{
+	    unit->error("illegal identifier `" + ident->v + "': `" + suffixBlacklist[i] + "' suffix is reserved");
+	}
+    }
+
+    if(*yytext == '\\')
+    {
+	return ICE_IDENTIFIER;
     }
 
     StringTokenMap::const_iterator pos = keywordMap.find(ident->v);

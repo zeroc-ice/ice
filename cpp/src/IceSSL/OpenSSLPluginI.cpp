@@ -142,7 +142,7 @@ IceSSL::OpenSSL::PluginI::createConnection(ContextType connectionType, int socke
     {
         UnsupportedContextException unsupportedException(__FILE__, __LINE__);
 
-        unsupportedException._message = "unable to create client/server connections";
+        unsupportedException.message = "unable to create client/server connections";
 
         throw unsupportedException;
     }
@@ -298,8 +298,8 @@ IceSSL::OpenSSL::PluginI::loadConfig(ContextType contextType,
             }
         }
 
-        configEx._message = "no ssl configuration file specified for ";
-        configEx._message += contextString;
+        configEx.message = "no ssl configuration file specified for ";
+        configEx.message += contextString;
 
         throw configEx;
     }
