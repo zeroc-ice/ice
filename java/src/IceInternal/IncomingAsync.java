@@ -134,6 +134,51 @@ public class IncomingAsync extends IncomingBase
 		_os.writeString(ex.operation);
             }
         }
+        catch(Ice.UnknownLocalException ex)
+        {
+	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		__warning(ex);
+	    }
+
+            if(_response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+                _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
+		_os.writeString(ex.unknown);
+            }
+        }
+        catch(Ice.UnknownUserException ex)
+        {
+	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		__warning(ex);
+	    }
+
+            if(_response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+                _os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
+		_os.writeString(ex.unknown);
+            }
+        }
+        catch(Ice.UnknownException ex)
+        {
+	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		__warning(ex);
+	    }
+
+            if(_response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+                _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
+		_os.writeString(ex.unknown);
+            }
+        }
         catch(Ice.LocalException ex)
         {
 	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)

@@ -221,6 +221,78 @@ final public class Incoming extends IncomingBase
 	    __finishInvoke();
 	    return;
         }
+        catch(Ice.UnknownLocalException ex)
+        {
+	    _is.endReadEncaps();
+
+	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		__warning(ex);
+	    }
+
+            if(_response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+                _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
+		_os.writeString(ex.unknown);
+            }
+
+	    //
+	    // Must be called last, so that if an exception is raised,
+	    // this function is definitely *not* called.
+	    //
+	    __finishInvoke();
+	    return;
+        }
+        catch(Ice.UnknownUserException ex)
+        {
+	    _is.endReadEncaps();
+
+	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		__warning(ex);
+	    }
+
+            if(_response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+                _os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
+		_os.writeString(ex.unknown);
+            }
+
+	    //
+	    // Must be called last, so that if an exception is raised,
+	    // this function is definitely *not* called.
+	    //
+	    __finishInvoke();
+	    return;
+        }
+        catch(Ice.UnknownException ex)
+        {
+	    _is.endReadEncaps();
+
+	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		__warning(ex);
+	    }
+
+            if(_response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+                _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
+		_os.writeString(ex.unknown);
+            }
+
+	    //
+	    // Must be called last, so that if an exception is raised,
+	    // this function is definitely *not* called.
+	    //
+	    __finishInvoke();
+	    return;
+        }
         catch(Ice.LocalException ex)
         {
 	    _is.endReadEncaps();
