@@ -135,7 +135,7 @@ class Parser
     void
     nextFoundBook()
     {
-	if(_current != _foundBooks.length)
+	if(_foundBooks != null && _current != _foundBooks.length)
 	{
 	    ++_current;
 	}
@@ -147,7 +147,7 @@ class Parser
     {
 	try
 	{
-	    if(_current != _foundBooks.length)
+	    if(_foundBooks != null && _current != _foundBooks.length)
 	    {
 		BookDescription desc = _foundBooks[_current].getBookDescription();
 		String renter = null;
@@ -194,7 +194,7 @@ class Parser
 
 	try
 	{
-	    if(_current != _foundBooks.length)
+	    if(_foundBooks != null && _current != _foundBooks.length)
 	    {
 		_foundBooks[_current].rentBook((String)args.get(0));
 		System.out.println("the book is now rented by `" + (String)args.get(0) + "'");
@@ -223,7 +223,7 @@ class Parser
     {
 	try
 	{
-	    if(_current != _foundBooks.length)
+	    if(_foundBooks != null && _current != _foundBooks.length)
 	    {
 		_foundBooks[_current].returnBook();
 		System.out.println( "the book has been returned.");
@@ -252,7 +252,7 @@ class Parser
     {
 	try
 	{
-	    if(_current != _foundBooks.length)
+	    if(_foundBooks != null && _current != _foundBooks.length)
 	    {
 		_foundBooks[_current].destroy();
 		System.out.println("removed current book" );
