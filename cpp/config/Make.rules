@@ -25,6 +25,8 @@ CPPFLAGS	= -I. -I$(includedir) -I$(STLPORT)/stlport
 LDFLAGS		= -L$(libdir) -L$(STLPORT)/lib
 LIBS		= -lIce -lstlport_gcc_debug
 
+EVERYTHING	= all depend clean
+
 .SUFFIXES:
 .SUFFIXES:	.cpp .o
 
