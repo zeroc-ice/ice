@@ -42,13 +42,7 @@
 	</and>
     </condition>
     
-    <fail message="Unable to detect a valid Ice installation.">
-	<condition>
-	    <not>
-		<isset property="installtype"/>
-	    </not>
-	</condition>
-    </fail>
+    <fail message="Unable to detect a valid Ice installation." unless="installtype" />
 
     <condition property="is-cvs">
 	<and>
@@ -79,13 +73,9 @@
     </condition>
 
     <target name="properties-cvs" if="is-cvs">
-	<fail message="ICE_HOME is not set to a valid directory">
-	    <condition>
-		<not>
-		     <available file="${env.ICE_HOME}/slice" />
-		</not>
-	    </condition>
-	</fail>
+        <available file="${env.ICE_HOME}/slice" property="is-cvs-valid"/>
+	<fail message="ICE_HOME is not set to a valid directory" unless="is-cvs-valid"/>
+
 	<property name="slice.dir" value="${env.ICE_HOME}/slice"/>
 	<property name="lib.dir" value="${top.dir}/lib" />
 	<taskdef name="slice2java" classpath="${top.dir}/ant" classname="Slice2JavaTask"/>
@@ -100,13 +90,8 @@
     </target>
 
     <target name="properties-opt" if="is-opt">
-	<fail message="ICE_HOME is not set to a valid directory">
-	    <condition>
-		<not>
-		     <available file="${env.ICE_HOME}/lib" />
-		 </not>
-	     </condition>
-	 </fail>
+        <available file="${env.ICE_HOME}/lib" property="opt-lib-avail" />
+	<fail message="ICE_HOME is not set to a valid directory" unless="opt-lib-avail"/>
 
 	 <property name="lib.dir" value="${env.ICE_HOME}/lib" />
 	
