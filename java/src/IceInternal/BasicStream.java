@@ -24,6 +24,7 @@ public class BasicStream
 
         _currentReadEncaps = null;
         _currentWriteEncaps = null;
+        _updateStringReadTable = true;
     }
 
     protected void
@@ -69,7 +70,7 @@ public class BasicStream
     private static final int MAX = 1024 * 1024; // TODO: Configurable
 
     public void
-    resize(int total)
+    resize(int total, boolean reading)
     {
         if (total > MAX)
         {
@@ -82,21 +83,23 @@ public class BasicStream
             _buf = _bufferManager.reallocate(_buf, newCapacity);
             _capacity = _buf.capacity();
         }
-        _buf.limit(total);
+        //
+        // If this stream is used for reading, then we want to set
+        // the buffer's limit to the new total size. If this buffer
+        // is used for writing, then we must set the buffer's limit
+        // to the buffer's capacity.
+        //
+        if (reading)
+        {
+            _buf.limit(total);
+        }
+        else
+        {
+            _buf.limit(_capacity);
+        }
+        _buf.position(total);
         _limit = total;
     }
-
-    /* TODO - Remove?
-    public void
-    reserve(int total)
-    {
-        if (total > MAX)
-        {
-            throw new Ice.MemoryLimitException();
-        }
-        _buf.reserve(total);
-    }
-    */
 
     java.nio.ByteBuffer
     prepareRead()
@@ -1002,6 +1005,18 @@ public class BasicStream
         throw new Ice.NoUserExceptionFactoryException();
     }
 
+    public void
+    disableStringReadTableUpdates()
+    {
+        _updateStringReadTable = false;
+    }
+
+    public void
+    enableStringReadTableUpdates()
+    {
+        _updateStringReadTable = true;
+    }
+
     int
     pos()
     {
@@ -1064,4 +1079,5 @@ public class BasicStream
     private java.util.LinkedList _writeEncapsStack = new java.util.LinkedList();
     private ReadEncaps _currentReadEncaps;
     private WriteEncaps _currentWriteEncaps;
+    private boolean _updateStringReadTable;
 }

@@ -63,7 +63,10 @@ public final class Network
     {
         try
         {
-            return java.nio.channels.DatagramChannel.open();
+            java.nio.channels.DatagramChannel fd =
+                java.nio.channels.DatagramChannel.open();
+            fd.configureBlocking(false);
+            return fd;
         }
         catch (java.io.IOException ex)
         {
@@ -310,8 +313,12 @@ public final class Network
             java.net.Socket socket = result.socket();
             socket.setTcpNoDelay(true);
             socket.setKeepAlive(true);
+            //
+            // Need to set non-blocking in order to use Selector
+            //
+            result.configureBlocking(false);
         }
-        catch (java.net.SocketException ex)
+        catch (java.io.IOException ex)
         {
             Ice.SocketException se = new Ice.SocketException();
             se.initCause(ex);

@@ -343,13 +343,22 @@ public final class ThreadPool
                         HandlerInfo info = _adds;
                         while (info != null)
                         {
+                            int op;
+                            if ((info.fd.validOps() &
+                                java.nio.channels.SelectionKey.OP_READ) > 0)
+                            {
+                                op = java.nio.channels.SelectionKey.OP_READ;
+                            }
+                            else
+                            {
+                                op = java.nio.channels.SelectionKey.OP_ACCEPT;
+                            }
+
                             _handlers++;
                             try
                             {
-                                info.key = info.fd.register(
-                                    _selector,
-                                    java.nio.channels.SelectionKey.OP_READ,
-                                    info);
+                                info.key =
+                                    info.fd.register(_selector, op, info);
                             }
                             catch (java.nio.channels.ClosedChannelException ex)
                             {
@@ -469,7 +478,7 @@ public final class ThreadPool
         {
             if (stream.size() == 0)
             {
-                stream.resize(Protocol.headerSize);
+                stream.resize(Protocol.headerSize, true);
                 stream.pos(0);
             }
 
@@ -504,7 +513,7 @@ public final class ThreadPool
             {
                 throw new Ice.MemoryLimitException();
             }
-            stream.resize(size);
+            stream.resize(size, true);
             stream.pos(pos);
         }
 
@@ -512,52 +521,6 @@ public final class ThreadPool
             stream.pos() != stream.size())
         {
             handler.read(stream);
-        }
-    }
-
-    private static void
-    dumpBuffer(java.nio.ByteBuffer buf)
-    {
-        final int inc = 8;
-
-        byte[] data = new byte[buf.remaining()];
-        int pos = buf.position();
-        buf.get(data);
-        buf.position(pos);
-
-        for(int i = 0; i < data.length; i += inc)
-        {
-            for(int j = i ; j - i < inc ; j++)
-            {
-                if(j < data.length)
-                {
-                    int n = (int)data[j];
-                    if(n < 0)
-                        n += 256;
-                    String s;
-                    if(n < 10)
-                        s = "  " + n;
-                    else if(n < 100)
-                        s = " " + n;
-                    else
-                        s = "" + n;
-                    System.out.print(s + " ");
-                }
-                else
-                    System.out.print("    ");
-            }
-
-            System.out.print('"');
-
-            for(int j = i; j < data.length && j - i < inc; j++)
-            {
-                if(data[j] >= (byte)32 && data[j] < (byte)127)
-                    System.out.print((char)data[j]);
-                else
-                    System.out.print('.');
-            }
-
-            System.out.println('"');
         }
     }
 
@@ -605,14 +568,21 @@ public final class ThreadPool
             }
             catch (Ice.LocalException ex)
             {
-                String s = "exception in thread pool:\n" + ex;
-                // TODO: Stack trace?
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                ex.printStackTrace(pw);
+                pw.flush();
+                String s = "exception in thread pool:\n" + sw.toString();
                 _pool._instance.logger().error(s);
             }
             catch (RuntimeException ex)
             {
-                String s = "unknown exception in thread pool:\n" + ex;
-                // TODO: Stack trace?
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                ex.printStackTrace(pw);
+                pw.flush();
+                String s = "unknown exception in thread pool:\n" +
+                    sw.toString();
                 _pool._instance.logger().error(s);
             }
 

@@ -12,6 +12,9 @@ package IceInternal;
 
 public final class DispatchStatus
 {
+    private static DispatchStatus[] __values = new DispatchStatus[10];
+    private int __value;
+
     public static final int _DispatchOK = 0;
     public static final DispatchStatus DispatchOK = new DispatchStatus(_DispatchOK);
     public static final int _DispatchUserException = 1;
@@ -52,8 +55,4 @@ public final class DispatchStatus
 	__value = val;
 	__values[val] = this;
     }
-
-    private static DispatchStatus[] __values = new DispatchStatus[10];
-
-    private int __value;
 }

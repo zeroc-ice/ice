@@ -131,7 +131,7 @@ public class Incoming
             if (status != DispatchStatus.DispatchOK &&
                 status != DispatchStatus.DispatchUserException)
             {
-                _os.resize(statusPos);
+                _os.resize(statusPos, false);
                 _os.writeByte((byte)status.value());
             }
             else
@@ -153,7 +153,7 @@ public class Incoming
             _is.endReadEncaps();
             _os.endWriteEncaps();
 
-            _os.resize(statusPos);
+            _os.resize(statusPos, false);
             _os.writeByte((byte)DispatchStatus._DispatchLocationForward);
             _os.writeProxy(ex._prx);
         }
@@ -169,7 +169,7 @@ public class Incoming
             _is.endReadEncaps();
             _os.endWriteEncaps();
 
-            _os.resize(statusPos);
+            _os.resize(statusPos, false);
             _os.writeByte((byte)DispatchStatus._DispatchProxyRequested);
         }
         */
@@ -184,7 +184,7 @@ public class Incoming
             _is.endReadEncaps();
             _os.endWriteEncaps();
 
-            _os.resize(statusPos);
+            _os.resize(statusPos, false);
             _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
 
             throw ex;
@@ -201,7 +201,7 @@ public class Incoming
             _is.endReadEncaps();
             _os.endWriteEncaps();
 
-            _os.resize(statusPos);
+            _os.resize(statusPos, false);
             _os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
 
             throw ex;
@@ -218,7 +218,7 @@ public class Incoming
             _is.endReadEncaps();
             _os.endWriteEncaps();
 
-            _os.resize(statusPos);
+            _os.resize(statusPos, false);
             _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
 
             Ice.UnknownException ue = new Ice.UnknownException();

@@ -97,9 +97,10 @@ final class UdpTransceiver implements Transceiver
         assert(!_sender);
         assert(stream.pos() == 0);
         final int packetSize = 64 * 1024; // TODO: configurable
-        stream.resize(packetSize);
+        stream.resize(packetSize, true);
 
         java.nio.ByteBuffer buf = stream.prepareRead();
+        buf.position(0);
         while (true)
         {
             try
@@ -114,7 +115,7 @@ final class UdpTransceiver implements Transceiver
                     _logger.trace(_traceLevels.networkCat, s);
                 }
 
-                stream.resize(tot);
+                stream.resize(tot, true);
                 stream.pos(tot);
                 break;
             }

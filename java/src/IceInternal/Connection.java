@@ -368,18 +368,19 @@ public final class Connection extends EventHandler
                     {
                         if (_state == StateClosing)
                         {
-                            TraceUtil.traceRequest("received batch request " +
-                                                   "during closing\n" +
-                                                   "(ignored by server, " +
-                                                   "client will retry)",
-                                                   stream, _logger,
-                                                   _traceLevels);
+                            TraceUtil.traceBatchRequest("received batch " +
+                                                        "request during " +
+                                                        "closing\n" +
+                                                        "(ignored by server, " +
+                                                        "client will retry)",
+                                                        stream, _logger,
+                                                        _traceLevels);
                         }
                         else
                         {
-                            TraceUtil.traceRequest("received batch request",
-                                                   stream, _logger,
-                                                   _traceLevels);
+                            TraceUtil.traceBatchRequest("received batch " +
+                                                        "request", stream,
+                                                        _logger, _traceLevels);
                             invoke = true;
                             batch = true;
                         }
@@ -523,6 +524,9 @@ public final class Connection extends EventHandler
                             return;
                         }
 
+                        //
+                        // Fill in the message size
+                        //
                         os.pos(3);
                         final int sz = os.size();
                         os.writeInt(sz);
@@ -541,16 +545,8 @@ public final class Connection extends EventHandler
                     }
                     catch (Ice.LocalException ex)
                     {
-                        _mutex.lock();
-                        try
-                        {
-                            setState(StateClosed, ex);
-                            return;
-                        }
-                        finally
-                        {
-                            _mutex.unlock();
-                        }
+                        setState(StateClosed, ex);
+                        return;
                     }
                 }
                 finally
@@ -760,7 +756,11 @@ public final class Connection extends EventHandler
     {
         if (_warn)
         {
-            String s = "connection exception:\n" + ex + '\n' +
+            java.io.StringWriter sw = new java.io.StringWriter();
+            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+            ex.printStackTrace(pw);
+            pw.flush();
+            String s = "connection exception:\n" + sw.toString() + '\n' +
                 _transceiver.toString();
             _logger.warning(s);
         }

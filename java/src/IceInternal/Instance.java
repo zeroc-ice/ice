@@ -92,7 +92,12 @@ public class Instance
         return _defaultHost;
     }
 
-    public synchronized BufferManager
+    //
+    // TODO: This should be synchronized, but it causes a deadlock
+    // on shutdown if a BasicStream is created while the Instance
+    // is already locked (e.g., in ThreadPool)
+    //
+    public /*synchronized*/ BufferManager
     bufferManager()
     {
         return _bufferManager;
