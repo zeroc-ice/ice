@@ -75,7 +75,7 @@ namespace IceInternal
                     {
                         for(int i = _seq.Count; i <= _index; i++)
                         {
-                            ((IList)_seq).Add(dummyObject); // IList implementation does not permit adding null.
+                            ((IList)_seq).Add(dummyObject); // IList implementation does not permit adding null :-(
                         }
                     }
                     ((IList)_seq)[_index] = v;

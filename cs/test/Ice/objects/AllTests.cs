@@ -78,11 +78,11 @@ public class AllTests
 	if(!collocated)
 	{
 	    test(b1.preMarshalInvoked);
-	    test(b1.postUnmarshalInvoked(null));
+	    test(b1.postUnmarshalInvoked());
 	    test(b1.theA.preMarshalInvoked);
-	    test(b1.theA.postUnmarshalInvoked(null));
+	    test(b1.theA.postUnmarshalInvoked());
 	    test(((B)b1.theA).theC.preMarshalInvoked);
-	    test(((B)b1.theA).theC.postUnmarshalInvoked(null));
+	    test(((B)b1.theA).theC.postUnmarshalInvoked());
 	}
         // More tests possible for b2 and d, but I think this is already
         // sufficient.
@@ -119,13 +119,13 @@ public class AllTests
 	if(!collocated)
 	{
             test(dout.preMarshalInvoked);
-            test(dout.postUnmarshalInvoked(null));
+            test(dout.postUnmarshalInvoked());
             test(dout.theA.preMarshalInvoked);
-            test(dout.theA.postUnmarshalInvoked(null)); 
+            test(dout.theA.postUnmarshalInvoked()); 
             test(dout.theB.preMarshalInvoked);
-            test(dout.theB.postUnmarshalInvoked(null));
+            test(dout.theB.postUnmarshalInvoked());
             test(dout.theB.theC.preMarshalInvoked);
-            test(dout.theB.theC.postUnmarshalInvoked(null));
+            test(dout.theB.theC.postUnmarshalInvoked());
 	}
         Console.Out.WriteLine("ok");
 

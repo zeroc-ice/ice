@@ -31,6 +31,11 @@ namespace Ice
 
 	public static readonly string[] __ids = new string[] { "::Ice::Object" };
 	
+        public virtual bool ice_isA(string s)
+        {
+            return s.Equals(__ids[0]);
+        }
+
 	public virtual bool ice_isA(string s, Current current)
 	{
 	    return s.Equals(__ids[0]);
@@ -47,6 +52,11 @@ namespace Ice
 	    return IceInternal.DispatchStatus.DispatchOK;
 	}
 	
+        public virtual void ice_ping()
+        {
+            // Nothing to do.
+        }
+
 	public virtual void ice_ping(Current current)
 	{
 	    // Nothing to do.
@@ -59,6 +69,11 @@ namespace Ice
 	    return IceInternal.DispatchStatus.DispatchOK;
 	}
 	
+        public virtual string[] ice_ids()
+        {
+            return __ids;
+        }
+
 	public virtual string[] ice_ids(Current current)
 	{
 	    return __ids;
@@ -72,6 +87,11 @@ namespace Ice
 	    return IceInternal.DispatchStatus.DispatchOK;
 	}
 	
+        public virtual string ice_id()
+        {
+            return __ids[0];
+        }
+
 	public virtual string ice_id(Current current)
 	{
 	    return __ids[0];

@@ -354,9 +354,10 @@ namespace IceInternal
             //
             // Set larger send buffer size to avoid performance problems on
             // WIN32.
-	    // TODO: how to disable this for Mono when not on Windows?
             //
+#if !__MonoCS__
 	    setSendBufferSize(socket, 64 * 1024);
+#endif
 
 	repeatConnect:
 	    try

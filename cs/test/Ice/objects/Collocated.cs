@@ -19,7 +19,7 @@ public class Client
         adapter.add(initial, Ice.Util.stringToIdentity("initial"));
         AllTests.allTests(communicator, true);
 	// We must call shutdown even in the collocated case for cyclic dependency cleanup
-	initial.shutdown(null);
+	initial.shutdown();
 	return 0;
     }
 

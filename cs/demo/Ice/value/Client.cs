@@ -53,8 +53,8 @@ public class Client
         Console.In.ReadLine();
         
         Ice.Object obj = initial.getPrinterAsObject();
-        Console.Out.WriteLine("The type ID of the received object is \"" + obj.ice_id(null) + "\"");
-        Debug.Assert(obj.ice_id(null).Equals("::Ice::Object"));
+        Console.Out.WriteLine("The type ID of the received object is \"" + obj.ice_id() + "\"");
+        Debug.Assert(obj.ice_id().Equals("::Ice::Object"));
         
         Console.Out.WriteLine();
         Console.Out.WriteLine("Yes, this worked. Now let's try to transfer an object for a class");
@@ -97,7 +97,7 @@ public class Client
         Console.In.ReadLine();
         
         Console.Out.Write("==> ");
-        printer.printBackwards(null);
+        printer.printBackwards();
         
         Console.Out.WriteLine();
         Console.Out.WriteLine("Now we call the same method, but on the remote object. Watch the");
@@ -116,8 +116,8 @@ public class Client
         Console.In.ReadLine();
         
         Printer derivedAsBase = initial.getDerivedPrinter();
-        Console.Out.WriteLine("The type ID of the received object is \"" + derivedAsBase.ice_id(null) + "\"");
-        Debug.Assert(derivedAsBase.ice_id(null).Equals("::Printer"));
+        Console.Out.WriteLine("The type ID of the received object is \"" + derivedAsBase.ice_id() + "\"");
+        Debug.Assert(derivedAsBase.ice_id().Equals("::Printer"));
         
         Console.Out.WriteLine();
         Console.Out.WriteLine("Now we install a factory for the derived class, and try again.");
@@ -132,7 +132,7 @@ public class Client
         DerivedPrinter derived = (DerivedPrinter)derivedAsBase;
         
         Console.Out.WriteLine("==> class cast to derived object succeded");
-        Console.Out.WriteLine("The type ID of the received object is \"" + derived.ice_id(null) + "\"");
+        Console.Out.WriteLine("The type ID of the received object is \"" + derived.ice_id() + "\"");
         
         Console.Out.WriteLine();
         Console.Out.WriteLine("Let's print the message contained in the derived object, and");
@@ -143,7 +143,7 @@ public class Client
         
         Console.Out.WriteLine("==> " + derived.derivedMessage);
         Console.Out.Write("==> ");
-        derived.printUppercase(null);
+        derived.printUppercase();
         
         Console.Out.WriteLine();
         Console.Out.WriteLine("Finally, we try the same again, but instead of returning the");
@@ -164,7 +164,7 @@ public class Client
         
         Console.Out.WriteLine("==> " + derived.derivedMessage);
         Console.Out.Write("==> ");
-        derived.printUppercase(null);
+        derived.printUppercase();
         
         Console.Out.WriteLine();
         Console.Out.WriteLine("That's it for this demo. Have fun with Ice!");
