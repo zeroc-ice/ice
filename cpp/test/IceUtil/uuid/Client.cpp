@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
 	}
     }
     
-    cout << "Generating " << howMany << " UUIds using " << threadCount << " thread";
+    cout << "Generating " << howMany << " UUIDs using " << threadCount << " thread";
     if(threadCount > 1)
     {
 	cout << "s";
