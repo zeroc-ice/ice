@@ -346,7 +346,7 @@ public:
     virtual Slice::UnitPtr newUnit() const;
     virtual ErrorReporterPtr errorReporter() const;
 
-    void transform(const Ice::CommunicatorPtr&, Db*, Db*, bool);
+    void transform(const Ice::CommunicatorPtr&, Db*, Db*, DbTxn*, bool);
 
 private:
 
@@ -1700,12 +1700,12 @@ Transform::TransformerDescriptor::errorReporter() const
 
 void
 Transform::TransformerDescriptor::transform(const Ice::CommunicatorPtr& communicator, Db* db, Db* dbNew,
-                                            bool purgeObjects)
+                                            DbTxn* txn, bool purgeObjects)
 {
     Dbc* dbc = 0;
 
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
-    db->cursor(0, &dbc, 0);
+    db->cursor(txn, &dbc, 0);
 
     communicator->addObjectFactory(new Transform::ObjectFactory(_factory, _old), "");
 
@@ -2300,7 +2300,7 @@ Transform::Transformer::analyze(ostream& descriptors, Ice::StringSeq& missingTyp
 }
 
 void
-Transform::Transformer::transform(istream& is, Db* db, Db* dbNew, ostream& errors)
+Transform::Transformer::transform(istream& is, Db* db, Db* dbNew, DbTxn* txn, ostream& errors)
 {
     ErrorReporterPtr errorReporter = new ErrorReporter(errors);
 
@@ -2312,7 +2312,7 @@ Transform::Transformer::transform(istream& is, Db* db, Db* dbNew, ostream& error
 
         TransformerDescriptorPtr descriptor = dh.descriptor();
         descriptor->validate();
-        descriptor->transform(_communicator, db, dbNew, _purgeObjects);
+        descriptor->transform(_communicator, db, dbNew, txn, _purgeObjects);
     }
     catch(const IceXML::ParserException& ex)
     {

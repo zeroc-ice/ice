@@ -28,6 +28,7 @@
 #endif
 
 class Db;
+class DbTxn;
 
 namespace Transform
 {
@@ -43,7 +44,7 @@ public:
 
     void analyze(std::ostream&, Ice::StringSeq&, Ice::StringSeq&);
 
-    void transform(std::istream&, Db*, Db*, std::ostream&);
+    void transform(std::istream&, Db*, Db*, DbTxn*, std::ostream&);
 
 private:
 

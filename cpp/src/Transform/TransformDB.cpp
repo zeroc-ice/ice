@@ -496,6 +496,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
 
     DbEnv dbEnv(0);
+    DbTxn* txn = 0;
     Db* db = 0;
     Db* dbNew = 0;
     int status = EXIT_SUCCESS;
@@ -511,12 +512,13 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         u_int32_t flags = DB_INIT_LOCK | DB_INIT_LOG | DB_INIT_MPOOL | DB_INIT_TXN | DB_RECOVER | DB_CREATE;
         dbEnv.open(dbEnvName.c_str(), flags, TRANSFORM_DB_MODE);
         db = new Db(&dbEnv, 0);
-        db->open(0, dbName.c_str(), 0, DB_BTREE, DB_RDONLY, TRANSFORM_DB_MODE);
+        dbEnv.txn_begin(0, &txn, 0);
+        db->open(txn, dbName.c_str(), 0, DB_BTREE, DB_RDONLY, TRANSFORM_DB_MODE);
         dbNew = new Db(&dbEnv, 0);
         dbNew->open(0, dbNameNew.c_str(), 0, DB_BTREE, DB_CREATE | DB_EXCL, TRANSFORM_DB_MODE);
 
         istringstream istr(descriptors);
-        transformer.transform(istr, db, dbNew, cerr);
+        transformer.transform(istr, db, dbNew, txn, cerr);
     }
     catch(const DbException& ex)
     {
@@ -525,6 +527,10 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
     catch(...)
     {
+        if(txn)
+        {
+            txn->abort();
+        }
         if(db)
         {
             db->close(0);
@@ -539,6 +545,10 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         throw;
     }
 
+    if(txn)
+    {
+        txn->abort();
+    }
     if(db)
     {
         db->close(0);
