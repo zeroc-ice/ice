@@ -17,11 +17,11 @@ Demos in this directory:
 - bench
 
   A simple benchmark to measure the performance of Freeze for various
-  data typse.
+  data types.
 
 - library
 
-  A simple application that allows you borrow books from a library.
+  A simple application that allows you to borrow books from a library.
   It illustrates how to use Freeze for persistence.
 
 - phonebook

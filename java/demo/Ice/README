@@ -36,7 +36,7 @@ Demos in this directory:
 
 - throughput
 
-  A simple throughput demo that allows you send byte sequences between
+  A simple throughput demo that allows you to send byte sequences between
   client and server and to measure the maximum bandwidth that can be
   achieved with Ice.
 
