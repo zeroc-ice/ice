@@ -271,7 +271,7 @@ class EvictorI implements Evictor
 	//
 	if(_persistenceMode == EvictorPersistenceMode.SaveAfterMutatingOperation)
 	{
-	    if(!current.nonmutating)
+	    if(!current.isNonmutating)
 	    {
 		_dict.put(current.id, servant);
 	    }

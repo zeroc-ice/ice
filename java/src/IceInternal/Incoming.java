@@ -29,7 +29,7 @@ public class Incoming
         _current.id.__read(_is);
         _current.facet = _is.readStringSeq();
         _current.operation = _is.readString();
-        _current.nonmutating = _is.readBool();
+        _current.isNonmutating = _is.readBool();
         int sz = _is.readSize();
         while(sz-- > 0)
         {
