@@ -281,7 +281,6 @@ usage(const char* n)
         "--ice                Permit `Ice' prefix (for building Ice source code only)\n"
         "--all                Generate code for Slice definitions in included files.\n"
         "--no-package         Do not create Python packages.\n"
-        "--no-package         Do not create Python packages.\n"
         "--checksum           Generate checksums for Slice definitions.\n"
         "--prefix PREFIX      Prepend filenames of Python modules with PREFIX.\n"
         ;
