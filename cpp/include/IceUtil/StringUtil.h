@@ -24,12 +24,12 @@ namespace IceUtil
 // Add escape sequences (like "\n", or "\0xxx") to make a string
 // readable in ASCII.
 //
-std::string escapeString(const std::string&, const std::string&);
+ICE_UTIL_API std::string escapeString(const std::string&, const std::string&);
 
 //
 // Remove escape sequences added by escapeString.
 //
-bool unescapeString(const std::string&, std::string::size_type, std::string::size_type, std::string&);
+ICE_UTIL_API bool unescapeString(const std::string&, std::string::size_type, std::string::size_type, std::string&);
 
 //
 // If a single or double quotation mark is found at the start
@@ -38,7 +38,7 @@ bool unescapeString(const std::string&, std::string::size_type, std::string::siz
 // 0 is returned. If no matching closing quote is found, then
 // std::string::npos is returned.
 //
-std::string::size_type checkQuote(const std::string&, std::string::size_type = 0);
+ICE_UTIL_API std::string::size_type checkQuote(const std::string&, std::string::size_type = 0);
 
 }
 
