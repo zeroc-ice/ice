@@ -37,18 +37,24 @@ void IceInternal::decRef(::IceSSL::Context* p) { p->__decRef(); }
 
 IceSSL::Context::~Context()
 {
-    if(_sslContext != 0)
-    {
-        SSL_CTX_free(_sslContext);
-
-        _sslContext = 0;
-    }
+    cleanUp();
 }
 
 bool
 IceSSL::Context::isConfigured()
 {
     return (_sslContext != 0 ? true : false);
+}
+
+void
+IceSSL::Context::cleanUp()
+{
+    if(_sslContext != 0)
+    {
+        SSL_CTX_free(_sslContext);
+
+        _sslContext = 0;
+    }
 }
 
 void
@@ -74,8 +80,7 @@ IceSSL::Context::addTrustedCertificate(const Ice::ByteSeq& trustedCert)
 }
 
 void
-IceSSL::Context::setRSAKeysBase64(const string& privateKey,
-                                           const string& publicKey)
+IceSSL::Context::setRSAKeysBase64(const string& privateKey, const string& publicKey)
 {
     if(privateKey.empty())
     {
@@ -264,7 +269,6 @@ IceSSL::Context::loadCertificateAuthority(const CertificateAuthority& certAuth)
     {
         int setDefaultVerifyPathsRet = SSL_CTX_set_default_verify_paths(_sslContext);
 
-
         if(!setDefaultVerifyPathsRet && (_traceLevels->security >= IceSSL::SECURITY_WARNINGS))
         { 
             Trace out(_communicator->getLogger(), _traceLevels->securityCat);
@@ -282,8 +286,8 @@ IceSSL::Context::loadCertificateAuthority(const CertificateAuthority& certAuth)
 
 void
 IceSSL::Context::setKeyCert(const CertificateDesc& certDesc,
-                                     const string& privateProperty,
-                                     const string& publicProperty)
+                            const string& privateProperty,
+                            const string& publicProperty)
 {
     string privateKey;
     string publicKey;

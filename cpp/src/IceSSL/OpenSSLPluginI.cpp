@@ -34,6 +34,7 @@
 
 #include <openssl/rand.h>
 #include <openssl/err.h>
+#include <openssl/engine.h>
 
 #include <sstream>
 
@@ -190,10 +191,24 @@ IceSSL::OpenSSLPluginI::OpenSSLPluginI(const ProtocolPluginFacadePtr& protocolPl
     _protocolPluginFacade(protocolPluginFacade),
     _traceLevels(new TraceLevels(_protocolPluginFacade)),
     _properties(_protocolPluginFacade->getCommunicator()->getProperties()),
+    _memDebug(_properties->getPropertyAsIntWithDefault("IceSSL.MemoryDebug", 0)),
     _serverContext(new TraceLevels(protocolPluginFacade), protocolPluginFacade->getCommunicator()),
     _clientContext(new TraceLevels(protocolPluginFacade), protocolPluginFacade->getCommunicator()),
     _randSeeded(0)
 {
+    if(_memDebug != 0)
+    {
+        CRYPTO_malloc_debug_init();
+        CRYPTO_set_mem_debug_options(V_CRYPTO_MDEBUG_ALL);
+        CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_ON);
+    }
+    else
+    {
+        CRYPTO_set_mem_debug_functions(0, 0, 0, 0, 0);
+    }
+
+    SSL_library_init();
+
     SSL_load_error_strings();
 
     OpenSSL_add_ssl_algorithms();
@@ -201,8 +216,21 @@ IceSSL::OpenSSLPluginI::OpenSSLPluginI(const ProtocolPluginFacadePtr& protocolPl
 
 IceSSL::OpenSSLPluginI::~OpenSSLPluginI()
 {
-    unregisterThreads();
+    _serverContext.cleanUp();
+    _clientContext.cleanUp();
+
+    ENGINE_cleanup();
+    CRYPTO_cleanup_all_ex_data();
+
     ERR_free_strings();
+    unregisterThreads();
+
+    EVP_cleanup();
+
+    if(_memDebug != 0)
+    {
+        CRYPTO_mem_leaks_fp(stderr);
+    }
 }
 
 IceSSL::SslTransceiverPtr

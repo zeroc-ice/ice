@@ -327,6 +327,7 @@ IceSSL::getTempDH(unsigned char* p, int plen, unsigned char* g, int glen)
 
         if((dh->p == 0) || (dh->g == 0))
         {
+            // Note: Clears both p and g if they are not NULL.
             DH_free(dh);
             dh = 0;
         }
@@ -338,33 +339,25 @@ IceSSL::getTempDH(unsigned char* p, int plen, unsigned char* g, int glen)
 DH*
 IceSSL::getTempDH512()
 {
-    DH* dh = getTempDH(dh512_p, (int) sizeof(dh512_p), dh512_g, (int) sizeof(dh512_g));
-
-    return dh;
+    return getTempDH(dh512_p, (int) sizeof(dh512_p), dh512_g, (int) sizeof(dh512_g));
 }
 
 DH*
 IceSSL::getTempDH1024()
 {
-    DH* dh = getTempDH(dh1024_p, (int) sizeof(dh1024_p), dh1024_g, (int) sizeof(dh1024_g));
-
-    return dh;
+    return getTempDH(dh1024_p, (int) sizeof(dh1024_p), dh1024_g, (int) sizeof(dh1024_g));
 }
 
 DH*
 IceSSL::getTempDH2048()
 {
-    DH* dh = getTempDH(dh2048_p, (int) sizeof(dh2048_p), dh2048_g, (int) sizeof(dh2048_g));
-
-    return dh;
+    return getTempDH(dh2048_p, (int) sizeof(dh2048_p), dh2048_g, (int) sizeof(dh2048_g));
 }
 
 DH*
 IceSSL::getTempDH4096()
 {
-    DH* dh = getTempDH(dh4096_p, (int) sizeof(dh4096_p), dh4096_g, (int) sizeof(dh4096_g));
-
-    return dh;
+    return getTempDH(dh4096_p, (int) sizeof(dh4096_p), dh4096_g, (int) sizeof(dh4096_g));
 }
 
 string

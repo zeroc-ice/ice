@@ -111,6 +111,8 @@ IceSSL::RSAPublicKey::byteSeqToCert(const ByteSeq& certSeq)
 
     _publicKey = d2i_X509(x509pp, pubKeyBuffpp, (long)certSeq.size());
 
+    delete []publicKeyBuffer;
+
     if(_publicKey == 0)
     {
         IceSSL::CertificateParseException certParseException(__FILE__, __LINE__);
@@ -119,8 +121,6 @@ IceSSL::RSAPublicKey::byteSeqToCert(const ByteSeq& certSeq)
 
         throw certParseException;
     }
-
-    delete []publicKeyBuffer;
 }
 
 

@@ -40,6 +40,8 @@ public:
 
     bool isConfigured();
 
+    void cleanUp();
+
     virtual void setCertificateVerifier(const CertificateVerifierPtr&);
 
     virtual void addTrustedCertificateBase64(const std::string&);

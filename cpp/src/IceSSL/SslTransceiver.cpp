@@ -54,6 +54,12 @@ IceSSL::SslTransceiver::fd()
 void
 IceSSL::SslTransceiver::close()
 {
+    if(_fd == INVALID_SOCKET)
+    {
+        // Ignore - the connection was never set up.
+        return;
+    }
+
     if(_traceLevels->network >= 1)
     {
    	Trace out(_logger, _traceLevels->networkCat);
@@ -314,6 +320,8 @@ IceSSL::SslTransceiver::forceHandshake()
  	    Trace out(_logger, _traceLevels->securityCat);
             out << "Handshake retry maximum reached.\n" << toString();
         }
+
+        close();
 
         // If the handshake fails, the connection failed.
         ConnectFailedException ex(__FILE__, __LINE__);
