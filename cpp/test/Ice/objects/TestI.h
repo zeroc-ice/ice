@@ -25,6 +25,7 @@ public:
     virtual CPtr getC();
     virtual DPtr getD();
     virtual void getAll(BPtr&, BPtr&, CPtr&, DPtr&);
+    virtual void addFacetsToB1();
 
 private:
 

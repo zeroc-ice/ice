@@ -126,6 +126,39 @@ Ice::Object::__isMutating(const std::string& s)
 }
 
 void
+Ice::Object::__write(::IceInternal::BasicStream* __os) const
+{
+    JTCSyncT<JTCMutex> sync(_activeFacetMapMutex);
+    
+    __os->write(Int(_activeFacetMap.size()));
+    for (map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
+    {
+	__os->write(p->first);
+	__os->write(p->second);
+    }
+}
+
+void
+Ice::Object::__read(::IceInternal::BasicStream* __is)
+{
+    JTCSyncT<JTCMutex> sync(_activeFacetMapMutex);
+
+    Int sz;
+    __is->read(sz);
+
+    _activeFacetMap.clear();
+    _activeFacetMapHint = _activeFacetMap.end();
+
+    while (sz-- > 0)
+    {
+	pair<string, ObjectPtr> v;
+	__is->read(v.first);
+	__is->read("", v.second);
+	_activeFacetMapHint = _activeFacetMap.insert(_activeFacetMapHint, v);
+    }
+}
+
+void
 Ice::Object::_addFacet(const ObjectPtr& facet, const string& name)
 {
     JTCSyncT<JTCMutex> sync(_activeFacetMapMutex);

@@ -95,3 +95,12 @@ InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d)
     c = _c;
     d = _d;
 }
+
+void
+InitialI::addFacetsToB1()
+{
+    _b1->_addFacet(_b1, "b1");
+    _b1->_addFacet(_b2, "b2");
+    _b1->_addFacet(_c, "c");
+    _b1->_addFacet(_d, "d");
+}

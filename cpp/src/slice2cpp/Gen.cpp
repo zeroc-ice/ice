@@ -1741,6 +1741,20 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << nl << "#endif";
 	    C.restoreIndent();
 	}
+	else
+	{
+	    C.zeroIndent();
+	    C << nl << "#ifdef WIN32"; // COMPILERBUG
+	    C.restoreIndent();
+	    C << nl << "Object::__write(__os);";
+	    C.zeroIndent();
+	    C << nl << "#else";
+	    C.restoreIndent();
+	    C << nl << "::Ice::Object::__write(__os);";
+	    C.zeroIndent();
+	    C << nl << "#endif";
+	    C.restoreIndent();
+	}
 	C << eb;
 	C << sp;
 	C << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
@@ -1758,6 +1772,20 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << nl << "#else";
 	    C.restoreIndent();
 	    C << nl << base->scoped() << "::__read(__is);";
+	    C.zeroIndent();
+	    C << nl << "#endif";
+	    C.restoreIndent();
+	}
+	else
+	{
+	    C.zeroIndent();
+	    C << nl << "#ifdef WIN32"; // COMPILERBUG
+	    C.restoreIndent();
+	    C << nl << "Object::__read(__is);";
+	    C.zeroIndent();
+	    C << nl << "#else";
+	    C.restoreIndent();
+	    C << nl << "::Ice::Object::__read(__is);";
 	    C.zeroIndent();
 	    C << nl << "#endif";
 	    C.restoreIndent();
