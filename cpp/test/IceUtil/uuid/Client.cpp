@@ -73,8 +73,8 @@ private:
 int main(int argc, char* argv[])
 {
 
-    long howMany = 10000;
-    int threadCount = 1;
+    long howMany = 300000;
+    int threadCount = 3;
     bool verbose = false;
 
     if(argc > 3)
@@ -114,10 +114,14 @@ int main(int argc, char* argv[])
 	cout << "s";
     }
     cout << "... ";
-
+    
     if(verbose)
     {
 	cout << endl;
+    }
+    else
+    {
+	cout << flush;
     }
 
     set<string> uuidSet;
