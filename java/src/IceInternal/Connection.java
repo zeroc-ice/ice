@@ -1379,7 +1379,16 @@ public final class Connection extends EventHandler
 		if(_state == StateNotValidated)
 		{
 		    assert(!_registeredWithPool);
-		    _transceiver.close();
+
+		    try
+		    {
+			_transceiver.close();
+		    }
+		    catch(Ice.LocalException ex)
+		    {
+			// Here we ignore any exceptions in close().
+		    }
+
 		    _transceiver = null;
 		    _threadPool = null; // We don't need the thread pool anymore.
 		}
