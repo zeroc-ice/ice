@@ -48,6 +48,7 @@ TestUtil.waitServiceReady(IceBoxPipe, "Yellow")
 print "ok"
 
 client = os.path.join(testdir, "client")
+
 #
 # Start the client.
 #

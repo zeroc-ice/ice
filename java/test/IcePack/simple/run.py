@@ -13,7 +13,7 @@
 #
 # **********************************************************************
 
-import os, sys, time
+import os, sys
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -26,18 +26,13 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 import IcePackAdmin
 
-if not os.environ.has_key('ICE_HOME'):
-    print "ICE_HOME is not defined."
-    sys.exit(0)
-
-ice_home = os.environ['ICE_HOME']
-
-testdir = os.path.join(toplevel, "test", "IcePack", "simple")
 name = os.path.join("IcePack", "simple")
+testdir = os.path.join(toplevel, "test", name)
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.environ["CLASSPATH"]
 
 #
-# Add locator options for client and servers. All servers are now
-# clients since they need to make requests to IcePack.
+# Add locator options for the client and server. Since the server
+# invokes on the locator it's also considered to be a client.
 #
 additionalOptions = " --Ice.Default.Locator=\"IcePack/Locator:default -p 12346\""
 
@@ -46,47 +41,38 @@ IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
 #
 # Start IcePack registry.
 # 
-icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(ice_home, "12346", testdir)
+icePackRegistryPipe = IcePackAdmin.startIcePackRegistry("12346", testdir)
 
 #
-# Test client/server w/o automatic activation.
+# Test client/server without on demand activation.
 #
 additionalServerOptions=" --TestAdapter.Endpoints=default --TestAdapter.AdapterId=TestAdapter " + additionalOptions
-TestUtil.mixedClientServerTestWithOptions(toplevel, name, additionalServerOptions, additionalOptions)
+TestUtil.mixedClientServerTestWithOptions(name, additionalServerOptions, additionalOptions)
 
 #
 # Shutdown the registry.
 #
-IcePackAdmin.shutdownIcePackRegistry(ice_home, icePackRegistryPipe)
+IcePackAdmin.shutdownIcePackRegistry(icePackRegistryPipe)
 
 IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
 
 #
 # Start IcePack registry and a node.
 #
-icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(ice_home, "12346", testdir)
-icePackNodePipe = IcePackAdmin.startIcePackNode(ice_home, testdir)
+icePackRegistryPipe = IcePackAdmin.startIcePackRegistry("12346", testdir)
+icePackNodePipe = IcePackAdmin.startIcePackNode(testdir)
 
 #
 # Test client/server with on demand activation.
 #
-classpath = os.path.join(toplevel, "lib") + TestUtil.sep + os.path.join(testdir, "classes") + TestUtil.sep + \
-            os.getenv("CLASSPATH", "")
-client = "java -ea -classpath \"" + classpath + "\" Client "
-
-if TestUtil.protocol == "ssl":
-    targets = "ssl"
-else:
-    targets = ""
+client = "java -ea Client"
 
 print "registering server with icepack...",
-IcePackAdmin.addServer(ice_home, "server", os.path.join(testdir, "simple_server.xml"), "", classpath, "");
+IcePackAdmin.addServer("server", os.path.join(testdir, "simple_server.xml"), "", "", "");
 print "ok"
 
-updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel) + additionalOptions
-
 print "starting client...",
-clientPipe = os.popen(client + updatedClientOptions)
+clientPipe = os.popen(client + TestUtil.clientOptions + additionalOptions)
 print "ok"
 
 for output in clientPipe.xreadlines():
@@ -98,10 +84,10 @@ if clientStatus:
     sys.exit(1)
 
 print "unregister server with icepack...",
-IcePackAdmin.removeServer(ice_home, "server");
+IcePackAdmin.removeServer("server");
 print "ok"
     
-IcePackAdmin.shutdownIcePackNode(ice_home, icePackNodePipe)
-IcePackAdmin.shutdownIcePackRegistry(ice_home, icePackRegistryPipe)
+IcePackAdmin.shutdownIcePackNode(icePackNodePipe)
+IcePackAdmin.shutdownIcePackRegistry(icePackRegistryPipe)
 
 sys.exit(0)

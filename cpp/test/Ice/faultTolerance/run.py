@@ -25,7 +25,9 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-testdir = os.path.join(toplevel,"test", "Ice", "faultTolerance")
+name = os.path.join("Ice", "faultTolerance")
+testdir = os.path.join(toplevel, "test", name)
+
 server = os.path.join(testdir, "server")
 client = os.path.join(testdir, "client")
 

@@ -25,17 +25,15 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-testdir = os.path.join(toplevel, "test", "Ice", "locationForward")
-classpath = os.path.join(toplevel, "lib") + TestUtil.sep + os.path.join(testdir, "classes") + \
-    TestUtil.sep + os.getenv("CLASSPATH", "")
-server = "java -classpath \"" + classpath + "\" Server"
-client = "java -classpath \"" + classpath + "\" Client"
+name = os.path.join("Ice", "locationForward")
+testdir = os.path.join(toplevel, "test", name)
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.environ["CLASSPATH"]
+
+server = "java -ea Server"
+client = "java -ea Client"
 
 num = 5
 base = 12340
-
-updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
-updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
 
 serverPipes = { }
 for i in range(0, num):
@@ -44,14 +42,14 @@ for i in range(0, num):
     else:
         s = " %d" % (base + i)
     print "starting server #%d..." % (i + 1),
-    command = server + updatedServerOptions + s;
+    command = server + TestUtil.serverOptions + s;
     serverPipes[i] = os.popen(command)
     TestUtil.getAdapterReady(serverPipes[i])
     print "ok"
 
 print "starting client...",
 s = " %d %d" % (base, (base + num - 1))
-command = client + updatedClientOptions + s
+command = client + TestUtil.clientOptions + s
 clientPipe = os.popen(command)
 print "ok"
 

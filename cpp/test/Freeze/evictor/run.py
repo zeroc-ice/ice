@@ -26,7 +26,6 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
 name = os.path.join("Freeze", "evictor")
-
 testdir = os.path.join(toplevel, "test", name)
 
 dbdir = os.path.join(testdir, "db")

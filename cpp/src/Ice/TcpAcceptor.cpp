@@ -118,7 +118,7 @@ IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string&
 	if(_traceLevels->network >= 2)
 	{
 	    Trace out(_logger, _traceLevels->networkCat);
-	    out << "attempting to bind to tcp socket\n" << toString();
+	    out << "attempting to bind to tcp socket " << toString();
 	}
 	doBind(_fd, _addr);
     }

@@ -25,36 +25,37 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-testdir = os.path.join(toplevel,"test", "Freeze", "complex")
+name = os.path.join("Freeze", "complex")
+testdir = os.path.join(toplevel, "test", name)
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.environ["CLASSPATH"]
 
+#
+# Clean the contents of the database directory.
+#
 dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
 
-classpath = os.path.join(toplevel, "lib") + TestUtil.sep + os.path.join(testdir, "classes") + \
-    TestUtil.sep + os.getenv("CLASSPATH", "")
-client = "java -classpath \"" + classpath + "\" Client --dbdir " + testdir
+client = "java -ea Client"
+clientOptions = " --dbdir " + testdir;
 
 print "starting populate...",
-clientPipe = os.popen(client + " populate")
+populatePipe = os.popen(client + clientOptions + " populate")
+print "ok"
+
+for output in populatePipe.xreadlines():
+    print output,
+
+populateStatus = populatePipe.close()
+
+if populateStatus:
+    sys.exit(1)
+
+print "starting verification client...",
+clientPipe = os.popen(client + clientOptions + " validate")
 print "ok"
 
 for output in clientPipe.xreadlines():
     print output,
-
-clientStatus = clientPipe.close()
-
-if clientStatus:
-    sys.exit(1)
-
-print "starting validate...",
-clientPipe = os.popen(client + " validate")
-output = clientPipe.read().strip()
-if not output:
-    print "failed!"
-    clientPipe.close()
-    sys.exit(1)
-print "ok"
-print output
 
 clientStatus = clientPipe.close()
 

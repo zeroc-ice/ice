@@ -44,6 +44,7 @@ TestUtil.clientServerOptions += " --IceSSL.Test.Client.CertPath=" + \
                                 os.path.join(toplevel, "test", "IceSSL", "certs")
 
 name = os.path.join("IceSSL", "certificateVerification")
+testdir = os.path.join(toplevel, "test", name)
 
 print "testing default certificate verifier."
 TestUtil.clientServerTest(name)

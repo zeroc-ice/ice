@@ -25,10 +25,12 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-testdir = os.path.join(toplevel,"test", "Freeze", "evictor")
+name = os.path.join("Freeze", "evictor")
+testdir = os.path.join(toplevel, "test", name)
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.environ["CLASSPATH"]
 
 dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
 
-TestUtil.clientServerTestWithOptions(toplevel, "Freeze/evictor", " " + testdir, "")
+TestUtil.clientServerTestWithOptions(name, " " + testdir, "")
 sys.exit(0)

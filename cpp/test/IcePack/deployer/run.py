@@ -26,7 +26,8 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 import IcePackAdmin
 
-testdir = os.path.join(toplevel, "test", "IcePack", "deployer")
+name = os.path.join("IcePack", "deployer")
+testdir = os.path.join(toplevel, "test", name)
 
 if not TestUtil.isWin32():
     os.environ["LD_LIBRARY_PATH"] = testdir + ":" + os.environ["LD_LIBRARY_PATH"]

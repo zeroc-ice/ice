@@ -44,6 +44,7 @@ TestUtil.getAdapterReady(starterPipe)
 print "ok"
 
 name = os.path.join("Glacier", "starter")
+
 TestUtil.mixedClientServerTest(name)
 
 # We run the test again, to check whether the glacier router starter

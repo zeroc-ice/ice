@@ -26,6 +26,8 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
 name = os.path.join("Ice", "location")
+testdir = os.path.join(toplevel, "test", name)
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.environ["CLASSPATH"]
 
-TestUtil.clientServerTest(toplevel, name)
+TestUtil.mixedClientServerTest(name)
 sys.exit(0)

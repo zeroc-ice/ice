@@ -25,18 +25,19 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-testdir = os.path.join(toplevel,"test", "IceXML", "encoding")
-classpath = os.path.join(toplevel, "lib") + TestUtil.sep + os.path.join(testdir, "classes") + \
-    TestUtil.sep + os.getenv("CLASSPATH", "")
-client = "java -classpath \"" + classpath + "\" Client"
+name = os.path.join("IceXML", "encoding")
+testdir = os.path.join(toplevel, "test", name)
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.environ["CLASSPATH"]
+
+client = "java -ea Client"
 
 print "starting client...",
-clientPipe = os.popen(client)
+clientPipe = os.popen(client + " " + testdir)
 print "ok"
 
 for output in clientPipe.xreadlines():
     print output,
-
+    
 clientStatus = clientPipe.close()
 
 if clientStatus:

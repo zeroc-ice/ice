@@ -34,11 +34,7 @@ ice_home = os.environ['ICE_HOME']
 starter = os.path.join(ice_home, "bin", "glacierstarter")
 router = os.path.join(ice_home, "bin", "glacierrouter")
 
-updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
-updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
-updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
-
-command = starter + updatedClientServerOptions + \
+command = starter + TestUtil.clientServerOptions + \
           r' --Ice.PrintProcessId' \
           r' --Glacier.Starter.RouterPath=' + router + \
           r' --Glacier.Starter.PropertiesOverwrite=Ice.ServerIdleTime=10' \
@@ -55,11 +51,14 @@ TestUtil.getAdapterReady(starterPipe)
 print "ok"
 
 name = os.path.join("Glacier", "starter")
-TestUtil.mixedClientServerTest(toplevel, name)
+testdir = os.path.join(toplevel, "test", name)
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.environ["CLASSPATH"]
 
-# We run the test again, to check whether the glacier starter can
-# start up multiple routers.
-TestUtil.mixedClientServerTest(toplevel, name)
+TestUtil.mixedClientServerTest(name)
+
+# We run the test again, to check whether the glacier router starter
+# can start up multiple routers.
+TestUtil.mixedClientServerTest(name)
 
 print "shutting down glacier starter...",
 TestUtil.killServers() # TODO: Graceful shutdown.

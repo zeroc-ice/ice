@@ -13,16 +13,6 @@
 #
 # **********************************************************************
 
-import sys, os
-
-#
-# Set protocol to "ssl" in case you want to run the tests with the SSL
-# protocol. Otherwise TCP is used.
-#
-
-#protocol = "ssl"
-protocol = ""
-
 #
 # Set the host to the host name the test servers are running on. If
 # not set, Ice will try to find out the IP address for the
@@ -37,42 +27,7 @@ host = "localhost"
 # Don't change anything below this line!
 #
 
-if protocol == "ssl":
-    print "No SSL available for Ice for Java."
-    sys.exit(1)
-#    clientProtocol = " --Ice.Default.Protocol=ssl" + \
-#    " --IceSSL.Client.CertPath=TOPLEVELDIR/certs --IceSSL.Client.Config=client_sslconfig.xml"
-#    serverProtocol = " --Ice.Default.Protocol=ssl" + \
-#    " --IceSSL.Server.CertPath=TOPLEVELDIR/certs --IceSSL.Server.Config=server_sslconfig.xml"
-#    clientServerProtocol = " --Ice.Default.Protocol=ssl" + \
-#    " --IceSSL.Client.CertPath=TOPLEVELDIR/certs --IceSSL.Client.Config=sslconfig.xml" + \
-#    " --IceSSL.Server.CertPath=TOPLEVELDIR/certs --IceSSL.Server.Config=sslconfig.xml"
-else:
-    clientProtocol = ""
-    serverProtocol = ""
-    clientServerProtocol = ""
-
-if host != "":
-    defaultHost = " --Ice.Default.Host=" + host
-else:
-    defaultHost = ""
-
-sep = ""
-
-if sys.platform == "win32":
-    sep = ";"
-elif sys.platform == "cygwin":
-    sep = ";"
-else:
-    sep = ":"
-
-commonServerOptions = " --Ice.PrintAdapterReady --Ice.ServerThreadPool.Size=3" + \
-                      " --Ice.ConnectionWarnings --Ice.ServerIdleTime=30"
-
-clientOptions = clientProtocol + defaultHost
-serverOptions = serverProtocol + defaultHost + commonServerOptions
-clientServerOptions = clientServerProtocol + defaultHost + commonServerOptions
-collocatedOptions = clientServerProtocol + defaultHost
+import sys, os
 
 def isCygwin():
 
@@ -97,10 +52,10 @@ def killServers():
     global serverPids
 
     for pid in serverPids:
-        if sys.platform == "cygwin":
+        if isCygwin():
             print "killServers(): not implemented for cygwin python."
             sys.exit(1)
-        elif sys.platform == "win32":
+        elif isWin32():
             try:
                 import win32api
                 handle = win32api.OpenProcess(1, 0, pid)
@@ -136,24 +91,51 @@ def getAdapterReady(serverPipe):
         killServers()
         sys.exit(1)
 
-def clientServerTestWithOptions(toplevel, name, additionalServerOptions, additionalClientOptions):
+for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+    toplevel = os.path.normpath(toplevel)
+    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
+        break
+else:
+    raise "can't find toplevel directory!"
+
+sep = ""
+if isWin32():
+    sep = ";"
+else:
+    sep = ":"
+
+os.environ["CLASSPATH"] = os.path.join(toplevel, "lib") + sep + os.environ["CLASSPATH"]
+
+clientProtocol = ""
+serverProtocol = ""
+clientServerProtocol = ""
+
+if host != "":
+    defaultHost = " --Ice.Default.Host=" + host
+else:
+    defaultHost = ""
+
+commonServerOptions = " --Ice.PrintAdapterReady --Ice.ServerThreadPool.Size=3" + \
+                      " --Ice.ConnectionWarnings --Ice.ServerIdleTime=30"
+
+clientOptions = clientProtocol + defaultHost
+serverOptions = serverProtocol + defaultHost + commonServerOptions
+clientServerOptions = clientServerProtocol + defaultHost + commonServerOptions
+collocatedOptions = clientServerProtocol + defaultHost
+
+def clientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
 
     testdir = os.path.join(toplevel, "test", name)
-    classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + \
-	os.getenv("CLASSPATH", "")
-    server = "java -ea -classpath \"" + classpath + "\" Server --Ice.ProgramName=Server "
-    client = "java -ea -classpath \"" + classpath + "\" Client --Ice.ProgramName=Client "
-
-    updatedServerOptions = serverOptions.replace("TOPLEVELDIR", toplevel)
-    updatedClientOptions = clientOptions.replace("TOPLEVELDIR", toplevel)
+    server = "java -ea Server --Ice.ProgramName=Server "
+    client = "java -ea Client --Ice.ProgramName=Client "
 
     print "starting server...",
-    serverPipe = os.popen(server + updatedServerOptions + additionalServerOptions)
+    serverPipe = os.popen(server + serverOptions + additionalServerOptions)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    clientPipe = os.popen(client + updatedClientOptions + additionalClientOptions)
+    clientPipe = os.popen(client + clientOptions + additionalClientOptions)
     print "ok"
 
     for output in clientPipe.xreadlines():
@@ -166,28 +148,23 @@ def clientServerTestWithOptions(toplevel, name, additionalServerOptions, additio
 	killServers()
 	sys.exit(1)
 
-def clientServerTest(toplevel, name):
+def clientServerTest(name):
 
-    clientServerTestWithOptions(toplevel, name, "", "")
+    clientServerTestWithOptions(name, "", "")
 
-def mixedClientServerTestWithOptions(toplevel, name, additionalServerOptions, additionalClientOptions):
+def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
 
     testdir = os.path.join(toplevel, "test", name)
-    classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + \
-	 os.getenv("CLASSPATH", "")
-    server = "java -ea -classpath \"" + classpath + "\" Server  --Ice.ProgramName=Server "
-    client = "java -ea -classpath \"" + classpath + "\" Client  --Ice.ProgramName=Client "
-
-    updatedServerOptions = clientServerOptions.replace("TOPLEVELDIR", toplevel)
-    updatedClientOptions = updatedServerOptions
+    server = "java -ea Server --Ice.ProgramName=Server "
+    client = "java -ea Client --Ice.ProgramName=Client "
 
     print "starting server...",
-    serverPipe = os.popen(server + updatedServerOptions + additionalServerOptions)
+    serverPipe = os.popen(server + serverOptions + additionalServerOptions)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    clientPipe = os.popen(client + updatedClientOptions + additionalClientOptions)
+    clientPipe = os.popen(client + clientOptions + additionalClientOptions)
     print "ok"
 
     for output in clientPipe.xreadlines():
@@ -200,21 +177,17 @@ def mixedClientServerTestWithOptions(toplevel, name, additionalServerOptions, ad
 	killServers()
 	sys.exit(1)
 
-def mixedClientServerTest(toplevel, name):
+def mixedClientServerTest(name):
 
-    mixedClientServerTestWithOptions(toplevel, name, "", "")
+    mixedClientServerTestWithOptions(name, "", "")
 
-def collocatedTestWithOptions(toplevel, name, additionalOptions):
+def collocatedTestWithOptions(name, additionalOptions):
 
     testdir = os.path.join(toplevel, "test", name)
-    classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + \
-	 os.getenv("CLASSPATH", "")
-    collocated = "java -ea -classpath \"" + classpath + "\" Collocated --Ice.ProgramName=Collocated "
-
-    updatedCollocatedOptions = collocatedOptions.replace("TOPLEVELDIR", toplevel)
+    collocated = "java -ea Collocated --Ice.ProgramName=Collocated "
 
     print "starting collocated...",
-    collocatedPipe = os.popen(collocated + updatedCollocatedOptions + additionalOptions)
+    collocatedPipe = os.popen(collocated + collocatedOptions + additionalOptions)
     print "ok"
 
     for output in collocatedPipe.xreadlines():
@@ -226,9 +199,9 @@ def collocatedTestWithOptions(toplevel, name, additionalOptions):
 	killServers()
 	sys.exit(1)
 
-def collocatedTest(toplevel, name):
+def collocatedTest(name):
 
-    collocatedTestWithOptions(toplevel, name, "")
+    collocatedTestWithOptions(name, "")
 
 def cleanDbDir(path):
 

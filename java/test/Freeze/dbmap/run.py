@@ -25,17 +25,18 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-testdir = os.path.join(toplevel,"test", "Freeze", "dbmap")
+name = os.path.join("Freeze", "dbmap")
+testdir = os.path.join(toplevel, "test", name)
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.environ["CLASSPATH"]
 
 dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
 
-classpath = os.path.join(toplevel, "lib") + TestUtil.sep + os.path.join(testdir, "classes") + \
-    TestUtil.sep + os.getenv("CLASSPATH", "")
-client = "java -classpath \"" + classpath + "\" Client " + testdir
+client = "java -ea Client"
+clientOptions = ' ' + testdir;
 
 print "starting client...",
-clientPipe = os.popen(client)
+clientPipe = os.popen(client + clientOptions)
 print "ok"
 
 for output in clientPipe.xreadlines():

@@ -35,7 +35,9 @@ testOptions = " --IceSSL.Test.Client.CertPath=" + os.path.join(toplevel, "test",
               " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "test", "IceSSL", "certs") + \
               " --IceSSL.Server.Config= "
 
-testdir = os.path.join(toplevel,"test", "IceSSL", "certificateAndKeyParsing")
+name = os.path.join("IceSSL", "certificateAndKeyParsing")
+testdir = os.path.join(toplevel, "test", name)
+
 client = os.path.join(testdir, "certificateAndKeyParsing")
 
 localClientOptions = TestUtil.clientServerProtocol + TestUtil.defaultHost

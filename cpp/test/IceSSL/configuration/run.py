@@ -29,7 +29,9 @@ if TestUtil.protocol != "ssl":
     print "This test may only be run with SSL enabled."
     sys.exit(0)
 
-testdir = os.path.join(toplevel,"test", "IceSSL", "configuration")
+name = os.path.join("IceSSL", "configuration")
+testdir = os.path.join(toplevel, "test", name)
+
 client = os.path.join(testdir, "configuration")
 
 localClientOptions = TestUtil.clientServerProtocol + TestUtil.defaultHost

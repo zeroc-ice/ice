@@ -25,7 +25,9 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-testdir = os.path.join(toplevel, "test", "IceStorm", "federation2")
+name = os.path.join("IceStorm", "federation2")
+testdir = os.path.join(toplevel, "test", name)
+
 exedir = os.path.join(toplevel, "test", "IceStorm", "federation")
 
 iceBox = os.path.join(toplevel, "bin", "icebox")

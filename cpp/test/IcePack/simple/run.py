@@ -27,7 +27,7 @@ import TestUtil
 import IcePackAdmin
 
 name = os.path.join("IcePack", "simple")
-testdir = os.path.join(toplevel, "test", "IcePack", "simple")
+testdir = os.path.join(toplevel, "test", name)
 
 #
 # Add locator options for the client and server. Since the server
@@ -38,7 +38,7 @@ additionalOptions = " --Ice.Default.Locator=\"IcePack/Locator:default -p 12346\"
 IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
 
 #
-# Start IcePack registry
+# Start IcePack registry.
 # 
 icePackRegistryPipe = IcePackAdmin.startIcePackRegistry("12346", testdir)
 
@@ -56,7 +56,7 @@ IcePackAdmin.shutdownIcePackRegistry(icePackRegistryPipe)
 IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
 
 #
-# Start the registry and a node.
+# Start IcePack registry and a node.
 #
 icePackRegistryPipe = IcePackAdmin.startIcePackRegistry("12346", testdir)
 icePackNodePipe = IcePackAdmin.startIcePackNode(testdir)
@@ -71,10 +71,8 @@ print "registering server with icepack...",
 IcePackAdmin.addServer("server", os.path.join(testdir, "simple_server.xml"), server, "", "");
 print "ok"
   
-updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel) + additionalOptions
-
 print "starting client...",
-clientPipe = os.popen(client + updatedClientOptions)
+clientPipe = os.popen(client + TestUtil.clientOptions + additionalOptions)
 print "ok"
 
 for output in clientPipe.xreadlines():

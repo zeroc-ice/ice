@@ -25,22 +25,20 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-testdir = os.path.join(toplevel,"test", "Ice", "faultTolerance")
-classpath = os.path.join(toplevel, "lib") + TestUtil.sep + os.path.join(testdir, "classes") + \
-    TestUtil.sep + os.getenv("CLASSPATH", "")
-server = "java -classpath \"" + classpath + "\" Server"
-client = "java -classpath \"" + classpath + "\" Client"
+name = os.path.join("Ice", "faultTolerance")
+testdir = os.path.join(toplevel, "test", name)
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.environ["CLASSPATH"]
+
+server = "java -ea Server"
+client = "java -ea Client"
 
 num = 6
 base = 12340
 
-updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
-updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
-
 serverPipes = { }
 for i in range(0, num):
     print "starting server #%d..." % (i + 1),
-    serverPipes[i] = os.popen(server + updatedServerOptions + " %d" % (base + i))
+    serverPipes[i] = os.popen(server + TestUtil.serverOptions + " %d" % (base + i))
     TestUtil.getAdapterReady(serverPipes[i])
     print "ok"
 
@@ -48,7 +46,7 @@ ports = ""
 for i in range(0, num):
     ports = "%s %d" % (ports, base + i)
 print "starting client...",
-clientPipe = os.popen(client + updatedClientOptions + " " + ports)
+clientPipe = os.popen(client + TestUtil.clientOptions + " " + ports)
 print "ok"
 
 for output in clientPipe.xreadlines():

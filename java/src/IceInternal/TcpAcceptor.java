@@ -108,8 +108,13 @@ class TcpAcceptor implements Acceptor
         {
             _fd = Network.createTcpServerSocket();
             Network.setBlock(_fd, false);
-            java.net.InetSocketAddress addr = new java.net.InetSocketAddress(host, port);
-            _addr = Network.doBind(_fd, addr);
+            _addr = new java.net.InetSocketAddress(host, port);
+	    if(_traceLevels.network >= 2)
+	    {
+		String s = "attempting to bind to tcp socket " + toString();
+		_logger.trace(_traceLevels.networkCat, s);
+	    }
+            _addr = Network.doBind(_fd, _addr);
         }
         catch(RuntimeException ex)
         {
