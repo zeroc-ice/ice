@@ -1030,6 +1030,15 @@ IceInternal::Connection::setAdapter(const ObjectAdapterPtr& adapter)
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     //
+    // Before we set an adapter (or reset it) we wait until the
+    // dispatch count with any old adapter is zero.
+    //
+    while(_dispatchCount > 0)
+    {
+	wait();
+    }
+
+    //
     // We never change the thread pool with which we were initially
     // registered, even if we add or remove an object adapter.
     //
@@ -1157,7 +1166,6 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 			traceRequest("received request", stream, _logger, _traceLevels);
 			stream.read(requestId);
 			invoke = 1;
-			servantManager = _servantManager;
 			++_dispatchCount;
 		    }
 		    break;
@@ -1179,7 +1187,6 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 			{
 			    throw NegativeSizeException(__FILE__, __LINE__);
 			}
-			servantManager = _servantManager;
 			_dispatchCount += invoke;
 		    }
 		    break;
@@ -1331,12 +1338,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		os->write(requestId);
 	    }
 	    
-	    //
-	    // _servantManager might be changed by setAdapter() during
-	    // execution, so we must operate on a copy.
-	    //
-	    assert(servantManager);
-	    in.invoke(servantManager);
+	    in.invoke(_servantManager);
 	    
 	    //
 	    // If there are more invocations, we need the stream back.

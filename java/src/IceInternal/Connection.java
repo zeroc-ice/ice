@@ -896,6 +896,21 @@ public final class Connection extends EventHandler
     setAdapter(Ice.ObjectAdapter adapter)
     {
 	//
+	// Before we set an adapter (or reset it) we wait until the
+	// dispatch count with any old adapter is zero.
+	//
+	while(_dispatchCount > 0)
+	{
+	    try
+	    {
+		wait();
+	    }
+	    catch(InterruptedException ex)
+	    {
+	    }
+	}
+
+	//
 	// We never change the thread pool with which we were
 	// initially registered, even if we add or remove an object
 	// adapter.
@@ -965,7 +980,6 @@ public final class Connection extends EventHandler
     public void
     message(BasicStream stream, ThreadPool threadPool)
     {
-	ServantManager servantManager = null;
 	OutgoingAsync outAsync = null;
 	int invoke = 0;
 	int requestId = 0;
@@ -1038,7 +1052,6 @@ public final class Connection extends EventHandler
                             TraceUtil.traceRequest("received request", stream, _logger, _traceLevels);
 			    requestId = stream.readInt();
 			    invoke = 1;
-			    servantManager = _servantManager;
 			    ++_dispatchCount;
                         }
                         break;
@@ -1060,7 +1073,6 @@ public final class Connection extends EventHandler
 			    {
 				throw new Ice.NegativeSizeException();
 			    }
-			    servantManager = _servantManager;
 			    _dispatchCount += invoke;
                         }
                         break;
@@ -1155,12 +1167,7 @@ public final class Connection extends EventHandler
 		    os.writeInt(requestId);
 		}
 		
-		//
-		// _servantManager might be changed by setAdapter() during
-		// execution, so we must operate on a copy.
-		//
-		assert(servantManager != null);
-		in.invoke(servantManager);
+		in.invoke(_servantManager);
 		
 		//
 		// If there are more invocations, we need the stream back.
