@@ -133,7 +133,7 @@ public final class Reference
         //
         // For compatibility with the old FacetPath.
         //
-        if(facet == null || facet.length() == 0)
+        if(facet.length() == 0)
         {
             s.writeStringSeq(null);
         }
@@ -189,7 +189,7 @@ public final class Reference
             s.append(id);
         }
 
-        if(facet != null && facet.length() > 0)
+        if(facet.length() > 0)
         {
             //
             // If the encoded facet string contains characters which
@@ -834,6 +834,14 @@ public final class Reference
               Ice.ObjectAdapter rvAdapter,
 	      boolean collocationOpt)
     {
+        //
+        // Validate string arguments.
+        //
+        assert(ident.name != null);
+        assert(ident.category != null);
+        assert(fac != null);
+        assert(adptId != null);
+
 	//
 	// It's either adapter id or endpoints, it can't be both.
 	//

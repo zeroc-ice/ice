@@ -246,6 +246,11 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_newFacet(String newFacet)
     {
+        if(newFacet == null)
+        {
+            newFacet = "";
+        }
+
         if(newFacet.equals(_reference.facet))
         {
             return this;
