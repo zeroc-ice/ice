@@ -32,7 +32,7 @@ os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.e
 client = "java -ea Client"
 
 print "starting client...",
-clientPipe = os.popen(client + " " + testdir)
+clientPipe = os.popen(client + TestUtil.clientOptions + " " + testdir)
 print "ok"
 
 for output in clientPipe.xreadlines():

@@ -267,7 +267,6 @@ public class Instance
     {
         ThreadPool clientThreadPool;
         ThreadPool serverThreadPool;
-        Ice.PluginManager pluginManager;
 
 	synchronized(this)
 	{
@@ -285,6 +284,46 @@ public class Instance
 		_objectAdapterFactory = null;
 	    }
 	    
+	    if(_outgoingConnectionFactory != null)
+	    {
+		_outgoingConnectionFactory.destroy();
+		_outgoingConnectionFactory = null;
+	    }
+
+            //
+            // We destroy the thread pool outside the thread
+            // synchronization.
+            //  
+            clientThreadPool = _clientThreadPool;
+            _clientThreadPool = null;
+            serverThreadPool = _serverThreadPool;
+            _serverThreadPool = null;
+        }   
+
+	//
+	// We must destroy the outgoing connection factory before we
+	// destroy the client thread pool.
+	//
+        if(clientThreadPool != null)
+        {       
+            clientThreadPool.waitUntilFinished();
+            clientThreadPool.destroy();
+            clientThreadPool.joinWithAllThreads();
+        }   
+
+	//
+	// We must destroy the object adapter factory before we destroy
+	// the server thread pool.
+	//
+        if(serverThreadPool != null)
+        {   
+            serverThreadPool.waitUntilFinished();
+            serverThreadPool.destroy();
+            serverThreadPool.joinWithAllThreads();
+        }
+
+	synchronized(this)
+	{
 	    if(_servantFactoryManager != null)
 	    {
 		_servantFactoryManager.destroy();
@@ -309,12 +348,6 @@ public class Instance
 		// _proxyFactory.destroy();
 		_proxyFactory = null;
 	    }
-	    
-	    if(_outgoingConnectionFactory != null)
-	    {
-		_outgoingConnectionFactory.destroy();
-		_outgoingConnectionFactory = null;
-	    }
 
 	    if(_routerManager != null)
 	    {
@@ -334,40 +367,12 @@ public class Instance
                 _endpointFactoryManager = null;
             }
 
-            //
-            // We destroy the thread pool outside the thread
-            // synchronization.
-            //  
-            clientThreadPool = _clientThreadPool;
-            _clientThreadPool = null;
-            serverThreadPool = _serverThreadPool;
-            _serverThreadPool = null;
-            
-            //  
-            // We destroy the plugin manager after the thread pools.
-            //  
-            pluginManager = _pluginManager;
-            _pluginManager = null;
-        }   
-
-        if(clientThreadPool != null)
-        {       
-            clientThreadPool.waitUntilFinished();
-            clientThreadPool.destroy();
-            clientThreadPool.joinWithAllThreads();
-        }   
-
-        if(serverThreadPool != null)
-        {   
-            serverThreadPool.waitUntilFinished();
-            serverThreadPool.destroy();
-            serverThreadPool.joinWithAllThreads();
-        }
-
-        if(pluginManager != null)
-        {
-            pluginManager.destroy();
-        }
+	    if(_pluginManager != null)
+	    {
+		_pluginManager.destroy();
+		_pluginManager = null;
+	    }
+	}
     }
 
     private boolean _destroyed;
