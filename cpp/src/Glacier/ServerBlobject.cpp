@@ -53,9 +53,47 @@ Glacier::ServerBlobject::ice_invoke(const std::vector<Byte>& inParams, std::vect
 	    proxy = proxy->ice_newFacet(current.facet);
 	}
 
-	if (!current.response)
+	Context::const_iterator p = current.context.find("_fwd");
+	if (p != current.context.end())
 	{
-	    proxy = proxy->ice_oneway();
+	    for (unsigned int i = 0; i < p->second.length(); ++i)
+	    {
+		char option = p->second[i];
+		switch (option)
+		{
+		    case 't':
+		    {
+			proxy = proxy->ice_twoway();
+			break;
+		    }
+		    
+		    case 'o':
+		    {
+			proxy = proxy->ice_oneway();
+			break;
+		    }
+		    
+		    case 'd':
+		    {
+			proxy = proxy->ice_datagram();
+			break;
+		    }
+		    
+		    case 's':
+		    {
+			proxy = proxy->ice_secure(true);
+			break;
+		    }
+		    
+		    default:
+		    {
+			ostringstream s;
+			s << "unknown forward option `" << option << "'";
+			_logger->warning(s.str());
+			break;
+		    }
+		}
+	    }
 	}
 	
 	if (_traceLevel >= 2)

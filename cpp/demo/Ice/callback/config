@@ -1,7 +1,7 @@
 Callback.Callback=callback:tcp -h 192.168.2.2 -p 10000:udp -h 192.168.2.2 -p 10000:ssl -h 192.168.2.2 -p 10001#:sudp -h 192.168.2.2 -p 10001
 Ice.Adapter.CallbackReceiverAdapter.Endpoints=tcp:udp:ssl#:sudp
 
-#Ice.Trace.Network=1
+Ice.Trace.Network=3
 #Ice.Trace.Protocol=1
 #Ice.ConnectionWarnings=1
 

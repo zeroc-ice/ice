@@ -62,14 +62,6 @@ local struct Current
 
     /**
      *
-     * Set to false if the operation call was sent oneway or with a
-     * datagram protocol.
-     *
-     **/
-    bool response;
-
-    /**
-     *
      * Set to true if the operation is nonmutating.
      *
      **/

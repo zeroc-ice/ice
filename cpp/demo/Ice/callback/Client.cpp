@@ -69,12 +69,18 @@ CallbackClient::run(int argc, char* argv[])
     CallbackPrx batchDatagram = CallbackPrx::uncheckedCast(twoway->ice_batchDatagram());
     
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("CallbackReceiverAdapter");
-    CallbackReceiverPrx receiver = CallbackReceiverPrx::uncheckedCast(
-	adapter->createProxy(stringToIdentity("callbackReceiver")));
     adapter->add(new CallbackReceiverI, stringToIdentity("callbackReceiver"));
     adapter->activate();
 
+    CallbackReceiverPrx twowayR = CallbackReceiverPrx::uncheckedCast(
+	adapter->createProxy(stringToIdentity("callbackReceiver")));
+    CallbackReceiverPrx onewayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_oneway());
+//    CallbackReceiverPrx batchOnewayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_batchOneway());
+    CallbackReceiverPrx datagramR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_datagram());
+//    CallbackReceiverPrx batchDatagramR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_batchDatagram());
+
     bool secure = false;
+    string secureStr = "";
 
     menu();
 
@@ -87,23 +93,33 @@ CallbackClient::run(int argc, char* argv[])
 	    cin >> c;
 	    if (c == 't')
 	    {
-		twoway->initiateCallback(receiver);
+		Context context;
+		context["_fwd"] = "t" + secureStr;
+		twoway->initiateCallback(twowayR, context);
 	    }
 	    else if (c == 'o')
 	    {
-		oneway->initiateCallback(receiver);
+		Context context;
+		context["_fwd"] = "o" + secureStr;
+		oneway->initiateCallback(onewayR, context);
 	    }
 	    else if (c == 'O')
 	    {
-		batchOneway->initiateCallback(receiver);
+		Context context;
+		context["_fwd"] = "o" + secureStr;
+		batchOneway->initiateCallback(onewayR, context);
 	    }
 	    else if (c == 'd')
 	    {
-		datagram->initiateCallback(receiver);
+		Context context;
+		context["_fwd"] = "d" + secureStr;
+		datagram->initiateCallback(datagramR, context);
 	    }
 	    else if (c == 'D')
 	    {
-		batchDatagram->initiateCallback(receiver);
+		Context context;
+		context["_fwd"] = "d" + secureStr;
+		batchDatagram->initiateCallback(datagramR, context);
 	    }
 	    else if (c == 'f')
 	    {
@@ -113,12 +129,19 @@ CallbackClient::run(int argc, char* argv[])
 	    else if (c == 'S')
 	    {
 		secure = !secure;
+		secureStr = secure ? "s" : "";
 		
 		twoway = CallbackPrx::uncheckedCast(twoway->ice_secure(secure));
 		oneway = CallbackPrx::uncheckedCast(oneway->ice_secure(secure));
 		batchOneway = CallbackPrx::uncheckedCast(batchOneway->ice_secure(secure));
 		datagram = CallbackPrx::uncheckedCast(datagram->ice_secure(secure));
 		batchDatagram = CallbackPrx::uncheckedCast(batchDatagram->ice_secure(secure));
+
+		twowayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_secure(secure));
+		onewayR = CallbackReceiverPrx::uncheckedCast(onewayR->ice_secure(secure));
+//		batchOnewayR = CallbackReceiverPrx::uncheckedCast(batchOnewayR->ice_secure(secure));
+		datagramR = CallbackReceiverPrx::uncheckedCast(datagramR->ice_secure(secure));
+//		batchDatagramR = CallbackReceiverPrx::uncheckedCast(batchDatagramR->ice_secure(secure));
 		
 		if (secure)
 		{

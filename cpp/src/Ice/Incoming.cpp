@@ -29,7 +29,6 @@ void
 IceInternal::Incoming::invoke(bool response)
 {
     Current current;
-    current.response = response;
     current.identity.__read(&_is);
     _is.read(current.facet);
     _is.read(current.operation);
