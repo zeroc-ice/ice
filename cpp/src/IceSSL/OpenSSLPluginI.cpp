@@ -90,9 +90,9 @@ namespace IceSSL
 
 extern "C"
 {
-    static void lockingCallback(int, int, const char*, int);
+    void lockingCallback(int, int, const char*, int);
 
-    static unsigned long idFunction();
+    unsigned long idFunction();
 }
 
 class SslLockKeeper
@@ -110,7 +110,7 @@ SslLockKeeper lockKeeper;
 
 }
 
-static void IceSSL::lockingCallback(int mode, int type, const char *file, int line)
+void IceSSL::lockingCallback(int mode, int type, const char *file, int line)
 {
     if(mode & CRYPTO_LOCK)
     {
@@ -122,7 +122,7 @@ static void IceSSL::lockingCallback(int mode, int type, const char *file, int li
     }
 }
 
-static unsigned long IceSSL::idFunction()
+unsigned long IceSSL::idFunction()
 {
     unsigned long threadID = 0;
 
