@@ -263,7 +263,7 @@ final class UdpTransceiver implements Transceiver
         {
             _addr = new java.net.InetSocketAddress(port);
             _fd = Network.createUdpSocket();
-            Network.doBind(_fd, _addr);
+            _addr = Network.doBind(_fd, _addr);
 
             if (_traceLevels.network >= 1)
             {

@@ -341,7 +341,8 @@ public final class Reference
     {
         RouterInfo newRouterInfo = instance.routerManager().get(newRouter);
 
-        if (newRouterInfo.equals(routerInfo))
+        if ((routerInfo == newRouterInfo) ||
+            (routerInfo != null && newRouterInfo != null && newRouterInfo.equals(routerInfo)))
         {
             return this;
         }

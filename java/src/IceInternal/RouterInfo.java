@@ -80,7 +80,7 @@ public final class RouterInfo
             _serverProxy = _serverProxy.ice_router(null); // The server proxy cannot be routed.
         }
 
-        return _clientProxy;
+        return _serverProxy;
     }
 
     public void
