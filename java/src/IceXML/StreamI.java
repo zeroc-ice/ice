@@ -70,7 +70,7 @@ public class StreamI implements Ice.Stream
         catch (javax.xml.parsers.ParserConfigurationException ex)
         {
             logger.error("parser configuration error: " + ex.getMessage());
-            Ice.UnmarshalException e = new Ice.UnmarshalException();
+            Ice.MarshalException e = new Ice.MarshalException();
             e.initCause(ex);
             throw e;
         }
@@ -104,7 +104,7 @@ public class StreamI implements Ice.Stream
 
         if (errorsOccurred)
         {
-            throw new Ice.UnmarshalException();
+            throw new Ice.MarshalException();
         }
 
         //
@@ -304,7 +304,7 @@ public class StreamI implements Ice.Stream
         org.w3c.dom.Node child = _current.getFirstChild();
         if (child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
         {
-            throw new Ice.UnmarshalException();
+            throw new Ice.MarshalException();
         }
 
         String value = child.getNodeValue();
@@ -318,7 +318,7 @@ public class StreamI implements Ice.Stream
         }
         if (ordinal == table.length)
         {
-            throw new Ice.UnmarshalException();
+            throw new Ice.MarshalException();
         }
 
         endRead();
@@ -357,7 +357,7 @@ public class StreamI implements Ice.Stream
         org.w3c.dom.Node child = _current.getFirstChild();
         if (child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
         {
-            throw new Ice.UnmarshalException();
+            throw new Ice.MarshalException();
         }
 
         String s = child.getNodeValue();
@@ -368,7 +368,7 @@ public class StreamI implements Ice.Stream
         }
         catch (NumberFormatException ex)
         {
-            Ice.UnmarshalException e = new Ice.UnmarshalException();
+            Ice.MarshalException e = new Ice.MarshalException();
             e.initCause(ex);
             throw e;
         }
@@ -428,7 +428,7 @@ public class StreamI implements Ice.Stream
         org.w3c.dom.Node child = _current.getFirstChild();
         if (child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
         {
-            throw new Ice.UnmarshalException();
+            throw new Ice.MarshalException();
         }
 
         String s = child.getNodeValue();
@@ -489,7 +489,7 @@ public class StreamI implements Ice.Stream
         org.w3c.dom.Node child = _current.getFirstChild();
         if (child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
         {
-            throw new Ice.UnmarshalException();
+            throw new Ice.MarshalException();
         }
 
         String s = child.getNodeValue();
@@ -500,7 +500,7 @@ public class StreamI implements Ice.Stream
         }
         catch (NumberFormatException ex)
         {
-            Ice.UnmarshalException e = new Ice.UnmarshalException();
+            Ice.MarshalException e = new Ice.MarshalException();
             e.initCause(ex);
             throw e;
         }
@@ -560,7 +560,7 @@ public class StreamI implements Ice.Stream
         org.w3c.dom.Node child = _current.getFirstChild();
         if (child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
         {
-            throw new Ice.UnmarshalException();
+            throw new Ice.MarshalException();
         }
 
         String s = child.getNodeValue();
@@ -571,7 +571,7 @@ public class StreamI implements Ice.Stream
         }
         catch (NumberFormatException ex)
         {
-            Ice.UnmarshalException e = new Ice.UnmarshalException();
+            Ice.MarshalException e = new Ice.MarshalException();
             e.initCause(ex);
             throw e;
         }
@@ -631,7 +631,7 @@ public class StreamI implements Ice.Stream
         org.w3c.dom.Node child = _current.getFirstChild();
         if (child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
         {
-            throw new Ice.UnmarshalException();
+            throw new Ice.MarshalException();
         }
 
         String s = child.getNodeValue();
@@ -642,7 +642,7 @@ public class StreamI implements Ice.Stream
         }
         catch (NumberFormatException ex)
         {
-            Ice.UnmarshalException e = new Ice.UnmarshalException();
+            Ice.MarshalException e = new Ice.MarshalException();
             e.initCause(ex);
             throw e;
         }
@@ -702,7 +702,7 @@ public class StreamI implements Ice.Stream
         org.w3c.dom.Node child = _current.getFirstChild();
         if (child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
         {
-            throw new Ice.UnmarshalException();
+            throw new Ice.MarshalException();
         }
 
         String s = child.getNodeValue();
@@ -713,7 +713,7 @@ public class StreamI implements Ice.Stream
         }
         catch (NumberFormatException ex)
         {
-            Ice.UnmarshalException e = new Ice.UnmarshalException();
+            Ice.MarshalException e = new Ice.MarshalException();
             e.initCause(ex);
             throw e;
         }
@@ -773,7 +773,7 @@ public class StreamI implements Ice.Stream
         org.w3c.dom.Node child = _current.getFirstChild();
         if (child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
         {
-            throw new Ice.UnmarshalException();
+            throw new Ice.MarshalException();
         }
 
         String s = child.getNodeValue();
@@ -784,7 +784,7 @@ public class StreamI implements Ice.Stream
         }
         catch (NumberFormatException ex)
         {
-            Ice.UnmarshalException e = new Ice.UnmarshalException();
+            Ice.MarshalException e = new Ice.MarshalException();
             e.initCause(ex);
             throw e;
         }
@@ -852,7 +852,7 @@ public class StreamI implements Ice.Stream
         {
             if (child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
             {
-                throw new Ice.UnmarshalException();
+                throw new Ice.MarshalException();
             }
             value = child.getNodeValue();
         }
@@ -910,7 +910,7 @@ public class StreamI implements Ice.Stream
         {
             if (child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
             {
-                throw new Ice.UnmarshalException();
+                throw new Ice.MarshalException();
             }
             s = child.getNodeValue();
         }
@@ -1016,7 +1016,7 @@ public class StreamI implements Ice.Stream
             //
             if (_current == null)
             {
-                throw new Ice.UnmarshalException();
+                throw new Ice.MarshalException();
             }
         }
 
@@ -1104,7 +1104,7 @@ public class StreamI implements Ice.Stream
         }
         if (_current == null)
         {
-            throw new Ice.UnmarshalException();
+            throw new Ice.MarshalException();
         }
 
         String nodeName = _current.getNodeName();
@@ -1115,7 +1115,7 @@ public class StreamI implements Ice.Stream
         final String facetsNS = "ice:facets";
         if ((!name.equals(facetsNS) || !nodeName.equals(facets)) && !name.equals(nodeName))
         {
-            throw new Ice.UnmarshalException();
+            throw new Ice.MarshalException();
         }
 
         _nodeStack.add(_current);
@@ -1270,12 +1270,12 @@ public class StreamI implements Ice.Stream
                 }
                 catch (NumberFormatException ex)
                 {
-                    throw new Ice.UnmarshalException();
+                    throw new Ice.MarshalException();
                 }
             }
         }
 
-        throw new Ice.UnmarshalException();
+        throw new Ice.MarshalException();
     }
 
     private Ice.Communicator _communicator;

@@ -283,7 +283,7 @@ IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::istrea
     if (errorsOccured)
     {
 	delete _input;
-	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
 
     //
@@ -478,14 +478,14 @@ IceXML::StreamI::readEnum(const string& name, const ::Ice::StringSeq& table)
     DOM_Node child = _input->current.getFirstChild();
     if (child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
     {
-	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
 
     string value = toString(child.getNodeValue());
     ::Ice::StringSeq::const_iterator p = find(table.begin(), table.end(), value);
     if (p == table.end())
     {
-	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
 
     endRead();
@@ -522,14 +522,14 @@ IceXML::StreamI::readByte(const string& name)
     DOM_Node child = _input->current.getFirstChild();
     if (child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
     {
-	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
 
     string s = toString(child.getNodeValue());
     ::Ice::Int i = atoi(s.c_str());
     if (i < -127 || i > 128)
     {
-	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
 
     endRead();
@@ -559,13 +559,13 @@ IceXML::StreamI::readByte(const string& name)
 //      string name = toString(child.getNodeName());
 //	if (name != seqElementName)
 //	{
-//	    throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+//	    throw ::Ice::MarshalException(__FILE__, __LINE__);
 //	}
 //
 //	child = child.getFirstChild();
 //	if (child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
 //	{
-//	    throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+//	    throw ::Ice::MarshalException(__FILE__, __LINE__);
 //	}
 //	
 //	string s = toString(child.getNodeValue());
@@ -627,7 +627,7 @@ IceXML::StreamI::readBool(const string& name)
     DOM_Node child = _input->current.getFirstChild();
     if (child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
     {
-	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
 
     string s = toString(child.getNodeValue());
@@ -687,14 +687,14 @@ IceXML::StreamI::readShort(const string& name)
     DOM_Node child = _input->current.getFirstChild();
     if (child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
     {
-	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
 
     string s = toString(child.getNodeValue());
     ::Ice::Int i = atoi(s.c_str());
     if (i < -32767 || i > 32768)
     {
-	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
 
     endRead();
@@ -752,7 +752,7 @@ IceXML::StreamI::readInt(const string& name)
     DOM_Node child = _input->current.getFirstChild();
     if (child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
     {
-	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
 
     string s = toString(child.getNodeValue());
@@ -812,7 +812,7 @@ IceXML::StreamI::readLong(const string& name)
     DOM_Node child = _input->current.getFirstChild();
     if (child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
     {
-	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
 
     string s = toString(child.getNodeValue());
@@ -872,7 +872,7 @@ IceXML::StreamI::readFloat(const string& name)
     DOM_Node child = _input->current.getFirstChild();
     if (child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
     {
-	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
 
     string s = toString(child.getNodeValue());
@@ -932,7 +932,7 @@ IceXML::StreamI::readDouble(const string& name)
     DOM_Node child = _input->current.getFirstChild();
     if (child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
     {
-	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
 
     string s = toString(child.getNodeValue());
@@ -1050,7 +1050,7 @@ IceXML::StreamI::readString(const string& name)
     {
 	if (child.getNodeType() != DOM_Node::TEXT_NODE)
 	{
-	    throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+	    throw ::Ice::MarshalException(__FILE__, __LINE__);
 	}
 	value = toString(child.getNodeValue());
     }
@@ -1108,7 +1108,7 @@ IceXML::StreamI::readProxy(const string& name)
     {
 	if (child.getNodeType() != DOM_Node::TEXT_NODE)
 	{
-	    throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+	    throw ::Ice::MarshalException(__FILE__, __LINE__);
 	}
 	s = toString(child.getNodeValue());
     }
@@ -1209,7 +1209,7 @@ IceXML::StreamI::readObject(const string& name, const string& signatureType, con
 	//
 	if (_input->current.isNull())
 	{
-	    throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+	    throw ::Ice::MarshalException(__FILE__, __LINE__);
 	}
     }
 
@@ -1300,7 +1300,7 @@ IceXML::StreamI::startRead(const ::std::string& element)
     }
     if (_input->current.isNull())
     {
-	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
     
     string nodeName = toString(_input->current.getNodeName());
@@ -1311,7 +1311,7 @@ IceXML::StreamI::startRead(const ::std::string& element)
     static const string facetsNS = "ice:facets";
     if ((element != facetsNS || nodeName != facets) && element != nodeName)
     {
-	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
 
     _input->nodeStack.push_back(_input->current);
@@ -1464,5 +1464,5 @@ IceXML::StreamI::readLength()
 	}
     }
 
-    throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+    throw ::Ice::MarshalException(__FILE__, __LINE__);
 }
