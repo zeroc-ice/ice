@@ -640,7 +640,15 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent, L
 			removeRecursive(path);
 
 			FileAccessException ex;
-			ex.reason = "Error patching `" + path + "'.";
+			ex.reason = "Retry count exceeded while patching `" + path + "':\n";
+                        if(infoMD5.type == FileTypeRegular)
+                        {
+                            ex.reason += "MD5 mismatch";
+                        }
+                        else
+                        {
+                            ex.reason += "MD5 file not found";
+                        }
 			throw ex;
 		    }
 		}
