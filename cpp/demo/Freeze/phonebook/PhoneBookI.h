@@ -69,7 +69,7 @@ private:
     Ice::ObjectAdapterPtr _adapter;
     Freeze::DBPtr _db;
     Freeze::EvictorPtr _evictor;
-    NameIdentitiesDictPtr _nameIdentitiesDict;
+    NameIdentitiesDict _nameIdentitiesDict;
 };
 
 #endif

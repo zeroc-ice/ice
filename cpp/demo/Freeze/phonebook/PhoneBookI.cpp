@@ -83,7 +83,7 @@ PhoneBookI::PhoneBookI(const ObjectAdapterPtr& adapter, const DBPtr& db, const E
     _adapter(adapter),
     _db(db),
     _evictor(evictor),
-    _nameIdentitiesDict(new NameIdentitiesDict(db))
+    _nameIdentitiesDict(db)
 {
 }
 
@@ -133,15 +133,9 @@ PhoneBookI::createContact(const Ice::Current&)
     // is the empty string.
     //
     Identities identities;
-    try
-    {
-	identities = _nameIdentitiesDict->get("N");
-    }
-    catch(const DBNotFoundException&)
-    {
-    }
+    identities = _nameIdentitiesDict["N"];
     identities.push_back(ident);
-    _nameIdentitiesDict->put("N", identities);
+    _nameIdentitiesDict["N"] = identities;
     
     //
     // Turn the identity into a Proxy and return the Proxy to the
@@ -159,14 +153,7 @@ PhoneBookI::findContacts(const string& name, const Ice::Current&)
     // Lookup all phone book contacts that match a name, and return
     // them to the caller.
     //
-    Identities identities;
-    try
-    {
-	identities = _nameIdentitiesDict->get("N" + name);
-    }
-    catch(const DBNotFoundException&)
-    {
-    }
+    Identities identities = _nameIdentitiesDict["N" + name];
 
     Contacts contacts;
     contacts.reserve(identities.size());
@@ -199,20 +186,28 @@ PhoneBookI::remove(const string& ident, const string& name)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
+    NameIdentitiesDict::iterator p = _nameIdentitiesDict.find("N" + name);
+
     //
-    // We do not catch DBNotFoundExceptionPtrE, because it is an
-    // application error if name is not found.
+    // If the name isn't found then this is an application
+    // error. Throw a DBNotFoundException.
     //
-    Identities identities  = _nameIdentitiesDict->get("N" + name);
+    if (p == _nameIdentitiesDict.end())
+    {
+	throw DBNotFoundException();
+    }
+
+    Identities identities  = p->second;
     identities.erase(remove_if(identities.begin(), identities.end(), bind2nd(equal_to<string>(), ident)),
 		     identities.end());
+
     if (identities.empty())
     {
-	_nameIdentitiesDict->del("N" + name);
+	_nameIdentitiesDict.erase(p);
     }
     else
     {
-	_nameIdentitiesDict->put("N" + name, identities);
+	_nameIdentitiesDict["N" + name] = identities;
     }
 }
 
@@ -225,16 +220,9 @@ PhoneBookI::move(const string& ident, const string& oldName, const string& newNa
     // Called by ContactI in case the name has been changed.
     //
     remove(ident, oldName);
-    Identities identities;
-    try
-    {
-	identities = _nameIdentitiesDict->get("N" + newName);
-    }
-    catch(const DBNotFoundException&)
-    {
-    }
+    Identities identities = _nameIdentitiesDict["N" + newName];
     identities.push_back(ident);
-    _nameIdentitiesDict->put("N" + newName, identities);
+    _nameIdentitiesDict["N" + newName] = identities;
 }
 
 string
@@ -242,19 +230,20 @@ PhoneBookI::getNewIdentity()
 {
     Ice::Long id;
     Identities ids;
-    try
+    NameIdentitiesDict::iterator p = _nameIdentitiesDict.find("ID");
+    if (p == _nameIdentitiesDict.end())
     {
-	ids = _nameIdentitiesDict->get("ID");
+	id = 0;
+    }
+    else
+    {
+	ids = p->second;
 	assert(ids.size() == 1);
 #ifdef WIN32
 	id = _atoi64(ids.front().c_str()) + 1;
 #else
 	id = atoll(ids.front().c_str()) + 1;
 #endif
-    }
-    catch(const DBNotFoundException&)
-    {
-	id = 0;
     }
 
     char s[20];
@@ -266,7 +255,7 @@ PhoneBookI::getNewIdentity()
     
     ids.clear();
     ids.push_back(s);
-    _nameIdentitiesDict->put("ID", ids);
+    _nameIdentitiesDict["ID"] = ids;
 
     return string("contact#") + s;
 }

@@ -77,8 +77,44 @@ printFreezeTypes(Output& out, const vector<Dict>& dicts)
     out << '\n';
 }
 
+void
+writeCodecH(const TypePtr& type, const string& name, const string& freezeType, Output& H, const string& dllExport)
+{
+    H << sp << nl << dllExport << "class " << name;
+    H << sb;
+    H.dec();
+    H << sp << nl << "public:";
+    H.inc();
+    H << nl << "static Freeze::" << freezeType << " write(" << inputTypeToString(type)
+      << ", const IceInternal::InstancePtr& instance);";
+    H << nl << "static void read(" << typeToString(type) << "&, const Freeze::" << freezeType << "& bytes, "
+      << "const IceInternal::InstancePtr& instance);";
+    H << eb << ';';
+}
+
+void
+writeCodecC(const TypePtr& type, const string& name, const string& freezeType, Output& C)
+{
+    C << sp << nl << "Freeze::" << freezeType << nl << name << "::write(" << inputTypeToString(type) << " v, "
+      << "const IceInternal::InstancePtr& instance)";
+    C << sb;
+    C << nl << "IceInternal::BasicStream stream(instance);";
+    writeMarshalUnmarshalCode(C, type, "v", true, "stream", false);
+    C << nl << "return stream.b;";
+    C << eb;
+
+    C << sp << nl << "void" << nl << name << "::read(" << typeToString(type) << "& v, "
+      << "const Freeze::" << freezeType << "& bytes, const IceInternal::InstancePtr& instance)";
+    C << sb;
+    C << nl << "IceInternal::BasicStream stream(instance);";
+    C << nl << "stream.b = bytes;";
+    C << nl << "stream.i = stream.b.begin();";
+    writeMarshalUnmarshalCode(C, type, "v", false, "stream", false);
+    C << eb;
+}
+
 bool
-writeDict(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output& C, const string& dllExport)
+writeCodecs(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output& C, const string& dllExport)
 {
     string absolute = dict.name;
     if (absolute.find("::") == 0)
@@ -129,67 +165,22 @@ writeDict(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output& C
 	H << sp;
 	H << nl << "namespace " << *q << nl << '{';
     }
-    
-    H << sp << nl << dllExport << "class " << name << " : public ::IceUtil::Shared";
-    H << sb;
-    H.dec();
-    H << sp << nl << "public:";
-    H.inc();
-    H << sp << nl << name << "(const ::Freeze::DBPtr&);";
-    H << sp;
-    H << nl << "void put(" << inputTypeToString(keyType) << ", " << inputTypeToString(valueType) << ");";
-    H << nl << typeToString(valueType) << " get(" << inputTypeToString(keyType) << ");";
-    H << nl << "void del(" << inputTypeToString(keyType) << ");";
-    H.dec();
-    H << sp << nl << "private:";
-    H.inc();
-    H << sp << nl << "::Freeze::DBPtr _db;";
-    H << eb << ';';
-    H << sp << nl << "typedef IceUtil::Handle<" << name << "> " << name << "Ptr;";
-    
+
+    writeCodecH(keyType, name + "KeyCodec", "Key", H, dllExport);
+    writeCodecH(valueType, name + "ValueCodec", "Value", H, dllExport);
+
+    H << sp << nl << "typedef Freeze::DbMap< " << typeToString(keyType) << ", " << typeToString(valueType) << ", "
+      << name << "KeyCodec, " << name << "ValueCodec> " << name << ";";
+
     for (q = scope.begin(); q != scope.end(); ++q)
     {
 	H << sp;
 	H << nl << '}';
     }
 
-    C << sp << nl << absolute << "::" << name << "(const ::Freeze::DBPtr& db) :";
-    C.inc();
-    C << nl << "_db(db)";
-    C.dec();
-    C << sb;
-    C << eb;
-    C << sp << nl << "void" << nl << absolute << "::put(" << inputTypeToString(keyType) << " key, "
-      << inputTypeToString(valueType) << " value)";
-    C << sb;
-    C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());";
-    C << nl << "IceInternal::BasicStream keyStream(instance);";
-    writeMarshalUnmarshalCode(C, keyType, "key", true, "keyStream", false);
-    C << nl << "IceInternal::BasicStream valueStream(instance);";
-    writeMarshalUnmarshalCode(C, keyType, "value", true, "valueStream", false);
-    C << nl << "_db->put(keyStream.b, valueStream.b);";
-    C << eb;
-    C << sp << nl << typeToString(valueType) << nl << absolute << "::get(" << inputTypeToString(keyType)
-      << " key)";
-    C << sb;
-    C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());";
-    C << nl << "IceInternal::BasicStream keyStream(instance);";
-    writeMarshalUnmarshalCode(C, keyType, "key", true, "keyStream", false);
-    C << nl << "IceInternal::BasicStream valueStream(instance);";
-    C << nl << "valueStream.b = _db->get(keyStream.b);";
-    C << nl << "valueStream.i = valueStream.b.begin();";
-    C << nl << typeToString(valueType) << " value;";
-    writeMarshalUnmarshalCode(C, keyType, "value", false, "valueStream", false);
-    C << nl << "return value;";
-    C << eb;
-    C << sp << nl << "void" << nl << absolute << "::del(" << inputTypeToString(keyType) << " key)";
-    C << sb;
-    C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());";
-    C << nl << "IceInternal::BasicStream keyStream(instance);";
-    writeMarshalUnmarshalCode(C, keyType, "key", true, "keyStream", false);
-    C << nl << "_db->del(keyStream.b);";
-    C << eb;
-    
+    writeCodecC(keyType, absolute + "KeyCodec", "Key", C);
+    writeCodecC(valueType, absolute + "ValueCodec", "Value", C);
+
     return true;
 }
 
@@ -501,9 +492,7 @@ main(int argc, char* argv[])
 	H << "\n#ifndef __" << s << "__";
 	H << "\n#define __" << s << "__";
 	H << '\n';
-	H << "\n#include <Ice/Ice.h>";
-	H << "\n#include <Ice/BasicStream.h>";
-	H << "\n#include <Freeze/DB.h>";
+	H << "\n#include <Freeze/FreezeMap.h>";
 	
 	{
 	    for (StringList::const_iterator p = includes.begin(); p != includes.end(); ++p)
@@ -511,7 +500,8 @@ main(int argc, char* argv[])
 		H << "\n#include <" << changeInclude(*p, includePaths) << ".h>";
 	    }
 	}
-	
+
+	C << "\n#include <Ice/BasicStream.h>";
 	C << "\n#include <";
 	if (include.size())
 	{
@@ -533,7 +523,7 @@ main(int argc, char* argv[])
 	    {
 		try
 		{
-		    if (!writeDict(argv[0], unit, *p, H, C, dllExport))
+		    if (!writeCodecs(argv[0], unit, *p, H, C, dllExport))
 		    {
 			unit->destroy();
 			return EXIT_FAILURE;
