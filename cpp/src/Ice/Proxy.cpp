@@ -1310,7 +1310,22 @@ Ice::proxyIdentityLess(const ObjectPrx& lhs, const ObjectPrx& rhs)
 bool
 Ice::proxyIdentityEqual(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
-    return lhs->ice_getIdentity() == rhs->ice_getIdentity();
+    if(!lhs && !rhs)
+    {
+	return true;
+    }
+    else if(!lhs && rhs)
+    {
+	return false;
+    }
+    else if(lhs && !rhs)
+    {
+	return false;
+    }
+    else
+    {
+	return lhs->ice_getIdentity() == rhs->ice_getIdentity();
+    }
 }
 
 bool
@@ -1361,19 +1376,34 @@ Ice::proxyIdentityAndFacetLess(const ObjectPrx& lhs, const ObjectPrx& rhs)
 bool
 Ice::proxyIdentityAndFacetEqual(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
-    Identity lhsIdentity = lhs->ice_getIdentity();
-    Identity rhsIdentity = rhs->ice_getIdentity();
-
-    if(lhsIdentity == rhsIdentity)
+    if(!lhs && !rhs)
     {
-	FacetPath lhsFacet = lhs->ice_getFacet();
-	FacetPath rhsFacet = rhs->ice_getFacet();
-
-	if(lhsFacet == rhsFacet)
-	{
-	    return true;
-	}
+	return true;
     }
-    
-    return false;
+    else if(!lhs && rhs)
+    {
+	return false;
+    }
+    else if(lhs && !rhs)
+    {
+	return false;
+    }
+    else
+    {
+	Identity lhsIdentity = lhs->ice_getIdentity();
+	Identity rhsIdentity = rhs->ice_getIdentity();
+	
+	if(lhsIdentity == rhsIdentity)
+	{
+	    FacetPath lhsFacet = lhs->ice_getFacet();
+	    FacetPath rhsFacet = rhs->ice_getFacet();
+	    
+	    if(lhsFacet == rhsFacet)
+	    {
+		return true;
+	    }
+	}
+	
+	return false;
+    }
 }
