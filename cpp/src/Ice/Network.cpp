@@ -12,7 +12,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/Mutex.h>
 #include <Ice/Network.h>
 #include <Ice/LocalException.h>
 
@@ -26,6 +25,11 @@ using namespace IceInternal;
 
 #ifdef _WIN32
 #   define HAVE_NO_GETHOSTBYNAME_R
+#endif
+
+#ifdef HAVE_NO_GETHOSTBYNAME_R
+#   include <IceUtil/StaticMutex.h>
+static IceUtil::StaticMutex getHostByNameMutex;
 #endif
 
 bool
@@ -592,10 +596,6 @@ repeatAccept:
     
     return ret;
 }
-
-#ifdef HAVE_NO_GETHOSTBYNAME_R
-static IceUtil::StaticMutex getHostByNameMutex;
-#endif
 
 void
 IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
