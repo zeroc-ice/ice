@@ -1,6 +1,8 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Ported IcePack demo from C++.
+
 - Added new mechanism for generating Java code into packages.
   The global metadata prefix "java:package:" now specifies the
   package for all types in a Slice file. For example, the metadata

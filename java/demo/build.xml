@@ -18,6 +18,7 @@ the Free Software Foundation.
         <ant dir="Freeze"/>
         <ant dir="IceBox"/>
         <ant dir="Glacier"/>
+        <ant dir="IcePack"/>
     </target>
 
     <target name="clean">
@@ -25,6 +26,7 @@ the Free Software Foundation.
         <ant dir="Freeze" target="clean"/>
         <ant dir="IceBox" target="clean"/>
         <ant dir="Glacier" target="clean"/>
+        <ant dir="IcePack" target="clean"/>
     </target>
 
 </project>

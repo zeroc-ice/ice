@@ -1,0 +1,16 @@
+<application>
+
+   <!-- ============================================================ -->
+   <!-- Deploy two servers, the first one is defined in the          --> 
+   <!-- server.xml file and is a regular Java server, the second one -->
+   <!-- is defined in the icebox.xml file and is a Java IceBox       -->
+   <!-- server. The servers are deployed on the node named 'mynode'  -->
+   <!-- ============================================================ -->
+
+   <node name="node" basedir="${basedir}">
+     <server name="Server1" descriptor="server.xml">
+     </server>
+     <server name="IceBox1" descriptor="icebox.xml"/>
+   </node>
+
+</application>
