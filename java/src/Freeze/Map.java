@@ -20,6 +20,7 @@ public abstract class Map extends java.util.AbstractMap
     Map(DB db)
     {
 	_db = db;
+        _communicator = db.getCommunicator();
     }
 
     //
@@ -106,7 +107,7 @@ public abstract class Map extends java.util.AbstractMap
 	//
 	//closeIterators();
 
-	byte[] k = encodeKey(key, _db.getCommunicator());
+	byte[] k = encodeKey(key, _communicator);
 	return _db.contains(k);
     }
 
@@ -122,11 +123,11 @@ public abstract class Map extends java.util.AbstractMap
 	//
 	//closeIterators();
 
-	byte[] k = encodeKey(key, _db.getCommunicator());
+	byte[] k = encodeKey(key, _communicator);
 	try
 	{
 	    byte[] v = _db.get(k);
-	    return decodeValue(v, _db.getCommunicator());
+	    return decodeValue(v, _communicator);
 	}
 	catch(DBNotFoundException e)
 	{
@@ -139,19 +140,19 @@ public abstract class Map extends java.util.AbstractMap
     {
 	closeIterators();
 
-	byte[] k = encodeKey(key, _db.getCommunicator());
+	byte[] k = encodeKey(key, _communicator);
 	Object o;
 
 	try
 	{
 	    byte[] v = _db.get(k);
-	    o = decodeValue(v, _db.getCommunicator());
+	    o = decodeValue(v, _communicator);
 	}
 	catch(DBNotFoundException e)
 	{
 	    o = null;
 	}
-	byte[] v = encodeValue(value, _db.getCommunicator());
+	byte[] v = encodeValue(value, _communicator);
 	_db.put(k, v);
 
 	return o;
@@ -162,12 +163,12 @@ public abstract class Map extends java.util.AbstractMap
     {
 	closeIterators();
 
-	byte[] k = encodeKey(key, _db.getCommunicator());
+	byte[] k = encodeKey(key, _communicator);
 	Object o;
 	try
 	{
 	    byte[] v = _db.get(k);
-	    o = decodeValue(v, _db.getCommunicator());
+	    o = decodeValue(v, _communicator);
 	}
 	catch(DBNotFoundException e)
 	{
@@ -187,8 +188,8 @@ public abstract class Map extends java.util.AbstractMap
     {
 	closeIterators();
 
-	byte[] k = encodeKey(key, _db.getCommunicator());
-	byte[] v = encodeValue(value, _db.getCommunicator());
+	byte[] k = encodeKey(key, _communicator);
+	byte[] v = encodeValue(value, _communicator);
 	_db.put(k, v);
     }
 
@@ -200,7 +201,7 @@ public abstract class Map extends java.util.AbstractMap
     {
 	closeIterators();
 
-	byte[] k = encodeKey(key, _db.getCommunicator());
+	byte[] k = encodeKey(key, _communicator);
 	try
 	{
 	    _db.del(k);
@@ -263,7 +264,7 @@ public abstract class Map extends java.util.AbstractMap
 		    if(p != null && valEquals(p.getValue(), value))
 		    {
 			closeIterators();
-			byte[] k = encodeKey(p.getKey(), _db.getCommunicator());
+			byte[] k = encodeKey(p.getKey(), _communicator);
 			_db.del(k);
 			return true;
 		    }
@@ -338,12 +339,10 @@ public abstract class Map extends java.util.AbstractMap
 	//
 	// closeIterators();
 
-	byte[] k = encodeKey(key, _db.getCommunicator());
+	byte[] k = encodeKey(key, _communicator);
 	byte[] v = _db.get(k);
 
-	Object o = decodeValue(v, _db.getCommunicator());
-
-	return new Entry(key, o);
+	return new Entry(this, _communicator, key, v);
     }
 
     private static boolean
@@ -355,198 +354,214 @@ public abstract class Map extends java.util.AbstractMap
     /**
      *
      * The entry iterator class needs to be public to allow clients to
-     * close explicitly the iterator and free resources allocated for
+     * explicitly close the iterator and free resources allocated for
      * the iterator as soon as possible.
      *
      **/
     public class EntryIterator implements java.util.Iterator
     {
-	EntryIterator()
-	{
-	    try
-	    {
-		_cursor = _db.getCursor();
-		_next = getCurr();
-	    }
-	    catch(DBNotFoundException e)
-	    {
-		_next = null;
-	    }
-	    catch(DBException e)
-	    {
-		if(_cursor != null)
-		{
-		    try
-		    {
-			_cursor.close();
-		    }
-		    catch(DBException ignore)
-		    {
-			// Ignore
-		    }
-		}
-		throw e;
-	    }
-	}
-	
-	public boolean
-	hasNext()
-	{
-	    return _next != null;
-	}
-	
-	public Object
-	next()
-	{
-	    return nextEntry();
-	}
-	
-	public void
-	remove()
-	{
-	    if(_current == null)
-	    {
-		throw new IllegalStateException();
-	    }
-	    
-	    closeIteratorsExcept(this);
-	    
-	    //
-	    // Clone the cursor so that error handling is simpler.
-	    //
-	    DBCursor clone = _cursor._clone();
-	    
-	    try
-	    {
-		//
-		// If _next is null then the iterator is currently at
-		// the end.
-		//
-		if(_next != null)
-		{
-		    clone.prev();
-		}
-		
-		clone.del();
-	    }
-	    finally
-	    {
-		if(clone != null)
-		{
-		    try
-		    {
-			clone.close();
-		    }
-		    catch(DBException ignore)
-		    {
-			// Ignore
-		    }
-		}
-	    }
-
-	    _current = null;
-	}
-	
-	//
-	// Extra operation.
-	//
-	public void
-	close()
-	{
-	    DBCursor copy = _cursor;
-	    
-	    //
-	    // Clear the internal iterator state.
-	    //
-	    _cursor = null;
-	    _next = null;
-	    _current = null;
-	    
-	    if(copy != null)
-	    {
-		copy.close();
-	    }
-	}
-
-	protected void
-	finalize()
+        EntryIterator()
         {
-	    close();
-	}
-	
-	private Entry
-	nextEntry()
-	{
-	    if(_next == null)
-	    {
-		throw new java.util.NoSuchElementException();
-	    }
-	    
-	    _current = _next;
-	    
-	    if(_cursor.next())
-	    {
-		_next = getCurr();
-	    }
-	    else
-	    {
-		_next = null;
-	    }
-	    
-	    return _current;
-	}
-	
-	private Entry
-	getCurr()
-	{
-	    Freeze.KeyHolder k = new Freeze.KeyHolder();
-	    Freeze.ValueHolder v = new Freeze.ValueHolder();
-	    _cursor.curr(k, v);
-	    
-	    Object key = decodeKey(k.value, _db.getCommunicator());
-	    Object value = decodeValue(v.value, _db.getCommunicator());
-	    return new Entry(key, value);
-	}
-	
-	private DBCursor _cursor = null;
-	private Entry _next;
-	private Entry _current;
+            try
+            {
+                _cursor = _db.getCursor();
+                _next = getEntry();
+            }
+            catch(DBNotFoundException e)
+            {
+                // Database is empty.
+            }
+        }
+
+        public boolean
+        hasNext()
+        {
+            return getNext();
+        }
+
+        public Object
+        next()
+        {
+            if(!getNext())
+            {
+                throw new java.util.NoSuchElementException();
+            }
+            assert(_next != null);
+
+            if(_prev != null)
+            {
+                _prev.invalidateCursor();
+            }
+
+            _prev = _next;
+            _next = null;
+            return _prev;
+        }
+
+        public void
+        remove()
+        {
+            if(_prev == null)
+            {
+                throw new IllegalStateException();
+            }
+            
+            closeIteratorsExcept(this);
+            
+            //
+            // Clone the cursor so that error handling is simpler.
+            //
+            DBCursor clone = _cursor._clone();
+            
+            try
+            {
+                clone.del();
+                _prev.invalidateCursor();
+                _prev = null;
+                _next = null;
+            }
+            finally
+            {
+                try
+                {
+                    clone.close();
+                }
+                catch(DBException ignore)
+                {
+                    // Ignore
+                }
+            }
+        }
+
+        //
+        // Extra operation.
+        //
+        public void
+        close()
+        {
+            DBCursor copy = _cursor;
+
+            //
+            // Clear the internal iterator state.
+            //
+            _cursor = null;
+            _next = null;
+            _prev = null;
+            
+            if(copy != null)
+            {
+                copy.close();
+            }
+        }
+
+        protected void
+        finalize()
+        {
+            close();
+        }
+
+        private Entry
+        getEntry()
+        {
+            _cursor.curr(_keyHolder, _valueHolder);
+            return new Entry(Map.this, _cursor, _keyHolder.value, _valueHolder.value);
+        }
+
+        private boolean
+        getNext()
+        {
+            if(_next == null)
+            {
+                if(_cursor.next())
+                {
+                    try
+                    {
+                        _next = getEntry();
+                    }
+                    catch(DBNotFoundException ex)
+                    {
+                        // No element found.
+                    }
+                }
+            }
+            return _next != null;
+        }
+
+        private DBCursor _cursor;
+        private Entry _next;
+        private Entry _prev;
+        private Freeze.KeyHolder _keyHolder = new Freeze.KeyHolder();
+        private Freeze.ValueHolder _valueHolder = new Freeze.ValueHolder();
     }
-    
+
     static class Entry implements java.util.Map.Entry 
     {
-	public
-	Entry(Object key, Object value)
-	{
-	    _key = key;
-	    _value = value;
-	}
-	
-	public
-	Entry(Map.Entry e)
-	{
-	    _key = e.getKey();
-	    _value = e.getValue();
-	}
-	
+        public
+        Entry(Map map, DBCursor cursor, byte[] keyData, byte[] valueData)
+        {
+            _map = map;
+            _cursor = cursor;
+            _communicator = cursor.getCommunicator();
+            _keyData = keyData;
+            _haveKey = false;
+            _valueData = valueData;
+            _haveValue = false;
+        }
+
+        public
+        Entry(Map map, Ice.Communicator communicator, Object key, byte[] valueData)
+        {
+            _map = map;
+            _cursor = null;
+            _communicator = communicator;
+            _key = key;
+            _haveKey = true;
+            _valueData = valueData;
+            _haveValue = false;
+        }
+
 	public Object
 	getKey()
 	{
+            if(!_haveKey)
+            {
+                assert(_keyData != null);
+                _key = _map.decodeKey(_keyData, _communicator);
+                _haveKey = true;
+            }
 	    return _key;
 	}
-	
+
 	public Object
 	getValue()
 	{
+            if(!_haveValue)
+            {
+                assert(_valueData != null);
+                _value = _map.decodeValue(_valueData, _communicator);
+                _haveValue = true;
+            }
 	    return _value;
 	}
-	
+
 	public Object
 	setValue(Object value)
 	{
-	    throw new UnsupportedOperationException();
+            Object old = getValue();
+            if(_cursor != null)
+            {
+                byte[] v = _map.encodeValue(value, _communicator);
+                _cursor.set(v);
+            }
+            else
+            {
+                _map.put(getKey(), value); // Invalidates iterators.
+            }
+            _value = value;
+            _haveValue = true;
+	    return old;
 	}
-	
+
 	public boolean
 	equals(Object o)
 	{
@@ -555,34 +570,47 @@ public abstract class Map extends java.util.AbstractMap
 		return false;
 	    }
 	    Map.Entry e = (Map.Entry)o;
-	    return eq(_key, e.getKey()) &&  eq(_value, e.getValue());
+	    return eq(getKey(), e.getKey()) && eq(getValue(), e.getValue());
 	}
-	
+
 	public int
 	hashCode()
 	{
-	    Object v;
-	    return ((_key   == null) ? 0 : _key.hashCode()) ^
-	           ((_value == null) ? 0 : _value.hashCode());
+	    return ((getKey()   == null) ? 0 : getKey().hashCode()) ^
+	           ((getValue() == null) ? 0 : getValue().hashCode());
 	}
-	
+
 	public String
 	toString()
 	{
-	    return _key + "=" + _value;
+	    return getKey() + "=" + getValue();
 	}
-	
+
+        void
+        invalidateCursor()
+        {
+            _cursor = null;
+        }
+
 	private /*static*/ boolean
 	eq(Object o1, Object o2)
 	{
 	    return (o1 == null ? o2 == null : o1.equals(o2));
 	}
-	
+
+	private Map _map;
+	private DBCursor _cursor;
+        private Ice.Communicator _communicator;
 	private Object _key;
+        private byte[] _keyData;
+        private boolean _haveKey;
 	private Object _value;
+        private byte[] _valueData;
+        private boolean _haveValue;
     }
     
     private java.util.Set _entrySet;
     private DB _db;
+    private Ice.Communicator _communicator;
     private java.util.List _iterators = new java.util.LinkedList();
 }
