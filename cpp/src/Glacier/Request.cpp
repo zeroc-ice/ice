@@ -168,6 +168,7 @@ Glacier::RequestQueue::run()
     while(true)
     {
 	vector<RequestPtr> requests;
+	vector<RequestPtr> missives;
 
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
@@ -191,54 +192,18 @@ Glacier::RequestQueue::run()
 		_requests.swap(requests);
 	    }
 
-            if(!_missives.empty())
+	    if(!_missives.empty())
 	    {
-		for(vector<RequestPtr>::const_iterator p = _missives.begin(); p != _missives.end(); ++p)
-		{
-		    try
-		    {
-			if(_traceLevel >= 2)
-			{
-			    const ObjectPrx& proxy = (*p)->getProxy();
-			    const Current& current = (*p)->getCurrent();
-
-			    Trace out(_logger, "Glacier");
-
-			    if(_reverse)
-			    {
-				out << "reverse ";
-			    }
-
-			    out << "batch routing to:"
-				<< "\nproxy = " << _communicator->proxyToString(proxy)
-				<< "\noperation = " << current.operation;
-			}
-			
-			(*p)->invoke();
-		    }
-		    catch(const Ice::Exception& ex)
-		    {
-			if(_traceLevel >= 1)
-			{
-			    Trace out(_logger, "Glacier");
-			    if(_reverse)
-			    {
-				out << "reverse ";
-			    }
-			    out << "batch routing exception:\n" << ex;
-			}
-		    }
-		}
-		
-		_missives.clear();
+		_missives.swap(missives);
 	    }
 	}
         
         //
-        // Send requests, flush batch requests, and sleep outside the
-        // thread synchronization, so that new messages can be added
-        // while this is being done.
+        // Send requests and missives, flush batch requests, and sleep
+        // outside the thread synchronization, so that new messages
+        // can be added while this is being done.
         //
+
         try
         {
 	    for(vector<RequestPtr>::const_iterator p = requests.begin(); p != requests.end(); ++p)
@@ -249,11 +214,10 @@ Glacier::RequestQueue::run()
 		    const Current& current = (*p)->getCurrent();
 		    
 		    Trace out(_logger, "Glacier");
-
+		    
 		    if(_reverse)
 		    {
 			out << "reverse ";
-
 		    }
 		    out << "routing to:\n"
 			<< "\nproxy = " << _communicator->proxyToString(proxy)
@@ -262,21 +226,7 @@ Glacier::RequestQueue::run()
 
 		(*p)->invoke();
 	    }
-
-            //
-            // This sends all batched missives.
-            //
-	    _communicator->flushBatchRequests();
-	    
-	    //
-	    // In order to avoid flooding, we add a delay, if so
-	    // requested.
-	    //
-	    if(_sleepTime > IceUtil::Time())
-	    {
-		IceUtil::ThreadControl::sleep(_sleepTime);
-	    }
-        }
+	}
         catch(const Ice::Exception& ex)
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
@@ -288,8 +238,61 @@ Glacier::RequestQueue::run()
 		{
 		    out << "reverse ";
 		}
-		out << "batch routing exception:\n" << ex;
+		out << "routing exception:\n" << ex;
 	    }
         }
+
+	try
+	{
+	    for(vector<RequestPtr>::const_iterator p = missives.begin(); p != missives.end(); ++p)
+	    {
+		if(_traceLevel >= 2)
+		{
+		    const ObjectPrx& proxy = (*p)->getProxy();
+		    const Current& current = (*p)->getCurrent();
+		    
+		    Trace out(_logger, "Glacier");
+		    
+		    if(_reverse)
+		    {
+			out << "reverse ";
+		    }
+		    
+		    out << "batch routing to:"
+			<< "\nproxy = " << _communicator->proxyToString(proxy)
+			<< "\noperation = " << current.operation;
+		}
+		
+		(*p)->invoke();
+	    }
+	    
+	    //
+	    // This sends all batched missives.
+	    //
+	    _communicator->flushBatchRequests();
+	}
+	catch(const Ice::Exception& ex)
+	{
+            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+
+	    if(_traceLevel >= 1)
+	    {
+		Trace out(_logger, "Glacier");
+		if(_reverse)
+		{
+		    out << "reverse ";
+		}
+		out << "batch routing exception:\n" << ex;
+	    }
+	}
+	
+	//
+	// In order to avoid flooding, we add a delay, if so
+	// requested.
+	//
+	if(_sleepTime > IceUtil::Time())
+	{
+	    IceUtil::ThreadControl::sleep(_sleepTime);
+	}
     }
 }
