@@ -127,9 +127,9 @@ public final class RouterInfo
         return _adapter;
     }
 
-    private Ice.RouterPrx _router; // Immutable.
+    private final Ice.RouterPrx _router;
     private Ice.ObjectPrx _clientProxy;
     private Ice.ObjectPrx _serverProxy;
-    private Ice.RoutingTable _routingTable; // Immutable.
+    private final Ice.RoutingTable _routingTable;
     private Ice.ObjectAdapter _adapter;
 }

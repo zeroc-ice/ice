@@ -30,6 +30,8 @@ IceInternal::RoutingTable::RoutingTable() :
 void
 IceInternal::RoutingTable::clear()
 {
+    IceUtil::Mutex::Lock sync(*this);
+
     _table.clear();
     _tableHint = _table.end();
 }

@@ -25,7 +25,6 @@ public final class LocatorInfo
     synchronized public void
     destroy()
     {
-	_locator = null;
 	_locatorRegistry = null;
 	_table.clear();
     }
@@ -261,8 +260,8 @@ public final class LocatorInfo
 	ref.instance.logger().trace(ref.instance.traceLevels().locationCat, s.toString());
     }
 
-    private Ice.LocatorPrx _locator; // Immutable.
+    private final Ice.LocatorPrx _locator;
     private Ice.LocatorRegistryPrx _locatorRegistry;
-    private LocatorTable _table; // Immutable.
+    private final LocatorTable _table;
 };
 

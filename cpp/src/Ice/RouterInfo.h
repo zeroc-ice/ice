@@ -25,7 +25,7 @@
 namespace IceInternal
 {
 
-class RouterManager : public ::IceUtil::Shared, public ::IceUtil::Mutex
+class RouterManager : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
@@ -37,19 +37,19 @@ public:
     // Returns router info for a given router. Automatically creates
     // the router info if it doesn't exist yet.
     //
-    RouterInfoPtr get(const ::Ice::RouterPrx&);
+    RouterInfoPtr get(const Ice::RouterPrx&);
 
 private:
 
-    std::map< ::Ice::RouterPrx, RouterInfoPtr> _table;
-    std::map< ::Ice::RouterPrx, RouterInfoPtr>::iterator _tableHint;
+    std::map<Ice::RouterPrx, RouterInfoPtr> _table;
+    std::map<Ice::RouterPrx, RouterInfoPtr>::iterator _tableHint;
 };
 
-class RouterInfo : public ::IceUtil::Shared, public ::IceUtil::Mutex
+class RouterInfo : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
-    RouterInfo(const ::Ice::RouterPrx&);
+    RouterInfo(const Ice::RouterPrx&);
 
     void destroy();
 
@@ -57,22 +57,22 @@ public:
     bool operator!=(const RouterInfo&) const;
     bool operator<(const RouterInfo&) const;
 
-    ::Ice::RouterPrx getRouter() const;
-    ::Ice::ObjectPrx getClientProxy();
-    void setClientProxy(const ::Ice::ObjectPrx&);
-    ::Ice::ObjectPrx getServerProxy();
-    void setServerProxy(const ::Ice::ObjectPrx&);
-    void addProxy(const ::Ice::ObjectPrx&);
-    void setAdapter(const ::Ice::ObjectAdapterPtr&);
-    ::Ice::ObjectAdapterPtr getAdapter() const;
+    Ice::RouterPrx getRouter() const;
+    Ice::ObjectPrx getClientProxy();
+    void setClientProxy(const Ice::ObjectPrx&);
+    Ice::ObjectPrx getServerProxy();
+    void setServerProxy(const Ice::ObjectPrx&);
+    void addProxy(const Ice::ObjectPrx&);
+    void setAdapter(const Ice::ObjectAdapterPtr&);
+    Ice::ObjectAdapterPtr getAdapter() const;
 
 private:
 
-    ::Ice::RouterPrx _router; // Immutable.
-    ::Ice::ObjectPrx _clientProxy;
-    ::Ice::ObjectPrx _serverProxy;
-    RoutingTablePtr _routingTable; // Immutable.
-    ::Ice::ObjectAdapterPtr _adapter;
+    const Ice::RouterPrx _router;
+    Ice::ObjectPrx _clientProxy;
+    Ice::ObjectPrx _serverProxy;
+    const RoutingTablePtr _routingTable;
+    Ice::ObjectAdapterPtr _adapter;
 };
 
 }
