@@ -63,7 +63,7 @@ if host != "":
 else:
     defaultHost = ""
 
-commonServerOptions = " --Ice.ServerThreadPool.Size=3 --Ice.PrintProcessId --Ice.PrintAdapterReady" + \
+commonServerOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerThreadPool.Size=3" + \
                       " --Ice.ConnectionWarnings --Ice.ServerIdleTime=30"
 
 serverOptions = commonServerOptions + serverProtocol

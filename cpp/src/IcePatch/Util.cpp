@@ -375,25 +375,43 @@ IcePatch::createMD5(const string& path)
 	throw ex;
     }
 
+    string pathMD5;
+    string pathMD5Temp;
     ByteSeq bytes;
     if(info.type == FileTypeDirectory)
     {
+	pathMD5 = path + "/.md5";
+	pathMD5Temp = path + "/.md5temp";
+	
 	//
 	// Read all MD5 files in the directory.
 	//
 	StringSeq paths = readDirectory(path);
 	for(StringSeq::const_iterator p = paths.begin(); p != paths.end(); ++p)
 	{
-	    if(getSuffix(*p) == "md5")
+	    if(!ignoreSuffix(*p))
 	    {
-		ByteSeq md5 = getMD5(removeSuffix(*p));
-		copy(md5.begin(), md5.end(), back_inserter(bytes));
+		FileInfo subInfo = getFileInfo(*p, true);
+		
+		if(subInfo.type == FileTypeDirectory)
+		{
+		    ByteSeq subBytesMD5 = getMD5(*p + "/.md5");
+		    copy(subBytesMD5.begin(), subBytesMD5.end(), back_inserter(bytes));
+		}
+		else if(subInfo.type == FileTypeRegular)
+		{
+		    ByteSeq subBytesMD5 = getMD5(removeSuffix(*p));
+		    copy(subBytesMD5.begin(), subBytesMD5.end(), back_inserter(bytes));
+		}
 	    }
 	}
     }
     else
     {
 	assert(info.type == FileTypeRegular);
+
+	pathMD5 = path + ".md5";
+	pathMD5Temp = path + ".md5temp";
 
 	//
 	// Read the original file.
@@ -432,8 +450,6 @@ IcePatch::createMD5(const string& path)
     //
     // Save the MD5 hash value to a temporary MD5 file.
     //
-    string pathMD5 = path + ".md5";
-    string pathMD5Temp = path + ".md5temp";
     ofstream fileMD5(pathMD5Temp.c_str(), ios::binary);
     if(!fileMD5)
     {

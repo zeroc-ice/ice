@@ -35,11 +35,6 @@ IcePatch::FileLocator::locate(const ObjectAdapterPtr& adapter, const Current& cu
 	return 0;
     }
     
-    if(path == ".")
-    {
-	return 0;
-    }
-
     if(path[0] == '/') // Example: /usr/mail/foo
     {
 	return 0;
@@ -47,7 +42,7 @@ IcePatch::FileLocator::locate(const ObjectAdapterPtr& adapter, const Current& cu
 
     //
     // Note: We could make the following rule more selective, to allow
-    // names such as "...foo". But since such names are rather
+    // names such as "foo..bar". But since such names are rather
     // uncommon, we disallow ".." altogether, to be on the safe side.
     //
     if(path.find("..") != string::npos) // Example: foo/../..
@@ -55,7 +50,7 @@ IcePatch::FileLocator::locate(const ObjectAdapterPtr& adapter, const Current& cu
 	return 0;
     }
 
-    if(path.find(':') == 1) // Example: c:\blah
+    if(path.size() >= 2 && tolower(path[0]) >= 'a' && tolower(path[0]) <= 'z' && path[1] == ':') // Example: c:\blah
     {
 	return 0;
     }
