@@ -114,8 +114,8 @@ public:
 
 		if(_size > _capacity)
 		{
-		    _capacity = std::max(_size, 2 * _capacity);
-		    _capacity = std::max(static_cast<size_type>(240), _capacity);
+		    _capacity = std::max<size_type>(_size, 2 * _capacity);
+		    _capacity = std::max<size_type>(static_cast<size_type>(240), _capacity);
 
 		    if(_buf)
 		    {
