@@ -350,7 +350,11 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     public synchronized ServantLocator
     findServantLocator(String prefix)
     {
-	checkForDeactivation();
+	//
+	// We cannot check for deactivation here, because after
+	// deactivation, there might still be some Incoming objects.
+	//
+	//checkForDeactivation();
 
         return (ServantLocator)_locatorMap.get(prefix);
     }
@@ -358,7 +362,11 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     public synchronized Ice.Object
     identityToServant(Identity ident)
     {
-	checkForDeactivation();
+	//
+	// We cannot check for deactivation here, because after
+	// deactivation, there might still be some Incoming objects.
+	//
+	//checkForDeactivation();
 
 	//
 	// Don't call checkIdentity. We simply want null to be

@@ -377,7 +377,11 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
-    checkForDeactivation();
+    //
+    // We cannot check for deactivation here, because after
+    // deactivation, there might still be some Incoming objects.
+    //
+    //checkForDeactivation();
 
     map<string, ServantLocatorPtr>::iterator p = _locatorMap.end();
     
@@ -410,10 +414,14 @@ Ice::ObjectAdapterI::identityToServant(const Identity& ident)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    checkForDeactivation();
+    //
+    // We cannot check for deactivation here, because after
+    // deactivation, there might still be some Incoming objects.
+    //
+    //checkForDeactivation();
     
     //
-    // Don't call checkIdentity. We simply want null to returned
+    // Don't call checkIdentity. We simply want null to be returned
     // (e.g., for Direct, Incoming) in case the identity is incorrect
     // and therefore no servant can be found.
     //
