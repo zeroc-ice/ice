@@ -52,7 +52,7 @@ CallbackClient::run(int argc, char* argv[])
 
     {
 	cout << "testing stringToProxy for router... " << flush;
-	routerBase = communicator()->stringToProxy("abc/def:default -p 12346 -t 30000");
+	routerBase = communicator()->stringToProxy("abc/def:default -p 12347 -t 30000");
 	cout << "ok" << endl;
     }
     
