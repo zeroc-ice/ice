@@ -437,7 +437,7 @@ IcePack::ServerI::stopInternal()
     if(_traceLevels->server > 1)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	out << "gracefull server shutdown failed, killing server `" << description.name << "'";
+	out << "graceful server shutdown failed, killing server `" << description.name << "'";
     }
     
     //
