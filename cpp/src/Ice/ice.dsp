@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 ws2_32.lib libbz2.lib /nologo /dll /machine:I386 /out:"Release/ice12.dll" /implib:"Release/ice.lib"
+# ADD LINK32 ws2_32.lib libbz2.lib /nologo /dll /machine:I386 /out:"Release/ice12.dll" /implib:"Release/ice.lib" /entry:"Ice_DLL_Main"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
@@ -87,7 +87,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386
-# ADD LINK32 ws2_32.lib libbz2d.lib /nologo /dll /debug /machine:I386 /out:"Debug/ice12d.dll" /implib:"Debug/iced.lib"
+# ADD LINK32 ws2_32.lib libbz2d.lib /nologo /dll /debug /machine:I386 /out:"Debug/ice12d.dll" /implib:"Debug/iced.lib" /entry:"Ice_DLL_Main"
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
@@ -162,6 +162,10 @@ SOURCE=.\DynamicLibrary.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\DLLMain.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Endpoint.cpp
 # End Source File
 # Begin Source File
@@ -175,6 +179,18 @@ SOURCE=.\EndpointFactoryManager.cpp
 # Begin Source File
 
 SOURCE=.\EventHandler.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\EventLoggerI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\EventLoggerMsg.mc
+# End Source File
+# Begin Source File
+
+SOURCE=.\EventLoggerMsg.res
 # End Source File
 # Begin Source File
 
@@ -335,6 +351,10 @@ SOURCE=.\ServantLocator.cpp
 # Begin Source File
 
 SOURCE=.\ServantManager.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Service.cpp
 # End Source File
 # Begin Source File
 
@@ -511,6 +531,14 @@ SOURCE=.\EventHandler.h
 # Begin Source File
 
 SOURCE=.\EventHandlerF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\EventLoggerI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\EventLoggerMsg.h
 # End Source File
 # Begin Source File
 
@@ -802,6 +830,10 @@ SOURCE=..\..\include\Ice\ServantManagerF.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\Ice\Service.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\Ice\Stats.h
 # End Source File
 # Begin Source File
@@ -1040,6 +1072,47 @@ BuildCmds= \
    $(BuildCmds)
 
 "Current.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\EventLoggerMsg.mc
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\EventLoggerMsg.mc
+
+BuildCmds= \
+	mc $(InputPath) \
+	rc -r -fo $(InputName).res $(InputName).rc \
+	
+
+"EventLoggerMsg.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"EventLoggerMsg.res" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\EventLoggerMsg.mc
+
+BuildCmds= \
+	mc $(InputPath) \
+	rc -r -fo $(InputName).res $(InputName).rc \
+	
+
+"EventLoggerMsg.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"EventLoggerMsg.res" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

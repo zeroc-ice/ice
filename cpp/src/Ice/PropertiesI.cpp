@@ -141,6 +141,7 @@ static const string iceProps[] =
     "Trace.Location",
     "UDP.RcvSize",
     "UDP.SndSize",
+    "UseEventLog",
     "UseSyslog",
     "Warn.AMICallback",
     "Warn.Connections",

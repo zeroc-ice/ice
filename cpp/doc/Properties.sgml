@@ -898,6 +898,23 @@ automatically.
 </section>
 </section>
 
+<section><title>Ice.UseEventLog</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.UseEventLog=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+a special logger is installed that logs to the Windows Event Log
+instead of standard error. The event source name is the
+value of <literal>Ice.ProgramName</literal>. (Windows 2000/XP only.)
+</para>
+</section>
+</section>
+
 <section><title>Ice.UseSyslog</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -908,7 +925,7 @@ Ice.UseSyslog=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-a special logger is installed which logs to the syslog facility
+a special logger is installed that logs to the syslog facility
 instead of standard error. The identifier for syslog is the
 value of <literal>Ice.ProgramName</literal>. (Unix only.)
 </para>

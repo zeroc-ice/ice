@@ -36,7 +36,9 @@
 #include <Ice/PluginManagerI.h>
 #include <Ice/Initialize.h>
 
-#ifndef _WIN32
+#ifdef _WIN32
+#   include <Ice/EventLoggerI.h>
+#else
 #   include <Ice/SysLoggerI.h>
 #endif
 
@@ -468,7 +470,17 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 #endif
 	}
 
-#ifndef _WIN32
+#ifdef _WIN32
+        if(_properties->getPropertyAsInt("Ice.UseEventLog") > 0)
+        {
+            _logger = new EventLoggerI(_properties->getProperty("Ice.ProgramName"));
+        }
+        else
+        {
+            _logger = new LoggerI(_properties->getProperty("Ice.ProgramName"), 
+                                  _properties->getPropertyAsInt("Ice.Logger.Timestamp") > 0);
+        }
+#else
 	if(_properties->getPropertyAsInt("Ice.UseSyslog") > 0)
 	{
 	    _logger = new SysLoggerI;
@@ -478,9 +490,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 	    _logger = new LoggerI(_properties->getProperty("Ice.ProgramName"), 
 				  _properties->getPropertyAsInt("Ice.Logger.Timestamp") > 0);
 	}
-#else
-	_logger = new LoggerI(_properties->getProperty("Ice.ProgramName"), 
-			      _properties->getPropertyAsInt("Ice.Logger.Timestamp") > 0);
 #endif
 
 	_stats = 0; // There is no default statistics callback object.
