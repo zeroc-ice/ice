@@ -1590,6 +1590,15 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		    //
 		    registerWithPool();
 		    unregisterWithPool();
+
+		    //
+		    // We must prevent any further writes when _state == StateClosed.
+		    // However, functions such as sendResponse cannot acquire the main
+		    // mutex in order to check _state. Therefore we shut down the write
+		    // end of the transceiver, which causes subsequent write attempts
+		    // to fail with an exception.
+		    //
+		    _transceiver.shutdownWrite();
 		}
 		break;
             }
