@@ -48,7 +48,7 @@ print "testing adapter registration...",
 hasTestAdapter = 0;
 icePackAdminPipe = IcePackAdmin.listAdapters(toplevel);
 for adaptername in icePackAdminPipe.xreadlines():
-    if adaptername == "TestAdapter\n":
+    if adaptername.strip() == "TestAdapter":
         hasTestAdapter = 1
         
 if hasTestAdapter == 0:
