@@ -38,9 +38,15 @@ CallbackClient::run(int argc, char* argv[])
 {
     string ref;
 
-    cout << "creating and activating callback receiver adapter... " << flush;
     ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("CallbackReceiverAdapter", "default");
     adapter->activate();
+    // Put the print statement after activate(), so that if
+    // Ice.PrintAdapterReady is set, the "ready" is the first output
+    // from the client, and not the print statement below. Otherwise
+    // the Python test scripts will be confused, as they expect the
+    // "ready" from the Object Adapter to be the first thing that is
+    // printed.
+    cout << "creating and activating callback receiver adapter... " << flush;
     cout << "ok" << endl;
 
     cout << "creating and adding callback receiver object... " << flush;

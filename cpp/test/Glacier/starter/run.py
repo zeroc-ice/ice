@@ -54,7 +54,7 @@ TestUtil.getAdapterReady(starterPipe)
 print "ok"
 
 name = os.path.join("Glacier", "starter")
-TestUtil.clientServerHybridTest(toplevel, name)
+TestUtil.mixedClientServerTest(toplevel, name)
 
 print "shutting down glacier starter...",
 TestUtil.killServers() # TODO: Graceful shutdown

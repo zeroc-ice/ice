@@ -132,7 +132,7 @@ def clientServerTest(toplevel, name):
 	    break;
 	print output,
 
-def clientServerHybridTest(toplevel, name):
+def mixedClientServerTest(toplevel, name):
 
     testdir = os.path.join(toplevel, "test", name)
     server = os.path.join(testdir, "server")
@@ -149,6 +149,8 @@ def clientServerHybridTest(toplevel, name):
     
     print "starting client...",
     clientPipe = os.popen(client + updatedClientOptions)
+    getServerPid(clientPipe)
+    getAdapterReady(clientPipe)
     output = clientPipe.readline()
     if not output:
 	print "failed!"
