@@ -457,9 +457,9 @@ IcePHP::profileInit(TSRMLS_D)
         // have to do it ourselves. The format is:
         //
         // [profile-name]
-        // config = config-file
-        // options = args
-        // slice = slice-args
+        // ice.config = config-file
+        // ice.options = args
+        // ice.slice = slice-args
         //
         ifstream in(profiles);
         if(!in)
@@ -539,15 +539,15 @@ IcePHP::profileInit(TSRMLS_D)
                     value = s.substr(beg, end - beg);
                 }
 
-                if(key == "config")
+                if(key == "config" || key == "ice.config")
                 {
                     currentConfig = value;
                 }
-                else if(key == "options")
+                else if(key == "options" || key == "ice.options")
                 {
                     currentOptions = value;
                 }
-                else if(key == "slice")
+                else if(key == "slice" || key == "ice.slice")
                 {
                     currentSlice = value;
                 }
