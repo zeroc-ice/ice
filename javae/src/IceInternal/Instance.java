@@ -108,17 +108,6 @@ public class Instance
         return _outgoingConnectionFactory;
     }
 
-    public synchronized ConnectionMonitor
-    connectionMonitor()
-    {
-	if(_destroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
-
-        return _connectionMonitor;
-    }
-
     public synchronized ObjectAdapterFactory
     objectAdapterFactory()
     {
@@ -152,13 +141,6 @@ public class Instance
     {
         // No mutex lock, immutable.
 	return _messageSizeMax;
-    }
-
-    public int
-    connectionIdleTime()
-    {
-	// No mutex lock, immutable.
-	return _connectionIdleTime;
     }
 
     public void
@@ -303,18 +285,6 @@ public class Instance
 	    }
 
 	    {
-		int num = _properties.getPropertyAsIntWithDefault("Ice.ConnectionIdleTime", 60);
-		if(num < 0)
-		{
-		    _connectionIdleTime = 0;
-		}
-		else
-		{
-		    _connectionIdleTime = num;
-		}
-	    }
-
-	    {
 		int stackSize = _properties.getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
 		if(stackSize < 0)
 		{
@@ -358,7 +328,6 @@ public class Instance
         assert(_referenceFactory == null);
         assert(_proxyFactory == null);
         assert(_outgoingConnectionFactory == null);
-	assert(_connectionMonitor == null);
         assert(_objectAdapterFactory == null);
         assert(_routerManager == null);
         assert(_locatorManager == null);
@@ -383,15 +352,6 @@ public class Instance
 	{
 	    _referenceFactory.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(
 		    _proxyFactory.stringToProxy(_defaultsAndOverrides.defaultLocator)));
-	}
-	
-	//
-	// Start connection monitor if necessary.
-	//
-	int interval = _properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", _connectionIdleTime);
-	if(interval > 0)
-	{
-	    _connectionMonitor = new ConnectionMonitor(this, interval);
 	}
     }
 
@@ -428,12 +388,6 @@ public class Instance
 	    _objectAdapterFactory = null;
 
 	    _outgoingConnectionFactory = null;
-
-	    if(_connectionMonitor != null)
-	    {
-		_connectionMonitor._destroy();
-		_connectionMonitor = null;
-	    }
 
             if(_referenceFactory != null)
             {
@@ -501,13 +455,11 @@ public class Instance
     private final TraceLevels _traceLevels; // Immutable, not reset by destroy().
     private final DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private final int _messageSizeMax; // Immutable, not reset by destroy().
-    private final int _connectionIdleTime; // Immutable, not reset by destroy().
     private RouterManager _routerManager;
     private LocatorManager _locatorManager;
     private ReferenceFactory _referenceFactory;
     private ProxyFactory _proxyFactory;
     private OutgoingConnectionFactory _outgoingConnectionFactory;
-    private ConnectionMonitor _connectionMonitor;
     private ObjectAdapterFactory _objectAdapterFactory;
     private final int _threadPerConnectionStackSize;
     private EndpointFactoryManager _endpointFactoryManager;

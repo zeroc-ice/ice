@@ -176,11 +176,6 @@ public final class ConnectionI implements Connection
 	
 	synchronized(this)
 	{
-	    if(_acmTimeout > 0)
-	    {
-		_acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
-	    }
-	    
 	    //
 	    // We start out in holding state.
 	    //
@@ -409,30 +404,6 @@ public final class ConnectionI implements Connection
 	}
     }
 
-    public synchronized void
-    monitor()
-    {
-	if(_state != StateActive)
-	{
-	    return;
-	}
-	
-	//
-	// Active connection management for idle connections.
-	//
-	if(_acmTimeout > 0 &&
-	   _requests.isEmpty() && 
-	   !_batchStreamInUse && _batchStream.isEmpty() &&
-	   _dispatchCount == 0)
-	{
-	    if(System.currentTimeMillis() >= _acmAbsoluteTimeoutMillis)
-	    {
-		setState(StateClosing, new ConnectionTimeoutException());
-		return;
-	    }
-	}	    
-    }
-
     private final static byte[] _requestHdr =
     {
 	IceInternal.Protocol.magic[0],
@@ -502,11 +473,6 @@ public final class ConnectionI implements Connection
 	    }
 
 	    stream = doCompress(os, _overrideCompress ? _overrideCompressValue : compress);
-
-	    if(_acmTimeout > 0)
-	    {
-		_acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
-	    }
 	}
 
 	try
@@ -725,11 +691,6 @@ public final class ConnectionI implements Connection
 
 	    stream = doCompress(_batchStream, _overrideCompress ? _overrideCompressValue : _batchRequestCompress);
 
-	    if(_acmTimeout > 0)
-	    {
-		_acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
-	    }
-
 	    //
 	    // Prevent that new batch requests are added while we are
 	    // flushing.
@@ -842,11 +803,6 @@ public final class ConnectionI implements Connection
 		if(_state == StateClosing && _dispatchCount == 0)
 		{
 		    initiateShutdown();
-		}
-
-		if(_acmTimeout > 0)
-		{
-		    _acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
 		}
 	    }
 	    catch(LocalException ex)
@@ -1002,8 +958,6 @@ public final class ConnectionI implements Connection
         _logger = instance.logger(); // Cached for better performance.
         _traceLevels = instance.traceLevels(); // Cached for better performance.
 	_warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
-	_acmTimeout = _instance.connectionIdleTime();
-	_acmAbsoluteTimeoutMillis = 0;
         _nextRequestId = 1;
         _batchStream = new IceInternal.BasicStream(instance);
 	_batchStreamInUse = false;
@@ -1198,25 +1152,6 @@ public final class ConnectionI implements Connection
             }
         }
 
-	//  
-	// We only register with the connection monitor if our new state
-	// is StateActive. Otherwise we unregister with the connection
-	// monitor, but only if we were registered before, i.e., if our
-	// old state was StateActive.
-	//
-	IceInternal.ConnectionMonitor connectionMonitor = _instance.connectionMonitor();
-	if(connectionMonitor != null)
-	{
-	    if(state == StateActive)
-	    {
-		connectionMonitor.add(this);
-	    }
-	    else if(_state == StateActive)
-	    {
-		connectionMonitor.remove(this);
-	    }
-	}
-
         _state = state;
 	_stateTime = System.currentTimeMillis();
 
@@ -1344,11 +1279,6 @@ public final class ConnectionI implements Connection
     parseMessage(MessageInfo info)
     {
 	assert(_state > StateNotValidated && _state < StateClosed);
-
-	if(_acmTimeout > 0)
-	{
-	    _acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
-	}
 
 	try
 	{
@@ -1916,9 +1846,6 @@ public final class ConnectionI implements Connection
     private final IceInternal.TraceLevels _traceLevels;
 
     private final boolean _warn;
-
-    private final int _acmTimeout;
-    private long _acmAbsoluteTimeoutMillis;
 
     private int _nextRequestId;
 
