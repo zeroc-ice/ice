@@ -1262,14 +1262,16 @@ public class BasicStream
 		{
 		    TraceUtil.traceSlicing("exception", id, _slicingCat, _instance.logger());
 		}
-	        skipSlice();		// Slice off what we don't understand
-		id = readString();	// Read type id for next slice
+	        skipSlice(); // Slice off what we don't understand.
+		id = readString(); // Read type id for next slice.
 	    }
 	}
+
 	//
-	// Getting here should be impossible: we can get here only if the sender has marshaled a sequence
-	// of type IDs, none of which we have factory for. This means that sender and receiver disagree
-	// about the Slice definitions they use.
+	// We can get here only if the sender has marshaled a sequence
+	// of type IDs, none of which we have factory for. This means
+	// that sender and receiver disagree about the Slice
+	// definitions they use.
 	//
 	throw new Ice.UnknownUserException();
     }
