@@ -81,8 +81,17 @@
                 <include name="Exception.ice" />
                 <include name="Evictor.ice" />
                 <include name="EvictorStorage.ice" />
+                <include name="CatalogData.ice" />
             </fileset>
         </slice2java>
+
+        <slice2freezej outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Freeze">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="${slice.dir}/Freeze" includes="CatalogData.ice"/>
+            <dict name="Freeze.Catalog" key="string" value="Freeze::CatalogData"/>
+        </slice2freezej>
 
         <!-- Generate Slice checksums for the Ice services. -->
 

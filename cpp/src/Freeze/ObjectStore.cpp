@@ -11,6 +11,8 @@
 #include <Freeze/EvictorI.h>
 #include <Freeze/Util.h>
 #include <Freeze/IndexI.h>
+#include <Freeze/Catalog.h>
+#include <Freeze/TransactionI.h>
 
 using namespace std;
 using namespace Ice;
@@ -35,14 +37,28 @@ Freeze::ObjectStore::ObjectStore(const string& facet,
 	_dbName = facet;
     }
 
-    DbTxn* txn = 0;
-    DbEnv* dbEnv = evictor->dbEnv();
+    ConnectionPtr catalogConnection = createConnection(_communicator, evictor->dbEnv()->getEnvName());
+    Catalog catalog(catalogConnection, catalogName());
+    
+    Catalog::iterator p = catalog.find(evictor->filename());
+    if(p != catalog.end())
+    {
+	if(p->second.evictor == false)
+	{
+	    DatabaseException ex(__FILE__, __LINE__);
+	    ex.message = evictor->filename() + " is an evictor database";
+	    throw ex;
+	}
+    }
+
+    DbEnv* dbEnv = evictor->dbEnv()->getEnv();
 
     try
     {
 	_db.reset(new Db(dbEnv, 0));
 
-	dbEnv->txn_begin(0, &txn, 0);
+	TransactionPtr tx = catalogConnection->beginTransaction();
+	DbTxn* txn = getTxn(tx);
 
 	u_int32_t flags = DB_THREAD;
 	if(createDb)
@@ -55,17 +71,24 @@ Freeze::ObjectStore::ObjectStore(const string& facet,
 	{
 	    _indices[i]->_impl->associate(this, txn, createDb, populateEmptyIndices);
 	}
-	DbTxn* toCommit = txn;
-	txn = 0;
-	toCommit->commit(0);
+	
+	if(p == catalog.end())
+	{
+	    CatalogData catalogData;
+	    catalogData.evictor = true;
+	    catalog.put(Catalog::value_type(evictor->filename(), catalogData));
+	}
+
+	tx->commit();
     }
     catch(const DbException& dx)
     {
-	if(txn != 0)
+	TransactionPtr tx = catalogConnection->currentTransaction();
+	if(tx != 0)
 	{
 	    try
 	    {
-		txn->abort();
+		tx->rollback();
 	    }
 	    catch(...)
 	    {
@@ -84,6 +107,21 @@ Freeze::ObjectStore::ObjectStore(const string& facet,
 	    ex.message = dx.what();
 	    throw ex;
 	}
+    }
+    catch(...)
+    {
+	TransactionPtr tx = catalogConnection->currentTransaction();
+	if(tx != 0)
+	{
+	    try
+	    {
+		tx->rollback();
+	    }
+	    catch(...)
+	    {
+	    }
+	}
+	throw;
     }
 }
 

@@ -138,7 +138,7 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
 
 	try
 	{
-	    _txn = _connection.dbEnv().txnBegin(null, 0);
+	    _txn = _connection.dbEnv().getEnv().txnBegin(null, 0);
 	    
 	    if(_txTrace >= 1)
 	    {

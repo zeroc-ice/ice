@@ -24,31 +24,44 @@ typedef IceUtil::Handle<CheckpointThread> CheckpointThreadPtr;
 class SharedDbEnv;
 typedef IceUtil::Handle<SharedDbEnv> SharedDbEnvPtr;
 
+class SharedDb;
+typedef IceUtil::Handle<SharedDb> SharedDbPtr;
 
-class SharedDbEnv : public ::DbEnv
+class SharedDbEnv
 {
 public:
     
-    static SharedDbEnvPtr get(const Ice::CommunicatorPtr&, const std::string&);
+    static SharedDbEnvPtr get(const Ice::CommunicatorPtr&, const std::string&, DbEnv* = 0);
 
     ~SharedDbEnv();
 
     void __incRef();
     void __decRef();
    
+    DbEnv* getEnv() const;
     const std::string& getEnvName() const;
     const Ice::CommunicatorPtr& getCommunicator() const;
+    const SharedDbPtr& getCatalog() const;
 
 private:
-    SharedDbEnv(const std::string&, const Ice::CommunicatorPtr&);
+    SharedDbEnv(const std::string&, const Ice::CommunicatorPtr&, DbEnv* env);
     
+    DbEnv* _env;
+    std::auto_ptr<DbEnv> _envHolder;
     const std::string _envName;
     const Ice::CommunicatorPtr _communicator;
+    SharedDbPtr _catalog;
+
     int _refCount;
-    Ice::Int _trace;
+    int _trace;
     CheckpointThreadPtr _thread;
-    IceUtil::Mutex _oldLogsMutex;
 };
+
+inline DbEnv*
+SharedDbEnv::getEnv() const
+{
+    return _env;  
+}
 
 inline const std::string& 
 SharedDbEnv::getEnvName() const
@@ -61,6 +74,13 @@ SharedDbEnv::getCommunicator() const
 {
     return _communicator;
 }
+
+inline const SharedDbPtr&
+SharedDbEnv::getCatalog() const
+{
+    return _catalog;
+}
+
 
 }
 #endif

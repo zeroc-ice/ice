@@ -30,7 +30,7 @@ public class Util
     public static Connection
     createConnection(Ice.Communicator communicator, String envName)
     {
-	return new ConnectionI(communicator, envName);
+	return new ConnectionI(communicator, envName, null);
     } 
 
     public static Connection
@@ -38,6 +38,25 @@ public class Util
     {
 	return new ConnectionI(communicator, envName, dbEnv);
     } 
+
+    public static String catalogName()
+    {
+	return _catalogName;
+    }
+    
+    public static com.sleepycat.db.DbTxn
+    getTxn(Transaction tx)
+    {
+	try
+	{
+	    return ((TransactionI)tx).dbTxn();
+	}
+	catch(ClassCastException e)
+	{
+	    return null;
+	}
+    }
+
 
     public static synchronized FatalErrorCallback
     registerFatalErrorCallback(FatalErrorCallback cb)
@@ -61,6 +80,7 @@ public class Util
     }
 
 
+    private static String _catalogName = "__catalog";
     private static FatalErrorCallback _fatalErrorCallback = null;
 }
 

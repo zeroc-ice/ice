@@ -11,10 +11,12 @@
 #include <IceUtil/StaticMutex.h>
 #include <Freeze/Exception.h>
 #include <Freeze/Util.h>
+#include <Freeze/Catalog.h>
 
 using namespace std;
 using namespace IceUtil;
 using namespace Ice;
+using namespace Freeze;
 
 namespace
 {
@@ -22,16 +24,53 @@ namespace
 StaticMutex _mapMutex = ICE_STATIC_MUTEX_INITIALIZER;
 StaticMutex _refCountMutex = ICE_STATIC_MUTEX_INITIALIZER;  
 
+const string _catalogName = "__catalog";
+
+inline void
+checkTypes(const SharedDb& sharedDb, const string& key, const string& value)
+{
+    if(key != sharedDb.key())
+    {
+	DatabaseException ex(__FILE__, __LINE__);
+	ex.message = sharedDb.dbName() + "'s key type is " + sharedDb.key() + ", not " + key;
+	throw ex;
+    }
+    if(value != sharedDb.value())
+    {
+	DatabaseException ex(__FILE__, __LINE__);
+	ex.message = sharedDb.dbName() + "'s value type is " + sharedDb.value() + ", not " + value;
+	throw ex;
+    }
+}
 }
 
 Freeze::SharedDb::SharedDbMap* Freeze::SharedDb::sharedDbMap = 0;
 
-Freeze::SharedDbPtr 
+const string&
+Freeze::catalogName()
+{
+    return _catalogName;
+}
+
+SharedDbPtr 
 Freeze::SharedDb::get(const ConnectionIPtr& connection, 
 		      const string& dbName,
+		      const string& key,
+		      const string& value,
 		      const vector<MapIndexBasePtr>& indices,
 		      bool createDb)
 {
+    if(dbName == _catalogName)
+    {
+	//
+	// We don't want to lock the _mapMutex to retrieve the catalog
+	//
+	
+	SharedDbPtr result = connection->dbEnv()->getCatalog();
+	checkTypes(*result, key, value);
+	return result;
+    }
+    
     StaticMutex::Lock lock(_mapMutex);
 
     if(sharedDbMap == 0)
@@ -39,15 +78,16 @@ Freeze::SharedDb::get(const ConnectionIPtr& connection,
 	sharedDbMap = new SharedDbMap;
     }
 
-    MapKey key;
-    key.envName = connection->envName();
-    key.communicator = connection->communicator();
-    key.dbName = dbName;
+    MapKey mapKey;
+    mapKey.envName = connection->envName();
+    mapKey.communicator = connection->communicator();
+    mapKey.dbName = dbName;
 
     {
-	SharedDbMap::iterator p = sharedDbMap->find(key);
+	SharedDbMap::iterator p = sharedDbMap->find(mapKey);
 	if(p != sharedDbMap->end())
 	{
+	    checkTypes(*(p->second), key, value);
 	    p->second->connectIndices(indices);
 	    return p->second;
 	}
@@ -56,24 +96,62 @@ Freeze::SharedDb::get(const ConnectionIPtr& connection,
     //
     // MapKey not found, let's create and open a new Db
     //
-    auto_ptr<SharedDb> result(new SharedDb(key, connection, indices, createDb));
+    auto_ptr<SharedDb> result(new SharedDb(mapKey, key, value, connection, indices, createDb));
     
     //
     // Insert it into the map
     //
     pair<SharedDbMap::iterator, bool> insertResult;
-    insertResult= sharedDbMap->insert(SharedDbMap::value_type(key, result.get()));
+    insertResult= sharedDbMap->insert(SharedDbMap::value_type(mapKey, result.get()));
     assert(insertResult.second);
     
     return result.release();
 }
 
+Freeze::SharedDbPtr 
+Freeze::SharedDb::openCatalog(SharedDbEnv& dbEnv)
+{
+    StaticMutex::Lock lock(_mapMutex);
+
+    if(sharedDbMap == 0)
+    {
+	sharedDbMap = new SharedDbMap;
+    }
+
+    MapKey mapKey;
+    mapKey.envName = dbEnv.getEnvName();
+    mapKey.communicator = dbEnv.getCommunicator();
+    mapKey.dbName = _catalogName;
+
+    auto_ptr<SharedDb> result(new SharedDb(mapKey, dbEnv.getEnv()));
+
+    //
+    // Insert it into the map
+    //
+    pair<SharedDbMap::iterator, bool> insertResult 
+	= sharedDbMap->insert(SharedDbMap::value_type(mapKey, result.get()));
+    
+    if(!insertResult.second)
+    {
+	//
+	// That's very wrong: the catalog is associated with another env
+	//
+	assert(0);
+	DatabaseException ex(__FILE__, __LINE__);
+	ex.message = "Catalog already opened";
+	throw ex;
+    }
+    
+    return result.release();
+}
+
+
 Freeze::SharedDb::~SharedDb()
 {
     if(_trace >= 1)
     {
-	Trace out(_key.communicator->getLogger(), "Freeze.Map");
-	out << "closing Db \"" << _key.dbName << "\"";
+	Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+	out << "closing Db \"" << _mapKey.dbName << "\"";
     }
 
     cleanup(false);
@@ -83,8 +161,8 @@ void Freeze::SharedDb::__incRef()
 {
     if(_trace >= 2)
     {
-	Trace out(_key.communicator->getLogger(), "Freeze.Map");
-	out << "incremeting reference count for Db \"" << _key.dbName << "\"";
+	Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+	out << "incremeting reference count for Db \"" << _mapKey.dbName << "\"";
     }
 
     IceUtil::StaticMutex::Lock lock(_refCountMutex);
@@ -95,8 +173,8 @@ void Freeze::SharedDb::__decRef()
 {
     if(_trace >= 2)
     {
-	Trace out(_key.communicator->getLogger(), "Freeze.Map");
-	out << "removing reference count for Db \"" << _key.dbName << "\"";
+	Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+	out << "removing reference count for Db \"" << _mapKey.dbName << "\"";
     }
 
     IceUtil::StaticMutex::Lock lock(_refCountMutex);
@@ -121,7 +199,7 @@ void Freeze::SharedDb::__decRef()
 	// Remove from map
 	//
 	size_t one;
-	one = sharedDbMap->erase(_key);
+	one = sharedDbMap->erase(_mapKey);
 	assert(one == 1);
 
 	if(sharedDbMap->size() == 0)
@@ -139,34 +217,58 @@ void Freeze::SharedDb::__decRef()
 }
 
   
-Freeze::SharedDb::SharedDb(const MapKey& key, 
+Freeze::SharedDb::SharedDb(const MapKey& mapKey, 
+			   const string& key,
+			   const string& value,
 			   const ConnectionIPtr& connection, 
 			   const vector<MapIndexBasePtr>& indices,
 			   bool createDb) :
-    Db(connection->dbEnv(), 0),
-    _key(key),
+    Db(connection->dbEnv()->getEnv(), 0),
+    _mapKey(mapKey),
     _refCount(0),
     _trace(connection->trace())
 {
     if(_trace >= 1)
     {
-	Trace out(_key.communicator->getLogger(), "Freeze.Map");
-	out << "opening Db \"" << _key.dbName << "\"";
+	Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+	out << "opening Db \"" << _mapKey.dbName << "\"";
     }
 
-    DbTxn* txn = 0;
-    DbEnv* dbEnv = connection->dbEnv();
+    ConnectionPtr catalogConnection = createConnection(_mapKey.communicator, connection->dbEnv()->getEnvName());
+    Catalog catalog(catalogConnection, _catalogName);
     
+    Catalog::iterator ci = catalog.find(_mapKey.dbName);
+    
+    if(ci != catalog.end())
+    {
+	if(ci->second.evictor)
+	{
+	    DatabaseException ex(__FILE__, __LINE__);
+	    ex.message = _mapKey.dbName + " is an evictor database";
+	    throw ex;
+	}
+
+	_key = ci->second.key;
+	_value = ci->second.value;
+	checkTypes(*this, key, value);
+    }
+    else
+    {
+	_key = key;
+	_value = value;
+    }
+
     try
     {
-	dbEnv->txn_begin(0, &txn, 0);
+	TransactionPtr tx = catalogConnection->beginTransaction();
+	DbTxn* txn = getTxn(tx);
 
 	u_int32_t flags = DB_THREAD;
 	if(createDb)
 	{
 	    flags |= DB_CREATE;
 	}
-	open(txn, key.dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
+	open(txn, _mapKey.dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
 
 	for(vector<MapIndexBasePtr>::const_iterator p = indices.begin();
 	    p != indices.end(); ++p)
@@ -182,17 +284,25 @@ Freeze::SharedDb::SharedDb(const MapKey& key,
 	    indexBase->_impl = indexI.release();
 	}
 
-	DbTxn* toCommit = txn;
-	txn = 0;
-	toCommit->commit(0);
+	if(ci == catalog.end())
+	{
+	    CatalogData catalogData;
+	    catalogData.evictor = false;
+	    catalogData.key = key;
+	    catalogData.value = value;
+	    catalog.put(Catalog::value_type(_mapKey.dbName, catalogData));
+	}
+	
+	tx->commit();
     }
     catch(const ::DbException& dx)
     {
-	if(txn != 0)
+	TransactionPtr tx = catalogConnection->currentTransaction();
+	if(tx != 0)
 	{
 	    try
 	    {
-		txn->abort();
+		tx->rollback();
 	    }
 	    catch(...)
 	    {
@@ -213,18 +323,15 @@ Freeze::SharedDb::SharedDb(const MapKey& key,
 	    ex.message = dx.what();
 	    throw ex;
 	}
-
-	DatabaseException ex(__FILE__, __LINE__);
-	ex.message = dx.what();
-	throw ex;
     }
     catch(...)
     {
-	if(txn != 0)
+	TransactionPtr tx = catalogConnection->currentTransaction();
+	if(tx != 0)
 	{
 	    try
 	    {
-		txn->abort();
+		tx->rollback();
 	    }
 	    catch(...)
 	    {
@@ -233,6 +340,35 @@ Freeze::SharedDb::SharedDb(const MapKey& key,
 
 	cleanup(true);
 	throw;
+    }
+}
+
+
+Freeze::SharedDb::SharedDb(const MapKey& mapKey, DbEnv* env) :
+    Db(env, 0),
+    _mapKey(mapKey),
+    _key(CatalogKeyCodec::typeId()),
+    _value(CatalogValueCodec::typeId()),
+    _refCount(0)
+{
+    _trace = _mapKey.communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map");
+
+    if(_trace >= 1)
+    {
+	Trace out(_mapKey.communicator->getLogger(), "Freeze.Db");
+	out << "opening Db \"" << _mapKey.dbName << "\"";
+    }
+
+    try
+    {
+	u_int32_t flags = DB_THREAD | DB_CREATE | DB_AUTO_COMMIT;
+	open(0, _mapKey.dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
+    }
+    catch(const ::DbException& dx)
+    {
+	DatabaseException ex(__FILE__, __LINE__);
+	ex.message = dx.what();
+	throw ex;
     }
 }
 

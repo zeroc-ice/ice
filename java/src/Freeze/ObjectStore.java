@@ -31,97 +31,88 @@ class ObjectStore implements IceUtil.Store
 	    _dbName = facet;
 	}
 
-	com.sleepycat.db.DbTxn txn = null;
-	com.sleepycat.db.DbEnv dbEnv = evictor.dbEnv();
-
-	String txnId = null;
+	Connection connection = Util.createConnection(_communicator, evictor.dbEnv().getEnvName());
 
 	try
-	{	    
-	    _db = new com.sleepycat.db.Db(dbEnv, 0);
-	    
-	    txn = dbEnv.txnBegin(null, 0);
-
-	    if(evictor.txTrace() >= 1)
-	    {
-		txnId = Long.toHexString((txn.id() & 0x7FFFFFFF) + 0x80000000L); 
-	    
-		evictor.communicator().getLogger().trace
-		    ("Freeze.Evictor", _evictor.errorPrefix() + "started transaction " +
-		      txnId + " to open Db");
-	    }
-	    
-	    
-	    //
-	    // TODO: FREEZE_DB_MODE
-	    //
-	    int flags = 0;
-	    if(createDb)
-	    {
-		flags |= com.sleepycat.db.Db.DB_CREATE;
-	    }
-	    _db.open(txn, evictor.filename(), _dbName, com.sleepycat.db.Db.DB_BTREE, flags, 0);
-
-	   
-	    java.util.Iterator p = _indices.iterator();
-	    while(p.hasNext())
-	    {
-		Index index = (Index) p.next();
-		index.associate(this, txn, createDb, populateEmptyIndices);
-	    }
-
-	    com.sleepycat.db.DbTxn toCommit = txn;
-	    txn = null;
-	    toCommit.commit(0);
-
-	    if(evictor.txTrace() >= 1)
-	    {
-		evictor.communicator().getLogger().trace
-		    ("Freeze.Evictor", _evictor.errorPrefix() + "committed transaction " +
-		     txnId);
-	    }
-
-	}
-	catch(java.io.FileNotFoundException dx)
 	{
-	    NotFoundException ex = new NotFoundException();
-	    ex.initCause(dx);
-	    ex.message = _evictor.errorPrefix() + "Db.open: " + dx.getMessage();
-	    throw ex;
-	}
-	catch(com.sleepycat.db.DbException dx)
-	{
-	    DatabaseException ex = new DatabaseException();
-	    ex.initCause(dx);
-	    ex.message = _evictor.errorPrefix() + "Db.open: " + dx.getMessage();
-	    throw ex;
+	    Catalog catalog = new Catalog(connection, Util.catalogName(), true);	    
+	    CatalogData catalogData = (CatalogData)catalog.get(evictor.filename());
+	    
+	    if(catalogData != null && catalogData.evictor == false)
+	    {
+		DatabaseException ex = new DatabaseException();
+		ex.message = _evictor.errorPrefix() + evictor.filename() + " is not an evictor database";
+		throw ex;
+	    }
+	    
+	    com.sleepycat.db.DbEnv dbEnv = evictor.dbEnv().getEnv();
+	    
+	    try
+	    {	    
+		_db = new com.sleepycat.db.Db(dbEnv, 0);
+		
+		Transaction tx = connection.beginTransaction();
+		com.sleepycat.db.DbTxn txn = Util.getTxn(tx);
+
+		//
+		// TODO: FREEZE_DB_MODE
+		//
+		int flags = 0;
+		if(createDb)
+		{
+		    flags |= com.sleepycat.db.Db.DB_CREATE;
+		}
+		_db.open(txn, evictor.filename(), _dbName, com.sleepycat.db.Db.DB_BTREE, flags, 0);
+		
+		
+		java.util.Iterator p = _indices.iterator();
+		while(p.hasNext())
+		{
+		    Index index = (Index) p.next();
+		    index.associate(this, txn, createDb, populateEmptyIndices);
+		}
+		
+		if(catalogData == null)
+		{
+		    catalogData = new CatalogData();
+		    catalogData.evictor = true;
+		    catalog.put(evictor.filename(), catalogData);
+		}
+		
+		tx.commit();
+	    }
+	    catch(java.io.FileNotFoundException dx)
+	    {
+		NotFoundException ex = new NotFoundException();
+		ex.initCause(dx);
+		ex.message = _evictor.errorPrefix() + "Db.open: " + dx.getMessage();
+		throw ex;
+	    }
+	    catch(com.sleepycat.db.DbException dx)
+	    {
+		DatabaseException ex = new DatabaseException();
+		ex.initCause(dx);
+		ex.message = _evictor.errorPrefix() + "Db.open: " + dx.getMessage();
+		throw ex;
+	    }
+	    finally
+	    {
+		Transaction tx = connection.currentTransaction();
+		if(tx != null)
+		{
+		    try
+		    {
+			tx.rollback();
+		    }
+		    catch(DatabaseException de)
+		    {
+		    }
+		}
+	    }
 	}
 	finally
 	{
-	    if(txn != null)
-	    {
-		try
-		{  
-		    txn.abort();
-		    
-		    if(evictor.txTrace() >= 1)
-		    {
-			evictor.communicator().getLogger().trace
-			    ("Freeze.Evictor", _evictor.errorPrefix() + "rolled back transaction " +
-			     txnId);
-		    }
-		}
-		catch(com.sleepycat.db.DbException dx)
-		{
-		    if(evictor.txTrace() >= 1)
-		    {
-			evictor.communicator().getLogger().trace
-			    ("Freeze.Evictor", _evictor.errorPrefix() + "failed to rollback transaction " +
-			     txnId + ": " + dx.getMessage());
-		    }
-
-		}
-	    }
+	    connection.close();
 	}
     }
 

@@ -56,11 +56,8 @@ Freeze::ConnectionI::close()
 	(*_mapList.begin())->close();
     }
     
-    if(_dbEnv != 0)
-    {
-	_dbEnv = 0;
-	_dbEnvHolder = 0;
-    }
+    _dbEnv = 0;
+ 
 }
     
 CommunicatorPtr
@@ -82,21 +79,9 @@ Freeze::ConnectionI::~ConnectionI()
 }
 
 Freeze::ConnectionI::ConnectionI(const CommunicatorPtr& communicator, 
-				 const string& envName) :
+				 const string& envName, DbEnv* dbEnv) :
     _communicator(communicator),
-    _dbEnvHolder(SharedDbEnv::get(communicator, envName)),
-    _envName(envName),
-    _trace(communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map")),
-    _deadlockWarning(communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0)
-{
-    _dbEnv = _dbEnvHolder.get();
-}
-
-Freeze::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
-				 const string& envName,
-				 DbEnv& dbEnv) :
-    _communicator(communicator),
-    _dbEnv(&dbEnv),
+    _dbEnv(SharedDbEnv::get(communicator, envName, dbEnv)),
     _envName(envName),
     _trace(communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map")),
     _deadlockWarning(communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0)
@@ -130,7 +115,7 @@ Freeze::createConnection(const CommunicatorPtr& communicator,
 			 const string& envName)
 {
     
-    return new ConnectionI(communicator, envName);
+    return new ConnectionI(communicator, envName, 0);
 }
 
 Freeze::ConnectionPtr 
@@ -138,7 +123,7 @@ Freeze::createConnection(const CommunicatorPtr& communicator,
 			 const string& envName,
 			 DbEnv& dbEnv)
 {
-    return new ConnectionI(communicator, envName, dbEnv);
+    return new ConnectionI(communicator, envName, &dbEnv);
 }
 
 void

@@ -210,13 +210,9 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	_adapter = adapter;
 	_communicator = adapter.getCommunicator();
 	_initializer = initializer;
-	
-	_dbEnvHolder = SharedDbEnv.get(_communicator, envName);
-	_dbEnv = _dbEnvHolder;
 	_filename = filename;
 	_createDb = createDb;
-	
-	init(envName, indices);
+	init(envName, null, indices);
     }
 
     public
@@ -228,17 +224,18 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	_adapter = adapter;
 	_communicator = adapter.getCommunicator();
 	_initializer = initializer;
-	
-	_dbEnv = dbEnv;
 	_filename = filename;
 	_createDb = createDb;
-	
-	init(envName, indices);
+	init(envName, dbEnv, indices);
     }
 
     private void
-    init(String envName, Index[] indices)
+    init(String envName, com.sleepycat.db.DbEnv dbEnv, Index[] indices)
     {
+	
+	_dbEnv = SharedDbEnv.get(_communicator, envName, dbEnv);
+
+	
 	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Evictor");
 	_txTrace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Transaction");
 	_deadlockWarning = _communicator.getProperties().getPropertyAsInt("Freeze.Warn.Deadlocks") != 0;
@@ -1441,12 +1438,17 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    store.close();
 		}
 		
-		if(_dbEnvHolder != null)
+		if(_dbEnv != null)
 		{
-		    _dbEnvHolder.close();
-		    _dbEnvHolder = null;
+		    try
+		    {
+			_dbEnv.close();
+		    }
+		    finally
+		    {
+			_dbEnv = null;
+		    }
 		}
-		_dbEnv = null;
 	    }
 	    finally
 	    {
@@ -1689,7 +1691,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 
 			try
 			{
-			    com.sleepycat.db.DbTxn tx = _dbEnv.txnBegin(null, 0);
+			    com.sleepycat.db.DbTxn tx = _dbEnv.getEnv().txnBegin(null, 0);
 
 			    if(_txTrace >= 1)
 			    {
@@ -1844,7 +1846,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	return _communicator;
     }
 
-    final com.sleepycat.db.DbEnv
+    final SharedDbEnv
     dbEnv()
     {
 	return _dbEnv;
@@ -2063,7 +2065,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 
 	try
 	{
-	    db = new com.sleepycat.db.Db(_dbEnv, 0);
+	    db = new com.sleepycat.db.Db(_dbEnv.getEnv(), 0);
 	    db.open(null, _filename, null, com.sleepycat.db.Db.DB_UNKNOWN, com.sleepycat.db.Db.DB_RDONLY, 0);
 	 
 	    dbc = db.cursor(null, 0);
@@ -2204,8 +2206,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 
     private final ServantInitializer _initializer;
 
-    private SharedDbEnv  _dbEnvHolder;
-    private com.sleepycat.db.DbEnv _dbEnv;
+    private SharedDbEnv  _dbEnv;
 
     private final String _filename;
     private final boolean _createDb;

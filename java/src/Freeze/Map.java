@@ -12,13 +12,13 @@ package Freeze;
 public abstract class Map extends java.util.AbstractMap
 {
     public
-    Map(Connection connection, String dbName, boolean createDb)
+    Map(Connection connection, String dbName, String key, String value, boolean createDb)
     {
 	_connection = (ConnectionI) connection;
 	_errorPrefix = "Freeze DB DbEnv(\"" + _connection.envName() + "\") Db(\"" + dbName + "\"): ";
 	_trace = _connection.trace();
 	
-	init(null, dbName, createDb);
+	init(null, dbName, key, value, createDb);
     }
 
     protected
@@ -30,9 +30,9 @@ public abstract class Map extends java.util.AbstractMap
     }
 
     protected void
-    init(Freeze.Map.Index[] indices, String dbName, boolean createDb)
+    init(Freeze.Map.Index[] indices, String dbName, String key, String value, boolean createDb)
     {
-	_db = Freeze.SharedDb.get(_connection, dbName, indices, createDb);
+	_db = Freeze.SharedDb.get(_connection, dbName, key, value, indices, createDb);
 	_token = _connection.registerMap(this);
     }
 
@@ -721,7 +721,7 @@ public abstract class Map extends java.util.AbstractMap
 	    assert(txn != null);
 	    assert(_db == null);
 
-	    _db = new com.sleepycat.db.Db(_connection.dbEnv(), 0);
+	    _db = new com.sleepycat.db.Db(_connection.dbEnv().getEnv(), 0);
 	    _db.setFlags(com.sleepycat.db.Db.DB_DUP | com.sleepycat.db.Db.DB_DUPSORT);
 
 	    int flags = 0;
@@ -879,7 +879,7 @@ public abstract class Map extends java.util.AbstractMap
 		    //
 		    // Start transaction
 		    //
-		    txn = _connection.dbEnv().txnBegin(null, 0);
+		    txn = _connection.dbEnv().getEnv().txnBegin(null, 0);
 		    _txn = txn;
 
 		    if(_connection.txTrace() >= 1)

@@ -9,10 +9,10 @@
 
 package Freeze;
 
-class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
+class SharedDbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
 {
     public static SharedDbEnv
-    get(Ice.Communicator communicator, String envName)
+    get(Ice.Communicator communicator, String envName, com.sleepycat.db.DbEnv dbEnv)
     {
 	MapKey key = new MapKey(envName, communicator);
 
@@ -23,7 +23,7 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 	    {
 		try
 		{
-		    result = new SharedDbEnv(key);
+		    result = new SharedDbEnv(key, dbEnv);
 		}
 		catch(com.sleepycat.db.DbException dx)
 		{
@@ -56,6 +56,18 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 	return _key.communicator;
     }
 
+    public com.sleepycat.db.DbEnv
+    getEnv()
+    {
+	return _dbEnv;
+    }
+
+    public SharedDb
+    getCatalog()
+    {
+	return _catalog;
+    }
+
     public void
     close()
     {
@@ -80,14 +92,27 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 
 		for(;;)
 		{
-		    try
+		    if(_thread != null)
 		    {
-			_thread.join();
-			break;
+			try
+			{
+			    _thread.join();
+			    _thread = null;
+			    break;
+			}
+			catch(InterruptedException ex)
+			{
+			}
 		    }
-		    catch(InterruptedException ex)
-		    {
-		    }
+		}
+
+		//
+		// Release catalog
+		//
+		if(_catalog != null)
+		{
+		    _catalog.close();
+		    _catalog = null;
 		}
 
 		if(_trace >= 1)
@@ -102,7 +127,7 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 		//
 		try
 		{
-		    super.close(0);
+		    _dbEnv.close(0);
 		}
 		catch(com.sleepycat.db.DbException dx)
 		{
@@ -115,39 +140,6 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 	}
     }
 
-
-    synchronized public void 
-    deleteOldLogs()
-    {
-	try
-	{
-	    String[] list = logArchive(com.sleepycat.db.Db.DB_ARCH_ABS);
-	    
-	    if(list != null)
-	    {
-		for(int i = 0; i < list.length; i++)
-		{
-		    //
-		    // Remove each file
-		    //
-		    java.io.File file = new java.io.File(list[i]);
-		    boolean ok = file.delete();
-		    if(!ok)
-		    {
-			_key.communicator.getLogger().warning(
-			    "could not delete file \"" + list[i] + "\"");
-		    }
-		}
-	    }
-	}
-	catch(com.sleepycat.db.DbException dx)
-	{
-	    DatabaseException ex = new DatabaseException();
-	    ex.initCause(dx);
-	    ex.message = errorPrefix(_key.envName) + "log_archive: " + dx.getMessage();
-	    throw ex;
-	}
-    }
 
     public void
     run()
@@ -182,28 +174,13 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 
 	    try
 	    {
-		txnCheckpoint(_kbyte, 0, 0);
+		_dbEnv.txnCheckpoint(_kbyte, 0, 0);
 	    }
 	    catch(com.sleepycat.db.DbException dx)
 	    {
 		_key.communicator.getLogger().warning(
 		    "checkpoint on DbEnv \"" + _key.envName + "\" raised DbException: " 
 		    + dx.getMessage());
-	    }
-
-	    if(_autoDelete)
-	    {
-		try
-		{
-		    deleteOldLogs();
-		}
-		catch(DatabaseException ex)
-		{
-		    _key.communicator.getLogger().warning(
-			"checkpoint on DbEnv \"" + _key.envName + "\" raised DatabaseException: " 
-			+ ex.getMessage());
-		}
-		    
 	    }
 	}
     }
@@ -221,99 +198,113 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 	assert(_refCount == 0);
     }
 
-    private SharedDbEnv(MapKey key) throws com.sleepycat.db.DbException
+    private SharedDbEnv(MapKey key, com.sleepycat.db.DbEnv dbEnv) throws com.sleepycat.db.DbException
     {	
-	super(0);
 	_key = key;
-
+	_dbEnv = dbEnv;
+	_ownDbEnv = (dbEnv == null);
+	
 	Ice.Properties properties = key.communicator.getProperties();
 	_trace = properties.getPropertyAsInt("Freeze.Trace.DbEnv");
 	
-	if(_trace >= 1)
+	if(_ownDbEnv)
 	{
-	    _key.communicator.getLogger().trace
-		("Freeze.DbEnv", "opening database environment \"" + _key.envName + "\"");
+	    _dbEnv = new com.sleepycat.db.DbEnv(0);
+
+	    if(_trace >= 1)
+	    {
+		_key.communicator.getLogger().trace
+		    ("Freeze.DbEnv", "opening database environment \"" + _key.envName + "\"");
+	    }
+	    
+	    String propertyPrefix = "Freeze.DbEnv." + _key.envName;
+	    
+	    _dbEnv.setErrorHandler(this);
+	    
+	    //
+	    // Deadlock detection
+	    //
+	    _dbEnv.setLockDetect(com.sleepycat.db.Db.DB_LOCK_YOUNGEST);
+	    
+	    int flags = com.sleepycat.db.Db.DB_INIT_LOCK |
+		com.sleepycat.db.Db.DB_INIT_LOG |
+		com.sleepycat.db.Db.DB_INIT_MPOOL |
+		com.sleepycat.db.Db.DB_INIT_TXN;
+	    
+	    if(properties.getPropertyAsInt(
+		   propertyPrefix + ".DbRecoverFatal") != 0)
+	    {
+		flags |= com.sleepycat.db.Db.DB_RECOVER_FATAL | 
+		    com.sleepycat.db.Db.DB_CREATE;
+	    }
+	    else
+	    {
+		flags |= com.sleepycat.db.Db. DB_RECOVER |
+		    com.sleepycat.db.Db.DB_CREATE;
+	    }
+	    
+	    if(properties.getPropertyAsIntWithDefault(
+		   propertyPrefix + ".DbPrivate", 1) != 0)
+	    {
+		flags |= com.sleepycat.db.Db.DB_PRIVATE;
+	    }
+	    
+	    if(properties.getPropertyAsIntWithDefault
+	       (propertyPrefix + ".OldLogsAutoDelete", 1) != 0)
+	    {
+		flags |= com.sleepycat.db.Db.DB_LOG_AUTOREMOVE;
+	    }
+	    
+	    String dbHome = properties.getPropertyWithDefault(
+		propertyPrefix + ".DbHome", _key.envName);
+	    
+	    //
+	    // TODO: FREEZE_DB_MODE
+	    //
+	    
+	    try
+	    {
+		_dbEnv.open(dbHome, flags, 0);
+	    }
+	    catch(java.io.FileNotFoundException dx)
+	    {
+		NotFoundException ex = new NotFoundException();
+		ex.initCause(dx);
+		ex.message = errorPrefix(_key.envName) + "open: " + dx.getMessage();
+		throw ex;
+	    }
+	    
+	    //
+	    // Default checkpoint period is every 120 seconds
+	    //
+	    _checkpointPeriod = properties.getPropertyAsIntWithDefault
+		(propertyPrefix + ".CheckpointPeriod", 120) * 1000;
+	    
+	    _kbyte = properties.getPropertyAsIntWithDefault
+		(propertyPrefix + ".PeriodicCheckpointMinSize", 0);
+	    
+	    
+	    String threadName;
+	    String programName = properties.getProperty("Ice.ProgramName");
+	    if(programName.length() > 0)
+	    {
+		threadName = programName + "-";
+	    }
+	    else
+	    {
+		threadName = "";
+	    }
+	    threadName += "FreezeCheckpointThread(" + _key.envName + ")";
+	    
+	    
+	    if(_checkpointPeriod > 0)
+	    {
+		_thread = new Thread(this, threadName);
+		_thread.start();
+	    }    
 	}
 
-	String propertyPrefix = "Freeze.DbEnv." + _key.envName;
-	
-	setErrorHandler(this);
-	
-	//
-	// Deadlock detection
-	//
-	setLockDetect(com.sleepycat.db.Db.DB_LOCK_YOUNGEST);
-
-	int flags = com.sleepycat.db.Db.DB_INIT_LOCK |
-	    com.sleepycat.db.Db.DB_INIT_LOG |
-	    com.sleepycat.db.Db.DB_INIT_MPOOL |
-	    com.sleepycat.db.Db.DB_INIT_TXN;
-
-	if(properties.getPropertyAsInt(
-	       propertyPrefix + ".DbRecoverFatal") != 0)
-	{
-	    flags |= com.sleepycat.db.Db.DB_RECOVER_FATAL | 
-		com.sleepycat.db.Db.DB_CREATE;
-	}
-	else
-	{
-	    flags |= com.sleepycat.db.Db. DB_RECOVER |
-		com.sleepycat.db.Db.DB_CREATE;
-	}
-	
-	if(properties.getPropertyAsIntWithDefault(
-	       propertyPrefix + ".DbPrivate", 1) != 0)
-	{
-	    flags |= com.sleepycat.db.Db.DB_PRIVATE;
-	}
-	
-	String dbHome = properties.getPropertyWithDefault(
-	    propertyPrefix + ".DbHome", _key.envName);
-	
-	//
-	// TODO: FREEZE_DB_MODE
-	//
-
-	try
-	{
-	    open(dbHome, flags, 0);
-	}
-	catch(java.io.FileNotFoundException dx)
-	{
-	    NotFoundException ex = new NotFoundException();
-	    ex.initCause(dx);
-	    ex.message = errorPrefix(_key.envName) + "open: " + dx.getMessage();
-	    throw ex;
-	}
-
-	//
-	// Default checkpoint period is every 120 seconds
-	//
-	_checkpointPeriod = properties.getPropertyAsIntWithDefault
-	    (propertyPrefix + ".CheckpointPeriod", 120) * 1000;
-	
-	_kbyte = properties.getPropertyAsIntWithDefault
-	    (propertyPrefix + ".PeriodicCheckpointMinSize", 0);
-
-	_autoDelete = (properties.getPropertyAsIntWithDefault
-		       (propertyPrefix + ".OldLogsAutoDelete", 1) != 0);
-	
-
-	String threadName;
-	String programName = properties.getProperty("Ice.ProgramName");
-        if(programName.length() > 0)
-        {
-            threadName = programName + "-";
-        }
-	else
-	{
-	    threadName = "";
-	}
-	threadName += "FreezeCheckpointThread(" + _key.envName + ")";
-
-	_thread = new Thread(this, threadName);
-	_thread.start();
-
+	_catalog = SharedDb.openCatalog(this);
 	_refCount = 1;
     }
 
@@ -356,12 +347,14 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
     }
 
     private MapKey _key;
+    private com.sleepycat.db.DbEnv _dbEnv;
+    private boolean _ownDbEnv;
+    private SharedDb _catalog;
     private int _refCount = 0;
     private boolean _done = false;
     private int _trace = 0;
     private long _checkpointPeriod = 0;
     private int _kbyte = 0;
-    private boolean _autoDelete = false;
     private Thread _thread;
 
     //

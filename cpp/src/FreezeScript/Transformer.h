@@ -12,6 +12,7 @@
 
 #include <Ice/Ice.h>
 #include <Slice/Parser.h>
+#include <Freeze/Connection.h>
 
 class Db;
 class DbTxn;
@@ -21,7 +22,7 @@ namespace FreezeScript
 
 void
 transformDatabase(const Ice::CommunicatorPtr&, const Slice::UnitPtr&, const Slice::UnitPtr&,
-                  Db*, Db*, DbTxn*, const std::string&, bool, std::ostream&, bool, std::istream&);
+                  Db*, Db*, DbTxn*, Freeze::ConnectionPtr, const std::string&, const std::string&, bool, std::ostream&, bool, std::istream&);
 
 } // End of namespace FreezeScript
 

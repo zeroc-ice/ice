@@ -29,6 +29,6 @@ $(CLIENT): $(OBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lFreeze $(DB_LIBS) $(LIBS)
 
 clean::
-	rm -f db/*.db db/log.*
+	rm -f db/*.db db/log.* db/__catalog
 
 include .depend

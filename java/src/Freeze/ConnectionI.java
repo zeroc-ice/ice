@@ -88,42 +88,31 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 	    }
 	}
 	
-	_dbEnv = null;
 
-	if(_dbEnvHolder != null)
+	if(_dbEnv != null)
 	{
 	    try
 	    {
-		_dbEnvHolder.close();
+		_dbEnv.close();
 	    }
 	    finally
 	    {
-		_dbEnvHolder = null;
+		_dbEnv = null;
 	    }
 	}
-    }
-
-    ConnectionI(Ice.Communicator communicator, String envName)
-    {
-	_communicator = communicator;
-	_dbEnvHolder = SharedDbEnv.get(communicator, envName);
-	_dbEnv = _dbEnvHolder;
-	_envName = envName;
-	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Map");
-	_txTrace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Transaction");
-	Ice.Properties properties = _communicator.getProperties();
-
-	_deadlockWarning = properties.getPropertyAsInt("Freeze.Warn.Deadlocks") > 0;
-	_closeInFinalizeWarning = properties.getPropertyAsIntWithDefault("Freeze.Warn.CloseInFinalize", 1) > 0;
     }
 
     ConnectionI(Ice.Communicator communicator, String envName, com.sleepycat.db.DbEnv dbEnv)
     {
 	_communicator = communicator;
-	_dbEnv = dbEnv;
+	_dbEnv =  SharedDbEnv.get(communicator, envName, dbEnv);
 	_envName = envName;
 	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Map");
 	_txTrace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Transaction");
+	
+	Ice.Properties properties = _communicator.getProperties();
+	_deadlockWarning = properties.getPropertyAsInt("Freeze.Warn.Deadlocks") > 0;
+	_closeInFinalizeWarning = properties.getPropertyAsIntWithDefault("Freeze.Warn.CloseInFinalize", 1) > 0;	
     }
 
     //
@@ -174,7 +163,7 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 	}
     }
 
-    com.sleepycat.db.DbEnv
+    SharedDbEnv
     dbEnv()
     {
 	return _dbEnv;
@@ -217,8 +206,7 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
     }
 
     private Ice.Communicator _communicator;
-    private SharedDbEnv _dbEnvHolder;
-    private com.sleepycat.db.DbEnv _dbEnv;
+    private SharedDbEnv _dbEnv;
     private String _envName;
     private TransactionI _transaction;
     private LinkedList _mapList = new Freeze.LinkedList();

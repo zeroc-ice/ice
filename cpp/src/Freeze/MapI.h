@@ -97,8 +97,9 @@ class MapHelperI : public MapHelper
 {
 public:
    
-    MapHelperI(const ConnectionIPtr& connection, const std::string& dbName, 
-	       const std::vector<MapIndexBasePtr>&, bool createDb);
+    MapHelperI(const ConnectionIPtr&, const std::string&, 
+	       const std::string&, const std::string&,
+	       const std::vector<MapIndexBasePtr>&, bool);
 
     virtual ~MapHelperI();
 

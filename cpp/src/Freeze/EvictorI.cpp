@@ -41,7 +41,7 @@ Freeze::createEvictor(const ObjectAdapterPtr& adapter,
 		      const vector<IndexPtr>& indices,
 		      bool createDb)
 {
-    return new EvictorI(adapter, envName, filename, initializer, indices, createDb);
+    return new EvictorI(adapter, envName, 0, filename, initializer, indices, createDb);
 }
 
 Freeze::EvictorPtr
@@ -53,7 +53,7 @@ Freeze::createEvictor(const ObjectAdapterPtr& adapter,
 		      const vector<IndexPtr>& indices,
 		      bool createDb)
 {
-    return new EvictorI(adapter, envName, dbEnv, filename, initializer, indices, createDb);
+    return new EvictorI(adapter, envName, &dbEnv, filename, initializer, indices, createDb);
 }
 
 //
@@ -270,31 +270,7 @@ Freeze::WatchDogThread::terminate()
 
 Freeze::EvictorI::EvictorI(const ObjectAdapterPtr& adapter, 
 			   const string& envName, 
-			   const string& filename,
-			   const ServantInitializerPtr& initializer,
-			   const vector<IndexPtr>& indices,
-			   bool createDb) :
-    _evictorSize(10),
-    _currentEvictorSize(0),
-    _deactivateController(this),
-    _savingThreadDone(false),
-    _adapter(adapter),
-    _communicator(adapter->getCommunicator()),
-    _initializer(initializer),
-    
-    _dbEnv(0),
-    _dbEnvHolder(SharedDbEnv::get(_communicator, envName)),
-    _filename(filename),
-    _createDb(createDb),
-    _trace(0)
-{
-    _dbEnv = _dbEnvHolder.get();
-    init(envName, indices);
-}
-
-Freeze::EvictorI::EvictorI(const ObjectAdapterPtr& adapter, 
-			   const string& envName, 
-			   DbEnv& dbEnv, 
+			   DbEnv* dbEnv, 
 			   const string& filename, 
 			   const ServantInitializerPtr& initializer,
 			   const vector<IndexPtr>& indices,
@@ -307,17 +283,10 @@ Freeze::EvictorI::EvictorI(const ObjectAdapterPtr& adapter,
     _adapter(adapter),
     _communicator(adapter->getCommunicator()),
     _initializer(initializer),
-
-    _dbEnv(&dbEnv),
+    _dbEnv(SharedDbEnv::get(_communicator, envName, dbEnv)),
     _filename(filename),
     _createDb(createDb),
     _trace(0)
-{
-    init(envName, indices);
-}
-
-void
-Freeze::EvictorI::init(const string& envName, const vector<IndexPtr>& indices)
 {
     _trace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Evictor");
     _deadlockWarning = (_communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0);
@@ -1287,7 +1256,6 @@ Freeze::EvictorI::deactivate(const string&)
 	    }
 	    
 	    _dbEnv = 0;
-	    _dbEnvHolder = 0;
 	    _initializer = 0;
 	}
 	catch(...)
@@ -1557,7 +1525,7 @@ Freeze::EvictorI::run()
 		    try
 		    {
 			DbTxn* tx = 0;
-			_dbEnv->txn_begin(0, &tx, 0);
+			_dbEnv->getEnv()->txn_begin(0, &tx, 0);
 			try
 			{	
 			    for(size_t i = 0; i < txSize; i++)
@@ -1872,7 +1840,7 @@ Freeze::EvictorI::allDbs() const
     
     try
     {
-	Db db(_dbEnv, 0);
+	Db db(_dbEnv->getEnv(), 0);
 	db.open(0, _filename.c_str(), 0, DB_UNKNOWN, DB_RDONLY, 0);
 
 	Dbc* dbc = 0;

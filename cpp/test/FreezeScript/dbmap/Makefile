@@ -37,6 +37,6 @@ clean::
 	rm -f IntSMap.h IntSMap.cpp
 
 clean::
-	rm -f db/*.db db/log.*
+	rm -f db/*.db db/log.* db/__catalog
 
 include .depend

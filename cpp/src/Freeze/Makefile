@@ -35,7 +35,9 @@ OBJS		= DB.o \
                   Index.o \
                   IndexI.o \
                   SharedDbEnv.o \
-                  TransactionHolder.o
+                  TransactionHolder.o \
+                  Catalog.o \
+                  CatalogData.o \
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -46,7 +48,8 @@ SLICE_SRCS	= $(SDIR)/DB.ice \
                   $(SDIR)/Transaction.ice \
 		  $(SDIR)/Evictor.ice \
 		  $(SDIR)/EvictorF.ice \
-		  $(SDIR)/EvictorStorage.ice
+		  $(SDIR)/EvictorStorage.ice \
+                  $(SDIR)/CatalogData.ice
 
 HDIR		= $(includedir)/Freeze
 SDIR		= $(slicedir)/Freeze
@@ -55,8 +58,18 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DFREEZE_API_EXPORTS $(DB_FLAGS) 
 SLICE2CPPFLAGS	:= --ice --include-dir Freeze --dll-export FREEZE_API $(SLICE2CPPFLAGS)
-SLICE2FREEZECMD := $(SLICE2FREEZE) --ice --include-dir Freeze $(ICECPPFLAGS)
 LINKWITH	:= -lIce -lIceUtil $(DB_LIBS)
+
+
+$(HDIR)/Catalog.h Catalog.cpp: $(SLICE2FREEZE) $(SDIR)/CatalogData.ice
+	rm -f  $(HDIR)/Catalog.h Catalog.cpp
+	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::Catalog,string,Freeze::CatalogData \
+	Catalog ../../slice/Freeze/CatalogData.ice
+	mv Catalog.h $(HDIR)/Catalog.h
+
+clean::
+	rm -f  $(HDIR)/Catalog.h Catalog.cpp
+
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@

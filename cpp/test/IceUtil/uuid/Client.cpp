@@ -42,10 +42,9 @@ public:
     {
 	for(long i = 0; i < _howMany; i++)
 	{
-	    StaticMutex::Lock lock(staticMutex);
-
 	    string uuid = generateUUID();
 
+	    StaticMutex::Lock lock(staticMutex);
 	    pair<set<string>::iterator, bool> ok = _uuidSet.insert(uuid);
 	    if(!ok.second)
 	    {

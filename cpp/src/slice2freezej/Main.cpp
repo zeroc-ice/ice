@@ -235,9 +235,11 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
     out << sp << nl << "public" << nl << name 
 	<< "(Freeze.Connection __connection, String __dbName, boolean __createDb)";
     out << sb;
+
     if(dict.indices.size() == 0)
     {
-	out << nl << "super(__connection, __dbName, __createDb);";
+	out << nl << "super(__connection,  __dbName, \"" << keyType->typeId() << "\", \""
+	    << valueType->typeId() << "\", __createDb);";
     }
     else
     {
@@ -248,7 +250,8 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
 	    out << nl << "_indices[" << i << "] = new " << capitalizedMembers[i] 
 		<< "Index(\"" << indexNames[i] << "\");";
 	}
-	out << nl << "init(_indices, __dbName, __createDb);";
+	out << nl << "init(_indices, __dbName, \"" << keyType->typeId() << "\", \""
+	    << valueType->typeId() << "\", __createDb);";
     }
     out << eb;
 

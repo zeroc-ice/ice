@@ -27,7 +27,6 @@ namespace Freeze
 class IteratorHelper;
 class MapHelper;
 
-
 class MapIndexI;
 class MapHelperI;
 class IteratorHelperI;
@@ -75,7 +74,9 @@ public:
     
     static MapHelper*
     create(const Freeze::ConnectionPtr& connection, 
-	   const std::string& dbName, 
+	   const std::string& dbName,
+	   const std::string& key,
+	   const std::string& value,
 	   const std::vector<MapIndexBasePtr>&,
 	   bool createDb);
 
@@ -631,7 +632,9 @@ public:
 	_communicator(connection->getCommunicator())
     {
 	std::vector<MapIndexBasePtr> indices;
-	_helper.reset(MapHelper::create(connection, dbName, indices, createDb));
+	_helper.reset(MapHelper::create(connection, dbName, 
+					KeyCodec::typeId(), ValueCodec::typeId(), 
+					indices, createDb));
     }
 
     template <class _InputIterator>
@@ -642,7 +645,9 @@ public:
 	_communicator(connection->getCommunicator())
     {
 	std::vector<MapIndexBasePtr> indices;
-	_helper.reset(MapHelper::create(connection, dbName, indices, createDb));
+	_helper.reset(MapHelper::create(connection, dbName, 
+					KeyCodec::typeId(), ValueCodec::typeId(),
+					indices, createDb));
 	while(first != last)
 	{
 	    put(*first);

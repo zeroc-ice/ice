@@ -141,6 +141,7 @@ writeCodecH(const TypePtr& type, const string& name, const string& freezeType, O
       << ", Freeze::" << freezeType << "& bytes, const ::Ice::CommunicatorPtr& communicator);";
     H << nl << "static void read(" << typeToString(type) << "&, const Freeze::" << freezeType << "& bytes, "
       << "const ::Ice::CommunicatorPtr& communicator);";
+    H << nl << "static const std::string& typeId();";
     H << eb << ';';
 }
 
@@ -194,6 +195,28 @@ writeCodecC(const TypePtr& type, const string& name, const string& freezeType, b
     {
         C << nl << "stream.endReadEncaps();";
     }
+    C << eb;
+
+    string staticName = "__";
+    for(string::const_iterator p = name.begin(); p != name.end(); ++p)
+    {
+	if((*p) == ':')
+	{
+	    staticName += '_';
+	}
+	else
+	{
+	    staticName += *p;
+	}
+    }
+    staticName += "_typeId";
+
+    C << sp << nl << "static const ::std::string " << staticName << " = \"" << type->typeId() << "\";";
+
+    C << sp << nl << "const ::std::string&" << nl << name << "::typeId()";
+    C << sb;
+    C << nl << "return " << staticName << ";";
+
     C << eb;
 }
 
@@ -300,7 +323,9 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
 
 	H << nl << "__indices.push_back(new " << capitalizedMembers[i] << "Index(" << indexName << "));";
     }
-    H << nl << "this->_helper.reset(Freeze::MapHelper::create(__connection, __dbName, __indices, __createDb));";
+    H << nl << "this->_helper.reset(Freeze::MapHelper::create(__connection, __dbName, "
+      << name + "KeyCodec::typeId(), "
+      << name + "ValueCodec::typeId(), __indices, __createDb));";
     H << nl << "while(__first != __last)";
     H << sb;
     H << nl << "put(*__first);";
@@ -471,7 +496,9 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
 
 	C << nl << "__indices.push_back(new " << capitalizedMembers[i] << "Index(" << indexName << "));";
     }
-    C << nl << "_helper.reset(Freeze::MapHelper::create(__connection, __dbName, __indices, __createDb));";
+    C << nl << "_helper.reset(Freeze::MapHelper::create(__connection, __dbName, "
+      << absolute + "KeyCodec::typeId(), "
+      << absolute + "ValueCodec::typeId(), __indices, __createDb));";
     C << eb;
 
     //

@@ -286,7 +286,7 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 	assert(txn != null);
 	_store = store;
 	
-	_db= new com.sleepycat.db.Db(_store.evictor().dbEnv(), 0);
+	_db= new com.sleepycat.db.Db(_store.evictor().dbEnv().getEnv(), 0);
 	_db.setFlags(com.sleepycat.db.Db.DB_DUP | com.sleepycat.db.Db.DB_DUPSORT);
 
 	int flags = 0;

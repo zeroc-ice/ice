@@ -20,6 +20,8 @@
 namespace Freeze
 {
 
+class SharedDbEnv;
+
 class SharedDb;
 typedef IceUtil::Handle<SharedDb> SharedDbPtr;
 
@@ -62,8 +64,11 @@ public:
     
     using Db::get;
 
-    static SharedDbPtr get(const ConnectionIPtr&, const std::string&, 
+    static SharedDbPtr get(const ConnectionIPtr&, const std::string&,
+			   const std::string&, const std::string&,
 			   const std::vector<MapIndexBasePtr>&, bool);
+
+    static SharedDbPtr openCatalog(SharedDbEnv&);
 
     ~SharedDb();
 
@@ -72,6 +77,12 @@ public:
 
     const std::string& 
     dbName() const;
+
+    const std::string&
+    key() const;
+
+    const std::string&
+    value() const;
 
 #ifdef __HP_aCC
     
@@ -98,13 +109,17 @@ private:
 
     typedef std::map<MapKey, Freeze::SharedDb*> SharedDbMap;
    
-    SharedDb(const MapKey&, const ConnectionIPtr&, 
-	     const std::vector<MapIndexBasePtr>&, bool);
+    SharedDb(const MapKey&, const std::string&, const std::string&,
+	     const ConnectionIPtr&, const std::vector<MapIndexBasePtr>&, bool);
+    
+    SharedDb(const MapKey&, DbEnv*);
     
     void connectIndices(const std::vector<MapIndexBasePtr>&) const;
     void cleanup(bool);
 
-    MapKey _key;
+    MapKey _mapKey;
+    std::string _key;
+    std::string _value;
     int _refCount;
     Ice::Int _trace;
 
@@ -116,8 +131,21 @@ private:
 inline const std::string& 
 SharedDb::dbName() const
 {
-    return _key.dbName;
+    return _mapKey.dbName;
 }
+
+inline const std::string& 
+SharedDb::key() const
+{
+    return _key;
+}
+
+inline const std::string& 
+SharedDb::value() const
+{
+    return _value;
+}
+
 
 inline bool 
 SharedDb::MapKey::operator<(const MapKey& rhs) const

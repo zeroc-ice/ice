@@ -14,11 +14,13 @@
 #include <Freeze/EvictorF.h>
 #include <Freeze/ConnectionF.h>
 #include <Freeze/Index.h>
+#include <Freeze/Transaction.h>
 
 //
-// Berkeley DB's DbEnv
+// Berkeley DB's DbEnv and DbTxn
 //
 class DbEnv;
+class DbTxn;
 
 namespace Freeze
 {
@@ -45,6 +47,10 @@ FREEZE_API ConnectionPtr createConnection(const Ice::CommunicatorPtr& communicat
 FREEZE_API ConnectionPtr createConnection(const Ice::CommunicatorPtr& communicator,
 					  const std::string& envName, 
 					  DbEnv& dbEnv);
+
+FREEZE_API const std::string& catalogName();
+
+FREEZE_API DbTxn* getTxn(const TransactionPtr&);
 
 
 typedef void (*FatalErrorCallback)(const EvictorPtr&, const Ice::CommunicatorPtr&);

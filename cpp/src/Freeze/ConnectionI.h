@@ -43,11 +43,7 @@ public:
     virtual ~ConnectionI();
 
     ConnectionI(const Ice::CommunicatorPtr& communicator, 
-		const std::string& envName);
-
-    ConnectionI(const Ice::CommunicatorPtr& communicator, 
-		const std::string& envName,
-		DbEnv& dbEnv);
+		const std::string& envName, DbEnv*);
 
     void
     closeAllIterators();
@@ -64,7 +60,7 @@ public:
     DbTxn*
     dbTxn() const;
 
-    DbEnv*
+    const SharedDbEnvPtr&
     dbEnv() const;
        
     const Ice::CommunicatorPtr&
@@ -82,8 +78,7 @@ public:
 private:
 
     Ice::CommunicatorPtr _communicator;
-    SharedDbEnvPtr _dbEnvHolder;
-    DbEnv* _dbEnv;
+    SharedDbEnvPtr _dbEnv;
     std::string _envName;
     TransactionIPtr _transaction;
     std::list<MapHelperI*> _mapList;
@@ -110,7 +105,7 @@ ConnectionI::dbTxn() const
     }
 }
 
-inline DbEnv*
+inline const SharedDbEnvPtr&
 ConnectionI::dbEnv() const
 {
     return _dbEnv;

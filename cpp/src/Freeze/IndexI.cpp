@@ -280,7 +280,7 @@ Freeze::IndexI::associate(ObjectStore* store, DbTxn* txn,
     _store = store;
     _index._communicator = store->communicator();
     
-    _db.reset(new Db(store->evictor()->dbEnv(), 0));
+    _db.reset(new Db(store->evictor()->dbEnv()->getEnv(), 0));
     _db->set_flags(DB_DUP | DB_DUPSORT);
     _db->set_app_private(this);
 
