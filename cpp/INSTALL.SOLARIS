@@ -27,8 +27,8 @@ The following Sun compilers are supported:
 Third-party libraries
 ---------------------
 
-- Berkeley DB 4.1.25 with C++ support enabled, and built with a C++
-  compiler compatible with the one you are using.
+- Berkeley DB 4.1.25 or 4.2.52 with C++ support enabled, and built 
+  with a C++ compiler compatible with the one you are using.
 
 - expat 1.9x
 
