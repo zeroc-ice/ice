@@ -12,10 +12,8 @@
 #define ICE_SSL_CONNECTOR_H
 
 #include <Ice/TransceiverF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/TraceLevelsF.h>
-#include <Ice/LoggerF.h>
 #include <Ice/Connector.h>
+#include <IceSSL/PluginBaseIF.h>
 
 #ifndef _WIN32
 #   include <netinet/in.h> // For struct sockaddr_in
@@ -35,13 +33,11 @@ public:
     
 private:
     
-    SslConnector(const IceInternal::InstancePtr&, const std::string&, int);
+    SslConnector(const PluginBaseIPtr&, const std::string&, int);
     virtual ~SslConnector();
     friend class SslEndpoint;
 
-    IceInternal::InstancePtr _instance;
-    IceInternal::TraceLevelsPtr _traceLevels;
-    ::Ice::LoggerPtr _logger;
+    PluginBaseIPtr _plugin;
     struct sockaddr_in _addr;
 };
 

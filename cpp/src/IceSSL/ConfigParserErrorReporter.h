@@ -11,13 +11,11 @@
 #ifndef ICE_SSL_CONFIG_ERROR_REPORTER_H
 #define ICE_SSL_CONFIG_ERROR_REPORTER_H
 
-#include <iostream>
-#include <IceUtil/Shared.h>
 #include <util/XercesDefs.hpp>
 #include <dom/DOMString.hpp>
 #include <sax/ErrorHandler.hpp>
-#include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
+#include <IceSSL/TraceLevelsF.h>
 
 namespace IceSSL
 {
@@ -25,8 +23,8 @@ namespace IceSSL
 class ConfigParserErrorReporter : public ErrorHandler, public IceUtil::Shared
 {
 public:
-     ConfigParserErrorReporter(const IceInternal::TraceLevelsPtr&, const Ice::LoggerPtr&);
 
+     ConfigParserErrorReporter(const IceSSL::TraceLevelsPtr&, const Ice::LoggerPtr&);
     ~ConfigParserErrorReporter();
 
     //  Implementation of the error handler interface.
@@ -39,7 +37,8 @@ public:
     std::string getErrors() const;
 
 private:
-    IceInternal::TraceLevelsPtr _traceLevels;
+
+    IceSSL::TraceLevelsPtr _traceLevels;
     Ice::LoggerPtr _logger;
 
     // Any errors that are encountered will be output to this stream.

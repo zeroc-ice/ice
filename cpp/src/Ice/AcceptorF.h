@@ -17,8 +17,8 @@ namespace IceInternal
 {
 
 class Acceptor;
-void incRef(Acceptor*);
-void decRef(Acceptor*);
+ICE_PROTOCOL_API void incRef(Acceptor*);
+ICE_PROTOCOL_API void decRef(Acceptor*);
 typedef Handle<Acceptor> AcceptorPtr;
 
 }

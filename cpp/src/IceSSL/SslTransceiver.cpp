@@ -8,16 +8,14 @@
 //
 // **********************************************************************
 
-#include <IceSSL/OpenSSL.h>
-#include <IceSSL/SslConnection.h>
-#include <IceSSL/SslTransceiver.h>
-#include <Ice/Instance.h>
-#include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
 #include <Ice/Buffer.h>
 #include <Ice/Network.h>
-#include <Ice/Exception.h>
-#include <sstream>
+#include <IceSSL/OpenSSL.h>
+#include <IceSSL/SslConnection.h>
+#include <IceSSL/SslTransceiver.h>
+#include <IceSSL/PluginBaseI.h>
+#include <IceSSL/TraceLevels.h>
 
 using namespace std;
 using namespace Ice;
@@ -85,12 +83,11 @@ IceSSL::SslTransceiver::toString() const
     return fdToString(_fd);
 }
 
-IceSSL::SslTransceiver::SslTransceiver(const InstancePtr& instance,
+IceSSL::SslTransceiver::SslTransceiver(const PluginBaseIPtr& plugin,
                                        SOCKET fd,
                                        const ConnectionPtr& sslConnection) :
-    _instance(instance),
-    _traceLevels(instance->traceLevels()),
-    _logger(instance->logger()),
+    _traceLevels(plugin->getTraceLevels()),
+    _logger(plugin->getLogger()),
     _fd(fd),
     _sslConnection(sslConnection)
 {

@@ -17,19 +17,13 @@
 #   pragma warning(disable:4786)
 #endif
 
-#include <Ice/Instance.h>
-#include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
 #include <Ice/Network.h>
-#include <Ice/Properties.h>
-#include <Ice/Exception.h>
 
 #include <IceSSL/PluginBaseI.h>
 #include <IceSSL/SslConnector.h>
 #include <IceSSL/SslTransceiver.h>
-#include <IceSSL/Exception.h>
-
-#include <sstream>
+#include <IceSSL/TraceLevels.h>
 
 using namespace std;
 using namespace Ice;
@@ -38,34 +32,29 @@ using namespace IceInternal;
 TransceiverPtr
 IceSSL::SslConnector::connect(int timeout)
 {
-    if (_traceLevels->network >= 2)
+    TraceLevelsPtr traceLevels = _plugin->getTraceLevels();
+    LoggerPtr logger = _plugin->getLogger();
+
+    if (traceLevels->network >= 2)
     {
 	ostringstream s;
 	s << "trying to establish ssl connection to " << toString();
-	_logger->trace(_traceLevels->networkCat, s.str());
+	logger->trace(traceLevels->networkCat, s.str());
     }
 
     SOCKET fd = createSocket(false);
     setBlock(fd, false);
     doConnect(fd, _addr, timeout);
 
-    if (_traceLevels->network >= 1)
+    if (traceLevels->network >= 1)
     {
 	ostringstream s;
 	s << "ssl connection established\n" << fdToString(fd);
-	_logger->trace(_traceLevels->networkCat, s.str());
+	logger->trace(traceLevels->networkCat, s.str());
     }
 
-    // Get the SSL plug-in
-    PluginManagerPtr pluginManager = _instance->pluginManager();
-    Ice::PluginPtr plugin = pluginManager->getPlugin("IceSSL");
-    PluginBaseIPtr sslPlugin = PluginBaseIPtr::dynamicCast(plugin);
-    assert(sslPlugin);
-
-    IceSSL::ConnectionPtr connection = sslPlugin->createConnection(IceSSL::Client, fd);
-    TransceiverPtr transPtr = new SslTransceiver(_instance, fd, connection);
-
-    return transPtr;
+    IceSSL::ConnectionPtr connection = _plugin->createConnection(IceSSL::Client, fd);
+    return new SslTransceiver(_plugin, fd, connection);
 }
 
 string
@@ -74,10 +63,8 @@ IceSSL::SslConnector::toString() const
     return addrToString(_addr);
 }
 
-IceSSL::SslConnector::SslConnector(const InstancePtr& instance, const string& host, int port) :
-    _instance(instance),
-    _traceLevels(instance->traceLevels()),
-    _logger(instance->logger())
+IceSSL::SslConnector::SslConnector(const PluginBaseIPtr& plugin, const string& host, int port) :
+    _plugin(plugin)
 {
     getAddress(host.c_str(), port, _addr);
 }

@@ -8,7 +8,6 @@
 //
 // **********************************************************************
 
-#include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
 
 #include <IceSSL/Exception.h>
@@ -16,8 +15,10 @@
 #include <IceSSL/ContextOpenSSLServer.h>
 #include <IceSSL/SslConnectionOpenSSLServer.h>
 #include <IceSSL/OpenSSLUtils.h>
+#include <IceSSL/TraceLevels.h>
 
 using namespace std;
+using namespace Ice;
 
 void
 IceSSL::OpenSSL::ServerContext::configure(const GeneralConfig& generalConfig,
@@ -80,11 +81,7 @@ IceSSL::OpenSSL::ServerContext::createConnection(int socket, const PluginBaseIPt
         throw contextEx;
     }
 
-    ConnectionPtr connection = new ServerConnection(_traceLevels,
-                                                    _logger,
-                                                    _certificateVerifier,
-                                                    createSSLConnection(socket),
-                                                    plugin);
+    ConnectionPtr connection = new ServerConnection(_certificateVerifier, createSSLConnection(socket), plugin);
 
     connectionSetup(connection);
 
@@ -95,8 +92,9 @@ IceSSL::OpenSSL::ServerContext::createConnection(int socket, const PluginBaseIPt
 // Protected
 //
 
-IceSSL::OpenSSL::ServerContext::ServerContext(const IceInternal::InstancePtr& instance) :
-    Context(instance)
+IceSSL::OpenSSL::ServerContext::ServerContext(const IceSSL::TraceLevelsPtr& traceLevels, const LoggerPtr& logger,
+                                              const PropertiesPtr& properties) :
+    Context(traceLevels, logger, properties)
 {
     _rsaPrivateKeyProperty = "IceSSL.Server.Overrides.RSA.PrivateKey";
     _rsaPublicKeyProperty  = "IceSSL.Server.Overrides.RSA.Certificate";

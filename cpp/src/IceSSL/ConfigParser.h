@@ -12,14 +12,13 @@
 #define ICE_SSL_CONFIG_H
 
 #include <dom/DOM.hpp>
-#include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
 #include <IceSSL/CertificateDesc.h>
 #include <IceSSL/GeneralConfig.h>
 #include <IceSSL/CertificateAuthority.h>
 #include <IceSSL/BaseCerts.h>
 #include <IceSSL/TempCerts.h>
-#include <string>
+#include <IceSSL/TraceLevelsF.h>
 
 namespace IceSSL
 {
@@ -41,7 +40,7 @@ public:
     bool loadClientConfig(GeneralConfig&, CertificateAuthority&, BaseCertificates&);
     bool loadServerConfig(GeneralConfig&, CertificateAuthority&, BaseCertificates&, TempCertificates&);
 
-    void setTrace(const IceInternal::TraceLevelsPtr&);
+    void setTrace(const TraceLevelsPtr&);
     bool isTraceSet() const;
 
     void setLogger(const Ice::LoggerPtr&);
@@ -53,7 +52,7 @@ private:
     std::string _configFile;
     std::string _configPath;
 
-    IceInternal::TraceLevelsPtr _traceLevels;
+    TraceLevelsPtr _traceLevels;
     Ice::LoggerPtr _logger;
 
     // Parse tree walking utility methods.

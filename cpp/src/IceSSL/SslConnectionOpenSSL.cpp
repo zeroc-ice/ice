@@ -18,7 +18,6 @@
 #endif
 
 #include <Ice/Network.h>
-#include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
 #include <Ice/LocalException.h>
 
@@ -29,6 +28,7 @@
 #include <IceSSL/OpenSSLPluginI.h>
 #include <IceSSL/CertificateVerifierOpenSSL.h>
 #include <IceSSL/OpenSSLUtils.h>
+#include <IceSSL/TraceLevels.h>
 
 #include <openssl/err.h>
 
@@ -60,12 +60,10 @@ void IceInternal::decRef(IceSSL::OpenSSL::Connection* p) { p->__decRef(); }
 //       but unfortunately, it appears that this is not properly picked up.
 //
 
-IceSSL::OpenSSL::Connection::Connection(const TraceLevelsPtr& traceLevels,
-                                        const LoggerPtr& logger,
-                                        const IceSSL::CertificateVerifierPtr& certificateVerifier,
+IceSSL::OpenSSL::Connection::Connection(const IceSSL::CertificateVerifierPtr& certificateVerifier,
                                         SSL* sslConnection,
                                         const PluginBaseIPtr& plugin) :
-    IceSSL::Connection(traceLevels, logger, certificateVerifier),
+    IceSSL::Connection(plugin->getTraceLevels(), plugin->getLogger(), certificateVerifier),
     _sslConnection(sslConnection)
 {
     assert(_sslConnection != 0);

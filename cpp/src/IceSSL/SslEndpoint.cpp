@@ -9,28 +9,28 @@
 // **********************************************************************
 
 #include <Ice/Network.h>
+#include <Ice/BasicStream.h>
+#include <Ice/LocalException.h>
+#include <Ice/ProtocolPluginFacade.h>
 #include <IceSSL/SslEndpoint.h>
 #include <IceSSL/SslAcceptor.h>
 #include <IceSSL/SslConnector.h>
 #include <IceSSL/SslTransceiver.h>
-#include <Ice/BasicStream.h>
-#include <Ice/LocalException.h>
-#include <Ice/Instance.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceSSL::SslEndpoint::SslEndpoint(const InstancePtr& instance, const string& ho, Int po, Int ti) :
-    _instance(instance),
+IceSSL::SslEndpoint::SslEndpoint(const PluginBaseIPtr& plugin, const string& ho, Int po, Int ti) :
+    _plugin(plugin),
     _host(ho),
     _port(po),
     _timeout(ti)
 {
 }
 
-IceSSL::SslEndpoint::SslEndpoint(const InstancePtr& instance, const string& str) :
-    _instance(instance),
+IceSSL::SslEndpoint::SslEndpoint(const PluginBaseIPtr& plugin, const string& str) :
+    _plugin(plugin),
     _port(0),
     _timeout(-1)
 {
@@ -113,12 +113,12 @@ IceSSL::SslEndpoint::SslEndpoint(const InstancePtr& instance, const string& str)
 
     if (_host.empty())
     {
-	const_cast<string&>(_host) = _instance->defaultHost();
+	const_cast<string&>(_host) = _plugin->getProtocolPluginFacade()->getDefaultHost();
     }
 }
 
-IceSSL::SslEndpoint::SslEndpoint(BasicStream* s) :
-    _instance(s->instance()),
+IceSSL::SslEndpoint::SslEndpoint(const PluginBaseIPtr& plugin, BasicStream* s) :
+    _plugin(plugin),
     _port(0),
     _timeout(-1)
 {
@@ -173,7 +173,7 @@ IceSSL::SslEndpoint::timeout(Int timeout) const
     }
     else
     {
-	return new SslEndpoint(_instance, _host, _port, timeout);
+	return new SslEndpoint(_plugin, _host, _port, timeout);
     }
 }
 
@@ -211,14 +211,14 @@ IceSSL::SslEndpoint::serverTransceiver(EndpointPtr& endp) const
 ConnectorPtr
 IceSSL::SslEndpoint::connector() const
 {
-    return new SslConnector(_instance, _host, _port);
+    return new SslConnector(_plugin, _host, _port);
 }
 
 AcceptorPtr
 IceSSL::SslEndpoint::acceptor(EndpointPtr& endp) const
 {
-    SslAcceptor* p = new SslAcceptor(_instance, _host, _port);
-    endp = new SslEndpoint(_instance, _host, p->effectivePort(), _timeout);
+    SslAcceptor* p = new SslAcceptor(_plugin, _host, _port);
+    endp = new SslEndpoint(_plugin, _host, p->effectivePort(), _timeout);
     return p;
 }
 
@@ -338,8 +338,8 @@ IceSSL::SslEndpoint::operator<(const Endpoint& r) const
     return false;
 }
 
-IceSSL::SslEndpointFactory::SslEndpointFactory(const InstancePtr& instance)
-    : _instance(instance)
+IceSSL::SslEndpointFactory::SslEndpointFactory(const PluginBaseIPtr& plugin)
+    : _plugin(plugin)
 {
 }
 
@@ -363,17 +363,17 @@ IceSSL::SslEndpointFactory::protocol() const
 EndpointPtr
 IceSSL::SslEndpointFactory::create(const std::string& str) const
 {
-    return new SslEndpoint(_instance, str);
+    return new SslEndpoint(_plugin, str);
 }
 
 EndpointPtr
 IceSSL::SslEndpointFactory::read(BasicStream* s) const
 {
-    return new SslEndpoint(s);
+    return new SslEndpoint(_plugin, s);
 }
 
 void
 IceSSL::SslEndpointFactory::destroy()
 {
-    _instance = 0;
+    _plugin = 0;
 }

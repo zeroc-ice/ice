@@ -13,6 +13,7 @@
 
 #include <Ice/Endpoint.h>
 #include <Ice/EndpointFactory.h>
+#include <IceSSL/PluginBaseI.h>
 
 namespace IceSSL
 {
@@ -23,9 +24,9 @@ class SslEndpoint : public IceInternal::Endpoint
 {
 public:
 
-    SslEndpoint(const IceInternal::InstancePtr&, const std::string&, ::Ice::Int, ::Ice::Int);
-    SslEndpoint(const IceInternal::InstancePtr&, const std::string&);
-    SslEndpoint(IceInternal::BasicStream*);
+    SslEndpoint(const IceSSL::PluginBaseIPtr&, const std::string&, ::Ice::Int, ::Ice::Int);
+    SslEndpoint(const IceSSL::PluginBaseIPtr&, const std::string&);
+    SslEndpoint(const IceSSL::PluginBaseIPtr&, IceInternal::BasicStream*);
 
     virtual void streamWrite(IceInternal::BasicStream*) const;
     virtual std::string toString() const;
@@ -51,7 +52,7 @@ private:
     //
     // All members are const, because endpoints are immutable.
     //
-    const IceInternal::InstancePtr _instance;
+    const IceSSL::PluginBaseIPtr _plugin;
     const std::string _host;
     const ::Ice::Int _port;
     const ::Ice::Int _timeout;
@@ -61,7 +62,7 @@ class SslEndpointFactory : public IceInternal::EndpointFactory
 {
 public:
 
-    SslEndpointFactory(const IceInternal::InstancePtr&);
+    SslEndpointFactory(const IceSSL::PluginBaseIPtr&);
     virtual ~SslEndpointFactory();
 
     virtual ::Ice::Short type() const;
@@ -72,7 +73,7 @@ public:
 
 private:
 
-    IceInternal::InstancePtr _instance;
+    IceSSL::PluginBaseIPtr _plugin;
 };
 
 }

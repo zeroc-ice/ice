@@ -23,7 +23,7 @@
 #include <Ice/Properties.h>
 #include <Ice/LoggerI.h>
 #include <Ice/Network.h>
-#include <Ice/EndpointFactory.h>
+#include <Ice/EndpointFactoryManager.h>
 #include <Ice/TcpEndpoint.h>
 #include <Ice/UdpEndpoint.h>
 #include <Ice/PluginManagerI.h>

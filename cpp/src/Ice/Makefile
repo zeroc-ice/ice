@@ -46,6 +46,7 @@ OBJS		= Initialize.o \
 		  UserExceptionFactoryManager.o \
 		  Endpoint.o \
 		  EndpointFactory.o \
+		  EndpointFactoryManager.o \
 		  TcpEndpoint.o \
 		  UdpEndpoint.o \
 		  UnknownEndpoint.o \
@@ -78,7 +79,8 @@ OBJS		= Initialize.o \
 		  UdpTransceiver.o \
 		  DynamicLibrary.o \
 		  Plugin.o \
-		  PluginManagerI.o
+		  PluginManagerI.o \
+		  ProtocolPluginFacade.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

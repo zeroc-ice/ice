@@ -17,19 +17,13 @@
 #   pragma warning(disable:4786)
 #endif
 
-#include <Ice/Instance.h>
-#include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
 #include <Ice/Network.h>
-#include <Ice/Properties.h>
-#include <Ice/Exception.h>
 
 #include <IceSSL/PluginBaseI.h>
 #include <IceSSL/SslAcceptor.h>
 #include <IceSSL/SslTransceiver.h>
-#include <IceSSL/Exception.h>
-
-#include <sstream>
+#include <IceSSL/TraceLevels.h>
 
 using namespace std;
 using namespace Ice;
@@ -90,14 +84,8 @@ IceSSL::SslAcceptor::accept(int timeout)
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
-    // Get the SSL plug-in
-    PluginManagerPtr pluginManager = _instance->pluginManager();
-    Ice::PluginPtr plugin = pluginManager->getPlugin("IceSSL");
-    PluginBaseIPtr sslPlugin = PluginBaseIPtr::dynamicCast(plugin);
-    assert(sslPlugin);
-
-    IceSSL::ConnectionPtr connection = sslPlugin->createConnection(IceSSL::Server, fd);
-    TransceiverPtr transPtr = new SslTransceiver(_instance, fd, connection);
+    IceSSL::ConnectionPtr connection = _plugin->createConnection(IceSSL::Server, fd);
+    TransceiverPtr transPtr = new SslTransceiver(_plugin, fd, connection);
 
     return transPtr;
 }
@@ -122,10 +110,10 @@ IceSSL::SslAcceptor::effectivePort()
     return ntohs(_addr.sin_port);
 }
 
-IceSSL::SslAcceptor::SslAcceptor(const InstancePtr& instance, const string& host, int port) :
-    _instance(instance),
-    _traceLevels(instance->traceLevels()),
-    _logger(instance->logger()),
+IceSSL::SslAcceptor::SslAcceptor(const PluginBaseIPtr& plugin, const string& host, int port) :
+    _plugin(plugin),
+    _traceLevels(plugin->getTraceLevels()),
+    _logger(plugin->getLogger()),
     _backlog(0)
 {
     if (_backlog <= 0)

@@ -11,21 +11,17 @@
 #ifndef ICE_SSL_CONTEXT_OPENSSL_H
 #define ICE_SSL_CONTEXT_OPENSSL_H
 
-#include <Ice/InstanceF.h>
-#include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/BuiltinSequences.h>
 
 #include <IceSSL/OpenSSL.h>
-
+#include <IceSSL/TraceLevelsF.h>
 #include <IceSSL/CertificateVerifierOpenSSL.h>
-
 #include <IceSSL/GeneralConfig.h>
 #include <IceSSL/CertificateAuthority.h>
 #include <IceSSL/BaseCerts.h>
 #include <IceSSL/TempCerts.h>
-
 #include <IceSSL/SslConnectionF.h>
 #include <IceSSL/SslConnectionOpenSSLF.h>
 #include <IceSSL/ContextOpenSSLF.h>
@@ -66,7 +62,8 @@ public:
     virtual ::IceSSL::ConnectionPtr createConnection(int, const IceSSL::PluginBaseIPtr&) = 0;
 
 protected:
-    Context(const IceInternal::InstancePtr&);
+
+    Context(const IceSSL::TraceLevelsPtr&, const Ice::LoggerPtr&, const Ice::PropertiesPtr&);
 
     SSL_METHOD* getSslMethod(SslProtocol);
     void createContext(SslProtocol);
@@ -95,7 +92,7 @@ protected:
 
     void setDHParams(const IceSSL::BaseCertificates&);
 
-    IceInternal::TraceLevelsPtr _traceLevels;
+    IceSSL::TraceLevelsPtr _traceLevels;
     Ice::LoggerPtr _logger;
     Ice::PropertiesPtr _properties;
 

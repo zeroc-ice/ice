@@ -16,7 +16,7 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/ReferenceFactory.h>
 #include <Ice/Endpoint.h>
-#include <Ice/EndpointFactory.h>
+#include <Ice/EndpointFactoryManager.h>
 #include <Ice/ConnectionFactory.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/LocalException.h>

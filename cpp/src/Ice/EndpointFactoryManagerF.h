@@ -8,18 +8,18 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ENDPOINT_FACTORY_F_H
-#define ICE_ENDPOINT_FACTORY_F_H
+#ifndef ICE_ENDPOINT_FACTORY_MANAGER_F_H
+#define ICE_ENDPOINT_FACTORY_MANAGER_F_H
 
 #include <Ice/Handle.h>
 
 namespace IceInternal
 {
 
-class EndpointFactory;
-ICE_PROTOCOL_API void incRef(EndpointFactory*);
-ICE_PROTOCOL_API void decRef(EndpointFactory*);
-typedef Handle<EndpointFactory> EndpointFactoryPtr;
+class EndpointFactoryManager;
+void incRef(EndpointFactoryManager*);
+void decRef(EndpointFactoryManager*);
+typedef Handle<EndpointFactoryManager> EndpointFactoryManagerPtr;
 
 }
 

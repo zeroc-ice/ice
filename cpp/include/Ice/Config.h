@@ -46,6 +46,12 @@ namespace IceInternal
 #       define ICE_API __declspec(dllimport)
 #   endif
 
+#   ifdef ICE_PROTOCOL_API_EXPORTS
+#       define ICE_PROTOCOL_API __declspec(dllexport)
+#   else
+#       define ICE_PROTOCOL_API __declspec(dllimport)
+#   endif
+
 #   include <process.h>
 
 namespace Ice
@@ -71,6 +77,7 @@ inline int getDNSErrno() { return WSAGetLastError(); }
 #   include <unistd.h>
 
 #   define ICE_API /**/
+#   define ICE_PROTOCOL_API /**/
 
 namespace Ice
 {

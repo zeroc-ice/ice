@@ -17,8 +17,8 @@ namespace IceInternal
 {
 
 class Connector;
-void incRef(Connector*);
-void decRef(Connector*);
+ICE_PROTOCOL_API void incRef(Connector*);
+ICE_PROTOCOL_API void decRef(Connector*);
 typedef Handle<Connector> ConnectorPtr;
 
 }

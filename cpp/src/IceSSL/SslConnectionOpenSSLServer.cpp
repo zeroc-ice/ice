@@ -9,7 +9,6 @@
 // **********************************************************************
 
 #include <Ice/Network.h>
-#include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
 #include <Ice/LocalException.h>
 #include <IceSSL/OpenSSLUtils.h>
@@ -17,6 +16,7 @@
 #include <IceSSL/Exception.h>
 #include <IceSSL/OpenSSLJanitors.h>
 #include <IceSSL/SslConnectionOpenSSLServer.h>
+#include <IceSSL/TraceLevels.h>
 
 #include <sstream>
 
@@ -37,12 +37,10 @@ using namespace IceInternal;
 //       but unfortunately, it appears that this is not properly picked up.
 //
 
-IceSSL::OpenSSL::ServerConnection::ServerConnection(const TraceLevelsPtr& traceLevels,
-                                                    const LoggerPtr& logger,
-                                                    const IceSSL::CertificateVerifierPtr& certificateVerifier,
+IceSSL::OpenSSL::ServerConnection::ServerConnection(const IceSSL::CertificateVerifierPtr& certificateVerifier,
                                                     SSL* connection,
                                                     const PluginBaseIPtr& plugin) :
-                                  Connection(traceLevels, logger, certificateVerifier, connection, plugin)
+    Connection(certificateVerifier, connection, plugin)
 {
     assert(_sslConnection != 0);
 

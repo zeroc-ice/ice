@@ -22,7 +22,7 @@
 namespace IceInternal
 {
 
-class Acceptor : public ::IceUtil::Shared
+class ICE_PROTOCOL_API Acceptor : public ::IceUtil::Shared
 {
 public:
 

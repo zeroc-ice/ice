@@ -17,9 +17,6 @@
 #pragma warning(disable:4786)
 #endif
 
-#include <sstream>
-#include <iostream>
-
 #include <util/PlatformUtils.hpp>
 #include <parsers/DOMParser.hpp>
 #include <framework/LocalFileInputSource.hpp>
@@ -40,7 +37,7 @@ using namespace IceSSL;
 //
 
 IceSSL::ConfigParser::ConfigParser(const string& configFile) :
-                     _configFile(configFile)
+    _configFile(configFile)
 {
     assert(!configFile.empty());
     _configPath = "./";
@@ -49,8 +46,8 @@ IceSSL::ConfigParser::ConfigParser(const string& configFile) :
 }
 
 IceSSL::ConfigParser::ConfigParser(const string& configFile, const string& configPath) :
-                     _configFile(configFile),
-                     _configPath(configPath)
+    _configFile(configFile),
+    _configPath(configPath)
 {
     assert(!configFile.empty());
     assert(!configPath.empty());
@@ -263,7 +260,7 @@ IceSSL::ConfigParser::loadServerConfig(GeneralConfig& general,
 }
 
 void
-IceSSL::ConfigParser::setTrace(const IceInternal::TraceLevelsPtr& traceLevels)
+IceSSL::ConfigParser::setTrace(const TraceLevelsPtr& traceLevels)
 {
     _traceLevels = traceLevels;
 }

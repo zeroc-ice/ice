@@ -23,7 +23,7 @@ namespace IceInternal
 
 class Buffer;
 
-class Transceiver : public ::IceUtil::Shared
+class ICE_PROTOCOL_API Transceiver : public ::IceUtil::Shared
 {
 public:
 

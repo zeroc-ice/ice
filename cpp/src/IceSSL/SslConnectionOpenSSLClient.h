@@ -23,9 +23,7 @@ class ClientConnection : public Connection
 {
 public:
 
-    ClientConnection(const IceInternal::TraceLevelsPtr&,
-                     const Ice::LoggerPtr&,
-                     const IceSSL::CertificateVerifierPtr&,
+    ClientConnection(const IceSSL::CertificateVerifierPtr&,
                      SSL*,
                      const IceSSL::PluginBaseIPtr&);
     virtual ~ClientConnection();

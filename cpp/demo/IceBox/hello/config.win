@@ -45,15 +45,6 @@ Ice.Trace.Network=1
 #Ice.Trace.Protocol=1
 
 #
-# Security Tracing
-#
-# 0 = no security tracing
-# 1 = trace warning messages
-# 2 = config file parsing warnings
-#
-#Ice.Trace.Security=4
-
-#
 # SSL Configuration File
 #
 # An XML based file that specifies the certificates, keys, SSL version
@@ -64,6 +55,15 @@ IceSSL.Client.CertPath=../../../certs
 IceSSL.Client.Config=sslconfig.xml
 IceSSL.Server.CertPath=../../../certs
 IceSSL.Server.Config=sslconfig.xml
+
+#
+# Security Tracing
+#
+# 0 = no security tracing
+# 1 = trace warning messages
+# 2 = config file parsing warnings
+#
+#IceSSL.Trace.Security=4
 
 #
 # Glacier settings

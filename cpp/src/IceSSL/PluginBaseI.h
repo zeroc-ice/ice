@@ -11,14 +11,14 @@
 #ifndef ICE_SSL_PLUGIN_I_H
 #define ICE_SSL_PLUGIN_I_H
 
-#include <Ice/InstanceF.h>
-#include <Ice/Properties.h>
-#include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
+#include <Ice/PropertiesF.h>
+#include <Ice/ProtocolPluginFacadeF.h>
 #include <IceSSL/Plugin.h>
 #include <IceSSL/PluginBaseIF.h>
 #include <IceSSL/SslConnectionF.h>
 #include <IceSSL/CertificateVerifierF.h>
+#include <IceSSL/TraceLevelsF.h>
 
 namespace IceSSL
 {
@@ -47,13 +47,21 @@ public:
 
     virtual void setRSAKeys(ContextType, const ::Ice::ByteSeq&, const ::Ice::ByteSeq&) = 0;
 
+    TraceLevelsPtr getTraceLevels() const;
+
+    Ice::LoggerPtr getLogger() const;
+
+    Ice::PropertiesPtr getProperties() const;
+
+    IceInternal::ProtocolPluginFacadePtr getProtocolPluginFacade() const;
+
 protected:
 
-    PluginBaseI(const IceInternal::InstancePtr&);
+    PluginBaseI(const IceInternal::ProtocolPluginFacadePtr&);
     virtual ~PluginBaseI();
 
-    IceInternal::InstancePtr _instance;
-    IceInternal::TraceLevelsPtr _traceLevels;
+    IceInternal::ProtocolPluginFacadePtr _protocolPluginFacade;
+    TraceLevelsPtr _traceLevels;
     Ice::LoggerPtr _logger;
     Ice::PropertiesPtr _properties;
 };

@@ -13,16 +13,13 @@
 void ::IceInternal::incRef(::IceSSL::Connection* p) { p->__incRef(); }
 void ::IceInternal::decRef(::IceSSL::Connection* p) { p->__decRef(); }
 
-IceSSL::Connection::Connection(const IceInternal::TraceLevelsPtr& traceLevels,
+IceSSL::Connection::Connection(const TraceLevelsPtr& traceLevels,
                                const Ice::LoggerPtr& logger,
                                const CertificateVerifierPtr& certificateVerifier) :
-                   _traceLevels(traceLevels),
-                   _logger(logger),
-                   _certificateVerifier(certificateVerifier)
+    _traceLevels(traceLevels),
+    _logger(logger),
+    _certificateVerifier(certificateVerifier)
 {
-    assert(_traceLevels != 0);
-    assert(_logger != 0);
-    assert(_certificateVerifier != 0);
 }
 
 IceSSL::Connection::~Connection()

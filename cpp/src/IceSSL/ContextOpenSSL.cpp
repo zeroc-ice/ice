@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Instance.h>
+#include <Ice/Logger.h>
 #include <Ice/Properties.h>
 
 #include <IceSSL/DefaultCertificateVerifier.h>
@@ -17,10 +17,15 @@
 #include <IceSSL/CertificateDesc.h>
 #include <IceSSL/SslConnectionOpenSSL.h>
 #include <IceSSL/ContextOpenSSL.h>
-
 #include <IceSSL/OpenSSLJanitors.h>
 #include <IceSSL/OpenSSLUtils.h>
+#include <IceSSL/TraceLevels.h>
+
 #include <openssl/err.h>
+
+using namespace std;
+using namespace Ice;
+using namespace IceInternal;
 
 using IceSSL::ConnectionPtr;
 
@@ -50,7 +55,7 @@ IceSSL::OpenSSL::Context::setCertificateVerifier(const CertificateVerifierPtr& v
 }
 
 void
-IceSSL::OpenSSL::Context::addTrustedCertificateBase64(const std::string& trustedCertString)
+IceSSL::OpenSSL::Context::addTrustedCertificateBase64(const string& trustedCertString)
 {
     RSAPublicKey pubKey(trustedCertString);
 
@@ -66,8 +71,8 @@ IceSSL::OpenSSL::Context::addTrustedCertificate(const Ice::ByteSeq& trustedCert)
 }
 
 void
-IceSSL::OpenSSL::Context::setRSAKeysBase64(const std::string& privateKey,
-                                           const std::string& publicKey)
+IceSSL::OpenSSL::Context::setRSAKeysBase64(const string& privateKey,
+                                           const string& publicKey)
 {
     if (privateKey.empty())
     {
@@ -114,7 +119,7 @@ IceSSL::OpenSSL::Context::configure(const GeneralConfig& generalConfig,
     SSL_CTX_set_verify_depth(_sslContext, generalConfig.getVerifyDepth());
 
     // Determine the number of retries the user gets on passphrase entry.
-    std::string passphraseRetries = _properties->getPropertyWithDefault(_passphraseRetriesProperty,
+    string passphraseRetries = _properties->getPropertyWithDefault(_passphraseRetriesProperty,
                                                                         _maxPassphraseRetriesDefault);
     int retries = atoi(passphraseRetries.c_str());
     retries = (retries < 0 ? 0 : retries);
@@ -137,16 +142,13 @@ IceSSL::OpenSSL::Context::configure(const GeneralConfig& generalConfig,
 // Protected
 //
 
-IceSSL::OpenSSL::Context::Context(const IceInternal::InstancePtr& instance) :
-    _traceLevels(instance->traceLevels()),
-    _logger(instance->logger()),
-    _properties(instance->properties())
+IceSSL::OpenSSL::Context::Context(const IceSSL::TraceLevelsPtr& traceLevels, const LoggerPtr& logger,
+                                  const PropertiesPtr& properties) :
+    _traceLevels(traceLevels),
+    _logger(logger),
+    _properties(properties)
 {
-    assert(_traceLevels != 0);
-    assert(_logger != 0);
-    assert(_properties != 0);
-
-    _certificateVerifier = new DefaultCertificateVerifier(instance);
+    _certificateVerifier = new DefaultCertificateVerifier(traceLevels, logger);
     _sslContext = 0;
 
     _maxPassphraseRetriesDefault = "4";
@@ -187,7 +189,7 @@ IceSSL::OpenSSL::Context::getSslMethod(SslProtocol sslVersion)
         {
             if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
             { 
-                std::string errorString;
+                string errorString;
 
                 errorString = "ssl version ";
                 errorString += sslVersion;
@@ -231,8 +233,8 @@ IceSSL::OpenSSL::Context::loadCertificateAuthority(const CertificateAuthority& c
 {
     assert(_sslContext != 0);
 
-    std::string fileName = certAuth.getCAFileName();
-    std::string certPath = certAuth.getCAPath();
+    string fileName = certAuth.getCAFileName();
+    string certPath = certAuth.getCAPath();
 
     const char* caFile = 0;
     const char* caPath = 0;
@@ -274,7 +276,7 @@ IceSSL::OpenSSL::Context::loadCertificateAuthority(const CertificateAuthority& c
     }
 
     // Now we add whatever override/addition that we wish to put into the trusted certificates list
-    std::string caCertBase64 = _properties->getProperty(_caCertificateProperty);
+    string caCertBase64 = _properties->getProperty(_caCertificateProperty);
     if (!caCertBase64.empty())
     {
          addTrustedCertificateBase64(caCertBase64);
@@ -283,11 +285,11 @@ IceSSL::OpenSSL::Context::loadCertificateAuthority(const CertificateAuthority& c
 
 void
 IceSSL::OpenSSL::Context::setKeyCert(const CertificateDesc& certDesc,
-                                     const std::string& privateProperty,
-                                     const std::string& publicProperty)
+                                     const string& privateProperty,
+                                     const string& publicProperty)
 {
-    std::string privateKey;
-    std::string publicKey;
+    string privateKey;
+    string publicKey;
 
     if (!privateProperty.empty())
     {
@@ -324,7 +326,7 @@ IceSSL::OpenSSL::Context::checkKeyCert()
         CertificateKeyMatchException certKeyMatchEx(__FILE__, __LINE__);
 
         certKeyMatchEx._message = "private key does not match the certificate public key";
-        std::string sslError = sslGetErrors();
+        string sslError = sslGetErrors();
 
         if (!sslError.empty())
         {
@@ -369,11 +371,11 @@ IceSSL::OpenSSL::Context::addKeyCert(const CertificateFile& privateKey, const Ce
 
     if (!publicCert.getFileName().empty())
     {
-	std::string publicCertFile = publicCert.getFileName();
+	string publicCertFile = publicCert.getFileName();
         const char* publicFile = publicCertFile.c_str();
         int publicEncoding = publicCert.getEncoding();
 
-        std::string privCertFile = privateKey.getFileName();
+        string privCertFile = privateKey.getFileName();
         const char* privKeyFile = privCertFile.c_str();
         int privKeyFileType = privateKey.getEncoding();
 
@@ -408,7 +410,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const CertificateFile& privateKey, const Ce
         while (retryCount != _maxPassphraseTries)
         {
             // We ignore the errors and remove them from the stack.
-            std::string errorString = sslGetErrors();
+            string errorString = sslGetErrors();
 
             // Set which Private Key file to use.
             pkLoadResult = SSL_CTX_use_PrivateKey_file(_sslContext, privKeyFile, privKeyFileType);
@@ -432,7 +434,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const CertificateFile& privateKey, const Ce
                 break;
             }
 
-            std::cout << "Passphrase error!" << std::endl;
+            cout << "Passphrase error!" << endl;
 
             retryCount++;
         }
@@ -448,7 +450,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const CertificateFile& privateKey, const Ce
                 CertificateKeyMatchException certKeyMatchEx(__FILE__, __LINE__);
 
                 certKeyMatchEx._message = "private key does not match the certificate public key";
-                std::string sslError = sslGetErrors();
+                string sslError = sslGetErrors();
 
                 if (!sslError.empty())
                 {
@@ -498,7 +500,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const RSAKeyPair& keyPair)
         CertificateLoadException certLoadEx(__FILE__, __LINE__);
 
         certLoadEx._message = "unable to set certificate from memory";
-        std::string sslError = sslGetErrors();
+        string sslError = sslGetErrors();
 
         if (!sslError.empty())
         {
@@ -521,7 +523,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const RSAKeyPair& keyPair)
             CertificateKeyMatchException certKeyMatchEx(__FILE__, __LINE__);
 
             certKeyMatchEx._message = "private key does not match the certificate public key";
-            std::string sslError = sslGetErrors();
+            string sslError = sslGetErrors();
 
             if (!sslError.empty())
             {
@@ -536,7 +538,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const RSAKeyPair& keyPair)
             PrivateKeyLoadException pklEx(__FILE__, __LINE__);
 
             pklEx._message = "unable to set private key from memory";
-            std::string sslError = sslGetErrors();
+            string sslError = sslGetErrors();
 
             if (!sslError.empty())
             {
@@ -571,9 +573,9 @@ IceSSL::OpenSSL::Context::addKeyCert(const Ice::ByteSeq& privateKey, const Ice::
 }
 
 void
-IceSSL::OpenSSL::Context::addKeyCert(const std::string& privateKey, const std::string& publicKey)
+IceSSL::OpenSSL::Context::addKeyCert(const string& privateKey, const string& publicKey)
 {
-    std::string privKey = privateKey;
+    string privKey = privateKey;
 
     if (privKey.empty())
     {
@@ -614,14 +616,14 @@ IceSSL::OpenSSL::Context::connectionSetup(const ConnectionPtr& connection)
 }
 
 void
-IceSSL::OpenSSL::Context::setCipherList(const std::string& cipherList)
+IceSSL::OpenSSL::Context::setCipherList(const string& cipherList)
 {
     assert(_sslContext != 0);
 
     if (!cipherList.empty() && (!SSL_CTX_set_cipher_list(_sslContext, cipherList.c_str())) &&
         (_traceLevels->security >= IceSSL::SECURITY_WARNINGS))
     {
-        std::string errorString = "WRN error setting cipher list " + cipherList + " -- using default list\n";
+        string errorString = "WRN error setting cipher list " + cipherList + " -- using default list\n";
         errorString += sslGetErrors();
         _logger->trace(_traceLevels->securityCat, errorString);
     }
@@ -632,7 +634,7 @@ IceSSL::OpenSSL::Context::setDHParams(const BaseCertificates& baseCerts)
 {
     DH* dh = 0;
 
-    std::string dhFile = baseCerts.getDHParams().getFileName();
+    string dhFile = baseCerts.getDHParams().getFileName();
     int encoding = baseCerts.getDHParams().getEncoding();
 
     // File type must be PEM - that's the only way we can load DH Params, apparently.

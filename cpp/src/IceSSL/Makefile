@@ -52,7 +52,8 @@ OBJS		= Plugin.o \
                   DHParams.o \
                   OpenSSLUtils.o \
                   DefaultCertificateVerifier.o \
-                  SingleCertificateVerifier.o
+                  SingleCertificateVerifier.o \
+                  TraceLevels.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

@@ -14,7 +14,7 @@
 #include <Ice/Instance.h>
 #include <Ice/IdentityUtil.h>
 #include <Ice/Endpoint.h>
-#include <Ice/EndpointFactory.h>
+#include <Ice/EndpointFactoryManager.h>
 #include <Ice/RouterInfo.h>
 
 using namespace std;

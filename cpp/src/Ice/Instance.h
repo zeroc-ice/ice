@@ -27,7 +27,7 @@
 #include <Ice/ObjectFactoryManagerF.h>
 #include <Ice/UserExceptionFactoryManagerF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
-#include <Ice/EndpointFactoryF.h>
+#include <Ice/EndpointFactoryManagerF.h>
 #include <Ice/PluginF.h>
 #include <list>
 

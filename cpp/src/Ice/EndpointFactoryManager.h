@@ -8,36 +8,20 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ENDPOINT_FACTORY_H
-#define ICE_ENDPOINT_FACTORY_H
+#ifndef ICE_ENDPOINT_FACTORY_MANAGER_H
+#define ICE_ENDPOINT_FACTORY_MANAGER_H
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
 #include <Ice/InstanceF.h>
 #include <Ice/EndpointF.h>
 #include <Ice/EndpointFactoryF.h>
+#include <Ice/EndpointFactoryManagerF.h>
 
 namespace IceInternal
 {
 
 class BasicStream;
-
-class EndpointFactory : public ::IceUtil::Shared
-{
-public:
-
-    virtual ~EndpointFactory();
-
-    virtual ::Ice::Short type() const = 0;
-    virtual const ::std::string& protocol() const = 0;
-    virtual EndpointPtr create(const std::string&) const = 0;
-    virtual EndpointPtr read(BasicStream*) const = 0;
-    virtual void destroy() = 0;
-
-protected:
-
-    EndpointFactory();
-};
 
 class EndpointFactoryManager : public ::IceUtil::Shared, public ::IceUtil::Mutex
 {

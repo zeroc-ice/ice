@@ -8,24 +8,26 @@
 //
 // **********************************************************************
 
+#include <Ice/Logger.h>
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/DefaultCertificateVerifier.h>
 #include <IceSSL/OpenSSLUtils.h>
+#include <IceSSL/TraceLevels.h>
+
 #include <ostream>
 
 using namespace std;
 
-IceSSL::OpenSSL::DefaultCertificateVerifier::DefaultCertificateVerifier(
-                                            const IceInternal::InstancePtr& instance) :
-                                            _traceLevels(instance->traceLevels()),
-                                            _logger(instance->logger())
+IceSSL::OpenSSL::DefaultCertificateVerifier::DefaultCertificateVerifier(const IceSSL::TraceLevelsPtr& traceLevels,
+                                                                        const Ice::LoggerPtr& logger) :
+    _traceLevels(traceLevels),
+    _logger(logger)
 {
 }
 
 int
-IceSSL::OpenSSL::DefaultCertificateVerifier::verify(int preVerifyOkay,
-                                            X509_STORE_CTX* x509StoreContext,
-                                            SSL* sslConnection)
+IceSSL::OpenSSL::DefaultCertificateVerifier::verify(int preVerifyOkay, X509_STORE_CTX* x509StoreContext,
+                                                    SSL* sslConnection)
 {
     //
     // Default verification steps.
@@ -101,4 +103,3 @@ IceSSL::OpenSSL::DefaultCertificateVerifier::verify(int preVerifyOkay,
 
     return preVerifyOkay;
 }
-

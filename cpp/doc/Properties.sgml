@@ -115,40 +115,6 @@ The request retry tracing level:
 </section>
 </section>
 
-<section><title>Ice.Trace.Security</title>
-<section><title>Synopsis</title>
-<synopsis>
-Ice.Trace.Security=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-The Security extension tracing level:
-<informaltable>
-<tgroup cols=2>
-<tbody>
-<row>
-<entry>0</entry>
-<entry>No security tracing. (default)</entry>
-</row>
-<row>
-<entry>1</entry>
-<entry>Trace security warnings.</entry>
-</row>
-<row>
-<entry>2</entry>
-<entry>Like 1, but more verbose, includes warnings during
-configuration file parse step.
-</entry>
-</row>
-</tbody>
-</tgroup>
-</informaltable>
-</para>
-</section>
-</section>
-
 </section>
 
 <!-- ********************************************************************** -->
@@ -479,6 +445,40 @@ conditions in connections.
 <!-- ********************************************************************** -->
 <section><title>&Ice; SSL Properties</title>
 <!-- ********************************************************************** -->
+
+<section><title>IceSSL.Trace.Security</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.Trace.Security=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The Security extension tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No security tracing. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace security warnings.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Like 1, but more verbose, includes warnings during
+configuration file parse step.
+</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
 
 <section><title>IceSSL.Client.CertPath, IceSSL.Server.CertPath</title>
 <section><title>Synopsis</title>

@@ -8,10 +8,10 @@
 //
 // **********************************************************************
 
-#include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
 #include <IceSSL/ConfigParserErrorReporter.h>
 #include <IceSSL/OpenSSL.h>
+#include <IceSSL/TraceLevels.h>
 
 #include <sax/SAXParseException.hpp>
 
@@ -22,7 +22,7 @@ using namespace std;
 void ::IceInternal::incRef(::IceSSL::ConfigParserErrorReporter* p) { p->__incRef(); }
 void ::IceInternal::decRef(::IceSSL::ConfigParserErrorReporter* p) { p->__decRef(); }
 
-IceSSL::ConfigParserErrorReporter::ConfigParserErrorReporter(const IceInternal::TraceLevelsPtr& traceLevels,
+IceSSL::ConfigParserErrorReporter::ConfigParserErrorReporter(const IceSSL::TraceLevelsPtr& traceLevels,
                                                              const Ice::LoggerPtr& logger) :
                                   _traceLevels(traceLevels),
                                   _logger(logger)

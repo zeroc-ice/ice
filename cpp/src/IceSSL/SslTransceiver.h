@@ -11,11 +11,11 @@
 #ifndef ICE_SSL_TRANSCEIVER_H
 #define ICE_SSL_TRANSCEIVER_H
 
-#include <IceSSL/SslConnectionF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/Transceiver.h>
+#include <IceSSL/SslConnectionF.h>
+#include <IceSSL/PluginBaseIF.h>
+#include <IceSSL/TraceLevelsF.h>
 
 namespace IceSSL
 {
@@ -36,15 +36,14 @@ public:
 
 private:
 
-    SslTransceiver(const IceInternal::InstancePtr&, SOCKET, const ::IceSSL::ConnectionPtr&);
+    SslTransceiver(const PluginBaseIPtr&, SOCKET, const ::IceSSL::ConnectionPtr&);
 
     virtual ~SslTransceiver();
     friend class SslConnector;
     friend class SslAcceptor;
 
-    IceInternal::InstancePtr _instance;
-    IceInternal::TraceLevelsPtr _traceLevels;
-    ::Ice::LoggerPtr _logger;
+    TraceLevelsPtr _traceLevels;
+    Ice::LoggerPtr _logger;
     SOCKET _fd;
     fd_set _rFdSet;
     fd_set _wFdSet;

@@ -23,7 +23,7 @@ namespace IceInternal
 
 class BasicStream;
 
-class Endpoint : public ::IceUtil::Shared
+class ICE_PROTOCOL_API Endpoint : public ::IceUtil::Shared
 {
 public:
 

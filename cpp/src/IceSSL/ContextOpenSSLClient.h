@@ -32,7 +32,7 @@ public:
 
 protected:
 
-    ClientContext(const IceInternal::InstancePtr&);
+    ClientContext(const IceSSL::TraceLevelsPtr&, const Ice::LoggerPtr&, const Ice::PropertiesPtr&);
 
     friend class IceSSL::OpenSSL::PluginI;
 };

@@ -13,9 +13,6 @@
 
 #include <IceUtil/RecMutex.h>
 
-#include <Ice/TraceLevelsF.h>
-#include <Ice/LoggerF.h>
-
 #include <IceSSL/PluginBaseI.h>
 #include <IceSSL/CertificateDesc.h>
 #include <IceSSL/CertificateAuthority.h>
@@ -48,7 +45,7 @@ class PluginI : public PluginBaseI
 {
 public:
 
-    PluginI(const IceInternal::InstancePtr&);
+    PluginI(const IceInternal::ProtocolPluginFacadePtr&);
     ~PluginI();
     
     virtual IceSSL::ConnectionPtr createConnection(ContextType, int);

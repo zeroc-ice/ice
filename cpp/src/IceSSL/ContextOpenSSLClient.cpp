@@ -8,15 +8,16 @@
 //
 // **********************************************************************
 
-#include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
 
 #include <IceSSL/Exception.h>
 #include <IceSSL/SslConnectionOpenSSL.h>
 #include <IceSSL/ContextOpenSSLClient.h>
 #include <IceSSL/SslConnectionOpenSSLClient.h>
+#include <IceSSL/TraceLevels.h>
 
 using namespace std;
+using namespace Ice;
 
 using IceSSL::ConnectionPtr;
 
@@ -61,19 +62,16 @@ IceSSL::OpenSSL::ClientContext::createConnection(int socket, const PluginBaseIPt
         throw contextEx;
     }
 
-    ConnectionPtr connection = new ClientConnection(_traceLevels,
-                                                    _logger,
-                                                    _certificateVerifier,
-                                                    createSSLConnection(socket),
-                                                    plugin);
+    ConnectionPtr connection = new ClientConnection(_certificateVerifier, createSSLConnection(socket), plugin);
 
     connectionSetup(connection);
 
     return connection;
 }
 
-IceSSL::OpenSSL::ClientContext::ClientContext(const IceInternal::InstancePtr& instance) :
-    Context(instance)
+IceSSL::OpenSSL::ClientContext::ClientContext(const IceSSL::TraceLevelsPtr& traceLevels, const LoggerPtr& logger,
+                                              const PropertiesPtr& properties) :
+    Context(traceLevels, logger, properties)
 {
     _rsaPrivateKeyProperty = "IceSSL.Client.Overrides.RSA.PrivateKey";
     _rsaPublicKeyProperty  = "IceSSL.Client.Overrides.RSA.Certificate";

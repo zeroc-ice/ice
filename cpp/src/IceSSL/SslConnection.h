@@ -11,11 +11,10 @@
 #ifndef ICE_SSL_CONNECTION_H
 #define ICE_SSL_CONNECTION_H
 
-#include <IceUtil/Shared.h>
 #include <Ice/Buffer.h>
-#include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
 #include <IceSSL/SslConnectionF.h>
+#include <IceSSL/TraceLevelsF.h>
 #include <IceSSL/CertificateVerifierF.h>
 
 namespace IceSSL
@@ -25,9 +24,9 @@ class Connection : public IceUtil::Shared
 {
 public:
 
-    Connection(const IceInternal::TraceLevelsPtr&,
+    Connection(const TraceLevelsPtr&,
                const Ice::LoggerPtr&,
-               const IceSSL::CertificateVerifierPtr&);
+               const CertificateVerifierPtr&);
     virtual ~Connection();
 
     virtual void shutdown() = 0;
@@ -37,7 +36,7 @@ public:
 
 protected:
 
-    IceInternal::TraceLevelsPtr _traceLevels;
+    TraceLevelsPtr _traceLevels;
     Ice::LoggerPtr _logger;
     CertificateVerifierPtr _certificateVerifier;
 };

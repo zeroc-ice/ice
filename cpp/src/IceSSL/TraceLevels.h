@@ -8,31 +8,28 @@
 //
 // **********************************************************************
 
-#ifndef ICE_TRACE_LEVELS_H
-#define ICE_TRACE_LEVELS_H
+#ifndef ICE_SSL_TRACE_LEVELS_H
+#define ICE_SSL_TRACE_LEVELS_H
 
 #include <IceUtil/Shared.h>
-#include <Ice/TraceLevelsF.h>
-#include <Ice/PropertiesF.h>
+#include <Ice/ProtocolPluginFacadeF.h>
+#include <IceSSL/TraceLevelsF.h>
 
-namespace IceInternal
+namespace IceSSL
 {
 
 class TraceLevels : public ::IceUtil::Shared
 {
 public:
 
-    TraceLevels(const ::Ice::PropertiesPtr&);
+    TraceLevels(const IceInternal::ProtocolPluginFacadePtr&);
     virtual ~TraceLevels();
 
     const int network;
     const char* networkCat;
 
-    const int protocol;
-    const char* protocolCat;
-
-    const int retry;
-    const char* retryCat;
+    const int security;
+    const char* securityCat;
 };
 
 }

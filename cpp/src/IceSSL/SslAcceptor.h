@@ -12,10 +12,10 @@
 #define ICE_SSL_ACCEPTOR_H
 
 #include <Ice/TransceiverF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/Acceptor.h>
+#include <IceSSL/PluginBaseIF.h>
+#include <IceSSL/TraceLevelsF.h>
 
 #ifndef _WIN32
 #   include <netinet/in.h> // For struct sockaddr_in
@@ -41,12 +41,12 @@ public:
 
 private:
 
-    SslAcceptor(const IceInternal::InstancePtr&, const std::string&, int);
+    SslAcceptor(const PluginBaseIPtr&, const std::string&, int);
     virtual ~SslAcceptor();
     friend class SslEndpoint;
 
-    IceInternal::InstancePtr _instance;
-    IceInternal::TraceLevelsPtr _traceLevels;
+    PluginBaseIPtr _plugin;
+    TraceLevelsPtr _traceLevels;
     ::Ice::LoggerPtr _logger;
     SOCKET _fd;
     int _backlog;

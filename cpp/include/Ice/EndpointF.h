@@ -17,8 +17,8 @@ namespace IceInternal
 {
 
 class Endpoint;
-ICE_API void incRef(Endpoint*);
-ICE_API void decRef(Endpoint*);
+ICE_PROTOCOL_API void incRef(Endpoint*);
+ICE_PROTOCOL_API void decRef(Endpoint*);
 typedef IceInternal::Handle<Endpoint> EndpointPtr;
 
 }

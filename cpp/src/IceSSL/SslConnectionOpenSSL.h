@@ -16,6 +16,7 @@
 #include <IceSSL/PluginBaseIF.h>
 #include <IceSSL/SslConnectionOpenSSLF.h>
 #include <IceSSL/CertificateVerifierOpenSSL.h>
+#include <IceSSL/TraceLevelsF.h>
 
 #include <openssl/ssl.h>
 
@@ -119,9 +120,7 @@ class Connection : public IceSSL::Connection
 {
 public:
 
-    Connection(const IceInternal::TraceLevelsPtr&,
-               const Ice::LoggerPtr&,
-               const IceSSL::CertificateVerifierPtr&,
+    Connection(const IceSSL::CertificateVerifierPtr&,
                SSL*,
                const IceSSL::PluginBaseIPtr&);
     virtual ~Connection();
@@ -183,9 +182,6 @@ protected:
     int _lastError;
 
     IceUtil::Mutex _handshakeWaitMutex;
-
-    // IceInternal::TraceLevelsPtr _traceLevels;
-    // Ice::LoggerPtr _logger;
 
     SafeFlag _handshakeFlag;
     int _initWantRead;

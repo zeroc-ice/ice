@@ -21,14 +21,11 @@
 // This needs to be first since <openssl/e_os.h> #include <windows.h>
 // without our configuration settings.
 //
-#include <IceUtil/Config.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/RecMutex.h>
-#include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
-#include <Ice/Initialize.h>
-#include <Ice/Communicator.h>
-#include <Ice/EndpointFactory.h>
+#include <Ice/Properties.h>
+#include <Ice/ProtocolPluginFacade.h>
 #include <IceSSL/OpenSSLPluginI.h>
 #include <IceSSL/Exception.h>
 #include <IceSSL/ConfigParser.h>
@@ -38,6 +35,7 @@
 #include <IceSSL/DefaultCertificateVerifier.h>
 #include <IceSSL/SingleCertificateVerifier.h>
 #include <IceSSL/SslEndpoint.h>
+#include <IceSSL/TraceLevels.h>
 
 #include <IceSSL/RSAPrivateKey.h>
 #include <IceSSL/DHParams.h>
@@ -69,15 +67,9 @@ extern "C"
 Ice::Plugin*
 create(const CommunicatorPtr& communicator, const string& name, const StringSeq& args)
 {
-    InstancePtr instance = getInstance(communicator);
+    ProtocolPluginFacadePtr facade = getProtocolPluginFacade(communicator);
 
-    //
-    // Install the SSL endpoint factory
-    //
-    EndpointFactoryPtr sslEndpointFactory = new SslEndpointFactory(instance);
-    instance->endpointFactoryManager()->add(sslEndpointFactory);
-
-    PluginBaseI* plugin = new IceSSL::OpenSSL::PluginI(instance);
+    IceSSL::OpenSSL::PluginI* plugin = new IceSSL::OpenSSL::PluginI(facade);
     try
     {
         plugin->configure();
@@ -87,6 +79,13 @@ create(const CommunicatorPtr& communicator, const string& name, const StringSeq&
         plugin->__decRef();
         throw;
     }
+
+    //
+    // Install the SSL endpoint factory
+    //
+    EndpointFactoryPtr sslEndpointFactory = new SslEndpointFactory(plugin);
+    facade->addEndpointFactory(sslEndpointFactory);
+
     return plugin;
 }
 
@@ -637,7 +636,7 @@ IceSSL::OpenSSL::PluginI::setRSAKeys(ContextType contextType,
 IceSSL::CertificateVerifierPtr
 IceSSL::OpenSSL::PluginI::getDefaultCertVerifier()
 {
-    return new DefaultCertificateVerifier(_instance);
+    return new DefaultCertificateVerifier(getTraceLevels(), getLogger());
 }
 
 IceSSL::CertificateVerifierPtr
@@ -655,10 +654,10 @@ IceSSL::OpenSSL::PluginI::destroy()
 // Protected
 //
 
-IceSSL::OpenSSL::PluginI::PluginI(const InstancePtr& instance) :
-    PluginBaseI(instance),
-    _serverContext(instance),
-    _clientContext(instance)
+IceSSL::OpenSSL::PluginI::PluginI(const ProtocolPluginFacadePtr& protocolPluginFacade) :
+    PluginBaseI(protocolPluginFacade),
+    _serverContext(getTraceLevels(), getLogger(), getProperties()),
+    _clientContext(getTraceLevels(), getLogger(), getProperties())
 {
     _randSeeded = 0;
 

@@ -8,18 +8,24 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ENDPOINT_FACTORY_F_H
-#define ICE_ENDPOINT_FACTORY_F_H
+#ifndef ICE_SSL_TRACE_LEVELS_F_H
+#define ICE_SSL_TRACE_LEVELS_F_H
 
 #include <Ice/Handle.h>
+
+namespace IceSSL
+{
+
+class TraceLevels;
+typedef IceInternal::Handle<TraceLevels> TraceLevelsPtr;
+
+}
 
 namespace IceInternal
 {
 
-class EndpointFactory;
-ICE_PROTOCOL_API void incRef(EndpointFactory*);
-ICE_PROTOCOL_API void decRef(EndpointFactory*);
-typedef Handle<EndpointFactory> EndpointFactoryPtr;
+void incRef(IceSSL::TraceLevels*);
+void decRef(IceSSL::TraceLevels*);
 
 }
 

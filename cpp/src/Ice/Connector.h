@@ -18,7 +18,7 @@
 namespace IceInternal
 {
 
-class Connector : public ::IceUtil::Shared
+class ICE_PROTOCOL_API Connector : public ::IceUtil::Shared
 {
 public:
     
