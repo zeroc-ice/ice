@@ -1,3 +1,7 @@
+When installing from RPMs, the demos for a particular language mapping
+are installed with the appropriate 'devel' RPM.  For example, the Java
+demos are located in the ice-java-devel RPM. 
+
 Building the Ice Demos
 ======================
 
