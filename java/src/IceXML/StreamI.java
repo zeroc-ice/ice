@@ -1089,7 +1089,7 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
                 {
                     Ice.StringHolder dummy = new Ice.StringHolder();
                     readAttributes(id, type, dummy);
-                    if(id.value.equals(href.value))
+                    if(id.value != null && id.value.equals(href.value))
                     {
                         break;
                     }
