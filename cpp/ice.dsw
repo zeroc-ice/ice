@@ -105,60 +105,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "interfaceC"=.\test\interface\interfaceC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name compiler
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name library
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "interfaceCOL"=.\test\interface\interfaceCOL.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name compiler
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name library
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "interfaceS"=.\test\interface\interfaceS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name compiler
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name library
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "latencyC"=.\demo\latency\latencyC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -205,6 +151,51 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name cpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "operationsC"=.\test\operations\operationsC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name library
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "operationsCOL"=.\test\operations\operationsCOL.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name library
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "operationsS"=.\test\operations\operationsS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name library
     End Project Dependency
 }}}
 

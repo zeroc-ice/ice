@@ -12,6 +12,7 @@
 #define ICE_INCOMING_H
 
 #include <Ice/ObjectAdapterF.h>
+#include <Ice/InstanceF.h>
 #include <Ice/Stream.h>
 
 namespace __Ice
@@ -21,7 +22,7 @@ class ICE_API Incoming : noncopyable
 {
 public:
 
-    Incoming(const ::Ice::ObjectAdapter_ptr&);
+    Incoming(const Instance_ptr&, const ::Ice::ObjectAdapter_ptr&);
     ~Incoming();
 
     void invoke(Stream&);
