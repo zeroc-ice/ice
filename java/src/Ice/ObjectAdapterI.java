@@ -51,7 +51,18 @@ public class ObjectAdapterI implements ObjectAdapter
 		// activate operation instead of a non obvious network
 		// exception?
 		//
-		_locatorInfo.getLocatorRegistry().addAdapter(_name, newDirectProxy(ident));
+		try
+		{
+		    _locatorInfo.getLocatorRegistry().setAdapterDirectProxy(_name, newDirectProxy(ident));
+		}
+		catch(Ice.AdapterNotRegistered ex)
+		{
+		    throw new ObjectAdapterNotRegisteredException();
+		}
+		catch(Ice.AdapterAlreadyActive ex)
+		{
+		    throw new ObjectAdapterActiveException();
+		}
 	    }
 	}
 
