@@ -13,7 +13,13 @@
 
 #include <IceBox/IceBox.h>
 
-class HelloServiceI : public ::IceBox::Service
+#if defined(_WIN32)
+#   define HELLO_API __declspec(dllexport)
+#else
+#   define HELLO_API /**/
+#endif
+
+class HELLO_API HelloServiceI : public ::IceBox::Service
 {
 public:
 

@@ -16,7 +16,7 @@ using namespace Ice;
 using namespace IceInternal;
 using namespace std;
 
-typedef IceBox::ServicePtr (*SERVICE_FACTORY)(CommunicatorPtr);
+typedef IceBox::Service* (*SERVICE_FACTORY)(CommunicatorPtr);
 
 IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[])
     : _communicator(communicator)
@@ -121,15 +121,15 @@ IceBox::ServiceManagerI::run()
             {
                 (*r).second.service->start();
             }
-            catch (const FailureException& ex)
+            catch (const FailureException&)
             {
                 throw;
             }
             catch (const Exception& ex)
             {
-                FailureException ex;
-                ex.reason = "ServiceManager: exception in start for service " + (*r).first + ": " + ex.ice_name();
-                throw ex;
+                FailureException e;
+                e.reason = "ServiceManager: exception in start for service " + (*r).first + ": " + ex.ice_name();
+                throw e;
             }
         }
 
@@ -285,9 +285,9 @@ IceBox::ServiceManagerI::init(const string& service, const string& exec, const S
     }
     catch (const Exception& ex)
     {
-        FailureException ex;
-        ex.reason = "ServiceManager: exception in factory function `" + funcName + "': " + ex.ice_name();
-        throw ex;
+        FailureException e;
+        e.reason = "ServiceManager: exception in factory function `" + funcName + "': " + ex.ice_name();
+        throw e;
     }
 
     //
@@ -299,15 +299,15 @@ IceBox::ServiceManagerI::init(const string& service, const string& exec, const S
         info.library = library;
         _services[service] = info;
     }
-    catch (const FailureException& ex)
+    catch (const FailureException&)
     {
         throw;
     }
     catch (const Exception& ex)
     {
-        FailureException ex;
-        ex.reason = "ServiceManager: exception while initializing service " + service + ": " + ex.ice_name();
-        throw ex;
+        FailureException e;
+        e.reason = "ServiceManager: exception while initializing service " + service + ": " + ex.ice_name();
+        throw e;
     }
 
     return info.service;
@@ -333,9 +333,9 @@ IceBox::ServiceManagerI::stop(const string& service)
         info.service = 0;
         info.library = 0;
 
-        FailureException ex;
-        ex.reason = "ServiceManager: exception in stop for service " + service + ": " + ex.ice_name();
-        throw ex;
+        FailureException e;
+        e.reason = "ServiceManager: exception in stop for service " + service + ": " + ex.ice_name();
+        throw e;
     }
 
     //

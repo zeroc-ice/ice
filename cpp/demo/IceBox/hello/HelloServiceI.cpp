@@ -10,7 +10,7 @@ extern "C"
 //
 // Factory function
 //
-::IceBox::ServicePtr
+HELLO_API ::IceBox::Service*
 create(::Ice::CommunicatorPtr communicator)
 {
     return new HelloServiceI;

@@ -192,6 +192,10 @@ SOURCE=.\Direct.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\DynamicLibrary.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Endpoint.cpp
 # End Source File
 # Begin Source File

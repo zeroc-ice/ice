@@ -13,7 +13,13 @@
 
 #include <Hello.h>
 
-class HelloI : public Hello
+#if defined(_WIN32)
+#   define HELLO_API __declspec(dllexport)
+#else
+#   define HELLO_API /**/
+#endif
+
+class HELLO_API HelloI : public Hello
 {
 public:
 

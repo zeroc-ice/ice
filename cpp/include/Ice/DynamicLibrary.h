@@ -17,7 +17,7 @@
 namespace IceInternal
 {
 
-class DynamicLibrary : public ::IceUtil::Shared
+class ICE_API DynamicLibrary : public ::IceUtil::Shared
 {
 public:
 
