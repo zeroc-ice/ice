@@ -1,10 +1,11 @@
+
 Build instructions
 ------------------
 
 This version of Ice for C# requires Mono version 1.0.6.
 
 Unpack the archive. The sources will be contained in the 
-IceCS-<version> subdirectory.
+IceCS-@ver@ subdirectory.
 
 You will need the Slice to C# translator and supporting executables
 and libraries. You can download a binary distribution from the ZeroC
@@ -58,7 +59,7 @@ the kernel or Mono.
 Running the tests
 -----------------
 
-You must add IceCS-<version>/bin to your MONO_PATH. (Don't forget to export
+You must add IceCS-@ver@/bin to your MONO_PATH. (Don't forget to export
 MONO_PATH). Alternatively, you can install the Ice DLLs (from the bin
 directory) in the Global Assembly Cache (GAC), using gacutil -i
 <name>. For example:
@@ -84,7 +85,7 @@ allTests.py or run.py.
 Running the demos
 -----------------
 
-To run the demos, you need to have IceCS-<version>/bin in your MONO_PATH (or
+To run the demos, you need to have IceCS-@ver@/bin in your MONO_PATH (or
 install the Ice DLLs in the GAC, as for running the tests).  See the
 README file in each demo directory for a description of each demo.
 

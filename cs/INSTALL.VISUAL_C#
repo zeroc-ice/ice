@@ -5,7 +5,7 @@ The code has been built and tested with Visual C# Version 7.1.3088 and
 .NET Framework 1.1 Version 1.1.4322.
 
 Unpack the archive. The sources will be contained in the 
-IceCS-<version> subdirectory.
+IceCS-@ver@ subdirectory.
 
 You will need the Slice to C# translator and supporting executables
 and libraries. You can download a binary distribution from the ZeroC
@@ -93,9 +93,9 @@ icecs.pdb file in the GAC. Unfortunately, you cannot do this using
 Explorer, so you have to do it from the command line. Open a command
 shell window and navigate to C:\WINDOWS\assembly\GAC\icecs. (Assuming
 C:\WINDOWS is your system root.) Doing a directory listing there, you
-will find a directory named <version>__<UUID>, for example:
+will find a directory named @ver@__<UUID>, for example:
 
-    2.1.0.0__1f998c50fec78381
+    @ver@__1f998c50fec78381
 
 Change to that directory (making sure that you use the correct version
 number for this release of Ice). In this directory, you will a file

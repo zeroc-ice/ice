@@ -38,6 +38,21 @@ def find(path, patt):
     return result
 
 #
+# Fix version in README, INSTALL files
+#
+def fixVersion(files, version):
+
+    for file in files:
+        origfile = file + ".orig"
+        os.rename(file, origfile)
+        oldFile = open(origfile, "r")
+        newFile = open(file, "w")
+        newFile.write(re.sub("@ver@", version, oldFile.read()))
+        newFile.close()
+        oldFile.close()
+        os.remove(origfile)
+
+#
 # Are we on Windows?
 #
 win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
@@ -151,6 +166,10 @@ for x in filesToRemove:
 #
 config = open(os.path.join("icecs", "src", "Ice", "AssemblyInfo.cs"), "r")
 version = re.search("AssemblyVersion.*\"([0-9\.]*)\"", config.read()).group(1)
+
+print "Fixing version in README and INSTALL files..."
+fixVersion(find("icecs", "README*"), version)
+fixVersion(find("icecs", "INSTALL*"), version)
 
 #
 # Create source archives.
