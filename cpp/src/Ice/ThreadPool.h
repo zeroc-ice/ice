@@ -52,7 +52,6 @@ private:
 
     void run();
     void read(const EventHandlerPtr&);
-    void reapConnections();
 
     InstancePtr _instance;
     bool _destroyed;
@@ -64,8 +63,7 @@ private:
     fd_set _fdSet;
     std::vector<std::pair<SOCKET, EventHandlerPtr> > _adds;
     std::vector<SOCKET> _removes;
-    std::map<SOCKET, std::pair<EventHandlerPtr, std::list<SOCKET>::iterator> > _handlerMap;
-    std::list<SOCKET> _reapList;
+    std::map<SOCKET, EventHandlerPtr> _handlerMap;
     int _servers;
     int _timeout;
     JTCMutex _threadMutex;

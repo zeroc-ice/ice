@@ -427,17 +427,14 @@ IceInternal::Collector::setState(State state)
 	case StateClosed:
 	{
 	    //
-	    // If we come from holding state, we are already unregistered,
-	    // so we can close right away.
+	    // If we come from holding state, we first need to
+	    // register again before we unregister.
 	    //
 	    if (_state == StateHolding)
 	    {
-		_transceiver->close();
+		_threadPool->_register(_transceiver->fd(), this);
 	    }
-	    else
-	    {
-		_threadPool->unregister(_transceiver->fd());
-	    }
+	    _threadPool->unregister(_transceiver->fd());
 	    break;
 	}
     }
@@ -532,10 +529,9 @@ IceInternal::CollectorFactory::message(BasicStream&)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
-    _threadPool->promoteFollower();
-
     if (_state != StateActive)
     {
+	_threadPool->promoteFollower();
 	return;
     }
     
@@ -578,6 +574,8 @@ IceInternal::CollectorFactory::message(BasicStream&)
 	warning(ex);
         setState(StateClosed);
     }
+
+    _threadPool->promoteFollower();
 }
 
 void
@@ -701,19 +699,14 @@ IceInternal::CollectorFactory::setState(State state)
 	    if (_threadPool)
 	    {
 		//
-		// If we come from holding state, we are already
-		// unregistered, so we can close right away.
+		// If we come from holding state, we first need to
+		// register again before we unregister.
 		//
 		if (_state == StateHolding)
 		{
-		    _acceptor->shutdown();
-		    clearBacklog();
-		    _acceptor->close();
+		    _threadPool->_register(_acceptor->fd(), this);
 		}
-		else
-		{
-		    _threadPool->unregister(_acceptor->fd());
-		}
+		_threadPool->unregister(_acceptor->fd());
 	    }
 	    for_each(_collectors.begin(), _collectors.end(), ::Ice::voidMemFun(&Collector::destroy));
 	    _collectors.clear();
