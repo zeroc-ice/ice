@@ -528,6 +528,12 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
 }
 
 void
+IceInternal::ThreadPool::EventHandlerThread::EventHandlerThread(const ThreadPoolPtr& pool) :
+    _pool(pool)
+{
+}
+
+void
 IceInternal::ThreadPool::EventHandlerThread::run()
 {
     try
