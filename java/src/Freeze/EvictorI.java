@@ -1727,7 +1727,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		p.remove();
 		_evictorMap.remove(ident);
 
-		if(_trace >= 2)
+		if(_trace >= 2 || (_trace >= 1 && _evictorList.size() % 50 == 0))
 		{
 		    _communicator.getLogger().trace(
 			"Freeze.Evictor", 
