@@ -269,6 +269,10 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 IceInternal::UdpEndpoint::UdpEndpoint(BasicStream* s) :
     _instance(s->instance()),
     _port(0),
+    _protocolMajor(protocolMajor),
+    _protocolMinor(protocolMinor),
+    _encodingMajor(encodingMajor),
+    _encodingMinor(encodingMinor),
     _connect(false),
     _compress(false)    
 {
