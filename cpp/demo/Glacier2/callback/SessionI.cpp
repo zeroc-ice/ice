@@ -29,14 +29,14 @@ SessionI::SessionI(const string& userId) :
 void
 SessionI::destroy(const Ice::Current& current)
 {
-    cout << "destroying session for user `" << _userId << "'";
+    cout << "destroying session for user `" << _userId << "'" << endl;
     current.adapter->remove(current.id);
 }
 
 Glacier2::SessionPrx
 SessionManagerI::create(const string& userId, const Ice::Current& current)
 {
-    cout << "creating session for user `" << userId << "'";
+    cout << "creating session for user `" << userId << "'" << endl;
     Glacier2::SessionPtr session = new SessionI(userId);
     return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
 }
