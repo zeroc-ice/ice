@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{E94E8517-9ACF-4A42-8895-B446B8ED0F04}"
+        ProjectGuid = "{3B1F2132-25FD-4CC6-B0CB-E56A305CCD57}"
     >
         <Build>
             <Settings
@@ -78,11 +78,6 @@
         </Build>
         <Files>
             <Include>
-                <File
-                    RelPath = "EmptyI.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
                 <File
                     RelPath = "Server.cs"
                     SubType = "Code"
