@@ -2117,6 +2117,8 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << sb;
 	C << nl << "return __ids[" << scopedPos << "];";
 	C << eb;
+
+	emitGCFunctions(p);
     }
 
     return true;
@@ -2593,6 +2595,190 @@ Slice::Gen::ObjectVisitor::emitClassBase(const ClassDefPtr& base, const string& 
     C.zeroIndent();
     C << nl << "#endif";
     C.restoreIndent();
+}
+
+void
+Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
+{
+    string scoped = fixKwd(p->scoped());
+    string vc6Prefix;
+    string otherPrefix;
+    ClassList bases = p->bases();
+    DataMemberList dataMembers = p->dataMembers();
+
+    H << nl << "virtual void __gcReachable(::IceUtil::ObjectMultiSet&) const;";
+
+    C << sp << nl << "void" << nl << scoped.substr(2) << "::__gcReachable(::IceUtil::ObjectMultiSet& _c) const";
+    C << sb;
+    if(bases.empty() || bases.front()->isInterface())
+    {
+	vc6Prefix = "Object";
+	otherPrefix = "::Ice::Object";
+    }
+    else
+    {
+	vc6Prefix = bases.front()->name();
+	otherPrefix = bases.front()->scoped();
+    }
+    C.zeroIndent();
+    C << nl << "#if defined(_MSC_VER) && (MSC_VER < 1300) // VC++ 6 compiler bug";
+    C.restoreIndent();
+    C << nl << vc6Prefix<< "::__gcReachable(_c);";
+    C.zeroIndent();
+    C << nl << "#else";
+    C.restoreIndent();
+    C << nl << otherPrefix << "::__gcReachable(_c);";
+    C.zeroIndent();
+    C << nl << "#endif";
+    C.restoreIndent();
+    for(DataMemberList::const_iterator i = dataMembers.begin(); i != dataMembers.end(); ++i)
+    {
+	if((*i)->type()->usesClasses())
+	{
+	    emitGCInsertCode((*i)->type(), fixKwd((*i)->name()), "", 0);
+	}
+    }
+    C << eb;
+
+    H << nl << "virtual void __gcClear();";
+
+    C << sp << nl << "void" << nl << scoped.substr(2) << "::__gcClear()";
+    C << sb;
+    C.zeroIndent();
+    C << nl << "#if defined(_MSC_VER) && (MSC_VER < 1300) // VC++ 6 compiler bug";
+    C.restoreIndent();
+    C << nl << vc6Prefix<< "::__gcClear();";
+    C.zeroIndent();
+    C << nl << "#else";
+    C.restoreIndent();
+    C << nl << otherPrefix << "::__gcClear();";
+    C.zeroIndent();
+    C << nl << "#endif";
+    C.restoreIndent();
+    for(DataMemberList::const_iterator j = dataMembers.begin(); j != dataMembers.end(); ++j)
+    {
+	if((*j)->type()->usesClasses())
+	{
+	    emitGCClearCode((*j)->type(), fixKwd((*j)->name()), "", 0);
+	}
+    }
+    C << eb;
+}
+
+void
+Slice::Gen::ObjectVisitor::emitGCInsertCode(const TypePtr& p, const string& name, const string& prefix, int level)
+{
+    if((BuiltinPtr::dynamicCast(p) && BuiltinPtr::dynamicCast(p)->kind() == Builtin::KindObject)
+       || ClassDeclPtr::dynamicCast(p))
+    {
+	C << nl << "__addObject(_c, " << prefix << name << ".get());";
+	return;
+    }
+
+    if(StructPtr s = StructPtr::dynamicCast(p))
+    {
+	DataMemberList dml = s->dataMembers();
+	for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+	{
+	    if((*i)->type()->usesClasses())
+	    {
+		emitGCInsertCode((*i)->type(), fixKwd((*i)->name()), name + ".", ++level);
+	    }
+	}
+	return;
+    }
+
+    if(DictionaryPtr d = DictionaryPtr::dynamicCast(p))
+    {
+	string scoped = fixKwd(d->scoped());
+	stringstream tmp;
+	tmp << "_i" << level;
+	string iterName = tmp.str();
+	C << sb;
+	C << nl << "for(" << scoped << "::const_iterator " << iterName << " = " << name
+          << ".begin(); " << iterName << " != " << name << ".end(); ++" << iterName << ")";
+	C << sb;
+	emitGCInsertCode(d->valueType(), string("(*") + iterName + ")", "", ++level);
+	C << eb;
+	C << eb;
+	return;
+    }
+
+    if(SequencePtr s = SequencePtr::dynamicCast(p))
+    {
+	string scoped = fixKwd(s->scoped());
+	stringstream tmp;
+	tmp << "_i" << level;
+	string iterName = tmp.str();
+	C << sb;
+	C << nl << "for(" << scoped << "::const_iterator " << iterName << " = " << name
+          << ".begin(); " << iterName << " != " << name << ".end(); ++" << iterName << ")";
+	C << sb;
+	emitGCInsertCode(s->type(), string("(*") + iterName + ")", "", ++level);
+	C << eb;
+	C << eb;
+	return;
+    }
+}
+
+void
+Slice::Gen::ObjectVisitor::emitGCClearCode(const TypePtr& p, const string& name, const string& prefix, int level)
+{
+    if((BuiltinPtr::dynamicCast(p) && BuiltinPtr::dynamicCast(p)->kind() == Builtin::KindObject)
+       || ClassDeclPtr::dynamicCast(p))
+    {
+	C << nl << "if(" << prefix << name << ")";
+	C << sb;
+	C << nl << prefix << name << "->__decRefUnsafe();";
+	C << nl << prefix << name << ".__clearHandleUnsafe();";
+	C << eb;
+	return;
+    }
+
+    if(StructPtr s = StructPtr::dynamicCast(p))
+    {
+	DataMemberList dml = s->dataMembers();
+	for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+	{
+	    if((*i)->type()->usesClasses())
+	    {
+		emitGCClearCode((*i)->type(), fixKwd((*i)->name()), name + ".", ++level);
+	    }
+	}
+	return;
+    }
+
+    if(DictionaryPtr d = DictionaryPtr::dynamicCast(p))
+    {
+	string scoped = fixKwd(d->scoped());
+	stringstream tmp;
+	tmp << "_i" << level;
+	string iterName = tmp.str();
+	C << sb;
+	C << nl << "for(" << scoped << "::iterator " << iterName << " = " << name
+          << ".begin(); " << iterName << " != " << name << ".end(); ++" << iterName << ")";
+	C << sb;
+	emitGCClearCode(d->valueType(), string("(*") + iterName + ")", "", ++level);
+	C << eb;
+	C << eb;
+	return;
+    }
+
+    if(SequencePtr s = SequencePtr::dynamicCast(p))
+    {
+	string scoped = fixKwd(s->scoped());
+	stringstream tmp;
+	tmp << "_i" << level;
+	string iterName = tmp.str();
+	C << sb;
+	C << nl << "for(" << scoped << "::iterator " << iterName << " = " << name
+          << ".begin(); " << iterName << " != " << name << ".end(); ++" << iterName << ")";
+	C << sb;
+	emitGCClearCode(s->type(), string("(*") + iterName + ")", "", ++level);
+	C << eb;
+	C << eb;
+	return;
+    }
 }
 
 Slice::Gen::IceInternalVisitor::IceInternalVisitor(Output& h, Output& c, const string& dllExport) :

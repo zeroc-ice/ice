@@ -15,6 +15,7 @@
 #ifndef ICE_INITIALIZE_H
 #define ICE_INITIALIZE_H
 
+#include <IceUtil/GCF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/InstanceF.h>
@@ -42,6 +43,11 @@ ICE_API StringSeq argsToStringSeq(int, char*[]);
 // contents of the sequence.
 //
 ICE_API void stringSeqToArgs(const StringSeq&, int&, char*[]);
+
+ICE_API void collectGarbage();
+
+typedef ::IceUtil::Handle< ::IceUtil::GC> CollectorPtr;
+extern ICE_API CollectorPtr theCollector;
 
 }
 

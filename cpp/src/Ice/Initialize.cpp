@@ -12,6 +12,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/GC.h>
 #include <Ice/CommunicatorI.h>
 #include <Ice/PropertiesI.h>
 #include <Ice/Initialize.h>
@@ -20,6 +21,21 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
+
+namespace Ice
+{
+
+CollectorPtr theCollector = 0;
+
+void collectGarbage()
+{
+    if(theCollector)
+    {
+	theCollector->collectGarbage();
+    }
+}
+
+}
 
 CommunicatorPtr
 Ice::initialize(int& argc, char* argv[], Int version)

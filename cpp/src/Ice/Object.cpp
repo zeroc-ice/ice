@@ -272,6 +272,32 @@ Ice::Object::__read(BasicStream* __is, bool __rid)
 }
 
 void
+Ice::Object::__gcReachable(::IceUtil::ObjectMultiSet& c) const
+{
+    ::IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
+
+    for(map<std::string, ObjectPtr>::const_iterator i = _activeFacetMap.begin(); i != _activeFacetMap.end(); ++i)
+    {
+	__addObject(c, i->second.get());
+    }
+}
+
+void
+Ice::Object::__gcClear()
+{
+    ::IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
+
+    for(map<std::string, ObjectPtr>::iterator i = _activeFacetMap.begin(); i != _activeFacetMap.end(); ++i)
+    {
+	if(i->second)
+	{
+	    i->second->__decRefUnsafe();
+	    i->second.__clearHandleUnsafe();
+	}
+    }
+}
+
+void
 Ice::Object::ice_addFacet(const ObjectPtr& facet, const string& name)
 {
     IceUtil::Mutex::Lock sync(_activeFacetMapMutex);

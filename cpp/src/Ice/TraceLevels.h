@@ -42,6 +42,9 @@ public:
 
     const int slicing;
     const char* slicingCat;
+
+    const int gc;
+    const char* gcCat;
 };
 
 }

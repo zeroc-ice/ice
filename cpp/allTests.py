@@ -44,6 +44,7 @@ tests = [ \
     "Ice/adapterDeactivation", \
     "Ice/slicing/exceptions", \
     "Ice/slicing/objects", \
+    "Ice/gc", \
     "IceSSL/configuration", \
     "IceSSL/loadPEM", \
     "IceSSL/certificateAndKeyParsing", \

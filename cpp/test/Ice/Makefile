@@ -24,7 +24,8 @@ SUBDIRS		= operations \
 		  faultTolerance \
 		  location \
 		  adapterDeactivation \
-		  slicing
+		  slicing \
+		  gc
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

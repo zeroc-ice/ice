@@ -77,6 +77,39 @@ Any setting of the <literal>Ice.Config</literal> property inside the configurati
 <section><title>&Ice; Trace Properties</title>
 <!-- ********************************************************************** -->
 
+<section><title>Ice.Trace.GC</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Trace.GC=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The garbage collector trace level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No garbage collector trace. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Show the total number of instances collected, the total number of instances examined, the time spent
+in the collector in milliseconds, and the total number of runs of the collector.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Like 1, but also produces a trace message for each run of the collector.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
 <section><title>Ice.Trace.Network</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -655,6 +688,23 @@ than zero, compression is enabled. If zero, compression is disabled.
 <!-- ********************************************************************** -->
 <section><title>&Ice; Miscellaneous Properties</title>
 <!-- ********************************************************************** -->
+
+<section><title>Ice.GC.Interval</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.GC.Interval=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+This property determines the frequency with which the class garbage
+collector runs. If the interval is set to zero (the default), no
+collector thread is created. Otherwise, the collector thread runs
+every <replaceable>num</replaceable> seconds.
+</para>
+</section>
+</section>
 
 <section><title>Ice.RetryIntervals</title>
 <section><title>Synopsis</title>

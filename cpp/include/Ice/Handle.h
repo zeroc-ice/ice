@@ -20,7 +20,7 @@
 
 //
 // "Handle" or "smart pointer" class for classes derived from
-// IceUtil::Shared or IceUtil::SimpleShared.
+// IceUtil::ObjectBase, IceUtil::Shared, or IceUtil::SimpleShared.
 //
 // In constrast to IceUtil::Handle, IceInternal::Handle requires the
 // declaration of the two global operations IceInternal::incRef(T*)
@@ -190,6 +190,11 @@ public:
     static Handle dynamicCast(Y* p)
     {
 	return Handle(dynamic_cast<T*>(p));
+    }
+
+    void __clearHandleUnsafe()
+    {
+	_ptr = 0;
     }
 };
 

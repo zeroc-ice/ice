@@ -31,9 +31,11 @@ typedef list<HANDLE> MutexList;
 
 static MutexList* _mutexList;
 
+//
 // Although apparently not documented by Microsoft, static objects are
 // initialized before DllMain/DLL_PROCESS_ATTACH and finalized after
 // DllMain/DLL_PROCESS_DETACH ... that's why we use a static object.
+//
 
 namespace IceUtil
 {
@@ -47,7 +49,6 @@ public:
 };
 
 static Init _init;
-
 
 Init::Init()
 {
@@ -74,10 +75,12 @@ Init::~Init()
 }
 }
 
+//
 // For full thread-safety, we assume that _mutexInitialized cannot be seen as true
 // before CRITICAL_SECTION has been updated. This is true on x86. Does IA64 
 // provide the same memory ordering guarantees?
 //
+
 void IceUtil::StaticMutex::initialize() const
 {
     EnterCriticalSection(&_criticalSection);
@@ -104,4 +107,3 @@ void IceUtil::StaticMutex::initialize() const
 #endif
 
 IceUtil::StaticMutex IceUtil::globalMutex = ICE_STATIC_MUTEX_INITIALIZER;
-

@@ -38,6 +38,10 @@ class ICE_UTIL_API StaticMutex
 {
 public:
 
+#ifndef _WIN32
+    ~StaticMutex();
+#endif
+
     //
     // Lock & TryLock typedefs.
     //
@@ -261,6 +265,16 @@ StaticMutex::lock(LockState&) const
 #    endif
 
 #else
+
+inline
+StaticMutex::~StaticMutex()
+{
+    int rc = pthread_mutex_destroy(&_mutex);
+    if(rc != 0)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+    }
+}
 
 inline void
 StaticMutex::lock() const

@@ -122,7 +122,15 @@ SOURCE=.\Exception.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\GC.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\InputUtil.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ObjectBase.cpp
 # End Source File
 # Begin Source File
 
@@ -139,6 +147,10 @@ SOURCE=.\RWRecMutex.cpp
 # Begin Source File
 
 SOURCE=.\StaticMutex.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\StaticRecMutex.cpp
 # End Source File
 # Begin Source File
 
@@ -190,6 +202,14 @@ SOURCE=..\..\include\IceUtil\Functional.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\IceUtil\GC.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\GCF.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\IceUtil\Handle.h
 # End Source File
 # Begin Source File
@@ -214,6 +234,10 @@ SOURCE=..\..\include\IceUtil\Mutex.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\IceUtil\ObjectBase.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\IceUtil\OutputUtil.h
 # End Source File
 # Begin Source File
@@ -231,6 +255,10 @@ SOURCE=..\..\include\IceUtil\Shared.h
 # Begin Source File
 
 SOURCE=..\..\include\IceUtil\StaticMutex.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\StaticRecMutex.h
 # End Source File
 # Begin Source File
 

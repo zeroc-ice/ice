@@ -16,6 +16,7 @@
 #define ICE_COMMUNICATOR_I_H
 
 #include <IceUtil/RecMutex.h>
+#include <IceUtil/GCF.h>
 
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/Initialize.h>
@@ -81,6 +82,26 @@ private:
     // Communicator's destructor is invoked.
     //
     ::IceInternal::DynamicLibraryListPtr _dynamicLibraryList;
+
+    struct GarbageCollectorStats
+    {
+	GarbageCollectorStats()
+	    : runs(0), examined(0), collected(0), msec(0.0)
+	{
+	}
+	int runs;
+	int examined;
+	int collected;
+	double msec;
+    };
+
+    static void printGCStats(const ::IceUtil::GCStats&);
+
+    static int _communicatorCount;
+    static GarbageCollectorStats _gcStats;
+    static int _gcTraceLevel;
+    static std::string _gcTraceCat;
+    static LoggerPtr _gcLogger;
 };
 
 }
