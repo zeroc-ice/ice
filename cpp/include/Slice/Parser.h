@@ -213,6 +213,8 @@ class SLICE_API Type : virtual public SyntaxTreeBase
 {
 public:
 
+    virtual bool isLocal() const = 0;
+
 protected:
 
     Type(const UnitPtr&);
@@ -240,6 +242,9 @@ public:
 	KindObjectProxy,
 	KindLocalObject
     };
+
+    virtual bool isLocal() const;
+
     Kind kind() const;
     std::string kindAsString() const;
 
@@ -420,7 +425,7 @@ public:
     virtual std::string kindOf() const;
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
-    static void checkBasesAreLegal(const std::string&, const ClassList&, const UnitPtr&);
+    static void checkBasesAreLegal(const std::string&, bool, const ClassList&, const UnitPtr&);
 
 protected:
 
@@ -495,6 +500,8 @@ protected:
 class SLICE_API Proxy : virtual public Type
 {
 public:
+
+    virtual bool isLocal() const;
 
     ClassDeclPtr _class() const;
 

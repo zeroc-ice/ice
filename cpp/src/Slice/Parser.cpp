@@ -73,6 +73,12 @@ Slice::Type::Type(const UnitPtr& unit) :
 // Builtin
 // ----------------------------------------------------------------------
 
+bool
+Slice::Builtin::isLocal() const
+{
+    return _kind == KindLocalObject;
+}
+
 Builtin::Kind
 Slice::Builtin::kind() const
 {
@@ -328,7 +334,7 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
 	return 0;
     }
 
-    ClassDecl::checkBasesAreLegal(name, bases, _unit);
+    ClassDecl::checkBasesAreLegal(name, local, bases, _unit);
  
     ClassDefPtr def = new ClassDef(this, name, intf, bases, local);
     _contents.push_back(def);
@@ -459,6 +465,14 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
 	_unit->warning(msg);	// TODO: Change to error in stable_39
     }
 
+    //
+    // If this definition is non-local, base cannot be local
+    //
+    if(!local && base && base->isLocal())
+    {
+	_unit->error("non-local exception `" + name + "' cannot have local base exception `" + base->name() + "'");
+    }
+
     ExceptionPtr p = new Exception(this, name, base, local);
     _contents.push_back(p);
     return p;
@@ -523,6 +537,15 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, bool l
 	msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
 	_unit->warning(msg);	// TODO: change to error in stable_39
     }
+
+    //
+    // If sequence is non-local, element type cannot be local
+    //
+    if(!local && type->isLocal())
+    {
+	string msg = "non-local sequence `" + name + "' cannot have local element type";
+	_unit->error(msg);
+    }
     
     SequencePtr p = new Sequence(this, name, type, local);
     _contents.push_back(p);
@@ -560,6 +583,20 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
     {
 	_unit->error("dictionary `" + name + "' uses an illegal key type");
 	return 0;
+    }
+
+    if(!local)
+    {
+	if(keyType->isLocal())
+	{
+	    string msg = "non-local dictionary `" + name + "' cannot have local key type";
+	    _unit->error(msg);
+	}
+	if(valueType->isLocal())
+	{
+	    string msg = "non-local dictionary `" + name + "' cannot have local value type";
+	    _unit->error(msg);
+	}
     }
 
     DictionaryPtr p = new Dictionary(this, name, keyType, valueType, local);
@@ -1497,8 +1534,24 @@ Slice::ClassDecl::recDependencies(set<ConstructedPtr>& dependencies)
 }
 
 void
-Slice::ClassDecl::checkBasesAreLegal(const string& name, const ClassList& bases, const UnitPtr& unit)
+Slice::ClassDecl::checkBasesAreLegal(const string& name, bool local, const ClassList& bases, const UnitPtr& unit)
 {
+    //
+    // If this definition is non-local, no base can be local
+    //
+    if(!local)
+    {
+	for(ClassList::const_iterator p = bases.begin(); p != bases.end(); ++p)
+	{
+	    if((*p)->isLocal())
+	    {
+		string msg = "non-local `" + name + "' cannot have base ";
+		msg += (*p)->kindOf() + " `" + (*p)->name() + "'";
+		unit->error(msg);
+	    }
+	}
+    }
+    
     //
     // Check whether, for multiple inheritance, any of the bases define
     // the same operations.
@@ -1684,9 +1737,6 @@ Slice::ClassDef::destroy()
 OperationPtr
 Slice::ClassDef::createOperation(const string& name,
 				 const TypePtr& returnType)
-				 //const TypeStringList& inParams,
-				 //const TypeStringList& outParams,
-				 //const ExceptionList& throws)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -1774,8 +1824,17 @@ Slice::ClassDef::createOperation(const string& name,
 	    }
 	}
     }
+
+    //
+    // Non-local class/interface cannot have operation with local return type
+    //
+    if(!isLocal() && returnType && returnType->isLocal())
+    {
+	string msg = "non-local " + this->kindOf() + " `" + this->name() + "' cannot have operation `";
+	msg += name + "' with local return type";
+	_unit->error(msg);
+    }
     
-    //OperationPtr op = new Operation(this, name, returnType, inParams, outParams, uniqueExceptions);
     OperationPtr op = new Operation(this, name, returnType);
     _contents.push_back(op);
     return op;
@@ -1871,6 +1930,15 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
 		_unit->warning(msg);	// TODO: change to error in stable_39
 	    }
 	}
+    }
+
+    //
+    // If data member is local, enclosing class/interface must be local
+    //
+    if(!isLocal() && type->isLocal())
+    {
+	string msg = "non-local " + kindOf() + "`" + this->name() + "' cannot contain local member `" + name + "'";
+	_unit->error(msg);
     }
 
     _hasDataMembers = true;
@@ -2075,6 +2143,12 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, boo
 // Proxy
 // ----------------------------------------------------------------------
 
+bool
+Slice::Proxy::isLocal() const
+{
+    return __class->isLocal();
+}
+
 ClassDeclPtr
 Slice::Proxy::_class() const
 {
@@ -2178,6 +2252,15 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type)
 		_unit->warning(msg);	// TODO: change to error in stable_39
 	    }
 	}
+    }
+
+    //
+    // If data member is local, enclosing class/interface must be local
+    //
+    if(!isLocal() && type->isLocal())
+    {
+	string msg = "non-local " + kindOf() + "`" + this->name() + "' cannot contain local member `" + name + "'";
+	_unit->error(msg);
     }
 
     DataMemberPtr p = new DataMember(this, name, type);
@@ -2329,6 +2412,15 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type)
 	msg += "' cannot contain itself";
 	_unit->error(msg);
 	return 0;
+    }
+
+    //
+    // If data member is local, enclosing class/interface must be local
+    //
+    if(!isLocal() && type->isLocal())
+    {
+	string msg = "non-local " + kindOf() + "`" + this->name() + "' cannot contain local member `" + name + "'";
+	_unit->error(msg);
     }
 
     DataMemberPtr p = new DataMember(this, name, type);
@@ -2990,6 +3082,18 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
 	}
     }
 
+    //
+    // Non-local class/interface cannot have operation with local parameters
+    //
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(this->container());
+    assert(cl);
+    if(type->isLocal() && !cl->isLocal())
+    {
+	string msg = "non-local " + cl->kindOf() + " `" + cl->name() + "' cannot have local parameter `";
+	msg += name + "' in operation `" + this->name() + "'";
+	_unit->error(msg);
+    }
+
     ParamDeclPtr p = new ParamDecl(this, name, type, isOutParam);
     _contents.push_back(p);
     return p;
@@ -3055,6 +3159,24 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
 	    msg += ", `" + (*i)->name() + "'";
 	}
 	_unit->error(msg);
+    }
+
+    //
+    // If the interface is non-local, no local exception can be thrown
+    //
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(container());
+    assert(cl);
+    if(!cl->isLocal())
+    {
+	for(ExceptionList::const_iterator ep = el.begin(); ep != el.end(); ++ep)
+	{
+	    if((*ep)->isLocal())
+	    {
+		string msg = "non-local " + cl->kindOf() + " `" + cl->name() + "' cannot have operation `";
+		msg += name() + "' throwing local exception `" + (*ep)->name() + "'";
+		_unit->error(msg);
+	    }
+	}
     }
 }
 

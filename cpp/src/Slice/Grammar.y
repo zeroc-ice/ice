@@ -208,7 +208,7 @@ exception_id
 // ----------------------------------------------------------------------
 exception_decl
 // ----------------------------------------------------------------------
-: local exception_id
+: local_qualifier exception_id
 {
     unit->error("exceptions cannot be forward declared");
     $$ = $2;
@@ -218,7 +218,7 @@ exception_decl
 // ----------------------------------------------------------------------
 exception_def
 // ----------------------------------------------------------------------
-: local exception_id exception_extends
+: local_qualifier exception_id exception_extends
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
@@ -330,7 +330,7 @@ struct_id
 // ----------------------------------------------------------------------
 struct_decl
 // ----------------------------------------------------------------------
-: local struct_id
+: local_qualifier struct_id
 {
     unit->error("structs cannot be forward declared");
     $$ = $2;
@@ -340,7 +340,7 @@ struct_decl
 // ----------------------------------------------------------------------
 struct_def
 // ----------------------------------------------------------------------
-: local struct_id
+: local_qualifier struct_id
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
@@ -446,7 +446,7 @@ class_id
 // ----------------------------------------------------------------------
 class_decl
 // ----------------------------------------------------------------------
-: local class_id
+: local_qualifier class_id
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
@@ -459,7 +459,7 @@ class_decl
 // ----------------------------------------------------------------------
 class_def
 // ----------------------------------------------------------------------
-: local class_id class_extends implements
+: local_qualifier class_id class_extends implements
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
@@ -620,7 +620,7 @@ interface_id
 // ----------------------------------------------------------------------
 interface_decl
 // ----------------------------------------------------------------------
-: local interface_id
+: local_qualifier interface_id
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
@@ -634,7 +634,7 @@ interface_decl
 // ----------------------------------------------------------------------
 interface_def
 // ----------------------------------------------------------------------
-: local interface_id interface_extends
+: local_qualifier interface_id interface_extends
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
@@ -821,7 +821,7 @@ exception
 // ----------------------------------------------------------------------
 sequence_def
 // ----------------------------------------------------------------------
-: local ICE_SEQUENCE '<' type '>' ICE_IDENTIFIER
+: local_qualifier ICE_SEQUENCE '<' type '>' ICE_IDENTIFIER
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($6);
@@ -829,7 +829,7 @@ sequence_def
     ContainerPtr cont = unit->currentContainer();
     $$ = cont->createSequence(ident->v, type, local->v);
 }
-| local ICE_SEQUENCE '<' type '>' keyword
+| local_qualifier ICE_SEQUENCE '<' type '>' keyword
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($6);
@@ -843,7 +843,7 @@ sequence_def
 // ----------------------------------------------------------------------
 dictionary_def
 // ----------------------------------------------------------------------
-: local ICE_DICTIONARY '<' type ',' type '>' ICE_IDENTIFIER
+: local_qualifier ICE_DICTIONARY '<' type ',' type '>' ICE_IDENTIFIER
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($8);
@@ -852,7 +852,7 @@ dictionary_def
     ContainerPtr cont = unit->currentContainer();
     $$ = cont->createDictionary(ident->v, keyType, valueType, local->v);
 }
-| local ICE_DICTIONARY '<' type ',' type '>' keyword
+| local_qualifier ICE_DICTIONARY '<' type ',' type '>' keyword
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($8);
@@ -882,7 +882,7 @@ enum_id
 // ----------------------------------------------------------------------
 enum_def
 // ----------------------------------------------------------------------
-: local enum_id
+: local_qualifier enum_id
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
@@ -1042,15 +1042,15 @@ out_qualifier
 // ----------------------------------------------------------------------
 : ICE_OUT
 {
-    BoolTokPtr local = new BoolTok;
-    local->v = true;
-    $$ = local;
+    BoolTokPtr out = new BoolTok;
+    out->v = true;
+    $$ = out;
 }
 |
 {
-    BoolTokPtr local = new BoolTok;
-    local->v = false;
-    $$ = local;
+    BoolTokPtr out = new BoolTok;
+    out->v = false;
+    $$ = out;
 }
 ;
 
@@ -1237,6 +1237,10 @@ type
 	    YYERROR; // Can't continue, jump to next yyerrok
 	}
 	cont->checkIntroduced(scoped->v);
+	if(cl->isLocal())
+	{
+	    unit->error("cannot create proxy for " + cl->kindOf() + " `" + cl->name() + "'");
+	}
 	*p = new Proxy(cl);
     }
     $$ = types.front();
@@ -1277,7 +1281,7 @@ string_list
 ;
 
 // ----------------------------------------------------------------------
-local
+local_qualifier
 // ----------------------------------------------------------------------
 : ICE_LOCAL
 {
