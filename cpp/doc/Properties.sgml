@@ -326,6 +326,23 @@ directory to the root directory. (Unix only.)
 </section>
 </section>
 
+<section><title>Ice.ChangeUser</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.ChangeUser=<replaceable>user</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If set, &Ice; will change the user and group id to the respective ids
+of <replaceable>user</replaceable> in
+<literal>/etc/passwd</literal>. This only works if the &Ice;
+application is executed by the super-user. (Unix only.)
+</para>
+</section>
+</section>
+
 <section><title>Ice.PrintProcessId</title>
 <section><title>Synopsis</title>
 <synopsis>

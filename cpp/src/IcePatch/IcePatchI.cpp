@@ -15,6 +15,8 @@ using namespace std;
 using namespace Ice;
 using namespace IcePatch;
 
+IceUtil::RWRecMutex IcePatch::FileI::_globalMutex;
+
 IcePatch::FileI::FileI(const ObjectAdapterPtr& adapter) :
     _adapter(adapter)
 {
@@ -28,6 +30,8 @@ IcePatch::DirectoryI::DirectoryI(const ObjectAdapterPtr& adapter) :
 FileDescPtr
 IcePatch::DirectoryI::describe(const Ice::Current& current)
 {
+    // No lock necessary.
+    string path = identityToPath(current.identity);
     DirectoryDescPtr desc = new DirectoryDesc;
     desc->directory = DirectoryPrx::uncheckedCast(_adapter->createProxy(current.identity));
     return desc;
@@ -36,30 +40,47 @@ IcePatch::DirectoryI::describe(const Ice::Current& current)
 FileDescSeq
 IcePatch::DirectoryI::getContents(const Ice::Current& current)
 {
-    StringSeq paths = readDirectory(identityToPath(current.identity));
+    //IceUtil::RWRecMutex::RLock sync(_globalMutex); // TODO: RLock as soon as lock promotion works.
+    string path = identityToPath(current.identity);
+    StringSeq paths = readDirectory(path);
 
     FileDescSeq result;
     result.reserve(paths.size());
 
-    StringSeq::const_iterator p;
-    for (p = paths.begin(); p != paths.end(); ++p)
+    for (StringSeq::const_iterator p = paths.begin(); p != paths.end(); ++p)
     {
 	if (ignoreSuffix(*p))
 	{
-	    continue;
+	    pair<StringSeq::const_iterator, StringSeq::const_iterator> r =
+		equal_range(paths.begin(), paths.end(), removeSuffix(*p));
+	    if (r.first == r.second)
+	    {
+		IceUtil::RWRecMutex::WLock sync(_globalMutex);
+		StringSeq paths2 = readDirectory(path);
+		pair<StringSeq::const_iterator, StringSeq::const_iterator> r2 =
+		    equal_range(paths2.begin(), paths2.end(), removeSuffix(*p));
+		if (r2.first == r2.second)
+		{
+		    cout << "removing orphaned file `" << *p << "'... " << flush;
+		    removeRecursive(*p);
+		    cout << "ok" << endl;
+		}
+	    }
 	}
-	
-	FilePrx file = FilePrx::uncheckedCast(_adapter->createProxy(pathToIdentity(*p)));
-	try
+	else
 	{
-	    result.push_back(file->describe());
-	}
-	catch (const ObjectNotExistException&)
-	{
-	    //
-	    // Ignore. This can for example happen if the file
-	    // locator cannot call stat() on the file.
-	    //
+	    FilePrx file = FilePrx::uncheckedCast(_adapter->createProxy(pathToIdentity(*p)));
+	    try
+	    {
+		result.push_back(file->describe());
+	    }
+	    catch (const ObjectNotExistException&)
+	    {
+		//
+		// Ignore. This can for example happen if the file
+		// locator cannot call stat() on the file.
+		//
+	    }
 	}
     }
 	
@@ -74,20 +95,76 @@ IcePatch::RegularI::RegularI(const ObjectAdapterPtr& adapter) :
 FileDescPtr
 IcePatch::RegularI::describe(const Ice::Current& current)
 {
+    //IceUtil::RWRecMutex::RLock sync(_globalMutex); // TODO: RLock as soon as lock promotion works.
+    string path = identityToPath(current.identity);
+
+    FileInfo info = getFileInfo(path, true);
+    FileInfo infoMD5 = getFileInfo(path + ".md5", false);
+    if (infoMD5.type != FileTypeRegular || infoMD5.time < info.time)
+    {
+	IceUtil::RWRecMutex::WLock sync(_globalMutex);
+	infoMD5 = getFileInfo(path + ".md5", false);
+	if (infoMD5.type != FileTypeRegular || infoMD5.time < info.time)
+	{
+	    cout << "creating .md5 file for `" << path << "'... " << flush;
+	    createMD5(path);
+	    cout << "ok" << endl;
+	}
+    }
+
     RegularDescPtr desc = new RegularDesc;
     desc->regular = RegularPrx::uncheckedCast(_adapter->createProxy(current.identity));
-    desc->md5 = getMD5(identityToPath(current.identity));
+    desc->md5 = getMD5(path);
     return desc;
 }
 
 Int
 IcePatch::RegularI::getBZ2Size(const Ice::Current& current)
 {
-    return getFileInfo(identityToPath(current.identity) + ".bz2", true).size;
+    //IceUtil::RWRecMutex::RLock sync(_globalMutex);
+    string path = identityToPath(current.identity);
+
+    FileInfo info = getFileInfo(path, true);
+    FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
+    if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
+    {
+	IceUtil::RWRecMutex::WLock sync(_globalMutex);
+	infoBZ2 = getFileInfo(path + ".bz2", false);
+	if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
+	{
+	    cout << "creating .bz2 file for `" << path << "'... " << flush;
+	    createBZ2(path);
+	    cout << "ok" << endl;
+
+	    // Get the .bz2 file info again, so that we can return the
+	    // size below. This time the .bz2 file must exist,
+	    // otherwise an exception is raised.
+	    infoBZ2 = getFileInfo(path + ".bz2", true);
+	}
+    }
+
+    return infoBZ2.size;
 }
 
 ByteSeq
 IcePatch::RegularI::getBZ2(Ice::Int pos, Ice::Int num, const Ice::Current& current)
 {
-    return IcePatch::getBZ2(identityToPath(current.identity), pos, num);
+    //IceUtil::RWRecMutex::RLock sync(_globalMutex); // TODO: RLock as soon as lock promotion works.
+    string path = identityToPath(current.identity);
+
+    FileInfo info = getFileInfo(path, true);
+    FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
+    if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
+    {
+	IceUtil::RWRecMutex::WLock sync(_globalMutex);
+	infoBZ2 = getFileInfo(path + ".bz2", false);
+	if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
+	{
+	    cout << "creating .bz2 file for `" << path << "'... " << flush;
+	    createBZ2(path);
+	    cout << "ok" << endl;
+	}
+    }
+
+    return IcePatch::getBZ2(path, pos, num);
 }

@@ -56,6 +56,16 @@ Ice::ObjectAdapterI::activate()
 
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
 	     Ice::voidMemFun(&IncomingConnectionFactory::activate));
+
+    if (!_printAdapterReadyDone)
+    {
+	if (atoi(_instance->properties()->getProperty("Ice.PrintAdapterReady").c_str()) > 0)
+	{
+	    cout << _name << " ready" << endl;
+	}
+
+	_printAdapterReadyDone = true;
+    }
 }
 
 void
@@ -363,6 +373,7 @@ Ice::ObjectAdapterI::getIncomingConnections() const
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& name, const string& endpts) :
     _instance(instance),
     _deactivated(false),
+    _printAdapterReadyDone(false),
     _name(name),
     _activeServantMapHint(_activeServantMap.end()),
     _locatorMapHint(_locatorMap.end())
@@ -432,11 +443,6 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
 	throw EndpointParseException(__FILE__, __LINE__);
     }
 */
-
-    if (atoi(_instance->properties()->getProperty("Ice.PrintAdapterReady").c_str()) > 0)
-    {
-	cout << _name << " ready" << endl;
-    }
 }
 
 Ice::ObjectAdapterI::~ObjectAdapterI()

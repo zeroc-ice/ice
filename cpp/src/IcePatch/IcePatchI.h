@@ -12,6 +12,7 @@
 #define ICE_PATCH_ICE_PATCH_I_H
 
 #include <Ice/Ice.h>
+#include <IceUtil/RWRecMutex.h>
 #include <IcePatch/IcePatch.h>
 
 namespace IcePatch
@@ -26,6 +27,7 @@ public:
 protected:
 
     Ice::ObjectAdapterPtr _adapter;
+    static IceUtil::RWRecMutex _globalMutex;
 };
 
 class DirectoryI : virtual public Directory,

@@ -96,9 +96,12 @@ IceStorm::Server::runFreeze(int argc, char* argv[], const Freeze::DBEnvironmentP
 									       "IceStorm.TopicManager.Endpoints");
     TopicManagerIPtr manager = new TopicManagerI(communicator(), adapter, traceLevels, dbEnv, dbTopicManager);
     adapter->add(manager, stringToIdentity("TopicManager"));
-    adapter->activate();
 
+    //
+    // Everything ok, let's go.
+    //
     shutdownOnInterrupt();
+    adapter->activate();
     communicator()->waitForShutdown();
     ignoreInterrupt();
 

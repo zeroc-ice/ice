@@ -43,7 +43,6 @@ ICE_PATCH_API FileInfo getFileInfo(const std::string&, bool);
 
 ICE_PATCH_API void removeRecursive(const std::string&);
 
-ICE_PATCH_API void changeDirectory(const std::string&);
 ICE_PATCH_API Ice::StringSeq readDirectory(const std::string&);
 ICE_PATCH_API void createDirectory(const std::string&);
 

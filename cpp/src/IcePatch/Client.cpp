@@ -89,7 +89,14 @@ IcePatch::Client::run(int argc, char* argv[])
         string directory = properties->getProperty(directoryProperty);
         if (!directory.empty())
         {
-            changeDirectory(directory);
+#ifdef _WIN32
+	    if (_chdir(directory.c_str()) == -1)
+#else
+	    if (chdir(directory.c_str()) == -1)
+#endif
+	    {
+		cerr << appName() << ": cannot change to directory `" << directory << "': " << strerror(errno) << endl;
+	    }
         }
         
         //
@@ -175,11 +182,6 @@ public:
 void
 IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 {
-    if (fileDescSeq.empty())
-    {
-	return;
-    }
-
     for (unsigned int i = 0; i < fileDescSeq.size(); ++i)
     {
 	string path;

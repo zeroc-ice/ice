@@ -70,6 +70,7 @@ private:
 
     ::IceInternal::InstancePtr _instance;
     bool _deactivated;
+    bool _printAdapterReadyDone;
     std::string _name;
     ObjectDict _activeServantMap;
     ObjectDict::iterator _activeServantMapHint;

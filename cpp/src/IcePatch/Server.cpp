@@ -26,8 +26,7 @@ public:
     void usage();
     virtual int run(int, char*[]);
 
-    static void removeOrphanedRecursive(const string&);
-    static void updateRecursive(const string&);
+    static void cleanup(const FileDescSeq&);
 };
 
 };
@@ -88,15 +87,15 @@ IcePatch::Server::run(int argc, char* argv[])
         string directory = properties->getProperty(directoryProperty);
         if (!directory.empty())
         {
-            changeDirectory(directory);
+#ifdef _WIN32
+	    if (_chdir(directory.c_str()) == -1)
+#else
+	    if (chdir(directory.c_str()) == -1)
+#endif
+	    {
+		cerr << appName() << ": cannot change to directory `" << directory << "': " << strerror(errno) << endl;
+	    }
         }
-
-	//
-	// Remove orphaned MD5 and BZ2 files.
-        // Create MD5 and BZ2 files.
-	//
-	removeOrphanedRecursive(".");
-	updateRecursive(".");
 
         //
         // Create and initialize the object adapter and the file locator.
@@ -104,12 +103,25 @@ IcePatch::Server::run(int argc, char* argv[])
         ObjectAdapterPtr adapter = communicator()->createObjectAdapterFromProperty("IcePatch", endpointsProperty);
         ServantLocatorPtr fileLocator = new FileLocator(adapter);
         adapter->addServantLocator(fileLocator, "IcePatch");
-        adapter->activate();
          
-        //
-        // We're done, let's wait for shutdown.
-        //
-        communicator()->waitForShutdown();
+	//
+	// Do cleanup.
+	//
+	Identity identity = pathToIdentity(".");
+	ObjectPrx topObj = communicator()->stringToProxy(identityToString(identity) + ':' + endpoints);
+	FilePrx top = FilePrx::checkedCast(topObj);
+	assert(top);
+	DirectoryDescPtr topDesc = DirectoryDescPtr::dynamicCast(top->describe());
+	assert(topDesc);
+	cleanup(topDesc->directory->getContents());
+
+	//
+	// Everything ok, let's go.
+	//
+	shutdownOnInterrupt();
+	adapter->activate();
+	communicator()->waitForShutdown();
+	ignoreInterrupt();
     }
     catch (const FileAccessException& ex)
     {
@@ -121,77 +133,28 @@ IcePatch::Server::run(int argc, char* argv[])
 }
 
 void
-IcePatch::Server::removeOrphanedRecursive(const string& path)
+IcePatch::Server::cleanup(const FileDescSeq& fileDescSeq)
 {
-    assert(getFileInfo(path, true).type == FileTypeDirectory);
-    
-    StringSeq paths = readDirectory(path);
-    StringSeq::const_iterator p;
-    for (p = paths.begin(); p != paths.end(); ++p)
+    for (FileDescSeq::const_iterator p = fileDescSeq.begin(); p != fileDescSeq.end(); ++p)
     {
-	if (ignoreSuffix(*p))
- 	{
-	    pair<StringSeq::const_iterator, StringSeq::const_iterator> r =
-		equal_range(paths.begin(), paths.end(), removeSuffix(*p));
-	    if (r.first == r.second)
-	    {
-		cout << "removing orphaned file `" << *p << "'... " << flush;
-		removeRecursive(*p);
-		cout << "ok" << endl;
-	    }
+	DirectoryDescPtr directoryDesc = DirectoryDescPtr::dynamicCast(*p);
+	if (directoryDesc)
+	{
+	    //
+	    // Force .md5 files to be created and orphaned files to be
+	    // removed.
+	    //
+	    cleanup(directoryDesc->directory->getContents());
 	}
 	else
 	{
-	    if (getFileInfo(*p, true).type == FileTypeDirectory)
-	    {
-		removeOrphanedRecursive(*p);
-	    }
-	}
-    }
+	    RegularDescPtr regularDesc = RegularDescPtr::dynamicCast(*p);
+	    assert(regularDesc);
 
-    if (readDirectory(path).empty())
-    {
-	cout << "removing empty directory `" << *p << "'... " << flush;
-	removeRecursive(path);
-	cout << "ok" << endl;
-    }
-}
-
-void
-IcePatch::Server::updateRecursive(const string& path)
-{
-    if (ignoreSuffix(path))
-    {
-	return;
-    }
-
-    FileInfo info = getFileInfo(path, true);
-
-    if (info.type == FileTypeDirectory)
-    {
-	StringSeq paths = readDirectory(path);
-	StringSeq::const_iterator p;
-	for (p = paths.begin(); p != paths.end(); ++p)
-	{
-	    updateRecursive(*p);
-	}
-    }
-    else if (info.type == FileTypeRegular)
-    {
-	FileInfo infoMD5 = getFileInfo(path + ".md5", false);
-	if (infoMD5.type != FileTypeRegular || infoMD5.time < info.time)
-	{
-	    cout << "creating .md5 file for `" << path << "'... " << flush;
-	    createMD5(path);
-	    cout << "ok" << endl;
-	}
-
-	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
-	if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
-	{
-	    cout << "creating .bz2 file for `" << path << "'... " << flush;
-	    createBZ2(path);
-	    cout << "ok" << endl;
+	    //
+	    // Force .bz2 files to be created.
+	    //
+	    regularDesc->regular->getBZ2Size();
 	}
     }
 }

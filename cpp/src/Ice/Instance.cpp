@@ -33,6 +33,8 @@
 #   include <csignal>
 #   include <syslog.h>
 #   include <sys/time.h>
+#   include <pwd.h>
+#   include <sys/types.h>
 #else
 #   include <sys/timeb.h>
 #endif
@@ -187,22 +189,12 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 
     if (++_globalStateCounter == 1) // Only on first call
     {
-	// Must be done before "Ice.Daemon" is checked
-	if (atoi(_properties->getProperty("Ice.PrintProcessId").c_str()) > 0)
-	{
-#ifdef _WIN32
-	    cout << _getpid() << endl;
-#else
-	    cout << getpid() << endl;
-#endif
-	}
-
 #ifndef _WIN32
 	if (atoi(_properties->getProperty("Ice.Daemon").c_str()) > 0)
 	{
 	    int noclose = atoi(_properties->getProperty("Ice.DaemonNoClose").c_str());
 	    int nochdir = atoi(_properties->getProperty("Ice.DaemonNoChdir").c_str());
-
+	    
 	    if (daemon(nochdir, noclose) == -1)
 	    {
 		--_globalStateCounter;
@@ -212,9 +204,39 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 		throw ex;
 	    }
 	}
-#endif
 	
-#ifndef _WIN32
+	string newUser = _properties->getProperty("Ice.ChangeUser");
+	if (!newUser.empty())
+	{
+	    struct passwd* pw = getpwnam(newUser.c_str());
+	    if (!pw)
+	    {
+		--_globalStateCounter;
+		_globalStateMutex->unlock();
+		SystemException ex(__FILE__, __LINE__);
+		ex.error = getSystemErrno();
+		throw ex;
+	    }
+
+	    if (setgid(pw->pw_gid) == -1)
+	    {
+		--_globalStateCounter;
+		_globalStateMutex->unlock();
+		SystemException ex(__FILE__, __LINE__);
+		ex.error = getSystemErrno();
+		throw ex;
+	    }
+
+	    if (setuid(pw->pw_uid) == -1)
+	    {
+		--_globalStateCounter;
+		_globalStateMutex->unlock();
+		SystemException ex(__FILE__, __LINE__);
+		ex.error = getSystemErrno();
+		throw ex;
+	    }
+	}
+
 	if (atoi(_properties->getProperty("Ice.UseSyslog").c_str()) > 0)
 	{
 	    _identForOpenlog = _properties->getProperty("Ice.ProgramName");
@@ -225,6 +247,20 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    openlog(_identForOpenlog.c_str(), LOG_PID, LOG_USER);
 	}
 #endif
+
+	//
+	// Must be done after daemon() is called, since daemon()
+	// forks. Does not work together with Ice.Daemon if
+	// Ice.DaemonNoClose is not set.
+	//
+	if (atoi(_properties->getProperty("Ice.PrintProcessId").c_str()) > 0)
+	{
+#ifdef _WIN32
+	    cout << _getpid() << endl;
+#else
+	    cout << getpid() << endl;
+#endif
+	}
 
 #ifdef _WIN32
 	WORD version = MAKEWORD(1, 1);

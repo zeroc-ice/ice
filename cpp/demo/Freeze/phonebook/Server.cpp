@@ -85,9 +85,10 @@ PhoneBookServer::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv
     //
     // Everything ok, let's go.
     //
-    adapter->activate();
     shutdownOnInterrupt();
+    adapter->activate();
     communicator()->waitForShutdown();
     ignoreInterrupt();
+
     return EXIT_SUCCESS;
 }

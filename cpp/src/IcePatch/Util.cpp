@@ -176,21 +176,6 @@ IcePatch::removeRecursive(const string& path)
     }
 }
 
-void
-IcePatch::changeDirectory(const string& path)
-{
-#ifdef _WIN32
-    if (_chdir(path.c_str()) == -1)
-#else
-    if (chdir(path.c_str()) == -1)
-#endif
-    {
-	FileAccessException ex;
-	ex.reason = "cannot change to directory `" + path + "': " + strerror(errno);
-	throw ex;
-    }
-}
-
 StringSeq
 IcePatch::readDirectory(const string& path)
 {
@@ -316,12 +301,10 @@ IcePatch::getMD5(const string& path)
 void
 IcePatch::createMD5(const string& path)
 {
-    FileInfo info = getFileInfo(path, true);
-    assert(info.type == FileTypeRegular);
-    
     //
     // Read the original file.
     //
+    FileInfo info = getFileInfo(path, true);
     ifstream file(path.c_str(), ios::binary);
     if (!file)
     {
@@ -425,9 +408,6 @@ IcePatch::getBZ2(const string& path, Int pos, Int num)
 void
 IcePatch::createBZ2(const string& path)
 {
-    FileInfo info = getFileInfo(path, true);
-    assert(info.type == FileTypeRegular);
-
     //
     // Read the original file in blocks and write a temporary BZ2
     // file.

@@ -83,8 +83,8 @@ LibraryServer::runFreeze(int argc, char* argv[], const Freeze::DBEnvironmentPtr&
     //
     // Everything ok, let's go.
     //
-    adapter->activate();
     shutdownOnInterrupt();
+    adapter->activate();
     communicator()->waitForShutdown();
     ignoreInterrupt();
 

@@ -30,7 +30,7 @@ IcePatch::FileLocator::locate(const ObjectAdapterPtr& adapter, const Current& cu
     //
     string path = identityToPath(current.identity);
 
-    if (path.empty())
+    if (path.empty()) // Empty paths are not permissible.
     {
 	return 0;
     }
@@ -46,6 +46,11 @@ IcePatch::FileLocator::locate(const ObjectAdapterPtr& adapter, const Current& cu
     }
 
     if (path.find(':') == 1) // Path cannot contain ':' as second character.
+    {
+	return 0;
+    }
+
+    if (ignoreSuffix(path)) // Some suffixes are reserved.
     {
 	return 0;
     }
