@@ -191,7 +191,8 @@ static const string icePatchProps[] =
     "RemoveOrphaned",
     "Thorough",
     "Trace.Files",
-    "UpdatePeriod"
+    "UpdatePeriod",
+    "Directory"
 };
 
 static const string iceSSLProps[] =

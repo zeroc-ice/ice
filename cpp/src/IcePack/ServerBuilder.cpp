@@ -597,8 +597,9 @@ IcePack::ServerBuilder::addService(const string& name, const string& descriptor,
     copy(_targets.begin(), _targets.end(), back_inserter(targets));
 
     ServiceBuilder* task = new ServiceBuilder(_nodeInfo, *this, variables, targets);
+    TaskPtr t = task;
     task->parse(toLocation(descriptor));
-    _tasks.push_back(task);
+    _tasks.push_back(t);
 }
 
 void

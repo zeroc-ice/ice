@@ -442,6 +442,10 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
     {
         IceXML::Parser::parse(xmlFile, handler);
     }
+    catch(const IcePack::ParserDeploymentException& ex)
+    {
+	throw ex;
+    }
     catch(const IceXML::ParserException& e)
     {
 	ostringstream os;
