@@ -362,8 +362,8 @@ exceptions(Test::MyClassPrx p)
 	test(ex.size() == 2);
 	test(ex.count(0) == 1);
 	test(ex.find(0)->second == true);
-	test(ex.count(255) == 1);
-	test(ex.find(255)->second == false);
+        test(ex.count(-128) == 1);
+	test(ex.find(-128)->second == false);
     }
 
     try

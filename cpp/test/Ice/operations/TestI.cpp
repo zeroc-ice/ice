@@ -577,7 +577,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	{
 	    Test::ByteBoolD ex;
 	    ex[0] = true;
-	    ex[255] = false;
+	    ex[-128] = false;
 	    throw ex;
 	}
 
