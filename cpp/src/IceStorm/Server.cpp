@@ -49,11 +49,8 @@ main(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    string dbEnvName = defaultProperties->getProperty("IceStorm.DBEnvName");
-    if (dbEnvName.empty())
-    {
-	dbEnvName = "db";
-    }
+    string dbEnvName = defaultProperties->getPropertyWithDefault("IceStorm.DBEnvName", "db");
+
     Server app(dbEnvName);
     return app.main(argc, argv);
 }

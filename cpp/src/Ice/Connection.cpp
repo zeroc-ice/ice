@@ -573,7 +573,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _responseCount(0),
     _state(StateHolding)
 {
-    _warn = atoi(_instance->properties()->getProperty("Ice.ConnectionWarnings").c_str()) > 0 ? true : false;
+    _warn = atoi(_instance->properties()->getProperty("Ice.ConnectionWarnings").c_str()) > 0;
 }
 
 IceInternal::Connection::~Connection()

@@ -24,21 +24,10 @@ IcePack::Forward::Forward(const CommunicatorPtr& communicator, const AdminPtr& a
     _activator = new Activator(_communicator);
     _activator->start();
 
-    PropertiesPtr properties = communicator->getProperties();
-    string value;
-
-    value = properties->getProperty("IcePack.Activator.WaitTime");
-    if (value.length())
+    _waitTime = atoi(properties->getPropertyWithDefault("IcePack.Activator.WaitTime", "10").c_str());
+    if (_waitTime < 0)
     {
-	_waitTime = atoi(value.c_str());
-	if (_waitTime < 0)
-	{
-	    _waitTime = 0;
-	}
-    }
-    else
-    {
-	_waitTime = 10;
+	_waitTime = 0;
     }
 #endif
 }

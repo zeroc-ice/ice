@@ -142,7 +142,7 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     cursor->close();
     cout << "ok" << endl;
 
-    cout << "testing DB::getCursorAKey... ";
+    cout << "testing DB::getCursorAtKey... ";
     k = KeyCodec::write('n', instance);
     j = find(alphabet.begin(), alphabet.end(), 'n');
     cursor = db->getCursorAtKey(k);

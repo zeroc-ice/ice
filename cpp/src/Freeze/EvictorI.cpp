@@ -23,14 +23,7 @@ Freeze::EvictorI::EvictorI(const DBPtr& db, EvictorPersistenceMode persistenceMo
     _persistenceMode(persistenceMode),
     _trace(0)
 {
-    PropertiesPtr properties = _db->getCommunicator()->getProperties();
-    string value;
-
-    value = properties->getProperty("Freeze.Trace.Evictor");
-    if (!value.empty())
-    {
-	_trace = atoi(value.c_str());
-    }
+    _trace = atoi(_db->getCommunicator()->getProperties()->getProperty("Freeze.Trace.Evictor").c_str());
 }
 
 Freeze::EvictorI::~EvictorI()

@@ -433,8 +433,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
     }
 */
 
-    string value = _instance->properties()->getProperty("Ice.PrintAdapterReady");
-    if (atoi(value.c_str()) >= 1)
+    if (atoi(_instance->properties()->getProperty("Ice.PrintAdapterReady").c_str()) > 0)
     {
 	cout << _name << " ready" << endl;
     }

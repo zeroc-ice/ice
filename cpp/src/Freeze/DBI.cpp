@@ -69,15 +69,7 @@ Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, cons
     _name(name)
 {
     _errorPrefix = "Freeze::DBEnvironment(\"" + _name + "\"): ";
-
-    PropertiesPtr properties = _communicator->getProperties();
-    string value;
-
-    value = properties->getProperty("Freeze.Trace.DB");
-    if (!value.empty())
-    {
-	_trace = atoi(value.c_str());
-    }
+    _trace = atoi(_communicator->getProperties()->getProperty("Freeze.Trace.DB").c_str());
 
     checkBerkeleyDBReturn(db_env_create(&_dbEnv, 0), _errorPrefix, "db_env_create");
 
@@ -247,15 +239,7 @@ Freeze::DBTransactionI::DBTransactionI(const CommunicatorPtr& communicator, ::DB
     _name(name)
 {
     _errorPrefix = "Freeze::DBTransaction(\"" + _name + "\"): ";
-
-    PropertiesPtr properties = _communicator->getProperties();
-    string value;
-
-    value = properties->getProperty("Freeze.Trace.DB");
-    if (!value.empty())
-    {
-	_trace = atoi(value.c_str());
-    }
+    _trace = atoi(_communicator->getProperties()->getProperty("Freeze.Trace.DB").c_str());
 
     if (_trace >= 2)
     {
@@ -331,16 +315,8 @@ DBCursorI::DBCursorI(const ::Ice::CommunicatorPtr& communicator, const std::stri
     _name(name),
     _cursor(cursor)
 {
-    PropertiesPtr properties = _communicator->getProperties();
-    string value;
-
-    value = properties->getProperty("Freeze.Trace.DB");
-    if (!value.empty())
-    {
-	_trace = atoi(value.c_str());
-    }
-
     _errorPrefix = "Freeze::DBCursor(\"" + _name += "\"): ";
+    _trace = atoi(_communicator->getProperties()->getProperty("Freeze.Trace.DB").c_str());
 
     if (_trace >= 1)
     {
@@ -583,15 +559,7 @@ Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvironmentIPtr& d
     _name(name)
 {
     _errorPrefix = "Freeze::DB(\"" + _name + "\"): ";
-
-    PropertiesPtr properties = _communicator->getProperties();
-    string value;
-
-    value = properties->getProperty("Freeze.Trace.DB");
-    if (!value.empty())
-    {
-	_trace = atoi(value.c_str());
-    }
+    _trace = atoi(_communicator->getProperties()->getProperty("Freeze.Trace.DB").c_str());
 
     if (_trace >= 1)
     {

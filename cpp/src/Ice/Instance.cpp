@@ -181,11 +181,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 
     if (++_globalStateCounter == 1) // Only on first call
     {
-	string value;
-
 	// Must be done before "Ice.Daemon" is checked
-	value = _properties->getProperty("Ice.PrintProcessId");
-	if (atoi(value.c_str()) >= 1)
+	if (atoi(_properties->getProperty("Ice.PrintProcessId").c_str()) > 0)
 	{
 #ifdef WIN32
 	    cout << _getpid() << endl;
@@ -195,14 +192,10 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	}
 
 #ifndef WIN32
-	value = _properties->getProperty("Ice.Daemon");
-	if (atoi(value.c_str()) >= 1)
+	if (atoi(_properties->getProperty("Ice.Daemon").c_str()) > 0)
 	{
-	    value = _properties->getProperty("Ice.DaemonNoClose");
-	    int noclose = atoi(value.c_str());
-
-	    value = _properties->getProperty("Ice.DaemonNoChdir");
-	    int nochdir = atoi(value.c_str());
+	    int noclose = atoi(_properties->getProperty("Ice.DaemonNoClose").c_str());
+	    int nochdir = atoi(_properties->getProperty("Ice.DaemonNoChdir").c_str());
 
 	    if (daemon(nochdir, noclose) == -1)
 	    {
@@ -216,8 +209,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 #endif
 	
 #ifndef WIN32
-	value = _properties->getProperty("Ice.UseSyslog");
-	if (atoi(value.c_str()) >= 1)
+	if (atoi(_properties->getProperty("Ice.UseSyslog").c_str()) > 0)
 	{
 	    _identForOpenlog = _properties->getProperty("Ice.ProgramName");
 	    if (_identForOpenlog.empty())
@@ -265,10 +257,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     try
     {
 	__setNoDelete(true);
-	string value;
 #ifndef WIN32
-	value = _properties->getProperty("Ice.UseSyslog");
-	if (atoi(value.c_str()) >= 1)
+	if (atoi(_properties->getProperty("Ice.UseSyslog").c_str()) > 0)
 	{
 	    _logger = new SysLoggerI;
 	}
@@ -293,10 +283,10 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	_routerManager = new RouterManager;
 	_referenceFactory = new ReferenceFactory(this);
 	_proxyFactory = new ProxyFactory(this);
-	value = _properties->getProperty("Ice.DefaultRouter");
-	if (!value.empty())
+	string router = _properties->getProperty("Ice.DefaultRouter");
+	if (!router.empty())
 	{
-	    _referenceFactory->setDefaultRouter(RouterPrx::uncheckedCast(_proxyFactory->stringToProxy(value)));
+	    _referenceFactory->setDefaultRouter(RouterPrx::uncheckedCast(_proxyFactory->stringToProxy(router)));
 	}
 	_outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 	_servantFactoryManager = new ObjectFactoryManager();

@@ -42,8 +42,8 @@ local interface Properties
 
     /**
      *
-     * Get a property by key. If the property does not exist, an empty
-     * string is returned.
+     * Get a property by key. If the property does not exist, a
+     * default value is returned.
      *
      * @param key The property key.
      *

@@ -390,7 +390,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
     _adapter(adapter),
     _state(StateHolding)
 {
-    _warn = atoi(_instance->properties()->getProperty("Ice.ConnectionWarnings").c_str()) > 0 ? true : false;
+    _warn = atoi(_instance->properties()->getProperty("Ice.ConnectionWarnings").c_str()) > 0;
 
     try
     {

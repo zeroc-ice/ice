@@ -21,6 +21,8 @@ std::set<string> Ice::PropertiesI::_argumentPrefixes;
 string
 Ice::PropertiesI::getProperty(const string& key)
 {
+    IceUtil::Mutex::Lock sync(*this);
+
     map<string, string>::const_iterator p = _properties.find(key);
     if (p != _properties.end())
     {
@@ -35,6 +37,8 @@ Ice::PropertiesI::getProperty(const string& key)
 string
 Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value)
 {
+    IceUtil::Mutex::Lock sync(*this);
+
     map<string, string>::const_iterator p = _properties.find(key);
     if (p != _properties.end())
     {
@@ -49,12 +53,16 @@ Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value)
 void
 Ice::PropertiesI::setProperty(const string& key, const string& value)
 {
+    IceUtil::Mutex::Lock sync(*this);
+
     _properties[key] = value;
 }
 
 StringSeq
 Ice::PropertiesI::getCommandLineOptions()
 {
+    IceUtil::Mutex::Lock sync(*this);
+
     StringSeq result;
     result.reserve(_properties.size());
     map<string, string>::const_iterator p;
@@ -68,6 +76,8 @@ Ice::PropertiesI::getCommandLineOptions()
 PropertiesPtr
 Ice::PropertiesI::clone()
 {
+    IceUtil::Mutex::Lock sync(*this);
+
     int dummy = 0;
     PropertiesI* p = new PropertiesI(dummy, 0);
     p->_properties = _properties;

@@ -154,16 +154,10 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
     _minFd = _fdIntrRead;
 
     _timeout = atoi(_instance->properties()->getProperty("Ice.ServerIdleTime").c_str());
-
-    _threadNum = 10;
-    string value = _instance->properties()->getProperty("Ice.ThreadPool.Size");
-    if (!value.empty())
+    _threadNum = atoi(_instance->properties()->getPropertyWithDefault("Ice.ThreadPool.Size", "10").c_str());
+    if (_threadNum < 1)
     {
-	_threadNum = atoi(value.c_str());
-	if (_threadNum < 1)
-	{
-	    _threadNum = 1;
-	}
+	_threadNum = 1;
     }
 
     try

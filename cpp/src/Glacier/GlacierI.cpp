@@ -53,12 +53,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, con
     //
     // Start a router
     //
-    string path = _properties->getProperty("Glacier.Starter.RouterPath");
-    if (path.empty())
-    {
-	path = "glacier";
-    }
-
+    string path = _properties->getPropertyWithDefault("Glacier.Starter.RouterPath", "glacier");
     string uuid = IceUtil::generateUUID();
     pid_t pid;
     int fds[2];
@@ -200,18 +195,10 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, con
 	    FD_ZERO(&fdSet);
 	    FD_SET(fds[0], &fdSet);
 	    struct timeval tv;
-	    string timeout = _properties->getProperty("Glacier.Starter.StartupTimeout");
-	    if (timeout.empty())
+	    tv.tv_sec = atoi(_properties->getPropertyWithDefault("Glacier.Starter.StartupTimeout", "10").c_str());
+	    if (tv.tv_sec < 1)
 	    {
-		tv.tv_sec = 10; // 10 seconds default.
-	    }
-	    else
-	    {
-		tv.tv_sec = atoi(timeout.c_str());
-		if (tv.tv_sec < 1)
-		{
-		    tv.tv_sec = 1; // One second is minimum.
-		}
+		tv.tv_sec = 1; // One second is minimum.
 	    }
 	    tv.tv_usec = 0;
 	    int ret = ::select(fds[0] + 1, &fdSet, 0, 0, &tv);
