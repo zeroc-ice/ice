@@ -474,7 +474,7 @@ namespace IceInternal
 	    {
 		return null;
 	    }
-	    return new ArrayList(list);;
+	    return new ArrayList(list);
 	}
 
 	private static void overwriteList(ArrayList from, IList to)
