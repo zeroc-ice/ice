@@ -27,6 +27,10 @@ public class Client
         {
             System.out.println("ok");
         }
+        catch (Ice.ConnectionLostException ex)
+        {
+            System.out.println("ok");
+        }
 
         return 0;
     }
