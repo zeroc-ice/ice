@@ -15,7 +15,8 @@ C_SRCS		= AllTests.cs Client.cs Twoways.cs # TwowaysAMI.cs
 S_SRCS		= MyDerivedClassI.cs Server.cs
 COL_SRCS	= AllTests.cs Collocated.cs MyDerivedClassI.cs Twoways.cs # TwowaysAMI.cs
 
-SLICE_SRCS	= $(SDIR)/Test.ice
+SLICE_SRCS	= $(SDIR)/Test.ice \
+		  $(SDIR)/TestAMD.ice
 
 SDIR		= .
 

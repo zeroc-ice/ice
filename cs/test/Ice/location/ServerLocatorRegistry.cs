@@ -25,7 +25,6 @@ public class ServerLocatorRegistry : Ice.LocatorRegistry_Disp
 
     public override void setServerProcessProxy(string id, Ice.ProcessPrx proxy, Ice.Current current)
     {
-	// TODO: missing implementation
     }
 
     public virtual Ice.ObjectPrx getAdapter(string adapter)

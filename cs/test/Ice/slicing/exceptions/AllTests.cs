@@ -180,7 +180,7 @@ public class AllTests
                 AllTests.test(k.kd.Equals("KnownDerived.kd"));
                 AllTests.test(k.GetType().Name.Equals("KnownDerived"));
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -247,7 +247,7 @@ public class AllTests
                 AllTests.test(ki.ki.Equals("KnownIntermediate.ki"));
                 AllTests.test(ki.GetType().Name.Equals("KnownIntermediate"));
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -282,7 +282,7 @@ public class AllTests
                 AllTests.test(kmd.kmd.Equals("KnownMostDerived.kmd"));
                 AllTests.test(kmd.GetType().Name.Equals("KnownMostDerived"));
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -316,7 +316,7 @@ public class AllTests
                 AllTests.test(ki.ki.Equals("KnownIntermediate.ki"));
                 AllTests.test(ki.GetType().Name.Equals("KnownIntermediate"));
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }

@@ -160,6 +160,22 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nestedS", "demo\Ice\nested\
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "exceptionsAMDS", "test\Ice\exceptions\exceptionsAMDS.csproj", "{B69A1E56-C64B-4D23-A365-2F4295449103}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "operationsAMDS", "test\Ice\operations\operationsAMDS.csproj", "{0846FC5F-DD9D-4359-A61C-E346917F5DD7}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sliceexAMDS", "test\Ice\slicing\exceptions\sliceexAMDS.csproj", "{827066D1-9009-476D-8FFE-233E3B3ECB68}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sliceobAMDS", "test\Ice\slicing\objects\sliceobAMDS.csproj", "{89F9A40B-CB79-4EF8-9553-5E86A6375245}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -178,6 +194,10 @@ Global
 		{6C83F12B-140A-41FD-8278-74BF1B984163}.Debug.Build.0 = Debug|.NET
 		{6C83F12B-140A-41FD-8278-74BF1B984163}.Release.ActiveCfg = Release|.NET
 		{6C83F12B-140A-41FD-8278-74BF1B984163}.Release.Build.0 = Release|.NET
+		{FB4F9B72-57B8-49E8-80C2-13447387D68B}.Debug.ActiveCfg = Debug|.NET
+		{FB4F9B72-57B8-49E8-80C2-13447387D68B}.Debug.Build.0 = Debug|.NET
+		{FB4F9B72-57B8-49E8-80C2-13447387D68B}.Release.ActiveCfg = Release|.NET
+		{FB4F9B72-57B8-49E8-80C2-13447387D68B}.Release.Build.0 = Release|.NET
 		{2F7CDA15-1AD3-474B-8C6A-48B57F98129E}.Debug.ActiveCfg = Debug|.NET
 		{2F7CDA15-1AD3-474B-8C6A-48B57F98129E}.Debug.Build.0 = Debug|.NET
 		{2F7CDA15-1AD3-474B-8C6A-48B57F98129E}.Release.ActiveCfg = Release|.NET
@@ -322,10 +342,22 @@ Global
 		{0D9DD222-B7DD-4736-8958-4C43DB8599D1}.Debug.Build.0 = Debug|.NET
 		{0D9DD222-B7DD-4736-8958-4C43DB8599D1}.Release.ActiveCfg = Release|.NET
 		{0D9DD222-B7DD-4736-8958-4C43DB8599D1}.Release.Build.0 = Release|.NET
-		{FB4F9B72-57B8-49E8-80C2-13447387D68B}.Debug.ActiveCfg = Debug|.NET
-		{FB4F9B72-57B8-49E8-80C2-13447387D68B}.Debug.Build.0 = Debug|.NET
-		{FB4F9B72-57B8-49E8-80C2-13447387D68B}.Release.ActiveCfg = Release|.NET
-		{FB4F9B72-57B8-49E8-80C2-13447387D68B}.Release.Build.0 = Release|.NET
+		{B69A1E56-C64B-4D23-A365-2F4295449103}.Debug.ActiveCfg = Debug|.NET
+		{B69A1E56-C64B-4D23-A365-2F4295449103}.Debug.Build.0 = Debug|.NET
+		{B69A1E56-C64B-4D23-A365-2F4295449103}.Release.ActiveCfg = Release|.NET
+		{B69A1E56-C64B-4D23-A365-2F4295449103}.Release.Build.0 = Release|.NET
+		{0846FC5F-DD9D-4359-A61C-E346917F5DD7}.Debug.ActiveCfg = Debug|.NET
+		{0846FC5F-DD9D-4359-A61C-E346917F5DD7}.Debug.Build.0 = Debug|.NET
+		{0846FC5F-DD9D-4359-A61C-E346917F5DD7}.Release.ActiveCfg = Release|.NET
+		{0846FC5F-DD9D-4359-A61C-E346917F5DD7}.Release.Build.0 = Release|.NET
+		{827066D1-9009-476D-8FFE-233E3B3ECB68}.Debug.ActiveCfg = Debug|.NET
+		{827066D1-9009-476D-8FFE-233E3B3ECB68}.Debug.Build.0 = Debug|.NET
+		{827066D1-9009-476D-8FFE-233E3B3ECB68}.Release.ActiveCfg = Release|.NET
+		{827066D1-9009-476D-8FFE-233E3B3ECB68}.Release.Build.0 = Release|.NET
+		{89F9A40B-CB79-4EF8-9553-5E86A6375245}.Debug.ActiveCfg = Debug|.NET
+		{89F9A40B-CB79-4EF8-9553-5E86A6375245}.Debug.Build.0 = Debug|.NET
+		{89F9A40B-CB79-4EF8-9553-5E86A6375245}.Release.ActiveCfg = Release|.NET
+		{89F9A40B-CB79-4EF8-9553-5E86A6375245}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
