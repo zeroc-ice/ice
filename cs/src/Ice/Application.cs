@@ -20,8 +20,7 @@ namespace Ice
     {
 	public abstract int run(string[] args);
 
-	public
-	Application()
+	public Application()
 	{
 	    bool rc;
 	    rc = SetConsoleCtrlHandler(_handler, true); 
@@ -320,5 +319,4 @@ namespace Ice
 	private static volatile string _appName = AppDomain.CurrentDomain.FriendlyName;
 	private static Communicator _communicator;
     }
-
 }
