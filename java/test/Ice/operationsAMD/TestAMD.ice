@@ -143,6 +143,8 @@ dictionary<string, MyEnum> StringMyEnumD;
 
     IntS opIntS(IntS s);
 
+    void opByteSOneway(ByteS s);
+
     StringStringD opContext();
 
 };

@@ -293,6 +293,11 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return r;
     }
 
+    public void
+    opByteSOneway(byte[] s, Ice.Current current)
+    {
+    }
+
     public java.util.Map
     opContext(Ice.Current current)
     {

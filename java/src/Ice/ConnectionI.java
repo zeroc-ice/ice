@@ -644,27 +644,43 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	_batchStream.swap(os);
 
 	//
-	// _batchStream now belongs to the caller, until
-	// finishBatchRequest() is called.
+	// The batch stream now belongs to the caller, until
+	// finishBatchRequest() or abortBatchRequest() is called.
 	//
     }
 
     public synchronized void
     finishBatchRequest(IceInternal.BasicStream os)
     {
-        if(_exception != null)
-        {
-            throw _exception;
-        }
-
-        assert(_state > StateNotValidated);
-	assert(_state < StateClosing);
-
-        _batchStream.swap(os); // Get the batch stream back.
-	++_batchRequestNum; // Increment the number of requests in the batch.
+	//
+	// Get the batch stream back and increment the number of
+	// requests in the batch.
+        //
+	_batchStream.swap(os);
+	++_batchRequestNum;
 
 	//
-	// Give the ConnectionI back.
+	// Notify about the batch stream not being in use anymore.
+	//
+	assert(_batchStreamInUse);
+        _batchStreamInUse = false;
+	notifyAll();
+    }
+
+    public synchronized void
+    abortBatchRequest()
+    {
+	//
+	// Destroy and reset the batch stream and batch count. We
+	// cannot safe old requests in the batch stream, as they might
+	// be corrupted due to incomplete marshaling.
+	//
+	_batchStream.destroy();
+	_batchStream = new IceInternal.BasicStream(_instance);
+	_batchRequestNum = 0;
+
+	//
+	// Notify about the batch stream not being in use anymore.
 	//
 	assert(_batchStreamInUse);
         _batchStreamInUse = false;
@@ -1565,6 +1581,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		    registerWithPool();
 		    unregisterWithPool();
 		}
+
 		break;
             }
         }

@@ -53,6 +53,12 @@ public class AllTests
 	    TwowaysAMI.twowaysAMI(cl);
 	    TwowaysAMI.twowaysAMI(derived);
 	    System.out.println("ok");
+
+	    System.out.print("testing batch oneway operations... ");
+	    System.out.flush();
+	    BatchOneways.batchOneways(cl);
+	    BatchOneways.batchOneways(derived);
+	    System.out.println("ok");
 	}
 
         return cl;

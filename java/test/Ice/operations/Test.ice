@@ -145,8 +145,9 @@ dictionary<string, MyEnum> StringMyEnumD;
 
     IntS opIntS(IntS s);
 
-    Ice::Context opContext();
+    void opByteSOneway(ByteS s);
 
+    Ice::Context opContext();
 };
 
 ["ami"] class MyDerivedClass extends MyClass

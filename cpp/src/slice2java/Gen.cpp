@@ -3896,19 +3896,26 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
         if(!inParams.empty())
         {
+	    out << nl << "try";
+	    out << sb;
             out << nl << "IceInternal.BasicStream __os = __out.os();";
-        }
-        iter = 0;
-        for(pli = inParams.begin(); pli != inParams.end(); ++pli)
-        {
-            writeMarshalUnmarshalCode(out, package, (*pli)->type(), fixKwd((*pli)->name()), true, iter, false,
-                                      (*pli)->getMetaData());
-        }
-	if(op->sendsClasses())
-	{
-	    out << nl << "__os.writePendingObjects();";
+	    iter = 0;
+	    for(pli = inParams.begin(); pli != inParams.end(); ++pli)
+	    {
+		writeMarshalUnmarshalCode(out, package, (*pli)->type(), fixKwd((*pli)->name()), true, iter, false,
+					  (*pli)->getMetaData());
+	    }
+	    if(op->sendsClasses())
+	    {
+		out << nl << "__os.writePendingObjects();";
+	    }
+	    out << eb;
+	    out << nl << "catch(Ice.LocalException __ex)";
+	    out << sb;
+	    out << nl << "__out.abort(__ex);";
+	    out << eb;
 	}
-        out << nl << "boolean __ok = __out.invoke();";
+	out << nl << "boolean __ok = __out.invoke();";
 	out << nl << "try";
 	out << sb;
 	out << nl << "IceInternal.BasicStream __is = __out.is();";

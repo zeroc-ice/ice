@@ -12,7 +12,8 @@ package IceInternal;
 public final class Outgoing
 {
     public
-    Outgoing(Ice.ConnectionI connection, Reference ref, String operation, Ice.OperationMode mode, java.util.Map context)
+    Outgoing(Ice.ConnectionI connection, Reference ref, String operation, Ice.OperationMode mode,
+	     java.util.Map context)
     {
         _connection = connection;
         _reference = ref;
@@ -25,8 +26,8 @@ public final class Outgoing
 
     //
     // Do NOT use a finalizer, this would cause a severe performance
-    // penalty! We must make sure that destroy() is called instead,
-    // to reclaim resources.
+    // penalty! We must make sure that destroy() is called instead, to
+    // reclaim resources.
     //
     public void
     destroy()
@@ -38,7 +39,6 @@ public final class Outgoing
 	assert(_os != null);
         _os.destroy();
 	_os = null;
-
     }
 
     //
@@ -65,6 +65,8 @@ public final class Outgoing
     invoke()
         throws NonRepeatable
     {
+	assert(_state == StateUnsent);
+
         _os.endWriteEncaps();
 
         switch(_reference.mode)
@@ -193,12 +195,13 @@ public final class Outgoing
 		//
 		// For oneway and datagram requests, the connection
 		// object never calls back on this object. Therefore
-		// we don't need to lock the mutex, keep track of
-		// state, or save exceptions. We simply let all
-		// exceptions from sending propagate to the caller,
-		// because such exceptions can be retried without
-		// violating "at-most-once".
+		// we don't need to lock the mutex or save
+		// exceptions. We simply let all exceptions from
+		// sending propagate to the caller, because such
+		// exceptions can be retried without violating
+		// "at-most-once".
 		//
+		_state = StateInProgress;
 		_connection.sendRequest(_os, null);
                 break;
             }
@@ -211,12 +214,40 @@ public final class Outgoing
 		// regular oneways and datagrams (see comment above)
 		// apply.
 		//
+		_state = StateInProgress;
                 _connection.finishBatchRequest(_os);
                 break;
             }
         }
 
         return true;
+    }
+
+    public void
+    abort(Ice.LocalException ex)
+        throws NonRepeatable
+    {
+	assert(_state == StateUnsent);
+
+	//
+	// If we didn't finish a batch oneway or datagram request, we
+	// must notify the connection about that we give up ownership
+	// of the batch stream.
+	//
+	if(_reference.mode == Reference.ModeBatchOneway || _reference.mode == Reference.ModeBatchDatagram)
+	{
+	    _connection.abortBatchRequest();
+
+	    //
+	    // If we abort a batch requests, we cannot retry, because
+	    // not only the batch request that caused the problem will
+	    // be aborted, but all other requests in the batch as
+	    // well.
+	    //
+	    throw new NonRepeatable(ex);
+	}
+
+	throw ex;
     }
 
     public synchronized void
