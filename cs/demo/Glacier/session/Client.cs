@@ -148,20 +148,20 @@ public class Client
                 }
                 else if(line.Equals("T"))
                 {
-                    if(timeout == - 1)
+                    if(timeout == -1)
                     {
                         timeout = 2000;
                     }
                     else
                     {
-                        timeout = - 1;
+                        timeout = -1;
                     }
                     
                     twoway = HelloSessionPrxHelper.uncheckedCast(twoway.ice_timeout(timeout));
                     oneway = HelloSessionPrxHelper.uncheckedCast(oneway.ice_timeout(timeout));
                     batchOneway = HelloSessionPrxHelper.uncheckedCast(batchOneway.ice_timeout(timeout));
                     
-                    if(timeout == - 1)
+                    if(timeout == -1)
                     {
                         Console.Out.WriteLine("timeout is now switched off");
                     }
