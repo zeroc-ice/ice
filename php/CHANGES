@@ -1,3 +1,8 @@
+Changes since version 1.1.1
+---------------------------
+
+- Fixed a compilation error for Visual C++.
+
 Changes since version 1.1.0
 ---------------------------
 

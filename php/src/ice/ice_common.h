@@ -24,11 +24,20 @@
 #include <math.h>
 #endif
 
+#ifdef WIN32
+extern "C"
+{
+#endif
+
 #include "php.h"
 #include "php_ini.h"
 #include "ext/standard/info.h"
 #include "zend_interfaces.h"
 #include "zend_exceptions.h"
+
+#ifdef WIN32
+}
+#endif
 
 #include "php_ice.h"
 
