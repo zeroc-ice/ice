@@ -51,7 +51,7 @@ namespace Evictor
 		else
 		{
 		    //
-		    // We do not have entry. Ask the derived class to
+		    // We do not have an entry. Ask the derived class to
 		    // instantiate a servant and add a new entry to the map.
 		    //
 		    ec.entry = new EvictorEntry();
