@@ -328,6 +328,7 @@ Slice::Container::createModule(const string& name)
 		string msg = "module `" + name + "' is capitalized inconsistently with its previous name: `";
 		msg += module->name() + "'";
 		_unit->error(msg);
+		return 0;
 	    }
 	}
 	else if(differsOnlyInCase)
@@ -335,14 +336,15 @@ Slice::Container::createModule(const string& name)
 	    string msg = "module `" + name + "' differs only in capitalization from ";
 	    msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
 	    _unit->error(msg);
+	    return 0;
 	}
 	else
 	{
 	    string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	    msg += "' as module";
 	    _unit->error(msg);
+	    return 0;
 	}
-	return 0;
     }
 
     ModulePtr q = new Module(this, name);
