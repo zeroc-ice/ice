@@ -20,10 +20,12 @@
 #include <Ice/ObjectFactory.h>
 #include <Ice/ObjectFactoryManager.h>
 #include <Ice/LocalException.h>
+#include <Ice/Properties.h>
 #include <Ice/Protocol.h>
 #include <Ice/FactoryTable.h>
 #include <Ice/TraceUtil.h>
 #include <Ice/TraceLevels.h>
+#include <IceUtil/StaticMutex.h>
 
 template<typename InputIter, typename OutputIter>
 void
@@ -47,12 +49,34 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+static IceUtil::StaticMutex initMutex = ICE_STATIC_MUTEX_INITIALIZER;
+static size_t bufSize = 0;
+
 IceInternal::BasicStream::BasicStream(Instance* instance) :
     _instance(instance),
     _currentReadEncaps(0),
     _currentWriteEncaps(0),
     _traceSlicing(-1)
 {
+    IceUtil::StaticMutex::Lock lock(initMutex);
+    if(bufSize == 0)
+    {
+	const size_t defaultSize = 1024; // Default size in kilobytes.
+	Int num = _instance->properties()->getPropertyAsInt("Ice.MessageSizeMax");
+	if(num < 1)
+	{
+	    bufSize = defaultSize;
+	}
+	else if(static_cast<size_t>(num) > (size_t)(0xffffffff / 1024))
+	{
+	    bufSize = static_cast<size_t>(0xffffffff / 1024);
+	}
+	else
+	{
+	    bufSize = static_cast<size_t>(num);
+	}
+	bufSize *= 1024;	// Property value is in kilobytes, bufSize in bytes.
+    }
 }
 
 Instance*
@@ -77,7 +101,7 @@ IceInternal::BasicStream::swap(BasicStream& other)
 void inline
 inlineResize(Buffer* buffer, size_t total)
 {
-    if(total > 1024 * 1024) // TODO: configurable.
+    if(total > bufSize)
     {
 	throw MemoryLimitException(__FILE__, __LINE__);
     }
@@ -98,9 +122,9 @@ IceInternal::BasicStream::resize(int total)
 }
 
 void
-IceInternal::BasicStream::reserve(int total)
+IceInternal::BasicStream::reserve(size_t total)
 {
-    if(total > 1024 * 1024) // TODO: configurable.
+    if(total > bufSize)
     {
 	throw MemoryLimitException(__FILE__, __LINE__);
     }

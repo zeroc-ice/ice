@@ -381,6 +381,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 						    "Evictor.Size",
 						    "Evictor.Trace",
 						    "Logger.Timestamp",
+						    "MessageSizeMax",
 						    "MonitorConnections",
 						    "Nohup",
 						    "NullHandleAbort",

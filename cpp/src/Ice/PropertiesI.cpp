@@ -115,6 +115,7 @@ static const string iceProps[] =
     "Evictor.Size",
     "Evictor.Trace",
     "Logger.Timestamp",
+    "MessageSizeMax",
     "MonitorConnections",
     "Nohup",
     "NullHandleAbort",

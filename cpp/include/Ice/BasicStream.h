@@ -50,7 +50,7 @@ public:
     void swap(BasicStream&);
 
     void resize(int);
-    void reserve(int);
+    void reserve(size_t);
 
     void startWriteEncaps();
     void endWriteEncaps();

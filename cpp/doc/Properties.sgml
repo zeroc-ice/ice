@@ -789,6 +789,25 @@ failure. The default value is to retry once immediately (0). If set to
 </section>
 </section>
 
+<section><title>Ice.MessageSizeMax</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.MessageSizeMax=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+This property controls the maximum size (in kilobytes) of a protocol
+message that will be accepted or sent by the &Ice; run time.
+The size includes the size of the Ice protocol header. Messages larger
+than this size cause a [MemoryLimitException].
+The default size is 1024 (1 Megabyte).
+Settings with a value less than 1 are ignored.
+</para>
+</section>
+</section>
+
 <section><title>Ice.Daemon, Ice.DaemonNoClose, Ice.DaemonNoChdir</title>
 <section><title>Synopsis</title>
 <synopsis>
