@@ -12,15 +12,16 @@
 import os, sys
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    if os.path.exists(os.path.normpath(toplevel + "/config/TestUtil.py")):
+    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
 else:
     raise "can't find toplevel directory!"
 
-sys.path.append(os.path.normpath(toplevel + "/config"))
+sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-name = "Ice/exceptions"
+name = os.path.join("Ice", "exceptions")
+
 TestUtil.clientServerTest(toplevel, name)
 TestUtil.collocatedTest(toplevel, name)
 sys.exit(0)

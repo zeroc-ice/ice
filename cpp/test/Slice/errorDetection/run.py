@@ -12,13 +12,13 @@
 import os, sys, re
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    if os.path.exists(os.path.normpath(toplevel + "/config/TestUtil.py")):
+    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
 else:
     raise "can't find toplevel directory!"
 
-directory = os.path.normpath(toplevel + "/test/Slice/errorDetection")
-slice2cpp = os.path.normpath(toplevel + "/bin/slice2cpp")
+directory = os.path.join(toplevel, "test", "Slice", "errorDetection")
+slice2cpp = os.path.join(toplevel, "bin", "slice2cpp")
 
 regex1 = re.compile(r".ice$", re.IGNORECASE)
 files = []
@@ -33,9 +33,9 @@ for file in files:
 
     print file + "...",
 
-    stdin, stdout, stderr = os.popen3(slice2cpp + " " + os.path.normpath(directory + "/" + file))
+    stdin, stdout, stderr = os.popen3(slice2cpp + " " + os.path.join(directory, file))
     lines1 = stderr.readlines()
-    lines2 = open(os.path.normpath(directory + "/" + regex1.sub(".err", file)), "r").readlines()
+    lines2 = open(os.path.join(directory, regex1.sub(".err", file)), "r").readlines()
 
     if len(lines1) != len(lines2):
         print "failed!"

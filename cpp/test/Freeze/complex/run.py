@@ -12,20 +12,27 @@
 import os, sys
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    if os.path.exists(os.path.normpath(toplevel + "/config/TestUtil.py")):
+    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
 else:
     raise "can't find toplevel directory!"
 
-sys.path.append(os.path.normpath(toplevel + "/config"))
+sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-name = "Freeze/complex"
+name = os.path.join("Freeze", "complex")
 
-testdir = os.path.normpath(toplevel + "/test/" + name)
-client = os.path.normpath(testdir + "/client")
+testdir = os.path.join(toplevel, "test", name)
+
+#
+# Clean the contents of the database directory.
+#
+dbdir = os.path.join(testdir, "db")
+TestUtil.cleanDbDir(dbdir)
+
+client = os.path.join(testdir, "client")
 clientOptions = ' ' + testdir;
-populate = os.path.normpath(testdir + "/populate")
+populate = os.path.join(testdir, "populate")
 populateOptions = ' ' + testdir;
 
 print "starting populate...",

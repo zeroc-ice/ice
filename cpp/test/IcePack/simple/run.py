@@ -12,16 +12,16 @@
 import os, sys
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    if os.path.exists(os.path.normpath(toplevel + "/config/TestUtil.py")):
+    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
 else:
     raise "can't find toplevel directory!"
 
-sys.path.append(os.path.normpath(toplevel + "/config"))
+sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-icePack = os.path.normpath(toplevel + "/bin/icepack")
-icePackAdmin = os.path.normpath(toplevel + "/bin/icepackadmin")
+icePack = os.path.join(toplevel, "bin", "icepack")
+icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
 
 updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
 updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
@@ -57,10 +57,10 @@ TestUtil.collocatedTest(toplevel, name)
 # This test doesn't work under Windows.
 #
 if sys.platform != "cygwin" and sys.platform != "win32":
-    testdir = os.path.normpath(toplevel + "/test/IcePack/simple")
+    testdir = os.path.join(toplevel, "test", "IcePack", "simple")
 
-    server = os.path.normpath(testdir + "/server")
-    client = os.path.normpath(testdir + "/client")
+    server = os.path.join(testdir, "server")
+    client = os.path.join(testdir, "client")
 
     command = icePackAdmin + updatedClientOptions + \
             r' "--Ice.Adapter.Admin.Endpoints=' + TestUtil.protocol + ' -p 12347 -t 5000"' + \

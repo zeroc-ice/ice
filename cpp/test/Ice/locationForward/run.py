@@ -12,17 +12,17 @@
 import os, sys
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    if os.path.exists(os.path.normpath(toplevel + "/config/TestUtil.py")):
+    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
 else:
     raise "can't find toplevel directory!"
 
-sys.path.append(os.path.normpath(toplevel + "/config"))
+sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-testdir = os.path.normpath(toplevel + "/test/Ice/locationForward")
-server = os.path.normpath(testdir + "/server")
-client = os.path.normpath(testdir + "/client")
+testdir = os.path.join(toplevel, "test", "Ice", "locationForward")
+server = os.path.join(testdir, "server")
+client = os.path.join(testdir, "client")
 
 num = 5
 base = 12340

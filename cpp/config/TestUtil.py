@@ -70,9 +70,9 @@ def getAdapterReady(serverPipe):
 
 def clientServerTest(toplevel, name):
 
-    testdir = os.path.normpath(toplevel + "/test/" + name)
-    server = os.path.normpath(testdir + "/server")
-    client = os.path.normpath(testdir + "/client")
+    testdir = os.path.join(toplevel, "test", name)
+    server = os.path.join(testdir, "server")
+    client = os.path.join(testdir, "client")
 
     updatedServerOptions = serverOptions.replace("TOPLEVELDIR", toplevel)
     updatedClientOptions = clientOptions.replace("TOPLEVELDIR", toplevel)
@@ -100,8 +100,8 @@ def clientServerTest(toplevel, name):
 
 def collocatedTest(toplevel, name):
 
-    testdir = os.path.normpath(toplevel + "/test/" + name)
-    collocated = os.path.normpath(testdir + "/collocated")
+    testdir = os.path.join(toplevel, "test", name)
+    collocated = os.path.join(testdir, "collocated")
 
     updatedCollocatedOptions = collocatedOptions.replace("TOPLEVELDIR", toplevel)
 
@@ -113,3 +113,10 @@ def collocatedTest(toplevel, name):
         sys.exit(1)
     print "ok"
     print output
+
+def cleanDbDir(path):
+    files = os.listdir(path)
+    for filename in files:
+        if filename != "CVS" and filename != ".dummy":
+            fullpath = os.path.join(path, filename);
+            os.remove(fullpath)
