@@ -74,6 +74,7 @@ install::
 		chmod a+rx $(install_docdir)/reference ; \
 	    fi ; \
 	    echo "Installing HTML..." ; \
+	    ${INSTALL_DATA} README.html $(install_docdir)/ ; \
 	    ${INSTALL_DATA} reference/*.html $(install_docdir)/reference ; \
 	    if test ! -d $(install_docdir)/reference/stylesheet-images ; \
 	    then \
