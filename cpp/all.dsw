@@ -651,12 +651,6 @@ Package=<4>
     Project_Dep_Name unicode
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name uuid
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name ctrlCHandler
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name slice2wsdl
     End Project Dependency
     Begin Project Dependency
@@ -780,13 +774,16 @@ Package=<4>
     Project_Dep_Name operationsAMDS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name throughputC
+    Project_Dep_Name sliceexC
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name throughputS
+    Project_Dep_Name sliceexS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name workqueue
+    Project_Dep_Name sliceobC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sliceobS
     End Project Dependency
 }}}
 
@@ -1547,6 +1544,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IceUtil
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceSSL
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1567,6 +1567,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceSSL
     End Project Dependency
 }}}
 
@@ -2217,6 +2220,78 @@ Package=<4>
 
 ###############################################################################
 
+Project: "sliceexC"=.\test\Ice\slicing\exceptions\sliceexC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sliceexS"=.\test\Ice\slicing\exceptions\sliceexS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sliceobC"=.\test\Ice\slicing\objects\sliceobC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sliceobS"=.\test\Ice\slicing\objects\sliceobS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "thread"=.\test\IceUtil\thread\thread.dsp - Package Owner=<4>
 
 Package=<5>
@@ -2225,42 +2300,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "throughputC"=.\demo\Ice\throughput\throughputC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "throughputS"=.\demo\Ice\throughput\throughputS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceUtil
     End Project Dependency
@@ -2338,37 +2377,6 @@ Package=<4>
 ###############################################################################
 
 Project: "unicode"=.\test\IceUtil\unicode\unicode.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-
-###############################################################################
-
-Project: "uuid"=.\test\IceUtil\uuid\uuid.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "ctrlCHandler"=.\test\IceUtil\ctrlCHandler\ctrlCHandler.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

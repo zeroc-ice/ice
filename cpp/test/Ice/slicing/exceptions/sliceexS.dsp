@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="operationsS" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="sliceexS" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=operationsS - Win32 Debug
+CFG=sliceexS - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "operationsS.mak".
+!MESSAGE NMAKE /f "sliceexS.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "operationsS.mak" CFG="operationsS - Win32 Debug"
+!MESSAGE NMAKE /f "sliceexS.mak" CFG="sliceexS - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "operationsS - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "operationsS - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "sliceexS - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "sliceexS - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=operationsS - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "operationsS - Win32 Release"
+!IF  "$(CFG)" == "sliceexS - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -39,11 +39,9 @@ RSC=rc.exe
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "Release"
 # PROP Intermediate_Dir "Release"
-# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../include" /D "NDEBUG" /D "_CONSOLE" /D "_UNICODE" /YX /FD /c
-# SUBTRACT CPP /Fr
+# ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -51,10 +49,9 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 /nologo /subsystem:console /machine:I386 /out:"server.exe" /libpath:"../../../lib"
-# SUBTRACT LINK32 /debug /nodefaultlib
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 
-!ELSEIF  "$(CFG)" == "operationsS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "sliceexS - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -68,8 +65,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /D "_DEBUG" /D "_CONSOLE" /D "_UNICODE" /YX /FD /GZ /c
-# SUBTRACT CPP /Fr
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../../include" /I "../../../include" /D "_DEBUG" /D "_CONSOLE" /D "_UNICODE" /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -77,29 +73,68 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"server.exe" /pdbtype:sept /libpath:"../../../../lib"
-# SUBTRACT LINK32 /nodefaultlib
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /out:"server.exe" /pdbtype:sept /libpath:"../../../../lib"
 
 !ENDIF 
 
 # Begin Target
 
-# Name "operationsS - Win32 Release"
-# Name "operationsS - Win32 Debug"
+# Name "sliceexS - Win32 Release"
+# Name "sliceexS - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Server.cpp
+SOURCE=.\ClientTest.cpp
+
+!IF  "$(CFG)" == "sliceexS - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "sliceexS - Win32 Debug"
+
+# ADD CPP /GR
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
-SOURCE=.\Test.cpp
+SOURCE=.\Server.cpp
+
+!IF  "$(CFG)" == "sliceexS - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "sliceexS - Win32 Debug"
+
+# ADD CPP /GR
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerTest.cpp
+
+!IF  "$(CFG)" == "sliceexS - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "sliceexS - Win32 Debug"
+
+# ADD CPP /GR
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\TestI.cpp
+
+!IF  "$(CFG)" == "sliceexS - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "sliceexS - Win32 Debug"
+
+# ADD CPP /GR
+
+!ENDIF 
+
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -107,7 +142,11 @@ SOURCE=.\TestI.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\Test.h
+SOURCE=.\ClientTest.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerTest.h
 # End Source File
 # Begin Source File
 
@@ -119,37 +158,48 @@ SOURCE=.\TestI.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\Test.ice
+SOURCE=.\ClientTest.ice
 
-!IF  "$(CFG)" == "operationsS - Win32 Release"
+!IF  "$(CFG)" == "sliceexS - Win32 Release"
 
-USERDEP__TEST_="../../../bin/slice2cpp.exe"	
+!ELSEIF  "$(CFG)" == "sliceexS - Win32 Debug"
+
+USERDEP__CLIEN="..\..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
-InputPath=.\Test.ice
+InputPath=.\ClientTest.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Test.ice
+	..\..\..\..\bin\slice2cpp.exe ClientTest.ice
 
-"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"ClientTest.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"ClientTest.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "operationsS - Win32 Debug"
+!ENDIF 
 
-USERDEP__TEST_="../../../bin/slice2cpp.exe"	
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerTest.ice
+
+!IF  "$(CFG)" == "sliceexS - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "sliceexS - Win32 Debug"
+
+USERDEP__SERVE="..\..\..\..\bin\slice2cpp.exe"	"ClientTest.ice"	
 # Begin Custom Build
-InputPath=.\Test.ice
+InputPath=.\ServerTest.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Test.ice
+	..\..\..\..\bin\slice2cpp.exe -I. ServerTest.ice
 
-"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"ServerTest.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"ServerTest.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

@@ -31,7 +31,7 @@ ICE_API FactoryTableDef* factoryTable;		// Single global instance of the factory
 void
 Ice::FactoryTableDef::addExceptionFactory(const std::string& t, const UserExceptionFactoryPtr& f)
 {
-    IceUtil::LockT<IceUtil::Mutex> lock(_m);
+    IceUtil::StaticMutex::Lock lock(_m);
     EFTable::iterator i = _eft.find(t);
     if(i == _eft.end())
     {
@@ -49,7 +49,7 @@ Ice::FactoryTableDef::addExceptionFactory(const std::string& t, const UserExcept
 Ice::UserExceptionFactoryPtr
 Ice::FactoryTableDef::getExceptionFactory(const std::string& t) const
 {
-    IceUtil::LockT<IceUtil::Mutex> lock(_m);
+    IceUtil::StaticMutex::Lock lock(_m);
     EFTable::const_iterator i = _eft.find(t);
     return i != _eft.end() ? i->second.first : UserExceptionFactoryPtr();
 }
@@ -63,7 +63,7 @@ Ice::FactoryTableDef::getExceptionFactory(const std::string& t) const
 void
 Ice::FactoryTableDef::removeExceptionFactory(const std::string& t)
 {
-    IceUtil::LockT<IceUtil::Mutex> lock(_m);
+    IceUtil::StaticMutex::Lock lock(_m);
     EFTable::iterator i = _eft.find(t);
     if(i != _eft.end())
     {
@@ -80,7 +80,7 @@ Ice::FactoryTableDef::removeExceptionFactory(const std::string& t)
 void
 Ice::FactoryTableDef::addObjectFactory(const std::string& t, const ObjectFactoryPtr& f)
 {
-    IceUtil::LockT<IceUtil::Mutex> lock(_m);
+    IceUtil::StaticMutex::Lock lock(_m);
     OFTable::iterator i = _oft.find(t);
     if(i == _oft.end())
     {
@@ -98,7 +98,7 @@ Ice::FactoryTableDef::addObjectFactory(const std::string& t, const ObjectFactory
 Ice::ObjectFactoryPtr
 Ice::FactoryTableDef::getObjectFactory(const std::string& t) const
 {
-    IceUtil::LockT<IceUtil::Mutex> lock(_m);
+    IceUtil::StaticMutex::Lock lock(_m);
     OFTable::const_iterator i = _oft.find(t);
     return i != _oft.end() ? i->second.first : ObjectFactoryPtr();
 }
@@ -112,7 +112,7 @@ Ice::FactoryTableDef::getObjectFactory(const std::string& t) const
 void
 Ice::FactoryTableDef::removeObjectFactory(const std::string& t)
 {
-    IceUtil::LockT<IceUtil::Mutex> lock(_m);
+    IceUtil::StaticMutex::Lock lock(_m);
     OFTable::iterator i = _oft.find(t);
     if(i != _oft.end())
     {
@@ -146,7 +146,7 @@ Ice::FactoryTableWrapper::~FactoryTableWrapper()
 void
 Ice::FactoryTableWrapper::initialize()
 {
-    IceUtil::LockT<IceUtil::Mutex> lock(_m);
+    IceUtil::StaticMutex::Lock lock(_m);
     if(_initCount == 0)
     {
 	factoryTable = new FactoryTableDef;
@@ -160,7 +160,7 @@ Ice::FactoryTableWrapper::initialize()
 void
 Ice::FactoryTableWrapper::finalize()
 {
-    IceUtil::LockT<IceUtil::Mutex> lock(_m);
+    IceUtil::StaticMutex::Lock lock(_m);
     if(--_initCount == 0)
     {
 	delete factoryTable;

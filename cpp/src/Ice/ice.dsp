@@ -186,6 +186,14 @@ SOURCE=.\Facet.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\FactoryTable.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\FactoryTableDef.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Identity.cpp
 # End Source File
 # Begin Source File
@@ -523,6 +531,14 @@ SOURCE=..\..\include\Ice\Exception.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\Facet.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\FactoryTable.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\FactoryTableDef.h
 # End Source File
 # Begin Source File
 
