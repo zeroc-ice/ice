@@ -19,7 +19,6 @@ ICE_API Communicator_ptr initializeWithProperties(int&, char*[],
 						  const Properties_ptr&);
 
 ICE_API Properties_ptr createProperties();
-ICE_API Properties_ptr copyProperties(const Properties_ptr&);
 ICE_API Properties_ptr loadProperties(const std::string&);
 
 }
