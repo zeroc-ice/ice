@@ -27,26 +27,26 @@ Public Class InitialI
     End Sub
 
     Public Overloads Overrides Function getSimple(ByVal current As Ice.Current) As Simple
-	Return _simple
+        Return _simple
     End Function
 
     Public Overloads Overrides Function getPrinterAsObject(ByVal current As Ice.Current) As Ice.Object
-	Return _printer
+        Return _printer
     End Function
 
     Public Overloads Overrides Sub getPrinter(ByRef impl As Printer, ByRef proxy As PrinterPrx, ByVal current As Ice.Current)
-	impl = _printer
-	proxy = _printerProxy
+        impl = _printer
+        proxy = _printerProxy
     End Sub
 
     Public Overloads Overrides Function getDerivedPrinter(ByVal current As Ice.Current) As Printer
-	Return _derivedPrinter
+        Return _derivedPrinter
     End Function
 
     Public Overloads Overrides Sub throwDerivedPrinter(ByVal current As Ice.Current)
-	Dim ex As DerivedPrinterException = New DerivedPrinterException
-	ex.derived = _derivedPrinter
-	Throw ex
+        Dim ex As DerivedPrinterException = New DerivedPrinterException
+        ex.derived = _derivedPrinter
+        Throw ex
     End Sub
 
     Private _simple As Simple

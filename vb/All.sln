@@ -148,6 +148,19 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "printerS", "demo\book\print
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "invokeC", "demo\Ice\invoke\invokeC.vbproj", "{110242D8-445D-4FB0-B718-F81F281C26C9}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "invokeCommon", "demo\Ice\invoke\invokeCommon.vbproj", "{0CE131D1-CE27-405F-B4F1-E344F9001308}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "invokeS", "demo\Ice\invoke\invokeS.vbproj", "{E5D81FA4-161C-4E40-8614-69533E1D720D}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -274,6 +287,18 @@ Global
 		{FF2648CB-716F-4B33-865E-43F492EF45A9}.Debug.Build.0 = Debug|.NET
 		{FF2648CB-716F-4B33-865E-43F492EF45A9}.Release.ActiveCfg = Release|.NET
 		{FF2648CB-716F-4B33-865E-43F492EF45A9}.Release.Build.0 = Release|.NET
+		{110242D8-445D-4FB0-B718-F81F281C26C9}.Debug.ActiveCfg = Debug|.NET
+		{110242D8-445D-4FB0-B718-F81F281C26C9}.Debug.Build.0 = Debug|.NET
+		{110242D8-445D-4FB0-B718-F81F281C26C9}.Release.ActiveCfg = Release|.NET
+		{110242D8-445D-4FB0-B718-F81F281C26C9}.Release.Build.0 = Release|.NET
+		{0CE131D1-CE27-405F-B4F1-E344F9001308}.Debug.ActiveCfg = Debug|.NET
+		{0CE131D1-CE27-405F-B4F1-E344F9001308}.Debug.Build.0 = Debug|.NET
+		{0CE131D1-CE27-405F-B4F1-E344F9001308}.Release.ActiveCfg = Release|.NET
+		{0CE131D1-CE27-405F-B4F1-E344F9001308}.Release.Build.0 = Release|.NET
+		{E5D81FA4-161C-4E40-8614-69533E1D720D}.Debug.ActiveCfg = Debug|.NET
+		{E5D81FA4-161C-4E40-8614-69533E1D720D}.Debug.Build.0 = Debug|.NET
+		{E5D81FA4-161C-4E40-8614-69533E1D720D}.Release.ActiveCfg = Release|.NET
+		{E5D81FA4-161C-4E40-8614-69533E1D720D}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

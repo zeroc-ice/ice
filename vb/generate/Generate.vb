@@ -68,97 +68,112 @@ Module Generate
 	'
 	' Compile a Slice file, redirecting standard output and standard error to the console.
 	'
-	Private Function doCompile(ByVal sliceFile As String, ByVal outputDir As String) As Integer
-            Dim cmdArgs As String = "--output-dir " & outputDir & " --ice " & _includes & " " & sliceFile
-	    Dim info As ProcessStartInfo = New ProcessStartInfo(_slice2vb, cmdArgs)
-	    info.CreateNoWindow = True
-	    info.UseShellExecute = False
-	    info.RedirectStandardOutput = True
-	    info.RedirectStandardError = True
-	    proc = Process.Start(info)
-	    If proc Is Nothing
+        Private Function doCompile(ByVal sliceFile As String, ByVal outputDir As String) As Integer
+            '
+            ' Terrible hack: because we don't have a pre-build event in the Visual Basic IDE,
+            ' we need some other way to get additional options into slice2vb: for a Slice file
+            ' "foo.ice", we look for files named ".foo.<option>". For example, if the directory
+            ' containing the Slice file "foo.ice" also contains a file called ".foo.stream", we
+            ' add the "--stream" option to the command line.
+            '
+            Dim dir As String = Path.GetDirectoryName(sliceFile)
+            Dim stem As String = Path.GetFileNameWithoutExtension(sliceFile)
+            Dim optionFiles() As String = Directory.GetFiles(dir, "." & stem & ".*")
+            Dim sb As StringBuilder = New StringBuilder
+            For Each f As String In optionFiles
+                sb.Append(" --" & Path.GetExtension(f).Substring(1))
+            Next
+
+            Dim cmdArgs As String = "--output-dir " & outputDir & " --ice " & _includes & sb.ToString() & " " & sliceFile
+            Dim info As ProcessStartInfo = New ProcessStartInfo(_slice2vb, cmdArgs)
+            info.CreateNoWindow = True
+            info.UseShellExecute = False
+            info.RedirectStandardOutput = True
+            info.RedirectStandardError = True
+            proc = Process.Start(info)
+            If proc Is Nothing Then
                 Console.Error.WriteLine(progName + ": cannot start `" & _slice2vb & " " & cmdArgs & "'")
-		Environment.Exit(1)
-	    End If
-	    Dim t1 As Thread = New Thread(New ThreadStart(AddressOf RedirectStandardOutput))
-	    Dim t2 As Thread = New Thread(New ThreadStart(AddressOf RedirectStandardError))
-	    t1.Start()
-	    t2.Start()
-	    proc.WaitForExit()
-	    Dim rc As Integer = proc.ExitCode
-	    proc.Close()
-	    t1.Join()
-	    t2.Join()
-	    Return rc
-	End Function
+                Environment.Exit(1)
+            End If
+            Dim t1 As Thread = New Thread(New ThreadStart(AddressOf RedirectStandardOutput))
+            Dim t2 As Thread = New Thread(New ThreadStart(AddressOf RedirectStandardError))
+            t1.Start()
+            t2.Start()
+            proc.WaitForExit()
+            Dim rc As Integer = proc.ExitCode
+            proc.Close()
+            t1.Join()
+            t2.Join()
+            Return rc
+        End Function
 
-	'
-	' Do a recursive decent on the directory hierarchy rooted at "currentDir" and look
-	' for Slice files. Apply the build action to each Slice file found.
-	'
-	Public Function processDirectory(ByVal currentDir As String) As Integer
+        '
+        ' Do a recursive decent on the directory hierarchy rooted at "currentDir" and look
+        ' for Slice files. Apply the build action to each Slice file found.
+        '
+        Public Function processDirectory(ByVal currentDir As String) As Integer
 
-	    '
-	    ' Set output directory.
-	    '
-	    Const generatedDir = "generated"
-	    Dim outputDir As String = currentDir
-	    If Directory.Exists(Path.Combine(currentDir, generatedDir)) Then
-		outputDir = Path.Combine(currentDir, generatedDir)
-	    End If
+            '
+            ' Set output directory.
+            '
+            Const generatedDir = "generated"
+            Dim outputDir As String = currentDir
+            If Directory.Exists(Path.Combine(currentDir, generatedDir)) Then
+                outputDir = Path.Combine(currentDir, generatedDir)
+            End If
 
-	    '
-	    ' Look for Slice files and apply the build action to each Slice file.
-	    '
-	    Dim rc As Integer = 0
-	    Const slicePat As String = "*.ice"
-	    Dim sliceFiles() As String = Directory.GetFiles(currentDir, slicePat)
-	    For Each sliceFile As String In sliceFiles
-		Dim vbFile As String = Path.GetFileName(Path.ChangeExtension(sliceFile, ".vb"))
-		vbFile = Path.Combine(outputDir, vbFile)
-		Select Case _action
-		    Case BuildAction.build
-			Dim sliceTime As DateTime = File.GetLastWriteTime(sliceFile)
-			Dim needCompile = Not File.Exists(vbFile)
-			If Not needCompile Then
-			    needCompile = sliceTime > File.GetLastWriteTime(vbFile)
-			End If
-			If needCompile Then
-			    Console.WriteLine(Path.GetFileName(sliceFile))
-			    Dim exitCode = doCompile(sliceFile, outputDir)
-			    If rc = 0 Then
-				rc = exitCode
-			    End If
-			End If
-		    Case BuildAction.build.rebuild
-			Console.WriteLine(Path.GetFileName(sliceFile))
-			Dim exitCode = doCompile(sliceFile, outputDir)
-			If rc = 0 Then
-			    rc = exitCode
-			End If
-		    Case BuildAction.build.clean
-			If File.Exists(vbFile) Then
-			    File.Delete(vbFile)
-			    Console.WriteLine(vbFile & ": deleted")
-			End If
-		End Select
-	    Next
+            '
+            ' Look for Slice files and apply the build action to each Slice file.
+            '
+            Dim rc As Integer = 0
+            Const slicePat As String = "*.ice"
+            Dim sliceFiles() As String = Directory.GetFiles(currentDir, slicePat)
+            For Each sliceFile As String In sliceFiles
+                Dim vbFile As String = Path.GetFileName(Path.ChangeExtension(sliceFile, ".vb"))
+                vbFile = Path.Combine(outputDir, vbFile)
+                Select Case _action
+                    Case BuildAction.build
+                        Dim sliceTime As DateTime = File.GetLastWriteTime(sliceFile)
+                        Dim needCompile = Not File.Exists(vbFile)
+                        If Not needCompile Then
+                            needCompile = sliceTime > File.GetLastWriteTime(vbFile)
+                        End If
+                        If needCompile Then
+                            Console.WriteLine(Path.GetFileName(sliceFile))
+                            Dim exitCode = doCompile(sliceFile, outputDir)
+                            If rc = 0 Then
+                                rc = exitCode
+                            End If
+                        End If
+                    Case BuildAction.build.rebuild
+                        Console.WriteLine(Path.GetFileName(sliceFile))
+                        Dim exitCode = doCompile(sliceFile, outputDir)
+                        If rc = 0 Then
+                            rc = exitCode
+                        End If
+                    Case BuildAction.build.clean
+                        If File.Exists(vbFile) Then
+                            File.Delete(vbFile)
+                            Console.WriteLine(vbFile & ": deleted")
+                        End If
+                End Select
+            Next
 
-	    '
-	    ' Recurse into subdirectories.
-	    '
-	    Dim dirs() As String = Directory.GetDirectories(currentDir)
-	    For Each dir As String In dirs
-		If Not dir.Equals("generate") Then
-		    Dim exitCode As Integer = processDirectory(dir)
-		    If rc = 0 Then
-			rc = exitCode
-		    End If
-		End If
-	    Next
+            '
+            ' Recurse into subdirectories.
+            '
+            Dim dirs() As String = Directory.GetDirectories(currentDir)
+            For Each dir As String In dirs
+                If Not dir.Equals("generate") Then
+                    Dim exitCode As Integer = processDirectory(dir)
+                    If rc = 0 Then
+                        rc = exitCode
+                    End If
+                End If
+            Next
 
-	    Return rc
-	End Function
+            Return rc
+        End Function
 
     End Class
 
