@@ -184,6 +184,11 @@ Slice::JavaVisitor::getArgsAsyncCB(const OperationPtr& op)
     if(ret)
     {
 	args += "__ret";
+	BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
+	if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
+	{
+	    args += ".value";
+	}
     }
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
@@ -195,6 +200,11 @@ Slice::JavaVisitor::getArgsAsyncCB(const OperationPtr& op)
 		args += ", ";
 	    }
 	    args += fixKwd((*q)->name());
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast((*q)->type());
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*q)->type()))
+	    {
+		args += ".value";
+	    }
 	}
     }
     return args;
@@ -4187,12 +4197,28 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         for(q = outParams.begin(); q != outParams.end(); ++q)
         {
             string typeS = typeToString(q->first, TypeModeIn, classScope);
-            out << nl << typeS << ' ' << fixKwd(q->second) << ';';
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
+	    {
+		out << nl << typeS << "Holder " << fixKwd(q->second) << " = new " << typeS << "Holder();";
+	    }
+	    else
+	    {
+		out << nl << typeS << ' ' << fixKwd(q->second) << ";";
+	    }
         }
         if(ret)
         {
 	    string retS = typeToString(ret, TypeModeIn, classScope);
-            out << nl << retS << " __ret;";
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
+	    {
+		out << nl << retS << "Holder __ret = new " << retS << "Holder();";
+	    }
+	    else
+	    {
+		out << nl << retS << " __ret;";
+	    }
         }
 	out << nl << "try";
 	out << sb;
@@ -4227,11 +4253,27 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         out << eb;
         for(q = outParams.begin(); q != outParams.end(); ++q)
         {
-            writeMarshalUnmarshalCode(out, classScope, q->first, fixKwd(q->second), false, iter);
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
+	    {
+		out << nl << "__is.readObject(" << fixKwd(q->second) << ".getPatcher());";
+	    }
+	    else
+	    {
+		writeMarshalUnmarshalCode(out, classScope, q->first, fixKwd(q->second), false, iter);
+	    }
         }
         if(ret)
         {
-            writeMarshalUnmarshalCode(out, classScope, ret, "__ret", false, iter);
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
+	    {
+		out << nl << "__is.readObject(__ret.getPatcher());";
+	    }
+	    else
+	    {
+		writeMarshalUnmarshalCode(out, classScope, ret, "__ret", false, iter);
+	    }
         }
 	if(p->returnsClasses())
 	{
