@@ -1291,17 +1291,15 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	 com.sleepycat.db.Dbt value, java.util.List identities)
 	throws com.sleepycat.db.DbException
     {
+	EvictorStorageKey esk = unmarshalKey(key.get_data(), _communicator);
+	assert(esk.facet.length == 0);
+	identities.add(esk.identity);
+	byte[] root = marshalRootKey(esk.identity, _communicator);
+
 	int rs = 0;
-	byte[] root = null;
 	do
 	{ 
-	    if(root == null)
-	    {
-		EvictorStorageKey esk = unmarshalKey(key.get_data(), _communicator);
-		assert(esk.facet.length == 0);
-		identities.add(esk.identity);
-		root = marshalRootKey(esk.identity, _communicator);
-	    }
+	   
 	    rs = dbc.get(key, value, com.sleepycat.db.Db.DB_NEXT);
 	}
 	while(rs == 0 && startWith(key.get_data(), root));
