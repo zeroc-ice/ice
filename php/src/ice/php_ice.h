@@ -35,7 +35,9 @@ ZEND_RSHUTDOWN_FUNCTION(ice);
 ZEND_MINFO_FUNCTION(ice);
 
 ZEND_BEGIN_MODULE_GLOBALS(ice)
-    zval*  z_communicator;
+    zval* communicator;
+    void* typeMap;
+    void* objectMap;
 ZEND_END_MODULE_GLOBALS(ice)
 
 #ifdef ZTS
