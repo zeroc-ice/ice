@@ -167,8 +167,8 @@ local interface ObjectAdapter
 
     /**
      *
-     * Like [add], but with a facet. Calling <code>add(servant,
-     * id)</code> is equivalent to calling [addFacet] with an empty
+     * Like [add], but with a facet. Calling <literal>add(servant, * id)</literal>
+     * is equivalent to calling [addFacet] with an empty
      * facet.
      *
      * @param servant The servant to add.
@@ -215,7 +215,7 @@ local interface ObjectAdapter
     /**
      *
      * Like [addWithUUID], but with a facet. Calling
-     * <code>addWithUUID(servant)</code> is equivalent to calling
+     * <literal>addWithUUID(servant)</literal> is equivalent to calling
      * [addFacetWithUUID] with an empty facet.
      *
      * @param servant The servant to add.
@@ -256,7 +256,7 @@ local interface ObjectAdapter
     /**
      *
      * Like [remove], but with a facet. Calling
-     * <code>remove(id)</code> is equivalent to calling
+     * <literal>remove(id)</literal> is equivalent to calling
      * [removeFacet] with an empty facet.
      *
      * @param id The identity of the &Ice; object that is
@@ -314,7 +314,7 @@ local interface ObjectAdapter
     /**
      *
      * Like [find], but with a facet. Calling
-     * <code>find(id)</code> is equivalent to calling
+     * <literal>find(id)</literal> is equivalent to calling
      * [findFacet] with an empty facet.
      *
      * @param id The identity of the &Ice; object for which the
