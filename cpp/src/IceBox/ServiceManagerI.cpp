@@ -220,7 +220,7 @@ IceBox::ServiceManagerI::init(const string& service, const string& entryPoint, c
     //
     // Create the service property set.
     //
-    PropertiesPtr serviceProperties = createProperties();
+    PropertiesPtr serviceProperties = createProperties(serviceArgs);
     serviceArgs = serviceProperties->parseCommandLineOptions("Ice", serviceArgs);
     serviceArgs = serviceProperties->parseCommandLineOptions(service, serviceArgs);
 
