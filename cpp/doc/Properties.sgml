@@ -9,10 +9,119 @@ All Rights Reserved
 -->
 
 <section><title>Tracing</title>
+
+
+<section><title>ice.trace.network</title>
+
+<section><title>Synopsis</title>
+<synopsis>
+ice.trace.network=<replaceable>num</replaceable>
+</synopsis>
+</section>
+
+<section>
+<title>Description</title>
+<para>
+The network tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry><literal>0</literal></entry>
+<entry>no network tracing (default)</entry>
+</row>
+<row>
+<entry><literal>1</literal></entry>
+<entry>trace connection establishment and closure</entry>
+</row>
+<row>
+<entry><literal>2</literal></entry>
+<entry>like <literal>1</literal>, but more detailed</entry>
+</row>
+<row>
+<entry><literal>3</literal></entry>
+<entry>like <literal>2</literal>, but also trace data transfers</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+
+</section>
+
+
+<section><title>ice.trace.protocol</title>
+
+<section><title>Synopsis</title>
+<synopsis>
+ice.trace.protocol=<replaceable>num</replaceable>
+</synopsis>
+</section>
+
+<section>
+<title>Description</title>
+<para>
+The protocol tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry><literal>0</literal></entry>
+<entry>no protocol tracing (default)</entry>
+</row>
+<row>
+<entry><literal>1</literal></entry>
+<entry>trace &Ice; protocol messages</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+
+</section>
+
+
+</section>
+
+<!--
 <variablelist>
 <varlistentry>
 <term>
+<literal>
 ice.trace.network=<replaceable>num</replaceable>
+</literal>
+</term>
+<listitem>
+<variablelist>
+<varlistentry>
+<term>
+Constraints
+</term>
+<listitem>
+<para>
+<literal>
+<replaceable>num</replaceable> &ge; 0
+</literal>
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+Default Value
+</term>
+<listitem>
+<para>
+<literal>
+<replaceable>num</replaceable> = 0
+</literal>
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+Description
 </term>
 <listitem>
 <para>
@@ -22,6 +131,9 @@ The network tracing level.
 2 = like 1, but more detailed
 3 = like 2, but also trace data transfer
 </para>
+</listitem>
+</varlistentry>
+</variablelist>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -54,3 +166,4 @@ The number of threads in the thread pool. The default value is
 </varlistentry>
 </variablelist>
 </section>
+-->

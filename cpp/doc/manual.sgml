@@ -1,4 +1,5 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN" [
+<!ENTITY Ice "Ice">
 <!ENTITY ModuleIce SYSTEM "ModuleIce.sgml">
 <!ENTITY Properties SYSTEM "Properties.sgml">
 ]>
