@@ -53,6 +53,8 @@ static function_entry _methods[] =
     {"addObjectFactory",       PHP_FN(Ice_Communicator_addObjectFactory),       NULL},
     {"removeObjectFactory",    PHP_FN(Ice_Communicator_removeObjectFactory),    NULL},
     {"findObjectFactory",      PHP_FN(Ice_Communicator_findObjectFactory),      NULL},
+    {"setDefaultContext",      PHP_FN(Ice_Communicator_setDefaultContext),      NULL},
+    {"getDefaultContext",      PHP_FN(Ice_Communicator_getDefaultContext),      NULL},
     {"flushBatchRequests",     PHP_FN(Ice_Communicator_flushBatchRequests),     NULL},
     {NULL, NULL, NULL}
 };
@@ -428,6 +430,65 @@ ZEND_FUNCTION(Ice_Communicator_findObjectFactory)
     // Increment the factory's reference count.
     //
     Z_OBJ_HT_P(p->second)->add_ref(p->second TSRMLS_CC);
+}
+
+ZEND_FUNCTION(Ice_Communicator_setDefaultContext)
+{
+    if(ZEND_NUM_ARGS() != 1)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = getObject(getThis() TSRMLS_CC);
+    if(!obj)
+    {
+        return;
+    }
+    assert(obj->ptr);
+    Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
+
+    zval* arr = NULL;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &arr) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    //
+    // Populate the context.
+    //
+    Ice::Context ctx;
+    if(arr && !extractContext(arr, ctx TSRMLS_CC))
+    {
+        RETURN_NULL();
+    }
+
+    try
+    {
+        (*_this)->setDefaultContext(ctx);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+    }
+}
+
+ZEND_FUNCTION(Ice_Communicator_getDefaultContext)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = getObject(getThis() TSRMLS_CC);
+    if(!obj)
+    {
+        return;
+    }
+    assert(obj->ptr);
+    Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
+
+    createContext(return_value, (*_this)->getDefaultContext() TSRMLS_CC);
 }
 
 ZEND_FUNCTION(Ice_Communicator_flushBatchRequests)
