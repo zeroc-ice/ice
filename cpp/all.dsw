@@ -258,9 +258,6 @@ Package=<4>
     Project_Dep_Name thread
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name glacierrouter
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name callbackC
     End Project Dependency
     Begin Project Dependency
@@ -268,9 +265,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name unicode
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name glacier
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name icexml
@@ -331,12 +325,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name icessl
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sessionC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sessionS
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name evictorC
@@ -433,15 +421,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name simpleS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name starterC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name starterS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name glacierstarter
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name freezescriptdbmap
@@ -1269,36 +1248,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "glacier"=.\src\Glacier\Glacier.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icecpp
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icessl
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2cpp
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "glacier2"=.\src\Glacier2\Glacier2.dsp - Package Owner=<4>
 
 Package=<5>
@@ -1399,54 +1348,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "glacierrouter"=.\src\glacier\glacierrouter.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name glacier
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icessl
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "glacierstarter"=.\src\glacier\glacierstarter.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name glacier
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icessl
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name iceutil
@@ -2682,51 +2583,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sessionC"=.\demo\glacier\session\sessionC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name glacier
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icessl
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "sessionS"=.\demo\glacier\session\sessionS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name glacier
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "simpleC"=.\test\icepack\simple\simpleC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -3160,54 +3016,6 @@ Package=<4>
 ###############################################################################
 
 Project: "sliceobS"=.\test\ice\slicing\objects\sliceobS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "starterC"=.\test\glacier\starter\starterC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name glacier
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name glacierrouter
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name glacierstarter
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icessl
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "starterS"=.\test\glacier\starter\starterS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

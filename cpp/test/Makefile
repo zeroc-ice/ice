@@ -18,7 +18,6 @@ SUBDIRS		= IceUtil \
 		  IcePack \
 		  Freeze \
 		  FreezeScript \
-		  Glacier \
 		  Glacier2
 
 $(EVERYTHING)::

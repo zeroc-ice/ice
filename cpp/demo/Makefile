@@ -17,7 +17,6 @@ SUBDIRS		= IceUtil \
 		  IceStorm \
 		  IceBox \
 		  IcePack \
-		  Glacier \
 		  Glacier2 \
 		  book
 

@@ -93,7 +93,7 @@ tests = [ \
 #
 if TestUtil.isCygwin() == 0:
     tests += [ \
-       "Glacier/starter", \
+       # "Glacier/starter", \ # Glacier removed from the source tree, so this list is empty for now.
       ]
 
 def usage():
