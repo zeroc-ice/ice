@@ -12,7 +12,7 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= library slice
+SUBDIRS		= slice library
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

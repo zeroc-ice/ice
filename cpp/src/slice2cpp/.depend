@@ -1,0 +1,3 @@
+GenCPlusPlus.o: GenCPlusPlus.cpp ../../../include/Ice/Functional.h ../../../include/Ice/Handle.h ../../../include/Ice/Config.h GenCPlusPlus.h ../parser/Parser.h ../../../include/Ice/Shared.h ../parser/OutputUtil.h GenCPlusPlusUtil.h
+GenCPlusPlusUtil.o: GenCPlusPlusUtil.cpp GenCPlusPlusUtil.h ../parser/Parser.h ../../../include/Ice/Shared.h ../../../include/Ice/Config.h ../../../include/Ice/Handle.h ../parser/OutputUtil.h
+Main.o: Main.cpp GenCPlusPlus.h ../parser/Parser.h ../../../include/Ice/Shared.h ../../../include/Ice/Config.h ../../../include/Ice/Handle.h ../parser/OutputUtil.h
