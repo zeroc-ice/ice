@@ -56,9 +56,9 @@ int checkKeyword(string&);
 
 identifier		\\?[[:alpha:]_][[:alnum:]_]*
 integer_constant	(\+|-)?((0[0-7]+)|(0x[[:xdigit:]]+)|([[:digit:]]+))
-fractional_constant	([[:digit:]]*\.[[:digit:]]+)|([[:digit:]]+\.)
+fractional_constant	(\+|-)?(([[:digit:]]*\.[[:digit:]]+)|([[:digit:]]+\.))
 exponent_part		(e|E)(\+|-)?[[:digit:]]+
-floating_literal	(({fractional_constant}{exponent_part}?)|([[:digit:]]+{exponent_part}))[fF]?
+floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{exponent_part}))[fF]?
 
 %%
 

@@ -48,6 +48,30 @@ const float f9 = 1E+1;
 const float f10 = 1E+1f;
 const float f11 = 1E1F;
 
+const float pf1 = +.1;
+const float pf2 = +1.1;
+const float pf3 = +1.;
+const float pf4 = +.1e1;
+const float pf5 = +1.E1;
+const float pf6 = +1.1e+1;
+const float pf7 = +1.1e-1;
+const float pf8 = +1e-1;
+const float pf9 = +1E+1;
+const float pf10 = +1E+1f;
+const float pf11 = +1E1F;
+
+const float nf1 = -.1;
+const float nf2 = -1.1;
+const float nf3 = -1.;
+const float nf4 = -.1e1;
+const float nf5 = -1.E1;
+const float nf6 = -1.1e+1;
+const float nf7 = -1.1e-1;
+const float nf8 = -1e-1;
+const float nf9 = -1E+1;
+const float nf10 = -1E+1f;
+const float nf11 = -1E1F;
+
 const XXX ic1 = 1;		// no such type
 const long f11 = 1;		// redifinition
 const long F10 = 1;		// case-insensitive redefinition
