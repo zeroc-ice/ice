@@ -170,7 +170,17 @@ LibraryI::createBook(const ::BookDescription& description, const Ice::Current& c
 {
     IceUtil::RWRecMutex::WLock sync(*this);
 
+#if defined(__SUNPRO_CC)
+    //
+    // Strange CC bug (only when optimizing and raising BookExistsException)
+    //
+    BookPrx book;
+    {
+	book = IsbnToBook(c.adapter)(description.isbn);
+    }
+#else
     BookPrx book = IsbnToBook(c.adapter)(description.isbn);
+#endif
     try
     {
 	book->ice_ping();
