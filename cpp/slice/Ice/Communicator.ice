@@ -17,6 +17,7 @@
 #include <Ice/ObjectFactoryF.ice>
 #include <Ice/UserExceptionFactoryF.ice>
 #include <Ice/RouterF.ice>
+#include <Ice/LocatorF.ice>
 #include <Ice/PluginF.ice>
 
 /**
@@ -341,6 +342,27 @@ local interface Communicator
      *
      **/
     void setDefaultRouter(Router* router);
+
+    /**
+     *
+     * Set a default &Ice; locator for this communicator. All newly
+     * created proxy and object adapters will use this default
+     * locator. To disable the default locator, null can be passed as
+     * argument. Note that this operation has no effect on already
+     * existing proxies or object adapters.
+     *
+     * <note><para> You can also set a locator for an individual proxy
+     * by calling the operation [ice_locator] on such proxy or for an
+     * object adapter by calling the operation [setLocator] on such
+     * object adapter</para></note>
+     *
+     * @param router The default router to use for this communicator.
+     *
+     * @see Locator
+     * @see ObjectAdapter::setLocator
+     *
+     **/
+    void setDefaultLocator(Locator* locator);
 
     /**
      *
