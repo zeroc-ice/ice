@@ -53,7 +53,7 @@ SDIR		= $(slicedir)/Glacier
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS)
+CPPFLAGS	:= -I.. $(OPENSSL_FLAGS) $(CPPFLAGS)
 SLICE2CPPFLAGS	:= --include-dir Glacier --dll-export GLACIER_API $(SLICE2CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
