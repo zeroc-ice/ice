@@ -1,7 +1,7 @@
 "DeployProject"
 {
-"VSVersion" = "3:700"
-"ProjectType" = "8:{5443560e-dbb4-11d2-8724-00a0c9a8b90c}"
+"VSVersion" = "3:701"
+"ProjectType" = "8:{DD7A5B58-C2F9-40FF-B2EF-0773356FB978}"
 "IsWebType" = "8:FALSE"
 "ProjectName" = "8:OpenSSLRuntime"
 "LanguageId" = "3:0"
@@ -15,27 +15,15 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_5A0597F22ADE49109AD9193CE0614CA2"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7B\\OUT32DLL\\SSLEAY32.DLL"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_CEF5859D358A42BE93FA9F05A5B17934"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_DF2DDAF58BF34C7EAA28094FDEEE2E7F"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7B\\OUT32DLL\\LIBEAY32.DLL"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_F010B2C474DF43D091E8ADD186476C2C"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7B\\OUT32DLL\\OPENSSL.EXE"
+        "MsmSig" = "8:_UNDEFINED"
         }
     }
     "Configurations"
@@ -86,27 +74,7 @@
         }
         "File"
         {
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5A0597F22ADE49109AD9193CE0614CA2"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7b\\out32dll\\ssleay32.dll"
-            "TargetName" = "8:ssleay32.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_2DA0904B4553447D8F5E1680A7583627"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_DF2DDAF58BF34C7EAA28094FDEEE2E7F"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_DF2DDAF58BF34C7EAA28094FDEEE2E7F"
             {
             "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7b\\out32dll\\libeay32.dll"
             "TargetName" = "8:libeay32.dll"
@@ -126,7 +94,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_F010B2C474DF43D091E8ADD186476C2C"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_F010B2C474DF43D091E8ADD186476C2C"
             {
             "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7b\\out32dll\\openssl.exe"
             "TargetName" = "8:openssl.exe"
@@ -152,7 +120,7 @@
         }
         "Folder"
         {
-            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_FB65C60981A84F8A878AE7BDEC05F7C9"
+            "{29CD8198-A6F0-4B93-8B90-AC03CFEAD328}:_FB65C60981A84F8A878AE7BDEC05F7C9"
             {
             "DefaultLocation" = "8:[TARGETDIR]"
             "DisplayName" = "8:Retargetable Folder #1"
@@ -164,7 +132,7 @@
             "Property" = "8:NEWRETARGETABLEPROPERTY3"
                 "Folders"
                 {
-                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_2DA0904B4553447D8F5E1680A7583627"
+                    "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_2DA0904B4553447D8F5E1680A7583627"
                     {
                     "Name" = "8:bin"
                     "AlwaysCreate" = "11:FALSE"
@@ -178,10 +146,25 @@
                 }
             }
         }
-        "Shortcut"
+        "Sequences"
         {
         }
-        "Sequences"
+        "MergeModule"
+        {
+        }
+        "Module"
+        {
+        "ModuleSignature" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
+        "Version" = "8:0.9.7.0"
+        "Title" = "8:OpenSSLRuntime"
+        "Subject" = "8:"
+        "Author" = "8:ZeroC, Inc"
+        "Keywords" = "8:"
+        "Comments" = "8:"
+        "SearchPath" = "8:"
+        "UseSystemSearchPath" = "11:TRUE"
+        }
+        "ProjectOutput"
         {
         }
         "Registry"
@@ -217,35 +200,8 @@
                 }
             }
         }
-        "ProjectOutput"
+        "Shortcut"
         {
-        }
-        "Module"
-        {
-        "ModuleSignature" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-        "Version" = "8:0.9.7.0"
-        "Title" = "8:OpenSSLRuntime"
-        "Subject" = "8:"
-        "Author" = "8:ZeroC, Inc"
-        "Keywords" = "8:"
-        "Comments" = "8:"
-        "SearchPath" = "8:"
-        "UseSystemSearchPath" = "11:TRUE"
-        }
-        "MergeModule"
-        {
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_CEF5859D358A42BE93FA9F05A5B17934"
-            {
-            "UseDynamicProperties" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "SourcePath" = "8:C:\\Program Files\\Common Files\\Merge Modules\\VC_CRT.msm"
-            "ModuleSignature" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
         }
     }
 }

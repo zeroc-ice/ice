@@ -1,62 +1,112 @@
-Microsoft Visual Studio Solution File, Format Version 7.00
+Microsoft Visual Studio Solution File, Format Version 8.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bench", "Freeze\bench\bench.vcproj", "{30C29AF2-C42F-4102-9F5C-883D54C75CDB}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libraryC", "Freeze\library\libraryC.vcproj", "{91EC2E38-0175-44BE-96A9-79414F019985}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libraryCOL", "Freeze\library\libraryCOL.vcproj", "{0517050E-F747-4840-8787-D37306BABA43}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libraryS", "Freeze\library\libraryS.vcproj", "{941286FE-5E49-4003-A148-0A0C6B987D07}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "phonebookC", "Freeze\phonebook\phonebookC.vcproj", "{898B34D5-8196-4074-ACF5-AB68121EEEA1}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "phonebookCOL", "Freeze\phonebook\phonebookCOL.vcproj", "{AEADA8DC-95D7-4C68-AEC4-013B774FFE3A}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "phonebookS", "Freeze\phonebook\phonebookS.vcproj", "{0D61C2C6-3C4A-40C5-BCA3-5136A913C2DC}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sessionC", "Glacier\session\sessionC.vcproj", "{83881730-2735-457B-8021-5015131E70C6}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sessionS", "Glacier\session\sessionS.vcproj", "{4B43FE30-B286-4083-B65E-30614E85847D}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "callbackC", "Ice\callback\callbackC.vcproj", "{B068683F-A0FE-4468-BBE1-89D9DC07695F}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "callbackS", "Ice\callback\callbackS.vcproj", "{5A022A1B-44D5-42BB-BA85-08258CD38FE5}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "helloC", "Ice\hello\helloC.vcproj", "{1F35E563-FDA1-43C2-AB50-7EAA1683685D}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "helloS", "Ice\hello\helloS.vcproj", "{1E561B06-CFAE-403A-BB2F-9D405799414E}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "latencyC", "Ice\latency\latencyC.vcproj", "{75300703-ADF9-4FCB-A1EE-21AF09BABDF2}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "latencyS", "Ice\latency\latencyS.vcproj", "{DB1479DF-30CA-446A-9FA9-53513950440A}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nestedC", "Ice\nested\nestedC.vcproj", "{9F56817E-8C70-4177-92A8-3F29D5E91238}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nestedS", "Ice\nested\nestedS.vcproj", "{6B97B86D-23FD-4558-A826-EFF9F67CA344}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "throughputC", "Ice\throughput\throughputC.vcproj", "{BCFEBEC7-2A54-4156-8BE9-5DE90371EE16}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "throughputS", "Ice\throughput\throughputS.vcproj", "{82F08581-967B-4AA9-8D8A-7358EC63BCCD}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "valueC", "Ice\value\valueC.vcproj", "{BED91DBC-8599-48AF-961C-5996AAEC70A1}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "valueS", "Ice\value\valueS.vcproj", "{4C736B4D-97D2-49BD-A4DA-E1BB2DCAE8F7}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "helloIceBoxC", "IceBox\hello\helloIceBoxC.vcproj", "{2C7C1251-2A18-4173-90F1-E7D8F5FB619D}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "helloIceBoxS", "IceBox\hello\helloIceBoxS.vcproj", "{71D2F7D8-ABB6-4A49-AE7C-DCBC666095F9}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "clockC", "IceStorm\clock\clockC.vcproj", "{7930C1AC-9DA2-49D7-A8F2-7341E6694AB4}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "clockS", "IceStorm\clock\clockS.vcproj", "{59B255AD-6A10-467C-8AC3-F6B85AE36835}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "workqueue", "IceUtil\workqueue\workqueue.vcproj", "{D45C418B-BEF0-41D9-A67F-B5303806A82A}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
-		ConfigName.0 = Debug
-		ConfigName.1 = Release
-	EndGlobalSection
-	GlobalSection(ProjectDependencies) = postSolution
+		Debug = Debug
+		Release = Release
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
 		{30C29AF2-C42F-4102-9F5C-883D54C75CDB}.Debug.ActiveCfg = Debug|Win32

@@ -1,7 +1,7 @@
 "DeployProject"
 {
-"VSVersion" = "3:700"
-"ProjectType" = "8:{5443560e-dbb4-11d2-8724-00a0c9a8b90c}"
+"VSVersion" = "3:701"
+"ProjectType" = "8:{DD7A5B58-C2F9-40FF-B2EF-0773356FB978}"
 "IsWebType" = "8:FALSE"
 "ProjectName" = "8:IceRuntime"
 "LanguageId" = "3:0"
@@ -17,157 +17,145 @@
         {
         "MsmKey" = "8:_244CF18506B740C7955A2D3FBC38C60D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEUTIL11.DLL"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_27FC9482580640B983F3EA22E38E9F2B"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESSL11.DLL"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_3566FFE19A5C43BC917F0EE22FC3BB72"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICE11.DLL"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_35B081FEE9CC4D4199323DD671515756"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\LIB\\ICE.JAR"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_44E14775EDE84F09B7CC6BAE590CF10D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\XMLTRANSFORM\\RELEASE\\TRANSFORMDB.EXE"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_4978F4C44C884F29BEEF51422F312A59"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\GLACIER\\RELEASE\\GLACIERROUTER.EXE"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_5067ADC6FB66469C85498C4BC0E48FB4"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\GLACIER11.DLL"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_59C984ABBA114CF2A3EF4AB8A9C33CB5"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICECPP\\RELEASE\\ICECPP.EXE"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_5DB06C8B0B294A78B966750BAF55EAF5"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\XMLTRANSFORM11.DLL"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_6CAD391A29BB4DD280E9A5690CFCCBC0"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_79FB15D0EE774DC0B2FE37F308576514"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\FREEZE11.DLL"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_7B736041D70C4746839048434F834ABE"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESTORM11.DLL"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_7D01F98A27594DE89183B50CE2E3EFB2"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICEBOX\\RELEASE\\ICEBOX.EXE"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_7E486AB0097D4B2F9E54504C6A4D70BB"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:MergeModule.1F6ED23CA1134399AF5199CCC77B668A"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_8CA1F9A1FE564FDE958A55BAA2BACE83"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEXML11.DLL"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_966E2F874F4740E0B5083D4BCBEECA61"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICEPATCH\\RELEASE\\ICEPATCHCLIENT.EXE"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_9DCDCDD2964C4AD4AA7C850725CE7FAD"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEPATCH11.DLL"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_A3CB2645C97A4FE995E3AB66FFE6DFD5"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_A3FC941329C14DD68C3E0FD04A7646F2"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICEPATCH\\RELEASE\\ICEPATCHSERVER.EXE"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_A93C4A4CEF004CC28993F62B041D91D7"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESTORMSERVICE11.DLL"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B37CCB51EC8D4F6CA272C0DF4B9A92D9"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_C0C9DF0118D94D1883CCD7CF7CAABAB7"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\SLICE11.DLL"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_C2F44088AFD54A0CB4008078EDCBBF0A"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:VC_User_STL.BA9B76E9_0DE0_11D5_A548_0090278A1BB8"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_D1C72D027FF34399B49FB2F9506CF1B1"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEBOX11.DLL"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_E17045D31296496CAF5F72E092A14323"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICEBOX\\RELEASE\\ICEBOXADMIN.EXE"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_ED4FE5E0CCBF4489AF0E319A9ABB65DF"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICESTORM\\RELEASE\\ICESTORMADMIN.EXE"
+        "MsmSig" = "8:_UNDEFINED"
         }
     }
     "Configurations"
@@ -202,7 +190,7 @@
         }
         "File"
         {
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_244CF18506B740C7955A2D3FBC38C60D"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_244CF18506B740C7955A2D3FBC38C60D"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\iceutil11.dll"
             "TargetName" = "8:iceutil11.dll"
@@ -222,7 +210,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_27FC9482580640B983F3EA22E38E9F2B"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_27FC9482580640B983F3EA22E38E9F2B"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\icessl11.dll"
             "TargetName" = "8:icessl11.dll"
@@ -242,7 +230,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_3566FFE19A5C43BC917F0EE22FC3BB72"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_3566FFE19A5C43BC917F0EE22FC3BB72"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\ice11.dll"
             "TargetName" = "8:ice11.dll"
@@ -262,7 +250,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_35B081FEE9CC4D4199323DD671515756"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_35B081FEE9CC4D4199323DD671515756"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icej\\lib\\Ice.jar"
             "TargetName" = "8:Ice.jar"
@@ -282,7 +270,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_44E14775EDE84F09B7CC6BAE590CF10D"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_44E14775EDE84F09B7CC6BAE590CF10D"
             {
             "SourcePath" = "8:..\\..\\..\\src\\XMLTransform\\Release\\transformdb.exe"
             "TargetName" = "8:transformdb.exe"
@@ -302,7 +290,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_4978F4C44C884F29BEEF51422F312A59"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_4978F4C44C884F29BEEF51422F312A59"
             {
             "SourcePath" = "8:..\\..\\..\\src\\Glacier\\Release\\GlacierRouter.exe"
             "TargetName" = "8:GlacierRouter.exe"
@@ -322,7 +310,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5067ADC6FB66469C85498C4BC0E48FB4"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_5067ADC6FB66469C85498C4BC0E48FB4"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\glacier11.dll"
             "TargetName" = "8:glacier11.dll"
@@ -342,7 +330,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_59C984ABBA114CF2A3EF4AB8A9C33CB5"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_59C984ABBA114CF2A3EF4AB8A9C33CB5"
             {
             "SourcePath" = "8:..\\..\\..\\src\\icecpp\\Release\\icecpp.exe"
             "TargetName" = "8:icecpp.exe"
@@ -362,7 +350,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5DB06C8B0B294A78B966750BAF55EAF5"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_5DB06C8B0B294A78B966750BAF55EAF5"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\xmltransform11.dll"
             "TargetName" = "8:xmltransform11.dll"
@@ -382,7 +370,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_79FB15D0EE774DC0B2FE37F308576514"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_79FB15D0EE774DC0B2FE37F308576514"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\freeze11.dll"
             "TargetName" = "8:freeze11.dll"
@@ -402,7 +390,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_7B736041D70C4746839048434F834ABE"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_7B736041D70C4746839048434F834ABE"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\icestorm11.dll"
             "TargetName" = "8:icestorm11.dll"
@@ -422,7 +410,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_7D01F98A27594DE89183B50CE2E3EFB2"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_7D01F98A27594DE89183B50CE2E3EFB2"
             {
             "SourcePath" = "8:..\\..\\..\\src\\IceBox\\Release\\icebox.exe"
             "TargetName" = "8:icebox.exe"
@@ -442,7 +430,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8CA1F9A1FE564FDE958A55BAA2BACE83"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_8CA1F9A1FE564FDE958A55BAA2BACE83"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\icexml11.dll"
             "TargetName" = "8:icexml11.dll"
@@ -462,7 +450,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_966E2F874F4740E0B5083D4BCBEECA61"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_966E2F874F4740E0B5083D4BCBEECA61"
             {
             "SourcePath" = "8:..\\..\\..\\src\\IcePatch\\Release\\icepatchclient.exe"
             "TargetName" = "8:icepatchclient.exe"
@@ -482,7 +470,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_9DCDCDD2964C4AD4AA7C850725CE7FAD"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_9DCDCDD2964C4AD4AA7C850725CE7FAD"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\icepatch11.dll"
             "TargetName" = "8:icepatch11.dll"
@@ -502,7 +490,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_A3FC941329C14DD68C3E0FD04A7646F2"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_A3FC941329C14DD68C3E0FD04A7646F2"
             {
             "SourcePath" = "8:..\\..\\..\\src\\IcePatch\\Release\\icepatchserver.exe"
             "TargetName" = "8:icepatchserver.exe"
@@ -522,7 +510,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_A93C4A4CEF004CC28993F62B041D91D7"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_A93C4A4CEF004CC28993F62B041D91D7"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\icestormservice11.dll"
             "TargetName" = "8:icestormservice11.dll"
@@ -542,7 +530,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C0C9DF0118D94D1883CCD7CF7CAABAB7"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_C0C9DF0118D94D1883CCD7CF7CAABAB7"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\slice11.dll"
             "TargetName" = "8:slice11.dll"
@@ -562,7 +550,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_D1C72D027FF34399B49FB2F9506CF1B1"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_D1C72D027FF34399B49FB2F9506CF1B1"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\icebox11.dll"
             "TargetName" = "8:icebox11.dll"
@@ -582,7 +570,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E17045D31296496CAF5F72E092A14323"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_E17045D31296496CAF5F72E092A14323"
             {
             "SourcePath" = "8:..\\..\\..\\src\\IceBox\\Release\\iceboxadmin.exe"
             "TargetName" = "8:iceboxadmin.exe"
@@ -602,7 +590,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_ED4FE5E0CCBF4489AF0E319A9ABB65DF"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_ED4FE5E0CCBF4489AF0E319A9ABB65DF"
             {
             "SourcePath" = "8:..\\..\\..\\src\\IceStorm\\Release\\icestormadmin.exe"
             "TargetName" = "8:icestormadmin.exe"
@@ -628,7 +616,7 @@
         }
         "Folder"
         {
-            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_20E11ABD430C44DD91C1839904224F28"
+            "{29CD8198-A6F0-4B93-8B90-AC03CFEAD328}:_20E11ABD430C44DD91C1839904224F28"
             {
             "DefaultLocation" = "8:[TARGETDIR]"
             "DisplayName" = "8:Retargetable Folder #1"
@@ -640,7 +628,7 @@
             "Property" = "8:NEWRETARGETABLEPROPERTY4"
                 "Folders"
                 {
-                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_16965972D27742F196A05A88F2D678CB"
+                    "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_16965972D27742F196A05A88F2D678CB"
                     {
                     "Name" = "8:bin"
                     "AlwaysCreate" = "11:FALSE"
@@ -651,7 +639,7 @@
                         {
                         }
                     }
-                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_5DD413BAEA6541B4A3A04FC1E2ACBC25"
+                    "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_5DD413BAEA6541B4A3A04FC1E2ACBC25"
                     {
                     "Name" = "8:lib"
                     "AlwaysCreate" = "11:FALSE"
@@ -665,10 +653,58 @@
                 }
             }
         }
-        "Shortcut"
+        "Sequences"
         {
         }
-        "Sequences"
+        "MergeModule"
+        {
+            "{35A69C6E-5BA4-440D-803D-762B59A45393}:_6CAD391A29BB4DD280E9A5690CFCCBC0"
+            {
+            "UseDynamicProperties" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "SourcePath" = "8:..\\MergeModules\\BerkeleyDBRuntime.msm"
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{35A69C6E-5BA4-440D-803D-762B59A45393}:_7E486AB0097D4B2F9E54504C6A4D70BB"
+            {
+            "UseDynamicProperties" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "SourcePath" = "8:..\\MergeModules\\XercesCRuntime.msm"
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{35A69C6E-5BA4-440D-803D-762B59A45393}:_A3CB2645C97A4FE995E3AB66FFE6DFD5"
+            {
+            "UseDynamicProperties" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "SourcePath" = "8:..\\MergeModules\\OpenSSLRuntime.msm"
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+        }
+        "Module"
+        {
+        "ModuleSignature" = "8:MergeModule.F5B44F99C9F941D9995A9C9EDB8BE45E"
+        "Version" = "8:1.1.0.0"
+        "Title" = "8:IceRuntime"
+        "Subject" = "8:"
+        "Author" = "8:ZeroC, Inc"
+        "Keywords" = "8:"
+        "Comments" = "8:"
+        "SearchPath" = "8:"
+        "UseSystemSearchPath" = "11:TRUE"
+        }
+        "ProjectOutput"
         {
         }
         "Registry"
@@ -704,83 +740,8 @@
                 }
             }
         }
-        "ProjectOutput"
+        "Shortcut"
         {
-        }
-        "Module"
-        {
-        "ModuleSignature" = "8:MergeModule.F5B44F99C9F941D9995A9C9EDB8BE45E"
-        "Version" = "8:1.1.0.0"
-        "Title" = "8:IceRuntime"
-        "Subject" = "8:"
-        "Author" = "8:ZeroC, Inc"
-        "Keywords" = "8:"
-        "Comments" = "8:"
-        "SearchPath" = "8:"
-        "UseSystemSearchPath" = "11:TRUE"
-        }
-        "MergeModule"
-        {
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_6CAD391A29BB4DD280E9A5690CFCCBC0"
-            {
-            "UseDynamicProperties" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "SourcePath" = "8:..\\MergeModules\\BerkeleyDBRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_7E486AB0097D4B2F9E54504C6A4D70BB"
-            {
-            "UseDynamicProperties" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "SourcePath" = "8:..\\MergeModules\\XercesCRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.1F6ED23CA1134399AF5199CCC77B668A"
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_A3CB2645C97A4FE995E3AB66FFE6DFD5"
-            {
-            "UseDynamicProperties" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "SourcePath" = "8:..\\MergeModules\\OpenSSLRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_B37CCB51EC8D4F6CA272C0DF4B9A92D9"
-            {
-            "UseDynamicProperties" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "SourcePath" = "8:C:\\Program Files\\Common Files\\Merge Modules\\VC_CRT.msm"
-            "ModuleSignature" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_C2F44088AFD54A0CB4008078EDCBBF0A"
-            {
-            "UseDynamicProperties" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "SourcePath" = "8:C:\\Program Files\\Common Files\\Merge Modules\\VC_STL.msm"
-            "ModuleSignature" = "8:VC_User_STL.BA9B76E9_0DE0_11D5_A548_0090278A1BB8"
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
         }
     }
 }

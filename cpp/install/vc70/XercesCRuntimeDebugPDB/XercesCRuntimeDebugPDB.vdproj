@@ -1,7 +1,7 @@
 "DeployProject"
 {
-"VSVersion" = "3:700"
-"ProjectType" = "8:{5443560e-dbb4-11d2-8724-00a0c9a8b90c}"
+"VSVersion" = "3:701"
+"ProjectType" = "8:{DD7A5B58-C2F9-40FF-B2EF-0773356FB978}"
 "IsWebType" = "8:FALSE"
 "ProjectName" = "8:XercesCRuntimeDebugPDB"
 "LanguageId" = "3:0"
@@ -17,7 +17,7 @@
         {
         "MsmKey" = "8:_A2BF18E6F9054E4A94EA4DD82C8612FC"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\XERCES-C-SRC2_2_0\\BUILD\\WIN32\\VC7\\DEBUG\\XERCES-C_2_2_0D.PDB"
+        "MsmSig" = "8:_UNDEFINED"
         }
     }
     "Configurations"
@@ -52,7 +52,7 @@
         }
         "File"
         {
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_A2BF18E6F9054E4A94EA4DD82C8612FC"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_A2BF18E6F9054E4A94EA4DD82C8612FC"
             {
             "SourcePath" = "8:..\\..\\..\\..\\xerces-c-src2_2_0\\Build\\Win32\\VC7\\Debug\\xerces-c_2_2_0D.pdb"
             "TargetName" = "8:xerces-c_2_2_0D.pdb"
@@ -78,7 +78,7 @@
         }
         "Folder"
         {
-            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_F00234C4E02A41AB8286C06255C044CB"
+            "{29CD8198-A6F0-4B93-8B90-AC03CFEAD328}:_F00234C4E02A41AB8286C06255C044CB"
             {
             "DefaultLocation" = "8:[TARGETDIR]"
             "DisplayName" = "8:Retargetable Folder #1"
@@ -90,7 +90,7 @@
             "Property" = "8:NEWRETARGETABLEPROPERTY2"
                 "Folders"
                 {
-                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_B946712D92B24AB590F6C926B28CC28A"
+                    "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_B946712D92B24AB590F6C926B28CC28A"
                     {
                     "Name" = "8:bin"
                     "AlwaysCreate" = "11:FALSE"
@@ -104,10 +104,25 @@
                 }
             }
         }
-        "Shortcut"
+        "Sequences"
         {
         }
-        "Sequences"
+        "MergeModule"
+        {
+        }
+        "Module"
+        {
+        "ModuleSignature" = "8:MergeModule.8B881CCE5CFC406BA09D527594B5B99E"
+        "Version" = "8:2.2.0.0"
+        "Title" = "8:XercesCRuntimeDebugPDB"
+        "Subject" = "8:"
+        "Author" = "8:ZeroC, Inc"
+        "Keywords" = "8:"
+        "Comments" = "8:"
+        "SearchPath" = "8:"
+        "UseSystemSearchPath" = "11:TRUE"
+        }
+        "ProjectOutput"
         {
         }
         "Registry"
@@ -143,22 +158,7 @@
                 }
             }
         }
-        "ProjectOutput"
-        {
-        }
-        "Module"
-        {
-        "ModuleSignature" = "8:MergeModule.8B881CCE5CFC406BA09D527594B5B99E"
-        "Version" = "8:2.2.0.0"
-        "Title" = "8:XercesCRuntimeDebugPDB"
-        "Subject" = "8:"
-        "Author" = "8:ZeroC, Inc"
-        "Keywords" = "8:"
-        "Comments" = "8:"
-        "SearchPath" = "8:"
-        "UseSystemSearchPath" = "11:TRUE"
-        }
-        "MergeModule"
+        "Shortcut"
         {
         }
     }

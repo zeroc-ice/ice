@@ -10,15 +10,19 @@ Ice has been extensively tested with Windows XP and Windows 2000. Ice
 will most likely also work on Windows NT. Windows 95/98/ME is not
 supported.
 
+Ice binary distributions for Visual C++ .NET 2002 and 2003 are
+also available from http://www.zeroc.com/download.html.
 
 C++ compiler
 ------------
 
-- Visual C++ .NET 2003 (aka VC 7.1); or
-
-- Visual C++ .NET 7.0; or
+The following Microsoft Visual C++ compilers are supported:
 
 - Visual C++ 6.0 with STLport 4.5
+
+- Visual C++ .NET 2002 (aka VC 7.0)
+
+- Visual C++ .NET 2003 (aka VC 7.1)
 
 The STL (Standard Template Library) that is included with Visual C++
 6.0 is not supported! You must use STLport 4.5 with Visual C++
@@ -30,9 +34,9 @@ For STLport installation instructions, please see:
 
 http://www.stlport.org/doc/install.html
 
-For Visual C++ .NET, you can use the included STL library. Downloading
-and installing STLport is not required for this compiler version.
-
+For Visual C++ .NET 2002 and 2003, you can use the included STL 
+library. Downloading and installing STLport is not required for 
+these compiler versions.
 
 Third-party libraries
 ---------------------
@@ -48,7 +52,11 @@ Third-party libraries
 You must install all these packages before proceeding with the
 installation of Ice.
 
-Xerces-C++ can be download from:
+If you are using Visual C++ .NET 2002 or 2003, you can download
+an installer for all these Ice dependencies from 
+http://www.zeroc.com/download.html. 
+
+You can also download Xerces-C++ from:
 
 http://xml.apache.org/xerces-c
 
@@ -70,6 +78,9 @@ debug and a release version on your system, please rename the debug
 library to "libbz2d.lib". This is also what the Ice project files
 expect if you build a debug version of Ice.
 
+Ice and Xerces-C++ must be built with the same version of Visual
+C++. We also recommend to use the same Visual C++ version to
+build the other third party libraries.
 
 Python 2.2
 ----------
@@ -107,7 +118,7 @@ third-party packages (include files, libraries, and DLLs):
 
 - Select "Library files".
 
-- Add the library directories for Xerces-C++, Berekeley DB, OpenSSL,
+- Add the library directories for Xerces-C++, Berkeley DB, OpenSSL,
   bzip2, and STLport (if required).
 
 - Select "Executable files".
@@ -146,11 +157,14 @@ directory, which contains DLLs and executables, to your PATH.
 Installation
 ======================================================================
 
-For Windows, no automatic installation is supported. You must copy the
-contents of the bin, include, and lib directories by hand. The include
-directory contains all Ice include files. The lib directory all Ice
-libraries. And the bin directory all Ice executables, as well as all
-DLLs.
+Installation instructions for Visual Studio .NET 2002 and 2003
+are provided in Ice-<version>\install\vc70\README and 
+Ice-<version>\vc71\README.
+No automatic installation support is provided for Visual C++ 6.0: you 
+need to copy the contents of the bin, include, and lib directories 
+by hand. The include directory contains all Ice include files. The 
+lib directory all Ice libraries. And the bin directory all Ice 
+executables, as well as all DLLs.
 
 After installation, make sure to add the include directory to the
 Visual C++ "Include files", the lib directory to the "Library files",

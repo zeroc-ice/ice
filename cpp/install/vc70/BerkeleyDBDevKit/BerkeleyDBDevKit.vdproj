@@ -1,7 +1,7 @@
 "DeployProject"
 {
-"VSVersion" = "3:700"
-"ProjectType" = "8:{5443560e-dbb4-11d2-8724-00a0c9a8b90c}"
+"VSVersion" = "3:701"
+"ProjectType" = "8:{DD7A5B58-C2F9-40FF-B2EF-0773356FB978}"
 "IsWebType" = "8:FALSE"
 "ProjectName" = "8:BerkeleyDBDevKit"
 "LanguageId" = "3:0"
@@ -17,49 +17,49 @@
         {
         "MsmKey" = "8:_2EBCA6C61B57482B8BCD2E06A16E907D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\BerkeleyDBRuntimeDebug\\Debug\\BerkeleyDBRuntimeDebug.msm"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_396287E813CF452FABD8DEEFB45E75FF"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\DB_CXX.H"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_739E794961494C7CAE65C95333486C45"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\BerkeleyDBRuntime\\Debug\\BerkeleyDBRuntime.msm"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_AA67BAC1518D48678B2F2A2E4E0AFB97"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\DBINC\\CXX_COMMON.H"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_B2C1B3B0C8D94147B3E8D68988ABDF4F"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\DEBUG\\LIBDB41D.LIB"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_E3E160EB35E145BE870E23C17FB159C1"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\DB.H"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_F2DDEBA5532A4DC49431CC84C5494242"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\LIBDB41.LIB"
+        "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_F80964F9109E477584C2B06E7E5101E9"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\DBINC\\CXX_EXCEPT.H"
+        "MsmSig" = "8:_UNDEFINED"
         }
     }
     "Configurations"
@@ -110,7 +110,7 @@
         }
         "File"
         {
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_396287E813CF452FABD8DEEFB45E75FF"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_396287E813CF452FABD8DEEFB45E75FF"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\db_cxx.h"
             "TargetName" = "8:db_cxx.h"
@@ -130,7 +130,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_AA67BAC1518D48678B2F2A2E4E0AFB97"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_AA67BAC1518D48678B2F2A2E4E0AFB97"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\dbinc\\cxx_common.h"
             "TargetName" = "8:cxx_common.h"
@@ -150,7 +150,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_B2C1B3B0C8D94147B3E8D68988ABDF4F"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_B2C1B3B0C8D94147B3E8D68988ABDF4F"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Debug\\libdb41d.lib"
             "TargetName" = "8:libdb41d.lib"
@@ -170,7 +170,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E3E160EB35E145BE870E23C17FB159C1"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_E3E160EB35E145BE870E23C17FB159C1"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\db.h"
             "TargetName" = "8:db.h"
@@ -190,7 +190,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_F2DDEBA5532A4DC49431CC84C5494242"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_F2DDEBA5532A4DC49431CC84C5494242"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\libdb41.lib"
             "TargetName" = "8:libdb41.lib"
@@ -210,7 +210,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_F80964F9109E477584C2B06E7E5101E9"
+            "{A582A373-4685-4296-BEFE-614B80A702C3}:_F80964F9109E477584C2B06E7E5101E9"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\dbinc\\cxx_except.h"
             "TargetName" = "8:cxx_except.h"
@@ -236,7 +236,7 @@
         }
         "Folder"
         {
-            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_573942613A654CC0B7A3817F0A0EB435"
+            "{29CD8198-A6F0-4B93-8B90-AC03CFEAD328}:_573942613A654CC0B7A3817F0A0EB435"
             {
             "DefaultLocation" = "8:[TARGETDIR]"
             "DisplayName" = "8:Retargetable Folder #1"
@@ -248,7 +248,7 @@
             "Property" = "8:NEWRETARGETABLEPROPERTY3"
                 "Folders"
                 {
-                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_1FB536E1F7AF491CB56D186108621C30"
+                    "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_1FB536E1F7AF491CB56D186108621C30"
                     {
                     "Name" = "8:include"
                     "AlwaysCreate" = "11:FALSE"
@@ -259,7 +259,7 @@
                         {
                         }
                     }
-                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_9EBB450083A64417830CE5A529F489E9"
+                    "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_9EBB450083A64417830CE5A529F489E9"
                     {
                     "Name" = "8:lib"
                     "AlwaysCreate" = "11:FALSE"
@@ -272,7 +272,7 @@
                     }
                 }
             }
-            "{777C097F-0ED8-11D3-8D6C-00A0C9CFCEE6}:_7C284C9F690245BCBBFF92BA2DA449C7"
+            "{78BAF5CE-F2E5-45BE-83BC-DB6AF387E941}:_7C284C9F690245BCBBFF92BA2DA449C7"
             {
             "Name" = "8:#1910"
             "AlwaysCreate" = "11:FALSE"
@@ -284,48 +284,27 @@
                 }
             }
         }
-        "Shortcut"
-        {
-        }
         "Sequences"
         {
         }
-        "Registry"
+        "MergeModule"
         {
-            "HKLM"
-            {
-                "Keys"
-                {
-                }
-            }
-            "HKCU"
-            {
-                "Keys"
-                {
-                }
-            }
-            "HKCR"
-            {
-                "Keys"
-                {
-                }
-            }
-            "HKU"
-            {
-                "Keys"
-                {
-                }
-            }
-            "HKPU"
-            {
-                "Keys"
-                {
-                }
-            }
+        }
+        "Module"
+        {
+        "ModuleSignature" = "8:MergeModule.8FAAA943571D45AFBB980B5631FF1D3E"
+        "Version" = "8:4.1.25.0"
+        "Title" = "8:BerkeleyDBDevKit"
+        "Subject" = "8:"
+        "Author" = "8:ZeroC, Inc"
+        "Keywords" = "8:"
+        "Comments" = "8:"
+        "SearchPath" = "8:"
+        "UseSystemSearchPath" = "11:TRUE"
         }
         "ProjectOutput"
         {
-            "{B1E2BB22-187D-11D3-8E02-00C04F6837D0}:_2EBCA6C61B57482B8BCD2E06A16E907D"
+            "{8062640A-2EEE-46E9-AB67-688E9A886E9F}:_2EBCA6C61B57482B8BCD2E06A16E907D"
             {
             "SourcePath" = "8:..\\MergeModules\\BerkeleyDBRuntimeDebug.msm"
             "TargetName" = "8:"
@@ -347,7 +326,6 @@
             "ProjectOutputGroupRegister" = "3:1"
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectCanonicalName" = "8:BerkeleyDBRuntimeDebug\\BerkeleyDBRuntimeDebug.vdproj"
             "OutputProjectGuid" = "8:{ABABC608-592C-49ED-9C3C-D1BDD22C90BD}"
             "ShowKeyOutput" = "11:FALSE"
                 "ExcludeFilters"
@@ -379,7 +357,7 @@
                 "IsolateTo" = "8:"
                 }
             }
-            "{B1E2BB22-187D-11D3-8E02-00C04F6837D0}:_739E794961494C7CAE65C95333486C45"
+            "{8062640A-2EEE-46E9-AB67-688E9A886E9F}:_739E794961494C7CAE65C95333486C45"
             {
             "SourcePath" = "8:..\\MergeModules\\BerkeleyDBRuntime.msm"
             "TargetName" = "8:"
@@ -401,7 +379,6 @@
             "ProjectOutputGroupRegister" = "3:1"
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectCanonicalName" = "8:BerkeleyDBRuntime\\BerkeleyDBRuntime.vdproj"
             "OutputProjectGuid" = "8:{A468E14B-CEE8-406A-9FFA-99CFFE14B0A8}"
             "ShowKeyOutput" = "11:FALSE"
                 "ExcludeFilters"
@@ -456,19 +433,40 @@
                 }
             }
         }
-        "Module"
+        "Registry"
         {
-        "ModuleSignature" = "8:MergeModule.8FAAA943571D45AFBB980B5631FF1D3E"
-        "Version" = "8:4.1.25.0"
-        "Title" = "8:BerkeleyDBDevKit"
-        "Subject" = "8:"
-        "Author" = "8:ZeroC, Inc"
-        "Keywords" = "8:"
-        "Comments" = "8:"
-        "SearchPath" = "8:"
-        "UseSystemSearchPath" = "11:TRUE"
+            "HKLM"
+            {
+                "Keys"
+                {
+                }
+            }
+            "HKCU"
+            {
+                "Keys"
+                {
+                }
+            }
+            "HKCR"
+            {
+                "Keys"
+                {
+                }
+            }
+            "HKU"
+            {
+                "Keys"
+                {
+                }
+            }
+            "HKPU"
+            {
+                "Keys"
+                {
+                }
+            }
         }
-        "MergeModule"
+        "Shortcut"
         {
         }
     }
