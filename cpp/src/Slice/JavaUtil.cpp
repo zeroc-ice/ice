@@ -258,7 +258,8 @@ Slice::JavaGenerator::getAbsolute(const string& scoped,
 	string::size_type fscopeSize = fscope.size();
 	if(fscoped.compare(0, fscopeSize, fscope) == 0)
 	{
-	    if(fscoped.size() > fscopeSize && fscoped[fscopeSize - 1] == ':')
+	    if(fscoped.size() > fscopeSize && fscoped[fscopeSize - 1] == ':' &&
+               fscoped.find(':', fscopeSize) == string::npos)
 	    {
 		start = fscopeSize;
 	    }
