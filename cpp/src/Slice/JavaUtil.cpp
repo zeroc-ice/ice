@@ -14,7 +14,6 @@
 
 #include <Slice/JavaUtil.h>
 #include <IceUtil/Functional.h>
-#include <limits>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -1857,7 +1856,6 @@ Slice::JavaGenerator::printHeader()
 "// Ice is free software; you can redistribute it and/or modify it under\n"
 "// the terms of the GNU General Public License version 2 as published by\n"
 "// the Free Software Foundation.\n"
-"// All Rights Reserved.
 "//\n"
 "// **********************************************************************\n"
         ;
