@@ -524,6 +524,23 @@ conditions in connections.
 </section>
 </section>
 
+<section><title>Ice.LeakWarnings</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.LeakWarnings=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the <literal>Ice::Communicator</literal> destructor will print a
+warning if some other Ice related C++ objects are still in memory. The
+default value is 1. (C++ only.)
+</para>
+</section>
+</section>
+
 </section>
 
 <!-- ********************************************************************** -->

@@ -125,10 +125,12 @@ floating_literal	(({fractional_constant}{exponent_part}?)|([[:digit:]]+{exponent
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     *yylvalp = ident;
+
     if(ident->v.find('_') != string::npos)
     {
-	unit->warning("illegal underscore in identifier `" + ident->v + "'");
+        unit->warning("illegal underscore in identifier `" + ident->v + "'");
     }
+
     static const string suffixBlacklist[] = { "Helper", "Holder", "Operations", "Prx", "Ptr" };
     for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
     {

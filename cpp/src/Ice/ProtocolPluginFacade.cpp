@@ -25,18 +25,13 @@ void IceInternal::decRef(ProtocolPluginFacade* p) { p->__decRef(); }
 ProtocolPluginFacadePtr
 IceInternal::getProtocolPluginFacade(const CommunicatorPtr& communicator)
 {
-    return new ProtocolPluginFacade(getInstance(communicator));
-}
-
-IceInternal::ProtocolPluginFacade::ProtocolPluginFacade(const InstancePtr& instance)
-    : _instance(instance)
-{
+    return new ProtocolPluginFacade(communicator);
 }
 
 CommunicatorPtr
 IceInternal::ProtocolPluginFacade::getCommunicator() const
 {
-    return _instance->communicator();
+    return _communicator;
 }
 
 string
@@ -61,4 +56,10 @@ void
 IceInternal::ProtocolPluginFacade::addEndpointFactory(const EndpointFactoryPtr& factory) const
 {
     _instance->endpointFactoryManager()->add(factory);
+}
+
+IceInternal::ProtocolPluginFacade::ProtocolPluginFacade(const CommunicatorPtr& communicator) :
+    _instance(getInstance(communicator)),
+    _communicator(communicator)
+{
 }

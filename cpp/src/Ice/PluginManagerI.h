@@ -27,26 +27,24 @@ class PluginManagerI : public PluginManager, public IceUtil::Mutex
 public:
 
     virtual PluginPtr getPlugin(const std::string&);
-
     virtual void addPlugin(const std::string&, const PluginPtr&);
-
     virtual void destroy();
+
+private:
+
+    PluginManagerI(const CommunicatorPtr&);
+    friend class IceInternal::Instance;
+
+    void loadPlugins(int&, char*[]);
+    void loadPlugin(const std::string&, const std::string&, const StringSeq&);
+
+    CommunicatorPtr _communicator;
 
     struct PluginInfo
     {
         PluginPtr plugin;
         IceInternal::DynamicLibraryPtr library;
     };
-
-private:
-
-    PluginManagerI(const IceInternal::InstancePtr&);
-    void loadPlugins(int&, char*[]);
-    friend class IceInternal::Instance;
-
-    void loadPlugin(const std::string&, const std::string&, const StringSeq&);
-
-    IceInternal::InstancePtr _instance;
     std::map<std::string, PluginInfo> _plugins;
 };
 

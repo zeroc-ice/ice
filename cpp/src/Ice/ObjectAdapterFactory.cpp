@@ -11,7 +11,6 @@
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/ObjectAdapterI.h>
 #include <Ice/Functional.h>
-#include <Ice/Instance.h>
 
 using namespace std;
 using namespace Ice;
@@ -42,7 +41,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
 	return p->second;
     }
 
-    ObjectAdapterIPtr adapter = new ObjectAdapterI(_instance, name, endpts);
+    ObjectAdapterIPtr adapter = new ObjectAdapterI(_instance, _communicator, name, endpts);
     _adapters.insert(make_pair(name, adapter));
     return adapter;
 }
@@ -63,7 +62,9 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrx& proxy)
     return 0;
 }
 
-IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(const InstancePtr& instance) :
-    _instance(instance)
+IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(const InstancePtr& instance,
+							const CommunicatorPtr& communicator) :
+    _instance(instance),
+    _communicator(communicator)
 {
 }

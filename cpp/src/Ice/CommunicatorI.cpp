@@ -30,23 +30,14 @@ Ice::CommunicatorI::destroy()
 {
     RecMutex::Lock sync(*this);
 
-    if(_instance)
+    if(!_destroyed) // Don't destroy twice.
     {
-	_serverThreadPool = 0;
-
-	LoggerPtr logger = _instance->logger();
+	_destroyed = true;
 
 	_instance->objectAdapterFactory()->shutdown();
 	_instance->destroy();
 
-	if(_instance->__getRef() > 1)
-	{
-	    Warning warn(logger);
-	    warn << "memory leak in the Ice core:\n";
-	    warn << "IceInteral::Instance is not deleted after Ice::Communicator::destroy()";
-	}
-
-	_instance = 0;
+	_serverThreadPool = 0;
     }
 }
 
@@ -79,7 +70,7 @@ ObjectPrx
 Ice::CommunicatorI::stringToProxy(const string& s)
 {
     RecMutex::Lock sync(*this);
-    if(!_instance)
+    if(_destroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -90,7 +81,7 @@ string
 Ice::CommunicatorI::proxyToString(const ObjectPrx& proxy)
 {
     RecMutex::Lock sync(*this);
-    if(!_instance)
+    if(_destroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -101,7 +92,7 @@ ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapter(const string& name)
 {
     RecMutex::Lock sync(*this);
-    if(!_instance)
+    if(_destroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -127,7 +118,7 @@ ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapterFromProperty(const string& name, const string& property)
 {
     RecMutex::Lock sync(*this);
-    if(!_instance)
+    if(_destroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -141,7 +132,7 @@ ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const string& endpts)
 {
     RecMutex::Lock sync(*this);
-    if(!_instance)
+    if(_destroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -165,7 +156,7 @@ void
 Ice::CommunicatorI::addObjectFactory(const ObjectFactoryPtr& factory, const string& id)
 {
     RecMutex::Lock sync(*this);
-    if(!_instance)
+    if(_destroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -176,7 +167,7 @@ void
 Ice::CommunicatorI::removeObjectFactory(const string& id)
 {
     RecMutex::Lock sync(*this);
-    if(!_instance)
+    if(_destroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -187,7 +178,7 @@ ObjectFactoryPtr
 Ice::CommunicatorI::findObjectFactory(const string& id)
 {
     RecMutex::Lock sync(*this);
-    if(!_instance)
+    if(_destroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -198,7 +189,7 @@ void
 Ice::CommunicatorI::addUserExceptionFactory(const UserExceptionFactoryPtr& factory, const string& id)
 {
     RecMutex::Lock sync(*this);
-    if(!_instance)
+    if(_destroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -209,7 +200,7 @@ void
 Ice::CommunicatorI::removeUserExceptionFactory(const string& id)
 {
     RecMutex::Lock sync(*this);
-    if(!_instance)
+    if(_destroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -220,7 +211,7 @@ UserExceptionFactoryPtr
 Ice::CommunicatorI::findUserExceptionFactory(const string& id)
 {
     RecMutex::Lock sync(*this);
-    if(!_instance)
+    if(_destroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -231,7 +222,7 @@ PropertiesPtr
 Ice::CommunicatorI::getProperties()
 {
     RecMutex::Lock sync(*this);
-    if(!_instance)
+    if(_destroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -242,7 +233,7 @@ LoggerPtr
 Ice::CommunicatorI::getLogger()
 {
     RecMutex::Lock sync(*this);
-    if(!_instance)
+    if(_destroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -253,7 +244,7 @@ void
 Ice::CommunicatorI::setLogger(const LoggerPtr& logger)
 {
     RecMutex::Lock sync(*this);
-    if(!_instance)
+    if(_destroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -276,14 +267,15 @@ PluginManagerPtr
 Ice::CommunicatorI::getPluginManager()
 {
     RecMutex::Lock sync(*this);
-    if(!_instance)
+    if(_destroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
     return _instance->pluginManager();
 }
 
-Ice::CommunicatorI::CommunicatorI(int& argc, char* argv[], const PropertiesPtr& properties)
+Ice::CommunicatorI::CommunicatorI(int& argc, char* argv[], const PropertiesPtr& properties) :
+    _destroyed(false)
 {
     __setNoDelete(true);
     try
@@ -300,10 +292,22 @@ Ice::CommunicatorI::CommunicatorI(int& argc, char* argv[], const PropertiesPtr& 
 
 Ice::CommunicatorI::~CommunicatorI()
 {
-    if(_instance)
+    if(!_destroyed)
     {
 	Warning out(_instance->logger());
-	out << "communicator has not been destroyed";
+	out << "Ice::Communicator::destroy() has not been called";
+    }
+
+    if(_instance->__getRef() > 1)
+    {
+	PropertiesPtr properties = _instance->properties();
+	if(properties->getPropertyAsIntWithDefault("Ice.LeakWarnings", 1) > 0)
+	{
+	    Warning warn(_instance->logger());
+	    warn <<
+		"The communicator is not the last Ice object that is deleted.  (You can\n"
+		"disable this warning by setting the property `Ice.LeakWarnings' to 0.)";
+	}
     }
 }
 

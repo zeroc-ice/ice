@@ -66,7 +66,7 @@ public:
 
 private:
 
-    ObjectAdapterI(const ::IceInternal::InstancePtr&, const std::string&, const std::string&);
+    ObjectAdapterI(const ::IceInternal::InstancePtr&, const CommunicatorPtr&, const std::string&, const std::string&);
     virtual ~ObjectAdapterI();
     friend class ::IceInternal::ObjectAdapterFactory;
     
@@ -75,6 +75,7 @@ private:
     bool isLocal(const ObjectPrx&) const;
 
     ::IceInternal::InstancePtr _instance;
+    CommunicatorPtr _communicator;
     bool _printAdapterReadyDone;
     std::string _name;
     bool _useEndpointsInProxy;

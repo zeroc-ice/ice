@@ -52,7 +52,7 @@ Ice::ObjectAdapterI::getCommunicator()
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
 
-    return _instance->communicator();
+    return _communicator;
 }
 
 void
@@ -145,6 +145,7 @@ Ice::ObjectAdapterI::deactivate()
     _locatorMapHint = _locatorMap.end();
 
     _instance = 0;
+    _communicator = 0;
 }
 
 void
@@ -467,8 +468,10 @@ Ice::ObjectAdapterI::getIncomingConnections() const
     return connections;
 }
 
-Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& name, const string& endpts) :
+Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const CommunicatorPtr& communicator,
+				    const string& name, const string& endpts) :
     _instance(instance),
+    _communicator(communicator),
     _printAdapterReadyDone(false),
     _name(name),
     _activeServantMapHint(_activeServantMap.end()),

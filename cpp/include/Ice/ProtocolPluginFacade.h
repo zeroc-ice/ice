@@ -58,11 +58,12 @@ public:
 
 private:
 
-    ProtocolPluginFacade(const InstancePtr&);
+    ProtocolPluginFacade(const Ice::CommunicatorPtr&);
 
     friend ICE_PROTOCOL_API ProtocolPluginFacadePtr getProtocolPluginFacade(const Ice::CommunicatorPtr&);
 
     InstancePtr _instance;
+    Ice::CommunicatorPtr _communicator;
 };
 
 }

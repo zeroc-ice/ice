@@ -29,7 +29,6 @@
 #include <Ice/TcpEndpoint.h>
 #include <Ice/UdpEndpoint.h>
 #include <Ice/PluginManagerI.h>
-#include <Ice/Communicator.h>
 #include <Ice/Initialize.h>
 
 #ifndef _WIN32
@@ -73,13 +72,6 @@ static GlobalStateMutexDestroyer destroyer;
 
 void IceInternal::incRef(Instance* p) { p->__incRef(); }
 void IceInternal::decRef(Instance* p) { p->__decRef(); }
-
-CommunicatorPtr
-IceInternal::Instance::communicator()
-{
-    IceUtil::RecMutex::Lock sync(*this);
-    return _communicator;
-}
 
 PropertiesPtr
 IceInternal::Instance::properties()
@@ -177,7 +169,7 @@ IceInternal::Instance::clientThreadPool()
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(_communicator) // Not destroyed?
+    if(!_destroyed) // Not destroyed?
     {
 	if(!_clientThreadPool) // Lazy initialization.
 	{
@@ -193,7 +185,7 @@ IceInternal::Instance::serverThreadPool()
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(_communicator) // Not destroyed?
+    if(!_destroyed) // Not destroyed?
     {
 	if(!_serverThreadPool) // Lazy initialization.
 	{
@@ -220,7 +212,7 @@ IceInternal::Instance::pluginManager()
 
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, char* argv[],
                                 const PropertiesPtr& properties) :
-    _communicator(communicator),
+    _destroyed(false),
     _properties(properties)
 {
     IceUtil::Mutex::Lock sync(*_globalStateMutex);
@@ -329,7 +321,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
         EndpointFactoryPtr udpEndpointFactory = new UdpEndpointFactory(this);
         _endpointFactoryManager->add(udpEndpointFactory);
 
-        _pluginManager = new PluginManagerI(this);
+        _pluginManager = new PluginManagerI(communicator);
 
 	_outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -337,7 +329,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 
 	_userExceptionFactoryManager = new UserExceptionFactoryManager();
 
-	_objectAdapterFactory = new ObjectAdapterFactory(this);
+	_objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
 	__setNoDelete(false);
     }
@@ -352,7 +344,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 
 IceInternal::Instance::~Instance()
 {
-    assert(!_communicator);
+    assert(_destroyed);
     assert(!_referenceFactory);
     assert(!_proxyFactory);
     assert(!_outgoingConnectionFactory);
@@ -486,19 +478,19 @@ IceInternal::Instance::destroy()
 
     {
 	IceUtil::RecMutex::Lock sync(*this);
+
+	if(_destroyed)
+	{
+	    return; // Don't destroy twice.
+	}
+
+	_destroyed = true;
 	
 	//
 	// Destroy all contained objects. Then set all references to null,
 	// to avoid cyclic object dependencies.
 	//
-	
-	if(_communicator)
-	{
-	    // Don't destroy the communicator -- the communicator destroys
-	    // this object, not the other way.
-	    _communicator = 0;
-	}
-	
+
 	if(_objectAdapterFactory)
 	{
 	    // Don't shut down the object adapters -- the communicator

@@ -10,8 +10,8 @@
 
 #include <Ice/PluginManagerI.h>
 #include <Ice/DynamicLibrary.h>
+#include <Ice/Communicator.h>
 #include <Ice/Properties.h>
-#include <Ice/Instance.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
@@ -22,21 +22,22 @@ using namespace IceInternal;
 
 typedef Ice::Plugin* (*PLUGIN_FACTORY)(const CommunicatorPtr&, const string&, const StringSeq&);
 
-Ice::PluginManagerI::PluginManagerI(const InstancePtr& instance)
-    : _instance(instance)
-{
-}
-
 PluginPtr
 Ice::PluginManagerI::getPlugin(const string& name)
 {
     IceUtil::Mutex::Lock sync(*this);
+
+    if(!_communicator)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
 
     map<string, PluginInfo>::const_iterator r = _plugins.find(name);
     if(r != _plugins.end())
     {
         return (*r).second.plugin;
     }
+
     throw PluginNotFoundException(__FILE__, __LINE__);
 }
 
@@ -44,6 +45,11 @@ void
 Ice::PluginManagerI::addPlugin(const string& name, const PluginPtr& plugin)
 {
     IceUtil::Mutex::Lock sync(*this);
+
+    if(!_communicator)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
 
     map<string, PluginInfo>::const_iterator r = _plugins.find(name);
     if(r != _plugins.end())
@@ -60,18 +66,30 @@ Ice::PluginManagerI::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    map<string, PluginInfo>::iterator r;
-    for(r = _plugins.begin(); r != _plugins.end(); ++r)
+    if(_communicator)
     {
-        (*r).second.plugin->destroy();
-        (*r).second.plugin = 0;
-        (*r).second.library = 0;
+	map<string, PluginInfo>::iterator r;
+	for(r = _plugins.begin(); r != _plugins.end(); ++r)
+	{
+	    r->second.plugin->destroy();
+	    r->second.plugin = 0;
+	    r->second.library = 0;
+	}
+	
+	_communicator = 0;
     }
+}
+
+Ice::PluginManagerI::PluginManagerI(const CommunicatorPtr& communicator) :
+    _communicator(communicator)
+{
 }
 
 void
 Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
 {
+    assert(_communicator);
+
     StringSeq cmdArgs = argsToStringSeq(argc, argv);
 
     //
@@ -82,7 +100,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
     // Ice.Plugin.name=entry_point [args]
     //
     const string prefix = "Ice.Plugin.";
-    PropertiesPtr properties = _instance->properties();
+    PropertiesPtr properties = _communicator->getProperties();
     PropertyDict plugins = properties->getPropertiesForPrefix(prefix);
     PropertyDict::const_iterator p;
     for(p = plugins.begin(); p != plugins.end(); ++p)
@@ -137,6 +155,8 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
 void
 Ice::PluginManagerI::loadPlugin(const string& name, const string& entryPoint, const StringSeq& args)
 {
+    assert(_communicator);
+
     //
     // Load the entry point symbol.
     //
@@ -163,7 +183,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& entryPoint, co
     PLUGIN_FACTORY factory = (PLUGIN_FACTORY)sym;
     try
     {
-        info.plugin = factory(_instance->communicator(), name, args);
+        info.plugin = factory(_communicator, name, args);
     }
     catch(const Exception& ex)
     {

@@ -27,10 +27,11 @@ public:
 
 private:
 
-    ObjectAdapterFactory(const InstancePtr&);
+    ObjectAdapterFactory(const InstancePtr&, const ::Ice::CommunicatorPtr&);
     friend class Instance;
 
     InstancePtr _instance;
+    ::Ice::CommunicatorPtr _communicator;
     std::map<std::string, ::Ice::ObjectAdapterIPtr> _adapters;
 };
 

@@ -69,6 +69,8 @@ private:
     friend ICE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int);
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
 
+    bool _destroyed;
+
     ::IceInternal::InstancePtr _instance;
 
     //
