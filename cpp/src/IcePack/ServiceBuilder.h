@@ -46,6 +46,7 @@ public:
     void setKind(ServiceKind);
     void setEntryPoint(const std::string&);
     void setDBEnv(const std::string&);
+    void addDatabaseProperty(const std::string&, const std::string&);
 
     virtual std::string getDefaultAdapterId(const std::string&);
 
@@ -56,6 +57,7 @@ private:
     ServerBuilder& _serverBuilder;
 
     ServiceKind _kind;
+    Ice::PropertiesPtr _dbProperties;
 };
 
 }

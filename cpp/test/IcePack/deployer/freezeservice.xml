@@ -10,7 +10,11 @@
     <property name="${name}.Identity" value="${parent}-${name}"/>
     <property name="${name}.Type" value="freeze"/>
     <property name="${name}.ServiceName" value="${name}"/>
+
+    <dbproperty name="set_cachesize" value="0 52428800 1"/>
   </properties>
+
+
 
   <target name="manual">
     <property name="Mode" value="manual"/>

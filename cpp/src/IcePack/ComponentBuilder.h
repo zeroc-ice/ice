@@ -117,6 +117,8 @@ public:
     void undoFrom(std::vector<TaskPtr>::iterator);
 
 protected:
+
+    void generateConfigFile(const std::string&, const std::string&, const Ice::PropertiesPtr&);
     
     Ice::CommunicatorPtr _communicator;
     ObjectRegistryPrx _objectRegistry;

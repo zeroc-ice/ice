@@ -65,7 +65,9 @@ IcePack::NodeRegistryI::add(const string& name, const NodePrx& node, const Ice::
     {
 	try
 	{
+	    sync.release();
 	    p->second->ice_ping();
+	    sync.acquire();
 	    throw NodeActiveException();
 	}
 	catch(const Ice::LocalException&)
@@ -73,6 +75,7 @@ IcePack::NodeRegistryI::add(const string& name, const NodePrx& node, const Ice::
 	    //
 	    // Node not active.
 	    //
+	    sync.acquire();
 	}
 	p.set(node);
 

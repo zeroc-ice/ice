@@ -80,11 +80,14 @@ def startIcePackNode(testdir):
               r' --Ice.ProgramName=icepacknode' + \
               r' --IcePack.Node.Trace.Activator=0' + \
               r' --IcePack.Node.Trace.Adapter=0' + \
-              r' --IcePack.Node.Trace.Server=0'
+              r' --IcePack.Node.Trace.Server=0' + \
+              r' --IcePack.Node.PrintServersReady=node'
     
     icePackPipe = os.popen(command)
     TestUtil.getServerPid(icePackPipe)
     TestUtil.getAdapterReady(icePackPipe)
+    TestUtil.waitServiceReady(icePackPipe, 'node')
+        
     print "ok"
     return icePackPipe
 

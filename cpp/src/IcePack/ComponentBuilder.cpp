@@ -178,17 +178,28 @@ class GenerateConfiguration : public Task
     class WriteConfigProperty : public unary_function<Ice::PropertyDict::value_type, string>
     {
     public:
+	
+	WriteConfigProperty(const string& sep) :
+	    _sep(sep)
+       {
+       }
+	
 
 	string 
 	operator()(const Ice::PropertyDict::value_type& p) const
 	{
-	    return p.first + "=" + p.second;
+	    return p.first + _sep + p.second;
 	}
+
+    private:
+	
+	const string _sep;
     };
 
 public:
 
-    GenerateConfiguration(const string& file, const Ice::PropertiesPtr& properties) :
+    GenerateConfiguration(const string& sep, const string& file, const Ice::PropertiesPtr& properties) :
+	_sep(sep),
 	_file(file),
 	_properties(properties)
     {
@@ -207,7 +218,7 @@ public:
 	}
 	
 	Ice::PropertyDict props = _properties->getPropertiesForPrefix("");
-	transform(props.begin(), props.end(), ostream_iterator<string>(configfile,"\n"), WriteConfigProperty());
+	transform(props.begin(), props.end(), ostream_iterator<string>(configfile,"\n"), WriteConfigProperty(_sep));
 	configfile.close();
     }
 
@@ -224,7 +235,8 @@ public:
 
 private:
 
-    string _file;
+    const string _sep;
+    const string _file;
     Ice::PropertiesPtr _properties;
 };
 
@@ -606,7 +618,7 @@ IcePack::ComponentBuilder::createConfigFile(const string& name)
 {
     assert(!name.empty());
     _configFile = getVariable("datadir") + (name[0] == '/' ? name : "/" + name);
-    _tasks.push_back(new GenerateConfiguration(_configFile, _properties));
+    _tasks.push_back(new GenerateConfiguration("=", _configFile, _properties));
 }
 
 void
@@ -810,3 +822,8 @@ IcePack::ComponentBuilder::undoFrom(vector<TaskPtr>::iterator p)
     }
 }
 
+void
+IcePack::ComponentBuilder::generateConfigFile(const string& sep, const string& path, const Ice::PropertiesPtr& props)
+{
+    _tasks.push_back(new GenerateConfiguration(sep, path, props));
+}
