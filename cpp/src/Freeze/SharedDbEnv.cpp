@@ -262,16 +262,6 @@ Freeze::SharedDbEnv::deleteOldLogs()
     free(list);
 }
 
-void 
-Freeze::SharedDbEnv::moveOldLogs()
-{
-    //
-    // Not yet implemented
-    //
-    assert(0);
-}
-
-
 Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
 				 const Ice::CommunicatorPtr& communicator) :
      DbEnv(0),

@@ -150,15 +150,6 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 	}
     }
 
-    synchronized public void 
-    moveOldLogs()
-    {
-	//
-	// Not yet implemented
-	//
-	assert(false);
-    }
-
     public void
     run()
     {

@@ -42,7 +42,6 @@ public:
     void __decRef();
 
     void deleteOldLogs();
-    void moveOldLogs();
    
     const std::string& getEnvName() const;
     const Ice::CommunicatorPtr& getCommunicator() const;
