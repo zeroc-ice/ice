@@ -41,6 +41,7 @@ usage(const char* n)
 	"                      using KEY as key, and VALUE as value. This\n"
 	"                      option may be specified multiple times for\n"
 	"                      different names. NAME may be a scoped name.\n"
+	"--binary              Use the binary encoding.\n"
 	"--output-dir DIR      Create files in the directory DIR.\n"
 	"-d, --debug           Print debug messages.\n"
         "--ice                 Permit `Ice' prefix (for building Ice source code only)\n"
@@ -97,30 +98,64 @@ writeCodecH(const TypePtr& type, const string& name, const string& freezeType, O
 }
 
 void
-writeCodecC(const TypePtr& type, const string& name, const string& freezeType, Output& C)
+writeCodecC(const TypePtr& type, const string& name, const string& freezeType, Output& C, bool binary)
 {
+    string quotedFreezeType = "\"" + freezeType + "\"";
+
     C << sp << nl << "void" << nl << name << "::write(" << inputTypeToString(type) << " v, "
       << "Freeze::" << freezeType << "& bytes, const ::Ice::CommunicatorPtr& communicator)";
     C << sb;
-    C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);";
-    C << nl << "IceInternal::BasicStream stream(instance);";
-    writeMarshalUnmarshalCode(C, type, "v", true, "stream", false);
-    C << nl << "bytes = stream.b;";
+    if(binary)
+    {
+        C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);";
+        C << nl << "IceInternal::BasicStream stream(instance);";
+        writeMarshalUnmarshalCode(C, type, "v", true, "stream", false);
+        C << nl << "bytes = stream.b;";
+    }
+    else
+    {
+        C << nl << "std::ostringstream ostr;";
+        C << nl << "Ice::StreamPtr stream = new IceXML::StreamI(communicator, ostr);";
+        writeGenericMarshalUnmarshalCode(C, type, "v", true, quotedFreezeType, "stream", true);
+        C << nl << "const std::string& str = ostr.str();";
+        C << nl << "bytes.resize(str.size());";
+        C << nl << "std::copy(str.begin(), str.end(), bytes.begin());";
+    }
     C << eb;
+
 
     C << sp << nl << "void" << nl << name << "::read(" << typeToString(type) << "& v, "
       << "const Freeze::" << freezeType << "& bytes, const ::Ice::CommunicatorPtr& communicator)";
     C << sb;
-    C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);";
-    C << nl << "IceInternal::BasicStream stream(instance);";
-    C << nl << "stream.b = bytes;";
-    C << nl << "stream.i = stream.b.begin();";
-    writeMarshalUnmarshalCode(C, type, "v", false, "stream", false);
+    if(binary)
+    {
+        C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);";
+        C << nl << "IceInternal::BasicStream stream(instance);";
+        C << nl << "stream.b = bytes;";
+        C << nl << "stream.i = stream.b.begin();";
+        writeMarshalUnmarshalCode(C, type, "v", false, "stream", false);
+    }
+    else
+    {
+        //
+        // COMPILERFIX: string data(bytes.begin(), bytes.end());
+        //
+        // This won't link with STLport 4.5.3 stldebug version.
+        //
+        C << nl << "std::string str;";
+        C << nl << "str.append(\"<data>\");";
+        C << nl << "str.append(&bytes[0], bytes.size());";
+        C << nl << "str.append(\"</data>\");";
+        C << nl << "std::istringstream istr(str);";
+        C << nl << "Ice::StreamPtr stream = new IceXML::StreamI(communicator, istr, false);";
+        writeGenericMarshalUnmarshalCode(C, type, "v", false, quotedFreezeType, "stream", true);
+    }
     C << eb;
 }
 
 bool
-writeCodecs(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output& C, const string& dllExport)
+writeCodecs(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output& C, const string& dllExport,
+            bool binary)
 {
     string absolute = dict.name;
     if(absolute.find("::") == 0)
@@ -184,8 +219,8 @@ writeCodecs(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output&
 	H << nl << '}';
     }
 
-    writeCodecC(keyType, absolute + "KeyCodec", "Key", C);
-    writeCodecC(valueType, absolute + "ValueCodec", "Value", C);
+    writeCodecC(keyType, absolute + "KeyCodec", "Key", C, binary);
+    writeCodecC(valueType, absolute + "ValueCodec", "Value", C, binary);
 
     return true;
 }
@@ -197,6 +232,7 @@ main(int argc, char* argv[])
     vector<string> includePaths;
     string include;
     string dllExport;
+    bool binary = false;
     string output;
     bool debug = false;
     bool ice = false;
@@ -350,6 +386,15 @@ main(int argc, char* argv[])
 		argv[i] = argv[i + 2];
 	    }
 	    argc -= 2;
+	}
+	else if(strcmp(argv[idx], "--binary") == 0)
+	{
+	    binary = true;
+	    for(int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
 	}
 	else if(strcmp(argv[idx], "--output-dir") == 0)
 	{
@@ -509,7 +554,15 @@ main(int argc, char* argv[])
 	    }
 	}
 
-	C << "\n#include <Ice/BasicStream.h>";
+        if(binary)
+        {
+            C << "\n#include <Ice/BasicStream.h>";
+        }
+        else
+        {
+            C << "\n#include <IceXML/StreamI.h>";
+            C << "\n#include <algorithm>";
+        }
 	C << "\n#include <";
 	if(include.size())
 	{
@@ -531,7 +584,7 @@ main(int argc, char* argv[])
 	    {
 		try
 		{
-		    if(!writeCodecs(argv[0], unit, *p, H, C, dllExport))
+		    if(!writeCodecs(argv[0], unit, *p, H, C, dllExport, binary))
 		    {
 			unit->destroy();
 			return EXIT_FAILURE;
