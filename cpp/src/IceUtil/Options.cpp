@@ -101,6 +101,8 @@ IceUtil::Options::parse(int argc, char* argv[])
     }
     parseCalled = true;
 
+    set<string> seenNonRepeatableOpts; // To catch repeated non-repeatable options.
+
     vector<string> result;
 
     int i;
@@ -130,7 +132,7 @@ IceUtil::Options::parse(int argc, char* argv[])
 	    }
 	    if(*p == '=')
 	    {
-		opt.assign(argv[i] + 2, p - argv[i] + 2);
+		opt.assign(argv[i] + 2, p - (argv[i] + 2));
 	    }
 	    else
 	    {
@@ -152,6 +154,18 @@ IceUtil::Options::parse(int argc, char* argv[])
 		}
 		setOpt(opt, p + 1, pos->second.repeat);
 		argDone = true;
+	    }
+
+	    if(pos->second.repeat == NoRepeat)
+	    {
+		set<string>::iterator seenPos = seenNonRepeatableOpts.find(opt);
+		if(seenPos != seenNonRepeatableOpts.end())
+		{
+		    string err = "`--";
+		    err += opt + ":' option cannot be repeated";
+		    throw BadOpt(err);
+		}
+		seenNonRepeatableOpts.insert(seenPos, opt);
 	    }
 	}
 	else if(*argv[i] == '-')
@@ -178,10 +192,25 @@ IceUtil::Options::parse(int argc, char* argv[])
 		    argDone = true;
 		}
 	    }
+
+	    if(pos->second.repeat == NoRepeat)
+	    {
+		set<string>::iterator seenPos = seenNonRepeatableOpts.find(opt);
+		if(seenPos != seenNonRepeatableOpts.end())
+		{
+		    string err = "`-";
+		    err += opt + ":' option cannot be repeated";
+		    throw BadOpt(err);
+		}
+		seenNonRepeatableOpts.insert(seenPos, opt);
+	    }
 	}
 	else
 	{
-	    result.push_back(argv[i]); // Not an option or option argument.
+	    //
+	    // Not an option or option argument.
+	    //
+	    result.push_back(argv[i]);
 	    argDone = true;
 	}
 
@@ -331,18 +360,6 @@ IceUtil::Options::checkOpt(const string& opt, LengthType lt)
 	err.push_back('\'');
 	throw BadOpt(err);
     }
-
-    if(pos->second.repeat == NoRepeat && _opts.find(opt) != _opts.end())
-    {
-	string err = "`-";
-	if(lt == LongOpt)
-	{
-	    err.push_back('-');
-	}
-	err += opt + ":' option cannot be repeated";
-	throw BadOpt(err);
-    }
-
     return pos;
 }
 
