@@ -323,22 +323,35 @@ string
 IceInternal::UdpEndpoint::toString() const
 {
     ostringstream s;
+
     s << "udp";
-    s << " -v "
-      << static_cast<unsigned>(static_cast<unsigned char>(_protocolMajor)) << "."
-      << static_cast<unsigned>(static_cast<unsigned char>(_protocolMinor));
-    s << " -e "
-      << static_cast<unsigned>(static_cast<unsigned char>(_encodingMajor)) << "."
-      << static_cast<unsigned>(static_cast<unsigned char>(_encodingMinor));
+
+    if(_protocolMajor != Byte(1) || _protocolMinor != Byte(0))
+    {
+	s << " -v "
+	  << static_cast<unsigned>(static_cast<unsigned char>(_protocolMajor)) << "."
+	  << static_cast<unsigned>(static_cast<unsigned char>(_protocolMinor));
+    }
+
+    if(_encodingMajor != Byte(1) || _encodingMinor != Byte(0))
+    {
+	s << " -e "
+	  << static_cast<unsigned>(static_cast<unsigned char>(_encodingMajor)) << "."
+	  << static_cast<unsigned>(static_cast<unsigned char>(_encodingMinor));
+    }
+
     s << " -h " << _host << " -p " << _port;
+
     if(_connect)
     {
 	s << " -c";
     }
+
     if(_compress)
     {
 	s << " -z";
     }
+
     return s.str();
 }
 

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/RoutingTable.h>
-#include <Glacier/Blobject.h>
+#include <Glacier2/Blobject.h>
 
 using namespace std;
 using namespace Ice;
