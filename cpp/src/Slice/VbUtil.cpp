@@ -191,6 +191,23 @@ Slice::VbGenerator::typeToString(const TypePtr& type)
     return "???";
 }
 
+static string
+toArrayAlloc(const string& decl, const string& sz)
+{
+    int count = 0;
+    string::size_type pos = decl.size();
+    while(pos > 1 && decl.substr(pos - 2, 2) == "()")
+    {
+        ++count;
+	pos -= 2;
+    }
+    assert(count > 0);
+
+    ostringstream o;
+    o << decl.substr(0, pos) << '(' << sz << ')' << decl.substr(pos + 2);
+    return o.str();
+}
+
 bool
 Slice::VbGenerator::isValueType(const TypePtr& type)
 {
@@ -341,7 +358,7 @@ Slice::VbGenerator::writeMarshalUnmarshalCode(Output &out,
             {
                 if(marshal)
                 {
-                    out << nl << stream << ".writeObject(" << param << ")";
+                    out << nl << stream << ".writeObject(" << param << ')';
                 }
                 else
                 {
@@ -362,7 +379,7 @@ Slice::VbGenerator::writeMarshalUnmarshalCode(Output &out,
             {
                 if(marshal)
                 {
-                    out << nl << stream << ".writeProxy(" << param << ")";
+                    out << nl << stream << ".writeProxy(" << param << ')';
                 }
                 else
                 {
@@ -444,17 +461,17 @@ Slice::VbGenerator::writeMarshalUnmarshalCode(Output &out,
 	if(sz <= 0x7f)
 	{
 	    func = marshal ? "writeByte" : "readByte";
-	    cast = marshal ? "(byte)" : fixId(en->scoped());
+	    cast = marshal ? "Byte" : fixId(en->scoped());
 	}
 	else if(sz <= 0x7fff)
 	{
 	    func = marshal ? "writeShort" : "readShort";
-	    cast = marshal ? "(short)" : fixId(en->scoped());
+	    cast = marshal ? "Short" : fixId(en->scoped());
 	}
 	else
 	{
 	    func = marshal ? "writeInt" : "readInt";
-	    cast = marshal ? "(int)" : fixId(en->scoped());
+	    cast = marshal ? "Integer" : fixId(en->scoped());
 	}
 	if(marshal)
 	{
@@ -478,11 +495,11 @@ Slice::VbGenerator::writeMarshalUnmarshalCode(Output &out,
     string helperName = fixId(ContainedPtr::dynamicCast(type)->scoped() + "Helper");
     if(marshal)
     {
-        out << nl << helperName << ".write(" << stream << ", " << param << ");";
+        out << nl << helperName << ".write(" << stream << ", " << param << ')';
     }
     else
     {
-        out << nl << param << " = " << helperName << ".read(" << stream << ')' << ';';
+        out << nl << param << " = " << helperName << ".read(" << stream << ')';
     }
 }
 
@@ -566,6 +583,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		    }
 		    out << nl << stream << ".checkSeq()";
 		    out << nl << stream << ".endElement()";
+		    out << nl << stream << ".endSeq(__len)";
 		}
 	        break;
 	    }
@@ -617,11 +635,11 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << "For __block As Integer = 0 To 1";
 	    out.inc();
 	    out << nl << "Dim sz As Integer = " << stream << ".readSize()";
-	    out << nl << stream << ".startSeq(sz, " << static_cast<unsigned>(type->minWireSize()) << ")";
+	    out << nl << stream << ".startSeq(sz, " << static_cast<unsigned>(type->minWireSize()) << ')';
 	    out << nl << param << " = New ";
 	    if(isArray)
 	    {
-	        out << typeS << "(sz) {}";
+		out << toArrayAlloc(typeS + "()", "sz") << " {}";
 	    }
 	    else
 	    {
@@ -636,6 +654,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << stream << ".endElement()";
 	    out.dec();
 	    out << nl << "Next";
+	    out << nl << stream << ".endSeq(sz)";
 	    out.dec();
 	    out << nl << "Next";
         }
@@ -663,7 +682,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << param << " = New ";
 	    if(isArray)
 	    {
-		out << typeS << "(sz) {}";
+		out << toArrayAlloc(typeS + "()", "sz") << " {}";
 	    }
 	    else
 	    {
@@ -679,6 +698,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    }
 	    out.dec();
 	    out << nl << "Next";
+	    out << nl << stream << ".endSeq(sz)";
 	    out.dec();
 	    out << nl << "Next";
 	}
@@ -707,7 +727,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << param << " = New ";
 	    if(isArray)
 	    {
-		out << typeS << "(sz) {}";
+		out << toArrayAlloc(typeS + "()", "sz") << " {}";
 	    }
 	    else
 	    {
@@ -725,13 +745,22 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    }
 	    out.dec();
 	    out << nl << "Next";
+	    out << nl << stream << ".endSeq(sz)";
 	    out.dec();
 	    out << nl << "Next";
 	}
         return;
     }
 
-    string helperName = fixId(ContainedPtr::dynamicCast(type)->scoped() + "Helper");
+    string helperName;
+    if(ProxyPtr::dynamicCast(type))
+    {
+    	helperName = fixId(ProxyPtr::dynamicCast(type)->_class()->scoped() + "PrxHelper");
+    }
+    else
+    {
+    	helperName = fixId(ContainedPtr::dynamicCast(type)->scoped() + "Helper");
+    }
 
     if(marshal)
     {
@@ -753,7 +782,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	out << nl << param << " = New ";
 	if(isArray)
 	{
-	    out << typeS << "(sz) {}";
+	    out << toArrayAlloc(typeS + "()", "sz") << " {}";
 	}
 	else
 	{
@@ -779,6 +808,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	}
 	out.dec();
 	out << nl << "Next";
+	out << nl << stream << ".endSeq(sz)";
 	out.dec();
 	out << nl << "Next";
     }

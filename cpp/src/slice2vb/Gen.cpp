@@ -114,7 +114,8 @@ Slice::VbVisitor::writeInheritedOperations(const ClassDefPtr& p)
 		{
 		    _out << " As " << retS;
 		}
-		_out << " Implements _" << p->name() << "OperationsNC." << fixId(name);
+		_out << " Implements " << fixId(containingClass->scope()) << "_" << containingClass->name()
+		     << "OperationsNC." << fixId(name);
 		_out.inc();
 		_out << nl;
 		if((*op)->returnType())
@@ -127,7 +128,8 @@ Slice::VbVisitor::writeInheritedOperations(const ClassDefPtr& p)
 
 		_out << sp << nl << "Public MustOverride " << vbOp << ' ' << fixId(name)
 		     << spar << params << "ByVal __current As Ice.Current" << epar
-		     << " Implements _" << containingClass->name() << "Operations." << fixId(name);
+		     << " Implements " << fixId(containingClass->scope()) << "_" << containingClass->name()
+		     << "Operations." << fixId(name);
 	    }
 	    else
 	    {
@@ -135,7 +137,8 @@ Slice::VbVisitor::writeInheritedOperations(const ClassDefPtr& p)
 		vector<string> args = getArgsAsync(*op);
 
 		_out << sp << nl << "Public Sub " << ' ' << name << "_async" << spar << params << epar
-		     << " Implements _" << p->name() << "OperationsNC." << name << "_async";
+		     << " Implements " << fixId(containingClass->scope()) << "_" << containingClass->name()
+		     << "OperationsNC." << name << "_async";
 		_out.inc();
 		_out << nl << name << "_async" << spar << args << epar;
 		_out.dec();
@@ -143,7 +146,8 @@ Slice::VbVisitor::writeInheritedOperations(const ClassDefPtr& p)
 
 		_out << sp << nl << "Public MustOverride Sub " << name << "_async"
 		     << spar << params << "ByVal __current As Ice.Current" << epar
-		     << " Implements _" << containingClass->name() << "Operations." << name << "_async";
+		     << " Implements " << fixId(containingClass->scope()) << "_" << containingClass->name()
+		     << "Operations." << name << "_async";
 	    }
 	}
 
@@ -1185,7 +1189,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	DataMemberList allClassMembers = p->allClassDataMembers();
 	if(allClassMembers.size() != 0)
 	{
-	    _out << sp << nl << "Public NotInheritable Overloads Class __Patcher";
+	    _out << sp << nl << "Public NotInheritable Class __Patcher";
 	    _out.inc();
 	    _out << nl << "Inherits IceInternal.Patcher";
 	    _out << sp << nl << "Friend Sub New(ByVal instance As Ice.ObjectImpl";
@@ -1761,6 +1765,12 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	    _out << nl << "' Bug in VB 7.1: cast to Object should not be necessary.";
 	    _out << nl << "__h = 5 * __h + CType(" << memberName << ", Object).GetHashCode()";
 	}
+	else if(ProxyPtr::dynamicCast((*q)->type()))
+	{
+	    _out << nl << "' Bug in VB 7.1: cast should not be necessary.";
+	    _out << nl << "__h = 5 * __h + CType(" << memberName << ", "
+		 << typeToString((*q)->type()) << "Helper).GetHashCode()";
+	}
 	else
 	{
 	    _out << nl << "__h = 5 * __h + " << memberName << ".GetHashCode()";
@@ -1803,6 +1813,12 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	    _out << nl << "' Bug in VB 7.1: cast to Object should not be necessary.";
 	    _out << nl << "If Not CType(" << memberName << ", Object).Equals(CType(__other, "
 	         << name << ")." << memberName << ") Then";
+	}
+	else if(ProxyPtr::dynamicCast((*q)->type()))
+	{
+	    _out << nl << "' Bug in VB 7.1: cast should not be necessary.";
+	    _out << nl << "If Not CType(" << memberName << ", " << typeToString((*q)->type())
+	         << "Helper).Equals(CType(__other, " << name << ")." << memberName << ") Then";
 	}
 	else
 	{
@@ -1873,7 +1889,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	DataMemberList allClassMembers = p->allClassDataMembers();
 	if(allClassMembers.size() != 0)
 	{
-	    _out << sp << nl << "Public NotInheritable Overloads Class __Patcher";
+	    _out << sp << nl << "Public NotInheritable Class __Patcher";
 	    _out.inc();
 	    _out << nl << "Inherits IceInternal.Patcher";
 	    _out << sp << nl << "Friend Sub New(ByVal instance As Ice.Exception";
@@ -2056,6 +2072,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	    _out << nl << "' Bug in VB 7.1: cast to Object should not be necessary.";
 	    _out << nl << "__h = 5 * __h + CType(" << memberName << ", Object).GetHashCode()";
 	}
+	else if(ProxyPtr::dynamicCast((*q)->type()))
+	{
+	    _out << nl << "' Bug in VB 7.1: cast should not be necessary.";
+	    _out << nl << "__h = 5 * __h + CType(" << memberName << ", "
+		 << typeToString((*q)->type()) << "Helper).GetHashCode()";
+	}
 	else
 	{
 	    _out << nl << "__h = 5 * __h + " << memberName << ".GetHashCode()";
@@ -2103,6 +2125,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 		_out << nl << "' Bug in VB 7.1: cast to Object should not be necessary.";
 		_out << nl << "If Not CType(" << memberName << ", Object).Equals(CType(__other, "
 		     << name << ")." << memberName << ") Then";
+	    }
+	    else if(ProxyPtr::dynamicCast((*q)->type()))
+	    {
+		_out << nl << "' Bug in VB 7.1: cast should not be necessary.";
+		_out << nl << "If Not CType(" << memberName << ", " << typeToString((*q)->type())
+		     << "Helper).Equals(CType(__other, " << name << ")." << memberName << ") Then";
 	    }
 	    else
 	    {
@@ -2177,7 +2205,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
 	if(classMembers.size() != 0)
 	{
-	    _out << sp << nl << "Public NotInheritable Overloads Class __Patcher";
+	    _out << sp << nl << "Public NotInheritable Class __Patcher";
 	    _out.inc();
 	    _out << nl << "Inherits IceInternal.Patcher";
 	    _out << sp << nl << "Friend Sub New(ByVal instance As " << name;
@@ -2551,6 +2579,11 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     {
 	_out << nl << "' Bug in VB 7.1: cast to Object should not be necessary.";
         _out << nl << "If Not CType(__vlhs(i), Object).Equals(__vrhs(i))";
+    }
+    else if(ProxyPtr::dynamicCast(p->valueType()))
+    {
+	_out << nl << "' Bug in VB 7.1: cast should not be necessary.";
+	_out << nl << "If Not CType(__vlhs(i), " << typeToString(p->valueType()) << "Helper).Equals(__vrhs(i))";
     }
     else
     {
@@ -3050,7 +3083,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    _out << " As " << retS;
 	}
-	_out << " Implements " << name << "Prx." << opName;
+	_out << " Implements " << name << "Prx." << opName; // TODO: should be containing class?
 	_out.inc();
 	_out << nl << "Dim __cnt As Integer = 0";
 	_out << nl << "While True";
@@ -3130,7 +3163,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    // context parameter
 	    //
 	    _out << sp << nl << "Public Sub " << opName << "_async" << spar << paramsAMI << epar
-	         << " Implements " << name << "Prx." << opName << "_async";
+	         << " Implements " << name << "Prx." << opName << "_async"; // TODO: should be containing class?
 	    _out.inc();
 	    _out << nl << opName << "_async" << spar << argsAMI << "__defaultContext()" << epar;
 	    _out.dec();
@@ -3138,7 +3171,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 	    _out << sp << nl << "Public Sub " << opName << "_async" << spar << paramsAMI
 	         << "ByVal __ctx As Ice.Context" << epar
-	         << " Implements " << name << "Prx." << opName << "_async";
+	         << " Implements " << name << "Prx." << opName << "_async"; // TODO: should be containing class?
 	    _out.inc();
 	    _out << nl << "__checkTwowayOnly(\"" << p->name() << "\")";
 	    _out << nl << "__cb.__invoke" << spar << "Me" << argsAMI << "__ctx" << epar;
@@ -3356,7 +3389,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out.inc();
     string keyArg = "CType(__e.Key, " + keyS + ")";
     writeMarshalUnmarshalCode(_out, key, keyArg, true, false);
-    string valueArg = "CType(__e.Value, " + valueS + ")";
+    string valueArg = "__e.Value";
     writeMarshalUnmarshalCode(_out, value, valueArg, true, false);
     _out.dec();
     _out << nl << "Next";
@@ -3369,7 +3402,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     bool hasClassValue = (builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(value);
     if(hasClassValue)
     {
-	_out << sp << nl << "Public NotInheritable Overloads Class __Patcher";
+	_out << sp << nl << "Public NotInheritable Class __Patcher";
 	_out.inc();
 	_out << nl << "Inherits IceInternal.Patcher";
 	_out << sp << nl << "Friend Sub New(ByVal m As " << name << ", ByVal key As " << keyS << ')';
@@ -3606,7 +3639,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    _out << " As " << retS;
 	}
-	_out << " Implements _" << name << "Del." << opName;
+	_out << " Implements _" << name << "Del." << opName; // TODO: should be containing class?
 	_out.inc();
 
 	_out << nl << "Dim __out As IceInternal.Outgoing = getOutgoing(\""
@@ -3813,7 +3846,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    _out << " As " << retS;
 	}
-	_out << " Implements _" << name << "Del." << opName;
+	_out << " Implements _" << name << "Del." << opName; // TODO: should be containing class?
         _out.inc();
 	if(containingClass->hasMetaData("amd") || op->hasMetaData("amd"))
 	{
@@ -3957,7 +3990,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    _out << " As " << typeToString(ret);
 	}
-	_out << " Implements _" << p->name() << "OperationsNC" << '.' << name;
+	_out << " Implements _" << p->name() << "OperationsNC" << '.' << name; // TODO: should be containing class?
 	_out.inc();
 	_out << nl;
 	if(ret)
@@ -3978,7 +4011,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    _out << " As " << typeToString(ret);
 	}
-	_out << " Implements _" << p->name() << "Operations" << '.' << name;
+	_out << " Implements _" << p->name() << "Operations" << '.' << name; // TODO: should be containing class?
     }
 
     if(!ops.empty())
@@ -4282,7 +4315,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	_out << nl << "End Sub";
 
 	_out << sp << nl << "Public Sub ice_response" << spar << paramsAMD << epar
-	     << " Implements " << classNameAMD << '_' << name << ".ice_response";
+	     << " Implements " << classNameAMD << '_' << name << ".ice_response"; // TODO: should be containing class?
 	_out.inc();
 	_out << nl << "If Not _finished Then";
 	_out.inc();
@@ -4319,7 +4352,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	_out << nl << "End Sub";
 
 	_out << sp << nl << "Public Sub ice_exception(ByVal ex As _System.Exception)"
-	     << " Implements " << classNameAMD << '_' << name << ".ice_exception";
+	     << " Implements " << classNameAMD << '_' << name << ".ice_exception"; // TODO: should be containing class?
 	_out.inc();
 	_out << nl << "If Not _finished Then";
 	_out.inc();
@@ -4672,7 +4705,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool local, 
 	{
 	    if(forTie)
 	    {
-		_out << " Implements _" << cl->name() << "Operations." << opName << "_async";
+		_out << " Implements _" << cl->name() << "Operations." << opName << "_async"; // TODO: should be containing class?
 	    }
 	}
 
@@ -4734,7 +4767,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool local, 
 	{
 	    if(forTie)
 	    {
-		_out << " Implements _" << cl->name() << "Operations." << fixId(opName);
+		_out << " Implements _" << cl->name() << "Operations." << fixId(opName); // TODO: should be containing class?
 	    }
 	}
 	_out.inc();

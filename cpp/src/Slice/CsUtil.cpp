@@ -181,6 +181,23 @@ Slice::CsGenerator::typeToString(const TypePtr& type)
     return "???";
 }
 
+static string
+toArrayAlloc(const string& decl, const string& sz)
+{
+    int count = 0;
+    string::size_type pos = decl.size();
+    while(pos > 1 && decl.substr(pos - 2, 2) == "[]")
+    {
+        ++count;
+	pos -= 2;
+    }
+    assert(count > 0);
+
+    ostringstream o;
+    o << decl.substr(0, pos) << '[' << sz << ']' << decl.substr(pos + 2);
+    return o.str();
+}
+
 bool
 Slice::CsGenerator::isValueType(const TypePtr& type)
 {
@@ -550,6 +567,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		    out << nl << stream << ".checkSeq();";
 		    out << nl << stream << ".endElement();";
 		    out << eb;
+		    out << nl << stream << ".endSeq(__len);";
 		}
 	        break;
 	    }
@@ -602,7 +620,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << param << " = new ";
 	    if(isArray)
 	    {
-	        out << typeS << "[sz]";
+	        out << toArrayAlloc(typeS + "[]", "sz");
 	    }
 	    else
 	    {
@@ -617,6 +635,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << stream << ".checkSeq();";
 	    out << nl << stream << ".endElement();";
 	    out << eb;
+	    out << nl << stream << ".endSeq(sz);";
 	    out << eb;
         }
         return;
@@ -641,7 +660,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << param << " = new ";
 	    if(isArray)
 	    {
-	        out << typeS << "[sz]";
+	        out << toArrayAlloc(typeS + "[]", "sz");
 	    }
 	    else
 	    {
@@ -657,6 +676,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		out << nl << stream << ".endElement();";
 	    }
 	    out << eb;
+	    out << nl << stream << ".endSeq(sz);";
 	    out << eb;
 	}
 	return;
@@ -682,7 +702,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << param << " = new ";
 	    if(isArray)
 	    {
-		out << typeS << "[sz]";
+	        out << toArrayAlloc(typeS + "[]", "sz");
 	    }
 	    else
 	    {
@@ -700,6 +720,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	        out << nl << param << ".Add((" << typeS << ')' << stream << ".readByte());";
 	    }
 	    out << eb;
+	    out << nl << stream << ".endSeq(sz);";
 	    out << eb;
 	}
         return;
@@ -723,7 +744,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	out << nl << param << " = new ";
 	if(isArray)
 	{
-	    out << typeS << "[sz]";
+	    out << toArrayAlloc(typeS + "[]", "sz");
 	}
 	else
 	{
@@ -749,6 +770,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << stream << ".endElement();";
 	}
 	out << eb;
+	out << nl << stream << ".endSeq(sz);";
 	out << eb;
     }
 
