@@ -126,7 +126,7 @@ IcePack::LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorReg
 	catch(const AdapterNotExistException&)
 	{
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const Ice::LocalException&)
 	{
 	    cb->ice_response();
 	    return;

@@ -361,7 +361,7 @@ IcePack::NodeService::start(int argc, char* argv[])
         error("a node with the same name is already registered and active");
         return false;
     }
-    catch(const LocalException& ex)
+    catch(const LocalException&)
     {
         error("couldn't contact the IcePack registry");
         return false;
