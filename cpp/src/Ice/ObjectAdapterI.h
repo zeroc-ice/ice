@@ -42,8 +42,9 @@ public:
     virtual ObjectPrx addTemporary(const ObjectPtr&);
     virtual void remove(const std::string&);
 
-    virtual void setServantLocator(const ServantLocatorPtr&);
-    virtual ServantLocatorPtr getServantLocator();
+    virtual void addServantLocator(const ServantLocatorPtr&, const std::string&);
+    virtual void removeServantLocator(const std::string&);
+    virtual ServantLocatorPtr findServantLocator(const std::string&);
 
     virtual ObjectPtr identityToServant(const ::std::string&);
     virtual ObjectPtr proxyToServant(const ObjectPrx&);
@@ -64,7 +65,8 @@ private:
     std::vector< IceInternal::CollectorFactoryPtr> _collectorFactories;
     std::map<std::string, ObjectPtr> _activeServantMap;
     std::map<std::string, ObjectPtr>::iterator _activeServantMapHint;
-    ServantLocatorPtr _locator;
+    std::map<std::string, ServantLocatorPtr> _locatorMap;
+    std::map<std::string, ServantLocatorPtr>::iterator _locatorMapHint;
 };
 
 }

@@ -517,7 +517,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	case Reference::ModeBatchOneway:
 	{
 	    remove_copy_if(__reference->endpoints.begin(), __reference->endpoints.end(), back_inserter(endpoints), 
-			   ::IceInternal::constMemFun(&Endpoint::datagram));
+			   ::Ice::constMemFun(&Endpoint::datagram));
 	    break;
 	}
 	
@@ -525,21 +525,19 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	case Reference::ModeBatchDatagram:
 	{
 	    remove_copy_if(__reference->endpoints.begin(), __reference->endpoints.end(), back_inserter(endpoints),
-			   not1(::IceInternal::constMemFun(&Endpoint::datagram)));
+			   not1(::Ice::constMemFun(&Endpoint::datagram)));
 	    break;
 	}
     }
 
     if (__reference->secure)
     {
-	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
-				  not1(::IceInternal::constMemFun(&Endpoint::secure))),
+	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(::Ice::constMemFun(&Endpoint::secure))),
 			endpoints.end());
     }
     else
     {
-	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
-				  ::IceInternal::constMemFun(&Endpoint::secure)),
+	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), ::Ice::constMemFun(&Endpoint::secure)),
 			endpoints.end());
     }
 

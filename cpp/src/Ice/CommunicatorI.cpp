@@ -102,14 +102,36 @@ Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const s
 }
 
 void
-Ice::CommunicatorI::installServantFactory(const ServantFactoryPtr& factory, const string& id)
+Ice::CommunicatorI::addServantFactory(const ServantFactoryPtr& factory, const string& id)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
     if (!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
-    _instance->servantFactoryManager()->install(factory, id);
+    _instance->servantFactoryManager()->add(factory, id);
+}
+
+void
+Ice::CommunicatorI::removeServantFactory(const string& id)
+{
+    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    if (!_instance)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    _instance->servantFactoryManager()->remove(id);
+}
+
+ServantFactoryPtr
+Ice::CommunicatorI::findServantFactory(const string& id)
+{
+    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    if (!_instance)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    return _instance->servantFactoryManager()->find(id);
 }
 
 PropertiesPtr

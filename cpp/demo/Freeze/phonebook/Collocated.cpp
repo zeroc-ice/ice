@@ -70,7 +70,7 @@ PhoneBookCollocated::run(int argc, char* argv[])
 	// Create an Object Adapter, use the Evictor as Servant Locator.
 	//
 	ObjectAdapterPtr adapter = communicator()->createObjectAdapter("PhoneBookAdapter");
-	adapter->setServantLocator(evictor);
+	adapter->addServantLocator(evictor, "contact");
 	
 	//
 	// Create the phonebook, and add it to the Object Adapter.
@@ -83,7 +83,7 @@ PhoneBookCollocated::run(int argc, char* argv[])
 	//
 	ServantFactoryPtr contactFactory = new ContactFactory(phoneBook, evictor);
 	ServantInitializerPtr contactInitializer = ServantInitializerPtr::dynamicCast(contactFactory);
-	communicator()->installServantFactory(contactFactory, "::Contact");
+	communicator()->addServantFactory(contactFactory, "::Contact");
 	evictor->installServantInitializer(contactInitializer);
 	
 	//

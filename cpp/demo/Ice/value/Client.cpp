@@ -70,7 +70,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     cin.getline(&c, 1);
 
     Ice::ServantFactoryPtr factory = new ServantFactory;
-    communicator->installServantFactory(factory, "::Printer");
+    communicator->addServantFactory(factory, "::Printer");
 
     initial->printer(printer, printerProxy);
     cout << "==> " << printer->_message << endl;
@@ -119,7 +119,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "[press enter]\n";
     cin.getline(&c, 1);
 
-    communicator->installServantFactory(factory, "::DerivedPrinter");
+    communicator->addServantFactory(factory, "::DerivedPrinter");
 
     derivedAsBase = initial->derivedPrinter();
     DerivedPrinterPtr derived = DerivedPrinterPtr::dynamicCast(derivedAsBase);

@@ -85,7 +85,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
 
     ObjectAdapterPtr forwardAdapter = communicator->createObjectAdapter("Forward");
-    forwardAdapter->setServantLocator(forward);
+    forwardAdapter->addServantLocator(forward, "");
     forwardAdapter->activate();
 
     communicator->waitForShutdown();

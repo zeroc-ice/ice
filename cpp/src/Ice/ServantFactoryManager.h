@@ -22,8 +22,9 @@ class ServantFactoryManager : public ::IceUtil::Shared, public JTCMutex
 {
 public:
 
-    void install(const ::Ice::ServantFactoryPtr&, const std::string&);
-    ::Ice::ServantFactoryPtr lookup(const std::string&);
+    void add(const ::Ice::ServantFactoryPtr&, const std::string&);
+    void remove(const std::string&);
+    ::Ice::ServantFactoryPtr find(const std::string&);
 
 private:
 
@@ -31,7 +32,8 @@ private:
     void destroy();
     friend class Instance;
 
-    std::map<std::string, ::Ice::ServantFactoryPtr> _factories;
+    std::map<std::string, ::Ice::ServantFactoryPtr> _factoryMap;
+    std::map<std::string, ::Ice::ServantFactoryPtr>::iterator _factoryMapHint;
 };
 
 }

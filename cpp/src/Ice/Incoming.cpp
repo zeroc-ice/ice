@@ -47,7 +47,16 @@ IceInternal::Incoming::invoke(Stream& is)
     {
 	if (!servant)
 	{
-	    locator = _adapter->getServantLocator();
+	    string::size_type pos = identity.find('#');
+	    if (pos != string::npos)
+	    {
+		locator = _adapter->findServantLocator(identity.substr(0, pos));
+	    }
+	    else
+	    {
+		locator = _adapter->findServantLocator("");
+	    }
+
 	    if (locator)
 	    {
 		servant = locator->locate(_adapter, identity, operation, cookie);

@@ -269,8 +269,5 @@ PhoneBookI::getNewIdentity()
     ids.push_back(s);
     _nameIdentitiesDict->put("ID", ids);
 
-    return string("phonebook.contact#") + s;
+    return string("contact#") + s;
 }
-
-
-

@@ -152,28 +152,61 @@ local interface ObjectAdapter
 
     /**
      *
-     * Set a Servant Locator for this Object Adapter.
+     * Add a Servant Locator to this Object Adapter. If a locator has
+     * already been installed for the given prefix, the current
+     * locator for this prefix is replaced by the new one. If a
+     * non-empty prefix is specified, the locator will only be called
+     * for Ice Objects with an identity that starts with
+     * "<replaceable>prefix</replaceable><literal>#</literal>". If an
+     * empty prefix is given, the Ice Object identity can be
+     * completely free-form, except that it cannot contain a
+     * "<literal>#</literal>". Only one locator for an empty prefix
+     * can be installed with one single Object Adapter.
      *
-     * @param locator The Servant Locator to set.     
+     * @param locator The locator to add.
      *
+     * @param prefix The Ice Object identity prefix for which the
+     * Servant Locator can locate Servants.
+     *
+     * @see removeServantLocator
+     * @see findServantLocator
      * @see ServantLocator
-     * @see getServantLocator
      *
      **/
-    void setServantLocator(ServantLocator locator);
+    void addServantLocator(ServantLocator locator, string prefix);
 
     /**
      *
-     * Get the Object Locator for this Object Adapter.
+     * Remove a Servant locator from this Object Adapter. This
+     * operation does nothing if no locator for the given prefix has
+     * been installed.
      *
-     * @return The Servant Locator for this Object Adapter. If no
-     * Servant Locator is set, null is returned.
+     * @param prefix The Ice Object identity prefix for which the
+     * Servant Locator can locate Servants.
      *
+     * @see addServantLocator
+     * @see findServantLocator
      * @see ServantLocator
-     * @see setServantLocator
      *
      **/
-    ServantLocator getServantLocator();
+    void removeServantLocator(string prefix);
+
+    /**
+     *
+     * Find a Servant Locator installed with this Object Adapter.
+     *
+     * @param prefix The Ice Object identity prefix for which the
+     * Servant Locator can locate Servants.
+     *
+     * @return The Servant Locator, or null if no Servant Locator was
+     * found for the given prefix.
+     *
+     * @see addServantLocator
+     * @see removeServantLocator
+     * @see ServantLocator
+     *
+     **/
+    ServantLocator findServantLocator(string prefix);
 
     /**
      *

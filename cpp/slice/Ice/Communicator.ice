@@ -162,14 +162,53 @@ local interface Communicator
 
     /**
      *
-     * Install a new Servant Factory.
+     * Add a Servant factory to this Communicator. If a factory has
+     * already been installed for the given id, the current factory
+     * for this id is replaced by the new one.
      *
-     * @param factory The factory to install.
+     * @param factory The factory to add.
      *
-     * @param id The type id for which the factory can create instances.
+     * @param id The type id for which the factory can create
+     * instances.
+     *
+     * @see removeServantFactory
+     * @see findServantFactory
+     * @see ServantFactory
      *
      **/
-    void installServantFactory(ServantFactory factory, string id);
+    void addServantFactory(ServantFactory factory, string id);
+
+    /**
+     *
+     * Remove a Servant factory from this Communicator. This operation
+     * does nothing if no factory for the given id has been installed.
+     *
+     * @param id The type id for which the factory can create
+     * instances.
+     *
+     * @see addServantFactory
+     * @see findServantFactory
+     * @see ServantFactory
+     *
+     **/
+    void removeServantFactory(string id);
+
+    /**
+     *
+     * Find a Servant factory installed with this Communicator.
+     *
+     * @param id The type id for which the factory can create
+     * instances.
+     *
+     * @return The Servant factory, or null if no Servant factory was
+     * found for the given id.
+     *
+     * @see addServantFactory
+     * @see removeServantFactory
+     * @see ServantFactory
+     *
+     **/
+    ServantFactory findServantFactory(string id);
 
     /**
      *

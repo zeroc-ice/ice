@@ -10,6 +10,7 @@
 
 #include <Ice/ServantFactoryManager.h>
 #include <Ice/ServantFactory.h>
+#include <Ice/Functional.h>
 
 using namespace std;
 using namespace Ice;
@@ -19,20 +20,37 @@ void IceInternal::incRef(ServantFactoryManager* p) { p->__incRef(); }
 void IceInternal::decRef(ServantFactoryManager* p) { p->__decRef(); }
 
 void
-IceInternal::ServantFactoryManager::install(const ServantFactoryPtr& factory, const string& id)
+IceInternal::ServantFactoryManager::add(const ServantFactoryPtr& factory, const string& id)
 {
     JTCSyncT<JTCMutex> sync(*this);
-    _factories.insert(make_pair(id, factory));
+    _factoryMapHint = _factoryMap.insert(_factoryMapHint, make_pair(id, factory));
+}
+
+void
+IceInternal::ServantFactoryManager::remove(const string& id)
+{
+    JTCSyncT<JTCMutex> sync(*this);
+    _factoryMap.erase(id);
+    _factoryMapHint = _factoryMap.end();
 }
 
 ServantFactoryPtr
-IceInternal::ServantFactoryManager::lookup(const string& id)
+IceInternal::ServantFactoryManager::find(const string& id)
 {
     JTCSyncT<JTCMutex> sync(*this);
-    map<string, ::Ice::ServantFactoryPtr>::const_iterator p;
-    p = _factories.find(id);
-    if (p != _factories.end())
+    
+    if (_factoryMapHint != _factoryMap.end())
     {
+	if (_factoryMapHint->first == id)
+	{
+	    return _factoryMapHint->second;
+	}
+    }
+    
+    map<string, ::Ice::ServantFactoryPtr>::iterator p = _factoryMap.find(id);
+    if (p != _factoryMap.end())
+    {
+	_factoryMapHint = p;
 	return p->second;
     }
     else
@@ -41,7 +59,8 @@ IceInternal::ServantFactoryManager::lookup(const string& id)
     }
 }
 
-IceInternal::ServantFactoryManager::ServantFactoryManager()
+IceInternal::ServantFactoryManager::ServantFactoryManager() :
+    _factoryMapHint(_factoryMap.end())
 {
 }
 
@@ -49,9 +68,8 @@ void
 IceInternal::ServantFactoryManager::destroy()
 {
     JTCSyncT<JTCMutex> sync(*this);
-    for (map<string, ::Ice::ServantFactoryPtr>::iterator p = _factories.begin(); p != _factories.end(); ++p)
-    {
-	p->second->destroy();
-    }
-    _factories.clear();
+    for_each(_factoryMap.begin(), _factoryMap.end(),
+	     secondVoidMemFun<string, ServantFactory>(&ServantFactory::destroy));
+    _factoryMap.clear();
+    _factoryMapHint = _factoryMap.end();
 }

@@ -19,7 +19,7 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::ServantFactoryPtr factory = new ServantFactory;
-    communicator->installServantFactory(factory, "::Persistent");
+    communicator->addServantFactory(factory, "::Persistent");
     
     ifstream in("persistent");
     if (!in)
