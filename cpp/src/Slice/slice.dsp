@@ -118,6 +118,10 @@ SOURCE=.\CsUtil.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\DotNetNames.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Grammar.cpp
 # End Source File
 # Begin Source File

@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Slice/DotNetNames.h>
+#include <ctype.h>
 
 using namespace std;
 
