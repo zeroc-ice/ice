@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_STREAM_H
-#define ICE_STREAM_H
+#ifndef ICE_BASIC_STREAM_H
+#define ICE_BASIC_STREAM_H
 
 #include <Ice/InstanceF.h>
 #include <Ice/ObjectF.h>

@@ -29,5 +29,6 @@
 #include <Ice/Application.h>
 #include <Ice/TransportInfo.h>
 #include <Ice/Functional.h>
+#include <Ice/Stream.h>
 
 #endif

@@ -91,7 +91,9 @@ OBJS		= Initialize.o \
 		  Process.o \
 		  FacetMap.o \
 		  SliceChecksumDict.o \
-		  SliceChecksums.o
+		  SliceChecksums.o \
+		  Stream.o \
+		  StreamI.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

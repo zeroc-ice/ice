@@ -14,6 +14,7 @@
 #include <Ice/PropertiesF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/BuiltinSequences.h>
+#include <Ice/StreamF.h>
 
 namespace Ice
 {
@@ -39,6 +40,9 @@ ICE_API CommunicatorPtr initializeWithProperties(int&, char*[], const Properties
 ICE_API PropertiesPtr getDefaultProperties();
 ICE_API PropertiesPtr getDefaultProperties(StringSeq&);
 ICE_API PropertiesPtr getDefaultProperties(int&, char*[]);
+
+ICE_API InputStreamPtr createInputStream(const CommunicatorPtr&, const ::std::vector< Byte >&);
+ICE_API OutputStreamPtr createOutputStream(const CommunicatorPtr&);
 
 }
 

@@ -12,6 +12,7 @@
 #include <Ice/PropertiesI.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
+#include <Ice/StreamI.h>
 
 using namespace std;
 using namespace Ice;
@@ -164,6 +165,18 @@ Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& prop
     CommunicatorPtr result = communicatorI; // For exception safety.
     communicatorI->finishSetup(argc, argv);
     return result;
+}
+
+InputStreamPtr
+Ice::createInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes)
+{
+    return new InputStreamI(getInstance(communicator), bytes);
+}
+
+OutputStreamPtr
+Ice::createOutputStream(const CommunicatorPtr& communicator)
+{
+    return new OutputStreamI(getInstance(communicator));
 }
 
 InstancePtr
