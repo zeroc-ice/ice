@@ -16,12 +16,26 @@ namespace IceInternal
     using System.Reflection;
     using System.Threading;
 
-    public enum Runtime { DotNET, Mono };
-
     public sealed class AssemblyUtil
     {
+        public enum Runtime { DotNET, Mono };
+        public enum Platform { Windows, NonWindows };
+
         static AssemblyUtil()
 	{
+            PlatformID id = Environment.OSVersion.Platform;
+            if(   id == PlatformID.Win32NT
+               || id == PlatformID.Win32S
+               || id == PlatformID.Win32Windows
+               || id == PlatformID.WinCE)
+            {
+                _platform = Platform.Windows;
+            }
+            else
+            {
+                _platform = Platform.NonWindows;
+            }
+
 	    if(System.Type.GetType("Mono.Runtime") != null)
 	    {
 	        _runtime = Runtime.Mono;
@@ -170,6 +184,8 @@ namespace IceInternal
 	public readonly static int _runtimeMinor;
 	public readonly static int _runtimeBuild;
 	public readonly static int _runtimeRevision;
+
+        public readonly static Platform _platform;
     }
 
 }

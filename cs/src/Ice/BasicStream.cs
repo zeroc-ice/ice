@@ -19,19 +19,21 @@ namespace IceInternal
 
     public class BasicStream
     {
-        [DllImport("libbz2.dll")]
+        [DllImport("libbz2")]
         static extern String BZ2_bzlibVersion();
 
         static BasicStream()
         {
-#if __MonoCS__
-	    _bzlibInstalled = false; // TODO: Make this work for Mono.
-#else
             //
             // Simple trick to find out whether libbz2.dll is installed:
             // Call the BZ2_bzlibVersion() function in the library. If we get
             // a DllImportException, the library is not available.
             //
+            if(AssemblyUtil._platform == AssemblyUtil.Platform.NonWindows)
+            {
+                _bzlibInstalled = false; // TODO: Mono bug: under Linux, we get a TypeInitializationException.
+                return;
+            }
 
             _bzlibInstalled = true;
             try
@@ -42,7 +44,6 @@ namespace IceInternal
             {
                 _bzlibInstalled = false;
             }
-#endif
         }
 
 	public BasicStream(IceInternal.Instance instance)
