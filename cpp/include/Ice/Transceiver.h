@@ -12,6 +12,7 @@
 #define ICE_TRANSCEIVER_H
 
 #include <Ice/TransceiverF.h>
+#include <Ice/InstanceF.h>
 #include <Ice/Shared.h>
 
 namespace _Ice
@@ -34,11 +35,12 @@ private:
     TransceiverI(const TransceiverI&);
     void operator=(const TransceiverI&);
 
-    TransceiverI(int);
+    TransceiverI(Instance, int);
     virtual ~TransceiverI();
     friend class ConnectorI; // May create TransceiverIs
     friend class AcceptorI; // May create TransceiverIs
 
+    Instance instance_;
     int fd_;
 };
 

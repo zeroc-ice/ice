@@ -15,6 +15,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/StubF.h>
 #include <Ice/EndpointF.h>
+#include <Ice/LoggerF.h>
 #include <Ice/Shared.h>
 
 namespace Ice
@@ -31,6 +32,9 @@ public:
     std::string referenceToString(const Object&);
 
     Endpoint createEndpoint(); // TODO: arguments
+
+    ::IceLocal::Logger logger();
+    void logger(const ::IceLocal::Logger&);
 
 private:
 

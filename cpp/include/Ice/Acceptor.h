@@ -12,6 +12,7 @@
 #define ICE_ACCEPTOR_H
 
 #include <Ice/AcceptorF.h>
+#include <Ice/InstanceF.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/Shared.h>
 
@@ -34,11 +35,12 @@ private:
     AcceptorI(const AcceptorI&);
     void operator=(const AcceptorI&);
 
-    AcceptorI(int);
+    AcceptorI(Instance, int);
     virtual ~AcceptorI();
     void destroy();
     friend class CollectorFactoryI; // May create and destroy AcceptorIs
 
+    Instance instance_;
     int fd_;
     int port_;
     int backlog_;

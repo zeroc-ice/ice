@@ -12,6 +12,7 @@
 #define ICE_CONNECTOR_H
 
 #include <Ice/ConnectorF.h>
+#include <Ice/InstanceF.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/Shared.h>
 
@@ -31,11 +32,12 @@ private:
     ConnectorI(const ConnectorI&);
     void operator=(const ConnectorI&);
 
-    ConnectorI(const std::string&, int);
+    ConnectorI(Instance, const std::string&, int);
     virtual ~ConnectorI();
     void destroy();
     friend class EmitterFactoryI; // May create and destroy ConnectorIs
 
+    Instance instance_;
     std::string host_;
     int port_;
 };

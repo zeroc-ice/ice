@@ -13,6 +13,8 @@
 
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
+#include <Ice/LoggerF.h>
+#include <Ice/TraceLevelsF.h>
 #include <Ice/ObjectFactoryF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/EmitterF.h>
@@ -26,6 +28,9 @@ class ICE_API InstanceI : public Shared, public JTCMutex
 {
 public:
 
+    ::IceLocal::Logger logger();
+    void logger(const ::IceLocal::Logger&);
+    TraceLevels traceLevels();
     ObjectFactory objectFactory();
     ThreadPool threadPool();
     EmitterFactoryFactory emitterFactoryFactory();
@@ -41,6 +46,8 @@ private:
     void destroy();
     friend class ::Ice::CommunicatorI; // May create and destroy InstanceIs
 
+    ::IceLocal::Logger logger_;
+    TraceLevels traceLevels_;
     ObjectFactory objectFactory_;
     ThreadPool threadPool_;
     EmitterFactoryFactory emitterFactoryFactory_;
