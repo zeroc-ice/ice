@@ -17,12 +17,11 @@
 
 using namespace std;
 
-FreezeScript::TransformVisitor::TransformVisitor(const DataPtr& src, const DataFactoryPtr& factory,
-                                                 const ErrorReporterPtr& errorReporter, TransformInfo* info,
+FreezeScript::TransformVisitor::TransformVisitor(const DataPtr& src, const TransformInfoPtr& info,
                                                  const string& context) :
-    _src(src), _factory(factory), _errorReporter(errorReporter), _info(info), _context(context)
+    _src(src), _info(info), _context(context)
 {
-    assert(_info != 0);
+    assert(_info);
 }
 
 void
@@ -223,7 +222,7 @@ FreezeScript::TransformVisitor::visitStruct(const StructDataPtr& dest)
                 if(q != srcMap.end())
                 {
                     string context = typeName + " member " + p->first + " value";
-                    TransformVisitor v(q->second, _factory, _errorReporter, _info, context);
+                    TransformVisitor v(q->second, _info, context);
                     p->second->visit(v);
                 }
             }
@@ -253,11 +252,11 @@ FreezeScript::TransformVisitor::visitSequence(const SequenceDataPtr& dest)
             string typeName = typeToString(type);
             for(DataList::const_iterator p = srcElements.begin(); p != srcElements.end(); ++p)
             {
-                DataPtr element = _factory->create(elemType, false);
+                DataPtr element = _info->getDataFactory()->create(elemType, false);
                 Destroyer<DataPtr> elementDestroyer(element);
                 try
                 {
-                    TransformVisitor v(*p, _factory, _errorReporter, _info, typeName + " element");
+                    TransformVisitor v(*p, _info, typeName + " element");
                     element->visit(v);
                     destElements.push_back(element);
                     elementDestroyer.release();
@@ -341,17 +340,17 @@ FreezeScript::TransformVisitor::visitDictionary(const DictionaryDataPtr& dest)
             string typeName = typeToString(type);
             for(DataMap::const_iterator p = srcMap.begin(); p != srcMap.end(); ++p)
             {
-                DataPtr key = _factory->create(keyType, false);
+                DataPtr key = _info->getDataFactory()->create(keyType, false);
                 Destroyer<DataPtr> keyDestroyer(key);
-                DataPtr value = _factory->create(valueType, false);
+                DataPtr value = _info->getDataFactory()->create(valueType, false);
                 Destroyer<DataPtr> valueDestroyer(value);
 
-                TransformVisitor keyVisitor(p->first, _factory, _errorReporter, _info, typeName + " key");
+                TransformVisitor keyVisitor(p->first, _info, typeName + " key");
                 key->visit(keyVisitor);
 
                 try
                 {
-                    TransformVisitor valueVisitor(p->second, _factory, _errorReporter, _info, typeName + " value");
+                    TransformVisitor valueVisitor(p->second, _info, typeName + " value");
                     value->visit(valueVisitor);
                 }
                 catch(const ClassNotFoundException& ex)
@@ -465,7 +464,7 @@ FreezeScript::TransformVisitor::visitObject(const ObjectRefPtr& dest)
                         //
                         // Use createObject() so that an initializer is invoked if necessary.
                         //
-                        DataPtr newObj = _factory->createObject(newType, false);
+                        DataPtr newObj = _info->getDataFactory()->createObject(newType, false);
                         ObjectRefPtr newRef = ObjectRefPtr::dynamicCast(newObj);
                         assert(newRef);
 
@@ -524,7 +523,7 @@ FreezeScript::TransformVisitor::transformObject(const ObjectDataPtr& dest, const
             if(q != srcMap.end())
             {
                 string context = typeName + " member " + p->first + " value";
-                TransformVisitor v(q->second, _factory, _errorReporter, _info, context);
+                TransformVisitor v(q->second, _info, context);
                 p->second->visit(v);
             }
         }
@@ -832,7 +831,7 @@ FreezeScript::TransformVisitor::checkClasses(const Slice::ClassDeclPtr& dest, co
             Slice::TypeList l = dest->unit()->lookupTypeNoBuiltin(s2, false);
             if(l.empty())
             {
-                _errorReporter->error("class " + s2 + " not found in new Slice definitions");
+                _info->getErrorReporter()->error("class " + s2 + " not found in new Slice definitions");
             }
             s = Slice::ClassDeclPtr::dynamicCast(l.front());
         }
@@ -846,7 +845,7 @@ FreezeScript::TransformVisitor::checkClasses(const Slice::ClassDeclPtr& dest, co
             Slice::ClassDefPtr def = s->definition();
             if(!def)
             {
-                _errorReporter->error("class " + s2 + " declared but not defined");
+                _info->getErrorReporter()->error("class " + s2 + " declared but not defined");
             }
             return def->isA(s1);
         }
@@ -897,5 +896,5 @@ FreezeScript::TransformVisitor::rangeError(const string& value, const Slice::Typ
 void
 FreezeScript::TransformVisitor::warning(const string& msg)
 {
-    _errorReporter->warning(msg);
+    _info->getErrorReporter()->warning(msg);
 }

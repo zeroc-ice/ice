@@ -13,6 +13,8 @@
 // **********************************************************************
 
 #include <FreezeScript/Transformer.h>
+#include <FreezeScript/TransformAnalyzer.h>
+#include <FreezeScript/Exception.h>
 #include <FreezeScript/Util.h>
 #include <db_cxx.h>
 #include <sys/stat.h>
@@ -64,6 +66,21 @@ usage(const char* n)
         "                      old-type,new-type.\n"
         ;
     // Note: --case-sensitive is intentionally not shown here!
+}
+
+static Slice::TypePtr
+findType(const string& prog, const Slice::UnitPtr& u, const string& type)
+{
+    Slice::TypeList l;
+
+    l = u->lookupType(type, false);
+    if(l.empty())
+    {
+        cerr << prog << ": error: unknown type `" << type << "'" << endl;
+        return 0;
+    }
+
+    return l.front();
 }
 
 static int
@@ -355,9 +372,12 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
 
     //
-    // Create the Transformer.
+    // Install the core types in the Slice units.
     //
-    FreezeScript::Transformer transformer(communicator, oldUnit, newUnit, ignoreTypeChanges, purgeObjects);
+    FreezeScript::createCoreSliceTypes(oldUnit);
+    FreezeScript::createEvictorSliceTypes(oldUnit);
+    FreezeScript::createCoreSliceTypes(newUnit);
+    FreezeScript::createEvictorSliceTypes(newUnit);
 
     //
     // If no input file was provided, then we need to analyze the Slice types.
@@ -369,13 +389,14 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         vector<string> missingTypes;
         vector<string> analyzeErrors;
 
+        string oldKeyName, newKeyName, oldValueName, newValueName;
         if(evictor)
         {
-            transformer.analyze(out, missingTypes, analyzeErrors);
+            oldKeyName = newKeyName = "::Freeze::EvictorStorageKey";
+            oldValueName = newValueName = "::Freeze::ObjectRecord";
         }
         else
         {
-            string oldKeyName, newKeyName, oldValueName, newValueName;
             string::size_type pos;
 
             if(keyTypeNames.empty() || valueTypeNames.empty())
@@ -417,9 +438,19 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
                 oldValueName = valueTypeNames.substr(0, pos);
                 newValueName = valueTypeNames.substr(pos + 1);
             }
-
-            transformer.analyze(oldKeyName, newKeyName, oldValueName, newValueName, out, missingTypes, analyzeErrors);
         }
+
+        Slice::TypePtr oldKeyType = findType(argv[0], oldUnit, oldKeyName);
+        Slice::TypePtr newKeyType = findType(argv[0], newUnit, newKeyName);
+        Slice::TypePtr oldValueType = findType(argv[0], oldUnit, oldValueName);
+        Slice::TypePtr newValueType = findType(argv[0], newUnit, newValueName);
+        if(!oldKeyType || !newKeyType || !oldValueType || !newValueType)
+        {   
+            return EXIT_FAILURE;
+        }
+
+        FreezeScript::TransformAnalyzer analyzer(oldUnit, newUnit, ignoreTypeChanges);
+        analyzer.analyze(oldKeyType, newKeyType, oldValueType, newValueType, out, missingTypes, analyzeErrors);
 
         if(!analyzeErrors.empty())
         {
@@ -466,6 +497,9 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
     else
     {
+        //
+        // Read the input file.
+        //
         ifstream in(inputFile.c_str());
         char buff[1024];
         while(true)
@@ -486,6 +520,9 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         return EXIT_FAILURE;
     }
 
+    //
+    // Transform the database.
+    //
     DbEnv dbEnv(0);
     DbEnv dbEnvNew(0);
     DbTxn* txn = 0;
@@ -541,8 +578,12 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         dbEnvNew.txn_begin(0, &txnNew, 0);
         dbNew->open(txnNew, dbName.c_str(), 0, DB_BTREE, DB_CREATE | DB_EXCL, FREEZE_SCRIPT_DB_MODE);
 
+        //
+        // Execute the transformation descriptors.
+        //
         istringstream istr(descriptors);
-        transformer.transform(istr, db, txn, dbNew, txnNew, cerr, suppress);
+        FreezeScript::transformDatabase(communicator, oldUnit, newUnit, db, txn, dbNew, txnNew, purgeObjects, cerr,
+                                        suppress, istr);
 
         //
         // Checkpoint to migrate changes from the log to the database.

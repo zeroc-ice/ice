@@ -17,7 +17,6 @@
 
 #include <Ice/Ice.h>
 #include <Slice/Parser.h>
-#include <FreezeScript/Exception.h>
 
 class Db;
 class DbTxn;
@@ -25,29 +24,9 @@ class DbTxn;
 namespace FreezeScript
 {
 
-class Transformer
-{
-public:
-
-    Transformer(const Ice::CommunicatorPtr&, const Slice::UnitPtr&, const Slice::UnitPtr&, bool, bool);
-
-    void analyze(const std::string&, const std::string&, const std::string&, const std::string&, std::ostream&,
-                 Ice::StringSeq&, Ice::StringSeq&);
-
-    void analyze(std::ostream&, Ice::StringSeq&, Ice::StringSeq&);
-
-    void transform(std::istream&, Db*, DbTxn*, Db*, DbTxn*, std::ostream&, bool);
-
-private:
-
-    static Slice::TypePtr findType(const Slice::UnitPtr&, const std::string&, Ice::StringSeq&);
-
-    Ice::CommunicatorPtr _communicator;
-    Slice::UnitPtr _old;
-    Slice::UnitPtr _new;
-    bool _ignoreTypeChanges;
-    bool _purgeObjects;
-};
+void
+transformDatabase(const Ice::CommunicatorPtr&, const Slice::UnitPtr&, const Slice::UnitPtr&,
+                  Db*, DbTxn*, Db*, DbTxn*, bool, std::ostream&, bool, std::istream&);
 
 } // End of namespace FreezeScript
 

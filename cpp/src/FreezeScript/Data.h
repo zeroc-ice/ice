@@ -22,9 +22,6 @@
 namespace FreezeScript
 {
 
-class DataFactory;
-typedef IceUtil::Handle<DataFactory> DataFactoryPtr;
-
 class Data;
 typedef IceUtil::Handle<Data> DataPtr;
 
@@ -39,16 +36,6 @@ class ObjectReader;
 
 class ObjectData;
 typedef IceUtil::Handle<ObjectData> ObjectDataPtr;
-
-class DataInitializer : virtual public IceUtil::SimpleShared
-{
-public:
-
-    virtual ~DataInitializer();
-
-    virtual void initialize(const DataFactoryPtr&, const DataPtr&, const Ice::CommunicatorPtr&) = 0;
-};
-typedef IceUtil::Handle<DataInitializer> DataInitializerPtr;
 
 class DataFactory : public IceUtil::SimpleShared
 {
@@ -66,25 +53,20 @@ public:
 
     Slice::BuiltinPtr getBuiltin(Slice::Builtin::Kind) const;
 
-    void addInitializer(const std::string&, const DataInitializerPtr&);
-    void enableInitializers();
-    void disableInitializers();
-
     Ice::CommunicatorPtr getCommunicator() const;
     ErrorReporterPtr getErrorReporter() const;
 
-private:
+protected:
 
     DataPtr createImpl(const Slice::TypePtr&, bool);
-    void initialize(const DataPtr&);
+
+    virtual void initialize(const DataPtr&);
 
     Ice::CommunicatorPtr _communicator;
     Slice::UnitPtr _unit; // Only used for creating builtin types.
     ErrorReporterPtr _errorReporter;
-    typedef std::map<std::string, DataInitializerPtr> InitMap;
-    InitMap _initializers;
-    bool _initializersEnabled;
 };
+typedef IceUtil::Handle<DataFactory> DataFactoryPtr;
 
 class Data : public IceUtil::SimpleShared
 {

@@ -147,10 +147,6 @@ SOURCE=.\TransformDB.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\TransformDescriptors.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\TransformVisitor.cpp
 # End Source File
 # Begin Source File
@@ -204,10 +200,6 @@ SOURCE=.\Print.h
 # Begin Source File
 
 SOURCE=.\TransformAnalyzer.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\TransformDescriptors.h
 # End Source File
 # Begin Source File
 

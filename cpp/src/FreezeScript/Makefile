@@ -31,7 +31,6 @@ COMMON_OBJS	= Grammar.o \
 		  Util.o
 
 TRANSFORM_OBJS	= TransformAnalyzer.o \
-		  TransformDescriptors.o \
 		  TransformVisitor.o \
 		  Transformer.o \
 		  TransformDB.o

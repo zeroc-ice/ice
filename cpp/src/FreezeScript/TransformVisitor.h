@@ -29,11 +29,21 @@ typedef std::map<const ObjectData*, ObjectDataPtr> ObjectDataMap;
 //
 // TransformInfo supplies information required by TransformVisitor.
 //
-class TransformInfo
+class TransformInfo : public IceUtil::SimpleShared
 {
 public:
 
     virtual ~TransformInfo() {}
+
+    //
+    // Get data factory.
+    //
+    virtual DataFactoryPtr getDataFactory() = 0;
+
+    //
+    // Get error reporter.
+    //
+    virtual ErrorReporterPtr getErrorReporter() = 0;
 
     //
     // Indicates whether the default transformation should be performed.
@@ -66,6 +76,7 @@ public:
     //
     virtual ObjectDataMap& getObjectDataMap() = 0;
 };
+typedef IceUtil::Handle<TransformInfo> TransformInfoPtr;
 
 //
 // TransformVisitor is used to visit a destination Data value and
@@ -75,8 +86,7 @@ class TransformVisitor : public DataVisitor
 {
 public:
 
-    TransformVisitor(const DataPtr&, const DataFactoryPtr&, const ErrorReporterPtr&, TransformInfo*,
-                     const std::string& = std::string());
+    TransformVisitor(const DataPtr&, const TransformInfoPtr&, const std::string& = std::string());
 
     virtual void visitBoolean(const BooleanDataPtr&);
     virtual void visitInteger(const IntegerDataPtr&);
@@ -101,9 +111,7 @@ private:
     void warning(const std::string&);
 
     DataPtr _src;
-    DataFactoryPtr _factory;
-    ErrorReporterPtr _errorReporter;
-    TransformInfo* _info;
+    TransformInfoPtr _info;
     std::string _context; // Provides additional detail for use in warning messages.
 };
 

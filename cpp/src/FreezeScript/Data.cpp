@@ -200,18 +200,11 @@ FreezeScript::ObjectReader::getValue() const
 }
 
 //
-// DataInitializer
-//
-FreezeScript::DataInitializer::~DataInitializer()
-{
-}
-
-//
 // DataFactory
 //
 FreezeScript::DataFactory::DataFactory(const Ice::CommunicatorPtr& communicator, const Slice::UnitPtr& unit,
                                        const ErrorReporterPtr& errorReporter) :
-    _communicator(communicator), _unit(unit), _errorReporter(errorReporter), _initializersEnabled(true)
+    _communicator(communicator), _unit(unit), _errorReporter(errorReporter)
 {
 }
 
@@ -325,24 +318,6 @@ FreezeScript::DataFactory::getBuiltin(Slice::Builtin::Kind kind) const
     return _unit->builtin(kind);
 }
 
-void
-FreezeScript::DataFactory::addInitializer(const string& type, const DataInitializerPtr& init)
-{
-    _initializers.insert(InitMap::value_type(type, init));
-}
-
-void
-FreezeScript::DataFactory::enableInitializers()
-{
-    _initializersEnabled = true;
-}
-
-void
-FreezeScript::DataFactory::disableInitializers()
-{
-    _initializersEnabled = false;
-}
-
 Ice::CommunicatorPtr
 FreezeScript::DataFactory::getCommunicator() const
 {
@@ -436,17 +411,8 @@ FreezeScript::DataFactory::createImpl(const Slice::TypePtr& type, bool readOnly)
 }
 
 void
-FreezeScript::DataFactory::initialize(const DataPtr& data)
+FreezeScript::DataFactory::initialize(const DataPtr&)
 {
-    if(_initializersEnabled)
-    {
-        string name = typeToString(data->getType());
-        InitMap::iterator p = _initializers.find(name);
-        if(p != _initializers.end())
-        {
-            p->second->initialize(this, data, _communicator);
-        }
-    }
 }
 
 //
