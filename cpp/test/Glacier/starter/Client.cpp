@@ -70,7 +70,7 @@ CallbackClient::run(int argc, char* argv[])
     ByteSeq routerCert;
 
     cout << "starting up glacier router... " << flush;
-    RouterPrx router;
+    Glacier::RouterPrx router;
     try
     {
 	router = starter->startRouter("dummy", "abc123", privateKey, publicKey, routerCert);

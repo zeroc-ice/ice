@@ -309,7 +309,7 @@ RWRecMutexTest::run()
 
 	try
 	{
-	    RWRecMutex::TryWLock wlock(mutex, 10);
+	    RWRecMutex::TryWLock wlock(mutex, Time::milliSeconds(10));
 	    test(false);
 	}
 	catch(const LockedException&)
@@ -334,7 +334,7 @@ RWRecMutexTest::run()
 	}
 	try
 	{
-	    RWRecMutex::TryRLock rlock(mutex, 10);
+	    RWRecMutex::TryRLock rlock(mutex, Time::milliSeconds(10));
 	    test(false);
 	}
 	catch(const LockedException&)
@@ -352,7 +352,7 @@ RWRecMutexTest::run()
 	}
 	try
 	{
-	    RWRecMutex::TryWLock wlock(mutex, 10);
+	    RWRecMutex::TryWLock wlock(mutex, Time::milliSeconds(10));
 	    // Expected
 	}
 	catch(const LockedException&)

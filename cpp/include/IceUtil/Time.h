@@ -16,26 +16,13 @@
 namespace IceUtil
 {
 
-namespace TimeInternal
-{
-
-#ifdef _WIN32
-typedef __int64 LongLong;    
-#else
-typedef long long LongLong;
-#endif
-
-} // End namespace TimeInternal
-
-class Time
+class ICE_UTIL_API Time
 {
 public:
 
-    //
-    // Construct a Time object from a timeval.
-    //
     Time(const timeval&);
-
+    Time();
+    
     //
     // Retrieve the current time.
     //
@@ -45,16 +32,13 @@ public:
     // Construct a new Time object from seconds, milli seconds and
     // micro seconds.
     //
-    static Time seconds(TimeInternal::LongLong);
-    static Time milliSeconds(TimeInternal::LongLong);
-    static Time microSeconds(TimeInternal::LongLong);
-
-    //
-    // Retrieve the Time as seconds, milli seconds & micro seconds.
-    //
-    TimeInternal::LongLong seconds() const;
-    TimeInternal::LongLong milliSeconds() const;
-    TimeInternal::LongLong microSeconds() const;
+    static Time seconds(long);
+    static Time milliSeconds(long);
+#ifdef _WIN32
+    static Time microSeconds(__int64);
+#else
+    static Time microSeconds(long long);
+#endif
 
     Time operator-() const;
 
@@ -73,19 +57,25 @@ public:
     bool operator!=(const Time&) const;
 
     //
-    // Implicit conversion to a timeval.
+    // Implicit conversion to a timeval & timespec.
     //
     operator timeval() const;
+    operator timespec() const;
 
 private:
 
-    //
-    // Private constructor - for use by seconds, milliSeconds &
-    // microSeconds.
-    //
-    Time(TimeInternal::LongLong);
+#ifdef _WIN32
+typedef __int64 LongLong;    
+#else
+typedef long long LongLong;
+#endif
 
-    TimeInternal::LongLong _usec;
+    //
+    // Private constructor.
+    //
+    Time(LongLong);
+
+    LongLong _usec;
 };
 
 } // End namespace IceUtil

@@ -13,6 +13,7 @@
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Exception.h>
+#include <IceUtil/Time.h>
 
 #ifdef _WIN32
 //
@@ -46,17 +47,14 @@ public:
     Semaphore(long = 0);
     ~Semaphore();
 
-    bool wait(long = -1) const;
+    void wait() const;
+    bool timedWait(long = -1) const;
     void post(int = 1) const;
 
 private:
 
     mutable HANDLE _sem;
 };
-#else
-
-struct timespec msecToTimespec(long timeout);
-
 #endif
 
 //
@@ -103,15 +101,15 @@ public:
 
     //
     // wait atomically unlocks the mutex and waits for the condition
-    // variable to be signaled for up to msec milliseconds. Before
+    // variable to be signaled for up to the given timeout. Before
     // returning to the calling thread the mutex is reaquired. Returns
     // true if the condition variable was signaled, false on a
     // timeout.
     //
     template <typename Lock> inline bool
-    timedWait(const Lock& lock, long msec) const
+    timedWait(const Lock& lock, const Time& timeout) const
     {
-	return timedWaitImpl(lock._mutex, msec);
+	return timedWaitImpl(lock._mutex, timeout);
     }
 
 private:
@@ -152,7 +150,7 @@ private:
         }
     }
     template <typename M> bool
-    timedWaitImpl(const M& mutex, long msec) const
+    timedWaitImpl(const M& mutex, const Time& timeout) const
     {
         preWait();
 
@@ -163,7 +161,7 @@ private:
 
         try
         {
-            bool rc = dowait(msec);
+            bool rc = dowait(timeout);
             mutex.lock(state);
             return rc;
         }
@@ -175,9 +173,6 @@ private:
     }
  */
 
-    //
-    // TODO: Should not be inlined, not performance critical.
-    //
     void
     waitImpl(const RecMutex& mutex) const
     {
@@ -198,9 +193,6 @@ private:
 	}
     }
 
-    //
-    // TODO: Should not be inlined, not performance critical.
-    //
     void
     waitImpl(const Mutex& mutex) const
     {
@@ -211,7 +203,7 @@ private:
 
 	try
 	{
-	    dowait(-1);
+	    dowait();
 	    mutex.lock(state);
 	}
 	catch(...)
@@ -221,11 +213,8 @@ private:
 	}
     }
     
-    //
-    // TODO: Should not be inlined, not performance critical.
-    //
     bool
-    timedWaitImpl(const RecMutex& mutex, long msec) const
+    timedWaitImpl(const RecMutex& mutex, const Time& timeout) const
     {
 	preWait();
 
@@ -234,7 +223,7 @@ private:
 
 	try
 	{
-	    bool rc = dowait(msec);
+	    bool rc = timedDowait(timeout);
 	    mutex.lock(state);
 	    return rc;
 	}
@@ -245,11 +234,8 @@ private:
 	}
     }
 
-    //
-    // TODO: Should not be inlined, not performance critical.
-    //
     bool
-    timedWaitImpl(const Mutex& mutex, long msec) const
+    timedWaitImpl(const Mutex& mutex, const Time& timeout) const
     {
 	preWait();
 
@@ -258,7 +244,7 @@ private:
 
 	try
 	{
-	    bool rc = dowait(msec);
+	    bool rc = timedDowait(timeout);
 	    mutex.lock(state);
 	    return rc;
 	}
@@ -272,7 +258,7 @@ private:
 #else
 
     template <typename M> void waitImpl(const M&) const;
-    template <typename M> bool timedWaitImpl(const M&, long) const;
+    template <typename M> bool timedWaitImpl(const M&, const Time&) const;
 
 #endif
 
@@ -280,7 +266,8 @@ private:
     void wake(bool);
     void preWait() const;
     void postWait(bool) const;
-    bool dowait(long) const;
+    bool timedDowait(const Time&) const;
+    void dowait() const;
 
     Mutex _internal;
     Semaphore _gate;
@@ -312,14 +299,17 @@ Cond::waitImpl(const M& mutex) const
 }
 
 template <typename M> inline bool
-Cond::timedWaitImpl(const M& mutex, long msec) const
+Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
 {
     typedef typename M::LockState LockState;
     
     LockState state;
     mutex.unlock(state);
     
-    struct timespec ts = msecToTimespec(msec);
+    timeval tv = Time::now() + timeout;
+    timespec ts;
+    ts.tv_sec = tv.tv_sec;
+    ts.tv_nsec = tv.tv_usec*1000;
     int rc = pthread_cond_timedwait(&_cond, state.mutex, &ts);
     mutex.lock(state);
     

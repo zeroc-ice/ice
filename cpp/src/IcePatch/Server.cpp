@@ -158,10 +158,11 @@ IcePatch::Updater::run()
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     PropertiesPtr properties = _adapter->getCommunicator()->getProperties();
-    Int updatePeriod = properties->getPropertyAsIntWithDefault("IcePatch.UpdatePeriod", 60);
-    if (updatePeriod < 10)
+    IceUtil::Time updatePeriod = IceUtil::Time::seconds(
+	properties->getPropertyAsIntWithDefault("IcePatch.UpdatePeriod", 60));
+    if (updatePeriod < IceUtil::Time::seconds(10))
     {
-	updatePeriod = 10;
+	updatePeriod = IceUtil::Time::seconds(10);
     }
 
     while (!_destroy)
@@ -207,7 +208,7 @@ IcePatch::Updater::run()
 	    break;
 	}
 
-	timedWait(updatePeriod * 1000);
+	timedWait(updatePeriod);
     }
 }
 

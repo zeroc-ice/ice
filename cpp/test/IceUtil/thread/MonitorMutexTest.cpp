@@ -184,6 +184,6 @@ MonitorMutexTest::run()
     // TEST: timedWait
     {
 	Monitor<Mutex>::Lock lock(monitor);
-	test(!monitor.timedWait(500));
+	test(!monitor.timedWait(Time::milliSeconds(500)));
     }
 }

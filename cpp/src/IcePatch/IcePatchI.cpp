@@ -23,7 +23,7 @@ IcePatch::FileI::FileI(const ObjectAdapterPtr& adapter) :
 {
     PropertiesPtr properties = adapter->getCommunicator()->getProperties();
     _traceLevel = properties->getPropertyAsInt("IcePatch.Trace.Files");
-    _busyTimeout = properties->getPropertyAsIntWithDefault("IcePatch.BusyTimeout", 10);
+    _busyTimeout = IceUtil::Time::seconds(properties->getPropertyAsIntWithDefault("IcePatch.BusyTimeout", 10));
 }
 
 IcePatch::DirectoryI::DirectoryI(const ObjectAdapterPtr& adapter) :
@@ -48,7 +48,7 @@ IcePatch::DirectoryI::getContents(const Ice::Current& current)
 
     try
     {
-	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout * 1000);
+	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout);
 	string path = identityToPath(current.identity);
 	StringSeq paths = readDirectory(path);
 	filteredPaths.reserve(paths.size() / 3);
@@ -60,7 +60,7 @@ IcePatch::DirectoryI::getContents(const Ice::Current& current)
 		    equal_range(paths.begin(), paths.end(), removeSuffix(*p));
 		if (r.first == r.second)
 		{
-		    sync.timedUpgrade(_busyTimeout * 1000);
+		    sync.timedUpgrade(_busyTimeout);
 		    StringSeq paths2 = readDirectory(path);
 		    pair<StringSeq::const_iterator, StringSeq::const_iterator> r2 =
 			equal_range(paths2.begin(), paths2.end(), removeSuffix(*p));
@@ -121,14 +121,14 @@ IcePatch::RegularI::describe(const Ice::Current& current)
 {
     try
     {
-	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout * 1000);
+	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout);
 	string path = identityToPath(current.identity);
 	
 	FileInfo info = getFileInfo(path, true);
 	FileInfo infoMD5 = getFileInfo(path + ".md5", false);
 	if (infoMD5.type != FileTypeRegular || infoMD5.time < info.time)
 	{
-	    sync.timedUpgrade(_busyTimeout * 1000);
+	    sync.timedUpgrade(_busyTimeout);
 	    infoMD5 = getFileInfo(path + ".md5", false);
 	    if (infoMD5.type != FileTypeRegular || infoMD5.time < info.time)
 	    {
@@ -158,14 +158,14 @@ IcePatch::RegularI::getBZ2Size(const Ice::Current& current)
 {
     try
     {
-	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout * 1000);
+	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout);
 	string path = identityToPath(current.identity);
 	
 	FileInfo info = getFileInfo(path, true);
 	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
 	if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
 	{
-	    sync.timedUpgrade(_busyTimeout * 1000);
+	    sync.timedUpgrade(_busyTimeout);
 	    infoBZ2 = getFileInfo(path + ".bz2", false);
 	    if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
 	    {
@@ -197,14 +197,14 @@ IcePatch::RegularI::getBZ2(Ice::Int pos, Ice::Int num, const Ice::Current& curre
 {
     try
     {
-	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout * 1000);
+	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout);
 	string path = identityToPath(current.identity);
 	
 	FileInfo info = getFileInfo(path, true);
 	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
 	if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
 	{
-	    sync.timedUpgrade(_busyTimeout * 1000);
+	    sync.timedUpgrade(_busyTimeout);
 	    infoBZ2 = getFileInfo(path + ".bz2", false);
 	    if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
 	    {

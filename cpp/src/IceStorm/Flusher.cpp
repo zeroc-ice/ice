@@ -61,7 +61,7 @@ public:
 	    }
 	    else
 	    {
-		timedWait(tout);
+		timedWait(IceUtil::Time::milliSeconds(tout));
 	    }
 	    if (_destroy)
 	    {

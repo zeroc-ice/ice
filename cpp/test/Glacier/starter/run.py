@@ -22,7 +22,7 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
 starter = os.path.join(toplevel, "bin", "glacierstarter")
-router = os.path.join(toplevel, "bin", "glacier")
+router = os.path.join(toplevel, "bin", "glacierrouter")
 
 updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
 updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
@@ -34,8 +34,8 @@ command = starter + updatedClientServerOptions + \
           r' --Glacier.Starter.CryptPasswords="' + toplevel + r'/test/Glacier/starter/passwords"' + \
           r' --Glacier.Starter.Endpoints="default -p 12346 -t 5000"' + \
           r' --Glacier.Router.Endpoints="default"' + \
-          r' --Glacier.Client.Endpoints="default"' + \
-          r' --Glacier.Server.Endpoints="tcp"'
+          r' --Glacier.Router.Client.Endpoints="default"' + \
+          r' --Glacier.Router.Server.Endpoints="tcp"'
 
 print "starting glacier starter...",
 starterPipe = os.popen(command)

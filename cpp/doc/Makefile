@@ -40,7 +40,10 @@ SLICEFILES	= ../slice/Ice/BuiltinSequences.ice \
 		  ../slice/Freeze/Evictor.ice \
 		  ../slice/IceStorm/IceStorm.ice \
 		  ../slice/IcePack/Admin.ice \
-		  ../slice/Glacier/Glacier.ice \
+		  ../slice/Glacier/Router.ice \
+		  ../slice/Glacier/Starter.ice \
+		  ../slice/Glacier/Session.ice \
+		  ../slice/Glacier/SessionManager.ice \
 		  ../slice/IceBox/IceBox.ice \
 		  ../slice/IcePatch/IcePatch.ice
 

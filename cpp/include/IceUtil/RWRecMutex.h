@@ -41,7 +41,7 @@ public:
     }
 
     void
-    timedUpgrade(int timeout)
+    timedUpgrade(const Time& timeout)
     {
 	_mutex.timedUpgrade(timeout);
     }
@@ -62,7 +62,7 @@ public:
 	_mutex.tryReadlock();
     }
 
-    TryRLock(const T& mutex, int timeout) :
+    TryRLock(const T& mutex, const Time& timeout) :
 	_mutex(mutex)
     {
 	_mutex.timedTryReadlock(timeout);
@@ -80,7 +80,7 @@ public:
     }
 
     void
-    timedUpgrade(int timeout)
+    timedUpgrade(const Time& timeout)
     {
 	_mutex.timedUpgrade(timeout);
     }
@@ -122,7 +122,7 @@ public:
 	_mutex.tryWritelock();
     }
 
-    TryWLock(const T& mutex, int timeout) :
+    TryWLock(const T& mutex, const Time& timeout) :
 	_mutex(mutex)
     {
 	_mutex.timedTryWritelock(timeout);
@@ -179,9 +179,9 @@ public:
     void tryReadlock() const;
 
     //
-    // Try to acquire a read lock for up to timeout milliseconds.
+    // Try to acquire a read lock for upto the given timeout.
     //
-    void timedTryReadlock(int) const;
+    void timedTryReadlock(const Time&) const;
 
     //
     // Acquire a write lock.
@@ -194,9 +194,9 @@ public:
     void tryWritelock() const;
 
     //
-    // Acquire a write lock for up to timeout milliseconds.
+    // Acquire a write lock for up to the given timeout.
     //
-    void timedTryWritelock(int) const;
+    void timedTryWritelock(const Time&) const;
 
     //
     // Unlock the reader/writer lock.
@@ -210,11 +210,11 @@ public:
     void upgrade() const;
 
     //
-    // Upgrade the read lock to a writer lock for up to timeout
-    // milliseconds.  Note that this method can only be called if the
-    // reader lock is not held recursively.
+    // Upgrade the read lock to a writer lock for up to the given
+    // timeout Note that this method can only be called if the reader
+    // lock is not held recursively.
     //
-    void timedUpgrade(int) const;
+    void timedUpgrade(const Time&) const;
 
 private:
 

@@ -18,13 +18,13 @@
 
 using namespace IceUtil;
 
-Time::Time(TimeInternal::LongLong usec) :
-    _usec(usec)
+Time::Time() :
+    _usec(0)
 {
 }
 
 IceUtil::Time::Time(const timeval& tv) :
-    _usec((tv.tv_sec * (TimeInternal::LongLong)1000000) + tv.tv_usec)
+    _usec((tv.tv_sec * (LongLong)1000000) + tv.tv_usec)
 {
 }
 
@@ -35,8 +35,8 @@ IceUtil::Time::now()
     struct _timeb timebuffer;
     _ftime(&timebuffer);
 
-    return Time(timebuffer.time * (TimeInternal::LongLong)1000000) +
-               (timebuffer.millitm * (TimeInternal::LongLong)1000);
+    return Time(timebuffer.time * (LongLong)1000000) +
+               (timebuffer.millitm * (LongLong)1000);
 #else
     struct timeval tv;
     gettimeofday(&tv, 0);
@@ -46,22 +46,30 @@ IceUtil::Time::now()
 }
 
 Time
-IceUtil::Time::seconds(TimeInternal::LongLong t)
+IceUtil::Time::seconds(long t)
 {
-    return Time(t * (TimeInternal::LongLong)1000000);
+    return Time(t * (LongLong)1000000);
 }
 
 Time
-IceUtil::Time::milliSeconds(TimeInternal::LongLong t)
+IceUtil::Time::milliSeconds(long t)
 {
-    return Time(t * (TimeInternal::LongLong)1000);
+    return Time(t * (LongLong)1000);
 }
 
+#ifdef _WIN32
 Time
-IceUtil::Time::microSeconds(TimeInternal::LongLong t)
+IceUtil::Time::microSeconds(__int64 t)
 {
     return Time(t);
 }
+#else
+Time
+IceUtil::Time::microSeconds(long long t)
+{
+    return Time(t);
+}
+#endif
 
 Time
 IceUtil::Time::operator-() const
@@ -139,20 +147,10 @@ IceUtil::Time::operator timeval() const
     return tv;
 }
 
-TimeInternal::LongLong
-IceUtil::Time::seconds() const
+//
+// Private constructor.
+//
+Time::Time(LongLong usec) :
+    _usec(usec)
 {
-    return _usec / 1000000;
-}
-
-TimeInternal::LongLong
-IceUtil::Time::milliSeconds() const
-{
-    return _usec / 1000;
-}
-
-TimeInternal::LongLong
-IceUtil::Time::microSeconds() const
-{
-    return _usec;
 }

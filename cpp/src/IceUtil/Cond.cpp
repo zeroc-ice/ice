@@ -30,14 +30,23 @@ IceUtil::Semaphore::~Semaphore()
     CloseHandle(_sem);
 }
 
-bool
-IceUtil::Semaphore::wait(long timeout) const
+void
+IceUtil::Semaphore::wait() const
 {
-    if (timeout < 0)
+    int rc = WaitForSingleObject(_sem, INFINITE);
+    if (rc != WAIT_OBJECT_0)
     {
-	timeout = INFINITE;
+	throw SyscallException(SyscallException::errorToString(GetLastError()), __FILE__, __LINE__);
     }
-    int rc = WaitForSingleObject(_sem, timeout);
+}
+
+bool
+IceUtil::Semaphore::timedWait(const Time& timeout) const
+{
+    timeval tv = timeout;
+    long msec = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+
+    int rc = WaitForSingleObject(_sem, msec);
     if (rc != WAIT_TIMEOUT && rc != WAIT_OBJECT_0)
     {
 	throw SyscallException(SyscallException::errorToString(GetLastError()), __FILE__, __LINE__);
@@ -152,12 +161,27 @@ IceUtil::Cond::postWait(bool timedOut) const
     }
 }
 
-bool
-IceUtil::Cond::dowait(long timeout) const
+void
+IceUtil::Cond::dowait() const
 {
     try
     {
-	bool rc = _queue.wait(timeout);
+	_queue.wait();
+	postWait(false);
+    }
+    catch(...)
+    {
+	postWait(false);
+	throw;
+    }
+}
+
+bool
+IceUtil::Cond::timedDowait(const Time& timeout) const
+{
+    try
+    {
+	bool rc = _queue.timedWait(timeout);
 	postWait(!rc);
 	return rc;
     }
@@ -205,34 +229,5 @@ IceUtil::Cond::broadcast()
 	throw SyscallException(strerror(rc), __FILE__, __LINE__);
     }
 }
-
-namespace IceUtil
-{
-
-struct timespec
-msecToTimespec(
-    long timeout
-)
-{
-    assert(timeout >= 0);
-    struct timeval tv;
-    gettimeofday(&tv, 0);
-    //                       123456789 - 10^9
-    const long oneBillion = 1000000000;
-
-    struct timespec abstime;
-
-    abstime.tv_sec = tv.tv_sec + (timeout/1000);
-    abstime.tv_nsec = (tv.tv_usec * 1000) + ((timeout%1000) * 1000000);
-    if (abstime.tv_nsec > oneBillion)
-    {
-	++abstime.tv_sec;
-	abstime.tv_nsec -= oneBillion;
-    }
-    
-    return abstime;
-}
-
-} // End namespace IceUtil
 
 #endif

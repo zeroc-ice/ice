@@ -57,7 +57,7 @@ IceUtil::RWRecMutex::tryReadlock() const
 }
 
 void
-IceUtil::RWRecMutex::timedTryReadlock(int timeout) const
+IceUtil::RWRecMutex::timedTryReadlock(const Time& timeout) const
 {
     Mutex::Lock lock(_mutex);
 
@@ -65,13 +65,13 @@ IceUtil::RWRecMutex::timedTryReadlock(int timeout) const
     // Wait while a writer holds the lock or while writers are waiting
     // to get the lock.
     //
-    Time end = Time::now() + Time::milliSeconds(timeout);
+    Time end = Time::now() + timeout;
     while (_count < 0 || _waitingWriters != 0)
     {
-	long t = (end - Time::now()).milliSeconds();
-	if (t > 0)
+	Time remainder = end - Time::now();
+	if (remainder > Time())
 	{
-	    _readers.timedWait(lock, t);
+	    _readers.timedWait(lock, remainder);
 	}
 	else
 	{
@@ -152,7 +152,7 @@ IceUtil::RWRecMutex::tryWritelock() const
 }
 
 void
-IceUtil::RWRecMutex::timedTryWritelock(int timeout) const
+IceUtil::RWRecMutex::timedTryWritelock(const Time& timeout) const
 {
     Mutex::Lock lock(_mutex);
 
@@ -170,16 +170,16 @@ IceUtil::RWRecMutex::timedTryWritelock(int timeout) const
     // Wait for the lock to become available and increment the number
     // of waiting writers.
     //
-    Time end = Time::now() + Time::milliSeconds(timeout);
+    Time end = Time::now() + timeout;
     while (_count != 0)
     {
-	long t = (end - Time::now()).milliSeconds();
-	if (t > 0)
+	Time remainder = end - Time::now();
+	if (remainder > Time())
 	{
 	    _waitingWriters++;
 	    try
 	    {
-		_writers.timedWait(lock, t);
+		_writers.timedWait(lock, remainder);
 	    }
 	    catch(...)
 	    {
@@ -306,7 +306,7 @@ IceUtil::RWRecMutex::upgrade() const
 }
 
 void
-IceUtil::RWRecMutex::timedUpgrade(int timeout) const
+IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
 {
     Mutex::Lock lock(_mutex);
 
@@ -319,16 +319,16 @@ IceUtil::RWRecMutex::timedUpgrade(int timeout) const
     //
     // Wait to acquire the write lock.
     //
-    Time end = Time::now() + Time::milliSeconds(timeout);
+    Time end = Time::now() + timeout;
     while (_count != 0)
     {
-	long t = (end - Time::now()).milliSeconds();
-	if (t > 0)
+	Time remainder = end - Time::now();
+	if (remainder > Time())
 	{
 	    _waitingWriters++;
 	    try
 	    {
-		_writers.timedWait(lock, timeout);
+		_writers.timedWait(lock, remainder);
 	    }
 	    catch(...)
 	    {
