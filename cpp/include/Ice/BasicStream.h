@@ -20,6 +20,7 @@
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectFactoryF.h>
 #include <Ice/Buffer.h>
+#include <list>
 
 namespace Ice
 {
@@ -52,15 +53,16 @@ public:
 
     void startWriteEncaps();
     void endWriteEncaps();
+
     void startReadEncaps();
     void endReadEncaps();
-    void skipReadEncaps(); 
     void checkReadEncaps();
     Ice::Int getReadEncapsSize();
     void skipEncaps();
 
     void startWriteSlice();
     void endWriteSlice();
+
     void startReadSlice();
     void endReadSlice();
     void skipSlice();
@@ -139,7 +141,6 @@ public:
     void writePendingObjects();
     void readPendingObjects();
 
-
     struct PatchEntry 
     {
 	PatchFunc patchFunc;
@@ -165,13 +166,16 @@ private:
     class ICE_API ReadEncaps
     {
     public:
+
 	ReadEncaps();
-	ReadEncaps(const ReadEncaps&);
 	~ReadEncaps();
 
 	Container::size_type start;
+	Ice::Int sz;
+
 	Ice::Byte encodingMajor;
 	Ice::Byte encodingMinor;
+
 	PatchMap* patchMap;
 	IndexToPtrMap* unmarshaledMap;
 	Ice::Int typeIdIndex;
@@ -183,10 +187,10 @@ private:
     public:
 
 	WriteEncaps();
-	WriteEncaps(const WriteEncaps&);
 	~WriteEncaps();
 
 	Container::size_type start;
+
 	Ice::Int writeIndex;
 	PtrToIndexMap* toBeMarshaledMap;
 	PtrToIndexMap* marshaledMap;
@@ -194,8 +198,8 @@ private:
 	TypeIdWriteMap* typeIdMap;
     };
 
-    std::vector<ReadEncaps> _readEncapsStack;
-    std::vector<WriteEncaps> _writeEncapsStack;
+    std::list<ReadEncaps> _readEncapsStack;
+    std::list<WriteEncaps> _writeEncapsStack;
     ReadEncaps* _currentReadEncaps;
     WriteEncaps* _currentWriteEncaps;
     Container::size_type _readSlice;

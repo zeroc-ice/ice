@@ -33,7 +33,7 @@ ice_copy(InputIter first, InputIter last, OutputIter result)
 template<>
 void
 ice_copy(std::vector<Ice::Byte>::const_iterator first, std::vector<Ice::Byte>::const_iterator last,
-       std::vector<Ice::Byte>::iterator result)
+	 std::vector<Ice::Byte>::iterator result)
 {
     if(last != first)
     {
@@ -76,7 +76,7 @@ IceInternal::BasicStream::swap(BasicStream& other)
 void inline
 inlineResize(Buffer* buffer, size_t total)
 {
-    if(total > 1024 * 1024) // TODO: configurable
+    if(total > 1024 * 1024) // TODO: configurable.
     {
 	throw MemoryLimitException(__FILE__, __LINE__);
     }
@@ -99,7 +99,7 @@ IceInternal::BasicStream::resize(int total)
 void
 IceInternal::BasicStream::reserve(int total)
 {
-    if(total > 1024 * 1024) // TODO: configurable
+    if(total > 1024 * 1024) // TODO: configurable.
     {
 	throw MemoryLimitException(__FILE__, __LINE__);
     }
@@ -110,25 +110,6 @@ IceInternal::BasicStream::reserve(int total)
 IceInternal::BasicStream::WriteEncaps::WriteEncaps()
     : writeIndex(0), toBeMarshaledMap(0), marshaledMap(0), typeIdIndex(0), typeIdMap(0)
 {
-}
-
-IceInternal::BasicStream::WriteEncaps::WriteEncaps(const WriteEncaps& rhs)
-{
-    start = rhs.start;
-    writeIndex = rhs.writeIndex;
-    typeIdIndex = rhs.typeIdIndex;
-    if(rhs.toBeMarshaledMap)
-    {
-	toBeMarshaledMap = new PtrToIndexMap(*rhs.toBeMarshaledMap);
-	marshaledMap = new PtrToIndexMap(*rhs.marshaledMap);
-	typeIdMap = new TypeIdWriteMap(*rhs.typeIdMap);
-    }
-    else
-    {
-	toBeMarshaledMap = 0;
-	marshaledMap = 0;
-	typeIdMap = 0;
-    }
 }
 
 IceInternal::BasicStream::WriteEncaps::~WriteEncaps()
@@ -144,12 +125,16 @@ IceInternal::BasicStream::WriteEncaps::~WriteEncaps()
 void
 IceInternal::BasicStream::startWriteEncaps()
 {
-    write(Int(0)); // Placeholder for the encapsulation length
+    {
+	_writeEncapsStack.push_back();
+	_currentWriteEncaps = &_writeEncapsStack.back();
+    }
+	
+    _currentWriteEncaps->start = b.size();
+
+    write(Int(0)); // Placeholder for the encapsulation length.
     write(encodingMajor);
     write(encodingMinor);
-    _writeEncapsStack.resize(_writeEncapsStack.size() + 1);
-    _currentWriteEncaps = &_writeEncapsStack.back();
-    _currentWriteEncaps->start = b.size();
 }
 
 void
@@ -157,47 +142,30 @@ IceInternal::BasicStream::endWriteEncaps()
 {
     assert(_currentWriteEncaps);
     Container::size_type start = _currentWriteEncaps->start;
-    _writeEncapsStack.pop_back();
-    if(_writeEncapsStack.empty())
-    {
-	_currentWriteEncaps = 0;
-    }
-    else
-    {
-	_currentWriteEncaps = &_writeEncapsStack.back();
-    }
-    Int sz = static_cast<Int>(b.size() - start + sizeof(Int) + 2);		// Size includes size and version
+    Int sz = static_cast<Int>(b.size() - start); // Size includes size and version.
     const Byte* p = reinterpret_cast<const Byte*>(&sz);
 #ifdef ICE_BIG_ENDIAN
-    reverse_copy(p, p + sizeof(Int), b.begin() + start - sizeof(Int) - 2);	// - 2 for major and minor version byte
+    reverse_copy(p, p + sizeof(Int), b.begin() + start);
 #else
-    ice_copy(p, p + sizeof(Int), b.begin() + start - sizeof(Int) - 2); 		// - 2 for major and minor version byte
+    ice_copy(p, p + sizeof(Int), b.begin() + start);
 #endif
+
+    {
+	_writeEncapsStack.pop_back();
+	if(_writeEncapsStack.empty())
+	{
+	    _currentWriteEncaps = 0;
+	}
+	else
+	{
+	    _currentWriteEncaps = &_writeEncapsStack.back();
+	}
+    }
 }
 
 IceInternal::BasicStream::ReadEncaps::ReadEncaps()
     : patchMap(0), unmarshaledMap(0), typeIdIndex(0), typeIdMap(0)
 {
-}
-
-IceInternal::BasicStream::ReadEncaps::ReadEncaps(const ReadEncaps& rhs)
-{
-    start = rhs.start;
-    encodingMajor = rhs.encodingMajor;
-    encodingMinor = rhs.encodingMinor;
-    typeIdIndex = rhs.typeIdIndex;
-    if(rhs.patchMap)
-    {
-	patchMap = new PatchMap(*rhs.patchMap);
-	unmarshaledMap = new IndexToPtrMap(*rhs.unmarshaledMap);
-	typeIdMap = new TypeIdReadMap(*rhs.typeIdMap);
-    }
-    else
-    {
-	patchMap = 0;
-	unmarshaledMap = 0;
-	typeIdMap = 0;
-    }
 }
 
 IceInternal::BasicStream::ReadEncaps::~ReadEncaps()
@@ -213,7 +181,13 @@ IceInternal::BasicStream::ReadEncaps::~ReadEncaps()
 void
 IceInternal::BasicStream::startReadEncaps()
 {
-    Int sz;
+    {
+	_readEncapsStack.push_back();
+	_currentReadEncaps = &_readEncapsStack.back();
+    }
+
+    _currentReadEncaps->start = i - b.begin();
+
     //
     // I don't use readSize() and writeSize() for encapsulations,
     // because when creating an encapsulation, I must know in advance
@@ -221,11 +195,17 @@ IceInternal::BasicStream::startReadEncaps()
     // stream. If I use an Int, it is always 4 bytes. For
     // readSize()/writeSize(), it could be 1 or 5 bytes.
     //
+    Int sz;
     read(sz);
     if(sz < 0)
     {
 	throw NegativeSizeException(__FILE__, __LINE__);
     }
+    if(i - sizeof(Int) + sz > b.end())
+    {
+	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+    }
+    _currentReadEncaps->sz = sz;
 
     Byte eMajor;
     Byte eMinor;
@@ -241,34 +221,18 @@ IceInternal::BasicStream::startReadEncaps()
 	ex.minor = static_cast<unsigned char>(encodingMinor);
 	throw ex;
     }
-
-    _readEncapsStack.resize(_readEncapsStack.size() + 1);
-    _currentReadEncaps = &_readEncapsStack.back();
     _currentReadEncaps->encodingMajor = eMajor;
     _currentReadEncaps->encodingMinor = eMinor;
-    _currentReadEncaps->start = i - b.begin();
 }
 
 void
 IceInternal::BasicStream::endReadEncaps()
 {
-    checkReadEncaps();
-    _readEncapsStack.pop_back();
-    if(_readEncapsStack.empty())
-    {
-	_currentReadEncaps = 0;
-    }
-    else
-    {
-	_currentReadEncaps = &_readEncapsStack.back();
-    }
-}
-
-void
-IceInternal::BasicStream::skipReadEncaps()
-{
     assert(_currentReadEncaps);
     Container::size_type start = _currentReadEncaps->start;
+    Int sz = _currentReadEncaps->sz;
+    i = b.begin() + start + sz;
+
     _readEncapsStack.pop_back();
     if(_readEncapsStack.empty())
     {
@@ -277,18 +241,6 @@ IceInternal::BasicStream::skipReadEncaps()
     else
     {
 	_currentReadEncaps = &_readEncapsStack.back();
-    }
-    i = b.begin() + start - sizeof(Int) - 2;	// - 2 for major and minor version byte
-    Int sz;
-    read(sz);
-    if(sz < 0)
-    {
-	throw NegativeSizeException(__FILE__, __LINE__);
-    }
-    i += sz - sizeof(Int);
-    if(i > b.end())
-    {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
 }
 
@@ -297,16 +249,8 @@ IceInternal::BasicStream::checkReadEncaps()
 {
     assert(_currentReadEncaps);
     Container::size_type start = _currentReadEncaps->start;
-    Container::iterator save = i;
-    i = b.begin() + start - sizeof(Int) - 2;	// - 2 for major and minor version byte
-    Int sz;
-    read(sz);
-    if(sz < 0)
-    {
-	throw NegativeSizeException(__FILE__, __LINE__);
-    }
-    i = save;
-    if(static_cast<unsigned>(sz) != i - (b.begin() + start) + sizeof(Int) + 2)
+    Int sz = _currentReadEncaps->sz;
+    if(i != b.begin() + start + sz)
     {
         throw EncapsulationException(__FILE__, __LINE__);
     }
@@ -316,17 +260,7 @@ Int
 IceInternal::BasicStream::getReadEncapsSize()
 {
     assert(_currentReadEncaps);
-    Container::size_type start = _currentReadEncaps->start;
-    Container::iterator save = i;
-    i = b.begin() + start - sizeof(Int) - 2;	// - 2 for major and minor version byte
-    Int sz;
-    read(sz);
-    if(sz < 0)
-    {
-	throw NegativeSizeException(__FILE__, __LINE__);
-    }
-    i = save;
-    return static_cast<Int>(sz - sizeof(Int) - 2);
+    return _currentReadEncaps->sz - sizeof(Int) - 2;
 }
 
 void
@@ -338,17 +272,17 @@ IceInternal::BasicStream::skipEncaps()
     {
 	throw NegativeSizeException(__FILE__, __LINE__);
     }
-    i += sz - sizeof(Int);
-    if(i > b.end())
+    if(i - sizeof(Int) + sz > b.end())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
+    i += sz - sizeof(Int);
 }
 
 void
 IceInternal::BasicStream::startWriteSlice()
 {
-    write(Int(0)); // Placeholder for the slice length
+    write(Int(0)); // Placeholder for the slice length.
     _writeSlice = b.size();
 }
 
@@ -1055,7 +989,7 @@ IceInternal::BasicStream::write(const ObjectPtr& v)
 {
     if(!_currentWriteEncaps) 			// Lazy initialization
     {
-	_writeEncapsStack.resize(1);
+	_writeEncapsStack.push_back();
 	_currentWriteEncaps = &_writeEncapsStack.back();
 	_currentWriteEncaps->start = b.size();
 	_currentWriteEncaps->toBeMarshaledMap = 0;
@@ -1108,7 +1042,7 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
 {
     if(!_currentReadEncaps) 		// Lazy initialization
     {
-	_readEncapsStack.resize(1);
+	_readEncapsStack.push_back();
 	_currentReadEncaps = &_readEncapsStack.back();
     }
 

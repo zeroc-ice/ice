@@ -173,47 +173,76 @@ public class BasicStream
     public void
     startWriteEncaps()
     {
-        writeInt(0); // Placeholder for the encapsulation length
+	{
+	    WriteEncaps curr = _writeEncapsCache;
+	    if(curr != null)
+	    {
+		if(curr.toBeMarshaledMap != null)
+		{
+		    curr.writeIndex = 0;
+		    curr.toBeMarshaledMap.clear();
+		    curr.marshaledMap.clear();
+		    curr.typeIdIndex = 0;
+		    curr.typeIdMap.clear();
+		}
+		_writeEncapsCache = _writeEncapsCache.next;
+	    }
+	    else
+	    {
+		curr = new WriteEncaps();
+	    }
+	    curr.next = _writeEncapsStack;
+	    _writeEncapsStack = curr;
+	}
+
+        _writeEncapsStack.start = _buf.position();
+        writeInt(0); // Placeholder for the encapsulation length.
         writeByte(Protocol.encodingMajor);
         writeByte(Protocol.encodingMinor);
-        WriteEncaps curr = _writeEncapsCache;
-        if(curr != null)
-        {
-	    if(curr.toBeMarshaledMap != null)
-	    {
-		curr.writeIndex = 0;
-		curr.toBeMarshaledMap.clear();
-		curr.marshaledMap.clear();
-		curr.typeIdIndex = 0;
-		curr.typeIdMap.clear();
-	    }
-            _writeEncapsCache = _writeEncapsCache.next;
-        }
-        else
-        {
-            curr = new WriteEncaps();
-        }
-        curr.start = _buf.position();
-        curr.next = _writeEncapsStack;
-        _writeEncapsStack = curr;
     }
 
     public void
     endWriteEncaps()
     {
-        final WriteEncaps curr = _writeEncapsStack;
-        assert(curr != null);
-        final int start = curr.start;
-        _writeEncapsStack = curr.next;
-        curr.next = _writeEncapsCache;
-        _writeEncapsCache = curr;
-        final int sz = _buf.position() - start + 6;	// size includes size and version bytes
-        _buf.putInt(start - 6, sz);
+        assert(_writeEncapsStack != null);
+        int start = _writeEncapsStack.start;
+        int sz = _buf.position() - start; // Size includes size and version.
+	_buf.putInt(start, sz);
+
+	{
+	    WriteEncaps curr = _writeEncapsStack;
+	    _writeEncapsStack = curr.next;
+	    curr.next = _writeEncapsCache;
+	    _writeEncapsCache = curr;
+	}
     }
 
     public void
     startReadEncaps()
     {
+	{
+	    ReadEncaps curr = _readEncapsCache;
+	    if(curr != null)
+	    {
+		if(curr.patchMap != null)
+		{
+		    curr.patchMap.clear();
+		    curr.unmarshaledMap.clear();
+		    curr.typeIdIndex = 0;
+		    curr.typeIdMap.clear();
+		}
+		_readEncapsCache = _readEncapsCache.next;
+	    }
+	    else
+	    {
+		curr = new ReadEncaps();
+	    }
+	    curr.next = _readEncapsStack;
+	    _readEncapsStack = curr;
+	}
+
+        _readEncapsStack.start = _buf.position();
+	
 	//
 	// I don't use readSize() and writeSize() for encapsulations,
 	// because when creating an encapsulation, I must know in
@@ -226,6 +255,14 @@ public class BasicStream
 	{
 	    throw new Ice.NegativeSizeException();
 	}
+// TODO: How to implement this check in Java?
+/*
+	if(sz - 4 > _buf.length())
+	{
+	    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	}
+*/
+	_readEncapsStack.sz = sz;
 
         byte eMajor = readByte();
         byte eMinor = readByte();
@@ -238,75 +275,40 @@ public class BasicStream
 	    e.minor = Protocol.encodingMinor;
 	    throw e;
 	}
-
-        ReadEncaps curr = _readEncapsCache;
-        if(curr != null)
-        {
-	    if(curr.patchMap != null)
-	    {
-		curr.patchMap.clear();
-		curr.unmarshaledMap.clear();
-		curr.typeIdIndex = 0;
-		curr.typeIdMap.clear();
-	    }
-            _readEncapsCache = _readEncapsCache.next;
-        }
-        else
-        {
-            curr = new ReadEncaps();
-        }
-        curr.encodingMajor = eMajor;
-        curr.encodingMinor = eMinor;
-        curr.start = _buf.position();
-        curr.next = _readEncapsStack;
-        _readEncapsStack = curr;
+        _readEncapsStack.encodingMajor = eMajor;
+        _readEncapsStack.encodingMinor = eMinor;
     }
 
     public void
     endReadEncaps()
     {
-	checkReadEncaps();
-        final ReadEncaps curr = _readEncapsStack;
-        assert(curr != null);
-        _readEncapsStack = curr.next;
-        curr.next = _readEncapsCache;
-        _readEncapsCache = curr;
-    }
-
-    public void
-    skipReadEncaps()
-    {
-        final ReadEncaps curr = _readEncapsStack;
-        assert(curr != null);
-        final int start = curr.start;
-        _readEncapsStack = curr.next;
-        curr.next = _readEncapsCache;
-        _readEncapsCache = curr;
-        final int sz = _buf.getInt(start - 6);	// - 4 bytes for size, - 2 bytes for version
-	if(sz < 0)
-	{
-	    throw new Ice.NegativeSizeException();
-	}
+	assert(_readEncapsStack != null);
+        int start = _readEncapsStack.start;
+        int sz = _readEncapsStack.sz;
         try
         {
-            _buf.position(start + sz - 6);
+            _buf.position(start + sz);
         }
         catch(IllegalArgumentException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
+
+	{
+	    ReadEncaps curr = _readEncapsStack;
+	    _readEncapsStack = curr.next;
+	    curr.next = _readEncapsCache;
+	    _readEncapsCache = curr;
+	}
     }
 
     public void
     checkReadEncaps()
     {
-        assert(_readEncapsStack != null);
-        final int sz = _buf.getInt(_readEncapsStack.start - 6);	// - 4 bytes for size, - 2 bytes for version
-	if(sz < 0)
-	{
-	    throw new Ice.NegativeSizeException();
-	}
-        if(sz != _buf.position() - _readEncapsStack.start + 6)
+	assert(_readEncapsStack != null);
+        int start = _readEncapsStack.start;
+        int sz = _readEncapsStack.sz;
+        if(_buf.position() != start + sz)
         {
             throw new Ice.EncapsulationException();
         }
@@ -316,12 +318,7 @@ public class BasicStream
     getReadEncapsSize()
     {
         assert(_readEncapsStack != null);
-        int sz = _buf.getInt(_readEncapsStack.start - 6);	// - 4 bytes for size, - 2 bytes for version
-	if(sz < 0)
-	{
-	    throw new Ice.NegativeSizeException();
-	}
-	return sz - 6;	// - 4 bytes for size, - 2 bytes for version
+	return _readEncapsStack.sz - 6;
     }
 
     public void
@@ -345,7 +342,7 @@ public class BasicStream
     public void
     startWriteSlice()
     {
-        writeInt(0); // Placeholder for the slice length
+        writeInt(0); // Placeholder for the slice length.
         _writeSlice = _buf.position();
     }
 
@@ -1559,8 +1556,11 @@ public class BasicStream
     private static final class ReadEncaps
     {
         int start;
+	int sz;
+
         byte encodingMajor;
         byte encodingMinor;
+
         java.util.TreeMap patchMap;
 	java.util.TreeMap unmarshaledMap;
 	int typeIdIndex;
@@ -1571,6 +1571,7 @@ public class BasicStream
     private static final class WriteEncaps
     {
         int start;
+
 	int writeIndex;
 	java.util.IdentityHashMap toBeMarshaledMap;
 	java.util.IdentityHashMap marshaledMap;
