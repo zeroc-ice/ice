@@ -1,0 +1,11 @@
+To run this demo, open two terminal windows. In the first window,
+start the IceBox server:
+
+$ java IceBox.Server --Ice.Config=config
+
+In the second window, run the client:
+
+$ java Client
+
+These commands require the Ice.jar file and the local classes
+subdirectory to be in your CLASSPATH.
