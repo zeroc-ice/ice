@@ -30,30 +30,30 @@ public:
 
     void swap(Stream&);
 
-    void writeByte(Ice::Byte value) { b.push_back(value); }
-    Ice::Byte readByte();
+    void write(Ice::Byte value) { b.push_back(value); }
+    void read(Ice::Byte&);
 
-    void writeBool(bool value) { b.push_back(static_cast<Ice::Byte>(value)); }
-    bool readBool();
+    void write(bool value) { b.push_back(static_cast<Ice::Byte>(value)); }
+    void read(bool&);
 
-    void writeShort(Ice::Short);
-    Ice::Short readShort();
+    void write(Ice::Short);
+    void read(Ice::Short&);
 
-    void writeInt(Ice::Int);
-    Ice::Int readInt();
+    void write(Ice::Int);
+    void read(Ice::Int&);
 
-    void writeLong(Ice::Long);
-    Ice::Long readLong();
+    void write(Ice::Long);
+    void read(Ice::Long&);
 
-    void writeFloat(Ice::Float);
-    Ice::Float readFloat();
+    void write(Ice::Float);
+    void read(Ice::Float&);
 
-    void writeDouble(Ice::Double);
-    Ice::Double readDouble();
+    void write(Ice::Double);
+    void read(Ice::Double&);
 
-    void writeString(const std::string&);
-    void writeString(const char*); // Optimized version for const char*
-    std::string readString();
+    void write(const std::string&);
+    void write(const char*); // Optimized version for const char*
+    void read(std::string&);
 
 private:
 

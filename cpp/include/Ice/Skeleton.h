@@ -25,7 +25,7 @@ public:
     ObjectS();
     virtual ~ObjectS();
 
-    virtual void __dispatch(::__Ice::Incoming*, const std::string&) = 0;
+    virtual void __dispatch(::__Ice::Incoming&, const std::string&) = 0;
 
 private:
 
