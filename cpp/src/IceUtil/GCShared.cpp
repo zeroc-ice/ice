@@ -32,11 +32,6 @@ IceUtil::GCShared::__decRef()
     gcRecMutex._m->lock();
 
     bool doDelete = false;
-//
-// TODO: The code below doesn't make any sense. Why use the
-// optimizations for decrementing _ref, if we lock a regular mutex
-// above anyway?
-//
 #if defined(_WIN32)
     if(InterlockedDecrement(&_ref) == 0)
 #elif defined(ICE_HAS_ATOMIC_FUNCTIONS)
