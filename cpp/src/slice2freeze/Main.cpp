@@ -193,7 +193,7 @@ writeCodecs(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C,
     writeCodecH(keyType, name + "KeyCodec", "Key", H, dllExport);
     writeCodecH(valueType, name + "ValueCodec", "Value", H, dllExport);
 
-    H << sp << nl << "typedef Freeze::DBMap< " << typeToString(keyType) << ", " << typeToString(valueType) << ", "
+    H << sp << nl << "typedef Freeze::Map< " << typeToString(keyType) << ", " << typeToString(valueType) << ", "
       << name << "KeyCodec, " << name << "ValueCodec> " << name << ";";
 
     for(q = scope.begin(); q != scope.end(); ++q)

@@ -134,9 +134,9 @@ Changes since version 1.1.1
 
     Freeze Maps are now opened/created directly using their constructor:
 
-    C++: DBMap(const Freeze::ConnectionPtr& connection, 
-               const std::string& dbName, 
-               bool createDb = true);
+    C++: Map(const Freeze::ConnectionPtr& connection, 
+             const std::string& dbName, 
+             bool createDb = true);
 
     Java: public
           Map(Connection connection, 
@@ -170,7 +170,7 @@ Changes since version 1.1.1
     such deadlocks and "kills" one locker (iterator or transaction) to
     resolve it. For non-iterator access, Freeze handles this situation
     and retries transparently. When using iterators, a
-    DBDeadlockException is raised to the application, which is
+    DeadlockException is raised to the application, which is
     responsible for closing the affected iterator(s) or transaction,
     and retrying.
     Serialized access or concurrent reads never produce deadlocks.

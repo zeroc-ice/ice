@@ -32,7 +32,7 @@ os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.g
 dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
 
-testOptions = " --Freeze.db.DbHome=" + testdir + "/db" + " --Ice.Config=" + testdir + "/config ";
+testOptions = " --Freeze.DbEnv.db.DbHome=" + testdir + "/db" + " --Ice.Config=" + testdir + "/config ";
 
 TestUtil.clientServerTestWithOptions(testOptions, testOptions)
 sys.exit(0)

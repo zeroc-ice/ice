@@ -72,7 +72,7 @@ class LibraryI extends _LibraryDisp
 	
 	    return book;
 	}
-	catch(Freeze.DBException ex)
+	catch(Freeze.DatabaseException ex)
 	{
 	    DatabaseException e = new DatabaseException();
 	    e.message = ex.message;
@@ -129,7 +129,7 @@ class LibraryI extends _LibraryDisp
 
 	    return books;
 	}
-	catch(Freeze.DBException ex)
+	catch(Freeze.DatabaseException ex)
 	{
 	    DatabaseException e = new DatabaseException();
 	    e.message = ex.message;
@@ -167,7 +167,7 @@ class LibraryI extends _LibraryDisp
 	    //
 	    if(isbnSeq == null)
 	    {
-		throw new Freeze.DBNotFoundException();
+		throw new Freeze.NotFoundException();
 	    }
 
 	    int i;
@@ -181,7 +181,7 @@ class LibraryI extends _LibraryDisp
 
 	    if(i >= isbnSeq.length)
 	    {
-		throw new Freeze.DBNotFoundException();
+		throw new Freeze.NotFoundException();
 	    }
 
 	    if(isbnSeq.length == 1)
@@ -215,7 +215,7 @@ class LibraryI extends _LibraryDisp
 	    //
 	    _evictor.destroyObject(createBookIdentity(description.isbn));
 	}
-	catch(Freeze.DBException ex)
+	catch(Freeze.DatabaseException ex)
 	{
 	    DatabaseException e = new DatabaseException();
 	    e.message = ex.message;

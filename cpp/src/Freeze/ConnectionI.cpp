@@ -48,7 +48,7 @@ Freeze::ConnectionI::close()
 	{
 	    _transaction->rollback();
 	}
-	catch(const Freeze::DBException&)
+	catch(const  DatabaseException&)
 	{
 	    //
 	    // Ignored
@@ -68,7 +68,7 @@ Freeze::ConnectionI::close()
     }
 }
     
-Ice::CommunicatorPtr
+CommunicatorPtr
 Freeze::ConnectionI::getCommunicator() const
 {
     return _communicator;
@@ -86,29 +86,30 @@ Freeze::ConnectionI::~ConnectionI()
     close();
 }
 
-Freeze::ConnectionI::ConnectionI(const Ice::CommunicatorPtr& communicator, 
-				 const std::string& envName) :
+Freeze::ConnectionI::ConnectionI(const CommunicatorPtr& communicator, 
+				 const string& envName) :
     _communicator(communicator),
     _dbEnvHolder(SharedDbEnv::get(communicator, envName)),
     _envName(envName),
-    _trace(communicator->getProperties()->getPropertyAsInt("Freeze.Trace.DB"))
+    _trace(communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map"))
 {
     _dbEnv = _dbEnvHolder.get();
 }
 
-Freeze::ConnectionI::ConnectionI(const Ice::CommunicatorPtr& communicator, 
+Freeze::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
+				 const string& envName,
 				 DbEnv& dbEnv) :
     _communicator(communicator),
     _dbEnv(&dbEnv),
-    _envName("External"),
-    _trace(communicator->getProperties()->getPropertyAsInt("Freeze.Trace.DB"))
+    _envName(envName),
+    _trace(communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map"))
 {
 }
 
 void
 Freeze::ConnectionI::closeAllIterators()
 {
-    for(list<DBMapHelperI*>::iterator p = _mapList.begin(); p != _mapList.end();
+    for(list<MapHelperI*>::iterator p = _mapList.begin(); p != _mapList.end();
 	++p)
     {
 	(*p)->closeAllIterators();
@@ -116,13 +117,13 @@ Freeze::ConnectionI::closeAllIterators()
 }
 
 void
-Freeze::ConnectionI::registerMap(DBMapHelperI* m)
+Freeze::ConnectionI::registerMap(MapHelperI* m)
 {
     _mapList.push_back(m);
 }
 
 void
-Freeze::ConnectionI::unregisterMap(DBMapHelperI* m)
+Freeze::ConnectionI::unregisterMap(MapHelperI* m)
 {
     _mapList.remove(m);
 }
@@ -137,14 +138,15 @@ Freeze::createConnection(const CommunicatorPtr& communicator,
 
 Freeze::ConnectionPtr 
 Freeze::createConnection(const CommunicatorPtr& communicator,
+			 const string& envName,
 			 DbEnv& dbEnv)
 {
-    return new ConnectionI(communicator, dbEnv);
+    return new ConnectionI(communicator, envName, dbEnv);
 }
 
 void
 Freeze::TransactionAlreadyInProgressException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\ntransaction already in progess";
+    out << ":\ntransaction already in progress";
 }

@@ -44,7 +44,7 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 	    {
 		_transaction.rollback();
 	    }
-	    catch(Freeze.DBException dx)
+	    catch(Freeze.DatabaseException dx)
 	    {
 		//
 		// Ignored
@@ -102,15 +102,15 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 	_dbEnvHolder = SharedDbEnv.get(communicator, envName);
 	_dbEnv = _dbEnvHolder;
 	_envName = envName;
-	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.DB");
+	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Map");
     }
 
-    ConnectionI(Ice.Communicator communicator, com.sleepycat.db.DbEnv dbEnv)
+    ConnectionI(Ice.Communicator communicator, String envName, com.sleepycat.db.DbEnv dbEnv)
     {
 	_communicator = communicator;
 	_dbEnv = dbEnv;
-	_envName = "External";
-	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.DB");
+	_envName = envName;
+	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Map");
     }
 
     void

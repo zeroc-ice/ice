@@ -60,7 +60,7 @@ private:
     
     MapKey _key;
     int _refCount;
-    int _trace;
+    Ice::Int _trace;
 
     static Map* sharedDbMap;
 };

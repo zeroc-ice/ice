@@ -24,7 +24,7 @@
 namespace Freeze
 {
 
-class DBMapHelperI;
+class MapHelperI;
 
 class ConnectionI : public Connection
 {
@@ -51,16 +51,17 @@ public:
 		const std::string& envName);
 
     ConnectionI(const Ice::CommunicatorPtr& communicator, 
+		const std::string& envName,
 		DbEnv& dbEnv);
 
     void
     closeAllIterators();
 
     void
-    registerMap(DBMapHelperI*);
+    registerMap(MapHelperI*);
 
     void
-    unregisterMap(DBMapHelperI*);
+    unregisterMap(MapHelperI*);
 
     void
     clearTransaction();
@@ -77,7 +78,7 @@ public:
     const std::string& 
     envName() const;
     
-    int
+    Ice::Int
     trace() const;
 
 private:
@@ -87,8 +88,8 @@ private:
     DbEnv* _dbEnv;
     std::string _envName;
     TransactionIPtr _transaction;
-    std::list<DBMapHelperI*> _mapList;
-    int _trace;
+    std::list<MapHelperI*> _mapList;
+    Ice::Int _trace;
 };  
 
 inline void
@@ -128,7 +129,7 @@ ConnectionI::communicator() const
     return _communicator;
 }
 
-inline int
+inline Ice::Int
 ConnectionI::trace() const
 {
     return _trace;

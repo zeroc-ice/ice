@@ -14,7 +14,7 @@
 
 #include <Freeze/TransactionI.h>
 #include <Freeze/ConnectionI.h>
-#include <Freeze/DBException.h>
+#include <Freeze/Exception.h>
 
 
 void
@@ -29,14 +29,14 @@ Freeze::TransactionI::commit()
     catch(const ::DbDeadlockException& dx)
     {
 	cleanup();
-	DBDeadlockException ex(__FILE__, __LINE__);
+	DeadlockException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
     catch(const ::DbException& dx)
     {
 	cleanup();
-	DBException ex(__FILE__, __LINE__);
+	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
@@ -56,14 +56,14 @@ Freeze::TransactionI::rollback()
     catch(const ::DbDeadlockException& dx)
     {
 	cleanup();
-	DBDeadlockException ex(__FILE__, __LINE__);
+	DeadlockException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
     catch(const ::DbException& dx)
     {
 	cleanup();
-	DBException ex(__FILE__, __LINE__);
+	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
@@ -80,7 +80,7 @@ Freeze::TransactionI::TransactionI(ConnectionI* connection) :
     }
     catch(const ::DbException& dx)
     {
-	DBException ex(__FILE__, __LINE__);
+	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }

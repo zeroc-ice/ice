@@ -15,7 +15,7 @@
 #include <Ice/Ice.h>
 #include <Ice/DynamicLibrary.h>
 #include <IceBox/ServiceManagerI.h>
-#include <Freeze/DBException.h>
+#include <Freeze/Exception.h>
 
 using namespace Ice;
 using namespace IceBox;
@@ -319,7 +319,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         info.library = library;
         _services[service] = info;
     }
-    catch(const Freeze::DBException& ex)
+    catch(const Freeze::DatabaseException& ex)
     {
 	ostringstream s;
 	s << "ServiceManager: database exception while starting service " << service << ":\n";

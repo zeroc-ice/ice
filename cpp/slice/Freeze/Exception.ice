@@ -12,8 +12,8 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_DB_EXCEPTION_ICE
-#define FREEZE_DB_EXCEPTION_ICE
+#ifndef FREEZE_EXCEPTION_ICE
+#define FREEZE_EXCEPTION_ICE
 
 module Freeze
 {
@@ -27,7 +27,7 @@ module Freeze
  * @see Connection
  *
  **/
-local exception DBException
+local exception DatabaseException
 {
     /**
      *
@@ -43,7 +43,7 @@ local exception DBException
  * could not be found.
  *
  **/
-local exception DBNotFoundException extends DBException
+local exception NotFoundException extends DatabaseException
 {
 };
 
@@ -53,7 +53,7 @@ local exception DBNotFoundException extends DBException
  * this exception by aborting and trying the transaction again.
  *
  **/
-local exception DBDeadlockException extends DBException
+local exception DeadlockException extends DatabaseException
 {
 };
 
@@ -63,7 +63,7 @@ local exception DBDeadlockException extends DBException
  * this position has been erased.
  *
  **/
-local exception DBInvalidPositionException
+local exception InvalidPositionException
 {
 };
 

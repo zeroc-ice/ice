@@ -111,13 +111,13 @@ class ContactI extends Contact
 	    //
 	    _evictor.destroyObject(_identity);
 	}
-	catch(Freeze.DBNotFoundException ex)
+	catch(Freeze.NotFoundException ex)
 	{
 	    //
 	    // Raised by remove. Ignore.
 	    //
 	}
-	catch(Freeze.DBException ex)
+	catch(Freeze.DatabaseException ex)
 	{
 	    DatabaseException e = new DatabaseException();
 	    e.message = ex.message;

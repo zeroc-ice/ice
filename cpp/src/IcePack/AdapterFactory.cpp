@@ -14,7 +14,6 @@
 
 #include <Ice/Ice.h>
 #include <IceUtil/UUID.h>
-#include <Freeze/DB.h>
 #include <Freeze/Evictor.h>
 #include <Freeze/Initialize.h>
 #include <IcePack/AdapterFactory.h>
@@ -100,7 +99,7 @@ IcePack::AdapterFactory::destroy(const Ice::Identity& id)
     {
 	_evictor->destroyObject(id);
     }
-    catch(const Freeze::DBException& ex)
+    catch(const Freeze::DatabaseException& ex)
     {
 	ostringstream os;
 	os << "couldn't destroy standalone adapter:\n" << ex;

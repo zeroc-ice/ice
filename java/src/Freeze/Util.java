@@ -24,9 +24,10 @@ public class Util
     } 
 
     public static Evictor
-    createEvictor(Ice.Communicator communicator, com.sleepycat.db.DbEnv dbEnv, String dbName, boolean createDb)
+    createEvictor(Ice.Communicator communicator, String envName, 
+		  com.sleepycat.db.DbEnv dbEnv, String dbName, boolean createDb)
     {
-	return new EvictorI(communicator, dbEnv, dbName, createDb);
+	return new EvictorI(communicator, envName, dbEnv, dbName, createDb);
     } 
 
     public static Connection
@@ -36,9 +37,9 @@ public class Util
     } 
 
     public static Connection
-    createConnection(Ice.Communicator communicator, com.sleepycat.db.DbEnv dbEnv)
+    createConnection(Ice.Communicator communicator, String envName, com.sleepycat.db.DbEnv dbEnv)
     {
-	return new ConnectionI(communicator, dbEnv);
+	return new ConnectionI(communicator, envName, dbEnv);
     } 
 
 }

@@ -267,10 +267,11 @@ static const string glacierProps[] =
 
 static const string freezeProps[] =
 {
-    "Trace.DB",
+    "Trace.DbEnv",
+    "Trace.Map",
     "Trace.Evictor",
     "Evictor.*",
-    "db.*" // Temporary
+    "DbEnv.*"
 };
 
 struct PropertyValues

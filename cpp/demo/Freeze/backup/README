@@ -34,11 +34,11 @@ on Berkeley DB hot backups.
 
 Note that the Ice config file (named config) disables the automatic
 deletion of old log files:
-Freeze.db.OldLogsAutoDelete=0
+Freeze.DbEnv.db.OldLogsAutoDelete=0
 
 and also sets DbPrivate to 0 to allow db_archive to access the db 
 environment while client is running:
-Freeze.db.DbPrivate=0
+Freeze.DbEnv.db.DbPrivate=0
 
 --------------
 RedHat 9 note:

@@ -15,7 +15,7 @@
 #include <Freeze/SharedDbEnv.h>
 #include <IceUtil/StaticMutex.h>
 #include <IceUtil/Thread.h>
-#include <Freeze/DBException.h>
+#include <Freeze/Exception.h>
 #include <cstdlib>
 #include <map>
 #include <memory>
@@ -39,7 +39,7 @@ class CheckpointThread : public Thread, public Monitor<Mutex>
 {
 public:
 
-    CheckpointThread(SharedDbEnv&, const Time&, Int, bool);
+    CheckpointThread(SharedDbEnv&, const Time&, Int, bool, Int);
 
     virtual void run();
   
@@ -51,6 +51,7 @@ private:
     Time _checkpointPeriod;
     Int _kbyte;
     bool _autoDelete;
+    Int _trace;
 };
 
 }
@@ -133,7 +134,7 @@ Freeze::SharedDbEnv::~SharedDbEnv()
 {
     if(_trace >= 1)
     {
-	Trace out(_communicator->getLogger(), "DB");
+	Trace out(_communicator->getLogger(), "Freeze.DbEnv");
 	out << "closing database environment \"" << _envName << "\"";
     }
 
@@ -149,7 +150,7 @@ Freeze::SharedDbEnv::~SharedDbEnv()
     }
     catch(const ::DbException& dx)
     {
-	DBException ex(__FILE__, __LINE__);
+	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
@@ -224,6 +225,13 @@ Freeze::SharedDbEnv::deleteOldLogs()
 		//
 		// Remove each file
 		//
+
+		if(_trace >= 2)
+		{
+		    Trace out(_communicator->getLogger(), "Freeze.DbEnv");
+		    out << "removing \"" << list[i] << "\" from DbEnv \"" << _envName << "\"";
+		}
+
 #ifdef _WIN32
 
 #if defined(_MSC_VER) && (_MSC_VER <= 1200)
@@ -252,7 +260,7 @@ Freeze::SharedDbEnv::deleteOldLogs()
     catch(const ::DbException& dx)
     {
 	free(list);
-	DBException ex(__FILE__, __LINE__);
+	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
@@ -273,15 +281,15 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
 {
     Ice::PropertiesPtr properties = _communicator->getProperties();
 
-    _trace = properties->getPropertyAsInt("Freeze.Trace.DB");
+    _trace = properties->getPropertyAsInt("Freeze.Trace.DbEnv");
 
     if(_trace >= 1)
     {
-	Trace out(_communicator->getLogger(), "DB");
+	Trace out(_communicator->getLogger(), "Freeze.DbEnv");
 	out << "opening database environment \"" << envName << "\"";
     }
 
-    string propertyPrefix = string("Freeze.") + envName;
+    string propertyPrefix = string("Freeze.DbEnv.") + envName;
 
     try
     {
@@ -327,7 +335,7 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
 	// Does not seem to work reliably in 4.1.25
 	//
 	
-	time_t timeStamp = properties->getPropertyAsIntWithDefault(propertyPrefix + ".tx_timestamp", 0);
+	time_t timeStamp = properties->getPropertyAsIntWithDefault(propertyPrefix + ".TxTimestamp", 0);
 	
 	if(timeStamp != 0)
 	{
@@ -337,7 +345,7 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
 	    }
 	    catch(const ::DbException& dx)
 	    {
-		DBException ex(__FILE__, __LINE__);
+		DatabaseException ex(__FILE__, __LINE__);
 		ex.message = dx.what();
 		throw ex;
 	    }
@@ -356,32 +364,33 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
     }
     catch(const ::DbException& dx)
     {
-	DBException ex(__FILE__, __LINE__);
+	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
 
     //
-    // Default checkpoint period is every 3 minutes
+    // Default checkpoint period is every 2 minutes
     //
     Int checkpointPeriod = properties->getPropertyAsIntWithDefault(
-	propertyPrefix + ".CheckpointPeriod", 3);
+	propertyPrefix + ".CheckpointPeriod", 120);
     Int kbyte = properties->getPropertyAsInt(propertyPrefix + ".PeriodicCheckpointMinSize");
 
     bool autoDelete = (properties->getPropertyAsIntWithDefault(
 			   propertyPrefix + ".OldLogsAutoDelete", 1) != 0); 
     
-    _thread = new CheckpointThread(*this, Time::seconds(checkpointPeriod * 60), kbyte, autoDelete);
+    _thread = new CheckpointThread(*this, Time::seconds(checkpointPeriod), kbyte, autoDelete, _trace);
 }
 
 
 
-Freeze::CheckpointThread::CheckpointThread(SharedDbEnv& dbEnv, const Time& checkpointPeriod, Int kbyte, bool autoDelete) : 
+Freeze::CheckpointThread::CheckpointThread(SharedDbEnv& dbEnv, const Time& checkpointPeriod, Int kbyte, bool autoDelete, Int trace) : 
     _dbEnv(dbEnv), 
     _done(false), 
     _checkpointPeriod(checkpointPeriod), 
     _kbyte(kbyte),
-    _autoDelete(autoDelete)
+    _autoDelete(autoDelete),
+    _trace(trace)
 {
     start();
 }
@@ -420,6 +429,11 @@ Freeze::CheckpointThread::run()
 
 	try
 	{
+	    if(_trace >= 2)
+	    {
+		Trace out(_dbEnv.getCommunicator()->getLogger(), "Freeze.DbEnv");
+		out << "checkpointing environment \"" << _dbEnv.getEnvName() << "\"";
+	    }
 	    _dbEnv.txn_checkpoint(_kbyte, 0, 0);
 	}
 	catch(const DbException& dx)

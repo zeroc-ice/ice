@@ -42,13 +42,13 @@ BookI::destroy(const Ice::Current&)
     {
 	_library->remove(description);
     }
-    catch(const Freeze::DBNotFoundException&)
+    catch(const Freeze::NotFoundException&)
     {
 	//
 	// Raised by remove. Ignore.
 	//
     }
-    catch(const Freeze::DBException& ex)
+    catch(const Freeze::DatabaseException& ex)
     {
 	DatabaseException e;
 	e.message = ex.message;
@@ -298,7 +298,7 @@ LibraryI::remove(const BookDescription& description)
 	//
 	if(p == _authors.end())
 	{
-	    throw Freeze::DBNotFoundException(__FILE__, __LINE__);
+	    throw Freeze::NotFoundException(__FILE__, __LINE__);
 	}
 
 	//
@@ -330,7 +330,7 @@ LibraryI::remove(const BookDescription& description)
 	//
 	_evictor->destroyObject(createBookIdentity(description.isbn));
     }
-    catch(const Freeze::DBException& ex)
+    catch(const Freeze::DatabaseException& ex)
     {
 	DatabaseException e;
 	e.message = ex.message;

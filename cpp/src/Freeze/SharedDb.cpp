@@ -14,7 +14,7 @@
 
 #include <Freeze/SharedDb.h>
 #include <IceUtil/StaticMutex.h>
-#include <Freeze/DBException.h>
+#include <Freeze/Exception.h>
 #include <sys/stat.h>
 
 using namespace std;
@@ -80,8 +80,8 @@ Freeze::SharedDb::~SharedDb()
 {
     if(_trace >= 1)
     {
-	Trace out(_key.communicator->getLogger(), "DB");
-	out << "closing database \"" << _key.dbName << "\"";
+	Trace out(_key.communicator->getLogger(), "Freeze.Map");
+	out << "closing Db \"" << _key.dbName << "\"";
     }
 
     try
@@ -90,7 +90,7 @@ Freeze::SharedDb::~SharedDb()
     }
     catch(const ::DbException& dx)
     {
-	DBException ex(__FILE__, __LINE__);
+	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
@@ -99,12 +99,24 @@ Freeze::SharedDb::~SharedDb()
 
 void Freeze::SharedDb::__incRef()
 {
+    if(_trace >= 2)
+    {
+	Trace out(_key.communicator->getLogger(), "Freeze.Map");
+	out << "incremeting reference count for Db \"" << _key.dbName << "\"";
+    }
+
     IceUtil::StaticMutex::Lock lock(_refCountMutex);
     _refCount++;
 }
 
 void Freeze::SharedDb::__decRef()
 {
+    if(_trace >= 2)
+    {
+	Trace out(_key.communicator->getLogger(), "Freeze.Map");
+	out << "removing reference count for Db \"" << _key.dbName << "\"";
+    }
+
     IceUtil::StaticMutex::Lock lock(_refCountMutex);
     if(--_refCount == 0)
     {
@@ -154,6 +166,12 @@ Freeze::SharedDb::SharedDb(const MapKey& key,
     _refCount(0),
     _trace(connection->trace())
 {
+    if(_trace >= 1)
+    {
+	Trace out(_key.communicator->getLogger(), "Freeze.Map");
+	out << "opening Db \"" << _key.dbName << "\"";
+    }
+
     try
     {
 	u_int32_t flags = DB_AUTO_COMMIT | DB_THREAD;
@@ -165,7 +183,7 @@ Freeze::SharedDb::SharedDb(const MapKey& key,
     }
     catch(const ::DbException& dx)
     {
-	DBException ex(__FILE__, __LINE__);
+	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }

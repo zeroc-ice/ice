@@ -398,7 +398,7 @@ IcePack::ServerBuilder::execute()
 									 _serverAdapterIds,
 									 _serverAdapters);
     }
-    catch(const Freeze::DBException& lex)
+    catch(const Freeze::DatabaseException& lex)
     {
 	ostringstream os;
 	os << "couldn't create the server: " << lex.message << ":" << endl;

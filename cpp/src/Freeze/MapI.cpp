@@ -13,7 +13,7 @@
 // **********************************************************************
 
 #include <Freeze/MapI.h>
-#include <Freeze/DBException.h>
+#include <Freeze/Exception.h>
 #include <Freeze/SharedDb.h>
 #include <stdlib.h>
 
@@ -51,33 +51,33 @@ initializeOutDbt(vector<Ice::Byte>& v, Dbt& dbt)
 
 
 //
-// DBMapHelper (from Map.h)
+// MapHelper (from Map.h)
 //
 
-Freeze::DBMapHelper*
-Freeze::DBMapHelper::create(const Freeze::ConnectionPtr& connection, 
-			    const string& dbName, 
-			    bool createDb)
+Freeze::MapHelper*
+Freeze::MapHelper::create(const Freeze::ConnectionPtr& connection, 
+			  const string& dbName, 
+			  bool createDb)
 {
     Freeze::ConnectionIPtr connectionI = Freeze::ConnectionIPtr::dynamicCast(connection);
-    return new DBMapHelperI(connectionI, dbName, createDb);
+    return new MapHelperI(connectionI, dbName, createDb);
 }
 
-Freeze::DBMapHelper::~DBMapHelper()
+Freeze::MapHelper::~MapHelper()
 {
 }
 
 
 //
-// DBIteratorHelper (from Map.h)
+// IteratorHelper (from Map.h)
 //
 
-Freeze::DBIteratorHelper* 
-Freeze::DBIteratorHelper::create(const DBMapHelper& m, bool readOnly)
+Freeze::IteratorHelper* 
+Freeze::IteratorHelper::create(const MapHelper& m, bool readOnly)
 {
-    const DBMapHelperI& actualMap = dynamic_cast<const DBMapHelperI&>(m);
+    const MapHelperI& actualMap = dynamic_cast<const MapHelperI&>(m);
 
-    auto_ptr<DBIteratorHelperI> r(new DBIteratorHelperI(actualMap, readOnly));
+    auto_ptr<IteratorHelperI> r(new IteratorHelperI(actualMap, readOnly));
     if(r->findFirst())
     {
 	return r.release();
@@ -89,26 +89,26 @@ Freeze::DBIteratorHelper::create(const DBMapHelper& m, bool readOnly)
 }
 
 
-Freeze::DBIteratorHelper::~DBIteratorHelper()
+Freeze::IteratorHelper::~IteratorHelper()
 {
 }
 
 
 
 //
-// DBIteratorHelperI
+// IteratorHelperI
 //
 
 
-Freeze::DBIteratorHelperI::DBIteratorHelperI(const DBMapHelperI& m, bool readOnly) :
+Freeze::IteratorHelperI::IteratorHelperI(const MapHelperI& m, bool readOnly) :
     _map(m),
     _dbc(0),
     _tx(0)
 {
-    if(_map._trace >= 3)
+    if(_map._trace >= 2)
     {
-	Trace out(_map._connection->communicator()->getLogger(), "DB");
-	out << "opening iterator on database \"" << _map._dbName << "\"";
+	Trace out(_map._connection->communicator()->getLogger(), "Freeze.Map");
+	out << "opening iterator on Db \"" << _map._dbName << "\"";
     }
 
     DbTxn* txn = _map._connection->dbTxn();
@@ -128,22 +128,22 @@ Freeze::DBIteratorHelperI::DBIteratorHelperI(const DBMapHelperI& m, bool readOnl
     }
     catch(const ::DbException& dx)
     {
-	DBException ex(__FILE__, __LINE__);
+	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
     _map._iteratorList.push_back(this);
 }
 
-Freeze::DBIteratorHelperI::DBIteratorHelperI(const DBIteratorHelperI& it) :
+Freeze::IteratorHelperI::IteratorHelperI(const IteratorHelperI& it) :
     _map(it._map),
     _dbc(0),
     _tx(0)
 {
-    if(_map._trace >= 3)
+    if(_map._trace >= 2)
     {
-	Trace out(_map._connection->communicator()->getLogger(), "DB");
-	out << "duplicating iterator on database \"" << _map._dbName << "\"";
+	Trace out(_map._connection->communicator()->getLogger(), "Freeze.Map");
+	out << "duplicating iterator on Db \"" << _map._dbName << "\"";
     }
 
     try
@@ -152,7 +152,7 @@ Freeze::DBIteratorHelperI::DBIteratorHelperI(const DBIteratorHelperI& it) :
     }
     catch(const ::DbException& dx)
     {
-	DBException ex(__FILE__, __LINE__);
+	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
@@ -161,19 +161,19 @@ Freeze::DBIteratorHelperI::DBIteratorHelperI(const DBIteratorHelperI& it) :
     _map._iteratorList.push_back(this);
 }
 
-Freeze::DBIteratorHelperI::~DBIteratorHelperI()
+Freeze::IteratorHelperI::~IteratorHelperI()
 {
     close();
 }
 
 bool 
-Freeze::DBIteratorHelperI::findFirst() const
+Freeze::IteratorHelperI::findFirst() const
 {
     return next();
 }
 
 bool 
-Freeze::DBIteratorHelperI::find(const Key& key) const
+Freeze::IteratorHelperI::find(const Key& key) const
 {
     Dbt dbKey;
     initializeInDbt(key, dbKey);
@@ -202,26 +202,26 @@ Freeze::DBIteratorHelperI::find(const Key& key) const
 	    _tx->dead();
 	}
 
-	DBDeadlockException ex(__FILE__, __LINE__);
+	DeadlockException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
     catch(const ::DbException& dx)
     {
-	DBException ex(__FILE__, __LINE__);
+	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
 }
 
-Freeze::DBIteratorHelper*
-Freeze::DBIteratorHelperI::clone() const
+Freeze::IteratorHelper*
+Freeze::IteratorHelperI::clone() const
 {
-    return new DBIteratorHelperI(*this);
+    return new IteratorHelperI(*this);
 }
     
 void
-Freeze::DBIteratorHelperI::get(const Key*& key, const Value*& value) const
+Freeze::IteratorHelperI::get(const Key*& key, const Value*& value) const
 {
     key = &_key;
     value = &_value;
@@ -259,7 +259,7 @@ Freeze::DBIteratorHelperI::get(const Key*& key, const Value*& value) const
 	    }
 	    else if(err == DB_KEYEMPTY)
 	    {
-		throw DBInvalidPositionException(__FILE__, __LINE__);
+		throw InvalidPositionException(__FILE__, __LINE__);
 	    }
 	    else 
 	    {
@@ -267,7 +267,7 @@ Freeze::DBIteratorHelperI::get(const Key*& key, const Value*& value) const
 		// Bug in Freeze
 		//
 		assert(0);
-		throw DBException(__FILE__, __LINE__);
+		throw DatabaseException(__FILE__, __LINE__);
 	    }
 	}
 	catch(const ::DbMemoryException dx)
@@ -298,7 +298,7 @@ Freeze::DBIteratorHelperI::get(const Key*& key, const Value*& value) const
 		//
 		// Real problem
 		//
-		DBException ex(__FILE__, __LINE__);
+		DatabaseException ex(__FILE__, __LINE__);
 		ex.message = dx.what();
 		throw ex;
 	    }
@@ -310,13 +310,13 @@ Freeze::DBIteratorHelperI::get(const Key*& key, const Value*& value) const
 		_tx->dead();
 	    }
 
-	    DBDeadlockException ex(__FILE__, __LINE__);
+	    DeadlockException ex(__FILE__, __LINE__);
 	    ex.message = dx.what();
 	    throw ex;
 	}
 	catch(const ::DbException& dx)
 	{
-	    DBException ex(__FILE__, __LINE__);
+	    DatabaseException ex(__FILE__, __LINE__);
 	    ex.message = dx.what();
 	    throw ex;
 	}
@@ -324,7 +324,7 @@ Freeze::DBIteratorHelperI::get(const Key*& key, const Value*& value) const
 }
     
 const Freeze::Key*
-Freeze::DBIteratorHelperI::get() const
+Freeze::IteratorHelperI::get() const
 {
     size_t keySize = _key.capacity();
     if(keySize < 1024)
@@ -355,7 +355,7 @@ Freeze::DBIteratorHelperI::get() const
 	    }
 	    else if(err == DB_KEYEMPTY)
 	    {
-		throw DBInvalidPositionException(__FILE__, __LINE__);
+		throw InvalidPositionException(__FILE__, __LINE__);
 	    }
 	    else 
 	    {
@@ -363,7 +363,7 @@ Freeze::DBIteratorHelperI::get() const
 		// Bug in Freeze
 		//
 		assert(0);
-		throw DBException(__FILE__, __LINE__);
+		throw DatabaseException(__FILE__, __LINE__);
 	    }
 	}
 	catch(const ::DbMemoryException dx)
@@ -381,7 +381,7 @@ Freeze::DBIteratorHelperI::get() const
 		//
 		// Real problem
 		//
-		DBException ex(__FILE__, __LINE__);
+		DatabaseException ex(__FILE__, __LINE__);
 		ex.message = dx.what();
 		throw ex;
 	    }
@@ -393,13 +393,13 @@ Freeze::DBIteratorHelperI::get() const
 		_tx->dead();
 	    }
 
-	    DBDeadlockException ex(__FILE__, __LINE__);
+	    DeadlockException ex(__FILE__, __LINE__);
 	    ex.message = dx.what();
 	    throw ex;
 	}
 	catch(const ::DbException& dx)
 	{
-	    DBException ex(__FILE__, __LINE__);
+	    DatabaseException ex(__FILE__, __LINE__);
 	    ex.message = dx.what();
 	    throw ex;
 	}
@@ -407,7 +407,7 @@ Freeze::DBIteratorHelperI::get() const
 }
 
 void 
-Freeze::DBIteratorHelperI::set(const Value& value)
+Freeze::IteratorHelperI::set(const Value& value)
 {
     //
     // key ignored
@@ -436,20 +436,20 @@ Freeze::DBIteratorHelperI::set(const Value& value)
 	    _tx->dead();
 	}
 
-	DBDeadlockException ex(__FILE__, __LINE__);
+	DeadlockException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
     catch(const ::DbException& dx)
     {
-	DBException ex(__FILE__, __LINE__);
+	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
 }
 
 void
-Freeze::DBIteratorHelperI::erase()
+Freeze::IteratorHelperI::erase()
 {
     if(_tx != 0)
     {
@@ -461,7 +461,7 @@ Freeze::DBIteratorHelperI::erase()
 	int err = _dbc->del(0);
 	if(err == DB_KEYEMPTY)
 	{
-	    throw DBInvalidPositionException(__FILE__, __LINE__);
+	    throw InvalidPositionException(__FILE__, __LINE__);
 	}
 	assert(err == 0);
     }
@@ -472,20 +472,20 @@ Freeze::DBIteratorHelperI::erase()
 	    _tx->dead();
 	}
 
-	DBDeadlockException ex(__FILE__, __LINE__);
+	DeadlockException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
     catch(const ::DbException& dx)
     {
-	DBException ex(__FILE__, __LINE__);
+	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
 }
 
 bool
-Freeze::DBIteratorHelperI::next() const
+Freeze::IteratorHelperI::next() const
 {
     //
     // Keep 0 length since we're not interested in the data
@@ -513,20 +513,20 @@ Freeze::DBIteratorHelperI::next() const
 	    _tx->dead();
 	}
 
-	DBDeadlockException ex(__FILE__, __LINE__);
+	DeadlockException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
     catch(const ::DbException& dx)
     {
-	DBException ex(__FILE__, __LINE__);
+	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
 }
 
 bool
-Freeze::DBIteratorHelperI::equals(const DBIteratorHelper& rhs) const
+Freeze::IteratorHelperI::equals(const IteratorHelper& rhs) const
 {
     if(this == &rhs)
     {
@@ -539,10 +539,10 @@ Freeze::DBIteratorHelperI::equals(const DBIteratorHelper& rhs) const
 	//
 	try
 	{
-	    Key rhsKey = *dynamic_cast<const DBIteratorHelperI&>(rhs).get();
+	    Key rhsKey = *dynamic_cast<const IteratorHelperI&>(rhs).get();
 	    return *get() == rhsKey;
 	}
-	catch(const DBInvalidPositionException&)
+	catch(const InvalidPositionException&)
 	{
 	    return false;
 	}
@@ -550,14 +550,14 @@ Freeze::DBIteratorHelperI::equals(const DBIteratorHelper& rhs) const
 }
 
 void
-Freeze::DBIteratorHelperI::close()
+Freeze::IteratorHelperI::close()
 {
     if(_dbc != 0)
     {
-	if(_map._trace >= 3)
+	if(_map._trace >= 2)
 	{
-	    Trace out(_map._connection->communicator()->getLogger(), "DB");
-	    out << "closing iterator on database \"" << _map._dbName << "\"";
+	    Trace out(_map._connection->communicator()->getLogger(), "Freeze.Map");
+	    out << "closing iterator on Db \"" << _map._dbName << "\"";
 	}
 	
 	try
@@ -570,7 +570,7 @@ Freeze::DBIteratorHelperI::close()
 	    cleanup();
 	    if(raiseException)
 	    {
-		DBDeadlockException ex(__FILE__, __LINE__);
+		DeadlockException ex(__FILE__, __LINE__);
 		ex.message = dx.what();
 		throw ex;
 	    }
@@ -578,7 +578,7 @@ Freeze::DBIteratorHelperI::close()
 	catch(const ::DbException& dx)
 	{
 	    cleanup();
-	    DBException ex(__FILE__, __LINE__);
+	    DatabaseException ex(__FILE__, __LINE__);
 	    ex.message = dx.what();
 	    throw ex;
 	}
@@ -587,7 +587,7 @@ Freeze::DBIteratorHelperI::close()
 }
 
 void
-Freeze::DBIteratorHelperI::cleanup()
+Freeze::IteratorHelperI::cleanup()
 {
     _dbc = 0;
     _map._iteratorList.remove(this);
@@ -596,18 +596,18 @@ Freeze::DBIteratorHelperI::cleanup()
 
 
 //
-// DBIteratorHelperI::Tx
+// IteratorHelperI::Tx
 //
 
-Freeze::DBIteratorHelperI::Tx::Tx(const DBMapHelperI& m) :
+Freeze::IteratorHelperI::Tx::Tx(const MapHelperI& m) :
     _map(m),
     _txn(0),
     _dead(false)
 {
-    if(_map._trace >= 3)
+    if(_map._trace >= 2)
     {
-	Trace out(_map._connection->communicator()->getLogger(), "DB");
-	out << "starting transaction for database \"" << _map._dbName << "\"";
+	Trace out(_map._connection->communicator()->getLogger(), "Freeze.Map");
+	out << "starting transaction for Db \"" << _map._dbName << "\"";
     }
 
     try
@@ -616,21 +616,21 @@ Freeze::DBIteratorHelperI::Tx::Tx(const DBMapHelperI& m) :
     }
     catch(const ::DbException& dx)
     {
-	DBException ex(__FILE__, __LINE__);
+	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
 }
 	
 
-Freeze::DBIteratorHelperI::Tx::~Tx()
+Freeze::IteratorHelperI::Tx::~Tx()
 {
     if(_dead)
     {
-	if(_map._trace >= 3)
+	if(_map._trace >= 2)
 	{
-	    Trace out(_map._connection->communicator()->getLogger(), "DB");
-	    out << "aborting transaction for database \"" << _map._dbName << "\"";
+	    Trace out(_map._connection->communicator()->getLogger(), "");
+	    out << "aborting transaction for Db \"" << _map._dbName << "\"";
 	}
 
 	try
@@ -646,10 +646,10 @@ Freeze::DBIteratorHelperI::Tx::~Tx()
     }
     else
     {
-	if(_map._trace >= 3)
+	if(_map._trace >= 2)
 	{
-	    Trace out(_map._connection->communicator()->getLogger(), "DB");
-	    out << "committing transaction for database \"" << _map._dbName.c_str() << "\"";
+	    Trace out(_map._connection->communicator()->getLogger(), "Freeze.Map");
+	    out << "committing transaction for Db \"" << _map._dbName.c_str() << "\"";
 	}
 
 	try
@@ -658,13 +658,13 @@ Freeze::DBIteratorHelperI::Tx::~Tx()
 	}
 	catch(const ::DbDeadlockException& dx)
 	{
-	    DBDeadlockException ex(__FILE__, __LINE__);
+	    DeadlockException ex(__FILE__, __LINE__);
 	    ex.message = dx.what();
 	    throw ex;
 	}
 	catch(const ::DbException& dx)
 	{
-	    DBException ex(__FILE__, __LINE__);
+	    DatabaseException ex(__FILE__, __LINE__);
 	    ex.message = dx.what();
 	    throw ex;
 	}
@@ -672,7 +672,7 @@ Freeze::DBIteratorHelperI::Tx::~Tx()
 }
 
 void
-Freeze::DBIteratorHelperI::Tx::dead()
+Freeze::IteratorHelperI::Tx::dead()
 {
     _dead = true;
 }
@@ -680,13 +680,13 @@ Freeze::DBIteratorHelperI::Tx::dead()
 
 
 //
-// DBMapHelperI
+// MapHelperI
 //
 
 
-Freeze::DBMapHelperI::DBMapHelperI(const ConnectionIPtr& connection, 
-				   const std::string& dbName, 
-				   bool createDb) :
+Freeze::MapHelperI::MapHelperI(const ConnectionIPtr& connection, 
+			       const std::string& dbName, 
+			       bool createDb) :
     _connection(connection),
     _db(SharedDb::get(connection, dbName, createDb)),
     _dbName(dbName),
@@ -695,19 +695,19 @@ Freeze::DBMapHelperI::DBMapHelperI(const ConnectionIPtr& connection,
     _connection->registerMap(this);
 }
 
-Freeze::DBMapHelperI::~DBMapHelperI()
+Freeze::MapHelperI::~MapHelperI()
 {
     close();
 }
 
-Freeze::DBIteratorHelper*
-Freeze::DBMapHelperI::find(const Key& k, bool readOnly) const
+Freeze::IteratorHelper*
+Freeze::MapHelperI::find(const Key& k, bool readOnly) const
 {
     for(;;)
     {
 	try
 	{  
-	    auto_ptr<DBIteratorHelperI> r(new DBIteratorHelperI(*this, readOnly));
+	    auto_ptr<IteratorHelperI> r(new IteratorHelperI(*this, readOnly));
 	    if(r->find(k))
 	    {
 		return r.release();
@@ -717,7 +717,7 @@ Freeze::DBMapHelperI::find(const Key& k, bool readOnly) const
 		return 0;
 	    }
 	}
-	catch(const DBDeadlockException&)
+	catch(const DeadlockException&)
 	{
 	    if(_connection->dbTxn() != 0)
 	    {
@@ -734,7 +734,7 @@ Freeze::DBMapHelperI::find(const Key& k, bool readOnly) const
 }
 
 void
-Freeze::DBMapHelperI::put(const Key& key, const Value& value)
+Freeze::MapHelperI::put(const Key& key, const Value& value)
 {
     Dbt dbKey;
     Dbt dbValue;
@@ -763,14 +763,14 @@ Freeze::DBMapHelperI::put(const Key& key, const Value& value)
 		//
 		// Bug in Freeze
 		//
-		throw DBException(__FILE__, __LINE__);
+		throw DatabaseException(__FILE__, __LINE__);
 	    }
 	}
 	catch(const ::DbDeadlockException& dx)
 	{
 	    if(txn != 0)
 	    {
-		DBDeadlockException ex(__FILE__, __LINE__);
+		DeadlockException ex(__FILE__, __LINE__);
 		ex.message = dx.what();
 		throw ex;
 	    }
@@ -783,7 +783,7 @@ Freeze::DBMapHelperI::put(const Key& key, const Value& value)
 	}
 	catch(const ::DbException& dx)
 	{
-	    DBException ex(__FILE__, __LINE__);
+	    DatabaseException ex(__FILE__, __LINE__);
 	    ex.message = dx.what();
 	    throw ex;
 	}
@@ -791,7 +791,7 @@ Freeze::DBMapHelperI::put(const Key& key, const Value& value)
 }
 
 size_t
-Freeze::DBMapHelperI::erase(const Key& key)
+Freeze::MapHelperI::erase(const Key& key)
 {
     Dbt dbKey;
     initializeInDbt(key, dbKey);
@@ -819,14 +819,14 @@ Freeze::DBMapHelperI::erase(const Key& key)
 	    else
 	    {
 		assert(0);
-		throw DBException(__FILE__, __LINE__);
+		throw DatabaseException(__FILE__, __LINE__);
 	    }
 	}
 	catch(const ::DbDeadlockException& dx)
 	{
 	    if(txn != 0)
 	    {
-		DBDeadlockException ex(__FILE__, __LINE__);
+		DeadlockException ex(__FILE__, __LINE__);
 		ex.message = dx.what();
 		throw ex;
 	    }
@@ -839,7 +839,7 @@ Freeze::DBMapHelperI::erase(const Key& key)
 	}
 	catch(const ::DbException& dx)
 	{
-	    DBException ex(__FILE__, __LINE__);
+	    DatabaseException ex(__FILE__, __LINE__);
 	    ex.message = dx.what();
 	    throw ex;
 	}
@@ -847,7 +847,7 @@ Freeze::DBMapHelperI::erase(const Key& key)
 }
 
 size_t
-Freeze::DBMapHelperI::count(const Key& key) const
+Freeze::MapHelperI::count(const Key& key) const
 {
     Dbt dbKey;
     initializeInDbt(key, dbKey);
@@ -875,14 +875,14 @@ Freeze::DBMapHelperI::count(const Key& key) const
 	    else
 	    {
 		assert(0);
-		throw DBException(__FILE__, __LINE__);
+		throw DatabaseException(__FILE__, __LINE__);
 	    }
 	}
 	catch(const ::DbDeadlockException& dx)
 	{
 	    if(_connection->dbTxn() != 0)
 	    {
-		DBDeadlockException ex(__FILE__, __LINE__);
+		DeadlockException ex(__FILE__, __LINE__);
 		ex.message = dx.what();
 		throw ex;
 	    }
@@ -895,7 +895,7 @@ Freeze::DBMapHelperI::count(const Key& key) const
 	}
 	catch(const ::DbException& dx)
 	{
-	    DBException ex(__FILE__, __LINE__);
+	    DatabaseException ex(__FILE__, __LINE__);
 	    ex.message = dx.what();
 	    throw ex;
 	}
@@ -903,7 +903,7 @@ Freeze::DBMapHelperI::count(const Key& key) const
 }
     
 void
-Freeze::DBMapHelperI::clear()
+Freeze::MapHelperI::clear()
 {
     DbTxn* txn = _connection->dbTxn();
     if(txn == 0)
@@ -925,7 +925,7 @@ Freeze::DBMapHelperI::clear()
 	{
 	    if(txn != 0)
 	    {
-		DBDeadlockException ex(__FILE__, __LINE__);
+		DeadlockException ex(__FILE__, __LINE__);
 		ex.message = dx.what();
 		throw ex;
 	    }
@@ -938,7 +938,7 @@ Freeze::DBMapHelperI::clear()
 	}
 	catch(const ::DbException& dx)
 	{
-	    DBException ex(__FILE__, __LINE__);
+	    DatabaseException ex(__FILE__, __LINE__);
 	    ex.message = dx.what();
 	    throw ex;
 	}
@@ -946,7 +946,7 @@ Freeze::DBMapHelperI::clear()
 }
 
 void
-Freeze::DBMapHelperI::destroy()
+Freeze::MapHelperI::destroy()
 {
     DbTxn* txn = _connection->dbTxn();
     if(txn == 0)
@@ -961,7 +961,7 @@ Freeze::DBMapHelperI::destroy()
     }
     catch(const ::DbException& dx)
     {
-	DBException ex(__FILE__, __LINE__);
+	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
@@ -969,7 +969,7 @@ Freeze::DBMapHelperI::destroy()
 
 
 size_t
-Freeze::DBMapHelperI::size() const
+Freeze::MapHelperI::size() const
 {
     //
     // TODO: DB_FAST_STAT doesn't seem to do what the documentation says...
@@ -984,7 +984,7 @@ Freeze::DBMapHelperI::size() const
 
 
 void
-Freeze::DBMapHelperI::closeAllIterators()
+Freeze::MapHelperI::closeAllIterators()
 {
     while(!_iteratorList.empty())
     {
@@ -993,7 +993,7 @@ Freeze::DBMapHelperI::closeAllIterators()
 }
 
 void
-Freeze::DBMapHelperI::close()
+Freeze::MapHelperI::close()
 {
     if(_db != 0)
     {
@@ -1003,11 +1003,11 @@ Freeze::DBMapHelperI::close()
 }
 
 void
-Freeze::DBMapHelperI::closeAllIteratorsExcept(const DBIteratorHelperI::TxPtr& tx) const
+Freeze::MapHelperI::closeAllIteratorsExcept(const IteratorHelperI::TxPtr& tx) const
 {
     assert(tx != 0);
 
-    list<DBIteratorHelperI*>::iterator q = _iteratorList.begin();
+    list<IteratorHelperI*>::iterator q = _iteratorList.begin();
 
     while(q != _iteratorList.end())
     {
@@ -1027,21 +1027,21 @@ Freeze::DBMapHelperI::closeAllIteratorsExcept(const DBIteratorHelperI::TxPtr& tx
 // Print for the various exception types.
 //
 void
-Freeze::DBDeadlockException::ice_print(ostream& out) const
+Freeze::DeadlockException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\ndatabase deadlock:\n" << message;
 }
 
 void
-Freeze::DBNotFoundException::ice_print(ostream& out) const
+Freeze::NotFoundException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\ndatabase record not found:\n" << message;
 }
 
 void
-Freeze::DBException::ice_print(ostream& out) const
+Freeze::DatabaseException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\n" << message;
@@ -1049,7 +1049,7 @@ Freeze::DBException::ice_print(ostream& out) const
 
 
 void
-Freeze::DBInvalidPositionException::ice_print(ostream& out) const
+Freeze::InvalidPositionException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\ninvalid position";

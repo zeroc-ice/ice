@@ -83,7 +83,7 @@ the Free Software Foundation.
                 <include name="DB.ice" />
                 <include name="Connection.ice" />
                 <include name="Transaction.ice" />
-                <include name="DBException.ice" />
+                <include name="Exception.ice" />
                 <include name="Evictor.ice" />
                 <include name="EvictorStorage.ice" />
             </fileset>

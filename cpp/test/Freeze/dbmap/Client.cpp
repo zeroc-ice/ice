@@ -73,7 +73,7 @@ populateDB(const ConnectionPtr& connection, ByteIntMap& m)
 	    txHolder.commit();
 	    break;
 	}
-	catch(const DBDeadlockException&)
+	catch(const DeadlockException&)
 	{
 #ifdef SHOW_EXCEPTIONS
 	    cerr << "t" << flush;
@@ -113,7 +113,7 @@ public:
 		    }
 		    break; // for(;;)
 		}
-		catch(const DBDeadlockException&)
+		catch(const DeadlockException&)
 		{
 #ifdef SHOW_EXCEPTIONS
 		    cerr << "r" << flush;
@@ -122,7 +122,7 @@ public:
 		    // Try again
 		    //
 		}
-		catch(const DBInvalidPositionException&)
+		catch(const InvalidPositionException&)
 		{
 #ifdef SHOW_EXCEPTIONS
 		    cerr << "i" << flush;
@@ -169,7 +169,7 @@ public:
 		    }
 		    break; // for(;;)
 		}
-		catch(const DBDeadlockException&)
+		catch(const DeadlockException&)
 		{
 #ifdef SHOW_EXCEPTIONS
 		    cerr << "w" << flush;
@@ -178,7 +178,7 @@ public:
 		    // Try again
 		    //
 		}
-		catch(const DBInvalidPositionException&)
+		catch(const InvalidPositionException&)
 		{
 #ifdef SHOW_EXCEPTIONS
 		    cerr << "I" << flush;

@@ -40,7 +40,7 @@ public:
     virtual ~EvictorIteratorI();
 
     virtual bool hasNext();
-    virtual Ice::Identity next();
+    virtual Identity next();
     virtual void destroy();
 
 private:
@@ -57,20 +57,10 @@ private:
 namespace
 {
 
-//
-// Streamed objects
-//
-struct StreamedObject
-{
-    Key key;
-    Value value;
-    Ice::Byte status;
-};
-
 inline void 
-initializeInDbt(const vector<Ice::Byte>& v, Dbt& dbt)
+initializeInDbt(const vector<Byte>& v, Dbt& dbt)
 {
-    dbt.set_data(const_cast<Ice::Byte*>(&v[0]));
+    dbt.set_data(const_cast<Byte*>(&v[0]));
     dbt.set_size(v.size());
     dbt.set_ulen(0);
     dbt.set_dlen(0);
@@ -79,7 +69,7 @@ initializeInDbt(const vector<Ice::Byte>& v, Dbt& dbt)
 }
 
 inline void 
-initializeOutDbt(vector<Ice::Byte>& v, Dbt& dbt)
+initializeOutDbt(vector<Byte>& v, Dbt& dbt)
 {
     v.resize(v.capacity());
     dbt.set_data(&v[0]);
@@ -105,7 +95,7 @@ inline bool startWith(Key key, Key root)
 //
 
 void
-marshalRoot(const Ice::Identity& v, Key& bytes, const CommunicatorPtr& communicator)
+marshalRoot(const Identity& v, Key& bytes, const CommunicatorPtr& communicator)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get());
@@ -157,28 +147,29 @@ unmarshal(ObjectRecord& v, const Value& bytes, const CommunicatorPtr& communicat
 }
 
 Freeze::EvictorPtr
-Freeze::createEvictor(const Ice::CommunicatorPtr& communicator, 
-		      const std::string& envName, 
-		      const std::string& dbName,
+Freeze::createEvictor(const CommunicatorPtr& communicator, 
+		      const string& envName, 
+		      const string& dbName,
 		      bool createDb)
 {
     return new EvictorI(communicator, envName, dbName, createDb);
 }
 
 Freeze::EvictorPtr
-Freeze::createEvictor(const Ice::CommunicatorPtr& communicator, 
+Freeze::createEvictor(const CommunicatorPtr& communicator, 
+		      const string& envName, 
 		      DbEnv& dbEnv, 
-		      const std::string& dbName,
+		      const string& dbName,
 		      bool createDb)
 {
-    return new EvictorI(communicator, dbEnv, dbName, createDb);
+    return new EvictorI(communicator, envName, dbEnv, dbName, createDb);
 }
 
 
 
-Freeze::EvictorI::EvictorI(const Ice::CommunicatorPtr communicator, 
-			   const std::string& envName, 
-			   const std::string& dbName, 
+Freeze::EvictorI::EvictorI(const CommunicatorPtr communicator, 
+			   const string& envName, 
+			   const string& dbName, 
 			   bool createDb) :
     _evictorSize(10),
     _deactivated(false),
@@ -193,9 +184,10 @@ Freeze::EvictorI::EvictorI(const Ice::CommunicatorPtr communicator,
     init(envName, dbName, createDb);
 }
 
-Freeze::EvictorI::EvictorI(const Ice::CommunicatorPtr communicator, 
+Freeze::EvictorI::EvictorI(const CommunicatorPtr communicator, 
+			   const string& envName, 
 			   DbEnv& dbEnv, 
-			   const std::string& dbName, 
+			   const string& dbName, 
 			   bool createDb) :
     _evictorSize(10),
     _deactivated(false),
@@ -205,7 +197,7 @@ Freeze::EvictorI::EvictorI(const Ice::CommunicatorPtr communicator,
     _noSyncAllowed(false),
     _generation(0)
 {
-    init("External", dbName, createDb);
+    init(envName, dbName, createDb);
 }
 
 void
@@ -241,7 +233,7 @@ Freeze::EvictorI::init(const string& envName, const string& dbName, bool createD
     }
     catch(const ::DbException& dx)
     {
-	DBException ex(__FILE__, __LINE__);
+	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
@@ -421,7 +413,7 @@ Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
    
     if(_trace >= 1)
     {
-	Trace out(_communicator->getLogger(), "Evictor");
+	Trace out(_communicator->getLogger(), "Freeze.Evictor");
 	out << "created \"" << ident << "\"";
     }
 }
@@ -519,7 +511,7 @@ Freeze::EvictorI::addFacet(const Identity& ident, const FacetPath& facetPath, co
 
     if(_trace >= 1)
     {
-	Trace out(_communicator->getLogger(), "Evictor");
+	Trace out(_communicator->getLogger(), "Freeze.Evictor");
 	out << "added facet to \"" << ident << "\"";
     }
 }
@@ -599,12 +591,12 @@ Freeze::EvictorI::destroyObject(const Identity& ident)
 
     if(_trace >= 1)
     {
-	Trace out(_communicator->getLogger(), "Evictor");
+	Trace out(_communicator->getLogger(), "Freeze.Evictor");
 	out << "destroyed \"" << ident << "\"";
     }
 }
 
-void
+ObjectPtr
 Freeze::EvictorI::removeFacet(const Identity& ident, const FacetPath& facetPath)
 {
     if(facetPath.size() == 0)
@@ -612,6 +604,7 @@ Freeze::EvictorI::removeFacet(const Identity& ident, const FacetPath& facetPath)
 	throw EmptyFacetPathException(__FILE__, __LINE__);
     }
 
+    ObjectPtr result = 0;
     EvictorElementPtr loadedElement = 0;
     int loadedElementGeneration = 0;
 
@@ -668,7 +661,7 @@ Freeze::EvictorI::removeFacet(const Identity& ident, const FacetPath& facetPath)
 		    //
 		    // Throws NotRegisteredException if the facet is not registered
 		    //
-		    facet->rec.servant->ice_removeFacet(facetPath[facetPath.size() - 1]);
+		    result = facet->rec.servant->ice_removeFacet(facetPath[facetPath.size() - 1]);
 		}
 		removeFacetImpl(element->facets, facetPath);
 
@@ -694,9 +687,10 @@ Freeze::EvictorI::removeFacet(const Identity& ident, const FacetPath& facetPath)
 
     if(_trace >= 1)
     {
-	Trace out(_communicator->getLogger(), "Evictor");
+	Trace out(_communicator->getLogger(), "Freeze.Evictor");
 	out << "removed facet from \"" << ident << "\"";
     }
+    return result;
 }
 
 
@@ -786,7 +780,7 @@ Freeze::EvictorI::removeAllFacets(const Identity& ident)
 
     if(_trace >= 1)
     {
-	Trace out(_communicator->getLogger(), "Evictor");
+	Trace out(_communicator->getLogger(), "Ereeze.Evictor");
 	out << "removed all facets from \"" << ident << "\"";
     }
 }
@@ -821,7 +815,7 @@ Freeze::EvictorI::getIterator()
 }
 
 bool
-Freeze::EvictorI::hasObject(const Ice::Identity& ident)
+Freeze::EvictorI::hasObject(const Identity& ident)
 {
     Lock sync(*this);
 
@@ -927,7 +921,7 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 
 	    if(_trace >= 2)
 	    {
-		Trace out(_communicator->getLogger(), "Evictor");
+		Trace out(_communicator->getLogger(), "Freeze.Evictor");
 		out << "found \"" << current.id << "\" in the queue";
 	    }
 	    
@@ -946,7 +940,7 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 		}
 		if(_trace >= 2)
 		{
-		    Trace out(_communicator->getLogger(), "Evictor");
+		    Trace out(_communicator->getLogger(), "Freeze.Evictor");
 		    out << "\"" << current.id << "\" does not have the desired facet";
 		}
 		Lock sync(*this);
@@ -967,7 +961,7 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 	    //
 	    if(_trace >= 2)
 	    {
-		Trace out(_communicator->getLogger(), "Evictor");
+		Trace out(_communicator->getLogger(), "Freeze.Evictor");
 		out << "\"" << current.id << "\" was dead or destroyed";
 	    }
 	    Lock sync(*this);
@@ -982,7 +976,7 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 		    
 	    if(_trace >= 2)
 	    {
-		Trace out(_communicator->getLogger(), "Evictor");
+		Trace out(_communicator->getLogger(), "Freeze.Evictor");
 		out << "could not find \"" << current.id << "\" in the queue\n"
 		    << "loading \"" << current.id << "\" from the database";
 	    }
@@ -1060,7 +1054,7 @@ Freeze::EvictorI::deactivate(const string&)
        	
 	if(_trace >= 1)
 	{
-	    Trace out(_communicator->getLogger(), "Evictor");
+	    Trace out(_communicator->getLogger(), "Freeze.Evictor");
 	    out << "deactivating, saving unsaved Ice objects to the database";
 	}
 	
@@ -1082,7 +1076,7 @@ Freeze::EvictorI::deactivate(const string&)
 	}
 	catch(const ::DbException& dx)
 	{
-	    DBException ex(__FILE__, __LINE__);
+	    DatabaseException ex(__FILE__, __LINE__);
 	    ex.message = dx.what();
 	    throw ex;
 	}
@@ -1162,69 +1156,120 @@ Freeze::EvictorI::run()
 	{
 	    FacetPtr& facet = allObjects[i]->second;
 	    
-	    IceUtil::Mutex::Lock lockFacet(facet->mutex);
-	    ObjectRecord& rec = facet->rec;
-	    
-	    bool streamIt = true;
-	    Ice::Byte status = facet->status;
-	    switch(status)
+	    bool tryAgain;
+	    do
 	    {
-		case created:
-		case modified:
+		tryAgain = false;
+		ObjectPtr servant = 0;
+
+		IceUtil::Mutex::Lock lockFacet(facet->mutex);
+		Byte status = facet->status;
+		
+		switch(status)
 		{
-		    facet->status = clean;
-		    break;
-		}   
-		case destroyed:
-		{
-		    facet->status = dead;
-		    break;
-		}   
-		default:
-		{
-		    //
-		    // Nothing to do (could be a duplicate)
-		    //
-		    streamIt = false;
-		    break;
+		    case created:
+		    case modified:
+		    {
+			servant = facet->rec.servant;
+			break;
+		    }   
+		    case destroyed:
+		    {
+			size_t index = streamedObjectQueue.size();
+			streamedObjectQueue.resize(index + 1);
+			StreamedObject& obj = streamedObjectQueue[index];
+			streamFacet(facet, allObjects[i]->first, status, saveStart, obj);
+			break;
+		    }   
+		    default:
+		    {
+			//
+			// Nothing to do (could be a duplicate)
+			//
+			break;
+		    }
 		}
-	    }
-	    
-	    if(streamIt)
-	    {
-		size_t index = streamedObjectQueue.size();
-		streamedObjectQueue.resize(index + 1);
-		StreamedObject& obj = streamedObjectQueue[index];
-		EvictorStorageKey esk;
-		esk.identity.name = facet->element->identity->name;
-		esk.identity.category = facet->element->identity->category;
-		esk.facet = allObjects[i]->first;
-		marshal(esk, obj.key, _communicator);
-		obj.status = status;
-		if(status != destroyed)
+		if(servant == 0)
 		{
-		    IceUtil::AbstractMutex* mutex = dynamic_cast<IceUtil::AbstractMutex*>(rec.servant.get());
+		    lockFacet.release();
+		}
+		else
+		{
+		    IceUtil::AbstractMutex* mutex = dynamic_cast<IceUtil::AbstractMutex*>(servant.get());
 		    if(mutex != 0)
 		    {
-			IceUtil::AbstractMutex::Lock lockServant(*mutex);
-			writeObjectRecordToValue(saveStart, rec, obj.value);
+			//
+			// Lock servant and then facet so that user can safely lock
+			// servant and call various Evictor operations
+			//
+
+			IceUtil::AbstractMutex::TryLock lockServant(*mutex);
+			if(!lockServant.acquired())
+			{
+			    lockFacet.release();
+			    lockServant.acquire();
+			    lockFacet.acquire();
+			    status = facet->status;
+			}
+			
+			switch(status)
+			{
+			    case created:
+			    case modified:
+			    {
+				if(servant == facet->rec.servant)
+				{
+				    facet->status = clean;
+				    size_t index = streamedObjectQueue.size();
+				    streamedObjectQueue.resize(index + 1);
+				    StreamedObject& obj = streamedObjectQueue[index];
+				    streamFacet(facet, allObjects[i]->first, status, saveStart, obj);
+				}
+				else
+				{
+				    tryAgain = true;
+				}
+				break;
+			    }
+			    case destroyed:
+			    {
+				lockServant.release();
+				facet->status = dead;
+				size_t index = streamedObjectQueue.size();
+				streamedObjectQueue.resize(index + 1);
+				StreamedObject& obj = streamedObjectQueue[index];
+				streamFacet(facet, allObjects[i]->first, status, saveStart, obj);
+				break;
+			    }   
+			    default:
+			    {
+				//
+				// Nothing to do (could be a duplicate)
+				//
+				break;
+			    }
+			}
 		    }
 		    else
 		    {
 			if(_noSyncAllowed)
 			{
-			    writeObjectRecordToValue(saveStart, rec, obj.value);
+			    facet->status = clean;
+			    size_t index = streamedObjectQueue.size();
+			    streamedObjectQueue.resize(index + 1);
+			    StreamedObject& obj = streamedObjectQueue[index];
+			    streamFacet(facet, allObjects[i]->first, status, saveStart, obj);
 			}
 			else
 			{
-			    DBException ex(__FILE__, __LINE__);
-			    ex.message = string(typeid(*rec.servant).name()) 
+			    DatabaseException ex(__FILE__, __LINE__);
+			    ex.message = string(typeid(*facet->rec.servant).name()) 
 				+ " does not implement IceUtil::AbstractMutex and Freeze.Evictor.NoSyncAllowed is 0";
 			    throw ex;
 			}
 		    }
 		}
-	    }    
+	    } while(tryAgain);
 	}
 	
 	//
@@ -1272,7 +1317,7 @@ Freeze::EvictorI::run()
 				    int err = _db->put(tx, &dbKey, &dbValue, flags);
 				    if(err != 0)
 				    {
-					throw DBException(__FILE__, __LINE__);
+					throw DatabaseException(__FILE__, __LINE__);
 				    }
 				    break;
 				}
@@ -1283,7 +1328,7 @@ Freeze::EvictorI::run()
 				    int err = _db->del(tx, &dbKey, 0);
 				    if(err != 0)
 				    {
-					throw DBException(__FILE__, __LINE__);
+					throw DatabaseException(__FILE__, __LINE__);
 				    }
 				    break;
 				}   
@@ -1302,10 +1347,10 @@ Freeze::EvictorI::run()
 		    tx->commit(0);
 		    streamedObjectQueue.erase(streamedObjectQueue.begin(), streamedObjectQueue.begin() + txSize);
 		    
-		    if(_trace >= 2)
+		    if(_trace >= 1)
 		    {
 			Long now = IceUtil::Time::now().toMilliSeconds();
-			Trace out(_communicator->getLogger(), "Evictor");
+			Trace out(_communicator->getLogger(), "Freeze.Evictor");
 			out << "saved " << txSize << " objects in " 
 			    << static_cast<Int>(now - saveStart) << " ms";
 			saveStart = now;
@@ -1318,7 +1363,7 @@ Freeze::EvictorI::run()
 		}
 		catch(const ::DbException& dx)
 		{
-		    DBException ex(__FILE__, __LINE__);
+		    DatabaseException ex(__FILE__, __LINE__);
 		    ex.message = dx.what();
 		    throw ex;
 		}
@@ -1384,7 +1429,7 @@ Freeze::EvictorI::evict()
 
 	if(_trace >= 2)
 	{
-	    Trace out(_communicator->getLogger(), "Evictor");
+	    Trace out(_communicator->getLogger(), "Freeze.Evictor");
 	    out << "evicting \"" << q->first << "\" from the queue\n"
 		<< "number of elements in the queue: " << _evictorMap.size();
 	}
@@ -1400,7 +1445,7 @@ Freeze::EvictorI::evict()
 }
 
 bool
-Freeze::EvictorI::dbHasObject(const Ice::Identity& ident)
+Freeze::EvictorI::dbHasObject(const Identity& ident)
 {
     EvictorStorageKey esk;
     esk.identity = ident;
@@ -1433,7 +1478,7 @@ Freeze::EvictorI::dbHasObject(const Ice::Identity& ident)
 	    else
 	    {
 		assert(0);
-		throw DBException(__FILE__, __LINE__);
+		throw DatabaseException(__FILE__, __LINE__);
 	    }
 	}
 	catch(const ::DbDeadlockException&)
@@ -1444,7 +1489,7 @@ Freeze::EvictorI::dbHasObject(const Ice::Identity& ident)
 	}
 	catch(const ::DbException& dx)
 	{
-	    DBException ex(__FILE__, __LINE__);
+	    DatabaseException ex(__FILE__, __LINE__);
 	    ex.message = dx.what();
 	    throw ex;
 	}
@@ -1461,6 +1506,22 @@ Freeze::EvictorI::addToModifiedQueue(const Freeze::EvictorI::FacetMap::iterator&
     if(_saveSizeTrigger >= 0 && static_cast<Int>(_modifiedQueue.size()) >= _saveSizeTrigger)
     {
 	notifyAll();
+    }
+}
+
+void
+Freeze::EvictorI::streamFacet(const FacetPtr& facet, const FacetPath& facetPath, Byte status, 
+			      Long saveStart, StreamedObject& obj)
+{
+    EvictorStorageKey esk;
+    esk.identity.name = facet->element->identity->name;
+    esk.identity.category = facet->element->identity->category;
+    esk.facet = facetPath;
+    marshal(esk, obj.key, _communicator);
+    obj.status = status;
+    if(status != destroyed)
+    {
+	writeObjectRecordToValue(saveStart, facet->rec, obj.value);
     }
 }
 
@@ -1591,7 +1652,7 @@ Freeze::EvictorI::load(const Identity& ident)
 			//
 			// Real problem
 			//
-			DBException ex(__FILE__, __LINE__);
+			DatabaseException ex(__FILE__, __LINE__);
 			ex.message = dx.what();
 			throw ex;
 		    }
@@ -1608,7 +1669,7 @@ Freeze::EvictorI::load(const Identity& ident)
 	
 		if(_trace >= 3)
 		{
-		    Trace out(_communicator->getLogger(), "Evictor");
+		    Trace out(_communicator->getLogger(), "Freeze.Evictor");
 		    out << "reading facet identity = \"" << esk.identity << "\" ";
 		    if(esk.facet.size() == 0)
 		    {
@@ -1633,7 +1694,7 @@ Freeze::EvictorI::load(const Identity& ident)
 		}
        
 		//
-		// The Ice encoding of Ice::Identity is such that startWith(key, root)
+		// The Ice encoding of Identity is such that startWith(key, root)
 		// implies esk.identity == ident
 		//
 		assert(esk.identity == ident);
@@ -1691,7 +1752,7 @@ Freeze::EvictorI::load(const Identity& ident)
 			    //
 			    // Real problem
 			    //
-			    DBException ex(__FILE__, __LINE__);
+			    DatabaseException ex(__FILE__, __LINE__);
 			    ex.message = dx.what();
 			    throw ex;
 			}
@@ -1731,7 +1792,7 @@ Freeze::EvictorI::load(const Identity& ident)
 		{
 		}
 	    }
-	    DBException ex(__FILE__, __LINE__);
+	    DatabaseException ex(__FILE__, __LINE__);
 	    ex.message = dx.what();
 	    throw ex;
 	}
@@ -1752,7 +1813,7 @@ Freeze::EvictorI::load(const Identity& ident)
     {
 	if(_trace >= 2)
 	{
-	    Trace out(_communicator->getLogger(), "Evictor");
+	    Trace out(_communicator->getLogger(), "Freeze.Evictor");
 	    out << "could not find \"" << ident << "\" in the database";
 	}
 	return 0;
@@ -1913,7 +1974,7 @@ void
 Freeze::EvictorI::removeFacetImpl(FacetMap& facets, const FacetPath& facetPath)
 {
     FacetMap::iterator q = facets.find(facetPath);
-    Ice::ObjectPtr servant = 0; 
+    ObjectPtr servant = 0; 
 
     if(q != facets.end())
     {
@@ -1939,7 +2000,7 @@ Freeze::EvictorI::removeFacetImpl(FacetMap& facets, const FacetPath& facetPath)
 }
 
 
-Ice::ObjectPtr
+ObjectPtr
 Freeze::EvictorI::destroyFacetImpl(Freeze::EvictorI::FacetMap::iterator& q, const Freeze::EvictorI::FacetPtr& facet)
 {
     IceUtil::Mutex::Lock lockFacet(facet->mutex);
@@ -2012,7 +2073,7 @@ Freeze::EvictorIteratorI::EvictorIteratorI(Db& db, const CommunicatorPtr& commun
     }
     catch(const ::DbException& dx)
     {
-	DBException ex(__FILE__, __LINE__);
+	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
     }
@@ -2087,20 +2148,20 @@ Freeze::EvictorIteratorI::hasNext()
 		    //
 		    // Real problem
 		    //
-		    DBException ex(__FILE__, __LINE__);
+		    DatabaseException ex(__FILE__, __LINE__);
 		    ex.message = dx.what();
 		    throw ex;
 		}
 	    }
 	    catch(const ::DbDeadlockException& dx)
 	    {
-		DBDeadlockException ex(__FILE__, __LINE__);
+		DeadlockException ex(__FILE__, __LINE__);
 		ex.message = dx.what();
 		throw ex;
 	    }
 	    catch(const ::DbException& dx)
 	    {
-		DBException ex(__FILE__, __LINE__);
+		DatabaseException ex(__FILE__, __LINE__);
 		ex.message = dx.what();
 		throw ex;
 	    }
@@ -2108,7 +2169,7 @@ Freeze::EvictorIteratorI::hasNext()
     }
 }
 
-Ice::Identity
+Identity
 Freeze::EvictorIteratorI::next()
 {
     if(hasNext())
@@ -2141,7 +2202,7 @@ Freeze::EvictorIteratorI::destroy()
 	}
 	catch(const ::DbException& dx)
 	{
-	    DBException ex(__FILE__, __LINE__);
+	    DatabaseException ex(__FILE__, __LINE__);
 	    ex.message = dx.what();
 	    throw ex;
 	}

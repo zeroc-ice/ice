@@ -27,13 +27,14 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     }
 
     public
-    EvictorI(Ice.Communicator communicator, com.sleepycat.db.DbEnv dbEnv, String dbName, boolean createDb)
+    EvictorI(Ice.Communicator communicator, String envName, com.sleepycat.db.DbEnv dbEnv, 
+	     String dbName, boolean createDb)
     {
 	_communicator = communicator;
 	_dbEnvHolder = null;
 	_dbEnv = dbEnv;
 
-	init("External", dbName, createDb);
+	init(envName, dbName, createDb);
     }
    
     protected void
@@ -195,7 +196,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 
 	if(_trace >= 1)
 	{
-	    _communicator.getLogger().trace("Freeze::Evictor",
+	    _communicator.getLogger().trace("Freeze.Evictor",
 					    "created \"" + Ice.Util.identityToString(ident) + "\"");
 	}
     }
@@ -294,7 +295,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    
 	if(_trace >= 1)
 	{
-	    _communicator.getLogger().trace("Freeze::Evictor",
+	    _communicator.getLogger().trace("Freeze.Evictor",
 					    "added facet to \"" + Ice.Util.identityToString(ident) + "\"");
 	}
     }
@@ -381,12 +382,12 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 
 	if(_trace >= 1)
 	{
-	    _communicator.getLogger().trace("Freeze::Evictor",
+	    _communicator.getLogger().trace("Freeze.Evictor",
 					    "destroyed \"" + Ice.Util.identityToString(ident) + "\"");
 	}
     }
 
-    public void
+    public Ice.Object
     removeFacet(Ice.Identity ident, String facetPath[])
     {
 	if(facetPath.length == 0)
@@ -394,6 +395,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    throw new EmptyFacetPathException();
 	}
 	
+	Ice.Object result = null;
 	EvictorElement loadedElement = null;
 	int loadedElementGeneration = 0;
 
@@ -452,7 +454,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			//
 			// Throws NotRegisteredException if the facet is not registered
 			//
-			facet.rec.servant.ice_removeFacet(facetPath[facetPath.length - 1]);
+			result = facet.rec.servant.ice_removeFacet(facetPath[facetPath.length - 1]);
 		    }
 		    removeFacetImpl(element.facets, facetPath);
 		    evict();
@@ -476,9 +478,10 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    
 	if(_trace >= 1)
 	{
-	    _communicator.getLogger().trace("Freeze::Evictor",
+	    _communicator.getLogger().trace("Freeze.Evictor",
 					    "removed facet from \"" + Ice.Util.identityToString(ident) + "\"");
 	}
+	return result;
     }
 
     public void
@@ -568,7 +571,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    
 	if(_trace >= 1)
 	{
-	    _communicator.getLogger().trace("Freeze::Evictor",
+	    _communicator.getLogger().trace("Freeze.Evictor",
 					    "removed all facets from \"" + Ice.Util.identityToString(ident) + "\"");
 	}
     }
@@ -713,7 +716,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    {
 		if(_trace >= 2)
 		{
-		    _communicator.getLogger().trace("Freeze::Evictor",
+		    _communicator.getLogger().trace("Freeze.Evictor",
 						    "found \"" + Ice.Util.identityToString(ident) +
 						    "\" in the queue");
 		}
@@ -731,7 +734,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    }
 		    if(_trace >= 2)
 		    {
-			_communicator.getLogger().trace("Freeze::Evictor",
+			_communicator.getLogger().trace("Freeze.Evictor",
 							" \"" + Ice.Util.identityToString(ident) +
 							"\" does not have the desired facet");
 		    }
@@ -757,7 +760,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		//
 		if(_trace >= 2)
 		{
-		    _communicator.getLogger().trace("Freeze::Evictor",
+		    _communicator.getLogger().trace("Freeze.Evictor",
 						    "\"" + Ice.Util.identityToString(ident) +
 						    "\" was dead or destroyed");
 		}
@@ -776,7 +779,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		if(_trace >= 2)
 		{
 		    _communicator.getLogger().trace(
-			"Freeze::Evictor",
+			"Freeze.Evictor",
 			"couldn't find \"" + Ice.Util.identityToString(ident) + "\" in the queue\n"
 			+ "loading \"" + Ice.Util.identityToString(ident) + "\" from the database");
 		}
@@ -866,7 +869,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		if(_trace >= 1)
 		{
 		    _communicator.getLogger().trace(
-			"Freeze::Evictor",
+			"Freeze.Evictor",
 			"deactivating, saving unsaved Ice objects to the database");
 		}
 		
@@ -905,7 +908,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    }
 	    catch(com.sleepycat.db.DbException dx)
 	    {
-		DBException ex = new DBException();
+		DatabaseException ex = new DatabaseException();
 		ex.initCause(dx);
 		ex.message = _errorPrefix + "Db.close: " + dx.getMessage();
 		throw ex;
@@ -1000,7 +1003,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		Facet facet = (Facet) allObjects.get(i);
 
 		boolean tryAgain;
-	
+
 		do
 		{
 		    tryAgain = false;
@@ -1125,7 +1128,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 					int err = _db.put(tx, dbKey, dbValue, flags);
 					if(err != 0)
 					{
-					    throw new DBException();
+					    throw new DatabaseException();
 					}
 					break;
 				    }
@@ -1136,7 +1139,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 					int err = _db.del(tx, dbKey, 0);
 					if(err != 0)
 					{
-					    throw new DBException();
+					    throw new DatabaseException();
 					}
 					break;
 				    }
@@ -1164,11 +1167,11 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			    streamedObjectQueue.remove(0);
 			}
 			
-			if(_trace >= 2)
+			if(_trace >= 1)
 			{
 			    long now = System.currentTimeMillis();
 			    _communicator.getLogger().trace(
-				"Freeze::Evictor",
+				"Freeze.Evictor",
 				"saved " + txSize + " objects in " + (now - saveStart) + " ms");
 			    saveStart = now;
 			}
@@ -1180,7 +1183,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    }
 		    catch(com.sleepycat.db.DbException dx)
 		    {
-			DBException ex = new DBException();
+			DatabaseException ex = new DatabaseException();
 			ex.initCause(dx);
 			ex.message = _errorPrefix + "saving: " + dx.getMessage();
 			throw ex;
@@ -1350,14 +1353,14 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	}
 	catch(java.io.FileNotFoundException dx)
 	{
-	    DBNotFoundException ex = new DBNotFoundException();
+	    NotFoundException ex = new NotFoundException();
 	    ex.initCause(dx);
 	    ex.message = _errorPrefix + "Db.open: " + dx.getMessage();
 	    throw ex;
 	}
 	catch(com.sleepycat.db.DbException dx)
 	{
-	    DBException ex = new DBException();
+	    DatabaseException ex = new DatabaseException();
 	    ex.initCause(dx);
 	    ex.message = _errorPrefix + "Db.open: " + dx.getMessage();
 	    throw ex;
@@ -1400,7 +1403,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		if(_trace >= 2)
 		{
 		    _communicator.getLogger().trace(
-			"Freeze::Evictor", 
+			"Freeze.Evictor", 
 			"evicted \"" + Ice.Util.identityToString(ident) +
 			"\" from the queue\n" + "number of elements in the queue: " +
 			_evictorMap.size());
@@ -1443,7 +1446,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		else
 		{
 		    assert(false);
-		    throw new DBException();
+		    throw new DatabaseException();
 		}
 	    }
 	    catch(com.sleepycat.db.DbDeadlockException deadlock)
@@ -1454,7 +1457,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    }
 	    catch(com.sleepycat.db.DbException dx)
 	    {
-		DBException ex = new DBException();
+		DatabaseException ex = new DatabaseException();
 		ex.initCause(dx);
 		ex.message = _errorPrefix + "Db.get: " + dx.getMessage();
 		throw ex;
@@ -1600,7 +1603,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    }
 	    catch(com.sleepycat.db.DbException dx)
 	    {
-		DBException ex = new DBException();
+		DatabaseException ex = new DatabaseException();
 		ex.initCause(dx);
 		ex.message = _errorPrefix + "Db.get: " + dx.getMessage();
 		throw ex;
@@ -1626,7 +1629,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    if(_trace >= 2)
 	    {
 		_communicator.getLogger().trace(
-		    "Freeze::Evictor", 
+		    "Freeze.Evictor", 
 		    "could not find \"" + Ice.Util.identityToString(ident) +
 		    "\" in the database");
 	    }

@@ -54,7 +54,7 @@ TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice
 	    installTopic("recreate", p->first, false);
 	    ++p;
 	}
-	catch(const Freeze::DBNotFoundException& ex)
+	catch(const Freeze::NotFoundException& ex)
 	{
 	    if(_traceLevels->topicMgr > 0)
 	    {

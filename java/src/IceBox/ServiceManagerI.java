@@ -305,7 +305,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 	    }
             _services.put(service, info);
         }
-	catch(Freeze.DBException ex)
+	catch(Freeze.DatabaseException ex)
 	{
             FailureException e = new FailureException();
             e.reason = "ServiceManager: database exception while starting service " + service + ": " + ex;

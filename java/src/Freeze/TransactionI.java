@@ -26,14 +26,14 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
 	}
 	catch(com.sleepycat.db.DbDeadlockException e)
 	{
-	    DBDeadlockException ex = new DBDeadlockException();
+	    DeadlockException ex = new DeadlockException();
 	    ex.initCause(e);
 	    ex.message = _errorPrefix + "DbTxn.commit: " + e.getMessage();
 	    throw ex;
 	}
 	catch(com.sleepycat.db.DbException e)
 	{
-	    DBException ex = new DBException();
+	    DatabaseException ex = new DatabaseException();
 	    ex.initCause(e);
 	    ex.message = _errorPrefix + "DbTxn.commit: " + e.getMessage();
 	    throw ex;
@@ -56,14 +56,14 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
 	}
 	catch(com.sleepycat.db.DbDeadlockException e)
 	{
-	    DBDeadlockException ex = new DBDeadlockException();
+	    DeadlockException ex = new DeadlockException();
 	    ex.initCause(e);
 	    ex.message = _errorPrefix + "DbTxn.abort: " + e.getMessage();
 	    throw ex;
 	}
 	catch(com.sleepycat.db.DbException e)
 	{
-	    DBException ex = new DBException();
+	    DatabaseException ex = new DatabaseException();
 	    ex.initCause(e);
 	    ex.message = _errorPrefix + "DbTxn.abort: " + e.getMessage();
 	    throw ex;
@@ -87,7 +87,7 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
 	}
 	catch(com.sleepycat.db.DbException e)
 	{
-	    DBException ex = new DBException();
+	    DatabaseException ex = new DatabaseException();
 	    ex.initCause(e);
 	    ex.message = _errorPrefix + "txn_begin: " + e.getMessage();
 	    throw ex;

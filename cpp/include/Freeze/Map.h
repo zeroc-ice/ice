@@ -18,7 +18,7 @@
 #include <Ice/Ice.h>
 #include <iterator>
 #include <Freeze/DB.h>
-#include <Freeze/DBException.h>
+#include <Freeze/Exception.h>
 #include <Freeze/Connection.h>
 
 //
@@ -29,20 +29,20 @@ class DbEnv;
 namespace Freeze
 {
 
-class DBIteratorHelper;
+class IteratorHelper;
 
-class FREEZE_API DBMapHelper
+class FREEZE_API MapHelper
 {
 public:
     
-    static DBMapHelper*
+    static MapHelper*
     create(const Freeze::ConnectionPtr& connection, 
 	   const std::string& dbName, 
 	   bool createDb);
 
-    virtual ~DBMapHelper() = 0;
+    virtual ~MapHelper() = 0;
 
-    virtual DBIteratorHelper*
+    virtual IteratorHelper*
     find(const Key&, bool) const = 0;
 
     virtual void
@@ -69,17 +69,17 @@ public:
 };
 
 
-class FREEZE_API DBIteratorHelper
+class FREEZE_API IteratorHelper
 {  
 public:
 
-    static DBIteratorHelper* 
-    create(const DBMapHelper& m, bool readOnly);
+    static IteratorHelper* 
+    create(const MapHelper& m, bool readOnly);
 
     virtual 
-    ~DBIteratorHelper() = 0;
+    ~IteratorHelper() = 0;
 
-    virtual DBIteratorHelper*
+    virtual IteratorHelper*
     clone() const = 0;
     
     virtual void
@@ -95,7 +95,7 @@ public:
     next() const = 0;
 
     virtual bool
-    equals(const DBIteratorHelper&) const = 0;
+    equals(const IteratorHelper&) const = 0;
 }; 
 
 
@@ -104,14 +104,14 @@ public:
 // Forward declaration
 //
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-class DBMap;
+class Map;
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-class ConstDBIterator;
+class ConstIterator;
 
 //
 // This is necessary for MSVC support.
 //
-struct DBIteratorBase
+struct IteratorBase
 {
     typedef std::forward_iterator_tag iterator_category;
 };
@@ -128,7 +128,7 @@ struct DBIteratorBase
 // necessary.
 //
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-class DBIterator : public DBIteratorBase
+class Iterator : public IteratorBase
 {
 public:
 
@@ -140,26 +140,26 @@ public:
 
     typedef value_type& reference;
 
-    DBIterator(DBMapHelper& mapHelper, const Ice::CommunicatorPtr& communicator) :
-	_helper(DBIteratorHelper::create(mapHelper, false)),
+    Iterator(MapHelper& mapHelper, const Ice::CommunicatorPtr& communicator) :
+	_helper(IteratorHelper::create(mapHelper, false)),
 	_communicator(communicator),
 	_refValid(false)
     {
     }
 
-    DBIterator(DBIteratorHelper* helper, const Ice::CommunicatorPtr& communicator) :
+    Iterator(IteratorHelper* helper, const Ice::CommunicatorPtr& communicator) :
 	_helper(helper),
 	_communicator(communicator),
 	_refValid(false)
     {
     }
 
-    DBIterator() :
+    Iterator() :
         _refValid(false)
     {
     }
 
-    DBIterator(const DBIterator& rhs) :
+    Iterator(const Iterator& rhs) :
 	_communicator(rhs._communicator),
         _refValid(false)
     {
@@ -169,7 +169,7 @@ public:
 	}
     }
 
-    DBIterator& operator=(const DBIterator& rhs)
+    Iterator& operator=(const Iterator& rhs)
     {
 	if(this != &rhs)
 	{
@@ -188,11 +188,11 @@ public:
 	return *this;
     }
 
-    ~DBIterator()
+    ~Iterator()
     {
     }
 
-    bool operator==(const DBIterator& rhs) const
+    bool operator==(const Iterator& rhs) const
     {
 	if(_helper.get() != 0 && rhs._helper.get() != 0)
 	{
@@ -204,20 +204,20 @@ public:
 	}
     }
 
-    bool operator!=(const DBIterator& rhs) const
+    bool operator!=(const Iterator& rhs) const
     {
 	return !(*this == rhs);
     }
 
-    DBIterator& operator++()
+    Iterator& operator++()
     {
 	incr();
 	return *this;
     }
 
-    DBIterator operator++(int)
+    Iterator operator++(int)
     {
-	DBIterator tmp = *this;
+	Iterator tmp = *this;
 	incr();
 	return tmp;
     }
@@ -295,10 +295,10 @@ private:
 	ValueCodec::read(value, *v, _communicator);
     }
 
-    friend class ConstDBIterator<key_type, mapped_type, KeyCodec, ValueCodec>;
-    friend class DBMap<key_type, mapped_type, KeyCodec, ValueCodec>;
+    friend class ConstIterator<key_type, mapped_type, KeyCodec, ValueCodec>;
+    friend class Map<key_type, mapped_type, KeyCodec, ValueCodec>;
 
-    std::auto_ptr<DBIteratorHelper> _helper;
+    std::auto_ptr<IteratorHelper> _helper;
     Ice::CommunicatorPtr _communicator;
     //
     // Cached last return value. This is so that operator->() can
@@ -316,10 +316,10 @@ private:
 };
 
 //
-// See DBIterator comments for design notes
+// See Iterator comments for design notes
 //
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-class ConstDBIterator : public DBIteratorBase
+class ConstIterator : public IteratorBase
 {
 public:
 
@@ -331,26 +331,26 @@ public:
 
     typedef value_type& reference;
 
-    ConstDBIterator(DBMapHelper& mapHelper, const Ice::CommunicatorPtr& communicator) :
-	_helper(DBIteratorHelper::create(mapHelper, true)), 
+    ConstIterator(MapHelper& mapHelper, const Ice::CommunicatorPtr& communicator) :
+	_helper(IteratorHelper::create(mapHelper, true)), 
 	_communicator(_communicator),
 	_refValid(false)
     {
     }
 
-    ConstDBIterator(DBIteratorHelper* helper, const Ice::CommunicatorPtr& communicator) :
+    ConstIterator(IteratorHelper* helper, const Ice::CommunicatorPtr& communicator) :
 	_helper(helper),
 	_communicator(communicator),
 	_refValid(false)
     {
     }
 
-    ConstDBIterator() :
+    ConstIterator() :
         _refValid(false)
     {
     }
 
-    ConstDBIterator(const ConstDBIterator& rhs) :
+    ConstIterator(const ConstIterator& rhs) :
 	_communicator(rhs._communicator),
         _refValid(false)
     {
@@ -361,10 +361,10 @@ public:
     }
 
     //
-    // A DBIterator can be converted to a ConstDBIterator (but not
+    // A Iterator can be converted to a ConstIterator (but not
     // vice versa) - same for operator=.
     //
-    ConstDBIterator(const DBIterator<key_type, mapped_type, KeyCodec, ValueCodec>& rhs) :
+    ConstIterator(const Iterator<key_type, mapped_type, KeyCodec, ValueCodec>& rhs) :
         _refValid(false)
     {
 	if(rhs._helper.get() != 0)
@@ -374,7 +374,7 @@ public:
 	_communicator = rhs._communicator;
     }
 
-    ConstDBIterator& operator=(const ConstDBIterator& rhs)
+    ConstIterator& operator=(const ConstIterator& rhs)
     {
 	if(this != &rhs)
 	{
@@ -396,7 +396,7 @@ public:
     //
     // Create const_iterator from iterator.
     //
-    ConstDBIterator& operator=(const DBIterator<key_type, mapped_type, KeyCodec, ValueCodec>& rhs)
+    ConstIterator& operator=(const Iterator<key_type, mapped_type, KeyCodec, ValueCodec>& rhs)
     {
 	if(rhs._helper.get() != 0)
 	{
@@ -412,11 +412,11 @@ public:
 	return *this;
     }
 
-    ~ConstDBIterator()
+    ~ConstIterator()
     {
     }
 
-    bool operator==(const ConstDBIterator& rhs)
+    bool operator==(const ConstIterator& rhs)
     {
 	if(_helper.get() != 0 && rhs._helper.get() != 0)
 	{
@@ -428,20 +428,20 @@ public:
 	}
     }
 
-    bool operator!=(const ConstDBIterator& rhs)
+    bool operator!=(const ConstIterator& rhs)
     {
 	return !(*this == rhs);
     }
 
-    ConstDBIterator& operator++()
+    ConstIterator& operator++()
     {
 	incr();
 	return *this;
     }
 
-    ConstDBIterator operator++(int)
+    ConstIterator operator++(int)
     {
-	ConstDBIterator tmp = *this;
+	ConstIterator tmp = *this;
 	incr();
 	return tmp;
     }
@@ -506,9 +506,9 @@ private:
 	ValueCodec::read(value, *v, _communicator);
     }
 
-    friend class DBMap<key_type, mapped_type, KeyCodec, ValueCodec>;
+    friend class Map<key_type, mapped_type, KeyCodec, ValueCodec>;
 
-    std::auto_ptr<DBIteratorHelper> _helper;
+    std::auto_ptr<IteratorHelper> _helper;
     Ice::CommunicatorPtr _communicator;
 
     //
@@ -537,7 +537,7 @@ private:
 // bidirectional iterators.
 //
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-class DBMap
+class Map
 {
 public:
 
@@ -549,8 +549,8 @@ public:
     // hasher, key_equal, key_compare, value_compare
     //
 
-    typedef DBIterator<key_type, mapped_type, KeyCodec, ValueCodec > iterator;
-    typedef ConstDBIterator<key_type, mapped_type, KeyCodec, ValueCodec > const_iterator;
+    typedef Iterator<key_type, mapped_type, KeyCodec, ValueCodec > iterator;
+    typedef ConstIterator<key_type, mapped_type, KeyCodec, ValueCodec > const_iterator;
 
     //
     // No definition for reference, const_reference, pointer or
@@ -569,20 +569,20 @@ public:
     //
     // Constructors
     //
-    DBMap(const Freeze::ConnectionPtr& connection, 
+    Map(const Freeze::ConnectionPtr& connection, 
 	  const std::string& dbName, 
 	  bool createDb = true) :
-	_helper(DBMapHelper::create(connection, dbName, createDb)),
+	_helper(MapHelper::create(connection, dbName, createDb)),
 	_communicator(connection->getCommunicator())
     {
     }
 
-    template <class _InputDBIterator>
-    DBMap(const Freeze::ConnectionPtr& connection, 
+    template <class _InputIterator>
+    Map(const Freeze::ConnectionPtr& connection, 
 	  const std::string& dbName, 
 	  bool createDb,
-	  _InputDBIterator first, _InputDBIterator last) :
-	_helper(new DBMapHelper(connection, dbName, createDb)),
+	  _InputIterator first, _InputIterator last) :
+	_helper(new MapHelper(connection, dbName, createDb)),
 	_communicator(connection->getCommunicator())
     {
 	while(first != last)
@@ -592,7 +592,7 @@ public:
 	}
     }
 
-    ~DBMap()
+    ~Map()
     {
     }
 
@@ -603,7 +603,7 @@ public:
     // hasher hash_funct() const, key_equal key_eq() const
     //
 
-    bool operator==(const DBMap& rhs) const
+    bool operator==(const Map& rhs) const
     {
 	//
 	// This does a memberwise equality for the entire contents of
@@ -631,14 +631,14 @@ public:
 	return true;
     }
 
-    bool operator!=(const DBMap& rhs) const
+    bool operator!=(const Map& rhs) const
     {
 	return !(*this == rhs);
     }
     
-    void swap(DBMap& rhs)
+    void swap(Map& rhs)
     {
-	DBMapHelper* tmp = _helper.release();
+	MapHelper* tmp = _helper.release();
 	_helper.reset(rhs._helper.release());
 	rhs._helper.reset(tmp);
 	
@@ -651,9 +651,9 @@ public:
     {
 	try
 	{
-	    return iterator(DBIteratorHelper::create(*_helper.get(), false), _communicator);
+	    return iterator(IteratorHelper::create(*_helper.get(), false), _communicator);
 	}
-	catch(const DBNotFoundException&)
+	catch(const NotFoundException&)
 	{
 	    return iterator();
 	}
@@ -662,9 +662,9 @@ public:
     {
 	try
 	{
-	    return const_iterator(DBIteratorHelper::create(*_helper.get(), true), _communicator);
+	    return const_iterator(IteratorHelper::create(*_helper.get(), true), _communicator);
 	}
-	catch(const DBNotFoundException&)
+	catch(const NotFoundException&)
 	{
 	    return const_iterator();
 	}
@@ -758,8 +758,8 @@ public:
 	return std::pair<iterator, bool>(r, inserted);
     }
 
-    template <typename InputDBIterator>
-    void insert(InputDBIterator first, InputDBIterator last)
+    template <typename InputIterator>
+    void insert(InputIterator first, InputIterator last)
     {
 	while(first != last)
 	{
@@ -781,8 +781,8 @@ public:
 	_helper->put(k, v);
     }
 
-    template <typename InputDBIterator>
-    void put(InputDBIterator first, InputDBIterator last)
+    template <typename InputIterator>
+    void put(InputIterator first, InputIterator last)
     {
 	while(first != last)
 	{
@@ -874,7 +874,7 @@ public:
 
 private:
 
-    std::auto_ptr<DBMapHelper> _helper;
+    std::auto_ptr<MapHelper> _helper;
     const Ice::CommunicatorPtr _communicator;
 };
 
@@ -890,24 +890,24 @@ namespace std
 // TODO: update.
 template <class key_type, class mapped_type, class KeyCodec, class ValueCodec>
 inline pair<const key_type, const mapped_type>*
-value_type(const Freeze::DBIterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
+value_type(const Freeze::Iterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
 {
     return (pair<const key_type, const mapped_type>*)0;
 }
 
 template <class key_type, class mapped_type, class KeyCodec, class ValueCodec>
 inline pair<const key_type, const mapped_type>*
-value_type(const Freeze::ConstDBIterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
+value_type(const Freeze::ConstIterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
 {
     return (pair<const key_type, const mapped_type>*)0;
 }
 
-inline forward_iterator_tag iterator_category(const Freeze::DBIteratorBase&)
+inline forward_iterator_tag iterator_category(const Freeze::IteratorBase&)
 {
     return forward_iterator_tag();
 }
 
-inline ptrdiff_t* distance_type(const Freeze::DBIteratorBase&) { return (ptrdiff_t*) 0; }
+inline ptrdiff_t* distance_type(const Freeze::IteratorBase&) { return (ptrdiff_t*) 0; }
 
 }
 

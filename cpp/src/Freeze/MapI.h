@@ -21,19 +21,19 @@
 namespace Freeze
 {
 
-class DBMapHelperI;
+class MapHelperI;
 
 
-class DBIteratorHelperI : public DBIteratorHelper
+class IteratorHelperI : public IteratorHelper
 {  
 public:
 
-    DBIteratorHelperI(const DBMapHelperI& m, bool readOnly);
+    IteratorHelperI(const MapHelperI& m, bool readOnly);
     
-    DBIteratorHelperI(const DBIteratorHelperI&);
+    IteratorHelperI(const IteratorHelperI&);
 
     virtual 
-    ~DBIteratorHelperI();
+    ~IteratorHelperI();
 
     bool
     findFirst() const;
@@ -41,7 +41,7 @@ public:
     bool 
     find(const Key& k) const;
 
-    virtual DBIteratorHelper*
+    virtual IteratorHelper*
     clone() const;
     
     const Key*
@@ -60,7 +60,7 @@ public:
     next() const;
 
     virtual bool
-    equals(const DBIteratorHelper&) const;
+    equals(const IteratorHelper&) const;
 
     void
     close();
@@ -69,7 +69,7 @@ public:
     {
     public:
 
-	Tx(const DBMapHelperI&);
+	Tx(const MapHelperI&);
 	~Tx();
 
 	void dead();
@@ -80,7 +80,7 @@ public:
 	}
 
     private:
-	const DBMapHelperI& _map;
+	const MapHelperI& _map;
 	DbTxn* _txn;
 	bool _dead;
     };
@@ -96,7 +96,7 @@ private:
     cleanup();
 
 
-    const DBMapHelperI& _map;
+    const MapHelperI& _map;
     Dbc* _dbc;
     TxPtr _tx;
 
@@ -105,16 +105,16 @@ private:
 }; 
 
 
-class DBMapHelperI : public DBMapHelper
+class MapHelperI : public MapHelper
 {
 public:
    
-    DBMapHelperI(const ConnectionIPtr& connection, const std::string& dbName, 
+    MapHelperI(const ConnectionIPtr& connection, const std::string& dbName, 
 		 bool createDb);
 
-    virtual ~DBMapHelperI();
+    virtual ~MapHelperI();
 
-    virtual DBIteratorHelper*
+    virtual IteratorHelper*
     find(const Key&, bool) const;
 
     virtual void
@@ -144,21 +144,21 @@ public:
 private:
 
     virtual void
-    closeAllIteratorsExcept(const DBIteratorHelperI::TxPtr&) const;
+    closeAllIteratorsExcept(const IteratorHelperI::TxPtr&) const;
 
 
-    friend class DBIteratorHelperI;
-    friend class DBIteratorHelperI::Tx;
+    friend class IteratorHelperI;
+    friend class IteratorHelperI::Tx;
 
     const ConnectionIPtr _connection;
-    mutable std::list<DBIteratorHelperI*> _iteratorList;
+    mutable std::list<IteratorHelperI*> _iteratorList;
     SharedDbPtr _db;
     const std::string _dbName;
-    int _trace;    
+    Ice::Int _trace;    
 };
 
-inline const DBIteratorHelperI::TxPtr&
-DBIteratorHelperI::tx() const
+inline const IteratorHelperI::TxPtr&
+IteratorHelperI::tx() const
 {
     return _tx;
 }

@@ -32,7 +32,7 @@ class SharedDb extends com.sleepycat.db.Db
 		}
 		catch(com.sleepycat.db.DbException dx)
 		{
-		    DBException ex = new DBException();
+		    DatabaseException ex = new DatabaseException();
 		    ex.initCause(dx);
 		    ex.message = errorPrefix(key) + "creation: " + dx.getMessage();
 		    throw ex;
@@ -70,7 +70,7 @@ class SharedDb extends com.sleepycat.db.Db
 
 		if(_trace >= 1)
 		{
-		    _key.communicator.getLogger().trace("DB", "closing DB \"" + _key.dbName + "\"");
+		    _key.communicator.getLogger().trace("Freeze.Map", "closing Db \"" + _key.dbName + "\"");
 		}
 
 		//
@@ -83,7 +83,7 @@ class SharedDb extends com.sleepycat.db.Db
 		}
 		catch(com.sleepycat.db.DbException dx)
 		{
-		    DBException ex = new DBException();
+		    DatabaseException ex = new DatabaseException();
 		    ex.initCause(dx);
 		    ex.message = errorPrefix(_key) + "close: " + dx.getMessage();
 		    throw ex;
@@ -121,14 +121,14 @@ class SharedDb extends com.sleepycat.db.Db
 	}
 	catch(java.io.FileNotFoundException dx)
 	{
-	    DBNotFoundException ex = new DBNotFoundException();
+	    NotFoundException ex = new NotFoundException();
 	    ex.initCause(dx);
 	    ex.message = errorPrefix(_key) + "Db.open: " + dx.getMessage();
 	    throw ex;
 	}
 	catch(com.sleepycat.db.DbException dx)
 	{
-	    DBException ex = new DBException();
+	    DatabaseException ex = new DatabaseException();
 	    ex.initCause(dx);
 	    ex.message = errorPrefix(_key) + "Db.open: " + dx.getMessage();
 	    throw ex;
@@ -165,7 +165,7 @@ class SharedDb extends com.sleepycat.db.Db
 	    }
 	    catch(ClassCastException ex)
 	    {
-		communicator.getLogger().trace("DB", "equals cast failed");
+		communicator.getLogger().trace("Freeze.Map", "equals cast failed");
 		return false;
 	    }
 	}

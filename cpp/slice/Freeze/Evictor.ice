@@ -19,7 +19,7 @@
 #include <Ice/ServantLocator.ice>
 #include <Ice/Identity.ice>
 #include <Ice/Facet.ice>
-#include <Freeze/DBException.ice>
+#include <Freeze/Exception.ice>
 
 module Freeze
 {
@@ -96,12 +96,12 @@ local interface EvictorIterator
      *
      * @throws IteratorDestroyedException Raised if the iterator was destroyed.
      *
-     * @throws DBDeadlockException Raised if a deadlock occured, due to
+     * @throws DeadlockException Raised if a deadlock occured, due to
      * lock conflicts with another transaction or iterator.
      * In this case, you need to destroy the iterator and retry 
      * your iteration.
      *
-     * @throws DBException Raised if any other database failure
+     * @throws DatabaseException Raised if any other database failure
      * occurred.
      *
      **/
@@ -118,12 +118,12 @@ local interface EvictorIterator
      * @throws NoSuchElementException Raised if there is no further
      * elements in the iteration.
      *
-     * @throws DBDeadlockException Raised if a deadlock occured, due to 
+     * @throws DeadlockException Raised if a deadlock occured, due to 
      * lock conflicts with another transaction or iterator.
      * In this case, you need to destroy the iterator and retry 
      * your iteration.
      *
-     * @throws DBException Raised if any other database failure
+     * @throws DatabaseException Raised if any other database failure
      * occurred.
      *
      **/
@@ -225,7 +225,7 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @param servant The servant for the &Ice; object.
      *
-     * @throws DBException Raised if a database failure occurred.
+     * @throws DatabaseException Raised if a database failure occurred.
      *
      * @throws EvictorDeactivatedException Raised if a the evictor has
      * been deactivated.
@@ -247,7 +247,7 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @param servant The servant for the &Ice; object.
      *
-     * @throws DBException Raised if a database failure occurred.
+     * @throws DatabaseException Raised if a database failure occurred.
      *
      * @throws EvictorDeactivatedException Raised if a the evictor has
      * been deactivated.
@@ -270,7 +270,7 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @param identity The identity of the &Ice; object to destroy.
      *
-     * @throws DBException Raised if a database failure occurred.
+     * @throws DatabaseException Raised if a database failure occurred.
      *
      * @throws EvictorDeactivatedException Raised if a the evictor has
      * been deactivated.
@@ -290,7 +290,9 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @param facet The facet path.
      *
-     * @throws DBException Raised if a database failure occurred.
+     * @return The removed facet.
+     *
+     * @throws DatabaseException Raised if a database failure occurred.
      *
      * @throws EvictorDeactivatedException Raised if a the evictor has
      * been deactivated.
@@ -302,7 +304,7 @@ local interface Evictor extends Ice::ServantLocator
      * @see addFacet
      *
      **/
-    void removeFacet(Ice::Identity identity, Ice::FacetPath facet);
+    Object removeFacet(Ice::Identity identity, Ice::FacetPath facet);
     
 
     /**
@@ -311,7 +313,7 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @param identity The identity of the target &Ice; object.
      *
-     * @throws DBException Raised if a database failure occurred.
+     * @throws DatabaseException Raised if a database failure occurred.
      *
      * @throws EvictorDeactivatedException Raised if a the evictor has
      * been deactivated.
@@ -358,7 +360,7 @@ local interface Evictor extends Ice::ServantLocator
      * @return true if the identity is managed by the evictor, false
      * otherwise.
      *
-     * @throws DBException Raised if a database failure occurred.
+     * @throws DatabaseException Raised if a database failure occurred.
      *
      * @throws EvictorDeactivatedException Raised if a the evictor has
      * been deactivated.
@@ -371,7 +373,7 @@ local interface Evictor extends Ice::ServantLocator
      *
      * Saves immediately all created, modified and destroyed objects.
      *
-     * @throws DBException Raised if a database failure occurred.
+     * @throws DatabaseException Raised if a database failure occurred.
      *
      **/
     void saveNow();

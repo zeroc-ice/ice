@@ -62,14 +62,14 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 		}
 		catch(com.sleepycat.db.DbDeadlockException dx)
 		{
-		    DBDeadlockException ex = new DBDeadlockException();
+		    DeadlockException ex = new DeadlockException();
 		    ex.initCause(dx);
 		    ex.message = _errorPrefix + "Dbc.get: " + dx.getMessage();
 		    throw ex;
 		}
 		catch(com.sleepycat.db.DbException dx)
 		{
-		    DBException ex = new DBException();
+		    DatabaseException ex = new DatabaseException();
 		    ex.initCause(dx);
 		    ex.message = _errorPrefix + "Dbc.get: " + dx.getMessage();
 		    throw ex;
@@ -114,7 +114,7 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 	    }
 	    catch(com.sleepycat.db.DbException dx)
 	    {
-		DBException ex = new DBException();
+		DatabaseException ex = new DatabaseException();
 		ex.initCause(dx);
 		ex.message = _errorPrefix + "Db.cursor: " + dx.getMessage();
 		throw ex;
@@ -137,7 +137,7 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 	}
 	catch(com.sleepycat.db.DbException dx)
 	{
-	    DBException ex = new DBException();
+	    DatabaseException ex = new DatabaseException();
 	    ex.initCause(dx);
 	    ex.message = _errorPrefix + "Db.cursor: " + dx.getMessage();
 	    throw ex;

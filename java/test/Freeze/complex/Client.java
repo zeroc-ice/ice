@@ -29,7 +29,7 @@ public class Client
 
     private int
     validate(String dbName)
-	throws DBException
+	throws DatabaseException
     {
 	Complex.ComplexDict m = new Complex.ComplexDict(_connection, dbName, true);
 
@@ -71,7 +71,7 @@ public class Client
     
     private int
     populate(String dbName)
-	throws DBException
+	throws DatabaseException
     {
 	String[] expressions = 
 	{
@@ -120,7 +120,7 @@ public class Client
 
     private int
     run(String[] args, String dbName)
-	throws DBException
+	throws DatabaseException
     {
 	//
 	// Register a factory for the node types.

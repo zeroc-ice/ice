@@ -33,6 +33,7 @@ FREEZE_API EvictorPtr createEvictor(const Ice::CommunicatorPtr& communicator,
 				    bool createDb = true);
 
 FREEZE_API EvictorPtr createEvictor(const Ice::CommunicatorPtr& communicator,
+				    const std::string& envName,
 				    DbEnv& dbEnv, 
 				    const std::string& dbName, 
 				    bool createDb = true);
@@ -42,6 +43,7 @@ FREEZE_API ConnectionPtr createConnection(const Ice::CommunicatorPtr& communicat
 					  const std::string& envName);
 
 FREEZE_API ConnectionPtr createConnection(const Ice::CommunicatorPtr& communicator,
+					  const std::string& envName, 
 					  DbEnv& dbEnv);
 
 }

@@ -42,7 +42,7 @@ public class Client
 			    }
 			    break;
 			}
-			catch(DBDeadlockException ex)
+			catch(DeadlockException ex)
 			{
 			    // System.err.print("r");
 			    //
@@ -110,7 +110,7 @@ public class Client
 			    
 			    break;
 			}
-			catch(DBDeadlockException ex)
+			catch(DeadlockException ex)
 			{
 			    // System.err.print("w");
 			    //
@@ -164,7 +164,7 @@ public class Client
 
     private static void
     populateDB(Freeze.Connection connection, java.util.Map m)
-	throws DBException
+	throws DatabaseException
     {
 	int length = alphabet.length();
 
@@ -181,7 +181,7 @@ public class Client
 		tx.commit();
 		break; // for(;;)
 	    }
-	    catch(Freeze.DBDeadlockException dx)
+	    catch(Freeze.DeadlockException dx)
 	    {
 		length = length / 2;
 		// System.err.print("t");
@@ -201,7 +201,7 @@ public class Client
 
     private static int
     run(String[] args, Ice.Communicator communicator, String envName, String dbName)
-	throws DBException
+	throws DatabaseException
     {
 	Freeze.Connection connection = Freeze.Util.createConnection(communicator, envName);
 
@@ -502,7 +502,7 @@ public class Client
 	    System.out.println("testing encoding...");
 	    status = run(args, communicator, envName, "binary");
 	}
-	catch(DBException ex)
+	catch(DatabaseException ex)
 	{
 	    System.err.println(args[0] + ": " + ex + ": " + ex.message);
 	    status = 1;

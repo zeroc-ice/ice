@@ -22,7 +22,7 @@ TARGETS		= $(libdir)/$(LIBFILENAME) $(libdir)/$(SONAME) $(libdir)/$(LIBNAME)
 
 
 OBJS		= DB.o \
-                  DBException.o \
+                  Exception.o \
 		  Evictor.o \
 		  EvictorF.o \
 		  EvictorStorage.o \
@@ -40,7 +40,7 @@ OBJS		= DB.o \
 SRCS		= $(OBJS:.o=.cpp)
 
 SLICE_SRCS	= $(SDIR)/DB.ice \
-                  $(SDIR)/DBException.ice \
+                  $(SDIR)/Exception.ice \
                   $(SDIR)/Connection.ice \
                   $(SDIR)/ConnectionF.ice \
                   $(SDIR)/Transaction.ice \

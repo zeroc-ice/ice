@@ -1,17 +1,17 @@
 #
 # Keep logs
 #
-Freeze.db.OldLogsAutoDelete=0
+Freeze.DbEnv.db.OldLogsAutoDelete=0
 
 #
 # Allows another process (db_archive) to access this environment
 #
-Freeze.db.DbPrivate=0
+Freeze.DbEnv.db.DbPrivate=0
 
 #
 # "Fatal" recovery
 #
-#Freeze.db.DbRecoverFatal=1
+#Freeze.DbEnv.db.DbRecoverFatal=1
 
 
 

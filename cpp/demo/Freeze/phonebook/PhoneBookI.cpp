@@ -16,7 +16,6 @@
 
 using namespace std;
 using namespace Ice;
-using namespace Freeze;
 
 ContactI::ContactI(const PhoneBookIPtr& phoneBook, const Freeze::EvictorPtr& evictor) :
     _phoneBook(phoneBook),
@@ -134,13 +133,13 @@ ContactI::destroy(const Ice::Current&)
 	//
 	_evictor->destroyObject(_identity);
     }
-    catch(const Freeze::DBNotFoundException&)
+    catch(const Freeze::NotFoundException&)
     {
 	//
 	// Raised by remove. Ignore.
 	//
     }
-    catch(const Freeze::DBException& ex)
+    catch(const Freeze::DatabaseException& ex)
     {
 	DatabaseException e;
 	e.message = ex.message;
@@ -152,7 +151,7 @@ PhoneBookI::PhoneBookI(const Ice::CommunicatorPtr& communicator,
 		       const std::string& envName, const std::string& dbName,
 		       const Freeze::EvictorPtr& evictor) :
     _evictor(evictor),
-    _connection(createConnection(communicator, envName)),
+    _connection(Freeze::createConnection(communicator, envName)),
     _nameIdentitiesDict(_connection, dbName)
 {
 }
@@ -224,7 +223,7 @@ PhoneBookI::createContact(const Ice::Current& c)
 	//
 	return IdentityToContact(c.adapter)(ident);
     }
-    catch(const Freeze::DBException& ex)
+    catch(const Freeze::DatabaseException& ex)
     {
 	DatabaseException e;
 	e.message = ex.message;
@@ -257,7 +256,7 @@ PhoneBookI::findContacts(const string& name, const Ice::Current& c) const
 
 	return contacts;
     }
-    catch(const Freeze::DBException& ex)
+    catch(const Freeze::DatabaseException& ex)
     {
 	DatabaseException e;
 	e.message = ex.message;
@@ -289,7 +288,7 @@ PhoneBookI::remove(const Identity& ident, const string& name)
     {
 	removeI(ident, name);
     }
-    catch(const Freeze::DBException& ex)
+    catch(const Freeze::DatabaseException& ex)
     {
 	DatabaseException e;
 	e.message = ex.message;
@@ -318,7 +317,7 @@ PhoneBookI::move(const Identity& ident, const string& oldName, const string& new
 	identities.push_back(ident);
 	_nameIdentitiesDict.put(NameIdentitiesDict::value_type("N" + newName, identities));
     }
-    catch(const Freeze::DBNotFoundException&)
+    catch(const Freeze::NotFoundException&)
     {
 	//
 	// Raised by remove. This should only happen under very rare
@@ -327,7 +326,7 @@ PhoneBookI::move(const Identity& ident, const string& oldName, const string& new
 	// exception.
 	//
     }
-    catch(const Freeze::DBException& ex)
+    catch(const Freeze::DatabaseException& ex)
     {
 	DatabaseException e;
 	e.message = ex.message;
@@ -392,7 +391,7 @@ PhoneBookI::getNewIdentity()
 	id.category = "contact";
 	return id;
     }
-    catch(const Freeze::DBException& ex)
+    catch(const Freeze::DatabaseException& ex)
     {
 	DatabaseException e;
 	e.message = ex.message;
@@ -418,7 +417,7 @@ PhoneBookI::removeI(const Identity& ident, const string& name)
     //
     if(p == _nameIdentitiesDict.end())
     {
-	throw Freeze::DBNotFoundException(__FILE__, __LINE__);
+	throw Freeze::NotFoundException(__FILE__, __LINE__);
     }
 
     Identities identities  = p->second;

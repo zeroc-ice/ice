@@ -549,10 +549,11 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 
     private static final String _freezeProps[] =
     {
-	"Trace.DB",
+	"Trace.Map",
 	"Trace.Evictor",
+	"Trace.DbEnv",
 	"Evictor.*",
-	"db.*" // Temporary
+	"DbEnv.*"
     };
 
     private static final class ValidProps

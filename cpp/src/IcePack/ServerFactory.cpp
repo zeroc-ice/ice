@@ -14,7 +14,6 @@
 
 #include <Ice/Ice.h>
 #include <IceUtil/UUID.h>
-#include <Freeze/DB.h>
 #include <Freeze/Evictor.h>
 #include <Freeze/Initialize.h>
 #include <IcePack/ServerFactory.h>
@@ -229,7 +228,7 @@ IcePack::ServerFactory::destroy(const ServerPtr& server, const Ice::Identity& id
 	    out << "destroyed server `" << server->description.name << "'";
 	}
     }
-    catch(const Freeze::DBException& ex)
+    catch(const Freeze::DatabaseException& ex)
     {
 	ostringstream os;
 	os << "couldn't destroy server `" << server->description.name << "':\n" << ex;
@@ -256,7 +255,7 @@ IcePack::ServerFactory::destroy(const ServerAdapterPtr& adapter, const Ice::Iden
 	    out << "destroyed server adapter `" << adapter->id << "'";
 	}
     }
-    catch(const Freeze::DBException& ex)
+    catch(const Freeze::DatabaseException& ex)
     {
 	ostringstream os;
 	os << "couldn't destroy server adapter `" << adapter->id << "':\n" << ex;

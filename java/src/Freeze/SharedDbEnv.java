@@ -32,7 +32,7 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 		}
 		catch(com.sleepycat.db.DbException dx)
 		{
-		    DBException ex = new DBException();
+		    DatabaseException ex = new DatabaseException();
 		    ex.initCause(dx);
 		    ex.message = errorPrefix(envName) + "creation: " + dx.getMessage();
 		    throw ex;
@@ -97,7 +97,7 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 
 		if(_trace >= 1)
 		{
-		    _key.communicator.getLogger().trace("DB", "closing database environment \"" + _key.envName + "\"");
+		    _key.communicator.getLogger().trace("Freeze.DbEnv", "closing database environment \"" + _key.envName + "\"");
 		}
 
 		//
@@ -110,7 +110,7 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 		}
 		catch(com.sleepycat.db.DbException dx)
 		{
-		    DBException ex = new DBException();
+		    DatabaseException ex = new DatabaseException();
 		    ex.initCause(dx);
 		    ex.message = errorPrefix(_key.envName) + "close: " + dx.getMessage();
 		    throw ex;
@@ -143,7 +143,7 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 	}
 	catch(com.sleepycat.db.DbException dx)
 	{
-	    DBException ex = new DBException();
+	    DatabaseException ex = new DatabaseException();
 	    ex.initCause(dx);
 	    ex.message = errorPrefix(_key.envName) + "log_archive: " + dx.getMessage();
 	    throw ex;
@@ -194,10 +194,10 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 		{
 		    deleteOldLogs();
 		}
-		catch(DBException ex)
+		catch(DatabaseException ex)
 		{
 		    _key.communicator.getLogger().warning(
-			"checkpoint on DbEnv \"" + _key.envName + "\" raised DBException: " 
+			"checkpoint on DbEnv \"" + _key.envName + "\" raised DatabaseException: " 
 			+ ex.getMessage());
 		}
 		    
@@ -223,14 +223,14 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 	_key = key;
 
 	Ice.Properties properties = key.communicator.getProperties();
-	_trace = properties.getPropertyAsInt("Freeze.Trace.DB");
+	_trace = properties.getPropertyAsInt("Freeze.Trace.DbEnv");
 	
 	if(_trace >= 1)
 	{
-	    _key.communicator.getLogger().trace("DB", "opening database environment \"" + _key.envName + "\"");
+	    _key.communicator.getLogger().trace("Freeze.DbEnv", "opening database environment \"" + _key.envName + "\"");
 	}
 
-	String propertyPrefix = "Freeze." + _key.envName;
+	String propertyPrefix = "Freeze.DbEnv." + _key.envName;
 	
 	set_errcall(this);
 	
@@ -280,7 +280,7 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 	}
 	catch(java.io.FileNotFoundException dx)
 	{
-	    DBNotFoundException ex = new DBNotFoundException();
+	    NotFoundException ex = new NotFoundException();
 	    ex.initCause(dx);
 	    ex.message = errorPrefix(_key.envName) + "open: " + dx.getMessage();
 	    throw ex;
@@ -331,7 +331,7 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 	    }
 	    catch(ClassCastException ex)
 	    {
-		communicator.getLogger().trace("DB", "equals cast failed");
+		communicator.getLogger().trace("Freeze.DbEnv", "equals cast failed");
 		return false;
 	    }
 	}

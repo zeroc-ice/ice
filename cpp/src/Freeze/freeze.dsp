@@ -110,7 +110,7 @@ SOURCE=.\DB.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\DBException.cpp
+SOURCE=.\Exception.cpp
 # End Source File
 # Begin Source File
 
@@ -174,7 +174,7 @@ SOURCE=..\..\include\Freeze\DB.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Freeze\DBException.h
+SOURCE=..\..\include\Freeze\Exception.h
 # End Source File
 # Begin Source File
 
@@ -293,23 +293,23 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\Freeze\DBException.ice
+SOURCE=..\..\slice\Freeze\Exception.ice
 
 !IF  "$(CFG)" == "Freeze - Win32 Release"
 
 USERDEP__DBEXC="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\Freeze\DBException.ice
+InputPath=..\..\slice\Freeze\Exception.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/DBException.ice \
-	move DBException.h ..\..\include\Freeze \
+	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/Exception.ice \
+	move Exception.h ..\..\include\Freeze \
 	
 
-"..\..\include\Freeze\DBException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\Freeze\Exception.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"DBException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Exception.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -317,17 +317,17 @@ BuildCmds= \
 
 USERDEP__DBEXC="..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
-InputPath=..\..\slice\Freeze\DBException.ice
+InputPath=..\..\slice\Freeze\Exception.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/DBException.ice \
-	move DBException.h ..\..\include\Freeze \
+	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/Exception.ice \
+	move Exception.h ..\..\include\Freeze \
 	
 
-"..\..\include\Freeze\DBException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\Freeze\Exception.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"DBException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Exception.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

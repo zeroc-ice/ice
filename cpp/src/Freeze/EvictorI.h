@@ -34,7 +34,7 @@ class EvictorI : public Evictor,  public IceUtil::Monitor<IceUtil::Mutex>, publi
 public:
 
     EvictorI(const Ice::CommunicatorPtr, const std::string&, const std::string&, bool);
-    EvictorI(const Ice::CommunicatorPtr, DbEnv&, const std::string&, bool);
+    EvictorI(const Ice::CommunicatorPtr, const std::string&,  DbEnv&, const std::string&, bool);
 
     virtual ~EvictorI();
 
@@ -47,7 +47,7 @@ public:
     virtual void addFacet(const Ice::Identity&, const Ice::FacetPath&, const Ice::ObjectPtr&);
     
     virtual void destroyObject(const Ice::Identity&);
-    virtual void removeFacet(const Ice::Identity&, const Ice::FacetPath&);
+    virtual Ice::ObjectPtr removeFacet(const Ice::Identity&, const Ice::FacetPath&);
     virtual void removeAllFacets(const Ice::Identity&);
 
     virtual void installServantInitializer(const ServantInitializerPtr&);
@@ -93,6 +93,16 @@ public:
 	FacetMap facets;
 	const Ice::Identity* identity;
 	FacetPtr mainObject;
+    };
+
+    //
+    // Streamed objects
+    //
+    struct StreamedObject
+    {
+	Key key;
+	Value value;
+	Ice::Byte status;
     };
 
 #if defined(_MSC_VER) && (_MSC_VER <= 1200)
@@ -144,6 +154,8 @@ private:
     bool dbHasObject(const Ice::Identity&);
     bool getObject(const Ice::Identity&, ObjectRecord&);
     void addToModifiedQueue(const FacetMap::iterator&, const FacetPtr&);
+    void streamFacet(const FacetPtr&, const Ice::FacetPath&, Ice::Byte, Ice::Long, StreamedObject&);
+
     void saveNowNoSync();
 
     EvictorElementPtr load(const Ice::Identity&);
@@ -184,7 +196,7 @@ private:
     SharedDbEnvPtr _dbEnvHolder;
     std::auto_ptr<Db> _db;
     ServantInitializerPtr _initializer;
-    int _trace;
+    Ice::Int _trace;
     bool _noSyncAllowed;
 
     //

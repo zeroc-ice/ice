@@ -63,7 +63,7 @@ class PhoneBookI extends _PhoneBookDisp
 	    //
 	    return ContactPrxHelper.uncheckedCast(current.adapter.createProxy(ident));
 	}
-	catch(Freeze.DBException ex)
+	catch(Freeze.DatabaseException ex)
 	{
 	    DatabaseException e = new DatabaseException();
 	    e.message = ex.message;
@@ -97,7 +97,7 @@ class PhoneBookI extends _PhoneBookDisp
 
 	    return contacts;
 	}
-	catch(Freeze.DBException ex)
+	catch(Freeze.DatabaseException ex)
 	{
 	    DatabaseException e = new DatabaseException();
 	    e.message = ex.message;
@@ -129,7 +129,7 @@ class PhoneBookI extends _PhoneBookDisp
 	{
 	    removeI(ident, name);
 	}
-	catch(Freeze.DBException ex)
+	catch(Freeze.DatabaseException ex)
 	{
 	    DatabaseException e = new DatabaseException();
 	    e.message = ex.message;
@@ -162,7 +162,7 @@ class PhoneBookI extends _PhoneBookDisp
 	
 	    _nameIdentitiesDict.fastPut("N" + newName, newIdents);
 	}
-	catch(Freeze.DBNotFoundException ex)
+	catch(Freeze.NotFoundException ex)
 	{
 	    //
 	    // Raised by remove. This should only happen under very
@@ -171,7 +171,7 @@ class PhoneBookI extends _PhoneBookDisp
 	    // dispatched. Ignore the exception.
 	    //
 	}
-	catch(Freeze.DBException ex)
+	catch(Freeze.DatabaseException ex)
 	{
 	    DatabaseException e = new DatabaseException();
 	    e.message = ex.message;
@@ -227,7 +227,7 @@ class PhoneBookI extends _PhoneBookDisp
 	    id.category = "contact";
 	    return id;
 	}
-	catch(Freeze.DBException ex)
+	catch(Freeze.DatabaseException ex)
 	{
 	    DatabaseException e = new DatabaseException();
 	    e.message = ex.message;
@@ -272,7 +272,7 @@ class PhoneBookI extends _PhoneBookDisp
 	//
 	if(identities == null)
 	{
-	    throw new Freeze.DBNotFoundException();
+	    throw new Freeze.NotFoundException();
 	}
 
 	int i;
@@ -286,7 +286,7 @@ class PhoneBookI extends _PhoneBookDisp
 
 	if(i >= identities.length)
 	{
-	    throw new Freeze.DBNotFoundException();
+	    throw new Freeze.NotFoundException();
 	}
 
 	if(identities.length == 1)
