@@ -20,7 +20,6 @@
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/EventHandler.h>
-#include <map>
 
 namespace Ice
 {

@@ -53,6 +53,7 @@ private:
 
 	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
 	virtual bool visitStructStart(const StructPtr&);
 	virtual void visitStructEnd(const StructPtr&);
 	virtual void visitSequence(const SequencePtr&);

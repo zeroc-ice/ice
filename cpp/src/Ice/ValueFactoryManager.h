@@ -14,7 +14,6 @@
 #include <IceUtil/Shared.h>
 #include <Ice/ValueFactoryManagerF.h>
 #include <Ice/ValueFactoryF.h>
-#include <map>
 
 namespace IceInternal
 {

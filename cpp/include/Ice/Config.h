@@ -80,6 +80,7 @@ typedef double Double;
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 
 //
 // Define the Ice and IceInternal namespace, so that we can use the following

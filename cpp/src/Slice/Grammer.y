@@ -101,6 +101,9 @@ definition
 | interface_def
 {
 }
+| struct_decl
+{
+}
 | struct_def
 {
 }
@@ -170,6 +173,15 @@ interface_export
 // ----------------------------------------------------------------------
 : operation
 {
+}
+;
+
+// ----------------------------------------------------------------------
+struct_decl
+// ----------------------------------------------------------------------
+: ICE_STRUCT ICE_IDENTIFIER
+{
+    unit->error("structs can not be forward declared");
 }
 ;
 

@@ -17,7 +17,6 @@
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
-#include <map>
 
 namespace IceInternal
 {

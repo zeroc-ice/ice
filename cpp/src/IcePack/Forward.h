@@ -15,7 +15,6 @@
 #ifndef WIN32
 #   include <IcePack/Activator.h>
 #endif
-#include <map>
 
 namespace IcePack
 {

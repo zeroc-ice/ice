@@ -57,24 +57,22 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& identity
     //
     // Look up the server description
     //
-    ServerDescriptionPtr desc = _admin->find(identity);
+    ServerDescription desc = _admin->find(identity);
 
     //
     // If we didn't find a server description, we return null, meaning
     // that the client will get an "object not exist" exception.
     //
-    if (!desc)
+    if (!desc.object)
     {
 	return 0;
     }
-
-    ObjectPrx object = desc->object;
 
 #ifndef WIN32
     //
     // We only try to activate if we have a path for the server
     //
-    if (!desc->path.empty())
+    if (!desc.path.empty())
     {
 	try
 	{
@@ -113,7 +111,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& identity
 		    // server timeout, a crash, or an explicit
 		    // shutdown method.
 		    //
-		    object->_ping();
+		    desc.object->_ping();
 
 		    //
 		    // Everything ok, the server is now up and
@@ -157,7 +155,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& identity
     }
 #endif
 
-    throw LocationForward(object);
+    throw LocationForward(desc.object);
 }
 
 void

@@ -28,11 +28,11 @@ sequence<string> Args;
 
 /**
  *
- * Data describing a server one or more objects implemented by that
+ * Data describing a server and one or more objects implemented by that
  * server.
  *
  **/
-class ServerDescription
+struct ServerDescription
 {
     /**
      *
@@ -93,10 +93,12 @@ class ServerDescription
 
 /**
  *
- * A vector of server descriptions.
+ * A dictionary of server descriptions. A dictionary key is an object
+ * identity (which might be a regular expression), and the values is
+ * the corresponding server description.
  *
  **/
-sequence<ServerDescription> ServerDescriptions;
+dictionary<string, ServerDescription> ServerDescriptions;
 
 /**
  *
@@ -107,6 +109,13 @@ sequence<ServerDescription> ServerDescriptions;
  **/
 class Admin
 {
+    /**
+     *
+     * All server descriptions.
+     *
+     **/
+    ServerDescriptions _serverDescriptions;
+
     /**
      *
      * Add a server and objects implemented by that server to &IcePack;.

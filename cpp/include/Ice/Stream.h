@@ -15,7 +15,6 @@
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/Buffer.h>
-#include <map>
 
 namespace IceInternal
 {

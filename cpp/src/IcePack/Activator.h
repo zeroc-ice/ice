@@ -12,7 +12,6 @@
 #define ICE_PACK_ACTIVATOR_H
 
 #include <IcePack/AdminF.h>
-#include <map>
 
 namespace IcePack
 {
@@ -26,7 +25,7 @@ public:
 
     virtual void run();
     void destroy();
-    bool activate(const IcePack::ServerDescriptionPtr&);
+    bool activate(const IcePack::ServerDescription&);
 
 private:
 

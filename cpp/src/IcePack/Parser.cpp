@@ -50,16 +50,16 @@ IcePack::Parser::add(const list<string>& args)
 
     try
     {
-	ServerDescriptionPtr desc = new ServerDescription;
+	ServerDescription desc;
 	list<string>::const_iterator p = args.begin();
-	desc->object = _communicator->stringToProxy(*p);
-	desc->regex = false;
+	desc.object = _communicator->stringToProxy(*p);
+	desc.regex = false;
 	if (++p != args.end())
 	{
-	    desc->path = *p;
+	    desc.path = *p;
 	    while (++p != args.end())
 	    {
-		desc->args.push_back(*p);
+		desc.args.push_back(*p);
 	    }
 	}
 	_admin->add(desc);
@@ -99,12 +99,13 @@ IcePack::Parser::getAll()
 	ServerDescriptions::iterator p = descriptions.begin();
 	while(p != descriptions.end())
 	{
-	    cout << "object = " << _communicator->proxyToString((*p)->object) << endl;
-	    cout << "regex = " << boolalpha << (*p)->regex << endl;
-	    cout << "host = " << (*p)->host << endl;
-	    cout << "path = " << (*p)->path << endl;
+	    cout << "identity = " << p->first << endl;
+	    cout << "object = " << _communicator->proxyToString(p->second.object) << endl;
+	    cout << "regex = " << boolalpha << p->second.regex << endl;
+	    cout << "host = " << p->second.host << endl;
+	    cout << "path = " << p->second.path << endl;
 	    cout << "args =";
-	    for (Args::iterator q = (*p)->args.begin(); q != (*p)->args.end(); ++q)
+	    for (Args::iterator q = p->second.args.begin(); q != p->second.args.end(); ++q)
 	    {
 		cout << ' ' << *q;
 	    }

@@ -86,7 +86,7 @@ IcePack::Activator::destroy()
 }
 
 bool
-IcePack::Activator::activate(const ServerDescriptionPtr& desc)
+IcePack::Activator::activate(const ServerDescription& desc)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -95,7 +95,7 @@ IcePack::Activator::activate(const ServerDescriptionPtr& desc)
 	return false;
     }
 
-    string path = desc->path;
+    string path = desc.path;
     if (path.empty())
     {
 	return false;
@@ -153,12 +153,12 @@ IcePack::Activator::activate(const ServerDescriptionPtr& desc)
 	    }
 	}
 
-	int argc = desc->args.size() + 2;
+	int argc = desc.args.size() + 2;
 	char** argv = static_cast<char**>(malloc(argc * sizeof(char*)));
 	argv[0] = strdup(path.c_str());
-	for (unsigned int i = 0; i < desc->args.size(); ++i)
+	for (unsigned int i = 0; i < desc.args.size(); ++i)
 	{
-	    argv[i + 1] = strdup(desc->args[i].c_str());
+	    argv[i + 1] = strdup(desc.args[i].c_str());
 	}
 	argv[argc - 1] = 0;
 

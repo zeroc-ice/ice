@@ -21,13 +21,13 @@ IcePack::AdminI::AdminI(const CommunicatorPtr& communicator) :
 }
 
 void
-IcePack::AdminI::add(const ServerDescriptionPtr& p)
+IcePack::AdminI::add(const ServerDescription& desc)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
-    if (p && p->object)
+    if (desc.object)
     {
-	_map[p->object->_getIdentity()] = p;
+	_serverDescriptions[desc.object->_getIdentity()] = desc;
     }
 }
 
@@ -35,35 +35,29 @@ void
 IcePack::AdminI::remove(const string& identity)
 {
     JTCSyncT<JTCMutex> sync(*this);
-    _map.erase(identity);
+    _serverDescriptions.erase(identity);
 }
 
-ServerDescriptionPtr
+ServerDescription
 IcePack::AdminI::find(const string& identity)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
-    map<string, ServerDescriptionPtr>::iterator p = _map.find(identity);
-    if (p != _map.end())
+    ServerDescriptions::iterator p = _serverDescriptions.find(identity);
+    if (p != _serverDescriptions.end())
     {
 	return p->second;
     }
     else
     {
-	return 0;
+	return ServerDescription();
     }
 }
 
 ServerDescriptions
 IcePack::AdminI::getAll()
 {
-    ServerDescriptions result;
-    result.reserve(_map.size());
-    for (map<string, ServerDescriptionPtr>::iterator p = _map.begin(); p != _map.end(); ++p)
-    {
-	result.push_back(p->second);
-    }
-    return result;
+    return _serverDescriptions;
 }
 
 void

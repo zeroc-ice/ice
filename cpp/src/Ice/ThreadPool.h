@@ -15,7 +15,6 @@
 #include <Ice/ThreadPoolF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/EventHandlerF.h>
-#include <map>
 
 namespace IceInternal
 {

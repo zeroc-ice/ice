@@ -277,6 +277,12 @@ Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr& p)
 }
 
 bool
+Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr&)
+{
+    return false;
+}
+
+bool
 Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
     string name = p->name();

@@ -12,7 +12,6 @@
 #define ICE_PROPERTIES_I_H
 
 #include <Ice/Properties.h>
-#include <map>
 
 namespace Ice
 {
