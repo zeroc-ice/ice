@@ -14,7 +14,7 @@
 
 package IceInternal;
 
-public class Incoming
+final public class Incoming extends IncomingBase
 {
     public
     Incoming(Instance instance, Ice.ObjectAdapter adapter, Connection connection, boolean response)
@@ -34,7 +34,7 @@ public class Incoming
     // reallocated.
     //
     public void
-    reset(Ice.ObjectAdapter adapter, Connection connection, boolean response)
+    reset(Instance instance, Ice.ObjectAdapter adapter, Connection connection, boolean response)
     {
         _current.adapter = adapter;
         if(_current.ctx != null)
@@ -46,8 +46,22 @@ public class Incoming
         _cookie.value = null;
 	_connection = connection;
 	_response = response;
-        _is.reset();
-        _os.reset();
+	if(_is == null)
+	{
+	    _is = new BasicStream(instance);
+	}
+	else
+	{
+	    _is.reset();
+	}
+	if(_os == null)
+	{
+	    _os = new BasicStream(instance);
+	}
+	else
+	{
+	    _os.reset();
+	}
     }
 
     //
@@ -56,8 +70,16 @@ public class Incoming
     public void
     destroy()
     {
-        _is.destroy();
-        _os.destroy();
+	if(_is != null)
+	{
+	    _is.destroy();
+	    _is = null;
+	}
+	if(_os != null)
+	{
+	    _os.destroy();
+	    _os = null;
+	}
     }
 
     public void
@@ -165,7 +187,7 @@ public class Incoming
 		ex.operation = _current.operation;
 	    }
 
-	    warning(ex);
+	    __warning(ex);
 
             if(_response)
             {
@@ -192,12 +214,12 @@ public class Incoming
 		_os.writeString(ex.operation);
             }
 
-	    finishInvoke();
+	    __finishInvoke();
 	    return;
         }
         catch(Ice.LocalException ex)
         {
-	    warning(ex);
+	    __warning(ex);
 
             if(_response)
             {
@@ -207,7 +229,7 @@ public class Incoming
 		_os.writeString(ex.toString());
             }
 
-	    finishInvoke();
+	    __finishInvoke();
 	    return;
         }
         /* Not possible in Java - UserExceptions are checked exceptions
@@ -218,7 +240,7 @@ public class Incoming
 	*/
         catch(RuntimeException ex)
         {
-	    warning(ex);
+	    __warning(ex);
 
             if(_response)
             {
@@ -228,7 +250,7 @@ public class Incoming
 		_os.writeString(ex.toString());
             }
 	    
-	    finishInvoke();
+	    __finishInvoke();
 	    return;
         }
 	
@@ -264,7 +286,7 @@ public class Incoming
 	    }
 	}
 
-	finishInvoke();
+	__finishInvoke();
     }
 
     public BasicStream
@@ -278,63 +300,6 @@ public class Incoming
     {
         return _os;
     }
-
-    private void
-    finishInvoke()
-    {
-	if(_locator != null && _servant != null)
-	{
-	    _locator.finished(_current, _servant, _cookie.value);
-	}
-	
-	_is.endReadEncaps();
-	
-	//
-	// Send a response if necessary. If we don't need to send a
-	// response, we still need to tell the connection that we're
-	// finished with dispatching.
-	//
-	if(_response)
-	{
-	    _connection.sendResponse(_os);
-	}
-	else
-	{
-	    _connection.sendNoResponse();
-	}
-    }
-
-    private void
-    warning(Exception ex)
-    {
-	if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	{
-	    java.io.StringWriter sw = new java.io.StringWriter();
-	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	    IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
-	    out.setUseTab(false);
-	    out.print("dispatch exception:");
-	    out.print("\nidentity: " + Ice.Util.identityToString(_current.id));
-	    out.print("\nfacet: ");
-	    IceInternal.ValueWriter.write(_current.facet, out);
-	    out.print("\noperation: " + _current.operation);
-	    out.print("\n");
-	    ex.printStackTrace(pw);
-	    pw.flush();
-	    _os.instance().logger().warning(sw.toString());
-	}
-    }
-
-    private Ice.Current _current;
-    private Ice.Object _servant;
-    private Ice.ServantLocator _locator;
-    private Ice.LocalObjectHolder _cookie;
-
-    private Connection _connection;
-    private boolean _response;
-
-    private BasicStream _is;
-    private BasicStream _os;
 
     Incoming next; // For use by Connection.
 }

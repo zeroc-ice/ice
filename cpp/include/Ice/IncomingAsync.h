@@ -42,7 +42,6 @@ protected:
     void __exception(const ::Ice::Exception&);
     void __exception(const ::std::exception&);
     void __exception();
-    void __fatal(const ::Ice::LocalException&);
 
     BasicStream* __is();
     BasicStream* __os();

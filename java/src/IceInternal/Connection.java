@@ -1105,7 +1105,7 @@ public final class Connection extends EventHandler
                 in = _incomingCache;
                 _incomingCache = _incomingCache.next;
                 in.next = null;
-                in.reset(_adapter, this, response);
+                in.reset(_instance, _adapter, this, response);
             }
         }
 

@@ -75,13 +75,6 @@ public abstract class OutgoingAsync
     }
 
     public void
-    __destroy()
-    {
-        _os.destroy();
-        _is.destroy();
-    }
-
-    public void
     __invoke()
     {
 	_connection.incProxyCount();
@@ -92,6 +85,7 @@ public abstract class OutgoingAsync
         catch(RuntimeException ex)
 	{
 	    _connection.decProxyCount();
+	    destroy();
 	    throw ex;
 	}
     }
@@ -201,6 +195,7 @@ public abstract class OutgoingAsync
 	finally
 	{
 	    _connection.decProxyCount();
+	    destroy();
 	}
     }
 
@@ -218,6 +213,7 @@ public abstract class OutgoingAsync
 	finally
 	{
 	    _connection.decProxyCount();
+	    destroy();
 	}
     }
 
@@ -234,6 +230,21 @@ public abstract class OutgoingAsync
     }
 
     protected abstract void __response(boolean ok);
+
+    private void
+    destroy()
+    {
+	if(_is != null)
+	{
+	    _is.destroy();
+	    _is = null;
+	}
+	if(_os != null)
+	{
+	    _os.destroy();
+	    _os = null;
+	}
+    }
 
     private void
     warning(Exception ex)

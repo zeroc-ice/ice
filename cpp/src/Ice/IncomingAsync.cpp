@@ -195,12 +195,6 @@ IceInternal::IncomingAsync::__exception()
     finishInvoke();
 }
 
-void
-IceInternal::IncomingAsync::__fatal(const LocalException& ex)
-{
-    _connection->exception(ex);
-}
-
 BasicStream*
 IceInternal::IncomingAsync::__is()
 {
