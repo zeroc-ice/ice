@@ -295,7 +295,7 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     cursor->close();
     clone->close();
     
-    cout << " ok" << endl;
+    cout << "ok" << endl;
 
     db->close();
     return EXIT_SUCCESS;

@@ -81,12 +81,20 @@ Ice::CommunicatorI::proxyToString(const ObjectPrx& proxy)
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapter(const string& name)
 {
+    RecMutex::Lock sync(*this);
+    if (!_instance)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     ObjectAdapterPtr adapter = createObjectAdapterFromProperty(name, "Ice.Adapter." + name + ".Endpoints");
+
     string router = _instance->properties()->getProperty("Ice.Adapter." + name + ".Router");
     if (!router.empty())
     {
 	adapter->addRouter(RouterPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(router)));
     }
+
     return adapter;
 }
 
@@ -98,6 +106,7 @@ Ice::CommunicatorI::createObjectAdapterFromProperty(const string& name, const st
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
+
     string endpts = _instance->properties()->getProperty(property);
     return createObjectAdapterWithEndpoints(name, endpts);
 }
@@ -110,6 +119,7 @@ Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const s
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
+
     return _instance->objectAdapterFactory()->createObjectAdapter(name, endpts);
 }
 
