@@ -79,7 +79,7 @@ IcePatch2::FileServerI::getFileCompressed(const string& pa, Int pos, Int num, co
 	if(path.substr(slashPos + 1, endPos - slashPos - 1) == "..")
 	{
 	    FileAccessException ex;
-	    ex.reason = "Illegal .. component in path: `" + pa + "'";
+	    ex.reason = "illegal .. component in path: `" + pa + "'";
 	    throw ex;
 	}
 	slashPos = endPos;
