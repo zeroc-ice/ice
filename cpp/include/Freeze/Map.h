@@ -44,9 +44,8 @@ struct DBIteratorBase
 // restriction that it's only possible to explicitely write back into
 // the database.
 //
-// Equality and inequality are based on whether the iterator is
-// "valid". An valid iterator contains a valid database and cursor
-// pointer, otherwise the iterator is invalid.
+// Two iterators are equal if they use the same database and their
+// current records have the same key.
 //
 // TODO: It's possible to implement bidirectional iterators, if
 // necessary.
@@ -110,11 +109,29 @@ public:
 
     bool operator==(const DBIterator& rhs) const
     {
-	if(!_db && !rhs._db)
+        if(_db && _db == rhs._db && _cursor && rhs._cursor)
 	{
-	    return true;
+            Freeze::Key k1, k2;
+            Freeze::Value v;
+            try
+            {
+                _cursor->curr(k1, v);
+                rhs._cursor->curr(k2, v);
+                return k1 == k2;
+            }
+            catch(const DBNotFoundException&)
+            {
+                return false;
+            }
 	}
-	return false;
+        else if(!_db && !rhs._db)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     bool operator!=(const DBIterator& rhs) const
@@ -305,11 +322,29 @@ public:
 
     bool operator==(const ConstDBIterator& rhs)
     {
-	if(!_db && !rhs._db)
+        if(_db && _db == rhs._db && _cursor && rhs._cursor)
 	{
-	    return true;
+            Freeze::Key k1, k2;
+            Freeze::Value v;
+            try
+            {
+                _cursor->curr(k1, v);
+                rhs._cursor->curr(k2, v);
+                return k1 == k2;
+            }
+            catch(const DBNotFoundException&)
+            {
+                return false;
+            }
 	}
-	return false;
+        else if(!_db && !rhs._db)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     bool operator!=(const ConstDBIterator& rhs)
