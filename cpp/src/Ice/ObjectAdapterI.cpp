@@ -119,7 +119,7 @@ Ice::ObjectAdapterI::activate()
 	{
 	    Identity ident;
 	    ident.name = "dummy";
-	    locatorRegistry->setAdapterDirectProxy(_id, newDirectProxy(ident));
+	    locatorRegistry->setAdapterDirectProxy(_id, newDirectProxy(ident, ""));
 	}
 	catch(const Ice::AdapterNotFoundException&)
 	{
@@ -316,7 +316,7 @@ Ice::ObjectAdapterI::addFacet(const ObjectPtr& object, const Identity& ident, co
 
     _servantManager->addServant(object, ident, facet);
 
-    return newProxy(ident);
+    return newProxy(ident, facet);
 }
 
 ObjectPrx
@@ -428,7 +428,7 @@ Ice::ObjectAdapterI::createProxy(const Identity& ident) const
     checkForDeactivation();
     checkIdentity(ident);
 
-    return newProxy(ident);
+    return newProxy(ident, "");
 }
 
 ObjectPrx
@@ -439,7 +439,7 @@ Ice::ObjectAdapterI::createDirectProxy(const Identity& ident) const
     checkForDeactivation();
     checkIdentity(ident);
 
-    return newDirectProxy(ident);
+    return newDirectProxy(ident, "");
 }
 
 ObjectPrx
@@ -758,18 +758,18 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::newProxy(const Identity& ident) const
+Ice::ObjectAdapterI::newProxy(const Identity& ident, const string& facet) const
 {
     if(_id.empty())
     {
-	return newDirectProxy(ident);
+	return newDirectProxy(ident, facet);
     }
     else
     {
 	//
 	// Create a reference with the adapter id.
 	//
-	ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "",
+	ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), facet,
 								 Reference::ModeTwoway, false, _id,
 								 0, _locatorInfo, true);
 
@@ -781,7 +781,7 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident) const
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::newDirectProxy(const Identity& ident) const
+Ice::ObjectAdapterI::newDirectProxy(const Identity& ident, const string& facet) const
 {
     vector<EndpointPtr> endpoints;
 
@@ -809,7 +809,7 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident) const
     //
     // Create a reference and return a proxy for this reference.
     //
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "", Reference::ModeTwoway,
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), facet, Reference::ModeTwoway,
 							     false, endpoints, 0, true);
     return _instance->proxyFactory()->referenceToProxy(ref);
 

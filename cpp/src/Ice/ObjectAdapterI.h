@@ -88,8 +88,8 @@ private:
     virtual ~ObjectAdapterI();
     friend class IceInternal::ObjectAdapterFactory;
     
-    ObjectPrx newProxy(const Identity&) const;
-    ObjectPrx newDirectProxy(const Identity&) const;
+    ObjectPrx newProxy(const Identity&, const std::string&) const;
+    ObjectPrx newDirectProxy(const Identity&, const std::string&) const;
     void checkForDeactivation() const;
     static void checkIdentity(const Identity&);
     std::vector<IceInternal::EndpointPtr> parseEndpoints(const std::string&) const;

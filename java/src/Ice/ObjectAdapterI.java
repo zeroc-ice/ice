@@ -95,7 +95,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 		Identity ident = new Identity();
 		ident.category = "";
 		ident.name = "dummy";
-		locatorRegistry.setAdapterDirectProxy(_id, newDirectProxy(ident));
+		locatorRegistry.setAdapterDirectProxy(_id, newDirectProxy(ident, ""));
 	    }
 	    catch(Ice.AdapterNotFoundException ex)
 	    {
@@ -306,7 +306,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 
 	_servantManager.addServant(object, id, facet);
 
-        return newProxy(id);
+        return newProxy(id, facet);
     }
 
     public ObjectPrx
@@ -404,7 +404,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	checkForDeactivation();
         checkIdentity(ident);
 
-        return newProxy(ident);
+        return newProxy(ident, "");
     }
 
     public synchronized ObjectPrx
@@ -413,7 +413,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	checkForDeactivation();
         checkIdentity(ident);
 
-        return newDirectProxy(ident);
+        return newDirectProxy(ident, "");
     }
 
     public synchronized ObjectPrx
@@ -740,11 +740,11 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     }
 
     private ObjectPrx
-    newProxy(Identity ident)
+    newProxy(Identity ident, String facet)
     {
 	if(_id.length() == 0)
 	{
-	    return newDirectProxy(ident);
+	    return newDirectProxy(ident, facet);
 	}
 	else
 	{	    
@@ -755,7 +755,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
             ConnectionI[] connections = new ConnectionI[0];
 	    IceInternal.Reference reference =
-		_instance.referenceFactory().create(ident, new java.util.HashMap(), "",
+		_instance.referenceFactory().create(ident, new java.util.HashMap(), facet,
 		                                    IceInternal.Reference.ModeTwoway, false, _id, endpoints, null,
                                                     _locatorInfo, connections, true);
 	    return _instance.proxyFactory().referenceToProxy(reference);
@@ -763,7 +763,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     }
 
     private ObjectPrx
-    newDirectProxy(Identity ident)
+    newDirectProxy(Identity ident, String facet)
     {
         IceInternal.Endpoint[] endpoints;
 
@@ -804,7 +804,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         //
         ConnectionI[] connections = new ConnectionI[0];
         IceInternal.Reference reference =
-	    _instance.referenceFactory().create(ident, new java.util.HashMap(), "", IceInternal.Reference.ModeTwoway,
+	    _instance.referenceFactory().create(ident, new java.util.HashMap(), facet, IceInternal.Reference.ModeTwoway,
                                                 false, "", endpoints, null, _locatorInfo, connections, true);
         return _instance.proxyFactory().referenceToProxy(reference);
     }

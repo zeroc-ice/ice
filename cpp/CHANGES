@@ -1,9 +1,13 @@
 Changes since version 1.5.1
 ---------------------------
 
-- Added the object adapter property <name>.PublishedEndpoints,
-  which specifies endpoints to advertise in proxies created
-  by the adapter.
+- The proxy returned by the object adapter operations addFacet and
+  addFacetWithUUID did not contain the facet. This required the
+  application to make an extra call to ice_newFacet in order to
+  obtain the correct proxy. This has been fixed.
+
+- Added the object adapter property <name>.PublishedEndpoints, which
+  specifies endpoints to advertise in proxies created by the adapter.
 
 - For WIN32, Thread::getThreadControl() set the thread id of the
   ThreadControl object to the current thread instead of the thread the
@@ -19,12 +23,12 @@ Changes since version 1.5.1
 - Exceptions raised while marshaling data for batch requests resulted
   in a connection deadlock. This has been fixed.
 
-- Fixed a bug in slice2cs: the generated code was incorrect
-  for dictionaries with sequence value types, if that sequence
-  value type was mapped to an array.
+- Fixed a bug in slice2cs: the generated code was incorrect for
+  dictionaries with sequence value types, if that sequence value type
+  was mapped to an array.
 
 - Fixed bug in IcePack that would prevent dynamically added adapters
-  to be used again after the IcePack registry was restarted.
+  from being used again after the IcePack registry was restarted.
 
 - Fixed tracing of operation mode.
 
@@ -53,7 +57,7 @@ Changes since version 1.5.1
 - Freeze dictionaries now support indices. You can index on the full
   value of the dictionary, or on a member (when the value is a struct
   or a class). When you index on a member, you can define several
-  indices (for different members).  See the Freeze bench demo and the
+  indices (for different members). See the Freeze bench demo and the
   Freeze dbmap test for examples.
 
 - The Ice::Service class no longer resets the umask to 0, but rather
@@ -233,7 +237,7 @@ Changes since version 1.3.0
 - Removed slice2wsdl.
 
 - Changed the way sequences are unmarshaled to protect against
-  malicous messages with faked very large sequence count values.
+  malicious messages with faked very large sequence count values.
   While even with previous versions of Ice, buffer overruns were
   impossible, malicious messages could cause large amounts of memory
   to be preallocated, causing the receiving process to run out of
@@ -785,7 +789,7 @@ Changes since version 1.1.1
       have an associated transaction that is committed when the
       iterator is closed.
 
-    Concurrent reads and writes to the same underlyding Map can
+    Concurrent reads and writes to the same underlying Map can
     generate deadlocks, even with a single writer. Berkeley DB detects
     such deadlocks and "kills" one locker (iterator or transaction) to
     resolve it. For non-iterator access, Freeze handles this situation
