@@ -13,6 +13,7 @@
 #include <Ice/Network.h>
 #include <Ice/Stream.h>
 #include <Ice/IdentityUtil.h>
+#include <Ice/StringUtil.h>
 #include <Ice/Plugin.h>
 
 using namespace std;
@@ -136,10 +137,7 @@ printFailedRequestData(ostream& out, const RequestFailedException& ex)
     vector<string>::const_iterator p = ex.facet.begin();
     while(p != ex.facet.end())
     {
-	//
-	// TODO: Escape for whitespace and slashes.
-	//
-	out << *p++;
+	out << encodeString(*p++, "/");
 	if(p != ex.facet.end())
 	{
 	    out << '/';

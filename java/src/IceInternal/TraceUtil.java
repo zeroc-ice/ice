@@ -284,10 +284,7 @@ final class TraceUtil
             out.write("\nfacet = ");
 	    for(int i = 0; i < facet.length ; i++)
 	    {
-		//
-		// TODO: Escape for whitespace and slashes.
-		//
-		out.write(facet[i]);
+		out.write(StringUtil.encodeString(facet[i], "/"));
 		if(i < facet.length - 1)
 		{
 		    out.write('/');
