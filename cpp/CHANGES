@@ -4,7 +4,14 @@ Changes since version 1.1.0
 - Added Ice.UDP.RcvSize and Ice.UDP.SndSize properties. These properties
   control the size of the UDP receive and send buffers as well as controlling
   the maximum size of a datagram invocation. If a datagram exceeds the
-  configured size, the Ice run time throws a DatagramLimitException.
+  configured size, the Ice run time throws a DatagramLimitException. (Note that,
+  on the receiving size, detection of this condition is dependent on the
+  local UDP implementation -- some UDP implementations silently drop datagrams
+  that are too large to fit into the receive buffer instead of reporting
+  the error or delivering a truncated datagram.)
+
+- Added Ice.Warn.Datagrams. This property prints a warning on the server
+  side if a DatagramLimitException is thrown.
 
 - Added Ice.MessageSizeMax property. This property controls the
   maximum message size accepted by the Ice protocol in kiloBytes. The
