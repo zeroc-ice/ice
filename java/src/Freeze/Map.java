@@ -269,9 +269,7 @@ public abstract class Map extends java.util.AbstractMap
 	}
 	else
 	{
-	    NotFoundException ex = new NotFoundException();
-	    ex.message = _errorPrefix + "Db.del: DB_NOTFOUND";
-	    throw ex;
+	    return null;
 	}
     }
 
