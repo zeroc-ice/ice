@@ -2990,7 +2990,6 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
     }
 
     ParamDeclPtr p = new ParamDecl(this, name, type, isOutParam);
-cerr << "Pushing " << name << endl;
     _contents.push_back(p);
     return p;
 }
