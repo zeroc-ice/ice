@@ -104,8 +104,8 @@ public:
 
     ApplicationHandler(ApplicationBuilder&);
 
-    virtual void startElement(const string&, const IceXML::Attributes&); 
-    virtual void endElement(const string&);
+    virtual void startElement(const string&, const IceXML::Attributes&, int, int);
+    virtual void endElement(const string&, int, int);
     
 private:
 
@@ -124,9 +124,9 @@ IcePack::ApplicationHandler::ApplicationHandler(ApplicationBuilder& builder) :
 }
 
 void 
-IcePack::ApplicationHandler::startElement(const string& name, const IceXML::Attributes& attrs)
+IcePack::ApplicationHandler::startElement(const string& name, const IceXML::Attributes& attrs, int line, int column)
 {
-    ComponentHandler::startElement(name, attrs);
+    ComponentHandler::startElement(name, attrs, line, column);
     if(!isCurrentTargetDeployable())
     {
 	return;
@@ -144,7 +144,9 @@ IcePack::ApplicationHandler::startElement(const string& name, const IceXML::Attr
     {
 	if(!_currentNode.empty())
 	{
-	    throw IceXML::ParserException(__FILE__, __LINE__, "node element enclosed in a node element is not allowed");
+            ostringstream ostr;
+            ostr << "line " << line << ": node element enclosed in a node element is not allowed";
+	    throw IceXML::ParserException(__FILE__, __LINE__, ostr.str());
 	}
 	_currentNode = getAttributeValue(attrs, "name");
 
@@ -163,8 +165,9 @@ IcePack::ApplicationHandler::startElement(const string& name, const IceXML::Attr
     {
 	if(_currentNode.empty())
 	{
-	    throw IceXML::ParserException(__FILE__, __LINE__,
-	                                  "server element is not allowed outside the scope of a node element");
+            ostringstream ostr;
+            ostr << "line " << line << ": server element is not allowed outside the scope of a node element";
+	    throw IceXML::ParserException(__FILE__, __LINE__, ostr.str());
 	}
 
 	string serverName = getAttributeValue(attrs, "name");
@@ -177,7 +180,7 @@ IcePack::ApplicationHandler::startElement(const string& name, const IceXML::Attr
 }
 
 void
-IcePack::ApplicationHandler::endElement(const string& name)
+IcePack::ApplicationHandler::endElement(const string& name, int line, int column)
 {
     if(isCurrentTargetDeployable())
     {
@@ -188,7 +191,7 @@ IcePack::ApplicationHandler::endElement(const string& name)
 	}
     }
 
-    ComponentHandler::endElement(name);
+    ComponentHandler::endElement(name, line, column);
 }
 
 IcePack::ApplicationBuilder::ApplicationBuilder(const Ice::CommunicatorPtr& communicator,

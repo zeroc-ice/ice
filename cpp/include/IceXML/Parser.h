@@ -36,6 +36,7 @@ namespace IceXML
 class ICE_XML_API ParserException : public IceUtil::Exception
 {
 public:
+
     ParserException(const std::string&);
     ParserException(const char*, int, const std::string&);
 
@@ -44,7 +45,10 @@ public:
     virtual IceUtil::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
+    std::string reason() const;
+
 private:
+
     std::string _reason;
 };
 
@@ -78,18 +82,23 @@ public:
 
     virtual bool addChild(const NodePtr&);
 
+    int getLine() const;
+    int getColumn() const;
+
 protected:
-    Node(const NodePtr&, const std::string&, const std::string&);
+    Node(const NodePtr&, const std::string&, const std::string&, int, int);
 
     NodePtr _parent;
     std::string _name;
     std::string _value;
+    int _line;
+    int _column;
 };
 
 class ICE_XML_API Element : public Node
 {
 public:
-    Element(const NodePtr&, const std::string&, const Attributes&);
+    Element(const NodePtr&, const std::string&, const Attributes&, int, int);
     virtual ~Element();
 
     virtual NodeList getChildren() const;
@@ -106,7 +115,7 @@ private:
 class ICE_XML_API Text : public Node
 {
 public:
-    Text(const NodePtr&, const std::string&);
+    Text(const NodePtr&, const std::string&, int, int);
     virtual ~Text();
 };
 
@@ -129,9 +138,9 @@ class ICE_XML_API Handler
 public:
     virtual ~Handler();
 
-    virtual void startElement(const std::string&, const Attributes&) = 0;
-    virtual void endElement(const std::string&) = 0;
-    virtual void characters(const std::string&) = 0;
+    virtual void startElement(const std::string&, const Attributes&, int, int) = 0;
+    virtual void endElement(const std::string&, int, int) = 0;
+    virtual void characters(const std::string&, int, int) = 0;
     virtual void error(const std::string&, int, int);
 };
 

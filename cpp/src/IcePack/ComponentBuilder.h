@@ -49,9 +49,9 @@ public:
 
     ComponentHandler(ComponentBuilder&);
 
-    virtual void startElement(const std::string&, const IceXML::Attributes&);
-    virtual void endElement(const std::string&);
-    virtual void characters(const std::string&);
+    virtual void startElement(const std::string&, const IceXML::Attributes&, int, int);
+    virtual void endElement(const std::string&, int, int);
+    virtual void characters(const std::string&, int, int);
 
 protected:
 

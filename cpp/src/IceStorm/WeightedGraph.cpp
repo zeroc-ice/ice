@@ -42,9 +42,9 @@ public:
     {
     }
 
-    virtual void startElement(const string& name, const IceXML::Attributes& attrs); 
-    virtual void endElement(const string& name) { }
-    virtual void characters(const string& chars) { }
+    virtual void startElement(const string&, const IceXML::Attributes&, int, int); 
+    virtual void endElement(const string&, int, int) { }
+    virtual void characters(const string&, int, int) { }
 
 private:
 
@@ -62,7 +62,7 @@ struct WeightedGraphParseException
 } // End namespace IceStorm
 
 void
-GraphHandler::startElement(const string& name, const IceXML::Attributes& attrs) 
+GraphHandler::startElement(const string& name, const IceXML::Attributes& attrs, int line, int)
 {
     if(name == "vertex")
     {
@@ -70,7 +70,9 @@ GraphHandler::startElement(const string& name, const IceXML::Attributes& attrs)
         if(p == attrs.end())
         {
             WeightedGraphParseException ex;
-            ex.reason = "<vertex> name attribute missing";
+            ostringstream ostr;
+            ostr << "line " << line << ": <vertex> name attribute missing";
+            ex.reason = ostr.str();
             throw ex;
         }
 
@@ -84,7 +86,9 @@ GraphHandler::startElement(const string& name, const IceXML::Attributes& attrs)
         if(p == attrs.end())
         {
             WeightedGraphParseException ex;
-            ex.reason = "<edge> source attribute missing";
+            ostringstream ostr;
+            ostr << "line " << line << ": <edge> source attribute missing";
+            ex.reason = ostr.str();
             throw ex;
         }
 
@@ -94,7 +98,9 @@ GraphHandler::startElement(const string& name, const IceXML::Attributes& attrs)
         if(p == attrs.end())
         {
             WeightedGraphParseException ex;
-            ex.reason = "<edge> target attribute missing";
+            ostringstream ostr;
+            ostr << "line " << line << ": <edge> target attribute missing";
+            ex.reason = ostr.str();
             throw ex;
         }
 

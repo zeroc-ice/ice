@@ -279,7 +279,7 @@ IcePack::ComponentHandler::ComponentHandler(ComponentBuilder& builder) :
 }
 
 void
-IcePack::ComponentHandler::startElement(const string& name, const IceXML::Attributes& attrs)
+IcePack::ComponentHandler::startElement(const string& name, const IceXML::Attributes& attrs, int line, int)
 {
     _elements.push("");
 
@@ -313,8 +313,9 @@ IcePack::ComponentHandler::startElement(const string& name, const IceXML::Attrib
     {
 	if(!_currentAdapterId.empty())
 	{
-	    throw IceXML::ParserException(__FILE__, __LINE__,
-                                          "Adapter element enclosed in an adapter element is not allowed");
+            ostringstream ostr;
+            ostr << "line " << line << ": Adapter element enclosed in an adapter element is not allowed";
+	    throw IceXML::ParserException(__FILE__, __LINE__, ostr.str());
 	}
 
 	//
@@ -324,7 +325,9 @@ IcePack::ComponentHandler::startElement(const string& name, const IceXML::Attrib
 	string adapterName = getAttributeValue(attrs, "name");
 	if(adapterName.empty())
 	{
-	    throw IceXML::ParserException(__FILE__, __LINE__, "empty adapter name");
+            ostringstream ostr;
+            ostr << "line " << line << ": empty adapter name";
+	    throw IceXML::ParserException(__FILE__, __LINE__, ostr.str());
 	}
 	_currentAdapterId = getAttributeValueWithDefault(attrs, "id", _builder.getDefaultAdapterId(adapterName));
     }
@@ -338,15 +341,16 @@ IcePack::ComponentHandler::startElement(const string& name, const IceXML::Attrib
     {
 	if(!_currentTarget.empty())
 	{
-	    throw IceXML::ParserException(__FILE__, __LINE__,
-                                          "Target element enclosed in a target element is not allowed");
+            ostringstream ostr;
+            ostr << "line " << line << ": Target element enclosed in a target element is not allowed";
+	    throw IceXML::ParserException(__FILE__, __LINE__, ostr.str());
 	}
 	_isCurrentTargetDeployable = _builder.isTargetDeployable(getAttributeValue(attrs, "name"));
     }
 }
 
 void
-IcePack::ComponentHandler::endElement(const string& name)
+IcePack::ComponentHandler::endElement(const string& name, int, int)
 {
     _elements.pop();
 
@@ -366,7 +370,7 @@ IcePack::ComponentHandler::endElement(const string& name)
 }
 
 void
-IcePack::ComponentHandler::characters(const string& chars)
+IcePack::ComponentHandler::characters(const string& chars, int, int)
 {
     _elements.top().assign(chars);
 }

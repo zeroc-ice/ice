@@ -28,7 +28,7 @@ public:
 
     ServiceHandler(ServiceBuilder&);
 
-    virtual void startElement(const string& name, const IceXML::Attributes& attrs); 
+    virtual void startElement(const string&, const IceXML::Attributes&, int, int);
 
 private:
 
@@ -44,9 +44,9 @@ IcePack::ServiceHandler::ServiceHandler(ServiceBuilder& builder) :
 }
 
 void 
-IcePack::ServiceHandler::startElement(const string& name, const IceXML::Attributes& attrs)
+IcePack::ServiceHandler::startElement(const string& name, const IceXML::Attributes& attrs, int line, int column)
 {
-    ComponentHandler::startElement(name, attrs);
+    ComponentHandler::startElement(name, attrs, line, column);
 
     if(!isCurrentTargetDeployable())
     {

@@ -192,8 +192,8 @@ public:
 
     ServerHandler(ServerBuilder&);
 
-    virtual void startElement(const string&, const IceXML::Attributes&);
-    virtual void endElement(const string&);
+    virtual void startElement(const string&, const IceXML::Attributes&, int, int);
+    virtual void endElement(const string&, int, int);
 
 private:
 
@@ -215,9 +215,9 @@ IcePack::ServerHandler::ServerHandler(ServerBuilder& builder) :
 }
 
 void 
-IcePack::ServerHandler::startElement(const string& name, const IceXML::Attributes& attrs)
+IcePack::ServerHandler::startElement(const string& name, const IceXML::Attributes& attrs, int line, int column)
 {
-    ComponentHandler::startElement(name, attrs);
+    ComponentHandler::startElement(name, attrs, line, column);
     if(!isCurrentTargetDeployable())
     {
 	return;
@@ -289,7 +289,7 @@ IcePack::ServerHandler::startElement(const string& name, const IceXML::Attribute
 }
 
 void
-IcePack::ServerHandler::endElement(const string& name)
+IcePack::ServerHandler::endElement(const string& name, int line, int column)
 {
     if(isCurrentTargetDeployable())
     {
@@ -315,7 +315,7 @@ IcePack::ServerHandler::endElement(const string& name)
 	}
     }
 
-    ComponentHandler::endElement(name);
+    ComponentHandler::endElement(name, line, column);
 }
 
 IcePack::ServerBuilder::ServerBuilder(const NodeInfoPtr& nodeInfo,
