@@ -1,18 +1,7 @@
 Build instructions
 ------------------
 
-Ice for C# on non-Windows platforms depends on a bug
-fix that did not make it into the Mono 1.0 release. (Under
-Windows, Mono 1.0 is OK.) If you want to use Ice for C# with Mono
-on non-Windows platforms, you must build Mono from CVS sources until
-Mono 1.1 is released:
-
-- See http://www.mono-project.com/contributing/anoncvs.html
-  for how to get anonymous CVS access. You need to check out the
-  mono and mcs trees.
-
-- See http://www.mono-project.com/contributing/compiling.html for
-  instructions for how to build Mono.
+This version of Ice for C# requires Mono version 1.0.4.
 
 Unpack the Ice archive. The sources will be contained in the 'icecs'
 subdirectory.
@@ -20,7 +9,10 @@ subdirectory.
 You must build the slice2cs compiler from the Ice for C++ source
 distribution. Make sure that slice2cs is in your PATH or,
 alternatively, place the slice2cs executable into the bin directory of
-the Ice for C# distribution.
+the Ice for C# distribution. (You also must ensure that the dynamic
+libraries that are required by slice2cs (iceutil and slice) are in
+your path. In addition, slice2cs calls icecpp.exe, which must also
+be in your path.
 
 To build Ice for C#, run
 
@@ -73,10 +65,9 @@ the .exe for your application.
 Known issues
 ------------
 
-On non-Windows platforms, the faultTolerance test fails.
-In addition, the slicing/exceptions test fails intermittently.
-(These tests pass with Mono on Windows.) We are actively working
-with the Mono developers to get this fixed.
+On non-Windows platforms, a number of the tests fail, hang, or
+fail intermittently. (These tests pass with Mono on Windows.)
+We are actively working with the Mono developers to get this fixed.
 
 Please let us know about any bugs, comments, or feedback in the Ice
 forum at http://www.zeroc.com/vbulletin/.
