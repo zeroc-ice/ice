@@ -66,8 +66,8 @@ IcePack::Registry::start(bool nowarn)
     //
     // Initialize the database environment.
     //
-    _envName = properties->getProperty("IcePack.Registry.Data");
-    if(_envName.empty())
+    string dbPath = properties->getProperty("IcePack.Registry.Data");
+    if(dbPath.empty())
     {
 	Error out(_communicator->getLogger());
 	out << "property `IcePack.Registry.Data' is not set";
@@ -76,7 +76,7 @@ IcePack::Registry::start(bool nowarn)
     else
     {
 	struct stat filestat;
-	if(stat(_envName.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
+	if(stat(dbPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
 	{
 	    Error out(_communicator->getLogger());
 	    SyscallException ex(__FILE__, __LINE__);
@@ -220,12 +220,14 @@ IcePack::Registry::start(bool nowarn)
     //
     // Create the internal registries (node, server, adapter, object).
     //
-    AdapterFactoryPtr adapterFactory = new AdapterFactory(registryAdapter, traceLevels, _envName);
-    ObjectRegistryPtr objectRegistry = new ObjectRegistryI(_communicator, _envName, traceLevels);
-    AdapterRegistryPtr adapterRegistry = new AdapterRegistryI(_communicator, _envName, traceLevels);
-    ServerRegistryPtr serverRegistry = new ServerRegistryI(_communicator, _envName, traceLevels);
-    ApplicationRegistryPtr appReg = new ApplicationRegistryI(_communicator, serverRegistry, _envName, traceLevels);
-    NodeRegistryPtr nodeReg = new NodeRegistryI(_communicator, _envName, adapterRegistry, adapterFactory, traceLevels);
+    const string envName = "Registry";
+    properties->setProperty("Freeze.DbEnv.Registry.DbHome", dbPath);
+    AdapterFactoryPtr adapterFactory = new AdapterFactory(registryAdapter, traceLevels, envName);
+    ObjectRegistryPtr objectRegistry = new ObjectRegistryI(_communicator, envName, traceLevels);
+    AdapterRegistryPtr adapterRegistry = new AdapterRegistryI(_communicator, envName, traceLevels);
+    ServerRegistryPtr serverRegistry = new ServerRegistryI(_communicator, envName, traceLevels);
+    ApplicationRegistryPtr appReg = new ApplicationRegistryI(_communicator, serverRegistry, envName, traceLevels);
+    NodeRegistryPtr nodeReg = new NodeRegistryI(_communicator, envName, adapterRegistry, adapterFactory, traceLevels);
 
     registryAdapter->add(objectRegistry, stringToIdentity("IcePack/ObjectRegistry"));
     registryAdapter->add(adapterRegistry, stringToIdentity("IcePack/AdapterRegistry"));

@@ -24,9 +24,12 @@ IcePack::AdapterFactory::AdapterFactory(const Ice::ObjectAdapterPtr& adapter,
     _adapter(adapter),
     _traceLevels(traceLevels)
 {
+    Ice::PropertiesPtr properties = _adapter->getCommunicator()->getProperties();
+
     //
     // Create and install the freeze evictor for standalone adapter objects.
     //
+    properties->setProperty("Freeze.Evictor." + envName + ".adapter.SaveSizeTrigger", "1");
     _evictor = Freeze::createEvictor(_adapter, envName, "adapter");
     _evictor->setSize(1000);
 

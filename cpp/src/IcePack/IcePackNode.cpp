@@ -227,8 +227,8 @@ IcePack::NodeService::start(int argc, char* argv[])
     //
     // Initialize the database environment (first setup the directory structure if needed).
     //
-    string envName;
     string dataPath = properties->getProperty("IcePack.Node.Data");
+    string dbPath;
     if(dataPath.empty())
     {
         error("property `IcePack.Node.Data' is not set");
@@ -261,22 +261,21 @@ IcePack::NodeService::start(int argc, char* argv[])
 #endif
 
         //
-        // Creates subdirectories db and servers in the IcePack.Node.Data
-        // directory if they don't already exist.
+        // Creates subdirectories db and servers in the IcePack.Node.Data directory if they don't already exist.
         //
         if(dataPath[dataPath.length() - 1] != '/')
         {
             dataPath += "/"; 
         }
 
-        envName = dataPath + "db";
+	dbPath = dataPath + "db";
         string serversPath = dataPath + "servers";
 	string tmpPath = dataPath + "tmp";
 
 #ifdef _WIN32
-        if(::_stat(envName.c_str(), &filestat) != 0)
+        if(::_stat(dbPath.c_str(), &filestat) != 0)
         {
-            _mkdir(envName.c_str());
+            _mkdir(dbPath.c_str());
         }
         if(::_stat(serversPath.c_str(), &filestat) != 0)
         {
@@ -287,9 +286,9 @@ IcePack::NodeService::start(int argc, char* argv[])
             _mkdir(tmpPath.c_str());
         }
 #else
-        if(::stat(envName.c_str(), &filestat) != 0)
+        if(::stat(dbPath.c_str(), &filestat) != 0)
         {
-            mkdir(envName.c_str(), 0755);
+            mkdir(dbPath.c_str(), 0755);
         }
         if(::stat(serversPath.c_str(), &filestat) != 0)
         {
@@ -327,6 +326,12 @@ IcePack::NodeService::start(int argc, char* argv[])
     }
 
     //
+    // Setup the Freeze database environment home directory. The name of the database
+    // environment for the IcePack node is the name of the node.
+    //
+    properties->setProperty("Freeze.DbEnv." + name + ".DbHome", dbPath);
+
+    //
     // Set the adapter id for this node and create the node object adapter.
     //
     properties->setProperty("IcePack.Node.AdapterId", "IcePack.Node." + name);
@@ -350,7 +355,7 @@ IcePack::NodeService::start(int argc, char* argv[])
     // for the server and server adapter. It also takes care of installing the
     // evictors and object factories necessary to store these objects.
     //
-    ServerFactoryPtr serverFactory = new ServerFactory(adapter, traceLevels, envName, _activator, _waitQueue);
+    ServerFactoryPtr serverFactory = new ServerFactory(adapter, traceLevels, name, _activator, _waitQueue);
     NodePtr node = new NodeI(_activator, name, serverFactory, communicator(), properties);
     Identity id = stringToIdentity(IceUtil::generateUUID());
     adapter->add(node, id);

@@ -25,8 +25,6 @@ public:
 private:
 
     Ice::CommunicatorPtr _communicator;
-
-    std::string _envName;
 };
 
 }

@@ -102,12 +102,14 @@ ServerFactory::ServerFactory(const Ice::ObjectAdapterPtr& adapter,
     //
     // Create and install the freeze evictor for server objects.
     //
+    properties->setProperty("Freeze.Evictor." + envName + ".servers.SaveSizeTrigger", "1");
     _serverEvictor = Freeze::createEvictor(_adapter, envName, "servers", 0);
     _serverEvictor->setSize(10000);
 
     //
     // Create and install the freeze evictor for server adapter objects.
     //
+    properties->setProperty("Freeze.Evictor." + envName + ".serveradapters.SaveSizeTrigger", "1");
     _serverAdapterEvictor = Freeze::createEvictor(_adapter, envName, "serveradapters", 0);
     _serverAdapterEvictor->setSize(10000);
 
