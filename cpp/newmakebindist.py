@@ -394,7 +394,7 @@ def extractDemos(buildDir, version, distro, demoDir):
     if not os.path.exists(buildDir + "/Ice-" + version + "-demos/certs"):
 	os.mkdir(buildDir + "/Ice-" + version + "-demos/certs")
 
-    os.system("cp -aR " + distro + "/certs/* " + buildDir + "/Ice-" + version + "-demos/certs")
+    os.system("cp -pR " + distro + "/certs/* " + buildDir + "/Ice-" + version + "-demos/certs")
 
     #
     # The following hunks spawn a perl process to do an in-place edit
@@ -551,7 +551,7 @@ def makeInstall(buildDir, installDir, distro, clean):
 	# Shelling out to a copy is easier (and more likely to always
 	# work) than shutil.copytree().
 	#
-	os.system("cp -aR " + buildDir + "/" + distro + "/ant " + installDir)
+	os.system("cp -pR " + buildDir + "/" + distro + "/ant " + installDir)
         os.chdir(cwd)
         return
 
@@ -848,7 +848,7 @@ def main():
 	#
 	# Copy demo files so the RPM spec file can pick them up.
 	#
-	os.system("cp -aR " + installDir + "/Ice-" + version + "-demos/* " + installDir + "/usr/share/doc/Ice-" + version)
+	os.system("cp -pR " + installDir + "/Ice-" + version + "-demos/* " + installDir + "/usr/share/doc/Ice-" + version)
 	shutil.rmtree(installDir + "/Ice-" + version + "-demos")
         cwd = os.getcwd()
         os.chdir(buildDir)
