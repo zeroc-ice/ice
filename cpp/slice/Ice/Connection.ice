@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_TRANSPORT_INFO_ICE
-#define ICE_TRANSPORT_INFO_ICE
+#ifndef ICE_CONNECTION_ICE
+#define ICE_CONNECTION_ICE
 
 #include <Ice/Identity.ice>
 
@@ -20,7 +20,7 @@ module Ice
  * The user-level interface to a connection.
  *
  **/
-local interface TransportInfo
+local interface Connection
 {
     /**
      *

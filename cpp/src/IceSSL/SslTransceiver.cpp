@@ -58,7 +58,7 @@ IceSSL::SslTransceiver::close()
     if(_traceLevels->network >= 1)
     {
    	Trace out(_logger, _traceLevels->networkCat);
-	out << "closing ssl connection\n" << _info->toString();
+	out << "closing ssl connection\n" << toString();
     }
 
     try
@@ -97,7 +97,7 @@ IceSSL::SslTransceiver::shutdown()
     if(_traceLevels->network >= 2)
     {
  	Trace out(_logger, _traceLevels->networkCat);
-	out << "shutting down ssl connection\n" << _info->toString();
+	out << "shutting down ssl connection\n" << toString();
     }
 
     int shutdown = 0;
@@ -174,12 +174,12 @@ IceSSL::SslTransceiver::read(Buffer& buf, int timeout)
                     {
  	                Trace out(_logger, _traceLevels->networkCat);
                         out << "received " << bytesRead << " of " << packetSize;
-                        out << " bytes via ssl\n" << _info->toString();
+                        out << " bytes via ssl\n" << toString();
                     }
 
 		    if(_stats)
 		    {
-			_stats->bytesReceived(_info->type(), bytesRead);
+			_stats->bytesReceived(type(), bytesRead);
 		    }
 
                     totalBytesRead += bytesRead;
@@ -306,10 +306,16 @@ IceSSL::SslTransceiver::read(Buffer& buf, int timeout)
     }
 }
 
-TransportInfoPtr
-IceSSL::SslTransceiver::info() const
+string
+IceSSL::SslTransceiver::type() const
 {
-    return _info;
+    return "ssl";
+}
+
+string
+IceSSL::SslTransceiver::toString() const
+{
+    return fdToString(_fd);
 }
 
 void
@@ -340,7 +346,7 @@ IceSSL::SslTransceiver::forceHandshake()
         if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         {
  	    Trace out(_logger, _traceLevels->securityCat);
-            out << "Handshake retry maximum reached.\n" << _info->toString();
+            out << "Handshake retry maximum reached.\n" << toString();
         }
 
         close();
@@ -1031,7 +1037,6 @@ IceSSL::SslTransceiver::SslTransceiver(const OpenSSLPluginIPtr& plugin,
     _traceLevels(plugin->getTraceLevels()),
     _logger(plugin->getLogger()),
     _stats(plugin->getStats()),
-    _info(new SslTransportInfoI(fd)),
     _fd(fd),
     _certificateVerifier(certificateVerifier)
 {
@@ -1066,23 +1071,4 @@ IceSSL::SslTransceiver::~SslTransceiver()
         SSL_free(_sslConnection);
         _sslConnection = 0;
     }
-}
-
-string
-IceSSL::SslTransportInfoI::type() const
-{
-    return _type;
-}
-
-string
-IceSSL::SslTransportInfoI::toString() const
-{
-    return _desc;
-}
-
-const string IceSSL::SslTransportInfoI::_type = "ssl";
-
-IceSSL::SslTransportInfoI::SslTransportInfoI(SOCKET fd) :
-    _desc(fdToString(fd))
-{
 }

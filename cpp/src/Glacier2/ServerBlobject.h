@@ -22,7 +22,7 @@ class ServerBlobject : public Glacier2::Blobject
 {
 public:
 
-    ServerBlobject(const Ice::CommunicatorPtr&, const Ice::TransportInfoPtr&);
+    ServerBlobject(const Ice::CommunicatorPtr&, const Ice::ConnectionPtr&);
     virtual ~ServerBlobject();
 
     void destroy();
@@ -31,7 +31,7 @@ public:
 
 private:
 
-    Ice::TransportInfoPtr _transport;
+    Ice::ConnectionPtr _connection;
 };
 
 }

@@ -12,7 +12,6 @@
 
 #include <IceUtil/Shared.h>
 #include <Ice/TransceiverF.h>
-#include <Ice/TransportInfoF.h>
 
 #ifdef _WIN32
 typedef int ssize_t;
@@ -34,7 +33,8 @@ public:
     virtual void shutdown() = 0;
     virtual void write(Buffer&, int) = 0;
     virtual void read(Buffer&, int) = 0;
-    virtual Ice::TransportInfoPtr info() const = 0;
+    virtual std::string type() const = 0;
+    virtual std::string toString() const = 0;
 };
 
 }

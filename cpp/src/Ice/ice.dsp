@@ -410,11 +410,7 @@ SOURCE=.\Transceiver.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\TransportInfo.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\TransportInfoI.cpp
+SOURCE=.\Connection.cpp
 # End Source File
 # Begin Source File
 
@@ -930,15 +926,11 @@ SOURCE=.\TransceiverF.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\TransportInfo.h
+SOURCE=..\..\include\Ice\Connection.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\TransportInfoF.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\TransportInfoI.h
+SOURCE=..\..\include\Ice\ConnectionF.h
 # End Source File
 # Begin Source File
 
@@ -2100,23 +2092,23 @@ InputPath=..\..\slice\Ice\StatsF.ice
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\Ice\TransportInfo.ice
+SOURCE=..\..\slice\Ice\Connection.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
 USERDEP__TRANS="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\Ice\TransportInfo.ice
+InputPath=..\..\slice\Ice\Connection.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice -DICE_CPP --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/TransportInfo.ice \
-	move TransportInfo.h ..\..\include\Ice \
+	..\..\bin\slice2cpp.exe --ice -DICE_CPP --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Connection.ice \
+	move Connection.h ..\..\include\Ice \
 	
 
-"..\..\include\Ice\TransportInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\Ice\Connection.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"TransportInfo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Connection.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -2124,17 +2116,17 @@ BuildCmds= \
 
 USERDEP__TRANS="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\Ice\TransportInfo.ice
+InputPath=..\..\slice\Ice\Connection.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice -DICE_CPP --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/TransportInfo.ice \
-	move TransportInfo.h ..\..\include\Ice \
+	..\..\bin\slice2cpp.exe --ice -DICE_CPP --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Connection.ice \
+	move Connection.h ..\..\include\Ice \
 	
 
-"..\..\include\Ice\TransportInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\Ice\Connection.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"TransportInfo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Connection.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -2143,18 +2135,18 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\Ice\TransportInfoF.ice
+SOURCE=..\..\slice\Ice\ConnectionF.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
 USERDEP__TRANSP="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\Ice\TransportInfoF.ice
+InputPath=..\..\slice\Ice\ConnectionF.ice
 
-"..\..\include\Ice\TransportInfoF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/TransportInfoF.ice 
-	move TransportInfoF.h ..\..\include\Ice 
-	del TransportInfoF.cpp 
+"..\..\include\Ice\ConnectionF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ConnectionF.ice 
+	move ConnectionF.h ..\..\include\Ice 
+	del ConnectionF.cpp 
 	
 # End Custom Build
 
@@ -2162,12 +2154,12 @@ InputPath=..\..\slice\Ice\TransportInfoF.ice
 
 USERDEP__TRANSP="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\Ice\TransportInfoF.ice
+InputPath=..\..\slice\Ice\ConnectionF.ice
 
-"..\..\include\Ice\TransportInfoF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/TransportInfoF.ice 
-	move TransportInfoF.h ..\..\include\Ice 
-	del TransportInfoF.cpp 
+"..\..\include\Ice\ConnectionF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ConnectionF.ice 
+	move ConnectionF.h ..\..\include\Ice 
+	del ConnectionF.cpp 
 	
 # End Custom Build
 

@@ -52,7 +52,7 @@ private:
     // We need a separate ConnectionIPtr, because IncomingBase only
     // holds a ConnectionI* for optimization.
     //
-    const ::Ice::ConnectionIPtr _connectionCopy;
+    const Ice::ConnectionIPtr _connectionCopy;
 };
 
 }

@@ -52,7 +52,7 @@ FindFirstOfTest(const pair<const Byte, const Int>& p, Byte q)
 
 
 void
-populateDB(const ConnectionPtr& connection, ByteIntMap& m)
+populateDB(const Freeze::ConnectionPtr& connection, ByteIntMap& m)
 {
     alphabet.assign(alphabetChars, alphabetChars + sizeof(alphabetChars) - 1);
     size_t length = alphabet.size();
@@ -131,7 +131,7 @@ public:
 
 private:
 
-    ConnectionPtr _connection;
+    Freeze::ConnectionPtr _connection;
     ByteIntMap  _map;
 };
 
@@ -190,7 +190,7 @@ public:
 
 private:
 
-    ConnectionPtr _connection;
+    Freeze::ConnectionPtr _connection;
     ByteIntMap  _map;
 };
 
@@ -198,7 +198,7 @@ private:
 int
 run(const CommunicatorPtr& communicator, const string& envName, const string&dbName)
 {
-    ConnectionPtr connection = createConnection(communicator, envName);
+    Freeze::ConnectionPtr connection = createConnection(communicator, envName);
     ByteIntMap m(connection, dbName);
     
     //

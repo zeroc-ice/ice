@@ -34,7 +34,7 @@ IceInternal::UdpTransceiver::close()
     if(_traceLevels->network >= 1)
     {
 	Trace out(_logger, _traceLevels->networkCat);
-	out << "closing udp connection\n" << _info->toString();
+	out << "closing udp connection\n" << toString();
     }
 
     assert(_fd != INVALID_SOCKET);
@@ -103,12 +103,12 @@ repeat:
     if(_traceLevels->network >= 3)
     {
 	Trace out(_logger, _traceLevels->networkCat);
-	out << "sent " << ret << " bytes via udp\n" << _info->toString();
+	out << "sent " << ret << " bytes via udp\n" << toString();
     }
     
     if(_stats)
     {
-	_stats->bytesSent(_info->type(), static_cast<Int>(ret));
+	_stats->bytesSent(type(), static_cast<Int>(ret));
     }
 
     assert(ret == static_cast<ssize_t>(buf.b.size()));
@@ -160,7 +160,7 @@ repeat:
 	    if(_traceLevels->network >= 1)
 	    {
 		Trace out(_logger, _traceLevels->networkCat);
-		out << "connected udp socket\n" << _info->toString();
+		out << "connected udp socket\n" << toString();
 	    }
 	}
     }
@@ -220,22 +220,28 @@ repeat:
     if(_traceLevels->network >= 3)
     {
 	Trace out(_logger, _traceLevels->networkCat);
-	out << "received " << ret << " bytes via udp\n" << _info->toString();
+	out << "received " << ret << " bytes via udp\n" << toString();
     }
 
     if(_stats)
     {
-	_stats->bytesReceived(_info->type(), static_cast<Int>(ret));
+	_stats->bytesReceived(type(), static_cast<Int>(ret));
     }
 
     buf.b.resize(ret);
     buf.i = buf.b.end();
 }
 
-TransportInfoPtr
-IceInternal::UdpTransceiver::info() const
+string
+IceInternal::UdpTransceiver::type() const
 {
-    return _info;
+    return "udp";
+}
+
+string
+IceInternal::UdpTransceiver::toString() const
+{
+    return fdToString(_fd);
 }
 
 bool
@@ -268,12 +274,10 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 	doConnect(_fd, _addr, -1);
 	_connect = false; // We're connected now
 	
-	const_cast<TransportInfoPtr&>(_info) = new UdpTransportInfoI(_fd);
-
 	if(_traceLevels->network >= 1)
 	{
 	    Trace out(_logger, _traceLevels->networkCat);
-	    out << "starting to send udp packets\n" << _info->toString();
+	    out << "starting to send udp packets\n" << toString();
 	}
     }
     catch(...)
@@ -307,12 +311,10 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 	}
 	doBind(_fd, _addr);
 	    
-	const_cast<TransportInfoPtr&>(_info) = new UdpTransportInfoI(_fd);
-
 	if(_traceLevels->network >= 1)
 	{
 	    Trace out(_logger, _traceLevels->networkCat);
-	    out << "starting to receive udp packets\n" << _info->toString();
+	    out << "starting to receive udp packets\n" << toString();
 	}
     }
     catch(...)
@@ -422,22 +424,3 @@ IceInternal::UdpTransceiver::setBufSize(const InstancePtr& instance)
 //
 const int IceInternal::UdpTransceiver::_udpOverhead = 20 + 8;
 const int IceInternal::UdpTransceiver::_maxPacketSize = 65535 - _udpOverhead;
-
-string
-Ice::UdpTransportInfoI::type() const
-{
-    return _type;
-}
-
-string
-Ice::UdpTransportInfoI::toString() const
-{
-    return _desc;
-}
-
-const string Ice::UdpTransportInfoI::_type = "udp";
-
-Ice::UdpTransportInfoI::UdpTransportInfoI(SOCKET fd) :
-    _desc(fdToString(fd))
-{
-}

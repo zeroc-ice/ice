@@ -3884,7 +3884,7 @@ Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtil::Output &out)
 bool
 Slice::Gen::DispatcherVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalInterfaceDefs())
+    if(!p->hasNonLocalClassDecls())
     {
         return false;
     }

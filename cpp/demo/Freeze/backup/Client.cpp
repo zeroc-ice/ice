@@ -37,7 +37,7 @@ main(int argc, char* argv[])
 
     CommunicatorPtr communicator = initializeWithProperties(argc, argv, properties);
 
-    ConnectionPtr connection = createConnection(communicator, "db");
+    Freeze::ConnectionPtr connection = createConnection(communicator, "db");
     IntLongMap m(connection, "IntLongMap", true);
     
     const size_t size = 10000;

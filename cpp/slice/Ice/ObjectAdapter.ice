@@ -14,7 +14,6 @@
 #include <Ice/ServantLocatorF.ice>
 #include <Ice/RouterF.ice>
 #include <Ice/LocatorF.ice>
-#include <Ice/TransportInfoF.ice>
 #include <Ice/Identity.ice>
 #include <Ice/FacetMap.ice>
 

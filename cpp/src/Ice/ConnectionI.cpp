@@ -13,7 +13,6 @@
 #include <Ice/Properties.h>
 #include <Ice/TraceUtil.h>
 #include <Ice/Transceiver.h>
-#include <Ice/TransportInfoI.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ConnectionMonitor.h>
 #include <Ice/ObjectAdapterI.h> // For getThreadPool() and getServantManager().
@@ -23,6 +22,8 @@
 #include <Ice/Incoming.h>
 #include <Ice/LocalException.h>
 #include <Ice/Protocol.h>
+#include <Ice/ReferenceFactory.h> // For createProxy().
+#include <Ice/ProxyFactory.h> // For createProxy().
 #include <bzlib.h>
 
 using namespace std;
@@ -175,12 +176,6 @@ Ice::ConnectionI::validate()
     // We start out in holding state.
     //
     setState(StateHolding);
-
-    //
-    // The TransportInfo object needs this connection for flushing
-    // batch requests.
-    //
-    dynamic_cast<TransportInfoI*>(_info.get())->setConnection(this);
 }
 
 void
@@ -755,7 +750,7 @@ Ice::ConnectionI::finishBatchRequest(BasicStream* os, bool compress)
 }
 
 void
-Ice::ConnectionI::flushBatchRequest()
+Ice::ConnectionI::flushBatchRequests()
 {
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -1079,10 +1074,19 @@ Ice::ConnectionI::getAdapter() const
     return _adapter;
 }
 
-TransportInfoPtr
-Ice::ConnectionI::getTransportInfo() const
+ObjectPrx
+Ice::ConnectionI::createProxy(const Identity& ident) const
 {
-    return _info; // No mutex lock, _info is immutable.
+    //
+    // Create a reference and return a reverse proxy for this
+    // reference.
+    //
+    vector<EndpointPtr> endpoints;
+    vector<ConnectionIPtr> connections;
+    connections.push_back(const_cast<ConnectionI*>(this));
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "", Reference::ModeTwoway,
+							     false, "", endpoints, 0, 0, connections, true);
+    return _instance->proxyFactory()->referenceToProxy(ref);
 }
 
 bool
@@ -1168,7 +1172,7 @@ Ice::ConnectionI::message(BasicStream& stream, const ThreadPoolPtr& threadPool)
 		    if(_endpoint->datagram() && _warn)
 		    {
 			Warning out(_logger);
-			out << "ignoring close connection message for datagram connection:\n" << _info->toString();
+			out << "ignoring close connection message for datagram connection:\n" << _desc;
 		    }
 		    else
 		    {
@@ -1299,7 +1303,7 @@ Ice::ConnectionI::message(BasicStream& stream, const ThreadPoolPtr& threadPool)
 		    if(_warn)
 		    {
 			Warning out(_logger);
-			out << "ignoring unexpected validate connection message:\n" << _info->toString();
+			out << "ignoring unexpected validate connection message:\n" << _desc;
 		    }
 		    break;
 		}
@@ -1343,7 +1347,7 @@ Ice::ConnectionI::message(BasicStream& stream, const ThreadPoolPtr& threadPool)
 	    // Prepare the invocation.
 	    //
 	    bool response = !_endpoint->datagram() && requestId != 0;
-	    Incoming in(_instance.get(), this, _adapter, _info, response, compress);
+	    Incoming in(_instance.get(), this, _adapter, response, compress);
 	    BasicStream* is = in.is();
 	    stream.swap(*is);
 	    BasicStream* os = in.os();
@@ -1430,7 +1434,6 @@ Ice::ConnectionI::finished(const ThreadPoolPtr& threadPool)
 
 	    assert(_transceiver);
 	    _transceiver = 0;
-	    dynamic_cast<TransportInfoI*>(_info.get())->setConnection(0); // Break cyclic dependency.
 	    notifyAll();
 	}
 
@@ -1468,9 +1471,15 @@ Ice::ConnectionI::exception(const LocalException& ex)
 }
 
 string
+Ice::ConnectionI::type() const
+{
+    return _type; // No mutex lock, _type is immutable.
+}
+
+string
 Ice::ConnectionI::toString() const
 {
-    return _info->toString(); // No mutex lock, _info is immutable.
+    return _desc; // No mutex lock, _desc is immutable.
 }
 
 bool
@@ -1492,12 +1501,13 @@ Ice::ConnectionI::operator<(const ConnectionI& r) const
 }
 
 Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
-				    const TransceiverPtr& transceiver,
-				    const EndpointPtr& endpoint,
-				    const ObjectAdapterPtr& adapter) :
+			      const TransceiverPtr& transceiver,
+			      const EndpointPtr& endpoint,
+			      const ObjectAdapterPtr& adapter) :
     EventHandler(instance),
     _transceiver(transceiver),
-    _info(transceiver->info()),
+    _desc(transceiver->toString()),
+    _type(transceiver->type()),
     _endpoint(endpoint),
     _adapter(adapter),
     _logger(_instance->logger()), // Cached for better performance.
@@ -1614,7 +1624,7 @@ Ice::ConnectionI::setState(State state, const LocalException& ex)
 		     (dynamic_cast<const ConnectionLostException*>(_exception.get()) && _state == StateClosing)))
 		{
 		    Warning out(_logger);
-		    out << "connection exception:\n" << *_exception.get() << '\n' << _info->toString();
+		    out << "connection exception:\n" << *_exception.get() << '\n' << _desc;
 		}
 	    }
 	}
@@ -1722,7 +1732,6 @@ Ice::ConnectionI::setState(State state)
 		}
 
 		_transceiver = 0;
-		dynamic_cast<TransportInfoI*>(_info.get())->setConnection(0); // Break cyclic dependency.
 		//notifyAll(); // We notify already below.
 	    }
 	    else

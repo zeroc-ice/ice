@@ -13,7 +13,6 @@
 #include <Ice/LoggerF.h>
 #include <Ice/StatsF.h>
 #include <Ice/Transceiver.h>
-#include <Ice/TransportInfoI.h>
 #include <Ice/Buffer.h>
 #include <IceUtil/Mutex.h>
 #include <IceSSL/SslTransceiverF.h>
@@ -133,7 +132,8 @@ public:
     virtual void shutdown();
     virtual void write(IceInternal::Buffer&, int) = 0;
     virtual void read(IceInternal::Buffer&, int);
-    virtual Ice::TransportInfoPtr info() const;
+    virtual std::string type() const;
+    virtual std::string toString() const;
 
     void forceHandshake();
     virtual int handshake(int timeout = 0) = 0;
@@ -206,34 +206,12 @@ protected:
     const TraceLevelsPtr _traceLevels;
     const Ice::LoggerPtr _logger;
     const Ice::StatsPtr _stats;
-    const Ice::TransportInfoPtr _info;
 
     SOCKET _fd;
     fd_set _rFdSet;
     fd_set _wFdSet;
 
     IceSSL::CertificateVerifierPtr _certificateVerifier;
-};
-
-}
-
-namespace IceSSL
-{
-
-class SslTransportInfoI : public Ice::TransportInfoI
-{
-public:
-
-    virtual std::string type() const;
-    virtual std::string toString() const;
-
-private:
-
-    SslTransportInfoI(SOCKET);
-    friend class IceSSL::SslTransceiver;
-
-    static const std::string _type;
-    const std::string _desc;
 };
 
 }

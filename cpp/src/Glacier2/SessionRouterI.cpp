@@ -26,8 +26,8 @@ public:
     virtual ObjectPtr
     locate(const Current& current, LocalObjectPtr&)
     {
-	assert(current.transport);
-	return _sessionRouter->getRouter(current.transport)->getClientBlobject();
+	assert(current.con);
+	return _sessionRouter->getRouter(current.con)->getClientBlobject();
     }
 
     virtual void
@@ -75,7 +75,7 @@ Glacier2::SessionRouterI::destroy()
 	_destroy = true;
 	
 	for_each(_routers.begin(), _routers.end(),
-		 Ice::secondVoidMemFun<const TransportInfoPtr, RouterI>(&RouterI::destroy));
+		 Ice::secondVoidMemFun<const ConnectionPtr, RouterI>(&RouterI::destroy));
 	_routers.clear();
 	_routersHint = _routers.end();
 	
@@ -88,19 +88,19 @@ Glacier2::SessionRouterI::destroy()
 ObjectPrx
 Glacier2::SessionRouterI::getClientProxy(const Current& current) const
 {
-    return getRouter(current.transport)->getClientProxy(current); // Forward to the per-client router.
+    return getRouter(current.con)->getClientProxy(current); // Forward to the per-client router.
 }
 
 ObjectPrx
 Glacier2::SessionRouterI::getServerProxy(const Current& current) const
 {
-    return getRouter(current.transport)->getServerProxy(current); // Forward to the per-client router.
+    return getRouter(current.con)->getServerProxy(current); // Forward to the per-client router.
 }
 
 void
 Glacier2::SessionRouterI::addProxy(const ObjectPrx& proxy, const Current& current)
 {
-    getRouter(current.transport)->addProxy(proxy, current); // Forward to the per-client router.
+    getRouter(current.con)->addProxy(proxy, current); // Forward to the per-client router.
 }
 
 void
@@ -113,31 +113,31 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
     //
     // Add a new per-client router.
     //
-    RouterIPtr router = new RouterI(_clientAdapter, _serverAdapter, current.transport);
-    _routersHint = _routers.insert(_routersHint, pair<const TransportInfoPtr, RouterIPtr>(current.transport, router));
+    RouterIPtr router = new RouterI(_clientAdapter, _serverAdapter, current.con);
+    _routersHint = _routers.insert(_routersHint, pair<const ConnectionPtr, RouterIPtr>(current.con, router));
     
     if(_traceLevel >= 1)
     {
 	Trace out(_logger, "Glacier2");
 	out << "added session for:\n";
-	out << current.transport->toString();
+	out << current.con->toString();
     }
 }
 
 RouterIPtr
-Glacier2::SessionRouterI::getRouter(const TransportInfoPtr& transport) const
+Glacier2::SessionRouterI::getRouter(const ConnectionPtr& connection) const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
     assert(!_destroy);
 
-    if(_routersHint != _routers.end() && _routersHint->first == transport)
+    if(_routersHint != _routers.end() && _routersHint->first == connection)
     {
 	return _routersHint->second;
     }
     
-    map<TransportInfoPtr, RouterIPtr>::iterator p =
-	const_cast<map<TransportInfoPtr, RouterIPtr>&>(_routers).find(transport);
+    map<ConnectionPtr, RouterIPtr>::iterator p =
+	const_cast<map<ConnectionPtr, RouterIPtr>&>(_routers).find(connection);
 
     if(p != _routers.end())
     {

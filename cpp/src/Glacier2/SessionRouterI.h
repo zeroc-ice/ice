@@ -37,7 +37,7 @@ public:
     virtual void addProxy(const Ice::ObjectPrx&, const Ice::Current&);
     virtual void createSession(const std::string&, const std::string&, const Ice::Current&);
 
-    RouterIPtr getRouter(const Ice::TransportInfoPtr&) const;    
+    RouterIPtr getRouter(const Ice::ConnectionPtr&) const;    
 
     virtual void run();
 
@@ -68,8 +68,8 @@ private:
 
     int _serverAdapterCount;
 
-    std::map<Ice::TransportInfoPtr, RouterIPtr> _routers;
-    mutable std::map<Ice::TransportInfoPtr, RouterIPtr>::iterator _routersHint;
+    std::map<Ice::ConnectionPtr, RouterIPtr> _routers;
+    mutable std::map<Ice::ConnectionPtr, RouterIPtr>::iterator _routersHint;
 
     bool _destroy;
 };

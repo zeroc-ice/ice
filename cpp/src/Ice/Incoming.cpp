@@ -27,7 +27,6 @@ using namespace IceInternal;
 
 IceInternal::IncomingBase::IncomingBase(Instance* instance, ConnectionI* connection, 
 					const ObjectAdapterPtr& adapter,
-					const TransportInfoPtr& transport,
 					bool response, Byte compress) :
     _response(response),
     _compress(compress),
@@ -35,7 +34,7 @@ IceInternal::IncomingBase::IncomingBase(Instance* instance, ConnectionI* connect
     _connection(connection)
 {
     _current.adapter = adapter;
-    _current.transport = transport;
+    _current.con = _connection;
 }
 
 IceInternal::IncomingBase::IncomingBase(IncomingBase& in) :
@@ -95,9 +94,8 @@ IceInternal::IncomingBase::__warning(const string& msg) const
 
 IceInternal::Incoming::Incoming(Instance* instance, ConnectionI* connection, 
 				const ObjectAdapterPtr& adapter,
-				const TransportInfoPtr& transport,
 				bool response, Byte compress) :
-    IncomingBase(instance, connection, adapter, transport, response, compress),
+    IncomingBase(instance, connection, adapter, response, compress),
     _is(instance)
 {
 }

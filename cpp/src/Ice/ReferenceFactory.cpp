@@ -16,6 +16,7 @@
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/LocatorInfo.h>
+#include <Ice/BasicStream.h>
 #include <IceUtil/StringUtil.h>
 
 using namespace std;

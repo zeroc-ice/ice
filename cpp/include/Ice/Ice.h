@@ -27,7 +27,7 @@
 #include <Ice/IncomingAsync.h>
 #include <Ice/Process.h>
 #include <Ice/Application.h>
-#include <Ice/TransportInfo.h>
+#include <Ice/Connection.h>
 #include <Ice/Functional.h>
 #include <Ice/Stream.h>
 

@@ -7,17 +7,17 @@
 //
 // **********************************************************************
 
-#ifndef ICE_CONNECTIONI_H
-#define ICE_CONNECTIONI_H
+#ifndef ICE_CONNECTION_I_H
+#define ICE_CONNECTION_I_H
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Time.h>
+#include <Ice/Connection.h>
 #include <Ice/ConnectionIF.h>
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/TransceiverF.h>
-#include <Ice/TransportInfoF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ServantManagerF.h>
 #include <Ice/EndpointF.h>
@@ -38,7 +38,7 @@ namespace Ice
 
 class LocalException;
 
-class ConnectionI : public IceInternal::EventHandler, public IceUtil::Monitor<IceUtil::Mutex>
+class ConnectionI : public Connection, public IceInternal::EventHandler, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -67,7 +67,7 @@ public:
 
     void prepareBatchRequest(IceInternal::BasicStream*);
     void finishBatchRequest(IceInternal::BasicStream*, bool);
-    void flushBatchRequest();
+    virtual void flushBatchRequests(); // From Connection.
 
     void sendResponse(IceInternal::BasicStream*, Byte);
     void sendNoResponse();
@@ -77,8 +77,7 @@ public:
 
     void setAdapter(const ObjectAdapterPtr&);
     ObjectAdapterPtr getAdapter() const;
-
-    TransportInfoPtr getTransportInfo() const;
+    virtual ObjectPrx createProxy(const Identity& ident) const; // From Connection.
 
     //
     // Operations from EventHandler
@@ -89,7 +88,8 @@ public:
     virtual void message(IceInternal::BasicStream&, const IceInternal::ThreadPoolPtr&);
     virtual void finished(const IceInternal::ThreadPoolPtr&);
     virtual void exception(const LocalException&);
-    virtual std::string toString() const;
+    virtual std::string type() const; // From Connection.
+    virtual std::string toString() const;  // From Connection and EvantHandler.
 
     //
     // Compare connections for sorting purposes.
@@ -127,7 +127,8 @@ private:
     static void doUncompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
 
     IceInternal::TransceiverPtr _transceiver;
-    const TransportInfoPtr _info;
+    const std::string _desc;
+    const std::string _type;
     const IceInternal::EndpointPtr _endpoint;
 
     ObjectAdapterPtr _adapter;

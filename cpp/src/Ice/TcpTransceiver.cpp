@@ -33,7 +33,7 @@ IceInternal::TcpTransceiver::close()
     if(_traceLevels->network >= 1)
     {
 	Trace out(_logger, _traceLevels->networkCat);
-	out << "closing tcp connection\n" << _info->toString();
+	out << "closing tcp connection\n" << toString();
     }
 
     assert(_fd != INVALID_SOCKET);
@@ -55,7 +55,7 @@ IceInternal::TcpTransceiver::shutdown()
     if(_traceLevels->network >= 2)
     {
 	Trace out(_logger, _traceLevels->networkCat);
-	out << "shutting down tcp connection\n" << _info->toString();
+	out << "shutting down tcp connection\n" << toString();
     }
 
     assert(_fd != INVALID_SOCKET);
@@ -159,12 +159,12 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 	if(_traceLevels->network >= 3)
 	{
 	    Trace out(_logger, _traceLevels->networkCat);
-	    out << "sent " << ret << " of " << packetSize << " bytes via tcp\n" << _info->toString();
+	    out << "sent " << ret << " of " << packetSize << " bytes via tcp\n" << toString();
 	}
 
 	if(_stats)
 	{
-	    _stats->bytesSent(_info->type(), static_cast<Int>(ret));
+	    _stats->bytesSent(type(), static_cast<Int>(ret));
 	}
 
 	buf.i += ret;
@@ -282,12 +282,12 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 	if(_traceLevels->network >= 3)
 	{
 	    Trace out(_logger, _traceLevels->networkCat);
-	    out << "received " << ret << " of " << packetSize << " bytes via tcp\n" << _info->toString();
+	    out << "received " << ret << " of " << packetSize << " bytes via tcp\n" << toString();
 	}
 
 	if(_stats)
 	{
-	    _stats->bytesReceived(_info->type(), static_cast<Int>(ret));
+	    _stats->bytesReceived(type(), static_cast<Int>(ret));
 	}
 
 	buf.i += ret;
@@ -299,17 +299,22 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
     }
 }
 
-TransportInfoPtr
-IceInternal::TcpTransceiver::info() const
+string
+IceInternal::TcpTransceiver::type() const
 {
-    return _info;
+    return "tcp";
+}
+
+string
+IceInternal::TcpTransceiver::toString() const
+{
+    return fdToString(_fd);
 }
 
 IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET fd) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
     _stats(instance->stats()),
-    _info(new TcpTransportInfoI(fd)),
     _fd(fd)
 {
     FD_ZERO(&_rFdSet);
@@ -319,23 +324,4 @@ IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET 
 IceInternal::TcpTransceiver::~TcpTransceiver()
 {
     assert(_fd == INVALID_SOCKET);
-}
-
-string
-Ice::TcpTransportInfoI::type() const
-{
-    return _type;
-}
-
-string
-Ice::TcpTransportInfoI::toString() const
-{
-    return _desc;
-}
-
-const string Ice::TcpTransportInfoI::_type = "tcp";
-
-Ice::TcpTransportInfoI::TcpTransportInfoI(SOCKET fd) :
-    _desc(fdToString(fd))
-{
 }

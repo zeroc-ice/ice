@@ -14,22 +14,22 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::ServerBlobject::ServerBlobject(const CommunicatorPtr& communicator, const TransportInfoPtr& transport) :
+Glacier2::ServerBlobject::ServerBlobject(const CommunicatorPtr& communicator, const ConnectionPtr& connection) :
     Glacier2::Blobject(communicator, true),
-    _transport(transport)
+    _connection(connection)
 {
 }
 
 Glacier2::ServerBlobject::~ServerBlobject()
 {
-    assert(!_transport);
+    assert(!_connection);
 }
 
 void
 Glacier2::ServerBlobject::destroy()
 {
-    assert(_transport); // Destroyed?
-    _transport = 0;
+    assert(_connection); // Destroyed?
+    _connection = 0;
     Blobject::destroy();
 }
 
@@ -37,9 +37,9 @@ void
 Glacier2::ServerBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
 					   const Current& current)
 {
-    assert(_transport); // Destroyed?
+    assert(_connection); // Destroyed?
 
-    ObjectPrx proxy = _transport->createProxy(current.id);
+    ObjectPrx proxy = _connection->createProxy(current.id);
     assert(proxy);
 
     invoke(proxy, amdCB, inParams, current);

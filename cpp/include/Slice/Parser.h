@@ -401,15 +401,15 @@ public:
     SequenceList sequences() const;
     DictionaryList dictionaries() const;
     EnumList enums() const;
-    bool hasClassDecls() const;
     bool hasNonLocalClassDecls() const;
-    bool hasNonLocalInterfaceDefs() const;
+    bool hasNonLocalClassDefs() const;
     bool hasNonLocalSequences() const;
     bool hasNonLocalDictionaries() const;
+    bool hasNonLocalExceptions() const;
+    bool hasClassDecls() const;
     bool hasClassDefs() const;
     bool hasAbstractClassDefs() const;
     bool hasDataOnlyClasses() const;
-    bool hasNonLocalExceptions() const;
     bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
     bool hasContentsWithMetaData(const std::string&) const;
     bool hasAsyncOps() const;

@@ -170,12 +170,16 @@ Slice::Gen::generate(const UnitPtr& p)
     H << "\n#include <Ice/LocalObjectF.h>";
     H << "\n#include <Ice/ProxyF.h>";
     H << "\n#include <Ice/ObjectF.h>";
+    H << "\n#include <Ice/Exception.h>";
+    H << "\n#include <Ice/LocalObject.h>";
 
     if(p->usesProxies())
     {
-	H << "\n#include <Ice/Exception.h>";
-	H << "\n#include <Ice/LocalObject.h>";
 	H << "\n#include <Ice/Proxy.h>";
+    }
+
+    if(p->hasNonLocalClassDefs())
+    {
 	H << "\n#include <Ice/Object.h>";
 	H << "\n#include <Ice/Outgoing.h>";
 	if(p->hasContentsWithMetaData("ami"))
@@ -188,23 +192,9 @@ Slice::Gen::generate(const UnitPtr& p)
 	    H << "\n#include <Ice/IncomingAsync.h>";
 	}
 	H << "\n#include <Ice/Direct.h>";
-
+	
 	C << "\n#include <Ice/LocalException.h>";
 	C << "\n#include <Ice/ObjectFactory.h>";
-	C << "\n#include <Ice/BasicStream.h>";
-    }
-    else if(p->usesNonLocals())
-    {
-	H << "\n#include <Ice/Exception.h>";
-	H << "\n#include <Ice/LocalObject.h>";
-
-	C << "\n#include <Ice/BasicStream.h>";
-	C << "\n#include <Ice/Object.h>";
-    }
-    else
-    {
-	H << "\n#include <Ice/Exception.h>";
-	H << "\n#include <Ice/LocalObject.h>";
     }
 
     if(p->hasNonLocalExceptions())
@@ -215,6 +205,12 @@ Slice::Gen::generate(const UnitPtr& p)
     if(p->hasDataOnlyClasses() || p->hasNonLocalExceptions())
     {
 	H << "\n#include <Ice/FactoryTable.h>";
+    }
+
+    if(p->usesNonLocals())
+    {
+	C << "\n#include <Ice/BasicStream.h>";
+	C << "\n#include <Ice/Object.h>";
     }
 
     if(_checksum)

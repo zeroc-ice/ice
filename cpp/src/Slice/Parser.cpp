@@ -1377,18 +1377,18 @@ Slice::Container::hasNonLocalClassDecls() const
 }
 
 bool
-Slice::Container::hasNonLocalInterfaceDefs() const
+Slice::Container::hasNonLocalClassDefs() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
-	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(*p);
-	if(cl && !cl->isLocal() && cl->isInterface())
+	ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
+	if(cl && !cl->isLocal())
 	{
 	    return true;
 	}
 
 	ContainerPtr container = ContainerPtr::dynamicCast(*p);
-	if(container && container->hasNonLocalInterfaceDefs())
+	if(container && container->hasNonLocalClassDefs())
 	{
 	    return true;
 	}
@@ -1431,6 +1431,27 @@ Slice::Container::hasNonLocalDictionaries() const
 
 	ContainerPtr container = ContainerPtr::dynamicCast(*p);
 	if(container && container->hasNonLocalDictionaries())
+	{
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+bool
+Slice::Container::hasNonLocalExceptions() const
+{
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+	ExceptionPtr q = ExceptionPtr::dynamicCast(*p);
+	if(q && !q->isLocal())
+	{
+	    return true;
+	}
+
+	ContainerPtr container = ContainerPtr::dynamicCast(*p);
+	if(container && container->hasNonLocalExceptions())
 	{
 	    return true;
 	}
@@ -1516,27 +1537,6 @@ Slice::Container::hasDataOnlyClasses() const
 
 	ContainerPtr container = ContainerPtr::dynamicCast(*p);
 	if(container && container->hasDataOnlyClasses())
-	{
-	    return true;
-	}
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasNonLocalExceptions() const
-{
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-	ExceptionPtr q = ExceptionPtr::dynamicCast(*p);
-	if(q && !q->isLocal())
-	{
-	    return true;
-	}
-
-	ContainerPtr container = ContainerPtr::dynamicCast(*p);
-	if(container && container->hasNonLocalExceptions())
 	{
 	    return true;
 	}
@@ -5026,7 +5026,8 @@ Slice::Unit::parse(FILE* file, bool debug, bool disallowDeprecatedFeatures)
     assert(!Slice::unit);
     Slice::unit = this;
 
-    _disallowDeprecatedFeatures = disallowDeprecatedFeatures; // TODO: remove this once global definitions are outlawed.
+    // TODO: remove this once global definitions are outlawed.
+    _disallowDeprecatedFeatures = disallowDeprecatedFeatures;
 
     _currentComment = "";
     _currentLine = 1;

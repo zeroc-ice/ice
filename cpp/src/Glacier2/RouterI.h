@@ -25,7 +25,7 @@ class RouterI : public Router
 {
 public:
 
-    RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::TransportInfoPtr& transport);
+    RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::ConnectionPtr&);
     virtual ~RouterI();
     void destroy();
 

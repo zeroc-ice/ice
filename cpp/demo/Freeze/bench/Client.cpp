@@ -157,7 +157,7 @@ private:
     void IntIntMapReadTest();
 
     const string _envName;
-    ConnectionPtr _connection;
+    Freeze::ConnectionPtr _connection;
     StopWatch _watch;
     int _repetitions;
 };

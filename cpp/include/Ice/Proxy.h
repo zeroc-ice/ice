@@ -122,7 +122,7 @@ public:
     ::Ice::ObjectPrx ice_collocationOptimization(bool) const;
     ::Ice::ObjectPrx ice_default() const;
 
-    ::Ice::TransportInfoPtr ice_getTransportInfo();
+    ::Ice::ConnectionPtr ice_getConnection();
 
     ::IceInternal::ReferencePtr __reference() const;
     void __copyFrom(const ::Ice::ObjectPrx&);
@@ -164,7 +164,7 @@ public:
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&) = 0;
 
-    virtual ::Ice::TransportInfoPtr ice_getTransportInfo() = 0;
+    virtual ::Ice::ConnectionPtr ice_getConnection() = 0;
 };
 
 } }
@@ -185,7 +185,7 @@ public:
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
 
-    virtual ::Ice::TransportInfoPtr ice_getTransportInfo();
+    virtual ::Ice::ConnectionPtr ice_getConnection();
 
     void __copyFrom(const ::IceInternal::Handle< ::IceDelegateM::Ice::Object>&);
 
@@ -217,7 +217,7 @@ public:
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
 
-    virtual ::Ice::TransportInfoPtr ice_getTransportInfo();
+    virtual ::Ice::ConnectionPtr ice_getConnection();
 
     void __copyFrom(const ::IceInternal::Handle< ::IceDelegateD::Ice::Object>&);
 

@@ -7,13 +7,13 @@
 //
 // **********************************************************************
 
-#ifndef ICE_TRANSPORT_INFO_F_ICE
-#define ICE_TRANSPORT_INFO_F_ICE
+#ifndef ICE_CONNECTION_F_ICE
+#define ICE_CONNECTION_F_ICE
 
 module Ice
 {
 
-local interface TransportInfo;
+local interface Connection;
 
 };
 

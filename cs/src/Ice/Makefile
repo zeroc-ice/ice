@@ -105,7 +105,7 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/SliceChecksumDict.ice \
 		  $(SDIR)/StatsF.ice \
 		  $(SDIR)/Stats.ice \
-		  $(SDIR)/TransportInfo.ice
+		  $(SDIR)/Connection.ice
 
 SDIR		= $(slicedir)/Ice
 GDIR		= generated

@@ -46,7 +46,7 @@ private:
 
 Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter,
 			   const ObjectAdapterPtr& serverAdapter,
-			   const TransportInfoPtr& transport) :
+			   const ConnectionPtr& connection) :
     _communicator(clientAdapter->getCommunicator()),
     _routingTable(new IceInternal::RoutingTable),
     _routingTableTraceLevel(_communicator->getProperties()->getPropertyAsInt("Glacier2.Trace.RoutingTable")),
@@ -68,7 +68,7 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter,
 	    serverProxy = serverAdapter->createProxy(ident);
 	    
 	    ServerBlobjectPtr& serverBlobject = const_cast<ServerBlobjectPtr&>(_serverBlobject);
-	    serverBlobject = new ServerBlobject(_communicator, transport);
+	    serverBlobject = new ServerBlobject(_communicator, connection);
 	    serverAdapter->addServantLocator(new RouterLocator(serverBlobject), ident.category);
 	    serverAdapter->activate();
 	}

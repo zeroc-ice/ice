@@ -15,7 +15,7 @@ using namespace Ice;
 using namespace Glacier2;
 
 Glacier2::Request::Request(const ObjectPrx& proxy, const vector<Byte>& inParams, const Current& current,
-			  const AMI_Object_ice_invokePtr& amiCB) :
+			   const AMI_Object_ice_invokePtr& amiCB) :
     _proxy(proxy),
     _inParams(inParams),
     _current(current),
@@ -187,7 +187,7 @@ Glacier2::RequestQueue::run()
     while(true)
     {
 	vector<RequestPtr> requests;
-	set<TransportInfoPtr> flushSet;
+	set<ConnectionPtr> flushSet;
 
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
@@ -222,7 +222,7 @@ Glacier2::RequestQueue::run()
 
 		if(proxy->ice_batchOneway() || proxy->ice_batchDatagram())
 		{
-		    flushSet.insert(proxy->ice_getTransportInfo());
+		    flushSet.insert(proxy->ice_getConnection());
 		}
 
 		if(_traceLevelRequest >= 1)
@@ -233,7 +233,7 @@ Glacier2::RequestQueue::run()
 		(*p)->invoke(_forwardContext);
 	    }
 
-	    for_each(flushSet.begin(), flushSet.end(), Ice::voidMemFun(&TransportInfo::flushBatchRequests));
+	    for_each(flushSet.begin(), flushSet.end(), Ice::voidMemFun(&Connection::flushBatchRequests));
 	}
         catch(const Ice::Exception& ex)
         {

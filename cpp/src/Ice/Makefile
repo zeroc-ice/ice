@@ -55,6 +55,7 @@ OBJS		= Initialize.o \
 		  Router.o \
 		  RouterInfo.o \
 		  RoutingTable.o \
+		  Connection.o \
 		  ConnectionI.o \
 		  ConnectionFactory.o \
 		  ConnectionMonitor.o \
@@ -77,8 +78,6 @@ OBJS		= Initialize.o \
 		  TcpAcceptor.o \
 		  TcpTransceiver.o \
 		  UdpTransceiver.o \
-		  TransportInfo.o \
-		  TransportInfoI.o \
 		  DynamicLibrary.o \
 		  Plugin.o \
 		  PluginManagerI.o \
@@ -125,8 +124,8 @@ SLICE_SRCS	= $(SDIR)/LocalException.ice \
                   $(SDIR)/ProcessF.ice \
 		  $(SDIR)/FacetMap.ice \
 		  $(SDIR)/SliceChecksumDict.ice \
-		  $(SDIR)/TransportInfo.ice \
-		  $(SDIR)/TransportInfoF.ice
+		  $(SDIR)/Connection.ice \
+		  $(SDIR)/ConnectionF.ice
 
 HDIR		= $(includedir)/Ice
 SDIR		= $(slicedir)/Ice
