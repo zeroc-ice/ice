@@ -23,3 +23,13 @@ This will deploy the servers described in the file "application.xml"
 and start the client.
 
 Messages will be displayed in the IcePack service window.
+
+The deployment descriptors contain a "debug" target, this target
+allows easy deployment of your application with more tracing
+information. To deploy your application with this target:
+
+$ icepackadmin --Ice.Config=config -e "application add 'application.xml' debug"
+
+Or if you have already deployed your application:
+
+$ icepackadmin --Ice.Config=config -e "application update 'application.xml' debug"
