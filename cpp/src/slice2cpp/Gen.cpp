@@ -1514,11 +1514,11 @@ Slice::Gen::ObjectVisitor::visitOperation(const Operation_ptr& p)
 		C << nl << "catch(" << exceptionTypeToString(*r) << " __ex)";
 		C << sb;
 		C << nl << "__os -> write(" << cnt++ << ");";
-		if(ClassDef_ptr::dynamicCast(*r) ||
+		if(ClassDecl_ptr::dynamicCast(*r) ||
 		   Proxy_ptr::dynamicCast(*r))
 		{
 		    string s = "static_cast< ";
-		    s += typeToString(*r);
+		    s += inputTypeToString(*r);
 		    s += ">(__ex)";
 		    writeMarshalUnmarshalCode(C, *r, s, true);
 		}

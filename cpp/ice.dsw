@@ -18,6 +18,42 @@ Package=<4>
 
 ###############################################################################
 
+Project: "exceptionsC"=.\test\exceptions\exceptionsC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "exceptionsCOL"=.\test\exceptions\exceptionsCOL.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "exceptionsS"=.\test\exceptions\exceptionsS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "helloC"=.\demo\hello\helloC.dsp - Package Owner=<4>
 
 Package=<5>
