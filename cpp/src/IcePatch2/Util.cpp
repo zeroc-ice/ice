@@ -298,14 +298,16 @@ IcePatch2::getWithoutSuffix(const string& pa)
 {
     const string path = simplify(pa);
 
-    string::size_type pos = path.rfind('.');
-    if(pos == string::npos)
+    string::size_type dotPos = path.rfind('.');
+    string::size_type slashPos = path.rfind('/');
+
+    if(dotPos == string::npos || slashPos != string::npos && slashPos > dotPos)
     {
 	return path;
     }
     else
     {
-	return path.substr(0, pos);
+	return path.substr(0, dotPos);
     }
 }
 
