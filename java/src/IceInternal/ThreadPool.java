@@ -32,7 +32,6 @@ public final class ThreadPool
     {
         if (_multipleThreads)
         {
-//System.out.println("ThreadPool - promote follower - lock count = " + _threadMutex.count());
             _threadMutex.unlock();
         }
     }
@@ -47,6 +46,7 @@ public final class ThreadPool
     public synchronized void
     waitUntilFinished()
     {
+//System.out.println("ThreadPool - waiting until finished...");
         while (_handlers != 0 && _threadNum != 0)
         {
             try
@@ -63,6 +63,7 @@ public final class ThreadPool
             _instance.logger().error("can't wait for graceful server termination in thread pool\n" +
                                      "since all threads have vanished");
         }
+//System.out.println("ThreadPool - finished.");
     }
 
     public void
@@ -235,7 +236,7 @@ catch (RuntimeException ex)
 {
     ex.printStackTrace();
 }
-*/
+//*/
         byte b = 0;
 
         java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(1);
@@ -409,17 +410,9 @@ catch (RuntimeException ex)
 
                 synchronized (this)
                 {
-                    if (_keys.remove(_fdIntrReadKey) && _fdIntrReadKey.isReadable())
+                    if (_keys.contains(_fdIntrReadKey) && _fdIntrReadKey.isReadable())
                     {
-                        if (!_keys.isEmpty())
-                        {
-                            _keysIter = _keys.iterator();
-                        }
-                        else
-                        {
-                            _keysIter = null;
-                        }
-
+//System.out.println("ThreadPool - detected interrupt");
                         //
                         // There are three possibilities for an interrupt:
                         //
@@ -441,6 +434,17 @@ catch (RuntimeException ex)
                             // the other threads exit as well.
                             //
                             return;
+                        }
+
+                        _keys.remove(_fdIntrReadKey);
+
+                        if (!_keys.isEmpty())
+                        {
+                            _keysIter = _keys.iterator();
+                        }
+                        else
+                        {
+                            _keysIter = null;
                         }
 
                         shutdown = clearInterrupt();
