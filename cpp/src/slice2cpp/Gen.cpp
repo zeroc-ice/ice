@@ -1514,7 +1514,15 @@ Slice::Gen::ObjectVisitor::visitOperation(const Operation_ptr& p)
 		C << nl << "catch(" << exceptionTypeToString(*r) << " __ex)";
 		C << sb;
 		C << nl << "__os -> write(" << cnt++ << ");";
-		writeMarshalUnmarshalCode(C, *r, "__ex", true);
+		if(Proxy_ptr::dynamicCast(*r))
+		{
+		    string s = "static_cast< ";
+		    s += typeToString(*r);
+		    s += ">(__ex)";
+		    writeMarshalUnmarshalCode(C, *r, s, true);
+		}
+		else
+		    writeMarshalUnmarshalCode(C, *r, "__ex", true);
 		C << nl << "return ::__Ice::DispatchException;";
 		C << eb;
 	    }

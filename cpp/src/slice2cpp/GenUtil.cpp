@@ -163,7 +163,7 @@ Slice::exceptionTypeToString(const Type_ptr& type)
 	"const ::std::string&",
 	"const ::std::wstring&",
 	"const ::Ice::Object_ptrE&",
-	"const ::Ice::Object_prx&",
+	"const ::Ice::Object_prxE&",
 	"const ::Ice::LocalObject_ptrE&"
     };
 
@@ -177,7 +177,7 @@ Slice::exceptionTypeToString(const Type_ptr& type)
 	    
     Proxy_ptr proxy = Proxy_ptr::dynamicCast(type);
     if(proxy)
-	return "const " + proxy -> _class() -> scoped() + "_prx&";
+	return "const " + proxy -> _class() -> scoped() + "_prxE&";
 	    
     Enum_ptr en = Enum_ptr::dynamicCast(type);
     if(en)
