@@ -24,7 +24,6 @@
 #include <sys/types.h>
 
 #ifdef _WIN32
-#   include <IceUtil/Unicode.h>
 #   include <direct.h>
 #   include <io.h>
 #   define S_ISDIR(mode) ((mode) & _S_IFDIR)
@@ -91,9 +90,8 @@ public:
 
 #ifdef _WIN32
 	    string pattern = _name + "/*";
-	    wstring wpattern = IceUtil::stringToWstring(pattern);
 	    WIN32_FIND_DATA data;
-	    HANDLE hnd = FindFirstFile(wpattern.c_str(), &data);
+	    HANDLE hnd = FindFirstFile(pattern.c_str(), &data);
 	    if(hnd == INVALID_HANDLE_VALUE)
 	    {
 		// TODO: log a warning, throw an exception?
@@ -104,8 +102,7 @@ public:
 	    {
 		if((data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
 		{
-		    wstring wname(data.cFileName);
-		    files.push_back(_name + "/" + IceUtil::wstringToString(wname));
+		    files.push_back(_name + "/" + data.cFileName);
 		}
 	    } while(FindNextFile(hnd, &data));
 
