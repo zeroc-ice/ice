@@ -93,7 +93,7 @@ run(const Ice::CommunicatorPtr& communicator, const string& envName, const strin
             obj->shortToByte = 255;
             obj->intToShort = 32767;
             obj->longToInt = 2147483647;
-            obj->floatToString = 4567.8;
+            obj->floatToString = 4567.8f;
             obj->doubleToFloat = 8765.4;
             obj->stringToEnum = "E1";
             obj->renamed = E2;
@@ -110,7 +110,7 @@ run(const Ice::CommunicatorPtr& communicator, const string& envName, const strin
             obj->shortToByte = -1;
             obj->intToShort = -32768;
             obj->longToInt = -2147483647 - 1;
-            obj->floatToString = -4567.8;
+            obj->floatToString = -4567.8f;
             obj->doubleToFloat = -8765.4;
             obj->stringToEnum = "E3";
             obj->renamed = E1;
