@@ -246,50 +246,83 @@ Cache<Key, Value>::pinImpl(const Key& key, const Handle<Value>& newObj)
 	} 
 	else 
 	{          
-	    Handle<Value> obj = load(key); 
+	    Handle<Value> obj;
+	    try
+	    {
+		obj = load(key);
+	    }
+	    catch(...)
+	    {
+		{
+		    Mutex::Lock sync(_mutex);
+		    latch = p->second.latch;
+		    p->second.latch = 0;
+		    _map.erase(p);
+		}
+		if(latch != 0)  
+		{ 
+		    assert(latch->getCount() == 1);
+		    latch->countDown();
+		}
+		throw;
+	    }
+
 	    {
 		Mutex::Lock sync(_mutex);
 
 		latch = p->second.latch;
 		p->second.latch = 0;
 
-		if(obj != 0) 
-		{  
-		    p->second.obj = obj;
-		    pinned(obj, p);
-		} 
-		else 
-		{ 
-		    if(newObj == 0)
-		    {
-			//
-			// pin() did not find the object
-			//
-			
-			// 
-			// The waiting threads will have to call load() to see by themselves. 
-			// 
-			_map.erase(p);
+		try
+		{
+		    if(obj != 0) 
+		    {  
+			p->second.obj = obj;
+			pinned(obj, p);
+		    } 
+		    else 
+		    { 
+			if(newObj == 0)
+			{
+			    //
+			    // pin() did not find the object
+			    //
+			    
+			    // 
+			    // The waiting threads will have to call load() to see by themselves. 
+			    // 
+			    _map.erase(p);
+			}
+			else
+			{
+			    //
+			    // putIfAbsent() inserts key/newObj
+			    //
+			    p->second.obj = newObj;
+			    pinned(newObj, p);
+			}
 		    }
-		    else
-		    {
-			//
-			// putIfAbsent() inserts key/newObj
-			//
-			p->second.obj = newObj;
-			pinned(newObj, p);
+		}
+		catch(...)
+		{
+		    if(latch != 0)  
+		    { 
+			assert(latch->getCount() == 1);
+			latch->countDown();
 		    }
+		    throw;
 		}
 	    }
 	    if(latch != 0)  
 	    { 
 		assert(latch->getCount() == 1);
 		latch->countDown();
-	    } 
+	    }
 	    return obj;
-	}          
+	}  
     }
 }
+
 
 }
 
