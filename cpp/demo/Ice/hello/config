@@ -24,7 +24,7 @@ Ice.ConnectionWarnings=1
 # 2 = like 1, but more detailed
 # 3 = like 2, but also trace data transfer
 #
-Ice.Trace.Network=3
+#Ice.Trace.Network=3
 
 #
 # Protocol Tracing
@@ -32,7 +32,7 @@ Ice.Trace.Network=3
 # 0 = no protocol tracing
 # 1 = trace protocol messages
 #
-Ice.Trace.Protocol=1
+#Ice.Trace.Protocol=1
 
 #
 # Security Tracing

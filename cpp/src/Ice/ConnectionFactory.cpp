@@ -327,12 +327,12 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&)
 	connection->activate();
 	_connections.push_back(connection);
     }
-    catch (const IceSecurity::SecurityException& ex)
+    catch (const IceSecurity::SecurityException&)
     {
         // TODO: bandaid. Takes care of SSL Handshake problems during
         // creation of a Transceiver. Ignore, nothing we can do here.
     }
-    catch (const SocketException& ex)
+    catch (const SocketException&)
     {
         // TODO: bandaid. Takes care of SSL Handshake problems during
         // creation of a Transceiver. Ignore, nothing we can do here.
