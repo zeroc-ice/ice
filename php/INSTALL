@@ -283,6 +283,10 @@ to do the following:
    in the binary PHP distribution, you must use the Release
    configuration when compiling the Ice extension.
 
+NOTE: The Ice extension for PHP does not work correctly with Apache2
+      when compiled with Visual C++ 6.0 due to a problem in the run
+      time library. If you need to use Ice with Apache2, you must
+      use a version compiled with Visual C++ .NET (2002 or later).
 
 
 =========================================================================
@@ -292,8 +296,9 @@ Installing a Dynamic Extension
 If you are using the dynamic Ice extension, you must move the
 extension's shared library into PHP's extension directory. This
 directory is determined by the PHP configuration directive
-"extension_dir". You can determine the default value for this directive
-by running the command-line version of PHP with the -i option.
+"extension_dir". You can determine the default value for this
+directive by running the command-line version of PHP with the -i
+option.
 
 After compiling the dynamic extension on Linux and Solaris, the shared
 library can be found in the "modules" subdirectory of the PHP source
@@ -367,25 +372,3 @@ following configuration directives:
 
 extension_dir=<phpdir>/modules
 extension=ice.so
-
-
-
-=========================================================================
-Linux Issues
-=========================================================================
-
-The threading issue on RedHat 9, discussed in the file INSTALL.LINUX
-in the Ice source distribution, can cause Ice programs to hang
-indefinitely in certain circumstances.
-
-If you are using the Ice extension in a PHP-CGI executable, or in a
-PHP Apache module, then you must ensure that the environment variable
-LD_ASSUME_KERNEL has the value "2.4.1".
-
-For the CGI case, you can set this variable in the Apache configuration
-with the following directive:
-
-SetEnv LD_ASSUME_KERNEL 2.4.1
-
-For an Apache module, you must ensure the httpd server executable is
-started with this environment variable defined correctly.
