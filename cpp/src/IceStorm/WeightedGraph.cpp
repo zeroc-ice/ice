@@ -22,6 +22,15 @@
 using namespace std;
 using namespace IceStorm;
 
+static string
+toString(const XMLCh* ch)
+{
+    char* t = XMLString::transcode(ch);
+    string s(t);
+    delete[] t;
+    return s;
+}
+
 namespace IceStorm
 {
 
@@ -32,25 +41,22 @@ public:
     void
     warning(const SAXParseException& exception)
     {
-	char* s = XMLString::transcode(exception.getMessage());
+	string s = toString(exception.getMessage());
 	cerr << "warning: " << s << endl;
-	delete[] s;
     }
 
     void
     error(const SAXParseException& exception)
     {
-	char* s = XMLString::transcode(exception.getMessage());
+	string s = toString(exception.getMessage());
 	cerr << "error: " << s << endl;
-	delete[] s;
     }
 
     void
     fatalError(const SAXParseException& exception)
     {
-	char* s = XMLString::transcode(exception.getMessage());
+	string s = toString(exception.getMessage());
 	cerr << "fatal:" << s << endl;
-	delete[] s;
     }
 
     void
@@ -104,11 +110,11 @@ struct WeightedGraphParseException
 void
 SAXGraphHandler::startElement(const XMLCh *const name, AttributeList &attrs) 
 {
-    char* str = XMLString::transcode(name);
+    string str = toString(name);
     
     try
     {
-	if (strcmp(str, "vertex") == 0)
+	if (str == "vertex")
 	{
 	    XMLCh* n = XMLString::transcode("name");
 	    const XMLCh* value = attrs.getValue(n);
@@ -120,13 +126,11 @@ SAXGraphHandler::startElement(const XMLCh *const name, AttributeList &attrs)
 		throw ex;
 	    }
 
-	    char* vstr = XMLString::transcode(value);
+	    string vstr = toString(value);
 
 	    _graph.addVertex(vstr);
-
-	    delete[] vstr;
 	}
-	else if (strcmp(str, "edge") == 0)
+	else if (str == "edge")
 	{
 	    XMLCh* n = XMLString::transcode("source");
 	    const XMLCh* value = attrs.getValue(n);
@@ -138,18 +142,19 @@ SAXGraphHandler::startElement(const XMLCh *const name, AttributeList &attrs)
 		throw ex;
 	    }
 
-	    char* source = XMLString::transcode(value);
+	    string source = toString(value);
+
 	    n = XMLString::transcode("target");
 	    value = attrs.getValue(n);
 	    delete[] n;
 	    if (value == 0)
 	    {
-		delete[] source;
 		WeightedGraphParseException ex;
 		ex.reason = "<edge> target attribute missing";
 		throw ex;
 	    }
-	    char* target = XMLString::transcode(value);
+
+	    string target = toString(value);
 	    n = XMLString::transcode("cost");
 	    value = attrs.getValue(n);
 	    delete[] n;
@@ -157,9 +162,8 @@ SAXGraphHandler::startElement(const XMLCh *const name, AttributeList &attrs)
 	    int cost = 0;
 	    if (value != 0)
 	    {
-		char* cstr = XMLString::transcode(value);
-		cost = atoi(cstr);
-		delete[] cstr;
+		string cstr = toString(value);
+		cost = atoi(cstr.c_str());
 	    }
 
 	    try
@@ -168,8 +172,6 @@ SAXGraphHandler::startElement(const XMLCh *const name, AttributeList &attrs)
 	    }
 	    catch(...)
 	    {
-		delete[] source;
-		delete[] target;
 		throw;
 	    }
 	}
@@ -182,14 +184,11 @@ SAXGraphHandler::startElement(const XMLCh *const name, AttributeList &attrs)
 	//
 	cerr << ex.reason << endl;
 	_graph.error();
-	delete[] str;
     }
     catch(...)
     {
 	_graph.error();
-	delete[] str;
     }
-    delete[] str;
 }
 
 WeightedGraph::WeightedGraph(bool reflective) :
