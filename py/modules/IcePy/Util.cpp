@@ -424,7 +424,10 @@ IcePy::convertException(const Ice::Exception& ex)
         if(type != NULL)
         {
             p = createExceptionInstance(type);
-            convertLocalException(e, p.get());
+            if(p.get() != NULL)
+            {
+                convertLocalException(e, p.get());
+            }
         }
         else
         {
