@@ -35,8 +35,7 @@ IceInternal::BasicOutputStream::BasicOutputStream(IceInternal::Instance* instanc
 Ice::InputStreamI::InputStreamI(const Ice::CommunicatorPtr& communicator, const vector<Byte>& data) :
     _communicator(communicator), _is(IceInternal::getInstance(communicator).get(), this)
 {
-    _is.b.resize(data.size());
-    memcpy(&_is.b[0], &data[0], data.size());
+    _is.writeBlob(data);
     _is.i = _is.b.begin();
 }
 
