@@ -97,11 +97,10 @@ main (int argc, char *argv[])
 
       Worker_Thread worker (orb.in ());
 
-      std::cout << "starting with " << numthreads << " threads" << std::endl;
+      std::cout << "POA ready" << std::endl;
+
       worker.activate (THR_NEW_LWP | THR_JOINABLE, numthreads, 1);
       worker.thr_mgr ()->wait ();
-
-      ACE_DEBUG ((LM_DEBUG, "(%P|%t) server - event loop finished\n"));
 
       root_poa->destroy (1, 1 ACE_ENV_ARG_PARAMETER);
       ACE_TRY_CHECK;

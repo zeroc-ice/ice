@@ -84,6 +84,11 @@ def runIcePerf(iter, test, name, clientOpts, serverOpts):
     dir = os.path.join(toplevel, "src", "Ice", test)
     runClientServerPerf(iter, dir, "Ice " + test + " " + name, clientOpts, serverOpts)
 
+def runTAOPerf(iter, test, name, clientOpts, serverOpts):
+    
+    dir = os.path.join(toplevel, "src", "TAO", test)
+    runClientServerPerf(iter, dir, "TAO " + name, clientOpts, serverOpts)
+
 print "NOTE: the test suite will run as long as you don't interrupt it.\n" + \
       "      Use Ctrl-C to interrupt it, it will print the average and\n" + \
       "      best results.\n"
@@ -119,6 +124,30 @@ while 1:
         runIcePerf(iter, "throughput", "struct seq 1tp", "structSeq", threadPoolOne)
         runIcePerf(iter, "throughput", "struct seq 4tp", "structSeq", threadPoolFour)
         runIcePerf(iter, "throughput", "struct seq tc", "structSeq " + threadPerConnection, threadPerConnection)
+
+        runTAOPerf(iter, "Thread_Pool", "latency twoway 1tp", "latency twoway", "1")
+        runTAOPerf(iter, "Thread_Pool", "latency twoway 4tp", "latency twoway", "4")
+        runTAOPerf(iter, "Thread_Per_Connection", "latency twoway tc", "latency twoway", "")
+
+        runTAOPerf(iter, "Thread_Pool", "latency oneway 1tp", "latency oneway", "1")
+        runTAOPerf(iter, "Thread_Pool", "latency oneway 4tp", "latency oneway", "4")
+        runTAOPerf(iter, "Thread_Per_Connection", "latency oneway tc", "latency oneway", "")
+
+        runTAOPerf(iter, "Thread_Pool", "throughput byte 1tp", "throughput byte", "1")
+        runTAOPerf(iter, "Thread_Pool", "throughput byte 4tp", "throughput byte", "4")
+        runTAOPerf(iter, "Thread_Per_Connection", "throughput byte tc", "throughput byte", "")
+
+        runTAOPerf(iter, "Thread_Pool", "throughput string seq 1tp", "throughput string", "1")
+        runTAOPerf(iter, "Thread_Pool", "throughput string seq 4tp", "throughput string", "4")
+        runTAOPerf(iter, "Thread_Per_Connection", "throughput string seq tc", "throughput string", "")
+
+        runTAOPerf(iter, "Thread_Pool", "throughput long string seq 1tp", "throughput longString", "1")
+        runTAOPerf(iter, "Thread_Pool", "throughput long string seq 4tp", "throughput longString", "4")
+        runTAOPerf(iter, "Thread_Per_Connection", "throughput long string seq tc", "throughput longString", "")
+
+        runTAOPerf(iter, "Thread_Pool", "throughput struct seq 1tp", "throughput struct", "1")
+        runTAOPerf(iter, "Thread_Pool", "throughput struct seq 4tp", "throughput struct", "4")
+        runTAOPerf(iter, "Thread_Per_Connection", "throughput struct seq tc", "throughput struct", "")
 
         iter += 1
     except KeyboardInterrupt:

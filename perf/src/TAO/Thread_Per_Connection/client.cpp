@@ -67,6 +67,7 @@ main (int argc, char *argv[])
     bool throughput = false;
     bool sendbytes = false;
     bool sendstrings = false;
+    bool sendlongstrings = false;
     bool sendstructs = false;
 
     if(argc != 3)
@@ -81,11 +82,6 @@ main (int argc, char *argv[])
         if(strcmp(argv[2], "oneway") == 0)
 	{
 	    oneway = true;
-	    cout << "oneway latency test" << endl;
-	}
-	else
-	{
-	    cout << "twoway latency test" << endl;
 	}
 
     }
@@ -95,17 +91,18 @@ main (int argc, char *argv[])
 	if(strcmp(argv[2], "byte") == 0)
 	{
 	    sendbytes = true;
-	    cout << "byte sequence throughput test" << endl;
 	}
 	else if(strcmp(argv[2], "string") == 0)
 	{
 	    sendstrings = true;
-	    cout << "string sequence throughput test" << endl;
+	}
+	else if(strcmp(argv[2], "longString") == 0)
+	{
+	    sendlongstrings = true;
 	}
 	else if(strcmp(argv[2], "struct") == 0)
 	{
 	    sendstructs = true;
-	    cout << "struct sequence throughput test" << endl;
 	}
 	else
 	{
@@ -141,8 +138,6 @@ main (int argc, char *argv[])
 
     if(latency)
     {
-        cout << "pinging server " << niterations << " times (this may take a while)" << endl;
-
 #ifdef WIN32
         struct _timeb tb;
         _ftime(&tb);
@@ -180,8 +175,7 @@ main (int argc, char *argv[])
         float tm = (tv.tv_sec * 1000000 + tv.tv_usec - start) / 1000;
 #endif
 
-        cout << "time for " << niterations << " pings: " << tm  << "ms" << endl;
-        cout << "time per ping: " << (float) tm / niterations << "ms" << endl;
+        cout << (float) tm / niterations << endl;
     }
     else
     {
@@ -194,14 +188,21 @@ main (int argc, char *argv[])
         stringSeq.length(50000);
         for(i = 0; i < 50000; ++i)
         {
-            stringSeq[i] = "hello";
+            stringSeq[i] = CORBA::string_dup("hello");
         }
 
+        Test::StringSeq longStringSeq;
+        longStringSeq.length(5000);
+        for(i = 0; i < 5000; ++i)
+        {
+            longStringSeq[i] = CORBA::string_dup("As far as the laws of mathematics refer to reality, they are not certain; and as far as they are certain, they do not refer to reality.");
+	}
+	
         Test::StringDoubleSeq stringDoubleSeq;
         stringDoubleSeq.length(50000);
         for(i = 0; i < 50000; ++i)
         {
-            stringDoubleSeq[i].str = "hello";
+            stringDoubleSeq[i].str = CORBA::string_dup("hello");
             stringDoubleSeq[i].d = 3.14;
         }
 
@@ -226,6 +227,10 @@ main (int argc, char *argv[])
 	    {
 	        roundtrip->sendStringSeq(stringSeq);
 	    }
+	    else if(sendlongstrings)
+	    {
+	        roundtrip->sendStringSeq(longStringSeq);
+	    }
 	    else if(sendstructs)
 	    {
 	        roundtrip->sendStringDoubleSeq(stringDoubleSeq);
@@ -239,9 +244,11 @@ main (int argc, char *argv[])
       	float tm = (tv.tv_sec * 1000000 + tv.tv_usec - start) / 1000;
 #endif
 
-        cout << "time for " << repetitions << " sequences: " << tm << "ms" << endl;
-        cout << "time per sequence: " << tm / repetitions << "ms" << endl;
+        cout << tm / repetitions << endl;
       }			
+
+      roundtrip->shutdown (ACE_ENV_SINGLE_ARG_PARAMETER);
+      ACE_TRY_CHECK;
     }
   ACE_CATCHANY
     {

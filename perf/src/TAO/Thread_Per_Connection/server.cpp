@@ -7,6 +7,8 @@
 
 #include "tao/Strategies/advanced_resource.h"
 
+#include <iostream>
+
 ACE_RCSID(Thread_Per_Connection_Latency, server, "server.cpp,v 1.5 2003/11/02 23:27:22 dhinton Exp")
 
 const char *ior_output_file = "test.ior";
@@ -115,10 +117,10 @@ main (int argc, char *argv[])
       poa_manager->activate (ACE_ENV_SINGLE_ARG_PARAMETER);
       ACE_TRY_CHECK;
 
+      std::cout << "POA ready" << std::endl;
+
       orb->run (ACE_ENV_SINGLE_ARG_PARAMETER);
       ACE_TRY_CHECK;
-
-      ACE_DEBUG ((LM_DEBUG, "(%P|%t) server - event loop finished\n"));
 
       root_poa->destroy (1, 1 ACE_ENV_ARG_PARAMETER);
       ACE_TRY_CHECK;
