@@ -10,7 +10,31 @@ Ice is available under the terms of the GNU General Public License
 (GPL) (see LICENSE file). Commercial licenses are available for
 customers who wish to use Ice with proprietary products. 
 
+See doc/README.html for information on the documentation included with
+this distribution.
+
+You will find below instructions to setup Visual Studio and
+instructions to build and run the C++, Java, C#, Visual Basic, Python
+and PHP demos.
+
 Please contact sales@zeroc.com for more information.
+
+Setting up Visual Studio .NET
+-----------------------------
+
+To use Ice in your C++ applications, you need to setup Visual Studio
+directories to specify where the Ice headers, libraries and
+executables are located:
+
+- In the IDE, choose:
+
+  * Visual C++ .NET: Tools->Options->Projects->VC++ Directories
+
+- Select "Include files". Add C:\Ice-<version>\include
+
+- Select "Library files". Add C:\Ice-<version>\lib
+
+- Select "Executable files". Add C:\Ice-<version>\bin
 
 Building and running the C++ demos
 ----------------------------------

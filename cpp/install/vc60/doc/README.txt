@@ -10,17 +10,44 @@ Ice is available under the terms of the GNU General Public License
 (GPL) (see LICENSE file). Commercial licenses are available for
 customers who wish to use Ice with proprietary products. 
 
+See doc/README.html for information on the documentation included with
+this distribution.
+
+You will find below instructions to setup Visual Studio and
+instructions to build and run the C++, Java, Python and PHP demos.
+
 Please contact sales@zeroc.com for more information.
+
+Setting up Visual Studio 6.0
+----------------------------
+
+To use Ice in your C++ applications, you need to setup Visual Studio
+directories to specify where the Ice headers, libraries and
+executables are located:
+
+- In the IDE, choose:
+
+  * Visual C++ 6.0: Tools->Options->Directories
+
+- Select "Include files". Add C:\Ice-<version>\include and
+  C:\Ice-<version>\include\stlport. Move the stlport include directory
+  to be first in the list or before the Visual C++ include directories
+  This is necessary to include the STL headers from the STLport
+  library instead of the Visual C++ STL library.
+
+- Select "Library files". Add C:\Ice-<version>\lib
+
+- Select "Executable files". Add C:\Ice-<version>\bin
 
 Building and running the C++ demos
 ----------------------------------
 
 The C++ demos are in the demo directory.
 
-To build a C++ demo, you just need to open the workspace demo\demo.dsw
-in Visual Studio 6.0. Set your active project to "all" by using
-Project->Set Active Project. And then start the compilation by using
-Build->Build for Visual C++ 6.0.
+To build the C++ demos, you just need to open the workspace
+demo\demo.dsw in Visual Studio 6.0. Set your active project to "all"
+by using Project->Set Active Project. And then start the compilation
+by using Build->Build for Visual C++ 6.0.
 
 To run these demos, you need to add the Ice bin directory to your
 PATH, for example:
