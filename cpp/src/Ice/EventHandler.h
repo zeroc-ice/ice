@@ -59,6 +59,11 @@ public:
     //
     virtual void exception(const ::Ice::LocalException&) = 0;
 
+    //
+    // Get a textual representation of the event handler.
+    //
+    virtual std::string toString() const = 0;
+    
 protected:
     
     EventHandler(const InstancePtr&);

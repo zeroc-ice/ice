@@ -15,30 +15,35 @@ abstract class EventHandler
     //
     // Return true if read() must be called before calling message().
     //
-    abstract boolean readable();
+    abstract public boolean readable();
 
     //
     // Read data via the event handler. May only be called if
     // readable() returns true.
     //
-    abstract void read(BasicStream is);
+    abstract public void read(BasicStream is);
 
     //
     // A complete message has been received.
     //
-    abstract void message(BasicStream stream, ThreadPool threadPool);
+    abstract public void message(BasicStream stream, ThreadPool threadPool);
 
     //
     // Will be called if the event handler is finally
     // unregistered. (Calling unregister() does not unregister
     // immediately.)
     //
-    abstract void finished(ThreadPool threadPool);
+    abstract public void finished(ThreadPool threadPool);
 
     //
     // Propagate an exception to the event handler.
     //
-    abstract void exception(Ice.LocalException ex);
+    abstract public void exception(Ice.LocalException ex);
+
+    //
+    // Get a textual representation of the event handler.
+    //
+    abstract public String toString();
 
     protected
     EventHandler(Instance instance)

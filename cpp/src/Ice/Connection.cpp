@@ -796,6 +796,12 @@ IceInternal::Connection::exception(const LocalException& ex)
     setState(StateClosed, ex);
 }
 
+string
+IceInternal::Connection::toString() const
+{
+    return _transceiver->toString();
+}
+
 IceInternal::Connection::Connection(const InstancePtr& instance,
 				    const TransceiverPtr& transceiver,
 				    const EndpointPtr& endpoint,

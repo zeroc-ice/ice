@@ -412,6 +412,18 @@ IceInternal::IncomingConnectionFactory::exception(const LocalException&)
     assert(false); // Must not be called.
 }
 
+string
+IceInternal::IncomingConnectionFactory::toString() const
+{
+    if(_transceiver)
+    {
+	return _transceiver->toString();
+    }
+    
+    assert(_acceptor);
+    return _acceptor->toString();
+}
+
 IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const InstancePtr& instance,
 								  const EndpointPtr& endpoint,
 								  const ObjectAdapterPtr& adapter) :

@@ -587,7 +587,19 @@ public final class ThreadPool
                     // Notify a handler about it's removal from the thread
                     // pool.
                     //
-                    handler.finished(this);
+		    try
+		    {
+			handler.finished(this);
+		    }
+		    catch(Ice.LocalException ex)
+		    {
+			java.io.StringWriter sw = new java.io.StringWriter();
+			java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+			ex.printStackTrace(pw);
+			pw.flush();
+			String s = "exception while calling finished():\n" + handler.toString() + "\n" + sw.toString();
+			_instance.logger().error(s);
+		    }
 
                     synchronized(this)
                     {

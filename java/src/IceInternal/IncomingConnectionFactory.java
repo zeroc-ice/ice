@@ -177,6 +177,17 @@ public class IncomingConnectionFactory extends EventHandler
         assert(false); // Must not be called.
     }
 
+    public String toString()
+    {
+        if(_transceiver != null)
+        {
+	    return _transceiver.toString();
+        }
+
+        assert(_acceptor != null);	
+	return _acceptor.toString();
+    }
+
     public
     IncomingConnectionFactory(Instance instance, Endpoint endpoint, Ice.ObjectAdapter adapter)
     {

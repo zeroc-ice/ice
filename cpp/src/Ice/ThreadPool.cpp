@@ -475,7 +475,15 @@ IceInternal::ThreadPool::run()
 	    // Notify a handler about it's removal from the thread
 	    // pool.
 	    //
-	    handler->finished(self); // "self" is faster than "this", as the reference count is not modified.
+	    try
+	    {
+		handler->finished(self); // "self" is faster than "this", as the reference count is not modified.
+	    }
+	    catch(const LocalException& ex)
+	    {
+		Error out(_instance->logger());
+		out << "exception while calling finished():\n" << handler->toString() << '\n' << ex;
+	    }
 
 	    {
 		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);

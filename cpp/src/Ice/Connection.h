@@ -66,6 +66,7 @@ public:
     virtual void message(BasicStream&, const ThreadPoolPtr&);
     virtual void finished(const ThreadPoolPtr&);
     virtual void exception(const ::Ice::LocalException&);
+    virtual std::string toString() const;
 
 private:
 

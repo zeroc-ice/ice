@@ -690,6 +690,11 @@ public final class Connection extends EventHandler
         }
     }
 
+    public String toString()
+    {
+	return _transceiver.toString();
+    }
+
     Connection(Instance instance, Transceiver transceiver, Endpoint endpoint, Ice.ObjectAdapter adapter)
     {
         super(instance);
