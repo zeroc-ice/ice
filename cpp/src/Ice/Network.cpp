@@ -122,9 +122,11 @@ IceInternal::connectionLost()
     int error = WSAGetLastError();
     return error == WSAECONNRESET ||
            error == WSAESHUTDOWN ||
+           error == WSAENOTCONN ||
            error == WSAECONNABORTED;
 #else
     return errno == ECONNRESET ||
+           errno == ENOTCONN ||
            errno == ESHUTDOWN ||
            errno == ECONNABORTED ||
 	   errno == EPIPE;
@@ -211,6 +213,22 @@ IceInternal::shutdownSocket(SOCKET fd)
 {
     if(shutdown(fd, SHUT_WR) == SOCKET_ERROR)
     {
+	//
+	// Ignore errors indicating that we are shutdown already.
+	//
+#ifdef _WIN32
+	int error = WSAGetLastError();
+	if(error == WSAENOTCONN)
+	{
+	    return;
+	}
+#else
+	if(errno == ENOTCONN)
+	{
+	    return;
+	}
+#endif
+
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
 	throw ex;

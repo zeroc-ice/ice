@@ -157,7 +157,7 @@ IcePatch::Updater::run()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    while(!_destroy)
+    while(!_destroy && !Application::interrupted())
     {
 	try
 	{
