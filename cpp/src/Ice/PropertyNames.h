@@ -14,6 +14,8 @@
 #ifndef ICE_INTERNAL_PropertyNames_H
 #define ICE_INTERNAL_PropertyNames_H
 
+#include <Ice/Config.h>
+
 namespace IceInternal
 {
 
@@ -32,7 +34,7 @@ public:
     static const char* Glacier2Props[];
     static const char* FreezeProps[];
 
-    static const char* const* validProps[];
+    ICE_API static const char* const* validProps[];
 };
 
 }

@@ -343,7 +343,7 @@ const char* IceInternal::PropertyNames::FreezeProps[] =
     0
 };
 
-const char* const* IceInternal::PropertyNames::validProps[] =
+ICE_API const char* const* IceInternal::PropertyNames::validProps[] =
 {
     IcePatch2Props,
     IcePackProps,

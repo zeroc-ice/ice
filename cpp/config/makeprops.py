@@ -100,7 +100,9 @@ def writePreamble(lang):
 	header.write("\n");
 	header.write("#ifndef ICE_INTERNAL_" + classname + "_H\n");
 	header.write("#define ICE_INTERNAL_" + classname + "_H\n");
-	header.write("\n");
+	header.write("\n")
+	header.write("#include <Ice/Config.h>")
+	header.write("\n")
 	header.write("namespace IceInternal\n")
 	header.write("{\n")
 	header.write("\n")
@@ -117,14 +119,14 @@ def writePostamble(lang, labels):
     if lang == "cpp":
         header = outputFiles[1][1]
 	header.write("\n")
-	header.write("    static const char* const* validProps[];\n")
+	header.write("    ICE_API static const char* const* validProps[];\n")
 	header.write("};\n")
 	header.write("\n")
 	header.write("}\n")
 	header.write("\n")
 	header.write("#endif\n");
 	file.write("\n");
-        file.write("const char* const* IceInternal::" + classname + "::validProps[] =\n")
+        file.write("ICE_API const char* const* IceInternal::" + classname + "::validProps[] =\n")
 	file.write("{\n")
 	for label, line in labels.iteritems():
 	    file.write("    " + label + "Props,\n")
