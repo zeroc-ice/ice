@@ -26,8 +26,8 @@ errors for the following projects:
 
 The work-around is to rebuild (not build) these projects individually
 once you have seen the errors. Thereafter, building the projects seems
-to work fine. (If someone can work out why this is happening, please
-let us know!)
+to work fine. (If someone knows how to work around this bug in Visual
+Studio, please let us know!)
 
 
 Running the tests
@@ -70,7 +70,7 @@ install it in the cache.
 
 Or you can use gacutil from the command line to achieve the same thing:
 
-    gacutil /i"path_to_icecs.dll"
+    gacutil /i "path_to_icecs.dll"
 
 You can find gacutil.exe in the SDK\Tools\Bin folder of your Visual C#
 installation. For example, assuming that you have installed Visual C#
@@ -80,19 +80,16 @@ in C:\Program Files, the path to gacutil is
 
 Once installed in the cache, the assembly will always be located
 correctly without having to set environment variables or copying it
-into the directory of a .exe. (However, to reference the assembly
-in the Visual C# project file, so the linker can find it, you must
-still reference the physical assembly file (icecs.dll) -- you cannot
-point the Visual C# linker at the copy that is in the GAC.)
+into the directory of a .exe.
 
 If you want line numbers for stack traces, you must also install the
 icecs.pdb file in the GAC. Unfortunately, you cannot do this using
 Explorer, so you have to do it from the command line. Open a command shell
 window and navigate to C:\WINDOWS\assembly\GAC\icecs. (Assuming C:\WINDOWS
 is your system root.) Doing a directory listing there, you will find
-a directory named 1.5.0.0__<UUID>, for example:
+a directory named 2.1.0.0__<UUID>, for example:
 
-    1.5.0.0__1f998c50fec78381
+    2.1.0.0__1f998c50fec78381
 
 Change to that directory. In this directory, you will a file called
 __AssemblyInfo__.ini and the icecs.dll you installed into the GAC in the
