@@ -94,7 +94,7 @@ run(int argc, char* argv[], MAP& m)
 
     vector<Byte>::const_iterator j;
     typename MAP::iterator p;
-    typename MAP::iterator cp;
+    typename MAP::const_iterator cp;
 
     cout << "  testing populate... ";
     //
@@ -177,6 +177,7 @@ run(int argc, char* argv[], MAP& m)
     // Verify both iterators point at the same element, and that
     // element is in the map.
     //
+    test(p == p2);
     test(p->first == p2->first && p->second == p2->second);
     test(find(alphabet.begin(), alphabet.end(), p->first) != alphabet.end());
 
@@ -189,6 +190,7 @@ run(int argc, char* argv[], MAP& m)
     //
     // Verify both iterators point at 'n'
     //
+    test(p == p2);
     test(p->first == 'n' && p->second == 13);
     test(p2->first == 'n' && p2->second == 13);
 
