@@ -380,8 +380,9 @@ namespace IceInternal
             Protocol.protocolMajor, Protocol.protocolMinor,
             Protocol.encodingMajor, Protocol.encodingMinor,
             Protocol.requestMsg,
-            (byte)0,
-	    (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0
+            (byte)0, // Compression status.
+	    (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
+            (byte)0, (byte)0, (byte)0, (byte)0  // Request ID (placeholder).
         };
 	
         //
@@ -646,8 +647,9 @@ namespace IceInternal
 	    Protocol.protocolMajor, Protocol.protocolMinor,
 	    Protocol.encodingMajor, Protocol.encodingMinor,
 	    Protocol.requestBatchMsg,
-            (byte)0,
-	    (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0
+            (byte)0, // Compression status.
+	    (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
+            (byte)0, (byte)0, (byte)0, (byte)0  // Number of requests in batch (placeholder).
 	};
 	
 	public void prepareBatchRequest(BasicStream os)
@@ -984,8 +986,8 @@ namespace IceInternal
 	    Protocol.protocolMajor, Protocol.protocolMinor,
 	    Protocol.encodingMajor, Protocol.encodingMinor,
 	    Protocol.replyMsg,
-            (byte)0,
-	    (byte)0, (byte)0, (byte)0, (byte)0
+            (byte)0, // Compression status.
+	    (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder).
 	};
 	
 	public override void message(BasicStream stream, ThreadPool threadPool)

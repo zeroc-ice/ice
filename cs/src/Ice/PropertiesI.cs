@@ -183,7 +183,10 @@ namespace Ice
 		    }
 		}
                 string[] arr = new string[result.Count];
-                result.CopyTo(arr);
+		if(arr.Length != 0)
+		{
+		    result.CopyTo(arr);
+		}
 		return arr;
 	    }
 	}

@@ -382,7 +382,10 @@ namespace IceInternal
 	    }
 	    
 	    Endpoint[] endp2 = new Endpoint[endpoints.Count];
-	    endpoints.CopyTo(endp2, 0);
+	    if(endp2.Length != 0)
+	    {
+		endpoints.CopyTo(endp2, 0);
+	    }
 	    
 	    RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
 	    LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());

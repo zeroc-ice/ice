@@ -774,7 +774,10 @@ namespace IceInternal
 	    }
 	    
 	    Endpoint[] arr = new Endpoint[endpoints.Count];
-	    endpoints.CopyTo(arr);
+	    if(arr.Length != 0)
+	    {
+		endpoints.CopyTo(arr);
+	    }
 	    return arr;
 	}
 

@@ -139,7 +139,10 @@ namespace IceInternal
 		    }
 		}
 		Connection[] arr = new Connection[connections.Count];
-		connections.CopyTo(arr, 0);
+		if(arr.Length != 0)
+		{
+		    connections.CopyTo(arr, 0);
+		}
 		return arr;
 	    }
 	}
