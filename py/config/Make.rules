@@ -16,7 +16,7 @@ endif
 # if it does not exist.
 #
 
-prefix			= $(HOME)/Devel/dist/IcePy-$(VERSION)
+prefix			= /opt/IcePy-$(VERSION)
 
 #
 # Define OPTIMIZE as yes if you want to build with optimization.
