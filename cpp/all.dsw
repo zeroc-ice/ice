@@ -380,6 +380,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name singleC
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name complex
+    End Project Dependency
 }}}
 
 ###############################################################################
