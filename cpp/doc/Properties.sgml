@@ -147,9 +147,8 @@ Ice.Warn.Dispatch=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-Ice applications will print warning messages for certain exceptional
-conditions occuring while an incoming request is dispatched. The
-default value is 1.
+Ice applications will print warning messages for certain exceptions
+that are raised while an incoming request is dispatched.
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -160,14 +159,14 @@ default value is 1.
 <row>
 <entry>1</entry>
 <entry>Print warnings for unexpected
-<literal>Ice::LocalException</literal>, <literal>Ice::UserException</literal>
+<literal>Ice::LocalException</literal>, <literal>Ice::UserException</literal>,
 and C++ exceptions. (default)</entry>
 </row>
 <row>
 <entry>2</entry>
-<entry>Like 1, but more verbose, includes warnings for
+<entry>Like 1, but in addition issue warnings for
 <literal>Ice::ObjectNotExistException</literal>,
-<literal>Ice::FacetNotExistException</literal> and
+<literal>Ice::FacetNotExistException</literal>, and
 <literal>Ice::OperationNotExistException</literal> exceptions.
 </entry>
 </row>
@@ -366,12 +365,12 @@ Ice.ThreadPool.Server.Size=<replaceable>num</replaceable>
 The number of threads in the client and server thread pools. Default
 is one thread for the client thread pool, and 10 threads for the
 server thread pool. The number of threads in each pool must be larger
-than zero. <note><para> At present, there is no need to set the number
-of threads in the client thread pool to a value larger than
-one. Having multiple threads will only be of benefit with future
-versions of &Ice; that support callbacks on the client, which are
-invoked when a response from the server is received (for asynchronous
-method invocations). </para></note>
+than zero. <note><para>Multiple threads for the client side thread
+pool are only required for nested AMI invocations. If AMI is not used, or
+AMI calls are not nested (i.e., AMI callbacks don't call any other
+methods on Ice objects), then there is no need to set the number of
+threads in the client thread pool to a value larger than
+one. </para></note>
 </para>
 </section>
 </section>
@@ -629,9 +628,10 @@ Ice.NullHandleAbort=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-IceUtil smart pointers will cause the program to abort instead of
-raising a <literal>IceUtil::NullHandleException</literal> exception
-if a null smart pointer is accessed. (C++ only.)
+calling operations using a null smart pointer (i.e., a handle) cause
+the program to abort instead of raising an
+<literal>IceUtil::NullHandleException</literal> exception to be
+raised.. (C++ only.)
 </para>
 </section>
 </section>
