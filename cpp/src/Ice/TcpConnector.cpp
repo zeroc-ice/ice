@@ -57,7 +57,7 @@ IceInternal::TcpConnector::TcpConnector(const InstancePtr& instance, const strin
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger())
 {
-    getAddress(host.c_str(), port, _addr);
+    getAddress(host, port, _addr);
 }
 
 IceInternal::TcpConnector::~TcpConnector()

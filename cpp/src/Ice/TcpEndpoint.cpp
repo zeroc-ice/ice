@@ -330,9 +330,17 @@ IceInternal::TcpEndpoint::operator==(const Endpoint& r) const
 	//
 	struct sockaddr_in laddr;
 	struct sockaddr_in raddr;
-	getAddress(_host, _port, laddr);
-	getAddress(p->_host, p->_port, raddr);
-        return compareAddress(laddr, raddr);
+	try
+	{
+	    getAddress(_host, _port, laddr);
+	    getAddress(p->_host, p->_port, raddr);
+	}
+	catch(const DNSException&)
+	{
+	    return false;
+	}
+
+	return compareAddress(laddr, raddr);
     }
 
     return true;
@@ -391,9 +399,23 @@ IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
 	// We do the most time-consuming part of the comparison last.
 	//
 	struct sockaddr_in laddr;
+	try
+	{
+	    getAddress(_host, _port, laddr);
+	}
+	catch(const DNSException&)
+	{
+	}
+
 	struct sockaddr_in raddr;
-	getAddress(_host, _port, laddr);
-	getAddress(p->_host, p->_port, raddr);
+	try
+	{
+	    getAddress(p->_host, p->_port, raddr);
+	}
+	catch(const DNSException&)
+	{
+	}
+
 	if(laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
 	{
 	    return true;

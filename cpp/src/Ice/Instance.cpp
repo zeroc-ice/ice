@@ -403,8 +403,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 
 	if(_globalStateCounter == 1) // Only on first call
 	{
-	    unsigned int seed = 
-		static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
+	    unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
 	    srand(seed);
 	    
 	    if(_properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)

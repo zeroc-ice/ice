@@ -432,24 +432,49 @@ final class TcpEndpoint implements Endpoint
             //
             // We do the most time-consuming part of the comparison last.
             //
-            java.net.InetSocketAddress laddr;
-            java.net.InetSocketAddress raddr;
-            laddr = Network.getAddress(_host, _port);
-            raddr = Network.getAddress(p._host, p._port);
-            byte[] larr = laddr.getAddress().getAddress();
-            byte[] rarr = raddr.getAddress().getAddress();
-            assert(larr.length == rarr.length);
-            for(int i = 0; i < larr.length; i++)
-            {
-                if(larr[i] < rarr[i])
-                {
-                    return -1;
-                }
-                else if(rarr[i] < larr[i])
-                {
-                    return 1;
-                }
-            }
+            java.net.InetSocketAddress laddr = null;
+	    try
+	    {
+		laddr = Network.getAddress(_host, _port);
+	    }
+	    catch(Ice.DNSException ex)
+	    {
+	    }
+
+            java.net.InetSocketAddress raddr = null;
+	    try
+	    {
+		raddr = Network.getAddress(p._host, p._port);
+	    }
+	    catch(Ice.DNSException ex)
+	    {
+	    }
+
+	    if(laddr == null && raddr != null)
+	    {
+		return -1;
+	    }
+	    else if(raddr == null && laddr != null)
+	    {
+		return 1;
+	    }
+	    else if(laddr != null && raddr != null)
+	    {
+		byte[] larr = laddr.getAddress().getAddress();
+		byte[] rarr = raddr.getAddress().getAddress();
+		assert(larr.length == rarr.length);
+		for(int i = 0; i < larr.length; i++)
+		{
+		    if(larr[i] < rarr[i])
+		    {
+			return -1;
+		    }
+		    else if(rarr[i] < larr[i])
+		    {
+			return 1;
+		    }
+		}
+	    }
         }
 
         return 0;

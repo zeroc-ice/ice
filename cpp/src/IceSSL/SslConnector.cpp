@@ -64,7 +64,7 @@ IceSSL::SslConnector::toString() const
 IceSSL::SslConnector::SslConnector(const OpenSSLPluginIPtr& plugin, const string& host, int port) :
     _plugin(plugin)
 {
-    getAddress(host.c_str(), port, _addr);
+    getAddress(host, port, _addr);
 }
 
 IceSSL::SslConnector::~SslConnector()
