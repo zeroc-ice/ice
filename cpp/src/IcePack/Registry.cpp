@@ -122,6 +122,9 @@ IcePack::Registry::start(bool nowarn)
     properties->setProperty("Ice.PrintProcessId", "0");
     properties->setProperty("Ice.Warn.Leaks", "0");
     properties->setProperty("Ice.ServerIdleTime", "0");
+    properties->setProperty("IcePack.Registry.Client.AdapterId", "");
+    properties->setProperty("IcePack.Registry.Server.AdapterId", "");
+    properties->setProperty("IcePack.Registry.Admin.AdapterId", "");
     properties->setProperty("IcePack.Registry.Internal.AdapterId", "IcePack.Registry.Internal");
 
     //

@@ -1878,22 +1878,6 @@ other services.
 <section><title>&IcePack; Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>IcePack.Registry.Client.AdapterId</title>
-<section><title>Synopsis</title>
-<synopsis>
-IcePack.Registry.Client.AdapterId=<replaceable>id</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Defines the value of the property
-<link linkend="adapter.AdapterId"><replaceable>adapter</replaceable>.AdapterId</link>
-for the object adapter named <literal>IcePack.Registry.Client</literal>.
-</para>
-</section>
-</section>
-
 <section><title>IcePack.Registry.Client.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -1977,22 +1961,6 @@ for the object adapter named <literal>IcePack.Registry.Client</literal>.
 </section>
 </section>
 
-<section><title>IcePack.Registry.Server.AdapterId</title>
-<section><title>Synopsis</title>
-<synopsis>
-IcePack.Registry.Server.AdapterId=<replaceable>id</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Defines the value of the property
-<link linkend="adapter.AdapterId"><replaceable>adapter</replaceable>.AdapterId</link>
-for the object adapter named <literal>IcePack.Registry.Server</literal>.
-</para>
-</section>
-</section>
-
 <section><title>IcePack.Registry.Server.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -2072,22 +2040,6 @@ IcePack.Registry.Server.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 Defines the value of the property
 <link linkend="threadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
 for the object adapter named <literal>IcePack.Registry.Server</literal>.
-</para>
-</section>
-</section>
-
-<section><title>IcePack.Registry.Admin.AdapterId</title>
-<section><title>Synopsis</title>
-<synopsis>
-IcePack.Registry.Admin.AdapterId=<replaceable>id</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Defines the value of the property
-<link linkend="adapter.AdapterId"><replaceable>adapter</replaceable>.AdapterId</link>
-for the object adapter named <literal>IcePack.Registry.Admin</literal>.
 </para>
 </section>
 </section>
@@ -2178,22 +2130,6 @@ IcePack.Registry.Admin.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 Defines the value of the property
 <link linkend="threadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
 for the object adapter named <literal>IcePack.Registry.Admin</literal>.
-</para>
-</section>
-</section>
-
-<section><title>IcePack.Registry.Internal.AdapterId</title>
-<section><title>Synopsis</title>
-<synopsis>
-IcePack.Registry.Internal.AdapterId=<replaceable>id</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Defines the value of the property
-<link linkend="adapter.AdapterId"><replaceable>adapter</replaceable>.AdapterId</link>
-for the object adapter named <literal>IcePack.Registry.Internal</literal>.
 </para>
 </section>
 </section>
@@ -2423,22 +2359,6 @@ The object registry trace level:
 </section>
 </section>
 
-<section><title>IcePack.Node.AdapterId</title>
-<section><title>Synopsis</title>
-<synopsis>
-IcePack.Node.AdapterId=<replaceable>id</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Defines the value of the property
-<link linkend="adapter.AdapterId"><replaceable>adapter</replaceable>.AdapterId</link>
-for the object adapter named <literal>IcePack.Node</literal>.
-</para>
-</section>
-</section>
-
 <section><title>IcePack.Node.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -2470,22 +2390,6 @@ uses this interface to communicate with the node.
 Refer to the description of the object adapter property
 <link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
 for more information.
-</para>
-</section>
-</section>
-
-<section><title>IcePack.Node.AdapterId</title>
-<section><title>Synopsis</title>
-<synopsis>
-IcePack.Node.AdapterId=<replaceable>id</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Defines the value of the property
-<link linkend="adapter.AdapterId"><replaceable>adapter</replaceable>.AdapterId</link>
-for the object adapter named <literal>IcePack.Node</literal>.
 </para>
 </section>
 </section>
