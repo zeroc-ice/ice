@@ -47,6 +47,8 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
 
 Glacier2::RouterI::~RouterI()
 {
+    IceUtil::Mutex::Lock lock(*this);
+
     assert(_destroy);
 }
 

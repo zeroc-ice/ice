@@ -127,6 +127,8 @@ Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
 
 Glacier2::SessionRouterI::~SessionRouterI()
 {
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+
     assert(_destroy);
     assert(_routersByConnection.empty());
     assert(_routersByCategory.empty());

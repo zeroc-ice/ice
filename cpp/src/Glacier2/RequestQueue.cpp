@@ -137,6 +137,8 @@ Glacier2::RequestQueue::RequestQueue(const Ice::CommunicatorPtr& communicator, b
 
 Glacier2::RequestQueue::~RequestQueue()
 {
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+
     assert(_destroy);
     assert(_requests.empty());
 }
