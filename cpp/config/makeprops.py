@@ -100,18 +100,30 @@ def writePreamble(lang):
 	header.write("namespace IceInternal\n")
 	header.write("{\n")
 	header.write("\n")
-	header.write("public class " + classname + '\n')
+	header.write("class " + classname + '\n')
 	header.write("{\n")
 	header.write("public:\n")
 	header.write("\n")
+	file = outputFiles[0][1]
+	file.write("\n");
+	file.write("#include <Ice/" + classname + ".h>\n")
 
-def writePostamble(lang):
+def writePostamble(lang, labels):
     file = outputFiles[0][1]
     if lang == "cpp":
-        file = outputFiles[1][1]
+        header = outputFiles[1][1]
+	header.write("\n")
+	header.write("    static const char* const* validProps[];\n")
+	header.write("};\n")
+	header.write("\n")
+	header.write("}\n")
+	file.write("\n");
+        file.write("const char* const* IceInternal::" + classname + "::validProps[] =\n")
+	file.write("{\n")
+	for label, line in labels.iteritems():
+	    file.write("    " + label + "Props,\n")
+	file.write("    0\n");
 	file.write("};\n")
-	file.write("\n")
-	file.write("}\n")
 	return
     if lang == "java":
         return
@@ -137,18 +149,17 @@ def startSection(lang, label):
 def endSection(lang):
     file = outputFiles[0][1]
     if lang == "cpp":
-        file.write("\n};\n");
+        file.write("    0\n");
+        file.write("};\n");
 	return
     if lang == "java":
 	return
     if lang == "cs":
         return
 
-def writeEntry(entry, first):
+def writeEntry(label, entry):
     file = outputFiles[0][1]
-    if not first:
-	file.write(",\n")
-    file.write("    \"" + entry + "\"")
+    file.write("    \"" + label + '.' + entry + "\",\n")
 #
 # Check arguments.
 #
@@ -184,7 +195,7 @@ except IOError, ex:
 # Set up regular expressions for empty and comment lines, section headings, and entry lines.
 #
 ignore = re.compile("^\s*(?:#.*)?$") 				# Empty line or comment line
-heading = re.compile("^\s*([a-zA-z_]\w*)\s*:\s*$")		# Section heading
+section = re.compile("^\s*([a-zA-z_]\w*)\s*:\s*$")		# Section heading
 entry = re.compile("^\s*([^ \t\n\r\f\v#]+)(?:\s*#.*)?$")	# Any non-whitespace character sequence, except for #
 
 #
@@ -223,7 +234,7 @@ for l in lines:
     if ignore.match(l) != None:
         continue
 
-    labelMatch = heading.match(l)
+    labelMatch = section.match(l)
     if labelMatch != None:
         if sectionStart:
 	    fileError("section `" + label + "' must have at least one entry")
@@ -233,6 +244,8 @@ for l in lines:
 	    fileError("duplicate section heading: `" + label + "'")
 	except KeyError:
 	    pass
+	if label == "validProps":
+	   fileError("`validProps' is reserved and cannot be used as a section heading")
 	labels[label] = lineNum
 	if inSection:
 	    endSection(lang)
@@ -244,7 +257,7 @@ for l in lines:
 
     entryMatch = entry.match(l)
     if entryMatch != None:
-	writeEntry(entryMatch.group(1), sectionStart)
+	writeEntry(label, entryMatch.group(1))
 	sectionStart = 0
 	numEntries += 1
 	continue
@@ -264,7 +277,7 @@ endSection(lang)
 #
 # End the source files.
 #
-writePostamble(lang)
+writePostamble(lang, labels)
 
 #
 # Remove the output files if anything went wrong, so we don't leave partically written files behind.
