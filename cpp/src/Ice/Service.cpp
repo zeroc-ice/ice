@@ -1361,7 +1361,12 @@ Ice::Service::runDaemon(int argc, char* argv[])
                 pos += n;
                 break;
             }
-            cerr << argv[0] << ": failure occurred in daemon:" << endl << msg << endl << flush;
+            cerr << argv[0] << ": failure occurred in daemon";
+	    if(strlen(msg) > 0)
+	    {
+		cerr << ':' << endl << msg;
+	    }
+	    cerr << endl << flush;
             _exit(EXIT_FAILURE);
         }
 
@@ -1475,9 +1480,20 @@ Ice::Service::runDaemon(int argc, char* argv[])
         {
             //
             // Close unnecessary file descriptors.
-            //
+	    //
+	    PropertiesPtr properties = _communicator->getProperties();
+	    string stdOut = properties->getProperty("Ice.StdOut");
+	    string stdErr = properties->getProperty("Ice.StdErr");
+
             for(int i = 0; i < fdMax; ++i)
             {
+		//
+		// NOTE: Do not close stdout if Ice.StdOut is defined. Likewise for Ice.StdErr.
+		//
+		if((i == 1 && !stdOut.empty()) || (i == 2 && !stdErr.empty()))
+		{
+		    continue;
+		}
                 if(FD_ISSET(i, &fdsToClose))
                 {
                     close(i);
@@ -1490,10 +1506,16 @@ Ice::Service::runDaemon(int argc, char* argv[])
             int fd;
             fd = open("/dev/null", O_RDWR);
             assert(fd == 0);
-            fd = dup2(0, 1);
-            assert(fd == 1);
-            fd = dup2(1, 2);
-            assert(fd == 2);
+	    if(stdOut.empty())
+	    {
+		fd = dup2(0, 1);
+		assert(fd == 1);
+	    }
+	    if(stdErr.empty())
+	    {
+		fd = dup2(1, 2);
+		assert(fd == 2);
+	    }
         }
 
         //
