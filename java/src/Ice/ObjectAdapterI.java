@@ -180,18 +180,6 @@ public class ObjectAdapterI implements ObjectAdapter
         return (ServantLocator)_locatorMap.get(prefix);
     }
 
-    public synchronized RequestQueue
-    createRequestQueue(String category)
-    {
-	return null; // Not implemented yet.
-    }
-
-    public synchronized RequestQueue
-    findRequestQueue(String category)
-    {
-	return null; // Not implemented yet.
-    }
-
     public synchronized Ice.Object
     identityToServant(Identity ident)
     {
