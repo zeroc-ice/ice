@@ -16,39 +16,13 @@
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>
-    <property name="lib.dir" value="${top.dir}/lib"/>
+    <import file="${top.dir}/config/common.xml"/>
     <property name="class.dir" value="classes"/>
     <property name="generated.dir" value="generated"/>
-
-    <!-- set common build properties for this build -->
-    <property file="${top.dir}/config/build.properties"/>
-
-    <!-- install slice2java task -->
-    <taskdef name="slice2java" classpath="${top.dir}/ant" classname="Slice2JavaTask" />
-
-    <!-- install slice2freezej task -->
-    <taskdef name="slice2freezej" classpath="${top.dir}/ant" classname="Slice2FreezeJTask" />
-
-    <!-- Ice classpath -->
-    <path id="ice.classpath">
-        <fileset dir="${lib.dir}">
-            <include name="*.jar"/>
-        </fileset>
-    </path>
 
     <target name="init">
         <!-- Create the time stamp -->
         <tstamp/>
-
-        <!-- Define the slice.dir property -->
-        <condition property="slice.dir" value="${top.dir}/slice">
-            <available file="${top.dir}/slice"/>
-        </condition>
-        <condition property="slice.dir" value="${env.ICE_HOME}/slice">
-            <not>
-                <available file="${top.dir}/slice"/>
-            </not>
-        </condition>
     </target>
 
     <target name="generate" depends="init">

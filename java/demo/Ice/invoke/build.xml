@@ -13,22 +13,9 @@
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>
-    <property name="lib.dir" value="${top.dir}/lib"/>
+    <import file="${top.dir}/config/common.xml"/>
     <property name="class.dir" value="classes"/>
     <property name="generated.dir" value="generated"/>
-
-    <!-- set common build properties for this build -->
-    <property file="${top.dir}/config/build.properties"/>
-
-    <!-- install slice2java task -->
-    <taskdef name="slice2java" classpath="${top.dir}/ant" classname="Slice2JavaTask" />
-
-    <!-- Ice classpath -->
-    <path id="ice.classpath">
-        <fileset dir="${lib.dir}">
-            <include name="*.jar"/>
-        </fileset>
-    </path>
 
     <target name="init">
         <!-- Create the time stamp -->
