@@ -17,8 +17,8 @@ ADMIN		= $(top_srcdir)/bin/icepackadmin
 NODE_SERVER	= $(top_srcdir)/bin/icepacknode
 REGISTRY_SERVER	= $(top_srcdir)/bin/icepackregistry
 
-TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME)) \
-                  $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
+LIBTARGETS	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+TARGETS         = $(LIBTARGETS) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
 LIB_OBJS	= Admin.o \
 		  Query.o \
@@ -112,16 +112,16 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
 	ln -s $(SONAME) $@
 
-$(ADMIN): $(ADMIN_OBJS) $(libdir)/$(LIBNAME)
+$(ADMIN): $(ADMIN_OBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lIceXML -lIcePack -lIceBox $(LIBS) $(READLINE_LIBS)
 
-$(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(libdir)/$(LIBNAME)
+$(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) -lIcePack -lIceBox -lFreeze -lIceXML $(LIBS) $(DB_LIBS) \
 	$(EXPAT_LIBS)
 
-$(NODE_SERVER): $(NODE_SVR_OBJS) $(libdir)/$(LIBNAME)
+$(NODE_SERVER): $(NODE_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIcePack -lIceBox -lFreeze -lIceXML $(LIBS) $(DB_LIBS) $(EXPAT_LIBS)
 

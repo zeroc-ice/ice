@@ -16,8 +16,8 @@ LIBNAME		= $(call mklibname,Glacier)
 ROUTER		= $(top_srcdir)/bin/glacierrouter
 STARTER		= $(top_srcdir)/bin/glacierstarter
 
-TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME)) \
-                  $(ROUTER) $(STARTER)
+LIBTARGETS      = $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+TARGETS         = $(LIBTARGETS) $(ROUTER) $(STARTER)
 
 OBJS		= Starter.o \
 		  Router.o \
@@ -68,11 +68,11 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
 	ln -s $(SONAME) $@
 
-$(ROUTER): $(ROBJS) $(libdir)/$(LIBNAME)
+$(ROUTER): $(ROBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(ROBJS) -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS) $(EXPAT_LIBS)
 
-$(STARTER): $(SOBJS) $(libdir)/$(LIBNAME)
+$(STARTER): $(SOBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS) $(EXPAT_LIBS)
 

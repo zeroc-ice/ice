@@ -19,9 +19,9 @@ SVCLIBNAME	= $(call mklibname,IceStormService)
 
 ADMIN		= $(top_srcdir)/bin/icestormadmin
 
-TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME)) \
-                  $(call mklibtargets,$(libdir)/$(SVCLIBFILENAME),$(libdir)/$(SVCSONAME),$(libdir)/$(SVCLIBNAME)) \
-                  $(ADMIN)
+LIBTARGETS	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+SVCLIBTARGETS   = $(call mklibtargets,$(libdir)/$(SVCLIBFILENAME),$(libdir)/$(SVCSONAME),$(libdir)/$(SVCLIBNAME))
+TARGETS         = $(LIBTARGETS) $(SVCLIBTARGETS) $(ADMIN)
 
 OBJS		= IceStorm.o
 
@@ -97,7 +97,7 @@ $(libdir)/$(SVCLIBNAME): $(libdir)/$(SVCSONAME)
 	ln -s $(SVCSONAME) $@
 
 
-$(ADMIN): $(AOBJS) $(libdir)/$(LIBNAME)
+$(ADMIN): $(AOBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm -lIceXML $(READLINE_LIBS) $(LIBS) $(EXPAT_LIBS)
 

@@ -17,8 +17,8 @@ CLIENT		= $(top_srcdir)/bin/icepatchclient
 CALC		= $(top_srcdir)/bin/icepatchcalc
 SERVER		= $(top_srcdir)/bin/icepatchserver
 
-TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME)) \
-                  $(CLIENT) $(CALC) $(SERVER)
+LIBTARGETS      = $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+TARGETS         = $(LIBTARGETS) $(CLIENT) $(CALC) $(SERVER)
 
 OBJS		= IcePatch.o \
 		  FileDescFactory.o \
@@ -62,15 +62,15 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
 	ln -s $(SONAME) $@
 
-$(CLIENT): $(CLIENT_OBJS) $(libdir)/$(LIBNAME)
+$(CLIENT): $(CLIENT_OBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(CLIENT_OBJS) -lIcePatch -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS) $(EXPAT_LIBS)
 
-$(CALC): $(CALC_OBJS) $(libdir)/$(LIBNAME)
+$(CALC): $(CALC_OBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(CALC_OBJS) -lIcePatch $(LIBS) $(OPENSSL_LIBS)
 
-$(SERVER): $(SERVER_OBJS) $(libdir)/$(LIBNAME)
+$(SERVER): $(SERVER_OBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(SERVER_OBJS) -lIcePatch $(LIBS) $(OPENSSL_LIBS)
 

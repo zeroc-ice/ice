@@ -16,8 +16,8 @@ LIBNAME		= $(call mklibname,IceBox)
 SERVER		= $(top_srcdir)/bin/icebox
 ADMIN		= $(top_srcdir)/bin/iceboxadmin
 
-TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME)) \
-                  $(SERVER) $(ADMIN)
+LIBTARGETS      = $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+TARGETS         = $(LIBTARGETS) $(SERVER) $(ADMIN)
 
 OBJS		= IceBox.o \
 		  Exception.o
@@ -55,11 +55,11 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
 	ln -s $(SONAME) $@
 
-$(SERVER): $(SOBJS) $(libdir)/$(LIBNAME)
+$(SERVER): $(SOBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lIceBox -lFreeze $(DB_LIBS) $(LIBS)
 
-$(ADMIN): $(AOBJS) $(libdir)/$(LIBNAME)
+$(ADMIN): $(AOBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceBox $(LIBS)
 
