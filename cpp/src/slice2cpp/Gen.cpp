@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Functional.h>
+#include <IceUtil/Functional.h>
 #include <Gen.h>
 #include <GenUtil.h>
 #include <limits>
@@ -433,15 +433,15 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     C << sp;
     C << nl << "void" << nl << scope << "::__write(::IceInternal::Stream* __os, " << scoped << " v)";
     C << sb;
-    if (sz <= numeric_limits<Ice::Byte>::max())
+    if (sz <= 0x7f)
     {
 	C << nl << "__os->write(static_cast< ::Ice::Byte>(v));";
     }
-    else if (sz <= numeric_limits<Ice::Short>::max())
+    else if (sz <= 0x7fff)
     {
 	C << nl << "__os->write(static_cast< ::Ice::Short>(v));";
     }
-    else if (sz <= numeric_limits<Ice::Int>::max())
+    else if (sz <= 0x7fffffff)
     {
 	C << nl << "__os->write(static_cast< ::Ice::Int>(v));";
     }
@@ -453,19 +453,19 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     C << sp;
     C << nl << "void" << nl << scope << "::__read(::IceInternal::Stream* __is, " << scoped << "& v)";
     C << sb;
-    if (sz <= numeric_limits<Ice::Byte>::max())
+    if (sz <= 0x7f)
     {
 	C << nl << "::Ice::Byte val;";
 	C << nl << "__is->read(val);";
 	C << nl << "v = static_cast< " << scoped << ">(val);";
     }
-    else if (sz <= numeric_limits<Ice::Short>::max())
+    else if (sz <= 0x7fff)
     {
 	C << nl << "::Ice::Short val;";
 	C << nl << "__is->read(val);";
 	C << nl << "v = static_cast< " << scoped << ">(val);";
     }
-    else if (sz <= numeric_limits<Ice::Int>::max())
+    else if (sz <= 0x7fffffff)
     {
 	C << nl << "::Ice::Int val;";
 	C << nl << "__is->read(val);";
@@ -1147,7 +1147,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "switch (__exnum)";
 	C << sb;
 	TypeList::iterator r;
-	Ice::Int cnt = 0;
+	int cnt = 0;
 	for (r = throws.begin(); r != throws.end(); ++r)
 	{
 	    C << nl << "case " << cnt++ << ':';
@@ -1415,7 +1415,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
 	ClassList allBases = p->allBases();
 	StringList ids;
-	transform(allBases.begin(), allBases.end(), back_inserter(ids), ::Ice::memFun(&ClassDef::scoped));
+	transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::memFun(&ClassDef::scoped));
 	StringList other;
 	other.push_back(scoped);
 	other.push_back("::Ice::Object");
@@ -1448,7 +1448,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	StringList classIds;
 	transform(allBaseClasses.begin(), allBaseClasses.end(), back_inserter(classIds),
-		  ::Ice::memFun(&ClassDef::scoped));
+		  ::IceUtil::memFun(&ClassDef::scoped));
 	if (!p->isInterface())
 	{
 	    classIds.push_front(scoped);
@@ -1527,7 +1527,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	{
 	    StringList allOpNames;
 	    transform(allOperations.begin(), allOperations.end(), back_inserter(allOpNames),
-		      ::Ice::memFun(&Operation::name));
+		      ::IceUtil::memFun(&Operation::name));
 	    allOpNames.push_back("_isA");
 	    allOpNames.push_back("_ping");
 	    allOpNames.sort();
@@ -1732,7 +1732,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	{
 	    C << eb;
 	    TypeList::iterator r;
-	    Ice::Int cnt = 0;
+	    int cnt = 0;
 	    for (r = throws.begin(); r != throws.end(); ++r)
 	    {
 		C << nl << "catch(" << exceptionTypeToString(*r) << " __ex)";

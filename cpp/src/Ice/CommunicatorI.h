@@ -11,9 +11,9 @@
 #ifndef ICE_COMMUNICATOR_I_H
 #define ICE_COMMUNICATOR_I_H
 
+#include <IceUtil/Shared.h>
 #include <Ice/InstanceF.h>
 #include <Ice/Communicator.h>
-#include <Ice/Shared.h>
 
 namespace Ice
 {

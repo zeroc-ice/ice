@@ -11,9 +11,9 @@
 #ifndef ICE_LOCAL_OBJECT_H
 #define ICE_LOCAL_OBJECT_H
 
+#include <IceUtil/Shared.h>
 #include <Ice/LocalObjectF.h>
 #include <Ice/ProxyF.h> // TODO...
-#include <Ice/Shared.h>
 
 namespace IceInternal
 {
@@ -41,7 +41,7 @@ protected:
     LocalObjectPtr _ptr;        
 };
 
-class ICE_API LocalObject : public ::Ice::Shared
+class ICE_API LocalObject : public ::IceUtil::Shared
 {
 public:
 

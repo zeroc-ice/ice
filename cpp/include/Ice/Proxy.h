@@ -11,11 +11,11 @@
 #ifndef ICE_PROXY_H
 #define ICE_PROXY_H
 
+#include <IceUtil/Shared.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/EmitterF.h>
 #include <Ice/ReferenceF.h>
-#include <Ice/Shared.h>
 
 namespace Ice
 {
@@ -44,7 +44,7 @@ protected:
 namespace IceProxy { namespace Ice
 {
 
-class ICE_API Object : public ::Ice::Shared, JTCMutex
+class ICE_API Object : public ::IceUtil::Shared, JTCMutex
 {
 public:
 
@@ -97,7 +97,7 @@ private:
 namespace IceDelegate { namespace Ice
 {
 
-class ICE_API Object : public ::Ice::Shared
+class ICE_API Object : public ::IceUtil::Shared
 {
 public:
 

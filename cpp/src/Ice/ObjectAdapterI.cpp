@@ -53,7 +53,7 @@ Ice::ObjectAdapterI::activate()
     }
 
     for_each(_collectorFactories.begin(), _collectorFactories.end(),
-	     ::IceInternal::voidMemFun(& ::IceInternal::CollectorFactory::activate));
+	     ::IceInternal::voidMemFun(&CollectorFactory::activate));
 }
 
 void
@@ -67,7 +67,7 @@ Ice::ObjectAdapterI::hold()
     }
 
     for_each(_collectorFactories.begin(), _collectorFactories.end(),
-	     ::IceInternal::voidMemFun(& ::IceInternal::CollectorFactory::hold));
+	     ::IceInternal::voidMemFun(& CollectorFactory::hold));
 }
 
 void
@@ -81,7 +81,7 @@ Ice::ObjectAdapterI::deactivate()
     }
 
     for_each(_collectorFactories.begin(), _collectorFactories.end(),
-	     ::IceInternal::voidMemFun(& ::IceInternal::CollectorFactory::destroy));
+	     ::IceInternal::voidMemFun(& CollectorFactory::destroy));
     _collectorFactories.clear();
     _aom.clear();
     _aomHint = _aom.begin();

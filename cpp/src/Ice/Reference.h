@@ -11,17 +11,17 @@
 #ifndef ICE_REFERENCE_H
 #define ICE_REFERENCE_H
 
+#include <IceUtil/Shared.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/EndpointF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/Shared.h>
 
 namespace IceInternal
 {
 
 class Stream;
 
-class Reference : public ::Ice::Shared
+class Reference : public ::IceUtil::Shared
 {
 public:
 

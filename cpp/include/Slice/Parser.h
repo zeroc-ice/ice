@@ -11,8 +11,10 @@
 #ifndef SLICE_PARSER_H
 #define SLICE_PARSER_H
 
-#include <Ice/Shared.h>
-#include <Ice/Handle.h>
+#include <IceUtil/Shared.h>
+#include <IceUtil/Handle.h>
+#include <string>
+#include <vector>
 #include <list>
 #include <stack>
 #include <map>
@@ -51,26 +53,26 @@ class Enumerator;
 class Native;
 class Unit;
 
-typedef ::Ice::Handle<GrammerBase> GrammerBasePtr;
-typedef ::Ice::Handle<SyntaxTreeBase> SyntaxTreeBasePtr;
-typedef ::Ice::Handle<Type> TypePtr;
-typedef ::Ice::Handle<Builtin> BuiltinPtr;
-typedef ::Ice::Handle<Contained> ContainedPtr;
-typedef ::Ice::Handle<Container> ContainerPtr;
-typedef ::Ice::Handle<Module> ModulePtr;
-typedef ::Ice::Handle<Constructed> ConstructedPtr;
-typedef ::Ice::Handle<ClassDecl> ClassDeclPtr;
-typedef ::Ice::Handle<ClassDef> ClassDefPtr;
-typedef ::Ice::Handle<Proxy> ProxyPtr;
-typedef ::Ice::Handle<Struct> StructPtr;
-typedef ::Ice::Handle<Operation> OperationPtr;
-typedef ::Ice::Handle<DataMember> DataMemberPtr;
-typedef ::Ice::Handle<Sequence> SequencePtr;
-typedef ::Ice::Handle<Dictionary> DictionaryPtr;
-typedef ::Ice::Handle<Enum> EnumPtr;
-typedef ::Ice::Handle<Enumerator> EnumeratorPtr;
-typedef ::Ice::Handle<Native> NativePtr;
-typedef ::Ice::Handle<Unit> UnitPtr;
+typedef ::IceUtil::Handle<GrammerBase> GrammerBasePtr;
+typedef ::IceUtil::Handle<SyntaxTreeBase> SyntaxTreeBasePtr;
+typedef ::IceUtil::Handle<Type> TypePtr;
+typedef ::IceUtil::Handle<Builtin> BuiltinPtr;
+typedef ::IceUtil::Handle<Contained> ContainedPtr;
+typedef ::IceUtil::Handle<Container> ContainerPtr;
+typedef ::IceUtil::Handle<Module> ModulePtr;
+typedef ::IceUtil::Handle<Constructed> ConstructedPtr;
+typedef ::IceUtil::Handle<ClassDecl> ClassDeclPtr;
+typedef ::IceUtil::Handle<ClassDef> ClassDefPtr;
+typedef ::IceUtil::Handle<Proxy> ProxyPtr;
+typedef ::IceUtil::Handle<Struct> StructPtr;
+typedef ::IceUtil::Handle<Operation> OperationPtr;
+typedef ::IceUtil::Handle<DataMember> DataMemberPtr;
+typedef ::IceUtil::Handle<Sequence> SequencePtr;
+typedef ::IceUtil::Handle<Dictionary> DictionaryPtr;
+typedef ::IceUtil::Handle<Enum> EnumPtr;
+typedef ::IceUtil::Handle<Enumerator> EnumeratorPtr;
+typedef ::IceUtil::Handle<Native> NativePtr;
+typedef ::IceUtil::Handle<Unit> UnitPtr;
 
 }
 
@@ -141,7 +143,7 @@ public:
 // GrammerBase
 // ----------------------------------------------------------------------
 
-class SLICE_API GrammerBase : public ::Ice::SimpleShared
+class SLICE_API GrammerBase : public ::IceUtil::SimpleShared
 {
 };
 

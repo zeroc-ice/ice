@@ -105,7 +105,7 @@ string Ice::Object::__names[] =
 };
 
 DispatchStatus
-Ice::Object::__dispatch(::IceInternal::Incoming& in, const string& name)
+Ice::Object::__dispatch(Incoming& in, const string& name)
 {
     string* b = __names;
     string* e = __names + sizeof(__names) / sizeof(string);

@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Functional.h>
+#include <IceUtil/Functional.h>
 #include <Slice/Parser.h>
 
 using namespace std;
@@ -149,7 +149,7 @@ Slice::operator==(Contained& l, Contained& r)
 void
 Slice::Container::destroy()
 {
-    for_each(_contents.begin(), _contents.end(), ::Ice::voidMemFun(&Contained::destroy));
+    for_each(_contents.begin(), _contents.end(), ::IceUtil::voidMemFun(&Contained::destroy));
     _contents.clear();
     SyntaxTreeBase::destroy();
 }

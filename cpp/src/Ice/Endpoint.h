@@ -11,12 +11,12 @@
 #ifndef ICE_ENDPOINT_H
 #define ICE_ENDPOINT_H
 
+#include <IceUtil/Shared.h>
 #include <Ice/EndpointF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/ConnectorF.h>
 #include <Ice/AcceptorF.h>
-#include <Ice/Shared.h>
 
 namespace IceInternal
 {
@@ -28,7 +28,7 @@ const ::Ice::Short TcpEndpointType = 1;
 const ::Ice::Short SslEndpointType = 2;
 const ::Ice::Short UdpEndpointType = 3;
 
-class Endpoint : public ::Ice::Shared
+class Endpoint : public ::IceUtil::Shared
 {
 public:
 

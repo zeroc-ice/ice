@@ -8,7 +8,6 @@
 //
 // **********************************************************************
 
-#include <Ice/Config.h>
 #include <Slice/OutputUtil.h>
 
 using namespace std;

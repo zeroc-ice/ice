@@ -11,10 +11,10 @@
 #ifndef ICE_EVENT_HANDLER_H
 #define ICE_EVENT_HANDLER_H
 
+#include <IceUtil/Shared.h>
 #include <Ice/EventHandlerF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ThreadPoolF.h>
-#include <Ice/Shared.h>
 #include <Ice/Stream.h>
 
 namespace Ice
@@ -27,7 +27,7 @@ class LocalException;
 namespace IceInternal
 {
 
-class EventHandler : public ::Ice::Shared
+class EventHandler : public ::IceUtil::Shared
 {
 public:
     

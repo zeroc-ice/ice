@@ -88,7 +88,7 @@ IceProxy::Ice::Object::_isA(const string& s)
     {
 	try
 	{
-	    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->_isA(s);
 	}
 	catch (const LocationForward& __ex)
@@ -114,7 +114,7 @@ IceProxy::Ice::Object::_ping()
     {
 	try
 	{
-	    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    __del->_ping();
 	    return;
 	}
@@ -136,7 +136,7 @@ IceProxy::Ice::Object::_ping()
 void
 IceProxy::Ice::Object::_flush()
 {
-    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
     __del->_flush();
 }
 
@@ -409,7 +409,7 @@ IceProxy::Ice::Object::~Object()
 {
 }
 
-::IceInternal::Handle< ::IceDelegate::Ice::Object>
+Handle< ::IceDelegate::Ice::Object>
 IceProxy::Ice::Object::__getDelegate()
 {
     JTCSyncT<JTCMutex> sync(*this);
@@ -432,10 +432,10 @@ IceProxy::Ice::Object::__getDelegate()
     return _delegate;
 }
 
-::IceInternal::Handle< ::IceDelegateM::Ice::Object>
+Handle< ::IceDelegateM::Ice::Object>
 IceProxy::Ice::Object::__createDelegateM()
 {
-    return ::IceInternal::Handle< ::IceDelegateM::Ice::Object>(new ::IceDelegateM::Ice::Object);
+    return Handle< ::IceDelegateM::Ice::Object>(new ::IceDelegateM::Ice::Object);
 }
 
 void
@@ -463,7 +463,7 @@ IceDelegate::Ice::Object::~Object()
 }
 
 void
-IceDelegate::Ice::Object::setup(const ::IceInternal::ReferencePtr&)
+IceDelegate::Ice::Object::setup(const ReferencePtr&)
 {
 }
 

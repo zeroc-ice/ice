@@ -11,6 +11,7 @@
 #ifndef ICE_INSTANCE_H
 #define ICE_INSTANCE_H
 
+#include <IceUtil/Shared.h>
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/PropertiesF.h>
@@ -22,7 +23,6 @@
 #include <Ice/ValueFactoryManagerF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
 #include <Ice/PicklerF.h>
-#include <Ice/Shared.h>
 
 namespace Ice
 {
@@ -34,7 +34,7 @@ class CommunicatorI;
 namespace IceInternal
 {
 
-class Instance : public ::Ice::Shared, public JTCMutex
+class Instance : public ::IceUtil::Shared, public JTCMutex
 {
 public:
 

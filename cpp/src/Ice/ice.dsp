@@ -486,10 +486,6 @@ SOURCE=..\..\include\Ice\ReferenceF.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\Shared.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\Ice\SslAcceptor.h
 # End Source File
 # Begin Source File

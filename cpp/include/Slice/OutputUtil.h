@@ -11,7 +11,7 @@
 #ifndef SLICE_OUTPUT_UTIL_H
 #define SLICE_OUTPUT_UTIL_H
 
-#include <Ice/Config.h>
+#include <IceUtil/Config.h>
 #include <fstream>
 #include <sstream>
 #include <stack>
@@ -43,7 +43,7 @@ extern SLICE_API Separator sp;
 // Indent
 // ----------------------------------------------------------------------
 
-class SLICE_API Output : public ::Ice::noncopyable
+class SLICE_API Output : public ::IceUtil::noncopyable
 {
 public:
 

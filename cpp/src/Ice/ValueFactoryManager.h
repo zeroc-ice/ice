@@ -11,15 +11,15 @@
 #ifndef ICE_VALUE_FACTORY_MANAGER_H
 #define ICE_VALUE_FACTORY_MANAGER_H
 
+#include <IceUtil/Shared.h>
 #include <Ice/ValueFactoryManagerF.h>
 #include <Ice/ValueFactoryF.h>
-#include <Ice/Shared.h>
 #include <map>
 
 namespace IceInternal
 {
 
-class ValueFactoryManager : public ::Ice::Shared, public JTCMutex
+class ValueFactoryManager : public ::IceUtil::Shared, public JTCMutex
 {
 public:
 

@@ -23,12 +23,12 @@ class BoolTok;
 class TypeListTok;
 class ClassListTok;
 
-typedef ::Ice::Handle<StringTok> StringTokPtr;
-typedef ::Ice::Handle<TypeStringListTok> TypeStringListTokPtr;
-typedef ::Ice::Handle<StringListTok> StringListTokPtr;
-typedef ::Ice::Handle<BoolTok> BoolTokPtr;
-typedef ::Ice::Handle<TypeListTok> TypeListTokPtr;
-typedef ::Ice::Handle<ClassListTok> ClassListTokPtr;
+typedef ::IceUtil::Handle<StringTok> StringTokPtr;
+typedef ::IceUtil::Handle<TypeStringListTok> TypeStringListTokPtr;
+typedef ::IceUtil::Handle<StringListTok> StringListTokPtr;
+typedef ::IceUtil::Handle<BoolTok> BoolTokPtr;
+typedef ::IceUtil::Handle<TypeListTok> TypeListTokPtr;
+typedef ::IceUtil::Handle<ClassListTok> ClassListTokPtr;
 
 }
 

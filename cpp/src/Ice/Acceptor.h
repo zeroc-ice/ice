@@ -11,14 +11,14 @@
 #ifndef ICE_ACCEPTOR_H
 #define ICE_ACCEPTOR_H
 
+#include <IceUtil/Shared.h>
 #include <Ice/AcceptorF.h>
 #include <Ice/TransceiverF.h>
-#include <Ice/Shared.h>
 
 namespace IceInternal
 {
 
-class Acceptor : public ::Ice::Shared
+class Acceptor : public ::IceUtil::Shared
 {
 public:
 

@@ -11,14 +11,14 @@
 #ifndef ICE_CONNECTOR_H
 #define ICE_CONNECTOR_H
 
+#include <IceUtil/Shared.h>
 #include <Ice/ConnectorF.h>
 #include <Ice/TransceiverF.h>
-#include <Ice/Shared.h>
 
 namespace IceInternal
 {
 
-class Connector : public ::Ice::Shared
+class Connector : public ::IceUtil::Shared
 {
 public:
     

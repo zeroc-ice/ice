@@ -11,6 +11,7 @@
 #ifndef ICE_PACK_PARSER_H
 #define ICE_PACK_PARSER_H
 
+#include <IceUtil/Handle.h>
 #include <IcePack/Admin.h>
 #include <list>
 
@@ -45,14 +46,14 @@ namespace IcePack
 {
 
 class Parser;
-typedef ::Ice::Handle<Parser> ParserPtr;
+typedef ::IceUtil::Handle<Parser> ParserPtr;
 
 }
 
 namespace IcePack
 {
 
-class Parser : public ::Ice::SimpleShared
+class Parser : public ::IceUtil::SimpleShared
 {
 public:
 

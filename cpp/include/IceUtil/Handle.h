@@ -8,25 +8,17 @@
 //
 // **********************************************************************
 
-#ifndef ICE_HANDLE_H
-#define ICE_HANDLE_H
+#ifndef ICE_UTIL_HANDLE_H
+#define ICE_UTIL_HANDLE_H
 
-#include <Ice/Config.h>
+#include <IceUtil/Config.h>
 #include <algorithm>
 
 //
 // "Handle" or "smart pointer" classes for classes derived from
 // IceUtil::Shared or IceUtil::SimpleShared.
 //
-// In constrast to IceUtil::Handle, IceInternal::Handle requires the
-// declaration of the two global operations IceInternal::incRef(T*)
-// and IceInternal::decRef(T*). The use of global operations allows
-// this template to be used for types which are declared but not
-// defined, provided that the two above mentioned operations are
-// declared.
-//
-
-namespace IceInternal
+namespace IceUtil
 {
 
 template<typename T>
@@ -39,7 +31,7 @@ public:
     {
 	if (_ptr)
 	{
-	    incRef(_ptr);
+	    _ptr->__incRef();
 	}
     }
     
@@ -49,7 +41,7 @@ public:
     {
 	if (_ptr)
 	{
-	    incRef(_ptr);
+	    _ptr->__incRef();
 	}
     }
 
@@ -63,7 +55,7 @@ public:
     {
 	if (_ptr)
 	{
-	    incRef(_ptr);
+	    _ptr->__incRef();
 	}
     }
     
@@ -71,7 +63,7 @@ public:
     {
 	if (_ptr)
 	{
-	    decRef(_ptr);
+	    _ptr->__decRef();
 	}
     }
     
@@ -81,12 +73,12 @@ public:
 	{
 	    if (p)
 	    {
-		incRef(p);
+		p->__incRef();
 	    }
 
 	    if (_ptr)
 	    {
-		decRef(_ptr);
+		_ptr->__decRef();
 	    }
 	    
 	    _ptr = p;
@@ -101,12 +93,12 @@ public:
 	{
 	    if (r._ptr)
 	    {
-		incRef(r._ptr);
+		r._ptr->__incRef();
 	    }
 
 	    if (_ptr)
 	    {
-		decRef(_ptr);
+		_ptr->__decRef();
 	    }
 	    
 	    _ptr = r._ptr;
@@ -125,12 +117,12 @@ public:
 	{
 	    if (r._ptr)
 	    {
-		incRef(r._ptr);
+		r._ptr->__incRef();
 	    }
 
 	    if (_ptr)
 	    {
-		decRef(_ptr);
+		_ptr->__decRef();
 	    }
 	    
 	    _ptr = r._ptr;

@@ -11,9 +11,9 @@
 #ifndef ICE_PICKLER_I_H
 #define ICE_PICKLER_I_H
 
+#include <IceUtil/Shared.h>
 #include <Ice/Pickler.h>
 #include <Ice/InstanceF.h>
-#include <Ice/Shared.h>
 
 namespace Ice
 {

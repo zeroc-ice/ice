@@ -16,7 +16,7 @@
 namespace IceInternal
 {
 
-class ICE_API Buffer : public ::Ice::noncopyable
+class ICE_API Buffer : public ::IceUtil::noncopyable
 {
 public:
 

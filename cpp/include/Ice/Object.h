@@ -11,9 +11,9 @@
 #ifndef ICE_OBJECT_H
 #define ICE_OBJECT_H
 
+#include <IceUtil/Shared.h>
 #include <Ice/ObjectF.h>
 #include <Ice/Proxy.h>
-#include <Ice/Shared.h>
 
 namespace IceInternal
 {

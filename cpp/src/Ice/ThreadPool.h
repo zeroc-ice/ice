@@ -11,10 +11,10 @@
 #ifndef ICE_THREAD_POOL_H
 #define ICE_THREAD_POOL_H
 
+#include <IceUtil/Shared.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/EventHandlerF.h>
-#include <Ice/Shared.h>
 #include <map>
 
 namespace IceInternal
@@ -22,7 +22,7 @@ namespace IceInternal
 
 class Stream;
 
-class ThreadPool : public ::Ice::Shared, public JTCMonitorT<JTCMutex>
+class ThreadPool : public ::IceUtil::Shared, public JTCMonitorT<JTCMutex>
 {
 public:
 

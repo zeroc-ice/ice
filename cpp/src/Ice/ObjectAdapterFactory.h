@@ -11,18 +11,18 @@
 #ifndef ICE_OBJECT_ADAPTER_FACTORY_H
 #define ICE_OBJECT_ADAPTER_FACTORY_H
 
+#include <IceUtil/Shared.h>
 #include <Ice/ObjectAdapterFactoryF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
-#include <Ice/Shared.h>
 #include <map>
 
 namespace IceInternal
 {
 
-class ObjectAdapterFactory : public ::Ice::Shared, public JTCMutex
+class ObjectAdapterFactory : public ::IceUtil::Shared, public JTCMutex
 {
 public:
 

@@ -11,18 +11,18 @@
 #ifndef ICE_PROXY_FACTORY_H
 #define ICE_PROXY_FACTORY_H
 
+#include <IceUtil/Shared.h>
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/ProxyF.h>
-#include <Ice/Shared.h>
 
 namespace IceInternal
 {
 
 class Stream;
 
-class ProxyFactory : public ::Ice::Shared
+class ProxyFactory : public ::IceUtil::Shared
 {
 public:
     

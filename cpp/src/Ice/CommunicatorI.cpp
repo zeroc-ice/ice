@@ -162,7 +162,7 @@ Ice::CommunicatorI::getPickler()
 }
 
 Ice::CommunicatorI::CommunicatorI(const PropertiesPtr& properties) :
-    _instance(new ::IceInternal::Instance(this, properties))
+    _instance(new Instance(this, properties))
 {
 }
 

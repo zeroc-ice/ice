@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Functional.h>
+#include <IceUtil/Functional.h>
 #include <Gen.h>
 
 using namespace std;
@@ -126,7 +126,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     ClassList interfaces;
     interfaces.splice(interfaces.end(),
 		      classes,
-		      remove_if(classes.begin(), classes.end(), ::Ice::memFun(&ClassDef::isInterface)),
+		      remove_if(classes.begin(), classes.end(), ::IceUtil::memFun(&ClassDef::isInterface)),
 		      classes.end());
 
     classes.sort();

@@ -11,6 +11,7 @@
 #ifndef ICE_OBJECT_ADAPTER_I_H
 #define ICE_OBJECT_ADAPTER_I_H
 
+#include <IceUtil/Shared.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
@@ -19,7 +20,6 @@
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/LocalException.h>
-#include <Ice/Shared.h>
 #include <map>
 
 namespace Ice

@@ -8,32 +8,27 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SHARED_H
-#define ICE_SHARED_H
+#ifndef ICE_UTIL_SHARED_H
+#define ICE_UTIL_SHARED_H
 
-#include <Ice/Config.h>
+#include <IceUtil/Config.h>
 
 //
-// Base classes for reference counted types. Note that the Ice
-// namespace is used instead of IceInternal, so that user code can use
-// these base classes as well.
+// Base classes for reference counted types. For "smart pointers" or
+// "handles" for reference counted types derived from these base
+// classes, use IceUtil::Handle.
 //
-// For "smart pointers" or "handles" for reference counted types
-// derived from these base classes, use IceInternal::Handle (only for
-// Ice internal stuff, of course), or Ice::Handle (for application
-// code).
-//
-// Ice::SimpleShared
-// =================
+// IceUtil::SimpleShared
+// =====================
 //
 // A non thread-safe base class for reference-counted types.
 //
-// Ice::Shared
-// ===========
+// IceUtil::Shared
+// ===============
 //
 // A thread-safe base class for reference-counted types.
 //
-namespace Ice
+namespace IceUtil
 {
 
 class SimpleShared : public noncopyable

@@ -88,7 +88,7 @@ private:
 #endif
 };
 
-class EmitterFactory : public ::Ice::Shared, public JTCMutex
+class EmitterFactory : public ::IceUtil::Shared, public JTCMutex
 {
 public:
 
