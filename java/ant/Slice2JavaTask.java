@@ -351,19 +351,23 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
 		String line;
 		while((line = in.readLine()) != null)
 		{
-		    depline.append(line);
-
-		    if(!line.endsWith("\\"))
+		    if(line.endsWith("\\"))
 		    {
-			String[] deps = depline.toString().split("[\\s\\\\]");
+			depline.append(line.substring(0, line.length() - 1));
+		    }
+		    else
+		    {
+			depline.append(line);
+
+			String[] deps = depline.toString().split("[\\s]");
 			if(deps.length > 0)
 			{
-			    int pos = deps[0].indexOf('.');
+			    File slice = new File(deps[0]);
+			    int pos = slice.getName().indexOf('.');
 			    if(pos != -1)
 			    {
-				String sliceFile = deps[0].substring(0, pos);
+				String sliceFile = slice.getName().substring(0, pos);
 				File tag = new File(_tagDir, "." + sliceFile + ".ice.tag");
-				
 				try
 				{
 				    BufferedWriter out = new BufferedWriter(new FileWriter(tag));
