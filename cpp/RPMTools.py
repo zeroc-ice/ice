@@ -254,6 +254,8 @@ fileLists = [
                "",
 	       "",
                [("exe", "bin/slice2cs"),
+	        ("exe", "bin/generatecs.exe"),
+	        ("exe", "bin/icecpp.exe"),
 		("file", "share/doc/Ice-%version%/config/Make.rules.cs"),
 	        ("dir", "share/doc/Ice-%version%/democs")]),
     Subpackage("java-devel",
@@ -457,13 +459,13 @@ sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IceCS-%{ve
 def writeBuildCommands(ofile, version):
     ofile.write("""
 cd $RPM_BUILD_DIR/Ice-%{version}
-gmake RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr
+gmake OPTIMIZE=yes RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr
 cd $RPM_BUILD_DIR/IcePy-%{version}
-gmake ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr
+gmake  OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr
 cd $RPM_BUILD_DIR/IceCS-%{version}
 export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
 export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
-gmake ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr
+gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr
 """)
 
 def writeInstallCommands(ofile, version):
