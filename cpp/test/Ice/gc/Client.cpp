@@ -37,6 +37,21 @@ struct N : public C
 
 typedef ::IceInternal::Handle<N> NPtr;
 
+struct N2 : public C2
+{
+    N2()
+    {
+	++num;
+    }
+
+    ~N2()
+    {
+	--num;
+    }
+};
+
+typedef ::IceInternal::Handle<N2> N2Ptr;
+
 class GarbageProducer : public ::IceUtil::Thread, public ::IceUtil::Monitor< ::IceUtil::Mutex>
 {
 public:
@@ -203,7 +218,7 @@ MyApplication::run(int argc, char* argv[])
     test(num == 0);
     cout << "ok" << endl;
 
-    cout << "testing single instance loop... " << flush;
+    cout << "testing single instance cycle... " << flush;
     {
 	NPtr n = new N;
 	n->left = n;
@@ -216,7 +231,7 @@ MyApplication::run(int argc, char* argv[])
     test(num == 0);
     cout << "ok" << endl;
 
-    cout << "testing single instance loop with double pointers... " << flush;
+    cout << "testing single instance cycle with double pointers... " << flush;
     {
 	NPtr n = new N;
 	n->left = n;
@@ -230,7 +245,7 @@ MyApplication::run(int argc, char* argv[])
     test(num == 0);
     cout << "ok" << endl;
 
-    cout << "testing double instance loop... " << flush;
+    cout << "testing double instance cycle... " << flush;
     {
 	NPtr n1 = new N;
 	NPtr n2 = new N;
@@ -245,7 +260,7 @@ MyApplication::run(int argc, char* argv[])
     test(num == 0);
     cout << "ok" << endl;
 
-    cout << "testing double instance loop with double pointers... " << flush;
+    cout << "testing double instance cycle with double pointers... " << flush;
     {
 	NPtr n1 = new N;
 	NPtr n2 = new N;
@@ -262,7 +277,7 @@ MyApplication::run(int argc, char* argv[])
     test(num == 0);
     cout << "ok" << endl;
 
-    cout << "testing double instance loop with looped pointers... " << flush;
+    cout << "testing double instance cycle with looped pointers... " << flush;
     {
 	NPtr n1 = new N;
 	NPtr n2 = new N;
@@ -279,7 +294,7 @@ MyApplication::run(int argc, char* argv[])
     test(num == 0);
     cout << "ok" << endl;
 
-    cout << "testing triple instance loop... " << flush;
+    cout << "testing triple instance cycle... " << flush;
     {
 	NPtr n1 = new N;
 	NPtr n2 = new N;
@@ -296,7 +311,7 @@ MyApplication::run(int argc, char* argv[])
     test(num == 0);
     cout << "ok" << endl;
 
-    cout << "testing triple instance loop with double pointers... " << flush;
+    cout << "testing triple instance cycle with double pointers... " << flush;
     {
 	NPtr n1 = new N;
 	NPtr n2 = new N;
@@ -316,7 +331,7 @@ MyApplication::run(int argc, char* argv[])
     test(num == 0);
     cout << "ok" << endl;
 
-    cout << "testing triple instance loop with opposing pointers... " << flush;
+    cout << "testing triple instance cycle with opposing pointers... " << flush;
     {
 	NPtr n1 = new N;
 	NPtr n2 = new N;
@@ -336,7 +351,7 @@ MyApplication::run(int argc, char* argv[])
     test(num == 0);
     cout << "ok" << endl;
 
-    cout << "testing loop with trailing instances... " << flush;
+    cout << "testing cycle with trailing instances... " << flush;
     NPtr n;
     {
 	NPtr n1 = new N;
@@ -361,7 +376,7 @@ MyApplication::run(int argc, char* argv[])
     test(num == 0);
     cout << "ok" << endl;
 
-    cout << "testing loop with trailing instances and trailing loop... " << flush;
+    cout << "testing cycle with trailing instances and trailing cycle... " << flush;
     {
 	NPtr n1 = new N;
 	NPtr n2 = new N;
@@ -386,6 +401,76 @@ MyApplication::run(int argc, char* argv[])
     test(num == 3);
     n = 0;
     test(num == 2);
+    Ice::collectGarbage();
+    test(num == 0);
+    cout << "ok" << endl;
+
+    cout << "testing sequence element cycle... " << flush;
+    {
+	CSeq cs;
+	cs.push_back(new N);
+	cs.push_back(new N);
+	cs[0]->left = cs[1];
+	cs[1]->left = cs[0];
+	test(num == 2);
+	Ice::collectGarbage();
+	test(num == 2);
+    }
+    Ice::collectGarbage();
+    test(num == 0);
+    cout << "ok" << endl;
+
+    cout << "testing dictionary element cycle... " << flush;
+    {
+	CDict cd;
+	NPtr n1 = new N;
+	NPtr n2 = new N;
+	n1->left = n2;
+	n2->left = n1;
+	cd[0] = n1;
+	cd[1] = n2;
+	test(num == 2);
+	Ice::collectGarbage();
+	test(num == 2);
+    }
+    Ice::collectGarbage();
+    test(num == 0);
+    cout << "ok" << endl;
+
+    cout << "testing sequence of struct cycle... " << flush;
+    {
+	SSeq ss;
+	S s;
+
+	ss.push_back(s);
+	ss.push_back(s);
+	ss[0].theC = new N;
+	ss[1].theC = new N;
+	ss[0].theC->left = ss[1].theC;
+	ss[1].theC->left = ss[0].theC;
+	test(num == 2);
+	Ice::collectGarbage();
+	test(num == 2);
+    }
+    Ice::collectGarbage();
+    test(num == 0);
+    cout << "ok" << endl;
+
+    cout << "testing sequence of struct of dictionary cycle... " << flush;
+    {
+	N2Ptr n2 = new N2;
+	S2 s2;
+
+	n2->theS2Seq.push_back(s2);
+	n2->theS2Seq.push_back(s2);
+	n2->theS2Seq[0].theC2Dict[0] = n2;
+	n2->theS2Seq[0].theC2Dict[1] = n2;
+	n2->theS2Seq[1].theC2Dict[0] = n2;
+	n2->theS2Seq[1].theC2Dict[1] = n2;
+	test(num == 1);
+	Ice::collectGarbage();
+	test(num == 1);
+    }
     Ice::collectGarbage();
     test(num == 0);
     cout << "ok" << endl;
