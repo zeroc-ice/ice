@@ -903,6 +903,7 @@ public final class Connection extends EventHandler
                     registerWithPool();
                 }
                 unregisterWithPool();
+                destroyIncoming();
                 break;
             }
         }
@@ -1031,6 +1032,17 @@ public final class Connection extends EventHandler
     {
         in.next = _incomingCache;
         _incomingCache = in;
+    }
+
+    private void
+    destroyIncoming()
+    {
+        Incoming in = _incomingCache;
+        while(in != null)
+        {
+            in.destroy();
+            in = in.next;
+        }
     }
 
     private final Transceiver _transceiver;
