@@ -13,7 +13,7 @@
 <!ENTITY common SYSTEM "file:../../../config/common.xml">
 ]>
 
-<project name="demo_Ice_value" default="all" basedir=".">
+<project name="demo_Ice_nested" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>

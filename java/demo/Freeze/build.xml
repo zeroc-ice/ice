@@ -9,7 +9,7 @@
  **********************************************************************
 -->
 
-<project name="demo_Ice" default="all" basedir=".">
+<project name="demo_Freeze" default="all" basedir=".">
 
     <target name="all">
         <ant dir="phonebook"/>
