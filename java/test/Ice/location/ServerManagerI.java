@@ -41,9 +41,14 @@ public class ServerManagerI extends _ServerManagerDisp
     }
 
     public void
+    cleanup(Ice.Current current)
+    {
+        _serverCommunicator.destroy();
+    }
+
+    public void
     shutdown(Ice.Current current)
     {
-	_serverCommunicator.shutdown();
 	_adapter.getCommunicator().shutdown();
     }
 

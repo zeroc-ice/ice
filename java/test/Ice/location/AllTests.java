@@ -64,6 +64,7 @@ public class AllTests
 	System.out.print("shutdown server... ");
         System.out.flush();
 	obj.shutdown();
+	manager.cleanup();
 	System.out.println("ok");
 
 	System.out.print("restarting server... ");
@@ -121,6 +122,7 @@ public class AllTests
 	System.out.print("shutdown server... ");
         System.out.flush();
 	obj.shutdown();
+	manager.cleanup();
 	System.out.println("ok");
 
 	System.out.print("testing whether server is gone... ");
