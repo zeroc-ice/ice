@@ -54,6 +54,7 @@ class Package:
 	ofile.write("Source2: http://www.zeroc.com/downloads/IcePy-%{version}.tar.gz\n")
 	ofile.write("Source3: http://www.zeroc.com/downloads/IceCS-%{version}.tar.gz\n")
 	ofile.write("Source4: http://www.zeroc.com/downloads/Ice-%{version}-demos.tar.gz\n")
+	ofile.write("Source5: http://www.zeroc.com/downloads/README.Linux-RPM\n")
 	ofile.write("\n")
 	if installDir <> "":
 	    ofile.write("BuildRoot: " + installDir + "\n")
@@ -293,8 +294,6 @@ fileLists = [
 		("dir", "share/doc/Ice-%version%/demo"),
 		("xdir", "share/doc/Ice-%version%/config"),
 		("file", "share/doc/Ice-%version%/config/Make.rules"),
-		("file", "share/doc/Ice-%version%/config/makedepend.py"),
-		("file", "share/doc/Ice-%version%/config/makeprops.py"),
 		("file", "share/doc/Ice-%version%/config/Make.rules.Linux"),
 		]),
     Subpackage("dotnet",
@@ -556,6 +555,7 @@ cd $RPM_BUILD_DIR/IceCS-%{version}
 export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
 export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
 gmake NOGAC=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr install
+cp $RPM_SOURCE_DIR/README.Linux-RPM $RPM_BUILD_ROOT/usr/README
 """)
 
 def writeTransformCommands(ofile, version):

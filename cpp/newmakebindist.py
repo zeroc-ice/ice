@@ -696,6 +696,7 @@ def main():
     if getPlatform() == 'linux' and not cvsMode:
 	os.system('cp ' + installDir + '/Ice-' + version + '-demos.tar.gz /usr/src/redhat/SOURCES')
 	os.system('cp ' + sources + '/Ice*.tar.gz /usr/src/redhat/SOURCES')
+	shutil.copy(installFiles + '/unix/README.Linux-RPM', '/usr/src/redhat/SOURCES/README.Linux-RPM')
 	shutil.copy(installFiles + '/unix/README.Linux-RPM', installDir + '/Ice-' + version + '/README')
 	RPMTools.createRPMSFromBinaries(buildDir, installDir, version, soVersion)
 
