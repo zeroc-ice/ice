@@ -21,7 +21,7 @@
 namespace Ice
 {
 
-class RuntimeException;
+class LocalException;
 
 }
 
@@ -38,14 +38,14 @@ class ICE_API NonRepeatable
 public:
 
     NonRepeatable(const NonRepeatable&);
-    NonRepeatable(const ::Ice::RuntimeException&);
-    const ::Ice::RuntimeException* get() const;
+    NonRepeatable(const ::Ice::LocalException&);
+    const ::Ice::LocalException* get() const;
 
 private:
 
     const NonRepeatable& operator=(const NonRepeatable&);
 
-    std::auto_ptr< ::Ice::RuntimeException> _ex;
+    std::auto_ptr< ::Ice::LocalException> _ex;
 };
 
 class ICE_API Outgoing : public ::IceUtil::noncopyable, public IceUtil::Monitor< IceUtil::Mutex >
@@ -58,7 +58,7 @@ public:
 
     bool invoke(); // Returns true if ok, false if user exception.
     void finished(BasicStream&);
-    void finished(const ::Ice::RuntimeException&);
+    void finished(const ::Ice::LocalException&);
 
     BasicStream* is();
     BasicStream* os();
@@ -72,7 +72,7 @@ private:
     const ConnectionPtr& _connection;
     const ReferencePtr& _reference;
 
-    std::auto_ptr< ::Ice::RuntimeException> _exception;
+    std::auto_ptr< ::Ice::LocalException> _exception;
 
     enum
     {
@@ -81,7 +81,7 @@ private:
 	StateOK,
 	StateLocationForward,
 	StateUserException,
-	StateRuntimeException,
+	StateLocalException,
     } _state;
 
     BasicStream _is;

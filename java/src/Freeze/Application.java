@@ -34,7 +34,7 @@ public abstract class Application extends Ice.Application
 	    System.err.println(appName() + ": " + ex + ": " + ex.message);
 	    status = 1;
 	}
-	catch(Ice.RuntimeException ex)
+	catch(Ice.LocalException ex)
 	{
 	    System.err.println(appName() + ": " + ex);
 	    ex.printStackTrace();

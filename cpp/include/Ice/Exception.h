@@ -43,11 +43,11 @@ typedef ::IceInternal::Handle< ::Ice::Stream> StreamPtr;
 
 typedef IceUtil::Exception Exception;
 
-class RuntimeException : public IceUtil::Exception
+class LocalException : public IceUtil::Exception
 {
 public:    
 
-    ICE_API RuntimeException(const char*, int);
+    ICE_API LocalException(const char*, int);
     virtual std::string ice_name() const = 0;
     virtual Exception* ice_clone() const = 0;
     virtual void ice_throw() const = 0;

@@ -26,7 +26,7 @@
 namespace Ice
 {
 
-class RuntimeException;
+class LocalException;
 class ObjectAdapterI;
 
 }
@@ -71,7 +71,7 @@ public:
     virtual void read(BasicStream&);
     virtual void message(BasicStream&, const ThreadPoolPtr&);
     virtual void finished(const ThreadPoolPtr&);
-    virtual void exception(const ::Ice::RuntimeException&);
+    virtual void exception(const ::Ice::LocalException&);
     virtual std::string toString() const;
     
 private:

@@ -10,7 +10,7 @@
 
 #include <Ice/LoggerUtil.h>
 #include <Ice/Network.h>
-#include <Ice/RuntimeException.h>
+#include <Ice/LocalException.h>
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/OpenSSLPluginI.h>
 #include <IceSSL/TraceLevels.h>

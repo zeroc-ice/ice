@@ -574,7 +574,7 @@ IcePack::ActivatorI::terminationListener()
 			{
 			    p->server->terminated();
 			}
-			catch(const Ice::RuntimeException& ex)
+			catch(const Ice::LocalException& ex)
 			{
 			    Ice::Warning out(_traceLevels->logger);
 			    out << "unexpected exception raised by server `" << p->server->description.name 

@@ -64,7 +64,7 @@ namespace Ice
 typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Router> RouterPrx;
 typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Locator> LocatorPrx;
 
-class RuntimeException;
+class LocalException;
 class LocationForward;
 
 }
@@ -112,8 +112,8 @@ public:
 
     ::IceInternal::ReferencePtr __reference() const;
     void __copyFrom(const ::Ice::ObjectPrx&);
-    void __handleException(const ::Ice::RuntimeException&, int&);
-    void __rethrowException(const ::Ice::RuntimeException&);
+    void __handleException(const ::Ice::LocalException&, int&);
+    void __rethrowException(const ::Ice::LocalException&);
     void __locationForward(const ::Ice::LocationForward&);
 
     ::IceInternal::Handle< ::IceDelegate::Ice::Object> __getDelegate();

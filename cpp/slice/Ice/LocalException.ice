@@ -22,11 +22,11 @@ module Ice
  * This exception is raised if an operation call on a server raises a
  * local exception. Since the exception is local, it is not
  * transmitted by the &Ice; protocol. Instead, the client only receives
- * an [UknownRuntimeException] for all local exceptions being raised by
+ * an [UknownLocalException] for all local exceptions being raised by
  * the server.
  *
  **/
-local exception UnknownRuntimeException
+local exception UnknownLocalException
 {
 };
 
@@ -51,7 +51,7 @@ local exception UnknownUserException
  * This exception is raised if an operation call on a server raises an
  * unknown exception. For example, for C++, this exception is raised
  * if the server throws a C++ exception that is not directly or
- * indirectly derived from <literal>Ice::RuntimeException</literal> or
+ * indirectly derived from <literal>Ice::LocalException</literal> or
  * <literal>Ice::UserException</literal>.
  *
  **/

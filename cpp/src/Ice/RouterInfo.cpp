@@ -11,7 +11,7 @@
 #include <Ice/RouterInfo.h>
 #include <Ice/Router.h>
 #include <Ice/RoutingTable.h>
-#include <Ice/RuntimeException.h>
+#include <Ice/LocalException.h>
 #include <Ice/Functional.h>
 
 using namespace std;

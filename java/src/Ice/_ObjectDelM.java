@@ -252,7 +252,7 @@ public class _ObjectDelM implements _ObjectDel
 		    assert(__connection != null);
 		    __connection.incProxyUsageCount();
 		}
-		catch (RuntimeException ex)
+		catch (LocalException ex)
 		{
 		    if(__reference.routerInfo == null && __reference.endpoints.length == 0)
 		    {

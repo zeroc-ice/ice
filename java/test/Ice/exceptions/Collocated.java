@@ -34,7 +34,7 @@ public class Collocated
             communicator = Ice.Util.initialize(args);
             status = run(args, communicator);
         }
-        catch(Ice.RuntimeException ex)
+        catch(Ice.LocalException ex)
         {
             ex.printStackTrace();
             status = 1;
@@ -46,7 +46,7 @@ public class Collocated
             {
                 communicator.destroy();
             }
-            catch(Ice.RuntimeException ex)
+            catch(Ice.LocalException ex)
             {
                 ex.printStackTrace();
                 status = 1;

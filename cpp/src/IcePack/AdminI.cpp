@@ -70,7 +70,7 @@ IcePack::AdminI::removeServer(const string& name, const Current&)
     {
 	throw ServerNotExistException();
     }
-    catch(const Ice::RuntimeException&)
+    catch(const Ice::LocalException&)
     {
 	throw NodeUnreachableException();
     }
@@ -102,7 +102,7 @@ IcePack::AdminI::getServerState(const string& name, const Current&) const
     {
 	throw ServerNotExistException();
     }
-    catch(const Ice::RuntimeException&)
+    catch(const Ice::LocalException&)
     {
 	throw NodeUnreachableException();
     }
@@ -120,7 +120,7 @@ IcePack::AdminI::getServerPid(const string& name, const Current&) const
     {
 	throw ServerNotExistException();
     }
-    catch(const Ice::RuntimeException&)
+    catch(const Ice::LocalException&)
     {
 	throw NodeUnreachableException();
     }
@@ -138,7 +138,7 @@ IcePack::AdminI::startServer(const string& name, const Current&)
     {
 	throw ServerNotExistException();
     }
-    catch(const Ice::RuntimeException&)
+    catch(const Ice::LocalException&)
     {
 	throw NodeUnreachableException();
     }
@@ -156,7 +156,7 @@ IcePack::AdminI::stopServer(const string& name, const Current&)
     {
 	throw ServerNotExistException();
     }
-    catch(const Ice::RuntimeException&)
+    catch(const Ice::LocalException&)
     {
 	throw NodeUnreachableException();
     }
@@ -180,7 +180,7 @@ IcePack::AdminI::getAdapterEndpoints(const string& name, const Current&) const
     {
 	throw AdapterNotExistException();
     }
-    catch(const Ice::RuntimeException&)
+    catch(const Ice::LocalException&)
     {
 	throw NodeUnreachableException();
     }
@@ -205,7 +205,7 @@ IcePack::AdminI::pingNode(const string& name, const Current&) const
     {
 	throw NodeNotExistException();
     }
-    catch(const Ice::RuntimeException& ex)
+    catch(const Ice::LocalException& ex)
     {
 	return false;
     }
@@ -223,7 +223,7 @@ IcePack::AdminI::shutdownNode(const string& name, const Current&)
     {
 	throw NodeNotExistException();
     }
-    catch(const Ice::RuntimeException&)
+    catch(const Ice::LocalException&)
     {
 	throw NodeUnreachableException();
     }

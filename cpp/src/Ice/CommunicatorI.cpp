@@ -18,7 +18,7 @@
 #include <Ice/UserExceptionFactoryManager.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/LoggerUtil.h>
-#include <Ice/RuntimeException.h>
+#include <Ice/LocalException.h>
 #include <Ice/DefaultsAndOverrides.h>
 
 using namespace std;

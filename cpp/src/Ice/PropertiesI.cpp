@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Ice/PropertiesI.h>
-#include <Ice/RuntimeException.h>
+#include <Ice/LocalException.h>
 #include <fstream>
 
 using namespace std;

@@ -76,7 +76,7 @@ public class Server
             communicator = Ice.Util.initialize(argsH);
             status = run(argsH.value, communicator);
         }
-        catch(Ice.RuntimeException ex)
+        catch(Ice.LocalException ex)
         {
             ex.printStackTrace();
             status = 1;
@@ -88,7 +88,7 @@ public class Server
             {
                 communicator.destroy();
             }
-            catch(Ice.RuntimeException ex)
+            catch(Ice.LocalException ex)
             {
                 ex.printStackTrace();
                 status = 1;

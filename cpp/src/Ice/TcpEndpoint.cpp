@@ -14,7 +14,7 @@
 #include <Ice/TcpConnector.h>
 #include <Ice/TcpTransceiver.h>
 #include <Ice/BasicStream.h>
-#include <Ice/RuntimeException.h>
+#include <Ice/LocalException.h>
 #include <Ice/Instance.h>
 #include <Ice/DefaultsAndOverrides.h>
 

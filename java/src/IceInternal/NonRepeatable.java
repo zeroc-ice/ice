@@ -13,16 +13,16 @@ package IceInternal;
 public class NonRepeatable extends Exception
 {
     public
-    NonRepeatable(Ice.RuntimeException ex)
+    NonRepeatable(Ice.LocalException ex)
     {
         _ex = ex;
     }
 
-    public Ice.RuntimeException
+    public Ice.LocalException
     get()
     {
         return _ex;
     }
 
-    private Ice.RuntimeException _ex;
+    private Ice.LocalException _ex;
 }

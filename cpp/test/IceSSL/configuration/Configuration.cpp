@@ -151,7 +151,7 @@ testContextWithConfig(const Ice::CommunicatorPtr& communicator,
             }
         }
     }
-    catch(const RuntimeException&)
+    catch(const LocalException&)
     {
         //
         // Any other exception is bad.

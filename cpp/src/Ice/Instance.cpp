@@ -19,7 +19,7 @@
 #include <Ice/ConnectionFactory.h>
 #include <Ice/ObjectFactoryManager.h>
 #include <Ice/UserExceptionFactoryManager.h>
-#include <Ice/RuntimeException.h>
+#include <Ice/LocalException.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Exception.h>
 #include <Ice/Properties.h>

@@ -439,7 +439,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
                 beg = end + 1;
             }
         }
-        catch(RuntimeException ex)
+        catch(LocalException ex)
         {
 	    deactivate();
             throw ex;

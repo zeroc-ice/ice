@@ -37,7 +37,7 @@
                 <include name="Current.ice" />
                 <include name="Identity.ice" />
                 <include name="Facet.ice" />
-                <include name="RuntimeException.ice" />
+                <include name="LocalException.ice" />
                 <include name="Logger.ice" />
                 <include name="ObjectAdapter.ice" />
                 <include name="ObjectFactory.ice" />

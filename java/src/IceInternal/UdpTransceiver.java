@@ -201,7 +201,7 @@ final class UdpTransceiver implements Transceiver
                 _logger.trace(_traceLevels.networkCat, s);
             }
         }
-        catch(Ice.RuntimeException ex)
+        catch(Ice.LocalException ex)
         {
             _fd = null;
             throw ex;
@@ -231,7 +231,7 @@ final class UdpTransceiver implements Transceiver
                 _logger.trace(_traceLevels.networkCat, s);
             }
         }
-        catch(Ice.RuntimeException ex)
+        catch(Ice.LocalException ex)
         {
             _fd = null;
             throw ex;

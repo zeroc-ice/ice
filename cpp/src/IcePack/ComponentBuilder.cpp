@@ -217,7 +217,7 @@ public:
 	{
 	    _admin->add(_offer, _proxy);
 	}
-	catch(const Ice::RuntimeException& lex)
+	catch(const Ice::LocalException& lex)
 	{
 	    ostringstream os;
 	    os << "couldn't contact Yellow to add offer:\n" << lex << ends;
@@ -249,7 +249,7 @@ public:
 	    ex.proxy = _proxy;
 	    throw ex;
 	}	
-	catch(const Ice::RuntimeException& lex)
+	catch(const Ice::LocalException& lex)
 	{
 	    ostringstream os;
 	    os << "couldn't contact Yellow to remove offer:\n" << lex << ends;

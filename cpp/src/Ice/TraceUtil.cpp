@@ -307,7 +307,7 @@ IceInternal::traceReply(const char* heading, const BasicStream& str, const ::Ice
 		s << "(operation not exist)";
 		break;
 	    }
-	    case DispatchUnknownRuntimeException:
+	    case DispatchUnknownLocalException:
 	    {
 		s << "(unknown local exception)";
 		break;

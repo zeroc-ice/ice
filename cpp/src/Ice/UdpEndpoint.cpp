@@ -12,7 +12,7 @@
 #include <Ice/Network.h>
 #include <Ice/UdpTransceiver.h>
 #include <Ice/BasicStream.h>
-#include <Ice/RuntimeException.h>
+#include <Ice/LocalException.h>
 #include <Ice/Instance.h>
 #include <Ice/DefaultsAndOverrides.h>
 

@@ -12,7 +12,7 @@
 #define ICE_ICE_H
 
 #include <Ice/Initialize.h>
-#include <Ice/RuntimeException.h>
+#include <Ice/LocalException.h>
 #include <Ice/Properties.h>
 #include <Ice/Logger.h>
 #include <Ice/LoggerUtil.h>

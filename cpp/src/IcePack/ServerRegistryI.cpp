@@ -42,7 +42,7 @@ IcePack::ServerRegistryI::add(const string& name, const ServerPrx& server, const
 
 	    return;
 	}
-	catch(const Ice::RuntimeException&)
+	catch(const Ice::LocalException&)
 	{
 	}
 	throw ServerExistsException();
@@ -89,7 +89,7 @@ IcePack::ServerRegistryI::findByName(const string& name, const Ice::Current&)
 	{
 	    _dict.erase(p);
 	}
-	catch(const Ice::RuntimeException&)
+	catch(const Ice::LocalException&)
 	{
 	    return ServerPrx::uncheckedCast(p->second);
 	}

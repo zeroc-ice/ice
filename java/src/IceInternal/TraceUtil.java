@@ -118,7 +118,7 @@ final class TraceUtil
                     s.write("(operation not exist)");
                     break;
                 }
-                case DispatchStatus._DispatchUnknownRuntimeException:
+                case DispatchStatus._DispatchUnknownLocalException:
                 {
                     s.write("(unknown local exception)");
                     break;

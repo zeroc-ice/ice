@@ -11,7 +11,7 @@
 #ifndef ICE_PLUGIN_ICE
 #define ICE_PLUGIN_ICE
 
-#include <Ice/RuntimeException.ice>
+#include <Ice/LocalException.ice>
 
 module Ice
 {

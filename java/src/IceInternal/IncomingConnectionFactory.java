@@ -116,7 +116,7 @@ public class IncomingConnectionFactory extends EventHandler
             // Ignore timeouts.
 	    return;
         }
-        catch(Ice.RuntimeException ex)
+        catch(Ice.LocalException ex)
         {
             if(_warn)
             {
@@ -136,7 +136,7 @@ public class IncomingConnectionFactory extends EventHandler
             connection.activate();
             _connections.add(connection);
 	}
-        catch(Ice.RuntimeException ex)
+        catch(Ice.LocalException ex)
 	{
 	    //
 	    // Ignore all exceptions while creating or activating the
@@ -172,7 +172,7 @@ public class IncomingConnectionFactory extends EventHandler
     }
 
     public void
-    exception(Ice.RuntimeException ex)
+    exception(Ice.LocalException ex)
     {
         assert(false); // Must not be called.
     }
@@ -384,7 +384,7 @@ public class IncomingConnectionFactory extends EventHandler
     }
 
     private void
-    warning(Ice.RuntimeException ex)
+    warning(Ice.LocalException ex)
     {
         java.io.StringWriter sw = new java.io.StringWriter();
         java.io.PrintWriter pw = new java.io.PrintWriter(sw);

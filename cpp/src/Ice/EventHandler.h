@@ -20,7 +20,7 @@
 namespace Ice
 {
 
-class RuntimeException;
+class LocalException;
 
 }
 
@@ -57,7 +57,7 @@ public:
     //
     // Propagate an exception to the event handler.
     //
-    virtual void exception(const ::Ice::RuntimeException&) = 0;
+    virtual void exception(const ::Ice::LocalException&) = 0;
 
     //
     // Get a textual representation of the event handler.

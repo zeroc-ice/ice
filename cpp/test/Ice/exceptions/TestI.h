@@ -31,7 +31,7 @@ public:
     virtual void throwUndeclaredA(Ice::Int, const Ice::Current&);
     virtual void throwUndeclaredB(Ice::Int, Ice::Int, const Ice::Current&);
     virtual void throwUndeclaredC(Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);
-    virtual void throwRuntimeException(const Ice::Current&);
+    virtual void throwLocalException(const Ice::Current&);
     virtual void throwNonIceException(const Ice::Current&);
 
 private:

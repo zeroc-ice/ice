@@ -88,7 +88,7 @@ public final class LocatorInfo
 			endpoints = ((Ice.ObjectPrxHelper)object).__reference().endpoints;
 		    }
 		}
-		catch(Ice.RuntimeException ex)
+		catch(Ice.LocalException ex)
 		{
 		    //
 		    // Just trace the failure. The proxy will most

@@ -39,7 +39,7 @@ public:
 	{
 	    _deployer->add(_name, _descriptor, _binpath, _libpath, _targets);
 	}
-	catch(const Ice::RuntimeException& lex)
+	catch(const Ice::LocalException& lex)
 	{
 	    ostringstream os;
 	    os << "couldn't contact the node:\n" << lex;
@@ -70,7 +70,7 @@ public:
 	    ex.component = _node + "." + _name;
 	    throw ex;
 	}
-	catch(const Ice::RuntimeException& lex)
+	catch(const Ice::LocalException& lex)
 	{
 	    ostringstream os;
 	    os << "couldn't contact the node:\n" << lex;
@@ -250,7 +250,7 @@ IcePack::ApplicationBuilder::addServer(const string& name,
 	ServerDeployerPrx deployer = node->getServerDeployer();	    
 	_tasks.push_back(new AddServer(deployer, nodeName, name, descriptor, binpath, libpath, targets));
     }
-    catch(::Ice::RuntimeException&)
+    catch(::Ice::LocalException&)
     {
 	throw DeploySAXParseException("can't contact node `" + nodeName + "'", _locator);
     }

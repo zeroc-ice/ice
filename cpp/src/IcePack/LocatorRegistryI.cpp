@@ -47,7 +47,7 @@ IcePack::LocatorRegistryI::setAdapterDirectProxy(const string& name, const Ice::
 	    // Expected if the adapter was destroyed.
 	    //
 	}
-	catch(const Ice::RuntimeException& ex)
+	catch(const Ice::LocalException& ex)
 	{
 	    //
 	    // TODO: We couldn't contact the adapter object. This

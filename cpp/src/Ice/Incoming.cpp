@@ -12,7 +12,7 @@
 #include <Ice/ObjectAdapter.h>
 #include <Ice/ServantLocator.h>
 #include <Ice/Object.h>
-#include <Ice/RuntimeException.h>
+#include <Ice/LocalException.h>
 
 using namespace std;
 using namespace Ice;
@@ -236,7 +236,7 @@ IceInternal::Incoming::invoke(bool response)
 	// Rethrow, so that the caller can print a warning.
 	ex.ice_throw();
     }
-    catch(const RuntimeException& ex)
+    catch(const LocalException& ex)
     {
 	if(locator && servant)
 	{
@@ -249,7 +249,7 @@ IceInternal::Incoming::invoke(bool response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(statusPos);
-	    _os.write(static_cast<Byte>(DispatchUnknownRuntimeException));
+	    _os.write(static_cast<Byte>(DispatchUnknownLocalException));
 	}
 
 	// Rethrow, so that the caller can print a warning.

@@ -424,13 +424,13 @@ public class AllTests
 
         try
         {
-            thrower.throwRuntimeException();
+            thrower.throwLocalException();
             test(false);
         }
         catch(Ice.TimeoutException ex)
         {
 	}
-        catch(Ice.UnknownRuntimeException ex)
+        catch(Ice.UnknownLocalException ex)
         {
 	    // We get the an unknown local exception without collocation
 	    // optimization. 

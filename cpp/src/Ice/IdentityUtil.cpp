@@ -10,7 +10,7 @@
 
 #include <Ice/IdentityUtil.h>
 #include <Ice/StringUtil.h>
-#include <Ice/RuntimeException.h>
+#include <Ice/LocalException.h>
 
 using namespace std;
 using namespace Ice;

@@ -14,7 +14,7 @@ package Ice;
 // LocationForward must be an unchecked exception, because it can
 // be thrown from any servant operation
 //
-public class LocationForward extends java.lang.RuntimeException
+public class LocationForward extends RuntimeException
 {
     public
     LocationForward(ObjectPrx prx)

@@ -38,7 +38,7 @@ abstract class EventHandler
     //
     // Propagate an exception to the event handler.
     //
-    abstract public void exception(Ice.RuntimeException ex);
+    abstract public void exception(Ice.LocalException ex);
 
     //
     // Get a textual representation of the event handler.

@@ -59,7 +59,7 @@ class Parser
 	{
 	    error(ex.message);
 	}
-	catch(Ice.RuntimeException ex)
+	catch(Ice.LocalException ex)
 	{
 	    error(ex.toString());
 	}
@@ -86,7 +86,7 @@ class Parser
 	{
 	    error(ex.message);
 	}
-	catch(Ice.RuntimeException ex)
+	catch(Ice.LocalException ex)
 	{
 	    error(ex.toString());
 	}
@@ -119,7 +119,7 @@ class Parser
 		System.out.println("no current contact");
 	    }
 	}
-	catch(Ice.RuntimeException ex)
+	catch(Ice.LocalException ex)
 	{
 	    error(ex.toString());
 	}
@@ -151,7 +151,7 @@ class Parser
 	{
 	    error(ex.message);
 	}
-	catch(Ice.RuntimeException ex)
+	catch(Ice.LocalException ex)
 	{
 	    error(ex.toString());
 	}
@@ -179,7 +179,7 @@ class Parser
 		System.out.println( "no current contact" );
 	    }
 	}
-	catch(Ice.RuntimeException ex)
+	catch(Ice.LocalException ex)
 	{
 	    error(ex.toString());
 	}
@@ -208,7 +208,7 @@ class Parser
 		System.out.println( "no current contact" );
 	    }
 	}
-	catch(Ice.RuntimeException ex)
+	catch(Ice.LocalException ex)
 	{
 	    error(ex.toString());
 	}
@@ -233,7 +233,7 @@ class Parser
 	{
 	    error(ex.message);
 	}
-	catch(Ice.RuntimeException ex)
+	catch(Ice.LocalException ex)
 	{
 	    error(ex.toString());
 	}
@@ -261,7 +261,7 @@ class Parser
 	{
 	    error(ex.message);
 	}
-	catch(Ice.RuntimeException ex)
+	catch(Ice.LocalException ex)
 	{
 	    error(ex.toString());
 	}
@@ -274,7 +274,7 @@ class Parser
 	{
 	    _phoneBook.shutdown();
 	}
-	catch(Ice.RuntimeException ex)
+	catch(Ice.LocalException ex)
 	{
 	    error(ex.toString());
 	}

@@ -32,7 +32,7 @@ enum DispatchStatus
     DispatchObjectNotExist,
     DispatchFacetNotExist,
     DispatchOperationNotExist,
-    DispatchUnknownRuntimeException,
+    DispatchUnknownLocalException,
     DispatchUnknownUserException,
     DispatchUnknownException
 };

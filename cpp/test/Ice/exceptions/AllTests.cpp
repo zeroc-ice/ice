@@ -405,7 +405,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     try
     {
-	thrower->throwRuntimeException();
+	thrower->throwLocalException();
 	test(false);
     }
     catch(const Ice::TimeoutException&)
@@ -413,7 +413,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	// We get the original exception with collocation
 	// optimization.
     }
-    catch(const Ice::UnknownRuntimeException&)
+    catch(const Ice::UnknownLocalException&)
     {
 	// We get the an unknown local exception without collocation
 	// optimization.

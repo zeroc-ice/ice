@@ -38,7 +38,7 @@ testExpectCertificateAndPrivateKeyLoadException(const Ice::CommunicatorPtr& comm
     {
         std::cout << "ok" << std::endl;
     }
-    catch(const RuntimeException&)
+    catch(const LocalException&)
     {
         //
         // Any other exception is bad.
@@ -73,7 +73,7 @@ testExpectPrivateKeyLoadException(const Ice::CommunicatorPtr& communicator, cons
     {
         std::cout << "ok" << std::endl;
     }
-    catch(const RuntimeException&)
+    catch(const LocalException&)
     {
         //
         // Any other exception is bad.
@@ -108,7 +108,7 @@ testExpectCertificateLoadException(const Ice::CommunicatorPtr& communicator, con
     {
         std::cout << "ok" << std::endl;
     }
-    catch(const RuntimeException&)
+    catch(const LocalException&)
     {
         //
         // Any other exception is bad.
@@ -143,7 +143,7 @@ testExpectCertificateKeyMatchException(const Ice::CommunicatorPtr& communicator,
     {
         std::cout << "ok" << std::endl;
     }
-    catch(const RuntimeException&)
+    catch(const LocalException&)
     {
         //
         // Any other exception is bad.
@@ -174,7 +174,7 @@ testNoException(const Ice::CommunicatorPtr& communicator, const std::string& con
         sslPlugin->configure(IceSSL::Client);
         std::cout << "ok" << std::endl;
     }
-    catch(const RuntimeException&)
+    catch(const LocalException&)
     {
         //
         // Any other exception is bad.

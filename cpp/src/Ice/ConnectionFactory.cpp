@@ -23,7 +23,7 @@
 #include <Ice/Reference.h>
 #include <Ice/Endpoint.h>
 #include <Ice/RouterInfo.h>
-#include <Ice/RuntimeException.h>
+#include <Ice/LocalException.h>
 #include <Ice/Functional.h>
 
 using namespace std;
@@ -91,7 +91,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
     LoggerPtr logger = _instance->logger();
 
     ConnectionPtr connection;
-    auto_ptr<RuntimeException> exception;
+    auto_ptr<LocalException> exception;
     q = endpoints.begin();
     while(q != endpoints.end())
     {
@@ -118,15 +118,15 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
 	}
 	catch(const SocketException& ex)
 	{
-	    exception = auto_ptr<RuntimeException>(dynamic_cast<RuntimeException*>(ex.ice_clone()));
+	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 	}
 	catch(const DNSException& ex)
 	{
-	    exception = auto_ptr<RuntimeException>(dynamic_cast<RuntimeException*>(ex.ice_clone()));
+	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 	}
 	catch(const TimeoutException& ex)
 	{
-	    exception = auto_ptr<RuntimeException>(dynamic_cast<RuntimeException*>(ex.ice_clone()));
+	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 	}
 
 	++q;
@@ -348,7 +348,7 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
 	// Ignore timeouts.
 	return;
     }
-    catch(const RuntimeException& ex)
+    catch(const LocalException& ex)
     {
 	if(_warn)
 	{
@@ -369,7 +369,7 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
 	connection->activate();
 	_connections.push_back(connection);
     }
-    catch(const RuntimeException&)
+    catch(const LocalException&)
     {
 	//
 	// Ignore all exceptions while creating or activating the
@@ -407,7 +407,7 @@ IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool
 }
 
 void
-IceInternal::IncomingConnectionFactory::exception(const RuntimeException&)
+IceInternal::IncomingConnectionFactory::exception(const LocalException&)
 {
     assert(false); // Must not be called.
 }

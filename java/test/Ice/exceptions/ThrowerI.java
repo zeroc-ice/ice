@@ -101,7 +101,7 @@ public final class ThrowerI extends _ThrowerDisp
     }
 
     public void
-    throwRuntimeException(Ice.Current current)
+    throwLocalException(Ice.Current current)
     {
         throw new Ice.TimeoutException();
     }
@@ -109,7 +109,7 @@ public final class ThrowerI extends _ThrowerDisp
     public void
     throwNonIceException(Ice.Current current)
     {
-        throw new java.lang.RuntimeException();
+        throw new RuntimeException();
     }
 
     public void

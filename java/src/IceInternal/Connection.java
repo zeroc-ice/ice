@@ -141,7 +141,7 @@ public final class Connection extends EventHandler
                 TraceUtil.traceRequest("sending request", os, _logger, _traceLevels);
                 _transceiver.write(os, _endpoint.timeout());
             }
-            catch(Ice.RuntimeException ex)
+            catch(Ice.LocalException ex)
             {
                 setState(StateClosed, ex);
 		assert(_exception != null);
@@ -255,7 +255,7 @@ public final class Connection extends EventHandler
                 _batchStream.destroy();
                 _batchStream = new BasicStream(_instance);
             }
-            catch(Ice.RuntimeException ex)
+            catch(Ice.LocalException ex)
             {
                 setState(StateClosed, ex);
 		assert(_exception != null);
@@ -497,7 +497,7 @@ public final class Connection extends EventHandler
                     }
                 }
             }
-            catch(Ice.RuntimeException ex)
+            catch(Ice.LocalException ex)
             {
                 setState(StateClosed, ex);
                 return;
@@ -542,7 +542,7 @@ public final class Connection extends EventHandler
                         {
                             in.invoke(response);
                         }
-                        catch(Ice.RuntimeException ex)
+                        catch(Ice.LocalException ex)
                         {
                             _mutex.lock();
                             reclaimIncoming(in);
@@ -579,7 +579,7 @@ public final class Connection extends EventHandler
                     }
                     while(batch && is.pos() < is.size());
                 }
-                catch(Ice.RuntimeException ex)
+                catch(Ice.LocalException ex)
                 {
                     _mutex.lock();
                     reclaimIncoming(in);
@@ -624,7 +624,7 @@ public final class Connection extends EventHandler
                                 closeConnection();
                             }
                         }
-                        catch(Ice.RuntimeException ex)
+                        catch(Ice.LocalException ex)
                         {
                             setState(StateClosed, ex);
                             return;
@@ -677,7 +677,7 @@ public final class Connection extends EventHandler
     }
 
     public void
-    exception(Ice.RuntimeException ex)
+    exception(Ice.LocalException ex)
     {
         _mutex.lock();
         try
@@ -730,7 +730,7 @@ public final class Connection extends EventHandler
 		{
 		    validateConnection();
 		}
-		catch(Ice.RuntimeException ex)
+		catch(Ice.LocalException ex)
 		{
 		    if(_warn)
 		    {
@@ -809,7 +809,7 @@ public final class Connection extends EventHandler
     private static final int StateClosed = 3;
 
     private void
-    setState(int state, Ice.RuntimeException ex)
+    setState(int state, Ice.LocalException ex)
     {
         if(_state == state) // Don't switch twice.
         {
@@ -948,7 +948,7 @@ public final class Connection extends EventHandler
             {
                 closeConnection();
             }
-            catch(Ice.RuntimeException ex)
+            catch(Ice.LocalException ex)
             {
                 setState(StateClosed, ex);
             }
@@ -1087,7 +1087,7 @@ public final class Connection extends EventHandler
     private final boolean _warn;
     private int _nextRequestId;
     private IntMap _requests = new IntMap();
-    private Ice.RuntimeException _exception;
+    private Ice.LocalException _exception;
     private BasicStream _batchStream;
     private int _responseCount;
     private int _proxyUsageCount;

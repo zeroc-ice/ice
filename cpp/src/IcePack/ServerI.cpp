@@ -291,7 +291,7 @@ IcePack::ServerI::terminated(const Ice::Current&)
 		// TODO: Inconsistent database.
 		//
 	    }
-	    catch(const Ice::RuntimeException& ex)
+	    catch(const Ice::LocalException& ex)
 	    {
 		//cerr << (*p)->__reference()->toString() << endl;
 		//cerr << ex << endl;
@@ -350,7 +350,7 @@ IcePack::ServerI::stopInternal()
 		
 // 		deactivate = false;
 // 	    }
-// 	    catch(const Ice::RuntimeException& ex)
+// 	    catch(const Ice::LocalException& ex)
 // 	    {
 // 		if(_traceLevels->server > 1)
 // 		{

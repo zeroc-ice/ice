@@ -54,7 +54,7 @@ IcePack::LocatorI::findAdapterByName(const string& name, const Ice::Current&) co
 	// adapter. IcePack server adapter proxy are not direct proxy.
 	//
     }
-    catch(const Ice::RuntimeException&)
+    catch(const Ice::LocalException&)
     {
 	//
 	// Expected if we couldn't contact the adapter object

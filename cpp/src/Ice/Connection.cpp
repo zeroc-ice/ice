@@ -20,7 +20,7 @@
 #include <Ice/Endpoint.h>
 #include <Ice/Outgoing.h>
 #include <Ice/Incoming.h>
-#include <Ice/RuntimeException.h>
+#include <Ice/LocalException.h>
 #include <Ice/Protocol.h>
 #include <bzlib.h>
 
@@ -168,7 +168,7 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway, bool comp)
 	    _transceiver->write(*os, _endpoint->timeout());
 	}
     }
-    catch(const RuntimeException& ex)
+    catch(const LocalException& ex)
     {
 	setState(StateClosed, ex);
 	assert(_exception.get());
@@ -316,7 +316,7 @@ IceInternal::Connection::flushBatchRequest(bool comp)
 	_batchStream.swap(dummy);
 	assert(_batchStream.b.empty());
     }
-    catch(const RuntimeException& ex)
+    catch(const LocalException& ex)
     {
 	setState(StateClosed, ex);
 	assert(_exception.get());
@@ -612,7 +612,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		}
 	    }
 	}
-	catch(const RuntimeException& ex)
+	catch(const LocalException& ex)
 	{
 	    setState(StateClosed, ex);
 	    return;
@@ -656,7 +656,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		{
 		    in.invoke(response);
 		}
-		catch(const RuntimeException& ex)
+		catch(const LocalException& ex)
 		{
 		    IceUtil::RecMutex::Lock sync(*this);
 		    if(_warn)
@@ -686,7 +686,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    }
 	    while(batch && is->i < is->b.end());
 	}
-	catch(const RuntimeException& ex)
+	catch(const LocalException& ex)
 	{
 	    IceUtil::RecMutex::Lock sync(*this);
 	    setState(StateClosed, ex);
@@ -763,7 +763,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		    closeConnection();
 		}
 	    }
-	    catch(const RuntimeException& ex)
+	    catch(const LocalException& ex)
 	    {
 		setState(StateClosed, ex);
 		return;
@@ -790,7 +790,7 @@ IceInternal::Connection::finished(const ThreadPoolPtr& threadPool)
 }
 
 void
-IceInternal::Connection::exception(const RuntimeException& ex)
+IceInternal::Connection::exception(const LocalException& ex)
 {
     IceUtil::RecMutex::Lock sync(*this);
     setState(StateClosed, ex);
@@ -841,7 +841,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
 	    {
 		validateConnection();
 	    }
-	    catch(const RuntimeException& ex)
+	    catch(const LocalException& ex)
 	    {
 		if(_warn)
 		{
@@ -894,7 +894,7 @@ IceInternal::Connection::destroy(DestructionReason reason)
 }
 
 void
-IceInternal::Connection::setState(State state, const RuntimeException& ex)
+IceInternal::Connection::setState(State state, const LocalException& ex)
 {
     if(_state == state) // Don't switch twice.
     {
@@ -919,11 +919,11 @@ IceInternal::Connection::setState(State state, const RuntimeException& ex)
 	    // connection loss without receiving an explicit close
 	    // connection message first.
 	    //
-	    _exception = auto_ptr<RuntimeException>(new CloseConnectionException(__FILE__, __LINE__));
+	    _exception = auto_ptr<LocalException>(new CloseConnectionException(__FILE__, __LINE__));
 	}
 	else
 	{
-	    _exception = auto_ptr<RuntimeException>(dynamic_cast<RuntimeException*>(ex.ice_clone()));
+	    _exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 	}
 
 	if(_warn)
@@ -1031,7 +1031,7 @@ IceInternal::Connection::setState(State state)
 	{
 	    closeConnection();
 	}
-	catch(const RuntimeException& ex)
+	catch(const LocalException& ex)
 	{
 	    setState(StateClosed, ex);
 	}

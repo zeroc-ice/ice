@@ -11,7 +11,7 @@
 #include <Ice/ThreadPool.h>
 #include <Ice/EventHandler.h>
 #include <Ice/Network.h>
-#include <Ice/RuntimeException.h>
+#include <Ice/LocalException.h>
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
 #include <Ice/LoggerUtil.h>
@@ -489,7 +489,7 @@ IceInternal::ThreadPool::run()
 	    {
 		handler->finished(self); // "self" is faster than "this", as the reference count is not modified.
 	    }
-	    catch(const RuntimeException& ex)
+	    catch(const LocalException& ex)
 	    {
 		Error out(_instance->logger());
 		out << "exception while calling finished():\n" << handler->toString() << '\n' << ex;
@@ -520,7 +520,7 @@ IceInternal::ThreadPool::run()
 		{
 		    goto repeatSelect;
 		}
-		catch(const RuntimeException& ex)
+		catch(const LocalException& ex)
 		{
 		    handler->exception(ex);
 		    goto repeatSelect;

@@ -241,7 +241,7 @@ public class Client
                 System.err.println(args[0] + ": " + ex + ": " + ex.message);
                 status = 1;
             }
-            catch(Ice.RuntimeException ex)
+            catch(Ice.LocalException ex)
             {
                 System.err.println(args[0] + ": " + ex);
                 status = 1;
@@ -265,7 +265,7 @@ public class Client
                 System.err.println(args[0] + ": " + ex + ": " + ex.message);
                 status = 1;
             }
-            catch(Ice.RuntimeException ex)
+            catch(Ice.LocalException ex)
             {
                 System.err.println(args[0] + ": " + ex);
                 status = 1;
@@ -289,7 +289,7 @@ public class Client
 		System.err.println(args[0] + ": " + ex + ": " + ex.message);
 		status = 1;
 	    }
-	    catch(Ice.RuntimeException ex)
+	    catch(Ice.LocalException ex)
 	    {
 		System.err.println(args[0] + ": " + ex);
 		status = 1;

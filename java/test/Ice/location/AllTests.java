@@ -72,7 +72,7 @@ public class AllTests
 	{
 	    obj2.ice_ping();
 	}
-	catch(Ice.RuntimeException ex)
+	catch(Ice.LocalException ex)
 	{
 	    test(false);
 	}

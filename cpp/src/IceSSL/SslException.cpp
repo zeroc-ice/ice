@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/RuntimeException.h>
+#include <Ice/LocalException.h>
 #include <IceSSL/Exception.h>
 
 using namespace std;

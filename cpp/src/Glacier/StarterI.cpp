@@ -159,7 +159,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	    throw ex;
 	}
     }
-    catch(const RuntimeException& ex)
+    catch(const LocalException& ex)
     {
 	Error out(_logger);
 	out << ex;

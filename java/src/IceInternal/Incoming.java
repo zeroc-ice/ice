@@ -236,7 +236,7 @@ public class Incoming
 	    // Rethrow, so that the caller can print a warning.
             throw ex;
         }
-        catch(Ice.RuntimeException ex)
+        catch(Ice.LocalException ex)
         {
             if(locator != null && servant != null)
             {
@@ -250,7 +250,7 @@ public class Incoming
                 _os.endWriteEncaps();
                 _os.resize(statusPos, false);
                 _os.writeByte(
-                    (byte)DispatchStatus._DispatchUnknownRuntimeException);
+                    (byte)DispatchStatus._DispatchUnknownLocalException);
             }
 
 	    // Rethrow, so that the caller can print a warning.

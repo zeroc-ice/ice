@@ -171,7 +171,7 @@ public class AllTests
 	    obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server-Server1"));
 	    test(false);
 	}
-	catch(Ice.RuntimeException ex)
+	catch(Ice.LocalException ex)
 	{
 	}
 

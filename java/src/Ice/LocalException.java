@@ -10,7 +10,7 @@
 
 package Ice;
 
-public abstract class RuntimeException extends java.lang.RuntimeException
+public abstract class LocalException extends RuntimeException
 {
     public abstract String
     ice_name();
