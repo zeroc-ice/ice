@@ -28,6 +28,7 @@ verbose = False
 
 #
 # Represents the 'main' package of an RPM spec file.
+# TODO: The package should really write the RPM header has well.
 #
 class Package:
     """Encapsulates RPM spec file information to be used to generate a spec file on Linux
