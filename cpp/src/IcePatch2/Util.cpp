@@ -101,6 +101,43 @@ using namespace Ice;
 using namespace IcePatch2;
 
 string
+IcePatch2::lastError()
+{
+#ifdef WIN32
+    LPVOID lpMsgBuf = 0;
+    DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+			     FORMAT_MESSAGE_FROM_SYSTEM |
+			     FORMAT_MESSAGE_IGNORE_INSERTS,
+			     NULL,
+			     GetLastError(),
+			     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+			     (LPTSTR)&lpMsgBuf,
+			     0,
+			     NULL);
+    if(ok)
+    {
+	LPCTSTR msg = (LPCTSTR)lpMsgBuf;
+	assert(msg && strlen((const char*)msg) > 0);
+	string result = (const char*)msg;
+	LocalFree(lpMsgBuf);
+
+	while(result.size() >= 1 && (result[result.size() - 1] == '\n' || result[result.size() - 1] == '\r'))
+	{
+	    result.erase(result.size() - 1);
+	}
+
+	return result;
+    }
+    else
+    {
+	return "unknown error";
+    }
+#else
+    return strerror(errno);
+#endif
+}
+
+string
 IcePatch2::bytesToString(const ByteSeq& bytes)
 {
     ostringstream s;
@@ -257,7 +294,7 @@ IcePatch2::remove(const string& pa)
 
     if(::remove(path.c_str()) == -1)
     {
-	throw "cannot remove file `" + path + "': " + strerror(errno);
+	throw "cannot remove file `" + path + "': " + lastError();
     }
 }
 
@@ -269,7 +306,7 @@ IcePatch2::removeRecursive(const string& pa)
     struct stat buf;
     if(stat(path.c_str(), &buf) == -1)
     {
-	throw "cannot stat `" + path + "': " + strerror(errno);
+	throw "cannot stat `" + path + "': " + lastError();
     }
 
     if(S_ISDIR(buf.st_mode))
@@ -286,7 +323,7 @@ IcePatch2::removeRecursive(const string& pa)
 	if(rmdir(path.c_str()) == -1)
 #endif
 	{
-	    throw "cannot remove directory `" + path + "': " + strerror(errno);
+	    throw "cannot remove directory `" + path + "': " + lastError();
 	}
     }
     else
@@ -306,7 +343,7 @@ IcePatch2::readDirectory(const string& pa)
     long h = _findfirst((path + "/*").c_str(), &data);
     if(h == -1)
     {
-	throw "cannot read directory `" + path + "': " + strerror(errno);
+	throw "cannot read directory `" + path + "': " + lastError();
     }
 
     StringSeq result;
@@ -328,7 +365,7 @@ IcePatch2::readDirectory(const string& pa)
 		break;
 	    }
 
-	    string ex = "cannot read directory `" + path + "': " + strerror(errno);
+	    string ex = "cannot read directory `" + path + "': " + lastError();
 	    _findclose(h);
 	    throw ex;
 	}
@@ -346,7 +383,7 @@ IcePatch2::readDirectory(const string& pa)
     int n = scandir(path.c_str(), &namelist, 0, alphasort);
     if(n < 0)
     {
-	throw "cannot read directory `" + path + "': " + strerror(errno);
+	throw "cannot read directory `" + path + "': " + lastError();
     }
 
     StringSeq result;
@@ -390,7 +427,7 @@ IcePatch2::createDirectoryRecursive(const string& pa)
     {
 	if(errno != EEXIST)
 	{
-	    throw "cannot create directory `" + path + "': " + strerror(errno);
+	    throw "cannot create directory `" + path + "': " + lastError();
 	}
     }
 }
@@ -403,7 +440,7 @@ IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
     FILE* stdioFile = fopen(path.c_str(), "wb");
     if(!stdioFile)
     {
-	throw "cannot open `" + path + "' for writing: " + strerror(errno);
+	throw "cannot open `" + path + "' for writing: " + lastError();
     }
 
     int bzError;
@@ -413,7 +450,7 @@ IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
 	string ex = "BZ2_bzWriteOpen failed";
 	if(bzError == BZ_IO_ERROR)
 	{
-	    ex += string(": ") + strerror(errno);
+	    ex += string(": ") + lastError();
 	}
 	fclose(stdioFile);
 	throw ex;
@@ -425,7 +462,7 @@ IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
 	string ex = "BZ2_bzWrite failed";
 	if(bzError == BZ_IO_ERROR)
 	{
-	    ex += string(": ") + strerror(errno);
+	    ex += string(": ") + lastError();
 	}
 	BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
 	fclose(stdioFile);
@@ -438,7 +475,7 @@ IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
 	string ex = "BZ2_bzWriteClose failed";
 	if(bzError == BZ_IO_ERROR)
 	{
-	    ex += string(": ") + strerror(errno);
+	    ex += string(": ") + lastError();
 	}
 	fclose(stdioFile);
 	throw ex;
@@ -456,13 +493,13 @@ IcePatch2::decompressFile(const string& pa)
     ofstream file(path.c_str(), ios::binary);
     if(!file)
     {
-	throw "cannot open `" + path + "' for writing: " + strerror(errno);
+	throw "cannot open `" + path + "' for writing: " + lastError();
     }
 
     FILE* stdioFileBZ2 = fopen(pathBZ2.c_str(), "rb");
     if(!stdioFileBZ2)
     {
-	throw "cannot open `" + pathBZ2 + "' for reading: " + strerror(errno);
+	throw "cannot open `" + pathBZ2 + "' for reading: " + lastError();
     }
 
     int bzError;
@@ -472,7 +509,7 @@ IcePatch2::decompressFile(const string& pa)
 	string ex = "BZ2_bzReadOpen failed";
 	if(bzError == BZ_IO_ERROR)
 	{
-	    ex += string(": ") + strerror(errno);
+	    ex += string(": ") + lastError();
 	}
 	fclose(stdioFileBZ2);
 	throw ex;
@@ -489,7 +526,7 @@ IcePatch2::decompressFile(const string& pa)
 	    string ex = "BZ2_bzRead failed";
 	    if(bzError == BZ_IO_ERROR)
 	    {
-		ex += string(": ") + strerror(errno);
+		ex += string(": ") + lastError();
 	    }
 	    BZ2_bzReadClose(&bzError, bzFile);
 	    fclose(stdioFileBZ2);
@@ -503,7 +540,7 @@ IcePatch2::decompressFile(const string& pa)
 	    {
 		BZ2_bzReadClose(&bzError, bzFile);
 		fclose(stdioFileBZ2);
-		throw "cannot get read position for `" + pathBZ2 + "': " + strerror(errno);
+		throw "cannot get read position for `" + pathBZ2 + "': " + lastError();
 	    }
 
 	    file.write(reinterpret_cast<char*>(bytesBZ2), sz);
@@ -511,7 +548,7 @@ IcePatch2::decompressFile(const string& pa)
 	    {
 		BZ2_bzReadClose(&bzError, bzFile);
 		fclose(stdioFileBZ2);
-		throw "cannot write `" + path + "': " + strerror(errno);
+		throw "cannot write `" + path + "': " + lastError();
 	    }
 	}
     }
@@ -522,7 +559,7 @@ IcePatch2::decompressFile(const string& pa)
 	string ex = "BZ2_bzReadClose failed";
 	if(bzError == BZ_IO_ERROR)
 	{
-	    ex += string(": ") + strerror(errno);
+	    ex += string(": ") + lastError();
 	}
 	fclose(stdioFileBZ2);
 	throw ex;
@@ -566,7 +603,7 @@ getFileInfoSeqInternal(const string& basePath, const string& relativePath, FileI
 		}
 		else
 		{
-		    throw "cannot stat `" + path + "': " + strerror(errno);
+		    throw "cannot stat `" + path + "': " + lastError();
 		}
 	    }
 	    else if(buf.st_size == 0)
@@ -585,7 +622,7 @@ getFileInfoSeqInternal(const string& basePath, const string& relativePath, FileI
     struct stat buf;
     if(stat(path.c_str(), &buf) == -1)
     {
-	throw "cannot stat `" + path + "': " + strerror(errno);
+	throw "cannot stat `" + path + "': " + lastError();
     }
 
     if(S_ISDIR(buf.st_mode))
@@ -640,13 +677,13 @@ getFileInfoSeqInternal(const string& basePath, const string& relativePath, FileI
 #endif
 	    if(fd == -1)
 	    {
-		throw "cannot open `" + path + "' for reading: " + strerror(errno);
+		throw "cannot open `" + path + "' for reading: " + lastError();
 	    }
 
 	    if(read(fd, &bytes[relativePath.size()], buf.st_size) == -1)
 	    {
 		close(fd);
-		throw "cannot read `" + path + "': " + strerror(errno);
+		throw "cannot read `" + path + "': " + lastError();
 	    }
 
 	    close(fd);
@@ -664,7 +701,7 @@ getFileInfoSeqInternal(const string& basePath, const string& relativePath, FileI
 		struct stat bufBZ2;
 		if(stat(pathBZ2.c_str(), &bufBZ2) == -1)
 		{
-		    throw "cannot stat `" + pathBZ2 + "': " + strerror(errno);
+		    throw "cannot stat `" + pathBZ2 + "': " + lastError();
 		}
 
 		info.size = bufBZ2.st_size;
@@ -714,7 +751,7 @@ IcePatch2::saveFileInfoSeq(const string& pa, const FileInfoSeq& infoSeq)
 	ofstream os(path.c_str());
 	if(!os)
 	{
-	    throw "cannot open `" + path + "' for writing: " + strerror(errno);
+	    throw "cannot open `" + path + "' for writing: " + lastError();
 	}
 	
 	for(FileInfoSeq::const_iterator p = infoSeq.begin(); p != infoSeq.end(); ++p)
@@ -745,7 +782,7 @@ IcePatch2::loadFileInfoSeq(const string& pa, FileInfoSeq& infoSeq)
 	ifstream is(path.c_str());
 	if(!is)
 	{
-	    throw "cannot open `" + path + "' for reading: " + strerror(errno);
+	    throw "cannot open `" + path + "' for reading: " + lastError();
 	}
 
 	while(is.good())

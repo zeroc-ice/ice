@@ -16,6 +16,8 @@
 namespace IcePatch2
 {
 
+ICE_PATCH2_API std::string lastError();
+
 ICE_PATCH2_API std::string bytesToString(const Ice::ByteSeq&);
 ICE_PATCH2_API Ice::ByteSeq stringToBytes(const std::string&);
 

@@ -124,11 +124,11 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 	char cwd[_MAX_PATH];
 	if(_getcwd(cwd, _MAX_PATH) == NULL)
 #else
-	    char cwd[PATH_MAX];
+        char cwd[PATH_MAX];
 	if(getcwd(cwd, PATH_MAX) == NULL)
 #endif
 	{
-	    throw string("cannot get the current directory: ") + strerror(errno);
+	    throw "cannot get the current directory: " + lastError();
 	}
 	
 	dataDir = normalize(string(cwd) + '/' + dataDir);

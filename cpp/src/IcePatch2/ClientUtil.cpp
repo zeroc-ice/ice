@@ -45,7 +45,7 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
     if(getcwd(cwd, PATH_MAX) == NULL)
 #endif
     {
-	throw string("cannot get the current directory: ") + strerror(errno);
+	throw "cannot get the current directory: " + lastError();
     }
     
     const_cast<string&>(_dataDir) = normalize(string(cwd) + '/' + _dataDir);
@@ -198,7 +198,7 @@ IcePatch2::Patcher::patch()
 	    _fileLog.open(pathLog.c_str());
 	    if(!_fileLog)
 	    {
-		throw "cannot open `" + pathLog + "' for writing: " + strerror(errno);
+		throw "cannot open `" + pathLog + "' for writing: " + lastError();
 	    }
 	    
 	    {
@@ -356,7 +356,7 @@ IcePatch2::Patcher::updateFiles(const FileInfoSeq& files)
 		fileBZ2.open(pathBZ2.c_str(), ios::binary);
 		if(!fileBZ2)
 		{
-		    throw "cannot open `" + pathBZ2 + "' for writing: " + strerror(errno);
+		    throw "cannot open `" + pathBZ2 + "' for writing: " + lastError();
 		}
 	    }
 	    
@@ -387,7 +387,7 @@ IcePatch2::Patcher::updateFiles(const FileInfoSeq& files)
 		    
 		    if(!fileBZ2)
 		    {
-			throw ": cannot write `" + pathBZ2 + "': " + strerror(errno);
+			throw ": cannot write `" + pathBZ2 + "': " + lastError();
 		    }
 		}
 		

@@ -232,7 +232,7 @@ IcePatch2::Client::run(int argc, char* argv[])
     {
 	PatcherFeedbackPtr feedback = new TextPatcherFeedback;
 	PatcherPtr patcher = new Patcher(communicator(), feedback);
-	patcher->patch();
+	patchComplete = patcher->patch();
     }
     catch(const string& ex)
     {
