@@ -32,13 +32,14 @@ verbose = False
 class Package:
     """Encapsulates RPM spec file information to be used to generate a spec file on Linux
        and create RPMs for Ice"""
-    def __init__(self, name, requires, summary, group, description, filelist):
+    def __init__(self, name, requires, summary, group, description, other, filelist):
         self.name = name
         self.requires = requires
         self.summary = summary
         self.group = group
         self.description = description
         self.filelist = filelist
+	self.other = other
         
     def writeHdr(self, ofile):
         ofile.write("\n")
@@ -80,6 +81,8 @@ class Subpackage(Package):
         ofile.write("Group: " + self.group + "\n")
         if not self.requires == "":
             ofile.write("Requires: " + self.requires + "\n")
+	if not self.other == "":
+	    ofile.write(self.other + "\n")
         ofile.write("%description " + self.name + "\n")
         ofile.write(self.description)
 
@@ -109,6 +112,7 @@ fileLists = [
             "The Ice runtime and tools.",
             "Development/Libraries Development/Tools System Environment/Libraries",
             "",
+	    "",
             [("doc", "share/doc/Ice-%version%/ICE_LICENSE"),
              ("doc", "share/doc/Ice-%version%/LICENSE"),
              ("exe", "bin/dumpdb"),
@@ -148,6 +152,7 @@ fileLists = [
                "Ice tools, files and libraries for developing Ice applications in C++",
                "Development/Libraries Development/Tools",
                "",
+	       "",
                [("exe", "bin/slice2cpp"),
                 ("exe", "bin/slice2freeze"),
                 ("dir", "include"),
@@ -184,6 +189,7 @@ fileLists = [
                "Ice runtime for C\# applications",
                "Development/Libraries Development/Tools",
                "",
+	       "",
                [("lib", "lib/glacier2cs.dll"), ("lib", "lib/icecs.dll"), ("lib", "lib/icepackcs.dll"),
                 ("lib", "lib/icepatch2cs.dll"), ("lib", "lib/icestormcs.dll")]),
     Subpackage("csharp-devel",
@@ -191,21 +197,16 @@ fileLists = [
                "Ice tools for developing Ice applications in C\#",
                "Development/Libraries Development/Tools",
                "",
+	       "",
                [("exe", "bin/slice2cs"),
 		("file", "share/doc/Ice-%version%/config/Make.cs.rules"),
 	        ("dir", "share/doc/Ice-%version%/demo_csharp")]),
-    Subpackage("java",
-               "ice db4-java >= 4.2",
-               "Ice runtime for Java applications",
-               "Development/Libraries",
-               "",
-               [("dir", "lib/Ice-%version%/Ice.jar")
-	       ]),
     Subpackage("java-devel",
                "ice-java",
                "Ice tools developing Ice applications in Java",
                "Development/Libraries Development/Tools",
                "",
+	       "",
                [("exe", "bin/slice2java"),
                 ("exe", "bin/slice2freezej"),
 		("dir", "lib/Ice-%version%/ant"),
@@ -227,14 +228,27 @@ fileLists = [
                "Ice runtime for Python applications",
                "Development/Libraries",
                "",
+	       "",
                [("lib", "lib/IcePy.so"), ("dir", "lib/Ice-%version%/python")]),
     Subpackage("python-devel",
                "ice-python",
                "Ice tools for developing Ice applications in Python",
                "Development/Libraries Development/Tools",
                "",
+	       "",
                [("exe", "bin/slice2py"),
 	        ("dir", "share/doc/Ice-%version%/demo_python")])
+    ]
+
+noarchFileList = [
+    Package("java",
+	    "ice db4-java >= 4.2",
+	    "Ice runtime for Java applications",
+	    "Development/Libraries",
+	    "",
+	    "BuildArch: noarch",
+	    [("dir", "lib/Ice-%version%/Ice.jar")
+	    ])
     ]
 
 def getIceVersion(file):
@@ -441,7 +455,10 @@ else
 endif
 """)
     ofile.close()
-     
+    
+    #
+    # Remove unnecessary files from demos here.
+    #
     os.remove("Ice-" + version + "-demos/config/TestUtil.py")
     os.remove("Ice-" + version + "-demos/config/IcePackAdmin.py")
     os.system("tar cvfz Ice-" + version + "-demos.tar.gz Ice-" + version + "-demos")
@@ -459,6 +476,10 @@ def makeInstall(buildDir, installDir, distro, clean):
         
     os.chdir(distro)
 
+    #
+    # Java does not have a 'make install' process, but comes complete with the Jar 
+    # already built.
+    # 
     if distro.startswith("IceJ"):
         shutil.copy(buildDir + "/" + distro + "/lib/Ice.jar", installDir + "/lib")
 	#
@@ -505,12 +526,12 @@ def strip(files):
         print "Stripping " + f
         os.system(stripCmd + f)
 
-def printRPMHeader(ofile, version, release, installDir):
+def printRPMHeader(ofile, name, version, release, installDir):
     """Used on Linux only.  Prints out the header portion of an RPM spec file for building the RPM"""
     ofile.write("%define _unpackaged_files_terminate_build 0\n")
     ofile.write("Summary: The Internet Communications Engine (ICE) is a modern alternative to object middleware such ")
     ofile.write("as CORBA\n")
-    ofile.write("Name: ice\n")
+    ofile.write("Name: " + name + "\n")
     ofile.write("Version: " + version + "\n")
     ofile.write("Release: " + release + "\n")
     ofile.write("License: GPL\n")
@@ -703,7 +724,7 @@ def main():
     #
     if printSpecFile:
         ofile = sys.stdout
-        printRPMHeader(ofile, version, "1", installDir)
+        printRPMHeader(ofile, "ice", version, "1", installDir)
         for v in fileLists:
             v.writeHdr(ofile)
             ofile.write("\n\n\n")
@@ -776,7 +797,7 @@ def main():
     if getPlatform() == "linux":
         transformDirectories(transforms, version, installDir)
         ofile = open(buildDir + "/Ice-" + version + ".spec", "w")
-        printRPMHeader(ofile, version, "1", installDir)
+        printRPMHeader(ofile, "ice", version, "1", installDir)
         for v in fileLists:
             v.writeHdr(ofile)
             ofile.write("\n\n\n")
@@ -795,6 +816,21 @@ def main():
         ofile.flush()
         ofile.close()
         os.system("rpmbuild -bb Ice-" + version + ".spec")
+
+	# 
+	# Build noarch RPMs
+	#
+	ofile = open(buildDir + "/IceJ-" + version + ".spec", "w")
+	printRPMHeader(ofile, "ice-java", version, "1", installDir)
+	for v in noarchFileList:
+	    v.writeHdr(ofile)
+	    ofile.write("\n\n\n")
+	for v in noarchFileList:
+	    v.writeFiles(ofile, version, soVersion)
+	    ofile.write("\n")
+	ofile.flush()
+	ofile.close()
+	os.system("rpmbuild --target noarch -bb IceJ-" + version + ".spec")
 
     #
     # TODO: Cleanups?  I've left everything in place so that the process can be easily debugged.
