@@ -11,6 +11,7 @@
 #include <Ice/Collector.h>
 #include <Ice/Instance.h>
 #include <Ice/Logger.h>
+#include <Ice/Properties.h>
 #include <Ice/TraceUtil.h>
 #include <Ice/Transceiver.h>
 #include <Ice/Acceptor.h>
@@ -337,6 +338,9 @@ IceInternal::Collector::Collector(const InstancePtr& instance,
     _responseCount(0),
     _state(StateHolding)
 {
+    _warnAboutExceptions =
+	atoi(_instance->properties()->getProperty("Ice.WarnAboutServerExceptions").c_str()) > 0 ? true : false;
+
     _threadPool = _instance->threadPool();
 }
 
@@ -456,14 +460,12 @@ IceInternal::Collector::closeConnection()
 void
 IceInternal::Collector::warning(const LocalException& ex) const
 {
-// TODO: Property to enable/disable the warnings below
-/*
-    string s("server exception:\n");
-    s += ex.toString();
-    s += "\n";
-    s += _transceiver->toString();
-    _logger->warning(s);
-*/
+    if (_warnAboutExceptions)
+    {
+	ostringstream s;
+	s << "server exception:\n" << ex << '\n' << _transceiver->toString();
+	_logger->warning(s.str());
+    }
 }
 
 void
@@ -607,6 +609,9 @@ IceInternal::CollectorFactory::CollectorFactory(const InstancePtr& instance,
     _logger(instance->logger()),
     _state(StateHolding)
 {
+    _warnAboutExceptions =
+	atoi(_instance->properties()->getProperty("Ice.WarnAboutServerExceptions").c_str()) > 0 ? true : false;
+
     try
     {
 	_transceiver = _endpoint->serverTransceiver(_instance, _endpoint);
@@ -730,12 +735,10 @@ IceInternal::CollectorFactory::clearBacklog()
 void
 IceInternal::CollectorFactory::warning(const LocalException& ex) const
 {
-// TODO: Property to enable/disable the warnings below
-/*
-    string s("server exception:\n");
-    s += ex.toString();
-    s += "\n";
-    s += _acceptor->toString();
-    _logger->warning(s);
-*/
+    if (_warnAboutExceptions)
+    {
+	ostringstream s;
+	s << "server exception:\n" << ex << '\n' << _acceptor->toString();
+	_logger->warning(s.str());
+    }
 }

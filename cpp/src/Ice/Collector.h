@@ -91,6 +91,7 @@ private:
     ThreadPoolPtr _threadPool;
     int _responseCount;
     State _state;
+    bool _warnAboutExceptions;
 };
 
 class CollectorFactory : public EventHandler, public JTCMutex
@@ -142,6 +143,7 @@ private:
     ThreadPoolPtr _threadPool;
     std::list<CollectorPtr> _collectors;
     State _state;
+    bool _warnAboutExceptions;
 };
 
 }

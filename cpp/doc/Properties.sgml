@@ -356,5 +356,22 @@ value of <literal>Ice.ProgramName</literal>. (Unix only.)
 </section>
 </section>
 
+<section><title>Ice.WarnAboutServerExceptions</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.WarnAboutServerExceptions=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+servers print warning messages if they encounter an unexpected
+exception while accepting connection requests from clients, or while
+dispatching operation calls invoked by clients.
+</para>
+</section>
+</section>
+
 </section>
 

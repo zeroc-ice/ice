@@ -818,6 +818,7 @@ IceInternal::BasicStream::read(ObjectPtr& v, const char* type)
 {
     vector<string> classIds;
     read(classIds);
+    classIds.push_back("::Ice::Object");
     for (vector<string>::const_iterator p = classIds.begin(); p != classIds.end(); ++p)
     {
 	ServantFactoryPtr factory = _instance->servantFactoryManager()->find(*p);
@@ -871,6 +872,7 @@ IceInternal::BasicStream::throwException(const char** typesBegin, const char** t
 {
     vector<string> exceptionIds;
     read(exceptionIds);
+    exceptionIds.push_back("::Ice::UserException");
     for (vector<string>::const_iterator p = exceptionIds.begin(); p != exceptionIds.end(); ++p)
     {
 	UserExceptionFactoryPtr factory = _instance->userExceptionFactoryManager()->find(*p);
