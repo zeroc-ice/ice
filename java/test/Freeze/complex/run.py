@@ -39,7 +39,6 @@ if not output:
     sys.exit(1)
 print "ok"
 print output
-
 clientPipe.close()
 
 print "starting validate...",
@@ -51,7 +50,6 @@ if not output:
     sys.exit(1)
 print "ok"
 print output
-
 clientPipe.close()
 
 sys.exit(0)
