@@ -42,8 +42,9 @@ sequence<string> Identities; // Needed for slice2freeze
 interface PhoneBook
 {
     Contact* createContact() throws Freeze::DBException;
-    Contacts findContacts(string name) throws Freeze::DBException;
-    void shutdown() throws Freeze::DBException;
+    nonmutating Contacts findContacts(string name) throws Freeze::DBException;
+    void setEvictorSize(int size) throws Freeze::DBException;
+    nonmutating void shutdown() throws Freeze::DBException;
 };
 
 #endif

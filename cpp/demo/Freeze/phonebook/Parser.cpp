@@ -39,6 +39,7 @@ Parser::usage()
         "address ADDRESS  Set the address for the current contact to ADDRESS.\n"
         "phone PHONE      Set the phone number for the current contact to PHONE.\n"
         "remove           Permanently remove the current contact from the phonebook.\n"
+        "size SIZE        Set the evictor size for contacts to SIZE.\n"
         "shutdown         Shut the phonebook server down.\n";
 }
 
@@ -49,7 +50,7 @@ Parser::createParser(const CommunicatorPtr& communicator, const PhoneBookPrx& ph
 }
 
 void
-Parser::addContacts(const std::list<std::string>& args)
+Parser::addContacts(const list<string>& args)
 {
     if (args.empty())
     {
@@ -77,7 +78,7 @@ Parser::addContacts(const std::list<std::string>& args)
 }
 
 void
-Parser::findContacts(const std::list<std::string>& args)
+Parser::findContacts(const list<string>& args)
 {
     if (args.size() != 1)
     {
@@ -140,7 +141,7 @@ Parser::printCurrent()
 }
 
 void
-Parser::setCurrentName(const std::list<std::string>& args)
+Parser::setCurrentName(const list<string>& args)
 {
     if (args.size() != 1)
     {
@@ -171,7 +172,7 @@ Parser::setCurrentName(const std::list<std::string>& args)
 }
 
 void
-Parser::setCurrentAddress(const std::list<std::string>& args)
+Parser::setCurrentAddress(const list<string>& args)
 {
     if (args.size() != 1)
     {
@@ -202,7 +203,7 @@ Parser::setCurrentAddress(const std::list<std::string>& args)
 }
 
 void
-Parser::setCurrentPhone(const std::list<std::string>& args)
+Parser::setCurrentPhone(const list<string>& args)
 {
     if (args.size() != 1)
     {
@@ -246,6 +247,29 @@ Parser::removeCurrent()
 	{
 	    cout << "no current contact" << endl;
 	}
+    }
+    catch(const DBExceptionPtrE& ex)
+    {
+	error(ex->message);
+    }
+    catch(const LocalException& ex)
+    {
+	error(ex.toString());
+    }
+}
+
+void
+Parser::setEvictorSize(const list<string>& args)
+{
+    if (args.size() != 1)
+    {
+	error("`size' requires exactly one argument (type `help' for more info)");
+	return;
+    }
+
+    try
+    {
+	_phoneBook->setEvictorSize(atoi(args.front().c_str()));
     }
     catch(const DBExceptionPtrE& ex)
     {
@@ -480,7 +504,7 @@ Parser::parse(FILE* file, bool debug)
 }
 
 int
-Parser::parse(const std::string& commands, bool debug)
+Parser::parse(const string& commands, bool debug)
 {
     extern int yydebug;
     yydebug = debug ? 1 : 0;

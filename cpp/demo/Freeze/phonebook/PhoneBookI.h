@@ -11,8 +11,8 @@
 #ifndef PHONE_BOOK_I_H
 #define PHONE_BOOK_I_H
 
-#include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
+#include <Ice/Ice.h>
 #include <Freeze/Freeze.h>
 #include <PhoneBook.h>
 #include <NameIdentitiesDict.h>
@@ -57,6 +57,7 @@ public:
 
     virtual ContactPrx createContact();
     virtual Contacts findContacts(const std::string&);
+    virtual void setEvictorSize(Ice::Int);
     virtual void shutdown();
     
     void remove(const std::string&, const std::string&);

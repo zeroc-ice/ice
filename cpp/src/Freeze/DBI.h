@@ -105,7 +105,7 @@ public:
 
     virtual void close();
 
-    virtual EvictorPtr createEvictor();
+    virtual EvictorPtr createEvictor(EvictorPersistenceMode);
 
 private:
 

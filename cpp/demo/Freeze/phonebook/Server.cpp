@@ -45,20 +45,20 @@ PhoneBookServer::run(int argc, char* argv[])
 	//
 	// Create an Evictor for contacts.
 	//
-	EvictorPtr evictor = dbContacts->createEvictor();
+	EvictorPtr evictor;
+	value = properties->getProperty("PhoneBook.SaveAfterMutatingOperation");
+	if(!value.empty() && atoi(value.c_str()) > 0)
+	{
+	    evictor = dbContacts->createEvictor(SaveAfterMutatingOperation);
+	}
+	else
+	{
+	    evictor = dbContacts->createEvictor(SaveUponEviction);
+	}
 	value = properties->getProperty("PhoneBook.EvictorSize");
 	if(!value.empty())
 	{
 	    evictor->setSize(atoi(value.c_str()));
-	}
-	value = properties->getProperty("PhoneBook.SaveAfterMutatingOperation");
-	if(!value.empty() && atoi(value.c_str()) > 0)
-	{
-	    evictor->setPersistenceMode(SaveAfterMutatingOperation);
-	}
-	else
-	{
-	    evictor->setPersistenceMode(SaveUponEviction);
 	}
 	
 	//

@@ -254,7 +254,7 @@ local interface ServantLocator
      * @see finished
      *
      **/
-    Object locate(ObjectAdapter adapter, string identity, string operation; Object cookie);
+    Object locate(ObjectAdapter adapter, string identity, string operation; LocalObject cookie);
 
     /**
      *
@@ -278,7 +278,7 @@ local interface ServantLocator
      * @see locate
      *
      **/
-    void finished(ObjectAdapter adapter, string identity, Object servant, string operation, Object cookie);
+    void finished(ObjectAdapter adapter, string identity, Object servant, string operation, LocalObject cookie);
 
     /**
      *

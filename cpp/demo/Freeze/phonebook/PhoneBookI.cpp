@@ -118,7 +118,7 @@ PhoneBookI::createContact()
     string identity = getNewIdentity();
 
     //
-    // Create a new contact Servant.
+    // Create a new Contact Servant.
     //
     ContactIPtr contact = new ContactI(this, _evictor);
     contact->setIdentity(identity);
@@ -176,9 +176,21 @@ PhoneBookI::findContacts(const string& name)
 }
 
 void
+PhoneBookI::setEvictorSize(Int size)
+{
+    //
+    // No synchronization necessary, _evictor is immutable.
+    //
+
+    _evictor->setSize(size);
+}
+
+void
 PhoneBookI::shutdown()
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
+    //
+    // No synchronization necessary, _adapter is immutable.
+    //
 
     _adapter->getCommunicator()->shutdown();
 }

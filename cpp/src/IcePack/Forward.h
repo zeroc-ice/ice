@@ -27,9 +27,9 @@ public:
     virtual ~Forward();
     
     virtual Ice::ObjectPtr locate(const Ice::ObjectAdapterPtr&, const std::string&, const std::string&,
-				  Ice::ObjectPtr&);
+				  Ice::LocalObjectPtr&);
     virtual void finished(const Ice::ObjectAdapterPtr&, const std::string&, const Ice::ObjectPtr&, const std::string&,
-			  const Ice::ObjectPtr&);
+			  const Ice::LocalObjectPtr&);
     virtual void deactivate();
 
 private:

@@ -36,6 +36,7 @@ yyerror(const char* s)
 %token TOK_SET_CURRENT_ADDRESS
 %token TOK_SET_CURRENT_PHONE
 %token TOK_REMOVE_CURRENT
+%token TOK_SET_EVICTOR_SIZE
 %token TOK_SHUTDOWN
 %token TOK_STRING
 
@@ -105,6 +106,10 @@ command
 | TOK_REMOVE_CURRENT ';'
 {
     parser->removeCurrent();
+}
+| TOK_SET_EVICTOR_SIZE strings ';'
+{
+    parser->setEvictorSize($2);
 }
 | TOK_SHUTDOWN ';'
 {

@@ -41,7 +41,7 @@ IceInternal::Incoming::invoke(Stream& is)
 
     ObjectPtr servant = _adapter->identityToServant(identity);
     ServantLocatorPtr locator;
-    ObjectPtr cookie;
+    LocalObjectPtr cookie;
 
     try
     {

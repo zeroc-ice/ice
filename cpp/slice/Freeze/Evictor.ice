@@ -51,35 +51,6 @@ local interface ServantInitializer
 
 /**
  *
- * The Evictor persistence mode.
- *
- * @see Evictor
- *
- **/
-enum EvictorPersistenceMode
-{
-    /**
-     *
-     * This mode instructs the Evictor to save a Servant to persistent
-     * store when it is evicted, or when the Evictor is deactivated.
-     *
-     * @see Ice::ServantLocator::deactivate
-     *
-     **/
-    SaveUponEviction,
-
-    /**
-     *
-     * This mode instructs the Evictor to save a Servant after each
-     * mutating operation call. A mutating operation call is a call to
-     * any operation that has not been declared as [nonmutating].
-     *
-     **/
-    SaveAfterMutatingOperation
-};
-
-/**
- *
  * A semi-automatic Ice Object persistence manager, based on the
  * evictor pattern. The Evictor is an extended Servant Locator, with
  * an implementation in the Freeze module. Instances of this
@@ -107,13 +78,19 @@ local interface Evictor extends Ice::ServantLocator
     /**
      *
      * Set the Evictor's Servant queue size. This is the maximum
-     * number of Servants the Evictor will hold in memory. Requests to
-     * set the queue size to a value smaller or equal to zero are
-     * ignored.
+     * number of idle Servants the Evictor will hold in
+     * memory. Requests to set the queue size to a value smaller than
+     * zero are ignored.
      *
      * @param sz The Evictor's Servant queue size. If the Evictor
      * currently holds more Servants in its queue, Servants will be
-     * evicted until the number of Servants match the new size.
+     * evicted until the number of Servants matches the new size. Note
+     * that this operation can block if the new queue size is smaller
+     * than the current number of active Servants. "Active Servant"
+     * means a Servant for which an operation invocations is in
+     * progress. In such case, this operation will wait until a
+     * sufficient number of currently active Servants become
+     * non-active.
      *
      * @throws DBException Raised if a database failure occurred.
      *
@@ -135,41 +112,9 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      *
-     * Set the Evictor's persistence mode. If the mode is changed to
-     * [SaveAfterMutatingOperation], all Servants that are currently
-     * in the Evictor's Servant queue are saved to persistent store,
-     * so that it can safely be assumed that no data can get lost
-     * after the mode has been changed.
-     *
-     * @param mode The Evictor's persistence mode.
-     *
-     * @throws DBException Raised if a database failure occurred.
-     *
-     * @see EvictorPersistenceMode
-     * @see getPersistenceMode
-     *
-     **/
-    void setPersistenceMode(EvictorPersistenceMode mode) throws DBException;
-
-    /**
-     *
-     * Get the Evictor's perstence mode.
-     *
-     * @return The Evictor's persistence mode.
-     *
-     * @see EvictorPersistenceMode
-     * @see setPersistenceMode
-     *
-     **/
-    EvictorPersistenceMode getPersistenceMode();
-
-    /**
-     *
      * Create a new Ice Object for this Evictor. The state of the
-     * initial Servant passed to this operation is put into this
-     * Evictor's persistent store. Furthermore, the initial Servant is
-     * added to the head of the Evictor queue, so that it will be
-     * evicted last.
+     * initial Servant passed to this operation is put into the
+     * Evictor's persistent store.
      *
      * @param identity The identity of the Ice Object to create.
      *

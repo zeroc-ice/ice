@@ -220,6 +220,10 @@ NL	[\n\r]
     return TOK_REMOVE_CURRENT;
 }
 
+"size" {
+    return TOK_SET_EVICTOR_SIZE;
+}
+
 "shutdown" {
     return TOK_SHUTDOWN;
 }

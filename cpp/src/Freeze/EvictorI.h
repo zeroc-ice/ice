@@ -11,6 +11,7 @@
 #ifndef FREEZE_EVICTOR_I_H
 #define FREEZE_EVICTOR_I_H
 
+#include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <Freeze/DB.h>
 #include <Freeze/Evictor.h>
@@ -23,43 +24,43 @@ class EvictorI : public Evictor, public JTCMutex
 {
 public:
 
-    EvictorI(const Freeze::DBPtr&, const Ice::CommunicatorPtr&);
+    EvictorI(const Freeze::DBPtr&, const Ice::CommunicatorPtr&, EvictorPersistenceMode);
 
     virtual DBPtr getDB();
 
     virtual void setSize(Ice::Int);
     virtual Ice::Int getSize();
     
-    virtual void setPersistenceMode(EvictorPersistenceMode);
-    virtual EvictorPersistenceMode getPersistenceMode();
-
     virtual void createObject(const std::string&, const Ice::ObjectPtr&);
     virtual void destroyObject(const std::string&);
 
     virtual void installServantInitializer(const ServantInitializerPtr&);
 
     virtual Ice::ObjectPtr locate(const Ice::ObjectAdapterPtr&, const std::string&, const std::string&,
-				  Ice::ObjectPtr&);
+				  Ice::LocalObjectPtr&);
     virtual void finished(const Ice::ObjectAdapterPtr&, const std::string&, const Ice::ObjectPtr&, const std::string&,
-			  const Ice::ObjectPtr&);
+			  const Ice::LocalObjectPtr&);
     virtual void deactivate();
 
 private:
 
-    void evict();
-    void add(const std::string&, const Ice::ObjectPtr&);
-    void remove(const std::string&);
-
-    Freeze::DBPtr _db;
-
-    struct EvictorElement
+    struct EvictorElement : public Ice::LocalObject
     {
 	Ice::ObjectPtr servant;
 	std::list<std::string>::iterator position;
+	int usageCount;
     };
-    std::map<std::string, EvictorElement> _evictorMap;
+    typedef IceUtil::Handle<EvictorElement> EvictorElementPtr;
+
+    void evict();
+    EvictorElementPtr add(const std::string&, const Ice::ObjectPtr&);
+    void remove(const std::string&);
+    
+    Freeze::DBPtr _db;
+
+    std::map<std::string, EvictorElementPtr> _evictorMap;
     std::list<std::string> _evictorList;
-    std::map<std::string, EvictorElement>::size_type _evictorSize;
+    std::map<std::string, EvictorElementPtr>::size_type _evictorSize;
 
     EvictorPersistenceMode _persistenceMode;
 

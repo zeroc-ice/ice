@@ -49,7 +49,7 @@ IcePack::Forward::~Forward()
 }
 
 ObjectPtr
-IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& identity, const string&, ObjectPtr&)
+IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& identity, const string&, LocalObjectPtr&)
 {
     //
     // Look up the server description
@@ -160,7 +160,8 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& identity
 }
 
 void
-IcePack::Forward::finished(const ObjectAdapterPtr&, const string&, const ObjectPtr&, const string&, const ObjectPtr&)
+IcePack::Forward::finished(const ObjectAdapterPtr&, const string&, const ObjectPtr&, const string&,
+			   const LocalObjectPtr&)
 {
     // Nothing to do
 }

@@ -588,7 +588,7 @@ Freeze::DBI::close()
 }
 
 EvictorPtr
-Freeze::DBI::createEvictor()
+Freeze::DBI::createEvictor(EvictorPersistenceMode persistenceMode)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -601,5 +601,5 @@ Freeze::DBI::createEvictor()
 	ex->_throw();
     }
 
-    return new EvictorI(this, _communicator);
+    return new EvictorI(this, _communicator, persistenceMode);
 }

@@ -131,6 +131,35 @@ local interface DBTransaction
 
 /**
  *
+ * The Evictor persistence mode.
+ *
+ * @see Evictor
+ *
+ **/
+enum EvictorPersistenceMode
+{
+    /**
+     *
+     * This mode instructs the Evictor to save a Servant to persistent
+     * store when it is evicted, or when the Evictor is deactivated.
+     *
+     * @see Ice::ServantLocator::deactivate
+     *
+     **/
+    SaveUponEviction,
+
+    /**
+     *
+     * This mode instructs the Evictor to save a Servant after each
+     * mutating operation call. A mutating operation call is a call to
+     * any operation that has not been declared as [nonmutating].
+     *
+     **/
+    SaveAfterMutatingOperation
+};
+
+/**
+ *
  * A database key, represented as a sequence of bytes.
  *
  **/
@@ -141,7 +170,7 @@ sequence<byte> Key;
  * A database value, represented as a sequence of bytes
  *
  **/
-sequence<byte> Value;
+ sequence<byte> Value;
 
 /**
  *
@@ -331,12 +360,15 @@ local interface DB
      * Create a new Evictor that uses this database to store
      * identity/Servant pairs.
      *
+     * @param mode The persistence mode for the new Evictor.
+     *
      * @return The new Evictor.
      *
      * @see Evictor
+     * @see EvictorPersistenceMode
      *
      **/
-    Evictor createEvictor();
+    Evictor createEvictor(EvictorPersistenceMode mode);
 };
 
 };
