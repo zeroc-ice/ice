@@ -37,6 +37,8 @@ public:
 
     static Service* instance();
 
+    void handleInterrupt(int);
+
 protected:
 
     virtual bool start(int, char*[]) = 0;
@@ -90,6 +92,7 @@ private:
     std::string _prog;
     Ice::LoggerPtr _logger;
     Ice::CommunicatorPtr _communicator;
+    bool _nohup;
     static Service* _instance;
 };
 

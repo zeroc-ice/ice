@@ -20,6 +20,7 @@
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
+#include <Ice/Properties.h>
 
 #ifdef _WIN32
 #   include <Ice/EventLoggerI.h>
@@ -28,6 +29,7 @@
 #   include <Ice/Network.h>
 #   include <sys/types.h>
 #   include <sys/stat.h>
+#   include <csignal>
 #endif
 
 using namespace std;
@@ -43,7 +45,7 @@ ctrlCHandlerCallback(int sig)
 {
     Ice::Service* service = Ice::Service::instance();
     assert(service != 0);
-    service->interrupt();
+    service->handleInterrupt(sig);
 }
 
 #ifdef _WIN32
@@ -102,7 +104,8 @@ Ice::Service::Service()
 {
     assert(_instance == 0);
     _instance = this;
-    //_ctrlCHandler = new IceUtil::CtrlCHandler;
+    _nohup = true;
+
 #ifdef _WIN32
     //
     // Check for Windows 9x/ME.
@@ -176,6 +179,11 @@ Ice::Service::main(int argc, char* argv[])
         _logger = _communicator->getLogger();
 
         //
+        // Determines whether we ignore SIGHUP/CTRL_LOGOFF_EVENT.
+        //
+        _nohup = _communicator->getProperties()->getPropertyAsInt("Ice.Nohup") > 0;
+
+        //
         // Start the service.
         //
         status = EXIT_FAILURE;
@@ -227,6 +235,24 @@ Ice::Service*
 Ice::Service::instance()
 {
     return _instance;
+}
+
+void
+Ice::Service::handleInterrupt(int sig)
+{
+#ifdef _WIN32
+    if(_nohup && sig == CTRL_LOGOFF_EVENT)
+    {
+        return;
+    }
+#else
+    if(_nohup && sig == SIGHUP)
+    {
+        return;
+    }
+#endif
+
+    interrupt();
 }
 
 void
@@ -973,6 +999,11 @@ Ice::Service::serviceMain(int argc, char* argv[])
     // Use the configured logger.
     //
     _logger = _communicator->getLogger();
+
+    //
+    // Determines whether we ignore SIGHUP/CTRL_LOGOFF_EVENT.
+    //
+    _nohup = _communicator->getProperties()->getPropertyAsInt("Ice.Nohup") > 0;
 
     DWORD status = EXIT_FAILURE;
     try
