@@ -729,7 +729,9 @@ Freeze::MapHelperI::MapHelperI(const ConnectionIPtr& connection,
 	const MapIndexBasePtr& indexBase = *p;
 	assert(indexBase->_impl != 0);
 	assert(indexBase->_map == 0);
-	bool inserted = 
+#ifndef NDEBUG
+	bool inserted =
+#endif 
 	    _indices.insert(IndexMap::value_type(indexBase->name(), indexBase)).second;
 	assert(inserted);
 	indexBase->_map = this;

@@ -73,7 +73,10 @@ deleteLock(const string& name)
 #ifdef _WIN32
     int ret = _unlink(name.c_str());
 #else
-    int ret = unlink(name.c_str());
+#   ifndef NDEBUG
+    int ret = 
+#   endif
+	unlink(name.c_str());
 #endif
     assert(ret != -1);
 }

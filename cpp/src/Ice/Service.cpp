@@ -1434,7 +1434,7 @@ Ice::Service::runDaemon(int argc, char* argv[])
         }
 
         fd_set fdsToClose;
-        int fdMax;
+        int fdMax = 0;
         if(_closeFiles)
         {
             //

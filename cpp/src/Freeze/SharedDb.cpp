@@ -278,7 +278,10 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey,
 
 	    auto_ptr<MapIndexI> indexI(new MapIndexI(connection, *this, txn, createDb, indexBase));
 	    
-	    bool inserted = _indices.insert(IndexMap::value_type(indexBase->name(), indexI.get())).second;
+#ifndef NDEBUG
+	    bool inserted = 
+#endif
+		_indices.insert(IndexMap::value_type(indexBase->name(), indexI.get())).second;
 	    assert(inserted);
 	    
 	    indexBase->_impl = indexI.release();
