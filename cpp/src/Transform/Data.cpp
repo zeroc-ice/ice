@@ -1055,7 +1055,7 @@ Transform::IntegerData::doubleValue(bool convert) const
 {
     if(convert)
     {
-        return _value;
+        return static_cast<double>(_value);
     }
     else
     {
@@ -1509,7 +1509,7 @@ bool
 Transform::StringData::booleanValue(bool) const
 {
     _errorReporter->error("string cannot be converted to boolean");
-    return 0;
+    return false;
 }
 
 Ice::Long
@@ -2348,7 +2348,7 @@ Transform::EnumData::set(const DataPtr& value, DataInterceptor& interceptor, boo
         }
         else
         {
-            _value = v;
+            _value = static_cast<Ice::Int>(v);
             _name.clear();
         }
     }
