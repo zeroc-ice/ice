@@ -22,7 +22,7 @@ public class ServerLocator extends Ice._LocatorDisp
     }
 
     public Ice.ObjectPrx 
-    findAdapterByName(String adapter, Ice.Current current)
+    findAdapterById(String adapter, Ice.Current current)
     {
 	return _registry.getAdapter(adapter);
     }

@@ -67,13 +67,13 @@ public class AllTests
 
 	System.out.print("testing adapter registration... ");
 	System.out.flush();
-	String[] adapterNames = admin.getAllAdapterNames();
-	test(find(adapterNames, "Server-Server1"));
-	test(find(adapterNames, "Server-Server2"));
-	test(find(adapterNames, "Service1-IceBox1.Service1"));
-	test(find(adapterNames, "IceBox1Service2Adapter"));
-	test(find(adapterNames, "Service1-IceBox2.Service1"));
-	test(find(adapterNames, "IceBox2Service2Adapter"));
+	String[] adapterIds = admin.getAllAdapterIds();
+	test(find(adapterIds, "Server-Server1"));
+	test(find(adapterIds, "Server-Server2"));
+	test(find(adapterIds, "Service1-IceBox1.Service1"));
+	test(find(adapterIds, "IceBox1Service2Adapter"));
+	test(find(adapterIds, "Service1-IceBox2.Service1"));
+	test(find(adapterIds, "IceBox2Service2Adapter"));
 	System.out.println("ok");
 
 	Yellow.QueryPrx yellow = Yellow.QueryPrxHelper.checkedCast(

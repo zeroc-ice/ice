@@ -86,7 +86,7 @@ public final class LocatorInfo
 		//
 		try
 		{
-		    Ice.ObjectPrx object = _locator.findAdapterByName(ref.adapterId);
+		    Ice.ObjectPrx object = _locator.findAdapterById(ref.adapterId);
 		    if(object != null)
 		    {
 			endpoints = ((Ice.ObjectPrxHelper)object).__reference().endpoints;

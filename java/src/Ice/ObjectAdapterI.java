@@ -71,8 +71,9 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 		}
 		catch(Ice.AdapterAlreadyActive ex)
 		{
-		    ObjectAdapterNameInUseException ex1 = new ObjectAdapterNameInUseException();
+		    ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
 		    ex1.name = _name;
+		    ex1.id = _id;
 		    throw ex1;
 		}
 	    }
