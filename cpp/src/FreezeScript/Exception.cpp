@@ -35,7 +35,7 @@ FreezeScript::Exception::ice_name() const
 void
 FreezeScript::Exception::ice_print(ostream& out) const
 {
-#ifdef _WIN32
+#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     Exception::ice_print(out);
 #else
     ::IceUtil::Exception::ice_print(out);

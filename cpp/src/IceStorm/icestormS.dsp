@@ -288,7 +288,7 @@ InputPath=.\LinkRecord.ice
 
 BuildCmds= \
 	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice -I.. LinkRecord.ice \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecord PersistentTopicMap ../IceStorm/LinkRecord.ice  \
+	..\..\bin\slice2freeze.exe --ice --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecordDict PersistentTopicMap ../IceStorm/LinkRecord.ice  \
 	
 
 "LinkRecord.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -312,7 +312,7 @@ InputPath=.\LinkRecord.ice
 
 BuildCmds= \
 	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice -I.. LinkRecord.ice \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecord PersistentTopicMap ../IceStorm/LinkRecord.ice  \
+	..\..\bin\slice2freeze.exe --ice --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecordDict PersistentTopicMap ../IceStorm/LinkRecord.ice  \
 	
 
 "LinkRecord.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
