@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+# **********************************************************************
+#
+# Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+import os, sys
+
+for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+    toplevel = os.path.normpath(toplevel)
+    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
+        break
+else:
+    raise "can't find toplevel directory!"
+
+sys.path.append(os.path.join(toplevel, "config"))
+import TestUtil
+
+name = os.path.join("Ice", "slicing", "exceptions")
+testdir = os.path.join(toplevel, "test", name)
+nameAMD = os.path.join("Ice", "slicing", "exceptionsAMD")
+testdirAMD = os.path.join(toplevel, "test", nameAMD)
+
+print "tests with regular server."
+TestUtil.clientServerTestWithClasspath(os.path.join(testdir, "sclasses"), os.path.join(testdir, "cclasses"))
+
+print "tests with AMD server."
+TestUtil.clientServerTestWithClasspath(os.path.join(testdirAMD, "classes"), os.path.join(testdir, "cclasses"))
+
+sys.exit(0)

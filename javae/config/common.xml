@@ -1,0 +1,137 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+    <property environment="env"/>
+
+    <!-- Figure out install type -->
+
+    <available file="${top.dir}/makedist.py" property="installtype" value="cvs" />
+
+    <condition property="installtype" value="src">
+	<and>
+            <available file="${top.dir}/slice"/>
+            <not>
+                <isset property="installtype"/>
+            </not>
+	</and>
+    </condition>
+
+    <condition property="installtype" value="rpm">
+	<and>
+	    <available file="/usr/share/slice"/>
+            <not>
+                <isset property="installtype"/>
+            </not>
+	</and>
+    </condition>
+
+    <condition property="installtype" value="opt">
+	<and>
+	     <available file="${env.ICE_HOME}/slice" />
+            <not>
+                <isset property="installtype"/>
+	    </not>
+	</and>
+    </condition>
+    
+    <fail message="Unable to detect a valid Ice installation." unless="installtype" />
+
+    <condition property="is-cvs">
+	<and>
+	    <isset property="installtype"/>
+	    <equals arg1="cvs" arg2="${installtype}"/>
+	</and>
+    </condition>
+
+    <condition property="is-opt">
+	<and>
+	    <isset property="installtype"/>
+	    <equals arg1="opt" arg2="${installtype}"/>
+	</and>
+    </condition>
+
+    <condition property="is-rpm">
+	<and>
+	    <isset property="installtype"/>
+	    <equals arg1="rpm" arg2="${installtype}"/>
+	</and>
+    </condition>
+
+    <condition property="is-src">
+	<and>
+	    <isset property="installtype"/>
+	    <equals arg1="src" arg2="${installtype}"/>
+	</and>
+    </condition>
+
+    <target name="properties-cvs" if="is-cvs">
+        <available file="${env.ICE_HOME}/slice" property="is-cvs-valid"/>
+	<fail message="ICE_HOME is not set to a valid directory" unless="is-cvs-valid"/>
+
+	<property name="slice.dir" value="${env.ICE_HOME}/slice"/>
+	<property name="lib.dir" value="${top.dir}/lib" />
+	<taskdef name="slice2javae" classpath="${top.dir}/ant" classname="Slice2JavaETask"/>
+	      
+	<!-- Ice classpath -->
+	<path id="ice.classpath">
+	    <fileset dir="${lib.dir}">
+		<include name="*.jar"/>
+	    </fileset>
+	</path>
+    </target>
+
+    <target name="properties-opt" if="is-opt">
+        <available file="${env.ICE_HOME}/lib" property="opt-lib-avail" />
+	<fail message="ICE_HOME is not set to a valid directory" unless="opt-lib-avail"/>
+
+	 <property name="lib.dir" value="${env.ICE_HOME}/lib" />
+	
+	 <property name="slice.dir" value="${env.ICE_HOME}/slice"/>
+	 <taskdef name="slice2javae" classpath="${env.ICE_HOME}/ant" classname="Slice2JavaETask"/>
+		  
+	<!-- Ice classpath -->
+	<path id="ice.classpath">
+	    <fileset dir="${lib.dir}">
+		<include name="*.jar"/>
+	    </fileset>
+	</path>
+    </target>
+
+    <target name="properties-src" if="is-src">
+	<property name="lib.dir" value="${top.dir}/lib" />
+	<property name="slice.dir" value="${top.dir}/slice"/>
+	<taskdef name="slice2javae" classpath="${top.dir}/ant" classname="Slice2JavaETask"/>
+	
+	<!-- Ice classpath -->
+	<path id="ice.classpath">
+	    <fileset dir="${lib.dir}">
+		<include name="*.jar"/>
+	    </fileset>
+	</path>
+    </target>
+
+    <target name="properties-rpm" if="is-rpm">
+	<property name="lib.dir" value="/usr/lib/Ice-ICE_VERSION" />
+	<property name="slice.dir" value="/usr/share/slice"/>
+	<taskdef name="slice2javae" classpath="${lib.dir}/ant" classname="Slice2JavaETask"/>
+	
+	<!-- Ice classpath -->
+	<path id="ice.classpath">
+	    <fileset dir="${lib.dir}">
+		<include name="*.jar"/>
+	    </fileset>
+	</path>
+    </target>
+    
+    <target name="config-init" depends="properties-cvs,properties-opt,properties-src,properties-rpm">
+    </target>
+
+    <property file="${common.basedir}/build.properties"/>

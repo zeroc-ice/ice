@@ -1,0 +1,36 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<project name="demo_Ice" default="all" basedir=".">
+
+    <target name="all">
+        <ant dir="bidir"/>
+        <ant dir="callback"/>
+        <ant dir="hello"/>
+        <ant dir="invoke"/>
+        <ant dir="latency"/>
+        <ant dir="nested"/>
+        <ant dir="throughput"/>
+        <ant dir="value"/>
+    </target>
+
+    <target name="clean">
+        <ant dir="bidir" target="clean"/>
+        <ant dir="callback" target="clean"/>
+        <ant dir="hello" target="clean"/>
+        <ant dir="invoke" target="clean"/>
+        <ant dir="latency" target="clean"/>
+        <ant dir="nested" target="clean"/>
+        <ant dir="throughput" target="clean"/>
+        <ant dir="value" target="clean"/>
+    </target>
+
+</project>

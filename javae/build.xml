@@ -1,0 +1,103 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<project name="main" default="all" basedir=".">
+
+    <!-- get access to env variables globally -->
+    <property environment="env" />
+
+    <!-- install slice2javae task -->
+    <taskdef name="slice2javae" classpath="ant" classname="Slice2JavaETask" />
+
+    <!-- set global properties for this build -->
+    <property name="src.dir" value="src"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="generated.dir" value="generated"/>
+    <property name="cache.dir" value="depcache"/>
+
+    <property file="config/build.properties"/>
+
+    <target name="init">
+        <!-- Create the time stamp -->
+        <tstamp/>
+
+        <!-- Define the slice.dir property -->
+        <condition property="slice.dir" value="slice">
+            <available file="slice" type="dir"/>
+        </condition>
+        <condition property="slice.dir" value="${env.ICE_HOME}/slice">
+            <and>
+                <available type="dir" file="${env.ICE_HOME}/slice"/>
+                <not>
+                    <available file="slice" type="dir"/>
+                </not>
+            </and>
+        </condition>
+        <fail message="Slice source directory not found" unless="slice.dir"/>
+    </target>
+
+    <target name="generate" depends="init">
+        <!-- Create the output directory for generated code -->
+        <mkdir dir="${generated.dir}"/>
+        <slice2javae ice="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Ice">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="${slice.dir}/Ice">
+                <include name="BuiltinSequences.ice" />
+                <include name="Communicator.ice" />
+                <include name="Current.ice" />
+                <include name="FacetMap.ice" />
+                <include name="Identity.ice" />
+                <include name="LocalException.ice" />
+                <include name="Locator.ice" />
+                <include name="Logger.ice" />
+                <include name="ObjectAdapter.ice" />
+                <include name="ObjectFactory.ice" />
+                <include name="Plugin.ice" />
+                <include name="Process.ice" />
+                <include name="Properties.ice" />
+                <include name="Router.ice" />
+                <include name="ServantLocator.ice" />
+                <include name="SliceChecksumDict.ice" />
+                <include name="Stats.ice" />
+                <include name="Connection.ice" />
+            </fileset>
+        </slice2javae>
+    </target>
+
+    <target name="compile" depends="generate">
+        <mkdir dir="${lib.dir}"/>
+        <mkdir dir="${cache.dir}"/>
+        <depend srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}" cache="${cache.dir}"/>
+        <javac srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}"
+            source="1.4" debug="${debug}" optimize="${optimize}" deprecation="on"/>
+    </target>
+
+    <target name="jar" depends="compile">
+        <jar jarfile="${lib.dir}/IceE.jar" basedir="${lib.dir}"
+            excludes="IceE.jar"/>
+    </target>
+
+    <target name="all" depends="jar">
+        <ant inheritAll="false" dir="demo"/>
+        <ant inheritAll="false" dir="test"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="${generated.dir}"/>
+        <delete dir="${lib.dir}"/>
+        <delete dir="${cache.dir}"/>
+        <ant inheritAll="false" dir="demo" target="clean"/>
+        <ant inheritAll="false" dir="test" target="clean"/>
+    </target>
+
+</project>
