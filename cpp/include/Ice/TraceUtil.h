@@ -19,6 +19,7 @@ namespace __Ice
 class Stream;
 
 void traceRequest(const char*, const Stream&);
+void traceReply(const char*, const Stream&);
 
 }
 

@@ -23,7 +23,6 @@
 namespace __Ice
 {
 
-class Buffer;
 class Outgoing;
 
 class ICE_API EmitterI : public EventHandlerI, public JTCMutex
@@ -55,7 +54,8 @@ private:
     ThreadPool threadPool_;
     Transceiver transceiver_;
     int fd_;
-    Ice::Int nextId_; // The next request ID
+    Ice::Int nextRequestId_;
+    std::map<Ice::Int, Outgoing*> requests_;
 };
 
 class ICE_API EmitterFactoryI : public Shared, public JTCMutex

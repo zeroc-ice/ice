@@ -17,7 +17,7 @@
 namespace __Ice
 {
 
-class ICE_API Outgoing
+class ICE_API Outgoing : public JTCMonitor
 {
 public:
 
@@ -25,6 +25,7 @@ public:
     ~Outgoing();
 
     void invoke();
+    void finished(Stream&);
 
     Stream* is();
     Stream* os();
@@ -35,6 +36,13 @@ private:
     void operator=(const Outgoing&);
 
     Emitter emitter_;
+
+    enum
+    {
+	StateInProgress,
+	StateFinished
+    } state_;
+
     Stream is_;
     Stream os_;
 };

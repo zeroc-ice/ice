@@ -31,11 +31,15 @@ class LocalException;
 namespace __Ice
 {
 
+class Incoming;
+
 class ICE_API CollectorI : public EventHandlerI, public JTCRecursiveMutex
 {
 public:
 
     Instance instance() const;
+    void prepareReply(Incoming*);
+    void sendReply(Incoming*);
     bool destroyed() const;
 
     //
