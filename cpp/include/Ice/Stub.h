@@ -22,6 +22,11 @@ void _incRef(Object*);
 void _decRef(Object*);
 typedef Handle<Object> ObjectHandle;
 
+class Stub;
+void _incRef(Stub*);
+void _decRef(Stub*);
+typedef Handle<Stub> StubHandle;
+
 // ----------------------------------------------------------------------
 // Object
 // ----------------------------------------------------------------------
@@ -38,6 +43,24 @@ private:
 
     Object(const Object&);
     void operator=(const Object&);
+};
+
+// ----------------------------------------------------------------------
+// Stub
+// ----------------------------------------------------------------------
+
+class ICE_API Stub : virtual public SimpleShared
+{
+public:
+
+protected:
+
+    Stub();
+
+private:
+
+    Stub(const Stub&);
+    void operator=(const Stub&);
 };
 
 }
