@@ -107,6 +107,10 @@
 #       error "Only multi-threaded DLL libraries can be used with Ice!"
 #   endif
 
+// The Windows default of 64 is too small -- we want more concurrent
+// connections than that.
+#   define FD_SETSIZE 1024
+
 #   include <windows.h>
 
 // '...' : forcing value to bool 'true' or 'false' (performance warning)

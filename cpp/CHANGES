@@ -1,6 +1,9 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Changed FD_SETSIZE under Windows to 1024. (The default permits only
+  64 concurrent connections, which is too small for some applications.)
+
 - The IcePatch server now ignores Ice exceptions in the update thread
   instead of terminating the update thread.
 
