@@ -110,5 +110,5 @@ available as "python2", in which case you must use:
 
 $ python2 allTests.py
 
-If everything worked out well, you should see lots of "ok". In case of
-a failure, the tests abort with "failed".
+If everything worked out, you should see lots of "ok". In case of a
+failure, the tests abort with "failed".
