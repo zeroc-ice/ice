@@ -105,17 +105,29 @@ IceInternal::Outgoing::invoke()
 	{
 	    try
 	    {
-		_connection->sendRequest(this, false);
+		_connection->sendRequest(&_os, this);
 	    }
-	    catch(const LocalException&)
+	    catch(const LocalException& ex)
 	    {
+		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+		_state = StateLocalException;
+		_exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
+		
 		//
-		// Twoway requests report exceptions using finished().
+		// If soemthing goes wrong during sending, we can
+		// always retry the request without violating
+		// "at-most-once", and therefore do not have to wrap
+		// the exception in NonRepeatable.
 		//
-		assert(false);
+		_exception->ice_throw();
 	    }
 	    
-	    auto_ptr<LocalException> exception;
+	    //
+	    // Wait until the request has completed or for a timeout.
+	    //
+
+	    bool timedOut = false;
 
 	    {
 		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -132,16 +144,15 @@ IceInternal::Outgoing::invoke()
 		}
 		
 		Int timeout = _connection->timeout();
-		while(_state == StateInProgress)
+		while(_state == StateInProgress && !timedOut)
 		{
 		    if(timeout >= 0)
 		    {	
 			timedWait(IceUtil::Time::milliSeconds(timeout));
-
+			
 			if(_state == StateInProgress)
 			{
-			    exception = auto_ptr<LocalException>(new TimeoutException(__FILE__, __LINE__));
-			    break;
+			    timedOut = true;
 			}
 		    }
 		    else
@@ -151,13 +162,13 @@ IceInternal::Outgoing::invoke()
 		}
 	    }
 
-	    if(exception.get())
+	    if(timedOut)
 	    {
 		//
 		// Must be called outside the synchronization of this
 		// object.
 		//
-		_connection->exception(*exception.get());
+		_connection->exception(TimeoutException(__FILE__, __LINE__));
 
 		//
 		// We must wait until the exception set above has
@@ -210,15 +221,16 @@ IceInternal::Outgoing::invoke()
 	case Reference::ModeOneway:
 	case Reference::ModeDatagram:
 	{
-	    try
-	    {
-		_connection->sendRequest(this, true);
-	    }
-	    catch(const DatagramLimitException& ex)
-	    {
-		throw NonRepeatable(ex);
-	    }
-	    _state = StateInProgress;
+	    //
+	    // For oneway and datagram requests, the connection object
+	    // does not call back on this object. Therefore we don't
+	    // need to lock the mutex, we don't need to set the state,
+	    // and we also don't need to save exceptions. Furthermore,
+	    // all exceptions from sending oneways or datagrams can be
+	    // retried without violating "at-most-once", so we let
+	    // exceptions simply propagate directly to the caller.
+	    //
+	    _connection->sendRequest(&_os, 0);
 	    break;
 	}
 
@@ -226,12 +238,15 @@ IceInternal::Outgoing::invoke()
 	case Reference::ModeBatchDatagram:
 	{
 	    //
-	    // The state must be set to StateInProgress before calling
-	    // finishBatchRequest, because otherwise if
-	    // finishBatchRequest raises an exception, the destructor
-	    // of this class will call abortBatchRequest, and calling
-	    // both finishBatchRequest and abortBatchRequest is
-	    // illegal.
+	    // For batch oneways and datagrams, the same rules as for
+	    // regular oneways and datagrams (see comment above)
+	    // apply, except that we must set the state to
+	    // StateInProgress before calling finishBatchRequest.
+	    // Otherwise if finishBatchRequest raises an exception,
+	    // the destructor of this class will call
+	    // abortBatchRequest, and calling both finishBatchRequest
+	    // and abortBatchRequest for the same request is not
+	    // permissible.
 	    //
 	    _state = StateInProgress;
 	    _connection->finishBatchRequest(&_os);

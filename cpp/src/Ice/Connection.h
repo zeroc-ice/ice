@@ -69,8 +69,8 @@ public:
     void decProxyCount();
 
     void prepareRequest(BasicStream*);
-    void sendRequest(Outgoing*, bool);
-    void sendAsyncRequest(const OutgoingAsyncPtr&);
+    void sendRequest(BasicStream*, Outgoing*);
+    void sendAsyncRequest(BasicStream*, const OutgoingAsyncPtr&);
 
     void prepareBatchRequest(BasicStream*);
     void finishBatchRequest(BasicStream*);

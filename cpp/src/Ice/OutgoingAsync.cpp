@@ -41,13 +41,9 @@ IceInternal::OutgoingAsync::OutgoingAsync() :
 
 IceInternal::OutgoingAsync::~OutgoingAsync()
 {
-    delete __is;
-    delete __os;
-
-    if(_connection)
-    {
-	_connection->decProxyCount();
-    }
+    assert(!_connection);
+    assert(!__is);
+    assert(!__os);
 }
 
 void
@@ -156,6 +152,18 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
     {
 	warning();
     }
+
+    assert(_connection);
+    _connection->decProxyCount();
+    _connection = 0;
+    
+    assert(__is);
+    delete __is;
+    __is = 0;
+   
+    assert(__os);
+    delete __os;
+    __os = 0;
 }
 
 void
@@ -194,6 +202,18 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
     {
 	warning();
     }
+
+    assert(_connection);
+    _connection->decProxyCount();
+    _connection = 0;
+    
+    assert(__is);
+    delete __is;
+    __is = 0;
+   
+    assert(__os);
+    delete __os;
+    __os = 0;
 }
 
 bool
@@ -212,19 +232,15 @@ IceInternal::OutgoingAsync::__timedOut() const
 void
 IceInternal::OutgoingAsync::__prepare(const string& operation, OperationMode mode, const Context& context)
 {
-    delete __is;
-    delete __os;
-    __is = new BasicStream(_reference->instance.get());
-    __os = new BasicStream(_reference->instance.get());
-
-    if(_connection)
-    {
-	_connection->decProxyCount();
-	_connection = 0;
-    }
-
+    assert(!_connection);
     _connection = _reference->getConnection();
     _connection->incProxyCount();
+    
+    assert(!__is);
+    __is = new BasicStream(_reference->instance.get());
+    
+    assert(!__os);
+    __os = new BasicStream(_reference->instance.get());
 
     _connection->prepareRequest(__os);
     _reference->identity.__write(__os);
@@ -245,9 +261,14 @@ IceInternal::OutgoingAsync::__prepare(const string& operation, OperationMode mod
 void
 IceInternal::OutgoingAsync::__send()
 {
+    if(_connection->timeout() >= 0)
+    {
+	_absoluteTimeout = IceUtil::Time::now() + IceUtil::Time::milliSeconds(_connection->timeout());
+    }
+
     try
     {
-	_connection->sendAsyncRequest(this);
+	_connection->sendAsyncRequest(__os, this);
     }
     catch(const LocalException&)
     {
@@ -255,11 +276,6 @@ IceInternal::OutgoingAsync::__send()
 	// Twoway requests report exceptions using finished().
 	//
 	assert(false);
-    }
-
-    if(_connection->timeout() >= 0)
-    {
-	_absoluteTimeout = IceUtil::Time::now() + IceUtil::Time::milliSeconds(_connection->timeout());
     }
 }
 

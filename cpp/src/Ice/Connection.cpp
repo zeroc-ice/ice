@@ -405,7 +405,7 @@ IceInternal::Connection::prepareRequest(BasicStream* os)
 }
 
 void
-IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
+IceInternal::Connection::sendRequest(BasicStream* os, Outgoing* out)
 {
     Int requestId;
 
@@ -414,45 +414,31 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
 
 	if(_exception.get())
 	{
-	    //
-	    // Only raise an exception if this is a datagram or oneway
-	    // call. For twoway calls, the exception will be provided
-	    // using finished().
-	    //
-	    if(_endpoint->datagram() || oneway)
-	    {
-		_exception->ice_throw();
-	    }
-	    else
-	    {
-		out->finished(*_exception.get());
-		return;
-	    }
+	    _exception->ice_throw();
 	}
-	else
+
+	assert(_state > StateNotValidated);
+	assert(_state < StateClosing);
+	
+	requestId = _nextRequestId++;
+	if(requestId <= 0)
 	{
-	    assert(_state > StateNotValidated);
-	    assert(_state < StateClosing);
-	    
+	    _nextRequestId = 1;
 	    requestId = _nextRequestId++;
-	    if(requestId <= 0)
-	    {
-		_nextRequestId = 1;
-		requestId = _nextRequestId++;
-	    }
-	    
-	    //
-	    // Only add to the request map if this is a twoway call.
-	    //
-	    if(!_endpoint->datagram() && !oneway)
-	    {
-		_requestsHint = _requests.insert(_requests.end(), pair<const Int, Outgoing*>(requestId, out));
-	    }
-	    
-	    if(_acmTimeout > 0)
-	    {
-		_acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
-	    }
+	}
+	
+	//
+	// Only add to the request map if this is a twoway call.
+	//
+	if(out)
+	{
+	    assert(!_endpoint->datagram()); // Twoway requests cannot be datagrams.
+	    _requestsHint = _requests.insert(_requests.end(), pair<const Int, Outgoing*>(requestId, out));
+	}
+	
+	if(_acmTimeout > 0)
+	{
+	    _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
 	}
     }
 
@@ -466,12 +452,10 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
 	    _exception->ice_throw();
 	}
 	
-	BasicStream* os = out->os();
-	
 	//
 	// Fill in the request ID.
 	//
-	if(!_endpoint->datagram() && !oneway)
+	if(!_endpoint->datagram() && out)
 	{
 	    const Byte* p = reinterpret_cast<const Byte*>(&requestId);
 #ifdef ICE_BIG_ENDIAN
@@ -538,24 +522,13 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	setState(StateClosed, ex);
 	assert(_exception.get());
-
-	//
-	// Only raise an exception if this is a datagram or oneway
-	// call. For twoway calls, the exception will be provided
-	// using the finished() callbacks.
-	//
-	if(_endpoint->datagram() || oneway)
-	{
-	    _exception->ice_throw();
-	}
+	_exception->ice_throw();
     }
 }
 
 void
-IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out)
+IceInternal::Connection::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPtr& out)
 {
-    assert(!_endpoint->datagram()); // Async requests are always twoway.
-
     Int requestId;
     auto_ptr<LocalException> exception;
 
@@ -582,6 +555,7 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out)
 		requestId = _nextRequestId++;
 	    }
 	    
+	    assert(!_endpoint->datagram()); // Twoway requests cannot be datagrams, and async implies twoway.
 	    _asyncRequestsHint = _asyncRequests.insert(_asyncRequests.end(),
 						       pair<const Int, OutgoingAsyncPtr>(requestId, out));
 	    
@@ -612,8 +586,6 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out)
 	    _exception->ice_throw();
 	}
 
-	BasicStream* os = out->__ostream();
-	
 	//
 	// Fill in the request ID.
 	//
