@@ -128,7 +128,7 @@ os.chdir(cwd)
 # Get Ice version.
 #
 config = open(os.path.join("icepy", "config", "Make.rules"), "r")
-version = re.search("VERSION[ \t]+=[^\d]*([\d\.]+)", config.read()).group(1)
+version = re.search("^VERSION[ \t]+=[^\d]*([\d\.]+)", config.read(), re.M).group(1)
 
 #
 # Create source archives.
