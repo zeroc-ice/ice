@@ -216,6 +216,7 @@ IcePack::Parser::getInput(char* buf, int result, int maxSize)
 	    error("input in flex scanner failed");
 	    buf[0] = EOF;
 	    result = 1;
+	    return;
 	}
 	result = n;
 
@@ -230,6 +231,9 @@ IcePack::Parser::getInput(char* buf, int result, int maxSize)
 	    result = 1;
 	}
     }
+
+    cout << buf << endl;
+    cout << result << endl;
 }
 
 void
