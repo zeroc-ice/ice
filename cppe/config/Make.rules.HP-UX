@@ -52,10 +52,6 @@ CXXLIBS			= -lCsup_v2 -lstd_v2
 
 LIBPATH                 =
 
-ifneq ($(OPENSSL_HOME),)
-    LIBPATH             += -L$(OPENSSL_HOME)/$(libsubdir)
-endif
-
 ifneq ($(BZIP2_HOME),)
    LIBPATH              += -L$(BZIP2_HOME)/$(libsubdir)
 endif

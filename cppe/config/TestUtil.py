@@ -9,28 +9,12 @@
 # **********************************************************************
 
 #
-# Set protocol to "ssl" in case you want to run the tests with the SSL
-# protocol. Otherwise TCP is used.
-#
-
-protocol = ""
-#protocol = "ssl"
-
-#
 # Set compressed to 1 in case you want to run the tests with
 # protocol compression.
 #
 
 #compress = 0
 compress = 1
-
-#
-# Set threadPerConnection to 1 in case you want to run the tests in
-# thread per connection mode.
-#
-
-#threadPerConnection = 0
-threadPerConnection = 1
 
 #
 # If you don't set "host" below, then the Ice library will try to find
@@ -204,23 +188,9 @@ else:
     os.environ["LD_LIBRARY_PATH"] = os.path.join(toplevel, "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
     os.environ["LD_LIBRARY_PATH_64"] = os.path.join(toplevel, "lib") + ":" + os.getenv("LD_LIBRARY_PATH_64", "")
 
-if protocol == "ssl":
-    plugin		 = " --Ice.Plugin.IceSSL=IceSSL:create"
-    clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Client.Config=client_sslconfig.xml"
-    serverProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Server.Config=server_sslconfig.xml"
-    clientServerProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Client.Config=sslconfig.xml" + \
-                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Server.Config=sslconfig.xml"
-else:
-    clientProtocol = ""
-    serverProtocol = ""
-    clientServerProtocol = ""
+clientProtocol = ""
+serverProtocol = ""
+clientServerProtocol = ""
 
 if compress:
     clientProtocol += " --Ice.Override.Compress"

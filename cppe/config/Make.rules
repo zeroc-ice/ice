@@ -94,21 +94,6 @@ endif
 #DB_HOME		?= /opt/db
 
 #
-# If OpenSSL is not installed in a standard location where the
-# compiler can find it, set OPENSSL_HOME to the OpenSSL installation
-# directory.
-#
-
-#OPENSSL_HOME		?= /opt/openssl
-
-#
-# Define if your OpenSSL requires Kerberos, and if Kerberos is not
-# installed in a standard location.
-#
-
-KERBEROS_HOME		?= /usr/kerberos
-
-#
 # If expat is not installed in a standard location where the
 # compiler can find it, set EXPAT_HOME to the expat
 # installation directory.
@@ -180,18 +165,6 @@ ifneq ($(STLPORT_HOME),)
 else
     STLPORT_FLAGS	=
     STLPORT_LIBS	=
-endif
-
-ifneq ($(OPENSSL_HOME),)
-    OPENSSL_FLAGS	= -I$(OPENSSL_HOME)/include
-    OPENSSL_LIBS	= -L$(OPENSSL_HOME)/$(libsubdir) -lssl -lcrypto
-else
-    OPENSSL_FLAGS	=
-    OPENSSL_LIBS	= -lssl -lcrypto
-endif
-
-ifneq ($(KERBEROS_HOME),)
-    OPENSSL_FLAGS	+= -I$(KERBEROS_HOME)/include
 endif
 
 ifneq ($(BZIP2_HOME),)
