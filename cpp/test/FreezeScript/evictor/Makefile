@@ -12,22 +12,28 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../../..
+
+CLIENT		= makedb
+
+TARGETS		= $(CLIENT)
+
+OBJS		= TestOld.o \
+                  makedb.o
+
+SRCS		= $(OBJS:.o=.cpp)
+
+SLICE_SRCS	= TestOld.ice
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= IceUtil \
-		  Ice \
-                  IceSSL \
-		  IceStorm \
-		  IcePack \
-		  Freeze \
-		  FreezeScript \
-		  Glacier
+CPPFLAGS	:= -I. $(DB_FLAGS) $(CPPFLAGS)
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
+$(CLIENT): $(OBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lFreeze $(LIBS) $(DB_LIBS)
+
+clean::
+	rm -f db/*.db db/log.*
+
+include .depend
