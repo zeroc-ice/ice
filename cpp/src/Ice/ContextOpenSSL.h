@@ -31,6 +31,7 @@
 #include <Ice/SslConnectionF.h>
 #include <Ice/SslConnectionOpenSSLF.h>
 #include <Ice/ContextOpenSSLF.h>
+#include <Ice/RSAPublicKey.h>
 
 namespace IceSSL
 {
@@ -77,6 +78,8 @@ protected:
     void setKeyCert(const IceSSL::CertificateDesc&, const std::string&, const std::string&);
 
     void checkKeyCert();
+
+    void addTrustedCertificate(const IceSSL::OpenSSL::RSAPublicKey&);
 
     void addKeyCert(const IceSSL::CertificateFile&, const IceSSL::CertificateFile&);
 

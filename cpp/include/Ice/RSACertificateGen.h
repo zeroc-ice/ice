@@ -99,7 +99,8 @@ public:
     RSACertificateGen();
     ~RSACertificateGen();
 
-    RSAKeyPair* generate(const RSACertificateGenContext&);
+    RSAKeyPairPtr generate(const RSACertificateGenContext&);
+    RSAKeyPairPtr loadKeyPair(const std::string&, const std::string&);
 
 };
 

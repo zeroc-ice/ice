@@ -15,6 +15,7 @@
 #include <Ice/RSAPrivateKey.h>
 #include <Ice/RSAPublicKey.h>
 #include <Ice/SslException.h>
+#include <Ice/OpenSSLUtils.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
@@ -192,7 +193,7 @@ IceSSL::OpenSSL::RSACertificateGen::~RSACertificateGen()
 {
 }
 
-IceSSL::OpenSSL::RSAKeyPair*
+IceSSL::OpenSSL::RSAKeyPairPtr
 IceSSL::OpenSSL::RSACertificateGen::generate(const RSACertificateGenContext& context)
 {
     // Generate an RSA key pair.
@@ -265,7 +266,6 @@ IceSSL::OpenSSL::RSACertificateGen::generate(const RSACertificateGenContext& con
     // Nasty Hack: Getting the pkey to let go of our rsaKeyPair - we own that.
     pkey->pkey.ptr = 0;
 
-    // Constructing our object.
     RSAPrivateKeyPtr privKeyPtr = new RSAPrivateKey(rsaKeyPair);
     RSAPublicKeyPtr pubKeyPtr = new RSAPublicKey(x509SelfSigned);
     RSAKeyPair* keyPairPtr = new RSAKeyPair(privKeyPtr, pubKeyPtr);
@@ -277,3 +277,58 @@ IceSSL::OpenSSL::RSACertificateGen::generate(const RSACertificateGenContext& con
     return keyPairPtr;
 }
 
+IceSSL::OpenSSL::RSAKeyPairPtr
+IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, const std::string& certFile)
+{
+    //
+    // Read in the X509 Certificate Structure
+    //
+    BIO* certBIO = BIO_new_file(certFile.c_str(), "r");
+    if (certBIO == 0)
+    {
+        IceSSL::OpenSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
+
+        certLoadEx._message = "Unable to load certificate from '";
+        certLoadEx._message += certFile;
+        certLoadEx._message += "'\n";
+        certLoadEx._message += sslGetErrors();
+
+        throw certLoadEx;
+    }
+
+    X509Janitor x509Janitor(PEM_read_bio_X509(certBIO, 0, 0, 0));
+    BIO_free(certBIO);
+
+    //
+    // Read in the RSA Private Key Structure
+    //
+    BIO* keyBIO = BIO_new_file(keyFile.c_str(), "r");
+    if (keyBIO == 0)
+    {
+        IceSSL::OpenSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
+
+        pklEx._message = "Unable to load private key from '";
+        pklEx._message += keyFile;
+        pklEx._message += "'\n";
+        pklEx._message += sslGetErrors();
+
+        throw pklEx;
+    }
+
+    RSAJanitor rsaJanitor(PEM_read_bio_RSAPrivateKey(keyBIO, 0, 0, 0));
+    BIO_free(keyBIO);
+
+    //
+    // Construct our RSAKeyPair
+    //
+
+    RSAPrivateKeyPtr privKeyPtr = new RSAPrivateKey(rsaJanitor.get());
+    RSAPublicKeyPtr pubKeyPtr = new RSAPublicKey(x509Janitor.get());
+    RSAKeyPair* keyPairPtr = new RSAKeyPair(privKeyPtr, pubKeyPtr);
+
+    // Don't let them clean up, we're keeping those around.
+    rsaJanitor.clear();
+    x509Janitor.clear();
+
+    return keyPairPtr;
+}

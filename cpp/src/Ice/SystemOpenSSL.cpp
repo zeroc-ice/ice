@@ -179,9 +179,6 @@ IceSSL::OpenSSL::System::configure(ContextType contextType)
     }
 }
 
-
-
-
 void
 IceSSL::OpenSSL::System::loadConfig(ContextType contextType,
                                     const std::string& configFile,
@@ -399,7 +396,8 @@ IceSSL::OpenSSL::System::setCertificateVerifier(ContextType contextType,
 {
     IceUtil::RecMutex::Lock sync(_configMutex);
 
-    CertificateVerifierPtr castVerifier = CertificateVerifierPtr::dynamicCast(verifier);
+    IceSSL::OpenSSL::CertificateVerifierPtr castVerifier;
+    castVerifier = IceSSL::OpenSSL::CertificateVerifierPtr::dynamicCast(verifier);
 
     if (!castVerifier.get())
     {

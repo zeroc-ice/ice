@@ -479,6 +479,15 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name encoding
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name loadPEM
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name certificateAndKeyParsing
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name certificateVerifier
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -523,6 +532,42 @@ Package=<4>
 ###############################################################################
 
 Project: "callbackS"=.\demo\Ice\callback\callbackS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "certificateAndKeyParsing"=.\test\IceSSL\certificateAndKeyParsing\certificateAndKeyParsing.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "certificateVerifier"=.\test\IceSSL\certificateVerifier\certificateVerifier.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -593,6 +638,24 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name Freeze
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "configuration"=.\TEST\ICESSL\configuration\configuration.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
     Begin Project Dependency
     Project_Dep_Name Ice
     End Project Dependency
@@ -1049,6 +1112,24 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name Freeze
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "loadPEM"=.\test\IceSSL\loadPEM\loadPEM.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
     Begin Project Dependency
     Project_Dep_Name Ice
     End Project Dependency
