@@ -130,8 +130,17 @@ SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I$(slicedir)
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $^
 
+ifeq ($(NOGAC),)
+
 install:: all
 	$(INSTALL) $(bindir)/$(LIBNAME) $(install_bindir)
 	cd $(install_bindir) && $(GACUTIL) -i $(LIBNAME) && cd -
+	
+else
+
+install:: all
+	$(INSTALL) $(bindir)/$(LIBNAME) $(install_bindir)
+
+endif
 
 include .depend

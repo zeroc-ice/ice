@@ -28,8 +28,18 @@ SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I$(slicedir) --ice
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -r:$(bindir)/icecs.dll $^
 
+ifeq ($(NOGAC),)
+
 install:: all
 	$(INSTALL) $(bindir)/$(LIBNAME) $(install_bindir)
 	cd $(install_bindir) && $(GACUTIL) -i $(LIBNAME) && cd -
+	
+else
+
+install:: all
+	$(INSTALL) $(bindir)/$(LIBNAME) $(install_bindir)
+
+endif
+
 
 include .depend
