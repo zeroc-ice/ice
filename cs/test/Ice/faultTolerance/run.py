@@ -32,7 +32,7 @@ base = 12340
 serverPipes = { }
 for i in range(0, num):
     print "starting server #%d..." % (i + 1),
-    serverPipes[i] = os.popen(server + TestUtil.serverOptions + " %d" % (base + i), "r", 0)
+    serverPipes[i] = os.popen(server + TestUtil.serverOptions + " %d" % (base + i))
     TestUtil.getServerPid(serverPipes[i])
     TestUtil.getAdapterReady(serverPipes[i])
     print "ok"
@@ -42,7 +42,7 @@ for i in range(0, num):
     ports = "%s %d" % (ports, base + i)
 
 print "starting client...",
-clientPipe = os.popen(client + TestUtil.clientOptions + " " + ports, "r", 0)
+clientPipe = os.popen(client + TestUtil.clientOptions + " " + ports)
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)

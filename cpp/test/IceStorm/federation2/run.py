@@ -64,7 +64,7 @@ def doTest(batch):
 
     print "starting " + name + "...",
     command = subscriber + batchOptions + TestUtil.clientServerOptions + iceStormReference + r' ' + subscriberLockFile + " 2>&1"
-    subscriberPipe = os.popen(command, "r", 0)
+    subscriberPipe = os.popen(command)
     TestUtil.getServerPid(subscriberPipe)
     TestUtil.getAdapterReady(subscriberPipe)
     print "ok"
@@ -86,7 +86,7 @@ def doTest(batch):
     #
     print "starting publisher...",
     command = publisher + TestUtil.clientOptions + iceStormReference + " 2>&1"
-    publisherPipe = os.popen(command, "r", 0)
+    publisherPipe = os.popen(command)
     print "ok"
 
     TestUtil.printOutputFromPipe(publisherPipe)
@@ -116,14 +116,14 @@ iceStormDBEnv=" --Freeze.DbEnv.IceStorm.DbHome=" + dbHome
 
 print "starting icestorm service...",
 command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv + " 2>&1"
-iceBoxPipe = os.popen(command, "r", 0)
+iceBoxPipe = os.popen(command)
 TestUtil.getServerPid(iceBoxPipe)
 TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
 print "ok"
 
 print "creating topics...",
 command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create fed1 fed2 fed3"' + " 2>&1"
-iceStormAdminPipe = os.popen(command, "r", 0)
+iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
     TestUtil.killServers()
@@ -133,7 +133,7 @@ print "ok"
 print "linking topics...",
 graph = os.path.join(testdir, "fed.xml");
 command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "graph ' + graph + r' 10"' + " 2>&1"
-iceStormAdminPipe = os.popen(command, "r", 0)
+iceStormAdminPipe = os.popen(command)
 #
 # The graph command generates output. We must read it otherwise
 # closing the pipe might return a non-zero status.
@@ -161,7 +161,7 @@ batchStatus = doTest(1)
 #
 print "destroying topics...",
 command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy fed1 fed2 fed3"' + " 2>&1"
-iceStormAdminPipe = os.popen(command, "r", 0)
+iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
     TestUtil.killServers()
@@ -173,7 +173,7 @@ print "ok"
 #
 print "shutting down icestorm service...",
 command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown' + " 2>&1"
-iceBoxAdminPipe = os.popen(command, "r", 0)
+iceBoxAdminPipe = os.popen(command)
 iceBoxAdminStatus = iceBoxAdminPipe.close()
 if iceBoxAdminStatus:
     TestUtil.killServers()

@@ -24,19 +24,19 @@ TestI::shutdown(const Ice::Current&)
 void
 TestI::abort(const Ice::Current&)
 {
-    ::_exit(0);
+    exit(0);
 }
 
 void
 TestI::idempotentAbort(const Ice::Current&)
 {
-    ::_exit(0);
+    exit(0);
 }
 
 void
 TestI::nonmutatingAbort(const Ice::Current&) const
 {
-    ::_exit(0);
+    exit(0);
 }
 
 Ice::Int

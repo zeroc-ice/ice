@@ -64,7 +64,7 @@ for oldfile in files:
 
     command = transformdb + " --old " + os.path.join(directory, "fail", oldfile) + " --new " + os.path.join(directory, "fail", newfile) + " -o tmp.xml --key string --value " + value
 
-    stdin, stdout, stderr = os.popen3(command, "r", 0)
+    stdin, stdout, stderr = os.popen3(command)
     lines1 = stderr.readlines()
     lines2 = open(os.path.join(directory, "fail", oldfile.replace("_old.ice", ".err")), "r").readlines()
     if len(lines1) != len(lines2):
@@ -111,7 +111,7 @@ print "executing default transformations... ",
 sys.stdout.flush()
 
 command = transformdb + " --old " + testold + " --new " + testnew + " --key int --value ::S " + init_dbdir + " default.db " + check_dbdir
-stdin, stdout, stderr = os.popen3(command, "r", 0)
+stdin, stdout, stderr = os.popen3(command)
 stderr.readlines()
 
 print "ok"

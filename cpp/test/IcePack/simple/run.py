@@ -68,7 +68,7 @@ IcePackAdmin.addServer(os.path.join(testdir, "simple_server.xml"), "test.dir=" +
 print "ok"
   
 print "starting client...",
-clientPipe = os.popen(client + TestUtil.clientOptions + additionalOptions + " --with-deploy" + " 2>&1", "r", 0)
+clientPipe = os.popen(client + TestUtil.clientOptions + additionalOptions + " --with-deploy" + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)

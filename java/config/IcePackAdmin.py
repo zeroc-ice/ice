@@ -62,7 +62,7 @@ def startIcePackRegistry(port, testdir):
               r' --IcePack.Registry.DynamicRegistration' + \
               r' --Ice.ProgramName=icepackregistry'
 
-    (stdin, icePackPipe) = os.popen4(command, "r", 0)
+    (stdin, icePackPipe) = os.popen4(command)
     TestUtil.getAdapterReady(icePackPipe)
     TestUtil.getAdapterReady(icePackPipe)
     TestUtil.getAdapterReady(icePackPipe)
@@ -97,7 +97,7 @@ def startIcePackNode(testdir):
               r' --IcePack.Node.Trace.Server=0' + \
               r' --IcePack.Node.PrintServersReady=node'
     
-    (stdin, icePackPipe) = os.popen4(command, "r", 0)
+    (stdin, icePackPipe) = os.popen4(command)
     TestUtil.getAdapterReady(icePackPipe)
     TestUtil.waitServiceReady(icePackPipe, 'node')
     print "ok"
@@ -116,7 +116,7 @@ def shutdownIcePackRegistry():
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "shutdown" ' + " 2>&1"
 
-    icePackAdminPipe = os.popen(command, "r", 0)
+    icePackAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(icePackAdminPipe)
     icePackAdminStatus = icePackAdminPipe.close()
     if icePackAdminStatus:
@@ -134,7 +134,7 @@ def shutdownIcePackNode():
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "node shutdown localnode" ' + " 2>&1"
 
-    icePackAdminPipe = os.popen(command, "r", 0)
+    icePackAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(icePackAdminPipe)
     icePackAdminStatus = icePackAdminPipe.close()
     if icePackAdminStatus:
@@ -152,7 +152,7 @@ def addApplication(descriptor, options):
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "application add \"' + descriptor + '\\" ' + options + ' \"' + " 2>&1"
 
-    icePackAdminPipe = os.popen(command, "r", 0)
+    icePackAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(icePackAdminPipe)
     icePackAdminStatus = icePackAdminPipe.close()
     if icePackAdminStatus:
@@ -169,7 +169,7 @@ def removeApplication(descriptor):
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "application remove \"' + descriptor + '\\" \"' + " 2>&1"
 
-    icePackAdminPipe = os.popen(command, "r", 0)
+    icePackAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(icePackAdminPipe)
     icePackAdminStatus = icePackAdminPipe.close()
     if icePackAdminStatus:
@@ -187,7 +187,7 @@ def addServer(serverDescriptor, options):
               r' -e "server add ' + serverDescriptor + ' localnode ' + \
               r' ' + options + '\"' + " 2>&1"
 
-    icePackAdminPipe = os.popen(command, "r", 0)
+    icePackAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(icePackAdminPipe)
     icePackAdminStatus = icePackAdminPipe.close()
     if icePackAdminStatus:
@@ -203,7 +203,7 @@ def removeServer(name):
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "server remove \"' + name + '\\" \"' + " 2>&1"
 
-    icePackAdminPipe = os.popen(command, "r", 0)
+    icePackAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(icePackAdminPipe)
     icePackAdminStatus = icePackAdminPipe.close()
     if icePackAdminStatus:
@@ -219,7 +219,7 @@ def startServer(name):
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "server start \"' + name + '\\""' + " 2>&1"
 
-    icePackAdminPipe = os.popen(command, "r", 0)
+    icePackAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(icePackAdminPipe)
     icePackAdminStatus = icePackAdminPipe.close()
     if icePackAdminStatus:
@@ -235,7 +235,7 @@ def listAdapters():
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "adapter list"' + " 2>&1"
 
-    icePackAdminPipe = os.popen(command, "r", 0)
+    icePackAdminPipe = os.popen(command)
     return icePackAdminPipe
 
 def cleanDbDir(path):

@@ -33,7 +33,7 @@ TestUtil.cleanDbDir(dbdir)
 client = "java -ea Client"
 
 print "starting populate...",
-populatePipe = os.popen(client + TestUtil.clientOptions + " --dbdir " + testdir + " populate" + " 2>&1", "r", 0)
+populatePipe = os.popen(client + TestUtil.clientOptions + " --dbdir " + testdir + " populate" + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(populatePipe)
@@ -44,7 +44,7 @@ if populateStatus:
     sys.exit(1)
 
 print "starting verification client...",
-clientPipe = os.popen(client + TestUtil.clientOptions + " --dbdir " + testdir + " validate" + " 2>&1", "r", 0)
+clientPipe = os.popen(client + TestUtil.clientOptions + " --dbdir " + testdir + " validate" + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)

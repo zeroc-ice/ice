@@ -30,7 +30,7 @@ TestUtil.cleanDbDir(dbdir)
 client = "java -ea Client"
 
 print "starting client...",
-clientPipe = os.popen(client + TestUtil.clientOptions + " " + testdir + " 2>&1", "r", 0)
+clientPipe = os.popen(client + TestUtil.clientOptions + " " + testdir + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)
