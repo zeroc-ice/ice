@@ -8,25 +8,25 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PROPERTIES_F_H
-#define ICE_PROPERTIES_F_H
+#ifndef ICE_LOCAL_OBJECT_F_H
+#define ICE_LOCAL_OBJECT_F_H
 
 #include <Ice/Handle.h>
 
-namespace Ice { class Properties; }
+namespace Ice { class LocalObject; }
 
 namespace __Ice
 {
 
-void ICE_API incRef(::Ice::Properties*);
-void ICE_API decRef(::Ice::Properties*);
+void ICE_API incRef(::Ice::LocalObject*);
+void ICE_API decRef(::Ice::LocalObject*);
 
 }
 
 namespace Ice
 {
 
-typedef __Ice::Handle<Properties> Properties_ptr;
+typedef __Ice::Handle< LocalObject > LocalObject_ptr;
 
 }
 

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2002
+// Copyright (c) 2001
 // MutableRealms, Inc.
 // Huntsville, AL, USA
 //
@@ -55,13 +55,6 @@ public:
     virtual void __read(::__Ice::Stream*) = 0;
 };
 
-// No virtual inheritance for local objects
-class ICE_API LocalObject : public ::__Ice::Shared
-{
-};
-
 }
 
 #endif
-
-

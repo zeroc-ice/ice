@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2002
+# Copyright (c) 2001
 # MutableRealms, Inc.
 # Huntsville, AL, USA
 #
@@ -12,7 +12,7 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= hello value latency
+SUBDIRS		= hello value latency pickle
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

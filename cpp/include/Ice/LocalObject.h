@@ -8,25 +8,23 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PROPERTIES_F_H
-#define ICE_PROPERTIES_F_H
+#ifndef ICE_LOCAL_OBJECT_H
+#define ICE_LOCAL_OBJECT_H
 
-#include <Ice/Handle.h>
-
-namespace Ice { class Properties; }
-
-namespace __Ice
-{
-
-void ICE_API incRef(::Ice::Properties*);
-void ICE_API decRef(::Ice::Properties*);
-
-}
+#include <Ice/LocalObjectF.h>
+#include <Ice/Shared.h>
 
 namespace Ice
 {
 
-typedef __Ice::Handle<Properties> Properties_ptr;
+// No virtual inheritance for local objects
+class ICE_API LocalObject : public ::__Ice::Shared
+{
+public:
+
+    LocalObject();
+    virtual ~LocalObject();
+};
 
 }
 
