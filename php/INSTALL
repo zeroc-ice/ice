@@ -124,12 +124,14 @@ to do the following:
 1) Download and extract the PHP5 sources so that the PHP header files
    are available.
 
-2) Have a suitable Ice development environment.
+2) Download and extract the PHP5 binary distribution for Windows.
 
-3) Configure the include and library paths in Visual C++ for PHP and
+3) Have a suitable Ice development environment.
+
+4) Configure the include and library paths in Visual C++ for PHP and
    Ice. Assuming that you've extracted the PHP5 sources into C:\PHP5,
-   and installed Ice into C:\Ice, then the following paths must be
-   configured:
+   the binary distribution into C:\PHP5-Win32, and and installed Ice
+   into C:\Ice, then the following paths must be configured:
 
    Include:
      C:\PHP5
@@ -139,7 +141,8 @@ to do the following:
      C:\Ice\include
 
    Library:
-     C:\PHP5
+     C:\PHP5-Win32
+     C:\PHP5-Win32\dev
      C:\Ice\lib
 
    If you are using Visual C++ 6.0, then you must also be sure to
