@@ -14,9 +14,6 @@
 using namespace std;
 using namespace IceStorm;
 
-void IceInternal::incRef(TraceLevels* p) { p->__incRef(); }
-void IceInternal::decRef(TraceLevels* p) { p->__decRef(); }
-
 TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties) :
     topicMgr(0),
     topicMgrCat("TopicManager"),

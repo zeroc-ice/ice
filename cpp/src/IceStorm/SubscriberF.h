@@ -22,18 +22,4 @@ typedef IceUtil::Handle<Subscriber> SubscriberPtr;
 
 } // End namespace IceStorm
 
-//TODO:
-#ifdef never
-//
-// This is necessary so that SubscriberPtr can be forward declared
-//
-namespace IceInternal
-{
-
-void incRef(IceStorm::Subscriber*);
-void decRef(IceStorm::Subscriber*);
-
-} // End namespace IceInternal
-#endif
-
 #endif

@@ -20,9 +20,6 @@
 using namespace IceStorm;
 using namespace std;
 
-void IceInternal::incRef(Flusher* p) { p->__incRef(); }
-void IceInternal::decRef(Flusher* p) { p->__decRef(); }
-
 namespace IceStorm
 {
 
