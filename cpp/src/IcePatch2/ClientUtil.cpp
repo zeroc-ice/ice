@@ -144,7 +144,7 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
     _feedback(feedback),
     _dataDir(simplify(communicator->getProperties()->getPropertyWithDefault("IcePatch2.Directory", "."))),
     _thorough(communicator->getProperties()->getPropertyAsInt("IcePatch2.Thorough") > 0),
-    _chunkSize(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.ChunkSize", 100000)),
+    _chunkSize(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.ChunkSize", 100)),
     _remove(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.Remove", 1))
 {
     if(_dataDir.empty())
@@ -152,9 +152,26 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
 	throw string("no data directory specified");
     }
 
+    //
+    // Make sure that _chunkSize doesn't exceed MessageSizeMax, otherwise
+    // it won't work at all.
+    //
+    int sizeMax = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024);
     if(_chunkSize < 1)
     {
 	const_cast<Int&>(_chunkSize) = 1;
+    }
+    else if(_chunkSize > sizeMax)
+    {
+        const_cast<Int&>(_chunkSize) = sizeMax;
+    }
+    if(_chunkSize == sizeMax)
+    {
+        const_cast<Int&>(_chunkSize) = _chunkSize * 1024 - 512; // Leave some headroom for protocol header.
+    }
+    else
+    {
+	const_cast<Int&>(_chunkSize) *= 1024;
     }
 
     if(!isAbsolute(_dataDir))
