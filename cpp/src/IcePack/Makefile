@@ -83,7 +83,7 @@ LOCAL_HDIR	= ../IcePack
 SDIR		= $(slicedir)/IcePack
 SLICE2CPPFLAGS	= -I.. -I$(slicedir)
 SLICECMD    	= $(SLICE2CPP) --ice --include-dir IcePack --dll-export ICE_PACK_API $(SLICE2CPPFLAGS)
-SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --binary --include-dir IcePack -I.. -I$(slicedir)
+SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IcePack -I.. -I$(slicedir)
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) $(XERCESC_FLAGS)

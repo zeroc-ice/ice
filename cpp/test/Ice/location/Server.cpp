@@ -22,8 +22,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // 'server' (a server isn't a different process, it's just a new
     // communicator and object adapter).
     //
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("ServerManagerAdapter", 
-										   "default -p 12345");
+    Ice::PropertiesPtr properties = communicator->getProperties();
+    properties->setProperty("Ice.Adapter.ServerManagerAdapter.Endpoints", "default -p 12345");
+
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ServerManagerAdapter");
 
     Ice::ObjectPtr object = new ServerManagerI(adapter);
     adapter->add(object, Ice::stringToIdentity("servermanager"));

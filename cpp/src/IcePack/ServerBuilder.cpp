@@ -544,6 +544,9 @@ IcePack::ServerBuilder::registerAdapter(const string& name, const string& endpoi
     _serverAdapterNames.push_back(name);
     _tasks.push_back(new RegisterServerAdapterTask(adapterRegistry, name, *this));
     
+    addProperty("Ice.Adapter." + name + ".Locator", 
+		_nodeInfo->getCommunicator()->getProperties()->getProperty("Ice.Default.Locator"));
+
     if(!endpoints.empty())
     {
 	addProperty("Ice.Adapter." + name + ".Endpoints", endpoints);

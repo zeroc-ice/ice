@@ -84,11 +84,15 @@ Ice::ObjectAdapterI::activate()
 	    }
 	    catch(const Ice::AdapterNotRegistered&)
 	    {
-		throw ObjectAdapterNotRegisteredException(__FILE__, __LINE__);
+		ObjectAdapterNotRegisteredException ex(__FILE__, __LINE__);
+		ex.name = _name;
+		throw ex;
 	    }
 	    catch(const Ice::AdapterAlreadyActive&)
 	    {
-		throw ObjectAdapterActiveException(__FILE__, __LINE__);
+		ObjectAdapterNameInUseException ex(__FILE__, __LINE__);
+		ex.name = _name;
+		throw ex;
 	    }
 	}
     }

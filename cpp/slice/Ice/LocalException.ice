@@ -102,6 +102,12 @@ local exception ObjectAdapterDeactivatedException
  **/
 local exception ObjectAdapterNotRegisteredException
 {
+    /**
+     * 
+     * Name of the adapter.
+     *
+     **/
+    string name;
 };
 
 /**
@@ -112,10 +118,16 @@ local exception ObjectAdapterNotRegisteredException
  * name.
  *
  **/
-local exception ObjectAdapterActiveException
+local exception ObjectAdapterNameInUseException
 {
+    /**
+     * 
+     * Name of the adapter.
+     *
+     **/
+    string name;
 };
-
+ 
 /**
  *
  * This exception is raised if not suitable endpoint is available.

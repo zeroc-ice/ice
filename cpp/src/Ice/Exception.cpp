@@ -75,17 +75,17 @@ Ice::ObjectAdapterDeactivatedException::ice_print(ostream& out) const
 }
 
 void
-Ice::ObjectAdapterActiveException::ice_print(ostream& out) const
+Ice::ObjectAdapterNameInUseException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nobject adapter already active";
+    out << ":\nobject adapter name `" << name << "' already in use";
 }
 
 void
 Ice::ObjectAdapterNotRegisteredException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nobject adapter not registered with the locator";
+    out << ":\nobject adapter `" << name << "' not registered with the locator";
 }
 
 void
