@@ -69,7 +69,7 @@ public class Client
 
         System.out.println();
         System.out.println("Yes, this worked. Now let's try to transfer an object for a class");
-        System.out.println("with operations as type Printer, without installing a factory first.");
+        System.out.println("with operations as type Demo.Printer, without installing a factory first.");
         System.out.println("This should give us a `no factory' exception.");
         System.out.println("[press enter]");
         readline(in);
@@ -96,7 +96,7 @@ public class Client
         readline(in);
 
         Ice.ObjectFactory factory = new ObjectFactory();
-        communicator.addObjectFactory(factory, "::Printer");
+        communicator.addObjectFactory(factory, "::Demo::Printer");
 
         initial.getPrinter(printer, printerProxy);
         System.out.println("==> " + printer.value.message);
@@ -121,14 +121,14 @@ public class Client
         System.out.println();
         System.out.println("Next, we transfer a derived object from the server as a base");
         System.out.println("object. Since we haven't yet installed a factory for the derived");
-        System.out.println("class, the derived class (DerivedPrinter) is sliced");
-        System.out.println("to its base class (Printer).");
+        System.out.println("class, the derived class (Demo.DerivedPrinter) is sliced");
+        System.out.println("to its base class (Demo.Printer).");
         System.out.println("[press enter]");
         readline(in);
 
         Printer derivedAsBase = initial.getDerivedPrinter();
 	System.out.println("The type ID of the received object is \"" + derivedAsBase.ice_id() + "\"");
-	assert(derivedAsBase.ice_id().equals("::Printer"));
+	assert(derivedAsBase.ice_id().equals("::Demo::Printer"));
 
         System.out.println();
         System.out.println("Now we install a factory for the derived class, and try again.");
@@ -137,10 +137,10 @@ public class Client
         System.out.println("[press enter]");
         readline(in);
 
-        communicator.addObjectFactory(factory, "::DerivedPrinter");
+        communicator.addObjectFactory(factory, "::Demo::DerivedPrinter");
 
         derivedAsBase = initial.getDerivedPrinter();
-        DerivedPrinter derived = (DerivedPrinter)derivedAsBase;
+        DerivedPrinter derived = (Demo.DerivedPrinter)derivedAsBase;
 
         System.out.println("==> class cast to derived object succeded");
 	System.out.println("The type ID of the received object is \"" + derived.ice_id() + "\"");

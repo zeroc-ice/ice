@@ -12,12 +12,12 @@ class ObjectFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
     public Ice.Object
     create(String type)
     {
-        if(type.equals("::Printer"))
+        if(type.equals("::Demo::Printer"))
         {
             return new PrinterI();
         }
 
-        if(type.equals("::DerivedPrinter"))
+        if(type.equals("::Demo::DerivedPrinter"))
         {
             return new DerivedPrinterI();
         }

@@ -55,7 +55,7 @@ public class Client
         
         Console.Out.WriteLine();
         Console.Out.WriteLine("Yes, this worked. Now let's try to transfer an object for a class");
-        Console.Out.WriteLine("with operations as type Printer, without installing a factory first.");
+        Console.Out.WriteLine("with operations as type Demo.Printer, without installing a factory first.");
         Console.Out.WriteLine("This should give us a `no factory' exception.");
         Console.Out.WriteLine("[press enter]");
         Console.In.ReadLine();
@@ -107,8 +107,8 @@ public class Client
         Console.Out.WriteLine();
         Console.Out.WriteLine("Next, we transfer a derived object from the server as a base");
         Console.Out.WriteLine("object. Since we haven't yet installed a factory for the derived");
-        Console.Out.WriteLine("class, the derived class (DerivedPrinter) is sliced");
-        Console.Out.WriteLine("to its base class (Printer).");
+        Console.Out.WriteLine("class, the derived class (Demo.DerivedPrinter) is sliced");
+        Console.Out.WriteLine("to its base class (Demo.Printer).");
         Console.Out.WriteLine("[press enter]");
         Console.In.ReadLine();
         
