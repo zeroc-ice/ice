@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no" ?> 
+<!DOCTYPE SSLConfig SYSTEM "sslconfig.dtd"> 
+<SSLConfig> 
+    <client> 
+        <general version="SSLv23" cipherlist="RC4-MD5" verifymode="peer" verifydepth="10" /> 
+        <certauthority file="cacert.pem" />
+        <basecerts> 
+            <rsacert keysize="1024"> 
+                <public  encoding="PEM" filename="c_rsa1024_pub.pem" /> 
+                <private encoding="PEM" filename="c_rsa1024_priv.pem" /> 
+            </rsacert>
+        </basecerts>
+    </client> 
+    <server> 
+        <general version="SSLv23" cipherlist="RC4-MD5" verifymode="peer" verifydepth="10" /> 
+        <certauthority file="cacert.pem" />
+        <basecerts> 
+            <rsacert keysize="1024"> 
+                <public  encoding="PEM" filename="s_rsa1024_pub.pem" /> 
+                <private encoding="PEM" filename="s_rsa1024_priv.pem" /> 
+            </rsacert>
+        </basecerts>
+    </server> 
+</SSLConfig>

@@ -1,0 +1,99 @@
+#!/bin/sh
+# **********************************************************************
+#
+# Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# This script creates the required CA key and certificate (if they do not
+# already exist) and server certificate/key pairs.
+#
+
+#
+# Note: If you want private keys passphrase protected, comment this out.
+#
+PASSPHRASE=-nodes
+
+CA_HOME=$ICE_HOME/certs/openssl/ca
+
+if ! [ -f $CA_HOME/cakey.pem ]; then
+    #
+    # Set up a sample CA for key generation.
+    #
+    cd $ICE_HOME/certs/openssl
+    mkdir ca
+    cd ca
+    echo '01' > serial
+    touch index.txt
+
+    #
+    # Generate our CA certificate and key if they do not already exist.
+    #
+    echo "You will be prompted for a passphrase - this is the passphrase that protects the CA signing authority key."
+    openssl req -config $ICE_HOME/certs/openssl/ice_ca.cnf -x509 -days 1825 -newkey rsa -out $CA_HOME/cacert.pem \
+	-outform PEM $PASSPHRASE
+    cp $CA_HOME/cacert.pem $ICE_HOME/certs
+
+    #
+    # Create our Server certificate and key.
+    #
+    SERIAL=`cat $CA_HOME/serial`
+    KEY_NAME=`echo $SERIAL`_key.pem
+    CERT_NAME=`echo $SERIAL`_cert.pem
+    openssl req -config $ICE_HOME/certs/openssl/server.cnf -newkey rsa $PASSPHRASE -keyout $CA_HOME/$KEY_NAME \
+        -keyform PEM -out $CA_HOME/req.pem
+    echo "You will be prompted for a passphrase - this is so we can sign the new Server Certificate."
+    echo "Enter the passphrase for the CA signing authority."
+    openssl ca -config $ICE_HOME/certs/openssl/server.cnf -batch -in $CA_HOME/req.pem
+    mv $CA_HOME/$SERIAL.pem $CA_HOME/$CERT_NAME
+    cp $CA_HOME/$KEY_NAME  $ICE_HOME/certs/s_rsa1024_priv.pem
+    cp $CA_HOME/$CERT_NAME $ICE_HOME/certs/s_rsa1024_pub.pem
+    rm $CA_HOME/req.pem
+
+    #
+    # Create our Server certificate and key.
+    #
+    SERIAL=`cat $CA_HOME/serial`
+    KEY_NAME=`echo $SERIAL`_key.pem
+    CERT_NAME=`echo $SERIAL`_cert.pem
+    openssl req -config $ICE_HOME/certs/openssl/client.cnf -newkey rsa $PASSPHRASE -keyout $CA_HOME/$KEY_NAME \
+        -keyform PEM -out $CA_HOME/req.pem
+    echo "You will be prompted for a passphrase - this is so we can sign the new Client Certificate."
+    echo "Enter the passphrase for the CA signing authority."
+    openssl ca -config $ICE_HOME/certs/openssl/client.cnf -batch -in $CA_HOME/req.pem
+    mv $CA_HOME/$SERIAL.pem $CA_HOME/$CERT_NAME
+    cp $CA_HOME/$KEY_NAME  $ICE_HOME/certs/c_rsa1024_priv.pem
+    cp $CA_HOME/$CERT_NAME $ICE_HOME/certs/c_rsa1024_pub.pem
+    rm $CA_HOME/req.pem
+
+    #
+    # Copy pertinent certificates to test directory.
+    #
+    cp $ICE_HOME/certs/cacert.pem         $ICE_HOME/test/IceSSL/certs
+    cp $ICE_HOME/certs/c_rsa1024_priv.pem $ICE_HOME/test/IceSSL/certs/goodKey_1.pem
+    cp $ICE_HOME/certs/c_rsa1024_pub.pem  $ICE_HOME/test/IceSSL/certs/goodCert_1.pem
+    cp $ICE_HOME/certs/s_rsa1024_priv.pem $ICE_HOME/test/IceSSL/certs/goodKey_2.pem
+    cp $ICE_HOME/certs/s_rsa1024_pub.pem  $ICE_HOME/test/IceSSL/certs/goodCert_2.pem
+else
+    #
+    # Create a new certificate and key.
+    #
+
+    SERIAL=`cat $CA_HOME/serial`
+    KEY_NAME=`echo $SERIAL`_key.pem
+    CERT_NAME=`echo $SERIAL`_cert.pem
+    openssl req -config $ICE_HOME/certs/openssl/generic.cnf -newkey rsa $PASSPHRASE -keyout $CA_HOME/$KEY_NAME \
+        -keyform PEM -out $CA_HOME/req.pem
+    echo "You will be prompted for a passphrase - this is so we can sign the new certificate."
+    echo "Enter the passphrase for the CA signing authority."
+    openssl ca -config $ICE_HOME/certs/openssl/generic.cnf -in $CA_HOME/req.pem
+    mv $CA_HOME/$SERIAL.pem $CA_HOME/$CERT_NAME
+    cp $CA_HOME/$KEY_NAME  $ICE_HOME/certs/newkey.pem
+    cp $CA_HOME/$CERT_NAME $ICE_HOME/certs/newcert.pem
+    rm $CA_HOME/req.pem
+fi
+

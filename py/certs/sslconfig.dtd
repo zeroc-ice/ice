@@ -1,0 +1,43 @@
+<!ELEMENT SSLConfig (client?,server?)>  
+<!ELEMENT client (general, certauthority?, basecerts)>  
+<!ELEMENT server (general, certauthority?, basecerts, tempcerts?)>  
+<!ELEMENT general EMPTY>  
+<!ELEMENT certauthority EMPTY> 
+<!ELEMENT basecerts (rsacert?,dsacert?,dhparams?)>  
+<!ELEMENT tempcerts (rsacert*,dhparams*)>  
+  
+<!ATTLIST general  
+        version (SSLv23|SSLv3|TLSv1) "SSLv23"  
+        cipherlist CDATA #IMPLIED  
+        context CDATA #IMPLIED  
+        verifymode CDATA "none"  
+        verifydepth CDATA "10"  
+        randombytes CDATA #IMPLIED>  
+  
+<!ATTLIST certauthority 
+        file CDATA #IMPLIED 
+        path CDATA #IMPLIED>  
+  
+<!ELEMENT rsacert (public,private)>  
+<!ATTLIST rsacert  
+        keysize CDATA #REQUIRED>  
+  
+<!ELEMENT dsacert (public,private)>  
+<!ATTLIST dsacert  
+        keysize CDATA #REQUIRED>  
+  
+<!ELEMENT dhparams EMPTY>  
+<!ATTLIST dhparams  
+        keysize CDATA #REQUIRED  
+        encoding CDATA #FIXED "PEM"  
+        filename CDATA #REQUIRED>  
+  
+<!ELEMENT public EMPTY>  
+<!ATTLIST public  
+        encoding CDATA #FIXED "PEM"  
+        filename CDATA #REQUIRED>  
+  
+<!ELEMENT private EMPTY>  
+<!ATTLIST private  
+        encoding CDATA #FIXED "PEM"  
+        filename CDATA #REQUIRED>
