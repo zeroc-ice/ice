@@ -16,6 +16,7 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <openssl/md5.h>
+#include <bzlib.h>
 
 using namespace std;
 using namespace Ice;
@@ -417,4 +418,69 @@ IcePatch::MD5ToString(const ByteSeq& md5)
     }
 
     return out.str();
+}
+
+ByteSeq
+IcePatch::getBZ2(const string& path, Int n)
+{
+    //
+    // Stat the file to get a bzip2 file for.
+    //
+    struct stat buf;
+    if (::stat(path.c_str(), &buf) == -1)
+    {
+	NodeAccessException ex;
+	ex.reason = "cannot stat `" + path + "':" + strerror(errno);
+	throw ex;
+    }
+    else
+    {
+	if (!S_ISREG(buf.st_mode))
+	{
+	    NodeAccessException ex;
+	    ex.reason = "`" + path + "' is not a regular file";
+	    throw ex;
+	}
+    }
+
+    //
+    // Stat the .bz2 file. If it doesn't exist, or if it's outdated,
+    // set a flag to create a new bzip2 file.
+    //
+    struct stat bufbz2;
+    string pathbz2 = path + ".bz2";
+    bool createbz2 = false;
+    if (::stat(pathbz2.c_str(), &bufbz2) == -1)
+    {
+	if (errno == ENOENT)
+	{
+	    createbz2 = true;
+	}
+	else
+	{
+	    NodeAccessException ex;
+	    ex.reason = "cannot stat `" + path + "':" + strerror(errno);
+	    throw ex;
+	}
+    }
+    else
+    {
+	if (!S_ISREG(bufbz2.st_mode))
+	{
+	    NodeAccessException ex;
+	    ex.reason = "`" + path + "' is not a regular file";
+	    throw ex;
+	}
+
+	if (bufbz2.st_mtime <= buf.st_mtime)
+	{
+	    createbz2 = true;
+	}
+    }
+
+    if (createbz2)
+    {
+    }
+
+    return ByteSeq();
 }

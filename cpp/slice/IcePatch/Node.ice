@@ -46,7 +46,7 @@ class DirectoryDesc extends NodeDesc
 
 interface File extends Node
 {
-    Ice::ByteSeq getBytes(int startPos, int howMuch)
+    Ice::ByteSeq getBlock(int n)
 	throws NodeAccessException;
 };
 

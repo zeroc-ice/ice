@@ -47,7 +47,7 @@ public:
     FileI(const Ice::ObjectAdapterPtr&);
 
     virtual NodeDescPtr describe(const Ice::Current&);
-    virtual Ice::ByteSeq getBytes(Ice::Int, Ice::Int, const Ice::Current&);
+    virtual Ice::ByteSeq getBlock(Ice::Int, const Ice::Current&);
 };
 
 }

@@ -10,41 +10,63 @@
 
 top_srcdir	= ../..
 
-CLIENT		= $(top_srcdir)/bin/icepatchclient
-SERVER		= $(top_srcdir)/bin/icepatch
+BASE		= libIcePatch.so
+VERSIONED_BASE	= $(BASE).$(VERSION)
 
-TARGETS		= $(CLIENT) $(SERVER)
+NAME		= $(top_srcdir)/lib/$(BASE)
+VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
+
+CLIENT		= $(top_srcdir)/bin/icepatchclient
+SERVER		= $(top_srcdir)/bin/icepatchserver
+
+TARGETS		= $(NAME) $(CLIENT) $(SERVER)
 
 OBJS		= Node.o \
+		  NodeDescFactory.o \
 		  Util.o
 
-COBJS		= Client.o \
-		  NodeDescFactory.o
+COBJS		= Client.o
 
 SOBJS		= Server.o \
 		  NodeI.o \
 		  NodeLocator.o
 
+BZOBJS		= blocksort.o \
+		  huffman.o \
+		  crctable.o \
+		  randtable.o \
+		  compress.o \
+		  decompress.o \
+		  bzlib.o
+
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
+		  $(SOBJS:.o=.cpp) \
+		  $(BZOBJS:.o=.c)
 
 HDIR		= $(includedir)/IcePatch
 SDIR		= $(slicedir)/IcePatch
-SLICECMD	= $(SLICE2CPP) --include-dir IcePatch -I$(slicedir)
-SLICE2FREEZECMD = $(SLICE2FREEZE) --include-dir IcePatch -I$(slicedir)
+SLICECMD	= $(SLICE2CPP) --include-dir IcePatch --dll-export ICE_PATCH_API -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS)
 
-$(CLIENT): $(OBJS) $(COBJS)
+$(VERSIONED_NAME): $(OBJS) $(BZOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared -o $@ $(OBJS) $(BZOBJS)
 
-$(SERVER): $(OBJS) $(SOBJS)
+$(NAME): $(VERSIONED_NAME)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+	ln -s $(VERSIONED_BASE) $@
+
+$(CLIENT): $(COBJS)
+	rm -f $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(COBJS) -lIcePatch $(LIBS)
+
+$(SERVER): $(SOBJS)
+	rm -f $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIcePatch $(LIBS)
 
 $(HDIR)/Node.h Node.cpp: $(SDIR)/Node.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Node.h Node.cpp

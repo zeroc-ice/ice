@@ -44,6 +44,8 @@ CPPFLAGS	= -I$(includedir) -I$(STLPORT_HOME)/include/stlport
 LDFLAGS		= -L$(libdir) -L$(STLPORT_HOME)/lib -L$(OPENSSL_HOME)/lib -L$(XERCESC_HOME)/lib
 BASELIBS	= -lIceUtil -lstlport_gcc -lpthread -luuid -ldl
 LIBS		= -lIce -lxerces-c1_5_2 -lssl -lcrypto $(BASELIBS)
+CC		= gcc
+CFLAGS		= $(CXXFLAGS)
 
 # For Intel's icc compiler. (Experimental!)
 #CXX		= icc
@@ -53,6 +55,8 @@ LIBS		= -lIce -lxerces-c1_5_2 -lssl -lcrypto $(BASELIBS)
 #LDFLAGS 	= -L$(libdir) -L$(OPENSSL_HOME)/lib -L$(XERCESC_HOME)/lib
 #BASELIBS	= -lIceUtil -lpthread -luuid
 #LIBS		= -lIce -lxerces-c1_5_2 -lssl -lcrypto $(BASELIBS)
+#CC		= gcc
+#CFLAGS		= $(CXXFLAGS)
 
 #
 # Don't change anything below this line!
@@ -66,10 +70,13 @@ SLICE2DOCBOOK	= $(bindir)/slice2docbook
 EVERYTHING	= all depend clean
 
 .SUFFIXES:
-.SUFFIXES:	.cpp .o
+.SUFFIXES:	.cpp .c .o
 
 .cpp.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+
+.c.o:
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
 all:: $(SRCS) $(TARGETS)
 

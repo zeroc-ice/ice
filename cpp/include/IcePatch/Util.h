@@ -37,6 +37,8 @@ void createDirectory(const std::string&);
 Ice::ByteSeq getMD5(const std::string&);
 std::string MD5ToString(const Ice::ByteSeq&);
 
+Ice::ByteSeq getBZ2(const std::string&, Ice::Int);
+
 }
 
 #endif

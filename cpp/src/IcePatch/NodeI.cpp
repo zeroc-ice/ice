@@ -82,7 +82,7 @@ IcePatch::FileI::describe(const Ice::Current& current)
 }
 
 ByteSeq
-IcePatch::FileI::getBytes(Int startPos, Int howMuch, const Ice::Current& current)
+IcePatch::FileI::getBlock(Int n, const Ice::Current& current)
 {
-    return ByteSeq();
+    return getBZ2(identityToPath(current.identity), n);
 }
