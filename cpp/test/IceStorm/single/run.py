@@ -68,7 +68,10 @@ subscriber = os.path.join(testdir, "subscriber")
 # is used later to ensure that the subscriber actually goes away.
 #
 subscriberLockFile = os.path.join(testdir, 'subscriber.lock')
-os.remove(subscriberLockFile)
+try:
+    os.remove(subscriberLockFile)
+except OSError:
+    1 # Ignore
 
 command = subscriber + updatedClientServerOptions + \
           r' --Ice.Config=' + os.path.join(testdir, "config") + \
