@@ -1459,18 +1459,29 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
             int modifiers = c.getModifiers();
             if((modifiers & 0x200) == 0 && (modifiers & 0x400) == 0)
             {
-                factory = new DynamicObjectFactory(c);
-                try
+                Ice.ObjectFactory dynamicFactory = new DynamicObjectFactory(c);
+                //
+                // We will try to install the dynamic factory, but another thread
+                // may install a factory first.
+                //
+                while(factory == null)
                 {
-                    _communicator.addObjectFactory(factory, id);
-                }
-                catch(Ice.AlreadyRegisteredException ex)
-                {
-                    //
-                    // Another thread already loaded the factory.
-                    //
-                    factory = _communicator.findObjectFactory(id);
-                    assert(factory != null);
+                    try
+                    {
+                        _communicator.addObjectFactory(dynamicFactory, id);
+                        factory = dynamicFactory;
+                    }
+                    catch(Ice.AlreadyRegisteredException ex)
+                    {
+                        //
+                        // Another thread already installed the factory, so try
+                        // to obtain it. It's possible (but unlikely) that the factory
+                        // will have already been removed, in which case the return
+                        // value will be null and the while loop will attempt to
+                        // install the dynamic factory again.
+                        //
+                        factory = _communicator.findObjectFactory(id);
+                    }
                 }
             }
         }
