@@ -28,11 +28,12 @@ class ServerLocatorRegistry(Ice.LocatorRegistry):
         self._adapters = {}
         self._objects = {}
 
-    def setAdapterDirectProxy(self, adapter, obj, current=None):
+    def setAdapterDirectProxy_async(self, cb, adapter, obj, current=None):
         self._adapters[adapter] = obj
+	cb.ice_response()
 
-    def setServerProcessProxy(self, id, proxy, current=None):
-        pass
+    def setServerProcessProxy_async(self, id, proxy, current=None):
+	cb.ice_response()
 
     def getAdapter(self, adapter):
         if not self._adapters.has_key(adapter):
