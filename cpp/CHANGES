@@ -1,6 +1,8 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Fixed integer parsing bugs in the C++ XML stream class.
+
 - Changed glacier router to send all requests from a separate
   thread. Previously, only requests forwarded as batch would be sent
   from a separate thread.
