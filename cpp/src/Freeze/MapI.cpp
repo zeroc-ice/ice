@@ -425,7 +425,8 @@ Freeze::DBIteratorHelperI::set(const Value& value)
 
     try
     {
-	int err = _dbc->put(&dbKey, &dbValue, DB_CURRENT);
+	int err;
+	err = _dbc->put(&dbKey, &dbValue, DB_CURRENT);
 	assert(err == 0);
     }
     catch(const ::DbDeadlockException& dx)
@@ -915,7 +916,8 @@ Freeze::DBMapHelperI::clear()
 	try
 	{
 	    u_int32_t count;
-	    int err = _db->truncate(txn, &count, txn != 0 ? 0 : DB_AUTO_COMMIT);
+	    int err;
+	    err = _db->truncate(txn, &count, txn != 0 ? 0 : DB_AUTO_COMMIT);
 	    assert(err == 0);
 	    break;
 	}

@@ -69,7 +69,8 @@ Freeze::SharedDb::get(const ConnectionIPtr& connection,
     //
     // Insert it into the map
     //
-    pair<Map::iterator, bool> insertResult = sharedDbMap->insert(Map::value_type(key, result.get()));
+    pair<Map::iterator, bool> insertResult;
+    insertResult= sharedDbMap->insert(Map::value_type(key, result.get()));
     assert(insertResult.second);
     
     return result.release();
@@ -125,7 +126,8 @@ void Freeze::SharedDb::__decRef()
 	//
 	// Remove from map
 	//
-	size_t one = sharedDbMap->erase(_key);
+	size_t one;
+	one = sharedDbMap->erase(_key);
 	assert(one == 1);
 
 	if(sharedDbMap->size() == 0)

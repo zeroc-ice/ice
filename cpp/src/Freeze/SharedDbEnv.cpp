@@ -122,7 +122,8 @@ Freeze::SharedDbEnv::get(const Ice::CommunicatorPtr& communicator,
     //
     // Insert it into the map
     //
-    pair<Map::iterator, bool> insertResult = sharedDbEnvMap->insert(Map::value_type(key, result.get()));
+    pair<Map::iterator, bool> insertResult;
+    insertResult = sharedDbEnvMap->insert(Map::value_type(key, result.get()));
     assert(insertResult.second);
     
     return result.release();
@@ -187,7 +188,8 @@ void Freeze::SharedDbEnv::__decRef()
         MapKey key;
         key.envName = _envName;
         key.communicator = _communicator;
-	size_t one = sharedDbEnvMap->erase(key);
+	size_t one;
+	one = sharedDbEnvMap->erase(key);
 	assert(one == 1);
 
 	if(sharedDbEnvMap->size() == 0)

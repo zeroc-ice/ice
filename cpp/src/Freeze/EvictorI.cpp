@@ -1642,7 +1642,8 @@ Freeze::EvictorI::load(const Identity& ident)
 		facet->status = clean;
 		unmarshal(facet->rec, value, _communicator);
 		
-		pair<FacetMap::iterator, bool> pair = result->facets.insert(FacetMap::value_type(esk.facet, facet));
+		pair<FacetMap::iterator, bool> pair;
+		pair = result->facets.insert(FacetMap::value_type(esk.facet, facet));
 		assert(pair.second);
 		
 		if(esk.facet.size() == 0)
