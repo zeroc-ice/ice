@@ -19,19 +19,22 @@
 namespace _IceIntf { namespace Ice
 {
 
-class ICE_API Object : virtual public ::_Ice::SimpleShared
+class ICE_API ObjectI : virtual public ::_Ice::SimpleShared
 {
 public:
 
+    bool operator==(const ObjectI&) const;
+    bool operator!=(const ObjectI&) const;
+
 protected:
 
-    Object();
-    virtual ~Object();
+    ObjectI();
+    virtual ~ObjectI();
 
 private:
 
-    Object(const Object&);
-    void operator=(const Object&);
+    ObjectI(const ObjectI&);
+    void operator=(const ObjectI&);
     friend class ::_Ice::ObjectFactoryI; // May create Objects
 
     ::_Ice::Instance instance_;
@@ -47,19 +50,19 @@ private:
 namespace _IceStub { namespace Ice
 {
 
-class ICE_API Object : virtual public ::_Ice::SimpleShared
+class ICE_API ObjectI : virtual public ::_Ice::SimpleShared
 {
 public:
 
 protected:
 
-    Object();
-    virtual ~Object();
+    ObjectI();
+    virtual ~ObjectI();
 
 private:
 
-    Object(const Object&);
-    void operator=(const Object&);
+    ObjectI(const ObjectI&);
+    void operator=(const ObjectI&);
 };
 
 } }
@@ -67,19 +70,19 @@ private:
 namespace _IceStubM { namespace Ice
 {
 
-class ICE_API Object : virtual public ::_Ice::SimpleShared
+class ICE_API ObjectI : virtual public ::_Ice::SimpleShared
 {
 public:
 
 protected:
 
-    Object();
-    virtual ~Object();
+    ObjectI();
+    virtual ~ObjectI();
 
 private:
 
-    Object(const Object&);
-    void operator=(const Object&);
+    ObjectI(const ObjectI&);
+    void operator=(const ObjectI&);
 };
 
 } }
