@@ -326,10 +326,13 @@ IceInternal::Reference::toString() const
 	assert(adapterId.empty());
 
 	vector<EndpointPtr>::const_iterator p;
-	
 	for(p = endpoints.begin(); p != endpoints.end(); ++p)
 	{
-	    s << ':' << (*p)->toString();
+	    string endp = (*p)->toString();
+	    if(!endp.empty())
+	    {
+		s << ':' << endp;
+	    }
 	}
     }
     else if(!adapterId.empty())

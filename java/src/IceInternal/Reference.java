@@ -248,8 +248,12 @@ public final class Reference
 
 	    for(int i = 0; i < endpoints.length; i++)
 	    {
-		s.append(':');
-		s.append(endpoints[i].toString());
+		String endp = endpoints[i].toString();
+		if(endp != null && endp.length() > 0)
+		{
+		    s.append(':');
+		    s.append(endp);
+		}
 	    }
 	}
         else

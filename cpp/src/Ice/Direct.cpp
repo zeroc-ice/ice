@@ -30,10 +30,18 @@ IceInternal::Direct::Direct(const Current& current) :
     ObjectAdapterI* adapter = dynamic_cast<ObjectAdapterI*>(_current.adapter.get());
     assert(adapter);
 
+    //
+    // Must call incDirectCount() first, because it checks for adapter
+    // deactivation, and prevents deactivation completion until
+    // decDirectCount() is called. This is important, because
+    // getServantManager() may not be called afer deactivation
+    // completion.
+    //
+    adapter->incDirectCount();
+
     ServantManagerPtr servantManager = adapter->getServantManager();
     assert(servantManager);
 
-    adapter->incDirectCount();
     try
     {
 	_servant = servantManager->findServant(_current.id);

@@ -24,10 +24,17 @@ public final class Direct
 	Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)_current.adapter;
 	assert(adapter != null);
 	
+	//
+	// Must call incDirectCount() first, because it checks for
+	// adapter deactivation, and prevents deactivation completion
+	// until decDirectCount() is called. This is important,
+	// because getServantManager() may not be called afer
+	// deactivation completion.
+	//
+	adapter.incDirectCount();
+
 	ServantManager servantManager = adapter.getServantManager();
 	assert(servantManager != null);
-
-	adapter.incDirectCount();
 
         try
         {
