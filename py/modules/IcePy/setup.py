@@ -1,6 +1,12 @@
-import os
+import sys, os
 
 from distutils.core import setup, Extension
+
+libs = ['Slice', 'Ice', 'IceUtil']
+
+if sys.platform == 'sunos5':
+    libs.append('Cstd')
+    libs.append('Crun')
 
 IcePy = Extension(
                 'IcePy',
@@ -20,6 +26,6 @@ IcePy = Extension(
                 ],
                 include_dirs = [os.environ['ICE_HOME'] + '/include', '.'],
                 library_dirs = [os.environ['ICE_HOME'] + '/lib'],
-                libraries = ['Slice', 'Ice', 'IceUtil'])
+                libraries = libs)
 
 setup (name = 'IcePy', version = '1.6', description = 'Ice', ext_modules = [IcePy])
