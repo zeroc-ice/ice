@@ -80,11 +80,12 @@ main(int argc, char* argv[])
     //
     // Get the data directory from the IcePack.Data property.
     //
-    PropertiesPtr properties = createProperties(argc, argv);
+    PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
     StringSeq args = argsToStringSeq(argc, argv);
-    args = properties->parseCommandLineOptions("IcePack", args);
+    args = defaultProperties->parseCommandLineOptions("IcePack", args);
+    stringSeqToArgs(args, argc, argv);
 
-    string dataPath = properties->getProperty("IcePack.Data");
+    string dataPath = defaultProperties->getProperty("IcePack.Data");
     if(dataPath.empty())
     {
 	cerr << argv[0] << ": property `IcePack.Data' is not set" << endl;

@@ -204,14 +204,14 @@ IcePack::ServerDeployer::parse(const std::string& descriptor)
     _properties->setProperty("Ice.Default.Locator", props->getProperty("Ice.Default.Locator"));
     _properties->setProperty("Yellow.Query", props->getProperty("IcePack.Yellow.Query"));
 
-    if(_kind == ServerKindJavaServer)
+    if(_kind == ServerKindJavaServer || _kind == ServerKindJavaIceBox)
     {
 	if(!_libraryPath.empty())
 	{
 	    _javaOptions.push_back("-classpath");
 	    _javaOptions.push_back(_libraryPath);
-	    _javaOptions.push_back("-ea");
 	}
+	_javaOptions.push_back("-ea");
 	_javaOptions.push_back(_className);
 
 	for(vector<string>::reverse_iterator p = _javaOptions.rbegin(); p != _javaOptions.rend(); ++p)
@@ -380,6 +380,7 @@ IcePack::ServerDeployer::setKind(ServerDeployer::ServerKind kind)
 	{
 	    _description.path = "java";
 	}
+	_className = "IceBox.Server";
 	createDirectory("/dbs");
 	addProperty("IceBox.Name", _variables["name"]);
 	addAdapter(_variables["name"] + ".ServiceManagerAdapter","");
