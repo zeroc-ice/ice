@@ -17,6 +17,7 @@
 #include <Ice/Logger.h>
 #include <Ice/LocalException.h>
 #include <Ice/ObjectFactory.h>
+#include <IceUtil/InputUtil.h>
 
 #include <IceXML/StreamI.h>
 
@@ -514,7 +515,7 @@ IceXML::StreamI::readByte(const string& name)
 
     string s = toString(child->getNodeValue());
     ::Ice::Int i = atoi(s.c_str());
-    if(i < -127 || i > 128)
+    if(i < -128 || i > 127)
     {
 	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
@@ -681,7 +682,7 @@ IceXML::StreamI::readShort(const string& name)
 
     string s = toString(child->getNodeValue());
     ::Ice::Int i = atoi(s.c_str());
-    if(i < -32767 || i > 32768)
+    if(i < -32768 || i > 32767)
     {
 	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
@@ -810,7 +811,13 @@ IceXML::StreamI::readLong(const string& name)
 
     endRead();
 
-    return atol(s.c_str());
+    Ice::Long result;
+    string::size_type pos;
+    if(!IceUtil::stringToInt64(s, result, pos))
+    {
+	throw ::Ice::MarshalException(__FILE__, __LINE__);
+    }
+    return result;
 }
 
 ::Ice::LongSeq
