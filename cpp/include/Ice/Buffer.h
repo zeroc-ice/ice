@@ -104,17 +104,26 @@ public:
 
 	void resize(size_type n)
 	{
-	    _size = n;
-	    if(_size > _capacity)
+	    if(n == 0)
 	    {
-		_capacity = std::max(_size, 2 * _capacity);
-		if(_buf)
+		clear();
+	    }
+	    else
+	    {
+		_size = std::max(n, static_cast<size_type>(240));
+
+		if(_size > _capacity)
 		{
-		    _buf = reinterpret_cast<pointer>(realloc(_buf, _capacity));
-		}
-		else
-		{
-		    _buf = reinterpret_cast<pointer>(malloc(_capacity));
+		    _capacity = std::max(_size, 2 * _capacity);
+
+		    if(_buf)
+		    {
+			_buf = reinterpret_cast<pointer>(realloc(_buf, _capacity));
+		    }
+		    else
+		    {
+			_buf = reinterpret_cast<pointer>(malloc(_capacity));
+		    }
 		}
 	    }
 	}
