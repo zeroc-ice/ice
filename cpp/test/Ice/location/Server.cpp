@@ -27,6 +27,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // communicator and object adapter).
     //
     Ice::PropertiesPtr properties = communicator->getProperties();
+    properties->setProperty("Ice.ThreadPool.Server.Size", "2");
     properties->setProperty("ServerManager.Endpoints", "default -p 12345");
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ServerManager");
