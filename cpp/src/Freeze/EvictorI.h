@@ -141,8 +141,6 @@ private:
     std::string _filename;
     bool _createDb;
 
-    
-
     Ice::Int _trace;
 
     //

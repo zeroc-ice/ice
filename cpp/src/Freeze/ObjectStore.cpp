@@ -76,9 +76,19 @@ Freeze::ObjectStore::ObjectStore(const string& facet,
 	    {
 	    }
 	}
-	DatabaseException ex(__FILE__, __LINE__);
-	ex.message = dx.what();
-	throw ex;
+
+	if(dx.get_errno() == ENOENT)
+	{
+	    NotFoundException ex(__FILE__, __LINE__);
+	    ex.message = dx.what();
+	    throw ex;
+	}
+	else
+	{
+	    DatabaseException ex(__FILE__, __LINE__);
+	    ex.message = dx.what();
+	    throw ex;
+	}
     }
 }
 

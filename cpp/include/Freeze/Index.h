@@ -36,7 +36,7 @@ public:
 
 protected:
     
-    Index(const std::string&, const std::string& = "");
+    Index(const std::string&, const std::string&);
   
     virtual bool marshalKey(const Ice::ObjectPtr&, Freeze::Key&) const = 0;
     

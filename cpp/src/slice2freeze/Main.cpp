@@ -264,7 +264,7 @@ writeIndexH(const string& memberTypeString, const string& name, Output& H, const
     H << sp;
     H.inc();
     
-    H << nl << name << "(const std::string&);";
+    H << nl << name << "(const std::string&, const std::string& = \"\");";
     H << sp << nl << "std::vector<Ice::Identity>";
     H << nl << "findFirst(" << memberTypeString << ", Ice::Int) const;";
 
@@ -295,9 +295,10 @@ writeIndexC(const TypePtr& type, const TypePtr& memberType, const string& member
 {
     string inputType = inputTypeToString(memberType);
 
-    C << sp << nl << fullName << "::" << name << "(const ::std::string& __name)";
+    C << sp << nl << fullName << "::" << name 
+      << "(const ::std::string& __name, const ::std::string& __facet)";
     C.inc();
-    C << nl << ": Freeze::Index(__name)";
+    C << nl << ": Freeze::Index(__name, __facet)";
     C.dec();
     C << sb;
     C << eb;

@@ -135,27 +135,19 @@ Freeze::EvictorI::init(const string& envName, const vector<IndexPtr>& indices)
 	 getPropertyAsIntWithDefault(propertyPrefix + ".PopulateEmptyIndices", 0) != 0);
 	
     //
-    // Instantiate all Dbs in 3 steps:
-    // (1) create _storeMap entries for all the non-index files found in the _filename file
-    // (2) iterate over the indices and create ObjectMap with indices
-    // (3) open object map without indices
+    // Instantiate all Dbs in 2 steps:
+    // (1) iterate over the indices and create ObjectStore with indices
+    // (2) open ObjectStores without indices
     //
-
-    //
-    // Insert empty facet no matter what!
-    //
-    _storeMap.insert(StoreMap::value_type("", 0));
 
     vector<string> dbs = allDbs();
-    for(vector<string>::iterator p = dbs.begin(); p != dbs.end(); ++p)
-    {
-	string dbName = *p;
-	if(dbName != defaultDb)
-	{
-	    _storeMap.insert(StoreMap::value_type(dbName, 0));
-	}
-    }
 
+    //
+    // Add default db in case it's not there
+    //
+    dbs.push_back(defaultDb);
+
+    
     for(vector<IndexPtr>::const_iterator i = indices.begin(); i != indices.end(); ++i)
     {
 	string facet = (*i)->facet();
@@ -166,14 +158,7 @@ Freeze::EvictorI::init(const string& envName, const vector<IndexPtr>& indices)
 	    //
 	    // New db
 	    //
-	    pair<StoreMap::iterator, bool> ir = 
-		_storeMap.insert(StoreMap::value_type(facet, 0));
-	    assert(ir.second == true);
-	    q = ir.first;
-	}
 
-	if((*q).second == 0)
-	{
 	    vector<IndexPtr> storeIndices;
  
 	    for(vector<IndexPtr>::const_iterator r = i; r != indices.end(); ++r)
@@ -183,19 +168,26 @@ Freeze::EvictorI::init(const string& envName, const vector<IndexPtr>& indices)
 		    storeIndices.push_back(*r);
 		}
 	    }
-	    (*q).second = new ObjectStore(facet, _createDb, this, storeIndices, populateEmptyIndices);
+	    ObjectStore* store = new ObjectStore(facet, _createDb, this, storeIndices, populateEmptyIndices);
+	    _storeMap.insert(StoreMap::value_type(facet, store));
 	}
     }
     
-    //
-    // Finally, open all the stores without index
-    //
-    for(StoreMap::iterator q = _storeMap.begin(); q != _storeMap.end(); ++q)
+    
+    for(vector<string>::iterator p = dbs.begin(); p != dbs.end(); ++p)
     {
-	if((*q).second == 0)
+	string facet = *p;
+	if(facet == defaultDb)
 	{
-	    const string& facet = (*q).first;
-	    (*q).second = new ObjectStore(facet, _createDb, this);
+	    facet = "";
+	}
+	
+	pair<StoreMap::iterator, bool> ir = 
+	    _storeMap.insert(StoreMap::value_type(facet, 0));
+
+	if(ir.second)
+	{
+	    ir.first->second = new ObjectStore(facet, _createDb, this);
 	}
     }
 
@@ -1079,6 +1071,13 @@ Freeze::EvictorI::run()
 		    }
 		    catch(const DbDeadlockException&)
 		    {
+			if(_deadlockWarning)
+			{
+			    Warning out(_communicator->getLogger());
+			    out << "Deadlock in Freeze::EvictorI::run while writing into Db \"" + _filename
+				+ "\"; retrying ...";
+			}
+			
 			tryAgain = true;
 			txSize = (txSize + 1)/2;
 		    }
@@ -1160,6 +1159,39 @@ Freeze::EvictorI::run()
 }
 
 
+const string&
+Freeze::EvictorI::filename() const
+{
+    return _filename;
+}
+
+void
+Freeze::EvictorI::saveNow()
+{
+    Lock sync(*this);
+
+    if(_deactivated)
+    {
+	throw EvictorDeactivatedException(__FILE__, __LINE__);
+    }
+
+    saveNowNoSync();
+}
+
+void
+Freeze::EvictorI::saveNowNoSync()
+{
+    IceUtil::ThreadControl myself;
+
+    _saveNowThreads.push_back(myself);
+    notifyAll();
+    do
+    {
+	wait();
+    }
+    while(find(_saveNowThreads.begin(), _saveNowThreads.end(), myself) != _saveNowThreads.end());
+}
+
 void
 Freeze::EvictorI::evict()
 {
@@ -1194,9 +1226,6 @@ Freeze::EvictorI::evict()
 
 	EvictorElementPtr& element = *p;
 	assert(!element->stale);
-	
-	// temporary
-	assert(element->status == EvictorElement::dead || element->status == EvictorElement::clean);
 
 	if(_trace >= 2 || (_trace >= 1 && _evictorList.size() % 50 == 0))
 	{
@@ -1246,10 +1275,7 @@ void
 Freeze::EvictorI::evict(const EvictorElementPtr& element)
 {
     assert(!element->stale);
-    
-    // temporary
-    assert(element->status == EvictorElement::dead || element->status == EvictorElement::clean);
-
+ 
     _evictorList.erase(element->evictPosition);
     _currentEvictorSize--;
     element->stale = true;
@@ -1301,40 +1327,6 @@ Freeze::EvictorI::stream(const EvictorElementPtr& element, Long streamStart, Str
 	ObjectStore::marshal(element->rec, obj.value, _communicator);
     }
 }
-
-void
-Freeze::EvictorI::saveNow()
-{
-    Lock sync(*this);
-
-    if(_deactivated)
-    {
-	throw EvictorDeactivatedException(__FILE__, __LINE__);
-    }
-
-    saveNowNoSync();
-}
-
-void
-Freeze::EvictorI::saveNowNoSync()
-{
-    IceUtil::ThreadControl myself;
-
-    _saveNowThreads.push_back(myself);
-    notifyAll();
-    do
-    {
-	wait();
-    }
-    while(find(_saveNowThreads.begin(), _saveNowThreads.end(), myself) != _saveNowThreads.end());
-}
-
-const string&
-Freeze::EvictorI::filename() const
-{
-    return _filename;
-}
-
 
 Freeze::ObjectStore*
 Freeze::EvictorI::findStore(const string& facet) const

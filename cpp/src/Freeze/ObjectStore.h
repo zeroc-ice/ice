@@ -102,7 +102,7 @@ struct EvictorElement : public Ice::LocalObject
     static const Ice::Byte clean = 0;
 
     //
-    // New objects; can become clean, dead or destroyed
+    // New object; can become clean, dead or destroyed
     //
     static const Ice::Byte created = 1;
 
@@ -134,7 +134,7 @@ struct EvictorElement : public Ice::LocalObject
     ObjectStore& store;
 
     //
-    // Immutable once set by position()
+    // Immutable once set
     //
     Cache::Position cachePosition;
 

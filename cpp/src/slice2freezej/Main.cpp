@@ -469,11 +469,16 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
     out << sb;
 
     //
-    // Constructor
+    // Constructors
     //
+    out << sp << nl << "public" << nl << name << "(String __indexName, String __facet)";
+    out << sb;
+    out << nl << "super(__indexName, __facet);";
+    out << eb;
+
     out << sp << nl << "public" << nl << name << "(String __indexName)";
     out << sb;
-    out << nl << "super(__indexName);";
+    out << nl << "super(__indexName, \"\");";
     out << eb;
 
     //
