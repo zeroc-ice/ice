@@ -126,6 +126,10 @@ SOURCE=.\GC.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\GCRecMutex.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\InputUtil.cpp
 # End Source File
 # Begin Source File
@@ -203,6 +207,10 @@ SOURCE=..\..\include\IceUtil\GC.h
 # Begin Source File
 
 SOURCE=..\..\include\IceUtil\GCF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\GCRecMutex.h
 # End Source File
 # Begin Source File
 
