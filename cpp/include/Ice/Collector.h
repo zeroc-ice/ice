@@ -99,6 +99,7 @@ public:
     void activate();
 
     Endpoint_ptr endpoint() const;
+    bool equivalent(const Endpoint_ptr&) const;
 
     //
     // Operations from EventHandler
@@ -133,6 +134,7 @@ private:
 
     ::Ice::ObjectAdapter_ptr adapter_;
     Acceptor_ptr acceptor_;
+    Transceiver_ptr transceiver_;
     Endpoint_ptr endpoint_;
     ThreadPool_ptr threadPool_;
     std::list<Collector_ptr> collectors_;

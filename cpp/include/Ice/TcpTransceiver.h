@@ -32,7 +32,7 @@ public:
     virtual void write(Buffer&, int);
     virtual void read(Buffer&, int);
     virtual std::string toString() const;
-    
+
 private:
 
     TcpTransceiver(Instance_ptr, int);

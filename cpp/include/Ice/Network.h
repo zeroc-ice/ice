@@ -84,6 +84,7 @@ void doConnect(int, struct sockaddr_in&, int);
 int doAccept(int, int);
 
 void getHostByName(const char*, int, struct sockaddr_in&);
+void getLocalHost(int, struct sockaddr_in&);
 
 void createPipe(int fds[2]);
 

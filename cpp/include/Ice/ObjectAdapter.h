@@ -39,7 +39,7 @@ public:
     void remove(const std::string&);
     std::string identity(const Object_ptr&);
     Object_ptr object(const std::string&);
-
+    Object_ptr object(const Object_prx&);
     Object_prx proxy(const std::string&);
 
     ::__Ice::Instance_ptr __instance() const;

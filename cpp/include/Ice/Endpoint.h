@@ -97,6 +97,13 @@ public:
     virtual Acceptor_ptr acceptor(const Instance_ptr&) const = 0;
 
     //
+    // Check whether the endpoint is equivalent to a specific
+    // Transceiver or Acceptor
+    //
+    virtual bool equivalent(const Transceiver_ptr&) const = 0;
+    virtual bool equivalent(const Acceptor_ptr&) const = 0;
+
+    //
     // Compare endpoints for sorting purposes
     //
     virtual bool operator==(const Endpoint&) const = 0;
@@ -121,6 +128,8 @@ public:
     virtual Transceiver_ptr serverTransceiver(const Instance_ptr&) const;
     virtual Connector_ptr connector(const Instance_ptr&) const;
     virtual Acceptor_ptr acceptor(const Instance_ptr&) const;
+    virtual bool equivalent(const Transceiver_ptr&) const;
+    virtual bool equivalent(const Acceptor_ptr&) const;
 
     virtual bool operator==(const Endpoint&) const;
     virtual bool operator!=(const Endpoint&) const;
@@ -153,6 +162,8 @@ public:
     virtual Transceiver_ptr serverTransceiver(const Instance_ptr&) const;
     virtual Connector_ptr connector(const Instance_ptr&) const;
     virtual Acceptor_ptr acceptor(const Instance_ptr&) const;
+    virtual bool equivalent(const Transceiver_ptr&) const;
+    virtual bool equivalent(const Acceptor_ptr&) const;
 
     virtual bool operator==(const Endpoint&) const;
     virtual bool operator!=(const Endpoint&) const;
@@ -187,6 +198,8 @@ public:
     virtual Transceiver_ptr serverTransceiver(const Instance_ptr&) const;
     virtual Connector_ptr connector(const Instance_ptr&) const;
     virtual Acceptor_ptr acceptor(const Instance_ptr&) const;
+    virtual bool equivalent(const Transceiver_ptr&) const;
+    virtual bool equivalent(const Acceptor_ptr&) const;
 
     virtual bool operator==(const Endpoint&) const;
     virtual bool operator!=(const Endpoint&) const;

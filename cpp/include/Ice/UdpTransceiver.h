@@ -35,6 +35,8 @@ public:
     virtual void write(Buffer&, int);
     virtual void read(Buffer&, int);
     virtual std::string toString() const;
+
+    virtual bool equivalent(const std::string&, int) const;
     
 private:
 

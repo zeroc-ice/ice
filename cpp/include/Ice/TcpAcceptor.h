@@ -37,6 +37,8 @@ public:
     virtual Transceiver_ptr accept(int);
     virtual std::string toString() const;
 
+    virtual bool equivalent(const std::string&, int) const;
+
 private:
 
     TcpAcceptor(Instance_ptr, int);

@@ -79,6 +79,18 @@ public:
     virtual void raise() const;
 };
 
+class ICE_API WrongObjectAdapterException : public LocalException
+{
+public:    
+
+    WrongObjectAdapterException(const char*, int);
+    WrongObjectAdapterException(const WrongObjectAdapterException&);
+    WrongObjectAdapterException& operator=(const WrongObjectAdapterException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
 class ICE_API NoEndpointException : public LocalException
 {
 public:    
