@@ -34,7 +34,6 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             // Communicator instance if desired.
             //
             Util.addArgumentPrefix("IceBox");
-            StringSeqHolder argsH = new StringSeqHolder(args);
             _communicator = Util.initialize(argsH);
         }
         catch(Exception ex)

@@ -130,6 +130,18 @@ IceBox::ServiceManagerI::run()
         }
 
         //
+        // We may want to notify external scripts that the services have started.
+        // This is done by defining IceBox.PrintServicesReady=bundleName
+        // Where bundleName is whatever you choose to call this set of services.
+        // It will be echoed back as "bundleName ready".
+        //
+        string bundleName = properties->getProperty("IceBox.PrintServicesReady");
+        if (bundleName.length() > 0)
+        {
+            cout << bundleName << " ready" << endl;
+        }
+
+        //
         // Start request dispatching after we've started the services.
         //
         adapter->activate();
