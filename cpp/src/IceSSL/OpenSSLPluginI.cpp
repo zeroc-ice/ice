@@ -34,7 +34,10 @@
 
 #include <openssl/rand.h>
 #include <openssl/err.h>
+
+#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
 #include <openssl/engine.h>
+#endif
 
 #include <sstream>
 
