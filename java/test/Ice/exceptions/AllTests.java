@@ -14,38 +14,6 @@
 
 public class AllTests
 {
-    private static class MyExceptionFactory implements Ice.UserExceptionFactory
-    {
-        public void
-        createAndThrow(String type)
-            throws Ice.UserException
-        {
-            if(type.equals("::A"))
-            {
-                throw new A();
-            }
-            else if(type.equals("::B"))
-            {
-                throw new B();
-            }
-            else if(type.equals("::C"))
-            {
-                throw new C();
-            }
-            else if(type.equals("::D"))
-            {
-                throw new D();
-            }
-            assert(false); // Should never be reached
-        }
-
-        public void
-        destroy()
-        {
-            // Nothing to do
-        }
-    }
-
     private static void
     test(boolean b)
     {
@@ -821,35 +789,6 @@ public class AllTests
 	    System.out.println("ok");
 	}
 
-	{
-	    System.out.print("testing user exception factory registration exceptions... ");
-	    Ice.UserExceptionFactory f = new MyExceptionFactory();
-	    communicator.addUserExceptionFactory(f, "::x");
-	    boolean gotException = false;
-	    try
-            {
-		communicator.addUserExceptionFactory(f, "::x");
-	    }
-	    catch(Ice.AlreadyRegisteredException ex)
-	    {
-		gotException = true;
-	    }
-	    test(gotException);
-
-	    gotException = false;
-	    communicator.removeUserExceptionFactory("::x");
-	    try
-            {
-		communicator.removeUserExceptionFactory("::x");
-	    }
-	    catch(Ice.NotRegisteredException ex)
-	    {
-		gotException = true;
-	    }
-	    test(gotException);
-	    System.out.println("ok");
-	}
-
         System.out.print("testing stringToProxy... ");
         System.out.flush();
         String ref = "thrower:default -p 12345 -t 2000";
@@ -976,79 +915,8 @@ public class AllTests
 
         System.out.println("ok");
 
-        if(!collocated) // If the server is collocated, exception factories are not needed.
-        {
-            //
-            // NOTE: Factories will be dynamically installed in Java
-            //
-
-            System.out.print("catching derived types w/ dynamic exception factories... ");
-            System.out.flush();
-
-            try
-            {
-                thrower.throwBasA(1, 2);
-                test(false);
-            }
-            catch(Ice.NoUserExceptionFactoryException ex)
-            {
-                test(false);
-            }
-            catch(A ex)
-            {
-                test(ex instanceof B);
-            }
-
-            try
-            {
-                thrower.throwCasA(1, 2, 3);
-                test(false);
-            }
-            catch(Ice.NoUserExceptionFactoryException ex)
-            {
-                test(false);
-            }
-            catch(A ex)
-            {
-                test(ex instanceof C);
-            }
-
-            try
-            {
-                thrower.throwCasB(1, 2, 3);
-                test(false);
-            }
-            catch(Ice.NoUserExceptionFactoryException ex)
-            {
-                test(false);
-            }
-            catch(B ex)
-            {
-                test(ex instanceof C);
-            }
-
-            System.out.println("ok");
-
-            System.out.print("catching derived types w/ static exception factories... ");
-            System.out.flush();
-
-            //
-            // Remove dynamically-installed factories.
-            //
-            communicator.removeUserExceptionFactory("::B");
-            communicator.removeUserExceptionFactory("::C");
-
-            Ice.UserExceptionFactory factory = new MyExceptionFactory();
-            communicator.addUserExceptionFactory(factory, "::A");
-            communicator.addUserExceptionFactory(factory, "::B");
-            communicator.addUserExceptionFactory(factory, "::C");
-            communicator.addUserExceptionFactory(factory, "::D");
-        }
-        else
-        {
-            System.out.print("catching derived types... ");
-            System.out.flush();
-        }
+	System.out.print("catching derived types... ");
+	System.out.flush();
 
         try
         {
@@ -1286,14 +1154,6 @@ public class AllTests
 
         System.out.println("ok");
 
-	if(!collocated) // Remove exception factories if they have been installed before.
-	{
-	    communicator.removeUserExceptionFactory("::A");
-	    communicator.removeUserExceptionFactory("::B");
-	    communicator.removeUserExceptionFactory("::C");
-	    communicator.removeUserExceptionFactory("::D");
-	}
-
 	if(!collocated)
 	{
 	    System.out.print("catching exact types with AMI... ");
@@ -1331,47 +1191,8 @@ public class AllTests
 	
 	    System.out.println("ok");
 	
-            //
-            // NOTE: Factories will be dynamically installed in Java
-            //
-
-            System.out.print("catching derived types w/ dynamic exception factories... ");
+            System.out.print("catching derived types... ");
             System.out.flush();
-	
-	    {
-		AMI_Thrower_throwBasAI cb = new AMI_Thrower_throwBasAI();
-		thrower.throwBasA_async(cb, 1, 2);
-		test(cb.check());
-	    }
-
-	    {
-		AMI_Thrower_throwCasAI cb = new AMI_Thrower_throwCasAI();
-		thrower.throwCasA_async(cb, 1, 2, 3);
-		test(cb.check());
-	    }
-	
-	    {
-		AMI_Thrower_throwCasBI cb = new AMI_Thrower_throwCasBI();
-		thrower.throwCasB_async(cb, 1, 2, 3);
-		test(cb.check());
-	    }
-	
-	    System.out.println("ok");
-
-            System.out.print("catching derived types w/ static exception factories... ");
-            System.out.flush();
-
-            //
-            // Remove dynamically-installed factories.
-            //
-            communicator.removeUserExceptionFactory("::B");
-            communicator.removeUserExceptionFactory("::C");
-
-            Ice.UserExceptionFactory factory = new MyExceptionFactory();
-            communicator.addUserExceptionFactory(factory, "::A");
-            communicator.addUserExceptionFactory(factory, "::B");
-            communicator.addUserExceptionFactory(factory, "::C");
-            communicator.addUserExceptionFactory(factory, "::D");
 	
 	    {
 		AMI_Thrower_throwBasAI cb = new AMI_Thrower_throwBasAI();
@@ -1489,11 +1310,6 @@ public class AllTests
 	    test(cb.check());
 	
 	    System.out.println("ok");
-	
-	    communicator.removeUserExceptionFactory("::A");
-	    communicator.removeUserExceptionFactory("::B");
-	    communicator.removeUserExceptionFactory("::C");
-	    communicator.removeUserExceptionFactory("::D");
 
 	}
 

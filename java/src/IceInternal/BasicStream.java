@@ -339,6 +339,50 @@ public class BasicStream
     }
 
     public void
+    startWriteSlice()
+    {
+        writeInt(0); // Placeholder for the slice length
+        _writeSlice = _buf.position();
+    }
+
+    public void endWriteSlice()
+    {
+        final int sz = _buf.position() - _writeSlice + 4;
+        _buf.putInt(_writeSlice - 4, sz);
+    }
+
+    public void startReadSlice()
+    {
+        int sz = readInt();
+	if(sz < 0)
+	{
+	    throw new Ice.NegativeSizeException();
+	}
+        _readSlice = _buf.position();
+    }
+
+    public void endReadSlice()
+    {
+    }
+
+    public void skipSlice()
+    {
+        int sz = readInt();
+	if(sz < 0)
+	{
+	    throw new Ice.NegativeSizeException();
+	}
+        try
+        {
+            _buf.position(_buf.position() + sz - 4);
+        }
+        catch(IllegalArgumentException ex)
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
+        }
+    }
+
+    public void
     writeSize(int v)
     {
 	if(v > 127)
@@ -1048,56 +1092,70 @@ public class BasicStream
     public void
     writeUserException(Ice.UserException v)
     {
-        writeString(v.__getExceptionIds()[0]);
-        v.__write(this);
+        writeBool(v.__usesClasses());
+	v.__write(this);
+	if(v.__usesClasses())
+	{
+	    writePendingObjects();
+	}
     }
 
-    public int
-    throwException(String[] ids)
+    public void
+    throwException()
         throws Ice.UserException
     {
+        boolean usesClasses = readBool();
+
         String id = readString();
-        Ice.UserExceptionFactory factory = _instance.userExceptionFactoryManager().find(id);
 
-        if(factory == null)
-        {
-            int pos = java.util.Arrays.binarySearch(ids, id);
-            if(pos >= 0)
-            {
-                return pos;
-            }
-        }
+	while(!id.equals(""))
+	{
+	    Ice.UserExceptionFactory factory = _instance.userExceptionFactoryManager().find(id);
+	    if(factory == null)
+	    {
+		factory = loadUserExceptionFactory(id);
+	    }
 
-        if(factory == null)
-        {
-            factory = loadUserExceptionFactory(id);
-        }
+	    if(factory != null)
+	    {
+		try
+		{
+		    factory.createAndThrow();
+		}
+		catch(Ice.UserException ex)
+		{
+		    ex.__read(this, false);
+		    if(usesClasses)
+		    {
+		        readPendingObjects();
+		    }
+		    throw ex;
+		}
+	    }
+	    else
+	    {
+	        skipSlice();		// Slice off what we don't understand
+		id = readString();	// Read type id for next slice
+	    }
+	}
+	//
+	// Getting here should be impossible: we can get here only if the sender has marshaled a sequence
+	// of type IDs, none of which we have factory for. This means that sender and receiver disagree
+	// about the Slice definitions they use.
+	//
+	throw new Ice.UnknownUserException();
+    }
 
-        if(factory != null)
-        {
-            try
-            {
-                factory.createAndThrow(id);
-            }
-            catch(Ice.UserException ex)
-            {
-                String[] arr = ex.__getExceptionIds();
-                for(int i = 0; !arr[i].equals("::Ice::UserException"); i++)
-                {
-                    if(java.util.Arrays.binarySearch(ids, arr[i]) >= 0)
-                    {
-                        ex.__read(this);
-                        throw ex;
-                    }
-                }
+    public void
+    writePendingObjects()
+    {
+        // TODO: implement this
+    }
 
-                throw new Ice.UnknownUserException();
-            }
-        }
-
-	Ice.NoUserExceptionFactoryException ex = new Ice.NoUserExceptionFactoryException();
-	ex.type = id;
-	throw ex;
+    public void
+    readPendingObjects()
+    {
+        // TODO: implement this
     }
 
     int
@@ -1247,7 +1305,7 @@ public class BasicStream
         }
 
         public void
-        createAndThrow(String type)
+        createAndThrow()
             throws Ice.UserException
         {
             try
@@ -1298,10 +1356,7 @@ public class BasicStream
         }
         catch(Exception ex)
         {
-            Ice.NoUserExceptionFactoryException e = new Ice.NoUserExceptionFactoryException();
-	    e.type = id;
-            e.initCause(ex);
-            throw e;
+	    throw new Ice.UnknownUserException();
         }
 
         return factory;
@@ -1342,4 +1397,7 @@ public class BasicStream
     private WriteEncaps _writeEncapsStack;
     private ReadEncaps _readEncapsCache;
     private WriteEncaps _writeEncapsCache;
+
+    private int _readSlice;
+    private int _writeSlice;
 }

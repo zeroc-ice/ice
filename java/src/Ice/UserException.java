@@ -40,13 +40,19 @@ public abstract class UserException extends Exception
     __write(IceInternal.BasicStream __os);
 
     public abstract void
-    __read(IceInternal.BasicStream __is);
+    __read(IceInternal.BasicStream __is, boolean __rid);
 
     public abstract void
     __marshal(Stream __os);
 
     public abstract void
     __unmarshal(Stream __is);
+
+    public boolean
+    __usesClasses()
+    {
+        return false;
+    }
 
     public final void
     ice_marshal(String __name, Stream __os)

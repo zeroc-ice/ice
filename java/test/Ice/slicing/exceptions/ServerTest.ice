@@ -12,12 +12,29 @@
 //
 // **********************************************************************
 
-package Ice;
+#ifndef SERVERTEST_ICE
+#define SERVERTEST_ICE
 
-public interface UserExceptionFactory
+#include <ClientTest.ice>
+
+exception UnknownDerived extends Base
 {
-    void createAndThrow()
-        throws UserException;
+    string ud;
+};
 
-    void destroy();
-}
+exception UnknownIntermediate extends Base
+{
+   string ui;
+};
+
+exception UnknownMostDerived1 extends KnownIntermediate
+{
+   string umd1;
+};
+
+exception UnknownMostDerived2 extends UnknownIntermediate
+{
+   string umd2;
+};
+
+#endif

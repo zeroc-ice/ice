@@ -34,6 +34,8 @@ tests = [ \
     "Ice/faultTolerance", \
     "Ice/location", \
     "Ice/adapterDeactivation", \
+    "Ice/slicing/exceptions", \
+    "Ice/slicing/objects", \
     "IceXML/encoding", \
     "Freeze/cursor", \
     "Freeze/dbmap", \
