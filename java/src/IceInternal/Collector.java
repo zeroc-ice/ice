@@ -153,7 +153,7 @@ public class Collector extends EventHandler
                         break;
                     }
 
-                    case Protocol.batchRequestMsg:
+                    case Protocol.requestBatchMsg:
                     {
                         if (_state == StateClosing)
                         {
