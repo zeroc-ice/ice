@@ -1431,3 +1431,44 @@ IcePy::createObjectAdapter(const Ice::ObjectAdapterPtr& adapter)
     }
     return (PyObject*)obj;
 }
+
+Ice::ObjectAdapterPtr
+IcePy::getObjectAdapter(PyObject* obj)
+{
+    assert(PyObject_IsInstance(obj, (PyObject*)&ObjectAdapterType));
+    ObjectAdapterObject* oaobj = (ObjectAdapterObject*)obj;
+    return *oaobj->adapter;
+}
+
+PyObject*
+IcePy::wrapObjectAdapter(const Ice::ObjectAdapterPtr& adapter)
+{
+    //
+    // Create an Ice.ObjectAdapter wrapper for IcePy.ObjectAdapter.
+    //
+    PyObjectHandle adapterI = createObjectAdapter(adapter);
+    if(adapterI.get() == NULL)
+    {
+	return NULL;
+    }
+    PyObject* wrapperType = lookupType("Ice.ObjectAdapterI");
+    assert(wrapperType != NULL);
+    PyObjectHandle args = PyTuple_New(1);
+    if(args.get() == NULL)
+    {
+	return NULL;
+    }
+    PyTuple_SET_ITEM(args.get(), 0, adapterI.release());
+    return PyObject_Call(wrapperType, args.get(), NULL);
+}
+
+Ice::ObjectAdapterPtr
+IcePy::unwrapObjectAdapter(PyObject* obj)
+{
+    PyObject* wrapperType = lookupType("Ice.ObjectAdapterI");
+    assert(wrapperType != NULL);
+    assert(PyObject_IsInstance(obj, wrapperType));
+    PyObjectHandle impl = PyObject_GetAttrString(obj, "_impl");
+    assert(impl.get() != NULL);
+    return getObjectAdapter(impl.get());
+}

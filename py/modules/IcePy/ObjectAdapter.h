@@ -21,6 +21,10 @@ extern PyTypeObject ObjectAdapterType;
 bool initObjectAdapter(PyObject*);
 
 PyObject* createObjectAdapter(const Ice::ObjectAdapterPtr&);
+Ice::ObjectAdapterPtr getObjectAdapter(PyObject*);
+
+PyObject* wrapObjectAdapter(const Ice::ObjectAdapterPtr&);
+Ice::ObjectAdapterPtr unwrapObjectAdapter(PyObject*);
 
 }
 

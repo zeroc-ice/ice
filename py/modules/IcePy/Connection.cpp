@@ -11,6 +11,7 @@
 #   include <IceUtil/Config.h>
 #endif
 #include <Connection.h>
+#include <ObjectAdapter.h>
 #include <Proxy.h>
 #include <Util.h>
 #include <Ice/Connection.h>
@@ -90,27 +91,6 @@ connectionClose(ConnectionObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-connectionFlushBatchRequests(ConnectionObject* self)
-{
-    assert(self->connection);
-    try
-    {
-        (*self->connection)->flushBatchRequests();
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return NULL;
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
 connectionCreateProxy(ConnectionObject* self, PyObject* args)
 {
     PyObject* identityType = lookupType("Ice.Identity");
@@ -140,6 +120,82 @@ connectionCreateProxy(ConnectionObject* self, PyObject* args)
     }
 
     return createProxy(proxy, (*self->communicator));
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+connectionSetAdapter(ConnectionObject* self, PyObject* args)
+{
+    PyObject* adapterType = lookupType("Ice.ObjectAdapter");
+    PyObject* adapter;
+    if(!PyArg_ParseTuple(args, "O!", adapterType, &adapter))
+    {
+	return NULL;
+    }
+
+    Ice::ObjectAdapterPtr oa = unwrapObjectAdapter(adapter);
+    assert(oa);
+
+    assert(self->connection);
+    assert(self->communicator);
+    try
+    {
+	(*self->connection)->setAdapter(oa);
+    }
+    catch(const Ice::Exception& ex)
+    {
+	setPythonException(ex);
+	return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+connectionGetAdapter(ConnectionObject* self)
+{
+    Ice::ObjectAdapterPtr adapter;
+
+    assert(self->connection);
+    assert(self->communicator);
+    try
+    {
+	adapter = (*self->connection)->getAdapter();
+    }
+    catch(const Ice::Exception& ex)
+    {
+	setPythonException(ex);
+	return NULL;
+    }
+
+    return wrapObjectAdapter(adapter);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+connectionFlushBatchRequests(ConnectionObject* self)
+{
+    assert(self->connection);
+    try
+    {
+        (*self->connection)->flushBatchRequests();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 #ifdef WIN32
@@ -209,10 +265,14 @@ static PyMethodDef ConnectionMethods[] =
 {
     { "close", (PyCFunction)connectionClose, METH_VARARGS,
         PyDoc_STR("close(bool) -> None") },
-    { "flushBatchRequests", (PyCFunction)connectionFlushBatchRequests, METH_NOARGS,
-        PyDoc_STR("flushBatchRequests() -> None") },
     { "createProxy", (PyCFunction)connectionCreateProxy, METH_VARARGS,
         PyDoc_STR("createProxy(Ice.Identity) -> Ice.ObjectPrx") },
+    { "setAdapter", (PyCFunction)connectionSetAdapter, METH_VARARGS,
+        PyDoc_STR("setAdapter(Ice.ObjectAdapter) -> None") },
+    { "getAdapter", (PyCFunction)connectionGetAdapter, METH_NOARGS,
+        PyDoc_STR("getAdapter() -> Ice.ObjectAdapter") },
+    { "flushBatchRequests", (PyCFunction)connectionFlushBatchRequests, METH_NOARGS,
+        PyDoc_STR("flushBatchRequests() -> None") },
     { "type", (PyCFunction)connectionType, METH_NOARGS,
         PyDoc_STR("type() -> string") },
     { "timeout", (PyCFunction)connectionTimeout, METH_NOARGS,
