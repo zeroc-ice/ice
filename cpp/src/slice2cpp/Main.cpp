@@ -187,7 +187,10 @@ main(int argc, char* argv[])
 	{
 	    Gen gen(argv[0], base, include, includePaths, dllExport);
 	    if(!gen)
-		status = EXIT_FAILURE;
+	    {
+		unit -> destroy();
+		return EXIT_FAILURE;
+	    }
 	    gen.generate(unit);
 	}
 

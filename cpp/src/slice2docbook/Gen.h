@@ -43,6 +43,11 @@ public:
 private:
 
     void printHeader(Output&);
+    StringList getTagged(const std::string&, std::string&);
+    void printComment(Output&, const Contained_ptr&);
+    void printSummary(Output&, const Contained_ptr&);
+    void pushFile(const std::string&);
+    void popFile();
 
     std::string name_;
     std::stack<Output*> outputStack_;

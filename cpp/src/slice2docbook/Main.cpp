@@ -94,6 +94,8 @@ main(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
+    Unit_ptr unit = Unit::createUnit(true, true);
+
     int status = EXIT_SUCCESS;
 
     for(idx = 1 ; idx < argc ; ++idx)
@@ -110,6 +112,7 @@ main(int argc, char* argv[])
 	{
 	    cerr << argv[0] << ": input files must end with `.ice'"
 		 << endl;
+	    unit -> destroy();
 	    return EXIT_FAILURE;
 	}
 	base.erase(pos);
@@ -119,6 +122,7 @@ main(int argc, char* argv[])
 	{
 	    cerr << argv[0] << ": can't open `" << argv[idx]
 		 << "' for reading: " << strerror(errno) << endl;
+	    unit -> destroy();
 	    return EXIT_FAILURE;
 	}
 	test.close();
@@ -133,11 +137,15 @@ main(int argc, char* argv[])
 	{
 	    cerr << argv[0] << ": can't run C++ preprocessor: "
 		 << strerror(errno) << endl;
+	    unit -> destroy();
 	    return EXIT_FAILURE;
 	}
 	
-	Unit_ptr unit = Unit::createUnit(true, true);
 	int parseStatus = unit -> parse(cppHandle, debug);
+	if(parseStatus == EXIT_FAILURE)
+	{
+	    status = EXIT_FAILURE;
+	}
 	
 #ifdef WIN32
 	_pclose(cppHandle);
@@ -145,20 +153,20 @@ main(int argc, char* argv[])
 	pclose(cppHandle);
 #endif
 	
-	if(parseStatus == EXIT_FAILURE)
-	{
-	    status = EXIT_FAILURE;
-	}
-	else
-	{
-	    Gen gen(argv[0]);
-	    if(!gen)
-		return EXIT_FAILURE;
-	    gen.generate(unit);
-	}
-
-	unit -> destroy();
     }
+
+    if(status == EXIT_SUCCESS)
+    {
+	Gen gen(argv[0]);
+	if(!gen)
+	{
+	    unit -> destroy();
+	    return EXIT_FAILURE;
+	}
+	gen.generate(unit);
+    }
+    
+    unit -> destroy();
 
     return status;
 }

@@ -21,8 +21,8 @@ module Ice
  * The Object Adapter, which is responsible for receiving requests
  * from Endpoints, and for mapping between Objects, Identities, and
  * Proxies. Object Adapters are created with the Communicator's
- * <code>createObjectAdapter()</code> and
- * <code>createObjectAdapterWithEndpoints</code> operations.
+ * <literal>createObjectAdapter</literal> and
+ * <literal>createObjectAdapterWithEndpoints</literal> operations.
  *
  * @see Communicator
  *
@@ -67,7 +67,7 @@ local class ObjectAdapter
     /**
      *
      * Temporarily hold receiving and dispatching requests. The Object
-     * Adapter can be reactivated with the <code>activate()</code>
+     * Adapter can be reactivated with the <literal>activate</literal>
      * operation.
      *
      * @see activate
@@ -82,9 +82,9 @@ local class ObjectAdapter
      * Adapter. After deactivation, the Object Adapter stops receiving
      * requests through its Endpoints. Object Adapter's that have
      * been deactivated must not be reactivated again, i.e., the
-     * deactivation is permanent and <code>activate()</code> or
-     * <code>hold()</code> must not be called after calling
-     * <code>deactivate()</code>.
+     * deactivation is permanent and <literal>activate</literal> or
+     * <literal>hold</literal> must not be called after calling
+     * <literal>deactivate</literal>.
      *
      * @see activate
      * @see hold
@@ -113,7 +113,7 @@ local class ObjectAdapter
      * fixed identity. Instead, a temporary identity is assigned by
      * the Object Adapter. Such temporary identity is only valid for
      * the lifetime of this Object Adapter, or until the Object is
-     * removed with <code>remove()</code>.
+     * removed with <literal>remove</literal>.
      *
      * @param object The Object to add.
      *

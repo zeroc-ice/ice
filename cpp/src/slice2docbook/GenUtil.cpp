@@ -32,25 +32,35 @@ Slice::typeToString(const Type_ptr& type)
 	"LocalObject"
     };
 
+    string result = "<type>";
+    
     Builtin_ptr builtin = Builtin_ptr::dynamicCast(type);
     if(builtin)
-	return builtinTable[builtin -> kind()];
+	result += builtinTable[builtin -> kind()];
+    else
+    {
+	ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(type);
+	if(cl)
+	    result += cl -> scoped().substr(2);
+	else
+	{	    
+	    Proxy_ptr proxy = Proxy_ptr::dynamicCast(type);
+	    if(proxy)
+		result += proxy -> _class() -> scoped().substr(2) + "*";
+	    else
+	    {
+		Contained_ptr contained = Contained_ptr::dynamicCast(type);
+		if(contained)
+		    result += contained -> scoped().substr(2);
+		else
+		    result += "???";
+	    }
+	}
+    }
 
-    ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(type);
-    if(cl)
-	return cl -> scoped().substr(2);
-	    
-    Proxy_ptr proxy = Proxy_ptr::dynamicCast(type);
-    if(proxy)
-	return proxy -> _class() -> scoped().substr(2) + "*";
-	    
-    Contained_ptr contained = Contained_ptr::dynamicCast(type);
-    if(contained)
-	return contained -> scoped().substr(2);
-	    
-    return "???";
+    result += "</type>";
+    return result;
 }
-
 
 struct ToFile
 {

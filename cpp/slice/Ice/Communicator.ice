@@ -38,10 +38,10 @@ local class Communicator
     /**
      *
      * Destroy the Communicator. This operation calls
-     * </code>shutdown()</code> implicitly, if it hasn't been called
-     * before. Calling <code>destroy()</code> more than once is not
+     * <literal>shutdown</literal> implicitly, if it hasn't been called
+     * before. Calling <literal>destroy</literal> more than once is not
      * permissible, and will cause a local Ice exception to be
-     * thrown. Calling <code>destroy()</code> cleans up memory, and
+     * thrown. Calling <literal>destroy</literal> cleans up memory, and
      * shuts down the client-side of an application.
      *
      * @see shutdown
@@ -52,14 +52,16 @@ local class Communicator
     /**
      *
      * Shut down the server-side of an
-     * application. <code>shutdown</code> deactivates all Object
-     * Adapters. Calling <code>shutdown()</code> more than once is not
-     * permissible, and will cause a local Ice exception to be
-     * thrown. <em>Note:</em> shutdown is not immediate, i.e., after
-     * <code>shutdown()</code> returns, the server-side of the
+     * application. <literal>shutdown</literal> deactivates all Object
+     * Adapters. Calling <literal>shutdown</literal> more than once is
+     * not permissible, and will cause a local Ice exception to be
+     * thrown.
+     *
+     * <note><para> Shutdown is not immediate, i.e., after
+     * <literal>shutdown</literal> returns, the server-side of the
      * application might still be active. You can use
-     * <code>waitForShutdown</code> to wait until shutdown is
-     * complete.
+     * <literal>waitForShutdown</literal> to wait until shutdown is
+     * complete. </para></note>
      *
      * @see destroy
      * @see waitForShutdown
@@ -70,13 +72,13 @@ local class Communicator
     /**
      *
      * Wait until the server-side of an application has shut
-     * down. Calling <code>shutdown()</code> initiates server-side
-     * shutdown, and <code>waitForShutdown()</code> only returns when
+     * down. Calling <literal>shutdown</literal> initiates server-side
+     * shutdown, and <literal>waitForShutdown</literal> only returns when
      * such shutdown has been completed. A typical use of this
      * operation is to call it from the main thread, which then waits
-     * until some other thread calls <code>shutdown()</code>. After
+     * until some other thread calls <literal>shutdown</literal>. After
      * such shutdown is complete, the main thread returns and can do
-     * some cleanup work before it calls <code>destroy()</code> and
+     * some cleanup work before it calls <literal>destroy</literal> and
      * then exits the application.
      *
      * @see shutdown
@@ -87,8 +89,8 @@ local class Communicator
 
     /**
      *
-     * Convert a string into a Proxy. For example, <code>MyObject:tcp
-     * -h some_host -p 10000</code> creates a proxy that refers to the
+     * Convert a string into a Proxy. For example, <literal>MyObject:tcp
+     * -h some_host -p 10000</literal> creates a proxy that refers to the
      * object with the identity "MyObject", with the server running at
      * host "some_host", port 10000.
      *
@@ -103,8 +105,9 @@ local class Communicator
      *
      * Create a new object adapter. The endpoints for the object
      * adapter are taken from the property
-     * <code>ice.adapter.<name>.endpoints</code>, with
-     * <code><name></name> being the name of the object adapter.
+     * <literal>ice.adapter.<replaceable>name</replaceable>.endpoints</literal>,
+     * with <replaceable>name</replaceable> being the name of the
+     * object adapter.
      *
      * @param name The name to use for the object adapter. This name
      * must be unique for the Communicator.
@@ -120,7 +123,7 @@ local class Communicator
     /**
      *
      * Create a new object adapter with a list of endpoints. In
-     * contrast to <code>createObjectAdapter</code>, the endpoints to
+     * contrast to <literal>createObjectAdapter</literal>, the endpoints to
      * use are passed explicitly as a parameter.
      *
      * @param name The name to use for the object adapter. This name

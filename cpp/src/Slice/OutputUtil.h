@@ -13,6 +13,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <stack>
 
 namespace Slice
 {
@@ -61,7 +62,7 @@ private:
     std::ofstream out_;
     int pos_;
     int indent_;
-    int indentSave_;
+    std::stack<int> indentSave_;
     bool separator_;
 };
 

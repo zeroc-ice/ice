@@ -31,7 +31,6 @@ Separator sp;
 Slice::Output::Output()
     : pos_(0),
       indent_(0),
-      indentSave_(-1),
       separator_(true)
 {
 }
@@ -39,7 +38,6 @@ Slice::Output::Output()
 Slice::Output::Output(const char* s)
     : pos_(0),
       indent_(0),
-      indentSave_(-1),
       separator_(true)
 {
     open(s);
@@ -83,25 +81,23 @@ Slice::Output::dec()
 void
 Slice::Output::useCurrentPosAsIndent()
 {
-    assert(indentSave_ == -1);
-    indentSave_ = indent_;
+    indentSave_.push(indent_);
     indent_ = pos_;
 }
 
 void
 Slice::Output::zeroIndent()
 {
-    assert(indentSave_ == -1);
-    indentSave_ = indent_;
+    indentSave_.push(indent_);
     indent_ = 0;
 }
 
 void
 Slice::Output::restoreIndent()
 {
-    assert(indentSave_ != -1);
-    indent_ = indentSave_;
-    indentSave_ = -1;
+    assert(!indentSave_.empty());
+    indent_ = indentSave_.top();
+    indentSave_.pop();
 }
 
 void
