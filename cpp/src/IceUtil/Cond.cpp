@@ -199,7 +199,7 @@ IceUtil::Cond::Cond()
     int rc = pthread_cond_init(&_cond, 0);
     if(rc != 0)
     {
-	throw ThreadSyscallException(strerror(rc), __FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__);
     }
 }
 
@@ -216,7 +216,7 @@ IceUtil::Cond::signal()
     int rc = pthread_cond_signal(&_cond);
     if(rc != 0)
     {
-	throw ThreadSyscallException(strerror(rc), __FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__);
     }
 }
 
@@ -226,7 +226,7 @@ IceUtil::Cond::broadcast()
     int rc = pthread_cond_broadcast(&_cond);
     if(rc != 0)
     {
-	throw ThreadSyscallException(strerror(rc), __FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__);
     }
 }
 

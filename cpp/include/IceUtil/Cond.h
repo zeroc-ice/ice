@@ -294,7 +294,7 @@ Cond::waitImpl(const M& mutex) const
     
     if(rc != 0)
     {
-	throw ThreadSyscallException(strerror(rc), __FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__);
     }
 }
 
@@ -321,7 +321,7 @@ Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
 	//
 	if(rc != ETIMEDOUT)
 	{
-	    throw ThreadSyscallException(strerror(rc), __FILE__, __LINE__);
+	    throw ThreadSyscallException(__FILE__, __LINE__);
 	}
 	return false;
     }
