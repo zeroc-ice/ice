@@ -242,8 +242,46 @@ The number of threads in the thread pool. Default is 10.
 
 </section>
 
+<!-- ********************************************************************** --> <section><title>Security</title>
 <!-- ********************************************************************** -->
-<section><title>Miscellaneous</title>
+<section><title>Ice.Ssl.CertPath</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Ssl.CertPath=<replaceable>path</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the path (relative or absolute) where the SSL Security Extension can
+find PEM format certificate files (RSA and DSA) and Diffie-Hellman group
+parameter files.
+In the case that the <literal>Ice.Ssl.Config</literal> is a relative path,
+it will be relative to the value of <literal>Ice.Ssl.CertPath</literal>
+</para>
+</section>
+</section>
+<section><title>Ice.Ssl.Config</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Ssl.Config=<replaceable>config_file</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the XML-based configuration file that the SSL Security Extension will
+use to load initialization information and certificates from. If this property
+contains a relative path, the path will be interpreted in terms of
+<literal>Ice.Ssl.CertPath</literal>. Xerces-c, the XML parser used to read this
+file, will look for the DTD file in the same directory that it finds the XML
+configuration file.
+</para>
+</section>
+</section>
+</section>
+
+<!-- ********************************************************************** --> <section><title>Miscellaneous</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.Daemon, Ice.DaemonNoClose, Ice.DaemonNoChdir</title>
