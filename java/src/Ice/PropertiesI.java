@@ -212,7 +212,10 @@ class PropertiesI implements Properties
                 parseLine(line.substring(2));
                 String[] arr = new String[args.value.length - 1];
                 System.arraycopy(args.value, 0, arr, 0, i);
-                System.arraycopy(args.value, i + 1, arr, i, args.value.length - i);
+                if (i < args.value.length - 1)
+                {
+                    System.arraycopy(args.value, i + 1, arr, i, args.value.length - i - 1);
+                }
                 args.value = arr;
             }
         }
