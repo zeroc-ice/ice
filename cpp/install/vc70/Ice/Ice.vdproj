@@ -15,9 +15,21 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_08719D4971C844B9BBE683419B901082"
+        "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\ExpatRuntime.msm"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_2511B02D893B46C58BEA3748F3AF86EE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INSTALL\\COMMON\\THIRDPARTY-LICENSE.TXT"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_282EBBA43E0D428583F9BEC7E26D5B4B"
+        "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\IceRuntimeDebug.msm"
         }
         "Entry"
         {
@@ -27,15 +39,9 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_456D88FB353B442C96BFF242EAB5D1FF"
+        "MsmKey" = "8:_3BC63D60E8C84B2B99700C5D03492F20"
         "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
-        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\IceRuntime.msm"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_4D735063E6F24EBC8BD569A9FADA271F"
-        "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
-        "MsmSig" = "8:MergeModule.A32ACFF5E2BA440F958DA46F03D38012"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\OpenSSLDevKit.msm"
         }
         "Entry"
         {
@@ -45,33 +51,15 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_89686A6152934092A7D609406355AD6F"
+        "MsmKey" = "8:_809F338F3D5A48B2A09F6D60A1CE1FAB"
         "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
-        "MsmSig" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\OpenSSLRuntime.msm"
         }
         "Entry"
         {
-        "MsmKey" = "8:_89890E7AF9C04168A5B436E33BB17C8B"
+        "MsmKey" = "8:_A8857D3DF11C4B6091C1BD4392A33568"
         "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
-        "MsmSig" = "8:MergeModule.4E1047477590477A8EEC6153FAAF5A8A"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_954BD4D5B1354A8F964DFD5DACB42D47"
-        "OwnerKey" = "8:_89890E7AF9C04168A5B436E33BB17C8B"
-        "MsmSig" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_954BD4D5B1354A8F964DFD5DACB42D47"
-        "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
-        "MsmSig" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A081C529521B46ACA073D72440FF7174"
-        "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
-        "MsmSig" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\BerkeleyDBRuntime.msm"
         }
         "Entry"
         {
@@ -93,12 +81,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_C495E1518A4745C1BC010A65A005554F"
-        "OwnerKey" = "8:_89686A6152934092A7D609406355AD6F"
-        "MsmSig" = "8:VC_User_STL.BA9B76E9_0DE0_11D5_A548_0090278A1BB8"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\IceDevKit\\Release\\IceDevKit.msm"
@@ -111,21 +93,15 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_ED07297D7F0B48BC8341D557019A93FF"
-        "OwnerKey" = "8:_89686A6152934092A7D609406355AD6F"
-        "MsmSig" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_ED07297D7F0B48BC8341D557019A93FF"
-        "OwnerKey" = "8:_954BD4D5B1354A8F964DFD5DACB42D47"
-        "MsmSig" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F8A6A848D83143C584D832AAAE453231"
+        "MsmKey" = "8:_ED57C433DB2E4F5A8AE1C1410E515308"
         "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
-        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\IceRuntimeDebug.msm"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\BerkeleyDBRuntimeDebug.msm"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F3489C251F064D1F960DAC3300B50145"
+        "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\IceRuntime.msm"
         }
         "Entry"
         {
@@ -494,18 +470,18 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:Ice 1.4.0"
-        "ProductCode" = "8:{B79804E9-5F26-41D3-8B47-A91D7ABC3624}"
+        "ProductName" = "8:Ice 1.5.0"
+        "ProductCode" = "8:{CA60A640-D3FA-403C-BE8D-447CCB2ABEBF}"
         "PackageCode" = "8:{14BB55C7-D924-458A-AF71-BBD8A8B81DFC}"
-        "UpgradeCode" = "8:{462445FE-B5E4-474A-B11C-1925A7B45793}"
+        "UpgradeCode" = "8:{FA7A14A0-A91D-4211-9F91-CB5CE850B1B8}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
-        "ProductVersion" = "8:1.4.0"
+        "ProductVersion" = "8:1.5.0"
         "Manufacturer" = "8:ZeroC, Inc"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.zeroc.com/support.html"
-        "Title" = "8:Ice™ 1.4.0"
+        "Title" = "8:Ice™ 1.5.0"
         "Subject" = "8:"
         "ARPCONTACT" = "8:ZeroC, Inc"
         "Keywords" = "8:"
@@ -522,38 +498,34 @@
         }
         "MergeModule"
         {
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_456D88FB353B442C96BFF242EAB5D1FF"
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_08719D4971C844B9BBE683419B901082"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:IceRuntime.msm"
+            "SourcePath" = "8:ExpatRuntime.msm"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_4D735063E6F24EBC8BD569A9FADA271F"
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_282EBBA43E0D428583F9BEC7E26D5B4B"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:ExpatRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.A32ACFF5E2BA440F958DA46F03D38012"
-                "Properties"
-                {
-                    "_DB4AE708F0EC4524BDC22AF9250F754B.A32ACFF5E2BA440F958DA46F03D38012"
-                    {
-                    "Name" = "8:_DB4AE708F0EC4524BDC22AF9250F754B.A32ACFF5E2BA440F958DA46F03D38012"
-                    "DisplayName" = "8:Module Retargetable Folder"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                }
-            "LanguageId" = "3:1033"
+            "SourcePath" = "8:IceRuntimeDebug.msm"
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_3BC63D60E8C84B2B99700C5D03492F20"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:OpenSSLDevKit.msm"
+            "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
             "Feature" = "8:"
@@ -586,104 +558,22 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_89686A6152934092A7D609406355AD6F"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:BerkeleyDBRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
-                "Properties"
-                {
-                    "_7DC4317E664C43829847DA1D47C7ADF1.F9B82A94BAF2496A9CF7665CDE828FEC"
-                    {
-                    "Name" = "8:_7DC4317E664C43829847DA1D47C7ADF1.F9B82A94BAF2496A9CF7665CDE828FEC"
-                    "DisplayName" = "8:Module Retargetable Folder"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_89890E7AF9C04168A5B436E33BB17C8B"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:OpenSSLDevKit.msm"
-            "ModuleSignature" = "8:MergeModule.4E1047477590477A8EEC6153FAAF5A8A"
-                "Properties"
-                {
-                    "_BE8AE4ADB97F4C73980DC34D45DC8AC2.4E1047477590477A8EEC6153FAAF5A8A"
-                    {
-                    "Name" = "8:_BE8AE4ADB97F4C73980DC34D45DC8AC2.4E1047477590477A8EEC6153FAAF5A8A"
-                    "DisplayName" = "8:Module Retargetable Folder"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_954BD4D5B1354A8F964DFD5DACB42D47"
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_809F338F3D5A48B2A09F6D60A1CE1FAB"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "SourcePath" = "8:OpenSSLRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-                "Properties"
-                {
-                    "_FB65C60981A84F8A878AE7BDEC05F7C9.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-                    {
-                    "Name" = "8:_FB65C60981A84F8A878AE7BDEC05F7C9.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-                    "DisplayName" = "8:Module Retargetable Folder"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                }
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_A081C529521B46ACA073D72440FF7174"
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_A8857D3DF11C4B6091C1BD4392A33568"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:BerkeleyDBRuntimeDebug.msm"
-            "ModuleSignature" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
-                "Properties"
-                {
-                    "_28D9A93C72B347ED90A0256E6A900174.322C5D4010C3431087389006EF9BC602"
-                    {
-                    "Name" = "8:_28D9A93C72B347ED90A0256E6A900174.322C5D4010C3431087389006EF9BC602"
-                    "DisplayName" = "8:Module Retargetable Folder"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                }
+            "SourcePath" = "8:BerkeleyDBRuntime.msm"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
@@ -744,11 +634,22 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_F8A6A848D83143C584D832AAAE453231"
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_ED57C433DB2E4F5A8AE1C1410E515308"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:IceRuntimeDebug.msm"
+            "SourcePath" = "8:BerkeleyDBRuntimeDebug.msm"
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_F3489C251F064D1F960DAC3300B50145"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:IceRuntime.msm"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"

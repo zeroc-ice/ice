@@ -21,12 +21,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_2582B4A2E4BA49BDA1A2C66C6CF6A85C"
-        "OwnerKey" = "8:_0276045D9D1846A19A79683F5CD9C2B5"
-        "MsmSig" = "8:MergeModule.A32ACFF5E2BA440F958DA46F03D38012"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_27DF8B6F67D84FEEA75F2321DAB36831"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INSTALL\\COMMON\\ZEROC.JPG"
@@ -35,13 +29,7 @@
         {
         "MsmKey" = "8:_28A8223FA774484380C7E5C6357C5834"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:MergeModule.C10AE60A32A14225AEC71599916683FA"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_2AEBA77D4FBD47BB834FC3CB6C620706"
-        "OwnerKey" = "8:_4F3590B867524CC98F0C2C67B08EBDE8"
-        "MsmSig" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\Bzip2DevKit.msm"
         }
         "Entry"
         {
@@ -59,30 +47,18 @@
         {
         "MsmKey" = "8:_496B83F707BA4C14803322055C421F8F"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:MergeModule.4E1047477590477A8EEC6153FAAF5A8A"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\OpenSSLDevKit.msm"
         }
         "Entry"
         {
         "MsmKey" = "8:_4F3590B867524CC98F0C2C67B08EBDE8"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:MergeModule.8FAAA943571D45AFBB980B5631FF1D3E"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\BerkeleyDBDevKit.msm"
         }
         "Entry"
         {
         "MsmKey" = "8:_5906FA63113944F6ABDC238D3161A5D5"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_5906FA63113944F6ABDC238D3161A5D5"
-        "OwnerKey" = "8:_2AEBA77D4FBD47BB834FC3CB6C620706"
-        "MsmSig" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_5906FA63113944F6ABDC238D3161A5D5"
-        "OwnerKey" = "8:_9FA0E7738A374BBBBFBCD46FF8F912FF"
         "MsmSig" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
         }
         "Entry"
@@ -99,33 +75,39 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_7B30935BF7914D738CCF1B43F3A14541"
+        "OwnerKey" = "8:_496B83F707BA4C14803322055C421F8F"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\OpenSSLRuntime.msm"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7BF8181D13214FFFB7BABA6DAE6E1AFD"
+        "OwnerKey" = "8:_4F3590B867524CC98F0C2C67B08EBDE8"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\BerkeleyDBRuntime.msm"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_9098D557670847AF96E85138525D1F59"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INSTALL\\THIRDPARTY-LICENSE.TXT"
         }
         "Entry"
         {
-        "MsmKey" = "8:_9FA0E7738A374BBBBFBCD46FF8F912FF"
-        "OwnerKey" = "8:_496B83F707BA4C14803322055C421F8F"
-        "MsmSig" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A57360326B0C4B71B78F9757C33B5349"
-        "OwnerKey" = "8:_4F3590B867524CC98F0C2C67B08EBDE8"
-        "MsmSig" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_B1189C98629A4A3C8D9FBBFC0B5F595D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:VC_User_STL.BA9B76E9_0DE0_11D5_A548_0090278A1BB8"
         }
         "Entry"
         {
-        "MsmKey" = "8:_B1189C98629A4A3C8D9FBBFC0B5F595D"
-        "OwnerKey" = "8:_2AEBA77D4FBD47BB834FC3CB6C620706"
-        "MsmSig" = "8:VC_User_STL.BA9B76E9_0DE0_11D5_A548_0090278A1BB8"
+        "MsmKey" = "8:_CD38DFCC3B8E4291A7FC60E9A0A7C70C"
+        "OwnerKey" = "8:_0276045D9D1846A19A79683F5CD9C2B5"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\ExpatRuntime.msm"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E6B59901312F4719BB2392C76D601C3E"
+        "OwnerKey" = "8:_4F3590B867524CC98F0C2C67B08EBDE8"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\BerkeleyDBRuntimeDebug.msm"
         }
     }
     "Configurations"
@@ -521,7 +503,6 @@
                 "UseDynamicProperties" = "11:TRUE"
                 "IsDependency" = "11:FALSE"
                 "SourcePath" = "8:..\\MergeModules\\Bzip2DevKit.msm"
-                "ModuleSignature" = "8:MergeModule.C10AE60A32A14225AEC71599916683FA"
                     "Properties"
                     {
                         "_E965AA47BF04440C8579B501140C6AA9.C10AE60A32A14225AEC71599916683FA"
@@ -576,7 +557,6 @@
                 "UseDynamicProperties" = "11:TRUE"
                 "IsDependency" = "11:FALSE"
                 "SourcePath" = "8:..\\MergeModules\\OpenSSLDevKit.msm"
-                "ModuleSignature" = "8:MergeModule.4E1047477590477A8EEC6153FAAF5A8A"
                     "Properties"
                     {
                         "_BE8AE4ADB97F4C73980DC34D45DC8AC2.4E1047477590477A8EEC6153FAAF5A8A"
@@ -631,7 +611,6 @@
                 "UseDynamicProperties" = "11:TRUE"
                 "IsDependency" = "11:FALSE"
                 "SourcePath" = "8:..\\MergeModules\\BerkeleyDBDevKit.msm"
-                "ModuleSignature" = "8:MergeModule.8FAAA943571D45AFBB980B5631FF1D3E"
                     "Properties"
                     {
                         "_573942613A654CC0B7A3817F0A0EB435.8FAAA943571D45AFBB980B5631FF1D3E"
@@ -657,18 +636,18 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:Ice 1.4.0 Third Party"
-        "ProductCode" = "8:{557A3561-A4A1-4FBF-A8E9-741978730D76}"
+        "ProductName" = "8:Ice 1.5.0 Third Party"
+        "ProductCode" = "8:{193E4F95-5ABD-47F3-9ED2-77C3AE91EDB7}"
         "PackageCode" = "8:{D11F9ED5-60A7-4156-B05B-F3DF96018593}"
-        "UpgradeCode" = "8:{F50A7CE0-D7A0-4D4F-9E46-FFB4B9A58BCE}"
+        "UpgradeCode" = "8:{787F0BA0-555C-418D-95DC-45861F6209E5}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
-        "ProductVersion" = "8:1.4.0"
+        "ProductVersion" = "8:1.5.0"
         "Manufacturer" = "8:ZeroC, Inc"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.zeroc.com/support.html"
-        "Title" = "8:Ice 1.4.0 Third Party"
+        "Title" = "8:Ice 1.5.0 Third Party"
         "Subject" = "8:"
         "ARPCONTACT" = "8:ZeroC, Inc"
         "Keywords" = "8:Berkeley DB, libbzip2, OpenSSL, Expat"
@@ -685,58 +664,6 @@
         }
         "MergeModule"
         {
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_2582B4A2E4BA49BDA1A2C66C6CF6A85C"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:ExpatRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.A32ACFF5E2BA440F958DA46F03D38012"
-                "Properties"
-                {
-                    "_DB4AE708F0EC4524BDC22AF9250F754B.A32ACFF5E2BA440F958DA46F03D38012"
-                    {
-                    "Name" = "8:_DB4AE708F0EC4524BDC22AF9250F754B.A32ACFF5E2BA440F958DA46F03D38012"
-                    "DisplayName" = "8:Module Retargetable Folder"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                }
-            "LanguageId" = "3:1033"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_2AEBA77D4FBD47BB834FC3CB6C620706"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:BerkeleyDBRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
-                "Properties"
-                {
-                    "_7DC4317E664C43829847DA1D47C7ADF1.F9B82A94BAF2496A9CF7665CDE828FEC"
-                    {
-                    "Name" = "8:_7DC4317E664C43829847DA1D47C7ADF1.F9B82A94BAF2496A9CF7665CDE828FEC"
-                    "DisplayName" = "8:Module Retargetable Folder"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
             "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_5906FA63113944F6ABDC238D3161A5D5"
             {
             "UseDynamicProperties" = "11:TRUE"
@@ -791,52 +718,22 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_9FA0E7738A374BBBBFBCD46FF8F912FF"
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_7B30935BF7914D738CCF1B43F3A14541"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "SourcePath" = "8:OpenSSLRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-                "Properties"
-                {
-                    "_FB65C60981A84F8A878AE7BDEC05F7C9.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-                    {
-                    "Name" = "8:_FB65C60981A84F8A878AE7BDEC05F7C9.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-                    "DisplayName" = "8:Module Retargetable Folder"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                }
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_A57360326B0C4B71B78F9757C33B5349"
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_7BF8181D13214FFFB7BABA6DAE6E1AFD"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:BerkeleyDBRuntimeDebug.msm"
-            "ModuleSignature" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
-                "Properties"
-                {
-                    "_28D9A93C72B347ED90A0256E6A900174.322C5D4010C3431087389006EF9BC602"
-                    {
-                    "Name" = "8:_28D9A93C72B347ED90A0256E6A900174.322C5D4010C3431087389006EF9BC602"
-                    "DisplayName" = "8:Module Retargetable Folder"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                }
+            "SourcePath" = "8:BerkeleyDBRuntime.msm"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
@@ -864,6 +761,28 @@
                     "UsePlugInResources" = "11:FALSE"
                     }
                 }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_CD38DFCC3B8E4291A7FC60E9A0A7C70C"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:ExpatRuntime.msm"
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_E6B59901312F4719BB2392C76D601C3E"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:BerkeleyDBRuntimeDebug.msm"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
