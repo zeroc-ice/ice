@@ -12,6 +12,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adapterDeactivationC", "tes
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adapterDeactivationCOL", "test\Ice\adapterDeactivation\adapterDeactivationCOL.csproj", "{FB4F9B72-57B8-49E8-80C2-13447387D68B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "exceptionsC", "test\Ice\exceptions\exceptionsC.csproj", "{2F7CDA15-1AD3-474B-8C6A-48B57F98129E}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -153,10 +157,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nestedC", "demo\Ice\nested\
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nestedS", "demo\Ice\nested\nestedS.csproj", "{0D9DD222-B7DD-4736-8958-4C43DB8599D1}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adapterDeactivationCOL", "test\Ice\adapterDeactivation\adapterDeactivationCOL.csproj", "{70028153-01BA-474C-BE4E-1896472FA132}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -322,10 +322,10 @@ Global
 		{0D9DD222-B7DD-4736-8958-4C43DB8599D1}.Debug.Build.0 = Debug|.NET
 		{0D9DD222-B7DD-4736-8958-4C43DB8599D1}.Release.ActiveCfg = Release|.NET
 		{0D9DD222-B7DD-4736-8958-4C43DB8599D1}.Release.Build.0 = Release|.NET
-		{70028153-01BA-474C-BE4E-1896472FA132}.Debug.ActiveCfg = Debug|.NET
-		{70028153-01BA-474C-BE4E-1896472FA132}.Debug.Build.0 = Debug|.NET
-		{70028153-01BA-474C-BE4E-1896472FA132}.Release.ActiveCfg = Release|.NET
-		{70028153-01BA-474C-BE4E-1896472FA132}.Release.Build.0 = Release|.NET
+		{FB4F9B72-57B8-49E8-80C2-13447387D68B}.Debug.ActiveCfg = Debug|.NET
+		{FB4F9B72-57B8-49E8-80C2-13447387D68B}.Debug.Build.0 = Debug|.NET
+		{FB4F9B72-57B8-49E8-80C2-13447387D68B}.Release.ActiveCfg = Release|.NET
+		{FB4F9B72-57B8-49E8-80C2-13447387D68B}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
