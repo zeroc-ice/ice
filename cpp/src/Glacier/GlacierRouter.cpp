@@ -210,7 +210,7 @@ main(int argc, char* argv[])
     addArgumentPrefix("Glacier");
 
     //
-    // Make sure that the router doesn't use a router.
+    // Make sure that this process doesn't use a router.
     //
     PropertiesPtr defaultProperties;
     try

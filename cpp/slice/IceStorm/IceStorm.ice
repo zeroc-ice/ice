@@ -13,17 +13,12 @@
 
 /**
  *
- * The Ice module for publish/subscribe
+ * The Ice module for publish/subscribe.
  *
  **/
 module IceStorm
 {
 
-/**
- *
- * Forward declaration.
- *
- **/
 interface Topic;
 
 /**

@@ -111,8 +111,7 @@ CPPFLAGS	:= -I.. $(CPPFLAGS) -I$(OPENSSL_HOME)/include -I$(XERCESC_HOME)/include
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared \
-	-o $@ $(OBJS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared -o $@ $(OBJS)
 
 $(NAME): $(VERSIONED_NAME)
 	rm -f $@

@@ -18,6 +18,7 @@ VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
 
 SERVER		= $(top_srcdir)/bin/icestorm
 ADMIN		= $(top_srcdir)/bin/icestormadmin
+
 TARGETS		= $(NAME) $(VERSIONED_NAME) $(SERVER) $(ADMIN)
 
 OBJS		= IceStorm.o
@@ -59,8 +60,7 @@ LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared \
-	-o $@ $(OBJS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared -o $@ $(OBJS)
 
 $(NAME): $(VERSIONED_NAME)
 	rm -f $@

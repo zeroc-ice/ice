@@ -10,23 +10,60 @@
 
 top_srcdir	= ../..
 
-ROUTER		= $(top_srcdir)/bin/glacier
+BASE		= libGlacier.so
+VERSIONED_BASE	= $(BASE).$(VERSION)
 
-TARGETS		= $(ROUTER)
+NAME		= $(top_srcdir)/lib/$(BASE)
+VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
+
+ROUTER		= $(top_srcdir)/bin/glacier
+STARTER		= $(top_srcdir)/bin/glacierstarter
+
+TARGETS		= $(NAME) $(VERSIONED_NAME) $(ROUTER) $(STARTER)
+
+OBJS		= Glacier.o
 
 ROBJS		= GlacierRouter.o \
 		  RouterI.o \
 		  ClientBlobject.o \
 		  ServerBlobject.o
 
-SRCS		= $(ROBJS:.o=.cpp)
+SOBJS		= GlacierStarter.o
+
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(ROBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
+
+HDIR		= $(includedir)/Glacier
+SDIR		= $(slicedir)/Glacier
+SLICECMD	= $(SLICE2CPP) --include-dir Glacier --dll-export GLACIER_API -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS)
 
+$(VERSIONED_NAME): $(OBJS)
+	rm -f $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared -o $@ $(OBJS)
+
+$(NAME): $(VERSIONED_NAME)
+	rm -f $@
+	ln -s $(VERSIONED_BASE) $@
+
 $(ROUTER): $(ROBJS)
 	rm -f $@
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(ROBJS) $(LIBS)
+
+$(STARTER): $(SOBJS)
+	rm -f $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+
+$(HDIR)/Glacier.h Glacier.cpp: $(SDIR)/Glacier.ice $(SLICE2CPP)
+	rm -f $(HDIR)/Glacier.h Glacier.cpp
+	$(SLICECMD) $(SDIR)/Glacier.ice
+	mv Glacier.h $(HDIR)
+
+clean::
+	rm -f $(HDIR)/Glacier.h Glacier.cpp
 
 include .depend

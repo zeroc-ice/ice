@@ -34,7 +34,8 @@ SLICEFILES	= ../slice/Ice/LocalException.ice \
 		  ../slice/Freeze/DB.ice \
 		  ../slice/Freeze/DBException.ice \
 		  ../slice/Freeze/Evictor.ice \
-		  ../slice/IceStorm/IceStorm.ice
+		  ../slice/IceStorm/IceStorm.ice \
+		  ../slice/Glacier/Glacier.ice
 
 include $(top_srcdir)/config/Make.rules
 
