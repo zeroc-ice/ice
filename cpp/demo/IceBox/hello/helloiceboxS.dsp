@@ -59,7 +59,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\HelloService.* .
+PostBuild_Cmds=copy $(OutDir)\helloservice.* .
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "helloIceBoxS - Win32 Debug"
@@ -92,7 +92,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\HelloServiced.* .
+PostBuild_Cmds=copy $(OutDir)\helloserviced.* .
 # End Special Build Tool
 
 !ENDIF 

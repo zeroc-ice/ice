@@ -54,12 +54,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 /nologo /dll /machine:I386 /out:"Release/TestService.dll"
+# ADD LINK32 /nologo /dll /machine:I386 /out:"Release/testservice.dll"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\TestService.* .
+PostBuild_Cmds=copy $(OutDir)\testservice.* .
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "deployerSvc - Win32 Debug"
@@ -87,12 +87,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/TestServiced.dll"
+# ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/testserviced.dll"
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\TestServiced.* .
+PostBuild_Cmds=copy $(OutDir)\testserviced.* .
 # End Special Build Tool
 
 !ENDIF 
@@ -106,15 +106,15 @@ PostBuild_Cmds=copy $(OutDir)\TestServiced.* .
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\Service.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Test.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\TestI.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\Service.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -138,7 +138,7 @@ SOURCE=.\Test.ice
 
 !IF  "$(CFG)" == "deployerSvc - Win32 Release"
 
-USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
+USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Test.ice
 
@@ -154,7 +154,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "deployerSvc - Win32 Debug"
 
-USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
+USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Test.ice
 
