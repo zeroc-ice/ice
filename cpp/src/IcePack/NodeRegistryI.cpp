@@ -74,7 +74,7 @@ IcePack::NodeRegistryI::add(const string& name, const NodePrx& node, const Ice::
 	StringObjectProxyDict::iterator p = dict.find(name);
 	if(p != dict.end())
 	{
-	    if(oldNode != p->second)
+	    if(oldNode && oldNode != p->second)
 	    {
 		continue;
 	    }
