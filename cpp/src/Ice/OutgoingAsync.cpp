@@ -190,50 +190,38 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
     }
     catch(const Exception& ex)
     {
-	warnException(ex);
-	_connection->decProxyCount();
-	return;
+	warning(ex);
     }
     catch(const std::exception& ex)
     {
-	warnException(ex);
-	_connection->decProxyCount();
-	return;
+	warning(ex);
     }
     catch(...)
     {
-	warnException();
-	_connection->decProxyCount();
-	return;
+	warning();
     }
 
     _connection->decProxyCount();
 }
 
 void
-IceInternal::OutgoingAsync::__finished(const LocalException& ex)
+IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 {
     try
     {
-	ice_exception(ex);
+	ice_exception(exc);
     }
     catch(const Exception& ex)
     {
-	warnException(ex);
-	_connection->decProxyCount();
-	return;
+	warning(ex);
     }
     catch(const std::exception& ex)
     {
-	warnException(ex);
-	_connection->decProxyCount();
-	return;
+	warning(ex);
     }
     catch(...)
     {
-	warnException(ex);
-	_connection->decProxyCount();
-	return;
+	warning();
     }
 
     _connection->decProxyCount();
@@ -252,7 +240,7 @@ IceInternal::OutgoingAsync::__os()
 }
 
 void
-IceInternal::OutgoingAsync::warnException(const Exception& ex) const
+IceInternal::OutgoingAsync::warning(const Exception& ex) const
 {
     if(_instance->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
     {
@@ -262,7 +250,7 @@ IceInternal::OutgoingAsync::warnException(const Exception& ex) const
 }
 
 void
-IceInternal::OutgoingAsync::warnException(const std::exception& ex) const
+IceInternal::OutgoingAsync::warning(const std::exception& ex) const
 {
     if(_instance->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
     {
@@ -272,7 +260,7 @@ IceInternal::OutgoingAsync::warnException(const std::exception& ex) const
 }
 
 void
-IceInternal::OutgoingAsync::warnException() const
+IceInternal::OutgoingAsync::warning() const
 {
     if(_instance->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
     {

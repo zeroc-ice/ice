@@ -34,7 +34,6 @@ public:
     virtual ~OutgoingAsync();
 
     virtual void ice_exception(const ::IceUtil::Exception&) = 0;
-
     virtual void __response(bool) = 0;
 
     void __setup(const ConnectionPtr&, const ReferencePtr&, const std::string&, ::Ice::OperationMode,
@@ -49,9 +48,9 @@ public:
 
 private:
 
-    void warnException(const ::Ice::Exception&) const;
-    void warnException(const ::std::exception&) const;
-    void warnException() const;
+    void warning(const ::Ice::Exception&) const;
+    void warning(const ::std::exception&) const;
+    void warning() const;
 
     ConnectionPtr _connection;
     bool _compress;
