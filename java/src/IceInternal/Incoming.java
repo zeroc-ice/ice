@@ -180,6 +180,21 @@ public class Incoming
 
             _is.endReadEncaps();
 
+	    if(ex.id == null)
+	    {
+		ex.id = _current.id;
+	    }
+	    
+	    if(ex.facet == null)
+	    {
+		ex.facet = _current.facet;
+	    }
+	    
+	    if(ex.operation == null || ex.operation.length() == 0)
+	    {
+		ex.operation = _current.operation;
+	    }
+
             if(response)
             {
                 _os.endWriteEncaps();
@@ -200,65 +215,12 @@ public class Incoming
 		{
 		    assert(false);
 		}
-
-		//
-		// Write the data from the exception if set so that a
-		// RequestFailedException can override the information
-		// from _current.
-		//
-		if(ex.id != null)
-		{
-		    ex.id.__write(_os);
-		}
-		else
-		{
-		    _current.id.__write(_os);
-		}
-		
-		if(ex.facet != null)
-		{
-		    _os.writeStringSeq(ex.facet);
-		}
-		else
-		{
-		    _os.writeStringSeq(_current.facet);
-		}
-		
-		if(ex.operation != null && ex.operation.length() > 0)
-		{
-		    _os.writeString(ex.operation);
-		}
-		else
-		{
-		    _os.writeString(_current.operation);
-		}
+		ex.id.__write(_os);
+		_os.writeStringSeq(ex.facet);
+		_os.writeString(ex.operation);
             }
 
-	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		if(ex.id == null)
-		{
-		    ex.id = _current.id;
-		}
-
-		if(ex.facet == null)
-		{
-		    ex.facet = _current.facet;
-		}
-
-		if(ex.operation == null || ex.operation.length() == 0)
-		{
-		    ex.operation = _current.operation;
-		}
-
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		ex.printStackTrace(pw);
-		pw.flush();
-		String s = "dispatch exception:\n" + sw.toString();
-		_os.instance().logger().warning(s);
-	    }
-
+	    warning(ex);
 	    return;
         }
         catch(Ice.LocalException ex)
@@ -269,6 +231,7 @@ public class Incoming
             }
 
             _is.endReadEncaps();
+
             if(response)
             {
                 _os.endWriteEncaps();
@@ -277,11 +240,7 @@ public class Incoming
 		_os.writeString(ex.toString());
             }
 
-	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		warning("dispatch exception: unknown local exception:", ex);
-	    }
-
+	    warning(ex);
 	    return;
         }
         /* Not possible in Java - UserExceptions are checked exceptions
@@ -307,11 +266,7 @@ public class Incoming
 		_os.writeString(ex.toString());
             }
 	    
-	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		warning("dispatch exception: unknown exception:", ex);
-	    }
-
+	    warning(ex);
 	    return;
         }
 	
@@ -362,21 +317,43 @@ public class Incoming
     }
 
     private void
-    warning(String s, Exception ex)
+    warning(Exception ex)
     {
-	java.io.StringWriter sw = new java.io.StringWriter();
-	java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
-	out.setUseTab(false);
-	out.print(s);
-	out.print("\nidentity: " + Ice.Util.identityToString(_current.id));
-	out.print("\nfacet: ");
-	IceInternal.ValueWriter.write(_current.facet, out);
-	out.print("\noperation: " + _current.operation);
-	out.print("\n");
-	ex.printStackTrace(pw);
-	pw.flush();
-	_os.instance().logger().warning(sw.toString());
+	if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    java.io.StringWriter sw = new java.io.StringWriter();
+	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+	    IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
+	    out.setUseTab(false);
+	    out.print("dispatch exception:");
+	    out.print("\nidentity: " + Ice.Util.identityToString(_current.id));
+	    out.print("\nfacet: ");
+	    IceInternal.ValueWriter.write(_current.facet, out);
+	    out.print("\noperation: " + _current.operation);
+	    out.print("\n");
+	    ex.printStackTrace(pw);
+	    pw.flush();
+	    _os.instance().logger().warning(sw.toString());
+	}
+    }
+
+    private void
+    warning(String msg)
+    {
+	if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    java.io.StringWriter sw = new java.io.StringWriter();
+	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+	    IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
+	    out.setUseTab(false);
+	    out.print("dispatch exception: " + msg);
+	    out.print("\nidentity: " + Ice.Util.identityToString(_current.id));
+	    out.print("\nfacet: ");
+	    IceInternal.ValueWriter.write(_current.facet, out);
+	    out.print("\noperation: " + _current.operation);
+	    pw.flush();
+	    _os.instance().logger().warning(sw.toString());
+	}
     }
 
     private BasicStream _is;
