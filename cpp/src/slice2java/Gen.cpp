@@ -1067,11 +1067,25 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         string params = getParams((*r), scope);
         string args = getArgs(*r);
 
+	bool hasAMD = p->hasMetaData("amd") || (*r)->hasMetaData("amd");
+
         out << sp;
-        out << nl << "public " << retS << nl << opName << '(' << params;
+        out << nl << "public " << (hasAMD ? "void" : retS) << nl << opName;
+	if(hasAMD)
+	{
+	    out << "_async";
+	}
+	out << '(';
+	if(hasAMD)
+	{
+	    ContainedPtr definingContainer = ContainedPtr::dynamicCast((*r)->container());
+	    out << "AMD_" << fixKwd(definingContainer->name()) << '_' << opName << " __cb, ";
+	}
+	out << params;
+
         if(!p->isLocal())
         {
-            if(!params.empty())
+            if(!params.empty() || hasAMD)
             {
                 out << ", ";
             }
@@ -1085,11 +1099,12 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeThrowsClause(scope, throws);
         out << sb;
         out << nl;
-        if(ret)
+        if(ret && !hasAMD)
         {
             out << "return ";
         }
-        out << "_ice_delegate." << opName << '(' << args;
+        out << "_ice_delegate." << opName << (hasAMD ? "_async(__cb, " : "(");
+	out << args;
         if(!p->isLocal())
         {
             if(!args.empty())

@@ -1,6 +1,10 @@
 Changes since version 1.1.1
 ---------------------------
 
+- Fixed a bug in the slice2java code generator: tie classes were
+  not generated correctly for operations with an "amd" metadata
+  directive.
+
 - Fixed a bug where Ice would print a dispatch warning for
   Ice::RequestFailedException even if the Ice.Warn.Dispatch property was
   set to 1.
