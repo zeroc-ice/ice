@@ -660,7 +660,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
 	    IceInternal.Reference reference =
 		_instance.referenceFactory().create(ident, new String[0], IceInternal.Reference.ModeTwoway,
-						    false, _id, endpoints, null, null, null, true);
+						    false, _id, endpoints, null, _locatorInfo, null, true);
 	    return _instance.proxyFactory().referenceToProxy(reference);
 	}
     }
@@ -699,7 +699,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         //
         IceInternal.Reference reference =
 	    _instance.referenceFactory().create(ident, new String[0], IceInternal.Reference.ModeTwoway,
-						false, "", endpoints, null, null, null, true);
+						false, "", endpoints, null, _locatorInfo, null, true);
         return _instance.proxyFactory().referenceToProxy(reference);
     }
 
