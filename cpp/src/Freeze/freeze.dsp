@@ -110,6 +110,18 @@ SOURCE=.\DB.cpp
 
 SOURCE=.\DBI.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\Evictor.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\EvictorF.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\EvictorI.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -125,6 +137,18 @@ SOURCE=..\..\include\Freeze\DBF.h
 # Begin Source File
 
 SOURCE=.\DBI.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Freeze\Evictor.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Freeze\EvictorF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\EvictorI.h
 # End Source File
 # Begin Source File
 
@@ -208,6 +232,82 @@ InputPath=..\..\slice\Freeze\DBF.ice
 	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/DBF.ice 
 	move DBF.h ..\..\include\Freeze 
 	del DBF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Freeze\Evictor.ice
+
+!IF  "$(CFG)" == "Freeze - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\Freeze\Evictor.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/Evictor.ice \
+	move Evictor.h ..\..\include\Freeze \
+	
+
+"..\..\include\Freeze\Evictor" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Evictor.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Freeze\Evictor.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/Evictor.ice \
+	move Evictor.h ..\..\include\Freeze \
+	
+
+"..\..\include\Freeze\Evictor" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Evictor.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Freeze\EvictorF.ice
+
+!IF  "$(CFG)" == "Freeze - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\Freeze\EvictorF.ice
+
+"..\..\include\Freeze\EvictorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/EvictorF.ice 
+	move EvictorF.h ..\..\include\Freeze 
+	del EvcitorF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Freeze\EvictorF.ice
+
+"..\..\include\Freeze\EvictorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/EvictorF.ice 
+	move EvictorF.h ..\..\include\Freeze 
+	del EvcitorF.cpp 
 	
 # End Custom Build
 
