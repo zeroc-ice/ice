@@ -34,7 +34,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
 {
     IceUtil::RecMutex::Lock sync(*this);
     map<string, ObjectAdapterIPtr>::iterator p = _adapters.find(name);
-    if (p != _adapters.end())
+    if(p != _adapters.end())
     {
 	return p->second;
     }
@@ -47,9 +47,9 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
 ObjectAdapterPtr
 IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrx& proxy)
 {
-    for (map<string, ObjectAdapterIPtr>::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+    for(map<string, ObjectAdapterIPtr>::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
     {
-	if (p->second->isLocal(proxy))
+	if(p->second->isLocal(proxy))
 	{
 	    return p->second;
 	}

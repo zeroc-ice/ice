@@ -16,7 +16,7 @@ public final class PluginManagerI implements PluginManager
     getPlugin(String name)
     {
         Plugin p = (Plugin)_plugins.get(name);
-        if (p != null)
+        if(p != null)
         {
             return p;
         }
@@ -26,7 +26,7 @@ public final class PluginManagerI implements PluginManager
     public synchronized void
     addPlugin(String name, Plugin plugin)
     {
-        if (_plugins.containsKey(name))
+        if(_plugins.containsKey(name))
         {
             throw new PluginExistsException();
         }
@@ -37,7 +37,7 @@ public final class PluginManagerI implements PluginManager
     destroy()
     {
         java.util.Iterator i = _plugins.entrySet().iterator();
-        while (i.hasNext())
+        while(i.hasNext())
         {
             Plugin p = (Plugin)i.next();
             p.destroy();
@@ -64,7 +64,7 @@ public final class PluginManagerI implements PluginManager
         Ice.Properties properties = _instance.properties();
         java.util.Map plugins = properties.getPropertiesForPrefix(prefix);
         java.util.Iterator p = plugins.entrySet().iterator();
-        while (p.hasNext())
+        while(p.hasNext())
         {
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
             String name = ((String)entry.getKey()).substring(prefix.length());
@@ -76,15 +76,15 @@ public final class PluginManagerI implements PluginManager
             String className;
             String[] args;
             int pos = value.indexOf(' ');
-            if (pos == -1)
+            if(pos == -1)
             {
                 pos = value.indexOf('\t');
             }
-            if (pos == -1)
+            if(pos == -1)
             {
                 pos = value.indexOf('\n');
             }
-            if (pos == -1)
+            if(pos == -1)
             {
                 className = value;
                 args = new String[0];

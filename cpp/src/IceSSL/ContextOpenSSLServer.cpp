@@ -51,7 +51,7 @@ IceSSL::OpenSSL::ServerContext::configure(const GeneralConfig& generalConfig,
                                    reinterpret_cast<const unsigned char *>(connectionContext.c_str()),
                                    connectionContext.size());
 
-    if (_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
+    if(_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
     {
         ostringstream s;
 
@@ -74,7 +74,7 @@ IceSSL::OpenSSL::ServerContext::configure(const GeneralConfig& generalConfig,
 IceSSL::ConnectionPtr 
 IceSSL::OpenSSL::ServerContext::createConnection(int socket, const PluginBaseIPtr& plugin)
 {
-    if (_sslContext == 0)
+    if(_sslContext == 0)
     {
         ContextNotConfiguredException contextEx(__FILE__, __LINE__);
 
@@ -114,16 +114,16 @@ IceSSL::OpenSSL::ServerContext::loadCertificateAuthority(const CertificateAuthor
 
     string caFile = certAuth.getCAFileName();
 
-    if (caFile.empty())
+    if(caFile.empty())
     {
         return;
     }
 
     STACK_OF(X509_NAME)* certNames = SSL_load_client_CA_file(caFile.c_str());
 
-    if (certNames == 0)
+    if(certNames == 0)
     {
-        if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
+        if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         {
             string errorString = "unable to load certificate authorities certificate names from " + caFile + "\n";
             errorString += sslGetErrors();

@@ -15,15 +15,15 @@ public class ObjectFactoryI implements Ice.ObjectFactory
     public Ice.Object
     create(String type)
     {
-	if (type.equals("::Complex::MultiplyNode"))
+	if(type.equals("::Complex::MultiplyNode"))
 	{
 	    return new MultiplyNodeI();
 	}
-	if (type.equals("::Complex::AddNode"))
+	if(type.equals("::Complex::AddNode"))
 	{
 	    return new AddNodeI();
 	}
-        if (type.equals("::Complex::NumberNode"))
+        if(type.equals("::Complex::NumberNode"))
 	{
 	    return new NumberNodeI();
 	}

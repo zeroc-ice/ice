@@ -45,7 +45,7 @@ public class XMLOutput extends OutputBase
     public void
     print(String s)
     {
-        if (!_printed)
+        if(!_printed)
         {
             _out.print('>');
             _printed = true;
@@ -65,20 +65,20 @@ public class XMLOutput extends OutputBase
         final String allReserved = "<>'\"&";
         boolean hasReserved = false;
         char[] arr = s.toCharArray();
-        for (int i = 0; i < arr.length; i++)
+        for(int i = 0; i < arr.length; i++)
         {
-            if (allReserved.indexOf(arr[i]) != -1)
+            if(allReserved.indexOf(arr[i]) != -1)
             {
                 hasReserved = true;
                 break;
             }
         }
-        if (hasReserved)
+        if(hasReserved)
         {
             //
             // First convert all & to &amp;
             //
-            if (v.indexOf('&') != -1)
+            if(v.indexOf('&') != -1)
             {
                 v = v.replaceAll("&", "&amp;");
             }
@@ -86,19 +86,19 @@ public class XMLOutput extends OutputBase
             //
             // Next convert remaining reserved characters.
             //
-            if (v.indexOf('>') != -1)
+            if(v.indexOf('>') != -1)
             {
                 v = v.replaceAll(">", "&gt;");
             }
-            if (v.indexOf('<') != -1)
+            if(v.indexOf('<') != -1)
             {
                 v = v.replaceAll("<", "&lt;");
             }
-            if (v.indexOf('\'') != -1)
+            if(v.indexOf('\'') != -1)
             {
                 v = v.replaceAll("'", "&apos;");
             }
-            if (v.indexOf('"') != -1)
+            if(v.indexOf('"') != -1)
             {
                 v = v.replaceAll("\"", "&quot;");
             }
@@ -109,7 +109,7 @@ public class XMLOutput extends OutputBase
     public void
     nl()
     {
-        if (!_printed)
+        if(!_printed)
         {
             _out.print('>');
             _printed = true;
@@ -129,7 +129,7 @@ public class XMLOutput extends OutputBase
         //
         _out.print('<');
         _out.print(element);
-        if (_sgml)
+        if(_sgml)
         {
             _out.print('>');
         }
@@ -139,11 +139,11 @@ public class XMLOutput extends OutputBase
         }
 
         int pos = element.indexOf(' ');
-        if (pos == -1)
+        if(pos == -1)
         {
             pos = element.indexOf('\t');
         }
-        if (pos == -1)
+        if(pos == -1)
         {
             _elementStack.addFirst(element);
         }
@@ -163,7 +163,7 @@ public class XMLOutput extends OutputBase
         String element = (String)_elementStack.removeFirst();
 
         dec();
-        if (!_printed)
+        if(!_printed)
         {
             _out.print("/>");
         }

@@ -15,7 +15,7 @@ public final class ProxyFactory
     public Ice.ObjectPrx
     stringToProxy(String str)
     {
-        if (str.length() == 0)
+        if(str.length() == 0)
         {
             return null;
         }
@@ -29,7 +29,7 @@ public final class ProxyFactory
     public String
     proxyToString(Ice.ObjectPrx proxy)
     {
-        if (proxy != null)
+        if(proxy != null)
         {
             Ice.ObjectPrxHelper h = (Ice.ObjectPrxHelper)proxy;
             return h.__reference().toString();
@@ -46,7 +46,7 @@ public final class ProxyFactory
         Ice.Identity ident = new Ice.Identity();
         ident.__read(s);
 
-        if (ident.name.length() == 0)
+        if(ident.name.length() == 0)
         {
             return null;
         }
@@ -68,7 +68,7 @@ public final class ProxyFactory
     public void
     proxyToStream(Ice.ObjectPrx proxy, BasicStream s)
     {
-        if (proxy != null)
+        if(proxy != null)
         {
             Ice.ObjectPrxHelper h = (Ice.ObjectPrxHelper)proxy;
             Reference ref = h.__reference();

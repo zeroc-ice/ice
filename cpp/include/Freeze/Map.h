@@ -71,7 +71,7 @@ public:
 
     DBIterator(const DBIterator& rhs)
     {
-	if (rhs._cursor)
+	if(rhs._cursor)
 	{
 	    _cursor = rhs._cursor->clone();
 	}
@@ -81,12 +81,12 @@ public:
 
     DBIterator& operator=(const DBIterator& rhs)
     {
-	if (_cursor)
+	if(_cursor)
 	{
 	    _cursor->close();
 	}
 
-	if (rhs._cursor)
+	if(rhs._cursor)
 	{
 	    _cursor = rhs._cursor->clone();
 	}
@@ -98,7 +98,7 @@ public:
 
     ~DBIterator()
     {
-	if (_cursor)
+	if(_cursor)
 	{
 	    _cursor->close();
 	}
@@ -106,7 +106,7 @@ public:
 
     bool operator==(const DBIterator& rhs) const
     {
-	if (!_db && !rhs._db)
+	if(!_db && !rhs._db)
 	{
 	    return true;
 	}
@@ -171,7 +171,7 @@ private:
     void incr()
     {
 	assert(_cursor && _db);
-	if (!_cursor->next())
+	if(!_cursor->next())
 	{
 	    //
 	    // The iterator has been moved past the end, and is now
@@ -232,7 +232,7 @@ public:
 
     ConstDBIterator(const ConstDBIterator& rhs)
     {
-	if (rhs._cursor)
+	if(rhs._cursor)
 	{
 	    _cursor = rhs._cursor->clone();
 	}
@@ -246,7 +246,7 @@ public:
     //
     ConstDBIterator(const DBIterator<key_type, mapped_type, KeyCodec, ValueCodec>& rhs)
     {
-	if (rhs._cursor)
+	if(rhs._cursor)
 	{
 	    _cursor = rhs._cursor->clone();
 	}
@@ -256,12 +256,12 @@ public:
 
     ConstDBIterator& operator=(const ConstDBIterator& rhs)
     {
-	if (_cursor)
+	if(_cursor)
 	{
 	    _cursor->close();
 	}
 
-	if (rhs._cursor)
+	if(rhs._cursor)
 	{
 	    _cursor = rhs._cursor->clone();
 	}
@@ -276,12 +276,12 @@ public:
     //
     ConstDBIterator& operator=(const DBIterator<key_type, mapped_type, KeyCodec, ValueCodec>& rhs)
     {
-	if (_cursor)
+	if(_cursor)
 	{
 	    _cursor->close();
 	}
 
-	if (rhs._cursor)
+	if(rhs._cursor)
 	{
 	    _cursor = rhs._cursor->clone();
 	}
@@ -293,7 +293,7 @@ public:
 
     ~ConstDBIterator()
     {
-	if (_cursor)
+	if(_cursor)
 	{
 	    _cursor->close();
 	}
@@ -301,7 +301,7 @@ public:
 
     bool operator==(const ConstDBIterator& rhs)
     {
-	if (!_db && !rhs._db)
+	if(!_db && !rhs._db)
 	{
 	    return true;
 	}
@@ -356,7 +356,7 @@ private:
     void incr()
     {
 	assert(_cursor);
-	if (!_cursor->next())
+	if(!_cursor->next())
 	{
 	    //
 	    // The iterator has been moved past the end, and is now
@@ -445,7 +445,7 @@ public:
     DBMap(const DBPtr& db, _InputIterator first, _InputIterator last) :
 	_db(db)
     {
-	while (first != last)
+	while(first != last)
 	{
 	    insert(*first);
 	    ++first;
@@ -455,7 +455,7 @@ public:
     DBMap(const DBPtr& db, const value_type* first, const value_type* last) :
 	_db(db)
     {
-	while (first != last)
+	while(first != last)
 	{
 	    insert(*first);
 	    ++first;
@@ -464,7 +464,7 @@ public:
     DBMap(const DBPtr& db, const_iterator first, const_iterator last) :
 	_db(db)
     { 
-	while (first != last)
+	while(first != last)
 	{
 	    insert(*first);
 	    ++first;
@@ -491,17 +491,17 @@ public:
 	// equality is not necessarily correct in the context of a
 	// transaction.
 	//
-	if (count() != rhs.count())
+	if(count() != rhs.count())
 	    return false;
 
-	for (const_iterator p = rhs.begin() ; p != rhs.end() ; ++p)
+	for(const_iterator p = rhs.begin() ; p != rhs.end() ; ++p)
 	{
 	    const_iterator q = rhs.find(p->first);
-	    if (q == rhs.end())
+	    if(q == rhs.end())
 	    {
 		return false;
 	    }
-	    if (p->second != q->second)
+	    if(p->second != q->second)
 	    {
 		return false;
 	    }
@@ -633,7 +633,7 @@ public:
 	}
 
 	_db->put(k, v);
-	if (inserted)
+	if(inserted)
 	{
 	    cursor = _db->getCursorAtKey(k);
 	}
@@ -644,7 +644,7 @@ public:
     template <typename InputIterator>
     void insert(InputIterator first, InputIterator last)
     {
-	while (first != last)
+	while(first != last)
 	{
 	    insert(*first);
 	    ++first;
@@ -653,7 +653,7 @@ public:
 #else
     void insert(const value_type* first, const value_type* last)
     {
-	while (first != last)
+	while(first != last)
 	{
 	    insert(*first);
 	    ++first;
@@ -661,7 +661,7 @@ public:
     }
     void insert(const_iterator first, const_iterator last)
     {
-	while (first != last)
+	while(first != last)
 	{
 	    insert(*first);
 	    ++first;
@@ -693,7 +693,7 @@ public:
 
     void erase(iterator first, iterator last)
     {
-	while (first != last)
+	while(first != last)
 	{
 	    first._cursor->del();
 	    ++first;
@@ -745,7 +745,7 @@ public:
 
     size_type count(const key_type& key) const
     {
-	if (find(key) != end())
+	if(find(key) != end())
 	    return 1;
 	return 0;
     }

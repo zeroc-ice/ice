@@ -52,7 +52,7 @@ IceSSL::OpenSSL::RSAPrivateKey::RSAPrivateKey(RSA* rsa) :
 
 IceSSL::OpenSSL::RSAPrivateKey::~RSAPrivateKey()
 {
-    if (_privateKey != 0)
+    if(_privateKey != 0)
     {
         RSA_free(_privateKey);
     }
@@ -108,7 +108,7 @@ IceSSL::OpenSSL::RSAPrivateKey::byteSeqToKey(const ByteSeq& keySeq)
 
     delete [] privateKeyBuffer;
 
-    if (_privateKey == 0)
+    if(_privateKey == 0)
     {
         IceSSL::PrivateKeyParseException pkParseException(__FILE__, __LINE__);
 

@@ -45,11 +45,11 @@ main(int, char**)
     ifstream numeric("numeric.txt");
     test(numeric.good());
     wstring wrandom;
-    while (numeric)
+    while(numeric)
     {
 	int c;
 	numeric >> c;
-	if (numeric)
+	if(numeric)
 	{
 	    wrandom += static_cast<wchar_t>(c);
 	}
@@ -59,11 +59,11 @@ main(int, char**)
     ifstream utf8("utf8.txt");
     test(utf8.good());
     string random;
-    while (utf8)
+    while(utf8)
     {
 	char c;
 	utf8.get(c);
-	if (utf8)
+	if(utf8)
 	{
 	    random += c;
 	}
@@ -77,14 +77,14 @@ main(int, char**)
     unsigned int i;
 
     ofstream numeric2("numeric2.txt");
-    for (i = 0; i < wrandom2.length(); ++i)
+    for(i = 0; i < wrandom2.length(); ++i)
     {
 	numeric2 << static_cast<int>(wrandom2[i]) << '\n';
     }
     numeric2.close();
 
     ofstream utf82("utf82.txt");
-    for (i = 0; i < random2.length(); ++i)
+    for(i = 0; i < random2.length(); ++i)
     {
 	utf82.put(random2[i]);
     }

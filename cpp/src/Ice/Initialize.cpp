@@ -21,7 +21,7 @@ CommunicatorPtr
 Ice::initialize(int& argc, char* argv[], Int version)
 {
 #ifndef ICE_IGNORE_VERSION
-    if (version != ICE_INT_VERSION)
+    if(version != ICE_INT_VERSION)
     {
 	throw VersionMismatchException(__FILE__, __LINE__);
     }
@@ -38,7 +38,7 @@ CommunicatorPtr
 Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& properties, Int version)
 {
 #ifndef ICE_IGNORE_VERSION
-    if (version != ICE_INT_VERSION)
+    if(version != ICE_INT_VERSION)
     {
 	throw VersionMismatchException(__FILE__, __LINE__);
     }
@@ -65,7 +65,7 @@ static DefaultPropertiesDestroyer defaultPropertiesDestroyer;
 PropertiesPtr
 Ice::getDefaultProperties()
 {
-    if (!defaultProperties)
+    if(!defaultProperties)
     {
 	defaultProperties = createProperties();
     }
@@ -75,7 +75,7 @@ Ice::getDefaultProperties()
 PropertiesPtr
 Ice::getDefaultProperties(StringSeq& args)
 {
-    if (!defaultProperties)
+    if(!defaultProperties)
     {
 	defaultProperties = createProperties(args);
     }
@@ -85,7 +85,7 @@ Ice::getDefaultProperties(StringSeq& args)
 PropertiesPtr
 Ice::getDefaultProperties(int& argc, char* argv[])
 {
-    if (!defaultProperties)
+    if(!defaultProperties)
     {
 	defaultProperties = createProperties(argc, argv);
     }
@@ -114,7 +114,7 @@ StringSeq
 Ice::argsToStringSeq(int argc, char* argv[])
 {
     StringSeq result;
-    for (int i = 0; i < argc; i++)
+    for(int i = 0; i < argc; i++)
     {
         result.push_back(argv[i]);
     }
@@ -129,11 +129,11 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, char* argv[])
     // beginning of argv.
     //
     int i = 0;
-    while (i < argc)
+    while(i < argc)
     {
-        if (find(args.begin(), args.end(), argv[i]) == args.end())
+        if(find(args.begin(), args.end(), argv[i]) == args.end())
         {
-            for (int j = i; j < argc - 1; j++)
+            for(int j = i; j < argc - 1; j++)
             {
                 argv[j] = argv[j + 1];
             }

@@ -89,9 +89,9 @@ IceSSL::ConfigParser::process()
 
     try
     {
-        if (*(_configFile.begin()) != '/')
+        if(*(_configFile.begin()) != '/')
         {
-            if (*(_configPath.rbegin()) != '/')
+            if(*(_configPath.rbegin()) != '/')
             {
                 _configPath += "/";
             }
@@ -115,7 +115,7 @@ IceSSL::ConfigParser::process()
 
         errorCount = parser.getErrorCount();
 
-        if (errorCount == 0)
+        if(errorCount == 0)
         {
             // Get the root of the parse tree.
             _root = parser.getDocument();
@@ -155,7 +155,7 @@ IceSSL::ConfigParser::process()
         throw configEx;
     }
 
-    if (errorCount)
+    if(errorCount)
     {
         ConfigParseException configEx(__FILE__, __LINE__);
 
@@ -167,7 +167,7 @@ IceSSL::ConfigParser::process()
 
         string reporterErrors = errReporter->getErrors();
 
-        if (!reporterErrors.empty())
+        if(!reporterErrors.empty())
         {
             configEx._message += "\n";
             configEx._message += reporterErrors;
@@ -188,7 +188,7 @@ IceSSL::ConfigParser::loadClientConfig(GeneralConfig& general,
     try
     {
         // If we actually have a client section.
-        if (clientSection != 0)
+        if(clientSection != 0)
         {
             getGeneral(clientSection, general);
             getCertAuth(clientSection, certAuth);
@@ -225,7 +225,7 @@ IceSSL::ConfigParser::loadServerConfig(GeneralConfig& general,
     try
     {
         // If we actually have a client section.
-        if (serverSection != 0)
+        if(serverSection != 0)
         {
             getGeneral(serverSection, general);
             getCertAuth(serverSection, certAuth);
@@ -285,7 +285,7 @@ IceSSL::ConfigParser::popRoot(string& path, string& root, string& tail)
 {
     string::size_type pos = path.find_first_of(':');
 
-    if (pos != string::npos)
+    if(pos != string::npos)
     {
         root = path.substr(0,pos);
         tail = path.substr(pos+1);
@@ -309,7 +309,7 @@ IceSSL::ConfigParser::find(DOM_Node rootNode, string& nodePath)
     // The target node that we're looking for.
     DOM_Node tNode;
 
-    if (rootNode == 0)
+    if(rootNode == 0)
     {
         return tNode;
     }
@@ -322,17 +322,17 @@ IceSSL::ConfigParser::find(DOM_Node rootNode, string& nodePath)
 
     DOM_Node child = rootNode.getFirstChild();
 
-    while (child != 0)
+    while(child != 0)
     {
         // Ignore any other node types - we're only interested in ELEMENT_NODEs.
-        if (child.getNodeType() == DOM_Node::ELEMENT_NODE)
+        if(child.getNodeType() == DOM_Node::ELEMENT_NODE)
         {
             string nodeName = toString(child.getNodeName());
 
-            if (nodeName.compare(rootNodeName) == 0)
+            if(nodeName.compare(rootNodeName) == 0)
             {
                 // No further to recurse, this must be it.
-                if (tailNodes.empty())
+                if(tailNodes.empty())
                 {
                     tNode = child;
                 }
@@ -353,7 +353,7 @@ IceSSL::ConfigParser::find(DOM_Node rootNode, string& nodePath)
 void
 IceSSL::ConfigParser::getGeneral(DOM_Node rootNode, GeneralConfig& generalConfig)
 {
-    if (rootNode == 0)
+    if(rootNode == 0)
     {
         return;
     }
@@ -365,7 +365,7 @@ IceSSL::ConfigParser::getGeneral(DOM_Node rootNode, GeneralConfig& generalConfig
 
     int attrCount = attributes.getLength();
 
-    for (int i = 0; i < attrCount; i++)
+    for(int i = 0; i < attrCount; i++)
     {
         DOM_Node attribute = attributes.item(i);
         string nodeName = toString(attribute.getNodeName());
@@ -379,7 +379,7 @@ IceSSL::ConfigParser::getGeneral(DOM_Node rootNode, GeneralConfig& generalConfig
 void
 IceSSL::ConfigParser::getCertAuth(DOM_Node rootNode, CertificateAuthority& certAuth)
 {
-    if (rootNode == 0)
+    if(rootNode == 0)
     {
         return;
     }
@@ -387,7 +387,7 @@ IceSSL::ConfigParser::getCertAuth(DOM_Node rootNode, CertificateAuthority& certA
     string nodeName = "certauthority";
     DOM_Node certAuthNode = find(rootNode, nodeName);
 
-    if (certAuthNode == 0)
+    if(certAuthNode == 0)
     {
         return;
     }
@@ -396,25 +396,25 @@ IceSSL::ConfigParser::getCertAuth(DOM_Node rootNode, CertificateAuthority& certA
 
     int attrCount = attributes.getLength();
 
-    for (int i = 0; i < attrCount; i++)
+    for(int i = 0; i < attrCount; i++)
     {
         DOM_Node attribute = attributes.item(i);
         string nodeName = toString(attribute.getNodeName());
         string nodeValue = toString(attribute.getNodeValue());
 
-        if (nodeName.compare("file") == 0)
+        if(nodeName.compare("file") == 0)
         {
             string filename = nodeValue;
 
             // Just a filename, no path component, append path.
-            if ((filename.find("/") == string::npos) && (filename.find("\\") == string::npos))
+            if((filename.find("/") == string::npos) && (filename.find("\\") == string::npos))
             {
                 filename = _configPath + filename;
             }
 
             certAuth.setCAFileName(filename);
         }
-        else if (nodeName.compare("path") == 0)
+        else if(nodeName.compare("path") == 0)
         {
             certAuth.setCAPath(nodeValue);
         }
@@ -424,7 +424,7 @@ IceSSL::ConfigParser::getCertAuth(DOM_Node rootNode, CertificateAuthority& certA
 void
 IceSSL::ConfigParser::getBaseCerts(DOM_Node rootNode, BaseCertificates& baseCerts)
 {
-    if (rootNode == 0)
+    if(rootNode == 0)
     {
         return;
     }
@@ -432,7 +432,7 @@ IceSSL::ConfigParser::getBaseCerts(DOM_Node rootNode, BaseCertificates& baseCert
     string nodeName = "basecerts";
     DOM_Node baseCertsRoot = find(rootNode, nodeName);
 
-    if (baseCertsRoot == 0)
+    if(baseCertsRoot == 0)
     {
         return;
     }
@@ -456,7 +456,7 @@ IceSSL::ConfigParser::getBaseCerts(DOM_Node rootNode, BaseCertificates& baseCert
 void
 IceSSL::ConfigParser::getTempCerts(DOM_Node rootNode, TempCertificates& tempCerts)
 {
-    if (rootNode == 0)
+    if(rootNode == 0)
     {
         return;
     }
@@ -464,23 +464,23 @@ IceSSL::ConfigParser::getTempCerts(DOM_Node rootNode, TempCertificates& tempCert
     string nodeName = "tempcerts";
     DOM_Node tempCertsRoot = find(rootNode, nodeName);
 
-    if (tempCertsRoot == 0)
+    if(tempCertsRoot == 0)
     {
         return;
     }
 
     DOM_Node child = tempCertsRoot.getFirstChild();
 
-    while (child != 0)
+    while(child != 0)
     {
         DOMString nodeName = child.getNodeName();
         string name = toString(nodeName);
 
-        if (name.compare("dhparams") == 0)
+        if(name.compare("dhparams") == 0)
         {
             loadDHParams(child, tempCerts);
         }
-        else if (name.compare("rsacert") == 0)
+        else if(name.compare("rsacert") == 0)
         {
             loadRSACert(child, tempCerts);
         }
@@ -512,7 +512,7 @@ IceSSL::ConfigParser::loadRSACert(DOM_Node rootNode, TempCertificates& tempCerts
 void
 IceSSL::ConfigParser::getCert(DOM_Node rootNode, CertificateDesc& certDesc)
 {
-    if (rootNode == 0)
+    if(rootNode == 0)
     {
         return;
     }
@@ -524,13 +524,13 @@ IceSSL::ConfigParser::getCert(DOM_Node rootNode, CertificateDesc& certDesc)
     DOM_NamedNodeMap attributes = rootNode.getAttributes();
     int attrCount = attributes.getLength();
 
-    for (int i = 0; i < attrCount; i++)
+    for(int i = 0; i < attrCount; i++)
     {
         DOM_Node attribute = attributes.item(i);
         string nodeName = toString(attribute.getNodeName());
         string nodeValue = toString(attribute.getNodeValue());
 
-        if (nodeName.compare("keysize") == 0)
+        if(nodeName.compare("keysize") == 0)
         {
             keySize = atoi(nodeValue.c_str());
         }
@@ -549,7 +549,7 @@ IceSSL::ConfigParser::getCert(DOM_Node rootNode, CertificateDesc& certDesc)
 void
 IceSSL::ConfigParser::getDHParams(DOM_Node rootNode, DiffieHellmanParamsFile& dhParams)
 {
-    if (rootNode == 0)
+    if(rootNode == 0)
     {
         return;
     }
@@ -561,13 +561,13 @@ IceSSL::ConfigParser::getDHParams(DOM_Node rootNode, DiffieHellmanParamsFile& dh
     int keySize = 0;
     int attrCount = attributes.getLength();
 
-    for (int i = 0; i < attrCount; i++)
+    for(int i = 0; i < attrCount; i++)
     {
         DOM_Node attribute = attributes.item(i);
         string nodeName = toString(attribute.getNodeName());
         string nodeValue = toString(attribute.getNodeValue());
 
-        if (nodeName.compare("keysize") == 0)
+        if(nodeName.compare("keysize") == 0)
         {
             keySize = atoi(nodeValue.c_str());
         }
@@ -579,7 +579,7 @@ IceSSL::ConfigParser::getDHParams(DOM_Node rootNode, DiffieHellmanParamsFile& dh
 void
 IceSSL::ConfigParser::loadCertificateFile(DOM_Node rootNode, CertificateFile& certFile)
 {
-    if (rootNode == 0)
+    if(rootNode == 0)
     {
         return;
     }
@@ -590,22 +590,22 @@ IceSSL::ConfigParser::loadCertificateFile(DOM_Node rootNode, CertificateFile& ce
     DOM_NamedNodeMap attributes = rootNode.getAttributes();
     int attrCount = attributes.getLength();
 
-    for (int i = 0; i < attrCount; i++)
+    for(int i = 0; i < attrCount; i++)
     {
         DOM_Node attribute = attributes.item(i);
         string nodeName = toString(attribute.getNodeName());
         string nodeValue = toString(attribute.getNodeValue());
 
-        if (nodeName.compare("encoding") == 0)
+        if(nodeName.compare("encoding") == 0)
         {
             encoding = parseEncoding(nodeValue);
         }
-        else if (nodeName.compare("filename") == 0)
+        else if(nodeName.compare("filename") == 0)
         {
             filename = nodeValue;
 
             // Just a filename, no path component, append path.
-            if ((filename.find("/") == string::npos) && (filename.find("\\") == string::npos))
+            if((filename.find("/") == string::npos) && (filename.find("\\") == string::npos))
             {
                 filename = _configPath + filename;
             }
@@ -620,11 +620,11 @@ IceSSL::ConfigParser::parseEncoding(string& encodingString)
 {
     int encoding = 0;
 
-    if (encodingString.compare("PEM") == 0)
+    if(encodingString.compare("PEM") == 0)
     {
         encoding = SSL_FILETYPE_PEM;
     }
-    else if (encodingString.compare("ASN1") == 0)
+    else if(encodingString.compare("ASN1") == 0)
     {
         encoding = SSL_FILETYPE_ASN1;
     }

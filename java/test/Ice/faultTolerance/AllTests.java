@@ -13,7 +13,7 @@ public class AllTests
     private static void
     test(boolean b)
     {
-        if (!b)
+        if(!b)
         {
             throw new RuntimeException();
         }
@@ -25,7 +25,7 @@ public class AllTests
         System.out.print("testing stringToProxy... ");
         System.out.flush();
         String ref = "test";
-        for (int i = 0; i < ports.length; i++)
+        for(int i = 0; i < ports.length; i++)
         {
             ref += ":default -t 4000 -p " + ports[i];
         }
@@ -41,7 +41,7 @@ public class AllTests
         System.out.println("ok");
 
         int oldPid = 0;
-        for (int i = 1, j = 0; i <= ports.length; ++i, j = j >= 2 ? 0 : j + 1)
+        for(int i = 1, j = 0; i <= ports.length; ++i, j = j >= 2 ? 0 : j + 1)
         {
             System.out.print("testing server #" + i + "... ");
             System.out.flush();
@@ -49,14 +49,14 @@ public class AllTests
             test(pid != oldPid);
             System.out.println("ok");
 
-            if (j == 0)
+            if(j == 0)
             {
                 System.out.print("shutting down server #" + i + "... ");
                 System.out.flush();
                 obj.shutdown();
                 System.out.println("ok");
             }
-            else if (j == 1 || i + 1 > ports.length)
+            else if(j == 1 || i + 1 > ports.length)
             {
                 System.out.print("aborting server #" + i + "... ");
                 System.out.flush();
@@ -70,7 +70,7 @@ public class AllTests
                     System.out.println("ok");
                 }
             }
-            else if (j == 2)
+            else if(j == 2)
             {
                 System.out.print("aborting server #" + i + " and #" + (i + 1) +
                                  " with nonmutating call... ");

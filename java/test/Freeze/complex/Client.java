@@ -17,7 +17,7 @@ public class Client
     private static void
     test(boolean b)
     {
-        if (!b)
+        if(!b)
         {
             throw new RuntimeException();
         }
@@ -35,7 +35,7 @@ public class Client
 	
 	    System.out.print("testing database expressions... ");
 	    java.util.Iterator p = m.entrySet().iterator();
-	    while (p.hasNext())
+	    while(p.hasNext())
 	    {
 		java.util.Map.Entry e = (java.util.Map.Entry)p.next();
 
@@ -83,7 +83,7 @@ public class Client
 	    Parser parser = new Parser();
 	
 	    System.out.print("populating the database... ");
-	    for (int i = 0 ; i < expressions.length; ++i)
+	    for(int i = 0 ; i < expressions.length; ++i)
 	    {
 		Complex.Node root = parser.parse(expressions[i]);
 		assert(root != null);
@@ -124,11 +124,11 @@ public class Client
 	communicator.addObjectFactory(factory, "::Complex::AddNode");
 	communicator.addObjectFactory(factory, "::Complex::MultiplyNode");
 	
-	if (args.length != 0 && args[0].equals("populate"))
+	if(args.length != 0 && args[0].equals("populate"))
 	{
 	    return populate(db);
 	}
-	if (args.length != 0 && args[0].equals("validate"))
+	if(args.length != 0 && args[0].equals("validate"))
 	{
 	    return validate(db);
 	}
@@ -152,11 +152,11 @@ public class Client
 	    // Scan for --dbdir command line argument.
 	    //
 	    int i = 0;
-	    while (i < args.length)
+	    while(i < args.length)
 	    {
-		if (args[i].equals("--dbdir"))
+		if(args[i].equals("--dbdir"))
 		{
-		    if (i +1 >= args.length)
+		    if(i +1 >= args.length)
 		    {
 			usage(progName);
 			System.exit(1);
@@ -171,7 +171,7 @@ public class Client
 		    //
 		    String[] arr = new String[args.length - 2];
 		    System.arraycopy(args, 0, arr, 0, i);
-		    if (i < args.length - 2)
+		    if(i < args.length - 2)
 		    {
 			System.arraycopy(args, i + 2, arr, i, args.length - i - 2);
 		    }
@@ -198,7 +198,7 @@ public class Client
 	    status = 1;
 	}
 
-	if (db != null)
+	if(db != null)
 	{
 	    try
 	    {
@@ -212,7 +212,7 @@ public class Client
 	    dbEnv = null;
 	}
 
-	if (dbEnv != null)
+	if(dbEnv != null)
 	{
 	    try
 	    {
@@ -236,7 +236,7 @@ public class Client
 	    dbEnv = null;
 	}
 
-	if (communicator != null)
+	if(communicator != null)
 	{
 	    try
 	    {

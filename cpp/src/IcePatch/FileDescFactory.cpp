@@ -17,12 +17,12 @@ using namespace IcePatch;
 ObjectPtr
 IcePatch::FileDescFactory::create(const std::string& type)
 {
-    if (type == "::IcePatch::DirectoryDesc")
+    if(type == "::IcePatch::DirectoryDesc")
     {
 	return new DirectoryDesc;
     }
 
-    if (type == "::IcePatch::RegularDesc")
+    if(type == "::IcePatch::RegularDesc")
     {
 	return new RegularDesc;
     }

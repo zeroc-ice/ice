@@ -88,7 +88,7 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
     public Path
     createIncludePath()
     {
-        if (_includePath == null) 
+        if(_includePath == null) 
         {
             _includePath = new Path(project);
         }
@@ -104,7 +104,7 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
     public void
     setIncludePath(Path includePath)
     {
-        if (_includePath == null)
+        if(_includePath == null)
         {
             _includePath = includePath;  
         }
@@ -135,7 +135,7 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
     execute()
         throws BuildException
     {
-	if (_dicts.isEmpty())
+	if(_dicts.isEmpty())
 	{
             throw new BuildException("No dictionaries specified");
 	}
@@ -147,14 +147,14 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 	java.util.List sliceFiles = new java.util.LinkedList();
 
 	java.util.Iterator p = _fileSets.iterator();
-	while (p.hasNext())
+	while(p.hasNext())
 	{
 	    FileSet fileset = (FileSet)p.next();
 
 	    DirectoryScanner scanner = fileset.getDirectoryScanner(project);
 	    String[] files = scanner.getIncludedFiles();
 	    
-	    for (int i = 0; i < files.length; i++)
+	    for(int i = 0; i < files.length; i++)
 	    {
 		File slice = new File(fileset.getDir(project), files[i]);
 		sliceFiles.add(slice);
@@ -164,7 +164,7 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 	java.util.List tagFiles = new java.util.LinkedList();
 	
 	p = _dicts.iterator();
-	while (p.hasNext())
+	while(p.hasNext())
 	{
 	    //
 	    // Build the complete list of tag files - it's not
@@ -174,19 +174,19 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 	    File tag = new File(_tagDir, "." + ((Dict)p.next()).getName() + ".tag");
 	    tagFiles.add(tag);
 	    
-	    if (!build)
+	    if(!build)
 	    {
-		if (!tag.exists())
+		if(!tag.exists())
 		{
 		    build = true;
 		    continue;
 		}
 
 		java.util.Iterator q = sliceFiles.iterator();
-		while (q.hasNext())
+		while(q.hasNext())
 		{
 		    File slice = (File)q.next();
-		    if (slice.lastModified() > tag.lastModified())
+		    if(slice.lastModified() > tag.lastModified())
 		    {
 			build = true;
 			break;
@@ -200,7 +200,7 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 	//
 	p = _dicts.iterator();
 	StringBuffer dictString = new StringBuffer();
-	while (p.hasNext())
+	while(p.hasNext())
 	{
 	    Dict d = (Dict)p.next();
 
@@ -208,7 +208,7 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 	    dictString.append(d.getName() + "," + d.getKey() + "," + d.getValue());
 	}
 
-	if (!build)
+	if(!build)
 	{
 	    log("skipping" + dictString);
 	    return;
@@ -222,7 +222,7 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 	//
 	// Add --output-dir
 	//
-	if (_outputDir != null)
+	if(_outputDir != null)
 	{
 	    cmd.append(" --output-dir ");
 	    cmd.append(_outputDir.toString());
@@ -231,10 +231,10 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 	//
 	// Add include directives
 	//
-	if (_includePath != null)
+	if(_includePath != null)
 	{
 	    String[] dirs = _includePath.list();
-	    for (int i = 0; i < dirs.length; i++)
+	    for(int i = 0; i < dirs.length; i++)
 	    {
 		cmd.append(" -I");
 		cmd.append(dirs[i]);
@@ -250,7 +250,7 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 	// Add the slice files.
 	//
 	p = sliceFiles.iterator();
-	while (p.hasNext())
+	while(p.hasNext())
 	{
 	    File f = (File)p.next();
 	    cmd.append(" " + f);
@@ -271,7 +271,7 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 	// Touch the tag files.
 	//
 	p = tagFiles.iterator();
-	while (p.hasNext())
+	while(p.hasNext())
 	{
 	    File tag = (File)p.next();
 	    try

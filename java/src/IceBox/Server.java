@@ -36,14 +36,14 @@ public final class Server
             Ice.Properties properties = communicator.getProperties();
             argsH.value = properties.parseCommandLineOptions("IceBox", argsH.value);
 
-            for (int i = 1; i < argsH.value.length; ++i)
+            for(int i = 1; i < argsH.value.length; ++i)
             {
-                if (argsH.value[i].equals("-h") || argsH.value[i].equals("--help"))
+                if(argsH.value[i].equals("-h") || argsH.value[i].equals("--help"))
                 {
                     usage();
                     System.exit(0);
                 }
-                else if (!argsH.value[i].startsWith("--"))
+                else if(!argsH.value[i].startsWith("--"))
                 {
                     System.err.println("Server: unknown option `" + argsH.value[i] + "'");
                     usage();
@@ -60,7 +60,7 @@ public final class Server
             status = 1;
         }
 
-        if (communicator != null)
+        if(communicator != null)
         {
             try
             {

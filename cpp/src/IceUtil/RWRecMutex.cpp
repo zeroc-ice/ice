@@ -33,7 +33,7 @@ IceUtil::RWRecMutex::readlock() const
     // Wait while a writer holds the lock or while writers are waiting
     // to get the lock.
     //
-    while (_count < 0 || _waitingWriters != 0)
+    while(_count < 0 || _waitingWriters != 0)
     {
 	_readers.wait(lock);
     }
@@ -49,7 +49,7 @@ IceUtil::RWRecMutex::tryReadlock() const
     // Would block if a writer holds the lock or if writers are
     // waiting to get the lock.
     //
-    if (_count < 0 || _waitingWriters != 0)
+    if(_count < 0 || _waitingWriters != 0)
     {
 	throw LockedException(__FILE__, __LINE__);
     }
@@ -66,10 +66,10 @@ IceUtil::RWRecMutex::timedTryReadlock(const Time& timeout) const
     // to get the lock.
     //
     Time end = Time::now() + timeout;
-    while (_count < 0 || _waitingWriters != 0)
+    while(_count < 0 || _waitingWriters != 0)
     {
 	Time remainder = end - Time::now();
-	if (remainder > Time())
+	if(remainder > Time())
 	{
 	    _readers.timedWait(lock, remainder);
 	}
@@ -91,7 +91,7 @@ IceUtil::RWRecMutex::writelock() const
     // If the mutex is already write locked by this writer then
     // decrement _count, and return.
     //
-    if (_count < 0 && _writerControl == ThreadControl())
+    if(_count < 0 && _writerControl == ThreadControl())
     {
 	--_count;
 	return;
@@ -101,7 +101,7 @@ IceUtil::RWRecMutex::writelock() const
     // Wait for the lock to become available and increment the number
     // of waiting writers.
     //
-    while (_count != 0)
+    while(_count != 0)
     {
 	_waitingWriters++;
 	try
@@ -131,7 +131,7 @@ IceUtil::RWRecMutex::tryWritelock() const
     // If the mutex is already write locked by this writer then
     // decrement _count, and return.
     //
-    if (_count < 0 && _writerControl == ThreadControl())
+    if(_count < 0 && _writerControl == ThreadControl())
     {
 	--_count;
 	return;
@@ -140,7 +140,7 @@ IceUtil::RWRecMutex::tryWritelock() const
     //
     // If there are readers or other writers then the call would block.
     //
-    if (_count != 0)
+    if(_count != 0)
     {
 	throw LockedException(__FILE__, __LINE__);
     }
@@ -160,7 +160,7 @@ IceUtil::RWRecMutex::timedTryWritelock(const Time& timeout) const
     // If the mutex is already write locked by this writer then
     // decrement _count, and return.
     //
-    if (_count < 0 && _writerControl == ThreadControl())
+    if(_count < 0 && _writerControl == ThreadControl())
     {
 	--_count;
 	return;
@@ -171,10 +171,10 @@ IceUtil::RWRecMutex::timedTryWritelock(const Time& timeout) const
     // of waiting writers.
     //
     Time end = Time::now() + timeout;
-    while (_count != 0)
+    while(_count != 0)
     {
 	Time remainder = end - Time::now();
-	if (remainder > Time())
+	if(remainder > Time())
 	{
 	    _waitingWriters++;
 	    try
@@ -215,7 +215,7 @@ IceUtil::RWRecMutex::unlock() const
 	// lock, so release the lock.  Otherwise, _count is guaranteed to
 	// be > 0, so the calling thread is a reader releasing the lock.
 	//
-	if (_count < 0)
+	if(_count < 0)
 	{
 	    //
 	    // Writer called unlock
@@ -225,7 +225,7 @@ IceUtil::RWRecMutex::unlock() const
 	    //
 	    // If the write lock wasn't totally released we're done.
 	    //
-	    if (_count != 0)
+	    if(_count != 0)
 	    {
 		return;
 	    }
@@ -252,14 +252,14 @@ IceUtil::RWRecMutex::unlock() const
     // Wake up a waiting writer if there is one. If not, wake up all
     // readers (just in case -- there may be none).
     //
-    if (ww)
+    if(ww)
     {
 	//
 	// Wake writer
 	//
 	_writers.signal();
     }
-    else if (wr)
+    else if(wr)
     {
 	//
 	// Wake readers
@@ -282,7 +282,7 @@ IceUtil::RWRecMutex::upgrade() const
     //
     // Wait to acquire the write lock.
     //
-    while (_count != 0)
+    while(_count != 0)
     {
 	_waitingWriters++;
 	try
@@ -320,10 +320,10 @@ IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
     // Wait to acquire the write lock.
     //
     Time end = Time::now() + timeout;
-    while (_count != 0)
+    while(_count != 0)
     {
 	Time remainder = end - Time::now();
-	if (remainder > Time())
+	if(remainder > Time())
 	{
 	    _waitingWriters++;
 	    try

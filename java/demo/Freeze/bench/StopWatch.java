@@ -24,7 +24,7 @@ class StopWatch
     public long
     stop()
     {
-	if (!_stopped)
+	if(!_stopped)
 	{
 	    _stop = System.currentTimeMillis();
 	    _stopped = true;

@@ -19,127 +19,127 @@ class Grammar
     void
     parse()
     {
-	while (true)
+	while(true)
 	{
 	    try
 	    {
 		_token = _scanner.nextToken();
-		if (_token == null)
+		if(_token == null)
 		{
 		    return;
 		}
-		else if (_token.type == Token.TOK_SEMI)
+		else if(_token.type == Token.TOK_SEMI)
 		{
 		    // Continue
 		}
-		else if (_token.type == Token.TOK_HELP)
+		else if(_token.type == Token.TOK_HELP)
 		{
 		    _token = _scanner.nextToken();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 
 		    _parser.usage();
 		}
-		else if (_token.type == Token.TOK_EXIT)
+		else if(_token.type == Token.TOK_EXIT)
 		{
 		    _token = _scanner.nextToken();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 
 		    return;
 		}
-		else if (_token.type == Token.TOK_ADD_CONTACTS)
+		else if(_token.type == Token.TOK_ADD_CONTACTS)
 		{
 		    java.util.List s = strings();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 		    _parser.addContacts(s);
 		}
-		else if (_token.type == Token.TOK_FIND_CONTACTS)
+		else if(_token.type == Token.TOK_FIND_CONTACTS)
 		{
 		    java.util.List s = strings();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 		    _parser.findContacts(s);
 		}
-		else if (_token.type == Token.TOK_NEXT_FOUND_CONTACT)
+		else if(_token.type == Token.TOK_NEXT_FOUND_CONTACT)
 		{
 		    _token = _scanner.nextToken();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 
 		    _parser.nextFoundContact();
 		}
-		else if (_token.type == Token.TOK_PRINT_CURRENT)
+		else if(_token.type == Token.TOK_PRINT_CURRENT)
 		{
 		    _token = _scanner.nextToken();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 
 		    _parser.printCurrent();
 		}
-		else if (_token.type == Token.TOK_SET_CURRENT_NAME)
+		else if(_token.type == Token.TOK_SET_CURRENT_NAME)
 		{
 		    java.util.List s = strings();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 		    _parser.setCurrentName(s);
 		}
-		else if (_token.type == Token.TOK_SET_CURRENT_ADDRESS)
+		else if(_token.type == Token.TOK_SET_CURRENT_ADDRESS)
 		{
 		    java.util.List s = strings();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 		    _parser.setCurrentAddress(s);
 		}
-		else if (_token.type == Token.TOK_SET_CURRENT_PHONE)
+		else if(_token.type == Token.TOK_SET_CURRENT_PHONE)
 		{
 		    java.util.List s = strings();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 		    _parser.setCurrentPhone(s);
 		}
-		else if (_token.type == Token.TOK_REMOVE_CURRENT)
+		else if(_token.type == Token.TOK_REMOVE_CURRENT)
 		{
 		    _token = _scanner.nextToken();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 
 		    _parser.removeCurrent();
 		}
-		else if (_token.type == Token.TOK_SET_EVICTOR_SIZE)
+		else if(_token.type == Token.TOK_SET_EVICTOR_SIZE)
 		{
 		    java.util.List s = strings();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 		    _parser.setEvictorSize(s);
 		}
-		else if (_token.type == Token.TOK_SHUTDOWN)
+		else if(_token.type == Token.TOK_SHUTDOWN)
 		{
 		    _token = _scanner.nextToken();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
@@ -162,10 +162,10 @@ class Grammar
     strings()
     {
 	java.util.List l = new java.util.ArrayList();
-	while (true)
+	while(true)
 	{
 	    _token = _scanner.nextToken();
-	    if (_token.type != Token.TOK_STRING)
+	    if(_token.type != Token.TOK_STRING)
 	    {
 		return l;
 	    }

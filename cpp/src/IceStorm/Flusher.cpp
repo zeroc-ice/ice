@@ -35,7 +35,7 @@ public:
         _destroy(false)
     {
 	_flushTime = communicator->getProperties()->getPropertyAsIntWithDefault("IceStorm.Flush.Timeout", 1000);
-	if (_flushTime < 100)
+	if(_flushTime < 100)
 	{
 	    _flushTime = 100; // Minimum of 100 ms
 	}
@@ -49,10 +49,10 @@ public:
     run()
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	while (!_destroy)
+	while(!_destroy)
 	{
 	    long tout = calcTimeout();
-	    if (tout == 0)
+	    if(tout == 0)
 	    {
 		wait();
 	    }
@@ -60,7 +60,7 @@ public:
 	    {
 		timedWait(IceUtil::Time::milliSeconds(tout));
 	    }
-	    if (_destroy)
+	    if(_destroy)
 	    {
 		continue;
 	    }
@@ -93,7 +93,7 @@ public:
 	// If the set of subscribers was previously empty then wake up
 	// the flushing thread since it will be waiting indefinitely
 	//
-	if (isEmpty)
+	if(isEmpty)
 	{
 	    notify();
 	}
@@ -129,7 +129,7 @@ private:
 	// Trace after the flush so that the correct number of objects
 	// are displayed
 	//
-	if (_traceLevels->flush > 0)
+	if(_traceLevels->flush > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->flushCat);
 	    out << _subscribers.size() << " object(s)";

@@ -218,7 +218,7 @@ IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::istrea
     //
     // Read the contents of the stream into memory.
     //
-    while (!is.eof())
+    while(!is.eof())
     {
 	char buf[1000];
 	is.read(buf, sizeof(buf));
@@ -236,7 +236,7 @@ IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::istrea
     //
     _input->parser = new DOMParser;
     _input->parser->setValidationScheme(DOMParser::Val_Auto);
-    if (schema)
+    if(schema)
     {
 	_input->parser->setDoNamespaces(true);
 	_input->parser->setDoSchema(true);
@@ -260,7 +260,7 @@ IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::istrea
     {
         _input->parser->parse(*_input->source);
         int errorCount = _input->parser->getErrorCount();
-        if (errorCount > 0)
+        if(errorCount > 0)
 	{
             errorsOccured = true;
 	}
@@ -280,7 +280,7 @@ IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::istrea
         errorsOccured = true;
     }
 
-    if (errorsOccured)
+    if(errorsOccured)
     {
 	delete _input;
 	throw ::Ice::MarshalException(__FILE__, __LINE__);
@@ -476,14 +476,14 @@ IceXML::StreamI::readEnum(const string& name, const ::Ice::StringSeq& table)
     startRead(name);
 
     DOM_Node child = _input->current.getFirstChild();
-    if (child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
+    if(child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
     {
 	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
 
     string value = toString(child.getNodeValue());
     ::Ice::StringSeq::const_iterator p = find(table.begin(), table.end(), value);
-    if (p == table.end())
+    if(p == table.end())
     {
 	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
@@ -507,7 +507,7 @@ void
 IceXML::StreamI::writeByteSeq(const string& name, const ::Ice::ByteSeq& seq)
 {
     startWrite(name);
-    for (::Ice::ByteSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
+    for(::Ice::ByteSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
 	_os << nl << "<e>" << (int)*p << "</e>";
     }
@@ -520,14 +520,14 @@ IceXML::StreamI::readByte(const string& name)
     startRead(name);
 
     DOM_Node child = _input->current.getFirstChild();
-    if (child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
+    if(child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
     {
 	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
 
     string s = toString(child.getNodeValue());
     ::Ice::Int i = atoi(s.c_str());
-    if (i < -127 || i > 128)
+    if(i < -127 || i > 128)
     {
 	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
@@ -549,21 +549,21 @@ IceXML::StreamI::readByte(const string& name)
 //    DOM_NodeList children = _input->current.getChildNodes();
 //
 //    int nchildren = children.getLength();
-//    for (int i = 0; i < nchildren; ++i)
+//    for(int i = 0; i < nchildren; ++i)
 //    {
 //	DOM_Node child = children.item(i);
-//	while (child.getNodeType() != DOM_Node::ELEMENT_NODE)
+//	while(child.getNodeType() != DOM_Node::ELEMENT_NODE)
 //	{
 //	    child = child.getNextSibling();
 //	}	
 //      string name = toString(child.getNodeName());
-//	if (name != seqElementName)
+//	if(name != seqElementName)
 //	{
 //	    throw ::Ice::MarshalException(__FILE__, __LINE__);
 //	}
 //
 //	child = child.getFirstChild();
-//	if (child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
+//	if(child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
 //	{
 //	    throw ::Ice::MarshalException(__FILE__, __LINE__);
 //	}
@@ -586,10 +586,10 @@ IceXML::StreamI::readByteSeq(const string& name)
 
     ::Ice::Int size = readLength();
     value.resize(size);
-    if (size > 0)
+    if(size > 0)
     {
 	_input->current = _input->current.getFirstChild();
-	for (int i = 0; i < size; ++i)
+	for(int i = 0; i < size; ++i)
 	{
 	    value[i] = readByte(seqElementName);
 	}
@@ -612,7 +612,7 @@ void
 IceXML::StreamI::writeBoolSeq(const string& name, const ::Ice::BoolSeq& seq)
 {
     startWrite(name);
-    for (::Ice::BoolSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
+    for(::Ice::BoolSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
 	_os << nl << "<e>" << ((*p) ? "true" : "false") << "</e>";
     }
@@ -625,7 +625,7 @@ IceXML::StreamI::readBool(const string& name)
     startRead(name);
 
     DOM_Node child = _input->current.getFirstChild();
-    if (child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
+    if(child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
     {
 	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
@@ -646,10 +646,10 @@ IceXML::StreamI::readBoolSeq(const string& name)
 
     ::Ice::Int size = readLength();
     value.resize(size);
-    if (size > 0)
+    if(size > 0)
     {
 	_input->current = _input->current.getFirstChild();
-	for (int i = 0; i < size; ++i)
+	for(int i = 0; i < size; ++i)
 	{
 	    value[i] = readBool(seqElementName);
 	}
@@ -672,7 +672,7 @@ void
 IceXML::StreamI::writeShortSeq(const string& name, const ::Ice::ShortSeq& seq)
 {
     startWrite(name);
-    for (::Ice::ShortSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
+    for(::Ice::ShortSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
 	_os << nl << "<e>" << *p << "</e>";
     }
@@ -685,14 +685,14 @@ IceXML::StreamI::readShort(const string& name)
     startRead(name);
 
     DOM_Node child = _input->current.getFirstChild();
-    if (child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
+    if(child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
     {
 	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
 
     string s = toString(child.getNodeValue());
     ::Ice::Int i = atoi(s.c_str());
-    if (i < -32767 || i > 32768)
+    if(i < -32767 || i > 32768)
     {
 	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
@@ -711,10 +711,10 @@ IceXML::StreamI::readShortSeq(const string& name)
 
     ::Ice::Int size = readLength();
     value.resize(size);
-    if (size > 0)
+    if(size > 0)
     {
 	_input->current = _input->current.getFirstChild();
-	for (int i = 0; i < size; ++i)
+	for(int i = 0; i < size; ++i)
 	{
 	    value[i] = readShort(seqElementName);
 	}
@@ -737,7 +737,7 @@ void
 IceXML::StreamI::writeIntSeq(const string& name, const ::Ice::IntSeq& seq)
 {
     startWrite(name);
-    for (::Ice::IntSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
+    for(::Ice::IntSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
 	_os << nl << "<e>" << *p << "</e>";
     }
@@ -750,7 +750,7 @@ IceXML::StreamI::readInt(const string& name)
     startRead(name);
 
     DOM_Node child = _input->current.getFirstChild();
-    if (child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
+    if(child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
     {
 	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
@@ -771,10 +771,10 @@ IceXML::StreamI::readIntSeq(const string& name)
 
     ::Ice::Int size = readLength();
     value.resize(size);
-    if (size > 0)
+    if(size > 0)
     {
 	_input->current = _input->current.getFirstChild();
-	for (int i = 0; i < size; ++i)
+	for(int i = 0; i < size; ++i)
 	{
 	    value[i] = readInt(seqElementName);
 	}
@@ -797,7 +797,7 @@ void
 IceXML::StreamI::writeLongSeq(const string& name, const ::Ice::LongSeq& seq)
 {
     startWrite(name);
-    for (::Ice::LongSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
+    for(::Ice::LongSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
 	_os << nl << "<e>" << *p << "</e>";
     }
@@ -810,7 +810,7 @@ IceXML::StreamI::readLong(const string& name)
     startRead(name);
 
     DOM_Node child = _input->current.getFirstChild();
-    if (child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
+    if(child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
     {
 	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
@@ -831,10 +831,10 @@ IceXML::StreamI::readLongSeq(const string& name)
 
     ::Ice::Int size = readLength();
     value.resize(size);
-    if (size > 0)
+    if(size > 0)
     {
 	_input->current = _input->current.getFirstChild();
-	for (int i = 0; i < size; ++i)
+	for(int i = 0; i < size; ++i)
 	{
 	    value[i] = readLong(seqElementName);
 	}
@@ -857,7 +857,7 @@ void
 IceXML::StreamI::writeFloatSeq(const string& name, const ::Ice::FloatSeq& seq)
 {
     startWrite(name);
-    for (::Ice::FloatSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
+    for(::Ice::FloatSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
 	_os << nl << "<e>" << *p << "</e>";
     }
@@ -870,7 +870,7 @@ IceXML::StreamI::readFloat(const string& name)
     startRead(name);
 
     DOM_Node child = _input->current.getFirstChild();
-    if (child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
+    if(child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
     {
 	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
@@ -891,10 +891,10 @@ IceXML::StreamI::readFloatSeq(const string& name)
 
     ::Ice::Int size = readLength();
     value.resize(size);
-    if (size > 0)
+    if(size > 0)
     {
 	_input->current = _input->current.getFirstChild();
-	for (int i = 0; i < size; ++i)
+	for(int i = 0; i < size; ++i)
 	{
 	    value[i] = readFloat(seqElementName);
 	}
@@ -917,7 +917,7 @@ void
 IceXML::StreamI::writeDoubleSeq(const string& name, const ::Ice::DoubleSeq& seq)
 {
     startWrite(name);
-    for (::Ice::DoubleSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
+    for(::Ice::DoubleSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
 	_os << nl << "<e>" << *p << "</e>";
     }
@@ -930,7 +930,7 @@ IceXML::StreamI::readDouble(const string& name)
     startRead(name);
 
     DOM_Node child = _input->current.getFirstChild();
-    if (child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
+    if(child.isNull() || child.getNodeType() != DOM_Node::TEXT_NODE)
     {
 	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
@@ -951,10 +951,10 @@ IceXML::StreamI::readDoubleSeq(const string& name)
 
     ::Ice::Int size = readLength();
     value.resize(size);
-    if (size > 0)
+    if(size > 0)
     {
 	_input->current = _input->current.getFirstChild();
-	for (int i = 0; i < size; ++i)
+	for(int i = 0; i < size; ++i)
 	{
 	    value[i] = readDouble(seqElementName);
 	}
@@ -977,13 +977,13 @@ IceXML::StreamI::writeString(const string& name, const string& value)
     // conversion if not necessary.
     //
     static const string allReserved = "<>'\"&";
-    if (v.find_first_of(allReserved) != string::npos)
+    if(v.find_first_of(allReserved) != string::npos)
     {
 	//
 	// First convert all & to &amp;
 	//
 	size_t pos = 0;
-	while ((pos = v.find_first_of('&', pos)) != string::npos)
+	while((pos = v.find_first_of('&', pos)) != string::npos)
 	{
 	    v.insert(pos+1, "amp;");
 	    pos += 4;
@@ -994,7 +994,7 @@ IceXML::StreamI::writeString(const string& name, const string& value)
 	//
 	static const string reserved = "<>'\"";
 	pos = 0;
-	while ((pos = v.find_first_of(reserved, pos)) != string::npos)
+	while((pos = v.find_first_of(reserved, pos)) != string::npos)
 	{
 	    string replace;
 	    switch(v[pos])
@@ -1031,7 +1031,7 @@ void
 IceXML::StreamI::writeStringSeq(const string& name, const ::Ice::StringSeq& seq)
 {
     startWrite(name);
-    for (::Ice::StringSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
+    for(::Ice::StringSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
 	_os << nl << "<e>" << *p << "</e>"; // TODO: Escape
     }
@@ -1046,9 +1046,9 @@ IceXML::StreamI::readString(const string& name)
     startRead(name);
 
     DOM_Node child = _input->current.getFirstChild();
-    if (!child.isNull())
+    if(!child.isNull())
     {
-	if (child.getNodeType() != DOM_Node::TEXT_NODE)
+	if(child.getNodeType() != DOM_Node::TEXT_NODE)
 	{
 	    throw ::Ice::MarshalException(__FILE__, __LINE__);
 	}
@@ -1074,10 +1074,10 @@ IceXML::StreamI::readStringSeq(const string& name)
 
     ::Ice::Int size = readLength();
     value.resize(size);
-    if (size > 0)
+    if(size > 0)
     {
 	_input->current = _input->current.getFirstChild();
-	for (int i = 0; i < size; ++i)
+	for(int i = 0; i < size; ++i)
 	{
 	    value[i] = readString(seqElementName);
 	}
@@ -1104,9 +1104,9 @@ IceXML::StreamI::readProxy(const string& name)
 
     DOM_Node child = _input->current.getFirstChild();
     string s;
-    if (!child.isNull())
+    if(!child.isNull())
     {
-	if (child.getNodeType() != DOM_Node::TEXT_NODE)
+	if(child.getNodeType() != DOM_Node::TEXT_NODE)
 	{
 	    throw ::Ice::MarshalException(__FILE__, __LINE__);
 	}
@@ -1131,7 +1131,7 @@ IceXML::StreamI::writeObject(const string& name, const ::Ice::ObjectPtr& obj)
     // If the object doesn't exist in the map add it.
     //
     map<Ice::ObjectPtr, ObjectInfo>::iterator p = _objects.find(obj);
-    if (p == _objects.end())
+    if(p == _objects.end())
     {
 	ostringstream os;
 	os << "object" << _nextId++;
@@ -1139,7 +1139,7 @@ IceXML::StreamI::writeObject(const string& name, const ::Ice::ObjectPtr& obj)
 				obj, ObjectInfo(os.str(), !writeReference))).first;
     }
 
-    if (writeReference)
+    if(writeReference)
     {
 	_os << nl << "<" << name << " href=\"#" << p->second.id << "\"/>";
     }
@@ -1173,12 +1173,12 @@ IceXML::StreamI::readObject(const string& name, const string& signatureType, con
     // readObjects list. Otherwise, it should be in the object-set at
     // the top-level of the document.
     //
-    if (!href.empty())
+    if(!href.empty())
     {
 	href = href.substr(1); // Skip the '#'
 
 	map<string, ::Ice::ObjectPtr>::const_iterator p = _input->readObjects.find(href);
-	if (p != _input->readObjects.end())
+	if(p != _input->readObjects.end())
 	{
 	    value = p->second;
 	    endRead();
@@ -1191,13 +1191,13 @@ IceXML::StreamI::readObject(const string& name, const string& signatureType, con
 	//
 	_input->current = _input->parser->getDocument().getFirstChild();
 	_input->current = _input->current.getFirstChild();
-	while (!_input->current.isNull())
+	while(!_input->current.isNull())
 	{
-	    if (_input->current.getNodeType() == DOM_Node::ELEMENT_NODE)
+	    if(_input->current.getNodeType() == DOM_Node::ELEMENT_NODE)
 	    {
 		string dummy;
 		readAttributes(id, type, dummy);
-		if (id == href)
+		if(id == href)
 		{
 		    break;
 		}
@@ -1207,7 +1207,7 @@ IceXML::StreamI::readObject(const string& name, const string& signatureType, con
 	//
 	// If the object isn't found, that's an error.
 	//
-	if (_input->current.isNull())
+	if(_input->current.isNull())
 	{
 	    throw ::Ice::MarshalException(__FILE__, __LINE__);
 	}
@@ -1216,7 +1216,7 @@ IceXML::StreamI::readObject(const string& name, const string& signatureType, con
     //
     // Empty type indicates nil object.
     //
-    if (type.empty())
+    if(type.empty())
     {
 	value = 0;
     }
@@ -1224,7 +1224,7 @@ IceXML::StreamI::readObject(const string& name, const string& signatureType, con
     {
 	static const string iceObject("::Ice::Object");
 
-	if (type == iceObject)
+	if(type == iceObject)
 	{
 	    value = new ::Ice::Object;
 	}
@@ -1238,19 +1238,19 @@ IceXML::StreamI::readObject(const string& name, const string& signatureType, con
 	    // can be created then throw a NoObjectFactoryException.
 	    //
 	    ::Ice::ObjectFactoryPtr userFactory = _communicator->findObjectFactory(type);
-	    if (userFactory)
+	    if(userFactory)
 	    {
 		value = userFactory->create(type);
 	    }
 
-	    if (!value && type == signatureType)
+	    if(!value && type == signatureType)
 	    {
 		assert(factory);
 		value = factory->create(type);
 		assert(value);
 	    }
 
-	    if (!value)
+	    if(!value)
 	    {
 		throw ::Ice::NoObjectFactoryException(__FILE__, __LINE__);
 	    }
@@ -1284,7 +1284,7 @@ IceXML::StreamI::endWrite()
 
     _os << ee;
 
-    if (_level == 0)
+    if(_level == 0)
     {
 	dumpUnwrittenObjects();
     }
@@ -1294,11 +1294,11 @@ IceXML::StreamI::endWrite()
 void
 IceXML::StreamI::startRead(const ::std::string& element)
 {
-    while (!_input->current.isNull() && _input->current.getNodeType() != DOM_Node::ELEMENT_NODE)
+    while(!_input->current.isNull() && _input->current.getNodeType() != DOM_Node::ELEMENT_NODE)
     {
 	_input->current = _input->current.getNextSibling();
     }
-    if (_input->current.isNull())
+    if(_input->current.isNull())
     {
 	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
@@ -1309,7 +1309,7 @@ IceXML::StreamI::startRead(const ::std::string& element)
     //
     static const string facets = "facets";
     static const string facetsNS = "ice:facets";
-    if ((element != facetsNS || nodeName != facets) && element != nodeName)
+    if((element != facetsNS || nodeName != facets) && element != nodeName)
     {
 	throw ::Ice::MarshalException(__FILE__, __LINE__);
     }
@@ -1344,9 +1344,9 @@ IceXML::StreamI::dumpUnwrittenObjects()
     {
 	nwritten = 0;
 	map<Ice::ObjectPtr, ObjectInfo>::iterator p;
-	for (p = _objects.begin(); p != _objects.end(); ++p)
+	for(p = _objects.begin(); p != _objects.end(); ++p)
 	{
-	    if (!p->second.written)
+	    if(!p->second.written)
 	    {
 		p->second.written = true;
 		writeObjectData("ice:object", p->second.id, p->first);
@@ -1358,7 +1358,7 @@ IceXML::StreamI::dumpUnwrittenObjects()
 	    }
 	}
     }
-    while (_objects.size() != nwritten);
+    while(_objects.size() != nwritten);
 }
 
 void
@@ -1367,7 +1367,7 @@ IceXML::StreamI::writeObjectData(const string& name, const string& id, const Ice
     string xsdType;
     string typeId;
 
-    if (obj)
+    if(obj)
     {
 	//
 	// Convert the type-id to the equivalent schema type
@@ -1380,13 +1380,13 @@ IceXML::StreamI::writeObjectData(const string& name, const string& id, const Ice
 	xsdType.reserve(typeId.size() + xsdPrefix.size() + xsdSuffix.size());
 	xsdType += xsdPrefix;
 	unsigned int i = 0;
-	if (typeId[0] == ':') // Skip the preceeding "::".
+	if(typeId[0] == ':') // Skip the preceeding "::".
 	{
 	    i = 2;
 	}
-	for (; i < typeId.size(); ++i)
+	for(; i < typeId.size(); ++i)
 	{
-	    if (typeId[i] == ':')
+	    if(typeId[i] == ':')
 	    {
 		xsdType += '.';
 		++i;
@@ -1406,13 +1406,13 @@ IceXML::StreamI::writeObjectData(const string& name, const string& id, const Ice
     ostringstream os;
     os << name << " id=\"" << id << "\" type=\"" << typeId << "\""
        << " xsi:type=\"" << xsdType << "\"";
-    if (!obj)
+    if(!obj)
     {
 	os << " xsi:nil=\"true\"";
     }
 
     startWrite(os.str());
-    if (obj)
+    if(obj)
     {
 	obj->__marshal(this);
     }
@@ -1428,19 +1428,19 @@ IceXML::StreamI::readAttributes(::std::string& id, ::std::string& type, ::std::s
 
     DOM_NamedNodeMap attributes = _input->current.getAttributes();
     int attrCount = attributes.getLength();
-    for (int i = 0; i < attrCount; i++)
+    for(int i = 0; i < attrCount; i++)
     {
 	DOM_Node attribute = attributes.item(i);
 	string name = toString(attribute.getNodeName());
-	if (name == idStr)
+	if(name == idStr)
 	{
 	    id = toString(attribute.getNodeValue());
 	}
-	else if (name == typeStr)
+	else if(name == typeStr)
 	{
 	    type = toString(attribute.getNodeValue());
 	}
-	else if (name == hrefStr)
+	else if(name == hrefStr)
 	{
 	    href = toString(attribute.getNodeValue());
 	}
@@ -1454,11 +1454,11 @@ IceXML::StreamI::readLength()
 
     DOM_NamedNodeMap attributes = _input->current.getAttributes();
     int attrCount = attributes.getLength();
-    for (int i = 0; i < attrCount; i++)
+    for(int i = 0; i < attrCount; i++)
     {
 	DOM_Node attribute = attributes.item(i);
 	string name = toString(attribute.getNodeName());
-	if (name == lengthStr)
+	if(name == lengthStr)
 	{
 	    return atoi(toString(attribute.getNodeValue()).c_str());
 	}

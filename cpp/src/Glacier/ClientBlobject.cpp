@@ -31,7 +31,7 @@ Glacier::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
 
     const string ws = " \t";
     string::size_type current = allowCategories.find_first_not_of(ws, 0);
-    while (current != string::npos)
+    while(current != string::npos)
     {
 	string::size_type pos = allowCategories.find_first_of(ws, current);
 	string::size_type len = (pos == string::npos) ? string::npos : pos - current;
@@ -68,11 +68,11 @@ Glacier::ClientBlobject::ice_invoke(const vector<Byte>& inParams, vector<Byte>& 
     //
     // If there is an _allowCategories set then enforce it.
     //
-    if (!_allowCategories.empty())
+    if(!_allowCategories.empty())
     {
-	if (!binary_search(_allowCategories.begin(), _allowCategories.end(), current.identity.category))
+	if(!binary_search(_allowCategories.begin(), _allowCategories.end(), current.identity.category))
 	{
-	    if (_traceLevel >= 1)
+	    if(_traceLevel >= 1)
 	    {
 		Trace out(_logger, "Glacier");
 		out << "rejecting request\n";
@@ -85,7 +85,7 @@ Glacier::ClientBlobject::ice_invoke(const vector<Byte>& inParams, vector<Byte>& 
     }
 
     ObjectPrx proxy = _routingTable->get(current.identity);
-    if (!proxy)
+    if(!proxy)
     {
 	ObjectNotExistException ex(__FILE__, __LINE__);
 	ex.identity = current.identity;

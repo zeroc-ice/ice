@@ -162,7 +162,7 @@ PhoneBookI::createContact(const Ice::Current&)
     {
 	NameIdentitiesDict::iterator p = _nameIdentitiesDict.find("N");
 	Identities identities;
-	if (p != _nameIdentitiesDict.end())
+	if(p != _nameIdentitiesDict.end())
 	{
 	    identities = p->second;
 	}
@@ -198,7 +198,7 @@ PhoneBookI::findContacts(const string& name, const Ice::Current&)
 	//
 	NameIdentitiesDict::iterator p = _nameIdentitiesDict.find("N" + name);
 	Identities identities;
-	if (p !=  _nameIdentitiesDict.end())
+	if(p !=  _nameIdentitiesDict.end())
 	{
 	    identities = p->second;
 	}
@@ -266,7 +266,7 @@ PhoneBookI::move(const Identity& ident, const string& oldName, const string& new
 	removeI(ident, oldName);
 	NameIdentitiesDict::iterator p = _nameIdentitiesDict.find("N" + newName);
 	Identities identities;
-	if (p != _nameIdentitiesDict.end())
+	if(p != _nameIdentitiesDict.end())
 	{
 	    identities = p->second;
 	}
@@ -307,7 +307,7 @@ PhoneBookI::getNewIdentity()
 	Ice::Long n;
 	Identities ids;
 	NameIdentitiesDict::iterator p = _nameIdentitiesDict.find("ID");
-	if (p == _nameIdentitiesDict.end())
+	if(p == _nameIdentitiesDict.end())
 	{
 	    n = 0;
 	}
@@ -365,7 +365,7 @@ PhoneBookI::removeI(const Identity& ident, const string& name)
     // If the name isn't found then raise a record not found
     // exception.
     //
-    if (p == _nameIdentitiesDict.end())
+    if(p == _nameIdentitiesDict.end())
     {
 	throw Freeze::DBNotFoundException(__FILE__, __LINE__);
     }
@@ -374,7 +374,7 @@ PhoneBookI::removeI(const Identity& ident, const string& name)
     identities.erase(remove_if(identities.begin(), identities.end(), bind2nd(equal_to<Ice::Identity>(), ident)),
 		     identities.end());
 
-    if (identities.empty())
+    if(identities.empty())
     {
 	_nameIdentitiesDict.erase(p);
     }

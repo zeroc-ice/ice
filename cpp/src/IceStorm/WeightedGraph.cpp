@@ -110,12 +110,12 @@ SAXGraphHandler::startElement(const XMLCh *const name, AttributeList &attrs)
     
     try
     {
-	if (str == "vertex")
+	if(str == "vertex")
 	{
 	    XMLCh* n = XMLString::transcode("name");
 	    const XMLCh* value = attrs.getValue(n);
 	    delete[] n;
-	    if (value == 0)
+	    if(value == 0)
 	    {
 		WeightedGraphParseException ex;
 		ex.reason = "<vertex> name attribute missing";
@@ -126,12 +126,12 @@ SAXGraphHandler::startElement(const XMLCh *const name, AttributeList &attrs)
 
 	    _graph.addVertex(vstr);
 	}
-	else if (str == "edge")
+	else if(str == "edge")
 	{
 	    XMLCh* n = XMLString::transcode("source");
 	    const XMLCh* value = attrs.getValue(n);
 	    delete[] n;
-	    if (value == 0)
+	    if(value == 0)
 	    {
 		WeightedGraphParseException ex;
 		ex.reason = "<edge> source attribute missing";
@@ -143,7 +143,7 @@ SAXGraphHandler::startElement(const XMLCh *const name, AttributeList &attrs)
 	    n = XMLString::transcode("target");
 	    value = attrs.getValue(n);
 	    delete[] n;
-	    if (value == 0)
+	    if(value == 0)
 	    {
 		WeightedGraphParseException ex;
 		ex.reason = "<edge> target attribute missing";
@@ -156,7 +156,7 @@ SAXGraphHandler::startElement(const XMLCh *const name, AttributeList &attrs)
 	    delete[] n;
 
 	    int cost = 0;
-	    if (value != 0)
+	    if(value != 0)
 	    {
 		string cstr = toString(value);
 		cost = atoi(cstr.c_str());
@@ -224,9 +224,9 @@ WeightedGraph::parse(const string& xmlFile)
 void
 WeightedGraph::dump(ostream& os)
 {
-    for (unsigned int i = 0 ; i < _vertices.size(); ++i)
+    for(unsigned int i = 0 ; i < _vertices.size(); ++i)
     {
-	for (unsigned int j = 0; j < _vertices.size(); ++j)
+	for(unsigned int j = 0; j < _vertices.size(); ++j)
 	{
 	    os << _edges[i*_vertices.size() + j] << " ";
 	}
@@ -253,12 +253,12 @@ WeightedGraph::getEdgesFor(const std::string& vertex) const
     vector<pair<string, int> > edges;
 
     map<std::string, int>::const_iterator p = _vlookup.find(vertex);
-    if (p != _vlookup.end())
+    if(p != _vlookup.end())
     {
 	int row = p->second * _vertices.size();
-	for (unsigned int i = row; i < row + _vertices.size(); ++i)
+	for(unsigned int i = row; i < row + _vertices.size(); ++i)
 	{
-	    if (_edges[i] != -1)
+	    if(_edges[i] != -1)
 	    {
 		edges.push_back(make_pair(_vertices[i-row], _edges[i]));
 	    }
@@ -281,7 +281,7 @@ WeightedGraph::compute(vector<int>& newEdges, int max)
     // For each vertex calculate the cost for all reachable vertexes
     // within the given max cost.
     //
-    for (unsigned int i = 0; i < _vertices.size(); ++i)
+    for(unsigned int i = 0; i < _vertices.size(); ++i)
     {
 	//
 	// List of <vertex-index,cost> pairs.
@@ -294,15 +294,15 @@ WeightedGraph::compute(vector<int>& newEdges, int max)
 	// Add each vertex-index/cost pair to the new adjacency
 	// matrix.
 	//
-	for (list<pair<unsigned int, int> >::iterator p = visited.begin(); p != visited.end(); ++p)
+	for(list<pair<unsigned int, int> >::iterator p = visited.begin(); p != visited.end(); ++p)
 	{
 	    //
 	    // Ignore loops.
 	    //
-	    if ((*p).first != i)
+	    if((*p).first != i)
 	    {
 		newEdges[i*_vertices.size() + (*p).first] = (*p).second;
-		if (_reflective)
+		if(_reflective)
 		{
 		    newEdges[(*p).first*_vertices.size() + i] = (*p).second;
 		}
@@ -318,11 +318,11 @@ WeightedGraph::visit(unsigned int vertex, int cost, list<pair<unsigned int, int>
     // Is the given vertex already in the visited list? If so, then
     // check that is the cost is minimal cost and replace if not.
     //
-    for ( list<pair<unsigned int, int> >::iterator p = visited.begin(); p != visited.end(); ++p)
+    for( list<pair<unsigned int, int> >::iterator p = visited.begin(); p != visited.end(); ++p)
     {
-	if (p->first == vertex)
+	if(p->first == vertex)
 	{
-	    if (p->second > cost)
+	    if(p->second > cost)
 	    {
 		p->second = cost;
 	    }
@@ -340,11 +340,11 @@ WeightedGraph::visit(unsigned int vertex, int cost, list<pair<unsigned int, int>
     // adjacency matrix).
     //
     int row = vertex * _vertices.size();
-    for (unsigned int i = row ; i < row + _vertices.size() ; ++i)
+    for(unsigned int i = row ; i < row + _vertices.size() ; ++i)
     {
-	if (_edges[i] != -1)
+	if(_edges[i] != -1)
 	{
-	    if (cost + _edges[i] <= max)
+	    if(cost + _edges[i] <= max)
 	    {
 		visit(i - row, cost + _edges[i], visited, max);
 	    }
@@ -364,20 +364,20 @@ WeightedGraph::addEdge(const string& from, const string& to, int cost)
     //
     // Loops are not permitted.
     //
-    if (from == to)
+    if(from == to)
     {
 	WeightedGraphParseException ex;
 	ex.reason = "loops are not permitted";
 	throw ex;
     }
 
-    if (_edges.size() == 0)
+    if(_edges.size() == 0)
     {
 	//
 	// Prepare the edge map
 	//
 	_edges.resize(_vertices.size()*_vertices.size(), -1);
-	for (unsigned int i = 0; i < _vertices.size(); ++i)
+	for(unsigned int i = 0; i < _vertices.size(); ++i)
 	{
 	    _vlookup.insert(make_pair(_vertices[i], i));
 	}
@@ -387,7 +387,7 @@ WeightedGraph::addEdge(const string& from, const string& to, int cost)
     // Location of from and to.
     //
     map<string, int>::iterator p = _vlookup.find(from);
-    if (p == _vlookup.end())
+    if(p == _vlookup.end())
     {
 	WeightedGraphParseException ex;
 	ex.reason = "<edge> vertex " + from + " not found";
@@ -396,7 +396,7 @@ WeightedGraph::addEdge(const string& from, const string& to, int cost)
 
     int fidx = p->second;
     p = _vlookup.find(to);
-    if (p == _vlookup.end())
+    if(p == _vlookup.end())
     {
 	WeightedGraphParseException ex;
 	ex.reason = "<edge> vertex " + to + " not found";
@@ -408,7 +408,7 @@ WeightedGraph::addEdge(const string& from, const string& to, int cost)
     // Fill in from, to - to,from
     //
     _edges[fidx*_vertices.size() + tidx] = cost;
-    if (_reflective)
+    if(_reflective)
     {
 	_edges[tidx*_vertices.size() + fidx] = cost;
     }

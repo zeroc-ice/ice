@@ -28,52 +28,52 @@ void IceInternal::decRef(::IceInternal::Reference* p) { p->__decRef(); }
 bool
 IceInternal::Reference::operator==(const Reference& r) const
 {
-    if (this == &r)
+    if(this == &r)
     {
 	return true;
     }
     
-    if (identity != r.identity)
+    if(identity != r.identity)
     {
 	return false;
     }
 
-    if (facet != r.facet)
+    if(facet != r.facet)
     {
 	return false;
     }
 
-    if (mode != r.mode)
+    if(mode != r.mode)
     {
 	return false;
     }
 
-    if (secure != r.secure)
+    if(secure != r.secure)
     {
 	return false;
     }
 
-    if (compress != r.compress)
+    if(compress != r.compress)
     {
 	return false;
     }
 
-    if (origEndpoints != r.origEndpoints)
+    if(origEndpoints != r.origEndpoints)
     {
 	return false;
     }
 
-    if (endpoints != r.endpoints)
+    if(endpoints != r.endpoints)
     {
 	return false;
     }
 
-    if (routerInfo != r.routerInfo)
+    if(routerInfo != r.routerInfo)
     {
 	return false;
     }
 
-    if (reverseAdapter != r.reverseAdapter)
+    if(reverseAdapter != r.reverseAdapter)
     {
 	return false;
     }
@@ -90,88 +90,88 @@ IceInternal::Reference::operator!=(const Reference& r) const
 bool
 IceInternal::Reference::operator<(const Reference& r) const
 {
-    if (this == &r)
+    if(this == &r)
     {
 	return false;
     }
     
-    if (identity < r.identity)
+    if(identity < r.identity)
     {
 	return true;
     }
-    else if (r.identity < identity)
+    else if(r.identity < identity)
     {
 	return false;
     }
 
-    if (facet < r.facet)
+    if(facet < r.facet)
     {
 	return true;
     }
-    else if (r.facet < facet)
+    else if(r.facet < facet)
     {
 	return false;
     }
 
-    if (mode < r.mode)
+    if(mode < r.mode)
     {
 	return true;
     }
-    else if (r.mode < mode)
+    else if(r.mode < mode)
     {
 	return false;
     }
     
-    if (!secure && r.secure)
+    if(!secure && r.secure)
     {
 	return true;
     }
-    else if (r.secure < secure)
+    else if(r.secure < secure)
     {
 	return false;
     }
     
-    if (!compress && r.compress)
+    if(!compress && r.compress)
     {
 	return true;
     }
-    else if (r.compress < compress)
+    else if(r.compress < compress)
     {
 	return false;
     }
     
-    if (origEndpoints < r.origEndpoints)
+    if(origEndpoints < r.origEndpoints)
     {
 	return true;
     }
-    else if (r.origEndpoints < origEndpoints)
+    else if(r.origEndpoints < origEndpoints)
     {
 	return false;
     }
     
-    if (endpoints < r.endpoints)
+    if(endpoints < r.endpoints)
     {
 	return true;
     }
-    else if (r.endpoints < endpoints)
+    else if(r.endpoints < endpoints)
     {
 	return false;
     }
     
-    if (routerInfo < r.routerInfo)
+    if(routerInfo < r.routerInfo)
     {
 	return true;
     }
-    else if (r.routerInfo < routerInfo)
+    else if(r.routerInfo < routerInfo)
     {
 	return false;
     }
     
-    if (reverseAdapter < r.reverseAdapter)
+    if(reverseAdapter < r.reverseAdapter)
     {
 	return true;
     }
-    else if (r.reverseAdapter < reverseAdapter)
+    else if(r.reverseAdapter < reverseAdapter)
     {
 	return false;
     }
@@ -198,12 +198,12 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
     vector<EndpointPtr>::const_iterator p;
 
     s->writeSize(Ice::Int(origEndpoints.size()));
-    for (p = origEndpoints.begin(); p != origEndpoints.end(); ++p)
+    for(p = origEndpoints.begin(); p != origEndpoints.end(); ++p)
     {
 	(*p)->streamWrite(s);
     }
 
-    if (endpoints == origEndpoints)
+    if(endpoints == origEndpoints)
     {
 	s->write(true);
     }
@@ -211,7 +211,7 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
     {
 	s->write(false);
 	s->writeSize(Ice::Int(endpoints.size()));
-	for (p = endpoints.begin(); p != endpoints.end(); ++p)
+	for(p = endpoints.begin(); p != endpoints.end(); ++p)
 	{
 	    (*p)->streamWrite(s);
 	}
@@ -225,12 +225,12 @@ IceInternal::Reference::toString() const
 
     s << identity;
 
-    if (!facet.empty())
+    if(!facet.empty())
     {
 	s << " -f " << facet;
     }
 
-    switch (mode)
+    switch(mode)
     {
 	case ModeTwoway:
 	{
@@ -263,27 +263,27 @@ IceInternal::Reference::toString() const
 	}
     }
 
-    if (secure)
+    if(secure)
     {
 	s << " -s";
     }
 
-    if (compress)
+    if(compress)
     {
 	s << " -s";
     }
 
     vector<EndpointPtr>::const_iterator p;
 
-    for (p = origEndpoints.begin(); p != origEndpoints.end(); ++p)
+    for(p = origEndpoints.begin(); p != origEndpoints.end(); ++p)
     {
 	s << ':' << (*p)->toString();
     }
     
-    if (endpoints != origEndpoints)
+    if(endpoints != origEndpoints)
     {
 	s << ':';
-	for (p = endpoints.begin(); p != endpoints.end(); ++p)
+	for(p = endpoints.begin(); p != endpoints.end(); ++p)
 	{
 	    s << ':' << (*p)->toString();
 	}
@@ -295,7 +295,7 @@ IceInternal::Reference::toString() const
 ReferencePtr
 IceInternal::Reference::changeIdentity(const Identity& newIdentity) const
 {
-    if (newIdentity == identity)
+    if(newIdentity == identity)
     {
 	return ReferencePtr(const_cast<Reference*>(this));
     }
@@ -310,7 +310,7 @@ IceInternal::Reference::changeIdentity(const Identity& newIdentity) const
 ReferencePtr
 IceInternal::Reference::changeFacet(const string& newFacet) const
 {
-    if (newFacet == facet)
+    if(newFacet == facet)
     {
 	return ReferencePtr(const_cast<Reference*>(this));
     }
@@ -331,13 +331,13 @@ IceInternal::Reference::changeTimeout(int timeout) const
     vector<EndpointPtr>::const_iterator p;
 
     vector<EndpointPtr> newOrigEndpoints;
-    for (p = origEndpoints.begin(); p != origEndpoints.end(); ++p)
+    for(p = origEndpoints.begin(); p != origEndpoints.end(); ++p)
     {
 	newOrigEndpoints.push_back((*p)->timeout(timeout));
     }
     
     vector<EndpointPtr> newEndpoints;
-    for (p = endpoints.begin(); p != endpoints.end(); ++p)
+    for(p = endpoints.begin(); p != endpoints.end(); ++p)
     {
 	newEndpoints.push_back((*p)->timeout(timeout));
     }
@@ -347,7 +347,7 @@ IceInternal::Reference::changeTimeout(int timeout) const
     // router and the router's client proxy.
     //
     RouterInfoPtr newRouterInfo;
-    if (routerInfo)
+    if(routerInfo)
     {
 	try
 	{
@@ -370,7 +370,7 @@ IceInternal::Reference::changeTimeout(int timeout) const
 ReferencePtr
 IceInternal::Reference::changeMode(Mode newMode) const
 {
-    if (newMode == mode)
+    if(newMode == mode)
     {
 	return ReferencePtr(const_cast<Reference*>(this));
     }
@@ -385,7 +385,7 @@ IceInternal::Reference::changeMode(Mode newMode) const
 ReferencePtr
 IceInternal::Reference::changeSecure(bool newSecure) const
 {
-    if (newSecure == secure)
+    if(newSecure == secure)
     {
 	return ReferencePtr(const_cast<Reference*>(this));
     }
@@ -400,7 +400,7 @@ IceInternal::Reference::changeSecure(bool newSecure) const
 ReferencePtr
 IceInternal::Reference::changeCompress(bool newCompress) const
 {
-    if (newCompress == compress)
+    if(newCompress == compress)
     {
 	return ReferencePtr(const_cast<Reference*>(this));
     }
@@ -415,7 +415,7 @@ IceInternal::Reference::changeCompress(bool newCompress) const
 ReferencePtr
 IceInternal::Reference::changeEndpoints(const vector<EndpointPtr>& newEndpoints) const
 {
-    if (newEndpoints == endpoints)
+    if(newEndpoints == endpoints)
     {
 	return ReferencePtr(const_cast<Reference*>(this));
     }
@@ -432,7 +432,7 @@ IceInternal::Reference::changeRouter(const RouterPrx& newRouter) const
 {
     RouterInfoPtr newRouterInfo = instance->routerManager()->get(newRouter);
 
-    if (newRouterInfo == routerInfo)
+    if(newRouterInfo == routerInfo)
     {
 	return ReferencePtr(const_cast<Reference*>(this));
     }
@@ -478,17 +478,17 @@ IceInternal::Reference::Reference(const InstancePtr& inst,
 
     string::const_iterator p;
 
-    for (p = identity.name.begin(); p != identity.name.end(); ++p)
+    for(p = identity.name.begin(); p != identity.name.end(); ++p)
     {
 	h = 5 * h + *p;
     }
 
-    for (p = identity.category.begin(); p != identity.category.end(); ++p)
+    for(p = identity.category.begin(); p != identity.category.end(); ++p)
     {
 	h = 5 * h + *p;
     }
 
-    for (p = facet.begin(); p != facet.end(); ++p)
+    for(p = facet.begin(); p != facet.end(); ++p)
     {
 	h = 5 * h + *p;
     }

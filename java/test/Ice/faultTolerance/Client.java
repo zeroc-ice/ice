@@ -20,9 +20,9 @@ public class Client
     run(String[] args, Ice.Communicator communicator)
     {
         java.util.ArrayList ports = new java.util.ArrayList(args.length);
-        for (int i = 0; i < args.length; i++)
+        for(int i = 0; i < args.length; i++)
         {
-            if (args[i].charAt(0) == '-')
+            if(args[i].charAt(0) == '-')
             {
                 //
                 // TODO: Arguments recognized by the communicator are not
@@ -47,7 +47,7 @@ public class Client
             ports.add(new Integer(port));
         }
 
-        if (ports.isEmpty())
+        if(ports.isEmpty())
         {
             System.err.println("Client: no ports specified");
             usage();
@@ -55,7 +55,7 @@ public class Client
         }
 
         int[] arr = new int[ports.size()];
-        for (int i = 0; i < arr.length; i++)
+        for(int i = 0; i < arr.length; i++)
         {
             arr[i] = ((Integer)ports.get(i)).intValue();
         }
@@ -80,7 +80,7 @@ public class Client
             status = 1;
         }
 
-        if (communicator != null)
+        if(communicator != null)
         {
             try
             {

@@ -38,7 +38,7 @@ public:
     {
 	_ptr = p;
 
-	if (_ptr)
+	if(_ptr)
 	{
 	    incRef(_ptr);
 	}
@@ -49,7 +49,7 @@ public:
     {
 	_ptr = r._ptr;
 
-	if (_ptr)
+	if(_ptr)
 	{
 	    incRef(_ptr);
 	}
@@ -60,7 +60,7 @@ public:
     {
 	_ptr = r._ptr;
 
-	if (_ptr)
+	if(_ptr)
 	{
 	    incRef(_ptr);
 	}
@@ -75,7 +75,7 @@ public:
     {
 	_ptr = r._ptr;
 
-	if (_ptr)
+	if(_ptr)
 	{
 	    incRef(_ptr);
 	}
@@ -83,7 +83,7 @@ public:
     
     ~Handle()
     {
-	if (_ptr)
+	if(_ptr)
 	{
 	    decRef(_ptr);
 	}
@@ -91,14 +91,14 @@ public:
     
     Handle& operator=(T* p)
     {
-	if (_ptr != p)
+	if(_ptr != p)
 	{
-	    if (p)
+	    if(p)
 	    {
 		incRef(p);
 	    }
 
-	    if (_ptr)
+	    if(_ptr)
 	    {
 		decRef(_ptr);
 	    }
@@ -111,14 +111,14 @@ public:
     template<typename Y>
     Handle& operator=(const Handle<Y>& r)
     {
-	if (_ptr != r._ptr)
+	if(_ptr != r._ptr)
 	{
-	    if (r._ptr)
+	    if(r._ptr)
 	    {
 		incRef(r._ptr);
 	    }
 
-	    if (_ptr)
+	    if(_ptr)
 	    {
 		decRef(_ptr);
 	    }
@@ -131,14 +131,14 @@ public:
     template<typename Y>
     Handle& operator=(const ::IceUtil::Handle<Y>& r)
     {
-	if (_ptr != r._ptr)
+	if(_ptr != r._ptr)
 	{
-	    if (r._ptr)
+	    if(r._ptr)
 	    {
 		incRef(r._ptr);
 	    }
 
-	    if (_ptr)
+	    if(_ptr)
 	    {
 		decRef(_ptr);
 	    }
@@ -155,14 +155,14 @@ public:
     Handle& operator=(const Handle& r)
 #endif
     {
-	if (_ptr != r._ptr)
+	if(_ptr != r._ptr)
 	{
-	    if (r._ptr)
+	    if(r._ptr)
 	    {
 		incRef(r._ptr);
 	    }
 
-	    if (_ptr)
+	    if(_ptr)
 	    {
 		decRef(_ptr);
 	    }

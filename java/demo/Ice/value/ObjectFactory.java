@@ -13,12 +13,12 @@ class ObjectFactory implements Ice.ObjectFactory
     public Ice.Object
     create(String type)
     {
-        if (type.equals("::Printer"))
+        if(type.equals("::Printer"))
         {
             return new PrinterI();
         }
 
-        if (type.equals("::DerivedPrinter"))
+        if(type.equals("::DerivedPrinter"))
         {
             return new DerivedPrinterI();
         }

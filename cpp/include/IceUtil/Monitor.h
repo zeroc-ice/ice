@@ -87,7 +87,7 @@ IceUtil::Monitor<T>::~Monitor()
 template <class T> inline void
 IceUtil::Monitor<T>::lock() const
 {
-    if (_mutex.lock())
+    if(_mutex.lock())
     {
 	//
 	// On the first mutex acquisition reset the number pending
@@ -101,7 +101,7 @@ template <class T> inline void
 IceUtil::Monitor<T>::unlock() const
 {
     int nnotify = _nnotify;
-    if (_mutex.unlock())
+    if(_mutex.unlock())
     {
 	//
 	// Perform any pending notifications.
@@ -113,7 +113,7 @@ IceUtil::Monitor<T>::unlock() const
 template <class T> inline void
 IceUtil::Monitor<T>::trylock() const
 {
-    if (_mutex.trylock())
+    if(_mutex.trylock())
     {
 	//
 	// On the first mutex acquisition reset the number pending
@@ -186,7 +186,7 @@ IceUtil::Monitor<T>::notify()
     // Increment the _nnotify flag, unless a broadcast has already
     // been requested.
     //
-    if (_nnotify != -1)
+    if(_nnotify != -1)
     {
 	++_nnotify;
     }
@@ -208,12 +208,12 @@ IceUtil::Monitor<T>::notifyImpl(int nnotify) const
     //
     // Zero indicates no notifies.
     //
-    if (nnotify != 0)
+    if(nnotify != 0)
     {
 	//
 	// -1 means notifyAll.
 	//
-	if (nnotify == -1)
+	if(nnotify == -1)
 	{
 	    _cond.broadcast();
 	    return;
@@ -223,7 +223,7 @@ IceUtil::Monitor<T>::notifyImpl(int nnotify) const
 	    //
 	    // Otherwise notify n times.
 	    //
-	    while (nnotify > 0)
+	    while(nnotify > 0)
 	    {
 		_cond.signal();
 		--nnotify;

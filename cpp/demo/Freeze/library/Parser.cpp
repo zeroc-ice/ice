@@ -50,7 +50,7 @@ Parser::createParser(const CommunicatorPtr& communicator, const LibraryPrx& libr
 void
 Parser::addBook(const list<string>& _args)
 {
-    if (_args.size() != 3)
+    if(_args.size() != 3)
     {
 	error("`add' requires at exactly three arguments (type `help' for more info)");
 	return;
@@ -89,7 +89,7 @@ Parser::addBook(const list<string>& _args)
 void
 Parser::findIsbn(const list<string>& args)
 {
-    if (args.size() != 1)
+    if(args.size() != 1)
     {
 	error("`isbn' requires exactly one argument (type `help' for more info)");
 	return;
@@ -101,7 +101,7 @@ Parser::findIsbn(const list<string>& args)
 	_current = _foundBooks.begin();
 
 	BookPrx book = _library->findByIsbn(args.front());
-	if (!book)
+	if(!book)
 	{
 	    cout << "no book with that ISBN number exists." << endl;
 	}
@@ -127,7 +127,7 @@ Parser::findIsbn(const list<string>& args)
 void
 Parser::findAuthors(const list<string>& args)
 {
-    if (args.size() != 1)
+    if(args.size() != 1)
     {
 	error("`authors' requires exactly one argument (type `help' for more info)");
 	return;
@@ -155,7 +155,7 @@ Parser::findAuthors(const list<string>& args)
 void
 Parser::nextFoundBook()
 {
-    if (_current != _foundBooks.end())
+    if(_current != _foundBooks.end())
     {
 	++_current;
     }
@@ -167,7 +167,7 @@ Parser::printCurrent()
 {
     try
     {
-	if (_current != _foundBooks.end())
+	if(_current != _foundBooks.end())
 	{
 	    BookDescription desc = (*_current)->getBookDescription();
 	    string renter;
@@ -183,7 +183,7 @@ Parser::printCurrent()
 	    cout << "isbn: " << desc.isbn << endl;
 	    cout << "title: " << desc.title << endl;
 	    cout << "authors: " << desc.authors << endl;
-	    if (!renter.empty())
+	    if(!renter.empty())
 	    {
 		cout << "rented: " << renter << endl;
 	    }
@@ -204,7 +204,7 @@ Parser::printCurrent()
 void
 Parser::rentCurrent(const list<string>& args)
 {
-    if (args.size() != 1)
+    if(args.size() != 1)
     {
 	error("`rent' requires exactly one argument (type `help' for more info)");
 	return;
@@ -212,7 +212,7 @@ Parser::rentCurrent(const list<string>& args)
 
     try
     {
-	if (_current != _foundBooks.end())
+	if(_current != _foundBooks.end())
 	{
 	    (*_current)->rentBook(args.front());
 	    cout << "the book is now rented by `" << args.front() << "'" << endl;
@@ -243,7 +243,7 @@ Parser::returnCurrent()
 {
     try
     {
-	if (_current != _foundBooks.end())
+	if(_current != _foundBooks.end())
 	{
 	    (*_current)->returnBook();
 	    cout << "the book has been returned." << endl;
@@ -274,7 +274,7 @@ Parser::removeCurrent()
 {
     try
     {
-	if (_current != _foundBooks.end())
+	if(_current != _foundBooks.end())
 	{
 	    (*_current)->destroy();
 	    cout << "removed current book" << endl;
@@ -299,7 +299,7 @@ Parser::removeCurrent()
 void
 Parser::setEvictorSize(const list<string>& args)
 {
-    if (args.size() != 1)
+    if(args.size() != 1)
     {
 	error("`size' requires exactly one argument (type `help' for more info)");
 	return;
@@ -339,9 +339,9 @@ Parser::shutdown()
 void
 Parser::getInput(char* buf, int& result, int maxSize)
 {
-    if (!_commands.empty())
+    if(!_commands.empty())
     {
-	if (_commands == ";")
+	if(_commands == ";")
 	{
 	    result = 0;
 	}
@@ -355,30 +355,30 @@ Parser::getInput(char* buf, int& result, int maxSize)
 #endif
 	    strncpy(buf, _commands.c_str(), result);
 	    _commands.erase(0, result);
-	    if (_commands.empty())
+	    if(_commands.empty())
 	    {
 		_commands = ";";
 	    }
 	}
     }
-    else if (isatty(fileno(yyin)))
+    else if(isatty(fileno(yyin)))
     {
 #ifdef HAVE_READLINE
 
 	char* line = readline(parser->getPrompt());
-	if (!line)
+	if(!line)
 	{
 	    result = 0;
 	}
 	else
 	{
-	    if (*line)
+	    if(*line)
 	    {
 		add_history(line);
 	    }
 
 	    result = strlen(line) + 1;
-	    if (result > maxSize)
+	    if(result > maxSize)
 	    {
 		free(line);
 		error("input line too long");
@@ -397,12 +397,12 @@ Parser::getInput(char* buf, int& result, int maxSize)
 	cout << parser->getPrompt() << flush;
 
 	string line;
-	while (true)
+	while(true)
 	{
 	    char c = static_cast<char>(getc(yyin));
-	    if (c == EOF)
+	    if(c == EOF)
 	    {
-		if (line.size())
+		if(line.size())
 		{
 		    line += '\n';
 		}
@@ -411,14 +411,14 @@ Parser::getInput(char* buf, int& result, int maxSize)
 
 	    line += c;
 
-	    if (c == '\n')
+	    if(c == '\n')
 	    {
 		break;
 	    }
 	}
 	
 	result = line.length();
-	if (result > maxSize)
+	if(result > maxSize)
 	{
 	    error("input line too long");
 	    buf[0] = EOF;
@@ -433,7 +433,7 @@ Parser::getInput(char* buf, int& result, int maxSize)
     }
     else
     {
-	if (((result = fread(buf, 1, maxSize, yyin)) == 0) && ferror(yyin))
+	if(((result = fread(buf, 1, maxSize, yyin)) == 0) && ferror(yyin))
 	{
 	    error("input in flex scanner failed");
 	    buf[0] = EOF;
@@ -459,7 +459,7 @@ Parser::getPrompt()
 {
     assert(_commands.empty() && isatty(fileno(yyin)));
 
-    if (_continue)
+    if(_continue)
     {
 	_continue = false;
 	return "(cont) ";
@@ -473,7 +473,7 @@ Parser::getPrompt()
 void
 Parser::error(const char* s)
 {
-    if (_commands.empty() && !isatty(fileno(yyin)))
+    if(_commands.empty() && !isatty(fileno(yyin)))
     {
 	cerr << _currentFile << ':' << _currentLine << ": " << s << endl;
     }
@@ -493,7 +493,7 @@ Parser::error(const string& s)
 void
 Parser::warning(const char* s)
 {
-    if (_commands.empty() && !isatty(fileno(yyin)))
+    if(_commands.empty() && !isatty(fileno(yyin)))
     {
 	cerr << _currentFile << ':' << _currentLine << ": warning: " << s << endl;
     }
@@ -532,7 +532,7 @@ Parser::parse(FILE* file, bool debug)
     _current = _foundBooks.end();
 
     int status = yyparse();
-    if (_errors)
+    if(_errors)
     {
 	status = EXIT_FAILURE;
     }
@@ -564,7 +564,7 @@ Parser::parse(const string& commands, bool debug)
     _current = _foundBooks.end();
 
     int status = yyparse();
-    if (_errors)
+    if(_errors)
     {
 	status = EXIT_FAILURE;
     }

@@ -38,7 +38,7 @@ TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice
     // should only occur upon a crash.
     //
     StringBoolDict::iterator p = _topics.begin();
-    while (p != _topics.end())
+    while(p != _topics.end())
     {
 	assert(_topicIMap.find(p->first) == _topicIMap.end());
 	try
@@ -48,7 +48,7 @@ TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice
 	}
 	catch(const Freeze::DBNotFoundException& ex)
 	{
-	    if (_traceLevels->topicMgr > 0)
+	    if(_traceLevels->topicMgr > 0)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->topicMgrCat);
 		out << ex;
@@ -72,7 +72,7 @@ TopicManagerI::create(const string& name, const Ice::Current&)
 
     reap();
 
-    if (_topicIMap.find(name) != _topicIMap.end())
+    if(_topicIMap.find(name) != _topicIMap.end())
     {
         TopicExists ex;
 	ex.name = name;
@@ -97,7 +97,7 @@ TopicManagerI::retrieve(const string& name, const Ice::Current&)
 
     reap();
 
-    if (_topicIMap.find(name) != _topicIMap.end())
+    if(_topicIMap.find(name) != _topicIMap.end())
     {
 	Ice::Identity id;
 	id.name = name;
@@ -140,16 +140,16 @@ TopicManagerI::subscribe(const QoS& qos, const Ice::ObjectPrx& subscriber, const
     IceUtil::Mutex::Lock sync(*this);
 
     Ice::Identity ident = subscriber->ice_getIdentity();
-    if (_traceLevels->topicMgr > 0)
+    if(_traceLevels->topicMgr > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->topicMgrCat);
 	out << "Subscribe: " << Ice::identityToString(ident);
-	if (_traceLevels->topicMgr > 1)
+	if(_traceLevels->topicMgr > 1)
 	{
 	    out << " QoS: ";
-	    for (QoS::const_iterator qi = qos.begin(); qi != qos.end() ; ++qi)
+	    for(QoS::const_iterator qi = qos.begin(); qi != qos.end() ; ++qi)
 	    {
-		if (qi != qos.begin())
+		if(qi != qos.begin())
 		{
 		    out << ',';
 		}
@@ -163,7 +163,7 @@ TopicManagerI::subscribe(const QoS& qos, const Ice::ObjectPrx& subscriber, const
     // channel.
     //
     TopicIMap::iterator elem = _topicIMap.find(ident.category);
-    if (elem == _topicIMap.end())
+    if(elem == _topicIMap.end())
     {
 	NoSuchTopic ex;
 	ex.name = ident.category;
@@ -183,7 +183,7 @@ TopicManagerI::unsubscribe(const Ice::ObjectPrx& subscriber, const Ice::Current&
 
     Ice::Identity ident = subscriber->ice_getIdentity();
 
-    if (_traceLevels->topicMgr > 0)
+    if(_traceLevels->topicMgr > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->topicMgrCat);
 
@@ -192,7 +192,7 @@ TopicManagerI::unsubscribe(const Ice::ObjectPrx& subscriber, const Ice::Current&
 
 
     TopicIMap::iterator elem = _topicIMap.find(ident.category);
-    if (elem != _topicIMap.end())
+    if(elem != _topicIMap.end())
     {
 	elem->second->unsubscribe(subscriber);
     }
@@ -214,11 +214,11 @@ TopicManagerI::reap()
     // IceUtil::Mutex::Lock sync(*this);
     //
     TopicIMap::iterator i = _topicIMap.begin();
-    while (i != _topicIMap.end())
+    while(i != _topicIMap.end())
     {
-	if (i->second->destroyed())
+	if(i->second->destroyed())
 	{
-	    if (_traceLevels->topicMgr > 0)
+	    if(_traceLevels->topicMgr > 0)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->topicMgrCat);
 		out << "Reaping " << i->first;
@@ -236,7 +236,7 @@ TopicManagerI::reap()
 void
 TopicManagerI::installTopic(const std::string& message, const std::string& name, bool create)
 {
-    if (_traceLevels->topicMgr > 0)
+    if(_traceLevels->topicMgr > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->topicMgrCat);
 	out << message << ' ' << name;

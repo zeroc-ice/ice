@@ -42,19 +42,19 @@ main(int argc, char* argv[])
         args = properties->parseCommandLineOptions("IceBox", args);
         stringSeqToArgs(args, argc, argv);
 
-        for (int i = 1; i < argc; ++i)
+        for(int i = 1; i < argc; ++i)
         {
-            if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
+            if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
             {
                 usage(argv[0]);
                 return EXIT_SUCCESS;
             }
-            else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
+            else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
             {
                 cout << ICE_STRING_VERSION << endl;
                 return EXIT_SUCCESS;
             }
-            else if (strncmp(argv[i], "--", 2) != 0)
+            else if(strncmp(argv[i], "--", 2) != 0)
             {
                 cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
                 usage(argv[0]);
@@ -72,7 +72,7 @@ main(int argc, char* argv[])
         status = EXIT_FAILURE;
     }
 
-    if (communicator)
+    if(communicator)
     {
         try
         {

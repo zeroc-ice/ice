@@ -59,15 +59,15 @@ IceSSL::OpenSSL::ServerConnection::handshake(int timeout)
 
     int retCode = SSL_is_init_finished(_sslConnection);
     
-    while (!retCode)
+    while(!retCode)
     {
         _readTimeout = timeout > _handshakeReadTimeout ? timeout : _handshakeReadTimeout;
 
-        if (_initWantWrite)
+        if(_initWantWrite)
         {
             int i = writeSelect(timeout);
 
-            if (i == 0)
+            if(i == 0)
             {
                 cerr << "-" << flush;
                 return 0;
@@ -79,7 +79,7 @@ IceSSL::OpenSSL::ServerConnection::handshake(int timeout)
         {
             int i = readSelect(_readTimeout);
 
-            if (i == 0)
+            if(i == 0)
             {
                 cerr << "-" << flush;
                 return 0;
@@ -89,12 +89,12 @@ IceSSL::OpenSSL::ServerConnection::handshake(int timeout)
         int result = accept();
 
         // We're doing an Accept and we don't get a retry on the socket.
-        if ((result <= 0) && (BIO_sock_should_retry(result) == 0))
+        if((result <= 0) && (BIO_sock_should_retry(result) == 0))
         {
             // Socket can't retry - bad scene, find out why.
             long verifyError = SSL_get_verify_result(_sslConnection);
 
-            if (verifyError != X509_V_OK)
+            if(verifyError != X509_V_OK)
             {
                 // Flag the connection for shutdown, let the
                 // usual initialization take care of it.
@@ -115,7 +115,7 @@ IceSSL::OpenSSL::ServerConnection::handshake(int timeout)
         }
 
         // Find out what the error was (if any).
-        switch (getLastError())
+        switch(getLastError())
         {
             case SSL_ERROR_WANT_WRITE:
             {
@@ -139,18 +139,18 @@ IceSSL::OpenSSL::ServerConnection::handshake(int timeout)
                 // if you look at their code).
                 if(result == -1)
                 {
-                    if (interrupted())
+                    if(interrupted())
                     {
                         break;
                     }
 
-                    if (wouldBlock())
+                    if(wouldBlock())
                     {
                         readSelect(_readTimeout);
                         break;
                     }
 
-                    if (connectionLost())
+                    if(connectionLost())
                     {
                         ConnectionLostException ex(__FILE__, __LINE__);
                         ex.error = getSocketErrno();
@@ -197,7 +197,7 @@ IceSSL::OpenSSL::ServerConnection::handshake(int timeout)
 
         retCode = SSL_is_init_finished(_sslConnection);
 
-        if (retCode > 0)
+        if(retCode > 0)
         {
             _phase = Connected;
 
@@ -221,17 +221,17 @@ IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
     //
     // Limit packet size to avoid performance problems on WIN32.
     //
-    if (packetSize > 64 * 1024)
+    if(packetSize > 64 * 1024)
     {
         packetSize = 64 * 1024;
     }
 #endif
 
     // We keep writing until we're done.
-    while (buf.i != buf.b.end())
+    while(buf.i != buf.b.end())
     {
         // Ensure we're initialized.
-        if (initialize(timeout) <= 0)
+        if(initialize(timeout) <= 0)
         {
             // Retry the initialize call
             continue;
@@ -240,7 +240,7 @@ IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
         // initialize() must have returned > 0, so we're okay to try a write.
 
         // Perform a select on the socket.
-        if (!writeSelect(timeout))
+        if(!writeSelect(timeout))
         {
             // We're done here.
             break;
@@ -248,11 +248,11 @@ IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
 
         bytesWritten = sslWrite(static_cast<char*>(&*buf.i), packetSize);
 
-        switch (getLastError())
+        switch(getLastError())
         {
             case SSL_ERROR_NONE:
             {
-	        if (_traceLevels->network >= 3)
+	        if(_traceLevels->network >= 3)
 	        {
                     ostringstream s;
                     s << "sent " << bytesWritten << " of " << packetSize;
@@ -264,7 +264,7 @@ IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
 
                 buf.i += bytesWritten;
 
-                if (packetSize > buf.b.end() - buf.i)
+                if(packetSize > buf.b.end() - buf.i)
                 {
                     packetSize = buf.b.end() - buf.i;
                 }
@@ -280,21 +280,21 @@ IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
 
             case SSL_ERROR_SYSCALL:
             {
-                if (bytesWritten == -1)
+                if(bytesWritten == -1)
                 {
                     // IO Error in underlying BIO
 
-	            if (interrupted())
+	            if(interrupted())
 	            {
 		        break;
 	            }
 
-                    if (wouldBlock())
+                    if(wouldBlock())
 	            {
                         break;
                     }
 
-                    if (connectionLost())
+                    if(connectionLost())
 	            {
 	                ConnectionLostException ex(__FILE__, __LINE__);
                         ex.error = getSocketErrno();
@@ -347,7 +347,7 @@ void
 IceSSL::OpenSSL::ServerConnection::showConnectionInfo()
 {
     // Only in extreme cases do we enable this, partially because it doesn't use the Logger.
-    if ((_traceLevels->security >= IceSSL::SECURITY_PROTOCOL_DEBUG) && 0)
+    if((_traceLevels->security >= IceSSL::SECURITY_PROTOCOL_DEBUG) && 0)
     {
         BIOJanitor bioJanitor(BIO_new_fp(stdout, BIO_NOCLOSE));
         BIO* bio = bioJanitor.get();

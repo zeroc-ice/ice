@@ -20,19 +20,19 @@ public:
 
     virtual void createAndThrow(const string& type)
     {
-	if (type == "::A")
+	if(type == "::A")
 	{
 	    throw A();
 	}
-	else if (type == "::B")
+	else if(type == "::B")
 	{
 	    throw B();
 	}
-	else if (type == "::C")
+	else if(type == "::C")
 	{
 	    throw C();
 	}
-	else if (type == "::D")
+	else if(type == "::D")
 	{
 	    throw D();
 	}
@@ -170,7 +170,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     cout << "ok" << endl;
 
-    if (!collocated) // If the server is collocated, exception factories are not needed.
+    if(!collocated) // If the server is collocated, exception factories are not needed.
     {
 	cout << "catching derived types w/o exception factories... " << flush;
 	
@@ -277,7 +277,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     cout << "ok" << endl;
 
-    if (thrower->supportsUndeclaredExceptions())
+    if(thrower->supportsUndeclaredExceptions())
     {
         cout << "catching unknown user exception... " << flush;
 

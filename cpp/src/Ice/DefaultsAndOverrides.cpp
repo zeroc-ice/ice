@@ -28,7 +28,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     const_cast<string&>(defaultProtocol) = properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
 
     const_cast<string&>(defaultHost) = properties->getProperty("Ice.Default.Host");
-    if (defaultHost.empty())
+    if(defaultHost.empty())
     {
 	const_cast<string&>(defaultHost) = getLocalHost(true);
     }
@@ -38,14 +38,14 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     string value;
     
     value = properties->getProperty("Ice.Override.Timeout");
-    if (!value.empty())
+    if(!value.empty())
     {
 	const_cast<bool&>(overrideTimeout) = true;
 	const_cast<Int&>(overrideTimeoutValue) = atoi(value.c_str());
     }
 
     value = properties->getProperty("Ice.Override.Compress");
-    if (!value.empty())
+    if(!value.empty())
     {
 	const_cast<bool&>(overrideComppress) = true;
 	const_cast<bool&>(overrideComppressValue) = atoi(value.c_str());

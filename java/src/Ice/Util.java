@@ -15,7 +15,7 @@ public final class Util
     public static Properties
     getDefaultProperties()
     {
-        if (_defaultProperties == null)
+        if(_defaultProperties == null)
         {
             _defaultProperties = createProperties();
         }
@@ -25,7 +25,7 @@ public final class Util
     public static Properties
     getDefaultProperties(String[] args)
     {
-        if (_defaultProperties == null)
+        if(_defaultProperties == null)
         {
             _defaultProperties = createProperties(args);
         }
@@ -35,7 +35,7 @@ public final class Util
     public static Properties
     getDefaultProperties(StringSeqHolder args)
     {
-        if (_defaultProperties == null)
+        if(_defaultProperties == null)
         {
             _defaultProperties = createProperties(args);
         }
@@ -108,7 +108,7 @@ public final class Util
     {
         Identity ident = new Identity();
         int pos = s.indexOf('/');
-        if (pos != -1)
+        if(pos != -1)
         {
             ident.category = s.substring(0, pos);
             ident.name = s.substring(pos + 1);
@@ -124,7 +124,7 @@ public final class Util
     public static String
     identityToString(Identity ident)
     {
-        if (ident.category.length() == 0)
+        if(ident.category.length() == 0)
         {
             return ident.name;
         }
@@ -139,7 +139,7 @@ public final class Util
     {
         java.rmi.server.UID uid = new java.rmi.server.UID();
 
-        if (_localAddress == null)
+        if(_localAddress == null)
         {
             java.net.InetAddress addr = null;
             try
@@ -152,9 +152,9 @@ public final class Util
             }
             byte[] ip = addr.getAddress();
             _localAddress = "";
-            for (int i = 0; i < ip.length; i++)
+            for(int i = 0; i < ip.length; i++)
             {
-                if (i > 0)
+                if(i > 0)
                 {
                     _localAddress += ":";
                 }

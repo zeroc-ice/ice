@@ -27,7 +27,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     const char* managerEndpointsProperty = "IceStorm.TopicManager.Endpoints";
     string managerEndpoints = properties->getProperty(managerEndpointsProperty);
-    if (managerEndpoints.empty())
+    if(managerEndpoints.empty())
     {
 	cerr << argv[0] << ": property `" << managerEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
@@ -35,7 +35,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     ObjectPrx base = communicator->stringToProxy("TopicManager:" + managerEndpoints);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
-    if (!manager)
+    if(!manager)
     {
 	cerr << argv[0] << ": `" << managerEndpoints << "' is not running" << endl;
 	return EXIT_FAILURE;
@@ -92,37 +92,37 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     Ice::Context context;
     int i;
     context["cost"] = "0";
-    for (i = 0; i < 10; ++i)
+    for(i = 0; i < 10; ++i)
     {
 	eventFed1->pub("fed1:0", context);
     }
 
     context["cost"] = "10";
-    for (i = 0; i < 10; ++i)
+    for(i = 0; i < 10; ++i)
     {
 	eventFed1->pub("fed1:10", context);
     }
 
     context["cost"] = "15";
-    for (i = 0; i < 10; ++i)
+    for(i = 0; i < 10; ++i)
     {
 	eventFed1->pub("fed1:15", context);
     }
 
     context["cost"] = "0";
-    for (i = 0; i < 10; ++i)
+    for(i = 0; i < 10; ++i)
     {
 	eventFed2->pub("fed2:0", context);
     }
 
     context["cost"] = "5";
-    for (i = 0; i < 10; ++i)
+    for(i = 0; i < 10; ++i)
     {
 	eventFed2->pub("fed2:5", context);
     }
 
     context["cost"] = "0";
-    for (i = 0; i < 10; ++i)
+    for(i = 0; i < 10; ++i)
     {
 	eventFed3->pub("fed3:0", context);
     }
@@ -158,7 +158,7 @@ main(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (communicator)
+    if(communicator)
     {
 	try
 	{

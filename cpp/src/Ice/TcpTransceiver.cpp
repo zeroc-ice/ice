@@ -29,7 +29,7 @@ IceInternal::TcpTransceiver::fd()
 void
 IceInternal::TcpTransceiver::close()
 {
-    if (_traceLevels->network >= 1)
+    if(_traceLevels->network >= 1)
     {
 	Trace out(_logger, _traceLevels->networkCat);
 	out << "closing tcp connection\n" << toString();
@@ -44,7 +44,7 @@ IceInternal::TcpTransceiver::close()
 void
 IceInternal::TcpTransceiver::shutdown()
 {
-    if (_traceLevels->network >= 2)
+    if(_traceLevels->network >= 2)
     {
 	Trace out(_logger, _traceLevels->networkCat);
 	out << "shutting down tcp connection\n" << toString();
@@ -62,45 +62,45 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
     //
     // Limit packet size to avoid performance problems on WIN32
     //
-    if (packetSize > 64 * 1024)
+    if(packetSize > 64 * 1024)
     {
 	packetSize = 64 * 1024;
     }
 #endif
 
-    while (buf.i != buf.b.end())
+    while(buf.i != buf.b.end())
     {
 	int ret = ::send(_fd, &*buf.i, packetSize, 0);
 
-	if (ret == 0)
+	if(ret == 0)
 	{
 	    ConnectionLostException ex(__FILE__, __LINE__);
 	    ex.error = 0;
 	    throw ex;
 	}
 
-	if (ret == SOCKET_ERROR)
+	if(ret == SOCKET_ERROR)
 	{
-	    if (interrupted())
+	    if(interrupted())
 	    {
 		continue;
 	    }
 
-	    if (noBuffers() && packetSize > 1024)
+	    if(noBuffers() && packetSize > 1024)
 	    {
 		packetSize /= 2;
 		continue;
 	    }
 
-	    if (wouldBlock())
+	    if(wouldBlock())
 	    {
 		SOCKET fd = _fd; // Copy fd, in case another thread calls close()
-		if (fd != INVALID_SOCKET)
+		if(fd != INVALID_SOCKET)
 		{
 		repeatSelect:
 		    int ret;
 		    FD_SET(fd, &_wFdSet);
-		    if (timeout >= 0)
+		    if(timeout >= 0)
 		    {
 			struct timeval tv;
 			tv.tv_sec = timeout / 1000;
@@ -112,9 +112,9 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 			ret = ::select(fd + 1, 0, &_wFdSet, 0, 0);
 		    }
 		    
-		    if (ret == SOCKET_ERROR)
+		    if(ret == SOCKET_ERROR)
 		    {
-			if (interrupted())
+			if(interrupted())
 			{
 			    goto repeatSelect;
 			}
@@ -124,7 +124,7 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 			throw ex;
 		    }
 		    
-		    if (ret == 0)
+		    if(ret == 0)
 		    {
 			throw TimeoutException(__FILE__, __LINE__);
 		    }
@@ -133,7 +133,7 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 		continue;
 	    }
 	    
-	    if (connectionLost())
+	    if(connectionLost())
 	    {
 		ConnectionLostException ex(__FILE__, __LINE__);
 		ex.error = getSocketErrno();
@@ -147,7 +147,7 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 	    }
 	}
 
-	if (_traceLevels->network >= 3)
+	if(_traceLevels->network >= 3)
 	{
 	    Trace out(_logger, _traceLevels->networkCat);
 	    out << "sent " << ret << " of " << packetSize << " bytes via tcp\n" << toString();
@@ -155,7 +155,7 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 
 	buf.i += ret;
 
-	if (packetSize > buf.b.end() - buf.i)
+	if(packetSize > buf.b.end() - buf.i)
 	{
 	    packetSize = buf.b.end() - buf.i;
 	}
@@ -167,39 +167,39 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 {
     int packetSize = buf.b.end() - buf.i;
     
-    while (buf.i != buf.b.end())
+    while(buf.i != buf.b.end())
     {
 	int ret = ::recv(_fd, &*buf.i, packetSize, 0);
 
-	if (ret == 0)
+	if(ret == 0)
 	{
 	    ConnectionLostException ex(__FILE__, __LINE__);
 	    ex.error = 0;
 	    throw ex;
 	}
 
-	if (ret == SOCKET_ERROR)
+	if(ret == SOCKET_ERROR)
 	{
-	    if (interrupted())
+	    if(interrupted())
 	    {
 		continue;
 	    }
 	    
-	    if (noBuffers() && packetSize > 1024)
+	    if(noBuffers() && packetSize > 1024)
 	    {
 		packetSize /= 2;
 		continue;
 	    }
 
-	    if (wouldBlock())
+	    if(wouldBlock())
 	    {
 		SOCKET fd = _fd; // Copy fd, in case another thread calls close()
-		if (fd != INVALID_SOCKET)
+		if(fd != INVALID_SOCKET)
 		{
 		repeatSelect:
 		    int ret;
 		    FD_SET(fd, &_rFdSet);
-		    if (timeout >= 0)
+		    if(timeout >= 0)
 		    {
 			struct timeval tv;
 			tv.tv_sec = timeout / 1000;
@@ -211,9 +211,9 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 			ret = ::select(fd + 1, &_rFdSet, 0, 0, 0);
 		    }
 		    
-		    if (ret == SOCKET_ERROR)
+		    if(ret == SOCKET_ERROR)
 		    {
-			if (interrupted())
+			if(interrupted())
 			{
 			    goto repeatSelect;
 			}
@@ -223,7 +223,7 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 			throw ex;
 		    }
 		    
-		    if (ret == 0)
+		    if(ret == 0)
 		    {
 			throw TimeoutException(__FILE__, __LINE__);
 		    }
@@ -232,7 +232,7 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 		continue;
 	    }
 	    
-	    if (connectionLost())
+	    if(connectionLost())
 	    {
 		ConnectionLostException ex(__FILE__, __LINE__);
 		ex.error = getSocketErrno();
@@ -246,7 +246,7 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 	    }
 	}
 
-	if (_traceLevels->network >= 3)
+	if(_traceLevels->network >= 3)
 	{
 	    Trace out(_logger, _traceLevels->networkCat);
 	    out << "received " << ret << " of " << packetSize << " bytes via tcp\n" << toString();
@@ -254,7 +254,7 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 
 	buf.i += ret;
 
-	if (packetSize > buf.b.end() - buf.i)
+	if(packetSize > buf.b.end() - buf.i)
 	{
 	    packetSize = buf.b.end() - buf.i;
 	}

@@ -72,13 +72,13 @@ void
 Glacier::ServantLocator::deactivate()
 {
     ClientBlobject* clientBlobject = dynamic_cast<ClientBlobject*>(_blobject.get());
-    if (clientBlobject)
+    if(clientBlobject)
     {
 	clientBlobject->destroy();
     }
     
     ServerBlobject* serverBlobject = dynamic_cast<ServerBlobject*>(_blobject.get());
-    if (serverBlobject)
+    if(serverBlobject)
     {
 	serverBlobject->destroy();
     }
@@ -100,14 +100,14 @@ Glacier::RouterApp::usage()
 int
 Glacier::RouterApp::run(int argc, char* argv[])
 {
-    for (int i = 1; i < argc; ++i)
+    for(int i = 1; i < argc; ++i)
     {
-	if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
+	if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
 	{
 	    usage();
 	    return EXIT_SUCCESS;
 	}
-	else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
+	else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
 	{
 	    cout << ICE_STRING_VERSION << endl;
 	    return EXIT_SUCCESS;
@@ -128,7 +128,7 @@ Glacier::RouterApp::run(int argc, char* argv[])
     //
     // Only do this if we've been configured for SSL.
     //
-    if (!clientConfig.empty() && !serverConfig.empty())
+    if(!clientConfig.empty() && !serverConfig.empty())
     {
         IceSSL::ContextType contextType = IceSSL::ClientServer;
 
@@ -147,7 +147,7 @@ Glacier::RouterApp::run(int argc, char* argv[])
 
         // If we have been told only to only accept a single certificate.
         string clientCertBase64 = properties->getProperty("Glacier.Router.AcceptCert");
-        if (!clientCertBase64.empty())
+        if(!clientCertBase64.empty())
         {
             // Install a Certificate Verifier that only accepts indicated certificate.
             Ice::ByteSeq clientCert = IceUtil::Base64::decode(clientCertBase64);
@@ -168,7 +168,7 @@ Glacier::RouterApp::run(int argc, char* argv[])
     //
     const char* clientEndpointsProperty = "Glacier.Router.Client.Endpoints";
     string clientEndpoints = properties->getProperty(clientEndpointsProperty);
-    if (clientEndpoints.empty())
+    if(clientEndpoints.empty())
     {
 	cerr << appName() << ": property `" << clientEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
@@ -182,7 +182,7 @@ Glacier::RouterApp::run(int argc, char* argv[])
     const char* serverEndpointsProperty = "Glacier.Router.Server.Endpoints";
     string serverEndpoints = properties->getProperty(serverEndpointsProperty);
     ObjectAdapterPtr serverAdapter;
-    if (!serverEndpoints.empty())
+    if(!serverEndpoints.empty())
     {
 	serverAdapter = communicator()->createObjectAdapterFromProperty("Server", serverEndpointsProperty);
     }
@@ -196,7 +196,7 @@ Glacier::RouterApp::run(int argc, char* argv[])
     ObjectPtr clientBlobject = new ClientBlobject(communicator(), routingTable, allowCategories);
     Ice::ServantLocatorPtr clientServantLocator = new Glacier::ServantLocator(clientBlobject);
     clientAdapter->addServantLocator(clientServantLocator, "");
-    if (serverAdapter)
+    if(serverAdapter)
     {
 	ObjectPtr serverBlobject = new ServerBlobject(clientAdapter);
 	Ice::ServantLocatorPtr serverServantLocator = new Glacier::ServantLocator(serverBlobject);
@@ -208,7 +208,7 @@ Glacier::RouterApp::run(int argc, char* argv[])
     //
     const char* routerEndpointsProperty = "Glacier.Router.Endpoints";
     string routerEndpoints = properties->getProperty(routerEndpointsProperty);
-    if (routerEndpoints.empty())
+    if(routerEndpoints.empty())
     {
 	cerr << appName() << ": property `" << routerEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
@@ -221,7 +221,7 @@ Glacier::RouterApp::run(int argc, char* argv[])
     string sessionManager = properties->getProperty(sessionManagerProperty);
 
     SessionManagerPrx sessionManagerPrx;
-    if (!sessionManager.empty())
+    if(!sessionManager.empty())
     {
 	sessionManagerPrx = SessionManagerPrx::checkedCast(communicator()->stringToProxy(sessionManager));
     }
@@ -240,13 +240,13 @@ Glacier::RouterApp::run(int argc, char* argv[])
     // specified in the properties, if so requested.
     //
     string outputFd = properties->getProperty("Glacier.Router.PrintProxyOnFd");
-    if (!outputFd.empty())
+    if(!outputFd.empty())
     {
 	int fd = atoi(outputFd.c_str());
 	string ref = communicator()->proxyToString(routerAdapter->createProxy(stringToIdentity(routerIdentity)));
 	ref += "\n";
 	string::size_type sz = static_cast<string::size_type>(write(fd, ref.c_str(), ref.length()));
-	if (sz != ref.length())
+	if(sz != ref.length())
 	{
 	    cerr << appName() << ": cannot write stringified router proxy to filedescriptor " << fd << ": "
 		 << strerror(errno) << endl;
@@ -270,7 +270,7 @@ Glacier::RouterApp::run(int argc, char* argv[])
     //
     shutdownOnInterrupt();
     clientAdapter->activate();
-    if (serverAdapter)
+    if(serverAdapter)
     {
 	serverAdapter->activate();
     }

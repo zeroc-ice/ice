@@ -27,7 +27,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     const char* managerEndpointsProperty = "IceStorm.TopicManager.Endpoints";
     string managerEndpoints = properties->getProperty(managerEndpointsProperty);
-    if (managerEndpoints.empty())
+    if(managerEndpoints.empty())
     {
 	cerr << argv[0] << ": property `" << managerEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
@@ -35,7 +35,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     ObjectPrx base = communicator->stringToProxy("TopicManager:" + managerEndpoints);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
-    if (!manager)
+    if(!manager)
     {
 	cerr << argv[0] << ": `" << managerEndpoints << "' is not running" << endl;
 	return EXIT_FAILURE;
@@ -62,7 +62,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     obj = obj->ice_oneway();
     SinglePrx single = SinglePrx::uncheckedCast(obj);
 
-    for (int i = 0; i < 10; ++i)
+    for(int i = 0; i < 10; ++i)
     {
 	single->event();
     }
@@ -87,7 +87,7 @@ main(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (communicator)
+    if(communicator)
     {
 	try
 	{

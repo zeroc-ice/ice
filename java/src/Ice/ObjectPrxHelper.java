@@ -34,7 +34,7 @@ public class ObjectPrxHelper implements ObjectPrx
     ice_isA(String __id, java.util.Map __context)
     {
         int __cnt = 0;
-        while (true)
+        while(true)
         {
             try
             {
@@ -66,7 +66,7 @@ public class ObjectPrxHelper implements ObjectPrx
     ice_ping(java.util.Map __context)
     {
         int __cnt = 0;
-        while (true)
+        while(true)
         {
             try
             {
@@ -99,7 +99,7 @@ public class ObjectPrxHelper implements ObjectPrx
     ice_ids(java.util.Map __context)
     {
         int __cnt = 0;
-        while (true)
+        while(true)
         {
             try
             {
@@ -131,7 +131,7 @@ public class ObjectPrxHelper implements ObjectPrx
     ice_id(java.util.Map __context)
     {
         int __cnt = 0;
-        while (true)
+        while(true)
         {
             try
             {
@@ -163,7 +163,7 @@ public class ObjectPrxHelper implements ObjectPrx
     ice_facets(java.util.Map __context)
     {
         int __cnt = 0;
-        while (true)
+        while(true)
         {
             try
             {
@@ -196,7 +196,7 @@ public class ObjectPrxHelper implements ObjectPrx
                java.util.Map __context)
     {
         int __cnt = 0;
-        while (true)
+        while(true)
         {
             try
             {
@@ -209,7 +209,7 @@ public class ObjectPrxHelper implements ObjectPrx
             }
             catch (IceInternal.NonRepeatable __ex)
             {
-                if (nonmutating)
+                if(nonmutating)
                 {
                     __cnt = __handleException(__ex.get(), __cnt);
                 }
@@ -234,7 +234,7 @@ public class ObjectPrxHelper implements ObjectPrx
     public final ObjectPrx
     ice_newIdentity(Identity newIdentity)
     {
-        if (newIdentity.equals(_reference.identity))
+        if(newIdentity.equals(_reference.identity))
         {
             return this;
         }
@@ -255,7 +255,7 @@ public class ObjectPrxHelper implements ObjectPrx
     public final ObjectPrx
     ice_newFacet(String newFacet)
     {
-        if (newFacet.equals(_reference.facet))
+        if(newFacet.equals(_reference.facet))
         {
             return this;
         }
@@ -271,7 +271,7 @@ public class ObjectPrxHelper implements ObjectPrx
     ice_twoway()
     {
         IceInternal.Reference ref = _reference.changeMode(IceInternal.Reference.ModeTwoway);
-        if (ref.equals(_reference))
+        if(ref.equals(_reference))
         {
             return this;
         }
@@ -287,7 +287,7 @@ public class ObjectPrxHelper implements ObjectPrx
     ice_oneway()
     {
         IceInternal.Reference ref = _reference.changeMode(IceInternal.Reference.ModeOneway);
-        if (ref.equals(_reference))
+        if(ref.equals(_reference))
         {
             return this;
         }
@@ -303,7 +303,7 @@ public class ObjectPrxHelper implements ObjectPrx
     ice_batchOneway()
     {
         IceInternal.Reference ref = _reference.changeMode(IceInternal.Reference.ModeBatchOneway);
-        if (ref.equals(_reference))
+        if(ref.equals(_reference))
         {
             return this;
         }
@@ -319,7 +319,7 @@ public class ObjectPrxHelper implements ObjectPrx
     ice_datagram()
     {
         IceInternal.Reference ref = _reference.changeMode(IceInternal.Reference.ModeDatagram);
-        if (ref.equals(_reference))
+        if(ref.equals(_reference))
         {
             return this;
         }
@@ -335,7 +335,7 @@ public class ObjectPrxHelper implements ObjectPrx
     ice_batchDatagram()
     {
         IceInternal.Reference ref = _reference.changeMode(IceInternal.Reference.ModeBatchDatagram);
-        if (ref.equals(_reference))
+        if(ref.equals(_reference))
         {
             return this;
         }
@@ -351,7 +351,7 @@ public class ObjectPrxHelper implements ObjectPrx
     ice_secure(boolean b)
     {
         IceInternal.Reference ref = _reference.changeSecure(b);
-        if (ref.equals(_reference))
+        if(ref.equals(_reference))
         {
             return this;
         }
@@ -367,7 +367,7 @@ public class ObjectPrxHelper implements ObjectPrx
     ice_timeout(int t)
     {
         IceInternal.Reference ref = _reference.changeTimeout(t);
-        if (ref.equals(_reference))
+        if(ref.equals(_reference))
         {
             return this;
         }
@@ -383,7 +383,7 @@ public class ObjectPrxHelper implements ObjectPrx
     ice_router(Ice.RouterPrx router)
     {
         IceInternal.Reference ref = _reference.changeRouter(router);
-        if (ref.equals(_reference))
+        if(ref.equals(_reference))
         {
             return this;
         }
@@ -399,7 +399,7 @@ public class ObjectPrxHelper implements ObjectPrx
     ice_default()
     {
         IceInternal.Reference ref = _reference.changeDefault();
-        if (ref.equals(_reference))
+        if(ref.equals(_reference))
         {
             return this;
         }
@@ -465,13 +465,13 @@ public class ObjectPrxHelper implements ObjectPrx
 
         _reference = ref;
 
-        if (delegateD != null)
+        if(delegateD != null)
         {
             _ObjectDelD delegate = __createDelegateD();
             delegate.__copyFrom(delegateD);
             _delegate = delegate;
         }
-        else if (delegateM != null)
+        else if(delegateM != null)
         {
             _ObjectDelM delegate = __createDelegateM();
             delegate.__copyFrom(delegateM);
@@ -514,9 +514,9 @@ public class ObjectPrxHelper implements ObjectPrx
         IceInternal.TraceLevels traceLevels = _reference.instance.traceLevels();
         Logger logger = _reference.instance.logger();
 
-        if (cnt > max)
+        if(cnt > max)
         {
-            if (traceLevels.retry >= 1)
+            if(traceLevels.retry >= 1)
             {
                 String s = "cannot retry operation call because retry limit has been exceeded\n" + ex;
                 logger.trace(traceLevels.retryCat, s);
@@ -524,7 +524,7 @@ public class ObjectPrxHelper implements ObjectPrx
             throw ex;
         }
 
-        if (traceLevels.retry >= 1)
+        if(traceLevels.retry >= 1)
         {
             String s = "re-trying operation call because of exception\n" + ex;
             logger.trace(traceLevels.retryCat, s);
@@ -552,7 +552,7 @@ public class ObjectPrxHelper implements ObjectPrx
         _delegate = null;
 
         ObjectPrxHelper h = (ObjectPrxHelper)ex._prx;
-        if (!_reference.identity.equals(h.__reference().identity))
+        if(!_reference.identity.equals(h.__reference().identity))
         {
             throw new LocationForwardIdentityException();
         }
@@ -564,7 +564,7 @@ public class ObjectPrxHelper implements ObjectPrx
             _reference.instance.traceLevels();
         Logger logger = _reference.instance.logger();
 
-        if (traceLevels.locationForward >= 1)
+        if(traceLevels.locationForward >= 1)
         {
             String s = "location forward for object with identity `" + _reference.identity + "'";
             logger.trace(traceLevels.locationForwardCat, s);
@@ -575,10 +575,10 @@ public class ObjectPrxHelper implements ObjectPrx
     public final synchronized _ObjectDel
     __getDelegate()
     {
-        if (_delegate == null)
+        if(_delegate == null)
         {
             ObjectAdapter adapter = _reference.instance.objectAdapterFactory().findObjectAdapter(this);
-            if (adapter != null)
+            if(adapter != null)
             {
                 _ObjectDelD delegate = __createDelegateD();
                 delegate.setup(_reference, adapter);
@@ -595,7 +595,7 @@ public class ObjectPrxHelper implements ObjectPrx
                 // using a router, then add this proxy to the router info
                 // object.
                 //
-                if (_reference.routerInfo != null)
+                if(_reference.routerInfo != null)
                 {
                     _reference.routerInfo.addProxy(this);
                 }

@@ -156,19 +156,19 @@ IceSSL::OpenSSL::getGeneralizedTime(ASN1_GENERALIZEDTIME *tm)
 
     char* v = (char *) tm->data;
 
-    if (i < 12)
+    if(i < 12)
     {
         goto err;
     }
 
-    if (v[i-1] == 'Z')
+    if(v[i-1] == 'Z')
     {
         gmt=1;
     }
 
-    for (i=0; i<12; i++)
+    for(i=0; i<12; i++)
     {
-        if ((v[i] > '9') || (v[i] < '0'))
+        if((v[i] > '9') || (v[i] < '0'))
         {
             goto err;
         }
@@ -177,7 +177,7 @@ IceSSL::OpenSSL::getGeneralizedTime(ASN1_GENERALIZEDTIME *tm)
     y = (v[0] - '0') * 1000 + (v[1] - '0') * 100 + (v[2] - '0') * 10 + (v[3] - '0');
     M = (v[4] - '0') * 10 + (v[5] - '0');
 
-    if ((M > 12) || (M < 1))
+    if((M > 12) || (M < 1))
     {
         goto err;
     }
@@ -186,7 +186,7 @@ IceSSL::OpenSSL::getGeneralizedTime(ASN1_GENERALIZEDTIME *tm)
     h = (v[8] - '0') * 10 + (v[9] - '0');
     m = (v[10] - '0') * 10 + (v[11] - '0');
 
-    if ((v[12] >= '0') && (v[12] <= '9') &&
+    if((v[12] >= '0') && (v[12] <= '9') &&
         (v[13] >= '0') && (v[13] <= '9'))
     {
         s = (v[12] - '0') * 10 + (v[13] - '0');
@@ -210,19 +210,19 @@ IceSSL::OpenSSL::getUTCTime(ASN1_UTCTIME *tm)
     int i = tm->length;
     char* v = (char *) tm->data;
 
-    if (i < 10)
+    if(i < 10)
     { 
         goto err;
     }
 
-    if (v[i-1] == 'Z')
+    if(v[i-1] == 'Z')
     {
         gmt=1;
     }
 
-    for (i = 0; i < 10; i++)
+    for(i = 0; i < 10; i++)
     {
-        if ((v[i] > '9') || (v[i] < '0'))
+        if((v[i] > '9') || (v[i] < '0'))
         {
             goto err;
         }
@@ -230,14 +230,14 @@ IceSSL::OpenSSL::getUTCTime(ASN1_UTCTIME *tm)
 
     y = (v[0] - '0') * 10 + (v[1] - '0');
 
-    if (y < 50)
+    if(y < 50)
     {
         y+=100;
     }
 
     M = (v[2] - '0') * 10 + (v[3] - '0');
 
-    if ((M > 12) || (M < 1))
+    if((M > 12) || (M < 1))
     {
         goto err;
     }
@@ -246,7 +246,7 @@ IceSSL::OpenSSL::getUTCTime(ASN1_UTCTIME *tm)
     h = (v[6] - '0') * 10 + (v[7] - '0');
     m = (v[8] - '0') * 10 + (v[9] - '0');
 
-    if ((v[10] >= '0') && (v[10] <= '9') && (v[11] >= '0') && (v[11] <= '9'))
+    if((v[10] >= '0') && (v[10] <= '9') && (v[11] >= '0') && (v[11] <= '9'))
     {
         s = (v[10] - '0') * 10 + (v[11] - '0');
     }
@@ -265,7 +265,7 @@ IceSSL::OpenSSL::getASN1time(ASN1_TIME *tm)
 
     string theTime;
 
-    switch (tm->type)
+    switch(tm->type)
     {
         case V_ASN1_UTCTIME :
         {
@@ -297,7 +297,7 @@ IceSSL::OpenSSL::loadDHParam(const char* dhfile)
     DH* ret = 0;
     BIO* bio = BIO_new_file(dhfile,"r");
 
-    if (bio != 0)
+    if(bio != 0)
     {
         ret = PEM_read_bio_DHparams(bio, 0, 0, 0);
         BIO_free(bio);
@@ -314,13 +314,13 @@ IceSSL::OpenSSL::getTempDH(unsigned char* p, int plen, unsigned char* g, int gle
 
     DH* dh = DH_new();
 
-    if (dh != 0)
+    if(dh != 0)
     {
         dh->p = BN_bin2bn(p, plen, 0);
 
         dh->g = BN_bin2bn(g, glen, 0);
 
-        if ((dh->p == 0) || (dh->g == 0))
+        if((dh->p == 0) || (dh->g == 0))
         {
             DH_free(dh);
             dh = 0;
@@ -379,7 +379,7 @@ IceSSL::OpenSSL::sslGetErrors()
 
     unsigned long es = CRYPTO_thread_id();
 
-    while ((errorCode = ERR_get_error_line_data(&file, &line, &data, &flags)) != 0)
+    while((errorCode = ERR_get_error_line_data(&file, &line, &data, &flags)) != 0)
     {
         sprintf(bigBuffer,"%6d - Thread ID: %lu\n", errorNum, es);
         errorMessage += bigBuffer;
@@ -395,7 +395,7 @@ IceSSL::OpenSSL::sslGetErrors()
         sprintf(bigBuffer,"%6d - Location:  %s, %d\n", errorNum, file, line);
         errorMessage += bigBuffer;
 
-        if (flags & ERR_TXT_STRING)
+        if(flags & ERR_TXT_STRING)
         {
             sprintf(bigBuffer,"%6d - Data:      %s\n", errorNum, data);
             errorMessage += bigBuffer;

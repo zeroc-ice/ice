@@ -36,14 +36,14 @@ public final class Admin
             java.util.ArrayList commands = new java.util.ArrayList();
 
             int idx = 0;
-            while (idx < args.length)
+            while(idx < args.length)
             {
-                if (args[idx].equals("-h") || args[idx].equals("--help"))
+                if(args[idx].equals("-h") || args[idx].equals("--help"))
                 {
                     usage();
                     return 1;
                 }
-                else if (args[idx].charAt(0) == '-')
+                else if(args[idx].charAt(0) == '-')
                 {
                     System.err.println(appName() + ": unknown option `" + args[idx] + "'");
                     usage();
@@ -56,7 +56,7 @@ public final class Admin
                 }
             }
 
-            if (commands.isEmpty())
+            if(commands.isEmpty())
             {
                 usage();
                 return 0;
@@ -64,7 +64,7 @@ public final class Admin
 
             final String managerEndpointsProperty = "IceBox.ServiceManager.Endpoints";
             String managerEndpoints = properties.getProperty(managerEndpointsProperty);
-            if (managerEndpoints.length() == 0)
+            if(managerEndpoints.length() == 0)
             {
                 System.err.println(appName() + ": property `" + managerEndpointsProperty + "' is not set");
                 return 1;
@@ -72,16 +72,16 @@ public final class Admin
 
             Ice.ObjectPrx base = communicator().stringToProxy("ServiceManager:" + managerEndpoints);
             IceBox.ServiceManagerPrx manager = IceBox.ServiceManagerPrxHelper.checkedCast(base);
-            if (manager == null)
+            if(manager == null)
             {
                 System.err.println(appName() + ": `" + managerEndpoints + "' is not running");
                 return 1;
             }
 
-            for (int i = 0; i < commands.size(); i++)
+            for(int i = 0; i < commands.size(); i++)
             {
                 String command = (String)commands.get(i);
-                if (command.equals("shutdown"))
+                if(command.equals("shutdown"))
                 {
                     manager.shutdown();
                 }

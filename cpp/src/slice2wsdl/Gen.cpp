@@ -30,16 +30,16 @@ Slice::Gen::Gen(const string& name, const string& base, const string& include,
     _dir(dir)
 {
     _orgName = "http://www.noorg.org"; // TODO: argument!
-    for (vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
+    for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
-	if (p->length() && (*p)[p->length() - 1] != '/')
+	if(p->length() && (*p)[p->length() - 1] != '/')
 	{
 	    *p += '/';
 	}
     }
 
     string::size_type pos = _base.rfind('/');
-    if (pos != string::npos)
+    if(pos != string::npos)
     {
 	_base.erase(0, pos + 1);
     }
@@ -56,13 +56,13 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 
     //string fileO = _base + ".wsdl";
     string fileO = containedToId(p) + p->name() + ".wsdl";
-    if (!_dir.empty())
+    if(!_dir.empty())
     {
 	fileO = _dir + '/' + fileO;
     }
 
     O.open(fileO.c_str());
-    if (!O)
+    if(!O)
     {
 	cerr << _name << ": can't open `" << fileO << "' for writing: " << strerror(errno) << endl;
 	return false;
@@ -91,7 +91,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 
 
     OperationList ops = p->allOperations();
-    for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+    for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
     {
 	emitMessage(O, *q);
     }
@@ -102,7 +102,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     os << "wsdl:portType name=\"" << scopeId << "PortType\"";
     O << se(os.str());
 
-    for (OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
+    for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
     {
 	emitOperation(O, *r);
     }
@@ -142,7 +142,7 @@ Slice::Gen::emitMessage(XMLOutput& O, const OperationPtr& p)
     O << se(os.str());
 
     list<string> metaData = p->getMetaData();
-    for (list<string>::iterator iter = metaData.begin(); iter != metaData.end(); ++iter)
+    for(list<string>::iterator iter = metaData.begin(); iter != metaData.end(); ++iter)
     {
         O << nl << "<wsdl:part name=\"" << *iter << "\"/>";
     }
@@ -195,7 +195,7 @@ Slice::Gen::containedToId(const ContainedPtr& contained)
     assert(contained);
 
     string scoped = contained->scope();
-    if (scoped[0] == ':')
+    if(scoped[0] == ':')
     {
 	scoped.erase(0, 2);
     }
@@ -204,9 +204,9 @@ Slice::Gen::containedToId(const ContainedPtr& contained)
 
     id.reserve(scoped.size());
 
-    for (unsigned int i = 0; i < scoped.size(); ++i)
+    for(unsigned int i = 0; i < scoped.size(); ++i)
     {
-	if (scoped[i] == ':')
+	if(scoped[i] == ':')
 	{
 	    id += '.';
 	    ++i;

@@ -47,13 +47,13 @@ CreateTest::CreateTest() :
 void
 CreateTest::run()
 {
-    for (int i = 0; i < 4096 ; ++i)
+    for(int i = 0; i < 4096 ; ++i)
     {
 	CreateTestThreadPtr t = new CreateTestThread();
 	ThreadControl control = t->start();
 	control.join();
 	test(t->threadran);
-	if ((i % 256) == 0)
+	if((i % 256) == 0)
 	{
 	    char buf[5];
 	    sprintf(buf, "%04d", i);

@@ -55,7 +55,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 	    Ice.Properties properties = _communicator.getProperties();
 	    java.util.Map services = properties.getPropertiesForPrefix(prefix);
 	    java.util.Iterator p = services.entrySet().iterator();
-	    while (p.hasNext())
+	    while(p.hasNext())
 	    {
 		java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
 		String name = ((String)entry.getKey()).substring(prefix.length());
@@ -67,15 +67,15 @@ public final class ServiceManagerI extends _ServiceManagerDisp
                 String className;
                 String[] args;
                 int pos = value.indexOf(' ');
-                if (pos == -1)
+                if(pos == -1)
                 {
                     pos = value.indexOf('\t');
                 }
-                if (pos == -1)
+                if(pos == -1)
                 {
                     pos = value.indexOf('\n');
                 }
-                if (pos == -1)
+                if(pos == -1)
                 {
                     className = value;
                     args = new String[0];
@@ -93,7 +93,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             // Invoke start() on the services.
             //
             java.util.Iterator r = _services.entrySet().iterator();
-            while (r.hasNext())
+            while(r.hasNext())
             {
                 java.util.Map.Entry entry = (java.util.Map.Entry)r.next();
                 String name = (String)entry.getKey();
@@ -128,7 +128,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             // services.
             //
             String bundleName = properties.getProperty("IceBox.PrintServicesReady");
-            if (bundleName.length() > 0)
+            if(bundleName.length() > 0)
             {
                 System.out.println(bundleName + " ready");
             }
@@ -197,20 +197,20 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         // We'll compose an array of arguments in the above order.
         //
         java.util.ArrayList l = new java.util.ArrayList();
-        for (int j = 0; j < _options.length; j++)
+        for(int j = 0; j < _options.length; j++)
         {
-            if (_options[j].startsWith("--" + service + "."))
+            if(_options[j].startsWith("--" + service + "."))
             {
                 l.add(_options[j]);
             }
         }
-        for (int j = 0; j < args.length; j++)
+        for(int j = 0; j < args.length; j++)
         {
             l.add(args[j]);
         }
-        for (int j = 0; j < _argv.length; j++)
+        for(int j = 0; j < _argv.length; j++)
         {
-            if (_argv[j].startsWith("--" + service + "."))
+            if(_argv[j].startsWith("--" + service + "."))
             {
                 l.add(_argv[j]);
             }
@@ -314,7 +314,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
     stopAll()
     {
         java.util.Iterator r = _services.entrySet().iterator();
-        while (r.hasNext())
+        while(r.hasNext())
         {
             java.util.Map.Entry e = (java.util.Map.Entry)r.next();
             String name = (String)e.getKey();

@@ -29,7 +29,7 @@ public final class RouterManager
     public RouterInfo
     get(Ice.RouterPrx rtr)
     {
-        if (rtr == null)
+        if(rtr == null)
         {
             return null;
         }
@@ -39,7 +39,7 @@ public final class RouterManager
         synchronized (this)
         {
             RouterInfo info = (RouterInfo)_table.get(router);
-            if (info == null)
+            if(info == null)
             {
                 info = new RouterInfo(router);
                 _table.put(router, info);

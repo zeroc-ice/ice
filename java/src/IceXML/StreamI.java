@@ -56,7 +56,7 @@ public class StreamI implements Ice.Stream
         // needs to be generalized to support other implementations.
         //
         factory.setValidating(false);
-        if (schema)
+        if(schema)
         {
             factory.setNamespaceAware(true);
             //factory.setDoSchema(true); // TODO
@@ -102,7 +102,7 @@ public class StreamI implements Ice.Stream
             errorsOccurred = true;
         }
 
-        if (errorsOccurred)
+        if(errorsOccurred)
         {
             throw new Ice.MarshalException();
         }
@@ -302,21 +302,21 @@ public class StreamI implements Ice.Stream
         startRead(name);
 
         org.w3c.dom.Node child = _current.getFirstChild();
-        if (child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
+        if(child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
         {
             throw new Ice.MarshalException();
         }
 
         String value = child.getNodeValue();
         int ordinal;
-        for (ordinal = 0; ordinal < table.length; ordinal++)
+        for(ordinal = 0; ordinal < table.length; ordinal++)
         {
-            if (value.equals(table[ordinal]))
+            if(value.equals(table[ordinal]))
             {
                 break;
             }
         }
-        if (ordinal == table.length)
+        if(ordinal == table.length)
         {
             throw new Ice.MarshalException();
         }
@@ -341,7 +341,7 @@ public class StreamI implements Ice.Stream
     writeByteSeq(String name, byte[] value)
     {
         startWrite(name);
-        for (int i = 0; i < value.length; i++)
+        for(int i = 0; i < value.length; i++)
         {
             _os.nl();
             _os.print("<e>" + (int)value[i] + "</e>");
@@ -355,7 +355,7 @@ public class StreamI implements Ice.Stream
         startRead(name);
 
         org.w3c.dom.Node child = _current.getFirstChild();
-        if (child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
+        if(child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
         {
             throw new Ice.MarshalException();
         }
@@ -385,10 +385,10 @@ public class StreamI implements Ice.Stream
 
         int size = readLength();
         byte[] value = new byte[size];
-        if (size > 0)
+        if(size > 0)
         {
             _current = _current.getFirstChild();
-            for (int i = 0; i < size; i++)
+            for(int i = 0; i < size; i++)
             {
                 value[i] = readByte(seqElementName);
             }
@@ -412,7 +412,7 @@ public class StreamI implements Ice.Stream
     writeBoolSeq(String name, boolean[] value)
     {
         startWrite(name);
-        for (int i = 0; i < value.length; i++)
+        for(int i = 0; i < value.length; i++)
         {
             _os.nl();
             _os.print("<e>" + (value[i] ? "true" : "false") + "</e>");
@@ -426,7 +426,7 @@ public class StreamI implements Ice.Stream
         startRead(name);
 
         org.w3c.dom.Node child = _current.getFirstChild();
-        if (child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
+        if(child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
         {
             throw new Ice.MarshalException();
         }
@@ -446,10 +446,10 @@ public class StreamI implements Ice.Stream
 
         int size = readLength();
         boolean[] value = new boolean[size];
-        if (size > 0)
+        if(size > 0)
         {
             _current = _current.getFirstChild();
-            for (int i = 0; i < size; i++)
+            for(int i = 0; i < size; i++)
             {
                 value[i] = readBool(seqElementName);
             }
@@ -473,7 +473,7 @@ public class StreamI implements Ice.Stream
     writeShortSeq(String name, short[] value)
     {
         startWrite(name);
-        for (int i = 0; i < value.length; i++)
+        for(int i = 0; i < value.length; i++)
         {
             _os.nl();
             _os.print("<e>" + value[i] + "</e>");
@@ -487,7 +487,7 @@ public class StreamI implements Ice.Stream
         startRead(name);
 
         org.w3c.dom.Node child = _current.getFirstChild();
-        if (child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
+        if(child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
         {
             throw new Ice.MarshalException();
         }
@@ -517,10 +517,10 @@ public class StreamI implements Ice.Stream
 
         int size = readLength();
         short[] value = new short[size];
-        if (size > 0)
+        if(size > 0)
         {
             _current = _current.getFirstChild();
-            for (int i = 0; i < size; i++)
+            for(int i = 0; i < size; i++)
             {
                 value[i] = readShort(seqElementName);
             }
@@ -544,7 +544,7 @@ public class StreamI implements Ice.Stream
     writeIntSeq(String name, int[] value)
     {
         startWrite(name);
-        for (int i = 0; i < value.length; i++)
+        for(int i = 0; i < value.length; i++)
         {
             _os.nl();
             _os.print("<e>" + value[i] + "</e>");
@@ -558,7 +558,7 @@ public class StreamI implements Ice.Stream
         startRead(name);
 
         org.w3c.dom.Node child = _current.getFirstChild();
-        if (child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
+        if(child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
         {
             throw new Ice.MarshalException();
         }
@@ -588,10 +588,10 @@ public class StreamI implements Ice.Stream
 
         int size = readLength();
         int[] value = new int[size];
-        if (size > 0)
+        if(size > 0)
         {
             _current = _current.getFirstChild();
-            for (int i = 0; i < size; i++)
+            for(int i = 0; i < size; i++)
             {
                 value[i] = readInt(seqElementName);
             }
@@ -615,7 +615,7 @@ public class StreamI implements Ice.Stream
     writeLongSeq(String name, long[] value)
     {
         startWrite(name);
-        for (int i = 0; i < value.length; i++)
+        for(int i = 0; i < value.length; i++)
         {
             _os.nl();
             _os.print("<e>" + value[i] + "</e>");
@@ -629,7 +629,7 @@ public class StreamI implements Ice.Stream
         startRead(name);
 
         org.w3c.dom.Node child = _current.getFirstChild();
-        if (child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
+        if(child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
         {
             throw new Ice.MarshalException();
         }
@@ -659,10 +659,10 @@ public class StreamI implements Ice.Stream
 
         int size = readLength();
         long[] value = new long[size];
-        if (size > 0)
+        if(size > 0)
         {
             _current = _current.getFirstChild();
-            for (int i = 0; i < size; i++)
+            for(int i = 0; i < size; i++)
             {
                 value[i] = readLong(seqElementName);
             }
@@ -686,7 +686,7 @@ public class StreamI implements Ice.Stream
     writeFloatSeq(String name, float[] value)
     {
         startWrite(name);
-        for (int i = 0; i < value.length; i++)
+        for(int i = 0; i < value.length; i++)
         {
             _os.nl();
             _os.print("<e>" + value[i] + "</e>");
@@ -700,7 +700,7 @@ public class StreamI implements Ice.Stream
         startRead(name);
 
         org.w3c.dom.Node child = _current.getFirstChild();
-        if (child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
+        if(child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
         {
             throw new Ice.MarshalException();
         }
@@ -730,10 +730,10 @@ public class StreamI implements Ice.Stream
 
         int size = readLength();
         float[] value = new float[size];
-        if (size > 0)
+        if(size > 0)
         {
             _current = _current.getFirstChild();
-            for (int i = 0; i < size; i++)
+            for(int i = 0; i < size; i++)
             {
                 value[i] = readFloat(seqElementName);
             }
@@ -757,7 +757,7 @@ public class StreamI implements Ice.Stream
     writeDoubleSeq(String name, double[] value)
     {
         startWrite(name);
-        for (int i = 0; i < value.length; i++)
+        for(int i = 0; i < value.length; i++)
         {
             _os.nl();
             _os.print("<e>" + value[i] + "</e>");
@@ -771,7 +771,7 @@ public class StreamI implements Ice.Stream
         startRead(name);
 
         org.w3c.dom.Node child = _current.getFirstChild();
-        if (child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
+        if(child == null || child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
         {
             throw new Ice.MarshalException();
         }
@@ -801,10 +801,10 @@ public class StreamI implements Ice.Stream
 
         int size = readLength();
         double[] value = new double[size];
-        if (size > 0)
+        if(size > 0)
         {
             _current = _current.getFirstChild();
-            for (int i = 0; i < size; i++)
+            for(int i = 0; i < size; i++)
             {
                 value[i] = readDouble(seqElementName);
             }
@@ -830,7 +830,7 @@ public class StreamI implements Ice.Stream
     writeStringSeq(String name, String[] value)
     {
         startWrite(name);
-        for (int i = 0; i < value.length; i++)
+        for(int i = 0; i < value.length; i++)
         {
             _os.nl();
             _os.print("<e>");
@@ -848,9 +848,9 @@ public class StreamI implements Ice.Stream
         startRead(name);
 
         org.w3c.dom.Node child = _current.getFirstChild();
-        if (child != null)
+        if(child != null)
         {
-            if (child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
+            if(child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
             {
                 throw new Ice.MarshalException();
             }
@@ -873,10 +873,10 @@ public class StreamI implements Ice.Stream
 
         int size = readLength();
         String[] value = new String[size];
-        if (size > 0)
+        if(size > 0)
         {
             _current = _current.getFirstChild();
-            for (int i = 0; i < size; i++)
+            for(int i = 0; i < size; i++)
             {
                 value[i] = readString(seqElementName);
             }
@@ -906,9 +906,9 @@ public class StreamI implements Ice.Stream
 
         org.w3c.dom.Node child = _current.getFirstChild();
         String s = "";
-        if (child != null)
+        if(child != null)
         {
-            if (child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
+            if(child.getNodeType() != org.w3c.dom.Node.TEXT_NODE)
             {
                 throw new Ice.MarshalException();
             }
@@ -935,14 +935,14 @@ public class StreamI implements Ice.Stream
         // If the object doesn't exist in the map add it.
         //
         ObjectInfo info = (ObjectInfo)_objects.get(value);
-        if (info == null)
+        if(info == null)
         {
             String s = "object" + _nextId++;
             info = new ObjectInfo(s, !writeReference);
             _objects.put(value, info);
         }
 
-        if (writeReference)
+        if(writeReference)
         {
             _os.nl();
             _os.print("<" + name + " href =\"#" + info.id + "\"/>");
@@ -981,12 +981,12 @@ public class StreamI implements Ice.Stream
         // readObjects list. Otherwise, it should be in the object-set at
         // the top-level of the document.
         //
-        if (href.value != null && href.value.length() > 0)
+        if(href.value != null && href.value.length() > 0)
         {
             href.value = href.value.substring(1); // Skip the '#'
 
             value = (Ice.Object)_readObjects.get(href.value);
-            if (value != null)
+            if(value != null)
             {
                 endRead();
                 return value;
@@ -998,13 +998,13 @@ public class StreamI implements Ice.Stream
             //
             _current = _document.getFirstChild();
             _current = _current.getFirstChild();
-            while (_current != null)
+            while(_current != null)
             {
-                if (_current.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE)
+                if(_current.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE)
                 {
                     Ice.StringHolder dummy = new Ice.StringHolder();
                     readAttributes(id, type, dummy);
-                    if (id.value.equals(href.value))
+                    if(id.value.equals(href.value))
                     {
                         break;
                     }
@@ -1014,7 +1014,7 @@ public class StreamI implements Ice.Stream
             //
             // If the object isn't found, that's an error.
             //
-            if (_current == null)
+            if(_current == null)
             {
                 throw new Ice.MarshalException();
             }
@@ -1023,13 +1023,13 @@ public class StreamI implements Ice.Stream
         //
         // Empty type indicates nil object.
         //
-        if (type.value.length() == 0)
+        if(type.value.length() == 0)
         {
             value = null;
         }
         else
         {
-            if (type.value.equals("::Ice::Object"))
+            if(type.value.equals("::Ice::Object"))
             {
                 value = new Ice.Object();
             }
@@ -1043,19 +1043,19 @@ public class StreamI implements Ice.Stream
                 // can be created then throw a NoObjectFactoryException.
                 //
                 Ice.ObjectFactory userFactory = _communicator.findObjectFactory(type.value);
-                if (userFactory != null)
+                if(userFactory != null)
                 {
                     value = userFactory.create(type.value);
                 }
 
-                if (value == null && type.value.equals(signatureType))
+                if(value == null && type.value.equals(signatureType))
                 {
                     assert(factory != null);
                     value = factory.create(type.value);
                     assert(value != null);
                 }
 
-                if (value == null)
+                if(value == null)
                 {
                     throw new Ice.NoObjectFactoryException();
                 }
@@ -1089,7 +1089,7 @@ public class StreamI implements Ice.Stream
 
         _os.ee();
 
-        if (_level == 0)
+        if(_level == 0)
         {
             dumpUnwrittenObjects();
         }
@@ -1098,11 +1098,11 @@ public class StreamI implements Ice.Stream
     private void
     startRead(String name)
     {
-        while (_current != null && _current.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE)
+        while(_current != null && _current.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE)
         {
             _current = _current.getNextSibling();
         }
-        if (_current == null)
+        if(_current == null)
         {
             throw new Ice.MarshalException();
         }
@@ -1113,7 +1113,7 @@ public class StreamI implements Ice.Stream
         //
         final String facets = "facets";
         final String facetsNS = "ice:facets";
-        if ((!name.equals(facetsNS) || !nodeName.equals(facets)) && !name.equals(nodeName))
+        if((!name.equals(facetsNS) || !nodeName.equals(facets)) && !name.equals(nodeName))
         {
             throw new Ice.MarshalException();
         }
@@ -1147,12 +1147,12 @@ public class StreamI implements Ice.Stream
         {
             nwritten = 0;
             java.util.Iterator p = _objects.entrySet().iterator();
-            while (p.hasNext())
+            while(p.hasNext())
             {
                 java.util.Map.Entry e = (java.util.Map.Entry)p.next();
                 Ice.Object obj = (Ice.Object)e.getKey();
                 ObjectInfo info = (ObjectInfo)e.getValue();
-                if (!info.written)
+                if(!info.written)
                 {
                     info.written = true;
                     writeObjectData("ice:object", info.id, obj);
@@ -1164,7 +1164,7 @@ public class StreamI implements Ice.Stream
                 }
             }
         }
-        while (_objects.size() != nwritten);
+        while(_objects.size() != nwritten);
     }
 
     private void
@@ -1173,7 +1173,7 @@ public class StreamI implements Ice.Stream
         String xsdType = "";
         String typeId = "";
 
-        if (obj != null)
+        if(obj != null)
         {
             //
             // Convert the type-id to the equivalent schema type
@@ -1185,13 +1185,13 @@ public class StreamI implements Ice.Stream
             final String xsdSuffix = "Type";
             xsdType += xsdPrefix;
             int i = 0;
-            if (typeId.charAt(0) == ':') // Skip the preceeding "::".
+            if(typeId.charAt(0) == ':') // Skip the preceeding "::".
             {
                 i = 2;
             }
-            for (; i < typeId.length(); ++i)
+            for(; i < typeId.length(); ++i)
             {
-                if (typeId.charAt(i) == ':')
+                if(typeId.charAt(i) == ':')
                 {
                     xsdType += '.';
                     ++i;
@@ -1210,13 +1210,13 @@ public class StreamI implements Ice.Stream
 
         String s = name + " id=\"" + id + "\" type=\"" + typeId + "\"" +
            " xsi:type=\"" + xsdType + "\"";
-        if (obj == null)
+        if(obj == null)
         {
             s += " xsi:nil=\"true\"";
         }
 
         startWrite(s);
-        if (obj != null)
+        if(obj != null)
         {
             obj.__marshal(this);
         }
@@ -1232,19 +1232,19 @@ public class StreamI implements Ice.Stream
 
         org.w3c.dom.NamedNodeMap attributes = _current.getAttributes();
         int attrCount = attributes.getLength();
-        for (int i = 0; i < attrCount; i++)
+        for(int i = 0; i < attrCount; i++)
         {
             org.w3c.dom.Node attribute = attributes.item(i);
             String name = attribute.getNodeName();
-            if (name.equals(idStr))
+            if(name.equals(idStr))
             {
                 id.value = attribute.getNodeValue();
             }
-            else if (name.equals(typeStr))
+            else if(name.equals(typeStr))
             {
                 type.value = attribute.getNodeValue();
             }
-            else if (name.equals(hrefStr))
+            else if(name.equals(hrefStr))
             {
                 href.value = attribute.getNodeValue();
             }
@@ -1258,11 +1258,11 @@ public class StreamI implements Ice.Stream
 
         org.w3c.dom.NamedNodeMap attributes = _current.getAttributes();
         int attrCount = attributes.getLength();
-        for (int i = 0; i < attrCount; i++)
+        for(int i = 0; i < attrCount; i++)
         {
             org.w3c.dom.Node attribute = attributes.item(i);
             String name = attribute.getNodeName();
-            if (name.equals(lengthStr))
+            if(name.equals(lengthStr))
             {
                 try
                 {

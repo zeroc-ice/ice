@@ -34,7 +34,7 @@ NestedClient::run(int argc, char* argv[])
     PropertiesPtr properties = communicator()->getProperties();
     const char* refProperty = "Nested.NestedServer";
     std::string ref = properties->getProperty(refProperty);
-    if (ref.empty())
+    if(ref.empty())
     {
 	cerr << appName() << ": property `" << refProperty << "' not set" << endl;
 	return EXIT_FAILURE;
@@ -42,7 +42,7 @@ NestedClient::run(int argc, char* argv[])
 
     ObjectPrx base = communicator()->stringToProxy(ref);
     NestedPrx nested = NestedPrx::checkedCast(base);
-    if (!nested)
+    if(!nested)
     {
 	cerr << appName() << ": invalid object reference" << endl;
 	return EXIT_FAILURE;
@@ -67,7 +67,7 @@ NestedClient::run(int argc, char* argv[])
 	    cout << "enter nesting level or 'x' for exit: ";
 	    cin >> s;
 	    int level = atoi(s.c_str());
-	    if (level > 0)
+	    if(level > 0)
 	    {
 		nested->nested(level, self);
 	    }
@@ -77,7 +77,7 @@ NestedClient::run(int argc, char* argv[])
 	    cerr << ex << endl;
 	}
     }
-    while (cin.good() && s != "x");
+    while(cin.good() && s != "x");
 
     return EXIT_SUCCESS;
 }

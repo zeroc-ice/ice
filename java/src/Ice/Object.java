@@ -139,12 +139,12 @@ public class Object
     __dispatch(IceInternal.Incoming in, Current current)
     {
         int pos = java.util.Arrays.binarySearch(__all, current.operation);
-        if (pos < 0)
+        if(pos < 0)
         {
             return IceInternal.DispatchStatus.DispatchOperationNotExist;
         }
 
-        switch (pos)
+        switch(pos)
         {
             case 0:
             {
@@ -183,7 +183,7 @@ public class Object
             java.util.Set set = _activeFacetMap.keySet();
             String[] keys = new String[sz];
             set.toArray(keys);
-            for (int i = 0; i < sz; i++)
+            for(int i = 0; i < sz; i++)
             {
                 __os.writeString(keys[i]);
                 __os.writeObject((Object)_activeFacetMap.get(keys[i]));
@@ -200,7 +200,7 @@ public class Object
 
             _activeFacetMap.clear();
 
-            while (sz-- > 0)
+            while(sz-- > 0)
             {
                 String key = __is.readString();
                 Object value = __is.readObject("", null);
@@ -220,7 +220,7 @@ public class Object
             java.util.Set set = _activeFacetMap.keySet();
             String[] keys = new String[sz];
             set.toArray(keys);
-            for (int i = 0; i < sz; i++)
+            for(int i = 0; i < sz; i++)
             {
                 __os.startWriteDictionaryElement();
                 __os.writeString("key", keys[i]);
@@ -244,7 +244,7 @@ public class Object
 
             _activeFacetMap.clear();
 
-            while (sz-- > 0)
+            while(sz-- > 0)
             {
                 __is.startReadDictionaryElement();
                 String key = __is.readString(keyName);

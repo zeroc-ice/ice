@@ -195,35 +195,35 @@ final class UnknownEndpoint implements Endpoint
             return 1;
         }
 
-        if (this == p)
+        if(this == p)
         {
             return 0;
         }
 
-        if (_type < p._type)
+        if(_type < p._type)
         {
             return -1;
         }
-        else if (p._type < _type)
+        else if(p._type < _type)
         {
             return 1;
         }
 
-        if (_rawBytes.length < p._rawBytes.length)
+        if(_rawBytes.length < p._rawBytes.length)
         {
             return -1;
         }
-        else if (p._rawBytes.length < _rawBytes.length)
+        else if(p._rawBytes.length < _rawBytes.length)
         {
             return 1;
         }
-        for (int i = 0; i < _rawBytes.length; i++)
+        for(int i = 0; i < _rawBytes.length; i++)
         {
-            if (_rawBytes[i] < p._rawBytes[i])
+            if(_rawBytes[i] < p._rawBytes[i])
             {
                 return -1;
             }
-            else if (p._rawBytes[i] < _rawBytes[i])
+            else if(p._rawBytes[i] < _rawBytes[i])
             {
                 return 1;
             }
@@ -236,7 +236,7 @@ final class UnknownEndpoint implements Endpoint
     calcHashValue()
     {
         _hashCode = _type;
-        for (int i = 0; i < _rawBytes.length; i++)
+        for(int i = 0; i < _rawBytes.length; i++)
         {
             _hashCode = 5 * _hashCode + _rawBytes[i];
         }

@@ -21,7 +21,7 @@ final class UdpTransceiver implements Transceiver
     public void
     close()
     {
-        if (_traceLevels.network >= 1)
+        if(_traceLevels.network >= 1)
         {
             String s = "closing udp connection\n" + toString();
             _logger.trace(_traceLevels.networkCat, s);
@@ -53,13 +53,13 @@ final class UdpTransceiver implements Transceiver
         final int packetSize = 64 * 1024; // TODO: configurable
         assert(packetSize >= buf.limit()); // TODO: exception
 
-        while (buf.hasRemaining())
+        while(buf.hasRemaining())
         {
             try
             {
                 int ret = _fd.write(buf);
 
-                if (_traceLevels.network >= 3)
+                if(_traceLevels.network >= 3)
                 {
                     String s = "sent " + ret + " bytes via udp\n" + toString();
                     _logger.trace(_traceLevels.networkCat, s);
@@ -98,9 +98,9 @@ final class UdpTransceiver implements Transceiver
         buf.position(0);
 
         int ret = 0;
-        while (true)
+        while(true)
         {
-            if (_connect)
+            if(_connect)
             {
                 //
                 // If we must connect, then we connect to the first peer that
@@ -113,7 +113,7 @@ final class UdpTransceiver implements Transceiver
                     Network.doConnect(_fd, peerAddr, -1);
                     _connect = false; // We're connected now
 
-                    if (_traceLevels.network >= 1)
+                    if(_traceLevels.network >= 1)
                     {
                         String s = "connected udp socket\n" + toString();
                         _logger.trace(_traceLevels.networkCat, s);
@@ -152,7 +152,7 @@ final class UdpTransceiver implements Transceiver
             break;
         }
 
-        if (_traceLevels.network >= 3)
+        if(_traceLevels.network >= 3)
         {
             String s = "received " + ret + " bytes via udp\n" + toString();
             _logger.trace(_traceLevels.networkCat, s);
@@ -200,7 +200,7 @@ final class UdpTransceiver implements Transceiver
             Network.doConnect(_fd, _addr, -1);
             _connect = false; // We're connected now
 
-            if (_traceLevels.network >= 1)
+            if(_traceLevels.network >= 1)
             {
                 String s = "starting to send udp packets\n" + toString();
                 _logger.trace(_traceLevels.networkCat, s);
@@ -231,7 +231,7 @@ final class UdpTransceiver implements Transceiver
             java.net.InetSocketAddress addr = new java.net.InetSocketAddress(host, port);
             _addr = Network.doBind(_fd, addr);
 
-            if (_traceLevels.network >= 1)
+            if(_traceLevels.network >= 1)
             {
                 String s = "starting to receive udp packets\n" + toString();
                 _logger.trace(_traceLevels.networkCat, s);

@@ -24,9 +24,9 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     vector<int> ports;
-    for (int i = 1; i < argc; ++i)
+    for(int i = 1; i < argc; ++i)
     {
-	if (argv[i][0] == '-')
+	if(argv[i][0] == '-')
 	{
 	    cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
 	    usage(argv[0]);
@@ -36,7 +36,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	ports.push_back(atoi(argv[i]));
     }
 
-    if (ports.empty())
+    if(ports.empty())
     {
 	cerr << argv[0] << ": no ports specified" << endl;
 	usage(argv[0]);
@@ -65,7 +65,7 @@ main(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (communicator)
+    if(communicator)
     {
 	try
 	{

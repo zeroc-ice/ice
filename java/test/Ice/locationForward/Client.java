@@ -21,9 +21,9 @@ public class Client
     {
         int port = 0;
         int lastPort = 0;
-        for (int i = 0; i < args.length; i++)
+        for(int i = 0; i < args.length; i++)
         {
-            if (args[i].charAt(0) == '-')
+            if(args[i].charAt(0) == '-')
             {
                 //
                 // TODO: Arguments recognized by the communicator are not
@@ -35,7 +35,7 @@ public class Client
                 continue;
             }
 
-            if (port == 0)
+            if(port == 0)
             {
                 try
                 {
@@ -47,7 +47,7 @@ public class Client
                     return 1;
                 }
             }
-            else if (lastPort == 0)
+            else if(lastPort == 0)
             {
                 try
                 {
@@ -67,7 +67,7 @@ public class Client
             }
         }
 
-        if (port == 0 || lastPort == 0)
+        if(port == 0 || lastPort == 0)
         {
             System.err.println("Client: no ports specified");
             usage();
@@ -95,7 +95,7 @@ public class Client
             status = 1;
         }
 
-        if (communicator != null)
+        if(communicator != null)
         {
             try
             {

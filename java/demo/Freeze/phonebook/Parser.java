@@ -38,7 +38,7 @@ class Parser
     void
     addContacts(java.util.List args)
     {
-	if (args.isEmpty())
+	if(args.isEmpty())
 	{
 	    error("`add' requires at least one argument (type `help' for more info)");
 	    return;
@@ -47,7 +47,7 @@ class Parser
 	try
 	{
 	    java.util.Iterator p = args.iterator();
-	    while (p.hasNext())
+	    while(p.hasNext())
 	    {
 		ContactPrx contact = _phoneBook.createContact();
 		String name = (String)p.next();
@@ -68,7 +68,7 @@ class Parser
     void
     findContacts(java.util.List args)
     {
-	if (args.size() != 1)
+	if(args.size() != 1)
 	{
 	    error("`find' requires exactly one argument (type `help' for more info)");
 	    return;
@@ -95,7 +95,7 @@ class Parser
     void
     nextFoundContact()
     {
-	if (_current != _foundContacts.length)
+	if(_current != _foundContacts.length)
 	{
 	    ++_current;
 	}
@@ -107,7 +107,7 @@ class Parser
     {
 	try
 	{
-	    if (_current != _foundContacts.length)
+	    if(_current != _foundContacts.length)
 	    {
 		System.out.println("current contact is:" );
 		System.out.println("name: " + _foundContacts[_current].getName());
@@ -128,7 +128,7 @@ class Parser
     void
     setCurrentName(java.util.List args)
     {
-	if (args.size() != 1)
+	if(args.size() != 1)
 	{
 	    error("`name' requires exactly one argument (type `help' for more info)");
 	    return;
@@ -136,7 +136,7 @@ class Parser
 
 	try
 	{
-	    if (_current != _foundContacts.length)
+	    if(_current != _foundContacts.length)
 	    {
 		String name = (String)args.get(0);
 		_foundContacts[_current].setName(name);
@@ -160,7 +160,7 @@ class Parser
     void
     setCurrentAddress(java.util.List args)
     {
-	if (args.size() != 1)
+	if(args.size() != 1)
 	{
 	    error("`address' requires exactly one argument (type `help' for more info)");
 	    return;
@@ -168,7 +168,7 @@ class Parser
 
 	try
 	{
-	    if (_current != _foundContacts.length)
+	    if(_current != _foundContacts.length)
 	    {
 		String addr = (String)args.get(0);
 		_foundContacts[_current].setAddress(addr);
@@ -188,7 +188,7 @@ class Parser
     void
     setCurrentPhone(java.util.List args)
     {
-	if (args.size() != 1)
+	if(args.size() != 1)
 	{
 	    error("`phone' requires exactly one argument (type `help' for more info)");
 	    return;
@@ -197,7 +197,7 @@ class Parser
 	try
 	{
 	    
-	    if (_current != _foundContacts.length)
+	    if(_current != _foundContacts.length)
 	    {
 		String number = (String)args.get(0);
 		_foundContacts[_current].setPhone(number);
@@ -219,7 +219,7 @@ class Parser
     {
 	try
 	{
-	    if (_current != _foundContacts.length)
+	    if(_current != _foundContacts.length)
 	    {
 		_foundContacts[_current].destroy();
 		System.out.println( "removed current contact" );
@@ -242,7 +242,7 @@ class Parser
     void
     setEvictorSize(java.util.List args)
     {
-	if (args.size() != 1)
+	if(args.size() != 1)
 	{
 	    error("`size' requires exactly one argument (type `help' for more info)");
 	    return;
@@ -295,7 +295,7 @@ class Parser
     String
     getInput()
     {
-	if (_interactive)
+	if(_interactive)
 	{
 	    System.out.print(">>> ");
 	    System.out.flush();

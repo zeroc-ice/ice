@@ -15,7 +15,7 @@ class CharIntMap extends Freeze.Map
     public byte[]
     encodeKey(Object o, Ice.Communicator communicator)
     {
-	if (!(o instanceof Character))
+	if(!(o instanceof Character))
 	{
 	    throw new RuntimeException();
 	}
@@ -41,7 +41,7 @@ class CharIntMap extends Freeze.Map
     public byte[]
     encodeValue(Object o, Ice.Communicator communicator)
     {
-	if (!(o instanceof Integer))
+	if(!(o instanceof Integer))
 	{
 	    throw new RuntimeException();
 	}
@@ -78,7 +78,7 @@ public class Client
     private static void
     test(boolean b)
     {
-        if (!b)
+        if(!b)
         {
             throw new RuntimeException();
         }
@@ -88,7 +88,7 @@ public class Client
     populateDB(CharIntMap m)
 	throws DBException
     {
-	for (int j = 0; j < alphabet.length(); ++j)
+	for(int j = 0; j < alphabet.length(); ++j)
 	{
 	    m.put(new Character(alphabet.charAt(j)), new Integer(j));
 	}
@@ -121,18 +121,18 @@ public class Client
 	int j;
 
 	System.out.print("testing populate... ");
-	for (j = 0; j < alphabet.length(); ++j)
+	for(j = 0; j < alphabet.length(); ++j)
 	{
 	    Object value = m.get(new Character(alphabet.charAt(j)));
 	    test(value != null);
 	}
 	test(m.get(new Character('0')) == null);
-	for (j = 0; j < alphabet.length(); ++j)
+	for(j = 0; j < alphabet.length(); ++j)
 	{
 	    test(m.containsKey(new Character(alphabet.charAt(j))));
 	}
 	test(!m.containsKey(new Character('0')));
-	for (j = 0; j < alphabet.length(); ++j)
+	for(j = 0; j < alphabet.length(); ++j)
 	{
 	    test(m.containsValue(new Integer(j)));
 	}
@@ -145,7 +145,7 @@ public class Client
 	m.remove(new Character('a'));
 	m.remove(new Character('b'));
 	m.remove(new Character('c'));
-	for (j = 3; j < alphabet.length(); ++j)
+	for(j = 3; j < alphabet.length(); ++j)
 	{
 	    Object value = m.get(new Character(alphabet.charAt(j)));
 	    test(value != null);
@@ -165,7 +165,7 @@ public class Client
 	test(keys.size() == alphabet.length());
 	test(!keys.isEmpty());
 	java.util.Iterator p = keys.iterator();
-	while (p.hasNext())
+	while(p.hasNext())
 	{
 	    Object o = p.next();
 	    test(keys.contains(o));
@@ -180,7 +180,7 @@ public class Client
 	test(values.size() == alphabet.length());
 	test(!values.isEmpty());
 	p = values.iterator();
-	while (p.hasNext())
+	while(p.hasNext())
 	{
 	    Object o = p.next();
 	    test(values.contains(o));
@@ -195,7 +195,7 @@ public class Client
 	test(entrySet.size() == alphabet.length());
 	test(!entrySet.isEmpty());
 	p = entrySet.iterator();
-	while (p.hasNext())
+	while(p.hasNext())
 	{
 	    Object o = p.next();
 	    test(entrySet.contains(o));
@@ -214,13 +214,13 @@ public class Client
 	test(m.get(new Character('z')) != null);
 
 	p = entrySet.iterator();
-	while (p.hasNext())
+	while(p.hasNext())
 	{
 	    Object o = p.next();
 	    java.util.Map.Entry e = (java.util.Map.Entry)o;
 	    Character c = (Character)e.getKey();
 	    char v = c.charValue();
-	    if (v == 'b' || v == 'n' || v == 'z')
+	    if(v == 'b' || v == 'n' || v == 'z')
 	    {
 		p.remove();
 	    }
@@ -239,12 +239,12 @@ public class Client
 	test(m.size() == 26);
 
 	p = entrySet.iterator();
-	while (p.hasNext())
+	while(p.hasNext())
 	{
 	    Object o = p.next();
 	    java.util.Map.Entry e = (java.util.Map.Entry)o;
 	    char v = ((Character)e.getKey()).charValue();
-	    if (v == 'a' || v == 'b' || v == 'c')
+	    if(v == 'a' || v == 'b' || v == 'c')
 	    {
 		p.remove();
 	    }
@@ -273,7 +273,7 @@ public class Client
 	    holder.value = args;
 	    communicator = Ice.Util.initialize(holder);
 	    args = holder.value;
-	    if (args.length > 0)
+	    if(args.length > 0)
 	    {
 		dbEnvDir = args[0];
 		dbEnvDir += "/";
@@ -289,7 +289,7 @@ public class Client
 	    status = 1;
 	}
 
-	if (dbEnv != null)
+	if(dbEnv != null)
 	{
 	    try
 	    {
@@ -313,7 +313,7 @@ public class Client
 	    dbEnv = null;
 	}
 
-	if (communicator != null)
+	if(communicator != null)
 	{
 	    try
 	    {

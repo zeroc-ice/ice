@@ -23,7 +23,7 @@ IceUtil::ThreadControl::ThreadControl() :
     HANDLE proc = GetCurrentProcess();
     HANDLE current = GetCurrentThread();
     int rc = DuplicateHandle(proc, current, proc, &_handle->handle, SYNCHRONIZE, TRUE, 0);
-    if (rc == 0)
+    if(rc == 0)
     {
 	throw SyscallException(SyscallException::errorToString(GetLastError()), __FILE__, __LINE__);
     }
@@ -57,7 +57,7 @@ void
 IceUtil::ThreadControl::join()
 {
     int rc = WaitForSingleObject(_handle->handle, INFINITE);
-    if (rc != WAIT_OBJECT_0)
+    if(rc != WAIT_OBJECT_0)
     {
 	throw SyscallException(SyscallException::errorToString(GetLastError()), __FILE__, __LINE__);
     }
@@ -136,7 +136,7 @@ IceUtil::Thread::start()
     __incRef();
     
     _handle->handle = (HANDLE)_beginthreadex(0, 0, (unsigned (__stdcall*)(void*))startHook, (LPVOID)this, 0, &_id);
-    if (_handle->handle == 0)
+    if(_handle->handle == 0)
     {
 	__decRef();
 	throw SyscallException(SyscallException::errorToString(GetLastError()), __FILE__, __LINE__);
@@ -205,7 +205,7 @@ IceUtil::ThreadControl::join()
 {
     void* ignore = 0;
     int rc = pthread_join(_id, &ignore);
-    if (rc != 0)
+    if(rc != 0)
     {
 	throw SyscallException(strerror(rc), __FILE__, __LINE__);
     }
@@ -276,7 +276,7 @@ IceUtil::Thread::start()
     //
     __incRef();
     int rc = pthread_create(&_id, 0, startHook, this);
-    if (rc != 0)
+    if(rc != 0)
     {
 	__decRef();
 	throw SyscallException(strerror(rc), __FILE__, __LINE__);

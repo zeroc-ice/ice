@@ -57,26 +57,26 @@ IceSSL::OpenSSL::ClientConnection::handshake(int timeout)
 
     int retCode = SSL_is_init_finished(_sslConnection);
 
-    while (!retCode)
+    while(!retCode)
     {
         _readTimeout = timeout > _handshakeReadTimeout ? timeout : _handshakeReadTimeout;
 
-        if (_initWantRead)
+        if(_initWantRead)
         {
             int i = readSelect(_readTimeout);
 
-            if (i == 0)
+            if(i == 0)
             {
                 return 0;
             }
 
             _initWantRead = 0;
         }
-        else if (_initWantWrite)
+        else if(_initWantWrite)
         {
             int i = writeSelect(timeout);
 
-            if (i == 0)
+            if(i == 0)
             {
                 return 0;
             }
@@ -86,7 +86,7 @@ IceSSL::OpenSSL::ClientConnection::handshake(int timeout)
 
         int result = connect();
 
-        switch (getLastError())
+        switch(getLastError())
         {
             case SSL_ERROR_WANT_READ:
             {
@@ -119,18 +119,18 @@ IceSSL::OpenSSL::ClientConnection::handshake(int timeout)
                 {
                     // IO Error in underlying BIO
 
-                    if (interrupted())
+                    if(interrupted())
                     {
                         break;
                     }
 
-                    if (wouldBlock())
+                    if(wouldBlock())
                     {
                         readSelect(_readTimeout);
                         break;
                     }
 
-                    if (connectionLost())
+                    if(connectionLost())
                     {
                         ConnectionLostException ex(__FILE__, __LINE__);
                         ex.error = getSocketErrno();
@@ -165,7 +165,7 @@ IceSSL::OpenSSL::ClientConnection::handshake(int timeout)
             {
                 int verifyError = SSL_get_verify_result(_sslConnection);
 
-                if (verifyError != X509_V_OK && verifyError != 1)
+                if(verifyError != X509_V_OK && verifyError != 1)
 	        {
                     CertificateVerificationException certVerEx(__FILE__, __LINE__);
 
@@ -173,7 +173,7 @@ IceSSL::OpenSSL::ClientConnection::handshake(int timeout)
 
                     string errors = sslGetErrors();
 
-                    if (!errors.empty())
+                    if(!errors.empty())
                     {
                         certVerEx._message += "\n";
                         certVerEx._message += errors;
@@ -206,7 +206,7 @@ IceSSL::OpenSSL::ClientConnection::handshake(int timeout)
 
         retCode = SSL_is_init_finished(_sslConnection);
 
-        if (retCode > 0)
+        if(retCode > 0)
         {
             _phase = Connected;
 
@@ -231,17 +231,17 @@ IceSSL::OpenSSL::ClientConnection::write(Buffer& buf, int timeout)
     // Limit packet size to avoid performance problems on WIN32.
     // (blatantly ripped off from Marc Laukien)
     //
-    if (packetSize > 64 * 1024)
+    if(packetSize > 64 * 1024)
     {
         packetSize = 64 * 1024;
     }
 #endif
 
     // We keep reading until we're done
-    while (buf.i != buf.b.end())
+    while(buf.i != buf.b.end())
     {
         // Ensure we're initialized.
-        if (initialize(timeout) <= 0)
+        if(initialize(timeout) <= 0)
         {
             // Retry the initialize call
             continue;
@@ -250,7 +250,7 @@ IceSSL::OpenSSL::ClientConnection::write(Buffer& buf, int timeout)
         // initialize() must have returned > 0, so we're okay to try a write.
 
         // Perform a select on the socket.
-        if (!writeSelect(timeout))
+        if(!writeSelect(timeout))
         {
             // We're done here.
             break;
@@ -258,13 +258,13 @@ IceSSL::OpenSSL::ClientConnection::write(Buffer& buf, int timeout)
 
         bytesWritten = sslWrite(static_cast<char*>(&*buf.i), packetSize);
 
-        switch (getLastError())
+        switch(getLastError())
         {
             case SSL_ERROR_NONE:
             {
-                if (bytesWritten > 0)
+                if(bytesWritten > 0)
                 {
-                    if (_traceLevels->network >= 3)
+                    if(_traceLevels->network >= 3)
                     {
                         ostringstream s;
                         s << "sent " << bytesWritten << " of " << packetSize;
@@ -276,7 +276,7 @@ IceSSL::OpenSSL::ClientConnection::write(Buffer& buf, int timeout)
 
                     buf.i += bytesWritten;
 
-                    if (packetSize > buf.b.end() - buf.i)
+                    if(packetSize > buf.b.end() - buf.i)
                     {
                         packetSize = buf.b.end() - buf.i;
                     }
@@ -299,21 +299,21 @@ IceSSL::OpenSSL::ClientConnection::write(Buffer& buf, int timeout)
                 //        requiring shutdown.
                 //        If nothing was written, the demo client stops writing - we continue.
                 //        This is potentially something wierd to watch out for.
-                if (bytesWritten == -1)
+                if(bytesWritten == -1)
                 {
                     // IO Error in underlying BIO
 
-                    if (interrupted())
+                    if(interrupted())
                     {
                         break;
                     }
 
-                    if (wouldBlock())
+                    if(wouldBlock())
 	            {
                         break;
                     }
 
-                    if (connectionLost())
+                    if(connectionLost())
 	            {
 		        ConnectionLostException ex(__FILE__, __LINE__);
 		        ex.error = getSocketErrno();
@@ -324,7 +324,7 @@ IceSSL::OpenSSL::ClientConnection::write(Buffer& buf, int timeout)
 		    ex.error = getSocketErrno();
 		    throw ex;
                 }
-                else if (bytesWritten > 0)
+                else if(bytesWritten > 0)
                 {
                     ProtocolException protocolEx(__FILE__, __LINE__);
 
@@ -371,7 +371,7 @@ void
 IceSSL::OpenSSL::ClientConnection::showConnectionInfo()
 {
     // Only in extreme cases do we enable this, partially because it doesn't use the Logger.
-    if ((_traceLevels->security >= IceSSL::SECURITY_PROTOCOL_DEBUG) && 0)
+    if((_traceLevels->security >= IceSSL::SECURITY_PROTOCOL_DEBUG) && 0)
     {
         BIOJanitor bioJanitor(BIO_new_fp(stdout, BIO_NOCLOSE));
         BIO* bio = bioJanitor.get();

@@ -82,15 +82,15 @@ public:
 
     virtual Ice::ObjectPtr create(const std::string& type)
     {
-	if (type == "::Complex::MultiplyNode")
+	if(type == "::Complex::MultiplyNode")
 	{
 	    return new MultiplyNodeI();
 	}
-	if (type == "::Complex::AddNode")
+	if(type == "::Complex::AddNode")
 	{
 	    return new AddNodeI();
 	}
-	if (type == "::Complex::NumberNode")
+	if(type == "::Complex::NumberNode")
 	{
 	    return new NumberNodeI();
 	}

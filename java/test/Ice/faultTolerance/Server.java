@@ -20,9 +20,9 @@ public class Server
     run(String[] args, Ice.Communicator communicator)
     {
         int port = 0;
-        for (int i = 0; i < args.length; i++)
+        for(int i = 0; i < args.length; i++)
         {
-            if (args[i].charAt(0) == '-')
+            if(args[i].charAt(0) == '-')
             {
                 //
                 // TODO: Arguments recognized by the communicator are not
@@ -34,7 +34,7 @@ public class Server
                 continue;
             }
 
-            if (port > 0)
+            if(port > 0)
             {
                 System.err.println("Server: only one port can be specified");
                 usage();
@@ -53,7 +53,7 @@ public class Server
             }
         }
 
-        if (port <= 0)
+        if(port <= 0)
         {
             System.err.println("Server: no port specified");
             usage();
@@ -88,7 +88,7 @@ public class Server
             status = 1;
         }
 
-        if (communicator != null)
+        if(communicator != null)
         {
             try
             {

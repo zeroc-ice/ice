@@ -38,7 +38,7 @@ IceUtil::Exception::ice_name() const
 void
 IceUtil::Exception::ice_print(ostream& out) const
 {
-    if (_file && _line > 0)
+    if(_file && _line > 0)
     {
 	out << _file << ':' << _line << ": ";
     }

@@ -37,7 +37,7 @@ OnewaySubscriber::unsubscribe()
     IceUtil::Mutex::Lock sync(_stateMutex);
     _state = StateUnsubscribed;
 
-    if (_traceLevels->subscriber > 0)
+    if(_traceLevels->subscriber > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
 	out << "Unsubscribe " << _obj->ice_getIdentity();
@@ -50,7 +50,7 @@ OnewaySubscriber::replace()
     IceUtil::Mutex::Lock sync(_stateMutex);
     _state = StateReplaced;
 
-    if (_traceLevels->subscriber > 0)
+    if(_traceLevels->subscriber > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
 	out << "Replace " << _obj->ice_getIdentity();
@@ -73,9 +73,9 @@ OnewaySubscriber::publish(const Event& event)
 	// marked invalid by another thread. Don't display a
 	// diagnostic in this case.
 	//
-	if (_state == StateActive)
+	if(_state == StateActive)
 	{
-	    if (_traceLevels->subscriber > 0)
+	    if(_traceLevels->subscriber > 0)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
 		out << _obj->ice_getIdentity() << ": publish failed: " << e;

@@ -51,7 +51,7 @@ public abstract class Application extends Ice.Application
 	    status = 1;
 	}
 	
-	if (dbEnv != null)
+	if(dbEnv != null)
 	{
 	    try
 	    {

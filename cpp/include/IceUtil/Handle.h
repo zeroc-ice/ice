@@ -35,7 +35,7 @@ public:
 
     T* operator->() const
     {
-	if (!_ptr)
+	if(!_ptr)
 	{
 	    throw NullHandleException(__FILE__, __LINE__);	    
 	}
@@ -61,7 +61,7 @@ inline bool operator==(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
 {
     T* l = lhs.get();
     U* r = rhs.get();
-    if (l && r)
+    if(l && r)
     {
 	return *l == *r;
     }
@@ -76,7 +76,7 @@ inline bool operator!=(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
 {
     T* l = lhs.get();
     U* r = rhs.get();
-    if (l && r)
+    if(l && r)
     {
 	return *l != *r;
     }
@@ -91,7 +91,7 @@ inline bool operator<(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
 {
     T* l = lhs.get();
     U* r = rhs.get();
-    if (l && r)
+    if(l && r)
     {
 	return *l < *r;
     }
@@ -110,7 +110,7 @@ public:
     {
 	_ptr = p;
 
-	if (_ptr)
+	if(_ptr)
 	{
 	    _ptr->__incRef();
 	}
@@ -121,7 +121,7 @@ public:
     {
 	_ptr = r._ptr;
 
-	if (_ptr)
+	if(_ptr)
 	{
 	    _ptr->__incRef();
 	}
@@ -136,7 +136,7 @@ public:
     {
 	_ptr = r._ptr;
 
-	if (_ptr)
+	if(_ptr)
 	{
 	    _ptr->__incRef();
 	}
@@ -144,7 +144,7 @@ public:
     
     ~Handle()
     {
-	if (_ptr)
+	if(_ptr)
 	{
 	    _ptr->__decRef();
 	}
@@ -152,14 +152,14 @@ public:
     
     Handle& operator=(T* p)
     {
-	if (_ptr != p)
+	if(_ptr != p)
 	{
-	    if (p)
+	    if(p)
 	    {
 		p->__incRef();
 	    }
 
-	    if (_ptr)
+	    if(_ptr)
 	    {
 		_ptr->__decRef();
 	    }
@@ -172,14 +172,14 @@ public:
     template<typename Y>
     Handle& operator=(const Handle<Y>& r)
     {
-	if (_ptr != r._ptr)
+	if(_ptr != r._ptr)
 	{
-	    if (r._ptr)
+	    if(r._ptr)
 	    {
 		r._ptr->__incRef();
 	    }
 
-	    if (_ptr)
+	    if(_ptr)
 	    {
 		_ptr->__decRef();
 	    }
@@ -196,14 +196,14 @@ public:
     Handle& operator=(const Handle& r)
 #endif
     {
-	if (_ptr != r._ptr)
+	if(_ptr != r._ptr)
 	{
-	    if (r._ptr)
+	    if(r._ptr)
 	    {
 		r._ptr->__incRef();
 	    }
 
-	    if (_ptr)
+	    if(_ptr)
 	    {
 		_ptr->__decRef();
 	    }

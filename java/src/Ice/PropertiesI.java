@@ -16,11 +16,11 @@ class PropertiesI implements Properties
     getProperty(String key)
     {
         String result = (String)_properties.get(key);
-        if (result == null)
+        if(result == null)
         {
             result = System.getProperty(key);
         }
-        if (result == null)
+        if(result == null)
         {
             result = "";
         }
@@ -31,11 +31,11 @@ class PropertiesI implements Properties
     getPropertyWithDefault(String key, String value)
     {
         String result = (String)_properties.get(key);
-        if (result == null)
+        if(result == null)
         {
             result = System.getProperty(key);
         }
-        if (result == null)
+        if(result == null)
         {
             result = value;
         }
@@ -52,11 +52,11 @@ class PropertiesI implements Properties
     getPropertyAsIntWithDefault(String key, int value)
     {
         String result = (String)_properties.get(key);
-        if (result == null)
+        if(result == null)
         {
             result = System.getProperty(key);
         }
-        if (result == null)
+        if(result == null)
         {
             return value;
         }
@@ -76,12 +76,12 @@ class PropertiesI implements Properties
     {
 	java.util.HashMap result = new java.util.HashMap();
         java.util.Iterator p = _properties.entrySet().iterator();
-        while (p.hasNext())
+        while(p.hasNext())
         {
             java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
             String key = (String)entry.getKey();
             String value = (String)entry.getValue();
-            if (prefix.length() == 0 || key.startsWith(prefix))
+            if(prefix.length() == 0 || key.startsWith(prefix))
             {
 		result.put(key, value);
             }
@@ -101,7 +101,7 @@ class PropertiesI implements Properties
         String[] result = new String[_properties.size()];
         java.util.Iterator p = _properties.entrySet().iterator();
         int i = 0;
-        while (p.hasNext())
+        while(p.hasNext())
         {
             java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
             result[i++] = "--" + entry.getKey() + "=" + entry.getValue();
@@ -114,12 +114,12 @@ class PropertiesI implements Properties
     parseCommandLineOptions(String prefix, String[] options)
     {
         java.util.ArrayList result = new java.util.ArrayList();
-        for (int i = 0; i < options.length; i++)
+        for(int i = 0; i < options.length; i++)
         {
             String opt = options[i];
-            if (opt.startsWith("--" + prefix + "."))
+            if(opt.startsWith("--" + prefix + "."))
             {
-                if (opt.indexOf('=') == -1)
+                if(opt.indexOf('=') == -1)
                 {
                     opt += "=1";
                 }
@@ -167,12 +167,12 @@ class PropertiesI implements Properties
 
     PropertiesI(String[] args)
     {
-        for (int i = 0; i < args.length; i++)
+        for(int i = 0; i < args.length; i++)
         {
-            if (args[i].startsWith("--Ice.Config"))
+            if(args[i].startsWith("--Ice.Config"))
             {
                 String line = args[i];
-                if (line.indexOf('=') == -1)
+                if(line.indexOf('=') == -1)
                 {
                     line += "=1";
                 }
@@ -185,19 +185,19 @@ class PropertiesI implements Properties
 
     PropertiesI(StringSeqHolder args)
     {
-        for (int i = 0; i < args.value.length; i++)
+        for(int i = 0; i < args.value.length; i++)
         {
-            if (args.value[i].startsWith("--Ice.Config"))
+            if(args.value[i].startsWith("--Ice.Config"))
             {
                 String line = args.value[i];
-                if (line.indexOf('=') == -1)
+                if(line.indexOf('=') == -1)
                 {
                     line += "=1";
                 }
                 parseLine(line.substring(2));
                 String[] arr = new String[args.value.length - 1];
                 System.arraycopy(args.value, 0, arr, 0, i);
-                if (i < args.value.length - 1)
+                if(i < args.value.length - 1)
                 {
                     System.arraycopy(args.value, i + 1, arr, i, args.value.length - i - 1);
                 }
@@ -214,7 +214,7 @@ class PropertiesI implements Properties
         try
         {
             String line;
-            while ((line = in.readLine()) != null)
+            while((line = in.readLine()) != null)
             {
                 parseLine(line);
             }
@@ -233,11 +233,11 @@ class PropertiesI implements Properties
         String s = line;
 
         int hash = s.indexOf('#');
-        if (hash == 0)
+        if(hash == 0)
         {
             return; // ignore comment lines
         }
-        else if (hash != -1)
+        else if(hash != -1)
         {
             s = s.substring(0, hash);
         }
@@ -246,15 +246,15 @@ class PropertiesI implements Properties
 
         final char[] arr = s.toCharArray();
         int end = -1;
-        for (int i = 0; i < arr.length; i++)
+        for(int i = 0; i < arr.length; i++)
         {
-            if (arr[i] == ' ' || arr[i] == '\t' || arr[i] == '\r' || arr[i] == '\n' || arr[i] == '=')
+            if(arr[i] == ' ' || arr[i] == '\t' || arr[i] == '\r' || arr[i] == '\n' || arr[i] == '=')
             {
                 end = i;
                 break;
             }
         }
-        if (end == -1)
+        if(end == -1)
         {
             return;
         }
@@ -262,14 +262,14 @@ class PropertiesI implements Properties
         String key = s.substring(0, end);
 
         end = s.indexOf('=', end);
-        if (end == -1)
+        if(end == -1)
         {
             return;
         }
         ++end;
 
         String value = "";
-        if (end < s.length())
+        if(end < s.length())
         {
             value = s.substring(end).trim();
         }
@@ -282,15 +282,15 @@ class PropertiesI implements Properties
     {
         String value = getProperty("Ice.Config");
 
-        if (value.equals("1"))
+        if(value.equals("1"))
         {
             value = "";
         }
 
-        if (value.length() > 0)
+        if(value.length() > 0)
         {
             String[] files = value.split(",");
-            for (int i = 0; i < files.length; i++)
+            for(int i = 0; i < files.length; i++)
             {
                 load(files[i]);
             }

@@ -100,7 +100,7 @@ public class Slice2WsdlTask extends org.apache.tools.ant.Task
     public Path
     createIncludePath()
     {
-        if (_includePath == null) 
+        if(_includePath == null) 
         {
             _includePath = new Path(project);
         }
@@ -116,7 +116,7 @@ public class Slice2WsdlTask extends org.apache.tools.ant.Task
     public void
     setIncludePath(Path includePath)
     {
-        if (_includePath == null)
+        if(_includePath == null)
         {
             _includePath = includePath;  
         }
@@ -129,7 +129,7 @@ public class Slice2WsdlTask extends org.apache.tools.ant.Task
     public FileSet
     createFileset()
     {
-        if (_fileSet == null) 
+        if(_fileSet == null) 
         {
             _fileSet = new FileSet();
         }
@@ -140,7 +140,7 @@ public class Slice2WsdlTask extends org.apache.tools.ant.Task
     execute()
         throws BuildException
     {
-        if (_fileSet == null)
+        if(_fileSet == null)
         {
             throw new BuildException("No fileset specified");
         }
@@ -153,12 +153,12 @@ public class Slice2WsdlTask extends org.apache.tools.ant.Task
         DirectoryScanner scanner = _fileSet.getDirectoryScanner(project);
         scanner.scan();
         String[] files = scanner.getIncludedFiles();
-        for (int i = 0; i < files.length; i++)
+        for(int i = 0; i < files.length; i++)
         {
             File slice = new File(_fileSet.getDir(project), files[i]);
             File tag = new File(_tagDir, "." + slice.getName() + ".tag");
 
-            if (tag.exists() && slice.lastModified() <= tag.lastModified())
+            if(tag.exists() && slice.lastModified() <= tag.lastModified())
             {
                 log("skipping " + files[i]);
             }
@@ -172,14 +172,14 @@ public class Slice2WsdlTask extends org.apache.tools.ant.Task
         //
         // Run the translator
         //
-        if (!buildList.isEmpty())
+        if(!buildList.isEmpty())
         {
             StringBuffer cmd = new StringBuffer();
 
             //
             // Add --output-dir
             //
-            if (_outputDir != null)
+            if(_outputDir != null)
             {
                 cmd.append(" --output-dir ");
                 cmd.append(_outputDir.toString());
@@ -188,7 +188,7 @@ public class Slice2WsdlTask extends org.apache.tools.ant.Task
             //
             // Add --package
             //
-            if (_package != null)
+            if(_package != null)
             {
                 cmd.append(" --package ");
                 cmd.append(_package);
@@ -197,10 +197,10 @@ public class Slice2WsdlTask extends org.apache.tools.ant.Task
             //
             // Add include directives
             //
-            if (_includePath != null)
+            if(_includePath != null)
             {
                 String[] dirs = _includePath.list();
-                for (int i = 0; i < dirs.length; i++)
+                for(int i = 0; i < dirs.length; i++)
                 {
                     cmd.append(" -I");
                     cmd.append(dirs[i]);
@@ -210,7 +210,7 @@ public class Slice2WsdlTask extends org.apache.tools.ant.Task
             //
             // Add files to be translated
             //
-            for (int i = 0; i < buildList.size(); i++)
+            for(int i = 0; i < buildList.size(); i++)
             {
                 File f = (File)buildList.elementAt(i);
 		StringBuffer newCmd = new StringBuffer();
@@ -218,9 +218,9 @@ public class Slice2WsdlTask extends org.apache.tools.ant.Task
 		newCmd.append(" ");
 		StringBuffer fixedOutDir = new StringBuffer();
 		String outDir = f.getAbsolutePath();
-		for (int j = 0; j < outDir.length(); j++)
+		for(int j = 0; j < outDir.length(); j++)
 		{
-			if (outDir.charAt(j) == '\\')
+			if(outDir.charAt(j) == '\\')
 			{
 				fixedOutDir = fixedOutDir.append("/");
 			}
@@ -245,7 +245,7 @@ public class Slice2WsdlTask extends org.apache.tools.ant.Task
             //
             // Touch the tag files
             //
-            for (int i = 0; i < tagList.size(); i++)
+            for(int i = 0; i < tagList.size(); i++)
             {
                 File f = (File)tagList.elementAt(i);
                 try

@@ -19,60 +19,60 @@ class Scanner
     nextToken()
     {
 	String s = next();
-	if (s == null)
+	if(s == null)
 	{
 	    return null;
 	}
 
-	if (s.equals(";"))
+	if(s.equals(";"))
 	{
 	    return new Token(Token.TOK_SEMI);
 	}
-	else if (s.equals("help"))
+	else if(s.equals("help"))
 	{
 	    return new Token(Token.TOK_HELP);
 	}
-	else if (s.equals("exit") || s.equals("quit"))
+	else if(s.equals("exit") || s.equals("quit"))
 	{
 	    return new Token(Token.TOK_EXIT);
 	}
-	else if (s.equals("add"))
+	else if(s.equals("add"))
 	{
 	    return new Token(Token.TOK_ADD_BOOK);
 	}
-	else if (s.equals("isbn"))
+	else if(s.equals("isbn"))
 	{
 	    return new Token(Token.TOK_FIND_ISBN);
 	}
-	else if (s.equals("authors"))
+	else if(s.equals("authors"))
 	{
 	    return new Token(Token.TOK_FIND_AUTHORS);
 	}
-	else if (s.equals("next"))
+	else if(s.equals("next"))
 	{
 	    return new Token(Token.TOK_NEXT_FOUND_BOOK);
 	}
-	else if (s.equals("current"))
+	else if(s.equals("current"))
 	{
 	    return new Token(Token.TOK_PRINT_CURRENT);
 	}
-	else if (s.equals("rent"))
+	else if(s.equals("rent"))
 	{
 	    return new Token(Token.TOK_RENT_BOOK);
 	}
-	else if (s.equals("return"))
+	else if(s.equals("return"))
 	{
 	    return new Token(Token.TOK_RETURN_BOOK);
 	}
-	else if (s.equals("remove"))
+	else if(s.equals("remove"))
 	{
 	    return new Token(Token.TOK_REMOVE_CURRENT);
 	}
-	else if (s.equals("size"))
+	else if(s.equals("size"))
 	{
 	    return new Token(Token.TOK_SET_EVICTOR_SIZE);
 	}
-	else if (s.equals("shutdown"))
+	else if(s.equals("shutdown"))
 	{
 	    return new Token(Token.TOK_SHUTDOWN);
 	}
@@ -93,7 +93,7 @@ class Scanner
 	//
 	// If there is an character in the unget buffer, return it.
 	//
-	if (_unget)
+	if(_unget)
 	{
 	    _unget = false;
 	    return _ungetChar;
@@ -102,11 +102,11 @@ class Scanner
 	//
 	// No current buffer?
 	//
-	if (_buf == null)
+	if(_buf == null)
 	{
 	    _buf = _parser.getInput();
 	    _pos = 0;
-	    if (_buf == null)
+	    if(_buf == null)
 	    {
 		throw new EndOfInput();
 	    }
@@ -115,7 +115,7 @@ class Scanner
 	//
 	// At the end-of-buffer?
 	//
-	while (_pos >= _buf.length())
+	while(_pos >= _buf.length())
 	{
 	    _buf = null;
 	    _pos = 0;
@@ -149,7 +149,7 @@ class Scanner
 	    {
 		c = get();
 	    }
-	    while (Character.isWhitespace(c) && c != '\n');
+	    while(Character.isWhitespace(c) && c != '\n');
 	}
 	catch(EndOfInput ignore)
 	{
@@ -158,18 +158,18 @@ class Scanner
 
 	StringBuffer buf = new StringBuffer();
 
-	if (c == ';' || c == '\n')
+	if(c == ';' || c == '\n')
 	{
 	    buf.append(';');
 	}
-	else if (c == '\'')
+	else if(c == '\'')
 	{
 	    try
 	    {
 		while(true)
 		{
 		    c = get();
-		    if (c == '\'')
+		    if(c == '\'')
 		    {
 			break;
 		    }
@@ -184,23 +184,23 @@ class Scanner
 		_parser.warning("EOF in string");
 	    }
 	}
-	else if (c == '\"')
+	else if(c == '\"')
 	{
 	    try
 	    {
-		while (true)
+		while(true)
 		{
 		    c = get();
-		    if (c == '\"')
+		    if(c == '\"')
 		    {
 			break;
 		    }
-		    else if (c == '\\')
+		    else if(c == '\\')
 		    {
 			try
 			{
 			    char next = get();
-			    switch (next)
+			    switch(next)
 			    {
 				case '\\':
 				case '"':
@@ -268,7 +268,7 @@ class Scanner
 		    buf.append(c);
 		    c = get();
 		}
-		while (!Character.isWhitespace(c) && c != ';' && c != '\n');
+		while(!Character.isWhitespace(c) && c != ';' && c != '\n');
 
 		unget(c);
 	    }

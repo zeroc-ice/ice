@@ -58,7 +58,7 @@ class LibraryI extends _LibraryDisp
 	    int length = (isbnSeq == null) ? 0 : isbnSeq.length;
 	    String[] newIsbnSeq = new String[length+1];
 
-	    if (isbnSeq != null)
+	    if(isbnSeq != null)
 	    {
 		System.arraycopy(isbnSeq, 0, newIsbnSeq, 0, length);
 	    }
@@ -115,9 +115,9 @@ class LibraryI extends _LibraryDisp
 	    int length = (isbnSeq == null) ? 0 : isbnSeq.length;
 	    BookPrx[] books = new BookPrx[length];
 
-	    if (isbnSeq != null)
+	    if(isbnSeq != null)
 	    {
-		for (int i = 0; i < length; ++i)
+		for(int i = 0; i < length; ++i)
 		{
 		    books[i] = isbnToBook(isbnSeq[i]);
 		}
@@ -164,26 +164,26 @@ class LibraryI extends _LibraryDisp
 	    // If the title isn't found then raise a record not found
 	    // exception.
 	    //
-	    if (isbnSeq == null)
+	    if(isbnSeq == null)
 	    {
 		throw new Freeze.DBNotFoundException();
 	    }
 
 	    int i;
-	    for (i = 0; i < isbnSeq.length; ++i)
+	    for(i = 0; i < isbnSeq.length; ++i)
 	    {
-		if (isbnSeq[i].equals(description.isbn))
+		if(isbnSeq[i].equals(description.isbn))
 		{
 		    break;
 		}
 	    }
 
-	    if (i >= isbnSeq.length)
+	    if(i >= isbnSeq.length)
 	    {
 		throw new Freeze.DBNotFoundException();
 	    }
 
-	    if (isbnSeq.length == 1)
+	    if(isbnSeq.length == 1)
 	    {
 		//
 		// If there are no further associated isbn numbers then remove
@@ -199,7 +199,7 @@ class LibraryI extends _LibraryDisp
 		//
 		String[] newIsbnSeq = new String[isbnSeq.length-1];
 		System.arraycopy(isbnSeq, 0, newIsbnSeq, 0, i);
-		if (i < newIsbnSeq.length - 1)
+		if(i < newIsbnSeq.length - 1)
 		{
 		    System.arraycopy(isbnSeq, i+1, newIsbnSeq, i, isbnSeq.length - i - 1);
 		}

@@ -98,7 +98,7 @@ populateDB(CharIntMap& m)
 {
     alphabet.assign(alphabetChars, alphabetChars + sizeof(alphabetChars)-1);
 
-    for (vector<char>::const_iterator j = alphabet.begin() ; j != alphabet.end(); ++j)
+    for(vector<char>::const_iterator j = alphabet.begin() ; j != alphabet.end(); ++j)
     {
 	m.insert(make_pair(*j, j-alphabet.begin()));
     }
@@ -125,7 +125,7 @@ run(int argc, char* argv[], const DBPtr& db)
     //
     // First try non-const iterator
     //
-    for (j = alphabet.begin() ; j != alphabet.end() ; ++j)
+    for(j = alphabet.begin() ; j != alphabet.end() ; ++j)
     {
 	p = m.find(*j);
 	test(p != m.end());
@@ -134,7 +134,7 @@ run(int argc, char* argv[], const DBPtr& db)
     //
     // Next try const iterator
     //
-    for (j = alphabet.begin() ; j != alphabet.end() ; ++j)
+    for(j = alphabet.begin() ; j != alphabet.end() ; ++j)
     {
 	cp = m.find(*j);
 	test(cp != m.end());
@@ -165,7 +165,7 @@ run(int argc, char* argv[], const DBPtr& db)
     chars.push_back('a');
     chars.push_back('b');
     chars.push_back('c');
-    for (j = chars.begin(); j != chars.end(); ++j)
+    for(j = chars.begin(); j != chars.end(); ++j)
     {
 	p = m.find(*j);
 	test(p != m.end());
@@ -177,7 +177,7 @@ run(int argc, char* argv[], const DBPtr& db)
 	alphabet.erase(r);
     }
 
-    for (j = alphabet.begin() ; j != alphabet.end() ; ++j)
+    for(j = alphabet.begin() ; j != alphabet.end() ; ++j)
     {
 	cp = m.find(*j);
 	test(cp != m.end());
@@ -325,7 +325,7 @@ run(int argc, char* argv[], const DBPtr& db)
     test(pairs.size() == m.size());
 
     vector<pair<char, int> >::const_iterator pit;
-    for (pit = pairs.begin() ; pit != pairs.end() ; ++pit)
+    for(pit = pairs.begin() ; pit != pairs.end() ; ++pit)
     {
 	p = m.find(pit->first);
 	test(p != m.end());
@@ -364,7 +364,7 @@ main(int argc, char* argv[])
     try
     {
 	communicator = Ice::initialize(argc, argv);
-	if (argc != 1)
+	if(argc != 1)
 	{
 	    dbEnvDir = argv[1];
 	    dbEnvDir += "/";
@@ -380,7 +380,7 @@ main(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (db)
+    if(db)
     {
 	try
 	{
@@ -404,7 +404,7 @@ main(int argc, char* argv[])
 	db = 0;
     }
 
-    if (dbEnv)
+    if(dbEnv)
     {
 	try
 	{

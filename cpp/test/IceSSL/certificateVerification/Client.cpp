@@ -46,12 +46,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     properties->setProperty("IceSSL.Server.CertPath", serverCertPath);
 
     bool singleCertVerifier = false;
-    if (properties->getProperty("IceSSL.Client.CertificateVerifier") == "singleCert")
+    if(properties->getProperty("IceSSL.Client.CertificateVerifier") == "singleCert")
     {
         singleCertVerifier = true;
     }
 
-    if (!singleCertVerifier)
+    if(!singleCertVerifier)
     {
         cout << "client and server trusted, client using stock certificate... ";
 
@@ -79,7 +79,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // Neither Client nor Server will trust.
     sslPlugin->configure(IceSSL::Client);
     sslPlugin->addTrustedCertificate(IceSSL::Client, serverUntrustedCert);
-    if (singleCertVerifier)
+    if(singleCertVerifier)
     {
         IceSSL::CertificateVerifierPtr certVerifier = sslPlugin->getSingleCertVerifier(serverUntrustedCert);
         sslPlugin->setCertificateVerifier(IceSSL::Client, certVerifier);
@@ -128,7 +128,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // Client trusts, Server does not.
     sslPlugin->configure(IceSSL::Client);
     sslPlugin->addTrustedCertificate(IceSSL::Client, serverTrustedCert);
-    if (singleCertVerifier)
+    if(singleCertVerifier)
     {
         IceSSL::CertificateVerifierPtr certVerifier = sslPlugin->getSingleCertVerifier(serverTrustedCert);
         sslPlugin->setCertificateVerifier(IceSSL::Client, certVerifier);
@@ -194,7 +194,7 @@ main(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (communicator)
+    if(communicator)
     {
 	try
 	{

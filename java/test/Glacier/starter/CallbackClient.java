@@ -179,7 +179,7 @@ class CallbackClient extends Ice.Application
     private static void
     test(boolean b)
     {
-        if (!b)
+        if(!b)
         {
             throw new RuntimeException();
         }

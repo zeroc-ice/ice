@@ -40,7 +40,7 @@ public class Server
             status = 1;
         }
 
-        if (communicator != null)
+        if(communicator != null)
         {
             try
             {

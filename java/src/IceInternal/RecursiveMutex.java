@@ -23,13 +23,13 @@ public class RecursiveMutex
     public synchronized void
     lock()
     {
-        if (_locked && Thread.currentThread() == _owner)
+        if(_locked && Thread.currentThread() == _owner)
         {
             _count++;
             return;
         }
 
-        while (_locked)
+        while(_locked)
         {
             try
             {
@@ -49,7 +49,7 @@ public class RecursiveMutex
     public synchronized boolean
     trylock()
     {
-        if (_owner == null)
+        if(_owner == null)
         {
             _owner = Thread.currentThread();
             _count = 1;
@@ -57,7 +57,7 @@ public class RecursiveMutex
             return true;
         }
 
-        if (_owner == Thread.currentThread())
+        if(_owner == Thread.currentThread())
         {
             assert(_count > 0);
             _count++;
@@ -72,7 +72,7 @@ public class RecursiveMutex
     {
         assert(_owner == Thread.currentThread() && _count > 0 && _locked);
         _count--;
-        if (_count <= 0)
+        if(_count <= 0)
         {
             _locked = false;
             _owner = null;

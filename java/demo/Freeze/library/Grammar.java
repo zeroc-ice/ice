@@ -19,127 +19,127 @@ class Grammar
     void
     parse()
     {
-	while (true)
+	while(true)
 	{
 	    try
 	    {
 		_token = _scanner.nextToken();
-		if (_token == null)
+		if(_token == null)
 		{
 		    return;
 		}
-		else if (_token.type == Token.TOK_SEMI)
+		else if(_token.type == Token.TOK_SEMI)
 		{
 		    // Continue
 		}
-		else if (_token.type == Token.TOK_HELP)
+		else if(_token.type == Token.TOK_HELP)
 		{
 		    _token = _scanner.nextToken();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 
 		    _parser.usage();
 		}
-		else if (_token.type == Token.TOK_EXIT)
+		else if(_token.type == Token.TOK_EXIT)
 		{
 		    _token = _scanner.nextToken();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 
 		    return;
 		}
-		else if (_token.type == Token.TOK_ADD_BOOK)
+		else if(_token.type == Token.TOK_ADD_BOOK)
 		{
 		    java.util.List s = strings();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 		    _parser.addBook(s);
 		}
-		else if (_token.type == Token.TOK_FIND_ISBN)
+		else if(_token.type == Token.TOK_FIND_ISBN)
 		{
 		    java.util.List s = strings();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 		    _parser.findIsbn(s);
 		}
-		else if (_token.type == Token.TOK_FIND_AUTHORS)
+		else if(_token.type == Token.TOK_FIND_AUTHORS)
 		{
 		    java.util.List s = strings();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 		    _parser.findAuthors(s);
 		}
-		else if (_token.type == Token.TOK_NEXT_FOUND_BOOK)
+		else if(_token.type == Token.TOK_NEXT_FOUND_BOOK)
 		{
 		    _token = _scanner.nextToken();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 
 		    _parser.nextFoundBook();
 		}
-		else if (_token.type == Token.TOK_PRINT_CURRENT)
+		else if(_token.type == Token.TOK_PRINT_CURRENT)
 		{
 		    _token = _scanner.nextToken();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 
 		    _parser.printCurrent();
 		}
-		else if (_token.type == Token.TOK_RENT_BOOK)
+		else if(_token.type == Token.TOK_RENT_BOOK)
 		{
 		    java.util.List s = strings();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 		    _parser.rentCurrent(s);
 		}
-		else if (_token.type == Token.TOK_RETURN_BOOK)
+		else if(_token.type == Token.TOK_RETURN_BOOK)
 		{
 		    _token = _scanner.nextToken();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 		    _parser.returnCurrent();
 		}
-		else if (_token.type == Token.TOK_REMOVE_CURRENT)
+		else if(_token.type == Token.TOK_REMOVE_CURRENT)
 		{
 		    _token = _scanner.nextToken();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 
 		    _parser.removeCurrent();
 		}
-		else if (_token.type == Token.TOK_SET_EVICTOR_SIZE)
+		else if(_token.type == Token.TOK_SET_EVICTOR_SIZE)
 		{
 		    java.util.List s = strings();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
 		    _parser.setEvictorSize(s);
 		}
-		else if (_token.type == Token.TOK_SHUTDOWN)
+		else if(_token.type == Token.TOK_SHUTDOWN)
 		{
 		    _token = _scanner.nextToken();
-		    if (_token.type != Token.TOK_SEMI)
+		    if(_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
 		    }
@@ -162,10 +162,10 @@ class Grammar
     strings()
     {
 	java.util.List l = new java.util.ArrayList();
-	while (true)
+	while(true)
 	{
 	    _token = _scanner.nextToken();
-	    if (_token.type != Token.TOK_STRING)
+	    if(_token.type != Token.TOK_STRING)
 	    {
 		return l;
 	    }

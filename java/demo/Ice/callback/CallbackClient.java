@@ -34,7 +34,7 @@ class CallbackClient extends Ice.Application
         Ice.Properties properties = communicator().getProperties();
         final String refProperty = "Callback.Callback";
         String ref = properties.getProperty(refProperty);
-        if (ref.length() == 0)
+        if(ref.length() == 0)
         {
             System.err.println("property `" + refProperty + "' not set");
             return 1;
@@ -42,7 +42,7 @@ class CallbackClient extends Ice.Application
 
         Ice.ObjectPrx base = communicator().stringToProxy(ref);
         CallbackPrx twoway = CallbackPrxHelper.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(false));
-        if (twoway == null)
+        if(twoway == null)
         {
             System.err.println("invalid object reference");
             return 1;
@@ -82,54 +82,54 @@ class CallbackClient extends Ice.Application
                 System.out.print("==> ");
                 System.out.flush();
                 line = in.readLine();
-                if (line == null)
+                if(line == null)
                 {
                     break;
                 }
-                if (line.equals("t"))
+                if(line.equals("t"))
                 {
                     java.util.HashMap context = new java.util.HashMap();
                     context.put("_fwd", "t" + secureStr);
                     twoway.initiateCallback(twowayR, context);
                 }
-                else if (line.equals("o"))
+                else if(line.equals("o"))
                 {
                     java.util.HashMap context = new java.util.HashMap();
                     context.put("_fwd", "o" + secureStr);
                     oneway.initiateCallback(onewayR, context);
                 }
-                else if (line.equals("O"))
+                else if(line.equals("O"))
                 {
                     java.util.HashMap context = new java.util.HashMap();
                     context.put("_fwd", "O" + secureStr);
-		    if (overwrite != null)
+		    if(overwrite != null)
 		    {
 			context.put("_ovwt", overwrite);
 		    }
                     batchOneway.initiateCallback(onewayR, context);
                 }
-                else if (line.equals("d"))
+                else if(line.equals("d"))
                 {
                     java.util.HashMap context = new java.util.HashMap();
                     context.put("_fwd", "d" + secureStr);
                     datagram.initiateCallback(datagramR, context);
                 }
-                else if (line.equals("D"))
+                else if(line.equals("D"))
                 {
                     java.util.HashMap context = new java.util.HashMap();
                     context.put("_fwd", "D" + secureStr);
-		    if (overwrite != null)
+		    if(overwrite != null)
 		    {
 			context.put("_ovwt", overwrite);
 		    } 
 		    batchDatagram.initiateCallback(datagramR, context);
                 }
-                else if (line.equals("f"))
+                else if(line.equals("f"))
                 {
                     batchOneway.ice_flush();
                     batchDatagram.ice_flush();
                 }
-                else if (line.equals("S"))
+                else if(line.equals("S"))
                 {
                     secure = !secure;
                     secureStr = secure ? "s" : "";
@@ -146,7 +146,7 @@ class CallbackClient extends Ice.Application
                     datagramR = CallbackReceiverPrxHelper.uncheckedCast(datagramR.ice_secure(secure));
                     //batchDatagramR = CallbackReceiverPrxHelper.uncheckedCast(batchDatagramR.ice_secure(secure));
 
-                    if (secure)
+                    if(secure)
                     {
                         System.out.println("secure mode is now on");
                     }
@@ -155,9 +155,9 @@ class CallbackClient extends Ice.Application
                         System.out.println("secure mode is now off");
                     }
                 }
-		else if (line.equals("v"))
+		else if(line.equals("v"))
 		{
-		    if (overwrite == null)
+		    if(overwrite == null)
 		    {
 			overwrite = "some_value";
 			System.out.println("overwrite context field is now `" + overwrite + "'");
@@ -168,15 +168,15 @@ class CallbackClient extends Ice.Application
 			System.out.println("overwrite context field is empty");
 		    }
 		}
-                else if (line.equals("s"))
+                else if(line.equals("s"))
                 {
                     twoway.shutdown();
                 }
-                else if (line.equals("x"))
+                else if(line.equals("x"))
                 {
                     // Nothing to do
                 }
-                else if (line.equals("?"))
+                else if(line.equals("?"))
                 {
                     menu();
                 }
@@ -195,7 +195,7 @@ class CallbackClient extends Ice.Application
                 ex.printStackTrace();
             }
         }
-        while (!line.equals("x"));
+        while(!line.equals("x"));
 
         return 0;
     }

@@ -22,7 +22,7 @@ class LibraryCollocated extends Freeze.Application
 	// Create an Evictor for books.
 	//
 	Freeze.Evictor evictor;
-	if (properties.getPropertyAsInt("Library.SaveAfterMutatingOperation") > 0)
+	if(properties.getPropertyAsInt("Library.SaveAfterMutatingOperation") > 0)
 	{
 	    evictor = dbBooks.createEvictor(Freeze.EvictorPersistenceMode.SaveAfterMutatingOperation);
 	}
@@ -31,7 +31,7 @@ class LibraryCollocated extends Freeze.Application
 	    evictor = dbBooks.createEvictor(Freeze.EvictorPersistenceMode.SaveUponEviction);
 	}
 	int evictorSize = properties.getPropertyAsInt("Library.EvictorSize");
-	if (evictorSize > 0)
+	if(evictorSize > 0)
 	{
 	    evictor.setSize(evictorSize);
 	}

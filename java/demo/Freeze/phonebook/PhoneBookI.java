@@ -45,7 +45,7 @@ class PhoneBookI extends _PhoneBookDisp
 	    int length = (identities == null) ? 0 : identities.length;
 	    Ice.Identity[] newIdents = new Ice.Identity[length+1];
 
-	    if (identities != null)
+	    if(identities != null)
 	    {
 		System.arraycopy(identities, 0, newIdents, 0, length);
 	    }
@@ -83,9 +83,9 @@ class PhoneBookI extends _PhoneBookDisp
 	    int length = (identities == null) ? 0 : identities.length;
 	    ContactPrx[] contacts = new ContactPrx[length];
 
-	    if (identities != null)
+	    if(identities != null)
 	    {
-		for (int i = 0; i < length; ++i)
+		for(int i = 0; i < length; ++i)
 		{
 		    contacts[i] = ContactPrxHelper.uncheckedCast(_adapter.createProxy(identities[i]));
 		}
@@ -153,7 +153,7 @@ class PhoneBookI extends _PhoneBookDisp
 	    int length = (identities == null) ? 0 : identities.length;
 	    Ice.Identity[] newIdents = new Ice.Identity[length+1];
 
-	    if (identities != null)
+	    if(identities != null)
 	    {
 		System.arraycopy(identities, 0, newIdents, 0, length);
 	    }
@@ -196,7 +196,7 @@ class PhoneBookI extends _PhoneBookDisp
 
 	    long n = 0;
 	    Ice.Identity[] ids = (Ice.Identity[])_nameIdentitiesDict.get("ID");
-	    if (ids != null)
+	    if(ids != null)
 	    {
 		assert(ids.length == 1);
 		try
@@ -262,26 +262,26 @@ class PhoneBookI extends _PhoneBookDisp
 	// If the name isn't found then raise a record not found
 	// exception.
 	//
-	if (identities == null)
+	if(identities == null)
 	{
 	    throw new Freeze.DBNotFoundException();
 	}
 
 	int i;
-	for (i = 0; i < identities.length; ++i)
+	for(i = 0; i < identities.length; ++i)
 	{
-	    if (identities[i].equals(ident))
+	    if(identities[i].equals(ident))
 	    {
 		break;
 	    }
 	}
 
-	if (i >= identities.length)
+	if(i >= identities.length)
 	{
 	    throw new Freeze.DBNotFoundException();
 	}
 
-	if (identities.length == 1)
+	if(identities.length == 1)
 	{
 	    _nameIdentitiesDict.fastRemove(key);
 	}
@@ -289,7 +289,7 @@ class PhoneBookI extends _PhoneBookDisp
 	{
 	    Ice.Identity[] newIdents = new Ice.Identity[identities.length-1];
 	    System.arraycopy(identities, 0, newIdents, 0, i);
-	    if (i < newIdents.length - 1)
+	    if(i < newIdents.length - 1)
 	    {
 		System.arraycopy(identities, i+1, newIdents, i, identities.length - i - 1);
 	    }

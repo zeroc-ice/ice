@@ -57,7 +57,7 @@ Parser::create(const list<string>& args)
 {
     try
     {
-	for (list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
+	for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
 	{
 	    _admin->create(*i);
 	}
@@ -75,7 +75,7 @@ Parser::destroy(const list<string>& args)
 {
     try
     {
-	for (list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
+	for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
 	{
 	    TopicPrx topic = _admin->retrieve(*i);
 	    topic->destroy();
@@ -94,7 +94,7 @@ Parser::link(const list<string>& _args)
 {
     list<string> args = _args;
 
-    if (args.size() != 3)
+    if(args.size() != 3)
     {
 	error("`link' requires exactly three arguments (type `help' for more info)");
 	return;
@@ -148,7 +148,7 @@ Parser::unlink(const list<string>& _args)
 {
     list<string> args = _args;
 
-    if (args.size() != 2)
+    if(args.size() != 2)
     {
 	error("`unlink' requires exactly two arguments (type `help' for more info)");
 	return;
@@ -201,14 +201,14 @@ Parser::dolist(const list<string>& _args)
 
     try
     {
-	if (args.size() == 0)
+	if(args.size() == 0)
 	{
 	    TopicDict d = _admin->retrieveAll();
-	    if (!d.empty())
+	    if(!d.empty())
 	    {
-		for (TopicDict::iterator i = d.begin(); i != d.end(); ++i)
+		for(TopicDict::iterator i = d.begin(); i != d.end(); ++i)
 		{
-		    if (i != d.begin())
+		    if(i != d.begin())
 		    {
 			cout << ", ";
 		    }
@@ -219,7 +219,7 @@ Parser::dolist(const list<string>& _args)
 	}
 	else
 	{
-	    while (args.size() != 0)
+	    while(args.size() != 0)
 	    {
 		string name = args.front();
 		args.pop_front();
@@ -228,7 +228,7 @@ Parser::dolist(const list<string>& _args)
 		{
 		    TopicPrx topic = _admin->retrieve(name);
 		    LinkInfoSeq links = topic->getLinkInfoSeq();
-		    for (LinkInfoSeq::const_iterator p = links.begin(); p != links.end(); ++p)
+		    for(LinkInfoSeq::const_iterator p = links.begin(); p != links.end(); ++p)
 		    {
 			cout << "\t" << (*p).name << " with cost " << (*p).cost << endl;
 		    }
@@ -253,7 +253,7 @@ Parser::graph(const list<string>& _args)
 {
     list<string> args = _args;
 
-    if (args.size() != 2)
+    if(args.size() != 2)
     {
 	error("`graph' requires exactly two arguments (type `help' for more info)");
 	return;
@@ -262,7 +262,7 @@ Parser::graph(const list<string>& _args)
     string file = args.front();
     args.pop_front();
     int maxCost = atoi(args.front().c_str());
-    if (maxCost == 0)
+    if(maxCost == 0)
     {
 	error("`graph': cost must be a positive number");
 	return;
@@ -272,7 +272,7 @@ Parser::graph(const list<string>& _args)
     try
     {
 	WeightedGraph graph;
-	if (!graph.parse(file))
+	if(!graph.parse(file))
 	{
 	    cerr << file << ": parse failed" << endl;
 	    return;
@@ -293,9 +293,9 @@ Parser::graph(const list<string>& _args)
 	TopicDict d = _admin->retrieveAll();
 	vector<string>::const_iterator p;
 
-	for (p = vertices.begin(); p != vertices.end(); ++p)
+	for(p = vertices.begin(); p != vertices.end(); ++p)
 	{
-	    if (d.find(*p) == d.end())
+	    if(d.find(*p) == d.end())
 	    {
 		cout << *p << ": referenced topic not found" << endl;
 		return;
@@ -308,28 +308,28 @@ Parser::graph(const list<string>& _args)
 	//
 	// Get the edge set for reach vertex.
 	//
-	for (p = vertices.begin(); p != vertices.end(); ++p)
+	for(p = vertices.begin(); p != vertices.end(); ++p)
 	{
 	    TopicPrx topic = d[*p];
 	    assert(topic);
 	    LinkInfoSeq seq = topic->getLinkInfoSeq();
 
 	    vector<pair<string, int> > edges = graph.getEdgesFor(*p);
-	    for (vector<pair<string, int> >::const_iterator q = edges.begin(); q != edges.end(); ++q)
+	    for(vector<pair<string, int> >::const_iterator q = edges.begin(); q != edges.end(); ++q)
 	    {
 		bool link = true;
-		for (LinkInfoSeq::iterator r = seq.begin(); r != seq.end(); ++r)
+		for(LinkInfoSeq::iterator r = seq.begin(); r != seq.end(); ++r)
 		{
 		    //
 		    // Found the link element.
 		    //
-		    if ((*r).name == (*q).first)
+		    if((*r).name == (*q).first)
 		    {
 			//
 			// If the cost is the same, then there is
 			// nothing to do.
 			//
-			if ((*r).cost == (*q).second)
+			if((*r).cost == (*q).second)
 			{
 			    link = false;
 			}
@@ -341,7 +341,7 @@ Parser::graph(const list<string>& _args)
 		//
 		// Else, need to rebind the link.
 		//
-		if (link)
+		if(link)
 		{
 		    TopicPrx target = d[(*q).first];
 		    ++links;
@@ -352,7 +352,7 @@ Parser::graph(const list<string>& _args)
 	    //
 	    // The remainder of the links are obsolete.
 	    //
-	    for (LinkInfoSeq::const_iterator r = seq.begin(); r != seq.end(); ++r)
+	    for(LinkInfoSeq::const_iterator r = seq.begin(); r != seq.end(); ++r)
 	    {
 		++unlinks;
 		topic->unlink((*r).topic);
@@ -386,9 +386,9 @@ Parser::shutdown()
 void
 Parser::getInput(char* buf, int& result, int maxSize)
 {
-    if (!_commands.empty())
+    if(!_commands.empty())
     {
-	if (_commands == ";")
+	if(_commands == ";")
 	{
 	    result = 0;
 	}
@@ -402,30 +402,30 @@ Parser::getInput(char* buf, int& result, int maxSize)
 #endif
 	    strncpy(buf, _commands.c_str(), result);
 	    _commands.erase(0, result);
-	    if (_commands.empty())
+	    if(_commands.empty())
 	    {
 		_commands = ";";
 	    }
 	}
     }
-    else if (isatty(fileno(yyin)))
+    else if(isatty(fileno(yyin)))
     {
 #ifdef HAVE_READLINE
 
 	char* line = readline(parser->getPrompt());
-	if (!line)
+	if(!line)
 	{
 	    result = 0;
 	}
 	else
 	{
-	    if (*line)
+	    if(*line)
 	    {
 		add_history(line);
 	    }
 
 	    result = strlen(line) + 1;
-	    if (result > maxSize)
+	    if(result > maxSize)
 	    {
 		free(line);
 		error("input line too long");
@@ -444,12 +444,12 @@ Parser::getInput(char* buf, int& result, int maxSize)
 	cout << parser->getPrompt() << flush;
 
 	string line;
-	while (true)
+	while(true)
 	{
 	    char c = static_cast<char>(getc(yyin));
-	    if (c == EOF)
+	    if(c == EOF)
 	    {
-		if (line.size())
+		if(line.size())
 		{
 		    line += '\n';
 		}
@@ -458,14 +458,14 @@ Parser::getInput(char* buf, int& result, int maxSize)
 
 	    line += c;
 
-	    if (c == '\n')
+	    if(c == '\n')
 	    {
 		break;
 	    }
 	}
 	
 	result = line.length();
-	if (result > maxSize)
+	if(result > maxSize)
 	{
 	    error("input line too long");
 	    buf[0] = EOF;
@@ -480,7 +480,7 @@ Parser::getInput(char* buf, int& result, int maxSize)
     }
     else
     {
-	if (((result = fread(buf, 1, maxSize, yyin)) == 0) && ferror(yyin))
+	if(((result = fread(buf, 1, maxSize, yyin)) == 0) && ferror(yyin))
 	{
 	    error("input in flex scanner failed");
 	    buf[0] = EOF;
@@ -506,7 +506,7 @@ Parser::getPrompt()
 {
     assert(_commands.empty() && isatty(fileno(yyin)));
 
-    if (_continue)
+    if(_continue)
     {
 	_continue = false;
 	return "(cont) ";
@@ -524,13 +524,13 @@ Parser::scanPosition(const char* s)
     string::size_type idx;
 
     idx = line.find("line");
-    if (idx != string::npos)
+    if(idx != string::npos)
     {
 	line.erase(0, idx + 4);
     }
 
     idx = line.find_first_not_of(" \t\r#");
-    if (idx != string::npos)
+    if(idx != string::npos)
     {
 	line.erase(0, idx);
     }
@@ -538,18 +538,18 @@ Parser::scanPosition(const char* s)
     _currentLine = atoi(line.c_str()) - 1;
 
     idx = line.find_first_of(" \t\r");
-    if (idx != string::npos)
+    if(idx != string::npos)
     {
 	line.erase(0, idx);
     }
 
     idx = line.find_first_not_of(" \t\r\"");
-    if (idx != string::npos)
+    if(idx != string::npos)
     {
 	line.erase(0, idx);
 
 	idx = line.find_first_of(" \t\r\"");
-	if (idx != string::npos)
+	if(idx != string::npos)
 	{
 	    _currentFile = line.substr(0, idx);
 	    line.erase(0, idx + 1);
@@ -564,7 +564,7 @@ Parser::scanPosition(const char* s)
 void
 Parser::error(const char* s)
 {
-    if (_commands.empty() && !isatty(fileno(yyin)))
+    if(_commands.empty() && !isatty(fileno(yyin)))
     {
 	cerr << _currentFile << ':' << _currentLine << ": " << s << endl;
     }
@@ -584,7 +584,7 @@ Parser::error(const string& s)
 void
 Parser::warning(const char* s)
 {
-    if (_commands.empty() && !isatty(fileno(yyin)))
+    if(_commands.empty() && !isatty(fileno(yyin)))
     {
 	cerr << _currentFile << ':' << _currentLine << ": warning: " << s << endl;
     }
@@ -620,7 +620,7 @@ Parser::parse(FILE* file, bool debug)
     nextLine();
 
     int status = yyparse();
-    if (_errors)
+    if(_errors)
     {
 	status = EXIT_FAILURE;
     }
@@ -649,7 +649,7 @@ Parser::parse(const std::string& commands, bool debug)
     nextLine();
 
     int status = yyparse();
-    if (_errors)
+    if(_errors)
     {
 	status = EXIT_FAILURE;
     }

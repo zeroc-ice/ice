@@ -35,31 +35,31 @@ final class UdpEndpoint implements Endpoint
         String[] arr = str.split("[ \t\n\r]+");
 
         int i = 0;
-        while (i < arr.length)
+        while(i < arr.length)
         {
-            if (arr[i].length() == 0)
+            if(arr[i].length() == 0)
             {
                 i++;
                 continue;
             }
 
             String option = arr[i++];
-            if (option.length() != 2 || option.charAt(0) != '-')
+            if(option.length() != 2 || option.charAt(0) != '-')
             {
                 throw new Ice.EndpointParseException();
             }
 
             String argument = null;
-            if (i < arr.length && arr[i].charAt(0) != '-')
+            if(i < arr.length && arr[i].charAt(0) != '-')
             {
                 argument = arr[i++];
             }
 
-            switch (option.charAt(1))
+            switch(option.charAt(1))
             {
                 case 'h':
                 {
-                    if (argument == null)
+                    if(argument == null)
                     {
                         throw new Ice.EndpointParseException();
                     }
@@ -70,7 +70,7 @@ final class UdpEndpoint implements Endpoint
 
                 case 'p':
                 {
-                    if (argument == null)
+                    if(argument == null)
                     {
                         throw new Ice.EndpointParseException();
                     }
@@ -89,7 +89,7 @@ final class UdpEndpoint implements Endpoint
 
                 case 'c':
                 {
-                    if (argument != null)
+                    if(argument != null)
                     {
                         throw new Ice.EndpointParseException();
                     }
@@ -105,7 +105,7 @@ final class UdpEndpoint implements Endpoint
             }
         }
 
-        if (_host == null)
+        if(_host == null)
         {
             _host = instance.defaultsAndOverrides().defaultHost;
         }
@@ -149,7 +149,7 @@ final class UdpEndpoint implements Endpoint
     toString()
     {
         String s = "udp -h " + _host + " -p " + _port;
-        if (_connect)
+        if(_connect)
         {
             s += " -c";
         }
@@ -316,30 +316,30 @@ final class UdpEndpoint implements Endpoint
             return 1;
         }
 
-        if (this == p)
+        if(this == p)
         {
             return 0;
         }
 
-        if (_port < p._port)
+        if(_port < p._port)
         {
             return -1;
         }
-        else if (p._port < _port)
+        else if(p._port < _port)
         {
             return 1;
         }
 
-        if (!_connect && p._connect)
+        if(!_connect && p._connect)
         {
             return -1;
         }
-        else if (!p._connect && _connect)
+        else if(!p._connect && _connect)
         {
             return 1;
         }
 
-        if (!_host.equals(p._host))
+        if(!_host.equals(p._host))
         {
             //
             // We do the most time-consuming part of the comparison last.
@@ -351,13 +351,13 @@ final class UdpEndpoint implements Endpoint
             byte[] larr = laddr.getAddress().getAddress();
             byte[] rarr = raddr.getAddress().getAddress();
             assert(larr.length == rarr.length);
-            for (int i = 0; i < larr.length; i++)
+            for(int i = 0; i < larr.length; i++)
             {
-                if (larr[i] < rarr[i])
+                if(larr[i] < rarr[i])
                 {
                     return -1;
                 }
-                else if (rarr[i] < larr[i])
+                else if(rarr[i] < larr[i])
                 {
                     return 1;
                 }

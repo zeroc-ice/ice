@@ -50,7 +50,7 @@ Freeze::EvictorI::EvictorI(const DBPtr& db, EvictorPersistenceMode persistenceMo
 
 Freeze::EvictorI::~EvictorI()
 {
-    if (!_deactivated)
+    if(!_deactivated)
     {
 	Warning out(_db->getCommunicator()->getLogger());
 	out << "evictor has not been deactivated";
@@ -62,7 +62,7 @@ Freeze::EvictorI::getDB()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_deactivated)
+    if(_deactivated)
     {
 	throw EvictorDeactivatedException(__FILE__, __LINE__);
     }
@@ -75,7 +75,7 @@ Freeze::EvictorI::setSize(Int evictorSize)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_deactivated)
+    if(_deactivated)
     {
 	throw EvictorDeactivatedException(__FILE__, __LINE__);
     }
@@ -83,7 +83,7 @@ Freeze::EvictorI::setSize(Int evictorSize)
     //
     // Ignore requests to set the evictor size to values smaller than zero.
     //
-    if (evictorSize < 0)
+    if(evictorSize < 0)
     {
 	return;
     }
@@ -104,7 +104,7 @@ Freeze::EvictorI::getSize()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_deactivated)
+    if(_deactivated)
     {
 	throw EvictorDeactivatedException(__FILE__, __LINE__);
     }
@@ -117,7 +117,7 @@ Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_deactivated)
+    if(_deactivated)
     {
 	throw EvictorDeactivatedException(__FILE__, __LINE__);
     }
@@ -128,7 +128,7 @@ Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
     _dict.insert(make_pair(ident, servant));
     add(ident, servant);
 
-    if (_trace >= 1)
+    if(_trace >= 1)
     {
 	Trace out(_db->getCommunicator()->getLogger(), "Evictor");
 	out << "created \"" << ident << "\"";
@@ -145,7 +145,7 @@ Freeze::EvictorI::destroyObject(const Identity& ident)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_deactivated)
+    if(_deactivated)
     {
 	throw EvictorDeactivatedException(__FILE__, __LINE__);
     }
@@ -156,7 +156,7 @@ Freeze::EvictorI::destroyObject(const Identity& ident)
     _dict.erase(ident);
     remove(ident);
 
-    if (_trace >= 1)
+    if(_trace >= 1)
     {
 	Trace out(_db->getCommunicator()->getLogger(), "Evictor");
 	out << "destroyed \"" << ident << "\"";
@@ -168,7 +168,7 @@ Freeze::EvictorI::installServantInitializer(const ServantInitializerPtr& initial
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_deactivated)
+    if(_deactivated)
     {
 	throw EvictorDeactivatedException(__FILE__, __LINE__);
     }
@@ -181,7 +181,7 @@ Freeze::EvictorI::getIterator()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_deactivated)
+    if(_deactivated)
     {
 	throw EvictorDeactivatedException(__FILE__, __LINE__);
     }
@@ -194,7 +194,7 @@ Freeze::EvictorI::hasObject(const Ice::Identity& ident)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_deactivated)
+    if(_deactivated)
     {
 	throw EvictorDeactivatedException(__FILE__, __LINE__);
     }
@@ -218,9 +218,9 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current
     EvictorElementPtr element;
 
     map<Identity, EvictorElementPtr>::iterator p = _evictorMap.find(current.identity);
-    if (p != _evictorMap.end())
+    if(p != _evictorMap.end())
     {
-	if (_trace >= 2)
+	if(_trace >= 2)
 	{
 	    Trace out(_db->getCommunicator()->getLogger(), "Evictor");
 	    out << "found \"" << current.identity << "\" in the queue";
@@ -237,7 +237,7 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current
     }
     else
     {
-	if (_trace >= 2)
+	if(_trace >= 2)
 	{
 	    Trace out(_db->getCommunicator()->getLogger(), "Evictor");
 	    out << "couldn't find \"" << current.identity << "\" in the queue\n"
@@ -249,7 +249,7 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current
 	// Servant for it.
 	//
 	IdentityObjectDict::iterator p = _dict.find(current.identity);
-	if (p == _dict.end())
+	if(p == _dict.end())
 	{
 	    //
             // The Ice Object with the given identity does not exist,
@@ -267,7 +267,7 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current
 	//
 	// If an initializer is installed, call it now.
 	//
-	if (_initializer)
+	if(_initializer)
 	{
 	    _initializer->initialize(adapter, current.identity, servant);
 	}
@@ -317,9 +317,9 @@ Freeze::EvictorI::finished(const ObjectAdapterPtr&, const Current& current,
     // If we are in SaveAfterMutatingOperation mode, we must save the
     // Ice Object if this was a mutating call.
     //
-    if (_persistenceMode == SaveAfterMutatingOperation)
+    if(_persistenceMode == SaveAfterMutatingOperation)
     {
-	if (!current.nonmutating)
+	if(!current.nonmutating)
 	{
 	    _dict.insert(make_pair(current.identity, servant));
 	}
@@ -336,11 +336,11 @@ Freeze::EvictorI::deactivate()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_deactivated)
+    if(!_deactivated)
     {
 	_deactivated = true;
 	
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    Trace out(_db->getCommunicator()->getLogger(), "Evictor");
 	    out << "deactivating, saving unsaved Ice Objects to the database";
@@ -364,7 +364,7 @@ Freeze::EvictorI::evict()
     // With most STL implementations, _evictorMap.size() is faster
     // than _evictorList.size().
     //
-    while (_evictorMap.size() > _evictorSize)
+    while(_evictorMap.size() > _evictorSize)
     {
 	//
 	// Get the last unused element from the evictor queue.
@@ -374,7 +374,7 @@ Freeze::EvictorI::evict()
 	{
 	    q = _evictorMap.find(*p);
 	    assert(q != _evictorMap.end());
-	    if (q->second->usageCount == 0)
+	    if(q->second->usageCount == 0)
 	    {
 		break; // Fine, Servant is not in use.
 	    }
@@ -394,7 +394,7 @@ Freeze::EvictorI::evict()
 	// If we are in SaveUponEviction mode, we must save the Ice
 	// Object that is about to be evicted to persistent store.
 	//
-	if (_persistenceMode == SaveUponEviction)
+	if(_persistenceMode == SaveUponEviction)
 	{
 	    _dict.insert(make_pair(ident, element->servant));
 	}
@@ -406,7 +406,7 @@ Freeze::EvictorI::evict()
 	_evictorMap.erase(q);
 	++p;
 
-	if (_trace >= 2)
+	if(_trace >= 2)
 	{
 	    Trace out(_db->getCommunicator()->getLogger(), "Evictor");
 	    out << "evicted \"" << ident << "\" from the queue\n"
@@ -419,7 +419,7 @@ Freeze::EvictorI::evict()
     // evict, set _db to zero to break cyclic object
     // dependencies.
     //
-    if (_deactivated && _evictorMap.empty())
+    if(_deactivated && _evictorMap.empty())
     {
 	assert(_evictorList.empty());
 	assert(_evictorSize == 0);
@@ -434,7 +434,7 @@ Freeze::EvictorI::add(const Identity& ident, const ObjectPtr& servant)
     // Ignore the request if the Ice Object is already in the queue.
     //
     map<Identity, EvictorElementPtr>::const_iterator p = _evictorMap.find(ident);
-    if (p != _evictorMap.end())
+    if(p != _evictorMap.end())
     {
 	return p->second;
     }    
@@ -458,7 +458,7 @@ Freeze::EvictorI::remove(const Identity& ident)
     // If the Ice Object is currently in the evictor, remove it.
     //
     map<Identity, EvictorElementPtr>::iterator p = _evictorMap.find(ident);
-    if (p != _evictorMap.end())
+    if(p != _evictorMap.end())
     {
 	_evictorList.erase(p->second->position);
 	_evictorMap.erase(p);
@@ -492,7 +492,7 @@ Freeze::EvictorIteratorI::hasNext()
 Ice::Identity
 Freeze::EvictorIteratorI::next()
 {
-    if (_curr == _end)
+    if(_curr == _end)
     {
 	throw Freeze::NoSuchElementException(__FILE__, __LINE__);
     }

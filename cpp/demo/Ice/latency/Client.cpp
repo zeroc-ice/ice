@@ -19,7 +19,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::PropertiesPtr properties = communicator->getProperties();
     const char* refProperty = "Latency.Ping";
     std::string ref = properties->getProperty(refProperty);
-    if (ref.empty())
+    if(ref.empty())
     {
 	cerr << argv[0] << ": property `" << refProperty << "' not set" << endl;
 	return EXIT_FAILURE;
@@ -27,7 +27,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     PingPrx ping = PingPrx::checkedCast(base);
-    if (!ping)
+    if(!ping)
     {
 	cerr << argv[0] << ": invalid object reference" << endl;
 	return EXIT_FAILURE;
@@ -40,7 +40,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     const int repetitions = 100000;
     cout << "pinging server " << repetitions << " times (this may take a while)" << endl;
-    for (int i = 0; i < repetitions; ++i)
+    for(int i = 0; i < repetitions; ++i)
     {
 	ping->ice_ping();
     }
@@ -74,7 +74,7 @@ main(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (communicator)
+    if(communicator)
     {
 	try
 	{

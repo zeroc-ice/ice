@@ -34,7 +34,7 @@ public class IncomingConnectionFactory extends EventHandler
     public boolean
     equivalent(Endpoint endp)
     {
-        if (_transceiver != null)
+        if(_transceiver != null)
         {
             return endp.equivalent(_transceiver);
         }
@@ -50,10 +50,10 @@ public class IncomingConnectionFactory extends EventHandler
         // Reap destroyed connections.
         //
         java.util.ListIterator iter = _connections.listIterator();
-        while (iter.hasNext())
+        while(iter.hasNext())
         {
             Connection connection = (Connection)iter.next();
-            if (connection.destroyed())
+            if(connection.destroyed())
             {
                 iter.remove();
             }
@@ -91,7 +91,7 @@ public class IncomingConnectionFactory extends EventHandler
     {
         threadPool.promoteFollower();
 
-        if (_state != StateActive)
+        if(_state != StateActive)
         {
             Thread.yield();
             return;
@@ -101,10 +101,10 @@ public class IncomingConnectionFactory extends EventHandler
         // Reap destroyed connections.
         //
         java.util.ListIterator iter = _connections.listIterator();
-        while (iter.hasNext())
+        while(iter.hasNext())
         {
             Connection connection = (Connection)iter.next();
-            if (connection.destroyed())
+            if(connection.destroyed())
             {
                 iter.remove();
             }
@@ -126,7 +126,7 @@ public class IncomingConnectionFactory extends EventHandler
         }
         catch (Ice.LocalException ex)
         {
-            if (_warn)
+            if(_warn)
             {
                 warning(ex);
             }
@@ -139,11 +139,11 @@ public class IncomingConnectionFactory extends EventHandler
     {
         threadPool.promoteFollower();
 
-        if (_state == StateActive)
+        if(_state == StateActive)
         {
             registerWithPool();
         }
-        else if (_state == StateClosed)
+        else if(_state == StateClosed)
         {
             try
             {
@@ -151,7 +151,7 @@ public class IncomingConnectionFactory extends EventHandler
                 // Clear listen() backlog properly by accepting all queued
                 // connections, and then shutting them down.
                 //
-                while (true)
+                while(true)
                 {
                     try
                     {
@@ -167,7 +167,7 @@ public class IncomingConnectionFactory extends EventHandler
             }
             catch (Ice.LocalException ex)
             {
-                if (_warn)
+                if(_warn)
                 {
                     warning(ex);
                 }
@@ -210,7 +210,7 @@ public class IncomingConnectionFactory extends EventHandler
         super(instance);
         _endpoint = endpoint;
 	DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-	if (defaultsAndOverrides.overrideTimeout)
+	if(defaultsAndOverrides.overrideTimeout)
 	{
 	    _endpoint = _endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
 	}
@@ -224,7 +224,7 @@ public class IncomingConnectionFactory extends EventHandler
             EndpointHolder h = new EndpointHolder();
             h.value = _endpoint;
             _transceiver = _endpoint.serverTransceiver(h);
-            if (_transceiver != null)
+            if(_transceiver != null)
             {
                 _endpoint = h.value;
                 Connection connection = new Connection(_instance, _transceiver, _endpoint, _adapter);
@@ -271,7 +271,7 @@ public class IncomingConnectionFactory extends EventHandler
     public synchronized void
     waitUntilFinished()
     {
-	while (_adapter != null)
+	while(_adapter != null)
 	{
 	    try
 	    {
@@ -290,23 +290,23 @@ public class IncomingConnectionFactory extends EventHandler
     private void
     setState(int state)
     {
-        if (_state == state) // Don't switch twice.
+        if(_state == state) // Don't switch twice.
         {
             return;
         }
 
-        switch (state)
+        switch(state)
         {
             case StateActive:
             {
-                if (_state != StateHolding) // Can only switch from holding to active.
+                if(_state != StateHolding) // Can only switch from holding to active.
                 {
                     return;
                 }
                 registerWithPool();
 
                 java.util.ListIterator iter = _connections.listIterator();
-                while (iter.hasNext())
+                while(iter.hasNext())
                 {
                     Connection connection = (Connection)iter.next();
                     connection.activate();
@@ -316,14 +316,14 @@ public class IncomingConnectionFactory extends EventHandler
 
             case StateHolding:
             {
-                if (_state != StateActive) // Can only switch from active to holding
+                if(_state != StateActive) // Can only switch from active to holding
                 {
                     return;
                 }
                 unregisterWithPool();
 
                 java.util.ListIterator iter = _connections.listIterator();
-                while (iter.hasNext())
+                while(iter.hasNext())
                 {
                     Connection connection = (Connection)iter.next();
                     connection.hold();
@@ -337,14 +337,14 @@ public class IncomingConnectionFactory extends EventHandler
                 // If we come from holding state, we first need to
                 // register again before we unregister.
                 //
-                if (_state == StateHolding)
+                if(_state == StateHolding)
                 {
                     registerWithPool();
                 }
                 unregisterWithPool();
 
                 java.util.ListIterator iter = _connections.listIterator();
-                while (iter.hasNext())
+                while(iter.hasNext())
                 {   
                     Connection connection = (Connection)iter.next();
                     connection.destroy(Connection.ObjectAdapterDeactivated);
@@ -361,11 +361,11 @@ public class IncomingConnectionFactory extends EventHandler
     private void
     registerWithPool()
     {
-        if (_acceptor != null)
+        if(_acceptor != null)
         {
-	    if (!_registeredWithPool)
+	    if(!_registeredWithPool)
 	    {
-		if (_serverThreadPool == null)
+		if(_serverThreadPool == null)
 		{
 		    _serverThreadPool = _instance.serverThreadPool();
 		    assert(_serverThreadPool != null);
@@ -379,9 +379,9 @@ public class IncomingConnectionFactory extends EventHandler
     private void
     unregisterWithPool()
     {
-        if (_acceptor != null)
+        if(_acceptor != null)
         {
-	    if (_registeredWithPool)
+	    if(_registeredWithPool)
 	    {
 		assert(_serverThreadPool != null);
 		_serverThreadPool.unregister(_acceptor.fd());

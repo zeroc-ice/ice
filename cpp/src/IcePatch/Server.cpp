@@ -66,14 +66,14 @@ IcePatch::Server::usage()
 int
 IcePatch::Server::run(int argc, char* argv[])
 {
-    for (int i = 1; i < argc; ++i)
+    for(int i = 1; i < argc; ++i)
     {
-	if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
+	if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
 	{
 	    usage();
 	    return EXIT_SUCCESS;
 	}
-	else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
+	else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
 	{
 	    cout << ICE_STRING_VERSION << endl;
 	    return EXIT_SUCCESS;
@@ -93,7 +93,7 @@ IcePatch::Server::run(int argc, char* argv[])
     //
     const char* endpointsProperty = "IcePatch.Endpoints";
     string endpoints = properties->getProperty(endpointsProperty);
-    if (endpoints.empty())
+    if(endpoints.empty())
     {
 	cerr << appName() << ": property `" << endpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
@@ -104,12 +104,12 @@ IcePatch::Server::run(int argc, char* argv[])
     //
     const char* directoryProperty = "IcePatch.Directory";
     string directory = properties->getProperty(directoryProperty);
-    if (!directory.empty())
+    if(!directory.empty())
     {
 #ifdef _WIN32
-	if (_chdir(directory.c_str()) == -1)
+	if(_chdir(directory.c_str()) == -1)
 #else
-	if (chdir(directory.c_str()) == -1)
+	if(chdir(directory.c_str()) == -1)
 #endif
 	{
 	    cerr << appName() << ": cannot change to directory `" << directory << "': " << strerror(errno) << endl;
@@ -161,12 +161,12 @@ IcePatch::Updater::run()
     PropertiesPtr properties = _adapter->getCommunicator()->getProperties();
     IceUtil::Time updatePeriod = IceUtil::Time::seconds(
 	properties->getPropertyAsIntWithDefault("IcePatch.UpdatePeriod", 60));
-    if (updatePeriod < IceUtil::Time::seconds(10))
+    if(updatePeriod < IceUtil::Time::seconds(10))
     {
 	updatePeriod = IceUtil::Time::seconds(10);
     }
 
-    while (!_destroy)
+    while(!_destroy)
     {
 	try
 	{
@@ -204,7 +204,7 @@ IcePatch::Updater::run()
 	    out << "exception during update:\n" << ex;
 	}
 
-	if (_destroy)
+	if(_destroy)
 	{
 	    break;
 	}
@@ -224,15 +224,15 @@ IcePatch::Updater::destroy()
 void
 IcePatch::Updater::cleanup(const FileDescSeq& fileDescSeq)
 {
-    if (_destroy)
+    if(_destroy)
     {
 	return;
     }
 
-    for (FileDescSeq::const_iterator p = fileDescSeq.begin(); p != fileDescSeq.end(); ++p)
+    for(FileDescSeq::const_iterator p = fileDescSeq.begin(); p != fileDescSeq.end(); ++p)
     {
 	DirectoryDescPtr directoryDesc = DirectoryDescPtr::dynamicCast(*p);
-	if (directoryDesc)
+	if(directoryDesc)
 	{
 	    //
 	    // Force .md5 files to be created and orphaned files to be

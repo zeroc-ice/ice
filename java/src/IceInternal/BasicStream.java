@@ -37,7 +37,7 @@ public class BasicStream
     finalize()
         throws Throwable
     {
-        if (_buf != null)
+        if(_buf != null)
         {
             _bufferManager.reclaim(_buf);
         }
@@ -53,13 +53,13 @@ public class BasicStream
         _buf.limit(_capacity);
         _buf.position(0);
 
-        if (_readEncapsStack != null)
+        if(_readEncapsStack != null)
         {
             assert(_readEncapsStack.next == null);
             _readEncapsStack.next = _readEncapsCache;
             _readEncapsCache = _readEncapsStack;
             _readEncapsStack = null;
-            if (_readEncapsCache.objectsRead != null)
+            if(_readEncapsCache.objectsRead != null)
             {
                 _readEncapsCache.objectsRead.clear();
             }
@@ -118,11 +118,11 @@ public class BasicStream
     public void
     resize(int total, boolean reading)
     {
-        if (total > MAX)
+        if(total > MAX)
         {
             throw new Ice.MemoryLimitException();
         }
-        if (total > _capacity)
+        if(total > _capacity)
         {
             final int cap2 = _capacity << 1;
             int newCapacity = cap2 > total ? cap2 : total;
@@ -138,7 +138,7 @@ public class BasicStream
         // is used for writing, then we must set the buffer's limit
         // to the buffer's capacity.
         //
-        if (reading)
+        if(reading)
         {
             _buf.limit(total);
         }
@@ -170,7 +170,7 @@ public class BasicStream
         writeByte((byte)0); // Encoding
         writeInt(0); // Placeholder for the encapsulation length
         WriteEncaps curr = _writeEncapsCache;
-        if (curr != null)
+        if(curr != null)
         {
             _writeEncapsCache = _writeEncapsCache.next;
         }
@@ -193,7 +193,7 @@ public class BasicStream
         _writeEncapsStack = curr.next;
         curr.next = _writeEncapsCache;
         _writeEncapsCache = curr;
-        if (_writeEncapsCache.objectsWritten != null)
+        if(_writeEncapsCache.objectsWritten != null)
         {
             _writeEncapsCache.objectsWritten.clear();
         }
@@ -205,7 +205,7 @@ public class BasicStream
     startReadEncaps()
     {
         byte encoding = readByte();
-        if (encoding != 0)
+        if(encoding != 0)
         {
             throw new Ice.UnsupportedEncodingException();
         }
@@ -217,12 +217,12 @@ public class BasicStream
 	// readSize()/writeSize(), it could be 1 or 5 bytes.
 	//
         int sz = readInt();
-	if (sz < 0)
+	if(sz < 0)
 	{
 	    throw new Ice.NegativeSizeException();
 	}
         ReadEncaps curr = _readEncapsCache;
-        if (curr != null)
+        if(curr != null)
         {
             assert(curr.objectsRead == null || curr.objectsRead.size() == 0);
             _readEncapsCache = _readEncapsCache.next;
@@ -246,12 +246,12 @@ public class BasicStream
         _readEncapsStack = curr.next;
         curr.next = _readEncapsCache;
         _readEncapsCache = curr;
-        if (_readEncapsCache.objectsRead != null)
+        if(_readEncapsCache.objectsRead != null)
         {
             _readEncapsCache.objectsRead.clear();
         }
         final int sz = _buf.getInt(start - 4);
-	if (sz < 0)
+	if(sz < 0)
 	{
 	    throw new Ice.NegativeSizeException();
 	}
@@ -270,11 +270,11 @@ public class BasicStream
     {
         assert(_readEncapsStack != null);
         final int sz = _buf.getInt(_readEncapsStack.start - 4);
-	if (sz < 0)
+	if(sz < 0)
 	{
 	    throw new Ice.NegativeSizeException();
 	}
-        if (sz != _buf.position() - _readEncapsStack.start)
+        if(sz != _buf.position() - _readEncapsStack.start)
         {
             throw new Ice.EncapsulationException();
         }
@@ -285,7 +285,7 @@ public class BasicStream
     {
         assert(_readEncapsStack != null);
         int sz = _buf.getInt(_readEncapsStack.start - 4);
-	if (sz < 0)
+	if(sz < 0)
 	{
 	    throw new Ice.NegativeSizeException();
 	}
@@ -296,12 +296,12 @@ public class BasicStream
     skipEncaps()
     {
         byte encoding = readByte();
-        if (encoding != 0)
+        if(encoding != 0)
         {
             throw new Ice.UnsupportedEncodingException();
         }
         int sz = readInt();
-	if (sz < 0)
+	if(sz < 0)
 	{
 	    throw new Ice.NegativeSizeException();
 	}
@@ -318,7 +318,7 @@ public class BasicStream
     public void
     writeSize(int v)
     {
-	if (v > 127)
+	if(v > 127)
 	{
 	    expand(5);
 	    _buf.put((byte)-1);
@@ -337,10 +337,10 @@ public class BasicStream
         try
         {
 	    byte b = _buf.get();
-	    if (b < 0)
+	    if(b < 0)
 	    {
 		int v = _buf.getInt();
-		if (v < 0)
+		if(v < 0)
 		{
 		    throw new Ice.NegativeSizeException();
 		}
@@ -435,7 +435,7 @@ public class BasicStream
     {
         writeSize(v.length);
         expand(v.length);
-        for (int i = 0; i < v.length; i++)
+        for(int i = 0; i < v.length; i++)
         {
             _buf.put(v[i] ? (byte)1 : (byte)0);
         }
@@ -461,7 +461,7 @@ public class BasicStream
         {
             final int sz = readSize();
             boolean[] v = new boolean[sz];
-            for (int i = 0; i < sz; i++)
+            for(int i = 0; i < sz; i++)
             {
                 v[i] = _buf.get() == 1;
             }
@@ -716,14 +716,14 @@ public class BasicStream
     public void
     writeString(String v)
     {
-        if (v == null)
+        if(v == null)
         {
             writeSize(0);
         }
         else
         {
             final int len = v.length();
-            if (len > 0)
+            if(len > 0)
             {
                 try
                 {
@@ -748,7 +748,7 @@ public class BasicStream
     writeStringSeq(String[] v)
     {
         writeSize(v.length);
-        for (int i = 0; i < v.length; i++)
+        for(int i = 0; i < v.length; i++)
         {
             writeString(v[i]);
         }
@@ -759,7 +759,7 @@ public class BasicStream
     {
         final int len = readSize();
 
-        if (len == 0)
+        if(len == 0)
         {
             return "";
         }
@@ -771,7 +771,7 @@ public class BasicStream
                 // We reuse the _stringBytes array to avoid creating
                 // excessive garbage
                 //
-                if (_stringBytes == null || len > _stringBytes.length)
+                if(_stringBytes == null || len > _stringBytes.length)
                 {
                     _stringBytes = new byte[len];
                     _stringChars = new char[len];
@@ -783,9 +783,9 @@ public class BasicStream
                 // character array instead of a byte array, because
                 // byte arrays require conversion.
                 //
-                for (int i = 0; i < len; i++)
+                for(int i = 0; i < len; i++)
                 {
-                    if (_stringBytes[i] < 0)
+                    if(_stringBytes[i] < 0)
                     {
                         //
                         // Multi-byte character found - we must
@@ -819,7 +819,7 @@ public class BasicStream
         // Don't use v.resize(sz) or v.reserve(sz) here, as it cannot be
         // checked whether sz is a reasonable value
         String[] v = new String[sz];
-        for (int i = 0; i < sz; i++)
+        for(int i = 0; i < sz; i++)
         {
             v[i] = readString();
         }
@@ -841,10 +841,10 @@ public class BasicStream
     public void
     writeObject(Ice.Object v)
     {
-        if (_writeEncapsStack == null) // Lazy initialization
+        if(_writeEncapsStack == null) // Lazy initialization
         {
             _writeEncapsStack = _writeEncapsCache;
-            if (_writeEncapsStack != null)
+            if(_writeEncapsStack != null)
             {
                 _writeEncapsCache = _writeEncapsCache.next;
             }
@@ -855,11 +855,11 @@ public class BasicStream
         }
 
         Integer pos = null;
-        if (_writeEncapsStack.objectsWritten != null) // Lazy creation
+        if(_writeEncapsStack.objectsWritten != null) // Lazy creation
         {
             pos = (Integer)_writeEncapsStack.objectsWritten.get(v);
         }
-        if (pos != null)
+        if(pos != null)
         {
             writeInt(pos.intValue());
         }
@@ -867,9 +867,9 @@ public class BasicStream
         {
             writeInt(-1);
 
-            if (v != null)
+            if(v != null)
             {
-                if (_writeEncapsStack.objectsWritten == null)
+                if(_writeEncapsStack.objectsWritten == null)
                 {
                     _writeEncapsStack.objectsWritten = new java.util.IdentityHashMap();
                 }
@@ -890,10 +890,10 @@ public class BasicStream
     {
         Ice.Object v = null;
 
-        if (_readEncapsStack == null) // Lazy initialization
+        if(_readEncapsStack == null) // Lazy initialization
         {
             _readEncapsStack = _readEncapsCache;
-            if (_readEncapsStack != null)
+            if(_readEncapsStack != null)
             {
                 _readEncapsCache = _readEncapsCache.next;
             }
@@ -905,9 +905,9 @@ public class BasicStream
 
         final int pos = readInt();
 
-        if (pos >= 0)
+        if(pos >= 0)
         {
-            if (_readEncapsStack.objectsRead == null || // Lazy creation
+            if(_readEncapsStack.objectsRead == null || // Lazy creation
                 pos >= _readEncapsStack.objectsRead.size())
             {
                 throw new Ice.IllegalIndirectionException();
@@ -918,44 +918,44 @@ public class BasicStream
         {
             String id = readString();
 
-            if (id.length() == 0)
+            if(id.length() == 0)
             {
                 return null;
             }
-            else if (id.equals("::Ice::Object"))
+            else if(id.equals("::Ice::Object"))
             {
                 v = new Ice.Object();
             }
             else
             {
                 Ice.ObjectFactory userFactory = _instance.servantFactoryManager().find(id);
-                if (userFactory != null)
+                if(userFactory != null)
                 {
                     v = userFactory.create(id);
                 }
 
-                if (v == null && id.equals(signatureType))
+                if(v == null && id.equals(signatureType))
                 {
                     assert(factory != null);
                     v = factory.create(id);
                     assert(v != null);
                 }
 
-                if (v == null)
+                if(v == null)
                 {
                     userFactory = loadObjectFactory(id);
-                    if (userFactory != null)
+                    if(userFactory != null)
                     {
                         v = userFactory.create(id);
                     }
                 }
 
-                if (v == null)
+                if(v == null)
                 {
                     throw new Ice.NoObjectFactoryException();
                 }
             }
-            if (_readEncapsStack.objectsRead == null) // Lazy creation
+            if(_readEncapsStack.objectsRead == null) // Lazy creation
             {
                 _readEncapsStack.objectsRead = new java.util.ArrayList(10);
             }
@@ -980,21 +980,21 @@ public class BasicStream
         String id = readString();
         Ice.UserExceptionFactory factory = _instance.userExceptionFactoryManager().find(id);
 
-        if (factory == null)
+        if(factory == null)
         {
             int pos = java.util.Arrays.binarySearch(ids, id);
-            if (pos >= 0)
+            if(pos >= 0)
             {
                 return pos;
             }
         }
 
-        if (factory == null)
+        if(factory == null)
         {
             factory = loadUserExceptionFactory(id);
         }
 
-        if (factory != null)
+        if(factory != null)
         {
             try
             {
@@ -1003,9 +1003,9 @@ public class BasicStream
             catch (Ice.UserException ex)
             {
                 String[] arr = ex.__getExceptionIds();
-                for (int i = 0; !arr[i].equals("::Ice::UserException"); i++)
+                for(int i = 0; !arr[i].equals("::Ice::UserException"); i++)
                 {
-                    if (java.util.Arrays.binarySearch(ids, arr[i]) >= 0)
+                    if(java.util.Arrays.binarySearch(ids, arr[i]) >= 0)
                     {
                         ex.__read(this);
                         throw ex;
@@ -1040,15 +1040,15 @@ public class BasicStream
     private void
     expand(int size)
     {
-        if (_buf.position() == _limit)
+        if(_buf.position() == _limit)
         {
             int oldLimit = _limit;
             _limit += size;
-            if (_limit > MAX)
+            if(_limit > MAX)
             {
                 throw new Ice.MemoryLimitException();
             }
-            if (_limit > _capacity)
+            if(_limit > _capacity)
             {
                 final int cap2 = _capacity << 1;
                 int newCapacity = cap2 > _limit ? cap2 : _limit;
@@ -1108,7 +1108,7 @@ public class BasicStream
             // 0x400 = abstract).
             //
             int modifiers = c.getModifiers();
-            if ((modifiers & 0x200) == 0 && (modifiers & 0x400) == 0)
+            if((modifiers & 0x200) == 0 && (modifiers & 0x400) == 0)
             {
                 factory = new DynamicObjectFactory(c);
                 _instance.servantFactoryManager().add(factory, id);

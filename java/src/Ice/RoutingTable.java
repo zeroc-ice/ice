@@ -23,7 +23,7 @@ public final class RoutingTable
     public boolean
     add(ObjectPrx prx)
     {
-        if (prx == null)
+        if(prx == null)
         {
             return false;
         }
@@ -32,7 +32,7 @@ public final class RoutingTable
 
         synchronized (this)
         {
-            if (!_table.containsKey(proxy.ice_getIdentity()))
+            if(!_table.containsKey(proxy.ice_getIdentity()))
             {
                 _table.put(proxy.ice_getIdentity(), proxy);
                 return true;
@@ -50,7 +50,7 @@ public final class RoutingTable
     public ObjectPrx
     get(Identity ident)
     {
-        if (ident.name.length() == 0)
+        if(ident.name.length() == 0)
         {
             return null;
         }

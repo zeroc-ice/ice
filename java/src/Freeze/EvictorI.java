@@ -15,7 +15,7 @@ class EvictorI implements Evictor
     synchronized public DB
     getDB()
     {
-	if (_deactivated)
+	if(_deactivated)
 	{
 	    throw new EvictorDeactivatedException();
 	}
@@ -26,7 +26,7 @@ class EvictorI implements Evictor
     synchronized public void
     setSize(int evictorSize)
     {
-	if (_deactivated)
+	if(_deactivated)
 	{
 	    throw new EvictorDeactivatedException();
 	}
@@ -34,7 +34,7 @@ class EvictorI implements Evictor
 	//
 	// Ignore requests to set the evictor size to values smaller than zero.
 	//
-	if (evictorSize < 0)
+	if(evictorSize < 0)
 	{
 	    return;
 	}
@@ -53,7 +53,7 @@ class EvictorI implements Evictor
     synchronized public int
     getSize()
     {
-	if (_deactivated)
+	if(_deactivated)
 	{
 	    throw new EvictorDeactivatedException();
 	}
@@ -64,7 +64,7 @@ class EvictorI implements Evictor
     synchronized public void
     createObject(Ice.Identity ident, Ice.Object servant)
     {
-	if (_deactivated)
+	if(_deactivated)
 	{
 	    throw new EvictorDeactivatedException();
 	}
@@ -82,7 +82,7 @@ class EvictorI implements Evictor
 	_dict.put(identCopy, servant);
 	add(identCopy, servant);
 	
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    _db.getCommunicator().getLogger().trace("Evictor", "created \"" + Ice.Util.identityToString(ident) + "\"");
 	}
@@ -96,7 +96,7 @@ class EvictorI implements Evictor
     synchronized public void
     destroyObject(Ice.Identity ident)
     {
-	if (_deactivated)
+	if(_deactivated)
 	{
 	    throw new EvictorDeactivatedException();
 	}
@@ -107,7 +107,7 @@ class EvictorI implements Evictor
 	_dict.remove(ident);
 	remove(ident);
 	
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    _db.getCommunicator().getLogger().trace("Evictor", "destroyed \"" +
 						    Ice.Util.identityToString(ident) + "\"");
@@ -117,7 +117,7 @@ class EvictorI implements Evictor
     synchronized public void
     installServantInitializer(ServantInitializer initializer)
     {
-	if (_deactivated)
+	if(_deactivated)
 	{
 	    throw new EvictorDeactivatedException();
 	}
@@ -128,7 +128,7 @@ class EvictorI implements Evictor
     synchronized public EvictorIterator
     getIterator()
     {
-	if (_deactivated)
+	if(_deactivated)
 	{
 	    throw new EvictorDeactivatedException();
 	}
@@ -139,7 +139,7 @@ class EvictorI implements Evictor
     synchronized public boolean
     hasObject(Ice.Identity ident)
     {
-	if (_deactivated)
+	if(_deactivated)
 	{
 	    throw new EvictorDeactivatedException();
 	}
@@ -168,9 +168,9 @@ class EvictorI implements Evictor
 	ident.category = current.identity.category;
 	
 	EvictorElement element = (EvictorElement)_evictorMap.get(ident);
-	if (element != null)
+	if(element != null)
 	{
-	    if (_trace >= 2)
+	    if(_trace >= 2)
 	    {
 		_db.getCommunicator().getLogger().trace("Evictor",
 							"found \"" + Ice.Util.identityToString(ident) +
@@ -192,7 +192,7 @@ class EvictorI implements Evictor
 	}
 	else
 	{
-	    if (_trace >= 2)
+	    if(_trace >= 2)
 	    {
 		_db.getCommunicator().getLogger().trace(
 		    "Evictor",
@@ -205,7 +205,7 @@ class EvictorI implements Evictor
 	    // Servant for it.
 	    //
 	    Ice.Object servant = (Ice.Object)_dict.get(ident);
-	    if (servant == null)
+	    if(servant == null)
 	    {
 		//
 		// The Ice Object with the given identity does not exist,
@@ -223,7 +223,7 @@ class EvictorI implements Evictor
 	    //
 	    // If an initializer is installed, call it now.
 	    //
-	    if (_initializer != null)
+	    if(_initializer != null)
 	    {
 		_initializer.initialize(adapter, ident, servant);
 	    }
@@ -269,9 +269,9 @@ class EvictorI implements Evictor
 	// If we are in SaveAfterMutatingOperation mode, we must save the
 	// Ice Object if this was a mutating call.
 	//
-	if (_persistenceMode == EvictorPersistenceMode.SaveAfterMutatingOperation)
+	if(_persistenceMode == EvictorPersistenceMode.SaveAfterMutatingOperation)
 	{
-	    if (!current.nonmutating)
+	    if(!current.nonmutating)
 	    {
 		_dict.put(current.identity, servant);
 	    }
@@ -286,11 +286,11 @@ class EvictorI implements Evictor
     synchronized public void
     deactivate()
     {
-	if (!_deactivated)
+	if(!_deactivated)
 	{
 	    _deactivated = true;
 	    
-	    if (_trace >= 1)
+	    if(_trace >= 1)
 	    {
 		_db.getCommunicator().getLogger().trace("Evictor",
 							"deactivating, saving unsaved Ice Objects to the database");
@@ -317,7 +317,7 @@ class EvictorI implements Evictor
     evict()
     {
 	java.util.Iterator p = _evictorList.riterator();
-	while (p.hasNext() && _evictorList.size() > _evictorSize)
+	while(p.hasNext() && _evictorList.size() > _evictorSize)
 	{
 	    //
 	    // Get the last unused element from the evictor queue.
@@ -325,7 +325,7 @@ class EvictorI implements Evictor
 	    Ice.Identity ident = (Ice.Identity)p.next();
 	    EvictorElement element = (EvictorElement)_evictorMap.get(ident);
 	    assert(element != null);
-	    if (element.usageCount == 0)
+	    if(element.usageCount == 0)
 	    {
 		//
 		// Fine, Servant is not in use.
@@ -337,7 +337,7 @@ class EvictorI implements Evictor
 		// save the Ice Object that is about to be
 		// evicted to persistent store.
 		//
-		if (_persistenceMode == EvictorPersistenceMode.SaveUponEviction)
+		if(_persistenceMode == EvictorPersistenceMode.SaveUponEviction)
 		{
 		    _dict.put(ident, element.servant);
 		}
@@ -348,7 +348,7 @@ class EvictorI implements Evictor
 		p.remove();
 		_evictorMap.remove(ident);
 	    
-		if (_trace >= 2)
+		if(_trace >= 2)
 		{
 		    _db.getCommunicator().getLogger().trace(
 			"Evictor", 
@@ -374,7 +374,7 @@ class EvictorI implements Evictor
 	// Ignore the request if the Ice Object is already in the queue.
 	//
 	EvictorElement element = (EvictorElement)_evictorMap.get(ident);
-	if (element != null)
+	if(element != null)
 	{
 	    return element;
 	}    
@@ -405,7 +405,7 @@ class EvictorI implements Evictor
 	// If the Ice Object is currently in the evictor, remove it.
 	//
 	EvictorElement element = (EvictorElement)_evictorMap.remove(ident);
-	if (element != null)
+	if(element != null)
 	{
 	    element.position.remove();
 	}    

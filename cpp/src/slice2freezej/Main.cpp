@@ -59,7 +59,7 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
 
     string name;
     string::size_type pos = dict.name.rfind('.');
-    if (pos == string::npos)
+    if(pos == string::npos)
     {
         name = dict.name;
     }
@@ -69,7 +69,7 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
     }
 
     TypeList keyTypes = unit->lookupType(dict.key, false);
-    if (keyTypes.empty())
+    if(keyTypes.empty())
     {
         cerr << _prog << ": `" << dict.key << "' is not a valid type" << endl;
         return false;
@@ -77,14 +77,14 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
     TypePtr keyType = keyTypes.front();
     
     TypeList valueTypes = unit->lookupType(dict.value, false);
-    if (valueTypes.empty())
+    if(valueTypes.empty())
     {
         cerr << _prog << ": `" << dict.value << "' is not a valid type" << endl;
         return false;
     }
     TypePtr valueType = valueTypes.front();
 
-    if (!open(dict.name))
+    if(!open(dict.name))
     {
         cerr << _prog << ": unable to open class " << dict.name << endl;
         return false;
@@ -106,12 +106,12 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
     //
     // encode/decode
     //
-    for (int i = 0; i < 2; i++)
+    for(int i = 0; i < 2; i++)
     {
         string keyValue;
         TypePtr type;
 
-        if (i == 0)
+        if(i == 0)
         {
             keyValue = "Key";
             type = keyType;
@@ -124,10 +124,10 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
 
         string typeS, valS;
         BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-        if (b)
+        if(b)
         {
             typeS = builtinTable[b->kind()];
-            switch (b->kind())
+            switch(b->kind())
             {
                 case Builtin::KindByte:
                 {
@@ -221,9 +221,9 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
         out << nl << "__buf.position(0);";
         iter = 0;
         out << nl << typeS << " __r;";
-        if (b)
+        if(b)
         {
-            switch (b->kind())
+            switch(b->kind())
             {
                 case Builtin::KindByte:
                 {
@@ -323,39 +323,39 @@ main(int argc, char* argv[])
     vector<Dict> dicts;
 
     int idx = 1;
-    while (idx < argc)
+    while(idx < argc)
     {
-        if (strncmp(argv[idx], "-I", 2) == 0)
+        if(strncmp(argv[idx], "-I", 2) == 0)
         {
             cpp += ' ';
             cpp += argv[idx];
 
             string path = argv[idx] + 2;
-            if (path.length())
+            if(path.length())
             {
                 includePaths.push_back(path);
             }
 
-            for (int i = idx ; i + 1 < argc ; ++i)
+            for(int i = idx ; i + 1 < argc ; ++i)
             {
                 argv[i] = argv[i + 1];
             }
             --argc;
         }
-        else if (strncmp(argv[idx], "-D", 2) == 0 || strncmp(argv[idx], "-U", 2) == 0)
+        else if(strncmp(argv[idx], "-D", 2) == 0 || strncmp(argv[idx], "-U", 2) == 0)
         {
             cpp += ' ';
             cpp += argv[idx];
 
-            for (int i = idx ; i + 1 < argc ; ++i)
+            for(int i = idx ; i + 1 < argc ; ++i)
             {
                 argv[i] = argv[i + 1];
             }
             --argc;
         }
-        else if (strcmp(argv[idx], "--dict") == 0)
+        else if(strcmp(argv[idx], "--dict") == 0)
         {
-            if (idx + 1 >= argc || argv[idx + 1][0] == '-')
+            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
             {
                 cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
                 usage(argv[0]);
@@ -369,34 +369,34 @@ main(int argc, char* argv[])
 
             string::size_type pos;
             pos = s.find(',');
-            if (pos != string::npos)
+            if(pos != string::npos)
             {
                 dict.name = s.substr(0, pos);
                 s.erase(0, pos + 1);
             }
             pos = s.find(',');
-            if (pos != string::npos)
+            if(pos != string::npos)
             {
                 dict.key = s.substr(0, pos);
                 s.erase(0, pos + 1);
             }
             dict.value = s;
 
-            if (dict.name.empty())
+            if(dict.name.empty())
             {
                 cerr << argv[0] << ": " << argv[idx] << ": no name specified" << endl;
                 usage(argv[0]);
                 return EXIT_FAILURE;
             }
 
-            if (dict.key.empty())
+            if(dict.key.empty())
             {
                 cerr << argv[0] << ": " << argv[idx] << ": no key specified" << endl;
                 usage(argv[0]);
                 return EXIT_FAILURE;
             }
 
-            if (dict.value.empty())
+            if(dict.value.empty())
             {
                 cerr << argv[0] << ": " << argv[idx] << ": no value specified" << endl;
                 usage(argv[0]);
@@ -405,34 +405,34 @@ main(int argc, char* argv[])
 
             dicts.push_back(dict);
 
-            for (int i = idx ; i + 2 < argc ; ++i)
+            for(int i = idx ; i + 2 < argc ; ++i)
             {
                 argv[i] = argv[i + 2];
             }
             argc -= 2;
         }
-        else if (strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
+        else if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
         {
             usage(argv[0]);
             return EXIT_SUCCESS;
         }
-        else if (strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
+        else if(strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
         {
             cout << ICE_STRING_VERSION << endl;
             return EXIT_SUCCESS;
         }
-        else if (strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
+        else if(strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
         {
             debug = true;
-            for (int i = idx ; i + 1 < argc ; ++i)
+            for(int i = idx ; i + 1 < argc ; ++i)
             {
                 argv[i] = argv[i + 1];
             }
             --argc;
         }
-        else if (strcmp(argv[idx], "--include-dir") == 0)
+        else if(strcmp(argv[idx], "--include-dir") == 0)
         {
-            if (idx + 1 >= argc)
+            if(idx + 1 >= argc)
             {
                 cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
                 usage(argv[0]);
@@ -440,15 +440,15 @@ main(int argc, char* argv[])
             }
             
             include = argv[idx + 1];
-            for (int i = idx ; i + 2 < argc ; ++i)
+            for(int i = idx ; i + 2 < argc ; ++i)
             {
                 argv[i] = argv[i + 2];
             }
             argc -= 2;
         }
-        else if (strcmp(argv[idx], "--output-dir") == 0)
+        else if(strcmp(argv[idx], "--output-dir") == 0)
         {
-            if (idx + 1 >= argc)
+            if(idx + 1 >= argc)
             {
                 cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
                 usage(argv[0]);
@@ -456,13 +456,13 @@ main(int argc, char* argv[])
             }
             
             output = argv[idx + 1];
-            for (int i = idx ; i + 2 < argc ; ++i)
+            for(int i = idx ; i + 2 < argc ; ++i)
             {
                 argv[i] = argv[i + 2];
             }
             argc -= 2;
         }
-        else if (argv[idx][0] == '-')
+        else if(argv[idx][0] == '-')
         {
             cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
             usage(argv[0]);
@@ -474,7 +474,7 @@ main(int argc, char* argv[])
         }
     }
 
-    if (dicts.empty())
+    if(dicts.empty())
     {
         cerr << argv[0] << ": no Freeze types specified" << endl;
         usage(argv[0]);
@@ -487,24 +487,24 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
-    for (idx = 1 ; idx < argc ; ++idx)
+    for(idx = 1 ; idx < argc ; ++idx)
     {
         string base(argv[idx]);
         string suffix;
         string::size_type pos = base.rfind('.');
-        if (pos != string::npos)
+        if(pos != string::npos)
         {
             suffix = base.substr(pos);
             transform(suffix.begin(), suffix.end(), suffix.begin(), tolower);
         }
-        if (suffix != ".ice")
+        if(suffix != ".ice")
         {
             cerr << argv[0] << ": input files must end with `.ice'" << endl;
             return EXIT_FAILURE;
         }
 
         ifstream test(argv[idx]);
-        if (!test)
+        if(!test)
         {
             cerr << argv[0] << ": can't open `" << argv[idx] << "' for reading: " << strerror(errno) << endl;
             return EXIT_FAILURE;
@@ -517,7 +517,7 @@ main(int argc, char* argv[])
 #else
         FILE* cppHandle = popen(cmd.c_str(), "r");
 #endif
-        if (cppHandle == 0)
+        if(cppHandle == 0)
         {
             cerr << argv[0] << ": can't run C++ preprocessor: " << strerror(errno) << endl;
             unit->destroy();
@@ -533,18 +533,18 @@ main(int argc, char* argv[])
 #endif
     }
 
-    if (status == EXIT_SUCCESS)
+    if(status == EXIT_SUCCESS)
     {
         unit->mergeModules();
         unit->sort();
 
         FreezeGenerator gen(argv[0], output);
 
-        for (vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
+        for(vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
         {
             try
             {
-                if (!gen.generate(unit, *p))
+                if(!gen.generate(unit, *p))
                 {
                     unit->destroy();
                     return EXIT_FAILURE;

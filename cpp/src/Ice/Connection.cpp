@@ -66,7 +66,7 @@ IceInternal::Connection::decProxyUsageCount()
     IceUtil::RecMutex::Lock sync(*this);
     assert(_proxyUsageCount > 0);
     --_proxyUsageCount;
-    if (_proxyUsageCount == 0 && !_adapter)
+    if(_proxyUsageCount == 0 && !_adapter)
     {
 	assert(_requests.empty());
 	setState(StateClosing, CloseConnectionException(__FILE__, __LINE__));
@@ -89,7 +89,7 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway, bool comp)
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if (_exception.get())
+    if(_exception.get())
     {
 	_exception->ice_throw();
     }
@@ -104,10 +104,10 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway, bool comp)
 	//
 	// Fill in the request ID.
 	//
-	if (!_endpoint->datagram() && !oneway)
+	if(!_endpoint->datagram() && !oneway)
 	{
 	    requestId = _nextRequestId++;
-	    if (requestId <= 0)
+	    if(requestId <= 0)
 	    {
 		_nextRequestId = 1;
 		requestId = _nextRequestId++;
@@ -117,19 +117,19 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway, bool comp)
 	    copy(p, p + sizeof(Int), os->b.begin() + headerSize);
 	}
 
-	if (os->b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
+	if(os->b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
 	{
 	    comp = false;
 	}
 	else
 	{
-	    if (_defaultsAndOverrides->overrideComppress)
+	    if(_defaultsAndOverrides->overrideComppress)
 	    {
 		comp = _defaultsAndOverrides->overrideComppressValue;
 	    }
 	}
 
-	if (comp)
+	if(comp)
 	{
 	    //
 	    // Change message type.
@@ -178,7 +178,7 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway, bool comp)
     // Only add to the request map if there was no exception, and if
     // the operation is not oneway.
     //
-    if (!_endpoint->datagram() && !oneway)
+    if(!_endpoint->datagram() && !oneway)
     {
 	_requestsHint = _requests.insert(_requests.end(), make_pair(requestId, out));
     }
@@ -189,7 +189,7 @@ IceInternal::Connection::prepareBatchRequest(Outgoing* out)
 {
     lock();
 
-    if (_exception.get())
+    if(_exception.get())
     {
 	unlock();
 	_exception->ice_throw();
@@ -201,7 +201,7 @@ IceInternal::Connection::prepareBatchRequest(Outgoing* out)
     // is called.
     //
 
-    if (_batchStream.b.empty())
+    if(_batchStream.b.empty())
     {
 	_batchStream.write(protocolVersion);
 	_batchStream.write(encodingVersion);
@@ -219,7 +219,7 @@ IceInternal::Connection::prepareBatchRequest(Outgoing* out)
 void
 IceInternal::Connection::finishBatchRequest(Outgoing* out)
 {
-    if (_exception.get())
+    if(_exception.get())
     {
 	unlock();
 	_exception->ice_throw();
@@ -242,7 +242,7 @@ IceInternal::Connection::flushBatchRequest(bool comp)
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if (_exception.get())
+    if(_exception.get())
     {
 	_exception->ice_throw();
     }
@@ -257,19 +257,19 @@ IceInternal::Connection::flushBatchRequest(bool comp)
 
 	_batchStream.i = _batchStream.b.begin();
 	
-	if (_batchStream.b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
+	if(_batchStream.b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
 	{
 	    comp = false;
 	}
 	else
 	{
-	    if (_defaultsAndOverrides->overrideComppress)
+	    if(_defaultsAndOverrides->overrideComppress)
 	    {
 		comp = _defaultsAndOverrides->overrideComppressValue;
 	    }
 	}
 
-	if (comp)
+	if(comp)
 	{
 	    //
 	    // Change message type.
@@ -346,9 +346,9 @@ IceInternal::Connection::setAdapter(const ObjectAdapterPtr& adapter)
     // mode. However, we only change subscription if we're in active
     // mode, and thus ignore closing mode here.k
     //
-    if (_state == StateActive)
+    if(_state == StateActive)
     {
-	if (adapter && !_adapter)
+	if(adapter && !_adapter)
 	{
 	    //
 	    // Client is now server.
@@ -356,7 +356,7 @@ IceInternal::Connection::setAdapter(const ObjectAdapterPtr& adapter)
 	    unregisterWithPool();
 	}
 	
-	if (!adapter && _adapter)
+	if(!adapter && _adapter)
 	{
 	    //
 	    // Server is now client.
@@ -399,7 +399,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	
 	threadPool->promoteFollower();
 	
-	if (_state == StateClosed)
+	if(_state == StateClosed)
 	{
 	    IceUtil::ThreadControl::yield();
 	    return;
@@ -416,7 +416,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    //
 	    // Uncompress if necessary.
 	    //
-	    if (messageType == compressedRequestMsg ||
+	    if(messageType == compressedRequestMsg ||
 		messageType == compressedRequestBatchMsg ||
 		messageType == compressedReplyMsg)
 	    {
@@ -428,11 +428,11 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    
 	    stream.i = stream.b.begin() + headerSize;
 	    
-	    switch (messageType)
+	    switch(messageType)
 	    {
 		case requestMsg:
 		{
-		    if (_state == StateClosing)
+		    if(_state == StateClosing)
 		    {
 			traceRequest("received request during closing\n"
 				     "(ignored by server, client will retry)",
@@ -448,7 +448,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		
 		case compressedRequestMsg:
 		{
-		    if (_state == StateClosing)
+		    if(_state == StateClosing)
 		    {
 			traceRequest("received compressed request during closing\n"
 				     "(ignored by server, client will retry)",
@@ -464,7 +464,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		
 		case requestBatchMsg:
 		{
-		    if (_state == StateClosing)
+		    if(_state == StateClosing)
 		    {
 			traceBatchRequest("received batch request during closing\n"
 					  "(ignored by server, client will retry)",
@@ -481,7 +481,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		
 		case compressedRequestBatchMsg:
 		{
-		    if (_state == StateClosing)
+		    if(_state == StateClosing)
 		    {
 			traceBatchRequest("received compressed batch request during closing\n"
 					  "(ignored by server, client will retry)",
@@ -499,7 +499,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		case replyMsg:
 		case compressedReplyMsg:
 		{
-		    if (messageType == compressedReplyMsg)
+		    if(messageType == compressedReplyMsg)
 		    {
 			traceReply("received compressed reply", stream, _logger, _traceLevels);
 		    }
@@ -513,27 +513,27 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		    
 		    map<Int, Outgoing*>::iterator p = _requests.end();
 		    
-		    if (_requestsHint != _requests.end())
+		    if(_requestsHint != _requests.end())
 		    {
-			if (_requestsHint->first == requestId)
+			if(_requestsHint->first == requestId)
 			{
 			    p = _requestsHint;
 			}
 		    }
 		    
-		    if (p == _requests.end())
+		    if(p == _requests.end())
 		    {
 			p = _requests.find(requestId);
 		    }
 		    
-		    if (p == _requests.end())
+		    if(p == _requests.end())
 		    {
 			throw UnknownRequestIdException(__FILE__, __LINE__);
 		    }
 
 		    p->second->finished(stream);
 
-		    if (p == _requestsHint)
+		    if(p == _requestsHint)
 		    {
 			_requests.erase(p++);
 			_requestsHint = p;
@@ -549,9 +549,9 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		case closeConnectionMsg:
 		{
 		    traceHeader("received close connection", stream, _logger, _traceLevels);
-		    if (_endpoint->datagram())
+		    if(_endpoint->datagram())
 		    {
-			if (_warn)
+			if(_warn)
 			{
 			    Warning out(_logger);
 			    out << "ignoring close connection message for datagram connection:\n"
@@ -586,7 +586,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
     // Method invocation must be done outside the thread
     // synchronization, so that nested callbacks are possible.
     //
-    if (invoke)
+    if(invoke)
     {
 	Incoming in(_instance, _adapter);
 	BasicStream* is = in.is();
@@ -597,11 +597,11 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 
 	try
 	{
-	    if (!batch)
+	    if(!batch)
 	    {
 		Int requestId;
 		is->read(requestId);
-		if (!_endpoint->datagram() && requestId != 0) // 0 means oneway.
+		if(!_endpoint->datagram() && requestId != 0) // 0 means oneway.
 		{
 		    response = true;
 		    ++_responseCount;
@@ -622,7 +622,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		catch (const LocalException& ex)
 		{
 		    IceUtil::RecMutex::Lock sync(*this);
-		    if (_warn)
+		    if(_warn)
 		    {
 			Warning out(_logger);
 			out << "connection exception:\n" << ex << '\n' << _transceiver->toString();
@@ -631,7 +631,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		catch (const UserException& ex)
 		{
 		    IceUtil::RecMutex::Lock sync(*this);
-		    if (_warn)
+		    if(_warn)
 		    {
 			Warning out(_logger);
 			out << "unknown user exception:\n" << ex << '\n' << _transceiver->toString();
@@ -640,14 +640,14 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		catch (...)
 		{
 		    IceUtil::RecMutex::Lock sync(*this);
-		    if (_warn)
+		    if(_warn)
 		    {
 			Warning out(_logger);
 			out << "unknown exception";
 		    }
 		}
 	    }
-	    while (batch && is->i < is->b.end());
+	    while(batch && is->i < is->b.end());
 	}
 	catch (const LocalException& ex)
 	{
@@ -656,31 +656,31 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    return;
 	}
 	
-	if (response)
+	if(response)
 	{
 	    IceUtil::RecMutex::Lock sync(*this);
 	    
 	    try
 	    {
 		
-		if (_state == StateClosed)
+		if(_state == StateClosed)
 		{
 		    return;
 		}
 		
-		if (os->b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
+		if(os->b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
 		{
 		    comp = false;
 		}
 		else
 		{
-		    if (_defaultsAndOverrides->overrideComppress)
+		    if(_defaultsAndOverrides->overrideComppress)
 		    {
 			comp = _defaultsAndOverrides->overrideComppressValue;
 		    }
 		}
 
-		if (comp)
+		if(comp)
 		{
 		    //
 		    // Change message type.
@@ -721,7 +721,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		
 		--_responseCount;
 		
-		if (_state == StateClosing && _responseCount == 0 && !_endpoint->datagram())
+		if(_state == StateClosing && _responseCount == 0 && !_endpoint->datagram())
 		{
 		    closeConnection();
 		}
@@ -742,11 +742,11 @@ IceInternal::Connection::finished(const ThreadPoolPtr& threadPool)
 
     threadPool->promoteFollower();
 
-    if (_state == StateActive || _state == StateClosing)
+    if(_state == StateActive || _state == StateClosing)
     {
 	registerWithPool();
     }
-    else if (_state == StateClosed)
+    else if(_state == StateClosed)
     {
 	_transceiver->close();
     }
@@ -818,7 +818,7 @@ IceInternal::Connection::destroy(DestructionReason reason)
 {
     RecMutex::Lock sync(*this);
 
-    switch (reason)
+    switch(reason)
     {
 	case ObjectAdapterDeactivated:
 	{
@@ -837,21 +837,21 @@ IceInternal::Connection::destroy(DestructionReason reason)
 void
 IceInternal::Connection::setState(State state, const LocalException& ex)
 {
-    if (_state == state) // Don't switch twice.
+    if(_state == state) // Don't switch twice.
     {
 	return;
     }
 
-    if (!_exception.get())
+    if(!_exception.get())
     {
 	_exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 
-	if (_warn)
+	if(_warn)
 	{
 	    //
 	    // Don't warn about certain expected exceptions.
 	    //
-	    if (!(dynamic_cast<const CloseConnectionException*>(&ex) ||
+	    if(!(dynamic_cast<const CloseConnectionException*>(&ex) ||
 		  dynamic_cast<const CommunicatorDestroyedException*>(&ex) ||
 		  dynamic_cast<const ObjectAdapterDeactivatedException*>(&ex) ||
 		  (dynamic_cast<const ConnectionLostException*>(&ex) && _state == StateClosing)))
@@ -862,7 +862,7 @@ IceInternal::Connection::setState(State state, const LocalException& ex)
 	}
     }
     
-    for (std::map< ::Ice::Int, Outgoing*>::iterator p = _requests.begin(); p != _requests.end(); ++p)
+    for(std::map< ::Ice::Int, Outgoing*>::iterator p = _requests.begin(); p != _requests.end(); ++p)
     {
 	p->second->finished(*_exception.get());
     }
@@ -879,21 +879,21 @@ IceInternal::Connection::setState(State state)
     // We don't want to send close connection messages if the endpoint
     // only supports oneway transmission from client to server.
     //
-    if (_endpoint->datagram() && state == StateClosing)
+    if(_endpoint->datagram() && state == StateClosing)
     {
 	state = StateClosed;
     }
 
-    if (_state == state) // Don't switch twice.
+    if(_state == state) // Don't switch twice.
     {
 	return;
     }
     
-    switch (state)
+    switch(state)
     {
 	case StateActive:
 	{
-	    if (_state != StateHolding) // Can only switch from holding to active.
+	    if(_state != StateHolding) // Can only switch from holding to active.
 	    {
 		return;
 	    }
@@ -903,7 +903,7 @@ IceInternal::Connection::setState(State state)
 	
 	case StateHolding:
 	{
-	    if (_state != StateActive) // Can only switch from active to holding.
+	    if(_state != StateActive) // Can only switch from active to holding.
 	    {
 		return;
 	    }
@@ -913,11 +913,11 @@ IceInternal::Connection::setState(State state)
 
 	case StateClosing:
 	{
-	    if (_state == StateClosed) // Can't change back from closed.
+	    if(_state == StateClosed) // Can't change back from closed.
 	    {
 		return;
 	    }
-	    if (_state == StateHolding)
+	    if(_state == StateHolding)
 	    {
 		//
 		// We need to continue to read data in closing state.
@@ -929,7 +929,7 @@ IceInternal::Connection::setState(State state)
 	
 	case StateClosed:
 	{
-	    if (_state == StateHolding)
+	    if(_state == StateHolding)
 	    {
 		//
 		// If we come from holding state, we first need to
@@ -945,7 +945,7 @@ IceInternal::Connection::setState(State state)
 
     _state = state;
 
-    if (_state == StateClosing && _responseCount == 0 && !_endpoint->datagram())
+    if(_state == StateClosing && _responseCount == 0 && !_endpoint->datagram())
     {
 	try
 	{
@@ -975,11 +975,11 @@ IceInternal::Connection::closeConnection()
 void
 IceInternal::Connection::registerWithPool()
 {
-    if (!_registeredWithPool)
+    if(!_registeredWithPool)
     {
-	if (_adapter)
+	if(_adapter)
 	{
-	    if (!_serverThreadPool)
+	    if(!_serverThreadPool)
 	    {
 		_serverThreadPool = _instance->serverThreadPool();
 		assert(_serverThreadPool);
@@ -988,7 +988,7 @@ IceInternal::Connection::registerWithPool()
 	}
 	else
 	{
-	    if (!_clientThreadPool)
+	    if(!_clientThreadPool)
 	    {
 		_clientThreadPool = _instance->clientThreadPool();
 		assert(_clientThreadPool);
@@ -1003,9 +1003,9 @@ IceInternal::Connection::registerWithPool()
 void
 IceInternal::Connection::unregisterWithPool()
 {
-    if (_registeredWithPool)
+    if(_registeredWithPool)
     {
-	if (_adapter)
+	if(_adapter)
 	{
 	    assert(_serverThreadPool);
 	    _serverThreadPool->unregister(_transceiver->fd());
@@ -1034,7 +1034,7 @@ IceInternal::Connection::compress(BasicStream& uncompressed, BasicStream& compre
     int bzError = BZ2_bzBuffToBuffCompress(&compressed.b[0] + headerSize + sizeof(Int), &compressedLen,
 					   &uncompressed.b[0] + headerSize, uncompressedLen,
 					   1, 0, 0);
-    if (bzError != BZ_OK)
+    if(bzError != BZ_OK)
     {
 	throw CompressionException(__FILE__, __LINE__);
     }
@@ -1069,7 +1069,7 @@ IceInternal::Connection::uncompress(BasicStream& compressed, BasicStream& uncomp
     Int uncompressedSize;
     compressed.i = compressed.b.begin() + headerSize;
     compressed.read(uncompressedSize);
-    if (uncompressedSize <= headerSize)
+    if(uncompressedSize <= headerSize)
     {
 	throw IllegalMessageSizeException(__FILE__, __LINE__);
     }
@@ -1082,7 +1082,7 @@ IceInternal::Connection::uncompress(BasicStream& compressed, BasicStream& uncomp
 					     &compressed.b[0] + headerSize + sizeof(Int),
 					     compressedLen,
 					     0, 0);
-    if (bzError != BZ_OK)
+    if(bzError != BZ_OK)
     {
 	throw CompressionException(__FILE__, __LINE__);
     }

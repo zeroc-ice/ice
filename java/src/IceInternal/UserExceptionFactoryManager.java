@@ -41,7 +41,7 @@ public final class UserExceptionFactoryManager
     destroy()
     {
         java.util.Iterator i = _factoryMap.values().iterator();
-        while (i.hasNext())
+        while(i.hasNext())
         {
             Ice.UserExceptionFactory factory =
                 (Ice.UserExceptionFactory)i.next();

@@ -292,7 +292,7 @@ Cond::waitImpl(const M& mutex) const
     int rc = pthread_cond_wait(&_cond, state.mutex);
     mutex.lock(state);
     
-    if (rc != 0)
+    if(rc != 0)
     {
 	throw SyscallException(strerror(rc), __FILE__, __LINE__);
     }
@@ -313,13 +313,13 @@ Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
     int rc = pthread_cond_timedwait(&_cond, state.mutex, &ts);
     mutex.lock(state);
     
-    if (rc != 0)
+    if(rc != 0)
     {
 	//
 	// pthread_cond_timedwait returns ETIMEOUT in the event of a
 	// timeout.
 	//
-	if (rc != ETIMEDOUT)
+	if(rc != ETIMEDOUT)
 	{
 	    throw SyscallException(strerror(rc), __FILE__, __LINE__);
 	}

@@ -127,7 +127,7 @@ void
 Ice::SystemException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    if (error != 0)
+    if(error != 0)
     {
         out << ":\nsystem exception: " << errorToString(error);
     }
@@ -152,7 +152,7 @@ Ice::ConnectionLostException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nconnection lost: ";
-    if (error == 0)
+    if(error == 0)
     {
 	out << "recv() returned zero";
     }
@@ -328,7 +328,7 @@ Ice::PluginInitializationException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nplug-in initialization failed";
-    if (!reason.empty())
+    if(!reason.empty())
     {
         out << ": " << reason;
     }

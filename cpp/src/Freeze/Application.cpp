@@ -53,7 +53,7 @@ Freeze::Application::run(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (dbEnv)
+    if(dbEnv)
     {
 	try
 	{

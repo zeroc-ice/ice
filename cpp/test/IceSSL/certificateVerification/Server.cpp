@@ -153,7 +153,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     sslPlugin->addTrustedCertificate(IceSSL::Server, trustedCertificate);
     sslPlugin->setRSAKeys(IceSSL::Server, serverKey, serverCertificate);
 
-    if (properties->getProperty("IceSSL.Server.CertificateVerifier") == "singleCert")
+    if(properties->getProperty("IceSSL.Server.CertificateVerifier") == "singleCert")
     {
         IceSSL::CertificateVerifierPtr certVerifier = sslPlugin->getSingleCertVerifier(trustedCertificate);
         sslPlugin->setCertificateVerifier(IceSSL::Server, certVerifier);
@@ -189,7 +189,7 @@ main(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (communicator)
+    if(communicator)
     {
 	try
 	{

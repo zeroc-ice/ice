@@ -40,7 +40,7 @@ public final class Outgoing
     public void
     destroy()
     {
-        if (_state == StateUnsent &&
+        if(_state == StateUnsent &&
             (_reference.mode == Reference.ModeBatchOneway ||
              _reference.mode == Reference.ModeBatchDatagram))
         {
@@ -58,7 +58,7 @@ public final class Outgoing
     {
         _os.endWriteEncaps();
 
-        switch (_reference.mode)
+        switch(_reference.mode)
         {
             case Reference.ModeTwoway:
             {
@@ -70,14 +70,14 @@ public final class Outgoing
                     _state = StateInProgress;
 
                     int timeout = _connection.timeout();
-                    while (_state == StateInProgress)
+                    while(_state == StateInProgress)
                     {
                         try
                         {
-                            if (timeout >= 0)
+                            if(timeout >= 0)
                             {
                                 wait(timeout);
-                                if (_state == StateInProgress)
+                                if(_state == StateInProgress)
                                 {
                                     timedOut = true;
                                     _state = StateLocalException;
@@ -95,7 +95,7 @@ public final class Outgoing
                     }
                 }
 
-                if (timedOut)
+                if(timedOut)
                 {
                     //
                     // Must be called outside the synchronization of
@@ -104,7 +104,7 @@ public final class Outgoing
                     _connection.exception(_exception);
                 }
 
-                if (_exception != null)
+                if(_exception != null)
                 {
                     //      
                     // A CloseConnectionException indicates graceful
@@ -114,7 +114,7 @@ public final class Outgoing
                     // guarantees that all outstanding requests can safely
                     // be repeated.
                     //
-                    if (_exception instanceof Ice.CloseConnectionException)
+                    if(_exception instanceof Ice.CloseConnectionException)
                     {
                         throw _exception;
                     }
@@ -124,7 +124,7 @@ public final class Outgoing
                     // the exception's stack trace to reflect the calling
                     // thread.
                     //
-                    if (_fillStackTrace)
+                    if(_fillStackTrace)
                     {
                         _exception.fillInStackTrace();
                     }
@@ -137,12 +137,12 @@ public final class Outgoing
                     throw new NonRepeatable(_exception);
                 }
 
-                if (_state == StateUserException)
+                if(_state == StateUserException)
                 {
                     return false;
                 }
 
-                if (_state == StateLocationForward)
+                if(_state == StateLocationForward)
                 {
                     Ice.ObjectPrx p = _is.readProxy();
                     throw new Ice.LocationForward(p);
@@ -183,11 +183,11 @@ public final class Outgoing
     public synchronized void
     finished(BasicStream is)
     {
-        if (_state == StateInProgress)
+        if(_state == StateInProgress)
         {
             _is.swap(is);
             byte status = _is.readByte();
-            switch ((int)status)
+            switch((int)status)
             {
                 case DispatchStatus._DispatchOK:
                 {
@@ -289,7 +289,7 @@ public final class Outgoing
     public synchronized void
     finished(Ice.LocalException ex)
     {
-        if (_state == StateInProgress)
+        if(_state == StateInProgress)
         {
             _state = StateLocalException;
             _exception = ex;
@@ -312,7 +312,7 @@ public final class Outgoing
     private void
     writeHeader(String operation, boolean nonmutating, java.util.Map context)
     {
-        switch (_reference.mode)
+        switch(_reference.mode)
         {
             case Reference.ModeTwoway:
             case Reference.ModeOneway:
@@ -334,7 +334,7 @@ public final class Outgoing
         _os.writeString(_reference.facet);
         _os.writeString(operation);
         _os.writeBool(nonmutating);
-        if (context == null)
+        if(context == null)
         {
             _os.writeSize(0);
         }
@@ -342,10 +342,10 @@ public final class Outgoing
         {
             final int sz = context.size();
             _os.writeSize(sz);
-            if (sz > 0)
+            if(sz > 0)
             {
                 java.util.Iterator i = context.entrySet().iterator();
-                while (i.hasNext())
+                while(i.hasNext())
                 {
                     java.util.Map.Entry entry = (java.util.Map.Entry)i.next();
                     _os.writeString((String)entry.getKey());

@@ -23,7 +23,7 @@ using namespace IceInternal;
 TransceiverPtr
 IceInternal::TcpConnector::connect(int timeout)
 {
-    if (_traceLevels->network >= 2)
+    if(_traceLevels->network >= 2)
     {
 	Trace out(_logger, _traceLevels->networkCat);
 	out << "trying to establish tcp connection to " << toString();
@@ -33,7 +33,7 @@ IceInternal::TcpConnector::connect(int timeout)
     setBlock(fd, false);
     doConnect(fd, _addr, timeout);
 
-    if (_traceLevels->network >= 1)
+    if(_traceLevels->network >= 1)
     {
 	Trace out(_logger, _traceLevels->networkCat);
 	out << "tcp connection established\n" << fdToString(fd);

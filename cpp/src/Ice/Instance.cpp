@@ -168,9 +168,9 @@ IceInternal::Instance::clientThreadPool()
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if (_communicator) // Not destroyed?
+    if(_communicator) // Not destroyed?
     {
-	if (!_clientThreadPool) // Lazy initialization.
+	if(!_clientThreadPool) // Lazy initialization.
 	{
 	    _clientThreadPool = new ThreadPool(this, false);
 	}
@@ -184,9 +184,9 @@ IceInternal::Instance::serverThreadPool()
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if (_communicator) // Not destroyed?
+    if(_communicator) // Not destroyed?
     {
-	if (!_serverThreadPool) // Lazy initialization.
+	if(!_serverThreadPool) // Lazy initialization.
 	{
 	    _serverThreadPool = new ThreadPool(this, true);
 	}
@@ -228,14 +228,14 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
     {
 	__setNoDelete(true);
 
-	if (_globalStateCounter == 1) // Only on first call
+	if(_globalStateCounter == 1) // Only on first call
 	{
 	    srand(static_cast<timeval>(IceUtil::Time::now()).tv_usec);
 	    
 #ifdef _WIN32
 	    WORD version = MAKEWORD(1, 1);
 	    WSADATA data;
-	    if (WSAStartup(version, &data) != 0)
+	    if(WSAStartup(version, &data) != 0)
 	    {
 		_globalStateMutex->unlock();
 		SocketException ex(__FILE__, __LINE__);
@@ -252,24 +252,24 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 	    sigaction(SIGPIPE, &action, 0);
 
 	    string newUser = _properties->getProperty("Ice.ChangeUser");
-	    if (!newUser.empty())
+	    if(!newUser.empty())
 	    {
 		struct passwd* pw = getpwnam(newUser.c_str());
-		if (!pw)
+		if(!pw)
 		{
 		    SystemException ex(__FILE__, __LINE__);
 		    ex.error = getSystemErrno();
 		    throw ex;
 		}
 		
-		if (setgid(pw->pw_gid) == -1)
+		if(setgid(pw->pw_gid) == -1)
 		{
 		    SystemException ex(__FILE__, __LINE__);
 		    ex.error = getSystemErrno();
 		    throw ex;
 		}
 		
-		if (setuid(pw->pw_uid) == -1)
+		if(setuid(pw->pw_uid) == -1)
 		{
 		    SystemException ex(__FILE__, __LINE__);
 		    ex.error = getSystemErrno();
@@ -277,10 +277,10 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 		}
 	    }
 	    
-	    if (_properties->getPropertyAsInt("Ice.UseSyslog") > 0)
+	    if(_properties->getPropertyAsInt("Ice.UseSyslog") > 0)
 	    {
 		_identForOpenlog = _properties->getProperty("Ice.ProgramName");
-		if (_identForOpenlog.empty())
+		if(_identForOpenlog.empty())
 		{
 		    _identForOpenlog = "<Unknown Ice Program>";
 		}
@@ -290,7 +290,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 	}
 
 #ifndef _WIN32
-	if (_properties->getPropertyAsInt("Ice.UseSyslog") > 0)
+	if(_properties->getPropertyAsInt("Ice.UseSyslog") > 0)
 	{
 	    _logger = new SysLoggerI;
 	}
@@ -320,7 +320,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 
         _pluginManager = new PluginManagerI(this);
 
-	if (!_defaultsAndOverrides->defaultRouter.empty())
+	if(!_defaultsAndOverrides->defaultRouter.empty())
 	{
 	    _referenceFactory->setDefaultRouter(
 		RouterPrx::uncheckedCast(_proxyFactory->stringToProxy(_defaultsAndOverrides->defaultRouter)));
@@ -360,13 +360,13 @@ IceInternal::Instance::~Instance()
     assert(!_endpointFactoryManager);
     assert(!_pluginManager);
 
-    if (_globalStateMutex != 0)
+    if(_globalStateMutex != 0)
     {
 	_globalStateMutex->lock();
     }
 
     assert(_globalStateCounter > 0);
-    if (--_globalStateCounter == 0) // Only on last call
+    if(--_globalStateCounter == 0) // Only on last call
     {
 #ifdef _WIN32
 	WSACleanup();
@@ -381,7 +381,7 @@ IceInternal::Instance::~Instance()
 #endif
 	
 #ifndef _WIN32
-	if (!_identForOpenlog.empty())
+	if(!_identForOpenlog.empty())
 	{
 	    closelog();
 	    _identForOpenlog.clear();
@@ -389,7 +389,7 @@ IceInternal::Instance::~Instance()
 #endif
     }
     
-    if (_globalStateMutex != 0)
+    if(_globalStateMutex != 0)
     {
 	_globalStateMutex->unlock();
     }
@@ -415,12 +415,12 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     // threads, etc. Perhaps we need a two-stage plug-in
     // initialization?
     //
-    if (_properties->getPropertyAsInt("Ice.Daemon") > 0)
+    if(_properties->getPropertyAsInt("Ice.Daemon") > 0)
     {
         int noclose = _properties->getPropertyAsInt("Ice.DaemonNoClose");
         int nochdir = _properties->getPropertyAsInt("Ice.DaemonNoChdir");
         
-        if (daemon(nochdir, noclose) == -1)
+        if(daemon(nochdir, noclose) == -1)
         {
             SystemException ex(__FILE__, __LINE__);
             ex.error = getSystemErrno();
@@ -434,7 +434,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     // forks. Does not work together with Ice.Daemon if
     // Ice.DaemonNoClose is not set.
     //
-    if (_properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
+    if(_properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
     {
 #ifdef _WIN32
         cout << _getpid() << endl;
@@ -469,58 +469,58 @@ IceInternal::Instance::destroy()
 	// to avoid cyclic object dependencies.
 	//
 	
-	if (_communicator)
+	if(_communicator)
 	{
 	    // Don't destroy the communicator -- the communicator destroys
 	    // this object, not the other way.
 	    _communicator = 0;
 	}
 	
-	if (_objectAdapterFactory)
+	if(_objectAdapterFactory)
 	{
 	    // Don't shut down the object adapters -- the communicator
 	    // must do this before it destroys this object.
 	    _objectAdapterFactory = 0;
 	}
 	
-	if (_servantFactoryManager)
+	if(_servantFactoryManager)
 	{
 	    _servantFactoryManager->destroy();
 	    _servantFactoryManager = 0;
 	}
 	
-	if (_userExceptionFactoryManager)
+	if(_userExceptionFactoryManager)
 	{
 	    _userExceptionFactoryManager->destroy();
 	    _userExceptionFactoryManager = 0;
 	}
 	
-	if (_referenceFactory)
+	if(_referenceFactory)
 	{
 	    _referenceFactory->destroy();
 	    _referenceFactory = 0;
 	}
 	
-	if (_proxyFactory)
+	if(_proxyFactory)
 	{
 	    // No destroy function defined
 	    // _proxyFactory->destroy();
 	    _proxyFactory = 0;
 	}
 	
-	if (_outgoingConnectionFactory)
+	if(_outgoingConnectionFactory)
 	{
 	    _outgoingConnectionFactory->destroy();
 	    _outgoingConnectionFactory = 0;
 	}
 
-	if (_routerManager)
+	if(_routerManager)
 	{
 	    _routerManager->destroy();
 	    _routerManager = 0;
 	}
 
-	if (_endpointFactoryManager)
+	if(_endpointFactoryManager)
 	{
 	    _endpointFactoryManager->destroy();
 	    _endpointFactoryManager = 0;
@@ -542,21 +542,21 @@ IceInternal::Instance::destroy()
         _pluginManager = 0;
     }
     
-    if (clientThreadPool)
+    if(clientThreadPool)
     {
 	clientThreadPool->waitUntilFinished();
 	clientThreadPool->destroy();
 	clientThreadPool->joinWithAllThreads();
     }
 
-    if (serverThreadPool)
+    if(serverThreadPool)
     {
 	serverThreadPool->waitUntilFinished();
 	serverThreadPool->destroy();
 	serverThreadPool->joinWithAllThreads();
     }
 
-    if (pluginManager)
+    if(pluginManager)
     {
         pluginManager->destroy();
     }

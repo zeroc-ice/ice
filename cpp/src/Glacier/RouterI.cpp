@@ -51,7 +51,7 @@ Glacier::RouterI::destroy()
     _serverAdapter = 0;
     _logger = 0;
     _routingTable = 0;
-    for (vector<SessionPrx>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
+    for(vector<SessionPrx>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
     {
 	try
 	{
@@ -78,7 +78,7 @@ Glacier::RouterI::getServerProxy(const Current&)
 {
     assert(_clientAdapter); // Destroyed?
 
-    if (_serverAdapter)
+    if(_serverAdapter)
     {
 	return _serverAdapter->createProxy(stringToIdentity("dummy"));
     }
@@ -93,7 +93,7 @@ Glacier::RouterI::addProxy(const ObjectPrx& proxy, const Current&)
 {
     assert(_clientAdapter); // Destroyed?
 
-    if (_routingTableTraceLevel)
+    if(_routingTableTraceLevel)
     {
 	Trace out(_logger, "Glacier");
 	out << "adding proxy to routing table:\n" << _clientAdapter->getCommunicator()->proxyToString(proxy);
@@ -117,7 +117,7 @@ Glacier::RouterI::createSession(const Current&)
     assert(_clientAdapter); // Destroyed?
 
     IceUtil::Mutex::Lock lock(_sessionMutex);
-    if (!_sessionManager)
+    if(!_sessionManager)
     {
 	throw NoSessionManagerException();
     }

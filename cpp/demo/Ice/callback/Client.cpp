@@ -52,7 +52,7 @@ CallbackClient::run(int argc, char* argv[])
     PropertiesPtr properties = communicator()->getProperties();
     const char* refProperty = "Callback.Callback";
     std::string ref = properties->getProperty(refProperty);
-    if (ref.empty())
+    if(ref.empty())
     {
 	cerr << appName() << ": property `" << refProperty << "' not set" << endl;
 	return EXIT_FAILURE;
@@ -60,7 +60,7 @@ CallbackClient::run(int argc, char* argv[])
 
     ObjectPrx base = communicator()->stringToProxy(ref);
     CallbackPrx twoway = CallbackPrx::checkedCast(base->ice_twoway()->ice_timeout(-1)->ice_secure(false));
-    if (!twoway)
+    if(!twoway)
     {
 	cerr << appName() << ": invalid object reference" << endl;
 	return EXIT_FAILURE;
@@ -94,54 +94,54 @@ CallbackClient::run(int argc, char* argv[])
 	{
 	    cout << "==> ";
 	    cin >> c;
-	    if (c == 't')
+	    if(c == 't')
 	    {
 		Context context;
 		context["_fwd"] = "t" + secureStr;
 		twoway->initiateCallback(twowayR, context);
 	    }
-	    else if (c == 'o')
+	    else if(c == 'o')
 	    {
 		Context context;
 		context["_fwd"] = "o" + secureStr;
-		if (!overwrite.empty())
+		if(!overwrite.empty())
 		{
 		    context["ovrd"] = overwrite;
 		}
 		oneway->initiateCallback(onewayR, context);
 	    }
-	    else if (c == 'O')
+	    else if(c == 'O')
 	    {
 		Context context;
 		context["_fwd"] = "O" + secureStr;
-		if (!overwrite.empty())
+		if(!overwrite.empty())
 		{
 		    context["ovrd"] = overwrite;
 		}
 		batchOneway->initiateCallback(onewayR, context);
 	    }
-	    else if (c == 'd')
+	    else if(c == 'd')
 	    {
 		Context context;
 		context["_fwd"] = "d" + secureStr;
 		datagram->initiateCallback(datagramR, context);
 	    }
-	    else if (c == 'D')
+	    else if(c == 'D')
 	    {
 		Context context;
 		context["_fwd"] = "D" + secureStr;
-		if (!overwrite.empty())
+		if(!overwrite.empty())
 		{
 		    context["ovrd"] = overwrite;
 		}
 		batchDatagram->initiateCallback(datagramR, context);
 	    }
-	    else if (c == 'f')
+	    else if(c == 'f')
 	    {
 		batchOneway->ice_flush();
 		batchDatagram->ice_flush();
 	    }
-	    else if (c == 'S')
+	    else if(c == 'S')
 	    {
 		secure = !secure;
 		secureStr = secure ? "s" : "";
@@ -158,7 +158,7 @@ CallbackClient::run(int argc, char* argv[])
 		datagramR = CallbackReceiverPrx::uncheckedCast(datagramR->ice_secure(secure));
 //		batchDatagramR = CallbackReceiverPrx::uncheckedCast(batchDatagramR->ice_secure(secure));
 		
-		if (secure)
+		if(secure)
 		{
 		    cout << "secure mode is now on" << endl;
 		}
@@ -167,9 +167,9 @@ CallbackClient::run(int argc, char* argv[])
 		    cout << "secure mode is now off" << endl;
 		}
 	    }
-	    else if (c == 'v')
+	    else if(c == 'v')
 	    {
-		if (overwrite.empty())
+		if(overwrite.empty())
                 {
 		    overwrite = "some_value";
 		    cout << "overwrite context field is now `" << overwrite << "'" << endl;
@@ -180,15 +180,15 @@ CallbackClient::run(int argc, char* argv[])
 		    cout << "overwrite context field is empty" << endl;
 		}
 	    }
-	    else if (c == 's')
+	    else if(c == 's')
 	    {
 		twoway->shutdown();
 	    }
-	    else if (c == 'x')
+	    else if(c == 'x')
 	    {
 		// Nothing to do
 	    }
-	    else if (c == '?')
+	    else if(c == '?')
 	    {
 		menu();
 	    }
@@ -203,7 +203,7 @@ CallbackClient::run(int argc, char* argv[])
 	    cerr << ex << endl;
 	}
     }
-    while (cin.good() && c != 'x');
+    while(cin.good() && c != 'x');
 
     return EXIT_SUCCESS;
 }

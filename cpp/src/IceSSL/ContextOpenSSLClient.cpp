@@ -30,7 +30,7 @@ IceSSL::OpenSSL::ClientContext::configure(const GeneralConfig& generalConfig,
 
     loadCertificateAuthority(certificateAuthority);
 
-    if (_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
+    if(_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
     {
         ostringstream s;
 
@@ -55,7 +55,7 @@ IceSSL::OpenSSL::ClientContext::configure(const GeneralConfig& generalConfig,
 IceSSL::ConnectionPtr
 IceSSL::OpenSSL::ClientContext::createConnection(int socket, const PluginBaseIPtr& plugin)
 {
-    if (_sslContext == 0)
+    if(_sslContext == 0)
     {
         IceSSL::OpenSSL::ContextNotConfiguredException contextEx(__FILE__, __LINE__);
 

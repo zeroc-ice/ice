@@ -22,30 +22,30 @@ public final class Direct
         {
             _servant = _adapter.identityToServant(_current.identity);
 
-            if (_servant == null && _current.identity.category.length() > 0)
+            if(_servant == null && _current.identity.category.length() > 0)
             {
                 _locator = _adapter.findServantLocator(_current.identity.category);
-                if (_locator != null)
+                if(_locator != null)
                 {
                     _cookie = new Ice.LocalObjectHolder(); // Lazy creation
                     _servant = _locator.locate(_adapter, _current, _cookie);
                 }
             }
 
-            if (_servant == null)
+            if(_servant == null)
             {
                 _locator = _adapter.findServantLocator("");
-                if (_locator != null)
+                if(_locator != null)
                 {
                     _cookie = new Ice.LocalObjectHolder(); // Lazy creation
                     _servant = _locator.locate(_adapter, _current, _cookie);
                 }
             }
 
-            if (_servant != null && _current.facet.length() > 0)
+            if(_servant != null && _current.facet.length() > 0)
             {
                 _facetServant = _servant.ice_findFacet(_current.facet);
-                if (_facetServant == null)
+                if(_facetServant == null)
                 {
 		    Ice.FacetNotExistException ex = new Ice.FacetNotExistException();
 		    ex.facet = _current.facet;
@@ -55,14 +55,14 @@ public final class Direct
         }
         catch (RuntimeException ex)
         {
-            if (_locator != null && _servant != null)
+            if(_locator != null && _servant != null)
             {
                 _locator.finished(_adapter, _current, _servant, _cookie.value);
             }
             throw ex;
         }
 
-        if (_servant == null)
+        if(_servant == null)
         {
             Ice.ObjectNotExistException ex = new Ice.ObjectNotExistException();
 	    ex.identity = _current.identity;
@@ -73,7 +73,7 @@ public final class Direct
     public void
     destroy()
     {
-        if (_locator != null && _servant != null)
+        if(_locator != null && _servant != null)
         {
             _locator.finished(_adapter, _current, _servant, _cookie.value);
         }
@@ -82,7 +82,7 @@ public final class Direct
     public Ice.Object
     facetServant()
     {
-        if (_facetServant != null)
+        if(_facetServant != null)
         {
             return _facetServant;
         }

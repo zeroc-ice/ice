@@ -27,10 +27,10 @@ public:
     virtual void
     run()
     {
-	while (1)
+	while(1)
 	{
 	    string item = nextItem();
-	    if (item == "destroy")
+	    if(item == "destroy")
 	    {
 		break;
 	    }
@@ -44,7 +44,7 @@ public:
     add(const string& item)
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-	if (_queue.empty())
+	if(_queue.empty())
 	{
 	    _monitor.notify();
 	}
@@ -57,7 +57,7 @@ private:
     nextItem()
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-	while (_queue.empty())
+	while(_queue.empty())
 	{
 	    _monitor.wait();
 	}

@@ -15,7 +15,7 @@ final class TcpConnector implements Connector
     public Transceiver
     connect(int timeout)
     {
-        if (_traceLevels.network >= 2)
+        if(_traceLevels.network >= 2)
         {
             String s = "trying to establish tcp connection to " + toString();
             _logger.trace(_traceLevels.networkCat, s);
@@ -25,7 +25,7 @@ final class TcpConnector implements Connector
         Network.setBlock(fd, false);
         Network.doConnect(fd, _addr, timeout);
 
-        if (_traceLevels.network >= 1)
+        if(_traceLevels.network >= 1)
         {
             String s = "tcp connection established\n" + Network.fdToString(fd);
             _logger.trace(_traceLevels.networkCat, s);

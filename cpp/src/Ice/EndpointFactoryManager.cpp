@@ -36,9 +36,9 @@ IceInternal::EndpointFactoryManager::add(const EndpointFactoryPtr& factory)
     //
     // TODO: Optimize with a map?
     //
-    for (vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+    for(vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
     {
-        if (_factories[i]->type() == factory->type())
+        if(_factories[i]->type() == factory->type())
         {
             assert(false); // TODO: Exception?
         }
@@ -54,9 +54,9 @@ IceInternal::EndpointFactoryManager::get(Short type) const
     //
     // TODO: Optimize with a map?
     //
-    for (vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+    for(vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
     {
-        if (_factories[i]->type() == type)
+        if(_factories[i]->type() == type)
         {
             return _factories[i];
         }
@@ -72,20 +72,20 @@ IceInternal::EndpointFactoryManager::create(const string& str) const
     static const string delim = " \t\n\r";
 
     string::size_type beg = str.find_first_not_of(delim);
-    if (beg == string::npos)
+    if(beg == string::npos)
     {
         throw EndpointParseException(__FILE__, __LINE__);
     }
 
     string::size_type end = str.find_first_of(delim, beg);
-    if (end == string::npos)
+    if(end == string::npos)
     {
         end = str.length();
     }
 
     string protocol = str.substr(beg, end - beg);
 
-    if (protocol == "default")
+    if(protocol == "default")
     {
         protocol = _instance->defaultsAndOverrides()->defaultProtocol;
     }
@@ -93,9 +93,9 @@ IceInternal::EndpointFactoryManager::create(const string& str) const
     //
     // TODO: Optimize with a map?
     //
-    for (vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+    for(vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
     {
-        if (_factories[i]->protocol() == protocol)
+        if(_factories[i]->protocol() == protocol)
         {
             return _factories[i]->create(str.substr(end));
         }
@@ -115,9 +115,9 @@ IceInternal::EndpointFactoryManager::read(BasicStream* s) const
     //
     // TODO: Optimize with a map?
     //
-    for (vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+    for(vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
     {
-        if (_factories[i]->type() == type)
+        if(_factories[i]->type() == type)
         {
             return _factories[i]->read(s);
         }
@@ -129,7 +129,7 @@ IceInternal::EndpointFactoryManager::read(BasicStream* s) const
 void
 IceInternal::EndpointFactoryManager::destroy()
 {
-    for (vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+    for(vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
     {
         _factories[i]->destroy();
     }

@@ -71,7 +71,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     //
     // Break cyclic dependencies
     //
-    if (!collocated)
+    if(!collocated)
     {
 	BPtr::dynamicCast(b1->a)->a = 0;
 	BPtr::dynamicCast(b1->a)->b = 0;
@@ -128,7 +128,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     //
     // Break cyclic dependencies
     //
-    if (!collocated)
+    if(!collocated)
     {
 	b1->a = 0;
 	b1->b = 0;
@@ -184,7 +184,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     //
     // Break cyclic dependencies
     //
-    if (!collocated)
+    if(!collocated)
     {
 	BPtr::dynamicCast(fb1->a)->a = 0;
 	BPtr::dynamicCast(fb1->a)->b = 0;
@@ -255,7 +255,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     //
     // Break cyclic dependencies
     //
-    if (!collocated)
+    if(!collocated)
     {
 	fb1->a = 0;
 	fb1->b = 0;

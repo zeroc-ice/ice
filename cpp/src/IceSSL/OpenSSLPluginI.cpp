@@ -110,7 +110,7 @@ SslLockKeeper lockKeeper;
 
 void IceSSL::lockingCallback(int mode, int type, const char *file, int line)
 {
-    if (mode & CRYPTO_LOCK)
+    if(mode & CRYPTO_LOCK)
     {
         lockKeeper.sslLocks[type].lock();
     }
@@ -138,7 +138,7 @@ IceSSL::OpenSSL::PluginI::createConnection(ContextType connectionType, int socke
 {
     IceUtil::RecMutex::Lock sync(_configMutex);
 
-    if (connectionType == ClientServer)
+    if(connectionType == ClientServer)
     {
         UnsupportedContextException unsupportedException(__FILE__, __LINE__);
 
@@ -148,18 +148,18 @@ IceSSL::OpenSSL::PluginI::createConnection(ContextType connectionType, int socke
     }
 
     // Configure the context if need be.
-    if (!isConfigured(connectionType))
+    if(!isConfigured(connectionType))
     {
         configure(connectionType);
     }
 
     IceSSL::ConnectionPtr connection;
 
-    if (connectionType == Client)
+    if(connectionType == Client)
     {
         connection = _clientContext.createConnection(socket, this);
     }
-    else if (connectionType == Server)
+    else if(connectionType == Server)
     {
         connection = _serverContext.createConnection(socket, this);
     }
@@ -174,7 +174,7 @@ IceSSL::OpenSSL::PluginI::isConfigured(ContextType contextType)
 
     bool retCode = false;
 
-    switch (contextType)
+    switch(contextType)
     {
         case Client :
         {
@@ -207,15 +207,15 @@ IceSSL::OpenSSL::PluginI::configure()
     bool clientConfig = (clientConfigFile.empty() ? false : true);
     bool serverConfig = (serverConfigFile.empty() ? false : true);
 
-    if (clientConfig && serverConfig)
+    if(clientConfig && serverConfig)
     {
         configure(ClientServer);
     }
-    else if (clientConfig)
+    else if(clientConfig)
     {
         configure(Client);
     }
-    else if (serverConfig)
+    else if(serverConfig)
     {
         configure(Server);
     }
@@ -226,7 +226,7 @@ IceSSL::OpenSSL::PluginI::configure(ContextType contextType)
 {
     IceUtil::RecMutex::Lock sync(_configMutex);
 
-    switch (contextType)
+    switch(contextType)
     {
         case Client :
         {
@@ -252,7 +252,7 @@ IceSSL::OpenSSL::PluginI::configure(ContextType contextType)
             string serverCertPath   = _properties->getProperty("IceSSL.Server.CertPath");
 
             // Short cut, so that we only have to load the file once.
-            if ((clientConfigFile == serverConfigFile) && (clientCertPath == serverCertPath))
+            if((clientConfigFile == serverConfigFile) && (clientCertPath == serverCertPath))
             {
                 loadConfig(ClientServer, clientConfigFile, clientCertPath);
             }
@@ -271,13 +271,13 @@ IceSSL::OpenSSL::PluginI::loadConfig(ContextType contextType,
                                      const std::string& configFile,
                                      const std::string& certPath)
 {
-    if (configFile.empty())
+    if(configFile.empty())
     {
         ConfigurationLoadingException configEx(__FILE__, __LINE__);
 
         string contextString;
 
-        switch (contextType)
+        switch(contextType)
         {
             case Client :
             {
@@ -312,14 +312,14 @@ IceSSL::OpenSSL::PluginI::loadConfig(ContextType contextType,
     // Actually parse the file now.
     sslConfig.process();
 
-    if ((contextType == Client || contextType == ClientServer))
+    if((contextType == Client || contextType == ClientServer))
     {
         GeneralConfig clientGeneral;
         CertificateAuthority clientCertAuth;
         BaseCertificates clientBaseCerts;
 
         // Walk the parse tree, get the Client configuration.
-        if (sslConfig.loadClientConfig(clientGeneral, clientCertAuth, clientBaseCerts))
+        if(sslConfig.loadClientConfig(clientGeneral, clientCertAuth, clientBaseCerts))
         {
             initRandSystem(clientGeneral.getRandomBytesFiles());
 
@@ -327,7 +327,7 @@ IceSSL::OpenSSL::PluginI::loadConfig(ContextType contextType,
         }
     }
 
-    if ((contextType == Server || contextType == ClientServer))
+    if((contextType == Server || contextType == ClientServer))
     {
         GeneralConfig serverGeneral;
         CertificateAuthority serverCertAuth;
@@ -335,7 +335,7 @@ IceSSL::OpenSSL::PluginI::loadConfig(ContextType contextType,
         TempCertificates serverTempCerts;
 
         // Walk the parse tree, get the Server configuration.
-        if (sslConfig.loadServerConfig(serverGeneral, serverCertAuth, serverBaseCerts, serverTempCerts))
+        if(sslConfig.loadServerConfig(serverGeneral, serverCertAuth, serverBaseCerts, serverTempCerts))
         {
             initRandSystem(serverGeneral.getRandomBytesFiles());
 
@@ -343,7 +343,7 @@ IceSSL::OpenSSL::PluginI::loadConfig(ContextType contextType,
 
             _serverContext.configure(serverGeneral, serverCertAuth, serverBaseCerts);
 
-            if (_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
+            if(_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
             {
                 ostringstream s;
 
@@ -367,7 +367,7 @@ IceSSL::OpenSSL::PluginI::getRSAKey(int isExport, int keyLength)
     RSAMap::iterator retVal = _tempRSAKeys.find(keyLength);
 
     // Does the key already exist?
-    if (retVal != _tempRSAKeys.end())
+    if(retVal != _tempRSAKeys.end())
     {
         // Yes!  Use it.
         rsa_tmp = (*retVal).second->get();
@@ -379,7 +379,7 @@ IceSSL::OpenSSL::PluginI::getRSAKey(int isExport, int keyLength)
         const RSACertMap::iterator& it = _tempRSAFileMap.find(keyLength);
 
         // First we try to load a private and public key from specified files
-        if (it != _tempRSAFileMap.end())
+        if(it != _tempRSAFileMap.end())
         {
             CertificateDesc& rsaKeyCert = (*it).second;
 
@@ -390,16 +390,16 @@ IceSSL::OpenSSL::PluginI::getRSAKey(int isExport, int keyLength)
             RSA* rsaKey = 0;
             BIO* bio = 0;
 
-            if ((bio = BIO_new_file(pubCertFile.c_str(), "r")) != 0)
+            if((bio = BIO_new_file(pubCertFile.c_str(), "r")) != 0)
             {
                 BIOJanitor bioJanitor(bio);
 
                 rsaCert = PEM_read_bio_RSAPublicKey(bio, 0, 0, 0);
             }
 
-            if (rsaCert != 0)
+            if(rsaCert != 0)
             {
-                if ((bio = BIO_new_file(privKeyFile.c_str(), "r")) != 0)
+                if((bio = BIO_new_file(privKeyFile.c_str(), "r")) != 0)
                 {
                     BIOJanitor bioJanitor(bio);
 
@@ -411,13 +411,13 @@ IceSSL::OpenSSL::PluginI::getRSAKey(int isExport, int keyLength)
             // rsaCert. We check to ensure that both are not 0, because if either are,
             // one of the reads failed.
 
-            if ((rsaCert != 0) && (rsaKey != 0))
+            if((rsaCert != 0) && (rsaKey != 0))
             {
                 rsa_tmp = rsaCert;
             }
             else
             {
-                if (rsaCert != 0)
+                if(rsaCert != 0)
                 {
                     RSA_free(rsaCert);
                     rsaCert = 0;
@@ -426,17 +426,17 @@ IceSSL::OpenSSL::PluginI::getRSAKey(int isExport, int keyLength)
         }
 
         // Couldn't load file, last ditch effort - generate a key on the fly.
-        if (rsa_tmp == 0)
+        if(rsa_tmp == 0)
         {
             rsa_tmp = RSA_generate_key(keyLength, RSA_F4, 0, 0);
         }
 
         // Save in our temporary key cache.
-        if (rsa_tmp != 0)
+        if(rsa_tmp != 0)
         {
             _tempRSAKeys[keyLength] = new RSAPrivateKey(rsa_tmp);
         }
-        else if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
+        else if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         {
             ostringstream errorMsg;
 
@@ -460,7 +460,7 @@ IceSSL::OpenSSL::PluginI::getDHParams(int isExport, int keyLength)
     const DHMap::iterator& retVal = _tempDHKeys.find(keyLength);
 
     // Does the key already exist?
-    if (retVal != _tempDHKeys.end())
+    if(retVal != _tempDHKeys.end())
     {
         // Yes!  Use it.
         dh_tmp = (*retVal).second->get();
@@ -470,7 +470,7 @@ IceSSL::OpenSSL::PluginI::getDHParams(int isExport, int keyLength)
         const DHParamsMap::iterator& it = _tempDHParamsFileMap.find(keyLength);
 
         // First we try to load params from specified files
-        if (it != _tempDHParamsFileMap.end())
+        if(it != _tempDHParamsFileMap.end())
         {
             DiffieHellmanParamsFile& dhParamsFile = (*it).second;
 
@@ -480,9 +480,9 @@ IceSSL::OpenSSL::PluginI::getDHParams(int isExport, int keyLength)
         }
 
         // If that doesn't work, use a compiled-in group.
-        if (dh_tmp == 0)
+        if(dh_tmp == 0)
         {
-            switch (keyLength)
+            switch(keyLength)
             {
                 case 512 :
                 {
@@ -510,13 +510,13 @@ IceSSL::OpenSSL::PluginI::getDHParams(int isExport, int keyLength)
             }
         }
 
-        if (dh_tmp != 0)
+        if(dh_tmp != 0)
         {
             // Cache the dh params for quick lookup - no
             // extra processing required then.
             _tempDHKeys[keyLength] = new DHParams(dh_tmp);
         }
-        else if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
+        else if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         {
             ostringstream errorMsg;
 
@@ -539,18 +539,18 @@ IceSSL::OpenSSL::PluginI::setCertificateVerifier(ContextType contextType,
     IceSSL::OpenSSL::CertificateVerifierPtr castVerifier;
     castVerifier = IceSSL::OpenSSL::CertificateVerifierPtr::dynamicCast(verifier);
 
-    if (!castVerifier.get())
+    if(!castVerifier.get())
     {
         IceSSL::CertificateVerifierTypeException cvtEx(__FILE__, __LINE__);
         throw cvtEx;
     }
 
-    if (contextType == Client || contextType == ClientServer)
+    if(contextType == Client || contextType == ClientServer)
     {
         _clientContext.setCertificateVerifier(castVerifier);
     }
 
-    if (contextType == Server || contextType == ClientServer)
+    if(contextType == Server || contextType == ClientServer)
     {
         _serverContext.setCertificateVerifier(castVerifier);
     }
@@ -561,12 +561,12 @@ IceSSL::OpenSSL::PluginI::addTrustedCertificateBase64(ContextType contextType, c
 {
     IceUtil::RecMutex::Lock sync(_configMutex);
 
-    if (contextType == Client || contextType == ClientServer)
+    if(contextType == Client || contextType == ClientServer)
     {
         _clientContext.addTrustedCertificateBase64(certString);
     }
 
-    if (contextType == Server || contextType == ClientServer)
+    if(contextType == Server || contextType == ClientServer)
     {
         _serverContext.addTrustedCertificateBase64(certString);
     }
@@ -577,12 +577,12 @@ IceSSL::OpenSSL::PluginI::addTrustedCertificate(ContextType contextType, const I
 {
     IceUtil::RecMutex::Lock sync(_configMutex);
 
-    if (contextType == Client || contextType == ClientServer)
+    if(contextType == Client || contextType == ClientServer)
     {
         _clientContext.addTrustedCertificate(certSeq);
     }
 
-    if (contextType == Server || contextType == ClientServer)
+    if(contextType == Server || contextType == ClientServer)
     {
         _serverContext.addTrustedCertificate(certSeq);
     }
@@ -595,12 +595,12 @@ IceSSL::OpenSSL::PluginI::setRSAKeysBase64(ContextType contextType,
 {
     IceUtil::RecMutex::Lock sync(_configMutex);
 
-    if (contextType == Client || contextType == ClientServer)
+    if(contextType == Client || contextType == ClientServer)
     {
         _clientContext.setRSAKeysBase64(privateKey, publicKey);
     }
 
-    if (contextType == Server || contextType == ClientServer)
+    if(contextType == Server || contextType == ClientServer)
     {
         _serverContext.setRSAKeysBase64(privateKey, publicKey);
     }
@@ -613,12 +613,12 @@ IceSSL::OpenSSL::PluginI::setRSAKeys(ContextType contextType,
 {
     IceUtil::RecMutex::Lock sync(_configMutex);
 
-    if (contextType == Client || contextType == ClientServer)
+    if(contextType == Client || contextType == ClientServer)
     {
         _clientContext.setRSAKeys(privateKey, publicKey);
     }
 
-    if (contextType == Server || contextType == ClientServer)
+    if(contextType == Server || contextType == ClientServer)
     {
         _serverContext.setRSAKeys(privateKey, publicKey);
     }
@@ -675,7 +675,7 @@ IceSSL::OpenSSL::PluginI::seedRand()
     char buffer[1024];
     const char* file = RAND_file_name(buffer, sizeof(buffer));
 
-    if (file == 0)
+    if(file == 0)
     {
         return 0;
     }
@@ -686,7 +686,7 @@ IceSSL::OpenSSL::PluginI::seedRand()
 long
 IceSSL::OpenSSL::PluginI::loadRandFiles(const string& names)
 {
-    if (!names.empty())
+    if(!names.empty())
     {
         return 0;
     }
@@ -706,11 +706,11 @@ IceSSL::OpenSSL::PluginI::loadRandFiles(const string& names)
 
     char* token = strtok(namesString, seps);
 
-    while (token != 0)
+    while(token != 0)
     {
         egd = RAND_egd(token);
 
-        if (egd > 0)
+        if(egd > 0)
         {
             tot += egd;
         }
@@ -722,7 +722,7 @@ IceSSL::OpenSSL::PluginI::loadRandFiles(const string& names)
         token = strtok(0, seps);
     }
 
-    if (tot > 512)
+    if(tot > 512)
     {
         _randSeeded = 1;
     }
@@ -735,19 +735,19 @@ IceSSL::OpenSSL::PluginI::loadRandFiles(const string& names)
 void
 IceSSL::OpenSSL::PluginI::initRandSystem(const string& randBytesFiles)
 {
-    if (_randSeeded)
+    if(_randSeeded)
     {
         return;
     }
 
     long randBytesLoaded = seedRand();
 
-    if (!randBytesFiles.empty())
+    if(!randBytesFiles.empty())
     {
         randBytesLoaded += loadRandFiles(randBytesFiles);
     }
 
-    if (!randBytesLoaded && !RAND_status() && (_traceLevels->security >= IceSSL::SECURITY_WARNINGS))
+    if(!randBytesLoaded && !RAND_status() && (_traceLevels->security >= IceSSL::SECURITY_WARNINGS))
     {
         // In this case, there are two options open to us - specify a random data file using the
         // RANDFILE environment variable, or specify additional random data files in the
@@ -765,7 +765,7 @@ IceSSL::OpenSSL::PluginI::loadTempCerts(TempCertificates& tempCerts)
     RSAVector::iterator iRSA = tempCerts.getRSACerts().begin();
     RSAVector::iterator eRSA = tempCerts.getRSACerts().end();
 
-    while (iRSA != eRSA)
+    while(iRSA != eRSA)
     {
         _tempRSAFileMap[(*iRSA).getKeySize()] = *iRSA;
         iRSA++;
@@ -774,7 +774,7 @@ IceSSL::OpenSSL::PluginI::loadTempCerts(TempCertificates& tempCerts)
     DHVector::iterator iDHP = tempCerts.getDHParams().begin();
     DHVector::iterator eDHP = tempCerts.getDHParams().end();
 
-    while (iDHP != eDHP)
+    while(iDHP != eDHP)
     {
         _tempDHParamsFileMap[(*iDHP).getKeySize()] = *iDHP;
         iDHP++;

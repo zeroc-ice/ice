@@ -32,7 +32,7 @@ public:
     waitTrylock()
     {
 	Mutex::Lock lock(_trylockMutex);
-	while (!_trylock)
+	while(!_trylock)
 	{
 	    _trylockCond.wait(lock);
 	}
@@ -131,7 +131,7 @@ public:
     waitUnlock()
     {
 	Mutex::Lock lock(_unlockMutex);
-	while (!_unlock)
+	while(!_unlock)
 	{
 	    _unlockCond.wait(lock);
 	}
@@ -157,7 +157,7 @@ public:
     waitLock()
     {
 	Mutex::Lock lock(_lockMutex);
-	while (!_lock)
+	while(!_lock)
 	{
 	    _lockCond.wait(lock);
 	}
@@ -214,7 +214,7 @@ public:
     waitLock()
     {
 	Mutex::Lock lock(_lockMutex);
-	while (!_lock)
+	while(!_lock)
 	{
 	    _lockCond.wait(lock);
 	}

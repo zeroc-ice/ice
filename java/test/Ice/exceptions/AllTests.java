@@ -16,19 +16,19 @@ public class AllTests
         createAndThrow(String type)
             throws Ice.UserException
         {
-            if (type.equals("::A"))
+            if(type.equals("::A"))
             {
                 throw new A();
             }
-            else if (type.equals("::B"))
+            else if(type.equals("::B"))
             {
                 throw new B();
             }
-            else if (type.equals("::C"))
+            else if(type.equals("::C"))
             {
                 throw new C();
             }
-            else if (type.equals("::D"))
+            else if(type.equals("::D"))
             {
                 throw new D();
             }
@@ -45,7 +45,7 @@ public class AllTests
     private static void
     test(boolean b)
     {
-        if (!b)
+        if(!b)
         {
             throw new RuntimeException();
         }
@@ -180,7 +180,7 @@ public class AllTests
 
         System.out.println("ok");
 
-        if (!collocated) // If the server is collocated, exception factories are not needed.
+        if(!collocated) // If the server is collocated, exception factories are not needed.
         {
             //
             // NOTE: Factories will be dynamically installed in Java
@@ -296,7 +296,7 @@ public class AllTests
 
         System.out.println("ok");
 
-        if (thrower.supportsUndeclaredExceptions())
+        if(thrower.supportsUndeclaredExceptions())
         {
             System.out.print("catching unknown user exception... ");
             System.out.flush();

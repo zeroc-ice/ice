@@ -20,7 +20,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::PropertiesPtr properties = communicator->getProperties();
     const char* refProperty = "Value.Initial";
     std::string ref = properties->getProperty(refProperty);
-    if (ref.empty())
+    if(ref.empty())
     {
 	cerr << argv[0] << ": property `" << refProperty << "' not set" << endl;
 	return EXIT_FAILURE;
@@ -28,7 +28,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     InitialPrx initial = InitialPrx::checkedCast(base);
-    if (!initial)
+    if(!initial)
     {
 	cerr << argv[0] << ": invalid object reference" << endl;
 	return EXIT_FAILURE;
@@ -185,7 +185,7 @@ main(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (communicator)
+    if(communicator)
     {
 	try
 	{

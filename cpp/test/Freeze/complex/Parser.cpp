@@ -43,7 +43,7 @@ Parser::parse(const string& commands, bool debug)
     yyparse();
     parser = 0;
 
-    if (_errors)
+    if(_errors)
     {
 	return 0;
     }
@@ -67,7 +67,7 @@ Parser::error(const std::string& s)
 void
 Parser::getInput(char* buf, int& result, int maxSize)
 {
-    if (!_buf.empty())
+    if(!_buf.empty())
     {
 #if defined(_MSC_VER) && !defined(_STLP_MSVC)
 	// COMPILERBUG: Stupid Visual C++ defines min and max as macros

@@ -33,7 +33,7 @@ public class Client
         Ice.Properties properties = communicator.getProperties();
         final String refProperty = "Hello.Hello";
         String ref = properties.getProperty(refProperty);
-        if (ref.length() == 0)
+        if(ref.length() == 0)
         {
             System.err.println("property `" + refProperty + "' not set");
             return 1;
@@ -41,7 +41,7 @@ public class Client
 
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         HelloPrx twoway = HelloPrxHelper.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(false));
-        if (twoway == null)
+        if(twoway == null)
         {
             System.err.println("invalid object reference");
             return 1;
@@ -66,38 +66,38 @@ public class Client
                 System.out.print("==> ");
                 System.out.flush();
                 line = in.readLine();
-                if (line == null)
+                if(line == null)
                 {
                     break;
                 }
-                if (line.equals("t"))
+                if(line.equals("t"))
                 {
                     twoway.hello();
                 }
-                else if (line.equals("o"))
+                else if(line.equals("o"))
                 {
                     oneway.hello();
                 }
-                else if (line.equals("O"))
+                else if(line.equals("O"))
                 {
                     batchOneway.hello();
                 }
-                else if (line.equals("d"))
+                else if(line.equals("d"))
                 {
                     datagram.hello();
                 }
-                else if (line.equals("D"))
+                else if(line.equals("D"))
                 {
                     batchDatagram.hello();
                 }
-                else if (line.equals("f"))
+                else if(line.equals("f"))
                 {
                     batchOneway.ice_flush();
                     batchDatagram.ice_flush();
                 }
-                else if (line.equals("T"))
+                else if(line.equals("T"))
                 {
-                    if (timeout == -1)
+                    if(timeout == -1)
                     {
                         timeout = 2000;
                     }
@@ -110,7 +110,7 @@ public class Client
                     oneway = HelloPrxHelper.uncheckedCast(oneway.ice_timeout(timeout));
                     batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_timeout(timeout));
 
-                    if (timeout == -1)
+                    if(timeout == -1)
                     {
                         System.out.println("timeout is now switched off");
                     }
@@ -119,7 +119,7 @@ public class Client
                         System.out.println("timeout is now set to 2000ms");
                     }
                 }
-                else if (line.equals("S"))
+                else if(line.equals("S"))
                 {
                     secure = !secure;
 
@@ -129,7 +129,7 @@ public class Client
                     datagram = HelloPrxHelper.uncheckedCast(datagram.ice_secure(secure));
                     batchDatagram = HelloPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
 
-                    if (secure)
+                    if(secure)
                     {
                         System.out.println("secure mode is now on");
                     }
@@ -138,11 +138,11 @@ public class Client
                         System.out.println("secure mode is now off");
                     }
                 }
-                else if (line.equals("x"))
+                else if(line.equals("x"))
                 {
                     // Nothing to do
                 }
-                else if (line.equals("?"))
+                else if(line.equals("?"))
                 {
                     menu();
                 }
@@ -161,7 +161,7 @@ public class Client
                 ex.printStackTrace();
             }
         }
-        while (!line.equals("x"));
+        while(!line.equals("x"));
 
         return 0;
     }
@@ -185,7 +185,7 @@ public class Client
             status = 1;
         }
 
-        if (communicator != null)
+        if(communicator != null)
         {
             try
             {

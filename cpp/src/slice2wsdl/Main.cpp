@@ -40,58 +40,58 @@ main(int argc, char* argv[])
     vector<string> includePaths;
 
     int idx = 1;
-    while (idx < argc)
+    while(idx < argc)
     {
-	if (strncmp(argv[idx], "-I", 2) == 0)
+	if(strncmp(argv[idx], "-I", 2) == 0)
 	{
 	    cpp += ' ';
 	    cpp += argv[idx];
 
 	    string path = argv[idx] + 2;
-	    if (path.length())
+	    if(path.length())
 	    {
 		includePaths.push_back(path);
 	    }
 
-	    for (int i = idx ; i + 1 < argc ; ++i)
+	    for(int i = idx ; i + 1 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 1];
 	    }
 	    --argc;
 	}
-	else if (strncmp(argv[idx], "-D", 2) == 0 || strncmp(argv[idx], "-U", 2) == 0)
+	else if(strncmp(argv[idx], "-D", 2) == 0 || strncmp(argv[idx], "-U", 2) == 0)
 	{
 	    cpp += ' ';
 	    cpp += argv[idx];
 
-	    for (int i = idx ; i + 1 < argc ; ++i)
+	    for(int i = idx ; i + 1 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 1];
 	    }
 	    --argc;
 	}
-	else if (strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
+	else if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
 	{
 	    usage(argv[0]);
 	    return EXIT_SUCCESS;
 	}
-	else if (strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
+	else if(strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
 	{
 	    cout << ICE_STRING_VERSION << endl;
 	    return EXIT_SUCCESS;
 	}
-	else if (strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
+	else if(strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
 	{
 	    debug = true;
-	    for (int i = idx ; i + 1 < argc ; ++i)
+	    for(int i = idx ; i + 1 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 1];
 	    }
 	    --argc;
 	}
-	else if (strcmp(argv[idx], "--include-dir") == 0)
+	else if(strcmp(argv[idx], "--include-dir") == 0)
 	{
-	    if (idx + 1 >= argc)
+	    if(idx + 1 >= argc)
 	    {
 		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
 		usage(argv[0]);
@@ -99,15 +99,15 @@ main(int argc, char* argv[])
 	    }
 	    
 	    include = argv[idx + 1];
-	    for (int i = idx ; i + 2 < argc ; ++i)
+	    for(int i = idx ; i + 2 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 2];
 	    }
 	    argc -= 2;
 	}
-	else if (strcmp(argv[idx], "--output-dir") == 0)
+	else if(strcmp(argv[idx], "--output-dir") == 0)
 	{
-	    if (idx + 1 >= argc)
+	    if(idx + 1 >= argc)
 	    {
 		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
 		usage(argv[0]);
@@ -115,13 +115,13 @@ main(int argc, char* argv[])
 	    }
 	    
 	    output = argv[idx + 1];
-	    for (int i = idx ; i + 2 < argc ; ++i)
+	    for(int i = idx ; i + 2 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 2];
 	    }
 	    argc -= 2;
 	}
-	else if (argv[idx][0] == '-')
+	else if(argv[idx][0] == '-')
 	{
 	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
 	    usage(argv[0]);
@@ -133,7 +133,7 @@ main(int argc, char* argv[])
 	}
     }
 
-    if (argc < 2)
+    if(argc < 2)
     {
 	usage(argv[0]);
 	return EXIT_FAILURE;
@@ -146,12 +146,12 @@ main(int argc, char* argv[])
     string base(sourceFile);
     string suffix;
     string::size_type pos = base.rfind('.');
-    if (pos != string::npos)
+    if(pos != string::npos)
     {
 	suffix = base.substr(pos);
 	transform(suffix.begin(), suffix.end(), suffix.begin(), tolower);
     }
-    if (suffix != ".ice")
+    if(suffix != ".ice")
     {
 	cerr << argv[0] << ": input files must end with `.ice'" << endl;
 	unit->destroy();
@@ -160,7 +160,7 @@ main(int argc, char* argv[])
     base.erase(pos);
 
     ifstream test(sourceFile.c_str());
-    if (!test)
+    if(!test)
     {
 	cerr << argv[0] << ": can't open `" << sourceFile << "' for reading: " << strerror(errno) << endl;
 	return EXIT_FAILURE;
@@ -173,7 +173,7 @@ main(int argc, char* argv[])
 #else
     FILE* cppHandle = popen(cmd.c_str(), "r");
 #endif
-    if (cppHandle == 0)
+    if(cppHandle == 0)
     {
 	cerr << argv[0] << ": can't run C++ preprocessor: " << strerror(errno) << endl;
 	unit->destroy();
@@ -189,7 +189,7 @@ main(int argc, char* argv[])
     pclose(cppHandle);
 #endif
     
-    if (parseStatus == EXIT_FAILURE)
+    if(parseStatus == EXIT_FAILURE)
     {
 	status = EXIT_FAILURE;
     }
@@ -197,17 +197,17 @@ main(int argc, char* argv[])
     {
 	Gen gen(argv[0], base, include, includePaths, output);
 
-	if (argc > 2)
+	if(argc > 2)
 	{
-	    for (idx = 2 ; idx < argc; ++idx)
+	    for(idx = 2 ; idx < argc; ++idx)
 	    {
 		ClassDeclPtr classDecl;
 		TypeList classTypes = unit->lookupType(argv[idx], false);
-		if (!classTypes.empty())
+		if(!classTypes.empty())
 		{
 		    classDecl = ClassDeclPtr::dynamicCast(classTypes.front());
 		}
-		if (!classDecl)
+		if(!classDecl)
 		{
 		    cerr << argv[0] << ": invalid type: " << argv[idx] << endl;
 		    status = EXIT_FAILURE;

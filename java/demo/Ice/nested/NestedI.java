@@ -19,7 +19,7 @@ class NestedI extends Nested
     nested(int level, NestedPrx proxy, Ice.Current current)
     {
         System.out.println("" + level);
-        if (--level > 0)
+        if(--level > 0)
         {
             proxy.nested(level, _self, current.context);
         }

@@ -35,7 +35,7 @@ SubscriberFactory::createSubscriber(const QoS& qos, const Ice::ObjectPrx& obj)
 
     QoS::const_iterator i = qos.find("reliability");
     string reliability;
-    if (i == qos.end())
+    if(i == qos.end())
     {
 	reliability = "oneway";
     }
@@ -44,15 +44,15 @@ SubscriberFactory::createSubscriber(const QoS& qos, const Ice::ObjectPrx& obj)
 	reliability = i->second;
     }
 
-    if (reliability == "batch")
+    if(reliability == "batch")
     {
 	return new OnewayBatchSubscriber(_traceLevels, _flusher, obj->ice_batchOneway());
     }
     else // reliability == "oneway"
     {
-	if (reliability != "oneway")
+	if(reliability != "oneway")
 	{
-	    if (_traceLevels->subscriber > 0)
+	    if(_traceLevels->subscriber > 0)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
 		out << reliability <<" mode not understood.";

@@ -20,7 +20,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
     cout << "testing stringToProxy... " << flush;
     ostringstream ref;
     ref << "test";
-    for (vector<int>::const_iterator p = ports.begin(); p != ports.end(); ++p)
+    for(vector<int>::const_iterator p = ports.begin(); p != ports.end(); ++p)
     {
 	ref << ":default -t 4000 -p " << *p;
     }
@@ -35,7 +35,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
     cout << "ok" << endl;
 
     int oldPid = 0;
-    for (unsigned int i = 1, j = 0; i <= ports.size(); ++i, j = j >= 2 ? 0 : j + 1)
+    for(unsigned int i = 1, j = 0; i <= ports.size(); ++i, j = j >= 2 ? 0 : j + 1)
     {
 	cout << "testing server #" << i << "... " << flush;
 	int pid = obj->pid();
@@ -43,7 +43,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 	cout << "ok" << endl;
 	oldPid = pid;
 
-	if (j == 0)
+	if(j == 0)
 	{
 	    cout << "shutting down server #" << i << "... " << flush;
 	    obj->shutdown();

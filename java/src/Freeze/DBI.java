@@ -30,7 +30,7 @@ class DBI implements DB
     synchronized public long
     getNumberOfRecords()
     {
-	if (_db == null)
+	if(_db == null)
 	{
 	    DBException ex = new DBException();
 	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
@@ -58,7 +58,7 @@ class DBI implements DB
     synchronized public DBCursor
     getCursor()
     {
-	if (_db == null)
+	if(_db == null)
 	{
 	    DBException ex = new DBException();
 	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
@@ -94,7 +94,7 @@ class DBI implements DB
 	    try
 	    {
 		int rc = cursor.get(dbKey, dbData, com.sleepycat.db.Db.DB_FIRST);
-		if (rc == com.sleepycat.db.Db.DB_NOTFOUND)
+		if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
 		{
 		    DBNotFoundException ex = new DBNotFoundException();
 		    ex.message = _errorPrefix + "Dbc.get: DB_NOTFOUND";
@@ -131,7 +131,7 @@ class DBI implements DB
     synchronized public DBCursor
     getCursorAtKey(byte[] key)
     {
-	if (_db == null)
+	if(_db == null)
 	{
 	    DBException ex = new DBException();
 	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
@@ -170,7 +170,7 @@ class DBI implements DB
 	    try
 	    {
 		int rc = cursor.get(dbKey, dbData, com.sleepycat.db.Db.DB_SET);
-		if (rc == com.sleepycat.db.Db.DB_NOTFOUND)
+		if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
 		{
 		    DBNotFoundException ex = new DBNotFoundException();
 		    ex.message = _errorPrefix + "Dbc.get: DB_NOTFOUND";
@@ -207,7 +207,7 @@ class DBI implements DB
     synchronized public void
     put(byte[] key, byte[] value)
     {
-	if (_db == null)
+	if(_db == null)
 	{
 	    DBException ex = new DBException();
 	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
@@ -221,7 +221,7 @@ class DBI implements DB
 	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
 	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt(value);
 
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("DB", "writing value in database \"" + _name + "\"");
 	}
@@ -249,7 +249,7 @@ class DBI implements DB
     synchronized public boolean
     contains(byte[] key)
     {
-	if (_db == null)
+	if(_db == null)
 	{
 	    DBException ex = new DBException();
 	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
@@ -261,7 +261,7 @@ class DBI implements DB
 	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt();
 	dbData.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
 
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("DB", "checking key in database \"" + _name + "\"");
 	}
@@ -269,7 +269,7 @@ class DBI implements DB
 	try
 	{
 	    int rc =_db.get(null, dbKey, dbData, 0);
-	    if (rc == com.sleepycat.db.Db.DB_NOTFOUND)
+	    if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
 	    {
 		return false;
 	    }
@@ -298,7 +298,7 @@ class DBI implements DB
     synchronized public byte[]
     get(byte[] key)
     {
-	if (_db == null)
+	if(_db == null)
 	{
 	    DBException ex = new DBException();
 	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
@@ -308,7 +308,7 @@ class DBI implements DB
 	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
 	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt();
 
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("DB", "reading value from database \"" + _name + "\"");
 	}
@@ -316,7 +316,7 @@ class DBI implements DB
 	try
 	{
 	    int rc =_db.get(null, dbKey, dbData, 0);
-	    if (rc == com.sleepycat.db.Db.DB_NOTFOUND)
+	    if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
 	    {
 		DBNotFoundException ex = new DBNotFoundException();
 		ex.message = _errorPrefix + "Db.get: DB_NOTFOUND";
@@ -344,7 +344,7 @@ class DBI implements DB
     synchronized public void
     del(byte[] key)
     {
-	if (_db == null)
+	if(_db == null)
 	{
 	    DBException ex = new DBException();
 	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
@@ -353,7 +353,7 @@ class DBI implements DB
 
 	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
 
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("DB", "deleting value from database \"" + _name + "\"");
 	}
@@ -361,7 +361,7 @@ class DBI implements DB
 	try
 	{
 	    int rc =_db.del(null, dbKey, 0);
-	    if (rc == com.sleepycat.db.Db.DB_NOTFOUND)
+	    if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
 	    {
 		DBNotFoundException ex = new DBNotFoundException();
 		ex.message = _errorPrefix + "Db.del: DB_NOTFOUND";
@@ -387,7 +387,7 @@ class DBI implements DB
     synchronized public void
     clear()
     {
-	if (_db == null)
+	if(_db == null)
 	{
 	    DBException ex = new DBException();
 	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
@@ -411,12 +411,12 @@ class DBI implements DB
     synchronized public void
     close()
     {
-	if (_db == null)
+	if(_db == null)
 	{
 	    return;
 	}
 
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("DB", "closing database \"" + _name + "\"");
 	}
@@ -441,12 +441,12 @@ class DBI implements DB
     synchronized public void
     remove()
     {
-	if (_db == null)
+	if(_db == null)
 	{
 	    return;
 	}
 	
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("DB", "removing database \"" + _name + "\"");
 	}
@@ -485,7 +485,7 @@ class DBI implements DB
     synchronized public Evictor
     createEvictor(EvictorPersistenceMode persistenceMode)
     {
-	if (_db == null)
+	if(_db == null)
 	{
 	    DBException ex = new DBException();
 	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
@@ -504,7 +504,7 @@ class DBI implements DB
 	_errorPrefix = "Freeze::DB(\"" + _name + "\"): ";
 	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.DB");
 
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("DB","opening database \"" + _name + "\" in environment \"" +
 					    _dbEnvObj.getName() + "\"");

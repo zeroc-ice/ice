@@ -21,7 +21,7 @@ public final class TestI extends _TestDisp
     shutdown(Ice.Current current)
     {
         _adapter.getCommunicator().shutdown();
-        if (_fwd != null)
+        if(_fwd != null)
         {
             throw new Ice.LocationForward(_fwd);
         }

@@ -38,11 +38,11 @@ IceSSL::OpenSSL::DefaultCertificateVerifier::verify(int preVerifyOkay, X509_STOR
     int verifyDepth = SSL_get_verify_depth(sslConnection);
 
     // A verify error has been encountered.
-    if (verifyError != X509_V_OK)
+    if(verifyError != X509_V_OK)
     {
         // We have a limited verify depth, and we have had to delve too deeply
         // into the certificate chain to find an acceptable root certificate.
-        if ((verifyDepth != -1) && (verifyDepth < errorDepth))
+        if((verifyDepth != -1) && (verifyDepth < errorDepth))
         {
             verifyError = X509_V_ERR_CERT_CHAIN_TOO_LONG;
             X509_STORE_CTX_set_error(x509StoreContext, verifyError);
@@ -53,7 +53,7 @@ IceSSL::OpenSSL::DefaultCertificateVerifier::verify(int preVerifyOkay, X509_STOR
     }
 
     // Only if ICE_PROTOCOL level logging is on do we worry about this.
-    if (_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
+    if(_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
     {
         char buf[256];
 
@@ -65,14 +65,14 @@ IceSSL::OpenSSL::DefaultCertificateVerifier::verify(int preVerifyOkay, X509_STOR
 
         outStringStream << "depth = " << dec << errorDepth << ":" << buf << std::endl;
 
-        if (!preVerifyOkay)
+        if(!preVerifyOkay)
         {
             outStringStream << "verify error: num = " << verifyError << " : " 
 			    << X509_verify_cert_error_string(verifyError) << endl;
 
         }
 
-        switch (verifyError)
+        switch(verifyError)
         {
             case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
             {

@@ -29,7 +29,7 @@ IceInternal::UdpTransceiver::fd()
 void
 IceInternal::UdpTransceiver::close()
 {
-    if (_traceLevels->network >= 1)
+    if(_traceLevels->network >= 1)
     {
 	Trace out(_logger, _traceLevels->networkCat);
 	out << "closing " << _protocolName << " connection\n" << toString();
@@ -57,26 +57,26 @@ IceInternal::UdpTransceiver::write(Buffer& buf, int)
 repeat:
     int ret = ::send(_fd, &buf.b[0], buf.b.size(), 0);
     
-    if (ret == SOCKET_ERROR)
+    if(ret == SOCKET_ERROR)
     {
-	if (interrupted())
+	if(interrupted())
 	{
 	    goto repeat;
 	}
 
-	if (wouldBlock())
+	if(wouldBlock())
 	{
 	    SOCKET fd = _fd; // Copy fd, in case another thread calls close()
-	    if (fd != INVALID_SOCKET)
+	    if(fd != INVALID_SOCKET)
 	    {
 	    repeatSelect:
 
 		FD_SET(fd, &_wFdSet);
 		int ret = ::select(fd + 1, 0, &_wFdSet, 0, 0);
 		
-		if (ret == SOCKET_ERROR)
+		if(ret == SOCKET_ERROR)
 		{
-		    if (interrupted())
+		    if(interrupted())
 		    {
 			goto repeatSelect;
 		    }
@@ -95,7 +95,7 @@ repeat:
 	throw ex;
     }
 
-    if (_traceLevels->network >= 3)
+    if(_traceLevels->network >= 3)
     {
 	Trace out(_logger, _traceLevels->networkCat);
 	out << "sent " << ret << " bytes via " << _protocolName << "\n" << toString();
@@ -116,7 +116,7 @@ IceInternal::UdpTransceiver::read(Buffer& buf, int)
 
 repeat:
     int ret;
-    if (_connect)
+    if(_connect)
     {
 	//
 	// If we must connect, then we connect to the first peer that
@@ -126,12 +126,12 @@ repeat:
 	memset(&peerAddr, 0, sizeof(struct sockaddr_in));
 	socklen_t len = sizeof(peerAddr);
 	ret = recvfrom(_fd, &buf.b[0], packetSize, 0, reinterpret_cast<struct sockaddr*>(&peerAddr), &len);
-	if (ret != SOCKET_ERROR)
+	if(ret != SOCKET_ERROR)
 	{
 	    doConnect(_fd, peerAddr, -1);
 	    _connect = false; // We're connected now
 
-	    if (_traceLevels->network >= 1)
+	    if(_traceLevels->network >= 1)
 	    {
 		Trace out(_logger, _traceLevels->networkCat);
 		out << "connected " << _protocolName << " socket\n" << toString();
@@ -143,26 +143,26 @@ repeat:
 	ret = ::recv(_fd, &buf.b[0], packetSize, 0);
     }
     
-    if (ret == SOCKET_ERROR)
+    if(ret == SOCKET_ERROR)
     {
-	if (interrupted())
+	if(interrupted())
 	{
 	    goto repeat;
 	}
 	
-	if (wouldBlock())
+	if(wouldBlock())
 	{
 	    SOCKET fd = _fd; // Copy fd, in case another thread calls close()
-	    if (fd != INVALID_SOCKET)
+	    if(fd != INVALID_SOCKET)
 	    {
 	    repeatSelect:
 
 		FD_SET(fd, &_rFdSet);
 		int ret = ::select(fd + 1, &_rFdSet, 0, 0, 0);
 		
-		if (ret == SOCKET_ERROR)
+		if(ret == SOCKET_ERROR)
 		{
-		    if (interrupted())
+		    if(interrupted())
 		    {
 			goto repeatSelect;
 		    }
@@ -181,7 +181,7 @@ repeat:
 	throw ex;
     }
     
-    if (_traceLevels->network >= 3)
+    if(_traceLevels->network >= 3)
     {
 	Trace out(_logger, _traceLevels->networkCat);
 	out << "received " << ret << " bytes via " << _protocolName << "\n" << toString();
@@ -234,7 +234,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 	doConnect(_fd, _addr, -1);
 	_connect = false; // We're connected now
 	
-	if (_traceLevels->network >= 1)
+	if(_traceLevels->network >= 1)
 	{
 	    Trace out(_logger, _traceLevels->networkCat);
 	    out << "starting to send " << _protocolName << " packets\n" << toString();
@@ -266,7 +266,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 	getAddress(host, port, _addr);
 	doBind(_fd, _addr);
 	    
-	if (_traceLevels->network >= 1)
+	if(_traceLevels->network >= 1)
 	{
 	    Trace out(_logger, _traceLevels->networkCat);
 	    out << "starting to receive " << _protocolName << " packets\n" << toString();

@@ -29,7 +29,7 @@ IceInternal::TcpAcceptor::fd()
 void
 IceInternal::TcpAcceptor::close()
 {
-    if (_traceLevels->network >= 1)
+    if(_traceLevels->network >= 1)
     {
 	Trace out(_logger, _traceLevels->networkCat);
 	out << "stopping to accept tcp connections at " << toString();
@@ -53,7 +53,7 @@ IceInternal::TcpAcceptor::listen()
 	throw;
     }
 
-    if (_traceLevels->network >= 1)
+    if(_traceLevels->network >= 1)
     {
 	Trace out(_logger, _traceLevels->networkCat);
 	out << "accepting tcp connections at " << toString();
@@ -66,7 +66,7 @@ IceInternal::TcpAcceptor::accept(int timeout)
     SOCKET fd = doAccept(_fd, timeout);
     setBlock(fd, false);
 
-    if (_traceLevels->network >= 1)
+    if(_traceLevels->network >= 1)
     {
 	Trace out(_logger, _traceLevels->networkCat);
 	out << "accepted tcp connection\n" << fdToString(fd);
@@ -101,7 +101,7 @@ IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string&
     _logger(instance->logger()),
     _backlog(0)
 {
-    if (_backlog <= 0)
+    if(_backlog <= 0)
     {
         _backlog = 5;
     }

@@ -28,7 +28,7 @@ using namespace Freeze;
 void
 Freeze::checkBerkeleyDBReturn(int ret, const string& prefix, const string& op)
 {
-    if (ret == 0)
+    if(ret == 0)
     {
 	return; // Everything ok
     }
@@ -36,7 +36,7 @@ Freeze::checkBerkeleyDBReturn(int ret, const string& prefix, const string& op)
     ostringstream s;
     s << prefix << op << ": " << db_strerror(ret);
 
-    switch (ret)
+    switch(ret)
     {
 	case DB_LOCK_DEADLOCK:
 	{
@@ -71,7 +71,7 @@ Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, cons
     _errorPrefix = "Freeze::DBEnvironment(\"" + _name + "\"): ";
     _trace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.DB");
 
-    if (_trace >= 1)
+    if(_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "opening database environment \"" << _name << "\"";
@@ -91,7 +91,7 @@ Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, cons
 
 Freeze::DBEnvironmentI::~DBEnvironmentI()
 {
-    if (_dbEnv)
+    if(_dbEnv)
     {
 	Warning out(_communicator->getLogger());
 	out << _errorPrefix << "\"" << _name << "\" has not been closed";
@@ -117,7 +117,7 @@ Freeze::DBEnvironmentI::openDB(const string& name, bool create)
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if (!_dbEnv)
+    if(!_dbEnv)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
@@ -127,7 +127,7 @@ Freeze::DBEnvironmentI::openDB(const string& name, bool create)
     }
 
     map<string, DBPtr>::iterator p = _dbMap.find(name);
-    if (p != _dbMap.end())
+    if(p != _dbMap.end())
     {
 	return p->second;
     }
@@ -146,7 +146,7 @@ Freeze::DBEnvironmentI::openDB(const string& name, bool create)
 	// errors.
 	//
 	p = _dbMap.find(name);
-	if (p != _dbMap.end())
+	if(p != _dbMap.end())
 	{
 	    _dbMap.erase(p);
 	}
@@ -168,7 +168,7 @@ Freeze::DBEnvironmentI::close()
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if (!_dbEnv)
+    if(!_dbEnv)
     {
 	return;
     }
@@ -179,7 +179,7 @@ Freeze::DBEnvironmentI::close()
 	db->close();
     }
 
-    if (_trace >= 1)
+    if(_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "closing database environment \"" << _name << "\"";
@@ -241,7 +241,7 @@ Freeze::DBTransactionI::DBTransactionI(const CommunicatorPtr& communicator, ::DB
     _errorPrefix = "Freeze::DBTransaction(\"" + _name + "\"): ";
     _trace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.DB");
 
-    if (_trace >= 2)
+    if(_trace >= 2)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "starting transaction for environment \"" << _name << "\"";
@@ -252,7 +252,7 @@ Freeze::DBTransactionI::DBTransactionI(const CommunicatorPtr& communicator, ::DB
 
 Freeze::DBTransactionI::~DBTransactionI()
 {
-    if (_tid)
+    if(_tid)
     {
 	Warning out(_communicator->getLogger());
 	out << _errorPrefix << "transaction has not been committed or aborted";
@@ -264,7 +264,7 @@ Freeze::DBTransactionI::commit()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_tid)
+    if(!_tid)
     {
 	ostringstream s;
 	s << _errorPrefix << "transaction has already been committed or aborted";
@@ -273,7 +273,7 @@ Freeze::DBTransactionI::commit()
 	throw ex;
     }
 
-    if (_trace >= 2)
+    if(_trace >= 2)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "committing transaction for environment \"" << _name << "\"";
@@ -289,7 +289,7 @@ Freeze::DBTransactionI::abort()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_tid)
+    if(!_tid)
     {
 	ostringstream s;
 	s << _errorPrefix << "transaction has already been committed or aborted";
@@ -298,7 +298,7 @@ Freeze::DBTransactionI::abort()
 	throw ex;
     }
 
-    if (_trace >= 2)
+    if(_trace >= 2)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "aborting transaction for environment \"" << _name << "\" due to deadlock";
@@ -318,7 +318,7 @@ DBCursorI::DBCursorI(const ::Ice::CommunicatorPtr& communicator, const std::stri
     _errorPrefix = "Freeze::DBCursor(\"" + _name += "\"): ";
     _trace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.DB");
 
-    if (_trace >= 1)
+    if(_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "creating cursor for \"" << _name << "\"";
@@ -327,7 +327,7 @@ DBCursorI::DBCursorI(const ::Ice::CommunicatorPtr& communicator, const std::stri
 
 DBCursorI::~DBCursorI()
 {
-    if (_cursor != 0)
+    if(_cursor != 0)
     {
 	Warning out(_communicator->getLogger());
 	out << _errorPrefix << "\"" << _name << "\" has not been closed";
@@ -346,7 +346,7 @@ DBCursorI::curr(Key& key, Value& value)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_cursor)
+    if(!_cursor)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
@@ -359,7 +359,7 @@ DBCursorI::curr(Key& key, Value& value)
     memset(&dbKey, 0, sizeof(dbKey));
     memset(&dbData, 0, sizeof(dbData));
 
-    if (_trace >= 1)
+    if(_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "reading current value from database \"" << _name << "\"";
@@ -379,7 +379,7 @@ DBCursorI::set(const Value& value)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_cursor)
+    if(!_cursor)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
@@ -394,7 +394,7 @@ DBCursorI::set(const Value& value)
     dbData.data = const_cast<void*>(static_cast<const void*>(&value[0]));
     dbData.size = value.size();
 
-    if (_trace >= 1)
+    if(_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "setting current value in database \"" << _name << "\"";
@@ -411,7 +411,7 @@ DBCursorI::next()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_cursor)
+    if(!_cursor)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
@@ -430,7 +430,7 @@ DBCursorI::next()
     memset(&dbData, 0, sizeof(dbData));
     dbData.flags = DB_DBT_PARTIAL;
 
-    if (_trace >= 1)
+    if(_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "moving to next value in database \"" << _name << "\"";
@@ -452,7 +452,7 @@ DBCursorI::prev()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_cursor)
+    if(!_cursor)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
@@ -471,7 +471,7 @@ DBCursorI::prev()
     memset(&dbData, 0, sizeof(dbData));
     dbData.flags = DB_DBT_PARTIAL;
 
-    if (_trace >= 1)
+    if(_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "moving to previous value in database \"" << _name << "\"";
@@ -493,7 +493,7 @@ DBCursorI::del()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_cursor)
+    if(!_cursor)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
@@ -502,7 +502,7 @@ DBCursorI::del()
 	throw ex;
     }
 
-    if (_trace >= 1)
+    if(_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "removing the current element in database \"" << _name << "\"";
@@ -516,7 +516,7 @@ DBCursorI::clone()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_cursor)
+    if(!_cursor)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
@@ -535,12 +535,12 @@ DBCursorI::close()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_cursor)
+    if(!_cursor)
     {
 	return;
     }
 
-    if (_trace >= 1)
+    if(_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "closing cursor \"" << _name << "\"";
@@ -561,7 +561,7 @@ Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvironmentIPtr& d
     _errorPrefix = "Freeze::DB(\"" + _name + "\"): ";
     _trace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.DB");
 
-    if (_trace >= 1)
+    if(_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "opening database \"" << _name << "\" in environment \"" << _dbEnvObj->getName() << "\"";
@@ -576,7 +576,7 @@ Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvironmentIPtr& d
 
 Freeze::DBI::~DBI()
 {
-    if (_db)
+    if(_db)
     {
 	Warning out(_communicator->getLogger());
 	out << _errorPrefix << "\"" << _name << "\" has not been closed";
@@ -602,7 +602,7 @@ Freeze::DBI::getNumberOfRecords()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_db)
+    if(!_db)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
@@ -626,7 +626,7 @@ Freeze::DBI::getCursor()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_db)
+    if(!_db)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
@@ -671,7 +671,7 @@ Freeze::DBI::getCursorAtKey(const Key& key)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_db)
+    if(!_db)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
@@ -722,7 +722,7 @@ Freeze::DBI::put(const Key& key, const Value& value)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_db)
+    if(!_db)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
@@ -739,7 +739,7 @@ Freeze::DBI::put(const Key& key, const Value& value)
     dbData.data = const_cast<void*>(static_cast<const void*>(&value[0]));
     dbData.size = value.size();
 
-    if (_trace >= 1)
+    if(_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "writing value in database \"" << _name << "\"";
@@ -753,7 +753,7 @@ Freeze::DBI::contains(const Key& key)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_db)
+    if(!_db)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
@@ -771,14 +771,14 @@ Freeze::DBI::contains(const Key& key)
     memset(&dbData, 0, sizeof(dbData));
     dbData.flags = DB_DBT_PARTIAL;
 
-    if (_trace >= 1)
+    if(_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "checking key in database \"" << _name << "\"";
     }
 
     int rc = _db->get(_db, 0, &dbKey, &dbData, 0);
-    if (rc == DB_NOTFOUND)
+    if(rc == DB_NOTFOUND)
     {
 	return false;
     }
@@ -792,7 +792,7 @@ Freeze::DBI::get(const Key& key)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_db)
+    if(!_db)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
@@ -807,7 +807,7 @@ Freeze::DBI::get(const Key& key)
     dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
     dbKey.size = key.size();
 
-    if (_trace >= 1)
+    if(_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "reading value from database \"" << _name << "\"";
@@ -823,7 +823,7 @@ Freeze::DBI::del(const Key& key)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_db)
+    if(!_db)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
@@ -837,7 +837,7 @@ Freeze::DBI::del(const Key& key)
     dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
     dbKey.size = key.size();
 
-    if (_trace >= 1)
+    if(_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "deleting value from database \"" << _name << "\"";
@@ -851,7 +851,7 @@ Freeze::DBI::clear()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_db)
+    if(!_db)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
@@ -869,12 +869,12 @@ Freeze::DBI::close()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_db)
+    if(!_db)
     {
 	return;
     }
 
-    if (_trace >= 1)
+    if(_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "closing database \"" << _name << "\"";
@@ -892,12 +892,12 @@ Freeze::DBI::remove()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_db)
+    if(!_db)
     {
 	return;
     }
 
-    if (_trace >= 1)
+    if(_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "removing database \"" << _name << "\"";
@@ -929,7 +929,7 @@ Freeze::DBI::createEvictor(EvictorPersistenceMode persistenceMode)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_db)
+    if(!_db)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";

@@ -38,44 +38,44 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
     string::size_type beg;
     string::size_type end = 0;
 
-    while (true)
+    while(true)
     {
 	beg = str.find_first_not_of(delim, end);
-	if (beg == string::npos)
+	if(beg == string::npos)
 	{
 	    break;
 	}
 	
 	end = str.find_first_of(delim, beg);
-	if (end == string::npos)
+	if(end == string::npos)
 	{
 	    end = str.length();
 	}
 
 	string option = str.substr(beg, end - beg);
-	if (option.length() != 2 || option[0] != '-')
+	if(option.length() != 2 || option[0] != '-')
 	{
 	    throw EndpointParseException(__FILE__, __LINE__);
 	}
 
 	string argument;
 	string::size_type argumentBeg = str.find_first_not_of(delim, end);
-	if (argumentBeg != string::npos && str[argumentBeg] != '-')
+	if(argumentBeg != string::npos && str[argumentBeg] != '-')
 	{
 	    beg = argumentBeg;
 	    end = str.find_first_of(delim + ":", beg);
-	    if (end == string::npos)
+	    if(end == string::npos)
 	    {
 		end = str.length();
 	    }
 	    argument = str.substr(beg, end - beg);
 	}
 
-	switch (option[1])
+	switch(option[1])
 	{
 	    case 'h':
 	    {
-		if (argument.empty())
+		if(argument.empty())
 		{
 		    throw EndpointParseException(__FILE__, __LINE__);
 		}
@@ -85,7 +85,7 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 
 	    case 'p':
 	    {
-		if (argument.empty())
+		if(argument.empty())
 		{
 		    throw EndpointParseException(__FILE__, __LINE__);
 		}
@@ -95,7 +95,7 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 
 	    case 'c':
 	    {
-		if (!argument.empty())
+		if(!argument.empty())
 		{
 		    throw EndpointParseException(__FILE__, __LINE__);
 		}
@@ -110,7 +110,7 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 	}
     }
 
-    if (_host.empty())
+    if(_host.empty())
     {
 	const_cast<string&>(_host) = _instance->defaultsAndOverrides()->defaultHost;
     }
@@ -146,7 +146,7 @@ IceInternal::UdpEndpoint::toString() const
 {
     ostringstream s;
     s << "udp -h " << _host << " -p " << _port;
-    if (_connect)
+    if(_connect)
     {
 	s << " -c";
     }
@@ -220,7 +220,7 @@ bool
 IceInternal::UdpEndpoint::equivalent(const TransceiverPtr& transceiver) const
 {
     const UdpTransceiver* udpTransceiver = dynamic_cast<const UdpTransceiver*>(transceiver.get());
-    if (!udpTransceiver)
+    if(!udpTransceiver)
     {
 	return false;
     }
@@ -237,27 +237,27 @@ bool
 IceInternal::UdpEndpoint::operator==(const Endpoint& r) const
 {
     const UdpEndpoint* p = dynamic_cast<const UdpEndpoint*>(&r);
-    if (!p)
+    if(!p)
     {
 	return false;
     }
 
-    if (this == p)
+    if(this == p)
     {
 	return true;
     }
 
-    if (_port != p->_port)
+    if(_port != p->_port)
     {
 	return false;
     }
 
-    if (_connect != p->_connect)
+    if(_connect != p->_connect)
     {
 	return false;
     }
 
-    if (_host != p->_host)
+    if(_host != p->_host)
     {
 	//
 	// We do the most time-consuming part of the comparison last.
@@ -282,35 +282,35 @@ bool
 IceInternal::UdpEndpoint::operator<(const Endpoint& r) const
 {
     const UdpEndpoint* p = dynamic_cast<const UdpEndpoint*>(&r);
-    if (!p)
+    if(!p)
     {
         return type() < r.type();
     }
 
-    if (this == p)
+    if(this == p)
     {
 	return false;
     }
 
-    if (_port < p->_port)
+    if(_port < p->_port)
     {
 	return true;
     }
-    else if (p->_port < _port)
+    else if(p->_port < _port)
     {
 	return false;
     }
 
-    if (!_connect && p->_connect)
+    if(!_connect && p->_connect)
     {
 	return true;
     }
-    else if (!p->_connect && _connect)
+    else if(!p->_connect && _connect)
     {
 	return false;
     }
 
-    if (_host != p->_host)
+    if(_host != p->_host)
     {
 	//
 	// We do the most time-consuming part of the comparison last.
@@ -319,11 +319,11 @@ IceInternal::UdpEndpoint::operator<(const Endpoint& r) const
 	struct sockaddr_in raddr;
 	getAddress(_host, _port, laddr);
 	getAddress(p->_host, p->_port, raddr);
-	if (laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
+	if(laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
 	{
 	    return true;
 	}
-	else if (raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
+	else if(raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
 	{
 	    return false;
 	}

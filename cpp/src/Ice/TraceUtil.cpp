@@ -100,13 +100,13 @@ printRequestHeader(ostream& s, BasicStream& stream)
     Int sz;
     stream.readSize(sz);
     s << "\ncontext = ";
-    while (sz--)
+    while(sz--)
     {
 	pair<string, string> pair;
 	stream.read(pair.first);
 	stream.read(pair.second);
 	s << pair.first << '/' << pair.second;
-	if (sz)
+	if(sz)
 	{
 	    s << ", ";
 	}
@@ -122,22 +122,22 @@ dumpOctets(const char* cat, const BasicStream& stream, const ::Ice::LoggerPtr& l
 
     const BasicStream::Container::size_type inc = 8;
 
-    for (BasicStream::Container::size_type i = 0; i < stream.b.size(); i += inc)
+    for(BasicStream::Container::size_type i = 0; i < stream.b.size(); i += inc)
     {
-        for (BasicStream::Container::size_type j = i; j - i < inc; j++)
+        for(BasicStream::Container::size_type j = i; j - i < inc; j++)
         {
-            if (j < stream.b.size())
+            if(j < stream.b.size())
             {
                 int n = stream.b[j];
-                if (n < 0)
+                if(n < 0)
                 {
                     n += 256;
                 }
-                if (n < 10)
+                if(n < 10)
                 {
                     s << "  " << n;
                 }
-                else if (n < 100)
+                else if(n < 100)
                 {
                     s << " " << n;
                 }
@@ -155,9 +155,9 @@ dumpOctets(const char* cat, const BasicStream& stream, const ::Ice::LoggerPtr& l
 
         s << '"';
 
-        for (BasicStream::Container::size_type j = i; j < stream.b.size() && j - i < inc; j++)
+        for(BasicStream::Container::size_type j = i; j < stream.b.size() && j - i < inc; j++)
         {
-            if (stream.b[j] >= 32 && stream.b[j] < 127)
+            if(stream.b[j] >= 32 && stream.b[j] < 127)
             {
                 s << (char)stream.b[j];
             }
@@ -178,7 +178,7 @@ void
 IceInternal::traceHeader(const char* heading, const BasicStream& str, const ::Ice::LoggerPtr& logger,
 			 const TraceLevelsPtr& tl)
 {
-    if (tl->protocol >= 1)
+    if(tl->protocol >= 1)
     {
 	BasicStream& stream = const_cast<BasicStream&>(str);
 	BasicStream::Container::iterator p = stream.i;
@@ -195,7 +195,7 @@ void
 IceInternal::traceRequest(const char* heading, const BasicStream& str, const ::Ice::LoggerPtr& logger,
 			  const TraceLevelsPtr& tl)
 {
-    if (tl->protocol >= 1)
+    if(tl->protocol >= 1)
     {
 	BasicStream& stream = const_cast<BasicStream&>(str);
 	BasicStream::Container::iterator p = stream.i;
@@ -206,7 +206,7 @@ IceInternal::traceRequest(const char* heading, const BasicStream& str, const ::I
 	Int requestId;
 	stream.read(requestId);
 	s << "\nrequest id = " << requestId;
-	if (requestId == 0)
+	if(requestId == 0)
 	{
 	    s << " (oneway)";
 	}
@@ -220,7 +220,7 @@ void
 IceInternal::traceBatchRequest(const char* heading, const BasicStream& str, const ::Ice::LoggerPtr& logger,
 			       const TraceLevelsPtr& tl)
 {
-    if (tl->protocol >= 1)
+    if(tl->protocol >= 1)
     {
 	BasicStream& stream = const_cast<BasicStream&>(str);
 	BasicStream::Container::iterator p = stream.i;
@@ -229,7 +229,7 @@ IceInternal::traceBatchRequest(const char* heading, const BasicStream& str, cons
 	s << heading;
 	printHeader(s, stream);
 	int cnt = 0;
-	while (stream.i != stream.b.end())
+	while(stream.i != stream.b.end())
 	{
 	    s << "\nrequest #" << cnt++ << ':';
 	    printRequestHeader(s, stream);
@@ -244,7 +244,7 @@ void
 IceInternal::traceReply(const char* heading, const BasicStream& str, const ::Ice::LoggerPtr& logger,
 			const TraceLevelsPtr& tl)
 {
-    if (tl->protocol >= 1)
+    if(tl->protocol >= 1)
     {
 	BasicStream& stream = const_cast<BasicStream&>(str);
 	BasicStream::Container::iterator p = stream.i;

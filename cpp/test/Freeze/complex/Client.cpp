@@ -33,7 +33,7 @@ validate(const DBPtr& db)
     cout << "testing database expressions... ";
     Complex::ComplexDict::const_iterator p;
     Parser parser;
-    for (p = m.begin(); p != m.end(); ++p)
+    for(p = m.begin(); p != m.end(); ++p)
     {
 	//
 	// Verify the stored record is correct.
@@ -68,7 +68,7 @@ populate(const DBPtr& db)
 
     cout << "populating the database... ";
     Parser parser;
-    for (int i = 0 ; i < nexpressions; ++i)
+    for(int i = 0 ; i < nexpressions; ++i)
     {
 	Complex::NodePtr root = parser.parse(expressions[i]);
 	assert(root);
@@ -103,11 +103,11 @@ run(int argc, char* argv[], const DBPtr& db)
     communicator->addObjectFactory(factory, "::Complex::AddNode");
     communicator->addObjectFactory(factory, "::Complex::MultiplyNode");
 
-    if (argc > 1 && strcmp(argv[1], "populate") == 0)
+    if(argc > 1 && strcmp(argv[1], "populate") == 0)
     {
 	return populate(db);
     }
-    if (argc > 1 && strcmp(argv[1], "validate") == 0)
+    if(argc > 1 && strcmp(argv[1], "validate") == 0)
     {
 	return validate(db);
     }
@@ -131,11 +131,11 @@ main(int argc, char* argv[])
 	// Scan for --dbdir command line argument.
 	//
 	int i = 1;
-	while (i < argc)
+	while(i < argc)
 	{
-	    if (strcmp(argv[i], "--dbdir") == 0)
+	    if(strcmp(argv[i], "--dbdir") == 0)
 	    {
-		if (i +1 >= argc)
+		if(i +1 >= argc)
 		{
 		    usage(argv[0]);
 		    return EXIT_FAILURE;
@@ -148,7 +148,7 @@ main(int argc, char* argv[])
 		//
 		// Consume arguments
 		//
-		while (i < argc - 2)
+		while(i < argc - 2)
 		{
 		    argv[i] = argv[i+2];
 		    ++i;
@@ -172,7 +172,7 @@ main(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (db)
+    if(db)
     {
 	try
 	{
@@ -196,7 +196,7 @@ main(int argc, char* argv[])
 	db = 0;
     }
 
-    if (dbEnv)
+    if(dbEnv)
     {
 	try
 	{

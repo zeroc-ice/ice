@@ -44,7 +44,7 @@ IceInternal::Outgoing::Outgoing(const ConnectionPtr& connection, const Reference
     _is(ref->instance),
     _os(ref->instance)
 {
-    switch (_reference->mode)
+    switch(_reference->mode)
     {
 	case Reference::ModeTwoway:
 	case Reference::ModeOneway:
@@ -68,7 +68,7 @@ IceInternal::Outgoing::Outgoing(const ConnectionPtr& connection, const Reference
     _os.write(nonmutating);
     _os.writeSize(Int(context.size()));
     Context::const_iterator p;
-    for (p = context.begin(); p != context.end(); ++p)
+    for(p = context.begin(); p != context.end(); ++p)
     {
 	_os.write(p->first);
 	_os.write(p->second);
@@ -84,7 +84,7 @@ IceInternal::Outgoing::Outgoing(const ConnectionPtr& connection, const Reference
 
 IceInternal::Outgoing::~Outgoing()
 {
-    if (_state == StateUnsent &&
+    if(_state == StateUnsent &&
 	(_reference->mode == Reference::ModeBatchOneway || _reference->mode == Reference::ModeBatchDatagram))
     {
 	_connection->abortBatchRequest();
@@ -96,7 +96,7 @@ IceInternal::Outgoing::invoke()
 {
     _os.endWriteEncaps();
     
-    switch (_reference->mode)
+    switch(_reference->mode)
     {
 	case Reference::ModeTwoway:
 	{
@@ -109,12 +109,12 @@ IceInternal::Outgoing::invoke()
 		_state = StateInProgress;
 		
 		Int timeout = _connection->timeout();
-		while (_state == StateInProgress)
+		while(_state == StateInProgress)
 		{
-		    if (timeout >= 0)
+		    if(timeout >= 0)
 		    {	
 			timedWait(IceUtil::Time::milliSeconds(timeout));
-			if (_state == StateInProgress)
+			if(_state == StateInProgress)
 			{
 			    timedOut = true;
 			    _state = StateLocalException;
@@ -128,7 +128,7 @@ IceInternal::Outgoing::invoke()
 		}
 	    }
 
-	    if (timedOut)
+	    if(timedOut)
 	    {
 		//
 		// Must be called outside the synchronization of this
@@ -137,7 +137,7 @@ IceInternal::Outgoing::invoke()
 		_connection->exception(*_exception.get());
 	    }
 
-	    if (_exception.get())
+	    if(_exception.get())
 	    {
 		//
 		// A CloseConnectionException indicates graceful
@@ -160,12 +160,12 @@ IceInternal::Outgoing::invoke()
 		throw NonRepeatable(*_exception.get());
 	    }
 	    
-	    if (_state == StateUserException)
+	    if(_state == StateUserException)
 	    {
 		return false;
 	    }
 
-	    if (_state == StateLocationForward)
+	    if(_state == StateLocationForward)
 	    {
 		ObjectPrx p;
 		_is.read(p);
@@ -209,12 +209,12 @@ IceInternal::Outgoing::finished(BasicStream& is)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if (_state == StateInProgress)
+    if(_state == StateInProgress)
     {
 	_is.swap(is);
 	Byte status;
 	_is.read(status);
-	switch (static_cast<DispatchStatus>(status))
+	switch(static_cast<DispatchStatus>(status))
 	{
 	    case DispatchOK:
 	    {
@@ -323,7 +323,7 @@ IceInternal::Outgoing::finished(const LocalException& ex)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if (_state == StateInProgress)
+    if(_state == StateInProgress)
     {
 	_state = StateLocalException;
 	_exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));

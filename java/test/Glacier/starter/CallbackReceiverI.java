@@ -37,12 +37,12 @@ final class CallbackReceiverI extends CallbackReceiver
     synchronized boolean
     callbackOK()
     {
-        while (!_callback)
+        while(!_callback)
         {
             try
             {
                 wait(5000);
-                if (!_callback)
+                if(!_callback)
                 {
                     return false;
                 }

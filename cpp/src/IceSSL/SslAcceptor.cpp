@@ -29,7 +29,7 @@ IceSSL::SslAcceptor::fd()
 void
 IceSSL::SslAcceptor::close()
 {
-    if (_traceLevels->network >= 1)
+    if(_traceLevels->network >= 1)
     {
 	ostringstream s;
 	s << "stopping to accept ssl connections at " << toString();
@@ -54,7 +54,7 @@ IceSSL::SslAcceptor::listen()
 	throw;
     }
 
-    if (_traceLevels->network >= 1)
+    if(_traceLevels->network >= 1)
     {
 	ostringstream s;
 	s << "accepting ssl connections at " << toString();
@@ -68,7 +68,7 @@ IceSSL::SslAcceptor::accept(int timeout)
     SOCKET fd = doAccept(_fd, timeout);
     setBlock(fd, false);
 
-    if (_traceLevels->network >= 1)
+    if(_traceLevels->network >= 1)
     {
 	ostringstream s;
 	s << "accepted ssl connection\n" << fdToString(fd);
@@ -107,7 +107,7 @@ IceSSL::SslAcceptor::SslAcceptor(const PluginBaseIPtr& plugin, const string& hos
     _logger(plugin->getLogger()),
     _backlog(0)
 {
-    if (_backlog <= 0)
+    if(_backlog <= 0)
     {
         _backlog = 5;
     }

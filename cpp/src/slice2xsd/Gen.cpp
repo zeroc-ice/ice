@@ -25,28 +25,28 @@ Slice::Gen::Gen(const string& name, const string& base, const string& include,
     _includePaths(includePaths)
 {
     _orgName = "http://www.noorg.org"; // TODO: argument!
-    for (vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
+    for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
-	if (p->length() && (*p)[p->length() - 1] != '/')
+	if(p->length() && (*p)[p->length() - 1] != '/')
 	{
 	    *p += '/';
 	}
     }
 
     string::size_type pos = _base.rfind('/');
-    if (pos != string::npos)
+    if(pos != string::npos)
     {
 	_base.erase(0, pos + 1);
     }
 
     string fileO = _base + ".xsd";
-    if (!dir.empty())
+    if(!dir.empty())
     {
 	fileO = dir + '/' + fileO;
     }
 
     O.open(fileO.c_str());
-    if (!O)
+    if(!O)
     {
 	cerr << name << ": can't open `" << fileO << "' for writing: " << strerror(errno) << endl;
 	return;
@@ -88,7 +88,7 @@ Slice::Gen::generate(const UnitPtr& unit)
     O << nl << "<xs:import namespace=\"http://www.mutablerealms.com/schemas\" schemaLocation=\"ice.xsd\"/>";
 
     StringList includes = unit->includeFiles();
-    for (StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
+    for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
     {
 	O << sp;
 	O << nl << "<xs:include schemaLocation=\"" << changeInclude(*q, _includePaths) << ".xsd\"/>";
@@ -120,7 +120,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     
     string extension = "xs:extension base=\"";
     ClassList bases = p->bases();
-    if (bases.empty() || bases.front()->isInterface())
+    if(bases.empty() || bases.front()->isInterface())
     {
 	extension += "ice:_internal.object";
     }
@@ -136,7 +136,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 
     DataMemberList dataMembers = p->dataMembers();
     O << se("xs:sequence");
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
 	emitElement((*q)->name(), (*q)->type());
     }
@@ -172,7 +172,7 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     // Emit base Data
     //
     ExceptionPtr base = p->base();
-    if (base)
+    if(base)
     {
 	string baseScopeId = containedToId(base);
 
@@ -189,14 +189,14 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
 
     O << se("xs:sequence");
     
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
 	emitElement((*q)->name(), (*q)->type());
     }
     
     O << ee; // xs:sequence
 
-    if (base)
+    if(base)
     {
 	O << ee; // xs:extension
 	O << ee; // xs:complexContent
@@ -226,7 +226,7 @@ Slice::Gen::visitStructStart(const StructPtr& p)
     DataMemberList dataMembers = p->dataMembers();
     O << se("xs:sequence");
     
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
 	emitElement((*q)->name(), (*q)->type());
     }
@@ -260,7 +260,7 @@ Slice::Gen::visitOperation(const OperationPtr& p)
 
     O << se("xs:sequence");
     TypeStringList::const_iterator q;
-    for (q = in.begin(); q != in.end(); ++q)
+    for(q = in.begin(); q != in.end(); ++q)
     {
 	emitElement(q->second, q->first);
     }
@@ -280,12 +280,12 @@ Slice::Gen::visitOperation(const OperationPtr& p)
     annotate("operation");
 
     O << se("xs:sequence");
-    if (ret)
+    if(ret)
     {
 	emitElement("__return", ret);
 	//O << nl << "<xs:element name=\"__return\" type=\"" << toString(ret) << "\"/>";
     }
-    for (q = out.begin(); q != out.end(); ++q)
+    for(q = out.begin(); q != out.end(); ++q)
     {
 	emitElement(q->second, q->first);
     }
@@ -313,7 +313,7 @@ Slice::Gen::visitEnum(const EnumPtr& p)
 
     O << se("xs:restriction base=\"xs:string\"");
 
-    for (EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+    for(EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
     {
 	O << nl << "<xs:enumeration value=\"" << (*q)->name() << "\"/>";
     }
@@ -348,7 +348,7 @@ Slice::Gen::visitSequence(const SequencePtr& p)
        << "\" minOccurs=\"0\" maxOccurs=\"unbounded\"";
     O << se(os.str());
     ProxyPtr proxy = ProxyPtr::dynamicCast(p->type());
-    if (proxy)
+    if(proxy)
     {
 	annotate(proxy->_class()->scoped());
     }
@@ -387,7 +387,7 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     os << "xs:element name=\"key\" type=\"" << toString(p->keyType()) << "\"";
     O << se(os.str());
     ProxyPtr proxy = ProxyPtr::dynamicCast(p->keyType());
-    if (proxy)
+    if(proxy)
     {
 	annotate(proxy->_class()->scoped());
     }
@@ -396,7 +396,7 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     os << "xs:element name=\"value\" type=\"" << toString(p->valueType()) << "\"";
     O << se(os.str());
     proxy = ProxyPtr::dynamicCast(p->valueType());
-    if (proxy)
+    if(proxy)
     {
 	annotate(proxy->_class()->scoped());
     }
@@ -477,7 +477,7 @@ Slice::Gen::emitElement(const string& name, const TypePtr& type)
     os << "xs:element name=\"" << name << "\" type=\"" << toString(type) << '"';
     O << se(os.str());
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    if (proxy)
+    if(proxy)
     {
 	annotate(proxy->_class()->scoped());
     }
@@ -490,7 +490,7 @@ Slice::Gen::containedToId(const ContainedPtr& contained)
     assert(contained);
 
     string scoped = contained->scope();
-    if (scoped[0] == ':')
+    if(scoped[0] == ':')
     {
 	scoped.erase(0, 2);
     }
@@ -499,9 +499,9 @@ Slice::Gen::containedToId(const ContainedPtr& contained)
 
     id.reserve(scoped.size());
 
-    for (unsigned int i = 0; i < scoped.size(); ++i)
+    for(unsigned int i = 0; i < scoped.size(); ++i)
     {
-	if (scoped[i] == ':')
+	if(scoped[i] == ':')
 	{
 	    id += '.';
 	    ++i;
@@ -538,20 +538,20 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p)
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
-    if (builtin)
+    if(builtin)
     {
 	s = builtinTable[builtin->kind()];
 	//tag = "type";
     }
 
     ProxyPtr proxy = ProxyPtr::dynamicCast(p);
-    if (proxy)
+    if(proxy)
     {
 	s = "ice:_internal.proxyType";
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(p);
-    if (cl)
+    if(cl)
     {
 	string scopeId = containedToId(cl);
 	//s = "tns:" + internalId + scopeId + cl->name() + "Type";
@@ -559,42 +559,42 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p)
     }
 
     ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
-    if (ex)
+    if(ex)
     {
 	string scopeId = containedToId(ex);
 	s = "tns:" + internalId + scopeId + ex->name() + "Type";
     }
 
     StructPtr st = StructPtr::dynamicCast(p);
-    if (st)
+    if(st)
     {
 	string scopeId = containedToId(st);
 	s = "tns:" + internalId + scopeId + st->name() + "Type";
     }
 
     EnumeratorPtr en = EnumeratorPtr::dynamicCast(p);
-    if (en)
+    if(en)
     {
 	string scopeId = containedToId(en);
 	s = "tns:" + internalId + scopeId + en->name() + "Type";
     }
 
     SequencePtr sq = SequencePtr::dynamicCast(p);
-    if (sq)
+    if(sq)
     {
 	string scopeId = containedToId(sq);
 	s = "tns:" + internalId + scopeId + sq->name() + "Type";
     }
 
     DictionaryPtr di = DictionaryPtr::dynamicCast(p);
-    if (di)
+    if(di)
     {
 	string scopeId = containedToId(di);
 	s = "tns:" + internalId + scopeId + di->name() + "Type";
     }
 
     EnumPtr em = EnumPtr::dynamicCast(p);
-    if (em)
+    if(em)
     {
 	string scopeId = containedToId(em);
 	s = "tns:" + internalId + scopeId + em->name() + "Type";

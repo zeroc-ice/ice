@@ -48,14 +48,14 @@ Glacier::RouterApp::usage()
 int
 Glacier::RouterApp::run(int argc, char* argv[])
 {
-    for (int i = 1; i < argc; ++i)
+    for(int i = 1; i < argc; ++i)
     {
-	if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
+	if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
 	{
 	    usage();
 	    return EXIT_SUCCESS;
 	}
-	else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
+	else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
 	{
 	    cout << ICE_STRING_VERSION << endl;
 	    return EXIT_SUCCESS;
@@ -75,7 +75,7 @@ Glacier::RouterApp::run(int argc, char* argv[])
     //
     const char* endpointsProperty = "Glacier.Starter.Endpoints";
     string endpoints = properties->getProperty(endpointsProperty);
-    if (endpoints.empty())
+    if(endpoints.empty())
     {
 	cerr << appName() << ": property `" << endpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
@@ -88,10 +88,10 @@ Glacier::RouterApp::run(int argc, char* argv[])
     //
     string verifierProperty = properties->getProperty("Glacier.Starter.PasswordVerifier");
     PasswordVerifierPrx verifier;
-    if (!verifierProperty.empty())
+    if(!verifierProperty.empty())
     {
 	verifier = PasswordVerifierPrx::checkedCast(communicator()->stringToProxy(verifierProperty));
-	if (!verifier)
+	if(!verifier)
 	{
 	    cerr << appName() << ": password verifier `" << verifierProperty << "' is invalid" << endl;
 	    return EXIT_FAILURE;
@@ -102,7 +102,7 @@ Glacier::RouterApp::run(int argc, char* argv[])
 	string passwordsProperty = properties->getPropertyWithDefault("Glacier.Starter.CryptPasswords", "passwords");
 
 	ifstream passwordFile(passwordsProperty.c_str());
-	if (!passwordFile)
+	if(!passwordFile)
 	{
 	    cerr << appName() << ": cannot open `" << passwordsProperty << "' for reading: " << strerror(errno)
 		 << endl;
@@ -115,14 +115,14 @@ Glacier::RouterApp::run(int argc, char* argv[])
 	{
 	    string userId;
 	    passwordFile >> userId;
-	    if (!passwordFile)
+	    if(!passwordFile)
 	    {
 		break;
 	    }
 
 	    string password;
 	    passwordFile >> password;
-	    if (!passwordFile)
+	    if(!passwordFile)
 	    {
 		break;
 	    }

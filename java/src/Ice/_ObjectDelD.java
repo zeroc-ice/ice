@@ -18,7 +18,7 @@ public class _ObjectDelD implements _ObjectDel
     {
         Current __current = new Current();
         __initCurrent(__current, "ice_isA", true, __context);
-        while (true)
+        while(true)
         {
             IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);
             try
@@ -53,7 +53,7 @@ public class _ObjectDelD implements _ObjectDel
     {
         Current __current = new Current();
         __initCurrent(__current, "ice_ping", true, __context);
-        while (true)
+        while(true)
         {
             IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);
             try
@@ -89,7 +89,7 @@ public class _ObjectDelD implements _ObjectDel
     {
         Current __current = new Current();
         __initCurrent(__current, "ice_ids", true, __context);
-        while (true)
+        while(true)
         {
             IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);
             try
@@ -124,7 +124,7 @@ public class _ObjectDelD implements _ObjectDel
     {
         Current __current = new Current();
         __initCurrent(__current, "ice_id", true, __context);
-        while (true)
+        while(true)
         {
             IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);
             try
@@ -159,7 +159,7 @@ public class _ObjectDelD implements _ObjectDel
     {
         Current __current = new Current();
         __initCurrent(__current, "ice_facets", true, __context);
-        while (true)
+        while(true)
         {
             IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);
             try
@@ -194,7 +194,7 @@ public class _ObjectDelD implements _ObjectDel
     {
         Current current = new Current();
         __initCurrent(current, operation, nonmutating, context);
-        while (true)
+        while(true)
         {
             IceInternal.Direct __direct = new IceInternal.Direct(__adapter, current);
             try

@@ -15,7 +15,7 @@ final class TraceUtil
     static void
     traceHeader(String heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
     {
-        if (tl.protocol >= 1)
+        if(tl.protocol >= 1)
         {
             int p = str.pos();
             str.pos(0);
@@ -30,7 +30,7 @@ final class TraceUtil
     static void
     traceRequest(String heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
     {
-        if (tl.protocol >= 1)
+        if(tl.protocol >= 1)
         {
             int p = str.pos();
             str.pos(0);
@@ -39,7 +39,7 @@ final class TraceUtil
             printHeader(s, str);
             int requestId = str.readInt();
             s.write("\nrequest id = " + requestId);
-            if (requestId == 0)
+            if(requestId == 0)
             {
                 s.write(" (oneway)");
             }
@@ -52,7 +52,7 @@ final class TraceUtil
     static void
     traceBatchRequest(String heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
     {
-        if (tl.protocol >= 1)
+        if(tl.protocol >= 1)
         {
             int p = str.pos();
             str.pos(0);
@@ -60,7 +60,7 @@ final class TraceUtil
             s.write(heading);
             printHeader(s, str);
             int cnt = 0;
-            while (str.pos() != str.size())
+            while(str.pos() != str.size())
             {
                 s.write("\nrequest #" + cnt + ':');
                 cnt++;
@@ -75,7 +75,7 @@ final class TraceUtil
     static void
     traceReply(String heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
     {
-        if (tl.protocol >= 1)
+        if(tl.protocol >= 1)
         {
             int p = str.pos();
             str.pos(0);
@@ -86,7 +86,7 @@ final class TraceUtil
             s.write("\nrequest id = " + requestId);
             byte status = str.readByte();
             s.write("\nreply status = " + (int)status + ' ');
-            switch (status)
+            switch(status)
             {
                 case DispatchStatus._DispatchOK:
                 {
@@ -153,23 +153,23 @@ final class TraceUtil
     {
         final int inc = 8;
 
-        for (int i = 0; i < data.length; i += inc)
+        for(int i = 0; i < data.length; i += inc)
         {
-            for (int j = i; j - i < inc; j++)
+            for(int j = i; j - i < inc; j++)
             {
-                if (j < data.length)
+                if(j < data.length)
                 {
                     int n = (int)data[j];
-                    if (n < 0)
+                    if(n < 0)
                     {
                         n += 256;
                     }
                     String s;
-                    if (n < 10)
+                    if(n < 10)
                     {
                         s = "  " + n;
                     }
-                    else if (n < 100)
+                    else if(n < 100)
                     {
                         s = " " + n;
                     }
@@ -187,9 +187,9 @@ final class TraceUtil
 
             System.out.print('"');
 
-            for (int j = i; j < data.length && j - i < inc; j++)
+            for(int j = i; j < data.length && j - i < inc; j++)
             {
-                if (data[j] >= (byte)32 && data[j] < (byte)127)
+                if(data[j] >= (byte)32 && data[j] < (byte)127)
                 {
                     System.out.print((char)data[j]);
                 }
@@ -214,7 +214,7 @@ final class TraceUtil
             out.write("\nencoding version = " + (int)encVer);
             byte type = stream.readByte();
             out.write("\nmessage type = " + (int)type + ' ');
-            switch (type)
+            switch(type)
             {
                 case Protocol.requestMsg:
                 {
@@ -267,12 +267,12 @@ final class TraceUtil
             out.write("\nnonmutating = " + nonmutating);
             int sz = stream.readSize();
             out.write("\ncontext = ");
-            while (sz-- > 0)
+            while(sz-- > 0)
             {
                 String key = stream.readString();
                 String value = stream.readString();
                 out.write(key + '/'+ value);
-                if (sz > 0)
+                if(sz > 0)
                 {
                     out.write(", ");
                 }

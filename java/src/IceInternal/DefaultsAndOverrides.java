@@ -19,7 +19,7 @@ public final class DefaultsAndOverrides
 	defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
 
 	value = properties.getProperty("Ice.Default.Host");
-	if (value.length() != 0)
+	if(value.length() != 0)
 	{
 	    defaultHost = value;
 	}
@@ -31,7 +31,7 @@ public final class DefaultsAndOverrides
 	defaultRouter = properties.getProperty("Ice.Default.Router");
 	
 	value = properties.getProperty("Ice.Override.Timeout");
-	if (value.length() > 0)
+	if(value.length() > 0)
 	{
 	    overrideTimeout = true;
 	    overrideTimeoutValue = properties.getPropertyAsInt("Ice.Override.Timeout");
@@ -43,7 +43,7 @@ public final class DefaultsAndOverrides
 	}
 
 	value = properties.getProperty("Ice.Override.Compress");
-	if (value.length() > 0)
+	if(value.length() > 0)
 	{
 	    overrideComppress = true;
 	    overrideComppressValue = properties.getPropertyAsInt("Ice.Override.Compress") != 0;

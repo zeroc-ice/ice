@@ -15,7 +15,7 @@ class CommunicatorI implements Communicator
     public synchronized void
     destroy()
     {
-        if (_instance != null)
+        if(_instance != null)
         {
             _instance.objectAdapterFactory().shutdown();
             _instance.destroy();
@@ -29,7 +29,7 @@ class CommunicatorI implements Communicator
 	//
 	// No mutex locking here!
 	//
-	if (_serverThreadPool != null)
+	if(_serverThreadPool != null)
 	{
 	    _serverThreadPool.initiateShutdown();
 	}
@@ -42,7 +42,7 @@ class CommunicatorI implements Communicator
         // No mutex locking here, otherwise the communicator is blocked
         // while waiting for shutdown.
         //
-	if (_serverThreadPool != null)
+	if(_serverThreadPool != null)
 	{
 	    _serverThreadPool.waitUntilFinished();
 	}
@@ -51,7 +51,7 @@ class CommunicatorI implements Communicator
     public synchronized Ice.ObjectPrx
     stringToProxy(String s)
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new CommunicatorDestroyedException();
         }
@@ -61,7 +61,7 @@ class CommunicatorI implements Communicator
     public synchronized String
     proxyToString(Ice.ObjectPrx proxy)
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new CommunicatorDestroyedException();
         }
@@ -71,7 +71,7 @@ class CommunicatorI implements Communicator
     public synchronized ObjectAdapter
     createObjectAdapter(String name)
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new CommunicatorDestroyedException();
         }
@@ -79,12 +79,12 @@ class CommunicatorI implements Communicator
         ObjectAdapter adapter = createObjectAdapterFromProperty(name, "Ice.Adapter." + name + ".Endpoints");
 
         String router = _instance.properties().getProperty("Ice.Adapter." + name + ".Router");
-        if (router.length() > 0)
+        if(router.length() > 0)
         {
             adapter.addRouter(RouterPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(router)));
         }
 
-	if (_serverThreadPool == null) // Lazy initialization of _serverThreadPool.
+	if(_serverThreadPool == null) // Lazy initialization of _serverThreadPool.
 	{
 	    _serverThreadPool = _instance.serverThreadPool();
 	}
@@ -95,7 +95,7 @@ class CommunicatorI implements Communicator
     public synchronized ObjectAdapter
     createObjectAdapterFromProperty(String name, String property)
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new CommunicatorDestroyedException();
         }
@@ -108,14 +108,14 @@ class CommunicatorI implements Communicator
     public synchronized ObjectAdapter
     createObjectAdapterWithEndpoints(String name, String endpts)
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new CommunicatorDestroyedException();
         }
 
         ObjectAdapter adapter = _instance.objectAdapterFactory().createObjectAdapter(name, endpts);
 
-	if (_serverThreadPool == null) // Lazy initialization of _serverThreadPool.
+	if(_serverThreadPool == null) // Lazy initialization of _serverThreadPool.
 	{
 	    _serverThreadPool = _instance.serverThreadPool();
 	}
@@ -126,7 +126,7 @@ class CommunicatorI implements Communicator
     public synchronized void
     addObjectFactory(ObjectFactory factory, String id)
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new CommunicatorDestroyedException();
         }
@@ -136,7 +136,7 @@ class CommunicatorI implements Communicator
     public synchronized void
     removeObjectFactory(String id)
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new CommunicatorDestroyedException();
         }
@@ -146,7 +146,7 @@ class CommunicatorI implements Communicator
     public synchronized ObjectFactory
     findObjectFactory(String id)
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new CommunicatorDestroyedException();
         }
@@ -156,7 +156,7 @@ class CommunicatorI implements Communicator
     public synchronized void
     addUserExceptionFactory(UserExceptionFactory factory, String id)
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new CommunicatorDestroyedException();
         }
@@ -166,7 +166,7 @@ class CommunicatorI implements Communicator
     public synchronized void
     removeUserExceptionFactory(String id)
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new CommunicatorDestroyedException();
         }
@@ -176,7 +176,7 @@ class CommunicatorI implements Communicator
     public synchronized UserExceptionFactory
     findUserExceptionFactory(String id)
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new CommunicatorDestroyedException();
         }
@@ -186,7 +186,7 @@ class CommunicatorI implements Communicator
     public synchronized Properties
     getProperties()
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new CommunicatorDestroyedException();
         }
@@ -196,7 +196,7 @@ class CommunicatorI implements Communicator
     public synchronized Logger
     getLogger()
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new CommunicatorDestroyedException();
         }
@@ -206,7 +206,7 @@ class CommunicatorI implements Communicator
     public synchronized void
     setLogger(Logger logger)
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new CommunicatorDestroyedException();
         }
@@ -234,7 +234,7 @@ class CommunicatorI implements Communicator
     finalize()
         throws Throwable
     {
-        if (_instance != null)
+        if(_instance != null)
         {
             _instance.logger().warning("communicator has not been destroyed");
         }

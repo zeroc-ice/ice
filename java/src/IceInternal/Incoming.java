@@ -31,11 +31,11 @@ public class Incoming
         _current.operation = _is.readString();
         _current.nonmutating = _is.readBool();
         int sz = _is.readSize();
-        while (sz-- > 0)
+        while(sz-- > 0)
         {
             String first = _is.readString();
             String second = _is.readString();
-            if (_current.context == null)
+            if(_current.context == null)
             {
                 _current.context = new java.util.HashMap();
             }
@@ -43,7 +43,7 @@ public class Incoming
         }
 
         int statusPos = 0;
-        if (response)
+        if(response)
         {
             statusPos = _os.size();
             _os.writeByte((byte)0);
@@ -55,7 +55,7 @@ public class Incoming
         // blobs.
         //
         _is.startReadEncaps();
-        if (response)
+        if(response)
         {
             _os.startWriteEncaps();
         }
@@ -66,23 +66,23 @@ public class Incoming
 
         try
         {
-            if (_adapter != null)
+            if(_adapter != null)
             {
                 servant = _adapter.identityToServant(_current.identity);
 
-                if (servant == null && _current.identity.category.length() > 0)
+                if(servant == null && _current.identity.category.length() > 0)
                 {
                     locator = _adapter.findServantLocator(_current.identity.category);
-                    if (locator != null)
+                    if(locator != null)
                     {
                         servant = locator.locate(_adapter, _current, _cookie);
                     }
                 }
 
-                if (servant == null)
+                if(servant == null)
                 {
                     locator = _adapter.findServantLocator("");
-                    if (locator != null)
+                    if(locator != null)
                     {
                         servant = locator.locate(_adapter, _current, _cookie);
                     }
@@ -91,16 +91,16 @@ public class Incoming
 
             DispatchStatus status;
 
-            if (servant == null)
+            if(servant == null)
             {
                 status = DispatchStatus.DispatchObjectNotExist;
             }
             else
             {
-                if (_current.facet.length() > 0)
+                if(_current.facet.length() > 0)
                 {
                     Ice.Object facetServant = servant.ice_findFacet(_current.facet);
-                    if (facetServant == null)
+                    if(facetServant == null)
                     {
                         status = DispatchStatus.DispatchFacetNotExist;
                     }
@@ -115,23 +115,23 @@ public class Incoming
                 }
             }
 
-            if (locator != null && servant != null)
+            if(locator != null && servant != null)
             {
                 assert(_adapter != null);
                 locator.finished(_adapter, _current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
-            if (response)
+            if(response)
             {
                 _os.endWriteEncaps();
 
-                if (status != DispatchStatus.DispatchOK && status != DispatchStatus.DispatchUserException)
+                if(status != DispatchStatus.DispatchOK && status != DispatchStatus.DispatchUserException)
                 {
                     _os.resize(statusPos, false);
                     _os.writeByte((byte)status.value());
 
-		    if (status == DispatchStatus.DispatchObjectNotExist)
+		    if(status == DispatchStatus.DispatchObjectNotExist)
 		    {
 			_current.identity.__write(_os);
 		    }
@@ -155,14 +155,14 @@ public class Incoming
         }
         catch (Ice.LocationForward ex)
         {
-            if (locator != null && servant != null)
+            if(locator != null && servant != null)
             {
                 assert(_adapter != null);
                 locator.finished(_adapter, _current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
-            if (response)
+            if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(statusPos, false);
@@ -172,14 +172,14 @@ public class Incoming
         }
         catch (Ice.ObjectNotExistException ex)
         {
-            if (locator != null && servant != null)
+            if(locator != null && servant != null)
             {
                 assert(_adapter != null);
                 locator.finished(_adapter, _current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
-            if (response)
+            if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(statusPos, false);
@@ -194,14 +194,14 @@ public class Incoming
         }
         catch (Ice.FacetNotExistException ex)
         {
-            if (locator != null && servant != null)
+            if(locator != null && servant != null)
             {
                 assert(_adapter != null);
                 locator.finished(_adapter, _current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
-            if (response)
+            if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(statusPos, false);
@@ -216,14 +216,14 @@ public class Incoming
         }
         catch (Ice.OperationNotExistException ex)
         {
-            if (locator != null && servant != null)
+            if(locator != null && servant != null)
             {
                 assert(_adapter != null);
                 locator.finished(_adapter, _current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
-            if (response)
+            if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(statusPos, false);
@@ -238,14 +238,14 @@ public class Incoming
         }
         catch (Ice.LocalException ex)
         {
-            if (locator != null && servant != null)
+            if(locator != null && servant != null)
             {
                 assert(_adapter != null);
                 locator.finished(_adapter, _current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
-            if (response)
+            if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(statusPos, false);
@@ -259,14 +259,14 @@ public class Incoming
         /* Not possible in Java - UserExceptions are checked exceptions
         catch (Ice.UserException ex)
         {
-            if (locator != null && servant != null)
+            if(locator != null && servant != null)
             {
                 assert(_adapter != null);
                 locator.finished(_adapter, _current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
-            if (response)
+            if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(statusPos, false);
@@ -279,14 +279,14 @@ public class Incoming
         */
         catch (RuntimeException ex)
         {
-            if (locator != null && servant != null)
+            if(locator != null && servant != null)
             {
                 assert(_adapter != null);
                 locator.finished(_adapter, _current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
-            if (response)
+            if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(statusPos, false);
@@ -318,7 +318,7 @@ public class Incoming
     {
         _is.reset();
         _os.reset();
-        if (_current.context != null)
+        if(_current.context != null)
         {
             _current.context.clear();
         }

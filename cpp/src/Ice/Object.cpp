@@ -92,7 +92,7 @@ vector<string>
 Ice::Object::ice_facets(const Current&)
 {
     vector<string> v;
-    for (map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
+    for(map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
     {
 	v.push_back(p->first);
     }
@@ -168,12 +168,12 @@ Ice::Object::__dispatch(Incoming& in, const Current& current)
     pair<const string*, const string*> r =
 	equal_range(__all, __all + sizeof(__all) / sizeof(string), current.operation);
 
-    if (r.first == r.second)
+    if(r.first == r.second)
     {
 	return DispatchOperationNotExist;
     }					     
 
-    switch (r.first - __all)
+    switch(r.first - __all)
     {
         case 0:
         {
@@ -207,7 +207,7 @@ Ice::Object::__write(::IceInternal::BasicStream* __os) const
     IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
     
     __os->writeSize(Int(_activeFacetMap.size()));
-    for (map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
+    for(map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
     {
 	__os->write(p->first);
 	__os->write(p->second);
@@ -225,7 +225,7 @@ Ice::Object::__read(::IceInternal::BasicStream* __is)
     _activeFacetMap.clear();
     _activeFacetMapHint = _activeFacetMap.end();
 
-    while (sz-- > 0)
+    while(sz-- > 0)
     {
 	pair<string, ObjectPtr> v;
 	__is->read(v.first);
@@ -240,7 +240,7 @@ Ice::Object::__marshal(const ::Ice::StreamPtr& __os) const
     IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
 
     __os->startWriteDictionary("ice:facets", _activeFacetMap.size());
-    for (map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
+    for(map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
     {
 	__os->startWriteDictionaryElement();
 	__os->writeString("key", p->first);
@@ -265,7 +265,7 @@ Ice::Object::__unmarshal(const ::Ice::StreamPtr& __is)
     _activeFacetMap.clear();
     _activeFacetMapHint = _activeFacetMap.end();
     
-    while (sz-- > 0)
+    while(sz-- > 0)
     {
 	__is->startReadDictionaryElement();
 	pair<string, ObjectPtr> v;
@@ -304,22 +304,22 @@ Ice::Object::ice_removeFacet(const string& name)
 
     map<string, ObjectPtr>::iterator p = _activeFacetMap.end();
     
-    if (_activeFacetMapHint != _activeFacetMap.end())
+    if(_activeFacetMapHint != _activeFacetMap.end())
     {
-	if (_activeFacetMapHint->first == name)
+	if(_activeFacetMapHint->first == name)
 	{
 	    p = _activeFacetMapHint;
 	}
     }
     
-    if (p == _activeFacetMap.end())
+    if(p == _activeFacetMap.end())
     {
 	p = _activeFacetMap.find(name);
     }
     
-    if (p != _activeFacetMap.end())
+    if(p != _activeFacetMap.end())
     {
-	if (p == _activeFacetMapHint)
+	if(p == _activeFacetMapHint)
 	{
 	    _activeFacetMap.erase(p++);
 	    _activeFacetMapHint = p;
@@ -347,20 +347,20 @@ Ice::Object::ice_findFacet(const string& name)
     
     map<string, ObjectPtr>::iterator p = _activeFacetMap.end();
     
-    if (_activeFacetMapHint != _activeFacetMap.end())
+    if(_activeFacetMapHint != _activeFacetMap.end())
     {
-	if (_activeFacetMapHint->first == name)
+	if(_activeFacetMapHint->first == name)
 	{
 	    p = _activeFacetMapHint;
 	}
     }
     
-    if (p == _activeFacetMap.end())
+    if(p == _activeFacetMap.end())
     {
 	p = _activeFacetMap.find(name);
     }
     
-    if (p != _activeFacetMap.end())
+    if(p != _activeFacetMap.end())
     {
 	_activeFacetMapHint = p;
 	return p->second;
@@ -380,7 +380,7 @@ Ice::Blobject::__dispatch(Incoming& in, const Current& current)
     in.is()->readBlob(inParams, sz);
     bool ok = ice_invoke(inParams, outParams, current);
     in.os()->writeBlob(outParams);
-    if (ok)
+    if(ok)
     {
 	return ::IceInternal::DispatchOK;
     }

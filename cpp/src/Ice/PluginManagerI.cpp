@@ -33,7 +33,7 @@ Ice::PluginManagerI::getPlugin(const string& name)
     IceUtil::Mutex::Lock sync(*this);
 
     map<string, PluginInfo>::const_iterator r = _plugins.find(name);
-    if (r != _plugins.end())
+    if(r != _plugins.end())
     {
         return (*r).second.plugin;
     }
@@ -46,7 +46,7 @@ Ice::PluginManagerI::addPlugin(const string& name, const PluginPtr& plugin)
     IceUtil::Mutex::Lock sync(*this);
 
     map<string, PluginInfo>::const_iterator r = _plugins.find(name);
-    if (r != _plugins.end())
+    if(r != _plugins.end())
     {
         throw PluginExistsException(__FILE__, __LINE__);
     }
@@ -61,7 +61,7 @@ Ice::PluginManagerI::destroy()
     IceUtil::Mutex::Lock sync(*this);
 
     map<string, PluginInfo>::iterator r;
-    for (r = _plugins.begin(); r != _plugins.end(); ++r)
+    for(r = _plugins.begin(); r != _plugins.end(); ++r)
     {
         (*r).second.plugin->destroy();
         (*r).second.plugin = 0;
@@ -85,7 +85,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
     PropertiesPtr properties = _instance->properties();
     PropertyDict plugins = properties->getPropertiesForPrefix(prefix);
     PropertyDict::const_iterator p;
-    for (p = plugins.begin(); p != plugins.end(); ++p)
+    for(p = plugins.begin(); p != plugins.end(); ++p)
     {
         string name = p->first.substr(prefix.size());
         const string& value = p->second;
@@ -96,7 +96,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
         string entryPoint;
         StringSeq args;
         string::size_type pos = value.find_first_of(" \t\n");
-        if (pos == string::npos)
+        if(pos == string::npos)
         {
             entryPoint = value;
         }
@@ -104,10 +104,10 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
         {
             entryPoint = value.substr(0, pos);
             string::size_type beg = value.find_first_not_of(" \t\n", pos);
-            while (beg != string::npos)
+            while(beg != string::npos)
             {
                 string::size_type end = value.find_first_of(" \t\n", beg);
-                if (end == string::npos)
+                if(end == string::npos)
                 {
                     args.push_back(value.substr(beg));
                     beg = end;
@@ -143,12 +143,12 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& entryPoint, co
     PluginInfo info;
     info.library = new DynamicLibrary();
     DynamicLibrary::symbol_type sym = info.library->loadEntryPoint(entryPoint);
-    if (sym == 0)
+    if(sym == 0)
     {
         ostringstream out;
         string msg = info.library->getErrorMessage();
         out << "unable to load entry point `" << entryPoint << "'";
-        if (!msg.empty())
+        if(!msg.empty())
         {
             out << ": " + msg;
         }

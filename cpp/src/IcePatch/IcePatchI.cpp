@@ -53,15 +53,15 @@ IcePatch::DirectoryI::getContents(const Ice::Current& current)
 	string path = identityToPath(current.identity);
 	StringSeq paths = readDirectory(path);
 	filteredPaths.reserve(paths.size() / 3);
-	for (StringSeq::const_iterator p = paths.begin(); p != paths.end(); ++p)
+	for(StringSeq::const_iterator p = paths.begin(); p != paths.end(); ++p)
 	{
-	    if (ignoreSuffix(*p))
+	    if(ignoreSuffix(*p))
 	    {
 		pair<StringSeq::const_iterator, StringSeq::const_iterator> r =
 		    equal_range(paths.begin(), paths.end(), removeSuffix(*p));
-		if (r.first == r.second)
+		if(r.first == r.second)
 		{
-		    if (!syncUpgraded)
+		    if(!syncUpgraded)
 		    {
 			sync.timedUpgrade(_busyTimeout);
 			syncUpgraded = true;
@@ -69,11 +69,11 @@ IcePatch::DirectoryI::getContents(const Ice::Current& current)
 		    StringSeq paths2 = readDirectory(path);
 		    pair<StringSeq::const_iterator, StringSeq::const_iterator> r2 =
 			equal_range(paths2.begin(), paths2.end(), removeSuffix(*p));
-		    if (r2.first == r2.second)
+		    if(r2.first == r2.second)
 		    {
 			removeRecursive(*p);
 
-			if (_traceLevel > 0)
+			if(_traceLevel > 0)
 			{
 			    Trace out(_logger, "IcePatch");
 			    out << "removed orphaned file `" << *p << "'";
@@ -98,7 +98,7 @@ IcePatch::DirectoryI::getContents(const Ice::Current& current)
     //
     FileDescSeq result;
     result.reserve(filteredPaths.size());
-    for (StringSeq::const_iterator p = filteredPaths.begin(); p != filteredPaths.end(); ++p)
+    for(StringSeq::const_iterator p = filteredPaths.begin(); p != filteredPaths.end(); ++p)
     {
 	FilePrx file = FilePrx::uncheckedCast(_adapter->createProxy(pathToIdentity(*p)));
 	try
@@ -131,15 +131,15 @@ IcePatch::RegularI::describe(const Ice::Current& current)
 	
 	FileInfo info = getFileInfo(path, true);
 	FileInfo infoMD5 = getFileInfo(path + ".md5", false);
-	if (infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
+	if(infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
 	{
 	    sync.timedUpgrade(_busyTimeout);
 	    infoMD5 = getFileInfo(path + ".md5", false);
-	    if (infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
+	    if(infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
 	    {
 		createMD5(path);
 		
-		if (_traceLevel > 0)
+		if(_traceLevel > 0)
 		{
 		    Trace out(_logger, "IcePatch");
 		    out << "created .md5 file for `" << path << "'";
@@ -168,15 +168,15 @@ IcePatch::RegularI::getBZ2Size(const Ice::Current& current)
 	
 	FileInfo info = getFileInfo(path, true);
 	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
-	if (infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
+	if(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	{
 	    sync.timedUpgrade(_busyTimeout);
 	    infoBZ2 = getFileInfo(path + ".bz2", false);
-	    if (infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
+	    if(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	    {
 		createBZ2(path);
 		
-		if (_traceLevel > 0)
+		if(_traceLevel > 0)
 		{
 		    Trace out(_logger, "IcePatch");
 		    out << "created .bz2 file for `" << path << "'";
@@ -207,15 +207,15 @@ IcePatch::RegularI::getBZ2(Ice::Int pos, Ice::Int num, const Ice::Current& curre
 	
 	FileInfo info = getFileInfo(path, true);
 	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
-	if (infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
+	if(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	{
 	    sync.timedUpgrade(_busyTimeout);
 	    infoBZ2 = getFileInfo(path + ".bz2", false);
-	    if (infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
+	    if(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	    {
 		createBZ2(path);
 		
-		if (_traceLevel > 0)
+		if(_traceLevel > 0)
 		{
 		    Trace out(_logger, "IcePatch");
 		    out << "created .bz2 file for `" << path << "'";
@@ -241,15 +241,15 @@ IcePatch::RegularI::getBZ2MD5(Ice::Int size, const Ice::Current& current)
 	
 	FileInfo info = getFileInfo(path, true);
 	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
-	if (infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
+	if(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	{
 	    sync.timedUpgrade(_busyTimeout);
 	    infoBZ2 = getFileInfo(path + ".bz2", false);
-	    if (infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
+	    if(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	    {
 		createBZ2(path);
 		
-		if (_traceLevel > 0)
+		if(_traceLevel > 0)
 		{
 		    Trace out(_logger, "IcePatch");
 		    out << "created .bz2 file for `" << path << "'";

@@ -43,9 +43,9 @@ CallbackReceiverI::callbackOK()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    while (!_callback)
+    while(!_callback)
     {
-	if (!timedWait(IceUtil::Time::milliSeconds(5000)))
+	if(!timedWait(IceUtil::Time::milliSeconds(5000)))
 	{
 	    return false;
 	}

@@ -15,14 +15,14 @@ public class IntMap
     public
     IntMap(int initialCapacity, float loadFactor)
     {
-        if (initialCapacity > MAXIMUM_CAPACITY)
+        if(initialCapacity > MAXIMUM_CAPACITY)
         {
             initialCapacity = MAXIMUM_CAPACITY;
         }
 
         // Find a power of 2 >= initialCapacity
         int capacity = 1;
-        while (capacity < initialCapacity)
+        while(capacity < initialCapacity)
         {
             capacity <<= 1;
         }
@@ -63,13 +63,13 @@ public class IntMap
     {
         int i = indexFor(key, _table.length);
         Entry e = _table[i];
-        while (true)
+        while(true)
         {
-            if (e == null)
+            if(e == null)
             {
                 return e;
             }
-            if (key == e.key)
+            if(key == e.key)
             {
                 return e.value;
             }
@@ -82,9 +82,9 @@ public class IntMap
     {
         int i = indexFor(key, _table.length);
         Entry e = _table[i];
-        while (e != null)
+        while(e != null)
         {
-            if (key == e.key)
+            if(key == e.key)
             {
                 return true;
             }
@@ -98,9 +98,9 @@ public class IntMap
     {
         int i = indexFor(key, _table.length);
 
-        for (Entry e = _table[i]; e != null; e = e.next)
+        for(Entry e = _table[i]; e != null; e = e.next)
         {
-            if (key == e.key)
+            if(key == e.key)
             {
                 Object oldValue = e.value;
                 e.value = value;
@@ -120,14 +120,14 @@ public class IntMap
         Entry prev = _table[i];
         Entry e = prev;
 
-        while (e != null)
+        while(e != null)
         {
             Entry next = e.next;
-            if (key == e.key)
+            if(key == e.key)
             {
                 _modCount++;
                 _size--;
-                if (prev == e)
+                if(prev == e)
                 {
                     _table[i] = next;
                 }
@@ -151,7 +151,7 @@ public class IntMap
     {
         _modCount++;
         Entry tab[] = _table;
-        for (int i = 0; i < tab.length; i++)
+        for(int i = 0; i < tab.length; i++)
         {
             tab[i] = null;
         }
@@ -208,7 +208,7 @@ public class IntMap
     addEntry(int key, Object value, int bucketIndex)
     {
         Entry e;
-        if (_entryCache != null)
+        if(_entryCache != null)
         {
             e = _entryCache;
             _entryCache = _entryCache.next;
@@ -221,7 +221,7 @@ public class IntMap
             e = new Entry(key, value, _table[bucketIndex]);
         }
         _table[bucketIndex] = e;
-        if (_size++ >= _threshold)
+        if(_size++ >= _threshold)
         {
             resize(2 * _table.length);
         }
@@ -235,7 +235,7 @@ public class IntMap
         int oldCapacity = oldTable.length;
 
         // check if needed
-        if (_size < _threshold || oldCapacity > newCapacity)
+        if(_size < _threshold || oldCapacity > newCapacity)
         {
             return;
         }
@@ -251,10 +251,10 @@ public class IntMap
     {
         Entry[] src = _table;
         int newCapacity = newTable.length;
-        for (int j = 0; j < src.length; j++)
+        for(int j = 0; j < src.length; j++)
         {
             Entry e = src[j];
-            if (e != null)
+            if(e != null)
             {
                 src[j] = null;
                 do
@@ -265,7 +265,7 @@ public class IntMap
                     newTable[i] = e;
                     e = next;
                 }
-                while (e != null);
+                while(e != null);
             }
         }
     }
@@ -278,9 +278,9 @@ public class IntMap
             Entry[] t = _table;
             int i = t.length;
             Entry n = null;
-            if (_size != 0) // advance to first entry
+            if(_size != 0) // advance to first entry
             {
-                while (i > 0 && (n = t[--i]) == null)
+                while(i > 0 && (n = t[--i]) == null)
                     ;
             }
             _next = n;
@@ -296,12 +296,12 @@ public class IntMap
         public Object
         next()
         {
-            if (_modCount != _expectedModCount)
+            if(_modCount != _expectedModCount)
             {
                 throw new java.util.ConcurrentModificationException();
             }
             Entry e = _next;
-            if (e == null)
+            if(e == null)
             {
                 throw new java.util.NoSuchElementException();
             }
@@ -309,7 +309,7 @@ public class IntMap
             Entry n = e.next;
             Entry[] t = _table;
             int i = _index;
-            while (n == null && i > 0)
+            while(n == null && i > 0)
             {
                 n = t[--i];
             }
@@ -321,11 +321,11 @@ public class IntMap
         public void
         remove()
         {
-            if (_current == null)
+            if(_current == null)
             {
                 throw new IllegalStateException();
             }
-            if (_modCount != _expectedModCount)
+            if(_modCount != _expectedModCount)
             {
                 throw new java.util.ConcurrentModificationException();
             }

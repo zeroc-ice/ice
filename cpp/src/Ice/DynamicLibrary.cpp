@@ -43,7 +43,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint)
 {
     string::size_type colon = entryPoint.rfind(':');
     string::size_type comma = entryPoint.find(',');
-    if (colon == string::npos || colon == entryPoint.size() - 1 ||
+    if(colon == string::npos || colon == entryPoint.size() - 1 ||
         (comma != string::npos && (comma > colon || comma == colon - 1)))
     {
         _err = "invalid entry point format `" + entryPoint + "'";
@@ -52,7 +52,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint)
     string libSpec = entryPoint.substr(0, colon);
     string funcName = entryPoint.substr(colon + 1);
     string libName, version, debug;
-    if (comma == string::npos)
+    if(comma == string::npos)
     {
         libName = libSpec;
         version = ICE_STRING_VERSION;
@@ -67,9 +67,9 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint)
 
 #ifdef _WIN32
     lib = libName;
-    for (string::size_type n = 0; n < version.size(); n++)
+    for(string::size_type n = 0; n < version.size(); n++)
     {
-        if (version[n] != '.') // Remove periods
+        if(version[n] != '.') // Remove periods
         {
             lib += version[n];
         }
@@ -82,7 +82,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint)
     lib = "lib" + libName + ".so." + version;
 #endif
 
-    if (!load(lib))
+    if(!load(lib))
     {
         return 0;
     }
@@ -97,13 +97,13 @@ IceInternal::DynamicLibrary::load(const string& lib)
     _hnd = LoadLibrary(lib.c_str());
 #else
     _hnd = dlopen(lib.c_str(), RTLD_NOW);
-    if (_hnd == 0)
+    if(_hnd == 0)
     {
         //
         // Remember the most recent error in _err.
         //
         const char* err = dlerror();
-        if (err)
+        if(err)
         {
             _err = err;
         }
@@ -120,13 +120,13 @@ IceInternal::DynamicLibrary::getSymbol(const string& name)
     return GetProcAddress(_hnd, name.c_str());
 #else
     symbol_type result = dlsym(_hnd, name.c_str());
-    if (result == 0)
+    if(result == 0)
     {
         //
         // Remember the most recent error in _err.
         //
         const char* err = dlerror();
-        if (err)
+        if(err)
         {
             _err = err;
         }

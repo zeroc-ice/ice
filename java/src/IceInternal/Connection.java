@@ -77,7 +77,7 @@ public final class Connection extends EventHandler
         {
             assert(_proxyUsageCount > 0);
 	    --_proxyUsageCount;
-	    if (_proxyUsageCount == 0 && _adapter == null)
+	    if(_proxyUsageCount == 0 && _adapter == null)
 	    {
 		assert(_requests.isEmpty());
 		setState(StateClosing, new Ice.CloseConnectionException());
@@ -111,7 +111,7 @@ public final class Connection extends EventHandler
         _mutex.lock();
         try
         {
-            if (_exception != null)
+            if(_exception != null)
             {
                 throw _exception;
             }
@@ -128,10 +128,10 @@ public final class Connection extends EventHandler
                 // Fill in the message size and request ID.
                 //
                 os.writeInt(os.size());
-                if (!_endpoint.datagram() && !oneway)
+                if(!_endpoint.datagram() && !oneway)
                 {
                     requestId = _nextRequestId++;
-                    if (requestId <= 0)
+                    if(requestId <= 0)
                     {
                         _nextRequestId = 1;
                         requestId = _nextRequestId++;
@@ -151,7 +151,7 @@ public final class Connection extends EventHandler
             // Only add to the request map if there was no exception, and if
             // the operation is not oneway.
             //
-            if (!_endpoint.datagram() && !oneway)
+            if(!_endpoint.datagram() && !oneway)
             {
                 _requests.put(requestId, out);
             }
@@ -175,7 +175,7 @@ public final class Connection extends EventHandler
     {
         _mutex.lock();
 
-        if (_exception != null)
+        if(_exception != null)
         {
             _mutex.unlock();
             throw _exception;
@@ -187,7 +187,7 @@ public final class Connection extends EventHandler
         // called.
         //
 
-        if (_batchStream.size() == 0)
+        if(_batchStream.size() == 0)
         {
             _batchStream.writeBlob(_batchRequestHdr);
         }
@@ -202,7 +202,7 @@ public final class Connection extends EventHandler
     public void
     finishBatchRequest(Outgoing out)
     {
-        if (_exception != null)
+        if(_exception != null)
         {
             _mutex.unlock();
             throw _exception;
@@ -226,7 +226,7 @@ public final class Connection extends EventHandler
         _mutex.lock();
         try
         {
-            if (_exception != null)
+            if(_exception != null)
             {
                 throw _exception;
             }
@@ -234,7 +234,7 @@ public final class Connection extends EventHandler
 
             try
             {
-                if (_batchStream.size() == 0)
+                if(_batchStream.size() == 0)
                 {
                     return; // Nothing to send.
                 }
@@ -291,9 +291,9 @@ public final class Connection extends EventHandler
             // mode. However, we only change subscription if we're in active
             // mode, and thus ignore closing mode here.
             //
-            if (_state == StateActive)
+            if(_state == StateActive)
             {
-                if (adapter != null && _adapter == null)
+                if(adapter != null && _adapter == null)
                 {
                     //
                     // Client is now server.
@@ -301,7 +301,7 @@ public final class Connection extends EventHandler
                     unregisterWithPool();
                 }
                 
-                if (adapter == null && _adapter != null)
+                if(adapter == null && _adapter != null)
                 {
                     //
                     // Server is now client.
@@ -372,7 +372,7 @@ public final class Connection extends EventHandler
         {
             threadPool.promoteFollower();
 
-            if (_state == StateClosed)
+            if(_state == StateClosed)
             {
                 Thread.yield();
                 return;
@@ -385,7 +385,7 @@ public final class Connection extends EventHandler
                 byte messageType = stream.readByte();
                 stream.pos(Protocol.headerSize);
 
-                switch (messageType)
+                switch(messageType)
                 {
 		    case Protocol.compressedRequestMsg:
 		    case Protocol.compressedRequestBatchMsg:
@@ -396,7 +396,7 @@ public final class Connection extends EventHandler
 			
                     case Protocol.requestMsg:
                     {
-                        if (_state == StateClosing)
+                        if(_state == StateClosing)
                         {
                             TraceUtil.traceRequest("received request during closing\n" +
                                                    "(ignored by server, client will retry)",
@@ -412,7 +412,7 @@ public final class Connection extends EventHandler
 
                     case Protocol.requestBatchMsg:
                     {
-                        if (_state == StateClosing)
+                        if(_state == StateClosing)
                         {
                             TraceUtil.traceBatchRequest("received batch request during closing\n" +
                                                         "(ignored by server, client will retry)",
@@ -432,7 +432,7 @@ public final class Connection extends EventHandler
                         TraceUtil.traceReply("received reply", stream, _logger, _traceLevels);
                         int requestId = stream.readInt();
                         Outgoing out = (Outgoing)_requests.remove(requestId);
-                        if (out == null)
+                        if(out == null)
                         {
                             throw new Ice.UnknownRequestIdException();
                         }
@@ -443,9 +443,9 @@ public final class Connection extends EventHandler
                     case Protocol.closeConnectionMsg:
                     {
                         TraceUtil.traceHeader("received close connection", stream, _logger, _traceLevels);
-                        if (_endpoint.datagram())
+                        if(_endpoint.datagram())
                         {
-                            if (_warn)
+                            if(_warn)
                             {
                                 _logger.warning("ignoring close connection message for datagram connection:\n" +
                                                 _transceiver.toString());
@@ -482,7 +482,7 @@ public final class Connection extends EventHandler
         // Method invocation must be done outside the thread
         // synchronization, so that nested callbacks are possible.
         //
-        if (in != null)
+        if(in != null)
         {
             try
             {
@@ -494,10 +494,10 @@ public final class Connection extends EventHandler
 
                 try
                 {
-                    if (!batch)
+                    if(!batch)
                     {
                         int requestId = is.readInt();
-                        if (!_endpoint.datagram() && requestId != 0) // 0 means oneway.
+                        if(!_endpoint.datagram() && requestId != 0) // 0 means oneway.
                         {
                             response = true;
                             ++_responseCount;
@@ -519,7 +519,7 @@ public final class Connection extends EventHandler
                             in = null;
                             try
                             {
-                                if (_warn)
+                                if(_warn)
                                 {
                                     warning("connection exception", ex);
                                 }
@@ -536,7 +536,7 @@ public final class Connection extends EventHandler
                             in = null;
                             try
                             {
-                                if (_warn)
+                                if(_warn)
                                 {
                                     warning("unknown exception", ex);
                                 }
@@ -547,7 +547,7 @@ public final class Connection extends EventHandler
                             }
                         }
                     }
-                    while (batch && is.pos() < is.size());
+                    while(batch && is.pos() < is.size());
                 }
                 catch (Ice.LocalException ex)
                 {
@@ -565,14 +565,14 @@ public final class Connection extends EventHandler
                     }
                 }
 
-                if (response)
+                if(response)
                 {
                     _mutex.lock();
                     try
                     {
                         try
                         {
-                            if (_state == StateClosed)
+                            if(_state == StateClosed)
                             {
                                 return;
                             }
@@ -589,7 +589,7 @@ public final class Connection extends EventHandler
 
                             --_responseCount;
 
-                            if (_state == StateClosing && _responseCount == 0 && !_endpoint.datagram())
+                            if(_state == StateClosing && _responseCount == 0 && !_endpoint.datagram())
                             {
                                 closeConnection();
                             }
@@ -602,7 +602,7 @@ public final class Connection extends EventHandler
                     }
                     finally
                     {
-                        if (in != null)
+                        if(in != null)
                         {
                             reclaimIncoming(in);
                             in = null;
@@ -613,7 +613,7 @@ public final class Connection extends EventHandler
             }
             finally
             {
-                if (in != null)
+                if(in != null)
                 {
                     _mutex.lock();
                     reclaimIncoming(in);
@@ -631,11 +631,11 @@ public final class Connection extends EventHandler
         {
             threadPool.promoteFollower();
 
-            if (_state == StateActive || _state == StateClosing)
+            if(_state == StateActive || _state == StateClosing)
             {
                 registerWithPool();
             }
-            else if (_state == StateClosed)
+            else if(_state == StateClosed)
             {
                 _transceiver.close();
             }
@@ -665,7 +665,7 @@ public final class Connection extends EventHandler
     tryDestroy(ThreadPool threadPool)
     {
         boolean isLocked = _mutex.trylock();
-        if (!isLocked)
+        if(!isLocked)
         {
             return false;
         }
@@ -728,7 +728,7 @@ public final class Connection extends EventHandler
         {
             _batchStream.destroy();
 
-            switch (reason)
+            switch(reason)
             {
                 case ObjectAdapterDeactivated:
                 {
@@ -757,21 +757,21 @@ public final class Connection extends EventHandler
     private void
     setState(int state, Ice.LocalException ex)
     {
-        if (_state == state) // Don't switch twice.
+        if(_state == state) // Don't switch twice.
         {
             return;
         }
 
-        if (_exception == null)
+        if(_exception == null)
         {
             _exception = ex;
 
-            if (_warn)
+            if(_warn)
             {
                 //
                 // Don't warn about certain expected exceptions.
                 //
-                if (!(ex instanceof Ice.CloseConnectionException ||
+                if(!(ex instanceof Ice.CloseConnectionException ||
                       ex instanceof Ice.CommunicatorDestroyedException ||
                       ex instanceof Ice.ObjectAdapterDeactivatedException ||
                       (ex instanceof Ice.ConnectionLostException && _state == StateClosing)))
@@ -782,7 +782,7 @@ public final class Connection extends EventHandler
         }
 
         java.util.Iterator i = _requests.entryIterator();
-        while (i.hasNext())
+        while(i.hasNext())
         {
             IntMap.Entry e = (IntMap.Entry)i.next();
             Outgoing out = (Outgoing)e.getValue();
@@ -800,21 +800,21 @@ public final class Connection extends EventHandler
         // We don't want to send close connection messages if the endpoint
         // only supports oneway transmission from client to server.
         //
-        if (_endpoint.datagram() && state == StateClosing)
+        if(_endpoint.datagram() && state == StateClosing)
         {
             state = StateClosed;
         }
 
-        if (_state == state) // Don't switch twice.
+        if(_state == state) // Don't switch twice.
         {
             return;
         }
 
-        switch (state)
+        switch(state)
         {
             case StateActive:
             {
-                if (_state != StateHolding) // Can only switch from holding to active.
+                if(_state != StateHolding) // Can only switch from holding to active.
                 {
                     return;
                 }
@@ -824,7 +824,7 @@ public final class Connection extends EventHandler
 
             case StateHolding:
             {
-                if (_state != StateActive) // Can only switch from active to holding.
+                if(_state != StateActive) // Can only switch from active to holding.
                 {
                     return;
                 }
@@ -834,11 +834,11 @@ public final class Connection extends EventHandler
 
             case StateClosing:
             {
-                if (_state == StateClosed) // Can't change back from closed.
+                if(_state == StateClosed) // Can't change back from closed.
                 {
                     return;
                 }
-                if (_state == StateHolding)
+                if(_state == StateHolding)
                 {
                     //
                     // We need to continue to read data in closing state.
@@ -850,7 +850,7 @@ public final class Connection extends EventHandler
 
             case StateClosed:
             {
-                if (_state == StateHolding)
+                if(_state == StateHolding)
                 {
                     //
                     // If we come from holding state, we first need to
@@ -866,7 +866,7 @@ public final class Connection extends EventHandler
 
         _state = state;
 
-        if (_state == StateClosing && _responseCount == 0 && !_endpoint.datagram())
+        if(_state == StateClosing && _responseCount == 0 && !_endpoint.datagram())
         {
             try
             {
@@ -894,11 +894,11 @@ public final class Connection extends EventHandler
     private void
     registerWithPool()
     {
-	if (!_registeredWithPool)
+	if(!_registeredWithPool)
 	{
-	    if (_adapter != null)
+	    if(_adapter != null)
 	    {
-		if (_serverThreadPool == null)
+		if(_serverThreadPool == null)
 		{
 		    _serverThreadPool = _instance.serverThreadPool();
 		    assert(_serverThreadPool != null);
@@ -907,7 +907,7 @@ public final class Connection extends EventHandler
 	    }
 	    else
 	    {
-		if (_clientThreadPool == null)
+		if(_clientThreadPool == null)
 		{
 		    _clientThreadPool = _instance.clientThreadPool();
 		    assert(_clientThreadPool != null);
@@ -922,9 +922,9 @@ public final class Connection extends EventHandler
     private void
     unregisterWithPool()
     {
-	if (_registeredWithPool)
+	if(_registeredWithPool)
 	{
-	    if (_adapter != null)
+	    if(_adapter != null)
 	    {
 		assert(_serverThreadPool != null);
 		_serverThreadPool.unregister(_transceiver.fd());
@@ -949,12 +949,12 @@ public final class Connection extends EventHandler
         {
             t.printStackTrace(pw);
             t = t.getCause();
-            if (t != null)
+            if(t != null)
             {
                 pw.println("Caused by:\n");
             }
         }
-        while (t != null);
+        while(t != null);
         pw.flush();
         String s = msg + ":\n" + sw.toString() + _transceiver.toString();
         _logger.warning(s);
@@ -964,7 +964,7 @@ public final class Connection extends EventHandler
     getIncoming()
     {
         Incoming in;
-        if (_incomingCache == null)
+        if(_incomingCache == null)
         {
             in = new Incoming(_instance, _adapter);
         }

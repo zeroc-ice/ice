@@ -46,7 +46,7 @@ IceInternal::ThreadPool::unregister(SOCKET fd)
 void
 IceInternal::ThreadPool::promoteFollower()
 {
-    if (_multipleThreads)
+    if(_multipleThreads)
     {
 	_threadMutex.unlock();
     }
@@ -63,12 +63,12 @@ IceInternal::ThreadPool::waitUntilFinished()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
-    while (_handlers != 0 && _threadNum != 0)
+    while(_handlers != 0 && _threadNum != 0)
     {
 	wait();
     }
 
-    if (_handlers != 0)
+    if(_handlers != 0)
     {
 	Error out(_instance->logger());
 	out << "can't wait for graceful application termination in thread pool\n"
@@ -89,7 +89,7 @@ IceInternal::ThreadPool::joinWithAllThreads()
     // needed. (Synchronization wouldn't be possible here anyway,
     // because otherwise the other threads would never terminate.)
     //
-    for (vector<IceUtil::ThreadControl>::iterator p = _threads.begin(); p != _threads.end(); ++p)
+    for(vector<IceUtil::ThreadControl>::iterator p = _threads.begin(); p != _threads.end(); ++p)
     {
 	p->join();
     }
@@ -114,7 +114,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, bool server) :
     _maxFd = _fdIntrRead;
     _minFd = _fdIntrRead;
 
-    if (server)
+    if(server)
     {
 	_timeout = _instance->properties()->getPropertyAsInt("Ice.ServerIdleTime");
 	_threadNum = _instance->properties()->getPropertyAsIntWithDefault("Ice.ServerThreadPool.Size", 10);
@@ -124,12 +124,12 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, bool server) :
 	_threadNum = _instance->properties()->getPropertyAsIntWithDefault("Ice.ClientThreadPool.Size", 1);
     }
 
-    if (_threadNum < 1)
+    if(_threadNum < 1)
     {
 	_threadNum = 1;
     }
 
-    if (_threadNum > 1)
+    if(_threadNum > 1)
     {
 	_multipleThreads = true;
     }
@@ -137,7 +137,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, bool server) :
     __setNoDelete(true);
     try
     {
-	for (int i = 0 ; i < _threadNum ; ++i)
+	for(int i = 0 ; i < _threadNum ; ++i)
 	{
 	    IceUtil::ThreadPtr thread = new EventHandlerThread(this);
 	    _threads.push_back(thread->start());
@@ -187,9 +187,9 @@ IceInternal::ThreadPool::clearInterrupt()
 repeat:
 
 #ifdef _WIN32
-    if (::recv(_fdIntrRead, &c, 1, 0) == SOCKET_ERROR)
+    if(::recv(_fdIntrRead, &c, 1, 0) == SOCKET_ERROR)
     {
-	if (interrupted())
+	if(interrupted())
 	{
 	    goto repeat;
 	}
@@ -199,9 +199,9 @@ repeat:
 	throw ex;
     }
 #else
-    if (::read(_fdIntrRead, &c, 1) == -1)
+    if(::read(_fdIntrRead, &c, 1) == -1)
     {
-	if (interrupted())
+	if(interrupted())
 	{
 	    goto repeat;
 	}
@@ -221,9 +221,9 @@ IceInternal::ThreadPool::setInterrupt(char c)
 repeat:
 
 #ifdef _WIN32
-    if (::send(_fdIntrWrite, &c, 1, 0) == SOCKET_ERROR)
+    if(::send(_fdIntrWrite, &c, 1, 0) == SOCKET_ERROR)
     {
-	if (interrupted())
+	if(interrupted())
 	{
 	    goto repeat;
 	}
@@ -233,9 +233,9 @@ repeat:
 	throw ex;
     }
 #else
-    if (::write(_fdIntrWrite, &c, 1) == -1)
+    if(::write(_fdIntrWrite, &c, 1) == -1)
     {
-	if (interrupted())
+	if(interrupted())
 	{
 	    goto repeat;
 	}
@@ -253,20 +253,20 @@ IceInternal::ThreadPool::run()
     ThreadPoolPtr self = this;
     bool shutdown = false;
 
-    while (true)
+    while(true)
     {
-	if (_multipleThreads)
+	if(_multipleThreads)
 	{
 	    _threadMutex.lock();
 	}
 
     repeatSelect:
 	
-	if (shutdown) // Shutdown has been initiated.
+	if(shutdown) // Shutdown has been initiated.
 	{
 	    shutdown = false;
 	    ObjectAdapterFactoryPtr factory = _instance->objectAdapterFactory();
-	    if (factory)
+	    if(factory)
 	    {
 		factory->shutdown();
 	    }
@@ -275,7 +275,7 @@ IceInternal::ThreadPool::run()
 	fd_set fdSet;
 	memcpy(&fdSet, &_fdSet, sizeof(fd_set));
 	int ret;
-	if (_timeout)
+	if(_timeout)
 	{
 	    struct timeval tv;
 	    tv.tv_sec = _timeout;
@@ -287,7 +287,7 @@ IceInternal::ThreadPool::run()
 	    ret = ::select(_maxFd + 1, &fdSet, 0, 0, 0);
 	}
 	
-	if (ret == 0) // Timeout.
+	if(ret == 0) // Timeout.
 	{
 	    assert(_timeout);
 	    _timeout = 0;
@@ -295,9 +295,9 @@ IceInternal::ThreadPool::run()
 	    goto repeatSelect;
 	}
 	
-	if (ret == SOCKET_ERROR)
+	if(ret == SOCKET_ERROR)
 	{
-	    if (interrupted())
+	    if(interrupted())
 	    {
 		goto repeatSelect;
 	    }
@@ -313,7 +313,7 @@ IceInternal::ThreadPool::run()
 	{
 	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-	    if (FD_ISSET(_fdIntrRead, &fdSet))
+	    if(FD_ISSET(_fdIntrRead, &fdSet))
 	    {
 		//
 		// There are three possiblities for an interrupt:
@@ -328,7 +328,7 @@ IceInternal::ThreadPool::run()
 		//
 		// Thread pool destroyed?
 		//
-		if (_destroyed)
+		if(_destroyed)
 		{
 		    //
 		    // Don't clear the interrupt if destroyed, so that
@@ -342,7 +342,7 @@ IceInternal::ThreadPool::run()
 		//
 		// Server shutdown?
 		//
-		if (shutdown)
+		if(shutdown)
 		{
 		    goto repeatSelect;
 		}
@@ -355,7 +355,7 @@ IceInternal::ThreadPool::run()
 		pair<SOCKET, EventHandlerPtr> change = _changes.front();
 		_changes.pop_front();
 		
-		if (change.second) // Addition if handler is set.
+		if(change.second) // Addition if handler is set.
 		{
 		    _handlerMap.insert(change);
 		    FD_SET(change.first, &_fdSet);
@@ -373,7 +373,7 @@ IceInternal::ThreadPool::run()
 		    FD_CLR(change.first, &_fdSet);
 		    _maxFd = _fdIntrRead;
 		    _minFd = _fdIntrRead;
-		    if (!_handlerMap.empty())
+		    if(!_handlerMap.empty())
 		    {
 			_maxFd = max(_maxFd, (--_handlerMap.end())->first);
 			_minFd = min(_minFd, _handlerMap.begin()->first);
@@ -393,7 +393,7 @@ IceInternal::ThreadPool::run()
 		//
 		// Round robin for the filedescriptors.
 		//
-		if (fdSet.fd_count == 0)
+		if(fdSet.fd_count == 0)
 		{
 		    Error out(_instance->logger());
 		    out << "select() in thread pool returned " << ret << " but no filedescriptor is readable";
@@ -402,12 +402,12 @@ IceInternal::ThreadPool::run()
 		
 		SOCKET largerFd = _maxFd + 1;
 		SOCKET smallestFd = _maxFd + 1;
-		for (u_short i = 0; i < fdSet.fd_count; ++i)
+		for(u_short i = 0; i < fdSet.fd_count; ++i)
 		{
 		    SOCKET fd = fdSet.fd_array[i];
 		    assert(fd != INVALID_SOCKET);
 		    
-		    if (fd > _lastFd || _lastFd == INVALID_SOCKET)
+		    if(fd > _lastFd || _lastFd == INVALID_SOCKET)
 		    {
 			largerFd = min(largerFd, fd);
 		    }
@@ -415,7 +415,7 @@ IceInternal::ThreadPool::run()
 		    smallestFd = min(smallestFd, fd);
 		}
 		
-		if (largerFd <= _maxFd)
+		if(largerFd <= _maxFd)
 		{
 		    assert(largerFd >= _minFd);
 		    _lastFd = largerFd;
@@ -429,7 +429,7 @@ IceInternal::ThreadPool::run()
 		//
 		// Round robin for the filedescriptors.
 		//
-		if (_lastFd < _minFd - 1 || _lastFd == INVALID_SOCKET)
+		if(_lastFd < _minFd - 1 || _lastFd == INVALID_SOCKET)
 		{
 		    _lastFd = _minFd - 1;
 		}
@@ -437,15 +437,15 @@ IceInternal::ThreadPool::run()
 		int loops = 0;
 		do
 		{
-		    if (++_lastFd > _maxFd)
+		    if(++_lastFd > _maxFd)
 		    {
 			++loops;
 			_lastFd = _minFd;
 		    }
 		}
-		while (!FD_ISSET(_lastFd, &fdSet) && loops <= 1);
+		while(!FD_ISSET(_lastFd, &fdSet) && loops <= 1);
 		
-		if (loops > 1)
+		if(loops > 1)
 		{
 		    Error out(_instance->logger());
 		    out << "select() in thread pool returned " << ret << " but no filedescriptor is readable";
@@ -469,7 +469,7 @@ IceInternal::ThreadPool::run()
 	
 	assert(handler);
 
-	if (finished)
+	if(finished)
 	{
 	    //
 	    // Notify a handler about it's removal from the thread
@@ -480,7 +480,7 @@ IceInternal::ThreadPool::run()
 	    {
 		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 		assert(_handlers > 0);
-		if (--_handlers == 0)
+		if(--_handlers == 0)
 		{
 		    notifyAll(); // For waitUntilFinished().
 		}
@@ -492,7 +492,7 @@ IceInternal::ThreadPool::run()
 	    // If the handler is "readable", try to read a message.
 	    //
 	    BasicStream stream(_instance);
-	    if (handler->readable())
+	    if(handler->readable())
 	    {
 		try
 		{
@@ -522,13 +522,13 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
 {
     BasicStream& stream = handler->_stream;
     
-    if (stream.b.size() == 0)
+    if(stream.b.size() == 0)
     {
 	stream.b.resize(headerSize);
 	stream.i = stream.b.begin();
     }
 
-    if (stream.i != stream.b.end())
+    if(stream.i != stream.b.end())
     {
 	handler->read(stream);
 	assert(stream.i == stream.b.end());
@@ -539,13 +539,13 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
     stream.i = stream.b.begin();
     Byte protVer;
     stream.read(protVer);
-    if (protVer != protocolVersion)
+    if(protVer != protocolVersion)
     {
 	throw UnsupportedProtocolException(__FILE__, __LINE__);
     }
     Byte encVer;
     stream.read(encVer);
-    if (encVer != encodingVersion)
+    if(encVer != encodingVersion)
     {
 	throw UnsupportedEncodingException(__FILE__, __LINE__);
     }
@@ -553,21 +553,21 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
     stream.read(messageType);
     Int size;
     stream.read(size);
-    if (size < headerSize)
+    if(size < headerSize)
     {
 	throw IllegalMessageSizeException(__FILE__, __LINE__);
     }
-    if (size > 1024 * 1024) // TODO: configurable
+    if(size > 1024 * 1024) // TODO: configurable
     {
 	throw MemoryLimitException(__FILE__, __LINE__);
     }
-    if (size > static_cast<Int>(stream.b.size()))
+    if(size > static_cast<Int>(stream.b.size()))
     {
 	stream.b.resize(size);
     }
     stream.i = stream.b.begin() + pos;
     
-    if (stream.i != stream.b.end())
+    if(stream.i != stream.b.end())
     {
 	handler->read(stream);
 	assert(stream.i == stream.b.end());
@@ -610,7 +610,7 @@ IceInternal::ThreadPool::EventHandlerThread::run()
 	// "defensive" programming approach when it comes to
 	// multithreading.
 	//
-	if (_pool->_threadNum == 0)
+	if(_pool->_threadNum == 0)
 	{
 	    _pool->notifyAll(); // For waitUntil...Finished() methods.
 	}

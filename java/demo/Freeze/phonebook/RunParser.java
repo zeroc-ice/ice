@@ -26,21 +26,21 @@ class RunParser
 	String file = null;
 	int idx = 0;
 
-	while (idx < args.length)
+	while(idx < args.length)
 	{
-	    if (args[idx].equals("-h") | args[idx].equals("--help"))
+	    if(args[idx].equals("-h") | args[idx].equals("--help"))
 	    {
 		usage(appName);
 		return 0;
 	    }
 /*
-  else if (args[idx].equals("-v") || args[idx].equals("--version"))
+  else if(args[idx].equals("-v") || args[idx].equals("--version"))
   {
   cout + ICE_STRING_VERSION + endl;
   return 0;
   }
 */
-	    else if (args[idx].charAt(0) == '-')
+	    else if(args[idx].charAt(0) == '-')
 	    {
 		System.err.println(appName + ": unknown option `" + args[idx] + "'");
 		usage(appName);
@@ -48,7 +48,7 @@ class RunParser
 	    }
 	    else
 	    {
-		if (file == null)
+		if(file == null)
 		{
 		    file = args[idx];
 		}
@@ -65,7 +65,7 @@ class RunParser
 	Ice.Properties properties = communicator.getProperties();
 	String refProperty = "PhoneBook.PhoneBook";
 	String ref = properties.getProperty(refProperty);
-	if (ref.length() == 0)
+	if(ref.length() == 0)
 	{
 	    System.err.println(appName +  ": property `" + refProperty + "' not set");
 	    return 1;
@@ -73,7 +73,7 @@ class RunParser
 
 	Ice.ObjectPrx base = communicator.stringToProxy(ref);
 	PhoneBookPrx phoneBook = PhoneBookPrxHelper.checkedCast(base);
-	if (phoneBook == null)
+	if(phoneBook == null)
 	{
 	    System.err.println(appName + ": invalid object reference");
 	    return 1;
@@ -82,7 +82,7 @@ class RunParser
 	Parser parser = new Parser(communicator, phoneBook);
 	int status;
 
-	if (file == null)
+	if(file == null)
 	{
 	    status = parser.parse();
 	}

@@ -21,7 +21,7 @@ void
 TestI::shutdown(const Ice::Current&)
 {
     _adapter->getCommunicator()->shutdown();
-    if (_fwd)
+    if(_fwd)
     {
 	throw Ice::LocationForward(_fwd);
     }

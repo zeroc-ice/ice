@@ -26,7 +26,7 @@ IceSSL::SslConnector::connect(int timeout)
     TraceLevelsPtr traceLevels = _plugin->getTraceLevels();
     LoggerPtr logger = _plugin->getLogger();
 
-    if (traceLevels->network >= 2)
+    if(traceLevels->network >= 2)
     {
 	ostringstream s;
 	s << "trying to establish ssl connection to " << toString();
@@ -37,7 +37,7 @@ IceSSL::SslConnector::connect(int timeout)
     setBlock(fd, false);
     doConnect(fd, _addr, timeout);
 
-    if (traceLevels->network >= 1)
+    if(traceLevels->network >= 1)
     {
 	ostringstream s;
 	s << "ssl connection established\n" << fdToString(fd);

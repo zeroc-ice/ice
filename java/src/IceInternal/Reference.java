@@ -30,68 +30,68 @@ public final class Reference
     {
         Reference r = (Reference)obj;
 
-        if (r == null)
+        if(r == null)
         {
             return false;
         }
 
-        if (this == r)
+        if(this == r)
         {
             return true;
         }
 
-        if (!identity.category.equals(r.identity.category))
+        if(!identity.category.equals(r.identity.category))
         {
             return false;
         }
 
-        if (!identity.name.equals(r.identity.name))
+        if(!identity.name.equals(r.identity.name))
         {
             return false;
         }
 
-        if (facet != null && !facet.equals(r.facet))
+        if(facet != null && !facet.equals(r.facet))
         {
             return false;
         }
 
-        if (mode != r.mode)
+        if(mode != r.mode)
         {
             return false;
         }
 
-        if (secure != r.secure)
+        if(secure != r.secure)
         {
             return false;
         }
 
-        if (compress != r.compress)
+        if(compress != r.compress)
         {
             return false;
         }
 
-        if (!compare(origEndpoints, r.origEndpoints))
+        if(!compare(origEndpoints, r.origEndpoints))
         {
             return false;
         }
 
-        if (!compare(endpoints, r.endpoints))
+        if(!compare(endpoints, r.endpoints))
         {
             return false;
         }
 
-        if (routerInfo != r.routerInfo)
+        if(routerInfo != r.routerInfo)
         {
             return false;
         }
 
-        if (routerInfo != null && r.routerInfo != null &&
+        if(routerInfo != null && r.routerInfo != null &&
             !routerInfo.equals(r.routerInfo))
         {
             return false;
         }
 
-        if (reverseAdapter != r.reverseAdapter)
+        if(reverseAdapter != r.reverseAdapter)
         {
             return false;
         }
@@ -119,12 +119,12 @@ public final class Reference
         s.writeBool(compress);
 
         s.writeSize(origEndpoints.length);
-        for (int i = 0; i < origEndpoints.length; i++)
+        for(int i = 0; i < origEndpoints.length; i++)
         {
             origEndpoints[i].streamWrite(s);
         }
 
-        if (endpointsEqual())
+        if(endpointsEqual())
         {
             s.writeBool(true);
         }
@@ -132,7 +132,7 @@ public final class Reference
         {
             s.writeBool(false);
             s.writeSize(endpoints.length);
-            for (int i = 0; i < endpoints.length; i++)
+            for(int i = 0; i < endpoints.length; i++)
             {
                 endpoints[i].streamWrite(s);
             }
@@ -148,13 +148,13 @@ public final class Reference
         StringBuffer s = new StringBuffer();
         s.append(Ice.Util.identityToString(identity));
 
-        if (facet.length() > 0)
+        if(facet.length() > 0)
         {
             s.append(" -f ");
             s.append(facet);
         }
 
-        switch (mode)
+        switch(mode)
         {
             case ModeTwoway:
             {
@@ -187,26 +187,26 @@ public final class Reference
             }
         }
 
-        if (secure)
+        if(secure)
         {
             s.append(" -s");
         }
 
-        if (compress)
+        if(compress)
         {
             s.append(" -c");
         }
 
-        for (int i = 0; i < origEndpoints.length; i++)
+        for(int i = 0; i < origEndpoints.length; i++)
         {
             s.append(':');
             s.append(origEndpoints[i].toString());
         }
 
-        if (!endpointsEqual())
+        if(!endpointsEqual())
         {
             s.append(':');
-            for (int i = 0; i < endpoints.length; i++)
+            for(int i = 0; i < endpoints.length; i++)
             {
                 s.append(':');
                 s.append(endpoints[i].toString());
@@ -238,7 +238,7 @@ public final class Reference
     public Reference
     changeIdentity(Ice.Identity newIdentity)
     {
-        if (newIdentity.equals(identity))
+        if(newIdentity.equals(identity))
         {
             return this;
         }
@@ -253,7 +253,7 @@ public final class Reference
     public Reference
     changeFacet(String newFacet)
     {
-        if (newFacet.equals(facet))
+        if(newFacet.equals(facet))
         {
             return this;
         }
@@ -272,13 +272,13 @@ public final class Reference
         // We change the timeout settings in all endpoints.
         //
         Endpoint[] newOrigEndpoints = new Endpoint[origEndpoints.length];
-        for (int i = 0; i < origEndpoints.length; i++)
+        for(int i = 0; i < origEndpoints.length; i++)
         {
             newOrigEndpoints[i] = origEndpoints[i].timeout(timeout);
         }
 
         Endpoint[] newEndpoints = new Endpoint[endpoints.length];
-        for (int i = 0; i < endpoints.length; i++)
+        for(int i = 0; i < endpoints.length; i++)
         {
             newEndpoints[i] = endpoints[i].timeout(timeout);
         }
@@ -288,7 +288,7 @@ public final class Reference
         // router and the router's client proxy.
         //
         RouterInfo newRouterInfo = null;
-        if (routerInfo != null)
+        if(routerInfo != null)
         {
             try
             {
@@ -312,7 +312,7 @@ public final class Reference
     public Reference
     changeMode(int newMode)
     {
-        if (newMode == mode)
+        if(newMode == mode)
         {
             return this;
         }
@@ -327,7 +327,7 @@ public final class Reference
     public Reference
     changeSecure(boolean newSecure)
     {
-        if (newSecure == secure)
+        if(newSecure == secure)
         {
             return this;
         }
@@ -342,7 +342,7 @@ public final class Reference
     public Reference
     changeCompress(boolean newCompress)
     {
-        if (newCompress == compress)
+        if(newCompress == compress)
         {
             return this;
         }
@@ -357,7 +357,7 @@ public final class Reference
     public Reference
     changeEndpoints(Endpoint[] newEndpoints)
     {
-        if (compare(newEndpoints, endpoints))
+        if(compare(newEndpoints, endpoints))
         {
             return this;
         }
@@ -374,7 +374,7 @@ public final class Reference
     {
         RouterInfo newRouterInfo = instance.routerManager().get(newRouter);
 
-        if ((routerInfo == newRouterInfo) ||
+        if((routerInfo == newRouterInfo) ||
             (routerInfo != null && newRouterInfo != null && newRouterInfo.equals(routerInfo)))
         {
             return this;
@@ -423,19 +423,19 @@ public final class Reference
         int h = 0;
 
         int sz = identity.name.length();
-        for (int i = 0; i < sz; i++)
+        for(int i = 0; i < sz; i++)
         {   
             h = 5 * h + (int)identity.name.charAt(i);
         }
 
         sz = identity.category.length();
-        for (int i = 0; i < sz; i++)
+        for(int i = 0; i < sz; i++)
         {   
             h = 5 * h + (int)identity.category.charAt(i);
         }
 
         sz = facet.length();
-        for (int i = 0; i < sz; i++)
+        for(int i = 0; i < sz; i++)
         {   
             h = 5 * h + (int)facet.charAt(i);
         }
@@ -461,7 +461,7 @@ public final class Reference
     private boolean
     endpointsEqual()
     {
-        if (_checkEndpointsEqual)
+        if(_checkEndpointsEqual)
         {
             _endpointsEqual = compare(origEndpoints, endpoints);
             _checkEndpointsEqual = false;
@@ -473,16 +473,16 @@ public final class Reference
     private boolean
     compare(Endpoint[] arr1, Endpoint[] arr2)
     {
-        if (arr1 == arr2)
+        if(arr1 == arr2)
         {
             return true;
         }
 
-        if (arr1.length == arr2.length)
+        if(arr1.length == arr2.length)
         {
-            for (int i = 0; i < arr1.length; i++)
+            for(int i = 0; i < arr1.length; i++)
             {
-                if (!arr1[i].equals(arr2[i]))
+                if(!arr1[i].equals(arr2[i]))
                 {
                     return false;
                 }

@@ -51,7 +51,7 @@ IcePack::Parser::usage()
 void
 IcePack::Parser::add(const list<string>& args)
 {
-    if (args.empty())
+    if(args.empty())
     {
 	error("`add' requires at least one argument (type `help' for more info)");
 	return;
@@ -62,10 +62,10 @@ IcePack::Parser::add(const list<string>& args)
 	ServerDescription desc;
 	list<string>::const_iterator p = args.begin();
 	desc.object = _communicator->stringToProxy(*p);
-	if (++p != args.end())
+	if(++p != args.end())
 	{
 	    desc.path = *p;
-	    while (++p != args.end())
+	    while(++p != args.end())
 	    {
 		desc.args.push_back(*p);
 	    }
@@ -84,7 +84,7 @@ IcePack::Parser::add(const list<string>& args)
 void
 IcePack::Parser::remove(const list<string>& args)
 {
-    if (args.size() != 1)
+    if(args.size() != 1)
     {
 	error("`remove' requires exactly one argument (type `help' for more info)");
 	return;
@@ -116,12 +116,12 @@ IcePack::Parser::listAll()
 	    cout << "host = " << p->second.host << endl;
 	    cout << "path = " << p->second.path << endl;
 	    cout << "args =";
-	    for (Args::iterator q = p->second.args.begin(); q != p->second.args.end(); ++q)
+	    for(Args::iterator q = p->second.args.begin(); q != p->second.args.end(); ++q)
 	    {
 		cout << ' ' << *q;
 	    }
 	    cout << endl;
-	    if (++p != descriptions.end())
+	    if(++p != descriptions.end())
 	    {
 		cout << endl;
 	    }
@@ -153,9 +153,9 @@ IcePack::Parser::shutdown()
 void
 IcePack::Parser::getInput(char* buf, int& result, int maxSize)
 {
-    if (!_commands.empty())
+    if(!_commands.empty())
     {
-	if (_commands == ";")
+	if(_commands == ";")
 	{
 	    result = 0;
 	}
@@ -169,30 +169,30 @@ IcePack::Parser::getInput(char* buf, int& result, int maxSize)
 #endif
 	    strncpy(buf, _commands.c_str(), result);
 	    _commands.erase(0, result);
-	    if (_commands.empty())
+	    if(_commands.empty())
 	    {
 		_commands = ";";
 	    }
 	}
     }
-    else if (isatty(fileno(yyin)))
+    else if(isatty(fileno(yyin)))
     {
 #ifdef HAVE_READLINE
 
 	char* line = readline(parser->getPrompt());
-	if (!line)
+	if(!line)
 	{
 	    result = 0;
 	}
 	else
 	{
-	    if (*line)
+	    if(*line)
 	    {
 		add_history(line);
 	    }
 
 	    result = strlen(line) + 1;
-	    if (result > maxSize)
+	    if(result > maxSize)
 	    {
 		free(line);
 		error("input line too long");
@@ -211,12 +211,12 @@ IcePack::Parser::getInput(char* buf, int& result, int maxSize)
 	cout << parser->getPrompt() << flush;
 
 	string line;
-	while (true)
+	while(true)
 	{
 	    char c = static_cast<char>(getc(yyin));
-	    if (c == EOF)
+	    if(c == EOF)
 	    {
-		if (line.size())
+		if(line.size())
 		{
 		    line += '\n';
 		}
@@ -225,14 +225,14 @@ IcePack::Parser::getInput(char* buf, int& result, int maxSize)
 
 	    line += c;
 
-	    if (c == '\n')
+	    if(c == '\n')
 	    {
 		break;
 	    }
 	}
 	
 	result = line.length();
-	if (result > maxSize)
+	if(result > maxSize)
 	{
 	    error("input line too long");
 	    buf[0] = EOF;
@@ -247,7 +247,7 @@ IcePack::Parser::getInput(char* buf, int& result, int maxSize)
     }
     else
     {
-	if (((result = fread(buf, 1, maxSize, yyin)) == 0) && ferror(yyin))
+	if(((result = fread(buf, 1, maxSize, yyin)) == 0) && ferror(yyin))
 	{
 	    error("input in flex scanner failed");
 	    buf[0] = EOF;
@@ -273,7 +273,7 @@ IcePack::Parser::getPrompt()
 {
     assert(_commands.empty() && isatty(fileno(yyin)));
 
-    if (_continue)
+    if(_continue)
     {
 	_continue = false;
 	return "(cont) ";
@@ -291,13 +291,13 @@ IcePack::Parser::scanPosition(const char* s)
     string::size_type idx;
 
     idx = line.find("line");
-    if (idx != string::npos)
+    if(idx != string::npos)
     {
 	line.erase(0, idx + 4);
     }
 
     idx = line.find_first_not_of(" \t\r#");
-    if (idx != string::npos)
+    if(idx != string::npos)
     {
 	line.erase(0, idx);
     }
@@ -305,18 +305,18 @@ IcePack::Parser::scanPosition(const char* s)
     _currentLine = atoi(line.c_str()) - 1;
 
     idx = line.find_first_of(" \t\r");
-    if (idx != string::npos)
+    if(idx != string::npos)
     {
 	line.erase(0, idx);
     }
 
     idx = line.find_first_not_of(" \t\r\"");
-    if (idx != string::npos)
+    if(idx != string::npos)
     {
 	line.erase(0, idx);
 
 	idx = line.find_first_of(" \t\r\"");
-	if (idx != string::npos)
+	if(idx != string::npos)
 	{
 	    _currentFile = line.substr(0, idx);
 	    line.erase(0, idx + 1);
@@ -331,7 +331,7 @@ IcePack::Parser::scanPosition(const char* s)
 void
 IcePack::Parser::error(const char* s)
 {
-    if (_commands.empty() && !isatty(fileno(yyin)))
+    if(_commands.empty() && !isatty(fileno(yyin)))
     {
 	cerr << _currentFile << ':' << _currentLine << ": " << s << endl;
     }
@@ -351,7 +351,7 @@ IcePack::Parser::error(const string& s)
 void
 IcePack::Parser::warning(const char* s)
 {
-    if (_commands.empty() && !isatty(fileno(yyin)))
+    if(_commands.empty() && !isatty(fileno(yyin)))
     {
 	cerr << _currentFile << ':' << _currentLine << ": warning: " << s << endl;
     }
@@ -387,7 +387,7 @@ IcePack::Parser::parse(FILE* file, bool debug)
     nextLine();
 
     int status = yyparse();
-    if (_errors)
+    if(_errors)
     {
 	status = EXIT_FAILURE;
     }
@@ -416,7 +416,7 @@ IcePack::Parser::parse(const std::string& commands, bool debug)
     nextLine();
 
     int status = yyparse();
-    if (_errors)
+    if(_errors)
     {
 	status = EXIT_FAILURE;
     }

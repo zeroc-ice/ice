@@ -605,11 +605,11 @@ twoways(const Test::MyClassPrx& p)
 	test(ro[0] == "def");
 
 	int i = 0;
-	for (Test::MyClassStringD::iterator q = ro.begin(); q != ro.end(); ++q, ++i)
+	for(Test::MyClassStringD::iterator q = ro.begin(); q != ro.end(); ++q, ++i)
 	{
 	    test(i < 2);
 
-	    if (i == 0)
+	    if(i == 0)
 	    {
 		test(!q->first);
 	    }

@@ -39,21 +39,21 @@ protected:
 template<class Stream>
 inline Stream& operator << (Stream& target, const BaseCertificates& baseCerts)
 {
-    if (baseCerts.getRSACert().getKeySize() != 0)
+    if(baseCerts.getRSACert().getKeySize() != 0)
     {
         target << "RSA\n{" << std::endl;
         target << baseCerts.getRSACert();
         target << "}\n" << std::endl;
     }
 
-    if (baseCerts.getDSACert().getKeySize() != 0)
+    if(baseCerts.getDSACert().getKeySize() != 0)
     {
         target << "DSA\n{" << std::endl;
         target << baseCerts.getDSACert();
         target << "}\n" << std::endl;
     }
 
-    if (baseCerts.getDHParams().getKeySize() != 0)
+    if(baseCerts.getDHParams().getKeySize() != 0)
     {
         target << "DH\n{" << std::endl;
         target << baseCerts.getDHParams();

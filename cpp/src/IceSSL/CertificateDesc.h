@@ -77,11 +77,11 @@ typedef std::vector<DiffieHellmanParamsFile> DHVector;
 template<class Stream>
 inline Stream& operator << (Stream& target, const CertificateFile& certFile)
 {
-    if (certFile.getEncoding() == SSL_FILETYPE_PEM)
+    if(certFile.getEncoding() == SSL_FILETYPE_PEM)
     {
         target << "[PEM]: " << certFile.getFileName();
     }
-    else if (certFile.getEncoding() == SSL_FILETYPE_ASN1)
+    else if(certFile.getEncoding() == SSL_FILETYPE_ASN1)
     {
         target << "[ASN1]: " << certFile.getFileName();
     }
@@ -92,7 +92,7 @@ inline Stream& operator << (Stream& target, const CertificateFile& certFile)
 template<class Stream>
 inline Stream& operator << (Stream& target, const DiffieHellmanParamsFile& dhParams)
 {
-    if (dhParams.getKeySize() != 0)
+    if(dhParams.getKeySize() != 0)
     {
         target << "Keysize: " << dhParams.getKeySize() << std::endl;
         target << "File:    " << ((CertificateFile&)dhParams) << std::endl;
@@ -104,7 +104,7 @@ inline Stream& operator << (Stream& target, const DiffieHellmanParamsFile& dhPar
 template<class Stream>
 inline Stream& operator << (Stream& target, const CertificateDesc& certDesc)
 {
-    if (certDesc.getKeySize() != 0)
+    if(certDesc.getKeySize() != 0)
     {
         target << "Keysize: " << certDesc.getKeySize() << std::endl;
         target << "Public:  " << certDesc.getPublic()  << std::endl;

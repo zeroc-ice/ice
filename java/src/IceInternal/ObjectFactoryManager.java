@@ -41,7 +41,7 @@ public final class ObjectFactoryManager
     destroy()
     {
         java.util.Iterator i = _factoryMap.values().iterator();
-        while (i.hasNext())
+        while(i.hasNext())
         {
             Ice.ObjectFactory factory = (Ice.ObjectFactory)i.next();
             factory.destroy();

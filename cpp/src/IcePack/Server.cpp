@@ -78,19 +78,19 @@ Server::run(int argc, char* argv[])
     stringSeqToArgs(args, argc, argv);
 
     bool nowarn = false;
-    for (int i = 1; i < argc; ++i)
+    for(int i = 1; i < argc; ++i)
     {
-	if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
+	if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
 	{
 	    usage();
 	    return EXIT_SUCCESS;
 	}
-	else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
+	else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
 	{
 	    cout << ICE_STRING_VERSION << endl;
 	    return EXIT_SUCCESS;
 	}
-	else if (strcmp(argv[i], "--nowarn") == 0)
+	else if(strcmp(argv[i], "--nowarn") == 0)
 	{
 	    nowarn = true;
 	}
@@ -104,7 +104,7 @@ Server::run(int argc, char* argv[])
 
     const char* adminEndpointsProperty = "IcePack.Admin.Endpoints";
     string adminEndpoints = properties->getProperty(adminEndpointsProperty);
-    if (!adminEndpoints.empty() && !nowarn)
+    if(!adminEndpoints.empty() && !nowarn)
     {
 	cerr << appName() << ": warning: administrative endpoints property `" << adminEndpointsProperty << "' enabled"
 	     << endl;
@@ -112,7 +112,7 @@ Server::run(int argc, char* argv[])
 
     const char* forwardEndpointsProperty = "IcePack.Forward.Endpoints";
     string forwardEndpoints = properties->getProperty(forwardEndpointsProperty);
-    if (forwardEndpoints.empty())
+    if(forwardEndpoints.empty())
     {
 	cerr << appName() << ": property `" << forwardEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
@@ -121,7 +121,7 @@ Server::run(int argc, char* argv[])
     AdminPtr admin = new AdminI(communicator());
     ServantLocatorPtr forward = new Forward(communicator(), admin);
 
-    if (adminEndpoints.length() != 0)
+    if(adminEndpoints.length() != 0)
     {
 	ObjectAdapterPtr adminAdapter = communicator()->createObjectAdapterFromProperty("Admin",
 											adminEndpointsProperty);

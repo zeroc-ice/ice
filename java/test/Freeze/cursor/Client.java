@@ -17,7 +17,7 @@ public class Client
     private static void
     test(boolean b)
     {
-        if (!b)
+        if(!b)
         {
             throw new RuntimeException();
         }
@@ -58,7 +58,7 @@ public class Client
     populateDB(DB db)
 	throws DBException
     {
-	for (int j = 0; j < alphabet.length(); ++j)
+	for(int j = 0; j < alphabet.length(); ++j)
 	{
 	    addValue(db, alphabet.charAt(j), j);
 	}
@@ -67,9 +67,9 @@ public class Client
     static int
     find(String s, char b)
     {
-	for (int i = 0; i < s.length(); ++i)
+	for(int i = 0; i < s.length(); ++i)
 	{
-	    if (s.charAt(i) == b)
+	    if(s.charAt(i) == b)
 	    {
 		return i;
 	    }
@@ -111,7 +111,7 @@ public class Client
 		test(key.value == alphabet.charAt(j) && value.value == j);
 		++j;
 	    }
-	    while (cursor.next());
+	    while(cursor.next());
 	}
 	catch(DBNotFoundException e)
 	{
@@ -124,7 +124,7 @@ public class Client
 	j = 0;
 	try
 	{
-	    for (j = 0; j < alphabet.length(); ++j)
+	    for(j = 0; j < alphabet.length(); ++j)
 	    {
 		akey = constructKey(alphabet.charAt(j));
 		test(db.contains(akey));
@@ -151,7 +151,7 @@ public class Client
 		test(key.value == alphabet.charAt(j) && value.value == j);
 		++j;
 	    }
-	    while (cursor.next());
+	    while(cursor.next());
 	}
 	catch(DBNotFoundException e)
 	{
@@ -173,12 +173,12 @@ public class Client
 		test(key.value == alphabet.charAt(j) && value.value == j);
 		cursor.del();
 		++j;
-		if (key.value == 'c')
+		if(key.value == 'c')
 		{
 		    break;
 		}
 	    }
-	    while (cursor.next());
+	    while(cursor.next());
 	}
 	catch(DBNotFoundException e)
 	{
@@ -197,7 +197,7 @@ public class Client
 		test(key.value == alphabet.charAt(j) && value.value == j);
 		++j;
 	    }
-	    while (cursor.next());
+	    while(cursor.next());
 	}
 	catch(DBNotFoundException e)
 	{
@@ -316,7 +316,7 @@ public class Client
 	    holder.value = args;
 	    communicator = Ice.Util.initialize(holder);
 	    args = holder.value;
-	    if (args.length > 0)
+	    if(args.length > 0)
 	    {
 		dbEnvDir = args[0];
 		dbEnvDir += "/";
@@ -332,7 +332,7 @@ public class Client
 	    status = 1;
 	}
 
-	if (dbEnv != null)
+	if(dbEnv != null)
 	{
 	    try
 	    {
@@ -356,7 +356,7 @@ public class Client
 	    dbEnv = null;
 	}
 
-	if (communicator != null)
+	if(communicator != null)
 	{
 	    try
 	    {

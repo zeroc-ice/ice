@@ -20,15 +20,15 @@ public:
 
     virtual Ice::ObjectPtr create(const string& type)
     {
-	if (type == "::B")
+	if(type == "::B")
 	{
 	    return new B;
 	}
-	else if (type == "::C")
+	else if(type == "::C")
 	{
 	    return new C;
 	}
-	else if (type == "::D")
+	else if(type == "::D")
 	{
 	    return new D;
 	}
@@ -73,7 +73,7 @@ main(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (communicator)
+    if(communicator)
     {
 	try
 	{

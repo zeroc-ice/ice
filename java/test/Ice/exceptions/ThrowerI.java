@@ -44,7 +44,7 @@ public final class ThrowerI extends _ThrowerDisp
         throws A,
                D
     {
-        if (a > 0)
+        if(a > 0)
         {
             A ex = new A();
             ex.a = a;

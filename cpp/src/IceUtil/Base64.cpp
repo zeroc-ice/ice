@@ -18,7 +18,7 @@ IceUtil::Base64::encode(const ByteSeq& plainSeq)
 {
     string retval;
 
-    if (plainSeq.size() == 0) 
+    if(plainSeq.size() == 0) 
     {
         return retval;
     }
@@ -38,18 +38,18 @@ IceUtil::Base64::encode(const ByteSeq& plainSeq)
     unsigned char by6 = 0;
     unsigned char by7 = 0;
 
-    for (unsigned long i = 0; i < plainSeq.size(); i += 3)
+    for(unsigned long i = 0; i < plainSeq.size(); i += 3)
     {
         by1 = plainSeq[i];
         by2 = 0;
         by3 = 0;
 
-        if ((i + 1) < plainSeq.size())
+        if((i + 1) < plainSeq.size())
         {
             by2 = plainSeq[i+1];
         }
 
-        if ((i + 2) < plainSeq.size())
+        if((i + 2) < plainSeq.size())
         {
             by3 = plainSeq[i+2];
         }
@@ -62,7 +62,7 @@ IceUtil::Base64::encode(const ByteSeq& plainSeq)
         retval += encode(by4);
         retval += encode(by5);
  
-        if ((i + 1) < plainSeq.size())
+        if((i + 1) < plainSeq.size())
         {
             retval += encode(by6);
         }
@@ -71,7 +71,7 @@ IceUtil::Base64::encode(const ByteSeq& plainSeq)
             retval += "=";
         }
  
-        if ((i + 2) < plainSeq.size())
+        if((i + 2) < plainSeq.size())
         {
             retval += encode(by7);
         }
@@ -85,7 +85,7 @@ IceUtil::Base64::encode(const ByteSeq& plainSeq)
     outString.reserve(totalBytes);
     string::iterator iter = retval.begin();
 
-    while ((retval.end() - iter) > 76)
+    while((retval.end() - iter) > 76)
     {
         copy(iter, iter+76, back_inserter(outString));
         outString += "\r\n";
@@ -104,9 +104,9 @@ IceUtil::Base64::decode(const string& str)
 
     newStr.reserve(str.length());
 
-    for (unsigned long j = 0; j < str.length(); j++)
+    for(unsigned long j = 0; j < str.length(); j++)
     {
-        if (isBase64(str[j]))
+        if(isBase64(str[j]))
         {
             newStr += str[j];
         }
@@ -114,7 +114,7 @@ IceUtil::Base64::decode(const string& str)
 
     ByteSeq retval;
 
-    if (newStr.length() == 0)
+    if(newStr.length() == 0)
     {
         return retval;
     }
@@ -136,7 +136,7 @@ IceUtil::Base64::decode(const string& str)
 
     char c1, c2, c3, c4;
 
-    for (unsigned long i = 0; i < newStr.length(); i += 4)
+    for(unsigned long i = 0; i < newStr.length(); i += 4)
     {
         c1 = 'A';
         c2 = 'A';
@@ -145,17 +145,17 @@ IceUtil::Base64::decode(const string& str)
 
         c1 = newStr[i];
 
-        if ((i + 1) < newStr.length())
+        if((i + 1) < newStr.length())
         {
             c2 = newStr[i + 1];
         }
 
-        if ((i + 2) < newStr.length())
+        if((i + 2) < newStr.length())
         {
             c3 = newStr[i + 2];
         }
 
-        if ((i + 3) < newStr.length())
+        if((i + 3) < newStr.length())
         {
             c4 = newStr[i + 3];
         }
@@ -167,12 +167,12 @@ IceUtil::Base64::decode(const string& str)
 
         retval.push_back((by1 << 2) | (by2 >> 4));
 
-        if (c3 != '=')
+        if(c3 != '=')
         {
             retval.push_back(((by2 & 0xf) << 4) | (by3 >> 2));
         }
 
-        if (c4 != '=')
+        if(c4 != '=')
         {
             retval.push_back(((by3 & 0x3) << 6) | by4);
         }
@@ -184,22 +184,22 @@ IceUtil::Base64::decode(const string& str)
 char
 IceUtil::Base64::encode(unsigned char uc)
 {
-    if (uc < 26)
+    if(uc < 26)
     {
         return 'A' + uc;
     }
     
-    if (uc < 52)
+    if(uc < 52)
     {
         return 'a' + (uc - 26);
     }
     
-    if (uc < 62)
+    if(uc < 62)
     {
         return '0' + (uc - 52);
     }
     
-    if (uc == 62)
+    if(uc == 62)
     {
         return '+';
     }
@@ -210,22 +210,22 @@ IceUtil::Base64::encode(unsigned char uc)
 unsigned char
 IceUtil::Base64::decode(char c)
 {
-    if (c >= 'A' && c <= 'Z')
+    if(c >= 'A' && c <= 'Z')
     {
         return c - 'A';
     }
 
-    if (c >= 'a' && c <= 'z')
+    if(c >= 'a' && c <= 'z')
     {
         return c - 'a' + 26;
     }
 
-    if (c >= '0' && c <= '9')
+    if(c >= '0' && c <= '9')
     {
         return c - '0' + 52;
     }
 
-    if (c == '+')
+    if(c == '+')
     {
         return 62;
     }
@@ -237,32 +237,32 @@ IceUtil::Base64::decode(char c)
 bool
 IceUtil::Base64::isBase64(char c)
 {
-    if (c >= 'A' && c <= 'Z')
+    if(c >= 'A' && c <= 'Z')
     {
         return true;
     }
 
-    if (c >= 'a' && c <= 'z')
+    if(c >= 'a' && c <= 'z')
     {
         return true;
     }
 
-    if (c >= '0' && c <= '9')
+    if(c >= '0' && c <= '9')
     {
         return true;
     }
 
-    if (c == '+')
+    if(c == '+')
     {
         return true;
     }
 
-    if (c == '/')
+    if(c == '/')
     {
         return true;
     }
 
-    if (c == '=')
+    if(c == '=')
     {
         return true;
     }

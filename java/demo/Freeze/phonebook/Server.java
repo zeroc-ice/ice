@@ -22,7 +22,7 @@ class PhoneBookServer extends Freeze.Application
 	// Create an Evictor for contacts.
 	//
 	Freeze.Evictor evictor;
-	if (properties.getPropertyAsInt("PhoneBook.SaveAfterMutatingOperation") > 0)
+	if(properties.getPropertyAsInt("PhoneBook.SaveAfterMutatingOperation") > 0)
 	{
 	    evictor = dbContacts.createEvictor(Freeze.EvictorPersistenceMode.SaveAfterMutatingOperation);
 	}
@@ -31,7 +31,7 @@ class PhoneBookServer extends Freeze.Application
 	    evictor = dbContacts.createEvictor(Freeze.EvictorPersistenceMode.SaveUponEviction);
 	}
 	int evictorSize = properties.getPropertyAsInt("PhoneBook.EvictorSize");
-	if (evictorSize > 0)
+	if(evictorSize > 0)
 	{
 	    evictor.setSize(evictorSize);
 	}

@@ -62,43 +62,43 @@ Client::run(int argc, char* argv[])
     stringSeqToArgs(args, argc, argv);
 
     int idx = 1;
-    while (idx < argc)
+    while(idx < argc)
     {
-	if (strncmp(argv[idx], "-I", 2) == 0)
+	if(strncmp(argv[idx], "-I", 2) == 0)
 	{
 	    cpp += ' ';
 	    cpp += argv[idx];
 
-	    for (int i = idx ; i + 1 < argc ; ++i)
+	    for(int i = idx ; i + 1 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 1];
 	    }
 	    --argc;
 	}
-	else if (strncmp(argv[idx], "-D", 2) == 0 || strncmp(argv[idx], "-U", 2) == 0)
+	else if(strncmp(argv[idx], "-D", 2) == 0 || strncmp(argv[idx], "-U", 2) == 0)
 	{
 	    cpp += ' ';
 	    cpp += argv[idx];
 
-	    for (int i = idx ; i + 1 < argc ; ++i)
+	    for(int i = idx ; i + 1 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 1];
 	    }
 	    --argc;
 	}
-	else if (strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
+	else if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
 	{
 	    usage();
 	    return EXIT_SUCCESS;
 	}
-	else if (strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
+	else if(strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
 	{
 	    cout << ICE_STRING_VERSION << endl;
 	    return EXIT_SUCCESS;
 	}
-	else if (strcmp(argv[idx], "-e") == 0)
+	else if(strcmp(argv[idx], "-e") == 0)
 	{
-	    if (idx + 1 >= argc)
+	    if(idx + 1 >= argc)
             {
 		cerr << appName() << ": argument expected for`" << argv[idx] << "'" << endl;
 		usage();
@@ -108,22 +108,22 @@ Client::run(int argc, char* argv[])
 	    commands += argv[idx + 1];
 	    commands += ';';
 
-	    for (int i = idx ; i + 2 < argc ; ++i)
+	    for(int i = idx ; i + 2 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 2];
 	    }
 	    argc -= 2;
 	}
-	else if (strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
+	else if(strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
 	{
 	    debug = true;
-	    for (int i = idx ; i + 1 < argc ; ++i)
+	    for(int i = idx ; i + 1 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 1];
 	    }
 	    --argc;
 	}
-	else if (argv[idx][0] == '-')
+	else if(argv[idx][0] == '-')
 	{
 	    cerr << appName() << ": unknown option `" << argv[idx] << "'" << endl;
 	    usage();
@@ -135,7 +135,7 @@ Client::run(int argc, char* argv[])
 	}
     }
 
-    if (argc >= 2 && !commands.empty())
+    if(argc >= 2 && !commands.empty())
     {
 	cerr << appName() << ": `-e' option cannot be used if input files are given" << endl;
 	usage();
@@ -144,7 +144,7 @@ Client::run(int argc, char* argv[])
 
     const char* adminEndpointsProperty = "IcePack.Admin.Endpoints";
     string adminEndpoints = properties->getProperty(adminEndpointsProperty);
-    if (adminEndpoints.empty())
+    if(adminEndpoints.empty())
     {
 	cerr << appName() << ": property `" << adminEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
@@ -152,7 +152,7 @@ Client::run(int argc, char* argv[])
 
     Ice::ObjectPrx base = communicator()->stringToProxy("admin:" + adminEndpoints);
     AdminPrx admin = AdminPrx::checkedCast(base);
-    if (!admin)
+    if(!admin)
     {
 	cerr << appName() << ": `" << adminEndpoints << "' are no valid administrative endpoints" << endl;
 	return EXIT_FAILURE;
@@ -161,12 +161,12 @@ Client::run(int argc, char* argv[])
     ParserPtr parser = Parser::createParser(communicator(), admin);
     int status = EXIT_SUCCESS;
 
-    if (argc < 2) // No files given
+    if(argc < 2) // No files given
     {
-	if (!commands.empty()) // Commands were given
+	if(!commands.empty()) // Commands were given
 	{
 	    int parseStatus = parser->parse(commands, debug);
-	    if (parseStatus == EXIT_FAILURE)
+	    if(parseStatus == EXIT_FAILURE)
 	    {
 		status = EXIT_FAILURE;
 	    }
@@ -174,7 +174,7 @@ Client::run(int argc, char* argv[])
 	else // No commands, let's use standard input
 	{
 	    int parseStatus = parser->parse(stdin, debug);
-	    if (parseStatus == EXIT_FAILURE)
+	    if(parseStatus == EXIT_FAILURE)
 	    {
 		status = EXIT_FAILURE;
 	    }
@@ -182,10 +182,10 @@ Client::run(int argc, char* argv[])
     }
     else // Process files given on the command line
     {
-	for (idx = 1 ; idx < argc ; ++idx)
+	for(idx = 1 ; idx < argc ; ++idx)
 	{
 	    ifstream test(argv[idx]);
-	    if (!test)
+	    if(!test)
 	    {
 		cerr << appName() << ": can't open `" << argv[idx] << "' for reading: " << strerror(errno) << endl;
 		return EXIT_FAILURE;
@@ -198,7 +198,7 @@ Client::run(int argc, char* argv[])
 #else
 	    FILE* cppHandle = popen(cmd.c_str(), "r");
 #endif
-	    if (cppHandle == NULL)
+	    if(cppHandle == NULL)
 	    {
 		cerr << appName() << ": can't run C++ preprocessor: " << strerror(errno) << endl;
 		return EXIT_FAILURE;
@@ -212,7 +212,7 @@ Client::run(int argc, char* argv[])
 	    pclose(cppHandle);
 #endif
 
-	    if (parseStatus == EXIT_FAILURE)
+	    if(parseStatus == EXIT_FAILURE)
 	    {
 		status = EXIT_FAILURE;
 	    }

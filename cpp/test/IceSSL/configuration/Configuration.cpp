@@ -45,7 +45,7 @@ testContextWithConfig(const Ice::CommunicatorPtr& communicator,
     std::string clientPropertyString = "IceSSL.Client.Config";
     std::string serverPropertyString = "IceSSL.Server.Config";
 
-    switch (contextType)
+    switch(contextType)
     {
         case IceSSL::Client:
         {
@@ -68,15 +68,15 @@ testContextWithConfig(const Ice::CommunicatorPtr& communicator,
 
     std::string configFileDesc = "";
 
-    if (!clientFile.empty() && !serverFile.empty())
+    if(!clientFile.empty() && !serverFile.empty())
     {
         configFileDesc = "client and server configuration files";
     }
-    else if (!clientFile.empty())
+    else if(!clientFile.empty())
     {
         configFileDesc = "client configuration file";
     }
-    else if (!serverFile.empty())
+    else if(!serverFile.empty())
     {
         configFileDesc = "server configuration file";
     }
@@ -93,7 +93,7 @@ testContextWithConfig(const Ice::CommunicatorPtr& communicator,
         properties->setProperty(serverPropertyString, serverFile);
         sslPlugin->configure(contextType);
 
-        if (expectFailure)
+        if(expectFailure)
         {
             test(false);
         }
@@ -109,11 +109,11 @@ testContextWithConfig(const Ice::CommunicatorPtr& communicator,
         // a configuration file, this might be a valid response.
         //
 
-        switch (contextType)
+        switch(contextType)
         {
             case IceSSL::Client:
             {
-                if (clientFile.empty())
+                if(clientFile.empty())
                 {
                     std::cout << "ok" << std::endl;
                 }
@@ -126,7 +126,7 @@ testContextWithConfig(const Ice::CommunicatorPtr& communicator,
 
             case IceSSL::Server:
             {
-                if (serverFile.empty())
+                if(serverFile.empty())
                 {
                     std::cout << "ok" << std::endl;
                 }
@@ -139,7 +139,7 @@ testContextWithConfig(const Ice::CommunicatorPtr& communicator,
 
             case IceSSL::ClientServer:
             {
-                if (clientFile.empty() || serverFile.empty())
+                if(clientFile.empty() || serverFile.empty())
                 {
                     std::cout << "ok" << std::endl;
                 }
@@ -207,7 +207,7 @@ main(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (communicator)
+    if(communicator)
     {
 	try
 	{

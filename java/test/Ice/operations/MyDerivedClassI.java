@@ -33,7 +33,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         System.arraycopy(p2, 0, p3.value, p1.length, p2.length);
 
         boolean[] r = new boolean[p1.length];
-        for (int i = 0; i < p1.length; i++)
+        for(int i = 0; i < p1.length; i++)
         {
             r[i] = p1[p1.length - (i + 1)];
         }
@@ -49,7 +49,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         System.arraycopy(p2, 0, p3.value, p1.length, p2.length);
 
         boolean[][] r = new boolean[p1.length][];
-        for (int i = 0; i < p1.length; i++)
+        for(int i = 0; i < p1.length; i++)
         {
             r[i] = p1[p1.length - (i + 1)];
         }
@@ -78,7 +78,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     opByteS(byte[] p1, byte[] p2, Test.ByteSHolder p3, Ice.Current current)
     {
         p3.value = new byte[p1.length];
-        for (int i = 0; i < p1.length; i++)
+        for(int i = 0; i < p1.length; i++)
         {
             p3.value[i] = p1[p1.length - (i + 1)];
         }
@@ -94,7 +94,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
              Ice.Current current)
     {
         p3.value = new byte[p1.length][];
-        for (int i = 0; i < p1.length; i++)
+        for(int i = 0; i < p1.length; i++)
         {
             p3.value[i] = p1[p1.length - (i + 1)];
         }
@@ -131,13 +131,13 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     {
         p3.value = p1;
         p4.value = new double[p2.length];
-        for (int i = 0; i < p2.length; i++)
+        for(int i = 0; i < p2.length; i++)
         {
             p4.value[i] = p2[p2.length - (i + 1)];
         }
         double[] r = new double[p2.length + p1.length];
         System.arraycopy(p2, 0, r, 0, p2.length);
-        for (int i = 0; i < p1.length; i++)
+        for(int i = 0; i < p1.length; i++)
         {
             r[p2.length + i] = p1[i];
         }
@@ -150,7 +150,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     {
         p3.value = p1;
         p4.value = new double[p2.length][];
-        for (int i = 0; i < p2.length; i++)
+        for(int i = 0; i < p2.length; i++)
         {
             p4.value[i] = p2[p2.length - (i + 1)];
         }
@@ -228,7 +228,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     {
         p4.value = p1;
         p5.value = new int[p2.length];
-        for (int i = 0; i < p2.length; i++)
+        for(int i = 0; i < p2.length; i++)
         {
             p5.value[i] = p2[p2.length - (i + 1)];
         }
@@ -245,7 +245,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     {
         p4.value = p1;
         p5.value = new int[p2.length][];
-        for (int i = 0; i < p2.length; i++)
+        for(int i = 0; i < p2.length; i++)
         {
             p5.value[i] = p2[p2.length - (i + 1)];
         }
@@ -282,7 +282,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         System.arraycopy(p2, 0, p3.value, p1.length, p2.length);
 
         String[] r = new String[p1.length];
-        for (int i = 0; i < p1.length; i++)
+        for(int i = 0; i < p1.length; i++)
         {
             r[i] = p1[p1.length - (i + 1)];
         }
@@ -298,7 +298,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         System.arraycopy(p2, 0, p3.value, p1.length, p2.length);
 
         String[][] r = new String[p2.length][];
-        for (int i = 0; i < p2.length; i++)
+        for(int i = 0; i < p2.length; i++)
         {
             r[i] = p2[p2.length - (i + 1)];
         }

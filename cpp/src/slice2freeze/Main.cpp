@@ -49,15 +49,15 @@ usage(const char* n)
 bool
 checkIdentifier(string n, string t, string s)
 {
-    if (s.empty() || (!isalpha(s[0]) && s[0] != '_'))
+    if(s.empty() || (!isalpha(s[0]) && s[0] != '_'))
     {
 	cerr << n << ": `" << t << "' is not a valid type name" << endl;
 	return false;
     }
     
-    for (unsigned int i = 1; i < s.size(); ++i)
+    for(unsigned int i = 1; i < s.size(); ++i)
     {
-	if (!isalnum(s[i]) && s[i] != '_')
+	if(!isalnum(s[i]) && s[i] != '_')
 	{
 	    cerr << n << ": `" << t << "' is not a valid type name" << endl;
 	    return false;
@@ -72,7 +72,7 @@ printFreezeTypes(Output& out, const vector<Dict>& dicts)
 {
     out << '\n';
     out << "\n// Freeze types in this file:";
-    for (vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
+    for(vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
     {
 	out << "\n// name=\"" << p->name << "\", key=\"" << p->key << "\", value=\"" << p->value << "\"";
     }
@@ -122,19 +122,19 @@ bool
 writeCodecs(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output& C, const string& dllExport)
 {
     string absolute = dict.name;
-    if (absolute.find("::") == 0)
+    if(absolute.find("::") == 0)
     {
 	absolute.erase(0, 2);
     }
     string name = absolute;
     vector<string> scope;
     string::size_type pos;
-    while ((pos = name.find("::")) != string::npos)
+    while((pos = name.find("::")) != string::npos)
     {
 	string s = name.substr(0, pos);
 	name.erase(0, pos + 2);
 	
-	if (!checkIdentifier(n, absolute, s))
+	if(!checkIdentifier(n, absolute, s))
 	{
 	    return false;
 	}
@@ -142,13 +142,13 @@ writeCodecs(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output&
 	scope.push_back(s);
     }
     
-    if (!checkIdentifier(n, absolute, name))
+    if(!checkIdentifier(n, absolute, name))
     {
 	return false;
     }
 
     TypeList keyTypes = unit->lookupType(dict.key, false);
-    if (keyTypes.empty())
+    if(keyTypes.empty())
     {
 	cerr << n << ": `" << dict.key << "' is not a valid type" << endl;
 	return false;
@@ -156,7 +156,7 @@ writeCodecs(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output&
     TypePtr keyType = keyTypes.front();
     
     TypeList valueTypes = unit->lookupType(dict.value, false);
-    if (valueTypes.empty())
+    if(valueTypes.empty())
     {
 	cerr << n << ": `" << dict.value << "' is not a valid type" << endl;
 	return false;
@@ -165,7 +165,7 @@ writeCodecs(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output&
     
     vector<string>::const_iterator q;
     
-    for (q = scope.begin(); q != scope.end(); ++q)
+    for(q = scope.begin(); q != scope.end(); ++q)
     {
 	H << sp;
 	H << nl << "namespace " << *q << nl << '{';
@@ -177,7 +177,7 @@ writeCodecs(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output&
     H << sp << nl << "typedef Freeze::DBMap< " << typeToString(keyType) << ", " << typeToString(valueType) << ", "
       << name << "KeyCodec, " << name << "ValueCodec> " << name << ";";
 
-    for (q = scope.begin(); q != scope.end(); ++q)
+    for(q = scope.begin(); q != scope.end(); ++q)
     {
 	H << sp;
 	H << nl << '}';
@@ -201,39 +201,39 @@ main(int argc, char* argv[])
     vector<Dict> dicts;
 
     int idx = 1;
-    while (idx < argc)
+    while(idx < argc)
     {
-	if (strncmp(argv[idx], "-I", 2) == 0)
+	if(strncmp(argv[idx], "-I", 2) == 0)
 	{
 	    cpp += ' ';
 	    cpp += argv[idx];
 
 	    string path = argv[idx] + 2;
-	    if (path.length())
+	    if(path.length())
 	    {
 		includePaths.push_back(path);
 	    }
 
-	    for (int i = idx ; i + 1 < argc ; ++i)
+	    for(int i = idx ; i + 1 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 1];
 	    }
 	    --argc;
 	}
-	else if (strncmp(argv[idx], "-D", 2) == 0 || strncmp(argv[idx], "-U", 2) == 0)
+	else if(strncmp(argv[idx], "-D", 2) == 0 || strncmp(argv[idx], "-U", 2) == 0)
 	{
 	    cpp += ' ';
 	    cpp += argv[idx];
 
-	    for (int i = idx ; i + 1 < argc ; ++i)
+	    for(int i = idx ; i + 1 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 1];
 	    }
 	    --argc;
 	}
-	else if (strcmp(argv[idx], "--dict") == 0)
+	else if(strcmp(argv[idx], "--dict") == 0)
 	{
-	    if (idx + 1 >= argc || argv[idx + 1][0] == '-')
+	    if(idx + 1 >= argc || argv[idx + 1][0] == '-')
             {
 		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
 		usage(argv[0]);
@@ -247,34 +247,34 @@ main(int argc, char* argv[])
 
 	    string::size_type pos;
 	    pos = s.find(',');
-	    if (pos != string::npos)
+	    if(pos != string::npos)
 	    {
 		dict.name = s.substr(0, pos);
 		s.erase(0, pos + 1);
 	    }
 	    pos = s.find(',');
-	    if (pos != string::npos)
+	    if(pos != string::npos)
 	    {
 		dict.key = s.substr(0, pos);
 		s.erase(0, pos + 1);
 	    }
 	    dict.value = s;
 
-	    if (dict.name.empty())
+	    if(dict.name.empty())
 	    {
 		cerr << argv[0] << ": " << argv[idx] << ": no name specified" << endl;
 		usage(argv[0]);
 		return EXIT_FAILURE;
 	    }
 
-	    if (dict.key.empty())
+	    if(dict.key.empty())
 	    {
 		cerr << argv[0] << ": " << argv[idx] << ": no key specified" << endl;
 		usage(argv[0]);
 		return EXIT_FAILURE;
 	    }
 
-	    if (dict.value.empty())
+	    if(dict.value.empty())
 	    {
 		cerr << argv[0] << ": " << argv[idx] << ": no value specified" << endl;
 		usage(argv[0]);
@@ -283,34 +283,34 @@ main(int argc, char* argv[])
 
 	    dicts.push_back(dict);
 
-	    for (int i = idx ; i + 2 < argc ; ++i)
+	    for(int i = idx ; i + 2 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 2];
 	    }
 	    argc -= 2;
 	}
-	else if (strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
+	else if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
 	{
 	    usage(argv[0]);
 	    return EXIT_SUCCESS;
 	}
-	else if (strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
+	else if(strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
 	{
 	    cout << ICE_STRING_VERSION << endl;
 	    return EXIT_SUCCESS;
 	}
-	else if (strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
+	else if(strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
 	{
 	    debug = true;
-	    for (int i = idx ; i + 1 < argc ; ++i)
+	    for(int i = idx ; i + 1 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 1];
 	    }
 	    --argc;
 	}
-	else if (strcmp(argv[idx], "--include-dir") == 0)
+	else if(strcmp(argv[idx], "--include-dir") == 0)
 	{
-	    if (idx + 1 >= argc)
+	    if(idx + 1 >= argc)
             {
 		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
 		usage(argv[0]);
@@ -318,15 +318,15 @@ main(int argc, char* argv[])
             }
 	    
 	    include = argv[idx + 1];
-	    for (int i = idx ; i + 2 < argc ; ++i)
+	    for(int i = idx ; i + 2 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 2];
 	    }
 	    argc -= 2;
 	}
-	else if (strcmp(argv[idx], "--dll-export") == 0)
+	else if(strcmp(argv[idx], "--dll-export") == 0)
 	{
-	    if (idx + 1 >= argc)
+	    if(idx + 1 >= argc)
             {
 		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
 		usage(argv[0]);
@@ -334,15 +334,15 @@ main(int argc, char* argv[])
             }
 	    
 	    dllExport = argv[idx + 1];
-	    for (int i = idx ; i + 2 < argc ; ++i)
+	    for(int i = idx ; i + 2 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 2];
 	    }
 	    argc -= 2;
 	}
-	else if (strcmp(argv[idx], "--output-dir") == 0)
+	else if(strcmp(argv[idx], "--output-dir") == 0)
 	{
-	    if (idx + 1 >= argc)
+	    if(idx + 1 >= argc)
 	    {
 		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
 		usage(argv[0]);
@@ -350,13 +350,13 @@ main(int argc, char* argv[])
 	    }
 	    
 	    output = argv[idx + 1];
-	    for (int i = idx ; i + 2 < argc ; ++i)
+	    for(int i = idx ; i + 2 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 2];
 	    }
 	    argc -= 2;
 	}
-	else if (argv[idx][0] == '-')
+	else if(argv[idx][0] == '-')
 	{
 	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
 	    usage(argv[0]);
@@ -368,14 +368,14 @@ main(int argc, char* argv[])
 	}
     }
 
-    if (dicts.empty())
+    if(dicts.empty())
     {
 	cerr << argv[0] << ": no Freeze types specified" << endl;
 	usage(argv[0]);
 	return EXIT_FAILURE;
     }
 
-    if (argc < 2)
+    if(argc < 2)
     {
 	cerr << argv[0] << ": no file name base specified" << endl;
 	usage(argv[0]);
@@ -386,7 +386,7 @@ main(int argc, char* argv[])
     fileH += ".h";
     string fileC = argv[1];
     fileC += ".cpp";
-    if (!output.empty())
+    if(!output.empty())
     {
 	fileH = output + '/' + fileH;
 	fileC = output + '/' + fileC;
@@ -398,17 +398,17 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
-    for (idx = 2 ; idx < argc ; ++idx)
+    for(idx = 2 ; idx < argc ; ++idx)
     {
 	string base(argv[idx]);
 	string suffix;
 	string::size_type pos = base.rfind('.');
-	if (pos != string::npos)
+	if(pos != string::npos)
 	{
 	    suffix = base.substr(pos);
 	    transform(suffix.begin(), suffix.end(), suffix.begin(), tolower);
 	}
-	if (suffix != ".ice")
+	if(suffix != ".ice")
 	{
 	    cerr << argv[0] << ": input files must end with `.ice'" << endl;
 	    return EXIT_FAILURE;
@@ -418,7 +418,7 @@ main(int argc, char* argv[])
 	includes.push_back(base + ".h");
 
 	ifstream test(argv[idx]);
-	if (!test)
+	if(!test)
 	{
 	    cerr << argv[0] << ": can't open `" << argv[idx] << "' for reading: " << strerror(errno) << endl;
 	    return EXIT_FAILURE;
@@ -431,7 +431,7 @@ main(int argc, char* argv[])
 #else
 	FILE* cppHandle = popen(cmd.c_str(), "r");
 #endif
-	if (cppHandle == 0)
+	if(cppHandle == 0)
 	{
 	    cerr << argv[0] << ": can't run C++ preprocessor: " << strerror(errno) << endl;
 	    unit->destroy();
@@ -447,15 +447,15 @@ main(int argc, char* argv[])
 #endif
     }
 
-    if (status == EXIT_SUCCESS)
+    if(status == EXIT_SUCCESS)
     {
 	unit->mergeModules();
 	unit->sort();
 
 	{
-	    for (vector<string>::iterator p = includePaths.begin(); p != includePaths.end(); ++p)
+	    for(vector<string>::iterator p = includePaths.begin(); p != includePaths.end(); ++p)
 	    {
-		if (p->length() && (*p)[p->length() - 1] != '/')
+		if(p->length() && (*p)[p->length() - 1] != '/')
 		{
 		    *p += '/';
 		}
@@ -464,7 +464,7 @@ main(int argc, char* argv[])
 
 	Output H;
 	H.open(fileH.c_str());
-	if (!H)
+	if(!H)
 	{
 	    cerr << argv[0] << ": can't open `" << fileH << "' for writing: " << strerror(errno) << endl;
 	    unit->destroy();
@@ -475,7 +475,7 @@ main(int argc, char* argv[])
 
 	Output C;
 	C.open(fileC.c_str());
-	if (!C)
+	if(!C)
 	{
 	    cerr << argv[0] << ": can't open `" << fileC << "' for writing: " << strerror(errno) << endl;
 	    unit->destroy();
@@ -492,7 +492,7 @@ main(int argc, char* argv[])
 	H << "\n#include <Freeze/Map.h>";
 	
 	{
-	    for (StringList::const_iterator p = includes.begin(); p != includes.end(); ++p)
+	    for(StringList::const_iterator p = includes.begin(); p != includes.end(); ++p)
 	    {
 		H << "\n#include <" << changeInclude(*p, includePaths) << ".h>";
 	    }
@@ -500,7 +500,7 @@ main(int argc, char* argv[])
 
 	C << "\n#include <Ice/BasicStream.h>";
 	C << "\n#include <";
-	if (include.size())
+	if(include.size())
 	{
 	    C << include << '/';
 	}
@@ -510,17 +510,17 @@ main(int argc, char* argv[])
 	printVersionCheck(C);
 
 	printDllExportStuff(H, dllExport);
-	if (dllExport.size())
+	if(dllExport.size())
 	{
 	    dllExport += " ";
 	}
 
 	{
-	    for (vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
+	    for(vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
 	    {
 		try
 		{
-		    if (!writeCodecs(argv[0], unit, *p, H, C, dllExport))
+		    if(!writeCodecs(argv[0], unit, *p, H, C, dllExport))
 		    {
 			unit->destroy();
 			return EXIT_FAILURE;

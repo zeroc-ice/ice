@@ -31,7 +31,7 @@ bool
 IceUtil::RecMutex::lock() const
 {
     EnterCriticalSection(&_mutex);
-    if (++_count > 1)
+    if(++_count > 1)
     {
 	LeaveCriticalSection(&_mutex);
 	return false;
@@ -42,11 +42,11 @@ IceUtil::RecMutex::lock() const
 bool
 IceUtil::RecMutex::trylock() const
 {
-    if (!TryEnterCriticalSection(&_mutex))
+    if(!TryEnterCriticalSection(&_mutex))
     {
 	throw LockedException(__FILE__, __LINE__);
     }
-    if (++_count > 1)
+    if(++_count > 1)
     {
 	LeaveCriticalSection(&_mutex);
 	return false;
@@ -57,7 +57,7 @@ IceUtil::RecMutex::trylock() const
 bool
 IceUtil::RecMutex::unlock() const
 {
-    if (--_count == 0)
+    if(--_count == 0)
     {
 	LeaveCriticalSection(&_mutex);
 	return true;
@@ -86,7 +86,7 @@ IceUtil::RecMutex::RecMutex() :
 {
     const pthread_mutexattr_t attr = { PTHREAD_MUTEX_RECURSIVE_NP };
     int rc = pthread_mutex_init(&_mutex, &attr);
-    if (rc != 0)
+    if(rc != 0)
     {
 	throw SyscallException(strerror(rc), __FILE__, __LINE__);
     }
@@ -104,11 +104,11 @@ bool
 IceUtil::RecMutex::lock() const
 {
     int rc = pthread_mutex_lock(&_mutex);
-    if (rc != 0)
+    if(rc != 0)
     {
 	throw SyscallException(strerror(rc), __FILE__, __LINE__);
     }
-    if (++_count > 1)
+    if(++_count > 1)
     {
 	rc = pthread_mutex_unlock(&_mutex);
 	assert(rc == 0);
@@ -121,15 +121,15 @@ bool
 IceUtil::RecMutex::trylock() const
 {
     int rc = pthread_mutex_trylock(&_mutex);
-    if (rc != 0)
+    if(rc != 0)
     {
-	if (rc == EBUSY)
+	if(rc == EBUSY)
 	{
 	    throw LockedException(__FILE__, __LINE__);
 	}
 	throw SyscallException(strerror(rc), __FILE__, __LINE__);
     }
-    if (++_count > 1)
+    if(++_count > 1)
     {
 	rc = pthread_mutex_unlock(&_mutex);
 	assert(rc == 0);
@@ -141,7 +141,7 @@ IceUtil::RecMutex::trylock() const
 bool
 IceUtil::RecMutex::unlock() const
 {
-    if (--_count == 0)
+    if(--_count == 0)
     {
 	int rc = 0; // Prevent warnings when NDEBUG is defined.
 	rc = pthread_mutex_unlock(&_mutex);

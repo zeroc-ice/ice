@@ -22,7 +22,7 @@ class DBCursorI implements DBCursor
     synchronized public void
     curr(KeyHolder k, ValueHolder v)
     {
-	if (_cursor == null)
+	if(_cursor == null)
 	{
 	    DBException ex = new DBException();
 	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
@@ -32,7 +32,7 @@ class DBCursorI implements DBCursor
 	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt();
 	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt();
 	
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("DB", "reading current value from database \"" + _name + "\"");
 	}
@@ -40,7 +40,7 @@ class DBCursorI implements DBCursor
 	try
 	{
 	    int rc = _cursor.get(dbKey, dbData, com.sleepycat.db.Db.DB_CURRENT);
-	    if (rc == com.sleepycat.db.Db.DB_NOTFOUND)
+	    if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
 	    {
 		DBNotFoundException ex = new DBNotFoundException();
 		ex.message = _errorPrefix + "Dbc.get: DB_NOTFOUND";
@@ -65,7 +65,7 @@ class DBCursorI implements DBCursor
     synchronized public void
     set(byte[] v)
     {
-	if (_cursor == null)
+	if(_cursor == null)
 	{
 	    DBException ex = new DBException();
 	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
@@ -75,7 +75,7 @@ class DBCursorI implements DBCursor
 	com.sleepycat.db.Dbt dbKey = null;
 	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt(v);
 	
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("DB", "setting current value in database \"" + _name + "\"");
 	}
@@ -85,7 +85,7 @@ class DBCursorI implements DBCursor
 	    int rc = _cursor.put(dbKey, dbData, com.sleepycat.db.Db.DB_CURRENT);
 	    /* Since the underlying data is btree this cannot occur.
 	     *
-	    if (rc == com.sleepycat.db.Db.DB_NOTFOUND)
+	    if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
 	    {
 		DBNotFoundException ex = new DBNotFoundException();
 		ex.message = _errorPrefix + "Dbc.put: DB_NOTFOUND";
@@ -105,7 +105,7 @@ class DBCursorI implements DBCursor
     synchronized public boolean
     next()
     {
-	if (_cursor == null)
+	if(_cursor == null)
 	{
 	    DBException ex = new DBException();
 	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
@@ -117,7 +117,7 @@ class DBCursorI implements DBCursor
 	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt();
 	dbData.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
 	
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("DB", "moving to next value in database \"" + _name + "\"");
 	}
@@ -125,7 +125,7 @@ class DBCursorI implements DBCursor
 	try
 	{
 	    int rc = _cursor.get(dbKey, dbData, com.sleepycat.db.Db.DB_NEXT);
-	    if (rc == com.sleepycat.db.Db.DB_NOTFOUND)
+	    if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
 	    {
 		return false;
 	    }
@@ -144,7 +144,7 @@ class DBCursorI implements DBCursor
     synchronized public boolean
     prev()
     {
-	if (_cursor == null)
+	if(_cursor == null)
 	{
 	    DBException ex = new DBException();
 	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
@@ -156,7 +156,7 @@ class DBCursorI implements DBCursor
 	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt();
 	dbData.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
 	
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("DB", "moving to previous value in database \"" + _name + "\"");
 	}
@@ -164,7 +164,7 @@ class DBCursorI implements DBCursor
 	try
 	{
 	    int rc = _cursor.get(dbKey, dbData, com.sleepycat.db.Db.DB_PREV);
-	    if (rc == com.sleepycat.db.Db.DB_NOTFOUND)
+	    if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
 	    {
 		return false;
 	    }
@@ -183,14 +183,14 @@ class DBCursorI implements DBCursor
     synchronized public void
     del()
     {
-	if (_cursor == null)
+	if(_cursor == null)
 	{
 	    DBException ex = new DBException();
 	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
 	    throw ex;
 	}
 
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("DB", "removing the current element in database \"" + _name + "\"");
 	}
@@ -198,7 +198,7 @@ class DBCursorI implements DBCursor
 	try
 	{
 	    int rc = _cursor.del(0);
-	    if (rc == com.sleepycat.db.Db.DB_KEYEMPTY)
+	    if(rc == com.sleepycat.db.Db.DB_KEYEMPTY)
 	    {
 		DBException ex = new DBException();
 		ex.message = _errorPrefix + "Dbc.del: DB_KEYEMPTY";
@@ -217,7 +217,7 @@ class DBCursorI implements DBCursor
     synchronized public DBCursor
     _clone()
     {
-	if (_cursor == null)
+	if(_cursor == null)
 	{
 	    DBException ex = new DBException();
 	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
@@ -242,12 +242,12 @@ class DBCursorI implements DBCursor
     synchronized public void
     close()
     {
-	if (_cursor == null)
+	if(_cursor == null)
 	{
 	    return;
 	}
 
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("DB", "closing cursor \"" + _name + "\"");
 	}
@@ -282,7 +282,7 @@ class DBCursorI implements DBCursor
 	_errorPrefix = "Freeze::DBCursor(\"" + _name + "\"): ";
 	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.DB");
 
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("DB", "creating cursor for \"" + _name + "\"");
 	}

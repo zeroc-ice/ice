@@ -252,13 +252,13 @@ IceSSL::OpenSSL::RSACertificateGen::generate(const RSACertificateGenContext& con
     X509_set_pubkey(x509SelfSigned, pkey);
 
     // Sign the public key using an MD5 digest.
-    if (!X509_sign(x509SelfSigned, pkey, EVP_md5()))
+    if(!X509_sign(x509SelfSigned, pkey, EVP_md5()))
     {
         throw IceSSL::CertificateSigningException(__FILE__, __LINE__);
     }
 
     // Verify the Signature (paranoia).
-    if (!X509_REQ_verify(signingRequest, pkey))
+    if(!X509_REQ_verify(signingRequest, pkey))
     {
         throw IceSSL::CertificateSignatureException(__FILE__, __LINE__);
     }
@@ -284,7 +284,7 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
     // Read in the X509 Certificate Structure
     //
     BIOJanitor certBIO(BIO_new_file(certFile.c_str(), "r"));
-    if (certBIO.get() == 0)
+    if(certBIO.get() == 0)
     {
         IceSSL::OpenSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
 
@@ -298,7 +298,7 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
 
     X509Janitor x509Janitor(PEM_read_bio_X509(certBIO.get(), 0, 0, 0));
 
-    if (x509Janitor.get() == 0)
+    if(x509Janitor.get() == 0)
     {
         IceSSL::OpenSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
 
@@ -314,7 +314,7 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
     // Read in the RSA Private Key Structure
     //
     BIOJanitor keyBIO(BIO_new_file(keyFile.c_str(), "r"));
-    if (keyBIO.get() == 0)
+    if(keyBIO.get() == 0)
     {
         IceSSL::OpenSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
 
@@ -328,7 +328,7 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
 
     RSAJanitor rsaJanitor(PEM_read_bio_RSAPrivateKey(keyBIO.get(), 0, 0, 0));
 
-    if (rsaJanitor.get() == 0)
+    if(rsaJanitor.get() == 0)
     {
         IceSSL::OpenSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
 

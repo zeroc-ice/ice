@@ -176,7 +176,7 @@ public abstract class Map extends java.util.AbstractMap
     public java.util.Set
     entrySet()
     {
-        if (_entrySet == null)
+        if(_entrySet == null)
 	{
             _entrySet = new java.util.AbstractSet()
 	    {
@@ -191,7 +191,7 @@ public abstract class Map extends java.util.AbstractMap
 		public boolean
 		contains(Object o)
 		{
-		    if (!(o instanceof Map.Entry))
+		    if(!(o instanceof Map.Entry))
 		    {
 			return false;
 		    }
@@ -205,7 +205,7 @@ public abstract class Map extends java.util.AbstractMap
 		public boolean
 		remove(Object o)
 		{
-		    if (!(o instanceof Map.Entry))
+		    if(!(o instanceof Map.Entry))
 		    {
 			return false;
 		    }
@@ -213,7 +213,7 @@ public abstract class Map extends java.util.AbstractMap
 		    Object value = entry.getValue();
 
 		    Entry p = getEntry(entry.getKey());
-		    if (p != null && valEquals(p.getValue(), value))
+		    if(p != null && valEquals(p.getValue(), value))
 		    {
 			closeIterators();
 			byte[] k = encodeKey(p.getKey(), _db.getCommunicator());
@@ -252,7 +252,7 @@ public abstract class Map extends java.util.AbstractMap
     closeIterators()
     {
 	java.util.Iterator p = _iterators.iterator();
-	while (p.hasNext())
+	while(p.hasNext())
 	{
 	    EntryIterator q = (EntryIterator)p.next();
 	    q.close();
@@ -299,7 +299,7 @@ public abstract class Map extends java.util.AbstractMap
 	    }
 	    catch(DBException e)
 	    {
-		if (_cursor != null)
+		if(_cursor != null)
 		{
 		    try
 		    {
@@ -329,7 +329,7 @@ public abstract class Map extends java.util.AbstractMap
 	public void
 	remove()
 	{
-	    if (_current == null)
+	    if(_current == null)
 	    {
 		throw new IllegalStateException();
 	    }
@@ -345,7 +345,7 @@ public abstract class Map extends java.util.AbstractMap
 		// If _next is null then the iterator is currently at
 		// the end.
 		//
-		if (_next != null)
+		if(_next != null)
 		{
 		    clone.prev();
 		}
@@ -354,7 +354,7 @@ public abstract class Map extends java.util.AbstractMap
 	    }
 	    finally
 	    {
-		if (clone != null)
+		if(clone != null)
 		{
 		    try
 		    {
@@ -385,7 +385,7 @@ public abstract class Map extends java.util.AbstractMap
 	    _next = null;
 	    _current = null;
 	    
-	    if (copy != null)
+	    if(copy != null)
 	    {
 		copy.close();
 	    }
@@ -394,14 +394,14 @@ public abstract class Map extends java.util.AbstractMap
 	private Entry
 	nextEntry()
 	{
-	    if (_next == null)
+	    if(_next == null)
 	    {
 		throw new java.util.NoSuchElementException();
 	    }
 	    
 	    _current = _next;
 	    
-	    if (_cursor.next())
+	    if(_cursor.next())
 	    {
 		_next = getCurr();
 	    }
@@ -467,7 +467,7 @@ public abstract class Map extends java.util.AbstractMap
 	public boolean
 	equals(Object o)
 	{
-	    if (!(o instanceof Map.Entry))
+	    if(!(o instanceof Map.Entry))
 	    {
 		return false;
 	    }

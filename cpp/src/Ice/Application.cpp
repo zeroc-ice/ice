@@ -30,7 +30,7 @@ Ice::Application::~Application()
 int
 Ice::Application::main(int argc, char* argv[], const char* configFile)
 {
-    if (_communicator)
+    if(_communicator)
     {
 	cerr << argv[0] << ": only one instance of the Application class can be used" << endl;
 	return EXIT_FAILURE;
@@ -42,7 +42,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 
     try
     {
-	if (configFile)
+	if(configFile)
 	{
 	    PropertiesPtr properties = createProperties(argc, argv);
             properties->load(configFile);
@@ -65,7 +65,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	status = EXIT_FAILURE;
     }
 
-    if (_communicator)
+    if(_communicator)
     {
 	try
 	{

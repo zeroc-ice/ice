@@ -23,7 +23,7 @@ public final class ReferenceFactory
            RouterInfo routerInfo,
            Ice.ObjectAdapter reverseAdapter)
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new Ice.CommunicatorDestroyedException();
         }
@@ -47,10 +47,10 @@ public final class ReferenceFactory
         // key, and we use a weak reference for the value as well.
         //
         java.lang.ref.WeakReference w = (java.lang.ref.WeakReference)_references.get(ref);
-        if (w != null)
+        if(w != null)
         {
             Reference r = (Reference)w.get();
-            if (r != null)
+            if(r != null)
             {
                 ref = r;
             }
@@ -71,14 +71,14 @@ public final class ReferenceFactory
     create(String str)
     {
         String s = str.trim();
-        if (s.length() == 0)
+        if(s.length() == 0)
         {
             throw new Ice.ProxyParseException();
         }
 
         int colon = s.indexOf(':');
         String init;
-        if (colon == -1)
+        if(colon == -1)
         {
             init = s;
         }
@@ -95,16 +95,16 @@ public final class ReferenceFactory
         boolean compress = false;
 
         int i = 1;
-        while (i < arr.length)
+        while(i < arr.length)
         {
             String option = arr[i++];
-            if (option.length() != 2 || option.charAt(0) != '-')
+            if(option.length() != 2 || option.charAt(0) != '-')
             {
                 throw new Ice.ProxyParseException();
             }
 
             String argument = null;
-            if (i < arr.length && arr[i].charAt(0) != '-')
+            if(i < arr.length && arr[i].charAt(0) != '-')
             {
                 argument = arr[i++];
             }
@@ -113,11 +113,11 @@ public final class ReferenceFactory
             // If any new options are added here,
             // IceInternal::Reference::toString() must be updated as well.
             //
-            switch (option.charAt(1))
+            switch(option.charAt(1))
             {
                 case 'f':
                 {
-                    if (argument == null)
+                    if(argument == null)
                     {
                         throw new Ice.EndpointParseException();
                     }
@@ -128,7 +128,7 @@ public final class ReferenceFactory
 
                 case 't':
                 {
-                    if (argument != null)
+                    if(argument != null)
                     {
                         throw new Ice.EndpointParseException();
                     }
@@ -139,7 +139,7 @@ public final class ReferenceFactory
 
                 case 'o':
                 {
-                    if (argument != null)
+                    if(argument != null)
                     {
                         throw new Ice.EndpointParseException();
                     }
@@ -150,7 +150,7 @@ public final class ReferenceFactory
 
                 case 'O':
                 {
-                    if (argument != null)
+                    if(argument != null)
                     {
                         throw new Ice.EndpointParseException();
                     }
@@ -161,7 +161,7 @@ public final class ReferenceFactory
 
                 case 'd':
                 {
-                    if (argument != null)
+                    if(argument != null)
                     {
                         throw new Ice.EndpointParseException();
                     }
@@ -172,7 +172,7 @@ public final class ReferenceFactory
 
                 case 'D':
                 {
-                    if (argument != null)
+                    if(argument != null)
                     {
                         throw new Ice.EndpointParseException();
                     }
@@ -183,7 +183,7 @@ public final class ReferenceFactory
 
                 case 's':
                 {
-                    if (argument != null)
+                    if(argument != null)
                     {
                         throw new Ice.EndpointParseException();
                     }
@@ -194,7 +194,7 @@ public final class ReferenceFactory
 
                 case 'c':
                 {
-                    if (argument != null)
+                    if(argument != null)
                     {
                         throw new Ice.EndpointParseException();
                     }
@@ -216,19 +216,19 @@ public final class ReferenceFactory
         boolean orig = true;
         final int len = s.length();
         int end = colon;
-        while (end < len && s.charAt(end) == ':')
+        while(end < len && s.charAt(end) == ':')
         {
             int beg = end + 1;
 
             end = s.indexOf(':', beg);
-            if (end == -1)
+            if(end == -1)
             {
                 end = len;
             }
 
-            if (beg == end) // "::"
+            if(beg == end) // "::"
             {
-                if (!orig)
+                if(!orig)
                 {
                     throw new Ice.ProxyParseException();
                 }
@@ -240,7 +240,7 @@ public final class ReferenceFactory
             String es = s.substring(beg, end);
             Endpoint endp = _instance.endpointFactoryManager().create(es);
 
-            if (orig)
+            if(orig)
             {
                 origEndpoints.add(endp);
             }
@@ -250,12 +250,12 @@ public final class ReferenceFactory
             }
         }
 
-        if (orig)
+        if(orig)
         {
             endpoints = origEndpoints;
         }
 
-        if (origEndpoints.size() == 0 || endpoints.size() == 0)
+        if(origEndpoints.size() == 0 || endpoints.size() == 0)
         {
             throw new Ice.ProxyParseException();
         }
@@ -280,7 +280,7 @@ public final class ReferenceFactory
         String facet = s.readString();
 
         int mode = (int)s.readByte();
-        if (mode < 0 || mode > Reference.ModeLast)
+        if(mode < 0 || mode > Reference.ModeLast)
         {
             throw new Ice.ProxyUnmarshalException();
         }
@@ -294,13 +294,13 @@ public final class ReferenceFactory
 
         int sz = s.readSize();
         origEndpoints = new Endpoint[sz];
-        for (int i = 0; i < sz; i++)
+        for(int i = 0; i < sz; i++)
         {
             origEndpoints[i] = _instance.endpointFactoryManager().read(s);
         }
 
         boolean same = s.readBool();
-        if (same) // origEndpoints == endpoints
+        if(same) // origEndpoints == endpoints
         {
             endpoints = origEndpoints;
         }
@@ -308,7 +308,7 @@ public final class ReferenceFactory
         {
             sz = s.readSize();
             endpoints = new Endpoint[sz];
-            for (int i = 0; i < sz; i++)
+            for(int i = 0; i < sz; i++)
             {
                 endpoints[i] = _instance.endpointFactoryManager().read(s);
             }
@@ -341,7 +341,7 @@ public final class ReferenceFactory
     synchronized void
     destroy()
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new Ice.CommunicatorDestroyedException();
         }

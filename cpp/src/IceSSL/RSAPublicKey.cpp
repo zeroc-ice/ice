@@ -46,7 +46,7 @@ IceSSL::OpenSSL::RSAPublicKey::RSAPublicKey(const ByteSeq& certSeq)
 
 IceSSL::OpenSSL::RSAPublicKey::~RSAPublicKey()
 {
-    if (_publicKey != 0)
+    if(_publicKey != 0)
     {
         X509_free(_publicKey);
     }
@@ -107,7 +107,7 @@ IceSSL::OpenSSL::RSAPublicKey::byteSeqToCert(const ByteSeq& certSeq)
 
     _publicKey = d2i_X509(x509pp, pubKeyBuffpp, (long)certSeq.size());
 
-    if (_publicKey == 0)
+    if(_publicKey == 0)
     {
         IceSSL::CertificateParseException certParseException(__FILE__, __LINE__);
 

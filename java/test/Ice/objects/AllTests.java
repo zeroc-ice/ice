@@ -13,7 +13,7 @@ public class AllTests
     private static void
     test(boolean b)
     {
-        if (!b)
+        if(!b)
         {
             throw new RuntimeException();
         }
@@ -84,7 +84,7 @@ public class AllTests
         //
         // Break cyclic dependencies
         //
-        if (!collocated)
+        if(!collocated)
         {
             ((B)b1.a).a = null;
             ((B)b1.a).b = null;
@@ -151,7 +151,7 @@ public class AllTests
         //
         // Break cyclic dependencies
         //
-        if (!collocated)
+        if(!collocated)
         {
             b1.a = null;
             b1.b = null;
@@ -207,7 +207,7 @@ public class AllTests
         //
         // Break cyclic dependencies
         //
-        if (!collocated)
+        if(!collocated)
         {
             ((B)fb1.a).a = null;
             ((B)fb1.a).b = null;
@@ -281,7 +281,7 @@ public class AllTests
         //
         // Break cyclic dependencies
         //
-        if (!collocated)
+        if(!collocated)
         {
             fb1.a = null;
             fb1.b = null;

@@ -73,9 +73,9 @@ IceUtil::OutputBase::open(const char* s)
 void
 IceUtil::OutputBase::print(const char* s)
 {
-    for (unsigned int i = 0; i < strlen(s); ++i)
+    for(unsigned int i = 0; i < strlen(s); ++i)
     {
-	if (s[i] == '\n')
+	if(s[i] == '\n')
 	{
 	    _pos = 0;
 	}
@@ -144,9 +144,9 @@ IceUtil::OutputBase::nl()
 
     int indent = _indent;
 
-    if (_useTab)
+    if(_useTab)
     {
-        while (indent >= 8)
+        while(indent >= 8)
         {
             indent -= 8;
             _out << '\t';
@@ -155,7 +155,7 @@ IceUtil::OutputBase::nl()
     }
     else
     {
-        while (indent >= _indentSize)
+        while(indent >= _indentSize)
         {
             indent -= _indentSize;
             _out << "    ";
@@ -163,7 +163,7 @@ IceUtil::OutputBase::nl()
         }
     }
 
-    while (indent > 0)
+    while(indent > 0)
     {
         --indent;
         _out << ' ';
@@ -176,7 +176,7 @@ IceUtil::OutputBase::nl()
 void
 IceUtil::OutputBase::sp()
 {
-    if (_separator)
+    if(_separator)
     {
         _out << '\n';
     }
@@ -228,7 +228,7 @@ IceUtil::Output::setEndBlock(const char *eb)
 void
 IceUtil::Output::sb()
 {
-    if (_blockStart.length())
+    if(_blockStart.length())
     {
         nl();
         _out << _blockStart;
@@ -242,7 +242,7 @@ void
 IceUtil::Output::eb()
 {
     dec();
-    if (_blockEnd.length())
+    if(_blockEnd.length())
     {
         nl();
         _out << _blockEnd;
@@ -293,7 +293,7 @@ IceUtil::XMLOutput::setSGML(bool sgml)
 void
 IceUtil::XMLOutput::print(const char* s)
 {
-    if (!_printed)
+    if(!_printed)
     {
 	_out << '>';
 	_printed = true;
@@ -304,7 +304,7 @@ IceUtil::XMLOutput::print(const char* s)
 void
 IceUtil::XMLOutput::nl()
 {
-    if (!_printed)
+    if(!_printed)
     {
 	_printed = true;
 	_out << '>';
@@ -323,7 +323,7 @@ IceUtil::XMLOutput::se(const std::string& element)
     // emitted) or until something //is displayed.
     //
     _out << '<' << element;
-    if (_sgml)
+    if(_sgml)
     {
 	_out << '>';
     }
@@ -334,7 +334,7 @@ IceUtil::XMLOutput::se(const std::string& element)
 
 
     string::size_type pos = element.find_first_of(" \t");
-    if (pos == string::npos)
+    if(pos == string::npos)
     {
 	_elementStack.push(element);
     }
@@ -355,7 +355,7 @@ IceUtil::XMLOutput::ee()
     _elementStack.pop();
 
     dec();
-    if (!_printed)
+    if(!_printed)
     {
 	_out << "/>";
     }

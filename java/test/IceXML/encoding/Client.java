@@ -19,7 +19,7 @@ public class Client
     private static void
     test(boolean b)
     {
-        if (!b)
+        if(!b)
         {
             throw new RuntimeException("Test failed!");
         }
@@ -41,7 +41,7 @@ public class Client
             "hello <<>>world",
             "hello &&''\"\"<<>>world",
         };
-        for (int i = 0; i < strings.length; ++i)
+        for(int i = 0; i < strings.length; ++i)
         {
             java.io.StringWriter sw = new java.io.StringWriter();
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -191,7 +191,7 @@ public class Client
         Ice.Stream istream = new IceXML.StreamI(communicator, sr);
         Test.Struct4[] seqout = Test.Struct4SeqHelper.ice_unmarshal(element, istream);
         test(seqout.length == seqin.length);
-        for (int i = 0; i < seqin.length; i++)
+        for(int i = 0; i < seqin.length; i++)
         {
             test(seqin[i].equals(seqout[i]));
         }
@@ -234,7 +234,7 @@ public class Client
         java.util.Map dictout = Test.StringStruct4DictHelper.ice_unmarshal(element, istream);
         test(dictout.size() == dictin.size());
         java.util.Iterator p = dictin.entrySet().iterator();
-        while (p.hasNext())
+        while(p.hasNext())
         {
             java.util.Map.Entry e = (java.util.Map.Entry)p.next();
             Test.Struct4 val = (Test.Struct4)dictout.get(e.getKey());
@@ -292,7 +292,7 @@ public class Client
         java.util.Map dictout = Test.Struct3Struct4DictHelper.ice_unmarshal(element, istream);
         test(dictout.size() == dictin.size());
         java.util.Iterator p = dictin.entrySet().iterator();
-        while (p.hasNext())
+        while(p.hasNext())
         {
             java.util.Map.Entry e = (java.util.Map.Entry)p.next();
             Test.Struct4 val = (Test.Struct4)dictout.get(e.getKey());
@@ -343,7 +343,7 @@ public class Client
         Ice.Stream istream = new IceXML.StreamI(communicator, sr);
         Test.Color[] seqout = Test.ColorSeqHelper.ice_unmarshal(element, istream);
         test(seqout.length == seqin.length);
-        for (int i = 0; i < seqin.length; i++)
+        for(int i = 0; i < seqin.length; i++)
         {
             test(seqin[i] == seqout[i]);
         }
@@ -553,7 +553,7 @@ public class Client
         // If the test is run out of the CWD then adjust the location of
         // Test.xsd appropriately.
         //
-        if (args.length > 0)
+        if(args.length > 0)
         {
             int pos = header.indexOf("Test.xsd");
             assert(pos != -1);
@@ -636,7 +636,7 @@ public class Client
             status = 1;
         }
 
-        if (communicator != null)
+        if(communicator != null)
         {
             try
             {

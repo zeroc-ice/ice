@@ -21,7 +21,7 @@ final class BufferManager
     allocate(int size)
     {
         java.nio.ByteBuffer buf = getBuffer(size);
-        if (buf == null)
+        if(buf == null)
         {
             try
             {
@@ -43,7 +43,7 @@ final class BufferManager
     reallocate(java.nio.ByteBuffer old, int size)
     {
         java.nio.ByteBuffer buf = getBuffer(size);
-        if (buf == null)
+        if(buf == null)
         {
             try
             {
@@ -68,7 +68,7 @@ final class BufferManager
     reclaim(java.nio.ByteBuffer buf)
     {
         BufferNode node;
-        if (_nodeCache == null)
+        if(_nodeCache == null)
         {
             node = new BufferNode();
         }
@@ -88,18 +88,18 @@ final class BufferManager
     {
         BufferNode node = _head;
         BufferNode prev = null;
-        while (node != null)
+        while(node != null)
         {
-            if (size <= node.capacity)
+            if(size <= node.capacity)
             {
                 break;
             }
             prev = node;
             node = node.next;
         }
-        if (node != null)
+        if(node != null)
         {
-            if (prev != null)
+            if(prev != null)
             {
                 prev.next = node.next;
             }

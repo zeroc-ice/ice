@@ -35,7 +35,7 @@ IceInternal::Incoming::invoke(bool response)
     _is.read(current.nonmutating);
     Int sz;
     _is.readSize(sz);
-    while (sz--)
+    while(sz--)
     {
 	pair<string, string> pair;
 	_is.read(pair.first);
@@ -44,7 +44,7 @@ IceInternal::Incoming::invoke(bool response)
     }
 
     BasicStream::Container::size_type statusPos = 0; // Initialize, to keep the compiler happy.
-    if (response)
+    if(response)
     {
 	statusPos = _os.b.size();
 	_os.write(static_cast<Byte>(0));
@@ -56,7 +56,7 @@ IceInternal::Incoming::invoke(bool response)
     // blobs.
     //
     _is.startReadEncaps();
-    if (response)
+    if(response)
     {
 	_os.startWriteEncaps();
     }
@@ -67,23 +67,23 @@ IceInternal::Incoming::invoke(bool response)
 	
     try
     {
-	if (_adapter)
+	if(_adapter)
 	{
 	    servant = _adapter->identityToServant(current.identity);
 	    
-	    if (!servant && !current.identity.category.empty())
+	    if(!servant && !current.identity.category.empty())
 	    {
 		locator = _adapter->findServantLocator(current.identity.category);
-		if (locator)
+		if(locator)
 		{
 		    servant = locator->locate(_adapter, current, cookie);
 		}
 	    }
 	    
-	    if (!servant)
+	    if(!servant)
 	    {
 		locator = _adapter->findServantLocator("");
-		if (locator)
+		if(locator)
 		{
 		    servant = locator->locate(_adapter, current, cookie);
 		}
@@ -92,16 +92,16 @@ IceInternal::Incoming::invoke(bool response)
 	    
 	DispatchStatus status;
 
-	if (!servant)
+	if(!servant)
 	{
 	    status = DispatchObjectNotExist;
 	}
 	else
 	{
-	    if (!current.facet.empty())
+	    if(!current.facet.empty())
 	    {
 		ObjectPtr facetServant = servant->ice_findFacet(current.facet);
-		if (!facetServant)
+		if(!facetServant)
 		{
 		    status = DispatchFacetNotExist;
 		}
@@ -116,23 +116,23 @@ IceInternal::Incoming::invoke(bool response)
 	    }
 	}
 
-	if (locator && servant)
+	if(locator && servant)
 	{
 	    assert(_adapter);
 	    locator->finished(_adapter, current, servant, cookie);
 	}
 	
 	_is.endReadEncaps();
-	if (response)
+	if(response)
 	{
 	    _os.endWriteEncaps();
 
-	    if (status != DispatchOK && status != DispatchUserException)
+	    if(status != DispatchOK && status != DispatchUserException)
 	    {
 		_os.b.resize(statusPos);
 		_os.write(static_cast<Byte>(status));
 
-		if (status == DispatchObjectNotExist)
+		if(status == DispatchObjectNotExist)
 		{
 		    current.identity.__write(&_os);
 		}
@@ -153,14 +153,14 @@ IceInternal::Incoming::invoke(bool response)
     }
     catch (const LocationForward& ex)
     {
-	if (locator && servant)
+	if(locator && servant)
 	{
 	    assert(_adapter);
 	    locator->finished(_adapter, current, servant, cookie);
 	}
 
 	_is.endReadEncaps();
-	if (response)
+	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(statusPos);
@@ -170,14 +170,14 @@ IceInternal::Incoming::invoke(bool response)
     }
     catch (const ObjectNotExistException& ex)
     {
-	if (locator && servant)
+	if(locator && servant)
 	{
 	    assert(_adapter);
 	    locator->finished(_adapter, current, servant, cookie);
 	}
 
 	_is.endReadEncaps();
-	if (response)
+	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(statusPos);
@@ -192,14 +192,14 @@ IceInternal::Incoming::invoke(bool response)
     }
     catch (const FacetNotExistException& ex)
     {
-	if (locator && servant)
+	if(locator && servant)
 	{
 	    assert(_adapter);
 	    locator->finished(_adapter, current, servant, cookie);
 	}
 
 	_is.endReadEncaps();
-	if (response)
+	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(statusPos);
@@ -214,14 +214,14 @@ IceInternal::Incoming::invoke(bool response)
     }
     catch (const OperationNotExistException& ex)
     {
-	if (locator && servant)
+	if(locator && servant)
 	{
 	    assert(_adapter);
 	    locator->finished(_adapter, current, servant, cookie);
 	}
 
 	_is.endReadEncaps();
-	if (response)
+	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(statusPos);
@@ -236,14 +236,14 @@ IceInternal::Incoming::invoke(bool response)
     }
     catch (const LocalException& ex)
     {
-	if (locator && servant)
+	if(locator && servant)
 	{
 	    assert(_adapter);
 	    locator->finished(_adapter, current, servant, cookie);
 	}
 
 	_is.endReadEncaps();
-	if (response)
+	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(statusPos);
@@ -255,14 +255,14 @@ IceInternal::Incoming::invoke(bool response)
     }
     catch (const UserException& ex)
     {
-	if (locator && servant)
+	if(locator && servant)
 	{
 	    assert(_adapter);
 	    locator->finished(_adapter, current, servant, cookie);
 	}
 
 	_is.endReadEncaps();
-	if (response)
+	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(statusPos);
@@ -274,14 +274,14 @@ IceInternal::Incoming::invoke(bool response)
     }
     catch (...)
     {
-	if (locator && servant)
+	if(locator && servant)
 	{
 	    assert(_adapter);
 	    locator->finished(_adapter, current, servant, cookie);
 	}
 
 	_is.endReadEncaps();
-	if (response)
+	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(statusPos);

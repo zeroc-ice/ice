@@ -58,19 +58,19 @@ IcePatch::Client::run(int argc, char* argv[])
     try
     {
 	int idx = 1;
-	while (idx < argc)
+	while(idx < argc)
 	{
-            if (strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
+            if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
             {
                 usage();
                 return EXIT_SUCCESS;
             }
-            else if (strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
+            else if(strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
             {
                 cout << ICE_STRING_VERSION << endl;
                 return EXIT_SUCCESS;
             }
-            else if (argv[idx][0] == '-')
+            else if(argv[idx][0] == '-')
             {
                 cerr << appName() << ": unknown option `" << argv[idx] << "'" << endl;
                 usage();
@@ -83,9 +83,9 @@ IcePatch::Client::run(int argc, char* argv[])
 	}
 	
 	vector<string> subdirs;
-	if (argc > 1)
+	if(argc > 1)
 	{
-	    for (int i = 1; i < argc; ++i)
+	    for(int i = 1; i < argc; ++i)
 	    {
 		subdirs.push_back(argv[i]);
 	    }
@@ -102,11 +102,11 @@ IcePatch::Client::run(int argc, char* argv[])
         //
         const char* glacierStarterEndpointsProperty = "Glacier.Starter.Endpoints";
 	string glacierStarterEndpoints = properties->getProperty(glacierStarterEndpointsProperty);
-	if (!glacierStarterEndpoints.empty())
+	if(!glacierStarterEndpoints.empty())
 	{
 	    ObjectPrx starterBase = communicator()->stringToProxy("Glacier/starter:" + glacierStarterEndpoints);
 	    Glacier::StarterPrx starter = Glacier::StarterPrx::checkedCast(starterBase);
-	    if (!starter)
+	    if(!starter)
 	    {
 		cerr << appName() << ": endpoints `" << glacierStarterEndpoints
 		     << "' do not refer to a glacier router starter" << endl;
@@ -117,7 +117,7 @@ IcePatch::Client::run(int argc, char* argv[])
 	    ByteSeq publicKey;
 	    ByteSeq routerCert;
 
-	    while (!router)
+	    while(!router)
 	    {
 		string id;
 		string pw;
@@ -143,7 +143,7 @@ IcePatch::Client::run(int argc, char* argv[])
 	    }
 
 	    string clientConfig = properties->getProperty("IceSSL.Client.Config");
-	    if (!clientConfig.empty())
+	    if(!clientConfig.empty())
 	    {
 		string privateKeyBase64 = IceUtil::Base64::encode(privateKey);
 		string publicKeyBase64  = IceUtil::Base64::encode(publicKey);
@@ -167,7 +167,7 @@ IcePatch::Client::run(int argc, char* argv[])
         //
         const char* endpointsProperty = "IcePatch.Endpoints";
         string endpoints = properties->getProperty(endpointsProperty);
-        if (endpoints.empty())
+        if(endpoints.empty())
         {
             cerr << appName() << ": property `" << endpointsProperty << "' is not set" << endl;
             return EXIT_FAILURE;
@@ -178,12 +178,12 @@ IcePatch::Client::run(int argc, char* argv[])
         //
         const char* directoryProperty = "IcePatch.Directory";
         string directory = properties->getProperty(directoryProperty);
-        if (!directory.empty())
+        if(!directory.empty())
         {
 #ifdef _WIN32
-	    if (_chdir(directory.c_str()) == -1)
+	    if(_chdir(directory.c_str()) == -1)
 #else
-	    if (chdir(directory.c_str()) == -1)
+	    if(chdir(directory.c_str()) == -1)
 #endif
 	    {
 		cerr << appName() << ": cannot change to directory `" << directory << "': " << strerror(errno) << endl;
@@ -201,7 +201,7 @@ IcePatch::Client::run(int argc, char* argv[])
 	//
 	// Patch all subdirectories.
 	//
-	for (vector<string>::const_iterator p = subdirs.begin(); p != subdirs.end(); ++p)
+	for(vector<string>::const_iterator p = subdirs.begin(); p != subdirs.end(); ++p)
 	{
 	    Identity identity = pathToIdentity(*p);
 	    ObjectPrx topObj = communicator()->stringToProxy(identityToString(identity) + ':' + endpoints);
@@ -211,16 +211,16 @@ IcePatch::Client::run(int argc, char* argv[])
 	    assert(topDesc);
 	    string path = identityToPath(topDesc->directory->ice_getIdentity());
 	    string::size_type pos = 0;
-	    while (pos < path.size())
+	    while(pos < path.size())
 	    {
 		string::size_type pos2 = path.find('/', pos);
-		if (pos2 == string::npos)
+		if(pos2 == string::npos)
 		{
 		    pos2 = path.size();
 		}
 		string subPath = path.substr(0, pos2);
 		FileInfo subPathInfo = getFileInfo(subPath, false);
-		if (subPathInfo.type == FileTypeNotExist)
+		if(subPathInfo.type == FileTypeNotExist)
 		{
 		    createDirectory(subPath);
 		    cout << subPath << ": created" << endl;
@@ -236,7 +236,7 @@ IcePatch::Client::run(int argc, char* argv[])
     {
 	cout << endl; // There might still be a non-terminated line on cout.
 	cerr << appName() << ": " << ex << ":\n" << ex.reason << endl;
-	if (router)
+	if(router)
 	{
 	    router->shutdown();
 	}
@@ -246,14 +246,14 @@ IcePatch::Client::run(int argc, char* argv[])
     {
 	cout << endl; // There might still be a non-terminated line on cout.
 	cerr << appName() << ": patching service busy, try again later" << endl;
-	if (router)
+	if(router)
 	{
 	    router->shutdown();
 	}
 	return EXIT_FAILURE;
     }
     
-    if (router)
+    if(router)
     {
 	router->shutdown();
     }
@@ -265,7 +265,7 @@ string
 IcePatch::Client::pathToName(const string& path)
 {
     string::size_type pos = path.rfind('/');
-    if (pos == string::npos)
+    if(pos == string::npos)
     {
 	return path;
     }
@@ -318,12 +318,12 @@ public:
 void
 IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 {
-    for (unsigned int i = 0; i < fileDescSeq.size(); ++i)
+    for(unsigned int i = 0; i < fileDescSeq.size(); ++i)
     {
 	string path;
 	DirectoryDescPtr directoryDesc = DirectoryDescPtr::dynamicCast(fileDescSeq[i]);
 	RegularDescPtr regularDesc;
-	if (directoryDesc)
+	if(directoryDesc)
 	{
 	    path = identityToPath(directoryDesc->directory->ice_getIdentity());
 	}
@@ -336,10 +336,10 @@ IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 
 	bool last = (i == fileDescSeq.size() - 1);
 	
-	if (directoryDesc)
+	if(directoryDesc)
 	{
 	    string newIndent;
-	    if (last)
+	    if(last)
 	    {
 		newIndent = indent + "  ";
 	    }
@@ -350,7 +350,7 @@ IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 	    cout << indent << "+-" << pathToName(path) << ":";
 
 	    FileInfo info = getFileInfo(path, false);
-	    switch (info.type)
+	    switch(info.type)
 	    {
 		case FileTypeNotExist:
 		{
@@ -393,7 +393,7 @@ IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 	    MyProgressCB progressCB;
 
 	    FileInfo info = getFileInfo(path, false);
-	    switch (info.type)
+	    switch(info.type)
 	    {
 		case FileTypeNotExist:
 		{
@@ -414,12 +414,12 @@ IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 		    
 		    string pathMD5 = path + ".md5";
 		    FileInfo infoMD5 = getFileInfo(pathMD5, false);
-		    if (infoMD5.type == FileTypeRegular && infoMD5.time >= info.time)
+		    if(infoMD5.type == FileTypeRegular && infoMD5.time >= info.time)
 		    {
 			md5 = getMD5(path);
 		    }
 
-		    if (md5 != regularDesc->md5)
+		    if(md5 != regularDesc->md5)
 		    {
 			removeRecursive(path);
 			getRegular(regularDesc->regular, progressCB);
@@ -440,7 +440,7 @@ IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 		}
 	    }
 
-	    if (last)
+	    if(last)
 	    {
 		cout << indent << endl;
 	    }

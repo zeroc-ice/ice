@@ -19,7 +19,7 @@
 IceUtil::Semaphore::Semaphore(long initial)
 {
     _sem = CreateSemaphore(0, initial, 0x7fffffff, 0);
-    if (_sem == INVALID_HANDLE_VALUE)
+    if(_sem == INVALID_HANDLE_VALUE)
     {
 	throw SyscallException(SyscallException::errorToString(GetLastError()), __FILE__, __LINE__);
     }
@@ -34,7 +34,7 @@ void
 IceUtil::Semaphore::wait() const
 {
     int rc = WaitForSingleObject(_sem, INFINITE);
-    if (rc != WAIT_OBJECT_0)
+    if(rc != WAIT_OBJECT_0)
     {
 	throw SyscallException(SyscallException::errorToString(GetLastError()), __FILE__, __LINE__);
     }
@@ -47,7 +47,7 @@ IceUtil::Semaphore::timedWait(const Time& timeout) const
     long msec = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 
     int rc = WaitForSingleObject(_sem, msec);
-    if (rc != WAIT_TIMEOUT && rc != WAIT_OBJECT_0)
+    if(rc != WAIT_TIMEOUT && rc != WAIT_OBJECT_0)
     {
 	throw SyscallException(SyscallException::errorToString(GetLastError()), __FILE__, __LINE__);
     }
@@ -58,7 +58,7 @@ void
 IceUtil::Semaphore::post(int count) const
 {
     int rc = ReleaseSemaphore(_sem, count, 0);
-    if (rc == 0)
+    if(rc == 0)
     {
 	throw SyscallException(SyscallException::errorToString(GetLastError()), __FILE__, __LINE__);
     }
@@ -97,13 +97,13 @@ IceUtil::Cond::wake(bool broadcast)
     _gate.wait();
     _internal.lock();
 
-    if (_unblocked != 0)
+    if(_unblocked != 0)
     {
 	_blocked -= _unblocked;
 	_unblocked = 0;
     }
 
-    if (_blocked > 0)
+    if(_blocked > 0)
     {
 	//
 	// Unblock some number of waiters.
@@ -136,17 +136,17 @@ IceUtil::Cond::postWait(bool timedOut) const
     _internal.lock();
     _unblocked++;
 
-    if (_toUnblock != 0)
+    if(_toUnblock != 0)
     {
 	bool last = --_toUnblock == 0;
 	_internal.unlock();
 	
-	if (timedOut)
+	if(timedOut)
 	{
 	    _queue.wait();
 	}
 	
-	if (last)
+	if(last)
 	{
 	    _gate.post();
 	}
@@ -197,7 +197,7 @@ IceUtil::Cond::timedDowait(const Time& timeout) const
 IceUtil::Cond::Cond()
 {
     int rc = pthread_cond_init(&_cond, 0);
-    if (rc != 0)
+    if(rc != 0)
     {
 	throw SyscallException(strerror(rc), __FILE__, __LINE__);
     }
@@ -214,7 +214,7 @@ void
 IceUtil::Cond::signal()
 {
     int rc = pthread_cond_signal(&_cond);
-    if (rc != 0)
+    if(rc != 0)
     {
 	throw SyscallException(strerror(rc), __FILE__, __LINE__);
     }
@@ -224,7 +224,7 @@ void
 IceUtil::Cond::broadcast()
 {
     int rc = pthread_cond_broadcast(&_cond);
-    if (rc != 0)
+    if(rc != 0)
     {
 	throw SyscallException(strerror(rc), __FILE__, __LINE__);
     }

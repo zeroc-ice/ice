@@ -57,7 +57,7 @@ BookI::getRenterName(const Ice::Current&)
 {
     IceUtil::RWRecMutex::RLock sync(*this);
 
-    if (_rentalCustomerName.empty())
+    if(_rentalCustomerName.empty())
     {
 	throw BookNotRentedException();
     }
@@ -69,7 +69,7 @@ BookI::rentBook(const ::std::string& name, const Ice::Current&)
 {
     IceUtil::RWRecMutex::WLock sync(*this);
 
-    if (!_rentalCustomerName.empty())
+    if(!_rentalCustomerName.empty())
     {
 	throw BookRentedException();
     }
@@ -81,7 +81,7 @@ BookI::returnBook(const Ice::Current&)
 {
     IceUtil::RWRecMutex::WLock sync(*this);
 
-    if (_rentalCustomerName.empty())
+    if(_rentalCustomerName.empty())
     {
 	throw BookNotRentedException();
     }
@@ -174,7 +174,7 @@ LibraryI::createBook(const ::BookDescription& description, const Ice::Current&)
     Ice::StringSeq isbnSeq;
 
     StringIsbnSeqDict::iterator p =  _authors.find(description.authors);
-    if (p != _authors.end())
+    if(p != _authors.end())
     {
 	isbnSeq = p->second;
     }
@@ -222,7 +222,7 @@ LibraryI::findByAuthors(const string& authors, const Ice::Current&)
 
     BookPrxSeq books;
 
-    if (p != _authors.end())
+    if(p != _authors.end())
     {
 	books.reserve(p->second.size());
 	transform(p->second.begin(), p->second.end(), back_inserter(books), IsbnToBook(_adapter));
@@ -262,7 +262,7 @@ LibraryI::remove(const BookDescription& description)
 	// If the title isn't found then raise a record not found
 	// exception.
 	//
-	if (p == _authors.end())
+	if(p == _authors.end())
 	{
 	    throw Freeze::DBNotFoundException(__FILE__, __LINE__);
 	}
@@ -274,7 +274,7 @@ LibraryI::remove(const BookDescription& description)
 	isbnSeq.erase(remove_if(isbnSeq.begin(), isbnSeq.end(), bind2nd(equal_to<string>(), description.isbn)),
 			 isbnSeq.end());
 	
-	if (isbnSeq.empty())
+	if(isbnSeq.empty())
 	{
 	    //
 	    // If there are no further associated isbn numbers then remove

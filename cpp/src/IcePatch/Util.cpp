@@ -45,27 +45,27 @@ normalizePath(const string& path)
     
     string::size_type pos;
     
-    for (pos = 0; pos < result.size(); ++pos)
+    for(pos = 0; pos < result.size(); ++pos)
     {
-	if (result[pos] == '\\')
+	if(result[pos] == '\\')
 	{
 	    result[pos] = '/';
 	}
     }
     
     pos = 0;
-    while ((pos = result.find("//", pos)) != string::npos)
+    while((pos = result.find("//", pos)) != string::npos)
     {
 	result.erase(pos, 1);
     }
     
     pos = 0;
-    while ((pos = result.find("/./", pos)) != string::npos)
+    while((pos = result.find("/./", pos)) != string::npos)
     {
 	result.erase(pos, 2);
     }
 
-    if (result.substr(0, 2) == "./")
+    if(result.substr(0, 2) == "./")
     {
         result.erase(0, 2);
     }
@@ -93,7 +93,7 @@ string
 IcePatch::getSuffix(const string& path)
 {
     string::size_type pos = path.rfind('.');
-    if (pos == string::npos)
+    if(pos == string::npos)
     {
 	return string();
     }
@@ -114,7 +114,7 @@ string
 IcePatch::removeSuffix(const string& path)
 {
     string::size_type pos = path.rfind('.');
-    if (pos == string::npos)
+    if(pos == string::npos)
     {
 	return path;
     }
@@ -128,9 +128,9 @@ FileInfo
 IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist)
 {
     struct stat buf;
-    if (::stat(path.c_str(), &buf) == -1)
+    if(::stat(path.c_str(), &buf) == -1)
     {
-	if (!exceptionIfNotExist && errno == ENOENT)
+	if(!exceptionIfNotExist && errno == ENOENT)
 	{
 	    FileInfo result;
 	    result.size = 0;
@@ -150,11 +150,11 @@ IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist)
     result.size = buf.st_size;
     result.time = buf.st_mtime;
 
-    if (S_ISDIR(buf.st_mode))
+    if(S_ISDIR(buf.st_mode))
     {
 	result.type = FileTypeDirectory;
     }
-    else if (S_ISREG(buf.st_mode))
+    else if(S_ISREG(buf.st_mode))
     {
 	result.type = FileTypeRegular;
     }
@@ -169,16 +169,16 @@ IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist)
 void
 IcePatch::removeRecursive(const string& path)
 {
-    if (getFileInfo(path, true).type == FileTypeDirectory)
+    if(getFileInfo(path, true).type == FileTypeDirectory)
     {
 	StringSeq paths = readDirectory(path);
-        for (StringSeq::const_iterator p = paths.begin(); p != paths.end(); ++p)
+        for(StringSeq::const_iterator p = paths.begin(); p != paths.end(); ++p)
 	{
 	    removeRecursive(*p);
 	}
     }
     
-    if (::remove(path.c_str()) == -1)
+    if(::remove(path.c_str()) == -1)
     {
 	FileAccessException ex;
 	ex.reason = "cannot remove file `" + path + "': " + strerror(errno);
@@ -193,7 +193,7 @@ IcePatch::readDirectory(const string& path)
 
     struct _finddata_t data;
     long h = _findfirst((path + "/*").c_str(), &data);
-    if (h == -1)
+    if(h == -1)
     {
 	FileAccessException ex;
 	ex.reason = "cannot read directory `" + path + "': " + strerror(errno);
@@ -202,18 +202,18 @@ IcePatch::readDirectory(const string& path)
     
     StringSeq result;
 
-    while (true)
+    while(true)
     {
 	string name = data.name;
 
-	if (name != ".." && name != ".")
+	if(name != ".." && name != ".")
 	{
 	    result.push_back(normalizePath(path + '/' + name));
 	}
 
-        if (_findnext(h, &data) == -1)
+        if(_findnext(h, &data) == -1)
         {
-            if (errno == ENOENT)
+            if(errno == ENOENT)
             {
                 break;
             }
@@ -235,7 +235,7 @@ IcePatch::readDirectory(const string& path)
 
     struct dirent **namelist;
     int n = ::scandir(path.c_str(), &namelist, 0, alphasort);
-    if (n < 0)
+    if(n < 0)
     {
 	FileAccessException ex;
 	ex.reason = "cannot read directory `" + path + "': " + strerror(errno);
@@ -245,13 +245,13 @@ IcePatch::readDirectory(const string& path)
     StringSeq result;
     result.reserve(n - 2);
 
-    for (int i = 0; i < n; ++i)
+    for(int i = 0; i < n; ++i)
     {
 	string name = namelist[i]->d_name;
 
 	free(namelist[i]);
 
-	if (name != ".." && name != ".")
+	if(name != ".." && name != ".")
 	{
 	    result.push_back(normalizePath(path + '/' + name));
 	}
@@ -267,9 +267,9 @@ void
 IcePatch::createDirectory(const string& path)
 {
 #ifdef _WIN32
-    if (::_mkdir(path.c_str()) == -1)
+    if(::_mkdir(path.c_str()) == -1)
 #else
-    if (::mkdir(path.c_str(), 00777) == -1)
+    if(::mkdir(path.c_str(), 00777) == -1)
 #endif
     {
 	FileAccessException ex;
@@ -283,7 +283,7 @@ IcePatch::getMD5(const string& path)
 {
     string pathMD5 = path + ".md5";
     ifstream fileMD5(pathMD5.c_str(), ios::binary);
-    if (!fileMD5)
+    if(!fileMD5)
     {
 	FileAccessException ex;
 	ex.reason = "cannot open `" + pathMD5 + "' for reading: " + strerror(errno);
@@ -292,13 +292,13 @@ IcePatch::getMD5(const string& path)
     ByteSeq bytesMD5;
     bytesMD5.resize(16);
     fileMD5.read(&bytesMD5[0], 16);
-    if (!fileMD5)
+    if(!fileMD5)
     {
 	FileAccessException ex;
 	ex.reason = "cannot read `" + pathMD5 + "': " + strerror(errno);
 	throw ex;
     }
-    if (fileMD5.gcount() < 16)
+    if(fileMD5.gcount() < 16)
     {
 	FileAccessException ex;
 	ex.reason = "could not read 16 bytes from `" + pathMD5 + "'";
@@ -311,7 +311,7 @@ IcePatch::getMD5(const string& path)
 ByteSeq
 IcePatch::getPartialMD5(const string& path, Int size)
 {
-    if (size < 0)
+    if(size < 0)
     {
 	FileAccessException ex;
 	ex.reason = "negative file size is illegal";
@@ -324,7 +324,7 @@ IcePatch::getPartialMD5(const string& path, Int size)
     FileInfo info = getFileInfo(path, true);
     size = std::min(size, static_cast<Int>(info.size));
     ifstream file(path.c_str(), ios::binary);
-    if (!file)
+    if(!file)
     {
 	FileAccessException ex;
 	ex.reason = "cannot open `" + path + "' for reading: " + strerror(errno);
@@ -333,13 +333,13 @@ IcePatch::getPartialMD5(const string& path, Int size)
     ByteSeq bytes;
     bytes.resize(size);
     file.read(&bytes[0], bytes.size());
-    if (!file)
+    if(!file)
     {
 	FileAccessException ex;
 	ex.reason = "cannot read `" + path + "': " + strerror(errno);
 	throw ex;
     }
-    if (file.gcount() < static_cast<int>(bytes.size()))
+    if(file.gcount() < static_cast<int>(bytes.size()))
     {
 	FileAccessException ex;
 	ex.reason = "could not read all bytes from `" + path + "'";
@@ -365,7 +365,7 @@ IcePatch::createMD5(const string& path)
     //
     FileInfo info = getFileInfo(path, true);
     ifstream file(path.c_str(), ios::binary);
-    if (!file)
+    if(!file)
     {
 	FileAccessException ex;
 	ex.reason = "cannot open `" + path + "' for reading: " + strerror(errno);
@@ -374,13 +374,13 @@ IcePatch::createMD5(const string& path)
     ByteSeq bytes;
     bytes.resize(info.size);
     file.read(&bytes[0], bytes.size());
-    if (!file)
+    if(!file)
     {
 	FileAccessException ex;
 	ex.reason = "cannot read `" + path + "': " + strerror(errno);
 	throw ex;
     }
-    if (file.gcount() < static_cast<int>(bytes.size()))
+    if(file.gcount() < static_cast<int>(bytes.size()))
     {
 	FileAccessException ex;
 	ex.reason = "could not read all bytes from `" + path + "'";
@@ -401,14 +401,14 @@ IcePatch::createMD5(const string& path)
     string pathMD5 = path + ".md5";
     string pathMD5Temp = path + ".md5temp";
     ofstream fileMD5(pathMD5Temp.c_str(), ios::binary);
-    if (!fileMD5)
+    if(!fileMD5)
     {
 	FileAccessException ex;
 	ex.reason = "cannot open `" + pathMD5Temp + "' for writing: " + strerror(errno);
 	throw ex;
     }
     fileMD5.write(&bytesMD5[0], 16);
-    if (!fileMD5)
+    if(!fileMD5)
     {
 	FileAccessException ex;
 	ex.reason = "cannot write `" + pathMD5Temp + "': " + strerror(errno);
@@ -422,7 +422,7 @@ IcePatch::createMD5(const string& path)
     // abortive application termination.
     //
     ::remove(pathMD5.c_str());
-    if (::rename(pathMD5Temp.c_str(), pathMD5.c_str()) == -1)
+    if(::rename(pathMD5Temp.c_str(), pathMD5.c_str()) == -1)
     {
 	FileAccessException ex;
 	ex.reason = "cannot rename `" + pathMD5Temp + "' to  `" + pathMD5 + "': " + strerror(errno);
@@ -433,21 +433,21 @@ IcePatch::createMD5(const string& path)
 ByteSeq
 IcePatch::getBZ2(const string& path, Int pos, Int num)
 {
-    if (pos < 0)
+    if(pos < 0)
     {
 	FileAccessException ex;
 	ex.reason = "negative read offset is illegal";
 	throw ex;
     }
 
-    if (num < 0)
+    if(num < 0)
     {
 	FileAccessException ex;
 	ex.reason = "negative data segment size is illegal";
 	throw ex;
     }
 
-    if (num > 1024 * 1024)
+    if(num > 1024 * 1024)
     {
 	FileAccessException ex;
 	ex.reason = "maxium data segment size exceeded";
@@ -456,14 +456,14 @@ IcePatch::getBZ2(const string& path, Int pos, Int num)
     
     string pathBZ2 = path + ".bz2";
     ifstream fileBZ2(pathBZ2.c_str(), ios::binary);
-    if (!fileBZ2)
+    if(!fileBZ2)
     {
 	FileAccessException ex;
 	ex.reason = "cannot open `" + pathBZ2 + "' for reading: " + strerror(errno);
 	throw ex;
     }
     fileBZ2.seekg(pos);
-    if (!fileBZ2)
+    if(!fileBZ2)
     {
 	FileAccessException ex;
 	ostringstream out;
@@ -474,7 +474,7 @@ IcePatch::getBZ2(const string& path, Int pos, Int num)
     ByteSeq bytesBZ2;
     bytesBZ2.resize(num);
     fileBZ2.read(&bytesBZ2[0], bytesBZ2.size());
-    if (!fileBZ2 && !fileBZ2.eof())
+    if(!fileBZ2 && !fileBZ2.eof())
     {
 	FileAccessException ex;
 	ex.reason = "cannot read `" + pathBZ2 + "': " + strerror(errno);
@@ -493,7 +493,7 @@ IcePatch::createBZ2(const string& path)
     // file.
     //
     ifstream file(path.c_str(), ios::binary);
-    if (!file)
+    if(!file)
     {
 	FileAccessException ex;
 	ex.reason = "cannot open `" + path + "' for reading: " + strerror(errno);
@@ -503,7 +503,7 @@ IcePatch::createBZ2(const string& path)
     string pathBZ2 = path + ".bz2";
     string pathBZ2Temp = path + ".bz2temp";
     FILE* stdioFileBZ2 = fopen(pathBZ2Temp.c_str(), "wb");
-    if (!stdioFileBZ2)
+    if(!stdioFileBZ2)
     {
 	FileAccessException ex;
 	ex.reason = "cannot open `" + pathBZ2Temp + "' for writing: " + strerror(errno);
@@ -512,11 +512,11 @@ IcePatch::createBZ2(const string& path)
     
     int bzError;
     BZFILE* bzFile = BZ2_bzWriteOpen(&bzError, stdioFileBZ2, 5, 0, 0);
-    if (bzError != BZ_OK)
+    if(bzError != BZ_OK)
     {
 	FileAccessException ex;
 	ex.reason = "BZ2_bzWriteOpen failed";
-	if (bzError == BZ_IO_ERROR)
+	if(bzError == BZ_IO_ERROR)
 	{
 	    ex.reason += string(": ") + strerror(errno);
 	}
@@ -527,10 +527,10 @@ IcePatch::createBZ2(const string& path)
     static const Int num = 64 * 1024;
     Byte bytes[num];
     
-    while (!file.eof())
+    while(!file.eof())
     {
 	file.read(bytes, num);
-	if (!file && !file.eof())
+	if(!file && !file.eof())
 	{
 	    FileAccessException ex;
 	    ex.reason = "cannot read `" + path + "': " + strerror(errno);
@@ -539,14 +539,14 @@ IcePatch::createBZ2(const string& path)
 	    throw ex;
 	}
 	
-	if (file.gcount() > 0)
+	if(file.gcount() > 0)
 	{
 	    BZ2_bzWrite(&bzError, bzFile, bytes, file.gcount());
-	    if (bzError != BZ_OK)
+	    if(bzError != BZ_OK)
 	    {
 		FileAccessException ex;
 		ex.reason = "BZ2_bzWrite failed";
-		if (bzError == BZ_IO_ERROR)
+		if(bzError == BZ_IO_ERROR)
 		{
 		    ex.reason += string(": ") + strerror(errno);
 		}
@@ -558,11 +558,11 @@ IcePatch::createBZ2(const string& path)
     }
     
     BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
-    if (bzError != BZ_OK)
+    if(bzError != BZ_OK)
     {
 	FileAccessException ex;
 	ex.reason = "BZ2_bzWriteClose failed";
-	if (bzError == BZ_IO_ERROR)
+	if(bzError == BZ_IO_ERROR)
 	{
 	    ex.reason += string(": ") + strerror(errno);
 	}
@@ -579,7 +579,7 @@ IcePatch::createBZ2(const string& path)
     // abortive application termination.
     //
     ::remove(pathBZ2.c_str());
-    if (::rename(pathBZ2Temp.c_str(), pathBZ2.c_str()) == -1)
+    if(::rename(pathBZ2Temp.c_str(), pathBZ2.c_str()) == -1)
     {
 	FileAccessException ex;
 	ex.reason = "cannot rename `" + pathBZ2Temp + "' to  `" + pathBZ2 + "': " + strerror(errno);
@@ -599,12 +599,12 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
     // Check for partial BZ2 file.
     //
     FileInfo infoBZ2 = getFileInfo(pathBZ2, false);
-    if (infoBZ2.type == FileTypeRegular)
+    if(infoBZ2.type == FileTypeRegular)
     {
 	ByteSeq remoteBZ2MD5 = regular->getBZ2MD5(infoBZ2.size);
 	ByteSeq localBZ2MD5 = getPartialMD5(pathBZ2, infoBZ2.size);
 
-	if (remoteBZ2MD5 == localBZ2MD5)
+	if(remoteBZ2MD5 == localBZ2MD5)
 	{
 	    posBZ2 = infoBZ2.size;
 	}
@@ -616,7 +616,7 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
     progressCB.startDownload(totalBZ2, posBZ2);
 
     ofstream fileBZ2(pathBZ2.c_str(), ios::binary | (posBZ2 ? ios::app : 0));
-    if (!fileBZ2)
+    if(!fileBZ2)
     {
 	FileAccessException ex;
 	ex.reason = "cannot open `" + pathBZ2 + "' for writing: " + strerror(errno);
@@ -628,7 +628,7 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 	static const Int numBZ2 = 64 * 1024;
 
 	ByteSeq bytesBZ2 = regular->getBZ2(posBZ2, numBZ2);
-	if (bytesBZ2.empty())
+	if(bytesBZ2.empty())
 	{
 	    break;
 	}
@@ -636,14 +636,14 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 	posBZ2 += bytesBZ2.size();
 	
 	fileBZ2.write(&bytesBZ2[0], bytesBZ2.size());
-	if (!fileBZ2)
+	if(!fileBZ2)
 	{
 	    FileAccessException ex;
 	    ex.reason = "cannot write `" + pathBZ2 + "': " + strerror(errno);
 	    throw ex;
 	}
 	
-	if (static_cast<Int>(bytesBZ2.size()) < numBZ2)
+	if(static_cast<Int>(bytesBZ2.size()) < numBZ2)
 	{
 	    break;
 	}
@@ -659,7 +659,7 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
     // Read the BZ2 file in blocks and write the original file.
     //
     ofstream file(path.c_str(), ios::binary);
-    if (!file)
+    if(!file)
     {
 	FileAccessException ex;
 	ex.reason = "cannot open `" + path + "' for writing: " + strerror(errno);
@@ -667,7 +667,7 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
     }
     
     FILE* stdioFileBZ2 = fopen(pathBZ2.c_str(), "rb");
-    if (!stdioFileBZ2)
+    if(!stdioFileBZ2)
     {
 	FileAccessException ex;
 	ex.reason = "cannot open `" + pathBZ2 + "' for reading: " + strerror(errno);
@@ -676,11 +676,11 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
     
     int bzError;
     BZFILE* bzFile = BZ2_bzReadOpen(&bzError, stdioFileBZ2, 0, 0, 0, 0);
-    if (bzError != BZ_OK)
+    if(bzError != BZ_OK)
     {
 	FileAccessException ex;
 	ex.reason = "BZ2_bzReadOpen failed";
-	if (bzError == BZ_IO_ERROR)
+	if(bzError == BZ_IO_ERROR)
 	{
 	    ex.reason += string(": ") + strerror(errno);
 	}
@@ -693,14 +693,14 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
     
     progressCB.startUncompress(totalBZ2, 0);
     
-    while (bzError != BZ_STREAM_END)
+    while(bzError != BZ_STREAM_END)
     {
 	int sz = BZ2_bzRead(&bzError, bzFile, bytesBZ2, numBZ2);
-	if (bzError != BZ_OK && bzError != BZ_STREAM_END)
+	if(bzError != BZ_OK && bzError != BZ_STREAM_END)
 	{
 	    FileAccessException ex;
 	    ex.reason = "BZ2_bzRead failed";
-	    if (bzError == BZ_IO_ERROR)
+	    if(bzError == BZ_IO_ERROR)
 	    {
 		ex.reason += string(": ") + strerror(errno);
 	    }
@@ -709,10 +709,10 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 	    throw ex;
 	}
 	
-	if (sz > 0)
+	if(sz > 0)
 	{
 	    long pos = ftell(stdioFileBZ2);
-	    if (pos == -1)
+	    if(pos == -1)
 	    {
 		FileAccessException ex;
 		ex.reason = "cannot get read position for `" + pathBZ2 + "': " + strerror(errno);
@@ -724,7 +724,7 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 	    progressCB.updateUncompress(totalBZ2, pos);
 	    
 	    file.write(bytesBZ2, sz);
-	    if (!file)
+	    if(!file)
 	    {
 		FileAccessException ex;
 		ex.reason = "cannot write `" + path + "': " + strerror(errno);
@@ -738,11 +738,11 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
     progressCB.finishedUncompress(totalBZ2);
     
     BZ2_bzReadClose(&bzError, bzFile);
-    if (bzError != BZ_OK)
+    if(bzError != BZ_OK)
     {
 	FileAccessException ex;
 	ex.reason = "BZ2_bzReadClose failed";
-	if (bzError == BZ_IO_ERROR)
+	if(bzError == BZ_IO_ERROR)
 	{
 	    ex.reason += string(": ") + strerror(errno);
 	}
@@ -756,7 +756,7 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
     //
     // Remove the BZ2 file, it is not needed anymore.
     //
-    if (::remove(pathBZ2.c_str()) == -1)
+    if(::remove(pathBZ2.c_str()) == -1)
     {
 	FileAccessException ex;
 	ex.reason = "cannot remove file `" + pathBZ2 + "': " + strerror(errno);

@@ -86,7 +86,7 @@ vector<char> alphabet(alphabetChars, alphabetChars + sizeof(alphabetChars)-1);
 static void
 populateDB(const DBPtr& db)
 {
-    for (vector<char>::const_iterator j = alphabet.begin() ; j != alphabet.end(); ++j)
+    for(vector<char>::const_iterator j = alphabet.begin() ; j != alphabet.end(); ++j)
     {
 	addValue(db, *j, j-alphabet.begin());
     }
@@ -133,7 +133,7 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
 	    test(key == *j && value == j - alphabet.begin());
 	    ++j;
 	}
-	while (cursor->next());
+	while(cursor->next());
     }
     catch(const DBNotFoundException&)
     {
@@ -145,7 +145,7 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     cout << "testing contains... ";
     try
     {
-	for (j = alphabet.begin(); j != alphabet.end(); ++j)
+	for(j = alphabet.begin(); j != alphabet.end(); ++j)
 	{
 	    k = KeyCodec::write(*j, instance);
 	    test(db->contains(k));
@@ -172,7 +172,7 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
 	    test(key == *j && value == j - alphabet.begin());
 	    ++j;
 	}
-	while (cursor->next());
+	while(cursor->next());
     }
     catch(const DBNotFoundException&)
     {
@@ -194,10 +194,10 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
 	    test(key == *j && value == j - alphabet.begin());
 	    cursor->del();
 	    ++j;
-	    if (key == 'c')
+	    if(key == 'c')
 		break;
 	}
-	while (cursor->next());
+	while(cursor->next());
     }
     catch(const DBNotFoundException&)
     {
@@ -216,7 +216,7 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
 	    test(key == *j && value == j - alphabet.begin());
 	    ++j;
 	}
-	while (cursor->next());
+	while(cursor->next());
     }
     catch(const DBNotFoundException&)
     {
@@ -329,7 +329,7 @@ main(int argc, char* argv[])
     try
     {
 	communicator = Ice::initialize(argc, argv);
-	if (argc != 1)
+	if(argc != 1)
 	{
 	    dbEnvDir = argv[1];
 	    dbEnvDir += "/";
@@ -344,7 +344,7 @@ main(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (dbEnv)
+    if(dbEnv)
     {
 	try
 	{

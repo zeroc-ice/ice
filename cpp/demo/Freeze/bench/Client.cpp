@@ -42,7 +42,7 @@ public:
     double
     stop()
     {
-	if (!_stopped)
+	if(!_stopped)
 	{
 	    _stopped = true;
 	    _stop = IceUtil::Time::now();
@@ -114,7 +114,7 @@ public:
     {
 	int n = _current;
 	++_current;
-	if (_current > _max)
+	if(_current > _max)
 	{
 	    _current = _min;
 	}
@@ -175,7 +175,7 @@ TestApp::IntIntMapTest(const Freeze::DBEnvironmentPtr& dbEnv)
     //
     int i;
     _watch.start();
-    for (i = 0; i < _repetitions; ++i)
+    for(i = 0; i < _repetitions; ++i)
     {
 	m.insert(make_pair(i, i));
     }
@@ -189,7 +189,7 @@ TestApp::IntIntMapTest(const Freeze::DBEnvironmentPtr& dbEnv)
     // Read each record.
     //
     _watch.start();
-    for (i = 0; i < _repetitions; ++i)
+    for(i = 0; i < _repetitions; ++i)
     {
 	IntIntMap::const_iterator p = m.find(i);
 	test(p != m.end());
@@ -205,7 +205,7 @@ TestApp::IntIntMapTest(const Freeze::DBEnvironmentPtr& dbEnv)
     // Remove each record.
     //
     _watch.start();
-    for (i = 0; i < _repetitions; ++i)
+    for(i = 0; i < _repetitions; ++i)
     {
 	m.erase(i);
     }
@@ -222,7 +222,7 @@ void
 TestApp::generatedRead(IntIntMap& m, int reads , const GeneratorPtr& gen)
 {
     _watch.start();
-    for (int i = 0; i < reads; ++i)
+    for(int i = 0; i < reads; ++i)
     {
 	int key = gen->next();
 	IntIntMap::const_iterator p = m.find(key);
@@ -249,7 +249,7 @@ TestApp::IntIntMapReadTest(const Freeze::DBEnvironmentPtr& dbEnv)
     //
     int i;
     _watch.start();
-    for (i = 0; i < _repetitions; ++i)
+    for(i = 0; i < _repetitions; ++i)
     {
 	m.insert(make_pair(i, i));
     }
@@ -280,7 +280,7 @@ TestApp::IntIntMapReadTest(const Freeze::DBEnvironmentPtr& dbEnv)
  *      want to examine the cache stats for the database.
  *
     _watch.start();
-    for (i = 0; i < _repetitions; ++i)
+    for(i = 0; i < _repetitions; ++i)
     {
 	m.erase(i);
     }
@@ -308,7 +308,7 @@ TestApp::Struct1Struct2MapTest(const Freeze::DBEnvironmentPtr& dbEnv)
     Struct2 s2;
     int i;
     _watch.start();
-    for (i = 0; i < _repetitions; ++i)
+    for(i = 0; i < _repetitions; ++i)
     {
 	s1.l = i;
 	ostringstream os;
@@ -326,7 +326,7 @@ TestApp::Struct1Struct2MapTest(const Freeze::DBEnvironmentPtr& dbEnv)
     // Read each record.
     //
     _watch.start();
-    for (i = 0; i < _repetitions; ++i)
+    for(i = 0; i < _repetitions; ++i)
     {
 	s1.l = i;
 	Struct1Struct2Map::const_iterator p = m.find(s1);
@@ -345,7 +345,7 @@ TestApp::Struct1Struct2MapTest(const Freeze::DBEnvironmentPtr& dbEnv)
     // Remove each record.
     //
     _watch.start();
-    for (i = 0; i < _repetitions; ++i)
+    for(i = 0; i < _repetitions; ++i)
     {
 	s1.l = i;
 	m.erase(s1);
@@ -372,7 +372,7 @@ TestApp::Struct1Class1MapTest(const Freeze::DBEnvironmentPtr& dbEnv)
     Class1Ptr c1 = new Class1();
     int i;
     _watch.start();
-    for (i = 0; i < _repetitions; ++i)
+    for(i = 0; i < _repetitions; ++i)
     {
 	s1.l = i;
 	ostringstream os;
@@ -390,7 +390,7 @@ TestApp::Struct1Class1MapTest(const Freeze::DBEnvironmentPtr& dbEnv)
     // Read each record.
     //
     _watch.start();
-    for (i = 0; i < _repetitions; ++i)
+    for(i = 0; i < _repetitions; ++i)
     {
 	s1.l = i;
 	Struct1Class1Map::const_iterator p = m.find(s1);
@@ -409,7 +409,7 @@ TestApp::Struct1Class1MapTest(const Freeze::DBEnvironmentPtr& dbEnv)
     // Remove each record.
     //
     _watch.start();
-    for (i = 0; i < _repetitions; ++i)
+    for(i = 0; i < _repetitions; ++i)
     {
 	s1.l = i;
 	m.erase(s1);
@@ -440,11 +440,11 @@ TestApp::Struct1ObjectMapTest(const Freeze::DBEnvironmentPtr& dbEnv)
     c2->obj = c1;
     int i;
     _watch.start();
-    for (i = 0; i < _repetitions; ++i)
+    for(i = 0; i < _repetitions; ++i)
     {
 	s1.l = i;
 	Ice::ObjectPtr o;
-	if ((i % 2) == 0)
+	if((i % 2) == 0)
 	{
 	    o = c2;
 	}
@@ -467,14 +467,14 @@ TestApp::Struct1ObjectMapTest(const Freeze::DBEnvironmentPtr& dbEnv)
     // Read each record.
     //
     _watch.start();
-    for (i = 0; i < _repetitions; ++i)
+    for(i = 0; i < _repetitions; ++i)
     {
 	s1.l = i;
 	Struct1ObjectMap::const_iterator p = m.find(s1);
 	test(p != m.end());
 	Ice::ObjectPtr o = p->second;
 	Class1Ptr nc1;
-	if ((i % 2) == 0)
+	if((i % 2) == 0)
 	{
 	    Class2Ptr nc2 = Class2Ptr::dynamicCast(o);
 	    test(nc2);
@@ -500,7 +500,7 @@ TestApp::Struct1ObjectMapTest(const Freeze::DBEnvironmentPtr& dbEnv)
     // Remove each record.
     //
     _watch.start();
-    for (i = 0; i < _repetitions; ++i)
+    for(i = 0; i < _repetitions; ++i)
     {
 	s1.l = i;
 	m.erase(s1);
@@ -521,11 +521,11 @@ public:
     Ice::ObjectPtr
     create(const string& type)
     {
-	if (type == "::Class1")
+	if(type == "::Class1")
 	{
 	    return new Class1();
 	}
-	else if (type == "::Class2")
+	else if(type == "::Class2")
 	{
 	    return new Class2();
 	}

@@ -34,7 +34,7 @@ public abstract class Application
     public final int
     main(String appName, String[] args, String configFile)
     {
-        if (_communicator != null)
+        if(_communicator != null)
         {
             System.err.println(appName + ": only one instance of the " +
                                "Application class can be used");
@@ -48,7 +48,7 @@ public abstract class Application
         try
         {
 	    StringSeqHolder argHolder = new StringSeqHolder(args);
-            if (configFile != null)
+            if(configFile != null)
             {
                 Properties properties = Util.createProperties(argHolder);
                 properties.load(configFile);
@@ -73,7 +73,7 @@ public abstract class Application
             status = 1;
         }
 
-        if (_communicator != null)
+        if(_communicator != null)
         {
             try
             {

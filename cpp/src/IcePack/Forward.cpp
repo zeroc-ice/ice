@@ -25,7 +25,7 @@ IcePack::Forward::Forward(const CommunicatorPtr& communicator, const AdminPtr& a
     _activator->start();
 
     _waitTime = _communicator->getProperties()->getPropertyAsIntWithDefault("IcePack.Activator.WaitTime", 10);
-    if (_waitTime < 0)
+    if(_waitTime < 0)
     {
 	_waitTime = 0;
     }
@@ -48,7 +48,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const Current& current
     // If we didn't find a server description, we return null, meaning
     // that the client will get an "object not exist" exception.
     //
-    if (!desc.object)
+    if(!desc.object)
     {
 	return 0;
     }
@@ -60,13 +60,13 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const Current& current
     //
     // We only try to activate if we have a path for the server
     //
-    if (!desc.path.empty())
+    if(!desc.path.empty())
     {
 	try
 	{
 	    bool doSleep = false;
 	    int count = 0;
-	    while (true)
+	    while(true)
 	    {
 		try
 		{
@@ -74,7 +74,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const Current& current
 		    // Activate the server. If the server is already
 		    // running, this operation does nothing.
 		    //
-		    if (_activator->activate(desc))
+		    if(_activator->activate(desc))
 		    {
 			//
 			// If we just activated the server, we sleep
@@ -84,7 +84,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const Current& current
 			doSleep = true;
 		    }
 		    
-		    if (doSleep)
+		    if(doSleep)
 		    {
 			sleep(1);
 		    }
@@ -120,7 +120,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const Current& current
 		    // to give the server more time before we try
 		    // again.
 		    //
-		    if (++count >= _waitTime)
+		    if(++count >= _waitTime)
 		    {
 			throw;
 		    }

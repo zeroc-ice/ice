@@ -44,7 +44,7 @@ LinkSubscriber::unsubscribe()
     IceUtil::Mutex::Lock sync(_stateMutex);
     _state = StateUnsubscribed;
 
-    if (_traceLevels->subscriber > 0)
+    if(_traceLevels->subscriber > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
 	out << "Unsubscribe " << _obj->ice_getIdentity();
@@ -57,7 +57,7 @@ LinkSubscriber::replace()
     IceUtil::Mutex::Lock sync(_stateMutex);
     _state = StateReplaced;
 
-    if (_traceLevels->subscriber > 0)
+    if(_traceLevels->subscriber > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
 	out << "Replace " << _obj->ice_getIdentity();
@@ -70,7 +70,7 @@ LinkSubscriber::publish(const Event& event)
     //
     // Don't forward forwarded, or more costly events.
     //
-    if (event.forwarded || event.cost > _cost)
+    if(event.forwarded || event.cost > _cost)
     {
 	return;
     }
@@ -87,7 +87,7 @@ LinkSubscriber::publish(const Event& event)
 	IceUtil::Mutex::Lock sync(_stateMutex);
 	_state = StateError;
 
-	if (_traceLevels->subscriber > 0)
+	if(_traceLevels->subscriber > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
 	    out << _obj->ice_getIdentity() << ": link topic publish failed: " << e;
@@ -95,7 +95,7 @@ LinkSubscriber::publish(const Event& event)
     }
     catch(const Ice::LocalException& e)
     {
-	if (_traceLevels->subscriber > 0)
+	if(_traceLevels->subscriber > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
 	    out << _obj->ice_getIdentity() << ": link topic publish failed: " << e;
@@ -118,7 +118,7 @@ LinkSubscriber::flush()
 	IceUtil::Mutex::Lock sync(_stateMutex);
 	_state = StateError;
 
-	if (_traceLevels->subscriber > 0)
+	if(_traceLevels->subscriber > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
 	    out << _obj->ice_getIdentity() << ": link topic flush failed: " << e;
@@ -126,7 +126,7 @@ LinkSubscriber::flush()
     }
     catch(const Ice::LocalException& e)
     {
-	if (_traceLevels->subscriber > 0)
+	if(_traceLevels->subscriber > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
 	    out << _obj->ice_getIdentity() << ": link topic flush failed: " << e;
@@ -138,7 +138,7 @@ bool
 LinkSubscriber::operator==(const Flushable& therhs) const
 {
     const LinkSubscriber* rhs = dynamic_cast<const LinkSubscriber*>(&therhs);
-    if (rhs != 0)
+    if(rhs != 0)
     {
 	return id() == rhs->id();
     }

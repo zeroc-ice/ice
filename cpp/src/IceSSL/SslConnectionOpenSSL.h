@@ -45,7 +45,7 @@ public:
     {
         IceUtil::Mutex::Lock sync(_mutex);
 
-        if (_flag)
+        if(_flag)
         {
             return false;
         }
@@ -92,7 +92,7 @@ public:
     
     ~HandshakeSentinel()
     { 
-        if (_ownHandshake)
+        if(_ownHandshake)
         {
             _flag.unset();
         }

@@ -22,7 +22,7 @@ public class _ObjectDelM implements _ObjectDel
             IceInternal.BasicStream __is = __out.is();
             IceInternal.BasicStream __os = __out.os();
             __os.writeString(__id);
-            if (!__out.invoke())
+            if(!__out.invoke())
             {
                 throw new UnknownUserException();
             }
@@ -41,7 +41,7 @@ public class _ObjectDelM implements _ObjectDel
         IceInternal.Outgoing __out = getOutgoing("ice_ping", true, __context);
         try
         {
-            if (!__out.invoke())
+            if(!__out.invoke())
             {
                 throw new UnknownUserException();
             }
@@ -60,7 +60,7 @@ public class _ObjectDelM implements _ObjectDel
         try
         {
             IceInternal.BasicStream __is = __out.is();
-            if (!__out.invoke())
+            if(!__out.invoke())
             {
                 throw new UnknownUserException();
             }
@@ -80,7 +80,7 @@ public class _ObjectDelM implements _ObjectDel
         try
         {
             IceInternal.BasicStream __is = __out.is();
-            if (!__out.invoke())
+            if(!__out.invoke())
             {
                 throw new UnknownUserException();
             }
@@ -100,7 +100,7 @@ public class _ObjectDelM implements _ObjectDel
         try
         {
             IceInternal.BasicStream __is = __out.is();
-            if (!__out.invoke())
+            if(!__out.invoke())
             {
                 throw new UnknownUserException();
             }
@@ -123,7 +123,7 @@ public class _ObjectDelM implements _ObjectDel
             IceInternal.BasicStream __os = __out.os();
             __os.writeBlob(inParams);
             boolean ok = __out.invoke();
-            if (__reference.mode == IceInternal.Reference.ModeTwoway)
+            if(__reference.mode == IceInternal.Reference.ModeTwoway)
             {
                 IceInternal.BasicStream __is = __out.is();
                 int sz = __is.getReadEncapsSize();
@@ -176,7 +176,7 @@ public class _ObjectDelM implements _ObjectDel
         //
         __reference = ref;
 
-        if (__reference.reverseAdapter != null)
+        if(__reference.reverseAdapter != null)
         {
             //
             // If we have a reverse object adapter, we use the incoming
@@ -186,21 +186,21 @@ public class _ObjectDelM implements _ObjectDel
             IceInternal.Connection[] connections = adapter.getIncomingConnections();
 
             IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[connections.length];
-            for (int i = 0; i < connections.length; i++)
+            for(int i = 0; i < connections.length; i++)
             {
                 endpoints[i] = connections[i].endpoint();
             }
             endpoints = filterEndpoints(endpoints);
 
-            if (endpoints.length == 0)
+            if(endpoints.length == 0)
             {
                 throw new NoEndpointException();
             }
 
             int j;
-            for (j = 0; j < connections.length; j++)
+            for(j = 0; j < connections.length; j++)
             {
-                if (connections[j].endpoint().equals(endpoints[0]))
+                if(connections[j].endpoint().equals(endpoints[0]))
                 {
                     break;
                 }
@@ -212,7 +212,7 @@ public class _ObjectDelM implements _ObjectDel
         else
         {
             IceInternal.Endpoint[] endpoints = null;
-            if (__reference.routerInfo != null)
+            if(__reference.routerInfo != null)
             {
                 //
                 // If we route, we send everything to the router's client
@@ -226,7 +226,7 @@ public class _ObjectDelM implements _ObjectDel
                 endpoints = filterEndpoints(__reference.endpoints);
             }
 
-            if (endpoints.length == 0)
+            if(endpoints.length == 0)
             {
                 throw new NoEndpointException();
             }
@@ -242,7 +242,7 @@ public class _ObjectDelM implements _ObjectDel
             // callbacks from the router can be received over this new
             // connection.
             //
-            if (__reference.routerInfo != null)
+            if(__reference.routerInfo != null)
             {
                 __connection.setAdapter(__reference.routerInfo.getAdapter());
             }
@@ -257,15 +257,15 @@ public class _ObjectDelM implements _ObjectDel
         //
         // Filter out unknown endpoints.
         //
-        for (int i = 0; i < allEndpoints.length; i++)
+        for(int i = 0; i < allEndpoints.length; i++)
         {
-            if (!allEndpoints[i].unknown())
+            if(!allEndpoints[i].unknown())
             {
                 endpoints.add(allEndpoints[i]);
             }
         }
 
-        switch (__reference.mode)
+        switch(__reference.mode)
         {
             case IceInternal.Reference.ModeTwoway:
             case IceInternal.Reference.ModeOneway:
@@ -275,10 +275,10 @@ public class _ObjectDelM implements _ObjectDel
                 // Filter out datagram endpoints.
                 //
                 java.util.Iterator i = endpoints.iterator();
-                while (i.hasNext())
+                while(i.hasNext())
                 {
                     IceInternal.Endpoint endpoint = (IceInternal.Endpoint)i.next();
-                    if (endpoint.datagram())
+                    if(endpoint.datagram())
                     {
                         i.remove();
                     }
@@ -293,10 +293,10 @@ public class _ObjectDelM implements _ObjectDel
                 // Filter out non-datagram endpoints.
                 //
                 java.util.Iterator i = endpoints.iterator();
-                while (i.hasNext())
+                while(i.hasNext())
                 {
                     IceInternal.Endpoint endpoint = (IceInternal.Endpoint)i.next();
-                    if (!endpoint.datagram())
+                    if(!endpoint.datagram())
                     {
                         i.remove();
                     }
@@ -316,13 +316,13 @@ public class _ObjectDelM implements _ObjectDel
         // secure endpoints by partitioning the endpoint vector, so that
         // non-secure endpoints come first.
         //
-        if (__reference.secure)
+        if(__reference.secure)
         {
             java.util.Iterator i = endpoints.iterator();
-            while (i.hasNext())
+            while(i.hasNext())
             {
                 IceInternal.Endpoint endpoint = (IceInternal.Endpoint)i.next();
-                if (!endpoint.secure())
+                if(!endpoint.secure())
                 {
                     i.remove();
                 }
@@ -347,11 +347,11 @@ public class _ObjectDelM implements _ObjectDel
             IceInternal.Endpoint re = (IceInternal.Endpoint)r;
             boolean ls = le.secure();
             boolean rs = re.secure();
-            if ((ls && rs) || (!ls && !rs))
+            if((ls && rs) || (!ls && !rs))
             {
                 return 0;
             }
-            else if (!ls && rs)
+            else if(!ls && rs)
             {
                 return -1;
             }
@@ -370,7 +370,7 @@ public class _ObjectDelM implements _ObjectDel
 
         synchronized (__outgoingMutex)
         {
-            if (__outgoingCache == null)
+            if(__outgoingCache == null)
             {
                 out = new IceInternal.Outgoing(__connection, __reference, operation, nonmutating, context);
             }
@@ -399,12 +399,12 @@ public class _ObjectDelM implements _ObjectDel
     finalize()
         throws Throwable
     {
-	if (__connection != null)
+	if(__connection != null)
 	{
 	    __connection.decProxyUsageCount();
 	}
 	
-        while (__outgoingCache != null)
+        while(__outgoingCache != null)
         {
             IceInternal.Outgoing next = __outgoingCache.next;
             __outgoingCache.destroy();

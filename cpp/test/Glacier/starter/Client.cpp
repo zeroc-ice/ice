@@ -90,7 +90,7 @@ CallbackClient::run(int argc, char* argv[])
     string clientConfig = properties->getProperty("IceSSL.Client.Config");
     string serverConfig = properties->getProperty("IceSSL.Server.Config");
 
-    if (!clientConfig.empty() && !serverConfig.empty())
+    if(!clientConfig.empty() && !serverConfig.empty())
     {
         string privateKeyBase64 = IceUtil::Base64::encode(privateKey);
         string publicKeyBase64  = IceUtil::Base64::encode(publicKey);

@@ -22,7 +22,7 @@ Ice::PropertiesI::getProperty(const string& key)
     IceUtil::Mutex::Lock sync(*this);
 
     map<string, string>::const_iterator p = _properties.find(key);
-    if (p != _properties.end())
+    if(p != _properties.end())
     {
 	return p->second;
     }
@@ -38,7 +38,7 @@ Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value)
     IceUtil::Mutex::Lock sync(*this);
 
     map<string, string>::const_iterator p = _properties.find(key);
-    if (p != _properties.end())
+    if(p != _properties.end())
     {
 	return p->second;
     }
@@ -60,7 +60,7 @@ Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value)
     IceUtil::Mutex::Lock sync(*this);
     
     map<string, string>::const_iterator p = _properties.find(key);
-    if (p != _properties.end())
+    if(p != _properties.end())
     {
 	return static_cast<Int>(atoi(p->second.c_str()));
     }
@@ -77,9 +77,9 @@ Ice::PropertiesI::getPropertiesForPrefix(const string& prefix)
 
     PropertyDict result;
     map<string, string>::const_iterator p;
-    for (p = _properties.begin(); p != _properties.end(); ++p)
+    for(p = _properties.begin(); p != _properties.end(); ++p)
     {
-        if (prefix.empty() || p->first.compare(0, prefix.size(), prefix) == 0)
+        if(prefix.empty() || p->first.compare(0, prefix.size(), prefix) == 0)
         {
             result.insert(*p);
         }
@@ -104,7 +104,7 @@ Ice::PropertiesI::getCommandLineOptions()
     StringSeq result;
     result.reserve(_properties.size());
     map<string, string>::const_iterator p;
-    for (p = _properties.begin(); p != _properties.end(); ++p)
+    for(p = _properties.begin(); p != _properties.end(); ++p)
     {
 	result.push_back("--" + p->first + "=" + p->second);
     }
@@ -116,12 +116,12 @@ Ice::PropertiesI::parseCommandLineOptions(const string& prefix, const StringSeq&
 {
     StringSeq result;
     StringSeq::size_type i;
-    for (i = 0; i < options.size(); i++)
+    for(i = 0; i < options.size(); i++)
     {
         string opt = options[i];
-        if (opt.find("--" + prefix + ".") == 0)
+        if(opt.find("--" + prefix + ".") == 0)
         {
-            if (opt.find('=') == string::npos)
+            if(opt.find('=') == string::npos)
             {
                 opt += "=1";
             }
@@ -140,7 +140,7 @@ void
 Ice::PropertiesI::load(const std::string& file)
 {
     ifstream in(file.c_str());
-    if (!in)
+    if(!in)
     {
         SystemException ex(__FILE__, __LINE__);
         ex.error = getSystemErrno();
@@ -148,7 +148,7 @@ Ice::PropertiesI::load(const std::string& file)
     }
 
     char line[1024];
-    while (in.getline(line, 1024))
+    while(in.getline(line, 1024))
     {
 	parseLine(line);
     }
@@ -172,12 +172,12 @@ Ice::PropertiesI::PropertiesI()
 Ice::PropertiesI::PropertiesI(StringSeq& args)
 {
     StringSeq::iterator q = args.begin();
-    while (q != args.end())
+    while(q != args.end())
     {
         string s = *q;
-        if (s.find("--Ice.Config") == 0)
+        if(s.find("--Ice.Config") == 0)
         {
-            if (s.find('=') == string::npos)
+            if(s.find('=') == string::npos)
             {
                 s += "=1";
             }
@@ -195,17 +195,17 @@ Ice::PropertiesI::PropertiesI(StringSeq& args)
 
 Ice::PropertiesI::PropertiesI(int& argc, char* argv[])
 {
-    for (int i = 1; i < argc; ++i)
+    for(int i = 1; i < argc; ++i)
     {
-        if (strncmp(argv[i], "--Ice.Config", 12) == 0)
+        if(strncmp(argv[i], "--Ice.Config", 12) == 0)
         {
             string line = argv[i];
-            if (line.find('=') == string::npos)
+            if(line.find('=') == string::npos)
             {
                 line += "=1";
             }
             parseLine(line.substr(2));
-            for (int j = i; j + 1 < argc; ++j)
+            for(int j = i; j + 1 < argc; ++j)
             {
                 argv[j] = argv[j + 1];
             }
@@ -215,10 +215,10 @@ Ice::PropertiesI::PropertiesI(int& argc, char* argv[])
 
     loadConfig();
 
-    if (argc > 0)
+    if(argc > 0)
     {
         string name = getProperty("Ice.ProgramName");
-        if (name.empty())
+        if(name.empty())
         {
             setProperty("Ice.ProgramName", argv[0]);
         }
@@ -232,25 +232,25 @@ Ice::PropertiesI::parseLine(const string& line)
     string s = line;
     
     string::size_type idx = s.find('#');
-    if (idx != string::npos)
+    if(idx != string::npos)
     {
 	s.erase(idx);
     }
     
     idx = s.find_last_not_of(delim);
-    if (idx != string::npos && idx + 1 < s.length())
+    if(idx != string::npos && idx + 1 < s.length())
     {
 	s.erase(idx + 1);
     }
     
     string::size_type beg = s.find_first_not_of(delim);
-    if (beg == string::npos)
+    if(beg == string::npos)
     {
 	return;
     }
     
     string::size_type end = s.find_first_of(delim + "=", beg);
-    if (end == string::npos)
+    if(end == string::npos)
     {
 	return;
     }
@@ -258,7 +258,7 @@ Ice::PropertiesI::parseLine(const string& line)
     string key = s.substr(beg, end - beg);
     
     end = s.find('=', end);
-    if (end == string::npos)
+    if(end == string::npos)
     {
 	return;
     }
@@ -266,7 +266,7 @@ Ice::PropertiesI::parseLine(const string& line)
 
     string value;
     beg = s.find_first_not_of(delim, end);
-    if (beg != string::npos)
+    if(beg != string::npos)
     {
 	end = s.length();
 	value = s.substr(beg, end - beg);
@@ -280,24 +280,24 @@ Ice::PropertiesI::loadConfig()
 {
     string value = getProperty("Ice.Config");
 
-    if (value.empty() || value == "1")
+    if(value.empty() || value == "1")
     {
         const char* s = getenv("ICE_CONFIG");
-        if (s && *s != '\0')
+        if(s && *s != '\0')
         {
             value = s;
         }
     }
 
-    if (!value.empty())
+    if(!value.empty())
     {
         static const string delim = " \t\r\n";
         string::size_type beg = value.find_first_not_of(delim);
-        while (beg != string::npos)
+        while(beg != string::npos)
         {
             string::size_type end = value.find(",", beg);
             string file;
-            if (end == string::npos)
+            if(end == string::npos)
             {
                 file = value.substr(beg);
                 beg = end;

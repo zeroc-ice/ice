@@ -29,7 +29,7 @@ void
 Ice::Warning::flush()
 {
     string s = _str.str();
-    if (!s.empty())
+    if(!s.empty())
     {
 	_logger->warning(s);
     }
@@ -63,7 +63,7 @@ void
 Ice::Error::flush()
 {
     string s = _str.str();
-    if (!s.empty())
+    if(!s.empty())
     {
 	_logger->error(s);
     }
@@ -98,7 +98,7 @@ void
 Ice::Trace::flush()
 {
     string s = _str.str();
-    if (!s.empty())
+    if(!s.empty())
     {
 	_logger->trace(_category, s);
     }

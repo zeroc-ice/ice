@@ -27,7 +27,7 @@ public class Parser
     {
 	nextToken();
 	Complex.Node node = expr();
-	if (_token != null)
+	if(_token != null)
 	{
 	    throw new ParseError("Extra garbage: " + _token);
 	}
@@ -40,7 +40,7 @@ public class Parser
     {
 	try
 	{
-	    if (_token == null)
+	    if(_token == null)
 	    {
 		return null;
 	    }
@@ -48,12 +48,12 @@ public class Parser
 	    //
 	    // '(' expr ')'
 	    //
-	    if (_token.charAt(0) == '(')
+	    if(_token.charAt(0) == '(')
 	    {
 		nextToken();
 
 		Complex.Node node = expr();
-		if (_token.charAt(0) != ')')
+		if(_token.charAt(0) != ')')
 		{
 		    throw new ParseError("Expected ')'");
 		}
@@ -65,7 +65,7 @@ public class Parser
 	    //
 	    // expr | expr '+' expr | expr '*' expr
 	    //
-	    if (!Character.isDigit(_token.charAt(0)))
+	    if(!Character.isDigit(_token.charAt(0)))
 	    {
 		throw new ParseError("Expected number");
 	    }
@@ -77,12 +77,12 @@ public class Parser
 	    // expr?
 	    //
 	    nextToken();
-	    if (_token != null)
+	    if(_token != null)
 	    {
 		//
 		// expr '+' expr
 		//
-		if (_token.charAt(0) == '+')
+		if(_token.charAt(0) == '+')
 		{
 		    nextToken();
 		    Complex.Node right = expr();
@@ -92,7 +92,7 @@ public class Parser
 		//
 		// expr '*' expr
 		//
-		else if (_token.charAt(0) == '*')
+		else if(_token.charAt(0) == '*')
 		{
 		    nextToken();
 		    Complex.Node right = expr();
@@ -115,7 +115,7 @@ public class Parser
 	//
 	// Eat any whitespace.
 	//
-	while (_pos < _buf.length() && Character.isWhitespace(_buf.charAt(_pos)))
+	while(_pos < _buf.length() && Character.isWhitespace(_buf.charAt(_pos)))
 	{
 	    _pos++;
 	}
@@ -123,7 +123,7 @@ public class Parser
 	//
 	// At the end-of-buffer?
 	//
-	if (_pos >= _buf.length())
+	if(_pos >= _buf.length())
 	{
 	    _token = null;
 	    return;
@@ -139,7 +139,7 @@ public class Parser
 	//
 	// '(', ')', '+' and '*' are tokens.
 	//
-	if (c == '(' || c == ')' || c == '+' || c == '*')
+	if(c == '(' || c == ')' || c == '+' || c == '*')
 	{
 	    buf.append(c);
 	    ++_pos;
@@ -149,7 +149,7 @@ public class Parser
 	    //
 	    // Otherwise it's a number.
 	    //
-	    while (_pos < _buf.length() && Character.isDigit(_buf.charAt(_pos)))
+	    while(_pos < _buf.length() && Character.isDigit(_buf.charAt(_pos)))
 	    {
 		buf.append(_buf.charAt(_pos++));
 	    }

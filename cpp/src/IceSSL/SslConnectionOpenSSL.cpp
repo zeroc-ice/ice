@@ -79,7 +79,7 @@ IceSSL::OpenSSL::Connection::Connection(const IceSSL::CertificateVerifierPtr& ce
 
 IceSSL::OpenSSL::Connection::~Connection()
 {
-    if (_sslConnection != 0)
+    if(_sslConnection != 0)
     {
         removeConnection(_sslConnection);
         SSL_set_ex_data(_sslConnection, 0, 0);
@@ -91,29 +91,29 @@ IceSSL::OpenSSL::Connection::~Connection()
 int
 IceSSL::OpenSSL::Connection::shutdown(int timeout)
 {
-    if (_sslConnection == 0)
+    if(_sslConnection == 0)
     {
         return 1;
     }
 
     int retCode = 0;
 
-    if (_initWantWrite)
+    if(_initWantWrite)
     {
         int i = writeSelect(timeout);
 
-        if (i == 0)
+        if(i == 0)
         {
             return 0;
         }
 
         _initWantWrite = 0;
     }
-    else if (_initWantRead)
+    else if(_initWantRead)
     {
         int i = readSelect(timeout);
 
-        if (i == 0)
+        if(i == 0)
         {
             return 0;
         }
@@ -125,18 +125,18 @@ IceSSL::OpenSSL::Connection::shutdown(int timeout)
 
     retCode = SSL_shutdown(_sslConnection);
 
-    if (retCode == 1)
+    if(retCode == 1)
     {
         // Shutdown successful - shut down the socket for writing.
         ::shutdown(SSL_get_fd(_sslConnection), SHUT_WR);
     }
-    else if (retCode == -1)
+    else if(retCode == -1)
     {
         setLastError(retCode);
 
         // Shutdown failed due to an error.
 
-        switch (getLastError())
+        switch(getLastError())
         {
             case SSL_ERROR_WANT_WRITE:
             {
@@ -166,20 +166,20 @@ IceSSL::OpenSSL::Connection::shutdown(int timeout)
                 // Some error with the underlying transport.
                 //
 
-                if (interrupted())
+                if(interrupted())
                 {
                     retCode = 0;
                     break;
                 }
 
-                if (wouldBlock())
+                if(wouldBlock())
                 {
                     readSelect(timeout);
                     retCode = 0;
                     break;
                 }
 
-                if (connectionLost())
+                if(connectionLost())
                 {
                     ConnectionLostException ex(__FILE__, __LINE__);
                     ex.error = getSocketErrno();
@@ -262,7 +262,7 @@ IceSSL::OpenSSL::Connection::verifyCertificate(int preVerifyOkay, X509_STORE_CTX
     verifier = dynamic_cast<IceSSL::OpenSSL::CertificateVerifier*>(_certificateVerifier.get());
 
     // Check to make sure we have a proper verifier for the operation.
-    if (verifier)
+    if(verifier)
     {
         // Use the verifier to verify the certificate
         try
@@ -271,7 +271,7 @@ IceSSL::OpenSSL::Connection::verifyCertificate(int preVerifyOkay, X509_STORE_CTX
         }
         catch (const Ice::LocalException& localEx)
         {
-            if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
+            if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
             {
                 ostringstream s;
 
@@ -289,11 +289,11 @@ IceSSL::OpenSSL::Connection::verifyCertificate(int preVerifyOkay, X509_STORE_CTX
         // Note: This code should NEVER be able to be reached, as we check each
         //       CertificateVerifier as it is added to the System.
 
-        if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
+        if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         {
             string errorString;
 
-            if (_certificateVerifier.get())
+            if(_certificateVerifier.get())
             {
                 errorString = "WRN improper CertificateVerifier type";
             }
@@ -353,7 +353,7 @@ IceSSL::OpenSSL::Connection::initialize(int timeout)
 {
     int retCode = 0;
 
-    while (true)
+    while(true)
     {
         // One lucky thread will get the honor of carrying out the hanshake,
         // if there is one to perform.  The HandshakeSentinel effectively
@@ -365,9 +365,9 @@ IceSSL::OpenSSL::Connection::initialize(int timeout)
 
         HandshakeSentinel handshakeSentinel(_handshakeFlag);
 
-        if (!handshakeSentinel.ownHandshake())
+        if(!handshakeSentinel.ownHandshake())
         {
-            if (timeout >= 0)
+            if(timeout >= 0)
             {
                 // We should return immediately here - do not block,
                 // leave it to the caller to figure this out.
@@ -389,9 +389,9 @@ IceSSL::OpenSSL::Connection::initialize(int timeout)
             // get away with it.  As long as we don't encounter some error
             // status (or completion), this thread continues to service the
             // initialize() call.
-            while (retCode == 0)
+            while(retCode == 0)
             {
-                switch (_phase)
+                switch(_phase)
                 {
                     case Handshake :
                     {
@@ -409,7 +409,7 @@ IceSSL::OpenSSL::Connection::initialize(int timeout)
                     {
                         retCode = SSL_is_init_finished(_sslConnection);
 
-                        if (!retCode)
+                        if(!retCode)
                         {
                             // In this case, we are essentially renegotiating
                             // the connection at the behest of the peer.
@@ -481,7 +481,7 @@ IceSSL::OpenSSL::Connection::select(int timeout, bool write)
     fd_set rwFdSet;
     struct timeval tv;
 
-    if (timeout >= 0)
+    if(timeout >= 0)
     {
         tv.tv_sec = timeout / 1000;
         tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
@@ -492,9 +492,9 @@ IceSSL::OpenSSL::Connection::select(int timeout, bool write)
         FD_ZERO(&rwFdSet);
         FD_SET(fd, &rwFdSet);
 
-        if (timeout >= 0)
+        if(timeout >= 0)
         {
-            if (write)
+            if(write)
             {
                 ret = ::select(fd + 1, 0, &rwFdSet, 0, &tv);
             }
@@ -505,7 +505,7 @@ IceSSL::OpenSSL::Connection::select(int timeout, bool write)
         }
         else
         {
-            if (write)
+            if(write)
             {
                 ret = ::select(fd + 1, 0, &rwFdSet, 0, 0);
             }
@@ -515,16 +515,16 @@ IceSSL::OpenSSL::Connection::select(int timeout, bool write)
             }
         }
     }
-    while (ret == SOCKET_ERROR && interrupted());
+    while(ret == SOCKET_ERROR && interrupted());
 
-    if (ret == SOCKET_ERROR)
+    if(ret == SOCKET_ERROR)
     {
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
 	throw ex;
     }
 
-    if (ret == 0)
+    if(ret == 0)
     {
         throw TimeoutException(__FILE__, __LINE__);
     }
@@ -554,18 +554,18 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
     int initReturn = 0;
 
     // We keep reading until we're done.
-    while (buf.i != buf.b.end())
+    while(buf.i != buf.b.end())
     {
         // Ensure we're initialized.
         initReturn = initialize(timeout);
 
-        if (initReturn == -1)
+        if(initReturn == -1)
         {
             // Handshake underway, timeout immediately, easy way to deal with this.
             throw TimeoutException(__FILE__, __LINE__);
         }
 
-        if (initReturn == 0)
+        if(initReturn == 0)
         {
             // Retry the initialize call
             continue;
@@ -573,10 +573,10 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
 
         // initReturn must be > 0, so we're okay to try a read
 
-        if (!pending() && !readSelect(_readTimeout))
+        if(!pending() && !readSelect(_readTimeout))
         {
             // Nothing is left to read (according to SSL).
-            if (_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
+            if(_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
             {
                 _logger->trace(_traceLevels->securityCat, "no pending application-level bytes");
             }
@@ -589,13 +589,13 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
 
         bytesRead = sslRead(static_cast<char*>(&*buf.i), packetSize);
 
-        switch (getLastError())
+        switch(getLastError())
         {
             case SSL_ERROR_NONE:
             {
-                if (bytesRead > 0)
+                if(bytesRead > 0)
                 {
-                    if (_traceLevels->network >= 3)
+                    if(_traceLevels->network >= 3)
                     {
                         ostringstream s;
                         s << "received " << bytesRead << " of " << packetSize;
@@ -607,7 +607,7 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
 
                     buf.i += bytesRead;
 
-                    if (packetSize > buf.b.end() - buf.i)
+                    if(packetSize > buf.b.end() - buf.i)
                     {
                         packetSize = buf.b.end() - buf.i;
                     }
@@ -617,7 +617,7 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
 
             case SSL_ERROR_WANT_READ:
             {
-                if (!readSelect(timeout))
+                if(!readSelect(timeout))
                 {
                     // Timeout and wait for them to arrive.
                     throw TimeoutException(__FILE__, __LINE__);
@@ -638,17 +638,17 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
                 {
                     // IO Error in underlying BIO
 
-                    if (interrupted())
+                    if(interrupted())
                     {
                         break;
                     }
 
-                    if (wouldBlock())
+                    if(wouldBlock())
                     {
                         break;
                     }
 
-                    if (connectionLost())
+                    if(connectionLost())
                     {
                         ConnectionLostException ex(__FILE__, __LINE__);
                         ex.error = getSocketErrno();
@@ -721,11 +721,11 @@ IceSSL::OpenSSL::Connection::showCertificateChain(BIO* bio)
     // Big nasty buffer
     char buffer[4096];
 
-    if ((sk = SSL_get_peer_cert_chain(_sslConnection)) != 0)
+    if((sk = SSL_get_peer_cert_chain(_sslConnection)) != 0)
     {
         BIO_printf(bio,"---\nCertificate chain\n");
 
-        for (int i = 0; i < sk_X509_num(sk); i++)
+        for(int i = 0; i < sk_X509_num(sk); i++)
         {
             X509_NAME_oneline(X509_get_subject_name(sk_X509_value(sk,i)), buffer, sizeof(buffer));
             BIO_printf(bio, "%2d s:%s\n", i, buffer);
@@ -751,7 +751,7 @@ IceSSL::OpenSSL::Connection::showPeerCertificate(BIO* bio, const char* connType)
     X509* peerCert = 0;
     char buffer[4096];
 
-    if ((peerCert = SSL_get_peer_certificate(_sslConnection)) != 0)
+    if((peerCert = SSL_get_peer_certificate(_sslConnection)) != 0)
     {
         BIO_printf(bio, "%s Certificate\n", connType);
         PEM_write_bio_X509(bio, peerCert);
@@ -784,7 +784,7 @@ IceSSL::OpenSSL::Connection::showSharedCiphers(BIO* bio)
     char buffer[4096];
     char* strPointer = 0;
 
-    if ((strPointer = SSL_get_shared_ciphers(_sslConnection, buffer, sizeof(buffer))) != 0)
+    if((strPointer = SSL_get_shared_ciphers(_sslConnection, buffer, sizeof(buffer))) != 0)
     {
         // This works only for SSL 2.  In later protocol versions, the client does not know
         // what other ciphers (in addition to the one to be used in the current connection)
@@ -795,9 +795,9 @@ IceSSL::OpenSSL::Connection::showSharedCiphers(BIO* bio)
         int j = 0;
         int i = 0;
 
-        while (*strPointer)
+        while(*strPointer)
         {
-            if (*strPointer == ':')
+            if(*strPointer == ':')
             {
                 BIO_write(bio, "                ", (15-j%25));
                 i++;
@@ -823,7 +823,7 @@ IceSSL::OpenSSL::Connection::showSessionInfo(BIO* bio)
     assert(_sslConnection != 0);
     assert(bio != 0);
 
-    if (_sslConnection->hit)
+    if(_sslConnection->hit)
     {
         BIO_printf(bio, "Reused session-id\n");
     }
@@ -871,11 +871,11 @@ IceSSL::OpenSSL::Connection::showClientCAList(BIO* bio, const char* connType)
     char buffer[4096];
     STACK_OF(X509_NAME)* sk = SSL_get_client_CA_list(_sslConnection);
 
-    if ((sk != 0) && (sk_X509_NAME_num(sk) > 0))
+    if((sk != 0) && (sk_X509_NAME_num(sk) > 0))
     {
         BIO_printf(bio,"---\nAcceptable %s certificate CA names\n", connType);
 
-        for (int i = 0; i < sk_X509_NAME_num(sk); i++)
+        for(int i = 0; i < sk_X509_NAME_num(sk); i++)
         {
             X509_NAME_oneline(sk_X509_NAME_value(sk, i), buffer, sizeof(buffer));
             BIO_write(bio, buffer, strlen(buffer));

@@ -21,7 +21,7 @@ IceSSL::OpenSSL::DHParams::DHParams(DH* dhParams) :
 
 IceSSL::OpenSSL::DHParams::~DHParams()
 {
-    if (_dhParams != 0)
+    if(_dhParams != 0)
     {
         DH_free(_dhParams);
     }

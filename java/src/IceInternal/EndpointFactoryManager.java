@@ -20,10 +20,10 @@ public final class EndpointFactoryManager
     public synchronized void
     add(EndpointFactory factory)
     {
-        for (int i = 0; i < _factories.size(); i++)
+        for(int i = 0; i < _factories.size(); i++)
         {
             EndpointFactory f = (EndpointFactory)_factories.get(i);
-            if (f.type() == factory.type())
+            if(f.type() == factory.type())
             {
                 assert(false);
             }
@@ -34,10 +34,10 @@ public final class EndpointFactoryManager
     public synchronized EndpointFactory
     get(short type)
     {
-        for (int i = 0; i < _factories.size(); i++)
+        for(int i = 0; i < _factories.size(); i++)
         {
             EndpointFactory f = (EndpointFactory)_factories.get(i);
-            if (f.type() == type)
+            if(f.type() == type)
             {
                 return f;
             }
@@ -49,7 +49,7 @@ public final class EndpointFactoryManager
     create(String str)
     {
         String s = str.trim();
-        if (s.length() == 0)
+        if(s.length() == 0)
         {
             throw new Ice.EndpointParseException();
         }
@@ -61,15 +61,15 @@ public final class EndpointFactoryManager
 
         String protocol = s.substring(0, m.start());
 
-        if (protocol.equals("default"))
+        if(protocol.equals("default"))
         {
             protocol = _instance.defaultsAndOverrides().defaultProtocol;
         }
 
-        for (int i = 0; i < _factories.size(); i++)
+        for(int i = 0; i < _factories.size(); i++)
         {
             EndpointFactory f = (EndpointFactory)_factories.get(i);
-            if (f.protocol().equals(protocol))
+            if(f.protocol().equals(protocol))
             {
                 return f.create(s.substring(m.end()));
             }
@@ -84,10 +84,10 @@ public final class EndpointFactoryManager
         Endpoint v;
         short type = s.readShort();
 
-        for (int i = 0; i < _factories.size(); i++)
+        for(int i = 0; i < _factories.size(); i++)
         {
             EndpointFactory f = (EndpointFactory)_factories.get(i);
-            if (f.type() == type)
+            if(f.type() == type)
             {
                 return f.read(s);
             }
@@ -99,7 +99,7 @@ public final class EndpointFactoryManager
     void
     destroy()
     {
-        for (int i = 0; i < _factories.size(); i++)
+        for(int i = 0; i < _factories.size(); i++)
         {
             EndpointFactory f = (EndpointFactory)_factories.get(i);
             f.destroy();

@@ -41,7 +41,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -52,9 +52,9 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
     // Reap destroyed connections.
     //
     std::map<EndpointPtr, ConnectionPtr>::iterator p = _connections.begin();
-    while (p != _connections.end())
+    while(p != _connections.end())
     {
-	if (p->second->destroyed())
+	if(p->second->destroyed())
 	{
 	    _connections.erase(p++);
 	}
@@ -69,16 +69,16 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
     //
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
     vector<EndpointPtr>::const_iterator q;
-    for (q = endpoints.begin(); q != endpoints.end(); ++q)
+    for(q = endpoints.begin(); q != endpoints.end(); ++q)
     {
 	EndpointPtr endpoint = *q;
-	if (defaultsAndOverrides->overrideTimeout)
+	if(defaultsAndOverrides->overrideTimeout)
 	{
 	    endpoint = endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
 	}
 
 	map<EndpointPtr, ConnectionPtr>::const_iterator r = _connections.find(endpoint);
-	if (r != _connections.end())
+	if(r != _connections.end())
 	{
 	    return r->second;
 	}
@@ -93,10 +93,10 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
     ConnectionPtr connection;
     auto_ptr<LocalException> exception;
     q = endpoints.begin();
-    while (q != endpoints.end())
+    while(q != endpoints.end())
     {
 	EndpointPtr endpoint = *q;
-	if (defaultsAndOverrides->overrideTimeout)
+	if(defaultsAndOverrides->overrideTimeout)
 	{
 	    endpoint = endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
 	}
@@ -104,7 +104,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
 	try
 	{
 	    TransceiverPtr transceiver = endpoint->clientTransceiver();
-	    if (!transceiver)
+	    if(!transceiver)
 	    {
 		ConnectorPtr connector = endpoint->connector();
 		assert(connector);
@@ -131,11 +131,11 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
 
 	++q;
 
-	if (traceLevels->retry >= 2)
+	if(traceLevels->retry >= 2)
 	{
 	    Trace out(logger, traceLevels->retryCat);
 	    out << "connection to endpoint failed";
-	    if (q != endpoints.end())
+	    if(q != endpoints.end())
 	    {
 		out << ", trying next endpoint\n";
 	    }
@@ -147,7 +147,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
 	}
     }
 
-    if (!connection)
+    if(!connection)
     {
 	assert(exception.get());
 	exception->ice_throw();
@@ -161,13 +161,13 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
     RouterInfoPtr routerInfo = _instance->routerManager()->get(router);
-    if (routerInfo)
+    if(routerInfo)
     {
 	//
 	// Search for connections to the router's client proxy
@@ -179,16 +179,16 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 	ObjectAdapterPtr adapter = routerInfo->getAdapter();
 	DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
 	vector<EndpointPtr>::const_iterator p;
-	for (p = proxy->__reference()->endpoints.begin(); p != proxy->__reference()->endpoints.end(); ++p)
+	for(p = proxy->__reference()->endpoints.begin(); p != proxy->__reference()->endpoints.end(); ++p)
 	{
 	    EndpointPtr endpoint = *p;
-	    if (defaultsAndOverrides->overrideTimeout)
+	    if(defaultsAndOverrides->overrideTimeout)
 	    {
 		endpoint = endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
 	    }
 
 	    map<EndpointPtr, ConnectionPtr>::const_iterator q = _connections.find(endpoint);
-	    if (q != _connections.end())
+	    if(q != _connections.end())
 	    {
 		q->second->setAdapter(adapter);
 	    }
@@ -201,14 +201,14 @@ IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& ad
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
     
-    for (map<EndpointPtr, ConnectionPtr>::const_iterator p = _connections.begin(); p != _connections.end(); ++p)
+    for(map<EndpointPtr, ConnectionPtr>::const_iterator p = _connections.begin(); p != _connections.end(); ++p)
     {
-	if (p->second->getAdapter() == adapter)
+	if(p->second->getAdapter() == adapter)
 	{
 	    p->second->setAdapter(0);
 	}
@@ -230,7 +230,7 @@ IceInternal::OutgoingConnectionFactory::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_instance)
+    if(!_instance)
     {
 	return;
     }
@@ -273,7 +273,7 @@ IceInternal::IncomingConnectionFactory::endpoint() const
 bool
 IceInternal::IncomingConnectionFactory::equivalent(const EndpointPtr& endp) const
 {
-    if (_transceiver)
+    if(_transceiver)
     {
 	return endp->equivalent(_transceiver);
     }
@@ -316,7 +316,7 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
 
     threadPool->promoteFollower();
 
-    if (_state != StateActive)
+    if(_state != StateActive)
     {
 	IceUtil::ThreadControl::yield();
 	return;
@@ -349,7 +349,7 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
     }
     catch (const LocalException& ex)
     {
-	if (_warn)
+	if(_warn)
 	{
 	    Warning out(_instance->logger());
 	    out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
@@ -365,11 +365,11 @@ IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool
 
     threadPool->promoteFollower();
     
-    if (_state == StateActive)
+    if(_state == StateActive)
     {
 	registerWithPool();
     }
-    else if (_state == StateClosed)
+    else if(_state == StateClosed)
     {
 	try
 	{
@@ -377,7 +377,7 @@ IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool
 	    // Clear listen() backlog properly by accepting all queued
 	    // connections, and then shutting them down.
 	    //
-	    while (true)
+	    while(true)
 	    {
 		try
 		{
@@ -393,7 +393,7 @@ IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool
 	}
 	catch (const LocalException& ex)
 	{
-	    if (_warn)
+	    if(_warn)
 	    {
 		Warning out(_instance->logger());
 		out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
@@ -441,7 +441,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
     _registeredWithPool(false)    
 {
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
-    if (defaultsAndOverrides->overrideTimeout)
+    if(defaultsAndOverrides->overrideTimeout)
     {
 	_endpoint = _endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
     }
@@ -451,7 +451,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
     try
     {
 	_transceiver = _endpoint->serverTransceiver(_endpoint);
-	if (_transceiver)
+	if(_transceiver)
 	{
 	    ConnectionPtr connection = new Connection(_instance, _transceiver, _endpoint, _adapter);
 	    _connections.push_back(connection);
@@ -488,7 +488,7 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
 {
     ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
 
-    while (_adapter)
+    while(_adapter)
     {
 	wait();
     }
@@ -497,16 +497,16 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
 void
 IceInternal::IncomingConnectionFactory::setState(State state)
 {
-    if (_state == state) // Don't switch twice.
+    if(_state == state) // Don't switch twice.
     {
 	return;
     }
 
-    switch (state)
+    switch(state)
     {
 	case StateActive:
 	{
-	    if (_state != StateHolding) // Can only switch from holding to active.
+	    if(_state != StateHolding) // Can only switch from holding to active.
 	    {
 		return;
 	    }
@@ -517,7 +517,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 	
 	case StateHolding:
 	{
-	    if (_state != StateActive) // Can only switch from active to holding
+	    if(_state != StateActive) // Can only switch from active to holding
 	    {
 		return;
 	    }
@@ -532,7 +532,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 	    // If we come from holding state, we first need to
 	    // register again before we unregister.
 	    //
-	    if (_state == StateHolding)
+	    if(_state == StateHolding)
 	    {
 		registerWithPool();
 	    }
@@ -558,11 +558,11 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 void
 IceInternal::IncomingConnectionFactory::registerWithPool()
 {
-    if (_acceptor)
+    if(_acceptor)
     {
-	if (!_registeredWithPool)
+	if(!_registeredWithPool)
 	{
-	    if (!_serverThreadPool)
+	    if(!_serverThreadPool)
 	    {
 		_serverThreadPool = _instance->serverThreadPool();
 		assert(_serverThreadPool);
@@ -576,9 +576,9 @@ IceInternal::IncomingConnectionFactory::registerWithPool()
 void
 IceInternal::IncomingConnectionFactory::unregisterWithPool()
 {
-    if (_acceptor)
+    if(_acceptor)
     {
-	if (_registeredWithPool)
+	if(_registeredWithPool)
 	{
 	    assert(_serverThreadPool);
 	    _serverThreadPool->unregister(_acceptor->fd());

@@ -22,7 +22,7 @@ Glacier::Missive::Missive(const ObjectPrx& proxy, const vector<Byte>& inParams, 
     _forwardContext(forwardContext)
 {
     Context::const_iterator p = current.context.find("_ovrd");
-    if (p != current.context.end())
+    if(p != current.context.end())
     {
 	_override = p->second;
     }
@@ -32,7 +32,7 @@ void
 Glacier::Missive::invoke()
 {
     std::vector<Byte> dummy;
-    if (_forwardContext)
+    if(_forwardContext)
     {
 	_proxy->ice_invoke(_current.operation, _current.nonmutating, _inParams, dummy, _current.context);
     }
@@ -45,7 +45,7 @@ Glacier::Missive::invoke()
 bool
 Glacier::Missive::override(const MissivePtr& other)
 {
-    if (_override.empty() || other->_override.empty())
+    if(_override.empty() || other->_override.empty())
     {
 	return false;
     }
@@ -105,14 +105,14 @@ Glacier::MissiveQueue::add(const MissivePtr& missive)
     
     assert(!_destroy);
 
-    if (_missives.empty())
+    if(_missives.empty())
     {
         notify();
     }
     
-    for (std::vector<MissivePtr>::iterator p = _missives.begin(); p != _missives.end(); ++p)
+    for(std::vector<MissivePtr>::iterator p = _missives.begin(); p != _missives.end(); ++p)
     {
-        if (missive->override(*p))
+        if(missive->override(*p))
         {
             *p = missive; // Replace old missive if this is an override.
             return;
@@ -125,36 +125,36 @@ Glacier::MissiveQueue::add(const MissivePtr& missive)
 void 
 Glacier::MissiveQueue::run()
 {
-    while (true)
+    while(true)
     {
 	vector<ObjectPrx> proxies;
 	
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
             
-            while (!_destroy && _missives.empty())
+            while(!_destroy && _missives.empty())
             {
                 wait();
             }
             
-            if (_destroy)
+            if(_destroy)
             {
                 return;
             }
             
 	    proxies.reserve(_missives.size());
 	    vector<MissivePtr>::const_iterator p;
-	    for (p = _missives.begin(); p != _missives.end(); ++p)
+	    for(p = _missives.begin(); p != _missives.end(); ++p)
 	    {
 		try
 		{
 		    const ObjectPrx& proxy = (*p)->getProxy();
 		    const Current& current = (*p)->getCurrent();
 
-		    if (_traceLevel >= 2)
+		    if(_traceLevel >= 2)
 		    {
 			Trace out(_logger, "Glacier");
-			if (_reverse)
+			if(_reverse)
 			{
 			    out << "reverse ";
 			}
@@ -169,10 +169,10 @@ Glacier::MissiveQueue::run()
 		}
 		catch (const Ice::Exception& ex)
 		{
-		    if (_traceLevel >= 1)
+		    if(_traceLevel >= 1)
 		    {
 			Trace out(_logger, "Glacier");
-			if (_reverse)
+			if(_reverse)
 			{
 			    out << "reverse ";
 			}
@@ -197,7 +197,7 @@ Glacier::MissiveQueue::run()
 //	    sort(proxies.begin(), proxies.end());
 //	    proxies.erase(unique(proxies.begin(), proxies.end()), proxies.end());
             vector<ObjectPrx>::const_iterator p;
-	    for (p = proxies.begin(); p != proxies.end(); ++p)
+	    for(p = proxies.begin(); p != proxies.end(); ++p)
 	    {
 		(*p)->ice_flush();
 	    }
@@ -206,7 +206,7 @@ Glacier::MissiveQueue::run()
             // In order to avoid flooding the missive receivers, we add
             // a delay between sending missives.
 	    //
-	    if (_sleepTime > IceUtil::Time())
+	    if(_sleepTime > IceUtil::Time())
 	    {
 		IceUtil::ThreadControl::sleep(_sleepTime);
 	    }
@@ -215,10 +215,10 @@ Glacier::MissiveQueue::run()
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
             
-	    if (_traceLevel >= 1)
+	    if(_traceLevel >= 1)
 	    {
 		Trace out(_logger, "Glacier");
-		if (_reverse)
+		if(_reverse)
 		{
 		    out << "reverse ";
 		}

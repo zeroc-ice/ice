@@ -19,7 +19,7 @@ class TestApp extends Freeze.Application
     IntIntMapTest(Freeze.DBEnvironment dbEnv, boolean fast)
     {
 	Freeze.DB db;
-	if (fast)
+	if(fast)
 	{
 	    db = dbEnv.openDB("IntIntMap.fast", true);
 	}
@@ -34,16 +34,16 @@ class TestApp extends Freeze.Application
 	// Populate the database.
 	//
 	_watch.start();
-	if (fast)
+	if(fast)
 	{
-	    for (int i = 0; i < _repetitions; ++i)
+	    for(int i = 0; i < _repetitions; ++i)
 	    {
 		m.fastPut(new Integer(i), new Integer(i));
 	    }
 	}
 	else
 	{
-	    for (int i = 0; i < _repetitions; ++i)
+	    for(int i = 0; i < _repetitions; ++i)
 	    {
 		m.put(new Integer(i), new Integer(i));
 	    }
@@ -59,7 +59,7 @@ class TestApp extends Freeze.Application
 	// Read each record.
 	//
 	_watch.start();
-	for (int i = 0; i < _repetitions; ++i)
+	for(int i = 0; i < _repetitions; ++i)
 	{
 	    Integer n = (Integer)m.get(new Integer(i));
 	    test(n.intValue() == i);
@@ -74,16 +74,16 @@ class TestApp extends Freeze.Application
 	// Remove each record.
 	//
 	_watch.start();
-	if (fast)
+	if(fast)
 	{
-	    for (int i = 0; i < _repetitions; ++i)
+	    for(int i = 0; i < _repetitions; ++i)
 	    {
 		test(m.fastRemove(new Integer(i)));
 	    }
 	}
 	else
 	{
-	    for (int i = 0; i < _repetitions; ++i)
+	    for(int i = 0; i < _repetitions; ++i)
 	    {
 		Integer n = (Integer)m.remove(new Integer(i));
 		test(n.intValue() == i);
@@ -142,7 +142,7 @@ class TestApp extends Freeze.Application
 	{
 	    int n = _current;
 	    ++_current;
-	    if (_current > _max)
+	    if(_current > _max)
 	    {
 		_current = _min;
 	    }
@@ -164,7 +164,7 @@ class TestApp extends Freeze.Application
     generatedRead(IntIntMap m, int reads, Generator gen)
     {
 	_watch.start();
-	for (int i = 0; i < reads; ++i)
+	for(int i = 0; i < reads; ++i)
 	{
 	    int key = gen.next();
 	    Integer n = (Integer)m.get(new Integer(key));
@@ -189,7 +189,7 @@ class TestApp extends Freeze.Application
 	// Populate the database.
 	//
 	_watch.start();
-	for (int i = 0; i < _repetitions; ++i)
+	for(int i = 0; i < _repetitions; ++i)
 	{
 	    m.fastPut(new Integer(i), new Integer(i));
 	}
@@ -221,7 +221,7 @@ class TestApp extends Freeze.Application
  *      want to examine the cache stats for the database.
  *
 	_watch.start();
-	for (int i = 0; i < _repetitions; ++i)
+	for(int i = 0; i < _repetitions; ++i)
 	{
 	    test(m.fastRemove(new Integer(i)));
 	}
@@ -248,7 +248,7 @@ class TestApp extends Freeze.Application
 	Struct1 s1 = new Struct1();
 	Struct2 s2 = new Struct2();
 	_watch.start();
-	for (int i = 0; i < _repetitions; ++i)
+	for(int i = 0; i < _repetitions; ++i)
 	{
 	    s1.l = i;
 	    s2.s = new Integer(i).toString();
@@ -265,7 +265,7 @@ class TestApp extends Freeze.Application
 	// Read each record.
 	//
 	_watch.start();
-	for (int i = 0; i < _repetitions; ++i)
+	for(int i = 0; i < _repetitions; ++i)
 	{
 	    s1.l = i;
 	    Struct2 ns2 = (Struct2)m.get(s1);
@@ -281,7 +281,7 @@ class TestApp extends Freeze.Application
 	// Remove each record.
 	//
 	_watch.start();
-	for (int i = 0; i < _repetitions; ++i)
+	for(int i = 0; i < _repetitions; ++i)
 	{
 	    s1.l = i;
 	    test(m.fastRemove(s1));
@@ -308,7 +308,7 @@ class TestApp extends Freeze.Application
 	Struct1 s1 = new Struct1();
 	Class1 c1 = new Class1();
 	_watch.start();
-	for (int i = 0; i < _repetitions; ++i)
+	for(int i = 0; i < _repetitions; ++i)
 	{
 	    s1.l = i;
 	    c1.s = new Integer(i).toString();
@@ -325,7 +325,7 @@ class TestApp extends Freeze.Application
 	// Read each record.
 	//
 	_watch.start();
-	for (int i = 0; i < _repetitions; ++i)
+	for(int i = 0; i < _repetitions; ++i)
 	{
 	    s1.l = i;
 	    Class1 nc1 = (Class1)m.get(s1);
@@ -341,7 +341,7 @@ class TestApp extends Freeze.Application
 	// Remove each record.
 	//
 	_watch.start();
-	for (int i = 0; i < _repetitions; ++i)
+	for(int i = 0; i < _repetitions; ++i)
 	{
 	    s1.l = i;
 	    test(m.fastRemove(s1));
@@ -371,11 +371,11 @@ class TestApp extends Freeze.Application
 	c2.rec = c2;
 	c2.obj = c1;
 	_watch.start();
-	for (int i = 0; i < _repetitions; ++i)
+	for(int i = 0; i < _repetitions; ++i)
 	{
 	    s1.l = i;
 	    Object o;
-	    if ((i % 2) == 0)
+	    if((i % 2) == 0)
 	    {
 		o = c2;
 	    }
@@ -398,14 +398,14 @@ class TestApp extends Freeze.Application
 	// Read each record.
 	//
 	_watch.start();
-	for (int i = 0; i < _repetitions; ++i)
+	for(int i = 0; i < _repetitions; ++i)
 	{
 	    s1.l = i;
 
 	    Object o = m.get(s1);
 
 	    Class1 nc1;
-	    if ((i % 2) == 0)
+	    if((i % 2) == 0)
 	    {
 		Class2 nc2 = (Class2)o;
 		test(nc2.rec == nc2);
@@ -428,7 +428,7 @@ class TestApp extends Freeze.Application
 	// Remove each record.
 	//
 	_watch.start();
-	for (int i = 0; i < _repetitions; ++i)
+	for(int i = 0; i < _repetitions; ++i)
 	{
 	    s1.l = i;
 	    test(m.fastRemove(s1));
@@ -472,7 +472,7 @@ class TestApp extends Freeze.Application
     private static void
     test(boolean b)
     {
-        if (!b)
+        if(!b)
         {
             throw new RuntimeException();
         }
@@ -483,11 +483,11 @@ class TestApp extends Freeze.Application
 	public Ice.Object
 	create(String type)
 	{
-	    if (type.equals("::Class1"))
+	    if(type.equals("::Class1"))
 	    {
 		return new Class1();
 	    }
-	    else if (type.equals("::Class2"))
+	    else if(type.equals("::Class2"))
 	    {
 		return new Class2();
 	    }

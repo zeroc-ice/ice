@@ -48,7 +48,7 @@ public:
     waitTrylock()
     {
 	Mutex::Lock lock(_trylockMutex);
-	while (!_trylock)
+	while(!_trylock)
 	{
 	    _trylockCond.wait(lock);
 	}

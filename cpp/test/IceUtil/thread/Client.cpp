@@ -24,7 +24,7 @@ main(int argc, char** argv)
     {
 	initializeTestSuite();
 
-	for (list<TestBasePtr>::const_iterator p = allTests.begin(); p != allTests.end(); ++p)
+	for(list<TestBasePtr>::const_iterator p = allTests.begin(); p != allTests.end(); ++p)
 	{
 	    (*p)->start();
 	}

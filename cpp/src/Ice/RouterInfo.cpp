@@ -40,7 +40,7 @@ IceInternal::RouterManager::destroy()
 RouterInfoPtr
 IceInternal::RouterManager::get(const RouterPrx& rtr)
 {
-    if (!rtr)
+    if(!rtr)
     {
 	return 0;
     }
@@ -51,20 +51,20 @@ IceInternal::RouterManager::get(const RouterPrx& rtr)
 
     map<RouterPrx, RouterInfoPtr>::iterator p = _table.end();
     
-    if (_tableHint != _table.end())
+    if(_tableHint != _table.end())
     {
-	if (_tableHint->first == router)
+	if(_tableHint->first == router)
 	{
 	    p = _tableHint;
 	}
     }
     
-    if (p == _table.end())
+    if(p == _table.end())
     {
 	p = _table.find(router);
     }
 
-    if (p == _table.end())
+    if(p == _table.end())
     {
 	_tableHint = _table.insert(_tableHint, make_pair(router, new RouterInfo(router)));
     }
@@ -115,10 +115,10 @@ IceInternal::RouterInfo::getClientProxy()
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    if (!_clientProxy) // Lazy initialization.
+    if(!_clientProxy) // Lazy initialization.
     {
 	_clientProxy = _router->getClientProxy();
-	if (!_clientProxy)
+	if(!_clientProxy)
 	{
 	    throw NoEndpointException(__FILE__, __LINE__);
 	}
@@ -140,10 +140,10 @@ IceInternal::RouterInfo::getServerProxy()
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    if (!_serverProxy) // Lazy initialization.
+    if(!_serverProxy) // Lazy initialization.
     {
 	_serverProxy = _router->getServerProxy();
-	if (!_serverProxy)
+	if(!_serverProxy)
 	{
 	    throw NoEndpointException(__FILE__, __LINE__);
 	}
@@ -167,7 +167,7 @@ IceInternal::RouterInfo::addProxy(const ObjectPrx& proxy)
     // No mutex lock necessary, _routingTable is immutable, and
     // RoutingTable is mutex protected.
     //
-    if (_routingTable->add(proxy)) // Only add the proxy to the router if it's not already in the routing table.
+    if(_routingTable->add(proxy)) // Only add the proxy to the router if it's not already in the routing table.
     {
 	_router->addProxy(proxy);
     }

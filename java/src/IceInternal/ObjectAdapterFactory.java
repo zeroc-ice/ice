@@ -16,7 +16,7 @@ public final class ObjectAdapterFactory
     shutdown()
     {
         java.util.Iterator i = _adapters.values().iterator();
-        while (i.hasNext())
+        while(i.hasNext())
         {
             Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.next();
             adapter.deactivate();
@@ -28,7 +28,7 @@ public final class ObjectAdapterFactory
     createObjectAdapter(String name, String endpts)
     {
         Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)_adapters.get(name);
-        if (adapter != null)
+        if(adapter != null)
         {
             return adapter;
         }
@@ -42,10 +42,10 @@ public final class ObjectAdapterFactory
     findObjectAdapter(Ice.ObjectPrx proxy)
     {
         java.util.Iterator i = _adapters.values().iterator();
-        while (i.hasNext())
+        while(i.hasNext())
         {
             Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)i.next();
-            if (adapter.isLocal(proxy))
+            if(adapter.isLocal(proxy))
             {
                 return adapter;
             }

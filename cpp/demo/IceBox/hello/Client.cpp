@@ -36,7 +36,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::PropertiesPtr properties = communicator->getProperties();
     const char* refProperty = "Hello.Hello";
     std::string ref = properties->getProperty(refProperty);
-    if (ref.empty())
+    if(ref.empty())
     {
 	cerr << argv[0] << ": property `" << refProperty << "' not set" << endl;
 	return EXIT_FAILURE;
@@ -44,7 +44,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     HelloPrx twoway = HelloPrx::checkedCast(base->ice_twoway()->ice_timeout(-1)->ice_secure(false));
-    if (!twoway)
+    if(!twoway)
     {
 	cerr << argv[0] << ": invalid object reference" << endl;
 	return EXIT_FAILURE;
@@ -66,34 +66,34 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	{
 	    cout << "==> ";
 	    cin >> c;
-	    if (c == 't')
+	    if(c == 't')
 	    {
 		twoway->hello();
 	    }
-	    else if (c == 'o')
+	    else if(c == 'o')
 	    {
 		oneway->hello();
 	    }
-	    else if (c == 'O')
+	    else if(c == 'O')
 	    {
 		batchOneway->hello();
 	    }
-	    else if (c == 'd')
+	    else if(c == 'd')
 	    {
 		datagram->hello();
 	    }
-	    else if (c == 'D')
+	    else if(c == 'D')
 	    {
 		batchDatagram->hello();
 	    }
-	    else if (c == 'f')
+	    else if(c == 'f')
 	    {
 		batchOneway->ice_flush();
 		batchDatagram->ice_flush();
 	    }
-	    else if (c == 'T')
+	    else if(c == 'T')
 	    {
-		if (timeout == -1)
+		if(timeout == -1)
 		{
 		    timeout = 2000;
 		}
@@ -106,7 +106,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		oneway = HelloPrx::uncheckedCast(oneway->ice_timeout(timeout));
 		batchOneway = HelloPrx::uncheckedCast(batchOneway->ice_timeout(timeout));
 		
-		if (timeout == -1)
+		if(timeout == -1)
 		{
 		    cout << "timeout is now switched off" << endl;
 		}
@@ -115,7 +115,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		    cout << "timeout is now set to 2000ms" << endl;
 		}
 	    }
-	    else if (c == 'S')
+	    else if(c == 'S')
 	    {
 		secure = !secure;
 		
@@ -125,7 +125,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		datagram = HelloPrx::uncheckedCast(datagram->ice_secure(secure));
 		batchDatagram = HelloPrx::uncheckedCast(batchDatagram->ice_secure(secure));
 		
-		if (secure)
+		if(secure)
 		{
 		    cout << "secure mode is now on" << endl;
 		}
@@ -134,11 +134,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		    cout << "secure mode is now off" << endl;
 		}
 	    }
-	    else if (c == 'x')
+	    else if(c == 'x')
 	    {
 		// Nothing to do
 	    }
-	    else if (c == '?')
+	    else if(c == '?')
 	    {
 		menu();
 	    }
@@ -153,7 +153,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    cerr << ex << endl;
 	}
     }
-    while (cin.good() && c != 'x');
+    while(cin.good() && c != 'x');
 
     return EXIT_SUCCESS;
 }
@@ -177,7 +177,7 @@ main(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (communicator)
+    if(communicator)
     {
 	try
 	{

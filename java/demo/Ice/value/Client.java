@@ -29,7 +29,7 @@ public class Client
         Ice.Properties properties = communicator.getProperties();
         final String refProperty = "Value.Initial";
         String ref = properties.getProperty(refProperty);
-        if (ref.length() == 0)
+        if(ref.length() == 0)
         {
             System.err.println("property `" + refProperty + "' not set");
             return 1;
@@ -37,7 +37,7 @@ public class Client
 
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         InitialPrx initial = InitialPrxHelper.checkedCast(base);
-        if (initial == null)
+        if(initial == null)
         {
             System.err.println("invalid object reference");
             return 1;
@@ -193,7 +193,7 @@ public class Client
             status = 1;
         }
 
-        if (communicator != null)
+        if(communicator != null)
         {
             try
             {

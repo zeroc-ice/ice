@@ -24,7 +24,7 @@ void IceInternal::decRef(ProxyFactory* p) { p->__decRef(); }
 ObjectPrx
 IceInternal::ProxyFactory::stringToProxy(const string& str) const
 {
-    if (str.empty())
+    if(str.empty())
     {
 	return 0;
     }
@@ -39,7 +39,7 @@ string
 IceInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy) const
 {
     static const string nilProxy("");
-    if (proxy)
+    if(proxy)
     {
 	return proxy->__reference()->toString();
     }
@@ -55,7 +55,7 @@ IceInternal::ProxyFactory::streamToProxy(BasicStream* s) const
     Identity ident;
     ident.__read(s);
 
-    if (ident.name.empty())
+    if(ident.name.empty())
     {
 	return 0;
     }
@@ -69,7 +69,7 @@ IceInternal::ProxyFactory::streamToProxy(BasicStream* s) const
 void
 IceInternal::ProxyFactory::proxyToStream(const ObjectPrx& proxy, BasicStream* s) const
 {
-    if (proxy)
+    if(proxy)
     {
 	proxy->__reference()->identity.__write(s);
 	proxy->__reference()->streamWrite(s);

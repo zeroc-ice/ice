@@ -35,7 +35,7 @@ IceSSL::OpenSSL::SingleCertificateVerifier::verify(int preVerifyOkay,
     X509* peerCertificate = x509StoreContext->cert;
 
     // We only bother to do the rest of this if we have something to verify.
-    if (peerCertificate)
+    if(peerCertificate)
     {
         // Get the subject name (Not a memory leak, this is how this is used).
         X509_NAME* peerCertName = X509_get_subject_name(peerCertificate);
@@ -46,7 +46,7 @@ IceSSL::OpenSSL::SingleCertificateVerifier::verify(int preVerifyOkay,
                                                 peerCertName,
                                                 &trustedObject);
 
-        switch (retCode)
+        switch(retCode)
         {
             case X509_LU_X509:
             {
@@ -74,7 +74,7 @@ IceSSL::OpenSSL::SingleCertificateVerifier::verify(int preVerifyOkay,
     }
 
     // Compare, only if we have both.
-    if (trustedCert)
+    if(trustedCert)
     {
         ByteSeq peerByteSeq = toByteSeq(peerCertificate);
         ByteSeq trustedByteSeq = toByteSeq(trustedCert);

@@ -48,10 +48,10 @@ public final class RouterInfo
     public synchronized Ice.ObjectPrx
     getClientProxy()
     {
-        if (_clientProxy == null) // Lazy initialization.
+        if(_clientProxy == null) // Lazy initialization.
         {
             _clientProxy = _router.getClientProxy();
-            if (_clientProxy == null)
+            if(_clientProxy == null)
             {
                 throw new Ice.NoEndpointException();
             }
@@ -70,10 +70,10 @@ public final class RouterInfo
     public Ice.ObjectPrx
     getServerProxy()
     {
-        if (_serverProxy == null) // Lazy initialization.
+        if(_serverProxy == null) // Lazy initialization.
         {
             _serverProxy = _router.getServerProxy();
-            if (_serverProxy == null)
+            if(_serverProxy == null)
             {
                 throw new Ice.NoEndpointException();
             }
@@ -96,7 +96,7 @@ public final class RouterInfo
         // No mutex lock necessary, _routingTable is immutable, and
         // RoutingTable is mutex protected.
         //
-        if (_routingTable.add(proxy)) // Only add the proxy to the router if it's not already in the routing table.
+        if(_routingTable.add(proxy)) // Only add the proxy to the router if it's not already in the routing table.
         {
             _router.addProxy(proxy);
         }

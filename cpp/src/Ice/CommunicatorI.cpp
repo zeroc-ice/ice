@@ -29,7 +29,7 @@ Ice::CommunicatorI::destroy()
 {
     RecMutex::Lock sync(*this);
 
-    if (_instance)
+    if(_instance)
     {
 	_instance->objectAdapterFactory()->shutdown();
 	_instance->destroy();
@@ -43,7 +43,7 @@ Ice::CommunicatorI::shutdown()
     //
     // No mutex locking here! This operation must be signal-safe.
     //
-    if (_serverThreadPool)
+    if(_serverThreadPool)
     {
 	_serverThreadPool->initiateShutdown();
     }
@@ -56,7 +56,7 @@ Ice::CommunicatorI::waitForShutdown()
     // No mutex locking here, otherwise the communicator is blocked
     // while waiting for shutdown.
     //
-    if (_serverThreadPool)
+    if(_serverThreadPool)
     {
 	_serverThreadPool->waitUntilFinished();
     }
@@ -66,7 +66,7 @@ ObjectPrx
 Ice::CommunicatorI::stringToProxy(const string& s)
 {
     RecMutex::Lock sync(*this);
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -77,7 +77,7 @@ string
 Ice::CommunicatorI::proxyToString(const ObjectPrx& proxy)
 {
     RecMutex::Lock sync(*this);
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -88,7 +88,7 @@ ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapter(const string& name)
 {
     RecMutex::Lock sync(*this);
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -96,12 +96,12 @@ Ice::CommunicatorI::createObjectAdapter(const string& name)
     ObjectAdapterPtr adapter = createObjectAdapterFromProperty(name, "Ice.Adapter." + name + ".Endpoints");
 
     string router = _instance->properties()->getProperty("Ice.Adapter." + name + ".Router");
-    if (!router.empty())
+    if(!router.empty())
     {
 	adapter->addRouter(RouterPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(router)));
     }
 
-    if (!_serverThreadPool) // Lazy initialization of _serverThreadPool.
+    if(!_serverThreadPool) // Lazy initialization of _serverThreadPool.
     {
 	_serverThreadPool = _instance->serverThreadPool();
     }
@@ -113,7 +113,7 @@ ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapterFromProperty(const string& name, const string& property)
 {
     RecMutex::Lock sync(*this);
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -127,14 +127,14 @@ ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const string& endpts)
 {
     RecMutex::Lock sync(*this);
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
     ObjectAdapterPtr adapter = _instance->objectAdapterFactory()->createObjectAdapter(name, endpts);
 
-    if (!_serverThreadPool) // Lazy initialization of _serverThreadPool.
+    if(!_serverThreadPool) // Lazy initialization of _serverThreadPool.
     {
 	_serverThreadPool = _instance->serverThreadPool();
     }
@@ -146,7 +146,7 @@ void
 Ice::CommunicatorI::addObjectFactory(const ObjectFactoryPtr& factory, const string& id)
 {
     RecMutex::Lock sync(*this);
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -157,7 +157,7 @@ void
 Ice::CommunicatorI::removeObjectFactory(const string& id)
 {
     RecMutex::Lock sync(*this);
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -168,7 +168,7 @@ ObjectFactoryPtr
 Ice::CommunicatorI::findObjectFactory(const string& id)
 {
     RecMutex::Lock sync(*this);
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -179,7 +179,7 @@ void
 Ice::CommunicatorI::addUserExceptionFactory(const UserExceptionFactoryPtr& factory, const string& id)
 {
     RecMutex::Lock sync(*this);
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -190,7 +190,7 @@ void
 Ice::CommunicatorI::removeUserExceptionFactory(const string& id)
 {
     RecMutex::Lock sync(*this);
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -201,7 +201,7 @@ UserExceptionFactoryPtr
 Ice::CommunicatorI::findUserExceptionFactory(const string& id)
 {
     RecMutex::Lock sync(*this);
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -212,7 +212,7 @@ PropertiesPtr
 Ice::CommunicatorI::getProperties()
 {
     RecMutex::Lock sync(*this);
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -223,7 +223,7 @@ LoggerPtr
 Ice::CommunicatorI::getLogger()
 {
     RecMutex::Lock sync(*this);
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -234,7 +234,7 @@ void
 Ice::CommunicatorI::setLogger(const LoggerPtr& logger)
 {
     RecMutex::Lock sync(*this);
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -251,7 +251,7 @@ PluginManagerPtr
 Ice::CommunicatorI::getPluginManager()
 {
     RecMutex::Lock sync(*this);
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -275,7 +275,7 @@ Ice::CommunicatorI::CommunicatorI(int& argc, char* argv[], const PropertiesPtr& 
 
 Ice::CommunicatorI::~CommunicatorI()
 {
-    if (_instance)
+    if(_instance)
     {
 	Warning out(_instance->logger());
 	out << "communicator has not been destroyed";

@@ -39,7 +39,7 @@ TestString(const Ice::CommunicatorPtr& communicator)
 	"hello &&''\"\"<<>>world",
 	""
     };
-    for (int i = 0; !strings[i].empty(); ++i)
+    for(int i = 0; !strings[i].empty(); ++i)
     {
 	ostringstream os;
 	os << "<data>";
@@ -165,7 +165,7 @@ TestStruct4Seq(const Ice::CommunicatorPtr& communicator)
     Test::Struct4Seq seqout;
     Test::Struct4SeqHelper::ice_unmarshal(element, istream, seqout);
     test(seqout.size() == seqin.size());
-    while (!seqin.empty())
+    while(!seqin.empty())
     {
 	Test::Struct4 sin = seqin.back();
 	Test::Struct4 sout = seqout.back();
@@ -203,7 +203,7 @@ TestStringStruct4Dict(const Ice::CommunicatorPtr& communicator)
     Test::StringStruct4Dict dictout;
     Test::StringStruct4DictHelper::ice_unmarshal(element, istream, dictout);
     test(dictout.size() == dictin.size());
-    for (Test::StringStruct4Dict::const_iterator p = dictin.begin(); p != dictin.end(); ++p)
+    for(Test::StringStruct4Dict::const_iterator p = dictin.begin(); p != dictin.end(); ++p)
     {
 	Test::StringStruct4Dict::const_iterator q = dictout.find(p->first);
 	test(q != dictout.end());
@@ -246,7 +246,7 @@ TestStruct3Struct4Dict(const Ice::CommunicatorPtr& communicator)
     Test::Struct3Struct4Dict dictout;
     Test::Struct3Struct4DictHelper::ice_unmarshal(element, istream, dictout);
     test(dictout.size() == dictin.size());
-    for (Test::Struct3Struct4Dict::const_iterator p = dictin.begin(); p != dictin.end(); ++p)
+    for(Test::Struct3Struct4Dict::const_iterator p = dictin.begin(); p != dictin.end(); ++p)
     {
 	Test::Struct3Struct4Dict::const_iterator q = dictout.find(p->first);
 	test(q != dictout.end());
@@ -294,7 +294,7 @@ TestColorSeq(const Ice::CommunicatorPtr& communicator)
     Test::ColorSeq seqout;
     Test::ColorSeqHelper::ice_unmarshal(element, istream, seqout);
     test(seqout.size() == seqin.size());
-    while (!seqin.empty())
+    while(!seqin.empty())
     {
 	Test::Color sin = seqin.back();
 	Test::Color sout = seqout.back();
@@ -502,7 +502,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // If the test is run out of the CWD then adjust the location of
     // Test.xsd appropriately.
     //
-    if (argc > 1)
+    if(argc > 1)
     {
 	string dir(argv[1]);
 	dir += '/';
@@ -580,7 +580,7 @@ main(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (communicator)
+    if(communicator)
     {
 	try
 	{

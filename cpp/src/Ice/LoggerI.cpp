@@ -20,7 +20,7 @@ Ice::LoggerI::trace(const string& category, const string& message)
     IceUtil::Mutex::Lock sync(*this);
     string s = "[ " + category + ": " + message + " ]";
     string::size_type idx = 0;
-    while ((idx = s.find("\n", idx)) != string::npos)
+    while((idx = s.find("\n", idx)) != string::npos)
     {
 	s.insert(idx + 1, "  ");
 	++idx;

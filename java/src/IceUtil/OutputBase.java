@@ -65,9 +65,9 @@ public class OutputBase
     print(String s)
     {
         final char[] arr = s.toCharArray();
-        for (int i = 0; i < arr.length; i++)
+        for(int i = 0; i < arr.length; i++)
         {
-            if (arr[i] == '\n')
+            if(arr[i] == '\n')
             {
                 _pos = 0;
             }
@@ -135,9 +135,9 @@ public class OutputBase
 
         int indent = _indent;
 
-        if (_useTab)
+        if(_useTab)
         {
-            while (indent >= 8)
+            while(indent >= 8)
             {
                 indent -= 8;
                 _out.print('\t');
@@ -146,7 +146,7 @@ public class OutputBase
         }
         else
         {
-            while (indent >= _indentSize)
+            while(indent >= _indentSize)
             {
                 indent -= _indentSize;
                 _out.print("    ");
@@ -154,7 +154,7 @@ public class OutputBase
             }
         }
 
-        while (indent > 0)
+        while(indent > 0)
         {
             --indent;
             _out.print(' ');
@@ -167,7 +167,7 @@ public class OutputBase
     public void
     sp()
     {
-        if (_separator)
+        if(_separator)
         {
             _out.println();
         }

@@ -25,7 +25,7 @@ Ice::stringToIdentity(const string& s)
 {
     Identity ident;
     string::size_type pos = s.find_first_of("/");
-    if (pos != string::npos)
+    if(pos != string::npos)
     {
 	ident.category = s.substr(0, pos);
 	ident.name = s.substr(pos + 1);
@@ -40,7 +40,7 @@ Ice::stringToIdentity(const string& s)
 string
 Ice::identityToString(const Identity& ident)
 {
-    if (ident.category.empty())
+    if(ident.category.empty())
     {
 	return ident.name;
     }

@@ -51,7 +51,7 @@ Parser::createParser(const CommunicatorPtr& communicator, const PhoneBookPrx& ph
 void
 Parser::addContacts(const list<string>& args)
 {
-    if (args.empty())
+    if(args.empty())
     {
 	error("`add' requires at least one argument (type `help' for more info)");
 	return;
@@ -81,7 +81,7 @@ Parser::addContacts(const list<string>& args)
 void
 Parser::findContacts(const list<string>& args)
 {
-    if (args.size() != 1)
+    if(args.size() != 1)
     {
 	error("`find' requires exactly one argument (type `help' for more info)");
 	return;
@@ -109,7 +109,7 @@ Parser::findContacts(const list<string>& args)
 void
 Parser::nextFoundContact()
 {
-    if (_current != _foundContacts.end())
+    if(_current != _foundContacts.end())
     {
 	++_current;
     }
@@ -121,7 +121,7 @@ Parser::printCurrent()
 {
     try
     {
-	if (_current != _foundContacts.end())
+	if(_current != _foundContacts.end())
 	{
 	    cout << "current contact is:" << endl;
 	    cout << "name: " << (*_current)->getName() << endl;
@@ -148,7 +148,7 @@ Parser::printCurrent()
 void
 Parser::setCurrentName(const list<string>& args)
 {
-    if (args.size() != 1)
+    if(args.size() != 1)
     {
 	error("`name' requires exactly one argument (type `help' for more info)");
 	return;
@@ -156,7 +156,7 @@ Parser::setCurrentName(const list<string>& args)
 
     try
     {
-	if (_current != _foundContacts.end())
+	if(_current != _foundContacts.end())
 	{
 	    (*_current)->setName(args.front());
 	    cout << "changed name to `" << args.front() << "'" << endl;
@@ -181,7 +181,7 @@ Parser::setCurrentName(const list<string>& args)
 void
 Parser::setCurrentAddress(const list<string>& args)
 {
-    if (args.size() != 1)
+    if(args.size() != 1)
     {
 	error("`address' requires exactly one argument (type `help' for more info)");
 	return;
@@ -189,7 +189,7 @@ Parser::setCurrentAddress(const list<string>& args)
 
     try
     {
-	if (_current != _foundContacts.end())
+	if(_current != _foundContacts.end())
 	{
 	    (*_current)->setAddress(args.front());
 	    cout << "changed address to `" << args.front() << "'" << endl;
@@ -214,7 +214,7 @@ Parser::setCurrentAddress(const list<string>& args)
 void
 Parser::setCurrentPhone(const list<string>& args)
 {
-    if (args.size() != 1)
+    if(args.size() != 1)
     {
 	error("`phone' requires exactly one argument (type `help' for more info)");
 	return;
@@ -222,7 +222,7 @@ Parser::setCurrentPhone(const list<string>& args)
 
     try
     {
-	if (_current != _foundContacts.end())
+	if(_current != _foundContacts.end())
 	{
 	    (*_current)->setPhone(args.front());
 	    cout << "changed phone number to `" << args.front() << "'" << endl;
@@ -249,7 +249,7 @@ Parser::removeCurrent()
 {
     try
     {
-	if (_current != _foundContacts.end())
+	if(_current != _foundContacts.end())
 	{
 	    (*_current)->destroy();
 	    cout << "removed current contact" << endl;
@@ -274,7 +274,7 @@ Parser::removeCurrent()
 void
 Parser::setEvictorSize(const list<string>& args)
 {
-    if (args.size() != 1)
+    if(args.size() != 1)
     {
 	error("`size' requires exactly one argument (type `help' for more info)");
 	return;
@@ -314,9 +314,9 @@ Parser::shutdown()
 void
 Parser::getInput(char* buf, int& result, int maxSize)
 {
-    if (!_commands.empty())
+    if(!_commands.empty())
     {
-	if (_commands == ";")
+	if(_commands == ";")
 	{
 	    result = 0;
 	}
@@ -330,30 +330,30 @@ Parser::getInput(char* buf, int& result, int maxSize)
 #endif
 	    strncpy(buf, _commands.c_str(), result);
 	    _commands.erase(0, result);
-	    if (_commands.empty())
+	    if(_commands.empty())
 	    {
 		_commands = ";";
 	    }
 	}
     }
-    else if (isatty(fileno(yyin)))
+    else if(isatty(fileno(yyin)))
     {
 #ifdef HAVE_READLINE
 
 	char* line = readline(parser->getPrompt());
-	if (!line)
+	if(!line)
 	{
 	    result = 0;
 	}
 	else
 	{
-	    if (*line)
+	    if(*line)
 	    {
 		add_history(line);
 	    }
 
 	    result = strlen(line) + 1;
-	    if (result > maxSize)
+	    if(result > maxSize)
 	    {
 		free(line);
 		error("input line too long");
@@ -372,12 +372,12 @@ Parser::getInput(char* buf, int& result, int maxSize)
 	cout << parser->getPrompt() << flush;
 
 	string line;
-	while (true)
+	while(true)
 	{
 	    char c = static_cast<char>(getc(yyin));
-	    if (c == EOF)
+	    if(c == EOF)
 	    {
-		if (line.size())
+		if(line.size())
 		{
 		    line += '\n';
 		}
@@ -386,14 +386,14 @@ Parser::getInput(char* buf, int& result, int maxSize)
 
 	    line += c;
 
-	    if (c == '\n')
+	    if(c == '\n')
 	    {
 		break;
 	    }
 	}
 	
 	result = line.length();
-	if (result > maxSize)
+	if(result > maxSize)
 	{
 	    error("input line too long");
 	    buf[0] = EOF;
@@ -408,7 +408,7 @@ Parser::getInput(char* buf, int& result, int maxSize)
     }
     else
     {
-	if (((result = fread(buf, 1, maxSize, yyin)) == 0) && ferror(yyin))
+	if(((result = fread(buf, 1, maxSize, yyin)) == 0) && ferror(yyin))
 	{
 	    error("input in flex scanner failed");
 	    buf[0] = EOF;
@@ -434,7 +434,7 @@ Parser::getPrompt()
 {
     assert(_commands.empty() && isatty(fileno(yyin)));
 
-    if (_continue)
+    if(_continue)
     {
 	_continue = false;
 	return "(cont) ";
@@ -448,7 +448,7 @@ Parser::getPrompt()
 void
 Parser::error(const char* s)
 {
-    if (_commands.empty() && !isatty(fileno(yyin)))
+    if(_commands.empty() && !isatty(fileno(yyin)))
     {
 	cerr << _currentFile << ':' << _currentLine << ": " << s << endl;
     }
@@ -468,7 +468,7 @@ Parser::error(const string& s)
 void
 Parser::warning(const char* s)
 {
-    if (_commands.empty() && !isatty(fileno(yyin)))
+    if(_commands.empty() && !isatty(fileno(yyin)))
     {
 	cerr << _currentFile << ':' << _currentLine << ": warning: " << s << endl;
     }
@@ -507,7 +507,7 @@ Parser::parse(FILE* file, bool debug)
     _current = _foundContacts.end();
 
     int status = yyparse();
-    if (_errors)
+    if(_errors)
     {
 	status = EXIT_FAILURE;
     }
@@ -539,7 +539,7 @@ Parser::parse(const string& commands, bool debug)
     _current = _foundContacts.end();
 
     int status = yyparse();
-    if (_errors)
+    if(_errors)
     {
 	status = EXIT_FAILURE;
     }

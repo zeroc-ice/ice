@@ -39,7 +39,7 @@ Glacier::Blobject::destroy()
 
     {
 	IceUtil::Mutex::Lock lock(_missiveQueueMutex);
-	if (_missiveQueue)
+	if(_missiveQueue)
 	{
 	    _missiveQueue->destroy();
 	    _missiveQueueControl.join();
@@ -57,17 +57,17 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const vector<Byte>& inParams, vector
     {
 	MissiveQueuePtr missiveQueue = modifyProxy(proxy, current);
 
-	if (missiveQueue) // Batch routing?
+	if(missiveQueue) // Batch routing?
 	{
 	    missiveQueue->add(new Missive(proxy, inParams, current, _forwardContext));
 	    return true;
 	}
 	else // Regular routing.
 	{
-	    if (_traceLevel >= 2)
+	    if(_traceLevel >= 2)
 	    {
 		Trace out(_logger, "Glacier");
-		if (reverse())
+		if(reverse())
 		{
 		    out << "reverse ";
 		}
@@ -77,7 +77,7 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const vector<Byte>& inParams, vector
 		    << "nonmutating = " << (current.nonmutating ? "true" : "false");
 	    }
 	    
-	    if (_forwardContext)
+	    if(_forwardContext)
 	    {
 		return proxy->ice_invoke(current.operation, current.nonmutating, inParams, outParams, current.context);
 	    }
@@ -89,10 +89,10 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const vector<Byte>& inParams, vector
     }
     catch (const Exception& ex)
     {
-	if (_traceLevel >= 1)
+	if(_traceLevel >= 1)
 	{
 	    Trace out(_logger, "Glacier");
-	    if (reverse())
+	    if(reverse())
 	    {
 		out << "reverse ";
 	    }
@@ -109,19 +109,19 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const vector<Byte>& inParams, vector
 MissiveQueuePtr
 Glacier::Blobject::modifyProxy(ObjectPrx& proxy, const Current& current)
 {
-    if (!current.facet.empty())
+    if(!current.facet.empty())
     {
 	proxy = proxy->ice_newFacet(current.facet);
     }
 
     MissiveQueuePtr missiveQueue;
     Context::const_iterator p = current.context.find("_fwd");
-    if (p != current.context.end())
+    if(p != current.context.end())
     {
-	for (unsigned int i = 0; i < p->second.length(); ++i)
+	for(unsigned int i = 0; i < p->second.length(); ++i)
 	{
 	    char option = p->second[i];
-	    switch (option)
+	    switch(option)
 	    {
 		case 't':
 		{
@@ -184,7 +184,7 @@ Glacier::Blobject::getMissiveQueue()
     // Lazy missive queue initialization.
     //
     IceUtil::Mutex::Lock lock(_missiveQueueMutex);
-    if (!_missiveQueue)
+    if(!_missiveQueue)
     {
 	_missiveQueue = new MissiveQueue(_communicator, _traceLevel, reverse(), _batchSleepTime);
 	_missiveQueueControl = _missiveQueue->start();

@@ -75,7 +75,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 {
     assert(_communicator); // Destroyed?
 
-    if (!_verifier->checkPassword(userId, password))
+    if(!_verifier->checkPassword(userId, password))
     {
 	throw InvalidPasswordException();
     }
@@ -103,7 +103,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
     string routerCertificateBase64;
     string clientCertificateBase64;
     
-    if (sslConfigured)
+    if(sslConfigured)
     {
         //
         // Create a certificate for the client and the router.
@@ -130,14 +130,14 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 
     try
     {
-	if (pipe(fds) != 0)
+	if(pipe(fds) != 0)
 	{
 	    SystemException ex(__FILE__, __LINE__);
 	    ex.error = getSystemErrno();
 	    throw ex;
 	}
 	pid = fork();
-	if (pid == -1)
+	if(pid == -1)
 	{
 	    SystemException ex(__FILE__, __LINE__);
 	    ex.error = getSystemErrno();
@@ -151,7 +151,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	ex.ice_throw();
     }
 
-    if (pid == 0) // Child process.
+    if(pid == 0) // Child process.
     {
 	//
 	// Close all filedescriptors, except for standard input,
@@ -159,9 +159,9 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	// of the newly created pipe.
 	//
 	int maxFd = static_cast<int>(sysconf(_SC_OPEN_MAX));
-	for (int fd = 3; fd < maxFd; ++fd)
+	for(int fd = 3; fd < maxFd; ++fd)
 	{
-	    if (fd != fds[1])
+	    if(fd != fds[1])
 	    {
 		close(fd);
 	    }
@@ -178,7 +178,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	// be seen with `ps'. Keys and certificate should rather be
 	// passed through a pipe? (ML will take care of this...)
 	//
-        if (sslConfigured)
+        if(sslConfigured)
         {
             args.push_back("--IceSSL.Server.Overrides.RSA.PrivateKey=" + routerPrivateKeyBase64);
             args.push_back("--IceSSL.Server.Overrides.RSA.Certificate=" + routerCertificateBase64);
@@ -189,7 +189,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 
 	args.push_back("--Glacier.Router.UserId=" + userId);
 	
-	if (!_properties->getProperty("Glacier.Starter.AddUserToAllowCategories").empty())
+	if(!_properties->getProperty("Glacier.Starter.AddUserToAllowCategories").empty())
 	{
 	    args.push_back("--Glacier.Router.AllowCategories=" +
 			   _properties->getProperty("Glacier.Router.AllowCategories") + " " + userId);
@@ -199,22 +199,22 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	s << "--Glacier.Router.PrintProxyOnFd=" << fds[1];
 	args.push_back(s.str());
 	string overwrite = _properties->getProperty("Glacier.Starter.PropertiesOverwrite");
-	if (!overwrite.empty())
+	if(!overwrite.empty())
 	{
 	    string::size_type end = 0;
-	    while (end != string::npos)
+	    while(end != string::npos)
 	    {
 		static const string delim = " \t\r\n";
 		
 		string::size_type beg = overwrite.find_first_not_of(delim, end);
-		if (beg == string::npos)
+		if(beg == string::npos)
 		{
 		    break;
 		}
 		
 		end = overwrite.find_first_of(delim, beg);
 		string arg;
-		if (end == string::npos)
+		if(end == string::npos)
 		{
 		    arg = overwrite.substr(beg);
 		}
@@ -222,7 +222,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 		{
 		    arg = overwrite.substr(beg, end - beg);
 		}
-		if (arg.find("--") != 0)
+		if(arg.find("--") != 0)
 		{
 		    arg = "--" + arg;
 		}
@@ -232,7 +232,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 
 /*
         StringSeq::iterator seqElem = args.begin();
-        while (seqElem != args.end())
+        while(seqElem != args.end())
         {
             cerr << *seqElem << endl;
             seqElem++;
@@ -246,7 +246,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	char** argv = static_cast<char**>(malloc((argc + 1) * sizeof(char*)));
 	StringSeq::iterator p;
 	int i;
-	for (p = args.begin(), i = 1; p != args.end(); ++p, ++i)
+	for(p = args.begin(), i = 1; p != args.end(); ++p, ++i)
 	{
 	    assert(i < argc);
 	    argv[i] = strdup(p->c_str());
@@ -258,7 +258,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	//
 	// Try to start the router.
 	//
-	if (execvp(argv[0], argv) == -1)
+	if(execvp(argv[0], argv) == -1)
 	{
 	    //
 	    // Send any errors to the parent process, using the write
@@ -285,7 +285,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	    //
 	    int flags = fcntl(fds[0], F_GETFL);
 	    flags |= O_NONBLOCK;
-	    if (fcntl(fds[0], F_SETFL, flags) == -1)
+	    if(fcntl(fds[0], F_SETFL, flags) == -1)
 	    {
 		SystemException ex(__FILE__, __LINE__);
 		ex.error = getSystemErrno();
@@ -298,16 +298,16 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	    FD_SET(fds[0], &fdSet);
 	    struct timeval tv;
 	    tv.tv_sec = _properties->getPropertyAsIntWithDefault("Glacier.Starter.StartupTimeout", 10);
-	    if (tv.tv_sec < 1)
+	    if(tv.tv_sec < 1)
 	    {
 		tv.tv_sec = 1; // One second is minimum.
 	    }
 	    tv.tv_usec = 0;
 	    int ret = ::select(fds[0] + 1, &fdSet, 0, 0, &tv);
 	    
-	    if (ret == -1)
+	    if(ret == -1)
 	    {
-		if (errno == EINTR)
+		if(errno == EINTR)
 		{
 		    goto repeatSelect;
 		}
@@ -317,7 +317,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 		throw ex;
 	    }
 	    
-	    if (ret == 0) // Timeout.
+	    if(ret == 0) // Timeout.
 	    {
 		CannotStartRouterException ex;
 		ex.reason = "timeout while starting `" + path + "'";
@@ -338,7 +338,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 		throw ex;
 	    }
 
-	    if (sz == 0) // EOF?
+	    if(sz == 0) // EOF?
 	    {
 		CannotStartRouterException ex;
 		ex.reason = "got EOF from `" + path + "'";
@@ -347,14 +347,14 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 
 	    buf[sz] = '\0'; // Terminate the string we got back.
 
-	    if (strncmp(buf, uuid.c_str(), uuid.length()) == 0)
+	    if(strncmp(buf, uuid.c_str(), uuid.length()) == 0)
 	    {
 		//
 		// We got the stringified router proxy.
 		//
 		RouterPrx router = RouterPrx::uncheckedCast(_communicator->stringToProxy(buf));
 
-		if (_traceLevel >= 2)
+		if(_traceLevel >= 2)
 		{
 		    Trace out(_logger, "Glacier");
 		    out << "started new router:\n" << _communicator->proxyToString(router);
@@ -374,7 +374,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	}
 	catch(const CannotStartRouterException& ex)
 	{
-	    if (_traceLevel >= 1)
+	    if(_traceLevel >= 1)
 	    {
 		Trace out(_logger, "Glacier");
 		out << "router starter exception:\n" << ex << ":\n" << ex.reason;
@@ -404,12 +404,12 @@ Glacier::CryptPasswordVerifierI::checkPassword(const string& userId, const strin
 {
     map<string, string>::const_iterator p = _passwords.find(userId);
 
-    if (p == _passwords.end())
+    if(p == _passwords.end())
     {
 	return false;
     }
 
-    if (p->second.size() != 13) // Crypt passwords are 13 characters long.
+    if(p->second.size() != 13) // Crypt passwords are 13 characters long.
     {
 	return false;
     }

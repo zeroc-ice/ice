@@ -37,7 +37,7 @@ IceSSL::ConfigParserErrorReporter::~ConfigParserErrorReporter()
 void
 IceSSL::ConfigParserErrorReporter::warning(const SAXParseException& toCatch)
 {
-    if (_traceLevels->security >= IceSSL::SECURITY_PARSE_WARNINGS)
+    if(_traceLevels->security >= IceSSL::SECURITY_PARSE_WARNINGS)
     {
 	ostringstream s;
 

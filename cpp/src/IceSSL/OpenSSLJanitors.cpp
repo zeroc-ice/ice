@@ -18,7 +18,7 @@ IceSSL::OpenSSL::RSAJanitor::RSAJanitor(RSA* rsa) :
 
 IceSSL::OpenSSL::RSAJanitor::~RSAJanitor()
 {
-    if (_rsa)
+    if(_rsa)
     {
         RSA_free(_rsa);
     }
@@ -44,7 +44,7 @@ IceSSL::OpenSSL::EVP_PKEYJanitor::EVP_PKEYJanitor(EVP_PKEY* evp_pkey) :
 
 IceSSL::OpenSSL::EVP_PKEYJanitor::~EVP_PKEYJanitor()
 {
-    if (_evp_pkey)
+    if(_evp_pkey)
     {
         EVP_PKEY_free(_evp_pkey);
     }
@@ -70,7 +70,7 @@ IceSSL::OpenSSL::X509_REQJanitor::X509_REQJanitor(X509_REQ* x509_req) :
 
 IceSSL::OpenSSL::X509_REQJanitor::~X509_REQJanitor()
 {
-    if (_x509_req)
+    if(_x509_req)
     {
         X509_REQ_free(_x509_req);
     }
@@ -96,7 +96,7 @@ IceSSL::OpenSSL::X509Janitor::X509Janitor(X509* x509) :
 
 IceSSL::OpenSSL::X509Janitor::~X509Janitor()
 {
-    if (_x509)
+    if(_x509)
     {
         X509_free(_x509);
     }
@@ -122,7 +122,7 @@ IceSSL::OpenSSL::BIOJanitor::BIOJanitor(BIO* bio) :
 
 IceSSL::OpenSSL::BIOJanitor::~BIOJanitor()
 {
-    if (_bio)
+    if(_bio)
     {
         BIO_free(_bio);
     }

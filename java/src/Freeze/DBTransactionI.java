@@ -15,7 +15,7 @@ class DBTransactionI implements DBTransaction
     public synchronized void
     commit()
     {
-	if (_tid == null)
+	if(_tid == null)
 	{
 	    String s = _errorPrefix + "transaction has already been committed or aborted";
 	    DBException ex = new DBException();
@@ -23,7 +23,7 @@ class DBTransactionI implements DBTransaction
 	    throw ex;
 	}
 	
-	if (_trace >= 2)
+	if(_trace >= 2)
 	{
 	    _communicator.getLogger().trace("DB", "committing transaction for environment \"" + _name + "\"");
 	}
@@ -53,7 +53,7 @@ class DBTransactionI implements DBTransaction
     public synchronized void
     abort()
     {
-	if (_tid == null)
+	if(_tid == null)
 	{
 	    String s = _errorPrefix + "transaction has already been committed or aborted";
 	    DBException ex = new DBException();
@@ -61,7 +61,7 @@ class DBTransactionI implements DBTransaction
 	    throw ex;
 	}
 	
-	if (_trace >= 2)
+	if(_trace >= 2)
 	{
 	    _communicator.getLogger().trace("DB", "aborting transaction for environment \"" + _name +
 					    "\" due to deadlock");
@@ -89,7 +89,7 @@ class DBTransactionI implements DBTransaction
 	_errorPrefix = "Freeze::DBTransaction(\"" + _name + "\"): ";
 	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.DB");
 
-	if (_trace >= 2)
+	if(_trace >= 2)
 	{
 	    _communicator.getLogger().trace("DB", "starting transaction for environment \"" + _name + "\"");
 	}

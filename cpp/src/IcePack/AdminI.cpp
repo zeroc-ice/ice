@@ -25,7 +25,7 @@ IcePack::AdminI::add(const ServerDescription& desc, const Ice::Current&)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (desc.object)
+    if(desc.object)
     {
 	_serverDescriptions[desc.object->ice_getIdentity()] = desc;
     }
@@ -44,7 +44,7 @@ IcePack::AdminI::find(const Identity& ident, const Ice::Current&)
     IceUtil::Mutex::Lock sync(*this);
 
     ServerDescriptions::iterator p = _serverDescriptions.find(ident);
-    if (p != _serverDescriptions.end())
+    if(p != _serverDescriptions.end())
     {
 	return p->second;
     }

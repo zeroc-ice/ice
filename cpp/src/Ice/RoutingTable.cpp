@@ -26,7 +26,7 @@ IceInternal::RoutingTable::RoutingTable() :
 bool
 IceInternal::RoutingTable::add(const ObjectPrx& prx)
 {
-    if (!prx)
+    if(!prx)
     {
 	return false;
     }
@@ -37,20 +37,20 @@ IceInternal::RoutingTable::add(const ObjectPrx& prx)
 
     map<Identity, ObjectPrx>::iterator p = _table.end();
     
-    if (_tableHint != _table.end())
+    if(_tableHint != _table.end())
     {
-	if (_tableHint->first == proxy->ice_getIdentity())
+	if(_tableHint->first == proxy->ice_getIdentity())
 	{
 	    p = _tableHint;
 	}
     }
     
-    if (p == _table.end())
+    if(p == _table.end())
     {
 	p = _table.find(proxy->ice_getIdentity());
     }
 
-    if (p == _table.end())
+    if(p == _table.end())
     {
 	_tableHint = _table.insert(_tableHint, make_pair(proxy->ice_getIdentity(), proxy));
 	return true;
@@ -64,7 +64,7 @@ IceInternal::RoutingTable::add(const ObjectPrx& prx)
 ObjectPrx
 IceInternal::RoutingTable::get(const Identity& ident)
 {
-    if (ident.name.empty())
+    if(ident.name.empty())
     {
 	return 0;
     }
@@ -73,20 +73,20 @@ IceInternal::RoutingTable::get(const Identity& ident)
 
     map<Identity, ObjectPrx>::iterator p = _table.end();
     
-    if (_tableHint != _table.end())
+    if(_tableHint != _table.end())
     {
-	if (_tableHint->first == ident)
+	if(_tableHint->first == ident)
 	{
 	    p = _tableHint;
 	}
     }
     
-    if (p == _table.end())
+    if(p == _table.end())
     {
 	p = _table.find(ident);
     }
 
-    if (p == _table.end())
+    if(p == _table.end())
     {
 	return 0;
     }

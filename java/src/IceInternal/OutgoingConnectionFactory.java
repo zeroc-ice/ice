@@ -15,7 +15,7 @@ public class OutgoingConnectionFactory
     public synchronized Connection
     create(Endpoint[] endpoints)
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new Ice.CommunicatorDestroyedException();
         }
@@ -26,10 +26,10 @@ public class OutgoingConnectionFactory
         // Reap destroyed connections.
         //
         java.util.Iterator p = _connections.values().iterator();
-        while (p.hasNext())
+        while(p.hasNext())
         {
             Connection connection = (Connection)p.next();
-            if (connection.destroyed())
+            if(connection.destroyed())
             {
                 p.remove();
             }
@@ -39,16 +39,16 @@ public class OutgoingConnectionFactory
         // Search for existing connections.
         //
 	DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-        for (int i = 0; i < endpoints.length; i++)
+        for(int i = 0; i < endpoints.length; i++)
         {
 	    Endpoint endpoint = endpoints[i];
-	    if (defaultsAndOverrides.overrideTimeout)
+	    if(defaultsAndOverrides.overrideTimeout)
 	    {
 		endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
 	    }
 
             Connection connection = (Connection)_connections.get(endpoint);
-            if (connection != null)
+            if(connection != null)
             {
                 return connection;
             }
@@ -62,10 +62,10 @@ public class OutgoingConnectionFactory
 
         Connection connection = null;
         Ice.LocalException exception = null;
-        for (int i = 0; i < endpoints.length; i++)
+        for(int i = 0; i < endpoints.length; i++)
         {
   	    Endpoint endpoint = endpoints[i];
-	    if (defaultsAndOverrides.overrideTimeout)
+	    if(defaultsAndOverrides.overrideTimeout)
 	    {
 		endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
 	    }
@@ -73,7 +73,7 @@ public class OutgoingConnectionFactory
 	    try
             {
                 Transceiver transceiver = endpoint.clientTransceiver();
-                if (transceiver == null)
+                if(transceiver == null)
                 {
                     Connector connector = endpoint.connector();
                     assert(connector != null);
@@ -98,11 +98,11 @@ public class OutgoingConnectionFactory
                 exception = ex;
             }
 
-            if (traceLevels.retry >= 2)
+            if(traceLevels.retry >= 2)
             {
                 StringBuffer s = new StringBuffer();
                 s.append("connection to endpoint failed");
-                if (i < endpoints.length - 1)
+                if(i < endpoints.length - 1)
                 {
                     s.append(", trying next endpoint\n");
                 }
@@ -115,7 +115,7 @@ public class OutgoingConnectionFactory
             }
         }
 
-        if (connection == null)
+        if(connection == null)
         {
             assert(exception != null);
             throw exception;
@@ -127,13 +127,13 @@ public class OutgoingConnectionFactory
     public synchronized void
     setRouter(Ice.RouterPrx router)
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new Ice.CommunicatorDestroyedException();
         }
 
         RouterInfo routerInfo = _instance.routerManager().get(router);
-        if (routerInfo != null)
+        if(routerInfo != null)
         {
             //
             // Search for connections to the router's client proxy
@@ -145,16 +145,16 @@ public class OutgoingConnectionFactory
             Ice.ObjectAdapter adapter = routerInfo.getAdapter();
 	    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
             Endpoint[] endpoints = ((Ice.ObjectPrxHelper)proxy).__reference().endpoints;
-            for (int i = 0; i < endpoints.length; i++)
+            for(int i = 0; i < endpoints.length; i++)
             {
 		Endpoint endpoint = endpoints[i];
-		if (defaultsAndOverrides.overrideTimeout)
+		if(defaultsAndOverrides.overrideTimeout)
 		{
 		    endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
 		}
 
                 Connection connection = (Connection)_connections.get(endpoint);
-                if (connection != null)
+                if(connection != null)
                 {
                     connection.setAdapter(adapter);
                 }
@@ -165,16 +165,16 @@ public class OutgoingConnectionFactory
     public synchronized void
     removeAdapter(Ice.ObjectAdapter adapter)
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             throw new Ice.CommunicatorDestroyedException();
         }
 
         java.util.Iterator p = _connections.values().iterator();
-        while (p.hasNext())
+        while(p.hasNext())
         {
             Connection connection = (Connection)p.next();
-            if (connection.getAdapter() == adapter)
+            if(connection.getAdapter() == adapter)
             {
                 connection.setAdapter(null);
             }
@@ -201,13 +201,13 @@ public class OutgoingConnectionFactory
     public synchronized void
     destroy()
     {
-        if (_instance == null)
+        if(_instance == null)
         {
             return;
         }
 
         java.util.Iterator p = _connections.values().iterator();
-        while (p.hasNext())
+        while(p.hasNext())
         {
             Connection connection = (Connection)p.next();
             connection.destroy(Connection.CommunicatorDestroyed);

@@ -26,7 +26,7 @@ IcePack::Activator::Activator(const CommunicatorPtr& communicator) :
     _destroy(false)
 {
     int fds[2];
-    if (pipe(fds) != 0)
+    if(pipe(fds) != 0)
     {
 	SystemException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
@@ -44,7 +44,7 @@ IcePack::Activator::~Activator()
     assert(_destroy);
     close(_fdIntrRead);
     close(_fdIntrWrite);
-    for (map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
+    for(map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
     {
 	close(p->second.fd);
     }
@@ -74,7 +74,7 @@ IcePack::Activator::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_destroy) // Don't destroy twice.
+    if(_destroy) // Don't destroy twice.
     {
 	return;
     }
@@ -88,13 +88,13 @@ IcePack::Activator::activate(const ServerDescription& desc)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_destroy)
+    if(_destroy)
     {
 	return false;
     }
 
     string path = desc.path;
-    if (path.empty())
+    if(path.empty())
     {
 	return false;
     }
@@ -103,11 +103,11 @@ IcePack::Activator::activate(const ServerDescription& desc)
     // Normalize the pathname a bit.
     //
     string::size_type pos;
-    while ((pos = path.find("//")) != string::npos)
+    while((pos = path.find("//")) != string::npos)
     {
 	path.erase(pos, 1);
     }
-    while ((pos = path.find("/./")) != string::npos)
+    while((pos = path.find("/./")) != string::npos)
     {
 	path.erase(pos, 2);
     }
@@ -115,7 +115,7 @@ IcePack::Activator::activate(const ServerDescription& desc)
     //
     // Do nothing if the process exists.
     //
-    if (_processes.count(path))
+    if(_processes.count(path))
     {
 	return false;
     }
@@ -124,20 +124,20 @@ IcePack::Activator::activate(const ServerDescription& desc)
     // Process does not exist, activate and create.
     //
     int fds[2];
-    if (pipe(fds) != 0)
+    if(pipe(fds) != 0)
     {
 	SystemException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
 	throw ex;
     }
     pid_t pid = fork();
-    if (pid == -1)
+    if(pid == -1)
     {
 	SystemException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
 	throw ex;
     }
-    if (pid == 0) // Child process.
+    if(pid == 0) // Child process.
     {
 	//
 	// Close all filedescriptors, except for standard input,
@@ -145,9 +145,9 @@ IcePack::Activator::activate(const ServerDescription& desc)
 	// of the newly created pipe.
 	//
 	int maxFd = static_cast<int>(sysconf(_SC_OPEN_MAX));
-	for (int fd = 3; fd < maxFd; ++fd)
+	for(int fd = 3; fd < maxFd; ++fd)
 	{
-	    if (fd != fds[1])
+	    if(fd != fds[1])
 	    {
 		close(fd);
 	    }
@@ -156,13 +156,13 @@ IcePack::Activator::activate(const ServerDescription& desc)
 	int argc = desc.args.size() + 2;
 	char** argv = static_cast<char**>(malloc(argc * sizeof(char*)));
 	argv[0] = strdup(path.c_str());
-	for (unsigned int i = 0; i < desc.args.size(); ++i)
+	for(unsigned int i = 0; i < desc.args.size(); ++i)
 	{
 	    argv[i + 1] = strdup(desc.args[i].c_str());
 	}
 	argv[argc - 1] = 0;
 
-	if (execvp(argv[0], argv) == -1)
+	if(execvp(argv[0], argv) == -1)
 	{
 	    //
 	    // Send any errors to the parent process, using the write
@@ -199,7 +199,7 @@ IcePack::Activator::activate(const ServerDescription& desc)
 void
 IcePack::Activator::terminationListener()
 {
-    while (true)
+    while(true)
     {
 	fd_set fdSet;
 	int maxFd = _fdIntrRead;
@@ -209,16 +209,16 @@ IcePack::Activator::terminationListener()
 	{
 	    IceUtil::Mutex::Lock sync(*this);
 
-	    if (_destroy)
+	    if(_destroy)
 	    {
 		return;
 	    }
 	    
-	    for (map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
+	    for(map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
 	    {
 		int fd = p->second.fd;
 		FD_SET(fd, &fdSet);
-		if (maxFd < fd)
+		if(maxFd < fd)
 		{
 		    maxFd = fd;
 		}
@@ -229,9 +229,9 @@ IcePack::Activator::terminationListener()
 	int ret = ::select(maxFd + 1, &fdSet, 0, 0, 0);
 	assert(ret != 0);
 	
-	if (ret == -1)
+	if(ret == -1)
 	{
-	    if (errno == EINTR || errno == EPROTO)
+	    if(errno == EINTR || errno == EPROTO)
 	    {
 		goto repeatSelect;
 	    }
@@ -244,25 +244,25 @@ IcePack::Activator::terminationListener()
 	{
 	    IceUtil::Mutex::Lock sync(*this);
 	    
-	    if (FD_ISSET(_fdIntrRead, &fdSet))
+	    if(FD_ISSET(_fdIntrRead, &fdSet))
 	    {
 		clearInterrupt();
 	    }
 	    
-	    if (_destroy)
+	    if(_destroy)
 	    {
 		return;
 	    }
 
 	    map<string, Process>::iterator p = _processes.begin();
-	    while (p != _processes.end())
+	    while(p != _processes.end())
 	    {
 		int fd = p->second.fd;
-		if (FD_ISSET(fd, &fdSet))
+		if(FD_ISSET(fd, &fdSet))
 		{
 		    char s[16];
 		    int ret = read(fd, &s, 16);
-		    if (ret == -1)
+		    if(ret == -1)
 		    {
 			SystemException ex(__FILE__, __LINE__);
 			ex.error = getSystemErrno();
@@ -292,7 +292,7 @@ IcePack::Activator::terminationListener()
 			    err.append(s, ret);
 			    ret = read(fd, &s, 16);
 			}
-			while (ret != 0);
+			while(ret != 0);
 
 			Error out(_communicator->getLogger());
 			out << err;
@@ -311,7 +311,7 @@ void
 IcePack::Activator::clearInterrupt()
 {
     char s[32]; // Clear up to 32 interrupts at once.
-    while (read(_fdIntrRead, s, 32) == 32)
+    while(read(_fdIntrRead, s, 32) == 32)
     {
     }
 }

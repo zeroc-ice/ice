@@ -32,7 +32,7 @@ class LinkedList
     public Object
     getFirst()
     {
-	if (_size == 0)
+	if(_size == 0)
 	{
 	    throw new java.util.NoSuchElementException();
 	}
@@ -81,14 +81,14 @@ class LinkedList
 	public Object
 	next()
 	{
-            if (_next == null)
+            if(_next == null)
 	    {
                 throw new java.util.NoSuchElementException();
 	    }
 
 	    _current = _next;
 
-	    if (_next.next != _header)
+	    if(_next.next != _header)
 	    {
 		_next = _next.next;
 	    }
@@ -102,7 +102,7 @@ class LinkedList
 	public void
 	remove()
 	{
-	    if (_current == null)
+	    if(_current == null)
 	    {
                 throw new IllegalStateException();
 	    }
@@ -112,7 +112,7 @@ class LinkedList
 
 	ForwardIterator()
 	{
-	    if (_header.next == _header)
+	    if(_header.next == _header)
 	    {
 		_next = null;
 	    }
@@ -138,14 +138,14 @@ class LinkedList
 	public Object
 	next()
 	{
-            if (_next == null)
+            if(_next == null)
 	    {
                 throw new java.util.NoSuchElementException();
 	    }
 
 	    _current = _next;
 
-	    if (_next.previous != _header)
+	    if(_next.previous != _header)
 	    {
 		_next = _next.previous;
 	    }
@@ -159,7 +159,7 @@ class LinkedList
 	public void
 	remove()
 	{
-	    if (_current == null)
+	    if(_current == null)
 	    {
                 throw new IllegalStateException();
 	    }
@@ -169,7 +169,7 @@ class LinkedList
 
 	ReverseIterator()
 	{
-	    if (_header.next == _header)
+	    if(_header.next == _header)
 	    {
 		_next = null;
 	    }
@@ -211,7 +211,7 @@ class LinkedList
     private void
     remove(Entry e)
     {
-	if (e == _header)
+	if(e == _header)
 	{
 	    throw new java.util.NoSuchElementException();
 	}

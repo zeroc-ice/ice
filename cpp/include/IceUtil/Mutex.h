@@ -143,7 +143,7 @@ Mutex::lock() const
 inline bool
 Mutex::trylock() const
 {
-    if (!TryEnterCriticalSection(&_mutex))
+    if(!TryEnterCriticalSection(&_mutex))
     {
 	throw LockedException(__FILE__, __LINE__);
     }
@@ -181,7 +181,7 @@ inline
 Mutex::Mutex()
 {
     int rc = pthread_mutex_init(&_mutex, 0);
-    if (rc != 0)
+    if(rc != 0)
     {
 	throw SyscallException(strerror(rc), __FILE__, __LINE__);
     }
@@ -199,7 +199,7 @@ inline bool
 Mutex::lock() const
 {
     int rc = pthread_mutex_lock(&_mutex);
-    if (rc != 0)
+    if(rc != 0)
     {
 	throw SyscallException(strerror(rc), __FILE__, __LINE__);
     }
@@ -210,9 +210,9 @@ inline bool
 Mutex::trylock() const
 {
     int rc = pthread_mutex_trylock(&_mutex);
-    if (rc != 0)
+    if(rc != 0)
     {
-	if (rc == EBUSY)
+	if(rc == EBUSY)
 	{
 	    throw LockedException(__FILE__, __LINE__);
 	}
@@ -225,7 +225,7 @@ inline bool
 Mutex::unlock() const
 {
     int rc = pthread_mutex_unlock(&_mutex);
-    if (rc != 0)
+    if(rc != 0)
     {
 	throw SyscallException(strerror(rc), __FILE__, __LINE__);
     }

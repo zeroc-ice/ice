@@ -41,7 +41,7 @@ inline Stream& operator << (Stream& target, TempCertificates& tmpCerts)
     RSAVector::iterator iRSA = tmpCerts.getRSACerts().begin();
     RSAVector::iterator eRSA = tmpCerts.getRSACerts().end();
 
-    while (iRSA != eRSA)
+    while(iRSA != eRSA)
     {
         target << "RSA" << std::endl << "{" << std::endl;
         target << *iRSA;
@@ -52,7 +52,7 @@ inline Stream& operator << (Stream& target, TempCertificates& tmpCerts)
     DHVector::iterator iDHP = tmpCerts.getDHParams().begin();
     DHVector::iterator eDHP = tmpCerts.getDHParams().end();
 
-    while (iDHP != eDHP)
+    while(iDHP != eDHP)
     {
         target << "DH" << std::endl << "{" << std::endl;
         target << *iDHP;

@@ -115,9 +115,9 @@ public:
 	// the list of subscribers - it marks the Subscriber as
 	// replaced, and it's removed on the next event publish.
 	//
-	for (SubscriberList::iterator i = _subscribers.begin() ; i != _subscribers.end(); ++i)
+	for(SubscriberList::iterator i = _subscribers.begin() ; i != _subscribers.end(); ++i)
 	{
-	    if ((*i)->id() == id)
+	    if((*i)->id() == id)
 	    {
 		//
 		// This marks the subscriber as invalid. It will be
@@ -148,9 +148,9 @@ public:
 
 	IceUtil::Mutex::Lock sync(_subscribersMutex);
 
-	for (SubscriberList::iterator i = _subscribers.begin() ; i != _subscribers.end(); ++i)
+	for(SubscriberList::iterator i = _subscribers.begin() ; i != _subscribers.end(); ++i)
 	{
-	    if ((*i)->id() == id)
+	    if((*i)->id() == id)
 	    {
 		//
 		// This marks the subscriber as invalid. It will be
@@ -164,7 +164,7 @@ public:
 	//
 	// If the subscriber was not found then display a diagnostic
 	//
-	if (_traceLevels->topic > 0)
+	if(_traceLevels->topic > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
 	    out << id << ": not subscribed.";
@@ -206,11 +206,11 @@ public:
 	    // list. Copy the subscribers in error to the error list.
 	    //
 	    SubscriberList::iterator p = _subscribers.begin();
-	    while (p != _subscribers.end())
+	    while(p != _subscribers.end())
 	    {
-		if ((*p)->inactive())
+		if((*p)->inactive())
 		{
-		    if ((*p)->error())
+		    if((*p)->error())
 		    {
 			e.push_back(*p);
 		    }
@@ -226,14 +226,14 @@ public:
 		}
 	    }
 
-	    if (!e.empty())
+	    if(!e.empty())
 	    {
 		IceUtil::Mutex::Lock errorSync(_errorMutex);
 		_error.splice(_error.begin(), e);
 	    }
 	}
 
-	for (SubscriberList::iterator p = copy.begin(); p != copy.end(); ++p)
+	for(SubscriberList::iterator p = copy.begin(); p != copy.end(); ++p)
 	{
 	    (*p)->publish(event);
 	}
@@ -285,7 +285,7 @@ PublisherProxyI::ice_invoke(const vector< Ice::Byte>& inParams, vector< Ice::Byt
     Event event;
     event.forwarded = false;
     Ice::Context::const_iterator p = context.find("cost");
-    if (p != context.end())
+    if(p != context.end())
     {
 	event.cost = atoi(p->second.c_str());
     }
@@ -358,9 +358,9 @@ TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& trace
     //
     // Run through link database re-establishing linked subscribers.
     //
-    for (IdentityLinkDict::const_iterator p = _links.begin(); p != _links.end(); ++p)
+    for(IdentityLinkDict::const_iterator p = _links.begin(); p != _links.end(); ++p)
     {
-	if (_traceLevels->topic > 0)
+	if(_traceLevels->topic > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
 	    out << _name << " relink " << p->first;
@@ -398,7 +398,7 @@ TopicI::destroy(const Ice::Current&)
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if (_destroyed)
+    if(_destroyed)
     {
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
@@ -412,7 +412,7 @@ TopicI::destroy(const Ice::Current&)
     id.category = _name;
     id.name = "publish";
 
-    if (_traceLevels->topic > 0)
+    if(_traceLevels->topic > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
 	out << "destroying " << id;
@@ -429,7 +429,7 @@ TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if (_destroyed)
+    if(_destroyed)
     {
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
@@ -437,7 +437,7 @@ TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
     reap();
 
     string name = topic->getName();
-    if (_traceLevels->topic > 0)
+    if(_traceLevels->topic > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
 	out << _name << " link " << name << " cost " << cost;
@@ -472,7 +472,7 @@ TopicI::unlink(const TopicPrx& topic, const Ice::Current&)
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if (_destroyed)
+    if(_destroyed)
     {
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
@@ -482,9 +482,9 @@ TopicI::unlink(const TopicPrx& topic, const Ice::Current&)
     TopicInternalPrx internal = TopicInternalPrx::checkedCast(topic);
     Ice::ObjectPrx link = internal->getLinkProxy();
 
-    if (_links.erase(link->ice_getIdentity()) > 0)
+    if(_links.erase(link->ice_getIdentity()) > 0)
     {
-	if (_traceLevels->topic > 0)
+	if(_traceLevels->topic > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
 	    out << _name << " unlink " << topic->getName();
@@ -493,7 +493,7 @@ TopicI::unlink(const TopicPrx& topic, const Ice::Current&)
     }
     else
     {
-	if (_traceLevels->topic > 0)
+	if(_traceLevels->topic > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
 	    out << _name << " unlink " << topic->getName() << " failed - not linked";
@@ -506,7 +506,7 @@ TopicI::getLinkInfoSeq(const Ice::Current&)
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if (_destroyed)
+    if(_destroyed)
     {
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
@@ -515,7 +515,7 @@ TopicI::getLinkInfoSeq(const Ice::Current&)
 
     LinkInfoSeq seq;
 
-    for (IdentityLinkDict::const_iterator p = _links.begin(); p != _links.end(); ++p)
+    for(IdentityLinkDict::const_iterator p = _links.begin(); p != _links.end(); ++p)
     {
 	LinkInfo info = p->second.info;
 	seq.push_back(info);
@@ -543,7 +543,7 @@ TopicI::subscribe(const Ice::ObjectPrx& obj, const QoS& qos)
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if (_destroyed)
+    if(_destroyed)
     {
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
@@ -562,7 +562,7 @@ TopicI::unsubscribe(const Ice::ObjectPrx& obj)
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if (_destroyed)
+    if(_destroyed)
     {
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
@@ -580,7 +580,7 @@ TopicI::reap()
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if (_destroyed)
+    if(_destroyed)
     {
 	return;
     }
@@ -590,15 +590,15 @@ TopicI::reap()
     // database.
     //
     SubscriberList error = _subscribers->clearErrorList();
-    for (SubscriberList::iterator p = error.begin(); p != error.end(); ++p)
+    for(SubscriberList::iterator p = error.begin(); p != error.end(); ++p)
     {
 	SubscriberPtr subscriber = *p;
 	assert(subscriber->error());
-	if (subscriber->persistent())
+	if(subscriber->persistent())
 	{
-	    if (_links.erase(subscriber->id()) > 0)
+	    if(_links.erase(subscriber->id()) > 0)
 	    {
-		if (_traceLevels->topic > 0)
+		if(_traceLevels->topic > 0)
 		{
 		    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
 		    out << "reaping " << subscriber->id();
@@ -606,7 +606,7 @@ TopicI::reap()
 	    }
 	    else
 	    {
-		if (_traceLevels->topic > 0)
+		if(_traceLevels->topic > 0)
 		{
 		    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
 		    out << "reaping " << subscriber->id() << " failed - not in database";

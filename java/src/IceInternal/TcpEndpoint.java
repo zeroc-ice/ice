@@ -35,31 +35,31 @@ final class TcpEndpoint implements Endpoint
         String[] arr = str.split("[ \t\n\r]+");
 
         int i = 0;
-        while (i < arr.length)
+        while(i < arr.length)
         {
-            if (arr[i].length() == 0)
+            if(arr[i].length() == 0)
             {
                 i++;
                 continue;
             }
 
             String option = arr[i++];
-            if (option.length() != 2 || option.charAt(0) != '-')
+            if(option.length() != 2 || option.charAt(0) != '-')
             {
                 throw new Ice.EndpointParseException();
             }
 
             String argument = null;
-            if (i < arr.length && arr[i].charAt(0) != '-')
+            if(i < arr.length && arr[i].charAt(0) != '-')
             {
                 argument = arr[i++];
             }
 
-            switch (option.charAt(1))
+            switch(option.charAt(1))
             {
                 case 'h':
                 {
-                    if (argument == null)
+                    if(argument == null)
                     {
                         throw new Ice.EndpointParseException();
                     }
@@ -70,7 +70,7 @@ final class TcpEndpoint implements Endpoint
 
                 case 'p':
                 {
-                    if (argument == null)
+                    if(argument == null)
                     {
                         throw new Ice.EndpointParseException();
                     }
@@ -89,7 +89,7 @@ final class TcpEndpoint implements Endpoint
 
                 case 't':
                 {
-                    if (argument == null)
+                    if(argument == null)
                     {
                         throw new Ice.EndpointParseException();
                     }
@@ -113,7 +113,7 @@ final class TcpEndpoint implements Endpoint
             }
         }
 
-        if (_host == null)
+        if(_host == null)
         {
             _host = _instance.defaultsAndOverrides().defaultHost;
         }
@@ -154,7 +154,7 @@ final class TcpEndpoint implements Endpoint
     toString()
     {
         String s = "tcp -h " + _host + " -p " + _port;
-        if (_timeout != -1)
+        if(_timeout != -1)
         {
             s += " -t " + _timeout;
         }
@@ -188,7 +188,7 @@ final class TcpEndpoint implements Endpoint
     public Endpoint
     timeout(int timeout)
     {
-        if (timeout == _timeout)
+        if(timeout == _timeout)
         {
             return this;
         }
@@ -328,30 +328,30 @@ final class TcpEndpoint implements Endpoint
             return 1;
         }
 
-        if (this == p)
+        if(this == p)
         {
             return 0;
         }
 
-        if (_port < p._port)
+        if(_port < p._port)
         {
             return -1;
         }
-        else if (p._port < _port)
+        else if(p._port < _port)
         {
             return 1;
         }
 
-        if (_timeout < p._timeout)
+        if(_timeout < p._timeout)
         {
             return -1;
         }
-        else if (p._timeout < _timeout)
+        else if(p._timeout < _timeout)
         {
             return 1;
         }
 
-        if (!_host.equals(p._host))
+        if(!_host.equals(p._host))
         {
             //
             // We do the most time-consuming part of the comparison last.
@@ -363,13 +363,13 @@ final class TcpEndpoint implements Endpoint
             byte[] larr = laddr.getAddress().getAddress();
             byte[] rarr = raddr.getAddress().getAddress();
             assert(larr.length == rarr.length);
-            for (int i = 0; i < larr.length; i++)
+            for(int i = 0; i < larr.length; i++)
             {
-                if (larr[i] < rarr[i])
+                if(larr[i] < rarr[i])
                 {
                     return -1;
                 }
-                else if (rarr[i] < larr[i])
+                else if(rarr[i] < larr[i])
                 {
                     return 1;
                 }

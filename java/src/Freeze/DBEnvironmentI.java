@@ -29,7 +29,7 @@ class DBEnvironmentI implements DBEnvironment
     synchronized public DB
     openDB(String name, boolean create)
     {
-	if (_dbEnv == null)
+	if(_dbEnv == null)
 	{
 	    DBException ex = new DBException();
 	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
@@ -37,7 +37,7 @@ class DBEnvironmentI implements DBEnvironment
 	}
 
 	DB p = (DB)_dbMap.get(name);
-	if (p != null)
+	if(p != null)
 	{
 	    return p;
 	}
@@ -67,7 +67,7 @@ class DBEnvironmentI implements DBEnvironment
 	    // errors.
 	    //
 	    p = (DB)_dbMap.get(name);
-	    if (p != null)
+	    if(p != null)
 	    {
 		_dbMap.remove(name);
 	    }
@@ -91,7 +91,7 @@ class DBEnvironmentI implements DBEnvironment
     synchronized public void
     close()
     {
-	if (_dbEnv == null)
+	if(_dbEnv == null)
 	{
 	    return;
 	}
@@ -104,19 +104,19 @@ class DBEnvironmentI implements DBEnvironment
 	//
 	java.util.List dbs = new java.util.ArrayList();
         java.util.Iterator p = _dbMap.values().iterator();
-        while (p.hasNext())
+        while(p.hasNext())
         {
 	    dbs.add(p.next());
         }
 
 	p = dbs.iterator();
-	while (p.hasNext())
+	while(p.hasNext())
 	{
             DB db = (DB)p.next();
 	    db.close();
 	}
 	
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("DB", "closing database environment \"" + _name + "\"");
 	}
@@ -203,7 +203,7 @@ class DBEnvironmentI implements DBEnvironment
 	_trace = getCommunicator().getProperties().getPropertyAsInt("Freeze.Trace.DB");
 	_dbEnv = new com.sleepycat.db.DbEnv(0);
 	
-	if (_trace >= 1)
+	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("DB", "opening database environment \"" + _name + "\"");
 	}

@@ -37,7 +37,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 {
     Mutex::Lock sync(*this);
 
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -56,20 +56,20 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     set<ReferencePtr>::iterator p = _references.end();
     
-    if (_referencesHint != _references.end())
+    if(_referencesHint != _references.end())
     {
-	if (*_referencesHint == ref)
+	if(*_referencesHint == ref)
 	{
 	    p = _referencesHint;
 	}
     }
     
-    if (p == _references.end())
+    if(p == _references.end())
     {
 	p = _references.find(ref);
     }
     
-    if (p == _references.end())
+    if(p == _references.end())
     {
 	_referencesHint = _references.insert(_referencesHint, ref);
     }
@@ -82,13 +82,13 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // At every 10th call, evict references which are not in use anymore.
     //
-    if (++_evict >= 10)
+    if(++_evict >= 10)
     {
 	_evict = 0;
 	p = _references.begin();
-	while (p != _references.end())
+	while(p != _references.end())
 	{
-	    if ((*p)->__getRef() == 1)
+	    if((*p)->__getRef() == 1)
 	    {
 		assert(p != _referencesHint);
 		_references.erase(p++);
@@ -113,18 +113,18 @@ IceInternal::ReferenceFactory::create(const string& str)
     string::size_type end = 0;
 
     beg = s.find_first_not_of(delim, end);
-    if (beg == string::npos)
+    if(beg == string::npos)
     {
 	throw ProxyParseException(__FILE__, __LINE__);
     }
     
     end = s.find_first_of(delim + ":", beg);
-    if (end == string::npos)
+    if(end == string::npos)
     {
 	end = s.length();
     }
     
-    if (beg == end)
+    if(beg == end)
     {
 	throw ProxyParseException(__FILE__, __LINE__);
     }
@@ -135,43 +135,43 @@ IceInternal::ReferenceFactory::create(const string& str)
     bool secure = false;
     bool compress = false;
 
-    while (true)
+    while(true)
     {
 	beg = s.find_first_not_of(delim, end);
-	if (beg == string::npos)
+	if(beg == string::npos)
 	{
 	    break;
 	}
 
-        if (s[beg] == ':')
+        if(s[beg] == ':')
         {
             break;
         }
         
 	end = s.find_first_of(delim + ":", beg);
-	if (end == string::npos)
+	if(end == string::npos)
 	{
 	    end = s.length();
 	}
 
-	if (beg == end)
+	if(beg == end)
 	{
 	    break;
 	}
 	
 	string option = s.substr(beg, end - beg);
-	if (option.length() != 2 || option[0] != '-')
+	if(option.length() != 2 || option[0] != '-')
 	{
 	    throw ProxyParseException(__FILE__, __LINE__);
 	}
 	
 	string argument;
 	string::size_type argumentBeg = str.find_first_not_of(delim, end);
-	if (argumentBeg != string::npos && str[argumentBeg] != '-')
+	if(argumentBeg != string::npos && str[argumentBeg] != '-')
 	{
 	    beg = argumentBeg;
 	    end = str.find_first_of(delim + ":", beg);
-	    if (end == string::npos)
+	    if(end == string::npos)
 	    {
 		end = str.length();
 	    }
@@ -182,11 +182,11 @@ IceInternal::ReferenceFactory::create(const string& str)
 	// If any new options are added here,
 	// IceInternal::Reference::toString() must be updated as well.
 	//
-	switch (option[1])
+	switch(option[1])
 	{
 	    case 'f':
 	    {
-		if (argument.empty())
+		if(argument.empty())
 		{
 		    throw ProxyParseException(__FILE__, __LINE__);
 		}
@@ -196,7 +196,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 
 	    case 't':
 	    {
-		if (!argument.empty())
+		if(!argument.empty())
 		{
 		    throw ProxyParseException(__FILE__, __LINE__);
 		}
@@ -206,7 +206,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 
 	    case 'o':
 	    {
-		if (!argument.empty())
+		if(!argument.empty())
 		{
 		    throw ProxyParseException(__FILE__, __LINE__);
 		}
@@ -216,7 +216,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 
 	    case 'O':
 	    {
-		if (!argument.empty())
+		if(!argument.empty())
 		{
 		    throw ProxyParseException(__FILE__, __LINE__);
 		}
@@ -226,7 +226,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 
 	    case 'd':
 	    {
-		if (!argument.empty())
+		if(!argument.empty())
 		{
 		    throw ProxyParseException(__FILE__, __LINE__);
 		}
@@ -236,7 +236,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 
 	    case 'D':
 	    {
-		if (!argument.empty())
+		if(!argument.empty())
 		{
 		    throw ProxyParseException(__FILE__, __LINE__);
 		}
@@ -246,7 +246,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 
 	    case 's':
 	    {
-		if (!argument.empty())
+		if(!argument.empty())
 		{
 		    throw ProxyParseException(__FILE__, __LINE__);
 		}
@@ -256,7 +256,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 
 	    case 'c':
 	    {
-		if (!argument.empty())
+		if(!argument.empty())
 		{
 		    throw ProxyParseException(__FILE__, __LINE__);
 		}
@@ -275,19 +275,19 @@ IceInternal::ReferenceFactory::create(const string& str)
     vector<EndpointPtr> endpoints;
 
     bool orig = true;
-    while (end < s.length() && s[end] == ':')
+    while(end < s.length() && s[end] == ':')
     {
 	beg = end + 1;
 	
 	end = s.find(':', beg);
-	if (end == string::npos)
+	if(end == string::npos)
 	{
 	    end = s.length();
 	}
 
-	if (beg == end) // "::"
+	if(beg == end) // "::"
 	{
-	    if (!orig)
+	    if(!orig)
 	    {
 		throw ProxyParseException(__FILE__, __LINE__);
 	    }
@@ -299,7 +299,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 	string es = s.substr(beg, end - beg);
 	EndpointPtr endp = _instance->endpointFactoryManager()->create(es);
 
-	if (orig)
+	if(orig)
 	{
 	    origEndpoints.push_back(endp);
 	}
@@ -309,12 +309,12 @@ IceInternal::ReferenceFactory::create(const string& str)
 	}
     }
 
-    if (orig)
+    if(orig)
     {
 	endpoints = origEndpoints;
     }
 
-    if (!origEndpoints.size() || !endpoints.size())
+    if(!origEndpoints.size() || !endpoints.size())
     {
 	throw ProxyParseException(__FILE__, __LINE__);
     }
@@ -337,7 +337,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     Byte modeAsByte;
     s->read(modeAsByte);
     Reference::Mode mode = static_cast<Reference::Mode>(modeAsByte);
-    if (mode < 0 || mode > Reference::ModeLast)
+    if(mode < 0 || mode > Reference::ModeLast)
     {
 	throw ProxyUnmarshalException(__FILE__, __LINE__);
     }
@@ -354,7 +354,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     Ice::Int sz;
     s->readSize(sz);
     origEndpoints.reserve(sz);
-    while (sz--)
+    while(sz--)
     {
 	EndpointPtr endpoint = _instance->endpointFactoryManager()->read(s);
 	origEndpoints.push_back(endpoint);
@@ -362,7 +362,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 
     bool same;
     s->read(same);
-    if (same) // origEndpoints == endpoints
+    if(same) // origEndpoints == endpoints
     {
 	endpoints = origEndpoints;
     }
@@ -370,7 +370,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     {
 	s->readSize(sz);
 	endpoints.reserve(sz);
-	while (sz--)
+	while(sz--)
 	{
             EndpointPtr endpoint = _instance->endpointFactoryManager()->read(s);
 	    endpoints.push_back(endpoint);
@@ -407,7 +407,7 @@ IceInternal::ReferenceFactory::destroy()
 {
     Mutex::Lock sync(*this);
 
-    if (!_instance)
+    if(!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }

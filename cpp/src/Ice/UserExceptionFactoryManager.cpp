@@ -33,24 +33,24 @@ IceInternal::UserExceptionFactoryManager::remove(const string& id)
 
     map<string, ::Ice::UserExceptionFactoryPtr>::iterator p = _factoryMap.end();
     
-    if (_factoryMapHint != _factoryMap.end())
+    if(_factoryMapHint != _factoryMap.end())
     {
-	if (_factoryMapHint->first == id)
+	if(_factoryMapHint->first == id)
 	{
 	    p = _factoryMapHint;
 	}
     }
     
-    if (p == _factoryMap.end())
+    if(p == _factoryMap.end())
     {
 	p = _factoryMap.find(id);
     }
     
-    if (p != _factoryMap.end())
+    if(p != _factoryMap.end())
     {
 	p->second->destroy();
 
-	if (p == _factoryMapHint)
+	if(p == _factoryMapHint)
 	{
 	    _factoryMap.erase(p++);
 	    _factoryMapHint = p;
@@ -69,20 +69,20 @@ IceInternal::UserExceptionFactoryManager::find(const string& id)
     
     map<string, ::Ice::UserExceptionFactoryPtr>::iterator p = _factoryMap.end();
     
-    if (_factoryMapHint != _factoryMap.end())
+    if(_factoryMapHint != _factoryMap.end())
     {
-	if (_factoryMapHint->first == id)
+	if(_factoryMapHint->first == id)
 	{
 	    p = _factoryMapHint;
 	}
     }
     
-    if (p == _factoryMap.end())
+    if(p == _factoryMap.end())
     {
 	p = _factoryMap.find(id);
     }
     
-    if (p != _factoryMap.end())
+    if(p != _factoryMap.end())
     {
 	_factoryMapHint = p;
 	return p->second;

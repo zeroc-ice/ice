@@ -46,7 +46,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     assert (!glacierStarterEndpoints.empty());
     Ice::ObjectPrx starterBase = communicator->stringToProxy("Glacier/starter:" + glacierStarterEndpoints);
     Glacier::StarterPrx starter = Glacier::StarterPrx::checkedCast(starterBase);
-    if (!starter)
+    if(!starter)
     {
 	cerr << argv[0] << ": endpoints `" << glacierStarterEndpoints
 	     << "' do not refer to a glacier router starter" << endl;
@@ -61,7 +61,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     string id;
     string pw;
 
-    while (true)
+    while(true)
     {
 	cout << "user id: " << flush;
 	cin >> id;
@@ -114,7 +114,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     HelloSessionPrx base = HelloSessionPrx::checkedCast(session);
 
     HelloSessionPrx twoway = HelloSessionPrx::checkedCast(base->ice_twoway()->ice_timeout(-1)->ice_secure(false));
-    if (!twoway)
+    if(!twoway)
     {
 	cerr << argv[0] << ": invalid object reference" << endl;
 	return EXIT_FAILURE;
@@ -136,34 +136,34 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	{
 	    cout << "==> ";
 	    cin >> c;
-	    if (c == 't')
+	    if(c == 't')
 	    {
 		twoway->hello();
 	    }
-	    else if (c == 'o')
+	    else if(c == 'o')
 	    {
 		oneway->hello();
 	    }
-	    else if (c == 'O')
+	    else if(c == 'O')
 	    {
 		batchOneway->hello();
 	    }
-	    else if (c == 'd')
+	    else if(c == 'd')
 	    {
 		datagram->hello();
 	    }
-	    else if (c == 'D')
+	    else if(c == 'D')
 	    {
 		batchDatagram->hello();
 	    }
-	    else if (c == 'f')
+	    else if(c == 'f')
 	    {
 		batchOneway->ice_flush();
 		batchDatagram->ice_flush();
 	    }
-	    else if (c == 'T')
+	    else if(c == 'T')
 	    {
-		if (timeout == -1)
+		if(timeout == -1)
 		{
 		    timeout = 2000;
 		}
@@ -176,7 +176,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		oneway = HelloSessionPrx::uncheckedCast(oneway->ice_timeout(timeout));
 		batchOneway = HelloSessionPrx::uncheckedCast(batchOneway->ice_timeout(timeout));
 		
-		if (timeout == -1)
+		if(timeout == -1)
 		{
 		    cout << "timeout is now switched off" << endl;
 		}
@@ -185,7 +185,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		    cout << "timeout is now set to 2000ms" << endl;
 		}
 	    }
-	    else if (c == 'S')
+	    else if(c == 'S')
 	    {
 		secure = !secure;
 		
@@ -195,7 +195,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		datagram = HelloSessionPrx::uncheckedCast(datagram->ice_secure(secure));
 		batchDatagram = HelloSessionPrx::uncheckedCast(batchDatagram->ice_secure(secure));
 		
-		if (secure)
+		if(secure)
 		{
 		    cout << "secure mode is now on" << endl;
 		}
@@ -204,11 +204,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		    cout << "secure mode is now off" << endl;
 		}
 	    }
-	    else if (c == 'x')
+	    else if(c == 'x')
 	    {
 		// Nothing to do
 	    }
-	    else if (c == '?')
+	    else if(c == '?')
 	    {
 		menu();
 	    }
@@ -223,7 +223,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    cerr << ex << endl;
 	}
     }
-    while (cin.good() && c != 'x');
+    while(cin.good() && c != 'x');
 
     //
     // Shutdown the router.
@@ -252,7 +252,7 @@ main(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (communicator)
+    if(communicator)
     {
 	try
 	{

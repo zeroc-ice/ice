@@ -23,7 +23,7 @@ public final class Network
         //
         String msg = ex.getMessage();
 
-        if (msg != null)
+        if(msg != null)
         {
             final String[] msgs =
             {
@@ -34,9 +34,9 @@ public final class Network
                 "An existing connection was forcibly closed" // unknown
             };
 
-            for (int i = 0; i < msgs.length; i++)
+            for(int i = 0; i < msgs.length; i++)
             {
-                if (msg.indexOf(msgs[i]) != -1)
+                if(msg.indexOf(msgs[i]) != -1)
                 {
                     return true;
                 }
@@ -157,10 +157,10 @@ public final class Network
     {
         try
         {
-            if (!fd.connect(addr))
+            if(!fd.connect(addr))
             {
                 int delay;
-                if (timeout > 0 && timeout < 100)
+                if(timeout > 0 && timeout < 100)
                 {
                     delay = timeout;
                 }
@@ -170,9 +170,9 @@ public final class Network
                 }
 
                 int timer = 0;
-                while (!fd.finishConnect())
+                while(!fd.finishConnect())
                 {
-                    if (timeout > 0 && timer >= timeout)
+                    if(timeout > 0 && timer >= timeout)
                     {
                         fd.close();
                         throw new Ice.ConnectTimeoutException();
@@ -259,30 +259,30 @@ public final class Network
     doAccept(java.nio.channels.ServerSocketChannel fd, int timeout)
     {
         java.nio.channels.SocketChannel result = null;
-        while (result == null)
+        while(result == null)
         {
             try
             {
                 result = fd.accept();
-                if (result == null)
+                if(result == null)
                 {
                     java.nio.channels.Selector selector =
                         java.nio.channels.Selector.open();
 
                     try
                     {
-                        while (true)
+                        while(true)
                         {
                             try
                             {
                                 java.nio.channels.SelectionKey key =
                                     fd.register(selector, java.nio.channels.SelectionKey.OP_ACCEPT);
                                 int n;
-                                if (timeout > 0)
+                                if(timeout > 0)
                                 {
                                     n = selector.select(timeout);
                                 }
-                                else if (timeout == 0)
+                                else if(timeout == 0)
                                 {
                                     n = selector.selectNow();
                                 }
@@ -291,7 +291,7 @@ public final class Network
                                     n = selector.select();
                                 }
 
-                                if (n == 0)
+                                if(n == 0)
                                 {
                                     throw new Ice.TimeoutException();
                                 }
@@ -381,7 +381,7 @@ public final class Network
 
         try
         {
-            if (!numeric)
+            if(!numeric)
             {
                 host = java.net.InetAddress.getLocalHost().getHostName();
             }
@@ -465,7 +465,7 @@ public final class Network
     public static String
     fdToString(java.nio.channels.SelectableChannel fd)
     {
-        if (fd == null)
+        if(fd == null)
         {
             return "<closed>";
         }
@@ -473,7 +473,7 @@ public final class Network
         java.net.InetAddress localAddr =  null, remoteAddr = null;
         int localPort = -1, remotePort = -1;
 
-        if (fd instanceof java.nio.channels.SocketChannel)
+        if(fd instanceof java.nio.channels.SocketChannel)
         {
             java.nio.channels.SocketChannel socketChannel = (java.nio.channels.SocketChannel)fd;
             java.net.Socket socket = socketChannel.socket();
@@ -482,7 +482,7 @@ public final class Network
             remoteAddr = socket.getInetAddress();
             remotePort = socket.getPort();
         }
-        else if (fd instanceof java.nio.channels.DatagramChannel)
+        else if(fd instanceof java.nio.channels.DatagramChannel)
         {
             java.nio.channels.DatagramChannel datagramChannel = (java.nio.channels.DatagramChannel)fd;
             java.net.DatagramSocket socket = datagramChannel.socket();
@@ -501,7 +501,7 @@ public final class Network
         s.append(localAddr.getHostAddress());
         s.append(':');
         s.append(localPort);
-        if (remoteAddr == null)
+        if(remoteAddr == null)
         {
             s.append("\nremote address = <not connected>");
         }

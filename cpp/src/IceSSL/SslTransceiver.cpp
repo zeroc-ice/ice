@@ -31,7 +31,7 @@ IceSSL::SslTransceiver::fd()
 void
 IceSSL::SslTransceiver::close()
 {
-    if (_traceLevels->network >= 1)
+    if(_traceLevels->network >= 1)
     {
 	ostringstream s;
 	s << "closing ssl connection\n" << toString();
@@ -49,7 +49,7 @@ IceSSL::SslTransceiver::close()
         shutdown = _sslConnection->shutdown();
         retries++;
     }
-    while ((shutdown == 0) && (retries < 0));
+    while((shutdown == 0) && (retries < 0));
 
     ::shutdown(fd, SHUT_RDWR); // helps to unblock threads in recv()
     closeSocket(fd);
@@ -58,7 +58,7 @@ IceSSL::SslTransceiver::close()
 void
 IceSSL::SslTransceiver::shutdown()
 {
-    if (_traceLevels->network >= 2)
+    if(_traceLevels->network >= 2)
     {
 	ostringstream s;
 	s << "shutting down ssl connection\n" << toString();
@@ -73,7 +73,7 @@ IceSSL::SslTransceiver::shutdown()
         shutdown = _sslConnection->shutdown();
         retries++;
     }
-    while ((shutdown == 0) && (retries < 0));
+    while((shutdown == 0) && (retries < 0));
 
     ::shutdown(_fd, SHUT_WR); // Shutdown socket for writing
 }
@@ -87,9 +87,9 @@ IceSSL::SslTransceiver::write(Buffer& buf, int timeout)
 void
 IceSSL::SslTransceiver::read(Buffer& buf, int timeout)
 {
-    if (!_sslConnection->read(buf, timeout))
+    if(!_sslConnection->read(buf, timeout))
     {
-        if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
+        if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         { 
             _logger->trace(_traceLevels->securityCat, "WRN reading from ssl connection returns no bytes");
         }

@@ -23,12 +23,12 @@ IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc
 {
     _logger = _communicator->getLogger();
 
-    if (argc > 0)
+    if(argc > 0)
     {
         _progName = argv[0];
     }
 
-    for (int i = 1; i < argc; i++)
+    for(int i = 1; i < argc; i++)
     {
         _argv.push_back(argv[i]);
     }
@@ -74,7 +74,7 @@ IceBox::ServiceManagerI::run()
         PropertiesPtr properties = _communicator->getProperties();
         PropertyDict services = properties->getPropertiesForPrefix(prefix);
 	PropertyDict::const_iterator p;
-	for (p = services.begin(); p != services.end(); ++p)
+	for(p = services.begin(); p != services.end(); ++p)
 	{
 	    string name = p->first.substr(prefix.size());
 	    const string& value = p->second;
@@ -85,7 +85,7 @@ IceBox::ServiceManagerI::run()
             string entryPoint;
             StringSeq args;
             string::size_type pos = value.find_first_of(" \t\n");
-            if (pos == string::npos)
+            if(pos == string::npos)
             {
                 entryPoint = value;
             }
@@ -93,10 +93,10 @@ IceBox::ServiceManagerI::run()
             {
                 entryPoint = value.substr(0, pos);
                 string::size_type beg = value.find_first_not_of(" \t\n", pos);
-                while (beg != string::npos)
+                while(beg != string::npos)
                 {
                     string::size_type end = value.find_first_of(" \t\n", beg);
-                    if (end == string::npos)
+                    if(end == string::npos)
                     {
                         args.push_back(value.substr(beg));
                         beg = end;
@@ -116,7 +116,7 @@ IceBox::ServiceManagerI::run()
         // Invoke start() on the services.
         //
         map<string,ServiceInfo>::const_iterator r;
-        for (r = _services.begin(); r != _services.end(); ++r)
+        for(r = _services.begin(); r != _services.end(); ++r)
         {
             try
             {
@@ -147,7 +147,7 @@ IceBox::ServiceManagerI::run()
         // services.
         //
         string bundleName = properties->getProperty("IceBox.PrintServicesReady");
-        if (!bundleName.empty())
+        if(!bundleName.empty())
         {
             cout << bundleName << " ready" << endl;
         }
@@ -199,20 +199,20 @@ IceBox::ServiceManagerI::init(const string& service, const string& entryPoint, c
     //
     StringSeq serviceArgs;
     StringSeq::size_type j;
-    for (j = 0; j < _options.size(); j++)
+    for(j = 0; j < _options.size(); j++)
     {
-        if (_options[j].find("--" + service + ".") == 0)
+        if(_options[j].find("--" + service + ".") == 0)
         {
             serviceArgs.push_back(_options[j]);
         }
     }
-    for (j = 0; j < args.size(); j++)
+    for(j = 0; j < args.size(); j++)
     {
         serviceArgs.push_back(args[j]);
     }
-    for (j = 0; j < _argv.size(); j++)
+    for(j = 0; j < _argv.size(); j++)
     {
-        if (_argv[j].find("--" + service + ".") == 0)
+        if(_argv[j].find("--" + service + ".") == 0)
         {
             serviceArgs.push_back(_argv[j]);
         }
@@ -230,12 +230,12 @@ IceBox::ServiceManagerI::init(const string& service, const string& entryPoint, c
     //
     DynamicLibraryPtr library = new DynamicLibrary();
     DynamicLibrary::symbol_type sym = library->loadEntryPoint(entryPoint);
-    if (sym == 0)
+    if(sym == 0)
     {
         string msg = library->getErrorMessage();
         FailureException ex;
         ex.reason = "ServiceManager: unable to load entry point `" + entryPoint + "'";
-        if (!msg.empty())
+        if(!msg.empty())
         {
             ex.reason += ": " + msg;
         }
@@ -323,7 +323,7 @@ void
 IceBox::ServiceManagerI::stopAll()
 {
     map<string,ServiceInfo>::const_iterator r = _services.begin();
-    while (r != _services.end())
+    while(r != _services.end())
     {
         try
         {

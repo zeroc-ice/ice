@@ -33,7 +33,7 @@ ThrowerI::throwAasA(Ice::Int a, const Ice::Current&)
 void
 ThrowerI::throwAorDasAorD(Ice::Int a, const Ice::Current&)
 {
-    if (a > 0)
+    if(a > 0)
     {
 	A ex;
 	ex.a = a;

@@ -23,16 +23,16 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     int port = 0;
-    for (int i = 1; i < argc; ++i)
+    for(int i = 1; i < argc; ++i)
     {
-	if (argv[i][0] == '-')
+	if(argv[i][0] == '-')
 	{
 	    cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
 	    usage(argv[0]);
 	    return EXIT_FAILURE;
 	}
 
-	if (port > 0)
+	if(port > 0)
 	{
 	    cerr << argv[0] << ": only one port can be specified" << endl;
 	    usage(argv[0]);
@@ -42,7 +42,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	port = atoi(argv[i]);
     }
 
-    if (port <= 0)
+    if(port <= 0)
     {
 	cerr << argv[0] << ": no port specified" << endl;
 	usage(argv[0]);
@@ -77,7 +77,7 @@ main(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (communicator)
+    if(communicator)
     {
 	try
 	{

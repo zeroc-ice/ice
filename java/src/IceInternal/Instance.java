@@ -96,9 +96,9 @@ public class Instance
     public synchronized ThreadPool
     clientThreadPool()
     {
-        if (_communicator != null) // Not destroyed?
+        if(_communicator != null) // Not destroyed?
         {
-            if (_clientThreadPool == null) // Lazy initialization.
+            if(_clientThreadPool == null) // Lazy initialization.
             {
                 _clientThreadPool = new ThreadPool(this, false, "ClientThreadPool");
             }
@@ -110,9 +110,9 @@ public class Instance
     public synchronized ThreadPool
     serverThreadPool()
     {
-        if (_communicator != null) // Not destroyed?
+        if(_communicator != null) // Not destroyed?
         {
-            if (_serverThreadPool == null) // Lazy initialization.
+            if(_serverThreadPool == null) // Lazy initialization.
             {
                 _serverThreadPool = new ThreadPool(this, true, "ServerThreadPool");
             }
@@ -176,7 +176,7 @@ public class Instance
 
             _pluginManager = new Ice.PluginManagerI(this);
 
-            if (_defaultsAndOverrides.defaultRouter.length() > 0)
+            if(_defaultsAndOverrides.defaultRouter.length() > 0)
             {
                 _referenceFactory.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(
 		    _proxyFactory.stringToProxy(_defaultsAndOverrides.defaultRouter)));
@@ -251,58 +251,58 @@ public class Instance
 	    // to avoid cyclic object dependencies.
 	    //
 	    
-	    if (_communicator != null)
+	    if(_communicator != null)
 	    {
 		// Don't destroy the communicator -- the communicator destroys
 		// this object, not the other way.
 		_communicator = null;
 	    }
 
-	    if (_objectAdapterFactory != null)
+	    if(_objectAdapterFactory != null)
 	    {
 		// Don't shut down the object adapters -- the communicator
 		// must do this before it destroys this object.
 		_objectAdapterFactory = null;
 	    }
 	    
-	    if (_servantFactoryManager != null)
+	    if(_servantFactoryManager != null)
 	    {
 		_servantFactoryManager.destroy();
 		_servantFactoryManager = null;
 	    }
 	    
-	    if (_userExceptionFactoryManager != null)
+	    if(_userExceptionFactoryManager != null)
 	    {
 		_userExceptionFactoryManager.destroy();
 		_userExceptionFactoryManager = null;
 	    }
 	    
-	    if (_referenceFactory != null)
+	    if(_referenceFactory != null)
 	    {
 		_referenceFactory.destroy();
 		_referenceFactory = null;
 	    }
 	    
-	    if (_proxyFactory != null)
+	    if(_proxyFactory != null)
 	    {
 		// No destroy function defined
 		// _proxyFactory.destroy();
 		_proxyFactory = null;
 	    }
 	    
-	    if (_outgoingConnectionFactory != null)
+	    if(_outgoingConnectionFactory != null)
 	    {
 		_outgoingConnectionFactory.destroy();
 		_outgoingConnectionFactory = null;
 	    }
 
-	    if (_routerManager != null)
+	    if(_routerManager != null)
 	    {
 		_routerManager.destroy();
 		_routerManager = null;
 	    }
 
-            if (_endpointFactoryManager != null)
+            if(_endpointFactoryManager != null)
             {
                 _endpointFactoryManager.destroy();
                 _endpointFactoryManager = null;
@@ -324,21 +324,21 @@ public class Instance
             _pluginManager = null;
         }   
 
-        if (clientThreadPool != null)
+        if(clientThreadPool != null)
         {       
             clientThreadPool.waitUntilFinished();
             clientThreadPool.destroy();
             clientThreadPool.joinWithAllThreads();
         }   
 
-        if (serverThreadPool != null)
+        if(serverThreadPool != null)
         {   
             serverThreadPool.waitUntilFinished();
             serverThreadPool.destroy();
             serverThreadPool.joinWithAllThreads();
         }
 
-        if (pluginManager != null)
+        if(pluginManager != null)
         {
             pluginManager.destroy();
         }

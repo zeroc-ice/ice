@@ -36,7 +36,7 @@ Publisher::run(int argc, char* argv[])
 
     static const string endpointsProperty = "IceStorm.TopicManager.Endpoints";
     string endpoints = properties->getProperty(endpointsProperty);
-    if (endpoints.empty())
+    if(endpoints.empty())
     {
 	cerr << appName() << ": property `" << endpointsProperty << "' not set" << endl;
 	return EXIT_FAILURE;
@@ -44,7 +44,7 @@ Publisher::run(int argc, char* argv[])
 
     Ice::ObjectPrx base = communicator()->stringToProxy("TopicManager:" + endpoints);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
-    if (!manager)
+    if(!manager)
     {
 	cerr << appName() << ": invalid object reference" << endl;
 	return EXIT_FAILURE;
@@ -75,7 +75,7 @@ Publisher::run(int argc, char* argv[])
     ClockPrx clock = ClockPrx::uncheckedCast(obj);
 
     cout << "publishing 10 tick events" << endl;
-    for (int i = 0; i < 10; ++i)
+    for(int i = 0; i < 10; ++i)
     {
 	clock->tick();
     }

@@ -21,7 +21,7 @@ final class TcpTransceiver implements Transceiver
     public void
     close()
     {
-        if (_traceLevels.network >= 1)
+        if(_traceLevels.network >= 1)
         {
             String s = "closing tcp connection\n" + toString();
             _logger.trace(_traceLevels.networkCat, s);
@@ -56,7 +56,7 @@ final class TcpTransceiver implements Transceiver
     public void
     shutdown()
     {
-        if (_traceLevels.network >= 1)
+        if(_traceLevels.network >= 1)
         {
             String s = "shutting down tcp connection\n" + toString();
             _logger.trace(_traceLevels.networkCat, s);
@@ -76,20 +76,20 @@ final class TcpTransceiver implements Transceiver
     write(BasicStream stream, int timeout)
     {
         java.nio.ByteBuffer buf = stream.prepareWrite();
-        while (buf.hasRemaining())
+        while(buf.hasRemaining())
         {
             try
             {
                 int ret = _fd.write(buf);
 
                 /* TODO: Review
-                if (ret == 0)
+                if(ret == 0)
                 {
                     throw new Ice.ConnectionLostException();
                 }
                 */
 
-                if (_traceLevels.network >= 3)
+                if(_traceLevels.network >= 3)
                 {
                     String s = "sent " + ret + " of " + buf.limit() +
                         " bytes via tcp\n" + toString();
@@ -115,23 +115,23 @@ final class TcpTransceiver implements Transceiver
         java.nio.ByteBuffer buf = stream.prepareRead();
 
         int remaining = 0;
-        if (_traceLevels.network >= 3)
+        if(_traceLevels.network >= 3)
         {
             remaining = buf.remaining();
         }
 
-        while (true)
+        while(true)
         {
             try
             {
                 int ret = _fd.read(buf);
 
-                if (ret == -1)
+                if(ret == -1)
                 {
                     throw new Ice.ConnectionLostException();
                 }
 
-                if (ret > 0 && _traceLevels.network >= 3)
+                if(ret > 0 && _traceLevels.network >= 3)
                 {
                     String s = "received " + ret + " of " + remaining + " bytes via tcp\n" + toString();
                     _logger.trace(_traceLevels.networkCat, s);
@@ -145,7 +145,7 @@ final class TcpTransceiver implements Transceiver
             }
             catch (java.io.IOException ex)
             {
-                if (Network.connectionLost(ex))
+                if(Network.connectionLost(ex))
                 {
                     Ice.ConnectionLostException se = new Ice.ConnectionLostException();
                     se.initCause(ex);
@@ -167,43 +167,43 @@ final class TcpTransceiver implements Transceiver
         java.nio.ByteBuffer buf = stream.prepareRead();
 
         int remaining = 0;
-        if (_traceLevels.network >= 3)
+        if(_traceLevels.network >= 3)
         {
             remaining = buf.remaining();
         }
 
-        while (buf.hasRemaining())
+        while(buf.hasRemaining())
         {
             try
             {
                 int ret = _fd.read(buf);
 
-                if (ret == -1)
+                if(ret == -1)
                 {
                     throw new Ice.ConnectionLostException();
                 }
 
-                if (ret == 0)
+                if(ret == 0)
                 {
                     // Copy fd, in case another thread calls close()
                     java.nio.channels.SocketChannel fd = _fd;
 
-                    if (_selector == null)
+                    if(_selector == null)
                     {
                         _selector = java.nio.channels.Selector.open();
                         fd.register(_selector, java.nio.channels.SelectionKey.OP_READ, null);
                     }
 
-                    while (true)
+                    while(true)
                     {
                         try
                         {
                             int n;
-                            if (timeout == 0)
+                            if(timeout == 0)
                             {
                                 n = _selector.selectNow();
                             }
-                            else if (timeout > 0)
+                            else if(timeout > 0)
                             {
                                 n = _selector.select(timeout);
                             }
@@ -212,7 +212,7 @@ final class TcpTransceiver implements Transceiver
                                 n = _selector.select();
                             }
 
-                            if (n == 0 && timeout > 0)
+                            if(n == 0 && timeout > 0)
                             {
                                 throw new Ice.TimeoutException();
                             }
@@ -226,7 +226,7 @@ final class TcpTransceiver implements Transceiver
                     }
                 }
 
-                if (ret > 0 && _traceLevels.network >= 3)
+                if(ret > 0 && _traceLevels.network >= 3)
                 {
                     String s = "received " + ret + " of " + remaining + " bytes via tcp\n" + toString();
                     _logger.trace(_traceLevels.networkCat, s);
@@ -238,7 +238,7 @@ final class TcpTransceiver implements Transceiver
             }
             catch (java.io.IOException ex)
             {
-                if (Network.connectionLost(ex))
+                if(Network.connectionLost(ex))
                 {
                     Ice.ConnectionLostException se = new Ice.ConnectionLostException();
                     se.initCause(ex);
@@ -275,7 +275,7 @@ final class TcpTransceiver implements Transceiver
     {
         assert(_fd == null);
 
-        if (_selector != null)
+        if(_selector != null)
         {
             try
             {

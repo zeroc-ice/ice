@@ -105,7 +105,7 @@ main(int argc, char** argv)
         return 1;
     }
 
-    if (argc < 2)
+    if(argc < 2)
     {
 	usage(argv[0]);
 	return EXIT_FAILURE;
@@ -136,7 +136,7 @@ main(int argc, char** argv)
     {
         parser->parse(argv[1]);
         int errorCount = parser->getErrorCount();
-        if (errorCount > 0)
+        if(errorCount > 0)
             errorsOccured = true;
     }
 

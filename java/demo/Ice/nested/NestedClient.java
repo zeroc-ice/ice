@@ -16,7 +16,7 @@ class NestedClient extends Ice.Application
         Ice.Properties properties = communicator().getProperties();
         final String refProperty = "Nested.NestedServer";
         String ref = properties.getProperty(refProperty);
-        if (ref.length() == 0)
+        if(ref.length() == 0)
         {
             System.err.println("property `" + refProperty + "' not set");
             return 1;
@@ -24,7 +24,7 @@ class NestedClient extends Ice.Application
 
         Ice.ObjectPrx base = communicator().stringToProxy(ref);
         NestedPrx nested = NestedPrxHelper.checkedCast(base);
-        if (nested == null)
+        if(nested == null)
         {
             System.err.println("invalid object reference");
             return 1;
@@ -51,12 +51,12 @@ class NestedClient extends Ice.Application
                 System.out.print("enter nesting level or 'x' for exit: ");
                 System.out.flush();
                 s = in.readLine();
-                if (s == null)
+                if(s == null)
                 {
                     break;
                 }
                 int level = Integer.parseInt(s);
-                if (level > 0)
+                if(level > 0)
                 {
                     nested.nested(level, self);
                 }
@@ -73,7 +73,7 @@ class NestedClient extends Ice.Application
                 ex.printStackTrace();
             }
         }
-        while (!s.equals("x"));
+        while(!s.equals("x"));
 
         return 0;
     }

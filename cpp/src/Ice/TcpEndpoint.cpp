@@ -40,44 +40,44 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
     string::size_type beg;
     string::size_type end = 0;
 
-    while (true)
+    while(true)
     {
 	beg = str.find_first_not_of(delim, end);
-	if (beg == string::npos)
+	if(beg == string::npos)
 	{
 	    break;
 	}
 	
 	end = str.find_first_of(delim, beg);
-	if (end == string::npos)
+	if(end == string::npos)
 	{
 	    end = str.length();
 	}
 
 	string option = str.substr(beg, end - beg);
-	if (option.length() != 2 || option[0] != '-')
+	if(option.length() != 2 || option[0] != '-')
 	{
 	    throw EndpointParseException(__FILE__, __LINE__);
 	}
 
 	string argument;
 	string::size_type argumentBeg = str.find_first_not_of(delim, end);
-	if (argumentBeg != string::npos && str[argumentBeg] != '-')
+	if(argumentBeg != string::npos && str[argumentBeg] != '-')
 	{
 	    beg = argumentBeg;
 	    end = str.find_first_of(delim, beg);
-	    if (end == string::npos)
+	    if(end == string::npos)
 	    {
 		end = str.length();
 	    }
 	    argument = str.substr(beg, end - beg);
 	}
 
-	switch (option[1])
+	switch(option[1])
 	{
 	    case 'h':
 	    {
-		if (argument.empty())
+		if(argument.empty())
 		{
 		    throw EndpointParseException(__FILE__, __LINE__);
 		}
@@ -87,7 +87,7 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 
 	    case 'p':
 	    {
-		if (argument.empty())
+		if(argument.empty())
 		{
 		    throw EndpointParseException(__FILE__, __LINE__);
 		}
@@ -97,7 +97,7 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 
 	    case 't':
 	    {
-		if (argument.empty())
+		if(argument.empty())
 		{
 		    throw EndpointParseException(__FILE__, __LINE__);
 		}
@@ -112,7 +112,7 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 	}
     }
 
-    if (_host.empty())
+    if(_host.empty())
     {
 	const_cast<string&>(_host) = _instance->defaultsAndOverrides()->defaultHost;
     }
@@ -146,7 +146,7 @@ IceInternal::TcpEndpoint::toString() const
 {
     ostringstream s;
     s << "tcp -h " << _host << " -p " << _port;
-    if (_timeout != -1)
+    if(_timeout != -1)
     {
 	s << " -t " << _timeout;
     }
@@ -168,7 +168,7 @@ IceInternal::TcpEndpoint::timeout() const
 EndpointPtr
 IceInternal::TcpEndpoint::timeout(Int timeout) const
 {
-    if (timeout == _timeout)
+    if(timeout == _timeout)
     {
 	return const_cast<TcpEndpoint*>(this);
     }
@@ -233,7 +233,7 @@ bool
 IceInternal::TcpEndpoint::equivalent(const AcceptorPtr& acceptor) const
 {
     const TcpAcceptor* tcpAcceptor = dynamic_cast<const TcpAcceptor*>(acceptor.get());
-    if (!tcpAcceptor)
+    if(!tcpAcceptor)
     {
 	return false;
     }
@@ -244,27 +244,27 @@ bool
 IceInternal::TcpEndpoint::operator==(const Endpoint& r) const
 {
     const TcpEndpoint* p = dynamic_cast<const TcpEndpoint*>(&r);
-    if (!p)
+    if(!p)
     {
 	return false;
     }
 
-    if (this == p)
+    if(this == p)
     {
 	return true;
     }
 
-    if (_port != p->_port)
+    if(_port != p->_port)
     {
 	return false;
     }
 
-    if (_timeout != p->_timeout)
+    if(_timeout != p->_timeout)
     {
 	return false;
     }
 
-    if (_host != p->_host)
+    if(_host != p->_host)
     {
 	//
 	// We do the most time-consuming part of the comparison last.
@@ -289,35 +289,35 @@ bool
 IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
 {
     const TcpEndpoint* p = dynamic_cast<const TcpEndpoint*>(&r);
-    if (!p)
+    if(!p)
     {
         return type() < r.type();
     }
 
-    if (this == p)
+    if(this == p)
     {
 	return false;
     }
 
-    if (_port < p->_port)
+    if(_port < p->_port)
     {
 	return true;
     }
-    else if (p->_port < _port)
+    else if(p->_port < _port)
     {
 	return false;
     }
 
-    if (_timeout < p->_timeout)
+    if(_timeout < p->_timeout)
     {
 	return true;
     }
-    else if (p->_timeout < _timeout)
+    else if(p->_timeout < _timeout)
     {
 	return false;
     }
 
-    if (_host != p->_host)
+    if(_host != p->_host)
     {
 	//
 	// We do the most time-consuming part of the comparison last.
@@ -326,11 +326,11 @@ IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
 	struct sockaddr_in raddr;
 	getAddress(_host, _port, laddr);
 	getAddress(p->_host, p->_port, raddr);
-	if (laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
+	if(laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
 	{
 	    return true;
 	}
-	else if (raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
+	else if(raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
 	{
 	    return false;
 	}

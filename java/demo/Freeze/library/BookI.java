@@ -28,7 +28,7 @@ class BookI extends Book
     getRenterName(Ice.Current current)
 	throws BookNotRentedException
     {
-	if (_rentalCustomerName.length() == 0)
+	if(_rentalCustomerName.length() == 0)
 	{
 	    throw new BookNotRentedException();
 	}
@@ -39,7 +39,7 @@ class BookI extends Book
     rentBook(String name, Ice.Current current)
 	throws BookRentedException
     {
-	if (_rentalCustomerName.length() != 0)
+	if(_rentalCustomerName.length() != 0)
 	{
 	    throw new BookRentedException();
 	}
@@ -50,7 +50,7 @@ class BookI extends Book
     returnBook(Ice.Current current)
 	throws BookNotRentedException
     {
-	if (_rentalCustomerName.length() == 0)
+	if(_rentalCustomerName.length() == 0)
 	{
 	    throw new BookNotRentedException();
 	}

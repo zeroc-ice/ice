@@ -57,19 +57,19 @@ Client::run(int argc, char* argv[])
     vector<string> commands;
 
     int idx = 1;
-    while (idx < argc)
+    while(idx < argc)
     {
-        if (strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
+        if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
         {
             usage();
             return EXIT_SUCCESS;
         }
-        else if (strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
+        else if(strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
         {
             cout << ICE_STRING_VERSION << endl;
             return EXIT_SUCCESS;
         }
-        else if (argv[idx][0] == '-')
+        else if(argv[idx][0] == '-')
         {
             cerr << appName() << ": unknown option `" << argv[idx] << "'" << endl;
             usage();
@@ -82,7 +82,7 @@ Client::run(int argc, char* argv[])
         }
     }
 
-    if (commands.empty())
+    if(commands.empty())
     {
         usage();
         return EXIT_SUCCESS;
@@ -90,7 +90,7 @@ Client::run(int argc, char* argv[])
 
     const char* managerEndpointsProperty = "IceBox.ServiceManager.Endpoints";
     string managerEndpoints = properties->getProperty(managerEndpointsProperty);
-    if (managerEndpoints.empty())
+    if(managerEndpoints.empty())
     {
         cerr << appName() << ": property `" << managerEndpointsProperty << "' is not set" << endl;
         return EXIT_FAILURE;
@@ -98,16 +98,16 @@ Client::run(int argc, char* argv[])
 
     ObjectPrx base = communicator()->stringToProxy("ServiceManager:" + managerEndpoints);
     IceBox::ServiceManagerPrx manager = IceBox::ServiceManagerPrx::checkedCast(base);
-    if (!manager)
+    if(!manager)
     {
         cerr << appName() << ": `" << managerEndpoints << "' is not running" << endl;
         return EXIT_FAILURE;
     }
 
     vector<string>::const_iterator r;
-    for (r = commands.begin(); r != commands.end(); ++r)
+    for(r = commands.begin(); r != commands.end(); ++r)
     {
-        if ((*r) == "shutdown")
+        if((*r) == "shutdown")
         {
             manager->shutdown();
         }

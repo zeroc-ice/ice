@@ -39,7 +39,7 @@ Subscriber::run(int argc, char* argv[])
 
     static const string endpointsProperty = "IceStorm.TopicManager.Endpoints";
     string endpoints = properties->getProperty(endpointsProperty);
-    if (endpoints.empty())
+    if(endpoints.empty())
     {
 	cerr << appName() << ": property `" << endpointsProperty << "' not set" << endl;
 	return EXIT_FAILURE;
@@ -47,7 +47,7 @@ Subscriber::run(int argc, char* argv[])
 
     Ice::ObjectPrx base = communicator()->stringToProxy("TopicManager:" + endpoints);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
-    if (!manager)
+    if(!manager)
     {
 	cerr << appName() << ": invalid object reference" << endl;
 	return EXIT_FAILURE;
@@ -58,9 +58,9 @@ Subscriber::run(int argc, char* argv[])
     // the set provided on the command line, or the topic "time".
     //
     Ice::StringSeq topics;
-    if (argc > 1)
+    if(argc > 1)
     {
-	for (int i = 1; i < argc; ++i)
+	for(int i = 1; i < argc; ++i)
 	{
 	    topics.push_back(argv[i]);
 	}
@@ -101,7 +101,7 @@ Subscriber::run(int argc, char* argv[])
     // topics. Alternatively a ServantLocator could have been used for
     // the same purpose.
     //
-    for (Ice::StringSeq::iterator p = topics.begin(); p != topics.end(); ++p)
+    for(Ice::StringSeq::iterator p = topics.begin(); p != topics.end(); ++p)
     {
 	//
 	// The category is the name of the topic.
@@ -137,7 +137,7 @@ Subscriber::run(int argc, char* argv[])
     // problem. If there was an error the application should terminate
     // without accepting any events.
     //
-    if (subscribers.size() == topics.size())
+    if(subscribers.size() == topics.size())
     {
 	adapter->activate();
 	communicator()->waitForShutdown();
@@ -146,7 +146,7 @@ Subscriber::run(int argc, char* argv[])
     //
     // Unsubscribe all subscribed objects.
     //
-    for (list<Ice::ObjectPrx>::const_iterator q = subscribers.begin(); q != subscribers.end(); ++q)
+    for(list<Ice::ObjectPrx>::const_iterator q = subscribers.begin(); q != subscribers.end(); ++q)
     {
 	try
 	{

@@ -45,7 +45,7 @@ Ice::ObjectAdapterI::getCommunicator()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_instance)
+    if(!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -58,7 +58,7 @@ Ice::ObjectAdapterI::activate()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_instance)
+    if(!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -66,9 +66,9 @@ Ice::ObjectAdapterI::activate()
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
 	     Ice::voidMemFun(&IncomingConnectionFactory::activate));
 
-    if (!_printAdapterReadyDone)
+    if(!_printAdapterReadyDone)
     {
-	if (_instance->properties()->getPropertyAsInt("Ice.PrintAdapterReady") > 0)
+	if(_instance->properties()->getPropertyAsInt("Ice.PrintAdapterReady") > 0)
 	{
 	    cout << _name << " ready" << endl;
 	}
@@ -82,7 +82,7 @@ Ice::ObjectAdapterI::hold()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_instance)
+    if(!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -96,7 +96,7 @@ Ice::ObjectAdapterI::deactivate()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_instance)
+    if(!_instance)
     {
 	//
         // Ignore deactivation requests if the Object Adapter has
@@ -138,7 +138,7 @@ Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_instance)
+    if(!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -153,7 +153,7 @@ Ice::ObjectAdapterI::addWithUUID(const ObjectPtr& object)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_instance)
+    if(!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -171,7 +171,7 @@ Ice::ObjectAdapterI::remove(const Identity& ident)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_instance)
+    if(!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -185,7 +185,7 @@ Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const s
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_instance)
+    if(!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -198,31 +198,31 @@ Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (!_instance)
+    if(!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
 
     map<string, ServantLocatorPtr>::iterator p = _locatorMap.end();
     
-    if (_locatorMapHint != _locatorMap.end())
+    if(_locatorMapHint != _locatorMap.end())
     {
-	if (_locatorMapHint->first == prefix)
+	if(_locatorMapHint->first == prefix)
 	{
 	    p = _locatorMapHint;
 	}
     }
     
-    if (p == _locatorMap.end())
+    if(p == _locatorMap.end())
     {
 	p = _locatorMap.find(prefix);
     }
     
-    if (p != _locatorMap.end())
+    if(p != _locatorMap.end())
     {
 	p->second->deactivate();
 
-	if (p == _locatorMapHint)
+	if(p == _locatorMapHint)
 	{
 	    _locatorMap.erase(p++);
 	    _locatorMapHint = p;
@@ -239,27 +239,27 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix)
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    if (!_instance)
+    if(!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
 
     map<string, ServantLocatorPtr>::iterator p = _locatorMap.end();
     
-    if (_locatorMapHint != _locatorMap.end())
+    if(_locatorMapHint != _locatorMap.end())
     {
-	if (_locatorMapHint->first == prefix)
+	if(_locatorMapHint->first == prefix)
 	{
 	    p = _locatorMapHint;
 	}
     }
     
-    if (p == _locatorMap.end())
+    if(p == _locatorMap.end())
     {
 	p = _locatorMap.find(prefix);
     }
     
-    if (p != _locatorMap.end())
+    if(p != _locatorMap.end())
     {
 	_locatorMapHint = p;
 	return p->second;
@@ -275,16 +275,16 @@ Ice::ObjectAdapterI::identityToServant(const Identity& ident)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_activeServantMapHint != _activeServantMap.end())
+    if(_activeServantMapHint != _activeServantMap.end())
     {
-	if (_activeServantMapHint->first == ident)
+	if(_activeServantMapHint->first == ident)
 	{
 	    return _activeServantMapHint->second;
 	}
     }
     
     ObjectDict::iterator p = _activeServantMap.find(ident);
-    if (p != _activeServantMap.end())
+    if(p != _activeServantMap.end())
     {
 	_activeServantMapHint = p;
 	return p->second;
@@ -307,7 +307,7 @@ Ice::ObjectAdapterI::createProxy(const Identity& ident)
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    if (!_instance)
+    if(!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -320,7 +320,7 @@ Ice::ObjectAdapterI::createReverseProxy(const Identity& ident)
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    if (!_instance)
+    if(!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -339,13 +339,13 @@ Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    if (!_instance)
+    if(!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
 
     RouterInfoPtr routerInfo = _instance->routerManager()->get(router);
-    if (routerInfo)
+    if(routerInfo)
     {
 	//
 	// Add the router's server proxy endpoints to this object
@@ -386,7 +386,7 @@ Ice::ObjectAdapterI::getIncomingConnections() const
     //
     list<ConnectionPtr> connections;
     vector<IncomingConnectionFactoryPtr>::const_iterator p;
-    for (p = _incomingConnectionFactories.begin(); p != _incomingConnectionFactories.end(); ++p)
+    for(p = _incomingConnectionFactories.begin(); p != _incomingConnectionFactories.end(); ++p)
     {
 	list<ConnectionPtr> cons = (*p)->connections();
 	connections.splice(connections.end(), cons);
@@ -410,23 +410,23 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
 	string::size_type beg;
 	string::size_type end = 0;
 
-	while (end < s.length())
+	while(end < s.length())
 	{
 	    static const string delim = " \t\n\r";
 	    
 	    beg = s.find_first_not_of(delim, end);
-	    if (beg == string::npos)
+	    if(beg == string::npos)
 	    {
 		break;
 	    }
 
 	    end = s.find(':', beg);
-	    if (end == string::npos)
+	    if(end == string::npos)
 	    {
 		end = s.length();
 	    }
 	    
-	    if (end == beg)
+	    if(end == beg)
 	    {
 		break;
 	    }
@@ -458,7 +458,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
 // router. (See addRouter.)
 //
 /*
-    if (_incomingConnectionFactories.empty())
+    if(_incomingConnectionFactories.empty())
     {
 	throw EndpointParseException(__FILE__, __LINE__);
     }
@@ -467,7 +467,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
 
 Ice::ObjectAdapterI::~ObjectAdapterI()
 {
-    if (_instance)
+    if(_instance)
     {
 	Warning out(_instance->logger());
 	out << "object adapter has not been deactivated";
@@ -515,12 +515,12 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
     // endpoints used by this object adapter's incoming connection
     // factories are considered local.
     //
-    for (p = ref->endpoints.begin(); p != ref->endpoints.end(); ++p)
+    for(p = ref->endpoints.begin(); p != ref->endpoints.end(); ++p)
     {
 	vector<IncomingConnectionFactoryPtr>::const_iterator q;
-	for (q = _incomingConnectionFactories.begin(); q != _incomingConnectionFactories.end(); ++q)
+	for(q = _incomingConnectionFactories.begin(); q != _incomingConnectionFactories.end(); ++q)
 	{
-	    if ((*q)->equivalent(*p))
+	    if((*q)->equivalent(*p))
 	    {
 		return true;
 	    }
@@ -535,9 +535,9 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
 	// router's server proxy endpoints (if any), are also considered
 	// local.
 	//
-	for (p = ref->endpoints.begin(); p != ref->endpoints.end(); ++p)
+	for(p = ref->endpoints.begin(); p != ref->endpoints.end(); ++p)
 	{
-	    if (binary_search(_routerEndpoints.begin(), _routerEndpoints.end(), *p)) // _routerEndpoints is sorted.
+	    if(binary_search(_routerEndpoints.begin(), _routerEndpoints.end(), *p)) // _routerEndpoints is sorted.
 	    {
 		return true;
 	    }

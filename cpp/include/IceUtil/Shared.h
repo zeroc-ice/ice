@@ -160,7 +160,7 @@ public:
     void __decRef()
     {
 	assert(_ref > 0);
-	if (--_ref == 0)
+	if(--_ref == 0)
 	{
 	    if(!_noDelete)
 	    {
@@ -243,12 +243,12 @@ Shared::__decRef()
     _mutex.lock();
     bool doDelete = false;
     assert(_ref > 0);
-    if (--_ref == 0)
+    if(--_ref == 0)
     {
 	doDelete = !_noDelete;
     }
     _mutex.unlock();
-    if (doDelete)
+    if(doDelete)
     {
 	delete this;
     }
@@ -296,7 +296,7 @@ inline void
 Shared::__decRef()
 {
     assert(InterlockedExchangeAdd(&_ref, 0) > 0);
-    if (InterlockedDecrement(&_ref) == 0 && !_noDelete)
+    if(InterlockedDecrement(&_ref) == 0 && !_noDelete)
     {
 	delete this;
     }
@@ -339,7 +339,7 @@ inline void
 Shared::__decRef()
 {
     assert(ice_atomic_exchange_add(0, &_ref) > 0);
-    if (ice_atomic_dec_and_test(&_ref) && !_noDelete)
+    if(ice_atomic_dec_and_test(&_ref) && !_noDelete)
     {
 	delete this;
     }

@@ -25,7 +25,7 @@ public abstract class Blobject extends Ice.Object
         inParams = in.is().readBlob(sz);
         boolean ok = ice_invoke(inParams, outParams, current);
         in.os().writeBlob(outParams.value);
-        if (ok)
+        if(ok)
         {
             return IceInternal.DispatchStatus.DispatchOK;
         }

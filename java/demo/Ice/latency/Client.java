@@ -16,7 +16,7 @@ public class Client
         Ice.Properties properties = communicator.getProperties();
         final String refProperty = "Latency.Ping";
         String ref = properties.getProperty(refProperty);
-        if (ref.length() == 0)
+        if(ref.length() == 0)
         {
             System.err.println("property `" + refProperty + "' not set");
             return 1;
@@ -24,7 +24,7 @@ public class Client
 
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         PingPrx ping = PingPrxHelper.checkedCast(base);
-        if (ping == null)
+        if(ping == null)
         {
             System.err.println("invalid object reference");
             return 1;
@@ -36,7 +36,7 @@ public class Client
         long tv1 = System.currentTimeMillis();
         final int repetitions = 100000;
         System.out.println("pinging server " + repetitions + " times (this may take a while)");
-        for (int i = 0; i < repetitions; i++)
+        for(int i = 0; i < repetitions; i++)
         {
             ping.ice_ping();
         }
@@ -70,7 +70,7 @@ public class Client
             status = 1;
         }
 
-        if (communicator != null)
+        if(communicator != null)
         {
             try
             {

@@ -35,7 +35,7 @@ public:
 
     virtual void pub(const string& data, const Ice::Current&)
     {
-	if (data == "shutdown")
+	if(data == "shutdown")
 	{
 	    _communicator->shutdown();
 	    return;
@@ -80,7 +80,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     string lockfile = "subscriber.lock";
 
-    if (argc != 1)
+    if(argc != 1)
     {
 	lockfile = argv[1];
     }
@@ -88,7 +88,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     const char* managerEndpointsProperty = "IceStorm.TopicManager.Endpoints";
     string managerEndpoints = properties->getProperty(managerEndpointsProperty);
-    if (managerEndpoints.empty())
+    if(managerEndpoints.empty())
     {
 	cerr << argv[0] << ": property `" << managerEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
@@ -96,7 +96,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     ObjectPrx base = communicator->stringToProxy("TopicManager:" + managerEndpoints);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
-    if (!manager)
+    if(!manager)
     {
 	cerr << argv[0] << ": `" << managerEndpoints << "' is not running" << endl;
 	return EXIT_FAILURE;
@@ -162,7 +162,7 @@ main(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (communicator)
+    if(communicator)
     {
 	try
 	{

@@ -21,14 +21,14 @@ class TcpAcceptor implements Acceptor
     public void
     close()
     {
-        if (_traceLevels.network >= 1)
+        if(_traceLevels.network >= 1)
         {
             String s = "stopping to accept tcp connections at " + toString();
             _logger.trace(_traceLevels.networkCat, s);
         }
 
         java.nio.channels.ServerSocketChannel fd = _fd;
-        if (fd != null)
+        if(fd != null)
         {
             _fd = null;
             try
@@ -47,7 +47,7 @@ class TcpAcceptor implements Acceptor
     {
         // Nothing to do.
 
-        if (_traceLevels.network >= 1)
+        if(_traceLevels.network >= 1)
         {
             String s = "accepting tcp connections at " + toString();
             _logger.trace(_traceLevels.networkCat, s);
@@ -60,7 +60,7 @@ class TcpAcceptor implements Acceptor
         java.nio.channels.SocketChannel fd = Network.doAccept(_fd, timeout);
         Network.setBlock(fd, false);
 
-        if (_traceLevels.network >= 1)
+        if(_traceLevels.network >= 1)
         {
             String s = "accepted tcp connection\n" + Network.fdToString(fd);
             _logger.trace(_traceLevels.networkCat, s);
@@ -95,7 +95,7 @@ class TcpAcceptor implements Acceptor
         _logger = instance.logger();
         _backlog = 0;
 
-        if (_backlog <= 0)
+        if(_backlog <= 0)
         {
             _backlog = 5;
         }
