@@ -72,7 +72,6 @@ public final class ThreadPool
 	if(size < 1)
 	{
 	    size = 1;
-	    _instance.properties().setProperty(_prefix + ".Size", "" + size);
 	}
 	_size = size;
 	
@@ -80,7 +79,6 @@ public final class ThreadPool
 	if(sizeMax < _size)
 	{
 	    sizeMax = _size;
-	    _instance.properties().setProperty(_prefix + ".SizeMax", "" + sizeMax);
 	}
 	_sizeMax = sizeMax;
 
