@@ -898,7 +898,16 @@ Slice::Container::lookupException(const string& scoped, bool printError)
 	    }
 	    return 0;
 	}
-	if(printError && (*p)->name() != scoped)
+	string sc;
+	if(scoped.size() >= 2 && scoped[0] == ':')
+	{
+	    sc = scoped.substr(2);
+	}
+	else
+	{
+	    sc = scoped;
+	}
+	if(printError && (*p)->name() != sc)
 	{
 	    string msg;
 	    msg = "exception name `" + scoped + "' is capitalized inconsistently with its previous name: `";
@@ -1369,7 +1378,7 @@ Slice::Container::checkPairIntersections(const StringPartitionList& l, const str
 	{
 	    for(StringList::const_iterator s1 = i->begin(); s1 != i->end(); ++s1)
 	    {
-		for (StringList::const_iterator s2 = j->begin(); s2 != j->end(); ++s2)
+		for(StringList::const_iterator s2 = j->begin(); s2 != j->end(); ++s2)
 		{
 		    if((*s1) == (*s2) && reported.find(*s1) == reported.end())
 		    {
@@ -1681,8 +1690,44 @@ Slice::ClassDef::createOperation(const string& name,
 	    }
 	}
     }
+    
+    //
+    // Check that no exception occurs more than once in the throws clause
+    //
+    ExceptionList uniqueExceptions = throws;
+    uniqueExceptions.sort();
+    uniqueExceptions.unique();
+    if(uniqueExceptions.size() != throws.size())
+    {
+	//
+	// At least one exception appears twice
+	//
+	ExceptionList tmp = throws;
+	tmp.sort();
+	ExceptionList duplicates;
+	set_difference(tmp.begin(), tmp.end(),
+		       uniqueExceptions.begin(), uniqueExceptions.end(),
+		       back_inserter(duplicates));
+	string msg = "operation `" + name + "' has a throws clause with ";
+	if(duplicates.size() == 1)
+	{
+	    msg += "a ";
+	}
+	msg += "duplicate exception";
+	if(duplicates.size() > 1)
+	{
+	    msg += "s";
+	}
+	ExceptionList::const_iterator i = duplicates.begin();
+	msg += ": `" + (*i)->name() + "'";
+	for(i = ++i; i != duplicates.end(); ++i)
+	{
+	    msg += ", `" + (*i)->name() + "'";
+	}
+	_unit->error(msg);
+    }
 
-    OperationPtr op = new Operation(this, name, returnType, inParams, outParams, throws);
+    OperationPtr op = new Operation(this, name, returnType, inParams, outParams, uniqueExceptions);
     _contents.push_back(op);
     return op;
 }
