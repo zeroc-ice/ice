@@ -32,24 +32,26 @@ usage(const char* n)
 {
     cerr << "Usage: " << n << " [options] file-base [slice-files...]\n";
     cerr <<
-	"Options:\n"
-	"-h, --help            Show this message.\n"
-	"-v, --version         Display the Ice version.\n"
-	"-DNAME                Define NAME as 1.\n"
-	"-DNAME=DEF            Define NAME as DEF.\n"
-	"-UNAME                Remove any definition for NAME.\n"
-	"-IDIR                 Put DIR in the include file search path.\n"
-	"--include-dir DIR     Use DIR as the header include directory.\n"
-	"--dll-export SYMBOL   Use SYMBOL for DLL exports.\n"
-	"--dict NAME,KEY,VALUE Create a Freeze dictionary with the name NAME,\n"
-	"                      using KEY as key, and VALUE as value. This\n"
-	"                      option may be specified multiple times for\n"
-	"                      different names. NAME may be a scoped name.\n"
-	"--binary              Use the binary encoding.\n"
-	"--output-dir DIR      Create files in the directory DIR.\n"
-	"-d, --debug           Print debug messages.\n"
+        "Options:\n"
+        "-h, --help            Show this message.\n"
+        "-v, --version         Display the Ice version.\n"
+        "--header-ext EXT      Use EXT instead of the default `h' extension.\n"
+        "--source-ext EXT      Use EXT instead of the default `cpp' extension.\n"
+        "-DNAME                Define NAME as 1.\n"
+        "-DNAME=DEF            Define NAME as DEF.\n"
+        "-UNAME                Remove any definition for NAME.\n"
+        "-IDIR                 Put DIR in the include file search path.\n"
+        "--include-dir DIR     Use DIR as the header include directory.\n"
+        "--dll-export SYMBOL   Use SYMBOL for DLL exports.\n"
+        "--dict NAME,KEY,VALUE Create a Freeze dictionary with the name NAME,\n"
+        "                      using KEY as key, and VALUE as value. This\n"
+        "                      option may be specified multiple times for\n"
+        "                      different names. NAME may be a scoped name.\n"
+        "--binary              Use the binary encoding.\n"
+        "--output-dir DIR      Create files in the directory DIR.\n"
+        "-d, --debug           Print debug messages.\n"
         "--ice                 Permit `Ice' prefix (for building Ice source code only)\n"
-	;
+        ;
     // Note: --case-sensitive is intentionally not shown here!
 }
 
@@ -234,6 +236,8 @@ int
 main(int argc, char* argv[])
 {
     string cppArgs;
+    string headerExtension = "h";
+    string sourceExtension = "cpp";
     vector<string> includePaths;
     string include;
     string dllExport;
@@ -342,6 +346,38 @@ main(int argc, char* argv[])
 	{
 	    cout << ICE_STRING_VERSION << endl;
 	    return EXIT_SUCCESS;
+	}
+	else if(strcmp(argv[idx], "--header-ext") == 0)
+	{
+	    if(idx + 1 >= argc)
+	    {
+		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	    }
+
+	    headerExtension = argv[idx + 1];
+	    for(int i = idx ; i + 2 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 2];
+	    }
+	    argc -= 2;
+	}
+	else if(strcmp(argv[idx], "--source-ext") == 0)
+	{
+	    if(idx + 1 >= argc)
+	    {
+		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	    }
+
+	    sourceExtension = argv[idx + 1];
+	    for(int i = idx ; i + 2 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 2];
+	    }
+	    argc -= 2;
 	}
 	else if(strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
 	{
@@ -454,9 +490,9 @@ main(int argc, char* argv[])
     }
 
     string fileH = argv[1];
-    fileH += ".h";
+    fileH += "." + headerExtension;
     string fileC = argv[1];
-    fileC += ".cpp";
+    fileC += "." + sourceExtension;
     if(!output.empty())
     {
 	fileH = output + '/' + fileH;

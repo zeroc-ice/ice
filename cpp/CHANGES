@@ -1,6 +1,11 @@
 Changes since version 1.0.0
 ---------------------------
 
+- Added --header-ext and --source-ext command-line options to
+  slice2cpp and slice2freeze. These permit setting header and
+  source file extensions for C++ other than the default `h' and
+  `cpp' file extensions.
+
 - Added the macro ICE_INT64 as a portable wrapper for long long
   constants.
 

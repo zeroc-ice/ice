@@ -26,6 +26,8 @@ usage(const char* n)
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
+        "--header-ext EXT     Use EXT instead of the default `h' extension.\n"
+        "--source-ext EXT     Use EXT instead of the default `cpp' extension.\n"
         "-DNAME               Define NAME as 1.\n"
         "-DNAME=DEF           Define NAME as DEF.\n"
         "-UNAME               Remove any definition for NAME.\n"
@@ -34,7 +36,7 @@ usage(const char* n)
         "--output-dir DIR     Create files in the directory DIR.\n"
         "--dll-export SYMBOL  Use SYMBOL for DLL exports.\n"
         "--impl               Generate sample implementations.\n"
-	"--depend             Generate Makefile dependencies.\n"
+        "--depend             Generate Makefile dependencies.\n"
         "-d, --debug          Print debug messages.\n"
         "--ice                Permit `Ice' prefix (for building Ice source code only)\n"
         ;
@@ -44,6 +46,8 @@ usage(const char* n)
 int
 main(int argc, char* argv[])
 {
+    string headerExtension = "h";
+    string sourceExtension = "cpp";
     string cppArgs;
     vector<string> includePaths;
     string include;
@@ -95,6 +99,38 @@ main(int argc, char* argv[])
 	{
 	    cout << ICE_STRING_VERSION << endl;
 	    return EXIT_SUCCESS;
+	}
+	else if(strcmp(argv[idx], "--header-ext") == 0)
+	{
+	    if(idx + 1 >= argc)
+	    {
+		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	    }
+
+	    headerExtension = argv[idx + 1];
+	    for(int i = idx ; i + 2 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 2];
+	    }
+	    argc -= 2;
+	}
+	else if(strcmp(argv[idx], "--source-ext") == 0)
+	{
+	    if(idx + 1 >= argc)
+	    {
+		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	    }
+
+	    sourceExtension = argv[idx + 1];
+	    for(int i = idx ; i + 2 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 2];
+	    }
+	    argc -= 2;
 	}
 	else if(strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
 	{
@@ -242,7 +278,8 @@ main(int argc, char* argv[])
 	    }
 	    else
 	    {
-		Gen gen(argv[0], icecpp.getBaseName(), include, includePaths, dllExport, output, impl);
+		Gen gen(argv[0], icecpp.getBaseName(), headerExtension, sourceExtension, include,
+			includePaths, dllExport, output, impl);
 		if(!gen)
 		{
 		    unit->destroy();

@@ -28,6 +28,8 @@ public:
     Gen(const std::string&,
 	const std::string&,
 	const std::string&,
+	const std::string&,
+	const std::string&,
 	const std::vector<std::string>&,
 	const std::string&,
 	const std::string&,
@@ -47,6 +49,8 @@ private:
     ::IceUtil::Output implC;
 
     std::string _base;
+    std::string _headerExtension;
+    std::string _sourceExtension;
     std::string _include;
     std::vector<std::string> _includePaths;
     std::string _dllExport;
