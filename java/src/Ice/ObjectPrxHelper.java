@@ -564,9 +564,16 @@ public class ObjectPrxHelper implements ObjectPrx
                 {
                 }
             }
-        }
 
-	return cnt;
+            return cnt;
+        }
+        else
+        {
+            //
+            // Impossible to retry after Communicator has been destroyed.
+            //
+            throw ex;
+        }
     }
 
     public final synchronized void

@@ -616,6 +616,13 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(retryIntervals[cnt - 1]));
         }
     }
+    else
+    {
+        //
+        // Impossible to retry after Communicator has been destroyed.
+        //
+        ex.ice_throw();
+    }
 }
 
 void
