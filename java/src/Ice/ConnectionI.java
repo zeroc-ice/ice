@@ -1613,7 +1613,15 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		//
 		IceInternal.TraceUtil.traceHeader("sending close connection", os, _logger, _traceLevels);
 		_transceiver.write(os, _endpoint.timeout());
-		_transceiver.shutdownWrite();
+		//
+		// The CloseConnection message should be sufficient. Closing the write
+		// end of the socket is probably an artifact of how things were done
+		// in IIOP. In fact, shutting down the write end of the socket causes
+		// problems on Windows by preventing the peer from using the socket.
+		// For example, the peer is no longer able to continue writing a large
+		// message after the socket is shutdown.
+		//
+		//_transceiver.shutdownWrite();
 	    }
 	}
     }
