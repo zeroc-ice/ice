@@ -294,11 +294,12 @@ IceUtil::RWRecMutex::upgrade() const
     // Reader owns at least one count
     //
     assert(_count > 0);
+    --_count;
    
     //
     // Wait to acquire the write lock.
     //
-    while(_count != 1)
+    while(_count != 0)
     {
 	_waitingWriters++;
 	try
@@ -308,6 +309,7 @@ IceUtil::RWRecMutex::upgrade() const
 	catch(...)
 	{
 	    --_waitingWriters;
+	    _count++;
 	    throw;
 	}
 	_waitingWriters--;	
@@ -328,12 +330,13 @@ IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
     // Reader owns at least one count
     //
     assert(_count > 0);
+    --_count;
 
     //
     // Wait to acquire the write lock.
     //
     Time end = Time::now() + timeout;
-    while(_count != 1)
+    while(_count != 0)
     {
 	Time remainder = end - Time::now();
 	if(remainder > Time())
@@ -345,12 +348,14 @@ IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
 		_waitingWriters--;
 		if(result == false)
 		{
+		    _count++;
 		    return false;
 		}
 	    }
 	    catch(...)
 	    {
 		--_waitingWriters;
+		_count++;
 		throw;
 	    }
 	}
@@ -358,6 +363,7 @@ IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
 	{
 	    //
 	    // If a timeout occurred then the lock wasn't acquired
+	    _count++;
 	    return false;
 	}
     }
