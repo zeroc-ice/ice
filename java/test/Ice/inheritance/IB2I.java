@@ -8,21 +8,21 @@
 //
 // **********************************************************************
 
-public final class C_B_I extends M_B.C_B
+public final class IB2I extends MB._IB2Disp
 {
     public
-    C_B_I()
+    IB2I()
     {
     }
 
-    public M_A.C_APrx
-    ca(M_A.C_APrx p, Ice.Current current)
+    public MA.IAPrx
+    iaop(MA.IAPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public M_B.C_BPrx
-    cb(M_B.C_BPrx p, Ice.Current current)
+    public MB.IB2Prx
+    ib2op(MB.IB2Prx p, Ice.Current current)
     {
         return p;
     }

@@ -14,68 +14,68 @@ public final class InitialI extends _InitialDisp
     InitialI(Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
-        _ca = M_A.C_APrxHelper.uncheckedCast(
-            _adapter.addWithUUID(new C_A_I()));
-        _cb = M_B.C_BPrxHelper.uncheckedCast(
-            _adapter.addWithUUID(new C_B_I()));
-        _cc = M_A.C_CPrxHelper.uncheckedCast(
-            _adapter.addWithUUID(new C_C_I()));
-        _cd = M_A.C_DPrxHelper.uncheckedCast(
-            _adapter.addWithUUID(new C_D_I()));
-        _ia = M_A.I_APrxHelper.uncheckedCast(
-            _adapter.addWithUUID(new I_A_I()));
-        _ib1 = M_B.I_B1PrxHelper.uncheckedCast(
-            _adapter.addWithUUID(new I_B1_I()));
-        _ib2 = M_B.I_B2PrxHelper.uncheckedCast(
-            _adapter.addWithUUID(new I_B2_I()));
-        _ic = M_A.I_CPrxHelper.uncheckedCast(
-            _adapter.addWithUUID(new I_C_I()));
+        _ca = MA.CAPrxHelper.uncheckedCast(
+            _adapter.addWithUUID(new CAI()));
+        _cb = MB.CBPrxHelper.uncheckedCast(
+            _adapter.addWithUUID(new CBI()));
+        _cc = MA.CCPrxHelper.uncheckedCast(
+            _adapter.addWithUUID(new CCI()));
+        _cd = MA.CDPrxHelper.uncheckedCast(
+            _adapter.addWithUUID(new CDI()));
+        _ia = MA.IAPrxHelper.uncheckedCast(
+            _adapter.addWithUUID(new IAI()));
+        _ib1 = MB.IB1PrxHelper.uncheckedCast(
+            _adapter.addWithUUID(new IB1I()));
+        _ib2 = MB.IB2PrxHelper.uncheckedCast(
+            _adapter.addWithUUID(new IB2I()));
+        _ic = MA.ICPrxHelper.uncheckedCast(
+            _adapter.addWithUUID(new ICI()));
     }
 
-    public M_A.C_APrx
-    c_a(Ice.Current current)
+    public MA.CAPrx
+    caop(Ice.Current current)
     {
         return _ca;
     }
 
-    public M_B.C_BPrx
-    c_b(Ice.Current current)
+    public MB.CBPrx
+    cbop(Ice.Current current)
     {
         return _cb;
     }
 
-    public M_A.C_CPrx
-    c_c(Ice.Current current)
+    public MA.CCPrx
+    ccop(Ice.Current current)
     {
         return _cc;
     }
 
-    public M_A.C_DPrx
-    c_d(Ice.Current current)
+    public MA.CDPrx
+    cdop(Ice.Current current)
     {
         return _cd;
     }
 
-    public M_A.I_APrx
-    i_a(Ice.Current current)
+    public MA.IAPrx
+    iaop(Ice.Current current)
     {
         return _ia;
     }
 
-    public M_B.I_B1Prx
-    i_b1(Ice.Current current)
+    public MB.IB1Prx
+    ib1op(Ice.Current current)
     {
         return _ib1;
     }
 
-    public M_B.I_B2Prx
-    i_b2(Ice.Current current)
+    public MB.IB2Prx
+    ib2op(Ice.Current current)
     {
         return _ib2;
     }
 
-    public M_A.I_CPrx
-    i_c(Ice.Current current)
+    public MA.ICPrx
+    icop(Ice.Current current)
     {
         return _ic;
     }
@@ -87,12 +87,12 @@ public final class InitialI extends _InitialDisp
     }
 
     private Ice.ObjectAdapter _adapter;
-    private M_A.C_APrx _ca;
-    private M_B.C_BPrx _cb;
-    private M_A.C_CPrx _cc;
-    private M_A.C_DPrx _cd;
-    private M_A.I_APrx _ia;
-    private M_B.I_B1Prx _ib1;
-    private M_B.I_B2Prx _ib2;
-    private M_A.I_CPrx _ic;
+    private MA.CAPrx _ca;
+    private MB.CBPrx _cb;
+    private MA.CCPrx _cc;
+    private MA.CDPrx _cd;
+    private MA.IAPrx _ia;
+    private MB.IB1Prx _ib1;
+    private MB.IB2Prx _ib2;
+    private MA.ICPrx _ic;
 }

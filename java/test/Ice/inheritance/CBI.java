@@ -8,27 +8,21 @@
 //
 // **********************************************************************
 
-public final class C_C_I extends M_A.C_C
+public final class CBI extends MB.CB
 {
     public
-    C_C_I()
+    CBI()
     {
     }
 
-    public M_A.C_APrx
-    ca(M_A.C_APrx p, Ice.Current current)
-    {
-        return p;
-    }
-
-    public M_A.C_CPrx
-    cc(M_A.C_CPrx p, Ice.Current current)
+    public MA.CAPrx
+    caop(MA.CAPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public M_B.C_BPrx
-    cb(M_B.C_BPrx p, Ice.Current current)
+    public MB.CBPrx
+    cbop(MB.CBPrx p, Ice.Current current)
     {
         return p;
     }

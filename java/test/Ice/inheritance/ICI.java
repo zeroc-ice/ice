@@ -8,33 +8,33 @@
 //
 // **********************************************************************
 
-public final class I_C_I extends M_A._I_CDisp
+public final class ICI extends MA._ICDisp
 {
     public
-    I_C_I()
+    ICI()
     {
     }
 
-    public M_A.I_APrx
-    ia(M_A.I_APrx p, Ice.Current current)
-    {
-        return p;
-    }
-
-    public M_A.I_CPrx
-    ic(M_A.I_CPrx p, Ice.Current current)
+    public MA.IAPrx
+    iaop(MA.IAPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public M_B.I_B1Prx
-    ib1(M_B.I_B1Prx p, Ice.Current current)
+    public MA.ICPrx
+    icop(MA.ICPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public M_B.I_B2Prx
-    ib2(M_B.I_B2Prx p, Ice.Current current)
+    public MB.IB1Prx
+    ib1op(MB.IB1Prx p, Ice.Current current)
+    {
+        return p;
+    }
+
+    public MB.IB2Prx
+    ib2op(MB.IB2Prx p, Ice.Current current)
     {
         return p;
     }

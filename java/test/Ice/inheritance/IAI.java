@@ -8,15 +8,15 @@
 //
 // **********************************************************************
 
-public final class I_A_I extends M_A._I_ADisp
+public final class IAI extends MA._IADisp
 {
     public
-    I_A_I()
+    IAI()
     {
     }
 
-    public M_A.I_APrx
-    ia(M_A.I_APrx p, Ice.Current current)
+    public MA.IAPrx
+    iaop(MA.IAPrx p, Ice.Current current)
     {
         return p;
     }

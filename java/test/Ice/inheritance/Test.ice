@@ -8,60 +8,60 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#ifndef TESTICE
+#define TESTICE
 
-module M_A
+module MA
 {
 
-interface I_A
+interface IA
 {
-    I_A* ia(I_A* p);
+    IA* iaop(IA* p);
 };
 
-class C_A
+class CA
 {
-    C_A* ca(C_A* p);
-};
-
-};
-
-module M_B
-{
-
-interface I_B1 extends M_A::I_A
-{
-    I_B1* ib1(I_B1* p);
-};
-
-interface I_B2 extends M_A::I_A
-{
-    I_B2* ib2(I_B2* p);
-};
-
-class C_B extends M_A::C_A
-{
-    C_B* cb(C_B* p);
+    CA* caop(CA* p);
 };
 
 };
 
-module M_A
+module MB
 {
 
-interface I_C extends M_B::I_B1, M_B::I_B2
+interface IB1 extends MA::IA
 {
-    I_C* ic(I_C* p);
+    IB1* ib1op(IB1* p);
 };
 
-class C_C extends M_B::C_B
+interface IB2 extends MA::IA
 {
-    C_C* cc(C_C* p);
+    IB2* ib2op(IB2* p);
 };
 
-class C_D extends C_C implements M_B::I_B1, M_B::I_B2
+class CB extends MA::CA
 {
-    C_D* cd(C_D* p);
+    CB* cbop(CB* p);
+};
+
+};
+
+module MA
+{
+
+interface IC extends MB::IB1, MB::IB2
+{
+    IC* icop(IC* p);
+};
+
+class CC extends MB::CB
+{
+    CC* ccop(CC* p);
+};
+
+class CD extends CC implements MB::IB1, MB::IB2
+{
+    CD* cdop(CD* p);
 };
 
 };
@@ -69,14 +69,14 @@ class C_D extends C_C implements M_B::I_B1, M_B::I_B2
 interface Initial
 {
     void shutdown();
-    M_A::C_A* c_a();
-    M_B::C_B* c_b();
-    M_A::C_C* c_c();
-    M_A::C_D* c_d();
-    M_A::I_A* i_a();
-    M_B::I_B1* i_b1();
-    M_B::I_B2* i_b2();
-    M_A::I_C* i_c();
+    MA::CA* caop();
+    MB::CB* cbop();
+    MA::CC* ccop();
+    MA::CD* cdop();
+    MA::IA* iaop();
+    MB::IB1* ib1op();
+    MB::IB2* ib2op();
+    MA::IC* icop();
 };
 
 #endif
