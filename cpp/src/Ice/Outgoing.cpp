@@ -66,7 +66,7 @@ IceInternal::Outgoing::Outgoing(const ConnectionPtr& connection, const Reference
     _os.write(_reference->facet);
     _os.write(operation);
     _os.write(nonmutating);
-    _os.write(Int(context.size()));
+    _os.writeSize(Int(context.size()));
     Context::const_iterator p;
     for (p = context.begin(); p != context.end(); ++p)
     {

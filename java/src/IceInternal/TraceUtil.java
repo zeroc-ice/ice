@@ -251,7 +251,7 @@ final class TraceUtil
             out.write("\noperation = " + operation);
             boolean nonmutating = stream.readBool();
             out.write("\nnonmutating = " + nonmutating);
-            int sz = stream.readInt();
+            int sz = stream.readSize();
             out.write("\ncontext = ");
             while (sz-- > 0)
             {

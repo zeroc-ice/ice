@@ -180,7 +180,7 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
     
     vector<EndpointPtr>::const_iterator p;
 
-    s->write(Ice::Int(origEndpoints.size()));
+    s->writeSize(Ice::Int(origEndpoints.size()));
     for (p = origEndpoints.begin(); p != origEndpoints.end(); ++p)
     {
 	(*p)->streamWrite(s);
@@ -193,7 +193,7 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
     else
     {
 	s->write(false);
-	s->write(Ice::Int(endpoints.size()));
+	s->writeSize(Ice::Int(endpoints.size()));
 	for (p = endpoints.begin(); p != endpoints.end(); ++p)
 	{
 	    (*p)->streamWrite(s);

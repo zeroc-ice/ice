@@ -29,7 +29,7 @@ public class Incoming
         current.facet = _is.readString();
         current.operation = _is.readString();
         current.nonmutating = _is.readBool();
-        int sz = _is.readInt();
+        int sz = _is.readSize();
         while (sz-- > 0)
         {
             String first = _is.readString();

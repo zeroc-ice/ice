@@ -1416,7 +1416,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << sp << nl << "public final void" << nl
             << "__write(IceInternal.BasicStream __os)";
         out << sb;
-        if (sz <= 0x7f)
+        if (sz <= 0xff)
         {
             out << nl << "__os.writeByte((byte)__value);";
         }
@@ -1436,7 +1436,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << sp << nl << "public static " << name << nl
             << "__read(IceInternal.BasicStream __is)";
         out << sb;
-        if (sz <= 0x7f)
+        if (sz <= 0xff)
         {
             out << nl << "int __v = __is.readByte();";
         }
@@ -1953,7 +1953,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         }
         else
         {
-            out << nl << "__os.writeInt(__v.length);";
+            out << nl << "__os.writeSize(__v.length);";
             out << nl << "for (int __i = 0; __i < __v.length; __i++)";
             out << sb;
             iter = 0;
@@ -1974,7 +1974,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         }
         else
         {
-            out << nl << "int __len = __is.readInt();";
+            out << nl << "int __len = __is.readSize();";
             out << nl << typeS << " __v = new " << origContentS << "[__len]";
             d = depth;
             while (d--)
@@ -2085,7 +2085,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         //
         out << nl << "public static void" << nl << "write(IceInternal.BasicStream __os, " << "java.util.Map __v)";
         out << sb;
-        out << nl << "__os.writeInt(__v.size());";
+        out << nl << "__os.writeSize(__v.size());";
         out << nl << "java.util.Iterator __i = __v.entrySet().iterator();";
         out << nl << "while (__i.hasNext())";
         out << sb;
@@ -2176,7 +2176,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         out << sp << nl << "public static java.util.Map"
             << nl << "read(IceInternal.BasicStream __is)";
         out << sb;
-        out << nl << "int __sz = __is.readInt();";
+        out << nl << "int __sz = __is.readSize();";
         out << nl << "java.util.Map __r = new java.util.HashMap(__sz);";
         out << nl << "for (int __i = 0; __i < __sz; __i++)";
         out << sb;

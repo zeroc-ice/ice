@@ -277,7 +277,7 @@ public final class ReferenceFactory
         Endpoint[] origEndpoints;
         Endpoint[] endpoints;
 
-        int sz = s.readInt();
+        int sz = s.readSize();
         origEndpoints = new Endpoint[sz];
         for (int i = 0; i < sz; i++)
         {
@@ -291,7 +291,7 @@ public final class ReferenceFactory
         }
         else
         {
-            sz = s.readInt();
+            sz = s.readSize();
             endpoints = new Endpoint[sz];
             for (int i = 0; i < sz; i++)
             {

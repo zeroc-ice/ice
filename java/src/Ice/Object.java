@@ -188,7 +188,7 @@ public class Object
         synchronized(_activeFacetMapMutex)
         {
             final int sz = _activeFacetMap.size();
-            __os.writeInt(sz);
+            __os.writeSize(sz);
 
             java.util.Set set = _activeFacetMap.keySet();
             String[] keys = new String[sz];
@@ -206,7 +206,7 @@ public class Object
     {
         synchronized(_activeFacetMapMutex)
         {
-            int sz = __is.readInt();
+            int sz = __is.readSize();
 
             _activeFacetMap.clear();
 

@@ -216,7 +216,7 @@ Ice::Object::__write(::IceInternal::BasicStream* __os) const
 {
     IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
     
-    __os->write(Int(_activeFacetMap.size()));
+    __os->writeSize(Int(_activeFacetMap.size()));
     for (map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
     {
 	__os->write(p->first);
@@ -230,7 +230,7 @@ Ice::Object::__read(::IceInternal::BasicStream* __is)
     IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
 
     Int sz;
-    __is->read(sz);
+    __is->readSize(sz);
 
     _activeFacetMap.clear();
     _activeFacetMapHint = _activeFacetMap.end();

@@ -34,7 +34,7 @@ IceInternal::Incoming::invoke(bool response)
     _is.read(current.operation);
     _is.read(current.nonmutating);
     Int sz;
-    _is.read(sz);
+    _is.readSize(sz);
     while (sz--)
     {
 	pair<string, string> pair;

@@ -414,9 +414,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     
 	H << sp << nl << _dllExport << "virtual void __write(::IceInternal::BasicStream*) const;";
 	H << nl << _dllExport << "virtual void __read(::IceInternal::BasicStream*);";
+
 	H << sp << nl << _dllExport << "virtual void __marshal(const ::Ice::StreamPtr&) const;";
 	H << nl << _dllExport << "virtual void __unmarshal(const ::Ice::StreamPtr&);";
 	H << nl << _dllExport << "void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&);";
+
 	TypeStringList memberList;
 	DataMemberList dataMembers = p->dataMembers();
 	for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -428,6 +430,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	writeMarshalCode(C, memberList, 0);
 	emitExceptionBase(base, "__write(__os)");
 	C << eb;
+
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
 	C << sb;
 	writeUnmarshalCode(C, memberList, 0);
@@ -529,6 +532,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	//
 	H << sp << nl << _dllExport << "void __write(::IceInternal::BasicStream*) const;";
 	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*);";
+
 	H << sp << nl << _dllExport << "void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&) const;";
 	H << nl << _dllExport << "void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&);";
 	
@@ -541,6 +545,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	C << sb;
 	writeMarshalCode(C, memberList, 0);
 	C << eb;
+
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
 	C << sb;
 	writeUnmarshalCode(C, memberList, 0);
@@ -553,6 +558,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	writeGenericMarshalCode(C, memberList, 0);
 	C << nl << "__os->endWriteStruct();";
 	C << eb;
+
 	C << sp << nl << "void" << nl << scoped.substr(2)
 	  << "::ice_unmarshal(const ::std::string& __name, const ::Ice::StreamPtr& __is)";
 	C << sb;
@@ -600,7 +606,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	  << ");";
 	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&, __U__" << name << ");";
 
-	H << nl << _dllExport << "void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&, const "
+	H << sp << nl << _dllExport << "void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&, const "
           << name << "&, __U__" << name
 	  << ");";
 	H << nl << _dllExport << "void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&, "
@@ -620,18 +626,19 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	C << sp << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const "
 	  << scoped << "& v, " << scope << "__U__" << name << ")";
 	C << sb;
-	C << nl << "__os->write(::Ice::Int(v.size()));";
+	C << nl << "__os->writeSize(::Ice::Int(v.size()));";
 	C << nl << scoped << "::const_iterator p;";
 	C << nl << "for (p = v.begin(); p != v.end(); ++p)";
 	C << sb;
 	writeMarshalUnmarshalCode(C, type, "(*p)", true);
 	C << eb;
 	C << eb;
+
 	C << sp << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " << scoped
 	  << "& v, " << scope << "__U__" << name << ')';
 	C << sb;
 	C << nl << "::Ice::Int sz;";
-	C << nl << "__is->read(sz);";
+	C << nl << "__is->readSize(sz);";
 	//
 	// Don't use v.resize(sz) or v.reserve(sz) here, as it cannot
 	// be checked whether sz is a reasonable value.
@@ -670,10 +677,6 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	  << "const ::Ice::StreamPtr& __is, " << scoped << "& v, " << scope << "__U__" << name << ')';
 	C << sb;
 	C << nl << "::Ice::Int sz = __is->startReadSequence(__name);";
-	//
-	// Don't use v.resize(sz) or v.reserve(sz) here, as it cannot
-	// be checked whether sz is a reasonable value.
-	//
 	C << nl << "while (sz--)";
 	C << sb;
 	C.zeroIndent();
@@ -699,7 +702,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	C << nl << scope << "ice_marshal(__name, __os, v, " << scope << "__U__" << name << "());";
 	C << eb;
 
-	C << nl << "void" << nl << scope.substr(2) << name << "Helper::"
+	C << sp << nl << "void" << nl << scope.substr(2) << name << "Helper::"
 	  << "ice_unmarshal(const ::std::string& __name, const ::Ice::StreamPtr& __is, "
 	  << name << "& v)";
 	C << sb;
@@ -735,6 +738,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "&, __U__" << name
 	  << ");";
 	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&, __U__" << name << ");";
+
 	H << sp << nl << _dllExport << "void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&, const "
 	  << name << "&, __U__" << name
 	  << ");";
@@ -755,7 +759,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	C << sp << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const "
 	  << scoped << "& v, " << scope << "__U__" << name << ")";
 	C << sb;
-	C << nl << "__os->write(::Ice::Int(v.size()));";
+	C << nl << "__os->writeSize(::Ice::Int(v.size()));";
 	C << nl << scoped << "::const_iterator p;";
 	C << nl << "for (p = v.begin(); p != v.end(); ++p)";
 	C << sb;
@@ -763,11 +767,12 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	writeMarshalUnmarshalCode(C, valueType, "p->second", true);
 	C << eb;
 	C << eb;
+
 	C << sp << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " << scoped
 	  << "& v, " << scope << "__U__" << name << ')';
 	C << sb;
 	C << nl << "::Ice::Int sz;";
-	C << nl << "__is->read(sz);";
+	C << nl << "__is->readSize(sz);";
 	C << nl << "while (sz--)";
 	C << sb;
 	C << nl << "::std::pair<" << ks << ", " << vs << "> pair;";
@@ -816,7 +821,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	C << nl << scope << "ice_marshal(__name, __os, v, " << scope << "__U__" << name << "());";
 	C << eb;
 
-	C << nl << "void" << nl << scope.substr(2) << name << "Helper::"
+	C << sp << nl << "void" << nl << scope.substr(2) << name << "Helper::"
 	  << "ice_unmarshal(const ::std::string& __name, const ::Ice::StreamPtr& __is, "
 	  << name << "& v)";
 	C << sb;
@@ -853,6 +858,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 	
 	H << sp << nl << _dllExport << "void __write(::IceInternal::BasicStream*, " << name << ");";
 	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&);";
+
 	H << sp << nl << _dllExport << "void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&, "
 	  << name << ");";
 	H << nl << _dllExport << "void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&, "
@@ -861,7 +867,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 	C << sp << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, " << scoped
 	  << " v)";
 	C << sb;
-	if (sz <= 0x7f)
+	if (sz <= 0xff)
 	{
 	    C << nl << "__os->write(static_cast< ::Ice::Byte>(v));";
 	}
@@ -874,10 +880,11 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 	    C << nl << "__os->write(static_cast< ::Ice::Int>(v));";
 	}
 	C << eb;
+
 	C << sp << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " << scoped
 	  << "& v)";
 	C << sb;
-	if (sz <= 0x7f)
+	if (sz <= 0xff)
 	{
 	    C << nl << "::Ice::Byte val;";
 	    C << nl << "__is->read(val);";
@@ -2580,6 +2587,7 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
     if (!p->isLocal())
     {
 	H << nl << "typedef ::IceInternal::ProxyHandle< ::IceProxy" << scoped << "> " << name << "Prx;";
+
 	H << sp;
 	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "Prx&);";
 	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "Prx&);";
@@ -2606,6 +2614,7 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << sb;
 	C << nl << "__os->write(::Ice::ObjectPrx(v));";
 	C << eb;
+
 	C << sp;
 	C << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " << scoped
 	  << "Prx& v)";
@@ -2629,6 +2638,8 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << sb;
 	C << nl << "__os->writeProxy(__name, v);";
 	C << eb;
+
+	C << sp;
 	C << nl << "void" << nl << scope.substr(2) << "ice_unmarshal(const ::std::string& __name, "
 	  << "const ::Ice::StreamPtr& __is, " << scoped << "Prx& v)";
 	C << sb;

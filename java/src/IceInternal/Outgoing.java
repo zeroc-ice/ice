@@ -46,12 +46,12 @@ public final class Outgoing
         _os.writeBool(nonmutating);
         if (context == null)
         {
-            _os.writeInt(0);
+            _os.writeSize(0);
         }
         else
         {
             final int sz = context.size();
-            _os.writeInt(sz);
+            _os.writeSize(sz);
             if (sz > 0)
             {
                 java.util.Iterator i = context.entrySet().iterator();

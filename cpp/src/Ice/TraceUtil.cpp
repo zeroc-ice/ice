@@ -83,7 +83,7 @@ printRequestHeader(ostream& s, BasicStream& stream)
     stream.read(nonmutating);
     s << "\nnonmutating = " << (nonmutating ? "true" : "false");
     Int sz;
-    stream.read(sz);
+    stream.readSize(sz);
     s << "\ncontext = ";
     while (sz--)
     {

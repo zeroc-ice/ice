@@ -138,7 +138,7 @@ public class BasicStream
     public void
     startWriteEncaps()
     {
-        writeInt(0); // Encoding
+        writeByte((byte)0); // Encoding
         writeInt(0); // Placeholder for the encapsulation length
         WriteEncaps curr = _writeEncapsCache;
         if (curr != null)
@@ -171,7 +171,7 @@ public class BasicStream
     public void
     startReadEncaps()
     {
-        int encoding = readInt();
+        byte encoding = readByte();
         if (encoding != 0)
         {
             throw new Ice.UnsupportedEncodingException();
@@ -186,7 +186,7 @@ public class BasicStream
         {
             curr = new ReadEncaps();
         }
-        curr.encoding = (byte)encoding;
+        curr.encoding = encoding;
         curr.start = _buf.position();
         curr.next = _readEncapsStack;
         _readEncapsStack = curr;
@@ -233,7 +233,7 @@ public class BasicStream
     public void
     skipEncaps()
     {
-        int encoding = readInt();
+        byte encoding = readByte();
         if (encoding != 0)
         {
             throw new Ice.UnsupportedEncodingException();
@@ -244,6 +244,43 @@ public class BasicStream
             _buf.position(_buf.position() + sz);
         }
         catch (IllegalArgumentException ex)
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
+        }
+    }
+
+    public void
+    writeSize(int v)
+    {
+	if (v >= 0xff)
+	{
+	    expand(5);
+	    _buf.put((byte)0xff);
+	    _buf.putInt(v);
+	}
+	else
+	{
+	    expand(1);
+	    _buf.put((byte)v);
+	}
+    }
+
+    public int
+    readSize()
+    {
+        try
+        {
+	    byte b = _buf.get();
+	    if (b == 0xff)
+	    {
+		return _buf.getInt();
+	    }
+	    else
+	    {
+		return (int)b;
+	    }
+        }
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -281,8 +318,8 @@ public class BasicStream
     public void
     writeByteSeq(byte[] v)
     {
-        expand(4 + v.length);
-        _buf.putInt(v.length);
+        writeSize(v.length);
+        expand(v.length);
         _buf.put(v);
     }
 
@@ -304,7 +341,7 @@ public class BasicStream
     {
         try
         {
-            final int sz = _buf.getInt();
+            final int sz = readSize();
             byte[] v = new byte[sz];
             _buf.get(v);
             return v;
@@ -325,8 +362,8 @@ public class BasicStream
     public void
     writeBoolSeq(boolean[] v)
     {
-        expand(4 + v.length);
-        _buf.putInt(v.length);
+        writeSize(v.length);
+        expand(v.length);
         for (int i = 0; i < v.length; i++)
         {
             _buf.put(v[i] ? (byte)1 : (byte)0);
@@ -351,7 +388,7 @@ public class BasicStream
     {
         try
         {
-            final int sz = _buf.getInt();
+            final int sz = readSize();
             boolean[] v = new boolean[sz];
             for (int i = 0; i < sz; i++)
             {
@@ -375,9 +412,8 @@ public class BasicStream
     public void
     writeShortSeq(short[] v)
     {
-        expand(4 + v.length * 2);
-        _buf.putInt(v.length);
-
+        writeSize(v.length);
+        expand(v.length * 2);
         java.nio.ShortBuffer shortBuf = _buf.asShortBuffer();
         shortBuf.put(v);
         _buf.position(_buf.position() + v.length * 2);
@@ -401,7 +437,7 @@ public class BasicStream
     {
         try
         {
-            final int sz = _buf.getInt();
+            final int sz = readSize();
             short[] v = new short[sz];
             java.nio.ShortBuffer shortBuf = _buf.asShortBuffer();
             shortBuf.get(v);
@@ -424,9 +460,8 @@ public class BasicStream
     public void
     writeIntSeq(int[] v)
     {
-        expand(4 + v.length * 4);
-        _buf.putInt(v.length);
-
+	writeSize(v.length);
+        expand(v.length * 4);
         java.nio.IntBuffer intBuf = _buf.asIntBuffer();
         intBuf.put(v);
         _buf.position(_buf.position() + v.length * 4);
@@ -450,7 +485,7 @@ public class BasicStream
     {
         try
         {
-            final int sz = _buf.getInt();
+            final int sz = readSize();
             int[] v = new int[sz];
             java.nio.IntBuffer intBuf = _buf.asIntBuffer();
             intBuf.get(v);
@@ -473,9 +508,8 @@ public class BasicStream
     public void
     writeLongSeq(long[] v)
     {
-        expand(4 + v.length * 8);
-        _buf.putInt(v.length);
-
+	writeSize(v.length);
+        expand(v.length * 8);
         java.nio.LongBuffer longBuf = _buf.asLongBuffer();
         longBuf.put(v);
         _buf.position(_buf.position() + v.length * 8);
@@ -499,7 +533,7 @@ public class BasicStream
     {
         try
         {
-            final int sz = _buf.getInt();
+            final int sz = readSize();
             long[] v = new long[sz];
             java.nio.LongBuffer longBuf = _buf.asLongBuffer();
             longBuf.get(v);
@@ -522,9 +556,8 @@ public class BasicStream
     public void
     writeFloatSeq(float[] v)
     {
-        expand(4 + v.length * 4);
-        _buf.putInt(v.length);
-
+	writeSize(v.length);
+        expand(v.length * 4);
         java.nio.FloatBuffer floatBuf = _buf.asFloatBuffer();
         floatBuf.put(v);
         _buf.position(_buf.position() + v.length * 4);
@@ -548,7 +581,7 @@ public class BasicStream
     {
         try
         {
-            final int sz = _buf.getInt();
+            final int sz = readSize();
             float[] v = new float[sz];
             java.nio.FloatBuffer floatBuf = _buf.asFloatBuffer();
             floatBuf.get(v);
@@ -571,9 +604,8 @@ public class BasicStream
     public void
     writeDoubleSeq(double[] v)
     {
-        expand(4 + v.length * 8);
-        _buf.putInt(v.length);
-
+	writeSize(v.length);
+        expand(v.length * 8);
         java.nio.DoubleBuffer doubleBuf = _buf.asDoubleBuffer();
         doubleBuf.put(v);
         _buf.position(_buf.position() + v.length * 8);
@@ -597,7 +629,7 @@ public class BasicStream
     {
         try
         {
-            final int sz = _buf.getInt();
+            final int sz = readSize();
             double[] v = new double[sz];
             java.nio.DoubleBuffer doubleBuf = _buf.asDoubleBuffer();
             doubleBuf.get(v);
@@ -614,7 +646,7 @@ public class BasicStream
     writeString(String v)
     {
         final int len = v.length();
-        writeInt(len);
+        writeSize(len);
         if (len > 0)
         {
             expand(len);
@@ -628,7 +660,7 @@ public class BasicStream
     public void
     writeStringSeq(String[] v)
     {
-        writeInt(v.length);
+        writeSize(v.length);
         for (int i = 0; i < v.length; i++)
         {
             writeString(v[i]);
@@ -638,7 +670,7 @@ public class BasicStream
     public String
     readString()
     {
-        final int len = readInt();
+        final int len = readSize();
 
         if (len == 0)
         {
@@ -676,7 +708,7 @@ public class BasicStream
     public String[]
     readStringSeq()
     {
-        final int sz = readInt();
+        final int sz = readSize();
         // Don't use v.resize(sz) or v.reserve(sz) here, as it cannot be
         // checked whether sz is a reasonable value
         String[] v = new String[sz];

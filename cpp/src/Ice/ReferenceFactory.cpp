@@ -335,7 +335,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     vector<EndpointPtr> endpoints;
 
     Ice::Int sz;
-    s->read(sz);
+    s->readSize(sz);
     origEndpoints.reserve(sz);
     while (sz--)
     {
@@ -352,7 +352,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     }
     else
     {
-	s->read(sz);
+	s->readSize(sz);
 	endpoints.reserve(sz);
 	while (sz--)
 	{

@@ -111,7 +111,7 @@ public final class Reference
 
         s.writeBool(secure);
 
-        s.writeInt(origEndpoints.length);
+        s.writeSize(origEndpoints.length);
         for (int i = 0; i < origEndpoints.length; i++)
         {
             origEndpoints[i].streamWrite(s);
@@ -124,7 +124,7 @@ public final class Reference
         else
         {
             s.writeBool(false);
-            s.writeInt(endpoints.length);
+            s.writeSize(endpoints.length);
             for (int i = 0; i < endpoints.length; i++)
             {
                 endpoints[i].streamWrite(s);

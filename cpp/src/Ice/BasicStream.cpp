@@ -72,7 +72,7 @@ IceInternal::BasicStream::reserve(int total)
 void
 IceInternal::BasicStream::startWriteEncaps()
 {
-    write(Int(0)); // Encoding
+    write(Byte(0)); // Encoding
     write(Int(0)); // Placeholder for the encapsulation length
     _writeEncapsStack.resize(_writeEncapsStack.size() + 1);
     _currentWriteEncaps = &_writeEncapsStack.back();
@@ -105,7 +105,7 @@ IceInternal::BasicStream::endWriteEncaps()
 void
 IceInternal::BasicStream::startReadEncaps()
 {
-    Int encoding;
+    Byte encoding;
     read(encoding);
     if (encoding != 0)
     {
@@ -175,7 +175,7 @@ IceInternal::BasicStream::getReadEncapsSize()
 void
 IceInternal::BasicStream::skipEncaps()
 {
-    Int encoding;
+    Byte encoding;
     read(encoding);
     if (encoding != 0)
     {
@@ -187,6 +187,35 @@ IceInternal::BasicStream::skipEncaps()
     if (i > b.end())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+    }
+}
+
+void
+IceInternal::BasicStream::writeSize(Int v)
+{
+    if (v >= 0xff)
+    {
+	write(Byte(0xff));
+	write(v);
+    }
+    else
+    {
+	write(static_cast<Byte>(v));
+    }
+}
+
+void
+IceInternal::BasicStream::readSize(Ice::Int& v)
+{
+    Byte b;
+    read(b);
+    if (b == Byte(0xff))
+    {
+	read(v);
+    }
+    else
+    {
+	v = static_cast<Int>(b);       
     }
 }
 
@@ -214,16 +243,11 @@ IceInternal::BasicStream::readBlob(vector<Byte>& v, Int sz)
 void
 IceInternal::BasicStream::write(const vector<Byte>& v)
 {
-    int pos = b.size();
     Int sz = v.size();
-    resize(pos + sizeof(Int) + sz);
-    const Byte* p = reinterpret_cast<const Byte*>(&sz);
-#ifdef ICE_UTIL_BIGENDIAN
-    reverse_copy(p, p + sizeof(Int), b.begin() + pos);
-#else
-    copy(p, p + sizeof(Int), b.begin() + pos);
-#endif
-    copy(v.begin(), v.end(), b.begin() + pos + sizeof(Int));
+    writeSize(sz);
+    int pos = b.size();
+    resize(pos + sz);
+    copy(v.begin(), v.end(), b.begin() + pos);
 }
 
 void
@@ -240,7 +264,7 @@ void
 IceInternal::BasicStream::read(vector<Byte>& v)
 {
     Int sz;
-    read(sz);
+    readSize(sz);
     Container::iterator begin = i;
     i += sz;
     if (i > b.end())
@@ -254,16 +278,11 @@ IceInternal::BasicStream::read(vector<Byte>& v)
 void
 IceInternal::BasicStream::write(const vector<bool>& v)
 {
-    int pos = b.size();
     Int sz = v.size();
-    resize(pos + sizeof(Int) + sz);
-    const Byte* p = reinterpret_cast<const Byte*>(&sz);
-#ifdef ICE_UTIL_BIGENDIAN
-    reverse_copy(p, p + sizeof(Int), b.begin() + pos);
-#else
-    copy(p, p + sizeof(Int), b.begin() + pos);
-#endif
-    copy(v.begin(), v.end(), b.begin() + pos + sizeof(Int));
+    writeSize(sz);
+    int pos = b.size();
+    resize(pos + sz);
+    copy(v.begin(), v.end(), b.begin() + pos);
 }
 
 void
@@ -280,7 +299,7 @@ void
 IceInternal::BasicStream::read(vector<bool>& v)
 {
     Int sz;
-    read(sz);
+    readSize(sz);
     Container::iterator begin = i;
     i += sz;
     if (i > b.end())
@@ -307,14 +326,12 @@ IceInternal::BasicStream::write(Short v)
 void
 IceInternal::BasicStream::write(const vector<Short>& v)
 {
-    int pos = b.size();
     Int sz = v.size();
-    resize(pos + sizeof(Int) + sz * sizeof(Short));
-    const Byte* p = reinterpret_cast<const Byte*>(&sz);
+    writeSize(sz);
+    int pos = b.size();
+    resize(pos + sz * sizeof(Short));
+    const Byte* p = reinterpret_cast<const Byte*>(v.begin());
 #ifdef ICE_UTIL_BIGENDIAN
-    reverse_copy(p, p + sizeof(Int), b.begin() + pos);
-    pos += sizeof(Int);
-    p = reinterpret_cast<const Byte*>(v.begin());
     for (int j = 0 ; j < sz ; ++j)
     {
 	reverse_copy(p, p + sizeof(Short), b.begin() + pos);
@@ -322,9 +339,7 @@ IceInternal::BasicStream::write(const vector<Short>& v)
 	pos += sizeof(Short);
     }
 #else
-    copy(p, p + sizeof(Int), b.begin() + pos);
-    p = reinterpret_cast<const Byte*>(v.begin());
-    copy(p, p + sz * sizeof(Short), b.begin() + pos + sizeof(Int));
+    copy(p, p + sz * sizeof(Short), b.begin() + pos);
 #endif
 }
 
@@ -348,7 +363,7 @@ void
 IceInternal::BasicStream::read(vector<Short>& v)
 {
     Int sz;
-    read(sz);
+    readSize(sz);
     Container::iterator begin = i;
     i += sz * sizeof(Short);
     if (i > b.end())
@@ -383,14 +398,12 @@ IceInternal::BasicStream::write(Int v)
 void
 IceInternal::BasicStream::write(const vector<Int>& v)
 {
-    int pos = b.size();
     Int sz = v.size();
-    resize(pos + sizeof(Int) + sz * sizeof(Int));
-    const Byte* p = reinterpret_cast<const Byte*>(&sz);
+    writeSize(sz);
+    int pos = b.size();
+    resize(pos + sz * sizeof(Int));
+    const Byte* p = reinterpret_cast<const Byte*>(v.begin());
 #ifdef ICE_UTIL_BIGENDIAN
-    reverse_copy(p, p + sizeof(Int), b.begin() + pos);
-    pos += sizeof(Int);
-    p = reinterpret_cast<const Byte*>(v.begin());
     for (int j = 0 ; j < sz ; ++j)
     {
 	reverse_copy(p, p + sizeof(Int), b.begin() + pos);
@@ -398,9 +411,7 @@ IceInternal::BasicStream::write(const vector<Int>& v)
 	pos += sizeof(Int);
     }
 #else
-    copy(p, p + sizeof(Int), b.begin() + pos);
-    p = reinterpret_cast<const Byte*>(v.begin());
-    copy(p, p + sz * sizeof(Int), b.begin() + pos + sizeof(Int));
+    copy(p, p + sz * sizeof(Int), b.begin() + pos);
 #endif
 }
 
@@ -424,7 +435,7 @@ void
 IceInternal::BasicStream::read(vector<Int>& v)
 {
     Int sz;
-    read(sz);
+    readSize(sz);
     Container::iterator begin = i;
     i += sz * sizeof(Int);
     if (i > b.end())
@@ -459,14 +470,12 @@ IceInternal::BasicStream::write(Long v)
 void
 IceInternal::BasicStream::write(const vector<Long>& v)
 {
-    int pos = b.size();
     Int sz = v.size();
-    resize(pos + sizeof(Int) + sz * sizeof(Long));
-    const Byte* p = reinterpret_cast<const Byte*>(&sz);
+    writeSize(sz);
+    int pos = b.size();
+    resize(pos + sz * sizeof(Long));
+    const Byte* p = reinterpret_cast<const Byte*>(v.begin());
 #ifdef ICE_UTIL_BIGENDIAN
-    reverse_copy(p, p + sizeof(Int), b.begin() + pos);
-    pos += sizeof(Int);
-    p = reinterpret_cast<const Byte*>(v.begin());
     for (int j = 0 ; j < sz ; ++j)
     {
 	reverse_copy(p, p + sizeof(Long), b.begin() + pos);
@@ -474,9 +483,7 @@ IceInternal::BasicStream::write(const vector<Long>& v)
 	pos += sizeof(Long);
     }
 #else
-    copy(p, p + sizeof(Int), b.begin() + pos);
-    p = reinterpret_cast<const Byte*>(v.begin());
-    copy(p, p + sz * sizeof(Long), b.begin() + pos + sizeof(Int));
+    copy(p, p + sz * sizeof(Long), b.begin() + pos);
 #endif
 }
 
@@ -500,7 +507,7 @@ void
 IceInternal::BasicStream::read(vector<Long>& v)
 {
     Int sz;
-    read(sz);
+    readSize(sz);
     Container::iterator begin = i;
     i += sz * sizeof(Long);
     if (i > b.end())
@@ -535,14 +542,12 @@ IceInternal::BasicStream::write(Float v)
 void
 IceInternal::BasicStream::write(const vector<Float>& v)
 {
-    int pos = b.size();
     Int sz = v.size();
-    resize(pos + sizeof(Int) + sz * sizeof(Float));
-    const Byte* p = reinterpret_cast<const Byte*>(&sz);
+    writeSize(sz);
+    int pos = b.size();
+    resize(pos + sz * sizeof(Float));
+    const Byte* p = reinterpret_cast<const Byte*>(v.begin());
 #ifdef ICE_UTIL_BIGENDIAN
-    reverse_copy(p, p + sizeof(Int), b.begin() + pos);
-    pos += sizeof(Int);
-    p = reinterpret_cast<const Byte*>(v.begin());
     for (int j = 0 ; j < sz ; ++j)
     {
 	reverse_copy(p, p + sizeof(Float), b.begin() + pos);
@@ -550,9 +555,7 @@ IceInternal::BasicStream::write(const vector<Float>& v)
 	pos += sizeof(Float);
     }
 #else
-    copy(p, p + sizeof(Int), b.begin() + pos);
-    p = reinterpret_cast<const Byte*>(v.begin());
-    copy(p, p + sz * sizeof(Float), b.begin() + pos + sizeof(Int));
+    copy(p, p + sz * sizeof(Float), b.begin() + pos);
 #endif
 }
 
@@ -576,7 +579,7 @@ void
 IceInternal::BasicStream::read(vector<Float>& v)
 {
     Int sz;
-    read(sz);
+    readSize(sz);
     Container::iterator begin = i;
     i += sz * sizeof(Float);
     if (i > b.end())
@@ -611,14 +614,12 @@ IceInternal::BasicStream::write(Double v)
 void
 IceInternal::BasicStream::write(const vector<Double>& v)
 {
-    int pos = b.size();
     Int sz = v.size();
-    resize(pos + sizeof(Int) + sz * sizeof(Double));
-    const Byte* p = reinterpret_cast<const Byte*>(&sz);
+    writeSize(sz);
+    int pos = b.size();
+    resize(pos + sz * sizeof(Double));
+    const Byte* p = reinterpret_cast<const Byte*>(v.begin());
 #ifdef ICE_UTIL_BIGENDIAN
-    reverse_copy(p, p + sizeof(Int), b.begin() + pos);
-    pos += sizeof(Int);
-    p = reinterpret_cast<const Byte*>(v.begin());
     for (int j = 0 ; j < sz ; ++j)
     {
 	reverse_copy(p, p + sizeof(Double), b.begin() + pos);
@@ -626,9 +627,7 @@ IceInternal::BasicStream::write(const vector<Double>& v)
 	pos += sizeof(Double);
     }
 #else
-    copy(p, p + sizeof(Int), b.begin() + pos);
-    p = reinterpret_cast<const Byte*>(v.begin());
-    copy(p, p + sz * sizeof(Double), b.begin() + pos + sizeof(Int));
+    copy(p, p + sz * sizeof(Double), b.begin() + pos);
 #endif
 }
 
@@ -652,7 +651,7 @@ void
 IceInternal::BasicStream::read(vector<Double>& v)
 {
     Int sz;
-    read(sz);
+    readSize(sz);
     Container::iterator begin = i;
     i += sz * sizeof(Double);
     if (i > b.end())
@@ -675,7 +674,7 @@ void
 IceInternal::BasicStream::write(const string& v)
 {
     Int len = v.size();
-    write(len);
+    writeSize(len);
     if (len > 0)
     {
 	int pos = b.size();
@@ -687,7 +686,7 @@ IceInternal::BasicStream::write(const string& v)
 void
 IceInternal::BasicStream::write(const vector<string>& v)
 {
-    write(Int(v.size()));
+    writeSize(Int(v.size()));
     vector<string>::const_iterator p;
     for (p = v.begin(); p != v.end(); ++p)
     {
@@ -699,7 +698,7 @@ void
 IceInternal::BasicStream::read(string& v)
 {
     Int len;
-    read(len);
+    readSize(len);
 
     if (len <= 0)
     {
@@ -722,7 +721,7 @@ void
 IceInternal::BasicStream::read(vector<string>& v)
 {
     Int sz;
-    read(sz);
+    readSize(sz);
     // Don't use v.resize(sz) or v.reserve(sz) here, as it cannot be
     // checked whether sz is a reasonable value
     while (sz--)
