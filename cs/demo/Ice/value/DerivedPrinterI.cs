@@ -20,7 +20,7 @@ class DerivedPrinterI : DerivedPrinter
             arr[arr.Length - i - 1] = arr[i];
             arr[i] = tmp;
         }
-        System.Console.Out.WriteLine(new System.String(arr));
+        System.Console.Out.WriteLine(new string(arr));
     }
     
     public override void printUppercase(Ice.Current current)

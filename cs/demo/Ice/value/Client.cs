@@ -32,9 +32,6 @@ public class Client
             return 1;
         }
         
-        //UPGRADE_TODO: Expected value of parameters of constructor 'java.io.BufferedReader.BufferedReader' are different in the equivalent in .NET. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1092"'
-        //UPGRADE_ISSUE: 'java.lang.System.in' was converted to 'Console.In' which is not valid in this expression. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1109"'
-        
         Console.Out.WriteLine();
         Console.Out.WriteLine("Let's first transfer a simple object, for a class without");
         Console.Out.WriteLine("operations, and print its contents. No factory is required");
@@ -85,7 +82,7 @@ public class Client
         Console.In.ReadLine();
         
         Ice.ObjectFactory factory = new ObjectFactory();
-        communicator.addObjectFactory(factory, "::Printer");
+        communicator.addObjectFactory(factory, "::Demo::Printer");
         
         initial.getPrinter(out printer, out printerProxy);
         Console.Out.WriteLine("==> " + printer.message);
@@ -117,7 +114,7 @@ public class Client
         
         Printer derivedAsBase = initial.getDerivedPrinter();
         Console.Out.WriteLine("The type ID of the received object is \"" + derivedAsBase.ice_id() + "\"");
-        Debug.Assert(derivedAsBase.ice_id().Equals("::Printer"));
+        Debug.Assert(derivedAsBase.ice_id().Equals("::Demo::Printer"));
         
         Console.Out.WriteLine();
         Console.Out.WriteLine("Now we install a factory for the derived class, and try again.");
@@ -126,7 +123,7 @@ public class Client
         Console.Out.WriteLine("[press enter]");
         Console.In.ReadLine();
         
-        communicator.addObjectFactory(factory, "::DerivedPrinter");
+        communicator.addObjectFactory(factory, "::Demo::DerivedPrinter");
         
         derivedAsBase = initial.getDerivedPrinter();
         DerivedPrinter derived = (DerivedPrinter)derivedAsBase;

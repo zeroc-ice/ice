@@ -14,12 +14,12 @@ class ObjectFactory : Ice.LocalObjectImpl, Ice.ObjectFactory
 {
     public virtual Ice.Object create(string type)
     {
-        if(type.Equals("::Printer"))
+        if(type.Equals("::Demo::Printer"))
         {
             return new PrinterI();
         }
         
-        if(type.Equals("::DerivedPrinter"))
+        if(type.Equals("::Demo::DerivedPrinter"))
         {
             return new DerivedPrinterI();
         }
