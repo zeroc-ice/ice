@@ -2,12 +2,14 @@ Changes since version 1.1.0
 ---------------------------
 
 - Added support for a default object factory, similar to the semantics
-  of servant locators. Specifically, a factory registered with an empty
-  type id is invoked when a type-specific factory cannot be found.
+  of servant locators. Specifically, a factory registered with an
+  empty type id is invoked when a type-specific factory cannot be
+  found.
 
-- Added Ice::Properties::parseIceCommandLineOptions(). This operation converts to
-  properties all options that start with one of the following prefixes:
-  --Ice, --IceBox, --IcePack, --IcePatch, --IceSSL, --IceStorm, --Freeze, and --Glacier.
+- Added Ice::Properties::parseIceCommandLineOptions(). This operation
+  converts to properties all options that start with one of the
+  following prefixes: --Ice, --IceBox, --IcePack, --IcePatch,
+  --IceSSL, --IceStorm, --Freeze, and --Glacier.
 
 - Added menu with several options to throughput demo.
 

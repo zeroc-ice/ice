@@ -5,25 +5,30 @@ Changes since version 1.1.0
   of servant locators. Specifically, a factory registered with an empty
   type id is invoked when a type-specific factory cannot be found.
 
-- Added Ice::Properties::parseIceCommandLineOptions(). This operation converts to
-  properties all options that start with one of the following prefixes:
-  --Ice, --IceBox, --IcePack, --IcePatch, --IceSSL, --IceStorm, --Freeze, and --Glacier.
+- Added Ice::Properties::parseIceCommandLineOptions(). This operation
+  converts to properties all options that start with one of the
+  following prefixes: --Ice, --IceBox, --IcePack, --IcePatch,
+  --IceSSL, --IceStorm, --Freeze, and --Glacier.
 
-- Added ice_clone() member function to non-abstract classes. ice_clone() polymorphically
-  copies a class instance. The copy is a deep copy for all types except for class members;
-  class members are copied shallow, that is, if a class contains a class member, the original
-  and the clone contain a Ptr that points at the same single class instance.
+- Added ice_clone() member function to non-abstract
+  classes. ice_clone() polymorphically copies a class instance. The
+  copy is a deep copy for all types except for class members; class
+  members are copied shallow, that is, if a class contains a class
+  member, the original and the clone contain a Ptr that points at the
+  same single class instance.
 
-- Improved marshaling performance for built-in types (byte, bool, short, int, long,
-  float, double, and string). This is noticable in particular when transmitting sequences
-  of these types, sequences of structures containing these types, or large dictionaries
-  containing these types.
+- Improved marshaling performance for built-in types (byte, bool,
+  short, int, long, float, double, and string). This is noticable in
+  particular when transmitting sequences of these types, sequences of
+  structures containing these types, or large dictionaries containing
+  these types.
 
 - Added menu with several options to throughput demo.
 
 - Added Linux/SPARC port from Ferris McCormick.
 
-- Fixed a bug where daemonized Ice::Application wouldn't shutdown properly.
+- Fixed a bug where daemonized Ice::Application wouldn't shutdown
+  properly.
 
 - Major Freeze update:
 
