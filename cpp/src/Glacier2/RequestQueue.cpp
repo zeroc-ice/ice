@@ -163,6 +163,7 @@ Glacier2::RequestQueue::destroy()
     // thread to block here.
     //
     //getThreadControl().join();
+    getThreadControl().detach();
 }
 
 void 
