@@ -54,10 +54,48 @@ propertiesNew(PyObject* /*arg*/)
 extern "C"
 #endif
 static int
-propertiesInit(PropertiesObject* self, PyObject* /*args*/, PyObject* /*kwds*/)
+propertiesInit(PropertiesObject* self, PyObject* args, PyObject* /*kwds*/)
 {
-    self->properties = new Ice::PropertiesPtr;
-    *(self->properties) = Ice::createProperties();
+    PyObject* arglist = NULL;
+    if(!PyArg_ParseTuple(args, "|O!", &PyList_Type, &arglist))
+    {
+        return -1;
+    }
+
+    Ice::StringSeq seq;
+    if(arglist && !listToStringSeq(arglist, seq))
+    {
+        return -1;
+    }
+
+    Ice::PropertiesPtr props;
+    try
+    {
+        props = Ice::createProperties(seq);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return -1;
+    }
+
+    //
+    // Replace the contents of the given argument list with the filtered arguments.
+    //
+    if(arglist)
+    {
+        if(PyList_SetSlice(arglist, 0, PyList_Size(arglist), NULL) < 0)
+        {
+            return -1;
+        }
+        if(!stringSeqToList(seq, arglist))
+        {
+            return -1;
+        }
+    }
+
+    self->properties = new Ice::PropertiesPtr(props);
+
     return 0;
 }
 
@@ -504,12 +542,12 @@ IcePy::getProperties(PyObject* p)
 
 extern "C"
 PyObject*
-Ice_createProperties(PyObject* /*self*/)
+Ice_createProperties(PyObject* /*self*/, PyObject* args)
 {
     //
     // Currently the same as "p = Ice.Properties()".
     //
-    return PyObject_Call((PyObject*)&PropertiesType, NULL, NULL);
+    return PyObject_Call((PyObject*)&PropertiesType, args, NULL);
 }
 
 extern "C"

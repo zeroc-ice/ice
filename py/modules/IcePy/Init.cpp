@@ -9,7 +9,6 @@
 
 #include <Communicator.h>
 #include <Current.h>
-#include <Identity.h>
 #include <ObjectAdapter.h>
 #include <Properties.h>
 #include <Proxy.h>
@@ -29,8 +28,8 @@ static PyMethodDef methods[] =
         PyDoc_STR("identityToString(id) -> string") },
     { "stringToIdentity", (PyCFunction)Ice_stringToIdentity, METH_VARARGS,
         PyDoc_STR("stringToIdentity(str) -> Ice.Identity") },
-    { "createProperties", (PyCFunction)Ice_createProperties, METH_NOARGS,
-        PyDoc_STR("createProperties() -> Ice.Properties") },
+    { "createProperties", (PyCFunction)Ice_createProperties, METH_VARARGS,
+        PyDoc_STR("createProperties([args]) -> Ice.Properties") },
     { "getDefaultProperties", (PyCFunction)Ice_getDefaultProperties, METH_VARARGS,
         PyDoc_STR("getDefaultProperties([args]) -> Ice.Properties") },
     { "defineEnum", (PyCFunction)Ice_defineEnum, METH_VARARGS,
