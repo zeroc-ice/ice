@@ -19,7 +19,7 @@ else:
     raise "can't find toplevel directory!"
 
 #
-# List of all tests.
+# List of all basic tests.
 #
 tests = [ \
     "IceUtil/thread", \
@@ -48,10 +48,10 @@ tests = [ \
     ]
 
 #
-# Only add Glacier tests for Linux systems
+# Certain tests only work on Linux.
 #
-# The slice on sys.platform is required - my cygwin comes back
-# as cygwin_nt-4.01
+# The substring on sys.platform is required because some cygwin
+# versions return "cygwin_nt-4.01".
 #
 if sys.platform != "win32" and sys.platform[:6] != "cygwin":
     tests += [ \
@@ -59,7 +59,7 @@ if sys.platform != "win32" and sys.platform[:6] != "cygwin":
         ]
 
 #
-# The user can supply on the command line a subset of tests to run.
+# The user can supply a subset of tests on the command line.
 #
 if sys.argv[1:]:
     print "limiting tests"
