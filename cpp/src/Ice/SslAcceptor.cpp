@@ -112,6 +112,12 @@ IceInternal::SslAcceptor::equivalent(const string& host, int port) const
     return memcmp(&addr, &localAddr, sizeof(struct sockaddr_in)) == 0;    
 }
 
+int
+IceInternal::SslAcceptor::effectivePort()
+{
+    return ntohs(_addr.sin_port);
+}
+
 IceInternal::SslAcceptor::SslAcceptor(const InstancePtr& instance, int port) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),

@@ -22,6 +22,13 @@ class PhoneBookCollocated : public Application
 };
 
 int
+main(int argc, char* argv[])
+{
+    PhoneBookCollocated app;
+    return app.main(argc, argv, "config");
+}
+
+int
 PhoneBookCollocated::run(int argc, char* argv[])
 {
     int status;
@@ -126,11 +133,4 @@ PhoneBookCollocated::run(int argc, char* argv[])
     }
 
     return status;
-}
-
-int
-main(int argc, char* argv[])
-{
-    PhoneBookCollocated app;
-    return app.main(argc, argv, "config");
 }

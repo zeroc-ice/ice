@@ -21,6 +21,13 @@ class PhoneBookServer : public Application
 };
 
 int
+main(int argc, char* argv[])
+{
+    PhoneBookServer app;
+    return app.main(argc, argv, "config");
+}
+
+int
 PhoneBookServer::run(int argc, char* argv[])
 {
     ignoreInterrupt();
@@ -130,11 +137,4 @@ PhoneBookServer::run(int argc, char* argv[])
 
     defaultInterrupt();
     return status;
-}
-
-int
-main(int argc, char* argv[])
-{
-    PhoneBookServer app;
-    return app.main(argc, argv, "config");
 }

@@ -146,6 +146,12 @@ IceInternal::UdpTransceiver::equivalent(const string& host, int port) const
     return memcmp(&addr, &localAddr, sizeof(struct sockaddr_in)) == 0;    
 }
 
+int
+IceInternal::UdpTransceiver::effectivePort()
+{
+    return ntohs(_addr.sin_port);
+}
+
 IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),

@@ -88,19 +88,34 @@ public:
     virtual bool secure() const = 0;
 
     //
-    // Return client- and server-side Transceivers for the endpoint,
-    // or null if a TransceiverPtr can only be created by Acceptors or
-    // Connectors.
+    // Return a client side transceiver for this endpoint, or null if a
+    // transceiver can only be created by a connector.
     //
     virtual TransceiverPtr clientTransceiver(const InstancePtr&) const = 0;
-    virtual TransceiverPtr serverTransceiver(const InstancePtr&) const = 0;
 
     //
-    // Return Acceptors and Connectors for the endpoint, or null if no
-    // Acceptors and Connectors are available.
+    // Return a server side transceiver for this endpoint, or null if a
+    // transceiver can only be created by an acceptor. In case a
+    // transceiver is created, this operation also returns a new
+    // "effective" endpoint, which might differ from this endpoint,
+    // for example, if a dynamic port number is assigned.
+    //
+    virtual TransceiverPtr serverTransceiver(const InstancePtr&, EndpointPtr&) const = 0;
+
+    //
+    // Return a connector for this endpoint, or null if no connector
+    // is available.
     //
     virtual ConnectorPtr connector(const InstancePtr&) const = 0;
-    virtual AcceptorPtr acceptor(const InstancePtr&) const = 0;
+
+    //
+    // Return an acceptor for this endpoint, or null if no acceptors
+    // is available. In case an acceptor is created, this operation
+    // also returns a new "effective" endpoint, which might differ
+    // from this endpoint, for example, if a dynamic port number is
+    // assigned.
+    //
+    virtual AcceptorPtr acceptor(const InstancePtr&, EndpointPtr&) const = 0;
 
     //
     // Check whether the endpoint is equivalent to a specific
@@ -131,9 +146,9 @@ public:
     virtual bool datagram() const;
     virtual bool secure() const;
     virtual TransceiverPtr clientTransceiver(const InstancePtr&) const;
-    virtual TransceiverPtr serverTransceiver(const InstancePtr&) const;
+    virtual TransceiverPtr serverTransceiver(const InstancePtr&, EndpointPtr&) const;
     virtual ConnectorPtr connector(const InstancePtr&) const;
-    virtual AcceptorPtr acceptor(const InstancePtr&) const;
+    virtual AcceptorPtr acceptor(const InstancePtr&, EndpointPtr&) const;
     virtual bool equivalent(const TransceiverPtr&) const;
     virtual bool equivalent(const AcceptorPtr&) const;
 
@@ -165,9 +180,9 @@ public:
     virtual bool datagram() const;
     virtual bool secure() const;
     virtual TransceiverPtr clientTransceiver(const InstancePtr&) const;
-    virtual TransceiverPtr serverTransceiver(const InstancePtr&) const;
+    virtual TransceiverPtr serverTransceiver(const InstancePtr&, EndpointPtr&) const;
     virtual ConnectorPtr connector(const InstancePtr&) const;
-    virtual AcceptorPtr acceptor(const InstancePtr&) const;
+    virtual AcceptorPtr acceptor(const InstancePtr&, EndpointPtr&) const;
     virtual bool equivalent(const TransceiverPtr&) const;
     virtual bool equivalent(const AcceptorPtr&) const;
 
@@ -201,9 +216,9 @@ public:
     virtual bool datagram() const;
     virtual bool secure() const;
     virtual TransceiverPtr clientTransceiver(const InstancePtr&) const;
-    virtual TransceiverPtr serverTransceiver(const InstancePtr&) const;
+    virtual TransceiverPtr serverTransceiver(const InstancePtr&, EndpointPtr&) const;
     virtual ConnectorPtr connector(const InstancePtr&) const;
-    virtual AcceptorPtr acceptor(const InstancePtr&) const;
+    virtual AcceptorPtr acceptor(const InstancePtr&, EndpointPtr&) const;
     virtual bool equivalent(const TransceiverPtr&) const;
     virtual bool equivalent(const AcceptorPtr&) const;
 
@@ -237,9 +252,9 @@ public:
     virtual bool datagram() const;
     virtual bool secure() const;
     virtual TransceiverPtr clientTransceiver(const InstancePtr&) const;
-    virtual TransceiverPtr serverTransceiver(const InstancePtr&) const;
+    virtual TransceiverPtr serverTransceiver(const InstancePtr&, EndpointPtr&) const;
     virtual ConnectorPtr connector(const InstancePtr&) const;
-    virtual AcceptorPtr acceptor(const InstancePtr&) const;
+    virtual AcceptorPtr acceptor(const InstancePtr&, EndpointPtr&) const;
     virtual bool equivalent(const TransceiverPtr&) const;
     virtual bool equivalent(const AcceptorPtr&) const;
 

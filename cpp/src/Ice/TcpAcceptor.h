@@ -39,6 +39,8 @@ public:
 
     virtual bool equivalent(const std::string&, int) const;
 
+    int effectivePort();
+
 private:
 
     TcpAcceptor(const InstancePtr&, int);

@@ -954,6 +954,11 @@ static JTCMutex inetNtoaMutex;
 std::string
 IceInternal::fdToString(int fd)
 {
+    if(fd == INVALID_SOCKET)
+    {
+	return "<closed>";
+    }
+
     socklen_t localLen = sizeof(struct sockaddr_in);
     struct sockaddr_in localAddr;
     if (getsockname(fd, reinterpret_cast<struct sockaddr*>(&localAddr), &localLen) == SOCKET_ERROR)

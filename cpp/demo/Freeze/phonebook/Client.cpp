@@ -20,15 +20,15 @@ class PhoneBookClient : public Application
 };
 
 int
-PhoneBookClient::run(int argc, char* argv[])
-{
-    int runParser(int, char*[], const CommunicatorPtr&);
-    return runParser(argc, argv, communicator());
-}
-
-int
 main(int argc, char* argv[])
 {
     PhoneBookClient app;
     return app.main(argc, argv, "config");
+}
+
+int
+PhoneBookClient::run(int argc, char* argv[])
+{
+    int runParser(int, char*[], const CommunicatorPtr&);
+    return runParser(argc, argv, communicator());
 }

@@ -1,5 +1,5 @@
-Nested.NestedServer=nestedServer:tcp -h localhost -p 10000
-Ice.Adapter.NestedServerAdapter.Endpoints=tcp -p 10000
-Ice.Adapter.NestedClientAdapter.Endpoints=tcp
-Ice.Trace.Network=2
+Nested.NestedServer=nestedServer:tcp -p 10000 -t 1000
+Ice.Adapter.NestedServerAdapter.Endpoints=tcp -p 10000 -t 1000
+Ice.Adapter.NestedClientAdapter.Endpoints=tcp -t 1000
+Ice.Trace.Network=1
 #Ice.Trace.Protocol=1

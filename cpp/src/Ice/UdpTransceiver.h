@@ -38,6 +38,8 @@ public:
 
     virtual bool equivalent(const std::string&, int) const;
     
+    int effectivePort();
+
 private:
 
     UdpTransceiver(const InstancePtr&, const std::string&, int);

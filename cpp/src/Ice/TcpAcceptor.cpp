@@ -112,6 +112,12 @@ IceInternal::TcpAcceptor::equivalent(const string& host, int port) const
     return memcmp(&addr, &localAddr, sizeof(struct sockaddr_in)) == 0;    
 }
 
+int
+IceInternal::TcpAcceptor::effectivePort()
+{
+    return ntohs(_addr.sin_port);
+}
+
 IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, int port) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),

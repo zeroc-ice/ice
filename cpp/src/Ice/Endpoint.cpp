@@ -161,8 +161,9 @@ IceInternal::UnknownEndpoint::clientTransceiver(const InstancePtr&) const
 }
 
 TransceiverPtr
-IceInternal::UnknownEndpoint::serverTransceiver(const InstancePtr&) const
+IceInternal::UnknownEndpoint::serverTransceiver(const InstancePtr&, EndpointPtr& endp) const
 {
+    endp = const_cast<UnknownEndpoint*>(this);
     return 0;
 }
 
@@ -173,8 +174,9 @@ IceInternal::UnknownEndpoint::connector(const InstancePtr& instance) const
 }
 
 AcceptorPtr
-IceInternal::UnknownEndpoint::acceptor(const InstancePtr& instance) const
+IceInternal::UnknownEndpoint::acceptor(const InstancePtr& instance, EndpointPtr& endp) const
 {
+    endp = const_cast<UnknownEndpoint*>(this);
     return 0;
 }
 
@@ -417,8 +419,9 @@ IceInternal::TcpEndpoint::clientTransceiver(const InstancePtr&) const
 }
 
 TransceiverPtr
-IceInternal::TcpEndpoint::serverTransceiver(const InstancePtr&) const
+IceInternal::TcpEndpoint::serverTransceiver(const InstancePtr&, EndpointPtr& endp) const
 {
+    endp = const_cast<TcpEndpoint*>(this);
     return 0;
 }
 
@@ -429,9 +432,11 @@ IceInternal::TcpEndpoint::connector(const InstancePtr& instance) const
 }
 
 AcceptorPtr
-IceInternal::TcpEndpoint::acceptor(const InstancePtr& instance) const
+IceInternal::TcpEndpoint::acceptor(const InstancePtr& instance, EndpointPtr& endp) const
 {
-    return new TcpAcceptor(instance, _port);
+    TcpAcceptor* p = new TcpAcceptor(instance, _port);
+    endp = new TcpEndpoint(_host, p->effectivePort(), _timeout);
+    return p;
 }
 
 bool
@@ -729,8 +734,9 @@ IceInternal::SslEndpoint::clientTransceiver(const InstancePtr&) const
 }
 
 TransceiverPtr
-IceInternal::SslEndpoint::serverTransceiver(const InstancePtr&) const
+IceInternal::SslEndpoint::serverTransceiver(const InstancePtr&, EndpointPtr& endp) const
 {
+    endp = const_cast<SslEndpoint*>(this);
     return 0;
 }
 
@@ -741,9 +747,11 @@ IceInternal::SslEndpoint::connector(const InstancePtr& instance) const
 }
 
 AcceptorPtr
-IceInternal::SslEndpoint::acceptor(const InstancePtr& instance) const
+IceInternal::SslEndpoint::acceptor(const InstancePtr& instance, EndpointPtr& endp) const
 {
-    return new SslAcceptor(instance, _port);
+    SslAcceptor* p = new SslAcceptor(instance, _port);
+    endp = new SslEndpoint(_host, p->effectivePort(), _timeout);
+    return p;
 }
 
 bool
@@ -1019,9 +1027,11 @@ IceInternal::UdpEndpoint::clientTransceiver(const InstancePtr& instance) const
 }
 
 TransceiverPtr
-IceInternal::UdpEndpoint::serverTransceiver(const InstancePtr& instance) const
+IceInternal::UdpEndpoint::serverTransceiver(const InstancePtr& instance, EndpointPtr& endp) const
 {
-    return new UdpTransceiver(instance, _port);
+    UdpTransceiver* p = new UdpTransceiver(instance, _port);
+    endp = new UdpEndpoint(_host, p->effectivePort());
+    return p;
 }
 
 ConnectorPtr
@@ -1031,8 +1041,9 @@ IceInternal::UdpEndpoint::connector(const InstancePtr&) const
 }
 
 AcceptorPtr
-IceInternal::UdpEndpoint::acceptor(const InstancePtr&) const
+IceInternal::UdpEndpoint::acceptor(const InstancePtr&, EndpointPtr& endp) const
 {
+    endp = const_cast<UdpEndpoint*>(this);
     return 0;
 }
 
