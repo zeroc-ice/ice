@@ -8,7 +8,8 @@ Changes since version 1.1.0
 
 - Improved marshaling performance for built-in types (byte, bool, short, int, long,
   float, double, and string). This is noticable in particular when transmitting sequences
-  of structures or large dictionaries containing these types.
+  of these types, sequences of structures containing these types, or large dictionaries
+  containing these types.
 
 - Added menu with several options to throughput demo.
 
