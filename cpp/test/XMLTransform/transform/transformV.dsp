@@ -42,8 +42,8 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../include" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_UNICODE" /YX /FD /c
-# SUBTRACT CPP /Fr
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../include" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_UNICODE" /FD /c
+# SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -68,8 +68,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_UNICODE" /YX /FD /GZ /c
-# SUBTRACT CPP /Fr
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_UNICODE" /FD /GZ /c
+# SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -91,19 +91,27 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Validate.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\TestNew.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\IntByteMap.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntShortMap.cpp
+SOURCE=.\IntC1MapNew.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntD1MapNew.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntDoubleMap.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntE1MapNew.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntFloatMap.cpp
 # End Source File
 # Begin Source File
 
@@ -115,11 +123,7 @@ SOURCE=.\IntLongMap.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntFloatMap.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\IntDoubleMap.cpp
+SOURCE=.\IntS1MapNew.cpp
 # End Source File
 # Begin Source File
 
@@ -139,19 +143,15 @@ SOURCE=.\IntSeq4MapNew.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntE1MapNew.cpp
+SOURCE=.\IntShortMap.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntD1MapNew.cpp
+SOURCE=.\TestNew.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntS1MapNew.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\IntC1MapNew.cpp
+SOURCE=.\Validate.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -159,15 +159,27 @@ SOURCE=.\IntC1MapNew.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\TestNew.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\IntByteMap.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntShortMap.h
+SOURCE=.\IntC1MapNew.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntD1MapNew.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntDoubleMap.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntE1MapNew.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntFloatMap.h
 # End Source File
 # Begin Source File
 
@@ -179,11 +191,7 @@ SOURCE=.\IntLongMap.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntFloatMap.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\IntDoubleMap.h
+SOURCE=.\IntS1MapNew.h
 # End Source File
 # Begin Source File
 
@@ -203,19 +211,11 @@ SOURCE=.\IntSeq4MapNew.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntE1MapNew.h
+SOURCE=.\IntShortMap.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntD1MapNew.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\IntS1MapNew.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\IntC1MapNew.h
+SOURCE=.\TestNew.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -227,7 +227,7 @@ SOURCE=.\TestNew.ice
 
 !IF  "$(CFG)" == "transformV - Win32 Release"
 
-USERDEP__TESTN="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"
+USERDEP__TESTN="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	
 # Begin Custom Build
 InputPath=.\TestNew.ice
 
@@ -300,7 +300,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "transformV - Win32 Debug"
 
-USERDEP__TESTN="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"
+USERDEP__TESTN="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	
 # Begin Custom Build
 InputPath=.\TestNew.ice
 

@@ -42,8 +42,8 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../include" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_UNICODE" /YX /FD /c
-# SUBTRACT CPP /Fr
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../include" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_UNICODE" /FD /c
+# SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -68,8 +68,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_UNICODE" /YX /FD /GZ /c
-# SUBTRACT CPP /Fr
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_UNICODE" /FD /GZ /c
+# SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -91,19 +91,27 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Populate.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\TestOld.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\IntByteMap.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntShortMap.cpp
+SOURCE=.\IntC1MapOld.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntD1MapOld.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntDoubleMap.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntE1MapOld.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntFloatMap.cpp
 # End Source File
 # Begin Source File
 
@@ -115,11 +123,7 @@ SOURCE=.\IntLongMap.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntFloatMap.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\IntDoubleMap.cpp
+SOURCE=.\IntS1MapOld.cpp
 # End Source File
 # Begin Source File
 
@@ -139,19 +143,15 @@ SOURCE=.\IntSeq4MapOld.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntE1MapOld.cpp
+SOURCE=.\IntShortMap.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntD1MapOld.cpp
+SOURCE=.\Populate.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntS1MapOld.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\IntC1MapOld.cpp
+SOURCE=.\TestOld.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -159,15 +159,27 @@ SOURCE=.\IntC1MapOld.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\TestOld.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\IntByteMap.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntShortMap.h
+SOURCE=.\IntC1MapOld.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntD1MapOld.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntDoubleMap.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntE1MapOld.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntFloatMap.h
 # End Source File
 # Begin Source File
 
@@ -179,11 +191,7 @@ SOURCE=.\IntLongMap.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntFloatMap.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\IntDoubleMap.h
+SOURCE=.\IntS1MapOld.h
 # End Source File
 # Begin Source File
 
@@ -203,19 +211,11 @@ SOURCE=.\IntSeq4MapOld.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntE1MapOld.h
+SOURCE=.\IntShortMap.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntD1MapOld.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\IntS1MapOld.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\IntC1MapOld.h
+SOURCE=.\TestOld.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -223,244 +223,57 @@ SOURCE=.\IntC1MapOld.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\TestOld.ice
+SOURCE=..\..\..\slice\Ice\Identity.ice
 
 !IF  "$(CFG)" == "transformP - Win32 Release"
 
-USERDEP__TESTO="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2xsd.exe"	"..\..\..\bin\slice2freeze.exe"
+USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"	
 # Begin Custom Build
-InputPath=.\TestOld.ice
+InputPath=..\..\..\slice\Ice\Identity.ice
 
-BuildCmds= \
-	..\..\..\bin\slice2cpp.exe TestOld.ice \
-	..\..\..\bin\slice2xsd.exe TestOld.ice \
-	..\..\..\bin\slice2freeze.exe --dict IntByteMap,int,byte IntByteMap \
-	..\..\..\bin\slice2freeze.exe --dict IntShortMap,int,short IntShortMap \
-	..\..\..\bin\slice2freeze.exe --dict IntIntMap,int,int IntIntMap \
-	..\..\..\bin\slice2freeze.exe --dict IntLongMap,int,long IntLongMap \
-	..\..\..\bin\slice2freeze.exe --dict IntFloatMap,int,float IntFloatMap \
-	..\..\..\bin\slice2freeze.exe --dict IntDoubleMap,int,double IntDoubleMap \
-	..\..\..\bin\slice2freeze.exe --dict IntSeq1Map,int,Test::Seq1 IntSeq1MapOld TestOld.ice \
-	..\..\..\bin\slice2freeze.exe --dict IntSeq2Map,int,Test::Seq2 IntSeq2MapOld TestOld.ice \
-	..\..\..\bin\slice2freeze.exe --dict IntSeq3Map,int,Test::Seq3 IntSeq3MapOld TestOld.ice \
-	..\..\..\bin\slice2freeze.exe --dict IntSeq4Map,int,Test::Seq4 IntSeq4MapOld TestOld.ice \
-	..\..\..\bin\slice2freeze.exe --dict IntE1Map,int,Test::E1 IntE1MapOld TestOld.ice \
-	..\..\..\bin\slice2freeze.exe --dict IntD1Map,int,Test::D1 IntD1MapOld TestOld.ice \
-	..\..\..\bin\slice2freeze.exe --dict IntS1Map,int,Test::S1 IntS1MapOld TestOld.ice \
-	..\..\..\bin\slice2freeze.exe --dict IntC1Map,int,Test::C1 IntC1MapOld TestOld.ice \
-	
+"Identity.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\..\bin\slice2xsd.exe --ice -I../../../slice ../../../slice/Ice/Identity.ice
 
-"TestOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"TestOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"TestOld.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntByteMap.cpp" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntByteMap.h" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntShortMap.cpp" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntShortMap.h" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntIntMap.cpp" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntIntMap.h" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntLongMap.cpp" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntLongMap.h" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntFloatMap.cpp" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntFloatMap.h" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntDoubleMap.cpp" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntDoubleMap.h" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntSeq1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntSeq1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntSeq2MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntSeq2MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntSeq3MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntSeq3MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntSeq4MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntSeq4MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntE1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntE1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntD1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntD1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntS1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntS1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntC1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntC1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "transformP - Win32 Debug"
 
-USERDEP__TESTO="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2xsd.exe"	"..\..\..\bin\slice2freeze.exe"
+USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"	
 # Begin Custom Build
-InputPath=.\TestOld.ice
+InputPath=..\..\..\slice\Ice\Identity.ice
 
-BuildCmds= \
-	..\..\..\bin\slice2cpp.exe TestOld.ice \
-	..\..\..\bin\slice2xsd.exe TestOld.ice \
-	..\..\..\bin\slice2freeze.exe --dict IntByteMap,int,byte IntByteMap \
-	..\..\..\bin\slice2freeze.exe --dict IntShortMap,int,short IntShortMap \
-	..\..\..\bin\slice2freeze.exe --dict IntIntMap,int,int IntIntMap \
-	..\..\..\bin\slice2freeze.exe --dict IntLongMap,int,long IntLongMap \
-	..\..\..\bin\slice2freeze.exe --dict IntFloatMap,int,float IntFloatMap \
-	..\..\..\bin\slice2freeze.exe --dict IntDoubleMap,int,double IntDoubleMap \
-	..\..\..\bin\slice2freeze.exe --dict IntSeq1Map,int,Test::Seq1 IntSeq1MapOld TestOld.ice \
-	..\..\..\bin\slice2freeze.exe --dict IntSeq2Map,int,Test::Seq2 IntSeq2MapOld TestOld.ice \
-	..\..\..\bin\slice2freeze.exe --dict IntSeq3Map,int,Test::Seq3 IntSeq3MapOld TestOld.ice \
-	..\..\..\bin\slice2freeze.exe --dict IntSeq4Map,int,Test::Seq4 IntSeq4MapOld TestOld.ice \
-	..\..\..\bin\slice2freeze.exe --dict IntE1Map,int,Test::E1 IntE1MapOld TestOld.ice \
-	..\..\..\bin\slice2freeze.exe --dict IntD1Map,int,Test::D1 IntD1MapOld TestOld.ice \
-	..\..\..\bin\slice2freeze.exe --dict IntS1Map,int,Test::S1 IntS1MapOld TestOld.ice \
-	..\..\..\bin\slice2freeze.exe --dict IntC1Map,int,Test::C1 IntC1MapOld TestOld.ice \
-	
+"Identity.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\..\bin\slice2xsd.exe --ice -I../../../slice ../../../slice/Ice/Identity.ice
 
-"TestOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
+# End Custom Build
 
-"TestOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
+!ENDIF 
 
-"TestOld.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
+# End Source File
+# Begin Source File
 
-"IntByteMap.cpp" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
+SOURCE=..\..\..\slice\Freeze\ObjectRecord.ice
 
-"IntByteMap.h" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
+!IF  "$(CFG)" == "transformP - Win32 Release"
 
-"IntShortMap.cpp" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
+USERDEP__OBJEC="..\..\..\bin\slice2xsd.exe"	
+# Begin Custom Build
+InputPath=..\..\..\slice\Freeze\ObjectRecord.ice
 
-"IntShortMap.h" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
+"ObjectRecord.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\..\bin\slice2xsd.exe -I../../../slice ../../../slice/Freeze/ObjectRecord.ice
 
-"IntIntMap.cpp" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
+# End Custom Build
 
-"IntIntMap.h" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
+!ELSEIF  "$(CFG)" == "transformP - Win32 Debug"
 
-"IntLongMap.cpp" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
+USERDEP__OBJEC="..\..\..\bin\slice2xsd.exe"	
+# Begin Custom Build
+InputPath=..\..\..\slice\Freeze\ObjectRecord.ice
 
-"IntLongMap.h" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
+"ObjectRecord.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\..\bin\slice2xsd.exe -I../../../slice ../../../slice/Freeze/ObjectRecord.ice
 
-"IntFloatMap.cpp" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntFloatMap.h" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntDoubleMap.cpp" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntDoubleMap.h" : "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntSeq1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntSeq1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntSeq2MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntSeq2MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntSeq3MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntSeq3MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntSeq4MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntSeq4MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntE1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntE1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntD1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntD1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntS1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntS1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntC1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IntC1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
 # End Custom Build
 
 !ENDIF 
@@ -476,12 +289,9 @@ USERDEP__TESTN="..\..\..\bin\slice2xsd.exe"
 # Begin Custom Build
 InputPath=.\TestNew.ice
 
-BuildCmds= \
-	..\..\..\bin\slice2xsd.exe TestNew.ice \
-	
-
 "TestNew.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
+	..\..\..\bin\slice2xsd.exe TestNew.ice
+
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "transformP - Win32 Debug"
@@ -490,12 +300,9 @@ USERDEP__TESTN="..\..\..\bin\slice2xsd.exe"
 # Begin Custom Build
 InputPath=.\TestNew.ice
 
-BuildCmds= \
-	..\..\..\bin\slice2xsd.exe TestNew.ice \
-	
-
 "TestNew.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
+	..\..\..\bin\slice2xsd.exe TestNew.ice
+
 # End Custom Build
 
 !ENDIF 
@@ -503,68 +310,243 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\..\slice\Ice\Identity.ice
+SOURCE=.\TestOld.ice
 
 !IF  "$(CFG)" == "transformP - Win32 Release"
 
-USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"	
+USERDEP__TESTO="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2xsd.exe"	"..\..\..\bin\slice2freeze.exe"	
 # Begin Custom Build
-InputPath=..\..\..\slice\Ice\Identity.ice
+InputPath=.\TestOld.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2xsd.exe --ice -I../../../slice ../../../slice/Ice/Identity.ice \
+	..\..\..\bin\slice2cpp.exe TestOld.ice \
+	..\..\..\bin\slice2xsd.exe TestOld.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntByteMap,int,byte IntByteMap \
+	..\..\..\bin\slice2freeze.exe --dict IntShortMap,int,short IntShortMap \
+	..\..\..\bin\slice2freeze.exe --dict IntIntMap,int,int IntIntMap \
+	..\..\..\bin\slice2freeze.exe --dict IntLongMap,int,long IntLongMap \
+	..\..\..\bin\slice2freeze.exe --dict IntFloatMap,int,float IntFloatMap \
+	..\..\..\bin\slice2freeze.exe --dict IntDoubleMap,int,double IntDoubleMap \
+	..\..\..\bin\slice2freeze.exe --dict IntSeq1Map,int,Test::Seq1 IntSeq1MapOld TestOld.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntSeq2Map,int,Test::Seq2 IntSeq2MapOld TestOld.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntSeq3Map,int,Test::Seq3 IntSeq3MapOld TestOld.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntSeq4Map,int,Test::Seq4 IntSeq4MapOld TestOld.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntE1Map,int,Test::E1 IntE1MapOld TestOld.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntD1Map,int,Test::D1 IntD1MapOld TestOld.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntS1Map,int,Test::S1 IntS1MapOld TestOld.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntC1Map,int,Test::C1 IntC1MapOld TestOld.ice \
 	
 
-"Identity.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"TestOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"TestOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"TestOld.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntByteMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntByteMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntShortMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntShortMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntIntMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntIntMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntLongMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntLongMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntFloatMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntFloatMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntDoubleMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntDoubleMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntSeq1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntSeq1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntSeq2MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntSeq2MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntSeq3MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntSeq3MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntSeq4MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntSeq4MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntE1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntE1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntD1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntD1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntS1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntS1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntC1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntC1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "transformP - Win32 Debug"
 
-USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"	
+USERDEP__TESTO="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2xsd.exe"	"..\..\..\bin\slice2freeze.exe"	
 # Begin Custom Build
-InputPath=..\..\..\slice\Ice\Identity.ice
+InputPath=.\TestOld.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2xsd.exe --ice -I../../../slice ../../../slice/Ice/Identity.ice \
+	..\..\..\bin\slice2cpp.exe TestOld.ice \
+	..\..\..\bin\slice2xsd.exe TestOld.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntByteMap,int,byte IntByteMap \
+	..\..\..\bin\slice2freeze.exe --dict IntShortMap,int,short IntShortMap \
+	..\..\..\bin\slice2freeze.exe --dict IntIntMap,int,int IntIntMap \
+	..\..\..\bin\slice2freeze.exe --dict IntLongMap,int,long IntLongMap \
+	..\..\..\bin\slice2freeze.exe --dict IntFloatMap,int,float IntFloatMap \
+	..\..\..\bin\slice2freeze.exe --dict IntDoubleMap,int,double IntDoubleMap \
+	..\..\..\bin\slice2freeze.exe --dict IntSeq1Map,int,Test::Seq1 IntSeq1MapOld TestOld.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntSeq2Map,int,Test::Seq2 IntSeq2MapOld TestOld.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntSeq3Map,int,Test::Seq3 IntSeq3MapOld TestOld.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntSeq4Map,int,Test::Seq4 IntSeq4MapOld TestOld.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntE1Map,int,Test::E1 IntE1MapOld TestOld.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntD1Map,int,Test::D1 IntD1MapOld TestOld.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntS1Map,int,Test::S1 IntS1MapOld TestOld.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntC1Map,int,Test::C1 IntC1MapOld TestOld.ice \
 	
 
-"Identity.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"TestOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
-# End Custom Build
 
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\..\slice\Freeze\ObjectRecord.ice
-
-!IF  "$(CFG)" == "transformP - Win32 Release"
-
-USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"	
-# Begin Custom Build
-InputPath=..\..\..\slice\Freeze\ObjectRecord.ice
-
-BuildCmds= \
-	..\..\..\bin\slice2xsd.exe -I../../../slice ../../../slice/Freeze/ObjectRecord.ice \
-	
-
-"ObjectRecord.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"TestOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
-# End Custom Build
 
-!ELSEIF  "$(CFG)" == "transformP - Win32 Debug"
+"TestOld.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
 
-USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"	
-# Begin Custom Build
-InputPath=..\..\..\slice\Freeze\ObjectRecord.ice
+"IntByteMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
 
-BuildCmds= \
-	..\..\..\bin\slice2xsd.exe -I../../../slice ../../../slice/Freeze/ObjectRecord.ice \
-	
+"IntByteMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
 
-"ObjectRecord.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"IntShortMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntShortMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntIntMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntIntMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntLongMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntLongMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntFloatMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntFloatMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntDoubleMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntDoubleMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntSeq1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntSeq1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntSeq2MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntSeq2MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntSeq3MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntSeq3MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntSeq4MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntSeq4MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntE1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntE1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntD1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntD1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntS1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntS1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntC1MapOld.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntC1MapOld.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
