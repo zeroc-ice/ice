@@ -236,8 +236,6 @@ static const char* _coreTypes =
     "    function ice_postUnmarshal()\n"
     "    {\n"
     "    }\n"
-    "\n"
-    "    var $ice_facets = array();\n"
     "}\n"
     "\n"
     "interface Ice_ObjectFactory extends Ice_LocalObject\n"

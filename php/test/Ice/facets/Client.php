@@ -54,7 +54,7 @@ function allTests()
     test($ff->callF() == "F");
     echo "ok\n";
 
-    echo "testing facet G, which is a sub-facet of E and F... ";
+    echo "testing facet G... ";
     flush();
     $gf = $ff->ice_checkedCast("::G", "facetGH");
     test($gf != null);

@@ -149,12 +149,12 @@ static function_entry _methods[] =
     {"ice_ping",            PHP_FN(Ice_ObjectPrx_ice_ping),            NULL},
     {"ice_id",              PHP_FN(Ice_ObjectPrx_ice_id),              NULL},
     {"ice_ids",             PHP_FN(Ice_ObjectPrx_ice_ids),             NULL},
-    {"ice_facets",          PHP_FN(Ice_ObjectPrx_ice_facets),          NULL},
     {"ice_getIdentity",     PHP_FN(Ice_ObjectPrx_ice_getIdentity),     NULL},
     {"ice_newIdentity",     PHP_FN(Ice_ObjectPrx_ice_newIdentity),     NULL},
+    {"ice_getContext",      PHP_FN(Ice_ObjectPrx_ice_getContext),      NULL},
+    {"ice_newContext",      PHP_FN(Ice_ObjectPrx_ice_newContext),      NULL},
     {"ice_getFacet",        PHP_FN(Ice_ObjectPrx_ice_getFacet),        NULL},
     {"ice_newFacet",        PHP_FN(Ice_ObjectPrx_ice_newFacet),        NULL},
-    {"ice_appendFacet",     PHP_FN(Ice_ObjectPrx_ice_appendFacet),     NULL},
     {"ice_twoway",          PHP_FN(Ice_ObjectPrx_ice_twoway),          NULL},
     {"ice_isTwoway",        PHP_FN(Ice_ObjectPrx_ice_isTwoway),        NULL},
     {"ice_oneway",          PHP_FN(Ice_ObjectPrx_ice_oneway),          NULL},
@@ -264,7 +264,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isA)
     // Populate the context (if necessary).
     //
     Ice::Context ctx;
-    if(arr && !getContext(arr, ctx TSRMLS_CC))
+    if(arr && !extractContext(arr, ctx TSRMLS_CC))
     {
         RETURN_FALSE;
     }
@@ -309,7 +309,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ping)
     // Populate the context (if necessary).
     //
     Ice::Context ctx;
-    if(arr && !getContext(arr, ctx TSRMLS_CC))
+    if(arr && !extractContext(arr, ctx TSRMLS_CC))
     {
         RETURN_NULL();
     }
@@ -348,7 +348,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_id)
     // Populate the context (if necessary).
     //
     Ice::Context ctx;
-    if(arr && !getContext(arr, ctx TSRMLS_CC))
+    if(arr && !extractContext(arr, ctx TSRMLS_CC))
     {
         RETURN_NULL();
     }
@@ -387,7 +387,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ids)
     // Populate the context (if necessary).
     //
     Ice::Context ctx;
-    if(arr && !getContext(arr, ctx TSRMLS_CC))
+    if(arr && !extractContext(arr, ctx TSRMLS_CC))
     {
         RETURN_NULL();
     }
@@ -402,50 +402,6 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ids)
         array_init(return_value);
         uint idx = 0;
         for(vector<string>::const_iterator p = ids.begin(); p != ids.end(); ++p, ++idx)
-        {
-            add_index_stringl(return_value, idx, const_cast<char*>((*p).c_str()), (*p).length(), 1);
-        }
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex TSRMLS_CC);
-        RETURN_NULL();
-    }
-}
-
-ZEND_FUNCTION(Ice_ObjectPrx_ice_facets)
-{
-    if(ZEND_NUM_ARGS() > 1)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    zval* arr = NULL;
-
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|a", &arr) == FAILURE)
-    {
-        RETURN_NULL();
-    }
-
-    //
-    // Populate the context (if necessary).
-    //
-    Ice::Context ctx;
-    if(arr && !getContext(arr, ctx TSRMLS_CC))
-    {
-        RETURN_NULL();
-    }
-
-    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
-    assert(obj->ptr);
-    Proxy* _this = static_cast<Proxy*>(obj->ptr);
-
-    try
-    {
-        Ice::FacetPath facets = _this->getProxy()->ice_facets(ctx);
-        array_init(return_value);
-        uint idx = 0;
-        for(vector<string>::const_iterator p = facets.begin(); p != facets.end(); ++p, ++idx)
         {
             add_index_stringl(return_value, idx, const_cast<char*>((*p).c_str()), (*p).length(), 1);
         }
@@ -511,6 +467,62 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_newIdentity)
     }
 }
 
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getContext)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    createContext(return_value, _this->getProxy()->ice_getContext() TSRMLS_CC);
+}
+
+ZEND_FUNCTION(Ice_ObjectPrx_ice_newContext)
+{
+    if(ZEND_NUM_ARGS() != 1)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    zval* arr = NULL;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &arr) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    //
+    // Populate the context.
+    //
+    Ice::Context ctx;
+    if(arr && !extractContext(arr, ctx TSRMLS_CC))
+    {
+        RETURN_NULL();
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    try
+    {
+        Ice::ObjectPrx prx = _this->getProxy()->ice_newContext(ctx);
+        if(!createProxy(return_value, prx TSRMLS_CC))
+        {
+            RETURN_NULL();
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getFacet)
 {
     if(ZEND_NUM_ARGS() != 0)
@@ -524,13 +536,8 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getFacet)
 
     try
     {
-        Ice::FacetPath facet = _this->getProxy()->ice_getFacet();
-        array_init(return_value);
-        uint idx = 0;
-        for(vector<string>::const_iterator p = facet.begin(); p != facet.end(); ++p, ++idx)
-        {
-            add_index_stringl(return_value, idx, const_cast<char*>((*p).c_str()), (*p).length(), 1);
-        }
+        string facet = _this->getProxy()->ice_getFacet();
+        ZVAL_STRINGL(return_value, const_cast<char*>(facet.c_str()), facet.length(), 1);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -540,55 +547,6 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getFacet)
 }
 
 ZEND_FUNCTION(Ice_ObjectPrx_ice_newFacet)
-{
-    if(ZEND_NUM_ARGS() != 1)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    zval* zarr;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &zarr) == FAILURE)
-    {
-        RETURN_NULL();
-    }
-
-    Ice::FacetPath facet;
-    HashTable* arr = Z_ARRVAL_P(zarr);
-    HashPosition pos;
-    zval** val;
-
-    zend_hash_internal_pointer_reset_ex(arr, &pos);
-    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
-    {
-        if(Z_TYPE_PP(val) != IS_STRING)
-        {
-            zend_error(E_ERROR, "%s(): facet must be a string array", get_active_function_name(TSRMLS_C));
-            RETURN_NULL();
-        }
-        facet.push_back(string(Z_STRVAL_PP(val), Z_STRLEN_PP(val)));
-        zend_hash_move_forward_ex(arr, &pos);
-    }
-
-    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
-    assert(obj->ptr);
-    Proxy* _this = static_cast<Proxy*>(obj->ptr);
-
-    try
-    {
-        Ice::ObjectPrx prx = _this->getProxy()->ice_newFacet(facet);
-        if(!createProxy(return_value, prx TSRMLS_CC))
-        {
-            RETURN_NULL();
-        }
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex TSRMLS_CC);
-        RETURN_NULL();
-    }
-}
-
-ZEND_FUNCTION(Ice_ObjectPrx_ice_appendFacet)
 {
     if(ZEND_NUM_ARGS() != 1)
     {
@@ -609,9 +567,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_appendFacet)
 
     try
     {
-        Ice::FacetPath facet;
-
-        Ice::ObjectPrx prx = _this->getProxy()->ice_appendFacet(name);
+        Ice::ObjectPrx prx = _this->getProxy()->ice_newFacet(name);
         if(!createProxy(return_value, prx TSRMLS_CC))
         {
             RETURN_NULL();
@@ -1082,7 +1038,7 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
         Ice::ObjectPrx prx = _this->getProxy();
         if(facet)
         {
-            prx = prx->ice_appendFacet(facet);
+            prx = prx->ice_newFacet(facet);
         }
 
         if(check)
@@ -1264,7 +1220,7 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         // Populate the context (if necessary).
         //
         Ice::Context ctx;
-        if(ZEND_NUM_ARGS() == numParams + 1 && !getContext(*args[numParams], ctx TSRMLS_CC))
+        if(ZEND_NUM_ARGS() == numParams + 1 && !extractContext(*args[numParams], ctx TSRMLS_CC))
         {
             return;
         }

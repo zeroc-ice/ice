@@ -216,21 +216,7 @@ function allTests()
         }
         catch(Ice_FacetNotExistException $ex)
         {
-            test(count($ex->facet) == 1);
-            test($ex->facet[0] == "no such facet");
-        }
-
-        try
-        {
-            $thrower3 = $thrower2->ice_uncheckedCast("::Thrower", "no such facet either");
-            $thrower3->ice_ping();
-            test(false);
-        }
-        catch(Ice_FacetNotExistException $ex)
-        {
-            test(count($ex->facet) == 2);
-            test($ex->facet[0] == "no such facet");
-            test($ex->facet[1] == "no such facet either");
+            test($ex->facet == "no such facet");
         }
     }
 

@@ -210,9 +210,6 @@ public:
     virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
 
     virtual void destroy();
-
-private:
-    MarshalerPtr _facetMapMarshaler;
 };
 
 class ObjectSliceMarshaler : public Marshaler
@@ -1286,15 +1283,6 @@ IcePHP::ExceptionMarshaler::destroy()
 //
 IcePHP::IceObjectSliceMarshaler::IceObjectSliceMarshaler(TSRMLS_D)
 {
-    //
-    // Create a marshaler for the ice_facets member.
-    //
-    Profile* profile = static_cast<Profile*>(ICE_G(profile));
-    assert(profile);
-    Slice::TypePtr keyType = profile->unit->builtin(Slice::Builtin::KindString);
-    Slice::TypePtr valueType = profile->unit->builtin(Slice::Builtin::KindObject);
-    MarshalerPtr dict = new NativeDictionaryMarshaler(keyType, valueType TSRMLS_CC);
-    _facetMapMarshaler = new MemberMarshaler("ice_facets", dict);
 }
 
 bool
@@ -1304,10 +1292,7 @@ IcePHP::IceObjectSliceMarshaler::marshal(zval* zv, IceInternal::BasicStream& os 
 
     os.writeTypeId(Ice::Object::ice_staticId());
     os.startWriteSlice();
-    if(!_facetMapMarshaler->marshal(zv, os TSRMLS_CC))
-    {
-        return false;
-    }
+    os.writeSize(0); // For compatibility with the old AFM.
     os.endWriteSlice();
 
     return true;
@@ -1324,10 +1309,15 @@ IcePHP::IceObjectSliceMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& i
     //is.readTypeId()
 
     is.startReadSlice();
-    if(!_facetMapMarshaler->unmarshal(zv, is TSRMLS_CC))
+
+    // For compatibility with the old AFM.
+    Ice::Int sz;
+    is.readSize(sz);
+    if(sz != 0)
     {
-        return false;
+        throw Ice::MarshalException(__FILE__, __LINE__);
     }
+
     is.endReadSlice();
 
     return true;
@@ -1336,8 +1326,6 @@ IcePHP::IceObjectSliceMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& i
 void
 IcePHP::IceObjectSliceMarshaler::destroy()
 {
-    _facetMapMarshaler->destroy();
-    _facetMapMarshaler = 0;
 }
 
 //

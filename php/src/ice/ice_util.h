@@ -36,6 +36,9 @@ namespace IcePHP
 bool createIdentity(zval*, const Ice::Identity& TSRMLS_DC);
 bool extractIdentity(zval*, Ice::Identity& TSRMLS_DC);
 
+bool createContext(zval*, const Ice::Context& TSRMLS_DC);
+bool extractContext(zval*, Ice::Context& TSRMLS_DC);
+
 //
 // PHP wrapper for C++ objects.
 //
@@ -103,11 +106,6 @@ std::string zendTypeToString(int);
 // Returns true if the given type is valid for use as a key in a native PHP associative array.
 //
 bool isNativeKey(const Slice::TypePtr&);
-
-//
-// Extracts a context (i.e., dictionary<string, string>) from the given zval.
-//
-bool getContext(zval*, Ice::Context& TSRMLS_DC);
 
 //
 // Determines whether a class (or interface) inherits from a base class (or interface).

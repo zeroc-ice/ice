@@ -15,6 +15,8 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+#include <Ice/Current.ice>
+
 module Test
 {
 
@@ -142,6 +144,8 @@ dictionary<string, MyEnum> StringMyEnumD;
 				  out StringMyEnumD p3);
 
     IntS opIntS(IntS s);
+
+    Ice::Context opContext();
 
 };
 

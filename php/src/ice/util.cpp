@@ -210,6 +210,74 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
     return true;
 }
 
+bool
+IcePHP::createContext(zval* zv, const Ice::Context& ctx TSRMLS_DC)
+{
+    zend_class_entry* cls = findClass("Ice_Identity" TSRMLS_CC);
+    assert(cls);
+
+    array_init(zv);
+    for(Ice::Context::const_iterator p = ctx.begin(); p != ctx.end(); ++p)
+    {
+        zval* val;
+        MAKE_STD_ZVAL(val);
+        ZVAL_STRINGL(val, const_cast<char*>(p->second.c_str()), p->second.length(), 1);
+        add_assoc_zval_ex(zv, const_cast<char*>(p->first.c_str()), p->first.length() + 1, val);
+    }
+
+    return true;
+}
+
+bool
+IcePHP::extractContext(zval* zv, Ice::Context& ctx TSRMLS_DC)
+{
+    if(Z_TYPE_P(zv) != IS_ARRAY)
+    {
+        string s = zendTypeToString(Z_TYPE_P(zv));
+        zend_error(E_ERROR, "%s(): expected an array for the context argument but received %s",
+                   get_active_function_name(TSRMLS_C), s.c_str());
+        return false;
+    }
+
+    HashTable* arr = Z_ARRVAL_P(zv);
+    HashPosition pos;
+    zval** val;
+
+    zend_hash_internal_pointer_reset_ex(arr, &pos);
+    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+    {
+        //
+        // Get the key (which can be a long or a string).
+        //
+        char* keyStr;
+        uint keyLen;
+        ulong keyNum;
+        int keyType = zend_hash_get_current_key_ex(arr, &keyStr, &keyLen, &keyNum, 0, &pos);
+
+        //
+        // Store the key in a zval, so that we can reuse the PrimitiveMarshaler logic.
+        //
+        if(keyType != HASH_KEY_IS_STRING)
+        {
+            zend_error(E_ERROR, "%s(): context key must be a string", get_active_function_name(TSRMLS_C));
+            return false;
+        }
+
+        zend_hash_get_current_data_ex(arr, (void**)&val, &pos);
+        if(Z_TYPE_PP(val) != IS_STRING)
+        {
+            zend_error(E_ERROR, "%s(): context value must be a string", get_active_function_name(TSRMLS_C));
+            return false;
+        }
+
+        ctx[keyStr] = Z_STRVAL_PP(val);
+
+        zend_hash_move_forward_ex(arr, &pos);
+    }
+
+    return true;
+}
+
 #ifdef WIN32
 extern "C"
 #endif
@@ -328,16 +396,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         //
         zval* facet;
         MAKE_STD_ZVAL(facet);
-        array_init(facet);
-        Ice::Int i = 0;
-        for(Ice::FacetPath::const_iterator p = e.facet.begin(); p != e.facet.end(); ++p, ++i)
-        {
-            string f = *p;
-            zval* val;
-            MAKE_STD_ZVAL(val);
-            ZVAL_STRINGL(val, const_cast<char*>(f.c_str()), f.length(), 1);
-            add_index_zval(facet, i, val);
-        }
+        ZVAL_STRINGL(facet, const_cast<char*>(e.facet.c_str()), e.facet.length(), 1);
         zend_update_property(cls, zex, "facet", sizeof("facet") - 1, facet TSRMLS_CC);
 
         //
@@ -617,56 +676,6 @@ IcePHP::isNativeKey(const Slice::TypePtr& type)
     }
 
     return false;
-}
-
-bool
-IcePHP::getContext(zval* zv, Ice::Context& ctx TSRMLS_DC)
-{
-    if(Z_TYPE_P(zv) != IS_ARRAY)
-    {
-        string s = zendTypeToString(Z_TYPE_P(zv));
-        zend_error(E_ERROR, "%s(): expected an array for the context argument but received %s",
-                   get_active_function_name(TSRMLS_C), s.c_str());
-        return false;
-    }
-
-    HashTable* arr = Z_ARRVAL_P(zv);
-    HashPosition pos;
-    zval** val;
-
-    zend_hash_internal_pointer_reset_ex(arr, &pos);
-    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
-    {
-        //
-        // Get the key (which can be a long or a string).
-        //
-        char* keyStr;
-        uint keyLen;
-        ulong keyNum;
-        int keyType = zend_hash_get_current_key_ex(arr, &keyStr, &keyLen, &keyNum, 0, &pos);
-
-        //
-        // Store the key in a zval, so that we can reuse the PrimitiveMarshaler logic.
-        //
-        if(keyType != HASH_KEY_IS_STRING)
-        {
-            zend_error(E_ERROR, "%s(): context key must be a string", get_active_function_name(TSRMLS_C));
-            return false;
-        }
-
-        zend_hash_get_current_data_ex(arr, (void**)&val, &pos);
-        if(Z_TYPE_PP(val) != IS_STRING)
-        {
-            zend_error(E_ERROR, "%s(): context value must be a string", get_active_function_name(TSRMLS_C));
-            return false;
-        }
-
-        ctx[keyStr] = Z_STRVAL_PP(val);
-
-        zend_hash_move_forward_ex(arr, &pos);
-    }
-
-    return true;
 }
 
 bool
