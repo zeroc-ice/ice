@@ -251,6 +251,17 @@ void
 IceInternal::Connection::setAdapter(const ObjectAdapterPtr& adapter)
 {
     IceUtil::RecMutex::Lock sync(*this);
+    
+    if (adapter && !_adapter)
+    {
+	_threadPool->clientIsNowServer();
+    }
+    
+    if (!adapter && _adapter)
+    {
+	_threadPool->serverIsNowClient();
+    }
+    
     _adapter = adapter;
 }
 
@@ -538,11 +549,14 @@ IceInternal::Connection::finished()
 {
     IceUtil::RecMutex::Lock sync(*this);
 
+    assert(_state == StateClosed || _state == StateHolding);
+
     _threadPool->promoteFollower();
 
-    assert(_state == StateClosed);
-
-    _transceiver->close();
+    if (_state == StateClosed)
+    {
+	_transceiver->close();
+    }
 }
 
 void
@@ -699,7 +713,7 @@ IceInternal::Connection::setState(State state)
 	    {
 		return;
 	    }
-	    _threadPool->unregister(_transceiver->fd(), false);
+	    _threadPool->unregister(_transceiver->fd());
 	    break;
 	}
 
@@ -730,7 +744,7 @@ IceInternal::Connection::setState(State state)
 		//
 		_threadPool->_register(_transceiver->fd(), this);
 	    }
-	    _threadPool->unregister(_transceiver->fd(), true);
+	    _threadPool->unregister(_transceiver->fd());
 	    break;
 	}
     }

@@ -358,41 +358,45 @@ IceInternal::IncomingConnectionFactory::finished()
 {
     IceUtil::Mutex::Lock sync(*this);
 
+    assert(_state == StateClosed || _state == StateHolding);
+
     _threadPool->promoteFollower();
     
-    assert(_state == StateClosed);
-    assert(_connections.empty());
-    
-    try
+    if (_state == StateClosed)
     {
-	//
-	// Clear listen() backlog properly by accepting all queued
-	// connections, and then shutting them down.
-	//
-	while (true)
+	assert(_connections.empty());
+	
+	try
 	{
-	    try
+	    //
+	    // Clear listen() backlog properly by accepting all queued
+	    // connections, and then shutting them down.
+	    //
+	    while (true)
 	    {
-		TransceiverPtr transceiver = _acceptor->accept(0);
-		ConnectionPtr connection = new Connection(_instance, transceiver, _endpoint, _adapter);
-		connection->exception(ObjectAdapterDeactivatedException(__FILE__, __LINE__));
-	    }
-	    catch (const TimeoutException&)
-	    {
-		break; // Exit loop on timeout.
+		try
+		{
+		    TransceiverPtr transceiver = _acceptor->accept(0);
+		    ConnectionPtr connection = new Connection(_instance, transceiver, _endpoint, _adapter);
+		    connection->exception(ObjectAdapterDeactivatedException(__FILE__, __LINE__));
+		}
+		catch (const TimeoutException&)
+		{
+		    break; // Exit loop on timeout.
+		}
 	    }
 	}
-    }
-    catch (const LocalException& ex)
-    {
-	if (_warn)
+	catch (const LocalException& ex)
 	{
-	    Warning out(_instance->logger());
-	    out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
+	    if (_warn)
+	    {
+		Warning out(_instance->logger());
+		out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
+	    }
 	}
+	
+	_acceptor->close();
     }
-
-    _acceptor->close();
 }
 
 void
@@ -493,7 +497,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 
 	    if (_threadPool)
 	    {
-		_threadPool->unregister(_acceptor->fd(), false);
+		_threadPool->unregister(_acceptor->fd());
 	    }
 
 	    for_each(_connections.begin(), _connections.end(), ::Ice::voidMemFun(&Connection::hold));
@@ -512,7 +516,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 		{
 		    _threadPool->_register(_acceptor->fd(), this);
 		}
-		_threadPool->unregister(_acceptor->fd(), true);
+		_threadPool->unregister(_acceptor->fd());
 	    }
 
 #ifdef _STLP_BEGIN_NAMESPACE

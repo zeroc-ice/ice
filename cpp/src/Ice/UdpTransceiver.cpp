@@ -177,6 +177,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     try
     {
 	_fd = createSocket(true);
+	setBlock(_fd, false);
 	getAddress(host, port, _addr);
 	doConnect(_fd, _addr, -1);
 	_connect = false; // We're connected now
@@ -206,6 +207,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     try
     {
 	_fd = createSocket(true);
+	setBlock(_fd, false);
 	getAddress(host, port, _addr);
 	doBind(_fd, _addr);
 	    

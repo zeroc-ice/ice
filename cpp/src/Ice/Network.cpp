@@ -232,8 +232,6 @@ IceInternal::createSocket(bool udp)
 	throw ex;
     }
 
-    setBlock(fd, false);
-
     if (!udp)
     {
 	setTcpNoDelay(fd);
@@ -674,6 +672,7 @@ IceInternal::createPipe(SOCKET fds[2])
 #ifdef _WIN32
 
     SOCKET fd = createSocket(false);
+    setBlock(fd, true);
     
     struct sockaddr_in addr;
     memset(&addr, 0, sizeof(addr));
@@ -687,6 +686,7 @@ IceInternal::createPipe(SOCKET fds[2])
     try
     {
 	fds[0] = createSocket(false);
+	setBlock(fds[0], true);
     }
     catch(...)
     {
@@ -698,6 +698,7 @@ IceInternal::createPipe(SOCKET fds[2])
     {
 	doConnect(fds[0], addr, -1);
 	fds[1] = doAccept(fd, -1);
+	setBlock(fds[1], true);
     }
     catch(...)
     {
@@ -716,6 +717,9 @@ IceInternal::createPipe(SOCKET fds[2])
 	ex.error = getSystemErrno();
 	throw ex;
     }
+
+    setBlock(fds[0], true);
+    setBlock(fds[1], true);
 
 #endif
 }

@@ -49,6 +49,7 @@ IceInternal::SslConnector::connect(int timeout)
     }
 
     SOCKET fd = createSocket(false);
+    setBlock(fd, false);
     doConnect(fd, _addr, timeout);
 
     if (_traceLevels->network >= 1)

@@ -21,7 +21,7 @@
 #include <Ice/LoggerF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/EventHandlerF.h>
-#include <deque>
+#include <list>
 
 #ifndef _WIN32
 #   define SOCKET int
@@ -37,7 +37,9 @@ class ThreadPool : public ::IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mu
 public:
 
     void _register(SOCKET, const EventHandlerPtr&);
-    void unregister(SOCKET, bool);
+    void unregister(SOCKET);
+    void serverIsNowClient();
+    void clientIsNowServer();
     void promoteFollower();
     void initiateServerShutdown(); // Signal-safe shutdown initiation.
     void waitUntilServerFinished();
@@ -54,7 +56,7 @@ private:
     friend class Instance;
 
     bool clearInterrupt();
-    void setInterrupt();
+    void setInterrupt(char);
 
     void run();
     void read(const EventHandlerPtr&);
@@ -69,9 +71,9 @@ private:
     SOCKET _fdIntrRead;
     SOCKET _fdIntrWrite;
     fd_set _fdSet;
-    std::vector<std::pair<SOCKET, EventHandlerPtr> > _adds;
-    std::deque<std::pair<SOCKET, bool> > _removes;
+    std::list<std::pair<SOCKET, EventHandlerPtr> > _changes; // Event handler set for addition; null for removal.
     std::map<SOCKET, EventHandlerPtr> _handlerMap;
+    int _clients;
     int _servers;
     int _timeout;
     ::IceUtil::Mutex _threadMutex;

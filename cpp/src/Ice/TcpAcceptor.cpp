@@ -64,6 +64,7 @@ TransceiverPtr
 IceInternal::TcpAcceptor::accept(int timeout)
 {
     SOCKET fd = doAccept(_fd, timeout);
+    setBlock(fd, false);
 
     if (_traceLevels->network >= 1)
     {
@@ -108,6 +109,7 @@ IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string&
     try
     {
 	_fd = createSocket(false);
+	setBlock(_fd, false);
 	getAddress(host, port, _addr);
 	doBind(_fd, _addr);
     }
