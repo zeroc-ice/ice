@@ -8,13 +8,13 @@ Requirements
 If you don't have Python 2.3 or Python 2.4 on your system, you can
 download a source distribution from http://www.python.org.
 
-If you have downloaded a source distribution, see the build
-instructions below.
+If you have downloaded a source distribution of Ice for Python, see
+the build instructions below.
 
-If you have downloaded a binary distribution of Ice for Python,
-you have everything you need to use Ice from Python; it is not
-necessary to download and build Ice for C++. See the section
-"Configuring your Environment" below.
+If you have downloaded a binary distribution of Ice for Python, you
+have everything you need to use Ice in Python; it is not necessary
+to download and build Ice for C++. See the section "Configuring your
+Environment" below.
 
 
 =========================================================================
@@ -27,12 +27,7 @@ Follow these steps to build the Ice extension for Python:
 
    * Modify the installation prefix (if necessary).
 
-   * Review the settings for PYTHON_HOME, PYTHON_INCLUDE_DIR and
-     PYTHON_LIB_DIR.
-
-     Notes: * HP-UX users should modify PYTHON_LIB_DIR to enable the
-              linker to find the Python shared library. See Python
-              Platform Notes below for more information.
+   * Review the comments describing the PYTHON_HOME variable.
 
 2) Execute 'python -V' to verify that the correct Python interpreter
    is in your executable search path.
@@ -87,13 +82,6 @@ NOTES:
    files causes a compilation error. The solution is to temporarily
    remove or rename the STLport include directory in your Visual C++
    settings using Tools/Options/Directories/Include files.
-
- * If you are attempting to compile the Ice extension using
-   Visual C++ 6.0, be aware that the Python 2.4 binary distribution
-   available at python.org is compiled with Visual C++ 7.1 and
-   therefore is not suitable for linking with Visual C++ 6.0.
-   In order to build the extension with Visual C++ 6.0, you must
-   first build Python 2.4 from sources.
 
 
 =========================================================================
