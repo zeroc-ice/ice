@@ -67,25 +67,33 @@ namespace IceInternal
 	
 	public void write(BasicStream stream, int timeout)
 	{
+	    Debug.Assert(_fd != null);
+
 	    ByteBuffer buf = stream.prepareWrite();
-	    
-	    byte[] bytes = buf.toArray();
-	    int remaining = bytes.Length;
+	    int remaining = buf.remaining();
+	    int position = buf.position();
 	    try
 	    {
 		while(remaining > 0)
 		{   
 		    int ret;
-
-		    Debug.Assert(_fd != null);
 		    try
 		    {
-			ret = _fd.Send(bytes);
+			//
+			// Try to send first. Most of the time, this will work and
+			// avoids the cost of calling Poll().
+			//
+			ret = _fd.Send(buf.rawBytes(), position, remaining, SocketFlags.None);
+			Debug.Assert(ret != 0);
 		    }
 		    catch(Win32Exception e)
 		    {
 			if(Network.wouldBlock(e))
 			{
+			    if(timeout == 0)
+			    {
+				throw new Ice.TimeoutException();
+			    }
 			    ret = 0;
 			}
 			else
@@ -93,58 +101,43 @@ namespace IceInternal
 			    throw;
 			}
 		    }
-		
 		    if(ret == 0)
 		    {
-			if(timeout == 0)
+			//
+			// The first attempt to write would have blocked,
+			// so wait for the socket to become writable now.
+			//
+			if(!Network.doPoll(_fd, timeout, Network.PollMode.Write))
 			{
 			    throw new Ice.TimeoutException();
 			}
-			ArrayList sendList = new ArrayList();
-			sendList.Add(_fd);
-			ArrayList errorList = new ArrayList();
-			errorList.Add(_fd);
-			Network.doSelect(null, sendList, errorList, timeout);
-			if(errorList.Count != 0)
-			{
-			     throw new Ice.ConnectionLostException();
-			}
-			if(sendList.Count == 0)
-			{
-			    if(timeout > 0)
-			    {
-				throw new Ice.TimeoutException();
-			    }
-			    else
-			    {
-				throw new Ice.ConnectionLostException();
-			    }
-			}
+			ret = _fd.Send(buf.rawBytes(), position, remaining, SocketFlags.None);
+			Debug.Assert(ret != 0);
 		    }
-		
+
 		    if(_traceLevels.network >= 3)
 		    {
 			string s = "sent " + ret + " of " + remaining + " bytes via tcp\n" + ToString();
 			_logger.trace(_traceLevels.networkCat, s);
 		    }
-		
 		    if(_stats != null)
 		    {
 			_stats.bytesSent("tcp", ret);
 		    }
 
-		    remaining -= ret;	
+		    remaining -= ret;
+		    buf.position(position += ret);
 		}
-	    }
-	    catch(Ice.Exception)
-	    {
-		throw;
 	    }
 	    catch(SocketException ex)
 	    {
 		if(Network.connectionLost(ex))
 		{
 		    throw new Ice.ConnectionLostException(ex);
+		}
+		if(Network.wouldBlock(ex))
+		{
+		    throw new Ice.TimeoutException();
 		}
 		throw new Ice.SocketException(ex);
 	    }
@@ -156,61 +149,74 @@ namespace IceInternal
 	
 	public void read(BasicStream stream, int timeout)
 	{
-	    ByteBuffer buf = stream.prepareRead();
-	    
+	    Debug.Assert(_fd != null);
+
+	    ByteBuffer buf = stream.prepareRead();    
 	    int remaining = buf.remaining();
+	    int position = buf.position();
 	    
 	    try
 	    {
 		while(remaining > 0)
 		{
-		    Debug.Assert(_fd != null);
-		    ArrayList readList = new ArrayList();
-		    readList.Add(_fd);
-		    Network.doSelect(readList, null, null, timeout);
-		    if(readList.Count != 0 && _fd.Available == 0)
+		    int ret;
+		    try
 		    {
-			throw new Ice.ConnectionLostException();
+			//
+			// Try to receive first. Most of the time, this will work and we
+			// avoid the cost of calling Poll().
+			//	
+			ret = _fd.Receive(buf.rawBytes(), position, remaining, SocketFlags.None);
 		    }
-		    else if(readList.Count == 0 && timeout >= 0)
+		    catch(Win32Exception e)
 		    {
-			throw new Ice.TimeoutException();
+			if(Network.wouldBlock(e))
+			{
+			    if(timeout == 0)
+			    {
+				throw new Ice.TimeoutException();
+			    }
+			    ret = 0;
+			}
+			else
+			{
+			    throw;
+			}
 		    }
-		    Debug.Assert(readList.Count != 0);
-		    
-		    if(_bytes.Length < remaining) // Go easy on the garbage collector, if possible
+		    if(ret == 0)
 		    {
-			_bytes = new byte[remaining];
-		    }
-		    int ret = _fd.Receive(_bytes, 0, remaining, SocketFlags.None);
-		    if(ret == 0) // Need to re-test here because the connection can go down in between the Select() and the Receive().
-		    {
-			throw new Ice.ConnectionLostException();
-		    }
+			if(!Network.doPoll(_fd, timeout, Network.PollMode.Read))
+			{
+			    throw new Ice.TimeoutException();
+			}
+			ret = _fd.Receive(buf.rawBytes(), position, remaining, SocketFlags.None);
+			if(ret == 0)
+			{
+			    throw new Ice.ConnectionLostException();
+			}
+		    }  		    
 		    if(_traceLevels.network >= 3)
 		    {
 			string s = "received " + ret + " of " + remaining + " bytes via tcp\n" + ToString();
 			_logger.trace(_traceLevels.networkCat, s);
-		    }
-		    
+		    }    
 		    if(_stats != null)
 		    {
 			_stats.bytesReceived("tcp", ret);
 		    }
-
-		    buf.put(_bytes, 0, ret);
 		    remaining -= ret;
+		    buf.position(position += ret);
 		}
-	    }
-	    catch(Ice.Exception)
-	    {
-		throw;
 	    }
 	    catch(SocketException ex)
 	    {
 		if(Network.connectionLost(ex))
 		{
 		    throw new Ice.ConnectionLostException(ex);
+		}
+		if(Network.wouldBlock(ex))
+		{
+		    throw new Ice.TimeoutException();
 		}
 		throw new Ice.SocketException(ex);
 	    }

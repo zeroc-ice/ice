@@ -55,6 +55,8 @@ namespace IceInternal
 	
 	public void write(BasicStream stream, int timeout)
 	{
+	    Debug.Assert(_fd != null);
+
 	    ByteBuffer buf = stream.prepareWrite();
 	    
 	    Debug.Assert(buf.position() == 0);
@@ -68,8 +70,7 @@ namespace IceInternal
 	    }
 
 	    try
-	    {
-		Debug.Assert(_fd != null);
+	    {	
 		int remaining = buf.remaining();
 		int ret;
 		try
@@ -78,8 +79,12 @@ namespace IceInternal
 		}
 		catch(Win32Exception e)
 		{
-		    if(Network.wouldBlock(e)) // Not sure whether this is possible on a UDP socket.
+		    if(Network.wouldBlock(e))
 		    {
+			if(timeout == 0)
+			{
+			    throw new Ice.TimeoutException();
+			}
 			ret = 0;
 		    }
 		    else
@@ -89,18 +94,11 @@ namespace IceInternal
 		}    
 		if(ret == 0)
 		{
-		    if(timeout == 0)
+		    if(!Network.doPoll(_fd, timeout, Network.PollMode.Write))
 		    {
 			throw new Ice.TimeoutException();
 		    }
-		    ArrayList sendList = new ArrayList();
-		    sendList.Add(_fd);
-		    Network.doSelect(null, sendList, null, timeout);
-		    if(sendList.Count == 0)
-		    {
-			throw new Ice.TimeoutException();
-		    }
-		    ret = _fd.Send(buf.rawBytes(), 0, buf.remaining(), SocketFlags.None);
+		    ret = _fd.Send(buf.rawBytes(), 0, remaining, SocketFlags.None);
 		}
 		if(ret != remaining)
 		{
@@ -117,6 +115,8 @@ namespace IceInternal
 		{
 		    _stats.bytesSent("udp", ret);
 		}
+
+		buf.position(remaining);
 	    }
 	    catch(SocketException ex)
 	    {
@@ -150,15 +150,36 @@ namespace IceInternal
 	    
 	    try
 	    {
-		Debug.Assert(_fd != null);
-		ArrayList readList = new ArrayList();
-		readList.Add(_fd);
-		Network.doSelect(readList, null, null, timeout);
-		if(readList.Count == 0)
+		int ret;
+		try
 		{
-		    throw new Ice.TimeoutException();
+		    Debug.Assert(_fd != null);
+		    ret = _fd.Receive(buf.rawBytes(), 0, buf.limit(), SocketFlags.None);
 		}
-		int ret = _fd.Receive(buf.rawBytes(), 0, buf.limit(), SocketFlags.None);
+		catch(Win32Exception e)
+		{
+		    if(Network.wouldBlock(e))
+		    {
+			if(timeout == 0)
+			{
+			    throw new Ice.TimeoutException();
+			}
+			ret = 0;
+		    }
+		    else
+		    {
+			throw;
+		    }
+		}
+		if(ret == 0)
+		{
+		    if(!Network.doPoll(_fd, timeout, Network.PollMode.Read))
+		    {
+			throw new Ice.TimeoutException();
+		    }
+		    ret = _fd.Receive(buf.rawBytes(), 0, buf.limit(), SocketFlags.None);
+		    Debug.Assert(ret != 0);
+		}
 		if(_connect)
 		{
 		    //
@@ -169,7 +190,7 @@ namespace IceInternal
 		    {
 			Network.doConnect(_fd, _fd.RemoteEndPoint, -1);
 			_connect = false; // We're connected now
-				    
+    				
 			if(_traceLevels.network >= 1)
 			{
 			    string s = "connected udp socket\n" + ToString();
@@ -189,6 +210,10 @@ namespace IceInternal
 		}
 
 		stream.resize(ret, true);
+	    }
+	    catch(SocketException ex)
+	    {
+		throw new Ice.SocketException(ex);
 	    }
 	    catch(System.Exception ex)
 	    {

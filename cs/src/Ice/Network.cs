@@ -30,12 +30,16 @@ namespace IceInternal
 
     public sealed class Network
     {
-
+	//
+	// Magic numbers taken from winsock2.h
+	//
 	const int WSAEINTR = 10004;
 	const int WSAEFAULT = 10014;
 	const int WSAEWOULDBLOCK = 10035;
 	const int WSAEMSGSIZE = 10040;
+	const int WSAENETDOWN = 10050;
 	const int WSAENETUNREACH = 10051;
+	const int WSAENETRESET = 10052;
 	const int WSAECONNABORTED = 10053;
 	const int WSAECONNRESET = 10054;
 	const int WSAENOBUFS = 10055;
@@ -82,7 +86,8 @@ namespace IceInternal
 		   error == WSAENETUNREACH ||
 		   error == WSAECONNRESET ||
 		   error == WSAESHUTDOWN ||
-		   error == WSAECONNABORTED;
+		   error == WSAECONNABORTED ||
+		   error == WSAENETDOWN;
 	}
 
 	public static bool connectInProgress(Win32Exception ex)
@@ -95,7 +100,9 @@ namespace IceInternal
 	    int error = ex.NativeErrorCode;
 	    return error == WSAECONNRESET ||
 		   error == WSAESHUTDOWN ||
-		   error == WSAECONNABORTED;
+		   error == WSAECONNABORTED ||
+		   error == WSAENETDOWN ||
+		   error == WSAENETRESET;
 	}
 	
 	public static bool notConnected(Win32Exception ex)
@@ -437,10 +444,61 @@ namespace IceInternal
 	    }
 	}
 
+	public enum PollMode { Read, Write, Error };
+
+	public static bool doPoll(Socket s, int timeout, PollMode mode)
+	{
+	    return s.Poll(timeout, (SelectMode)mode);
+	}
+
 	public static void doSelect(IList checkRead, IList checkWrite, IList checkError, int milliSeconds)
 	{
-	    Debug.Assert(!(checkRead == null && checkWrite == null && checkError == null));
+	    //
+	    // Use Poll() in preference to Select() if there is only a single socket to monitor.
+	    //
+	    int count = 0;
+	    IList list = checkRead;
+	    SelectMode mode = SelectMode.SelectRead;
+	    if(checkRead != null)
+	    {
+		++count;
+	    }
+	    if(checkWrite != null)
+	    {
+		++count;
+		list = checkWrite;
+		mode = SelectMode.SelectWrite;
+	    }
+	    if(checkError != null)
+	    {
+		++count;
+		list = checkError;
+		mode = SelectMode.SelectError;
+	    }
+	    Debug.Assert(count != 0);
 
+	    if(count == 1)
+	    {
+		//
+		// Only one list was passed.
+		//
+		if(list.Count == 1)
+		{
+		    //
+		    // Only one socket is on that list, we can use Poll().
+		    //
+		    bool result = ((Socket)list[0]).Poll(milliSeconds, mode); // Poll() blocks indefinitely for negative timeouts.
+		    if(!result)
+		    {
+			list.Clear();
+		    }
+		    return;
+		}
+	    }
+
+	    //
+	    // More than one socket is being monitored, so we have to use Select().
+	    //
 	    ArrayList cr = null;
 	    ArrayList cw = null;
 	    ArrayList ce = null;
@@ -449,8 +507,8 @@ namespace IceInternal
 	    {
 		//
 		// Socket.Select() returns immediately if the timeout is < 0 (instead
-		// of blocking indefinitely), so we have to emulate a blocking select here.
-		// (Just using Int32.MaxValue isn't good enough because that's only about 35 minutes.)
+		// of blocking indefinitely), so we have to emulate a blocking select here, sigh...
+		// (Using Int32.MaxValue isn't good enough because that's only about 35 minutes.)
 		//
 		do {
 		    cr = copyList(checkRead);
@@ -479,7 +537,7 @@ namespace IceInternal
 	    else
 	    {
 		//
-		// Select() wants microseconds, so we need to deal with overflow.
+		// Select() wants microseconds, whereas Poll() uses millseconds, so we need to deal with overflow, sigh...
 		//
 		while((milliSeconds > System.Int32.MaxValue / 1000) &&
 		      ((cr == null) || cr.Count == 0) &&
