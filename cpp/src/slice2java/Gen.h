@@ -167,11 +167,8 @@ private:
         HelperVisitor(const std::string&, const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
-        virtual bool visitStructStart(const StructPtr&);
         virtual void visitSequence(const SequencePtr&);
         virtual void visitDictionary(const DictionaryPtr&);
-        virtual void visitEnum(const EnumPtr&);
     };
 
     class ProxyVisitor : public JavaVisitor
@@ -183,15 +180,6 @@ private:
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
         virtual void visitOperation(const OperationPtr&);
-    };
-
-    class ProxyHelperVisitor : public JavaVisitor
-    {
-    public:
-
-        ProxyHelperVisitor(const std::string&, const std::string&);
-
-        virtual bool visitClassDefStart(const ClassDefPtr&);
     };
 
     class DelegateVisitor : public JavaVisitor
