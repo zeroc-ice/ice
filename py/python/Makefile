@@ -64,7 +64,17 @@ ICEPATCH_SRCS	= IcePatch_IcePatch_ice.py
 
 ICESTORM_SRCS	= IceStorm_IceStorm_ice.py
 
-all:: $(ICE_SRCS) $(GLACIER_SRCS) $(GLACIER2_SRCS) $(ICEBOX_SRCS) $(ICEPACK_SRCS) $(ICEPATCH_SRCS) $(ICESTORM_SRCS)
+ALL_SRCS	= $(ICE_SRCS) \
+		  $(GLACIER_SRCS) \
+		  $(GLACIER2_SRCS) \
+		  $(ICEBOX_SRCS) \
+		  $(ICEPACK_SRCS) \
+		  $(ICEPATCH_SRCS) \
+		  $(ICESTORM_SRCS)
+
+PACKAGES	= Glacier Glacier2 IceBox IcePack IcePatch IceStorm
+
+all:: $(ALL_SRCS)
 
 Ice_%_ice.py: $(slicedir)/Ice/%.ice
 	$(SLICE2PY) --prefix Ice_ --ice --no-package $(SLICE2PYFLAGS) $<
@@ -87,6 +97,13 @@ IcePatch_%_ice.py: $(slicedir)/IcePatch/%.ice
 IceStorm_%_ice.py: $(slicedir)/IceStorm/%.ice
 	$(SLICE2PY) --prefix IceStorm_ --ice --checksum $(SLICE2PYFLAGS) $<
 
+install:: $(ALL_SRCS)
+	@echo "Installing generated code"
+	$(INSTALL_DATA) *.py $(install_pythondir)
+	@for i in $(PACKAGES) ; \
+	do \
+	    $(INSTALL_DATA) -r $$i $(install_pythondir) ; \
+	done
+
 clean::
-	rm -rf Glacier Glacier2 IceBox IcePack IcePatch IceStorm
-	rm -f *_ice.py
+	rm -rf $(PACKAGES) *_ice.py

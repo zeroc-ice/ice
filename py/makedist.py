@@ -18,7 +18,6 @@ def usage():
     print
     print "Options:"
     print "-h    Show this message."
-    print "-d    Skip SGML documentation conversion."
     print "-v    Be verbose."
     print
     print "If no tag is specified, HEAD is used."
@@ -46,14 +45,11 @@ win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
 # Check arguments
 #
 tag = "-rHEAD"
-skipDocs = 0
 verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
-    elif x == "-d":
-        skipDocs = 1
     elif x == "-v":
         verbose = 1
     elif x.startswith("-"):
@@ -63,10 +59,6 @@ for x in sys.argv[1:]:
         sys.exit(1)
     else:
         tag = "-r" + x
-
-if win32 and not skipDocs:
-    print sys.argv[0] + ": the documentation cannot be built on Windows."
-    sys.exit(1)
 
 #
 # Remove any existing "dist" directory and create a new one.
@@ -109,31 +101,6 @@ slicedirs = [\
 os.mkdir(os.path.join("icepy", "slice"))
 for x in slicedirs:
     shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icepy", "slice", x), 1)
-#
-# Generate HTML documentation. We need to build icecpp
-# and slice2docbook first.
-#
-if not skipDocs:
-    print "Generating documentation..."
-    cwd = os.getcwd()
-    os.chdir(os.path.join("ice", "src", "icecpp"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "IceUtil"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "Slice"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "slice2docbook"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "doc"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.mkdir(os.path.join("icepy", "doc"))
-    os.rename(os.path.join("ice", "doc", "manual"), os.path.join("icepy", "doc", "manual"))
-shutil.rmtree("ice")
 
 #
 # Remove files.
@@ -178,4 +145,5 @@ os.system("zip -9 -r " + quiet + " " + icever + ".zip " + icever)
 #
 print "Cleaning up..."
 shutil.rmtree(icever)
+shutil.rmtree("ice")
 print "Done."

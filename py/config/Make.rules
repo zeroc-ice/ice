@@ -34,7 +34,6 @@ endif
 install_libdir		= $(prefix)/lib
 install_slicedir	= $(prefix)/slice
 install_pythondir	= $(prefix)/python
-install_docdir		= $(prefix)/doc
 
 INSTALL			= cp -fp
 INSTALL_PROGRAM		= ${INSTALL}
