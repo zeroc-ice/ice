@@ -21,7 +21,7 @@
 #include <Ice/LoggerF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/EventHandlerF.h>
-#include <list>
+#include <deque>
 
 #ifndef WIN32
 #   define SOCKET int
@@ -70,7 +70,7 @@ private:
     SOCKET _fdIntrWrite;
     fd_set _fdSet;
     std::vector<std::pair<SOCKET, EventHandlerPtr> > _adds;
-    std::vector<std::pair<SOCKET, bool> > _removes;
+    std::deque<std::pair<SOCKET, bool> > _removes;
     std::map<SOCKET, EventHandlerPtr> _handlerMap;
     int _servers;
     int _timeout;

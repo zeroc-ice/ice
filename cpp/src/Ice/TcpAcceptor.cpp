@@ -41,18 +41,6 @@ IceInternal::TcpAcceptor::close()
 }
 
 void
-IceInternal::TcpAcceptor::shutdown()
-{
-    if (_traceLevels->network >= 2)
-    {
-	Trace out(_logger, _traceLevels->networkCat);
-	out << "shutting down accepting tcp connections at " << toString();
-    }
-
-    ::shutdown(_fd, SHUT_RD); // Shutdown socket for reading
-}
-
-void
 IceInternal::TcpAcceptor::listen()
 {
     try

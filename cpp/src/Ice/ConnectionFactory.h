@@ -71,8 +71,8 @@ public:
     virtual bool readable() const;
     virtual void read(BasicStream&);
     virtual void message(BasicStream&);
-    virtual void exception(const ::Ice::LocalException&);
     virtual void finished();
+    virtual void exception(const ::Ice::LocalException&);
     
 private:
 

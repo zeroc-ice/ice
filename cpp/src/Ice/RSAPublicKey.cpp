@@ -111,7 +111,7 @@ IceSSL::OpenSSL::RSAPublicKey::byteSeqToCert(const ByteSeq& certSeq)
     {
         IceSSL::CertificateParseException certParseException(__FILE__, __LINE__);
 
-        certParseException._message = "Unable to parse provided Public Key.\n" + sslGetErrors();
+        certParseException._message = "unable to parse provided public key\n" + sslGetErrors();
 
         throw certParseException;
     }

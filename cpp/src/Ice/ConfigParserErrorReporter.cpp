@@ -43,12 +43,10 @@ IceSSL::ConfigParserErrorReporter::warning(const SAXParseException& toCatch)
     {
 	ostringstream s;
 
-        s << "SSL configuration file parse warning." << endl;
-        s << "Xerces-c Init Exception: Warning at file \"" << flush;
-        s << DOMString(toCatch.getSystemId()) << flush;
-        s << "\", line " << toCatch.getLineNumber() << flush;
-        s << ", column " << toCatch.getColumnNumber() << flush;
-        s << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
+        s << "ssl configuration file parse warning\n";
+        s << "xerces-c init exception: warning at file \"" << DOMString(toCatch.getSystemId())
+	  << "\", line " << toCatch.getLineNumber() << ", column " << toCatch.getColumnNumber() << '\n';
+        s << "message: " << DOMString(toCatch.getMessage());
 
         _logger->trace(_traceLevels->securityCat, "PWN " + s.str());
     }
@@ -63,13 +61,11 @@ IceSSL::ConfigParserErrorReporter::error(const SAXParseException& toCatch)
     {
 	ostringstream s;
 
-        s << "SSL configuration file parse error." << endl;
-        s << "Xerces-c Init Exception: Error at file \"" << flush;
-        s << DOMString(toCatch.getSystemId()) << flush;
-        s << "\", line " << toCatch.getLineNumber() << flush;
-        s << ", column " << toCatch.getColumnNumber() << flush;
-        s << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
-
+        s << "ssl configuration file parse error\n";
+        s << "xerces-c init exception: error at file \"" << DOMString(toCatch.getSystemId())
+	  << "\", line " << toCatch.getLineNumber() << ", column " << toCatch.getColumnNumber() << '\n';
+        s << "message: " << DOMString(toCatch.getMessage());
+	
         _logger->trace(_traceLevels->securityCat, "PWN " + s.str());
     }
 }
@@ -83,12 +79,10 @@ IceSSL::ConfigParserErrorReporter::fatalError(const SAXParseException& toCatch)
     {
 	ostringstream s;
 
-        s << "SSL configuration file parse error." << endl;
-        s << "Xerces-c Init Exception: Fatal error at file \"" << flush;
-        s << DOMString(toCatch.getSystemId()) << flush;
-        s << "\", line " << toCatch.getLineNumber() << flush;
-        s << ", column " << toCatch.getColumnNumber() << flush;
-        s << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
+        s << "ssl configuration file parse error\n";
+        s << "xerces-c init exception: fatal error at file \"" << DOMString(toCatch.getSystemId())
+	  << "\", line " << toCatch.getLineNumber() << ", column " << toCatch.getColumnNumber() << '\n';
+        s << "message: " << DOMString(toCatch.getMessage()) << endl;
 
         _logger->trace(_traceLevels->securityCat, "PWN " + s.str());
     }

@@ -293,10 +293,9 @@ IceInternal::Connection::message(BasicStream& stream)
 	
 	if (_state == StateClosed)
 	{
-	    ::IceUtil::ThreadControl::yield();
+	    IceUtil::ThreadControl::yield();
 	    return;
 	}
-
 
 	Byte messageType;
 
@@ -535,18 +534,22 @@ IceInternal::Connection::message(BasicStream& stream)
 }
 
 void
+IceInternal::Connection::finished()
+{
+    IceUtil::RecMutex::Lock sync(*this);
+
+    _threadPool->promoteFollower();
+
+    assert(_state == StateClosed);
+
+    _transceiver->close();
+}
+
+void
 IceInternal::Connection::exception(const LocalException& ex)
 {
     IceUtil::RecMutex::Lock sync(*this);
     setState(StateClosed, ex);
-}
-
-void
-IceInternal::Connection::finished()
-{
-    IceUtil::RecMutex::Lock sync(*this);
-    assert(_state == StateClosed);
-    _transceiver->close();
 }
 
 /*

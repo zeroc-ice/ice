@@ -32,7 +32,6 @@ public:
 
     virtual SOCKET fd();
     virtual void close();
-    virtual void shutdown();
     virtual void listen();
     virtual TransceiverPtr accept(int);
     virtual std::string toString() const;

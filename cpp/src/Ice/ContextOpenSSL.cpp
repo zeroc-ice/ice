@@ -162,9 +162,9 @@ IceSSL::OpenSSL::Context::getSslMethod(SslProtocol sslVersion)
             { 
                 std::string errorString;
 
-                errorString = "SSL Version ";
+                errorString = "ssl version ";
                 errorString += sslVersion;
-                errorString += " not supported - defaulting to SSL_V23.";
+                errorString += " not supported (defaulting to SSL_V23)";
                 _logger->trace(_traceLevels->securityCat, "WRN " + errorString);
             }
 
@@ -190,7 +190,7 @@ IceSSL::OpenSSL::Context::createContext(SslProtocol sslProtocol)
     {
         IceSSL::OpenSSL::ContextInitializationException contextInitEx(__FILE__, __LINE__);
 
-        contextInitEx._message = "Unable to create SSL Context.\n" + sslGetErrors();
+        contextInitEx._message = "unable to create ssl context\n" + sslGetErrors();
 
         throw contextInitEx;
     }
@@ -232,7 +232,7 @@ IceSSL::OpenSSL::Context::loadCertificateAuthority(const CertificateAuthority& c
     { 
         if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         {
-            _logger->trace(_traceLevels->securityCat, "WRN Unable to load Certificate Authorities.");
+            _logger->trace(_traceLevels->securityCat, "WRN unable to load certificate authorities.");
         }
     }
     else
@@ -242,7 +242,7 @@ IceSSL::OpenSSL::Context::loadCertificateAuthority(const CertificateAuthority& c
 
         if (!setDefaultVerifyPathsRet && (_traceLevels->security >= IceSSL::SECURITY_WARNINGS))
         { 
-            _logger->trace(_traceLevels->securityCat, "WRN Unable to verify Certificate Authorities.");
+            _logger->trace(_traceLevels->securityCat, "WRN unable to verify certificate authorities.");
         }
     }
 
@@ -296,7 +296,7 @@ IceSSL::OpenSSL::Context::checkKeyCert()
     {
         IceSSL::OpenSSL::CertificateKeyMatchException certKeyMatchEx(__FILE__, __LINE__);
 
-        certKeyMatchEx._message = "Private key does not match the certificate public key.";
+        certKeyMatchEx._message = "private key does not match the certificate public key";
         std::string sslError = sslGetErrors();
 
         if (!sslError.empty())
@@ -316,7 +316,7 @@ IceSSL::OpenSSL::Context::addTrustedCertificate(const RSAPublicKey& trustedCerti
     {
         IceSSL::OpenSSL::ContextNotConfiguredException contextConfigEx(__FILE__, __LINE__);
 
-        contextConfigEx._message = "SSL Context not configured.";
+        contextConfigEx._message = "ssl context not configured";
 
         throw contextConfigEx;
     }
@@ -355,7 +355,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const CertificateFile& privateKey, const Ce
         {
             IceSSL::OpenSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
 
-            certLoadEx._message = "Unable to load certificate from '";
+            certLoadEx._message = "unable to load certificate from '";
             certLoadEx._message += publicFile;
             certLoadEx._message += "'\n";
             certLoadEx._message += sslGetErrors();
@@ -367,7 +367,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const CertificateFile& privateKey, const Ce
         {
             if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
             { 
-                _logger->trace(_traceLevels->securityCat, "WRN No private key specified - using the certificate.");
+                _logger->trace(_traceLevels->securityCat, "WRN no private key specified -- using the certificate");
             }
 
             privKeyFile = publicFile;
@@ -385,7 +385,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const CertificateFile& privateKey, const Ce
             {
                 IceSSL::OpenSSL::CertificateKeyMatchException certKeyMatchEx(__FILE__, __LINE__);
 
-                certKeyMatchEx._message = "Private key does not match the certificate public key.";
+                certKeyMatchEx._message = "private key does not match the certificate public key";
                 std::string sslError = sslGetErrors();
 
                 if (!sslError.empty())
@@ -400,7 +400,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const CertificateFile& privateKey, const Ce
             {
                 IceSSL::OpenSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
 
-                pklEx._message = "Unable to load private key from '";
+                pklEx._message = "unable to load private key from '";
                 pklEx._message += privKeyFile;
                 pklEx._message += "'\n";
                 pklEx._message += sslGetErrors();
@@ -420,7 +420,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const RSAKeyPair& keyPair)
     {
         IceSSL::OpenSSL::ContextNotConfiguredException contextConfigEx(__FILE__, __LINE__);
 
-        contextConfigEx._message = "SSL Context not configured.";
+        contextConfigEx._message = "ssl context not configured";
 
         throw contextConfigEx;
     }
@@ -435,7 +435,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const RSAKeyPair& keyPair)
     {
         IceSSL::OpenSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
 
-        certLoadEx._message = "Unable to set certificate from memory.";
+        certLoadEx._message = "unable to set certificate from memory";
         std::string sslError = sslGetErrors();
 
         if (!sslError.empty())
@@ -458,7 +458,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const RSAKeyPair& keyPair)
         {
             IceSSL::OpenSSL::CertificateKeyMatchException certKeyMatchEx(__FILE__, __LINE__);
 
-            certKeyMatchEx._message = "Private key does not match the certificate public key.";
+            certKeyMatchEx._message = "private key does not match the certificate public key";
             std::string sslError = sslGetErrors();
 
             if (!sslError.empty())
@@ -473,7 +473,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const RSAKeyPair& keyPair)
         {
             IceSSL::OpenSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
 
-            pklEx._message = "Unable to set private key from memory.";
+            pklEx._message = "unable to set private key from memory";
             std::string sslError = sslGetErrors();
 
             if (!sslError.empty())
@@ -498,7 +498,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const Ice::ByteSeq& privateKey, const Ice::
     {
         if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         { 
-            _logger->trace(_traceLevels->securityCat, "WRN No private key specified - using the certificate.");
+            _logger->trace(_traceLevels->securityCat, "WRN no private key specified -- using the certificate");
         }
 
         privKey = publicKey;
@@ -517,7 +517,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const std::string& privateKey, const std::s
     {
         if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         { 
-            _logger->trace(_traceLevels->securityCat, "WRN No private key specified - using the certificate.");
+            _logger->trace(_traceLevels->securityCat, "WRN no private key specified -- using the certificate");
         }
 
         privKey = publicKey;
@@ -570,7 +570,7 @@ IceSSL::OpenSSL::Context::setCipherList(const std::string& cipherList)
     if (!cipherList.empty() && (!SSL_CTX_set_cipher_list(_sslContext, cipherList.c_str())) &&
         (_traceLevels->security >= IceSSL::SECURITY_WARNINGS))
     {
-        std::string errorString = "WRN Error setting cipher list " + cipherList + " - using default list.\n";
+        std::string errorString = "WRN error setting cipher list " + cipherList + " -- using default list\n";
         errorString += sslGetErrors();
         _logger->trace(_traceLevels->securityCat, errorString);
     }

@@ -58,14 +58,14 @@ IceSSL::OpenSSL::ServerContext::configure(const GeneralConfig& generalConfig,
         std::ostringstream s;
 
         s << std::endl;
-        s << "General Configuration - Server" << std::endl;
+        s << "general configuration (server)" << std::endl;
         s << "------------------------------" << std::endl;
         s << generalConfig   << std::endl << std::endl;
 
-        s << "CA File: " << certificateAuthority.getCAFileName() << std::endl;
-        s << "CA Path: " << certificateAuthority.getCAPath() << std::endl;
+        s << "CA file: " << certificateAuthority.getCAFileName() << std::endl;
+        s << "CA path: " << certificateAuthority.getCAPath() << std::endl;
 
-        s << "Base Certificates - Server" << std::endl;
+        s << "base certificates (server)" << std::endl;
         s << "--------------------------" << std::endl;
         s << baseCertificates << std::endl << std::endl;
 
@@ -129,7 +129,7 @@ IceSSL::OpenSSL::ServerContext::loadCertificateAuthority(const CertificateAuthor
     {
         if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         {
-            std::string errorString = "Unable to load Certificate Authorities certificate names from " + caFile + ".\n";
+            std::string errorString = "unable to load certificate authorities certificate names from " + caFile + "\n";
             errorString += sslGetErrors();
             _logger->trace(_traceLevels->securityCat, "WRN " + errorString);
         }

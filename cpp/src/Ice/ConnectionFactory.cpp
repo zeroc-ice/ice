@@ -304,9 +304,10 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&)
 {
     IceUtil::Mutex::Lock sync(*this);
 
+    _threadPool->promoteFollower();
+
     if (_state != StateActive)
     {
-	_threadPool->promoteFollower();
 	IceUtil::ThreadControl::yield();
 	return;
     }
@@ -350,14 +351,6 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&)
 	}
         setState(StateClosed);
     }
-
-    _threadPool->promoteFollower();
-}
-
-void
-IceInternal::IncomingConnectionFactory::exception(const LocalException&)
-{
-    assert(false); // Must not be called.
 }
 
 void
@@ -365,39 +358,47 @@ IceInternal::IncomingConnectionFactory::finished()
 {
     IceUtil::Mutex::Lock sync(*this);
 
+    _threadPool->promoteFollower();
+    
     assert(_state == StateClosed);
+    assert(_connections.empty());
     
-    _acceptor->shutdown();
-    
-#ifdef _STLP_BEGIN_NAMESPACE
-    // voidbind2nd is an STLport extension for broken compilers in IceUtil/Functional.h
-    for_each(_connections.begin(), _connections.end(),
-	     voidbind2nd(Ice::voidMemFun1(&Connection::destroy), Connection::ObjectAdapterDeactivated));
-#else
-    for_each(_connections.begin(), _connections.end(),
-	     bind2nd(Ice::voidMemFun1(&Connection::destroy), Connection::ObjectAdapterDeactivated));
-#endif
-    _connections.clear();
-    
-    //
-    // Clear listen() backlog properly by accepting all queued
-    // connections, and then shutting them down.
-    //
-    while (true)
+    try
     {
-	try
+	//
+	// Clear listen() backlog properly by accepting all queued
+	// connections, and then shutting them down.
+	//
+	while (true)
 	{
-	    TransceiverPtr transceiver = _acceptor->accept(0);
-	    ConnectionPtr connection = new Connection(_instance, transceiver, _endpoint, _adapter);
-	    connection->exception(ObjectAdapterDeactivatedException(__FILE__, __LINE__));
+	    try
+	    {
+		TransceiverPtr transceiver = _acceptor->accept(0);
+		ConnectionPtr connection = new Connection(_instance, transceiver, _endpoint, _adapter);
+		connection->exception(ObjectAdapterDeactivatedException(__FILE__, __LINE__));
+	    }
+	    catch (const TimeoutException&)
+	    {
+		break; // Exit loop on timeout.
+	    }
 	}
-	catch (const Exception&)
+    }
+    catch (const LocalException& ex)
+    {
+	if (_warn)
 	{
-	    break;
+	    Warning out(_instance->logger());
+	    out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
 	}
     }
 
     _acceptor->close();
+}
+
+void
+IceInternal::IncomingConnectionFactory::exception(const LocalException&)
+{
+    assert(false); // Must not be called.
 }
 
 /*
@@ -513,6 +514,17 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 		}
 		_threadPool->unregister(_acceptor->fd(), true);
 	    }
+
+#ifdef _STLP_BEGIN_NAMESPACE
+	    // voidbind2nd is an STLport extension for broken compilers in IceUtil/Functional.h
+	    for_each(_connections.begin(), _connections.end(),
+		     voidbind2nd(Ice::voidMemFun1(&Connection::destroy), Connection::ObjectAdapterDeactivated));
+#else
+	    for_each(_connections.begin(), _connections.end(),
+		     bind2nd(Ice::voidMemFun1(&Connection::destroy), Connection::ObjectAdapterDeactivated));
+#endif
+	    _connections.clear();
+
 	    break;
 	}
     }

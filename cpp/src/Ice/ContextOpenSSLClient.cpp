@@ -35,16 +35,16 @@ IceSSL::OpenSSL::ClientContext::configure(const GeneralConfig& generalConfig,
         std::ostringstream s;
 
         s << std::endl;
-        s << "General Configuration - Client" << std::endl;
+        s << "general configuration (client)" << std::endl;
         s << "------------------------------" << std::endl;
         s << generalConfig << std::endl << std::endl;
 
-        s << "Certificate Authority - Client" << std::endl;
+        s << "certificate authority (client)" << std::endl;
         s << "------------------------------" << std::endl;
-        s << "File: " << certificateAuthority.getCAFileName() << std::endl;
-        s << "Path: " << certificateAuthority.getCAPath() << std::endl;
+        s << "file: " << certificateAuthority.getCAFileName() << std::endl;
+        s << "path: " << certificateAuthority.getCAPath() << std::endl;
 
-        s << "Base Certificates - Client" << std::endl;
+        s << "base certificates (client)" << std::endl;
         s << "--------------------------" << std::endl;
         s << baseCertificates << std::endl;
 

@@ -287,7 +287,7 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
     {
         IceSSL::OpenSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
 
-        certLoadEx._message = "Unable to load certificate from '";
+        certLoadEx._message = "unable to load certificate from '";
         certLoadEx._message += certFile;
         certLoadEx._message += "'\n";
         certLoadEx._message += sslGetErrors();
@@ -301,7 +301,7 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
     {
         IceSSL::OpenSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
 
-        certLoadEx._message = "Unable to load certificate from '";
+        certLoadEx._message = "unable to load certificate from '";
         certLoadEx._message += certFile;
         certLoadEx._message += "'\n";
         certLoadEx._message += sslGetErrors();
@@ -317,7 +317,7 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
     {
         IceSSL::OpenSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
 
-        pklEx._message = "Unable to load private key from '";
+        pklEx._message = "unable to load private key from '";
         pklEx._message += keyFile;
         pklEx._message += "'\n";
         pklEx._message += sslGetErrors();
@@ -331,7 +331,7 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
     {
         IceSSL::OpenSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
 
-        pklEx._message = "Unable to load private key from '";
+        pklEx._message = "unable to load private key from '";
         pklEx._message += keyFile;
         pklEx._message += "'\n";
         pklEx._message += sslGetErrors();

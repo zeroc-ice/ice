@@ -85,7 +85,7 @@ IceSSL::OpenSSL::RSAPrivateKey::keyToByteSeq(ByteSeq& keySeq)
 
     IceSSL::ucharToByteSeq(privateKeyBuffer, privKeySize, keySeq);
 
-    delete []privateKeyBuffer;
+    delete [] privateKeyBuffer;
 }
 
 RSA*
@@ -110,11 +110,12 @@ IceSSL::OpenSSL::RSAPrivateKey::byteSeqToKey(const ByteSeq& keySeq)
     {
         IceSSL::PrivateKeyParseException pkParseException(__FILE__, __LINE__);
 
-        pkParseException._message = "Unable to parse provided Private Key.\n" + sslGetErrors();
+        pkParseException._message = "unable to parse provided private key\n" + sslGetErrors();
 
         throw pkParseException;
     }
 
-    delete []privateKeyBuffer;
+    // ML: Not deleted if an exception is raised!
+    delete [] privateKeyBuffer;
 }
 

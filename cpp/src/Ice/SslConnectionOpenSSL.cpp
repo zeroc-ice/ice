@@ -116,7 +116,7 @@ IceSSL::OpenSSL::Connection::shutdown()
     if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
     { 
         _logger->trace(_traceLevels->securityCat, "WRN " +
-                       string("shutting down SSL connection\n") +
+                       string("shutting down ssl connection\n") +
                        fdToString(SSL_get_fd(_sslConnection)));
     }
 
@@ -134,7 +134,7 @@ IceSSL::OpenSSL::Connection::shutdown()
     if ((_traceLevels->security >= IceSSL::SECURITY_PROTOCOL) && (shutdown <= 0))
     {
         ostringstream s;
-        s << "SSL shutdown failure encountered: code[" << shutdown << "] retries[";
+        s << "ssl shutdown failure encountered: code[" << shutdown << "] retries[";
         s << (retries + numRetries) << "]\n" << fdToString(SSL_get_fd(_sslConnection));
         _logger->trace(_traceLevels->securityCat, s.str());
     }
@@ -190,7 +190,7 @@ IceSSL::OpenSSL::Connection::verifyCertificate(int preVerifyOkay, X509_STORE_CTX
             {
                 ostringstream s;
 
-                s << "WRN Exception during certificate verification: " << std::endl;
+                s << "WRN exception during certificate verification: " << std::endl;
                 s << localEx << flush;
 
                 _logger->trace(_traceLevels->securityCat, s.str());
@@ -210,12 +210,12 @@ IceSSL::OpenSSL::Connection::verifyCertificate(int preVerifyOkay, X509_STORE_CTX
 
             if (_certificateVerifier.get())
             {
-                errorString = "WRN Improper CertificateVerifier type.";
+                errorString = "WRN improper CertificateVerifier type";
             }
             else
             {
                 // NOTE: This should NEVER be able to happen, but just in case.
-                errorString = "WRN CertificateVerifier not set.";
+                errorString = "WRN CertificateVerifier not set";
             }
 
             _logger->trace(_traceLevels->securityCat, errorString);
@@ -460,7 +460,7 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
         {
             if (_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
             {
-                _logger->trace(_traceLevels->securityCat, "No pending application-level bytes.");
+                _logger->trace(_traceLevels->securityCat, "no pending application-level bytes");
             }
 
             // We're done here.
@@ -537,7 +537,7 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
                     ProtocolException protocolEx(__FILE__, __LINE__);
 
                     // Protocol Error: Unexpected EOF
-                    protocolEx._message = "Encountered an EOF that violates the SSL Protocol.\n";
+                    protocolEx._message = "encountered an EOF that violates the ssl protocol\n";
                     protocolEx._message += sslGetErrors();
 
                     throw protocolEx;
@@ -548,7 +548,7 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
             {
                 ProtocolException protocolEx(__FILE__, __LINE__);
 
-                protocolEx._message = "Encountered a violation of the SSL Protocol.\n";
+                protocolEx._message = "encountered a violation of the ssl protocol\n";
                 protocolEx._message += sslGetErrors();
 
                 throw protocolEx;

@@ -57,7 +57,7 @@ IceSSL::OpenSSL::System::createConnection(ContextType connectionType, int socket
     {
         UnsupportedContextException unsupportedException(__FILE__, __LINE__);
 
-        unsupportedException._message = "Unable to create ClientServer connections.";
+        unsupportedException._message = "unable to create client/server connections";
 
         throw unsupportedException;
     }
@@ -173,26 +173,25 @@ IceSSL::OpenSSL::System::loadConfig(ContextType contextType,
         {
             case Client :
             {
-                contextString = "Client";
+                contextString = "client";
                 break;
             }
 
             case Server :
             {
-                contextString = "Server";
+                contextString = "server";
                 break;
             }
 
             case ClientServer :
             {
-                contextString = "Client/Server";
+                contextString = "client/server";
                 break;
             }
         }
 
-        configEx._message = "No SSL configuration file specified for ";
+        configEx._message = "no ssl configuration file specified for ";
         configEx._message += contextString;
-        configEx._message += ".";
 
         throw configEx;
     }
@@ -240,8 +239,8 @@ IceSSL::OpenSSL::System::loadConfig(ContextType contextType,
             {
                 ostringstream s;
 
-                s << "Temp Certificates - Server" << endl;
-                s << "--------------------------" << endl;
+                s << "temporary certificates (server)" << endl;
+                s << "-------------------------------" << endl;
                 s << serverTempCerts << endl;
 
                 _logger->trace(_traceLevels->securityCat, s.str());
@@ -578,7 +577,7 @@ IceSSL::OpenSSL::System::initRandSystem(const string& randBytesFiles)
         // RANDFILE environment variable, or specify additional random data files in the
         // SSL configuration file.
         _logger->trace(_traceLevels->securityCat,
-                       "WRN There is a lack of random data, consider specifying additional random data files.");
+                       "WRN there is a lack of random data, consider specifying additional random data files");
     }
 
     _randSeeded = (randBytesLoaded > 0 ? 1 : 0);

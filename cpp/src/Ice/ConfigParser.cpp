@@ -74,8 +74,8 @@ IceSSL::ConfigParser::process()
         ConfigParseException configEx(__FILE__, __LINE__);
 
         ostringstream s;
-        s << "While parsing " << _configFile << ": " << endl;
-	s << "Xerces-c Init Exception: " << DOMString(toCatch.getMessage());
+        s << "while parsing " << _configFile << ": " << endl;
+	s << "xerces-c init exception: " << DOMString(toCatch.getMessage());
 
         configEx._message = s.str();
 
@@ -137,8 +137,8 @@ IceSSL::ConfigParser::process()
         ConfigParseException configEx(__FILE__, __LINE__);
 
         ostringstream s;
-        s << "While parsing " << _configFile << ": " << endl;
-	s << "Xerces-c Parsing Error: " << DOMString(e.getMessage());
+        s << "while parsing " << _configFile << ": " << endl;
+	s << "xerces-c parsing error: " << DOMString(e.getMessage());
 
         configEx._message = s.str();
 
@@ -149,8 +149,8 @@ IceSSL::ConfigParser::process()
         ConfigParseException configEx(__FILE__, __LINE__);
 
 	ostringstream s;
-        s << "While parsing " << _configFile << ": " << endl;
-	s << "Xerces-c DOM Parsing Error, DOMException code: " << e.code;
+        s << "while parsing " << _configFile << ": " << endl;
+	s << "xerces-c DOM parsing error, DOMException code: " << e.code;
         s << ", message: " << e.msg;
 
         configEx._message = s.str();
@@ -161,7 +161,7 @@ IceSSL::ConfigParser::process()
     {
         ConfigParseException configEx(__FILE__, __LINE__);
 
-        configEx._message = "While parsing " + _configFile + "\n" + "An unknown error occured during parsing.";
+        configEx._message = "while parsing " + _configFile + "\n" + "unknown error occured during parsing";
 
         throw configEx;
     }
@@ -172,7 +172,7 @@ IceSSL::ConfigParser::process()
 
         ostringstream errStr;
 
-        errStr << dec << errorCount << " errors occured during parsing.";
+        errStr << dec << errorCount << " errors occured during parsing";
 
         configEx._message = errStr.str();
 
@@ -204,8 +204,8 @@ IceSSL::ConfigParser::loadClientConfig(GeneralConfig& general,
         ConfigParseException configEx(__FILE__, __LINE__);
 
 	ostringstream s;
-        s << "While loading Client configuration: " << endl;
-	s << "Xerces-c DOM Parsing Error, DOMException code: " << e.code;
+        s << "while loading client configuration: " << endl;
+	s << "xerces-c DOM parsing error, DOMException code: " << e.code;
         s << ", message: " << e.msg;
 
         configEx._message = s.str();
@@ -242,8 +242,8 @@ IceSSL::ConfigParser::loadServerConfig(GeneralConfig& general,
         ConfigParseException configEx(__FILE__, __LINE__);
 
 	ostringstream s;
-        s << "While loading Server configuration " << endl;
-	s << "Xerces-c DOM Parsing Error, DOMException code: " << e.code;
+        s << "while loading server configuration " << endl;
+	s << "xerces-c DOM parsing error, DOMException code: " << e.code;
         s << ", message: " << e.msg;
 
         configEx._message = s.str();

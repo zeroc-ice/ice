@@ -74,7 +74,7 @@ IceInternal::SslTransceiver::read(Buffer& buf, int timeout)
     {
         if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         { 
-            _logger->trace(_traceLevels->securityCat, "WRN Connection::read() returning no bytes read.");
+            _logger->trace(_traceLevels->securityCat, "WRN reading from ssl connection returns no bytes");
         }
     }
 }

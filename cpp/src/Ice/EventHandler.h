@@ -54,16 +54,16 @@ public:
     virtual void message(BasicStream&) = 0;
 
     //
-    // Propagate an exception to the event handler.
-    //
-    virtual void exception(const ::Ice::LocalException&) = 0;
-
-    //
     // Will be called if the event handler is finally
     // unregistered. (Calling unregister() does not unregister
     // immediately.)
     //
     virtual void finished() = 0;
+
+    //
+    // Propagate an exception to the event handler.
+    //
+    virtual void exception(const ::Ice::LocalException&) = 0;
 
     //
     // Try to destroy the event handler. Returns false if the event

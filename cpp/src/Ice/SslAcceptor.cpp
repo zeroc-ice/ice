@@ -60,19 +60,6 @@ IceInternal::SslAcceptor::close()
 }
 
 void
-IceInternal::SslAcceptor::shutdown()
-{
-    if (_traceLevels->network >= 2)
-    {
-	ostringstream s;
-	s << "shutting down accepting ssl connections at " << toString();
-	_logger->trace(_traceLevels->networkCat, s.str());
-    }
-
-    ::shutdown(_fd, SHUT_RD); // Shutdown socket for reading
-}
-
-void
 IceInternal::SslAcceptor::listen()
 {
     try
