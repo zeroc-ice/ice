@@ -65,6 +65,7 @@ tests = [ \
     "Ice/custom", \
     "Ice/checksum", \
     "Ice/package", \
+    "Ice/stream", \
     "Freeze/dbmap", \
     "Freeze/complex", \
     "Freeze/evictor", \

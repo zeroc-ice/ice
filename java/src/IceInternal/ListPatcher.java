@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public class ListPatcher implements Patcher
+public class ListPatcher implements Patcher, Ice.ReadObjectCallback
 {
     public
     ListPatcher(java.util.List list, Class cls, String type, int index)
@@ -47,6 +47,12 @@ public class ListPatcher implements Patcher
     type()
     {
         return _type;
+    }
+
+    public void
+    invoke(Ice.Object v)
+    {
+        patch(v);
     }
 
     private java.util.List _list;

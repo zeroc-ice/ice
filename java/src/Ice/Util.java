@@ -280,6 +280,18 @@ public final class Util
 	}
     }
 
+    public static InputStream
+    createInputStream(Communicator communicator, byte[] bytes)
+    {
+        return new InputStreamI(communicator, bytes);
+    }
+
+    public static OutputStream
+    createOutputStream(Communicator communicator)
+    {
+        return new OutputStreamI(communicator);
+    }
+
     private static Properties _defaultProperties = null;
     private static String _localAddress = null;
 }

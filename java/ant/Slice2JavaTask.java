@@ -38,6 +38,8 @@ import java.io.BufferedWriter;
  *
  *   translator - The pathname of the translator (default: "slice2java").
  *   tie - The value for the --tie translator option.
+ *   checksum - The value for the --checksum translator option.
+ *   stream - The value for the --stream translator option.
  *
  * Example:
  *
@@ -86,6 +88,12 @@ public class Slice2JavaTask extends SliceTask
     setChecksum(String checksum)
     {
         _checksum = checksum;
+    }
+
+    public void
+    setStream(boolean stream)
+    {
+        _stream = stream;
     }
 
     public void
@@ -223,6 +231,11 @@ public class Slice2JavaTask extends SliceTask
                 cmd.append(" --checksum " + _checksum);
             }
 
+            if(_stream)
+            {
+                cmd.append(" --stream");
+            }
+
 	    //
 	    // Add --ice
 	    //
@@ -358,5 +371,6 @@ public class Slice2JavaTask extends SliceTask
 
     private File _translator;
     private boolean _tie;
+    private boolean _stream;
     private String _checksum;
 }

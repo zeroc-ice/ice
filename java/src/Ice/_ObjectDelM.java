@@ -119,8 +119,11 @@ public class _ObjectDelM implements _ObjectDel
         IceInternal.Outgoing __out = getOutgoing(operation, mode, __context);
         try
         {
-            IceInternal.BasicStream __os = __out.os();
-            __os.writeBlob(inParams);
+            if(inParams != null)
+            {
+                IceInternal.BasicStream __os = __out.os();
+                __os.writeBlob(inParams);
+            }
             boolean ok = __out.invoke();
             if(__reference.mode == IceInternal.Reference.ModeTwoway)
             {
@@ -128,7 +131,10 @@ public class _ObjectDelM implements _ObjectDel
                 {
                     IceInternal.BasicStream __is = __out.is();
                     int sz = __is.getReadEncapsSize();
-                    outParams.value = __is.readBlob(sz);
+                    if(outParams != null)
+                    {
+                        outParams.value = __is.readBlob(sz);
+                    }
                 }
                 catch(LocalException __ex)
                 {

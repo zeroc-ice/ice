@@ -36,4 +36,7 @@ public interface Object
 
     void __write(IceInternal.BasicStream __os);
     void __read(IceInternal.BasicStream __is, boolean __rid);
+
+    void __write(OutputStream __out);
+    void __read(InputStream __in, boolean __rid);
 }
