@@ -84,7 +84,7 @@ private:
 	StateInProgress,
 	StateOK,
 	StateUserException,
-	StateLocalException,
+	StateLocalException
     } _state;
 
     BasicStream _is;
