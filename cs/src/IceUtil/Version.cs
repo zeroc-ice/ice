@@ -22,7 +22,7 @@ public sealed class Version
     //
     // The Ice version.
     //
-    public const System.String ICE_STRING_VERSION = "1.3.0"; // "A.B.C", with A=major, B=minor, C=patch
+    public const System.String ICE_STRING_VERSION = "1.3.0alpha1"; // "A.B.C", with A=major, B=minor, C=patch
     public const int ICE_INT_VERSION = 010300; // AABBCC, with AA=major, BB=minor, CC=patch
 }
 
