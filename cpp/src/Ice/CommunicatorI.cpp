@@ -137,12 +137,11 @@ Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const s
     
     ObjectAdapterPtr adapter = _instance->objectAdapterFactory()->createObjectAdapter(name, endpts);
 
-    string locator = _instance->defaultsAndOverrides()->defaultLocator;
-    if(!locator.empty())
-    {
-	adapter->setLocator(LocatorPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(locator)));
-    }
-    
+    //
+    // Set the adapter locator to this communicator default locator.
+    //
+    adapter->setLocator(_instance->referenceFactory()->getDefaultLocator());
+
     if(!_serverThreadPool) // Lazy initialization of _serverThreadPool.
     {
 	_serverThreadPool = _instance->serverThreadPool();
@@ -254,6 +253,12 @@ void
 Ice::CommunicatorI::setDefaultRouter(const RouterPrx& router)
 {
     _instance->referenceFactory()->setDefaultRouter(router);
+}
+
+void
+Ice::CommunicatorI::setDefaultLocator(const LocatorPrx& locator)
+{
+    _instance->referenceFactory()->setDefaultLocator(locator);
 }
 
 PluginManagerPtr

@@ -50,6 +50,8 @@ public:
 
     virtual void setDefaultRouter(const RouterPrx&);
 
+    virtual void setDefaultLocator(const LocatorPrx&);
+
     virtual PluginManagerPtr getPluginManager();
 
 private:
