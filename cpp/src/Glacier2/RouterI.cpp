@@ -107,6 +107,12 @@ Glacier2::RouterI::createSession(const std::string&, const std::string&, const C
     return 0;
 }
 
+void
+Glacier2::RouterI::destroySession(const Current&)
+{
+    assert(false); // Must not be called in this router implementation.
+}
+
 ClientBlobjectPtr
 Glacier2::RouterI::getClientBlobject() const
 {

@@ -202,6 +202,27 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
     }
 
     //
+    // Check if a session already exists for the client.
+    //
+    map<ConnectionPtr, RouterIPtr>::iterator p;    
+
+    if(_routersByConnectionHint != _routersByConnection.end() && _routersByConnectionHint->first == current.con)
+    {
+	p = _routersByConnectionHint;
+    }
+    else
+    {
+	p = _routersByConnection.find(current.con);
+    }
+
+    if(p != _routersByConnection.end())
+    {
+	SessionExistsException ex;
+	ex.existingSession = 0; // TODO
+	throw ex;
+    }
+
+    //
     // Add a new per-client router.
     //
     RouterIPtr router = new RouterI(_clientAdapter, _serverAdapter, current.con, userId);
@@ -218,11 +239,69 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
     if(_traceLevel >= 1)
     {
 	Trace out(_logger, "Glacier2");
-	out << "new session\n";
+	out << "creating session\n";
 	out << router->toString();
     }
 
     return 0;
+}
+
+void
+Glacier2::SessionRouterI::destroySession(const Current& current)
+{
+    RouterIPtr router;
+
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+	
+	if(_destroy)
+	{
+	    throw ObjectNotExistException(__FILE__, __LINE__);
+	}
+	
+	map<ConnectionPtr, RouterIPtr>::iterator p;    
+	
+	if(_routersByConnectionHint != _routersByConnection.end() && _routersByConnectionHint->first == current.con)
+	{
+	    p = _routersByConnectionHint;
+	}
+	else
+	{
+	    p = _routersByConnection.find(current.con);
+	}
+	
+	if(p == _routersByConnection.end())
+	{
+	    SessionNotExistException ex;
+	    throw ex;
+	}
+	
+	router = p->second;
+
+	_routersByConnection.erase(p++);
+	_routersByConnectionHint = p;
+	
+	if(_serverAdapter)
+	{
+	    string category = router->getServerProxy(Current())->ice_getIdentity().category;
+	    assert(!category.empty());
+	    _routersByCategory.erase(category);
+	    _routersByCategoryHint = _routersByCategory.end();
+	}
+	
+	if(_traceLevel >= 1)
+	{
+	    Trace out(_logger, "Glacier2");
+	    out << "destroying session\n";
+	    out << router->toString();
+	}
+    }
+
+    //
+    // We destroy the router outside the thread synchronization, to
+    // avoid deadlocks.
+    //
+    router->destroy();
 }
 
 RouterIPtr
@@ -333,7 +412,7 @@ Glacier2::SessionRouterI::run()
 		    if(_traceLevel >= 1)
 		    {
 			Trace out(_logger, "Glacier2");
-			out << "expired session\n";
+			out << "expiring session\n";
 			out << router->toString();
 		    }
 		}

@@ -37,6 +37,7 @@ public:
     virtual Ice::ObjectPrx getServerProxy(const Ice::Current&) const;
     virtual void addProxy(const Ice::ObjectPrx&, const Ice::Current&);
     virtual SessionPrx createSession(const std::string&, const std::string&, const Ice::Current&);
+    virtual void destroySession(const Ice::Current&);
 
     RouterIPtr getRouter(const Ice::ConnectionPtr&) const;    
     RouterIPtr getRouter(const std::string&) const;    

@@ -26,17 +26,53 @@ module Glacier2
 
 /**
  *
- * This exception is raised if router access is denied.
+ * This exception is raised if a client is denied to create a session
+ * with the router.
+ *
+ * @see Router::createSession
  *
  **/
 exception PermissionDeniedException
 {
     /**
      *
-     * Details as to why access was denied.
+     * Details as to why session creation has been denied.
      *
      **/
     string reason;
+};
+
+/**
+ *
+ * This exception is raised if a client attempts to create a new
+ * session, even though there is already an existing session for this
+ * client.
+ *
+ * @see Router::createSession
+ *
+ **/
+exception SessionExistsException
+{
+    /**
+     *
+     * The session that exists already for the client, or null if no
+     * [SessionManager] is installed, and therefore the session is
+     * Glacier2 internal only.
+     *
+     **/
+    Session* existingSession;
+};
+
+/**
+ *
+ * This exception is raised if a client tries to destroy a session
+ * with a router, but not session for the client exists.
+ *
+ * @see Router::destroySession
+ *
+ **/
+exception SessionNotExistException
+{
 };
 
 /**
@@ -49,9 +85,18 @@ interface Router extends Ice::Router
 {
     /**
      *
-     * Create a session with the router.
+     * Create a per-client session with the router. If a
+     * [SessionManager] has been installed, a proxy to a [Session]
+     * object is returned to the client. Otherwise, null is returned
+     * and only an internal session (i.e., not visible to the client)
+     * is created.
      *
-     * @return A proxy for the newly created session.
+     * @see Session
+     * @see SessionManager
+     * @see PermssionVerifier
+     *
+     * @return A proxy for the newly created session, or null if no
+     * [SessionManager] has been installed.
      *
      * @param userId The user id for which to check the password.
      *
@@ -61,9 +106,23 @@ interface Router extends Ice::Router
      * the given user id is not correct, or if the user isn't allowed
      * access.
      *
+     * @throws SessionExistsException Raised if there is already a
+     * session for the calling client.
+     *
      **/
     Session* createSession(string userId, string password)
-	throws PermissionDeniedException;
+	throws PermissionDeniedException, SessionExistsException;
+
+    /**
+     *
+     * Destroy the calling client's session with this router.
+     *
+     * @throws SessionNotExistException Raised if no session exists
+     * for the calling client.
+     *
+     **/
+    void destroySession()
+	throws SessionNotExistException;
 };
 
 };
