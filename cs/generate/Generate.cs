@@ -39,36 +39,37 @@ namespace Generate
 
 	    Directory.SetCurrentDirectory(projDir);
 
-	    string sliceDir;
-	    string[] sliceFiles = Directory.GetFiles(projDir, @"*.ice");
-	    if(sliceFiles.Length != 0)
-	    {
-		sliceDir = projDir;
-	    }
-	    else
+	    const string slicePat = @"*.ice";
+	    string sliceDir = projDir;
+	    string[] sliceFiles = Directory.GetFiles(projDir, slicePat);
+	    string includes = "";
+	    if(sliceFiles.Length == 0)
 	    {
 		sliceDir = Path.Combine(Path.Combine(solDir, "slice"), projName);
-		if(!Directory.Exists(sliceDir))
-		{
-		    if(iceHome != null)
-		    {
-			sliceDir = Path.Combine(Path.Combine(iceHome, "slice"), projName);
-		    }
-		}
 		if(Directory.Exists(sliceDir))
 		{
-		    sliceFiles = Directory.GetFiles(sliceDir, "*.ice");
+		    sliceFiles = Directory.GetFiles(sliceDir, slicePat);
+		    includes = "-I" + Path.Combine(solDir, "slice");
+		    if(sliceFiles.Length == 0)
+		    {
+			if(iceHome != null)
+			{
+			    sliceDir = Path.Combine(Path.Combine(iceHome, "slice"), projName);
+			    sliceFiles = Directory.GetFiles(sliceDir, slicePat);
+			    includes = "-I" + Path.Combine(iceHome, "slice");
+			}
+		    }	    
 		}
 	    }
-
-	    string slice2cs = "slice2cs";
-	    if(iceHome != null)
+	    if(sliceFiles.Length == 0)
 	    {
-		slice2cs = iceHome != null ? Path.Combine(Path.Combine(iceHome, "bin"), slice2cs) : solDir;
+		Console.Error.WriteLine(progName + ": no Slice files found");
+		Environment.Exit(1);
 	    }
-  
+
+	    string slice2cs = iceHome == null ? "slice2cs" : Path.Combine(Path.Combine(iceHome, "bin"), "slice2cs");
 	    string outputDir = Path.Combine(projDir, "generated");
-	    StringBuilder cmdArgs = new StringBuilder("--ice -I. -Islice -I" + Path.Combine(iceHome, "slice") + " --output-dir " + outputDir);
+	    string cmdArgs = "--ice -I. " + includes + " --output-dir " + outputDir;
 
 	    bool needCompile = false;
 	    foreach(string sliceFile in sliceFiles)
@@ -77,7 +78,7 @@ namespace Generate
 		string csFile = Path.Combine(outputDir, Path.ChangeExtension(Path.GetFileName(sliceFile), ".cs"));
 		if(!File.Exists(csFile) || sliceTime > File.GetLastWriteTime(csFile))
 		{	  
-		    cmdArgs.Append(" " + sliceFile);
+		    cmdArgs += " " + sliceFile;
 		    Console.Out.WriteLine(Path.GetFileName(sliceFile));
 		    needCompile = true;
 		}
@@ -85,7 +86,7 @@ namespace Generate
 
 	    if(needCompile)
 	    {
-		ProcessStartInfo info = new ProcessStartInfo(slice2cs, cmdArgs.ToString());
+		ProcessStartInfo info = new ProcessStartInfo(slice2cs, cmdArgs);
 		info.CreateNoWindow = true;
 		info.UseShellExecute = false;
 		info.RedirectStandardOutput = true;
@@ -119,6 +120,4 @@ namespace Generate
 	    Console.Error.Flush();
 	}
     }
-}
-
-	    
+}	    

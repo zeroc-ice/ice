@@ -45,7 +45,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 	Test.BoolS r = new Test.BoolS();
 	for(int i = 0; i < p1.Count; i++)
 	{
-	    r[i] = p1[p1.Count - (i + 1)];
+	    r.Add(p1[p1.Count - (i + 1)]);
 	}
 	return r;
     }
@@ -58,7 +58,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 	Test.BoolSS r = new Test.BoolSS();
 	for(int i = 0; i < p1.Count; i++)
 	{
-	    r[i] = p1[p1.Count - (i + 1)];
+	    r.Add(p1[p1.Count - (i + 1)]);
 	}
 	return r;
     }
@@ -84,7 +84,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 	p3 = new Test.ByteS();
 	for(int i = 0; i < p1.Count; i++)
 	{
-	    p3[i] = p1[p1.Count - (i + 1)];
+	    p3.Add(p1[p1.Count - (i + 1)]);
 	}
 	
 	Test.ByteS r = new Test.ByteS(p1.ToArray());
@@ -97,7 +97,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 	p3 = new Test.ByteSS();
 	for(int i = 0; i < p1.Count; i++)
 	{
-	    p3[i] = p1[p1.Count - (i + 1)];
+	    p3.Add(p1[p1.Count - (i + 1)]);
 	}
 	
 	Test.ByteSS r = new Test.ByteSS();
@@ -121,13 +121,13 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 	p4 = new Test.DoubleS();
 	for(int i = 0; i < p2.Count; i++)
 	{
-	    p4[i] = p2[p2.Count - (i + 1)];
+	    p4.Add(p2[p2.Count - (i + 1)]);
 	}
 	Test.DoubleS r = new Test.DoubleS();
 	r.AddRange(p2);
 	for(int i = 0; i < p1.Count; i++)
 	{
-	    r[p2.Count + i] = p1[i];
+	    r.Add(p1[i]);
 	}
 	return r;
     }
@@ -140,7 +140,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 	p4 = new Test.DoubleSS();
 	for(int i = 0; i < p2.Count; i++)
 	{
-	    p4[i] = p2[p2.Count - (i + 1)];
+	    p4.Add(p2[p2.Count - (i + 1)]);
 	}
 	Test.DoubleSS r = new Test.DoubleSS();
 	r.AddRange(p2);
@@ -199,7 +199,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 	p5 = new Test.IntS();
 	for(int i = 0; i < p2.Count; i++)
 	{
-	    p5[i] = p2[p2.Count - (i + 1)];
+	    p5.Add(p2[p2.Count - (i + 1)]);
 	}
 	p6 = new Test.LongS();
 	p6.AddRange(p3);
@@ -215,7 +215,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 	p5 = new Test.IntSS();
 	for(int i = 0; i < p2.Count; i++)
 	{
-	    p5[i] = p2[p2.Count - (i + 1)];
+	    p5.Add(p2[p2.Count - (i + 1)]);
 	}
 	p6 = new Test.LongSS();
 	p6.AddRange(p3);
@@ -242,19 +242,22 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
     public override Test.IntS opIntS(Test.IntS s, Ice.Current current)
     {
 	Test.IntS r = new Test.IntS();
-	for(int i = 0; i < r.Count; ++i)
+	for(int i = 0; i < s.Count; ++i)
 	{
-	    r[i] = -s[i];
+	    r.Add(-s[i]);
 	}
 	return r;
     }
     
-    public override Test.StringStringD opContext(Ice.Current current)
+    public override Ice.Context opContext(Ice.Current current)
     {
-        Test.StringStringD r = new Test.StringStringD();
-        foreach(System.Collections.DictionaryEntry e in current.ctx)
+        Ice.Context r = new Ice.Context();
+	if(current.ctx != null)
 	{
-	    r[(string)e.Key] = (string)e.Value;
+	    foreach(System.Collections.DictionaryEntry e in current.ctx)
+	    {
+		r[(string)e.Key] = (string)e.Value;
+	    }
 	}
 	return r;
     }
@@ -268,7 +271,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 	Test.StringS r = new Test.StringS();
 	for(int i = 0; i < p1.Count; i++)
 	{
-	    r[i] = p1[p1.Count - (i + 1)];
+	    r.Add(p1[p1.Count - (i + 1)]);
 	}
 	return r;
     }
@@ -283,7 +286,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 	Test.StringSS r = new Test.StringSS();
 	for(int i = 0; i < p2.Count; i++)
 	{
-	    r[i] = p2[p2.Count - (i + 1)];
+	    r.Add(p2[p2.Count - (i + 1)]);
 	}
 	return r;
     }

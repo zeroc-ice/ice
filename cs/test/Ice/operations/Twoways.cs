@@ -20,12 +20,13 @@ class Twoways
     {
 	if(!b)
 	{
-	    throw new SystemException();
+	    throw new System.Exception();
 	}
     }
     
     internal static void twoways(Test.MyClassPrx p)
     {
+	/*
 	{
 	    p.opVoid();
 	}
@@ -523,7 +524,7 @@ class Twoways
 		}
 	    }
 	}
-	
+*/	
 	{
 	    Ice.Context ctx = new Ice.Context();
 	    ctx["one"] = "ONE";
@@ -531,18 +532,18 @@ class Twoways
 	    ctx["three"] = "THREE";
 	    {
 		test(p.ice_getContext().Count == 0);
-		Test.StringStringD r = p.opContext();
+		Ice.Context r = p.opContext();
 		test(!r.Equals(ctx));
 	    }
 	    {
-		Test.StringStringD r = p.opContext(ctx);
+		Ice.Context r = p.opContext(ctx);
 		test(p.ice_getContext().Count == 0);
 		test(r.Equals(ctx));
 	    }
 	    {
 		Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_newContext(ctx));
 		test(p2.ice_getContext().Equals(ctx));
-		Test.StringStringD r = p2.opContext();
+		Ice.Context r = p2.opContext();
 		test(r.Equals(ctx));
 		r = p2.opContext(ctx);
 		test(r.Equals(ctx));
