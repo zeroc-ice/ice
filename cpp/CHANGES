@@ -8,15 +8,16 @@ Changes since version 1.5.1
   containing constructs with the same name as the enclosing module.
   This has been fixed and now results in a diagnostic.
 
-- The slice2cpp compiler now deprecates Slice definitions at global scope:
-  only modules can be defined at global scope. Everything else
-  (constants, classes, interfaces, etc.) must be defined inside a module.
+- The slice2cpp compiler now deprecates Slice definitions at global
+  scope: only modules can be defined at global scope. Everything else
+  (constants, classes, interfaces, etc.) must be defined inside a
+  module.
 
-  For the time being, the compiler issues a warning for each global definition
-  but continues to compile the code. Global non-module definitions will
-  elicit a hard error two releases from now.
+  For the time being, the compiler issues a warning for each global
+  definition but continues to compile the code. Global non-module
+  definitions will elicit a hard error two releases from now.
 
-- Several demos used Slice classes where interface were more
+- Several demos used Slice classes where interfaces were more
   appropriate. This has been fixed.
 
 - Fixed a bug in the Windows IcePack registry project that would 
@@ -26,9 +27,9 @@ Changes since version 1.5.1
 - Fixed a hang in the IcePack registry that would occur if multiple
   node were started simultaneously.
 
-- New properties Ice.StdErr and Ice.StdOut to redirect the standard
-  error and output streams of a process. Reimplemented IcePack's
-  error/output redirection using these properties.
+- Added new properties Ice.StdErr and Ice.StdOut to redirect the
+  standard error and output streams of a process. Reimplemented
+  IcePack's error/output redirection using these properties.
 
 Changes since version 1.5.0
 ---------------------------
