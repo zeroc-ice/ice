@@ -35,11 +35,11 @@ and installing STLport is not required for this compiler version.
 Third-party libraries
 ---------------------
 
-- Xerces-C++ 2.1.0
+- Xerces-C++ 2.1.0 or 2.2.0
 
 - Berkeley DB 3.3, 4.0, or 4.1
 
-- OpenSSL 0.9.6
+- OpenSSL 0.96 or 0.97
 
 - bzip2 1.0
 
