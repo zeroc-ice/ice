@@ -48,47 +48,57 @@ IcePack::NodeRegistryI::NodeRegistryI(const Ice::CommunicatorPtr& communicator,
 }
 
 void
-IcePack::NodeRegistryI::add(const string& name, const NodePrx& node, const Ice::Current&)
+IcePack::NodeRegistryI::add(const string& name, const NodePrx& node, const Ice::Current& current)
 {
-    IceUtil::Mutex::Lock sync(*this);
-
-    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
-    StringObjectProxyDict dict(connection, _dbName); 
-
-    StringObjectProxyDict::iterator p = dict.find(name);
-    if(p != dict.end())
+    while(true)
     {
+	NodePrx oldNode;
 	try
 	{
-	    sync.release();
-	    p->second->ice_ping();
-	    sync.acquire();
+	    oldNode = findByName(name, current);
+	    oldNode->ice_ping();
 	    throw NodeActiveException();
 	}
-	catch(const Ice::LocalException&)
+	catch(const NodeNotExistException& ex)
 	{
-	    //
-	    // Node not active.
-	    //
-	    sync.acquire();
 	}
-	p.set(node);
+	catch(const Ice::LocalException& ex)
+	{
+	}
 
-	if(_traceLevels->nodeRegistry > 0)
+	IceUtil::Mutex::Lock sync(*this);
+
+	Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+	StringObjectProxyDict dict(connection, _dbName);
+
+	StringObjectProxyDict::iterator p = dict.find(name);
+	if(p != dict.end())
 	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->nodeRegistryCat);
-	    out << "updated node `" << name << "' proxy";
+	    if(oldNode != p->second)
+	    {
+		continue;
+	    }
+
+	    p.set(node);
+	    
+	    if(_traceLevels->nodeRegistry > 0)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->nodeRegistryCat);
+		out << "updated node `" << name << "' proxy";
+	    }
 	}
-    }
-    else
-    {
-	dict.put(pair<const string, const Ice::ObjectPrx>(name, node));
-	
-	if(_traceLevels->nodeRegistry > 0)
+	else
 	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->nodeRegistryCat);
-	    out << "added node `" << name << "'";
+	    dict.put(pair<const string, const Ice::ObjectPrx>(name, node));
+	    
+	    if(_traceLevels->nodeRegistry > 0)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->nodeRegistryCat);
+		out << "added node `" << name << "'";
+	    }
 	}
+
+	break;
     }
 
     try
@@ -96,12 +106,10 @@ IcePack::NodeRegistryI::add(const string& name, const NodePrx& node, const Ice::
 	_adapterRegistry->findById("IcePack.Node." + name);
 
 	//
-	// TODO: ensure this adapter has been created by the adapter
-	// factory. It's possible that an adapter has been created
-	// with the same name. In such a case, the best is probably to
-	// prevent the node registration by throwing an appropriate
-	// exception. The user would then need to remove the adapter
-	// from the adapter registry to be able to run the node.
+	// TODO: ensure this adapter has been created by the adapter factory. It's possible that an 
+	// adapter has been created with the same name. In such a case, the best is probably to
+	// prevent the node registration by throwing an appropriate exception. The user would then 
+	// need to remove the adapter from the adapter registry to be able to run the node.
 	//
     }    
     catch(const AdapterNotExistException&)
@@ -127,8 +135,7 @@ IcePack::NodeRegistryI::remove(const string& name, const Ice::Current&)
     IceUtil::Mutex::Lock sync(*this);
 
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
-    StringObjectProxyDict dict(connection, _dbName); 
-
+    StringObjectProxyDict dict(connection, _dbName);
 
     StringObjectProxyDict::iterator p = dict.find(name);
     if(p == dict.end())

@@ -100,7 +100,8 @@ IcePack::AdapterRegistryI::findById(const string& id, const Ice::Current&)
     {
 	try
 	{
-	    return AdapterPrx::checkedCast(p->second->ice_collocationOptimization(false));
+	    p->second->ice_ping();
+	    return AdapterPrx::uncheckedCast(p->second->ice_collocationOptimization(false));
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
