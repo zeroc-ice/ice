@@ -87,15 +87,18 @@ IceStorm::Server::runFreeze(int argc, char* argv[], const Freeze::DBEnvironmentP
     TraceLevelsPtr traceLevels = new TraceLevels(communicator()->getProperties());
     ObjectAdapterPtr adapter = communicator()->createObjectAdapterFromProperty("TopicManager",
 									       "IceStorm.TopicManager.Endpoints");
-    ObjectPtr object = new TopicManagerI(communicator(), adapter, traceLevels, dbTopicManager);
-    adapter->add(object, stringToIdentity("TopicManager"));
+    TopicManagerIPtr manager = new TopicManagerI(communicator(), adapter, traceLevels, dbTopicManager);
+    adapter->add(manager, stringToIdentity("TopicManager"));
     adapter->activate();
 
     shutdownOnInterrupt();
     communicator()->waitForShutdown();
     ignoreInterrupt();
 
-    // TODO: topic manager ::reap()
+    //
+    // It's necessary to reap all destroyed topics on shutdown.
+    //
+    manager->reap();
 
     return EXIT_SUCCESS;
 }

@@ -38,9 +38,9 @@ public:
     virtual void unsubscribe(const std::string&, const StringSeq&, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
-private:
-
     void reap();
+
+private:
 
     void installTopic(const std::string&, const std::string&);
 
@@ -51,6 +51,8 @@ private:
     FlusherPtr _flusher;
     StringBoolDict _topics;
 };
+
+typedef IceUtil::Handle<TopicManagerI> TopicManagerIPtr;
 
 } // End namespace IceStorm
 
