@@ -24,7 +24,7 @@ Identity
 Ice::stringToIdentity(const string& s)
 {
     Identity ident;
-    string::size_type pos = s.find_first_of("#/");
+    string::size_type pos = s.find_first_of("/");
     if (pos != string::npos)
     {
 	ident.category = s.substr(0, pos);

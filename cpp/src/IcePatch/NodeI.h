@@ -21,7 +21,13 @@ class NodeI : virtual public Node
 {
 public:
 
+    NodeI(const Ice::ObjectAdapterPtr&);
+
     static std::string normalizePath(const std::string&);
+
+protected:
+
+    Ice::ObjectAdapterPtr _adapter;
 };
 
 class DirectoryI : virtual public Directory,
@@ -29,6 +35,8 @@ class DirectoryI : virtual public Directory,
 {
 public:
     
+    DirectoryI(const Ice::ObjectAdapterPtr&);
+
     virtual Nodes getNodes(const Ice::Current&);
 };
 
@@ -37,6 +45,8 @@ class FileI : virtual public File,
 {
 public:
     
+    FileI(const Ice::ObjectAdapterPtr&);
+
     virtual Ice::ByteSeq getBytes(Ice::Int, Ice::Int, const Ice::Current&);
 };
 

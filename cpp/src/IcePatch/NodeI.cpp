@@ -9,10 +9,16 @@
 // **********************************************************************
 
 #include <IcePatch/NodeI.h>
+#include <dirent.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IcePatch;
+
+IcePatch::NodeI::NodeI(const ObjectAdapterPtr& adapter) :
+    _adapter(adapter)
+{
+}
 
 string
 IcePatch::NodeI::normalizePath(const string& path)
@@ -44,6 +50,11 @@ IcePatch::NodeI::normalizePath(const string& path)
     return result;
 }
 
+IcePatch::DirectoryI::DirectoryI(const ObjectAdapterPtr& adapter) :
+    NodeI(adapter)
+{
+}
+
 Nodes
 IcePatch::DirectoryI::getNodes(const Ice::Current& current)
 {
@@ -54,9 +65,36 @@ IcePatch::DirectoryI::getNodes(const Ice::Current& current)
 
     string path = normalizePath(current.identity.name);
 
-    return Nodes();
+    struct dirent **namelist;
+    int n = scandir(path.c_str(), &namelist, 0, alphasort);
+    if (n < 0)
+    {
+	NodeAccessException ex;
+	ex.reason = "cannot read directory `" + path + "':" + strerror(errno);
+	throw ex;
+    }
+
+    Nodes result;
+    result.reserve(n);
+
+    Identity identity;
+    identity.category = "IcePatch";
+
+    while(n--)
+    {
+	identity.name = namelist[n]->d_name;
+	free(namelist[n]);
+	result.push_back(NodePrx::uncheckedCast(_adapter->createProxy(identity)));
+    }
+    free(namelist);
+
+    return result;
 }
 
+IcePatch::FileI::FileI(const ObjectAdapterPtr& adapter) :
+    NodeI(adapter)
+{
+}
 ByteSeq
 IcePatch::FileI::getBytes(Int startPos, Int howMuch, const Ice::Current& current)
 {

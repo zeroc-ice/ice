@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
-#include <IcePatch/NodeLocator.h>
+#include <IcePatch/Node.h>
 
 using namespace std;
 using namespace Ice;
@@ -18,18 +18,19 @@ using namespace IcePatch;
 namespace IcePatch
 {
 
-class Server : public Application
+class Client : public Application
 {
 public:
 
     void usage();
     virtual int run(int, char*[]);
+    void printNode(const NodePrx&, int);
 };
 
 };
 
 void
-IcePatch::Server::usage()
+IcePatch::Client::usage()
 {
     cerr << "Usage: " << appName() << " [options]\n";
     cerr <<     
@@ -40,7 +41,7 @@ IcePatch::Server::usage()
 }
 
 int
-IcePatch::Server::run(int argc, char* argv[])
+IcePatch::Client::run(int argc, char* argv[])
 {
     for (int i = 1; i < argc; ++i)
     {
@@ -90,25 +91,49 @@ IcePatch::Server::run(int argc, char* argv[])
     }
 
     //
-    // Create and initialize the object adapter and the node locator.
+    // Display node structure.
     //
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapterFromProperty("IcePatch", endpointsProperty);
-    ServantLocatorPtr nodeLocator = new NodeLocator(adapter);
-    adapter->addServantLocator(nodeLocator, "IcePatch");
-    adapter->activate();
-
-    //
-    // We're done, let's wait for shutdown.
-    //
-    communicator()->waitForShutdown();
+    ObjectPrx topObj = communicator()->stringToProxy("IcePatch/.:" + endpoints);
+    NodePrx top = NodePrx::checkedCast(topObj);
+    printNode(top, 0);
 
     return EXIT_SUCCESS;
+}
+
+void
+IcePatch::Client::printNode(const NodePrx& node, int ident)
+{
+    int i;
+
+    for (i = 0; i < ident; ++i)
+    {
+	if (i == ident - 1)
+	{
+	    cout << '+';
+	}
+	else
+	{
+	    cout << ' ';
+	}
+    }
+    
+    cout << node->ice_getIdentity().name << endl;
+
+    DirectoryPrx directory = DirectoryPrx::checkedCast(node);
+    if (directory)
+    {
+	Nodes nodes = directory->getNodes();
+	for (i = 0; i < static_cast<int>(nodes.size()); ++i)
+	{
+	    printNode(nodes[i], ident + 1);
+	}
+    }
 }
 
 int
 main(int argc, char* argv[])
 {
     addArgumentPrefix("IcePatch");
-    Server app;
+    Client app;
     return app.main(argc, argv);
 }

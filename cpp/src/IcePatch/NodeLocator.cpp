@@ -9,16 +9,24 @@
 // **********************************************************************
 
 #include <IcePatch/NodeLocator.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IcePatch;
 
+IcePatch::NodeLocator::NodeLocator(const Ice::ObjectAdapterPtr& adapter) :
+    _directory(new DirectoryI(adapter)),
+    _file(new FileI(adapter))
+{
+}
 
 ObjectPtr
 IcePatch::NodeLocator::locate(const ObjectAdapterPtr&, const Current& current, LocalObjectPtr&)
 {
-    assert(current.identity.category == "IcePack");
+    assert(current.identity.category == "IcePatch");
 
     //
     // Check whether the path (= identity.name) is valid.
@@ -32,19 +40,42 @@ IcePatch::NodeLocator::locate(const ObjectAdapterPtr&, const Current& current, L
 
     if (path[0] == '/') // Path must not start with '/'.
     {
-	throw ObjectNotExistException(__FILE__, __LINE__);
+	return 0;
     }
 
     if (path.find("..") != string::npos) // Path must not contain '..'.
     {
-	throw ObjectNotExistException(__FILE__, __LINE__);
+	return 0;
     }
 
     if (path.find(':') == 1) // Path cannot contain ':' as second character.
     {
-	throw ObjectNotExistException(__FILE__, __LINE__);
+	return 0;
     }
 
+    struct stat buf;
+    if (stat(path.c_str(), &buf) == -1)
+    {
+	//
+	// Can't really throw any sensible exception here if stat()
+	// fails, so I return 0.
+	//
+	return 0;
+    }
+
+    if (S_ISDIR(buf.st_mode))
+    {
+	return _directory;
+    }
+
+    if (S_ISREG(buf.st_mode))
+    {
+	return _file;
+    }
+
+    //
+    // Neither a regular file nor a directory, so we return 0.
+    //
     return 0;
 }
 
@@ -58,5 +89,9 @@ IcePatch::NodeLocator::finished(const ObjectAdapterPtr&, const Current& current,
 void
 IcePatch::NodeLocator::deactivate()
 {
-    // Nothing to do.
+    //
+    // Break cyclic dependencies.
+    //
+    _directory = 0;
+    _file = 0;
 }

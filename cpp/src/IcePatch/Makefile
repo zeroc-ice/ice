@@ -10,17 +10,18 @@
 
 top_srcdir	= ../..
 
+CLIENT		= $(top_srcdir)/bin/icepatchclient
 SERVER		= $(top_srcdir)/bin/icepatch
 
-TARGETS		= $(SERVER)
+TARGETS		= $(CLIENT) $(SERVER)
 
 OBJS		= Node.o
+
+COBJS		= Client.o
 
 SOBJS		= Server.o \
 		  NodeI.o \
 		  NodeLocator.o
-
-COBJS		=
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
@@ -34,6 +35,10 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) --include-dir IcePatch -I$(slicedir)
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS)
+
+$(CLIENT): $(OBJS) $(COBJS)
+	rm -f $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
