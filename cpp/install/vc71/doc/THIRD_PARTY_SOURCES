@@ -4,8 +4,3 @@ Source Code
 The source distributions of Berkeley DB, bzip2/libbzip2, OpenSSL and
 Expat used to build this distribution can be downloaded at no cost
 from http://www.zeroc.com/download.html.
-
-The Visual Studio .NET projects used to create this installer are 
-included  in the Ice source distribution, which can also be downloaded
-at no cost from http://www.zeroc.com/download.html.
-

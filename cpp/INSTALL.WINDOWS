@@ -10,11 +10,10 @@ Ice has been extensively tested with Windows XP, Windows 2000 and
 Windows 98 SE. Ice is also expected to work on Windows 98, Windows
 ME, Windows NT 3.51, Windows NT 4.0 and Windows Server 2003.
 
-Ice binary distributions for Visual C++ .NET 2002 and 2003 are
-also available from http://www.zeroc.com/download.html. These binary
-distributions require Windows NT 4.0, Windows 2000, Windows XP
-or Windows Server 2003.
-
+Ice binary distributions for Visual Studio 6.0 and .NET 2003 are also
+available from http://www.zeroc.com/download.html. These binary
+distributions require Windows NT 4.0, Windows 2000, Windows XP or
+Windows Server 2003.
 
 C++ compiler
 ------------
@@ -22,8 +21,6 @@ C++ compiler
 The following Microsoft Visual C++ compilers are supported:
 
 - Visual C++ 6.0 SP5 with STLport 4.5 (or later)
-
-- Visual C++ .NET 2002 (aka VC 7.0)
 
 - Visual C++ .NET 2003 (aka VC 7.1)
 
@@ -37,9 +34,9 @@ For STLport installation instructions, please see:
 
 http://www.stlport.org/doc/install.html
 
-For Visual C++ .NET 2002 and 2003, you can use the included STL 
-library. Downloading and installing STLport is not required for 
-these compiler versions.
+For Visual C++ .NET 2003, you can use the included STL
+library. Downloading and installing STLport is not required for these
+compiler versions.
 
 
 Third-party libraries
@@ -56,9 +53,9 @@ Third-party libraries
 You must install all these packages before proceeding with the
 installation of Ice.
 
-If you are using Visual C++ .NET 2002 or 2003 you can download
-an installer for all these Ice dependencies from 
-http://www.zeroc.com/download.html. 
+If you are using Visual C++ .NET 2003 you can download an installer
+for all these Ice dependencies from
+http://www.zeroc.com/download.html.
 
 You can download Berkeley DB from:
 http://www.sleepycat.com/download
@@ -203,15 +200,10 @@ http://support.microsoft.com/default.aspx?scid=kb;EN-US;158474
 Installation
 ======================================================================
 
-Installation instructions for Visual Studio .NET 2002 and 2003 are
-provided in Ice-<version>\install\vc70\README and
-Ice-<version>\vc71\README.
-
-No automatic installation support is provided for Visual C++ 6.0: you
-need to copy the contents of the bin, include, and lib directories by
-hand. The include directory contains all Ice include files, the lib
-directory all Ice libraries, and the bin directory all Ice executables
-and DLLs.
+No automatic installation support is provided: you need to copy the
+contents of the bin, include, and lib directories by hand. The include
+directory contains all Ice include files, the lib directory all Ice
+libraries, and the bin directory all Ice executables and DLLs.
 
 After installation, make sure to add the include directory to the
 Visual C++ "Include files", the lib directory to the "Library files",
