@@ -56,11 +56,14 @@ CallbackClient::run(int argc, char* argv[])
     test(starter);
     cout << "ok" << endl;
 
+    ByteSeq privateKey;
+    ByteSeq publicKey;
+
     cout << "starting up glacier router... " << flush;
     RouterPrx router;
     try
     {
-	router = starter->startRouter("", "");
+	router = starter->startRouter("", "", privateKey, publicKey);
     }
     catch (const Glacier::CannotStartRouterException& ex)
     {
@@ -72,6 +75,7 @@ CallbackClient::run(int argc, char* argv[])
 	cerr << appName() << ": " << ex << endl;
 	return EXIT_FAILURE;
     }
+
     test(router);
     cout << "ok" << endl;
 

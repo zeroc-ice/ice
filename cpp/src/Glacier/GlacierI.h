@@ -29,7 +29,11 @@ public:
 
     void destroy();
 
-    Ice::RouterPrx startRouter(const std::string&, const std::string&, const Ice::Current&);
+    Ice::RouterPrx startRouter(const std::string&,
+                               const std::string&,
+                               Ice::ByteSeq&,
+                               Ice::ByteSeq&,
+                               const Ice::Current&);
 
 private:
 

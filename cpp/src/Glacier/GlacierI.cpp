@@ -56,7 +56,7 @@ Glacier::StarterI::destroy()
 }
 
 RouterPrx
-Glacier::StarterI::startRouter(const string& userId, const string& password, const Current&)
+Glacier::StarterI::startRouter(const string& userId, const string& password, ByteSeq& privateKey, ByteSeq& publicKey, const Current&)
 {
     assert(_communicator); // Destroyed?
 
@@ -75,8 +75,8 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, con
     ByteSeq clientCertificate;
     ByteSeq routerCertificate;
 
-    clientKeyPair->keyToByteSeq(clientPrivateKey);
-    clientKeyPair->certToByteSeq(clientCertificate);
+    clientKeyPair->keyToByteSeq(privateKey);
+    clientKeyPair->certToByteSeq(publicKey);
     routerKeyPair->certToByteSeq(routerCertificate);
 
     // routerPrivateKeyBase64 and routerCertificateBase64 are passed to the

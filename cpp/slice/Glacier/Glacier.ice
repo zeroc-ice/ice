@@ -12,6 +12,7 @@
 #define GLACIER_ICE
 
 #include <Ice/Router.ice>
+#include <Ice/BuiltinSequences.ice>
 
 /**
  *
@@ -63,7 +64,7 @@ interface Starter
      * given user id is not correct.
      *
      **/
-    Ice::Router* startRouter(string userId, string password)
+    Ice::Router* startRouter(string userId, string password; Ice::ByteSeq privateKey, Ice::ByteSeq publicKey)
 	throws InvalidPasswordException, CannotStartRouterException;
 };
 

@@ -248,6 +248,3 @@ IceSecurity::Ssl::OpenSSL::RSACertificateGen::generate(const RSACertificateGenCo
     return keyPairPtr;
 }
 
-
-
-

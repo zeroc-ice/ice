@@ -34,9 +34,15 @@ command = starter + updatedClientServerOptions + \
           r' --Glacier.Starter.Endpoints="default -p 12346 -t 5000"' + \
           r' --Glacier.Router.Endpoints="default"' + \
           r' --Glacier.Client.Endpoints="default"' + \
-          r' --Glacier.Server.Endpoints="default"'
-
-print command
+          r' --Glacier.Server.Endpoints="default"' + \
+          r' --Glacier.Starter.Certificate.Country=US' + \
+          r' --Glacier.Starter.Certificate.StateProvince=Alabama' + \
+          r' --Glacier.Starter.Certificate.Locality=Huntsville' + \
+          r' --Glacier.Starter.Certificate.Organization="Mutable Realms"' + \
+          r' --Glacier.Starter.Certificate.OrganizationalUnit="Ice Age Game"' + \
+          r' --Glacier.Starter.Certificate.CommonName="Ice Age Certificate"' + \
+          r' --Glacier.Starter.Certificate.BitStrength=1024' + \
+          r' --Glacier.Starter.Certificate.SecondsValid=31536000'
 
 starterPipe = os.popen(command)
 TestUtil.getServerPid(starterPipe)
