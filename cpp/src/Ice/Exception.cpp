@@ -205,6 +205,13 @@ Ice::ConnectFailedException::ice_print(ostream& out) const
 }
 
 void
+Ice::ConnectionRefusedException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nconnection refused: " << errorToString(error);
+}
+
+void
 Ice::ConnectionLostException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

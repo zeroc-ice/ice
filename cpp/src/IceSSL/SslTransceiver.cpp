@@ -350,8 +350,8 @@ IceSSL::SslTransceiver::forceHandshake()
 
         close();
 
-        // If the handshake fails, the connection failed.
-        ConnectFailedException ex(__FILE__, __LINE__);
+        // If the handshake fails, we consider the connection as refused.
+        ConnectionRefusedException ex(__FILE__, __LINE__);
 #ifdef _WIN32
         ex.error = WSAECONNREFUSED;
 #else

@@ -284,14 +284,14 @@ IceSSL::SslClientTransceiver::handshake(int timeout)
                 else    // result == 0
                 {
                     //
-                    // The OpenSSL docs say that a result code of 0 indicates
-                    // a graceful shutdown. In order to cause a retry in the
-                    // Ice core, we raise ConnectFailedException. However,
-                    // errno isn't set in this situation, so we always use
+                    // The OpenSSL docs say that a result code of 0
+                    // indicates a graceful shutdown. In order to
+                    // cause a retry in the Ice core, we raise
+                    // ConnectionRefusedException. However, errno
+                    // isn't set in this situation, so we always use
                     // ECONNREFUSED.
                     //
-
-                    ConnectFailedException ex(__FILE__, __LINE__);
+		    ConnectionRefusedException ex(__FILE__, __LINE__);
 #ifdef _WIN32
                     ex.error = WSAECONNREFUSED;
 #else

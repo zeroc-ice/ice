@@ -20,22 +20,53 @@ public final class Network
     connectionLost(java.io.IOException ex)
     {
         //
-        // TODO: The JDK raises a generic IOException for cases
-        // that we want to detect. Unfortunately, our only choice
-        // is to search the exception message for distinguishing
-        // phrases.
+        // TODO: The JDK raises a generic IOException for certain
+        // cases of connection loss. Unfortunately, our only choice is
+        // to search the exception message for distinguishing phrases.
         //
-        String msg = ex.getMessage();
+
+        String msg = ex.getMessage().toLowerCase();
 
         if(msg != null)
         {
             final String[] msgs =
             {
-                "Connection reset by peer", // ECONNRESET
-                "Cannot send after socket shutdown", // ESHUTDOWN (Win32)
-                "Cannot send after transport endpoint shutdown", // ESHUTDOWN (Linux)
-                "Software caused connection abort", // ECONNABORTED
-                "An existing connection was forcibly closed" // unknown
+                "connection reset by peer", // ECONNRESET
+                "cannot send after socket shutdown", // ESHUTDOWN (Win32)
+                "cannot send after transport endpoint shutdown", // ESHUTDOWN (Linux)
+                "software caused connection abort", // ECONNABORTED
+                "an existing connection was forcibly closed" // unknown
+            };
+
+            for(int i = 0; i < msgs.length; i++)
+            {
+                if(msg.indexOf(msgs[i]) != -1)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean
+    connectionRefused(java.net.ConnectException ex)
+    {
+        //
+        // The JDK raises a generic ConnectException when the server
+        // actively refuses a connection. Unfortunately, our only
+        // choice is to search the exception message for
+        // distinguishing phrases.
+        //
+
+        String msg = ex.getMessage().toLowerCase();
+
+        if(msg != null)
+        {
+            final String[] msgs =
+            {
+                "connection refused" // ECONNREFUSED
             };
 
             for(int i = 0; i < msgs.length; i++)
@@ -202,7 +233,16 @@ public final class Network
             {
                 // ignore
             }
-            Ice.ConnectFailedException se = new Ice.ConnectFailedException();
+
+            Ice.ConnectFailedException se;
+	    if(connectionRefused(ex))
+	    {
+		se = new Ice.ConnectionRefusedException();
+	    }
+	    else
+	    {
+		se = new Ice.ConnectFailedException();
+	    }
             se.initCause(ex);
             throw se;
         }
@@ -239,7 +279,16 @@ public final class Network
             {
                 // ignore
             }
-            Ice.ConnectFailedException se = new Ice.ConnectFailedException();
+
+            Ice.ConnectFailedException se;
+	    if(connectionRefused(ex))
+	    {
+		se = new Ice.ConnectionRefusedException();
+	    }
+	    else
+	    {
+		se = new Ice.ConnectFailedException();
+	    }
             se.initCause(ex);
             throw se;
         }

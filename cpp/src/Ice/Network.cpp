@@ -101,6 +101,17 @@ IceInternal::connectFailed()
 }
 
 bool
+IceInternal::connectionRefused()
+{
+#ifdef _WIN32
+    int error = WSAGetLastError();
+    return error == WSAECONNREFUSED;
+#else
+    return errno == ECONNREFUSED;
+#endif
+}
+
+bool
 IceInternal::connectInProgress()
 {
 #ifdef _WIN32
@@ -484,7 +495,13 @@ repeatConnect:
 #else
 		errno = val;
 #endif
-		if(connectFailed())
+		if(connectionRefused())
+		{
+		    ConnectionRefusedException ex(__FILE__, __LINE__);
+		    ex.error = getSocketErrno();
+		    throw ex;
+		}
+		else if(connectFailed())
 		{
 		    ConnectFailedException ex(__FILE__, __LINE__);
 		    ex.error = getSocketErrno();
@@ -502,7 +519,13 @@ repeatConnect:
 	}
     
 	closeSocket(fd);
-	if(connectFailed())
+	if(connectionRefused())
+	{
+	    ConnectionRefusedException ex(__FILE__, __LINE__);
+	    ex.error = getSocketErrno();
+	    throw ex;
+	}
+	else if(connectFailed())
 	{
 	    ConnectFailedException ex(__FILE__, __LINE__);
 	    ex.error = getSocketErrno();

@@ -79,6 +79,7 @@ ICE_PROTOCOL_API bool acceptInterrupted();
 ICE_PROTOCOL_API bool noBuffers();
 ICE_PROTOCOL_API bool wouldBlock();
 ICE_PROTOCOL_API bool connectFailed();
+ICE_PROTOCOL_API bool connectionRefused();
 ICE_PROTOCOL_API bool connectInProgress();
 ICE_PROTOCOL_API bool connectionLost();
 ICE_PROTOCOL_API bool notConnected();

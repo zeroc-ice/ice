@@ -287,7 +287,7 @@ IceSSL::SslServerTransceiver::handshake(int timeout)
                 else
                 {
                     //
-                    // NOTE: Should this be ConnectFailedException like in the Client?
+                    // NOTE: Should this be ConnectionRefusedException like in the Client?
                     //
 
                     ProtocolException protocolEx(__FILE__, __LINE__);

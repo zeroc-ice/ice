@@ -307,6 +307,17 @@ local exception ConnectFailedException extends SocketException
 
 /**
  *
+ * This exception is a specialization of [ConnectFailedException] for
+ * connection failures, where the server host actively refuses a
+ * connection.
+ *
+ **/
+local exception ConnectionRefusedException extends ConnectFailedException
+{
+};
+
+/**
+ *
  * This exception is a specialization of [SocketException], indicating
  * a lost connection.
  *
