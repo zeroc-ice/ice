@@ -9,9 +9,9 @@
 
 top_srcdir	= ..
 
-TARGETS		= manual/index.html
+TARGETS		= reference/index.html
 
-SGMLFILES	= manual.sgml \
+SGMLFILES	= reference.sgml \
 		  SliceDoc.sgml \
 		  Properties.sgml \
 		  ProxiesEndpoints.sgml
@@ -27,23 +27,23 @@ SLICEFILES	= $(wildcard ../slice/Ice/*.ice) \
 
 include $(top_srcdir)/config/Make.rules
 
-manual/index.html: $(SGMLFILES)
-	rm -rf manual
-	db2html manual.sgml
-	(mkdir -p manual/stylesheet-images; \
-	 cd manual/stylesheet-images; \
+reference/index.html: $(SGMLFILES)
+	rm -rf reference
+	db2html reference.sgml
+	(mkdir -p reference/stylesheet-images; \
+	 cd reference/stylesheet-images; \
 	 ln -f -s ../../images/*.gif .)
 
-manual.pdf: $(SGMLFILES)
-	rm -rf manual.pdf
-	db2pdf manual.sgml
+reference.pdf: $(SGMLFILES)
+	rm -rf reference.pdf
+	db2pdf reference.sgml
 
-manual.dvi: $(SGMLFILES)
-	rm -rf manual.dvi
-	db2dvi manual.sgml
+reference.dvi: $(SGMLFILES)
+	rm -rf reference.dvi
+	db2dvi reference.sgml
 
 clean::
-	rm -rf manual manual.out manual.texi
+	rm -rf reference reference.out reference.texi
 
 SliceDoc.sgml: $(SLICEFILES) $(SLICE2DOCBOOK)
 	rm -f $@
@@ -57,7 +57,7 @@ clean::
 	rm -f SliceDoc.sgml appendix.sgml
 
 install::
-	@if test -f manual/index.html ; \
+	@if test -f reference/index.html ; \
 	then \
 	    if test ! -d $(install_docdir)/images ; \
 	    then \
@@ -67,30 +67,30 @@ install::
 	    fi ; \
 	    echo "Installing images..." ; \
 	    ${INSTALL_DATA} images/*.gif $(install_docdir)/images ; \
-	    if test ! -d $(install_docdir)/manual ; \
+	    if test ! -d $(install_docdir)/reference ; \
 	    then \
-		echo "Creating $(install_docdir)/manual..." ; \
-		mkdir $(install_docdir)/manual ; \
-		chmod a+rx $(install_docdir)/manual ; \
+		echo "Creating $(install_docdir)/reference..." ; \
+		mkdir $(install_docdir)/reference ; \
+		chmod a+rx $(install_docdir)/reference ; \
 	    fi ; \
 	    echo "Installing HTML..." ; \
-	    ${INSTALL_DATA} manual/*.html $(install_docdir)/manual ; \
-	    if test ! -d $(install_docdir)/manual/stylesheet-images ; \
+	    ${INSTALL_DATA} reference/*.html $(install_docdir)/reference ; \
+	    if test ! -d $(install_docdir)/reference/stylesheet-images ; \
 	    then \
-		echo "Creating $(install_docdir)/manual/stylesheet-images..." ; \
-		mkdir $(install_docdir)/manual/stylesheet-images ; \
-		chmod a+rx $(install_docdir)/manual/stylesheet-images ; \
+		echo "Creating $(install_docdir)/reference/stylesheet-images..." ; \
+		mkdir $(install_docdir)/reference/stylesheet-images ; \
+		chmod a+rx $(install_docdir)/reference/stylesheet-images ; \
 	    fi ; \
 	    echo "Installing image links..." ; \
-            (cd $(install_docdir)/manual/stylesheet-images; ln -f -s ../../images/*.gif .) ; \
+            (cd $(install_docdir)/reference/stylesheet-images; ln -f -s ../../images/*.gif .) ; \
 	fi
-	@if test -f manual.pdf ; \
+	@if test -f reference.pdf ; \
 	then \
-	    echo "Installing manual.pdf..." ; \
-	    ${INSTALL_DATA} manual.pdf $(install_docdir) ; \
+	    echo "Installing reference.pdf..." ; \
+	    ${INSTALL_DATA} reference.pdf $(install_docdir) ; \
 	fi
-	@if test -f manual.dvi ; \
+	@if test -f reference.dvi ; \
 	then \
-	    echo "Installing manual.dvi..." ; \
-	    ${INSTALL_DATA} manual.dvi $(install_docdir) ; \
+	    echo "Installing reference.dvi..." ; \
+	    ${INSTALL_DATA} reference.dvi $(install_docdir) ; \
 	fi
