@@ -159,13 +159,14 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     startString += p->scoped();
     startString += "\"";
     start(startString);
-    start("xs:complexContent");
 
     start("xs:annotation");
     start("xs:appinfo");
     O << nl << "<type>class</type>";
     end(); // xs:annotation
     end(); // xs:appinfo
+
+    start("xs:complexContent");
     
     start("xs:extension base=\"ice:_internal.objectType\"");
     start("xs:sequence");
@@ -383,13 +384,14 @@ Slice::Gen::visitSequence(const SequencePtr& p)
     startString += p->scoped();
     startString += "\"";
     start(startString);
-    start("xs:sequence");
 
     start("xs:annotation");
     start("xs:appinfo");
     O << nl << "<type>sequence</type>";
     end(); // xs:annotation
     end(); // xs:appinfo
+
+    start("xs:sequence");
 
     O << nl << "<xs:element name=\"e\" type=\"" << toString(p->type())
       << "\" minOccurs=\"0\" maxOccurs=\"unbounded\"/>";
@@ -441,7 +443,6 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     startString += p->scoped();
     startString += "\"";
     start(startString);
-    start("xs:sequence");
 
     start("xs:annotation");
     start("xs:appinfo");
@@ -449,6 +450,7 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     end(); // xs:annotation
     end(); // xs:appinfo
 
+    start("xs:sequence");
 
     O << nl << "<xs:element name=\"e\" type=\"tns:" << internalId << scopeId << p->name() << "ContentType\""
       << " minOccurs=\"0\" maxOccurs=\"unbounded\"/>";
