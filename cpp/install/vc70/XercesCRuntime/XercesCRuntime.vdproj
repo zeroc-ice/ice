@@ -27,12 +27,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_6D20C4E859114E588F364F416768EDD9"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\XERCES-C-SRC2_2_0\\LICENSE"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_B75E5E2BF26543D4888381F92BB17072"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
@@ -92,26 +86,6 @@
             "TargetName" = "8:xerces-c_2_2_0.dll"
             "Tag" = "8:"
             "Folder" = "8:_CBC6714983D0420997D148C866E12656"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6D20C4E859114E588F364F416768EDD9"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\xerces-c-src2_2_0\\LICENSE"
-            "TargetName" = "8:XercesC-LICENSE"
-            "Tag" = "8:"
-            "Folder" = "8:_0A7A7D6961984C299E04CDCA5FA090F6"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"

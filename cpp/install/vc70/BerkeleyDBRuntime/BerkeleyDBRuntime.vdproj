@@ -135,12 +135,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A415C70EB8634D3D9E225630F5643667"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\LICENSE"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_B324DDD29352441185680DA8CA905CB2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\DB_CHECKPOINT.EXE"
@@ -578,26 +572,6 @@
             "Folder" = "8:_960E1A72653C4D889AFC062E21AEE40A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_A415C70EB8634D3D9E225630F5643667"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\LICENSE"
-            "TargetName" = "8:BerkeleyDB-LICENSE"
-            "Tag" = "8:"
-            "Folder" = "8:_7DC4317E664C43829847DA1D47C7ADF1"
-            "Condition" = "8:"
-            "Transitive" = "11:TRUE"
             "Vital" = "11:TRUE"
             "ReadOnly" = "11:FALSE"
             "Hidden" = "11:FALSE"
