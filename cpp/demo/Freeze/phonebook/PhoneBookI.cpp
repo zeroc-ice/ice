@@ -20,7 +20,8 @@ using namespace Freeze;
 
 ContactI::ContactI(const PhoneBookIPtr& phoneBook, const EvictorPtr& evictor) :
     _phoneBook(phoneBook),
-    _evictor(evictor)
+    _evictor(evictor),
+    _destroyed(false)
 {
 }
 
@@ -34,6 +35,12 @@ string
 ContactI::getName(const Ice::Current&) const
 {
     IceUtil::RWRecMutex::RLock sync(*this);
+
+    if(_destroyed)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+
     return name;
 }
 
@@ -41,6 +48,11 @@ void
 ContactI::setName(const string& name, const Ice::Current&)
 {
     IceUtil::RWRecMutex::WLock sync(*this);
+
+    if(_destroyed)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
 
     assert(!_identity.name.empty());
     _phoneBook->move(_identity, this->name, name);
@@ -51,6 +63,12 @@ string
 ContactI::getAddress(const Ice::Current&) const
 {
     IceUtil::RWRecMutex::RLock sync(*this);
+
+    if(_destroyed)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+
     return address;
 }
 
@@ -58,6 +76,12 @@ void
 ContactI::setAddress(const string& address, const Ice::Current&)
 {
     IceUtil::RWRecMutex::WLock sync(*this);
+
+    if(_destroyed)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+
     this->address = address;
 }
 
@@ -65,6 +89,12 @@ string
 ContactI::getPhone(const Ice::Current&) const
 {
     IceUtil::RWRecMutex::RLock sync(*this);
+
+    if(_destroyed)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+
     return phone;
 }
 
@@ -72,6 +102,12 @@ void
 ContactI::setPhone(const string& phone, const Ice::Current&)
 {
     IceUtil::RWRecMutex::WLock sync(*this);
+
+    if(_destroyed)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+
     this->phone = phone;
 }
 
@@ -79,6 +115,13 @@ void
 ContactI::destroy(const Ice::Current&)
 {
     IceUtil::RWRecMutex::RLock sync(*this);
+
+    if(_destroyed)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+
+    _destroyed = true;
 
     try
     {

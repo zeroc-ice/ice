@@ -18,7 +18,7 @@
 using namespace std;
 
 BookI::BookI(const LibraryIPtr& library) :
-    _library(library)
+    _library(library), _destroyed(false)
 {
 }
 
@@ -30,6 +30,13 @@ void
 BookI::destroy(const Ice::Current&)
 {
     IceUtil::RWRecMutex::RLock sync(*this);
+
+    if(_destroyed)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+
+    _destroyed = true;
 
     try
     {
@@ -52,6 +59,13 @@ BookI::destroy(const Ice::Current&)
 ::BookDescription
 BookI::getBookDescription(const Ice::Current&) const
 {
+    IceUtil::RWRecMutex::RLock sync(*this);
+
+    if(_destroyed)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+
     // Immutable
     return description;
 }
@@ -60,6 +74,11 @@ BookI::getBookDescription(const Ice::Current&) const
 BookI::getRenterName(const Ice::Current&) const
 {
     IceUtil::RWRecMutex::RLock sync(*this);
+
+    if(_destroyed)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
 
     if(rentalCustomerName.empty())
     {
@@ -73,6 +92,11 @@ BookI::rentBook(const ::std::string& name, const Ice::Current&)
 {
     IceUtil::RWRecMutex::WLock sync(*this);
 
+    if(_destroyed)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+
     if(!rentalCustomerName.empty())
     {
 	throw BookRentedException();
@@ -84,6 +108,11 @@ void
 BookI::returnBook(const Ice::Current&)
 {
     IceUtil::RWRecMutex::WLock sync(*this);
+
+    if(_destroyed)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
 
     if(rentalCustomerName.empty())
     {

@@ -65,6 +65,7 @@ public:
 private:
 
     LibraryIPtr _library;
+    bool _destroyed;
 };
 
 #endif

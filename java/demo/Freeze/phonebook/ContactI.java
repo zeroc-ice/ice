@@ -22,6 +22,11 @@ class ContactI extends Contact
     synchronized public String
     getName(Ice.Current current)
     {
+        if(_destroyed)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+
 	return name;
     }
 
@@ -29,6 +34,11 @@ class ContactI extends Contact
     setName(String name, Ice.Current current)
 	throws DatabaseException
     {
+        if(_destroyed)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+
 	assert(_identity.name.length() != 0);
 	_phonebook.move(_identity, this.name, name);
 	this.name = name;
@@ -37,24 +47,44 @@ class ContactI extends Contact
     synchronized public String
     getAddress(Ice.Current current)
     {
+        if(_destroyed)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+
 	return address;
     }
 
     synchronized public void
     setAddress(String address, Ice.Current current)
     {
+        if(_destroyed)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+
 	this.address = address;
     }
 
     synchronized public String
     getPhone(Ice.Current current)
     {
+        if(_destroyed)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+
 	return phone;
     }
 
     synchronized public void
     setPhone(String phone, Ice.Current current)
     {
+        if(_destroyed)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+
 	this.phone = phone;
     }
 
@@ -62,6 +92,13 @@ class ContactI extends Contact
     destroy(Ice.Current current)
 	throws DatabaseException
     {
+        if(_destroyed)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+
+        _destroyed = true;
+
 	try
 	{
 	    assert(_identity.name.length() != 0);
@@ -92,6 +129,7 @@ class ContactI extends Contact
     {
 	_phonebook = phonebook;
 	_evictor = evictor;
+        _destroyed = false;
 
 	//
 	// It's possible to avoid this if there were two constructors
@@ -112,5 +150,5 @@ class ContactI extends Contact
     private PhoneBookI _phonebook;
     private Freeze.Evictor _evictor;
     private Ice.Identity _identity;
-	
+    private boolean _destroyed;
 }

@@ -51,6 +51,7 @@ private:
     PhoneBookIPtr _phoneBook;
     Freeze::EvictorPtr _evictor;
     Ice::Identity _identity;
+    bool _destroyed;
 };
 
 class PhoneBookI : public PhoneBook, public IceUtil::RWRecMutex

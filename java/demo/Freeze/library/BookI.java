@@ -19,9 +19,14 @@ class BookI extends Book
     // synchronization.
     //
 
-    public BookDescription
+    synchronized public BookDescription
     getBookDescription(Ice.Current current)
     {
+        if(_destroyed)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+
 	//
 	// Immutable.
 	//
@@ -32,6 +37,11 @@ class BookI extends Book
     getRenterName(Ice.Current current)
 	throws BookNotRentedException
     {
+        if(_destroyed)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+
 	if(rentalCustomerName.length() == 0)
 	{
 	    throw new BookNotRentedException();
@@ -43,6 +53,11 @@ class BookI extends Book
     rentBook(String name, Ice.Current current)
 	throws BookRentedException
     {
+        if(_destroyed)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+
 	if(rentalCustomerName.length() != 0)
 	{
 	    throw new BookRentedException();
@@ -54,6 +69,11 @@ class BookI extends Book
     returnBook(Ice.Current current)
 	throws BookNotRentedException
     {
+        if(_destroyed)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+
 	if(rentalCustomerName.length() == 0)
 	{
 	    throw new BookNotRentedException();
@@ -65,6 +85,13 @@ class BookI extends Book
     destroy(Ice.Current current)
 	throws DatabaseException
     {
+        if(_destroyed)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+
+        _destroyed = true;
+
 	try
 	{
 	    _library.remove(description);
@@ -86,6 +113,7 @@ class BookI extends Book
     BookI(LibraryI library)
     {
 	_library = library;
+        _destroyed = false;
 
 	//
 	// This could be avoided by having two constructors (one for
@@ -96,4 +124,5 @@ class BookI extends Book
     }
 
     private LibraryI _library;
+    private boolean _destroyed;
 }
