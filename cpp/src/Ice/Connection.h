@@ -16,7 +16,6 @@
 #define ICE_CONNECTION_H
 
 #include <IceUtil/Mutex.h>
-#include <IceUtil/RecMutex.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Time.h>
 #include <Ice/ConnectionF.h>
@@ -43,7 +42,7 @@ namespace IceInternal
 
 class Outgoing;
 
-class Connection : public EventHandler, public IceUtil::Monitor<IceUtil::RecMutex>
+class Connection : public EventHandler, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
