@@ -30,13 +30,10 @@
 #   include <sys/stat.h>
 #endif
 
-#include <fstream>
-
 using namespace std;
 
 Ice::Service* Ice::Service::_instance = 0;
 static IceUtil::CtrlCHandler* _ctrlCHandler = 0;
-ofstream _outChild;
 
 //
 // Callback for IceUtil::CtrlCHandler.
@@ -44,10 +41,6 @@ ofstream _outChild;
 static void
 ctrlCHandlerCallback(int sig)
 {
-    if(_outChild.is_open())
-    {
-        _outChild << "child: CtrlCHandler received signal " << sig << endl;
-    }
     Ice::Service* service = Ice::Service::instance();
     assert(service != 0);
     service->interrupt();
@@ -1180,6 +1173,9 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
     SOCKET fds[2];
     IceInternal::createPipe(fds);
 
+    //
+    // Fork the child.
+    //
     pid_t pid = fork();
     if(pid < 0)
     {
@@ -1194,11 +1190,14 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
         // Parent process.
         //
 
+        //
+        // Close an unused end of the pipe.
+        //
         close(fds[1]);
 
         //
         // Wait for the child to write a byte to the pipe to indicate that it
-        // is ready to receive requests.
+        // is ready to receive requests, or that an error occurred.
         //
         char c = 0;
         while(true)
@@ -1261,6 +1260,45 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
     try
     {
         //
+        // Become a session and process group leader.
+        //
+        if(setsid() == -1)
+        {
+            SyscallException ex(__FILE__, __LINE__);
+            ex.error = getSystemErrno();
+            throw ex;
+        }
+
+        //
+        // Conventional wisdom recommends ignoring SIGHUP and forking again in order
+        // to avoid the possibility of acquiring a controlling terminal. However,
+        // doing this means the grandchild is no longer a process group leader, and
+        // that would interfere with signal delivery on non-NPTL Linux systems.
+        //
+/*
+        //
+        // Ignore SIGHUP so that the grandchild process is not sent SIGHUP when this
+        // process exits.
+        //
+        signal(SIGHUP, SIG_IGN);
+
+        //
+        // Fork again to eliminate the possibility of acquiring a controlling terminal.
+        //
+        pid = fork();
+        if(pid < 0)
+        {
+            SyscallException ex(__FILE__, __LINE__);
+            ex.error = getSystemErrno();
+            throw ex;
+        }
+        if(pid != 0)
+        {
+            exit(0);
+        }
+*/
+
+        //
         // Set the umask.
         //
         umask(0);
@@ -1278,16 +1316,6 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
             }
         }
 
-        //
-        // Become a session leader.
-        //
-        if(setsid() == -1)
-        {
-            SyscallException ex(__FILE__, __LINE__);
-            ex.error = getSystemErrno();
-            throw ex;
-        }
-
         fd_set fdsToClose;
         int fdMax;
         if(!noClose)
@@ -1295,7 +1323,8 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
             //
             // Take a snapshot of the open file descriptors. We don't actually close these
             // descriptors until after the communicator is initialized, so that plug-ins
-            // have an opportunity to use stdin/stdout/stderr if necessary.
+            // have an opportunity to use stdin/stdout/stderr if necessary. This also
+            // conveniently allows the Ice.PrintProcessId property to work as expected.
             //
             FD_ZERO(&fdsToClose);
             fdMax = sysconf(_SC_OPEN_MAX);
@@ -1317,10 +1346,11 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
         }
 
         //
-        // Create the CtrlCHandler after forking the child so that signals
-        // are initialized properly. We do this before initializing the
-        // communicator because we need to ensure that signals are initialized
-        // before additional threads are created.
+        // Create the CtrlCHandler after forking the child so that signals are initialized
+        // properly. We do this before initializing the communicator because we need to
+        // ensure that signals are initialized before additional threads are created. The
+        // communicator thread pools currently use lazy initialization, but a thread can
+        // be created if Ice.MonitorConnections is defined.
         //
         _ctrlCHandler = new IceUtil::CtrlCHandler;
 
