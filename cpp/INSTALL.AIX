@@ -7,10 +7,12 @@ Operating System
 
 AIX 5.2 on Power or PowerPC
 
+
 C++ compiler
 ------------
 
 - VisualAge C++ 6.0 with the April 2004 PTF
+
 
 C compiler
 ----------
@@ -110,10 +112,9 @@ Now you're ready to build Ice:
 $ gmake
 
 This will build the Ice core library, all add-ons, all tests, and all
-examples. 
+examples.
 
-
-After a successful build, you can run the test suite, provided that 
+After a successful build, you can run the test suite, provided that
 you installed Python:
 
 $ gmake test
@@ -137,8 +138,8 @@ Library versioning
 ======================================================================
 
 Ice uses the same library versioning convention as the packages
-distributed in the "AIX Toolbox for Linux Applications". See the
-link below for more information:
+distributed in the "AIX Toolbox for Linux Applications". See the link
+below for more information:
 
 http://www-124.ibm.com/pipermail/aixtoolbox-list/2004-June/001789.html
 
@@ -173,8 +174,7 @@ Simply run "gmake install". This will install Ice in the "prefix"
 directory specified in the file Make.rules.
 
 After installation, make sure that the <prefix>/bin directory is in
-your PATH, and the <prefix>/lib directory is in your
-LIBPATH. When compiling Ice programs, you must also make sure
-to pass the location of the <prefix>/include directory to the compiler
-with the -I option, and the location of the <prefix>/lib directory
-with the -L option.
+your PATH, and the <prefix>/lib directory is in your LIBPATH. When
+compiling Ice programs, you must also make sure to pass the location
+of the <prefix>/include directory to the compiler with the -I option,
+and the location of the <prefix>/lib directory with the -L option.
