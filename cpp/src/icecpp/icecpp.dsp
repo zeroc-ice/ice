@@ -136,6 +136,14 @@ SOURCE=.\cexp.y
 
 !IF  "$(CFG)" == "icecpp - Win32 Release"
 
+# Begin Custom Build
+InputPath=.\cexp.y
+
+"cexp.c" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	bison -o cexp.c cexp.y
+
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "icecpp - Win32 Debug"
 
 # Begin Custom Build
