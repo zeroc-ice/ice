@@ -19,7 +19,6 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCopyright("Copyright (c) 2003-2004, ZeroC, Inc.")]
 [assembly: AssemblyTrademark("Ice")]
 [assembly: AssemblyCulture("")]		
-[assembly: AssemblyInformationalVersion("Ice for C#, v1.5.0")]
 [assembly: AssemblyVersion("1.5.0")]
 [assembly: AssemblyDelaySign(false)]
 #if __MonoCS__
