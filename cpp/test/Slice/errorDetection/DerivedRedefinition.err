@@ -1,0 +1,6 @@
+DerivedRedefinition.ice:17: operation `op' is already defined in a base interface or class
+DerivedRedefinition.ice:18: operation `op' is already defined in a base interface or class
+DerivedRedefinition.ice:31: operation `op' is already defined in a base interface or class
+DerivedRedefinition.ice:34: ambiguous multiple inheritance: `op' is defined in two or more base classes
+DerivedRedefinition.ice:39: data member `l' is already defined in a base interface or class
+DerivedRedefinition.ice:41: data member `l' is already defined in a base interface or class

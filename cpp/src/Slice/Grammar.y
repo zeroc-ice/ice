@@ -420,19 +420,6 @@ class_def
 {
     unit->popContainer();
     $$ = $5;
-
-    //
-    // Check whether at least one data member is present, otherwise the class
-    // really is an interface and must be defined as an interface.
-    //
-    ClassDefPtr cd = ClassDefPtr::dynamicCast($$);
-    assert(cd);
-/*
-    if (cd->dataMembers().empty())
-    {
-    	unit->error("classes must have at least one data member");
-    }
-*/
 }
 | ICE_CLASS keyword class_extends implements
 {
@@ -572,13 +559,14 @@ interface_def
     unit->popContainer();
     $$ = $4;
 
+/*
+    // TODO: This may need to be backed out again, depending on what we decide.
     //
     // Check whether at least one operation is present, otherwise the
     // interface is empty, which doesn't make sense.
     //
     ClassDefPtr cd = ClassDefPtr::dynamicCast($$);
     assert(cd);
-/*
     if (cd->operations().empty())
     {
      	unit->error("interfaces must have at least one operation");

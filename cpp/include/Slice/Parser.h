@@ -114,6 +114,9 @@ typedef std::list<ContainedPtr> ContainedList;
 typedef std::list<ModulePtr> ModuleList;
 typedef std::list<ConstructedPtr> ConstructedList;
 typedef std::list<ClassDefPtr> ClassList;
+typedef std::list<ClassList> GraphPartitionList;
+typedef std::set<std::string> StringSet;
+typedef std::list<StringSet> StringSetList;
 typedef std::list<ExceptionPtr> ExceptionList;
 typedef std::list<StructPtr> StructList;
 typedef std::list<SequencePtr> SequenceList;
@@ -324,6 +327,15 @@ protected:
     bool checkInterfaceAndLocal(const std::string&, bool, bool, bool, bool, bool);
 
     ContainedList _contents;
+
+private:
+
+    bool isInList(const GraphPartitionList&, const ClassDefPtr) const;
+    void addPartition(GraphPartitionList&,
+		      GraphPartitionList::reverse_iterator,
+		      const ClassDefPtr) const;
+    StringSetList toStringSetList(const GraphPartitionList&) const;
+    StringList unionOfAllPairIntersections(const StringSetList&) const;
 };
 
 // ----------------------------------------------------------------------
@@ -414,6 +426,7 @@ public:
     OperationList operations();
     OperationList allOperations();
     DataMemberList dataMembers();
+    DataMemberList allDataMembers();
     bool isAbstract();
     bool isInterface();
     bool isLocal();
