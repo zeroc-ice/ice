@@ -902,13 +902,10 @@ Slice::Gen::OpsVisitor::visitOperation(const OperationPtr& p)
 	out << "Ice.Current current";
     }
     out << ')';
-    if(!amd)
-    {
-	ExceptionList throws = p->throws();
-	throws.sort();
-	throws.unique();
-	writeThrowsClause(scope, throws);
-    }
+    ExceptionList throws = p->throws();
+    throws.sort();
+    throws.unique();
+    writeThrowsClause(scope, throws);
     out << ';';
 }
 
@@ -3480,6 +3477,12 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& scope, co
 
         out << sp << nl << "public void" << nl << opName << "_async(" << getParamsAsync(op, scope, true)
             << ", Ice.Current current)";
+
+        ExceptionList throws = op->throws();
+        throws.sort();
+        throws.unique();
+        writeThrowsClause(scope, throws);
+
         out << sb;
 
         string result = "r";
