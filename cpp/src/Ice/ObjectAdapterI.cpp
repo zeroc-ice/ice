@@ -83,8 +83,8 @@ Ice::ObjectAdapterI::deactivate()
     for_each(_collectorFactories.begin(), _collectorFactories.end(),
 	     ::IceInternal::voidMemFun(& CollectorFactory::destroy));
     _collectorFactories.clear();
-    _asm.clear();
-    _asmHint = _asm.begin();
+    _activeServantMap.clear();
+    _activeServantMapHint = _activeServantMap.begin();
 }
 
 ObjectPrx
@@ -97,7 +97,7 @@ Ice::ObjectAdapterI::add(const ObjectPtr& object, const string& ident)
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
 
-    _asmHint = _asm.insert(_asmHint, make_pair(ident, object));
+    _activeServantMapHint = _activeServantMap.insert(_activeServantMapHint, make_pair(ident, object));
 
     return newProxy(ident);
 }
@@ -124,7 +124,7 @@ Ice::ObjectAdapterI::addTemporary(const ObjectPtr& object)
     s << hex << '.' << tv.tv_sec << '.' << tv.tv_usec / 1000 << '.' << rand();
 #endif
 
-    _asmHint = _asm.insert(_asmHint, make_pair(s.str(), object));
+    _activeServantMapHint = _activeServantMap.insert(_activeServantMapHint, make_pair(s.str(), object));
 
     return newProxy(s.str());
 }
@@ -139,8 +139,8 @@ Ice::ObjectAdapterI::remove(const string& ident)
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
 
-    _asm.erase(ident);
-    _asmHint = _asm.begin();
+    _activeServantMap.erase(ident);
+    _activeServantMapHint = _activeServantMap.begin();
 }
 
 void
@@ -162,8 +162,8 @@ Ice::ObjectAdapterI::identityToServant(const string& ident)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
-    map<string, ObjectPtr>::const_iterator p = _asm.find(ident);
-    if (p != _asm.end())
+    map<string, ObjectPtr>::const_iterator p = _activeServantMap.find(ident);
+    if (p != _activeServantMap.end())
     {
 	return p->second;
     }
@@ -217,7 +217,7 @@ Ice::ObjectAdapterI::createProxy(const string& ident)
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& name, const string& endpts) :
     _instance(instance),
     _name(name),
-    _asmHint(_asm.begin())
+    _activeServantMapHint(_activeServantMap.begin())
 {
     string s(endpts);
     transform(s.begin(), s.end(), s.begin(), tolower);

@@ -58,8 +58,8 @@ private:
     ::IceInternal::InstancePtr _instance;
     std::string _name;
     std::vector< IceInternal::CollectorFactoryPtr> _collectorFactories;
-    std::map<std::string, ObjectPtr> _asm;
-    std::map<std::string, ObjectPtr>::iterator _asmHint;
+    std::map<std::string, ObjectPtr> _activeServantMap;
+    std::map<std::string, ObjectPtr>::iterator _activeServantMapHint;
     ServantLocatorPtr _locator;
 };
 
