@@ -149,8 +149,8 @@ for x in filesToRemove:
 #
 # Get Ice version.
 #
-config = open(os.path.join("icecs", "src", "Ice", "Version.cs"), "r")
-version = re.search("ICE_STRING_VERSION = \"([0-9\.]*)\"", config.read()).group(1)
+config = open(os.path.join("icecs", "src", "Ice", "AssemblyInfo.cs"), "r")
+version = re.search("AssemblyVersion.*\"([0-9\.]*)\"", config.read()).group(1)
 
 #
 # Create source archives.

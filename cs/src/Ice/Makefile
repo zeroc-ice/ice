@@ -75,7 +75,6 @@ SRCS		= Acceptor.cs \
 		  UserExceptionFactory.cs \
 		  Util.cs \
 		  ValueWriter.cs \
-		  Version.cs \
 		  XMLOutput.cs
 
 SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
