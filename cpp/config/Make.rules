@@ -115,10 +115,10 @@ install_slicedir	= $(prefix)/slice
 install_schemadir	= $(prefix)/schema
 install_docdir		= $(prefix)/doc
 
-INSTALL			= /usr/bin/install -c
+INSTALL			= cp -fp
 INSTALL_PROGRAM		= ${INSTALL}
-INSTALL_LIBRARY		= ${INSTALL} -m 644
-INSTALL_DATA		= ${INSTALL} -m 644
+INSTALL_LIBRARY		= ${INSTALL}
+INSTALL_DATA		= ${INSTALL}
 
 UNAME                   := $(shell uname)
 
