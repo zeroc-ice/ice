@@ -47,15 +47,16 @@ private:
     struct EvictorEntry;
     typedef IceUtil::Handle<EvictorEntry> EvictorEntryPtr;
 
-    typedef std::list<Ice::Identity> EvictorQueue;
     typedef std::map<Ice::Identity, EvictorEntryPtr> EvictorMap;
+    typedef std::list<EvictorMap::iterator> EvictorQueue;
 
     struct EvictorEntry : public Ice::LocalObject
     {
 	int useCount;
-	EvictorQueue::iterator pos;
+	Ice::Identity id;
 	Ice::ObjectPtr servant;
 	Ice::LocalObjectPtr userCookie;
+	EvictorQueue::iterator pos;
     };
 
     struct EvictorCookie : public Ice::LocalObject

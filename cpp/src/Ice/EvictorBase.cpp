@@ -71,7 +71,8 @@ Ice::EvictorBase::locate(const Current& c, LocalObjectPtr& cookie)
     EvictorCookiePtr ec = new EvictorCookie;
     cookie = ec;
     EvictorMap::iterator i = _map.find(c.id);
-    if(i != _map.end())
+    bool newEntry = i == _map.end();
+    if(!newEntry)
     {
 	//
 	// Got an entry already, dequeue the entry from its current position.
@@ -102,13 +103,14 @@ Ice::EvictorBase::locate(const Current& c, LocalObjectPtr& cookie)
 	// and create a new entry in the map.
 	//
 	ec->entry = new EvictorEntry;
+	ec->entry->id = c.id;
 	ec->entry->servant = instantiate(c, ec->entry->userCookie); // Down-call to application-supplied method.
 	if(!ec->entry->servant)
 	{
 	    throw ObjectNotExistException(__FILE__, __LINE__);
 	}
 	ec->entry->useCount = 0;
-	_map[c.id] = ec->entry;
+	i = _map.insert(make_pair(c.id, ec->entry)).first;
 
 	++_misses; // Update statistics.
 	if(_traceLevel >= 2)
@@ -132,13 +134,12 @@ Ice::EvictorBase::locate(const Current& c, LocalObjectPtr& cookie)
     // so we get LRU order.
     //
     ++(ec->entry->useCount);
-    _queue.push_front(c.id);
-    ec->entry->pos = _queue.begin();
+    ec->entry->pos = _queue.insert(_queue.begin(), i);
 
     //
     // If we added an entry, that might make another entry eligible for eviction.
     //
-    if(i == _map.end())
+    if(newEntry)
     {
 	evictServants();
     }
@@ -205,29 +206,32 @@ Ice::EvictorBase::evictServants()
     {
 	EvictorQueue::reverse_iterator p = _queue.rbegin();
 	assert(p != _queue.rend());
-	EvictorMap::iterator mPos = _map.find(*p);
-	assert(mPos != _map.end());
-	if(mPos->second->useCount == 0)
+	assert((*p) != _map.end());
+	if((*p)->second->useCount == 0)
 	{
 	    if(_traceLevel >= 2)
 	    {
 		Trace out(_communicator->getLogger(), "Ice::Evictor");
-		if((*p).category.empty())
+		if((*p)->second->id.category.empty())
 		{
 		    out << "default category";
 		}
 		else
 		{
-		    out << "category `" << (*p).category << "'";
+		    out << "category `" << (*p)->second->id.category << "'";
 		}
-		out << ": evicting `" << (*p).name << "'";
+		out << ": evicting `" << (*p)->second->id.name << "'";
 		out.flush();
 	    }
 
-	    evict(*p, mPos->second->servant, mPos->second->userCookie); // Down-call to application-supplied method.
-	    _queue.erase(mPos->second->pos);
-	    _map.erase(mPos);
+	    evict((*p)->second->id,
+		  (*p)->second->servant,
+		  (*p)->second->userCookie); // Down-call to application-supplied method.
+	    EvictorMap::iterator pos = *p;
+	    _queue.erase((*p)->second->pos);
+	    _map.erase(pos);
 	    ++_evictions; // Update statistics.
+	    assert(_queue.size() == _map.size());
 	}
     }
 }
