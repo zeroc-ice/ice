@@ -455,7 +455,8 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                                                 bool marshal,
                                                 int& iter,
                                                 bool holder,
-                                                const list<string>& metaData)
+                                                const list<string>& metaData,
+						const string& patchParams)
 {
     string stream = marshal ? "__os" : "__is";
     string v;
@@ -577,7 +578,14 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
                 else
                 {
-                    out << nl << v << " = " << stream << ".readObject(\"\", null);";
+		    if(holder)
+		    {
+			out << nl << stream << ".readObject(" << param << ".getPatcher());";
+		    }
+		    else
+		    {
+			out << nl << stream << ".readObject(new Patcher(" << patchParams << "));";
+		    }
                 }
                 break;
             }
@@ -627,16 +635,14 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         else
         {
             string typeS = typeToString(type, TypeModeIn, scope);
-            ClassDefPtr def = cl->definition();
-            if(def && !def->isAbstract())
-            {
-                out << nl << v << " = (" << typeS << ')' << stream << ".readObject(" << typeS << ".ice_staticId(), "
-                    << typeS << ".ice_factory());";
-            }
-            else
-            {
-                out << nl << v << " = (" << typeS << ')' << stream << ".readObject(\"\", null);";
-            }
+	    if(holder)
+	    {
+		out << nl << stream << ".readObject(" << param << ".getPatcher());";
+	    }
+	    else
+	    {
+		out << nl << stream << ".readObject(new Patcher(" << patchParams << "));";
+	    }
         }
         return;
     }
@@ -781,7 +787,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 out << sb;
                 out << nl << stream << ".writeSize(" << v << ".size());";
                 ostringstream o;
-                o << "__i" << iter;
+                o << "__i" << iter << ends;
                 string it = o.str();
                 iter++;
                 out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
@@ -859,6 +865,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 {
                     o << "[]";
                 }
+		o << ends;
                 switch(b->kind())
                 {
                     case Builtin::KindByte:
@@ -967,7 +974,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             {
                 out << nl << stream << ".writeSize(" << v << ".size());";
                 ostringstream o;
-                o << "__i" << iter;
+                o << "__i" << iter << ends;
                 iter++;
                 string it = o.str();
                 out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
@@ -1119,7 +1126,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     << "++)";
                 out << sb;
                 ostringstream o;
-                o << v << "[__i" << iter << "]";
+                o << v << "[__i" << iter << "]" << ends;
                 iter++;
                 writeMarshalUnmarshalCode(out, scope, seq->type(), o.str(), true, iter, false);
                 out << eb;
@@ -1139,9 +1146,12 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     << "++)";
                 out << sb;
                 ostringstream o;
-                o << v << "[__i" << iter << "]";
+                o << v << "[__i" << iter << "]" << ends;
+		ostringstream patchParams;
+		patchParams << v << ", __i" << iter << ends;
+                writeMarshalUnmarshalCode(out, scope, seq->type(), o.str(), false, iter, false,
+			                  list<string>(), patchParams.str());
                 iter++;
-                writeMarshalUnmarshalCode(out, scope, seq->type(), o.str(), false, iter, false);
                 out << eb;
             }
         }
@@ -1495,7 +1505,7 @@ Slice::JavaGenerator::writeGenericSequenceMarshalUnmarshalCode(Output& out,
                 out << sb;
                 out << nl << stream << ".startWriteSequence(" << name << ", " << v << ".size());";
                 ostringstream o;
-                o << "__i" << iter;
+                o << "__i" << iter << ends;
                 string it = o.str();
                 iter++;
                 out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
@@ -1574,6 +1584,7 @@ Slice::JavaGenerator::writeGenericSequenceMarshalUnmarshalCode(Output& out,
                 {
                     o << "[]";
                 }
+		o << ends;
                 switch(b->kind())
                 {
                     case Builtin::KindByte:
@@ -1684,7 +1695,7 @@ Slice::JavaGenerator::writeGenericSequenceMarshalUnmarshalCode(Output& out,
             {
                 out << nl << stream << ".startWriteSequence(" << name << ", " << v << ".size());";
                 ostringstream o;
-                o << "__i" << iter;
+                o << "__i" << iter << ends;
                 iter++;
                 string it = o.str();
                 out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
@@ -1840,7 +1851,7 @@ Slice::JavaGenerator::writeGenericSequenceMarshalUnmarshalCode(Output& out,
                     << "++)";
                 out << sb;
                 ostringstream o;
-                o << v << "[__i" << iter << "]";
+                o << v << "[__i" << iter << "]" << ends;
                 iter++;
                 writeGenericMarshalUnmarshalCode(out, scope, seq->type(), "\"e\"", o.str(), true, iter, false);
                 out << eb;
@@ -1861,7 +1872,7 @@ Slice::JavaGenerator::writeGenericSequenceMarshalUnmarshalCode(Output& out,
                     << "++)";
                 out << sb;
                 ostringstream o;
-                o << v << "[__i" << iter << "]";
+                o << v << "[__i" << iter << "]" << ends;
                 iter++;
                 writeGenericMarshalUnmarshalCode(out, scope, seq->type(), "\"e\"", o.str(), false, iter, false);
                 out << eb;

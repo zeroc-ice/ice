@@ -74,7 +74,8 @@ protected:
     // Generate code to marshal or unmarshal a type
     //
     void writeMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const TypePtr&, const std::string&,
-                                   bool, int&, bool = false, const std::list<std::string>& = std::list<std::string>());
+                                   bool, int&, bool = false, const std::list<std::string>& = std::list<std::string>(),
+				   const std::string& patchParams = "");
 
     //
     // Generate code to marshal or unmarshal a sequence type

@@ -2233,6 +2233,58 @@ Slice::ClassDef::allDataMembers() const
     return result;
 }
 
+DataMemberList
+Slice::ClassDef::classDataMembers() const
+{
+    DataMemberList result;
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+	DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
+	if(q)
+	{
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->type()))
+	    {
+		result.push_back(q);
+	    }
+	}
+    }
+    return result;
+}
+
+DataMemberList
+Slice::ClassDef::allClassDataMembers() const
+{
+    DataMemberList result;
+
+    //
+    // Check if we have a base class. If so, recursively
+    // get the class data members of the base(s).
+    //
+    ClassList::const_iterator p = _bases.begin();
+    if(p != _bases.end() && !(*p)->isInterface())
+    {
+	result = (*p)->allClassDataMembers();
+    }
+
+    //
+    // Append this class's class members.
+    //
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+	DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
+	if(q)
+	{
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->type()))
+	    {
+		result.push_back(q);
+	    }
+	}
+    }
+    return result;
+}
+
 bool
 Slice::ClassDef::isAbstract() const
 {
@@ -2491,6 +2543,57 @@ Slice::Exception::dataMembers() const
     return result;
 }
 
+DataMemberList
+Slice::Exception::classDataMembers() const
+{
+    DataMemberList result;
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+	DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
+	if(q)
+	{
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->type()))
+	    {
+		result.push_back(q);
+	    }
+	}
+    }
+    return result;
+}
+
+DataMemberList
+Slice::Exception::allClassDataMembers() const
+{
+    DataMemberList result;
+
+    //
+    // Check if we have a base exception. If so, recursively
+    // get the class data members of the base exception(s).
+    //
+    if(base())
+    {
+	result = base()->allClassDataMembers();
+    }
+
+    //
+    // Append this exception's class members.
+    //
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+	DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
+	if(q)
+	{
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->type()))
+	    {
+		result.push_back(q);
+	    }
+	}
+    }
+    return result;
+}
+
 ExceptionPtr
 Slice::Exception::base() const
 {
@@ -2667,6 +2770,25 @@ Slice::Struct::dataMembers() const
 	if(q)
 	{
 	    result.push_back(q);
+	}
+    }
+    return result;
+}
+
+DataMemberList
+Slice::Struct::classDataMembers() const
+{
+    DataMemberList result;
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+	DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
+	if(q)
+	{
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->type()))
+	    {
+		result.push_back(q);
+	    }
 	}
     }
     return result;

@@ -301,7 +301,7 @@ depend:: $(SRCS) $(SLICE_SRCS)
 	    $(top_srcdir)/config/makedepend.py >> .depend; \
 	fi
 	if test -n "$(SLICE_SRCS)" ; then \
-	    $(SLICE2CPP) --depend $(ICECPPFLAGS) $(SLICE_SRCS) | \
+	    $(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | \
 	    $(top_srcdir)/config/makedepend.py >> .depend; \
 	fi
 

@@ -139,6 +139,13 @@ public:
     void writePendingObjects();
     void readPendingObjects();
 
+private:
+
+    //
+    // Optimization. The instance may not be deleted while a
+    // stack-allocated BasicStream still holds it.
+    //
+    Instance* _instance;
 
     struct PatchEntry {
 	PatchFunc patchFunc;
@@ -149,18 +156,6 @@ public:
     typedef std::map<Ice::Int, Ice::ObjectPtr> IndexToPtrMap;
     typedef std::map<Ice::Int, std::string> TypeIdReadMap;
     
-    typedef std::map<Ice::ObjectPtr, Ice::Int> PtrToIndexMap;
-    typedef std::map<std::string, Ice::Int> TypeIdWriteMap;
-
-
-private:
-
-    //
-    // Optimization. The instance may not be deleted while a
-    // stack-allocated BasicStream still holds it.
-    //
-    Instance* _instance;
-
     class ICE_API ReadEncaps
     {
     public:
@@ -176,6 +171,9 @@ private:
 	Ice::Int typeIdIndex;
 	TypeIdReadMap* typeIdMap;
     };
+
+    typedef std::map<Ice::ObjectPtr, Ice::Int> PtrToIndexMap;
+    typedef std::map<std::string, Ice::Int> TypeIdWriteMap;
 
     class ICE_API WriteEncaps
     {

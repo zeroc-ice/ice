@@ -544,6 +544,8 @@ public:
     OperationList allOperations() const;
     DataMemberList dataMembers() const;
     DataMemberList allDataMembers() const;
+    DataMemberList classDataMembers() const;
+    DataMemberList allClassDataMembers() const;
     bool isAbstract() const;
     bool isInterface() const;
     bool isLocal() const;
@@ -597,6 +599,8 @@ public:
     virtual void destroy();
     DataMemberPtr createDataMember(const std::string&, const TypePtr&);
     DataMemberList dataMembers() const;
+    DataMemberList classDataMembers() const;
+    DataMemberList allClassDataMembers() const;
     ExceptionPtr base() const;
     ExceptionList allBases() const;
     bool isLocal() const;
@@ -625,6 +629,7 @@ public:
 
     DataMemberPtr createDataMember(const std::string&, const TypePtr&);
     DataMemberList dataMembers() const;
+    DataMemberList classDataMembers() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;

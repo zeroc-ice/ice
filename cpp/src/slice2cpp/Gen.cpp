@@ -866,8 +866,8 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	C << nl << "::std::pair<const " << ks << ", " << vs << "> pair;";
 	string pf = string("const_cast<") + ks + "&>(pair.first)";
 	writeMarshalUnmarshalCode(C, keyType, pf, false);
-	writeMarshalUnmarshalCode(C, valueType, "pair.second", false);
-	C << nl << "v.insert(v.end(), pair);";
+	C << nl << scoped << "::iterator __i = v.insert(v.end(), pair);";
+	writeMarshalUnmarshalCode(C, valueType, "__i->second", false);
 	C << eb;
 	C << eb;
 
@@ -2670,12 +2670,12 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	    }
 	    writeAllocateCode(C, inParams, 0);
 	    writeUnmarshalCode(C, inParams, 0);
-	    C << nl << classScopedAMD << '_' << name << "Ptr __cb = new IceAsync" << classScopedAMD << '_' << name
-	      << "(__in);";
 	    if(p->sendsClasses())
 	    {
 		C << nl << "__is->readPendingObjects();";
 	    }
+	    C << nl << classScopedAMD << '_' << name << "Ptr __cb = new IceAsync" << classScopedAMD << '_' << name
+	      << "(__in);";
 	    C << nl << "try";
 	    C << sb;
 	    C << nl << name << "_async" << argsAMD << ';';

@@ -354,7 +354,7 @@ Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type, const string
 		<< "++)";
             out << sb;
             ostringstream elem;
-            elem << name << "[__i" << iter << ']';
+            elem << name << "[__i" << iter << ']' << ends;
             iter++;
             writeHashCode(out, seq->type(), elem.str(), iter);
             out << eb;
@@ -491,6 +491,10 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 		string typeS = typeToString(q->first, TypeModeIn, scope);
 		out << nl << typeS << ' ' << fixKwd(q->second) << ';';
 		writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), false, iter);
+		if(op->sendsClasses())
+		{
+		    out << nl << "__is.readPendingObjects();";
+		}
 	    }
 	    
 	    //
@@ -537,6 +541,10 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    if(ret)
 	    {
 		writeMarshalUnmarshalCode(out, scope, ret, "__ret", true, iter);
+	    }
+	    if(op->returnsClasses())
+	    {
+		out << nl << "__os.writePendingObjects();";
 	    }
 	    out << nl << "return IceInternal.DispatchStatus.DispatchOK;";
 	    
@@ -589,6 +597,10 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 		string typeS = typeToString(q->first, TypeModeIn, scope);
 		out << nl << typeS << ' ' << fixKwd(q->second) << ';';
 		writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), false, iter);
+		if(op->sendsClasses())
+		{
+		    out << nl << "__is.readPendingObjects();";
+		}
 	    }
 	    
 	    //
@@ -1262,24 +1274,97 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         out << sp << nl << "public void" << nl << "__write(IceInternal.BasicStream __os)";
         out << sb;
+	out << nl << "__os.writeTypeId(ice_staticId());";
+	out << nl << "__os.startWriteSlice();";
         iter = 0;
         for(d = members.begin(); d != members.end(); ++d)
         {
             list<string> metaData = (*d)->getMetaData();
             writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), true, iter, false, metaData);
         }
+	out << nl << "__os.endWriteSlice();";
         out << nl << "super.__write(__os);";
         out << eb;
 
-        out << sp << nl << "public void" << nl << "__read(IceInternal.BasicStream __is)";
+	DataMemberList allClassMembers = p->allClassDataMembers();
+	if(allClassMembers.size() != 0)
+	{
+	    out << sp << nl << "private class Patcher implements Ice.Patcher";
+	    out << sb;
+	    if(allClassMembers.size() > 1)
+	    {
+		out << sp << nl << "Patcher(int member)";
+		out << sb;
+		out << nl << "__member = member;";
+		out << eb;
+	    }
+
+	    out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
+	    out << sb;
+	    if(allClassMembers.size() > 1)
+	    {
+		out << nl << "switch(__member)";
+		out << sb;
+	    }
+	    int memberCount = 0;
+	    for(d = allClassMembers.begin(); d != allClassMembers.end(); ++d)
+	    {
+		if(allClassMembers.size() > 1)
+		{
+		    out.dec();
+		    out << nl << "case " << memberCount << ":";
+		    out.inc();
+		}
+		string memberName = fixKwd((*d)->name());
+		string memberScope = fixKwd((*d)->scope());
+		string memberType = typeToString((*d)->type(), TypeModeMember, memberScope);
+		out << nl << memberName << " = (" << memberType << ")v;";
+		if(allClassMembers.size() > 1)
+		{
+		    out << nl << "break;";
+		}
+		memberCount++;
+	    }
+	    if(allClassMembers.size() > 1)
+	    {
+		out << eb;
+	    }
+	    out << eb;
+	    if(allClassMembers.size() > 1)
+	    {
+		out << nl << nl << "private int __member;";
+	    }
+	    out << eb;
+	}
+
+        out << sp << nl << "public void" << nl << "__read(IceInternal.BasicStream __is, boolean __rid)";
         out << sb;
+	out << nl << "if(__rid)";
+	out << sb;
+	out << nl << "String myId = __is.readTypeId();";
+	out << eb;
+	out << nl << "__is.startReadSlice();";
         iter = 0;
+	DataMemberList classMembers = p->classDataMembers();
+	int classMemberCount = allClassMembers.size() - classMembers.size();
         for(d = members.begin(); d != members.end(); ++d)
         {
             list<string> metaData = (*d)->getMetaData();
-            writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData);
+	    ostringstream patchParams;
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast((*d)->type());
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*d)->type()))
+	    {
+		if(classMembers.size() > 1 || allClassMembers.size() > 1)
+		{
+		    patchParams << classMemberCount++;
+		}
+	    }
+	    patchParams << ends;
+            writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData,
+		                      patchParams.str());
         }
-        out << nl << "super.__read(__is);";
+	out << nl << "__is.endReadSlice();";
+        out << nl << "super.__read(__is, true);";
         out << eb;
 
         out << sp << nl << "public void" << nl << "__marshal(Ice.Stream __os)";
@@ -1368,36 +1453,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "return \"" << scoped.substr(2) << "\";";
     out << eb;
 
-    if(!p->isLocal())
-    {
-        ExceptionList allBases = p->allBases();
-        StringList exceptionIds;
-        transform(allBases.begin(), allBases.end(),
-                  back_inserter(exceptionIds),
-                  ::IceUtil::constMemFun(&Contained::scoped));
-        exceptionIds.push_front(scoped);
-        exceptionIds.push_back("::Ice::UserException");
-
-        StringList::const_iterator q;
-
-        out << sp << nl << "private static final String[] __exceptionIds =";
-        out << sb;
-        q = exceptionIds.begin();
-        while(q != exceptionIds.end())
-        {
-            out << nl << '"' << *q << '"';
-            if(++q != exceptionIds.end())
-            {
-                out << ',';
-            }
-        }
-        out << eb << ';';
-        out << sp << nl << "public String[]" << nl << "__getExceptionIds()";
-        out << sb;
-        out << nl << "return __exceptionIds;";
-        out << eb;
-    }
-
     return true;
 }
 
@@ -1434,6 +1489,56 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
         out << eb;
 
+	DataMemberList allClassMembers = p->allClassDataMembers();
+	if(allClassMembers.size() != 0)
+	{
+	    out << sp << nl << "private class Patcher implements Ice.Patcher";
+	    out << sb;
+	    if(allClassMembers.size() > 1)
+	    {
+		out << sp << nl << "Patcher(int member)";
+		out << sb;
+		out << nl << "__member = member;";
+		out << eb;
+	    }
+
+	    out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
+	    out << sb;
+	    if(allClassMembers.size() > 1)
+	    {
+		out << nl << "switch(__member)";
+		out << sb;
+	    }
+	    int memberCount = 0;
+	    for(d = allClassMembers.begin(); d != allClassMembers.end(); ++d)
+	    {
+		if(allClassMembers.size() > 1)
+		{
+		    out.dec();
+		    out << nl << "case " << memberCount << ":";
+		    out.inc();
+		}
+		string memberName = fixKwd((*d)->name());
+		string memberScope = fixKwd((*d)->scope());
+		string memberType = typeToString((*d)->type(), TypeModeMember, memberScope);
+		out << nl << memberName << " = (" << memberType << ")v;";
+		if(allClassMembers.size() > 1)
+		{
+		    out << nl << "break;";
+		}
+		memberCount++;
+	    }
+	    if(allClassMembers.size() > 1)
+	    {
+		out << eb;
+	    }
+	    out << eb;
+	    if(allClassMembers.size() > 1)
+	    {
+		out << nl << nl << "private int __member;";
+	    }
+	    out << eb;
+	}
         out << sp << nl << "public void" << nl << "__read(IceInternal.BasicStream __is, boolean __rid)";
         out << sb;
 	out << nl << "if(__rid)";
@@ -1442,10 +1547,23 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	out << eb;
 	out << nl << "__is.startReadSlice();";
         iter = 0;
+	DataMemberList classMembers = p->classDataMembers();
+	int classMemberCount = allClassMembers.size() - classMembers.size();
         for(d = members.begin(); d != members.end(); ++d)
         {
+	    ostringstream patchParams;
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast((*d)->type());
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*d)->type()))
+	    {
+		if(classMembers.size() > 1 || allClassMembers.size() > 1)
+		{
+		    patchParams << classMemberCount++;
+		}
+	    }
+	    patchParams << ends;
             list<string> metaData = (*d)->getMetaData();
-            writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData);
+            writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData,
+		    		      patchParams.str());
         }
 	out << nl << "__is.endReadSlice();";
         if(base)
@@ -1672,13 +1790,77 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         }
         out << eb;
 
+	DataMemberList classMembers = p->classDataMembers();
+
+	if(classMembers.size() != 0)
+	{
+	    out << sp << nl << "private class Patcher implements Ice.Patcher";
+	    out << sb;
+	    if(classMembers.size() > 1)
+	    {
+		out << sp << nl << "Patcher(int member)";
+		out << sb;
+		out << nl << "__member = member;";
+		out << eb;
+	    }
+
+	    out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
+	    out << sb;
+	    if(classMembers.size() > 1)
+	    {
+		out << nl << "switch(__member)";
+		out << sb;
+	    }
+	    int memberCount = 0;
+	    for(d = classMembers.begin(); d != classMembers.end(); ++d)
+	    {
+		if(classMembers.size() > 1)
+		{
+		    out.dec();
+		    out << nl << "case " << memberCount << ":";
+		    out.inc();
+		}
+		string memberName = fixKwd((*d)->name());
+		string memberScope = fixKwd((*d)->scope());
+		string memberType = typeToString((*d)->type(), TypeModeMember, memberScope);
+		out << nl << memberName << " = (" << memberType << ")v;";
+		if(classMembers.size() > 1)
+		{
+		    out << nl << "break;";
+		}
+		memberCount++;
+	    }
+	    if(classMembers.size() > 1)
+	    {
+		out << eb;
+	    }
+	    out << eb;
+	    if(classMembers.size() > 1)
+	    {
+		out << nl << nl << "private int __member;";
+	    }
+	    out << eb;
+	}
+
         out << sp << nl << "public void" << nl << "__read(IceInternal.BasicStream __is)";
         out << sb;
         iter = 0;
+	int classMemberCount = 0;
         for(d = members.begin(); d != members.end(); ++d)
         {
+	    ostringstream patchParams;
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast((*d)->type());
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*d)->type()))
+	    {
+		if(classMembers.size() > 1)
+		{
+		    patchParams << classMemberCount++;
+		}
+	    }
+	    patchParams << ends;
             list<string> metaData = (*d)->getMetaData();
-            writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData);
+            writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData,
+		    		      patchParams.str());
         }
         out << eb;
 
@@ -2042,6 +2224,24 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
         out << sb;
         out << nl << "this.value = value;";
         out << eb;
+	BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
+	if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(p))
+	{
+	    out << sp << nl << "public class Patcher implements Ice.Patcher";
+	    out << sb;
+	    out << nl << "public void";
+	    out << nl << "patch(Ice.Object v)";
+	    out << sb;
+	    out << nl << "value = (" << typeS << ")v;";
+	    out << eb;
+	    out << eb;
+
+	    out << sp << nl << "public Patcher";
+	    out << nl << "getPatcher()";
+	    out << sb;
+	    out << nl << "return new Patcher();";
+	    out << eb;
+	}
         out << sp << nl << "public " << typeS << " value;";
         out << eb;
         close();
@@ -2364,6 +2564,30 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         writeSequenceMarshalUnmarshalCode(out, scope, p, "__v", true, iter, false);
         out << eb;
 
+	BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+	if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(p->type()))
+	{
+	    //
+	    // The sequence has class elements.
+	    //
+	    out << sp << nl << "private static class Patcher implements Ice.Patcher";
+	    out << sb;
+	    out << sp << nl << "Patcher(" << typeS << " values, int index)";
+	    out << sb;
+	    out << nl << "__values = values;";
+	    out << nl << "__index = index;";
+	    out << eb;
+
+	    out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
+	    out << sb;
+	    out << nl << "__values[__index] = (" << typeToString(p->type(), TypeModeIn, scope) << ")v;";
+	    out << eb;
+
+	    out << sp << nl << "private " << typeS << " __values;";
+	    out << nl << "private int __index;";
+	    out << eb;
+	}
+
         out << sp << nl << "public static " << typeS << nl << "read(IceInternal.BasicStream __is)";
         out << sb;
         out << nl << typeS << " __v;";
@@ -2516,6 +2740,30 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         out << eb;
         out << eb;
 
+	BuiltinPtr builtin = BuiltinPtr::dynamicCast(value);
+	if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(value))
+	{
+	    //
+	    // The dictionary uses class values.
+	    //
+	    out << sp << nl << "private static class Patcher implements Ice.Patcher";
+	    out << sb;
+	    out << sp << nl << "Patcher(java.util.Map m, " << keyS << " key)";
+	    out << sb;
+	    out << nl << "__m = m;";
+	    out << nl << "__key = key;";
+	    out << eb;
+
+	    out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
+	    out << sb;
+	    out << nl << "__m.put(__key, v);";
+	    out << eb;
+
+	    out << sp << nl << "private java.util.Map __m;";
+	    out << nl << "private " << keyS << " __key;";
+	    out << eb;
+	}
+
         out << sp << nl << "public static java.util.Map" << nl << "read(IceInternal.BasicStream __is)";
         out << sb;
         out << nl << "int __sz = __is.readSize();";
@@ -2585,7 +2833,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
                     }
                     case Builtin::KindObject:
                     {
-                        out << nl << "Ice.Object " << arg << " = __is.readObject(\"\", null);";
+                        out << nl << "__is.readObject(new Patcher(__r, __key));";
                         break;
                     }
                     case Builtin::KindObjectProxy:
@@ -2607,12 +2855,16 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
                 writeMarshalUnmarshalCode(out, scope, type, arg, false, iter, false);
             }
         }
-        out << nl << "__r.put(__key, __value);";
+	if(!(builtin && builtin->kind() == Builtin::KindObject) && !ClassDeclPtr::dynamicCast(value))
+	{
+	    out << nl << "__r.put(__key, __value);";
+	}
         out << eb;
         out << nl << "return __r;";
         out << eb;
 
-        out << nl << "public static void" << nl << "ice_marshal(String __name, Ice.Stream __os, java.util.Map __v)";
+        out << sp << nl << "public static void" << nl
+	    << "ice_marshal(String __name, Ice.Stream __os, java.util.Map __v)";
         out << sb;
         out << nl << "if(__v == null)";
         out << sb;
@@ -3117,6 +3369,10 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), true, iter);
         }
+	if(op->sendsClasses())
+	{
+	    out << nl << "__os.writePendingObjects();";
+	}
         out << nl << "if(!__out.invoke())";
         out << sb;
         if(!throws.empty())
@@ -3153,10 +3409,34 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         if(ret)
         {
-            out << nl << retS << " __ret;";
-            writeMarshalUnmarshalCode(out, scope, ret, "__ret", false, iter);
-            out << nl << "return __ret;";
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
+	    {
+		out << nl << retS << "Holder __ret = new " << retS << "Holder();";
+		out << nl << "__is.readObject(__ret.getPatcher());";
+	    }
+	    else
+	    {
+		out << nl << retS << " __ret;";
+		writeMarshalUnmarshalCode(out, scope, ret, "__ret", false, iter);
+	    }
         }
+	if(op->returnsClasses())
+	{
+	    out << nl << "__is.readPendingObjects();";
+	}
+	if(ret)
+	{
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
+	    {
+		out << nl << "return __ret.value;";
+	    }
+	    else
+	    {
+		out << nl << "return __ret;";
+	    }
+	}
         if(!outParams.empty() || ret)
         {
             out << eb;
@@ -3190,6 +3470,10 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    for(q = inParams.begin(); q != inParams.end(); ++q)
 	    {
 		writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), true, iter);
+	    }
+	    if(op->sendsClasses())
+	    {
+		out << nl << "__os.writePendingObjects();";
 	    }
 	    out << nl << "__cb.__invoke();";
 	    out << eb;
@@ -3862,6 +4146,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         {
             writeMarshalUnmarshalCode(out, classScope, ret, "__ret", false, iter);
         }
+	if(p->returnsClasses())
+	{
+	    out << nl << "__is.readPendingObjects();";
+	}
    	out << eb;
 	out << nl << "catch(Ice.LocalException __ex)";
 	out << sb;
@@ -3966,6 +4254,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 		{
 		    string retS = typeToString(ret, TypeModeIn, classScope);
 		    writeMarshalUnmarshalCode(out, classScope, ret, "__ret", true, iter);
+		}
+		if(p->returnsClasses())
+		{
+		    out << nl << "__os.writePendingObjects();";
 		}
 		out << eb;
 		out << nl << "catch(Ice.LocalException __ex)";
