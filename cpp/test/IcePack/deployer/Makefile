@@ -17,7 +17,7 @@ top_srcdir	= ../../..
 CLIENT		= client
 SERVER		= server
 
-SERVICE     	= libTestService.so
+SERVICE     	= libTestService.$(LIBEXT)
 VERSIONED_SVC	= $(SERVICE).$(VERSION)
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVICE) $(VERSIONED_SVC)
