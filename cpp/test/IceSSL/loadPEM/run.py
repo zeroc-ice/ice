@@ -25,12 +25,15 @@ if TestUtil.protocol != "ssl":
     print "This test may only be run with SSL enabled."
     sys.exit(0)
 
-testOptions = " --Ice.SSL.Client.CertPath=TOPLEVELDIR/test/IceSSL/certs"
+testOptions = " --Ice.SSL.Client.CertPath=TOPLEVELDIR/test/IceSSL/certs" + \
+              " --Ice.SSL.Client.Config= " + \
+              " --Ice.SSL.Server.CertPath=TOPLEVELDIR/test/IceSSL/certs" + \
+              " --Ice.SSL.Server.Config= "
 
 testdir = os.path.join(toplevel,"test", "IceSSL", "loadPEM")
 client = os.path.join(testdir, "loadPEM")
 
-loaclClientOptions = TestUtil.clientServerProtocol + TestUtil.defaultHost
+localClientOptions = TestUtil.clientServerProtocol + TestUtil.defaultHost
 updatedOptions = localClientOptions.replace("TOPLEVELDIR", toplevel)
 testOptions = testOptions.replace("TOPLEVELDIR", toplevel)
 print "starting loadPEM...",

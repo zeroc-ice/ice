@@ -25,7 +25,11 @@ if TestUtil.protocol != "ssl" :
     print "This test may only be run with SSL enabled."
     sys.exit(0)
 
-testOptions = " --Ice.SSL.Test.Client.CertPath=TOPLEVELDIR/test/IceSSL/certs"
+testOptions = " --Ice.SSL.Test.Client.CertPath=TOPLEVELDIR/test/IceSSL/certs" + \
+              " --Ice.SSL.Server.CertPath=TOPLEVELDIR/test/IceSSL/certs" + \
+              " --Ice.SSL.Server.Config= " + \
+              " --Ice.SSL.Client.CertPath=TOPLEVELDIR/test/IceSSL/certs" + \
+              " --Ice.SSL.Client.Config= "
 
 testdir = os.path.join(toplevel,"test", "IceSSL", "certificateAndKeyParsing")
 client = os.path.join(testdir, "certificateAndKeyParsing")
