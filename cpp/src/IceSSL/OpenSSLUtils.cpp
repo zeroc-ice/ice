@@ -409,6 +409,69 @@ IceSSL::OpenSSL::sslGetErrors()
     return errorMessage;
 }
 
+string
+IceSSL::OpenSSL::getVerificationError(int errorCode)
+{
+    static char* errorStrings[] =
+    {
+        "Unable to get issuer's certificate.",
+        "Unable to get certificate revocation list.",
+        "Unable to decrypt certificate signature.",
+        "Unable to decrypt certificate revocation list signature.",
+        "Unable to decode issuer's public key.",
+        "Certificate signature failure.",
+        "Certificate revocation list signature failure.",
+        "Certificate not yet valid.",
+        "Certificate has expired.",
+        "Certificate revocation list not yet valid.",
+        "Certificate revocation list has expired.",
+        "Error in certificate's \"not before\" field",
+        "Error in certificate's \"not after\" field",
+        "Error in the certificate revocation list's \"last update\" field",
+        "Error in the certificate revocation list's \"next update\" field",
+        "Out of memory failure.",
+        "Encountered a zero-depth self-signed certificate.",
+        "Encountered self-signed certificate in the certificate chain.",
+        "Unable to get issuer certificate locally.",
+        "Unable to verify leaf signature.",
+        "Certificate chain too long.",
+        "Certificate has been revoked.",
+        "Invalid certificate authority.",
+        "Certificate Authority path length exceeded.",
+        "Invalid certificate purpose.",
+        "Certificate is untrusted.",
+        "Certificate is rejected.",
+        "Subject and Issuer do not match.",
+        "AKID/SKID mismatch.",
+        "AKID and Issuer Serial mismatch.",
+        "Key usage precludes certifiicate signing.",
+        "Application verification."
+    };
+
+    string errString;
+
+    if(errorCode > X509_V_ERR_KEYUSAGE_NO_CERTSIGN)
+    {
+        if(errorCode == X509_V_ERR_APPLICATION_VERIFICATION)
+        {
+	    errString = "Application Verification error.";
+        }
+	else
+        {
+            ostringstream errStream;
+	    errStream << "Unknown error code: " << dec << errorCode << "."; 
+	    errString = errStream.str();
+        }
+    }
+    else
+    {
+        errorCode -= 2;
+	errString = errorStrings[errorCode];
+    }
+
+    return errString;
+}
+
 extern "C"
 {
 

@@ -63,6 +63,7 @@ public:
 
     void setBitStrength(int);
     void setSecondsValid(long);
+    void setIssuedAdjustment(long);
 
     // Distinguished Name (getters) methods.
     unsigned char* getCountry() const;
@@ -74,6 +75,7 @@ public:
 
     int getModulusLength() const;
     long getSecondsValid() const;
+    long getIssuedAdjustment() const;
 
 private:
 
@@ -85,6 +87,7 @@ private:
     std::string _commonName;
     int _modulusLength;
     long _secondsValid;
+    long _issuedAdjustment;
 };
 
 class ICE_SSL_API RSACertificateGen

@@ -46,6 +46,7 @@ Glacier::StarterI::StarterI(const CommunicatorPtr& communicator, const PasswordV
 	"Glacier.Starter.Certificate.BitStrength", 1024);
     Int secondsValid = _properties->getPropertyAsIntWithDefault(
 	"Glacier.Starter.Certificate.SecondsValid", IceSSL::OpenSSL::RSACertificateGenContext::daysToSeconds(1));
+    Int issuedAdjust = _properties->getPropertyAsIntWithDefault("Glacier.Starter.Certificate.IssuedAdjust", 0);
     
     _certContext.setCountry(country);
     _certContext.setStateProvince(stateProv);
@@ -55,6 +56,7 @@ Glacier::StarterI::StarterI(const CommunicatorPtr& communicator, const PasswordV
     _certContext.setCommonName(commonName);
     _certContext.setBitStrength(bitStrength);
     _certContext.setSecondsValid(secondsValid);
+    _certContext.setSecondsValid(issuedAdjust);
 }
 
 void

@@ -56,7 +56,8 @@ IceSSL::OpenSSL::RSACertificateGenContext::yearsToSeconds(long years)
 
 IceSSL::OpenSSL::RSACertificateGenContext::RSACertificateGenContext() :
                                           _modulusLength(0),
-                                          _secondsValid(0)
+                                          _secondsValid(0),
+                                          _issuedAdjustment(0)
 {
 }
 
@@ -110,6 +111,12 @@ void
 IceSSL::OpenSSL::RSACertificateGenContext::setSecondsValid(long secondsValid)
 {
     _secondsValid = secondsValid;
+}
+
+void
+IceSSL::OpenSSL::RSACertificateGenContext::setIssuedAdjustment(long issuedAdjustment)
+{
+    _issuedAdjustment = issuedAdjustment;
 }
 
 unsigned char*
@@ -184,6 +191,12 @@ IceSSL::OpenSSL::RSACertificateGenContext::getSecondsValid() const
     return _secondsValid;
 }
 
+long
+IceSSL::OpenSSL::RSACertificateGenContext::getIssuedAdjustment() const
+{
+    return _issuedAdjustment;
+}
+
 IceSSL::OpenSSL::RSACertificateGen::RSACertificateGen()
 {
     ERR_load_crypto_strings();
@@ -233,7 +246,7 @@ IceSSL::OpenSSL::RSACertificateGen::generate(const RSACertificateGenContext& con
     struct X509_name_st* subjectName = X509_REQ_get_subject_name(signingRequest);
 
     // Set valid time period.
-    X509_gmtime_adj(X509_get_notBefore(x509SelfSigned), 0);
+    X509_gmtime_adj(X509_get_notBefore(x509SelfSigned), context.getIssuedAdjustment());
     X509_gmtime_adj(X509_get_notAfter(x509SelfSigned), context.getSecondsValid());
 
     // Set up subject/issuer Distinguished Name (DN).

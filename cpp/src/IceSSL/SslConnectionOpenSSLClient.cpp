@@ -169,7 +169,7 @@ IceSSL::OpenSSL::ClientConnection::handshake(int timeout)
 	        {
                     CertificateVerificationException certVerEx(__FILE__, __LINE__);
 
-                    certVerEx._message = "ssl certificate verification error";
+                    certVerEx._message = getVerificationError(verifyError);
 
                     string errors = sslGetErrors();
 
