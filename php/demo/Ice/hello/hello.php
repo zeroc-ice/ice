@@ -37,11 +37,11 @@ if(isset($_POST["submitted"]))
 
         if($p->ice_isTwoway())
         {
-            $hello = $p->ice_checkedCast("::Hello");
+            $hello = $p->ice_checkedCast("::Demo::Hello");
         }
         else
         {
-            $hello = $p->ice_uncheckedCast("::Hello");
+            $hello = $p->ice_uncheckedCast("::Demo::Hello");
         }
 
         if(isset($_POST["sayHello"]))
