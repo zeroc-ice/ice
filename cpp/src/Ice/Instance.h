@@ -19,6 +19,7 @@
 #include <Ice/PropertiesF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
+#include <Ice/DefaultsAndOverwritesF.h>
 #include <Ice/RouterInfoF.h>
 #include <Ice/ReferenceFactoryF.h>
 #include <Ice/ProxyFactoryF.h>
@@ -50,6 +51,7 @@ public:
     ::Ice::LoggerPtr logger();
     void logger(const ::Ice::LoggerPtr&);
     TraceLevelsPtr traceLevels();
+    DefaultsAndOverwritesPtr defaultsAndOverwrites();
     RouterManagerPtr routerManager();
     ReferenceFactoryPtr referenceFactory();
     ProxyFactoryPtr proxyFactory();
@@ -59,8 +61,6 @@ public:
     ObjectAdapterFactoryPtr objectAdapterFactory();
     ThreadPoolPtr clientThreadPool();
     ThreadPoolPtr serverThreadPool();
-    std::string defaultProtocol();
-    std::string defaultHost();
     EndpointFactoryManagerPtr endpointFactoryManager();
     ::Ice::PluginManagerPtr pluginManager();
     
@@ -76,6 +76,7 @@ private:
     ::Ice::PropertiesPtr _properties; // Immutable, not reset by destroy().
     ::Ice::LoggerPtr _logger; // Not reset by destroy().
     TraceLevelsPtr _traceLevels; // Immutable, not reset by destroy().
+    DefaultsAndOverwritesPtr _defaultsAndOverwrites; // Immutable, not reset by destroy().
     RouterManagerPtr _routerManager;
     ReferenceFactoryPtr _referenceFactory;
     ProxyFactoryPtr _proxyFactory;
@@ -85,8 +86,6 @@ private:
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ThreadPoolPtr _clientThreadPool;
     ThreadPoolPtr _serverThreadPool;
-    std::string _defaultProtocol; // Immutable, not reset by destroy().
-    std::string _defaultHost; // Immutable, not reset by destroy().
     EndpointFactoryManagerPtr _endpointFactoryManager;
     ::Ice::PluginManagerPtr _pluginManager;
 

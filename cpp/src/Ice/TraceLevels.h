@@ -23,7 +23,6 @@ class TraceLevels : public ::IceUtil::Shared
 public:
 
     TraceLevels(const ::Ice::PropertiesPtr&);
-    virtual ~TraceLevels();
 
     const int network;
     const char* networkCat;

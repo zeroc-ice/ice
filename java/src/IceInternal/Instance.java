@@ -44,18 +44,11 @@ public class Instance
         return _traceLevels;
     }
 
-    public String
-    defaultProtocol()
+    public DefaultsAndOverwrites
+    defaultsAndOverwrites()
     {
 	// No mutex lock, immutable.
-        return _defaultProtocol;
-    }
-
-    public String
-    defaultHost()
-    {
-	// No mutex lock, immutable.
-        return _defaultHost;
+        return _defaultsAndOverwrites;
     }
 
     public synchronized RouterManager
@@ -164,20 +157,17 @@ public class Instance
         try
         {
             _logger = new Ice.LoggerI();
+
             _traceLevels = new TraceLevels(_properties);
-            _defaultProtocol = _properties.getPropertyWithDefault("Ice.DefaultProtocol", "tcp");
-            _defaultHost = _properties.getProperty("Ice.DefaultHost");
-	    if (_defaultHost.length() == 0)
-	    {
-		_defaultHost = Network.getLocalHost(true);
-	    }	    
+
+            _defaultsAndOverwrites = new DefaultsAndOverwrites(_properties);
+
             _routerManager = new RouterManager();
+
             _referenceFactory = new ReferenceFactory(this);
+
             _proxyFactory = new ProxyFactory(this);
 
-            //
-            // Install TCP and UDP endpoint factories.
-            //
             _endpointFactoryManager = new EndpointFactoryManager(this);
             EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(this);
             _endpointFactoryManager.add(tcpEndpointFactory);
@@ -186,16 +176,20 @@ public class Instance
 
             _pluginManager = new Ice.PluginManagerI(this);
 
-            String router = _properties.getProperty("Ice.DefaultRouter");
-            if (router.length() > 0)
+            if (_defaultsAndOverwrites.defaultRouter.length() > 0)
             {
-                _referenceFactory.setDefaultRouter(
-		    Ice.RouterPrxHelper.uncheckedCast(_proxyFactory.stringToProxy(router)));
+                _referenceFactory.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(
+		    _proxyFactory.stringToProxy(_defaultsAndOverwrites.defaultRouter)));
             }
+
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
+
             _servantFactoryManager = new ObjectFactoryManager();
+
             _userExceptionFactoryManager = new UserExceptionFactoryManager();
+
             _objectAdapterFactory = new ObjectAdapterFactory(this);
+
             _bufferManager = new BufferManager(); // Must be created before the ThreadPool
         }
         catch (Ice.LocalException ex)
@@ -354,6 +348,7 @@ public class Instance
     private Ice.Properties _properties; // Immutable, not reset by destroy().
     private Ice.Logger _logger; // Not reset by destroy().
     private TraceLevels _traceLevels; // Immutable, not reset by destroy().
+    private DefaultsAndOverwrites _defaultsAndOverwrites; // Immutable, not reset by destroy().
     private RouterManager _routerManager;
     private ReferenceFactory _referenceFactory;
     private ProxyFactory _proxyFactory;
@@ -363,8 +358,6 @@ public class Instance
     private ObjectAdapterFactory _objectAdapterFactory;
     private ThreadPool _clientThreadPool;
     private ThreadPool _serverThreadPool;
-    private String _defaultProtocol; // Immutable, not reset by destroy().
-    private String _defaultHost; // Immutable, not reset by destroy().
     private EndpointFactoryManager _endpointFactoryManager;
     private Ice.PluginManager _pluginManager;
     private BufferManager _bufferManager; // Immutable, not reset by destroy().

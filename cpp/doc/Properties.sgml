@@ -118,7 +118,7 @@ The request retry tracing level:
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>&Ice; object adapter Properties</title>
+<section><title>&Ice; Object Adapter Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.Adapter.<replaceable>name</replaceable>.Endpoints</title>
@@ -135,6 +135,47 @@ Sets the endpoints for the object adapter
 <replaceable>endpoints</replaceable>, provided that such object adapter
 has been created with
 <literal>Ice::Communicator::createObjectAdapter</literal>.
+</para>
+</section>
+</section>
+
+<section><title>Ice.Adapter.<replaceable>name</replaceable>.Router</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Adapter.<replaceable>name</replaceable>.Router=<replaceable>router</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a router (as stingified proxy to the &Glacier; router
+control interface) for the object adapter with the name
+<replaceable>name</replaceable>. By doing so, the object adapter can
+receive callbacks from this router, using connections which are
+established from this process to the router, instead of the router
+having to establish a connection back to the named object adapter.
+<note><para> You can only specify a particular router for one single
+object adapter. Specifying the same router for more than one object
+adapter will result in undefined behavior. The default value is no
+router. </para></note>
+</para>
+</section>
+</section>
+
+<section><title>Ice.PrintAdapterReady</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.PrintAdapterReady=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+an object adapter prints "<replaceable>adapter_name</replaceable>
+ready" on standard output after initialization is complete. This is
+useful for scripts that wish to wait until an object adapter is ready
+to be used.
 </para>
 </section>
 </section>
@@ -209,13 +250,13 @@ method invocations). </para></note>
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>&Ice; Protocol Properties</title>
+<section><title>&Ice; Default and Overwrite Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>Ice.DefaultProtocol</title>
+<section><title>Ice.Default.Protocol</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.DefaultProtocol=<replaceable>protocol</replaceable>
+Ice.Default.Protocol=<replaceable>protocol</replaceable>
 </synopsis>
 </section>
 <section>
@@ -228,10 +269,10 @@ value is <literal>tcp</literal>.
 </section>
 </section>
 
-<section><title>Ice.DefaultHost</title>
+<section><title>Ice.Default.Host</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.DefaultHost=<replaceable>host</replaceable>
+Ice.Default.Host=<replaceable>host</replaceable>
 </synopsis>
 </section>
 <section>
@@ -245,16 +286,10 @@ instead. The default value is the local host name.
 </section>
 </section>
 
-</section>
-
-<!-- ********************************************************************** -->
-<section><title>&Ice; Routing Properties</title>
-<!-- ********************************************************************** -->
-
-<section><title>Ice.DefaultRouter</title>
+<section><title>Ice.Default.Router</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.DefaultRouter=<replaceable>router</replaceable>
+Ice.Default.Router=<replaceable>router</replaceable>
 </synopsis>
 </section>
 <section>
@@ -262,32 +297,9 @@ Ice.DefaultRouter=<replaceable>router</replaceable>
 <para>
 Specifies a default router (as stingified proxy to the &Glacier;
 router control interface) which is to be used for all proxies, unless
-the router is overwritten with the proxy's
+the router is overwritten with a proxy's
 <literal>ice_router()</literal> operation. The default value is no
 router.
-</para>
-</section>
-</section>
-
-<section><title>Ice.Adapter.<replaceable>name</replaceable>.Router</title>
-<section><title>Synopsis</title>
-<synopsis>
-Ice.Adapter.<replaceable>name</replaceable>.Router=<replaceable>router</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Specifies a router (as stingified proxy to the &Glacier; router
-control interface) for the object adapter with the name
-<replaceable>name</replaceable>. By doing so, the object adapter can
-receive callbacks from this router, using connections which are
-established from this process to the router, instead of the router
-having to establish a connection back to the named object adapter.
-<note><para> You can only specify a particular router for one single
-object adapter. Specifying the same router for more than one object
-adapter will result in undefined behavior. The default value is no
-router. </para></note>
 </para>
 </section>
 </section>
@@ -349,24 +361,6 @@ Ice.PrintProcessId=<replaceable>num</replaceable>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
 the process ID is printed on standard output upon startup.
-</para>
-</section>
-</section>
-
-<section><title>Ice.PrintAdapterReady</title>
-<section><title>Synopsis</title>
-<synopsis>
-Ice.PrintAdapterReady=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-If <replaceable>num</replaceable> is set to a value larger than zero,
-an object adapter prints "<replaceable>adapter_name</replaceable>
-ready" on standard output after initialization is complete. This is
-useful for scripts that wish to wait until an object adapter is ready
-to be used.
 </para>
 </section>
 </section>
@@ -444,7 +438,7 @@ conditions in connections.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>&Ice; SSL Properties</title>
+<section><title>&IceSSL; Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>IceSSL.Trace.Security</title>
@@ -531,7 +525,7 @@ the same directory that it finds the XML configuration file.
 <para>
 Depending on whether the application is running in client mode, server mode or
 both modes, a valid value for one or both of these parameters must be specified
-for the proper operation of the IceSSL extension.
+for the proper operation of the &IceSSL; extension.
 </para>
 </section>
 </section>
@@ -567,9 +561,9 @@ IceSSL.Server.Passphrase.Retries=<replaceable>number of retries</replaceable>
 <section>
 <title>Description</title>
 <para>
-When IceSSL is directed to use a private key in a PEM file that has been encrypted, a prompt
+When &IceSSL; is directed to use a private key in a PEM file that has been encrypted, a prompt
 is displayed "Enter PEM pass phrase:".  In the case that the passphrase is incorrectly entered,
-these properties define how many retries the user will get before IceSSL shuts down.
+these properties define how many retries the user will get before &IceSSL; shuts down.
 </para>
 <para>
 If not specified, the default value for these properties is 5 retries.
@@ -593,7 +587,7 @@ used by the Server context may be overridden from those specified in the config 
 the DER representation of the private and public keys, base64 encoded.
 </para>
 <para>
-There is not default value for these properties.
+There are no default values for these properties.
 </para>
 </section>
 </section>
@@ -614,7 +608,7 @@ used by the Server context may be overridden from those specified in the config 
 the DER representation of the private and public keys, base64 encoded.
 </para>
 <para>
-There is not default value for these properties.
+There are no default values for these properties.
 </para>
 </section>
 </section>
@@ -635,7 +629,7 @@ used by the Client context may be overridden from those specified in the config 
 the DER representation of the private and public keys, base64 encoded.
 </para>
 <para>
-There is not default value for these properties.
+There are no default values for these properties.
 </para>
 </section>
 </section>
@@ -656,7 +650,7 @@ used by the Client context may be overridden from those specified in the config 
 the DER representation of the private and public keys, base64 encoded.
 </para>
 <para>
-There is not default value for these properties.
+There are no default values for these properties.
 </para>
 </section>
 </section>
@@ -677,7 +671,7 @@ Authority (CA) certificates specified in <literal>IceSSL.Server.Config</literal>
 as the base64 encoding of the DER binary representation of the certificate.
 </para>
 <para>
-There is not default value for these properties.
+There are no default values for these properties.
 </para>
 </section>
 </section>

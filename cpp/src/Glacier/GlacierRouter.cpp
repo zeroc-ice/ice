@@ -310,7 +310,7 @@ main(int argc, char* argv[])
 	cerr << argv[0] << ": " << ex << endl;
 	return EXIT_FAILURE;
     }
-    defaultProperties->setProperty("Ice.DefaultRouter", "");
+    defaultProperties->setProperty("Ice.Default.Router", "");
 
     Glacier::RouterApp app;
     return app.main(argc, argv);

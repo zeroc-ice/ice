@@ -10,6 +10,7 @@
 
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
+#include <Ice/DefaultsAndOverwrites.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/ReferenceFactory.h>
 #include <Ice/ProxyFactory.h>
@@ -106,18 +107,11 @@ IceInternal::Instance::traceLevels()
     return _traceLevels;
 }
 
-string
-IceInternal::Instance::defaultProtocol()
+DefaultsAndOverwritesPtr
+IceInternal::Instance::defaultsAndOverwrites()
 {
     // No mutex lock, immutable.
-    return _defaultProtocol;
-}
-
-string
-IceInternal::Instance::defaultHost()
-{
-    // No mutex lock, immutable.
-    return _defaultHost;
+    return _defaultsAndOverwrites;
 }
 
 RouterManagerPtr
@@ -310,12 +304,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 
 	_traceLevels = new TraceLevels(_properties);
 
-	_defaultProtocol = _properties->getPropertyWithDefault("Ice.DefaultProtocol", "tcp");
-	_defaultHost = _properties->getProperty("Ice.DefaultHost");
-	if (_defaultHost.empty())
-	{
-	    _defaultHost = getLocalHost(true);
-	}
+	_defaultsAndOverwrites = new DefaultsAndOverwrites(_properties);
 
 	_routerManager = new RouterManager;
 
@@ -323,9 +312,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 
 	_proxyFactory = new ProxyFactory(this);
 
-        //
-        // Install TCP and UDP endpoint factories.
-        //
 	_endpointFactoryManager = new EndpointFactoryManager(this);
         EndpointFactoryPtr tcpEndpointFactory = new TcpEndpointFactory(this);
         _endpointFactoryManager->add(tcpEndpointFactory);
@@ -334,10 +320,10 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 
         _pluginManager = new PluginManagerI(this);
 
-	string router = _properties->getProperty("Ice.DefaultRouter");
-	if (!router.empty())
+	if (!_defaultsAndOverwrites->defaultRouter.empty())
 	{
-	    _referenceFactory->setDefaultRouter(RouterPrx::uncheckedCast(_proxyFactory->stringToProxy(router)));
+	    _referenceFactory->setDefaultRouter(
+		RouterPrx::uncheckedCast(_proxyFactory->stringToProxy(_defaultsAndOverwrites->defaultRouter)));
 	}
 
 	_outgoingConnectionFactory = new OutgoingConnectionFactory(this);

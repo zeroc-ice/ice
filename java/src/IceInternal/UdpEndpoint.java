@@ -107,7 +107,7 @@ final class UdpEndpoint implements Endpoint
 
         if (_host == null)
         {
-            _host = instance.defaultHost();
+            _host = instance.defaultsAndOverwrites().defaultHost;
         }
 
         calcHashValue();

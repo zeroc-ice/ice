@@ -14,6 +14,7 @@
 #include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
+#include <Ice/DefaultsAndOverwrites.h>
 
 using namespace std;
 using namespace Ice;
@@ -111,7 +112,7 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 
     if (_host.empty())
     {
-	const_cast<string&>(_host) = _instance->defaultHost();
+	const_cast<string&>(_host) = _instance->defaultsAndOverwrites()->defaultHost;
     }
 }
 

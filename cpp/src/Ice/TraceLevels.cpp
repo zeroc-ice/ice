@@ -31,7 +31,3 @@ IceInternal::TraceLevels::TraceLevels(const PropertiesPtr& properties) :
     const_cast<int&>(protocol) = properties->getPropertyAsInt(keyBase + protocolCat);
     const_cast<int&>(retry) = properties->getPropertyAsInt(keyBase + retryCat);
 }
-
-IceInternal::TraceLevels::~TraceLevels()
-{
-}

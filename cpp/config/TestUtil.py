@@ -33,11 +33,11 @@ host = ""
 
 if protocol == "ssl":
     plugin = " --Ice.Plugin.IceSSL=IceSSL:create"
-    clientProtocol = plugin + " --Ice.DefaultProtocol=ssl" + \
+    clientProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
     " --IceSSL.Client.CertPath=TOPLEVELDIR/certs --IceSSL.Client.Config=client_sslconfig.xml"
-    serverProtocol = plugin + " --Ice.DefaultProtocol=ssl" + \
+    serverProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
     " --IceSSL.Server.CertPath=TOPLEVELDIR/certs --IceSSL.Server.Config=server_sslconfig.xml"
-    clientServerProtocol = plugin + " --Ice.DefaultProtocol=ssl" + \
+    clientServerProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
     " --IceSSL.Client.CertPath=TOPLEVELDIR/certs --IceSSL.Client.Config=sslconfig.xml" + \
     " --IceSSL.Server.CertPath=TOPLEVELDIR/certs --IceSSL.Server.Config=sslconfig.xml"
 else:
@@ -46,7 +46,7 @@ else:
     clientServerProtocol = ""
 
 if host != "":
-    defaultHost = " --Ice.DefaultHost=" + host
+    defaultHost = " --Ice.Default.Host=" + host
 else:
     defaultHost = ""
 

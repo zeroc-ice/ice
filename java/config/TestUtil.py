@@ -32,11 +32,11 @@ host = ""
 #
 
 if protocol == "ssl":
-    clientProtocol = " --Ice.DefaultProtocol=ssl" + \
+    clientProtocol = " --Ice.Default.Protocol=ssl" + \
     " --IceSSL.Client.CertPath=TOPLEVELDIR/certs --IceSSL.Client.Config=client_sslconfig.xml"
-    serverProtocol = " --Ice.DefaultProtocol=ssl" + \
+    serverProtocol = " --Ice.Default.Protocol=ssl" + \
     " --IceSSL.Server.CertPath=TOPLEVELDIR/certs --IceSSL.Server.Config=server_sslconfig.xml"
-    clientServerProtocol = " --Ice.DefaultProtocol=ssl" + \
+    clientServerProtocol = " --Ice.Default.Protocol=ssl" + \
     " --IceSSL.Client.CertPath=TOPLEVELDIR/certs --IceSSL.Client.Config=sslconfig.xml" + \
     " --IceSSL.Server.CertPath=TOPLEVELDIR/certs --IceSSL.Server.Config=sslconfig.xml"
 else:
@@ -45,7 +45,7 @@ else:
     clientServerProtocol = ""
 
 if host != "":
-    defaultHost = " --Ice.DefaultHost=" + host
+    defaultHost = " --Ice.Default.Host=" + host
 else:
     defaultHost = ""
 

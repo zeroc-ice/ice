@@ -63,7 +63,7 @@ public final class EndpointFactoryManager
 
         if (protocol.equals("default"))
         {
-            protocol = _instance.defaultProtocol();
+            protocol = _instance.defaultsAndOverwrites().defaultProtocol;
         }
 
         for (int i = 0; i < _factories.size(); i++)

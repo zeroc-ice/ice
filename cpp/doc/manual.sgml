@@ -1,6 +1,7 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN" [
 
 <!ENTITY Ice "<phrase>Ice</phrase>">
+<!ENTITY IceSSL "<phrase>IceSSL</phrase>">
 <!ENTITY IcePack "<phrase>IcePack</phrase>">
 <!ENTITY IceStorm "<phrase>IceStorm</phrase>">
 <!ENTITY Glacier "<phrase>Glacier</phrase>">
