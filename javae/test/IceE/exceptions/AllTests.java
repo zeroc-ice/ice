@@ -140,6 +140,7 @@ public class AllTests
         }
         catch(A ex)
         {
+	    System.out.println(ex.aMem);
             test(ex.aMem == 1);
         }
         catch(Exception ex)

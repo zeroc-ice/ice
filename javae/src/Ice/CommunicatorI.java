@@ -113,36 +113,6 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
 	return createObjectAdapter(name);
     }
 
-    public synchronized void
-    addObjectFactory(ObjectFactory factory, String id)
-    {
-        if(_destroyed)
-        {
-            throw new CommunicatorDestroyedException();
-        }
-        _instance.servantFactoryManager().add(factory, id);
-    }
-
-    public synchronized void
-    removeObjectFactory(String id)
-    {
-        if(_destroyed)
-        {
-            throw new CommunicatorDestroyedException();
-        }
-        _instance.servantFactoryManager().remove(id);
-    }
-
-    public synchronized ObjectFactory
-    findObjectFactory(String id)
-    {
-        if(_destroyed)
-        {
-            throw new CommunicatorDestroyedException();
-        }
-        return _instance.servantFactoryManager().find(id);
-    }
-
     public Properties
     getProperties()
     {
