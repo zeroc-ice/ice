@@ -11,7 +11,7 @@
 # If you want to compile TAO performance tests, set TAO_ROOT to the
 # TAO source distribution directory.
 #
-#TAO_ROOT	?=
+#TAO_HOME	?=
 
 #
 # If you want to compile Ice performance tests, set ICE_HOME to the
@@ -40,10 +40,12 @@ SHELL			= /bin/sh
 
 UNAME			:= $(shell uname)
 
-slicedir		= -I$(ICE_HOME)/slice
+slicedir		= $(ICE_HOME)/slice
 configdir		= $(ICE_HOME)/config
 
-include	 $(configdir)/Make.rules.$(UNAME)
+ifdef ICE_HOME
+   include	 $(configdir)/Make.rules.$(UNAME)
+endif
 
 CPPFLAGS		=
 ICECPPFLAGS		= -I$(slicedir)

@@ -40,6 +40,20 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	twoway = true;
     }
 
+    int repetitions;
+    if(twoway)
+    {
+	repetitions = 100000;
+    }
+    else if(oneway)
+    {
+	repetitions = 500000;
+    }
+    else if(batch)
+    {
+	repetitions = 2000000;
+    }
+
     Ice::PropertiesPtr properties = communicator->getProperties();
     const char* proxyProperty = "Latency.Ping";
     std::string proxy = properties->getProperty(proxyProperty);
@@ -65,7 +79,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     IceUtil::Time tm = IceUtil::Time::now();
 
-    const int repetitions = 100000;
     for(i = 0; i < repetitions; ++i)
     {
         if(batch)

@@ -11,8 +11,14 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
+ifdef TAO_HOME
 SUBDIRS		= Thread_Per_Connection \
 		  Thread_Pool
+export ACE_ROOT := $(TAO_HOME)/..
+export TAO_ROOT := $(TAO_HOME)
+else
+SUBDIRS		=
+endif
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

@@ -20,7 +20,6 @@ using namespace std;
 ACE_RCSID(Thread_Per_Connection_Latency, client, "client.cpp,v 1.6 2003/11/02 23:27:22 dhinton Exp")
 
 const char *ior = "file://test.ior";
-int niterations = 100000;
 int do_shutdown = 1;
 
 void
@@ -148,7 +147,17 @@ main (int argc, char *argv[])
         long start = tv.tv_sec * 1000000 + tv.tv_usec;
 #endif
 
-        for (int i = 0; i != niterations; ++i)
+	int repetitions;
+	if(oneway)
+	{
+	    repetitions = 500000;
+	}
+	else
+	{
+	    repetitions = 100000;
+	}
+
+        for (int i = 0; i != repetitions; ++i)
         {
 	  if(oneway)
 	  {
@@ -175,7 +184,7 @@ main (int argc, char *argv[])
         float tm = (tv.tv_sec * 1000000 + tv.tv_usec - start) / 1000;
 #endif
 
-        cout << (float) tm / niterations << endl;
+        cout << (float) tm / repetitions << endl;
     }
     else
     {

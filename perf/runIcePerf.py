@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, time, pickle, getopt
+import os, sys, time, pickle, getopt, re
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -45,7 +45,6 @@ def usage():
 threadPoolOne = " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=1 --Ice.ThreadPool.Server.SizeWarn=1"
 threadPoolFour = " --Ice.ThreadPool.Server.Size=4 --Ice.ThreadPool.Server.SizeMax=4 --Ice.ThreadPool.Server.SizeWarn=0"
 threadPerConnection = " --Ice.ThreadPerConnection"
-
 resultsFile = "runIcePerf.results"
 
 class Results :
@@ -84,18 +83,27 @@ class Results :
 
 results = Results()
 
-def runClientServerPerf(iter, directory, name, clientOpts, serverOpts):
+def runClientServerPerf(expr, iter, directory, name, clientOpts, serverOpts):
 
+    match = len(expr) == 0
+    for e in expr:
+        if e.match(name):
+            match = True
+            break;
+
+    if not match:
+        return
+    
     cwd = os.getcwd()
     os.chdir(directory)
 
     print str(iter) + ": " + name + "...",
     sys.stdout.flush()
     
-    serverPipe = os.popen(os.path.join(".", "server") + " " + serverOpts)
+    serverPipe = os.popen(os.path.join(".", "server") + " " + serverOpts + " 2> /dev/null")
     TestUtil.getAdapterReady(serverPipe)
 
-    clientPipe = os.popen(os.path.join(".", "client") + " " + clientOpts)
+    clientPipe = os.popen(os.path.join(".", "client") + " " + clientOpts + " 2> /dev/null")
     result = float(clientPipe.read())
     clientPipe.close()
 
@@ -105,72 +113,74 @@ def runClientServerPerf(iter, directory, name, clientOpts, serverOpts):
     
     print result
 
-def runIcePerf(iter, test, name, clientOpts, serverOpts):
-    
-    dir = os.path.join(toplevel, "src", "Ice", test)
-    runClientServerPerf(iter, dir, "Ice " + name, clientOpts, serverOpts)
+def runIcePerf(expr, iter, test, name, clientOpts, serverOpts):
 
-def runTAOPerf(iter, test, name, clientOpts, serverOpts):
+    dir = os.path.join(toplevel, "src", "Ice", test)
+    runClientServerPerf(expr, iter, dir, "Ice " + name, clientOpts, serverOpts)
+
+def runTAOPerf(expr, iter, test, name, clientOpts, serverOpts):
     
     dir = os.path.join(toplevel, "src", "TAO", test)
-    runClientServerPerf(iter, dir, "TAO " + name, clientOpts, serverOpts)
+    runClientServerPerf(expr, iter, dir, "TAO " + name, clientOpts, serverOpts)
 
-def runIcePerfs(i):
+def runIcePerfs(expr, i):
     
-    runIcePerf(i, "latency", "latency twoway 1tp", "twoway", threadPoolOne)
-    runIcePerf(i, "latency", "latency twoway 4tp", "twoway", threadPoolFour)
-    runIcePerf(i, "latency", "latency twoway tc", "twoway " + threadPerConnection, threadPerConnection)
+    runIcePerf(expr, i, "latency", "latency twoway 1tp", "twoway", threadPoolOne)
+    runIcePerf(expr, i, "latency", "latency twoway 4tp", "twoway", threadPoolFour)
+    runIcePerf(expr, i, "latency", "latency twoway tc", "twoway " + threadPerConnection, threadPerConnection)
     
-    runIcePerf(i, "latency", "latency oneway 1tp", "oneway", threadPoolOne)
-    runIcePerf(i, "latency", "latency oneway 4tp", "oneway", threadPoolFour)
-    runIcePerf(i, "latency", "latency oneway tc", "oneway " + threadPerConnection, threadPerConnection)
+    runIcePerf(expr, i, "latency", "latency oneway 1tp", "oneway", threadPoolOne)
+    runIcePerf(expr, i, "latency", "latency oneway 4tp", "oneway", threadPoolFour)
+    runIcePerf(expr, i, "latency", "latency oneway tc", "oneway " + threadPerConnection, threadPerConnection)
     
-    runIcePerf(i, "latency", "latency batch 1tp", "batch", threadPoolOne)
-    runIcePerf(i, "latency", "latency batch 4tp", "batch", threadPoolFour)
-    runIcePerf(i, "latency", "latency batch tc", "batch " + threadPerConnection, threadPerConnection)
+    runIcePerf(expr, i, "latency", "latency batch 1tp", "batch", threadPoolOne)
+    runIcePerf(expr, i, "latency", "latency batch 4tp", "batch", threadPoolFour)
+    runIcePerf(expr, i, "latency", "latency batch tc", "batch " + threadPerConnection, threadPerConnection)
     
-    runIcePerf(i, "throughput", "throughput byte 1tp", "byte", threadPoolOne)
-    runIcePerf(i, "throughput", "throughput byte 4tp", "byte", threadPoolFour)
-    runIcePerf(i, "throughput", "throughput byte tc", "byte " + threadPerConnection, threadPerConnection)
+    runIcePerf(expr, i, "throughput", "throughput byte 1tp", "byte", threadPoolOne)
+    runIcePerf(expr, i, "throughput", "throughput byte 4tp", "byte", threadPoolFour)
+    runIcePerf(expr, i, "throughput", "throughput byte tc", "byte " + threadPerConnection, threadPerConnection)
     
-    runIcePerf(i, "throughput", "throughput string seq 1tp", "stringSeq", threadPoolOne)
-    runIcePerf(i, "throughput", "throughput string seq 4tp", "stringSeq", threadPoolFour)
-    runIcePerf(i, "throughput", "throughput string seq tc", "stringSeq " + threadPerConnection, threadPerConnection)
-    
-    runIcePerf(i, "throughput", "throughput long string seq 1tp", "longStringSeq", threadPoolOne)
-    runIcePerf(i, "throughput", "throughput long string seq 4tp", "longStringSeq", threadPoolFour)
-    runIcePerf(i, "throughput", "throughput long string seq tc", "longStringSeq " + threadPerConnection, \
+    runIcePerf(expr, i, "throughput", "throughput string seq 1tp", "stringSeq", threadPoolOne)
+    runIcePerf(expr, i, "throughput", "throughput string seq 4tp", "stringSeq", threadPoolFour)
+    runIcePerf(expr, i, "throughput", "throughput string seq tc", "stringSeq " + threadPerConnection, \
                threadPerConnection)
     
-    runIcePerf(i, "throughput", "throughput struct seq 1tp", "structSeq", threadPoolOne)
-    runIcePerf(i, "throughput", "throughput struct seq 4tp", "structSeq", threadPoolFour)
-    runIcePerf(i, "throughput", "throughput struct seq tc", "structSeq " + threadPerConnection, threadPerConnection)
+    runIcePerf(expr, i, "throughput", "throughput long string seq 1tp", "longStringSeq", threadPoolOne)
+    runIcePerf(expr, i, "throughput", "throughput long string seq 4tp", "longStringSeq", threadPoolFour)
+    runIcePerf(expr, i, "throughput", "throughput long string seq tc", "longStringSeq " + threadPerConnection, \
+               threadPerConnection)
+    
+    runIcePerf(expr, i, "throughput", "throughput struct seq 1tp", "structSeq", threadPoolOne)
+    runIcePerf(expr, i, "throughput", "throughput struct seq 4tp", "structSeq", threadPoolFour)
+    runIcePerf(expr, i, "throughput", "throughput struct seq tc", "structSeq " + threadPerConnection, \
+               threadPerConnection)
 
-def runTAOPerfs(i):
+def runTAOPerfs(expr, i):
     
-    runTAOPerf(i, "Thread_Pool", "latency twoway 1tp", "latency twoway", "1")
-    runTAOPerf(i, "Thread_Pool", "latency twoway 4tp", "latency twoway", "4")
-    runTAOPerf(i, "Thread_Per_Connection", "latency twoway tc", "latency twoway", "")
+    runTAOPerf(expr, i, "Thread_Pool", "latency twoway 1tp", "latency twoway", "1")
+    runTAOPerf(expr, i, "Thread_Pool", "latency twoway 4tp", "latency twoway", "4")
+    runTAOPerf(expr, i, "Thread_Per_Connection", "latency twoway tc", "latency twoway", "")
 
-    runTAOPerf(i, "Thread_Pool", "latency oneway 1tp", "latency oneway", "1")
-    runTAOPerf(i, "Thread_Pool", "latency oneway 4tp", "latency oneway", "4")
-    runTAOPerf(i, "Thread_Per_Connection", "latency oneway tc", "latency oneway", "")
+    runTAOPerf(expr, i, "Thread_Pool", "latency oneway 1tp", "latency oneway", "1")
+    runTAOPerf(expr, i, "Thread_Pool", "latency oneway 4tp", "latency oneway", "4")
+    runTAOPerf(expr, i, "Thread_Per_Connection", "latency oneway tc", "latency oneway", "")
     
-    runTAOPerf(i, "Thread_Pool", "throughput byte 1tp", "throughput byte", "1")
-    runTAOPerf(i, "Thread_Pool", "throughput byte 4tp", "throughput byte", "4")
-    runTAOPerf(i, "Thread_Per_Connection", "throughput byte tc", "throughput byte", "")
+    runTAOPerf(expr, i, "Thread_Pool", "throughput byte 1tp", "throughput byte", "1")
+    runTAOPerf(expr, i, "Thread_Pool", "throughput byte 4tp", "throughput byte", "4")
+    runTAOPerf(expr, i, "Thread_Per_Connection", "throughput byte tc", "throughput byte", "")
     
-    runTAOPerf(i, "Thread_Pool", "throughput string seq 1tp", "throughput string", "1")
-    runTAOPerf(i, "Thread_Pool", "throughput string seq 4tp", "throughput string", "4")
-    runTAOPerf(i, "Thread_Per_Connection", "throughput string seq tc", "throughput string", "")
+    runTAOPerf(expr, i, "Thread_Pool", "throughput string seq 1tp", "throughput string", "1")
+    runTAOPerf(expr, i, "Thread_Pool", "throughput string seq 4tp", "throughput string", "4")
+    runTAOPerf(expr, i, "Thread_Per_Connection", "throughput string seq tc", "throughput string", "")
     
-    runTAOPerf(i, "Thread_Pool", "throughput long string seq 1tp", "throughput longString", "1")
-    runTAOPerf(i, "Thread_Pool", "throughput long string seq 4tp", "throughput longString", "4")
-    runTAOPerf(i, "Thread_Per_Connection", "throughput long string seq tc", "throughput longString", "")
+    runTAOPerf(expr, i, "Thread_Pool", "throughput long string seq 1tp", "throughput longString", "1")
+    runTAOPerf(expr, i, "Thread_Pool", "throughput long string seq 4tp", "throughput longString", "4")
+    runTAOPerf(expr, i, "Thread_Per_Connection", "throughput long string seq tc", "throughput longString", "")
     
-    runTAOPerf(i, "Thread_Pool", "throughput struct seq 1tp", "throughput struct", "1")
-    runTAOPerf(i, "Thread_Pool", "throughput struct seq 4tp", "throughput struct", "4")
-    runTAOPerf(i, "Thread_Per_Connection", "throughput struct seq tc", "throughput struct", "")
+    runTAOPerf(expr, i, "Thread_Pool", "throughput struct seq 1tp", "throughput struct", "1")
+    runTAOPerf(expr, i, "Thread_Pool", "throughput struct seq 4tp", "throughput struct", "4")
+    runTAOPerf(expr, i, "Thread_Per_Connection", "throughput struct seq tc", "throughput struct", "")
 
 try:
     opts, pargs = getopt.getopt(sys.argv[1:], 'hi:p', ['help', 'iter=', 'print-results']);
@@ -190,6 +200,11 @@ for o, a in opts:
         results.printAll()
         sys.exit(0)
 
+expr = [ ]
+if len(pargs) > 0:
+    for e in pargs:
+        expr.append(re.compile(e))
+
 if not os.environ.has_key('ICE_HOME'):
     if os.path.exists(os.path.join(toplevel, "..", "ice")):
         os.environ['ICE_HOME'] = os.path.join(toplevel, "..", "ice")
@@ -202,9 +217,9 @@ i = 1
 while i < niter:
     try:
         if os.environ.has_key('ICE_HOME'):
-            runIcePerfs(i)
+            runIcePerfs(expr, i)
         if os.environ.has_key('TAO_ROOT'):
-            runTAOPerfs(i)
+            runTAOPerfs(expr, i)
         i += 1
     except KeyboardInterrupt:
         break
