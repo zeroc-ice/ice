@@ -104,6 +104,22 @@ interface Router extends Ice::Router
 	throws SessionNotExistException;
 };
 
+/**
+ *
+ * The &Glacier2; administrative interface. This must only be
+ * accessible from inside the firewall.
+ *
+ **/
+interface Admin
+{
+    /**
+     *
+     * Shut down the &Glacier2; router.
+     *
+     **/
+    idempotent void shutdown();
+};
+
 };
 
 #endif

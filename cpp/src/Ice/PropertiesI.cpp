@@ -341,6 +341,8 @@ static const string glacierProps[] =
 
 static const string glacier2Props[] =
 {
+    "Admin.Endpoints",
+    "AdminIdentity",
     "Client.AlwaysBatch",
     "Client.Endpoints",
     "Client.ForwardContext",

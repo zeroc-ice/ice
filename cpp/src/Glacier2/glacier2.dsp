@@ -159,7 +159,7 @@ USERDEP__PERMI="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\Glacier2\PermissionsVerifier.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/PermissionsVerifier.ice \
+	..\..\bin\slice2cpp.exe --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/PermissionsVerifier.ice \
 	move PermissionsVerifier.h ..\..\include\Glacier2 \
 	
 
@@ -177,7 +177,7 @@ USERDEP__PERMI="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\Glacier2\PermissionsVerifier.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/PermissionsVerifier.ice \
+	..\..\bin\slice2cpp.exe --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/PermissionsVerifier.ice \
 	move PermissionsVerifier.h ..\..\include\Glacier2 \
 	
 
@@ -202,7 +202,7 @@ USERDEP__PERMIS="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\Glacier2\PermissionsVerifierF.ice
 
 "..\..\include\Glacier2\PermissionsVerifierF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/PermissionsVerifierF.ice 
+	..\..\bin\slice2cpp.exe --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/PermissionsVerifierF.ice 
 	move PermissionsVerifierF.h ..\..\include\Glacier2 
 	del PermissionsVerifierF.cpp 
 	
@@ -215,7 +215,7 @@ USERDEP__PERMIS="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\Glacier2\PermissionsVerifierF.ice
 
 "..\..\include\Glacier2\PermissionsVerifierF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/PermissionsVerifierF.ice 
+	..\..\bin\slice2cpp.exe --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/PermissionsVerifierF.ice 
 	move PermissionsVerifierF.h ..\..\include\Glacier2 
 	del PermissionsVerifierF.cpp 
 	
@@ -235,7 +235,7 @@ USERDEP__PERMI="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\Glacier2\Session.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/Session.ice \
+	..\..\bin\slice2cpp.exe --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/Session.ice \
 	move Session.h ..\..\include\Glacier2 \
 	
 
@@ -253,7 +253,7 @@ USERDEP__PERMI="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\Glacier2\Session.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/Session.ice \
+	..\..\bin\slice2cpp.exe --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/Session.ice \
 	move Session.h ..\..\include\Glacier2 \
 	
 
@@ -278,7 +278,7 @@ USERDEP__PERMIS="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\Glacier2\SessionF.ice
 
 "..\..\include\Glacier2\SessionF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/SessionF.ice 
+	..\..\bin\slice2cpp.exe --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/SessionF.ice 
 	move SessionF.h ..\..\include\Glacier2 
 	del SessionF.cpp 
 	
@@ -291,7 +291,7 @@ USERDEP__PERMIS="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\Glacier2\SessionF.ice
 
 "..\..\include\Glacier2\SessionF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/SessionF.ice 
+	..\..\bin\slice2cpp.exe --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/SessionF.ice 
 	move SessionF.h ..\..\include\Glacier2 
 	del SessionF.cpp 
 	
@@ -311,7 +311,7 @@ USERDEP__ROUTE="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\Glacier2\Router.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/Router.ice \
+	..\..\bin\slice2cpp.exe --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/Router.ice \
 	move Router.h ..\..\include\Glacier2 \
 	
 
@@ -329,7 +329,7 @@ USERDEP__ROUTE="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\Glacier2\Router.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/Router.ice \
+	..\..\bin\slice2cpp.exe --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/Router.ice \
 	move Router.h ..\..\include\Glacier2 \
 	
 
@@ -354,7 +354,7 @@ USERDEP__ROUTER="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\Glacier2\RouterF.ice
 
 "..\..\include\Glacier2\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/RouterF.ice 
+	..\..\bin\slice2cpp.exe --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/RouterF.ice 
 	move RouterF.h ..\..\include\Glacier2 
 	del RouterF.cpp 
 	
@@ -367,7 +367,7 @@ USERDEP__ROUTER="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\Glacier2\RouterF.ice
 
 "..\..\include\Glacier2\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/RouterF.ice 
+	..\..\bin\slice2cpp.exe --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/RouterF.ice 
 	move RouterF.h ..\..\include\Glacier2 
 	del RouterF.cpp 
 	

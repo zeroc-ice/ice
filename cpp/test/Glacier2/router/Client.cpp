@@ -60,7 +60,7 @@ CallbackClient::run(int argc, char* argv[])
 
     {
 	cout << "testing stringToProxy for router... " << flush;
-	routerBase = communicator()->stringToProxy("abc/def:default -p 12347 -t 30000");
+	routerBase = communicator()->stringToProxy("abc/def:default -p 12347 -t 10000");
 	cout << "ok" << endl;
     }
     
@@ -289,5 +289,50 @@ CallbackClient::run(int argc, char* argv[])
 	}
     }
 
+    if(argc >= 2 && strcmp(argv[1], "--shutdown") == 0)
+    {
+	{
+	    cout << "uninstalling router with communicator... " << flush;
+	    communicator()->setDefaultRouter(0);
+	    cout << "ok" << endl;
+	}
+
+	ObjectPrx adminBase;
+
+	{
+	    cout << "testing stringToProxy for admin object... " << flush;
+	    adminBase = communicator()->stringToProxy("ABC/DEF:tcp -h 127.0.0.1 -p 12348 -t 10000");
+	    cout << "ok" << endl;
+	}
+	
+	{
+	    cout << "uninstalling router with admin object... " << flush;
+	    adminBase->ice_router(0);
+	    cout << "ok" << endl;
+	}
+
+	Glacier2::AdminPrx admin;
+	
+	{
+	    cout << "testing checked cast for admin object... " << flush;
+	    admin = Glacier2::AdminPrx::checkedCast(adminBase);
+	    test(admin);
+	    cout << "ok" << endl;
+	}
+
+	cout << "testing Glacier2 shutdown... " << flush;
+	admin->shutdown();
+	try
+	{
+	    admin->ice_ping();
+	    test(false);
+	}
+	catch(const Ice::LocalException&)
+	{
+	    cout << "ok" << endl;
+	}
+	
+    }
+    
     return EXIT_SUCCESS;
 }

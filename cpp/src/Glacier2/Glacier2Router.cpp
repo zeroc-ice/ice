@@ -20,6 +20,26 @@ using namespace Glacier2;
 namespace Glacier2
 {
 
+class AdminI : public Admin
+{
+public:
+    
+    AdminI(const CommunicatorPtr& communicator) :
+	_communicator(communicator)
+    {
+    }
+
+    virtual void
+    shutdown(const Current&)
+    {
+	_communicator->shutdown();
+    }
+
+private:
+
+    const CommunicatorPtr _communicator;
+};
+
 class RouterService : public Service
 {
 public:
@@ -90,6 +110,17 @@ Glacier2::RouterService::start(int argc, char* argv[])
     if(!properties->getProperty(serverEndpointsProperty).empty())
     {
 	serverAdapter = communicator()->createObjectAdapter("Glacier2.Server");
+    }
+
+    //
+    // Initialize the admin object adapter only if admin endpoints
+    // are defined.
+    //
+    const char* adminEndpointsProperty = "Glacier2.Admin.Endpoints";
+    ObjectAdapterPtr adminAdapter;
+    if(!properties->getProperty(adminEndpointsProperty).empty())
+    {
+	adminAdapter = communicator()->createObjectAdapter("Glacier2.Admin");
     }
 
     //
@@ -176,12 +207,26 @@ Glacier2::RouterService::start(int argc, char* argv[])
     _sessionRouter = new SessionRouterI(clientAdapter, serverAdapter, verifier, sessionManager);
 
     //
+    // If we have an admin adapter, we add an admin object.
+    //
+    if(adminAdapter)
+    {
+	const char* adminIdProperty = "Glacier2.AdminIdentity";
+	Identity adminId = stringToIdentity(properties->getPropertyWithDefault(adminIdProperty, "Glacier2/admin"));
+	adminAdapter->add(new AdminI(communicator()), adminId);
+    }
+
+    //
     // Everything ok, let's go.
     //
     clientAdapter->activate();
     if(serverAdapter)
     {
 	serverAdapter->activate();
+    }
+    if(adminAdapter)
+    {
+	adminAdapter->activate();
     }
 
     return true;
