@@ -179,6 +179,11 @@ IcePack::NodeService::start(int argc, char* argv[])
     //
     properties->setProperty("Ice.ServerIdleTime", "0");
 
+    if(properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 5) <= 5)
+    {
+	properties->setProperty("Ice.ThreadPool.Server.Size", "5");
+    }
+
     //
     // Collocate the IcePack registry if we need to.
     //
@@ -196,7 +201,7 @@ IcePack::NodeService::start(int argc, char* argv[])
         //
         if(properties->getPropertyAsInt("IcePack.Node.ThreadPool.Size") == 0)
         {
-            int size = properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 10);
+            int size = properties->getPropertyAsInt("Ice.ThreadPool.Server.Size");
 
             ostringstream os1;
             os1 << static_cast<int>(size / 3);

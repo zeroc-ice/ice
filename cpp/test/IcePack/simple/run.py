@@ -40,7 +40,7 @@ IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
 #
 # Start IcePack registry.
 # 
-icePackRegistryPipe = IcePackAdmin.startIcePackRegistry("12346", testdir)
+icePackRegistryThread = IcePackAdmin.startIcePackRegistry("12346", testdir)
 
 #
 # Test client/server without on demand activation.
@@ -51,15 +51,16 @@ TestUtil.mixedClientServerTestWithOptions(name, additionalServerOptions, additio
 #
 # Shutdown the registry.
 #
-IcePackAdmin.shutdownIcePackRegistry(icePackRegistryPipe)
+IcePackAdmin.shutdownIcePackRegistry()
+icepackRegistryThread.join()
 
 IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
 
 #
 # Start IcePack registry and a node.
 #
-icePackRegistryPipe = IcePackAdmin.startIcePackRegistry("12346", testdir)
-icePackNodePipe = IcePackAdmin.startIcePackNode(testdir)
+icePackRegistryThread = IcePackAdmin.startIcePackRegistry("12346", testdir)
+icePackNodeThread = IcePackAdmin.startIcePackNode(testdir)
 
 #
 # Test client/server with on demand activation.
@@ -86,7 +87,9 @@ print "unregister server with icepack...",
 IcePackAdmin.removeServer("server");
 print "ok"
 
-IcePackAdmin.shutdownIcePackNode(icePackNodePipe)
-IcePackAdmin.shutdownIcePackRegistry(icePackRegistryPipe)
+IcePackAdmin.shutdownIcePackNode()
+icepackNodeThread.join()
+IcePackAdmin.shutdownIcePackRegistry()
+icepackRegistryThread.join()
 
 sys.exit(0)

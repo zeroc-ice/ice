@@ -121,11 +121,17 @@ IcePack::Registry::start(bool nowarn, bool requiresInternalEndpoints)
 	    out << "administrative endpoints `IcePack.Registry.Admin.Endpoints' enabled";
 	}
     }
-    
+
+    if(properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 5) <= 5)
+    {
+	properties->setProperty("Ice.ThreadPool.Server.Size", "5");
+    }
+
     _communicator->setDefaultLocator(0);
 
     properties->setProperty("Ice.PrintProcessId", "0");
     properties->setProperty("Ice.Warn.Leaks", "0");
+    properties->setProperty("Ice.ServerIdleTime", "0");
 
     TraceLevelsPtr traceLevels = new TraceLevels(properties, _communicator->getLogger());
 
@@ -153,7 +159,6 @@ IcePack::Registry::start(bool nowarn, bool requiresInternalEndpoints)
     registryAdapter->add(adapterRegistry, stringToIdentity("IcePack/AdapterRegistry"));
     registryAdapter->add(serverRegistry, stringToIdentity("IcePack/ServerRegistry"));    
     registryAdapter->add(nodeRegistry, stringToIdentity("IcePack/NodeRegistry"));
-
 
     //
     // Create the locator registry adapter and servant.
