@@ -645,7 +645,7 @@ raised.. (C++ only.)
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>&IceSSL; Properties</title>
+<section><title>IceSSL Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>IceSSL.Trace.Security</title>
@@ -732,7 +732,7 @@ the same directory that it finds the XML configuration file.
 <para>
 Depending on whether the application is running in client mode, server mode or
 both modes, a valid value for one or both of these parameters must be specified
-for the proper operation of the &IceSSL; extension.
+for the proper operation of the IceSSL extension.
 </para>
 </section>
 </section>
@@ -768,9 +768,9 @@ IceSSL.Server.Passphrase.Retries=<replaceable>number of retries</replaceable>
 <section>
 <title>Description</title>
 <para>
-When &IceSSL; is directed to use a private key in a PEM file that has been encrypted, a prompt
+When IceSSL is directed to use a private key in a PEM file that has been encrypted, a prompt
 is displayed "Enter PEM pass phrase:".  In the case that the passphrase is incorrectly entered,
-these properties define how many retries the user will get before &IceSSL; shuts down.
+these properties define how many retries the user will get before IceSSL shuts down.
 </para>
 <para>
 If not specified, the default value for these properties is 5 retries.
@@ -886,7 +886,7 @@ There are no default values for these properties.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>&IceBox; Properties</title>
+<section><title>IceBox Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>IceBox.ServiceManager.Endpoints</title>
@@ -898,9 +898,9 @@ IceBox.ServiceManager.Endpoints=<replaceable>endpoints</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints of the &IceBox; service manager interface. The
-service manager endpoints must be accessible to the &IceBox;
-administration tool to shutdown the &IceBox; server.
+Defines the endpoints of the IceBox service manager interface. The
+service manager endpoints must be accessible to the IceBox
+administration tool to shutdown the IceBox server.
 </para>
 </section>
 </section>
@@ -946,7 +946,7 @@ IceBox.Service.<replaceable>name</replaceable>=<replaceable>entry_point [args]</
 <section>
 <title>Description</title>
 <para>
-Defines a service to be loaded during the &IceBox; initialization.
+Defines a service to be loaded during the IceBox initialization.
 </para>
 <para>
 In C++, <replaceable>entry_point</replaceable> has the form
@@ -1437,7 +1437,7 @@ activated process for instance).</entry>
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>&IceStorm; Properties</title>
+<section><title>IceStorm Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>IceStorm.TopicManager.Endpoints</title>
@@ -1449,7 +1449,7 @@ IceStorm.TopicManager.Endpoints=<replaceable>endpoints</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints that the &IceStorm; topic manager uses.
+Defines the endpoints that the IceStorm topic manager uses.
 </para>
 </section>
 </section>
