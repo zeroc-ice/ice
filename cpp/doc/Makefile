@@ -21,9 +21,9 @@ SLICEFILES	= $(wildcard ../slice/Ice/*.ice) \
 		  $(wildcard ../slice/IceBox/*.ice) \
 		  $(wildcard ../slice/IcePack/*.ice) \
 		  $(wildcard ../slice/IceSSL/*.ice) \
-		  $(wildcard ../slice/Glacier/*.ice) \
+		  $(wildcard ../slice/Glacier2/*.ice) \
 		  $(wildcard ../slice/IceStorm/*.ice) \
-		  $(wildcard ../slice/IcePatch/*.ice)
+		  $(wildcard ../slice/IcePatch2/*.ice)
 
 include $(top_srcdir)/config/Make.rules
 

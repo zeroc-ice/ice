@@ -65,7 +65,8 @@ interface FileServer
      * Return the [FileInfoSeq] for the specified partition. If the partion 
      * number is out of range, the operation throws [PartitionOutOfRangException].
      *
-     * @param partition The partition number (in the range <literal>0</literal> to <NumPartitions> - 1</literal>).
+     * @param partition The partition number (in the range <literal>0</literal>
+     * to <literal>NumPartitions - 1</literal>).
      *
      * @return A sequence containing the [FileInfo] structures for files in the specified partition.
      **/
@@ -76,7 +77,7 @@ interface FileServer
      *
      * Return the checksums for all partitions.
      *
-     * @return A sequence containing [NumPartitions] checksums. Partitions
+     * @return A sequence containing <literal>NumPartitions</literal> checksums. Partitions
      * with a checksum that differs from the previous checksum for the same partition
      * contain updated files. Partitions with a checksum that is identical to the
      * previous checksum do not contain updated files.
