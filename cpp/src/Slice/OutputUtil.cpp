@@ -154,7 +154,7 @@ Slice::Output::nl()
     {
         while(indent >= _indentSize)
         {
-            indent -= indentSize;
+            indent -= _indentSize;
             out_ << "    ";
             pos_ += _indentSize;
         }
