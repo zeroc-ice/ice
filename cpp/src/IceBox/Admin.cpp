@@ -88,19 +88,28 @@ Client::run(int argc, char* argv[])
         return EXIT_SUCCESS;
     }
 
-    const char* managerEndpointsProperty = "IceBox.ServiceManager.Endpoints";
-    string managerEndpoints = properties->getProperty(managerEndpointsProperty);
-    if(managerEndpoints.empty())
+    const char* managerProperty = "IceBox.ServiceManager";
+    string managerProxy = properties->getProperty(managerProperty);
+    if(managerProxy.empty())
     {
-        cerr << appName() << ": property `" << managerEndpointsProperty << "' is not set" << endl;
-        return EXIT_FAILURE;
+	const char* nameProperty = "IceBox.Name";
+	string name = properties->getProperty(nameProperty);
+	if(!properties->getProperty("Ice.Default.Locator").empty() && !name.empty())
+	{
+	    managerProxy = name + ".ServiceManager@" + name + ".ServiceManagerAdapter";
+	}
+	else
+	{
+	    cerr << appName() << ": property `" << managerProperty << "' is not set" << endl;
+	    return EXIT_FAILURE;
+	}
     }
 
-    ObjectPrx base = communicator()->stringToProxy("ServiceManager:" + managerEndpoints);
+    ObjectPrx base = communicator()->stringToProxy(managerProxy);
     IceBox::ServiceManagerPrx manager = IceBox::ServiceManagerPrx::checkedCast(base);
     if(!manager)
     {
-        cerr << appName() << ": `" << managerEndpoints << "' is not running" << endl;
+        cerr << appName() << ": `" << managerProxy << "' is not running" << endl;
         return EXIT_FAILURE;
     }
 

@@ -56,14 +56,29 @@ IceBox::ServiceManagerI::run()
     {
         ServiceManagerPtr obj = this;
 
+	//
+	// Prefix the adapter name and object identity with the value
+	// of the IceBox.Name property.
+	//
+        PropertiesPtr properties = _server->communicator()->getProperties();
+	string namePrefix = properties->getProperty("IceBox.Name");
+	if(!namePrefix.empty())
+	{
+	    namePrefix += ".";
+	}
+
         //
         // Create an object adapter. Services probably should NOT share
         // this object adapter, as the endpoint(s) for this object adapter
         // will most likely need to be firewalled for security reasons.
         //
-        ObjectAdapterPtr adapter = _server->communicator()->createObjectAdapterFromProperty("ServiceManagerAdapter",
-                                                                                  "IceBox.ServiceManager.Endpoints");
-        adapter->add(obj, stringToIdentity("ServiceManager"));
+        ObjectAdapterPtr adapter = 
+	    _server->communicator()->createObjectAdapterFromProperty(namePrefix + "ServiceManagerAdapter",
+								     "IceBox.ServiceManager.Endpoints");
+
+	string identity = properties->getPropertyWithDefault("IceBox.ServiceManager.Identity", 
+							     namePrefix + "ServiceManager");
+        adapter->add(obj, stringToIdentity(identity));
 
         //
         // Load and initialize the services defined in the property set
@@ -73,7 +88,7 @@ IceBox::ServiceManagerI::run()
         // IceBox.Service.Foo=entry_point [args]
         //
         const string prefix = "IceBox.Service.";
-        PropertiesPtr properties = _server->communicator()->getProperties();
+
         PropertyDict services = properties->getPropertiesForPrefix(prefix);
 	PropertyDict::const_iterator p;
 	for(p = services.begin(); p != services.end(); ++p)
