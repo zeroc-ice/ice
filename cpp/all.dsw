@@ -356,6 +356,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IceXML
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceBox
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -772,6 +775,18 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name sessionS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name basicYellowC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Yellow
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name YellowC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name YellowS
     End Project Dependency
 }}}
 

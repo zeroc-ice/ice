@@ -2,7 +2,7 @@
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
-# TARGTYPE "Win32 (x86) Console Application" 0x0103
+# TARGTYPE "Win32 (x86) Dynamic-Link Library" 0x0102
 
 CFG=IceStormS - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
@@ -17,8 +17,8 @@ CFG=IceStormS - Win32 Debug
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "IceStormS - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "IceStormS - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "IceStormS - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "IceStormS - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE 
 
 # Begin Project
@@ -26,6 +26,7 @@ CFG=IceStormS - Win32 Debug
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
 CPP=cl.exe
+MTL=midl.exe
 RSC=rc.exe
 
 !IF  "$(CFG)" == "IceStormS - Win32 Release"
@@ -39,20 +40,19 @@ RSC=rc.exe
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "Release"
 # PROP Intermediate_Dir "Release"
-# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /D "NDEBUG" /D "_CONSOLE" /D "_UNICODE" /YX /FD /c
-# SUBTRACT CPP /Fr
+# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "ICESTORMS_EXPORTS" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "ICESTORM_EXPORTS" /YX /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 setargv.obj /nologo /subsystem:console /machine:I386 /out:"../../bin/icestorm.exe" /libpath:"../../../lib"
-# SUBTRACT LINK32 /debug /nodefaultlib
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
 
 !ELSEIF  "$(CFG)" == "IceStormS - Win32 Debug"
 
@@ -67,18 +67,23 @@ LINK32=link.exe
 # PROP Intermediate_Dir "Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "_DEBUG" /D "_CONSOLE" /D "_UNICODE" /YX /FD /GZ /c
-# SUBTRACT CPP /Fr
+# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "ICESTORMS_EXPORTS" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "_DEBUG" /D "_USRDLL" /D "_UNICODE" /YX /FD /GZ /c
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 setargv.obj /nologo /subsystem:console /debug /machine:I386 /out:"../../bin/icestorm.exe" /pdbtype:sept /libpath:"../../../lib"
-# SUBTRACT LINK32 /nodefaultlib
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/icestormservice001d.dll" /pdbtype:sept /libpath:"../../../lib"
+# SUBTRACT LINK32 /pdb:none
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy Debug\icestormservice001d.* ..\..\lib
+# End Special Build Tool
 
 !ENDIF 
 
@@ -119,7 +124,7 @@ SOURCE=.\OnewaySubscriber.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Server.cpp
+SOURCE=.\Service.cpp
 # End Source File
 # Begin Source File
 
@@ -163,7 +168,7 @@ SOURCE=.\IceStormI.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\IceStormInternal.h
+SOURCE=.\IceStormInternalI.h
 # End Source File
 # Begin Source File
 
@@ -219,7 +224,7 @@ SOURCE=.\dummy.ice
 
 !IF  "$(CFG)" == "IceStormS - Win32 Release"
 
-USERDEP__DUMMY="..\..\bin\slice2freeze.exe"	
+USERDEP__DUMMY="..\..\bin\slice2freeze.exe"
 # Begin Custom Build
 InputPath=.\dummy.ice
 
@@ -237,7 +242,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "IceStormS - Win32 Debug"
 
-USERDEP__DUMMY="..\..\bin\slice2freeze.exe"	
+USERDEP__DUMMY="..\..\bin\slice2freeze.exe"
 # Begin Custom Build
 InputPath=.\dummy.ice
 
@@ -262,7 +267,7 @@ SOURCE=.\IceStormInternal.ice
 
 !IF  "$(CFG)" == "IceStormS - Win32 Release"
 
-USERDEP__ICEST="..\..\bin\slice2cpp.exe"	
+USERDEP__ICEST="..\..\bin\slice2cpp.exe"
 # Begin Custom Build
 InputPath=.\IceStormInternal.ice
 
@@ -280,7 +285,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "IceStormS - Win32 Debug"
 
-USERDEP__ICEST="..\..\bin\slice2cpp.exe"	
+USERDEP__ICEST="..\..\bin\slice2cpp.exe"
 # Begin Custom Build
 InputPath=.\IceStormInternal.ice
 
@@ -305,7 +310,7 @@ SOURCE=.\LinkDB.ice
 
 !IF  "$(CFG)" == "IceStormS - Win32 Release"
 
-USERDEP__LINKD="..\..\bin\slice2freeze.exe"	"..\..\bin\slice2cpp.exe"	
+USERDEP__LINKD="..\..\bin\slice2freeze.exe"	"..\..\bin\slice2cpp.exe"
 # Begin Custom Build
 InputPath=.\LinkDB.ice
 
@@ -330,7 +335,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "IceStormS - Win32 Debug"
 
-USERDEP__LINKD="..\..\bin\slice2freeze.exe"	"..\..\bin\slice2cpp.exe"	
+USERDEP__LINKD="..\..\bin\slice2freeze.exe"	"..\..\bin\slice2cpp.exe"
 # Begin Custom Build
 InputPath=.\LinkDB.ice
 
