@@ -55,7 +55,7 @@ public class ObjectImpl implements Object, java.lang.Cloneable
         return hashCode();
     }
 
-    public static String[] __ids =
+    public final static String[] __ids =
     {
         "::Ice::Object"
     };
@@ -147,7 +147,7 @@ public class ObjectImpl implements Object, java.lang.Cloneable
         return __ids[0];
     }
 
-    private static String[] __all =
+    private final static String[] __all =
     {
         "ice_facets",
         "ice_id",
