@@ -164,7 +164,7 @@ Ice::CommunicatorI::~CommunicatorI()
 }
 
 CommunicatorPtr
-Ice::initialize(int&, char*[], Int version)
+Ice::initialize(int& argc, char* argv[], Int version)
 {
 #ifndef ICE_IGNORE_VERSION
     if (version != ICE_INT_VERSION)
@@ -173,11 +173,11 @@ Ice::initialize(int&, char*[], Int version)
     }
 #endif
 
-    return new CommunicatorI(getDefaultProperties());
+    return new CommunicatorI(getDefaultProperties(argc, argv));
 }
 
 CommunicatorPtr
-Ice::initializeWithProperties(int&, char*[], const PropertiesPtr& properties, Int version)
+Ice::initializeWithProperties(const PropertiesPtr& properties, Int version)
 {
 #ifndef ICE_IGNORE_VERSION
     if (version != ICE_INT_VERSION)
@@ -189,30 +189,44 @@ Ice::initializeWithProperties(int&, char*[], const PropertiesPtr& properties, In
     return new CommunicatorI(properties);
 }
 
-PropertiesPtr
-Ice::getDefaultProperties()
+static PropertiesPtr defaultProperties;
+class DefaultPropertiesDestroyer
 {
-    PropertiesPtr properties;
-    const char* file = getenv("ICE_CONFIG");
-    if (file && *file != '\0')
+public:
+
+    ~DefaultPropertiesDestroyer()
     {
-	properties = new PropertiesI(file);
+	defaultProperties = 0;
     }
-    else
+};
+static DefaultPropertiesDestroyer defaultPropertiesDestroyer;
+
+PropertiesPtr
+Ice::getDefaultProperties(int& argc, char* argv[])
+{
+    if (!defaultProperties)
     {
-	properties = new PropertiesI;
+	const char* file = getenv("ICE_CONFIG");
+	if (file && *file != '\0')
+	{
+	    defaultProperties = new PropertiesI(argc, argv, file);
+	}
+	else
+	{
+	    defaultProperties = new PropertiesI(argc, argv);
+	}
     }
-    return properties;
+    return defaultProperties;
 }
 
 PropertiesPtr
-Ice::createProperties()
+Ice::createProperties(int& argc, char* argv[])
 {
-    return new PropertiesI;
+    return new PropertiesI(argc, argv);
 }
 
 PropertiesPtr
-Ice::loadProperties(const std::string& file)
+Ice::loadProperties(int& argc, char* argv[], const std::string& file)
 {
-    return new PropertiesI(file);
+    return new PropertiesI(argc, argv, file);
 }

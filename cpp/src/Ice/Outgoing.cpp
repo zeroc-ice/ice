@@ -45,7 +45,7 @@ IceInternal::NonRepeatable::get() const
 IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& reference) :
     _emitter(emitter),
     _reference(reference),
-    _state(StateUnsent),
+    _state(StateInProgress),
     _is(reference->instance),
     _os(reference->instance)
 {
@@ -70,7 +70,6 @@ IceInternal::Outgoing::invoke()
 		JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
 		
 		_emitter->sendRequest(this, false);
-		_state = StateInProgress;
 		
 		Int timeout = _emitter->timeout();
 		while (_state == StateInProgress)

@@ -32,8 +32,8 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::PropertiesPtr properties = Ice::loadProperties("config");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
+	Ice::PropertiesPtr properties = Ice::loadProperties(argc, argv, "config");
+	communicator = Ice::initializeWithProperties(properties);
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::LocalException& ex)

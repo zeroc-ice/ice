@@ -236,8 +236,7 @@ IceInternal::ThreadPool::run()
 		//
 		// New handlers have been added
 		//
-		vector<pair<int, EventHandlerPtr> >::iterator p;
-		for (p = _adds.begin(); p != _adds.end(); ++p)
+		for (vector<pair<int, EventHandlerPtr> >::iterator p = _adds.begin(); p != _adds.end(); ++p)
 		{
 		    _handlers.insert(*p);
 		    FD_SET(p->first, &_fdSet);
@@ -252,16 +251,14 @@ IceInternal::ThreadPool::run()
 		//
 		// Handlers are permanently removed
 		//
-		vector<int>::iterator p;
-		for (p = _removes.begin(); p != _removes.end(); ++p)
+		for (vector<int>::iterator p = _removes.begin(); p != _removes.end(); ++p)
 		{
-		    std::map<int, EventHandlerPtr>::iterator q =
-			_handlers.find(*p);
+		    std::map<int, EventHandlerPtr>::iterator q = _handlers.find(*p);
 		    assert(q != _handlers.end());
 #ifdef WIN32
-			FD_CLR(static_cast<u_int>(*p), &_fdSet);
+		    FD_CLR(static_cast<u_int>(*p), &_fdSet);
 #else
-			FD_CLR(*p, &_fdSet);
+		    FD_CLR(*p, &_fdSet);
 #endif
 		    q->second->finished();
 		    if (q->second->server())

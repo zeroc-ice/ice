@@ -39,18 +39,55 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
 PropertiesPtr
 Ice::PropertiesI::clone()
 {
-    PropertiesI* p = new PropertiesI;
-    p->_properties=_properties;
+    int dummy = 0;
+    PropertiesI* p = new PropertiesI(dummy, 0);
+    p->_properties = _properties;
     return p;
 }
 
-Ice::PropertiesI::PropertiesI()
+Ice::PropertiesI::PropertiesI(int& argc, char* argv[])
 {
+    parseArgs(argc, argv);
 }
 
-Ice::PropertiesI::PropertiesI(const string& file)
+Ice::PropertiesI::PropertiesI(int& argc, char* argv[], const string& file)
 {
     load(file);
+    parseArgs(argc, argv);
+}
+
+void
+Ice::PropertiesI::parseArgs(int& argc, char* argv[])
+{
+    if (!argv)
+    {
+	return;
+    }
+
+    int idx = 1;
+    while (idx < argc)
+    {
+	if (strncmp(argv[idx], "--Ice.", 6) == 0)
+	{
+	    string line = argv[idx];
+	    for (int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
+
+	    if (line.find('=') == string::npos)
+	    {
+		line += "=1";
+	    }
+	    
+	    parseLine(line.c_str() + 2);
+	}
+	else
+	{
+	    ++idx;
+	}
+    }
 }
 
 void
@@ -67,55 +104,60 @@ Ice::PropertiesI::load(const std::string& file)
 void
 Ice::PropertiesI::parse(istream& in)
 {
-    const string delim = " \t";
-
     char line[1024];
     while (in.getline(line, 1024))
     {
-	string s = line;
-
-	string::size_type idx = s.find('#');
-	if (idx != string::npos)
-	{
-	    s.erase(idx);
-	}
-
-	idx = s.find_last_not_of(delim);
-	if (idx != string::npos && idx + 1 < s.length())
-	{
-	    s.erase(idx + 1);
-	}
-
-	string::size_type beg = s.find_first_not_of(delim);
-	if (beg == string::npos)
-	{
-	    continue;
-	}
-	
-	string::size_type end = s.find_first_of(delim + "=", beg);
-	if (end == string::npos)
-	{
-	    continue;
-	}
-
-	string key = s.substr(beg, end - beg);
-
-	end = s.find('=', end);
-	if (end == string::npos)
-	{
-	    continue;
-	}
-
-	beg = s.find_first_not_of(delim + "=", end);
-	if (beg == string::npos)
-	{
-	    continue;
-	}
-	
-	end = s.length();
-
-	string value = s.substr(beg, end - beg);
-	
-	setProperty(key, value);
+	parseLine(line);
     }
+}
+
+void
+Ice::PropertiesI::parseLine(const char* line)
+{
+    const string delim = " \t";
+    string s = line;
+    
+    string::size_type idx = s.find('#');
+    if (idx != string::npos)
+    {
+	s.erase(idx);
+    }
+    
+    idx = s.find_last_not_of(delim);
+    if (idx != string::npos && idx + 1 < s.length())
+    {
+	s.erase(idx + 1);
+    }
+    
+    string::size_type beg = s.find_first_not_of(delim);
+    if (beg == string::npos)
+    {
+	return;
+    }
+    
+    string::size_type end = s.find_first_of(delim + "=", beg);
+    if (end == string::npos)
+    {
+	return;
+    }
+    
+    string key = s.substr(beg, end - beg);
+    
+    end = s.find('=', end);
+    if (end == string::npos)
+    {
+	return;
+    }
+    
+    beg = s.find_first_not_of(delim + "=", end);
+    if (beg == string::npos)
+    {
+	return;
+    }
+    
+    end = s.length();
+    
+    string value = s.substr(beg, end - beg);
+    
+    setProperty(key, value);
 }

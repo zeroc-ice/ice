@@ -46,7 +46,7 @@ private:
     virtual ~CommunicatorI();
 
     friend ICE_API CommunicatorPtr initialize(int&, char*[], Int);
-    friend ICE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int);
+    friend ICE_API CommunicatorPtr initializeWithProperties(const PropertiesPtr&, Int);
 
     ::IceInternal::InstancePtr _instance;
 };

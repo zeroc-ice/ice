@@ -68,7 +68,6 @@ private:
 
     enum
     {
-	StateUnsent,
 	StateInProgress,
 	StateOK,
 	StateException,

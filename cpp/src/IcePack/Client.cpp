@@ -24,7 +24,6 @@ usage(const char* n)
 	"Options:\n"
 	"-h, --help           Show this message.\n"
 	"-v, --version        Display the Ice version.\n"
-	"--admin ENDPOINTS    Use ENDPOINTS as administrative endpoints.\n"
 	;
 }
 
@@ -111,7 +110,7 @@ run(int argc, char* argv[], CommunicatorPtr communicator)
 int
 main(int argc, char* argv[])
 {
-    PropertiesPtr properties = getDefaultProperties();
+    PropertiesPtr properties = getDefaultProperties(argc, argv);
 
     int idx = 1;
     while (idx < argc)
@@ -125,22 +124,6 @@ main(int argc, char* argv[])
 	{
 	    cout << ICE_STRING_VERSION << endl;
 	    return EXIT_SUCCESS;
-	}
-	else if (strcmp(argv[idx], "--admin") == 0)
-	{
-	    if (idx + 1 >= argc)
-            {
-		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
-            }
-	    
-	    properties->setProperty("Ice.Adapter.Admin.Endpoints", argv[idx + 1]);
-	    for (int i = idx ; i + 2 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 2];
-	    }
-	    argc -= 2;
 	}
 	else if (argv[idx][0] == '-')
 	{
@@ -159,7 +142,7 @@ main(int argc, char* argv[])
 
     try
     {
-	communicator = initializeWithProperties(argc, argv, properties);
+	communicator = initializeWithProperties(properties);
 	status = run(argc, argv, communicator);
     }
     catch(const LocalException& ex)

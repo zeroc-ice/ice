@@ -24,8 +24,6 @@ usage(const char* n)
 	"Options:\n"
 	"-h, --help           Show this message.\n"
 	"-v, --version        Display the Ice version.\n"
-	"--forward ENDPOINTS  Use ENDPOINTS as endpoints for the forwarder.\n"
-	"--admin ENDPOINTS    Enable administrative endpoints and set them to ENDPOINTS.\n"
 	"--nowarn             Don't print any security warnings.\n"
 	"--pid                Print the process id on standard output upon startup.\n"
 	;
@@ -75,7 +73,7 @@ run(int argc, char* argv[], CommunicatorPtr communicator, bool pid, bool nowarn)
 int
 main(int argc, char* argv[])
 {
-    PropertiesPtr properties = getDefaultProperties();
+    PropertiesPtr properties = getDefaultProperties(argc, argv);
 
     bool nowarn = false;
     bool pid = false;
@@ -99,28 +97,6 @@ main(int argc, char* argv[])
 	{
 	    pid = true;
 	}
-	else if (strcmp(argv[i], "--forward") == 0)
-	{
-	    if (i + 1 >= argc)
-            {
-		cerr << argv[0] << ": argument expected for`" << argv[i] << "'" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
-            }
-	    
-	    properties->setProperty("Ice.Adapter.Forward.Endpoints", argv[++i]);
-	}
-	else if (strcmp(argv[i], "--admin") == 0)
-	{
-	    if (i + 1 >= argc)
-            {
-		cerr << argv[0] << ": argument expected for`" << argv[i] << "'" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
-            }
-	    
-	    properties->setProperty("Ice.Adapter.Admin.Endpoints", argv[++i]);
-	}
 	else
 	{
 	    cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
@@ -134,7 +110,7 @@ main(int argc, char* argv[])
 
     try
     {
-	communicator = initializeWithProperties(argc, argv, properties);
+	communicator = initializeWithProperties(properties);
 	status = run(argc, argv, communicator, pid, nowarn);
     }
     catch(const LocalException& ex)
