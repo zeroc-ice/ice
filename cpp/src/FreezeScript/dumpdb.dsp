@@ -207,6 +207,22 @@ SOURCE=.\Grammar.y
 
 !IF  "$(CFG)" == "DumpDB - Win32 Release"
 
+# Begin Custom Build
+InputPath=.\Grammar.y
+
+BuildCmds= \
+	bison -dvt Grammar.y \
+	move Grammar.tab.c Grammar.cpp \
+	move Grammar.tab.h Grammar.h \
+	
+
+"Grammar.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Grammar.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "DumpDB - Win32 Debug"
 
 # Begin Custom Build
@@ -233,6 +249,16 @@ BuildCmds= \
 SOURCE=.\Scanner.l
 
 !IF  "$(CFG)" == "DumpDB - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\Scanner.l
+
+"Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	flex Scanner.l 
+	echo #include "IceUtil/Config.h" > Scanner.cpp 
+	type lex.yy.c >> Scanner.cpp 
+	
+# End Custom Build
 
 !ELSEIF  "$(CFG)" == "DumpDB - Win32 Debug"
 
