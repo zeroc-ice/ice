@@ -28,7 +28,8 @@ PyObject*
 IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
 {
     char* cmd;
-    if(!PyArg_ParseTuple(args, "s", &cmd))
+    PyObject* list = NULL;
+    if(!PyArg_ParseTuple(args, "s|O!", &cmd, &PyList_Type, &list))
     {
         return NULL;
     }
@@ -37,6 +38,11 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     if(!splitString(cmd, argSeq))
     {
         return NULL;
+    }
+
+    if(list != NULL)
+    {
+        listToStringSeq(list, argSeq);
     }
 
     string cppArgs;
