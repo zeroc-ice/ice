@@ -77,8 +77,18 @@ TestUtil.printOutputFromPipe(clientPipe)
 
 clientStatus = clientPipe.close()
 serverStatus = None
+
+#
+# With ActiveState Python, the close() call raises an IOError if
+# the server has died (whereas with Cygwin Python, no exception
+# is raised. We swallow IOError here to avoid having the test
+# claim that it failed when in fact it succeeded.
+#
 for i in range(0, num):
-    serverStatus = serverStatus or serverPipes[i].close()
+    try:
+	serverStatus = serverStatus or serverPipes[i].close()
+    except IOError, error:
+	pass
 
 if clientStatus:
     TestUtil.killServers()
