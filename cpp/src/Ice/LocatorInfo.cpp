@@ -383,13 +383,22 @@ IceInternal::LocatorInfo::clearObjectCache(const IndirectReferencePtr& ref)
     if(ref->getAdapterId().empty())
     {
 	ObjectPrx object = _table->removeProxy(ref->getIdentity());
-
-	if(ref->getInstance()->traceLevels()->location >= 2 && object)
+	if(object)
 	{
-	    vector<EndpointPtr> endpoints = object->__reference()->getEndpoints();
-	    if(!endpoints.empty())
+	    IndirectReferencePtr oir = IndirectReferencePtr::dynamicCast(object->__reference());
+	    if(oir)
 	    {
-		trace("removed endpoints from locator table", ref, endpoints);
+	        if(!oir->getAdapterId().empty())
+		{
+		    clearCache(oir);
+		}
+	    }
+	    else
+	    {
+		if(ref->getInstance()->traceLevels()->location >= 2)
+		{
+		    trace("removed endpoints from locator table", ref, object->__reference()->getEndpoints());
+		}
 	    }
 	}
     }

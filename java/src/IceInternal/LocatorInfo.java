@@ -192,12 +192,23 @@ public final class LocatorInfo
 	if(ref.getAdapterId().length() == 0)
 	{
 	    Ice.ObjectPrx object = _table.removeProxy(ref.getIdentity());
-	    if(object != null && ref.getInstance().traceLevels().location >= 2)
+	    if(object != null)
 	    {
-		Reference r = ((Ice.ObjectPrxHelperBase)object).__reference();
-		if(r.getEndpoints().length > 0)
+		if(object instanceof IndirectReference)
 		{
-		    trace("removed endpoints from locator table", ref, r.getEndpoints());
+		    IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)object).__reference();
+		    if(oir.getAdapterId().length() > 0)
+		    {
+			clearCache(oir);
+		    }
+		}
+		else
+		{
+		    if(ref.getInstance().traceLevels().location >= 2)
+		    {
+			trace("removed endpoints from locator table",
+			      ref, ((Ice.ObjectPrxHelperBase)object).__reference().getEndpoints());
+		    }
 		}
 	    }
 	}

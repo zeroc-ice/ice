@@ -194,13 +194,24 @@ namespace IceInternal
 	    if(rf.getAdapterId().Length == 0 && rf.getEndpoints().Length == 0)
 	    {
 		Ice.ObjectPrx obj = _table.removeProxy(rf.getIdentity());
-		if(obj != null && rf.getInstance().traceLevels().location >= 2)
+		if(obj != null)
 		{
-		    Reference r = ((Ice.ObjectPrxHelperBase)obj).__reference();
-		    if(r.getEndpoints().Length > 0)
-		    {
-			trace("removed endpoints from locator table", rf, r.getEndpoints());
-		    }
+		    if(obj is IndirectReference)
+                    {
+                        IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)obj).__reference();
+                        if(oir.getAdapterId().Length > 0)
+                        {
+                            clearCache(oir);
+                        }
+                    }
+                    else
+                    {
+                        if(rf.getInstance().traceLevels().location >= 2)
+                        {
+                            trace("removed endpoints from locator table",
+                                  rf, ((Ice.ObjectPrxHelperBase)obj).__reference().getEndpoints());
+                        }
+                    }
 		}
 	    }
 	}
