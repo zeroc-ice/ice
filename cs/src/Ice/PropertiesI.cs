@@ -226,13 +226,19 @@ namespace Ice
 	{
 	    lock(this)
 	    {
-		return (PropertiesI)_properties.Clone();
+		return new PropertiesI(this);
 	    }
 	}
 	
+	internal PropertiesI(PropertiesI p)
+	{
+	    _properties = new PropertyDict(p._properties);
+	}
+
 	internal PropertiesI()
 	{
 	    _properties = new PropertyDict();
+	    loadConfig();
 	}
 	
 	internal PropertiesI(ref string[] args)
@@ -253,13 +259,17 @@ namespace Ice
 		    System.Array.Copy(args, 0, arr, 0, i);
 		    if(i < args.Length - 1)
 		    {
-			    System.Array.Copy(args, i + 1, arr, i, args.Length - i - 1);
+			System.Array.Copy(args, i + 1, arr, i, args.Length - i - 1);
 		    }
 		    args = arr;
 		}
 	    }
 	    
 	    loadConfig();
+	    
+	    StringSeq argSeq = new StringSeq(args);
+	    parseIceCommandLineOptions(argSeq);
+	    args = argSeq.ToArray();    
 	}
 	
 	private void parse(System.IO.StreamReader input)
@@ -381,12 +391,14 @@ namespace Ice
 	    "Nohup",
 	    "NullHandleAbort",
 	    "Override.Compress",
+	    "Override.ConnectTimeout",
 	    "Override.Timeout",
 	    "Plugin.*",
 	    "PrintAdapterReady",
 	    "PrintProcessId",
 	    "ProgramName",
 	    "RetryIntervals",
+	    "ServerId",
 	    "ServerIdleTime",
 	    "ThreadPool.Client.Size",
 	    "ThreadPool.Client.SizeMax",
@@ -413,11 +425,13 @@ namespace Ice
 	private static readonly string[] _iceBoxProps = new string[]
 	{
 	    "DBEnvName.*",
+	    "LoadOrder",
 	    "PrintServicesReady",
 	    "Service.*",
 	    "ServiceManager.AdapterId",
 	    "ServiceManager.Endpoints",
 	    "ServiceManager.Identity",
+	    "ServiceManager.RegisterProcess",
 	    "UseSharedCommunicator.*"
 	};
 	
@@ -489,6 +503,8 @@ namespace Ice
 	{
 	    "Flush.Timeout",
 	    "Publish.Endpoints",
+	    "Publish.AdapterId",
+	    "TopicManager.AdapterId",
 	    "TopicManager.Endpoints",
 	    "TopicManager.Proxy",
 	    "Trace.Flush",
@@ -536,7 +552,7 @@ namespace Ice
 	    "Starter.Certificate.StateProvince",
 	    "Starter.CryptPasswords",
 	    "Starter.Endpoints",
-	    "Starter.PasswordVerifier",
+	    "Starter.PermissionsVerifier",
 	    "Starter.PropertiesOverride",
 	    "Starter.RouterPath",
 	    "Starter.StartupTimeout",
@@ -545,6 +561,8 @@ namespace Ice
 	    
 	private static readonly string[] _freezeProps = new string[]
 	{
+	    "Warn.Deadlocks",
+	    "Warn.CloseInFinalize",
 	    "Trace.Map",
 	    "Trace.Evictor",
 	    "Trace.DbEnv",

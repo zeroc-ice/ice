@@ -299,10 +299,10 @@ namespace Ice
 	    _instance.flushBatchRequests();
 	}
 	
-	internal CommunicatorI(ref string[] args, Properties properties)
+	internal CommunicatorI(Properties properties)
 	{
 	    _destroyed = false;
-	    _instance = new IceInternal.Instance(this, ref args, properties);
+	    _instance = new IceInternal.Instance(this, properties);
 	}
 	
 	~CommunicatorI()

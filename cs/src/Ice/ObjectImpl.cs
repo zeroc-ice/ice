@@ -134,6 +134,14 @@ namespace Ice
 	    return __ids[0];
 	}
 	
+	public virtual void ice_preMarshal()
+	{
+	}
+
+	public virtual void ice_postUnmarshal()
+	{
+	}
+
 	private static readonly string[] __all = new string[]
 	{
 	    "ice_facets", "ice_id", "ice_ids", "ice_isA", "ice_ping"

@@ -322,16 +322,11 @@ namespace IceInternal
 	//
 	// Only for use by Ice.CommunicatorI
 	//
-	public Instance(Ice.Communicator communicator, ref string[] args, Ice.Properties properties)
+	public Instance(Ice.Communicator communicator, Ice.Properties properties)
 	{
 	    _destroyed = false;
 	    _properties = properties;
-	    
-	    //
-	    // Convert command-line options to properties.
-	    //
-	    args = _properties.parseIceCommandLineOptions(new Ice.StringSeq(args)).ToArray();
-	    
+	        
 	    try
 	    {
 		if(_properties.getPropertyAsInt("Ice.UseSyslog") > 0)

@@ -18,6 +18,16 @@ namespace Ice
 
     public sealed class Util
     {
+	public static Properties createProperties()
+	{
+	    return new PropertiesI();
+	}
+
+	public static Properties createProperties(ref string[] args)
+	{
+	    return new PropertiesI(ref args);
+	}
+	
 	public static Properties getDefaultProperties()
 	{
 	    if(_defaultProperties == null)
@@ -35,28 +45,16 @@ namespace Ice
 	    }
 	    return _defaultProperties;
 	}
-	
-	public static Properties createProperties()
-	{
-	    return new PropertiesI();
-	}
-	
-	public static Properties createProperties(ref string[] args)
-	{
-	    return new PropertiesI(ref args);
-	}
-	
+
 	public static Communicator initialize(ref string[] args)
 	{
 	    Properties defaultProperties = getDefaultProperties(ref args);
-	    CommunicatorI result = new CommunicatorI(ref args, defaultProperties);
-	    result.finishSetup(ref args);
-	    return result;
+	    return initializeWithProperties(ref args, defaultProperties);
 	}
 	
 	public static Communicator initializeWithProperties(ref string[] args, Properties properties)
 	{
-	    CommunicatorI result = new CommunicatorI(ref args, properties);
+	    CommunicatorI result = new CommunicatorI(properties);
 	    result.finishSetup(ref args);
 	    return result;
 	}

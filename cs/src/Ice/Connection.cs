@@ -380,7 +380,6 @@ namespace IceInternal
 	    {
 		Debug.Assert(_proxyCount >= 0);
 		++_proxyCount;
-		System.Console.WriteLine("incProxycount: " + _proxyCount);
 	    }
 	}
 	
@@ -390,7 +389,6 @@ namespace IceInternal
 	    {
 		Debug.Assert(_proxyCount > 0);
 		--_proxyCount;
-		System.Console.WriteLine("decProxycount: " + _proxyCount);
 		
 		if(_proxyCount == 0 && _adapter == null && closingOK())
 		{
@@ -1434,7 +1432,6 @@ namespace IceInternal
 	
 	private Incoming getIncoming(bool response, byte compress)
 	{
-	    System.Console.Write("getIncoming: ");
 	    Incoming inc = null;
 	    
 	    _incomingCacheMutex.WaitOne();
@@ -1442,12 +1439,10 @@ namespace IceInternal
 	    {
 		if(_incomingCache == null)
 		{
-		    System.Console.WriteLine("Allocating new incoming, _incomingCache = " + _incomingCache);
 		    inc = new Incoming(_instance, this, _adapter, response, compress);
 		}
 		else
 		{
-		    System.Console.WriteLine("Taking incoming from cache");
 		    inc = _incomingCache;
 		    _incomingCache = _incomingCache.next;
 		    inc.next = null;
@@ -1464,11 +1459,9 @@ namespace IceInternal
 	
 	private void reclaimIncoming(Incoming inc)
 	{
-	    System.Console.WriteLine("reclaiming incoming");
 	    _incomingCacheMutex.WaitOne();
 	    inc.next = _incomingCache;
 	    _incomingCache = inc;
-	    System.Console.WriteLine("_incomingCache = " + _incomingCache);
 	    _incomingCacheMutex.ReleaseMutex();
 	}
 	

@@ -1,4 +1,4 @@
-// **********************************************************************
+ // **********************************************************************
 //
 // Copyright (c) 2003
 // ZeroC, Inc.
@@ -22,6 +22,8 @@ namespace Ice
 	StringSeq ice_ids(Current current);
 	string ice_id(Current current);
 	FacetPath ice_facets(Current current);
+	void ice_preMarshal();
+	void ice_postUnmarshal();
 	IceInternal.DispatchStatus __dispatch(IceInternal.Incoming inc, Current current);
 	void __write(IceInternal.BasicStream __os, bool __marshalFacets);
 	void __read(IceInternal.BasicStream __is, bool __rid);
