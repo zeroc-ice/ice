@@ -365,6 +365,7 @@ def getDBfiles(dbLocation):
     pipe_stdin.close()
     pipe_stdout.close()
     fileList.extend(lines)
+
     if getPlatform() == 'aix':
 	pipe_stdin, pipe_stdout = os.popen2('find lib -name "*.a" -type f')
 	lines = pipe_stdout.readlines()
@@ -374,6 +375,43 @@ def getDBfiles(dbLocation):
 
     os.chdir(cwd)
     return fileList
+
+def copyExpatFiles(expatLocation, version):
+    cwd = os.getcwd()
+    os.chdir(expatLocation)
+
+    fileList = []
+    findCmd = ''
+    if getPlatform() == 'solaris':
+	findCmd = 'find lib -name "*'  + getPlatformLibExtension() + '" -type f -maxdepth 1'
+    else:
+	findCmd = 'find lib -name "*'  + getPlatformLibExtension() + '" -type f'
+    pipe_stdin, pipe_stdout = os.popen2(findCmd)
+    lines = pipe_stdout.readlines()
+    pipe_stdin.close()
+    pipe_stdout.close()
+    fileList.extend(lines)
+
+    linkList = []
+    findCmd = ''
+    if getPlatform() == 'solaris':
+	findCmd = 'find lib -name "*'  + getPlatformLibExtension() + '" -type l -maxdepth 1'
+    else:
+	findCmd = 'find lib -name "*'  + getPlatformLibExtension() + '" -type l'
+    pipe_stdin, pipe_stdout = os.popen2(findCmd)
+    lines = pipe_stdout.readlines()
+    pipe_stdin.close()
+    pipe_stdout.close()
+    fileList.extend(lines)
+
+    for i in lines:
+	if i != "libexpat." + getPlatformLibExtension():
+	    linkList.append(i)
+
+    os.chdir(cwd)
+
+    shutil.copy(expatLocation + '/' + fileList[0].strip(), 'Ice-' + version + '/' + fileList[0].strip())
+    os.symlink(os.path.basename(fileList[0].strip()), 'Ice-' + version + '/' + linkList[0].strip())
 
 def usage():
     """Print usage/help information"""
@@ -676,7 +714,9 @@ def main():
 	dbFiles = getDBfiles(dbLocation)
 	for f in dbFiles:
 	    shutil.copy(dbLocation + '/' + f.strip(), 'Ice-' + version + '/' + f.strip())
-	
+
+    if getPlatform() in ['macosx']:
+	copyExpatFiles(buildEnvironment['EXPAT_HOME'], version)	
 
     uname = getuname()
     platformSpecificFiles = [ 'README', 'SOURCES', 'THIRD_PARTY_LICENSE' ]
