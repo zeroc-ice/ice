@@ -43,7 +43,8 @@ local interface ObjectFactory
      *
      * @param type The object type.
      *
-     * @return The object created for the given type.
+     * @return The object created for the given type, or nil if the
+     * factory is unable to create the object.
      *
      **/
     Object create(string type);
