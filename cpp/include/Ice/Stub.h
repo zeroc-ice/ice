@@ -38,6 +38,7 @@ public:
 protected:
 
     Object();
+    virtual ~Object();
 
 private:
 
@@ -56,6 +57,7 @@ public:
 protected:
 
     Stub();
+    virtual ~Stub();
 
 private:
 
