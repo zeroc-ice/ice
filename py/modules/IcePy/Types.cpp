@@ -1436,19 +1436,13 @@ IcePy::ClassInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap
     ObjectMap::iterator q = objectMap->find(p);
     if(q == objectMap->end())
     {
-        PyObjectHandle id = PyObject_CallMethod(p, "ice_id", NULL);
-        if(id.get() == NULL)
+        PyObjectHandle iceType = PyObject_GetAttrString(p, "ice_type");
+        if(iceType.get() == NULL)
         {
             throw AbortMarshaling();
         }
-        assert(PyString_Check(id.get()));
-        char* str = PyString_AS_STRING(id.get());
-        ClassInfoPtr info = lookupClassInfo(str);
-        if(!info)
-        {
-            PyErr_Format(PyExc_ValueError, "unknown class type %s", str);
-            throw AbortMarshaling();
-        }
+        ClassInfoPtr info = ClassInfoPtr::dynamicCast(getType(iceType.get()));
+        assert(info);
         writer = new ObjectWriter(info, p, objectMap);
         objectMap->insert(ObjectMap::value_type(p, writer));
     }

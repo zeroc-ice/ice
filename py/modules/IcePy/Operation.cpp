@@ -874,26 +874,18 @@ IcePy::OperationI::sendException(const Ice::AMD_Object_ice_invokePtr& cb, PyObje
         if(PyErr_GivenExceptionMatches(exType, userExceptionType))
         {
             //
-            // Get the exception's id and Verify that it is legal to be thrown from this operation.
+            // Get the exception's type and verify that it is legal to be thrown from this operation.
             //
-            PyObjectHandle id = PyObject_CallMethod(ex, "ice_id", NULL);
-            PyErr_Clear();
-            if(id.get() == NULL || !validateException(ex))
+            PyObjectHandle iceType = PyObject_GetAttrString(ex, "ice_type");
+            assert(iceType.get() != NULL);
+            ExceptionInfoPtr info = ExceptionInfoPtr::dynamicCast(getException(iceType.get()));
+            assert(info);
+            if(!validateException(ex))
             {
                 throwPythonException(ex); // Raises UnknownUserException.
             }
             else
             {
-                assert(PyString_Check(id.get()));
-                char* str = PyString_AS_STRING(id.get());
-                ExceptionInfoPtr info = lookupExceptionInfo(str);
-                if(!info)
-                {
-                    Ice::UnknownUserException e(__FILE__, __LINE__);
-                    e.unknown = str;
-                    throw e;
-                }
-
                 Ice::OutputStreamPtr os = Ice::createOutputStream(communicator);
                 ObjectMap objectMap;
                 info->marshal(ex, os, &objectMap);
