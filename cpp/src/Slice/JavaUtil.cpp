@@ -174,7 +174,7 @@ lookupKwd(const string& name)
 				name);
     return found ? "_" + name : name;
 }
-//
+
 //
 // Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
 //

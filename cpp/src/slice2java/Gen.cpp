@@ -95,9 +95,9 @@ Slice::JavaVisitor::getParamsAsync(const OperationPtr& op, const string& scope, 
 
     ContainerPtr container = op->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string classNameAsync = (amd ? "AMD_" : "AMI_") + fixKwd(cl->name());
+    string classNameAsync = getAbsolute(cl->scoped(), scope, amd ? "AMD_" : "AMI_", '_' + name);
 
-    string params = classNameAsync + '_' + name + " __cb";
+    string params = classNameAsync + " __cb";
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
