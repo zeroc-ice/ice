@@ -34,7 +34,7 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS) $(ICE_FLAGS) $(PYTHON_FLAGS)
 
-LINKWITH        := $(ICE_LIBS) $(PYTHON_LIBS)
+LINKWITH        := $(ICE_LIBS) $(PYTHON_LIBS) $(CXXLIBS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
