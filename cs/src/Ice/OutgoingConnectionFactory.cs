@@ -52,13 +52,7 @@ namespace IceInternal
 		//
 		while(!_destroyed || _pending.Count != 0)
 		{
-		    try
-		    {
-			System.Threading.Monitor.Wait(this);
-		    }
-		    catch(System.Threading.ThreadInterruptedException)
-		    {
-		    }
+		    System.Threading.Monitor.Wait(this);
 		}
 		
 		//
@@ -172,13 +166,7 @@ namespace IceInternal
 		    
 		    searchAgain = true;
 		    
-		    try
-		    {
-			System.Threading.Monitor.Wait(this);
-		    }
-		    catch(System.Threading.ThreadInterruptedException)
-		    {
-		    }
+		    System.Threading.Monitor.Wait(this);
 		}
 		
 		if(_destroyed)

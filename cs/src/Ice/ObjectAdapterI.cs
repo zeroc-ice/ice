@@ -208,13 +208,7 @@ namespace Ice
 		//
 		while(!_deactivated || _directCount > 0)
 		{
-		    try
-		    {
-			System.Threading.Monitor.Wait(this);
-		    }
-		    catch(System.Threading.ThreadInterruptedException)
-		    {
-		    }
+		    System.Threading.Monitor.Wait(this);
 		}
 		
 		//
@@ -223,13 +217,7 @@ namespace Ice
 		//
 		while(_waitForDeactivate)
 		{
-		    try
-		    {
-			System.Threading.Monitor.Wait(this);
-		    }
-		    catch(System.Threading.ThreadInterruptedException)
-		    {
-		    }
+		    System.Threading.Monitor.Wait(this);
 		}
 		_waitForDeactivate = true;
 	    }

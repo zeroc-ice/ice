@@ -26,7 +26,7 @@ namespace Ice
 
         public bool ice_isA(string __id)
         {
-            return ice_isA(__id, null);
+            return ice_isA(__id, _reference.context);
         }
 
         public bool ice_isA(string __id, Context __context)
@@ -53,7 +53,7 @@ namespace Ice
 
         public void ice_ping()
         {
-            ice_ping(null);
+            ice_ping(_reference.context);
         }
 
         public void ice_ping(Context __context)
@@ -81,7 +81,7 @@ namespace Ice
 
         public string[] ice_ids()
         {
-            return ice_ids(null);
+            return ice_ids(_reference.context);
         }
 
         public string[] ice_ids(Context __context)
@@ -108,7 +108,7 @@ namespace Ice
 
         public string ice_id()
         {
-            return ice_id(null);
+            return ice_id(_reference.context);
         }
 
         public string ice_id(Context __context)
@@ -135,7 +135,7 @@ namespace Ice
 
         public bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams)
         {
-            return ice_invoke(operation, mode, inParams, out outParams, null);
+            return ice_invoke(operation, mode, inParams, out outParams, _reference.context);
         }
 
         public bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
@@ -169,7 +169,7 @@ namespace Ice
 
 	public void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams)
 	{
-	    ice_invoke_async(cb, operation, mode, inParams, null);
+	    ice_invoke_async(cb, operation, mode, inParams, _reference.context);
 	}
 
 	public void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams, Context context)

@@ -30,15 +30,8 @@ namespace IceInternal
 	    
 	    while(true)
 	    {
-		try
-		{
-		    Join();
-		    break;
-		}
-		catch(System.Threading.ThreadInterruptedException)
-		{
-		    continue;
-		}
+		Join();
+		break;
 	    }
 	}
 	
@@ -99,14 +92,7 @@ namespace IceInternal
 			return;
 		    }
 		    
-		    try
-		    {
-			System.Threading.Monitor.Wait(this, System.TimeSpan.FromMilliseconds(_interval * 1000));
-		    }
-		    catch(System.Threading.ThreadInterruptedException)
-		    {
-			continue;
-		    }
+		    System.Threading.Monitor.Wait(this, System.TimeSpan.FromMilliseconds(_interval * 1000));
 		    
 		    if(_instance == null)
 		    {

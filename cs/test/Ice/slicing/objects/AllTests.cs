@@ -35,14 +35,7 @@ public class AllTests
             {
                 while(!_called)
                 {
-                    try
-                    {
-                        Monitor.Wait(this, TimeSpan.FromMilliseconds(5000));
-                    }
-                    catch(ThreadInterruptedException)
-                    {
-                        continue;
-                    }
+		    Monitor.Wait(this, TimeSpan.FromMilliseconds(5000));
                     
                     if(!_called)
                     {

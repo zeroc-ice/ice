@@ -236,14 +236,8 @@ namespace IceInternal
 	    {
 		while(true)
 		{
-		    try
-		    {
-			thread.Join();
-			break;
-		    }
-		    catch(System.Threading.ThreadInterruptedException)
-		    {
-		    }
+		    thread.Join();
+		    break;
 		}
 	    }
 	}
@@ -330,13 +324,7 @@ namespace IceInternal
 		{
 		    while(!_promote)
 		    {
-			try
-			{
-			    System.Threading.Monitor.Wait(this);
-			}
-			catch(System.Threading.ThreadInterruptedException)
-			{
-			}
+			System.Threading.Monitor.Wait(this);
 		    }
 
 		    _promote = false;
@@ -620,13 +608,7 @@ namespace IceInternal
 				{
 				    if(!thread.IsAlive)
 				    {
-					try
-					{
-					    thread.Join();
-					}
-					catch(System.Threading.ThreadInterruptedException)
-					{
-					}
+					thread.Join();
 				    }
 				    else
 				    {
@@ -665,13 +647,7 @@ namespace IceInternal
 			
 			while(!_promote)
 			{
-			    try
-			    {
-				System.Threading.Monitor.Wait(this);
-			    }
-			    catch(System.Threading.ThreadInterruptedException)
-			    {
-			    }
+			    System.Threading.Monitor.Wait(this);
 			}
 			
 			_promote = false;
@@ -781,35 +757,28 @@ namespace IceInternal
 	{
 	    while(true)
 	    {
-		try
-		{
-		    #if TRACE_SELECT
-			trace("non-blocking select on " + _handlerMap.Count + " sockets, thread id = "
-			      + System.Threading.Thread.CurrentThread.Name);
-		    #endif
-		    
-		    ArrayList readList = new ArrayList(_handlerMap.Count + 1);
-		    readList.Add(_fdIntrRead);
-		    readList.AddRange(_handlerMap.Keys);
-		    Network.doSelect(readList, null, null, 0);
-		    
-		    #if TRACE_SELECT
-			if(readList.Count > 0)
+		#if TRACE_SELECT
+		    trace("non-blocking select on " + _handlerMap.Count + " sockets, thread id = "
+			  + System.Threading.Thread.CurrentThread.Name);
+		#endif
+		
+		ArrayList readList = new ArrayList(_handlerMap.Count + 1);
+		readList.Add(_fdIntrRead);
+		readList.AddRange(_handlerMap.Keys);
+		Network.doSelect(readList, null, null, 0);
+		
+		#if TRACE_SELECT
+		    if(readList.Count > 0)
+		    {
+			trace("after selectNow, there are " + readList.Count + " sockets:");
+			foreach(Socket socket in readList)
 			{
-			    trace("after selectNow, there are " + readList.Count + " sockets:");
-			    foreach(Socket socket in readList)
-			    {
-				trace("  " + socket);
-			    }
+			    trace("  " + socket);
 			}
-		    #endif
-		    
-		    break;
-		}
-		catch(System.Threading.ThreadInterruptedException)
-		{
-		    continue;
-		}
+		    }
+		#endif
+		
+		break;
 	    }
 	}
 	

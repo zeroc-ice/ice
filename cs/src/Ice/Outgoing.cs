@@ -104,24 +104,18 @@ namespace IceInternal
 			int timeout = _connection.timeout();
 			while(_state == StateInProgress && !timedOut)
 			{
-			    try
+			    if(timeout >= 0)
 			    {
-				if(timeout >= 0)
+				System.Threading.Monitor.Wait(this, timeout);
+				
+				if(_state == StateInProgress)
 				{
-				    System.Threading.Monitor.Wait(this, timeout);
-				    
-				    if(_state == StateInProgress)
-				    {
-					timedOut = true;
-				    }
-				}
-				else
-				{
-				    System.Threading.Monitor.Wait(this);
+				    timedOut = true;
 				}
 			    }
-			    catch(System.Threading.ThreadInterruptedException)
+			    else
 			    {
+				System.Threading.Monitor.Wait(this);
 			    }
 			}
 		    }
@@ -142,13 +136,7 @@ namespace IceInternal
 			{
 			    while(_state == StateInProgress)
 			    {
-				try
-				{
-				    System.Threading.Monitor.Wait(this);
-				}
-				catch(System.Threading.ThreadInterruptedException)
-				{
-				}
+				System.Threading.Monitor.Wait(this);
 			    }
 			}
 		    }

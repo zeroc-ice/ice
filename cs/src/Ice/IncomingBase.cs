@@ -37,7 +37,6 @@ namespace IceInternal
 	protected internal IncomingBase(IncomingBase inc)
 	{
 	    _current = inc._current;
-	    inc._current = null;
 	    
 	    _servant = inc._servant;
 	    inc._servant = null;
@@ -82,22 +81,9 @@ namespace IceInternal
 	public virtual void reset(Instance instance, Connection connection,
 	                          Ice.ObjectAdapter adapter, bool response, byte compress)
 	{
-	    if(_current == null)
-	    {
-		_current = new Ice.Current();
-		_current.id = new Ice.Identity();
-		_current.adapter = adapter;
-	    }
-	    else
-	    {
-		Debug.Assert(_current.id != null);
-		_current.adapter = adapter;
-		
-		if(_current.ctx != null)
-		{
-		    _current.ctx.Clear();
-		}
-	    }
+	    _current = new Ice.Current();
+	    _current.id = new Ice.Identity();
+	    _current.adapter = adapter;
 	    
 	    _servant = null;
 	    

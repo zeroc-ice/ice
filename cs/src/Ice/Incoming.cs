@@ -158,7 +158,7 @@ namespace IceInternal
 	    {
 	        _is.endReadEncaps();
 
-		if(ex.id == null)
+		if(ex.id.name == null)
 		{
 		    ex.id = _current.id;
 		}

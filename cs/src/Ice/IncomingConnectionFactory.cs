@@ -53,13 +53,7 @@ namespace IceInternal
 		//
 		while(_state < StateHolding)
 		{
-		    try
-		    {
-			System.Threading.Monitor.Wait(this);
-		    }
-		    catch(System.Threading.ThreadInterruptedException)
-		    {
-		    }
+		    System.Threading.Monitor.Wait(this);
 		}
 		
 		//
@@ -89,13 +83,7 @@ namespace IceInternal
 		//
 		while(_acceptor != null)
 		{
-		    try
-		    {
-			System.Threading.Monitor.Wait(this);
-		    }
-		    catch(System.Threading.ThreadInterruptedException)
-		    {
-		    }
+		    System.Threading.Monitor.Wait(this);
 		}
 		
 		//

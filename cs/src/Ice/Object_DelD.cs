@@ -18,7 +18,7 @@ namespace Ice
 	public virtual bool ice_isA(string __id, Ice.Context __context)
 	{
 	    Current __current = new Current();
-	    __initCurrent(__current, "ice_isA", OperationMode.Nonmutating, __context);
+	    __initCurrent(ref __current, "ice_isA", OperationMode.Nonmutating, __context);
 	    while(true)
 	    {
 		IceInternal.Direct __direct = new IceInternal.Direct(__current);
@@ -36,7 +36,7 @@ namespace Ice
 	public virtual void ice_ping(Ice.Context __context)
 	{
 	    Current __current = new Current();
-	    __initCurrent(__current, "ice_ping", OperationMode.Nonmutating, __context);
+	    __initCurrent(ref __current, "ice_ping", OperationMode.Nonmutating, __context);
 	    while(true)
 	    {
 		IceInternal.Direct __direct = new IceInternal.Direct(__current);
@@ -55,7 +55,7 @@ namespace Ice
 	public virtual string[] ice_ids(Ice.Context __context)
 	{
 	    Current __current = new Current();
-	    __initCurrent(__current, "ice_ids", OperationMode.Nonmutating, __context);
+	    __initCurrent(ref __current, "ice_ids", OperationMode.Nonmutating, __context);
 	    while(true)
 	    {
 		IceInternal.Direct __direct = new IceInternal.Direct(__current);
@@ -73,7 +73,7 @@ namespace Ice
 	public virtual string ice_id(Ice.Context __context)
 	{
 	    Current __current = new Current();
-	    __initCurrent(__current, "ice_id", OperationMode.Nonmutating, __context);
+	    __initCurrent(ref __current, "ice_id", OperationMode.Nonmutating, __context);
 	    while(true)
 	    {
 		IceInternal.Direct __direct = new IceInternal.Direct(__current);
@@ -119,7 +119,7 @@ namespace Ice
 	protected internal IceInternal.Reference __reference;
 	protected internal Ice.ObjectAdapter __adapter;
 	
-	protected internal void __initCurrent(Current current, string op, Ice.OperationMode mode, Ice.Context context)
+	protected internal void __initCurrent(ref Current current, string op, Ice.OperationMode mode, Ice.Context context)
 	{
 	    current.adapter = __adapter;
 	    current.id = __reference.identity;

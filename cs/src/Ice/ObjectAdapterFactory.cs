@@ -50,13 +50,7 @@ namespace IceInternal
 		//
 		while(_instance != null)
 		{
-		    try
-		    {
-			System.Threading.Monitor.Wait(this);
-		    }
-		    catch(System.Threading.ThreadInterruptedException)
-		    {
-		    }
+		    System.Threading.Monitor.Wait(this);
 		}
 		
 		//
@@ -65,13 +59,7 @@ namespace IceInternal
 		//
 		while(_waitForShutdown)
 		{
-		    try
-		    {
-			System.Threading.Monitor.Wait(this);
-		    }
-		    catch(System.Threading.ThreadInterruptedException)
-		    {
-		    }
+		    System.Threading.Monitor.Wait(this);
 		}
 		_waitForShutdown = true;
 	    }

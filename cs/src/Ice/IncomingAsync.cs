@@ -76,7 +76,7 @@ namespace IceInternal
 	    }
 	    catch(Ice.RequestFailedException ex)
 	    {
-		if(ex.id == null)
+		if(ex.id.name == null)
 		{
 		    ex.id = _current.id;
 		}
