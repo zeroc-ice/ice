@@ -674,33 +674,13 @@ IceInternal::BasicStream::read(vector<Double>& v)
 void
 IceInternal::BasicStream::write(const string& v)
 {
-#ifdef ICE_ACTIVE_STRING_INDIRECTION
-    if (!_currentWriteEncaps) // Lazy initialization
+    Int len = v.size();
+    write(len);
+    if (len > 0)
     {
-	_writeEncapsStack.resize(1);
-	_currentWriteEncaps = &_encapsStack.back();
-    }
-
-    map<string, Int>::const_iterator p = _currentWriteEncaps->stringsWritten.find(v);
-    if (p != _currentWriteEncaps->stringsWritten.end())
-    {
-	write(p->second);
-    }
-    else
-#endif
-    {
-	Int len = v.size();
-	write(len);
-	if (len > 0)
-	{
-#ifdef ICE_ACTIVE_STRING_INDIRECTION
-	    Int num = _currentWriteEncaps->stringsWritten.size();
-	    _currentWriteEncaps->stringsWritten[v] = -(num + 1);
-#endif
-	    int pos = b.size();
-	    resize(pos + len);
-	    copy(v.begin(), v.end(), b.begin() + pos);
-	}
+	int pos = b.size();
+	resize(pos + len);
+	copy(v.begin(), v.end(), b.begin() + pos);
     }
 }
 
@@ -718,41 +698,23 @@ IceInternal::BasicStream::write(const vector<string>& v)
 void
 IceInternal::BasicStream::read(string& v)
 {
-    if (!_currentReadEncaps) // Lazy initialization
-    {
-	_readEncapsStack.resize(1);
-	_currentReadEncaps = &_readEncapsStack.back();
-    }
-
     Int len;
     read(len);
 
-    if (len < 0)
+    if (len <= 0)
     {
-	if (static_cast<vector<string>::size_type>(-(len + 1)) >= _currentReadEncaps->stringsRead.size())
-	{
-	    throw IllegalIndirectionException(__FILE__, __LINE__);
-	}
-	v = _currentReadEncaps->stringsRead[-(len + 1)];
+	v.erase();
     }
     else
     {
-	if (len == 0)
+	Container::iterator begin = i;
+	i += len;
+	if (i > b.end())
 	{
-	    v.erase();
+	    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
 	}
-	else
-	{
-	    Container::iterator begin = i;
-	    i += len;
-	    if (i > b.end())
-	    {
-		throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-	    }
-	    v.resize(len);
-	    copy(begin, i, v.begin());
-	    _currentReadEncaps->stringsRead.push_back(v.c_str());
-	}
+	v.resize(len);
+	copy(begin, i, v.begin());
     }
 }
 

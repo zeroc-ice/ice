@@ -43,7 +43,7 @@ IceInternal::Incoming::invoke(bool response)
 	current.context.insert(current.context.end(), pair);
     }
 
-    BasicStream::Container::size_type statusPos;
+    BasicStream::Container::size_type statusPos = 0; // Initialize, to keep the compiler happy.
     if (response)
     {
 	statusPos = _os.b.size();

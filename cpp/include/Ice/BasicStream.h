@@ -17,8 +17,6 @@
 #include <Ice/Buffer.h>
 #include <Ice/ObjectFactoryF.h>
 
-//#define ICE_ACTIVE_STRING_INDIRECTION
-
 namespace Ice
 {
 
@@ -114,16 +112,12 @@ private:
     {
 	Container::size_type start;
 	Ice::Byte encoding;
-	std::vector<std::string> stringsRead;
 	std::vector<Ice::ObjectPtr> objectsRead;
     };
 
     struct WriteEncaps
     {
 	Container::size_type start;
-#ifdef ICE_ACTIVE_STRING_INDIRECTION
-	std::map<std::string, Ice::Int> stringsWritten;
-#endif
 	std::map<Ice::ObjectPtr, Ice::Int> objectsWritten;
     };
 
