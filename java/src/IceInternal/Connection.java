@@ -889,33 +889,45 @@ public final class Connection extends EventHandler
 	//
 	// Before we set an adapter (or reset it) we wait until the
 	// dispatch count with any old adapter is zero.
+        //
+        // A deadlock can occur if we wait while an operation is
+        // outstanding on this adapter that holds a lock while
+        // calling this function (e.g., __getDelegate).
+        //
+        // In order to avoid such a deadlock, we only wait if the new
+        // adapter is different than the current one.
+        //
+        // TODO: Verify that this fix solves all cases.
 	//
-	while(_dispatchCount > 0)
-	{
-	    try
-	    {
-		wait();
-	    }
-	    catch(InterruptedException ex)
-	    {
-	    }
-	}
+        if(_adapter != adapter)
+        {
+            while(_dispatchCount > 0)
+            {
+                try
+                {
+                    wait();
+                }
+                catch(InterruptedException ex)
+                {
+                }
+            }
 
-	//
-	// We never change the thread pool with which we were
-	// initially registered, even if we add or remove an object
-	// adapter.
-	//
-	
-	_adapter = adapter;
-	if(_adapter != null)
-	{
-	    _servantManager = ((Ice.ObjectAdapterI)_adapter).getServantManager();
-	}
-	else
-	{
-	    _servantManager = null;
-	}
+            //
+            // We never change the thread pool with which we were
+            // initially registered, even if we add or remove an object
+            // adapter.
+            //
+            
+            _adapter = adapter;
+            if(_adapter != null)
+            {
+                _servantManager = ((Ice.ObjectAdapterI)_adapter).getServantManager();
+            }
+            else
+            {
+                _servantManager = null;
+            }
+        }
     }
 
     public synchronized Ice.ObjectAdapter
