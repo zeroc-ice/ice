@@ -400,7 +400,7 @@ namespace IceInternal
         {
 	    if(_reference != null) // Don't print anything if cleanup() was already called.
 	    {
-		if(_reference.instance..properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+		if(_reference.instance.properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
 		{
 		    _reference.instance.logger().warning("exception raised by AMI callback:\n" + ex);
 		}
