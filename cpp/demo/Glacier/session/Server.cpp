@@ -43,8 +43,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     //
     // Create the PermissionsVerifier.
     //
-    Ice::ObjectPtr passwdVerifier = new PermissionsVerifierI;
-    adapter->add(passwdVerifier, Ice::stringToIdentity("PermissionsVerifier"));
+    Ice::ObjectPtr verifier = new PermissionsVerifierI;
+    adapter->add(verifier, Ice::stringToIdentity("PermissionsVerifier"));
 
     adapter->activate();
     communicator->waitForShutdown();
