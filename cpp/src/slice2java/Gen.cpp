@@ -62,7 +62,7 @@ Slice::JavaVisitor::open(const string& absolute)
             pos = dir.find('.', start);
             if (pos != string::npos)
             {
-                path += dir.substr(start, pos);
+                path += dir.substr(start, pos - start);
                 start = pos + 1;
             }
             else
@@ -142,11 +142,56 @@ Slice::JavaVisitor::output() const
 }
 
 string
+Slice::JavaVisitor::fixKwd(const string& name) const
+{
+    //
+    // Alphabetical list of Java keywords
+    //
+    static const char* keywords[] = 
+    {       
+        "abstract", "assert", "boolean", "break", "byte", "case", "catch",
+        "char", "class", "clone", "const", "continue", "default", "do",
+        "double", "else", "equals", "extends", "false", "final", "finalize",
+        "finally", "float", "for", "getClass", "goto", "hashCode", "if",
+        "implements", "import", "instanceof", "int", "interface", "long",
+        "native", "new", "notify", "notifyAll", "null", "package", "private",
+        "protected", "public", "return", "short", "static", "super", "switch",
+        "synchronized", "this", "throw", "throws", "toString", "transient",
+        "true", "try", "void", "volatile", "wait", "while"
+    };
+
+    int i = 0;
+    int j = sizeof(keywords) / sizeof(const char*);
+
+    while (i < j)
+    {
+        int mid = (i + j) / 2;
+        string str = keywords[mid];
+        int n = str.compare(name);
+        if (n == 0)
+        {
+            string result = "_" + name;
+            return result;
+        }
+        else if (n > 0)
+        {
+            j = mid;
+        }
+        else
+        {
+            i = mid + 1;
+        }
+    }
+
+    return name;
+}
+
+string
 Slice::JavaVisitor::getAbsolute(const string& scoped,
                                 const string& scope) const
 {
-    string str = scoped;
-    string::size_type pos = 0;
+    string result;
+    string::size_type start = 0;
 
     if (!scope.empty())
     {
@@ -157,38 +202,64 @@ Slice::JavaVisitor::getAbsolute(const string& scoped,
         // scope=::A, scoped=::A::B, result=B
         // scope=::A, scoped=::A::B::C, result=::A::B::C
         //
-        if (str.compare(0, scope.size(), scope) == 0 &&
-            str.find('.', scope.size()) == string::npos)
+        if (scoped.compare(0, scope.size(), scope) == 0)
         {
-            str.erase(0, scope.size());
+            start = scoped.find(':', scope.size());
+            if (start == string::npos)
+            {
+                start = 0;
+            }
+            else
+            {
+                assert(scoped[start + 1] == ':');
+                start += 2;
+            }
         }
     }
 
     //
     // Skip leading "::"
     //
-    if (str[0] == ':')
+    if (scoped[start] == ':')
     {
-        assert(str[1] == ':');
-        str.erase(0, 2);
+        assert(scoped[start + 1] == ':');
+        start += 2;
     }
 
     //
     // Convert all occurrences of "::" to "."
     //
-    while ((pos = str.find(':', pos)) != string::npos)
+    string::size_type pos;
+    do
     {
-        assert(str[pos + 1] == ':');
-        str.replace(pos, 2, ".");
+        pos = scoped.find(':', start);
+        string fix;
+        if (pos == string::npos)
+        {
+            fix = fixKwd(scoped.substr(start));
+        }
+        else
+        {
+            assert(scoped[pos + 1] == ':');
+            fix = fixKwd(scoped.substr(start, pos - start));
+            start = pos + 2;
+        }
+
+        if (!result.empty())
+        {
+            result += ".";
+        }
+        result += fix;
     }
+    while (pos != string::npos);
 
     if (!_package.empty())
     {
-        return _package + "." + str;
+        return _package + "." + result;
     }
     else
     {
-        return str;
+        return result;
     }
 }
 
@@ -366,7 +437,7 @@ Slice::Gen::TypesVisitor::TypesVisitor(const string& dir,
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    string name = p->name();
+    string name = fixKwd(p->name());
     string scoped = p->scoped();
     ClassList bases = p->bases();
     string scope = p->scope();
@@ -468,7 +539,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 {
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string name = p->name();
+    string name = fixKwd(p->name());
     string scoped = p->scoped();
     string scope = p->scope();
 
@@ -493,8 +564,8 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         string typeString = typeToString(q->first, TypeModeIn, scope);
         params += typeString;
         params += ' ';
-        params += q->second;
-        args += q->second;
+        params += fixKwd(q->second);
+        args += fixKwd(q->second);
     }
 
     for (q = outParams.begin(); q != outParams.end(); ++q)
@@ -508,8 +579,8 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         string typeString = typeToString(q->first, TypeModeOut, scope);
         params += typeString;
         params += ' ';
-        params += q->second;
-        args += q->second;
+        params += fixKwd(q->second);
+        args += fixKwd(q->second);
     }
 
     params += ')';
@@ -564,7 +635,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 bool
 Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    string name = p->name();
+    string name = fixKwd(p->name());
     string scoped = p->scoped();
     ExceptionPtr base = p->base();
     string absolute = getAbsolute(scoped);
@@ -663,7 +734,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     if (!p->isLocal())
     {
-        string name = p->name();
+        string name = fixKwd(p->name());
         string scoped = p->scoped();
 
         ExceptionPtr base = p->base();
@@ -674,7 +745,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
              q != dataMembers.end();
              ++q)
         {
-            memberList.push_back(make_pair((*q)->type(), (*q)->name()));
+            memberList.push_back(make_pair((*q)->type(), fixKwd((*q)->name())));
         }
         out << sp << nl << "public void" << nl
             << "__write(IceInternal.Stream __os)";
@@ -705,7 +776,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 bool
 Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    string name = p->name();
+    string name = fixKwd(p->name());
     string scoped = p->scoped();
     string absolute = getAbsolute(scoped);
 
@@ -733,7 +804,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 void
 Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    string name = p->name();
+    string name = fixKwd(p->name());
     ContainerPtr container = p->container();
     ContainedPtr contained = ContainedPtr::dynamicCast(container);
     string s = typeToString(p->type(), TypeModeMember, contained->scope());
@@ -744,7 +815,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 void
 Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
-    string name = p->name();
+    string name = fixKwd(p->name());
     EnumeratorList enumerators = p->getEnumerators();
     string scoped = p->scoped();
     string absolute = getAbsolute(scoped);
@@ -762,10 +833,11 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     int n;
     for (en = enumerators.begin(), n = 0; en != enumerators.end(); ++en, ++n)
     {
-        out << nl << "public static final long _" << (*en)->name() << " = "
+        string member = fixKwd((*en)->name());
+        out << nl << "public static final long _" << member << " = "
             << n << ';';
-        out << nl << "public static final " << name << ' ' << (*en)->name()
-            << " = new " << name << "(_" << (*en)->name() << ");";
+        out << nl << "public static final " << name << ' ' << member
+            << " = new " << name << "(_" << member << ");";
     }
 
     int sz = enumerators.size();
@@ -838,7 +910,7 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
 {
     ContainedPtr contained = ContainedPtr::dynamicCast(p);
     assert(contained);
-    string name = contained->name();
+    string name = fixKwd(contained->name());
     string absolute = getAbsolute(contained->scoped());
     string holder = absolute + "Holder";
 
@@ -867,7 +939,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if (!p->isLocal())
     {
-        string name = p->name();
+        string name = fixKwd(p->name());
         string absolute = getAbsolute(p->scoped());
         string helper = absolute + "Helper";
 
@@ -902,7 +974,7 @@ Slice::Gen::HelperVisitor::visitExceptionStart(const ExceptionPtr& p)
 
         if (open(helper))
         {
-            string name = p->name();
+            string name = fixKwd(p->name());
             ExceptionPtr base = p->base();
 #if 0
             string baseAbsolute;
@@ -932,7 +1004,7 @@ Slice::Gen::HelperVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Gen::HelperVisitor::visitStructStart(const StructPtr& p)
 {
-    string name = p->name();
+    string name = fixKwd(p->name());
     string absolute = getAbsolute(p->scoped());
     string helper = absolute + "Helper";
 
@@ -968,7 +1040,7 @@ Slice::Gen::HelperVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
-    string name = p->name();
+    string name = fixKwd(p->name());
     string absolute = getAbsolute(p->scoped());
     string helper = absolute + "Helper";
 
@@ -991,7 +1063,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    string name = p->name();
+    string name = fixKwd(p->name());
     string absolute = getAbsolute(p->scoped());
     string helper = absolute + "Helper";
 
@@ -1014,7 +1086,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Gen::HelperVisitor::visitEnum(const EnumPtr& p)
 {
-    string name = p->name();
+    string name = fixKwd(p->name());
     string absolute = getAbsolute(p->scoped());
     string helper = absolute + "Helper";
     EnumeratorList enumerators = p->getEnumerators();

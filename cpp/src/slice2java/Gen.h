@@ -38,6 +38,12 @@ protected:
     Output& output() const;
 
     //
+    // Check a symbol against any of the Java keywords. If a
+    // match is found, return the symbol with a leading underscore.
+    //
+    std::string fixKwd(const std::string&) const;
+
+    //
     // Convert a scoped name into a Java class name. If an optional
     // scope is provided, the scope will be removed from the result.
     //
