@@ -163,7 +163,9 @@ Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, cons
     checkBerkeleyDBReturn(db_env_create(&_dbEnv, 0), _errorPrefix, "db_env_create");
 
 #ifdef _WIN32
+    //
     // Berkeley DB may use a different C++ runtime
+    //
     checkBerkeleyDBReturn(_dbEnv->set_alloc(_dbEnv, ::malloc, ::realloc, ::free), _errorPrefix, "DB_ENV->set_alloc");
 #endif
 
@@ -172,6 +174,19 @@ Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, cons
     {
 	flags = flags | DB_INIT_TXN | DB_INIT_LOG | DB_RECOVER;
     }
+
+#ifdef __linux
+    //
+    // Use process-private memory and mutexes on Linux. In the way we can
+    // use a Berkeley DB built using the POSIX thread library, like the 
+    // Berkeley DB that comes with RedHat 9.
+    //
+    // TODO: make setting or not setting DB_PRIVATE configurable.
+    // When DB_PRIVATE is set, only one process can use a DB environment 
+    // at a time.
+    //
+    flags |= DB_PRIVATE;
+#endif
 
     checkBerkeleyDBReturn(_dbEnv->open(_dbEnv, _name.c_str(), flags, FREEZE_DB_MODE), _errorPrefix, "DB_ENV->open");
 

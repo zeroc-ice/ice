@@ -128,15 +128,6 @@ Freeze::IdleStrategyI::preOperation(const ObjectStorePtr& store,
         ++c->mutatingCount;
         c->mutated = true;
     }
-    else if(c->mutatingCount == 0 && c->mutated)
-    {
-        //
-        // Only store the object's persistent state if the object is idle
-        // and it has been mutated.
-        //
-        store->save(ident, servant);
-        c->mutated = false;
-    }
 }
 
 void
