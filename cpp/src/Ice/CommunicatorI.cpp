@@ -32,13 +32,22 @@ using namespace IceInternal;
 void
 Ice::CommunicatorI::destroy()
 {
-    RecMutex::Lock sync(*this);
+    InstancePtr instance;
 
-    if(!_destroyed) // Don't destroy twice.
     {
-	_destroyed = true;
-	_serverThreadPool = 0;
-	_instance->destroy();
+	RecMutex::Lock sync(*this);
+	
+	if(!_destroyed) // Don't destroy twice.
+	{
+	    _destroyed = true;
+	    _serverThreadPool = 0;
+	    instance = _instance;
+	}
+    }
+    
+    if(instance)
+    {
+	instance->destroy();
     }
 }
 

@@ -16,15 +16,25 @@ package Ice;
 
 class CommunicatorI extends LocalObjectImpl implements Communicator
 {
-    public synchronized void
+    public void
     destroy()
     {
-        if(!_destroyed) // Don't destroy twice.
-        {
-	    _destroyed = true;
-	    _serverThreadPool = null;
-	    _instance.destroy();
-        }
+	IceInternal.Instance instance = null;
+
+	synchronized(this)
+	{
+	    if(!_destroyed) // Don't destroy twice.
+	    {
+		_destroyed = true;
+		_serverThreadPool = null;
+		instance = _instance;
+	    }
+	}
+
+	if(instance != null)
+	{
+	    instance.destroy();
+	}
     }
 
     public void
