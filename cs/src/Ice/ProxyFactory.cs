@@ -61,7 +61,7 @@ namespace IceInternal
 	    {
 		Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)proxy;
 		Reference r = h.__reference();
-		r.identity.__write(s);
+		r.getIdentity().__write(s);
 		r.streamWrite(s);
 	    }
 	    else

@@ -10,6 +10,7 @@
 namespace IceInternal
 {
 
+    using System;
     using System.Collections;
     using System.Diagnostics;
     using System.Threading;
@@ -170,9 +171,13 @@ namespace IceInternal
 
                 if(_reference != null)
                 {
-                    if(_reference.locatorInfo != null)
+                    try
                     {
-                        _reference.locatorInfo.clearObjectCache(_reference);
+                        IndirectReference ir = (IndirectReference)_reference;
+                        ir.getLocatorInfo().clearObjectCache(ir);
+                    }
+                    catch(InvalidCastException)
+                    {
                     }
 		    
                     bool doRetry = false;
@@ -191,7 +196,7 @@ namespace IceInternal
                     {
                         try
                         {
-                            ProxyFactory proxyFactory = _reference.instance.proxyFactory();
+                            ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
                             if(proxyFactory != null)
                             {
                                 _cnt = proxyFactory.checkRetryAfterException(exc, _cnt);
@@ -271,32 +276,41 @@ namespace IceInternal
                     _cnt = 0;
                     _mode = mode;
                     Debug.Assert(__is == null);
-                    __is = new BasicStream(_reference.instance);
+                    __is = new BasicStream(_reference.getInstance());
                     Debug.Assert(__os == null);
-                    __os = new BasicStream(_reference.instance);
+                    __os = new BasicStream(_reference.getInstance());
 		    
                     //
                     // If we are using a router, then add the proxy to the router info object.
                     //
-                    if(_reference.routerInfo != null)
+                    try
                     {
-                        _reference.routerInfo.addProxy(prx);
+                        RoutableReference rr = (RoutableReference)_reference;
+                        if(rr != null && rr.getRouterInfo() != null)
+                        {
+                            rr.getRouterInfo().addProxy(prx);
+                        }
+
+                    }
+                    catch(InvalidCastException)
+                    {
                     }
 
                     _connection.prepareRequest(__os);
 		    
-                    _reference.identity.__write(__os);
+                    _reference.getIdentity().__write(__os);
 
                     //
                     // For compatibility with the old FacetPath.
                     //
-                    if(_reference.facet == null || _reference.facet.Length == 0)
+                    string facet = _reference.getFacet();
+                    if(facet == null || facet.Length == 0)
                     {
                         __os.writeStringSeq(null);
                     }
                     else
                     {
-                        string[] facetPath = { _reference.facet };
+                        string[] facetPath = { facet };
                         __os.writeStringSeq(facetPath);
                     }
 
@@ -372,12 +386,19 @@ namespace IceInternal
                         }
                         catch(Ice.LocalException ex)
                         {
-                            if(_reference.locatorInfo != null)
+                            try
                             {
-                                _reference.locatorInfo.clearObjectCache(_reference);
+                                IndirectReference ir = (IndirectReference)_reference;
+                                if(ir != null && ir.getLocatorInfo() != null)
+                                {
+                                    ir.getLocatorInfo().clearObjectCache(ir);
+                                }
+                            }
+                            catch(InvalidCastException)
+                            {
                             }
 			    
-                            ProxyFactory proxyFactory = _reference.instance.proxyFactory();
+                            ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
                             if(proxyFactory != null)
                             {
                                 _cnt = proxyFactory.checkRetryAfterException(ex, _cnt);
@@ -404,9 +425,9 @@ namespace IceInternal
         {
 	    if(_reference != null) // Don't print anything if cleanup() was already called.
 	    {
-		if(_reference.instance.properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+		if(_reference.getInstance().properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
 		{
-		    _reference.instance.logger().warning("exception raised by AMI callback:\n" + ex);
+		    _reference.getInstance().logger().warning("exception raised by AMI callback:\n" + ex);
 		}
 	    }
         }

@@ -68,19 +68,21 @@ namespace IceInternal
 	    }
 	}
 
-	public Endpoint[] getEndpoints(Reference r, out bool cached)
+	public Endpoint[] getEndpoints(IndirectReference @ref, out bool cached)
 	{
-	    Debug.Assert(r.endpoints.Length == 0);
+	    Debug.Assert(@ref.getEndpoints().Length == 0);
 	    
 	    Endpoint[] endpoints = null;
 	    Ice.ObjectPrx obj = null;
 	    cached = true;
+            string adapterId = @ref.getAdapterId();
+            Ice.Identity identity = @ref.getIdentity();
 	    
 	    try
 	    {
-		if(r.adapterId.Length > 0)
+		if(adapterId.Length > 0)
 		{
-		    endpoints = _table.getAdapterEndpoints(r.adapterId);
+		    endpoints = _table.getAdapterEndpoints(adapterId);
 		    if(endpoints == null)
 		    {
 			cached = false;
@@ -89,43 +91,49 @@ namespace IceInternal
 			// Search the adapter in the location service if we didn't
 			// find it in the cache.
 			//
-			obj = _locator.findAdapterById(r.adapterId);
+			obj = _locator.findAdapterById(adapterId);
 			if(obj != null)
 			{
-			    endpoints = ((Ice.ObjectPrxHelperBase)obj).__reference().endpoints;
+			    endpoints = ((Ice.ObjectPrxHelperBase)obj).__reference().getEndpoints();
 			    
 			    if(endpoints != null && endpoints.Length > 0)
 			    {
-				_table.addAdapterEndpoints(r.adapterId, endpoints);
+				_table.addAdapterEndpoints(adapterId, endpoints);
 			    }
 			}
 		    }
 		}
 		else
 		{
-		    obj = _table.getProxy(r.identity);
+		    obj = _table.getProxy(identity);
 		    if(obj == null)
 		    {
 			cached = false;
 		    
-			obj = _locator.findObjectById(r.identity);
+			obj = _locator.findObjectById(identity);
 		    }
 		    
 		    if(obj != null)
 		    {
-			if(((Ice.ObjectPrxHelperBase) obj).__reference().endpoints.Length > 0)
-			{
-			    endpoints = ((Ice.ObjectPrxHelperBase)obj).__reference().endpoints;
-			}
-			else if(((Ice.ObjectPrxHelperBase)obj).__reference().adapterId.Length > 0)
-			{
-			    endpoints = getEndpoints(((Ice.ObjectPrxHelperBase)obj).__reference(), out cached);
-			}
-		    }
+                        Reference r = ((Ice.ObjectPrxHelperBase)obj).__reference();
+                        if(r is DirectReference)
+                        {
+                            DirectReference odr = (DirectReference)r;
+                            endpoints = odr.getEndpoints();
+                        }
+                        else
+                        {
+                            IndirectReference oir = (IndirectReference)r;
+                            if(oir.getAdapterId().Length > 0)
+                            {
+                                endpoints = getEndpoints(oir, out cached);
+                            }
+                        }
+                    }
 		    
 		    if(!cached && endpoints != null && endpoints.Length > 0)
 		    {
-			_table.addProxy(r.identity, obj);
+			_table.addProxy(identity, obj);
 		    }
 		}
 	    }
@@ -133,14 +141,14 @@ namespace IceInternal
 	    {
 		Ice.NotRegisteredException e = new Ice.NotRegisteredException(ex);
 		e.kindOfObject = "object adapter";
-		e.id = r.adapterId;
+		e.id = adapterId;
 		throw e;
 	    }
 	    catch(Ice.ObjectNotFoundException ex)
 	    {
 		Ice.NotRegisteredException e = new Ice.NotRegisteredException(ex);
 		e.kindOfObject = "object";
-		e.id = Ice.Util.identityToString(r.identity);
+		e.id = Ice.Util.identityToString(identity);
 		throw e;
 	    }
 	    catch(Ice.NotRegisteredException ex)
@@ -149,97 +157,101 @@ namespace IceInternal
 	    }
 	    catch(Ice.LocalException ex)
 	    {
-		if(r.instance.traceLevels().location >= 1)
+		if(@ref.getInstance().traceLevels().location >= 1)
 		{
 		    System.Text.StringBuilder s = new System.Text.StringBuilder();
 		    s.Append("couldn't contact the locator to retrieve adapter endpoints\n");
-		    if(r.adapterId.Length > 0)
+		    if(adapterId.Length > 0)
 		    {
-			s.Append("adapter = " + r.adapterId + "\n");
+			s.Append("adapter = " + adapterId + "\n");
 		    }
 		    else
 		    {
-			s.Append("object = " + Ice.Util.identityToString(r.identity) + "\n");
+			s.Append("object = " + Ice.Util.identityToString(identity) + "\n");
 		    }
 		    s.Append("reason = " + ex);
-		    r.instance.logger().trace(r.instance.traceLevels().locationCat, s.ToString());
+		    @ref.getInstance().logger().trace(@ref.getInstance().traceLevels().locationCat, s.ToString());
 		}
 	    }
 	    
-	    if(r.instance.traceLevels().location >= 1 && endpoints != null && endpoints.Length > 0)
+	    if(@ref.getInstance().traceLevels().location >= 1 && endpoints != null && endpoints.Length > 0)
 	    {
 		if(cached)
 		{
-		    trace("found endpoints in locator table", r, endpoints);
+		    trace("found endpoints in locator table", @ref, endpoints);
 		}
 		else
 		{
-		    trace("retrieved endpoints from locator, adding to locator table", r, endpoints);
+		    trace("retrieved endpoints from locator, adding to locator table", @ref, endpoints);
 		}
 	    }
 	    
 	    return endpoints == null ? new Endpoint[0] : endpoints;
 	}
 	
-	public void clearObjectCache(Reference rf)
+	public void clearObjectCache(IndirectReference rf)
 	{
-	    if(rf.adapterId.Length == 0 && rf.endpoints.Length == 0)
+	    if(rf.getAdapterId().Length == 0 && rf.getEndpoints().Length == 0)
 	    {
-		Ice.ObjectPrx obj = _table.removeProxy(rf.identity);
-		if(obj != null && rf.instance.traceLevels().location >= 2)
+		Ice.ObjectPrx obj = _table.removeProxy(rf.getIdentity());
+		if(obj != null && rf.getInstance().traceLevels().location >= 2)
 		{
 		    Reference r = ((Ice.ObjectPrxHelperBase)obj).__reference();
-		    if(r.endpoints.Length > 0)
+		    if(r.getEndpoints().Length > 0)
 		    {
-			trace("removed endpoints from locator table", rf, r.endpoints);
+			trace("removed endpoints from locator table", rf, r.getEndpoints());
 		    }
 		}
 	    }
 	}
 	
-	public void clearCache(Reference rf)
+	public void clearCache(IndirectReference rf)
 	{
-	    if(rf.adapterId.Length > 0)
+	    if(rf.getAdapterId().Length > 0)
 	    {
-		Endpoint[] endpoints = _table.removeAdapterEndpoints(rf.adapterId);
+		Endpoint[] endpoints = _table.removeAdapterEndpoints(rf.getAdapterId());
 		
-		if(endpoints != null && rf.instance.traceLevels().location >= 2)
+		if(endpoints != null && rf.getInstance().traceLevels().location >= 2)
 		{
 		    trace("removed endpoints from locator table\n", rf, endpoints);
 		}
 	    }
-	    else if(rf.endpoints.Length == 0)
+	    else
 	    {
-		Ice.ObjectPrx obj = _table.removeProxy(rf.identity);
+		Ice.ObjectPrx obj = _table.removeProxy(rf.getIdentity());
 		if(obj != null)
 		{
-		    Reference r = ((Ice.ObjectPrxHelperBase)obj).__reference();
-		    if(r.adapterId.Length > 0)
-		    {
-			clearCache(r);
-		    }
-		    else if(r.endpoints.Length > 0)
-		    {
-			if(rf.instance.traceLevels().location >= 2)
-			{
-			    trace("removed endpoints from locator table", rf, r.endpoints);
-			}
-		    }
+		    if(obj is IndirectReference)
+                    {
+                        IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)obj).__reference();
+                        if(oir.getAdapterId().Length > 0)
+                        {
+                            clearCache(oir);
+                        }
+                    }
+                    else
+                    {
+                        if(rf.getInstance().traceLevels().location >= 2)
+                        {
+                            trace("removed endpoints from locator table",
+                                  rf, ((Ice.ObjectPrxHelperBase)obj).__reference().getEndpoints());
+                        }
+                    }
 		}
 	    }
 	}
 	
-	private void trace(string msg, Reference r, Endpoint[] endpoints)
+	private void trace(string msg, IndirectReference r, Endpoint[] endpoints)
 	{
 	    System.Text.StringBuilder s = new System.Text.StringBuilder();
 	    s.Append(msg + "\n");
-	    if(r.adapterId.Length > 0)
+	    if(r.getAdapterId().Length > 0)
 	    {
-		s.Append("adapter = " + r.adapterId + "\n");
+		s.Append("adapter = " + r.getAdapterId() + "\n");
 	    }
 	    else
 	    {
-		s.Append("object = " + Ice.Util.identityToString(r.identity) + "\n");
+		s.Append("object = " + Ice.Util.identityToString(r.getIdentity()) + "\n");
 	    }
 	    
 	    s.Append("endpoints = ");
@@ -253,7 +265,7 @@ namespace IceInternal
 		}
 	    }
 	    
-	    r.instance.logger().trace(r.instance.traceLevels().locationCat, s.ToString());
+	    r.getInstance().logger().trace(r.getInstance().traceLevels().locationCat, s.ToString());
 	}
 	
 	private readonly Ice.LocatorPrx _locator;

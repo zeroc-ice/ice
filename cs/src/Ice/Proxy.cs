@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+using System;
 using System.Collections;
 using System.Diagnostics;
 using IceUtil;
@@ -73,17 +74,17 @@ namespace Ice
     {
         public override int GetHashCode()
         {
-            return _reference.hashValue;
+            return _reference.GetHashCode();
         }
 
         public int ice_hash()
         {
-            return _reference.hashValue;
+            return _reference.GetHashCode();
         }
 
         public bool ice_isA(string __id)
         {
-            return ice_isA(__id, _reference.context);
+            return ice_isA(__id, _reference.getContext());
         }
 
         public bool ice_isA(string __id, Context __context)
@@ -110,7 +111,7 @@ namespace Ice
 
         public void ice_ping()
         {
-            ice_ping(_reference.context);
+            ice_ping(_reference.getContext());
         }
 
         public void ice_ping(Context __context)
@@ -138,7 +139,7 @@ namespace Ice
 
         public string[] ice_ids()
         {
-            return ice_ids(_reference.context);
+            return ice_ids(_reference.getContext());
         }
 
         public string[] ice_ids(Context __context)
@@ -165,7 +166,7 @@ namespace Ice
 
         public string ice_id()
         {
-            return ice_id(_reference.context);
+            return ice_id(_reference.getContext());
         }
 
         public string ice_id(Context __context)
@@ -192,7 +193,7 @@ namespace Ice
 
         public bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams)
         {
-            return ice_invoke(operation, mode, inParams, out outParams, _reference.context);
+            return ice_invoke(operation, mode, inParams, out outParams, _reference.getContext());
         }
 
         public bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
@@ -226,7 +227,7 @@ namespace Ice
 
         public void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams)
         {
-            ice_invoke_async(cb, operation, mode, inParams, _reference.context);
+            ice_invoke_async(cb, operation, mode, inParams, _reference.getContext());
         }
 
         public void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams, Context context)
@@ -237,12 +238,12 @@ namespace Ice
 
         public Identity ice_getIdentity()
         {
-            return _reference.identity;
+            return _reference.getIdentity();
         }
 
         public ObjectPrx ice_newIdentity(Identity newIdentity)
         {
-            if(newIdentity.Equals(_reference.identity))
+            if(newIdentity.Equals(_reference.getIdentity()))
             {
                 return this;
             }
@@ -256,12 +257,12 @@ namespace Ice
 
         public Context ice_getContext()
         {
-            return _reference.context;
+            return _reference.getContext();
         }
 
         public ObjectPrx ice_newContext(Context newContext)
         {
-            if(newContext.Equals(_reference.context))
+            if(newContext.Equals(_reference.getContext()))
             {
                 return this;
             }
@@ -275,7 +276,7 @@ namespace Ice
 
         public string ice_getFacet()
         {
-            return _reference.facet;
+            return _reference.getFacet();
         }
 
         public ObjectPrx ice_newFacet(string newFacet)
@@ -285,7 +286,7 @@ namespace Ice
                 newFacet = "";
             }
 
-            if(newFacet.Equals(_reference.facet))
+            if(newFacet.Equals(_reference.getFacet()))
             {
                 return this;
             }
@@ -299,7 +300,7 @@ namespace Ice
 
         public ObjectPrx ice_twoway()
         {
-            IceInternal.Reference @ref = _reference.changeMode(IceInternal.Reference.ModeTwoway);
+            IceInternal.Reference @ref = _reference.changeMode(IceInternal.Reference.Mode.ModeTwoway);
             if(@ref.Equals(_reference))
             {
                 return this;
@@ -314,12 +315,12 @@ namespace Ice
 
         public bool ice_isTwoway()
         {
-            return _reference.mode == IceInternal.Reference.ModeTwoway;
+            return _reference.getMode() == IceInternal.Reference.Mode.ModeTwoway;
         }
 
         public ObjectPrx ice_oneway()
         {
-            IceInternal.Reference @ref = _reference.changeMode(IceInternal.Reference.ModeOneway);
+            IceInternal.Reference @ref = _reference.changeMode(IceInternal.Reference.Mode.ModeOneway);
             if(@ref.Equals(_reference))
             {
                 return this;
@@ -334,12 +335,12 @@ namespace Ice
 
         public bool ice_isOneway()
         {
-            return _reference.mode == IceInternal.Reference.ModeOneway;
+            return _reference.getMode() == IceInternal.Reference.Mode.ModeOneway;
         }
 
         public ObjectPrx ice_batchOneway()
         {
-            IceInternal.Reference @ref = _reference.changeMode(IceInternal.Reference.ModeBatchOneway);
+            IceInternal.Reference @ref = _reference.changeMode(IceInternal.Reference.Mode.ModeBatchOneway);
             if(@ref.Equals(_reference))
             {
                 return this;
@@ -354,12 +355,12 @@ namespace Ice
 
         public bool ice_isBatchOneway()
         {
-            return _reference.mode == IceInternal.Reference.ModeBatchOneway;
+            return _reference.getMode() == IceInternal.Reference.Mode.ModeBatchOneway;
         }
 
         public ObjectPrx ice_datagram()
         {
-            IceInternal.Reference @ref = _reference.changeMode(IceInternal.Reference.ModeDatagram);
+            IceInternal.Reference @ref = _reference.changeMode(IceInternal.Reference.Mode.ModeDatagram);
             if(@ref.Equals(_reference))
             {
                 return this;
@@ -374,12 +375,12 @@ namespace Ice
 
         public bool ice_isDatagram()
         {
-            return _reference.mode == IceInternal.Reference.ModeDatagram;
+            return _reference.getMode() == IceInternal.Reference.Mode.ModeDatagram;
         }
 
         public ObjectPrx ice_batchDatagram()
         {
-            IceInternal.Reference @ref = _reference.changeMode(IceInternal.Reference.ModeBatchDatagram);
+            IceInternal.Reference @ref = _reference.changeMode(IceInternal.Reference.Mode.ModeBatchDatagram);
             if(@ref.Equals(_reference))
             {
                 return this;
@@ -394,7 +395,7 @@ namespace Ice
 
         public bool ice_isBatchDatagram()
         {
-            return _reference.mode == IceInternal.Reference.ModeBatchDatagram;
+            return _reference.getMode() == IceInternal.Reference.Mode.ModeBatchDatagram;
         }
 
         public ObjectPrx ice_secure(bool b)
@@ -593,12 +594,19 @@ namespace Ice
                 _delegate = null;
             }
 
-            if(_reference.locatorInfo != null)
+            try
             {
-                _reference.locatorInfo.clearObjectCache(_reference);
+                IceInternal.IndirectReference ir = (IceInternal.IndirectReference)_reference;
+                if(ir != null && ir.getLocatorInfo() != null)
+                {
+                    ir.getLocatorInfo().clearObjectCache(ir);
+                }
+            }
+            catch(InvalidCastException)
+            {
             }
 
-            IceInternal.ProxyFactory proxyFactory = _reference.instance.proxyFactory();
+            IceInternal.ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
             if(proxyFactory != null)
             {
                 return proxyFactory.checkRetryAfterException(ex, cnt);
@@ -615,9 +623,16 @@ namespace Ice
             {
                 _delegate = null;
 
-                if(_reference.locatorInfo != null)
+                try
                 {
-                    _reference.locatorInfo.clearObjectCache(_reference);
+                    IceInternal.IndirectReference ir = (IceInternal.IndirectReference)_reference;
+                    if(ir != null && ir.getLocatorInfo() != null)
+                    {
+                        ir.getLocatorInfo().clearObjectCache(ir);
+                    }
+                }
+                catch(InvalidCastException)
+                {
                 }
 
                 throw ex;
@@ -645,9 +660,9 @@ namespace Ice
             {
                 if(_delegate == null)
                 {
-                    if(_reference.collocationOptimization)
+                    if(_reference.getCollocationOptimization())
                     {
-                        ObjectAdapter adapter = _reference.instance.objectAdapterFactory().findObjectAdapter(this);
+                        ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
                         if(adapter != null)
                         {
                             _ObjectDelD @delegate = __createDelegateD();
@@ -667,9 +682,16 @@ namespace Ice
                         // using a router, then add this proxy to the router info
                         // object.
                         //
-                        if(_reference.routerInfo != null)
+                        try
                         {
-                            _reference.routerInfo.addProxy(this);
+                            IceInternal.RoutableReference rr = (IceInternal.RoutableReference)_reference;
+                            if(rr != null && rr.getRouterInfo() != null)
+                            {
+                                rr.getRouterInfo().addProxy(this);
+                            }
+                        }
+                        catch(InvalidCastException)
+                        {
                         }
                     }
                 }
@@ -690,7 +712,7 @@ namespace Ice
 
         protected Context __defaultContext()
         {
-            return _reference.context;
+            return _reference.getContext();
         }
 
         //
@@ -885,8 +907,8 @@ namespace Ice
         protected internal void __initCurrent(ref Current current, string op, Ice.OperationMode mode, Ice.Context context)
         {
             current.adapter = __adapter;
-            current.id = __reference.identity;
-            current.facet = __reference.facet;
+            current.id = __reference.getIdentity();
+            current.facet = __reference.getFacet();
             current.operation = op;
             current.mode = mode;
             current.ctx = context;
@@ -1017,7 +1039,7 @@ namespace Ice
                 __os.writeBlob(inParams);
                 bool ok = __out.invoke();
                 outParams = null;
-                if(__reference.mode == IceInternal.Reference.ModeTwoway)
+                if(__reference.getMode() == IceInternal.Reference.Mode.ModeTwoway)
                 {
                     try
                     {

@@ -7,25 +7,55 @@
 //
 // **********************************************************************
 
+using System;
+using System.Collections;
+
 namespace IceInternal
 {
 
-    using System.Collections;
-
-    public sealed class ReferenceFactory
+    public class ReferenceFactory
     {
 	public Reference
 	create(Ice.Identity ident,
 	       Ice.Context context,
 	       string facet,
-	       int mode,
+	       Reference.Mode mode,
 	       bool secure,
-	       string adapterId,
 	       Endpoint[] endpoints,
 	       RouterInfo routerInfo,
-	       LocatorInfo locatorInfo,
-	       Ice.ConnectionI[] fixedConnections,
 	       bool collocationOptimization)
+	{
+	    lock(this)
+	    {
+
+		if(_instance == null)
+		{
+		    throw new Ice.CommunicatorDestroyedException();
+		}
+
+		if(ident.name.Length == 0 && ident.category.Length == 0)
+		{
+		    return null;
+		}
+
+		//
+		// Create new reference
+		//
+		DirectReference @ref = new DirectReference(_instance, ident, context, facet, mode, secure,
+							   endpoints, routerInfo, collocationOptimization);
+		return updateCache(@ref);
+	    }
+	}
+
+	public Reference create(Ice.Identity ident,
+	                        Ice.Context context,
+	                        string facet,
+	                        Reference.Mode mode,
+	                        bool secure,
+	                        string adapterId,
+	                        RouterInfo routerInfo,
+	                        LocatorInfo locatorInfo,
+	                        bool collocationOptimization)
 	{
 	    lock(this)
 	    {
@@ -33,32 +63,81 @@ namespace IceInternal
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
-		
+
 		if(ident.name.Length == 0 && ident.category.Length == 0)
 		{
 		    return null;
 		}
-		
+
 		//
-		// Create a new reference
+		// Create new reference
 		//
-		return new Reference(_instance, ident, context, facet, mode, secure, adapterId, endpoints, routerInfo,
-				     locatorInfo, fixedConnections, collocationOptimization);
+		IndirectReference @ref = new IndirectReference(_instance, ident, context, facet, mode, secure,
+							       adapterId, routerInfo, locatorInfo,
+							       collocationOptimization);
+		return updateCache(@ref);
 	    }
 	}
-	
+
+	public Reference create(Ice.Identity ident,
+	                        Ice.Context context,
+	                        string facet,
+	                        Reference.Mode mode,
+	                        bool secure,
+	                        bool collocationOptimization,
+	                        Ice.ConnectionI[] fixedConnections)
+	{
+	    lock(this)
+	    {
+		if(_instance == null)
+		{
+		    throw new Ice.CommunicatorDestroyedException();
+		}
+
+		if(ident.name.Length == 0 && ident.category.Length == 0)
+		{
+		    return null;
+		}
+
+		//
+		// Create new reference
+		//
+		FixedReference @ref = new FixedReference(_instance, ident, context, facet, mode, secure,
+		                                         fixedConnections);
+		return updateCache(@ref);
+	    }
+	}
+
+	public Reference copy(Reference r)
+	{
+	    lock(this)
+	    {
+		if(_instance == null)
+		{
+		    throw new Ice.CommunicatorDestroyedException();
+		}
+
+		Ice.Identity ident = r.getIdentity();
+		if(ident.name.Length == 0 && ident.category.Length == 0)
+		{
+		    return null;
+		}
+		return (Reference)r.Clone();
+	    }
+	}
+
 	public Reference create(string s)
 	{
 	    if(s.Length == 0)
 	    {
 		return null;
 	    }
-	    
-	    string delim = " \t\n\r";
-	    
+
+	    const string delim = " \t\n\r";
+
 	    int beg;
 	    int end = 0;
-	    
+
 	    beg = IceUtil.StringUtil.findFirstNotOf(s, delim, end);
 	    if(beg == -1)
 	    {
@@ -66,7 +145,7 @@ namespace IceInternal
 		e.str = s;
 		throw e;
 	    }
-	    
+
 	    //
 	    // Extract the identity, which may be enclosed in single
 	    // or double quotation marks.
@@ -86,27 +165,27 @@ namespace IceInternal
 		{
 		    end = s.Length;
 		}
-		idstr = s.Substring(beg, (end) - (beg));
+		idstr = s.Substring(beg, end - beg);
 	    }
 	    else
 	    {
 		beg++; // Skip leading quote
-		idstr = s.Substring(beg, (end) - (beg));
+		idstr = s.Substring(beg, end - beg);
 		end++; // Skip trailing quote
 	    }
-	    
+
 	    if(beg == end)
 	    {
 		Ice.ProxyParseException e = new Ice.ProxyParseException();
 		e.str = s;
 		throw e;
 	    }
-	    
+
 	    //
 	    // Parsing the identity may raise IdentityParseException.
 	    //
 	    Ice.Identity ident = Ice.Util.stringToIdentity(idstr);
-	    
+
 	    if(ident.name.Length == 0)
 	    {
 		//
@@ -136,12 +215,12 @@ namespace IceInternal
 		    return null;
 		}
 	    }
-	    
+
 	    string facet = "";
-	    int mode = Reference.ModeTwoway;
+	    Reference.Mode mode = Reference.Mode.ModeTwoway;
 	    bool secure = false;
 	    string adapter = "";
-	    
+
 	    while(true)
 	    {
 		beg = IceUtil.StringUtil.findFirstNotOf(s, delim, end);
@@ -149,31 +228,31 @@ namespace IceInternal
 		{
 		    break;
 		}
-		
+
 		if(s[beg] == ':' || s[beg] == '@')
 		{
 		    break;
 		}
-		
+
 		end = IceUtil.StringUtil.findFirstOf(s, delim + ":@", beg);
 		if(end == -1)
 		{
 		    end = s.Length;
 		}
-		
+
 		if(beg == end)
 		{
 		    break;
 		}
-		
-		string option = s.Substring(beg, (end) - (beg));
+
+		string option = s.Substring(beg, end - beg);
 		if(option.Length != 2 || option[0] != '-')
 		{
 		    Ice.ProxyParseException e = new Ice.ProxyParseException();
 		    e.str = s;
 		    throw e;
 		}
-		
+
 		//
 		// Check for the presence of an option argument. The
 		// argument may be enclosed in single or double
@@ -199,26 +278,26 @@ namespace IceInternal
 			    end = IceUtil.StringUtil.findFirstOf(s, delim + ":@", beg);
 			    if(end == -1)
 			    {
-					end = s.Length;
+				end = s.Length;
 			    }
-			    argument = s.Substring(beg, (end) - (beg));
+			    argument = s.Substring(beg, end - beg);
 			}
 			else
 			{
 			    beg++; // Skip leading quote
-			    argument = s.Substring(beg, (end) - (beg));
+			    argument = s.Substring(beg, end - beg);
 			    end++; // Skip trailing quote
 			}
 		    }
 		}
-		
+
 		//
 		// If any new options are added here,
-		// IceInternal::Reference::toString() must be updated as well.
+		// IceInternal::Reference::toString() and its derived classes must be updated as well.
 		//
 		switch(option[1])
 		{
-		    case 'f': 
+		    case 'f':
 		    {
 			if(argument == null)
 			{
@@ -226,17 +305,19 @@ namespace IceInternal
 			    e.str = s;
 			    throw e;
 			}
-			
-			if(!IceUtil.StringUtil.unescapeString(argument, 0, argument.Length, out facet))
+
+			string token;
+			if(!IceUtil.StringUtil.unescapeString(argument, 0, argument.Length, out token))
 			{
 			    Ice.ProxyParseException e = new Ice.ProxyParseException();
 			    e.str = s;
 			    throw e;
 			}
+                        facet = token;
 			break;
 		    }
-		    
-		    case 't': 
+
+		    case 't':
 		    {
 			if(argument != null)
 			{
@@ -244,11 +325,11 @@ namespace IceInternal
 			    e.str = s;
 			    throw e;
 			}
-			mode = Reference.ModeTwoway;
+			mode = Reference.Mode.ModeTwoway;
 			break;
 		    }
-		    
-		    case 'o': 
+
+		    case 'o':
 		    {
 			if(argument != null)
 			{
@@ -256,11 +337,11 @@ namespace IceInternal
 			    e.str = s;
 			    throw e;
 			}
-			mode = Reference.ModeOneway;
+			mode = Reference.Mode.ModeOneway;
 			break;
 		    }
-		    
-		    case 'O': 
+
+		    case 'O':
 		    {
 			if(argument != null)
 			{
@@ -268,11 +349,11 @@ namespace IceInternal
 			    e.str = s;
 			    throw e;
 			}
-			mode = Reference.ModeBatchOneway;
+			mode = Reference.Mode.ModeBatchOneway;
 			break;
 		    }
-		    
-		    case 'd': 
+
+		    case 'd':
 		    {
 			if(argument != null)
 			{
@@ -280,11 +361,11 @@ namespace IceInternal
 			    e.str = s;
 			    throw e;
 			}
-			mode = Reference.ModeDatagram;
+			mode = Reference.Mode.ModeDatagram;
 			break;
 		    }
-		    
-		    case 'D': 
+
+		    case 'D':
 		    {
 			if(argument != null)
 			{
@@ -292,11 +373,11 @@ namespace IceInternal
 			    e.str = s;
 			    throw e;
 			}
-			mode = Reference.ModeBatchDatagram;
+			mode = Reference.Mode.ModeBatchDatagram;
 			break;
 		    }
-		    
-		    case 's': 
+
+		    case 's':
 		    {
 			if(argument != null)
 			{
@@ -307,132 +388,135 @@ namespace IceInternal
 			secure = true;
 			break;
 		    }
-		    
-		    default: 
+
+		    default:
 		    {
 			Ice.ProxyParseException e = new Ice.ProxyParseException();
 			e.str = s;
 			throw e;
 		    }
-		    
 		}
 	    }
-	    
-	    ArrayList endpoints = new ArrayList();
-	    if(beg != -1)
-	    {
-		if(s[beg] == ':')
-		{
-		    end = beg;
-		    
-		    while(end < s.Length && s[end] == ':')
-		    {
-			beg = end + 1;
-			end = s.IndexOf(':', beg);
-			if(end == -1)
-			{
-			    end = s.Length;
-			}
-			
-			string es = s.Substring(beg, (end) - (beg));
-			Endpoint endp = _instance.endpointFactoryManager().create(es);
-			endpoints.Add(endp);
-		    }
-		}
-		else if(s[beg] == '@')
-		{
-		    beg = IceUtil.StringUtil.findFirstNotOf(s, delim, beg + 1);
-		    if(beg == -1)
-		    {
-			Ice.ProxyParseException e = new Ice.ProxyParseException();
-			e.str = s;
-			throw e;
-		    }
-		    
-		    end = IceUtil.StringUtil.checkQuote(s, beg);
-		    if(end == -1)
-		    {
-			Ice.ProxyParseException e = new Ice.ProxyParseException();
-			e.str = s;
-			throw e;
-		    }
-		    else if(end == 0)
-		    {
-			end = IceUtil.StringUtil.findFirstOf(s, delim, beg);
-			if(end == -1)
-			{
-			    end = s.Length;
-			}
-		    }
-		    else
-		    {
-			beg++; // Skip leading quote
-		    }
-		    
-		    string token;
-		    if(!IceUtil.StringUtil.unescapeString(s, beg, end, out token) || token.Length == 0)
-		    {
-			Ice.ProxyParseException e = new Ice.ProxyParseException();
-			e.str = s;
-			throw e;
-		    }
-		    adapter = token;
-		}
-	    }
-	    
-	    Endpoint[] endp2 = new Endpoint[endpoints.Count];
-	    if(endp2.Length != 0)
-	    {
-		endpoints.CopyTo(endp2, 0);
-	    }
-	    
+
 	    RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
 	    LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
-	    return create(ident, new Ice.Context(), facet, mode, secure, adapter, endp2, routerInfo, locatorInfo,
-			  new Ice.ConnectionI[0], true);
+
+	    if(beg == -1)
+	    {
+		return create(ident, new Ice.Context(), facet, mode, secure, "", routerInfo, locatorInfo, true);
+	    }
+
+	    ArrayList endpoints = new ArrayList();
+
+	    if(s[beg] == ':')
+	    {
+		end = beg;
+
+		while(end < s.Length && s[end] == ':')
+		{
+		    beg = end + 1;
+		    
+		    end = s.IndexOf(':', beg);
+		    if(end == -1)
+		    {
+			end = s.Length;
+		    }
+		    
+		    string es = s.Substring(beg, end - beg);
+		    Endpoint endp = _instance.endpointFactoryManager().create(es);
+		    endpoints.Add(endp);
+		}
+		Endpoint[] ep = (Endpoint[])endpoints.ToArray(typeof(Endpoint));
+		return create(ident, new Ice.Context(), facet, mode, secure, ep, routerInfo, true);
+	    }
+	    else if(s[beg] == '@')
+	    {
+		beg = IceUtil.StringUtil.findFirstNotOf(s, delim, beg + 1);
+		if(beg == -1)
+		{
+		    Ice.ProxyParseException e = new Ice.ProxyParseException();
+		    e.str = s;
+		    throw e;
+		}
+
+		end = IceUtil.StringUtil.checkQuote(s, beg);
+		if(end == -1)
+		{
+		    Ice.ProxyParseException e = new Ice.ProxyParseException();
+		    e.str = s;
+		    throw e;
+		}
+		else if(end == 0)
+		{
+		    end = IceUtil.StringUtil.findFirstOf(s, delim, beg);
+		    if(end == -1)
+		    {
+			end = s.Length;
+		    }
+		}
+		else
+		{
+		    beg++; // Skip leading quote
+		}
+
+		if(!IceUtil.StringUtil.unescapeString(s, beg, end, out adapter) || adapter.Length == 0)
+		{
+		    Ice.ProxyParseException e = new Ice.ProxyParseException();
+		    e.str = s;
+		    throw e;
+		}
+		return create(ident, new Ice.Context(), facet, mode, secure, adapter, routerInfo, locatorInfo, true);
+	    }
+
+	    Ice.ProxyParseException ex = new Ice.ProxyParseException();
+	    ex.str = s;
+	    throw ex;
 	}
-	
+
 	public Reference create(Ice.Identity ident, BasicStream s)
 	{
 	    //
 	    // Don't read the identity here. Operations calling this
 	    // constructor read the identity, and pass it as a parameter.
 	    //
-	    
+
 	    if(ident.name.Length == 0 && ident.category.Length == 0)
 	    {
 		return null;
 	    }
-	    
-            //
-            // For compatibility with the old FacetPath.
-            //
-            string[] facetPath = s.readStringSeq();
-            string facet;
-            if(facetPath.Length > 0)
-            {
-                if(facetPath.Length > 1)
-                {
-                    throw new Ice.ProxyUnmarshalException();
-                }
-                facet = facetPath[0];
-            }
-            else
-            {
-                facet = "";
-            }
-	    
-	    int mode = (int) s.readByte();
-	    if(mode < 0 || mode > Reference.ModeLast)
+
+	    //
+	    // For compatibility with the old FacetPath.
+	    //
+	    string[] facetPath = s.readStringSeq();
+	    string facet;
+	    if(facetPath.Length > 0)
+	    {
+		if(facetPath.Length > 1)
+		{
+		    throw new Ice.ProxyUnmarshalException();
+		}
+		facet = facetPath[0];
+	    }
+	    else
+	    {
+		facet = "";
+	    }
+
+	    int mode = (int)s.readByte();
+	    if(mode < 0 || mode > (int)Reference.Mode.ModeLast)
 	    {
 		throw new Ice.ProxyUnmarshalException();
 	    }
-	    
+
 	    bool secure = s.readBool();
-	    
+
 	    Endpoint[] endpoints;
 	    string adapterId = "";
-	    
+
+	    RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
+	    LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
+
 	    int sz = s.readSize();
 	    if(sz > 0)
 	    {
@@ -441,19 +525,17 @@ namespace IceInternal
 		{
 		    endpoints[i] = _instance.endpointFactoryManager().read(s);
 		}
+		return create(ident, new Ice.Context(), facet, (Reference.Mode)mode, secure, endpoints, routerInfo, true);
 	    }
 	    else
 	    {
 		endpoints = new Endpoint[0];
 		adapterId = s.readString();
+		return create(ident, new Ice.Context(), facet, (Reference.Mode)mode, secure,
+			      adapterId, routerInfo, locatorInfo, true);
 	    }
-	    
-	    RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
-	    LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
-	    return create(ident, new Ice.Context(), facet, mode, secure, adapterId, endpoints, routerInfo, locatorInfo,
-			  new Ice.ConnectionI[0], true);
 	}
-	
+
 	public void setDefaultRouter(Ice.RouterPrx defaultRouter)
 	{
 	    lock(this)
@@ -477,7 +559,7 @@ namespace IceInternal
 		_defaultLocator = defaultLocator;
 	    }
 	}
-	    
+
 	public Ice.LocatorPrx getDefaultLocator()
 	{
 	    lock(this)
@@ -485,7 +567,7 @@ namespace IceInternal
 		return _defaultLocator;
 	    }
 	}
-	    
+
 	//
 	// Only for use by Instance
 	//
@@ -493,7 +575,7 @@ namespace IceInternal
 	{
 	    _instance = instance;
 	}
-	
+
 	internal void destroy()
 	{
 	    lock(this)
@@ -502,16 +584,40 @@ namespace IceInternal
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
-		
+
 		_instance = null;
 		_defaultRouter = null;
 		_defaultLocator = null;
+		_references.Clear();
 	    }
 	}
-	
+
+	private Reference updateCache(Reference @ref)
+	{
+	    //
+	    // If we already have an equivalent reference, use such equivalent
+	    // reference. Otherwise add the new reference to the reference
+	    // set.
+	    //
+	    WeakReference w = new WeakReference(@ref);
+	    WeakReference val = (WeakReference)_references[w];
+	    if(val != null)
+	    {
+		Reference r = (Reference)val.Target;
+		if(r != null && r.Equals(@ref))
+		{
+		    return r;
+		}
+	    }
+	    _references[w] = w;
+
+	    return @ref;
+	}
+
 	private Instance _instance;
 	private Ice.RouterPrx _defaultRouter;
 	private Ice.LocatorPrx _defaultLocator;
+	private Hashtable _references = new Hashtable();
     }
 
 }

@@ -22,8 +22,8 @@ namespace IceInternal
 	    _connection = connection;
 	    _reference = r;
 	    _state = StateUnsent;
-	    _is = new BasicStream(r.instance);
-	    _os = new BasicStream(r.instance);
+	    _is = new BasicStream(r.getInstance());
+	    _os = new BasicStream(r.getInstance());
 	    _compress = compress;
 	    
 	    writeHeader(operation, mode, context);
@@ -70,9 +70,9 @@ namespace IceInternal
 
 	    _os.endWriteEncaps();
 	    
-	    switch(_reference.mode)
+	    switch(_reference.getMode())
 	    {
-		case Reference.ModeTwoway: 
+		case Reference.Mode.ModeTwoway: 
 		{
 		    //
 		    // We let all exceptions raised by sending directly
@@ -176,8 +176,8 @@ namespace IceInternal
 		    break;
 		}
 		
-		case Reference.ModeOneway: 
-		case Reference.ModeDatagram: 
+		case Reference.Mode.ModeOneway: 
+		case Reference.Mode.ModeDatagram: 
 		{
 		    //
 		    // For oneway and datagram requests, the
@@ -193,8 +193,8 @@ namespace IceInternal
 		    break;
 		}
 		
-		case Reference.ModeBatchOneway: 
-		case Reference.ModeBatchDatagram: 
+		case Reference.Mode.ModeBatchOneway: 
+		case Reference.Mode.ModeBatchDatagram: 
 		{
 		    //
 		    // For batch oneways and datagrams, the same rules
@@ -219,7 +219,8 @@ namespace IceInternal
 	    // we must notify the connection about that we give up
 	    // ownership of the batch stream.
 	    //
-	    if(_reference.mode == Reference.ModeBatchOneway || _reference.mode == Reference.ModeBatchDatagram)
+	    if(_reference.getMode() == Reference.Mode.ModeBatchOneway ||
+               _reference.getMode() == Reference.Mode.ModeBatchDatagram)
 	    {
 		_connection.abortBatchRequest();
  
@@ -239,7 +240,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		Debug.Assert(_reference.mode == Reference.ModeTwoway); // Can only be called for twoways.
+		Debug.Assert(_reference.getMode() == Reference.Mode.ModeTwoway); // Can only be called for twoways.
 
 		Debug.Assert(_state <= StateInProgress);
 
@@ -386,7 +387,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		Debug.Assert(_reference.mode == Reference.ModeTwoway); // Can only be called for twoways.
+		Debug.Assert(_reference.getMode() == Reference.Mode.ModeTwoway); // Can only be called for twoways.
 	    
 		Debug.Assert(_state <= StateInProgress);
 
@@ -408,36 +409,37 @@ namespace IceInternal
 	
 	private void writeHeader(string operation, Ice.OperationMode mode, Ice.Context context)
 	{
-	    switch(_reference.mode)
+	    switch(_reference.getMode())
 	    {
-		case Reference.ModeTwoway: 
-		case Reference.ModeOneway: 
-		case Reference.ModeDatagram: 
+		case Reference.Mode.ModeTwoway: 
+		case Reference.Mode.ModeOneway: 
+		case Reference.Mode.ModeDatagram: 
 		{
 		    _connection.prepareRequest(_os);
 		    break;
 		}
 		
-		case Reference.ModeBatchOneway: 
-		case Reference.ModeBatchDatagram: 
+		case Reference.Mode.ModeBatchOneway: 
+		case Reference.Mode.ModeBatchDatagram: 
 		{
 		    _connection.prepareBatchRequest(_os);
 		    break;
 		}
 	    }
 	    
-	    _reference.identity.__write(_os);
+	    _reference.getIdentity().__write(_os);
 
             //
             // For compatibility with the old FacetPath.
             //
-            if(_reference.facet == null || _reference.facet.Length == 0)
+            string facet = _reference.getFacet();
+            if(facet == null || facet.Length == 0)
             {
                 _os.writeStringSeq(null);
             }
             else
             {
-                string[] facetPath = { _reference.facet };
+                string[] facetPath = { facet };
                 _os.writeStringSeq(facetPath);
             }
 

@@ -9,6 +9,7 @@
 
 namespace Ice
 {
+    using System;
     using System.Collections;
     using System.Diagnostics;
 
@@ -377,7 +378,7 @@ namespace Ice
 		checkForDeactivation();
 
 		IceInternal.Reference @ref = ((ObjectPrxHelperBase)proxy).__reference();
-		return findFacet(@ref.identity, @ref.facet);
+		return findFacet(@ref.getIdentity(), @ref.getFacet());
 	    }
 	}
 	
@@ -456,10 +457,9 @@ namespace Ice
 		{
 		    connections.CopyTo(arr, 0);
 		}
-		IceInternal.Reference @ref = _instance.referenceFactory().create(ident, new Context(), "",
-										 IceInternal.Reference.ModeTwoway,
-										 false, "", endpoints, null, null,
-										 arr, true);
+                IceInternal.Reference @ref = _instance.referenceFactory().create(ident, new Ice.Context(), "",
+                                                                                 IceInternal.Reference.Mode.ModeTwoway,
+                                                                                 false, true, arr);
 		return _instance.proxyFactory().referenceToProxy(@ref);
 	    }
 	}
@@ -478,7 +478,7 @@ namespace Ice
 		    // adapter.
 		    //
 		    ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)routerInfo.getServerProxy();
-		    IceInternal.Endpoint[] endpoints = proxy.__reference().endpoints;
+		    IceInternal.Endpoint[] endpoints = proxy.__reference().getEndpoints();
 		    for(int i = 0; i < endpoints.Length; ++i)
 		    {
 			_routerEndpoints.Add(endpoints[i]);
@@ -549,16 +549,23 @@ namespace Ice
 		checkForDeactivation();
 		
 		IceInternal.Reference r = ((ObjectPrxHelperBase)proxy).__reference();
-		IceInternal.Endpoint[] endpoints = r.endpoints;
+		IceInternal.Endpoint[] endpoints = r.getEndpoints();
 		
-		if(!r.adapterId.Equals(""))
-		{
-		    //
-		    // Proxy is local if the reference adapter id matches this
-		    // adapter name.
-		    //
-		    return r.adapterId.Equals(_id);
-		}
+		try
+                {
+                    IceInternal.IndirectReference ir = (IceInternal.IndirectReference)r;
+                    if(ir.getAdapterId().Length != 0)
+                    {
+                        //
+                        // Proxy is local if the reference adapter id matches this
+                        // adapter name.
+                        //
+                        return ir.getAdapterId().Equals(_id);
+                    }
+                }
+                catch(InvalidCastException)
+                {
+                }
 		
 		//
 		// Proxies which have at least one endpoint in common with the
@@ -778,8 +785,8 @@ namespace Ice
 		IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
 		ConnectionI[] connections = new ConnectionI[0];
 		IceInternal.Reference reference =
-		    _instance.referenceFactory().create(ident, new Context(), facet, IceInternal.Reference.ModeTwoway,
-							false, _id, endpoints, null, _locatorInfo, connections, true);
+		    _instance.referenceFactory().create(ident, new Context(), facet, IceInternal.Reference.Mode.ModeTwoway,
+							false, _id, null, _locatorInfo, true);
 		return _instance.proxyFactory().referenceToProxy(reference);
 	    }
 	}
@@ -828,8 +835,8 @@ namespace Ice
 	    //
 	    ConnectionI[] connections = new ConnectionI[0];
 	    IceInternal.Reference reference =
-		_instance.referenceFactory().create(ident, new Context(), facet, IceInternal.Reference.ModeTwoway,
-                                                    false, "", endpoints, null, _locatorInfo, connections, true);
+		_instance.referenceFactory().create(ident, new Context(), facet, IceInternal.Reference.Mode.ModeTwoway,
+                                                    false, endpoints, null, true);
 	    return _instance.proxyFactory().referenceToProxy(reference);
 	}
 	
