@@ -52,9 +52,8 @@ public:
     
 private:
 
-    void initiateShutdown(); // Signal-safe shutdown initiation.
-    bool clearInterrupt();
-    void setInterrupt(char);
+    void clearInterrupt();
+    void setInterrupt();
 
     bool run(); // Returns true if a follower should be promoted.
     void read(const EventHandlerPtr&);
