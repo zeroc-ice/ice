@@ -1,0 +1,37 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+<project name="common_cvs" basedir="." default="...">
+    <property environment="env"/>
+
+    <dirname property="common_cvs.basedir" file="${ant.file.common_cvs}" />
+
+    <property name="lib.dir" value="${common_cvs.basedir}/../lib" />
+
+    <fail message="ICE_HOME is not set to a valid directory">
+        <condition>
+	    <not>
+	         <available file="${env.ICE_HOME}/slice" />
+	    </not>
+	</condition>
+    </fail>
+	
+    <property name="slice.dir" value="${env.ICE_HOME}/slice"/>
+    <taskdef name="slice2java" classpath="${common_cvs.basedir}/../ant" classname="Slice2JavaTask"/>
+    <taskdef name="slice2freezej" classpath="${common_cvs.basedir}/../ant" classname="Slice2FreezeJTask" />
+	      
+    <!-- Ice classpath -->
+    <path id="ice.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+</project>

@@ -1,0 +1,39 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+<project name="common" basedir="." default="...">
+    <property environment="env"/>
+
+    <dirname property="common.basedir" file="${ant.file.common}"/>
+    
+    <property name="top.dir" value="${common.basedir}/.."/>
+
+    <!-- Figure out install type -->
+
+    <available file="${top.dir}/makedist.py" property="installtype" value="cvs" />
+
+    <condition property="installtype" value="src">
+	<and>
+	    <available file="${top.dir}/slice"/>
+	    <equals arg1="${installtype}" arg2=""/>
+	</and>
+    </condition>
+
+    <condition property="installtype" value="rpm">
+	<and>
+	    <available file="/usr/share/slice"/>
+	    <equals arg1="${installtype}" arg2=""/>
+	</and>
+    </condition>
+
+    <import file="${common.basedir}/common.${installtype}.xml"/>
+    <property file="${common.basedir}/build.properties"/>
+	
+</project>
