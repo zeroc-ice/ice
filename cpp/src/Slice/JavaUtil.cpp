@@ -932,7 +932,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << v << " = new " << listType << "();";
                 out << nl << "int __len" << iter << " = " << stream << ".readSize();";
                 out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __len" << iter << "; __i" << iter
-                    << "++);";
+                    << "++)";
                 out << sb;
                 out << nl << origContentS << " __elem;";
                 iter++;
@@ -1635,7 +1635,7 @@ Slice::JavaGenerator::writeGenericSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << v << " = new " << listType << "();";
                 out << nl << "int __len" << iter << " = " << stream << ".startReadSequence(" << name << ");";
                 out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __len" << iter << "; __i" << iter
-                    << "++);";
+                    << "++)";
                 out << sb;
                 out << nl << origContentS << " __elem;";
                 iter++;
