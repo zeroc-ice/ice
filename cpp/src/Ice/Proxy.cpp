@@ -770,6 +770,8 @@ IceProxy::Ice::Object::__rethrowException(const LocalException& ex)
 void
 IceProxy::Ice::Object::__checkTwowayOnly(const char* name) const
 {
+    IceUtil::Mutex::Lock sync(*this);
+
     if(!ice_isTwoway())
     {
         TwowayOnlyException ex(__FILE__, __LINE__);
