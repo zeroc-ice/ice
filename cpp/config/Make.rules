@@ -13,27 +13,50 @@
 # **********************************************************************
 
 #
-# The locations of STLport, Berkeley DB, and other libraries used by
-# this package.
-#
 # The values below can be overwritten by defining them as environment
 # variables. For example, if you are using a bourne shell or
 # compatible, you can overwrite the location of STLport like this:
 #
 # export STLPORT_HOME=/usr/local/STLport-4.5
 #
-# If you don't want to use STLport, but the compiler's default STL
-# implementation, then define STLPORT_HOME as empty string.
+
 #
+# If you want to use STLport, set STLPORT_HOME to the STLport
+# installation directory. If STLPORT_HOME is undefined or empty,
+# STLport is not used.
+#
+
 #STLPORT_HOME		?= /opt/STLport
+
+#
+# If Berkeley DB is not installed in a standard location where the
+# compiler can find it, set DB_HOME to the Berkeley DB installation
+# directory.
+#
+
 #DB_HOME		?= /opt/db
+
+#
+# If OpenSSL is not installed in a standard location where the
+# compiler can find it, set OPENSSL_HOME to the OpenSSL installation
+# directory.
+#
+
 #OPENSSL_HOME		?= /opt/openssl
+
+#
+# If Xerces-C++ is not installed in a standard location where the
+# compiler can find it, set XERCESC_HOME to the Xerces-C++
+# installation directory.
+#
+
 #XERCESC_HOME		?= /opt/xerces-c
 
 #
 # Define OPTIMIZE as yes if you want to build with
 # optimization. Otherwise Ice is build with debug information.
 #
+
 #OPTIMIZE		= yes
 
 # ----------------------------------------------------------------------

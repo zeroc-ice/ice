@@ -29,7 +29,7 @@ Third-party libraries
 
 - Xerces-C++ 2.1.0
 
-- Berkeley DB 3.3 or 4.0
+- Berkeley DB 3.3, 4.0, or 4.1
 
 - OpenSSL 0.9.6
 
@@ -75,10 +75,11 @@ running the test scripts, Python is not required.
 
 
 ======================================================================
-Installation
+Compilation and Testing
 ======================================================================
 
-Extract the Ice archive, for example, in your home directory:
+Extract the Ice archive in any directory you like (for example, in
+your home directory):
 
 $ tar xvfz Ice-<version>.tar.gz
 
@@ -112,3 +113,16 @@ $ python2 allTests.py
 
 If everything worked out, you should see lots of "ok". In case of a
 failure, the tests abort with "failed".
+
+If you want to try out any of the demos, make sure to add "bin" to
+PATH and "lib" to LD_LIBRARY_PATH:
+
+$ export PATH=`pwd`/bin:$PATH
+$ export LD_LIBRARY_PATH=`pwd`/bin:$LD_LIBRARY_PATH
+
+
+======================================================================
+Installation
+======================================================================
+
+TBD
