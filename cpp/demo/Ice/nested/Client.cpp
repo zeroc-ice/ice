@@ -36,7 +36,7 @@ NestedClient::run(int argc, char* argv[])
     std::string ref = properties->getProperty(refProperty);
     if (ref.empty())
     {
-	cerr << argv[0] << ": property `" << refProperty << "' not set" << endl;
+	cerr << appName() << ": property `" << refProperty << "' not set" << endl;
 	return EXIT_FAILURE;
     }
 
@@ -44,7 +44,7 @@ NestedClient::run(int argc, char* argv[])
     NestedPrx nested = NestedPrx::checkedCast(base);
     if (!nested)
     {
-	cerr << argv[0] << ": invalid object reference" << endl;
+	cerr << appName() << ": invalid object reference" << endl;
 	return EXIT_FAILURE;
     }
 

@@ -53,7 +53,7 @@ CallbackClient::run(int argc, char* argv[])
     std::string ref = properties->getProperty(refProperty);
     if (ref.empty())
     {
-	cerr << argv[0] << ": property `" << refProperty << "' not set" << endl;
+	cerr << appName() << ": property `" << refProperty << "' not set" << endl;
 	return EXIT_FAILURE;
     }
 
@@ -61,7 +61,7 @@ CallbackClient::run(int argc, char* argv[])
     CallbackPrx twoway = CallbackPrx::checkedCast(base->ice_twoway()->ice_timeout(-1)->ice_secure(false));
     if (!twoway)
     {
-	cerr << argv[0] << ": invalid object reference" << endl;
+	cerr << appName() << ": invalid object reference" << endl;
 	return EXIT_FAILURE;
     }
     CallbackPrx oneway = CallbackPrx::uncheckedCast(twoway->ice_oneway());
