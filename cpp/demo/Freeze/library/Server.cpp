@@ -74,7 +74,7 @@ LibraryServer::run(int argc, char* argv[])
     // Create and install a factory for books.
     //
     ObjectFactoryPtr bookFactory = new BookFactory(library);
-    communicator()->addObjectFactory(bookFactory, "::Book");
+    communicator()->addObjectFactory(bookFactory, "::Demo::Book");
     
     //
     // Everything ok, let's go.

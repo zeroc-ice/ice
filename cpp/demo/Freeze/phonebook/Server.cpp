@@ -47,7 +47,7 @@ PhoneBookServer::run(int argc, char* argv[])
     // Create and install a factory for contacts.
     //
     ContactFactoryPtr contactFactory = new ContactFactory();
-    communicator()->addObjectFactory(contactFactory, "::Contact");
+    communicator()->addObjectFactory(contactFactory, "::Demo::Contact");
     
     //
     // Create the name index.

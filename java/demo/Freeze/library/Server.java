@@ -41,7 +41,7 @@ class LibraryServer extends Ice.Application
 	// Create and install a factory for books.
 	//
 	Ice.ObjectFactory bookFactory = new BookFactory(library);
-	communicator().addObjectFactory(bookFactory, "::Book");
+	communicator().addObjectFactory(bookFactory, "::Demo::Book");
     
 	//
 	// Everything ok, let's go.
