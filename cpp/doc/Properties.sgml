@@ -1141,8 +1141,8 @@ the certificate path defined by <literal>IceSSL.Client.CertPath</literal>
 or <literal>IceSSL.Server.CertPath</literal>.
 </para>
 <para>
-Xerces-c, the XML parser used to read this file, will look for the DTD file
-in the same directory that it finds the XML configuration file.
+The XML parser looks for the DTD file in the same directory in which
+it finds the XML configuration file.
 </para>
 <para>
 Depending on whether the application is running in client mode, server mode or
