@@ -15,9 +15,9 @@
 #ifndef ICE_UTIL_CONFIG_H
 #define ICE_UTIL_CONFIG_H
 
-
 //
 // Endianness
+//
 // Most CPUs support only one endianness, with the notable exceptions
 // of Itanium (IA64) and MIPS.
 //
@@ -109,11 +109,11 @@
 
 //
 // MFC applications that include afxwin.h before this header will cause
-// windows.h to skip inclusion of winsock2.h, so we include it here if
+// windows.h to skip inclusion of winsock.h, so we include it here if
 // necessary.
 // 
-#   if !defined(_WINSOCK2API_) && !defined(_WINSOCKAPI_)
-#      include <winsock2.h>
+#   ifndef _WINSOCKAPI_
+#      include <winsock.h>
 #   endif
 
 // '...' : forcing value to bool 'true' or 'false' (performance warning)
