@@ -80,8 +80,11 @@ IceSSL::SingleCertificateVerifier::verify(int preVerifyOkay,
     // Compare, only if we have both.
     if(trustedCert)
     {
-        ByteSeq peerByteSeq = toByteSeq(peerCertificate);
-        ByteSeq trustedByteSeq = toByteSeq(trustedCert);
+        ByteSeq peerByteSeq;
+        toByteSeq(peerCertificate, peerByteSeq);
+
+        ByteSeq trustedByteSeq;
+        toByteSeq(trustedCert, trustedByteSeq);
 
         // The presented certificate must exactly match one that is in
         // the certificate store, and that must be the expected certificate.
@@ -95,11 +98,10 @@ IceSSL::SingleCertificateVerifier::verify(int preVerifyOkay,
     return preVerifyOkay;
 }
 
-ByteSeq
-IceSSL::SingleCertificateVerifier::toByteSeq(X509* certificate)
+void
+IceSSL::SingleCertificateVerifier::toByteSeq(X509* certificate,
+                                             ByteSeq& certByteSeq)
 {
-    ByteSeq certByteSeq;
-
     // Convert the X509 to a unsigned char buffer.
     unsigned int certSize = i2d_X509(certificate, 0);
     unsigned char* certBuffer = new unsigned char[certSize];
@@ -109,7 +111,5 @@ IceSSL::SingleCertificateVerifier::toByteSeq(X509* certificate)
     // Yet another conversion to a ByteSeq (easy comparison this way).
     IceSSL::ucharToByteSeq(certBuffer, certSize, certByteSeq);
     delete []certBuffer;
-
-    return certByteSeq;
 }
 

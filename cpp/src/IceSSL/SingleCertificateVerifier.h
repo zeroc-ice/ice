@@ -29,7 +29,7 @@ public:
 
     virtual int verify(int, X509_STORE_CTX*, SSL*);
 
-    Ice::ByteSeq toByteSeq(X509*);
+    void toByteSeq(X509*, Ice::ByteSeq&);
 
 protected:
 
