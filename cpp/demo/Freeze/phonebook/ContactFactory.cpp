@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <ObjectFactory.h>
+#include <ContactFactory.h>
 
 using namespace std;
 using namespace Ice;

@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Freeze/Application.h>
-#include <ObjectFactory.h>
+#include <ContactFactory.h>
 #include <Parser.h>
 
 using namespace std;

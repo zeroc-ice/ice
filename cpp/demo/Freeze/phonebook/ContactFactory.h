@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef SERVANT_FACTORY_H
-#define SERVANT_FACTORY_H
+#ifndef CONTACT_FACTORY_H
+#define CONTACT_FACTORY_H
 
 #include <PhoneBookI.h>
 
