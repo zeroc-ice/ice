@@ -235,7 +235,7 @@ main(int argc, char* argv[])
 	    }
 	    else
 	    {
-		Gen gen(argv[0], icecpp.getBaseName(), includePaths, output);
+		Gen gen(argv[0], icecpp.getBaseName(), includePaths, output, impl);
 		if(!gen)
 		{
 		    p->destroy();
@@ -247,10 +247,12 @@ main(int argc, char* argv[])
 		{
 		    gen.generateTie(p);
 		}
+#endif
 		if(impl)
 		{
 		    gen.generateImpl(p);
 		}
+#if 0
 		if(implTie)
 		{
 		    gen.generateImplTie(p);

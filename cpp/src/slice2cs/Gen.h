@@ -43,16 +43,19 @@ public:
     Gen(const std::string&,
         const std::string&,
         const std::vector<std::string>&,
-	const std::string&);
+	const std::string&,
+	bool);
     ~Gen();
 
     bool operator!() const; // Returns true if there was a constructor error
 
     void generate(const UnitPtr&);
+    void generateImpl(const UnitPtr&);
 
 private:
 
     IceUtil::Output _out;
+    IceUtil::Output _impl;
 
     std::string _base;
     std::vector<std::string> _includePaths;
@@ -179,6 +182,20 @@ private:
 	virtual bool visitClassDefStart(const ClassDefPtr&);
 	virtual void visitClassDefEnd(const ClassDefPtr&);
 	virtual void visitOperation(const OperationPtr&);
+    };
+
+    class ImplVisitor : public CsVisitor
+    {
+    public:
+
+        ImplVisitor(::IceUtil::Output&);
+
+	virtual bool visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
+	virtual void visitClassDefEnd(const ClassDefPtr&);
+	void writeOperation(const OperationPtr&, bool);
+	::std::string writeValue(const TypePtr&);
     };
 };
 

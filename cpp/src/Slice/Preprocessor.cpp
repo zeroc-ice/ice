@@ -184,7 +184,7 @@ Slice::Preprocessor::checkInputFile()
     ifstream test(_fileName.c_str());
     if(!test)
     {
-	cerr << _path << ": can't open `" << _fileName << "' for reading: " << strerror(errno) << endl;
+	cerr << _path << ": can't open `" << _fileName << "' for reading" << endl;
 	return false;
     }
     test.close();

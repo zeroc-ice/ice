@@ -73,6 +73,12 @@ IceUtil::OutputBase::open(const char* s)
     _fout.open(s);
 }
 
+bool
+IceUtil::OutputBase::isOpen()
+{
+    return _fout.is_open();
+}
+
 void
 IceUtil::OutputBase::print(const char* s)
 {

@@ -69,14 +69,14 @@ Slice::Gen::Gen(const string& name, const string& base,	const string& headerExte
         implH.open(fileImplH.c_str());
         if(!implH)
         {
-            cerr << name << ": can't open `" << fileImplH << "' for writing: " << strerror(errno) << endl;
+            cerr << name << ": can't open `" << fileImplH << "' for writing" << endl;
             return;
         }
         
         implC.open(fileImplC.c_str());
         if(!implC)
         {
-            cerr << name << ": can't open `" << fileImplC << "' for writing: " << strerror(errno) << endl;
+            cerr << name << ": can't open `" << fileImplC << "' for writing" << endl;
             return;
         }
 
@@ -102,14 +102,14 @@ Slice::Gen::Gen(const string& name, const string& base,	const string& headerExte
     H.open(fileH.c_str());
     if(!H)
     {
-	cerr << name << ": can't open `" << fileH << "' for writing: " << strerror(errno) << endl;
+	cerr << name << ": can't open `" << fileH << "' for writing" << endl;
 	return;
     }
     
     C.open(fileC.c_str());
     if(!C)
     {
-	cerr << name << ": can't open `" << fileC << "' for writing: " << strerror(errno) << endl;
+	cerr << name << ": can't open `" << fileC << "' for writing" << endl;
 	return;
     }
 

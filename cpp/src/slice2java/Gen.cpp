@@ -3445,11 +3445,23 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, 
         ExceptionList throws = op->throws();
         throws.sort();
         throws.unique();
+
+	//
+	// Arrange exceptions into most-derived to least-derived order. If we don't
+	// do this, a base exception handler can appear before a derived exception
+	// handler, causing compiler warnings and resulting in the base exception
+	// being marshaled instead of the derived exception.
+	//
+#if defined(__SUNPRO_CC)
+	throws.sort(Slice::derivedToBaseCompare);
+#else
+	throws.sort(Slice::DerivedToBaseCompare());
+#endif
         writeThrowsClause(package, throws);
 
         out << sb;
 
-        string result = "r";
+        string result = "__r";
         ParamDeclList paramList = op->parameters();
         ParamDeclList::const_iterator q;
         for(q = paramList.begin(); q != paramList.end(); ++q)
@@ -3504,6 +3516,18 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, 
         ExceptionList throws = op->throws();
         throws.sort();
         throws.unique();
+
+	//
+	// Arrange exceptions into most-derived to least-derived order. If we don't
+	// do this, a base exception handler can appear before a derived exception
+	// handler, causing compiler warnings and resulting in the base exception
+	// being marshaled instead of the derived exception.
+	//
+#if defined(__SUNPRO_CC)
+	throws.sort(Slice::derivedToBaseCompare);
+#else
+	throws.sort(Slice::DerivedToBaseCompare());
+#endif
         writeThrowsClause(package, throws);
 
         out << sb;
