@@ -52,7 +52,7 @@ public class Client
         System.out.println("[press enter]");
         readline(in);
 
-        Simple simple = initial.simple();
+        Simple simple = initial.getSimple();
         System.out.println("==> " + simple._message);
 
         System.out.println();
@@ -66,7 +66,7 @@ public class Client
         PrinterPrxHolder printerProxy = new PrinterPrxHolder();
         try
         {
-            initial.printer(printer, printerProxy);
+            initial.getPrinter(printer, printerProxy);
         }
         catch(Ice.NoObjectFactoryException ex)
         {
@@ -83,7 +83,7 @@ public class Client
         Ice.ObjectFactory factory = new ObjectFactory();
         communicator.addObjectFactory(factory, "::Printer");
 
-        initial.printer(printer, printerProxy);
+        initial.getPrinter(printer, printerProxy);
         System.out.println("==> " + printer.value._message);
 
         System.out.println();
@@ -113,7 +113,7 @@ public class Client
         Printer derivedAsBase;
         try
         {
-            derivedAsBase = initial.derivedPrinter();
+            derivedAsBase = initial.getDerivedPrinter();
             assert(false);
         }
         catch(Ice.NoObjectFactoryException ex)
@@ -131,7 +131,7 @@ public class Client
 
         communicator.addObjectFactory(factory, "::DerivedPrinter");
 
-        derivedAsBase = initial.derivedPrinter();
+        derivedAsBase = initial.getDerivedPrinter();
         DerivedPrinter derived = (DerivedPrinter)derivedAsBase;
 
         System.out.println("==> dynamic_cast<> to derived object succeded");

@@ -30,20 +30,20 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
 }
 
 SimplePtr
-InitialI::simple(const Ice::Current&)
+InitialI::getSimple(const Ice::Current&)
 {
     return _simple;
 }
 
 void
-InitialI::printer(PrinterPtr& impl, PrinterPrx& proxy, const Ice::Current&)
+InitialI::getPrinter(PrinterPtr& impl, PrinterPrx& proxy, const Ice::Current&)
 {
     impl = _printer;
     proxy = _printerProxy;
 }
 
 PrinterPtr
-InitialI::derivedPrinter(const Ice::Current&)
+InitialI::getDerivedPrinter(const Ice::Current&)
 {
     return _derivedPrinter;
 }

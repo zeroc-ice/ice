@@ -43,7 +43,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "[press enter]\n";
     cin.getline(&c, 1);
 
-    SimplePtr simple = initial->simple();
+    SimplePtr simple = initial->getSimple();
     cout << "==> " << simple->_message << endl;
 
     cout << '\n'
@@ -57,7 +57,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     PrinterPrx printerProxy;
     try
     {
-	initial->printer(printer, printerProxy);
+	initial->getPrinter(printer, printerProxy);
     }
     catch(const Ice::NoObjectFactoryException& ex)
     {
@@ -74,7 +74,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::ObjectFactoryPtr factory = new ObjectFactory;
     communicator->addObjectFactory(factory, "::Printer");
 
-    initial->printer(printer, printerProxy);
+    initial->getPrinter(printer, printerProxy);
     cout << "==> " << printer->_message << endl;
 
     cout << '\n'
@@ -104,7 +104,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     PrinterPtr derivedAsBase;
     try
     {
-	derivedAsBase = initial->derivedPrinter();
+	derivedAsBase = initial->getDerivedPrinter();
 	assert(false);
     }
     catch(const Ice::NoObjectFactoryException& ex)
@@ -122,7 +122,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     
     communicator->addObjectFactory(factory, "::DerivedPrinter");
     
-    derivedAsBase = initial->derivedPrinter();
+    derivedAsBase = initial->getDerivedPrinter();
     DerivedPrinterPtr derived = DerivedPrinterPtr::dynamicCast(derivedAsBase);
     assert(derived);
 

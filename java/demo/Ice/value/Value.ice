@@ -35,9 +35,9 @@ exception DerivedPrinterException
 
 class Initial
 {
-    Simple simple();
-    void printer(; Printer impl, Printer* proxy);
-    Printer derivedPrinter();
+    Simple getSimple();
+    void getPrinter(; Printer impl, Printer* proxy);
+    Printer getDerivedPrinter();
     void throwDerivedPrinter() throws DerivedPrinterException;
 };
 

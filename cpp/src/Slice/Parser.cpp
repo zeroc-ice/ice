@@ -28,6 +28,7 @@ Unit* unit;
 // to_lower() helper function
 // ----------------------------------------------------------------------
 
+// TODO: ML: Should be toLower().
 static void
 to_lower(string& s)
 {
@@ -214,6 +215,7 @@ Slice::Container::createModule(const string& name)
 		msg += "module `" + name + "' is capitalized inconsistently with its previous name: `";
 		msg += module->name() + "'";
 		_unit->warning(msg);	// TODO: Change to error in stable_39
+		// TODO: ML: continue (or later return 0) missing;
 	    }
 	}
 	
@@ -1590,7 +1592,7 @@ Slice::ClassDef::createOperation(const string& name,
     }
 
     //
-    // Check whether enclosing interface/class has the same name
+    // Check whether enclosing interface/class has the same name.
     //
     if(name == this->name())
     {
@@ -1621,27 +1623,28 @@ Slice::ClassDef::createOperation(const string& name,
 	copy(ol.begin(), ol.end(), back_inserter(cl));
 	DataMemberList dml = (*p)->allDataMembers();
 	copy(dml.begin(), dml.end(), back_inserter(cl));
-	// TODO: once we have constants, append constants to this list for checking
-	for(ContainedList::const_iterator p = cl.begin(); p != cl.end(); ++p)
+	// TODO: once we have constants, append constants to this list
+	// for checking. 
+	for(ContainedList::const_iterator q = cl.begin(); q != cl.end(); ++q)
 	{
-	    if((*p)->name() == name)
+	    if((*q)->name() == name)
 	    {
 		string msg = "operation `" + name;
 		msg += "' is already defined as ";
 		string vowels = "aeiou";
-		msg += find(vowels.begin(), vowels.end(), *((*p)->kindOf().begin())) != vowels.end() ? "an " : "a ";
-		msg += (*p)->kindOf() + " in a base interface or class";
+		msg += find(vowels.begin(), vowels.end(), *((*q)->kindOf().begin())) != vowels.end() ? "an " : "a ";
+		msg += (*q)->kindOf() + " in a base interface or class";
 		_unit->error(msg);
 		return 0;
 	    }
-	    string baseName = (*p)->name();
+	    string baseName = (*q)->name();
 	    to_lower(baseName);
 	    string newName = name;
 	    to_lower(newName);
 	    if(baseName == newName)
 	    {
-		string msg = "operation `" + name + "' differs only in capitalization from " + (*p)->kindOf();
-		msg += " `" + (*p)->name() + "', which is defined in a base interface or class";
+		string msg = "operation `" + name + "' differs only in capitalization from " + (*q)->kindOf();
+		msg += " `" + (*q)->name() + "', which is defined in a base interface or class";
 		_unit->warning(msg);	// TODO: change to error in stable_39
 	    }
 	}
@@ -1715,27 +1718,27 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
 	copy(ol.begin(), ol.end(), back_inserter(cl));
 	DataMemberList dml = (*p)->allDataMembers();
 	copy(dml.begin(), dml.end(), back_inserter(cl));
-	// TODO: once we have constants, append constants to this list for checking
-	for(ContainedList::const_iterator p = cl.begin(); p != cl.end(); ++p)
+	// TODO: once we have constants, append constants to this list for checking.
+	for(ContainedList::const_iterator q = cl.begin(); q != cl.end(); ++q)
 	{
-	    if((*p)->name() == name)
+	    if((*q)->name() == name)
 	    {
 		string msg = "data member `" + name;
 		msg += "' is already defined as ";
-		string vowels = "aeiou";
-		msg += find(vowels.begin(), vowels.end(), *((*p)->kindOf().begin())) != vowels.end() ? "an " : "a ";
-		msg += (*p)->kindOf() + " in a base interface or class";
+		string vowels = "aeiou"; // TODO: ML: Could be static const.
+		msg += find(vowels.begin(), vowels.end(), *((*q)->kindOf().begin())) != vowels.end() ? "an " : "a ";
+		msg += (*q)->kindOf() + " in a base interface or class";
 		_unit->error(msg);
 		return 0;
 	    }
-	    string baseName = (*p)->name();
+	    string baseName = (*q)->name();
 	    to_lower(baseName);
 	    string newName = name;
 	    to_lower(newName);
 	    if(baseName == newName)
 	    {
-		string msg = "data member `" + name + "' differs only in capitalization from " + (*p)->kindOf();
-		msg += " `" + (*p)->name() + "', which is defined in a base interface or class";
+		string msg = "data member `" + name + "' differs only in capitalization from " + (*q)->kindOf();
+		msg += " `" + (*q)->name() + "', which is defined in a base interface or class";
 		_unit->warning(msg);	// TODO: change to error in stable_39
 	    }
 	}
@@ -1894,9 +1897,9 @@ std::string
 Slice::ClassDef::kindOf() const
 {
     string s;
-    if(isLocal())
+    if(isLocal()) // TODO: ML: { } also for one-line statements.
 	s += "local ";
-    s += "isInterface()" ? "interface" : "class";
+    s += "isInterface()" ? "interface" : "class"; // TODO: ML: Guess the "" around isInterface() are a mistake? :-)
     return s;
 }
 
@@ -2020,27 +2023,31 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type)
     // Check whether any bases have defined a member with the same name already
     //
     ExceptionList bl = allBases();
-    for(ExceptionList::const_iterator p = bl.begin(); p != bl.end(); ++p)
+    // TODO: ML: Always check your code also with Visual C++. The line
+    // below gives a "redefinition of p" error with Visual C++,
+    // because it uses the old scoping rules.
+    //for(ExceptionList::const_iterator p = bl.begin(); p != bl.end(); ++p)
+    for(ExceptionList::const_iterator q = bl.begin(); q != bl.end(); ++q)
     {
 	ContainedList cl;
-	DataMemberList dml = (*p)->dataMembers();
+	DataMemberList dml = (*q)->dataMembers();
 	copy(dml.begin(), dml.end(), back_inserter(cl));
-	for(ContainedList::const_iterator p = cl.begin(); p != cl.end(); ++p)
+	for(ContainedList::const_iterator r = cl.begin(); r != cl.end(); ++r)
 	{
-	    if((*p)->name() == name)
+	    if((*r)->name() == name)
 	    {
 		string msg = "exception member `" + name + "' is already defined in a base exception";
 		_unit->error(msg);
 		return 0;
 	    }
-	    string baseName = (*p)->name();
+	    string baseName = (*r)->name();
 	    to_lower(baseName);
 	    string newName = name;
 	    to_lower(newName);
 	    if(baseName == newName)
 	    {
 		string msg = "exception member `" + name + "' differs only in capitalization from exception member `";
-		msg += (*p)->name() + "', which is defined in a base exception";
+		msg += (*r)->name() + "', which is defined in a base exception";
 		_unit->warning(msg);	// TODO: change to error in stable_39
 	    }
 	}

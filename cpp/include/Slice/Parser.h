@@ -114,7 +114,7 @@ typedef std::list<ContainedPtr> ContainedList;
 typedef std::list<ModulePtr> ModuleList;
 typedef std::list<ConstructedPtr> ConstructedList;
 typedef std::list<ClassDefPtr> ClassList;
-typedef std::list<ClassList> GraphPartitionList;
+typedef std::list<ClassList> GraphPartitionList; // TODO: ML: Can't this be a private typedef for Container?
 typedef std::set<std::string> StringSet;
 typedef std::list<StringSet> StringSetList;
 typedef std::list<ExceptionPtr> ExceptionList;

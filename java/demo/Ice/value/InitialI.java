@@ -30,20 +30,20 @@ class InitialI extends Initial
     }
 
     public Simple
-    simple(Ice.Current current)
+    getSimple(Ice.Current current)
     {
         return _simple;
     }
 
     public void
-    printer(PrinterHolder impl, PrinterPrxHolder proxy, Ice.Current current)
+    getPrinter(PrinterHolder impl, PrinterPrxHolder proxy, Ice.Current current)
     {
         impl.value = _printer;
         proxy.value = _printerProxy;
     }
 
     public Printer
-    derivedPrinter(Ice.Current current)
+    getDerivedPrinter(Ice.Current current)
     {
         return _derivedPrinter;
     }

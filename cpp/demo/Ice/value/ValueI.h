@@ -19,9 +19,9 @@ public:
 
     InitialI(const Ice::ObjectAdapterPtr&);
 
-    virtual SimplePtr simple(const Ice::Current&);
-    virtual void printer(PrinterPtr&, PrinterPrx&, const Ice::Current&);
-    virtual PrinterPtr derivedPrinter(const Ice::Current&);
+    virtual SimplePtr getSimple(const Ice::Current&);
+    virtual void getPrinter(PrinterPtr&, PrinterPrx&, const Ice::Current&);
+    virtual PrinterPtr getDerivedPrinter(const Ice::Current&);
     virtual void throwDerivedPrinter(const Ice::Current&);
 
 private:
