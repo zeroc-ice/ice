@@ -134,7 +134,7 @@ Time operator/(const Time& lhs, T rhs)
     return Time::microSeconds(static_cast<Int64>(lhs.toMicroSeconds() / rhs));
 }
 
-std::ostream& operator<<(std::ostream&, const Time&);
+ICE_UTIL_API std::ostream& operator<<(std::ostream&, const Time&);
 
 } // End namespace IceUtil
 
