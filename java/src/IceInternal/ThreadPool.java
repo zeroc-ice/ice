@@ -291,6 +291,7 @@ public final class ThreadPool
                     _instance.objectAdapterFactory().shutdown();
                 }
 
+                _selector.selectedKeys().clear();
                 int ret = 0;
                 try
                 {
@@ -307,7 +308,7 @@ public final class ThreadPool
                     throw se;
                 }
 
-                if (ret == 0) // Timeout.
+                if (ret == 0 && !_interrupted) // Timeout.
                 {
                     assert(_timeout > 0);
                     _timeout = 0;
@@ -323,6 +324,7 @@ public final class ThreadPool
                         // Don't clear the interrupt fd if destroyed, so that
                         // the other threads exit as well.
                         //
+                        _selector.wakeup();
                         return;
                     }
 
@@ -363,7 +365,7 @@ public final class ThreadPool
                         //
                         // Handlers are permanently removed.
                         //
-                        java.util.ListIterator p = _adds.listIterator();
+                        java.util.ListIterator p = _removes.listIterator();
                         while (p.hasNext())
                         {
                             java.nio.channels.SelectionKey key =
@@ -417,25 +419,40 @@ public final class ThreadPool
                     {
                         java.util.Set keys = _selector.selectedKeys();
                         java.util.Iterator i = keys.iterator();
-                        assert(i.hasNext());
-                        java.nio.channels.SelectionKey key =
-                            (java.nio.channels.SelectionKey)i.next();
-                        HandlerInfo info = (HandlerInfo)key.attachment();
-                        i.remove();
-                        assert(info != null);
-
-                        //
-                        // Make the fd for the handler the most recently used
-                        // one by moving it to the beginning of the the reap
-                        // list.
-                        //
-                        if (info != _reapList)
+                        while (i.hasNext())
                         {
-                            removeHandler(info);
-                            addHandler(info);
+                            java.nio.channels.SelectionKey key =
+                                (java.nio.channels.SelectionKey)i.next();
+                            //
+                            // Ignore selection keys that have been
+                            // cancelled
+                            //
+                            if (key.isValid())
+                            {
+                                HandlerInfo info =
+                                    (HandlerInfo)key.attachment();
+                                assert(info != null);
+
+                                //
+                                // Make the fd for the handler the most
+                                // recently used one by moving it to the
+                                // beginning of the the reap list.
+                                //
+                                if (info != _reapList)
+                                {
+                                    removeHandler(info);
+                                    addHandler(info);
+                                }
+
+                                handler = info.handler;
+                                break;
+                            }
                         }
 
-                        handler = info.handler;
+                        if (handler == null)
+                        {
+                            continue repeatSelect;
+                        }
                     }
                 }
 

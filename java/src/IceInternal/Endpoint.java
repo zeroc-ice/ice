@@ -43,18 +43,18 @@ public abstract class Endpoint
         String type = s.substring(0, m.start());
         if (type.equals("tcp"))
         {
-            return new TcpEndpoint(s.substring(m.end() + 1));
+            return new TcpEndpoint(s.substring(m.end()));
         }
 
         if (type.equals("ssl"))
         {
             // TODO: SSL
-            //return new SslEndpoint(s.substring(m.end() + 1));
+            //return new SslEndpoint(s.substring(m.end()));
         }
 
         if (type.equals("udp"))
         {
-            return new UdpEndpoint(s.substring(m.end() + 1));
+            return new UdpEndpoint(s.substring(m.end()));
         }
 
         throw new Ice.EndpointParseException();

@@ -42,6 +42,7 @@ public final class Reference
         mode = ModeTwoway;
         secure = false;
         hashValue = 0;
+        facet = "";
 
         String s = str.trim();
         if (s.length() == 0)
@@ -61,7 +62,7 @@ public final class Reference
         }
 
         String[] arr = init.split("[ \t\n\r]+");
-        String identity = arr[0];
+        identity = arr[0];
 
         int i = 1;
         while (i < arr.length)
