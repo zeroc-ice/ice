@@ -182,36 +182,16 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& entryPoint, co
     }
 
     //
-    // Invoke the factory function.
+    // Invoke the factory function. No exceptions can be raised
+    // by the factory function because it's declared extern "C".
     //
     PLUGIN_FACTORY factory = (PLUGIN_FACTORY)sym;
-    try
+    plugin = factory(_communicator, name, args);
+    if(!plugin)
     {
-        plugin = factory(_communicator, name, args);
-    }
-    catch(const Exception& ex)
-    {
-        //
-        // Do NOT propagate the exception from the entry point,
-        // because the library will be closed.
-        //
-        ostringstream out;
-        out << "exception in entry point `" << entryPoint << "'\n"
-            << "original exception:\n"
-            << ex;
         PluginInitializationException e(__FILE__, __LINE__);
-        e.reason = out.str();
-        throw e;
-    }
-    catch (...)
-    {
-        //
-        // Do NOT propagate the exception from the entry point,
-        // because the library will be closed.
-        //
         ostringstream out;
-        out << "unknown exception in entry point `" << entryPoint << "'\n";
-        PluginInitializationException e(__FILE__, __LINE__);
+        out << "failure in entry point `" << entryPoint << "'";
         e.reason = out.str();
         throw e;
     }
