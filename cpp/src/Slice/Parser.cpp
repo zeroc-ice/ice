@@ -175,13 +175,8 @@ Slice::operator==(Contained& l, Contained& r)
 void
 Slice::Container::destroy()
 {
-    for(vector<Contained_ptr>::iterator p = contents_.begin();
-	p != contents_.end();
-	++p)
-    {
-	(*p) -> destroy();
-    }
-
+    for_each(contents_.begin(), contents_.end(),
+	     ::Ice::voidMemFun(&Contained::destroy));
     contents_.clear();
     SyntaxTreeBase::destroy();
 }
@@ -189,9 +184,8 @@ Slice::Container::destroy()
 Module_ptr
 Slice::Container::createModule(const string& name)
 {
-    vector<Contained_ptr> matches =
-	parser_ -> findContents(thisScope() + name);
-    for(vector<Contained_ptr>::iterator p = matches.begin();
+    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
+    for(list<Contained_ptr>::iterator p = matches.begin();
 	p != matches.end();
 	++p)
     {
@@ -212,9 +206,8 @@ Slice::Container::createClassDef(const string& name,
 				   const ClassDef_ptr& base,
 				   bool local)
 {
-    vector<Contained_ptr> matches =
-	parser_ -> findContents(thisScope() + name);
-    for(vector<Contained_ptr>::iterator p = matches.begin();
+    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
+    for(list<Contained_ptr>::iterator p = matches.begin();
 	p != matches.end();
 	++p)
     {
@@ -227,7 +220,7 @@ Slice::Container::createClassDef(const string& name,
     ClassDef_ptr def = new ClassDef(this, name, base, local);
     contents_.push_back(def);
     
-    for(vector<Contained_ptr>::iterator q = matches.begin();
+    for(list<Contained_ptr>::iterator q = matches.begin();
 	q != matches.end();
 	++q)
     {
@@ -250,9 +243,8 @@ Slice::Container::createClassDecl(const string& name, bool local)
 {
     ClassDef_ptr def;
 
-    vector<Contained_ptr> matches =
-	parser_ -> findContents(thisScope() + name);
-    for(vector<Contained_ptr>::iterator p = matches.begin();
+    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
+    for(list<Contained_ptr>::iterator p = matches.begin();
 	p != matches.end();
 	++p)
     {
@@ -276,7 +268,7 @@ Slice::Container::createClassDecl(const string& name, bool local)
     // have a declaration for the class in this container, we don't
     // create another one.
     //
-    for(vector<Contained_ptr>::iterator q = contents_.begin();
+    for(list<Contained_ptr>::iterator q = contents_.begin();
 	q != contents_.end();
 	++q)
     {
@@ -302,8 +294,7 @@ Slice::Container::createClassDecl(const string& name, bool local)
 Native_ptr
 Slice::Container::createNative(const string& name)
 {
-    vector<Contained_ptr> matches =
-	parser_ -> findContents(thisScope() + name);
+    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
     assert(matches.empty()); // TODO: Already exits
 
     Native_ptr p = new Native(this, name);
@@ -314,8 +305,7 @@ Slice::Container::createNative(const string& name)
 Vector_ptr
 Slice::Container::createVector(const string& name, const Type_ptr& type)
 {
-    vector<Contained_ptr> matches =
-	parser_ -> findContents(thisScope() + name);
+    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
     assert(matches.empty()); // TODO: Already exits
 
     Vector_ptr p = new Vector(this, name, type);
@@ -323,7 +313,7 @@ Slice::Container::createVector(const string& name, const Type_ptr& type)
     return p;
 }
 
-vector<Type_ptr>
+list<Type_ptr>
 Slice::Container::lookupType(const string& scoped)
 {
     assert(!scoped.empty());
@@ -331,7 +321,7 @@ Slice::Container::lookupType(const string& scoped)
     if(scoped[0] == ':')
 	return parser_ -> lookupType(scoped.substr(2));
     
-    vector<Contained_ptr> matches =
+    list<Contained_ptr> matches =
 	parser_ -> findContents(thisScope() + scoped);
     if(matches.empty())
     {
@@ -341,9 +331,8 @@ Slice::Container::lookupType(const string& scoped)
     }
     else
     {
-	vector<Type_ptr> results;
-	results.reserve(matches.size());
-	for(vector<Contained_ptr>::iterator p = matches.begin();
+	list<Type_ptr> results;
+	for(list<Contained_ptr>::iterator p = matches.begin();
 	    p != matches.end();
 	    ++p)
 	{
@@ -368,7 +357,7 @@ Slice::Container::includeLevel()
 bool
 Slice::Container::hasProxies()
 {
-    for(vector<Contained_ptr>::const_iterator p = contents_.begin();
+    for(list<Contained_ptr>::const_iterator p = contents_.begin();
 	p != contents_.end();
 	++p)
     {
@@ -387,7 +376,7 @@ Slice::Container::hasProxies()
 bool
 Slice::Container::hasClassDecls()
 {
-    for(vector<Contained_ptr>::const_iterator p = contents_.begin();
+    for(list<Contained_ptr>::const_iterator p = contents_.begin();
 	p != contents_.end();
 	++p)
     {
@@ -405,7 +394,7 @@ Slice::Container::hasClassDecls()
 bool
 Slice::Container::hasClassDefs()
 {
-    for(vector<Contained_ptr>::const_iterator p = contents_.begin();
+    for(list<Contained_ptr>::const_iterator p = contents_.begin();
 	p != contents_.end();
 	++p)
     {
@@ -423,7 +412,7 @@ Slice::Container::hasClassDefs()
 bool
 Slice::Container::hasOtherConstructedTypes()
 {
-    for(vector<Contained_ptr>::const_iterator p = contents_.begin();
+    for(list<Contained_ptr>::const_iterator p = contents_.begin();
 	p != contents_.end();
 	++p)
     {
@@ -452,9 +441,48 @@ Slice::Container::thisScope()
 }
 
 void
+Slice::Container::mergeModules()
+{
+    for(list<Contained_ptr>::iterator p = contents_.begin();
+	p != contents_.end();
+	++p)
+   {
+       Module_ptr mod1 = Module_ptr::dynamicCast(*p);
+       if(!mod1)
+	   continue;
+
+       list<Contained_ptr>::iterator q = p;
+       ++q;
+       while(q != contents_.end())
+       {
+	   Module_ptr mod2 = Module_ptr::dynamicCast(*q);
+	   if(!mod2)
+	   {
+	       ++q;
+	       continue;
+	   }
+
+	   if(mod1 -> name() != mod2 -> name())
+	   {
+	       ++q;
+	       continue;
+	   }
+
+	   copy(mod2 -> contents_.begin(), mod2 -> contents_.end(),
+		back_inserter(mod1 -> contents_));
+	   mod2 -> contents_.empty();
+	   parser_ -> removeContent(*q);
+	   q = contents_.erase(q);
+       }
+
+       mod1 -> mergeModules();
+   }
+}
+
+void
 Slice::Container::visit(ParserVisitor* visitor)
 {
-    for(vector<Contained_ptr>::const_iterator p = contents_.begin();
+    for(list<Contained_ptr>::const_iterator p = contents_.begin();
 	p != contents_.end();
 	++p)
     {
@@ -557,8 +585,7 @@ Slice::ClassDef::createOperation(const string& name,
 				   const TypeNameList& outParams,
 				   const TypeList& throws)
 {
-    vector<Contained_ptr> matches =
-	parser_ -> findContents(thisScope() + name);
+    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
     assert(matches.empty()); // TODO: Already exits
 
     Operation_ptr p = new Operation(this, name, returnType,
@@ -570,8 +597,7 @@ Slice::ClassDef::createOperation(const string& name,
 DataMember_ptr
 Slice::ClassDef::createDataMember(const string& name, const Type_ptr& type)
 {
-    vector<Contained_ptr> matches =
-	parser_ -> findContents(thisScope() + name);
+    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
     assert(matches.empty()); // TODO: Already exits
 
     DataMember_ptr p = new DataMember(this, name, type);
@@ -585,17 +611,11 @@ Slice::ClassDef::base()
     return base_;
 }
 
-void
-Slice::ClassDef::base(const ClassDef_ptr& cl)
-{
-    base_ = cl;
-}
-
-vector<Operation_ptr>
+list<Operation_ptr>
 Slice::ClassDef::operations()
 {
-    vector<Operation_ptr> result;
-    for(vector<Contained_ptr>::const_iterator p = contents_.begin();
+    list<Operation_ptr> result;
+    for(list<Contained_ptr>::const_iterator p = contents_.begin();
 	p != contents_.end();
 	++p)
     {
@@ -606,11 +626,11 @@ Slice::ClassDef::operations()
     return result;
 }
 
-vector<DataMember_ptr>
+list<DataMember_ptr>
 Slice::ClassDef::dataMembers()
 {
-    vector<DataMember_ptr> result;
-    for(vector<Contained_ptr>::const_iterator p = contents_.begin();
+    list<DataMember_ptr> result;
+    for(list<Contained_ptr>::const_iterator p = contents_.begin();
 	p != contents_.end();
 	++p)
     {
@@ -627,7 +647,7 @@ Slice::ClassDef::abstract()
     if(base_ && base_ -> abstract())
 	return true;
 
-    for(vector<Contained_ptr>::const_iterator p = contents_.begin();
+    for(list<Contained_ptr>::const_iterator p = contents_.begin();
 	p != contents_.end();
 	++p)
     {
@@ -927,22 +947,37 @@ Slice::Parser::addContent(const Contained_ptr& contained)
     contentMap_[contained -> scoped()].push_back(contained);
 }
 
-vector<Contained_ptr>
+void
+Slice::Parser::removeContent(const Contained_ptr& contained)
+{
+    string scoped = contained -> scoped();
+    map<string, list<Contained_ptr> >::iterator p = contentMap_.find(scoped);
+    assert(p != contentMap_.end());
+    list<Contained_ptr>::iterator q;
+    for(q = p -> second.begin(); q != p -> second.end(); ++q)
+	if(q -> get() == contained.get())
+	{
+	    p -> second.erase(q);
+	    return;
+	}
+    assert(false);
+}
+
+list<Contained_ptr>
 Slice::Parser::findContents(const string& scoped)
 {
     assert(!scoped.empty());
     assert(scoped[0] == ':');
 
-    map<string, vector<Contained_ptr> >::iterator p =
-	contentMap_.find(scoped);
+    map<string, list<Contained_ptr> >::iterator p = contentMap_.find(scoped);
 
     if(p != contentMap_.end())
 	return p -> second;
     else
-	return vector<Contained_ptr>();
+	return list<Contained_ptr>();
 }
 
-vector<string>
+list<string>
 Slice::Parser::includeFiles()
 {
     return includeFiles_;

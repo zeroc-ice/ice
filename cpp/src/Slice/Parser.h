@@ -302,13 +302,14 @@ public:
     ClassDecl_ptr createClassDecl(const std::string&, bool);
     Vector_ptr createVector(const std::string&, const Type_ptr&);
     Native_ptr createNative(const std::string&);
-    std::vector<Type_ptr> lookupType(const std::string&);
+    std::list<Type_ptr> lookupType(const std::string&);
     int includeLevel();
     bool hasProxies();
     bool hasClassDecls();
     bool hasClassDefs();
     bool hasOtherConstructedTypes(); // Other than classes
     std::string thisScope();
+    void mergeModules();
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -316,7 +317,7 @@ protected:
     Container(const Parser_ptr&);
 
     int includeLevel_;
-    std::vector<Contained_ptr> contents_;
+    std::list<Contained_ptr> contents_;
 };
 
 // ----------------------------------------------------------------------
@@ -389,9 +390,8 @@ public:
 				  const TypeList&);
     DataMember_ptr createDataMember(const std::string&, const Type_ptr&);
     ClassDef_ptr base();
-    void base(const ClassDef_ptr&);
-    std::vector<Operation_ptr> operations();
-    std::vector<DataMember_ptr> dataMembers();
+    std::list<Operation_ptr> operations();
+    std::list<DataMember_ptr> dataMembers();
     bool abstract();
     bool local();
     virtual void visit(ParserVisitor*);
@@ -536,9 +536,10 @@ public:
     void popContainer();
 
     void addContent(const Contained_ptr&);
-    std::vector<Contained_ptr> findContents(const std::string&);
+    void removeContent(const Contained_ptr&);
+    std::list<Contained_ptr> findContents(const std::string&);
 
-    std::vector<std::string> includeFiles();
+    std::list<std::string> includeFiles();
 
     int parse(FILE*, bool);
 
@@ -555,10 +556,10 @@ private:
     int currentIncludeLevel_;
     std::string currentFile_;
     std::string topLevelFile_;
-    std::vector<std::string> includeFiles_;
+    std::list<std::string> includeFiles_;
     std::stack<Container_ptr> containerStack_;
     std::map<Builtin::Kind, Builtin_ptr> builtins_;
-    std::map<std::string, std::vector<Contained_ptr> > contentMap_;
+    std::map<std::string, std::list<Contained_ptr> > contentMap_;
 };
 
 extern Parser* parser; // The current parser for bison/flex

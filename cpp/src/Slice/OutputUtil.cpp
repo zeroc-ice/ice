@@ -36,6 +36,15 @@ Slice::Output::Output()
 {
 }
 
+Slice::Output::Output(const char* s)
+    : pos_(0),
+      indent_(0),
+      indentSave_(-1),
+      separator_(true)
+{
+    open(s);
+}
+
 void
 Slice::Output::open(const char* s)
 {

@@ -31,11 +31,12 @@ extern ICE_API Separator sp;
 // Indent
 // ----------------------------------------------------------------------
 
-class ICE_API Output
+class ICE_API Output : ::__Ice::noncopyable
 {
 public:
 
     Output();
+    Output(const char*);
 
     void open(const char*); // Open output stream
 

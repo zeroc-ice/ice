@@ -40,6 +40,7 @@ yyerror(const char* s)
 %token ICE_STRING
 %token ICE_WSTRING
 %token ICE_OBJECT
+%token ICE_LOCAL_OBJECT
 %token ICE_NATIVE
 %token ICE_VECTOR
 %token ICE_IDENTIFIER
@@ -192,10 +193,10 @@ extends
 {
     String_ptr scoped = String_ptr::dynamicCast($2);
     Container_ptr cont = parser -> currentContainer();
-    vector<Type_ptr> types = cont -> lookupType(scoped -> v);
+    list<Type_ptr> types = cont -> lookupType(scoped -> v);
     if(types.empty())
 	YYERROR; // Can't continue, jump to next yyerrok
-    ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(types[0]);
+    ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(types.front());
     if(!cl)
     {
 	string msg = "`";
@@ -370,7 +371,7 @@ type
 {
     $$ = parser -> builtin(Builtin::KindObjectProxy);
 }
-| ICE_LOCAL ICE_OBJECT
+| ICE_LOCAL_OBJECT
 {
     $$ = parser -> builtin(Builtin::KindLocalObject);
 }
@@ -378,19 +379,19 @@ type
 {
     String_ptr scoped = String_ptr::dynamicCast($1);
     Container_ptr cont = parser -> currentContainer();
-    vector<Type_ptr> types = cont -> lookupType(scoped -> v);
+    list<Type_ptr> types = cont -> lookupType(scoped -> v);
     if(types.empty())
 	YYERROR; // Can't continue, jump to next yyerrok
-    $$ = types[0];
+    $$ = types.front();
 }
 | scoped_name '*'
 {
     String_ptr scoped = String_ptr::dynamicCast($1);
     Container_ptr cont = parser -> currentContainer();
-    vector<Type_ptr> types = cont -> lookupType(scoped -> v);
+    list<Type_ptr> types = cont -> lookupType(scoped -> v);
     if(types.empty())
 	YYERROR; // Can't continue, jump to next yyerrok
-    for(vector<Type_ptr>::iterator p = types.begin();
+    for(list<Type_ptr>::iterator p = types.begin();
 	p != types.end();
 	++p)
     {
@@ -398,7 +399,7 @@ type
 	assert(cl); // TODO: Only classes can be passed as proxy
 	*p = new Proxy(cl);
     }
-    $$ = types[0];
+    $$ = types.front();
 }
 ;
 

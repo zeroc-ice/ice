@@ -154,6 +154,10 @@ L			[a-zA-Z_]
     return ICE_OBJECT;
 }
 
+"LocalObject" {
+    return ICE_LOCAL_OBJECT;
+}
+
 "native" {
     return ICE_NATIVE;
 }
