@@ -139,6 +139,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    {
 		twoway->shutdown();
 	    }
+	    else if (c == 'x')
+	    {
+		// Nothing to do
+	    }
 	    else if (c == '?')
 	    {
 		menu();

@@ -171,6 +171,7 @@ void
 IceInternal::ThreadPool::destroy()
 {
     JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
+    assert(_instance);
     _instance = 0;
     setInterrupt();
 }
@@ -209,17 +210,16 @@ IceInternal::ThreadPool::setInterrupt()
 void
 IceInternal::ThreadPool::run()
 {
-    bool shutdown = false;
-
     while (true)
     {
 	_threadMutex.lock();
 	
+	bool shutdown = false;
 	EventHandlerPtr handler;
 	InstancePtr instance;
 	
     repeatSelect:
-
+	
 	if (shutdown) // Shutdown has been initiated
 	{
 	    shutdown = false;
@@ -276,20 +276,10 @@ IceInternal::ThreadPool::run()
 	    }
 		
 	    bool again = false;
-	    
 	    if (FD_ISSET(_fdIntrRead, &fdSet))
 	    {
+		again = true;
 		shutdown = clearInterrupt();
-		if (shutdown)
-		{
-		    again = true;
-		}
-
-#ifdef WIN32
-		FD_CLR(static_cast<u_int>(_fdIntrRead), &fdSet);
-#else
-		FD_CLR(_fdIntrRead, &fdSet);
-#endif
 	    }
 	    
 	    if (!_adds.empty())
@@ -305,7 +295,6 @@ IceInternal::ThreadPool::run()
 		    _minFd = min(_minFd, p->first);
 		}
 		_adds.clear();
-		again = true;
 	    }
 	    
 	    if (!_removes.empty())
@@ -337,7 +326,6 @@ IceInternal::ThreadPool::run()
 		    _maxFd = max(_maxFd, (--_handlers.end())->first);
 		    _minFd = min(_minFd, (--_handlers.end())->first);
 		}
-		again = true;
 		if (_handlers.empty() || _servers == 0)
 		{
 		    notifyAll(); // For waitUntil...Finished() methods

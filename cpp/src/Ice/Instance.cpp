@@ -382,8 +382,7 @@ IceInternal::Instance::destroy()
 
     if(_objectAdapterFactory)
     {
-	// No destroy function defined
-	// _objectAdapterFactory->destroy();
+	_objectAdapterFactory->shutdown(); // ObjectAdapterFactory has shutdown(), not destroy()
 	_objectAdapterFactory = 0;
     }
     

@@ -28,18 +28,11 @@ Ice::CommunicatorI::destroy()
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
 
-    shutdown();
-
     if (_instance)
     {
 	_instance->destroy();
 	_instance = 0;
     }
-
-    //
-    // Don't set _threadPool to null here! See the comments in the
-    // header file.
-    //
 }
 
 void
