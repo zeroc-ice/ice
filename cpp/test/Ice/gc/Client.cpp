@@ -493,6 +493,7 @@ MyApplication::run(int argc, char* argv[])
     }
 
     garbageThread->stop();
+    IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
     Ice::collectGarbage();
     if(!interrupted())
     {
