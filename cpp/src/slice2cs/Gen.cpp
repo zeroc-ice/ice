@@ -278,30 +278,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     _out << sp << nl << "#endregion"; // Comparison operators
 
-    _out << sp << nl << "#region ICloneable members";
-
-    _out << sp << nl << "protected void __copyMembers(" << scoped << " __to)";
-    _out << sb;
-    _out << nl << "base.__copyMembers(__to);";
-    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        string memberName = fixKwd((*q)->name());
-        _out << nl << "__to." << memberName << " = " << memberName << ";";
-    }
-    _out << eb;
-
-    if(!p->isAbstract())
-    {
-	_out << sp << nl << "public override object Clone()";
-	_out << sb;
-	_out << nl << scoped << " __ret = new " << scoped << "();";
-	_out << nl << "__copyMembers(__ret);";
-	_out << nl << "return __ret;";
-	_out << eb;
-    }
-
-    _out << sp << nl << "#endregion"; // ICloneable members
-
     _out << sp << nl << "#region Object members";
 
     _out << sp << nl << "public override int GetHashCode()";
@@ -362,7 +338,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     string s = typeToString(p->type());
 
     _out << sp << nl << "public class " << name
-         << " : System.Collections.CollectionBase, System.IComparable, System.ICloneable";
+         << " : System.Collections.CollectionBase, System.IComparable";
     _out << sb;
 
     _out << sp << nl << "#region " << name << " members";
@@ -483,20 +459,6 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp << nl << "#endregion"; // Comparison operators
 
-    _out << sp << nl << "#region ICloneable members";
-
-    _out << sp << nl << "public object Clone()";
-    _out << sb;
-    _out << nl << name << " __ret = new "<< name << "();";
-    _out << nl << "foreach(" << s << " i in __ret)";
-    _out << sb;
-    _out << nl << "__ret.Add(i);";
-    _out << eb;
-    _out << nl << "return __ret;";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // ICloneable members
-
     _out << sp << nl << "#region Object members";
 
     _out << sp << nl << "public override int GetHashCode()";
@@ -591,30 +553,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     _out << sp << nl << "#endregion"; // Comparison operators
 
-    _out << sp << nl << "#region ICloneable members";
-
-    _out << sp << nl << "protected void __copyMembers(" << scoped << " __to)";
-    _out << sb;
-    if(p->base())
-    {
-	_out << nl << "base.__copyMembers(__to);";
-    }
-    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        string memberName = fixKwd((*q)->name());
-	_out << nl << "__to." << memberName << " = " << memberName << ";";
-    }
-    _out << eb;
-
-    _out << sp << nl << "public override object Clone()";
-    _out << sb;
-    _out << nl << scoped << " __ret = new " << scoped << "(Message, InnerException);";
-    _out << nl << "__copyMembers(__ret);";
-    _out << nl << "return __ret;";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // ICloneable members
-
     _out << sp << nl << "#region Object members";
 
     _out << sp << nl << "public override int GetHashCode()";
@@ -670,7 +608,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
     string name = fixKwd(fixGlobal(p));
 
-    _out << sp << nl << "public class " << name << " : System.IComparable, System.ICloneable";
+    _out << sp << nl << "public class " << name << " : System.IComparable";
     _out << sb;
 
     _out << sp << nl << "#region " << name << " members";
@@ -759,21 +697,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp << nl << "#endregion"; // Comparison operators
 
-    _out << sp << nl << "#region ICloneable members";
-
-    _out << sp << nl << "public object Clone()";
-    _out << sb;
-    _out << nl << name << " __ret = new " << name << "();";
-    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        string memberName = fixKwd((*q)->name());
-        _out << nl << "__ret." << memberName << " = this." << memberName << ";";
-    }
-    _out << nl << "return __ret;";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // ICloneable members
-
     _out << sp << nl << "#region Object members";
 
     _out << sp << nl << "public override int GetHashCode()";
@@ -812,7 +735,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     string vs = typeToString(p->valueType());
 
     _out << sp << nl << "public class " << name
-         << " : System.Collections.DictionaryBase, System.IComparable, System.ICloneable";
+         << " : System.Collections.DictionaryBase, System.IComparable";
     _out << sb;
 
     _out << sp << nl << "#region " << name << " members";
@@ -961,20 +884,6 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << eb;
 
     _out << sp << nl << "#endregion"; // Comparison operators
-
-    _out << sp << nl << "#region ICloneable members";
-
-    _out << sp << nl << "public object Clone()";
-    _out << sb;
-    _out << nl << name << " __ret = new " << name << "();";
-    _out << nl << "foreach(System.Collections.DictionaryEntry i in Dictionary)";
-    _out << sb;
-    _out << nl << "__ret[(" << ks << ")i.Key] = (" << vs << ")i.Value;";
-    _out << eb;
-    _out << nl << "return __ret;";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // ICloneable members
 
     _out << sp << nl << "#region Object members";
 
