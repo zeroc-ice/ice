@@ -303,7 +303,7 @@ floating_literal	(({fractional_constant}{exponent_part}?)|([[:digit:]]+{exponent
     *yylvalp = itp;
     errno = 0;
     itp->v = IceUtil::strToInt64(yytext, 0, 0);
-    if(errno == ERANGE && (itp->v == IceUtil::INT64MIN || itp->v == IceUtil::INT64MAX))
+    if(errno == ERANGE && (itp->v == IceUtil::Int64Min || itp->v == IceUtil::Int64Max))
     {
 	string msg = "integer constant `";
 	msg += yytext;

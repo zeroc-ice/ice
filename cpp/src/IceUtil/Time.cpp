@@ -29,28 +29,28 @@ IceUtil::Time::now()
 #ifdef WIN32
     struct _timeb tb;
     _ftime(&tb);
-    return Time(tb.time * static_cast<LongLong>(1000000) + tb.millitm * static_cast<LongLong>(1000));
+    return Time(tb.time * static_cast<Int64>(1000000) + tb.millitm * static_cast<Int64>(1000));
 #else
     struct timeval tv;
     gettimeofday(&tv, 0);
-    return Time(tv.tv_sec * static_cast<LongLong>(1000000) + tv.tv_usec);
+    return Time(tv.tv_sec * static_cast<Int64>(1000000) + tv.tv_usec);
 #endif
 }
 
 Time
 IceUtil::Time::seconds(long t)
 {
-    return Time(t * static_cast<LongLong>(1000000));
+    return Time(t * static_cast<Int64>(1000000));
 }
 
 Time
 IceUtil::Time::milliSeconds(long t)
 {
-    return Time(t * static_cast<LongLong>(1000));
+    return Time(t * static_cast<Int64>(1000));
 }
 
 Time
-IceUtil::Time::microSeconds(LongLong t)
+IceUtil::Time::microSeconds(Int64 t)
 {
     return Time(t);
 }
@@ -136,7 +136,7 @@ IceUtil::Time::operator double() const
     return _usec / 1000000.0L;
 }
 
-Time::Time(LongLong usec) :
+Time::Time(Int64 usec) :
     _usec(usec)
 {
 }

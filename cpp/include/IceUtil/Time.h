@@ -53,15 +53,9 @@ public:
 
 private:
 
-#ifdef _WIN32
-typedef __int64 LongLong;    
-#else
-typedef long long LongLong;
-#endif
+    Time(Int64);
 
-    Time(LongLong);
-
-    LongLong _usec;
+    Int64 _usec;
 };
 
 } // End namespace IceUtil

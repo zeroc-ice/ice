@@ -119,6 +119,19 @@ private:
     noncopyable(const noncopyable&);
     const noncopyable& operator=(const noncopyable&);
 };
+//
+//
+// Some definitions for 64-bit integers
+//
+#if defined(_WIN32)
+    typedef __int64 Int64;
+    const Int64 Int64Min = -9223372036854775808i64;
+    const Int64 Int64Max =  9223372036854775807i64;
+#elif defined(__linux__) && defined(i386)
+    typedef long long Int64;
+    const Int64 Int64Min = LONGLONG_MIN;
+    const Int64 Int64Max = LONGLONG_MAX;
+#endif
 
 }
 

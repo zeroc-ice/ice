@@ -76,26 +76,26 @@ main(int, char**)
     b = stringToInt64("-9223372036854775807", result, pos);
     test(b && result == -9223372036854775807 && pos == string::npos);
     b = stringToInt64("-9223372036854775808", result, pos);
-    test(b && result == INT64MIN && pos == string::npos);
+    test(b && result == Int64Min && pos == string::npos);
     b = stringToInt64("-9223372036854775809", result, pos);
-    test(!b && result == INT64MIN && pos == string::npos);
+    test(!b && result == Int64Min && pos == string::npos);
 
     b = stringToInt64("9223372036854775806", result, pos);
     test(b && result == 9223372036854775806 && pos == string::npos);
     b = stringToInt64("9223372036854775807", result, pos);
-    test(b && result == INT64MAX && pos == string::npos);
+    test(b && result == Int64Max && pos == string::npos);
     b = stringToInt64("9223372036854775808", result, pos);
-    test(!b && result == INT64MAX && pos == string::npos);
+    test(!b && result == Int64Max && pos == string::npos);
 
     b = stringToInt64("-9223372036854775807Q", result, pos);
     test(b && result == -9223372036854775807 && pos == 20);
     b = stringToInt64("-9223372036854775808Q", result, pos);
-    test(b && result == INT64MIN && pos == 20);
+    test(b && result == Int64Min && pos == 20);
     b = stringToInt64("-9223372036854775809Q", result, pos);
-    test(!b && result == INT64MIN && pos == 20);
+    test(!b && result == Int64Min && pos == 20);
 
     b = stringToInt64("-9223372036854775809999Q", result, pos);
-    test(!b && result == INT64MIN && pos == 23);
+    test(!b && result == Int64Min && pos == 23);
 
     cout << "ok" << endl;
 
