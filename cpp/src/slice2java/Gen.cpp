@@ -1755,6 +1755,7 @@ Slice::Gen::TypesVisitor::visitConstDef(const ConstDefPtr& p)
 {
     string name = fixKwd(p->name());
     string scoped = p->scoped();
+    string scope = p->scope();
     string absolute = getAbsolute(scoped);
     TypePtr type = p->type();
 
@@ -1765,7 +1766,7 @@ Slice::Gen::TypesVisitor::visitConstDef(const ConstDefPtr& p)
     Output& out = output();
     out << sp << nl << "public interface " << name;
     out << sb;
-    out << nl << typeToString(type, TypeModeIn, scoped) << " value = ";
+    out << nl << typeToString(type, TypeModeIn, scope) << " value = ";
 
     BuiltinPtr bp;
     EnumPtr ep;
@@ -1846,7 +1847,7 @@ Slice::Gen::TypesVisitor::visitConstDef(const ConstDefPtr& p)
     }
     else if(ep = EnumPtr::dynamicCast(type))
     {
-	out << fixKwd(p->value());
+	out << getAbsolute(ep->scoped(), scope) << '.' << fixKwd(p->value());
     }
     else
     {
