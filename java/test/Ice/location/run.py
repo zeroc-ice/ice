@@ -29,5 +29,5 @@ name = os.path.join("Ice", "location")
 testdir = os.path.join(toplevel, "test", name)
 os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.getenv("CLASSPATH", "")
 
-TestUtil.mixedClientServerTest(name)
+TestUtil.mixedClientServerTest()
 sys.exit(0)

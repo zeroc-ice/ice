@@ -29,6 +29,6 @@ name = os.path.join("Ice", "objects")
 testdir = os.path.join(toplevel, "test", name)
 os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.getenv("CLASSPATH", "")
 
-TestUtil.clientServerTest(name)
-TestUtil.collocatedTest(name)
+TestUtil.clientServerTest()
+TestUtil.collocatedTest()
 sys.exit(0)

@@ -3723,6 +3723,25 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    
 	    Output& out = output();
 	    
+	    TypePtr ret = p->returnType();
+	    
+	    TypeStringList outParams;
+	    ParamDeclList paramList = p->parameters();
+	    for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+	    {
+		if((*pli)->isOutParam())
+		{
+		    outParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+		}
+	    }
+	    
+	    ExceptionList throws = p->throws();
+	    throws.sort();
+	    throws.unique();
+
+	    TypeStringList::const_iterator q;
+	    int iter;
+
 	    out << sp << nl << "final class " << classNameAMDI << '_' << name
 		<< " extends IceInternal.IncomingAsync implements " << classNameAMD << '_' << name;
 	    out << sb;
@@ -3732,6 +3751,28 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    out << eb;
 	    out << sp << nl << "public void" << nl << "ice_response(" << paramsAMD << ")";
 	    out << sb;
+	    if(ret || !outParams.empty())
+	    {
+		out << nl << "try";
+		out << sb;
+		out << nl << "IceInternal.BasicStream __os = this.__os();";
+		for(q = outParams.begin(); q != outParams.end(); ++q)
+		{
+		    string typeS = typeToString(q->first, TypeModeIn, classScope);
+		    writeMarshalUnmarshalCode(out, classScope, q->first, fixKwd(q->second), true, iter);
+		}
+		if(ret)
+		{
+		    string retS = typeToString(ret, TypeModeIn, classScope);
+		    writeMarshalUnmarshalCode(out, classScope, ret, "__ret", true, iter);
+		}
+		out << eb;
+		out << nl << "catch(Ice.LocalException __ex)";
+		out << sb;
+		out << nl << "ice_exception(__ex);";
+		out << eb;
+	    }
+	    out << nl << "__response(true);";
 	    out << eb;
 	    out << sp << nl << "public void" << nl << "ice_exception(java.lang.Exception ex)";
 	    out << sb;

@@ -123,9 +123,8 @@ serverOptions = serverProtocol + defaultHost + commonServerOptions
 clientServerOptions = clientServerProtocol + defaultHost + commonServerOptions
 collocatedOptions = clientServerProtocol + defaultHost
 
-def clientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
+def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions):
 
-    testdir = os.path.join(toplevel, "test", name)
     server = "java -ea Server --Ice.ProgramName=Server "
     client = "java -ea Client --Ice.ProgramName=Client "
 
@@ -148,13 +147,12 @@ def clientServerTestWithOptions(name, additionalServerOptions, additionalClientO
 	killServers()
 	sys.exit(1)
 
-def clientServerTest(name):
+def clientServerTest():
 
-    clientServerTestWithOptions(name, "", "")
+    clientServerTestWithOptions("", "")
 
-def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
+def mixedClientServerTestWithOptions(additionalServerOptions, additionalClientOptions):
 
-    testdir = os.path.join(toplevel, "test", name)
     server = "java -ea Server --Ice.ProgramName=Server "
     client = "java -ea Client --Ice.ProgramName=Client "
 
@@ -177,13 +175,12 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
 	killServers()
 	sys.exit(1)
 
-def mixedClientServerTest(name):
+def mixedClientServerTest():
 
-    mixedClientServerTestWithOptions(name, "", "")
+    mixedClientServerTestWithOptions("", "")
 
-def collocatedTestWithOptions(name, additionalOptions):
+def collocatedTestWithOptions(additionalOptions):
 
-    testdir = os.path.join(toplevel, "test", name)
     collocated = "java -ea Collocated --Ice.ProgramName=Collocated "
 
     print "starting collocated...",
@@ -199,9 +196,9 @@ def collocatedTestWithOptions(name, additionalOptions):
 	killServers()
 	sys.exit(1)
 
-def collocatedTest(name):
+def collocatedTest():
 
-    collocatedTestWithOptions(name, "")
+    collocatedTestWithOptions("")
 
 def cleanDbDir(path):
 

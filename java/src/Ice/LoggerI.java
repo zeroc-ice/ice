@@ -14,7 +14,7 @@
 
 package Ice;
 
-final class LoggerI extends LocalObjectImpl implements Logger
+public final class LoggerI extends LocalObjectImpl implements Logger
 {
     public 
     LoggerI(String prefix)

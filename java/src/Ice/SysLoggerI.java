@@ -19,7 +19,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.io.IOException;
 
-final class SysLoggerI extends LocalObjectImpl implements Logger
+public final class SysLoggerI extends LocalObjectImpl implements Logger
 {
     public 
     SysLoggerI(String ident)

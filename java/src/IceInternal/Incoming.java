@@ -143,6 +143,22 @@ final public class Incoming extends IncomingBase
                 {
                     status = _servant.__dispatch(this, _current);
                 }
+
+		//
+		// In case of an asynchronous dispatch, _is is now
+		// null, because an IncomingAsync has adopted this
+		// Incoming.
+		//
+		if(_is == null)
+		{
+		    //
+		    // If this was an asynchronous dispatch, we're
+		    // done here.  We do *not* call __finishInvoke(),
+		    // because the call is not finished yet.
+		    //
+		    assert(status == DispatchStatus.DispatchOK);
+		    return;
+		}
             }
         }
         catch(Ice.RequestFailedException ex)

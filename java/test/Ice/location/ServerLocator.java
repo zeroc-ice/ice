@@ -21,18 +21,18 @@ public class ServerLocator extends Ice._LocatorDisp
 	_registryPrx = registryPrx;
     }
 
-    public Ice.ObjectPrx 
-    findAdapterById(String adapter, Ice.Current current)
+    public void
+    findAdapterById_async(Ice.AMD_Locator_findAdapterById response, String adapter, Ice.Current current)
 	throws Ice.AdapterNotFoundException
     {
-	return _registry.getAdapter(adapter);
+	response.ice_response(_registry.getAdapter(adapter));
     }
 
-    public Ice.ObjectPrx
-    findObjectById(Ice.Identity id, Ice.Current current)
+    public void
+    findObjectById_async(Ice.AMD_Locator_findObjectById response, Ice.Identity id, Ice.Current current)
 	throws Ice.ObjectNotFoundException
     {
-	return _registry.getObject(id);
+	response.ice_response(_registry.getObject(id));
     }
     
     public Ice.LocatorRegistryPrx
