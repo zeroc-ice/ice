@@ -18,6 +18,7 @@ def usage():
     print
     print "Options:"
     print "-h    Show this message."
+    print "-d    Skip SGML documentation conversion."
     print "-v    Be verbose."
     print
     print "If no tag is specified, HEAD is used."
@@ -45,11 +46,14 @@ win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
 # Check arguments
 #
 tag = "-rHEAD"
+skipDocs = 0
 verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
+    elif x == "-d":
+        skipDocs = 1
     elif x == "-v":
         verbose = 1
     elif x.startswith("-"):
@@ -59,6 +63,10 @@ for x in sys.argv[1:]:
         sys.exit(1)
     else:
         tag = "-r" + x
+
+if win32 and not skipDocs:
+    print sys.argv[0] + ": the documentation cannot be built on Windows."
+    sys.exit(1)
 
 #
 # Remove any existing "dist" directory and create a new one.
@@ -78,27 +86,60 @@ if verbose:
 else:
     quiet = "-Q"
 os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " icevb")
-os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " icecs/src/Ice/AssemblyInfo.cs")
 
 #
 # Export C++ sources.
 #
-# NOTE: Assumes that the C++ and VB trees will use the same tag.
+# NOTE: Assumes that the C++ and C# trees will use the same tag.
 #
 os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice")
+
+#
+# Get version file from C# tree.
+#
+os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " icecs/src/Ice/AssemblyInfo.cs")
+
 #
 # Copy Slice directories.
 #
 print "Copying Slice directories..."
 slicedirs = [\
+    "Freeze",\
     "Glacier",\
-    "Glacier2",\
     "Ice",\
+    "IceBox",\
     "IcePack",\
+    "IcePatch",\
+    "IceStorm",\
 ]
 os.mkdir(os.path.join("icevb", "slice"))
 for x in slicedirs:
     shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icevb", "slice", x), 1)
+#
+# Generate HTML documentation. We need to build icecpp
+# and slice2docbook first.
+#
+if not skipDocs:
+    print "Generating documentation..."
+    cwd = os.getcwd()
+    os.chdir(os.path.join("ice", "src", "icecpp"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "src", "IceUtil"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "src", "Slice"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "src", "slice2docbook"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "doc"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.mkdir(os.path.join("icevb", "doc"))
+    os.rename(os.path.join("ice", "doc", "manual"), os.path.join("icevb", "doc", "manual"))
+shutil.rmtree("ice")
 
 #
 # Remove files.
@@ -114,10 +155,8 @@ for x in filesToRemove:
 #
 # Get Ice version.
 #
-versionFile = os.path.join("icecs", "src", "Ice", "AssemblyInfo.cs")
-config = open(versionFile, "r")
+config = open(os.path.join("icecs", "src", "Ice", "AssemblyInfo.cs"), "r")
 version = re.search("AssemblyVersion.*\"([0-9\.]*)\"", config.read()).group(1)
-shutil.rmtree("icecs")
 
 #
 # Create source archives.
@@ -146,4 +185,5 @@ shutil.copyfile(os.path.join(icever, "CHANGES"), "IceVB-" + version + "-CHANGES"
 #
 print "Cleaning up..."
 shutil.rmtree(icever)
+shutil.rmtree("icecs")
 print "Done."
