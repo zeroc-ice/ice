@@ -374,7 +374,7 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
     if(_remove)
     {
 	StringSeq fullDirectoryListing = readDirectory(identityToPath(dirDesc->directory->ice_getIdentity()));
-	orphaned.reserve(fullDirectoryListing);
+	orphaned.reserve(fullDirectoryListing.size());
 	for(StringSeq::const_iterator p = fullDirectoryListing.begin(); p != fullDirectoryListing.end(); ++p)
 	{
 	    if(*p != ".icepatch" && getSuffix(*p) != "md5")
