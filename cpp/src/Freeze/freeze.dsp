@@ -126,6 +126,10 @@ SOURCE=.\Evictor.cpp
 
 SOURCE=.\EvictorI.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\IdentityObjectDict.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -168,11 +172,15 @@ SOURCE=..\..\include\Freeze\Freeze.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Freeze\Map.h
+SOURCE=.\IdentityObjectDict.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\include\Freeze\Initialize.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Freeze\Map.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -298,6 +306,32 @@ InputPath=..\..\slice\Freeze\DBF.ice
 	move DBF.h ..\..\include\Freeze 
 	del DBF.cpp 
 	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\dummy.ice
+
+!IF  "$(CFG)" == "Freeze - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\dummy.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2freeze.exe --include-dir Freeze -I../../slice --dict Freeze::IdentityObjectDict,string,Object IdentityObjectDict \
+	
+
+"IdentityObjectDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IdentityObjectDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
 # End Custom Build
 
 !ENDIF 

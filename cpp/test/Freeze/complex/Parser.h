@@ -13,6 +13,14 @@
 
 #include <Complex.h>
 
+#ifdef WIN32
+#   include <io.h>
+#   define isatty _isatty
+#   define fileno _fileno
+// '_isatty' : inconsistent dll linkage.  dllexport assumed.
+#   pragma warning( disable : 4273 )
+#endif
+
 //
 // Stuff for flex and bison
 //
