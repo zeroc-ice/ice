@@ -31,36 +31,36 @@ public:
     //
     // Create a direct reference.
     //
-    ReferencePtr create(const Ice::Identity&, const Ice::Context&, const std::string&,
-			Reference::Mode, bool, const std::vector<EndpointPtr>&,
+    ReferencePtr create(const ::Ice::Identity&, const ::Ice::Context&, const ::std::string&,
+			Reference::Mode, bool, const ::std::vector<EndpointPtr>&,
 			const RouterInfoPtr&, bool);
     //
     // Create an indirect reference.
     //
-    ReferencePtr create(const Ice::Identity&, const Ice::Context&, const std::string&,
-			Reference::Mode, bool, const std::string&,
+    ReferencePtr create(const ::Ice::Identity&, const ::Ice::Context&, const ::std::string&,
+			Reference::Mode, bool, const ::std::string&,
 			const RouterInfoPtr&, const LocatorInfoPtr&, bool);
     //
     // Create a fixed reference.
     //
-    ReferencePtr create(const Ice::Identity&, const Ice::Context&, const std::string&,
-	                Reference::Mode, bool, bool, const std::vector<Ice::ConnectionIPtr>&);
+    ReferencePtr create(const ::Ice::Identity&, const ::Ice::Context&, const ::std::string&,
+	                Reference::Mode, bool, bool, const ::std::vector< ::Ice::ConnectionIPtr>&);
 
     //
     // Create a reference from a string.
     //
-    ReferencePtr create(const std::string&);
+    ReferencePtr create(const ::std::string&);
 
     //
     // Create a reference by unmarshaling it from a stream.
     //
-    ReferencePtr create(const Ice::Identity&, BasicStream*);
+    ReferencePtr create(const ::Ice::Identity&, BasicStream*);
 
     void setDefaultRouter(const ::Ice::RouterPrx&);
-    Ice::RouterPrx getDefaultRouter() const;
+    ::Ice::RouterPrx getDefaultRouter() const;
 
     void setDefaultLocator(const ::Ice::LocatorPrx&);
-    Ice::LocatorPrx getDefaultLocator() const;
+    ::Ice::LocatorPrx getDefaultLocator() const;
 
 private:
 
@@ -69,8 +69,8 @@ private:
     friend class Instance;
 
     InstancePtr _instance;
-    Ice::RouterPrx _defaultRouter;
-    Ice::LocatorPrx _defaultLocator;
+    ::Ice::RouterPrx _defaultRouter;
+    ::Ice::LocatorPrx _defaultLocator;
 };
 
 }

@@ -264,6 +264,30 @@ namespace Ice
 		_instance.referenceFactory().setDefaultLocator(locator);
 	    }
 	}
+	
+	public Ice.Context getDefaultContext()
+	{
+	    lock(this)
+	    {
+		if(_destroyed)
+		{
+		    throw new CommunicatorDestroyedException();
+		}
+	        return _instance.getDefaultContext();
+	    }
+	}
+	
+	public void setDefaultContext(Ice.Context ctx)
+	{
+	    lock(this)
+	    {
+		if(_destroyed)
+		{
+		    throw new CommunicatorDestroyedException();
+		}
+	        _instance.setDefaultContext(ctx);
+	    }
+	}
 
 	public PluginManager getPluginManager()
 	{

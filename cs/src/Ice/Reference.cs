@@ -37,7 +37,14 @@ namespace IceInternal
 
 	public Ice.Context getContext()
 	{
-	    return _context;
+	    if(_hasContext)
+	    {
+	        return _context == null ? _emptyContext : _context;
+	    }
+	    else
+	    {
+		return _instance.getDefaultContext();
+	    }
 	}
 
 	public string getFacet()
@@ -79,13 +86,38 @@ namespace IceInternal
 
 	public Reference changeContext(Ice.Context newContext)
 	{
-	    if(newContext.Equals(_context))
+	    if(_hasContext && newContext.Equals(_context))
 	    {
 		return this;
 	    }
 	    Reference r = _instance.referenceFactory().copy(this);
-	    r._context = newContext;
+	    r._hasContext = true;
+	    if(newContext.Count == 0)
+	    {
+		r._context = _emptyContext;
+	    }
+	    else
+	    {
+	        r._context = (Ice.Context)newContext.Clone();
+	    }
 	    return r;
+	}
+
+	public Reference defaultContext()
+	{
+	    if(!_hasContext)
+	    {
+		return this;
+	    }
+	    Reference r = _instance.referenceFactory().copy(this);
+	    r._hasContext = false;
+	    r._context = _emptyContext;
+	    return r;
+	}
+
+	public bool hasContext()
+	{
+	    return _hasContext;
 	}
 
 	public Reference changeFacet(string newFacet)
@@ -130,7 +162,10 @@ namespace IceInternal
 		h = 5 * h + (int)_identity.category[i];
 	    }
 
-	    h = 5 * h + _context.GetHashCode();
+	    if(_hasContext)
+	    {
+		h = 5 * h + _context.GetHashCode();
+	    }
 
 	    sz = _facet.Length;
 	    for(int i = 0; i < sz; i++)
@@ -159,6 +194,11 @@ namespace IceInternal
 	    if(!_identity.Equals(r._identity))
 	    {
 		return false;
+	    }
+
+	    if(_hasContext != r._hasContext)
+	    {
+	        return false;
 	    }
 
 	    if(!_context.Equals(r._context))
@@ -306,7 +346,9 @@ namespace IceInternal
 
 	private Mode _mode;
 	private Ice.Identity _identity;
+	private bool _hasContext;
 	private Ice.Context _context;
+	private static Ice.Context _emptyContext = new Ice.Context();
 	private string _facet;
 	private bool _secure;
 
@@ -330,6 +372,7 @@ namespace IceInternal
 	    _instance = inst;
 	    _mode = md;
 	    _identity = ident;
+	    _hasContext = false;
 	    _context = ctx;
 	    _facet = fac;
 	    _secure = sec;

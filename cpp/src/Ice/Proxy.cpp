@@ -321,7 +321,7 @@ IceProxy::Ice::Object::ice_getContext() const
 ObjectPrx
 IceProxy::Ice::Object::ice_newContext(const Context& newContext) const
 {
-    if(newContext == _reference->getContext())
+    if(_reference->hasContext() && newContext == _reference->getContext())
     {
 	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
@@ -329,6 +329,21 @@ IceProxy::Ice::Object::ice_newContext(const Context& newContext) const
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
 	proxy->setup(_reference->changeContext(newContext));
+	return proxy;
+    }
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_defaultContext() const
+{
+    if(!_reference->hasContext())
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(_reference->defaultContext());
 	return proxy;
     }
 }

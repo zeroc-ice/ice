@@ -898,7 +898,7 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
     
-    internal static void twowaysAMI(Test.MyClassPrx p)
+    internal static void twowaysAMI(Ice.Communicator communicator, Test.MyClassPrx p)
     {
         {
             AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
@@ -1201,6 +1201,45 @@ public class TwowaysAMI
                 p2.opContext_async(cb, ctx);
                 test(cb.check());
             }
+	    {
+		//
+		// Test that default context is obtained correctly from communicator.
+		//
+		Ice.Context dflt = new Ice.Context();
+		dflt["a"] = "b";
+		communicator.setDefaultContext(dflt);
+		{
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(dflt);
+		    p.opContext_async(cb);
+		    test(cb.check());
+		}
+
+		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_newContext(new Ice.Context()));
+		{
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(new Ice.Context());
+		    p2.opContext_async(cb);
+		    test(cb.check());
+		}
+
+		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
+		{
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(dflt);
+		    p2.opContext_async(cb);
+		    test(cb.check());
+		}
+
+		communicator.setDefaultContext(new Ice.Context());
+		{
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(new Ice.Context());
+		    p.opContext_async(cb);
+		    test(cb.check());
+		}
+		{
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(new Ice.Context());
+		    p2.opContext_async(cb);
+		    test(cb.check());
+		}
+	    }
         }
         
         {

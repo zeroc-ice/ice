@@ -83,21 +83,33 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     tccp = Test::TestCheckedCastPrx::checkedCast(cbase, c);
     Ice::Context c2 = tccp->getContext();
     test(c == c2);
+
+    //
+    // Now with alternate API
+    //
+    tccp = checkedCast<Test::TestCheckedCastPrx>(cbase);
+    c = tccp->getContext();
+    test(c.size() == 0);
+
+    tccp = checkedCast<Test::TestCheckedCastPrx>(cbase, c);
+    c2 = tccp->getContext();
+    test(c == c2);
+
     cout << "ok" << endl;
 
     cout << "testing twoway operations... " << flush;
-    void twoways(const Test::MyClassPrx&);
-    twoways(cl);
-    twoways(derived);
+    void twoways(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
+    twoways(communicator, cl);
+    twoways(communicator, derived);
     derived->opDerived();
     cout << "ok" << endl;
 
     if(!collocated)
     {
 	cout << "testing twoway operations with AMI... " << flush;
-	void twowaysAMI(const Test::MyClassPrx&);
-	twowaysAMI(cl);
-	twowaysAMI(derived);
+	void twowaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
+	twowaysAMI(communicator, cl);
+	twowaysAMI(communicator, derived);
 	cout << "ok" << endl;
 
 	cout << "testing batch oneway operations... " << flush;

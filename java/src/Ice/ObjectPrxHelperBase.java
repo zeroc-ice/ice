@@ -220,7 +220,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_newContext(java.util.Map newContext)
     {
-        if(newContext.equals(_reference.getContext()))
+        if(_reference.hasContext() && newContext.equals(_reference.getContext()))
         {
             return this;
         }
@@ -230,6 +230,21 @@ public class ObjectPrxHelperBase implements ObjectPrx
             proxy.setup(_reference.changeContext(newContext));
             return proxy;
         }
+    }
+
+    public final ObjectPrx
+    ice_defaultContext()
+    {
+        if(!_reference.hasContext())
+	{
+	    return this;
+	}
+	else
+	{
+	    ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+	    proxy.setup(_reference.defaultContext());
+	    return proxy;
+	}
     }
 
     public final String

@@ -56,15 +56,35 @@ IceInternal::Reference::changeIdentity(const Identity& newIdentity) const
     return r;
 }
 
+const Context&
+IceInternal::Reference::getContext() const
+{
+    return _hasContext ? _context : _instance->getDefaultContext();
+}
+
 ReferencePtr
 IceInternal::Reference::changeContext(const Context& newContext) const
 {
-    if(newContext == _context)
+    if(_hasContext && newContext == _context)
     {
 	return ReferencePtr(const_cast<Reference*>(this));
     }
     ReferencePtr r = _instance->referenceFactory()->copy(this);
+    r->_hasContext = true;
     r->_context = newContext;
+    return r;
+}
+
+ReferencePtr
+IceInternal::Reference::defaultContext() const
+{
+    if(!_hasContext)
+    {
+	return ReferencePtr(const_cast<Reference*>(this));
+    }
+    ReferencePtr r = _instance->referenceFactory()->copy(this);
+    r->_hasContext = false;
+    r->_context.clear();
     return r;
 }
 
@@ -117,15 +137,18 @@ Reference::hash() const
         h = 5 * h + *p;
     }
 
-    for(q = _context.begin(); q != _context.end(); ++q)
+    if(_hasContext)
     {
-        for(p = q->first.begin(); p != q->first.end(); ++p)
+	for(q = _context.begin(); q != _context.end(); ++q)
 	{
-	    h = 5 * h + *p;
-	}
-        for(p = q->second.begin(); p != q->second.end(); ++p)
-	{
-	    h = 5 * h + *p;
+	    for(p = q->first.begin(); p != q->first.end(); ++p)
+	    {
+		h = 5 * h + *p;
+	    }
+	    for(p = q->second.begin(); p != q->second.end(); ++p)
+	    {
+		h = 5 * h + *p;
+	    }
 	}
     }
 
@@ -271,6 +294,11 @@ IceInternal::Reference::operator==(const Reference& r) const
 	return false;
     }
 
+    if(_hasContext != r._hasContext)
+    {
+        return false;
+    }
+
     if(_context != r._context)
     {
 	return false;
@@ -320,6 +348,15 @@ IceInternal::Reference::operator<(const Reference& r) const
 	return false;
     }
     
+    if(_hasContext < r._hasContext)
+    {
+        return true;
+    }
+    else if(r._hasContext < _hasContext)
+    {
+        return false;
+    }
+
     if(_context < r._context)
     {
 	return true;
@@ -377,6 +414,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const Identity& ident
     : _instance(inst),
       _mode(md),
       _identity(ident),
+      _hasContext(!ctx.empty()),
       _context(ctx),
       _facet(fs),
       _secure(sec),
@@ -388,6 +426,7 @@ IceInternal::Reference::Reference(const Reference& r)
     : _instance(r._instance),
       _mode(r._mode),
       _identity(r._identity),
+      _hasContext(r._hasContext),
       _context(r._context),
       _facet(r._facet),
       _secure(r._secure),

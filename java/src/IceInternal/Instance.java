@@ -245,6 +245,25 @@ public class Instance
     }
 
     public void
+    setDefaultContext(java.util.Map ctx)
+    {
+	if(ctx == null || ctx.isEmpty())
+	{
+	    _defaultContext = _emptyContext;
+	}
+	else
+	{
+	    _defaultContext = new java.util.HashMap(ctx);
+	}
+    }
+
+    public java.util.Map
+    getDefaultContext()
+    {
+        return new java.util.HashMap(_defaultContext);
+    }
+
+    public void
     flushBatchRequests()
     {
 	OutgoingConnectionFactory connectionFactory;
@@ -406,6 +425,8 @@ public class Instance
             _endpointFactoryManager.add(udpEndpointFactory);
 
             _pluginManager = new Ice.PluginManagerI(communicator);
+
+	    _defaultContext = _emptyContext;
 
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -648,6 +669,8 @@ public class Instance
     private final int _threadPerConnectionStackSize;
     private EndpointFactoryManager _endpointFactoryManager;
     private Ice.PluginManager _pluginManager;
+    private java.util.Map _defaultContext;
+    private static java.util.Map _emptyContext = new java.util.HashMap();
     private final BufferManager _bufferManager; // Immutable, not reset by destroy().
 
     private static boolean _oneOffDone = false;

@@ -800,7 +800,7 @@ public:
 typedef IceUtil::Handle<AMI_MyDerivedClass_opDerivedI> AMI_MyDerivedClass_opDerivedIPtr;
 
 void
-twowaysAMI(const Test::MyClassPrx& p)
+twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 {
     {
 	AMI_MyClass_opVoidIPtr cb = new AMI_MyClass_opVoidI;
@@ -1129,6 +1129,45 @@ twowaysAMI(const Test::MyClassPrx& p)
 	    AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(ctx);
 	    p2->opContext_async(cb, ctx);
 	    test(cb->check());
+	}
+	{
+	    //
+	    // Test that default context is obtained correctly from communicator.
+	    //
+	    Ice::Context dflt;
+	    dflt["a"] = "b";
+	    communicator->setDefaultContext(dflt);
+	    {
+		AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(dflt);
+		p->opContext_async(cb);
+		test(cb->check());
+	    }
+
+	    Test::MyClassPrx p2 = Test::MyClassPrx::uncheckedCast(p->ice_newContext(Ice::Context()));
+	    {
+		AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(Ice::Context());
+		p2->opContext_async(cb);
+		test(cb->check());
+	    }
+
+	    p2 = Test::MyClassPrx::uncheckedCast(p->ice_defaultContext());
+	    {
+		AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(dflt);
+		p2->opContext_async(cb);
+		test(cb->check());
+	    }
+
+	    communicator->setDefaultContext(Ice::Context());
+	    {
+		AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(Ice::Context());
+		p->opContext_async(cb);
+		test(cb->check());
+	    }
+	    {
+		AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(Ice::Context());
+		p2->opContext_async(cb);
+		test(cb->check());
+	    }
 	}
     }
 

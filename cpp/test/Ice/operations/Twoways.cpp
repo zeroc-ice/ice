@@ -25,7 +25,7 @@
 using namespace std;
 
 void
-twoways(const Test::MyClassPrx& p)
+twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 {
     {
 	p->opVoid();
@@ -639,6 +639,26 @@ twoways(const Test::MyClassPrx& p)
 	    test(r == ctx);
 	    r = p2->opContext(ctx);
 	    test(r == ctx);
+	}
+
+	{
+	    //
+	    // Test that default context is obtained correctly from communicator.
+	    //
+	    Ice::Context dflt;
+	    dflt["a"] = "b";
+	    communicator->setDefaultContext(dflt);
+	    test(p->opContext() == dflt);
+
+	    Test::MyClassPrx p2 = Test::MyClassPrx::uncheckedCast(p->ice_newContext(Ice::Context()));
+	    test(p2->opContext().empty());
+
+	    p2 = Test::MyClassPrx::uncheckedCast(p->ice_defaultContext());
+	    test(p2->opContext() == dflt);
+
+	    communicator->setDefaultContext(Ice::Context());
+	    test(p->opContext().empty());
+	    test(p2->opContext().empty());
 	}
     }
 }

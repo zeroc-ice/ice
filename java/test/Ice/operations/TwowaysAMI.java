@@ -992,7 +992,7 @@ class TwowaysAMI
     }
 
     static void
-    twowaysAMI(Test.MyClassPrx p)
+    twowaysAMI(Ice.Communicator communicator, Test.MyClassPrx p)
     {
 	{
 	    AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
@@ -1331,6 +1331,46 @@ class TwowaysAMI
 		AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
 		p2.opContext_async(cb, ctx);
 		test(cb.check());
+	    }
+
+	    {
+		//
+		// Test that default context is obtained correctly from communicator.
+		//
+		java.util.HashMap dflt = new java.util.HashMap();
+		dflt.put("a", "b");
+		communicator.setDefaultContext(dflt);
+		{
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(dflt);
+		    p.opContext_async(cb);
+		    test(cb.check());
+		}
+
+		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_newContext(new java.util.HashMap()));
+		{
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(new java.util.HashMap());
+		    p2.opContext_async(cb);
+		    test(cb.check());
+		}
+
+		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
+		{
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(dflt);
+		    p2.opContext_async(cb);
+		    test(cb.check());
+		}
+
+		communicator.setDefaultContext(new java.util.HashMap());
+		{
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(new java.util.HashMap());
+		    p.opContext_async(cb);
+		    test(cb.check());
+		}
+		{
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(new java.util.HashMap());
+		    p2.opContext_async(cb);
+		    test(cb.check());
+		}
 	    }
 	}
 

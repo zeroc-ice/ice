@@ -44,6 +44,7 @@ namespace Ice
 
         Context ice_getContext();
         ObjectPrx ice_newContext(Context newContext);
+        ObjectPrx ice_defaultContext();
 
         string ice_getFacet();
         ObjectPrx ice_newFacet(string newFacet);
@@ -262,7 +263,7 @@ namespace Ice
 
         public ObjectPrx ice_newContext(Context newContext)
         {
-            if(newContext.Equals(_reference.getContext()))
+            if(_reference.hasContext() && newContext.Equals(_reference.getContext()))
             {
                 return this;
             }
@@ -273,6 +274,20 @@ namespace Ice
                 return proxy;
             }
         }
+
+	public ObjectPrx ice_defaultContext()
+	{
+            if(!_reference.hasContext())
+            {
+                return this;
+            }
+            else
+            {
+                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+                proxy.setup(_reference.defaultContext());
+                return proxy;
+            }
+	}
 
         public string ice_getFacet()
         {

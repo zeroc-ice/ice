@@ -38,6 +38,9 @@ public:
     virtual void removeObjectFactory(const std::string&);
     virtual ObjectFactoryPtr findObjectFactory(const std::string&) const;
 
+    virtual void setDefaultContext(const Context&);
+    virtual Context getDefaultContext() const;
+
     virtual PropertiesPtr getProperties() const;
 
     virtual LoggerPtr getLogger() const;
@@ -73,6 +76,7 @@ private:
 
     bool _destroyed;
     ::IceInternal::InstancePtr _instance;
+    ::Ice::Context _dfltContext;
 
     //
     // We don't want the dynamic libraries to be unloaded until the

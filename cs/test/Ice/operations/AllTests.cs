@@ -59,8 +59,8 @@ public class AllTests
 	
 	Console.Out.Write("testing twoway operations... ");
 	Console.Out.Flush();
-	Twoways.twoways(cl);
-	Twoways.twoways(derivedProxy);
+	Twoways.twoways(communicator, cl);
+	Twoways.twoways(communicator, derivedProxy);
 	derivedProxy.opDerived();
 	Console.Out.WriteLine("ok");
 	
@@ -68,8 +68,8 @@ public class AllTests
 	{
 	    Console.Out.Write("testing twoway operations with AMI... ");
 	    Console.Out.Flush();
-	    TwowaysAMI.twowaysAMI(cl);
-	    TwowaysAMI.twowaysAMI(derivedProxy);
+	    TwowaysAMI.twowaysAMI(communicator, cl);
+	    TwowaysAMI.twowaysAMI(communicator, derivedProxy);
 	    Console.Out.WriteLine("ok");
 	}
 	

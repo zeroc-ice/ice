@@ -39,6 +39,7 @@ public interface ObjectPrx
 
     java.util.Map ice_getContext();
     ObjectPrx ice_newContext(java.util.Map newContext);
+    ObjectPrx ice_defaultContext();
 
     String ice_getFacet();
     ObjectPrx ice_newFacet(String newFacet);

@@ -344,6 +344,28 @@ Ice::CommunicatorI::setDefaultLocator(const LocatorPrx& locator)
     _instance->referenceFactory()->setDefaultLocator(locator);
 }
 
+void
+Ice::CommunicatorI::setDefaultContext(const Context& ctx)
+{
+    RecMutex::Lock sync(*this);
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    _instance->setDefaultContext(ctx);
+}
+
+Ice::Context
+Ice::CommunicatorI::getDefaultContext() const
+{
+    RecMutex::Lock sync(*this);
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    return _instance->getDefaultContext();
+}
+
 PluginManagerPtr
 Ice::CommunicatorI::getPluginManager() const
 {

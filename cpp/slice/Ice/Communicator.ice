@@ -18,6 +18,7 @@
 #include <Ice/RouterF.ice>
 #include <Ice/LocatorF.ice>
 #include <Ice/PluginF.ice>
+#include <Ice/Current.ice>
 
 /**
  *
@@ -242,6 +243,29 @@ local interface Communicator
      *
      **/
     nonmutating ObjectFactory findObjectFactory(string id);
+
+    /**
+     *
+     * Set a default context on this communicator. Once set,
+     * all proxies that do not explicitly override the context
+     * on a per-proxy or per-invocation basis send this context
+     * with every invocation. To clear a context, call
+     * [setContext] with an empty context.
+     *
+     * @param ctx The default context to be set.
+     **/
+    void setDefaultContext(Context ctx);
+
+    /**
+     *
+     * Get the currently-set default context.
+     *
+     * @return The currently established default context. If no
+     * default context is currently set, [getDefaultContext]
+     * returns an empty context.
+     *
+     **/
+    nonmutating Context getDefaultContext();
 
     /**
      *

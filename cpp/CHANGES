@@ -1,6 +1,13 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Added setDefaultContext() and getDefaultContext() to
+  the Ice::Communicator interface. This allows a default context
+  to be established on a communicator-wide basis.
+
+  Added ice_defaultContext to Ice::ObjectProxy. This creates a new
+  proxy that uses the default context established on the communicator.
+
 - Fixed a rare proxy marshaling bug that could cause the receiver to
   encounter an UnmarshalOutOfBoundsException.
 

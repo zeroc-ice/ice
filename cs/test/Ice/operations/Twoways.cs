@@ -20,7 +20,7 @@ class Twoways
 	}
     }
     
-    internal static void twoways(Test.MyClassPrx p)
+    internal static void twoways(Ice.Communicator communicator, Test.MyClassPrx p)
     {
 	{
 	    p.opVoid();
@@ -596,6 +596,25 @@ class Twoways
 		test(r.Equals(ctx));
 		r = p2.opContext(ctx);
 		test(r.Equals(ctx));
+	    }
+	    {
+		//
+		// Test that default context is obtained correctly from communicator.
+		//
+		Ice.Context dflt = new Ice.Context();
+		dflt["a"] = "b";
+		communicator.setDefaultContext(dflt);
+		test(p.opContext().Equals(dflt));
+
+		Test.MyClassPrx p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_newContext(new Ice.Context()));
+		test(p2.opContext().Count == 0);
+
+		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
+		test(p2.opContext().Equals(dflt));
+
+		communicator.setDefaultContext(new Ice.Context());
+		test(p.opContext().Count == 0);
+		test(p2.opContext().Count == 0);
 	    }
 	}
     }

@@ -73,6 +73,8 @@ public:
     size_t messageSizeMax() const;
     Ice::Int connectionIdleTime() const;
     void flushBatchRequests();
+    void setDefaultContext(const ::Ice::Context&);
+    const ::Ice::Context& getDefaultContext() const;
     
 private:
 
@@ -105,6 +107,7 @@ private:
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;
     Ice::PluginManagerPtr _pluginManager;
+    Ice::Context _defaultContext;
 };
 
 }

@@ -234,6 +234,26 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
         _instance.referenceFactory().setDefaultLocator(locator);
     }
 
+    public synchronized java.util.Map
+    getDefaultContext()
+    {
+        if(_destroyed)
+        {
+            throw new CommunicatorDestroyedException();
+        }
+	return _instance.getDefaultContext();
+    }
+
+    public synchronized void
+    setDefaultContext(java.util.Map ctx)
+    {
+        if(_destroyed)
+        {
+            throw new CommunicatorDestroyedException();
+        }
+	_instance.setDefaultContext(ctx);
+    }
+
     public PluginManager
     getPluginManager()
     {

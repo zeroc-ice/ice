@@ -264,6 +264,25 @@ namespace IceInternal
 	    return _connectionIdleTime;
 	}
 
+        public void
+	setDefaultContext(Ice.Context ctx)
+	{
+	    if(ctx == null || ctx.Count == 0)
+	    {
+	        _defaultContext = _emptyContext;
+	    }
+	    else
+	    {
+	        _defaultContext = (Ice.Context)ctx.Clone();
+	    }
+	}
+
+	public Ice.Context
+	getDefaultContext()
+	{
+	    return (Ice.Context)_defaultContext.Clone();
+	}
+
 	public virtual void flushBatchRequests()
 	{
 	    OutgoingConnectionFactory connectionFactory;
@@ -393,6 +412,8 @@ namespace IceInternal
 		_endpointFactoryManager.add(udpEndpointFactory);
 		
 		_pluginManager = new Ice.PluginManagerI(communicator);
+
+		_defaultContext = _emptyContext;
 		
 		_outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 		
@@ -615,6 +636,8 @@ namespace IceInternal
 	private ThreadPool _serverThreadPool;
 	private EndpointFactoryManager _endpointFactoryManager;
 	private Ice.PluginManager _pluginManager;
+	private Ice.Context _defaultContext;
+	private static Ice.Context _emptyContext = new Ice.Context();
 	private volatile BufferManager _bufferManager; // Immutable, not reset by destroy().
 	private volatile static bool _printProcessIdDone = false;
 

@@ -370,6 +370,19 @@ IceInternal::Instance::flushBatchRequests()
     adapterFactory->flushBatchRequests();
 }
 
+void
+IceInternal::Instance::setDefaultContext(const Context& ctx)
+{
+    _defaultContext = ctx;
+}
+
+const Context&
+IceInternal::Instance::getDefaultContext() const
+{
+    return _defaultContext;
+}
+
+
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
     _destroyed(false),
     _properties(properties),

@@ -59,8 +59,8 @@ public class AllTests
 
         System.out.print("testing twoway operations... ");
         System.out.flush();
-        Twoways.twoways(cl);
-        Twoways.twoways(derived);
+        Twoways.twoways(communicator, cl);
+        Twoways.twoways(communicator, derived);
         derived.opDerived();
         System.out.println("ok");
 
@@ -68,8 +68,8 @@ public class AllTests
 	{
 	    System.out.print("testing twoway operations with AMI... ");
 	    System.out.flush();
-	    TwowaysAMI.twowaysAMI(cl);
-	    TwowaysAMI.twowaysAMI(derived);
+	    TwowaysAMI.twowaysAMI(communicator, cl);
+	    TwowaysAMI.twowaysAMI(communicator, derived);
 	    System.out.println("ok");
 
 	    System.out.print("testing batch oneway operations... ");

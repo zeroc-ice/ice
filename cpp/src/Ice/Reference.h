@@ -44,7 +44,6 @@ public:
 
     Mode getMode() const { return _mode; }
     const Ice::Identity& getIdentity() const { return _identity; }
-    const Ice::Context& getContext() const { return _context; }
     const std::string& getFacet() const { return _facet; }
     bool getSecure() const { return _secure; }
     const InstancePtr& getInstance() const { return _instance; }
@@ -59,7 +58,10 @@ public:
     //
     ReferencePtr changeMode(Mode) const;
     ReferencePtr changeIdentity(const Ice::Identity&) const;
+    const Ice::Context& getContext() const;
     ReferencePtr changeContext(const Ice::Context&) const;
+    ReferencePtr defaultContext() const;
+    bool hasContext() const { return _hasContext; }
     ReferencePtr changeFacet(const std::string&) const;
     ReferencePtr changeSecure(bool) const;
 
@@ -104,6 +106,7 @@ private:
 
     Mode _mode;
     Ice::Identity _identity;
+    bool _hasContext;
     Ice::Context _context;
     std::string _facet;
     bool _secure;
