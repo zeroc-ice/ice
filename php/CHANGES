@@ -1,3 +1,21 @@
+Changes since version 1.0.1
+---------------------------
+
+- Updated for compatibility with Ice 1.3.0 and PHP5 beta4. The patch
+  in the file patch.txt must be applied to PHP5b4 prior to building
+  it on Unix platforms.
+
+- Added the member functions ice_preMarshal and ice_postUnmarshal to
+  Ice_Object. The default implementations do nothing, but subclasses
+  may override them to take special action before marshaling and after
+  unmarshaling, respectively.
+
+- Added __toString functions to certain Ice exceptions.
+
+- Added support for building on HP-UX with aCC.
+
+- Added configure script to simplify building on Linux/Solaris/HP-UX.
+
 Changes since version 1.0.0
 ---------------------------
 
