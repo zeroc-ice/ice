@@ -51,7 +51,7 @@ static int
 propertiesInit(PropertiesObject* self, PyObject* args, PyObject* /*kwds*/)
 {
     PyObject* arglist = NULL;
-    if(!PyArg_ParseTuple(args, "|O!", &PyList_Type, &arglist))
+    if(!PyArg_ParseTuple(args, STRCAST("|O!"), &PyList_Type, &arglist))
     {
         return -1;
     }
@@ -142,7 +142,7 @@ static PyObject*
 propertiesGetProperty(PropertiesObject* self, PyObject* args)
 {
     char* key;
-    if(!PyArg_ParseTuple(args, "s", &key))
+    if(!PyArg_ParseTuple(args, STRCAST("s"), &key))
     {
         return NULL;
     }
@@ -170,7 +170,7 @@ propertiesGetPropertyWithDefault(PropertiesObject* self, PyObject* args)
 {
     char* key;
     char* def;
-    if(!PyArg_ParseTuple(args, "ss", &key, &def))
+    if(!PyArg_ParseTuple(args, STRCAST("ss"), &key, &def))
     {
         return NULL;
     }
@@ -197,7 +197,7 @@ static PyObject*
 propertiesGetPropertyAsInt(PropertiesObject* self, PyObject* args)
 {
     char* key;
-    if(!PyArg_ParseTuple(args, "s", &key))
+    if(!PyArg_ParseTuple(args, STRCAST("s"), &key))
     {
         return NULL;
     }
@@ -225,7 +225,7 @@ propertiesGetPropertyAsIntWithDefault(PropertiesObject* self, PyObject* args)
 {
     char* key;
     int def;
-    if(!PyArg_ParseTuple(args, "si", &key, &def))
+    if(!PyArg_ParseTuple(args, STRCAST("si"), &key, &def))
     {
         return NULL;
     }
@@ -252,7 +252,7 @@ static PyObject*
 propertiesGetPropertiesForPrefix(PropertiesObject* self, PyObject* args)
 {
     char* prefix;
-    if(!PyArg_ParseTuple(args, "s", &prefix))
+    if(!PyArg_ParseTuple(args, STRCAST("s"), &prefix))
     {
         return NULL;
     }
@@ -294,7 +294,7 @@ propertiesSetProperty(PropertiesObject* self, PyObject* args)
 {
     char* key;
     char* value;
-    if(!PyArg_ParseTuple(args, "ss", &key, &value))
+    if(!PyArg_ParseTuple(args, STRCAST("ss"), &key, &value))
     {
         return NULL;
     }
@@ -353,7 +353,7 @@ propertiesParseCommandLineOptions(PropertiesObject* self, PyObject* args)
 {
     char* prefix;
     PyObject* options;
-    if(!PyArg_ParseTuple(args, "sO!", &prefix, &PyList_Type, &options))
+    if(!PyArg_ParseTuple(args, STRCAST("sO!"), &prefix, &PyList_Type, &options))
     {
         return NULL;
     }
@@ -396,7 +396,7 @@ static PyObject*
 propertiesParseIceCommandLineOptions(PropertiesObject* self, PyObject* args)
 {
     PyObject* options;
-    if(!PyArg_ParseTuple(args, "O!", &PyList_Type, &options))
+    if(!PyArg_ParseTuple(args, STRCAST("O!"), &PyList_Type, &options))
     {
         return NULL;
     }
@@ -439,7 +439,7 @@ static PyObject*
 propertiesLoad(PropertiesObject* self, PyObject* args)
 {
     char* file;
-    if(!PyArg_ParseTuple(args, "s", &file))
+    if(!PyArg_ParseTuple(args, STRCAST("s"), &file))
     {
         return NULL;
     }
@@ -482,28 +482,28 @@ propertiesClone(PropertiesObject* self)
 
 static PyMethodDef PropertyMethods[] =
 {
-    { "getProperty", (PyCFunction)propertiesGetProperty, METH_VARARGS,
-        PyDoc_STR("getProperty(key) -> string") },
-    { "getPropertyWithDefault", (PyCFunction)propertiesGetPropertyWithDefault, METH_VARARGS,
-        PyDoc_STR("getPropertyWithDefault(key, default) -> string") },
-    { "getPropertyAsInt", (PyCFunction)propertiesGetPropertyAsInt, METH_VARARGS,
-        PyDoc_STR("getPropertyAsInt(key) -> int") },
-    { "getPropertyAsIntWithDefault", (PyCFunction)propertiesGetPropertyAsIntWithDefault, METH_VARARGS,
-        PyDoc_STR("getPropertyAsIntWithDefault(key, default) -> int") },
-    { "getPropertiesForPrefix", (PyCFunction)propertiesGetPropertiesForPrefix, METH_VARARGS,
-        PyDoc_STR("getPropertiesForPrefix(prefix) -> dict") },
-    { "setProperty", (PyCFunction)propertiesSetProperty, METH_VARARGS,
-        PyDoc_STR("setProperty(key, value) -> None") },
-    { "getCommandLineOptions", (PyCFunction)propertiesGetCommandLineOptions, METH_NOARGS,
-        PyDoc_STR("getCommandLineOptions() -> list") },
-    { "parseCommandLineOptions", (PyCFunction)propertiesParseCommandLineOptions, METH_VARARGS,
-        PyDoc_STR("parseCommandLineOptions(prefix, options) -> list") },
-    { "parseIceCommandLineOptions", (PyCFunction)propertiesParseIceCommandLineOptions, METH_VARARGS,
-        PyDoc_STR("parseIceCommandLineOptions(prefix, options) -> list") },
-    { "load", (PyCFunction)propertiesLoad, METH_VARARGS,
-        PyDoc_STR("load(file) -> None") },
-    { "clone", (PyCFunction)propertiesClone, METH_NOARGS,
-        PyDoc_STR("clone() -> Ice.Properties") },
+    { STRCAST("getProperty"), (PyCFunction)propertiesGetProperty, METH_VARARGS,
+        PyDoc_STR(STRCAST("getProperty(key) -> string")) },
+    { STRCAST("getPropertyWithDefault"), (PyCFunction)propertiesGetPropertyWithDefault, METH_VARARGS,
+        PyDoc_STR(STRCAST("getPropertyWithDefault(key, default) -> string")) },
+    { STRCAST("getPropertyAsInt"), (PyCFunction)propertiesGetPropertyAsInt, METH_VARARGS,
+        PyDoc_STR(STRCAST("getPropertyAsInt(key) -> int")) },
+    { STRCAST("getPropertyAsIntWithDefault"), (PyCFunction)propertiesGetPropertyAsIntWithDefault, METH_VARARGS,
+        PyDoc_STR(STRCAST("getPropertyAsIntWithDefault(key, default) -> int")) },
+    { STRCAST("getPropertiesForPrefix"), (PyCFunction)propertiesGetPropertiesForPrefix, METH_VARARGS,
+        PyDoc_STR(STRCAST("getPropertiesForPrefix(prefix) -> dict")) },
+    { STRCAST("setProperty"), (PyCFunction)propertiesSetProperty, METH_VARARGS,
+        PyDoc_STR(STRCAST("setProperty(key, value) -> None")) },
+    { STRCAST("getCommandLineOptions"), (PyCFunction)propertiesGetCommandLineOptions, METH_NOARGS,
+        PyDoc_STR(STRCAST("getCommandLineOptions() -> list")) },
+    { STRCAST("parseCommandLineOptions"), (PyCFunction)propertiesParseCommandLineOptions, METH_VARARGS,
+        PyDoc_STR(STRCAST("parseCommandLineOptions(prefix, options) -> list")) },
+    { STRCAST("parseIceCommandLineOptions"), (PyCFunction)propertiesParseIceCommandLineOptions, METH_VARARGS,
+        PyDoc_STR(STRCAST("parseIceCommandLineOptions(prefix, options) -> list")) },
+    { STRCAST("load"), (PyCFunction)propertiesLoad, METH_VARARGS,
+        PyDoc_STR(STRCAST("load(file) -> None")) },
+    { STRCAST("clone"), (PyCFunction)propertiesClone, METH_NOARGS,
+        PyDoc_STR(STRCAST("clone() -> Ice.Properties")) },
     { NULL, NULL} /* sentinel */
 };
 
@@ -516,7 +516,7 @@ PyTypeObject PropertiesType =
      * to be portable to Windows without using C++. */
     PyObject_HEAD_INIT(NULL)
     0,                              /* ob_size */
-    "IcePy.Properties",             /* tp_name */
+    STRCAST("IcePy.Properties"),    /* tp_name */
     sizeof(PropertiesObject),       /* tp_basicsize */
     0,                              /* tp_itemsize */
     /* methods */
@@ -567,7 +567,7 @@ IcePy::initProperties(PyObject* module)
     {
         return false;
     }
-    if(PyModule_AddObject(module, "Properties", (PyObject*)&PropertiesType) < 0)
+    if(PyModule_AddObject(module, STRCAST("Properties"), (PyObject*)&PropertiesType) < 0)
     {
         return false;
     }
@@ -612,7 +612,7 @@ PyObject*
 IcePy_getDefaultProperties(PyObject* /*self*/, PyObject* args)
 {
     PyObject* arglist;
-    if(!PyArg_ParseTuple(args, "|O!", &PyList_Type, &arglist))
+    if(!PyArg_ParseTuple(args, STRCAST("|O!"), &PyList_Type, &arglist))
     {
         return NULL;
     }

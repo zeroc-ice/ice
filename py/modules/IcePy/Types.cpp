@@ -598,7 +598,7 @@ IcePy::PrimitiveInfo::print(PyObject* value, IceUtil::Output& out, PrintObjectHi
 void
 IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& os)
 {
-    PyObjectHandle fs = PySequence_Fast(p, "expected a sequence value");
+    PyObjectHandle fs = PySequence_Fast(p, STRCAST("expected a sequence value"));
     if(fs.get() == NULL)
     {
         return;
@@ -620,7 +620,7 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
             int isTrue = PyObject_IsTrue(item);
             if(isTrue < 0)
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<bool>", i);
+                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<bool>"), i);
                 throw AbortMarshaling();
             }
             seq[i] = isTrue ? true : false;
@@ -652,7 +652,7 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
 
             if(PyErr_Occurred() || val < 0 || val > 255)
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<byte>", i);
+                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<byte>"), i);
                 throw AbortMarshaling();
             }
             seq[i] = static_cast<Ice::Byte>(val);
@@ -684,7 +684,7 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
 
             if(PyErr_Occurred() || val < SHRT_MIN || val > SHRT_MAX)
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<short>", i);
+                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<short>"), i);
                 throw AbortMarshaling();
             }
             seq[i] = static_cast<Ice::Short>(val);
@@ -715,13 +715,13 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
             }
             else
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<int>", i);
+                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<int>"), i);
                 throw AbortMarshaling();
             }
 
             if(PyErr_Occurred() || val < INT_MIN || val > INT_MAX)
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<int>", i);
+                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<int>"), i);
                 throw AbortMarshaling();
             }
             seq[i] = static_cast<Ice::Int>(val);
@@ -752,13 +752,13 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
             }
             else
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<int>", i);
+                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<int>"), i);
                 throw AbortMarshaling();
             }
 
             if(PyErr_Occurred())
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<int>", i);
+                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<int>"), i);
                 throw AbortMarshaling();
             }
             seq[i] = val;
@@ -785,7 +785,7 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
             }
             else
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<float>", i);
+                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<float>"), i);
                 throw AbortMarshaling();
             }
 
@@ -813,7 +813,7 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
             }
             else
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<double>", i);
+                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<double>"), i);
                 throw AbortMarshaling();
             }
 
@@ -841,7 +841,7 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
             }
             else if(p != Py_None)
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<string>", i);
+                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<string>"), i);
                 throw AbortMarshaling();
             }
 
@@ -1053,21 +1053,21 @@ IcePy::EnumInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap*
     //
     // Validate value.
     //
-    PyObjectHandle val = PyObject_GetAttrString(p, "value");
+    PyObjectHandle val = PyObject_GetAttrString(p, STRCAST("value"));
     if(val.get() == NULL)
     {
         throw AbortMarshaling();
     }
     if(!PyInt_Check(val.get()))
     {
-        PyErr_Format(PyExc_ValueError, "value for enum %s is not an int", id.c_str());
+        PyErr_Format(PyExc_ValueError, STRCAST("value for enum %s is not an int"), id.c_str());
         throw AbortMarshaling();
     }
     int ival = static_cast<int>(PyInt_AsLong(val.get()));
     int count = static_cast<int>(enumerators.size());
     if(ival < 0 || ival >= count)
     {
-        PyErr_Format(PyExc_ValueError, "value %d is out of range for enum %s", ival, id.c_str());
+        PyErr_Format(PyExc_ValueError, STRCAST("value %d is out of range for enum %s"), ival, id.c_str());
         throw AbortMarshaling();
     }
 
@@ -1106,7 +1106,7 @@ IcePy::EnumInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbac
 
     if(val < 0 || val >= count)
     {
-        PyErr_Format(PyExc_ValueError, "enumerator %d is out of range for enum %s", val, id.c_str());
+        PyErr_Format(PyExc_ValueError, STRCAST("enumerator %d is out of range for enum %s"), val, id.c_str());
         throw AbortMarshaling();
     }
 
@@ -1187,13 +1187,13 @@ IcePy::StructInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMa
         if(attr.get() == NULL)
         {
             PyErr_Clear();
-            PyErr_Format(PyExc_AttributeError, "no member `%s' found in %s value", memberName,
+            PyErr_Format(PyExc_AttributeError, STRCAST("no member `%s' found in %s value"), memberName,
                          const_cast<char*>(id.c_str()));
             throw AbortMarshaling();
         }
         if(!member->type->validate(attr.get()))
         {
-            PyErr_Format(PyExc_ValueError, "invalid value for %s member `%s'", const_cast<char*>(id.c_str()),
+            PyErr_Format(PyExc_ValueError, STRCAST("invalid value for %s member `%s'"), const_cast<char*>(id.c_str()),
                          memberName);
             throw AbortMarshaling();
         }
@@ -1297,7 +1297,7 @@ IcePy::SequenceInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Object
         return;
     }
 
-    PyObjectHandle fastSeq = PySequence_Fast(p, "expected a sequence value");
+    PyObjectHandle fastSeq = PySequence_Fast(p, STRCAST("expected a sequence value"));
     if(fastSeq.get() == NULL)
     {
         return;
@@ -1314,7 +1314,8 @@ IcePy::SequenceInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Object
         }
         if(!elementType->validate(item))
         {
-            PyErr_Format(PyExc_ValueError, "invalid value for element %d of `%s'", i, const_cast<char*>(id.c_str()));
+            PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of `%s'"), i,
+			 const_cast<char*>(id.c_str()));
             throw AbortMarshaling();
         }
         elementType->marshal(item, os, objectMap);
@@ -1370,7 +1371,7 @@ IcePy::SequenceInfo::print(PyObject* value, IceUtil::Output& out, PrintObjectHis
     }
     else
     {
-	PyObjectHandle fastSeq = PySequence_Fast(value, "expected a sequence value");
+	PyObjectHandle fastSeq = PySequence_Fast(value, STRCAST("expected a sequence value"));
 	if(fastSeq.get() == NULL)
 	{
 	    return;
@@ -1434,7 +1435,7 @@ IcePy::DictionaryInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Obje
     }
     else if(!PyDict_Check(p))
     {
-        PyErr_Format(PyExc_ValueError, "expected dictionary value");
+        PyErr_Format(PyExc_ValueError, STRCAST("expected dictionary value"));
         throw AbortMarshaling();
     }
 
@@ -1448,14 +1449,14 @@ IcePy::DictionaryInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Obje
     {
         if(!keyType->validate(key))
         {
-            PyErr_Format(PyExc_ValueError, "invalid key in `%s' element", const_cast<char*>(id.c_str()));
+            PyErr_Format(PyExc_ValueError, STRCAST("invalid key in `%s' element"), const_cast<char*>(id.c_str()));
             throw AbortMarshaling();
         }
         keyType->marshal(key, os, objectMap);
 
         if(!valueType->validate(value))
         {
-            PyErr_Format(PyExc_ValueError, "invalid value in `%s' element", const_cast<char*>(id.c_str()));
+            PyErr_Format(PyExc_ValueError, STRCAST("invalid value in `%s' element"), const_cast<char*>(id.c_str()));
             throw AbortMarshaling();
         }
         valueType->marshal(value, os, objectMap);
@@ -1602,7 +1603,7 @@ IcePy::ClassInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap
 {
     if(pythonType.get() == NULL)
     {
-        PyErr_Format(PyExc_RuntimeError, "class %s is declared but not defined", id.c_str());
+        PyErr_Format(PyExc_RuntimeError, STRCAST("class %s is declared but not defined"), id.c_str());
         throw AbortMarshaling();
     }
 
@@ -1614,7 +1615,7 @@ IcePy::ClassInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap
 
     if(!PyObject_IsInstance(p, pythonType.get()))
     {
-        PyErr_Format(PyExc_ValueError, "expected value of type %s", id.c_str());
+        PyErr_Format(PyExc_ValueError, STRCAST("expected value of type %s"), id.c_str());
         throw AbortMarshaling();
     }
 
@@ -1629,7 +1630,7 @@ IcePy::ClassInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap
     ObjectMap::iterator q = objectMap->find(p);
     if(q == objectMap->end())
     {
-        PyObjectHandle iceType = PyObject_GetAttrString(p, "ice_type");
+        PyObjectHandle iceType = PyObject_GetAttrString(p, STRCAST("ice_type"));
         if(iceType.get() == NULL)
         {
             throw AbortMarshaling();
@@ -1656,7 +1657,7 @@ IcePy::ClassInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallba
 {
     if(pythonType.get() == NULL)
     {
-        PyErr_Format(PyExc_RuntimeError, "class %s is declared but not defined", id.c_str());
+        PyErr_Format(PyExc_RuntimeError, STRCAST("class %s is declared but not defined"), id.c_str());
         throw AbortMarshaling();
     }
 
@@ -1685,7 +1686,7 @@ IcePy::ClassInfo::print(PyObject* value, IceUtil::Output& out, PrintObjectHistor
 	}
 	else
 	{
-	    PyObjectHandle iceType = PyObject_GetAttrString(value, "ice_type");
+	    PyObjectHandle iceType = PyObject_GetAttrString(value, STRCAST("ice_type"));
 	    assert(iceType.get() != NULL);
 	    ClassInfoPtr info = ClassInfoPtr::dynamicCast(getType(iceType.get()));
 	    assert(info);
@@ -1787,7 +1788,7 @@ IcePy::ProxyInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallba
 
     if(pythonType.get() == NULL)
     {
-        PyErr_Format(PyExc_RuntimeError, "class %s is declared but not defined", id.c_str());
+        PyErr_Format(PyExc_RuntimeError, STRCAST("class %s is declared but not defined"), id.c_str());
         return;
     }
 
@@ -1843,9 +1844,9 @@ IcePy::ObjectWriter::~ObjectWriter()
 void
 IcePy::ObjectWriter::ice_preMarshal()
 {
-    if(PyObject_HasAttrString(_object, "ice_preMarshal") == 1)
+    if(PyObject_HasAttrString(_object, STRCAST("ice_preMarshal")) == 1)
     {
-        PyObjectHandle tmp = PyObject_CallMethod(_object, "ice_preMarshal", NULL);
+        PyObjectHandle tmp = PyObject_CallMethod(_object, STRCAST("ice_preMarshal"), NULL);
         if(PyErr_Occurred())
         {
             throw AbortMarshaling();
@@ -1871,14 +1872,14 @@ IcePy::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
             if(val.get() == NULL)
             {
                 PyErr_Clear();
-                PyErr_Format(PyExc_AttributeError, "no member `%s' found in %s value", memberName,
+                PyErr_Format(PyExc_AttributeError, STRCAST("no member `%s' found in %s value"), memberName,
                              const_cast<char*>(_info->id.c_str()));
                 throw AbortMarshaling();
             }
 
             if(!member->type->validate(val.get()))
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for %s member `%s'",
+                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for %s member `%s'"),
                              const_cast<char*>(_info->id.c_str()), memberName);
                 throw AbortMarshaling();
             }
@@ -1916,9 +1917,9 @@ IcePy::ObjectReader::~ObjectReader()
 void
 IcePy::ObjectReader::ice_postUnmarshal()
 {
-    if(PyObject_HasAttrString(_object, "ice_postUnmarshal") == 1)
+    if(PyObject_HasAttrString(_object, STRCAST("ice_postUnmarshal")) == 1)
     {
-        PyObjectHandle tmp = PyObject_CallMethod(_object, "ice_postUnmarshal", NULL);
+        PyObjectHandle tmp = PyObject_CallMethod(_object, STRCAST("ice_postUnmarshal"), NULL);
         if(PyErr_Occurred())
         {
             throw AbortMarshaling();
@@ -2050,7 +2051,7 @@ IcePy::ExceptionInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
 {
     if(!PyInstance_Check(p) || !PyObject_IsInstance(p, pythonType.get()))
     {
-        PyErr_Format(PyExc_ValueError, "expected exception %s", id.c_str());
+        PyErr_Format(PyExc_ValueError, STRCAST("expected exception %s"), id.c_str());
         throw AbortMarshaling();
     }
 
@@ -2071,15 +2072,15 @@ IcePy::ExceptionInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
             if(val.get() == NULL)
             {
                 PyErr_Clear();
-                PyErr_Format(PyExc_AttributeError, "no member `%s' found in %s value", memberName,
+                PyErr_Format(PyExc_AttributeError, STRCAST("no member `%s' found in %s value"), memberName,
                              const_cast<char*>(id.c_str()));
                 throw AbortMarshaling();
             }
 
             if(!member->type->validate(val.get()))
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for %s member `%s'", const_cast<char*>(id.c_str()),
-                             memberName);
+                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for %s member `%s'"),
+			     const_cast<char*>(id.c_str()), memberName);
                 throw AbortMarshaling();
             }
 
@@ -2200,7 +2201,7 @@ PyTypeObject TypeInfoType =
      * to be portable to Windows without using C++. */
     PyObject_HEAD_INIT(NULL)
     0,                               /* ob_size */
-    "IcePy.TypeInfo",                /* tp_name */
+    STRCAST("IcePy.TypeInfo"),       /* tp_name */
     sizeof(TypeInfoObject),          /* tp_basicsize */
     0,                               /* tp_itemsize */
     /* methods */
@@ -2248,7 +2249,7 @@ PyTypeObject ExceptionInfoType =
      * to be portable to Windows without using C++. */
     PyObject_HEAD_INIT(NULL)
     0,                               /* ob_size */
-    "IcePy.ExceptionInfo",           /* tp_name */
+    STRCAST("IcePy.ExceptionInfo"),  /* tp_name */
     sizeof(ExceptionInfoObject),     /* tp_basicsize */
     0,                               /* tp_itemsize */
     /* methods */
@@ -2299,7 +2300,7 @@ IcePy::initTypes(PyObject* module)
     {
         return false;
     }
-    if(PyModule_AddObject(module, "TypeInfo", (PyObject*)&TypeInfoType) < 0)
+    if(PyModule_AddObject(module, STRCAST("TypeInfo"), (PyObject*)&TypeInfoType) < 0)
     {
         return false;
     }
@@ -2308,7 +2309,7 @@ IcePy::initTypes(PyObject* module)
     {
         return false;
     }
-    if(PyModule_AddObject(module, "ExceptionInfo", (PyObject*)&ExceptionInfoType) < 0)
+    if(PyModule_AddObject(module, STRCAST("ExceptionInfo"), (PyObject*)&ExceptionInfoType) < 0)
     {
         return false;
     }
@@ -2316,7 +2317,7 @@ IcePy::initTypes(PyObject* module)
     PrimitiveInfoPtr boolType = new PrimitiveInfo;
     boolType->kind = PrimitiveInfo::KindBool;
     PyObjectHandle boolTypeObj = createType(boolType);
-    if(PyModule_AddObject(module, "_t_bool", boolTypeObj.get()) < 0)
+    if(PyModule_AddObject(module, STRCAST("_t_bool"), boolTypeObj.get()) < 0)
     {
         return false;
     }
@@ -2325,7 +2326,7 @@ IcePy::initTypes(PyObject* module)
     PrimitiveInfoPtr byteType = new PrimitiveInfo;
     byteType->kind = PrimitiveInfo::KindByte;
     PyObjectHandle byteTypeObj = createType(byteType);
-    if(PyModule_AddObject(module, "_t_byte", byteTypeObj.get()) < 0)
+    if(PyModule_AddObject(module, STRCAST("_t_byte"), byteTypeObj.get()) < 0)
     {
         return false;
     }
@@ -2334,7 +2335,7 @@ IcePy::initTypes(PyObject* module)
     PrimitiveInfoPtr shortType = new PrimitiveInfo;
     shortType->kind = PrimitiveInfo::KindShort;
     PyObjectHandle shortTypeObj = createType(shortType);
-    if(PyModule_AddObject(module, "_t_short", shortTypeObj.get()) < 0)
+    if(PyModule_AddObject(module, STRCAST("_t_short"), shortTypeObj.get()) < 0)
     {
         return false;
     }
@@ -2343,7 +2344,7 @@ IcePy::initTypes(PyObject* module)
     PrimitiveInfoPtr intType = new PrimitiveInfo;
     intType->kind = PrimitiveInfo::KindInt;
     PyObjectHandle intTypeObj = createType(intType);
-    if(PyModule_AddObject(module, "_t_int", intTypeObj.get()) < 0)
+    if(PyModule_AddObject(module, STRCAST("_t_int"), intTypeObj.get()) < 0)
     {
         return false;
     }
@@ -2352,7 +2353,7 @@ IcePy::initTypes(PyObject* module)
     PrimitiveInfoPtr longType = new PrimitiveInfo;
     longType->kind = PrimitiveInfo::KindLong;
     PyObjectHandle longTypeObj = createType(longType);
-    if(PyModule_AddObject(module, "_t_long", longTypeObj.get()) < 0)
+    if(PyModule_AddObject(module, STRCAST("_t_long"), longTypeObj.get()) < 0)
     {
         return false;
     }
@@ -2361,7 +2362,7 @@ IcePy::initTypes(PyObject* module)
     PrimitiveInfoPtr floatType = new PrimitiveInfo;
     floatType->kind = PrimitiveInfo::KindFloat;
     PyObjectHandle floatTypeObj = createType(floatType);
-    if(PyModule_AddObject(module, "_t_float", floatTypeObj.get()) < 0)
+    if(PyModule_AddObject(module, STRCAST("_t_float"), floatTypeObj.get()) < 0)
     {
         return false;
     }
@@ -2370,7 +2371,7 @@ IcePy::initTypes(PyObject* module)
     PrimitiveInfoPtr doubleType = new PrimitiveInfo;
     doubleType->kind = PrimitiveInfo::KindDouble;
     PyObjectHandle doubleTypeObj = createType(doubleType);
-    if(PyModule_AddObject(module, "_t_double", doubleTypeObj.get()) < 0)
+    if(PyModule_AddObject(module, STRCAST("_t_double"), doubleTypeObj.get()) < 0)
     {
         return false;
     }
@@ -2379,7 +2380,7 @@ IcePy::initTypes(PyObject* module)
     PrimitiveInfoPtr stringType = new PrimitiveInfo;
     stringType->kind = PrimitiveInfo::KindString;
     PyObjectHandle stringTypeObj = createType(stringType);
-    if(PyModule_AddObject(module, "_t_string", stringTypeObj.get()) < 0)
+    if(PyModule_AddObject(module, STRCAST("_t_string"), stringTypeObj.get()) < 0)
     {
         return false;
     }
@@ -2433,7 +2434,7 @@ IcePy_defineEnum(PyObject*, PyObject* args)
     char* id;
     PyObject* type;
     PyObject* enumerators;
-    if(!PyArg_ParseTuple(args, "sOO", &id, &type, &enumerators))
+    if(!PyArg_ParseTuple(args, STRCAST("sOO"), &id, &type, &enumerators))
     {
         return NULL;
     }
@@ -2465,7 +2466,7 @@ IcePy_defineStruct(PyObject*, PyObject* args)
     char* id;
     PyObject* type;
     PyObject* members;
-    if(!PyArg_ParseTuple(args, "sOO", &id, &type, &members))
+    if(!PyArg_ParseTuple(args, STRCAST("sOO"), &id, &type, &members))
     {
         return NULL;
     }
@@ -2502,7 +2503,7 @@ IcePy_defineSequence(PyObject*, PyObject* args)
 {
     char* id;
     PyObject* elementType;
-    if(!PyArg_ParseTuple(args, "sO", &id, &elementType))
+    if(!PyArg_ParseTuple(args, STRCAST("sO"), &id, &elementType))
     {
         return NULL;
     }
@@ -2521,7 +2522,7 @@ IcePy_defineDictionary(PyObject*, PyObject* args)
     char* id;
     PyObject* keyType;
     PyObject* valueType;
-    if(!PyArg_ParseTuple(args, "sOO", &id, &keyType, &valueType))
+    if(!PyArg_ParseTuple(args, STRCAST("sOO"), &id, &keyType, &valueType))
     {
         return NULL;
     }
@@ -2539,7 +2540,7 @@ PyObject*
 IcePy_declareProxy(PyObject*, PyObject* args)
 {
     char* id;
-    if(!PyArg_ParseTuple(args, "s", &id))
+    if(!PyArg_ParseTuple(args, STRCAST("s"), &id))
     {
         return NULL;
     }
@@ -2566,7 +2567,7 @@ IcePy_defineProxy(PyObject*, PyObject* args)
 {
     char* id;
     PyObject* type;
-    if(!PyArg_ParseTuple(args, "sO", &id, &type))
+    if(!PyArg_ParseTuple(args, STRCAST("sO"), &id, &type))
     {
         return NULL;
     }
@@ -2597,7 +2598,7 @@ PyObject*
 IcePy_declareClass(PyObject*, PyObject* args)
 {
     char* id;
-    if(!PyArg_ParseTuple(args, "s", &id))
+    if(!PyArg_ParseTuple(args, STRCAST("s"), &id))
     {
         return NULL;
     }
@@ -2625,7 +2626,7 @@ IcePy_defineClass(PyObject*, PyObject* args)
     PyObject* base;
     PyObject* interfaces;
     PyObject* members;
-    if(!PyArg_ParseTuple(args, "sOiOOO", &id, &type, &isAbstract, &base, &interfaces, &members))
+    if(!PyArg_ParseTuple(args, STRCAST("sOiOOO"), &id, &type, &isAbstract, &base, &interfaces, &members))
     {
         return NULL;
     }
@@ -2691,7 +2692,7 @@ IcePy_defineException(PyObject*, PyObject* args)
     PyObject* type;
     PyObject* base;
     PyObject* members;
-    if(!PyArg_ParseTuple(args, "sOOO", &id, &type, &base, &members))
+    if(!PyArg_ParseTuple(args, STRCAST("sOOO"), &id, &type, &base, &members))
     {
         return NULL;
     }
@@ -2743,7 +2744,7 @@ IcePy_stringify(PyObject*, PyObject* args)
 {
     PyObject* value;
     PyObject* type;
-    if(!PyArg_ParseTuple(args, "OO", &value, &type))
+    if(!PyArg_ParseTuple(args, STRCAST("OO"), &value, &type))
     {
         return NULL;
     }
@@ -2766,12 +2767,12 @@ PyObject*
 IcePy_stringifyException(PyObject*, PyObject* args)
 {
     PyObject* value;
-    if(!PyArg_ParseTuple(args, "O", &value))
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &value))
     {
         return NULL;
     }
 
-    PyObjectHandle iceType = PyObject_GetAttrString(value, "ice_type");
+    PyObjectHandle iceType = PyObject_GetAttrString(value, STRCAST("ice_type"));
     assert(iceType.get() != NULL);
     ExceptionInfoPtr info = getException(iceType.get());
     assert(info);

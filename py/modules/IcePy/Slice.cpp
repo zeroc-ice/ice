@@ -32,7 +32,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
 {
     char* cmd;
     PyObject* list = NULL;
-    if(!PyArg_ParseTuple(args, "s|O!", &cmd, &PyList_Type, &list))
+    if(!PyArg_ParseTuple(args, STRCAST("s|O!"), &cmd, &PyList_Type, &list))
     {
         return NULL;
     }
@@ -123,13 +123,13 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
             return NULL;
         }
 
-        UnitPtr unit = Slice::Unit::createUnit(ignoreRedefs, all, ice, caseSensitive);
-        int parseStatus = unit->parse(cppHandle, debug);
+        UnitPtr u = Slice::Unit::createUnit(ignoreRedefs, all, ice, caseSensitive);
+        int parseStatus = u->parse(cppHandle, debug);
 
         if(!icecpp.close() || parseStatus == EXIT_FAILURE)
         {
             PyErr_Format(PyExc_RuntimeError, "Slice parsing failed for `%s'", cmd);
-            unit->destroy();
+            u->destroy();
             return NULL;
         }
 
@@ -139,8 +139,8 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         ostringstream codeStream;
         IceUtil::Output out(codeStream);
         out.setUseTab(false);
-        generate(unit, all, checksum, includePaths, out);
-        unit->destroy();
+        generate(u, all, checksum, includePaths, out);
+        u->destroy();
 
         string code = codeStream.str();
         PyObjectHandle src = Py_CompileString(const_cast<char*>(code.c_str()), const_cast<char*>(file.c_str()),

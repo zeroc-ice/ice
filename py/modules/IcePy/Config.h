@@ -27,4 +27,9 @@
 
 #include <Python.h>
 
+#ifdef STRCAST
+#   error "STRCAST already defined!"
+#endif
+#define STRCAST(s) const_cast<char*>(s)
+
 #endif

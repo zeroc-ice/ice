@@ -171,7 +171,7 @@ currentGetter(CurrentObject* self, void* closure)
         {
             PyObject* type = lookupType("Ice.OperationMode");
             assert(type != NULL);
-            char* enumerator = 0;
+            const char* enumerator = 0;
             switch(self->current->mode)
             {
             case Ice::Normal:
@@ -184,7 +184,7 @@ currentGetter(CurrentObject* self, void* closure)
                 enumerator = "Idempotent";
                 break;
             }
-            self->mode = PyObject_GetAttrString(type, enumerator);
+            self->mode = PyObject_GetAttrString(type, STRCAST(enumerator));
             assert(self->mode != NULL);
         }
         Py_INCREF(self->mode);
@@ -214,13 +214,13 @@ currentGetter(CurrentObject* self, void* closure)
 
 static PyGetSetDef CurrentGetSetters[] =
 {
-    {"adapter", (getter)currentGetter, NULL, "object adapter", (void*)CURRENT_ADAPTER},
-    {"con", (getter)currentGetter, NULL, "connection info", (void*)CURRENT_CONNECTION},
-    {"id", (getter)currentGetter, NULL, "identity", (void*)CURRENT_ID},
-    {"facet", (getter)currentGetter, NULL, "facet name", (void*)CURRENT_FACET},
-    {"operation", (getter)currentGetter, NULL, "operation name", (void*)CURRENT_OPERATION},
-    {"mode", (getter)currentGetter, NULL, "operation mode", (void*)CURRENT_MODE},
-    {"ctx", (getter)currentGetter, NULL, "context", (void*)CURRENT_CTX},
+    {STRCAST("adapter"), (getter)currentGetter, NULL, STRCAST("object adapter"), (void*)CURRENT_ADAPTER},
+    {STRCAST("con"), (getter)currentGetter, NULL, STRCAST("connection info"), (void*)CURRENT_CONNECTION},
+    {STRCAST("id"), (getter)currentGetter, NULL, STRCAST("identity"), (void*)CURRENT_ID},
+    {STRCAST("facet"), (getter)currentGetter, NULL, STRCAST("facet name"), (void*)CURRENT_FACET},
+    {STRCAST("operation"), (getter)currentGetter, NULL, STRCAST("operation name"), (void*)CURRENT_OPERATION},
+    {STRCAST("mode"), (getter)currentGetter, NULL, STRCAST("operation mode"), (void*)CURRENT_MODE},
+    {STRCAST("ctx"), (getter)currentGetter, NULL, STRCAST("context"), (void*)CURRENT_CTX},
     {NULL}  /* Sentinel */
 };
 
@@ -233,7 +233,7 @@ PyTypeObject CurrentType =
      * to be portable to Windows without using C++. */
     PyObject_HEAD_INIT(NULL)
     0,                               /* ob_size */
-    "IcePy.Current",                 /* tp_name */
+    STRCAST("IcePy.Current"),        /* tp_name */
     sizeof(CurrentObject),           /* tp_basicsize */
     0,                               /* tp_itemsize */
     /* methods */
@@ -284,7 +284,7 @@ IcePy::initCurrent(PyObject* module)
     {
         return false;
     }
-    if(PyModule_AddObject(module, "Current", (PyObject*)&CurrentType) < 0)
+    if(PyModule_AddObject(module, STRCAST("Current"), (PyObject*)&CurrentType) < 0)
     {
         return false;
     }

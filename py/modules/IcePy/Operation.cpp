@@ -147,7 +147,7 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
     PyObject* outParams;
     PyObject* returnType;
     PyObject* exceptions;
-    if(!PyArg_ParseTuple(args, "sO!iO!O!OO!", &name, modeType, &mode, &amd, &PyTuple_Type, &inParams,
+    if(!PyArg_ParseTuple(args, STRCAST("sO!iO!O!OO!"), &name, modeType, &mode, &amd, &PyTuple_Type, &inParams,
                          &PyTuple_Type, &outParams, &returnType, &PyTuple_Type, &exceptions))
     {
         return -1;
@@ -178,14 +178,14 @@ operationInvoke(OperationObject* self, PyObject* args)
     PyObject* pyProxy;
     PyObject* opArgs;
     PyObject* ctx;
-    if(!PyArg_ParseTuple(args, "O!O!O", &ProxyType, &pyProxy, &PyTuple_Type, &opArgs, &ctx))
+    if(!PyArg_ParseTuple(args, STRCAST("O!O!O"), &ProxyType, &pyProxy, &PyTuple_Type, &opArgs, &ctx))
     {
         return NULL;
     }
 
     if(ctx != Py_None && !PyDict_Check(ctx))
     {
-        PyErr_Format(PyExc_ValueError, "context argument must be None or a dictionary");
+        PyErr_Format(PyExc_ValueError, STRCAST("context argument must be None or a dictionary"));
         return NULL;
     }
 
@@ -206,14 +206,14 @@ operationInvokeAsync(OperationObject* self, PyObject* args)
     PyObject* cb;
     PyObject* opArgs;
     PyObject* ctx;
-    if(!PyArg_ParseTuple(args, "O!OO!O", &ProxyType, &pyProxy, &cb, &PyTuple_Type, &opArgs, &ctx))
+    if(!PyArg_ParseTuple(args, STRCAST("O!OO!O"), &ProxyType, &pyProxy, &cb, &PyTuple_Type, &opArgs, &ctx))
     {
         return NULL;
     }
 
     if(ctx != Py_None && !PyDict_Check(ctx))
     {
-        PyErr_Format(PyExc_ValueError, "context argument must be None or a dictionary");
+        PyErr_Format(PyExc_ValueError, STRCAST("context argument must be None or a dictionary"));
         return NULL;
     }
 
@@ -287,7 +287,7 @@ static PyObject*
 amdCallbackIceException(AMDCallbackObject* self, PyObject* args)
 {
     PyObject* ex;
-    if(!PyArg_ParseTuple(args, "O", &ex))
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &ex))
     {
         return NULL;
     }
@@ -387,7 +387,7 @@ IcePy::OperationI::OperationI(const char* name, PyObject* mode, int amd, PyObjec
     //
     // mode
     //
-    PyObjectHandle modeValue = PyObject_GetAttrString(mode, "value");
+    PyObjectHandle modeValue = PyObject_GetAttrString(mode, STRCAST("value"));
     assert(PyInt_Check(modeValue.get()));
     _mode = (Ice::OperationMode)static_cast<int>(PyInt_AS_LONG(modeValue.get()));
 
@@ -475,7 +475,7 @@ IcePy::OperationI::invoke(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPt
 
                 if(!PyDict_Check(pyctx))
                 {
-                    PyErr_Format(PyExc_ValueError, "context argument must be None or a dictionary");
+                    PyErr_Format(PyExc_ValueError, STRCAST("context argument must be None or a dictionary"));
                     return NULL;
                 }
 
@@ -581,7 +581,7 @@ IcePy::OperationI::invokeAsync(const Ice::ObjectPrx& proxy, const Ice::Communica
 
             if(!PyDict_Check(pyctx))
             {
-                PyErr_Format(PyExc_ValueError, "context argument must be None or a dictionary");
+                PyErr_Format(PyExc_ValueError, STRCAST("context argument must be None or a dictionary"));
                 return NULL;
             }
 
@@ -737,7 +737,7 @@ IcePy::OperationI::responseAsync(PyObject* callback, bool ok, const vector<Ice::
                 return;
             }
 
-            PyObjectHandle method = PyObject_GetAttrString(callback, "ice_response");
+            PyObjectHandle method = PyObject_GetAttrString(callback, STRCAST("ice_response"));
             if(method.get() == NULL)
             {
                 ostringstream ostr;
@@ -777,7 +777,7 @@ IcePy::OperationI::responseAsync(PyObject* callback, bool ok, const vector<Ice::
 void
 IcePy::OperationI::responseAsyncException(PyObject* callback, PyObject* ex)
 {
-    PyObjectHandle method = PyObject_GetAttrString(callback, "ice_exception");
+    PyObjectHandle method = PyObject_GetAttrString(callback, STRCAST("ice_exception"));
     if(method.get() == NULL)
     {
         ostringstream ostr;
@@ -787,7 +787,7 @@ IcePy::OperationI::responseAsyncException(PyObject* callback, PyObject* ex)
     }
     else
     {
-        PyObjectHandle args = Py_BuildValue("(O)", ex);
+        PyObjectHandle args = Py_BuildValue(STRCAST("(O)"), ex);
         PyObjectHandle tmp = PyObject_Call(method.get(), args.get(), NULL);
         if(PyErr_Occurred())
         {
@@ -913,7 +913,7 @@ IcePy::OperationI::sendException(const Ice::AMD_Object_ice_invokePtr& cb, PyObje
             //
             // Get the exception's type and verify that it is legal to be thrown from this operation.
             //
-            PyObjectHandle iceType = PyObject_GetAttrString(ex, "ice_type");
+            PyObjectHandle iceType = PyObject_GetAttrString(ex, STRCAST("ice_type"));
             assert(iceType.get() != NULL);
             ExceptionInfoPtr info = ExceptionInfoPtr::dynamicCast(getException(iceType.get()));
             assert(info);
@@ -962,7 +962,7 @@ IcePy::OperationI::prepareRequest(const Ice::CommunicatorPtr& communicator, PyOb
     if(argc != paramCount)
     {
         string fixedName = fixIdent(_name);
-        PyErr_Format(PyExc_RuntimeError, "%s expects %d in parameters", fixedName.c_str(), paramCount);
+        PyErr_Format(PyExc_RuntimeError, STRCAST("%s expects %d in parameters"), fixedName.c_str(), paramCount);
         return false;
     }
 
@@ -991,7 +991,7 @@ IcePy::OperationI::prepareRequest(const Ice::CommunicatorPtr& communicator, PyOb
                     {
                         opName = fixIdent(_name);
                     }
-                    PyErr_Format(PyExc_ValueError, "invalid value for argument %d in operation `%s'",
+                    PyErr_Format(PyExc_ValueError, STRCAST("invalid value for argument %d in operation `%s'"),
                                  async ? i + 2 : i + 1, const_cast<char*>(opName.c_str()));
                     return false;
                 }
@@ -1112,15 +1112,19 @@ IcePy::OperationI::validateException(PyObject* ex) const
 
 static PyMethodDef OperationMethods[] =
 {
-    { "invoke", (PyCFunction)operationInvoke, METH_VARARGS, PyDoc_STR("internal function") },
-    { "invokeAsync", (PyCFunction)operationInvokeAsync, METH_VARARGS, PyDoc_STR("internal function") },
+    { STRCAST("invoke"), (PyCFunction)operationInvoke, METH_VARARGS,
+      PyDoc_STR(STRCAST("internal function")) },
+    { STRCAST("invokeAsync"), (PyCFunction)operationInvokeAsync, METH_VARARGS,
+      PyDoc_STR(STRCAST("internal function")) },
     { NULL, NULL} /* sentinel */
 };
 
 static PyMethodDef AMDCallbackMethods[] =
 {
-    { "ice_response", (PyCFunction)amdCallbackIceResponse, METH_VARARGS, PyDoc_STR("internal function") },
-    { "ice_exception", (PyCFunction)amdCallbackIceException, METH_VARARGS, PyDoc_STR("internal function") },
+    { STRCAST("ice_response"), (PyCFunction)amdCallbackIceResponse, METH_VARARGS,
+      PyDoc_STR(STRCAST("internal function")) },
+    { STRCAST("ice_exception"), (PyCFunction)amdCallbackIceException, METH_VARARGS,
+      PyDoc_STR(STRCAST("internal function")) },
     { NULL, NULL} /* sentinel */
 };
 
@@ -1133,7 +1137,7 @@ PyTypeObject OperationType =
      * to be portable to Windows without using C++. */
     PyObject_HEAD_INIT(NULL)
     0,                               /* ob_size */
-    "IcePy.Operation",               /* tp_name */
+    STRCAST("IcePy.Operation"),      /* tp_name */
     sizeof(OperationObject),         /* tp_basicsize */
     0,                               /* tp_itemsize */
     /* methods */
@@ -1181,7 +1185,7 @@ PyTypeObject AMDCallbackType =
      * to be portable to Windows without using C++. */
     PyObject_HEAD_INIT(NULL)
     0,                               /* ob_size */
-    "IcePy.AMDCallback",             /* tp_name */
+    STRCAST("IcePy.AMDCallback"),    /* tp_name */
     sizeof(AMDCallbackObject),       /* tp_basicsize */
     0,                               /* tp_itemsize */
     /* methods */
@@ -1232,7 +1236,7 @@ IcePy::initOperation(PyObject* module)
     {
         return false;
     }
-    if(PyModule_AddObject(module, "Operation", (PyObject*)&OperationType) < 0)
+    if(PyModule_AddObject(module, STRCAST("Operation"), (PyObject*)&OperationType) < 0)
     {
         return false;
     }
@@ -1241,7 +1245,7 @@ IcePy::initOperation(PyObject* module)
     {
         return false;
     }
-    if(PyModule_AddObject(module, "AMDCallback", (PyObject*)&AMDCallbackType) < 0)
+    if(PyModule_AddObject(module, STRCAST("AMDCallback"), (PyObject*)&AMDCallbackType) < 0)
     {
         return false;
     }

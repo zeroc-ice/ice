@@ -50,7 +50,7 @@ IcePy::ObjectFactory::create(const string& id)
         //
         // Invoke the create method on the Python factory object.
         //
-        PyObjectHandle obj = PyObject_CallMethod(p->second, "create", "s", id.c_str());
+        PyObjectHandle obj = PyObject_CallMethod(p->second, STRCAST("create"), STRCAST("s"), id.c_str());
         if(obj.get() == NULL)
         {
             throw AbortMarshaling();
@@ -94,7 +94,7 @@ IcePy::ObjectFactory::destroy()
         //
         // Invoke the destroy method on each registered Python factory.
         //
-        PyObjectHandle obj = PyObject_CallMethod(p->second, "destroy", NULL);
+        PyObjectHandle obj = PyObject_CallMethod(p->second, STRCAST("destroy"), NULL);
         PyErr_Clear();
         Py_DECREF(p->second);
     }

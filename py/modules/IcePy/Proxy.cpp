@@ -66,7 +66,7 @@ extern "C"
 static ProxyObject*
 proxyNew(PyObject* /*arg*/)
 {
-    PyErr_Format(PyExc_RuntimeError, "A proxy cannot be created directly");
+    PyErr_Format(PyExc_RuntimeError, STRCAST("A proxy cannot be created directly"));
     return NULL;
 }
 
@@ -119,7 +119,7 @@ proxyIceIsA(ProxyObject* self, PyObject* args)
 {
     char* type;
     PyObject* ctx = 0;
-    if(!PyArg_ParseTuple(args, "s|O!", &type, &PyDict_Type, &ctx))
+    if(!PyArg_ParseTuple(args, STRCAST("s|O!"), &type, &PyDict_Type, &ctx))
     {
         return NULL;
     }
@@ -162,7 +162,7 @@ static PyObject*
 proxyIcePing(ProxyObject* self, PyObject* args)
 {
     PyObject* ctx = 0;
-    if(!PyArg_ParseTuple(args, "|O!", &PyDict_Type, &ctx))
+    if(!PyArg_ParseTuple(args, STRCAST("|O!"), &PyDict_Type, &ctx))
     {
         return NULL;
     }
@@ -203,7 +203,7 @@ static PyObject*
 proxyIceIds(ProxyObject* self, PyObject* args)
 {
     PyObject* ctx = 0;
-    if(!PyArg_ParseTuple(args, "|O!", &PyDict_Type, &ctx))
+    if(!PyArg_ParseTuple(args, STRCAST("|O!"), &PyDict_Type, &ctx))
     {
         return NULL;
     }
@@ -250,7 +250,7 @@ static PyObject*
 proxyIceId(ProxyObject* self, PyObject* args)
 {
     PyObject* ctx = 0;
-    if(!PyArg_ParseTuple(args, "|O!", &PyDict_Type, &ctx))
+    if(!PyArg_ParseTuple(args, STRCAST("|O!"), &PyDict_Type, &ctx))
     {
         return NULL;
     }
@@ -281,7 +281,7 @@ proxyIceId(ProxyObject* self, PyObject* args)
         return NULL;
     }
 
-    return Py_BuildValue("s", id.c_str());
+    return Py_BuildValue(STRCAST("s"), id.c_str());
 }
 
 #ifdef WIN32
@@ -315,7 +315,7 @@ proxyIceNewIdentity(ProxyObject* self, PyObject* args)
     PyObject* identityType = lookupType("Ice.Identity");
     assert(identityType);
     PyObject* id;
-    if(!PyArg_ParseTuple(args, "O!", identityType, &id))
+    if(!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &id))
     {
         return NULL;
     }
@@ -376,7 +376,7 @@ static PyObject*
 proxyIceNewContext(ProxyObject* self, PyObject* args)
 {
     PyObject* dict;
-    if(!PyArg_ParseTuple(args, "O!", &PyDict_Type, &dict))
+    if(!PyArg_ParseTuple(args, STRCAST("O!"), &PyDict_Type, &dict))
     {
         return NULL;
     }
@@ -454,7 +454,7 @@ static PyObject*
 proxyIceNewFacet(ProxyObject* self, PyObject* args)
 {
     char* facet;
-    if(!PyArg_ParseTuple(args, "s", &facet))
+    if(!PyArg_ParseTuple(args, STRCAST("s"), &facet))
     {
         return NULL;
     }
@@ -707,7 +707,7 @@ static PyObject*
 proxyIceSecure(ProxyObject* self, PyObject* args)
 {
     PyObject* flag;
-    if(!PyArg_ParseTuple(args, "O", &flag))
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &flag))
     {
         return NULL;
     }
@@ -741,7 +741,7 @@ static PyObject*
 proxyIceCompress(ProxyObject* self, PyObject* args)
 {
     PyObject* flag;
-    if(!PyArg_ParseTuple(args, "O", &flag))
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &flag))
     {
         return NULL;
     }
@@ -775,7 +775,7 @@ static PyObject*
 proxyIceTimeout(ProxyObject* self, PyObject* args)
 {
     int timeout;
-    if(!PyArg_ParseTuple(args, "i", &timeout))
+    if(!PyArg_ParseTuple(args, STRCAST("i"), &timeout))
     {
         return NULL;
     }
@@ -803,7 +803,7 @@ static PyObject*
 proxyIceRouter(ProxyObject* self, PyObject* args)
 {
     PyObject* p;
-    if(!PyArg_ParseTuple(args, "O", &p))
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &p))
     {
         return NULL;
     }
@@ -817,7 +817,7 @@ proxyIceRouter(ProxyObject* self, PyObject* args)
     }
     else if(p != Py_None)
     {
-        PyErr_Format(PyExc_ValueError, "ice_router requires None or Ice.RouterPrx");
+        PyErr_Format(PyExc_ValueError, STRCAST("ice_router requires None or Ice.RouterPrx"));
         return NULL;
     }
 
@@ -844,7 +844,7 @@ static PyObject*
 proxyIceLocator(ProxyObject* self, PyObject* args)
 {
     PyObject* p;
-    if(!PyArg_ParseTuple(args, "O", &p))
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &p))
     {
         return NULL;
     }
@@ -858,7 +858,7 @@ proxyIceLocator(ProxyObject* self, PyObject* args)
     }
     else if(p != Py_None)
     {
-        PyErr_Format(PyExc_ValueError, "ice_locator requires None or Ice.LocatorPrx");
+        PyErr_Format(PyExc_ValueError, STRCAST("ice_locator requires None or Ice.LocatorPrx"));
         return NULL;
     }
 
@@ -1010,7 +1010,7 @@ proxyIceCheckedCast(PyObject* type, PyObject* args)
     char* id;
     char* facet;
     PyObject* ctx = 0;
-    if(!PyArg_ParseTuple(args, "OssO", &obj, &id, &facet, &ctx))
+    if(!PyArg_ParseTuple(args, STRCAST("OssO"), &obj, &id, &facet, &ctx))
     {
         return NULL;
     }
@@ -1023,7 +1023,7 @@ proxyIceCheckedCast(PyObject* type, PyObject* args)
 
     if(!checkProxy(obj))
     {
-        PyErr_Format(PyExc_ValueError, "ice_checkedCast requires a proxy argument");
+        PyErr_Format(PyExc_ValueError, STRCAST("ice_checkedCast requires a proxy argument"));
         return NULL;
     }
 
@@ -1035,7 +1035,7 @@ proxyIceCheckedCast(PyObject* type, PyObject* args)
     {
 	if(!PyDict_Check(ctx))
 	{
-	    PyErr_Format(PyExc_ValueError, "context argument must be a dictionary");
+	    PyErr_Format(PyExc_ValueError, STRCAST("context argument must be a dictionary"));
 	    return NULL;
 	}
 
@@ -1057,7 +1057,7 @@ proxyIceUncheckedCast(PyObject* type, PyObject* args)
 {
     PyObject* obj;
     char* facet;
-    if(!PyArg_ParseTuple(args, "Os", &obj, &facet))
+    if(!PyArg_ParseTuple(args, STRCAST("Os"), &obj, &facet))
     {
         return NULL;
     }
@@ -1070,7 +1070,7 @@ proxyIceUncheckedCast(PyObject* type, PyObject* args)
 
     if(!checkProxy(obj))
     {
-        PyErr_Format(PyExc_ValueError, "ice_uncheckedCast requires a proxy argument");
+        PyErr_Format(PyExc_ValueError, STRCAST("ice_uncheckedCast requires a proxy argument"));
         return NULL;
     }
 
@@ -1093,9 +1093,9 @@ static PyObject*
 proxyCheckedCast(PyObject* /*self*/, PyObject* args)
 {
     PyObject* obj;
-    char* facet = "";
+    char* facet = STRCAST("");
     PyObject* ctx = 0;
-    if(!PyArg_ParseTuple(args, "O|sO", &obj, &facet, &ctx))
+    if(!PyArg_ParseTuple(args, STRCAST("O|sO"), &obj, &facet, &ctx))
     {
         return NULL;
     }
@@ -1108,7 +1108,7 @@ proxyCheckedCast(PyObject* /*self*/, PyObject* args)
 
     if(!checkProxy(obj))
     {
-        PyErr_Format(PyExc_ValueError, "checkedCast requires a proxy argument");
+        PyErr_Format(PyExc_ValueError, STRCAST("checkedCast requires a proxy argument"));
         return NULL;
     }
 
@@ -1120,7 +1120,7 @@ proxyCheckedCast(PyObject* /*self*/, PyObject* args)
     {
 	if(!PyDict_Check(ctx))
 	{
-	    PyErr_Format(PyExc_ValueError, "context argument must be a dictionary");
+	    PyErr_Format(PyExc_ValueError, STRCAST("context argument must be a dictionary"));
 	    return NULL;
 	}
 
@@ -1142,7 +1142,7 @@ proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
 {
     PyObject* obj;
     char* facet = NULL;
-    if(!PyArg_ParseTuple(args, "O|s", &obj, &facet))
+    if(!PyArg_ParseTuple(args, STRCAST("O|s"), &obj, &facet))
     {
         return NULL;
     }
@@ -1155,7 +1155,7 @@ proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
 
     if(!checkProxy(obj))
     {
-        PyErr_Format(PyExc_ValueError, "uncheckedCast requires a proxy argument");
+        PyErr_Format(PyExc_ValueError, STRCAST("uncheckedCast requires a proxy argument"));
         return NULL;
     }
 
@@ -1173,70 +1173,70 @@ proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
 
 static PyMethodDef ProxyMethods[] =
 {
-    { "ice_isA", (PyCFunction)proxyIceIsA, METH_VARARGS,
-        PyDoc_STR("ice_isA(type, [ctx]) -> bool") },
-    { "ice_ping", (PyCFunction)proxyIcePing, METH_VARARGS,
-        PyDoc_STR("ice_ping([ctx]) -> None") },
-    { "ice_ids", (PyCFunction)proxyIceIds, METH_VARARGS,
-        PyDoc_STR("ice_ids([ctx]) -> list") },
-    { "ice_id", (PyCFunction)proxyIceId, METH_VARARGS,
-        PyDoc_STR("ice_id([ctx]) -> string") },
-    { "ice_getIdentity", (PyCFunction)proxyIceGetIdentity, METH_NOARGS,
-        PyDoc_STR("ice_getIdentity() -> Ice.Identity") },
-    { "ice_newIdentity", (PyCFunction)proxyIceNewIdentity, METH_VARARGS,
-        PyDoc_STR("ice_newIdentity(id) -> Ice.ObjectPrx") },
-    { "ice_getContext", (PyCFunction)proxyIceGetContext, METH_NOARGS,
-        PyDoc_STR("ice_getContext() -> dict") },
-    { "ice_newContext", (PyCFunction)proxyIceNewContext, METH_VARARGS,
-        PyDoc_STR("ice_newContext(dict) -> Ice.ObjectPrx") },
-    { "ice_defaultContext", (PyCFunction)proxyIceDefaultContext, METH_NOARGS,
-        PyDoc_STR("ice_defaultContext() -> Ice.ObjectPrx") },
-    { "ice_getFacet", (PyCFunction)proxyIceGetFacet, METH_NOARGS,
-        PyDoc_STR("ice_getFacet() -> string") },
-    { "ice_newFacet", (PyCFunction)proxyIceNewFacet, METH_VARARGS,
-        PyDoc_STR("ice_newFacet(string) -> Ice.ObjectPrx") },
-    { "ice_twoway", (PyCFunction)proxyIceTwoway, METH_NOARGS,
-        PyDoc_STR("ice_twoway() -> Ice.ObjectPrx") },
-    { "ice_isTwoway", (PyCFunction)proxyIceIsTwoway, METH_NOARGS,
-        PyDoc_STR("ice_isTwoway() -> bool") },
-    { "ice_oneway", (PyCFunction)proxyIceOneway, METH_NOARGS,
-        PyDoc_STR("ice_oneway() -> Ice.ObjectPrx") },
-    { "ice_isOneway", (PyCFunction)proxyIceIsOneway, METH_NOARGS,
-        PyDoc_STR("ice_isOneway() -> bool") },
-    { "ice_batchOneway", (PyCFunction)proxyIceBatchOneway, METH_NOARGS,
-        PyDoc_STR("ice_batchOneway() -> Ice.ObjectPrx") },
-    { "ice_isBatchOneway", (PyCFunction)proxyIceIsBatchOneway, METH_NOARGS,
-        PyDoc_STR("ice_isBatchOneway() -> bool") },
-    { "ice_datagram", (PyCFunction)proxyIceDatagram, METH_NOARGS,
-        PyDoc_STR("ice_datagram() -> Ice.ObjectPrx") },
-    { "ice_isDatagram", (PyCFunction)proxyIceIsDatagram, METH_NOARGS,
-        PyDoc_STR("ice_isDatagram() -> bool") },
-    { "ice_batchDatagram", (PyCFunction)proxyIceBatchDatagram, METH_NOARGS,
-        PyDoc_STR("ice_batchDatagram() -> Ice.ObjectPrx") },
-    { "ice_isBatchDatagram", (PyCFunction)proxyIceIsBatchDatagram, METH_NOARGS,
-        PyDoc_STR("ice_isBatchDatagram() -> bool") },
-    { "ice_secure", (PyCFunction)proxyIceSecure, METH_VARARGS,
-        PyDoc_STR("ice_secure(bool) -> Ice.ObjectPrx") },
-    { "ice_compress", (PyCFunction)proxyIceCompress, METH_VARARGS,
-        PyDoc_STR("ice_compress(bool) -> Ice.ObjectPrx") },
-    { "ice_timeout", (PyCFunction)proxyIceTimeout, METH_VARARGS,
-        PyDoc_STR("ice_timeout(int) -> Ice.ObjectPrx") },
-    { "ice_router", (PyCFunction)proxyIceRouter, METH_VARARGS,
-        PyDoc_STR("ice_router(Ice.RouterPrx) -> Ice.ObjectPrx") },
-    { "ice_locator", (PyCFunction)proxyIceLocator, METH_VARARGS,
-        PyDoc_STR("ice_locator(Ice.LocatorPrx) -> Ice.ObjectPrx") },
-    { "ice_default", (PyCFunction)proxyIceDefault, METH_NOARGS,
-        PyDoc_STR("ice_default() -> Ice.ObjectPrx") },
-    { "ice_connection", (PyCFunction)proxyIceConnection, METH_NOARGS,
-        PyDoc_STR("ice_connection() -> Ice.Connection") },
-    { "ice_checkedCast", (PyCFunction)proxyIceCheckedCast, METH_VARARGS | METH_CLASS,
-        PyDoc_STR("ice_checkedCast(proxy, id) -> proxy") },
-    { "ice_uncheckedCast", (PyCFunction)proxyIceUncheckedCast, METH_VARARGS | METH_CLASS,
-        PyDoc_STR("ice_uncheckedCast(proxy) -> proxy") },
-    { "checkedCast", (PyCFunction)proxyCheckedCast, METH_VARARGS | METH_STATIC,
-        PyDoc_STR("checkedCast(proxy) -> proxy") },
-    { "uncheckedCast", (PyCFunction)proxyUncheckedCast, METH_VARARGS | METH_STATIC,
-        PyDoc_STR("uncheckedCast(proxy) -> proxy") },
+    { STRCAST("ice_isA"), (PyCFunction)proxyIceIsA, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_isA(type, [ctx]) -> bool")) },
+    { STRCAST("ice_ping"), (PyCFunction)proxyIcePing, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_ping([ctx]) -> None")) },
+    { STRCAST("ice_ids"), (PyCFunction)proxyIceIds, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_ids([ctx]) -> list")) },
+    { STRCAST("ice_id"), (PyCFunction)proxyIceId, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_id([ctx]) -> string")) },
+    { STRCAST("ice_getIdentity"), (PyCFunction)proxyIceGetIdentity, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_getIdentity() -> Ice.Identity")) },
+    { STRCAST("ice_newIdentity"), (PyCFunction)proxyIceNewIdentity, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_newIdentity(id) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_getContext"), (PyCFunction)proxyIceGetContext, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_getContext() -> dict")) },
+    { STRCAST("ice_newContext"), (PyCFunction)proxyIceNewContext, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_newContext(dict) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_defaultContext"), (PyCFunction)proxyIceDefaultContext, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_defaultContext() -> Ice.ObjectPrx")) },
+    { STRCAST("ice_getFacet"), (PyCFunction)proxyIceGetFacet, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_getFacet() -> string")) },
+    { STRCAST("ice_newFacet"), (PyCFunction)proxyIceNewFacet, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_newFacet(string) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_twoway"), (PyCFunction)proxyIceTwoway, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_twoway() -> Ice.ObjectPrx")) },
+    { STRCAST("ice_isTwoway"), (PyCFunction)proxyIceIsTwoway, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_isTwoway() -> bool")) },
+    { STRCAST("ice_oneway"), (PyCFunction)proxyIceOneway, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_oneway() -> Ice.ObjectPrx")) },
+    { STRCAST("ice_isOneway"), (PyCFunction)proxyIceIsOneway, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_isOneway() -> bool")) },
+    { STRCAST("ice_batchOneway"), (PyCFunction)proxyIceBatchOneway, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_batchOneway() -> Ice.ObjectPrx")) },
+    { STRCAST("ice_isBatchOneway"), (PyCFunction)proxyIceIsBatchOneway, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_isBatchOneway() -> bool")) },
+    { STRCAST("ice_datagram"), (PyCFunction)proxyIceDatagram, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_datagram() -> Ice.ObjectPrx")) },
+    { STRCAST("ice_isDatagram"), (PyCFunction)proxyIceIsDatagram, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_isDatagram() -> bool")) },
+    { STRCAST("ice_batchDatagram"), (PyCFunction)proxyIceBatchDatagram, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_batchDatagram() -> Ice.ObjectPrx")) },
+    { STRCAST("ice_isBatchDatagram"), (PyCFunction)proxyIceIsBatchDatagram, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_isBatchDatagram() -> bool")) },
+    { STRCAST("ice_secure"), (PyCFunction)proxyIceSecure, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_secure(bool) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_compress"), (PyCFunction)proxyIceCompress, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_compress(bool) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_timeout"), (PyCFunction)proxyIceTimeout, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_timeout(int) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_router"), (PyCFunction)proxyIceRouter, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_router(Ice.RouterPrx) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_locator"), (PyCFunction)proxyIceLocator, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_locator(Ice.LocatorPrx) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_default"), (PyCFunction)proxyIceDefault, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_default() -> Ice.ObjectPrx")) },
+    { STRCAST("ice_connection"), (PyCFunction)proxyIceConnection, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_connection() -> Ice.Connection")) },
+    { STRCAST("ice_checkedCast"), (PyCFunction)proxyIceCheckedCast, METH_VARARGS | METH_CLASS,
+        PyDoc_STR(STRCAST("ice_checkedCast(proxy, id) -> proxy")) },
+    { STRCAST("ice_uncheckedCast"), (PyCFunction)proxyIceUncheckedCast, METH_VARARGS | METH_CLASS,
+        PyDoc_STR(STRCAST("ice_uncheckedCast(proxy) -> proxy")) },
+    { STRCAST("checkedCast"), (PyCFunction)proxyCheckedCast, METH_VARARGS | METH_STATIC,
+        PyDoc_STR(STRCAST("checkedCast(proxy) -> proxy")) },
+    { STRCAST("uncheckedCast"), (PyCFunction)proxyUncheckedCast, METH_VARARGS | METH_STATIC,
+        PyDoc_STR(STRCAST("uncheckedCast(proxy) -> proxy")) },
     { NULL, NULL} /* sentinel */
 };
 
@@ -1249,7 +1249,7 @@ PyTypeObject ProxyType =
      * to be portable to Windows without using C++. */
     PyObject_HEAD_INIT(NULL)
     0,                               /* ob_size */
-    "IcePy.ObjectPrx",               /* tp_name */
+    STRCAST("IcePy.ObjectPrx"),      /* tp_name */
     sizeof(ProxyObject),             /* tp_basicsize */
     0,                               /* tp_itemsize */
     /* methods */
@@ -1301,7 +1301,7 @@ IcePy::initProxy(PyObject* module)
     {
         return false;
     }
-    if(PyModule_AddObject(module, "ObjectPrx", (PyObject*)&ProxyType) < 0)
+    if(PyModule_AddObject(module, STRCAST("ObjectPrx"), (PyObject*)&ProxyType) < 0)
     {
         return false;
     }

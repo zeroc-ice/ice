@@ -121,7 +121,7 @@ IcePy::stringSeqToList(const Ice::StringSeq& seq, PyObject* l)
 
     for(Ice::StringSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
-        PyObject* str = Py_BuildValue("s", p->c_str());
+        PyObject* str = Py_BuildValue(STRCAST("s"), p->c_str());
         if(str == NULL)
         {
             Py_DECREF(l);
@@ -152,13 +152,13 @@ IcePy::dictionaryToContext(PyObject* dict, Ice::Context& context)
         char* keystr = PyString_AsString(key);
         if(keystr == NULL)
         {
-            PyErr_Format(PyExc_ValueError, "context key must be a string");
+            PyErr_Format(PyExc_ValueError, STRCAST("context key must be a string"));
             return false;
         }
         char* valuestr = PyString_AsString(value);
         if(valuestr == NULL)
         {
-            PyErr_Format(PyExc_ValueError, "context value must be a string");
+            PyErr_Format(PyExc_ValueError, STRCAST("context value must be a string"));
             return false;
         }
         context.insert(Ice::Context::value_type(keystr, valuestr));
@@ -276,128 +276,128 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
     catch(const Ice::UnknownException& e)
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.unknown.c_str()));
-        PyObject_SetAttrString(p, "unknown", m.get());
+        PyObject_SetAttrString(p, STRCAST("unknown"), m.get());
     }
     catch(const Ice::ObjectAdapterDeactivatedException& e)
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.name.c_str()));
-        PyObject_SetAttrString(p, "name", m.get());
+        PyObject_SetAttrString(p, STRCAST("name"), m.get());
     }
     catch(const Ice::ObjectAdapterIdInUseException& e)
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.id.c_str()));
-        PyObject_SetAttrString(p, "id", m.get());
+        PyObject_SetAttrString(p, STRCAST("id"), m.get());
     }
     catch(const Ice::NoEndpointException& e)
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.proxy.c_str()));
-        PyObject_SetAttrString(p, "proxy", m.get());
+        PyObject_SetAttrString(p, STRCAST("proxy"), m.get());
     }
     catch(const Ice::EndpointParseException& e)
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.str.c_str()));
-        PyObject_SetAttrString(p, "str", m.get());
+        PyObject_SetAttrString(p, STRCAST("str"), m.get());
     }
     catch(const Ice::IdentityParseException& e)
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.str.c_str()));
-        PyObject_SetAttrString(p, "str", m.get());
+        PyObject_SetAttrString(p, STRCAST("str"), m.get());
     }
     catch(const Ice::ProxyParseException& e)
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.str.c_str()));
-        PyObject_SetAttrString(p, "str", m.get());
+        PyObject_SetAttrString(p, STRCAST("str"), m.get());
     }
     catch(const Ice::IllegalIdentityException& e)
     {
         IcePy::PyObjectHandle m = IcePy::createIdentity(e.id);
-        PyObject_SetAttrString(p, "id", m.get());
+        PyObject_SetAttrString(p, STRCAST("id"), m.get());
     }
     catch(const Ice::RequestFailedException& e)
     {
         IcePy::PyObjectHandle m;
         m = IcePy::createIdentity(e.id);
-        PyObject_SetAttrString(p, "id", m.get());
+        PyObject_SetAttrString(p, STRCAST("id"), m.get());
         m = PyString_FromString(const_cast<char*>(e.facet.c_str()));
-        PyObject_SetAttrString(p, "facet", m.get());
+        PyObject_SetAttrString(p, STRCAST("facet"), m.get());
         m = PyString_FromString(const_cast<char*>(e.operation.c_str()));
-        PyObject_SetAttrString(p, "operation", m.get());
+        PyObject_SetAttrString(p, STRCAST("operation"), m.get());
     }
     catch(const Ice::SyscallException& e)
     {
         IcePy::PyObjectHandle m = PyInt_FromLong(e.error);
-        PyObject_SetAttrString(p, "error", m.get());
+        PyObject_SetAttrString(p, STRCAST("error"), m.get());
     }
     catch(const Ice::DNSException& e)
     {
         IcePy::PyObjectHandle m;
         m = PyInt_FromLong(e.error);
-        PyObject_SetAttrString(p, "error", m.get());
+        PyObject_SetAttrString(p, STRCAST("error"), m.get());
         m = PyString_FromString(const_cast<char*>(e.host.c_str()));
-        PyObject_SetAttrString(p, "host", m.get());
+        PyObject_SetAttrString(p, STRCAST("host"), m.get());
     }
     catch(const Ice::UnsupportedProtocolException& e)
     {
         IcePy::PyObjectHandle m;
         m = PyInt_FromLong(e.badMajor);
-        PyObject_SetAttrString(p, "badMajor", m.get());
+        PyObject_SetAttrString(p, STRCAST("badMajor"), m.get());
         m = PyInt_FromLong(e.badMinor);
-        PyObject_SetAttrString(p, "badMinor", m.get());
+        PyObject_SetAttrString(p, STRCAST("badMinor"), m.get());
         m = PyInt_FromLong(e.major);
-        PyObject_SetAttrString(p, "major", m.get());
+        PyObject_SetAttrString(p, STRCAST("major"), m.get());
         m = PyInt_FromLong(e.minor);
-        PyObject_SetAttrString(p, "minor", m.get());
+        PyObject_SetAttrString(p, STRCAST("minor"), m.get());
     }
     catch(const Ice::UnsupportedEncodingException& e)
     {
         IcePy::PyObjectHandle m;
         m = PyInt_FromLong(e.badMajor);
-        PyObject_SetAttrString(p, "badMajor", m.get());
+        PyObject_SetAttrString(p, STRCAST("badMajor"), m.get());
         m = PyInt_FromLong(e.badMinor);
-        PyObject_SetAttrString(p, "badMinor", m.get());
+        PyObject_SetAttrString(p, STRCAST("badMinor"), m.get());
         m = PyInt_FromLong(e.major);
-        PyObject_SetAttrString(p, "major", m.get());
+        PyObject_SetAttrString(p, STRCAST("major"), m.get());
         m = PyInt_FromLong(e.minor);
-        PyObject_SetAttrString(p, "minor", m.get());
+        PyObject_SetAttrString(p, STRCAST("minor"), m.get());
     }
     catch(const Ice::NoObjectFactoryException& e)
     {
         IcePy::PyObjectHandle m;
         m = PyString_FromString(const_cast<char*>(e.reason.c_str()));
-        PyObject_SetAttrString(p, "reason", m.get());
+        PyObject_SetAttrString(p, STRCAST("reason"), m.get());
         m = PyString_FromString(const_cast<char*>(e.type.c_str()));
-        PyObject_SetAttrString(p, "type", m.get());
+        PyObject_SetAttrString(p, STRCAST("type"), m.get());
     }
     catch(const Ice::MarshalException& e)
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.reason.c_str()));
-        PyObject_SetAttrString(p, "reason", m.get());
+        PyObject_SetAttrString(p, STRCAST("reason"), m.get());
     }
     catch(const Ice::PluginInitializationException& e)
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.reason.c_str()));
-        PyObject_SetAttrString(p, "reason", m.get());
+        PyObject_SetAttrString(p, STRCAST("reason"), m.get());
     }
     catch(const Ice::AlreadyRegisteredException& e)
     {
         IcePy::PyObjectHandle m;
         m = PyString_FromString(const_cast<char*>(e.kindOfObject.c_str()));
-        PyObject_SetAttrString(p, "kindOfObject", m.get());
+        PyObject_SetAttrString(p, STRCAST("kindOfObject"), m.get());
         m = PyString_FromString(const_cast<char*>(e.id.c_str()));
-        PyObject_SetAttrString(p, "id", m.get());
+        PyObject_SetAttrString(p, STRCAST("id"), m.get());
     }
     catch(const Ice::NotRegisteredException& e)
     {
         IcePy::PyObjectHandle m;
         m = PyString_FromString(const_cast<char*>(e.kindOfObject.c_str()));
-        PyObject_SetAttrString(p, "kindOfObject", m.get());
+        PyObject_SetAttrString(p, STRCAST("kindOfObject"), m.get());
         m = PyString_FromString(const_cast<char*>(e.id.c_str()));
-        PyObject_SetAttrString(p, "id", m.get());
+        PyObject_SetAttrString(p, STRCAST("id"), m.get());
     }
     catch(const Ice::TwowayOnlyException& e)
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.operation.c_str()));
-        PyObject_SetAttrString(p, "operation", m.get());
+        PyObject_SetAttrString(p, STRCAST("operation"), m.get());
     }
     catch(const Ice::LocalException&)
     {
@@ -440,7 +440,7 @@ IcePy::convertException(const Ice::Exception& ex)
             if(p.get() != NULL)
             {
                 PyObjectHandle s = PyString_FromString(const_cast<char*>(str.c_str()));
-                PyObject_SetAttrString(p.get(), "unknown", s.get());
+                PyObject_SetAttrString(p.get(), STRCAST("unknown"), s.get());
             }
         }
     }
@@ -452,7 +452,7 @@ IcePy::convertException(const Ice::Exception& ex)
         if(p.get() != NULL)
         {
             PyObjectHandle s = PyString_FromString(const_cast<char*>(str.c_str()));
-            PyObject_SetAttrString(p.get(), "unknown", s.get());
+            PyObject_SetAttrString(p.get(), STRCAST("unknown"), s.get());
         }
     }
     catch(const Ice::Exception&)
@@ -463,7 +463,7 @@ IcePy::convertException(const Ice::Exception& ex)
         if(p.get() != NULL)
         {
             PyObjectHandle s = PyString_FromString(const_cast<char*>(str.c_str()));
-            PyObject_SetAttrString(p.get(), "unknown", s.get());
+            PyObject_SetAttrString(p.get(), STRCAST("unknown"), s.get());
         }
     }
 
@@ -513,17 +513,17 @@ throwLocalException(PyObject* ex)
     catch(Ice::RequestFailedException& e)
     {
         IcePy::PyObjectHandle member;
-        member = PyObject_GetAttrString(ex, "id");
+        member = PyObject_GetAttrString(ex, STRCAST("id"));
         if(member.get() != NULL && IcePy::checkIdentity(member.get()))
         {
             IcePy::getIdentity(member.get(), e.id);
         }
-        member = PyObject_GetAttrString(ex, "facet");
+        member = PyObject_GetAttrString(ex, STRCAST("facet"));
         if(member.get() != NULL && PyString_Check(member.get()))
         {
             e.facet = PyString_AS_STRING(member.get());
         }
-        member = PyObject_GetAttrString(ex, "operation");
+        member = PyObject_GetAttrString(ex, STRCAST("operation"));
         if(member.get() != NULL && PyString_Check(member.get()))
         {
             e.operation = PyString_AS_STRING(member.get());
@@ -549,7 +549,7 @@ throwLocalException(PyObject* ex)
     catch(Ice::UnknownException& e)
     {
         IcePy::PyObjectHandle member;
-        member = PyObject_GetAttrString(ex, "unknown");
+        member = PyObject_GetAttrString(ex, STRCAST("unknown"));
         if(member.get() != NULL && PyString_Check(member.get()))
         {
             e.unknown = PyString_AS_STRING(member.get());
@@ -577,7 +577,7 @@ IcePy::throwPythonException(PyObject* ex)
 
     if(PyObject_IsInstance(ex, userExceptionType))
     {
-        PyObjectHandle name = PyObject_CallMethod(ex, "ice_name", NULL);
+        PyObjectHandle name = PyObject_CallMethod(ex, STRCAST("ice_name"), NULL);
         PyErr_Clear();
         Ice::UnknownUserException e(__FILE__, __LINE__);
         if(name.get() == NULL)
@@ -627,7 +627,7 @@ IcePy::handleSystemExit(PyObject* ex)
     PyObjectHandle code;
     if(PyInstance_Check(ex))
     {
-        code = PyObject_GetAttrString(ex, "code");
+        code = PyObject_GetAttrString(ex, STRCAST("code"));
     }
     else
     {
@@ -643,7 +643,7 @@ IcePy::handleSystemExit(PyObject* ex)
     else
     {
         PyObject_Print(code.get(), stderr, Py_PRINT_RAW);
-        PySys_WriteStderr("\n");
+        PySys_WriteStderr(STRCAST("\n"));
         status = 1;
     }
 
@@ -687,7 +687,8 @@ IcePy::setIdentity(PyObject* p, const Ice::Identity& ident)
     {
         return false;
     }
-    if(PyObject_SetAttrString(p, "name", name.get()) < 0 || PyObject_SetAttrString(p, "category", category.get()) < 0)
+    if(PyObject_SetAttrString(p, STRCAST("name"), name.get()) < 0 ||
+       PyObject_SetAttrString(p, STRCAST("category"), category.get()) < 0)
     {
         return false;
     }
@@ -698,14 +699,14 @@ bool
 IcePy::getIdentity(PyObject* p, Ice::Identity& ident)
 {
     assert(checkIdentity(p));
-    PyObjectHandle name = PyObject_GetAttrString(p, "name");
-    PyObjectHandle category = PyObject_GetAttrString(p, "category");
+    PyObjectHandle name = PyObject_GetAttrString(p, STRCAST("name"));
+    PyObjectHandle category = PyObject_GetAttrString(p, STRCAST("category"));
     if(name.get() != NULL)
     {
         char* s = PyString_AsString(name.get());
         if(s == NULL)
         {
-            PyErr_Format(PyExc_ValueError, "identity name must be a string");
+            PyErr_Format(PyExc_ValueError, STRCAST("identity name must be a string"));
             return false;
         }
         ident.name = s;
@@ -715,7 +716,7 @@ IcePy::getIdentity(PyObject* p, Ice::Identity& ident)
         char* s = PyString_AsString(category.get());
         if(s == NULL)
         {
-            PyErr_Format(PyExc_ValueError, "identity category must be a string");
+            PyErr_Format(PyExc_ValueError, STRCAST("identity category must be a string"));
             return false;
         }
         ident.category = s;
@@ -729,7 +730,7 @@ IcePy_identityToString(PyObject* /*self*/, PyObject* args)
 {
     PyObject* identityType = IcePy::lookupType("Ice.Identity");
     PyObject* p;
-    if(!PyArg_ParseTuple(args, "O!", identityType, &p))
+    if(!PyArg_ParseTuple(args, STRCAST("O!"), identityType, &p))
     {
         return NULL;
     }
@@ -758,7 +759,7 @@ PyObject*
 IcePy_stringToIdentity(PyObject* /*self*/, PyObject* args)
 {
     char* str;
-    if(!PyArg_ParseTuple(args, "s", &str))
+    if(!PyArg_ParseTuple(args, STRCAST("s"), &str))
     {
         return NULL;
     }
