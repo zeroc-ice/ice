@@ -66,7 +66,11 @@ static PyMethodDef methods[] =
 
 PyDoc_STRVAR(moduleDoc, "The Internet Communications Engine.");
 
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC >= 0x550)
+extern "C" __global void
+#else
 PyMODINIT_FUNC
+#endif
 initIcePy(void)
 {
     PyObject* module;
