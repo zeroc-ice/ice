@@ -836,9 +836,10 @@ SOURCE=..\..\slice\Ice\BuiltinSequences.ice
 InputPath=..\..\slice\Ice\BuiltinSequences.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/BuiltinSequences.ice \
-	move BuiltinSequences.h. ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/BuiltinSequences.ice
+	move BuiltinSequences.h. ..\..\include\Ice
+	del BuiltinSequences.cpp
 	
 
 "..\..\include\Ice\BuiltinSequences.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -854,9 +855,10 @@ BuildCmds= \
 InputPath=..\..\slice\Ice\BuiltinSequences.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/BuiltinSequences.ice \
-	move BuiltinSequences.h. ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/BuiltinSequences.ice
+	move BuiltinSequences.h. ..\..\include\Ice
+	del BuiltinSequences.cpp
 	
 
 "..\..\include\Ice\BuiltinSequences.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -880,9 +882,10 @@ USERDEP__COMMU="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Communicator.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice -DICE_CPP --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Communicator.ice \
-	move Communicator.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice -DICE_CPP --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Communicator.ice
+	move Communicator.h ..\..\include\Ice
+	cel Communicator.cpp
 	
 
 "..\..\include\Ice\Communicator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -899,9 +902,10 @@ USERDEP__COMMU="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Communicator.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice -DICE_CPP --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Communicator.ice \
-	move Communicator.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice -DICE_CPP --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Communicator.ice
+	move Communicator.h ..\..\include\Ice
+	del Communicator.cpp
 	
 
 "..\..\include\Ice\Communicator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -960,9 +964,10 @@ USERDEP__CURRE="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Current.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Current.ice \
-	move Current.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Current.ice
+	move Current.h ..\..\include\Ice
+	del Current.cpp
 	
 
 "..\..\include\Ice\Current.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -979,9 +984,10 @@ USERDEP__CURRE="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Current.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Current.ice \
-	move Current.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Current.ice
+	move Current.h ..\..\include\Ice
+	del Current.cpp
 	
 
 "..\..\include\Ice\Current.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1005,9 +1011,10 @@ USERDEP__FACET="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Facet.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Facet.ice \
-	move Facet.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Facet.ice
+	move Facet.h ..\..\include\Ice
+	del Facet.cpp
 	
 
 "..\..\include\Ice\Facet.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1024,9 +1031,10 @@ USERDEP__FACET="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Facet.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Facet.ice \
-	move Facet.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Facet.ice
+	move Facet.h ..\..\include\Ice
+	del Facet.cpp
 	
 
 "..\..\include\Ice\Facet.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1050,9 +1058,10 @@ USERDEP__IDENT="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Identity.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Identity.ice \
-	move Identity.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Identity.ice
+	move Identity.h ..\..\include\Ice
+	del Identity.cpp
 	
 
 "..\..\include\Ice\Identity.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1069,9 +1078,10 @@ USERDEP__IDENT="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Identity.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Identity.ice \
-	move Identity.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Identity.ice
+	move Identity.h ..\..\include\Ice
+	del Identity.cpp
 	
 
 "..\..\include\Ice\Identity.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1095,9 +1105,10 @@ USERDEP__LOCAL="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\LocalException.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/LocalException.ice \
-	move LocalException.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/LocalException.ice
+	move LocalException.h ..\..\include\Ice
+	del LocalException.cpp
 	
 
 "..\..\include\Ice\LocalException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1114,9 +1125,10 @@ USERDEP__LOCAL="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\LocalException.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/LocalException.ice \
-	move LocalException.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/LocalException.ice
+	move LocalException.h ..\..\include\Ice
+	del LocalException.cpp
 	
 
 "..\..\include\Ice\LocalException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1140,9 +1152,10 @@ USERDEP__LOCAT="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Locator.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Locator.ice \
-	move Locator.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Locator.ice
+	move Locator.h ..\..\include\Ice
+	del Locator.cpp
 	
 
 "..\..\include\Ice\Locator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1159,9 +1172,10 @@ USERDEP__LOCAT="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Locator.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Locator.ice \
-	move Locator.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Locator.ice
+	move Locator.h ..\..\include\Ice
+	del Locator.cpp
 	
 
 "..\..\include\Ice\Locator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1220,9 +1234,10 @@ USERDEP__LOGGE="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Logger.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Logger.ice \
-	move Logger.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Logger.ice
+	move Logger.h ..\..\include\Ice
+	del Logger.cpp
 	
 
 "..\..\include\Ice\Logger.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1239,9 +1254,10 @@ USERDEP__LOGGE="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Logger.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Logger.ice \
-	move Logger.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Logger.ice
+	move Logger.h ..\..\include\Ice
+	del Logger.cpp
 	
 
 "..\..\include\Ice\Logger.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1300,9 +1316,10 @@ USERDEP__OBJEC="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\ObjectAdapter.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ObjectAdapter.ice \
-	move ObjectAdapter.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ObjectAdapter.ice
+	move ObjectAdapter.h ..\..\include\Ice
+	del ObjectAdapter.cpp
 	
 
 "..\..\include\Ice\ObjectAdapter.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1319,9 +1336,10 @@ USERDEP__OBJEC="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\ObjectAdapter.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ObjectAdapter.ice \
-	move ObjectAdapter.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ObjectAdapter.ice
+	move ObjectAdapter.h ..\..\include\Ice
+	del ObjectAdapter.cpp
 	
 
 "..\..\include\Ice\ObjectAdapter.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1380,9 +1398,10 @@ USERDEP__OBJECTF="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\ObjectFactory.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ObjectFactory.ice \
-	move ObjectFactory.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ObjectFactory.ice
+	move ObjectFactory.h ..\..\include\Ice
+	del ObjectFactory.cpp
 	
 
 "..\..\include\Ice\ObjectFactory.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1399,9 +1418,10 @@ USERDEP__OBJECTF="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\ObjectFactory.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ObjectFactory.ice \
-	move ObjectFactory.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ObjectFactory.ice
+	move ObjectFactory.h ..\..\include\Ice
+	del ObjectFactory.cpp
 	
 
 "..\..\include\Ice\ObjectFactory.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1460,9 +1480,10 @@ USERDEP__PLUGI="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Plugin.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Plugin.ice \
-	move Plugin.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Plugin.ice
+	move Plugin.h ..\..\include\Ice
+	del Plugin.cpp
 	
 
 "..\..\include\Ice\Plugin.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1479,9 +1500,10 @@ USERDEP__PLUGI="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Plugin.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Plugin.ice \
-	move Plugin.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Plugin.ice
+	move Plugin.h ..\..\include\Ice
+	del Plugin.cpp
 	
 
 "..\..\include\Ice\Plugin.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1540,9 +1562,10 @@ USERDEP__PROPE="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Properties.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Properties.ice \
-	move Properties.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Properties.ice
+	move Properties.h ..\..\include\Ice
+	del Properties.cpp
 	
 
 "..\..\include\Ice\Properties.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1559,9 +1582,10 @@ USERDEP__PROPE="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Properties.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Properties.ice \
-	move Properties.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Properties.ice
+	move Properties.h ..\..\include\Ice
+	del Properties.cpp
 	
 
 "..\..\include\Ice\Properties.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1620,9 +1644,10 @@ USERDEP__ROUTE="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Router.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Router.ice \
-	move Router.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Router.ice
+	move Router.h ..\..\include\Ice
+	del Router.cpp
 	
 
 "..\..\include\Ice\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1639,9 +1664,9 @@ USERDEP__ROUTE="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Router.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Router.ice \
-	move Router.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Router.ice
+	move Router.h ..\..\include\Ice
 	
 
 "..\..\include\Ice\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1700,9 +1725,10 @@ USERDEP__SERVA="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\ServantLocator.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantLocator.ice \
-	move ServantLocator.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantLocator.ice
+	move ServantLocator.h ..\..\include\Ice
+	del ServantLocator.cpp
 	
 
 "..\..\include\Ice\ServantLocator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1719,9 +1745,10 @@ USERDEP__SERVA="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\ServantLocator.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantLocator.ice \
-	move ServantLocator.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantLocator.ice
+	move ServantLocator.h ..\..\include\Ice
+	del ServantLocator.cpp
 	
 
 "..\..\include\Ice\ServantLocator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1780,9 +1807,10 @@ USERDEP__STREA="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Stream.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Stream.ice \
-	move Stream.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Stream.ice
+	move Stream.h ..\..\include\Ice
+	del Stream.cpp
 	
 
 "..\..\include\Ice\Stream.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1799,9 +1827,10 @@ USERDEP__STREA="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\Stream.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Stream.ice \
-	move Stream.h ..\..\include\Ice \
+	set PATH=%PATH%;..\..\lib
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Stream.ice
+	move Stream.h ..\..\include\Ice
+	del Stream.cpp
 	
 
 "..\..\include\Ice\Stream.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1860,9 +1889,10 @@ USERDEP__USERE="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\UserExceptionFactory.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
+	set PATH=%PATH%;..\..\lib
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/UserExceptionFactory.ice
-	move UserExceptionFactory.h ..\..\include\Ice \
+	move UserExceptionFactory.h ..\..\include\Ice
+	del UserExceptionFactory.cpp
 	
 
 "..\..\include\Ice\UserExceptionFactory.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -1879,9 +1909,10 @@ USERDEP__USERE="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Ice\UserExceptionFactory.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
+	set PATH=%PATH%;..\..\lib
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/UserExceptionFactory.ice
-	move UserExceptionFactory.h ..\..\include\Ice \
+	move UserExceptionFactory.h ..\..\include\Ice
+	del UserExceptionFactory.cpp
 	
 
 "..\..\include\Ice\UserExceptionFactory.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
