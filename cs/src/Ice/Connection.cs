@@ -380,6 +380,7 @@ namespace IceInternal
 	    {
 		Debug.Assert(_proxyCount >= 0);
 		++_proxyCount;
+		System.Console.WriteLine("incProxycount: " + _proxyCount);
 	    }
 	}
 	
@@ -389,6 +390,7 @@ namespace IceInternal
 	    {
 		Debug.Assert(_proxyCount > 0);
 		--_proxyCount;
+		System.Console.WriteLine("decProxycount: " + _proxyCount);
 		
 		if(_proxyCount == 0 && _adapter == null && closingOK())
 		{
@@ -1180,7 +1182,7 @@ namespace IceInternal
 	    _dispatchCount = 0;
 	    _proxyCount = 0;
 	    _state = StateNotValidated;
-	    _incomingCacheMutex = new System.Object();
+	    _incomingCacheMutex = new System.Threading.Mutex();
 	    
 	    if(_adapter != null)
 	    {
@@ -1200,7 +1202,9 @@ namespace IceInternal
 	    Debug.Assert(_transceiver == null, "~Connection(): _tranceiver != null");
 	    Debug.Assert(_dispatchCount == 0, "~Connection(): _dispatchCount != 0");
 	    Debug.Assert(_proxyCount == 0, "~Connection(): _proxyCount != 0");
-	    Debug.Assert(_incomingCache == null, "~Connection(): _incomingCache != null");
+	    //Debug.Assert(_incomingCache == null, "~Connection(): _incomingCache != null"); // TODO: this assertion appears wrong -- _incoming cache is never null once an Incoming has been reclaimed.
+
+	    _batchStream.destroy();
 	}
 	
 	private const int StateNotValidated = 0;
@@ -1430,21 +1434,29 @@ namespace IceInternal
 	
 	private Incoming getIncoming(bool response, byte compress)
 	{
+	    System.Console.Write("getIncoming: ");
 	    Incoming inc = null;
 	    
-	    lock(_incomingCacheMutex)
+	    _incomingCacheMutex.WaitOne();
+	    try
 	    {
 		if(_incomingCache == null)
 		{
+		    System.Console.WriteLine("Allocating new incoming, _incomingCache = " + _incomingCache);
 		    inc = new Incoming(_instance, this, _adapter, response, compress);
 		}
 		else
 		{
+		    System.Console.WriteLine("Taking incoming from cache");
 		    inc = _incomingCache;
 		    _incomingCache = _incomingCache.next;
 		    inc.next = null;
 		    inc.reset(_instance, this, _adapter, response, compress);
 		}
+	    }
+	    finally
+	    {
+		_incomingCacheMutex.ReleaseMutex();
 	    }
 	    
 	    return inc;
@@ -1452,11 +1464,12 @@ namespace IceInternal
 	
 	private void reclaimIncoming(Incoming inc)
 	{
-	    lock(_incomingCacheMutex)
-	    {
-		inc.next = _incomingCache;
-		_incomingCache = inc;
-	    }
+	    System.Console.WriteLine("reclaiming incoming");
+	    _incomingCacheMutex.WaitOne();
+	    inc.next = _incomingCache;
+	    _incomingCache = inc;
+	    System.Console.WriteLine("_incomingCache = " + _incomingCache);
+	    _incomingCacheMutex.ReleaseMutex();
 	}
 	
 	private bool closingOK()
@@ -1503,7 +1516,7 @@ namespace IceInternal
 	private volatile int _state; // Must be volatile, see comment in isDestroyed().
 	
 	private Incoming _incomingCache;
-	private System.Object _incomingCacheMutex;
+	private System.Threading.Mutex _incomingCacheMutex;
     }
 
 }
