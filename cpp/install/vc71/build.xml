@@ -133,13 +133,7 @@
 		<include name="icepatch2server.exe"/>
 		<include name="icestormadmin.exe"/>
 		<include name="TransformDB.exe"/>
-	    </fileset>
-	</copy>
-
-	<mkdir dir="${install.dir}/ice-cpp/runtime/bin/debug"/>
-	<copy todir="${install.dir}/ice-cpp/runtime/bin/debug">
-	    <fileset dir="${ice.dir}/src/IceBox/Debug">
-		<include name="icebox.exe"/>
+		<include name="slice2docbook.exe"/>
 	    </fileset>
 	</copy>
 
@@ -183,7 +177,13 @@
 		<include name="slice21d.*"/>
 		<include name="slice2cpp.exe"/>
 		<include name="slice2freeze.exe"/>
-		<include name="slice2freezej.exe"/>
+	    </fileset>
+	</copy>
+
+	<mkdir dir="${install.dir}/ice-cpp/dev/bin/debug"/>
+	<copy todir="${install.dir}/ice-cpp/dev/bin/debug">
+	    <fileset dir="${ice.dir}/src/IceBox/Debug">
+		<include name="icebox.exe"/>
 	    </fileset>
 	</copy>
 
@@ -329,6 +329,7 @@
 	<copy todir="${install.dir}/ice-java/dev/bin">
 	    <fileset dir="${ice.dir}/bin">
 		<include name="slice2java.exe"/>
+		<include name="slice2freezej.exe"/>
 	    </fileset>
 	</copy>
 

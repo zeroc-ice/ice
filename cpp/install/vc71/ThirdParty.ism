@@ -1476,7 +1476,7 @@
 		<col key="yes" def="i2">Language_</col>
 		<row><td>packages</td><td>BZip2DevKit.VC71.2AF16623_EA4A_40B4_A1BD_E23902A8B1D5</td><td>0</td></row>
 		<row><td>packages</td><td>BerkeleyDBDevKit.VC71.81F93940_63FD_4AB8_B655_5F66F500C497</td><td>0</td></row>
-		<row><td>packages</td><td>BerkeleyDBJava.VC71.CC493666_BB82_45C2_8473_B4A1F034D4FE</td><td>0</td></row>
+		<row><td>packages</td><td>BerkeleyDBJava.VC71.319B2AAC_26B8_4AAB_8949_6D6267FB67A8</td><td>0</td></row>
 		<row><td>packages</td><td>BerkeleyDBRuntime.VC71.D4F6A049_6694_4A3A_98BB_FA2BF3B29275</td><td>0</td></row>
 		<row><td>packages</td><td>ExpatDevKit.VC71.1B17ED1C_CE0F_436F_B74A_83CE49EE05B2</td><td>0</td></row>
 		<row><td>packages</td><td>ExpatRuntime.VC71.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>0</td></row>
@@ -1566,7 +1566,7 @@
 		<col def="I4">ISAttributes</col>
 		<row><td>BZip2DevKit.VC71.2AF16623_EA4A_40B4_A1BD_E23902A8B1D5</td><td>0</td><td>BZip2 Dev Kit for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>BerkeleyDBDevKit.VC71.81F93940_63FD_4AB8_B655_5F66F500C497</td><td>0</td><td>BerkeleyDB Dev Kit for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>BerkeleyDBJava.VC71.CC493666_BB82_45C2_8473_B4A1F034D4FE</td><td>0</td><td>BerkeleyDBJava.VC71.CC493666_BB82_45C2_8473_B4A1F034D4FE:0</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>BerkeleyDBJava.VC71.319B2AAC_26B8_4AAB_8949_6D6267FB67A8</td><td>0</td><td>BerkeleyDB Java Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>BerkeleyDBRuntime.VC71.D4F6A049_6694_4A3A_98BB_FA2BF3B29275</td><td>0</td><td>BerkeleyDB Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>ExpatDevKit.VC71.1B17ED1C_CE0F_436F_B74A_83CE49EE05B2</td><td>0</td><td>Expat Dev Kit for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>ExpatRuntime.VC71.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>0</td><td>Expat Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>

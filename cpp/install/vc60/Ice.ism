@@ -250,7 +250,6 @@
 		<col key="yes" def="s72">Name</col>
 		<col def="V0">Data</col>
 		<col def="S255">ISBuildSourcePath</col>
-		<row><td>ISSELFREG.DLL</td><td/><td>&lt;ISProductFolder&gt;\redist\language independent\i386\isregsvr.dll</td></row>
 		<row><td>NewBinary1</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\IsDialogBanner.ibd</td></row>
 		<row><td>NewBinary10</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\CompleteSetupIco.ibd</td></row>
 		<row><td>NewBinary11</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\CustomSetupIco.ibd</td></row>
@@ -962,10 +961,6 @@
 		<col def="S255">ISComments</col>
 		<row><td>CheckForProductUpdates</td><td>226</td><td>ISUpdateServiceFolder</td><td>[ISUpdateServiceFolder]agent.exe "/au[ProductCode] /EndOfInstall"</td><td>Checks for product updates</td></row>
 		<row><td>CheckForProductUpdatesOnReboot</td><td>226</td><td>ISUpdateServiceFolder</td><td>[ISUpdateServiceFolder]agent.exe "/au[ProductCode] /EndOfInstall /Reboot"</td><td>Checks for product updates on reboot</td></row>
-		<row><td>ISSelfRegisterCosting</td><td>1</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterCosting</td><td/></row>
-		<row><td>ISSelfRegisterFiles</td><td>1025</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterFiles</td><td/></row>
-		<row><td>ISSelfRegisterFinalize</td><td>1</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterFinalize</td><td/></row>
-		<row><td>ISUnSelfRegisterFiles</td><td>1025</td><td>ISSELFREG.DLL</td><td>ISUnSelfRegisterFiles</td><td/></row>
 		<row><td>SetARPINSTALLLOCATION</td><td>51</td><td>ARPINSTALLLOCATION</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>SetAllUsersProfileNT</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%SystemRoot]\Profiles\All Users</td><td/></row>
 		<row><td>setAllUsersProfile2K</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%ALLUSERSPROFILE]</td><td/></row>
@@ -1266,22 +1261,22 @@
 		<col def="S255">ISComments</col>
 		<col def="S255">ISFeatureCabName</col>
 		<col def="S255">ISProFeatureName</col>
-		<row><td>ice_cpp</td><td/><td>##ID_STRING2##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
-		<row><td>ice_cpp_demo</td><td>ice_cpp_dev</td><td>##ID_STRING4##</td><td/><td>4</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
-		<row><td>ice_cpp_dev</td><td>ice_cpp</td><td>##ID_STRING3##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_dev_cpp</td><td/><td>##ID_STRING3##</td><td/><td>4</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_doc</td><td/><td>##ID_STRING16##</td><td/><td>10</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
-		<row><td>packages</td><td>ice_cpp</td><td>##ID_STRING1##</td><td/><td>0</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
-		<row><td>packages_cpp_dev</td><td>ice_cpp_dev</td><td>##ID_STRING17##</td><td/><td>0</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
+		<row><td>ice_runtime_cpp</td><td/><td>##ID_STRING2##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
+		<row><td>packages</td><td>ice_runtime_cpp</td><td>##ID_STRING1##</td><td/><td>0</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
+		<row><td>packages_dev_cpp</td><td>ice_dev_cpp</td><td>##ID_STRING17##</td><td/><td>0</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="FeatureComponents">
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="s72">Component_</col>
-		<row><td>ice_cpp</td><td>IceCppRuntime</td></row>
-		<row><td>ice_cpp</td><td>IceDoc</td></row>
-		<row><td>ice_cpp_demo</td><td>IceCppDemo</td></row>
-		<row><td>ice_cpp_dev</td><td>IceCppDev</td></row>
+		<row><td>ice_dev_cpp</td><td>IceCppDemo</td></row>
+		<row><td>ice_dev_cpp</td><td>IceCppDev</td></row>
+		<row><td>ice_dev_cpp</td><td>IceCppRuntime</td></row>
 		<row><td>ice_doc</td><td>IceManual</td></row>
+		<row><td>ice_runtime_cpp</td><td>IceCppRuntime</td></row>
+		<row><td>ice_runtime_cpp</td><td>IceDoc</td></row>
 		<row><td>packages</td><td>VisualStudioRuntime</td></row>
 	</table>
 
@@ -1504,9 +1499,9 @@
 		<row><td>packages</td><td>ExpatRuntime.VC60.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td>0</td></row>
 		<row><td>packages</td><td>OpenSSLRuntime.VC60.80A6164B_103B_4318_9AB0_4C6DE95AC097</td><td>0</td></row>
 		<row><td>packages</td><td>STLPortRuntime.VC60.A9A58AC6_551C_4FFF_B9B5_3D503E8CC4C0</td><td>0</td></row>
-		<row><td>packages_cpp_dev</td><td>BerkeleyDBDevKit.VC60.9D7EE251_9423_4C69_B4B4_73580837DA18</td><td>0</td></row>
-		<row><td>packages_cpp_dev</td><td>OpenSSLDevKit.VC60.50663C31_D47C_49EE_B7EF_303D541A08DE</td><td>0</td></row>
-		<row><td>packages_cpp_dev</td><td>STLPortDevKit.VC60.3FCE994D_E327_4276_A95A_3C928E7A52D4</td><td>0</td></row>
+		<row><td>packages_dev_cpp</td><td>BerkeleyDBDevKit.VC60.9D7EE251_9423_4C69_B4B4_73580837DA18</td><td>0</td></row>
+		<row><td>packages_dev_cpp</td><td>OpenSSLDevKit.VC60.50663C31_D47C_49EE_B7EF_303D541A08DE</td><td>0</td></row>
+		<row><td>packages_dev_cpp</td><td>STLPortDevKit.VC60.3FCE994D_E327_4276_A95A_3C928E7A52D4</td><td>0</td></row>
 	</table>
 
 	<table name="ISInstallScriptAction">
@@ -2344,7 +2339,7 @@
 		<row><td>ID_STRING15</td><td>1033</td><td>+ICE_HOME</td><td>0</td><td/><td>-1457951093</td></row>
 		<row><td>ID_STRING16</td><td>1033</td><td>HTML Documentation</td><td>0</td><td/><td>161047826</td></row>
 		<row><td>ID_STRING17</td><td>1033</td><td>Third Party Packages for C++ Development</td><td>0</td><td/><td>966353073</td></row>
-		<row><td>ID_STRING2</td><td>1033</td><td>Ice for C++</td><td>0</td><td/><td>-1457961558</td></row>
+		<row><td>ID_STRING2</td><td>1033</td><td>Ice Runtime</td><td>0</td><td/><td>1100550255</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>C++ Development</td><td>0</td><td/><td>-1457951318</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>C++ Demos</td><td>0</td><td/><td>-1457943126</td></row>
 		<row><td>ID_STRING5</td><td>1033</td><td>Third Party Development Packages</td><td>0</td><td/><td>-1457924662</td></row>
@@ -2446,10 +2441,6 @@
 		<row><td>DuplicateFiles</td><td/><td>4210</td><td>DuplicateFiles</td><td/></row>
 		<row><td>FileCost</td><td/><td>900</td><td>FileCost</td><td/></row>
 		<row><td>FindRelatedProducts</td><td>NOT ISSETUPDRIVEN</td><td>420</td><td>FindRelatedProducts</td><td/></row>
-		<row><td>ISSelfRegisterCosting</td><td/><td>2201</td><td/><td/></row>
-		<row><td>ISSelfRegisterFiles</td><td/><td>5601</td><td/><td/></row>
-		<row><td>ISSelfRegisterFinalize</td><td/><td>6601</td><td/><td/></row>
-		<row><td>ISUnSelfRegisterFiles</td><td/><td>2202</td><td/><td/></row>
 		<row><td>InstallFiles</td><td/><td>4000</td><td>InstallFiles</td><td/></row>
 		<row><td>InstallFinalize</td><td/><td>6600</td><td>InstallFinalize</td><td/></row>
 		<row><td>InstallInitialize</td><td/><td>1501</td><td>InstallInitialize</td><td/></row>

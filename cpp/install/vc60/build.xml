@@ -134,6 +134,7 @@
 		<include name="icepatch2server.exe"/>
 		<include name="icestormadmin.exe"/>
 		<include name="TransformDB.exe"/>
+		<include name="slice2docbook.exe"/>
 	    </fileset>
 	</copy>
 
