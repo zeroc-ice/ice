@@ -36,7 +36,10 @@ def killServers():
     global serverPids
 
     for pid in serverPids:
-        if os.name == "nt":
+	#
+	# Does os.kill work for cygwin? If so this test can be changed.
+	#
+        if sys.platform == "cygwin" or sys.platform == "win32":
             import win32api
             handle = win32api.OpenProcess(1, 0, pid)
             return (0 != win32api.TerminateProcess(handle, 0))

@@ -53,7 +53,10 @@ name = "IcePack/simple"
 TestUtil.clientServerTest(toplevel, name)
 TestUtil.collocatedTest(toplevel, name)
 
-if os.name != "nt":
+#
+# This test doesn't work under Windows.
+#
+if sys.platform != "cygwin" and sys.platform != "win32":
     testdir = os.path.normpath(toplevel + "/test/IcePack/simple")
 
     server = os.path.normpath(testdir + "/server")
