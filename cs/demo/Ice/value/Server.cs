@@ -32,18 +32,24 @@ public class Server
             communicator = Ice.Util.initializeWithProperties(ref args, properties);
             status = run(args, communicator);
         }
-        catch (System.Exception ex)
+        catch(System.Exception ex)
         {
             System.Console.Error.WriteLine(ex);
             status = 1;
         }
-        finally
-        {
-            if(communicator != null)
-            {
-                communicator.destroy();
-            }
-        }
+        
+	if(communicator != null)
+	{
+	    try
+	    {
+		communicator.destroy();
+	    }
+	    catch(System.Exception ex)
+	    {
+		System.Console.Error.WriteLine(ex);
+		status = 1;
+	    }
+	}
         
         System.Environment.Exit(status);
     }

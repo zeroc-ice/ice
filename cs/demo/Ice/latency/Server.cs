@@ -39,13 +39,19 @@ public class Server
 	    Console.Error.WriteLine(ex);
             status = 1;
         }
-        finally
-        {
-            if(communicator != null)
-            {
-                communicator.destroy();
-            }
-        }
+        
+	if(communicator != null)
+	{
+	    try
+	    {
+		communicator.destroy();
+	    }
+	    catch(System.Exception ex)
+	    {
+		Console.Error.WriteLine(ex);
+		status = 1;
+	    }
+	}
         
         System.Environment.Exit(status);
     }

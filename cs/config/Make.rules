@@ -145,7 +145,7 @@ depend:: $(SLICE_SRCS) $(SLICE_C_SRCS) $(SLICE_S_SRCS) $(SLICE_AMD_SRCS) $(SLICE
 	fi
 
 clean::
-	-rm -f $(TARGETS) *.bak icecs.dll
+	-rm -f $(TARGETS) *.bak icecs.dll glaciercs.dll
 
 ifneq ($(SLICE_SRCS),)
 clean::
