@@ -89,10 +89,11 @@ Ice for C#
 ----------
 
 To run the C# demos under Mono, you must include the library directory
-containing the icecs.dll in your MONO_PATH environment variable. In an
-RPM installation, the icecs.dll is installed in the /usr/lib
-directory. Otherwise, it can be found in the lib directory in your Ice
-installation.
+containing icecs.dll in your MONO_PATH environment variable, unless
+you are using an RPM installation, in which case the libraries are
+installed in the GAC.
+
+See the README file in the top-level demo directory for more detail.
 
 Ice for Python
 --------------
