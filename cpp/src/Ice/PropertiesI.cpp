@@ -265,6 +265,7 @@ Ice::PropertiesI::PropertiesI(StringSeq& args)
     {
 	setProperty("Ice.ProgramName", *q);
     }
+    StringSeq tmp;
     while(q != args.end())
     {
         string s = *q;
@@ -275,13 +276,14 @@ Ice::PropertiesI::PropertiesI(StringSeq& args)
                 s += "=1";
             }
             parseLine(s.substr(2));
-            args.erase(q);
         }
         else
         {
-            ++q;
+	    tmp.push_back(s);
         }
+	++q;
     }
+    args = tmp;
 
     loadConfig();
 
