@@ -331,6 +331,14 @@ Visitor::visitExceptionStart(const Slice::ExceptionPtr& p)
 bool
 Visitor::visitStructStart(const Slice::StructPtr& p)
 {
+    //
+    // Special case for Ice::Identity, which is predefined.
+    //
+    if(p->scoped() == "::Ice::Identity")
+    {
+        return false;
+    }
+
     createZendClass(p);
     return false;
 }
