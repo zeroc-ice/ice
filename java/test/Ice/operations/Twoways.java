@@ -597,7 +597,7 @@ class Twoways
             Test.MyClassStringDHolder _do = new Test.MyClassStringDHolder();
             java.util.Map ro = p.opMyClassStringD(di1, di2, _do);
 
-            //test(_do.value.equals(di1));
+            test(_do.value.equals(di1));
             test(ro.size() == 2);
             test(((String)ro.get(p)).equals("abc"));
             test(((String)ro.get(null)).equals("def"));
