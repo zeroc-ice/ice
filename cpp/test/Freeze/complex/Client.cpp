@@ -103,11 +103,11 @@ run(int argc, char* argv[], const DBPtr& db)
     communicator->addObjectFactory(factory, "::Complex::AddNode");
     communicator->addObjectFactory(factory, "::Complex::MultiplyNode");
 
-    if (argc >= 1 && strcmp(argv[1], "populate") == 0)
+    if (argc > 1 && strcmp(argv[1], "populate") == 0)
     {
 	return populate(db);
     }
-    if (argc >= 1 && strcmp(argv[1], "validate") == 0)
+    if (argc > 1 && strcmp(argv[1], "validate") == 0)
     {
 	return validate(db);
     }

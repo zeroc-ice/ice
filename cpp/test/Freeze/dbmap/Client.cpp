@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Freeze/Freeze.h>
-#include <Ice/BasicStream.h>
+#include <IceXML/StreamI.h>
 #include <TestCommon.h>
 
 #include <algorithm>
@@ -24,21 +24,25 @@ public:
 
     typedef char value_type;
 
-    static Freeze::Key
-    write(const char& key, const IceInternal::InstancePtr& instance)
+    static void
+    write(const char& key, Freeze::Key& bytes, const ::Ice::CommunicatorPtr& communicator)
     {
-	IceInternal::BasicStream keyStream(instance);
-	keyStream.write(key);
-	return keyStream.b;
+	ostringstream os;
+	os << "<data>";
+	Ice::StreamPtr stream = new ::IceXML::StreamI(communicator, os);
+	stream->writeByte("Key", key);
+	os << "</data>";
+	bytes.resize(os.str().size());
+	memcpy(&bytes[0], os.str().data(), os.str().size());
     }
 
     static void
-    read(char& key, const Freeze::Key& bytes, const IceInternal::InstancePtr& instance)
+    read(char& key, const Freeze::Key& bytes, const ::Ice::CommunicatorPtr& communicator)
     {
-	IceInternal::BasicStream valueStream(instance);
-	valueStream.b = bytes;
-	valueStream.i = valueStream.b.begin();
-	valueStream.read(key);
+	string data(bytes.begin(), bytes.end());
+	istringstream is(data);
+	Ice::StreamPtr stream = new ::IceXML::StreamI(communicator, is, false);
+	stream->readByte("Key", key);
     }
 };
 
@@ -48,44 +52,47 @@ public:
 
     typedef Ice::Int value_type;
 
-    static Freeze::Value
-    write(const Ice::Int& value, const IceInternal::InstancePtr& instance)
+    static void
+    write(const Ice::Int& value, Freeze::Value& bytes, const ::Ice::CommunicatorPtr& communicator)
     {
-	IceInternal::BasicStream valueStream(instance);
-	valueStream.write(value);
-	return valueStream.b;
+	ostringstream os;
+	os << "<data>";
+	Ice::StreamPtr stream = new ::IceXML::StreamI(communicator, os);
+	stream->writeInt("Value", value);
+	os << "</data>";
+	bytes.resize(os.str().size());
+	memcpy(&bytes[0], os.str().data(), os.str().size());
     }
 
     static void
-    read(Ice::Int& value, const Freeze::Value& bytes, const IceInternal::InstancePtr& instance)
+    read(Ice::Int& value, const Freeze::Value& bytes, const ::Ice::CommunicatorPtr& communicator)
     {
-	IceInternal::BasicStream valueStream(instance);
-	valueStream.b = bytes;
-	valueStream.i = valueStream.b.begin();
-	valueStream.read(value);
+	string data(bytes.begin(), bytes.end());
+	istringstream is(data);
+	Ice::StreamPtr stream = new ::IceXML::StreamI(communicator, is, false);
+	stream->readInt("Value", value);
     }
 };
 
 typedef DBMap<char, int, KeyCodec, ValueCodec> CharIntMap;
 
 static char alphabetChars[] = "abcdefghijklmnopqrstuvwxyz";
-vector<char> alphabet(alphabetChars, alphabetChars + sizeof(alphabetChars)-1);
+vector<char> alphabet;
 
 static void
 populateDB(CharIntMap& m)
 {
+    alphabet.assign(alphabetChars, alphabetChars + sizeof(alphabetChars)-1);
+
     for (vector<char>::const_iterator j = alphabet.begin() ; j != alphabet.end(); ++j)
     {
 	m.insert(make_pair(*j, j-alphabet.begin()));
-
     }
 }
 
 static int
 run(int argc, char* argv[], const DBPtr& db)
 {
-    IceInternal::InstancePtr instance = IceInternal::getInstance(db->getCommunicator());
-
     CharIntMap m(db);
 
     //
@@ -126,30 +133,38 @@ run(int argc, char* argv[], const DBPtr& db)
     
     cp = m.find(*j);
     test(cp != m.end());
-    for (; cp != m.end(); ++cp, ++j)
-    {
-	test(cp->first == *j && cp->second == j - alphabet.begin());
-    }
+    test(cp->first == 'n' && cp->second == j - alphabet.begin());
     cout << "ok" << endl;
 
     cout << "testing erase... ";
 
-    j = alphabet.begin();
-    for (p = m.begin() ; p != m.end() ; ++j)
+    //
+    // erase first offset characters (first offset characters is
+    // important for later verification of the correct second value in
+    // the map).
+    //
+    int offset = 3;
+    vector<char> chars;
+    chars.push_back('a');
+    chars.push_back('b');
+    chars.push_back('c');
+    for (j = chars.begin(); j != chars.end(); ++j)
     {
-	bool done = (p->first == 'c');
-	test(p->first == *j && p->second == j - alphabet.begin());
-	CharIntMap::iterator tmp = p;
-	++p;
-	m.erase(tmp);
-	if (done)
-	    break;
+	p = m.find(*j);
+	test(p != m.end());
+	m.erase(p);
+	p = m.find(*j);
+	test(p == m.end());
+	vector<char>::iterator r = find(alphabet.begin(), alphabet.end(), *j);
+	test(r != alphabet.end());
+	alphabet.erase(r);
     }
 
-    j = find(alphabet.begin(), alphabet.end(), 'd');
-    for (cp = m.begin(); cp != m.end(); ++cp, ++j)
+    for (j = alphabet.begin() ; j != alphabet.end() ; ++j)
     {
-	test(cp->first == *j && cp->second == j - alphabet.begin());
+	cp = m.find(*j);
+	test(cp != m.end());
+	test(cp->first == *j && cp->second == (j - alphabet.begin()) + offset);
     }
 
     cout << "ok" << endl;
@@ -196,13 +211,14 @@ run(int argc, char* argv[], const DBPtr& db)
     //
     // Verify cloned cursors are independent
     //
-    test(p->first == 'o' && p->second == 14);
+    test(p->first != 'n' && p->second != 13);
+    pair<char, int> data = *p;
     ++p;
 
-    test(p->first == 'p' && p->second == 15);
+    test(p->first != data.first && p->second != data.second);
     ++p;
 
-    test(p2->first == 'o' && p2->second == 14);
+    test(p2->first == data.first && p2->second == data.second);
 
     cout << "ok" << endl;
 
