@@ -61,330 +61,73 @@ class DBI extends Ice.LocalObjectImpl implements DB
     synchronized public DBCursor
     getCursor()
     {
-	if(_db == null)
-	{
-	    DBException ex = new DBException();
-	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
-	    throw ex;
-	}
-
-	com.sleepycat.db.Dbc cursor;
-
-	try
-	{
-	    cursor = _db.cursor(null, 0);
-	}
-	catch(com.sleepycat.db.DbException e)
-	{
-	    DBException ex = new DBException();
-	    ex.initCause(e);
-	    ex.message = _errorPrefix + "Db.cursor: " + e.getMessage();
-	    throw ex;
-	}
-
-	//
-	// Note that the read of the data is partial (that is the data
-	// will not actually be read into memory since it isn't needed
-	// yet).
-	//
-	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt();
-	dbData.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
-	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt();
-	dbKey.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
-
-	try
-	{
-	    try
-	    {
-		int rc = cursor.get(dbKey, dbData, com.sleepycat.db.Db.DB_FIRST);
-		if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
-		{
-		    DBNotFoundException ex = new DBNotFoundException();
-		    ex.message = _errorPrefix + "Dbc.get: DB_NOTFOUND";
-		    throw ex;
-		}
-	    }
-	    catch(com.sleepycat.db.DbException e)
-	    {
-		DBException ex = new DBException();
-		ex.initCause(e);
-		ex.message = _errorPrefix + "Dbc.get: " + e.getMessage();
-		throw ex;
-	    }
-	}
-	catch(DBException e)
-	{
-	    //
-	    // Cleanup on failure.
-	    //
-	    try
-	    {
-		cursor.close();
-	    }
-	    catch(com.sleepycat.db.DbException ignore)
-	    {
-		// Ignore
-	    }
-	    throw e;
-	}
-	
-	return new DBCursorI(_communicator, _name, cursor);
+	return getCursorImpl(null);
     }
     
     synchronized public DBCursor
     getCursorAtKey(byte[] key)
     {
-	if(_db == null)
-	{
-	    DBException ex = new DBException();
-	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
-	    throw ex;
-	}
-
-	com.sleepycat.db.Dbc cursor;
-
-	try
-	{
-	    cursor = _db.cursor(null, 0);
-	}
-	catch(com.sleepycat.db.DbException e)
-	{
-	    DBException ex = new DBException();
-	    ex.initCause(e);
-	    ex.message = _errorPrefix + "Db.cursor: " + e.getMessage();
-	    throw ex;
-	}
-
-	//
-	// Move to the requested record
-	//
-	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
-	
-	//
-	// Note that the read of the data is partial (that is the data
-	// will not actually be read into memory since it isn't needed
-	// yet).
-	//
-	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt();
-	dbData.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
-
-	try
-	{
-	    try
-	    {
-		int rc = cursor.get(dbKey, dbData, com.sleepycat.db.Db.DB_SET);
-		if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
-		{
-		    DBNotFoundException ex = new DBNotFoundException();
-		    ex.message = _errorPrefix + "Dbc.get: DB_NOTFOUND";
-		    throw ex;
-		}
-	    }
-	    catch(com.sleepycat.db.DbException e)
-	    {
-		DBException ex = new DBException();
-		ex.initCause(e);
-		ex.message = _errorPrefix + "Dbc.get: " + e.getMessage();
-		throw ex;
-	    }
-	}
-	catch(DBException e)
-	{
-	    //
-	    // Cleanup on failure.
-	    //
-	    try
-	    {
-		cursor.close();
-	    }
-	    catch(com.sleepycat.db.DbException ignore)
-	    {
-		// Ignore
-	    }
-	    throw e;
-	}
-
-	return new DBCursorI(_communicator, _name, cursor);
+	return getCursorAtKeyImpl(null, key);
     }
 
     synchronized public void
     put(byte[] key, byte[] value)
     {
-	if(_db == null)
-	{
-	    DBException ex = new DBException();
-	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
-	    throw ex;
-	}
-
-	//
-	// TODO: This can be optimized so that these only need to be
-	// allocated once.
-        //
-	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
-	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt(value);
-
-	if(_trace >= 1)
-	{
-	    _communicator.getLogger().trace("DB", "writing value in database \"" + _name + "\"");
-	}
-
-	try
-	{
-	    _db.put(null, dbKey, dbData, 0);
-	}
-	catch(com.sleepycat.db.DbDeadlockException e)
-	{
-	    DBDeadlockException ex = new DBDeadlockException();
-	    ex.initCause(e);
-	    ex.message = _errorPrefix + "Db.put: " + e.getMessage();
-	    throw ex;
-	}
-	catch(com.sleepycat.db.DbException e)
-	{
-	    DBException ex = new DBException();
-	    ex.initCause(e);
-	    ex.message = _errorPrefix + "Db.put: " + e.getMessage();
-	    throw ex;
-	}
+	putImpl(null, key, value);
     }
 
     synchronized public boolean
     contains(byte[] key)
     {
-	if(_db == null)
-	{
-	    DBException ex = new DBException();
-	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
-	    throw ex;
-	}
-
-	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
-
-	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt();
-	dbData.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
-
-	if(_trace >= 1)
-	{
-	    _communicator.getLogger().trace("DB", "checking key in database \"" + _name + "\"");
-	}
-
-	try
-	{
-	    int rc =_db.get(null, dbKey, dbData, 0);
-	    if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
-	    {
-		return false;
-	    }
-	    else
-	    {
-		assert(rc == 0);
-		return true;
-	    }
-	}
-	catch(com.sleepycat.db.DbDeadlockException e)
-	{
-	    DBDeadlockException ex = new DBDeadlockException();
-	    ex.initCause(e);
-	    ex.message = _errorPrefix + "Db.get: " + e.getMessage();
-	    throw ex;
-	}
-	catch(com.sleepycat.db.DbException e)
-	{
-	    DBException ex = new DBException();
-	    ex.initCause(e);
-	    ex.message = _errorPrefix + "Db.get: " + e.getMessage();
-	    throw ex;
-	}
+	return containsImpl(null, key);
     }
 
     synchronized public byte[]
     get(byte[] key)
     {
-	if(_db == null)
-	{
-	    DBException ex = new DBException();
-	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
-	    throw ex;
-	}
-
-	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
-	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt();
-
-	if(_trace >= 1)
-	{
-	    _communicator.getLogger().trace("DB", "reading value from database \"" + _name + "\"");
-	}
-
-	try
-	{
-	    int rc =_db.get(null, dbKey, dbData, 0);
-	    if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
-	    {
-		DBNotFoundException ex = new DBNotFoundException();
-		ex.message = _errorPrefix + "Db.get: DB_NOTFOUND";
-		throw ex;
-	    }
-	}
-	catch(com.sleepycat.db.DbDeadlockException e)
-	{
-	    DBDeadlockException ex = new DBDeadlockException();
-	    ex.initCause(e);
-	    ex.message = _errorPrefix + "Db.get: " + e.getMessage();
-	    throw ex;
-	}
-	catch(com.sleepycat.db.DbException e)
-	{
-	    DBException ex = new DBException();
-	    ex.initCause(e);
-	    ex.message = _errorPrefix + "Db.get: " + e.getMessage();
-	    throw ex;
-	}
-    
-	return dbData.get_data();
+	return getImpl(null, key);
     }
 
     synchronized public void
     del(byte[] key)
     {
-	if(_db == null)
-	{
-	    DBException ex = new DBException();
-	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
-	    throw ex;
-	}
+	delImpl(null, key);
+    }
 
-	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
+    synchronized public DBCursor
+    getCursorWithTxn(DBTransaction txn)
+    {
+	return getCursorImpl(((DBTransactionI)txn).getTxnId());
+    }
+    
+    synchronized public DBCursor
+    getCursorAtKeyWithTxn(DBTransaction txn, byte[] key)
+    {
+	return getCursorAtKeyImpl(((DBTransactionI)txn).getTxnId(), key);
+    }
 
-	if(_trace >= 1)
-	{
-	    _communicator.getLogger().trace("DB", "deleting value from database \"" + _name + "\"");
-	}
-	
-	try
-	{
-	    int rc =_db.del(null, dbKey, 0);
-	    if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
-	    {
-		DBNotFoundException ex = new DBNotFoundException();
-		ex.message = _errorPrefix + "Db.del: DB_NOTFOUND";
-		throw ex;
-	    }
-	}
-	catch(com.sleepycat.db.DbDeadlockException e)
-	{
-	    DBDeadlockException ex = new DBDeadlockException();
-	    ex.initCause(e);
-	    ex.message = _errorPrefix + "Db.del: " + e.getMessage();
-	    throw ex;
-	}
-	catch(com.sleepycat.db.DbException e)
-	{
-	    DBException ex = new DBException();
-	    ex.initCause(e);
-	    ex.message = _errorPrefix + "Db.del: " + e.getMessage();
-	    throw ex;
-	}
+    synchronized public void
+    putWithTxn(DBTransaction txn, byte[] key, byte[] value)
+    {
+	putImpl(((DBTransactionI)txn).getTxnId(), key, value);
+    }
+
+    synchronized public boolean
+    containsWithTxn(DBTransaction txn, byte[] key)
+    {
+	return containsImpl(((DBTransactionI)txn).getTxnId(), key);
+    }
+
+    synchronized public byte[]
+    getWithTxn(DBTransaction txn, byte[] key)
+    {
+	return getImpl(((DBTransactionI)txn).getTxnId(), key);
+    }
+
+    synchronized public void
+    delWithTxn(DBTransaction txn, byte[] key)
+    {
+	delImpl(((DBTransactionI)txn).getTxnId(), key);
     }
 
     synchronized public void
@@ -466,7 +209,7 @@ class DBI extends Ice.LocalObjectImpl implements DB
 	{
 	    DBException ex = new DBException();
 	    ex.initCause(e);
-	    ex.message = _errorPrefix + "Db.truncate: " + e.getMessage();
+	    ex.message = _errorPrefix + "Db.remove: " + e.getMessage();
 	    throw ex;
 	}
 	
@@ -483,6 +226,32 @@ class DBI extends Ice.LocalObjectImpl implements DB
 	// Ask the DBEnvironment to erase the database.
 	//
 	dbEnvCopy.eraseDB(_name);
+    }
+
+    synchronized public void
+    sync()
+    {
+	if(_db == null)
+	{
+	    return;
+	}
+	
+	if(_trace >= 1)
+	{
+	    _communicator.getLogger().trace("DB", "synchronizing database \"" + _name + "\"");
+	}
+
+	try
+	{
+	    _db.sync(0);
+	}
+	catch(com.sleepycat.db.DbException e)
+	{
+	    DBException ex = new DBException();
+	    ex.initCause(e);
+	    ex.message = _errorPrefix + "Db.sync: " + e.getMessage();
+	    throw ex;
+	}	
     }
 
     synchronized public Evictor
@@ -617,6 +386,335 @@ class DBI extends Ice.LocalObjectImpl implements DB
         }
 	
 	_dbEnvObj.add(_name, this);
+    }
+
+    private DBCursor
+    getCursorImpl(com.sleepycat.db.DbTxn txn)
+    {
+	if(_db == null)
+	{
+	    DBException ex = new DBException();
+	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
+	    throw ex;
+	}
+
+	com.sleepycat.db.Dbc cursor;
+
+	try
+	{
+	    cursor = _db.cursor(txn, 0);
+	}
+	catch(com.sleepycat.db.DbException e)
+	{
+	    DBException ex = new DBException();
+	    ex.initCause(e);
+	    ex.message = _errorPrefix + "Db.cursor: " + e.getMessage();
+	    throw ex;
+	}
+
+	//
+	// Note that the read of the data is partial (that is the data
+	// will not actually be read into memory since it isn't needed
+	// yet).
+	//
+	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt();
+	dbData.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
+	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt();
+	dbKey.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
+
+	try
+	{
+	    try
+	    {
+		int rc = cursor.get(dbKey, dbData, com.sleepycat.db.Db.DB_FIRST);
+		if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
+		{
+		    DBNotFoundException ex = new DBNotFoundException();
+		    ex.message = _errorPrefix + "Dbc.get: DB_NOTFOUND";
+		    throw ex;
+		}
+	    }
+	    catch(com.sleepycat.db.DbException e)
+	    {
+		DBException ex = new DBException();
+		ex.initCause(e);
+		ex.message = _errorPrefix + "Dbc.get: " + e.getMessage();
+		throw ex;
+	    }
+	}
+	catch(DBException e)
+	{
+	    //
+	    // Cleanup on failure.
+	    //
+	    try
+	    {
+		cursor.close();
+	    }
+	    catch(com.sleepycat.db.DbException ignore)
+	    {
+		// Ignore
+	    }
+	    throw e;
+	}
+	
+	return new DBCursorI(_communicator, _name, cursor);
+    }
+    
+    private DBCursor
+    getCursorAtKeyImpl(com.sleepycat.db.DbTxn txn, byte[] key)
+    {
+	if(_db == null)
+	{
+	    DBException ex = new DBException();
+	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
+	    throw ex;
+	}
+
+	com.sleepycat.db.Dbc cursor;
+
+	try
+	{
+	    cursor = _db.cursor(txn, 0);
+	}
+	catch(com.sleepycat.db.DbException e)
+	{
+	    DBException ex = new DBException();
+	    ex.initCause(e);
+	    ex.message = _errorPrefix + "Db.cursor: " + e.getMessage();
+	    throw ex;
+	}
+
+	//
+	// Move to the requested record
+	//
+	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
+	
+	//
+	// Note that the read of the data is partial (that is the data
+	// will not actually be read into memory since it isn't needed
+	// yet).
+	//
+	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt();
+	dbData.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
+
+	try
+	{
+	    try
+	    {
+		int rc = cursor.get(dbKey, dbData, com.sleepycat.db.Db.DB_SET);
+		if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
+		{
+		    DBNotFoundException ex = new DBNotFoundException();
+		    ex.message = _errorPrefix + "Dbc.get: DB_NOTFOUND";
+		    throw ex;
+		}
+	    }
+	    catch(com.sleepycat.db.DbException e)
+	    {
+		DBException ex = new DBException();
+		ex.initCause(e);
+		ex.message = _errorPrefix + "Dbc.get: " + e.getMessage();
+		throw ex;
+	    }
+	}
+	catch(DBException e)
+	{
+	    //
+	    // Cleanup on failure.
+	    //
+	    try
+	    {
+		cursor.close();
+	    }
+	    catch(com.sleepycat.db.DbException ignore)
+	    {
+		// Ignore
+	    }
+	    throw e;
+	}
+
+	return new DBCursorI(_communicator, _name, cursor);
+    }
+
+    private void
+    putImpl(com.sleepycat.db.DbTxn txn, byte[] key, byte[] value)
+    {
+	if(_db == null)
+	{
+	    DBException ex = new DBException();
+	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
+	    throw ex;
+	}
+
+	//
+	// TODO: This can be optimized so that these only need to be
+	// allocated once.
+        //
+	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
+	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt(value);
+
+	if(_trace >= 1)
+	{
+	    _communicator.getLogger().trace("DB", "writing value in database \"" + _name + "\"");
+	}
+
+	try
+	{
+	    _db.put(txn, dbKey, dbData, 0);
+	}
+	catch(com.sleepycat.db.DbDeadlockException e)
+	{
+	    DBDeadlockException ex = new DBDeadlockException();
+	    ex.initCause(e);
+	    ex.message = _errorPrefix + "Db.put: " + e.getMessage();
+	    throw ex;
+	}
+	catch(com.sleepycat.db.DbException e)
+	{
+	    DBException ex = new DBException();
+	    ex.initCause(e);
+	    ex.message = _errorPrefix + "Db.put: " + e.getMessage();
+	    throw ex;
+	}
+    }
+
+    private boolean
+    containsImpl(com.sleepycat.db.DbTxn txn, byte[] key)
+    {
+	if(_db == null)
+	{
+	    DBException ex = new DBException();
+	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
+	    throw ex;
+	}
+
+	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
+
+	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt();
+	dbData.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
+
+	if(_trace >= 1)
+	{
+	    _communicator.getLogger().trace("DB", "checking key in database \"" + _name + "\"");
+	}
+
+	try
+	{
+	    int rc =_db.get(txn, dbKey, dbData, 0);
+	    if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
+	    {
+		return false;
+	    }
+	    else
+	    {
+		assert(rc == 0);
+		return true;
+	    }
+	}
+	catch(com.sleepycat.db.DbDeadlockException e)
+	{
+	    DBDeadlockException ex = new DBDeadlockException();
+	    ex.initCause(e);
+	    ex.message = _errorPrefix + "Db.get: " + e.getMessage();
+	    throw ex;
+	}
+	catch(com.sleepycat.db.DbException e)
+	{
+	    DBException ex = new DBException();
+	    ex.initCause(e);
+	    ex.message = _errorPrefix + "Db.get: " + e.getMessage();
+	    throw ex;
+	}
+    }
+
+    private byte[]
+    getImpl(com.sleepycat.db.DbTxn txn, byte[] key)
+    {
+	if(_db == null)
+	{
+	    DBException ex = new DBException();
+	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
+	    throw ex;
+	}
+
+	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
+	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt();
+
+	if(_trace >= 1)
+	{
+	    _communicator.getLogger().trace("DB", "reading value from database \"" + _name + "\"");
+	}
+
+	try
+	{
+	    int rc =_db.get(txn, dbKey, dbData, 0);
+	    if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
+	    {
+		DBNotFoundException ex = new DBNotFoundException();
+		ex.message = _errorPrefix + "Db.get: DB_NOTFOUND";
+		throw ex;
+	    }
+	}
+	catch(com.sleepycat.db.DbDeadlockException e)
+	{
+	    DBDeadlockException ex = new DBDeadlockException();
+	    ex.initCause(e);
+	    ex.message = _errorPrefix + "Db.get: " + e.getMessage();
+	    throw ex;
+	}
+	catch(com.sleepycat.db.DbException e)
+	{
+	    DBException ex = new DBException();
+	    ex.initCause(e);
+	    ex.message = _errorPrefix + "Db.get: " + e.getMessage();
+	    throw ex;
+	}
+    
+	return dbData.get_data();
+    }
+
+    private void
+    delImpl(com.sleepycat.db.DbTxn txn, byte[] key)
+    {
+	if(_db == null)
+	{
+	    DBException ex = new DBException();
+	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
+	    throw ex;
+	}
+
+	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
+
+	if(_trace >= 1)
+	{
+	    _communicator.getLogger().trace("DB", "deleting value from database \"" + _name + "\"");
+	}
+	
+	try
+	{
+	    int rc =_db.del(txn, dbKey, 0);
+	    if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
+	    {
+		DBNotFoundException ex = new DBNotFoundException();
+		ex.message = _errorPrefix + "Db.del: DB_NOTFOUND";
+		throw ex;
+	    }
+	}
+	catch(com.sleepycat.db.DbDeadlockException e)
+	{
+	    DBDeadlockException ex = new DBDeadlockException();
+	    ex.initCause(e);
+	    ex.message = _errorPrefix + "Db.del: " + e.getMessage();
+	    throw ex;
+	}
+	catch(com.sleepycat.db.DbException e)
+	{
+	    DBException ex = new DBException();
+	    ex.initCause(e);
+	    ex.message = _errorPrefix + "Db.del: " + e.getMessage();
+	    throw ex;
+	}
     }
 
     private Ice.Communicator _communicator;

@@ -19,7 +19,13 @@ public class Util
     public static DBEnvironment
     initialize(Ice.Communicator communicator, String name)
     {
-	return new DBEnvironmentI(communicator, name);
+	return new DBEnvironmentI(communicator, name, false);
+    }
+
+    public static DBEnvironment
+    initializeWithTxn(Ice.Communicator communicator, String name)
+    {
+	return new DBEnvironmentI(communicator, name, true);
     }
 }
 

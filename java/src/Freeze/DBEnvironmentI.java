@@ -133,6 +133,22 @@ class DBEnvironmentI extends Ice.LocalObjectImpl implements DBEnvironment, com.s
 	_dbEnv = null;
     }
 
+    synchronized public void
+    sync()
+    {
+	if(_dbEnv == null)
+	{
+	    return;
+	}
+
+        java.util.Iterator p = _dbMap.values().iterator();
+        while(p.hasNext())
+	{
+            DB db = (DB)p.next();
+	    db.sync();
+	}
+    }
+
     synchronized protected void
     add(String name, DB db)
     {
@@ -190,12 +206,13 @@ class DBEnvironmentI extends Ice.LocalObjectImpl implements DBEnvironment, com.s
 	}
     }
 
-    DBEnvironmentI(Ice.Communicator communicator, String name)
+    DBEnvironmentI(Ice.Communicator communicator, String name, boolean txn)
     {
 	_communicator = communicator;
 	_name = name;
 	_errorPrefix = "Freeze::DBEnvironment(\"" + _name + "\"): ";
 	_trace = getCommunicator().getProperties().getPropertyAsInt("Freeze.Trace.DB");
+
         try
         {
             _dbEnv = new com.sleepycat.db.DbEnv(0);
@@ -222,17 +239,19 @@ class DBEnvironmentI extends Ice.LocalObjectImpl implements DBEnvironment, com.s
 	{
 	    _communicator.getLogger().trace("DB", "opening database environment \"" + _name + "\"");
 	}
-	
+
+	int flags = com.sleepycat.db.Db.DB_CREATE | com.sleepycat.db.Db.DB_INIT_LOCK |
+	    com.sleepycat.db.Db.DB_INIT_MPOOL;
+
+	if(txn)
+        {
+	    flags = flags | com.sleepycat.db.Db.DB_INIT_LOG | com.sleepycat.db.Db.DB_INIT_TXN | 
+		com.sleepycat.db.Db.DB_RECOVER;
+	}
+
 	try
 	{
-	    _dbEnv.open(_name,
-			com.sleepycat.db.Db.DB_CREATE |
-			com.sleepycat.db.Db.DB_INIT_LOCK |
-			com.sleepycat.db.Db.DB_INIT_LOG |
-			com.sleepycat.db.Db.DB_INIT_MPOOL |
-			com.sleepycat.db.Db.DB_INIT_TXN |
-			com.sleepycat.db.Db.DB_RECOVER,
-			0); //TODO: FREEZE_DB_MODE)
+	    _dbEnv.open(_name, flags, 0); //TODO: FREEZE_DB_MODE)
 	}
 	catch(java.io.FileNotFoundException e)
 	{

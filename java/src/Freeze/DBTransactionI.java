@@ -86,6 +86,13 @@ class DBTransactionI extends Ice.LocalObjectImpl implements DBTransaction
 	_tid = null;
     }
 
+    com.sleepycat.db.DbTxn
+    getTxnId()
+    {
+	return _tid;
+    }
+
+
     DBTransactionI(Ice.Communicator communicator, com.sleepycat.db.DbEnv dbEnv, String name)
     {
 	_communicator = communicator;

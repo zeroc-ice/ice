@@ -22,6 +22,10 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
 else:
     raise "can't find toplevel directory!"
 
+if not os.environ.has_key('ICE_HOME'):
+    print "ICE_HOME is not defined."
+    sys.exit(0)
+
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 import IcePackAdmin
