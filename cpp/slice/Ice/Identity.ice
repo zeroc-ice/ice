@@ -19,7 +19,7 @@ module Ice
  * object.
  *
  **/
-["cs:class"] struct Identity
+struct Identity
 {
     /**
      *

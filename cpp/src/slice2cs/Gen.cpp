@@ -862,7 +862,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    _out << "Ice.Object";
 	}
-	_out << ',' << nl << name << "_Operations";
+	_out << ',' << name << "_Operations";
 	if(!bases.empty())
 	{
 	    ClassList::const_iterator q = bases.begin();
@@ -1224,7 +1224,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 	{
 	    _out << "return ";
 	}
-	_out << name << spar << args << "null" << epar << ';';
+	_out << name << spar << args << "new Ice.Current()" << epar << ';';
 	_out << eb;
     }
 
@@ -3314,7 +3314,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	else
 	{
 	    _out << nl << "Ice.Current __current = new Ice.Current();";
-	    _out << nl << "__initCurrent(__current, \"" << op->name() << "\", " << sliceModeToIceMode(op)
+	    _out << nl << "__initCurrent(ref __current, \"" << op->name() << "\", " << sliceModeToIceMode(op)
 		 << ", __context);";
 	    _out << nl << "while(true)";
 	    _out << sb;

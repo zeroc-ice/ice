@@ -82,7 +82,7 @@ enum OperationMode
  * @see IceStorm
  *
  **/
-["cs:class"] local struct Current
+local struct Current
 {
     /**
      *
