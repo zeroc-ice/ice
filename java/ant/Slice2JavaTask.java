@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2002
+// Copyright (c) 2003
 // ZeroC, Inc.
 // Billerica, MA, USA
 //
@@ -53,6 +53,7 @@ import java.io.BufferedWriter;
  *        <target name="generate">
  *            <mkdir dir="tags" />
  *            <slice2java tagdir="tags" outputdir="out" package="com.foo">
+ *                <define name="SYMBOL" value="VALUE"/>
  *                <includepath>
  *                    <pathelement path="${slice.dir}" />
  *                </includepath>
@@ -146,11 +147,6 @@ public class Slice2JavaTask extends SliceTask
         {
             StringBuffer cmd = new StringBuffer();
 
-	    //
-	    // Add --ice
-	    //
-	    cmd.append(" --ice");
-
             //
             // Add --output-dir
             //
@@ -183,11 +179,39 @@ public class Slice2JavaTask extends SliceTask
             }
 
             //
+            // Add defines
+            //
+            if(!_defines.isEmpty())
+            {
+                java.util.Iterator i = _defines.iterator();
+                while(i.hasNext())
+                {
+                    SliceDefine define = (SliceDefine)i.next();
+                    cmd.append(" -D");
+                    cmd.append(define.getName());
+                    String value = define.getValue();
+                    if(value != null)
+                    {
+                        cmd.append("=");
+                        cmd.append(value);
+                    }
+                }
+            }
+
+            //
             // Add --tie
             //
             if(_tie)
             {
                 cmd.append(" --tie");
+            }
+
+	    //
+	    // Add --ice
+	    //
+            if(_ice)
+            {
+                cmd.append(" --ice");
             }
 
             //

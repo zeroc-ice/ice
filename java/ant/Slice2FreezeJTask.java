@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2002
+// Copyright (c) 2003
 // ZeroC, Inc.
 // Billerica, MA, USA
 //
@@ -37,7 +37,8 @@ import java.io.FileOutputStream;
  *
  * Nested elements:
  *
- *   dict - contains the NAME KEY & VALUE of the freeze type.
+ *   define - defines a preprocessor symbol
+ *   dict - contains the NAME, KEY TYPE, and VALUE TYPE of a Freeze map.
  *
  * Example:
  *
@@ -47,6 +48,7 @@ import java.io.FileOutputStream;
  *        <target name="generate">
  *            <mkdir dir="tags" />
  *            <slice2freezej tagdir="tags" outputdir="out" output="CharIntMap">
+ *                <define name="SYMBOL" value="VALUE"/>
  *                <includepath>
  *                    <pathelement path="${slice.dir}" />
  *                </includepath>
@@ -181,7 +183,10 @@ public class Slice2FreezeJTask extends SliceTask
 	//
 	// Add --ice
 	//
-	cmd.append(" --ice");
+        if(_ice)
+        {
+            cmd.append(" --ice");
+        }
 
 	//
 	// Add --output-dir
@@ -220,6 +225,26 @@ public class Slice2FreezeJTask extends SliceTask
 		cmd.append(dirs[i]);
 	    }
 	}
+
+        //
+        // Add defines
+        //
+        if(!_defines.isEmpty())
+        {
+            java.util.Iterator i = _defines.iterator();
+            while(i.hasNext())
+            {
+                SliceDefine define = (SliceDefine)i.next();
+                cmd.append(" -D");
+                cmd.append(define.getName());
+                String value = define.getValue();
+                if(value != null)
+                {
+                    cmd.append("=");
+                    cmd.append(value);
+                }
+            }
+        }
 
 	//
 	// Add the --dict options.

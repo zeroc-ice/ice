@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2002
+// Copyright (c) 2003
 // ZeroC, Inc.
 // Billerica, MA, USA
 //
@@ -42,12 +42,16 @@ import java.io.BufferedWriter;
  *
  *   dependencyfile - The file in which dependencies are stored (default: ".depend").
  *   outputdir - The value for the --output-dir translator option.
- *   casesensitive - The value for the --case-sensitive translator option.
+ *   casesensitive - Enables the --case-sensitive translator option.
+ *   ice - Enables the --ice translator option.
  *
  * Nested elements:
  *
  *   includepath - The directories in which to search for Slice files.
- *   These are converted into -I directives for the translator.
+ *     These are converted into -I directives for the translator.
+ *   define - Defines a preprocessor symbol. The "name" attribute
+ *     specifies the symbol name, and the optional "value" attribute
+ *     specifies the symbol's value.
  *   fileset - The set of Slice files which contain relevent types.
  *
  */
@@ -59,13 +63,8 @@ public class SliceTask extends org.apache.tools.ant.Task
         _dependencyFile = null;
         _outputDir = null;
 	_caseSensitive = false;
+        _ice = false;
         _includePath = null;
-	_fileSets = new java.util.LinkedList();
-    }
-
-    public void
-    setTagdir(File dir)
-    {
     }
 
     public void
@@ -84,6 +83,12 @@ public class SliceTask extends org.apache.tools.ant.Task
     setCaseSensitive(boolean c)
     {
         _caseSensitive = c;
+    }
+
+    public void
+    setIce(boolean ice)
+    {
+        _ice = ice;
     }
 
     public Path
@@ -123,6 +128,18 @@ public class SliceTask extends org.apache.tools.ant.Task
 
         return fileset;
     }    
+
+    public void
+    addConfiguredDefine(SliceDefine define)
+        throws BuildException
+    {
+        if(define.getName() == null)
+        {
+            throw new BuildException("The name attribute must be supplied in a <define> element");
+        }
+
+        _defines.add(define);
+    }
 
     //
     // Read the dependency file.
@@ -281,6 +298,8 @@ public class SliceTask extends org.apache.tools.ant.Task
     protected File _dependencyFile;
     protected File _outputDir;
     protected boolean _caseSensitive;
+    protected boolean _ice;
     protected Path _includePath;
     protected java.util.List _fileSets = new java.util.LinkedList();
+    protected java.util.List _defines = new java.util.LinkedList();
 }
