@@ -19,16 +19,16 @@ usage(const char* n)
 {
     cerr << "Usage: " << n << " [options] slice-files ...\n";
     cerr <<	
-"Options:\n"
-"-h, --help           Show this message.\n"
-"-v, --version        Display the Ice version.\n"
-"-DNAME               Define NAME as 1.\n"
-"-DNAME=DEF           Define NAME as DEF.\n"
-"-UNAME               Remove any definition for NAME.\n"
-"-IDIR                Put DIR in the include file search path.\n"
-"--include-dir DIR    Use DIR as the header include directory.\n"
-"--dll-export SYMBOL  Use SYMBOL for DLL exports.\n"
-"-d, --debug          Print debug messages.\n"
+	"Options:\n"
+	"-h, --help           Show this message.\n"
+	"-v, --version        Display the Ice version.\n"
+	"-DNAME               Define NAME as 1.\n"
+	"-DNAME=DEF           Define NAME as DEF.\n"
+	"-UNAME               Remove any definition for NAME.\n"
+	"-IDIR                Put DIR in the include file search path.\n"
+	"--include-dir DIR    Use DIR as the header include directory.\n"
+	"--dll-export SYMBOL  Use SYMBOL for DLL exports.\n"
+	"-d, --debug          Print debug messages.\n"
 	;
 }
 
@@ -91,8 +91,7 @@ main(int argc, char* argv[])
 	{
 	    if (idx + 1 >= argc)
             {
-		cerr << argv[0] << ": argument expected for`"
-		     << argv[idx] << "'" << endl;
+		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
 		usage(argv[0]);
 		return EXIT_FAILURE;
             }
@@ -106,8 +105,7 @@ main(int argc, char* argv[])
 	{
 	    if (idx + 1 >= argc)
             {
-		cerr << argv[0] << ": argument expected for`"
-		     << argv[idx] << "'" << endl;
+		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
 		usage(argv[0]);
 		return EXIT_FAILURE;
             }
@@ -119,8 +117,7 @@ main(int argc, char* argv[])
 	}
 	else if (argv[idx][0] == '-')
 	{
-	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'"
-		 << endl;
+	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
 	    usage(argv[0]);
 	    return EXIT_FAILURE;
 	}
@@ -149,8 +146,7 @@ main(int argc, char* argv[])
 	}
 	if (suffix != ".ice")
 	{
-	    cerr << argv[0] << ": input files must end with `.ice'"
-		 << endl;
+	    cerr << argv[0] << ": input files must end with `.ice'" << endl;
 	    return EXIT_FAILURE;
 	}
 	base.erase(pos);
@@ -158,8 +154,7 @@ main(int argc, char* argv[])
 	ifstream test(argv[idx]);
 	if (!test)
 	{
-	    cerr << argv[0] << ": can't open `" << argv[idx]
-		 << "' for reading: " << strerror(errno) << endl;
+	    cerr << argv[0] << ": can't open `" << argv[idx] << "' for reading: " << strerror(errno) << endl;
 	    return EXIT_FAILURE;
 	}
 	test.close();
@@ -172,8 +167,7 @@ main(int argc, char* argv[])
 #endif
 	if (cppHandle == NULL)
 	{
-	    cerr << argv[0] << ": can't run C++ preprocessor: "
-		 << strerror(errno) << endl;
+	    cerr << argv[0] << ": can't run C++ preprocessor: " << strerror(errno) << endl;
 	    return EXIT_FAILURE;
 	}
 	

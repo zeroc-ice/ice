@@ -18,17 +18,17 @@ void
 usage(const char* n)
 {
     cerr << "Usage: " << n << " [options] docbook-file slice-files ...\n";
-    cerr <<	
-"Options:\n"
-"-h, --help           Show this message.\n"
-"-v, --version        Display the Ice version.\n"
-"-DNAME               Define NAME as 1.\n"
-"-DNAME=DEF           Define NAME as DEF.\n"
-"-UNAME               Remove any definition for NAME.\n"
-"-IDIR                Put DIR in the include file search path.\n"
-"-s, --stand-alone    Create stand-alone docbook file.\n"
-"--no-globals         Don't document the global module.\n"
-"-d, --debug          Print debug messages.\n"
+    cerr <<
+	"Options:\n"
+	"-h, --help           Show this message.\n"
+	"-v, --version        Display the Ice version.\n"
+	"-DNAME               Define NAME as 1.\n"
+	"-DNAME=DEF           Define NAME as DEF.\n"
+	"-UNAME               Remove any definition for NAME.\n"
+	"-IDIR                Put DIR in the include file search path.\n"
+	"-s, --stand-alone    Create stand-alone docbook file.\n"
+	"--no-globals         Don't document the global module.\n"
+	"-d, --debug          Print debug messages.\n"
 	;
 }
 
@@ -104,8 +104,7 @@ main(int argc, char* argv[])
 	}
 	else if (argv[idx][0] == '-')
 	{
-	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'"
-		 << endl;
+	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
 	    usage(argv[0]);
 	    return EXIT_FAILURE;
 	}
@@ -130,8 +129,7 @@ main(int argc, char* argv[])
     }
     if (suffix != ".sgml")
     {
-	cerr << argv[0] << ": docbook file must end with `.sgml'"
-	     << endl;
+	cerr << argv[0] << ": docbook file must end with `.sgml'" << endl;
 	return EXIT_FAILURE;
     }
 
@@ -158,8 +156,7 @@ main(int argc, char* argv[])
 	}
 	if (suffix != ".ice")
 	{
-	    cerr << argv[0] << ": input files must end with `.ice'"
-		 << endl;
+	    cerr << argv[0] << ": input files must end with `.ice'" << endl;
 	    unit->destroy();
 	    return EXIT_FAILURE;
 	}
@@ -168,8 +165,7 @@ main(int argc, char* argv[])
 	ifstream test(argv[idx]);
 	if (!test)
 	{
-	    cerr << argv[0] << ": can't open `" << argv[idx]
-		 << "' for reading: " << strerror(errno) << endl;
+	    cerr << argv[0] << ": can't open `" << argv[idx] << "' for reading: " << strerror(errno) << endl;
 	    unit->destroy();
 	    return EXIT_FAILURE;
 	}
@@ -183,8 +179,7 @@ main(int argc, char* argv[])
 #endif
 	if (cppHandle == NULL)
 	{
-	    cerr << argv[0] << ": can't run C++ preprocessor: "
-		 << strerror(errno) << endl;
+	    cerr << argv[0] << ": can't run C++ preprocessor: " << strerror(errno) << endl;
 	    unit->destroy();
 	    return EXIT_FAILURE;
 	}
