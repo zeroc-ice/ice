@@ -55,7 +55,7 @@ IceInternal::UdpTransceiver::write(Buffer& buf, int)
 #endif
 
 repeat:
-    int ret = ::send(_fd, buf.b.begin(), buf.b.size(), 0);
+    int ret = ::send(_fd, &buf.b[0], buf.b.size(), 0);
     
     if (ret == SOCKET_ERROR)
     {
@@ -125,7 +125,7 @@ repeat:
 	struct sockaddr_in peerAddr;
 	memset(&peerAddr, 0, sizeof(struct sockaddr_in));
 	socklen_t len = sizeof(peerAddr);
-	ret = recvfrom(_fd, buf.b.begin(), packetSize, 0, reinterpret_cast<struct sockaddr*>(&peerAddr), &len);
+	ret = recvfrom(_fd, &buf.b[0], packetSize, 0, reinterpret_cast<struct sockaddr*>(&peerAddr), &len);
 	if (ret != SOCKET_ERROR)
 	{
 	    doConnect(_fd, peerAddr, -1);
@@ -140,7 +140,7 @@ repeat:
     }
     else
     {
-	ret = ::recv(_fd, buf.b.begin(), packetSize, 0);
+	ret = ::recv(_fd, &buf.b[0], packetSize, 0);
     }
     
     if (ret == SOCKET_ERROR)

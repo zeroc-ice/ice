@@ -39,7 +39,9 @@ Grammar.cpp Grammar.h: Grammar.y
 
 Scanner.cpp: Scanner.l Grammar.h
 	flex Scanner.l
-	rm -f Scanner.cpp ; mv lex.yy.c Scanner.cpp
+	rm -f Scanner.cpp
+	echo '#include <IceUtil/Config.h>' > Scanner.cpp
+	cat lex.yy.c >> Scanner.cpp
 
 clean::
 	-rm -f Grammar.cpp Grammar.h Grammar.output

@@ -8,15 +8,6 @@
 //
 // **********************************************************************
 
-// Note: This pragma is used to disable spurious warning messages having
-//       to do with the length of debug symbols exceeding 255 characters.
-//       This is due to STL template identifiers expansion.
-//       The MSDN Library recommends that you put this pragma directive
-//       in place to avoid the warnings.
-#ifdef _WIN32
-#pragma warning(disable:4786)
-#endif
-
 #include <Ice/Network.h>
 #include <Ice/Logger.h>
 #include <Ice/LocalException.h>
@@ -596,7 +587,7 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
 
         _readTimeout = timeout;
 
-        bytesRead = sslRead((char *)buf.i, packetSize);
+        bytesRead = sslRead(static_cast<char*>(&*buf.i), packetSize);
 
         switch (getLastError())
         {

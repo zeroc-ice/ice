@@ -256,7 +256,7 @@ IceSSL::OpenSSL::ClientConnection::write(Buffer& buf, int timeout)
             break;
         }
 
-        bytesWritten = sslWrite((char *)buf.i, packetSize);
+        bytesWritten = sslWrite(static_cast<char*>(&*buf.i), packetSize);
 
         switch (getLastError())
         {

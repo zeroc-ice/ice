@@ -11,9 +11,7 @@
 #ifndef ICE_SSL_CERTIFICATE_DESC_H
 #define ICE_SSL_CERTIFICATE_DESC_H
 
-#ifdef _WIN32
-#pragma warning(disable:4786)
-#endif
+#include <Ice/Config.h>
 
 #include <openssl/ssl.h>
 

@@ -1031,8 +1031,8 @@ IceInternal::Connection::compress(BasicStream& uncompressed, BasicStream& compre
     unsigned int uncompressedLen = uncompressed.b.size() - headerSize;
     unsigned int compressedLen = static_cast<int>(uncompressedLen * 1.01 + 600);
     compressed.b.resize(headerSize + sizeof(Int) + compressedLen);
-    int bzError = BZ2_bzBuffToBuffCompress(compressed.b.begin() + headerSize + sizeof(Int), &compressedLen,
-					   uncompressed.b.begin() + headerSize, uncompressedLen,
+    int bzError = BZ2_bzBuffToBuffCompress(&compressed.b[0] + headerSize + sizeof(Int), &compressedLen,
+					   &uncompressed.b[0] + headerSize, uncompressedLen,
 					   1, 0, 0);
     if (bzError != BZ_OK)
     {
@@ -1077,9 +1077,9 @@ IceInternal::Connection::uncompress(BasicStream& compressed, BasicStream& uncomp
     uncompressed.resize(uncompressedSize);
     unsigned int uncompressedLen = uncompressedSize - headerSize;
     unsigned int compressedLen = compressed.b.size() - headerSize - sizeof(Int);
-    int bzError = BZ2_bzBuffToBuffDecompress(uncompressed.b.begin() + headerSize,
+    int bzError = BZ2_bzBuffToBuffDecompress(&uncompressed.b[0] + headerSize,
 					     &uncompressedLen,
-					     compressed.b.begin() + headerSize + sizeof(Int),
+					     &compressed.b[0] + headerSize + sizeof(Int),
 					     compressedLen,
 					     0, 0);
     if (bzError != BZ_OK)

@@ -8,19 +8,10 @@
 //
 // **********************************************************************
 
-// Note: This pragma is used to disable spurious warning messages having
-//       to do with the length of debug symbols exceeding 255 characters.
-//       This is due to STL template identifiers expansion.
-//       The MSDN Library recommends that you put this pragma directive
-//       in place to avoid the warnings.
-#ifdef _WIN32
-#pragma warning(disable:4786)
-#endif
+#include <IceSSL/GeneralConfig.h>
 
 #include <string>
 #include <algorithm>
-
-#include <IceSSL/GeneralConfig.h>
 
 using namespace std;
 

@@ -391,7 +391,7 @@ DBCursorI::set(const Value& value)
     DBT dbKey, dbData;
     memset(&dbKey, 0, sizeof(dbKey));
     memset(&dbData, 0, sizeof(dbData));
-    dbData.data = const_cast<void*>(static_cast<const void*>(value.begin()));
+    dbData.data = const_cast<void*>(static_cast<const void*>(&value[0]));
     dbData.size = value.size();
 
     if (_trace >= 1)
@@ -699,7 +699,7 @@ Freeze::DBI::getCursorAtKey(const Key& key)
     memset(&dbData, 0, sizeof(dbData));
     dbData.flags = DB_DBT_PARTIAL;
 
-    dbKey.data = const_cast<void*>(static_cast<const void*>(key.begin()));
+    dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
     dbKey.size = key.size();
     try
     {
@@ -734,9 +734,9 @@ Freeze::DBI::put(const Key& key, const Value& value)
     DBT dbKey, dbData;
     memset(&dbKey, 0, sizeof(dbKey));
     memset(&dbData, 0, sizeof(dbData));
-    dbKey.data = const_cast<void*>(static_cast<const void*>(key.begin()));
+    dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
     dbKey.size = key.size();
-    dbData.data = const_cast<void*>(static_cast<const void*>(value.begin()));
+    dbData.data = const_cast<void*>(static_cast<const void*>(&value[0]));
     dbData.size = value.size();
 
     if (_trace >= 1)
@@ -764,7 +764,7 @@ Freeze::DBI::contains(const Key& key)
 
     DBT dbKey;
     memset(&dbKey, 0, sizeof(dbKey));
-    dbKey.data = const_cast<void*>(static_cast<const void*>(key.begin()));
+    dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
     dbKey.size = key.size();
 
     DBT dbData;
@@ -804,7 +804,7 @@ Freeze::DBI::get(const Key& key)
     DBT dbKey, dbData;
     memset(&dbKey, 0, sizeof(dbKey));
     memset(&dbData, 0, sizeof(dbData));
-    dbKey.data = const_cast<void*>(static_cast<const void*>(key.begin()));
+    dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
     dbKey.size = key.size();
 
     if (_trace >= 1)
@@ -834,7 +834,7 @@ Freeze::DBI::del(const Key& key)
 
     DBT dbKey;
     memset(&dbKey, 0, sizeof(dbKey));
-    dbKey.data = const_cast<void*>(static_cast<const void*>(key.begin()));
+    dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
     dbKey.size = key.size();
 
     if (_trace >= 1)

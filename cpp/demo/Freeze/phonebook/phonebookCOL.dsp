@@ -108,6 +108,13 @@ SOURCE=.\NameIdentitiesDict.cpp
 # Begin Source File
 
 SOURCE=.\Parser.cpp
+
+!IF  "$(CFG)" == "phonebookCOL - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "phonebookCOL - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
@@ -268,7 +275,8 @@ InputPath=.\Scanner.l
 
 "Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	flex Scanner.l 
-	move lex.yy.c Scanner.cpp 
+	echo #include "IceUtil/Config.h" > Scanner.cpp
+	type lex.yy.c >> Scanner.cpp 
 	
 # End Custom Build
 
@@ -279,7 +287,8 @@ InputPath=.\Scanner.l
 
 "Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	flex Scanner.l 
-	move lex.yy.c Scanner.cpp 
+	echo #include "IceUtil/Config.h" > Scanner.cpp
+	type lex.yy.c >> Scanner.cpp 
 	
 # End Custom Build
 

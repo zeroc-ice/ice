@@ -70,7 +70,7 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 
     while (buf.i != buf.b.end())
     {
-	int ret = ::send(_fd, buf.i, packetSize, 0);
+	int ret = ::send(_fd, &*buf.i, packetSize, 0);
 
 	if (ret == 0)
 	{
@@ -169,7 +169,7 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
     
     while (buf.i != buf.b.end())
     {
-	int ret = ::recv(_fd, buf.i, packetSize, 0);
+	int ret = ::recv(_fd, &*buf.i, packetSize, 0);
 
 	if (ret == 0)
 	{

@@ -268,7 +268,8 @@ InputPath=.\Scanner.l
 
 "Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	flex Scanner.l 
-	move lex.yy.c Scanner.cpp 
+	echo #include "IceUtil/Config.h" > Scanner.cpp
+	type lex.yy.c >> Scanner.cpp 
 	
 # End Custom Build
 
@@ -279,7 +280,8 @@ InputPath=.\Scanner.l
 
 "Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	flex Scanner.l 
-	move lex.yy.c Scanner.cpp 
+	echo #include "IceUtil/Config.h" > Scanner.cpp
+	type lex.yy.c >> Scanner.cpp 
 	
 # End Custom Build
 

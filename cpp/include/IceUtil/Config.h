@@ -13,7 +13,7 @@
 
 #if defined(_WIN32)
 
-// Necessary for TryEnterCriticalSection
+// Necessary for TryEnterCriticalSection.
 #   define _WIN32_WINNT 0x0400
 
 #   if !defined(_UNICODE)
@@ -22,6 +22,12 @@
 
 #   if !defined(_DLL) || !defined(_MT)
 #       error "Only multi-threaded DLL libraries can be used with Ice!"
+#   endif
+
+// For STLport. If we compile in debug mode, we want to use the debug
+// STLport library.
+#   if !defined(NDEBUG) && !defined(_STLP_DEBUG)
+#       define _STLP_DEBUG
 #   endif
 
 #   ifdef ICE_UTIL_API_EXPORTS
