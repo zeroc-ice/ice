@@ -9,11 +9,17 @@
 
 import sys, os, traceback, Ice
 
-if not os.environ.has_key('ICE_HOME'):
-    print sys.argv[0] + ': ICE_HOME is not defined'
+#
+# Find Slice directory.
+#
+slice_dir = os.getenv('ICEPY_HOME', '')
+if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, "slice")):
+    slice_dir = os.getenv('ICE_HOME', '')
+if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, "slice")):
+    print sys.argv[0] + ': Slice directory not found. Define ICEPY_HOME or ICE_HOME.'
     sys.exit(1)
 
-Ice.loadSlice('-I' + os.environ['ICE_HOME'] + '/slice Test.ice')
+Ice.loadSlice('-I' + slice_dir + '/slice Test.ice')
 import Test
 
 def test(b):

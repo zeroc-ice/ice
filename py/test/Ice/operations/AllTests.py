@@ -9,8 +9,13 @@
 
 import Ice, os, sys, math
 
-slice_dir = os.getenv('ICEPY_HOME', os.getenv('ICE_HOME', ''))
-if len(slice_dir) == 0:
+#
+# Find Slice directory.
+#
+slice_dir = os.getenv('ICEPY_HOME', '')
+if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, "slice")):
+    slice_dir = os.getenv('ICE_HOME', '')
+if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, "slice")):
     print sys.argv[0] + ': Slice directory not found. Define ICEPY_HOME or ICE_HOME.'
     sys.exit(1)
 
