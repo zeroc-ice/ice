@@ -23,7 +23,7 @@ class EvictorIteratorI : public EvictorIterator
 public:
 
     EvictorIteratorI(const IdentityObjectDict::const_iterator&, const IdentityObjectDict::const_iterator&);
-    ~EvictorIteratorI();
+    virtual ~EvictorIteratorI();
 
     virtual bool hasNext();
     virtual Ice::Identity next();
@@ -35,7 +35,7 @@ private:
     IdentityObjectDict::const_iterator _end;
 };
 
-} // End namespace Freeze
+}
 
 Freeze::EvictorI::EvictorI(const DBPtr& db, EvictorPersistenceMode persistenceMode) :
     _evictorSize(10),
@@ -517,5 +517,5 @@ void
 Freeze::NoSuchElementException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nunknown local exception";
+    out << ":\nno such element";
 }
