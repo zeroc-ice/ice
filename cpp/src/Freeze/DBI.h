@@ -103,6 +103,7 @@ private:
 
     ::Ice::CommunicatorPtr _communicator;
     int _trace;
+
     std::string _name;
     std::string _errorPrefix;
 

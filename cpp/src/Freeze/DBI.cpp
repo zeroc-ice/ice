@@ -297,6 +297,7 @@ Freeze::DBTransactionI::abort()
 DBCursorI::DBCursorI(const ::Ice::CommunicatorPtr& communicator, const std::string& name, DBC* cursor,
 		     bool hasCurrentValue) :
     _communicator(communicator),
+    _trace(0),
     _name(name),
     _canRemove(false),
     _hasCurrentValue(hasCurrentValue),
@@ -305,7 +306,7 @@ DBCursorI::DBCursorI(const ::Ice::CommunicatorPtr& communicator, const std::stri
     PropertiesPtr properties = _communicator->getProperties();
     string value;
 
-    value = properties->getProperty("Freeze.Trace.DBCursor");
+    value = properties->getProperty("Freeze.Trace.DB");
     if (!value.empty())
     {
 	_trace = atoi(value.c_str());
@@ -446,7 +447,7 @@ DBCursorI::next(Key& key, Value& value)
     {
 	ostringstream s;
 	s << "reading " << desc << " value from database \"" << _name << "\"";
-	_communicator->getLogger()->trace("DBCursor", s.str());
+	_communicator->getLogger()->trace("DB", s.str());
     }
 
     checkBerkeleyDBReturn(_cursor->c_get(_cursor, &dbKey, &dbData, getFlags), _errorPrefix, "DBcursor->c_get");
@@ -487,7 +488,7 @@ DBCursorI::remove()
     {
 	ostringstream s;
 	s << "deleting value from database \"" << _name << "\"";
-	_communicator->getLogger()->trace("DBCursor", s.str());
+	_communicator->getLogger()->trace("DB", s.str());
     }
 
     checkBerkeleyDBReturn( _cursor->c_del(_cursor, 0), _errorPrefix, "DBcursor->c_del");
@@ -529,7 +530,7 @@ DBCursorI::close()
     {
 	ostringstream s;
 	s << "closing cursor \"" << _name << "\"";
-	_communicator->getLogger()->trace("DBCursor", s.str());
+	_communicator->getLogger()->trace("DB", s.str());
     }
   
     _cursor->c_close(_cursor);
