@@ -87,12 +87,12 @@ Changes since version 1.1.1
   following prefixes: --Ice, --IceBox, --IcePack, --IcePatch,
   --IceSSL, --IceStorm, --Freeze, and --Glacier.
 
-- Added ice_clone() member function to non-abstract
-  classes. ice_clone() polymorphically copies a class instance. The
-  copy is a deep copy for all types except for class members; class
-  members are copied shallow, that is, if a class contains a class
-  member, the original and the clone contain a Ptr that points at the
-  same single class instance.
+- Added ice_clone() member function to non-abstract classes.
+  ice_clone() polymorphically copies a class instance. The copy is a
+  deep copy for all types except for class members; class members are
+  copied shallow, that is, if a class contains a class member, the
+  original and the clone contain a Ptr that points at the same single
+  class instance.
 
 - Improved marshaling performance for built-in types (byte, bool,
   short, int, long, float, double, and string). This is noticeable in
@@ -109,6 +109,9 @@ Changes since version 1.1.1
 
   - Removed the lowest Freeze layer. You should now use Berkeley
     DB directly.
+
+  - Replaced the database transformation tool with one that supports
+    the binary encoding.
 
   - For Freeze Maps and Evictors, the underlying Berkeley DB
     environment is now always transactional. New configuration
@@ -189,21 +192,21 @@ Changes since version 1.1.1
     generate deadlocks, even with a single writer. Berkeley DB detects
     such deadlocks and "kills" one locker (iterator or transaction) to
     resolve it. For non-iterator access, Freeze handles this situation
-    and retries transparently. When using iterators, a
-    DeadlockException is raised to the application, which is
-    responsible for closing the affected iterator(s) or transaction,
-    and retrying.
+    and retries transparently. When using iterators, a DeadlockException
+    is raised to the application, which is responsible for closing the
+    affected iterator(s) or transaction, and retrying.
+
     Serialized access or concurrent reads never produce deadlocks.
 
     In C++, the copy constructor and assignment operator of Freeze Map
     iterators duplicate the source iterator. When the source iterator
-    is non-const, the duplicate iterator will use the same
-    transaction. This transaction is committed only when its last
-    associated iterator is closed (i.e., destroyed or assigned end()).
+    is non-const, the duplicate iterator will use the same transaction.
+    This transaction is committed only when its last associated iterator
+    is closed (i.e., destroyed or assigned end()).
 
-    In both C++ and Java, write operations that not within a user-
+    In both C++ and Java, write operations that are not within a user-
     controlled transaction automatically close all open iterators
-    in the target Map. This reduces the likelyhood of self-deadlocks.
+    in the target Map. This reduces the likelihood of self-deadlocks.
   
  - Freeze Evictor update:
 
@@ -316,12 +319,12 @@ Changes since version 1.1.1
 - Added new property: Ice.Trace.Slicing. When set to a value > 0,
   unknown exception and class types that are sliced emit a warning.
 
-- Added destroyOnInterrupt() to the Application
-  class. destroyOnInterrupt() is now the default behavior, because
+- Added destroyOnInterrupt() to the Application class.
+  destroyOnInterrupt() is now the default behavior, because
   shutdownOnInterrupt() only shuts down the server side of an
   application, and therefore doesn't work with pure clients.
 
-- ObjectAdapter::removeServantLocator() no longer exists.  The life
+- ObjectAdapter::removeServantLocator() no longer exists. The life
   cycle of servant locators that are registered with an object adapter
   ends when the adapter is destroyed.
 
@@ -333,7 +336,7 @@ Changes since version 1.1.1
 
 - Changed the behavior of Freeze::Map::insert to match the insert
   behavior on associative containers in the C++ standard: if the
-  element is already there, it is not updated.  Added Freeze::Map::put
+  element is already there, it is not updated. Added Freeze::Map::put
   function, to insert or replace an element, like the old insert. This
   corresponds to the behavior of Berkeley DB's DB->put().
 
