@@ -1,8 +1,14 @@
 Changes since version 1.1.0
 ---------------------------
 
-- Performance improvements due to inlining of some critical functions
-  in BasicStream.
+- Added ice_clone() member function to non-abstract classes. ice_clone() polymorphically
+  copies a class instance. The copy is a deep copy for all types except for class members;
+  class members are copied shallow, that is, if a class contains a class member, the original
+  and the clone contain a Ptr that points at the same single class instance.
+
+- Improved marshaling performance for built-in types (byte, bool, short, int, long,
+  float, double, and string). This is noticable in particular when transmitting sequences
+  of structures or large dictionaries containing these types.
 
 - Added menu with several options to throughput demo.
 

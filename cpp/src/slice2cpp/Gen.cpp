@@ -2125,6 +2125,44 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << "public:";
     H.inc();
 
+    if(!p->isAbstract())
+    {
+	H << nl << "void __copyMembers(" << scoped << "Ptr) const;";
+
+	C << sp;
+	C << nl << "void ";
+	C << nl << scoped.substr(2) << "::__copyMembers(" << scoped << "Ptr to) const";
+	C << sb;
+	DataMemberList dataMembers = p->dataMembers();
+	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	{
+	    C << nl << "to->" << (*q)->name() << " = " << (*q)->name() << ";";
+	}
+	C << eb;
+
+	H << nl << "virtual ::Ice::ObjectPtr ice_clone() const;";
+
+	C << sp;
+	C << nl << "::Ice::ObjectPtr";
+	C << nl << scoped.substr(2) << "::ice_clone() const";
+	C << sb;
+	C << nl << scoped << "Ptr __p = new " << scoped << ";";
+	if(!bases.empty() && !bases.front()->isInterface())
+	{
+	    C << nl << fixKwd(bases.front()->scoped()) << "::__copyMembers(__p);";
+	}
+	else
+	{
+	    C << nl << "::Ice::Object::__copyMembers(__p);";
+	}
+	if(!dataMembers.empty())
+	{
+	    C << nl << scoped << "::__copyMembers(__p);";
+	}
+	C << nl << "return __p;";
+	C << eb;
+    }
+
     if(!p->isLocal())
     {
 	ClassList allBases = p->allBases();
@@ -2163,6 +2201,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    H.inc();
 	    H << sp << nl << "static const ::Ice::ObjectFactoryPtr& ice_factory();";
 	}
+
 	C << sp;
 	C << nl << "const ::std::string " << scoped.substr(2) << "::__ids[" << ids.size() << "] =";
 	C << sb;

@@ -98,11 +98,25 @@ Ice::Object::ice_facets(const Current&) const
     return v;
 }
 
-
 const ::std::string&
 Ice::Object::ice_staticId()
 {
     return __ids[0];
+}
+
+void
+Ice::Object::__copyMembers(ObjectPtr to) const
+{
+    IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
+    to->_activeFacetMap = _activeFacetMap;
+}
+
+ObjectPtr
+Ice::Object::ice_clone() const
+{
+    ObjectPtr __p = new Ice::Object;
+    ::Ice::Object::__copyMembers(__p);
+    return __p;
 }
 
 DispatchStatus

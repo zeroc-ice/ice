@@ -77,6 +77,9 @@ public:
 
     static const ::std::string& ice_staticId();
 
+    void __copyMembers(::Ice::ObjectPtr) const;
+    virtual ::Ice::ObjectPtr ice_clone() const;
+
     static ::std::string __all[];
     virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);
 
