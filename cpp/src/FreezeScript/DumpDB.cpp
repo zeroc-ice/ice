@@ -40,7 +40,7 @@ class SliceVisitor : public Slice::ParserVisitor
 {
 public:
 
-    SliceVisitor(IceUtil::XMLOutput&, const Slice::TypePtr&, const Slice::TypePtr&, const string&, const string&);
+    SliceVisitor(IceUtil::XMLOutput&, const Slice::TypePtr&, const Slice::TypePtr&, const string&);
 
     virtual bool visitClassDefStart(const Slice::ClassDefPtr&);
     virtual bool visitStructStart(const Slice::StructPtr&);
@@ -97,8 +97,7 @@ usage(const char* n)
         "-e                    Indicates the database is an Evictor database.\n"
         "--key TYPE            Specifies the Slice type of the database key.\n"
         "--value TYPE          Specifies the Slice type of the database value.\n"
-        "--select-key EXPR     Dump a record only if EXPR is true for the key.\n"
-        "--select-value EXPR   Dump a record only if EXPR is true for the value.\n"
+        "--select EXPR         Dump a record only if EXPR is true.\n"
         ;
     // Note: --case-sensitive is intentionally not shown here!
 }
@@ -116,8 +115,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     bool evictor = false;
     string keyTypeName;
     string valueTypeName;
-    string keyExpr;
-    string valueExpr;
+    string selectExpr;
     string dbEnvName, dbName;
 
     int idx = 1;
@@ -276,7 +274,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
             }
             argc -= 2;
         }
-        else if(strcmp(argv[idx], "--select-key") == 0)
+        else if(strcmp(argv[idx], "--select") == 0)
         {
             if(idx + 1 >= argc || argv[idx + 1][0] == '-')
             {
@@ -285,24 +283,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
                 return EXIT_FAILURE;
             }
 
-            keyExpr = argv[idx + 1];
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(strcmp(argv[idx], "--select-value") == 0)
-        {
-            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
-            {
-                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            valueExpr = argv[idx + 1];
+            selectExpr = argv[idx + 1];
 
             for(int i = idx ; i + 2 < argc ; ++i)
             {
@@ -337,9 +318,9 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         dbName = argv[2];
     }
 
-    if(!inputFile.empty() && (!keyExpr.empty() || !valueExpr.empty()))
+    if(!inputFile.empty() && !selectExpr.empty())
     {
-        cerr << argv[0] << ": an input file cannot be specified with --select-key or --select-value" << endl;
+        cerr << argv[0] << ": an input file cannot be specified with --select" << endl;
         return EXIT_FAILURE;
     }
 
@@ -394,7 +375,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 
         out << se("dumpdb");
 
-        FreezeScript::SliceVisitor visitor(out, keyType, valueType, keyExpr, valueExpr);
+        FreezeScript::SliceVisitor visitor(out, keyType, valueType, selectExpr);
         unit->visit(&visitor);
 
         out << ee;
@@ -549,27 +530,14 @@ main(int argc, char* argv[])
 // SliceVisitor
 //
 FreezeScript::SliceVisitor::SliceVisitor(IceUtil::XMLOutput& out, const Slice::TypePtr& keyType,
-                                         const Slice::TypePtr& valueType, const string& keyExpr,
-                                         const string& valueExpr) :
+                                         const Slice::TypePtr& valueType, const string& selectExpr) :
     _out(out)
 {
     out << se("database") << attr("key", typeToString(keyType)) << attr("value", typeToString(valueType));
     out << se("record");
-    if(!keyExpr.empty() || !valueExpr.empty())
+    if(!selectExpr.empty())
     {
-        out << se("if");
-        if(!keyExpr.empty() && !valueExpr.empty())
-        {
-            out << attr("test", "(" + keyExpr + ") and (" + valueExpr + ")");
-        }
-        else if(!keyExpr.empty())
-        {
-            out << attr("test", keyExpr);
-        }
-        else
-        {
-            out << attr("test", valueExpr);
-        }
+        out << se("if") << attr("test", selectExpr);
         out << se("echo") << attr("message", "Key: ") << attr("value", "key") << ee;
         out << se("echo") << attr("message", "Value: ") << attr("value", "value") << ee;
         out << ee;
