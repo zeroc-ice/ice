@@ -65,6 +65,13 @@ public final class ConnectionMonitor extends Thread
 	_instance = instance;
 	_interval = interval;
 
+        String threadName = _instance.properties().getProperty("Ice.ProgramName");
+        if(threadName.length() > 0)
+        {
+            threadName += "-";
+        }
+	setName(threadName + "Ice.ConnectionMonitor");
+
 	assert(_interval > 0);
 	start();
     }
