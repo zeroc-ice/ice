@@ -2147,18 +2147,44 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << scoped.substr(2) << "::ice_clone() const";
 	C << sb;
 	C << nl << scoped << "Ptr __p = new " << scoped << ";";
+	string winUpcall; 
+	string unixUpcall; 
 	if(!bases.empty() && !bases.front()->isInterface())
 	{
-	    C << nl << fixKwd(bases.front()->scoped()) << "::__copyMembers(__p);";
+	    winUpcall = fixKwd(bases.front()->scoped().substr(2)) + "::__copyMembers(__p);";
+	    unixUpcall = fixKwd(bases.front()->scoped()) + "::__copyMembers(__p);";
 	}
 	else
 	{
-	    C << nl << "::Ice::Object::__copyMembers(__p);";
+	    winUpcall = "Ice::Object::__copyMembers(__p);";
+	    unixUpcall = "::Ice::Object::__copyMembers(__p);";
 	}
+	string winCall; 
+	string unixCall; 
 	if(!dataMembers.empty())
 	{
-	    C << nl << scoped << "::__copyMembers(__p);";
+	    winCall = scoped.substr(2) + "::__copyMembers(__p);";
+	    unixCall = scoped + "::__copyMembers(__p);";
 	}
+	C.zeroIndent();
+	C << nl << "#ifdef _WIN32"; // COMPILERBUG
+	C.restoreIndent();
+	C << nl << winUpcall;
+	if(!winCall.empty())
+	{
+	    C << nl << winCall;
+	}
+	C.zeroIndent();
+	C << nl << "#else";
+	C.restoreIndent();
+	C << nl << unixUpcall;
+	if(!unixCall.empty())
+	{
+	    C << nl << unixCall;
+	}
+	C.zeroIndent();
+	C << nl << "#endif";
+	C.restoreIndent();
 	C << nl << "return __p;";
 	C << eb;
     }
