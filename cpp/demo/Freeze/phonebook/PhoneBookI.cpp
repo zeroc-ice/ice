@@ -87,7 +87,7 @@ ContactI::destroy(const Ice::Current&)
 	//
 	_evictor->destroyObject(_identity);
     }
-    catch(const Freeze::DBNotFoundException& ex)
+    catch(const Freeze::DBNotFoundException&)
     {
 	//
 	// Raised by remove. Ignore.
@@ -273,7 +273,7 @@ PhoneBookI::move(const Identity& ident, const string& oldName, const string& new
 	identities.push_back(ident);
 	_nameIdentitiesDict.insert(make_pair("N" + newName, identities));
     }
-    catch(const Freeze::DBNotFoundException& ex)
+    catch(const Freeze::DBNotFoundException&)
     {
 	//
 	// Raised by remove. This should only happen under very rare

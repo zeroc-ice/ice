@@ -241,8 +241,7 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
                 }
                 catch(java.io.IOException ex)
                 {
-                    throw new BuildException("Unable to create tag file " +
-                                             f + ": " + ex);
+                    throw new BuildException("Unable to create tag file " + f + ": " + ex);
                 }
             }
         }
