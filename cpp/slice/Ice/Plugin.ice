@@ -61,13 +61,13 @@ local interface PluginManager
      *
      * @param name The plug-in's name.
      *
-     * @param plugin The plug-in.
+     * @param pi The plug-in.
      *
      * @throws PluginExistsException Raised if a plug-in already
      * exists with the given name.
      *
      **/
-    void addPlugin(string name, Plugin plugin)
+    void addPlugin(string name, Plugin pi)
         throws PluginExistsException;
 
     /**

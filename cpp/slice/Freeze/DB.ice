@@ -204,8 +204,8 @@ local interface DBCursor
      *
      * Return the element to which the cursor currently refers.
      *
-     * @param key The key of the next element.
-     * @param value The value of the next element
+     * @param k The key of the next element.
+     * @param v The value of the next element
      *
      * @throws DBNotFoundException If there are no further elements in
      * the database.
@@ -222,7 +222,7 @@ local interface DBCursor
      *
      * Overwrite the data to which the cursor currently refers.
      *
-     * @param value The value to write into the database
+     * @param v The value to write into the database
      *
      * @throws DBDeadlockException Raised if a deadlock occurred.
      *
@@ -392,16 +392,16 @@ local interface DB
      * @see getCursor
      *
      **/
-    DBCursor getCursorAtKey(Key key) throws DBException;
+    DBCursor getCursorAtKey(Key k) throws DBException;
 
     /**
      *
      * Save a value in the database under a given key.
      *
-     * @param key The key under which the value will be stored in
+     * @param k The key under which the value will be stored in
      * the database.
      *
-     * @param servant The value to store.
+     * @param v The value to store.
      *
      * @throws DBDeadlockException Raised if a deadlock occurred.
      *
@@ -412,13 +412,13 @@ local interface DB
      * @see del
      *
      **/
-    void put(Key key, Value value) throws DBException;
+    void put(Key k, Value v) throws DBException;
 
     /**
      *
      * Determine if a key is contained in the database.
      *
-     * @param key The key to check.
+     * @param k The key to check.
      *
      * @return True if the key is contained in the database, false otherwise.
      *
@@ -434,13 +434,13 @@ local interface DB
      * @see del
      *
      **/
-    bool contains(Key key) throws DBException;
+    bool contains(Key k) throws DBException;
 
     /**
      *
      * Get a value from a database by it's key.
      *
-     * @param key The key under which the value is stored in the database
+     * @param k The key under which the value is stored in the database
      *
      * @return The value from the database.
      *
@@ -456,14 +456,14 @@ local interface DB
      * @see del
      *
      **/
-    Value get(Key key) throws DBException;
+    Value get(Key k) throws DBException;
 
     /**
      *
      * Remove a key and the corresponding value from the database. If
      * the key does not exist, this operation will do nothing.
      *
-     * @param key The key to remove together with the corresponding
+     * @param k The key to remove together with the corresponding
      * value.
      *
      * @throws DBNotFoundException Raised if the key was not found in
@@ -478,7 +478,7 @@ local interface DB
      * @see get
      *
      **/
-    void del(Key key) throws DBException;
+    void del(Key k) throws DBException;
 
     /**
      *

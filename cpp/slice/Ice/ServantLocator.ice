@@ -49,7 +49,7 @@ local interface ServantLocator
      * @param adapter The object adapter that calls the Servant
      * Locator.
      *
-     * @param current Information about the current operation call to
+     * @param curr Information about the current operation call to
      * locate a Servant for.
      *
      * @param cookie A "cookie", which will be passed to [finished].
@@ -62,7 +62,7 @@ local interface ServantLocator
      * @see finished
      *
      **/
-    Object locate(ObjectAdapter adapter, Current current, out LocalObject cookie);
+    Object locate(ObjectAdapter adapter, Current curr, out LocalObject cookie);
 
     /**
      *
@@ -73,7 +73,7 @@ local interface ServantLocator
      *
      * @param adapter The object adapter that calls the Servant Locator.
      *
-     * @param current Information about the current operation call for
+     * @param curr Information about the current operation call for
      * which a servant was lcoated by [locate].
      *
      * @param servant The Servant that was returned by [locate].
@@ -85,7 +85,7 @@ local interface ServantLocator
      * @see locate
      *
      **/
-    void finished(ObjectAdapter adapter, Current current, Object servant, LocalObject cookie);
+    void finished(ObjectAdapter adapter, Current curr, Object servant, LocalObject cookie);
 
     /**
      *
