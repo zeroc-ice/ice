@@ -22,9 +22,9 @@ public:
 
     Buffer() : i(b.begin()) { }
 
-    typedef std::vector<Ice::Byte> Container_ptr;
-    Container_ptr b;
-    Container_ptr::iterator i;
+    typedef std::vector<Ice::Byte> Container;
+    Container b;
+    Container::iterator i;
 };
 
 }

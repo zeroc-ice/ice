@@ -285,6 +285,18 @@ public:
     virtual void raise() const;
 };
 
+class ICE_API StringEncodingException : public ProtocolException
+{
+public:    
+    
+    StringEncodingException(const char*, int);
+    StringEncodingException(const StringEncodingException&);
+    StringEncodingException& operator=(const StringEncodingException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
 class ICE_API MemoryLimitException : public ProtocolException
 {
 public:    

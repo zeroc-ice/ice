@@ -15,6 +15,7 @@
 #include <Ice/ObjectF.h>
 #include <Ice/Buffer.h>
 #include <stack>
+#include <set>
 
 namespace __Ice
 {
@@ -97,6 +98,26 @@ private:
     bool bigendian_;
     std::stack<bool> bigendianStack_;
     std::stack<int> encapsStartStack_;
+
+    class CmpPosPos
+    {
+    public:
+	CmpPosPos(const Container&);
+	bool operator()(int, int) const;
+    private:
+	const Container& cont_;
+    };
+
+    class CmpPosString
+    {
+    public:
+	CmpPosString(const Container&);
+	bool operator()(int, const std::string&) const;
+    private:
+	const Container& cont_;
+    };
+
+    std::multiset<int, CmpPosPos> stringSet_;
 };
 
 }
