@@ -69,7 +69,7 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 
     while(posBZ2 < totalBZ2)
     {
-	static const Int numBZ2 = 64 * 1024;
+	const Int numBZ2 = 64 * 1024;
 
 	ByteSeq bytesBZ2 = regular->getBZ2(posBZ2, numBZ2);
 	if(bytesBZ2.empty())
@@ -132,7 +132,7 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 	throw ex;
     }
     
-    static const Int numBZ2 = 64 * 1024;
+    const Int numBZ2 = 64 * 1024;
     Byte bytesBZ2[numBZ2];
     
     progressCB.startUncompress(totalBZ2, 0);

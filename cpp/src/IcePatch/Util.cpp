@@ -633,7 +633,7 @@ IcePatch::createBZ2(const string& path)
 	throw ex;
     }
     
-    static const Int num = 64 * 1024;
+    const Int num = 64 * 1024;
     Byte bytes[num];
     
     while(!file.eof())

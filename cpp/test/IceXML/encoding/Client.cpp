@@ -16,29 +16,33 @@
 
 using namespace std;
 
-static string header = "<ice:data xmlns=\"http://www.noorg.org/schemas\""
-                             " xmlns:ice=\"http://www.mutablerealms.com/schemas\""
-                             " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
-                             " xsi:schemaLocation=\"http://www.noorg.org/schemas Test.xsd\">";
-static string footer = "</ice:data>";
+static string header =
+"<ice:data xmlns=\"http://www.noorg.org/schemas\""
+" xmlns:ice=\"http://www.mutablerealms.com/schemas\""
+" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+" xsi:schemaLocation=\"http://www.noorg.org/schemas Test.xsd\">";
+
+static string footer =
+"</ice:data>";
+
+static const string element = "s";
+static const string strings[] =
+{
+    "hello world",
+    "hello & world",
+    "\"hello world\"",
+    "'hello world'",
+    "hello <world",
+    "hello >world",
+    "hello >>world",
+    "hello <<>>world",
+    "hello &&''\"\"<<>>world",
+    ""
+};
 
 void
 TestString(const Ice::CommunicatorPtr& communicator)
 {
-    static const string element = "s";
-    static const string strings[] =
-    {
-	"hello world",
-	"hello & world",
-	"\"hello world\"",
-	"'hello world'",
-	"hello <world",
-	"hello >world",
-	"hello >>world",
-	"hello <<>>world",
-	"hello &&''\"\"<<>>world",
-	""
-    };
     for(int i = 0; !strings[i].empty(); ++i)
     {
 	ostringstream os;
@@ -57,7 +61,8 @@ TestString(const Ice::CommunicatorPtr& communicator)
 void
 TestStruct1(const Ice::CommunicatorPtr& communicator)
 {
-    static const string element = "Test.Struct1";
+    const string element = "Test.Struct1";
+
     Test::Struct1 sin;
     sin.l = 10;
 
@@ -77,7 +82,8 @@ TestStruct1(const Ice::CommunicatorPtr& communicator)
 void
 TestStruct2(const Ice::CommunicatorPtr& communicator)
 {
-    static const string element = "Test.Struct2";
+    const string element = "Test.Struct2";
+
     Test::Struct2 sin;
     sin.s1.l = 10;
 
@@ -97,7 +103,8 @@ TestStruct2(const Ice::CommunicatorPtr& communicator)
 void
 TestStruct3(const Ice::CommunicatorPtr& communicator)
 {
-    static const string element = "Test.Struct3";
+    const string element = "Test.Struct3";
+
     Test::Struct3 sin;
     sin.l = 20;
     sin.s2.s1.l = 10;
@@ -118,7 +125,8 @@ TestStruct3(const Ice::CommunicatorPtr& communicator)
 void
 TestStruct4(const Ice::CommunicatorPtr& communicator)
 {
-    static const string element = "Test.Struct4";
+    const string element = "Test.Struct4";
+
     Test::Struct4 sin;
     sin.l = 30;
     sin.s3.l = 20;
@@ -140,7 +148,8 @@ TestStruct4(const Ice::CommunicatorPtr& communicator)
 void
 TestStruct4Seq(const Ice::CommunicatorPtr& communicator)
 {
-    static const string element = "Test.Struct4Seq";
+    const string element = "Test.Struct4Seq";
+
     Test::Struct4Seq seqin;
 
     Test::Struct4 sin;
@@ -178,7 +187,8 @@ TestStruct4Seq(const Ice::CommunicatorPtr& communicator)
 void
 TestStringStruct4Dict(const Ice::CommunicatorPtr& communicator)
 {
-    static const string element = "Test.StringStruct4Dict";
+    const string element = "Test.StringStruct4Dict";
+
     Test::StringStruct4Dict dictin;
 
     Test::Struct4 sin;
@@ -214,7 +224,8 @@ TestStringStruct4Dict(const Ice::CommunicatorPtr& communicator)
 void
 TestColor(const Ice::CommunicatorPtr& communicator)
 {
-    static const string element = "Test.Color";
+    const string element = "Test.Color";
+
     Test::Color ein = Test::Red;
 
     ostringstream os;
@@ -233,7 +244,8 @@ TestColor(const Ice::CommunicatorPtr& communicator)
 void
 TestColorSeq(const Ice::CommunicatorPtr& communicator)
 {
-    static const string element = "Test.ColorSeq";
+    const string element = "Test.ColorSeq";
+
     Test::ColorSeq seqin;
 
     seqin.push_back(Test::Red);
@@ -264,7 +276,8 @@ TestColorSeq(const Ice::CommunicatorPtr& communicator)
 void
 TestClass1(const Ice::CommunicatorPtr& communicator)
 {
-    static const string element = "Test.Class1";
+    const string element = "Test.Class1";
+
     Test::Class1Ptr in = new Test::Class1();
     in->c = Test::Red;
     in->name = "Red";
@@ -285,7 +298,8 @@ TestClass1(const Ice::CommunicatorPtr& communicator)
 void
 TestClass2(const Ice::CommunicatorPtr& communicator)
 {
-    static const string element = "Test.Class2";
+    const string element = "Test.Class2";
+
     Test::Class2Ptr in = new Test::Class2();
     in->c = Test::Blue;
     in->name = "Blue";
@@ -306,7 +320,8 @@ TestClass2(const Ice::CommunicatorPtr& communicator)
 void
 TestClass2Rec(const Ice::CommunicatorPtr& communicator)
 {
-    static const string element = "Test.Class2";
+    const string element = "Test.Class2";
+
     Test::Class2Ptr in = new Test::Class2();
     in->c = Test::Blue;
     in->name = "Blue";
@@ -369,7 +384,8 @@ public:
 void
 TestClass3(const Ice::CommunicatorPtr& communicator)
 {
-    static const string element = "Test.Class3";
+    const string element = "Test.Class3";
+
     Test::Class3Ptr in = new Class3I();
     in->c = Test::Blue;
     in->name = "Blue";
@@ -392,7 +408,8 @@ TestClass3(const Ice::CommunicatorPtr& communicator)
 void
 TestClass3Rec(const Ice::CommunicatorPtr& communicator)
 {
-    static const string element = "Test.Class3";
+    const string element = "Test.Class3";
+
     Test::Class3Ptr in = new Class3I();
     in->c = Test::Blue;
     in->name = "Blue";
@@ -432,7 +449,8 @@ TestFacets(const Ice::CommunicatorPtr& communicator)
     communicator->addObjectFactory(Test::Class1::ice_factory(), Test::Class1::ice_staticId());
     communicator->addObjectFactory(Test::Class2::ice_factory(), Test::Class2::ice_staticId());
 
-    static const string element = "Test.Class2";
+    const string element = "Test.Class2";
+
     Test::Class2Ptr in = new Test::Class2();
     in->c = Test::Blue;
     in->name = "Blue";
@@ -481,7 +499,8 @@ TestFacets(const Ice::CommunicatorPtr& communicator)
 void
 TestException1(const Ice::CommunicatorPtr& communicator)
 {
-    static const string element = "Test.Exception1";
+    const string element = "Test.Exception1";
+
     Test::Exception1 in;
 
     ostringstream os;
@@ -499,7 +518,8 @@ TestException1(const Ice::CommunicatorPtr& communicator)
 void
 TestException2(const Ice::CommunicatorPtr& communicator)
 {
-    static const string element = "Test.Exception2";
+    const string element = "Test.Exception2";
+
     Test::Exception2 in;
     in.msg = "hello world";
 

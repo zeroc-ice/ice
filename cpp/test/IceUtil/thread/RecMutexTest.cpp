@@ -35,7 +35,7 @@ public:
 	    RecMutex::TryLock lock(_mutex);
 	    test(false);
 	}
-	catch(const LockedException&)
+	catch(const ThreadLockedException&)
 	{
 	    // Expected
 	}

@@ -477,7 +477,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 
 	while(end < s.length())
 	{
-	    static const string delim = " \t\n\r";
+	    const string delim = " \t\n\r";
 	    
 	    beg = s.find_first_not_of(delim, end);
 	    if(beg == string::npos)

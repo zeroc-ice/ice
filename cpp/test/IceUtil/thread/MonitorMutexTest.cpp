@@ -33,7 +33,7 @@ public:
 	    Monitor<Mutex>::TryLock lock(_monitor);
 	    test(false);
 	}
-	catch(const LockedException&)
+	catch(const ThreadLockedException&)
 	{
 	    // Expected
 	}
@@ -119,7 +119,7 @@ MonitorMutexTest::run()
 	    Monitor<Mutex>::TryLock lock(monitor);
 	    test(false);
 	}
-	catch(const LockedException&)
+	catch(const ThreadLockedException&)
 	{
 	    // Expected
 	}

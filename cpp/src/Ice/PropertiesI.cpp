@@ -247,7 +247,7 @@ Ice::PropertiesI::PropertiesI(int& argc, char* argv[])
 void
 Ice::PropertiesI::parseLine(const string& line)
 {
-    static const string delim = " \t\r\n";
+    const string delim = " \t\r\n";
     string s = line;
     
     string::size_type idx = s.find('#');
@@ -310,7 +310,7 @@ Ice::PropertiesI::loadConfig()
 
     if(!value.empty())
     {
-        static const string delim = " \t\r\n";
+        const string delim = " \t\r\n";
         string::size_type beg = value.find_first_not_of(delim);
         while(beg != string::npos)
         {

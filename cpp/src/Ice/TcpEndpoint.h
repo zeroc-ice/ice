@@ -64,7 +64,7 @@ public:
     virtual ~TcpEndpointFactory();
 
     virtual ::Ice::Short type() const;
-    virtual const ::std::string& protocol() const;
+    virtual ::std::string protocol() const;
     virtual EndpointPtr create(const std::string&) const;
     virtual EndpointPtr read(BasicStream*) const;
     virtual void destroy();

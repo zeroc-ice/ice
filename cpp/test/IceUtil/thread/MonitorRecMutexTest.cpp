@@ -33,7 +33,7 @@ public:
 	    Monitor<RecMutex>::TryLock lock(_monitor);
 	    test(false);
 	}
-	catch(const LockedException&)
+	catch(const ThreadLockedException&)
 	{
 	    // Expected
 	}
@@ -121,7 +121,7 @@ MonitorRecMutexTest::run()
 	{
 	    Monitor<RecMutex>::TryLock lock(monitor);
 	}
-	catch(const LockedException&)
+	catch(const ThreadLockedException&)
 	{
 	    test(false);
 	}

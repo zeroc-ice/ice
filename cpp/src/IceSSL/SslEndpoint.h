@@ -66,7 +66,7 @@ public:
     virtual ~SslEndpointFactory();
 
     virtual ::Ice::Short type() const;
-    virtual const ::std::string& protocol() const;
+    virtual ::std::string protocol() const;
     virtual IceInternal::EndpointPtr create(const std::string&) const;
     virtual IceInternal::EndpointPtr read(IceInternal::BasicStream*) const;
     virtual void destroy();

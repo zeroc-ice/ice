@@ -69,7 +69,7 @@ IceInternal::EndpointFactoryManager::create(const string& str) const
 {
     IceUtil::Mutex::Lock sync(*this); // TODO: Necessary?
 
-    static const string delim = " \t\n\r";
+    const string delim = " \t\n\r";
 
     string::size_type beg = str.find_first_not_of(delim);
     if(beg == string::npos)

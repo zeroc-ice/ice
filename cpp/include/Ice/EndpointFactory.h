@@ -27,7 +27,7 @@ public:
     virtual ~EndpointFactory();
 
     virtual ::Ice::Short type() const = 0;
-    virtual const ::std::string& protocol() const = 0;
+    virtual ::std::string protocol() const = 0;
     virtual EndpointPtr create(const std::string&) const = 0;
     virtual EndpointPtr read(BasicStream*) const = 0;
     virtual void destroy() = 0;

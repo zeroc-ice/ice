@@ -51,19 +51,19 @@ validate(const DBPtr& db)
     return EXIT_SUCCESS;
 }
 
+static const char* expressions[] = 
+{
+    "2",
+    "10",
+    "2+(5*3)",
+    "5*(2+3)",
+    "10+(10+(20+(8*(2*(3*2+4+5+6)))))"
+};
+static const int nexpressions = sizeof(expressions)/sizeof(expressions[0]);
+
 static int
 populate(const DBPtr& db)
 {
-    static const char* expressions[] = 
-    {
-	"2",
-	"10",
-	"2+(5*3)",
-	"5*(2+3)",
-	"10+(10+(20+(8*(2*(3*2+4+5+6)))))"
-    };
-    static int nexpressions = sizeof(expressions)/sizeof(expressions[0]);
-
     Complex::ComplexDict m(db);
 
     cout << "populating the database... ";

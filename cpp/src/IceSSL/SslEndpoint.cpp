@@ -35,7 +35,7 @@ IceSSL::SslEndpoint::SslEndpoint(const OpenSSLPluginIPtr& plugin, const string& 
     _port(0),
     _timeout(-1)
 {
-    static const string delim = " \t\n\r";
+    const string delim = " \t\n\r";
 
     string::size_type beg;
     string::size_type end = 0;
@@ -354,11 +354,10 @@ IceSSL::SslEndpointFactory::type() const
     return SslEndpointType;
 }
 
-const string&
+string
 IceSSL::SslEndpointFactory::protocol() const
 {
-    const static string result = "ssl";
-    return result;
+    return "ssl";
 }
 
 EndpointPtr

@@ -481,7 +481,7 @@ IceUtil::XMLOutput::escape(const string& input) const
     // Find out whether there is a reserved character to avoid
     // conversion if not necessary.
     //
-    static const string allReserved = "<>'\"&";
+    const string allReserved = "<>'\"&";
     if(v.find_first_of(allReserved) != string::npos)
     {
 	//
@@ -497,7 +497,7 @@ IceUtil::XMLOutput::escape(const string& input) const
 	//
 	// Next convert remaining reserved characters.
 	//
-	static const string reserved = "<>'\"";
+	const string reserved = "<>'\"";
 	pos = 0;
 	while((pos = v.find_first_of(reserved, pos)) != string::npos)
 	{

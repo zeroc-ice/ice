@@ -37,7 +37,7 @@ Subscriber::run(int argc, char* argv[])
 {
     Ice::PropertiesPtr properties = communicator()->getProperties();
 
-    static const string proxyProperty = "IceStorm.TopicManager.Proxy";
+    const string proxyProperty = "IceStorm.TopicManager.Proxy";
     string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {

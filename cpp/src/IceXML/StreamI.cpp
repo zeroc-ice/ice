@@ -999,8 +999,7 @@ IceXML::StreamI::readString(const string& name)
     }
     else
     {
-	static const string empty("");
-	value = empty;
+	value = "";
     }
 
     endRead();
@@ -1169,9 +1168,7 @@ IceXML::StreamI::readObject(const string& name, const string& signatureType, con
     }
     else
     {
-	static const string iceObject("::Ice::Object");
-
-	if(type == iceObject)
+	if(type == "::Ice::Object")
 	{
 	    value = new ::Ice::Object;
 	}
@@ -1316,8 +1313,8 @@ IceXML::StreamI::writeObjectData(const string& name, const string& id, const Ice
 	//
 	typeId = obj->ice_id();
 
-	static const string xsdPrefix = "_internal.";
-	static const string xsdSuffix = "Type";
+	const string xsdPrefix = "_internal.";
+	const string xsdSuffix = "Type";
 	xsdType.reserve(typeId.size() + xsdPrefix.size() + xsdSuffix.size());
 	xsdType += xsdPrefix;
 	unsigned int i = 0;
@@ -1362,25 +1359,21 @@ IceXML::StreamI::writeObjectData(const string& name, const string& id, const Ice
 void
 IceXML::StreamI::readAttributes(::std::string& id, ::std::string& type, ::std::string& href)
 {
-    static const string idStr("id");
-    static const string typeStr("type");
-    static const string hrefStr("href");
-
     DOMNamedNodeMap* attributes = _input->current->getAttributes();
     int attrCount = attributes->getLength();
     for(int i = 0; i < attrCount; i++)
     {
 	DOMNode* attribute = attributes->item(i);
 	string name = toString(attribute->getNodeName());
-	if(name == idStr)
+	if(name == "id")
 	{
 	    id = toString(attribute->getNodeValue());
 	}
-	else if(name == typeStr)
+	else if(name == "type")
 	{
 	    type = toString(attribute->getNodeValue());
 	}
-	else if(name == hrefStr)
+	else if(name == "href")
 	{
 	    href = toString(attribute->getNodeValue());
 	}
@@ -1390,15 +1383,13 @@ IceXML::StreamI::readAttributes(::std::string& id, ::std::string& type, ::std::s
 ::Ice::Int
 IceXML::StreamI::readLength()
 {
-    static const string lengthStr("length");
-
     DOMNamedNodeMap* attributes = _input->current->getAttributes();
     int attrCount = attributes->getLength();
     for(int i = 0; i < attrCount; i++)
     {
 	DOMNode* attribute = attributes->item(i);
 	string name = toString(attribute->getNodeName());
-	if(name == lengthStr)
+	if(name == "length")
 	{
 	    return atoi(toString(attribute->getNodeValue()).c_str());
 	}

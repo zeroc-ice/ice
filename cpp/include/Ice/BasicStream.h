@@ -138,6 +138,10 @@ private:
     std::vector<WriteEncaps> _writeEncapsStack;
     ReadEncaps* _currentReadEncaps;
     WriteEncaps* _currentWriteEncaps;
+
+    static const std::string _emptyString;
+    static const std::string _iceObjectId;
+    static const std::string _userExceptionId;
 };
 
 }

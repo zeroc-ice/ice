@@ -32,14 +32,13 @@ IceInternal::ProxyFactory::stringToProxy(const string& str) const
 string
 IceInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy) const
 {
-    static const string nilProxy("");
     if(proxy)
     {
 	return proxy->__reference()->toString();
     }
     else
     {
-	return nilProxy;
+	return "";
     }
 }
 
@@ -99,7 +98,7 @@ IceInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) :
 
     while(true)
     {
-	static const string delim = " \t";
+	const string delim = " \t";
     
 	beg = str.find_first_not_of(delim, end);
 	if(beg == string::npos)

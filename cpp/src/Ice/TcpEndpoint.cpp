@@ -35,7 +35,7 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
     _port(0),
     _timeout(-1)
 {
-    static const string delim = " \t\n\r";
+    const string delim = " \t\n\r";
 
     string::size_type beg;
     string::size_type end = 0;
@@ -354,11 +354,10 @@ IceInternal::TcpEndpointFactory::type() const
     return TcpEndpointType;
 }
 
-const string&
+string
 IceInternal::TcpEndpointFactory::protocol() const
 {
-    const static string result = "tcp";
-    return result;
+    return "tcp";
 }
 
 EndpointPtr

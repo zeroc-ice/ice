@@ -14,6 +14,20 @@
 
 using namespace std;
 
+static const string allDigits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+//
+// Table to convert ASCII digits/letters into their value (100 for unused slots)
+//
+static const char digitVal[] =
+{
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,		// '0' - '9'
+    100, 100, 100, 100, 100, 100, 100,		// punctuation
+    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,	// 'A' - 'J'
+    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,	// 'K' - 'T'
+    30, 31, 32, 33, 34, 35			// 'U' - 'Z'
+};
+
 namespace IceUtil
 {
 
@@ -88,23 +102,9 @@ strToInt64(const char* s, char** endptr, int base)
 	return 0;
     }
 
-    static const string allDigits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const string validDigits(allDigits.begin(), allDigits.begin() + base);
-
-    //
-    // Table to convert ASCII digits/letters into their value (100 for unused slots)
-    //
-    static const char digitVal[] =
-    {
-	0, 1, 2, 3, 4, 5, 6, 7, 8, 9,			// '0' - '9'
-	100, 100, 100, 100, 100, 100, 100,		// punctuation
-	10, 11, 12, 13, 14, 15, 16, 17, 18, 19,		// 'A' - 'J'
-	20, 21, 22, 23, 24, 25, 26, 27, 28, 29,		// 'K' - 'T'
-	30, 31, 32, 33, 34, 35				// 'U' - 'Z'
-    };
-
     Int64 result = 0;
     bool overflow = false;
+    const string validDigits(allDigits.begin(), allDigits.begin() + base);
     while(*s && validDigits.find_first_of(toupper(*s)) != validDigits.npos)
     {	
 	if(!overflow)

@@ -23,6 +23,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+const string IceInternal::BasicStream::_emptyString;
+const string IceInternal::BasicStream::_iceObjectId("::Ice::Object");
+const string IceInternal::BasicStream::_userExceptionId("::Ice::UserException");
+
 IceInternal::BasicStream::BasicStream(const InstancePtr& instance) :
     _instance(instance),
     _currentReadEncaps(0),
@@ -837,8 +841,7 @@ IceInternal::BasicStream::write(const ObjectPtr& v)
 	}
 	else
 	{
-	    static const string empty;
-	    write(empty);
+	    write(_emptyString);
 	}
     }
 }
@@ -865,7 +868,6 @@ IceInternal::BasicStream::read(const string& signatureType, const ObjectFactoryP
     }
     else
     {
-	static const string iceObject("::Ice::Object");
 	string id;
 	read(id);
 
@@ -874,7 +876,7 @@ IceInternal::BasicStream::read(const string& signatureType, const ObjectFactoryP
 	    v = 0;
 	    return;
 	}
-	else if(id == iceObject)
+	else if(id == _iceObjectId)
 	{
 	    v = new ::Ice::Object;
 	}
@@ -925,8 +927,7 @@ IceInternal::BasicStream::throwException(const string* throwsBegin, const string
 	}
 	catch(UserException& ex)
 	{
-	    static const string userException("::Ice::UserException");
-	    for(const string* p = ex.__getExceptionIds(); *p != userException != 0; ++p)
+	    for(const string* p = ex.__getExceptionIds(); *p != _userExceptionId != 0; ++p)
 	    {
 		if(binary_search(throwsBegin, throwsEnd, string(*p)))
 		{

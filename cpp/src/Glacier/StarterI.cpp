@@ -234,7 +234,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	    string::size_type end = 0;
 	    while(end != string::npos)
 	    {
-		static const string delim = " \t\r\n";
+		const string delim = " \t\r\n";
 		
 		string::size_type beg = overwrite.find_first_not_of(delim, end);
 		if(beg == string::npos)

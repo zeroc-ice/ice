@@ -35,7 +35,7 @@ public:
 	    Mutex::TryLock lock(_mutex);
 	    test(false);
 	}
-	catch(const LockedException&)
+	catch(const ThreadLockedException&)
 	{
 	    // Expected
 	}
@@ -90,7 +90,7 @@ MutexTest::run()
 	    Mutex::TryLock lock2(mutex);
 	    test(false);
 	}
-	catch(const LockedException&)
+	catch(const ThreadLockedException&)
 	{
 	    // Expected
 	}

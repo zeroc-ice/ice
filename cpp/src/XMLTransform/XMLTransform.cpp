@@ -261,15 +261,13 @@ getAttributeByName(DOMNode* node, const string& name)
 static string
 getTypeAttribute(DOMNode* node)
 {
-    static const string typeName = "type";
-    return getAttributeByName(node, typeName);
+    return getAttributeByName(node, "type");
 }
 
 static string
 getNameAttribute(DOMNode* node)
 {
-    static const string nameName = "name";
-    return getAttributeByName(node, nameName);
+    return getAttributeByName(node, "name");
 }
 
 //
@@ -316,16 +314,13 @@ XMLTransform::DocumentInfo::DocumentInfo(DOMDocument* document, bool releaseDocu
     _releaseDocument(releaseDocument),
     _targetNamespace(targetNamespace)
 {
-    static const string targetNamespaceAttrName = "targetNamespace";
-    static const string xmlnsAttrName = "xmlns";
-	
     DOMNamedNodeMap* attributes = root->getAttributes();
     unsigned int max = attributes->getLength();
     for(unsigned int i = 0; i < max; ++i)
     {
 	DOMNode* attribute = attributes->item(i);
 	string attrName = toString(attribute->getNodeName());
-	if(attrName.substr(0, 5) == xmlnsAttrName)
+	if(attrName.substr(0, 5) == "xmlns")
 	{
 	    string ns;
 	    if(attrName.size() > 5)
@@ -335,7 +330,7 @@ XMLTransform::DocumentInfo::DocumentInfo(DOMDocument* document, bool releaseDocu
 	    string uri = toString(attribute->getNodeValue());
 	    _nsMap.insert(make_pair(ns, uri));
 	}
-	else if(attrName == targetNamespaceAttrName)
+	else if(attrName == "targetNamespace")
 	{
 	    _targetNamespace = toString(attribute->getNodeValue());
 	}
@@ -788,9 +783,8 @@ public:
 		continue;
 	    }
 
-	    static const string sequenceElementName = "e";
 	    string nodeName = toString(child->getLocalName());
-	    if(l == 0 || nodeName != sequenceElementName)
+	    if(l == 0 || nodeName != "e")
 	    {
 		throw SchemaViolation(__FILE__, __LINE__);
 	    }
@@ -906,8 +900,7 @@ public:
         // as-is. The referenced object, which is a child of the
         // root node, will be transformed automatically.
         //
-        static const string hrefAttrName = "href";
-        string id = getAttributeByName(node, hrefAttrName);
+        string id = getAttributeByName(node, "href");
         if(!id.empty())
         {
             os << node;
@@ -917,8 +910,7 @@ public:
         //
         // Otherwise, xsi:type must be present.
         //
-	static const string xsitypeAttrName = "xsi:type";
-	string type = getAttributeByName(node, xsitypeAttrName);
+	string type = getAttributeByName(node, "xsi:type");
 	if(type.empty())
 	{
 	    throw SchemaViolation(__FILE__, __LINE__);
@@ -1523,27 +1515,27 @@ struct StringTypeTable
 
 }
 
+static const StringTypeTable items[] =
+{
+    { "enumeration", TypeEnumeration },
+    { "struct", TypeStruct },
+    { "class", TypeClass },
+    { "exception", TypeException },
+    { "dictionary", TypeDictionary },
+    { "sequence", TypeSequence },
+    { "proxy", TypeProxy },
+    { "reference", TypeReference },
+    { "internal", TypeInternal }
+};
+static const StringTypeTable* itemsBegin = &items[0];
+static const StringTypeTable* itemsEnd = &items[sizeof(items)/sizeof(items[0])];
+
 TransformFactory::Type
 XMLTransform::TransformFactory::getType(DOMNode* node)
 {
     //
     // Check the appinfo element for the actual type.
     //
-    static const StringTypeTable items[] =
-    {
-	{ "enumeration", TypeEnumeration },
-	{ "struct", TypeStruct },
-	{ "class", TypeClass },
-	{ "exception", TypeException },
-	{ "dictionary", TypeDictionary },
-	{ "sequence", TypeSequence },
-	{ "proxy", TypeProxy },
-	{ "reference", TypeReference },
-	{ "internal", TypeInternal }
-    };
-    static const StringTypeTable* begin = &items[0];
-    static const StringTypeTable* end = &items[sizeof(items)/sizeof(items[0])];
-
     string type;
 
     //
@@ -1567,7 +1559,7 @@ XMLTransform::TransformFactory::getType(DOMNode* node)
 	}
     }
 
-    const StringTypeTable* p = find(begin, end, type);
+    const StringTypeTable* p = find(itemsBegin, itemsEnd, type);
     if(p == end)
     {
         InvalidSchema ex(__FILE__, __LINE__);
@@ -1578,6 +1570,19 @@ XMLTransform::TransformFactory::getType(DOMNode* node)
     return p->type;
 }
 
+static const StringTypeTable itemsByName[] =
+{
+    { "xs:byte", TypeInteger },
+    { "xs:short", TypeInteger },
+    { "xs:int", TypeInteger },
+    { "xs:long", TypeInteger },
+    { "xs:float", TypeFloat },
+    { "xs:double", TypeFloat },
+    { "xs:string", TypeString },
+};
+static const StringTypeTable* itemsByNameBegin = &itemsByName[0];
+static const StringTypeTable* itemsByNameEnd = &itemsByName[sizeof(itemsByName)/sizeof(itemsByName[0])];
+
 TransformFactory::Type
 XMLTransform::TransformFactory::getTypeByName(const DocumentMap& docs, const DocumentInfoPtr& info, const string& type,
                                               DOMNode*& n, DocumentInfoPtr& nInfo)
@@ -1585,20 +1590,7 @@ XMLTransform::TransformFactory::getTypeByName(const DocumentMap& docs, const Doc
     //
     // First check to see if the type is a primitive schema type.
     //
-    static const StringTypeTable items[] =
-    {
-	{ "xs:byte", TypeInteger },
-	{ "xs:short", TypeInteger },
-	{ "xs:int", TypeInteger },
-	{ "xs:long", TypeInteger },
-	{ "xs:float", TypeFloat },
-	{ "xs:double", TypeFloat },
-	{ "xs:string", TypeString },
-    };
-    static const StringTypeTable* begin = &items[0];
-    static const StringTypeTable* end = &items[sizeof(items)/sizeof(items[0])];
-
-    const StringTypeTable* p = find(begin, end, type);
+    const StringTypeTable* p = find(itemsByNameBegin, itemsByNameEnd, type);
     if(p != end)
     {
 	return p->type;
@@ -1977,8 +1969,6 @@ XMLTransform::TransformFactory::createClassContentTransform(const DocumentInfoPt
                                                             const DocumentInfoPtr& toInfo, DOMNode* to,
                                                             vector<ElementTransformPtr>& v)
 {
-    static const string baseAttrName = "base";
-
     DOMNode* fromContent = findChild(from, complexContentElementName);
     DOMNode* toContent = findChild(to, complexContentElementName);
 
@@ -2006,8 +1996,8 @@ XMLTransform::TransformFactory::createClassContentTransform(const DocumentInfoPt
 	throw InvalidSchema(__FILE__, __LINE__);
     }
 
-    string fromBaseName = getAttributeByName(fromExtension, baseAttrName);
-    string toBaseName = getAttributeByName(toExtension, baseAttrName);
+    string fromBaseName = getAttributeByName(fromExtension, "base");
+    string toBaseName = getAttributeByName(toExtension, "base");
 
     //
     // It's not legal to change the base class.
