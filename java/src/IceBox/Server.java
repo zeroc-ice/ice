@@ -36,26 +36,22 @@ public final class Server extends Ice.Application
     public int
     run(String[] args)
     {
-	Ice.Properties properties = communicator().getProperties();
-	Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-	argsH.value = properties.parseCommandLineOptions("IceBox", argsH.value);
-	
-	for(int i = 1; i < argsH.value.length; ++i)
+	for(int i = 1; i < args.length; ++i)
 	{
-	    if(argsH.value[i].equals("-h") || argsH.value[i].equals("--help"))
+	    if(args[i].equals("-h") || args[i].equals("--help"))
 	    {
 		usage();
 		return 0;
 	    }
-	    else if(!argsH.value[i].startsWith("--"))
+	    else if(!args[i].startsWith("--"))
 	    {
-		System.err.println("Server: unknown option `" + argsH.value[i] + "'");
+		System.err.println("Server: unknown option `" + args[i] + "'");
 		usage();
 		return 1;
 	    }
 	}
 
-	ServiceManagerI serviceManagerImpl = new ServiceManagerI(this, argsH.value);
+	ServiceManagerI serviceManagerImpl = new ServiceManagerI(this, args);
 	return serviceManagerImpl.run();
     }
 }

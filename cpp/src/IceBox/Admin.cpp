@@ -52,12 +52,6 @@ Client::usage()
 int
 Client::run(int argc, char* argv[])
 {
-    PropertiesPtr properties = communicator()->getProperties();
-
-    StringSeq args = argsToStringSeq(argc, argv);
-    args = properties->parseCommandLineOptions("IceBox", args);
-    stringSeqToArgs(args, argc, argv);
-
     vector<string> commands;
 
     int idx = 1;
@@ -92,9 +86,10 @@ Client::run(int argc, char* argv[])
         return EXIT_SUCCESS;
     }
 
-    string managerProxy;
-
+    PropertiesPtr properties = communicator()->getProperties();
     string managerIdentity = properties->getPropertyWithDefault("IceBox.ServiceManager.Identity", "ServiceManager");
+
+    string managerProxy;
 
     if(properties->getProperty("Ice.Default.Locator").empty())
     {

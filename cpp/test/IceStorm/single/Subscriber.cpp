@@ -69,12 +69,6 @@ deleteLock(const string& name)
 int
 run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
-    PropertiesPtr properties = communicator->getProperties();
-
-    StringSeq args = argsToStringSeq(argc, argv);
-    args = properties->parseCommandLineOptions("IceStorm", args);
-    stringSeqToArgs(args, argc, argv);
-
     string lockfile = "subscriber.lock";
 
     if(argc != 1)
@@ -84,6 +78,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     createLock(lockfile);
 
+    PropertiesPtr properties = communicator->getProperties();
     const char* managerProxyProperty = "IceStorm.TopicManager.Proxy";
     string managerProxy = properties->getProperty(managerProxyProperty);
     if(managerProxy.empty())

@@ -261,7 +261,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	    PropertiesPtr fileProperties = createProperties(serviceArgs);
 	    properties->parseCommandLineOptions("", fileProperties->getCommandLineOptions());
 
-	    serviceArgs = properties->parseCommandLineOptions("Ice", serviceArgs);
+	    serviceArgs = properties->parseIceCommandLineOptions(serviceArgs);
 	    serviceArgs = properties->parseCommandLineOptions(service, serviceArgs);
 	}
 	else
@@ -284,7 +284,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	    PropertiesPtr fileProperties = createProperties(serviceArgs);
 	    serviceProperties->parseCommandLineOptions("", fileProperties->getCommandLineOptions());
 
-	    serviceArgs = serviceProperties->parseCommandLineOptions("Ice", serviceArgs);
+	    serviceArgs = serviceProperties->parseIceCommandLineOptions(serviceArgs);
 	    serviceArgs = serviceProperties->parseCommandLineOptions(service, serviceArgs);
 
 	    info.communicator = initializeWithProperties(argc, argv, serviceProperties);

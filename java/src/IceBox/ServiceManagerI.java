@@ -252,7 +252,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 		Ice.Properties fileProperties = Ice.Util.createProperties(serviceArgs);
 		properties.parseCommandLineOptions("", fileProperties.getCommandLineOptions());
 
-		serviceArgs = properties.parseCommandLineOptions("Ice", serviceArgs);
+		serviceArgs = properties.parseIceCommandLineOptions(serviceArgs);
 		serviceArgs = properties.parseCommandLineOptions(service, serviceArgs);
 	    }
 	    else
@@ -272,7 +272,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 		Ice.Properties fileProperties = Ice.Util.createProperties(serviceArgs);
 		serviceProperties.parseCommandLineOptions("", fileProperties.getCommandLineOptions());
 
-		serviceArgs = serviceProperties.parseCommandLineOptions("Ice", serviceArgs);
+		serviceArgs = serviceProperties.parseIceCommandLineOptions(serviceArgs);
 		serviceArgs = serviceProperties.parseCommandLineOptions(service, serviceArgs);
 
 		info.communicator = Ice.Util.initializeWithProperties(new String[0], serviceProperties);

@@ -583,21 +583,6 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
 int
 main(int argc, char* argv[])
 {
-    PropertiesPtr defaultProperties;
-    try
-    {
-	defaultProperties = getDefaultProperties(argc, argv);
-        StringSeq args = argsToStringSeq(argc, argv);
-        args = defaultProperties->parseCommandLineOptions("IcePatch", args);
-        args = defaultProperties->parseCommandLineOptions("Glacier", args);
-        stringSeqToArgs(args, argc, argv);
-    }
-    catch(const Exception& ex)
-    {
-	cerr << argv[0] << ": " << ex << endl;
-	return EXIT_FAILURE;
-    }
-
     Client app;
     return app.main(argc, argv);
 }

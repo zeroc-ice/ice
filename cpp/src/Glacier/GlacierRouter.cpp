@@ -295,20 +295,7 @@ main(int argc, char* argv[])
     //
     // Make sure that this process doesn't use a router.
     //
-    PropertiesPtr defaultProperties;
-    try
-    {
-	defaultProperties = getDefaultProperties(argc, argv);
-        StringSeq args = argsToStringSeq(argc, argv);
-        args = defaultProperties->parseCommandLineOptions("Ice", args);
-        args = defaultProperties->parseCommandLineOptions("Glacier.Router", args);
-        stringSeqToArgs(args, argc, argv);
-    }
-    catch(const Exception& ex)
-    {
-	cerr << argv[0] << ": " << ex << endl;
-	return EXIT_FAILURE;
-    }
+    PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
     defaultProperties->setProperty("Ice.Default.Router", "");
 
     Glacier::RouterApp app;

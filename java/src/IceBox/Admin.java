@@ -33,10 +33,6 @@ public final class Admin
         public int
         run(String[] args)
         {
-            Ice.Properties properties = communicator().getProperties();
-
-            args = properties.parseCommandLineOptions("IceBox", args);
-
             java.util.ArrayList commands = new java.util.ArrayList();
 
             int idx = 0;
@@ -66,6 +62,7 @@ public final class Admin
                 return 0;
             }
 
+            Ice.Properties properties = communicator().getProperties();
 	    String namePrefix = properties.getProperty("IceBox.Name");
 	    if(namePrefix.length() > 0)
 	    {

@@ -73,12 +73,6 @@ Client::usage()
 int
 Client::run(int argc, char* argv[])
 {
-    PropertiesPtr properties = communicator()->getProperties();
-
-    StringSeq args = argsToStringSeq(argc, argv);
-    args = properties->parseCommandLineOptions("IceStorm", args);
-    stringSeqToArgs(args, argc, argv);
-
     string cpp("cpp");
     string commands;
     bool debug = false;
@@ -164,6 +158,7 @@ Client::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
+    PropertiesPtr properties = communicator()->getProperties();
     const char* managerProxyProperty = "IceStorm.TopicManager.Proxy";
     string managerProxy = properties->getProperty(managerProxyProperty);
     if(managerProxy.empty())

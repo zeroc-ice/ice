@@ -53,11 +53,6 @@ Server::usage()
 int
 Server::run(int argc, char* argv[])
 {
-    PropertiesPtr properties = communicator()->getProperties();
-    StringSeq args = argsToStringSeq(argc, argv);
-    args = properties->parseCommandLineOptions("IceBox", args);
-    stringSeqToArgs(args, argc, argv);
-
     for(int i = 1; i < argc; ++i)
     {
         if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)

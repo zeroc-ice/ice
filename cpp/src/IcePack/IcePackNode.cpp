@@ -371,14 +371,6 @@ main(int argc, char* argv[])
 	//
 	properties->setProperty("Ice.ServerIdleTime", "0");
 
-	//
-	// Remove IcePack and Freeze command line options from argv.
-	//
-	Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
-	args = properties->parseCommandLineOptions("Freeze", args);
-	args = properties->parseCommandLineOptions("IcePack", args);
-	Ice::stringSeqToArgs(args, argc, argv);
-	
 	bool nowarn = false;
 	for(int i = 1; i < argc; ++i)
 	{

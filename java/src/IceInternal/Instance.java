@@ -275,9 +275,9 @@ public class Instance
         _properties = properties;
 
         //
-        // Convert command-line options beginning with --Ice. to properties.
+        // Convert command-line options to properties.
         //
-        args.value = _properties.parseCommandLineOptions("Ice", args.value);
+        args.value = _properties.parseIceCommandLineOptions(args.value);
 
         try
         {

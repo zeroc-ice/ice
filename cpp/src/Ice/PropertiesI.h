@@ -33,6 +33,7 @@ public:
     virtual void setProperty(const std::string&, const std::string&);
     virtual StringSeq getCommandLineOptions();
     virtual StringSeq parseCommandLineOptions(const std::string&, const StringSeq&);
+    virtual StringSeq parseIceCommandLineOptions(const StringSeq&);
     virtual void load(const std::string&);
     virtual PropertiesPtr clone();
 

@@ -59,12 +59,6 @@ Client::run(int argc, char* argv[])
     string commands;
     bool debug = false;
 
-    PropertiesPtr properties = communicator()->getProperties();
-
-    StringSeq args = argsToStringSeq(argc, argv);
-    args = properties->parseCommandLineOptions("IcePack", args);
-    stringSeqToArgs(args, argc, argv);
-
     int idx = 1;
     while(idx < argc)
     {

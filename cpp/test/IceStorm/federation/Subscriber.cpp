@@ -87,12 +87,6 @@ usage(const char* appName)
 int
 run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
-    PropertiesPtr properties = communicator->getProperties();
-
-    StringSeq args = argsToStringSeq(argc, argv);
-    args = properties->parseCommandLineOptions("IceStorm", args);
-    stringSeqToArgs(args, argc, argv);
-
     string lockfile = "subscriber.lock";
     bool batch = false;
 
@@ -127,6 +121,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	}
     }
 
+    PropertiesPtr properties = communicator->getProperties();
     const char* managerProxyProperty = "IceStorm.TopicManager.Proxy";
     string managerProxy = properties->getProperty(managerProxyProperty);
     if(managerProxy.empty())

@@ -402,6 +402,21 @@ Ice::PropertiesI::parseCommandLineOptions(const string& prefix, const StringSeq&
     return result;
 }
 
+StringSeq
+Ice::PropertiesI::parseIceCommandLineOptions(const StringSeq& options)
+{
+    StringSeq args;
+    args = parseCommandLineOptions("Ice", options);
+    args = parseCommandLineOptions("Freeze", args);
+    args = parseCommandLineOptions("Glacier", args);
+    args = parseCommandLineOptions("IceBox", args);
+    args = parseCommandLineOptions("IcePack", args);
+    args = parseCommandLineOptions("IcePatch", args);
+    args = parseCommandLineOptions("IceSSL", args);
+    args = parseCommandLineOptions("IceStorm", args);
+    return args;
+}
+
 void
 Ice::PropertiesI::load(const std::string& file)
 {

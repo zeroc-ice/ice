@@ -369,10 +369,10 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
     ++_globalStateCounter;
 
     //
-    // Convert command-line options beginning with --Ice. to properties.
+    // Convert command-line options to properties.
     //
     StringSeq args = argsToStringSeq(argc, argv);
-    args = _properties->parseCommandLineOptions("Ice", args);
+    args = _properties->parseIceCommandLineOptions(args);
     stringSeqToArgs(args, argc, argv);
 
     try

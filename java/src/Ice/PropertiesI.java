@@ -196,6 +196,20 @@ final class PropertiesI extends LocalObjectImpl implements Properties
         return arr;
     }
 
+    public synchronized String[]
+    parseIceCommandLineOptions(String[] options)
+    {
+        String[] args = parseCommandLineOptions("Ice", options);
+        args = parseCommandLineOptions("Freeze", args);
+        args = parseCommandLineOptions("Glacier", args);
+        args = parseCommandLineOptions("IceBox", args);
+        args = parseCommandLineOptions("IcePack", args);
+        args = parseCommandLineOptions("IcePatch", args);
+        args = parseCommandLineOptions("IceSSL", args);
+        args = parseCommandLineOptions("IceStorm", args);
+        return args;
+    }
+
     public synchronized void
     load(String file)
     {

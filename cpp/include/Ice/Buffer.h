@@ -25,6 +25,7 @@ class ICE_API Buffer : public ::IceUtil::noncopyable
 public:
 
     Buffer() : i(b.begin()) { }
+    virtual ~Buffer() { }
 
     typedef std::vector<Ice::Byte> Container;
 

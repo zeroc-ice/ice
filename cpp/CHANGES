@@ -1,6 +1,10 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Added Ice::Properties::parseIceCommandLineOptions(). This operation converts to
+  properties all options that start with one of the following prefixes:
+  --Ice, --IceBox, --IcePack, --IcePatch, --IceSSL, --IceStorm, --Freeze, and --Glacier.
+
 - Added ice_clone() member function to non-abstract classes. ice_clone() polymorphically
   copies a class instance. The copy is a deep copy for all types except for class members;
   class members are copied shallow, that is, if a class contains a class member, the original
