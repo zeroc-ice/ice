@@ -126,11 +126,11 @@ IcePatch::RegularI::describe(const Ice::Current& current)
 	
 	FileInfo info = getFileInfo(path, true);
 	FileInfo infoMD5 = getFileInfo(path + ".md5", false);
-	if (infoMD5.type != FileTypeRegular || infoMD5.time < info.time)
+	if (infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
 	{
 	    sync.timedUpgrade(_busyTimeout);
 	    infoMD5 = getFileInfo(path + ".md5", false);
-	    if (infoMD5.type != FileTypeRegular || infoMD5.time < info.time)
+	    if (infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
 	    {
 		createMD5(path);
 		
@@ -163,11 +163,11 @@ IcePatch::RegularI::getBZ2Size(const Ice::Current& current)
 	
 	FileInfo info = getFileInfo(path, true);
 	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
-	if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
+	if (infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	{
 	    sync.timedUpgrade(_busyTimeout);
 	    infoBZ2 = getFileInfo(path + ".bz2", false);
-	    if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
+	    if (infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	    {
 		createBZ2(path);
 		
@@ -202,11 +202,11 @@ IcePatch::RegularI::getBZ2(Ice::Int pos, Ice::Int num, const Ice::Current& curre
 	
 	FileInfo info = getFileInfo(path, true);
 	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
-	if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
+	if (infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	{
 	    sync.timedUpgrade(_busyTimeout);
 	    infoBZ2 = getFileInfo(path + ".bz2", false);
-	    if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
+	    if (infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	    {
 		createBZ2(path);
 		
@@ -236,11 +236,11 @@ IcePatch::RegularI::getBZ2MD5(Ice::Int size, const Ice::Current& current)
 	
 	FileInfo info = getFileInfo(path, true);
 	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
-	if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
+	if (infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	{
 	    sync.timedUpgrade(_busyTimeout);
 	    infoBZ2 = getFileInfo(path + ".bz2", false);
-	    if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
+	    if (infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	    {
 		createBZ2(path);
 		
