@@ -289,7 +289,7 @@ LocatorI::getDirectProxyException(const AdapterPrx& adapter, const string& id, c
 	    }
 	}
     }
-    catch(const Ice::ObjectNotExistException& ex)
+    catch(const Ice::ObjectNotExistException&)
     {
 	//
 	// Expected if the adapter is destroyed, if that's the case, we remove it from the adapter registry.
