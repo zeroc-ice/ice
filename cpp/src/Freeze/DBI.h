@@ -13,7 +13,6 @@
 
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
-#include <Freeze/Initialize.h>
 #include <Freeze/DB.h>
 #include <db.h>
 
@@ -34,6 +33,7 @@ public:
     virtual ::Ice::ObjectPtr get(const std::string&);
     virtual void del(const std::string&);
     virtual void close();
+    virtual EvictorPtr createEvictor();
 
 private:
 

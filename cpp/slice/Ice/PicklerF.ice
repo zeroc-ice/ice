@@ -14,7 +14,7 @@
 module Ice
 {
 
-local class Pickler;
+local interface Pickler;
 
 };
 

@@ -11,8 +11,8 @@
 #ifndef FREEZE_FREEZE_H
 #define FREEZE_FREEZE_H
 
-#include <Ice/Ice.h>
 #include <Freeze/Initialize.h>
 #include <Freeze/DB.h>
+#include <Freeze/Evictor.h>
 
 #endif

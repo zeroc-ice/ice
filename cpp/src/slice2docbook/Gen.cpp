@@ -17,21 +17,13 @@ using namespace Slice;
 Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool noGlobals) :
     _standAlone(standAlone),
     _noGlobals(noGlobals),
-    _chapter("section"), // Could also be "chapter"
-    _nextId(0)
+    _chapter("section") // Could also be "chapter"
 {
     O.open(file.c_str());
     if (!O)
     {
 	cerr << name << ": can't open `" << file << "' for writing: " << strerror(errno) << endl;
 	return;
-    }
-
-    _idPrefix = file;
-    string::size_type pos = _idPrefix.find_last_of("/\\");
-    if(pos != string::npos)
-    {
-	_idPrefix.erase(0, pos + 1);
     }
 }
 
@@ -89,7 +81,7 @@ Slice::Gen::visitUnitEnd(const UnitPtr& p)
 bool
 Slice::Gen::visitModuleStart(const ModulePtr& p)
 {
-    start(_chapter + " id=" + scopedToId(p->scoped()), p->scoped().substr(2));
+    start(_chapter + " id=" + containedToId(p), p->scoped().substr(2));
     start("section", "Overview");
     O.zeroIndent();
     O << nl << "<synopsis>module <classname>" << p->name() << "</classname></synopsis>";
@@ -299,7 +291,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	{
 	    TypePtr type = (*q)->type();
 	    
-	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
+	    start("section id=" + containedToId(*q), (*q)->name());
 	    
 	    O.zeroIndent();
 	    O << nl << "<synopsis>sequence&lt; " << toString(type, p) << " &gt; <type>" << (*q)->name()
@@ -318,7 +310,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	    TypePtr keyType = (*q)->keyType();
 	    TypePtr valueType = (*q)->valueType();
 	    
-	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
+	    start("section id=" + containedToId(*q), (*q)->name());
 	    
 	    O.zeroIndent();
 	    O << nl << "<synopsis>dictionary&lt; " << toString(keyType, p) << ", " << toString(valueType, p)
@@ -334,7 +326,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     {
 	for (EnumList::iterator q = enums.begin(); q != enums.end(); ++q)
 	{
-	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
+	    start("section id=" + containedToId(*q), (*q)->name());
 	    
 	    O.zeroIndent();
 	    O << nl << "<synopsis>enum <type>" << (*q)->name() << "</type>";
@@ -361,7 +353,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     {
 	for (NativeList::iterator q = natives.begin(); q != natives.end(); ++q)
 	{
-	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
+	    start("section id=" + containedToId(*q), (*q)->name());
 	    
 	    O.zeroIndent();
 	    O << nl << "<synopsis>native <type>" << (*q)->name() << "</type>;</synopsis>";
@@ -379,7 +371,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 bool
 Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 {
-    start(_chapter + " id=" + scopedToId(p->scoped()), p->scoped().substr(2));
+    start(_chapter + " id=" + containedToId(p), p->scoped().substr(2));
 
     start("section", "Overview");
     O.zeroIndent();
@@ -494,7 +486,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	    TypeStringList outputParams = (*q)->outputParameters();
 	    TypeList throws =  (*q)->throws();
 	    
-	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
+	    start("section id=" + containedToId(*q), (*q)->name());
 	    
 	    O.zeroIndent();
 	    O << nl << "<synopsis>" << (nonmutating ? "nonmutating " : "")
@@ -556,7 +548,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    TypePtr type = (*q)->type();
 	    
-	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
+	    start("section id=" + containedToId(*q), (*q)->name());
 	    
 	    O.zeroIndent();
 	    O << nl << "<synopsis>" << toString(type, p) << " <structfield>" << (*q)->name()
@@ -577,7 +569,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Gen::visitStructStart(const StructPtr& p)
 {
-    start(_chapter + " id=" + scopedToId(p->scoped()), p->scoped().substr(2));
+    start(_chapter + " id=" + containedToId(p), p->scoped().substr(2));
 
     start("section", "Overview");
     O.zeroIndent();
@@ -618,7 +610,7 @@ Slice::Gen::visitStructStart(const StructPtr& p)
 	{
 	    TypePtr type = (*q)->type();
 	    
-	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
+	    start("section id=" + containedToId(*q), (*q)->name());
 	    
 	    O.zeroIndent();
 	    O << nl << "<synopsis>" << toString(type, p) << " <structfield>" << (*q)->name()
@@ -876,28 +868,44 @@ Slice::Gen::end()
 }
 
 string
-Slice::Gen::scopedToId(const string& scoped)
+Slice::Gen::containedToId(const ContainedPtr& contained)
 {
-    string s;
+    assert(contained);
+
+    string scoped = contained->scoped();
     if (scoped[0] == ':')
     {
-	s = scoped.substr(2);
-    }
-    else
-    {
-	s = scoped;
+	scoped.erase(0, 2);
     }
 
-    int id = _idMap[s];
-    if (id == 0)
+    string id = "\"";
+
+    id.reserve(scoped.size() + 2); // Also reserve space for the two '"'
+
+    for (unsigned int i = 0; i < scoped.size(); ++i)
     {
-	id = ++_nextId;
-	_idMap[s] = id;
+	if (scoped[i] == ':')
+	{
+	    id.push_back('.');
+	    ++i;
+	}
+	else
+	{
+	    id.push_back(scoped[i]);
+	}
     }
 
-    ostringstream result;
-    result << '"' << _idPrefix << '.' << id << '"';
-    return result.str();
+    //
+    // TODO: At present, docbook tools limit link names (NAMELEN) to
+    // 44 characters.
+    //
+    if(id.size() > 1 + 44)
+    {
+	id.erase(1 + 44);
+    }
+
+    id.push_back('"');
+    return id;
 }
 
 string
@@ -926,6 +934,10 @@ Slice::Gen::getScopedMinimized(const ContainedPtr& contained, const ContainerPtr
 string
 Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
 {
+    string tag;
+    string linkend;
+    string s;
+
     static const char* builtinTable[] =
     {
 	"byte",
@@ -945,48 +957,60 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
     if (builtin)
     {
-	return "<type>" + string(builtinTable[builtin->kind()]) + "</type>";
+	s = builtinTable[builtin->kind()];
+	tag = "type";
     }
-
-    string tag;
-    string linkend;
-    string s;
 
     ProxyPtr proxy = ProxyPtr::dynamicCast(p);
     if (proxy)
     {
-	tag = "classname";
-	linkend = scopedToId(proxy->_class()->scoped());
+	linkend = containedToId(proxy->_class());
 	s = getScopedMinimized(proxy->_class(), container);
 	s += "*";
+	tag = "classname";
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(p);
     if (cl)
     {
-	tag = "classname";
-	linkend = scopedToId(cl->scoped());
+	//
+        // We must generate the id from the definition, not from the
+        // declaration, provided that a definition is available.
+	//
+	ContainedPtr definition = cl->definition();
+	if (definition)
+	{
+	    linkend = containedToId(definition);
+	}
 	s = getScopedMinimized(cl, container);
+	tag = "classname";
     }
 
     StructPtr st = StructPtr::dynamicCast(p);
     if (st)
     {
-	tag = "structname";
-	linkend = scopedToId(st->scoped());
+	linkend = containedToId(st);
 	s = getScopedMinimized(st, container);
+	tag = "structname";
     }
 
     if (s.empty())
     {
 	ContainedPtr contained = ContainedPtr::dynamicCast(p);
 	assert(contained);
-	tag = "type";
-	linkend = scopedToId(contained->scoped());
+	linkend = containedToId(contained);
 	s = getScopedMinimized(contained, container);
+	tag = "type";
     }
 
-    return "<link linkend=" + linkend + "><" + tag + ">" + s + "</" + tag + "></link>";
+    if (linkend.empty())
+    {
+	return "<" + tag + ">" + s + "</" + tag + ">";
+    }
+    else
+    {
+	return "<link linkend=" + linkend + "><" + tag + ">" + s + "</" + tag + "></link>";
+    }
 }
 
 string

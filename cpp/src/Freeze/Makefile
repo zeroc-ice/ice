@@ -19,7 +19,9 @@ VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
 TARGETS		= $(NAME) $(VERSIONED_NAME)
 
 OBJS		= DB.o \
-	  	  DBI.o
+	  	  DBI.o \
+		  Evictor.o \
+		  EvictorI.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -56,5 +58,22 @@ $(HDIR)/DBF.h: $(IDIR)/DBF.ice $(SLICE)
 
 clean::
 	rm -f $(HDIR)/DBF.h
+
+$(HDIR)/Evictor.h Evictor.cpp: $(IDIR)/Evictor.ice $(SLICE)
+	rm -f $(HDIR)/Evictor.h Evictor.cpp
+	$(SLICECMD) $(IDIR)/Evictor.ice
+	mv Evictor.h $(HDIR)
+
+clean::
+	rm -f $(HDIR)/Evictor.h Evictor.cpp
+
+$(HDIR)/EvictorF.h: $(IDIR)/EvictorF.ice $(SLICE)
+	rm -f $(HDIR)/EvictorF.h EvictorF.cpp
+	$(SLICECMD) $(IDIR)/EvictorF.ice
+	mv EvictorF.h $(HDIR)
+	rm -f EvictorF.cpp
+
+clean::
+	rm -f $(HDIR)/EvictorF.h
 
 include .depend

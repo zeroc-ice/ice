@@ -14,7 +14,7 @@
 module Ice
 {
 
-local class Logger;
+local interface Logger;
 
 };
 

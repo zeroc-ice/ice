@@ -11,6 +11,8 @@
 #ifndef FREEZE_DB_ICE
 #define FREEZE_DB_ICE
 
+#include <Freeze/EvictorF.ice>
+
 /**
  *
  * The Ice module for object persistence.
@@ -99,6 +101,17 @@ local interface DB
      *
      **/
     void close();
+
+    /**
+     *
+     * Create a new Evictor that uses this database.
+     *
+     * @return The new Evictor.
+     *
+     * @see Evictor
+     *
+     **/
+    Evictor createEvictor();
 };
 
 /**

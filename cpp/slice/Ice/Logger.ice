@@ -24,7 +24,7 @@ module Ice
  * @see Communicator::setLogger
  *
  **/
-local class Logger
+local interface Logger
 {
     /**
      *

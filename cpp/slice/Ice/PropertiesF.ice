@@ -14,7 +14,7 @@
 module Ice
 {
 
-local class Properties;
+local interface Properties;
 
 };
 

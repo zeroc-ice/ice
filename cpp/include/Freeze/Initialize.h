@@ -11,7 +11,7 @@
 #ifndef FREEZE_INITIALIZE_H
 #define FREEZE_INITIALIZE_H
 
-#include <Ice/CommunicatorF.h>
+#include <Ice/Ice.h>
 #include <Freeze/DBF.h>
 
 #ifdef WIN32

@@ -30,7 +30,7 @@ native OutputStream;
  * @see Communicator::getPickler
  *
  **/
-local class Pickler
+local interface Pickler
 {
     /**
      *

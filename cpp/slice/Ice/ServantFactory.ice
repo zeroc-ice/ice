@@ -26,14 +26,14 @@ module Ice
  * @see Pickler
  *
  **/
-local class ServantFactory
+local interface ServantFactory
 {
     /**
      *
      * Create a new Servant for a given Servant type. The type is the
      * absolute Slice type name, i.e., the the name relative to the
      * unnamed top-level Slice module. For example, the absolute Slice
-     * type name for Servants for classes of type
+     * type name for Servants for interfacees of type
      * <literal>Bar</literal> in the module <literal>Foo</literal> is
      * <literal>::Foo::Bar</literal>.
      *

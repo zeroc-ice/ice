@@ -225,6 +225,7 @@ public:
     std::string scoped();
     std::string scope();
     std::string comment();
+    std::string file();
 
     enum ContainedType
     {
@@ -250,6 +251,7 @@ protected:
     std::string _name;
     std::string _scoped;
     std::string _comment;
+    std::string _file;
 };
 
 SLICE_API bool operator<(Contained&, Contained&);
@@ -284,6 +286,7 @@ public:
     EnumList enums();
     NativeList natives();
     int includeLevel();
+    void updateIncludeLevel();
     bool hasProxies();
     bool hasClassDecls();
     bool hasClassDefs();
@@ -587,6 +590,7 @@ public:
 
     void setComment(const std::string&);
     std::string currentComment();
+    std::string currentFile();
 
     void nextLine();
     void scanPosition(const char*);

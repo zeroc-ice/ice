@@ -22,7 +22,7 @@ module Ice
  * <replaceable>application-name</replaceable>[[.<replaceable>category</replaceable>].<replaceable>sub-category</replaceable>].<replaceable>name</replaceable>.
  *
  **/
-local class Properties
+local interface Properties
 {
     /**
      *

@@ -11,6 +11,16 @@
 #include <IceUtil/Functional.h>
 #include <Slice/Parser.h>
 
+//
+// Stupid Visual C++ defines min and max as macros :-(
+//
+#ifdef min
+#   undef min
+#endif
+#ifdef max
+#   undef max
+#endif
+
 using namespace std;
 using namespace Slice;
 
@@ -109,6 +119,12 @@ Slice::Contained::comment()
     return _comment;
 }
 
+string
+Slice::Contained::file()
+{
+    return _file;
+}
+
 Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
     _container(container),
@@ -123,6 +139,7 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
     assert(_unit);
     _unit->addContent(this);
     _comment = _unit->currentComment();
+    _file = _unit->currentFile();
 }
 
 bool
@@ -133,13 +150,59 @@ Slice::operator<(Contained& l, Contained& r)
 	return static_cast<int>(l.containedType()) < static_cast<int>(r.containedType());
     }
 
-    return l.scoped() < r.scoped();
+    if(l.scoped() < r.scoped())
+    {
+	return true;
+    }
+    else if(l.scoped() != r.scoped())
+    {
+	return false;
+    }
+
+/*
+    if(l.comment() < r.comment())
+    {
+	return true;
+    }
+    else if(l.comment() != r.comment())
+    {
+	return false;
+    }
+
+    if(l.file() < r.file())
+    {
+	return true;
+    }
+    else if(l.file() != r.file())
+    {
+	return false;
+    }
+*/
+
+    return false;
 }
 
 bool
 Slice::operator==(Contained& l, Contained& r)
 {
-    return l.scoped() == r.scoped();
+    if(l.scoped() != r.scoped())
+    {
+	return false;
+    }
+
+/*
+    if(l.comment() != r.comment())
+    {
+	return false;
+    }
+
+    if(l.file() != r.file())
+    {
+	return false;
+    }
+*/
+
+    return true;
 }
 
 // ----------------------------------------------------------------------
@@ -200,6 +263,7 @@ Slice::Container::createClassDef(const string& name, bool local, bool intf, cons
 	{
 	    if (_unit->ignRedefs())
 	    {
+		def->updateIncludeLevel();
 		return def;
 	    }
 
@@ -463,7 +527,7 @@ Slice::Container::createEnum(const string& name, const StringList& enumerators)
 }
 
 EnumeratorPtr
-Slice::Container::createEnumerator(const std::string& name)
+Slice::Container::createEnumerator(const string& name)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -769,6 +833,12 @@ Slice::Container::includeLevel()
     return _includeLevel;
 }
 
+void
+Slice::Container::updateIncludeLevel()
+{
+    _includeLevel = min(_includeLevel, _unit->currentIncludeLevel());
+}
+
 bool
 Slice::Container::hasProxies()
 {
@@ -897,6 +967,8 @@ Slice::Container::mergeModules()
 	    {
 		mod1->_comment.swap(mod2->_comment);
 	    }
+
+	    mod1->_includeLevel = min(mod1->_includeLevel, mod2->_includeLevel);
 
 	    _unit->removeContent(*q);
 	    q = _contents.erase(q);
@@ -1744,7 +1816,7 @@ Slice::Unit::ignRedefs()
 }
 
 void
-Slice::Unit::setComment(const std::string& comment)
+Slice::Unit::setComment(const string& comment)
 {
     _currentComment = "";
 
@@ -1762,12 +1834,18 @@ Slice::Unit::setComment(const std::string& comment)
     }
 }
 
-std::string
+string
 Slice::Unit::currentComment()
 {
     string comment;
     comment.swap(_currentComment);
     return comment;
+}
+
+string
+Slice::Unit::currentFile()
+{
+    return _currentFile;
 }
 
 void
@@ -1968,8 +2046,8 @@ Slice::Unit::parse(FILE* file, bool debug)
     _currentComment = "";
     _currentLine = 1;
     _currentIncludeLevel = 0;
-    _currentFile = "<standard input>";
-    _topLevelFile = _currentFile;
+    _currentFile.clear();
+    _topLevelFile.clear();
     _includeFiles.clear();
     pushContainer(this);
 

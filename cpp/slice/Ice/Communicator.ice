@@ -38,7 +38,7 @@ module Ice
  * @see ServantFactory
  *
  **/
-local class Communicator
+local interface Communicator
 {
     /**
      *

@@ -14,7 +14,7 @@
 module Ice
 {
 
-local class ServantFactory;
+local interface ServantFactory;
 
 };
 

@@ -149,7 +149,7 @@ main(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    UnitPtr unit = Unit::createUnit(true, true);
+    UnitPtr unit = Unit::createUnit(true, false);
 
     int status = EXIT_SUCCESS;
 

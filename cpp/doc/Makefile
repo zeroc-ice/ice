@@ -28,7 +28,8 @@ ICEFILES	= ../slice/Ice/Communicator.ice \
 
 ICEPACKFILES	= ../slice/IcePack/Admin.ice
 
-FREEZEFILES	= ../slice/Freeze/DB.ice
+FREEZEFILES	= ../slice/Freeze/DB.ice \
+		  ../slice/Freeze/Evictor.ice
 
 include $(top_srcdir)/config/Make.rules
 

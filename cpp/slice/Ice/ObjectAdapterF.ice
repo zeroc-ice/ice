@@ -14,8 +14,8 @@
 module Ice
 {
 
-local class ServantLocator;
-local class ObjectAdapter;
+local interface ServantLocator;
+local interface ObjectAdapter;
 
 };
 

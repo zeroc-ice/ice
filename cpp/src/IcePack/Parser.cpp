@@ -375,7 +375,7 @@ IcePack::Parser::parse(FILE* file, bool debug)
     yyin = file;
     assert(yyin);
 
-    _currentFile = "<standard input>";
+    _currentFile = "";
     _currentLine = 0;
     _continue = false;
     nextLine();
@@ -404,7 +404,7 @@ IcePack::Parser::parse(const std::string& commands, bool debug)
     assert(!_commands.empty());
     yyin = 0;
 
-    _currentFile = "<command line>";
+    _currentFile.clear();
     _currentLine = 0;
     _continue = false;
     nextLine();

@@ -446,7 +446,7 @@ Parser::parse(FILE* file, bool debug)
     yyin = file;
     assert(yyin);
 
-    _currentFile = "<standard input>";
+    _currentFile.clear();
     _currentLine = 0;
     _continue = false;
     nextLine();

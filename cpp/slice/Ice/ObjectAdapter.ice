@@ -16,7 +16,7 @@
 module Ice
 {
 
-local class ServantLocator;
+local interface ServantLocator;
 
 /**
  *
@@ -30,7 +30,7 @@ local class ServantLocator;
  * @see ServantLocator
  *
  **/
-local class ObjectAdapter
+local interface ObjectAdapter
 {
     /**
      *
@@ -231,7 +231,7 @@ local class ObjectAdapter
  * @see ObjectAdapter::getServantLocator
  *
  **/
-local class ServantLocator
+local interface ServantLocator
 {
     /**
      *

@@ -8,13 +8,13 @@
 //
 // **********************************************************************
 
-#ifndef ICE_COMMUNICATOR_F_ICE
-#define ICE_COMMUNICATOR_F_ICE
+#ifndef FREEZE_EVICTOR_ICE
+#define FREEZE_EVICTOR_ICE
 
-module Ice
+module Freeze
 {
 
-local interface Communicator;
+local interface Evictor;
 
 };
 

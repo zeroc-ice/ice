@@ -8,8 +8,10 @@
 //
 // **********************************************************************
 
+#include <Ice/Stream.h> // Not included in Ice/Ice.h
 #include <Freeze/DBI.h>
-#include <Ice/Stream.h>
+#include <Freeze/EvictorI.h>
+#include <Freeze/Initialize.h>
 #include <sys/stat.h>
 #include <sstream>
 
@@ -283,6 +285,24 @@ Freeze::DBI::close()
     _dbenvObj = 0;
     _dbenv = 0;
     _db = 0;
+}
+
+EvictorPtr
+Freeze::DBI::createEvictor()
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if(!_db)
+    {
+	ostringstream s;
+	s << "Freeze::DB(\"" << _name << "\"): ";
+	s << "\"" << _name << "\" has been closed";
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
+    }
+
+    return new EvictorI(this);
 }
 
 Freeze::DBEnvI::DBEnvI(const CommunicatorPtr& communicator, const string& directory) :
