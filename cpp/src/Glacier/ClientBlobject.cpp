@@ -96,9 +96,8 @@ Glacier::ClientBlobject::ice_invoke(const std::vector<Byte>& inParams, std::vect
 		    
 		    default:
 		    {
-			ostringstream s;
-			s << "unknown forward option `" << option << "'";
-			_logger->warning(s.str());
+			Warning out(_logger);
+			out << "unknown forward option `" << option << "'";
 			break;
 		    }
 		}
@@ -107,12 +106,11 @@ Glacier::ClientBlobject::ice_invoke(const std::vector<Byte>& inParams, std::vect
 	
 	if (_traceLevel >= 2)
 	{
-	    ostringstream s;
-	    s << "routing to:\n"
-	      << "proxy = " << _communicator->proxyToString(proxy) << '\n'
-	      << "operation = " << current.operation << '\n'
-	      << "nonmutating = " << (current.nonmutating ? "true" : "false");
-	    _logger->trace("Glacier", s.str());
+	    Trace out(_logger, "Glacier");
+	    out << "routing to:\n"
+		<< "proxy = " << _communicator->proxyToString(proxy) << '\n'
+		<< "operation = " << current.operation << '\n'
+		<< "nonmutating = " << (current.nonmutating ? "true" : "false");
 	}
 
 	return proxy->ice_invoke(current.operation, current.nonmutating, inParams, outParams, current.context);
@@ -121,9 +119,8 @@ Glacier::ClientBlobject::ice_invoke(const std::vector<Byte>& inParams, std::vect
     {
 	if (_traceLevel)
 	{
-	    ostringstream s;
-	    s << "routing exception:\n" << ex;
-	    _logger->trace("Glacier", s.str());
+	    Trace out(_logger, "Glacier");
+	    out << "routing exception:\n" << ex;
 	}
 
 	ex.ice_throw();

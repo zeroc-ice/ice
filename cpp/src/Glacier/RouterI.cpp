@@ -75,9 +75,8 @@ Glacier::RouterI::addProxy(const ObjectPrx& proxy, const Current&)
 
     if (_routingTableTraceLevel)
     {
-	ostringstream s;
-	s << "adding proxy to routing table:\n" << _clientAdapter->getCommunicator()->proxyToString(proxy);
-	_logger->trace("Glacier", s.str());
+	Trace out(_logger, "Glacier");
+	out << "adding proxy to routing table:\n" << _clientAdapter->getCommunicator()->proxyToString(proxy);
     }
 
     _routingTable->add(proxy);

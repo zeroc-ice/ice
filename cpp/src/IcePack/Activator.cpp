@@ -56,13 +56,13 @@ IcePack::Activator::run()
     }
     catch (const LocalException& ex)
     {
-	ostringstream s;
-	s << "exception in process termination listener:\n" << ex;
-	_communicator->getLogger()->error(s.str());
+	Error out(_communicator->getLogger());
+	out << "exception in process termination listener:\n" << ex;
     }
     catch (...)
     {
-	_communicator->getLogger()->error("unknown exception in process termination listener");
+	Error out(_communicator->getLogger());
+	out << "unknown exception in process termination listener";
     }
 }
 
@@ -290,7 +290,9 @@ IcePack::Activator::terminationListener()
 			    ret = read(fd, &s, 16);
 			}
 			while (ret != 0);
-			_communicator->getLogger()->error(err);
+
+			Error out(_communicator->getLogger());
+			out << err;
 		    }
 		}
 		else

@@ -37,7 +37,8 @@ Freeze::EvictorI::~EvictorI()
 {
     if (!_deactivated)
     {
-	_db->getCommunicator()->getLogger()->warning("evictor has not been deactivated");
+	Warning out(_db->getCommunicator()->getLogger());
+	out << "evictor has not been deactivated";
     }
 }
 
@@ -114,9 +115,8 @@ Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
 
     if (_trace >= 1)
     {
-	ostringstream s;
-	s << "created \"" << ident << "\"";
-	_db->getCommunicator()->getLogger()->trace("Evictor", s.str());
+	Trace out(_db->getCommunicator()->getLogger(), "Evictor");
+	out << "created \"" << ident << "\"";
     }
 
     //
@@ -143,9 +143,8 @@ Freeze::EvictorI::destroyObject(const Identity& ident)
 
     if (_trace >= 1)
     {
-	ostringstream s;
-	s << "destroyed \"" << ident << "\"";
-	_db->getCommunicator()->getLogger()->trace("Evictor", s.str());
+	Trace out(_db->getCommunicator()->getLogger(), "Evictor");
+	out << "destroyed \"" << ident << "\"";
     }
 }
 
@@ -182,9 +181,8 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current
     {
 	if (_trace >= 2)
 	{
-	    ostringstream s;
-	    s << "found \"" << current.identity << "\" in the queue";
-	    _db->getCommunicator()->getLogger()->trace("Evictor", s.str());
+	    Trace out(_db->getCommunicator()->getLogger(), "Evictor");
+	    out << "found \"" << current.identity << "\" in the queue";
 	}
 
 	//
@@ -200,10 +198,9 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current
     {
 	if (_trace >= 2)
 	{
-	    ostringstream s;
-	    s << "couldn't find \"" << current.identity << "\" in the queue\n"
-	      << "loading \"" << current.identity << "\" from the database";
-	    _db->getCommunicator()->getLogger()->trace("Evictor", s.str());
+	    Trace out(_db->getCommunicator()->getLogger(), "Evictor");
+	    out << "couldn't find \"" << current.identity << "\" in the queue\n"
+		<< "loading \"" << current.identity << "\" from the database";
 	}
 
 	//
@@ -309,9 +306,8 @@ Freeze::EvictorI::deactivate()
 	
 	if (_trace >= 1)
 	{
-	    ostringstream s;
-	    s << "deactivating, saving unsaved Ice Objects to the database";
-	    _db->getCommunicator()->getLogger()->trace("Evictor", s.str());
+	    Trace out(_db->getCommunicator()->getLogger(), "Evictor");
+	    out << "deactivating, saving unsaved Ice Objects to the database";
 	}
 
 	//
@@ -376,10 +372,9 @@ Freeze::EvictorI::evict()
 
 	if (_trace >= 2)
 	{
-	    ostringstream s;
-	    s << "evicted \"" << ident << "\" from the queue\n"
-	      << "number of elements in the queue: " << _evictorMap.size();
-	    _db->getCommunicator()->getLogger()->trace("Evictor", s.str());
+	    Trace out(_db->getCommunicator()->getLogger(), "Evictor");
+	    out << "evicted \"" << ident << "\" from the queue\n"
+		<< "number of elements in the queue: " << _evictorMap.size();
 	}
     }
 

@@ -81,10 +81,8 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, con
     }
     catch(const LocalException& ex)
     {
-	ostringstream s;
-	s << ex;
-	_logger->error(s.str());
-
+	Error out(_logger);
+	out << ex;
 	ex.ice_throw();
     }
 
@@ -269,9 +267,8 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, con
 
 		if (_traceLevel >= 2)
 		{
-		    ostringstream s;
-		    s << "started new router:\n" << _communicator->proxyToString(router);
-		    _logger->trace("Glacier", s.str());
+		    Trace out(_logger, "Glacier");
+		    out << "started new router:\n" << _communicator->proxyToString(router);
 		}
 
 		return router;
@@ -290,19 +287,16 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, con
 	{
 	    if (_traceLevel >= 1)
 	    {
-		ostringstream s;
-		s << "router starter exception:\n" << ex << ":\n" << ex.reason;
-		_logger->trace("Glacier", s.str());
+		Trace out(_logger, "Glacier");
+		out << "router starter exception:\n" << ex << ":\n" << ex.reason;
 	    }
 	    
 	    ex.ice_throw();
 	}
 	catch(const Exception& ex)
 	{
-	    ostringstream s;
-	    s << ex;
-	    _logger->error(s.str());
-
+	    Error out(_logger);
+	    out << ex;
 	    ex.ice_throw();
 	}
     }

@@ -83,9 +83,8 @@ Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, cons
 
     if (_trace >= 1)
     {
-	ostringstream s;
-	s << "opening database environment \"" << _name << "\"";
-	_communicator->getLogger()->trace("DB", s.str());
+	Trace out(_communicator->getLogger(), "DB");
+	out << "opening database environment \"" << _name << "\"";
     }
 
     checkBerkeleyDBReturn(_dbEnv->open(_dbEnv, _name.c_str(),
@@ -102,9 +101,8 @@ Freeze::DBEnvironmentI::~DBEnvironmentI()
 {
     if (_dbEnv)
     {
-	ostringstream s;
-	s << _errorPrefix << "\"" << _name << "\" has not been closed";
-	_communicator->getLogger()->warning(s.str());
+	Warning out(_communicator->getLogger());
+	out << _errorPrefix << "\"" << _name << "\" has not been closed";
     }
 }
 
@@ -191,9 +189,8 @@ Freeze::DBEnvironmentI::close()
 
     if (_trace >= 1)
     {
-	ostringstream s;
-	s << "closing database environment \"" << _name << "\"";
-	_communicator->getLogger()->trace("DB", s.str());
+	Trace out(_communicator->getLogger(), "DB");
+	out << "closing database environment \"" << _name << "\"";
     }
 
     checkBerkeleyDBReturn(_dbEnv->close(_dbEnv, 0), _errorPrefix, "DB_ENV->close");
@@ -262,9 +259,8 @@ Freeze::DBTransactionI::DBTransactionI(const CommunicatorPtr& communicator, ::DB
 
     if (_trace >= 2)
     {
-	ostringstream s;
-	s << "starting transaction for environment \"" << _name << "\"";
-	_communicator->getLogger()->trace("DB", s.str());
+	Trace out(_communicator->getLogger(), "DB");
+	out << "starting transaction for environment \"" << _name << "\"";
     }
     
     checkBerkeleyDBReturn(txn_begin(dbEnv, 0, &_tid, 0), _errorPrefix, "txn_begin");
@@ -274,9 +270,8 @@ Freeze::DBTransactionI::~DBTransactionI()
 {
     if (_tid)
     {
-	ostringstream s;
-	s << _errorPrefix << "transaction has not been committed or aborted";
-	_communicator->getLogger()->warning(s.str());
+	Warning out(_communicator->getLogger());
+	out << _errorPrefix << "transaction has not been committed or aborted";
     }
 }
 
@@ -296,9 +291,8 @@ Freeze::DBTransactionI::commit()
 
     if (_trace >= 2)
     {
-	ostringstream s;
-	s << "committing transaction for environment \"" << _name << "\"";
-	_communicator->getLogger()->trace("DB", s.str());
+	Trace out(_communicator->getLogger(), "DB");
+	out << "committing transaction for environment \"" << _name << "\"";
     }
     
     checkBerkeleyDBReturn(txn_commit(_tid, 0), _errorPrefix, "txn_commit");
@@ -322,9 +316,8 @@ Freeze::DBTransactionI::abort()
 
     if (_trace >= 2)
     {
-	ostringstream s;
-	s << "aborting transaction for environment \"" << _name << "\" due to deadlock";
-	_communicator->getLogger()->trace("DB", s.str());
+	Trace out(_communicator->getLogger(), "DB");
+	out << "aborting transaction for environment \"" << _name << "\" due to deadlock";
     }
     
     checkBerkeleyDBReturn(txn_abort(_tid), _errorPrefix, "txn_abort");
@@ -351,9 +344,8 @@ DBCursorI::DBCursorI(const ::Ice::CommunicatorPtr& communicator, const std::stri
 
     if (_trace >= 1)
     {
-	ostringstream s;
-	s << "creating cursor for \"" << _name << "\"";
-	_communicator->getLogger()->trace("DB", s.str());
+	Trace out(_communicator->getLogger(), "DB");
+	out << "creating cursor for \"" << _name << "\"";
     }
 }
 
@@ -361,9 +353,8 @@ DBCursorI::~DBCursorI()
 {
     if (_cursor != 0)
     {
-	ostringstream s;
-	s << _errorPrefix << "\"" << _name << "\" has not been closed";
-	_communicator->getLogger()->warning(s.str());
+	Warning out(_communicator->getLogger());
+	out << _errorPrefix << "\"" << _name << "\" has not been closed";
     }
 }
 
@@ -394,9 +385,8 @@ DBCursorI::curr(Key& key, Value& value)
 
     if (_trace >= 1)
     {
-	ostringstream s;
-	s << "reading current value from database \"" << _name << "\"";
-	_communicator->getLogger()->trace("DBCursor", s.str());
+	Trace out(_communicator->getLogger(), "DB");
+	out << "reading current value from database \"" << _name << "\"";
     }
 
     checkBerkeleyDBReturn(_cursor->c_get(_cursor, &dbKey, &dbData, DB_CURRENT), _errorPrefix, "DBcursor->c_get");
@@ -430,9 +420,8 @@ DBCursorI::set(const Value& value)
 
     if (_trace >= 1)
     {
-	ostringstream s;
-	s << "reading current value from database \"" << _name << "\"";
-	_communicator->getLogger()->trace("DBCursor", s.str());
+	Trace out(_communicator->getLogger(), "DB");
+	out << "reading current value from database \"" << _name << "\"";
     }
 
     //
@@ -467,9 +456,8 @@ DBCursorI::next()
 
     if (_trace >= 1)
     {
-	ostringstream s;
-	s << "moving to next value in database \"" << _name << "\"";
-	_communicator->getLogger()->trace("DBCursor", s.str());
+	Trace out(_communicator->getLogger(), "DB");
+	out << "moving to next value in database \"" << _name << "\"";
     }
 
     try
@@ -509,9 +497,8 @@ DBCursorI::prev()
 
     if (_trace >= 1)
     {
-	ostringstream s;
-	s << "moving to previous value in database \"" << _name << "\"";
-	_communicator->getLogger()->trace("DBCursor", s.str());
+	Trace out(_communicator->getLogger(), "DB");
+	out << "moving to previous value in database \"" << _name << "\"";
     }
 
     try
@@ -541,9 +528,8 @@ DBCursorI::del()
 
     if (_trace >= 1)
     {
-	ostringstream s;
-	s << "removing the current element in database \"" << _name << "\"";
-	_communicator->getLogger()->trace("DBCursor", s.str());
+	Trace out(_communicator->getLogger(), "DB");
+	out << "removing the current element in database \"" << _name << "\"";
     }
 
     checkBerkeleyDBReturn(_cursor->c_del(_cursor, 0), _errorPrefix, "DBcursor->c_del");
@@ -580,9 +566,8 @@ DBCursorI::close()
 
     if (_trace >= 1)
     {
-	ostringstream s;
-	s << "closing cursor \"" << _name << "\"";
-	_communicator->getLogger()->trace("DB", s.str());
+	Trace out(_communicator->getLogger(), "DB");
+	out << "closing cursor \"" << _name << "\"";
     }
   
     _cursor->c_close(_cursor);
@@ -610,9 +595,8 @@ Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvironmentIPtr& d
 
     if (_trace >= 1)
     {
-	ostringstream s;
-	s << "opening database \"" << _name << "\" in environment \"" << _dbEnvObj->getName() << "\"";
-	_communicator->getLogger()->trace("DB", s.str());
+	Trace out(_communicator->getLogger(), "DB");
+	out << "opening database \"" << _name << "\" in environment \"" << _dbEnvObj->getName() << "\"";
     }
     
     u_int32_t flags = (create) ? DB_CREATE : 0;
@@ -626,9 +610,8 @@ Freeze::DBI::~DBI()
 {
     if (_db)
     {
-	ostringstream s;
-	s << _errorPrefix << "\"" << _name << "\" has not been closed";
-	_communicator->getLogger()->warning(s.str());
+	Warning out(_communicator->getLogger());
+	out << _errorPrefix << "\"" << _name << "\" has not been closed";
     }
 }
 
@@ -790,9 +773,8 @@ Freeze::DBI::put(const Key& key, const Value& value)
 
     if (_trace >= 1)
     {
-	ostringstream s;
-	s << "writing value in database \"" << _name << "\"";
-	_communicator->getLogger()->trace("DB", s.str());
+	Trace out(_communicator->getLogger(), "DB");
+	out << "writing value in database \"" << _name << "\"";
     }
 
     checkBerkeleyDBReturn(_db->put(_db, 0, &dbKey, &dbData, 0), _errorPrefix, "DB->put");
@@ -820,9 +802,8 @@ Freeze::DBI::get(const Key& key)
 
     if (_trace >= 1)
     {
-	ostringstream s;
-	s << "reading value from database \"" << _name << "\"";
-	_communicator->getLogger()->trace("DB", s.str());
+	Trace out(_communicator->getLogger(), "DB");
+	out << "reading value from database \"" << _name << "\"";
     }
     
     checkBerkeleyDBReturn(_db->get(_db, 0, &dbKey, &dbData, 0), _errorPrefix, "DB->get");
@@ -851,9 +832,8 @@ Freeze::DBI::del(const Key& key)
 
     if (_trace >= 1)
     {
-	ostringstream s;
-	s << "deleting value from database \"" << _name << "\"";
-	_communicator->getLogger()->trace("DB", s.str());
+	Trace out(_communicator->getLogger(), "DB");
+	out << "deleting value from database \"" << _name << "\"";
     }
     
     checkBerkeleyDBReturn(_db->del(_db, 0, &dbKey, 0), _errorPrefix, "DB->del");
@@ -889,9 +869,8 @@ Freeze::DBI::close()
 
     if (_trace >= 1)
     {
-	ostringstream s;
-	s << "closing database \"" << _name << "\"";
-	_communicator->getLogger()->trace("DB", s.str());
+	Trace out(_communicator->getLogger(), "DB");
+	out << "closing database \"" << _name << "\"";
     }
     
     checkBerkeleyDBReturn(_db->close(_db, 0), _errorPrefix, "DB->close");
@@ -913,9 +892,8 @@ Freeze::DBI::remove()
 
     if (_trace >= 1)
     {
-	ostringstream s;
-	s << "removing database \"" << _name << "\"";
-	_communicator->getLogger()->trace("DB", s.str());
+	Trace out(_communicator->getLogger(), "DB");
+	out << "removing database \"" << _name << "\"";
     }
 
     //

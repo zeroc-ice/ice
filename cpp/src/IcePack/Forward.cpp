@@ -147,9 +147,8 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const Current& current
 	    // to send a location forward to the client, which will
 	    // then get a similar exception.
 	    //
-	    ostringstream s;
-	    s << "exception during server activation:\n" << ex;
-	    _communicator->getLogger()->error(s.str());
+	    Error out(_communicator->getLogger());
+	    out << "exception during server activation:\n" << ex;
 	}
     }
 
