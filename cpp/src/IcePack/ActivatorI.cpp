@@ -559,8 +559,11 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	    ex.error = getSystemErrno();
 	    throw ex;
 	}
-	if(SetFilePointer(process.outHandle, 0, NULL, FILE_END) 
-	   == INVALID_SET_FILE_POINTER)
+        //
+        // NOTE: INVALID_SET_FILE_POINTER is not defined in VC6.
+        //
+	//if(SetFilePointer(process.outHandle, 0, NULL, FILE_END) == INVALID_SET_FILE_POINTER)
+	if(SetFilePointer(process.outHandle, 0, NULL, FILE_END) == (DWORD)-1)
 	{
 	    SyscallException ex(__FILE__, __LINE__);
 	    ex.error = getSystemErrno();
@@ -588,8 +591,11 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 		ex.error = getSystemErrno();
 		throw ex;
 	    }
-	    if(SetFilePointer(process.errHandle, 0, NULL, FILE_END) 
-	       == INVALID_SET_FILE_POINTER)
+            //
+            // NOTE: INVALID_SET_FILE_POINTER is not defined in VC6.
+            //
+	    //if(SetFilePointer(process.errHandle, 0, NULL, FILE_END) == INVALID_SET_FILE_POINTER)
+	    if(SetFilePointer(process.errHandle, 0, NULL, FILE_END) == (DWORD)-1)
 	    {
 		SyscallException ex(__FILE__, __LINE__);
 		ex.error = getSystemErrno();
