@@ -38,7 +38,7 @@ class ObjectStore implements IceUtil.Store
 	{	    
 	    _db = new com.sleepycat.db.Db(dbEnv, 0);
 	    
-	    txn = dbEnv.txn_begin(null, 0);
+	    txn = dbEnv.txnBegin(null, 0);
 
 	    //
 	    // TODO: FREEZE_DB_MODE
@@ -135,7 +135,7 @@ class ObjectStore implements IceUtil.Store
 	// Keep 0 length since we're not interested in the data
 	//
 	com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt();
-	dbValue.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
+	dbValue.setFlags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
 	
 	for(;;)
 	{
@@ -202,7 +202,7 @@ class ObjectStore implements IceUtil.Store
 	    case EvictorElement.destroyed:
 	    {
 		com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
-		int err = _db.del(tx, dbKey, 0);
+		int err = _db.delete(tx, dbKey, 0);
 		if(err != 0)
 		{
 		    throw new DatabaseException();
@@ -389,7 +389,7 @@ class ObjectStore implements IceUtil.Store
 	}
 	
 	EvictorElement result = new EvictorElement(ident, this);
-	result.rec = unmarshalValue(dbValue.get_data(), _communicator);
+	result.rec = unmarshalValue(dbValue.getData(), _communicator);
 	
 	_evictor.initialize(ident, _facet, result.rec.servant);
 	return result;

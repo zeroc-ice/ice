@@ -1686,7 +1686,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			long saveStart = System.currentTimeMillis();
 			try
 			{
-			    com.sleepycat.db.DbTxn tx = _dbEnv.txn_begin(null, 0);
+			    com.sleepycat.db.DbTxn tx = _dbEnv.txnBegin(null, 0);
 			    try
 			    {   
 				for(int i = 0; i < txSize; i++)
@@ -2037,10 +2037,10 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    dbc = db.cursor(null, 0);
 	    
 	    com.sleepycat.db.Dbt key = new com.sleepycat.db.Dbt();
-	    key.set_flags(com.sleepycat.db.Db.DB_DBT_MALLOC);
+	    key.setFlags(com.sleepycat.db.Db.DB_DBT_MALLOC);
 	    
 	    com.sleepycat.db.Dbt value = new com.sleepycat.db.Dbt();
-	    value.set_flags(com.sleepycat.db.Db.DB_DBT_MALLOC);
+	    value.setFlags(com.sleepycat.db.Db.DB_DBT_MALLOC);
 	    
 	    boolean more = true;
 	    while(more)
@@ -2051,7 +2051,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    //
 		    // Assumes Berkeley-DB encodes the db names in UTF-8!
 		    //
-		    String dbName = new String(key.get_data(), 0, key.get_size(), "UTF8");
+		    String dbName = new String(key.getData(), 0, key.getSize(), "UTF8");
 		
 		    if(!dbName.startsWith(indexPrefix))
 		    {

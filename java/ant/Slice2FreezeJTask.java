@@ -34,6 +34,8 @@ import java.io.FileOutputStream;
  *   dict - contains the NAME, KEY TYPE, and VALUE TYPE of a Freeze map.
  *   index - contains the NAME, CLASS TYPE, MEMBER NAME and optional
  *   case sensitivity of a Freeze Evictor index.
+ *   dictindex - contains the NAME and optional member name and case
+ *   sensitivity of a Freeze Map index.
  *
  * Example:
  *
@@ -51,7 +53,7 @@ import java.io.FileOutputStream;
  *                    <include name="*.ice" />
  *                </fileset>
  *                <dict name="CharIntMap" key="char" value="int"/>
- *                <dict name="NameIndex" type="Foo" member="name" casesensitive="false"/>
+ *                <index name="NameIndex" type="Foo" member="name" casesensitive="false"/>
  *            </slice2freezej>
  *        </target>
  *    </project>
@@ -84,6 +86,14 @@ public class Slice2FreezeJTask extends SliceTask
     {
 	Index i = new Index();
 	_indices.add(i);
+	return i;
+    }
+    
+    public Dictindex
+    createDictindex()
+    {
+	Dictindex i = new Dictindex();
+	_dictIndices.add(i);
 	return i;
     }
 
@@ -182,6 +192,27 @@ public class Slice2FreezeJTask extends SliceTask
 	}
 
 	//
+	// Add the --dict-index options.
+	//
+	p = _dictIndices.iterator();
+	StringBuffer dictIndexString = new StringBuffer();
+	while(p.hasNext())
+	{
+	    Dictindex d = (Dictindex)p.next();
+
+	    dictIndexString.append(" --dict-index ");
+	    dictIndexString.append(d.getName());
+	    if(d.getMember() != null)
+	    {
+		dictIndexString.append("," + d.getMember());
+	    }
+	    if(d.getCasesensitive() == false)
+	    {
+		dictIndexString.append("," + "case-insensitive");
+	    }
+	}
+	
+	//
 	// Add the --index options.
 	//
 	p = _indices.iterator();
@@ -197,6 +228,8 @@ public class Slice2FreezeJTask extends SliceTask
 		indexString.append("," + "case-insensitive");
 	    }
 	}
+
+
 
 	if(!build)
 	{
@@ -278,6 +311,11 @@ public class Slice2FreezeJTask extends SliceTask
 	// Add the --dict options.
 	//
 	cmd.append(dictString);
+
+	//
+	// Add the --dict-index options.
+	//
+	cmd.append(dictIndexString);
 
 	//
 	// Add the --index options.
@@ -381,6 +419,11 @@ public class Slice2FreezeJTask extends SliceTask
 	    // Add the --dict options.
 	    //
 	    cmd.append(dictString);
+
+	    //
+	    // Add the --dict-index options.
+	    //
+	    cmd.append(dictIndexString);
 
 	     //
 	    // Add the --index options.
@@ -507,6 +550,50 @@ public class Slice2FreezeJTask extends SliceTask
 	}
     }
 
+    public class Dictindex
+    {
+	private String _name;
+	private String _member;
+	private boolean _caseSensitive = true;
+
+	public void
+	setName(String name)
+	{
+	    _name = name;
+	}
+
+	public String
+	getName()
+	{
+	    return _name;
+	}
+
+	public void
+	setMember(String member)
+	{
+	    _member = member;
+	}
+
+	public String
+	getMember()
+	{
+	    return _member;
+	}
+	
+	public void
+	setCasesensitive(boolean caseSensitive)
+	{
+	    _caseSensitive = caseSensitive;
+	}
+
+	public boolean
+	getCasesensitive()
+	{
+	    return _caseSensitive;
+	}
+    }
+
+
     public class Index
     {
 	private String _name;
@@ -564,5 +651,6 @@ public class Slice2FreezeJTask extends SliceTask
     }
 
     private java.util.List _dicts = new java.util.LinkedList();
+    private java.util.List _dictIndices = new java.util.LinkedList();
     private java.util.List _indices = new java.util.LinkedList();
 }

@@ -18,6 +18,7 @@ struct Struct1
 struct Struct2
 {
     string s;
+    Struct1 s1;
 };
 
 class Class1

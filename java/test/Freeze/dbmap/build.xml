@@ -33,6 +33,7 @@
         <mkdir dir="${generated.dir}"/>
         <slice2freezej outputdir="${generated.dir}">
             <dict name="ByteIntMap" key="byte" value="int"/>
+            <dictindex name="ByteIntMap"/>
         </slice2freezej>
     </target>
 

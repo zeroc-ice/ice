@@ -23,15 +23,13 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 			 com.sleepycat.db.Dbt result)
     {
 	Ice.Communicator communicator = _store.communicator();
-
-	Ice.Identity ident = ObjectStore.unmarshalKey(key.get_data(), communicator);
-	ObjectRecord rec = ObjectStore.unmarshalValue(value.get_data(), communicator);
+	ObjectRecord rec = ObjectStore.unmarshalValue(value.getData(), communicator);
 
 	byte[] secondaryKey = marshalKey(rec.servant);
 	if(secondaryKey != null)
 	{
-	    result.set_data(secondaryKey);
-	    result.set_size(secondaryKey.length);
+	    result.setData(secondaryKey);
+	    result.setSize(secondaryKey.length);
 	    return 0;
 	}
 	else
@@ -87,13 +85,13 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 	    com.sleepycat.db.Dbt key = new com.sleepycat.db.Dbt(k);
 	    
 	    com.sleepycat.db.Dbt pkey = new com.sleepycat.db.Dbt();
-	    pkey.set_flags(com.sleepycat.db.Db.DB_DBT_MALLOC);
+	    pkey.setFlags(com.sleepycat.db.Db.DB_DBT_MALLOC);
 	    
 	    com.sleepycat.db.Dbt value = new com.sleepycat.db.Dbt();
 	    //
 	    // dlen is 0, so we should not retrieve any value 
 	    // 
-	    value.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
+	    value.setFlags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
 	    
 	    Ice.Communicator communicator = _store.communicator();
 	    _store.evictor().saveNow();
@@ -119,11 +117,11 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 			
 			do
 			{
-			    found = (dbc.pget(key, pkey, value, flags) == 0);
+			    found = (dbc.get(key, pkey, value, flags) == 0);
 			    
 			    if(found)
 			    {
-				Ice.Identity ident = ObjectStore.unmarshalKey(pkey.get_data(), communicator);
+				Ice.Identity ident = ObjectStore.unmarshalKey(pkey.getData(), communicator);
 				identities.add(ident);
 				flags = com.sleepycat.db.Db.DB_NEXT_DUP;
 			    }
@@ -207,7 +205,7 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 	    //
 	    // dlen is 0, so we should not retrieve any value 
 	    // 
-	    value.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
+	    value.setFlags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
 	    _store.evictor().saveNow();
 	    
 	    try
@@ -289,7 +287,7 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 	_store = store;
 	
 	_db= new com.sleepycat.db.Db(_store.evictor().dbEnv(), 0);
-	_db.set_flags(com.sleepycat.db.Db.DB_DUP | com.sleepycat.db.Db.DB_DUPSORT);
+	_db.setFlags(com.sleepycat.db.Db.DB_DUP | com.sleepycat.db.Db.DB_DUPSORT);
 
 	int flags = 0;
 	if(createDb)

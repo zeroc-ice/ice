@@ -17,19 +17,8 @@ class TestApp extends Ice.Application
     }
 
     void
-    IntIntMapTest(boolean fast)
+    IntIntMapTest(Freeze.Map m, boolean fast)
     {
-	IntIntMap m;
-
-	if(fast)
-	{
-	    m = new IntIntMap(_connection, "IntIntMap.fast", true);
-	}
-	else
-	{
-	    m = new IntIntMap(_connection, "IntIntMap", true);
-	}
-
 	//
 	// Populate the database.
 	//
@@ -71,6 +60,29 @@ class TestApp extends Ice.Application
 
         System.out.println("\ttime for " + _repetitions + " reads: " + total + "ms");
         System.out.println("\ttime per read: " + perRecord + "ms");
+
+	if(m instanceof IndexedIntIntMap)
+	{
+	    IndexedIntIntMap indexedM = (IndexedIntIntMap)m;
+	    //
+	    // Read each record using the index
+	    //
+	    _watch.start();
+	    for(int i = 0; i < _repetitions; ++i)
+	    {
+		java.util.Iterator p = indexedM.findByValue(i);
+		test(p.hasNext());
+		java.util.Map.Entry e = (java.util.Map.Entry)p.next();
+		test(((Integer)e.getKey()).intValue() == i);
+		m.closeAllIterators();
+	    }
+	    total = _watch.stop();
+	    perRecord = total / _repetitions;
+	    
+	    System.out.println("\ttime for " + _repetitions + " indexed reads: " + total + "ms");
+	    System.out.println("\ttime per indexed read: " + perRecord + "ms");
+	}
+
 
 	//
 	// Remove each record.
@@ -165,7 +177,7 @@ class TestApp extends Ice.Application
     }
 
     void
-    generatedRead(IntIntMap m, int reads, Generator gen)
+    generatedRead(Freeze.Map m, int reads, Generator gen)
     {
 	_watch.start();
 	for(int i = 0; i < reads; ++i)
@@ -180,13 +192,32 @@ class TestApp extends Ice.Application
         System.out.println("\ttime for " + reads + " reads of " + gen + " records: " +
 			   total + "ms");
 	System.out.println("\ttime per read: " + perRecord + "ms");
+
+	if(m instanceof IndexedIntIntMap)
+	{
+	    IndexedIntIntMap indexedM = (IndexedIntIntMap)m;
+	    _watch.start();
+	    for(int i = 0; i < reads; ++i)
+	    {
+		int val = gen.next();
+		java.util.Iterator p = indexedM.findByValue(val);
+		test(p.hasNext());
+		java.util.Map.Entry e = (java.util.Map.Entry)p.next();
+		test(((Integer)e.getKey()).intValue() == val);
+		m.closeAllIterators();
+	    }
+	    total = _watch.stop();
+	    perRecord = total / reads;
+	    
+	    System.out.println("\ttime for " + reads + " reverse (indexed) reads of " + gen + " records: " +
+			       total + "ms");
+	    System.out.println("\ttime per reverse (indexed) read: " + perRecord + "ms");
+	}
     }
 
     void
-    IntIntMapReadTest()
+    IntIntMapReadTest(Freeze.Map m)
     {
-	IntIntMap m = new IntIntMap(_connection, "IntIntMap", true);
-
 	//
 	// Populate the database.
 	//
@@ -239,10 +270,8 @@ class TestApp extends Ice.Application
     }
 
     void
-    Struct1Struct2MapTest()
+    Struct1Struct2MapTest(Freeze.Map m)
     {
-	Struct1Struct2Map m = new Struct1Struct2Map(_connection, "Struct1Struct2", true);
-
 	//
 	// Populate the database.
 	//
@@ -254,6 +283,7 @@ class TestApp extends Ice.Application
 	{
 	    s1.l = i;
 	    s2.s = new Integer(i).toString();
+	    s2.s1 = s1;
 	    m.fastPut(s1, s2);
 	}
 	tx.commit();
@@ -279,6 +309,41 @@ class TestApp extends Ice.Application
         System.out.println("\ttime for " + _repetitions + " reads: " + total + "ms");
         System.out.println("\ttime per read: " + perRecord + "ms");
 
+	
+	//
+	// Optional index test
+	//
+
+	if(m instanceof IndexedStruct1Struct2Map)
+	{
+	    IndexedStruct1Struct2Map indexedM = (IndexedStruct1Struct2Map)m;
+	    _watch.start();
+	    for(int i = 0; i < _repetitions; ++i)
+	    {
+		String s = (new Integer(i)).toString();
+		java.util.Iterator p = indexedM.findByS(s);
+		test(p.hasNext());
+		java.util.Map.Entry e = (java.util.Map.Entry)p.next();
+		test(((Struct1)e.getKey()).l == i);
+		m.closeAllIterators();
+	    }
+
+	    for(int i = 0; i < _repetitions; ++i)
+	    {
+		s1.l = i;
+		java.util.Iterator p = indexedM.findByS1(s1);
+		test(p.hasNext());
+		java.util.Map.Entry e = (java.util.Map.Entry)p.next();
+		test(((Struct1)e.getKey()).l == i);
+		m.closeAllIterators();
+	    }
+	    total = _watch.stop();
+	    perRecord = total / (2 * _repetitions);
+
+	    System.out.println("\ttime for " + 2 * _repetitions + " indexed reads: " + total + "ms");
+	    System.out.println("\ttime per indexed read: " + perRecord + "ms");
+	}
+
 	//
 	// Remove each record.
 	//
@@ -300,10 +365,8 @@ class TestApp extends Ice.Application
     }
 
     void
-    Struct1Class1MapTest()
+    Struct1Class1MapTest(Freeze.Map m)
     {
-	Struct1Class1Map m = new Struct1Class1Map(_connection, "Struct1Class1", true);
-
 	//
 	// Populate the database.
 	//
@@ -340,6 +403,32 @@ class TestApp extends Ice.Application
         System.out.println("\ttime for " + _repetitions + " reads: " + total + "ms");
         System.out.println("\ttime per read: " + perRecord + "ms");
 
+
+	//
+	// Optional index test
+	//
+
+	if(m instanceof IndexedStruct1Class1Map)
+	{
+	    IndexedStruct1Class1Map indexedM = (IndexedStruct1Class1Map)m;
+	    _watch.start();
+	    for(int i = 0; i < _repetitions; ++i)
+	    {
+		String s = (new Integer(i)).toString();
+		java.util.Iterator p = indexedM.findByS(s);
+		test(p.hasNext());
+		java.util.Map.Entry e = (java.util.Map.Entry)p.next();
+		test(((Struct1)e.getKey()).l == i);
+		m.closeAllIterators();
+	    }
+
+	    total = _watch.stop();
+	    perRecord = total /  _repetitions;
+
+	    System.out.println("\ttime for " +  _repetitions + " indexed reads: " + total + "ms");
+	    System.out.println("\ttime per indexed read: " + perRecord + "ms");
+	}
+
 	//
 	// Remove each record.
 	//
@@ -361,10 +450,8 @@ class TestApp extends Ice.Application
     }
 
     void
-    Struct1ObjectMapTest()
+    Struct1ObjectMapTest(Freeze.Map m)
     {
-	Struct1ObjectMap m = new Struct1ObjectMap(_connection, "Struct1Object", true);
-
 	//
 	// Populate the database.
 	//
@@ -455,22 +542,38 @@ class TestApp extends Ice.Application
 	_connection = Freeze.Util.createConnection(communicator(), _envName);
 
 	System.out.println("IntIntMap (Collections API)");
-	IntIntMapTest(false);
+	IntIntMapTest(new IntIntMap(_connection, "IntIntMap", true), false);
 
 	System.out.println("IntIntMap (Fast API)");
-	IntIntMapTest(true);
+	IntIntMapTest(new IntIntMap(_connection, "IntIntMap.fast", true), true);
+
+	System.out.println("IntIntMap with index (Collections API)");
+	IntIntMapTest(new IndexedIntIntMap(_connection, "IndexedIntIntMap", true), false);
+
+	System.out.println("IntIntMap with index (Fast API)");
+	IntIntMapTest(new IndexedIntIntMap(_connection, "IndexedIntIntMap.fast", true), true);
 
 	System.out.println("Struct1Struct2Map");
-	Struct1Struct2MapTest();
+	Struct1Struct2MapTest(new Struct1Struct2Map(_connection, "Struct1Struct2", true));
 
+	System.out.println("Struct1Struct2Map with index");
+	Struct1Struct2MapTest(new IndexedStruct1Struct2Map(_connection, "IndexedStruct1Struct2", true));
+	
 	System.out.println("Struct1Class1Map");
-	Struct1Class1MapTest();
+	Struct1Class1MapTest(new Struct1Class1Map(_connection, "Struct1Class1", true));
 
-	System.out.println("Struct1ObjectMap");
-	Struct1ObjectMapTest();
+	System.out.println("Struct1Class1Map with index");
+	Struct1Class1MapTest(new IndexedStruct1Class1Map(_connection, "IndexedStruct1Class1", true));
 
 	System.out.println("IntIntMap (read test)");
-	IntIntMapReadTest();
+	IntIntMapReadTest(new IntIntMap(_connection, "IntIntMap", true));
+
+	System.out.println("IntIntMap (read test with index)");
+	IntIntMapReadTest(new IndexedIntIntMap(_connection, "IndexedIntIntMap", true));
+	
+
+	System.out.println("Struct1ObjectMap");
+	Struct1ObjectMapTest(new Struct1ObjectMap(_connection, "Struct1Object", true));
 
 	_connection.close();
 

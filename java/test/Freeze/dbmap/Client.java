@@ -415,6 +415,95 @@ public class Client
             System.out.println("ok");
         }
 
+	{
+            System.out.print("testing index... ");
+            System.out.flush();
+
+	    //
+            // Re-populate.
+            //
+            populateDB(connection, m);
+
+	    ByteIntMap typedM = (ByteIntMap)m;
+
+	    java.util.Map.Entry e;
+	    java.util.Iterator p;
+
+	    int length = alphabet.length();
+
+	    for(int k = 0; k < length; ++k)
+	    {
+		p = typedM.findByValue(k);
+		test(p.hasNext());
+		e = (java.util.Map.Entry)p.next();
+		test(((Byte)e.getKey()).byteValue() == (byte)alphabet.charAt(k));
+		test(!p.hasNext());
+	    }
+
+	    //
+	    // Non-existent index value
+	    //
+	    p = typedM.findByValue(100);
+	    test(!p.hasNext());
+
+	    //
+	    // 2 items at 17
+	    // 
+	    m.put(new Byte((byte)alphabet.charAt(21)), new Integer(17));
+	    
+	    p = typedM.findByValue(17);
+	    
+	    test(p.hasNext());
+	    e = (java.util.Map.Entry)p.next();
+	    byte v = ((Byte)e.getKey()).byteValue();
+	    test(v == (byte)alphabet.charAt(17) || v == (byte)alphabet.charAt(21));
+	    
+	    test(p.hasNext());
+	    e = (java.util.Map.Entry)p.next();
+	    v = ((Byte)e.getKey()).byteValue();
+	    test(v == (byte)alphabet.charAt(17) || v == (byte)alphabet.charAt(21));
+	    
+	    test(!p.hasNext());
+	    test(typedM.valueCount(17) == 2);
+
+	    p = typedM.findByValue(17);
+	    test(p.hasNext());
+	    p.next();
+	    p.remove();
+	    test(p.hasNext());
+	    e = (java.util.Map.Entry)p.next();
+	    v = ((Byte)e.getKey()).byteValue();
+	    test(v == (byte)alphabet.charAt(17) || v == (byte)alphabet.charAt(21));
+	    test(!p.hasNext());
+
+	    //
+	    // We need to close this write iterator before further reads
+	    //
+	    typedM.closeAllIterators();
+
+	    test(typedM.valueCount(17) == 1);
+
+	    p = typedM.findByValue(17);
+	    test(p.hasNext());
+	    e = (java.util.Map.Entry)p.next();
+
+	    try
+	    {
+		e.setValue(new Integer(18));
+		test(false);
+	    }
+	    catch(Freeze.DatabaseException ex)
+	    {
+		// Expected
+	    }
+
+	    v = ((Byte)e.getKey()).byteValue();
+	    test(v == (byte)alphabet.charAt(17) || v == (byte)alphabet.charAt(21));
+	    test(typedM.valueCount(17) == 1);
+            System.out.println("ok");
+        }
+
+
 	((Freeze.Map) m).closeAllIterators();
 
 	{

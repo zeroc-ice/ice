@@ -79,7 +79,7 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
 
 	try
 	{
-	    _txn = _connection.dbEnv().txn_begin(null, 0);
+	    _txn = _connection.dbEnv().txnBegin(null, 0);
 	}
 	catch(com.sleepycat.db.DbException e)
 	{

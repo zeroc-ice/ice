@@ -12,7 +12,7 @@ package Freeze;
 class SharedDb extends com.sleepycat.db.Db
 {
     public static SharedDb
-    get(ConnectionI connection, String dbName, boolean createDb)
+    get(ConnectionI connection, String dbName, Map.Index[] indices, boolean createDb)
     {
 	MapKey key = new MapKey(connection.envName(), connection.communicator(), dbName);
 
@@ -23,7 +23,7 @@ class SharedDb extends com.sleepycat.db.Db
 	    {
 		try
 		{
-		    result = new SharedDb(key, connection, createDb);
+		    result = new SharedDb(key, connection, indices, createDb);
 		}
 		catch(com.sleepycat.db.DbException dx)
 		{
@@ -38,6 +38,7 @@ class SharedDb extends com.sleepycat.db.Db
 	    }
 	    else
 	    {
+		result.connectIndices(indices);
 		result._refCount++;
 	    }
 	    return result;
@@ -74,6 +75,8 @@ class SharedDb extends com.sleepycat.db.Db
 		//
 		try
 		{
+		    cleanupIndices();
+		   
 		    super.close(0);
 		}
 		catch(com.sleepycat.db.DbException dx)
@@ -93,22 +96,40 @@ class SharedDb extends com.sleepycat.db.Db
 	assert(_refCount == 0);
     }
 
-    private SharedDb(MapKey key, ConnectionI connection, boolean createDb) throws com.sleepycat.db.DbException
+    private SharedDb(MapKey key, ConnectionI connection, Map.Index[] indices,
+		     boolean createDb) throws com.sleepycat.db.DbException
     {	
 	super(connection.dbEnv(), 0);
 	_key = key;
+	_indices = indices;
 	_trace = connection.trace();
+
+	com.sleepycat.db.DbTxn txn = null;
 
 	try
 	{
-	    int flags = com.sleepycat.db.Db.DB_AUTO_COMMIT;
+	    txn = connection.dbEnv().txnBegin(null, 0);
+
+	    int flags = 0;
 	    
 	    if(createDb)
 	    {
 		flags |= com.sleepycat.db.Db.DB_CREATE;
 	    }
 	    
-	    open(null, key.dbName, null, com.sleepycat.db.Db.DB_BTREE, flags, 0);
+	    open(txn, key.dbName, null, com.sleepycat.db.Db.DB_BTREE, flags, 0);
+
+	    if(_indices != null)
+	    {
+		for(int i = 0; i < _indices.length; ++i)
+		{
+		    _indices[i].associate(key.dbName, this, txn, createDb);
+		}
+	    }
+	    
+	    com.sleepycat.db.DbTxn toCommit = txn;
+	    txn = null;
+	    toCommit.commit(0);
 
 	    //
 	    // TODO: FREEZE_DB_MODE
@@ -116,6 +137,7 @@ class SharedDb extends com.sleepycat.db.Db
 	}
 	catch(java.io.FileNotFoundException dx)
 	{
+	    cleanupIndices();
 	    NotFoundException ex = new NotFoundException();
 	    ex.initCause(dx);
 	    ex.message = errorPrefix(_key) + "Db.open: " + dx.getMessage();
@@ -123,13 +145,56 @@ class SharedDb extends com.sleepycat.db.Db
 	}
 	catch(com.sleepycat.db.DbException dx)
 	{
+	    cleanupIndices();
 	    DatabaseException ex = new DatabaseException();
 	    ex.initCause(dx);
 	    ex.message = errorPrefix(_key) + "Db.open: " + dx.getMessage();
 	    throw ex;
 	}
+	finally
+	{
+	    if(txn != null)
+	    {
+		try
+		{
+		    txn.abort();
+		}
+		catch(com.sleepycat.db.DbException dx)
+		{
+		}
+	    }
+	}
+
 	_refCount = 1;
     }
+
+    private void
+    connectIndices(Map.Index[] indices)
+    {
+	if(indices != null)
+	{
+	    assert(_indices != null && indices.length == _indices.length);
+
+	    for(int i = 0; i < indices.length; ++i)
+	    {
+		indices[i].init(_indices[i]);
+	    }
+	}
+    }
+
+    private void
+    cleanupIndices()
+    {
+	if(_indices != null)
+	{
+	    for(int i = 0; i < _indices.length; ++i)
+	    {
+		_indices[i].close();
+	    }
+	    _indices = null;
+	}
+    }
+	
 
     private static String
     errorPrefix(MapKey k)
@@ -174,6 +239,7 @@ class SharedDb extends com.sleepycat.db.Db
     private MapKey _key;
     private int _refCount = 0;
     private int _trace;
+    private Map.Index[] _indices;
 
     //
     // Hash map of (MapKey, SharedDb)

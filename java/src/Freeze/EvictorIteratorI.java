@@ -50,12 +50,12 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 	// We should use DB_DBT_REALLOC, but it's buggy in 4.1.25 
 	// (causes weird problems, e.g. can't find some values)
 	//
-	_key.set_flags(com.sleepycat.db.Db.DB_DBT_MALLOC);
+	_key.setFlags(com.sleepycat.db.Db.DB_DBT_MALLOC);
 
 	//
 	// dlen is 0, so we should not retrieve any value 
 	// 
-	_value.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
+	_value.setFlags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
     }
 
     private java.util.Iterator
@@ -76,10 +76,10 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 	    Ice.Communicator communicator = _store.communicator();
 	    
 	    byte[] firstKey = null;
-	    if(_key.get_size() > 0)
+	    if(_key.getSize() > 0)
 	    {
-		firstKey = new byte[_key.get_size()];
-		System.arraycopy(_key.get_data(), 0, firstKey, 0, firstKey.length);
+		firstKey = new byte[_key.getSize()];
+		System.arraycopy(_key.getData(), 0, firstKey, 0, firstKey.length);
 	    }
 	    
 	    try
@@ -118,7 +118,7 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 				
 				if(_batch.size() < _batchSize)
 				{
-				    Ice.Identity ident = ObjectStore.unmarshalKey(_key.get_data(), communicator);
+				    Ice.Identity ident = ObjectStore.unmarshalKey(_key.getData(), communicator);
 				    _batch.add(ident);
 				}
 				else
@@ -138,13 +138,13 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 		    {
 			if(firstKey != null)
 			{
-			    assert(_key.get_data().length >= firstKey.length);
-			    System.arraycopy(firstKey, 0, _key.get_data(), 0, firstKey.length);
-			    _key.set_size(firstKey.length);
+			    assert(_key.getData().length >= firstKey.length);
+			    System.arraycopy(firstKey, 0, _key.getData(), 0, firstKey.length);
+			    _key.setSize(firstKey.length);
 			}
 			else
 			{
-			    _key.set_size(0);
+			    _key.setSize(0);
 			}
 			
 			if(_store.evictor().deadlockWarning())

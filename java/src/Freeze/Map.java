@@ -17,8 +17,22 @@ public abstract class Map extends java.util.AbstractMap
 	_connection = (ConnectionI) connection;
 	_errorPrefix = "Freeze DB DbEnv(\"" + _connection.envName() + "\") Db(\"" + dbName + "\") :";
 	_trace = _connection.trace();
-	_db = SharedDb.get(_connection, dbName, createDb);
 	
+	init(null, dbName, createDb);
+    }
+
+    protected
+    Map(Connection connection, String dbName)
+    {
+	_connection = (ConnectionI) connection;
+	_errorPrefix = "Freeze DB DbEnv(\"" + _connection.envName() + "\") Db(\"" + dbName + "\") :";
+	_trace = _connection.trace();
+    }
+
+    protected void
+    init(Freeze.Map.Index[] indices, String dbName, boolean createDb)
+    {
+	_db = Freeze.SharedDb.get(_connection, dbName, indices, createDb);
 	_token = _connection.registerMap(this);
     }
 
@@ -155,7 +169,7 @@ public abstract class Map extends java.util.AbstractMap
 	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(k);
 
 	com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt();
-	dbValue.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
+	dbValue.setFlags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
 
 	if(_trace >= 1)
 	{
@@ -347,7 +361,7 @@ public abstract class Map extends java.util.AbstractMap
 		public java.util.Iterator
 		iterator()
 		{
-		    return new EntryIterator();
+		    return new EntryIterator(null, null);
 		}
 		
 		public boolean
@@ -489,7 +503,7 @@ public abstract class Map extends java.util.AbstractMap
 		}
 		else
 		{
-		    return dbValue.get_data();
+		    return dbValue.getData();
 		}
 	    }
 	    catch(com.sleepycat.db.DbDeadlockException e)
@@ -616,7 +630,7 @@ public abstract class Map extends java.util.AbstractMap
 	{
 	    try
 	    {
-		int rc = _db.del(txn, dbKey, txn != null ? 0 : com.sleepycat.db.Db.DB_AUTO_COMMIT);
+		int rc = _db.delete(txn, dbKey, txn != null ? 0 : com.sleepycat.db.Db.DB_AUTO_COMMIT);
 		return (rc == 0);
 	    }
 	    catch(com.sleepycat.db.DbDeadlockException e)
@@ -652,6 +666,198 @@ public abstract class Map extends java.util.AbstractMap
 	}
     }
 
+
+    protected abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
+    {
+	//
+	// Implementation details
+	//
+	
+	public int
+	secondaryKeyCreate(com.sleepycat.db.Db secondary,
+			   com.sleepycat.db.Dbt key,
+			   com.sleepycat.db.Dbt value,
+			   com.sleepycat.db.Dbt result)
+	{
+	    Ice.Communicator communicator = _connection.getCommunicator();   
+	    byte[] secondaryKey = marshalKey(value.getData());
+	    assert(secondaryKey != null);
+	   
+	    result.setData(secondaryKey);
+	    result.setSize(secondaryKey.length);
+	    return 0;
+	}
+    
+	
+	//
+	// Alias for Berkeley DB 4.1.25
+	//
+	public int
+	secondary_key_create(com.sleepycat.db.Db secondary,
+			     com.sleepycat.db.Dbt key,
+			     com.sleepycat.db.Dbt value,
+			     com.sleepycat.db.Dbt result)
+	{
+	    return secondaryKeyCreate(secondary, key, value, result);
+	}
+	
+	com.sleepycat.db.Db
+	db()
+	{
+	    return _db;
+	}
+	
+	protected Index(String name)
+	{
+	    _name = name;
+	}
+
+	void
+	associate(String dbName, com.sleepycat.db.Db db, 
+		  com.sleepycat.db.DbTxn txn, boolean createDb)
+	    throws com.sleepycat.db.DbException, java.io.FileNotFoundException
+	{
+	    _dbName = dbName + "." + _name;
+	    assert(txn != null);
+	    assert(_db == null);
+
+	    _db = new com.sleepycat.db.Db(_connection.dbEnv(), 0);
+	    _db.setFlags(com.sleepycat.db.Db.DB_DUP | com.sleepycat.db.Db.DB_DUPSORT);
+
+	    int flags = 0;
+	    if(createDb)
+	    {
+		flags = com.sleepycat.db.Db.DB_CREATE;
+	    }
+
+	    _db.open(txn, _dbName, null, com.sleepycat.db.Db.DB_BTREE, flags, 0);
+
+	    //
+	    // We always populate empty indices
+	    //
+	    flags = com.sleepycat.db.Db.DB_CREATE;
+	    db.associate(txn, _db, this, flags);
+	}
+	
+	void init(Index from)
+	{
+	    assert(_name.equals(from._name));
+	    assert(_db == null);
+
+	    _dbName = from._dbName;
+	    _db = from._db;
+	}
+
+	void close()
+	{
+	    //
+	    // close() is called by SharedDb only on the "main" index
+	    // (the one that was associated)
+	    //
+
+	    if(_db != null)
+	    {
+		try
+		{
+		    _db.close(0);
+		}
+		catch(com.sleepycat.db.DbException dx)
+		{
+		    DatabaseException ex = new DatabaseException();
+		    ex.initCause(dx);
+		    ex.message = _errorPrefix + "Db.close for index \"" 
+			+ _dbName + "\": " + dx.getMessage();
+		    throw ex;
+		}
+		_db = null;
+	    }
+	}
+    
+	public EntryIterator 
+	untypedFind(byte[] k)
+	{
+	    return new EntryIterator(this, k);
+	}
+
+	public int
+	untypedCount(byte[] k)
+	{
+	    com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(k);
+	    com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt();
+	    //
+	    // dlen is 0, so we should not retrieve any value 
+	    // 
+	    dbValue.setFlags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
+	    
+	    try
+	    {
+		for(;;)
+		{
+		    com.sleepycat.db.Dbc dbc = null;
+		    try
+		    {
+			dbc = _db.cursor(null, 0);   
+			boolean found = (dbc.get(dbKey, dbValue, com.sleepycat.db.Db.DB_SET) == 0);
+			
+			if(found)
+			{
+			    return dbc.count(0);
+			}
+			else
+			{
+			    return 0;
+			}
+		    }
+		    catch(com.sleepycat.db.DbDeadlockException dx)
+		    {
+			if(_connection.deadlockWarning())
+			{
+			    _connection.communicator().getLogger().warning
+				("Deadlock in Freeze.Map.Index.untypedCount while iterating over index \"" 
+				 + _dbName + "\"; retrying ...");
+			}
+			
+			//
+			// Retry
+			//
+		    }
+		    finally
+		    {
+			if(dbc != null)
+			{
+			    try
+			    {
+				dbc.close();
+			    }
+			    catch(com.sleepycat.db.DbDeadlockException dx)
+			    {
+				//
+				// Ignored
+				//
+			    }
+			}
+		    }
+		}
+	    }
+	    catch(com.sleepycat.db.DbException dx)
+	    {
+		DatabaseException ex = new DatabaseException();
+		ex.initCause(dx);
+		ex.message = _errorPrefix + "Db.cursor for index \"" 
+		    + _dbName + "\": " + dx.getMessage();
+		throw ex; 
+	    }
+	} 
+	
+	protected abstract byte[]
+	marshalKey(byte[] value);
+
+	private String _name;
+	private String _dbName;
+	private com.sleepycat.db.Db _db;
+    }
+
+
     /**
      *
      * The entry iterator class needs to be public to allow clients to
@@ -661,8 +867,10 @@ public abstract class Map extends java.util.AbstractMap
      **/
     public class EntryIterator implements java.util.Iterator
     {
-        EntryIterator()
+        EntryIterator(Index index, byte[] k)
         {
+	    _indexed = (index != null);
+
 	    if(_trace >= 3)
 	    {
 		_connection.communicator().getLogger().trace
@@ -677,14 +885,21 @@ public abstract class Map extends java.util.AbstractMap
 		    //
 		    // Start transaction
 		    //
-		    txn = _connection.dbEnv().txn_begin(null, 0);
+		    txn = _connection.dbEnv().txnBegin(null, 0);
 		    _txn = txn;
 		}
 		
 		//
 		// Open cursor with this transaction
 		//
-		_cursor = _db.cursor(txn, 0);
+		if(index == null)
+		{
+		    _cursor = _db.cursor(txn, 0);
+		}
+		else
+		{
+		    _cursor = index.db().cursor(txn, 0);
+		}
 	    }
 	    catch(com.sleepycat.db.DbDeadlockException dx)
 	    {
@@ -702,19 +917,56 @@ public abstract class Map extends java.util.AbstractMap
 		throw ex;
 	    }
 
+
+	    if(_indexed)
+	    {
+		com.sleepycat.db.Dbt dbIKey = new com.sleepycat.db.Dbt(k);
+		com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt();
+		com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt();
+
+		try
+		{
+		    if(_cursor.get(dbIKey, dbKey, dbValue, com.sleepycat.db.Db.DB_SET) == 0)
+		    {
+			_current = new Entry(this, Map.this, _connection.communicator(), 
+					     dbKey, dbValue.getData());
+		    }
+		}
+		catch(com.sleepycat.db.DbDeadlockException dx)
+		{
+		    dead();
+		    DeadlockException ex = new DeadlockException();
+		    ex.initCause(dx);
+		    ex.message = _errorPrefix + "Dbc.get: " + dx.getMessage();
+		    throw ex;
+		}
+		catch(com.sleepycat.db.DbException dx)
+		{
+		    dead();
+		    DatabaseException ex = new DatabaseException();
+		    ex.initCause(dx);
+		    ex.message = _errorPrefix + "Dbc.get: " + dx.getMessage();
+		    throw ex;
+		}
+	    }
+
 	    synchronized(_iteratorList)
 	    {
 		_iteratorList.addFirst(this);
 		java.util.Iterator p = _iteratorList.iterator();
 		p.next();
 		_iteratorListToken = p;
-
 	    }
         }
 
         public boolean
         hasNext()
         {
+	    if(_indexed && _current == null)
+	    {
+		return false;
+	    }
+
 	    if(_current == null || _current == _lastReturned)
 	    {
 		//
@@ -723,13 +975,29 @@ public abstract class Map extends java.util.AbstractMap
 		
 		com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt();
 		com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt();
-		
+
 		try
 		{
-		    if(_cursor.get(dbKey, dbValue, com.sleepycat.db.Db.DB_NEXT) == 0)
+		    int err;
+		    if(_indexed)
+		    {
+			com.sleepycat.db.Dbt dbIKey = new com.sleepycat.db.Dbt();
+			//
+			// dlen is 0, so we should not retrieve any value 
+			// 
+			dbIKey.setFlags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
+
+			err = _cursor.get(dbIKey, dbKey, dbValue, com.sleepycat.db.Db.DB_NEXT_DUP);
+		    }
+		    else
+		    {
+			err = _cursor.get(dbKey, dbValue, com.sleepycat.db.Db.DB_NEXT);
+		    }
+
+		    if(err == 0)
 		    {
 			_current = new Entry(this, Map.this, _connection.communicator(), 
-					     dbKey, dbValue.get_data());
+					     dbKey, dbValue.getData());
 			return true;
 		    }
 		    else
@@ -793,7 +1061,7 @@ public abstract class Map extends java.util.AbstractMap
 	    {
 		try
 		{
-		    if(_cursor.del(0) == com.sleepycat.db.Db.DB_KEYEMPTY)
+		    if(_cursor.delete(0) == com.sleepycat.db.Db.DB_KEYEMPTY)
 		    {
 			throw new IllegalStateException();
 		    }
@@ -821,6 +1089,14 @@ public abstract class Map extends java.util.AbstractMap
 		// element to delete it (using the duplicate)
 		//
 		
+		//
+		// This works only for non-index iterators
+		//
+		if(_indexed)
+		{
+		    throw new IllegalStateException();
+		}
+
 		com.sleepycat.db.Dbc clone = null;
 
 		try
@@ -831,7 +1107,7 @@ public abstract class Map extends java.util.AbstractMap
 		    // No interested in data
 		    //
 		    com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt();
-		    dbValue.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
+		    dbValue.setFlags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
 		    
 		    int rc = clone.get(_lastReturned.getDbKey(), dbValue, com.sleepycat.db.Db.DB_SET);
 
@@ -839,7 +1115,7 @@ public abstract class Map extends java.util.AbstractMap
 		    {
 			throw new IllegalStateException();
 		    }
-		    if(clone.del(0) == com.sleepycat.db.Db.DB_KEYEMPTY)
+		    if(clone.delete(0) == com.sleepycat.db.Db.DB_KEYEMPTY)
 		    {
 			throw new IllegalStateException();
 		    }
@@ -961,6 +1237,13 @@ public abstract class Map extends java.util.AbstractMap
 	void
 	setValue(Map.Entry entry, Object value)
 	{
+	    if(_indexed)
+	    {
+		DatabaseException ex = new DatabaseException();
+		ex.message = _errorPrefix + "Cannot set an iterator retrieved through an index";
+		throw ex;
+	    }
+
 	    if(_txn != null)
 	    {
 		closeAllIteratorsExcept(this, false);
@@ -1014,7 +1297,7 @@ public abstract class Map extends java.util.AbstractMap
 		    // Not interested in data
 		    //
 		    com.sleepycat.db.Dbt dummy = new com.sleepycat.db.Dbt();
-		    dummy.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
+		    dummy.setFlags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
 		    
 		    int rc = clone.get(entry.getDbKey(), dummy, com.sleepycat.db.Db.DB_SET);
 
@@ -1127,6 +1410,8 @@ public abstract class Map extends java.util.AbstractMap
         private Entry _current;
         private Entry _lastReturned;
 	private java.util.Iterator _iteratorListToken;
+	private boolean _indexed;
+
     }
 
     static class Entry implements java.util.Map.Entry 
@@ -1148,7 +1433,7 @@ public abstract class Map extends java.util.AbstractMap
             if(!_haveKey)
             {
                 assert(_dbKey != null);
-                _key = _map.decodeKey(_dbKey.get_data(), _communicator);
+                _key = _map.decodeKey(_dbKey.getData(), _communicator);
                 _haveKey = true;
             }
 	    return _key;
@@ -1257,11 +1542,12 @@ public abstract class Map extends java.util.AbstractMap
         public Ice.Object value;
     }
     
-    private ConnectionI _connection;
-    private java.util.Iterator _token;
+    protected ConnectionI _connection;
+    protected java.util.Iterator _token;
+    protected SharedDb _db;
+    protected String _errorPrefix;
+    protected int _trace;
+
     private java.util.Set _entrySet;
     private LinkedList _iteratorList = new LinkedList();
-    private SharedDb _db;
-    private String _errorPrefix;
-    private int _trace;
 }
