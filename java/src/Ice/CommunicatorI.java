@@ -17,6 +17,7 @@ class CommunicatorI implements Communicator
     {
         if(_instance != null)
         {
+	    _serverThreadPool = null;
             _instance.objectAdapterFactory().shutdown();
             _instance.destroy();
             _instance = null;

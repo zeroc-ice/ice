@@ -18,6 +18,16 @@ public final class RoutingTable
     }
 
     //
+    // Clear the contents of the routing table.
+    //
+    synchronized public void
+    clear()
+    {
+	_table.clear();
+    }
+    
+
+    //
     // Returns false if the Proxy exists already.
     //
     public boolean
