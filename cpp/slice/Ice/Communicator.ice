@@ -11,11 +11,13 @@
 #define ICE_COMMUNICATOR_ICE
 
 #include <Ice/LoggerF.ice>
-#include <Ice/StatsF.ice>
+#ifndef ICEE
+# include <Ice/StatsF.ice>
+#endif
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/PropertiesF.ice>
 #ifndef ICEE
-#include <Ice/ObjectFactoryF.ice>
+# include <Ice/ObjectFactoryF.ice>
 #endif
 #include <Ice/RouterF.ice>
 #include <Ice/LocatorF.ice>
@@ -310,6 +312,7 @@ local interface Communicator
      **/
     void setLogger(Logger log);
 
+#ifndef ICEE
     /**
      *
      * Get the statistics callback object for this communicator.
@@ -334,6 +337,7 @@ local interface Communicator
      *
      **/
     void setStats(Stats st);
+#endif
 
     /**
      *
