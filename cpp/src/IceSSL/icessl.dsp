@@ -57,6 +57,7 @@ LINK32=link.exe
 # ADD LINK32 ws2_32.lib libeay32.lib ssleay32.lib xerces-c_2.lib /nologo /dll /machine:I386 /out:"Release/icessl001.dll"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
+OutDir=.\Release
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\icessl001.* ..\..\lib
 # End Special Build Tool
@@ -89,6 +90,7 @@ LINK32=link.exe
 # ADD LINK32 ws2_32.lib libeay32.lib ssleay32.lib xerces-c_2D.lib /nologo /dll /debug /machine:I386 /out:"Debug/icessl001d.dll" /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
+OutDir=.\Debug
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\icessl001d.* ..\..\lib
 # End Special Build Tool
@@ -208,19 +210,7 @@ SOURCE=.\SslAcceptor.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SslConnection.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnectionOpenSSL.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnectionOpenSSLClient.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnectionOpenSSLServer.cpp
+SOURCE=.\SslClientTransceiver.cpp
 # End Source File
 # Begin Source File
 
@@ -233,6 +223,10 @@ SOURCE=.\SslEndpoint.cpp
 # Begin Source File
 
 SOURCE=.\SslException.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslServerTransceiver.cpp
 # End Source File
 # Begin Source File
 
@@ -396,27 +390,15 @@ SOURCE=.\SslAcceptor.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\SslClientTransceiver.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\SslConnection.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\SslConnectionF.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnectionOpenSSL.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnectionOpenSSLClient.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnectionOpenSSLF.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnectionOpenSSLServer.h
 # End Source File
 # Begin Source File
 
@@ -428,7 +410,15 @@ SOURCE=.\SslEndpoint.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\SslServerTransceiver.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\SslTransceiver.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslTransceiverF.h
 # End Source File
 # Begin Source File
 
