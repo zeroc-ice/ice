@@ -673,55 +673,75 @@ public final class Network
     public static String
     fdToString(java.nio.channels.SelectableChannel fd)
     {
-        if(fd == null)
-        {
-            return "<closed>";
-        }
+	if(fd == null)
+	{
+	    return "<closed>";
+	}
 
-        java.net.InetAddress localAddr =  null, remoteAddr = null;
-        int localPort = -1, remotePort = -1;
+	java.net.InetAddress localAddr = null, remoteAddr = null;
+	int localPort = -1, remotePort = -1;
 
-        if(fd instanceof java.nio.channels.SocketChannel)
-        {
-            java.nio.channels.SocketChannel socketChannel = (java.nio.channels.SocketChannel)fd;
-            java.net.Socket socket = socketChannel.socket();
-            localAddr = socket.getLocalAddress();
-            localPort = socket.getLocalPort();
-            remoteAddr = socket.getInetAddress();
-            remotePort = socket.getPort();
-        }
-        else if(fd instanceof java.nio.channels.DatagramChannel)
-        {
-            java.nio.channels.DatagramChannel datagramChannel = (java.nio.channels.DatagramChannel)fd;
-            java.net.DatagramSocket socket = datagramChannel.socket();
-            localAddr = socket.getLocalAddress();
-            localPort = socket.getLocalPort();
-            remoteAddr = socket.getInetAddress();
-            remotePort = socket.getPort();
-        }
-        else
-        {
-            assert(false);
-        }
+	if(fd instanceof java.nio.channels.SocketChannel)
+	{
+	    java.net.Socket socket = ((java.nio.channels.SocketChannel)fd).socket();
+	    localAddr = socket.getLocalAddress();
+	    localPort = socket.getLocalPort();
+	    remoteAddr = socket.getInetAddress();
+	    remotePort = socket.getPort();
+	}
+	else if(fd instanceof java.nio.channels.DatagramChannel)
+	{
+	    java.net.DatagramSocket socket = ((java.nio.channels.DatagramChannel)fd).socket();
+	    localAddr = socket.getLocalAddress();
+	    localPort = socket.getLocalPort();
+	    remoteAddr = socket.getInetAddress();
+	    remotePort = socket.getPort();
+	}
+	else
+	{
+	    assert(false);
+	}
 
-        StringBuffer s = new StringBuffer();
-        s.append("local address = ");
-        s.append(localAddr.getHostAddress());
-        s.append(':');
-        s.append(localPort);
-        if(remoteAddr == null)
-        {
-            s.append("\nremote address = <not connected>");
-        }
-        else
-        {
-            s.append("\nremote address = ");
-            s.append(remoteAddr.getHostAddress());
-            s.append(':');
-            s.append(remotePort);
-        }
+	return addressesToString(localAddr, localPort, remoteAddr, remotePort);
+    }
 
-        return s.toString();
+    public static String
+    fdToString(java.net.Socket fd)
+    {
+	if(fd == null)
+	{
+	    return "<closed>";
+	}
+
+	java.net.InetAddress localAddr = fd.getLocalAddress();
+	int localPort = fd.getLocalPort();
+	java.net.InetAddress remoteAddr = fd.getInetAddress();
+	int remotePort = fd.getPort();
+
+	return addressesToString(localAddr, localPort, remoteAddr, remotePort);
+    }
+
+    public static String
+    addressesToString(java.net.InetAddress localAddr, int localPort, java.net.InetAddress remoteAddr, int remotePort)
+    {
+	StringBuffer s = new StringBuffer();
+	s.append("local address = ");
+	s.append(localAddr.getHostAddress());
+	s.append(':');
+	s.append(localPort);
+	if(remoteAddr == null)
+	{
+	    s.append("\nremote address = <not connected>");
+	}
+	else
+	{
+	    s.append("\nremote address = ");
+	    s.append(remoteAddr.getHostAddress());
+	    s.append(':');
+	    s.append(remotePort);
+	}
+
+	return s.toString();
     }
 
     public static String
