@@ -2355,6 +2355,21 @@ Package=<4>
 
 ###############################################################################
 
+Project: "workqueue"=.\demo\IceUtil\workqueue\workqueue.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Global:
 
 Package=<5>
