@@ -20,6 +20,13 @@
 prefix			= /opt/Ice-$(VERSION)
 
 #
+# Define OPTIMIZE as yes if you want to build with
+# optimization. Otherwise Ice is build with debug information.
+#
+
+#OPTIMIZE		= yes
+
+#
 # The values below can be overridden by defining them as environment
 # variables. For example, if you are using a bourne shell or
 # compatible, you can override the location of STLport like this:
@@ -58,13 +65,6 @@ prefix			= /opt/Ice-$(VERSION)
 #
 
 #XERCESC_HOME		?= /opt/xerces-c
-
-#
-# Define OPTIMIZE as yes if you want to build with
-# optimization. Otherwise Ice is build with debug information.
-#
-
-#OPTIMIZE		= yes
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
