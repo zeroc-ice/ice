@@ -133,11 +133,28 @@ Slice::Preprocessor::printMakefileDependencies(Language lang)
     switch(lang)
     {
         case CPlusPlus:
-	case Java: // Java ignores the leading .cpp filename.
 	{
 	    char buf[1024];
 	    while(fgets(buf, sizeof(buf), cppHandle) != NULL)
 	    {
+	        fputs(buf, stdout);
+	    }
+	    break;
+	}
+	case Java:
+	{
+	    char buf[1024];
+	    while(fgets(buf, sizeof(buf), cppHandle) != NULL)
+	    {
+                //
+                // Change the extension of the leading file from .cpp to .ice.
+                // This filename is ignored by Slice2JavaTask.
+                //
+                char* p = strstr(buf, ".cpp:");
+                if(p != NULL)
+                {
+                    strncpy(p + 1, "ice", 3);
+                }
 	        fputs(buf, stdout);
 	    }
 	    break;
