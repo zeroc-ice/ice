@@ -235,8 +235,12 @@ public class _ObjectDelM implements _ObjectDel
 		    endpoints = __reference.locatorInfo.getEndpoints(__reference, cached);
 		}
 
-		IceInternal.Endpoint[] filteredEndpoints = filterEndpoints(endpoints);
-		if(filteredEndpoints.length == 0)
+		IceInternal.Endpoint[] filteredEndpoints = null;
+		if(endpoints != null)
+		{
+		    filteredEndpoints = filterEndpoints(endpoints);
+		}
+		if(filteredEndpoints == null || filteredEndpoints.length == 0)
 		{
 		    throw new NoEndpointException();
 		}
