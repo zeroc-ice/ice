@@ -19,19 +19,19 @@ usage(const char* n)
 {
     cerr << "Usage: " << n << " [options] docbook-file slice-files...\n";
     cerr <<
-	"Options:\n"
-	"-h, --help	      Show this message.\n"
-	"-v, --version	      Display the Ice version.\n"
-	"-DNAME		      Define NAME as 1.\n"
-	"-DNAME=DEF	      Define NAME as DEF.\n"
-	"-UNAME		      Remove any definition for NAME.\n"
-	"-IDIR		      Put DIR in the include file search path.\n"
-	"-s, --stand-alone    Create stand-alone docbook file.\n"
-	"--no-globals	      Don't document the global module.\n"
-	"--chapter	      Use \"chapter\" instead of \"section\" as\n"
-	"		      top-level element.\n"
-	"-d, --debug	      Print debug messages.\n"
-	;
+        "Options:\n"
+        "-h, --help           Show this message.\n"
+        "-v, --version        Display the Ice version.\n"
+        "-DNAME               Define NAME as 1.\n"
+        "-DNAME=DEF           Define NAME as DEF.\n"
+        "-UNAME               Remove any definition for NAME.\n"
+        "-IDIR                Put DIR in the include file search path.\n"
+        "-s, --stand-alone    Create stand-alone docbook file.\n"
+        "--no-globals         Don't document the global module.\n"
+        "--chapter            Use \"chapter\" instead of \"section\" as\n"
+        "                     top-level element.\n"
+        "-d, --debug          Print debug messages.\n"
+        ;
 }
 
 int

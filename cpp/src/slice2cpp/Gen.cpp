@@ -2092,311 +2092,6 @@ Slice::Gen::ObjectVisitor::visitDataMember(const DataMemberPtr& p)
     H << nl << s << ' ' << name << ';';
 }
 
-Slice::Gen::ImplVisitor::ImplVisitor(Output& h, Output& c,
-                                     const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport)
-{
-}
-
-void
-Slice::Gen::ImplVisitor::writeAssign(Output& out, const TypePtr& type,
-                                     const string& name, int& iter)
-{
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if (builtin)
-    {
-        switch (builtin->kind())
-        {
-            case Builtin::KindByte:
-            {
-                out << nl << name << " = (Ice::Byte)0;";
-                break;
-            }
-            case Builtin::KindBool:
-            {
-                out << nl << name << " = false;";
-                break;
-            }
-            case Builtin::KindShort:
-            {
-                out << nl << name << " = (Ice::Short)0;";
-                break;
-            }
-            case Builtin::KindInt:
-            {
-                out << nl << name << " = (Ice::Int)0;";
-                break;
-            }
-            case Builtin::KindLong:
-            {
-                out << nl << name << " = (Ice::Long)0;";
-                break;
-            }
-            case Builtin::KindFloat:
-            {
-                out << nl << name << " = (Ice::Float)0;";
-                break;
-            }
-            case Builtin::KindDouble:
-            {
-                out << nl << name << " = (Ice::Double)0;";
-                break;
-            }
-            case Builtin::KindString:
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
-            {
-                //
-                // No initialization needed
-                //
-                break;
-            }
-        }
-        return;
-    }
-
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
-    if (prx)
-    {
-        //
-        // No initialization needed
-        //
-        return;
-    }
-
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if (cl)
-    {
-        //
-        // No initialization needed
-        //
-        return;
-    }
-
-    StructPtr st = StructPtr::dynamicCast(type);
-    if (st)
-    {
-        DataMemberList members = st->dataMembers();
-        DataMemberList::const_iterator d;
-        for (d = members.begin(); d != members.end(); ++d)
-        {
-            string memberName = name + "." + (*d)->name();
-            writeAssign(out, (*d)->type(), memberName, iter);
-        }
-        return;
-    }
-
-    EnumPtr en = EnumPtr::dynamicCast(type);
-    if (en)
-    {
-        EnumeratorList enumerators = en->getEnumerators();
-        out << nl << name << " = " << en->scope()
-            << enumerators.front()->name() << ';';
-        return;
-    }
-
-    SequencePtr seq = SequencePtr::dynamicCast(type);
-    if (seq)
-    {
-        out << nl << name << ".resize(5);";
-        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < "
-            << name << ".size(); __i" << iter << "++)";
-        out << sb;
-        ostringstream elem;
-        elem << name << "[__i" << iter << ']';
-        iter++;
-        writeAssign(out, seq->type(), elem.str(), iter);
-        out << eb;
-        return;
-    }
-
-    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
-    assert(dict);
-    //
-    // No initialization needed
-    //
-}
-
-bool
-Slice::Gen::ImplVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if (!p->hasClassDefs())
-    {
-        return false;
-    }
-
-    string name = p->name();
-    
-    H << sp << nl << "namespace " << name << nl << '{';
-
-    return true;
-}
-
-void
-Slice::Gen::ImplVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    H << sp;
-    H << nl << '}';
-}
-
-bool
-Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if (!p->isAbstract())
-    {
-        return false;
-    }
-
-    string name = p->name();
-    string scope = p->scope();
-    string scoped = p->scoped();
-    string cls = scope.substr(2) + name + "I";
-
-    ClassList bases = p->bases();
-    ClassDefPtr base;
-    if (!bases.empty() && !bases.front()->isInterface())
-    {
-        base = bases.front();
-    }
-
-    H << sp;
-    H << nl << "class " << name << "I : public " << name;
-    H << sb;
-    H.dec();
-    H << nl << "public:";
-    H.inc();
-
-    H << sp << nl << name << "I(const Ice::CommunicatorPtr&);";
-    H << nl << "virtual ~" << name << "I();";
-
-    C << sp << nl << cls << "::" << name
-      << "I(const Ice::CommunicatorPtr& communicator)";
-    C.inc();
-    C << nl << "_communicator(communicator)";
-    C.dec();
-    C << sb;
-    C << eb;
-
-    C << sp << nl << cls << "::~" << name << "I()";
-    C << sb;
-    C << eb;
-
-    OperationList ops = p->allOperations();
-    OperationList::const_iterator r;
-
-    //
-    // Operations
-    //
-    for (r = ops.begin(); r != ops.end(); ++r)
-    {
-        OperationPtr op = (*r);
-        string opName = op->name();
-
-        TypePtr ret = op->returnType();
-        string retS = returnTypeToString(ret);
-
-        TypeStringList inParams = op->inputParameters();
-        TypeStringList outParams = op->outputParameters();
-        TypeStringList::const_iterator q;
-
-        H << sp << nl << "virtual " << retS << ' ' << opName << '(';
-        H.useCurrentPosAsIndent();
-        for (q = inParams.begin(); q != inParams.end(); ++q)
-        {
-            if (q != inParams.begin())
-            {
-                H << ',' << nl;
-            }
-            string typeString = inputTypeToString(q->first);
-            H << typeString;
-        }
-        for (q = outParams.begin(); q != outParams.end(); ++q)
-        {
-            if (!inParams.empty() || q != outParams.begin())
-            {
-                H << ',' << nl;
-            }
-            string typeString = outputTypeToString(q->first);
-            H << typeString;
-        }
-        if (!p->isLocal())
-        {
-            if (!inParams.empty() || !outParams.empty())
-            {
-                H << ',' << nl;
-            }
-            H << "const Ice::Current&";
-        }
-        H.restoreIndent();
-        H << ");";
-
-        C << sp << nl << retS << nl << scoped.substr(2) << "I::" << opName
-          << '(';
-        C.useCurrentPosAsIndent();
-        for (q = inParams.begin(); q != inParams.end(); ++q)
-        {
-            if (q != inParams.begin())
-            {
-                C << ',' << nl;
-            }
-            string typeString = inputTypeToString(q->first);
-            C << typeString << ' ' << q->second;
-        }
-        for (q = outParams.begin(); q != outParams.end(); ++q)
-        {
-            if (!inParams.empty() || q != outParams.begin())
-            {
-                C << ',' << nl;
-            }
-            string typeString = outputTypeToString(q->first);
-            C << typeString << ' ' << q->second;
-        }
-        if (!p->isLocal())
-        {
-            if (!inParams.empty() || !outParams.empty())
-            {
-                C << ',' << nl;
-            }
-            C << "const Ice::Current& current";
-        }
-        C.restoreIndent();
-        C << ")";
-        C << sb;
-
-        int iter = 0;
-
-        //
-        // Assign values to 'out' params
-        //
-        for (q = outParams.begin(); q != outParams.end(); ++q)
-        {
-            writeAssign(C, q->first, q->second, iter);
-        }
-
-        //
-        // Return value
-        //
-        if (ret)
-        {
-            C << sp << nl << retS << " __r;";
-            writeAssign(C, ret, "__r", iter);
-            C << nl << "return __r;";
-        }
-
-        C << eb;
-    }
-
-    H << sp;
-    H.dec();
-    H << nl << "private:";
-    H.inc();
-    H << sp << nl << "Ice::CommunicatorPtr _communicator;";
-    H << eb << ';';
-
-    return true;
-}
-
 Slice::Gen::IceInternalVisitor::IceInternalVisitor(Output& h, Output& c, const string& dllExport) :
     H(h), C(c), _dllExport(dllExport)
 {
@@ -2616,6 +2311,308 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << eb;
 	C << eb;
     }
+
+    return true;
+}
+
+Slice::Gen::ImplVisitor::ImplVisitor(Output& h, Output& c,
+                                     const string& dllExport) :
+    H(h), C(c), _dllExport(dllExport)
+{
+}
+
+void
+Slice::Gen::ImplVisitor::writeAssign(Output& out, const TypePtr& type, const string& name, int& iter)
+{
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if (builtin)
+    {
+        switch (builtin->kind())
+        {
+            case Builtin::KindByte:
+            {
+                out << nl << name << " = ::Ice::Byte(0);";
+                break;
+            }
+            case Builtin::KindBool:
+            {
+                out << nl << name << " = false;";
+                break;
+            }
+            case Builtin::KindShort:
+            {
+                out << nl << name << " = ::Ice::Short(0);";
+                break;
+            }
+            case Builtin::KindInt:
+            {
+                out << nl << name << " = ::Ice::Int(0);";
+                break;
+            }
+            case Builtin::KindLong:
+            {
+                out << nl << name << " = ::Ice::Long(0);";
+                break;
+            }
+            case Builtin::KindFloat:
+            {
+                out << nl << name << " = ::Ice::Float(0);";
+                break;
+            }
+            case Builtin::KindDouble:
+            {
+                out << nl << name << " = ::Ice::Double(0);";
+                break;
+            }
+            case Builtin::KindString:
+            case Builtin::KindObject:
+            case Builtin::KindObjectProxy:
+            case Builtin::KindLocalObject:
+            {
+                //
+                // No initialization needed
+                //
+                break;
+            }
+        }
+        return;
+    }
+
+    ProxyPtr prx = ProxyPtr::dynamicCast(type);
+    if (prx)
+    {
+        //
+        // No initialization needed
+        //
+        return;
+    }
+
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    if (cl)
+    {
+        //
+        // No initialization needed
+        //
+        return;
+    }
+
+    StructPtr st = StructPtr::dynamicCast(type);
+    if (st)
+    {
+        DataMemberList members = st->dataMembers();
+        DataMemberList::const_iterator d;
+        for (d = members.begin(); d != members.end(); ++d)
+        {
+            string memberName = name + "." + (*d)->name();
+            writeAssign(out, (*d)->type(), memberName, iter);
+        }
+        return;
+    }
+
+    EnumPtr en = EnumPtr::dynamicCast(type);
+    if (en)
+    {
+        EnumeratorList enumerators = en->getEnumerators();
+        out << nl << name << " = " << en->scope() << enumerators.front()->name() << ';';
+        return;
+    }
+
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if (seq)
+    {
+        out << nl << name << ".resize(5);";
+        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < " << name << ".size(); __i" << iter << "++)";
+        out << sb;
+        ostringstream elem;
+        elem << name << "[__i" << iter << ']';
+        iter++;
+        writeAssign(out, seq->type(), elem.str(), iter);
+        out << eb;
+        return;
+    }
+
+    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    assert(dict);
+    //
+    // No initialization needed
+    //
+}
+
+bool
+Slice::Gen::ImplVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if (!p->hasClassDefs())
+    {
+        return false;
+    }
+
+    string name = p->name();
+    
+    H << sp << nl << "namespace " << name << nl << '{';
+
+    return true;
+}
+
+void
+Slice::Gen::ImplVisitor::visitModuleEnd(const ModulePtr& p)
+{
+    H << sp;
+    H << nl << '}';
+}
+
+bool
+Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if (!p->isAbstract())
+    {
+        return false;
+    }
+
+    string name = p->name();
+    string scope = p->scope();
+    string scoped = p->scoped();
+    string cls = scope.substr(2) + name + "I";
+
+    ClassList bases = p->bases();
+    ClassDefPtr base;
+    if (!bases.empty() && !bases.front()->isInterface())
+    {
+        base = bases.front();
+    }
+
+    H << sp;
+    H << nl << "class " << name << "I : public " << name;
+    H << sb;
+    H.dec();
+    H << nl << "public:";
+    H.inc();
+
+    H << sp << nl << name << "I(const Ice::CommunicatorPtr&);";
+    H << nl << "virtual ~" << name << "I();";
+
+    C << sp << nl << cls << "::" << name
+      << "I(const Ice::CommunicatorPtr& communicator)";
+    C.inc();
+    C << nl << "_communicator(communicator)";
+    C.dec();
+    C << sb;
+    C << eb;
+
+    C << sp << nl << cls << "::~" << name << "I()";
+    C << sb;
+    C << eb;
+
+    OperationList ops = p->allOperations();
+    OperationList::const_iterator r;
+
+    //
+    // Operations
+    //
+    for (r = ops.begin(); r != ops.end(); ++r)
+    {
+        OperationPtr op = (*r);
+        string opName = op->name();
+
+        TypePtr ret = op->returnType();
+        string retS = returnTypeToString(ret);
+
+        TypeStringList inParams = op->inputParameters();
+        TypeStringList outParams = op->outputParameters();
+        TypeStringList::const_iterator q;
+
+        H << sp << nl << "virtual " << retS << ' ' << opName << '(';
+        H.useCurrentPosAsIndent();
+        for (q = inParams.begin(); q != inParams.end(); ++q)
+        {
+            if (q != inParams.begin())
+            {
+                H << ',' << nl;
+            }
+            string typeString = inputTypeToString(q->first);
+            H << typeString;
+        }
+        for (q = outParams.begin(); q != outParams.end(); ++q)
+        {
+            if (!inParams.empty() || q != outParams.begin())
+            {
+                H << ',' << nl;
+            }
+            string typeString = outputTypeToString(q->first);
+            H << typeString;
+        }
+        if (!p->isLocal())
+        {
+            if (!inParams.empty() || !outParams.empty())
+            {
+                H << ',' << nl;
+            }
+            H << "const Ice::Current&";
+        }
+        H.restoreIndent();
+        H << ");";
+
+        C << sp << nl << retS << nl << scoped.substr(2) << "I::" << opName
+          << '(';
+        C.useCurrentPosAsIndent();
+        for (q = inParams.begin(); q != inParams.end(); ++q)
+        {
+            if (q != inParams.begin())
+            {
+                C << ',' << nl;
+            }
+            string typeString = inputTypeToString(q->first);
+            C << typeString << ' ' << q->second;
+        }
+        for (q = outParams.begin(); q != outParams.end(); ++q)
+        {
+            if (!inParams.empty() || q != outParams.begin())
+            {
+                C << ',' << nl;
+            }
+            string typeString = outputTypeToString(q->first);
+            C << typeString << ' ' << q->second;
+        }
+        if (!p->isLocal())
+        {
+            if (!inParams.empty() || !outParams.empty())
+            {
+                C << ',' << nl;
+            }
+            C << "const Ice::Current& current";
+        }
+        C.restoreIndent();
+        C << ")";
+        C << sb;
+
+        int iter = 0;
+
+        //
+        // Assign values to 'out' params
+        //
+        for (q = outParams.begin(); q != outParams.end(); ++q)
+        {
+            writeAssign(C, q->first, q->second, iter);
+        }
+
+        //
+        // Return value
+        //
+        if (ret)
+        {
+            C << sp << nl << retS << " __r;";
+            writeAssign(C, ret, "__r", iter);
+            C << nl << "return __r;";
+        }
+
+        C << eb;
+    }
+
+    H << sp;
+    H.dec();
+    H << nl << "private:";
+    H.inc();
+    H << sp << nl << "Ice::CommunicatorPtr _communicator;";
+    H << eb << ';';
 
     return true;
 }
