@@ -13,6 +13,10 @@
 
 #if defined(WIN32)
 
+#   if !defined(_UNICODE)
+#       error "Only UNICODE libraries can be used with Ice!"
+#   endif
+
 #   if !defined(_DLL) || !defined(_MT)
 #       error "Only multi-threaded DLL libraries can be used with Ice!"
 #   endif

@@ -55,8 +55,6 @@ typedef double Double;
 
 }
 
-#   define _UNICODE
-
 inline int getSystemErrno() { return GetLastError(); }
 inline int getSocketErrno() { return WSAGetLastError(); }
 inline int getDNSErrno() { return WSAGetLastError(); }

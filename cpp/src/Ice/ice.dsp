@@ -43,8 +43,8 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_USRDLL" /D "ICE_API_EXPORTS" /YX /FD /c
-# SUBTRACT CPP /Fr
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I ".." /I "../../include" /D "NDEBUG" /D "_USRDLL" /D "ICE_API_EXPORTS" /D "WIN32" /D "_CONSOLE" /D "_UNICODE" /YX /FD /c
+# SUBTRACT CPP /WX /Fr
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -75,7 +75,7 @@ PostBuild_Cmds=copy Release\ice001.* ..\..\lib
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_USRDLL" /D "ICE_API_EXPORTS" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "_DEBUG" /D "_USRDLL" /D "ICE_API_EXPORTS" /D "WIN32" /D "_CONSOLE" /D "_UNICODE" /YX /FD /GZ /c
 # SUBTRACT CPP /WX /Fr
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -196,6 +196,14 @@ SOURCE=.\ObjectAdapterI.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ObjectFactory.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ObjectFactoryManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Outgoing.cpp
 # End Source File
 # Begin Source File
@@ -217,14 +225,6 @@ SOURCE=.\ProxyFactory.cpp
 # Begin Source File
 
 SOURCE=.\Reference.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ObjectFactory.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ObjectFactoryManager.cpp
 # End Source File
 # Begin Source File
 
@@ -468,6 +468,22 @@ SOURCE=..\..\include\Ice\ObjectF.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\Ice\ObjectFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\ObjectFactoryF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Ice\ObjectFactoryManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Ice\ObjectFactoryManagerF.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\Ice\Outgoing.h
 # End Source File
 # Begin Source File
@@ -513,22 +529,6 @@ SOURCE=.\Ice\Reference.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\ReferenceF.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\ObjectFactory.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\ObjectFactoryF.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Ice\ObjectFactoryManager.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Ice\ObjectFactoryManagerF.h
 # End Source File
 # Begin Source File
 
@@ -899,82 +899,6 @@ InputPath=..\..\slice\Ice\ObjectAdapterF.ice
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\Ice\Properties.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\Properties.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Properties.ice \
-	move Properties.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\Properties.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Properties.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\Properties.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Properties.ice \
-	move Properties.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\Properties.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Properties.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\PropertiesF.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\PropertiesF.ice
-
-"..\..\include\Ice\PropertiesF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/PropertiesF.ice 
-	move PropertiesF.h ..\..\include\Ice 
-	del PropertiesF.cpp 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\PropertiesF.ice
-
-"..\..\include\Ice\PropertiesF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/PropertiesF.ice 
-	move PropertiesF.h ..\..\include\Ice 
-	del PropertiesF.cpp 
-	
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\slice\Ice\ObjectFactory.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
@@ -1043,6 +967,82 @@ InputPath=..\..\slice\Ice\ObjectFactoryF.ice
 	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ObjectFactoryF.ice 
 	move ObjectFactoryF.h ..\..\include\Ice 
 	del ObjectFactoryF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\Properties.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Properties.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Properties.ice \
+	move Properties.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Properties.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Properties.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Properties.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Properties.ice \
+	move Properties.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Properties.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Properties.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\PropertiesF.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\PropertiesF.ice
+
+"..\..\include\Ice\PropertiesF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/PropertiesF.ice 
+	move PropertiesF.h ..\..\include\Ice 
+	del PropertiesF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\PropertiesF.ice
+
+"..\..\include\Ice\PropertiesF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/PropertiesF.ice 
+	move PropertiesF.h ..\..\include\Ice 
+	del PropertiesF.cpp 
 	
 # End Custom Build
 
