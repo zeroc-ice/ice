@@ -20,7 +20,6 @@ SGMLFILES	= manual.sgml \
 SLICEFILES	= ../slice/Ice/BuiltinSequences.ice \
 		  ../slice/Ice/CertificateVerifier.ice \
 		  ../slice/Ice/Communicator.ice \
-		  ../slice/Ice/Connection.ice \
 		  ../slice/Ice/Current.ice \
 		  ../slice/Ice/Identity.ice \
 		  ../slice/Ice/LocalException.ice \
