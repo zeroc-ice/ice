@@ -20,7 +20,6 @@
 #include <IceSSL/RSAKeyPair.h>
 #include <Glacier/StarterI.h>
 #include <fcntl.h>
-#include <shadow.h>
 
 using namespace std;
 using namespace Ice;

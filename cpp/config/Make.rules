@@ -22,7 +22,10 @@
 #
 # export STLPORT_HOME=/usr/local/STLport-4.5
 #
-STLPORT_HOME	?= /opt/STLport
+# If you don't want to use STLport, but the compiler's default STL
+# implementation, then define STLPORT_HOME as empty string.
+#
+#STLPORT_HOME	?= /opt/STLport
 DB_HOME		?= /opt/db
 OPENSSL_HOME	?= /opt/openssl
 XERCESC_HOME    ?= /opt/xerces-c
@@ -47,6 +50,15 @@ libdir		= $(top_srcdir)/lib
 includedir	= $(top_srcdir)/include
 slicedir	= $(top_srcdir)/slice
 
+ifneq ($(STLPORT_HOME),)
+    STLPORT_FLAGS	= -I$(STLPORT_HOME)/include/stlport
+    ifeq ($(DEBUG),yes)
+        STLPORT_LIBS	= -L$(STLPORT_HOME)/lib -lstlport_gcc
+    else
+        STLPORT_LIBS	= -L$(STLPORT_HOME)/lib -lstlport_gcc_stldebug
+    endif
+endif
+
 XERCESC_FLAGS	= -I$(XERCESC_HOME)/include
 XERCESC_LIBS	= -L$(XERCESC_HOME)/lib -lxerces-c
 
@@ -58,55 +70,17 @@ OPENSSL_LIBS	= -L$(OPENSSL_HOME)/lib -lssl -lcrypto
 # compiler options.
 #
 
-#
-# GCC 2.96
-#
 CXX		= c++
 CXXFLAGS 	= -ftemplate-depth-128 -fPIC -Wall
 DBG_CXXFLAGS	= -g
 OPT_CXXFLAGS	= -O3 -DNDEBUG
-CPPFLAGS	= -I$(STLPORT_HOME)/include/stlport
-LDFLAGS		= -L$(STLPORT_HOME)/lib
+CPPFLAGS	= $(STLPORT_FLAGS)
+LDFLAGS		= 
 SHLIB_LDFLAGS	= -shared -Xlinker -soname -Xlinker $(@F)
 LIBEXT		= so
-CC		= gcc
-CFLAGS		= $(CXXFLAGS)
-ifeq ($(DEBUG),yes)
-  BASELIBS	= -lIceUtil -lstlport_gcc_stldebug -lpthread -luuid -ldl -lbz2
-else
-  BASELIBS	= -lIceUtil -lstlport_gcc -lpthread -luuid -ldl -lbz2
-endif
-LIBS		= -lIce $(BASELIBS)
+BASELIBS	= -lIceUtil -lpthread -luuid $(STLPORT_LIBS)
+LIBS		= -lIce -ldl -lbz2 $(BASELIBS)
 SSLLIBS		= -lIceSSL $(OPENSSL_LIBS)
-
-#
-# GCC 3.2
-#
-#CXX		= c++
-#CXXFLAGS	= -ftemplate-depth-128 -fPIC -Wall
-#DBG_CXXFLAGS	= -g 
-#OPT_CXXFLAGS	= -O3 -DNDEBUG
-#SHLIB_LDFLAGS	= -shared -Xlinker -soname -Xlinker $(@F)
-#LIBEXT		= so
-#CC		= gcc
-#CFLAGS		= $(CXXFLAGS)
-#BASELIBS	= -lIceUtil -lpthread -luuid -ldl -lbz2
-#LIBS		= -lIce $(BASELIBS)
-#SSLLIBS	= -lIceSSL $(OPENSSL_LIBS)
-
-#
-# Intel's icc compiler (Experimental!)
-#
-#CXX		= icc
-#CXXFLAGS 	= -KPIC
-#DBG_CXXFLAGS	= -g -w1
-#OPT_CXXFLAGS	= -O3 -DNDEBUG
-#LIBEXT		= so
-#CC		= gcc
-#CFLAGS		= $(CXXFLAGS)
-#BASELIBS	= -lIceUtil -lpthread -luuid -ldl -lbz2
-#LIBS		= -lIce $(BASELIBS)
-#SSLLIBS	= -lIceSSL $(OPENSSL_LIBS)
 
 #
 # Don't change anything below this line!

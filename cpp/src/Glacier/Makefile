@@ -67,7 +67,7 @@ $(ROUTER): $(ROBJS)
 
 $(STARTER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lGlacier $(SSLLIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lGlacier $(SSLLIBS) $(LIBS) -lcrypt
 
 $(HDIR)/Starter.h Starter.cpp: $(SDIR)/Starter.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Starter.h Starter.cpp
