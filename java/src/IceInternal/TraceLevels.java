@@ -27,7 +27,7 @@ public final class TraceLevels
         final String keyBase = "Ice.Trace.";
 
         value = properties.getProperty(keyBase + networkCat);
-        if (value != null)
+        if (value.length() > 0)
         {
             try
             {
@@ -39,7 +39,7 @@ public final class TraceLevels
         }
 
         value = properties.getProperty(keyBase + protocolCat);
-        if (value != null)
+        if (value.length() > 0)
         {
             try
             {
@@ -51,7 +51,7 @@ public final class TraceLevels
         }
 
         value = properties.getProperty(keyBase + retryCat);
-        if (value != null)
+        if (value.length() > 0)
         {
             try
             {
@@ -63,7 +63,7 @@ public final class TraceLevels
         }
 
         value = properties.getProperty(keyBase + securityCat);
-        if (value != null)
+        if (value.length() > 0)
         {
             try
             {

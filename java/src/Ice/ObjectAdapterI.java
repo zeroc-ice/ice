@@ -369,8 +369,7 @@ public class ObjectAdapterI implements ObjectAdapter
 
         try
         {
-            String value =
-                _instance.properties().getProperty("Ice.PrintAdapterReady");
+            String value = _instance.properties().getProperty("Ice.PrintAdapterReady");
             if (Integer.parseInt(value) >= 1)
             {
                 System.out.println(_name + " readY");

@@ -20,6 +20,10 @@ class PropertiesI implements Properties
         {
             result = System.getProperty(key);
         }
+        if (result == null)
+        {
+            result = "";
+        }
         return result;
     }
 
@@ -153,7 +157,7 @@ class PropertiesI implements Properties
 
         String file = getProperty("Ice.Config");
 
-        if (file == null || file.equals("1"))
+        if (file.equals("1"))
         {
             file = "";
         }

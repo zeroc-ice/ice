@@ -127,12 +127,12 @@ public class Instance
             _logger = new Ice.LoggerI();
             _traceLevels = new TraceLevels(_properties);
             _defaultProtocol = _properties.getProperty("Ice.DefaultProtocol");
-            if (_defaultProtocol == null)
+            if (_defaultProtocol.length() == 0)
             {
                 _defaultProtocol = "tcp";
             }
             _defaultHost = _properties.getProperty("Ice.DefaultHost");
-            if (_defaultHost == null)
+            if (_defaultHost.length() == 0)
             {
                 _defaultHost = Network.getLocalHost(true);
             }
@@ -140,11 +140,10 @@ public class Instance
             _referenceFactory = new ReferenceFactory(this);
             _proxyFactory = new ProxyFactory(this);
             String value = _properties.getProperty("Ice.DefaultRouter");
-            if (value != null)
+            if (value.length() > 0)
             {
                 _referenceFactory.setDefaultRouter(
-                    Ice.RouterPrxHelper.uncheckedCast(
-                        _proxyFactory.stringToProxy(value)));
+                    Ice.RouterPrxHelper.uncheckedCast(_proxyFactory.stringToProxy(value)));
             }
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
             _servantFactoryManager = new ObjectFactoryManager();

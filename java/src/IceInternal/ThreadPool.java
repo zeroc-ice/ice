@@ -192,16 +192,12 @@ public final class ThreadPool
         //
         _keysIter = null;
 
-        String value = _properties.getProperty("Ice.ServerIdleTime");
-        if (value != null)
+        try
         {
-            try
-            {
-                _timeout = Integer.parseInt(value);
-            }
-            catch (NumberFormatException ex)
-            {
-            }
+            _timeout = Integer.parseInt(_properties.getProperty("Ice.ServerIdleTime"));
+        }
+        catch (NumberFormatException ex)
+        {
         }
 
 	try
@@ -232,19 +228,13 @@ public final class ThreadPool
         }
 
         // Must be called after _threadNum is set
-        int maxConnections = 0;
-        value = _properties.getProperty("Ice.ThreadPool.MaxConnections");
-        if (value != null)
+        try
         {
-            try
-            {
-                maxConnections = Integer.parseInt(value);
-            }
-            catch (NumberFormatException ex)
-            {
-            }
+            setMaxConnections(Integer.parseInt(_properties.getProperty("Ice.ThreadPool.MaxConnections")));
         }
-        setMaxConnections(maxConnections);
+        catch (NumberFormatException ex)
+        {
+        }
     }
 
     protected void

@@ -623,8 +623,7 @@ public final class Connection extends EventHandler
 
         try
         {
-            String val =
-                _instance.properties().getProperty("Ice.ConnectionWarnings");
+            String val = _instance.properties().getProperty("Ice.ConnectionWarnings");
             _warn = Integer.parseInt(val) > 0 ? true : false;
         }
         catch (NumberFormatException ex)

@@ -72,7 +72,7 @@ class CommunicatorI implements Communicator
 
         ObjectAdapter adapter = createObjectAdapterFromProperty(name, "Ice.Adapter." + name + ".Endpoints");
         String router = _instance.properties().getProperty("Ice.Adapter." + name + ".Router");
-        if (router != null)
+        if (router.length() > 0)
         {
             adapter.addRouter(RouterPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(router)));
         }
