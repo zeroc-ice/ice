@@ -306,7 +306,7 @@ IceInternal::Connection::waitUntilFinished()
 		// We must wait a bit longer until we close this
 		// connection.
 		//
-		if(!timedWait(IceUtil::Time::milliSeconds(waitTime)))
+		if(!timedWait(waitTime))
 		{
 		    setState(StateClosed, CloseTimeoutException(__FILE__, __LINE__));
 		}
