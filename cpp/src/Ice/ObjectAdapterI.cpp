@@ -41,8 +41,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-const char * const Ice::ObjectAdapterI::_kindOfObject = "object adapter";
-
 CommunicatorPtr
 Ice::ObjectAdapterI::getCommunicator()
 {
@@ -90,14 +88,14 @@ Ice::ObjectAdapterI::activate()
 	    catch(const Ice::AdapterNotRegisteredException&)
 	    {
 		NotRegisteredException ex(__FILE__, __LINE__);
-		ex.kindOfObject = _kindOfObject;
+		ex.kindOfObject = "object adapter";
 		ex.id = _id;
 		throw ex;
 	    }
 	    catch(const Ice::AdapterAlreadyActiveException&)
 	    {
 		AlreadyRegisteredException ex(__FILE__, __LINE__);
-		ex.kindOfObject = _kindOfObject;
+		ex.kindOfObject = "object adapter";
 		ex.id = _id;
 		throw ex;
 	    }
@@ -195,7 +193,7 @@ Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
        || _activeServantMap.find(ident) != _activeServantMap.end())
     {
 	AlreadyRegisteredException ex(__FILE__, __LINE__);
-	ex.kindOfObject = _kindOfObject;
+	ex.kindOfObject = "servant";
 	ex.id = identityToString(ident);
 	throw ex;
     }
@@ -243,7 +241,7 @@ Ice::ObjectAdapterI::remove(const Identity& ident)
     if(p == _activeServantMap.end())
     {
 	NotRegisteredException ex(__FILE__, __LINE__);
-	ex.kindOfObject = _kindOfObject;
+	ex.kindOfObject = "servant";
 	ex.id = identityToString(ident);
 	throw ex;
     }
@@ -268,7 +266,7 @@ Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const s
        || _locatorMap.find(prefix) != _locatorMap.end())
     {
 	AlreadyRegisteredException ex(__FILE__, __LINE__);
-	ex.kindOfObject = _kindOfObject;
+	ex.kindOfObject = "servant locator";
 	ex.id = prefix;
 	throw ex;
     }
@@ -304,7 +302,7 @@ Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
 	if (p == _locatorMap.end())
 	{
 	    NotRegisteredException ex(__FILE__, __LINE__);
-	    ex.kindOfObject = _kindOfObject;
+	    ex.kindOfObject = "servant locator";
 	    ex.id = prefix;
 	    throw ex;
 	}
