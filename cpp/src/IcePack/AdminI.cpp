@@ -1470,6 +1470,25 @@ IcePack::AdminI::removeNode(const string& name, const Current&)
     _nodeRegistry->remove(name);
 }
 
+string
+IcePack::AdminI::getNodeHostname(const string& name, const Current&) const
+{
+    NodePrx node = _nodeRegistry->findByName(name);
+    try
+    {
+	return node->getHostname();
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+	throw NodeNotExistException();
+    }
+    catch(const Ice::LocalException&)
+    {
+	throw NodeUnreachableException();
+    }
+}
+
+
 StringSeq
 IcePack::AdminI::getAllNodeNames(const Current&) const
 {

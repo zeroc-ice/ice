@@ -348,7 +348,7 @@ IcePack::NodeService::start(int argc, char* argv[])
     //
     ServerFactoryPtr serverFactory = new ServerFactory(adapter, traceLevels, envName, _activator, _waitQueue);
 
-    NodePtr node = new NodeI(_activator, name, serverFactory, properties);
+    NodePtr node = new NodeI(_activator, name, serverFactory, communicator(), properties);
     NodePrx nodeProxy = NodePrx::uncheckedCast(adapter->addWithUUID(node));
 
     //

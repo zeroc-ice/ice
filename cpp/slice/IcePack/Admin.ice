@@ -864,7 +864,7 @@ interface Admin
      *
      **/
     idempotent void shutdownNode(string name)
-	throws NodeNotExistException;
+	throws NodeNotExistException, NodeUnreachableException;
 
     /**
      *
@@ -875,6 +875,16 @@ interface Admin
      **/
     idempotent void removeNode(string name)
 	throws NodeNotExistException;
+
+    /**
+     *
+     * Get the hostname of this node.
+     *
+     * @param name The node name.
+     *
+     **/
+    nonmutating string getNodeHostname(string name)
+	throws NodeNotExistException, NodeUnreachableException;
 
     /**
      *

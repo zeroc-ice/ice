@@ -25,7 +25,8 @@ class NodeI : public Node
 {
 public:
 
-    NodeI(const ActivatorPtr&, const std::string&, const ServerFactoryPtr&, const Ice::PropertiesPtr&);
+    NodeI(const ActivatorPtr&, const std::string&, const ServerFactoryPtr&, 
+	  const Ice::CommunicatorPtr&, const Ice::PropertiesPtr&);
 
     virtual ServerPrx createServer(const std::string&, const ServerDescriptorPtr&, const Ice::Current&) const;
     virtual ServerAdapterPrx createServerAdapter(const ServerPrx&, const std::string&, const Ice::Current&) const;
@@ -34,12 +35,14 @@ public:
     virtual void destroyTmpDir(const std::string&, const Ice::Current&) const;
 
     virtual std::string getName(const Ice::Current&) const;
+    virtual std::string getHostname(const Ice::Current&) const;
     virtual void shutdown(const Ice::Current&) const;
 
 private:
 
     const ActivatorPtr _activator;
     const std::string _name;
+    const std::string _hostname;
     const ServerFactoryPtr _factory;
     std::string _tmpDir;
 };

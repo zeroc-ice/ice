@@ -607,6 +607,13 @@ interface Node
 
     /**
      *
+     * Get the node hostname.
+     *
+     **/
+    nonmutating string getHostname();    
+
+    /**
+     *
      * Shutdown the node.
      *
      **/
