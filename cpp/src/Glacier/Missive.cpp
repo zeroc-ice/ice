@@ -66,11 +66,12 @@ Glacier::Missive::getCurrent() const
 }
 
 Glacier::MissiveQueue::MissiveQueue(const Ice::CommunicatorPtr& communicator, int traceLevel, bool reverse,
-				    const IceUtil::Time& _sleepTime) :
+				    const IceUtil::Time& sleepTime) :
     _communicator(communicator),
     _logger(communicator->getLogger()),
     _traceLevel(traceLevel),
     _reverse(reverse),
+    _sleepTime(sleepTime),
     _destroy(false)
 {
 }
