@@ -95,7 +95,7 @@ SOURCE=.\Client.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Hello.cpp
+SOURCE=.\HelloSession.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -103,7 +103,7 @@ SOURCE=.\Hello.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\Hello.h
+SOURCE=.\HelloSession.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -111,41 +111,41 @@ SOURCE=.\Hello.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\Hello.ice
+SOURCE=.\HelloSession.ice
 
 !IF  "$(CFG)" == "sessionC - Win32 Release"
 
-USERDEP__HELLO="../../../bin/slice2cpp.exe"	
+USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
-InputPath=.\Hello.ice
+InputPath=.\HelloSession.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\..\lib \
-	..\..\..\bin\slice2cpp.exe Hello.ice \
+	..\..\..\bin\slice2cpp.exe -I../../../slice HelloSession.ice \
 	
 
-"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"HelloSession.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"HelloSession.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "sessionC - Win32 Debug"
 
-USERDEP__HELLO="../../../bin/slice2cpp.exe"	
+USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
-InputPath=.\Hello.ice
+InputPath=.\HelloSession.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\..\lib \
-	..\..\..\bin\slice2cpp.exe Hello.ice \
+	..\..\..\bin\slice2cpp.exe -I../../../slice HelloSession.ice \
 	
 
-"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"HelloSession.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"HelloSession.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
