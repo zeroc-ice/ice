@@ -34,7 +34,8 @@ public class Client
         ping.ice_ping();
 
         long tv1 = System.currentTimeMillis();
-        final int repetitions = 100000;
+        //final int repetitions = 100000;
+        final int repetitions = 10000;
         System.out.println("pinging server " + repetitions +
                            " times (this may take a while)");
         for (int i = 0; i < repetitions; i++)
