@@ -394,11 +394,21 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         string typeS = typeToString(type);
         if(marshal)
         {
-            out << nl << typeS << "Helper.__write(" << stream << ", " << param << ");";
+            out << nl << typeS << "Helper.";
+	    if(!streamingAPI)
+	    {
+	        out << "__";
+	    }
+	    out << "write(" << stream << ", " << param << ");";
         }
         else
         {
-            out << nl << param << " = " << typeS << "Helper.__read(" << stream << ')' << ';';
+            out << nl << param << " = " << typeS << "Helper.";
+	    if(!streamingAPI)
+	    {
+		out << "__";
+	    }
+	    out << "read(" << stream << ')' << ';';
         }
         return;
     }
@@ -640,10 +650,17 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     {
         if(marshal)
         {
+	    out << nl << "if(" << param << " == null)";
+	    out << sb;
+	    out << nl << stream << ".writeSize(0);";
+	    out << eb;
+	    out << nl << "else";
+	    out << sb;
 	    out << nl << stream << ".writeSize(" << param << '.' << limitID << ");";
 	    out << nl << "for(int __ix = 0; __ix < " << param << '.' << limitID << "; ++__ix)";
 	    out << sb;
             out << nl << stream << ".writeObject(" << param << "[__ix]);";
+	    out << eb;
 	    out << eb;
         }
         else
@@ -694,10 +711,17 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     {
         if(marshal)
 	{
+	    out << nl << "if(" << param << " == null)";
+	    out << sb;
+	    out << nl << stream << ".writeSize(0);";
+	    out << eb;
+	    out << nl << "else";
+	    out << sb;
 	    out << nl << stream << ".writeSize(" << param << '.' << limitID << ");";
 	    out << nl << "for(int __ix = 0; __ix < " << param << '.' << limitID << "; ++__ix)";
 	    out << sb;
 	    out << nl << param << "[__ix].__write(" << stream << ");";
+	    out << eb;
 	    out << eb;
 	}
 	else
@@ -742,10 +766,17 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     {
 	if(marshal)
 	{
+	    out << nl << "if(" << param << " == null)";
+	    out << sb;
+	    out << nl << stream << ".writeSize(0);";
+	    out << eb;
+	    out << nl << "else";
+	    out << sb;
 	    out << nl << stream << ".writeSize(" << param << '.'<< limitID << ");";
 	    out << nl << "for(int __ix = 0; __ix < " << param << '.' << limitID << "; ++__ix)";
 	    out << sb;
 	    out << nl << stream << ".writeByte((byte)" << param << "[__ix]);";
+	    out << eb;
 	    out << eb;
 	}
 	else
@@ -796,18 +827,30 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         helperName = fixId(ContainedPtr::dynamicCast(type)->scoped() + "Helper");
     }
 
+    string func;
+    if(!streamingAPI && ProxyPtr::dynamicCast(type))
+    {
+       func = "__";
+    }
     if(marshal)
     {
-        string func = ProxyPtr::dynamicCast(type) ? "__write" : "write";
+        func += "write";
+	out << nl << "if(" << param << " == null)";
+	out << sb;
+	out << nl << stream << ".writeSize(0);";
+	out << eb;
+	out << nl << "else";
+	out << sb;
 	out << nl << stream << ".writeSize(" << param << '.' << limitID << ");";
 	out << nl << "for(int __ix = 0; __ix < " << param << '.' << limitID << "; ++__ix)";
 	out << sb;
 	out << nl << helperName << '.' << func << '(' << stream << ", " << param << "[__ix]);";
 	out << eb;
+	out << eb;
     }
     else
     {
-        string func = ProxyPtr::dynamicCast(type) ? "__read" : "read";
+        func += "read";
 	out << sb;
 	out << nl << "int szx = " << stream << ".readSize();";
 	if(!streamingAPI)
@@ -840,7 +883,10 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    {
 		out << nl << stream << ".checkSeq();";
 	    }
-	    out << nl << stream << ".endElement();";
+	    if(!streamingAPI)
+	    {
+		out << nl << stream << ".endElement();";
+	    }
 	}
 	out << eb;
 	if(!streamingAPI)

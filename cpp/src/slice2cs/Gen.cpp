@@ -1219,6 +1219,11 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    }
 	    _out << eb;
 
+	    _out << sp << nl << "public override void invoke(Ice.Object v)";
+	    _out << sb;
+	    _out << nl << "patch(v);";
+	    _out << eb;
+
 	    _out << sp << nl << "private " << name << " _instance;";
 	    if(allClassMembers.size() > 1)
 	    {
@@ -1841,6 +1846,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	    }
 	    _out << eb;
 	}
+
         _out << sp << nl << "public override void __read(IceInternal.BasicStream __is, bool __rid)";
         _out << sb;
 	_out << nl << "if(__rid)";
@@ -1870,6 +1876,54 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         if(base)
         {
             _out << nl << "base.__read(__is, true);";
+        }
+        _out << eb;
+
+        _out << sp << nl << "public override void __write(Ice.OutputStream __out)";
+	_out << sb;
+	_out << nl << "__out.writeString(\"" << scoped << "\");";
+	_out << nl << "__out.startSlice();";
+        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            writeMarshalUnmarshalCode(_out, (*q)->type(),
+	                              fixId((*q)->name(), DotNet::ApplicationException),
+				      true, true, false);
+        }
+	_out << nl << "__out.endSlice();";
+        if(base)
+        {
+            _out << nl << "base.__write(__out);";
+        }
+	_out << eb;
+
+        _out << sp << nl << "public override void __read(Ice.InputStream __in, bool __rid)";
+        _out << sb;
+	_out << nl << "if(__rid)";
+	_out << sb;
+	_out << nl << "string myId = __in.readString();";
+	_out << eb;
+	_out << nl << "__in.startSlice();";
+	classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
+        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+	    ostringstream patchParams;
+	    patchParams << "this";
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast((*q)->type());
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*q)->type()))
+	    {
+		if(classMembers.size() > 1 || allClassMembers.size() > 1)
+		{
+		    patchParams << ", " << classMemberCount++;
+		}
+	    }
+            writeMarshalUnmarshalCode(_out, (*q)->type(),
+	                              fixId((*q)->name(), DotNet::ApplicationException),
+				      false, true, false, patchParams.str());
+        }
+	_out << nl << "__in.endSlice();";
+        if(base)
+        {
+            _out << nl << "base.__read(__in, true);";
         }
         _out << eb;
 
@@ -2037,7 +2091,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
 	if(classMembers.size() != 0)
 	{
-	    _out << sp << nl << "public sealed class __Patcher : IceInternal.Patcher";
+	    _out << sp << nl << "public sealed class __Patcher : IceInternal.Patcher, Ice.ReadObjectCallback";
 	    _out << sb;
 	    _out << sp << nl << "internal __Patcher(" << name;
 	    if(patchStruct)
@@ -2088,6 +2142,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	    {
 		_out << eb;
 	    }
+	    _out << eb;
+
+	    _out << sp << nl << "public override void invoke(Ice.Object v)";
+	    _out << sb;
+	    _out << nl << "patch(v);";
 	    _out << eb;
 
 	    _out << sp << nl << "private " << name;
@@ -2154,6 +2213,44 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	                              false, false, false, patchParams.str());
         }
         _out << eb;
+
+	_out << sp << nl << "public void __write(Ice.OutputStream __out)";
+	_out << sb;
+	for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	{
+	    writeMarshalUnmarshalCode(_out, (*q)->type(),
+	                              fixId((*q)->name(), isClass ? DotNet::ICloneable : 0),
+				      true, true, false);
+	}
+	_out << eb;
+
+	_out << sp << nl << "public void __read(Ice.InputStream __in)";
+	_out << sb;
+	if(patchStruct)
+	{
+	    _out << nl << "if(_pm == null)";
+	    _out << sb;
+	    _out << nl << "_pm = new __PatchMembers();";
+	    _out << eb;
+	}
+	classMemberCount = 0;
+        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+	    ostringstream patchParams;
+	    patchParams << (patchStruct ? "_pm" : "this");
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast((*q)->type());
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*q)->type()))
+	    {
+		if(classMembers.size() > 1)
+		{
+		    patchParams << ", " << classMemberCount++;
+		}
+	    }
+            writeMarshalUnmarshalCode(_out, (*q)->type(),
+	    			      fixId((*q)->name(), isClass ? DotNet::ICloneable : 0 ),
+	                              false, true, false, patchParams.str());
+        }
+	_out << eb;
 
         _out << sp << nl << "#endregion"; // Marshalling support
     }
@@ -2408,6 +2505,7 @@ void
 Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     string name = fixId(p->name());
+    string scoped = fixId(p->scoped());
     EnumeratorList enumerators = p->getEnumerators();
     _out << sp << nl << "public enum " << name;
     _out << sb;
@@ -2420,6 +2518,23 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 	    _out << ',';
 	}
     }
+    _out << eb;
+
+    _out << sp << nl << "public class " << name << "Helper";
+    _out << sb;
+
+    _out << sp << nl << "public static void write(Ice.OutputStream __out, " << scoped << " __v)";
+    _out << sb;
+    writeMarshalUnmarshalCode(_out, p, "__v", true, true, false);
+    _out << eb;
+
+    _out << sp << nl << "public static " << scoped << " read(Ice.InputStream __in)";
+    _out << sb;
+    _out << nl << scoped << " __v;";
+    writeMarshalUnmarshalCode(_out, p, "__v", false, true, false);
+    _out << nl << "return __v;";
+    _out << eb;
+
     _out << eb;
 }
 
@@ -2983,6 +3098,23 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "return null;";
     _out << eb;
 
+    _out << sp << nl << "public static void write(Ice.OutputStream __out, " << name << "Prx __v)";
+    _out << sb;
+    _out << nl << "__out.writeProxy(__v);";
+    _out << eb;
+
+    _out << sp << nl << "public static " << name << "Prx read(Ice.InputStream __in)";
+    _out << sb;
+    _out << nl << "Ice.ObjectPrx proxy = __in.readProxy();";
+    _out << nl << "if(proxy != null)";
+    _out << sb;
+    _out << nl << name << "PrxHelper result = new " << name << "PrxHelper();";
+    _out << nl << "result.__copyFrom(proxy);";
+    _out << nl << "return result;";
+    _out << eb;
+    _out << nl << "return null;";
+    _out << eb;
+
     _out << sp << nl << "#endregion"; // Marshaling support
 
     return true;
@@ -3023,7 +3155,19 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     _out << nl << "return __v;";
     _out << eb;
 
+    _out << nl << "public static void write(Ice.OutputStream __out, " << typeS << " __v)";
+    _out << sb;
+    writeSequenceMarshalUnmarshalCode(_out, p, "__v", true, true);
     _out << eb;
+
+    _out << sp << nl << "public static " << typeS << " read(Ice.InputStream __in)";
+    _out << sb;
+    _out << nl << typeS << " __v;";
+    writeSequenceMarshalUnmarshalCode(_out, p, "__v", false, true);
+    _out << nl << "return __v;";
+    _out << eb;
+    _out << eb;
+
 }
 
 void
@@ -3070,7 +3214,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     bool hasClassValue = (builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(value);
     if(hasClassValue)
     {
-	_out << sp << nl << "public sealed class __Patcher : IceInternal.Patcher";
+	_out << sp << nl << "public sealed class __Patcher : IceInternal.Patcher, Ice.ReadObjectCallback";
 	_out << sb;
 	_out << sp << nl << "internal __Patcher(" << name << " m, " << keyS << " key)";
 	_out << sb;
@@ -3084,6 +3228,11 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 	_out << nl << "_m[_key] = (" << valueS << ")v;";
 	_out << eb;
 
+	_out << sp << nl << "public override void invoke(Ice.Object __v)";
+	_out << sb;
+	_out << nl << "patch(__v);";
+	_out << eb;
+
 	_out << sp << nl << "private " << name << " _m;";
 	_out << nl << "private " << keyS << " _key;";
 	_out << eb;
@@ -3091,14 +3240,12 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
     _out << sp << nl << "public static " << name << " read(IceInternal.BasicStream __is)";
     _out << sb;
-
     _out << nl << "int __sz = __is.readSize();";
     _out << nl << name << " __r = new " << name << "();";
     _out << nl << "for(int __i = 0; __i < __sz; ++__i)";
     _out << sb;
     _out << nl << keyS << " __k;";
     writeMarshalUnmarshalCode(_out, key, "__k", false, false, false);
-
     if(!hasClassValue)
     {
 	_out << nl << valueS << " __v;";
@@ -3110,7 +3257,44 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     }
     _out << eb;
     _out << nl << "return __r;";
+    _out << eb;
 
+    _out << nl << "public static void" << nl << "write(Ice.OutputStream __out, " << name << " __v)";
+    _out << sb;
+    _out << nl << "if(__v == null)";
+    _out << sb;
+    _out << nl << "__out.writeSize(0);";
+    _out << eb;
+    _out << nl << "else";
+    _out << sb;
+    _out << nl << "__out.writeSize(__v.Count);";
+    _out << nl << "foreach(_System.Collections.DictionaryEntry __e in __v)";
+    _out << sb;
+    writeMarshalUnmarshalCode(_out, key, keyArg, true, true, false);
+    writeMarshalUnmarshalCode(_out, value, valueArg, true, true, false);
+    _out << eb;
+    _out << eb;
+    _out << eb;
+
+    _out << sp << nl << "public static " << name << " read(Ice.InputStream __in)";
+    _out << sb;
+    _out << nl << "int __sz = __in.readSize();";
+    _out << nl << name << " __r = new " << name << "();";
+    _out << nl << "for(int __i = 0; __i < __sz; ++__i)";
+    _out << sb;
+    _out << nl << keyS << " __k;";
+    writeMarshalUnmarshalCode(_out, key, "__k", false, true, false);
+    if(!hasClassValue)
+    {
+	_out << nl << valueS << " __v;";
+    }
+    writeMarshalUnmarshalCode(_out, value, "__v", false, true, false, "__r, __k");
+    if(!hasClassValue)
+    {
+	_out << nl << "__r[__k] = __v;";
+    }
+    _out << eb;
+    _out << nl << "return __r;";
     _out << eb;
 
     _out << eb;
