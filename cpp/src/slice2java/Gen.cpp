@@ -2332,6 +2332,12 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         //
         out << nl << "public static void" << nl << "write(IceInternal.BasicStream __os, " << "java.util.Map __v)";
         out << sb;
+        out << nl << "if(__v == null)";
+        out << sb;
+        out << nl << "__os.writeSize(0);";
+        out << eb;
+        out << nl << "else";
+        out << sb;
         out << nl << "__os.writeSize(__v.size());";
         out << nl << "java.util.Iterator __i = __v.entrySet().iterator();";
         out << nl << "while(__i.hasNext())";
@@ -2414,6 +2420,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
             }
             writeMarshalUnmarshalCode(out, scope, type, val, true, iter, false);
         }
+        out << eb;
         out << eb;
         out << eb;
 
