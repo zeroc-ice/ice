@@ -131,7 +131,7 @@ Slice::Gen::emitMessage(Output& O, const OperationPtr& p)
     os << "wsdl:message name=\"output." << p->name() << "\"";
     start(O, os.str());
 
-    O << nl << "<wsdl:part name=\"body\" element=\"xsd1:" << scopeId << "request." << p->name() << "\"/>";
+    O << nl << "<wsdl:part name=\"body\" element=\"xsd1:" << scopeId << "reply." << p->name() << "\"/>";
 
     end(O); // message
 }
