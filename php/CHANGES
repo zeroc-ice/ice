@@ -1,7 +1,7 @@
 Changes since version 1.0.3
 ---------------------------
 
-- Changed facet interface to be compatible with Ice.
+- Changed facet interface to be compatible with Ice 1.4.0.
 
 - Added the proxy methods ice_newContext and ice_getContext.
 
