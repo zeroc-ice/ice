@@ -1508,7 +1508,14 @@ Slice::Gen::HolderVisitor::visitClassDefStart(const ClassDefPtr& p)
             Output& out = output();
             out << sp << nl << "public final class " << name << "PrxHolder";
             out << sb;
-            out << nl << "public " << name << "Prx value;";
+            out << sp << nl << "public" << nl << name << "PrxHolder()";
+            out << sb;
+            out << eb;
+            out << sp << nl << "public" << nl << name << "PrxHolder(" << name << "Prx value)";
+            out << sb;
+            out << nl << "this.value = value;";
+            out << eb;
+            out << sp << nl << "public " << name << "Prx value;";
             out << eb;
             close();
         }
@@ -1557,7 +1564,14 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
         string typeS = typeToString(p, TypeModeIn, contained->scope());
         out << sp << nl << "public final class " << name << "Holder";
         out << sb;
-        out << nl << "public " << typeS << " value;";
+        out << sp << nl << "public" << nl << name << "Holder()";
+        out << sb;
+        out << eb;
+        out << sp << nl << "public" << nl << name << "Holder(" << typeS << " value)";
+        out << sb;
+        out << nl << "this.value = value;";
+        out << eb;
+        out << sp << nl << "public " << typeS << " value;";
         out << eb;
         close();
     }
