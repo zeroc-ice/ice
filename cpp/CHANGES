@@ -1,6 +1,10 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Tightened semantic check for all Slice compilers: previously,
+  a local interface or class could be derived from a non-local
+  interface or class. This is now correctly diagnosed as an error.
+
 - Changed code generation in slice2java: for local interfaces,
   only an OperationsNC (but no Operations) interface is generated
   now. (Previously, both interfaces were generated, with one of

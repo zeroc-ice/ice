@@ -497,7 +497,7 @@ public:
     virtual std::string kindOf() const;
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
-    static void checkBasesAreLegal(const std::string&, bool, const ClassList&, const UnitPtr&);
+    static void checkBasesAreLegal(const std::string&, bool, bool, const ClassList&, const UnitPtr&);
 
 protected:
 

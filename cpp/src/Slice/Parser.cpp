@@ -542,7 +542,7 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
 	return 0;
     }
 
-    ClassDecl::checkBasesAreLegal(name, local, bases, _unit);
+    ClassDecl::checkBasesAreLegal(name, intf, local, bases, _unit);
  
     ClassDefPtr def = new ClassDef(this, name, intf, bases, local);
     _contents.push_back(def);
@@ -2244,21 +2244,21 @@ Slice::ClassDecl::recDependencies(set<ConstructedPtr>& dependencies)
 }
 
 void
-Slice::ClassDecl::checkBasesAreLegal(const string& name, bool local, const ClassList& bases, const UnitPtr& unit)
+Slice::ClassDecl::checkBasesAreLegal(const string& name, bool intf, bool local, const ClassList& bases,
+				     const UnitPtr& unit)
 {
     //
-    // If this definition is non-local, no base can be local.
+    // Local definitions cannot have non-local bases, and vice versa.
     //
-    if(!local)
+    for(ClassList::const_iterator p = bases.begin(); p != bases.end(); ++p)
     {
-	for(ClassList::const_iterator p = bases.begin(); p != bases.end(); ++p)
+	if(local != (*p)->isLocal())
 	{
-	    if((*p)->isLocal())
-	    {
-		string msg = "non-local `" + name + "' cannot have base ";
-		msg += (*p)->kindOf() + " `" + (*p)->name() + "'";
-		unit->error(msg);
-	    }
+	    ostringstream msg;
+	    msg << (local ? "local" : "non-local") << " " << (intf ? "interface" : "class") << " `"
+		<< name << "' cannot have " << ((*p)->isLocal() ? "local" : "non-local") << " base "
+		<< ((*p)->isInterface() ? "interface" : "class") << " `" << (*p)->name() << "'";
+	    unit->error(msg.str());
 	}
     }
 
