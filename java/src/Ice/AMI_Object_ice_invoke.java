@@ -16,7 +16,6 @@ package Ice;
 
 public abstract class AMI_Object_ice_invoke extends IceInternal.OutgoingAsync
 {
-
     public abstract void ice_response(boolean ok, byte[] outParams);
     public abstract void ice_exception(Ice.LocalException ex);
 
