@@ -416,17 +416,17 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     }
     out << eb << ';';
 
-    out << sp << nl << "public boolean" << nl << "ice_isA(String s, Ice.Current current)";
+    out << sp << nl << "public boolean" << nl << "ice_isA(String s, Ice.Current __current)";
     out << sb;
     out << nl << "return java.util.Arrays.binarySearch(__ids, s) >= 0;";
     out << eb;
 
-    out << sp << nl << "public String[]" << nl << "ice_ids(Ice.Current current)";
+    out << sp << nl << "public String[]" << nl << "ice_ids(Ice.Current __current)";
     out << sb;
     out << nl << "return __ids;";
     out << eb;
 
-    out << sp << nl << "public String" << nl << "ice_id(Ice.Current current)";
+    out << sp << nl << "public String" << nl << "ice_id(Ice.Current __current)";
     out << sb;
     out << nl << "return __ids[" << scopedPos << "];";
     out << eb;
@@ -699,9 +699,9 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         out << eb << ';';
 
         out << sp << nl << "public IceInternal.DispatchStatus" << nl
-	    << "__dispatch(IceInternal.Incoming in, Ice.Current current)";
+	    << "__dispatch(IceInternal.Incoming in, Ice.Current __current)";
         out << sb;
-        out << nl << "int pos = java.util.Arrays.binarySearch(__all, current.operation);";
+        out << nl << "int pos = java.util.Arrays.binarySearch(__all, __current.operation);";
         out << nl << "if(pos < 0)";
         out << sb;
         out << nl << "return IceInternal.DispatchStatus.DispatchOperationNotExist;";
@@ -717,23 +717,23 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
             out << sb;
             if(opName == "ice_facets")
             {
-                out << nl << "return ___ice_facets(this, in, current);";
+                out << nl << "return ___ice_facets(this, in, __current);";
             }
             else if(opName == "ice_id")
             {
-                out << nl << "return ___ice_id(this, in, current);";
+                out << nl << "return ___ice_id(this, in, __current);";
             }
             else if(opName == "ice_ids")
             {
-                out << nl << "return ___ice_ids(this, in, current);";
+                out << nl << "return ___ice_ids(this, in, __current);";
             }
             else if(opName == "ice_isA")
             {
-                out << nl << "return ___ice_isA(this, in, current);";
+                out << nl << "return ___ice_isA(this, in, __current);";
             }
             else if(opName == "ice_ping")
             {
-                out << nl << "return ___ice_ping(this, in, current);";
+                out << nl << "return ___ice_ping(this, in, __current);";
             }
             else
             {
@@ -749,7 +749,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
                         assert(cl);
                         if(cl->scoped() == p->scoped())
                         {
-                            out << nl << "return ___" << opName << "(this, in, current);";
+                            out << nl << "return ___" << opName << "(this, in, __current);";
                         }
                         else
                         {
@@ -762,7 +762,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
                             {
                                 base = getAbsolute(cl->scoped(), scope);
                             }
-                            out << nl << "return " << base << ".___" << opName << "(this, in, current);";
+                            out << nl << "return " << base << ".___" << opName << "(this, in, __current);";
                         }
                         break;
                     }
@@ -957,7 +957,7 @@ Slice::Gen::OpsVisitor::visitOperation(const OperationPtr& p)
 	{
 	    out << ", ";
 	}
-	out << "Ice.Current current";
+	out << "Ice.Current __current";
     }
     out << ')';
     ExceptionList throws = p->throws();
@@ -1089,7 +1089,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 out << ", ";
             }
-            out << "Ice.Current current";
+            out << "Ice.Current __current";
         }
         out << ')';
 
@@ -1111,7 +1111,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 out << ", ";
             }
-            out << "current";
+            out << "__current";
         }
         out << ");";
         out << eb;
@@ -3908,7 +3908,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& scope, co
         ParamDeclList::const_iterator q;
 
         out << sp << nl << "public void" << nl << opName << "_async(" << getParamsAsync(op, scope, true)
-            << ", Ice.Current current)";
+            << ", Ice.Current __current)";
 
         ExceptionList throws = op->throws();
         throws.sort();
@@ -3967,7 +3967,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& scope, co
             {
                 out << ", ";
             }
-            out << "Ice.Current current";
+            out << "Ice.Current __current";
         }
         out << ')';
 
