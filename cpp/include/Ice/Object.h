@@ -115,7 +115,8 @@ class ICE_API Blobject : virtual public Object
 {
 public:
 
-    virtual void ice_invoke(const std::vector<Byte>&, std::vector<Byte>&, const Current&) = 0;
+    // Returns true if ok, false if user exception.
+    virtual bool ice_invoke(const std::vector<Byte>&, std::vector<Byte>&, const Current&) = 0;
     virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);
 };
 

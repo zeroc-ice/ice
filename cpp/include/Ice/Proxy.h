@@ -72,8 +72,8 @@ public:
     ::std::vector< ::std::string> ice_ids(const ::Ice::Context& = ::Ice::Context());
     ::std::string ice_id(const ::Ice::Context& = ::Ice::Context());
     ::std::vector< ::std::string> ice_facets(const ::Ice::Context& = ::Ice::Context());
-    void ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
-		    const ::Ice::Context& = ::Ice::Context());
+    bool ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
+		    const ::Ice::Context& = ::Ice::Context()); // Returns true if ok, false if user exception.
 
     ::Ice::Identity ice_getIdentity() const;
     ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity&) const;
@@ -129,7 +129,7 @@ public:
     virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&) = 0;
     virtual ::std::string ice_id(const ::Ice::Context&) = 0;
     virtual ::std::vector< ::std::string> ice_facets(const ::Ice::Context&) = 0;
-    virtual void ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
+    virtual bool ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
 			    const ::Ice::Context&) = 0;
     virtual void ice_flush() = 0;
 };
@@ -148,7 +148,7 @@ public:
     virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
     virtual ::std::string ice_id(const ::Ice::Context&);
     virtual ::std::vector< ::std::string> ice_facets(const ::Ice::Context&);
-    virtual void ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
+    virtual bool ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
 			    const ::Ice::Context&);
     virtual void ice_flush();
 
@@ -181,7 +181,7 @@ public:
     virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
     virtual ::std::string ice_id(const ::Ice::Context&);
     virtual ::std::vector< ::std::string> ice_facets(const ::Ice::Context&);
-    virtual void ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
+    virtual bool ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
 			    const ::Ice::Context&);
     virtual void ice_flush();
 

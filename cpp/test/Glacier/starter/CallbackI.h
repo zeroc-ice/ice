@@ -22,6 +22,7 @@ public:
     CallbackReceiverI();
 
     virtual void callback(const Ice::Current&);
+    virtual void callbackEx(const Ice::Current&);
     bool callbackOK();
 
 private:
@@ -36,6 +37,7 @@ public:
     CallbackI(const Ice::CommunicatorPtr&);
 
     virtual void initiateCallback(const CallbackReceiverPrx&, const Ice::Current&);
+    virtual void initiateCallbackEx(const CallbackReceiverPrx&, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
 private:

@@ -437,14 +437,27 @@ IceInternal::Connection::message(BasicStream& stream)
 		{
 		    in.invoke(response);
 		}
-		catch (const Exception& ex)
+		catch (const LocalException& ex)
 		{
 		    IceUtil::RecMutex::Lock sync(*this);
-		    warning(ex);
+		    if (_warn)
+		    {
+			ostringstream s;
+			s << "connection exception:\n" << ex << '\n' << _transceiver->toString();
+			_logger->warning(s.str());
+		    }
+		}
+		catch (const UserException& ex)
+		{
+		    IceUtil::RecMutex::Lock sync(*this);
+		    ostringstream s;
+		    s << "unknown user exception:\n" << ex << '\n' << _transceiver->toString();
+		    _logger->error(s.str());
 		}
 		catch (...)
 		{
-		    assert(false); // Should not happen
+		    IceUtil::RecMutex::Lock sync(*this);
+		    _logger->error("unknown exception");
 		}
 	    }
 	    while (batch && is->i < is->b.end());
@@ -597,15 +610,20 @@ IceInternal::Connection::setState(State state, const LocalException& ex)
     {
 	_exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 
-	//
-	// Don't warn about certain expected exceptions.
-	//
-	if (!(dynamic_cast<const CloseConnectionException*>(&ex) ||
-	      dynamic_cast<const CommunicatorDestroyedException*>(&ex) ||
-	      dynamic_cast<const ObjectAdapterDeactivatedException*>(&ex) ||
-	      (dynamic_cast<const ConnectionLostException*>(&ex) && _state == StateClosing)))
+	if (_warn)
 	{
-	    warning(ex);
+	    //
+	    // Don't warn about certain expected exceptions.
+	    //
+	    if (!(dynamic_cast<const CloseConnectionException*>(&ex) ||
+		  dynamic_cast<const CommunicatorDestroyedException*>(&ex) ||
+		  dynamic_cast<const ObjectAdapterDeactivatedException*>(&ex) ||
+		  (dynamic_cast<const ConnectionLostException*>(&ex) && _state == StateClosing)))
+	    {
+		ostringstream s;
+		s << "connection exception:\n" << ex << '\n' << _transceiver->toString();
+		_logger->warning(s.str());
+	    }
 	}
     }
     
@@ -717,15 +735,4 @@ IceInternal::Connection::closeConnection()
     traceHeader("sending close connection", os, _logger, _traceLevels);
     _transceiver->write(os, _endpoint->timeout());
     _transceiver->shutdown();
-}
-
-void
-IceInternal::Connection::warning(const Exception& ex) const
-{
-    if (_warn)
-    {
-	ostringstream s;
-	s << "connection exception:\n" << ex << '\n' << _transceiver->toString();
-	_logger->warning(s.str());
-    }
 }

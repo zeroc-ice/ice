@@ -200,7 +200,6 @@ Glacier::Router::run(int argc, char* argv[])
 	int fd = atoi(outputFd.c_str());
 	string ref = communicator()->proxyToString(routerAdapter->createProxy(stringToIdentity(routerIdentity)));
 	ref += "\n";
-	cout << "abc"<< endl;
 	string::size_type sz = static_cast<string::size_type>(write(fd, ref.c_str(), ref.length()));
 	if (sz != ref.length())
 	{
@@ -218,7 +217,6 @@ Glacier::Router::run(int argc, char* argv[])
 	    return EXIT_FAILURE;
 	}
 	close(fd);
-	cout << "def"<< endl;
     }
 #endif
 

@@ -254,7 +254,7 @@ IceInternal::Incoming::invoke(bool response)
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
 	}
 
-	throw UnknownException(__FILE__, __LINE__);
+	throw;
     }
 }
 

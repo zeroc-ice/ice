@@ -28,6 +28,16 @@ CallbackReceiverI::callback(const Current&)
     notify();
 }
 
+void
+CallbackReceiverI::callbackEx(const Current& current)
+{
+    callback(current);
+    CallbackException ex;
+    ex.someValue = 3.14;
+    ex.someString = "3.14";
+    throw ex;
+}
+
 bool
 CallbackReceiverI::callbackOK()
 {
@@ -54,6 +64,12 @@ void
 CallbackI::initiateCallback(const CallbackReceiverPrx& proxy, const Current& current)
 {
     proxy->callback(current.context);
+}
+
+void
+CallbackI::initiateCallbackEx(const CallbackReceiverPrx& proxy, const Current& current)
+{
+    proxy->callbackEx(current.context);
 }
 
 void

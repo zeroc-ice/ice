@@ -98,6 +98,17 @@ CallbackClient::run(int argc, char* argv[])
 	adapter->createProxy(stringToIdentity("callbackReceiver")));
 	
     {
+	cout << "testing oneway callback... " << flush;
+	CallbackPrx oneway = CallbackPrx::uncheckedCast(twoway->ice_oneway());
+	CallbackReceiverPrx onewayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_oneway());
+	Context context;
+	context["_fwd"] = "o";
+	oneway->initiateCallback(onewayR, context);
+	test(callbackReceiverImpl->callbackOK());
+	cout << "ok" << endl;
+    }
+
+    {
 	cout << "testing twoway callback... " << flush;
 	Context context;
 	context["_fwd"] = "t";
@@ -107,12 +118,19 @@ CallbackClient::run(int argc, char* argv[])
     }
 
     {
-	cout << "testing oneway callback... " << flush;
-	CallbackPrx oneway = CallbackPrx::uncheckedCast(twoway->ice_oneway());
-	CallbackReceiverPrx onewayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_oneway());
+	cout << "ditto, but with user exception... " << flush;
 	Context context;
 	context["_fwd"] = "t";
-	oneway->initiateCallback(onewayR, context);
+	try
+	{
+	    twoway->initiateCallbackEx(twowayR, context);
+	    test(false);
+	}
+	catch (const CallbackException& ex)
+	{
+	    test(ex.someValue == 3.14);
+	    test(ex.someString == "3.14");
+	}
 	test(callbackReceiverImpl->callbackOK());
 	cout << "ok" << endl;
     }

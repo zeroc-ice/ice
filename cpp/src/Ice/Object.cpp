@@ -389,7 +389,14 @@ Ice::Blobject::__dispatch(Incoming& in, const Current& current)
     vector<Byte> outParams;
     Int sz = in.is()->getReadEncapsSize();
     in.is()->readBlob(inParams, sz);
-    ice_invoke(inParams, outParams, current);
+    bool ok = ice_invoke(inParams, outParams, current);
     in.os()->writeBlob(outParams);
-    return ::IceInternal::DispatchOK;
+    if (ok)
+    {
+	return ::IceInternal::DispatchOK;
+    }
+    else
+    {
+	return ::IceInternal::DispatchUserException;
+    }
 }

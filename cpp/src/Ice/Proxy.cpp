@@ -238,7 +238,7 @@ IceProxy::Ice::Object::ice_facets(const Context& __context)
     }
 }
 
-void
+bool
 IceProxy::Ice::Object::ice_invoke(const string& operation,
 				  bool nonmutating,
 				  const vector<Byte>& inParams,
@@ -251,8 +251,7 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 	try
 	{
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    __del->ice_invoke(operation, nonmutating, inParams, outParams, context);
-	    return;
+	    return __del->ice_invoke(operation, nonmutating, inParams, outParams, context);
 	}
 	catch (const LocationForward& __ex)
 	{
@@ -743,7 +742,7 @@ IceDelegateM::Ice::Object::ice_facets(const Context& __context)
     return __ret;
 }
 
-void
+bool
 IceDelegateM::Ice::Object::ice_invoke(const string& operation,
 				      bool nonmutating,
 				      const vector<Byte>& inParams,
@@ -753,13 +752,14 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
     Outgoing __out(__connection, __reference, operation, nonmutating, context);
     BasicStream* __os = __out.os();
     __os->writeBlob(inParams);
-    __out.invoke();
+    bool ok = __out.invoke();
     if (__reference->mode == Reference::ModeTwoway)
     {
 	BasicStream* __is = __out.is();
 	Int sz = __is->getReadEncapsSize();
 	__is->readBlob(outParams, sz);
     }
+    return ok;
 }
 
 void
@@ -1062,7 +1062,7 @@ IceDelegateD::Ice::Object::ice_facets(const ::Ice::Context& __context)
     }
 }
 
-void
+bool
 IceDelegateD::Ice::Object::ice_invoke(const string& operation,
 				      bool nonmutating,
 				      const vector<Byte>& inParams,
@@ -1081,8 +1081,7 @@ IceDelegateD::Ice::Object::ice_invoke(const string& operation,
 	}
 	try
 	{
-	    __servant->ice_invoke(inParams, outParams, __current);
-	    return;
+	    return __servant->ice_invoke(inParams, outParams, __current);
 	}
 	catch (const LocalException&)
 	{

@@ -89,7 +89,6 @@ private:
     void setState(State, const ::Ice::LocalException&);
     void setState(State);
     void closeConnection();
-    void warning(const ::Ice::Exception&) const;
 
     TransceiverPtr _transceiver;
     EndpointPtr _endpoint;

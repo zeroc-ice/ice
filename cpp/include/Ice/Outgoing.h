@@ -55,7 +55,7 @@ public:
     Outgoing(const ConnectionPtr&, const ReferencePtr&, const std::string&, bool, const ::Ice::Context&);
     ~Outgoing();
 
-    bool invoke();
+    bool invoke(); // Returns true if ok, false if user exception.
     void finished(BasicStream&);
     void finished(const ::Ice::LocalException&);
 
@@ -79,7 +79,7 @@ private:
 	StateInProgress,
 	StateOK,
 	StateLocationForward,
-	StateException,
+	StateUserException,
 	StateLocalException,
     } _state;
 

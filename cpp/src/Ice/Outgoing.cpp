@@ -160,7 +160,7 @@ IceInternal::Outgoing::invoke()
 		throw NonRepeatable(*_exception.get());
 	    }
 	    
-	    if (_state == StateException)
+	    if (_state == StateUserException)
 	    {
 		return false;
 	    }
@@ -236,7 +236,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 		// oneway requests as blobs.
 		//
 		_is.startReadEncaps();
-		_state = StateException;
+		_state = StateUserException;
 		break;
 	    }
 	    

@@ -42,7 +42,7 @@ Glacier::ClientBlobject::destroy()
     _routingTable = 0;
 }
 
-void
+bool
 Glacier::ClientBlobject::ice_invoke(const std::vector<Byte>& inParams, std::vector<Byte>& outParams,
 				    const Current& current)
 {
@@ -115,7 +115,7 @@ Glacier::ClientBlobject::ice_invoke(const std::vector<Byte>& inParams, std::vect
 	    _logger->trace("Glacier", s.str());
 	}
 
-	proxy->ice_invoke(current.operation, current.nonmutating, inParams, outParams, current.context);
+	return proxy->ice_invoke(current.operation, current.nonmutating, inParams, outParams, current.context);
     }
     catch (const Exception& ex)
     {
@@ -128,4 +128,7 @@ Glacier::ClientBlobject::ice_invoke(const std::vector<Byte>& inParams, std::vect
 
 	ex.ice_throw();
     }
+
+    assert(false);
+    return true; // To keep the compiler happy.
 }

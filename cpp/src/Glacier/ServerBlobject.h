@@ -25,7 +25,7 @@ public:
     virtual ~ServerBlobject();
 
     void destroy();
-    virtual void ice_invoke(const std::vector<Ice::Byte>&, std::vector<Ice::Byte>&, const Ice::Current&);
+    virtual bool ice_invoke(const std::vector<Ice::Byte>&, std::vector<Ice::Byte>&, const Ice::Current&);
 
 private:
 

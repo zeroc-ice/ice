@@ -48,7 +48,7 @@ public:
     {
     }
 
-    virtual void ice_invoke(const vector< Ice::Byte>&, vector< Ice::Byte>&, const Ice::Current&);
+    virtual bool ice_invoke(const vector< Ice::Byte>&, vector< Ice::Byte>&, const Ice::Current&);
 
 private:
 
@@ -248,7 +248,7 @@ private:
 //
 // Incoming events from publishers.
 //
-void
+bool
 PublisherProxyI::ice_invoke(const vector< Ice::Byte>& inParams, vector< Ice::Byte>& outParam,
                             const Ice::Current& current)
 {
@@ -271,6 +271,8 @@ PublisherProxyI::ice_invoke(const vector< Ice::Byte>& inParams, vector< Ice::Byt
     event.context = context;
 
     _subscribers->publish(event);
+
+    return true;
 }
 
 //
