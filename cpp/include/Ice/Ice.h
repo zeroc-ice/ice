@@ -20,6 +20,7 @@
 #include <Ice/Properties.h>
 #include <Ice/Logger.h>
 #include <Ice/LoggerUtil.h>
+#include <Ice/Stats.h>
 #include <Ice/Communicator.h>
 #include <Ice/ObjectFactory.h>
 #include <Ice/UserExceptionFactory.h>
