@@ -1,0 +1,21 @@
+		IMPORTANT NOTE ABOUT FACETS
+
+Facets will undergo a major redesign in one of the next versions of
+Ice. In case you are using facets, or intend to use facets, we
+strongly recommend to follow the rules below. Otherwise it will be
+difficult for you to transition to the new facet implementation.
+
+- Do not use hierarchical facets, i.e., don't use facet paths with
+  more than one element. For the server this means that if one object
+  A is used as a facet in the Active Facet Map of another object B,
+  then the Active Facet Map of object A should be empty.
+
+- Do not transfer object with facets by value. At present, an object
+  including all its facets is transferred. This will change.
+
+- Do not rely on Freeze to save facets along with the main
+  object. Just like with transfering objects by value, facets will not
+  be taken into account for storing objects in future versions.
+
+If you have any further questions, please don't hesitate to contact us
+using our support forum at http://www.zeroc.com/vbulletin/.
