@@ -247,6 +247,9 @@ public:
 
     virtual bool uses(const ConstructedPtr&) = 0;
 
+    bool operator<(const Contained&) const;
+    bool operator==(const Contained&) const;
+
 protected:
 
     Contained(const ContainerPtr&, const std::string&);
@@ -258,9 +261,6 @@ protected:
     std::string _comment;
     std::string _file;
 };
-
-SLICE_API bool operator<(Contained&, Contained&);
-SLICE_API bool operator==(Contained&, Contained&);
 
 // ----------------------------------------------------------------------
 // Container

@@ -28,10 +28,10 @@ class ICE_API LocalObject : public ::IceUtil::Shared
 {
 public:
 
-    bool operator==(const LocalObject&) const;
-    bool operator!=(const LocalObject&) const;
-    bool operator<(const LocalObject&) const;
-    ::Ice::Int ice_hash() const;
+    virtual bool operator==(const LocalObject&) const;
+    virtual bool operator!=(const LocalObject&) const;
+    virtual bool operator<(const LocalObject&) const;
+    virtual ::Ice::Int ice_hash() const;
 };
 
 }

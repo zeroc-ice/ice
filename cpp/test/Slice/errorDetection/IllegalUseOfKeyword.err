@@ -4,7 +4,6 @@ IllegalUseOfKeyword.ice:17: keyword cannot be used as struct name
 IllegalUseOfKeyword.ice:19: keyword cannot be used as struct name
 IllegalUseOfKeyword.ice:23: keyword cannot be used as class name
 IllegalUseOfKeyword.ice:25: keyword cannot be used as class name
-IllegalUseOfKeyword.ice:30: keyword cannot be used as interface name
 IllegalUseOfKeyword.ice:32: keyword cannot be used as interface name
 IllegalUseOfKeyword.ice:38: keyword cannot be used as operation name
 IllegalUseOfKeyword.ice:40: keyword cannot be used as declarator

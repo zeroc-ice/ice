@@ -255,23 +255,6 @@ private:
 
 	std::string _dllExport;
     };
-
-    class GlobalVisitor : public ::IceUtil::noncopyable, public ParserVisitor
-    {
-    public:
-
-	GlobalVisitor(Output&, Output&, const std::string&);
-
-	virtual void visitClassDecl(const ClassDeclPtr&);
-	virtual bool visitClassDefStart(const ClassDefPtr&);
-
-    private:
-
-	Output& H;
-	Output& C;
-
-	std::string _dllExport;
-    };
 };
 
 }

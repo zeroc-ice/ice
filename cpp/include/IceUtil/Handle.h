@@ -56,55 +56,50 @@ public:
     T* _ptr;
 };
 
-}
-
 template<typename T, typename U>
-inline bool operator==(const ::IceUtil::HandleBase<T>& a, const ::IceUtil::HandleBase<U>& b)
+inline bool operator==(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
 {
-    T* ap = a.get();
-    U* bp = b.get();
-    if (ap && bp)
+    T* l = lhs.get();
+    U* r = rhs.get();
+    if (l && r)
     {
-	return *ap == *bp;
+	return *l == *r;
     }
     else
     {
-	return !ap && !bp;
+	return !l && !r;
     }	
 }
 
 template<typename T, typename U>
-inline bool operator!=(const ::IceUtil::HandleBase<T>& a, const ::IceUtil::HandleBase<U>& b)
+inline bool operator!=(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
 {
-    T* ap = a.get();
-    U* bp = b.get();
-    if (ap && bp)
+    T* l = lhs.get();
+    U* r = rhs.get();
+    if (l && r)
     {
-	return *ap != *bp;
+	return *l != *r;
     }
     else
     {
-	return ap || bp;
+	return l || r;
     }	
 }
 
 template<typename T, typename U>
-inline bool operator<(const ::IceUtil::HandleBase<T>& a, const ::IceUtil::HandleBase<U>& b)
+inline bool operator<(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
 {
-    T* ap = a.get();
-    U* bp = b.get();
-    if (ap && bp)
+    T* l = lhs.get();
+    U* r = rhs.get();
+    if (l && r)
     {
-	return *ap < *bp;
+	return *l < *r;
     }
     else
     {
-	return !ap && bp;
+	return !l && r;
     }
 }
-
-namespace IceUtil
-{
 
 template<typename T>
 class Handle : public HandleBase<T>

@@ -66,10 +66,10 @@ public:
 
     Object();
 
-    bool operator==(const Object&) const;
-    bool operator!=(const Object&) const;
-    bool operator<(const Object&) const;
-    ::Ice::Int ice_hash() const;
+    virtual bool operator==(const Object&) const;
+    virtual bool operator!=(const Object&) const;
+    virtual bool operator<(const Object&) const;
+    virtual ::Ice::Int ice_hash() const;
 
     static const ::std::string __classIds[];
     virtual const ::std::string* __getClassIds() const;

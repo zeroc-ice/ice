@@ -115,6 +115,18 @@ Slice::Contained::file()
     return _file;
 }
 
+bool
+Slice::Contained::operator<(const Contained& rhs) const
+{
+    return _scoped < rhs._scoped;
+}
+
+bool
+Slice::Contained::operator==(const Contained& rhs) const
+{
+    return _scoped == rhs._scoped;
+}
+
 Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
     _container(container),
@@ -130,18 +142,6 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
     _unit->addContent(this);
     _comment = _unit->currentComment();
     _file = _unit->currentFile();
-}
-
-bool
-Slice::operator<(Contained& l, Contained& r)
-{
-    return l.scoped() < r.scoped();
-}
-
-bool
-Slice::operator==(Contained& l, Contained& r)
-{
-    return l.scoped() == r.scoped();
 }
 
 // ----------------------------------------------------------------------
