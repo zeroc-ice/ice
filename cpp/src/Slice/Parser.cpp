@@ -1006,6 +1006,21 @@ Slice::Container::visit(ParserVisitor* visitor)
     }
 }
 
+void
+Slice::Container::containerRecDependencies(set<ConstructedPtr>& dependencies)
+{
+    ContainedList::iterator p;
+    for (p = _contents.begin(); p != _contents.end(); ++p)
+    {
+	ConstructedPtr constructed = ConstructedPtr::dynamicCast(*p);
+	if (constructed && dependencies.find(constructed) != dependencies.end())
+	{
+	    dependencies.insert(constructed);
+	    constructed->recDependencies(dependencies);
+	}
+    }
+}
+
 Slice::Container::Container(const UnitPtr& unit) :
     SyntaxTreeBase(unit)
 {
@@ -1092,7 +1107,7 @@ Slice::Module::containedType()
 }
 
 bool
-Slice::Module::uses(const ConstructedPtr&)
+Slice::Module::uses(const ContainedPtr&)
 {
     return false;
 }
@@ -1127,6 +1142,14 @@ bool
 Slice::Constructed::isLocal()
 {
     return _local;
+}
+
+ConstructedList
+Slice::Constructed::dependencies()
+{
+    set<ConstructedPtr> result;
+    recDependencies(result);
+    return ConstructedList(result.begin(), result.end());
 }
 
 Slice::Constructed::Constructed(const ContainerPtr& container, const string& name, bool local) :
@@ -1167,7 +1190,7 @@ Slice::ClassDecl::containedType()
 }
 
 bool
-Slice::ClassDecl::uses(const ConstructedPtr& constructed)
+Slice::ClassDecl::uses(const ContainedPtr&)
 {
     return false;
 }
@@ -1176,6 +1199,21 @@ void
 Slice::ClassDecl::visit(ParserVisitor* visitor)
 {
     visitor->visitClassDecl(this);
+}
+
+void
+Slice::ClassDecl::recDependencies(set<ConstructedPtr>& dependencies)
+{
+    if (_definition)
+    {
+	_definition->containerRecDependencies(dependencies);
+	ClassList bases = _definition->bases();
+	ClassList::iterator p;
+	for (p = bases.begin(); p != bases.end(); ++p)
+	{
+	    (*p)->declaration()->recDependencies(dependencies);
+	}
+    }
 }
 
 Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name, bool intf, bool local) :
@@ -1453,7 +1491,7 @@ Slice::ClassDef::containedType()
 }
 
 bool
-Slice::ClassDef::uses(const ConstructedPtr&)
+Slice::ClassDef::uses(const ContainedPtr&)
 {
     return false;
 }
@@ -1611,7 +1649,7 @@ Slice::Exception::containedType()
 }
 
 bool
-Slice::Exception::uses(const ConstructedPtr&)
+Slice::Exception::uses(const ContainedPtr&)
 {
     return false;
 }
@@ -1717,7 +1755,7 @@ Slice::Struct::containedType()
 }
 
 bool
-Slice::Struct::uses(const ConstructedPtr&)
+Slice::Struct::uses(const ContainedPtr&)
 {
     return false;
 }
@@ -1735,6 +1773,12 @@ Slice::Struct::visit(ParserVisitor* visitor)
 	Container::visit(visitor);
 	visitor->visitStructEnd(this);
     }
+}
+
+void
+Slice::Struct::recDependencies(set<ConstructedPtr>& dependencies)
+{
+    containerRecDependencies(dependencies);
 }
 
 Slice::Struct::Struct(const ContainerPtr& container, const string& name, bool local) :
@@ -1763,10 +1807,10 @@ Slice::Sequence::containedType()
 }
 
 bool
-Slice::Sequence::uses(const ConstructedPtr& constructed)
+Slice::Sequence::uses(const ContainedPtr& contained)
 {
-    ContainedPtr contained = ContainedPtr::dynamicCast(_type);
-    if (contained && contained == constructed)
+    ContainedPtr contained2 = ContainedPtr::dynamicCast(_type);
+    if (contained2 && contained2 == contained)
     {
 	return true;
     }
@@ -1778,6 +1822,17 @@ void
 Slice::Sequence::visit(ParserVisitor* visitor)
 {
     visitor->visitSequence(this);
+}
+
+void
+Slice::Sequence::recDependencies(set<ConstructedPtr>& dependencies)
+{
+    ConstructedPtr constructed = ConstructedPtr::dynamicCast(_type);
+    if (constructed && dependencies.find(constructed) != dependencies.end())
+    {
+	dependencies.insert(constructed);
+	constructed->recDependencies(dependencies);
+    }
 }
 
 Slice::Sequence::Sequence(const ContainerPtr& container, const string& name, const TypePtr& type, bool local) :
@@ -1812,19 +1867,19 @@ Slice::Dictionary::containedType()
 }
 
 bool
-Slice::Dictionary::uses(const ConstructedPtr& constructed)
+Slice::Dictionary::uses(const ContainedPtr& contained)
 {
     {
-	ContainedPtr contained = ContainedPtr::dynamicCast(_keyType);
-	if (contained && contained == constructed)
+	ContainedPtr contained2 = ContainedPtr::dynamicCast(_keyType);
+	if (contained2 && contained2 == contained)
 	{
 	    return true;
 	}
     }
 
     {
-	ContainedPtr contained = ContainedPtr::dynamicCast(_valueType);
-	if (contained && contained == constructed)
+	ContainedPtr contained2 = ContainedPtr::dynamicCast(_valueType);
+	if (contained2 && contained2 == contained)
 	{
 	    return true;
 	}
@@ -1837,6 +1892,28 @@ void
 Slice::Dictionary::visit(ParserVisitor* visitor)
 {
     visitor->visitDictionary(this);
+}
+
+void
+Slice::Dictionary::recDependencies(set<ConstructedPtr>& dependencies)
+{
+    {
+	ConstructedPtr constructed = ConstructedPtr::dynamicCast(_keyType);
+	if (constructed && dependencies.find(constructed) != dependencies.end())
+	{
+	    dependencies.insert(constructed);
+	    constructed->recDependencies(dependencies);
+	}
+    }
+
+    {
+	ConstructedPtr constructed = ConstructedPtr::dynamicCast(_valueType);
+	if (constructed && dependencies.find(constructed) != dependencies.end())
+	{
+	    dependencies.insert(constructed);
+	    constructed->recDependencies(dependencies);
+	}
+    }
 }
 
 Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name, const TypePtr& keyType,
@@ -1873,7 +1950,7 @@ Slice::Enum::containedType()
 }
 
 bool
-Slice::Enum::uses(const ConstructedPtr& constructed)
+Slice::Enum::uses(const ContainedPtr&)
 {
     return false;
 }
@@ -1882,6 +1959,12 @@ void
 Slice::Enum::visit(ParserVisitor* visitor)
 {
     visitor->visitEnum(this);
+}
+
+void
+Slice::Enum::recDependencies(set<ConstructedPtr>&)
+{
+    // An Enum does not have any dependencies.
 }
 
 Slice::Enum::Enum(const ContainerPtr& container, const string& name, bool local) :
@@ -1903,7 +1986,7 @@ Slice::Enumerator::containedType()
 }
 
 bool
-Slice::Enumerator::uses(const ConstructedPtr& constructed)
+Slice::Enumerator::uses(const ContainedPtr&)
 {
     return false;
 }
@@ -1949,11 +2032,11 @@ Slice::Operation::containedType()
 }
 
 bool
-Slice::Operation::uses(const ConstructedPtr& constructed)
+Slice::Operation::uses(const ContainedPtr& contained)
 {
     {
-	ContainedPtr contained = ContainedPtr::dynamicCast(_returnType);
-	if (contained && contained == constructed)
+	ContainedPtr contained2 = ContainedPtr::dynamicCast(_returnType);
+	if (contained2 && contained2 == contained)
 	{
 	    return true;
 	}
@@ -1963,8 +2046,8 @@ Slice::Operation::uses(const ConstructedPtr& constructed)
 
     for (p = _inParams.begin(); p != _inParams.end(); ++p)
     {
-	ContainedPtr contained = ContainedPtr::dynamicCast(p->first);
-	if (contained && contained == constructed)
+	ContainedPtr contained2 = ContainedPtr::dynamicCast(p->first);
+	if (contained2 && contained2 == contained)
 	{
 	    return true;
 	}
@@ -1972,8 +2055,8 @@ Slice::Operation::uses(const ConstructedPtr& constructed)
 
     for (p = _outParams.begin(); p != _outParams.end(); ++p)
     {
-	ContainedPtr contained = ContainedPtr::dynamicCast(p->first);
-	if (contained && contained == constructed)
+	ContainedPtr contained2 = ContainedPtr::dynamicCast(p->first);
+	if (contained2 && contained2 == contained)
 	{
 	    return true;
 	}
@@ -1983,8 +2066,8 @@ Slice::Operation::uses(const ConstructedPtr& constructed)
 
     for (q = _throws.begin(); q != _throws.end(); ++q)
     {
-	ContainedPtr contained = ContainedPtr::dynamicCast(*q);
-	if (contained && contained == constructed)
+	ContainedPtr contained2 = ContainedPtr::dynamicCast(*q);
+	if (contained2 && contained2 == contained)
 	{
 	    return true;
 	}
@@ -2028,10 +2111,10 @@ Slice::DataMember::containedType()
 }
 
 bool
-Slice::DataMember::uses(const ConstructedPtr& constructed)
+Slice::DataMember::uses(const ContainedPtr& contained)
 {
-    ContainedPtr contained = ContainedPtr::dynamicCast(_type);
-    if (contained && contained == constructed)
+    ContainedPtr contained2 = ContainedPtr::dynamicCast(_type);
+    if (contained2 && contained2 == contained)
     {
 	return true;
     }
@@ -2347,14 +2430,14 @@ Slice::Unit::findDerivedExceptions(const ExceptionPtr& ex)
 }
 
 ContainedList
-Slice::Unit::findUsedBy(const ConstructedPtr& constructed)
+Slice::Unit::findUsedBy(const ContainedPtr& contained)
 {
     ContainedList usedBy;
     for(map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
     {
 	for(ContainedList::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
 	{
-	    if ((*q)->uses(constructed))
+	    if ((*q)->uses(contained))
 	    {
 		usedBy.push_back(*q);
 	    }

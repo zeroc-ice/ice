@@ -1068,9 +1068,8 @@ Slice::Gen::containedToId(const ContainedPtr& contained)
 	scoped.erase(0, 2);
     }
 
-    string id = "\"";
-
-    id.reserve(scoped.size() + 2); // Also reserve space for the two '"'
+    string id;
+    id.reserve(scoped.size());
 
     for (unsigned int i = 0; i < scoped.size(); ++i)
     {
@@ -1089,13 +1088,13 @@ Slice::Gen::containedToId(const ContainedPtr& contained)
     // TODO: At present, docbook tools limit link names (NAMELEN) to
     // 44 characters.
     //
-    if(id.size() > 1 + 44)
+    if(id.size() > 44)
     {
-	id.erase(1 + 44);
+	id.erase(0, id.size() - 44);
+	assert(id.size() == 44);
     }
 
-    id += '"';
-    return id;
+    return '"' + id + '"';
 }
 
 string
