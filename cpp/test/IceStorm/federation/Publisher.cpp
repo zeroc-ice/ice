@@ -119,14 +119,6 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	eventFed3->pub("fed3:0", context);
     }
 
-#ifdef _WIN32
-    Sleep(10 * 1000);
-#else
-    sleep(10);
-#endif
-
-    eventFed3->pub("shutdown");
-
     return EXIT_SUCCESS;
 }
 
