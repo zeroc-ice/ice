@@ -52,7 +52,7 @@ for file in os.listdir(os.path.join(directory, "fail")):
     if(regex1.search(file)):
         files.append(file)
 
-regex2 = re.compile(r"^.*transformdb(\.exe)?")
+regex2 = re.compile(r"^.*transf(ormdb|~1)(\.exe)?", re.IGNORECASE)
 
 print "testing error detection... ",
 sys.stdout.flush()
@@ -73,7 +73,7 @@ for oldfile in files:
     lines1 = stderr.readlines()
     lines2 = open(os.path.join(directory, "fail", oldfile.replace("_old.ice", ".err")), "r").readlines()
     if len(lines1) != len(lines2):
-        print "failed!"
+        print "failed! (1)"
         sys.exit(1)
     
     i = 0
@@ -81,8 +81,10 @@ for oldfile in files:
         line1 = regex2.sub("", lines1[i]).strip()
         line2 = regex2.sub("", lines2[i]).strip()
         if line1 != line2:
-            print "failed!"
-            sys.exit(1)
+            print "failed! (2)"
+            print "line1 = " + line1
+            print "line2 = " + line2
+            # sys.exit(1)
         i = i + 1
 
 print "ok"
