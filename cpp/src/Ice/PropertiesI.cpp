@@ -292,6 +292,7 @@ static const string glacierProps[] =
 
 static const string freezeProps[] =
 {
+    "Warn.Deadlocks",
     "Trace.DbEnv",
     "Trace.Map",
     "Trace.Evictor",
