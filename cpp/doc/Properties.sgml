@@ -931,7 +931,7 @@ Defines the path of the &IcePack; registry data directory.
 </section>
 </section>
 
-<section><title>IcePack.Registry.AllowNotRegisteredAdapters</title>
+<section><title>IcePack.Registry.AllowUnregisteredAdapters</title>
 <section><title>Synopsis</title>
 <synopsis>
 IcePack.Registry.AllowNotRegisteredAdapters=<replaceable>num</replaceable>

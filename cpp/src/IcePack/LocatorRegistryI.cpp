@@ -78,7 +78,7 @@ IcePack::LocatorRegistryI::setAdapterDirectProxy(const string& name, const Ice::
 	// IcePack deployment mechanism).
 	//
 	Ice::PropertiesPtr properties = _adapter->getCommunicator()->getProperties();
-	if(properties->getPropertyAsInt("IcePack.Registry.AllowNotRegisteredAdapters") > 0)
+	if(properties->getPropertyAsInt("IcePack.Registry.AllowUnregisteredAdapters") > 0)
 	{
 	    AdapterPrx adapter = AdapterPrx::uncheckedCast(_adapter->addWithUUID(new StandaloneAdapterI()));
 	    try
