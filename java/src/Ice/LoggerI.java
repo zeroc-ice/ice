@@ -18,16 +18,6 @@ public class LoggerI implements Logger
 	if(prefix.length() > 0)
 	{
 	    _prefix = prefix + ": ";
-
-	    //
-	    // A prefix filled with spaces and as long as the prefix.
-	    //
-	    StringBuffer emptyPrefix = new StringBuffer(prefix.length());
-	    for(int i = 0; i < prefix.length() + 2; i++)
-	    {
-		emptyPrefix.append(' ');
-	    }
-	    _emptyPrefix = emptyPrefix.toString();
 	}
     }
 
@@ -36,18 +26,17 @@ public class LoggerI implements Logger
     {
 	synchronized(_globalMutex)
 	{
-	    String s = "[ " + category + ": ";
+	    String s = "[ " + _prefix + category + ": ";
 	    int start = 0;
 	    int next;
 	    while((next = message.indexOf('\n', start)) != -1)
 	    {
 		s += message.substring(start, next + 1);
-		s += _emptyPrefix + "  ";
 		start = next + 1;
 	    }
 	    s += message.substring(start);
 	    s += " ]";
-	    System.err.println(_prefix + s);
+	    System.err.println(s);
 	}
     }
 
@@ -70,6 +59,5 @@ public class LoggerI implements Logger
     }
 
     String _prefix = "";
-    String _emptyPrefix = "";
     static Object _globalMutex = new Object();
 }

@@ -123,7 +123,7 @@ public abstract class Application
         return _communicator;
     }
 
-    public static void
+    synchronized public static void
     shutdownOnInterrupt()
     {
 	//
@@ -135,7 +135,7 @@ public abstract class Application
 	Runtime.getRuntime().addShutdownHook(_shutdownHook);
     }
     
-    public static void
+    synchronized public static void
     ignoreInterrupt()
     {
 	try
@@ -150,7 +150,7 @@ public abstract class Application
 	}
     }
 
-    public static void
+    synchronized public static void
     defaultInterrupt()
     {
 	try
@@ -162,6 +162,19 @@ public abstract class Application
 	    //
 	    // Expected if we are in the process of shutting down.
 	    //
+	}
+    }
+
+    synchronized public static bool
+    isShutdownFromInterrupt()
+    {
+	if(_shutdownHook == null)
+	{
+	    return false;
+	}
+	else
+	{
+	    return _shutdownHook->isShutdownFromInterrupt();
 	}
     }
 

@@ -13,7 +13,7 @@ package IceInternal;
 public final class Outgoing
 {
     public
-    Outgoing(Connection connection, Reference ref, String operation, boolean nonmutating, java.util.Map context)
+    Outgoing(Connection connection, Reference ref, String operation, boolean idempotent, java.util.Map context)
     {
         _connection = connection;
         _reference = ref;
@@ -21,11 +21,11 @@ public final class Outgoing
         _is = new BasicStream(ref.instance);
         _os = new BasicStream(ref.instance);
 
-        writeHeader(operation, nonmutating, context);
+        writeHeader(operation, idempotent, context);
     }
 
     public void
-    reset(String operation, boolean nonmutating, java.util.Map context)
+    reset(String operation, boolean idempotent, java.util.Map context)
     {
         _state = StateUnsent;
         _exception = null;
@@ -34,7 +34,7 @@ public final class Outgoing
         _is.reset();
         _os.reset();
 
-        writeHeader(operation, nonmutating, context);
+        writeHeader(operation, idempotent, context);
     }
 
     public void
@@ -310,7 +310,7 @@ public final class Outgoing
     }
 
     private void
-    writeHeader(String operation, boolean nonmutating, java.util.Map context)
+    writeHeader(String operation, boolean idempotent, java.util.Map context)
     {
         switch(_reference.mode)
         {
@@ -333,7 +333,7 @@ public final class Outgoing
         _reference.identity.__write(_os);
         _os.writeStringSeq(_reference.facet);
         _os.writeString(operation);
-        _os.writeBool(nonmutating);
+        _os.writeBool(idempotent);
         if(context == null)
         {
             _os.writeSize(0);
