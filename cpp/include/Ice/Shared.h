@@ -48,7 +48,7 @@ private:
 };
 
 //
-// Thread-safe intrusive base class for referenceData-counted types.
+// Thread-safe intrusive base class for reference-counted types.
 //
 class ICE_API Shared
 {

@@ -12,7 +12,7 @@
 #define ICE_INCOMING_H
 
 #include <Ice/CollectorF.h>
-#include <Ice/EndpointF.h>
+#include <Ice/ObjectAdapterF.h>
 #include <Ice/Stream.h>
 
 namespace __Ice
@@ -22,7 +22,7 @@ class ICE_API Incoming
 {
 public:
 
-    Incoming(const Collector&, const ::Ice::Endpoint&);
+    Incoming(const Collector&, const ::Ice::ObjectAdapter&);
     ~Incoming();
 
     void invoke();
@@ -36,7 +36,7 @@ private:
     void operator=(const Incoming&);
 
     Collector collector_;
-    ::Ice::Endpoint endpoint_;
+    ::Ice::ObjectAdapter adapter_;
 
     Stream is_;
     Stream os_;

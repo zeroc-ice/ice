@@ -8,18 +8,18 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ENDPOINT_DATA_F_H
-#define ICE_ENDPOINT_DATA_F_H
+#ifndef ICE_REFERENCE_F_H
+#define ICE_REFERENCE_F_H
 
 #include <Ice/Handle.h>
 
 namespace __Ice
 {
 
-class EndpointDataI;
-void ICE_API incRef(EndpointDataI*);
-void ICE_API decRef(EndpointDataI*);
-typedef __Ice::Handle<EndpointDataI> EndpointData;
+class ReferenceI;
+void ICE_API incRef(ReferenceI*);
+void ICE_API decRef(ReferenceI*);
+typedef __Ice::Handle<ReferenceI> Reference;
 
 }
 

@@ -18,7 +18,7 @@ namespace __Ice
 {
 
 //
-// Generic handle class, using intrusive referenceData counting. Two
+// Generic handle class, using intrusive reference counting. Two
 // global operations __Ice::incRef(T*) and __Ice::decRef(T*) must be
 // declared for each T before using this template. The use of global
 // operations allows this template to be used for types which are

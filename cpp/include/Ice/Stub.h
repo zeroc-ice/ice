@@ -13,7 +13,7 @@
 
 #include <Ice/ObjectFactoryF.h>
 #include <Ice/EmitterF.h>
-#include <Ice/ReferenceDataF.h>
+#include <Ice/ReferenceF.h>
 #include <Ice/ObjectHandle.h>
 #include <Ice/Shared.h>
 #include <Ice/Outgoing.h>
@@ -28,7 +28,7 @@ public:
     bool operator==(const ObjectI&) const;
     bool operator!=(const ObjectI&) const;
 
-    ::__Ice::ReferenceData __referenceData() const;
+    ::__Ice::Reference __reference() const;
     void __copyTo(ObjectI*) const;
 
 protected:
@@ -44,9 +44,9 @@ private:
     ObjectI(const ObjectI&);
     void operator=(const ObjectI&);
 
-    void setup(const ::__Ice::ReferenceData&);
+    void setup(const ::__Ice::Reference&);
 
-    ::__Ice::ReferenceData referenceData_;
+    ::__Ice::Reference reference_;
     ::__IceStub::Ice::Object stub_;
 
     friend class ::__Ice::ObjectFactoryI; // May create and setup ObjectIs
@@ -71,7 +71,7 @@ private:
     ObjectI(const ObjectI&);
     void operator=(const ObjectI&);
 
-    virtual void setup(const ::__Ice::ReferenceData&) = 0;
+    virtual void setup(const ::__Ice::Reference&) = 0;
 
     friend class ::Ice::ObjectI; // May create and setup ObjectIs
 };
@@ -96,12 +96,12 @@ protected:
 private:
 
     ::__Ice::EmitterFactory factory_;
-    ::__Ice::ReferenceData referenceData_;
+    ::__Ice::Reference reference_;
 
     ObjectI(const ObjectI&);
     void operator=(const ObjectI&);
 
-    void setup(const ::__Ice::ReferenceData&);
+    void setup(const ::__Ice::Reference&);
 
     friend class ::Ice::ObjectI; // May create and setup ObjectIs
 };

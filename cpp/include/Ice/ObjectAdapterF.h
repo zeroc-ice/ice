@@ -8,18 +8,25 @@
 //
 // **********************************************************************
 
-#ifndef ICE_REFERENCE_DATA_F_H
-#define ICE_REFERENCE_DATA_F_H
+#ifndef ICE_OBJECT_ADAPTER_F_H
+#define ICE_OBJECT_ADAPTER_F_H
 
 #include <Ice/Handle.h>
+
+namespace Ice { class ObjectAdapterI; }
 
 namespace __Ice
 {
 
-class ReferenceDataI;
-void ICE_API incRef(ReferenceDataI*);
-void ICE_API decRef(ReferenceDataI*);
-typedef __Ice::Handle<ReferenceDataI> ReferenceData;
+void ICE_API incRef(::Ice::ObjectAdapterI*);
+void ICE_API decRef(::Ice::ObjectAdapterI*);
+
+}
+
+namespace Ice
+{
+
+typedef __Ice::Handle<ObjectAdapterI> ObjectAdapter;
 
 }
 

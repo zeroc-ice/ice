@@ -12,54 +12,33 @@
 #define ICE_ENDPOINT_H
 
 #include <Ice/EndpointF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/EndpointDataF.h>
-#include <Ice/CollectorF.h>
-#include <Ice/SkeletonF.h>
-#include <Ice/LocalException.h>
 #include <Ice/Shared.h>
-#include <map>
 
-namespace Ice
+namespace __Ice
 {
 
-class ICE_API EndpointClosedException : public LocalException
-{
-public:    
-
-    virtual std::string toString() const;
-    virtual LocalException* clone() const;
-};
-
-class CommunicatorI;
-
-class ICE_API EndpointI : virtual public ::__Ice::Shared, public JTCMutex
+class ICE_API EndpointI : virtual public Shared
 {
 public:
 
-    void activate();
-    void hold();
-    void close();
+    EndpointI(const std::string&, int, bool = false);
+    virtual ~EndpointI();
 
-    void add(const ::IceServant::Ice::Object&, const std::string&);
+    bool operator==(const EndpointI&) const;
+    bool operator!=(const EndpointI&) const;
+    bool operator<(const EndpointI&) const;
 
-    ::__Ice::Instance __instance() const;
-    ::__Ice::EndpointData __endpointData() const;
-    ::IceServant::Ice::Object __findServant(const std::string&) const;
+    //
+    // All  members are const, because Endpoints are immutable.
+    //
+    const std::string host;
+    const int port;
+    const bool datagram;
 
 private:
 
-    EndpointI(const ::__Ice::Instance&, const __Ice::EndpointData&);
-    virtual ~EndpointI();
-    friend CommunicatorI; // May create EndpointIs
-
     EndpointI(const EndpointI&);
     void operator=(const EndpointI&);
-
-    ::__Ice::Instance instance_;
-    ::__Ice::EndpointData endpointData_;
-    ::__Ice::CollectorFactory collectorFactory_;
-    std::map<std::string, ::IceServant::Ice::Object> servants_;
 };
 
 }

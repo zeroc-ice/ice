@@ -14,7 +14,7 @@
 #include <Ice/CommunicatorF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/StubF.h>
-#include <Ice/EndpointF.h>
+#include <Ice/ObjectAdapterF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/Shared.h>
 
@@ -32,7 +32,7 @@ public:
     Object referenceFromString(const std::string&);
     std::string referenceToString(const Object&);
 
-    Endpoint createEndpoint(); // TODO: arguments
+    ObjectAdapter createObjectAdapter(); // TODO: arguments
 
     Logger logger();
     void logger(const Logger&);

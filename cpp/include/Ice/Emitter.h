@@ -16,7 +16,7 @@
 #include <Ice/TransceiverF.h>
 #include <Ice/ConnectorF.h>
 #include <Ice/ThreadPoolF.h>
-#include <Ice/EndpointDataF.h>
+#include <Ice/EndpointF.h>
 #include <Ice/EventHandler.h>
 #include <map>
 
@@ -69,7 +69,7 @@ private:
     EmitterFactoryI(const EmitterFactoryI&);
     void operator=(const EmitterFactoryI&);
 
-    EmitterFactoryI(const Instance&, const EndpointData&);
+    EmitterFactoryI(const Instance&, const Endpoint&);
     virtual ~EmitterFactoryI();
     void destroy();
     // May create and destroy EmitterFactoryIs
@@ -84,7 +84,7 @@ class ICE_API EmitterFactoryFactoryI : public Shared, public JTCMutex
 {
 public:
 
-    EmitterFactory create(const EndpointData&);
+    EmitterFactory create(const Endpoint&);
 
 private:
 
@@ -97,7 +97,7 @@ private:
     friend class InstanceI; // May create and destroy EmitterFactoryFactoryIs
 
     Instance instance_;
-    std::map<EndpointData, EmitterFactory> factories_;
+    std::map<Endpoint, EmitterFactory> factories_;
 };
 
 }

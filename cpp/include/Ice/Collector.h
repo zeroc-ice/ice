@@ -16,7 +16,7 @@
 #include <Ice/TransceiverF.h>
 #include <Ice/AcceptorF.h>
 #include <Ice/ThreadPoolF.h>
-#include <Ice/EndpointF.h>
+#include <Ice/ObjectAdapterF.h>
 #include <Ice/EventHandler.h>
 #include <list>
 #include <map>
@@ -54,14 +54,14 @@ private:
     CollectorI(const CollectorI&);
     void operator=(const CollectorI&);
 
-    CollectorI(const ::Ice::Endpoint&, const Transceiver&);
+    CollectorI(const ::Ice::ObjectAdapter&, const Transceiver&);
     virtual ~CollectorI();
     void destroy();
     friend class CollectorFactoryI; // May create and destroy CollectorIs
 
     void warning(const Ice::LocalException&) const;
 
-    ::Ice::Endpoint endpoint_;
+    ::Ice::ObjectAdapter adapter_;
     ThreadPool threadPool_;
     Transceiver transceiver_;
     int fd_;
@@ -83,7 +83,7 @@ private:
     CollectorFactoryI(const CollectorFactoryI&);
     void operator=(const CollectorFactoryI&);
 
-    CollectorFactoryI(const Instance&, const ::Ice::Endpoint&);
+    CollectorFactoryI(const Instance&, const ::Ice::ObjectAdapter&);
     virtual ~CollectorFactoryI();
     void destroy();
     // May create and destroy CollectorFactoryIs
@@ -92,7 +92,7 @@ private:
     void warning(const Ice::LocalException&) const;
 
     Instance instance_;
-    ::Ice::Endpoint endpoint_;
+    ::Ice::ObjectAdapter adapter_;
     ThreadPool threadPool_;
     Acceptor acceptor_;
     int fd_;
@@ -103,7 +103,7 @@ class ICE_API CollectorFactoryFactoryI : public Shared, public JTCMutex
 {
 public:
 
-    CollectorFactory create(const ::Ice::Endpoint&);
+    CollectorFactory create(const ::Ice::ObjectAdapter&);
 
 private:
 

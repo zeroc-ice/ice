@@ -13,19 +13,12 @@
 
 #include <Ice/Handle.h>
 
-namespace Ice { class EndpointI; }
-
 namespace __Ice
 {
 
-void ICE_API incRef(::Ice::EndpointI*);
-void ICE_API decRef(::Ice::EndpointI*);
-
-}
-
-namespace Ice
-{
-
+class EndpointI;
+void ICE_API incRef(EndpointI*);
+void ICE_API decRef(EndpointI*);
 typedef __Ice::Handle<EndpointI> Endpoint;
 
 }
