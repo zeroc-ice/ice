@@ -12,10 +12,10 @@ Requirements
 Operating systems
 -----------------
 
-Ice for Java has been tested under Linux, Solaris and Windows 2000/XP,
-but due to the portability of Java, it is very likely that it will also
-work on other platforms for which a suitable Java implementation is
-available.
+Ice for Java has been tested under Linux, Solaris, HP-UX, MacOS X and
+Windows 2000/XP, but due to the portability of Java, it is very likely
+that it will also work on other platforms for which a suitable Java
+implementation is available.
 
 Note, however, that you will need the Slice to Java translator (see
 below), which is only available for Linux, Solaris and Windows 2000/XP.
