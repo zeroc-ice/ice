@@ -150,7 +150,7 @@ SOURCE=..\..\slice\IcePatch\IcePatch.ice
 
 !IF  "$(CFG)" == "IcePatch - Win32 Release"
 
-USERDEP__ICEPA="../../bin/slice2cpp.exe"	
+USERDEP__ICEPA="..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\IcePatch\IcePatch.ice
 
@@ -168,7 +168,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "IcePatch - Win32 Debug"
 
-USERDEP__ICEPA="../../bin/slice2cpp.exe"	
+USERDEP__ICEPA="..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\IcePatch\IcePatch.ice
 

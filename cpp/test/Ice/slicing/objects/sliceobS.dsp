@@ -171,6 +171,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "sliceobS - Win32 Debug"
 
+USERDEP__FORWA="..\..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Forward.ice
 

@@ -115,7 +115,7 @@ SOURCE=.\Latency.ice
 
 !IF  "$(CFG)" == "latencyS - Win32 Release"
 
-USERDEP__LATEN="../../../bin/slice2cpp.exe"	
+USERDEP__LATEN="..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Latency.ice
 
@@ -131,7 +131,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "latencyS - Win32 Debug"
 
-USERDEP__LATEN="../../../bin/slice2cpp.exe"	
+USERDEP__LATEN="..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Latency.ice
 

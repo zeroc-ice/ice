@@ -115,7 +115,7 @@ SOURCE=.\Hello.ice
 
 !IF  "$(CFG)" == "helloIceBoxC - Win32 Release"
 
-USERDEP__HELLO="../../../bin/slice2cpp.exe"	
+USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Hello.ice
 
@@ -131,7 +131,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "helloIceBoxC - Win32 Debug"
 
-USERDEP__HELLO="../../../bin/slice2cpp.exe"	
+USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Hello.ice
 

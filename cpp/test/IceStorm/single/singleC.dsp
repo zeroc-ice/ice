@@ -115,6 +115,7 @@ SOURCE=.\Single.ice
 
 !IF  "$(CFG)" == "singleC - Win32 Release"
 
+USERDEP__SINGL="..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Single.ice
 
@@ -130,7 +131,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "singleC - Win32 Debug"
 
-USERDEP__SINGL="../../../bin/slice2cpp.exe"	
+USERDEP__SINGL="..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Single.ice
 

@@ -126,7 +126,7 @@ SOURCE=..\..\slice\IceStorm\IceStorm.ice
 
 !IF  "$(CFG)" == "IceStorm - Win32 Release"
 
-USERDEP__ICEST="../../bin/slice2cpp.exe"	
+USERDEP__ICEST="..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\IceStorm\IceStorm.ice
 
@@ -144,7 +144,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "IceStorm - Win32 Debug"
 
-USERDEP__ICEST="../../bin/slice2cpp.exe"	
+USERDEP__ICEST="..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\IceStorm\IceStorm.ice
 
