@@ -10,7 +10,7 @@
 
 package IceInternal;
 
-public class NonRepeatable extends Exception // TODO: Base class?
+public class NonRepeatable extends Exception
 {
     public
     NonRepeatable(Ice.LocalException ex)

@@ -59,6 +59,7 @@ public final class Outgoing
 
     public boolean
     invoke()
+        throws NonRepeatable
     {
         switch (_reference.mode)
         {
