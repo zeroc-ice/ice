@@ -1419,29 +1419,38 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         out << sp << nl << "public void" << nl << "__write(IceInternal.BasicStream __os)";
         out << sb;
+	out << nl << "__os.writeString(\"" << p->scoped() << "\");";
+	out << nl << "__os.startWriteSlice();";
         iter = 0;
         for(d = members.begin(); d != members.end(); ++d)
         {
             list<string> metaData = (*d)->getMetaData();
             writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), true, iter, false, metaData);
         }
+	out << nl << "__os.endWriteSlice();";
         if(base)
         {
             out << nl << "super.__write(__os);";
         }
         out << eb;
 
-        out << sp << nl << "public void" << nl << "__read(IceInternal.BasicStream __is)";
+        out << sp << nl << "public void" << nl << "__read(IceInternal.BasicStream __is, boolean __rid)";
         out << sb;
+	out << nl << "if(__rid)";
+	out << sb;
+	out << nl << "String myId = __is.readString();";
+	out << eb;
+	out << nl << "__is.startReadSlice();";
         iter = 0;
         for(d = members.begin(); d != members.end(); ++d)
         {
             list<string> metaData = (*d)->getMetaData();
             writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData);
         }
+	out << nl << "__is.endReadSlice();";
         if(base)
         {
-            out << nl << "super.__read(__is);";
+            out << nl << "super.__read(__is, true);";
         }
         out << eb;
 
@@ -1483,6 +1492,17 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         out << nl << "__unmarshal(__is);";
         out << nl << "__is.endReadException();";
         out << eb;
+
+	if(p->usesClasses())
+	{
+	    if(!base || base && !base->usesClasses())
+	    {
+		out << sp << nl << "public boolean" << nl << "__usesClasses()";
+		out << sb;
+		out << nl << "return true;";
+		out << eb;
+	    }
+	}
     }
 
     out << eb;
@@ -3107,36 +3127,9 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             //
             out << nl << "try";
             out << sb;
-            out << nl << "final String[] __throws =";
-            out << sb;
-            ExceptionList::const_iterator t;
-            for(t = throws.begin(); t != throws.end(); ++t)
-            {
-                if(t != throws.begin())
-                {
-                    out << ",";
-                }
-                out << nl << "\"" << (*t)->scoped() << "\"";
-            }
+            out << nl << "__is.throwException();";
             out << eb;
-            out << ';';
-            out << nl << "switch(__is.throwException(__throws))";
-            out << sb;
-            int count = 0;
-            for(t = throws.begin(); t != throws.end(); ++t)
-            {
-                out << nl << "case " << count << ':';
-                out << sb;
-                string abs = getAbsolute((*t)->scoped(), scope);
-                out << nl << abs << " __ex = new " << abs << "();";
-                out << nl << "__ex.__read(__is);";
-                out << nl << "throw __ex;";
-                out << eb;
-                count++;
-            }
-            out << eb;
-            out << eb;
-            for(t = throws.begin(); t != throws.end(); ++t)
+            for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
             {
                 out << nl << "catch(" << getAbsolute((*t)->scoped(), scope) << " __ex)";
                 out << sb;
@@ -3846,36 +3839,9 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             //
             out << nl << "try";
             out << sb;
-            out << nl << "final String[] __throws =";
-            out << sb;
-            ExceptionList::const_iterator r;
-            for(r = throws.begin(); r != throws.end(); ++r)
-            {
-                if(r != throws.begin())
-                {
-                    out << ",";
-                }
-                out << nl << "\"" << (*r)->scoped() << "\"";
-            }
+            out << nl << "__is.throwException();";
             out << eb;
-            out << ';';
-            out << nl << "switch(__is.throwException(__throws))";
-            out << sb;
-            int count = 0;
-            for(r = throws.begin(); r != throws.end(); ++r)
-            {
-                out << nl << "case " << count << ':';
-                out << sb;
-                string abs = getAbsolute((*r)->scoped(), classScope);
-                out << nl << abs << " __ex = new " << abs << "();";
-                out << nl << "__ex.__read(__is);";
-                out << nl << "throw __ex;";
-                out << eb;
-                count++;
-            }
-            out << eb;
-            out << eb;
-            for(r = throws.begin(); r != throws.end(); ++r)
+            for(ExceptionList::const_iterator r = throws.begin(); r != throws.end(); ++r)
             {
                 out << nl << "catch(" << getAbsolute((*r)->scoped(), classScope) << " __ex)";
                 out << sb;
