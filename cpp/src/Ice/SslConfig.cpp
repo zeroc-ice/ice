@@ -183,7 +183,11 @@ IceSecurity::Ssl::Parser::process()
     {
         ConfigParseException configEx(__FILE__, __LINE__);
 
-        configEx._message = errorCount + "errors occured during parsing.";
+        ostringstream errStr;
+
+        errStr << dec << errorCount << " errors occured during parsing.";
+
+        configEx._message = errStr.str();
 
         throw configEx;
     }
