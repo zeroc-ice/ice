@@ -476,7 +476,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Ice::ObjectPrx obj = communicator->stringToProxy("Test:default -p 12345");
     TestPrx test = TestPrx::checkedCast(obj);
 
-    cout << "testing throwing a base exception... " << flush;
+    cout << "base... " << flush;
     {
 	bool gotException = false;
 	try
@@ -497,7 +497,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing throwing a base exception with AMI... " << flush;
+    cout << "base (AMI)... " << flush;
     {
 	AMI_Test_baseAsBaseIPtr cb = new AMI_Test_baseAsBaseI;
 	test->baseAsBase_async(cb);
@@ -505,7 +505,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of unknown derived exception... " << flush;
+    cout << "slicing of unknown derived... " << flush;
     {
 	bool gotException = false;
 	try
@@ -526,7 +526,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of unknown derived exception with AMI... " << flush;
+    cout << "slicing of unknown derived (AMI)... " << flush;
     {
 	AMI_Test_unknownDerivedAsBaseIPtr cb = new AMI_Test_unknownDerivedAsBaseI;
 	test->unknownDerivedAsBase_async(cb);
@@ -534,8 +534,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing non-slicing of known derived exception" << endl;
-    cout << "\tthrown as base exception... " << flush;
+    cout << "non-slicing of known derived as base..." << flush;
     {
 	bool gotException = false;
 	try
@@ -557,8 +556,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing non-slicing of known derived exception" << endl;
-    cout << "\tthrown as base exception with AMI... " << flush;
+    cout << "non-slicing of known derived as base (AMI)..." << flush;
     {
 	AMI_Test_knownDerivedAsBaseIPtr cb = new AMI_Test_knownDerivedAsBaseI;
 	test->knownDerivedAsBase_async(cb);
@@ -566,8 +564,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing non-slicing of known derived exception" << endl;
-    cout << "\tthrown as derived exception... " << flush;
+    cout << "non-slicing of known derived as derived..." << flush;
     {
 	bool gotException = false;
 	try
@@ -589,8 +586,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing non-slicing of known derived exception" << endl;
-    cout << "\tthrown as derived exception with AMI... " << flush;
+    cout << "non-slicing of known derived as derived (AMI)..." << flush;
     {
 	AMI_Test_knownDerivedAsKnownDerivedIPtr cb = new AMI_Test_knownDerivedAsKnownDerivedI;
 	test->knownDerivedAsKnownDerived_async(cb);
@@ -598,8 +594,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of unknown intermediate exception" << endl;
-    cout << "\tthrown as base exception... " << flush;
+    cout << "slicing of unknown intermediate as base..." << flush;
     {
 	bool gotException = false;
 	try
@@ -620,8 +615,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of unknown intermediate exception" << endl;
-    cout << "\tthrown as base exception with AMI... " << flush;
+    cout << "slicing of unknown intermediate as base (AMI)..." << flush;
     {
 	AMI_Test_unknownIntermediateAsBaseIPtr cb = new AMI_Test_unknownIntermediateAsBaseI;
 	test->unknownIntermediateAsBase_async(cb);
@@ -629,8 +623,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of known intermediate exception" << endl;
-    cout << "\tthrown as base exception... " << flush;
+    cout << "slicing of known intermediate as base..." << flush;
     {
 	bool gotException = false;
 	try
@@ -652,8 +645,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of known intermediate exception" << endl;
-    cout << "\tthrown as base exception with AMI... " << flush;
+    cout << "slicing of known intermediate as base (AMI)..." << flush;
     {
 	AMI_Test_knownIntermediateAsBaseIPtr cb = new AMI_Test_knownIntermediateAsBaseI;
 	test->knownIntermediateAsBase_async(cb);
@@ -661,8 +653,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of known most derived exception" << endl;
-    cout << "\tthrown as base exception... " << flush;
+    cout << "slicing of known most derived as base..." << flush;
     {
 	bool gotException = false;
 	try
@@ -685,8 +676,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of known most derived exception" << endl;
-    cout << "\tthrown as base exception with AMI... " << flush;
+    cout << "slicing of known most derived as base (AMI)..." << flush;
     {
 	AMI_Test_knownMostDerivedAsBaseIPtr cb = new AMI_Test_knownMostDerivedAsBaseI;
 	test->knownMostDerivedAsBase_async(cb);
@@ -694,8 +684,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing non-slicing of known intermediate exception" << endl;
-    cout << "\tthrown as intermediate exception... " << flush;
+    cout << "non-slicing of known intermediate as intermediate..." << flush;
     {
 	bool gotException = false;
 	try
@@ -717,9 +706,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing non-slicing of known intermediate exception" << endl;
-    cout << "\tthrown as intermediate exception with AMI... "
-	 << flush;
+    cout << "non-slicing of known intermediate as intermediate (AMI)..." << flush;
     {
 	AMI_Test_knownIntermediateAsKnownIntermediateIPtr cb = new AMI_Test_knownIntermediateAsKnownIntermediateI;
 	test->knownIntermediateAsKnownIntermediate_async(cb);
@@ -727,8 +714,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing non-slicing of known most derived exception" << endl;
-    cout << "\tthrown as intermediate exception... " << flush;
+    cout << "non-slicing of known most derived exception as intermediate..." << flush;
     {
 	bool gotException = false;
 	try
@@ -751,8 +737,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing non-slicing of known most derived exception" << endl;
-    cout << "\tthrown as intermediate exception with AMI... " << flush;
+    cout << "non-slicing of known most derived as intermediate (AMI)..." << flush;
     {
 	AMI_Test_knownMostDerivedAsKnownIntermediateIPtr cb = new AMI_Test_knownMostDerivedAsKnownIntermediateI;
 	test->knownMostDerivedAsKnownIntermediate_async(cb);
@@ -760,8 +745,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing non-slicing of known most derived exception" << endl;
-    cout << "\tthrown as most derived exception... " << flush;
+    cout << "non-slicing of known most derived as most derived..." << flush;
     {
 	bool gotException = false;
 	try
@@ -784,8 +768,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing non-slicing of known most derived exception" << endl;
-    cout << "\tthrown as most derived exception with AMI... " << flush;
+    cout << "non-slicing of known most derived as most derived (AMI)..." << flush;
     {
 	AMI_Test_knownMostDerivedAsKnownMostDerivedIPtr cb = new AMI_Test_knownMostDerivedAsKnownMostDerivedI;
 	test->knownMostDerivedAsKnownMostDerived_async(cb);
@@ -793,8 +776,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of unknown most derived exception" << endl;
-    cout << "\twith known intermediate thrown as base exception... " << flush;
+    cout << "slicing of unknown most derived, known intermediate as base... " << flush;
     {
 	bool gotException = false;
 	try
@@ -816,8 +798,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of unknown most derived exception" << endl;
-    cout << "\twith known intermediate thrown as base exception with AMI... " << flush;
+    cout << "slicing of unknown most derived, known intermediate as base (AMI)... " << flush;
     {
 	AMI_Test_unknownMostDerived1AsBaseIPtr cb = new AMI_Test_unknownMostDerived1AsBaseI;
 	test->unknownMostDerived1AsBase_async(cb);
@@ -825,9 +806,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of unknown most derived exception" << endl;
-    cout << "\twith known intermediate thrown as intermediate exception... "
-	 << flush;
+    cout << "slicing of unknown most derived, known intermediate as intermediate..." << flush;
     {
 	bool gotException = false;
 	try
@@ -849,9 +828,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of unknown most derived exception" << endl;
-    cout << "\twith known intermediate thrown as intermediate exception with AMI... "
-	 << flush;
+    cout << "slicing of unknown most derived, known intermediate as intermediate (AMI)..." << flush;
     {
 	AMI_Test_unknownMostDerived1AsKnownIntermediateIPtr cb = new AMI_Test_unknownMostDerived1AsKnownIntermediateI;
 	test->unknownMostDerived1AsKnownIntermediate_async(cb);
@@ -859,8 +836,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of unknown most derived exception" << endl;
-    cout << "\twith unknown intermediate thrown as base exception... " << flush;
+    cout << "slicing of unknown most derived, unknown intermediate as base..." << flush;
     {
 	bool gotException = false;
 	try
@@ -881,8 +857,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of unknown most derived exception" << endl;
-    cout << "\twith unknown intermediate thrown as base exception with AMI... " << flush;
+    cout << "slicing of unknown most derived, unknown intermediate as base (AMI)..." << flush;
     {
 	AMI_Test_unknownMostDerived2AsBaseIPtr cb = new AMI_Test_unknownMostDerived2AsBaseI;
 	test->unknownMostDerived2AsBase_async(cb);
