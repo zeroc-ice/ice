@@ -16,7 +16,12 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-install::
+all:: Identity.xsd
+
+Identity.xsd: $(top_srcdir)/slice/Ice/Identity.ice
+	$(SLICE2XSD) --ice $(top_srcdir)/slice/Ice/Identity.ice
+
+install:: all
 	@for i in *.xsd ; \
 	do \
 	    echo "Installing $$i" ; \
