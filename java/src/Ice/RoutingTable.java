@@ -25,7 +25,6 @@ public final class RoutingTable
     {
 	_table.clear();
     }
-    
 
     //
     // Returns false if the Proxy exists already.

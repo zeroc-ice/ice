@@ -44,6 +44,8 @@ IceInternal::LocatorManager::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
 
+    for_each(_table.begin(), _table.end(), Ice::secondVoidMemFun<LocatorPrx, LocatorInfo>(&LocatorInfo::destroy));
+
     _table.clear();
     _tableHint = _table.end();
 
@@ -126,6 +128,14 @@ IceInternal::LocatorAdapterTable::get(const string& adapter, ::std::vector<Endpo
 }
 
 void
+IceInternal::LocatorAdapterTable::clear()
+{
+     IceUtil::Mutex::Lock sync(*this);
+
+     _adapterEndpointsMap.clear();
+}
+
+void
 IceInternal::LocatorAdapterTable::add(const string& adapter, const ::std::vector<EndpointPtr>& endpoints)
 {
     IceUtil::Mutex::Lock sync(*this);
@@ -158,6 +168,15 @@ IceInternal::LocatorInfo::LocatorInfo(const LocatorPrx& locator, const LocatorAd
 {
     assert(_locator);
     assert(_adapterTable);
+}
+
+void
+IceInternal::LocatorInfo::destroy()
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    _locatorRegistry = 0;
+    _adapterTable->clear();
 }
 
 bool

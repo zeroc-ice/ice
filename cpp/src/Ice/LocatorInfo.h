@@ -48,6 +48,8 @@ class LocatorAdapterTable : public ::IceUtil::Shared, public ::IceUtil::Mutex
 public:
 
     LocatorAdapterTable();
+
+    void clear();
     
     bool get(const std::string&, ::std::vector<EndpointPtr>&) const;
     void add(const std::string&, const ::std::vector<EndpointPtr>&);
@@ -64,6 +66,8 @@ public:
 
     LocatorInfo(const ::Ice::LocatorPrx&, const LocatorAdapterTablePtr&);
 
+    void destroy();
+
     bool operator==(const LocatorInfo&) const;
     bool operator!=(const LocatorInfo&) const;
     bool operator<(const LocatorInfo&) const;
@@ -76,9 +80,9 @@ public:
 
 private:
 
-    ::Ice::LocatorPrx _locator;
+    ::Ice::LocatorPrx _locator; // Immutable.
     ::Ice::LocatorRegistryPrx _locatorRegistry;
-    LocatorAdapterTablePtr _adapterTable;
+    LocatorAdapterTablePtr _adapterTable; // Immutable.
 };
 
 }

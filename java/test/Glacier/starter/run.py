@@ -54,14 +54,13 @@ name = os.path.join("Glacier", "starter")
 TestUtil.mixedClientServerTest(toplevel, name)
 
 print "shutting down glacier starter...",
-TestUtil.killServers() # TODO: Graceful shutdown
+TestUtil.killServers() # TODO: Graceful shutdown.
 print "ok"
 
 starterStatus = starterPipe.close()
 
-# TODO: Enable again when we have graceful server starter shutdown.
-#if starterStatus:
-#    TestUtil.killServers()
-#    sys.exit(1)
+if starterStatus:
+    TestUtil.killServers()
+    #sys.exit(1) # TODO: Uncomment when when we have graceful shutdown.
 
 sys.exit(0)

@@ -18,6 +18,13 @@ public final class LocatorInfo
 	_adapterTable = adapterTable;
     }
 
+    synchronized public void
+    destroy()
+    {
+	_locatorRegistry = null;
+	_adapterTable.clear();
+    }
+
     public boolean
     equals(java.lang.Object obj)
     {
@@ -145,8 +152,8 @@ public final class LocatorInfo
 	}
     }
 
-    private Ice.LocatorPrx _locator;
+    private Ice.LocatorPrx _locator; // Immutable.
     private Ice.LocatorRegistryPrx _locatorRegistry;
-    private LocatorAdapterTable _adapterTable;
+    private LocatorAdapterTable _adapterTable; // Immutable.
 };
 

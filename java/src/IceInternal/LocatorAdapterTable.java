@@ -16,6 +16,12 @@ public final class LocatorAdapterTable
     {
     }
 
+    synchronized void
+    clear()
+    {
+	_table.clear();
+    }
+
     synchronized IceInternal.Endpoint[]
     get(String adapter)
     {

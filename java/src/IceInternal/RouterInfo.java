@@ -20,6 +20,15 @@ public final class RouterInfo
         assert(_router != null);
     }
 
+    synchronized public void
+    destroy()
+    {
+	_clientProxy = null;
+	_serverProxy = null;
+	_adapter = null;
+	_routingTable.clear();
+    }
+
     public boolean
     equals(java.lang.Object obj)
     {
@@ -114,9 +123,9 @@ public final class RouterInfo
         return _adapter;
     }
 
-    private Ice.RouterPrx _router;
+    private Ice.RouterPrx _router; // Immutable.
     private Ice.ObjectPrx _clientProxy;
     private Ice.ObjectPrx _serverProxy;
-    private Ice.RoutingTable _routingTable;
+    private Ice.RoutingTable _routingTable; // Immutable.
     private Ice.ObjectAdapter _adapter;
 }
