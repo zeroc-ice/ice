@@ -28,12 +28,12 @@ IceSecurity::Ssl::ErrorReporter::warning(const SAXParseException& toCatch)
     {
 	ostringstream s;
 
-        s << "SSL configuration file parse warning.\n"
-          << "Xerces-c Init Exception: "<< "Warning at file \""
-          << DOMString(toCatch.getSystemId())
-          << "\", line " << toCatch.getLineNumber()
-          << ", column " << toCatch.getColumnNumber()
-          << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
+        s << "SSL configuration file parse warning.\n" << flush;
+        s << "Xerces-c Init Exception: Warning at file \"" << flush;
+        s << DOMString(toCatch.getSystemId()) << flush;
+        s << "\", line " << toCatch.getLineNumber() << flush;
+        s << ", column " << toCatch.getColumnNumber() << flush;
+        s << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
 
         ICE_PARSE_WARNING(s.str());
     }
@@ -48,12 +48,12 @@ IceSecurity::Ssl::ErrorReporter::error(const SAXParseException& toCatch)
     {
 	ostringstream s;
 
-        s << "SSL configuration file parse error.\n"
-          << "Xerces-c Init Exception: "<< "Error at file \""
-          << DOMString(toCatch.getSystemId())
-          << "\", line " << toCatch.getLineNumber()
-          << ", column " << toCatch.getColumnNumber()
-          << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
+        s << "SSL configuration file parse error.\n" << flush;
+        s << "Xerces-c Init Exception: Error at file \"" << flush;
+        s << DOMString(toCatch.getSystemId()) << flush;
+        s << "\", line " << toCatch.getLineNumber() << flush;
+        s << ", column " << toCatch.getColumnNumber() << flush;
+        s << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
 
         ICE_PARSE_WARNING(s.str());
     }
@@ -68,12 +68,12 @@ IceSecurity::Ssl::ErrorReporter::fatalError(const SAXParseException& toCatch)
     {
 	ostringstream s;
 
-        s << "SSL configuration file parse error.\n"
-          << "Xerces-c Init Exception: "<< "Fatal error at file \""
-          << DOMString(toCatch.getSystemId())
-          << "\", line " << toCatch.getLineNumber()
-          << ", column " << toCatch.getColumnNumber()
-          << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
+        s << "SSL configuration file parse error.\n" << flush;
+        s << "Xerces-c Init Exception: Fatal error at file \"" << flush;
+        s << DOMString(toCatch.getSystemId()) << flush;
+        s << "\", line " << toCatch.getLineNumber() << flush;
+        s << ", column " << toCatch.getColumnNumber() << flush;
+        s << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
 
         ICE_PARSE_WARNING(s.str());
     }

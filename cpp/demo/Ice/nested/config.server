@@ -1,9 +1,10 @@
-Ice.Adapter.NestedServerAdapter.Endpoints=default -p 10000 -t 10000
+Ice.Adapter.NestedServerAdapter.Endpoints=ssl -p 10000 -t 10000
 
 Ice.ThreadPool.Size=50
+Ice.Trace.Security=6
 #Ice.Trace.Network=1
 #Ice.Trace.Protocol=1
 #Ice.ConnectionWarnings=1
 
-Ice.Security.Ssl.CertPath=../../../Certs
+Ice.Security.Ssl.CertPath=../../../certs
 Ice.Security.Ssl.Config=sslconfig.xml
