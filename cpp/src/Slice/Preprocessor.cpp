@@ -85,7 +85,7 @@ Slice::Preprocessor::preprocess(bool keepComments)
 }
 
 void
-Slice::Preprocessor::printMakefileDependencies()
+Slice::Preprocessor::printMakefileDependencies(const string& suffix)
 {
     if(!checkInputFile())
     {
@@ -99,18 +99,36 @@ Slice::Preprocessor::printMakefileDependencies()
 	return;
     }
     
-    cmd += " -M " + _args + " " +_fileName;
+    cmd += " -M " + _args + " " + _fileName;
 
-    //
-    // Open a pipe for writing to redirect icecpp output to the standard output.
-    //
-#ifndef _WIN32
-    FILE* cppHandle = popen(cmd.c_str(), "w");
-    pclose(cppHandle);
-#else
-    FILE* cppHandle = _popen(cmd.c_str(), "w");
-    _pclose(cppHandle);
-#endif
+    const char* cSuffix = suffix.c_str();
+
+    FILE* cppHandle = _popen(cmd.c_str(), "r");
+
+    char buf[1024];
+    while(fgets(buf, sizeof(buf), cppHandle) != NULL)
+    {
+	char* dot;
+	char* colon = strchr(buf, ':');
+	if(colon != NULL)
+	{
+	    *colon = '\0';
+	    dot = strrchr(buf, '.');
+	    *colon = ':';
+	    if(dot != NULL)
+	    {
+		if(strncmp(dot, ".cpp:", 5) == 0)
+		{
+		    *dot = '\0';
+		    fputs(buf, stdout);
+		    fputs(cSuffix, stdout);
+		    fputs(colon, stdout);
+		    continue;
+		}
+	    }
+	}
+	fputs(buf, stdout);
+    }
 }
 
 bool

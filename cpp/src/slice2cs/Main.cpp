@@ -209,7 +209,7 @@ main(int argc, char* argv[])
 	if(depend)
 	{
 	    Preprocessor icecpp(argv[0], argv[idx], cppArgs);
-	    icecpp.printMakefileDependencies();
+	    icecpp.printMakefileDependencies(".cs");
 	}
 	else
 	{

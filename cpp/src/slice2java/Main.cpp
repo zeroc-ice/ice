@@ -29,7 +29,6 @@ usage(const char* n)
         "--tie                   Generate TIE classes.\n"
         "--impl                  Generate sample implementations.\n"
         "--impl-tie              Generate sample TIE implementations.\n"
-	"--depend                Generate Makefile dependencies.\n"
         "-d, --debug             Print debug messages.\n"
         "--ice                   Permit `Ice' prefix (for building Ice source code only)\n"
         ;
@@ -48,7 +47,6 @@ main(int argc, char* argv[])
     bool debug = false;
     bool ice = false;
     bool caseSensitive = false;
-    bool depend = false;
 
     int idx = 1;
     while(idx < argc)
@@ -166,15 +164,6 @@ main(int argc, char* argv[])
             }
             --argc;
         }
-	else if(strcmp(argv[idx], "--depend") == 0)
-	{
-	    depend = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
         else if(argv[idx][0] == '-')
         {
             cerr << argv[0] << ": unknown option `" << argv[idx] << "'"
@@ -206,58 +195,50 @@ main(int argc, char* argv[])
 
     for(idx = 1 ; idx < argc ; ++idx)
     {
-	if(depend)
+	Preprocessor icecpp(argv[0], argv[idx], cppArgs);
+	FILE* cppHandle = icecpp.preprocess(false);
+
+	if(cppHandle == 0)
 	{
-	    Preprocessor icecpp(argv[0], argv[idx], cppArgs);
-	    icecpp.printMakefileDependencies();
+	    return EXIT_FAILURE;
+	}
+
+	UnitPtr p = Unit::createUnit(false, false, ice, caseSensitive);
+	int parseStatus = p->parse(cppHandle, debug);
+
+	if(!icecpp.close())
+	{
+	    return EXIT_FAILURE;
+	}	    
+	
+	if(parseStatus == EXIT_FAILURE)
+	{
+	    status = EXIT_FAILURE;
 	}
 	else
 	{
-	    Preprocessor icecpp(argv[0], argv[idx], cppArgs);
-	    FILE* cppHandle = icecpp.preprocess(false);
-
-	    if(cppHandle == 0)
+	    Gen gen(argv[0], icecpp.getBaseName(), includePaths, output);
+	    if(!gen)
 	    {
+		p->destroy();
 		return EXIT_FAILURE;
 	    }
-
-	    UnitPtr p = Unit::createUnit(false, false, ice, caseSensitive);
-	    int parseStatus = p->parse(cppHandle, debug);
-
-	    if(!icecpp.close())
+	    gen.generate(p);
+	    if(tie)
 	    {
-		return EXIT_FAILURE;
-	    }	    
-	    
-	    if(parseStatus == EXIT_FAILURE)
-	    {
-		status = EXIT_FAILURE;
+		gen.generateTie(p);
 	    }
-	    else
+	    if(impl)
 	    {
-		Gen gen(argv[0], icecpp.getBaseName(), includePaths, output);
-		if(!gen)
-		{
-		    p->destroy();
-		    return EXIT_FAILURE;
-		}
-		gen.generate(p);
-		if(tie)
-		{
-		    gen.generateTie(p);
-		}
-		if(impl)
-		{
-		    gen.generateImpl(p);
-		}
-		if(implTie)
-		{
-		    gen.generateImplTie(p);
-		}
+		gen.generateImpl(p);
 	    }
-
-	    p->destroy();
+	    if(implTie)
+	    {
+		gen.generateImplTie(p);
+	    }
 	}
+
+	p->destroy();
     }
 
     return status;

@@ -1,6 +1,8 @@
 Changes since version 1.4.0
 ---------------------------
 
+- Removed the --depend option from slice2java.
+
 - Removed IceBox::ServiceBase and IceBox::FreezeService. There's now
   a single IceBox::Service interface.
 

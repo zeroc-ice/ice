@@ -33,7 +33,7 @@ public:
     FILE* preprocess(bool);
     bool close();
 
-    void printMakefileDependencies();
+    void printMakefileDependencies(const std::string& = ".cpp");
     
     std::string getBaseName();
 
