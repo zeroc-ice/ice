@@ -89,18 +89,15 @@ IceInternal::BasicStream::reserve(Container::size_type sz)
 }
 
 IceInternal::BasicStream::WriteEncaps::WriteEncaps()
-    : writeIndex(0), toBeMarshaledMap(0), marshaledMap(0), typeIdIndex(0), typeIdMap(0)
+    : writeIndex(0), toBeMarshaledMap(0), marshaledMap(0), typeIdMap(0), typeIdIndex(0)
 {
 }
 
 IceInternal::BasicStream::WriteEncaps::~WriteEncaps()
 {
-    if(toBeMarshaledMap)
-    {
-	delete toBeMarshaledMap;
-	delete marshaledMap;
-	delete typeIdMap;
-    }
+    delete toBeMarshaledMap;
+    delete marshaledMap;
+    delete typeIdMap;
 }
 
 void
@@ -154,18 +151,15 @@ IceInternal::BasicStream::endWriteEncaps()
 }
 
 IceInternal::BasicStream::ReadEncaps::ReadEncaps()
-    : patchMap(0), unmarshaledMap(0), typeIdIndex(0), typeIdMap(0)
+    : patchMap(0), unmarshaledMap(0), typeIdMap(0), typeIdIndex(0)
 {
 }
 
 IceInternal::BasicStream::ReadEncaps::~ReadEncaps()
 {
-    if(patchMap)
-    {
-	delete patchMap;
-	delete unmarshaledMap;
-	delete typeIdMap;
-    }
+    delete patchMap;
+    delete unmarshaledMap;
+    delete typeIdMap;
 }
 
 void

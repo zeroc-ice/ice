@@ -205,7 +205,7 @@ private:
     //
     Instance* _instance;
 
-    class ICE_API ReadEncaps
+    class ICE_API ReadEncaps : public ::IceUtil::noncopyable
     {
     public:
 
@@ -220,11 +220,18 @@ private:
 
 	PatchMap* patchMap;
 	IndexToPtrMap* unmarshaledMap;
-	Ice::Int typeIdIndex;
 	TypeIdReadMap* typeIdMap;
+	Ice::Int typeIdIndex;
+
+    private:
+
+	//
+	// operator=() and operator==() are not allowed.
+	//
+	ReadEncaps& operator=(const ReadEncaps&);
     };
 
-    class ICE_API WriteEncaps
+    class ICE_API WriteEncaps : public ::IceUtil::noncopyable
     {
     public:
 
@@ -236,8 +243,8 @@ private:
 	Ice::Int writeIndex;
 	PtrToIndexMap* toBeMarshaledMap;
 	PtrToIndexMap* marshaledMap;
-	Ice::Int typeIdIndex;
 	TypeIdWriteMap* typeIdMap;
+	Ice::Int typeIdIndex;
     };
 
     std::list<ReadEncaps> _readEncapsStack;
