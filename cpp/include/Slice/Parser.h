@@ -555,6 +555,7 @@ public:
     DataMemberList allClassDataMembers() const;
     bool isAbstract() const;
     bool isInterface() const;
+    bool isA(const std::string&) const;
     virtual bool isLocal() const;
     bool hasDataMembers() const;
     virtual ContainedType containedType() const;

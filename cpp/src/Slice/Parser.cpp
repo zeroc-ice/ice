@@ -2493,6 +2493,23 @@ Slice::ClassDef::isInterface() const
 }
 
 bool
+Slice::ClassDef::isA(const string& id) const
+{
+    if(id == _scoped)
+    {
+        return true;
+    }
+    for(ClassList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
+    {
+        if((*p)->isA(id))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
 Slice::ClassDef::isLocal() const
 {
     return _local;
