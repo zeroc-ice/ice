@@ -14,9 +14,9 @@
 #include <IceUtil/Config.h>
 
 //
-// Base classes for reference counted types. For "smart pointers" or
-// "handles" for reference counted types derived from these base
-// classes, use IceUtil::Handle.
+// Base classes for reference counted types. The IceUtil::Handle
+// template can be used for smart pointers to types derived from these
+// bases.
 //
 // IceUtil::SimpleShared
 // =====================
