@@ -1380,20 +1380,23 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
 	}
 	namedThing = cl.front();
     }
-
-    //
-    // For each scope, get the container until we have the container
-    // for the first scope (which is the introduced one).
-    //
-    ContainerPtr c;
-    while(pos != string::npos)
+    else
     {
-	c = namedThing->container();
-	pos = scoped.find("::", pos + 2);
-    }
-    if(c)
-    {
-	namedThing = ContainedPtr::dynamicCast(c);
+	//
+	// For each scope, get the container until we have the container
+	// for the first scope (which is the introduced one).
+	//
+	ContainerPtr c;
+	while(pos != string::npos)
+	{
+	    c = namedThing->container();
+	    pos = scoped.find("::", pos + 2);
+	}
+	if(c)
+	{
+	    namedThing = ContainedPtr::dynamicCast(c);
+	    assert(namedThing);
+	}
     }
 
     //
