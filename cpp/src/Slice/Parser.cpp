@@ -3201,7 +3201,7 @@ Slice::Sequence::usesClasses() const
 size_t
 Slice::Sequence::minWireSize() const
 {
-    return _type->minWireSize();
+    return 1; // An empty sequence.
 }
 
 bool
@@ -3295,7 +3295,7 @@ Slice::Dictionary::usesClasses() const
 size_t
 Slice::Dictionary::minWireSize() const
 {
-    return _keyType->minWireSize() + _valueType->minWireSize();
+    return 1; // An empty dictionary.
 }
 
 bool
