@@ -658,16 +658,42 @@ public final class ThreadPool
         int pos = stream.pos();
         assert(pos >= Protocol.headerSize);
         stream.pos(0);
-        byte protVer = stream.readByte();
-        if(protVer != Protocol.protocolVersion)
-        {
-            throw new Ice.UnsupportedProtocolException();
-        }
-        byte encVer = stream.readByte();
-        if(encVer != Protocol.encodingVersion)
-        {
-            throw new Ice.UnsupportedEncodingException();
-        }
+	byte[] magic = new byte[4];
+	magic[0] = stream.readByte();
+	magic[1] = stream.readByte();
+	magic[2] = stream.readByte();
+	magic[3] = stream.readByte();
+	if(magic[0] != 0x49 || magic[1] != 0x63 || magic[2] != 0x65 || magic[3] != 0x50)
+	{
+	    Ice.BadMagicException ex = new Ice.BadMagicException();
+	    ex.badMagic = magic;
+	    throw ex;
+	}
+
+	byte pMajor = stream.readByte();
+	byte pMinor = stream.readByte();
+	if(pMajor != Protocol.protocolMajor || pMinor > Protocol.protocolMinor)
+	{
+	    Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
+	    e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
+	    e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
+	    e.major = Protocol.protocolMajor;
+	    e.minor = Protocol.protocolMinor;
+	    throw e;
+	}
+
+	byte eMajor = stream.readByte();
+	byte eMinor = stream.readByte();
+	if(eMajor != Protocol.encodingMajor || eMinor > Protocol.encodingMinor)
+	{
+	    Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
+	    e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
+	    e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
+	    e.major = Protocol.encodingMajor;
+	    e.minor = Protocol.encodingMinor;
+	    throw e;
+	}
+
         byte messageType = stream.readByte();
         int size = stream.readInt();
         if(size < Protocol.headerSize)

@@ -158,8 +158,14 @@ public final class Connection extends EventHandler
 		    // respect to connection validation.
 		    //
 		    BasicStream os = new BasicStream(_instance);
-		    os.writeByte(Protocol.protocolVersion);
-		    os.writeByte(Protocol.encodingVersion);
+		    os.writeByte((byte)0x49);	// 'I'
+		    os.writeByte((byte)0x63);	// 'c'
+		    os.writeByte((byte)0x65);	// 'e'
+		    os.writeByte((byte)0x50);	// 'P'
+		    os.writeByte(Protocol.protocolMajor);
+		    os.writeByte(Protocol.protocolMinor);
+		    os.writeByte(Protocol.encodingMajor);
+		    os.writeByte(Protocol.encodingMinor);
 		    os.writeByte(Protocol.validateConnectionMsg);
 		    os.writeInt(Protocol.headerSize); // Message size.
 		    TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
@@ -178,16 +184,60 @@ public final class Connection extends EventHandler
 		    int pos = is.pos();
 		    assert(pos >= Protocol.headerSize);
 		    is.pos(0);
-		    byte protVer = is.readByte();
-		    if(protVer != Protocol.protocolVersion)
+		    byte[] magic = new byte[4];
+		    magic[0] = is.readByte();
+		    magic[1] = is.readByte();
+		    magic[2] = is.readByte();
+		    magic[3] = is.readByte();
+		    if(magic[0] != 0x49 || magic[1] != 0x63 || magic[2] != 0x65 || magic[3] != 0x50)
 		    {
-			throw new Ice.UnsupportedProtocolException();
+		        Ice.BadMagicException ex = new Ice.BadMagicException();
+			ex.badMagic = magic;
+			throw ex;
 		    }
-		    byte encVer = is.readByte();
-		    if(encVer != Protocol.encodingVersion)
+		    byte pMajor = is.readByte();
+		    byte pMinor = is.readByte();
+
+		    //
+		    // We only check the major version number here. The minor version
+		    // number is irrelevant -- no matter what minor version number is offered
+		    // by the server, we can be certain that the server supports at least minor version 0.
+		    // As the client, we are obliged to never produce a message with a minor
+		    // version number that is larger than what the server can understand, but we don't
+		    // care if the server understands more than we do.
+		    //
+		    // Note: Once we add minor versions, we need to modify the client side to never produce
+		    // a message with a minor number that is greater than what the server can handle. Similarly,
+		    // the server side will have to be modified so it never replies with a minor version that is
+		    // greater than what the client can handle.
+		    //
+		    if(pMajor != Protocol.protocolMajor)
 		    {
-			throw new Ice.UnsupportedEncodingException();
+			Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
+			e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
+			e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
+			e.major = Protocol.protocolMajor;
+			e.minor = Protocol.protocolMinor;
+			throw e;
 		    }
+
+		    byte eMajor = is.readByte();
+		    byte eMinor = is.readByte();
+
+		    //
+		    // The same applies here as above -- only the major version number
+		    // of the encoding is relevant.
+		    //
+		    if(eMajor != Protocol.encodingMajor)
+		    {
+			Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
+			e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
+			e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
+			e.major = Protocol.encodingMajor;
+			e.minor = Protocol.encodingMinor;
+			throw e;
+		    }
+
 		    byte messageType = is.readByte();
 		    if(messageType != Protocol.validateConnectionMsg)
 		    {
@@ -263,8 +313,11 @@ public final class Connection extends EventHandler
 
     private final static byte[] _requestHdr =
     {
-        Protocol.protocolVersion,
-        Protocol.encodingVersion,
+	(byte)0x49, (byte)0x63, (byte)0x65, (byte)0x50,	// 'I', 'c', 'e', 'P'
+        Protocol.protocolMajor,
+        Protocol.protocolMinor,
+        Protocol.encodingMajor,
+        Protocol.encodingMinor,
         Protocol.requestMsg,
         (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
         (byte)0, (byte)0, (byte)0, (byte)0  // Request ID (placeholder).
@@ -290,7 +343,7 @@ public final class Connection extends EventHandler
 	try
 	{
 	    BasicStream os = out.os();
-	    os.pos(3);
+	    os.pos(9);
 	    
 	    //
 	    // Fill in the message size and request ID.
@@ -349,7 +402,7 @@ public final class Connection extends EventHandler
 	try
 	{
 	    BasicStream os = out.__os();
-	    os.pos(3);
+	    os.pos(9);
 	    
 	    //
 	    // Fill in the message size and request ID.
@@ -389,8 +442,11 @@ public final class Connection extends EventHandler
 
     private final static byte[] _requestBatchHdr =
     {
-        Protocol.protocolVersion,
-        Protocol.encodingVersion,
+	(byte)0x49, (byte)0x63, (byte)0x65, (byte)0x50,	// 'I', 'c', 'e', 'P'
+        Protocol.protocolMajor,
+        Protocol.protocolMinor,
+        Protocol.encodingMajor,
+        Protocol.encodingMinor,
         Protocol.requestBatchMsg,
         (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
         (byte)0, (byte)0, (byte)0, (byte)0  // Number of requests in batch (placeholder).
@@ -498,7 +554,7 @@ public final class Connection extends EventHandler
 	
 	try
 	{
-	    _batchStream.pos(3);
+	    _batchStream.pos(9);
 	    
 	    //
 	    // Fill in the message size.
@@ -554,7 +610,7 @@ public final class Connection extends EventHandler
 	    //
 	    // Fill in the message size.
 	    //
-	    os.pos(3);
+	    os.pos(9);
 	    final int sz = os.size();
 	    os.writeInt(sz);
 	    
@@ -686,8 +742,11 @@ public final class Connection extends EventHandler
 
     private final static byte[] _replyHdr =
     {
-        Protocol.protocolVersion,
-        Protocol.encodingVersion,
+	(byte)0x49, (byte)0x63, (byte)0x65, (byte)0x50,	// 'I', 'c', 'e', 'P'
+        Protocol.protocolMajor,
+        Protocol.protocolMinor,
+        Protocol.encodingMajor,
+        Protocol.encodingMinor,
         Protocol.replyMsg,
         (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder).
     };
@@ -718,7 +777,44 @@ public final class Connection extends EventHandler
             try
             {
                 assert(stream.pos() == stream.size());
-                stream.pos(2);
+		stream.pos(0);
+
+		byte[] magic = new byte[4];
+		magic[0] = stream.readByte();
+		magic[1] = stream.readByte();
+		magic[2] = stream.readByte();
+		magic[3] = stream.readByte();
+		if(magic[0] != 0x49 || magic[1] != 0x63 || magic[2] != 0x65 || magic[3] != 0x50)
+		{
+		    Ice.BadMagicException ex = new Ice.BadMagicException();
+		    ex.badMagic = magic;
+		    throw ex;
+		}
+
+		byte pMajor = stream.readByte();
+		byte pMinor = stream.readByte();
+		if(pMajor != Protocol.protocolMajor || pMinor > Protocol.protocolMinor)
+		{
+		    Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
+		    e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
+		    e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
+		    e.major = Protocol.protocolMajor;
+		    e.minor = Protocol.protocolMinor;
+		    throw e;
+		}
+
+		byte eMajor = stream.readByte();
+		byte eMinor = stream.readByte();
+		if(eMajor != Protocol.encodingMajor || eMinor > Protocol.encodingMinor)
+		{
+		    Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
+		    e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
+		    e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
+		    e.major = Protocol.encodingMajor;
+		    e.minor = Protocol.encodingMinor;
+		    throw e;
+		}
+
                 byte messageType = stream.readByte();
                 stream.pos(Protocol.headerSize);
 
@@ -956,8 +1052,8 @@ public final class Connection extends EventHandler
         _transceiver = transceiver;
         _endpoint = endpoint;
         _adapter = adapter;
-        _logger = instance.logger(); // Chached for better performance.
-        _traceLevels = instance.traceLevels(); // Chached for better performance.
+        _logger = instance.logger(); 		// Cached for better performance.
+        _traceLevels = instance.traceLevels();	// Cached for better performance.
 	_registeredWithPool = false;
 	_warn = false;
 	_acmTimeout = 0;
@@ -1172,8 +1268,14 @@ public final class Connection extends EventHandler
 	    // message.
 	    //
 	    BasicStream os = new BasicStream(_instance);
-	    os.writeByte(Protocol.protocolVersion);
-	    os.writeByte(Protocol.encodingVersion);
+	    os.writeByte((byte)0x49);	// 'I'
+	    os.writeByte((byte)0x63);	// 'c'
+	    os.writeByte((byte)0x65);	// 'e'
+	    os.writeByte((byte)0x50);	// 'P'
+            os.writeByte(Protocol.protocolMajor);
+	    os.writeByte(Protocol.protocolMinor);
+	    os.writeByte(Protocol.encodingMajor);
+	    os.writeByte(Protocol.encodingMinor);
 	    os.writeByte(Protocol.closeConnectionMsg);
 	    os.writeInt(Protocol.headerSize); // Message size.
 	    _transceiver.write(os, _endpoint.timeout());

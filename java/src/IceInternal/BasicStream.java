@@ -171,7 +171,8 @@ public class BasicStream
     public void
     startWriteEncaps()
     {
-        writeByte((byte)0); // Encoding
+        writeByte(Protocol.encodingMajor);
+        writeByte(Protocol.encodingMinor);
         writeInt(0); // Placeholder for the encapsulation length
         WriteEncaps curr = _writeEncapsCache;
         if(curr != null)
@@ -182,7 +183,6 @@ public class BasicStream
         {
             curr = new WriteEncaps();
         }
-        curr.encoding = 0;
         curr.start = _buf.position();
         curr.next = _writeEncapsStack;
         _writeEncapsStack = curr;
@@ -208,11 +208,17 @@ public class BasicStream
     public void
     startReadEncaps()
     {
-        byte encoding = readByte();
-        if(encoding != 0)
-        {
-            throw new Ice.UnsupportedEncodingException();
-        }
+        byte eMajor = readByte();
+        byte eMinor = readByte();
+	if(eMajor != Protocol.encodingMajor || eMinor > Protocol.encodingMinor)
+	{
+	    Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
+	    e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
+	    e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
+	    e.major = Protocol.encodingMajor;
+	    e.minor = Protocol.encodingMinor;
+	    throw e;
+	}
 	//
 	// I don't use readSize() and writeSize() for encapsulations,
 	// because when creating an encapsulation, I must know in
@@ -235,7 +241,8 @@ public class BasicStream
         {
             curr = new ReadEncaps();
         }
-        curr.encoding = encoding;
+        curr.encodingMajor = eMajor;
+        curr.encodingMinor = eMinor;
         curr.start = _buf.position();
         curr.next = _readEncapsStack;
         _readEncapsStack = curr;
@@ -314,11 +321,17 @@ public class BasicStream
     public void
     skipEncaps()
     {
-        byte encoding = readByte();
-        if(encoding != 0)
-        {
-            throw new Ice.UnsupportedEncodingException();
-        }
+        byte version = readByte();	// Ignore major
+	version = readByte();		// Ignore minor
+
+	//
+	// We don't check the encoding here because encapsulations always
+	// have the encoding followed by the size of the encapsulation
+	// (regardless of the version of the encoding). We care about the
+	// version information only if we want to decode what's in the
+	// encapsulation.
+	//
+
         int sz = readInt();
 	if(sz < 0)
 	{
@@ -1323,7 +1336,8 @@ public class BasicStream
     private static final class ReadEncaps
     {
         int start;
-        byte encoding;
+        byte encodingMajor;
+        byte encodingMinor;
         java.util.ArrayList objectsRead;
         ReadEncaps next;
     }
@@ -1331,7 +1345,6 @@ public class BasicStream
     private static final class WriteEncaps
     {
         int start;
-        byte encoding;
         java.util.IdentityHashMap objectsWritten;
         WriteEncaps next;
     }

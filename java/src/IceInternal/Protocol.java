@@ -19,18 +19,23 @@ final class Protocol
     //
     // Size of the Ice protocol header
     //
-    // Protocol version (Byte)
-    // Encoding version (Byte)
+    // Magic number (4 bytes): 'I', 'c', 'e', 'P' in ASCII encoding
+    // Protocol version major (Byte)
+    // Protocol version minor (Byte)
+    // Encoding version major (Byte)
+    // Encoding version minor (Byte)
     // Message type (Byte)
     // Message size (Int)
     //
-    final static int headerSize = 7;
+    final static int headerSize = 13;
 
     //
     // The current Ice protocol and encoding version
     //
-    final static byte protocolVersion = 0;
-    final static byte encodingVersion = 0;
+    final static byte protocolMajor = 1;
+    final static byte protocolMinor = 0;
+    final static byte encodingMajor = 1;
+    final static byte encodingMinor = 0;
 
     //
     // The Ice protocol message types
