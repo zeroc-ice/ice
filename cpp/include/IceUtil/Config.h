@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2002
+// Copyright (c) 2003
 // ZeroC, Inc.
 // Billerica, MA, USA
 //
@@ -132,7 +132,7 @@ const Int64 Int64Max = 0x7fffffffffffffffLL;
 //
 // The Ice version
 //
-#define ICE_STRING_VERSION "0.0.1"
-#define ICE_INT_VERSION 0x00000001
+#define ICE_STRING_VERSION "1.0.0" // "A.B.C", with A=major, B=minor, C=patch
+#define ICE_INT_VERSION 10000      // AABBCC, with AA=major, BB=minor, CC=patch
 
 #endif
