@@ -128,7 +128,7 @@ USERDEP__INTSMAP="..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\slice.lib"
 InputPath=TestOld.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2freeze.exe --dict IntSMap,int,::S IntSMap TestOld.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntSMap,int,Test::S IntSMap TestOld.ice \
 	
 
 "IntSMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -145,7 +145,7 @@ USERDEP__INTSMAP="..\..\..\bin\slice2freeze.exe"
 InputPath=TestOld.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2freeze.exe --dict IntSMap,int,::S IntSMap TestOld.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntSMap,int,Test::S IntSMap TestOld.ice \
 	
 
 "IntSMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"

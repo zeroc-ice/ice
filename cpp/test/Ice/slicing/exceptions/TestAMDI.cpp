@@ -18,7 +18,7 @@ TestI::TestI(const Ice::ObjectAdapterPtr& adapter) :
 }
 
 void
-TestI::baseAsBase_async(const ::AMD_TestIntf_baseAsBasePtr& cb, const ::Ice::Current&)
+TestI::baseAsBase_async(const AMD_TestIntf_baseAsBasePtr& cb, const ::Ice::Current&)
 {
     Base b;
     b.b = "Base.b";
@@ -26,7 +26,7 @@ TestI::baseAsBase_async(const ::AMD_TestIntf_baseAsBasePtr& cb, const ::Ice::Cur
 }
 
 void
-TestI::unknownDerivedAsBase_async(const ::AMD_TestIntf_unknownDerivedAsBasePtr& cb, const ::Ice::Current&)
+TestI::unknownDerivedAsBase_async(const AMD_TestIntf_unknownDerivedAsBasePtr& cb, const ::Ice::Current&)
 {
     UnknownDerived d;
     d.b = "UnknownDerived.b";
@@ -35,7 +35,7 @@ TestI::unknownDerivedAsBase_async(const ::AMD_TestIntf_unknownDerivedAsBasePtr& 
 }
 
 void
-TestI::knownDerivedAsBase_async(const ::AMD_TestIntf_knownDerivedAsBasePtr& cb, const ::Ice::Current&)
+TestI::knownDerivedAsBase_async(const AMD_TestIntf_knownDerivedAsBasePtr& cb, const ::Ice::Current&)
 {
     KnownDerived d;
     d.b = "KnownDerived.b";
@@ -44,7 +44,7 @@ TestI::knownDerivedAsBase_async(const ::AMD_TestIntf_knownDerivedAsBasePtr& cb, 
 }
 
 void
-TestI::knownDerivedAsKnownDerived_async(const ::AMD_TestIntf_knownDerivedAsKnownDerivedPtr& cb, const ::Ice::Current&)
+TestI::knownDerivedAsKnownDerived_async(const AMD_TestIntf_knownDerivedAsKnownDerivedPtr& cb, const ::Ice::Current&)
 {
     KnownDerived d;
     d.b = "KnownDerived.b";
@@ -53,7 +53,7 @@ TestI::knownDerivedAsKnownDerived_async(const ::AMD_TestIntf_knownDerivedAsKnown
 }
 
 void
-TestI::unknownIntermediateAsBase_async(const ::AMD_TestIntf_unknownIntermediateAsBasePtr& cb, const ::Ice::Current&)
+TestI::unknownIntermediateAsBase_async(const AMD_TestIntf_unknownIntermediateAsBasePtr& cb, const ::Ice::Current&)
 {
     UnknownIntermediate ui;
     ui.b = "UnknownIntermediate.b";
@@ -62,7 +62,7 @@ TestI::unknownIntermediateAsBase_async(const ::AMD_TestIntf_unknownIntermediateA
 }
 
 void
-TestI::knownIntermediateAsBase_async(const ::AMD_TestIntf_knownIntermediateAsBasePtr& cb, const ::Ice::Current&)
+TestI::knownIntermediateAsBase_async(const AMD_TestIntf_knownIntermediateAsBasePtr& cb, const ::Ice::Current&)
 {
     KnownIntermediate ki;
     ki.b = "KnownIntermediate.b";
@@ -71,7 +71,7 @@ TestI::knownIntermediateAsBase_async(const ::AMD_TestIntf_knownIntermediateAsBas
 }
 
 void
-TestI::knownMostDerivedAsBase_async(const ::AMD_TestIntf_knownMostDerivedAsBasePtr& cb, const ::Ice::Current&)
+TestI::knownMostDerivedAsBase_async(const AMD_TestIntf_knownMostDerivedAsBasePtr& cb, const ::Ice::Current&)
 {
     KnownMostDerived kmd;
     kmd.b = "KnownMostDerived.b";
@@ -81,7 +81,7 @@ TestI::knownMostDerivedAsBase_async(const ::AMD_TestIntf_knownMostDerivedAsBaseP
 }
 
 void
-TestI::knownIntermediateAsKnownIntermediate_async(const ::AMD_TestIntf_knownIntermediateAsKnownIntermediatePtr& cb,
+TestI::knownIntermediateAsKnownIntermediate_async(const AMD_TestIntf_knownIntermediateAsKnownIntermediatePtr& cb,
 	                                          const ::Ice::Current&)
 {
     KnownIntermediate ki;
@@ -91,7 +91,7 @@ TestI::knownIntermediateAsKnownIntermediate_async(const ::AMD_TestIntf_knownInte
 }
 
 void
-TestI::knownMostDerivedAsKnownIntermediate_async(const ::AMD_TestIntf_knownMostDerivedAsKnownIntermediatePtr& cb,
+TestI::knownMostDerivedAsKnownIntermediate_async(const AMD_TestIntf_knownMostDerivedAsKnownIntermediatePtr& cb,
 	                                         const ::Ice::Current&)
 {
     KnownMostDerived kmd;
@@ -103,7 +103,7 @@ TestI::knownMostDerivedAsKnownIntermediate_async(const ::AMD_TestIntf_knownMostD
 
 void
 TestI::
-knownMostDerivedAsKnownMostDerived_async(const ::AMD_TestIntf_knownMostDerivedAsKnownMostDerivedPtr& cb,
+knownMostDerivedAsKnownMostDerived_async(const AMD_TestIntf_knownMostDerivedAsKnownMostDerivedPtr& cb,
 	                                 const ::Ice::Current&)
 {
     KnownMostDerived kmd;
@@ -114,7 +114,7 @@ knownMostDerivedAsKnownMostDerived_async(const ::AMD_TestIntf_knownMostDerivedAs
 }
 
 void
-TestI::unknownMostDerived1AsBase_async(const ::AMD_TestIntf_unknownMostDerived1AsBasePtr& cb, const ::Ice::Current&)
+TestI::unknownMostDerived1AsBase_async(const AMD_TestIntf_unknownMostDerived1AsBasePtr& cb, const ::Ice::Current&)
 {
     UnknownMostDerived1 umd1;
     umd1.b = "UnknownMostDerived1.b";
@@ -124,7 +124,7 @@ TestI::unknownMostDerived1AsBase_async(const ::AMD_TestIntf_unknownMostDerived1A
 }
 
 void
-TestI::unknownMostDerived1AsKnownIntermediate_async(const ::AMD_TestIntf_unknownMostDerived1AsKnownIntermediatePtr& cb,
+TestI::unknownMostDerived1AsKnownIntermediate_async(const AMD_TestIntf_unknownMostDerived1AsKnownIntermediatePtr& cb,
 	                                            const ::Ice::Current&)
 {
     UnknownMostDerived1 umd1;
@@ -135,7 +135,7 @@ TestI::unknownMostDerived1AsKnownIntermediate_async(const ::AMD_TestIntf_unknown
 }
 
 void
-TestI::unknownMostDerived2AsBase_async(const ::AMD_TestIntf_unknownMostDerived2AsBasePtr& cb, const ::Ice::Current&)
+TestI::unknownMostDerived2AsBase_async(const AMD_TestIntf_unknownMostDerived2AsBasePtr& cb, const ::Ice::Current&)
 {
     UnknownMostDerived2 umd2;
     umd2.b = "UnknownMostDerived2.b";
@@ -145,7 +145,7 @@ TestI::unknownMostDerived2AsBase_async(const ::AMD_TestIntf_unknownMostDerived2A
 }
 
 void
-TestI::shutdown_async(const ::AMD_TestIntf_shutdownPtr& cb, const ::Ice::Current&)
+TestI::shutdown_async(const AMD_TestIntf_shutdownPtr& cb, const ::Ice::Current&)
 {
     _adapter->getCommunicator()->shutdown();
     cb->ice_response();

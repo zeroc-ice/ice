@@ -239,8 +239,8 @@ TestI::sequenceTest(const SS1Ptr& p1, const SS2Ptr& p2, const ::Ice::Current&)
     return ss;
 }
 
-::BDict
-TestI::dictionaryTest(const ::BDict& bin, ::BDict& bout, const ::Ice::Current&)
+Test::BDict
+TestI::dictionaryTest(const BDict& bin, BDict& bout, const ::Ice::Current&)
 {
     int i;
     for(i = 0; i < 10; ++i)
@@ -331,7 +331,7 @@ TestI::throwUnknownDerivedAsBase(const ::Ice::Current&)
 }
 
 void
-TestI::useForward(::ForwardPtr& f, const ::Ice::Current&)
+TestI::useForward(ForwardPtr& f, const ::Ice::Current&)
 {
     f = new Forward;
     f->h = new Hidden;

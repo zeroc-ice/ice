@@ -129,7 +129,7 @@ InputPath=.\Test.ice
 
 BuildCmds= \
 	..\..\..\bin\slice2cpp.exe Test.ice \
-	..\..\..\bin\slice2freeze.exe --dict IntIntMap,int,int --dict Struct1Struct2Map,Struct1,Struct2 --dict Struct1Class1Map,Struct1,Class1 --dict Struct1ObjectMap,Struct1,Object BenchTypes Test.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntIntMap,int,int --dict Struct1Struct2Map,Demo::Struct1,Demo::Struct2 --dict Struct1Class1Map,Demo::Struct1,Demo::Class1 --dict Struct1ObjectMap,Demo::Struct1,Demo::Object BenchTypes Test.ice \
 	
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -153,7 +153,7 @@ InputPath=.\Test.ice
 
 BuildCmds= \
 	..\..\..\bin\slice2cpp.exe Test.ice \
-	..\..\..\bin\slice2freeze.exe --dict IntIntMap,int,int --dict Struct1Struct2Map,Struct1,Struct2 --dict Struct1Class1Map,Struct1,Class1 --dict Struct1ObjectMap,Struct1,Object BenchTypes Test.ice \
+	..\..\..\bin\slice2freeze.exe --dict IntIntMap,int,int --dict Struct1Struct2Map,Demo::Struct1,Demo::Struct2 --dict Struct1Class1Map,Demo::Struct1,Demo::Class1 --dict Struct1ObjectMap,Demo::Struct1,Object BenchTypes Test.ice \
 	
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"

@@ -145,7 +145,7 @@ InputPath=.\PhoneBook.ice
 
 BuildCmds= \
 	..\..\..\bin\slice2cpp.exe -I../../../slice PhoneBook.ice \
-	..\..\..\bin\slice2freeze.exe -I../../../slice --index NameIndex,Contact,name,case-insensitive NameIndex PhoneBook.ice \
+	..\..\..\bin\slice2freeze.exe -I../../../slice --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice \
 	
 
 "PhoneBook.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -169,7 +169,7 @@ InputPath=.\PhoneBook.ice
 
 BuildCmds= \
 	..\..\..\bin\slice2cpp.exe -I../../../slice PhoneBook.ice \
-	..\..\..\bin\slice2freeze.exe -I../../../slice --index NameIndex,Contact,name,case-insensitive NameIndex PhoneBook.ice \
+	..\..\..\bin\slice2freeze.exe -I../../../slice --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice \
 	
 
 "PhoneBook.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"

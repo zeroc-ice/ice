@@ -19,7 +19,7 @@ TestI::TestI(const Ice::ObjectAdapterPtr& adapter) :
 }
 
 void
-TestI::SBaseAsObject_async(const ::AMD_TestIntf_SBaseAsObjectPtr& cb, const ::Ice::Current&)
+TestI::SBaseAsObject_async(const AMD_TestIntf_SBaseAsObjectPtr& cb, const ::Ice::Current&)
 {
     SBasePtr sb = new SBase;
     sb->sb = "SBase.sb";
@@ -27,7 +27,7 @@ TestI::SBaseAsObject_async(const ::AMD_TestIntf_SBaseAsObjectPtr& cb, const ::Ic
 }
 
 void
-TestI::SBaseAsSBase_async(const ::AMD_TestIntf_SBaseAsSBasePtr& cb, const ::Ice::Current&)
+TestI::SBaseAsSBase_async(const AMD_TestIntf_SBaseAsSBasePtr& cb, const ::Ice::Current&)
 {
     SBasePtr sb = new SBase;
     sb->sb = "SBase.sb";
@@ -35,7 +35,7 @@ TestI::SBaseAsSBase_async(const ::AMD_TestIntf_SBaseAsSBasePtr& cb, const ::Ice:
 }
 
 void
-TestI::SBSKnownDerivedAsSBase_async(const ::AMD_TestIntf_SBSKnownDerivedAsSBasePtr& cb, const ::Ice::Current&)
+TestI::SBSKnownDerivedAsSBase_async(const AMD_TestIntf_SBSKnownDerivedAsSBasePtr& cb, const ::Ice::Current&)
 {
     SBSKnownDerivedPtr sbskd = new SBSKnownDerived;
     sbskd->sb = "SBSKnownDerived.sb";
@@ -44,7 +44,7 @@ TestI::SBSKnownDerivedAsSBase_async(const ::AMD_TestIntf_SBSKnownDerivedAsSBaseP
 }
 
 void
-TestI::SBSKnownDerivedAsSBSKnownDerived_async(const ::AMD_TestIntf_SBSKnownDerivedAsSBSKnownDerivedPtr& cb,
+TestI::SBSKnownDerivedAsSBSKnownDerived_async(const AMD_TestIntf_SBSKnownDerivedAsSBSKnownDerivedPtr& cb,
 	                                      const ::Ice::Current&)
 {
     SBSKnownDerivedPtr sbskd = new SBSKnownDerived;
@@ -54,7 +54,7 @@ TestI::SBSKnownDerivedAsSBSKnownDerived_async(const ::AMD_TestIntf_SBSKnownDeriv
 }
 
 void
-TestI::SBSUnknownDerivedAsSBase_async(const ::AMD_TestIntf_SBSUnknownDerivedAsSBasePtr& cb, const ::Ice::Current&)
+TestI::SBSUnknownDerivedAsSBase_async(const AMD_TestIntf_SBSUnknownDerivedAsSBasePtr& cb, const ::Ice::Current&)
 {
     SBSUnknownDerivedPtr sbsud = new SBSUnknownDerived;
     sbsud->sb = "SBSUnknownDerived.sb";
@@ -63,7 +63,7 @@ TestI::SBSUnknownDerivedAsSBase_async(const ::AMD_TestIntf_SBSUnknownDerivedAsSB
 }
 
 void
-TestI::SUnknownAsObject_async(const ::AMD_TestIntf_SUnknownAsObjectPtr& cb, const ::Ice::Current&)
+TestI::SUnknownAsObject_async(const AMD_TestIntf_SUnknownAsObjectPtr& cb, const ::Ice::Current&)
 {
     SUnknownPtr su = new SUnknown;
     su->su = "SUnknown.su";
@@ -71,7 +71,7 @@ TestI::SUnknownAsObject_async(const ::AMD_TestIntf_SUnknownAsObjectPtr& cb, cons
 }
 
 void
-TestI::oneElementCycle_async(const ::AMD_TestIntf_oneElementCyclePtr& cb, const ::Ice::Current&)
+TestI::oneElementCycle_async(const AMD_TestIntf_oneElementCyclePtr& cb, const ::Ice::Current&)
 {
     BPtr b = new B;
     b->sb = "B1.sb";
@@ -80,7 +80,7 @@ TestI::oneElementCycle_async(const ::AMD_TestIntf_oneElementCyclePtr& cb, const 
 }
 
 void
-TestI::twoElementCycle_async(const ::AMD_TestIntf_twoElementCyclePtr& cb, const ::Ice::Current&)
+TestI::twoElementCycle_async(const AMD_TestIntf_twoElementCyclePtr& cb, const ::Ice::Current&)
 {
     BPtr b1 = new B;
     b1->sb = "B1.sb";
@@ -92,7 +92,7 @@ TestI::twoElementCycle_async(const ::AMD_TestIntf_twoElementCyclePtr& cb, const 
 }
 
 void
-TestI::D1AsB_async(const ::AMD_TestIntf_D1AsBPtr& cb, const ::Ice::Current&)
+TestI::D1AsB_async(const AMD_TestIntf_D1AsBPtr& cb, const ::Ice::Current&)
 {
     D1Ptr d1 = new D1;
     d1->sb = "D1.sb";
@@ -108,7 +108,7 @@ TestI::D1AsB_async(const ::AMD_TestIntf_D1AsBPtr& cb, const ::Ice::Current&)
 }
 
 void
-TestI::D1AsD1_async(const ::AMD_TestIntf_D1AsD1Ptr& cb, const ::Ice::Current&)
+TestI::D1AsD1_async(const AMD_TestIntf_D1AsD1Ptr& cb, const ::Ice::Current&)
 {
     D1Ptr d1 = new D1;
     d1->sb = "D1.sb";
@@ -124,7 +124,7 @@ TestI::D1AsD1_async(const ::AMD_TestIntf_D1AsD1Ptr& cb, const ::Ice::Current&)
 }
 
 void
-TestI::D2AsB_async(const ::AMD_TestIntf_D2AsBPtr& cb, const ::Ice::Current&)
+TestI::D2AsB_async(const AMD_TestIntf_D2AsBPtr& cb, const ::Ice::Current&)
 {
     D2Ptr d2 = new D2;
     d2->sb = "D2.sb";
@@ -140,7 +140,7 @@ TestI::D2AsB_async(const ::AMD_TestIntf_D2AsBPtr& cb, const ::Ice::Current&)
 }
 
 void
-TestI::paramTest1_async(const ::AMD_TestIntf_paramTest1Ptr& cb, const ::Ice::Current&)
+TestI::paramTest1_async(const AMD_TestIntf_paramTest1Ptr& cb, const ::Ice::Current&)
 {
     D1Ptr d1 = new D1;
     d1->sb = "D1.sb";
@@ -156,7 +156,7 @@ TestI::paramTest1_async(const ::AMD_TestIntf_paramTest1Ptr& cb, const ::Ice::Cur
 }
 
 void
-TestI::paramTest2_async(const ::AMD_TestIntf_paramTest2Ptr& cb, const ::Ice::Current&)
+TestI::paramTest2_async(const AMD_TestIntf_paramTest2Ptr& cb, const ::Ice::Current&)
 {
     D1Ptr d1 = new D1;
     d1->sb = "D1.sb";
@@ -172,7 +172,7 @@ TestI::paramTest2_async(const ::AMD_TestIntf_paramTest2Ptr& cb, const ::Ice::Cur
 }
 
 void
-TestI::paramTest3_async(const ::AMD_TestIntf_paramTest3Ptr& cb, const ::Ice::Current&)
+TestI::paramTest3_async(const AMD_TestIntf_paramTest3Ptr& cb, const ::Ice::Current&)
 {
     D2Ptr d2 = new D2;
     d2->sb = "D2.sb (p1 1)";
@@ -202,7 +202,7 @@ TestI::paramTest3_async(const ::AMD_TestIntf_paramTest3Ptr& cb, const ::Ice::Cur
 }
 
 void
-TestI::paramTest4_async(const ::AMD_TestIntf_paramTest4Ptr& cb, const ::Ice::Current&)
+TestI::paramTest4_async(const AMD_TestIntf_paramTest4Ptr& cb, const ::Ice::Current&)
 {
     D4Ptr d4 = new D4;
     d4->sb = "D4.sb (1)";
@@ -215,7 +215,7 @@ TestI::paramTest4_async(const ::AMD_TestIntf_paramTest4Ptr& cb, const ::Ice::Cur
 }
 
 void
-TestI::returnTest1_async(const ::AMD_TestIntf_returnTest1Ptr& cb, const ::Ice::Current&)
+TestI::returnTest1_async(const AMD_TestIntf_returnTest1Ptr& cb, const ::Ice::Current&)
 {
     D1Ptr d1 = new D1;
     d1->sb = "D1.sb";
@@ -231,7 +231,7 @@ TestI::returnTest1_async(const ::AMD_TestIntf_returnTest1Ptr& cb, const ::Ice::C
 }
 
 void
-TestI::returnTest2_async(const ::AMD_TestIntf_returnTest2Ptr& cb, const ::Ice::Current&)
+TestI::returnTest2_async(const AMD_TestIntf_returnTest2Ptr& cb, const ::Ice::Current&)
 {
     D1Ptr d1 = new D1;
     d1->sb = "D1.sb";
@@ -247,13 +247,13 @@ TestI::returnTest2_async(const ::AMD_TestIntf_returnTest2Ptr& cb, const ::Ice::C
 }
 
 void
-TestI::returnTest3_async(const ::AMD_TestIntf_returnTest3Ptr& cb, const BPtr& p1, const BPtr& p2, const ::Ice::Current&)
+TestI::returnTest3_async(const AMD_TestIntf_returnTest3Ptr& cb, const BPtr& p1, const BPtr& p2, const ::Ice::Current&)
 {
     cb->ice_response(p1);
 }
 
 void
-TestI::sequenceTest_async(const ::AMD_TestIntf_sequenceTestPtr& cb,
+TestI::sequenceTest_async(const AMD_TestIntf_sequenceTestPtr& cb,
 	                  const SS1Ptr& p1, const SS2Ptr& p2, const ::Ice::Current&)
 {
     SS ss;
@@ -263,7 +263,7 @@ TestI::sequenceTest_async(const ::AMD_TestIntf_sequenceTestPtr& cb,
 }
 
 void
-TestI::dictionaryTest_async(const ::AMD_TestIntf_dictionaryTestPtr& cb, const ::BDict& bin, const ::Ice::Current&)
+TestI::dictionaryTest_async(const AMD_TestIntf_dictionaryTestPtr& cb, const BDict& bin, const ::Ice::Current&)
 {
     BDict bout;
     int i;
@@ -293,7 +293,7 @@ TestI::dictionaryTest_async(const ::AMD_TestIntf_dictionaryTestPtr& cb, const ::
 }
 
 void
-TestI::throwBaseAsBase_async(const ::AMD_TestIntf_throwBaseAsBasePtr& cb, const ::Ice::Current&)
+TestI::throwBaseAsBase_async(const AMD_TestIntf_throwBaseAsBasePtr& cb, const ::Ice::Current&)
 {
     BaseException be;
     be.sbe = "sbe";
@@ -304,7 +304,7 @@ TestI::throwBaseAsBase_async(const ::AMD_TestIntf_throwBaseAsBasePtr& cb, const 
 }
 
 void
-TestI::throwDerivedAsBase_async(const ::AMD_TestIntf_throwDerivedAsBasePtr& cb, const ::Ice::Current&)
+TestI::throwDerivedAsBase_async(const AMD_TestIntf_throwDerivedAsBasePtr& cb, const ::Ice::Current&)
 {
     DerivedException de;
     de.sbe = "sbe";
@@ -321,7 +321,7 @@ TestI::throwDerivedAsBase_async(const ::AMD_TestIntf_throwDerivedAsBasePtr& cb, 
 }
 
 void
-TestI::throwDerivedAsDerived_async(const ::AMD_TestIntf_throwDerivedAsDerivedPtr& cb, const ::Ice::Current&)
+TestI::throwDerivedAsDerived_async(const AMD_TestIntf_throwDerivedAsDerivedPtr& cb, const ::Ice::Current&)
 {
     DerivedException de;
     de.sbe = "sbe";
@@ -338,7 +338,7 @@ TestI::throwDerivedAsDerived_async(const ::AMD_TestIntf_throwDerivedAsDerivedPtr
 }
 
 void
-TestI::throwUnknownDerivedAsBase_async(const ::AMD_TestIntf_throwUnknownDerivedAsBasePtr& cb, const ::Ice::Current&)
+TestI::throwUnknownDerivedAsBase_async(const AMD_TestIntf_throwUnknownDerivedAsBasePtr& cb, const ::Ice::Current&)
 {
     D2Ptr d2 = new D2;
     d2->sb = "sb d2";
@@ -355,7 +355,7 @@ TestI::throwUnknownDerivedAsBase_async(const ::AMD_TestIntf_throwUnknownDerivedA
 }
 
 void
-TestI::useForward_async(const ::AMD_TestIntf_useForwardPtr& cb, const ::Ice::Current&)
+TestI::useForward_async(const AMD_TestIntf_useForwardPtr& cb, const ::Ice::Current&)
 {
     ForwardPtr f = new Forward;
     f->h = new Hidden;
@@ -364,7 +364,7 @@ TestI::useForward_async(const ::AMD_TestIntf_useForwardPtr& cb, const ::Ice::Cur
 }
 
 void
-TestI::shutdown_async(const ::AMD_TestIntf_shutdownPtr& cb, const ::Ice::Current&)
+TestI::shutdown_async(const AMD_TestIntf_shutdownPtr& cb, const ::Ice::Current&)
 {
     _adapter->getCommunicator()->shutdown();
     cb->ice_response();
