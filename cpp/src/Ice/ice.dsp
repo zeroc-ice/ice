@@ -116,6 +116,10 @@ SOURCE=.\BasicStream.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\BuiltinSequences.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Communicator.cpp
 # End Source File
 # Begin Source File

@@ -607,7 +607,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	// TODO: ice_marshal/ice_unmarshal, __write/__read can be
 	// moved into the helper.
 	//
-	H << sp << nl << "class " << _dllExport << "__U__" << name << " { };";
+	H << sp << nl << "class __U__" << name << " { };";
 	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "&, __U__" << name
 	  << ");";
 	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&, __U__" << name << ");";
@@ -740,7 +740,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	// TODO: ice_marshal/ice_unmarshal, __write/__read can be
 	// moved into the helper.
 	//
-	H << sp << nl << "class " << _dllExport << "__U__" << name << " { };";
+	H << sp << nl << "class __U__" << name << " { };";
 	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "&, __U__" << name
 	  << ");";
 	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&, __U__" << name << ");";
