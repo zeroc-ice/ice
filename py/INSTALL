@@ -18,7 +18,7 @@ necessary to download and build Ice for C++. See the section
 
 
 =========================================================================
-Building the Ice extension for Python (Linux/Solaris/HP-UX/MacOS X/AIX)
+Building the Ice extension for Python (Linux/Solaris/HP-UX/MacOS X)
 =========================================================================
 
 Follow these steps to build the Ice extension for Python:
@@ -63,8 +63,8 @@ Follow these steps to build the Ice extension for Python:
 1) Configure Visual C++ so that it can find the Ice and Python include
    files and libraries.
 
-   If Python is installed in C:\Python23, then you need to add
-   C:\Python23\include as the include directory and C:\Python23\libs
+   If Python is installed in C:\Python24, then you need to add
+   C:\Python24\include as the include directory and C:\Python24\libs
    as the library directory.
 
 2) Open the "all.dsw" workspace. If you are using Visual C++ .NET,
@@ -76,15 +76,28 @@ Follow these steps to build the Ice extension for Python:
    libraries be available for Python and Ice. (The debug library
    is not included in the binary distribution from python.org.)
 
+   The project assumes you are building an extension for Python 2.4.
+   If you are using Python 2.3, you will need to modify the project
+   settings to use the Python 2.3 library.
+
 4) Build the "IcePy" project.
 
 5) See "Configuring your Environment" below.
 
-NOTE: When compiling the Python interpreter from sources using
-      Microsoft Visual C++ 6.0, the presence of the STLport header
-      files causes a compilation error. The solution is to temporarily
-      remove or rename the STLport include directory in your Visual C++
-      settings using Tools/Options/Directories/Include files.
+NOTES:
+
+ * When compiling the Python interpreter from sources using
+   Microsoft Visual C++ 6.0, the presence of the STLport header
+   files causes a compilation error. The solution is to temporarily
+   remove or rename the STLport include directory in your Visual C++
+   settings using Tools/Options/Directories/Include files.
+
+ * If you are attempting to compile the Ice extension using
+   Visual C++ 6.0, be aware that the Python 2.4 binary distribution
+   available at python.org is compiled with Visual C++ 7.1 and
+   therefore is not suitable for linking with Visual C++ 6.0.
+   In order to build the extension with Visual C++ 6.0, you must
+   first build Python 2.4 from sources.
 
 
 =========================================================================
