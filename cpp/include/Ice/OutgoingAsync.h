@@ -1,3 +1,4 @@
+
 // **********************************************************************
 //
 // Copyright (c) 2003
@@ -27,7 +28,11 @@ namespace IceInternal
 
 class BasicStream;
 
-class ICE_API OutgoingAsync : public ::IceUtil::Shared
+//
+// We need virtual inheritance from shared, because the user might use
+// multiple inheritance from IceUtil::Shared.
+//
+class ICE_API OutgoingAsync : virtual public ::IceUtil::Shared
 {
 public:
 
