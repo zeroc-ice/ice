@@ -4,12 +4,14 @@
         <ant dir="cursor"/>
         <ant dir="dbmap"/>
         <ant dir="complex"/>
+        <ant dir="evictor"/>
     </target>
 
     <target name="clean">
         <ant dir="cursor" target="clean"/>
         <ant dir="dbmap" target="clean"/>
         <ant dir="complex" target="clean"/>
+        <ant dir="evictor" target="clean"/>
     </target>
 
 </project>
