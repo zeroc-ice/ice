@@ -850,8 +850,7 @@ out_param_decl
 {
     $$ = $2;
 }
-|
-out_param_decl ',' param_decl
+| out_param_decl ',' param_decl
 {
     unit->error("in parameters cannot follow out parameters");
     $$ = $1;
