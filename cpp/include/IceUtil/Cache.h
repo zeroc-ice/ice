@@ -242,6 +242,10 @@ Cache<Key, Value>::pinImpl(const Key& key, const Handle<Value>& newObj)
 	    Handle<Value> obj = load(key); 
 	    {
 		Mutex::Lock sync(_mutex);
+
+		latch = p->second.latch;
+		p->second.latch = 0;
+
 		if(obj != 0) 
 		{  
 		    p->second.obj = obj;
@@ -249,9 +253,6 @@ Cache<Key, Value>::pinImpl(const Key& key, const Handle<Value>& newObj)
 		} 
 		else 
 		{ 
-		    latch = p->second.latch;
-		    p->second.latch = 0;
-
 		    if(newObj == 0)
 		    {
 			//

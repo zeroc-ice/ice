@@ -18,7 +18,9 @@
 #include <TestCommon.h>
 #include <Test.h>
 
+
 using namespace std;
+using namespace IceUtil;
 
 class AMI_Servant_setValueAsyncI : public Test::AMI_Servant_setValueAsync
 {
@@ -26,6 +28,48 @@ public:
     void ice_response() {}
     void ice_exception(const Ice::Exception&) {}
 };
+
+class ReadThread : public Thread
+{
+public:
+
+    ReadThread(vector<Test::ServantPrx>& servants) :
+	_servants(servants)
+    {
+    }
+    
+    virtual void
+    run()
+    {
+	int loops = 10;
+	while(loops-- > 0)
+	{
+	    try
+	    {
+		_servants[0]->getValue();
+		test(false);
+	    }
+	    catch(const Ice::ObjectNotExistException&)
+	    {
+		// Expected
+	    }
+	    catch(...)
+	    {
+		test(false);
+	    }
+	    
+	    for(int i = 1; i < static_cast<int>(_servants.size()); ++i)
+	    {
+		test(_servants[i]->getValue() == i);
+	    }
+	}
+    }
+
+private:
+    vector<Test::ServantPrx>& _servants;
+};
+
+
 
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
@@ -120,7 +164,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	//
 	// Wait for setValueAsync to be dispatched.
 	//
-	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+	ThreadControl::sleep(Time::milliSeconds(100));
 
 	test(servants[i]->getValue() == i + 100);
 	//
@@ -243,6 +287,27 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	servants[i] = evictor->getServant(i);
 	test(servants[i]->getValue() == i);
     }
+
+    //
+    // Test concurrent lookups with a smaller evictor
+    // size and one missing servant
+    //
+    evictor->setSize(size / 2);
+    servants[0]->destroy();
+
+    const int threadCount = size * 2;
+
+    ThreadPtr threads[threadCount];
+    for(i = 0; i < threadCount; i++)
+    {
+	threads[i] = new ReadThread(servants);
+	threads[i]->start();
+    }
+
+    for(i = 0; i < threadCount; i++)
+    {
+	threads[i]->getThreadControl().join();
+    }
     
     //
     // Clean up.
@@ -264,7 +329,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	}
     }
 
-    // evictor->deactivate();
+    evictor->deactivate();
     cout << "ok" << endl;
 
     factory->shutdown();
