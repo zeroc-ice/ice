@@ -22,7 +22,7 @@ using namespace Ice;
 using namespace Freeze;
 
 
-Freeze::ObjectStore::ObjectStore(const string& dbName, const string& facet, 
+Freeze::ObjectStore::ObjectStore(const string& facet, 
 				 bool createDb,  EvictorI* evictor,  
 				 const vector<IndexPtr>& indices,
 				 bool populateEmptyIndices) :
@@ -33,11 +33,11 @@ Freeze::ObjectStore::ObjectStore(const string& dbName, const string& facet,
 {
     if(facet == "")
     {
-	_filename = dbName;
+	_dbName = EvictorI::defaultDb;
     }
     else
     {
-	_filename = dbName + "-" + facet;
+	_dbName = facet;
     }
 
     DbTxn* txn = 0;
@@ -54,7 +54,7 @@ Freeze::ObjectStore::ObjectStore(const string& dbName, const string& facet,
 	{
 	    flags |= DB_CREATE;
 	}
-	_db->open(txn, _filename.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
+	_db->open(txn, evictor->filename().c_str(), _dbName.c_str(), DB_BTREE, flags, FREEZE_DB_MODE);
 
 	for(size_t i = 0; i < _indices.size(); ++i)
 	{
@@ -152,7 +152,7 @@ Freeze::ObjectStore::dbHasObject(const Identity& ident) const
 	    {
 		Warning out(_communicator->getLogger());
 		out << "Deadlock in Freeze::ObjectStore::dbHasObject while searching \"" 
-		    << _filename << "\"; retrying ...";
+		    << _evictor->filename() + "/" + _dbName << "\"; retrying ...";
 	    }
 
 	    //
@@ -255,9 +255,9 @@ Freeze::ObjectStore::unmarshal(ObjectRecord& v, const Value& bytes, const Commun
 }
 
 const string&
-Freeze::ObjectStore::filename() const
+Freeze::ObjectStore::dbName() const
 {
-    return _filename;
+    return _dbName;
 }
 
 
@@ -302,7 +302,7 @@ Freeze::ObjectStore::load(const Identity& ident)
 	    {
 		Warning out(_communicator->getLogger());
 		out << "Deadlock in Freeze::ObjectStore::load while searching \"" 
-		    << _filename << "\"; retrying ...";
+		    << _evictor->filename() + "/" + _dbName << "\"; retrying ...";
 	    }
 	    //
 	    // Ignored, try again

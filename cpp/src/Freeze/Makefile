@@ -28,7 +28,6 @@ OBJS		= DB.o \
 		  EvictorStorage.o \
                   Connection.o \
                   ConnectionF.o \
-                  FacetRegistry.o \
                   ConnectionI.o \
                   Transaction.o \
                   TransactionI.o \
@@ -75,13 +74,6 @@ $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
 	ln -s $(SONAME) $@
-
-FacetRegistry.h FacetRegistry.cpp: $(SLICE2FREEZE)
-	rm -f FacetRegistry.h FacetRegistry.cpp
-	$(SLICE2FREEZECMD) --dict Freeze::FacetRegistry,string,bool FacetRegistry
-
-clean::
-	rm -f FacetRegistry.h FacetRegistry.cpp
 
 install:: all
 	$(INSTALL_LIBRARY) $(libdir)/$(LIBFILENAME) $(install_libdir)

@@ -50,7 +50,7 @@ private:
    
 
     Index& _index;
-    std::string _filename;
+    std::string _dbName;
     std::auto_ptr<Db> _db;
     ObjectStore* _store;
 };

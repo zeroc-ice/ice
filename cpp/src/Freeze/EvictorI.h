@@ -20,7 +20,6 @@
 #include <Freeze/Freeze.h>
 #include <Freeze/ObjectStore.h>
 #include <Freeze/SharedDbEnv.h>
-#include <Freeze/FacetRegistry.h>
 #include <Freeze/Index.h>
 #include <Freeze/DB.h>
 #include <list>
@@ -73,6 +72,8 @@ public:
 
     const Ice::CommunicatorPtr& communicator() const;
     DbEnv* dbEnv() const;
+    const std::string& filename() const;
+
     bool deadlockWarning() const;
 
     void initialize(const Ice::Identity&, const std::string&, const Ice::ObjectPtr&);
@@ -85,6 +86,10 @@ public:
 	Ice::Byte status;
 	ObjectStore* store;
     };
+
+    
+    static std::string defaultDb; 
+    static std::string indexPrefix; 
 
 private:
 
@@ -101,6 +106,8 @@ private:
     void saveNowNoSync();
 
     ObjectStore* findStore(const std::string&) const;
+
+    std::vector<std::string> allDbs() const;
 
     
     typedef std::map<std::string, ObjectStore*> StoreMap;
@@ -126,18 +133,12 @@ private:
     Ice::ObjectAdapterPtr _adapter;
     Ice::CommunicatorPtr _communicator;
 
-    //
-    // The facet registry maintains all the known facets
-    //
-    ConnectionPtr _connection;
-    FacetRegistry _facetRegistry;       
-
     ServantInitializerPtr _initializer;
     
     DbEnv* _dbEnv;
     SharedDbEnvPtr _dbEnvHolder;
 
-    std::string _dbName;
+    std::string _filename;
     bool _createDb;
 
     

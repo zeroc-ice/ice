@@ -24,33 +24,37 @@ using namespace std;
 using namespace Freeze;
 using namespace Ice;
 
+
+string Freeze::EvictorI::defaultDb = "$default";
+string Freeze::EvictorI::indexPrefix = "$index:";
+
 Freeze::EvictorPtr
 Freeze::createEvictor(const ObjectAdapterPtr& adapter, 
 		      const string& envName, 
-		      const string& dbName,
+		      const string& filename,
 		      const ServantInitializerPtr& initializer,
 		      const vector<IndexPtr>& indices,
 		      bool createDb)
 {
-    return new EvictorI(adapter, envName, dbName, initializer, indices, createDb);
+    return new EvictorI(adapter, envName, filename, initializer, indices, createDb);
 }
 
 Freeze::EvictorPtr
 Freeze::createEvictor(const ObjectAdapterPtr& adapter, 
 		      const string& envName, 
 		      DbEnv& dbEnv, 
-		      const string& dbName,
+		      const string& filename,
 		      const ServantInitializerPtr& initializer,
 		      const vector<IndexPtr>& indices,
 		      bool createDb)
 {
-    return new EvictorI(adapter, envName, dbEnv, dbName, initializer, indices, createDb);
+    return new EvictorI(adapter, envName, dbEnv, filename, initializer, indices, createDb);
 }
 
 
 Freeze::EvictorI::EvictorI(const ObjectAdapterPtr& adapter, 
 			   const string& envName, 
-			   const string& dbName,
+			   const string& filename,
 			   const ServantInitializerPtr& initializer,
 			   const vector<IndexPtr>& indices,
 			   bool createDb) :
@@ -59,13 +63,11 @@ Freeze::EvictorI::EvictorI(const ObjectAdapterPtr& adapter,
     _deactivated(false),
     _adapter(adapter),
     _communicator(adapter->getCommunicator()),
-    _connection(createConnection(_communicator, envName)),
-    _facetRegistry(_connection, dbName + "--facetRegistry", createDb),
     _initializer(initializer),
     
     _dbEnv(0),
     _dbEnvHolder(SharedDbEnv::get(_communicator, envName)),
-    _dbName(dbName),
+    _filename(filename),
     _createDb(createDb),
     _trace(0)
 {
@@ -76,7 +78,7 @@ Freeze::EvictorI::EvictorI(const ObjectAdapterPtr& adapter,
 Freeze::EvictorI::EvictorI(const ObjectAdapterPtr& adapter, 
 			   const string& envName, 
 			   DbEnv& dbEnv, 
-			   const string& dbName, 
+			   const string& filename, 
 			   const ServantInitializerPtr& initializer,
 			   const vector<IndexPtr>& indices,
 			   bool createDb) :
@@ -86,12 +88,10 @@ Freeze::EvictorI::EvictorI(const ObjectAdapterPtr& adapter,
     _deactivated(false),
     _adapter(adapter),
     _communicator(adapter->getCommunicator()),
-    _connection(createConnection(_communicator, envName)),
-    _facetRegistry(_connection, dbName + "--facetRegistry", createDb),
     _initializer(initializer),
 
     _dbEnv(&dbEnv),
-    _dbName(dbName),
+    _filename(filename),
     _createDb(createDb),
     _trace(0)
 {
@@ -104,7 +104,7 @@ Freeze::EvictorI::init(const string& envName, const vector<IndexPtr>& indices)
     _trace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Evictor");
     _deadlockWarning = (_communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0);
    
-    string propertyPrefix = string("Freeze.Evictor.") + envName + '.' + _dbName; 
+    string propertyPrefix = string("Freeze.Evictor.") + envName + '.' + _filename; 
     
     //
     // By default, we save every minute or when the size of the modified queue
@@ -136,23 +136,24 @@ Freeze::EvictorI::init(const string& envName, const vector<IndexPtr>& indices)
 	
     //
     // Instantiate all Dbs in 3 steps:
-    // (1) create _storeMap entries for all facets in the facet registry
+    // (1) create _storeMap entries for all the non-index files found in the _filename file
     // (2) iterate over the indices and create ObjectMap with indices
     // (3) open object map without indices
     //
 
     //
-    // If there is no default ("") store, add it.
+    // Insert empty facet no matter what!
     //
-    if(_facetRegistry.find("") == _facetRegistry.end())
+    _storeMap.insert(StoreMap::value_type("", 0));
+
+    vector<string> dbs = allDbs();
+    for(vector<string>::iterator p = dbs.begin(); p != dbs.end(); ++p)
     {
-	_facetRegistry.put(FacetRegistry::value_type("", true));
-    }
-    
-    for(FacetRegistry::iterator p = _facetRegistry.begin(); p != _facetRegistry.end(); ++p)
-    {
-	const string& facet = (*p).first;
-	_storeMap.insert(StoreMap::value_type(facet, 0));
+	string dbName = *p;
+	if(dbName != defaultDb)
+	{
+	    _storeMap.insert(StoreMap::value_type(dbName, 0));
+	}
     }
 
     for(vector<IndexPtr>::const_iterator i = indices.begin(); i != indices.end(); ++i)
@@ -163,20 +164,18 @@ Freeze::EvictorI::init(const string& envName, const vector<IndexPtr>& indices)
 	if(q == _storeMap.end())
 	{
 	    //
-	    // Not yet known to the facet registry
+	    // New db
 	    //
 	    pair<StoreMap::iterator, bool> ir = 
 		_storeMap.insert(StoreMap::value_type(facet, 0));
 	    assert(ir.second == true);
 	    q = ir.first;
-	    
-	    _facetRegistry.put(FacetRegistry::value_type(facet, true));
 	}
 
 	if((*q).second == 0)
 	{
 	    vector<IndexPtr> storeIndices;
-
+ 
 	    for(vector<IndexPtr>::const_iterator r = i; r != indices.end(); ++r)
 	    {
 		if((*r)->facet() == facet)
@@ -184,11 +183,10 @@ Freeze::EvictorI::init(const string& envName, const vector<IndexPtr>& indices)
 		    storeIndices.push_back(*r);
 		}
 	    }
-	    (*q).second = new ObjectStore(_dbName, facet, _createDb, this, storeIndices, populateEmptyIndices);
+	    (*q).second = new ObjectStore(facet, _createDb, this, storeIndices, populateEmptyIndices);
 	}
     }
     
-   
     //
     // Finally, open all the stores without index
     //
@@ -197,7 +195,7 @@ Freeze::EvictorI::init(const string& envName, const vector<IndexPtr>& indices)
 	if((*q).second == 0)
 	{
 	    const string& facet = (*q).first;
-	    (*q).second = new ObjectStore(_dbName, facet, _createDb, this);
+	    (*q).second = new ObjectStore(facet, _createDb, this);
 	}
     }
 
@@ -312,8 +310,7 @@ Freeze::EvictorI::addFacet(const ObjectPtr& servant, const Identity& ident, cons
 	if(store == 0)
 	{
 	    assert(facet != "");
-	    store = new ObjectStore(_dbName, facet, _createDb, this);
-	    _facetRegistry.put(FacetRegistry::value_type(facet, true));
+	    store = new ObjectStore(facet, _createDb, this);
 	    // loop
 	}
 	else
@@ -1332,6 +1329,13 @@ Freeze::EvictorI::saveNowNoSync()
     while(find(_saveNowThreads.begin(), _saveNowThreads.end(), myself) != _saveNowThreads.end());
 }
 
+const string&
+Freeze::EvictorI::filename() const
+{
+    return _filename;
+}
+
+
 Freeze::ObjectStore*
 Freeze::EvictorI::findStore(const string& facet) const
 {
@@ -1350,6 +1354,58 @@ Freeze::EvictorI::findStore(const string& facet) const
     {
 	return (*p).second;
     }
+}
+
+
+vector<string>
+Freeze::EvictorI::allDbs() const
+{
+    vector<string> result;
+    
+    try
+    {
+	Db db(_dbEnv, 0);
+	db.open(0, _filename.c_str(), 0, DB_UNKNOWN, DB_RDONLY, 0);
+
+	Dbc* dbc = 0;
+	db.cursor(0, &dbc, 0);
+	
+	Dbt dbKey;
+	dbKey.set_flags(DB_DBT_MALLOC);
+	
+	Dbt dbValue;
+	dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
+	
+	bool more = true;
+	while(more)
+	{
+	    more = (dbc->get(&dbKey, &dbValue, DB_NEXT) == 0);
+	    if(more)
+	    {
+		string dbName(static_cast<char*>(dbKey.get_data()), dbKey.get_size());
+		
+		if(dbName.find(indexPrefix) != 0)
+		{
+		    result.push_back(dbName);
+		}
+		free(dbKey.get_data());
+	    }
+	}
+	
+	dbc->close();
+	db.close(0);
+    }
+    catch(const DbException& dx)
+    {
+	if(dx.get_errno() != ENOENT)
+	{
+	    DatabaseException ex(__FILE__, __LINE__);
+	    ex.message = dx.what();
+	    throw ex;
+	}
+    }
+    
+    return result;
 }
 
 

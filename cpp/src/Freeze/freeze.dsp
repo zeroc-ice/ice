@@ -130,10 +130,6 @@ SOURCE=.\Evictor.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\FacetRegistry.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\ObjectStore.cpp
 # End Source File
 # Begin Source File
@@ -508,20 +504,14 @@ InputPath=..\..\slice\Freeze\Evictor.ice
 BuildCmds= \
 	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/Evictor.ice \
 	move Evictor.h ..\..\include\Freeze \
-	..\..\bin\slice2freeze.exe --include-dir Freeze  -I../../slice --dict Freeze::FacetRegistry,string,bool FacetRegistry \
 	
 
 "..\..\include\Freeze\Evictor.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"FacetRegistry.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
 "Evictor.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"FacetRegistry.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
 
 # End Custom Build
 
@@ -534,19 +524,12 @@ InputPath=..\..\slice\Freeze\Evictor.ice
 BuildCmds= \
 	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/Evictor.ice \
 	move Evictor.h ..\..\include\Freeze \
-	..\..\bin\slice2freeze.exe --include-dir Freeze  -I../../slice --dict Freeze::FacetRegistry,string,bool FacetRegistry \
 	
 
 "..\..\include\Freeze\Evictor.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"FacetRegistry.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
 "Evictor.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"FacetRegistry.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 # End Custom Build

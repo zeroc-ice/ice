@@ -15,6 +15,7 @@
 #include <Freeze/IndexI.h>
 #include <Freeze/Util.h>
 #include <Freeze/ObjectStore.h>
+#include <Freeze/EvictorI.h>
 
 using namespace Freeze;
 using namespace Ice;
@@ -128,7 +129,7 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
 		{
 		    Warning out(_store->communicator()->getLogger());
 		    out << "Deadlock in Freeze::IndexI::untypedFindFirst while searching \"" 
-			<< _filename << "\"; retrying ...";
+			<< _store->evictor()->filename() + "/" + _dbName << "\"; retrying ...";
 		}
 
 		//
@@ -229,7 +230,7 @@ Freeze::IndexI::untypedCount(const Key& bytes) const
 		{
 		    Warning out(_store->communicator()->getLogger());
 		    out << "Deadlock in Freeze::IndexI::untypedCount while searching \"" 
-			<< _filename << "\"; retrying ...";
+			<< _store->evictor()->filename() + "/" + _dbName << "\"; retrying ...";
 		}
 
 		//
@@ -283,9 +284,9 @@ Freeze::IndexI::associate(ObjectStore* store, DbTxn* txn,
 	flags = DB_CREATE;
     }
 
-    _filename = store->filename() + "." + _index.name();
+    _dbName = EvictorI::indexPrefix + store->dbName() + "." + _index.name();
 
-    _db->open(txn, _filename.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
+    _db->open(txn, store->evictor()->filename().c_str(), _dbName.c_str(), DB_BTREE, flags, FREEZE_DB_MODE);
 
     flags = 0;
     if(populateIndex)

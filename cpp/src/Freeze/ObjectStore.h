@@ -40,7 +40,7 @@ class ObjectStore : public Cache
 {
 public:
 
-    ObjectStore(const std::string&, const std::string&, bool, EvictorI*, 
+    ObjectStore(const std::string&, bool, EvictorI*, 
 		const std::vector<IndexPtr>& = std::vector<IndexPtr>(), bool = false);
 
     virtual ~ObjectStore();
@@ -58,10 +58,11 @@ public:
     //
     // For IndexI and Iterator
     //
-    Db*  db() const;
+    Db* db() const;
+    const std::string& dbName() const;
+
     const Ice::CommunicatorPtr& communicator() const;
     EvictorI* evictor() const;
-    const std::string& filename() const;
     const std::string& facet() const;
 
 protected:
@@ -73,7 +74,7 @@ private:
     
     std::auto_ptr<Db> _db;
     std::string _facet;
-    std::string _filename;
+    std::string _dbName;
     EvictorI* _evictor;
     std::vector<IndexPtr> _indices;
     Ice::CommunicatorPtr _communicator;
