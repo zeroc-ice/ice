@@ -25,6 +25,7 @@ public class StreamI implements Ice.Stream
         _level = 0;
         _nextId = 0;
         _objects = new java.util.IdentityHashMap();
+        _dump = false;
     }
 
     public
@@ -148,7 +149,7 @@ public class StreamI implements Ice.Stream
     public void
     startWriteDictionaryElement()
     {
-        startWrite(seqElementName);
+        startWrite(getWritePrefix() + seqElementName);
     }
 
     public void
@@ -175,7 +176,7 @@ public class StreamI implements Ice.Stream
     public void
     startReadDictionaryElement()
     {
-        startRead(seqElementName);
+        startRead(getReadPrefix() + seqElementName);
         _current = _current.getFirstChild();
     }
 
@@ -201,7 +202,7 @@ public class StreamI implements Ice.Stream
     public void
     startWriteSequenceElement()
     {
-        startWrite(seqElementName);
+        startWrite(getWritePrefix() + seqElementName);
     }
 
     public void
@@ -228,7 +229,7 @@ public class StreamI implements Ice.Stream
     public void
     startReadSequenceElement()
     {
-        startRead(seqElementName);
+        startRead(getReadPrefix() + seqElementName);
     }
 
     public void
@@ -291,9 +292,11 @@ public class StreamI implements Ice.Stream
     writeEnum(String name, String[] table, int ordinal)
     {
         // No attributes
-        assert(name.indexOf(' ') == -1 && name.indexOf('\t') == -1);
-        _os.nl();
-        _os.print("<" + name + ">" + table[ordinal] + "</" + name + ">");
+        assert(IceInternal.StringUtil.findFirstOf(name, " \t") == -1);
+
+        _os.se(name);
+        _os.startEscapes().write(table[ordinal]).endEscapes();
+        _os.ee();
     }
 
     public int
@@ -330,23 +333,25 @@ public class StreamI implements Ice.Stream
     writeByte(String name, byte value)
     {
         // No attributes
-        assert(name.indexOf(' ') == -1 && name.indexOf('\t') == -1);
+        assert(IceInternal.StringUtil.findFirstOf(name, " \t") == -1);
 
         // The schema encoding for xs:byte is a value from -127 to 128.
-        _os.nl();
-        _os.print("<" + name + ">" + (int)value + "</" + name + ">");
+        _os.se(name);
+        _os.startEscapes().write("" + (int)value).endEscapes();
+        _os.ee();
     }
 
     public void
     writeByteSeq(String name, byte[] value)
     {
-        startWrite(name);
+        startWriteSequence(name, value.length);
         for(int i = 0; i < value.length; i++)
         {
-            _os.nl();
-            _os.print("<e>" + (int)value[i] + "</e>");
+            startWriteSequenceElement();
+            _os.startEscapes().write("" + (int)value[i]).endEscapes();
+            endWriteSequenceElement();
         }
-        endWrite();
+        endWriteSequence();
     }
 
     public byte
@@ -361,10 +366,10 @@ public class StreamI implements Ice.Stream
         }
 
         String s = child.getNodeValue();
-        int i = 0;
+        byte i = 0;
         try
         {
-            i = Integer.parseInt(s);
+            i = Byte.parseByte(s);
         }
         catch(NumberFormatException ex)
         {
@@ -375,7 +380,7 @@ public class StreamI implements Ice.Stream
 
         endRead();
 
-        return (byte)i;
+        return i;
     }
 
     public byte[]
@@ -383,6 +388,7 @@ public class StreamI implements Ice.Stream
     {
         startRead(name);
 
+        final String elem = getPrefix(name) + seqElementName;
         int size = readLength();
         byte[] value = new byte[size];
         if(size > 0)
@@ -390,7 +396,7 @@ public class StreamI implements Ice.Stream
             _current = _current.getFirstChild();
             for(int i = 0; i < size; i++)
             {
-                value[i] = readByte(seqElementName);
+                value[i] = readByte(elem);
             }
         }
 
@@ -403,21 +409,20 @@ public class StreamI implements Ice.Stream
     writeBool(String name, boolean value)
     {
         // No attributes
-        assert(name.indexOf(' ') == -1 && name.indexOf('\t') == -1);
-        _os.nl();
-        _os.print("<" + name + ">" + (value ? "true" : "false") + "</" + name + ">");
+        assert(IceInternal.StringUtil.findFirstOf(name, " \t") == -1);
+
+        _os.se(name).write(value ? "true" : "false").ee();
     }
 
     public void
     writeBoolSeq(String name, boolean[] value)
     {
-        startWrite(name);
+        startWriteSequence(name, value.length);
         for(int i = 0; i < value.length; i++)
         {
-            _os.nl();
-            _os.print("<e>" + (value[i] ? "true" : "false") + "</e>");
+            _os.se("e").write(value[i] ? "true" : "false").ee();
         }
-        endWrite();
+        endWriteSequence();
     }
 
     public boolean
@@ -444,6 +449,7 @@ public class StreamI implements Ice.Stream
     {
         startRead(name);
 
+        final String elem = getPrefix(name) + seqElementName;
         int size = readLength();
         boolean[] value = new boolean[size];
         if(size > 0)
@@ -451,7 +457,7 @@ public class StreamI implements Ice.Stream
             _current = _current.getFirstChild();
             for(int i = 0; i < size; i++)
             {
-                value[i] = readBool(seqElementName);
+                value[i] = readBool(elem);
             }
         }
 
@@ -464,21 +470,20 @@ public class StreamI implements Ice.Stream
     writeShort(String name, short value)
     {
         // No attributes
-        assert(name.indexOf(' ') == -1 && name.indexOf('\t') == -1);
-        _os.nl();
-        _os.print("<" + name + ">" + value + "</" + name + ">");
+        assert(IceInternal.StringUtil.findFirstOf(name, " \t") == -1);
+
+        _os.se(name).write("" + value).ee();
     }
 
     public void
     writeShortSeq(String name, short[] value)
     {
-        startWrite(name);
+        startWriteSequence(name, value.length);
         for(int i = 0; i < value.length; i++)
         {
-            _os.nl();
-            _os.print("<e>" + value[i] + "</e>");
+            _os.se("e").write("" + value[i]).ee();
         }
-        endWrite();
+        endWriteSequence();
     }
 
     public short
@@ -515,6 +520,7 @@ public class StreamI implements Ice.Stream
     {
         startRead(name);
 
+        final String elem = getPrefix(name) + seqElementName;
         int size = readLength();
         short[] value = new short[size];
         if(size > 0)
@@ -522,7 +528,7 @@ public class StreamI implements Ice.Stream
             _current = _current.getFirstChild();
             for(int i = 0; i < size; i++)
             {
-                value[i] = readShort(seqElementName);
+                value[i] = readShort(elem);
             }
         }
 
@@ -535,21 +541,20 @@ public class StreamI implements Ice.Stream
     writeInt(String name, int value)
     {
         // No attributes
-        assert(name.indexOf(' ') == -1 && name.indexOf('\t') == -1);
-        _os.nl();
-        _os.print("<" + name + ">" + value + "</" + name + ">");
+        assert(IceInternal.StringUtil.findFirstOf(name, " \t") == -1);
+
+        _os.se(name).write("" + value).ee();
     }
 
     public void
     writeIntSeq(String name, int[] value)
     {
-        startWrite(name);
+        startWriteSequence(name, value.length);
         for(int i = 0; i < value.length; i++)
         {
-            _os.nl();
-            _os.print("<e>" + value[i] + "</e>");
+            _os.se("e").write("" + value[i]).ee();
         }
-        endWrite();
+        endWriteSequence();
     }
 
     public int
@@ -586,6 +591,7 @@ public class StreamI implements Ice.Stream
     {
         startRead(name);
 
+        final String elem = getPrefix(name) + seqElementName;
         int size = readLength();
         int[] value = new int[size];
         if(size > 0)
@@ -593,7 +599,7 @@ public class StreamI implements Ice.Stream
             _current = _current.getFirstChild();
             for(int i = 0; i < size; i++)
             {
-                value[i] = readInt(seqElementName);
+                value[i] = readInt(elem);
             }
         }
 
@@ -606,21 +612,20 @@ public class StreamI implements Ice.Stream
     writeLong(String name, long value)
     {
         // No attributes
-        assert(name.indexOf(' ') == -1 && name.indexOf('\t') == -1);
-        _os.nl();
-        _os.print("<" + name + ">" + value + "</" + name + ">");
+        assert(IceInternal.StringUtil.findFirstOf(name, " \t") == -1);
+
+        _os.se(name).write("" + value).ee();
     }
 
     public void
     writeLongSeq(String name, long[] value)
     {
-        startWrite(name);
+        startWriteSequence(name, value.length);
         for(int i = 0; i < value.length; i++)
         {
-            _os.nl();
-            _os.print("<e>" + value[i] + "</e>");
+            _os.se("e").write("" + value[i]).ee();
         }
-        endWrite();
+        endWriteSequence();
     }
 
     public long
@@ -657,6 +662,7 @@ public class StreamI implements Ice.Stream
     {
         startRead(name);
 
+        final String elem = getPrefix(name) + seqElementName;
         int size = readLength();
         long[] value = new long[size];
         if(size > 0)
@@ -664,7 +670,7 @@ public class StreamI implements Ice.Stream
             _current = _current.getFirstChild();
             for(int i = 0; i < size; i++)
             {
-                value[i] = readLong(seqElementName);
+                value[i] = readLong(elem);
             }
         }
 
@@ -677,21 +683,20 @@ public class StreamI implements Ice.Stream
     writeFloat(String name, float value)
     {
         // No attributes
-        assert(name.indexOf(' ') == -1 && name.indexOf('\t') == -1);
-        _os.nl();
-        _os.print("<" + name + ">" + value + "</" + name + ">");
+        assert(IceInternal.StringUtil.findFirstOf(name, " \t") == -1);
+
+        _os.se(name).write("" + value).ee();
     }
 
     public void
     writeFloatSeq(String name, float[] value)
     {
-        startWrite(name);
+        startWriteSequence(name, value.length);
         for(int i = 0; i < value.length; i++)
         {
-            _os.nl();
-            _os.print("<e>" + value[i] + "</e>");
+            _os.se("e").write("" + value[i]).ee();
         }
-        endWrite();
+        endWriteSequence();
     }
 
     public float
@@ -728,6 +733,7 @@ public class StreamI implements Ice.Stream
     {
         startRead(name);
 
+        final String elem = getPrefix(name) + seqElementName;
         int size = readLength();
         float[] value = new float[size];
         if(size > 0)
@@ -735,7 +741,7 @@ public class StreamI implements Ice.Stream
             _current = _current.getFirstChild();
             for(int i = 0; i < size; i++)
             {
-                value[i] = readFloat(seqElementName);
+                value[i] = readFloat(elem);
             }
         }
 
@@ -748,21 +754,20 @@ public class StreamI implements Ice.Stream
     writeDouble(String name, double value)
     {
         // No attributes
-        assert(name.indexOf(' ') == -1 && name.indexOf('\t') == -1);
-        _os.nl();
-        _os.print("<" + name + ">" + value + "</" + name + ">");
+        assert(IceInternal.StringUtil.findFirstOf(name, " \t") == -1);
+
+        _os.se(name).write("" + value).ee();
     }
 
     public void
     writeDoubleSeq(String name, double[] value)
     {
-        startWrite(name);
+        startWriteSequence(name, value.length);
         for(int i = 0; i < value.length; i++)
         {
-            _os.nl();
-            _os.print("<e>" + value[i] + "</e>");
+            _os.se("e").write("" + value[i]).ee();
         }
-        endWrite();
+        endWriteSequence();
     }
 
     public double
@@ -799,6 +804,7 @@ public class StreamI implements Ice.Stream
     {
         startRead(name);
 
+        final String elem = getPrefix(name) + seqElementName;
         int size = readLength();
         double[] value = new double[size];
         if(size > 0)
@@ -806,7 +812,7 @@ public class StreamI implements Ice.Stream
             _current = _current.getFirstChild();
             for(int i = 0; i < size; i++)
             {
-                value[i] = readDouble(seqElementName);
+                value[i] = readDouble(elem);
             }
         }
 
@@ -819,25 +825,24 @@ public class StreamI implements Ice.Stream
     writeString(String name, String value)
     {
         // No attributes
-        assert(name.indexOf(' ') == -1 && name.indexOf('\t') == -1);
-        _os.nl();
-        _os.print("<" + name + ">");
-        _os.printEscaped(value);
-        _os.print("</" + name + ">");
+        assert(IceInternal.StringUtil.findFirstOf(name, " \t") == -1);
+
+        _os.se(name);
+        _os.startEscapes().write(value == null ? "" : value).endEscapes();
+        _os.ee();
     }
 
     public void
     writeStringSeq(String name, String[] value)
     {
-        startWrite(name);
+        startWriteSequence(name, value.length);
         for(int i = 0; i < value.length; i++)
         {
-            _os.nl();
-            _os.print("<e>");
-            _os.printEscaped(value[i]);
-            _os.print("</e>");
+            _os.se("e");
+            _os.startEscapes().write(value[i] == null ? "" : value[i]).endEscapes();
+            _os.ee();
         }
-        endWrite();
+        endWriteSequence();
     }
 
     public String
@@ -871,6 +876,7 @@ public class StreamI implements Ice.Stream
     {
         startRead(name);
 
+        final String elem = getPrefix(name) + seqElementName;
         int size = readLength();
         String[] value = new String[size];
         if(size > 0)
@@ -878,7 +884,7 @@ public class StreamI implements Ice.Stream
             _current = _current.getFirstChild();
             for(int i = 0; i < size; i++)
             {
-                value[i] = readString(seqElementName);
+                value[i] = readString(elem);
             }
         }
 
@@ -891,10 +897,12 @@ public class StreamI implements Ice.Stream
     writeProxy(String name, Ice.ObjectPrx value)
     {
         // No attributes
-        assert(name.indexOf(' ') == -1 && name.indexOf('\t') == -1);
+        assert(IceInternal.StringUtil.findFirstOf(name, " \t") == -1);
         String s = _communicator.proxyToString(value);
-        _os.nl();
-        _os.print("<" + name + ">" + s + "</" + name + ">");
+
+        _os.se(name);
+        _os.startEscapes().write(s).endEscapes();
+        _os.ee();
     }
 
     public Ice.ObjectPrx
@@ -945,7 +953,7 @@ public class StreamI implements Ice.Stream
         if(writeReference)
         {
             _os.nl();
-            _os.print("<" + name + " href =\"#" + info.id + "\"/>");
+            _os.print("<" + name + " href=\"#" + info.id + "\"/>");
         }
         else
         {
@@ -1057,6 +1065,15 @@ public class StreamI implements Ice.Stream
 
                 if(value == null)
                 {
+                    userFactory = loadObjectFactory(type.value);
+                    if(userFactory != null)
+                    {
+                        value = userFactory.create(type.value);
+                    }
+                }
+
+                if(value == null)
+                {
                     throw new Ice.NoObjectFactoryException();
                 }
             }
@@ -1089,7 +1106,7 @@ public class StreamI implements Ice.Stream
 
         _os.ee();
 
-        if(_level == 0)
+        if(_level == 0 && !_dump)
         {
             dumpUnwrittenObjects();
         }
@@ -1134,7 +1151,9 @@ public class StreamI implements Ice.Stream
         //
         // Precondition: Must be at the top-level.
         //
-        assert(_level == 0);
+        assert(_level == 0 && !_dump);
+
+        _dump = true;
 
         //
         // It's necessary to run through the set of unwritten objects
@@ -1147,24 +1166,33 @@ public class StreamI implements Ice.Stream
         {
             nwritten = 0;
             java.util.Iterator p = _objects.entrySet().iterator();
-            while(p.hasNext())
+            try
             {
-                java.util.Map.Entry e = (java.util.Map.Entry)p.next();
-                Ice.Object obj = (Ice.Object)e.getKey();
-                ObjectInfo info = (ObjectInfo)e.getValue();
-                if(!info.written)
+                while(p.hasNext())
                 {
-                    info.written = true;
-                    writeObjectData("ice:object", info.id, obj);
-                    ++nwritten;
-                }
-                else
-                {
+                    java.util.Map.Entry e = (java.util.Map.Entry)p.next();
+                    Ice.Object obj = (Ice.Object)e.getKey();
+                    ObjectInfo info = (ObjectInfo)e.getValue();
+                    if(!info.written)
+                    {
+                        info.written = true;
+                        writeObjectData("ice:object", info.id, obj);
+                    }
                     ++nwritten;
                 }
             }
+            catch(java.util.ConcurrentModificationException ex)
+            {
+                //
+                // This will be thrown if _objects has been modified, e.g.,
+                // if a new object is added. We need to start the loop
+                // again with a new iterator.
+                //
+            }
         }
         while(_objects.size() != nwritten);
+
+        _dump = false;
     }
 
     private void
@@ -1208,8 +1236,7 @@ public class StreamI implements Ice.Stream
             xsdType = "";
         }
 
-        String s = name + " id=\"" + id + "\" type=\"" + typeId + "\"" +
-           " xsi:type=\"" + xsdType + "\"";
+        String s = name + " id=\"" + id + "\" type=\"" + typeId + "\"" + " xsi:type=\"" + xsdType + "\"";
         if(obj == null)
         {
             s += " xsi:nil=\"true\"";
@@ -1278,6 +1305,106 @@ public class StreamI implements Ice.Stream
         throw new Ice.MarshalException();
     }
 
+    private String
+    getWritePrefix()
+    {
+        String name = _os.currentElement();
+        assert(name.length() != 0);
+        return getPrefix(name);
+    }
+
+    private String
+    getReadPrefix()
+    {
+        assert(!_nodeStack.isEmpty());
+        return getPrefix(((org.w3c.dom.Node)_nodeStack.getLast()).getNodeName());
+    }
+
+    private static String
+    getPrefix(String s)
+    {
+        int pos = s.indexOf(':');
+        if(pos != -1)
+        {
+            return s.substring(0, pos + 1);
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    private static final class DynamicObjectFactory implements Ice.ObjectFactory
+    {
+        DynamicObjectFactory(Class c)
+        {
+            _class = c;
+        }
+
+        public Ice.Object
+        create(String type)
+        {
+            try
+            {
+                return (Ice.Object)_class.newInstance();
+            }
+            catch(Exception ex)
+            {
+                Ice.SystemException e = new Ice.SystemException();
+                e.initCause(ex);
+                throw e;
+            }
+        }
+
+        public void
+        destroy()
+        {
+        }
+
+        private Class _class;
+    }
+
+    private Ice.ObjectFactory
+    loadObjectFactory(String id)
+    {
+        Ice.ObjectFactory factory = null;
+
+        try
+        {
+            Class c = Class.forName(typeToClass(id));
+            //
+            // Ensure the class is instantiable. The constants are
+            // defined in the JVM specification (0x200 = interface,
+            // 0x400 = abstract).
+            //
+            int modifiers = c.getModifiers();
+            if((modifiers & 0x200) == 0 && (modifiers & 0x400) == 0)
+            {
+                factory = new DynamicObjectFactory(c);
+                _communicator.addObjectFactory(factory, id);
+            }
+        }
+        catch(ClassNotFoundException ex)
+        {
+            // Ignore
+        }
+        catch(Exception ex)
+        {
+            Ice.NoObjectFactoryException e = new Ice.NoObjectFactoryException();
+            e.initCause(ex);
+            throw e;
+        }
+
+        return factory;
+    }
+
+    private static String
+    typeToClass(String id)
+    {
+        assert(id.startsWith("::"));
+        return id.substring(2).replaceAll("::", ".");
+    }
+
     private Ice.Communicator _communicator;
 
     //
@@ -1323,6 +1450,7 @@ public class StreamI implements Ice.Stream
         boolean written; // Has the object been written?
     }
     private java.util.IdentityHashMap _objects;
+    private boolean _dump;
 
     private static class DOMTreeErrorReporter implements org.xml.sax.ErrorHandler
     {
