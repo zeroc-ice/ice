@@ -22,7 +22,7 @@ extern ICE_API const SliceChecksumDict sliceChecksums;
 namespace IceInternal
 {
 
-class SliceChecksumInit : public IceUtil::noncopyable
+class ICE_API SliceChecksumInit : public IceUtil::noncopyable
 {
 public:
 
