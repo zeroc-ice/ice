@@ -179,7 +179,7 @@ IcePatch::readDirectory(const string& path)
 #ifdef WIN32
 
     struct _finddata_t data;
-    long h = _findfirst(path.c_str(), &data);
+    long h = _findfirst((path + "/*").c_str(), &data);
     if (h == -1)
     {
 	NodeAccessException ex;
@@ -267,7 +267,7 @@ ByteSeq
 IcePatch::getMD5(const string& path)
 {
     string pathMD5 = path + ".md5";
-    ifstream fileMD5(pathMD5.c_str());
+    ifstream fileMD5(pathMD5.c_str(), ios::binary);
     if (!fileMD5)
     {
 	NodeAccessException ex;
@@ -377,7 +377,7 @@ IcePatch::createMD5(const string& path)
 	// Read the original file.
 	//
 	{
-	    ifstream file(path.c_str());
+	    ifstream file(path.c_str(), ios::binary);
 	    if (!file)
 	    {
 		NodeAccessException ex;
@@ -410,7 +410,7 @@ IcePatch::createMD5(const string& path)
 	// Save the MD5 hash value to the MD5 file.
 	//
 	{
-	    ofstream fileMD5(tmpName.c_str());
+	    ofstream fileMD5(tmpName.c_str(), ios::binary);
 	    if (!fileMD5)
 	    {
 		NodeAccessException ex;
@@ -478,7 +478,7 @@ ByteSeq
 IcePatch::getBytesBZ2(const string& path, Int pos, Int num)
 {
     string pathBZ2 = path + ".bz2";
-    ifstream fileBZ2(pathBZ2.c_str());
+    ifstream fileBZ2(pathBZ2.c_str(), ios::binary);
     if (!fileBZ2)
     {
 	NodeAccessException ex;
@@ -582,7 +582,7 @@ IcePatch::createBZ2(const string& path)
 	// Read the original file in blocks and write the BZ2 file.
 	//
 	{
-	    ifstream file(path.c_str());
+	    ifstream file(path.c_str(), ios::binary);
 	    if (!file)
 	    {
 		NodeAccessException ex;
@@ -708,7 +708,7 @@ IcePatch::getFile(const FilePrx& file, ProgressCB& progressCB)
 	Int totalBZ2 = file->getSizeBZ2();
 	progressCB.start(totalBZ2);
 	
-	ofstream fileBZ2(pathBZ2.c_str());
+	ofstream fileBZ2(pathBZ2.c_str(), ios::binary);
 	if (!fileBZ2)
 	{
 	    NodeAccessException ex;
@@ -752,7 +752,7 @@ IcePatch::getFile(const FilePrx& file, ProgressCB& progressCB)
     // Read the BZ2 file in blocks and write the original file.
     //
     {
-	ofstream file(path.c_str());
+	ofstream file(path.c_str(), ios::binary);
 	if (!file)
 	{
 	    NodeAccessException ex;
