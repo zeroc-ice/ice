@@ -135,8 +135,14 @@ print "ok"
 
 print "linking topics...",
 graph = os.path.join(testdir, "fed.xml");
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "graph ' + graph + r' 10" > /dev/null'
+command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "graph ' + graph + r' 10"'
 iceStormAdminPipe = os.popen(command)
+#
+# The graph command generates output. We must read it otherwise
+# closing the pipe might return a non-zero status.
+#
+for output in iceStormAdminPipe.xreadlines():
+    pass
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
     TestUtil.killServers()
