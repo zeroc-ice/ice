@@ -60,7 +60,7 @@ class DBEnvironmentI : public DBEnvironment, public IceUtil::RecMutex
 {
 public:
 
-    DBEnvironmentI(const ::Ice::CommunicatorPtr&, const std::string&);
+    DBEnvironmentI(const ::Ice::CommunicatorPtr&, const std::string&, bool = false);
     virtual ~DBEnvironmentI();
 
     virtual std::string getName();
@@ -71,6 +71,8 @@ public:
     virtual DBTransactionPtr startTransaction();
 
     virtual void close();
+
+    virtual void sync();
 
 private:
 
@@ -104,6 +106,8 @@ public:
 
 private:
 
+    friend class DBI;
+
     ::Ice::CommunicatorPtr _communicator;
     int _trace;
 
@@ -134,14 +138,31 @@ public:
     virtual Value get(const Key&);
     virtual void del(const Key&);
 
+    virtual DBCursorPtr getCursorWithTxn(const DBTransactionPtr&);
+    virtual DBCursorPtr getCursorAtKeyWithTxn(const DBTransactionPtr&, const Key&);
+
+    virtual void putWithTxn(const DBTransactionPtr&, const Key&, const Value&);
+    virtual bool containsWithTxn(const DBTransactionPtr&, const Key&);
+    virtual Value getWithTxn(const DBTransactionPtr&, const Key&);
+    virtual void delWithTxn(const DBTransactionPtr&, const Key&);
+
     virtual void clear();
 
     virtual void close();
     virtual void remove();
+    virtual void sync();
 
     virtual EvictorPtr createEvictor(EvictorPersistenceMode);
 
 private:
+
+    virtual DBCursorPtr getCursorImpl(::DB_TXN*);
+    virtual DBCursorPtr getCursorAtKeyImpl(::DB_TXN*, const Key&);
+
+    virtual void putImpl(::DB_TXN*, const Key&, const Value&);
+    virtual bool containsImpl(::DB_TXN*, const Key&);
+    virtual Value getImpl(::DB_TXN*, const Key&);
+    virtual void delImpl(::DB_TXN*, const Key&);
 
     ::Ice::CommunicatorPtr _communicator;
     int _trace;

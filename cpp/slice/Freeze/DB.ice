@@ -110,6 +110,17 @@ local interface DBEnvironment
      *
      **/
     void close() throws DBException;
+
+    /**
+     *
+     * Flush any cached information to the disk. This operation calls
+     * [sync] on all databases that have been opened with this
+     * database environment object.
+     *
+     * @see DB::sync
+     *
+     **/
+    void sync() throws DBException;
 };
 
 /**
@@ -382,6 +393,8 @@ local interface DB
      * or the database environment this database belongs to, before
      * the Cursor has been properly closed.</para></note>
      *
+     * @param k The key under which the cursor will be opened.
+     *
      * @return A database cursor.
      *
      * @throws DBNotFoundException If the key was not found in the
@@ -486,6 +499,165 @@ local interface DB
 
     /**
      *
+     * Create a transactional cursor for this database. The cursor
+     * operations will be transaction protected.
+     *
+     * <note><para>Care must be taken to not to close this database,
+     * or the database environment this database belongs to, before
+     * the Cursor has been properly closed.</para></note>
+     *
+     * <note><para>The cursor must be closed before the transaction is
+     * commited or aborted.</para></note>
+     *
+     * @param txn The transaction context in which the cursor may be
+     * used.
+     *
+     * @return A database cursor.
+     *
+     * @throws DBNotFoundException Raised if the database is empty.
+     *
+     * @throws DBException Raised if the database has been closed.
+     *
+     * @see DBCursor
+     * @see getCursorAtKeyWithTxn
+     *
+     **/
+    DBCursor getCursorWithTxn(DBTransaction txn) throws DBException;
+
+    /**
+     *
+     * Create a transactional cursor for this database. Calling [curr]
+     * on the cursor will return the key/value pair for the given
+     * key. The cursor operations will be transaction protected.
+     *
+     * <note><para>Care must be taken to not to close this database,
+     * or the database environment this database belongs to, before
+     * the Cursor has been properly closed.</para></note>
+     *
+     * <note><para>The cursor must be closed before the transaction is
+     * commited or aborted.</para></note>
+     *
+     * @return A database cursor.
+     *
+     * @param txn The transaction context in which the cursor may be
+     * used.
+     *
+     * @param k The key under which the cursor will be opened.
+     *
+     * @throws DBNotFoundException If the key was not found in the
+     * database.
+     *
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
+     *
+     * @see DBCursor
+     * @see getCursorWithTxn
+     *
+     **/
+    DBCursor getCursorAtKeyWithTxn(DBTransaction txn, Key k) throws DBException;
+
+    /**
+     *
+     * Save a value in the database under a given key within the
+     * context of a transaction.
+     *
+     * @param txn The transaction context
+     *
+     * @param k The key under which the value will be stored in
+     * the database.
+     *
+     * @param v The value to store.
+     *
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
+     *
+     * @see getWithTxn
+     * @see delWithTxn
+     *
+     **/
+    void putWithTxn(DBTransaction txn, Key k, Value v) throws DBException;
+
+    /**
+     *
+     * Determine if a key is contained in the database within the
+     * context of a transaction.
+     *
+     * @param txn The transaction context
+     *
+     * @param k The key to check.
+     *
+     * @return True if the key is contained in the database, false otherwise.
+     *
+     * @throws DBNotFoundException Raised if the key was not found in
+     * the database.
+     *
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
+     *
+     * @see putWithTxn
+     * @see delWithTxn
+     *
+     **/
+    bool containsWithTxn(DBTransaction txn, Key k) throws DBException;
+
+    /**
+     *
+     * Get a value from a database by it's key within the context of a
+     * transaction.
+     *
+     * @param txn The transaction context
+     *
+     * @param k The key under which the value is stored in the database
+     *
+     * @return The value from the database.
+     *
+     * @throws DBNotFoundException Raised if the key was not found in
+     * the database.
+     *
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
+     *
+     * @see putWithTxn
+     * @see delWithTxn
+     *
+     **/
+    Value getWithTxn(DBTransaction txn, Key k) throws DBException;
+
+    /**
+     *
+     * Remove a key and the corresponding value from the database
+     * within the context of a transaction. If the key does not exist,
+     * this operation will do nothing.
+     *
+     * @param txn The transaction context
+     *
+     * @param k The key to remove together with the corresponding
+     * value.
+     *
+     * @throws DBNotFoundException Raised if the key was not found in
+     * the database.
+     *
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
+     *
+     * @see putWithTxn
+     * @see getWithTxn
+     *
+     **/
+    void delWithTxn(DBTransaction txn, Key k) throws DBException;
+
+    /**
+     *
      * Clear the database of all records.
      *
      * @throws DBException Raised if a database failure occurred.
@@ -520,6 +692,22 @@ local interface DB
      *
      **/
     void remove() throws DBException;
+
+    /**
+     *
+     * Flush any cached information to the disk. Calling [sync]
+     * reduces the risk of loosing data if the database is not closed
+     * properly.
+     *
+     * <note><para>If all the modifications to the database are done
+     * within the context of a transaction it's not necessary to call
+     * [sync]. The transaction system ensure that all these
+     * modifications will be recoverable.</para></note>
+     *
+     * @see DB::sync
+     *
+     **/
+    void sync() throws DBException;
 
     /**
      *

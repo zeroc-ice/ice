@@ -158,7 +158,7 @@ main(int argc, char* argv[])
 
         try
         {
-            dbEnv = Freeze::initialize(communicator, argv[1]);
+            dbEnv = Freeze::initializeWithTxn(communicator, argv[1]);
             db = dbEnv->openDB(argv[2], false);
 
             XMLTransform::DBTransformer transformer;

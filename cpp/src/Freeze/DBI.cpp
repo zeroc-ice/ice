@@ -137,7 +137,7 @@ Freeze::checkBerkeleyDBReturn(int ret, const string& prefix, const string& op)
     }
 }
 
-Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, const string& name) :
+Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, const string& name, bool txn) :
     _communicator(communicator),
     _trace(0),
     _dbEnv(0),
@@ -154,15 +154,13 @@ Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, cons
 
     checkBerkeleyDBReturn(db_env_create(&_dbEnv, 0), _errorPrefix, "db_env_create");
 
-    checkBerkeleyDBReturn(_dbEnv->open(_dbEnv, _name.c_str(),
-				       DB_CREATE |
-				       DB_INIT_LOCK |
-				       DB_INIT_LOG |
-				       DB_INIT_MPOOL |
-				       DB_INIT_TXN |
-				       DB_PRIVATE |
-				       DB_RECOVER,
-				       FREEZE_DB_MODE), _errorPrefix, "DB_ENV->open");
+    u_int32_t flags = DB_CREATE | DB_INIT_LOCK | DB_INIT_MPOOL;
+    if(txn)
+    {
+	flags = flags | DB_INIT_TXN | DB_INIT_LOG | DB_RECOVER;
+    }
+
+    checkBerkeleyDBReturn(_dbEnv->open(_dbEnv, _name.c_str(), flags, FREEZE_DB_MODE), _errorPrefix, "DB_ENV->open");
 
     //
     // Add this environment to the environment map. This allow us to
@@ -272,6 +270,23 @@ Freeze::DBEnvironmentI::close()
 }
 
 void
+Freeze::DBEnvironmentI::sync()
+{
+    IceUtil::RecMutex::Lock sync(*this);
+
+    if(!_dbEnv)
+    {
+	return;
+    }
+
+    while(!_dbMap.empty())
+    {
+	DBPtr db = _dbMap.begin()->second;
+	db->sync();
+    }
+}
+
+void
 Freeze::DBEnvironmentI::add(const string& name, const DBPtr& db)
 {
     IceUtil::RecMutex::Lock sync(*this);
@@ -310,7 +325,13 @@ Freeze::DBEnvironmentI::eraseDB(const string& name)
 DBEnvironmentPtr
 Freeze::initialize(const CommunicatorPtr& communicator, const string& name)
 {
-    return new DBEnvironmentI(communicator, name);
+    return new DBEnvironmentI(communicator, name, false);
+}
+
+DBEnvironmentPtr
+Freeze::initializeWithTxn(const CommunicatorPtr& communicator, const string& name)
+{
+    return new DBEnvironmentI(communicator, name, true);
 }
 
 Freeze::DBTransactionI::DBTransactionI(const CommunicatorPtr& communicator, ::DB_ENV* dbEnv, const string& name) :
@@ -713,226 +734,73 @@ Freeze::DBI::getNumberOfRecords()
 DBCursorPtr
 Freeze::DBI::getCursor()
 {
-    IceUtil::Mutex::Lock sync(*this);
-
-    if(!_db)
-    {
-	ostringstream s;
-	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex(__FILE__, __LINE__);
-	ex.message = s.str();
-	throw ex;
-    }
-
-    DBC* cursor;
-
-    checkBerkeleyDBReturn(_db->cursor(_db, 0, &cursor, 0), _errorPrefix, "DB->cursor");
-
-    //
-    // Note that the read of the data is partial (that is the data
-    // will not actually be read into memory since it isn't needed
-    // yet).
-    //
-    DBT dbData, dbKey;
-    memset(&dbData, 0, sizeof(dbData));
-    dbData.flags = DB_DBT_PARTIAL;
-    memset(&dbKey, 0, sizeof(dbKey));
-    dbKey.flags = DB_DBT_PARTIAL;
-
-    try
-    {
-	checkBerkeleyDBReturn(cursor->c_get(cursor, &dbKey, &dbData, DB_FIRST), _errorPrefix, "DBcursor->c_get");
-    }
-    catch(const DBNotFoundException&)
-    {
-	//
-	// Cleanup.
-	//
-	cursor->c_close(cursor);
-	throw;
-    }
-
-    return new DBCursorI(this, _communicator, _name, cursor);
+    return getCursorImpl(0);
 }
 
 DBCursorPtr
 Freeze::DBI::getCursorAtKey(const Key& key)
 {
-    IceUtil::Mutex::Lock sync(*this);
-
-    if(!_db)
-    {
-	ostringstream s;
-	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex(__FILE__, __LINE__);
-	ex.message = s.str();
-	throw ex;
-    }
-
-    DBC* cursor;
-
-    checkBerkeleyDBReturn(_db->cursor(_db, 0, &cursor, 0), _errorPrefix, "DB->cursor");
-
-    //
-    // Move to the requested record
-    //
-    DBT dbKey;
-    memset(&dbKey, 0, sizeof(dbKey));
-
-    //
-    // Note that the read of the data is partial (that is the data
-    // will not actually be read into memory since it isn't needed
-    // yet).
-    //
-    DBT dbData;
-    memset(&dbData, 0, sizeof(dbData));
-    dbData.flags = DB_DBT_PARTIAL;
-
-    dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
-    dbKey.size = key.size();
-    try
-    {
-	checkBerkeleyDBReturn(cursor->c_get(cursor, &dbKey, &dbData, DB_SET), _errorPrefix, "DBcursor->c_get");
-    }
-    catch(const DBNotFoundException&)
-    {
-	//
-	// Cleanup on failure.
-	//
-	cursor->c_close(cursor);
-	throw;
-    }
-
-    return new DBCursorI(this, _communicator, _name, cursor);
+    return getCursorAtKeyImpl(0, key);
 }
 
 void
 Freeze::DBI::put(const Key& key, const Value& value)
 {
-    IceUtil::Mutex::Lock sync(*this);
-
-    if(!_db)
-    {
-	ostringstream s;
-	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex(__FILE__, __LINE__);
-	ex.message = s.str();
-	throw ex;
-    }
-
-    DBT dbKey, dbData;
-    memset(&dbKey, 0, sizeof(dbKey));
-    memset(&dbData, 0, sizeof(dbData));
-    dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
-    dbKey.size = key.size();
-    dbData.data = const_cast<void*>(static_cast<const void*>(&value[0]));
-    dbData.size = value.size();
-
-    if(_trace >= 1)
-    {
-	Trace out(_communicator->getLogger(), "DB");
-	out << "writing value in database \"" << _name << "\"";
-    }
-
-    checkBerkeleyDBReturn(_db->put(_db, 0, &dbKey, &dbData, 0), _errorPrefix, "DB->put");
+    putImpl(0, key, value);
 }
 
 bool
 Freeze::DBI::contains(const Key& key)
 {
-    IceUtil::Mutex::Lock sync(*this);
-
-    if(!_db)
-    {
-	ostringstream s;
-	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex(__FILE__, __LINE__);
-	ex.message = s.str();
-	throw ex;
-    }
-
-    DBT dbKey;
-    memset(&dbKey, 0, sizeof(dbKey));
-    dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
-    dbKey.size = key.size();
-
-    DBT dbData;
-    memset(&dbData, 0, sizeof(dbData));
-    dbData.flags = DB_DBT_PARTIAL;
-
-    if(_trace >= 1)
-    {
-	Trace out(_communicator->getLogger(), "DB");
-	out << "checking key in database \"" << _name << "\"";
-    }
-
-    int rc = _db->get(_db, 0, &dbKey, &dbData, 0);
-    if(rc == DB_NOTFOUND)
-    {
-	return false;
-    }
-
-    checkBerkeleyDBReturn(rc, _errorPrefix, "DB->get");
-    return true;
+    return containsImpl(0, key);
 }
 
 Value
 Freeze::DBI::get(const Key& key)
 {
-    IceUtil::Mutex::Lock sync(*this);
-
-    if(!_db)
-    {
-	ostringstream s;
-	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex(__FILE__, __LINE__);
-	ex.message = s.str();
-	throw ex;
-    }
-
-    DBT dbKey, dbData;
-    memset(&dbKey, 0, sizeof(dbKey));
-    memset(&dbData, 0, sizeof(dbData));
-    dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
-    dbKey.size = key.size();
-
-    if(_trace >= 1)
-    {
-	Trace out(_communicator->getLogger(), "DB");
-	out << "reading value from database \"" << _name << "\"";
-    }
-    
-    checkBerkeleyDBReturn(_db->get(_db, 0, &dbKey, &dbData, 0), _errorPrefix, "DB->get");
-
-    return Value(static_cast<Byte*>(dbData.data), static_cast<Byte*>(dbData.data) + dbData.size);
+    return getImpl(0, key);
 }
 
 void
 Freeze::DBI::del(const Key& key)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    delImpl(0, key);
+}
 
-    if(!_db)
-    {
-	ostringstream s;
-	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex(__FILE__, __LINE__);
-	ex.message = s.str();
-	throw ex;
-    }
+DBCursorPtr
+Freeze::DBI::getCursorWithTxn(const DBTransactionPtr& txn)
+{
+    return getCursorImpl(static_cast<const DBTransactionI*>(txn.get())->_tid);
+}
 
-    DBT dbKey;
-    memset(&dbKey, 0, sizeof(dbKey));
-    dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
-    dbKey.size = key.size();
+DBCursorPtr
+Freeze::DBI::getCursorAtKeyWithTxn(const DBTransactionPtr& txn, const Key& key)
+{
+    return getCursorAtKeyImpl(static_cast<const DBTransactionI*>(txn.get())->_tid, key);
+}
 
-    if(_trace >= 1)
-    {
-	Trace out(_communicator->getLogger(), "DB");
-	out << "deleting value from database \"" << _name << "\"";
-    }
-    
-    checkBerkeleyDBReturn(_db->del(_db, 0, &dbKey, 0), _errorPrefix, "DB->del");
+void
+Freeze::DBI::putWithTxn(const DBTransactionPtr& txn, const Key& key, const Value& value)
+{
+    putImpl(static_cast<const DBTransactionI*>(txn.get())->_tid, key, value);
+}
+
+bool
+Freeze::DBI::containsWithTxn(const DBTransactionPtr& txn, const Key& key)
+{
+    return containsImpl(static_cast<const DBTransactionI*>(txn.get())->_tid, key);
+}
+
+Value
+Freeze::DBI::getWithTxn(const DBTransactionPtr& txn, const Key& key)
+{
+    return getImpl(static_cast<const DBTransactionI*>(txn.get())->_tid, key);
+}
+
+void
+Freeze::DBI::delWithTxn(const DBTransactionPtr& txn, const Key& key)
+{
+    delImpl(static_cast<const DBTransactionI*>(txn.get())->_tid, key);
 }
 
 void
@@ -1013,6 +881,25 @@ Freeze::DBI::remove()
     dbEnvCopy->eraseDB(_name);
 }
 
+void
+Freeze::DBI::sync()
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    if(!_db)
+    {
+	return;
+    }
+
+    if(_trace >= 1)
+    {
+	Trace out(_communicator->getLogger(), "DB");
+	out << "synchronizing database \"" << _name << "\"";
+    }
+
+    checkBerkeleyDBReturn(_db->sync(_db, 0), _errorPrefix, "DB->sync");
+}
+
 EvictorPtr
 Freeze::DBI::createEvictor(EvictorPersistenceMode persistenceMode)
 {
@@ -1028,6 +915,231 @@ Freeze::DBI::createEvictor(EvictorPersistenceMode persistenceMode)
     }
 
     return new EvictorI(this, persistenceMode);
+}
+
+DBCursorPtr
+Freeze::DBI::getCursorImpl(::DB_TXN* txn)
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    if(!_db)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex(__FILE__, __LINE__);
+	ex.message = s.str();
+	throw ex;
+    }
+
+    DBC* cursor;
+
+    checkBerkeleyDBReturn(_db->cursor(_db, txn, &cursor, 0), _errorPrefix, "DB->cursor");
+
+    //
+    // Note that the read of the data is partial (that is the data
+    // will not actually be read into memory since it isn't needed
+    // yet).
+    //
+    DBT dbData, dbKey;
+    memset(&dbData, 0, sizeof(dbData));
+    dbData.flags = DB_DBT_PARTIAL;
+    memset(&dbKey, 0, sizeof(dbKey));
+    dbKey.flags = DB_DBT_PARTIAL;
+
+    try
+    {
+	checkBerkeleyDBReturn(cursor->c_get(cursor, &dbKey, &dbData, DB_FIRST), _errorPrefix, "DBcursor->c_get");
+    }
+    catch(const DBNotFoundException&)
+    {
+	//
+	// Cleanup.
+	//
+	cursor->c_close(cursor);
+	throw;
+    }
+
+    return new DBCursorI(this, _communicator, _name, cursor);
+}
+
+DBCursorPtr
+Freeze::DBI::getCursorAtKeyImpl(::DB_TXN* txn, const Key& key)
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    if(!_db)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex(__FILE__, __LINE__);
+	ex.message = s.str();
+	throw ex;
+    }
+
+    DBC* cursor;
+
+    checkBerkeleyDBReturn(_db->cursor(_db, txn, &cursor, 0), _errorPrefix, "DB->cursor");
+
+    //
+    // Move to the requested record
+    //
+    DBT dbKey;
+    memset(&dbKey, 0, sizeof(dbKey));
+
+    //
+    // Note that the read of the data is partial (that is the data
+    // will not actually be read into memory since it isn't needed
+    // yet).
+    //
+    DBT dbData;
+    memset(&dbData, 0, sizeof(dbData));
+    dbData.flags = DB_DBT_PARTIAL;
+
+    dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
+    dbKey.size = key.size();
+    try
+    {
+	checkBerkeleyDBReturn(cursor->c_get(cursor, &dbKey, &dbData, DB_SET), _errorPrefix, "DBcursor->c_get");
+    }
+    catch(const DBNotFoundException&)
+    {
+	//
+	// Cleanup on failure.
+	//
+	cursor->c_close(cursor);
+	throw;
+    }
+
+    return new DBCursorI(this, _communicator, _name, cursor);
+}
+
+void
+Freeze::DBI::putImpl(::DB_TXN* txn, const Key& key, const Value& value)
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    if(!_db)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex(__FILE__, __LINE__);
+	ex.message = s.str();
+	throw ex;
+    }
+
+    DBT dbKey, dbData;
+    memset(&dbKey, 0, sizeof(dbKey));
+    memset(&dbData, 0, sizeof(dbData));
+    dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
+    dbKey.size = key.size();
+    dbData.data = const_cast<void*>(static_cast<const void*>(&value[0]));
+    dbData.size = value.size();
+
+    if(_trace >= 1)
+    {
+	Trace out(_communicator->getLogger(), "DB");
+	out << "writing value in database \"" << _name << "\"";
+    }
+
+    checkBerkeleyDBReturn(_db->put(_db, txn, &dbKey, &dbData, 0), _errorPrefix, "DB->put");
+}
+
+bool
+Freeze::DBI::containsImpl(::DB_TXN* txn, const Key& key)
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    if(!_db)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex(__FILE__, __LINE__);
+	ex.message = s.str();
+	throw ex;
+    }
+
+    DBT dbKey;
+    memset(&dbKey, 0, sizeof(dbKey));
+    dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
+    dbKey.size = key.size();
+
+    DBT dbData;
+    memset(&dbData, 0, sizeof(dbData));
+    dbData.flags = DB_DBT_PARTIAL;
+
+    if(_trace >= 1)
+    {
+	Trace out(_communicator->getLogger(), "DB");
+	out << "checking key in database \"" << _name << "\"";
+    }
+
+    int rc = _db->get(_db, txn, &dbKey, &dbData, 0);
+    if(rc == DB_NOTFOUND)
+    {
+	return false;
+    }
+
+    checkBerkeleyDBReturn(rc, _errorPrefix, "DB->get");
+    return true;
+}
+
+Value
+Freeze::DBI::getImpl(::DB_TXN* txn, const Key& key)
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    if(!_db)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex(__FILE__, __LINE__);
+	ex.message = s.str();
+	throw ex;
+    }
+
+    DBT dbKey, dbData;
+    memset(&dbKey, 0, sizeof(dbKey));
+    memset(&dbData, 0, sizeof(dbData));
+    dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
+    dbKey.size = key.size();
+
+    if(_trace >= 1)
+    {
+	Trace out(_communicator->getLogger(), "DB");
+	out << "reading value from database \"" << _name << "\"";
+    }
+    
+    checkBerkeleyDBReturn(_db->get(_db, txn, &dbKey, &dbData, 0), _errorPrefix, "DB->get");
+
+    return Value(static_cast<Byte*>(dbData.data), static_cast<Byte*>(dbData.data) + dbData.size);
+}
+
+void
+Freeze::DBI::delImpl(::DB_TXN* txn, const Key& key)
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    if(!_db)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex(__FILE__, __LINE__);
+	ex.message = s.str();
+	throw ex;
+    }
+
+    DBT dbKey;
+    memset(&dbKey, 0, sizeof(dbKey));
+    dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
+    dbKey.size = key.size();
+
+    if(_trace >= 1)
+    {
+	Trace out(_communicator->getLogger(), "DB");
+	out << "deleting value from database \"" << _name << "\"";
+    }
+    
+    checkBerkeleyDBReturn(_db->del(_db, txn, &dbKey, 0), _errorPrefix, "DB->del");
 }
 
 //

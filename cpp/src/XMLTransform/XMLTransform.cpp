@@ -2640,7 +2640,7 @@ XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPt
             //
             // Transform value
             //
-            Value value = db->get(k);
+            Value value = db->getWithTxn(txn, k);
             string fullValue;
             fullValue.append(header);
             fullValue.append(&value[0], value.size());
@@ -2662,15 +2662,15 @@ XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPt
             // Update database - only insert new key,value pair if the transformed
             // key doesn't match an existing key.
             //
-            db->del(k);
-            if(db->contains(newKey))
+            db->delWithTxn(txn, k);
+            if(db->containsWithTxn(txn, newKey))
             {
                 reason = "transformed key matches an existing record:\n" + keyStr;
                 txn->abort();
                 txn = 0;
                 break;
             }
-            db->put(newKey, newValue);
+            db->putWithTxn(txn, newKey, newValue);
         }
 
         if(txn)

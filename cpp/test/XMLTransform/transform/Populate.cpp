@@ -164,7 +164,7 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
         emitSchemas("xs:long", "xs:byte");
         transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
-        db = 0;
+        db = 0;	
 
         //
         // Transform float to double
@@ -661,6 +661,15 @@ transformStruct(const DBEnvironmentPtr& dbEnv)
         {
             // Expected.
         }
+
+        {
+            IntS1Map map(db);
+	    for(IntS1Map::iterator p = map.begin(); p != map.end(); ++p)
+	    {
+		Test::S1 s1 = p->second;
+	    }
+        }
+
         db->close();
         db = 0;
 
@@ -817,6 +826,15 @@ transformClass(const DBEnvironmentPtr& dbEnv)
         {
             // Expected.
         }
+
+        {
+            IntC1Map map(db);
+	    for(IntC1Map::iterator p = map.begin(); p != map.end(); ++p)
+	    {
+		Test::C1Ptr c1 = p->second;
+	    }
+        }
+
         db->close();
         db = 0;
 
@@ -1024,6 +1042,9 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
     string dbEnvDir = "db";
 
+    communicator->addObjectFactory(Test::C1::ice_factory(), Test::C1::ice_staticId());
+    communicator->addObjectFactory(Test::C2::ice_factory(), Test::C2::ice_staticId());
+
     int idx = 1;
     while(idx < argc)
     {
@@ -1073,7 +1094,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     try
     {
-        dbEnv = Freeze::initialize(communicator, dbEnvDir);
+        dbEnv = Freeze::initializeWithTxn(communicator, dbEnvDir);
         transformPrimitive(dbEnv);
         transformPrimitiveSequence(dbEnv);
         transformEnum(dbEnv);
