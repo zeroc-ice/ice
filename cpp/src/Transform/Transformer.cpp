@@ -2263,6 +2263,11 @@ Transform::Transformer::Transformer(const Ice::CommunicatorPtr& communicator, co
     _communicator(communicator), _old(oldUnit), _new(newUnit), _ignoreTypeChanges(ignoreTypeChanges),
     _purgeObjects(purgeObjects)
 {
+    createCoreSliceTypes(_old);
+    createCoreSliceTypes(_new);
+
+    createEvictorSliceTypes(_old);
+    createEvictorSliceTypes(_new);
 }
 
 void
@@ -2289,9 +2294,6 @@ Transform::Transformer::analyze(const string& oldKey, const string& newKey, cons
 void
 Transform::Transformer::analyze(ostream& descriptors, Ice::StringSeq& missingTypes, Ice::StringSeq& errors)
 {
-    createEvictorSliceTypes(_old);
-    createEvictorSliceTypes(_new);
-
     const string keyType = "::Freeze::EvictorStorageKey";
     const string valueType = "::Freeze::ObjectRecord";
     analyze(keyType, keyType, valueType, valueType, descriptors, missingTypes, errors);
@@ -2300,9 +2302,6 @@ Transform::Transformer::analyze(ostream& descriptors, Ice::StringSeq& missingTyp
 void
 Transform::Transformer::transform(istream& is, Db* db, Db* dbNew, ostream& errors)
 {
-    createCoreSliceTypes(_old);
-    createCoreSliceTypes(_new);
-
     ErrorReporterPtr errorReporter = new ErrorReporter(errors);
 
     try

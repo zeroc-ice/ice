@@ -107,6 +107,25 @@ Transform::typeToString(const TypePtr& type)
 // TransformVisitor
 ////////////////////////////////////
 
+static bool
+ignoreType(const string& type)
+{
+    //
+    // Suppress descriptors for the following pre-defined types. Must be kept in ascending alphabetical order.
+    //
+    static const string ignoreTypeList[] =
+    {
+        "::Freeze::EvictorStorageKey",
+        "::Freeze::ObjectRecord",
+        "::Freeze::Statistics",
+        "::Ice::FacetPath",
+        "::Ice::Identity",
+        "::_FacetMap"
+    };
+
+    return binary_search(&ignoreTypeList[0], &ignoreTypeList[sizeof(ignoreTypeList) / sizeof(*ignoreTypeList)], type);
+}
+
 Transform::TransformVisitor::TransformVisitor(XMLOutput& out, const UnitPtr& newUnit,
                                               const TypePtr& oldKey, const TypePtr& newKey,
                                               const TypePtr& oldValue, const TypePtr& newValue,
@@ -155,6 +174,11 @@ Transform::TransformVisitor::visitClassDefStart(const ClassDefPtr& v)
     }
 
     string scoped = v->scoped();
+    if(ignoreType(scoped))
+    {
+        return false;
+    }
+
     TypeList l = _newUnit->lookupTypeNoBuiltin(scoped, false);
     if(l.empty())
     {
@@ -202,6 +226,11 @@ Transform::TransformVisitor::visitStructStart(const StructPtr& v)
     }
 
     string scoped = v->scoped();
+    if(ignoreType(scoped))
+    {
+        return false;
+    }
+
     TypeList l = _newUnit->lookupTypeNoBuiltin(scoped, false);
     if(l.empty())
     {
@@ -242,6 +271,11 @@ Transform::TransformVisitor::visitSequence(const SequencePtr& v)
     }
 
     string scoped = v->scoped();
+    if(ignoreType(scoped))
+    {
+        return;
+    }
+
     TypeList l = _newUnit->lookupTypeNoBuiltin(scoped, false);
     if(l.empty())
     {
@@ -278,6 +312,11 @@ Transform::TransformVisitor::visitDictionary(const DictionaryPtr& v)
     }
 
     string scoped = v->scoped();
+    if(ignoreType(scoped))
+    {
+        return;
+    }
+
     TypeList l = _newUnit->lookupTypeNoBuiltin(scoped, false);
     if(l.empty())
     {
@@ -315,6 +354,11 @@ Transform::TransformVisitor::visitEnum(const EnumPtr& v)
     }
 
     string scoped = v->scoped();
+    if(ignoreType(scoped))
+    {
+        return;
+    }
+
     TypeList l = _newUnit->lookupTypeNoBuiltin(scoped, false);
     if(l.empty())
     {
