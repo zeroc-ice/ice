@@ -1,0 +1,137 @@
+======================================================================
+The Internet Communications Engine
+======================================================================
+
+Ice is a modern alternative to object middleware such as CORBA or
+COM/DCOM/COM+. It is easy to learn, yet provides a powerful network
+infrastructure for demanding technical applications. It features an
+object-oriented specification language, easy to use C++, Java, Python,
+PHP, C#, and Visual Basic mappings, a highly efficient protocol,
+asynchronous method invocation and dispatch, dynamic transport
+plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
+solution, and much more.
+
+Ice is available under the terms of the GNU General Public License
+(GPL) (see LICENSE file). Commercial licenses are available for
+customers who wish to use Ice with proprietary products. Please
+contact sales@zeroc.com for more information about licensing Ice.
+
+
+======================================================================
+About this distribution
+======================================================================
+
+This distribution is a binary release of Ice 2.1.0 for Mac OS X and
+includes the following components:
+
+- The Ice run time, including executables for the Ice services, HTML
+  documentation, Slice files, and the C++ run time libraries.
+- Run time libraries for Java, and Python. These libraries
+  enable you to execute Ice applications.  
+- Development kits for C++, Java and Python. A development
+  kit is required for building Ice applications using a supported
+  language mapping. The development kits include examples that
+  demonstrate various Ice features.
+
+
+======================================================================
+Requirements
+======================================================================
+
+This binary distribution was compiled on Mac OS X 10.3.8 using Mac OS
+X default C++ compiler, GCC 3.3.
+
+This distribution depends on a number of third-party libraries which
+are not included with the system:
+
+- Berkeley DB 4.2.52 configured with --enable-cxx and --enable-java.
+
+  You can download the Berkeley DB source distribution from
+  http://www.sleepycat.com/download
+
+- expat 1.95.8 
+
+  You can download expat from http://sourceforge.net/projects/expat/
+
+You need to download and compile these third party libraries to be
+able to use all the Ice components.
+
+Java
+----
+
+Ice for Java requires J2SE 1.4.2 which is included with Mac OS X
+10.3.4 and later.
+
+
+Python
+------
+
+The Ice extension for Python included in this distribution requires
+Python 2.3 installed with Mac OS X 10.3. If you prefer to use Python
+2.4, you can download the Ice for Python source code from the ZeroC
+web site at http://www.zeroc.com/download.html.
+
+
+======================================================================
+Setting up your environment to use Ice
+======================================================================
+
+
+General
+-------
+
+In the sample bash commands below, Ice is assumed to reside in
+/opt/Ice-2.1.0. Your installation directory may be different, in which
+case the commands should be adjusted as necessary.
+
+You need to add the Ice bin directory to your PATH and the lib
+directory to your DYLD_LIBRARY_PATH, as demonstrated by the following
+bash commands:
+
+$ export PATH=/opt/Ice-2.1.0/bin:$PATH
+$ export DYLD_LIBRARY_PATH=/opt/Ice-2.1.0/lib:$DYLD_LIBRARY_PATH
+
+
+C++
+---
+
+When compiling Ice for C++ programs, you must pass the location of the
+Ice include directory to the compiler with the -I option, and the
+location of the Ice lib directory with the -L option.
+
+
+Java
+----
+
+To use Ice for Java, you must add Ice.jar to your CLASSPATH.
+
+Note that the Freeze component of Ice for Java requires Berkeley DB.
+In order to use Freeze, you must add db.jar to your CLASSPATH. In
+addition, the JVM requires the directory containing the Berkeley DB
+libraries to be listed in java.library.path, therefore you must add
+this directory to your DYLD_LIBRARY_PATH.
+
+
+Python
+------
+
+To use Ice for Python, the PYTHONPATH environment variable must be
+updated so that the interpreter can load the Ice extension and
+supporting Python files. PYTHONPATH should contain the python and lib
+directories from your Ice installation:
+
+$ export PYTHONPATH=/opt/Ice-2.1.0/python:/opt/Ice-2.1.0/lib:$PYTHONPATH
+
+
+======================================================================
+Demos and documentation
+======================================================================
+
+To try the sample programs, you need to download the
+Ice-2.1.0-demos.tar.gz package from the ZeroC web site at
+http://www.zeroc.com/download.html and see the README.DEMOS file
+included in that package.
+
+See doc/README.html for information on the documentation included with
+this distribution.
+
