@@ -254,12 +254,6 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
 	_instance.setDefaultContext(ctx);
     }
 
-    public PluginManager
-    getPluginManager()
-    {
-        return null;
-    }
-
     public void
     flushBatchRequests()
     {

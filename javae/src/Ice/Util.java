@@ -95,12 +95,6 @@ public final class Util
         return p.getInstance();
     }
 
-    public static IceInternal.ProtocolPluginFacade
-    getProtocolPluginFacade(Communicator communicator)
-    {
-	return new IceInternal.ProtocolPluginFacadeI(communicator);
-    }
-
     public static Identity
     stringToIdentity(String s)
     {

@@ -180,17 +180,6 @@ public class Instance
         return _endpointFactoryManager;
     }
 
-    public synchronized Ice.PluginManager
-    pluginManager()
-    {
-	if(_destroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
-
-        return _pluginManager;
-    }
-
     public int
     messageSizeMax()
     {
@@ -381,8 +370,6 @@ public class Instance
             EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(this);
             _endpointFactoryManager.add(tcpEndpointFactory);
 
-            _pluginManager = new Ice.PluginManagerI(communicator);
-
 	    _defaultContext = _emptyContext;
 
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
@@ -414,7 +401,6 @@ public class Instance
         assert(_routerManager == null);
         assert(_locatorManager == null);
         assert(_endpointFactoryManager == null);
-        assert(_pluginManager == null);
 
         super.finalize();
     }
@@ -422,16 +408,8 @@ public class Instance
     public void
     finishSetup(Ice.StringSeqHolder args)
     {
-        //
-        // Load plug-ins.
-        //
-	Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
-        pluginManagerImpl.loadPlugins(args);
-
 	//
-	// Get default router and locator proxies. Don't move this
-	// initialization before the plug-in initialization!!! The proxies
-	// might depend on endpoint factories to be installed by plug-ins.
+	// Get default router and locator proxies. 
 	//
 	if(_defaultsAndOverrides.defaultRouter.length() > 0)
 	{
@@ -528,12 +506,6 @@ public class Instance
                 _endpointFactoryManager.destroy();
                 _endpointFactoryManager = null;
             }
-
-            if(_pluginManager != null)
-            {
-                _pluginManager.destroy();
-                _pluginManager = null;
-            }
 	    
 	    _destroyed = true;
 	}
@@ -585,7 +557,6 @@ public class Instance
     private ObjectAdapterFactory _objectAdapterFactory;
     private final int _threadPerConnectionStackSize;
     private EndpointFactoryManager _endpointFactoryManager;
-    private Ice.PluginManager _pluginManager;
     private java.util.Map _defaultContext;
     private static java.util.Map _emptyContext = new java.util.HashMap();
     private final BufferManager _bufferManager; // Immutable, not reset by destroy().

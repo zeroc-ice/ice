@@ -62,7 +62,6 @@
                 <include name="Logger.ice" />
                 <include name="ObjectAdapter.ice" />
                 <include name="ObjectFactory.ice" />
-                <include name="Plugin.ice" />
                 <include name="Process.ice" />
                 <include name="Properties.ice" />
                 <include name="Router.ice" />

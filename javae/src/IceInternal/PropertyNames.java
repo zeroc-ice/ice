@@ -35,7 +35,6 @@ public final class PropertyNames
         "^Ice\\.Override\\.ConnectTimeout$",
         "^Ice\\.Override\\.Timeout$",
         "^Ice\\.Package\\.[^\\s.]+$",
-        "^Ice\\.Plugin\\.[^\\s.]+$",
         "^Ice\\.PrintAdapterReady$",
         "^Ice\\.PrintProcessId$",
         "^Ice\\.ProgramName$",
