@@ -149,6 +149,13 @@
 #endif
 
 //
+// If we use Visual C++ 6.0, we must use STLport
+//
+#if defined(_MSC_VER) && (_MSC_VER < 1300) && !defined(_STLP_BEGIN_NAMESPACE)
+#   error "Ice for Visual C++ 6.0 requires STLport"
+#endif
+
+//
 // By deriving from this class, other classes are made non-copyable.
 //
 namespace IceUtil
