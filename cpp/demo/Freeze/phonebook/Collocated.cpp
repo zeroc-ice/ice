@@ -84,6 +84,7 @@ PhoneBookCollocated::run(int argc, char* argv[])
 	//
 	int runParser(int, char*[], const CommunicatorPtr&);
 	status = runParser(argc, argv, communicator());
+	adapter->deactivate();
     }
     catch(const LocalException& ex)
     {

@@ -83,10 +83,14 @@ local interface ObjectAdapter
      * requests through its Endpoints. Object Adapter's that have been
      * deactivated must not be reactivated again, i.e., the
      * deactivation is permanent and [activate] or [hold] must not be
-     * called after calling [deactivate].
+     * called after calling [deactivate]. Attempting to do so results
+     * in an [ObjectAdapterDeactivatedException] being thrown. Calls
+     * to [deactivate] on an already deactivated Object Adapter are
+     * ignored.
      *
      * @see activate
      * @see hold
+     * @see Communicator::shutdown
      *
      **/
     void deactivate();

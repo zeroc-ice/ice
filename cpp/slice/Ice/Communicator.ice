@@ -70,6 +70,7 @@ local interface Communicator
      *
      * @see destroy
      * @see waitForShutdown
+     * @see ObjectAdapter::deactivate
      *
      **/
     void shutdown();

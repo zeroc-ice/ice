@@ -35,27 +35,6 @@ IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const ReferencePtr&
 		_servant = _locator->locate(_adapter, _reference->identity, _operation, _cookie);
 	    }
 	}
-	
-	if(!_servant)
-	{
-	    throw ObjectNotExistException(__FILE__, __LINE__);
-	}
-    }
-    catch(const LocationForward&)
-    {
-	if (_locator && _servant)
-	{
-	    _locator->finished(_adapter, _reference->identity, _servant, _operation, _cookie);
-	}
-	throw;
-    }
-    catch(const LocalException&)
-    {
-	if (_locator && _servant)
-	{
-	    _locator->finished(_adapter, _reference->identity, _servant, _operation, _cookie);
-	}
-	throw;
     }
     catch(...)
     {
@@ -63,7 +42,12 @@ IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const ReferencePtr&
 	{
 	    _locator->finished(_adapter, _reference->identity, _servant, _operation, _cookie);
 	}
-	throw UnknownException(__FILE__, __LINE__);
+	throw;
+    }
+
+    if(!_servant)
+    {
+	throw ObjectNotExistException(__FILE__, __LINE__);
     }
 }
 

@@ -360,6 +360,14 @@ local interface DB
      * Create a new Evictor that uses this database to store
      * identity/Servant pairs.
      *
+     * <note><para>Care must be taken to not to close this database,
+     * or the database environment this database belongs to, before
+     * the Evictor has been properly deactivated. The Evictor is
+     * deactivated by calling [Ice::ObjectAdapter::deactivate] on the
+     * Object Adapter this Evictor is installed with, or by shutting
+     * down all Object Adapters with [Ice::Communicator::shutdown]
+     * followed by [Ice::Communicator::waitForShutdown].</para></note>
+     *
      * @param mode The persistence mode for the new Evictor.
      *
      * @return The new Evictor.

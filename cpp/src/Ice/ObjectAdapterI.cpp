@@ -67,7 +67,7 @@ Ice::ObjectAdapterI::hold()
     }
 
     for_each(_collectorFactories.begin(), _collectorFactories.end(),
-	     ::IceInternal::voidMemFun(& CollectorFactory::hold));
+	     ::IceInternal::voidMemFun(&CollectorFactory::hold));
 }
 
 void
@@ -77,11 +77,15 @@ Ice::ObjectAdapterI::deactivate()
 
     if (_collectorFactories.empty())
     {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+	//
+        // Ignore deactivation requests if the Object Adapter has
+        // already been deactivated.
+	//
+	return;
     }
 
     for_each(_collectorFactories.begin(), _collectorFactories.end(),
-	     ::IceInternal::voidMemFun(& CollectorFactory::destroy));
+	     ::IceInternal::voidMemFun(&CollectorFactory::destroy));
     _collectorFactories.clear();
     _activeServantMap.clear();
     _activeServantMapHint = _activeServantMap.begin();
