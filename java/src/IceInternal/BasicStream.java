@@ -1181,7 +1181,18 @@ public class BasicStream
             if((modifiers & 0x200) == 0 && (modifiers & 0x400) == 0)
             {
                 factory = new DynamicObjectFactory(c);
-                _instance.servantFactoryManager().add(factory, id);
+                try
+                {
+                    _instance.servantFactoryManager().add(factory, id);
+                }
+                catch(Ice.AlreadyRegisteredException ex)
+                {
+                    //
+                    // Another thread already loaded the factory.
+                    //
+                    factory = _instance.servantFactoryManager().find(id);
+                    assert(factory != null);
+                }
             }
         }
         catch(ClassNotFoundException ex)

@@ -1460,7 +1460,18 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
             if((modifiers & 0x200) == 0 && (modifiers & 0x400) == 0)
             {
                 factory = new DynamicObjectFactory(c);
-                _communicator.addObjectFactory(factory, id);
+                try
+                {
+                    _communicator.addObjectFactory(factory, id);
+                }
+                catch(Ice.AlreadyRegisteredException ex)
+                {
+                    //
+                    // Another thread already loaded the factory.
+                    //
+                    factory = _communicator.findObjectFactory(id);
+                    assert(factory != null);
+                }
             }
         }
         catch(ClassNotFoundException ex)
