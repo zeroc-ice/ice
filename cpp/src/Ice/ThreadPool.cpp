@@ -326,6 +326,7 @@ IceInternal::ThreadPool::run()
 	    for (u_short i = 0; i < fdSet.fd_count; ++i)
 	    {
 		SOCKET fd = fdSet.fd_array[i];
+		assert(fd != INVALID_SOCKET);
 
 		if (fd == _fdIntrRead)
 		{
@@ -404,7 +405,7 @@ IceInternal::ThreadPool::run()
 		if (!_handlerMap.empty())
 		{
 		    _maxFd = max(_maxFd, (--_handlerMap.end())->first);
-		    _minFd = min(_minFd, (--_handlerMap.begin())->first);
+		    _minFd = min(_minFd, (_handlerMap.begin())->first);
 		}
 		if (_handlerMap.empty() || _servers == 0)
 		{
