@@ -610,9 +610,9 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	H.zeroIndent();
 	H << nl << "public:";
 	H.restoreIndent();
-	H << sp << nl << _dllExport << "static void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&, const "
+	H << sp << nl << "static void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&, const "
           << name << "&);";
-	H << nl << _dllExport << "static void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&, "
+	H << nl << "static void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&, "
 	  << name << "&);";
 	H << eb << ";";
 	
@@ -746,9 +746,9 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	H.zeroIndent();
 	H << nl << "public:";
 	H.restoreIndent();
-	H << sp << nl << _dllExport << "static void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&, const "
+	H << sp << nl << "static void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&, const "
 	  << name << "&);";
-	H << nl << _dllExport << "static void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&, "
+	H << nl << "static void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&, "
 	  << name << "&);";
 	H << eb << ";";
 
