@@ -36,7 +36,7 @@ class ICE_API LocalException : public IceUtil::Exception
 public:    
 
     LocalException(const char*, int);
-    virtual std::string ice_name() const = 0;
+    virtual const std::string& ice_name() const = 0;
     virtual Exception* ice_clone() const = 0;
     virtual void ice_throw() const = 0;
 };
@@ -45,7 +45,7 @@ class ICE_API UserException : public IceUtil::Exception
 {
 public:    
 
-    virtual std::string ice_name() const = 0;
+    virtual const std::string& ice_name() const = 0;
     virtual Exception* ice_clone() const = 0;
     virtual void ice_throw() const = 0;
 

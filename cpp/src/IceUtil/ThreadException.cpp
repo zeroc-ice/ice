@@ -22,10 +22,12 @@ IceUtil::ThreadSyscallException::ThreadSyscallException(const char* file, int li
 {
 }
     
-string
+string IceUtil::ThreadSyscallException::_name = "IceUtil::ThreadSyscallException";
+
+const string&
 IceUtil::ThreadSyscallException::ice_name() const
 {
-    return "IceUtil::ThreadSyscallException";
+    return _name;
 }
 
 void
@@ -88,10 +90,12 @@ IceUtil::ThreadLockedException::ThreadLockedException(const char* file, int line
 {
 }
 
-string
+string IceUtil::ThreadLockedException::_name = "IceUtil::ThreadLockedException";
+
+const string&
 IceUtil::ThreadLockedException::ice_name() const
 {
-    return "IceUtil::ThreadLockedException";
+    return _name;
 }
 
 IceUtil::Exception*
@@ -111,10 +115,12 @@ IceUtil::ThreadStartedException::ThreadStartedException(const char* file, int li
 {
 }
 
-string
+string IceUtil::ThreadStartedException::_name = "IceUtil::ThreadStartedException";
+
+const string&
 IceUtil::ThreadStartedException::ice_name() const
 {
-    return "IceUtil::ThreadStartedException";
+    return _name;
 }
 
 IceUtil::Exception*
@@ -134,10 +140,12 @@ IceUtil::ThreadNotStartedException::ThreadNotStartedException(const char* file, 
 {
 }
 
-string
+string IceUtil::ThreadNotStartedException::_name = "IceUtil::ThreadNotStartedException";
+
+const string&
 IceUtil::ThreadNotStartedException::ice_name() const
 {
-    return "IceUtil::ThreadNotStartedException";
+    return _name;
 }
 
 IceUtil::Exception*

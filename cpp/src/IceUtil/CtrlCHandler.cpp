@@ -33,10 +33,12 @@ CtrlCHandlerException::CtrlCHandlerException(const char* file, int line) :
 {
 }
 
-string
+static string ctrlCHandlerName = "IceUtil::CtrlCHandlerException";
+
+const string&
 CtrlCHandlerException::ice_name() const
 {
-    return "IceUtil::CtrlCHandlerException";
+    return ctrlCHandlerName;
 }
 
 Exception*

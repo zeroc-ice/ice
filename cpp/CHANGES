@@ -1,6 +1,9 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Changed Ice::Exception::ice_name() to return const std::string&
+  instead of returning a string by value.
+
 - Added support for "global" metadata, which can only be specified
   once in a file and must appear before any definitions. The syntax
   is similar to that of local metadata, but with an extra set of

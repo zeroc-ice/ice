@@ -39,10 +39,12 @@ IceUtil::Exception::~Exception()
 {
 }
 
-string
+string IceUtil::Exception::_name = "IceUtil::Exception";
+
+const string&
 IceUtil::Exception::ice_name() const
 {
-    return "IceUtil::Exception";
+    return _name;
 }
 
 void
@@ -95,10 +97,12 @@ IceUtil::NullHandleException::NullHandleException(const char* file, int line) :
     }
 }
 
-string
+string IceUtil::NullHandleException::_name = "IceUtil::NullHandleException";
+
+const string&
 IceUtil::NullHandleException::ice_name() const
 {
-    return "IceUtil::NullHandleException";
+    return _name;
 }
 
 IceUtil::Exception*

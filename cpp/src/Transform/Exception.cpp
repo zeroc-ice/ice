@@ -24,10 +24,12 @@ Transform::TransformException::TransformException(const char* file, int line, co
 {
 }
 
-string
+string Transform::TransformException::_name = "Transform:TransformException";
+
+const string&
 Transform::TransformException::ice_name() const
 {
-    return "Transform::TransformException";
+    return _name;
 }
 
 void

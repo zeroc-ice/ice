@@ -25,7 +25,7 @@ class ICE_UTIL_API ThreadSyscallException : public Exception
 public:
 
     ThreadSyscallException(const char*, int, int);
-    virtual std::string ice_name() const;
+    virtual const std::string& ice_name() const;
     virtual void ice_print(std::ostream&) const;
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -34,6 +34,7 @@ public:
 private:
 
     const int _error;
+    static ::std::string _name;
 };
 
 class ICE_UTIL_API ThreadLockedException : public Exception
@@ -41,9 +42,13 @@ class ICE_UTIL_API ThreadLockedException : public Exception
 public:
 
     ThreadLockedException(const char*, int);
-    virtual std::string ice_name() const;
+    virtual const std::string& ice_name() const;
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;
+
+private:
+
+    static ::std::string _name;
 };
 
 class ICE_UTIL_API ThreadStartedException : public Exception
@@ -51,9 +56,13 @@ class ICE_UTIL_API ThreadStartedException : public Exception
 public:
 
     ThreadStartedException(const char*, int);
-    virtual std::string ice_name() const;
+    virtual const std::string& ice_name() const;
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;
+
+private:
+
+    static ::std::string _name;
 };
 
 class ICE_UTIL_API ThreadNotStartedException : public Exception
@@ -61,9 +70,13 @@ class ICE_UTIL_API ThreadNotStartedException : public Exception
 public:
 
     ThreadNotStartedException(const char*, int);
-    virtual std::string ice_name() const;
+    virtual const std::string& ice_name() const;
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;
+
+private:
+
+    static ::std::string _name;
 };
     
 }

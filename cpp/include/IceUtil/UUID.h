@@ -26,9 +26,13 @@ class ICE_UTIL_API UUIDGenerationException : public Exception
 public:
     
     UUIDGenerationException(const char*, int);
-    virtual std::string ice_name() const;
+    virtual const std::string& ice_name() const;
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;
+
+private:
+
+    static ::std::string _name;
 };
 
 ICE_UTIL_API std::string generateUUID();

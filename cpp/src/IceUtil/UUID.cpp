@@ -59,10 +59,12 @@ IceUtil::UUIDGenerationException::UUIDGenerationException(const char* file, int 
 {
 }
 
-string
+string IceUtil::UUIDGenerationException::_name = "IceUtil::UUIDGenerationException";
+
+const string&
 IceUtil::UUIDGenerationException::ice_name() const
 {
-    return "IceUtil::UUIDGenerationException";
+    return _name;
 }
 
 IceUtil::Exception*

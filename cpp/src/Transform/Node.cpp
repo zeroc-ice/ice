@@ -75,10 +75,12 @@ Transform::EvaluateException::EvaluateException(const char* file, int line, cons
 {
 }
 
-string
+string Transform::EvaluateException::_name = "Transform::EvaluateException";
+
+const string&
 Transform::EvaluateException::ice_name() const
 {
-    return "Transform::EvaluateException";
+    return _name;
 }
 
 void

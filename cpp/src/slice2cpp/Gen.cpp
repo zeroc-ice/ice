@@ -375,10 +375,11 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	C << eb;
     }
 
-    H << nl << "virtual ::std::string ice_name() const;";
-    C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_name() const";
+    H << nl << "virtual const ::std::string& ice_name() const;";
+    C << sp << nl << "::std::string " << scoped.substr(2) << "::_name = \"" << p->scoped().substr(2) << "\";";
+    C << sp << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_name() const";
     C << sb;
-    C << nl << "return \"" << p->scoped().substr(2) << "\";";
+    C << nl << "return " << scoped.substr(2) << "::_name;";
     C << eb;
     
     if(p->isLocal())
@@ -509,6 +510,12 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	C << eb << ";";
 	C << sp << nl << "static __F__" << name << "__Init __F__" << name << "__i;";
     }
+
+    H.dec();
+    H << sp << nl << "private:";
+    H.inc();
+    H << sp << nl << "static ::std::string _name;";
+
     H << eb << ';';
 }
 
@@ -1985,19 +1992,19 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 	C << sp;
 	C << nl << "void ";
-	C << nl << scoped.substr(2) << "::__copyMembers(" << scoped << "Ptr to) const";
+	C << nl << scoped.substr(2) << "::__copyMembers(" << scoped << "Ptr __to) const";
 	C << sb;
 	string winUpcall; 
 	string unixUpcall; 
 	if(!bases.empty() && !bases.front()->isInterface())
 	{
-	    winUpcall = fixKwd(bases.front()->name()) + "::__copyMembers(to);";
-	    unixUpcall = fixKwd(bases.front()->scoped()) + "::__copyMembers(to);";
+	    winUpcall = fixKwd(bases.front()->name()) + "::__copyMembers(__to);";
+	    unixUpcall = fixKwd(bases.front()->scoped()) + "::__copyMembers(__to);";
 	}
 	else
 	{
-	    winUpcall = "Object::__copyMembers(to);";
-	    unixUpcall = "::Ice::Object::__copyMembers(to);";
+	    winUpcall = "Object::__copyMembers(__to);";
+	    unixUpcall = "::Ice::Object::__copyMembers(__to);";
 	}
 	C.zeroIndent();
 	C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
@@ -2013,7 +2020,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	DataMemberList dataMembers = p->dataMembers();
 	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
 	{
-	    C << nl << "to->" << (*q)->name() << " = " << (*q)->name() << ";";
+	    C << nl << "__to->" << (*q)->name() << " = " << (*q)->name() << ";";
 	}
 	C << eb;
 

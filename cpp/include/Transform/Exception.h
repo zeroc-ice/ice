@@ -33,7 +33,7 @@ class TRANSFORM_API TransformException : public IceUtil::Exception
 public:
     
     TransformException(const char*, int, const std::string&);
-    virtual std::string ice_name() const;
+    virtual const std::string& ice_name() const;
     virtual void ice_print(std::ostream&) const;
     virtual IceUtil::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -43,6 +43,7 @@ public:
 private:
 
     std::string _reason;
+    static std::string _name;
 };
 
 } // End of namespace Transform
