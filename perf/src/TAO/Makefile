@@ -7,11 +7,12 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= Ice TAO
+SUBDIRS		= Thread_Per_Connection \
+		  Thread_Pool
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

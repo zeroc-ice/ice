@@ -12,8 +12,6 @@ Roundtrip::Roundtrip (CORBA::ORB_ptr orb)
 {
 }
 
-static int count = 0;
-
 void
 Roundtrip::sendByteSeq (const Test::ByteSeq & ACE_ENV_ARG_DECL_WITH_DEFAULTS)
   ACE_THROW_SPEC ((CORBA::SystemException))
@@ -24,7 +22,6 @@ void
 Roundtrip::sendStringSeq (const Test::StringSeq & ACE_ENV_ARG_DECL_WITH_DEFAULTS)
   ACE_THROW_SPEC ((CORBA::SystemException))
 {
-    //std::cout << ++count << " " << std::flush;
 }
 
 void
