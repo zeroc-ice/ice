@@ -1,0 +1,26 @@
+**********************************************************************
+
+Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
+
+This copy of Ice is licensed to you under the terms described in the
+ICE_LICENSE file included in this distribution.
+
+**********************************************************************
+
+Demos in this directory:
+
+- evictor
+
+  This is the source code for the evictor implementation described
+  in the advanced server chapter. You can copy and modify this code
+  to suit your needs.
+
+- printer
+
+  An implementation of the simple printer example at the beginning
+  of the book.
+
+- simple_filesystem
+
+  An implementation of the simple (non-persistent, non-life-cycle)
+  version of the filesystem example.
