@@ -516,8 +516,8 @@ IcePatch2::createDirectoryRecursive(const string& pa)
     }
 }
 
-void
-IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
+int
+IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos, int compress)
 {
     const string path = normalize(pa);
 
@@ -566,6 +566,21 @@ IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
     }
 
     fclose(stdioFile);
+
+    struct stat buf;
+    if(stat(path.c_str(), &buf) == -1)
+    {
+	throw "cannot stat `" + path + "':\n" + lastError();
+    }
+    if(compress == 1) // Use compressed file only if it is smaller.
+    {
+	if(static_cast<ByteSeq::size_type>(buf.st_size) >= bytes.size() - pos)
+	{
+	    remove(path);
+	    return 0;
+	}
+    }
+    return buf.st_size;
 }
 
 void
@@ -775,27 +790,20 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 		// compress == 1: Compress if necessary.
 		// compress >= 2: Always compress.
 		//
+		cerr << "compress = " << compress << endl;
 		if(compress > 0)
 		{
-		    string pathBZ2 = path + ".bz2";
-		    struct stat bufBZ2;
-
-		    if(compress >= 2 || stat(pathBZ2.c_str(), &bufBZ2) == -1 || buf.st_mtime >= bufBZ2.st_mtime)
+		    if(compress >= 2 && cb && !cb->compress(relPath))
 		    {
-			if(cb && !cb->compress(relPath))
-			{
-			    return false;
-			}
-			
-			compressBytesToFile(pathBZ2, bytes, relPath.size());
-			
-			if(stat(pathBZ2.c_str(), &bufBZ2) == -1)
-			{
-			    throw "cannot stat `" + pathBZ2 + "':\n" + lastError();
-			}
+			return false;
 		    }
 
-		    info.size = bufBZ2.st_size;
+		    string pathBZ2 = path + ".bz2";
+		    struct stat bufBZ2;
+		    if(compress >= 2 || stat(pathBZ2.c_str(), &bufBZ2) == -1 || buf.st_mtime >= bufBZ2.st_mtime)
+		    {
+			info.size = compressBytesToFile(pathBZ2, bytes, relPath.size(), compress);
+		    }
 		}
 	    }
 

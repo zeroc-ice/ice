@@ -38,7 +38,7 @@ ICE_PATCH2_API Ice::StringSeq readDirectory(const std::string&);
 ICE_PATCH2_API void createDirectory(const std::string&);
 ICE_PATCH2_API void createDirectoryRecursive(const std::string&);
 
-ICE_PATCH2_API void compressBytesToFile(const std::string&, const Ice::ByteSeq&, Ice::Int);
+ICE_PATCH2_API int compressBytesToFile(const std::string&, const Ice::ByteSeq&, Ice::Int, int);
 ICE_PATCH2_API void decompressFile(const std::string&);
 
 struct FileInfoEqual: public std::binary_function<const FileInfo&, const FileInfo&, bool>
