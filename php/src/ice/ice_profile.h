@@ -41,11 +41,12 @@ struct Profile
 {
     typedef std::map<std::string, Slice::ClassDefPtr> ClassMap;
 
-    std::string name;              // The profile name
-    Slice::UnitPtr unit;           // The parsed Slice code
-    std::string code;              // PHP code generated from Slice types
-    ClassMap classes;              // Associates flattened type ids to their ClassDefs
-    Ice::PropertiesPtr properties; // Configuration properties
+    std::string name;                  // The profile name.
+    Slice::UnitPtr unit;               // The parsed Slice code.
+    std::string code;                  // PHP code generated from Slice types.
+    ClassMap classes;                  // Associates flattened type ids to their ClassDefs.
+    Ice::PropertiesPtr properties;     // Configuration properties.
+    Ice::CommunicatorPtr communicator; // The communicator created for this profile.
 };
 
 } // End of namespace IcePHP
