@@ -37,10 +37,10 @@
                 <include name="Logger.ice" />
                 <include name="ObjectAdapter.ice" />
                 <include name="ObjectFactory.ice" />
+                <include name="Plugin.ice" />
                 <include name="Properties.ice" />
                 <include name="Router.ice" />
                 <include name="ServantLocator.ice" />
-                <include name="Service.ice" />
                 <include name="Stream.ice" />
             </fileset>
             <fileset dir="${slice.dir}/Glacier">

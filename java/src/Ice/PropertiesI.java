@@ -113,6 +113,29 @@ class PropertiesI implements Properties
         return result;
     }
 
+    public synchronized String[]
+    parseCommandLineOptions(String prefix, String[] options)
+    {
+        return null;
+    }
+
+    public synchronized void
+    load(String file)
+    {
+        try
+        {
+            java.io.FileReader fr = new java.io.FileReader(file);
+            java.io.BufferedReader br = new java.io.BufferedReader(fr);
+            parse(br);
+        }
+        catch (java.io.IOException ex)
+        {
+            SystemException se = new SystemException();
+            se.initCause(ex); // Exception chaining
+            throw se;
+        }
+    }
+
     public synchronized Properties
     _clone()
     {
@@ -268,23 +291,6 @@ class PropertiesI implements Properties
             {
                 idx++;
             }
-        }
-    }
-
-    private void
-    load(String file)
-    {
-        try
-        {
-            java.io.FileReader fr = new java.io.FileReader(file);
-            java.io.BufferedReader br = new java.io.BufferedReader(fr);
-            parse(br);
-        }
-        catch (java.io.IOException ex)
-        {
-            SystemException se = new SystemException();
-            se.initCause(ex); // Exception chaining
-            throw se;
         }
     }
 

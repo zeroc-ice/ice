@@ -196,6 +196,12 @@ class CommunicatorI implements Communicator
         _instance.referenceFactory().setDefaultRouter(router);
     }
 
+    public PluginManager
+    getPluginManager()
+    {
+        return null;
+    }
+
     CommunicatorI(Properties properties)
     {
         _instance = new IceInternal.Instance(this, properties);
