@@ -650,14 +650,21 @@ public class BasicStream
     public void
     writeString(String v)
     {
-        final int len = v.length();
-        writeSize(len);
-        if (len > 0)
+        if (v == null)
         {
-            expand(len);
-            for (int i = 0; i < len; i++)
+            writeSize(0);
+        }
+        else
+        {
+            final int len = v.length();
+            writeSize(len);
+            if (len > 0)
             {
-                _buf.put((byte)v.charAt(i));
+                expand(len);
+                for (int i = 0; i < len; i++)
+                {
+                    _buf.put((byte)v.charAt(i));
+                }
             }
         }
     }
