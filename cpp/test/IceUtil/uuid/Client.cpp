@@ -30,6 +30,7 @@ int main(int argc, char* argv[])
 {
 
     long howMany = 10000;
+    bool verbose = false;
 
     if(argc > 2)
     {
@@ -44,27 +45,31 @@ int main(int argc, char* argv[])
 	    usage(argv[0]);
 	    return EXIT_FAILURE;
 	}
+	verbose = true;
     }
     
-    cout << "Generating " << howMany << " UUIds ... " << endl;
+    cout << "Generating " << howMany << " UUIds ... ";
 
     set<string> uuidSet;
     
     Time start = Time::now();
-    for (long i = 0; i < howMany; i++)
+    for(long i = 0; i < howMany; i++)
     {
 	pair<set<string>::iterator, bool> ok
 	    = uuidSet.insert(generateUUID());
 	test(ok.second);
     }
     Time finish = Time::now();
-  
-    cout << "Each UUID took an average of "  
-	 << (double) ((finish - start).toMicroSeconds()) / howMany 
-	 << " micro seconds to generate and insert into a set<string>." 
-	 << endl;
 
     cout << "ok" << endl;
-    
+
+    if(verbose)
+    {
+        cout << "Each UUID took an average of "  
+	     << (double) ((finish - start).toMicroSeconds()) / howMany 
+	     << " micro seconds to generate and insert into a set<string>." 
+	     << endl;
+    }
+
     return EXIT_SUCCESS;
 }

@@ -32,6 +32,7 @@ tests = [ \
     "IceUtil/thread", \
     "IceUtil/unicode", \
     "IceUtil/inputUtil", \
+    "IceUtil/uuid", \
     "Slice/errorDetection", \
     "Ice/operations", \
     "Ice/exceptions", \

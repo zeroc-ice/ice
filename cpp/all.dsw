@@ -651,6 +651,9 @@ Package=<4>
     Project_Dep_Name unicode
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name uuid
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name slice2wsdl
     End Project Dependency
     Begin Project Dependency
@@ -2332,6 +2335,22 @@ Package=<4>
 ###############################################################################
 
 Project: "unicode"=.\test\IceUtil\unicode\unicode.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+
+###############################################################################
+
+Project: "uuid"=.\test\IceUtil\uuid\uuid.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
