@@ -126,10 +126,6 @@ SOURCE=.\Starter.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=..\..\include\Glacier\Glacier.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\include\Glacier\Router.h
 # End Source File
 # Begin Source File

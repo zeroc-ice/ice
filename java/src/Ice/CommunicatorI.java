@@ -202,6 +202,16 @@ final class CommunicatorI extends LocalObjectImpl implements Communicator
         _instance.stats(stats);
     }
 
+    public synchronized RouterPrx
+    getDefaultRouter()
+    {
+        if(_destroyed)
+        {
+            throw new CommunicatorDestroyedException();
+        }
+        return _instance.referenceFactory().getDefaultRouter();
+    }
+
     public synchronized void
     setDefaultRouter(RouterPrx router)
     {
@@ -210,6 +220,16 @@ final class CommunicatorI extends LocalObjectImpl implements Communicator
             throw new CommunicatorDestroyedException();
         }
         _instance.referenceFactory().setDefaultRouter(router);
+    }
+
+    public synchronized LocatorPrx
+    getDefaultLocator()
+    {
+        if(_destroyed)
+        {
+            throw new CommunicatorDestroyedException();
+        }
+        return _instance.referenceFactory().getDefaultLocator();
     }
 
     public synchronized void
