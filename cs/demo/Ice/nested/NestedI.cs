@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-class NestedI : Nested
+class NestedI : _NestedDisp
 {
     internal NestedI(NestedPrx self)
     {

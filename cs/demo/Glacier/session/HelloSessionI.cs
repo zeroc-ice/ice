@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-sealed class HelloSessionI : HelloSession
+sealed class HelloSessionI : _HelloSessionDisp
 {
     public HelloSessionI(string userId, HelloSessionManagerI manager)
     {

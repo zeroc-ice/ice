@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-public sealed class CallbackI : Callback
+public sealed class CallbackI : _CallbackDisp
 {
     public override void initiateCallback(CallbackReceiverPrx proxy, Ice.Current current)
     {

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public sealed class CallbackReceiverI : CallbackReceiver
+public sealed class CallbackReceiverI : _CallbackReceiverDisp
 {
     public override void callback(Ice.Current current)
     {
