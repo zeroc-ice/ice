@@ -31,7 +31,7 @@ Class CallbackClient
 	Dim proxyProperty As String = "Callback.Client.Callback"
 	Dim proxy As String = properties.getProperty(proxyProperty)
 	If proxy.Length = 0 Then
-	    Console.Error.WriteLine("property `" + proxyProperty + "' not set")
+	    Console.Error.WriteLine("property `" & proxyProperty & "' not set")
 	    Return 1
 	End If
 

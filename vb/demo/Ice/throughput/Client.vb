@@ -101,7 +101,7 @@ Module throughputC
 		    If c = "e" Then
 			mbit *= 2
 		    End If
-		    Console.Out.WriteLine("throughput: " + mbit.ToString("F") & "MBit/s")
+		    Console.Out.WriteLine("throughput: " & mbit.ToString("F") & "MBit/s")
 		ElseIf line.Equals("x") Then
 		    '  Nothing to do
 		ElseIf line.Equals("?") Then

@@ -3,20 +3,20 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{359D559E-A139-44B0-B09F-3B527AEAB0A3}"
+        ProjectGuid = "{0EFCB594-52A9-44DE-8508-7446F3E7A529}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "valueCommon"
+                AssemblyName = "generate"
                 AssemblyOriginatorKeyFile = ""
                 AssemblyOriginatorKeyMode = "None"
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
-                OutputType = "Library"
+                OutputType = "Exe"
                 OptionCompare = "Binary"
                 OptionExplicit = "On"
                 OptionStrict = "Off"
@@ -33,7 +33,7 @@
                     DebugSymbols = "true"
                     IncrementalBuild = "true"
                     Optimize = "false"
-                    OutputPath = ".\"
+                    OutputPath = "..\bin\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "true"
@@ -49,7 +49,7 @@
                     DebugSymbols = "false"
                     IncrementalBuild = "false"
                     Optimize = "true"
-                    OutputPath = ".\"
+                    OutputPath = "..\bin\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "true"
@@ -58,14 +58,8 @@
             </Settings>
             <References>
                 <Reference
-                    Name = "icecs"
-                    AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
-                />
-                <Reference
-                    Name = "Microsoft.VisualBasic"
-                    AssemblyName = "Microsoft.VisualBasic"
-                    HintPath = "..\..\..\..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\Microsoft.VisualBasic.dll"
+                    Name = "System"
+                    AssemblyName = "System"
                 />
             </References>
             <Imports>
@@ -75,22 +69,7 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "DerivedPrinterI.vb"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ObjectFactory.vb"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "PrinterI.vb"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\Value.vb"
+                    RelPath = "Generate.vb"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
