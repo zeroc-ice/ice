@@ -93,7 +93,7 @@ for example:
 $ export LD_LIBRARY_PATH=/opt/db4/lib:$LD_LIBRARY_PATH
 
 Note that the Ice for Java distribution is compiled against Berkeley
-DB 4.1.25.
+DB 4.2.52.
 
 Python 2.2
 ----------
