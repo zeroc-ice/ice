@@ -58,7 +58,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icestormservice001.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\icestormservice001.lib ..\..\lib	copy $(OutDir)\icestormservice001.pdb ..\..\lib	copy $(OutDir)\icestormservice001.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "IceStormS - Win32 Debug"
@@ -90,7 +90,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icestormservice001d.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\icestormservice001d.lib ..\..\lib	copy $(OutDir)\icestormservice001d.pdb ..\..\lib	copy $(OutDir)\icestormservice001d.dll ..\..\bin
 # End Special Build Tool
 
 !ENDIF 
@@ -237,7 +237,6 @@ USERDEP__DUMMY="..\..\bin\slice2freeze.exe"
 InputPath=.\dummy.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2freeze.exe --include-dir IceStorm  --dict IceStorm::StringBoolDict,string,bool StringBoolDict \
 	
 
@@ -255,7 +254,6 @@ USERDEP__DUMMY="..\..\bin\slice2freeze.exe"
 InputPath=.\dummy.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2freeze.exe --include-dir IceStorm  --dict IceStorm::StringBoolDict,string,bool StringBoolDict \
 	
 
@@ -280,7 +278,6 @@ USERDEP__ICEST="..\..\bin\slice2cpp.exe"
 InputPath=.\IceStormInternal.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice IceStormInternal.ice \
 	
 
@@ -298,7 +295,6 @@ USERDEP__ICEST="..\..\bin\slice2cpp.exe"
 InputPath=.\IceStormInternal.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice IceStormInternal.ice \
 	
 
@@ -323,7 +319,6 @@ USERDEP__LINKD="..\..\bin\slice2freeze.exe"	"..\..\bin\slice2cpp.exe"
 InputPath=.\LinkDB.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice -I.. LinkDB.ice \
 	..\..\bin\slice2freeze.exe --ice --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkDB IdentityLinkDict ../IceStorm/LinkDB.ice ../../slice/Ice/Identity.ice \
 	
@@ -348,7 +343,6 @@ USERDEP__LINKD="..\..\bin\slice2freeze.exe"	"..\..\bin\slice2cpp.exe"
 InputPath=.\LinkDB.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice -I.. LinkDB.ice \
 	..\..\bin\slice2freeze.exe --ice --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkDB IdentityLinkDict ../IceStorm/LinkDB.ice ../../slice/Ice/Identity.ice \
 	

@@ -59,7 +59,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icepatch001.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\icepatch001.lib ..\..\lib	copy $(OutDir)\icepatch001.pdb ..\..\lib	copy $(OutDir)\icepatch001.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "IcePatch - Win32 Debug"
@@ -92,7 +92,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icepatch001d.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\icepatch001d.lib ..\..\lib
 # End Special Build Tool
 
 !ENDIF 
@@ -155,7 +155,6 @@ USERDEP__ICEPA="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\IcePatch\IcePatch.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_PATCH_API --include-dir IcePatch -I../../slice ../../slice/IcePatch/IcePatch.ice \
 	move IcePatch.h ..\..\include\IcePatch \
 	
@@ -174,7 +173,6 @@ USERDEP__ICEPA="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\IcePatch\IcePatch.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_PATCH_API --include-dir IcePatch -I../../slice ../../slice/IcePatch/IcePatch.ice \
 	move IcePatch.h ..\..\include\IcePatch \
 	

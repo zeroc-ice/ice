@@ -187,7 +187,6 @@ USERDEP__PHONE="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"
 InputPath=.\PhoneBook.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe -I../../../slice PhoneBook.ice \
 	..\..\..\bin\slice2freeze.exe -I../../../slice --dict NameIdentitiesDict,string,Identities NameIdentitiesDict PhoneBook.ice \
 	
@@ -212,7 +211,6 @@ USERDEP__PHONE="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"
 InputPath=.\PhoneBook.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe -I../../../slice PhoneBook.ice \
 	..\..\..\bin\slice2freeze.exe -I../../../slice --dict NameIdentitiesDict,string,Identities NameIdentitiesDict PhoneBook.ice \
 	

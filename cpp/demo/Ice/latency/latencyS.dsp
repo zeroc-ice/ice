@@ -120,7 +120,6 @@ USERDEP__LATEN="../../../bin/slice2cpp.exe"
 InputPath=.\Latency.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Latency.ice \
 	
 
@@ -138,7 +137,6 @@ USERDEP__LATEN="../../../bin/slice2cpp.exe"
 InputPath=.\Latency.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Latency.ice \
 	
 

@@ -136,7 +136,6 @@ USERDEP__VALUE="../../../bin/slice2cpp.exe"
 InputPath=.\Value.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Value.ice \
 	
 
@@ -154,7 +153,6 @@ USERDEP__VALUE="../../../bin/slice2cpp.exe"
 InputPath=.\Value.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Value.ice \
 	
 

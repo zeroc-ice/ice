@@ -58,7 +58,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\yellowservice001.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\yellowservice001.lib ..\..\lib	copy $(OutDir)\yellowservice001.pdb ..\..\lib	copy $(OutDir)\yellowservice001.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "YellowS - Win32 Debug"
@@ -90,7 +90,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\yellowservice001d.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\yellowservice001d.lib ..\..\lib	copy $(OutDir)\yellowservice001d.pdb ..\..\lib	copy $(OutDir)\yellowservice001d.dll ..\..\bin
 # End Special Build Tool
 
 !ENDIF 
@@ -148,7 +148,6 @@ SOURCE=..\..\slice\Ice\BuiltinSequences.ice
 InputPath=..\..\slice\Ice\BuiltinSequences.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2freeze.exe --ice --include-dir Yellow -I../../slice --dict Yellow::StringObjectProxySeqDict,string,Ice::ObjectProxySeq StringObjectProxySeqDict ../../slice/Ice/BuiltinSequences.ice \
 	
 
@@ -165,7 +164,6 @@ BuildCmds= \
 InputPath=..\..\slice\Ice\BuiltinSequences.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2freeze.exe --ice --include-dir Yellow -I../../slice --dict Yellow::StringObjectProxySeqDict,string,Ice::ObjectProxySeq StringObjectProxySeqDict ../../slice/Ice/BuiltinSequences.ice \
 	
 

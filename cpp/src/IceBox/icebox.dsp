@@ -59,7 +59,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icebox001.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\icebox001.lib ..\..\lib	copy $(OutDir)\icebox001.pdb ..\..\lib	copy $(OutDir)\icebox001.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "IceBox - Win32 Debug"
@@ -92,7 +92,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icebox001d.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\icebox001d.lib ..\..\lib	copy $(OutDir)\icebox001d.pdb ..\..\lib	copy $(OutDir)\icebox001d.dll ..\..\bin
 # End Special Build Tool
 
 !ENDIF 
@@ -135,7 +135,6 @@ USERDEP__ICEBO="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\IceBox\IceBox.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_BOX_API --include-dir IceBox -I../../slice ../../slice/IceBox/IceBox.ice \
 	move IceBox.h ..\..\include\IceBox \
 	
@@ -154,7 +153,6 @@ USERDEP__ICEBO="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\IceBox\IceBox.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_BOX_API --include-dir IceBox -I../../slice ../../slice/IceBox/IceBox.ice \
 	move IceBox.h ..\..\include\IceBox \
 	

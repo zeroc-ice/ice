@@ -119,7 +119,6 @@ SOURCE=.\Single.ice
 InputPath=.\Single.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Single.ice \
 	
 
@@ -137,7 +136,6 @@ USERDEP__SINGL="../../../bin/slice2cpp.exe"
 InputPath=.\Single.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Single.ice \
 	
 

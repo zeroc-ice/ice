@@ -211,7 +211,6 @@ USERDEP__LIBRA="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"
 InputPath=.\Library.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe --ice Library.ice \
 	..\..\..\bin\slice2freeze.exe --ice -I../../../slice --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes ../../../slice/Ice/BuiltinSequences.ice Library.ice \
 	
@@ -236,7 +235,6 @@ USERDEP__LIBRA="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"
 InputPath=.\Library.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe --ice Library.ice \
 	..\..\..\bin\slice2freeze.exe --ice -I../../../slice --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes ../../../slice/Ice/BuiltinSequences.ice Library.ice \
 	

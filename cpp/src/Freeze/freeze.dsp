@@ -58,7 +58,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\freeze001.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\freeze001.lib ..\..\lib	copy $(OutDir)\freeze001.pdb ..\..\lib	copy $(OutDir)\freeze001.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
@@ -90,7 +90,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\freeze001d.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\freeze001d.lib ..\..\lib	copy $(OutDir)\freeze001d.pdb ..\..\lib	copy $(OutDir)\freeze001d.dll ..\..\bin
 # End Special Build Tool
 
 !ENDIF 
@@ -197,7 +197,6 @@ USERDEP__DB_IC="..\..\bin\slice2cpp.exe"
 InputPath=..\..\slice\Freeze\DB.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/DB.ice \
 	move DB.h ..\..\include\Freeze \
 	
@@ -216,7 +215,6 @@ USERDEP__DB_IC="..\..\bin\slice2cpp.exe"
 InputPath=..\..\slice\Freeze\DB.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/DB.ice \
 	move DB.h ..\..\include\Freeze \
 	
@@ -242,7 +240,6 @@ USERDEP__DBEXC="..\..\bin\slice2cpp.exe"
 InputPath=..\..\slice\Freeze\DBException.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/DBException.ice \
 	move DBException.h ..\..\include\Freeze \
 	
@@ -261,7 +258,6 @@ USERDEP__DBEXC="..\..\bin\slice2cpp.exe"
 InputPath=..\..\slice\Freeze\DBException.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/DBException.ice \
 	move DBException.h ..\..\include\Freeze \
 	
@@ -287,7 +283,6 @@ USERDEP__DBF_I="..\..\bin\slice2cpp.exe"
 InputPath=..\..\slice\Freeze\DBF.ice
 
 "..\..\include\Freeze\DBF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
 	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/DBF.ice 
 	move DBF.h ..\..\include\Freeze 
 	del DBF.cpp 
@@ -301,7 +296,6 @@ USERDEP__DBF_I="..\..\bin\slice2cpp.exe"
 InputPath=..\..\slice\Freeze\DBF.ice
 
 "..\..\include\Freeze\DBF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
 	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/DBF.ice 
 	move DBF.h ..\..\include\Freeze 
 	del DBF.cpp 
@@ -322,7 +316,6 @@ USERDEP__EVICT="..\..\bin\slice2cpp.exe"
 InputPath=..\..\slice\Freeze\Evictor.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/Evictor.ice \
 	move Evictor.h ..\..\include\Freeze \
 	
@@ -341,7 +334,6 @@ USERDEP__EVICT="..\..\bin\slice2cpp.exe"
 InputPath=..\..\slice\Freeze\Evictor.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/Evictor.ice \
 	move Evictor.h ..\..\include\Freeze \
 	
@@ -367,7 +359,6 @@ USERDEP__EVICTO="..\..\bin\slice2cpp.exe"
 InputPath=..\..\slice\Freeze\EvictorF.ice
 
 "..\..\include\Freeze\EvictorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
 	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/EvictorF.ice 
 	move EvictorF.h ..\..\include\Freeze 
 	del EvictorF.cpp 
@@ -381,7 +372,6 @@ USERDEP__EVICTO="..\..\bin\slice2cpp.exe"
 InputPath=..\..\slice\Freeze\EvictorF.ice
 
 "..\..\include\Freeze\EvictorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
 	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/EvictorF.ice 
 	move EvictorF.h ..\..\include\Freeze 
 	del EvictorF.cpp 
@@ -402,7 +392,6 @@ USERDEP__IDENT="..\..\bin\slice2freeze.exe"
 InputPath=..\..\slice\Ice\Identity.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2freeze.exe --ice --include-dir Freeze -I../../slice --dict Freeze::IdentityObjectDict,Ice::Identity,Object IdentityObjectDict ../../slice/Ice/Identity.ice \
 	
 
@@ -420,7 +409,6 @@ USERDEP__IDENT="..\..\bin\slice2freeze.exe"
 InputPath=..\..\slice\Ice\Identity.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2freeze.exe --ice --include-dir Freeze -I../../slice --dict Freeze::IdentityObjectDict,Ice::Identity,Object IdentityObjectDict ../../slice/Ice/Identity.ice \
 	
 

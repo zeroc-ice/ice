@@ -128,7 +128,6 @@ USERDEP__DUMMY="..\..\..\bin\slice2freeze.exe"
 InputPath=dummy.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2freeze.exe --dict ByteIntMapXML,byte,int ByteIntMapXML \
 	..\..\..\bin\slice2freeze.exe --binary --dict ByteIntMapBinary,byte,int ByteIntMapBinary \
 	
@@ -153,7 +152,6 @@ USERDEP__DUMMY="..\..\..\bin\slice2freeze.exe"
 InputPath=dummy.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2freeze.exe --dict ByteIntMapXML,byte,int ByteIntMapXML \
 	..\..\..\bin\slice2freeze.exe --binary --dict ByteIntMapBinary,byte,int ByteIntMapBinary \
 	

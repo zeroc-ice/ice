@@ -116,7 +116,6 @@ USERDEP__PINGE="../../../bin/slice2cpp.exe"
 InputPath=.\Pinger.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe -I../../../slice Pinger.ice \
 	
 
@@ -134,7 +133,6 @@ USERDEP__PINGE="../../../bin/slice2cpp.exe"
 InputPath=.\Pinger.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe -I../../../slice Pinger.ice \
 	
 

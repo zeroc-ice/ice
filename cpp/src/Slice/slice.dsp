@@ -59,7 +59,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\slice001.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\slice001.lib ..\..\lib	copy $(OutDir)\slice001.pdb ..\..\lib	copy $(OutDir)\slice001.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "Slice - Win32 Debug"
@@ -92,7 +92,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\slice001d.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\slice001d.lib ..\..\lib	copy $(OutDir)\slice001d.pdb ..\..\lib	copy $(OutDir)\slice001d.dll ..\..\bin
 # End Special Build Tool
 
 !ENDIF 

@@ -232,7 +232,6 @@ USERDEP__TESTO="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2xsd.exe"	"..\..\
 InputPath=.\TestOld.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe TestOld.ice \
 	..\..\..\bin\slice2xsd.exe TestOld.ice \
 	..\..\..\bin\slice2freeze.exe --dict IntByteMap,int,byte IntByteMap \
@@ -352,7 +351,6 @@ USERDEP__TESTO="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2xsd.exe"	"..\..\
 InputPath=.\TestOld.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe TestOld.ice \
 	..\..\..\bin\slice2xsd.exe TestOld.ice \
 	..\..\..\bin\slice2freeze.exe --dict IntByteMap,int,byte IntByteMap \
@@ -479,7 +477,6 @@ USERDEP__TESTN="..\..\..\bin\slice2xsd.exe"
 InputPath=.\TestNew.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2xsd.exe TestNew.ice \
 	
 
@@ -494,7 +491,6 @@ USERDEP__TESTN="..\..\..\bin\slice2xsd.exe"
 InputPath=.\TestNew.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2xsd.exe TestNew.ice \
 	
 
@@ -516,7 +512,6 @@ USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"
 InputPath=..\..\..\slice\Ice\Identity.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2xsd.exe --ice -I../../../slice ../../../slice/Ice/Identity.ice \
 	
 
@@ -531,7 +526,6 @@ USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"
 InputPath=..\..\..\slice\Ice\Identity.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2xsd.exe --ice -I../../../slice ../../../slice/Ice/Identity.ice \
 	
 

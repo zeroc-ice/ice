@@ -120,7 +120,6 @@ USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2xsd.exe"
 InputPath=.\Test.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Test.ice \
 	..\..\..\bin\slice2xsd.exe Test.ice \
 	
@@ -142,7 +141,6 @@ USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2xsd.exe"
 InputPath=.\Test.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Test.ice \
 	..\..\..\bin\slice2xsd.exe Test.ice \
 	

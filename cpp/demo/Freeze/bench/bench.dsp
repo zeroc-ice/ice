@@ -128,7 +128,6 @@ USERDEP__TEST_="..\..\..\bin\slice2freeze.exe"	"..\..\..\bin\slice2java.exe"
 InputPath=.\Test.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Test.ice \
 	..\..\..\bin\slice2freeze.exe --dict IntIntMap,int,int --dict Struct1Struct2Map,Struct1,Struct2 --dict Struct1Class1Map,Struct1,Class1 --dict Struct1ObjectMap,Struct1,Object BenchTypes Test.ice \
 	
@@ -153,7 +152,6 @@ USERDEP__TEST_="..\..\..\bin\slice2freeze.exe"	"..\..\..\bin\slice2cpp.exe"
 InputPath=.\Test.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Test.ice \
 	..\..\..\bin\slice2freeze.exe --dict IntIntMap,int,int --dict Struct1Struct2Map,Struct1,Struct2 --dict Struct1Class1Map,Struct1,Class1 --dict Struct1ObjectMap,Struct1,Object BenchTypes Test.ice \
 	

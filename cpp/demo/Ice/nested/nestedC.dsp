@@ -128,7 +128,6 @@ USERDEP__NESTE="../../../bin/slice2cpp.exe"
 InputPath=.\Nested.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Nested.ice \
 	
 
@@ -146,7 +145,6 @@ USERDEP__NESTE="../../../bin/slice2cpp.exe"
 InputPath=.\Nested.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Nested.ice \
 	
 

@@ -120,7 +120,6 @@ USERDEP__CLOCK="../../../bin/slice2cpp.exe"
 InputPath=.\Clock.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Clock.ice \
 	
 
@@ -138,7 +137,6 @@ USERDEP__CLOCK="../../../bin/slice2cpp.exe"
 InputPath=.\Clock.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Clock.ice \
 	
 

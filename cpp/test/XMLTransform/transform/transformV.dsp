@@ -232,7 +232,6 @@ USERDEP__TESTN="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"
 InputPath=.\TestNew.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe TestNew.ice \
 	..\..\..\bin\slice2freeze.exe --dict IntSeq1Map,int,Test::Seq1 IntSeq1MapNew TestNew.ice \
 	..\..\..\bin\slice2freeze.exe --dict IntSeq2Map,int,Test::Seq2 IntSeq2MapNew TestNew.ice \
@@ -306,7 +305,6 @@ USERDEP__TESTN="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"
 InputPath=.\TestNew.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe TestNew.ice \
 	..\..\..\bin\slice2freeze.exe --dict IntSeq1Map,int,Test::Seq1 IntSeq1MapNew TestNew.ice \
 	..\..\..\bin\slice2freeze.exe --dict IntSeq2Map,int,Test::Seq2 IntSeq2MapNew TestNew.ice \

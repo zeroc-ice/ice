@@ -153,72 +153,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IcePack"=.\src\IcePack\IcePack.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "IcePackC"=.\src\IcePack\IcePackC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePack
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "IcePackS"=.\src\IcePack\IcePackS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePack
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Yellow
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Freeze
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "IcePatch"=.\src\IcePatch\IcePatch.dsp - Package Owner=<4>
 
 Package=<5>
@@ -1892,6 +1826,48 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IcePatch
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name GlacierRouter
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceBox
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceBoxC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceBoxS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icecpp
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatchC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatchS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceStorm
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceStormC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceStormS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceXML
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name XMLTransform
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name XMLTransformC
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2152,87 +2128,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "simpleC"=.\test\IcePack\simple\simpleC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePack
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePackC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePackS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "simpleCOL"=.\test\IcePack\simple\simpleCOL.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePack
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePackC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePackS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "simpleS"=.\test\IcePack\simple\simpleS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePack
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePackC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePackS
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceUtil

@@ -59,7 +59,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icessl001.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\icessl001.lib ..\..\lib	copy $(OutDir)\icessl001.pdb ..\..\lib	copy $(OutDir)\icessl001.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "IceSSL - Win32 Debug"
@@ -92,7 +92,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icessl001d.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\icessl001d.lib ..\..\lib	copy $(OutDir)\icessl001d.pdb ..\..\lib	copy $(OutDir)\icessl001d.dll ..\..\bin
 # End Special Build Tool
 
 !ENDIF 
@@ -439,7 +439,6 @@ USERDEP__CERTI="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\IceSSL\CertificateVerifier.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_SSL_API --include-dir IceSSL -I../../slice ../../slice/IceSSL/CertificateVerifier.ice \
 	move CertificateVerifier.h ..\..\include\IceSSL \
 	
@@ -458,7 +457,6 @@ USERDEP__CERTI="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\IceSSL\CertificateVerifier.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_SSL_API --include-dir IceSSL -I../../slice ../../slice/IceSSL/CertificateVerifier.ice \
 	move CertificateVerifier.h ..\..\include\IceSSL \
 	
@@ -484,7 +482,6 @@ USERDEP__CERTIF="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\IceSSL\CertificateVerifierF.ice
 
 "..\..\include\IceSSL\CertificateVerifierF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_SSL_API --include-dir IceSSL -I../../slice ../../slice/IceSSL/CertificateVerifierF.ice 
 	move CertificateVerifierF.h ..\..\include\IceSSL 
 	del CertificateVerifierF.cpp 
@@ -498,7 +495,6 @@ USERDEP__CERTIF="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\IceSSL\CertificateVerifierF.ice
 
 "..\..\include\IceSSL\CertificateVerifierF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_SSL_API --include-dir IceSSL -I../../slice ../../slice/IceSSL/CertificateVerifierF.ice 
 	move CertificateVerifierF.h ..\..\include\IceSSL 
 	del CertificateVerifierF.cpp 
@@ -519,7 +515,6 @@ USERDEP__EXCEP="..\..\bin\slice2cpp.exe"
 InputPath=..\..\slice\IceSSL\Exception.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_SSL_API --include-dir IceSSL -I../../slice ../../slice/IceSSL/Exception.ice \
 	move Exception.h ..\..\include\IceSSL \
 	
@@ -538,7 +533,6 @@ USERDEP__EXCEP="..\..\bin\slice2cpp.exe"
 InputPath=..\..\slice\IceSSL\Exception.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_SSL_API --include-dir IceSSL -I../../slice ../../slice/IceSSL/Exception.ice \
 	move Exception.h ..\..\include\IceSSL \
 	
@@ -564,7 +558,6 @@ USERDEP__PLUGI="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\IceSSL\Plugin.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_SSL_API --include-dir IceSSL -I../../slice ../../slice/IceSSL/Plugin.ice \
 	move Plugin.h ..\..\include\IceSSL \
 	
@@ -583,7 +576,6 @@ USERDEP__PLUGI="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\IceSSL\Plugin.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_SSL_API --include-dir IceSSL -I../../slice ../../slice/IceSSL/Plugin.ice \
 	move Plugin.h ..\..\include\IceSSL \
 	
@@ -609,7 +601,6 @@ USERDEP__PLUGIN="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\IceSSL\PluginF.ice
 
 "..\..\include\IceSSL\PluginF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_SSL_API --include-dir IceSSL -I../../slice ../../slice/IceSSL/PluginF.ice 
 	move PluginF.h ..\..\include\IceSSL 
 	del PluginF.cpp 
@@ -623,7 +614,6 @@ USERDEP__PLUGIN="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\IceSSL\PluginF.ice
 
 "..\..\include\IceSSL\PluginF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_SSL_API --include-dir IceSSL -I../../slice ../../slice/IceSSL/PluginF.ice 
 	move PluginF.h ..\..\include\IceSSL 
 	del PluginF.cpp 

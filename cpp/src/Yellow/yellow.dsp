@@ -58,7 +58,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\yellow001.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\yellow001.lib ..\..\lib	copy $(OutDir)\yellow001.pdb ..\..\lib	copy $(OutDir)\yellow001.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "Yellow - Win32 Debug"
@@ -90,7 +90,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\yellow001d.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\yellow001d.lib ..\..\lib	copy $(OutDir)\yellow001d.pdb ..\..\lib	copy $(OutDir)\yellow001d.dll ..\..\bin
 # End Special Build Tool
 
 !ENDIF 
@@ -129,7 +129,6 @@ USERDEP__YELLO="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Yellow\Yellow.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --dll-export YELLOW_API --include-dir Yellow -I../../slice ../../slice/Yellow/Yellow.ice \
 	move Yellow.h ..\..\include\Yellow \
 	
@@ -148,7 +147,6 @@ USERDEP__YELLO="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\Yellow\Yellow.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --ice --dll-export YELLOW_API --include-dir Yellow -I../../slice ../../slice/Yellow/Yellow.ice \
 	move Yellow.h ..\..\include\Yellow \
 	

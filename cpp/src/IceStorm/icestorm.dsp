@@ -58,7 +58,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icestorm001.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\icestorm001.lib ..\..\lib	copy $(OutDir)\icestorm001.pdb ..\..\lib	copy $(OutDir)\icestorm001.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "IceStorm - Win32 Debug"
@@ -90,7 +90,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icestorm001d.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\icestorm001d.lib ..\..\lib	copy $(OutDir)\icestorm001d.pdb ..\..\lib	copy $(OutDir)\icestorm001d.dll ..\..\bin
 # End Special Build Tool
 
 !ENDIF 
@@ -129,7 +129,6 @@ USERDEP__ICEST="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\IceStorm\IceStorm.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_STORM_API --include-dir IceStorm -I../../slice ../../slice/IceStorm/IceStorm.ice \
 	move IceStorm.h ..\..\include\IceStorm \
 	
@@ -148,7 +147,6 @@ USERDEP__ICEST="../../bin/slice2cpp.exe"
 InputPath=..\..\slice\IceStorm\IceStorm.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_STORM_API --include-dir IceStorm -I../../slice ../../slice/IceStorm/IceStorm.ice \
 	move IceStorm.h ..\..\include\IceStorm \
 	

@@ -120,7 +120,6 @@ USERDEP__EVENT="../../../bin/slice2cpp.exe"
 InputPath=.\Event.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Event.ice \
 	
 
@@ -138,7 +137,6 @@ USERDEP__EVENT="../../../bin/slice2cpp.exe"
 InputPath=.\Event.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Event.ice \
 	
 

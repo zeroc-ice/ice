@@ -120,7 +120,6 @@ USERDEP__HELLO="../../../bin/slice2cpp.exe"
 InputPath=.\Hello.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Hello.ice \
 	
 
@@ -138,7 +137,6 @@ USERDEP__HELLO="../../../bin/slice2cpp.exe"
 InputPath=.\Hello.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Hello.ice \
 	
 

@@ -128,7 +128,6 @@ USERDEP__CALLB="../../../bin/slice2cpp.exe"
 InputPath=.\Callback.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Callback.ice \
 	
 
@@ -146,7 +145,6 @@ USERDEP__CALLB="../../../bin/slice2cpp.exe"
 InputPath=.\Callback.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Callback.ice \
 	
 

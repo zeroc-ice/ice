@@ -144,7 +144,6 @@ USERDEP__COMPL="..\..\..\bin\slice2freeze.exe"	"..\..\..\bin\slice2cpp.exe"
 InputPath=.\Complex.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Complex.ice \
 	..\..\..\bin\slice2freeze.exe --dict Complex::ComplexDict,Complex::Key,Complex::Node ComplexDict Complex.ice \
 	
@@ -169,7 +168,6 @@ USERDEP__COMPL="..\..\..\bin\slice2freeze.exe"	"..\..\..\bin\slice2cpp.exe"
 InputPath=.\Complex.ice
 
 BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Complex.ice \
 	..\..\..\bin\slice2freeze.exe --dict Complex::ComplexDict,Complex::Key,Complex::Node ComplexDict Complex.ice \
 	
