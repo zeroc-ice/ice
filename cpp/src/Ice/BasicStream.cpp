@@ -112,7 +112,18 @@ IceInternal::BasicStream::startReadEncaps()
 	throw UnsupportedEncodingException(__FILE__, __LINE__);
     }
     Int sz;
+    //
+    // I don't use readSize() and writeSize() for encapsulations,
+    // because when creating an encapsulation, I must know in advance
+    // how many bytes the size information will require in the data
+    // stream. If I use an Int, it is always 4 bytes. For
+    // readSize()/writeSize(), it could be 1 or 5 bytes.
+    //
     read(sz);
+    if (sz < 0)
+    {
+	throw NegativeSizeException(__FILE__, __LINE__);
+    }
     _readEncapsStack.resize(_readEncapsStack.size() + 1);
     _currentReadEncaps = &_readEncapsStack.back();
     _currentReadEncaps->encoding = encoding;
@@ -136,6 +147,10 @@ IceInternal::BasicStream::endReadEncaps()
     i = b.begin() + start - sizeof(Int);
     Int sz;
     read(sz);
+    if (sz < 0)
+    {
+	throw NegativeSizeException(__FILE__, __LINE__);
+    }
     i += sz;
     if (i > b.end())
     {
@@ -152,6 +167,10 @@ IceInternal::BasicStream::checkReadEncaps()
     i = b.begin() + start - sizeof(Int);
     Int sz;
     read(sz);
+    if (sz < 0)
+    {
+	throw NegativeSizeException(__FILE__, __LINE__);
+    }
     i = save;
     if (sz != i - (b.begin() + start))
     {
@@ -168,6 +187,10 @@ IceInternal::BasicStream::getReadEncapsSize()
     i = b.begin() + start - sizeof(Int);
     Int sz;
     read(sz);
+    if (sz < 0)
+    {
+	throw NegativeSizeException(__FILE__, __LINE__);
+    }
     i = save;
     return sz;
 }
@@ -183,6 +206,10 @@ IceInternal::BasicStream::skipEncaps()
     }
     Int sz;
     read(sz);
+    if (sz < 0)
+    {
+	throw NegativeSizeException(__FILE__, __LINE__);
+    }
     i += sz;
     if (i > b.end())
     {
@@ -212,10 +239,14 @@ IceInternal::BasicStream::readSize(Ice::Int& v)
     if (b < 0)
     {
 	read(v);
+	if (v < 0)
+	{
+	    throw NegativeSizeException(__FILE__, __LINE__);
+	}
     }
     else
     {
-	v = static_cast<Int>(b);     
+	v = static_cast<Int>(b);
     }
 }
 

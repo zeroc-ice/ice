@@ -273,99 +273,6 @@ local exception ProtocolException
 
 /**
  *
- * This exception is a specialization of [ProtocolException], which is
- * raised if no suitable object factory was found during object
- * unmarshaling.
- *
- * @see ObjectFactory
- * @see Communicator::addObjectFactory
- * @see Communicator::removeObjectFactory
- * @see Communicator::findObjectFactory
- *
- **/
-local exception NoObjectFactoryException extends ProtocolException
-{
-};
-
-/**
- *
- * This exception is a specialization of [ProtocolException], which is
- * raised if no suitable user exception factory was found during user
- * exception unmarshaling.
- *
- * @see UserExceptionFactory
- * @see Communicator::addUserExceptionFactory
- * @see Communicator::removeUserExceptionFactory
- * @see Communicator::findUserExceptionFactory
- *
- **/
-local exception NoUserExceptionFactoryException extends ProtocolException
-{
-};
-
-/**
- *
- * This exception is a specialization of [ProtocolException], which is
- * raised upon an error in unmarshaling data.
- *
- **/
-local exception UnmarshalException extends ProtocolException
-{
-};
-
-/**
- *
- * This exception is a specialization of [ProtocolException], which is
- * raised if inconsistent data is received while unmarshaling a proxy.
- *
- **/
-local exception ProxyUnmarshalException extends ProtocolException
-{
-};
-
-/**
- *
- * This exception is a specialization of [ProtocolException], which is
- * raised if an out-of-bounds condition occurs during unmarshaling.
- *
- **/
-local exception UnmarshalOutOfBoundsException extends ProtocolException
-{
-};
-
-/**
- *
- * This exception is a specialization of [ProtocolException],
- * indicating an illegal protocol indirection.
- *
- **/
-local exception IllegalIndirectionException extends ProtocolException
-{
-};
-
-/**
- *
- * This exception is a specialization of [ProtocolException], which is
- * raised if the system-specific memory limit is exceeded during
- * marshaling or unmarshaling.
- *
- **/
-local exception MemoryLimitException extends ProtocolException
-{
-};
-
-/**
- *
- * This exception is a specialization of [ProtocolException],
- * indicating a malformed data encapsulation.
- *
- **/
-local exception EncapsulationException extends ProtocolException
-{
-};
-
-/**
- *
  * This exception is a specialization of [ProtocolException],
  * indicating that an unsupported protocol version has been
  * encountered.
@@ -474,6 +381,110 @@ local exception CompressionException extends ProtocolException
 
 /**
  *
+ * This exception is a specialization of [ProtocolException], which is
+ * raised upon an error during marshalling or unmarshaling data.
+ *
+ **/
+local exception MarshalException extends ProtocolException
+{
+};
+
+/**
+ *
+ * This exception is a specialization of [MarshalException], which is
+ * raised if no suitable object factory was found during object
+ * unmarshaling.
+ *
+ * @see ObjectFactory
+ * @see Communicator::addObjectFactory
+ * @see Communicator::removeObjectFactory
+ * @see Communicator::findObjectFactory
+ *
+ **/
+local exception NoObjectFactoryException extends MarshalException
+{
+};
+
+/**
+ *
+ * This exception is a specialization of [MarshalException], which is
+ * raised if no suitable user exception factory was found during user
+ * exception unmarshaling.
+ *
+ * @see UserExceptionFactory
+ * @see Communicator::addUserExceptionFactory
+ * @see Communicator::removeUserExceptionFactory
+ * @see Communicator::findUserExceptionFactory
+ *
+ **/
+local exception NoUserExceptionFactoryException extends MarshalException
+{
+};
+
+/**
+ *
+ * This exception is a specialization of [MarshalException], which is
+ * raised if inconsistent data is received while unmarshaling a proxy.
+ *
+ **/
+local exception ProxyUnmarshalException extends MarshalException
+{
+};
+
+/**
+ *
+ * This exception is a specialization of [MarshalException], which is
+ * raised if an out-of-bounds condition occurs during unmarshaling.
+ *
+ **/
+local exception UnmarshalOutOfBoundsException extends MarshalException
+{
+};
+
+/**
+ *
+ * This exception is a specialization of [MarshalException],
+ * indicating an illegal indirection during unmarshalling.
+ *
+ **/
+local exception IllegalIndirectionException extends MarshalException
+{
+};
+
+/**
+ *
+ * This exception is a specialization of [MarshalException], which is
+ * raised if the system-specific memory limit is exceeded during
+ * marshaling or unmarshaling.
+ *
+ **/
+local exception MemoryLimitException extends MarshalException
+{
+};
+
+/**
+ *
+ * This exception is a specialization of [MarshalException],
+ * indicating a malformed data encapsulation.
+ *
+ **/
+local exception EncapsulationException extends MarshalException
+{
+};
+
+/**
+ *
+ * This exception is a specialization of [MarshalException], which is
+ * raised if a negative size (e.g., a negative sequence size) is
+ * received.
+ *
+ **/
+local exception NegativeSizeException extends MarshalException
+{
+};
+
+/**
+ *
  * This exception indicates that a failure occurred while initializing
  * a plug-in.
  *
@@ -486,6 +497,24 @@ local exception PluginInitializationException
      *
      **/
     string reason;
+};
+
+/**
+ *
+ * A plug-in already exists with the same name.
+ *
+ **/
+local exception PluginExistsException
+{
+};
+
+/**
+ *
+ * No plug-in exists with the given name.
+ *
+ **/
+local exception PluginNotFoundException
+{
 };
 
 };

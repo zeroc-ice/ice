@@ -191,62 +191,6 @@ Ice::ProtocolException::ice_print(ostream& out) const
 }
 
 void
-Ice::UnmarshalException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: error during unmarshaling";
-}
-
-void
-Ice::UnmarshalOutOfBoundsException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: out of bounds during unmarshaling";
-}
-
-void
-Ice::NoObjectFactoryException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: no suitable object factory found";
-}
-
-void
-Ice::NoUserExceptionFactoryException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: no suitable user exception factory found";
-}
-
-void
-Ice::ProxyUnmarshalException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: inconsistent proxy data during unmarshaling";
-}
-
-void
-Ice::IllegalIndirectionException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: encountered illegal protocol indirection";
-}
-
-void
-Ice::MemoryLimitException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: memory limit exceeded";
-}
-
-void
-Ice::EncapsulationException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: illegal encapsulation";
-}
-
-void
 Ice::UnsupportedProtocolException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
@@ -314,6 +258,69 @@ Ice::CompressionException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: failed to compress or uncompress data";
+}
+
+void
+Ice::MarshalException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: error during unmarshaling";
+}
+
+void
+Ice::NoObjectFactoryException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: no suitable object factory found";
+}
+
+void
+Ice::NoUserExceptionFactoryException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: no suitable user exception factory found";
+}
+
+void
+Ice::UnmarshalOutOfBoundsException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: out of bounds during unmarshaling";
+}
+
+void
+Ice::ProxyUnmarshalException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: inconsistent proxy data during unmarshaling";
+}
+
+void
+Ice::IllegalIndirectionException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: encountered illegal protocol indirection";
+}
+
+void
+Ice::MemoryLimitException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: memory limit exceeded";
+}
+
+void
+Ice::EncapsulationException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: illegal encapsulation";
+}
+
+void
+Ice::NegativeSizeException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: negative size for sequence, dictionary, etc.";
 }
 
 void

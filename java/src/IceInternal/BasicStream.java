@@ -209,7 +209,18 @@ public class BasicStream
         {
             throw new Ice.UnsupportedEncodingException();
         }
+	//
+	// I don't use readSize() and writeSize() for encapsulations,
+	// because when creating an encapsulation, I must know in
+	// advance how many bytes the size information will require in
+	// the data stream. If I use an Int, it is always 4 bytes. For
+	// readSize()/writeSize(), it could be 1 or 5 bytes.
+	//
         int sz = readInt();
+	if (sz < 0)
+	{
+	    throw new Ice.NegativeSizeException();
+	}
         ReadEncaps curr = _readEncapsCache;
         if (curr != null)
         {
@@ -240,6 +251,10 @@ public class BasicStream
             _readEncapsCache.objectsRead.clear();
         }
         final int sz = _buf.getInt(start - 4);
+	if (sz < 0)
+	{
+	    throw new Ice.NegativeSizeException();
+	}
         try
         {
             _buf.position(start + sz);
@@ -255,6 +270,10 @@ public class BasicStream
     {
         assert(_readEncapsStack != null);
         final int sz = _buf.getInt(_readEncapsStack.start - 4);
+	if (sz < 0)
+	{
+	    throw new Ice.NegativeSizeException();
+	}
         if (sz != _buf.position() - _readEncapsStack.start)
         {
             throw new Ice.EncapsulationException();
@@ -265,7 +284,12 @@ public class BasicStream
     getReadEncapsSize()
     {
         assert(_readEncapsStack != null);
-        return _buf.getInt(_readEncapsStack.start - 4);
+        int sz = _buf.getInt(_readEncapsStack.start - 4);
+	if (sz < 0)
+	{
+	    throw new Ice.NegativeSizeException();
+	}
+	return sz;
     }
 
     public void
@@ -277,6 +301,10 @@ public class BasicStream
             throw new Ice.UnsupportedEncodingException();
         }
         int sz = readInt();
+	if (sz < 0)
+	{
+	    throw new Ice.NegativeSizeException();
+	}
         try
         {
             _buf.position(_buf.position() + sz);
@@ -311,7 +339,12 @@ public class BasicStream
 	    byte b = _buf.get();
 	    if (b < 0)
 	    {
-		return _buf.getInt();
+		int v = _buf.getInt();
+		if (v < 0)
+		{
+		    throw new Ice.NegativeSizeException();
+		}
+		return v;
 	    }
 	    else
 	    {

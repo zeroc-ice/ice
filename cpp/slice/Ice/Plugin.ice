@@ -11,6 +11,8 @@
 #ifndef ICE_PLUGIN_ICE
 #define ICE_PLUGIN_ICE
 
+#include <Ice/LocalException.ice>
+
 module Ice
 {
 
@@ -28,24 +30,6 @@ local interface Plugin
      *
      **/
     void destroy();
-};
-
-/**
- *
- * A plug-in already exists with the same name.
- *
- **/
-local exception PluginExistsException
-{
-};
-
-/**
- *
- * No plug-in exists with the given name.
- *
- **/
-local exception PluginNotFoundException
-{
 };
 
 /**
