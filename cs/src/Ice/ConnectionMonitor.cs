@@ -66,7 +66,7 @@ namespace IceInternal
 	    string threadName = _instance.properties().getProperty("Ice.ProgramName");
 	    if(threadName.Length > 0)
 	    {
-		    threadName += "-";
+		threadName += "-";
 	    }
 	    
 	    Debug.Assert(_interval > 0);

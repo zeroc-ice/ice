@@ -38,10 +38,6 @@ namespace IceInternal
             {
                 _bzlibInstalled = false;
             }
-	    if(_bzlibInstalled)
-	    {
-	        Console.WriteLine("Found it!");
-		}
         }
 
 	public BasicStream(IceInternal.Instance instance)

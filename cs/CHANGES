@@ -18,6 +18,9 @@ Changes since version 1.5.1
 Changes since version 1.5.0
 ---------------------------
 
+- Compression is now supported for non-Windows platforms as well
+  as on Windows.
+
 - Fixed a bug in the slice2cs code generator: classes with multiple
   sequence members caused incorrect code to be generated.
 
