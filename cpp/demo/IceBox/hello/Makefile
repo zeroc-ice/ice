@@ -12,8 +12,11 @@ top_srcdir	= ../../..
 
 CLIENT		= client
 
-NAME		= libHelloService.so
-VERSIONED_NAME	= $(NAME).$(VERSION)
+BASE		= libHelloService.so
+VERSIONED_BASE	= $(BASE).$(VERSION)
+
+NAME		= $(BASE)
+VERSIONED_NAME	= $(VERSIONED_BASE)
 
 TARGETS		= $(CLIENT) $(NAME) $(VERSIONED_NAME)
 
@@ -34,7 +37,7 @@ CPPFLAGS	:= -I. $(CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared -o $@ $(OBJS) $(SOBJS)
+	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_BASE) -shared -o $@ $(OBJS) $(SOBJS) $(LDFLAGS)
 
 $(NAME): $(VERSIONED_NAME)
 	rm -f $@

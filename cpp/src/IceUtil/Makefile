@@ -1,5 +1,4 @@
-# **********************************************************************
-#
+# ********************************************************************** #
 # Copyright (c) 2001
 # MutableRealms, Inc.
 # Huntsville, AL, USA
@@ -35,7 +34,7 @@ include $(top_srcdir)/config/Make.rules
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared -o $@ $(OBJS)
+	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_BASE) $(LDFLAGS) -shared -o $@ $(OBJS)
 
 $(NAME): $(VERSIONED_NAME)
 	rm -f $@

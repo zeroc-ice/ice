@@ -68,7 +68,7 @@ LDFLAGS		:= $(LDFLAGS) $(OPENSSL_LIBS) $(XERCESC_LIBS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) -shared -o $@ $(OBJS) $(LDFLAGS)
+	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_BASE) -shared -o $@ $(OBJS) $(LDFLAGS)
 
 $(NAME): $(VERSIONED_NAME)
 	rm -f $@

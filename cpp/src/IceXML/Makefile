@@ -28,7 +28,7 @@ CPPFLAGS	:= -I.. $(CPPFLAGS) $(XERCESC_FLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared -o $@ $(OBJS) $(XERCESC_LIBS)
+	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_BASE) $(LDFLAGS) -shared -o $@ $(OBJS) $(XERCESC_LIBS)
 
 $(NAME): $(VERSIONED_NAME)
 	rm -f $@
