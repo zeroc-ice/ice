@@ -228,6 +228,8 @@ private:
 
 	ReadEncaps();
 	~ReadEncaps();
+	void reset();
+	void swap(ReadEncaps&);
 
 	Container::size_type start;
 	Ice::Int sz;
@@ -249,6 +251,8 @@ private:
 
 	WriteEncaps();
 	~WriteEncaps();
+	void reset();
+	void swap(WriteEncaps&);
 
 	Container::size_type start;
 
@@ -263,6 +267,10 @@ private:
 
     ReadEncaps* _currentReadEncaps;
     WriteEncaps* _currentWriteEncaps;
+
+    ReadEncaps _preAllocatedReadEncaps;
+    WriteEncaps _preAllocatedWriteEncaps;
+
     Container::size_type _readSlice;
     Container::size_type _writeSlice;
 
