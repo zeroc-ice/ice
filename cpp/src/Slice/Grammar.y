@@ -805,7 +805,7 @@ exception
     ExceptionPtr exception = cont->lookupException(scoped->v);
     if(!exception)
     {
-	$$ = cont->createException(IceUtil::generateUUID(), 0, false);
+	exception = cont->createException(IceUtil::generateUUID(), 0, false);
     }
     cont->checkIntroduced(scoped->v, exception);
     $$ = exception;
