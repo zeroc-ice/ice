@@ -14,7 +14,7 @@
 #
 
 protocol = ""
-#protocol = "ssl"
+protocol = "ssl"
 
 #
 # Set compressed to 1 in case you want to run the tests with
@@ -166,18 +166,18 @@ iceHome = os.environ["ICE_HOME"]
 if protocol == "ssl":
     plugin		 = " --Ice.Plugin.IceSSL=IceSSL.PluginFactory"
     clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.KeyStore=" + os.path.join(toplevel, "certs", "client.jks") + \
+                           " --IceSSL.Client.Keystore=" + os.path.join(toplevel, "certs", "client.jks") + \
                            " --IceSSL.Client.Certs=" + os.path.join(toplevel, "certs", "certs.jks") + \
                            " --IceSSL.Client.Password=password"
     serverProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Server.KeyStore=" + os.path.join(toplevel, "certs", "server.jks") + \
+                           " --IceSSL.Server.Keystore=" + os.path.join(toplevel, "certs", "server.jks") + \
                            " --IceSSL.Server.Certs=" + os.path.join(toplevel, "certs", "certs.jks") + \
                            " --IceSSL.Server.Password=password"
     clientServerProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.KeyStore=" + os.path.join(toplevel, "certs", "client.jks") + \
+                           " --IceSSL.Client.Keystore=" + os.path.join(toplevel, "certs", "client.jks") + \
                            " --IceSSL.Client.Certs=" + os.path.join(toplevel, "certs", "certs.jks") + \
                            " --IceSSL.Client.Password=password" + \
-                           " --IceSSL.Server.KeyStore=" + os.path.join(toplevel, "certs", "server.jks") + \
+                           " --IceSSL.Server.Keystore=" + os.path.join(toplevel, "certs", "server.jks") + \
                            " --IceSSL.Server.Certs=" + os.path.join(toplevel, "certs", "certs.jks") + \
                            " --IceSSL.Server.Password=password"
     cppPlugin		    = " --Ice.Plugin.IceSSL=IceSSL:create"

@@ -123,9 +123,9 @@ class Instance
 	final String prefix = "IceSSL." + mode + ".";
 	Ice.Properties properties = communicator().getProperties();
 	String ciphers = properties.getProperty(prefix + "Ciphers");
-	String keyStore = properties.getProperty(prefix + "KeyStore");
+	String keyStore = properties.getProperty(prefix + "Keystore");
 	String password = properties.getProperty(prefix + "Password");
-	String keyStorePassword = properties.getProperty(prefix + "KeyStorePassword");
+	String keyStorePassword = properties.getProperty(prefix + "KeystorePassword");
 	String certs = properties.getProperty(prefix + "Certs");
 	String certsPassword = properties.getProperty(prefix + "CertsPassword");
 	return new Context(ciphers, keyStore, password, keyStorePassword, certs, certsPassword, rand);

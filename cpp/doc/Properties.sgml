@@ -1559,11 +1559,11 @@ If not specified, the plug-in uses the security provider's default ciphersuites.
 </section>
 </section>
 
-<section><title>IceSSL.Client.KeyStore, IceSSL.Server.KeyStore</title>
+<section><title>IceSSL.Client.Keystore, IceSSL.Server.Keystore</title>
 <section><title>Synopsis</title>
 <synopsis>
-IceSSL.Client.KeyStore=<replaceable>keystore</replaceable>
-IceSSL.Server.KeyStore=<replaceable>keystore</replaceable>
+IceSSL.Client.Keystore=<replaceable>keystore</replaceable>
+IceSSL.Server.Keystore=<replaceable>keystore</replaceable>
 </synopsis>
 </section>
 <section>
@@ -1577,8 +1577,8 @@ directory.
 <para>
 A password for the private key is defined by <literal>IceSSL.Client.Password</literal>
 or <literal>IceSSL.Server.Password</literal>. A password used to verify
-the integrity of the keystore is defined by <literal>IceSSL.Client.KeyStorePassword</literal>
-or <literal>IceSSL.Server.KeyStorePassword</literal>.
+the integrity of the keystore is defined by <literal>IceSSL.Client.KeystorePassword</literal>
+or <literal>IceSSL.Server.KeystorePassword</literal>.
 </para>
 <para>
 If not specified, the plug-in uses an empty keystore.
@@ -1586,18 +1586,18 @@ If not specified, the plug-in uses an empty keystore.
 </section>
 </section>
 
-<section><title>IceSSL.Client.KeyStorePassword, IceSSL.Server.KeyStorePassword</title>
+<section><title>IceSSL.Client.KeystorePassword, IceSSL.Server.KeystorePassword</title>
 <section><title>Synopsis</title>
 <synopsis>
-IceSSL.Client.KeyStorePassword=<replaceable>password</replaceable>
-IceSSL.Server.KeyStorePassword=<replaceable>password</replaceable>
+IceSSL.Client.KeystorePassword=<replaceable>password</replaceable>
+IceSSL.Server.KeystorePassword=<replaceable>password</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
 Defines the password used to verify the integrity of the Java keystore provided
-by <literal>IceSSL.Client.KeyStore</literal> or <literal>IceSSL.Server.KeyStore</literal>.
+by <literal>IceSSL.Client.Keystore</literal> or <literal>IceSSL.Server.Keystore</literal>.
 </para>
 <para>
 If not specified, the plug-in does not verify the keystore's integrity.
@@ -1616,7 +1616,7 @@ IceSSL.Server.Password=<replaceable>password</replaceable>
 <title>Description</title>
 <para>
 Defines the password of the private key in the Java keystore specified
-by <literal>IceSSL.Client.KeyStore</literal> or <literal>IceSSL.Server.KeyStore</literal>.
+by <literal>IceSSL.Client.Keystore</literal> or <literal>IceSSL.Server.Keystore</literal>.
 </para>
 <note><para> All of the keys in the keystore must use the same password. </para></note>
 <para>

@@ -279,15 +279,15 @@ IceSSL:
     Client.Certs
     Client.CertsPassword
     Client.Ciphers
-    Client.KeyStore
-    Client.KeyStorePassword
+    Client.Keystore
+    Client.KeystorePassword
     Client.Password
     Server.Certs
     Server.CertsPassword
     Server.Ciphers
     Server.ClientAuth
-    Server.KeyStore
-    Server.KeyStorePassword
+    Server.Keystore
+    Server.KeystorePassword
     Server.Password
 
 IceStorm:

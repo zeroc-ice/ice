@@ -11,7 +11,7 @@ package IceSSL;
 
 class Context
 {
-    Context(String ciphers, String keyStore, String password, String keyStorePassword, String certs,
+    Context(String ciphers, String keystore, String password, String keystorePassword, String certs,
 	    String certsPassword, java.security.SecureRandom rand)
 	throws java.security.GeneralSecurityException
     {
@@ -96,25 +96,25 @@ class Context
 	final String ksType = java.security.KeyStore.getDefaultType();
 
 	javax.net.ssl.KeyManager[] keyManagers = null;
-	if(keyStore != null && keyStore.length() > 0)
+	if(keystore != null && keystore.length() > 0)
 	{
 	    _keys = java.security.KeyStore.getInstance(ksType);
 	    try
 	    {
 		char[] pass = null;
-		if(keyStorePassword != null && keyStorePassword.length() > 0)
+		if(keystorePassword != null && keystorePassword.length() > 0)
 		{
-		    pass = keyStorePassword.toCharArray();
+		    pass = keystorePassword.toCharArray();
 		}
 
 		java.io.BufferedInputStream bis =
-		    new java.io.BufferedInputStream(new java.io.FileInputStream(keyStore));
+		    new java.io.BufferedInputStream(new java.io.FileInputStream(keystore));
 		_keys.load(bis, pass);
 	    }
 	    catch(java.io.IOException ex)
 	    {
 		Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-		e.reason = "IceSSL: unable to load keystore from `" + keyStore + "'";
+		e.reason = "IceSSL: unable to load keystore from `" + keystore + "'";
 		e.initCause(ex);
 		throw e;
 	    }
