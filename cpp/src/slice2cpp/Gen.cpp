@@ -3287,7 +3287,7 @@ Slice::Gen::AsyncImplVisitor::visitUnitEnd(const UnitPtr& p)
 bool
 Slice::Gen::AsyncImplVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalClassDecls() || (!p->hasContentsWithMetaData("ami") && !p->hasContentsWithMetaData("ami")))
+    if(!p->hasNonLocalClassDecls() || (/*!p->hasContentsWithMetaData("ami") &&*/ !p->hasContentsWithMetaData("amd")))
     {
 	return false;
     }
