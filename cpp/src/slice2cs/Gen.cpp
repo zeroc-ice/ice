@@ -112,7 +112,7 @@ Slice::CsVisitor::writeInheritedOperations(const ClassDefPtr& p)
 		{
 		    _out << "return ";
 		}
-		_out << name << spar << args << "new Ice.Current()" << epar << ';';
+		_out << name << spar << args << "Ice.ObjectImpl.defaultCurrent" << epar << ';';
 		_out << eb;
 
 		_out << sp << nl << "public abstract " << retS << ' ' << name
@@ -1274,7 +1274,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 	{
 	    _out << "return ";
 	}
-	_out << name << spar << args << "new Ice.Current()" << epar << ';';
+	_out << name << spar << args << "Ice.ObjectImpl.defaultCurrent" << epar << ';';
 	_out << eb;
     }
 
@@ -3460,7 +3460,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    _out << "return ";
 	}
-	_out << name << spar << args << "new Ice.Current()" << epar << ';';
+	_out << name << spar << args << "Ice.ObjectImpl.defaultCurrent" << epar << ';';
 	_out << eb;
 
 	_out << sp << nl << "public abstract " << typeToString(ret) << " " << name << spar << params;

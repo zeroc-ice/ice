@@ -162,12 +162,12 @@ static const string icePackProps[] =
     "Node.AdapterId",
     "Node.CollocateRegistry",
     "Node.Data",
-    "Node.Output",
-    "Node.RedirectErrToOut",
     "Node.Endpoints",
     "Node.Name",
+    "Node.Output",
     "Node.PrintServersReady",
     "Node.PropertiesOverride",
+    "Node.RedirectErrToOut",
     "Node.ThreadPool.Size",
     "Node.Trace.Activator",
     "Node.Trace.Adapter",
@@ -189,14 +189,14 @@ static const string icePackProps[] =
 
 static const string icePatchProps[] =
 {
-    "Endpoints",
     "BusyTimeout",
+    "Directory",
+    "Dynamic",
+    "Endpoints",
     "RemoveOrphaned",
     "Thorough",
     "Trace.Files",
-    "UpdatePeriod",
-    "Directory",
-    "Dynamic"
+    "UpdatePeriod"
 };
 
 static const string iceSSLProps[] =
@@ -227,9 +227,7 @@ static const string iceStormProps[] =
 {
     "Flush.Timeout",
     "Publish.Endpoints",
-    "Publish.AdapterId",
     "TopicManager.Endpoints",
-    "TopicManager.AdapterId",
     "TopicManager.Proxy",
     "Trace.Flush",
     "Trace.Subscriber",
@@ -288,12 +286,13 @@ static const string glacierProps[] =
 
 static const string freezeProps[] =
 {
-    "Warn.Deadlocks",
+    "DbEnv.*",
+    "Evictor.*",
     "Trace.DbEnv",
     "Trace.Map",
     "Trace.Evictor",
-    "Evictor.*",
-    "DbEnv.*"
+    "Warn.CloseInFinalize",
+    "Warn.Deadlocks"
 };
 
 struct PropertyValues
