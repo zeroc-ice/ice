@@ -22,6 +22,8 @@ namespace _Ice
 class ICE_API InstanceI : public SimpleShared
 {
 public:
+
+    ObjectFactory getObjectFactory();
     
 private:
 
