@@ -1,0 +1,32 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#ifndef ICEPY_PROXY_H
+#define ICEPY_PROXY_H
+
+#include <Python.h>
+#include <Ice/ProxyF.h>
+#include <Ice/CommunicatorF.h>
+
+namespace IcePy
+{
+
+extern PyTypeObject ProxyType;
+
+bool initProxy(PyObject*);
+
+PyObject* createProxy(const Ice::ObjectPrx&, const Ice::CommunicatorPtr&, PyObject* = NULL);
+
+bool checkProxy(PyObject*);
+
+Ice::ObjectPrx getProxy(PyObject*);
+
+}
+
+#endif

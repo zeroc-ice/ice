@@ -1,0 +1,108 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#ifndef ICEPY_UTIL_H
+#define ICEPY_UTIL_H
+
+#include <Python.h>
+#include <Ice/BuiltinSequences.h>
+#include <Ice/Current.h>
+
+namespace IcePy
+{
+
+//
+// Invokes Py_DECREF on a Python object.
+//
+class PyObjectHandle
+{
+public:
+
+    PyObjectHandle(PyObject* = NULL);
+    PyObjectHandle(const PyObjectHandle&);
+    ~PyObjectHandle();
+
+    void operator=(PyObject*);
+    void operator=(const PyObjectHandle&);
+
+    PyObject* get();
+    PyObject* release();
+
+private:
+
+    PyObject* _p;
+};
+
+//
+// Release Python's Global Interpreter Lock during potentially time-consuming
+// (and non-Python related) work.
+//
+class AllowThreads
+{
+public:
+
+    AllowThreads();
+    ~AllowThreads();
+
+private:
+
+    PyThreadState* _state;
+};
+
+//
+// Ensure that the current thread is capable of calling into Python.
+//
+class AdoptThread
+{
+public:
+
+    AdoptThread();
+    ~AdoptThread();
+
+private:
+
+    PyGILState_STATE _state;
+};
+
+//
+// Convert Ice::StringSeq to and from a Python list.
+//
+bool listToStringSeq(PyObject*, Ice::StringSeq&);
+bool stringSeqToList(const Ice::StringSeq&, PyObject*);
+
+//
+// Convert Ice::Context to and from a Python dictionary.
+//
+bool dictionaryToContext(PyObject*, Ice::Context&);
+bool contextToDictionary(const Ice::Context&, PyObject*);
+
+//
+// Split up a string using whitespace delimiters.
+//
+bool splitString(const std::string&, Ice::StringSeq&);
+
+//
+// Convert a scoped name into a Python name.
+//
+std::string scopedToName(const std::string&);
+
+//
+// Check the given identifier against PHP's list of reserved words. If it matches
+// a reserved word, then an escaped version is returned with a leading underscore.
+//
+std::string fixIdent(const std::string&);
+
+//
+// Returns a borrowed reference to the Python type object corresponding to the given Python type name.
+//
+PyObject* lookupType(const std::string&);
+
+}
+
+#endif

@@ -214,8 +214,8 @@ Slice::Python::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
         // Emit forward declarations.
         //
         string scoped = p->scoped();
-        _out << sp << nl << "IceImpl.addClass('" << scoped << "')";
-        _out << nl << "IceImpl.addProxy('" << scoped << "')";
+        _out << sp << nl << "IcePy.addClass('" << scoped << "')";
+        _out << nl << "IcePy.addProxy('" << scoped << "')";
     }
 }
 
@@ -238,7 +238,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "class " << fixedName << "Prx(";
         if(bases.empty())
         {
-            _out << "IceImpl.ObjectPrx";
+            _out << "IcePy.ObjectPrx";
         }
         else
         {
@@ -309,7 +309,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         _out.dec();
 
-        _out << sp << nl << "IceImpl.defineProxy('" << scoped << "', " << fixedName << "Prx)";
+        _out << sp << nl << "IcePy.defineProxy('" << scoped << "', " << fixedName << "Prx)";
 
         registerName(fixedName + "Prx");
     }
@@ -437,7 +437,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     if(!p->isLocal())
     {
         DataMemberList members = p->dataMembers();
-        _out << sp << nl << "IceImpl.defineClass('" << scoped << "', " << fixedName << ", ";
+        _out << sp << nl << "IcePy.defineClass('" << scoped << "', " << fixedName << ", ";
         _out << (p->isInterface() ? "True" : "False") << ", '" << baseScoped << "', (";
         //
         // InterfaceIds
@@ -520,13 +520,13 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             switch((*s)->mode())
             {
             case Operation::Normal:
-                _out << "IceImpl.OP_NORMAL";
+                _out << "IcePy.OP_NORMAL";
                 break;
             case Operation::Nonmutating:
-                _out << "IceImpl.OP_NONMUTATING";
+                _out << "IcePy.OP_NONMUTATING";
                 break;
             case Operation::Idempotent:
-                _out << "IceImpl.OP_IDEMPOTENT";
+                _out << "IcePy.OP_IDEMPOTENT";
                 break;
             }
             _out << ", (";
@@ -638,7 +638,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "IceImpl.addException('" << scoped << "', " << fixedName << ", '" << baseScoped << "', (";
+        _out << sp << nl << "IcePy.addException('" << scoped << "', " << fixedName << ", '" << baseScoped << "', (";
         DataMemberList members = p->dataMembers();
         if(members.size() > 1)
         {
@@ -696,7 +696,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "IceImpl.addStruct('" << scoped << "', " << fixedName << ", (";
+        _out << sp << nl << "IcePy.addStruct('" << scoped << "', " << fixedName << ", (";
         //
         // Data members are represented as a tuple:
         //
@@ -745,7 +745,7 @@ Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "IceImpl.addSequence('" << p->scoped() << "', ";
+        _out << sp << nl << "IcePy.addSequence('" << p->scoped() << "', ";
         writeType(p->type());
         _out << ")";
     }
@@ -759,7 +759,7 @@ Slice::Python::CodeVisitor::visitDictionary(const DictionaryPtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "IceImpl.addDictionary('" << p->scoped() << "', ";
+        _out << sp << nl << "IcePy.addDictionary('" << p->scoped() << "', ";
         writeType(p->keyType());
         _out << ", ";
         writeType(p->valueType());
@@ -831,7 +831,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "IceImpl.addEnum('" << scoped << "', " << fixedName << ", (";
+        _out << sp << nl << "IcePy.addEnum('" << scoped << "', " << fixedName << ", (";
         for(EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q)
         {
             if(q != enums.begin())
@@ -1039,52 +1039,52 @@ Slice::Python::CodeVisitor::writeType(const TypePtr& p)
         {
             case Builtin::KindBool:
             {
-                _out << "IceImpl.T_BOOL";
+                _out << "IcePy.T_BOOL";
                 break;
             }
             case Builtin::KindByte:
             {
-                _out << "IceImpl.T_BYTE";
+                _out << "IcePy.T_BYTE";
                 break;
             }
             case Builtin::KindShort:
             {
-                _out << "IceImpl.T_SHORT";
+                _out << "IcePy.T_SHORT";
                 break;
             }
             case Builtin::KindInt:
             {
-                _out << "IceImpl.T_INT";
+                _out << "IcePy.T_INT";
                 break;
             }
             case Builtin::KindLong:
             {
-                _out << "IceImpl.T_LONG";
+                _out << "IcePy.T_LONG";
                 break;
             }
             case Builtin::KindFloat:
             {
-                _out << "IceImpl.T_FLOAT";
+                _out << "IcePy.T_FLOAT";
                 break;
             }
             case Builtin::KindDouble:
             {
-                _out << "IceImpl.T_DOUBLE";
+                _out << "IcePy.T_DOUBLE";
                 break;
             }
             case Builtin::KindString:
             {
-                _out << "IceImpl.T_STRING";
+                _out << "IcePy.T_STRING";
                 break;
             }
             case Builtin::KindObject:
             {
-                _out << "IceImpl.T_OBJECT";
+                _out << "IcePy.T_OBJECT";
                 break;
             }
             case Builtin::KindObjectProxy:
             {
-                _out << "IceImpl.T_OBJECT_PROXY";
+                _out << "IcePy.T_OBJECT_PROXY";
                 break;
             }
             case Builtin::KindLocalObject:
@@ -1111,7 +1111,7 @@ Slice::Python::CodeVisitor::writeType(const TypePtr& p)
 void
 Slice::Python::generate(const UnitPtr& unit, Output& out)
 {
-    out << nl << "import Ice, IceImpl";
+    out << nl << "import Ice, IcePy";
 
     ModuleVisitor moduleVisitor(out);
     unit->visit(&moduleVisitor, true);
