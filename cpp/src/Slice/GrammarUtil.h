@@ -12,11 +12,10 @@
 //
 // **********************************************************************
 
-#ifndef SLICE_GRAMMER_UTIL_H
-#define SLICE_GRAMMER_UTIL_H
+#ifndef SLICE_GRAMMAR_UTIL_H
+#define SLICE_GRAMMAR_UTIL_H
 
 #include <Slice/Parser.h>
-#include <map>
 
 namespace Slice
 {
@@ -178,5 +177,30 @@ public:
 };
 
 }
+
+//
+// Stuff for flex and bison
+//
+
+#define YYSTYPE Slice::GrammarBasePtr
+#define YY_DECL int slice_lex(YYSTYPE* yylvalp)
+YY_DECL;
+int slice_parse();
+
+//
+// I must set the initial stack depth to the maximum stack depth to
+// disable bison stack resizing. The bison stack resizing routines use
+// simple malloc/alloc/memcpy calls, which do not work for the
+// YYSTYPE, since YYSTYPE is a C++ type, with constructor, destructor,
+// assignment operator, etc.
+//
+#define YYMAXDEPTH  20000 // 20000 should suffice. Bison default is 10000 as maximum.
+#define YYINITDEPTH YYMAXDEPTH // Initial depth is set to max depth, for the reasons described above.
+
+//
+// Newer bison versions allow to disable stack resizing by defining
+// yyoverflow.
+//
+#define yyoverflow(a, b, c, d, e, f) yyerror(a)
 
 #endif

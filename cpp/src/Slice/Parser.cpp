@@ -14,12 +14,13 @@
 
 #include <IceUtil/Functional.h>
 #include <Slice/Parser.h>
+#include <Slice/GrammarUtil.h>
 
 using namespace std;
 using namespace Slice;
 
-extern FILE* yyin;
-extern int yydebug;
+extern FILE* slice_in;
+extern int slice_debug;
 
 namespace Slice
 {
@@ -3148,6 +3149,13 @@ Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name,
 // Enum
 // ----------------------------------------------------------------------
 
+void
+Slice::Enum::destroy()
+{
+    _enumerators.clear();
+    SyntaxTreeBase::destroy();
+}
+
 EnumeratorList
 Slice::Enum::getEnumerators()
 {
@@ -3158,6 +3166,10 @@ void
 Slice::Enum::setEnumerators(const EnumeratorList& ens)
 {
     _enumerators = ens;
+    for(EnumeratorList::iterator p = _enumerators.begin(); p != _enumerators.end(); ++p)
+    {
+        (*p)->_type = this;
+    }
 }
 
 Contained::ContainedType
@@ -3207,6 +3219,12 @@ Slice::Enum::Enum(const ContainerPtr& container, const string& name, bool local)
 // ----------------------------------------------------------------------
 // Enumerator
 // ----------------------------------------------------------------------
+
+EnumPtr
+Slice::Enumerator::type() const
+{
+    return _type;
+}
 
 Contained::ContainedType
 Slice::Enumerator::containedType() const
@@ -4315,7 +4333,7 @@ Slice::Unit::includeFiles() const
 int
 Slice::Unit::parse(FILE* file, bool debug)
 {
-    yydebug = debug ? 1 : 0;
+    slice_debug = debug ? 1 : 0;
 
     assert(!Slice::unit);
     Slice::unit = this;
@@ -4327,8 +4345,8 @@ Slice::Unit::parse(FILE* file, bool debug)
     _topLevelFile = "";
     pushContainer(this);
 
-    yyin = file;
-    int status = yyparse();
+    slice_in = file;
+    int status = slice_parse();
     if(_errors)
     {
 	status = EXIT_FAILURE;

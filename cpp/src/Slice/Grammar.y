@@ -29,7 +29,7 @@ using namespace std;
 using namespace Slice;
 
 void
-yyerror(const char* s)
+slice_error(const char* s)
 {
     // yacc and recent versions of Bison use "syntax error" instead
     // of "parse error".
@@ -47,6 +47,7 @@ yyerror(const char* s)
 %}
 
 %pure_parser
+%name_prefix="slice_"
 
 //
 // All keyword tokens. Make sure to modify the "keyword" rule in this
