@@ -92,7 +92,7 @@ private:
     Instance instance_;
     bool bigendian_;
     std::stack<bool> bigendianStack_;
-    std::stack<Container::iterator> encapsStartStack_;
+    std::stack<int> encapsStartStack_;
 };
 
 }

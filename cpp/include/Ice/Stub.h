@@ -17,6 +17,13 @@
 #include <Ice/ReferenceF.h>
 #include <Ice/Shared.h>
 
+namespace __Ice
+{
+
+class Stream;
+
+}
+
 namespace __IceIntf { namespace Ice
 {
 
@@ -89,12 +96,14 @@ class ICE_API Object : virtual public ::__IceStub::Ice::Object
 {
 public:
 
+    static void __write(::__Ice::Stream*, const ::Ice::Object&);
+    static void __read(::__Ice::Stream*, ::Ice::Object&);
+
 protected:
 
     Object();
     virtual ~Object();
 
-    
     const ::__Ice::Emitter& __emitter(); // const...& for performance
     const ::__Ice::Reference& __reference(); // const...& for performance
 

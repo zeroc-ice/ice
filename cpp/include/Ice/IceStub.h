@@ -13,7 +13,6 @@
 
 #include <Ice/Stub.h>
 #include <Ice/ObjectHandle.h>
-#include <Ice/ObjectFactory.h>
 #include <Ice/Outgoing.h>
 
 #endif
