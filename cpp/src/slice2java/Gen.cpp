@@ -1365,7 +1365,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    {
 		if(classMembers.size() > 1 || allClassMembers.size() > 1)
 		{
-		    patchParams << classMemberCount++;
+		    patchParams << "Patcher(" << classMemberCount++ << ')';
 		}
 	    }
             writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData,
@@ -1582,7 +1582,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	    {
 		if(classMembers.size() > 1 || allClassMembers.size() > 1)
 		{
-		    patchParams << classMemberCount++;
+		    patchParams << "Patcher(" << classMemberCount++ << ')';
 		}
 	    }
             list<string> metaData = (*d)->getMetaData();
@@ -1896,7 +1896,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	    {
 		if(classMembers.size() > 1)
 		{
-		    patchParams << classMemberCount++;
+		    patchParams << "Patcher(" << classMemberCount++ << ')';
 		}
 	    }
             list<string> metaData = (*d)->getMetaData();
@@ -2613,46 +2613,6 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         writeSequenceMarshalUnmarshalCode(out, scope, p, "__v", true, iter, false);
         out << eb;
 
-	BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
-	if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(p->type()))
-	{
-	    //
-	    // The sequence has class elements.
-	    //
-	    string metaData = findMetaData(p->getMetaData());
-	    string listType = metaData.empty() ? typeS : "java.util.List";
-
-	    out << sp << nl << "private static class Patcher implements IceInternal.Patcher";
-	    out << sb;
-	    out << sp << nl << "Patcher(" << listType << " values, int index)";
-	    out << sb;
-	    out << nl << "__values = values;";
-	    out << nl << "__index = index;";
-	    out << eb;
-
-	    out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
-	    out << sb;
-	    string elmtType = typeToString(p->type(), TypeModeIn, scope);
-	    if(metaData.empty())
-	    {
-		out << nl << "__values[__index] = (" << elmtType << ")v;";
-	    }
-	    else
-	    {
-		out << nl << "__values.set(__index, (" << elmtType << ")v);";
-	    }
-	    out << eb;
-
-	    out << sp << nl << "public String" << nl << "type()";
-	    out << sb;
-	    out << nl << "return \"" << p->type()->typeId() << "\";";
-	    out << eb;
-
-	    out << sp << nl << "private " << listType << " __values;";
-	    out << nl << "private int __index;";
-	    out << eb;
-	}
-
         out << sp << nl << "public static " << typeS << nl << "read(IceInternal.BasicStream __is)";
         out << sb;
         out << nl << typeS << " __v;";
@@ -2973,7 +2933,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 		if((builtin2 && builtin2->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type))
 		{
 		    writeMarshalUnmarshalCode(out, scope, type, arg, false, iter, false, list<string>(),
-					      "__r, __key");
+					      "Patcher(__r, __key)");
 		}
 		else
 		{
