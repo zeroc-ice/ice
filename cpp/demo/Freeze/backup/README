@@ -49,11 +49,11 @@ Freeze.DbEnv.db.DbPrivate=0
 The db/DB_CONFIG file is used to put the data files and log files in
 different sub-directories, which simplifies archiving.
 
-The restore shell script restores either a full backup (the files in
+The recover shell script restores either a full backup (the files in
 the full directory) or an incremental backup (the files in the full
 directory and the files in the incremental directory). Do not run this
 script while the client is running.
 
-Before doing a restore, you can "corrupt" the main database, for
+Before doing a recover, you can "corrupt" the main database, for
 example remove the data file (db/data/IntLongMap), or add random
 characters to the latest log file.
