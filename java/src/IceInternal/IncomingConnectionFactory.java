@@ -120,18 +120,6 @@ public class IncomingConnectionFactory extends EventHandler
             connection.activate();
             _connections.add(connection);
         }
-        /*
-        catch (IceSecurity.SecurityException ex)
-        {
-            // TODO: bandaid. Takes care of SSL Handshake problems during
-            // creation of a Transceiver. Ignore, nothing we can do here.
-        }
-        */
-        catch (Ice.SocketException ex)
-        {
-            // TODO: bandaid. Takes care of SSL Handshake problems during
-            // creation of a Transceiver. Ignore, nothing we can do here.
-        }
         catch (Ice.TimeoutException ex)
         {
             // Ignore timeouts.
@@ -249,6 +237,13 @@ public class IncomingConnectionFactory extends EventHandler
         throws Throwable
     {
         assert(_state == StateClosed);
+
+        //
+        // Destroy the EventHandler's stream, so that its buffer
+        // can be reclaimed.
+        //
+        super._stream.destroy();
+
         super.finalize();
     }
 
@@ -325,8 +320,6 @@ public class IncomingConnectionFactory extends EventHandler
                     connection.destroy(Connection.ObjectAdapterDeactivated);
                 }
                 _connections.clear();
-
-                super._stream.destroy();
 
                 break;
             }
