@@ -99,7 +99,7 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
     {
 	if(!value.empty())
 	{
-	    _properties.insert(make_pair(key, value));
+	    _properties[key] = value;
 	}
 	else
 	{
