@@ -609,7 +609,8 @@ public class IncomingConnectionFactory extends EventHandler
 	    }
 	    catch(Ice.SocketException ex)
 	    {
-		// Ignore socket exceptions.
+		// Do not ignore SocketException in Java.
+		throw ex;
 	    }
 	    catch(Ice.TimeoutException ex)
 	    {
