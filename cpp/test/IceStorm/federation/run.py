@@ -13,7 +13,8 @@
 #
 # **********************************************************************
 
-import os, sys, time
+import os, sys
+import time
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
