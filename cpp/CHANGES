@@ -1,6 +1,10 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Fixed a bug in slice2cs and slice2vb: incorrect code was generated if
+  an interface was derived from a base interface in a different
+  module if the base interface contained a AMD operation.
+
 - Changed IceUtil::GCShared to derive from IceUtil::Shared.
   (Previously, these two classes were unrelated.) This change
   allows servants to be derived from IceUtil::Thread, which was

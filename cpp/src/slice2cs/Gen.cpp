@@ -131,7 +131,7 @@ Slice::CsVisitor::writeInheritedOperations(const ClassDefPtr& p)
 
 		_out << sp << nl << "public void " << name << "_async" << spar << params << epar;
 		_out << sb;
-		_out << name << "_async" << spar << args << epar << ';';
+		_out << nl << name << "_async" << spar << args << epar << ';';
 		_out << eb;
 
 		_out << sp << nl << "public abstract void " << name << "_async"
@@ -685,7 +685,8 @@ Slice::CsVisitor::getParamsAsync(const OperationPtr& op, bool amd)
     string name = fixId(op->name());
     ContainerPtr container = op->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container); // Get the class containing the op.
-    params.push_back((amd ? "AMD_" : "AMI_") + cl->name() + '_' + op->name() + " __cb");
+    string scope = fixId(cl->scope());
+    params.push_back(scope + (amd ? "AMD_" : "AMI_") + cl->name() + '_' + op->name() + " __cb");
 
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)

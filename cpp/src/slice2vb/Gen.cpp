@@ -722,7 +722,8 @@ Slice::VbVisitor::getParamsAsync(const OperationPtr& op, bool amd)
     ContainerPtr container = op->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container); // Get the class containing the op.
     string param = "ByVal __cb As ";
-    param += (amd ? "AMD_" : "AMI_") + cl->name() + "_" + op->name();
+    string scope = fixId(cl->scope());
+    param += scope + (amd ? "AMD_" : "AMI_") + cl->name() + "_" + op->name();
     params.push_back(param);
 
     ParamDeclList paramList = op->parameters();
