@@ -334,19 +334,19 @@ uncheckedCastImpl(const ::Ice::ObjectPrx& b)
 // such as VC7.
 //
 
-ICE_API ::Ice::ObjectPrx checkedCastImpl(const ::Ice::ObjectPrx&, const std::string&);
-ICE_API ::Ice::ObjectPrx uncheckedCastImpl(const ::Ice::ObjectPrx&, const std::string&);
+ICE_API ::Ice::ObjectPrx trivialCheckedCastImpl(const ::Ice::ObjectPrx&, const std::string&);
+ICE_API ::Ice::ObjectPrx trivialUncheckedCastImpl(const ::Ice::ObjectPrx&, const std::string&);
 
 template<> inline ::Ice::ObjectPrx 
 checkedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::string& f)
 {
-    return checkedCastImpl(b, f);
+    return trivialCheckedCastImpl(b, f);
 }
 
 template<> inline ::Ice::ObjectPrx 
 uncheckedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::string& f)
 {
-    return uncheckedCastImpl(b, f);
+    return trivialUncheckedCastImpl(b, f);
 }
 
 template<typename P> P 

@@ -45,7 +45,7 @@ void IceInternal::decRef(::IceDelegateD::Ice::Object* p) { p->__decRef(); }
 
 
 ::Ice::ObjectPrx
-IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f)
+IceInternal::trivialCheckedCastImpl(const ObjectPrx& b, const string& f)
 {
     ObjectPrx d = 0;
     if(b)
@@ -69,7 +69,7 @@ IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f)
 }
 
 ::Ice::ObjectPrx
-IceInternal::uncheckedCastImpl(const ObjectPrx& b, const string& f)
+IceInternal::trivialUncheckedCastImpl(const ObjectPrx& b, const string& f)
 {
     ObjectPrx d = 0;
     if(b)
