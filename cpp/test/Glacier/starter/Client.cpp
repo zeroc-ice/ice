@@ -46,17 +46,17 @@ CallbackClient::run(int argc, char* argv[])
     adapter->add(callbackReceiver, stringToIdentity("callbackReceiver"));
     cout << "ok" << endl;
 
-    cout << "testing stringToProxy for router starter... " << flush;
+    cout << "testing stringToProxy for glacier starter... " << flush;
     ref = "Glacier#starter:default -p 12346 -t 2000";
     ObjectPrx starterBase = communicator()->stringToProxy(ref);
     cout << "ok" << endl;
 
-    cout << "testing checked cast for router starter... " << flush;
+    cout << "testing checked cast for glacier starter... " << flush;
     Glacier::StarterPrx starter = Glacier::StarterPrx::checkedCast(starterBase);
     test(starter);
     cout << "ok" << endl;
 
-    cout << "starting up router... " << flush;
+    cout << "starting up glacier router... " << flush;
     RouterPrx router;
     try
     {
@@ -75,11 +75,11 @@ CallbackClient::run(int argc, char* argv[])
     test(router);
     cout << "ok" << endl;
 
-    cout << "pinging router... " << flush;
+    cout << "pinging glacier router... " << flush;
     router->ice_ping();
     cout << "ok" << endl;
 
-    cout << "installing router... " << flush;
+    cout << "installing glacier router... " << flush;
     communicator()->setDefaultRouter(router);
     adapter->addRouter(router);
     cout << "ok" << endl;
@@ -146,7 +146,8 @@ CallbackClient::run(int argc, char* argv[])
 	twoway->ice_ping();
 	test(false);
     }
-    // If we use the router, the exact exception reason gets lost.
+    // If we use the glacier router, the exact exception reason gets
+    // lost.
     //catch(const ConnectFailedException&)
     catch(const UnknownLocalException&)
     {
@@ -154,7 +155,7 @@ CallbackClient::run(int argc, char* argv[])
     }
     */
 
-    cout << "shutting down router... " << flush;
+    cout << "shutting down glacier router... " << flush;
     router->shutdown();
     try
     {
