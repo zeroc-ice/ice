@@ -1248,6 +1248,19 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container, 
 	tag = "function";
     }
 
+    ParamDeclPtr pd = ParamDeclPtr::dynamicCast(p);
+    if(pd)
+    {
+	OperationPtr op = OperationPtr::dynamicCast(pd->container());
+	assert(op);
+	if(withLink && pd->includeLevel() == 0)
+	{
+	    linkend = containedToId(op);
+	}
+	s = getScopedMinimized(op, container);
+	tag = "function";
+    }
+
     if(s.empty())
     {
 	ContainedPtr contained = ContainedPtr::dynamicCast(p);
