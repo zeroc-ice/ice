@@ -111,6 +111,9 @@ ZEND_MSHUTDOWN_FUNCTION(ice)
         status = FAILURE;
     }
 
+    delete static_cast<MarshalerMap*>(ICE_G(marshalerMap));
+    delete static_cast<Ice::PropertiesPtr*>(ICE_G(properties));
+
     return status;
 }
 
@@ -131,9 +134,6 @@ ZEND_RINIT_FUNCTION(ice)
 
 ZEND_RSHUTDOWN_FUNCTION(ice)
 {
-    delete static_cast<MarshalerMap*>(ICE_G(marshalerMap));
-    delete static_cast<Ice::PropertiesPtr*>(ICE_G(properties));
-
     return SUCCESS;
 }
 
