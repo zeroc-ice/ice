@@ -61,6 +61,7 @@ def writePreamble(lang):
     global infile
     global outputFiles
     global classname
+
     for entry in outputFiles:
 	file = entry[1]
 	file.write("// **********************************************************************\n")
@@ -88,7 +89,7 @@ def writePreamble(lang):
 	    file.write("\n");
 	    file.write("namespace IceInternal\n")
 	    file.write("{\n")
-	    file.write("    public class " + classname + '\n')
+	    file.write("    public sealed class " + classname + '\n')
 	    file.write("    {\n");
 	    continue
 	progError("Internal error: impossible language: `" + lang + "'")
@@ -96,6 +97,9 @@ def writePreamble(lang):
 
     if lang == "cpp":
         header = outputFiles[1][1]
+	header.write("\n");
+	header.write("#ifndef ICE_INTERNAL_" + classname + "_H\n");
+	header.write("#define ICE_INTERNAL_" + classname + "_H\n");
 	header.write("\n");
 	header.write("namespace IceInternal\n")
 	header.write("{\n")
@@ -117,6 +121,8 @@ def writePostamble(lang, labels):
 	header.write("};\n")
 	header.write("\n")
 	header.write("}\n")
+	header.write("\n")
+	header.write("#endif\n");
 	file.write("\n");
         file.write("const char* const* IceInternal::" + classname + "::validProps[] =\n")
 	file.write("{\n")
@@ -126,8 +132,23 @@ def writePostamble(lang, labels):
 	file.write("};\n")
 	return
     if lang == "java":
+        file.write("    public static final String[] validProps[] =\n")
+	file.write("    {\n")
+	for label, line in labels.iteritems():
+	    file.write("        " + label + "Props,\n")
+	file.write("        null\n")
+	file.write("    };\n");
+        file.write("}\n");
         return
     if lang == "cs":
+        file.write("        public static string[] validProps =\n")
+	file.write("        {\n")
+	for label, line in labels.iteritems():
+	    file.write("            " + label + "Props,\n")
+	file.write("            null\n")
+	file.write("        };\n");
+        file.write("    }\n");
+        file.write("}\n");
         return
 
 def startSection(lang, label):
@@ -136,14 +157,18 @@ def startSection(lang, label):
 	header.write("    static const char* " + label + "Props[];\n")
 
     file = outputFiles[0][1]
-    file.write("\n");
     if lang == "cpp":
+	file.write("\n");
         file.write("const char* IceInternal::" + classname + "::" + label + "Props[] =\n")
         file.write("{\n");
 	return
     if lang == "java":
+        file.write("    public static final String " + label + "Props[] =\n");
+	file.write("    {\n")
 	return
     if lang == "cs":
+        file.write("        public static string[] " + label + "Props =\n");
+	file.write("        {\n")
         return
 
 def endSection(lang):
@@ -153,13 +178,26 @@ def endSection(lang):
         file.write("};\n");
 	return
     if lang == "java":
+	file.write("        null\n");
+	file.write("    };\n");
+        file.write("\n")
 	return
     if lang == "cs":
-        return
+	file.write("            null\n");
+	file.write("        };\n");
+        file.write("\n")
+	return
 
-def writeEntry(label, entry):
+def writeEntry(lang, label, entry):
     file = outputFiles[0][1]
-    file.write("    \"" + label + '.' + entry + "\",\n")
+    if lang == "cpp":
+	file.write("    ")
+    elif lang == "java":
+	file.write("        ")
+    elif lang == "cs":
+	file.write("            ")
+    file.write("\"" + label + '.' + entry + "\",\n")
+
 #
 # Check arguments.
 #
@@ -263,7 +301,7 @@ for l in lines:
 
     entryMatch = entry.match(l)
     if entryMatch != None:
-	writeEntry(label, entryMatch.group(1))
+	writeEntry(lang, label, entryMatch.group(1))
 	atSectionStart = 0
 	numEntries += 1
 	continue
