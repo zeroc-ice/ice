@@ -21,6 +21,13 @@
 #include <Glacier/StarterI.h>
 #include <fcntl.h>
 
+//
+// crypt.h is necessary on older Linux distributions
+//
+#ifdef __linux__
+#   include <crypt.h>
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace Glacier;

@@ -1,3 +1,8 @@
+Changes since version 1.0.1
+---------------------------
+
+- Compatibility fixes for GCC 2.96.
+
 Changes since version 1.0.0
 ---------------------------
 
