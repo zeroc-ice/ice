@@ -26,23 +26,87 @@ module Ice
  *
  **/
 local dictionary<string, string> Context;
+/**
+ *
+ * The Evictor persistence mode.
+ *
+ * @see Evictor
+ *
+ **/
+enum EvictorPersistenceMode
+{
+    /**
+     *
+     * This mode instructs the Evictor to save a Servant to persistent
+     * store when it is evicted, or when the Evictor is deactivated.
+     *
+     * @see Ice::ServantLocator::deactivate
+     *
+     **/
+    SaveUponEviction,
+
+    /**
+     *
+     * This mode instructs the Evictor to save a Servant after each
+     * mutating operation call. A mutating operation call is a call to
+     * any operation that has not been declared as nonmutating.
+     *
+     **/
+    SaveAfterMutatingOperation
+};
 
 /**
  *
- * The [OperationMode] indicates whether an operation
- * is an ordinary (mutating) operation, a nonmutating
- * (const) operation, or an idempotent (safely
- * reinvocable) operation.
+ * The [OperationMode] determines the skeleton
+ * signature (for C++), as well as the retry
+ * behavior of the Ice run time for an operation
+ * invocation in case of a (potentially) recoverable
+ * error..
  *
  **/
 //
 // Note: The order of definitions here *must* match the order of
 // defininitions for ::Slice::Operation::Mode in include/Slice/Parser.h!
 //
-// TODO: ML: Coding conventions (placement of braces), and document the
-// individual elements of the enum.
-//
-enum OperationMode { Normal, \Nonmutating, \Idempotent };
+enum OperationMode
+{
+    /**
+     * Ordinary operations have [Normal] mode. 
+     * These operations modify object state;
+     * invoking such an operation twice in a row
+     * has different semantics than invoking it
+     * once. The Ice run time guarantees that it
+     * will not violate at-most-once semantics for
+     * such operations.
+     */
+    Normal,
+
+    /**
+     * Operations that use the Slice nonmutating
+     * keyword must not modify object state. For C++,
+     * nonmutating operations generate [const]
+     * member functions in the skeleton. In addition,
+     * the Ice run time will attempt to transparently
+     * recover from certain run-time errors by re-issuing
+     * a failed request and propagate the failure to
+     * the application only if the second attempt fails.
+     */
+    \Nonmutating,
+
+    /**
+     * Operations that use the Slice idempotent
+     * keyword can modify object state, but invoking
+     * an operation twice in a row must result in
+     * the same object state as invoking it once.
+     * For example, x = 1 is an idempotent statement,
+     * whereas x += 1 is not. For idempotent
+     * operations, the Ice run-time uses the same
+     * retry behavior operations as for nonmutating
+     * operations in case of a potentially recoverable
+     * error.
+     */
+    \Idempotent
+};
 
 /**
  *
