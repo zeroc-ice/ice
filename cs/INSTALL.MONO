@@ -43,6 +43,14 @@ time (instead of the .NET run time). To do this, add the -m option to
 allTests.py or run.py.
 
 
+Running the demos
+-----------------
+
+To run the demos, you need to have icecs/lib in your MONO_PATH.
+See the README file in each demo directory for a description of each
+demo.
+
+
 Installation
 ------------
 
