@@ -945,7 +945,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
             _out.dec();
             _out << nl;
         }
-        _out << "), " << (p->usesClasses() ? "True" : "False") << ")";
+        _out << "))";
         _out << nl << name << ".ice_type = _M_" << type;
     }
 
