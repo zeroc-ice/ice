@@ -132,8 +132,7 @@ USERDEP__TEST_="../../../bin/slice2cpp.exe"
 InputPath=.\Test.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Test.ice \
-	
+	..\..\..\bin\slice2cpp.exe Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -149,8 +148,7 @@ USERDEP__TEST_="../../../bin/slice2cpp.exe"
 InputPath=.\Test.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Test.ice \
-	
+	..\..\..\bin\slice2cpp.exe Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

@@ -57,6 +57,7 @@ LINK32=link.exe
 # ADD LINK32 ws2_32.lib libbz2.lib /nologo /dll /machine:I386 /out:"Release/ice001.dll"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
+OutDir=.\Release
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\ice001.lib ..\..\lib	copy $(OutDir)\ice001.pdb ..\..\lib	copy $(OutDir)\ice001.dll ..\..\bin
 # End Special Build Tool
@@ -89,6 +90,7 @@ LINK32=link.exe
 # ADD LINK32 ws2_32.lib libbz2d.lib /nologo /dll /debug /machine:I386 /out:"Debug/ice001d.dll" /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
+OutDir=.\Debug
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\ice001d.lib ..\..\lib	copy $(OutDir)\ice001d.pdb ..\..\lib	copy $(OutDir)\ice001d.dll ..\..\bin
 # End Special Build Tool
@@ -257,6 +259,10 @@ SOURCE=.\ObjectFactoryManager.cpp
 # Begin Source File
 
 SOURCE=.\Outgoing.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\OutgoingAsync.cpp
 # End Source File
 # Begin Source File
 
@@ -629,6 +635,14 @@ SOURCE=.\ObjectFactoryManagerF.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\Outgoing.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\OutgoingAsync.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\OutgoingAsyncF.h
 # End Source File
 # Begin Source File
 
