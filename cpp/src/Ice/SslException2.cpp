@@ -23,7 +23,6 @@ using Ice::SocketException;
 using Ice::Exception;
 using std::ostream;
 
-
 void
 IceSSL::SslException::ice_print(ostream& out) const
 {

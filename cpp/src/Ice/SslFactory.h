@@ -32,8 +32,8 @@ typedef std::map<void*, SystemInternalPtr> SslHandleSystemMap;
 // different definitions for getSystem().
 class Factory
 {
-
 public:
+
     static SystemInternalPtr getSystem(const IceInternal::InstancePtr&);
 
     // System Handle related methods
@@ -42,6 +42,7 @@ public:
     static SystemInternalPtr getSystemFromHandle(void*);
 
 private:
+
     static SslHandleSystemMap _sslHandleSystemRepository;
     static ::IceUtil::Mutex _systemRepositoryMutex;
 };

@@ -23,13 +23,15 @@ namespace OpenSSL
 class SingleCertificateVerifier : public IceSSL::OpenSSL::CertificateVerifier
 {
 public:
+
     SingleCertificateVerifier(const Ice::ByteSeq&);
 
     virtual int verify(int, X509_STORE_CTX*, SSL*);
 
-    Ice::ByteSeq toByteSeq(X509* certificate);
+    Ice::ByteSeq toByteSeq(X509*);
 
 protected:
+
     Ice::ByteSeq _publicKey;
 };
 

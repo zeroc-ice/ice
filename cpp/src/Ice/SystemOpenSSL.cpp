@@ -512,71 +512,66 @@ IceSSL::OpenSSL::System::~System()
 int
 IceSSL::OpenSSL::System::seedRand()
 {
-    int retCode = 1;
-    char buffer[1024];
-	
 #ifdef WINDOWS
     RAND_screen();
 #endif
 
+    char buffer[1024];
     const char* file = RAND_file_name(buffer, sizeof(buffer));
 
-    if (file == 0 || !RAND_load_file(file, -1))
+    if (file == 0)
     {
-        retCode = 0;
+        return 0;
     }
-    else
-    {
-        _randSeeded = 1;
-    }
-
-    return retCode;
+    
+    return RAND_load_file(file, -1);
 }
 
 long
 IceSSL::OpenSSL::System::loadRandFiles(const string& names)
 {
-    long tot = 0;
-
     if (!names.empty())
     {
-        int egd;
-
-        // Make a modifiable copy of the string.
-        char* namesString = new char[names.length() + 1];
-        assert(namesString != 0);
-
-        strcpy(namesString, names.c_str());
-
-        char seps[5];
-
-        sprintf(seps, "%c", LIST_SEPARATOR_CHAR);
-
-        char* token = strtok(namesString, seps);
-
-        while (token != 0)
-        {
-            egd = RAND_egd(token);
-
-            if (egd > 0)
-            {
-                tot += egd;
-            }
-            else
-            {
-                tot += RAND_load_file(token, -1);
-            }
-
-            token = strtok(0, seps);
-        }
-
-        if (tot > 512)
-        {
-            _randSeeded = 1;
-        }
-
-        delete []namesString;
+        return 0;
     }
+
+    long tot = 0;
+    int egd;
+
+    // Make a modifiable copy of the string.
+    char* namesString = new char[names.length() + 1];
+    assert(namesString != 0);
+
+    strcpy(namesString, names.c_str());
+
+    char seps[5];
+
+    sprintf(seps, "%c", LIST_SEPARATOR_CHAR);
+
+    char* token = strtok(namesString, seps);
+
+    while (token != 0)
+    {
+        egd = RAND_egd(token);
+
+        if (egd > 0)
+        {
+            tot += egd;
+        }
+        else
+        {
+            tot += RAND_load_file(token, -1);
+        }
+
+        token = strtok(0, seps);
+    }
+
+    if (tot > 512)
+    {
+        _randSeeded = 1;
+    }
+
+    delete []namesString;
 
     return tot;
 }
@@ -584,22 +579,28 @@ IceSSL::OpenSSL::System::loadRandFiles(const string& names)
 void
 IceSSL::OpenSSL::System::initRandSystem(const string& randBytesFiles)
 {
-    if (!_randSeeded)
+    if (_randSeeded)
     {
-        long randBytesLoaded = 0;
-
-        if (!seedRand() && randBytesFiles.empty() && !RAND_status() &&
-            (_traceLevels->security >= IceSSL::SECURITY_WARNINGS))
-        {
-            _logger->trace(_traceLevels->securityCat,
-                           "WRN There is a lack of random data, consider specifying a random data file.");
-        }
-
-        if (!randBytesFiles.empty())
-        {
-            randBytesLoaded = loadRandFiles(randBytesFiles);
-        }
+        return;
     }
+
+    long randBytesLoaded = seedRand();
+
+    if (!randBytesFiles.empty())
+    {
+        randBytesLoaded += loadRandFiles(randBytesFiles);
+    }
+
+    if (!randBytesLoaded && !RAND_status() && (_traceLevels->security >= IceSSL::SECURITY_WARNINGS))
+    {
+        // In this case, there are two options open to us - specify a random data file using the
+        // RANDFILE environment variable, or specify additional random data files in the
+        // SSL configuration file.
+        _logger->trace(_traceLevels->securityCat,
+                       "WRN There is a lack of random data, consider specifying additional random data files.");
+    }
+
+    _randSeeded = (randBytesLoaded > 0 ? 1 : 0);
 }
 
 void

@@ -202,7 +202,6 @@ IceSSL::OpenSSL::RSACertificateGen::generate(const RSACertificateGenContext& con
 
     assert(rsaKeyPair != 0);
 
-    // Do this if we already have an RSA* 
     EVP_PKEYJanitor evpPkeyJanitor(EVP_PKEY_new());
     EVP_PKEY* pkey = evpPkeyJanitor.get();
     assert(pkey != 0);
@@ -220,7 +219,7 @@ IceSSL::OpenSSL::RSACertificateGen::generate(const RSACertificateGenContext& con
     X509* x509SelfSigned = x509Janitor.get();
     assert(x509SelfSigned != 0);
 
-    // Set version to V3
+    // Set version to V3.
     assert(X509_set_version(x509SelfSigned, 2) != 0);
 
     ASN1_INTEGER_set(X509_get_serialNumber(x509SelfSigned), 0);
@@ -232,11 +231,11 @@ IceSSL::OpenSSL::RSACertificateGen::generate(const RSACertificateGenContext& con
     // X509_NAME* subjectName = X509_REQ_get_subject_name(signingRequest);
     struct X509_name_st* subjectName = X509_REQ_get_subject_name(signingRequest);
 
-    // Set valid time period
+    // Set valid time period.
     X509_gmtime_adj(X509_get_notBefore(x509SelfSigned), 0);
     X509_gmtime_adj(X509_get_notAfter(x509SelfSigned), context.getSecondsValid());
 
-    // Set up subject/issuer name
+    // Set up subject/issuer Distinguished Name (DN).
     X509_NAME_add_entry_by_txt(subjectName, "C",  MBSTRING_ASC, context.getCountry(),             -1, -1, 0);
     X509_NAME_add_entry_by_txt(subjectName, "ST", MBSTRING_ASC, context.getStateProvince(),       -1, -1, 0);
     X509_NAME_add_entry_by_txt(subjectName, "L",  MBSTRING_ASC, context.getLocality(),            -1, -1, 0);
@@ -251,26 +250,26 @@ IceSSL::OpenSSL::RSACertificateGen::generate(const RSACertificateGenContext& con
     // Set the public key in the self signed certificate from the request.
     X509_set_pubkey(x509SelfSigned, pkey);
 
-    // Sign the public key using an MD5 digest
+    // Sign the public key using an MD5 digest.
     if (!X509_sign(x509SelfSigned, pkey, EVP_md5()))
     {
         throw IceSSL::CertificateSigningException(__FILE__, __LINE__);
     }
 
-    // Verify the Signature (paranoia)
+    // Verify the Signature (paranoia).
     if (!X509_REQ_verify(signingRequest, pkey))
     {
         throw IceSSL::CertificateSignatureException(__FILE__, __LINE__);
     }
 
-    // Nasty Hack: Getting the pkey to let go of our rsaKeyPair - we own that.
+    // Nasty Hack: Getting the pkey to let go of our rsaKeyPair - we own that now.
     pkey->pkey.ptr = 0;
 
     RSAPrivateKeyPtr privKeyPtr = new RSAPrivateKey(rsaKeyPair);
     RSAPublicKeyPtr pubKeyPtr = new RSAPublicKey(x509SelfSigned);
     RSAKeyPair* keyPairPtr = new RSAKeyPair(privKeyPtr, pubKeyPtr);
 
-    // Don't let them clean up, we're keeping those around.
+    // Do not let the janitors clean up, we're keeping the keys for ourselves.
     rsaJanitor.clear();
     x509Janitor.clear();
 
@@ -283,8 +282,8 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
     //
     // Read in the X509 Certificate Structure
     //
-    BIO* certBIO = BIO_new_file(certFile.c_str(), "r");
-    if (certBIO == 0)
+    BIOJanitor certBIO(BIO_new_file(certFile.c_str(), "r"));
+    if (certBIO.get() == 0)
     {
         IceSSL::OpenSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
 
@@ -296,14 +295,25 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
         throw certLoadEx;
     }
 
-    X509Janitor x509Janitor(PEM_read_bio_X509(certBIO, 0, 0, 0));
-    BIO_free(certBIO);
+    X509Janitor x509Janitor(PEM_read_bio_X509(certBIO.get(), 0, 0, 0));
+
+    if (x509Janitor.get() == 0)
+    {
+        IceSSL::OpenSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
+
+        certLoadEx._message = "Unable to load certificate from '";
+        certLoadEx._message += certFile;
+        certLoadEx._message += "'\n";
+        certLoadEx._message += sslGetErrors();
+
+        throw certLoadEx;
+    }
 
     //
     // Read in the RSA Private Key Structure
     //
-    BIO* keyBIO = BIO_new_file(keyFile.c_str(), "r");
-    if (keyBIO == 0)
+    BIOJanitor keyBIO(BIO_new_file(keyFile.c_str(), "r"));
+    if (keyBIO.get() == 0)
     {
         IceSSL::OpenSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
 
@@ -315,18 +325,28 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
         throw pklEx;
     }
 
-    RSAJanitor rsaJanitor(PEM_read_bio_RSAPrivateKey(keyBIO, 0, 0, 0));
-    BIO_free(keyBIO);
+    RSAJanitor rsaJanitor(PEM_read_bio_RSAPrivateKey(keyBIO.get(), 0, 0, 0));
+
+    if (rsaJanitor.get() == 0)
+    {
+        IceSSL::OpenSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
+
+        pklEx._message = "Unable to load private key from '";
+        pklEx._message += keyFile;
+        pklEx._message += "'\n";
+        pklEx._message += sslGetErrors();
+
+        throw pklEx;
+    }
 
     //
     // Construct our RSAKeyPair
     //
-
     RSAPrivateKeyPtr privKeyPtr = new RSAPrivateKey(rsaJanitor.get());
     RSAPublicKeyPtr pubKeyPtr = new RSAPublicKey(x509Janitor.get());
-    RSAKeyPair* keyPairPtr = new RSAKeyPair(privKeyPtr, pubKeyPtr);
+    RSAKeyPairPtr keyPairPtr = new RSAKeyPair(privKeyPtr, pubKeyPtr);
 
-    // Don't let them clean up, we're keeping those around.
+    // Do not let the janitors clean up, we're keeping these keys.
     rsaJanitor.clear();
     x509Janitor.clear();
 

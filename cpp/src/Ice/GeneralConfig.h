@@ -19,8 +19,8 @@ namespace IceSSL
 
 class GeneralConfig
 {
-
 public:
+
     GeneralConfig();
 
     SslProtocol getProtocol() const;

@@ -21,16 +21,17 @@ namespace OpenSSL
 
 class ClientContext : public Context
 {
-
 public:
+
     virtual void configure(const IceSSL::GeneralConfig&,
                            const IceSSL::CertificateAuthority&,
                            const IceSSL::BaseCertificates&);
 
-    // Takes a socket fd.
+    // Takes a socket fd as the first parameter.
     virtual IceSSL::ConnectionPtr createConnection(int, const IceSSL::SystemInternalPtr&);
 
 protected:
+
     ClientContext(const IceInternal::InstancePtr&);
 
     friend class IceSSL::OpenSSL::System;

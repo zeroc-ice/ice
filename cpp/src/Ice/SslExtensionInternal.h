@@ -21,6 +21,7 @@ namespace IceSSL
 class SslExtensionInternal : public SslExtension
 {
 public:
+
     SslExtensionInternal(const IceInternal::InstancePtr&);
     virtual ~SslExtensionInternal();
 
@@ -29,8 +30,8 @@ public:
     virtual ::IceSSL::CertificateVerifierPtr getSingleCertVerifier(const ::Ice::ByteSeq&);
 
 protected:
-    IceInternal::InstancePtr _instance;
 
+    IceInternal::InstancePtr _instance;
 };
 
 }

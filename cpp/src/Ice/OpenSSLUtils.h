@@ -17,8 +17,6 @@ namespace IceSSL
 namespace OpenSSL
 {
 
-extern int connectionIndex;
-
 std::string getGeneralizedTime(ASN1_GENERALIZEDTIME*);
 
 std::string getUTCTime(ASN1_UTCTIME*);

@@ -35,10 +35,11 @@ IceSSL::OpenSSL::DefaultCertificateVerifier::verify(int preVerifyOkay,
     int errorDepth = X509_STORE_CTX_get_error_depth(x509StoreContext);
     int verifyDepth = SSL_get_verify_depth(sslConnection);
 
-    // Verify Depth was set
+    // A verify error has been encountered.
     if (verifyError != X509_V_OK)
     {
-        // If we have no errors so far, and the certificate chain is too long
+        // We have a limited verify depth, and we have had to delve too deeply
+        // into the certificate chain to find an acceptable root certificate.
         if ((verifyDepth != -1) && (verifyDepth < errorDepth))
         {
             verifyError = X509_V_ERR_CERT_CHAIN_TOO_LONG;

@@ -26,9 +26,10 @@ namespace IceSSL
 
 class ConfigParser
 {
-
 public:
-    // Constructor, based on the indicated file.
+
+    // Construction based on the indicated config file, or config file and
+    // certificate path.
     ConfigParser(const std::string&);
     ConfigParser(const std::string&, const std::string&);
     ~ConfigParser();
@@ -36,7 +37,7 @@ public:
     // Performs a complete parsing of the file.
     void process();
 
-    // Loads the Client/Server portions of the config.
+    // Loads the Client/Server portions of the config file.
     bool loadClientConfig(GeneralConfig&, CertificateAuthority&, BaseCertificates&);
     bool loadServerConfig(GeneralConfig&, CertificateAuthority&, BaseCertificates&, TempCertificates&);
 
@@ -55,7 +56,7 @@ private:
     IceInternal::TraceLevelsPtr _traceLevels;
     Ice::LoggerPtr _logger;
 
-    // Tree walking utility methods.
+    // Parse tree walking utility methods.
     void popRoot(std::string&, std::string&, std::string&);
     DOM_Node find(std::string&);
     DOM_Node find(DOM_Node, std::string&);
@@ -70,13 +71,16 @@ private:
     void loadDHParams(DOM_Node, TempCertificates&);
     void loadRSACert(DOM_Node, TempCertificates&);
 
-    // Populates classes with information from the indicated node in the parse tree.
+    // Populate with information from the indicated node in the parse tree.
     void getCert(DOM_Node, CertificateDesc&);
     void getDHParams(DOM_Node, DiffieHellmanParamsFile&);
 
     // Populate a certificate file object, basis of all certificates.
     void loadCertificateFile(DOM_Node, CertificateFile&);
-    int  parseEncoding(std::string&);
+
+    // Parses the certificate encoding format from a string representation
+    // to the proper integer value used by the underlying SSL framework.
+    int parseEncoding(std::string&);
 
     std::string toString(const DOMString&);
 };

@@ -32,8 +32,8 @@ namespace OpenSSL
 
 class ICE_API CertificateVerifier : public IceSSL::CertificateVerifier
 {
-
 public:
+
     virtual ~CertificateVerifier();
 
     virtual int verify(int, X509_STORE_CTX*, SSL*) = 0;

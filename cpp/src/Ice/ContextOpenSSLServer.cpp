@@ -39,15 +39,15 @@ IceSSL::OpenSSL::ServerContext::configure(const GeneralConfig& generalConfig,
     // Always use a new DH key when using Diffie-Hellman key agreement.
     SSL_CTX_set_options(_sslContext, SSL_OP_SINGLE_DH_USE);
 
-    // Set the RSA Callback routine in case we need to build a temporary RSA key (ephemeral RSA).
+    // Set the RSA Callback routine in case we need to build a temporary (ephemeral) RSA key.
     SSL_CTX_set_tmp_rsa_callback(_sslContext, tmpRSACallback);
 
-    // Set the DH Callback routine in case we need a temporary DH key (ephemeral DH).
+    // Set the DH Callback routine in case we need a temporary (ephemeral) DH key.
     SSL_CTX_set_tmp_dh_callback(_sslContext, tmpDHCallback);
 
     loadCertificateAuthority(certificateAuthority);
 
-    // Set the context for the SSL system [SERVER ONLY].
+    // Set the session context for the SSL system [SERVER ONLY].
     std::string connectionContext = generalConfig.getContext();
     SSL_CTX_set_session_id_context(_sslContext,
                                    reinterpret_cast<const unsigned char *>(connectionContext.c_str()),
@@ -118,24 +118,25 @@ IceSSL::OpenSSL::ServerContext::loadCertificateAuthority(const CertificateAuthor
 
     std::string caFile = certAuth.getCAFileName();
 
-    // TODO: Check this if things stop working
-    if (!caFile.empty())
+    if (caFile.empty())
     {
-        STACK_OF(X509_NAME)* certNames = SSL_load_client_CA_file(caFile.c_str());
+        return;
+    }
 
-        if (certNames == 0)
+    STACK_OF(X509_NAME)* certNames = SSL_load_client_CA_file(caFile.c_str());
+
+    if (certNames == 0)
+    {
+        if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         {
-            if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
-            {
-                std::string errorString = "Unable to load Certificate Authorities certificate names from " + caFile + ".\n";
-                errorString += sslGetErrors();
-                _logger->trace(_traceLevels->securityCat, "WRN " + errorString);
-            }
+            std::string errorString = "Unable to load Certificate Authorities certificate names from " + caFile + ".\n";
+            errorString += sslGetErrors();
+            _logger->trace(_traceLevels->securityCat, "WRN " + errorString);
         }
-        else
-        {
-            SSL_CTX_set_client_CA_list(_sslContext, certNames);
-        }
+    }
+    else
+    {
+        SSL_CTX_set_client_CA_list(_sslContext, certNames);
     }
 }
 

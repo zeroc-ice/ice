@@ -19,8 +19,8 @@ namespace IceSSL
 
 class TempCertificates
 {
-
 public:
+
     TempCertificates();
     ~TempCertificates();
 
@@ -31,6 +31,7 @@ public:
     DHVector& getDHParams();
 
 protected:
+
     RSAVector _rsaCerts;
     DHVector _dhParams;
 };

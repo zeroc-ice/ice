@@ -269,7 +269,7 @@ IceSSL::OpenSSL::Context::setKeyCert(const CertificateDesc& certDesc,
 
     if (!publicProperty.empty())
     {
-        publicKey  = _properties->getProperty(publicProperty);
+        publicKey = _properties->getProperty(publicProperty);
     }
 
     if (!privateKey.empty() && !publicKey.empty())
@@ -505,9 +505,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const Ice::ByteSeq& privateKey, const Ice::
     }
 
     // Make a key pair based on the DER encoded byte sequences.
-    RSAKeyPair keyPair(privKey, publicKey);
-
-    addKeyCert(keyPair);
+    addKeyCert(RSAKeyPair(privKey, publicKey));
 }
 
 void
@@ -526,9 +524,7 @@ IceSSL::OpenSSL::Context::addKeyCert(const std::string& privateKey, const std::s
     }
 
     // Make a key pair based on the Base64 encoded strings.
-    RSAKeyPair keyPair(privKey, publicKey);
-
-    addKeyCert(keyPair);
+    addKeyCert(RSAKeyPair(privKey, publicKey));
 }
 
 SSL*
@@ -588,8 +584,7 @@ IceSSL::OpenSSL::Context::setDHParams(const BaseCertificates& baseCerts)
     std::string dhFile = baseCerts.getDHParams().getFileName();
     int encoding = baseCerts.getDHParams().getEncoding();
 
-    // File type must be PEM - that's the only way we can load
-    // DH Params, apparently.
+    // File type must be PEM - that's the only way we can load DH Params, apparently.
     if ((!dhFile.empty()) && (encoding == SSL_FILETYPE_PEM))
     {
         dh = loadDHParam(dhFile.c_str());

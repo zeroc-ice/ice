@@ -40,6 +40,7 @@ class GeneralConfig;
 namespace OpenSSL
 {
 
+// TODO: Make these map<int, RSAPrivateKeyPtr> and something similar for DH.
 typedef std::map<int,RSA*> RSAMap;
 typedef std::map<int,DH*>  DHMap;
 
@@ -116,7 +117,7 @@ private:
     long loadRandFiles(const std::string&);
     void initRandSystem(const std::string&);
 
-    // Load the temporary (ephemeral) certificates for Server operations
+    // Load the temporary (ephemeral) certificates for Server operations.
     void loadTempCerts(IceSSL::TempCertificates&);
 
     friend class IceSSL::Factory;

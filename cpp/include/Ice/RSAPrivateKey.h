@@ -37,33 +37,33 @@ namespace OpenSSL
 
 class ICE_API RSAPrivateKey : public IceUtil::Shared
 {
-
 public:
-    // Construction from Base64 encoding
+
+    // Construction from Base64 encoding.
     RSAPrivateKey(const std::string&);
 
-    // Construction from ByteSeq
+    // Construction from binary DER encoding ByteSeq.
     RSAPrivateKey(const Ice::ByteSeq&);
 
-    // Construction from RSA Private Key structure
+    // Construction from RSA Private Key structure (simple initialization).
     RSAPrivateKey(RSA*);
 
     ~RSAPrivateKey();
 
-    // Conversions to Base64 encoding
+    // Conversion to Base64 encoding.
     void keyToBase64(std::string&);
 
-    // Conversions to ByteSequence
+    // Conversion to binary DER encoding.
     void keyToByteSeq(Ice::ByteSeq&);
 
-    // Get the key structure
+    // Get the internal key structure as per the OpenSSL implementation.
     RSA* getRSAPrivateKey() const;
 
 private:
+
     void byteSeqToKey(const Ice::ByteSeq&);
 
     RSA* _privateKey;
-
 };
 
 }

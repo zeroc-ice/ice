@@ -44,8 +44,8 @@ class RSAKeyPair;
 
 class Context : public IceUtil::Shared
 {
-
 public:
+
     virtual ~Context();
 
     bool isConfigured();
@@ -64,7 +64,7 @@ public:
                            const IceSSL::CertificateAuthority&,
                            const IceSSL::BaseCertificates&);
 
-    // Takes a socket fd.
+    // Takes a socket fd as the first parameter.
     virtual ::IceSSL::ConnectionPtr createConnection(int, const IceSSL::SystemInternalPtr&) = 0;
 
 protected:
@@ -113,7 +113,6 @@ protected:
     SSL_CTX* _sslContext;
 
     friend class IceSSL::OpenSSL::System;
-
 };
 
 }

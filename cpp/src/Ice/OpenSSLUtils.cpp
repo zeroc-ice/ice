@@ -12,15 +12,11 @@
 #include <Ice/SystemInternalF.h>
 #include <Ice/SystemOpenSSL.h>
 #include <Ice/SslFactory.h>
+#include <IceUtil/Mutex.h>
 #include <openssl/err.h>
 #include <assert.h>
 
 using std::string;
-
-//
-// NOTE: The following (mon, getGeneralizedTime, getUTCTime and getASN1time are routines that
-//       have been abducted from the OpenSSL X509 library, and modified to work with the STL
-//       basic_string template.
 
 //
 // TODO: These Diffie-Hellman params have been blatantly stolen from
@@ -45,6 +41,14 @@ unsigned char tempDiffieHellman512g[] =
 {
     0x02,
 };
+
+// Ensures that the sslGetErrors() function is synchronized.
+static ::IceUtil::Mutex sslErrorsMutex;
+
+//
+// NOTE: The following (mon, getGeneralizedTime, getUTCTime and getASN1time)
+//       are routines that have been abducted from the OpenSSL X509 library,
+//       and modified to work with the STL basic_string template.
 
 static const char *mon[12]=
 {
@@ -178,16 +182,19 @@ IceSSL::OpenSSL::getASN1time(ASN1_TIME *tm)
         case V_ASN1_UTCTIME :
         {
             theTime = getUTCTime(tm);
+            break;
         }
 
         case V_ASN1_GENERALIZEDTIME :
         {
 	    theTime = getGeneralizedTime(tm);
+            break;
         }
 
         default :
         {
             theTime = "Bad time value";
+            break;
         }
     }
 
@@ -200,15 +207,11 @@ IceSSL::OpenSSL::loadDHParam(const char* dhfile)
     assert(dhfile != 0);
 
     DH* ret = 0;
-    BIO* bio;
-
-    if ((bio = BIO_new_file(dhfile,"r")) != 0)
-    {
-        ret = PEM_read_bio_DHparams(bio, 0, 0, 0);
-    }
+    BIO* bio = BIO_new_file(dhfile,"r");
 
     if (bio != 0)
     {
+        ret = PEM_read_bio_DHparams(bio, 0, 0, 0);
         BIO_free(bio);
     }
 
@@ -221,9 +224,9 @@ IceSSL::OpenSSL::getTempDH(unsigned char* p, int plen, unsigned char* g, int gle
     assert(p != 0);
     assert(g != 0);
 
-    DH* dh = 0;
+    DH* dh = DH_new();
 
-    if ((dh = DH_new()) != 0)
+    if (dh != 0)
     {
         dh->p = BN_bin2bn(p, plen, 0);
 
@@ -251,6 +254,8 @@ IceSSL::OpenSSL::getTempDH512()
 string
 IceSSL::OpenSSL::sslGetErrors()
 {
+    IceUtil::Mutex::Lock sync(sslErrorsMutex);
+    
     string errorMessage;
     char buf[200];
     char bigBuffer[1024];
@@ -346,21 +351,7 @@ verifyCallback(int ok, X509_STORE_CTX* ctx)
     assert(connection != 0);
 
     // Call the connection, get it to perform the verification.
-    int retCode = connection->verifyCertificate(ok, ctx);
-
-    return retCode;
-}
-
-// TODO: This is a complete hack to get this working again with the CA certificate.
-//       Of course, this will have to be rewritten to handle this in the same manner
-//       as the verifyCallback does.
-//       -ASN
-int
-passwordCallback(char* buffer, int bufferSize, int rwFlag, void* userData)
-{
-    strncpy(buffer, "demo", bufferSize);
-    buffer[bufferSize - 1] = '\0';
-    return strlen(buffer);
+    return connection->verifyCertificate(ok, ctx);
 }
 
 }

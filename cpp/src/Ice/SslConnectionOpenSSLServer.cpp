@@ -14,6 +14,7 @@
 #include <Ice/Network.h>
 #include <Ice/OpenSSL.h>
 #include <Ice/SslException.h>
+#include <Ice/OpenSSLJanitors.h>
 #include <Ice/SslConnectionOpenSSLServer.h>
 
 #include <Ice/TraceLevels.h>
@@ -47,13 +48,12 @@ using std::dec;
 //       but unfortunately, it appears that this is not properly picked up.
 //
 
-IceSSL::OpenSSL::ServerConnection::ServerConnection(
-            const IceInternal::TraceLevelsPtr& traceLevels,
-            const Ice::LoggerPtr& logger,
-            const IceSSL::CertificateVerifierPtr& certificateVerifier,
-            SSL* connection,
-            const IceSSL::SystemInternalPtr& system) :
-                                            Connection(traceLevels, logger, certificateVerifier, connection, system)
+IceSSL::OpenSSL::ServerConnection::ServerConnection(const IceInternal::TraceLevelsPtr& traceLevels,
+                                                    const Ice::LoggerPtr& logger,
+                                                    const IceSSL::CertificateVerifierPtr& certificateVerifier,
+                                                    SSL* connection,
+                                                    const IceSSL::SystemInternalPtr& system) :
+                                  Connection(traceLevels, logger, certificateVerifier, connection, system)
 {
     assert(_sslConnection != 0);
 
@@ -108,9 +108,6 @@ IceSSL::OpenSSL::ServerConnection::init(int timeout)
 
         int result = accept();
 
-        // Find out what the error was (if any).
-        int code = getLastError();
-
         // We're doing an Accept and we don't get a retry on the socket.
         if ((result <= 0) && (BIO_sock_should_retry(result) == 0))
         {
@@ -144,7 +141,8 @@ IceSSL::OpenSSL::ServerConnection::init(int timeout)
             }
         }
 
-        switch (code)
+        // Find out what the error was (if any).
+        switch (getLastError())
         {
             case SSL_ERROR_WANT_READ:
             {
@@ -157,7 +155,6 @@ IceSSL::OpenSSL::ServerConnection::init(int timeout)
                 _initWantWrite = 1;
                 break;
             }
-
             
             case SSL_ERROR_NONE:
             case SSL_ERROR_WANT_X509_LOOKUP:
@@ -234,32 +231,6 @@ IceSSL::OpenSSL::ServerConnection::init(int timeout)
 }
 
 int
-IceSSL::OpenSSL::ServerConnection::read(Buffer& buf, int timeout)
-{
-    int bytesRead = 1;
-    int totalBytesRead = 0;
-
-    // We keep reading until we're done.
-    while ((buf.i != buf.b.end()) && bytesRead)
-    {
-        // Copy over bytes from _inBuffer to buf.
-        bytesRead = readInBuffer(buf);
-
-        // Nothing in the _inBuffer?
-        if (!bytesRead)
-        {
-            // Read from SSL.
-            bytesRead = readSSL(buf, timeout);
-        }
-
-        // Keep track of the total bytes read.
-        totalBytesRead += bytesRead;
-    }
-
-    return totalBytesRead;
-}
-
-int
 IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
 {
     int totalBytesWritten = 0;
@@ -277,21 +248,17 @@ IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
     }
 #endif
 
-    int initReturn = 0;
-
     // We keep writing until we're done.
     while (buf.i != buf.b.end())
     {
         // Ensure we're initialized.
-        initReturn = initialize(timeout);
-
-        if (initReturn <= 0)
+        if (initialize(timeout) <= 0)
         {
             // Retry the initialize call
             continue;
         }
 
-        // initReturn must be > 0, so we're okay to try a write
+        // initialize() must have returned > 0, so we're okay to try a write.
 
         // Perform a select on the socket.
         if (!writeSelect(timeout))
@@ -325,9 +292,9 @@ IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
                 continue;
             }
 
-            case SSL_ERROR_WANT_WRITE:  // Retry...
-            case SSL_ERROR_WANT_READ:   // The demo server ignores this error.
-            case SSL_ERROR_WANT_X509_LOOKUP:    // The demo server ignores this error.
+            case SSL_ERROR_WANT_WRITE:
+            case SSL_ERROR_WANT_READ:
+            case SSL_ERROR_WANT_X509_LOOKUP:
             {
                 continue;
             }
@@ -365,7 +332,7 @@ IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
                 {
                     ProtocolException protocolEx(__FILE__, __LINE__);
 
-                    // Protocol Error: Unexpected EOF
+                    // Protocol Error: Unexpected EOF.
                     protocolEx._message = "Encountered an EOF that violates the SSL Protocol.\n";
                     protocolEx._message += sslGetErrors();
 
@@ -405,7 +372,8 @@ IceSSL::OpenSSL::ServerConnection::showConnectionInfo()
     // Only in extreme cases do we enable this, partially because it doesn't use the Logger.
     if ((_traceLevels->security >= IceSSL::SECURITY_PROTOCOL_DEBUG) && 0)
     {
-        BIO* bio = BIO_new_fp(stdout, BIO_NOCLOSE);
+        BIOJanitor bioJanitor(BIO_new_fp(stdout, BIO_NOCLOSE));
+        BIO* bio = bioJanitor.get();
 
         showCertificateChain(bio);
 
@@ -418,11 +386,5 @@ IceSSL::OpenSSL::ServerConnection::showConnectionInfo()
         showHandshakeStats(bio);
 
         showSessionInfo(bio);
-
-        if (bio != 0)
-        {
-            BIO_free(bio);
-            bio = 0;
-        }
     }
 }

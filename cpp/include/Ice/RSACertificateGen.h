@@ -35,7 +35,6 @@ using namespace std;
 
 class ICE_API RSACertificateGenContext
 {
-
 public:
 
     //
@@ -56,7 +55,7 @@ public:
     RSACertificateGenContext();
     ~RSACertificateGenContext();
 
-    // Distinguished Name methods (setters)
+    // Distinguished Name (setter) methods.
     void setCountry(const std::string&);
     void setStateProvince(const std::string&);
     void setLocality(const std::string&);
@@ -64,11 +63,10 @@ public:
     void setOrgainizationalUnit(const std::string&);
     void setCommonName(const std::string&);
 
-    // Setters
     void setBitStrength(int);
     void setSecondsValid(long);
 
-    // Distinguished Name methods (getters)
+    // Distinguished Name (getters) methods.
     unsigned char* getCountry() const;
     unsigned char* getStateProvince() const;
     unsigned char* getLocality() const;
@@ -76,12 +74,11 @@ public:
     unsigned char* getOrgainizationalUnit() const;
     unsigned char* getCommonName() const;
 
-    // Getters
     int getModulusLength() const;
     long getSecondsValid() const;
 
-
 private:
+
     std::string _country;
     std::string _stateProvince;
     std::string _locality;
@@ -94,14 +91,13 @@ private:
 
 class ICE_API RSACertificateGen
 {
-
 public:
+
     RSACertificateGen();
     ~RSACertificateGen();
 
     RSAKeyPairPtr generate(const RSACertificateGenContext&);
     RSAKeyPairPtr loadKeyPair(const std::string&, const std::string&);
-
 };
 
 }

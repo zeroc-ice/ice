@@ -9,6 +9,7 @@
 // **********************************************************************
 
 #include <Ice/SingleCertificateVerifier.h>
+#include <Ice/SslIceUtils.h>
 #include <openssl/err.h>
 #include <algorithm>
 #include <iostream>
@@ -28,7 +29,7 @@ IceSSL::OpenSSL::SingleCertificateVerifier::verify(int preVerifyOkay,
 {
     // Short circuit - if the peer cert wasn't good enough for OpenSSL,
     // it's not good enough for us to bother checking.
-    if (preVerifyOkay != 1)
+    if (preVerifyOkay == 0)
     {
         return preVerifyOkay;
     }
@@ -109,7 +110,7 @@ IceSSL::OpenSSL::SingleCertificateVerifier::toByteSeq(X509* certificate)
     i2d_X509(certificate, &certPtr);
 
     // Yet another conversion to a ByteSeq (easy comparison this way).
-    copy(certBuffer, (certBuffer + certSize), back_inserter(certByteSeq));
+    IceSSL::ucharToByteSeq(certBuffer, certSize, certByteSeq);
     delete []certBuffer;
 
     return certByteSeq;

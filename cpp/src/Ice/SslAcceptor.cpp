@@ -105,7 +105,7 @@ IceInternal::SslAcceptor::accept(int timeout)
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
-    // Get an instance of the SslSystem
+    // Get an instance of the SslSystem.
     SystemInternalPtr sslSystem = _instance->getSslSystem();
     assert(sslSystem != 0);
 

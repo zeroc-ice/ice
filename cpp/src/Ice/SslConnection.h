@@ -24,6 +24,7 @@ namespace IceSSL
 class Connection : public IceUtil::Shared
 {
 public:
+
     Connection(const IceInternal::TraceLevelsPtr&,
                const Ice::LoggerPtr&,
                const IceSSL::CertificateVerifierPtr&);
@@ -35,6 +36,7 @@ public:
     virtual int write(IceInternal::Buffer&, int) = 0;
 
 protected:
+
     IceInternal::TraceLevelsPtr _traceLevels;
     Ice::LoggerPtr _logger;
     CertificateVerifierPtr _certificateVerifier;

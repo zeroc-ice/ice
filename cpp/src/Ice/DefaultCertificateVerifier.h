@@ -25,13 +25,14 @@ namespace OpenSSL
 
 class DefaultCertificateVerifier : public IceSSL::OpenSSL::CertificateVerifier
 {
-
 public:
+
     DefaultCertificateVerifier(const IceInternal::InstancePtr&);
 
     virtual int verify(int, X509_STORE_CTX*, SSL*);
 
 private:
+
     IceInternal::TraceLevelsPtr _traceLevels;
     Ice::LoggerPtr _logger;
 };

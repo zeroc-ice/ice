@@ -43,19 +43,19 @@ IceSSL::ConfigParser::ConfigParser(const string& configFile) :
                      _configFile(configFile)
 {
     assert(!configFile.empty());
-    _configPath  = "./";
+    _configPath = "./";
     _traceLevels = 0;
-    _logger      = 0;
+    _logger = 0;
 }
 
 IceSSL::ConfigParser::ConfigParser(const string& configFile, const string& configPath) :
-               _configFile(configFile),
-               _configPath(configPath)
+                     _configFile(configFile),
+                     _configPath(configPath)
 {
     assert(!configFile.empty());
     assert(!configPath.empty());
     _traceLevels = 0;
-    _logger      = 0;
+    _logger = 0;
 }
 
 IceSSL::ConfigParser::~ConfigParser()
@@ -87,9 +87,9 @@ IceSSL::ConfigParser::process()
     ConfigParserErrorReporterPtr errReporter = new ConfigParserErrorReporter(_traceLevels, _logger);
     assert(errReporter != 0);
 
-    //  Create our parser, then attach an error handler to the parser.
-    //  The parser will call back to methods of the ErrorHandler if it
-    //  discovers errors during the course of parsing the XML document.
+    // Create our parser, then attach an error handler to the parser.
+    // The parser will call back to methods of the ConfigParserErrorHandler
+    // if it discovers errors during the course of parsing the XML document.
     DOMParser parser;
     parser.setValidationScheme(DOMParser::Val_Auto);
     parser.setDoNamespaces(false);
@@ -100,13 +100,9 @@ IceSSL::ConfigParser::process()
 
     try
     {
-        string::iterator fileBegin = _configFile.begin();
-
-        if (*fileBegin != '/')
+        if (*(_configFile.begin()) != '/')
         {
-            string::reverse_iterator pathEnd = _configPath.rbegin();
-
-            if (*pathEnd != '/')
+            if (*(_configPath.rbegin()) != '/')
             {
                 _configPath += "/";
             }
@@ -189,7 +185,6 @@ IceSSL::ConfigParser::loadClientConfig(GeneralConfig& general,
                                        CertificateAuthority& certAuth,
                                        BaseCertificates& baseCerts)
 {
-    bool retCode = false;
     string clientSectionString("SSLConfig:client");
     DOM_Node clientSection = find(clientSectionString);
 
@@ -201,7 +196,7 @@ IceSSL::ConfigParser::loadClientConfig(GeneralConfig& general,
             getGeneral(clientSection, general);
             getCertAuth(clientSection, certAuth);
             getBaseCerts(clientSection, baseCerts);
-            retCode = true;
+            return true;
         }
     }
     catch (const DOM_DOMException& e)
@@ -218,7 +213,7 @@ IceSSL::ConfigParser::loadClientConfig(GeneralConfig& general,
         throw configEx;
     }
     
-    return retCode;
+    return false;
 }
 
 bool
@@ -227,7 +222,6 @@ IceSSL::ConfigParser::loadServerConfig(GeneralConfig& general,
                                        BaseCertificates& baseCerts,
                                        TempCertificates& tempCerts)
 {
-    bool retCode = false;
     string serverSectionString("SSLConfig:server");
     DOM_Node serverSection = find(serverSectionString);
 
@@ -240,7 +234,7 @@ IceSSL::ConfigParser::loadServerConfig(GeneralConfig& general,
             getCertAuth(serverSection, certAuth);
             getBaseCerts(serverSection, baseCerts);
             getTempCerts(serverSection, tempCerts);
-            retCode = true;
+            return true;
         }
     }
     catch (const DOM_DOMException& e)
@@ -257,7 +251,7 @@ IceSSL::ConfigParser::loadServerConfig(GeneralConfig& general,
         throw configEx;
     }
     
-    return retCode;
+    return false;
 }
 
 void
@@ -318,40 +312,42 @@ IceSSL::ConfigParser::find(DOM_Node rootNode, string& nodePath)
     // The target node that we're looking for.
     DOM_Node tNode;
 
-    if (rootNode != 0)
+    if (rootNode == 0)
     {
-        string rootNodeName;
-        string tailNodes;
+        return tNode;
+    }
 
-        // Pop the root off the path.
-        popRoot(nodePath, rootNodeName, tailNodes);
+    string rootNodeName;
+    string tailNodes;
 
-        DOM_Node child = rootNode.getFirstChild();
+    // Pop the root off the path.
+    popRoot(nodePath, rootNodeName, tailNodes);
 
-        while (child != 0)
+    DOM_Node child = rootNode.getFirstChild();
+
+    while (child != 0)
+    {
+        // Ignore any other node types - we're only interested in ELEMENT_NODEs.
+        if (child.getNodeType() == DOM_Node::ELEMENT_NODE)
         {
-            // Ignore any other node types - we're only interested in ELEMENT_NODEs.
-            if (child.getNodeType() == DOM_Node::ELEMENT_NODE)
-            {
-                string nodeName = toString(child.getNodeName());
+            string nodeName = toString(child.getNodeName());
 
-                if (nodeName.compare(rootNodeName) == 0)
+            if (nodeName.compare(rootNodeName) == 0)
+            {
+                // No further to recurse, this must be it.
+                if (tailNodes.empty())
                 {
-                    // No further to recurse, this must be it.
-                    if (tailNodes.empty())
-                    {
-                        tNode = child;
-                    }
-                    else
-                    {
-                        // Recursive call.
-                        tNode = find(child, tailNodes);
-                    }
+                    tNode = child;
+                }
+                else
+                {
+                    // Recursive call.
+                    tNode = find(child, tailNodes);
                 }
             }
-
-            child = child.getNextSibling();
         }
+
+        child = child.getNextSibling();
     }
 
     return tNode;
@@ -360,64 +356,69 @@ IceSSL::ConfigParser::find(DOM_Node rootNode, string& nodePath)
 void
 IceSSL::ConfigParser::getGeneral(DOM_Node rootNode, GeneralConfig& generalConfig)
 {
-    if (rootNode != 0)
+    if (rootNode == 0)
     {
-        string generalString("general");
-        DOM_Node general = find(rootNode, generalString);
+        return;
+    }
 
-        DOM_NamedNodeMap attributes = general.getAttributes();
+    string generalString("general");
+    DOM_Node general = find(rootNode, generalString);
 
-        int attrCount = attributes.getLength();
+    DOM_NamedNodeMap attributes = general.getAttributes();
 
-        for (int i = 0; i < attrCount; i++)
-        {
-            DOM_Node attribute = attributes.item(i);
-            string nodeName = toString(attribute.getNodeName());
-            string nodeValue = toString(attribute.getNodeValue());
+    int attrCount = attributes.getLength();
 
-            // Set the property.
-            generalConfig.set(nodeName, nodeValue);
-        }
+    for (int i = 0; i < attrCount; i++)
+    {
+        DOM_Node attribute = attributes.item(i);
+        string nodeName = toString(attribute.getNodeName());
+        string nodeValue = toString(attribute.getNodeValue());
+
+        // Set the property.
+        generalConfig.set(nodeName, nodeValue);
     }
 }
 
 void
 IceSSL::ConfigParser::getCertAuth(DOM_Node rootNode, CertificateAuthority& certAuth)
 {
-    if (rootNode != 0)
+    if (rootNode == 0)
     {
-        string certAuthorityString("certauthority");
-        DOM_Node certAuthNode = find(rootNode, certAuthorityString);
+        return;
+    }
 
-        if (certAuthNode != 0)
+    DOM_Node certAuthNode = find(rootNode, string("certauthority"));
+
+    if (certAuthNode == 0)
+    {
+        return;
+    }
+
+    DOM_NamedNodeMap attributes = certAuthNode.getAttributes();
+
+    int attrCount = attributes.getLength();
+
+    for (int i = 0; i < attrCount; i++)
+    {
+        DOM_Node attribute = attributes.item(i);
+        string nodeName = toString(attribute.getNodeName());
+        string nodeValue = toString(attribute.getNodeValue());
+
+        if (nodeName.compare("file") == 0)
         {
-            DOM_NamedNodeMap attributes = certAuthNode.getAttributes();
+            string filename = nodeValue;
 
-            int attrCount = attributes.getLength();
-
-            for (int i = 0; i < attrCount; i++)
+            // Just a filename, no path component, append path.
+            if ((filename.find("/") == string::npos) && (filename.find("\\") == string::npos))
             {
-                DOM_Node attribute = attributes.item(i);
-                string nodeName = toString(attribute.getNodeName());
-                string nodeValue = toString(attribute.getNodeValue());
-
-                if (nodeName.compare("file") == 0)
-                {
-                    string filename = nodeValue;
-
-                    // Just a filename, no path component, append path.
-                    if ((filename.find("/") == string::npos) && (filename.find("\\") == string::npos))
-                    {
-                        filename = _configPath + filename;
-                    }
-
-                    certAuth.setCAFileName(filename);
-                }
-                else if (nodeName.compare("path") == 0)
-                {
-                    certAuth.setCAPath(nodeValue);
-                }
+                filename = _configPath + filename;
             }
+
+            certAuth.setCAFileName(filename);
+        }
+        else if (nodeName.compare("path") == 0)
+        {
+            certAuth.setCAPath(nodeValue);
         }
     }
 }
@@ -425,60 +426,66 @@ IceSSL::ConfigParser::getCertAuth(DOM_Node rootNode, CertificateAuthority& certA
 void
 IceSSL::ConfigParser::getBaseCerts(DOM_Node rootNode, BaseCertificates& baseCerts)
 {
-    if (rootNode != 0)
+    if (rootNode == 0)
     {
-        string baseCertsString("basecerts");
-        DOM_Node baseCertsRoot = find(rootNode, baseCertsString);
-
-        if (baseCertsRoot != 0)
-        {
-            CertificateDesc rsaCert;
-            CertificateDesc dsaCert;
-            DiffieHellmanParamsFile dhParams;
-
-            string rsaCertString("rsacert");
-            string dsaCertString("dsacert");
-            string dhParamsString("dhparams");
-
-            getCert(find(baseCertsRoot, rsaCertString), rsaCert);
-            getCert(find(baseCertsRoot, dsaCertString), dsaCert);
-
-            getDHParams(find(baseCertsRoot, dhParamsString), dhParams);
-
-            baseCerts = BaseCertificates(rsaCert, dsaCert, dhParams);
-        }
+        return;
     }
+
+    DOM_Node baseCertsRoot = find(rootNode, string("basecerts"));
+
+    if (baseCertsRoot == 0)
+    {
+        return;
+    }
+
+    CertificateDesc rsaCert;
+    CertificateDesc dsaCert;
+    DiffieHellmanParamsFile dhParams;
+
+    string rsaCertString("rsacert");
+    string dsaCertString("dsacert");
+    string dhParamsString("dhparams");
+
+    getCert(find(baseCertsRoot, rsaCertString), rsaCert);
+    getCert(find(baseCertsRoot, dsaCertString), dsaCert);
+
+    getDHParams(find(baseCertsRoot, dhParamsString), dhParams);
+
+    baseCerts = BaseCertificates(rsaCert, dsaCert, dhParams);
 }
 
 void
 IceSSL::ConfigParser::getTempCerts(DOM_Node rootNode, TempCertificates& tempCerts)
 {
-    if (rootNode != 0)
+    if (rootNode == 0)
     {
-        string tempCertsString("tempcerts");
-        DOM_Node tempCertsRoot = find(rootNode, tempCertsString);
+        return;
+    }
 
-        if (tempCertsRoot != 0)
+    DOM_Node tempCertsRoot = find(rootNode, string("tempcerts"));
+
+    if (tempCertsRoot == 0)
+    {
+        return;
+    }
+
+    DOM_Node child = tempCertsRoot.getFirstChild();
+
+    while (child != 0)
+    {
+        DOMString nodeName = child.getNodeName();
+        string name = toString(nodeName);
+
+        if (name.compare("dhparams") == 0)
         {
-            DOM_Node child = tempCertsRoot.getFirstChild();
-
-            while (child != 0)
-            {
-                DOMString nodeName = child.getNodeName();
-                string name = toString(nodeName);
-
-                if (name.compare("dhparams") == 0)
-                {
-                    loadDHParams(child, tempCerts);
-                }
-                else if (name.compare("rsacert") == 0)
-                {
-                    loadRSACert(child, tempCerts);
-                }
-
-                child = child.getNextSibling();
-            }
+            loadDHParams(child, tempCerts);
         }
+        else if (name.compare("rsacert") == 0)
+        {
+            loadRSACert(child, tempCerts);
+        }
+
+        child = child.getNextSibling();
     }
 }
 
@@ -505,101 +512,107 @@ IceSSL::ConfigParser::loadRSACert(DOM_Node rootNode, TempCertificates& tempCerts
 void
 IceSSL::ConfigParser::getCert(DOM_Node rootNode, CertificateDesc& certDesc)
 {
-    if (rootNode != 0)
+    if (rootNode == 0)
     {
-        CertificateFile publicFile;
-        CertificateFile privateFile;
-        int keySize = 0;
-
-        DOM_NamedNodeMap attributes = rootNode.getAttributes();
-        int attrCount = attributes.getLength();
-
-        for (int i = 0; i < attrCount; i++)
-        {
-            DOM_Node attribute = attributes.item(i);
-            string nodeName = toString(attribute.getNodeName());
-            string nodeValue = toString(attribute.getNodeValue());
-
-            if (nodeName.compare("keysize") == 0)
-            {
-                keySize = atoi(nodeValue.c_str());
-            }
-        }
-
-        string publicString("public");
-        string privateString("private");
-
-        loadCertificateFile(find(rootNode, publicString),  publicFile);
-        loadCertificateFile(find(rootNode, privateString), privateFile);
-
-        // Initialize the certificate description.
-        certDesc = CertificateDesc(keySize, publicFile, privateFile);
+        return;
     }
+
+    CertificateFile publicFile;
+    CertificateFile privateFile;
+    int keySize = 0;
+
+    DOM_NamedNodeMap attributes = rootNode.getAttributes();
+    int attrCount = attributes.getLength();
+
+    for (int i = 0; i < attrCount; i++)
+    {
+        DOM_Node attribute = attributes.item(i);
+        string nodeName = toString(attribute.getNodeName());
+        string nodeValue = toString(attribute.getNodeValue());
+
+        if (nodeName.compare("keysize") == 0)
+        {
+            keySize = atoi(nodeValue.c_str());
+        }
+    }
+
+    string publicString("public");
+    string privateString("private");
+
+    loadCertificateFile(find(rootNode, publicString),  publicFile);
+    loadCertificateFile(find(rootNode, privateString), privateFile);
+
+    // Initialize the certificate description.
+    certDesc = CertificateDesc(keySize, publicFile, privateFile);
 }
 
 void
 IceSSL::ConfigParser::getDHParams(DOM_Node rootNode, DiffieHellmanParamsFile& dhParams)
 {
-    if (rootNode != 0)
+    if (rootNode == 0)
     {
-        CertificateFile certFile;
-        loadCertificateFile(rootNode, certFile);
-
-        DOM_NamedNodeMap attributes = rootNode.getAttributes();
-        int keySize = 0;
-        int attrCount = attributes.getLength();
-
-        for (int i = 0; i < attrCount; i++)
-        {
-            DOM_Node attribute = attributes.item(i);
-            string nodeName = toString(attribute.getNodeName());
-            string nodeValue = toString(attribute.getNodeValue());
-
-            if (nodeName.compare("keysize") == 0)
-            {
-                keySize = atoi(nodeValue.c_str());
-            }
-        }
-
-        dhParams = DiffieHellmanParamsFile(keySize, certFile.getFileName(), certFile.getEncoding());
+        return;
     }
+
+    CertificateFile certFile;
+    loadCertificateFile(rootNode, certFile);
+
+    DOM_NamedNodeMap attributes = rootNode.getAttributes();
+    int keySize = 0;
+    int attrCount = attributes.getLength();
+
+    for (int i = 0; i < attrCount; i++)
+    {
+        DOM_Node attribute = attributes.item(i);
+        string nodeName = toString(attribute.getNodeName());
+        string nodeValue = toString(attribute.getNodeValue());
+
+        if (nodeName.compare("keysize") == 0)
+        {
+            keySize = atoi(nodeValue.c_str());
+        }
+    }
+
+    dhParams = DiffieHellmanParamsFile(keySize, certFile.getFileName(), certFile.getEncoding());
 }
 
 void
 IceSSL::ConfigParser::loadCertificateFile(DOM_Node rootNode, CertificateFile& certFile)
 {
-    if (rootNode != 0)
+    if (rootNode == 0)
     {
-        string filename;
-        int encoding = 0; // Initialize, to keep the compiler from complaining.
+        return;
+    }
 
-        DOM_NamedNodeMap attributes = rootNode.getAttributes();
-        int attrCount = attributes.getLength();
+    string filename;
+    int encoding = 0; // Initialize, to keep the compiler from complaining.
 
-        for (int i = 0; i < attrCount; i++)
+    DOM_NamedNodeMap attributes = rootNode.getAttributes();
+    int attrCount = attributes.getLength();
+
+    for (int i = 0; i < attrCount; i++)
+    {
+        DOM_Node attribute = attributes.item(i);
+        string nodeName = toString(attribute.getNodeName());
+        string nodeValue = toString(attribute.getNodeValue());
+
+        if (nodeName.compare("encoding") == 0)
         {
-            DOM_Node attribute = attributes.item(i);
-            string nodeName = toString(attribute.getNodeName());
-            string nodeValue = toString(attribute.getNodeValue());
+            encoding = parseEncoding(nodeValue);
+        }
+        else if (nodeName.compare("filename") == 0)
+        {
+            filename = nodeValue;
 
-            if (nodeName.compare("encoding") == 0)
+            // Just a filename, no path component, append path.
+            if ((filename.find("/") == string::npos) && (filename.find("\\") == string::npos))
             {
-                encoding = parseEncoding(nodeValue);
-            }
-            else if (nodeName.compare("filename") == 0)
-            {
-                filename = nodeValue;
-
-                // Just a filename, no path component, append path.
-                if ((filename.find("/") == string::npos) && (filename.find("\\") == string::npos))
-                {
-                    filename = _configPath + filename;
-                }
+                filename = _configPath + filename;
             }
         }
-
-        certFile = CertificateFile(filename, encoding);
     }
+
+    certFile = CertificateFile(filename, encoding);
 }
 
 int

@@ -29,7 +29,6 @@
 #error "Thread support not enabled"
 #endif
 
-
 namespace IceSSL
 {
 
@@ -44,17 +43,10 @@ extern "C"
 
 class SslLockKeeper
 {
-
 public:
-    SslLockKeeper()
-    {
-        CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))lockingCallback);
-    }
 
-    ~SslLockKeeper()
-    {
-        CRYPTO_set_locking_callback(NULL);
-    }
+    SslLockKeeper();
+    ~SslLockKeeper();
 
     IceUtil::Mutex sslLocks[CRYPTO_NUM_LOCKS];
 
@@ -74,6 +66,16 @@ void IceSSL::lockingCallback(int mode, int type, const char *file, int line)
     {
         lockKeeper.sslLocks[type].unlock();
     }
+}
+
+IceSSL::SslLockKeeper::SslLockKeeper()
+{
+    CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))IceSSL::lockingCallback);
+}
+
+IceSSL::SslLockKeeper::~SslLockKeeper()
+{
+    CRYPTO_set_locking_callback(NULL);
 }
 
 IceSSL::SystemInternalPtr

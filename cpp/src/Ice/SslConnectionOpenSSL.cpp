@@ -69,14 +69,13 @@ void ::IceInternal::decRef(::IceSSL::OpenSSL::Connection* p) { p->__decRef(); }
 //       but unfortunately, it appears that this is not properly picked up.
 //
 
-IceSSL::OpenSSL::Connection::Connection(
-            const IceInternal::TraceLevelsPtr& traceLevels,
-            const Ice::LoggerPtr& logger,
-            const IceSSL::CertificateVerifierPtr& certificateVerifier,
-            SSL* sslConnection,
-            const IceSSL::SystemInternalPtr& system) :
-                                      IceSSL::Connection(traceLevels, logger, certificateVerifier),
-                                      _sslConnection(sslConnection)
+IceSSL::OpenSSL::Connection::Connection(const IceInternal::TraceLevelsPtr& traceLevels,
+                                        const Ice::LoggerPtr& logger,
+                                        const IceSSL::CertificateVerifierPtr& certificateVerifier,
+                                        SSL* sslConnection,
+                                        const IceSSL::SystemInternalPtr& system) :
+                            IceSSL::Connection(traceLevels, logger, certificateVerifier),
+                            _sslConnection(sslConnection)
 {
     assert(_sslConnection != 0);
     assert(system != 0);
@@ -109,32 +108,35 @@ IceSSL::OpenSSL::Connection::~Connection()
 void
 IceSSL::OpenSSL::Connection::shutdown()
 {
-    if (_sslConnection != 0)
+    if (_sslConnection == 0)
     {
-        if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
-        { 
-            _logger->trace(_traceLevels->securityCat, "WRN " +
-                           string("shutting down SSL connection\n") +
-                           fdToString(SSL_get_fd(_sslConnection)));
-        }
+        return;
+    }
 
-        int shutdown = 0;
-        int retries = 100;
+    if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
+    { 
+        _logger->trace(_traceLevels->securityCat, "WRN " +
+                       string("shutting down SSL connection\n") +
+                       fdToString(SSL_get_fd(_sslConnection)));
+    }
 
-        do
-        {
-            shutdown = SSL_shutdown(_sslConnection);
-            retries--;
-        }
-        while ((shutdown == 0) && (retries > 0));
+    int shutdown = 0;
+    int numRetries = 100;
+    int retries = -numRetries;
 
-        if ((_traceLevels->security >= IceSSL::SECURITY_PROTOCOL) && (shutdown <= 0))
-        {
-            ostringstream s;
-            s << "SSL shutdown failure encountered: code[" << shutdown << "] retries[";
-            s << retries << "]\n" << fdToString(SSL_get_fd(_sslConnection));
-            _logger->trace(_traceLevels->securityCat, s.str());
-        }
+    do
+    {
+        shutdown = SSL_shutdown(_sslConnection);
+        retries++;
+    }
+    while ((shutdown == 0) && (retries < 0));
+
+    if ((_traceLevels->security >= IceSSL::SECURITY_PROTOCOL) && (shutdown <= 0))
+    {
+        ostringstream s;
+        s << "SSL shutdown failure encountered: code[" << shutdown << "] retries[";
+        s << (retries + numRetries) << "]\n" << fdToString(SSL_get_fd(_sslConnection));
+        _logger->trace(_traceLevels->securityCat, s.str());
     }
 }
 
@@ -171,14 +173,31 @@ IceSSL::OpenSSL::Connection::verifyCertificate(int preVerifyOkay, X509_STORE_CTX
     assert(_certificateVerifier.get() != 0);
 
     // Get the verifier, make sure it is for OpenSSL connections
-    IceSSL::OpenSSL::CertificateVerifier* verifier;
+    IceSSL::OpenSSL::CertificateVerifierPtr verifier;
     verifier = dynamic_cast<IceSSL::OpenSSL::CertificateVerifier*>(_certificateVerifier.get());
 
     // Check to make sure we have a proper verifier for the operation.
     if (verifier)
     {
         // Use the verifier to verify the certificate
-        preVerifyOkay = verifier->verify(preVerifyOkay, x509StoreContext, _sslConnection);
+        try
+        {
+            preVerifyOkay = verifier->verify(preVerifyOkay, x509StoreContext, _sslConnection);
+        }
+        catch (const Ice::LocalException& localEx)
+        {
+            if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
+            {
+                ostringstream s;
+
+                s << "WRN Exception during certificate verification: " << std::endl;
+                s << localEx << flush;
+
+                _logger->trace(_traceLevels->securityCat, s.str());
+            }
+
+            preVerifyOkay = 0;
+        }
     }
     else
     {
@@ -324,71 +343,6 @@ IceSSL::OpenSSL::Connection::sslWrite(char* buffer, int bufferSize)
     return bytesWritten;
 }
 
-// protocolWrite()
-//
-// The entire purpose of this strange little routine is to provide OpenSSL with a
-// SSL_write() when they request one (this is for handshaking purposes).  It writes
-// nothing at all.  Its entire purpose is jut to call the SSL_write() through one.
-// of our defined methods.  The SSL_write() will end up only writing protocol handshake
-// packets, not application packets.  This looks wierd, but it is essentially what
-// the demo programs are doing, so I feel okay copying them.  The only reason that I
-// have defined the buffer[] array is so that I have a valid buffer pointer.
-/*
-void
-IceSSL::OpenSSL::Connection::protocolWrite()
-{
-    static char buffer[10];
-
-    memset(buffer, 0, sizeof(buffer));
-
-    // Note: We should be calling the write(char*,int) method here,
-    //       not the write(Buffer&,int) method.  If things start acting
-    //       strangely, check this!
-    sslWrite(buffer,0);
-}
-*/
-
-int
-IceSSL::OpenSSL::Connection::readInBuffer(Buffer& buf)
-{
-    IceUtil::Mutex::Lock sync(_inBufferMutex);
-
-    int bytesRead = 0;
-
-    if (!_inBuffer.b.empty())
-    {
-        // Just how big is the destination?
-        int bufferSize = buf.b.end() - buf.i;
-
-        // And how much do we have in our _inBuffer to copy?
-        int inBufferSize = _inBuffer.i - _inBuffer.b.begin();
-
-        // Select how many bytes we can handle.
-        bytesRead = min(bufferSize, inBufferSize);
-
-        // Iterators that indicate how much of the _inBuffer we're going to copy
-        Buffer::Container::iterator inBufferBegin = _inBuffer.b.begin();
-        Buffer::Container::iterator inBufferEndAt = (_inBuffer.b.begin() + bytesRead);
-
-        // Copy over the bytes from the _inBuffer to our destination buffer
-        buf.i = copy(inBufferBegin, inBufferEndAt, buf.i);
-
-        // Erase the data that we've copied out of the _inBuffer.
-        _inBuffer.b.erase(inBufferBegin, inBufferEndAt);
-
-        if (_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
-        {
-            ostringstream protocolMsg;
-            protocolMsg << "Copied " << dec << bytesRead << " bytes from SSL buffer\n";
-            protocolMsg << fdToString(SSL_get_fd(_sslConnection));
-
-            _logger->trace(_traceLevels->securityCat, protocolMsg.str());
-        }
-    }
-
-    return bytesRead;
-}
-
 int
 IceSSL::OpenSSL::Connection::select(int timeout, bool write)
 {
@@ -464,7 +418,7 @@ IceSSL::OpenSSL::Connection::writeSelect(int timeout)
 }
 
 int
-IceSSL::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
+IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
 {
     int packetSize = buf.b.end() - buf.i;
     int totalBytesRead = 0;
@@ -542,26 +496,7 @@ IceSSL::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
             }
 
             case SSL_ERROR_WANT_WRITE:
-            {
-                // TODO: This can most likely be removed.
-
-                // If we get this error here, it HAS to be because the protocol wants
-                // to do something handshake related.  As such, We're going to call
-                // write with an empty buffer.  I've seen this done in the demo
-                // programs, so this should be valid.  No actual application data
-                // will be sent, just protocol packets.
-                // protocolWrite();
-                continue;
-            }
-
             case SSL_ERROR_WANT_READ:
-            {
-                // Repeat with the same arguments! (as in the OpenSSL documentation)
-                // Whatever happened, the last read didn't actually read anything for
-                // us.  This is effectively a retry.
-                continue;
-            }
-
             case SSL_ERROR_WANT_X509_LOOKUP:
             {
                 // Perform another read.  The read should take care of this.
@@ -724,23 +659,22 @@ IceSSL::OpenSSL::Connection::showSharedCiphers(BIO* bio)
     assert(bio != 0);
 
     char buffer[4096];
-    char* strpointer = 0;
+    char* strPointer = 0;
 
-    if ((strpointer = SSL_get_shared_ciphers(_sslConnection, buffer, sizeof(buffer))) != 0)
+    if ((strPointer = SSL_get_shared_ciphers(_sslConnection, buffer, sizeof(buffer))) != 0)
     {
-        // This works only for SSL 2.  In later protocol
-        // versions, the client does not know what other
-        // ciphers (in addition to the one to be used
-        // in the current connection) the server supports.
+        // This works only for SSL 2.  In later protocol versions, the client does not know
+        // what other ciphers (in addition to the one to be used in the current connection)
+        // the server supports.
 
         BIO_printf(bio, "---\nShared Ciphers:\n");
 
         int j = 0;
         int i = 0;
 
-        while (*strpointer)
+        while (*strPointer)
         {
-            if (*strpointer == ':')
+            if (*strPointer == ':')
             {
                 BIO_write(bio, "                ", (15-j%25));
                 i++;
@@ -749,11 +683,11 @@ IceSSL::OpenSSL::Connection::showSharedCiphers(BIO* bio)
             }
             else
             {
-                BIO_write(bio, strpointer, 1);
+                BIO_write(bio, strPointer, 1);
                 j++;
             }
 
-            strpointer++;
+            strPointer++;
         }
 
         BIO_write(bio,"\n",1);

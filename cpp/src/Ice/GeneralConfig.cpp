@@ -29,7 +29,9 @@ IceSSL::GeneralConfig::GeneralConfig()
     _sslVersion = SSL_V23;
 
     _verifyMode = SSL_VERIFY_NONE;
-    _verifyDepth = 10;
+
+    // Unlimited verifcation depth.
+    _verifyDepth = -1;
 
     _context = "";
     _cipherList = "";

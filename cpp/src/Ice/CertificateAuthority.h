@@ -18,8 +18,8 @@ namespace IceSSL
 
 class CertificateAuthority
 {
-
 public:
+
     CertificateAuthority();
     CertificateAuthority(std::string&, std::string&);
     CertificateAuthority(CertificateAuthority&);
@@ -31,6 +31,7 @@ public:
     const std::string& getCAPath() const;
 
 private:
+
     std::string _fileName;
     std::string _path;
 };

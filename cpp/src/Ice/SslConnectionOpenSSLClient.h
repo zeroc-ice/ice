@@ -21,18 +21,18 @@ namespace OpenSSL
 
 class ClientConnection : public Connection
 {
-
 public:
+
     ClientConnection(const IceInternal::TraceLevelsPtr&,
                      const Ice::LoggerPtr&,
                      const IceSSL::CertificateVerifierPtr&,
                      SSL*,
                      const IceSSL::SystemInternalPtr&);
     virtual ~ClientConnection();
+
     virtual void shutdown();
     virtual int init(int timeout = 0);
 
-    virtual int read(IceInternal::Buffer&, int);
     virtual int write(IceInternal::Buffer&, int);
 
 protected:

@@ -23,8 +23,8 @@ namespace IceSSL
 
 class CertificateFile
 {
-
 public:
+
     CertificateFile();
     CertificateFile(const std::string&, const int);
     CertificateFile(const CertificateFile&);
@@ -33,14 +33,15 @@ public:
     int getEncoding() const;
 
 protected:
+
     std::string _fileName;
     int _encoding;
 };
 
 class DiffieHellmanParamsFile : public CertificateFile
 {
-
 public:
+
     DiffieHellmanParamsFile();
     DiffieHellmanParamsFile(const int, const std::string&, const int);
     DiffieHellmanParamsFile(const DiffieHellmanParamsFile&);
@@ -48,13 +49,14 @@ public:
     int getKeySize() const;
 
 protected:
+
     int _keySize;
 };
 
 class CertificateDesc
 {
-
 public:
+
     CertificateDesc();
     CertificateDesc(const int, const CertificateFile&, const CertificateFile&);
     CertificateDesc(const CertificateDesc&);
@@ -65,6 +67,7 @@ public:
     const CertificateFile& getPrivate() const;
 
 protected:
+
     int _keySize;
     CertificateFile _public;
     CertificateFile _private;

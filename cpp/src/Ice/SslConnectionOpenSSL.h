@@ -28,6 +28,7 @@ namespace OpenSSL
 class SafeFlag
 {
 public:
+
     SafeFlag(bool flagVal = false)
     {
         _flag = flagVal;
@@ -71,6 +72,7 @@ public:
     }
 
 private:
+
     ::IceUtil::Mutex _mutex;
     bool _flag;
 };
@@ -124,7 +126,7 @@ public:
 
     virtual void shutdown();
 
-    virtual int read(IceInternal::Buffer&, int) = 0;
+    virtual int read(IceInternal::Buffer&, int);
     virtual int write(IceInternal::Buffer&, int) = 0;
 
     virtual int init(int timeout = 0) = 0;
@@ -149,18 +151,11 @@ protected:
     int sslRead(char*, int);
     int sslWrite(char*, int);
 
-//    void protocolWrite();
-
-    int readInBuffer(IceInternal::Buffer&);
-
     int select(int, bool);
     int readSelect(int);
     int writeSelect(int);
 
     int readSSL(IceInternal::Buffer&, int);
-
-    // Retrieves errors from the OpenSSL library.
-//    std::string sslGetErrors();
 
     static void addConnection(SSL*, Connection*);
     static void removeConnection(SSL*);
@@ -184,12 +179,6 @@ protected:
     SSL* _sslConnection;
 
     int _lastError;
-
-    // TODO: Review this after a healthy stint of testing
-    // Buffer for application data that may be returned during handshake
-    // (probably won't contain anything, may be removed later).
-    ::IceInternal::Buffer _inBuffer;
-    ::IceUtil::Mutex _inBufferMutex;
 
     ::IceUtil::Mutex _handshakeWaitMutex;
 
