@@ -7,13 +7,14 @@
 //
 // **********************************************************************
 
+#ifdef __sun
+#    define _POSIX_PTHREAD_SEMANTICS
+#endif
+
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/StaticMutex.h>
 
 #ifndef _WIN32
-#   ifdef __sun
-#       define _POSIX_PTHREAD_SEMANTICS
-#   endif
 #   include <signal.h>
 #endif
 

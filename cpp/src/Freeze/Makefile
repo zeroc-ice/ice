@@ -18,7 +18,6 @@ TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(li
 
 OBJS		= CatalogData.o \
                   Catalog.o \
-                  ConnectionF.o \
 		  ConnectionF.o \
                   ConnectionI.o \
                   Connection.o \

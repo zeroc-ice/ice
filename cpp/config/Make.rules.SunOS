@@ -11,62 +11,90 @@
 # This file is included by Make.rules when uname is SunOS.
 #
 
-CXX               	:= CC
-
 #
-# Which version of CC are we using?
+# The default compiler on Solaris is CC. 
+# If you want to build with another compiler, you can edit this line, or
+# comment it out and define CXX=<desired-compiler> in your environment.
+# If CXX is not defined anywhere, the default (from gmake) is g++. 
 #
-CCVERSION               := $(filter 5.%, $(shell CC -V 2>&1))
+#CXX   = CC
 
-ifeq ($(LP64),yes)
-    CXXARCHFLAGS        := -xarch=v9
-endif
+ifeq ($(CXX),CC)
+#
+# Sun CC
+#
 
-ifeq ($(CCVERSION),5.3)
-    FLEX_NOLINE         := yes
-    BISON_NOLINE        := yes
-    TEMPLATE_REPOSITORY := SunWS_cache
-else
-    ifeq ($(CCVERSION),5.4)
-        CXXWARNFLAGS            := +w
-        TEMPLATE_REPOSITORY     := SunWS_cache
-    else
-        #
-        # Assumes >= 5.5
-        #
-        # -erroff=hidef is a (bad) work-around for
-        # for Sun CC 5.5 bug #4852754
-        #
-        CXXWARNFLAGS            := +w -erroff=hidef
-        CXXSCOPEFLAGS           := -xldscope=hidden
+    #
+    # Which version of CC are we using?
+    #
+    CCVERSION               := $(filter 5.%, $(shell CC -V 2>&1))
+
+    ifeq ($(LP64),yes)
+        CXXARCHFLAGS        := -xarch=v9
     endif
+
+    ifeq ($(CCVERSION),5.3)
+        FLEX_NOLINE         := yes
+        BISON_NOLINE        := yes
+        TEMPLATE_REPOSITORY := SunWS_cache
+    else
+        ifeq ($(CCVERSION),5.4)
+            CXXWARNFLAGS            := +w
+            TEMPLATE_REPOSITORY     := SunWS_cache
+        else
+            #
+            # Assumes >= 5.5
+            #
+            # -erroff=hidef is a (bad) work-around for
+            # for Sun CC 5.5 bug #4852754
+            #
+            CXXWARNFLAGS            := +w -erroff=hidef
+            CXXSCOPEFLAGS           := -xldscope=hidden
+        endif
+    endif
+
+    #
+    # -features=tmplife is needed to destroy temporary objects immediately
+    # (as specified by ISO C++) instead of at the end of the current block.
+    # This is very useful to avoid deadlocks when using Freeze Map 
+    # iterators.
+    #
+
+    CXXFLAGS		= -KPIC -mt +p -features=tmplife $(CXXSCOPEFLAGS) $(CXXWARNFLAGS) $(CXXARCHFLAGS)
+
+
+    ifeq ($(OPTIMIZE),yes)
+        CXXFLAGS		:= -O -DNDEBUG $(CXXFLAGS)
+    else
+        CXXFLAGS		:= -g $(CXXFLAGS)
+    endif
+
+    #
+    # C++ run-time libraries, necessary for linking some shared libraries.
+    #
+    CXXLIBS			= -lCstd -lCrun
+
+
+    mkshlib                 = $(CXX) -G $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
 endif
 
-#
-# -features=tmplife is needed to destroy temporary objects immediately
-# (as specified by ISO C++) instead of at the end of the current block.
-# This is very useful to avoid deadlocks when using Freeze Map 
-# iterators.
-#
-
-CXXFLAGS		= -KPIC -mt +p -features=tmplife $(CXXSCOPEFLAGS) $(CXXWARNFLAGS) $(CXXARCHFLAGS)
-
-
-ifeq ($(OPTIMIZE),yes)
-     CXXFLAGS		:= -O -DNDEBUG $(CXXFLAGS)
-else
-     CXXFLAGS		:= -g $(CXXFLAGS)
+ifeq ($(CXX),gcc)
+    CXX                 = g++
 endif
 
-#
-# C++ run-time libraries, necessary for linking some shared libraries.
-#
-CXXLIBS			= -lCstd -lCrun
+ifeq ($(CXX),g++)
+    CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -fPIC -Wall -D_REENTRANT
 
+    ifeq ($(OPTIMIZE),yes)
+        CXXFLAGS	:= -O2 -DNDEBUG $(CXXFLAGS)
+    else
+        CXXFLAGS	:= -g $(CXXFLAGS)
+    endif
+    
+    mkshlib              = $(CXX) -shared $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
+endif
 
-mkshlib                 = $(CXX) -G $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
-
-BASELIBS		= -lIceUtil $(STLPORT_LIBS) -lpthread
+BASELIBS		= -lIceUtil -lpthread
 LIBS			= -lIce $(BASELIBS)
 
 ICEUTIL_OS_LIBS         := -lpthread -lrt

@@ -15,7 +15,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 #ifdef __sun
-#    define INADDR_NONE -1
+#    define INADDR_NONE (unsigned long)-1
 #endif
 
 bool
