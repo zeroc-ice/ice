@@ -561,11 +561,19 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         {
 	    String endpts = _instance.properties().getProperty(name + ".Endpoints").toLowerCase();
 	    
-	    int beg = 0;
-	    int end;
+	    int beg;
+	    int end = 0;
 
-            while(true)
+            final String delim = " \t\n\r";
+
+            while(end < endpts.length())
             {
+                beg = IceInternal.StringUtil.findFirstNotOf(endpts, delim, end);
+                if(beg == -1)
+                {
+                    break;
+                }
+
                 end = endpts.indexOf(':', beg);
                 if(end == -1)
                 {
@@ -574,7 +582,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 
                 if(end == beg)
                 {
-                    break;
+                    ++end;
+                    continue;
                 }
 
                 String s = endpts.substring(beg, end);
@@ -587,12 +596,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
                 IceInternal.Endpoint endp = instance.endpointFactoryManager().create(s);
                 _incomingConnectionFactories.add(new IceInternal.IncomingConnectionFactory(instance, endp, this));
 
-                if(end == s.length())
-                {
-                    break;
-                }
-
-                beg = end + 1;
+                ++end;
             }
 
 	    String router = _instance.properties().getProperty(name + ".Router");
