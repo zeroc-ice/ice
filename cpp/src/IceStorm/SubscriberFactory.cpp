@@ -93,7 +93,7 @@ SubscriberFactory::createSubscriber(const QoS& qos, const Ice::ObjectPrx& obj)
             newObj = obj->ice_batchOneway();
         }
     }
-    if(reliability == "twoway" || reliability == "twoway ordered")
+    else if(reliability == "twoway" || reliability == "twoway ordered")
     {
 	newObj = obj->ice_twoway();
     }
