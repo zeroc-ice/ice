@@ -516,23 +516,105 @@ class DBI extends Ice.LocalObjectImpl implements DB
 	int flags = (create) ? com.sleepycat.db.Db.DB_CREATE : 0;
 	try
 	{
-	    _db.open(_name, null, com.sleepycat.db.Db.DB_BTREE, flags, 0);
-	    //TODO: FREEZE_DB_MODE)
+            //
+            // The signature for the open() method changed in version 4.1.
+            // We use reflection to invoke it with the proper arguments.
+            //
+            java.lang.reflect.Method m;
+            Class[] types;
+            Object[] args;
+            if(com.sleepycat.db.Db.DB_VERSION_MAJOR > 4 ||
+               (com.sleepycat.db.Db.DB_VERSION_MAJOR == 4 && com.sleepycat.db.Db.DB_VERSION_MINOR >= 1))
+            {
+                types = new Class[6];
+                types[0] = com.sleepycat.db.DbTxn.class;
+                types[1] = String.class;
+                types[2] = String.class;
+                types[3] = Integer.TYPE;
+                types[4] = Integer.TYPE;
+                types[5] = Integer.TYPE;
+                args = new Object[6];
+                args[0] = null;
+                args[1] = _name;
+                args[2] = null;
+                args[3] = new Integer(com.sleepycat.db.Db.DB_BTREE);
+                args[4] = new Integer(flags);
+                args[5] = new Integer(0);
+                //
+                // Equivalent to:
+                //
+                //_db.open(null, _name, null, com.sleepycat.db.Db.DB_BTREE, flags, 0);
+            }
+            else
+            {
+                types = new Class[5];
+                types[0] = String.class;
+                types[1] = String.class;
+                types[2] = Integer.TYPE;
+                types[3] = Integer.TYPE;
+                types[4] = Integer.TYPE;
+                args = new Object[5];
+                args[0] = _name;
+                args[1] = null;
+                args[2] = new Integer(com.sleepycat.db.Db.DB_BTREE);
+                args[3] = new Integer(flags);
+                args[4] = new Integer(0);
+                //
+                // Equivalent to:
+                //
+                //_db.open(_name, null, com.sleepycat.db.Db.DB_BTREE, flags, 0);
+            }
+
+            m = com.sleepycat.db.Db.class.getDeclaredMethod("open", types);
+            m.invoke(_db, args);
+	    //TODO: FREEZE_DB_MODE
 	}
-	catch(java.io.FileNotFoundException e)
-	{
-	    DBNotFoundException ex = new DBNotFoundException();
-	    ex.initCause(e);
-	    ex.message = _errorPrefix + "Db.open: " + e.getMessage();
-	    throw ex;
-	}
-	catch(com.sleepycat.db.DbException e)
-	{
+        catch(NoSuchMethodException e)
+        {
 	    DBException ex = new DBException();
 	    ex.initCause(e);
-	    ex.message = _errorPrefix + "Db.open: " + e.getMessage();
+	    ex.message = "reflection error";
 	    throw ex;
-	}
+        }
+        catch(IllegalAccessException e)
+        {
+	    DBException ex = new DBException();
+	    ex.initCause(e);
+	    ex.message = "reflection error";
+	    throw ex;
+        }
+        catch(IllegalArgumentException e)
+        {
+	    DBException ex = new DBException();
+	    ex.initCause(e);
+	    ex.message = "reflection error";
+	    throw ex;
+        }
+        catch(java.lang.reflect.InvocationTargetException e)
+        {
+            Throwable t = e.getCause();
+            if(t instanceof java.io.FileNotFoundException)
+            {
+                DBNotFoundException ex = new DBNotFoundException();
+                ex.initCause(t);
+                ex.message = _errorPrefix + "Db.open: " + t.getMessage();
+                throw ex;
+            }
+            else if(t instanceof com.sleepycat.db.DbException)
+            {
+                DBException ex = new DBException();
+                ex.initCause(t);
+                ex.message = _errorPrefix + "Db.open: " + t.getMessage();
+                throw ex;
+            }
+            else
+            {
+                DBException ex = new DBException();
+                ex.initCause(t);
+                ex.message = "Db.open: unexpected exception";
+                throw ex;
+            }
+        }
 	
 	_dbEnvObj.add(_name, this);
     }

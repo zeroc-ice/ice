@@ -196,7 +196,27 @@ class DBEnvironmentI extends Ice.LocalObjectImpl implements DBEnvironment, com.s
 	_name = name;
 	_errorPrefix = "Freeze::DBEnvironment(\"" + _name + "\"): ";
 	_trace = getCommunicator().getProperties().getPropertyAsInt("Freeze.Trace.DB");
-	_dbEnv = new com.sleepycat.db.DbEnv(0);
+        try
+        {
+            _dbEnv = new com.sleepycat.db.DbEnv(0);
+            //
+            // This is a portability workaround. The DbEnv constructor
+            // is declared as throwing DbException in version 4.1.x,
+            // but not in earlier versions. Without a bogus throw
+            // statement, the compiler will complain.
+            //
+            if(_dbEnv == null)
+            {
+                throw new com.sleepycat.db.DbException("");
+            }
+        }
+        catch(com.sleepycat.db.DbException e)
+        {
+            DBException ex = new DBException();
+            ex.initCause(e);
+            ex.message = _errorPrefix + "DbEnv.init: " + e.getMessage();
+            throw ex;
+        }
 	
 	if(_trace >= 1)
 	{

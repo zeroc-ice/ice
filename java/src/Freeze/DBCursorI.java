@@ -76,9 +76,14 @@ class DBCursorI extends Ice.LocalObjectImpl implements DBCursor
 	    throw ex;
 	}
 
-	com.sleepycat.db.Dbt dbKey = null;
+        //
+        // TODO: Although the API docs say that the key argument to Dbc.put()
+        // is ignored, an exception is raised if the Dbt object isn't initialized.
+        // Sleepycat has acknowledged that this is a bug.
+        //
+	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(new byte[0]);
 	com.sleepycat.db.Dbt dbData = new com.sleepycat.db.Dbt(v);
-	
+
 	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("DB", "setting current value in database \"" + _name + "\"");
