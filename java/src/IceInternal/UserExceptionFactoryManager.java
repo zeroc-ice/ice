@@ -19,12 +19,28 @@ public final class UserExceptionFactoryManager
     public synchronized void
     add(Ice.UserExceptionFactory factory, String id)
     {
+        Object o = _factoryMap.get(id);
+	if(o != null)
+	{
+	    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
+	    ex.id = id;
+	    ex.kindOfObject = "user exception factory";
+	    throw ex;
+	}
         _factoryMap.put(id, factory);
     }
 
     public synchronized void
     remove(String id)
     {
+        Object o = _factoryMap.get(id);
+	if(o == null)
+	{
+	    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
+	    ex.id = id;
+	    ex.kindOfObject = "user exception factory";
+	    throw ex;
+	}
         _factoryMap.remove(id);
     }
 

@@ -65,15 +65,16 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 		}
 		catch(Ice.AdapterNotRegisteredException ex)
 		{
-		    ObjectAdapterNotRegisteredException ex1 = new ObjectAdapterNotRegisteredException();
-		    ex1.name = _name;
+		    NotRegisteredException ex1 = new NotRegisteredException();
+		    ex1.id = Util.identityToString(ident);
+		    ex1.kindOfObject = "object adapter";
 		    throw ex1;
 		}
 		catch(Ice.AdapterAlreadyActiveException ex)
 		{
-		    ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
-		    ex1.name = _name;
-		    ex1.id = _id;
+		    AlreadyRegisteredException ex1 = new AlreadyRegisteredException();
+		    ex1.id = _name;
+		    ex1.kindOfObject = "object adapter";
 		    throw ex1;
 		}
 	    }
@@ -180,6 +181,15 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 
         checkIdentity(ident);
 
+	Ice.Object o = (Ice.Object)_activeServantMap.get(ident);
+	if(o != null)
+	{
+	    AlreadyRegisteredException ex = new AlreadyRegisteredException();
+	    ex.id = Util.identityToString(ident);
+	    ex.kindOfObject = "servant";
+	    throw ex;
+	}
+
         //
         // Create a copy of the Identity argument, in case the caller
         // reuses it
@@ -224,6 +234,15 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 
         checkIdentity(ident);
 
+	Ice.Object o = (Ice.Object)_activeServantMap.get(ident);
+	if(o == null)
+	{
+	    NotRegisteredException ex = new NotRegisteredException();
+	    ex.id = Util.identityToString(ident);
+	    ex.kindOfObject = "servant";
+	    throw ex;
+	}
+
         _activeServantMap.remove(ident);
     }
 
@@ -237,6 +256,15 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	    throw e;
         }
 
+	ServantLocator l = (ServantLocator)_locatorMap.get(prefix);
+	if(l != null)
+	{
+	    AlreadyRegisteredException ex = new AlreadyRegisteredException();
+	    ex.id = prefix;
+	    ex.kindOfObject = "servant locator";
+	    throw ex;
+	}
+
         _locatorMap.put(prefix, locator);
     }
 
@@ -249,6 +277,15 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	    e.name = _name;
 	    throw e;
         }
+
+	ServantLocator l = (ServantLocator)_locatorMap.get(prefix);
+	if(l == null)
+	{
+	    NotRegisteredException ex = new NotRegisteredException();
+	    ex.id = prefix;
+	    ex.kindOfObject = "servant locator";
+	    throw ex;
+	}
 
         ServantLocator locator = (ServantLocator)_locatorMap.remove(prefix);
         if(locator != null)

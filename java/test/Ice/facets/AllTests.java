@@ -26,6 +26,35 @@ public class AllTests
     public static GPrx
     allTests(Ice.Communicator communicator)
     {
+        System.out.print("testing whether adding the same facet twice raises AlreadyRegisteredException... ");
+	Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");
+	Ice.Object obj = new EmptyI();
+        adapter.add(obj, Ice.Util.stringToIdentity("d"));
+	obj.ice_addFacet(obj, "facetABCD");
+	boolean gotException = false;
+	try {
+	    obj.ice_addFacet(obj, "facetABCD");
+	}
+	catch(Ice.AlreadyRegisteredException ex)
+	{
+	    gotException = true;
+	}
+	test(gotException);
+        System.out.println("ok");
+
+        System.out.print("testing whether removing a non-existing facet raises NotRegisteredException... ");
+	obj.ice_removeFacet("facetABCD");
+	gotException = false;
+	try {
+	    obj.ice_removeFacet("facetABCD");
+	}
+	catch(Ice.NotRegisteredException ex)
+	{
+	    gotException = true;
+	}
+	test(gotException);
+        System.out.println("ok");
+
         System.out.print("testing stringToProxy... ");
         System.out.flush();
         String ref = "d:default -p 12345 -t 2000";

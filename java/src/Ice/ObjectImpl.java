@@ -308,6 +308,14 @@ public class ObjectImpl implements Object, java.lang.Cloneable
     {
         synchronized(_activeFacetMap)
         {
+	    Object o = (Object)_activeFacetMap.get(name);
+	    if(o != null)
+	    {
+	        Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
+		ex.id = name;
+		ex.kindOfObject = "facet";
+		throw ex;
+	    }
             _activeFacetMap.put(name, facet);
         }
     }
@@ -317,6 +325,14 @@ public class ObjectImpl implements Object, java.lang.Cloneable
     {
         synchronized(_activeFacetMap)
         {
+	    Object o = (Object)_activeFacetMap.get(name);
+	    if(o == null)
+	    {
+	        Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
+		ex.id = name;
+		ex.kindOfObject = "facet";
+		throw ex;
+	    }
             return (Object)_activeFacetMap.remove(name);
         }
     }

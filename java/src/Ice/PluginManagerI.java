@@ -16,6 +16,8 @@ package Ice;
 
 public final class PluginManagerI extends LocalObjectImpl implements PluginManager
 {
+    private static String _kindOfObject = "plug-in";
+
     public synchronized Plugin
     getPlugin(String name)
     {
@@ -29,7 +31,10 @@ public final class PluginManagerI extends LocalObjectImpl implements PluginManag
         {
             return p;
         }
-        throw new PluginNotFoundException();
+	NotRegisteredException ex = new NotRegisteredException();
+	ex.id = name;
+	ex.kindOfObject = _kindOfObject;
+        throw ex;
     }
 
     public synchronized void
@@ -42,7 +47,10 @@ public final class PluginManagerI extends LocalObjectImpl implements PluginManag
 
         if(_plugins.containsKey(name))
         {
-            throw new PluginExistsException();
+	    AlreadyRegisteredException ex = new AlreadyRegisteredException();
+	    ex.id = name;
+	    ex.kindOfObject = _kindOfObject;
+            throw ex;
         }
         _plugins.put(name, plugin);
     }

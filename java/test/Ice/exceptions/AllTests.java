@@ -58,6 +58,119 @@ public class AllTests
     public static ThrowerPrx
     allTests(Ice.Communicator communicator, boolean collocated)
     {
+        {
+	    System.out.print("testing AlreadyRegisteredException and NotRegisteredException for servant... ");
+	    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
+	    Ice.Object obj = new EmptyI();
+	    adapter.add(obj, Ice.Util.stringToIdentity("x"));
+	    boolean gotException = false;
+	    try {
+		adapter.add(obj, Ice.Util.stringToIdentity("x"));
+	    }
+	    catch(Ice.AlreadyRegisteredException ex)
+	    {
+		gotException = true;
+	    }
+	    test(gotException);
+
+	    gotException = false;
+	    adapter.remove(Ice.Util.stringToIdentity("x"));
+	    try {
+		adapter.remove(Ice.Util.stringToIdentity("x"));
+	    }
+	    catch(Ice.NotRegisteredException ex)
+	    {
+		gotException = true;
+	    }
+	    test(gotException);
+	    adapter.deactivate();
+	    System.out.println("ok");
+	}
+
+	{
+	    System.out.print("testing AlreadyRegisteredException and NotRegisteredException for servant locator... ");
+	    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter2");
+	    Ice.ServantLocator loc = new ServantLocatorI();
+	    adapter.addServantLocator(loc, "x");
+	    boolean gotException = false;
+	    try {
+		adapter.addServantLocator(loc, "x");
+	    }
+	    catch(Ice.AlreadyRegisteredException ex)
+	    {
+		gotException = true;
+	    }
+	    test(gotException);
+
+	    gotException = false;
+	    adapter.removeServantLocator("x");
+	    try {
+		adapter.removeServantLocator("x");
+	    }
+	    catch(Ice.NotRegisteredException ex)
+	    {
+		gotException = true;
+	    }
+	    test(gotException);
+	    adapter.deactivate();
+	    System.out.println("ok");
+	}
+
+	{
+	    System.out.print("testing AlreadyRegisteredException and NotRegisteredException for object factory... ");
+	    Ice.ObjectFactory of = new ObjectFactoryI();
+	    communicator.addObjectFactory(of, "::x");
+	    boolean gotException = false;
+	    try {
+		communicator.addObjectFactory(of, "::x");
+	    }
+	    catch(Ice.AlreadyRegisteredException ex)
+	    {
+		gotException = true;
+	    }
+	    test(gotException);
+
+	    gotException = false;
+	    communicator.removeObjectFactory("::x");
+	    try {
+		communicator.removeObjectFactory("::x");
+	    }
+	    catch(Ice.NotRegisteredException ex)
+	    {
+		gotException = true;
+	    }
+	    test(gotException);
+	    System.out.println("ok");
+	}
+
+	{
+	    System.out.print("testing AlreadyRegisteredException and NotRegisteredException");
+	    System.out.print(" for user exception factory... ");
+	    Ice.UserExceptionFactory f = new MyExceptionFactory();
+	    communicator.addUserExceptionFactory(f, "::x");
+	    boolean gotException = false;
+	    try {
+		communicator.addUserExceptionFactory(f, "::x");
+	    }
+	    catch(Ice.AlreadyRegisteredException ex)
+	    {
+		gotException = true;
+	    }
+	    test(gotException);
+
+	    gotException = false;
+	    communicator.removeUserExceptionFactory("::x");
+	    try {
+		communicator.removeUserExceptionFactory("::x");
+	    }
+	    catch(Ice.NotRegisteredException ex)
+	    {
+		gotException = true;
+	    }
+	    test(gotException);
+	    System.out.println("ok");
+	}
+
         System.out.print("testing stringToProxy... ");
         System.out.flush();
         String ref = "thrower:default -p 12345 -t 2000";

@@ -15,6 +15,10 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+interface Empty
+{
+};
+
 interface A
 {
     string callA();
