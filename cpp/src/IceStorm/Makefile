@@ -54,8 +54,8 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) --include-dir IceStorm -I$(slicedir) -I..
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -I$(XERCESC)/include/xercesc
-LDFLAGS		:= $(LDFLAGS) -L$(DB)/lib
+CPPFLAGS	:= -I.. -I$(DB_HOME)/include -I$(XERCESC_HOME)/include/xercesc $(CPPFLAGS)
+LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@

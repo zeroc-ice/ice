@@ -25,13 +25,13 @@ slicedir	= $(top_srcdir)/slice
 # variables. For example, if you are using a bourne shell or
 # compatible, you can overwrite the location of STLPORT like this:
 #
-# export STLPORT=/usr/local/STLport-4.5
+# export STLPORT_HOME=/usr/local/STLport-4.5
 #
-STLPORT		?= /opt/STLport
-JTC		?= /opt/JTC
-DB		?= /opt/db
-OPENSSL         ?= /opt/openssl
-XERCESC         ?= /opt/xerces-c
+STLPORT_HOME	?= /opt/STLport
+JTC_HOME	?= /opt/JTC
+DB_HOME		?= /opt/db
+OPENSSL_HOME	?= /opt/openssl
+XERCESC_HOME    ?= /opt/xerces-c
 
 #
 # Experts only: You can change the following lines, for example, to
@@ -40,15 +40,15 @@ XERCESC         ?= /opt/xerces-c
 CXX		= c++
 CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
 #CXXFLAGS	= -O3 -DNDEBUG -ftemplate-depth-128 -fPIC -Wall
-CPPFLAGS	= -I$(includedir) -I$(STLPORT)/include/stlport -I$(JTC)/include
-LDFLAGS		= -L$(libdir) -L$(STLPORT)/lib -L$(JTC)/lib -L$(OPENSSL)/lib -L$(XERCESC)/lib
+CPPFLAGS	= -I$(includedir) -I$(STLPORT_HOME)/include/stlport -I$(JTC_HOME)/include
+LDFLAGS		= -L$(libdir) -L$(STLPORT_HOME)/lib -L$(JTC_HOME)/lib -L$(OPENSSL_HOME)/lib -L$(XERCESC_HOME)/lib
 BASELIBS	= -lIceUtil -lstlport_gcc -lJTC -lpthread
 LIBS		= -lIce -lxerces-c1_5_2 -lssl -lcrypto $(BASELIBS)
 
 #CXX		= icc
 #CXXFLAGS	= -O3 -DNDEBUG
-#CPPFLAGS	= -I$(includedir) -I$(JTC)/include
-#LDFLAGS 	= -L$(libdir) -L$(JTC)/lib -L$(OPENSSL)/lib -L$(XERCESC)/lib
+#CPPFLAGS	= -I$(includedir) -I$(JTC_HOME)/include
+#LDFLAGS 	= -L$(libdir) -L$(JTC_HOME)/lib -L$(OPENSSL_HOME)/lib -L$(XERCESC_HOME)/lib
 #BASELIBS	= -lIceUtil -lJTC -lpthread
 #LIBS		= -lIce -lxerces-c1_5_2 -lssl -lcrypto $(BASELIBS)
 

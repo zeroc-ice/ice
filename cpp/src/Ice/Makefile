@@ -95,7 +95,7 @@ SLICECMD	= $(SLICE2CPP) --include-dir Ice --dll-export ICE_API -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -I$(OPENSSL)/include -I$(XERCESC)/include/xercesc
+CPPFLAGS	:= -I.. $(CPPFLAGS) -I$(OPENSSL_HOME)/include -I$(XERCESC_HOME)/include/xercesc
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@

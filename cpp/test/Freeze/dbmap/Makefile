@@ -20,8 +20,8 @@ SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. -I../../include $(CPPFLAGS) -I$(DB)/include
-LDFLAGS		:= $(LDFLAGS) -L$(DB)/lib
+CPPFLAGS	:= -I. -I../../include -I$(DB_HOME)/include $(CPPFLAGS)
+LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
 
 $(CLIENT): $(OBJS)
 	rm -f $@
