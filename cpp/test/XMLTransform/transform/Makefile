@@ -62,7 +62,8 @@ SLICE_SRCS	= TestOld.ice \
 
 SCHEMAS		= TestOld.xsd \
 		  TestNew.xsd \
-		  Identity.xsd
+		  Identity.xsd \
+		  ObjectRecord.xsd
 
 include $(top_srcdir)/config/Make.rules
 
@@ -173,6 +174,9 @@ TestNew.xsd: TestNew.ice $(SLICE2XSD)
 Identity.xsd: $(top_srcdir)/slice/Ice/Identity.ice $(SLICE2XSD)
 	$(SLICE2XSD) --ice -I$(top_srcdir)/slice $(top_srcdir)/slice/Ice/Identity.ice
 
+ObjectRecord.xsd: $(top_srcdir)/slice/Freeze/ObjectRecord.ice $(SLICE2XSD)
+	$(SLICE2XSD) -I$(top_srcdir)/slice $(top_srcdir)/slice/Freeze/ObjectRecord.ice
+
 clean::
 	rm -f IntByteMap.h IntByteMap.cpp
 	rm -f IntShortMap.h IntShortMap.cpp
@@ -200,5 +204,6 @@ clean::
 	rm -f IntC1MapOld.h IntC1MapOld.cpp
 	rm -f IntC1MapNew.h IntC1MapNew.cpp
 	rm -f Identity.xsd
+	rm -f ObjectRecord.xsd
 
 include .depend

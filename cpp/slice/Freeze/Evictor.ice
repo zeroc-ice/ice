@@ -20,6 +20,7 @@
 #include <Freeze/DBException.ice>
 #include <Freeze/DBF.ice>
 #include <Freeze/StrategyF.ice>
+#include <Freeze/ObjectRecord.ice>
 
 module Freeze
 {

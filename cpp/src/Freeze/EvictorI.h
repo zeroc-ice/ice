@@ -19,7 +19,7 @@
 #include <Ice/Ice.h>
 #include <Freeze/Evictor.h>
 #include <Freeze/Strategy.h>
-#include <Freeze/IdentityObjectDict.h>
+#include <Freeze/IdentityObjectRecordDict.h>
 
 #include <list>
 
@@ -56,17 +56,16 @@ private:
 
     struct EvictorElement : public Ice::LocalObject
     {
-	Ice::ObjectPtr servant;
+	ObjectRecord rec;
 	std::list<Ice::Identity>::iterator position;
 	int usageCount;
-	int mutatingCount;
         bool destroyed;
         Ice::LocalObjectPtr strategyCookie;
     };
     typedef IceUtil::Handle<EvictorElement> EvictorElementPtr;
 
     void evict();
-    EvictorElementPtr add(const Ice::Identity&, const Ice::ObjectPtr&);
+    EvictorElementPtr add(const Ice::Identity&, const ObjectRecord&);
     EvictorElementPtr remove(const Ice::Identity&);
     
     std::map<Ice::Identity, EvictorElementPtr> _evictorMap;
@@ -74,8 +73,8 @@ private:
     std::map<Ice::Identity, EvictorElementPtr>::size_type _evictorSize;
 
     bool _deactivated;
-    IdentityObjectDict _dict;
-    Freeze::DBPtr _db;
+    IdentityObjectRecordDict _dict;
+    DBPtr _db;
     PersistenceStrategyPtr _strategy;
     ServantInitializerPtr _initializer;
     int _trace;

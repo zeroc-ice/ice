@@ -39,25 +39,43 @@ public final class IdleStrategyI extends Ice.LocalObjectImpl implements IdleStra
         //
         // The object must reach the idle state in order for it to be
         // evicted, therefore the object should have already been saved
-        // by invokedObject.
+        // by postOperation.
         //
         Cookie c = (Cookie)cookie;
         assert(!c.mutated);
+        assert(c.mutatingCount == 0);
     }
 
     public void
-    invokedObject(ObjectStore store, Ice.Identity ident, Ice.Object servant, boolean mutating, boolean idle,
-                  Ice.LocalObject cookie)
+    preOperation(ObjectStore store, Ice.Identity ident, Ice.Object servant, boolean mutating, Ice.LocalObject cookie)
     {
         Cookie c = (Cookie)cookie;
-        if(!idle && mutating)
+        if(mutating)
         {
-            //
-            // Mark the object as mutated so we can save it when idle.
-            //
+            ++c.mutatingCount;
             c.mutated = true;
         }
-        else if(idle && (mutating || c.mutated))
+        else if(c.mutatingCount == 0 && c.mutated)
+        {
+            //
+            // Only store the object's persistent state if the object is idle
+            // and it has been mutated.
+            //
+            store.save(ident, servant);
+            c.mutated = false;
+        }
+    }
+
+    public void
+    postOperation(ObjectStore store, Ice.Identity ident, Ice.Object servant, boolean mutating, Ice.LocalObject cookie)
+    {
+        Cookie c = (Cookie)cookie;
+        if(mutating)
+        {
+            assert(c.mutatingCount >= 1);
+            --c.mutatingCount;
+        }
+        if(c.mutatingCount == 0 && c.mutated)
         {
             //
             // Only store the object's persistent state if the object is idle
@@ -76,6 +94,7 @@ public final class IdleStrategyI extends Ice.LocalObjectImpl implements IdleStra
 
     private static class Cookie extends Ice.LocalObjectImpl
     {
+        int mutatingCount = 0;
         boolean mutated = false;
     }
 }

@@ -73,6 +73,24 @@ IceUtil::Time::operator double() const
     return _usec / 1000000.0L;
 }
 
+Int64
+IceUtil::Time::toSeconds() const
+{
+    return _usec / 1000000;
+}
+
+Int64
+IceUtil::Time::toMilliSeconds() const
+{
+    return _usec / 1000;
+}
+
+Int64
+IceUtil::Time::toMicroSeconds() const
+{
+    return _usec;
+}
+
 std::string
 IceUtil::Time::toString() const
 {

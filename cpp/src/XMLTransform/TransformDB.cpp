@@ -178,10 +178,10 @@ main(int argc, char* argv[])
             {
                 //
                 // This is the schema definition for the database used by the
-                // Freeze Evictor (a map of Ice::Identity to Ice::Object).
-                // Note that this requires that a schema file be created for
-                // Identity.ice, and that it be loaded using --load-old and
-                // --load-new.
+                // Freeze Evictor (a map of Ice::Identity to Freeze::ObjectRecord).
+                // Note that this requires that schema files be created for
+                // Identity.ice and ObjectRecord.ice, and that they be loaded using
+                // --load-old and --load-new.
                 //
                 static string schema =
                     "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
@@ -192,7 +192,7 @@ main(int argc, char* argv[])
                     "           targetNamespace=\"http://www.noorg.org/schemas\">"
                     "    <xs:import namespace=\"http://www.zeroc.com/schemas\" schemaLocation=\"ice.xsd\"/>"
                     "    <xs:element name=\"Key\" type=\"_internal.Ice.IdentityType\"/>"
-                    "    <xs:element name=\"Value\" type=\"ice:_internal.objectType\"/></xs:schema>";
+                    "    <xs:element name=\"Value\" type=\"_internal.Freeze.ObjectRecordType\"/></xs:schema>";
 
                 transformer.transform(schema);
             }

@@ -536,6 +536,41 @@ BuildCmds= \
 !ENDIF 
 
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\..\slice\Freeze\ObjectRecord.ice
+
+!IF  "$(CFG)" == "transformP - Win32 Release"
+
+USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"	
+# Begin Custom Build
+InputPath=..\..\..\slice\Freeze\ObjectRecord.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2xsd.exe -I../../../slice ../../../slice/Freeze/ObjectRecord.ice \
+	
+
+"ObjectRecord.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "transformP - Win32 Debug"
+
+USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"	
+# Begin Custom Build
+InputPath=..\..\..\slice\Freeze\ObjectRecord.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2xsd.exe -I../../../slice ../../../slice/Freeze/ObjectRecord.ice \
+	
+
+"ObjectRecord.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
 # End Group
 # End Target
 # End Project

@@ -52,12 +52,11 @@ Freeze::EvictionStrategyI::evictedObject(const ObjectStorePtr& store,
 }
 
 void
-Freeze::EvictionStrategyI::invokedObject(const ObjectStorePtr& store,
-                                         const Identity& ident,
-                                         const ObjectPtr& servant,
-                                         bool mutating,
-                                         bool idle,
-                                         const LocalObjectPtr& cookie)
+Freeze::EvictionStrategyI::preOperation(const ObjectStorePtr& store,
+                                        const Identity& ident,
+                                        const ObjectPtr& servant,
+                                        bool mutating,
+                                        const LocalObjectPtr& cookie)
 {
     if(mutating)
     {
@@ -65,6 +64,16 @@ Freeze::EvictionStrategyI::invokedObject(const ObjectStorePtr& store,
         assert(c);
         c->mutated = true;
     }
+}
+
+void
+Freeze::EvictionStrategyI::postOperation(const ObjectStorePtr& store,
+                                         const Identity& ident,
+                                         const ObjectPtr& servant,
+                                         bool mutating,
+                                         const LocalObjectPtr& cookie)
+{
+    // Nothing to do
 }
 
 void
@@ -79,6 +88,7 @@ Freeze::IdleStrategyI::activatedObject(const Identity& ident,
 {
     CookiePtr cookie = new Cookie;
     cookie->mutated = false;
+    cookie->mutatingCount = 0;
     return cookie;
 }
 
@@ -105,20 +115,45 @@ Freeze::IdleStrategyI::evictedObject(const ObjectStorePtr& store,
 }
 
 void
-Freeze::IdleStrategyI::invokedObject(const ObjectStorePtr& store,
+Freeze::IdleStrategyI::preOperation(const ObjectStorePtr& store,
+                                    const Identity& ident,
+                                    const ObjectPtr& servant,
+                                    bool mutating,
+                                    const LocalObjectPtr& cookie)
+{
+    CookiePtr c = CookiePtr::dynamicCast(cookie);
+    assert(c);
+    if(mutating)
+    {
+        ++c->mutatingCount;
+        c->mutated = true;
+    }
+    else if(c->mutatingCount == 0 && c->mutated)
+    {
+        //
+        // Only store the object's persistent state if the object is idle
+        // and it has been mutated.
+        //
+        store->save(ident, servant);
+        c->mutated = false;
+    }
+}
+
+void
+Freeze::IdleStrategyI::postOperation(const ObjectStorePtr& store,
                                      const Identity& ident,
                                      const ObjectPtr& servant,
                                      bool mutating,
-                                     bool idle,
                                      const LocalObjectPtr& cookie)
 {
     CookiePtr c = CookiePtr::dynamicCast(cookie);
     assert(c);
-    if(!idle && mutating)
+    if(mutating)
     {
-        c->mutated = true;
+        assert(c->mutatingCount >= 1);
+        --c->mutatingCount;
     }
-    else if(idle && (mutating || c->mutated))
+    if(c->mutatingCount == 0 && c->mutated)
     {
         //
         // Only store the object's persistent state if the object is idle

@@ -38,6 +38,10 @@ public:
     operator timeval() const;
     operator double() const;
 
+    Int64 toSeconds() const;
+    Int64 toMilliSeconds() const;
+    Int64 toMicroSeconds() const;
+
     std::string toString() const;
 
     Time operator-() const // Inlined for performance reasons.

@@ -130,10 +130,15 @@ public:
                                const Ice::ObjectPtr&,
                                const Ice::LocalObjectPtr&);
 
-    virtual void invokedObject(const Freeze::ObjectStorePtr&,
+    virtual void preOperation(const Freeze::ObjectStorePtr&,
+                              const Ice::Identity&,
+                              const Ice::ObjectPtr&,
+                              bool,
+                              const Ice::LocalObjectPtr&);
+
+    virtual void postOperation(const Freeze::ObjectStorePtr&,
                                const Ice::Identity&,
                                const Ice::ObjectPtr&,
-                               bool,
                                bool,
                                const Ice::LocalObjectPtr&);
 

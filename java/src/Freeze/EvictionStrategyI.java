@@ -48,14 +48,19 @@ public final class EvictionStrategyI extends Ice.LocalObjectImpl implements Evic
     }
 
     public void
-    invokedObject(ObjectStore store, Ice.Identity ident, Ice.Object servant, boolean mutating, boolean idle,
-                  Ice.LocalObject cookie)
+    preOperation(ObjectStore store, Ice.Identity ident, Ice.Object servant, boolean mutating, Ice.LocalObject cookie)
     {
         if(mutating)
         {
             Cookie c = (Cookie)cookie;
             c.mutated = true;
         }
+    }
+
+    public void
+    postOperation(ObjectStore store, Ice.Identity ident, Ice.Object servant, boolean mutating, Ice.LocalObject cookie)
+    {
+        // Nothing to do
     }
 
     public void

@@ -76,6 +76,7 @@ Test::ServantI::destroy(const Current& current)
 void
 Test::ServantI::__write(IceInternal::BasicStream* os) const
 {
+    assert(_remoteEvictor);
     _remoteEvictor->setLastSavedValue(value);
     Servant::__write(os);
 }
@@ -83,6 +84,7 @@ Test::ServantI::__write(IceInternal::BasicStream* os) const
 void
 Test::ServantI::__marshal(const StreamPtr& os) const
 {
+    assert(_remoteEvictor);
     _remoteEvictor->setLastSavedValue(value);
     Servant::__marshal(os);
 }
@@ -250,14 +252,23 @@ Test::StrategyI::evictedObject(const Freeze::ObjectStorePtr& store,
 }
 
 void
-Test::StrategyI::invokedObject(const Freeze::ObjectStorePtr& store,
+Test::StrategyI::preOperation(const Freeze::ObjectStorePtr& store,
+                              const Identity& ident,
+                              const ObjectPtr& servant,
+                              bool mutating,
+                              const LocalObjectPtr& cookie)
+{
+    _delegate->preOperation(store, ident, servant, mutating, cookie);
+}
+
+void
+Test::StrategyI::postOperation(const Freeze::ObjectStorePtr& store,
                                const Identity& ident,
                                const ObjectPtr& servant,
                                bool mutating,
-                               bool idle,
                                const LocalObjectPtr& cookie)
 {
-    _delegate->invokedObject(store, ident, servant, mutating, idle, cookie);
+    _delegate->postOperation(store, ident, servant, mutating, cookie);
 }
 
 void

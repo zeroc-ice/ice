@@ -130,7 +130,11 @@ SOURCE=.\EvictorI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IdentityObjectDict.cpp
+SOURCE=.\IdentityObjectRecordDict.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ObjectRecord.cpp
 # End Source File
 # Begin Source File
 
@@ -182,7 +186,7 @@ SOURCE=..\..\include\Freeze\Freeze.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\IdentityObjectDict.h
+SOURCE=.\IdentityObjectRecordDict.h
 # End Source File
 # Begin Source File
 
@@ -191,6 +195,10 @@ SOURCE=..\..\include\Freeze\Initialize.h
 # Begin Source File
 
 SOURCE=..\..\include\Freeze\Map.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Freeze\ObjectRecord.h
 # End Source File
 # Begin Source File
 
@@ -405,6 +413,49 @@ InputPath=..\..\slice\Freeze\EvictorF.ice
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\slice\Freeze\ObjectRecord.ice
+
+!IF  "$(CFG)" == "Freeze - Win32 Release"
+
+USERDEP__DBEXC="..\..\bin\slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Freeze\ObjectRecord.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/ObjectRecord.ice \
+	move ObjectRecord.h ..\..\include\Freeze \
+	
+
+"..\..\include\Freeze\ObjectRecord.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ObjectRecord.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
+
+USERDEP__DBEXC="..\..\bin\slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Freeze\ObjectRecord.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/ObjectRecord.ice \
+	move ObjectRecord.h ..\..\include\Freeze \
+	
+
+"..\..\include\Freeze\ObjectRecord.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ObjectRecord.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\slice\Freeze\Strategy.ice
 
 !IF  "$(CFG)" == "Freeze - Win32 Release"
@@ -490,12 +541,12 @@ USERDEP__IDENT="..\..\bin\slice2freeze.exe"
 InputPath=..\..\slice\Ice\Identity.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice --include-dir Freeze -I../../slice --dict Freeze::IdentityObjectDict,Ice::Identity,Object IdentityObjectDict ../../slice/Ice/Identity.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir Freeze -I../../slice --dict Freeze::IdentityObjectRecordDict,Ice::Identity,Freeze::ObjectRecord IdentityObjectRecordDict ../../slice/Ice/Identity.ice ../../slice/Freeze/ObjectRecord.ice
 
-"IdentityObjectDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"IdentityObjectRecordDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"IdentityObjectDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"IdentityObjectRecordDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -506,12 +557,12 @@ USERDEP__IDENT="..\..\bin\slice2freeze.exe"
 InputPath=..\..\slice\Ice\Identity.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice --include-dir Freeze -I../../slice --dict Freeze::IdentityObjectDict,Ice::Identity,Object IdentityObjectDict ../../slice/Ice/Identity.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir Freeze -I../../slice --dict Freeze::IdentityObjectRecordDict,Ice::Identity,Freeze::ObjectRecord IdentityObjectRecordDict ../../slice/Ice/Identity.ice ../../slice/Freeze/ObjectRecord.ice
 
-"IdentityObjectDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"IdentityObjectRecordDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"IdentityObjectDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"IdentityObjectRecordDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

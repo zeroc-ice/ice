@@ -91,12 +91,19 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
 	identCopy.name = ident.name;
 	identCopy.category = ident.category;
 
+        ObjectRecord rec = new ObjectRecord();
+        rec.servant = servant;
+        rec.stats = new Statistics();
+        rec.stats.creationTime = System.currentTimeMillis();
+        rec.stats.lastSaveTime = 0;
+        rec.stats.avgSaveTime = 0;
+
         //
         // Save the Ice object's initial state and add it to the queue.
         //
-        save(identCopy, servant);
-	add(identCopy, servant);
-	
+        _dict.fastPut(ident, rec);
+	add(identCopy, rec);
+
 	if(_trace >= 1)
 	{
 	    _db.getCommunicator().getLogger().trace("Evictor", "created \"" + Ice.Util.identityToString(ident) + "\"");
@@ -116,11 +123,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
 	    throw new EvictorDeactivatedException();
 	}
 
-	//
-	// Delete the Ice object from the database.
-	//
-        _dict.fastRemove(ident);
-
 	EvictorElement element = remove(ident);
         if(element != null)
 	{
@@ -137,6 +139,11 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
                                                         Ice.Util.identityToString(ident) + "\"");
             }
 	}
+
+	//
+	// Delete the Ice object from the database.
+	//
+        _dict.fastRemove(ident);
     }
     
     synchronized public void
@@ -229,8 +236,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
 	    // Load the Ice object from the database and add a
 	    // servant for it.
 	    //
-	    Ice.Object servant = (Ice.Object)_dict.get(ident);
-	    if(servant == null)
+	    ObjectRecord rec = (ObjectRecord)_dict.get(ident);
+	    if(rec == null)
 	    {
 		//
 		// The Ice object with the given identity does not exist,
@@ -244,23 +251,25 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
 	    //
 	    if(_initializer != null)
 	    {
-		_initializer.initialize(current.adapter, ident, servant);
+		_initializer.initialize(current.adapter, ident, rec.servant);
 	    }
 
 	    //
 	    // Add the new servant to the evictor queue.
 	    //
-	    element = add(ident, servant);
+	    element = add(ident, rec);
 	}
 	
 	//
 	// Increase the usage count of the evictor queue element.
 	//
 	++element.usageCount;
-        if(current.mode != Ice.OperationMode.Nonmutating)
-        {
-            ++element.mutatingCount;
-        }
+
+        //
+        // Notify the persistence strategy about the operation.
+        //
+        _strategy.preOperation(this, ident, element.rec.servant, current.mode != Ice.OperationMode.Nonmutating,
+                               element.strategyCookie);
 
 	//
 	// Evict as many elements as necessary.
@@ -271,7 +280,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
 	// Set the cookie and return the servant for the Ice object.
 	//
 	cookie.value = (Ice.LocalObject)element;
-	return element.servant;
+	return element.rec.servant;
     }
 
     synchronized public void
@@ -292,20 +301,15 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
 	EvictorElement element = (EvictorElement)cookie;
 	assert(element.usageCount >= 1);
 	--element.usageCount;
-        if(current.mode != Ice.OperationMode.Nonmutating)
-        {
-            assert(element.mutatingCount >= 1);
-            --element.mutatingCount;
-        }
-	
+
         //
         // If the object has not been destroyed, notify the persistence
         // strategy about the operation.
         //
         if(!element.destroyed)
         {
-            _strategy.invokedObject(this, current.id, servant, current.mode != Ice.OperationMode.Nonmutating,
-                                    element.mutatingCount == 0, element.strategyCookie);
+            _strategy.postOperation(this, current.id, servant, current.mode != Ice.OperationMode.Nonmutating,
+                                    element.strategyCookie);
         }
 	
 	//
@@ -340,16 +344,38 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
     save(Ice.Identity ident, Ice.Object servant)
     {
         //
-        // NOTE: Do not synchronize on the evictor mutex or else
-        // deadlocks may occur.
+        // NOTE: This operation is not mutex-protected, therefore it may
+        // only be invoked while the evictor is already locked. For
+        // example, it is safe to call this operation from a persistence
+        // strategy implementation, iff the persistence strategy is in
+        // the thread context of a locked evictor operation.
         //
-        _dict.fastPut(ident, servant);
+        EvictorElement element = (EvictorElement)_evictorMap.get(ident);
+        assert(element != null);
+
+        //
+        // Update statistics before saving.
+        //
+        long now = System.currentTimeMillis();
+        long diff = now - (element.rec.stats.creationTime + element.rec.stats.lastSaveTime);
+        if(element.rec.stats.lastSaveTime == 0)
+        {
+            element.rec.stats.lastSaveTime = diff;
+            element.rec.stats.avgSaveTime = diff;
+        }
+        else
+        {
+            element.rec.stats.lastSaveTime = now - element.rec.stats.creationTime;
+            element.rec.stats.avgSaveTime = (long)(element.rec.stats.avgSaveTime * 0.95 + diff * 0.05);
+        }
+
+        _dict.fastPut(ident, element.rec);
     }
 
     EvictorI(DB db, PersistenceStrategy strategy)
     {
 	_db = db;
-	_dict = new IdentityObjectDict(db);
+	_dict = new IdentityObjectRecordDict(db);
         _strategy = strategy;
 	_trace = _db.getCommunicator().getProperties().getPropertyAsInt("Freeze.Trace.Evictor");
     }
@@ -384,12 +410,11 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
 		// Fine, servant is not in use.
 		//
 		assert(ident != null && element != null);
-                assert(element.mutatingCount == 0);
 
                 //
                 // Notify the persistence strategy about the evicted object.
                 //
-                _strategy.evictedObject(this, ident, element.servant, element.strategyCookie);
+                _strategy.evictedObject(this, ident, element.rec.servant, element.strategyCookie);
 
 		//
 		// Remove element from the evictor queue.
@@ -416,7 +441,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
     }
 
     private EvictorElement
-    add(Ice.Identity ident, Ice.Object servant)
+    add(Ice.Identity ident, ObjectRecord rec)
     {
 	//
 	// Ignore the request if the Ice object is already in the queue.
@@ -433,12 +458,11 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
 	_evictorList.addFirst(ident);
 
 	element = new EvictorElement();
-	element.servant = servant;
+        element.rec = rec;
 	element.position = _evictorList.iterator();
 	element.usageCount = 0;    
-	element.mutatingCount = 0;    
 	element.destroyed = false;    
-        element.strategyCookie = _strategy.activatedObject(ident, servant);
+        element.strategyCookie = _strategy.activatedObject(ident, rec.servant);
 
 	//
 	// Position the iterator "on" the element.
@@ -465,10 +489,9 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
 
     class EvictorElement extends Ice.LocalObjectImpl
     {
-	Ice.Object servant;
+        ObjectRecord rec;
 	java.util.Iterator position;
 	int usageCount;
-	int mutatingCount;
         boolean destroyed;
         Ice.LocalObject strategyCookie;
     };
@@ -490,7 +513,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
 
     private int _evictorSize = 10;
     private boolean _deactivated = false;
-    private IdentityObjectDict _dict;
+    private IdentityObjectRecordDict _dict;
 
     private DB _db;
     private PersistenceStrategy _strategy;

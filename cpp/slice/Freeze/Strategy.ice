@@ -114,6 +114,25 @@ local interface PersistenceStrategy
 
     /**
      *
+     * Called before an operation is invoked on an object.
+     *
+     * @param store The object store. This value may be retained
+     * by the strategy if necessary.
+     *
+     * @param identity The identity of the &Ice; object.
+     *
+     * @param servant The servant incarnating the &Ice; object.
+     *
+     * @param mutating True if the operation was not declared as nonmutating, otherwise false.
+     *
+     * @param cookie The strategy's private state associated with the &Ice; object.
+     *
+     **/
+    void preOperation(ObjectStore store, Ice::Identity ident, Object servant, bool mutating, LocalObject cookie)
+        throws DBException;
+
+    /**
+     *
      * Called after an operation has been invoked on an object.
      *
      * @param store The object store. This value may be retained
@@ -125,13 +144,11 @@ local interface PersistenceStrategy
      *
      * @param mutating True if the operation was not declared as nonmutating, otherwise false.
      *
-     * @param idle True if no mutating operations are pending on the object, otherwise false.
-     *
      * @param cookie The strategy's private state associated with the &Ice; object.
      *
      **/
-    void invokedObject(ObjectStore store, Ice::Identity ident, Object servant, bool mutating, bool idle,
-                       LocalObject cookie) throws DBException;
+    void postOperation(ObjectStore store, Ice::Identity ident, Object servant, bool mutating, LocalObject cookie)
+        throws DBException;
 
     /**
      *

@@ -80,6 +80,7 @@ the Free Software Foundation.
                 <include name="DB.ice" />
                 <include name="DBException.ice" />
                 <include name="Evictor.ice" />
+                <include name="ObjectRecord.ice" />
                 <include name="Strategy.ice" />
             </fileset>
             <fileset dir="${slice.dir}/IceBox">
@@ -101,7 +102,10 @@ the Free Software Foundation.
             <fileset dir="${slice.dir}/Ice">
                 <include name="Identity.ice"/>
             </fileset>
-            <dict name="Freeze.IdentityObjectDict" key="Ice::Identity" value="Object"/>
+            <fileset dir="${slice.dir}/Freeze">
+                <include name="Evictor.ice"/>
+            </fileset>
+            <dict name="Freeze.IdentityObjectRecordDict" key="Ice::Identity" value="Freeze::ObjectRecord"/>
         </slice2freezej>
     </target>
 

@@ -974,8 +974,10 @@ transformEvictor(const DBEnvironmentPtr& dbEnv)
 
     loadOld.push_back("TestOld.xsd");
     loadOld.push_back("Identity.xsd");
+    loadOld.push_back("ObjectRecord.xsd");
     loadNew.push_back("TestNew.xsd");
     loadNew.push_back("Identity.xsd");
+    loadNew.push_back("ObjectRecord.xsd");
 
     static string evictorSchema =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
@@ -986,7 +988,7 @@ transformEvictor(const DBEnvironmentPtr& dbEnv)
         "           targetNamespace=\"http://www.noorg.org/schemas\">"
         "    <xs:import namespace=\"http://www.zeroc.com/schemas\" schemaLocation=\"ice.xsd\"/>"
         "    <xs:element name=\"Key\" type=\"_internal.Ice.IdentityType\"/>"
-        "    <xs:element name=\"Value\" type=\"ice:_internal.objectType\"/></xs:schema>";
+        "    <xs:element name=\"Value\" type=\"_internal.Freeze.ObjectRecordType\"/></xs:schema>";
 
     cout << "transforming evictor map... " << flush;
 
