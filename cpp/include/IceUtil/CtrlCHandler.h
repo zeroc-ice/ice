@@ -23,17 +23,16 @@ namespace IceUtil
 
 // The CtrlCHandler provides a portable way to handle CTRL+C and
 // CTRL+C like signals 
-// On Unix/POSIX, the CtrlCHandler handles SIGHUP, SIGINT, SIGQUIT 
-// and SIGTERM. On Windows, it is essentially a wrapper for 
-// SetConsoleCtrlHandler().
+// On Unix/POSIX, the CtrlCHandler handles SIGHUP, SIGINT and SIGTERM. 
+// On Windows, it is essentially a wrapper for SetConsoleCtrlHandler().
 // 
 // In a process, only one CtrlCHandler can exist at a given time: 
 // the CtrlCHandler constructor raises CtrlCHandlerException if
 // you attempt to create a second CtrlCHandler.
 // On Unix/POSIX, it is essential to create the CtrlCHandler before
 // creating any thread, as the CtrlCHandler constructor masks
-// SIGHUP, SIGINT, SIGQUIT and SIGTERM; by default, threads created
-// later will inherit this signal mask.
+// SIGHUP, SIGINT and SIGTERM; by default, threads created later will 
+// inherit this signal mask.
 //
 // When a CTRL+C or CTRL+C like signal is sent to the process, the 
 // user-registered callback is called in a separate thread; it is 
@@ -43,7 +42,7 @@ namespace IceUtil
 //
 // The CtrCHandler destructor "unregisters" the callback. However
 // on Unix/POSIX it does not restore the old signal mask in any
-// thread, so SIGHUP, SIGINT, SIGQUIT and SIGTERM are then ignored.
+// thread, so SIGHUP, SIGINT and SIGTERM are then ignored.
 //
 // TODO: Maybe the behavior on Windows should be the same? Now we
 // just restore the default behavior (TerminateProcess).
