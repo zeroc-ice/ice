@@ -740,6 +740,7 @@ local exception NegativeSizeException extends MarshalException
 {
 };
 
+#ifndef ICEE
 /**
  *
  * This exception indicates that a failure occurred while initializing
@@ -755,6 +756,7 @@ local exception PluginInitializationException
      **/
     string reason;
 };
+#endif
 
 /**
  *

@@ -17,7 +17,9 @@
 #include <Ice/ObjectFactoryF.ice>
 #include <Ice/RouterF.ice>
 #include <Ice/LocatorF.ice>
-#include <Ice/PluginF.ice>
+#ifndef ICEE
+# include <Ice/PluginF.ice>
+#endif
 #include <Ice/Current.ice>
 
 /**
@@ -396,6 +398,7 @@ local interface Communicator
      **/
     void setDefaultLocator(Locator* loc);
 
+#ifndef ICEE
     /**
      *
      * Get the plug-in manager for this communicator.
@@ -406,6 +409,7 @@ local interface Communicator
      *
      **/
     nonmutating PluginManager getPluginManager();
+#endif
 
     /**
      *
