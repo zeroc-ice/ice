@@ -837,7 +837,7 @@ IceXML::StreamI::readFloat(const string& name, ::Ice::Float& value)
     }
 
     string s = toString(child.getNodeValue());
-    value = atof(s.c_str());
+    value = (::Ice::Float)atof(s.c_str());
 
     endRead();
 }

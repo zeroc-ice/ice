@@ -36,10 +36,10 @@ namespace IceXML
 //
 struct StreamInputImpl;
 
-class ICE_XML_API StreamI : public Ice::Stream
+class ICE_XML_API StreamI : public ::Ice::Stream
 {
     StreamI();
-    StreamI(const Stream&);
+    StreamI(const StreamI&);
     void operator=(const StreamI&);
 
 public:
