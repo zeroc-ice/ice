@@ -235,15 +235,23 @@ class CommunicatorI extends LocalObjectImpl implements Communicator
         _instance.logger(logger);
     }
 
-    public void
+    public synchronized void
     setDefaultRouter(RouterPrx router)
     {
+        if(_destroyed)
+        {
+            throw new CommunicatorDestroyedException();
+        }
         _instance.referenceFactory().setDefaultRouter(router);
     }
 
-    public void
+    public synchronized void
     setDefaultLocator(LocatorPrx locator)
     {
+        if(_destroyed)
+        {
+            throw new CommunicatorDestroyedException();
+        }
         _instance.referenceFactory().setDefaultLocator(locator);
     }
 
