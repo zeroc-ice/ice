@@ -226,7 +226,7 @@ private:
     void generatedReadWithIndex(IntIntMap&, int, const GeneratorPtr&)
     {}
     void generatedReadWithIndex(IndexedIntIntMap&, int, const GeneratorPtr&);
-    template<class T> generatedRead(T& m, int reads , const GeneratorPtr& gen)
+    template<class T> void generatedRead(T& m, int reads , const GeneratorPtr& gen)
     {
 	_watch.start();
 	for(int i = 0; i < reads; ++i)
