@@ -50,11 +50,12 @@ PYTHON_VERSION		?= python2.3
 PYTHON_HOME		?= /opt/python-2.3.4
 PYTHON_INCLUDE_DIR	?= $(PYTHON_HOME)/include/$(PYTHON_VERSION)
 #PYTHON_INCLUDE_DIR	?= /usr/include/$(PYTHON_VERSION)
-PYTHON_LIB_DIR		?= $(PYTHON_HOME)/lib/$(PYTHON_VERSION)
+PYTHON_LIB_DIR		?= $(PYTHON_HOME)/lib/$(PYTHON_VERSION)/config
 #PYTHON_LIB_DIR		?= /usr/lib/$(PYTHON_VERSION)
+#PYTHON_LIB_DIR		?= $(PYTHON_HOME)/lib  # HP-UX
 
 PYTHON_FLAGS		?= -I$(PYTHON_INCLUDE_DIR)
-PYTHON_LIBS		?= -L$(PYTHON_LIB_DIR)/config -l$(PYTHON_VERSION)
+PYTHON_LIBS		?= -L$(PYTHON_LIB_DIR) -l$(PYTHON_VERSION)
 
 ICE_FLAGS		?= -I$(ICE_HOME)/include
 ICE_LIBS		?= -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice
@@ -116,7 +117,7 @@ LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
 #
 # Default functions for shared library names. A Python extension library
-# cannot have a "lib" prefix.
+# cannot have a "lib" prefix, so Python-specific functions are defined.
 #
 
 ifeq ($(mklibfilename),)
@@ -129,18 +130,6 @@ endif
 
 ifeq ($(mklibname),)
     mklibname		= lib$(1).so
-endif
-
-ifeq ($(mkpylibfilename),)
-    mkpylibfilename	= $(if $(2),$(1).so.$(2),$(1).so)
-endif
-
-ifeq ($(mkpysoname),)
-    mkpysoname		= $(if $(2),$(1).so.$(2),$(1).so)
-endif
-
-ifeq ($(mkpylibname),)
-    mkpylibname		= $(1).so
 endif
 
 ifndef mklibtargets
@@ -156,6 +145,14 @@ ifeq ($(installlib),)
 			  rm -f $(1)/$(4); ln -s $(3) $(1)/$(4); \
 			  rm -f $(1)/$(5); ln -s $(4) $(1)/$(5) 
 endif
+
+#
+# A Python extension library cannot have a "lib" prefix, so Python-specific
+# functions are defined that strip "lib" from the regular library name.
+#
+mkpylibfilename		= $(subst lib,,$(call mklibfilename,$(1),$(2)))
+mkpysoname		= $(subst lib,,$(call mksoname,$(1),$(2)))
+mkpylibname		= $(subst lib,,$(call mklibname,$(1)))
 
 SLICE2PY		= $(ICE_HOME)/bin/slice2py
 

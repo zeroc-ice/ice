@@ -27,8 +27,9 @@ endif
 # Disable the following warnings:
 # 307: Function defines return type, but contains no return at end of function.
 # 361: Value-returning function might end without executing a return statement.
+# 829: Implicit conversion of string literal to 'char *' is deprecated.
 # 849: External symbol too long, truncated from xxx to 4000
-DISABLEDWARNINGS        = +W307 +W361 +W849
+DISABLEDWARNINGS        = +W307 +W361 +W829 +W849
 
 CXXFLAGS		= -AA +Z -mt $(DISABLEDWARNINGS) $(CXXARCHFLAGS)
 
@@ -41,7 +42,7 @@ endif
 #
 # C++ run-time libraries, necessary for linking some shared libraries.
 #
-CXXLIBS			=
+CXXLIBS			= -lCsup_v2 -lstd_v2
 
 #
 # On HP-UX, we need -L for all dependent libraries
