@@ -37,7 +37,7 @@ Ice.ConnectionWarnings=1
 #
 # Security Tracing
 #
-# 0 = no protocol tracing
+# 0 = no security tracing
 # 1 = trace warning messages
 # 2 = config file parsing warnings
 #

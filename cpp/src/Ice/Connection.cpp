@@ -448,14 +448,20 @@ IceInternal::Connection::message(BasicStream& stream)
 		catch (const UserException& ex)
 		{
 		    IceUtil::RecMutex::Lock sync(*this);
-		    Error out(_logger);
-		    out << "unknown user exception:\n" << ex << '\n' << _transceiver->toString();
+		    if (_warn)
+		    {
+			Warning out(_logger);
+			out << "unknown user exception:\n" << ex << '\n' << _transceiver->toString();
+		    }
 		}
 		catch (...)
 		{
 		    IceUtil::RecMutex::Lock sync(*this);
-		    Error out(_logger);
-		    out << "unknown exception";
+		    if (_warn)
+		    {
+			Warning out(_logger);
+			out << "unknown exception";
+		    }
 		}
 	    }
 	    while (batch && is->i < is->b.end());
