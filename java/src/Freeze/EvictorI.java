@@ -1039,6 +1039,15 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			    }   
 			    case destroyed:
 			    {
+				if(_trace >= 3)
+				{
+				    _communicator.getLogger().trace(
+					"Freeze.Evictor", 
+					"saving/streaming \"" + Ice.Util.identityToString(facet.element.identity) +
+					"\" " + facetPathToString(facet.path) + ": destroyed -> dead");
+				}
+				
+				facet.status = dead;
 				streamedObjectQueue.add(streamFacet(facet, status, saveStart));
 				break;
 			    }   
