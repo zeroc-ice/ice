@@ -1350,24 +1350,27 @@ public class BasicStream
         // unmarshaled in order to ensure that any object data members have been
         // properly patched.
         //
-        java.util.Iterator e = _objectList.iterator();
-        while(e.hasNext())
+        if(_objectList != null)
         {
-            Ice.Object obj = (Ice.Object)e.next();
-            try
+            java.util.Iterator e = _objectList.iterator();
+            while(e.hasNext())
             {
-                obj.ice_postUnmarshal();
-            }
-            catch(Exception ex)
-            {
-                java.io.StringWriter sw = new java.io.StringWriter();
-                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
-                out.setUseTab(false);
-                out.print("exception raised by ice_postUnmarshal:\n");
-                ex.printStackTrace(pw);
-                pw.flush();
-                _instance.logger().warning(sw.toString());
+                Ice.Object obj = (Ice.Object)e.next();
+                try
+                {
+                    obj.ice_postUnmarshal();
+                }
+                catch(Exception ex)
+                {
+                    java.io.StringWriter sw = new java.io.StringWriter();
+                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                    IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
+                    out.setUseTab(false);
+                    out.print("exception raised by ice_postUnmarshal:\n");
+                    ex.printStackTrace(pw);
+                    pw.flush();
+                    _instance.logger().warning(sw.toString());
+                }
             }
         }
     }
