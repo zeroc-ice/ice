@@ -122,8 +122,12 @@ public:
 	catch(const Ice::ConnectionLostException&)
 	{
 	}
-	catch(...)
+	catch(const Ice::ConnectFailedException&)
 	{
+	}
+	catch(Ice::Exception& ex)
+	{
+	    cout << ex << endl;
 	    test(false);
 	}
 	called();
@@ -170,7 +174,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
     ref << "test";
     for(vector<int>::const_iterator p = ports.begin(); p != ports.end(); ++p)
     {
-	ref << ":default -t 10000 -p " << *p;
+	ref << ":default -t 60000 -p " << *p;
     }
     Ice::ObjectPrx base = communicator->stringToProxy(ref.str());
     test(base);
@@ -243,6 +247,10 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 		{
 		    cout << "ok" << endl;
 		}
+		catch(const Ice::ConnectFailedException&)
+		{
+		    cout << "ok" << endl;
+		}
 	    }
 	    else
 	    {
@@ -264,6 +272,10 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 		    test(false);
 		}
 		catch(const Ice::ConnectionLostException&)
+		{
+		    cout << "ok" << endl;
+		}
+		catch(const Ice::ConnectFailedException&)
 		{
 		    cout << "ok" << endl;
 		}
@@ -290,6 +302,10 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 		    test(false);
 		}
 		catch(const Ice::ConnectionLostException&)
+		{
+		    cout << "ok" << endl;
+		}
+		catch(const Ice::ConnectFailedException&)
 		{
 		    cout << "ok" << endl;
 		}

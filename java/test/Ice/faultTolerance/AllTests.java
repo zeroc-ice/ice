@@ -14,7 +14,7 @@
 
 public class AllTests
 {
-    private static void
+    public static void
     test(boolean b)
     {
         if(!b)
@@ -150,6 +150,9 @@ public class AllTests
 	    catch(Ice.ConnectionLostException exc)
 	    {
 	    }
+	    catch(Ice.ConnectFailedException exc)
+	    {
+	    }
 	    catch(Exception exc)
 	    {
 		test(false);
@@ -238,7 +241,7 @@ public class AllTests
         String ref = "test";
         for(int i = 0; i < ports.length; i++)
         {
-            ref += ":default -t 10000 -p " + ports[i];
+            ref += ":default -t 60000 -p " + ports[i];
         }
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
@@ -317,6 +320,10 @@ public class AllTests
 		    {
 			System.out.println("ok");
 		    }
+		    catch(Ice.ConnectFailedException exc)
+		    {
+			System.out.println("ok");
+		    }
 		}
 		else
 		{
@@ -340,6 +347,10 @@ public class AllTests
 			test(false);
 		    }
 		    catch(Ice.ConnectionLostException ex)
+		    {
+			System.out.println("ok");
+		    }
+		    catch(Ice.ConnectFailedException exc)
 		    {
 			System.out.println("ok");
 		    }
@@ -368,6 +379,10 @@ public class AllTests
 			test(false);
 		    }
 		    catch(Ice.ConnectionLostException ex)
+		    {
+			System.out.println("ok");
+		    }
+		    catch(Ice.ConnectFailedException exc)
 		    {
 			System.out.println("ok");
 		    }

@@ -63,7 +63,17 @@ public class Client
         {
             arr[i] = ((Integer)ports.get(i)).intValue();
         }
-        AllTests.allTests(communicator, arr);
+
+	try
+	{
+	    AllTests.allTests(communicator, arr);
+	}
+	catch(Ice.LocalException ex)
+	{
+	    ex.printStackTrace();
+	    AllTests.test(false);
+	}
+
         return 0;
     }
 
