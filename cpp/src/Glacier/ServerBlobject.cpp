@@ -23,13 +23,6 @@ Glacier::ServerBlobject::ServerBlobject(const ObjectAdapterPtr& clientAdapter) :
     Glacier::Blobject(clientAdapter->getCommunicator(), true),
     _clientAdapter(clientAdapter)
 {
-    PropertiesPtr properties = _communicator->getProperties();
-    _traceLevel = properties->getPropertyAsInt("Glacier.Router.Trace.Server");
-    _forwardContext = properties->getPropertyAsInt("Glacier.Router.Server.ForwardContext") > 0;
-    _batchSleepTime = IceUtil::Time::milliSeconds(
-	properties->getPropertyAsIntWithDefault("Glacier.Router.Server.BatchSleepTime", 250));
-
-    init();
 }
 
 void

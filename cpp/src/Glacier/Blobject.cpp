@@ -24,19 +24,30 @@ Glacier::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
     _logger(communicator->getLogger()),
     _reverse(reverse)
 {
+    PropertiesPtr properties = _communicator->getProperties();
+    if(_reverse)
+    {
+	const_cast<Int&>(_traceLevel) = properties->getPropertyAsInt("Glacier.Router.Trace.Server");
+	const_cast<bool&>(_forwardContext) = properties->getPropertyAsInt("Glacier.Router.Server.ForwardContext") > 0;
+	const_cast<IceUtil::Time&>(_batchSleepTime) = IceUtil::Time::milliSeconds(
+	    properties->getPropertyAsIntWithDefault("Glacier.Router.Server.BatchSleepTime", 250));
+    }
+    else
+    {
+	const_cast<Int&>(_traceLevel) = properties->getPropertyAsInt("Glacier.Router.Trace.Client");
+	const_cast<bool&>(_forwardContext) = properties->getPropertyAsInt("Glacier.Router.Client.ForwardContext") > 0;
+	const_cast<IceUtil::Time&>(_batchSleepTime) = IceUtil::Time::milliSeconds(
+	    properties->getPropertyAsIntWithDefault("Glacier.Router.Client.BatchSleepTime", 250));
+    }
+
+    _requestQueue = new RequestQueue(_communicator, _traceLevel, _reverse, _batchSleepTime);
+    _requestQueueControl = _requestQueue->start();
 }
 
 Glacier::Blobject::~Blobject()
 {
     assert(!_communicator);
     assert(!_requestQueue);
-}
-
-void
-Glacier::Blobject::init()
-{
-    _requestQueue = new RequestQueue(_communicator, _traceLevel, _reverse, _batchSleepTime);
-    _requestQueueControl = _requestQueue->start();
 }
 
 void
@@ -47,7 +58,6 @@ Glacier::Blobject::destroy()
     // object adapters have shut down.
     //
     _communicator = 0;
-    _logger = 0;
 
     _requestQueue->destroy();
     _requestQueueControl.join();
@@ -97,19 +107,6 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdC
 	}
 	else // Regular routing.
 	{
-	    if(_traceLevel >= 2)
-	    {
-		Trace out(_logger, "Glacier");
-		if(_reverse)
-		{
-		    out << "reverse ";
-		}
-		out << "routing to:\n"
-		    << "proxy = " << _communicator->proxyToString(proxy) << '\n'
-		    << "operation = " << current.operation << '\n'
-		    << "mode = " << current.mode;
-	    }
-
 	    AMI_Object_ice_invokePtr amiCB;
 
 	    if(proxy->ice_isTwoway())

@@ -29,7 +29,7 @@ class Request : virtual public IceUtil::Shared
 {
 public:
 
-    Request(const Ice::ObjectPrx&, const std::vector<Ice::Byte>&, const Ice::Current&, bool, 
+    Request(const Ice::ObjectPrx&, const std::vector<Ice::Byte>&, const Ice::Current&, bool,
 	    const Ice::AMI_Object_ice_invokePtr& = 0);
     
     void invoke();
@@ -66,11 +66,10 @@ public:
 private:
 
     Ice::CommunicatorPtr _communicator;
-    Ice::LoggerPtr _logger;
-    int _traceLevel;
-    bool _reverse;
-    IceUtil::Time _sleepTime;
-    IceUtil::Time _nextMissiveTime;
+    const Ice::LoggerPtr _logger;
+    const int _traceLevel;
+    const bool _reverse;
+    const IceUtil::Time _sleepTime;
 
     std::vector<RequestPtr> _missives;
     std::vector<RequestPtr> _requests;
@@ -80,4 +79,3 @@ private:
 }
 
 #endif
-

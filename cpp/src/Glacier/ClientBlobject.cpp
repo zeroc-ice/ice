@@ -28,14 +28,6 @@ Glacier::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
     Glacier::Blobject(communicator, false),
     _routingTable(routingTable)
 {
-    PropertiesPtr properties = _communicator->getProperties();
-    _traceLevel = properties->getPropertyAsInt("Glacier.Router.Trace.Client");
-    _forwardContext = properties->getPropertyAsInt("Glacier.Router.Client.ForwardContext") > 0;
-    _batchSleepTime = IceUtil::Time::milliSeconds(
-	properties->getPropertyAsIntWithDefault("Glacier.Router.Client.BatchSleepTime", 250));
-
-    init();
-
     const string ws = " \t";
     string::size_type current = allowCategories.find_first_not_of(ws, 0);
     while(current != string::npos)

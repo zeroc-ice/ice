@@ -28,7 +28,6 @@ public:
     Blobject(const Ice::CommunicatorPtr&, bool);
     virtual ~Blobject();
 
-    void init();
     void destroy();
     void invoke(Ice::ObjectPrx&, const Ice::AMD_Object_ice_invokePtr&, const std::vector<Ice::Byte>&,
 		const Ice::Current&);
@@ -37,12 +36,11 @@ public:
 protected:
 
     Ice::CommunicatorPtr _communicator;
-    Ice::LoggerPtr _logger;
-    bool _reverse;
-
-    int _traceLevel;
-    bool _forwardContext;
-    IceUtil::Time _batchSleepTime;
+    const Ice::LoggerPtr _logger;
+    const bool _reverse;
+    const int _traceLevel;
+    const bool _forwardContext;
+    const IceUtil::Time _batchSleepTime;
 
 private:
 

@@ -121,7 +121,6 @@ Glacier::RequestQueue::destroy()
     _missives.clear();
     _requests.clear();
     _communicator = 0;
-    _logger = 0;
     
     notify();
 }
@@ -135,11 +134,6 @@ Glacier::RequestQueue::addMissive(const RequestPtr& missive)
     
     assert(!_destroy);
 
-    if(_missives.empty() && _requests.empty())
-    {
-        notify();
-    }
-    
     for(vector<RequestPtr>::iterator p = _missives.begin(); p != _missives.end(); ++p)
     {
         if(missive->override(*p))
@@ -150,6 +144,8 @@ Glacier::RequestQueue::addMissive(const RequestPtr& missive)
     }
 
     _missives.push_back(missive); // No override, add new missive.
+
+    notify();
 }
 
 void 
@@ -161,12 +157,9 @@ Glacier::RequestQueue::addRequest(const RequestPtr& request)
     
     assert(!_destroy);
 
-    if(_requests.empty())
-    {
-        notify();
-    }
-
     _requests.push_back(request);
+
+    notify();
 }
 
 void 
@@ -174,19 +167,10 @@ Glacier::RequestQueue::run()
 {
     while(true)
     {
-	vector<ObjectPrx> proxies;
 	vector<RequestPtr> requests;
 
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-
-	    //
-	    // Reset the next missive time if it's not set.
-	    //
-	    if(_nextMissiveTime == IceUtil::Time())
-	    {
-		_nextMissiveTime = IceUtil::Time::now() + _sleepTime;
-	    }
 
 	    //
 	    // Wait indefinitely if there's no requests or missive to
@@ -196,23 +180,6 @@ Glacier::RequestQueue::run()
             {		
 		wait();
             }
-
-            //
-	    // Wait for the next missive batch to be sent if there's
-	    // no requeests to send.
-	    //
-	    IceUtil::Time now;
-
-	    while(!_destroy && _requests.empty())
-	    {
-		now = IceUtil::Time::now();
-		if(now >= _nextMissiveTime)
-		{
-		    break;
-		}
-		
-		timedWait(_nextMissiveTime - now);
-	    }
 
             if(_destroy)
             {
@@ -224,26 +191,24 @@ Glacier::RequestQueue::run()
 		_requests.swap(requests);
 	    }
 
-            if(!_missives.empty() && _nextMissiveTime < now)
+            if(!_missives.empty())
 	    {
-		_nextMissiveTime = IceUtil::Time(); // Reset the next missive time.
-
-		proxies.reserve(_missives.size());
-		vector<RequestPtr>::const_iterator p;
-		for(p = _missives.begin(); p != _missives.end(); ++p)
+		for(vector<RequestPtr>::const_iterator p = _missives.begin(); p != _missives.end(); ++p)
 		{
 		    try
 		    {
-			const ObjectPrx& proxy = (*p)->getProxy();
-			const Current& current = (*p)->getCurrent();
-			
 			if(_traceLevel >= 2)
 			{
+			    const ObjectPrx& proxy = (*p)->getProxy();
+			    const Current& current = (*p)->getCurrent();
+
 			    Trace out(_logger, "Glacier");
+
 			    if(_reverse)
 			    {
 				out << "reverse ";
 			    }
+
 			    out << "batch routing to:\n"
 				<< "proxy = " << _communicator->proxyToString(proxy) << '\n'
 				<< "operation = " << current.operation << '\n'
@@ -251,7 +216,6 @@ Glacier::RequestQueue::run()
 			}
 			
 			(*p)->invoke();
-			proxies.push_back(proxy);
 		    }
 		    catch(const Ice::Exception& ex)
 		    {
@@ -272,17 +236,32 @@ Glacier::RequestQueue::run()
 	}
         
         //
-        // Flush and sleep outside the thread synchronization, so that
-        // new messages can be added to this missive queue while this
-        // thread sends a batch and sleeps.
+        // Send requests, flush batch requests, and sleep outside the
+        // thread synchronization, so that new messages can be added
+        // while this is being done.
         //
         try
         {
-	    //
-	    // This sends all requests.
-	    //
 	    for(vector<RequestPtr>::const_iterator p = requests.begin(); p != requests.end(); ++p)
 	    {
+		if(_traceLevel >= 2)
+		{
+		    const ObjectPrx& proxy = (*p)->getProxy();
+		    const Current& current = (*p)->getCurrent();
+		    
+		    Trace out(_logger, "Glacier");
+
+		    if(_reverse)
+		    {
+			out << "reverse ";
+
+		    }
+		    out << "routing to:\n"
+			<< "proxy = " << _communicator->proxyToString(proxy) << '\n'
+			<< "operation = " << current.operation << '\n'
+			<< "mode = " << current.mode;
+		}
+
 		(*p)->invoke();
 	    }
 
@@ -290,6 +269,15 @@ Glacier::RequestQueue::run()
             // This sends all batched missives.
             //
 	    _communicator->flushBatchRequests();
+	    
+	    //
+	    // In order to avoid flooding, we add a delay, if so
+	    // requested.
+	    //
+	    if(_sleepTime > IceUtil::Time())
+	    {
+		IceUtil::ThreadControl::sleep(_sleepTime);
+	    }
         }
         catch(const Ice::Exception& ex)
         {
