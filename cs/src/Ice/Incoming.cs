@@ -286,7 +286,7 @@ namespace IceInternal
 		{
 		    if(_locator != null && _servant != null && status != DispatchStatus.DispatchAsync)
 		    {
-			_locator.finished(_current, _servant, _cookie.value);
+			_locator.finished(_current, _servant, _cookie);
 		    }
 		}
 	    }

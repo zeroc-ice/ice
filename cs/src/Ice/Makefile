@@ -16,6 +16,8 @@ SRCS		= Acceptor.cs \
 		  Application.cs \
 		  AssemblyInfo.cs \
 		  AssemblyUtil.cs \
+		  BasicInputStream.cs \
+		  BasicOutputStream.cs \
 		  BasicStream.cs \
 		  ByteBuffer.cs \
 		  CommunicatorI.cs \
@@ -32,6 +34,8 @@ SRCS		= Acceptor.cs \
 		  Exception.cs \
 		  IncomingAsync.cs \
 		  Incoming.cs \
+		  InputStream.cs \
+		  InputStreamI.cs \
 		  Instance.cs \
 		  LinkedList.cs \
 		  LocalObject.cs \
@@ -45,12 +49,15 @@ SRCS		= Acceptor.cs \
 		  OutgoingAsync.cs \
 		  Outgoing.cs \
 		  OutputBase.cs \
+		  OutputStream.cs \
+		  OutputStreamI.cs \
 		  Patcher.cs \
 		  PluginManagerI.cs \
 		  PropertiesI.cs \
 		  Protocol.cs \
 		  Proxy.cs \
 		  ProxyFactory.cs \
+		  ReadObjectCallback.cs \
 		  Reference.cs \
 		  ReferenceFactory.cs \
 		  RouterInfo.cs \
@@ -106,9 +113,7 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/ServantLocator.ice \
 		  $(SDIR)/SliceChecksumDict.ice \
 		  $(SDIR)/StatsF.ice \
-		  $(SDIR)/Stats.ice \
-		  $(SDIR)/TransportInfo.ice \
-		  $(SDIR)/TransportInfoF.ice
+		  $(SDIR)/Stats.ice
 
 SDIR		= $(slicedir)/Ice
 GDIR		= generated

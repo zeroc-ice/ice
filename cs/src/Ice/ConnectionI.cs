@@ -1395,7 +1395,7 @@ namespace Ice
 	    return _endpoint.timeout(); // No mutex protection necessary, _endpoint is immutable.
 	}
 	
-	public string toString()
+	public string _Ice_toString()
 	{
 	    return ToString();
 	}
