@@ -57,10 +57,10 @@ Other Ice utilities
 -------------------
 
 Some of the Ice for Java tests and demonstration programs require
-additional Ice for C++ utilities, such as IcePack and Glacier. The
-pre-compiled archives listed above contain only a subset of the Ice
-for C++ utilities, for space reasons. Therefore, not all Ice for Java
-tests can be run without building Ice for C++ yourself.
+additional Ice for C++ utilities, such as IcePack and Glacier. For space
+reasons, the pre-compiled archives listed above contain only the
+Slice-to-Java translator (slice2java), the Slice-to-Freeze translator (slice2freeze), and the documentation generator (slice2docbook). Therefore, not
+all Ice for Java tests can be run without building Ice for C++ yourself.
 
 
 Berkeley DB
