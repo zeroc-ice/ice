@@ -876,6 +876,10 @@ SOURCE=.\UnknownEndpoint.h
 
 SOURCE=..\..\include\Ice\UserExceptionFactory.h
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\UserExceptionFactoryF.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 
