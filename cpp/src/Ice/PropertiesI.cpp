@@ -112,8 +112,6 @@ static const string iceProps[] =
     "Default.Locator",
     "Default.Protocol",
     "Default.Router",
-    "Evictor.Size",
-    "Evictor.Trace",
     "Logger.Timestamp",
     "MessageSizeMax",
     "MonitorConnections",
