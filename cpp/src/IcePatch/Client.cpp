@@ -26,6 +26,7 @@ public:
     void usage();
     virtual int run(int, char*[]);
     void printNodeDescSeq(const NodeDescSeq&, const string&);
+    void getFile(const FilePrx&);
 };
 
 };
@@ -211,6 +212,8 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 	    {
 		case FileInfoNotExist:
 		{
+		    cout << "getting file... " << flush;
+		    getFile(fileDesc->file);
 		    break;
 		}
 
@@ -218,11 +221,21 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 		{
 		    cout << "removing directory... " << flush;
 		    removeRecursive(path);
+		    cout << "getting file... " << flush;
+		    getFile(fileDesc->file);
 		    break;
 		}
 
 		case FileInfoRegular:
 		{
+		    ByteSeq md5 = getMD5(path);
+		    if (md5 != fileDesc->md5)
+		    {
+			cout << "removing file... " << flush;
+			removeRecursive(path);
+			cout << "getting file... " << flush;
+			getFile(fileDesc->file);
+		    }
 		    break;
 		}
 
@@ -230,6 +243,8 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 		{
 		    cout << "removing unknown file... " << flush;
 		    removeRecursive(path);
+		    cout << "getting file... " << flush;
+		    getFile(fileDesc->file);
 		    break;
 		}
 	    }
@@ -242,6 +257,20 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 	    }
 	}
     }
+}
+
+void
+IcePatch::Client::getFile(const FilePrx& file)
+{
+    ByteSeq bytes;
+    Int pos = 0;
+
+    do
+    {
+	bytes = file->getBytesBZ2(pos, 256 * 1024);
+	pos += bytes.size();
+    }
+    while (!bytes.empty());
 }
 
 int

@@ -475,7 +475,7 @@ createBZ2(const string& path, char* buf, int sz)
 }
 
 ByteSeq
-IcePatch::getBlockBZ2(const string& path, Int n)
+IcePatch::getBytesBZ2(const string& path, Int pos, Int num)
 {
     //
     // Stat the file to get a bzip2 file for.
@@ -532,7 +532,6 @@ IcePatch::getBlockBZ2(const string& path, Int n)
 	}
     }
 
-/*
     if (createbz2)
     {
 	//
@@ -547,7 +546,7 @@ IcePatch::getBlockBZ2(const string& path, Int n)
 	    throw ex;
 	}
 	
-	unsigned char* fileBuf = new unsigned char[buf.st_size];
+	char* fileBuf = new char[buf.st_size];
 	
 	try
 	{
@@ -578,13 +577,23 @@ IcePatch::getBlockBZ2(const string& path, Int n)
 	    delete [] fileBuf;
 	    throw;
 	}
-    }
+
+/*
+	//
+	// Stat the .bz2 file. This time, it must exist.
+	//
+	if (::stat(pathbz2.c_str(), &bufbz2) == -1)
+	{
+	    NodeAccessException ex;
+	    ex.reason = "cannot stat `" + path + "':" + strerror(errno);
+	    throw ex;
+	}
 */
+    }
 
     //
-    // Open the bzip2 file and read the appropriate block of data.
+    // Open and read the bzip2 file.
     //
-    pathbz2 = path;
     int fd = ::open(pathbz2.c_str(), O_RDONLY);
     
     if (fd == -1)
@@ -593,23 +602,22 @@ IcePatch::getBlockBZ2(const string& path, Int n)
 	ex.reason = "cannot open `" + pathbz2 + "' for reading:" + strerror(errno);
 	throw ex;
     }
-
-    ByteSeq block;
-    block.resize(128); // TODO: This is a very small number for testing only.
+    
+    ByteSeq bytes;
+    bytes.resize(num);
 
     try
     {
-	off_t offset = lseek(fd, n * block.size(), SEEK_SET);
-	if (offset == -1)
+	if (lseek(fd, pos, SEEK_SET) == -1)
 	{
 	    NodeAccessException ex;
 	    ostringstream out;
-	    out << "cannot seek position " << n * block.size() << " in file `" + pathbz2 + "':" + strerror(errno);
+	    out << "cannot seek position " << pos << " in file `" << path << "':" << strerror(errno);
 	    ex.reason = out.str();
 	    throw ex;
 	}
-
-	int sz = ::read(fd, &block[0], block.size());
+	
+	int sz = ::read(fd, &bytes[0], num);
 	
 	if (sz == -1)
 	{
@@ -617,16 +625,16 @@ IcePatch::getBlockBZ2(const string& path, Int n)
 	    ex.reason = "cannot read `" + path + "':" + strerror(errno);
 	    throw ex;
 	}
-
-	block.resize(sz);
-
-	close(fd);
+	
+	bytes.resize(sz);
+	
+	::close(fd);
     }
     catch (...)
     {
-	close(fd);
+	::close(fd);
 	throw;
     }
 
-    return block;
+    return bytes;
 }
