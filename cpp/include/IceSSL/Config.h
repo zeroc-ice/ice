@@ -12,31 +12,18 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_APPLICATION_H
-#define FREEZE_APPLICATION_H
 
-#include <Ice/Application.h>
-#include <Freeze/Freeze.h>
+#ifndef ICE_SSL_CONFIG_H
+#define ICE_SSL_CONFIG_H
 
-namespace Freeze
-{
+#include <IceUtil/Config.h>
 
-class FREEZE_API Application : public Ice::Application
-{
-public:
-
-    Application(const std::string&);
-    virtual ~Application();
-
-    virtual int runFreeze(int, char*[], const DBEnvironmentPtr&) = 0;
-
-private:
-
-    virtual int run(int, char*[]);
-
-    const std::string _dbEnvName;
-};
-
-};
+#ifndef ICE_SSL_API
+#   ifdef ICE_SSL_API_EXPORTS
+#       define ICE_SSL_API ICE_DECLSPEC_EXPORT
+#   else
+#       define ICE_SSL_API ICE_DECLSPEC_IMPORT
+#   endif
+#endif
 
 #endif

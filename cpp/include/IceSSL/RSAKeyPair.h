@@ -23,18 +23,10 @@
 #include <IceSSL/RSACertificateGenF.h>
 #include <IceSSL/RSAPrivateKeyF.h>
 #include <IceSSL/RSAPublicKeyF.h>
+#include <IceSSL/Config.h>
 
 #include <openssl/ssl.h>
 
-#ifdef _WIN32
-#   ifdef ICE_SSL_API_EXPORTS
-#       define ICE_SSL_API __declspec(dllexport)
-#   else
-#       define ICE_SSL_API __declspec(dllimport)
-#   endif
-#else
-#   define ICE_SSL_API /**/
-#endif
 
 namespace IceSSL
 {

@@ -211,11 +211,6 @@ Slice::Gen::generate(const UnitPtr& unit)
 	H << "\n#include <Ice/LocalObject.h>";
     }
 
-    if(unit->usesConsts())
-    {
-	H << "\n#include <Ice/Const.h>";
-    }
-
     StringList includes = unit->includeFiles();
     for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
     {
@@ -1002,7 +997,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     }
     else if(bp && bp->kind() == Builtin::KindLong)
     {
-	H << "ICE_INT64_LITERAL(" << p->value() << ")";
+	H << "ICE_INT64(" << p->value() << ")";
     }
     else
     {

@@ -100,6 +100,10 @@ public:
     template <typename Lock> inline void
     wait(const Lock& lock) const
     {
+	if (!lock.acquired())
+	{
+	    throw ThreadLockedException(__FILE__, __LINE__);
+	}
 	waitImpl(lock._mutex);
     }
 
@@ -113,6 +117,10 @@ public:
     template <typename Lock> inline bool
     timedWait(const Lock& lock, const Time& timeout) const
     {
+	if (!lock.acquired())
+	{
+	    throw ThreadLockedException(__FILE__, __LINE__);
+	}
 	return timedWaitImpl(lock._mutex, timeout);
     }
 

@@ -19,6 +19,11 @@
 CXX			= CC
 CXXFLAGS		= -KPIC -mt +w +p
 
+ifeq ($(LP64),yes)
+    CXXFLAGS		= -xarch=v9 $(CXXFLAGS)
+endif
+
+
 TEMPLATE_REPOSITORY     = SunWS_cache
 
 ifeq ($(OPTIMIZE),yes)

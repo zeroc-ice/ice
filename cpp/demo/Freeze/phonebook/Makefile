@@ -52,7 +52,7 @@ SLICE_SRCS	= PhoneBook.ice
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. $(DB_FLAGS) $(CPPFLAGS)
+CPPFLAGS	:= -I. $(DB_FLAGS) $(READLINE_FLAGS) $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@

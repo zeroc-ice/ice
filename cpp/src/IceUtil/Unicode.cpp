@@ -15,6 +15,13 @@
 #include <IceUtil/Unicode.h>
 #include <algorithm>
 
+#if defined(_WIN32)
+#   define SIZEOF_WCHAR_T 2
+#elif (defined(__sun) && defined(__sparc)) || \
+      ((defined(__linux) || defined(__FreeBSD__)) && defined (__i386))
+#   define SIZEOF_WCHAR_T 4
+#endif
+
 using namespace std;
 
 string

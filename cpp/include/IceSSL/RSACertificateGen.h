@@ -16,16 +16,7 @@
 #define ICE_SSL_CERTIFICATE_GEN_H
 
 #include <IceSSL/RSAKeyPairF.h>
-
-#ifdef _WIN32
-#   ifdef ICE_SSL_API_EXPORTS
-#       define ICE_SSL_API __declspec(dllexport)
-#   else
-#       define ICE_SSL_API __declspec(dllimport)
-#   endif
-#else
-#   define ICE_SSL_API /**/
-#endif
+#include <IceSSL/Config.h>
 
 namespace IceSSL
 {

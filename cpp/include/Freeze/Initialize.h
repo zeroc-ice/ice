@@ -18,16 +18,6 @@
 #include <Ice/Ice.h>
 #include <Freeze/DBF.h>
 
-#ifdef _WIN32
-#   ifdef FREEZE_API_EXPORTS
-#       define FREEZE_API __declspec(dllexport)
-#   else
-#       define FREEZE_API __declspec(dllimport)
-#   endif
-#else
-#   define FREEZE_API /**/
-#endif
-
 namespace Freeze
 {
 

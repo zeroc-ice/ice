@@ -391,7 +391,7 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
 	    }
 	    const Byte* p;
 	    p = reinterpret_cast<const Byte*>(&requestId);
-#ifdef ICE_UTIL_BIGENDIAN
+#ifdef ICE_BIG_ENDIAN
 	    reverse_copy(p, p + sizeof(Int), os->b.begin() + headerSize);
 #else
 	    copy(p, p + sizeof(Int), os->b.begin() + headerSize);
@@ -437,7 +437,7 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
 	    const Byte* p;
 	    Int sz = os->b.size();
 	    p = reinterpret_cast<const Byte*>(&sz);
-#ifdef ICE_UTIL_BIGENDIAN
+#ifdef ICE_BIG_ENDIAN
 	    reverse_copy(p, p + sizeof(Int), os->b.begin() + 10);
 #else
 	    copy(p, p + sizeof(Int), os->b.begin() + 10);
@@ -501,7 +501,7 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out)
 	const Byte* p;
 	p = reinterpret_cast<const Byte*>(&requestId);
 
-#ifdef ICE_UTIL_BIGENDIAN
+#ifdef ICE_BIG_ENDIAN
 	reverse_copy(p, p + sizeof(Int), os->b.begin() + headerSize);
 #else
 	copy(p, p + sizeof(Int), os->b.begin() + headerSize);
@@ -546,7 +546,7 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out)
 	    const Byte* p;
 	    Int sz = os->b.size();
 	    p = reinterpret_cast<const Byte*>(&sz);
-#ifdef ICE_UTIL_BIGENDIAN
+#ifdef ICE_BIG_ENDIAN
 	    reverse_copy(p, p + sizeof(Int), os->b.begin() + 10);
 #else
 	    copy(p, p + sizeof(Int), os->b.begin() + 10);
@@ -659,7 +659,7 @@ IceInternal::Connection::flushBatchRequest()
 	const Byte* p;
 	p = reinterpret_cast<const Byte*>(&_batchRequestNum);
 
-#ifdef ICE_UTIL_BIGENDIAN
+#ifdef ICE_BIG_ENDIAN
 	reverse_copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
 #else
 	copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
@@ -705,7 +705,7 @@ IceInternal::Connection::flushBatchRequest()
 	    Int sz = _batchStream.b.size();
 	    p = reinterpret_cast<const Byte*>(&sz);
 
-#ifdef ICE_UTIL_BIGENDIAN
+#ifdef ICE_BIG_ENDIAN
 	    reverse_copy(p, p + sizeof(Int), _batchStream.b.begin() + 10);
 #else
 	    copy(p, p + sizeof(Int), _batchStream.b.begin() + 10);
@@ -797,7 +797,7 @@ IceInternal::Connection::sendResponse(BasicStream* os, Byte compressFlag)
 	    Int sz = os->b.size();
 	    p = reinterpret_cast<const Byte*>(&sz);
 
-#ifdef ICE_UTIL_BIGENDIAN
+#ifdef ICE_BIG_ENDIAN
 	    reverse_copy(p, p + sizeof(Int), os->b.begin() + 10);
 #else
 	    copy(p, p + sizeof(Int), os->b.begin() + 10);
@@ -1698,7 +1698,7 @@ IceInternal::Connection::doCompress(BasicStream& uncompressed, BasicStream& comp
     Int compressedSize = compressed.b.size();
     p = reinterpret_cast<const Byte*>(&compressedSize);
 
-#ifdef ICE_UTIL_BIGENDIAN
+#ifdef ICE_BIG_ENDIAN
     reverse_copy(p, p + sizeof(Int), uncompressed.b.begin() + 10);
 #else
     copy(p, p + sizeof(Int), uncompressed.b.begin() + 10);
@@ -1710,7 +1710,7 @@ IceInternal::Connection::doCompress(BasicStream& uncompressed, BasicStream& comp
     Int uncompressedSize = uncompressed.b.size();
     p = reinterpret_cast<const Byte*>(&uncompressedSize);
 
-#ifdef ICE_UTIL_BIGENDIAN
+#ifdef ICE_BIG_ENDIAN
     reverse_copy(p, p + sizeof(Int), compressed.b.begin() + headerSize);
 #else
     copy(p, p + sizeof(Int), compressed.b.begin() + headerSize);

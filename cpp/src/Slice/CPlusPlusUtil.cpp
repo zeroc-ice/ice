@@ -101,14 +101,12 @@ Slice::printDllExportStuff(Output& out, const string& dllExport)
     if(dllExport.size())
     {
 	out << sp;
-	out << "\n#ifdef _WIN32";
+	out << "\n#ifndef " << dllExport;
 	out << "\n#   ifdef " << dllExport << "_EXPORTS";
-	out << "\n#       define " << dllExport << " __declspec(dllexport)";
+	out << "\n#       define " << dllExport << " ICE_DECLSPEC_EXPORT";
 	out << "\n#   else";
-	out << "\n#       define " << dllExport << " __declspec(dllimport)";
+	out << "\n#       define " << dllExport << " ICE_DECLSPEC_IMPORT";
 	out << "\n#   endif";
-	out << "\n#else";
-	out << "\n#   define " << dllExport << " /**/";
 	out << "\n#endif";
     }
 }

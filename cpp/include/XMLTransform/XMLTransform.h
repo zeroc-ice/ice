@@ -23,14 +23,12 @@
 
 #include <map>
 
-#ifdef WIN32
+#ifndef XML_TRANSFORM_API
 #   ifdef XML_TRANSFORM_API_EXPORTS
-#       define XML_TRANSFORM_API __declspec(dllexport)
+#       define XML_TRANSFORM_API ICE_DECLSPEC_EXPORT
 #   else
-#       define XML_TRANSFORM_API __declspec(dllimport)
+#       define XML_TRANSFORM_API ICE_DECLSPEC_IMPORT
 #   endif
-#else
-#   define XML_TRANSFORM_API /**/
 #endif
 
 namespace XMLTransform

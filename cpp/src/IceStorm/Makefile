@@ -64,7 +64,7 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceStorm $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(XERCESC_FLAGS) $(CPPFLAGS)
+CPPFLAGS	:= -I.. $(XERCESC_FLAGS) $(READLINE_FLAGS) $(CPPFLAGS)
 ICECPPFLAGS	:= -I.. $(ICECPPFLAGS)
 SLICE2CPPFLAGS	:= --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
 

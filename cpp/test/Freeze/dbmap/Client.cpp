@@ -24,9 +24,12 @@ using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
-// The following variable is extern instead of static due to 
-// a Sun C++ 5.4 template bug
-extern Byte alphabetChars[] = "abcdefghijklmnopqrstuvwxyz";
+#ifdef __SUNPRO_CC
+extern
+#else
+static 
+#endif
+Byte alphabetChars[] = "abcdefghijklmnopqrstuvwxyz";
 
 vector<Byte> alphabet;
 

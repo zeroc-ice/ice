@@ -17,13 +17,49 @@
 
 
 //
-// Endianness: define ICE_UTIL_BIGENDIAN on big endian platforms,
-// nothing on little endian platforms.
-
-#if defined(__sparc)
-#define ICE_UTIL_BIGENDIAN
+// Endianness
+// Most CPUs support only one endianness, with the notable exceptions
+// of Itanium (IA64) and MIPS.
+//
+#if defined(__i386) || defined(_M_IX86)
+#   define ICE_LITTLE_ENDIAN
+#elif defined(__sparc)
+#   define ICE_BIG_ENDIAN
+#else
+#   error "Unknown architecture"
 #endif
 
+//
+// 32 or 64 bit mode?
+//
+#if (defined(__sun) && defined(__sparcv9))
+#   define ICE_64
+#else
+#   define ICE_32
+#endif
+
+//
+// Compiler extensions to export and import symbols: see the documentation 
+// for Visual C++ and HP aC++.
+//
+// TODO: more macros to support IBM Visual Age _Export syntax as well.
+//
+#ifdef _MSC_VER
+#   define ICE_DECLSPEC_EXPORT __declspec(dllexport)
+#   define ICE_DECLSPEC_IMPORT __declspec(dllimport)
+#else
+#   define ICE_DECLSPEC_EXPORT /**/
+#   define ICE_DECLSPEC_IMPORT /**/
+#endif
+
+//
+// Let's use these extensions with for IceUtil:
+//
+#ifdef ICE_UTIL_API_EXPORTS
+#   define ICE_UTIL_API ICE_DECLSPEC_EXPORT
+#else
+#   define ICE_UTIL_API ICE_DECLSPEC_IMPORT
+#endif
 
 //
 // For STLport. If we compile in debug mode, we want to use the debug
@@ -47,12 +83,6 @@
 #       error "Only multi-threaded DLL libraries can be used with Ice!"
 #   endif
 
-#   ifdef ICE_UTIL_API_EXPORTS
-#       define ICE_UTIL_API __declspec(dllexport)
-#   else
-#       define ICE_UTIL_API __declspec(dllimport)
-#   endif
-
 #   include <windows.h>
 
 // '...' : forcing value to bool 'true' or 'false' (performance warning)
@@ -70,14 +100,9 @@
 //  ...: decorated name length exceeded, name was truncated
 #   pragma warning( disable : 4503 )  
 
-#   define SIZEOF_WCHAR_T 2
-
-#elif (defined(__linux) || defined(__FreeBSD__)) && defined(__i386)
-
-#   define ICE_UTIL_API /**/
-#   define HAVE_READLINE
-#   define SIZEOF_WCHAR_T 4
-
+#elif defined(__sun) && defined(__sparc)
+#   include <inttypes.h>
+#else
 //
 // The ISO C99 standard specifies that in C++ implementations the
 // macros for minimum/maximum integer values should only be defined if
@@ -85,19 +110,7 @@
 //
 #   define __STDC_LIMIT_MACROS
 #   include <stdint.h>
-
-#elif defined(__sun) && defined(__sparc)
-
-#   define ICE_UTIL_API /**/
-#   define SIZEOF_WCHAR_T 4
-#   include <inttypes.h>
-
-#else
-
-#   error "unsupported operating system or platform"
-
 #endif
-
 
 //
 // Some include files we need almost everywhere.
@@ -139,32 +152,37 @@ private:
 //
 // Some definitions for 64-bit integers.
 //
-#if defined(_WIN32)
-
+#if defined(_MSC_VER)
 typedef __int64 Int64;
 const Int64 Int64Min = -9223372036854775808i64;
 const Int64 Int64Max =  9223372036854775807i64;
 
-#   define ICE_INT64(x) Int64(x##i64)
+#elif defined(__SUNPRO_CC)
+#     if defined(ICE_64)
+typedef long Int64;
+const Int64 Int64Min = -0x7fffffffffffffffL-1L;
+const Int64 Int64Max = 0x7fffffffffffffffL;
+#     else
+typedef long long Int64;
+const Int64 Int64Min = -0x7fffffffffffffffLL-1LL;
+const Int64 Int64Max = 0x7fffffffffffffffLL;
+#     endif
 
 #else
-
-#   if defined(INT64_MIN) && defined(INT64_MAX)
-
+// Assumes ISO C99 types
+//
 typedef int64_t Int64;
 const Int64 Int64Min = INT64_MIN;
 const Int64 Int64Max = INT64_MAX;
 
-#   else
+#endif
 
-typedef long long Int64;
-const Int64 Int64Min = -0x7fffffffffffffffLL-1LL;
-const Int64 Int64Max = 0x7fffffffffffffffLL;
-
-#   endif
-
-#define ICE_INT64(x) Int64(x##LL)
-
+#if defined(_MSC_VER)
+#   define ICE_INT64(n) n##i64
+#elif defined(ICE_64)
+#   define ICE_INT64(n) n##L
+#else
+#   define ICE_INT64(n) n##LL
 #endif
 
 }

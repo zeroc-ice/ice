@@ -17,19 +17,10 @@
 
 #include <IceUtil/Config.h>
 
-//
-// The inline assembler causes problems with shared libraries.
-//
-#if (defined(__ICC) && !defined(_WIN32)) || defined (__sun)
-#   define ICE_USE_MUTEX_SHARED
-#endif
+#if (defined(__linux) || defined(__FreeBSD__)) && defined(__i386) && !defined(__ICC)
+#   define ICE_HAS_ATOMIC_FUNCTIONS
 
-#ifdef ICE_USE_MUTEX_SHARED
-#   include <IceUtil/Mutex.h>
-#endif
-
-#if !defined(_WIN32) && !defined(ICE_USE_MUTEX_SHARED)
-
+// __ICC: The inline assembler causes problems with shared libraries.
 //
 // Linux only. Unfortunately, asm/atomic.h builds non-SMP safe code
 // with non-SMP kernels. This means that executables compiled with a
@@ -116,6 +107,11 @@ inline int ice_atomic_exchange_add(int i, ice_atomic_t* v)
     return tmp + i;
 }
 
+#elif defined(_WIN32)
+// Nothing to include
+#else
+// Use a simple mutex
+#   include <IceUtil/Mutex.h>
 #endif
 
 //
@@ -203,13 +199,13 @@ public:
 
 private:
 
-#ifdef ICE_USE_MUTEX_SHARED
+#if defined(_WIN32)
+    LONG _ref;
+#elif defined(ICE_HAS_ATOMIC_FUNCTIONS)
+    ice_atomic_t _ref;
+#else
     int _ref;
     Mutex _mutex;
-#elif defined(_WIN32)
-    LONG _ref;
-#else
-    ice_atomic_t _ref;
 #endif
     bool _noDelete;
 };
@@ -219,7 +215,95 @@ private:
 // all of them should be inlined.
 //
 
-#ifdef ICE_USE_MUTEX_SHARED
+#if defined(_WIN32)
+
+inline
+Shared::Shared() :
+    _ref(0),
+    _noDelete(false)
+{
+}
+
+inline
+Shared::~Shared()
+{
+}
+
+inline void
+Shared::__incRef()
+{
+    assert(InterlockedExchangeAdd(&_ref, 0) >= 0);
+    InterlockedIncrement(&_ref);
+}
+
+inline void
+Shared::__decRef()
+{
+    assert(InterlockedExchangeAdd(&_ref, 0) > 0);
+    if(InterlockedDecrement(&_ref) == 0 && !_noDelete)
+    {
+	_noDelete = true;
+	delete this;
+    }
+}
+
+inline int
+Shared::__getRef() const
+{
+    return InterlockedExchangeAdd(const_cast<LONG*>(&_ref), 0);
+}
+
+inline void
+Shared::__setNoDelete(bool b)
+{
+    _noDelete = b;
+}
+
+#elif defined(ICE_HAS_ATOMIC_FUNCTIONS)
+
+inline
+Shared::Shared() :
+    _noDelete(false)
+{
+    ice_atomic_set(&_ref, 0);
+}
+
+inline
+Shared::~Shared()
+{
+}
+
+inline void
+Shared::__incRef()
+{
+    assert(ice_atomic_exchange_add(0, &_ref) >= 0);
+    ice_atomic_inc(&_ref);
+}
+
+inline void
+Shared::__decRef()
+{
+    assert(ice_atomic_exchange_add(0, &_ref) > 0);
+    if(ice_atomic_dec_and_test(&_ref) && !_noDelete)
+    {
+	_noDelete = true;
+	delete this;
+    }
+}
+
+inline int
+Shared::__getRef() const
+{
+    return ice_atomic_exchange_add(0, const_cast<ice_atomic_t*>(&_ref));
+}
+
+inline void
+Shared::__setNoDelete(bool b)
+{
+    _noDelete = b;
+}
+
+#else
 
 inline
 Shared::Shared() :
@@ -277,96 +361,7 @@ Shared::__setNoDelete(bool b)
     _mutex.unlock();
 }
 
-#elif defined(_WIN32)
-
-inline
-Shared::Shared() :
-    _ref(0),
-    _noDelete(false)
-{
-}
-
-inline
-Shared::~Shared()
-{
-}
-
-inline void
-Shared::__incRef()
-{
-    assert(InterlockedExchangeAdd(&_ref, 0) >= 0);
-    InterlockedIncrement(&_ref);
-}
-
-inline void
-Shared::__decRef()
-{
-    assert(InterlockedExchangeAdd(&_ref, 0) > 0);
-    if(InterlockedDecrement(&_ref) == 0 && !_noDelete)
-    {
-	_noDelete = true;
-	delete this;
-    }
-}
-
-inline int
-Shared::__getRef() const
-{
-    return InterlockedExchangeAdd(const_cast<LONG*>(&_ref), 0);
-}
-
-inline void
-Shared::__setNoDelete(bool b)
-{
-    _noDelete = b;
-}
-
-#else
-
-inline
-Shared::Shared() :
-    _noDelete(false)
-{
-    ice_atomic_set(&_ref, 0);
-}
-
-inline
-Shared::~Shared()
-{
-}
-
-inline void
-Shared::__incRef()
-{
-    assert(ice_atomic_exchange_add(0, &_ref) >= 0);
-    ice_atomic_inc(&_ref);
-}
-
-inline void
-Shared::__decRef()
-{
-    assert(ice_atomic_exchange_add(0, &_ref) > 0);
-    if(ice_atomic_dec_and_test(&_ref) && !_noDelete)
-    {
-	_noDelete = true;
-	delete this;
-    }
-}
-
-inline int
-Shared::__getRef() const
-{
-    return ice_atomic_exchange_add(0, const_cast<ice_atomic_t*>(&_ref));
-}
-
-inline void
-Shared::__setNoDelete(bool b)
-{
-    _noDelete = b;
-}
-
 #endif
 
 }
-
 #endif

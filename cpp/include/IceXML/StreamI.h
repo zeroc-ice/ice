@@ -21,14 +21,12 @@
 
 #include <map>
 
-#ifdef _WIN32
+#ifndef ICE_XML_API 
 #   ifdef ICE_XML_API_EXPORTS
-#       define ICE_XML_API __declspec(dllexport)
+#       define ICE_XML_API ICE_DECLSPEC_EXPORT
 #   else
-#       define ICE_XML_API __declspec(dllimport)
+#       define ICE_XML_API ICE_DECLSPEC_IMPORT
 #   endif
-#else
-#   define ICE_XML_API /**/
 #endif
 
 namespace IceXML

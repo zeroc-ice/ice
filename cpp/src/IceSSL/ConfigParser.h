@@ -12,8 +12,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_CONFIG_H
-#define ICE_SSL_CONFIG_H
+#ifndef ICE_SSL_CONFIG_PARSER_H
+#define ICE_SSL_CONFIG_PARSER_H
 
 #include <Ice/LoggerF.h>
 #include <IceSSL/CertificateDesc.h>

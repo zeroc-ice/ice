@@ -33,3 +33,5 @@ BASELIBS		= -lIceUtil $(STLPORT_LIBS) -lpthread
 LIBS			= -lIce -ldl -lbz2 $(BASELIBS)
 
 ICEUTIL_OS_LIBS         = -lpthread
+
+PLATFORM_HAS_READLINE  := yes

@@ -25,14 +25,12 @@
 #include <map>
 #include <set>
 
-#ifdef _WIN32
+#ifndef SLICE_API
 #   ifdef SLICE_API_EXPORTS
-#       define SLICE_API __declspec(dllexport)
+#       define SLICE_API ICE_DECLSPEC_EXPORT
 #   else
-#       define SLICE_API __declspec(dllimport)
+#       define SLICE_API ICE_DECLSPEC_IMPORT
 #   endif
-#else
-#   define SLICE_API /**/
 #endif
 
 namespace Slice

@@ -27,6 +27,18 @@ prefix			= /opt/Ice-$(VERSION)
 #OPTIMIZE		= yes
 
 #
+# Define LP64 as yes if you want to build in 64 bit mode on a platform
+# that supports both 32 and 64 bit.
+#
+#LP64                   := yes
+
+#
+# Define USER_READLINE as yes if you want to build parts of Ice using 
+# readline on platforms where readline is available.
+
+USE_READLINE            := yes
+
+#
 # The values below can be overridden by defining them as environment
 # variables. For example, if you are using a bourne shell or
 # compatible, you can override the location of STLport like this:
@@ -111,13 +123,10 @@ INSTALL_DATA		= ${INSTALL} -m 644
 UNAME                   := $(shell uname)
 
 #
-# TODO: synchronize properly USE_READLINE here and HAS_READLINE
-# in include/IceUtil/Config.h
+# Platform specific definitions
 #
+include  $(top_srcdir)/config/Make.rules.$(UNAME)
 
-ifeq ($(UNAME),Linux)
-USE_READLINE            := 1
-endif
 
 ifneq ($(STLPORT_HOME),)
     STLPORT_FLAGS	= -I$(STLPORT_HOME)/include/stlport
@@ -159,21 +168,17 @@ else
     XERCESC_LIBS	= -lxerces-c
 endif
 
-ifneq ($(USE_READLINE),)
-    ifneq ($(READLINE_HOME),)
-
-       READLINE_FLAGS	= -I$(READLINE_HOME)/include
-       READLINE_LIBS	= -L$(READLINE_HOME)/lib -lreadline -lncurses
-    else
-       READLINE_FLAGS	=
-       READLINE_LIBS	= -lreadline -lncurses
+ifeq ($(PLATFORM_HAS_READLINE),yes)
+    ifeq ($(USE_READLINE),yes)
+        ifneq ($(READLINE_HOME),)
+            READLINE_FLAGS	= -DHAVE_READLINE -I$(READLINE_HOME)/include
+            READLINE_LIBS	= -L$(READLINE_HOME)/lib -lreadline -lncurses
+        else
+            READLINE_FLAGS	= -DHAVE_READLINE
+            READLINE_LIBS	= -lreadline -lncurses
+        endif
     endif
 endif
-
-#
-# Platform specific definitions
-#
-include  $(top_srcdir)/config/Make.rules.$(UNAME)
 
 
 CPPFLAGS		= -I$(includedir) $(STLPORT_FLAGS)
