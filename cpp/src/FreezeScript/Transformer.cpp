@@ -1689,14 +1689,18 @@ FreezeScript::IterateDescriptor::execute(const SymbolTablePtr& sym)
             index = "i";
         }
 
+        //
+        // NOTE: Don't use iterator to traverse vector because child descriptors might remove elements.
+        //
         DataList& l = seq->getElements();
-        Ice::Long i = 0;
-        for(DataList::iterator p = l.begin(); p != l.end(); ++p, ++i)
+        DataList::size_type i = 0;
+        while(i < l.size())
         {
             SymbolTablePtr elemSym = sym->createChild();
-            elemSym->add(element, *p);
+            elemSym->add(element, l[i]);
             elemSym->add(index, _info->factory->createInteger(i, true));
             ExecutableContainerDescriptor::execute(elemSym);
+            ++i;
         }
     }
 }
