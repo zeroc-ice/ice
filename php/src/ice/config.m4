@@ -40,6 +40,7 @@ if test "$PHP_ICE" != "no"; then
   solaris*)
     if test "$GXX" != "yes"; then
       PHP_ADD_LIBRARY(Cstd, 1, ICE_SHARED_LIBADD)
+      PHP_ADD_LIBRARY(Crun, 1, ICE_SHARED_LIBADD)
     fi
   ;;
   esac
