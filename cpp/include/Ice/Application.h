@@ -83,10 +83,20 @@ public:
     static void holdInterrupt();
     static void releaseInterrupt();
 
+    //
+    // This method returns true if a signal handler was triggered,
+    // false otherwise. This can be used once Communicator::waitForShutdown()
+    // returns to test whether the shutdown was due to an interrupt (interrupted()
+    // returns true in that case) or because Communicator::shutdown() was called
+    // (interupted() returns false in that case).
+    //
+    static bool interrupted();
+
 private:
 
     static const char* _appName;
     static CommunicatorPtr _communicator;
+    static bool _interrupted;
 
 #ifdef _WIN32
     friend BOOL WINAPI interruptHandler(DWORD);

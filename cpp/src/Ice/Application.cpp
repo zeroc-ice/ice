@@ -20,6 +20,8 @@ using namespace Ice;
 const char* Application::_appName = 0;
 CommunicatorPtr Application::_communicator;
 
+bool Application::_interrupted = false;
+
 #ifndef _WIN32
 const int Application::signals[] = { SIGHUP, SIGINT, SIGTERM };
 sigset_t Application::signalSet;
@@ -49,6 +51,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	return EXIT_FAILURE;
     }
 
+    Application::_interrupted = false;
     _appName = argv[0];
 
     int status;
@@ -147,6 +150,8 @@ Ice::Application::communicator()
 BOOL WINAPI
 Ice::interruptHandler(DWORD)
 {
+    Application::_interrupted = true;
+
     //
     // Don't use Application::communicator(), this is not signal-safe.
     //
@@ -231,6 +236,8 @@ Ice::Application::releaseInterrupt()
 void
 Ice::interruptHandler(int)
 {
+    Application::_interrupted = true;
+
     //
     // Don't use Application::communicator(), this is not signal-safe.
     //
@@ -293,3 +300,9 @@ Ice::Application::releaseInterrupt()
 }
 
 #endif
+
+bool
+Ice::Application::interrupted()
+{
+    return Application::_interrupted;
+}
