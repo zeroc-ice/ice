@@ -17,10 +17,8 @@
 
 #include <Hello.h>
 
-#if defined(_WIN32)
-#   define HELLO_API __declspec(dllexport)
-#else
-#   define HELLO_API /**/
+#ifndef HELLO_API
+#   define HELLO_API ICE_DECLSPEC_EXPORT
 #endif
 
 class HELLO_API HelloI : public Hello

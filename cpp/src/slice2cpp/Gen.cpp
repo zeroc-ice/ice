@@ -328,7 +328,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     string scoped = fixKwd(p->scoped());
     ExceptionPtr base = p->base();
 
-    H << sp << nl << "class " << name << " : ";
+    H << sp << nl << "class " << _dllExport << name << " : ";
     H.useCurrentPosAsIndent();
     if(!base)
     {
@@ -355,7 +355,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << sp;
     if(p->isLocal())
     {
-	H << nl << _dllExport << name << "(const char*, int);";
+	H << nl << name << "(const char*, int);";
 	C << sp << nl << scoped.substr(2) << "::" << name << "(const char* file, int line) : ";
 	C.inc();
 	if(!base)
@@ -371,7 +371,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	C << eb;
     }
 
-    H << nl << _dllExport << "virtual ::std::string ice_name() const;";
+    H << nl << "virtual ::std::string ice_name() const;";
     C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_name() const";
     C << sb;
     C << nl << "return \"" << p->scoped().substr(2) << "\";";
@@ -379,16 +379,16 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     
     if(p->isLocal())
     {
-	H << nl << _dllExport << "virtual void ice_print(::std::ostream&) const;";
+	H << nl << "virtual void ice_print(::std::ostream&) const;";
     }
 
-    H << nl << _dllExport << "virtual ::Ice::Exception* ice_clone() const;";
+    H << nl << "virtual ::Ice::Exception* ice_clone() const;";
     C << sp << nl << "::Ice::Exception*" << nl << scoped.substr(2) << "::ice_clone() const";
     C << sb;
     C << nl << "return new " << name << "(*this);";
     C << eb;
 
-    H << nl << _dllExport << "virtual void ice_throw() const;";
+    H << nl << "virtual void ice_throw() const;";
     C << sp << nl << "void" << nl << scoped.substr(2) << "::ice_throw() const";
     C << sb;
     C << nl << "throw *this;";
@@ -429,12 +429,12 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	string scoped = fixKwd(p->scoped());
 	ExceptionPtr base = p->base();
     
-	H << sp << nl << _dllExport << "virtual void __write(::IceInternal::BasicStream*) const;";
-	H << nl << _dllExport << "virtual void __read(::IceInternal::BasicStream*, bool = true);";
+	H << sp << nl << "virtual void __write(::IceInternal::BasicStream*) const;";
+	H << nl << "virtual void __read(::IceInternal::BasicStream*, bool = true);";
 
-	H << sp << nl << _dllExport << "virtual void __marshal(const ::Ice::StreamPtr&) const;";
-	H << nl << _dllExport << "virtual void __unmarshal(const ::Ice::StreamPtr&);";
-	H << nl << _dllExport << "void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&);";
+	H << sp << nl << "virtual void __marshal(const ::Ice::StreamPtr&) const;";
+	H << nl << "virtual void __unmarshal(const ::Ice::StreamPtr&);";
+	H << nl << "void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&);";
 
 	TypeStringList memberList;
 	for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -2092,23 +2092,9 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = fixKwd(p->name());
     string scoped = fixKwd(p->scoped());
     ClassList bases = p->bases();
-    
-    string exp1;
-    string exp2;
-    if(_dllExport.size())
-    {
-	if(p->hasDataMembers())
-	{
-	    exp2 = _dllExport;
-	}
-	else
-	{
-	    exp1 = _dllExport;
-	}
-    }
 
     H << sp;
-    H << nl << "class " << exp1 << name << " : ";
+    H << nl << "class " << _dllExport << name << " : ";
     H.useCurrentPosAsIndent();
     if(bases.empty())
     {
@@ -2158,24 +2144,24 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	StringList::const_iterator q;
 
 	H << sp;
-	H << nl << exp2 << "static const ::std::string __ids[" << ids.size() << "];";
-	H << nl << exp2 << "virtual bool ice_isA"
+	H << nl << "static const ::std::string __ids[" << ids.size() << "];";
+	H << nl << "virtual bool ice_isA"
 	  << "(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) const;";
-	H << nl << exp2 << "virtual ::std::vector< ::std::string> ice_ids"
+	H << nl << "virtual ::std::vector< ::std::string> ice_ids"
 	  << "(const ::Ice::Current& = ::Ice::Current()) const;";
-	H << nl << exp2 << "virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::Current()) const;";
-	H << nl << exp2 << "static const ::std::string& ice_staticId();";
+	H << nl << "virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::Current()) const;";
+	H << nl << "static const ::std::string& ice_staticId();";
 
 	if(!p->isAbstract())
 	{
 	    H.dec();
 	    H << sp << nl << "private:";
 	    H.inc();
-	    H << sp << nl << exp2 << "static ::Ice::ObjectFactoryPtr _factory;";
+	    H << sp << nl << "static ::Ice::ObjectFactoryPtr _factory;";
 	    H.dec();
 	    H << sp << nl << "public:";
 	    H.inc();
-	    H << sp << nl << exp2 << "static const ::Ice::ObjectFactoryPtr& ice_factory();";
+	    H << sp << nl << "static const ::Ice::ObjectFactoryPtr& ice_factory();";
 	}
 	C << sp;
 	C << nl << "const ::std::string " << scoped.substr(2) << "::__ids[" << ids.size() << "] =";
@@ -2228,15 +2214,6 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     if(!p->isLocal())
     {	
-	string exp2;
-	if(_dllExport.size())
-	{
-	    if(p->hasDataMembers())
-	    {
-		exp2 = _dllExport;
-	    }
-	}
-
 	ClassList bases = p->bases();
 	ClassDefPtr base;
 	if(!bases.empty() && !bases.front()->isInterface())
@@ -2261,8 +2238,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    StringList::const_iterator q;
 	    
 	    H << sp;
-	    H << nl << exp2 << "static ::std::string __all[" << allOpNames.size() << "];";
-	    H << nl << exp2
+	    H << nl << "static ::std::string __all[" << allOpNames.size() << "];";
+	    H << nl
 	      << "virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);";
 	    C << sp;
 	    C << nl << "::std::string " << scoped.substr(2) << "::__all[] =";
@@ -2309,15 +2286,15 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	}
 	
 	H << sp;
-	H << nl << exp2 << "virtual void __write(::IceInternal::BasicStream*) const;";
-	H << nl << exp2 << "virtual void __read(::IceInternal::BasicStream*, bool = true);";
+	H << nl << "virtual void __write(::IceInternal::BasicStream*) const;";
+	H << nl << "virtual void __read(::IceInternal::BasicStream*, bool = true);";
 
 	H << sp;
-	H << nl << exp2 << "virtual void __marshal(const ::Ice::StreamPtr&) const;";
-	H << nl << exp2 << "virtual void __unmarshal(const ::Ice::StreamPtr&);";
+	H << nl << "virtual void __marshal(const ::Ice::StreamPtr&) const;";
+	H << nl << "virtual void __unmarshal(const ::Ice::StreamPtr&);";
 	
 	H << sp;
-	H << nl << exp2 << "static void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&, "
+	H << nl << "static void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&, "
 	  << scoped << "Ptr&);";
 
 	TypeStringList memberList;
@@ -2599,33 +2576,24 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     paramsDeclAMD += "const ::Ice::Current& __current)";
     argsAMD += "__current)";
     
-    string exp2;
-    if(_dllExport.size())
-    {
-	if(cl->hasDataMembers())
-	{
-	    exp2 = _dllExport;
-	}
-    }
-
     bool nonmutating = p->mode() == Operation::Nonmutating;
     bool amd = !cl->isLocal() && (cl->hasMetaData("amd") || p->hasMetaData("amd"));
 
     H << sp;
     if(!amd)
     {
-	H << nl << exp2 << "virtual " << retS << ' ' << name << params
+	H << nl << "virtual " << retS << ' ' << name << params
 	  << (nonmutating ? " const" : "") << " = 0;";
     }
     else
     {
-	H << nl << exp2 << "virtual void " << name << "_async" << paramsAMD
+	H << nl << "virtual void " << name << "_async" << paramsAMD
 	  << (nonmutating ? " const" : "") << " = 0;";
     }	
 
     if(!cl->isLocal())
     {
-	H << nl << exp2 << "::IceInternal::DispatchStatus ___" << name
+	H << nl << "::IceInternal::DispatchStatus ___" << name
 	  << "(::IceInternal::Incoming&, const ::Ice::Current&)" << (nonmutating ? " const" : "") << ";";
 
 	C << sp;

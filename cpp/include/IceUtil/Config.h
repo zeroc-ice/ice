@@ -40,20 +40,23 @@
 
 //
 // Compiler extensions to export and import symbols: see the documentation 
-// for Visual C++ and HP aC++.
+// for Visual C++, Sun ONE Studio 8 and HP aC++.
 //
 // TODO: more macros to support IBM Visual Age _Export syntax as well.
 //
-#ifdef _MSC_VER
+#if defined(_MSC_VER)
 #   define ICE_DECLSPEC_EXPORT __declspec(dllexport)
 #   define ICE_DECLSPEC_IMPORT __declspec(dllimport)
+#elif defined(__SUNPRO_CC) && (__SUNPRO_CC >= 0x550)
+#   define ICE_DECLSPEC_EXPORT __global
+#   define ICE_DECLSPEC_IMPORT
 #else
 #   define ICE_DECLSPEC_EXPORT /**/
 #   define ICE_DECLSPEC_IMPORT /**/
 #endif
 
 //
-// Let's use these extensions with for IceUtil:
+// Let's use these extensions with IceUtil:
 //
 #ifdef ICE_UTIL_API_EXPORTS
 #   define ICE_UTIL_API ICE_DECLSPEC_EXPORT

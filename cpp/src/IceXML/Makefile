@@ -26,7 +26,7 @@ SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) $(XERCESC_FLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_XML_API_EXPORTS $(XERCESC_FLAGS)
 
 LINKWITH        := $(XERCESC_LIBS)
 

@@ -16,10 +16,8 @@
 #include <IceStorm/TraceLevels.h>
 #include <IceBox/IceBox.h>
 
-#if defined(_WIN32)
-#   define ICESTORM_SERVICE_API __declspec(dllexport)
-#else
-#   define ICESTORM_SERVICE_API /**/
+#ifndef ICESTORM_SERVICE_API
+#   define ICESTORM_SERVICE_API ICE_DECLSPEC_EXPORT
 #endif
 
 using namespace std;

@@ -19,8 +19,12 @@ C++ compiler
   <F6U2 install base>/SUNWspro/READMEs/c++ C.1.b (line 168).
  
 or
-- Sun C++ 5.4 (part of Sun ONE Studio Compiler Collection 7.0 
-               aka Forte Developer 7)
+- Sun C++ 5.4 (part of Sun ONE Studio 7.0 aka Forte Developer 7)
+
+or
+- Sun C++ 5.5 (part of Sun ONE Studio 8.0)
+  Ice takes advantage of the new linker scoping feature to reduce
+  the number of symbols exported by Ice shared libraries.
 
 Third-party libraries
 ---------------------

@@ -28,17 +28,28 @@ ifeq ($(LP64),yes)
 endif
 
 ifeq ($(CCVERSION),5.3)
-    CXXWARNFLAGS        := 
     FLEX_NOLINE         := yes
     BISON_NOLINE        := yes
-else 
-   CXXWARNFLAGS         := +w
+    TEMPLATE_REPOSITORY := SunWS_cache
+else
+    ifeq ($(CCVERSION),5.4)
+        CXXWARNFLAGS            := +w
+        TEMPLATE_REPOSITORY     := SunWS_cache
+    else
+        #
+        # Assumes >= 5.5
+        #
+        # -erroff=hidef is a (bad) work-around for
+        # for Sun CC 5.5 bug #4852754
+        #
+        CXXWARNFLAGS            := +w -erroff=hidef
+        CXXSCOPEFLAGS           := -xldscope=hidden
+    endif
 endif
 
-CXXFLAGS		= -KPIC -mt +p $(CXXWARNFLAGS) $(CXXARCHFLAGS)
 
+CXXFLAGS		= -KPIC -mt +p $(CXXSCOPEFLAGS) $(CXXWARNFLAGS) $(CXXARCHFLAGS)
 
-TEMPLATE_REPOSITORY     := SunWS_cache
 
 ifeq ($(OPTIMIZE),yes)
      CXXFLAGS		:= -O -DNDEBUG $(CXXFLAGS)

@@ -32,7 +32,7 @@ SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DSLICE_API_EXPORTS 
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@

@@ -38,6 +38,8 @@ SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
+CPPFLAGS        := $(CPPFLAGS) -DICE_UTIL_API_EXPORTS
+
 LINKWITH        := $(STLPORT_LIBS) $(ICEUTIL_OS_LIBS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)

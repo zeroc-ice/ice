@@ -44,8 +44,8 @@ SDIR		= $(slicedir)/IceBox
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(DB_FLAGS) $(CPPFLAGS)
-SLICE2CPPFLAGS	:= --ice --include-dir IceBox $(SLICE2CPPFLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_BOX_API_EXPORTS $(DB_FLAGS) 
+SLICE2CPPFLAGS	:= --ice --dll-export ICE_BOX_API --include-dir IceBox $(SLICE2CPPFLAGS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@

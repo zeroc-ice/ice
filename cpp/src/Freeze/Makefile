@@ -50,7 +50,7 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir Freeze $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(DB_FLAGS) $(CPPFLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DFREEZE_API_EXPORTS $(DB_FLAGS) 
 SLICE2CPPFLAGS	:= --ice --include-dir Freeze --dll-export FREEZE_API $(SLICE2CPPFLAGS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)

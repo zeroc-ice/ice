@@ -67,7 +67,7 @@ SDIR		= $(slicedir)/IceSSL
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(OPENSSL_FLAGS) $(XERCESC_FLAGS) $(CPPFLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS $(OPENSSL_FLAGS) $(XERCESC_FLAGS) 
 SLICE2CPPFLAGS	:= --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
 
 LINKWITH        := $(OPENSSL_LIBS) $(XERCESC_LIBS)

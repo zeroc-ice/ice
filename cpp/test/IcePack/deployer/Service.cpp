@@ -17,11 +17,10 @@
 #include <Freeze/Freeze.h>
 #include <TestI.h>
 
-#if defined(_WIN32)
-#   define TEST_SERVICE_API __declspec(dllexport)
-#else
-#   define TEST_SERVICE_API /**/
+#ifndef TEST_SERVICE_API
+#   define TEST_SERVICE_API ICE_DECLSPEC_EXPORT
 #endif
+
 
 using namespace std;
 using namespace Ice;

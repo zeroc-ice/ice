@@ -35,7 +35,7 @@ SDIR		= $(slicedir)/XMLTransform
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) $(XERCESC_FLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DXML_TRANSFORM_API_EXPORTS $(XERCESC_FLAGS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@

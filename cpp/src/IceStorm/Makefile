@@ -71,9 +71,9 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceStorm $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(XERCESC_FLAGS) $(READLINE_FLAGS) $(CPPFLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_STORM_API_EXPORTS $(XERCESC_FLAGS) $(READLINE_FLAGS) 
 ICECPPFLAGS	:= -I.. $(ICECPPFLAGS)
-SLICE2CPPFLAGS	:= --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS	:= --ice --dll-export ICE_STORM_API --include-dir IceStorm $(SLICE2CPPFLAGS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
