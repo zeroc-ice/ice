@@ -1,3 +1,9 @@
+Changes since version 1.5.0
+---------------------------
+
+- Fixed a bug in the slice2cs code generator: classes with multiple
+  sequence members caused incorrect code to be generated.
+
 Changes since Alpha 2
 ---------------------
 
