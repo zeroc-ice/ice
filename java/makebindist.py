@@ -104,6 +104,8 @@ elif sys.platform.startswith("sunos"):
     platform = "solaris"
 elif sys.platform.startswith("hp"):
     platform = "hp"
+elif sys.platform.startswith("darwin"):
+    platform = "macosx"
 else:
     print "unknown platform (" + sys.platform + ")!"
     sys.exit(1)
@@ -161,8 +163,15 @@ if symlinks:
         else:
             soBase = so + ".so"
             soLib = soBase
-        soVer = soBase + '.' + version
-        soInt = soBase + '.' + intVer
+
+        if platform == "macosx":
+	    soVer = so + '.' + version + ".dylib"
+            soInt = so + '.' + intVer + ".dylib"
+            soLib = so + ".dylib"
+        else:	
+            soVer = soBase + '.' + version
+            soInt = soBase + '.' + intVer
+
         shutil.copyfile(icehome + "/lib/" + soVer, libdir + "/" + soVer)
         os.chdir(libdir)
         os.symlink(soVer, soInt)
@@ -190,15 +199,22 @@ if platform == "win32":
         shutil.copyfile(dllpath, bindir + "/" + dll)
 
 if strip:
+
+    stripOpts=""
+    if platform == "macosx":
+	stripOpts="-x"
+
     for x in executables:
-        os.system("strip " + bindir + "/" + x)
+        os.system("strip " + stripOpts + " " + bindir + "/" + x)
         os.chmod(bindir + "/" + x, 0755)
     for x in libraries:
         if platform == "hp":
             soLib = x + ".sl"
+	elif platform == "macosx":
+            soLib = x + ".dylib"
         else:
             soLib = x + ".so"
-        os.system("strip " + libdir + "/" + soLib)
+        os.system("strip " + stripOpts + " " + libdir + "/" + soLib)
 
 #
 # Create binary archives.
