@@ -1,9 +1,12 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Fixed a slice2cpp failure when the --output-dir option specified a
+  directory containing backslashes.
+
 - Changed the signature of Ice::Service::main() and Ice::Service::run()
-  to accept a reference to argc (int & argc) rather than passing argc by
-  value (int argc). This is to ensure that, if Ice::initialize() or
+  to accept a reference to argc (int & argc) rather than passing argc
+  by value (int argc). This is to ensure that, if Ice::initialize() or
   Ice::Service::initializeCommunicator() rewrites argv, argc reflects
   the number of elements of the rewritten argument vector.
 
