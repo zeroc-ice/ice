@@ -38,14 +38,14 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    char c;
+    char c[2];
 
     cout << '\n'
 	 << "Let's first transfer a simple object, for a class without\n"
 	 << "operations, and print its contents. No factory is required\n"
 	 << "for this.\n"
 	 << "[press enter]\n";
-    cin.getline(&c, 1);
+    cin.getline(c, 2);
 
     SimplePtr simple = initial->getSimple();
     cout << "==> " << simple->message << endl;
@@ -55,7 +55,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "with operations as type ::Ice::Object. Because no factory is installed,\n"
 	 << "the class will be sliced to ::Ice::Object.\n"
 	 << "[press enter]\n";
-    cin.getline(&c, 1);
+    cin.getline(c, 2);
 
     ::Ice::ObjectPtr obj = initial->getPrinterAsObject();
     cout << "==> The type ID of the received object is \"" << obj->ice_id() << "\"" << endl;
@@ -66,7 +66,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "with operations as type ::Printer, without installing a factory first.\n"
 	 << "This should give us a `no factory' exception.\n"
 	 << "[press enter]\n";
-    cin.getline(&c, 1);
+    cin.getline(c, 2);
 
     PrinterPtr printer;
     PrinterPrx printerProxy;
@@ -87,7 +87,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "installing an appropriate factory first. If successful, we print\n"
 	 << "the object's content.\n"
 	 << "[press enter]\n";
-    cin.getline(&c, 1);
+    cin.getline(c, 2);
 
     Ice::ObjectFactoryPtr factory = new ObjectFactory;
     communicator->addObjectFactory(factory, "::Printer");
@@ -99,7 +99,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "Cool, it worked! Let's try calling the printBackwards() method\n"
 	 << "on the object we just received locally.\n"
 	 << "[press enter]\n";
-    cin.getline(&c, 1);
+    cin.getline(c, 2);
 
     cout << "==> ";
     printer->printBackwards();
@@ -108,7 +108,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "Now we call the same method, but on the remote object. Watch the\n"
 	 << "server's output.\n"
 	 << "[press enter]\n";
-    cin.getline(&c, 1);
+    cin.getline(c, 2);
 
     printerProxy->printBackwards();
 
@@ -118,7 +118,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "class, the derived class (::DerivedPrinter) is sliced\n"
 	 << "to its base class (::Printer).\n"
 	 << "[press enter]\n";
-    cin.getline(&c, 1);
+    cin.getline(c, 2);
 
     PrinterPtr derivedAsBase;
     derivedAsBase = initial->getDerivedPrinter();
@@ -130,7 +130,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "Because we receive the derived object as a base object, we\n"
 	 << "we need to do a dynamic_cast<> to get from the base to the derived object.\n"
 	 << "[press enter]\n";
-    cin.getline(&c, 1);
+    cin.getline(c, 2);
     
     communicator->addObjectFactory(factory, "::DerivedPrinter");
     
@@ -145,7 +145,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "call the operation printUppercase() on the derived object\n"
 	 << "locally.\n"
 	 << "[press enter]\n";
-    cin.getline(&c, 1);
+    cin.getline(c, 2);
 
     cout << "==> " << derived->derivedMessage << endl;
     cout << "==> ";
@@ -156,7 +156,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "derived object, we throw an exception containing the derived\n"
 	 << "object.\n"
 	 << "[press enter]\n";
-    cin.getline(&c, 1);
+    cin.getline(c, 2);
 
     gotException = false;
     try
