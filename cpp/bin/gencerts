@@ -18,17 +18,17 @@ proc generateRequest { private request reqnum bitStrength } {
     spawn "/usr/bin/openssl" "req" "-config" "./openssl.cnf" "-new" "-inform" "PEM" "-key" $private "-outform" "PEM" "-out" $request
 
     expect {
-        -ex "\[CA]:" {
-            send "CA\r"
+        -ex "\[USA]:" {
+            send "USA\r"
             exp_continue
-        } -ex "\[Nova Scotia]:" {
-            send "Nova Scotia\r"
+        } -ex "\[Massachusetts]:" {
+            send "Massachusetts\r"
             exp_continue
-        } -ex "\[Dartmouth]:" {
-            send "Dartmouth\r"
+        } -ex "\[Billerica]:" {
+            send "Billerica\r"
             exp_continue
-        } -ex "\[ZeroC North]:" {
-            send "ZeroC North\r"
+        } -ex "\[ZeroC, Inc.]:" {
+            send "ZeroC, Inc.\r"
             exp_continue
         } -ex "\[Development]:" {
             send "Development\r"
