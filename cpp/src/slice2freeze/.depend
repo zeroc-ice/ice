@@ -1,0 +1,1 @@
+Main.o: Main.cpp ../../include/Slice/Parser.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Handle.h ../../include/Slice/OutputUtil.h

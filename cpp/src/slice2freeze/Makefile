@@ -8,21 +8,22 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../..
+
+NAME		= $(top_srcdir)/bin/slice2freeze
+
+TARGETS		= $(NAME)
+
+OBJS		= Main.o
+
+SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= Slice \
-		  slice2cpp \
-		  slice2freeze \
-		  slice2docbook \
-		  Ice \
-		  IcePack \
-		  Freeze
+CPPFLAGS	:= -I. $(CPPFLAGS)
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
+$(NAME): $(OBJS)
+	rm -f $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) -lSlice $(BASELIBS)
+
+include .depend
