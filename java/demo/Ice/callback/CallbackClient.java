@@ -25,7 +25,6 @@ class CallbackClient extends Ice.Application
             "d: send callback as datagram\n" +
             "D: send callback as batch datagram\n" +
             "f: flush all batch requests\n" +
-            "S: switch secure mode on/off\n" +
 	    "v: set/reset override context field\n" +
             "s: shutdown server\n" +
             "x: exit\n" +
@@ -70,8 +69,6 @@ class CallbackClient extends Ice.Application
         //CallbackReceiverPrx batchDatagramR =
         //    CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_batchDatagram());
 
-        boolean secure = false;
-        String secureStr = "";
 	String overwrite = null;
 
         menu();
@@ -93,19 +90,19 @@ class CallbackClient extends Ice.Application
                 if(line.equals("t"))
                 {
                     java.util.HashMap context = new java.util.HashMap();
-                    context.put("_fwd", "t" + secureStr);
+                    context.put("_fwd", "t");
                     twoway.initiateCallback(twowayR, context);
                 }
                 else if(line.equals("o"))
                 {
                     java.util.HashMap context = new java.util.HashMap();
-                    context.put("_fwd", "o" + secureStr);
+                    context.put("_fwd", "o");
                     oneway.initiateCallback(onewayR, context);
                 }
                 else if(line.equals("O"))
                 {
                     java.util.HashMap context = new java.util.HashMap();
-                    context.put("_fwd", "O" + secureStr);
+                    context.put("_fwd", "O");
 		    if(overwrite != null)
 		    {
 			context.put("_ovwt", overwrite);
@@ -115,13 +112,13 @@ class CallbackClient extends Ice.Application
                 else if(line.equals("d"))
                 {
                     java.util.HashMap context = new java.util.HashMap();
-                    context.put("_fwd", "d" + secureStr);
+                    context.put("_fwd", "d");
                     datagram.initiateCallback(datagramR, context);
                 }
                 else if(line.equals("D"))
                 {
                     java.util.HashMap context = new java.util.HashMap();
-                    context.put("_fwd", "D" + secureStr);
+                    context.put("_fwd", "D");
 		    if(overwrite != null)
 		    {
 			context.put("_ovwt", overwrite);
@@ -131,32 +128,6 @@ class CallbackClient extends Ice.Application
                 else if(line.equals("f"))
                 {
 		    communicator().flushBatchRequests();
-                }
-                else if(line.equals("S"))
-                {
-                    secure = !secure;
-                    secureStr = secure ? "s" : "";
-
-                    twoway = CallbackPrxHelper.uncheckedCast(twoway.ice_secure(secure));
-                    oneway = CallbackPrxHelper.uncheckedCast(oneway.ice_secure(secure));
-                    batchOneway = CallbackPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
-                    datagram = CallbackPrxHelper.uncheckedCast(datagram.ice_secure(secure));
-                    batchDatagram = CallbackPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
-
-                    twowayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_secure(secure));
-                    onewayR = CallbackReceiverPrxHelper.uncheckedCast(onewayR.ice_secure(secure));
-                    //batchOnewayR = CallbackReceiverPrxHelper.uncheckedCast(batchOnewayR.ice_secure(secure));
-                    datagramR = CallbackReceiverPrxHelper.uncheckedCast(datagramR.ice_secure(secure));
-                    //batchDatagramR = CallbackReceiverPrxHelper.uncheckedCast(batchDatagramR.ice_secure(secure));
-
-                    if(secure)
-                    {
-                        System.out.println("secure mode is now on");
-                    }
-                    else
-                    {
-                        System.out.println("secure mode is now off");
-                    }
                 }
 		else if(line.equals("v"))
 		{
