@@ -791,9 +791,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name transformEvictor
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2cs
-    End Project Dependency
 }}}
 
 ###############################################################################
