@@ -398,24 +398,19 @@ namespace IceInternal
 	
         private void warning(System.Exception ex)
         {
-            if(__os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
-            {
-                __os.instance().logger().warning("exception raised by AMI callback:\n" + ex);
-            }
+	    if(_reference) // Don't print anything if cleanup() was already called.
+	    {
+		if(_reference.instance..properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+		{
+		    _reference.instance.logger().warning("exception raised by AMI callback:\n" + ex);
+		}
+	    }
         }
 
         private void cleanup()
         {
-            if(_reference != null)
-            {
-                _reference = null;
-            }
-
-            if(_connection != null)
-            {
-                _connection = null;
-            }
-
+	    _reference = null;
+	    _connection = null;
             if(__is != null)
             {
                 __is.destroy();
