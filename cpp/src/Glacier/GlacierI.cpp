@@ -32,18 +32,25 @@ Glacier::StarterI::StarterI(const CommunicatorPtr& communicator) :
     _traceLevel = atoi(_properties->getProperty("Glacier.Trace.Starter").c_str());
 
     // Set up the Certificate Generation context
-    // TODO: Why do we need these from properties? Isn't the value of
-    // all these properties completely irrelevant, as this is for
-    // temporary certificate? If so, why not just supply some dummy
-    // values, and get rid of all these properties?
-    _certContext.setCountry(_properties->getProperty("Glacier.Starter.Certificate.Country"));
-    _certContext.setStateProvince(_properties->getProperty("Glacier.Starter.Certificate.StateProvince"));
-    _certContext.setLocality(_properties->getProperty("Glacier.Starter.Certificate.Locality"));
-    _certContext.setOrganization(_properties->getProperty("Glacier.Starter.Certificate.Organization"));
-    _certContext.setOrgainizationalUnit(_properties->getProperty("Glacier.Starter.Certificate.OranizationalUnit"));
-    _certContext.setCommonName(_properties->getProperty("Glacier.Starter.Certificate.CommonName"));
-    _certContext.setBitStrength(atoi(_properties->getProperty("Glacier.Starter.Certificate.BitStrength").c_str()));
-    _certContext.setSecondsValid(atol(_properties->getProperty("Glacier.Starter.Certificate.SecondsValid").c_str()));
+    string defSecondsValid = IceSSL::OpenSSL::RSACertificateGenContext::daysToSeconds(1);
+    string country = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.Country", "US");
+    string stateProv = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.StateProvince", "Washington");
+    string locality = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.Locality", "DC");
+    string org = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.Organization", "Some Company Inc.");
+    string orgUnit = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.OranizationalUnit", "Sales");
+    string commonName = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.CommonName", "John Doe");
+    string bitStrength = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.BitStrength", "1024");
+    string secondsValid = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.SecondsValid",
+                                                              defSecondsValid);
+
+    _certContext.setCountry(country);
+    _certContext.setStateProvince(stateProv);
+    _certContext.setLocality(locality);
+    _certContext.setOrganization(org);
+    _certContext.setOrgainizationalUnit(orgUnit);
+    _certContext.setCommonName(commonName);
+    _certContext.setBitStrength(atoi(bitStrength.c_str()));
+    _certContext.setSecondsValid(atol(secondsValid.c_str()));
 }
 
 void
