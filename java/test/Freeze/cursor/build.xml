@@ -18,6 +18,9 @@ the Free Software Foundation.
     <property name="lib.dir" value="${top.dir}/lib"/>
     <property name="class.dir" value="classes"/>
 
+    <!-- set common build properties for this build -->
+    <property file="${top.dir}/config/build.properties"/>
+
     <target name="init">
         <!-- Create the time stamp -->
         <tstamp/>

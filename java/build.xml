@@ -27,8 +27,8 @@ the Free Software Foundation.
     <property name="lib.dir" value="lib"/>
     <property name="generated.dir" value="generated"/>
     <property name="cache.dir" value="depcache"/>
-    <property name="debug" value="on"/>
-    <property name="optimize" value="off"/>
+
+    <property file="config/build.properties"/>
 
     <target name="init">
         <!-- Create the time stamp -->

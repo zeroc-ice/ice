@@ -19,6 +19,9 @@ the Free Software Foundation.
     <property name="class.dir" value="classes"/>
     <property name="generated.dir" value="generated"/>
 
+    <!-- set common build properties for this build -->
+    <property file="${top.dir}/config/build.properties"/>
+
     <!-- install slice2freezej task -->
     <taskdef name="slice2freezej" classpath="${top.dir}/ant" classname="Slice2FreezeJTask" />
 
