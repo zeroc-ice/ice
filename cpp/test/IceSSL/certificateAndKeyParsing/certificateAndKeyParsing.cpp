@@ -32,12 +32,21 @@ public:
     void testExpectPrivateKeyParseException(const Ice::ByteSeq&, const Ice::ByteSeq&);
     void testExpectCertificateParseException(const std::string&, const std::string&);
     void testExpectCertificateParseException(const Ice::ByteSeq&, const Ice::ByteSeq&);
+    void testExpectCertificateParseException(const std::string&);
+    void testExpectCertificateParseException(const Ice::ByteSeq&);
+
     void testExpectContextNotConfiguredException(const std::string&, const std::string&);
     void testExpectContextNotConfiguredException(const Ice::ByteSeq&, const Ice::ByteSeq&);
+    void testExpectContextNotConfiguredException(const std::string&);
+    void testExpectContextNotConfiguredException(const Ice::ByteSeq&);
+
     void testExpectCertificateKeyMatchException(const std::string&, const std::string&);
     void testExpectCertificateKeyMatchException(const Ice::ByteSeq&, const Ice::ByteSeq&);
+
     void testNoException(const std::string&, const std::string&);
     void testNoException(const Ice::ByteSeq&, const Ice::ByteSeq&);
+    void testNoException(const std::string&);
+    void testNoException(const Ice::ByteSeq&);
 
 private:
     PropertiesPtr _properties;
@@ -291,6 +300,76 @@ certKeyParsingClient::testExpectCertificateParseException(const Ice::ByteSeq& ke
 }
 
 void
+certKeyParsingClient::testExpectCertificateParseException(const std::string& cert)
+{
+    try
+    {
+        _system->addTrustedCertificateBase64(IceSSL::Client, cert);
+        std::cout << "failed" << std::endl;
+        abort();
+    }
+    catch (const IceSSL::CertificateParseException&)
+    {
+        std::cout << "ok" << std::endl;
+    }
+    catch (const Ice::LocalException& localEx)
+    {
+        //
+        // Any other exception is bad.
+        //
+
+        std::cout << "failed" << std::endl;
+        std::cout << localEx << std::endl;
+        abort();
+    }
+    catch (...)
+    {
+        //
+        // Unknown exceptions are always bad.
+        //
+
+        std::cout << "failed" << std::endl;
+        std::cout << "Unknown exception." << std::endl;
+        abort();
+    }
+}
+
+void
+certKeyParsingClient::testExpectCertificateParseException(const Ice::ByteSeq& cert)
+{
+    try
+    {
+        _system->addTrustedCertificate(IceSSL::Client, cert);
+        std::cout << "failed" << std::endl;
+        abort();
+    }
+    catch (const IceSSL::CertificateParseException&)
+    {
+        std::cout << "ok" << std::endl;
+    }
+    catch (const Ice::LocalException& localEx)
+    {
+        //
+        // Any other exception is bad.
+        //
+
+        std::cout << "failed" << std::endl;
+        std::cout << localEx << std::endl;
+        abort();
+    }
+    catch (...)
+    {
+        //
+        // Unknown exceptions are always bad.
+        //
+
+        std::cout << "failed" << std::endl;
+        std::cout << "Unknown exception." << std::endl;
+        abort();
+    }
+}
+
+void
 certKeyParsingClient::testExpectContextNotConfiguredException(const std::string& key,
                                                               const std::string& cert)
 {
@@ -333,6 +412,76 @@ certKeyParsingClient::testExpectContextNotConfiguredException(const Ice::ByteSeq
     try
     {
         _system->setRSAKeys(IceSSL::Client, key, cert);
+        std::cout << "failed" << std::endl;
+        abort();
+    }
+    catch (const IceSSL::OpenSSL::ContextNotConfiguredException&)
+    {
+        std::cout << "ok" << std::endl;
+    }
+    catch (const Ice::LocalException& localEx)
+    {
+        //
+        // Any other exception is bad.
+        //
+
+        std::cout << "failed" << std::endl;
+        std::cout << localEx << std::endl;
+        abort();
+    }
+    catch (...)
+    {
+        //
+        // Unknown exceptions are always bad.
+        //
+
+        std::cout << "failed" << std::endl;
+        std::cout << "Unknown exception." << std::endl;
+        abort();
+    }
+}
+
+void
+certKeyParsingClient::testExpectContextNotConfiguredException(const std::string& cert)
+{
+    try
+    {
+        _system->addTrustedCertificateBase64(IceSSL::Client, cert);
+        std::cout << "failed" << std::endl;
+        abort();
+    }
+    catch (const IceSSL::OpenSSL::ContextNotConfiguredException&)
+    {
+        std::cout << "ok" << std::endl;
+    }
+    catch (const Ice::LocalException& localEx)
+    {
+        //
+        // Any other exception is bad.
+        //
+
+        std::cout << "failed" << std::endl;
+        std::cout << localEx << std::endl;
+        abort();
+    }
+    catch (...)
+    {
+        //
+        // Unknown exceptions are always bad.
+        //
+
+        std::cout << "failed" << std::endl;
+        std::cout << "Unknown exception." << std::endl;
+        abort();
+    }
+}
+
+void
+certKeyParsingClient::testExpectContextNotConfiguredException(const Ice::ByteSeq& cert)
+{
+    try
+    {
+        _system->addTrustedCertificate(IceSSL::Client, cert);
         std::cout << "failed" << std::endl;
         abort();
     }
@@ -506,6 +655,66 @@ certKeyParsingClient::testNoException(const Ice::ByteSeq& key, const Ice::ByteSe
     }
 }
 
+void
+certKeyParsingClient::testNoException(const std::string& cert)
+{
+    try
+    {
+        _system->addTrustedCertificateBase64(IceSSL::Client, cert);
+        std::cout << "ok" << std::endl;
+    }
+    catch (const Ice::LocalException& localEx)
+    {
+        //
+        // Any other exception is bad.
+        //
+
+        std::cout << "failed" << std::endl;
+        std::cout << localEx << std::endl;
+        abort();
+    }
+    catch (...)
+    {
+        //
+        // Unknown exceptions are always bad.
+        //
+
+        std::cout << "failed" << std::endl;
+        std::cout << "Unknown exception." << std::endl;
+        abort();
+    }
+}
+
+void
+certKeyParsingClient::testNoException(const Ice::ByteSeq& cert)
+{
+    try
+    {
+        _system->addTrustedCertificate(IceSSL::Client, cert);
+        std::cout << "ok" << std::endl;
+    }
+    catch (const Ice::LocalException& localEx)
+    {
+        //
+        // Any other exception is bad.
+        //
+
+        std::cout << "failed" << std::endl;
+        std::cout << localEx << std::endl;
+        abort();
+    }
+    catch (...)
+    {
+        //
+        // Unknown exceptions are always bad.
+        //
+
+        std::cout << "failed" << std::endl;
+        std::cout << "Unknown exception." << std::endl;
+        abort();
+    }
+}
+
 int
 certKeyParsingClient::run(int argc, char* argv[])
 {
@@ -561,6 +770,12 @@ certKeyParsingClient::run(int argc, char* argv[])
 
     std::cout << "Good private key and bad certificate... ";
     testExpectCertificateParseException(_gkey1, _badCert);
+
+    std::cout << "Bad certificate as a trusted certificate... ";
+    testExpectCertificateParseException(_badCert);
+    
+    std::cout << "Bad certificate as a trusted certificate (Base64)... ";
+    testExpectCertificateParseException(_badCertb64);
     
     std::cout << "Testing setting good certificates and keys on a unconfigured context." << std::endl;
 
@@ -575,6 +790,12 @@ certKeyParsingClient::run(int argc, char* argv[])
     
     std::cout << "Good private key and certificate (Base64) (again)... ";
     testExpectContextNotConfiguredException(_gkey2b64, _gcert2b64);
+
+    std::cout << "Good certificate as a trusted certificate... ";
+    testExpectContextNotConfiguredException(_gcert1);
+    
+    std::cout << "Good certificate as a trusted certificate (Base64)... ";
+    testExpectContextNotConfiguredException(_gcert1b64);
 
     _properties->setProperty("Ice.SSL.Client.CertPath", "../certs");
     _properties->setProperty("Ice.SSL.Client.Config", "sslconfig_6.xml");
@@ -608,6 +829,11 @@ certKeyParsingClient::run(int argc, char* argv[])
     std::cout << "Good private key and certificate (Base64) (again)... ";
     testNoException(_gkey2b64, _gcert2b64);
 
+    std::cout << "Good certificate as trusted certificate... ";
+    testNoException(_gcert1);
+    
+    std::cout << "Good certificate as trusted certificate (Base64)... ";
+    testNoException(_gcert2b64);
 
     return EXIT_SUCCESS;
 }
