@@ -952,7 +952,9 @@ public class BasicStream
 
                 if(v == null)
                 {
-                    throw new Ice.NoObjectFactoryException();
+		    Ice.NoObjectFactoryException ex = new Ice.NoObjectFactoryException();
+		    ex.type = id;
+		    throw ex;
                 }
             }
             if(_readEncapsStack.objectsRead == null) // Lazy creation
@@ -1016,7 +1018,9 @@ public class BasicStream
             }
         }
 
-        throw new Ice.NoUserExceptionFactoryException();
+	Ice.NoUserExceptionFactoryException ex = new Ice.NoUserExceptionFactoryException();
+	ex.type = id;
+	throw ex;
     }
 
     int
@@ -1121,6 +1125,7 @@ public class BasicStream
         catch(Exception ex)
         {
             Ice.NoObjectFactoryException e = new Ice.NoObjectFactoryException();
+	    e.type = id;
             e.initCause(ex);
             throw e;
         }
@@ -1189,6 +1194,7 @@ public class BasicStream
         catch(Exception ex)
         {
             Ice.NoUserExceptionFactoryException e = new Ice.NoUserExceptionFactoryException();
+	    e.type = id;
             e.initCause(ex);
             throw e;
         }

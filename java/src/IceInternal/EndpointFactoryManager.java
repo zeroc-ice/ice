@@ -51,7 +51,9 @@ public final class EndpointFactoryManager
         String s = str.trim();
         if(s.length() == 0)
         {
-            throw new Ice.EndpointParseException();
+	    Ice.EndpointParseException e = new Ice.EndpointParseException();
+	    e.str = str;
+	    throw e;
         }
 
         java.util.regex.Pattern p = java.util.regex.Pattern.compile("([ \t\n\r]+)|$");
@@ -75,7 +77,9 @@ public final class EndpointFactoryManager
             }
         }
 
-        throw new Ice.EndpointParseException();
+	Ice.EndpointParseException e = new Ice.EndpointParseException();
+	e.str = str;
+	throw e;
     }
 
     public synchronized Endpoint

@@ -46,7 +46,9 @@ final class TcpEndpoint implements Endpoint
             String option = arr[i++];
             if(option.length() != 2 || option.charAt(0) != '-')
             {
-                throw new Ice.EndpointParseException();
+                Ice.EndpointParseException e = new Ice.EndpointParseException();
+		e.str = "tcp " + str;
+		throw e;
             }
 
             String argument = null;
@@ -61,7 +63,9 @@ final class TcpEndpoint implements Endpoint
                 {
                     if(argument == null)
                     {
-                        throw new Ice.EndpointParseException();
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+			e.str = "tcp " + str;
+			throw e;
                     }
 
                     _host = argument;
@@ -72,7 +76,9 @@ final class TcpEndpoint implements Endpoint
                 {
                     if(argument == null)
                     {
-                        throw new Ice.EndpointParseException();
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+			e.str = "tcp " + str;
+			throw e;
                     }
 
                     try
@@ -81,7 +87,9 @@ final class TcpEndpoint implements Endpoint
                     }
                     catch(NumberFormatException ex)
                     {
-                        throw new Ice.EndpointParseException();
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+			e.str = "tcp " + str;
+			throw e;
                     }
 
                     break;
@@ -91,7 +99,9 @@ final class TcpEndpoint implements Endpoint
                 {
                     if(argument == null)
                     {
-                        throw new Ice.EndpointParseException();
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+			e.str = "tcp " + str;
+			throw e;
                     }
 
                     try
@@ -100,7 +110,9 @@ final class TcpEndpoint implements Endpoint
                     }
                     catch(NumberFormatException ex)
                     {
-                        throw new Ice.EndpointParseException();
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+			e.str = "tcp " + str;
+			throw e;
                     }
 
                     break;
@@ -108,7 +120,9 @@ final class TcpEndpoint implements Endpoint
 
                 default:
                 {
-                    throw new Ice.EndpointParseException();
+                    Ice.EndpointParseException e = new Ice.EndpointParseException();
+		    e.str = "tcp " + str;
+		    throw e;
                 }
             }
         }

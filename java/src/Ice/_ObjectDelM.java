@@ -194,7 +194,9 @@ public class _ObjectDelM implements _ObjectDel
 
             if(endpoints.length == 0)
             {
-                throw new NoEndpointException();
+                NoEndpointException e = new NoEndpointException();
+		e.proxy = __reference.toString();
+		throw e;
             }
 
             int j;
@@ -242,7 +244,9 @@ public class _ObjectDelM implements _ObjectDel
 		}
 		if(filteredEndpoints == null || filteredEndpoints.length == 0)
 		{
-		    throw new NoEndpointException();
+		    NoEndpointException e = new NoEndpointException();
+		    e.proxy = __reference.toString();
+		    throw e;
 		}
 
 		try

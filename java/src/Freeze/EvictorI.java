@@ -157,14 +157,10 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor
 	assert(_db != null);
 	
 	//
-	// TODO: HACK: It's possible that locate is called on a
-	// deactivated servant locator. There's currently no nice way to
-	// handle this case so we just through an UnknownLocatoException.
+	// If this operation is called on a deactivated servant locator,
+	// it's a bug in Ice.
 	//
-	if(_deactivated)
-	{
-	    throw new Ice.UnknownLocalException();
-	}
+	assert(!_deactivated);
 
 	//
 	// First copy current.identity. This is necessary since this

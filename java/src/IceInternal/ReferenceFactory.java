@@ -88,7 +88,9 @@ public final class ReferenceFactory
         beg = StringUtil.findFirstNotOf(s, delim, end);
         if(beg == -1)
         {
-            throw new Ice.ProxyParseException();
+            Ice.ProxyParseException e = new Ice.ProxyParseException();
+	    e.str = s;
+	    throw e;
         }
 
         //
@@ -99,7 +101,9 @@ public final class ReferenceFactory
         end = StringUtil.checkQuote(s, beg);
         if(end == -1)
         {
-            throw new Ice.ProxyParseException();
+            Ice.ProxyParseException e = new Ice.ProxyParseException();
+	    e.str = s;
+	    throw e;
         }
         else if(end == 0)
         {
@@ -119,7 +123,9 @@ public final class ReferenceFactory
 
         if(beg == end)
         {
-            throw new Ice.ProxyParseException();
+            Ice.ProxyParseException e = new Ice.ProxyParseException();
+	    e.str = s;
+	    throw e;
         }
 
         Ice.Identity ident = Ice.Util.stringToIdentity(idstr);
@@ -161,7 +167,9 @@ public final class ReferenceFactory
             String option = s.substring(beg, end);
             if(option.length() != 2 || option.charAt(0) != '-')
             {
-                throw new Ice.ProxyParseException();
+                Ice.ProxyParseException e = new Ice.ProxyParseException();
+		e.str = s;
+		throw e;
             }
 
             //
@@ -180,7 +188,9 @@ public final class ReferenceFactory
                     end = StringUtil.checkQuote(s, beg);
                     if(end == -1)
                     {
-                        throw new Ice.ProxyParseException();
+                        Ice.ProxyParseException e = new Ice.ProxyParseException();
+			e.str = s;
+			throw e;
                     }
                     else if(end == 0)
                     {
@@ -210,7 +220,9 @@ public final class ReferenceFactory
                 {
                     if(argument == null)
                     {
-                        throw new Ice.ProxyParseException();
+                        Ice.ProxyParseException e = new Ice.ProxyParseException();
+			e.str = s;
+			throw e;
                     }
 
                     final int argLen = argument.length();
@@ -248,7 +260,9 @@ public final class ReferenceFactory
 
                         if(!IceInternal.StringUtil.decodeString(argument, argBeg, argEnd, token))
                         {
-                            throw new Ice.ProxyParseException();
+                            Ice.ProxyParseException e = new Ice.ProxyParseException();
+			    e.str = s;
+			    throw e;
                         }
                         facet.add(token.value);
                         argBeg = argEnd + 1;
@@ -256,7 +270,9 @@ public final class ReferenceFactory
 
                     if(facet.size() == 0)
                     {
-                        throw new Ice.ProxyParseException();
+                        Ice.ProxyParseException e = new Ice.ProxyParseException();
+			e.str = s;
+			throw e;
                     }
 
                     break;
@@ -266,7 +282,9 @@ public final class ReferenceFactory
                 {
                     if(argument != null)
                     {
-                        throw new Ice.ProxyParseException();
+                        Ice.ProxyParseException e = new Ice.ProxyParseException();
+			e.str = s;
+			throw e;
                     }
                     mode = Reference.ModeTwoway;
                     break;
@@ -276,7 +294,9 @@ public final class ReferenceFactory
                 {
                     if(argument != null)
                     {
-                        throw new Ice.ProxyParseException();
+                        Ice.ProxyParseException e = new Ice.ProxyParseException();
+			e.str = s;
+			throw e;
                     }
                     mode = Reference.ModeOneway;
                     break;
@@ -286,7 +306,9 @@ public final class ReferenceFactory
                 {
                     if(argument != null)
                     {
-                        throw new Ice.ProxyParseException();
+                        Ice.ProxyParseException e = new Ice.ProxyParseException();
+			e.str = s;
+			throw e;
                     }
                     mode = Reference.ModeBatchOneway;
                     break;
@@ -296,7 +318,9 @@ public final class ReferenceFactory
                 {
                     if(argument != null)
                     {
-                        throw new Ice.ProxyParseException();
+                        Ice.ProxyParseException e = new Ice.ProxyParseException();
+			e.str = s;
+			throw e;
                     }
                     mode = Reference.ModeDatagram;
                     break;
@@ -306,7 +330,9 @@ public final class ReferenceFactory
                 {
                     if(argument != null)
                     {
-                        throw new Ice.ProxyParseException();
+                        Ice.ProxyParseException e = new Ice.ProxyParseException();
+			e.str = s;
+			throw e;
                     }
                     mode = Reference.ModeBatchDatagram;
                     break;
@@ -316,7 +342,9 @@ public final class ReferenceFactory
                 {
                     if(argument != null)
                     {
-                        throw new Ice.ProxyParseException();
+                        Ice.ProxyParseException e = new Ice.ProxyParseException();
+			e.str = s;
+			throw e;
                     }
                     secure = true;
                     break;
@@ -326,7 +354,9 @@ public final class ReferenceFactory
                 {
                     if(argument != null)
                     {
-                        throw new Ice.ProxyParseException();
+                        Ice.ProxyParseException e = new Ice.ProxyParseException();
+			e.str = s;
+			throw e;
                     }
                     compress = true;
                     break;
@@ -334,7 +364,9 @@ public final class ReferenceFactory
 
                 default:
                 {
-                    throw new Ice.ProxyParseException();
+                    Ice.ProxyParseException e = new Ice.ProxyParseException();
+		    e.str = s;
+		    throw e;
                 }
             }
         }
@@ -366,13 +398,17 @@ public final class ReferenceFactory
                 beg = StringUtil.findFirstNotOf(s, delim, beg + 1);
                 if(beg == -1)
                 {
-                    throw new Ice.ProxyParseException();
+                    Ice.ProxyParseException e = new Ice.ProxyParseException();
+		    e.str = s;
+		    throw e;
                 }
 
                 end = StringUtil.checkQuote(s, beg);
                 if(end == -1)
                 {
-                    throw new Ice.ProxyParseException();
+                    Ice.ProxyParseException e = new Ice.ProxyParseException();
+		    e.str = s;
+		    throw e;
                 }
                 else if(end == 0)
                 {
@@ -390,7 +426,9 @@ public final class ReferenceFactory
                 Ice.StringHolder token = new Ice.StringHolder();
                 if(!IceInternal.StringUtil.decodeString(s, beg, end, token) || token.value.length() == 0)
                 {
-                    throw new Ice.ProxyParseException();
+                    Ice.ProxyParseException e = new Ice.ProxyParseException();
+		    e.str = s;
+		    throw e;
                 }
                 adapter = token.value;
 	    }

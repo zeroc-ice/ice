@@ -1074,7 +1074,9 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
 
                 if(value == null)
                 {
-                    throw new Ice.NoObjectFactoryException();
+                    Ice.NoObjectFactoryException e = new Ice.NoObjectFactoryException();
+		    e.type = type.value;
+		    throw e;
                 }
             }
 
@@ -1391,6 +1393,7 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
         catch(Exception ex)
         {
             Ice.NoObjectFactoryException e = new Ice.NoObjectFactoryException();
+	    e.type = id;
             e.initCause(ex);
             throw e;
         }

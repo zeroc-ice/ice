@@ -23,7 +23,9 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     {
 	if(_instance == null)
 	{
-            throw new ObjectAdapterDeactivatedException();
+            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
+	    e.name = _name;
+	    throw e;
 	}
 	
 	return _communicator;
@@ -34,7 +36,9 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     {
         if(_instance == null)
         {
-            throw new ObjectAdapterDeactivatedException();
+            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
+	    e.name = _name;
+	    throw e;
         }
 
 	if(!_printAdapterReadyDone)
@@ -94,7 +98,9 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     {
         if(_instance == null)
         {
-            throw new ObjectAdapterDeactivatedException();
+            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
+	    e.name = _name;
+	    throw e;
         }
 
         final int sz = _incomingConnectionFactories.size();
@@ -162,7 +168,9 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     {
         if(_instance == null)
         {
-            throw new ObjectAdapterDeactivatedException();
+            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
+	    e.name = _name;
+	    throw e;
         }
 
         //
@@ -182,7 +190,9 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     {
         if(_instance == null)
         {
-            throw new ObjectAdapterDeactivatedException();
+            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
+	    e.name = _name;
+	    throw e;
         }
 
         long now = System.currentTimeMillis();
@@ -200,7 +210,9 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     {
         if(_instance == null)
         {
-            throw new ObjectAdapterDeactivatedException();
+            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
+	    e.name = _name;
+	    throw e;
         }
 
         _activeServantMap.remove(ident);
@@ -211,7 +223,9 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     {
         if(_instance == null)
         {
-            throw new ObjectAdapterDeactivatedException();
+            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
+	    e.name = _name;
+	    throw e;
         }
 
         _locatorMap.put(prefix, locator);
@@ -222,7 +236,9 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     {
         if(_instance == null)
         {
-            throw new ObjectAdapterDeactivatedException();
+            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
+	    e.name = _name;
+	    throw e;
         }
 
         ServantLocator locator = (ServantLocator)_locatorMap.remove(prefix);
@@ -237,7 +253,9 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     {
         if(_instance == null)
         {
-            throw new ObjectAdapterDeactivatedException();
+            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
+	    e.name = _name;
+	    throw e;
         }
 
         return (ServantLocator)_locatorMap.get(prefix);
@@ -261,7 +279,9 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     {
         if(_instance == null)
         {
-            throw new ObjectAdapterDeactivatedException();
+            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
+	    e.name = _name;
+	    throw e;
         }
 
         return newProxy(ident);
@@ -272,7 +292,9 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     {
         if(_instance == null)
         {
-            throw new ObjectAdapterDeactivatedException();
+            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
+	    e.name = _name;
+	    throw e;
         }
 
         return newDirectProxy(ident);
@@ -283,7 +305,9 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     {
         if(_instance == null)
         {
-            throw new ObjectAdapterDeactivatedException();
+            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
+	    e.name = _name;
+	    throw e;
         }
 
         //
@@ -302,7 +326,9 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     {
         if(_instance == null)
         {
-            throw new ObjectAdapterDeactivatedException();
+            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
+	    e.name = _name;
+	    throw e;
         }
 
         IceInternal.RouterInfo routerInfo = _instance.routerManager().get(router);
@@ -350,7 +376,9 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     {
 	if(_instance == null)
 	{
-	    throw new ObjectAdapterDeactivatedException();
+	    ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
+	    e.name = _name;
+	    throw e;
 	}
 
 	_locatorInfo = _instance.locatorManager().get(locator);
