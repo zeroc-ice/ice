@@ -24,10 +24,12 @@ class Stream;
 enum DispatchStatus
 {
     DispatchOK,
-    DispatchException,
+    DispatchUserException,
     DispatchLocationForward,
     DispatchObjectNotExist,
-    DispatchOperationNotExist
+    DispatchOperationNotExist,
+    DispatchLocalException,
+    DispatchUnknownException
 };
 
 }

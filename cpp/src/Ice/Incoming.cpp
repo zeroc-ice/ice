@@ -37,8 +37,7 @@ IceInternal::Incoming::invoke(Stream& is)
     string operation;
     _is.read(operation);
 
-    int statusPos = _os.b.size();
-    _os.write(Byte(0));
+    Stream::Container::size_type statusPos = _os.b.size();
 
     ObjectPtr servant = _adapter->identityToServant(identity);
     ServantLocatorPtr locator;
@@ -57,23 +56,40 @@ IceInternal::Incoming::invoke(Stream& is)
 	
 	if(!servant)
 	{
-	    *(_os.b.begin() + statusPos) = static_cast<Byte>(DispatchObjectNotExist);
+	    _os.write(static_cast<Byte>(DispatchObjectNotExist));
 	}
 	else
 	{
+	    _os.write(static_cast<Byte>(DispatchOK));
 	    DispatchStatus status = servant->__dispatch(*this, operation);
-	    if (status != DispatchOK && status != DispatchException && status != DispatchOperationNotExist)
-	    {
-		throw UnknownReplyStatusException(__FILE__, __LINE__);
-	    }
-	    
 	    *(_os.b.begin() + statusPos) = static_cast<Byte>(status);
+	}
+
+	if (locator && servant)
+	{
+	    locator->finished(_adapter, identity, servant, operation, cookie);
 	}
     }
     catch(const LocationForward& p)
     {
-	*(_os.b.begin() + statusPos) = static_cast<Byte>(DispatchLocationForward);
+	if (locator && servant)
+	{
+	    locator->finished(_adapter, identity, servant, operation, cookie);
+	}
+	_os.b.resize(statusPos);
+	_os.write(static_cast<Byte>(DispatchLocationForward));
 	_os.write(p._prx);
+	return;
+    }
+    catch(const LocalException& ex)
+    {
+	if (locator && servant)
+	{
+	    locator->finished(_adapter, identity, servant, operation, cookie);
+	}
+	_os.b.resize(statusPos);
+	_os.write(static_cast<Byte>(DispatchLocalException));
+	throw;
     }
     catch(...)
     {
@@ -81,12 +97,9 @@ IceInternal::Incoming::invoke(Stream& is)
 	{
 	    locator->finished(_adapter, identity, servant, operation, cookie);
 	}
-	throw;
-    }
-
-    if (locator && servant)
-    {
-	locator->finished(_adapter, identity, servant, operation, cookie);
+	_os.b.resize(statusPos);
+	_os.write(static_cast<Byte>(DispatchUnknownException));
+	throw UnknownException(__FILE__, __LINE__);
     }
 }
 

@@ -18,6 +18,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace Freeze;
 
 extern FILE* yyin;
 
@@ -38,7 +39,6 @@ Parser::usage()
         "address ADDRESS  Set the address for the current contact to ADDRESS.\n"
         "phone PHONE      Set the phone number for the current contact to PHONE.\n"
         "remove           Permanently remove the current contact from the phonebook.\n"
-        "list             List all names in the phonebook.\n"
         "shutdown         Shut the phonebook server down.\n";
 }
 
@@ -66,6 +66,10 @@ Parser::addContacts(const std::list<std::string>& args)
 	    cout << "added new contact for `" << *p << "'" << endl;
 	}
     }
+    catch(const DBExceptionPtrE& ex)
+    {
+	error(ex->message);
+    }
     catch(const LocalException& ex)
     {
 	error(ex.toString());
@@ -87,6 +91,10 @@ Parser::findContacts(const std::list<std::string>& args)
 	_current = _foundContacts.begin();
 	cout << "number of contacts found: " << _foundContacts.size() << endl;
 	printCurrent();
+    }
+    catch(const DBExceptionPtrE& ex)
+    {
+	error(ex->message);
     }
     catch(const LocalException& ex)
     {
@@ -121,6 +129,10 @@ Parser::printCurrent()
 	    cout << "no current contact" << endl;
 	}
     }
+    catch(const DBExceptionPtrE& ex)
+    {
+	error(ex->message);
+    }
     catch(const LocalException& ex)
     {
 	error(ex.toString());
@@ -147,6 +159,10 @@ Parser::setCurrentName(const std::list<std::string>& args)
 	{
 	    cout << "no current contact" << endl;
 	}
+    }
+    catch(const DBExceptionPtrE& ex)
+    {
+	error(ex->message);
     }
     catch(const LocalException& ex)
     {
@@ -175,6 +191,10 @@ Parser::setCurrentAddress(const std::list<std::string>& args)
 	    cout << "no current contact" << endl;
 	}
     }
+    catch(const DBExceptionPtrE& ex)
+    {
+	error(ex->message);
+    }
     catch(const LocalException& ex)
     {
 	error(ex.toString());
@@ -202,6 +222,10 @@ Parser::setCurrentPhone(const std::list<std::string>& args)
 	    cout << "no current contact" << endl;
 	}
     }
+    catch(const DBExceptionPtrE& ex)
+    {
+	error(ex->message);
+    }
     catch(const LocalException& ex)
     {
 	error(ex.toString());
@@ -223,6 +247,10 @@ Parser::removeCurrent()
 	    cout << "no current contact" << endl;
 	}
     }
+    catch(const DBExceptionPtrE& ex)
+    {
+	error(ex->message);
+    }
     catch(const LocalException& ex)
     {
 	error(ex.toString());
@@ -235,6 +263,10 @@ Parser::shutdown()
     try
     {
 	_phoneBook->shutdown();
+    }
+    catch(const DBExceptionPtrE& ex)
+    {
+	error(ex->message);
     }
     catch(const LocalException& ex)
     {

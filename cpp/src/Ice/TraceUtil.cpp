@@ -154,9 +154,9 @@ IceInternal::traceReply(const char* heading, const Stream& str, const ::Ice::Log
 		s << "(ok)";
 		break;
 	    }
-	    case DispatchException:
+	    case DispatchUserException:
 	    {
-		s << "(exception)";
+		s << "(user exception)";
 		break;
 	    }
 	    case DispatchLocationForward:
@@ -172,6 +172,16 @@ IceInternal::traceReply(const char* heading, const Stream& str, const ::Ice::Log
 	    case DispatchOperationNotExist:
 	    {
 		s << "(operation not exist)";
+		break;
+	    }
+	    case DispatchLocalException:
+	    {
+		s << "(local exception)";
+		break;
+	    }
+	    case DispatchUnknownException:
+	    {
+		s << "(unknown exception)";
 		break;
 	    }
 	    default:

@@ -199,7 +199,7 @@ IceInternal::Outgoing::finished(Stream& is)
 		break;
 	    }
 	    
-	    case DispatchException:
+	    case DispatchUserException:
 	    {
 		_state = StateException;
 		break;
@@ -222,6 +222,20 @@ IceInternal::Outgoing::finished(Stream& is)
 	    {
 		_state = StateLocalException;
 		_exception = auto_ptr<LocalException>(new OperationNotExistException(__FILE__, __LINE__));
+		break;
+	    }
+	    
+	    case DispatchLocalException:
+	    {
+		_state = StateLocalException;
+		_exception = auto_ptr<LocalException>(new LocalException(__FILE__, __LINE__));
+		break;
+	    }
+
+	    case DispatchUnknownException:
+	    {
+		_state = StateLocalException;
+		_exception = auto_ptr<LocalException>(new UnknownException(__FILE__, __LINE__));
 		break;
 	    }
 	    

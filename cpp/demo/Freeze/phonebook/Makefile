@@ -38,7 +38,7 @@ LDFLAGS		:= $(LDFLAGS) -L$(DB)/lib
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS) -lreadline -lcurses
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS) -lFreeze -ldb -lreadline -lcurses
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
@@ -59,14 +59,14 @@ clean::
 
 PhoneBook.h PhoneBook.cpp: PhoneBook.ice $(SLICE2CPP)
 	rm -f PhoneBook.h PhoneBook.cpp
-	$(SLICE2CPP) PhoneBook.ice
+	$(SLICE2CPP) -I$(slicedir) PhoneBook.ice
 
 clean::
 	rm -f PhoneBook.h PhoneBook.cpp
 
 NameIdentitiesDict.h NameIdentitiesDict.cpp: PhoneBook.ice $(SLICE2FREEZE)
 	rm -f NameIdentitiesDict.h NameIdentitiesDict.cpp
-	$(SLICE2FREEZE) --dict NameIdentitiesDict,string,Identities NameIdentitiesDict PhoneBook.ice
+	$(SLICE2FREEZE) -I$(slicedir) --dict NameIdentitiesDict,string,Identities NameIdentitiesDict PhoneBook.ice
 
 clean::
 	rm -f NameIdentitiesDict.h NameIdentitiesDict.cpp

@@ -12,6 +12,7 @@
 #define FREEZE_EVICTOR_ICE
 
 #include <Ice/ObjectAdapter.ice>
+#include <Freeze/DBException.ice>
 #include <Freeze/DBF.ice>
 
 module Freeze

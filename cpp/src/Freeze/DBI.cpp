@@ -9,6 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Stream.h> // Not included in Ice/Ice.h
+#include <Freeze/DBException.h>
 #include <Freeze/DBI.h>
 #include <Freeze/EvictorI.h>
 #include <Freeze/Initialize.h>
@@ -90,14 +91,13 @@ Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, cons
     }
 
     checkBerkeleyDBReturn(_dbEnv->open(_dbEnv, _name.c_str(),
-				  DB_CREATE |
-				  DB_INIT_LOCK |
-				  DB_INIT_LOG |
-				  DB_INIT_MPOOL |
-				  DB_INIT_TXN |
-				  DB_RECOVER |
-				  DB_THREAD,
-				  FREEZE_DB_MODE), _errorPrefix, "DB_ENV->open");
+				       DB_CREATE |
+				       DB_INIT_LOCK |
+				       DB_INIT_LOG |
+				       DB_INIT_MPOOL |
+				       DB_INIT_TXN |
+				       DB_RECOVER,
+				       FREEZE_DB_MODE), _errorPrefix, "DB_ENV->open");
 }
 
 Freeze::DBEnvironmentI::~DBEnvironmentI()
@@ -324,8 +324,10 @@ Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvironmentIPtr& d
 	_logger->trace("DB", s.str());
     }
     
-    checkBerkeleyDBReturn(_db->open(_db, name.c_str(), 0, DB_BTREE, DB_CREATE, FREEZE_DB_MODE), _errorPrefix,
+    checkBerkeleyDBReturn(_db->open(_db, _name.c_str(), 0, DB_BTREE, DB_CREATE, FREEZE_DB_MODE), _errorPrefix,
 			  "DB->open");
+
+    _dbEnvObj->add(_name, this);
 }
 
 Freeze::DBI::~DBI()
@@ -413,10 +415,7 @@ Freeze::DBI::get(const Key& key)
     
     checkBerkeleyDBReturn(_db->get(_db, 0, &dbKey, &dbData, 0), _errorPrefix, "DB->get");
 
-    Value value;
-    value.resize(dbData.size);
-    memcpy(value.begin(), dbData.data, dbData.size);
-    return value;
+    return Value(static_cast<Byte*>(dbData.data), static_cast<Byte*>(dbData.data) + dbData.size);
 }
 
 void
@@ -521,8 +520,8 @@ Freeze::DBI::getServant(const string& identity)
     IceInternal::InstancePtr instance = IceInternal::getInstance(_communicator);
     IceInternal::Stream stream(instance);
     stream.b.resize(dbData.size);
+    copy(static_cast<Byte*>(dbData.data), static_cast<Byte*>(dbData.data) + dbData.size, stream.b.begin());
     stream.i = stream.b.begin();
-    memcpy(stream.b.begin(), dbData.data, dbData.size);
     
     ObjectPtr servant;
     stream.read(servant, "::Ice::Object");

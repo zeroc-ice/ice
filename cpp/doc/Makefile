@@ -25,6 +25,7 @@ SLICEFILES	= ../slice/Ice/Communicator.ice \
 		  ../slice/Ice/ServantFactory.ice \
 		  ../slice/IcePack/Admin.ice \
 		  ../slice/Freeze/DB.ice \
+		  ../slice/Freeze/DBException.ice \
 		  ../slice/Freeze/Evictor.ice
 
 include $(top_srcdir)/config/Make.rules

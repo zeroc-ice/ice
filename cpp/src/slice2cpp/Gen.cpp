@@ -1777,6 +1777,8 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	    C << retS << " __ret = ";
 	}
 	C << name << args << ';';
+	writeMarshalCode(C, outParams, ret);
+	C << nl << "return ::IceInternal::DispatchOK;";
 	if (!throws.empty())
 	{
 	    C << eb;
@@ -1798,12 +1800,10 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 		{
 		    writeMarshalUnmarshalCode(C, *r, "__ex", true);
 		}
-		C << nl << "return ::IceInternal::DispatchException;";
+		C << nl << "return ::IceInternal::DispatchUserException;";
 		C << eb;
 	    }
 	}
-	writeMarshalCode(C, outParams, ret);
-	C << nl << "return ::IceInternal::DispatchOK;";
 	C << eb;
     }	
 }
@@ -1868,19 +1868,25 @@ Slice::Gen::IceVisitor::visitClassDefStart(const ClassDefPtr& p)
     string scoped = p->scoped();
     
     C << sp;
-    C << nl << "void IceInternal::incRef(" << scoped << "* p) { p->__incRef(); }";
-    C << nl << "void IceInternal::decRef(" << scoped << "* p) { p->__decRef(); }";
+    C << nl << "void" << nl << "IceInternal::incRef(" << scoped << "* p)";
+    C << sb;
+    C << nl << "p->__incRef();";
+    C << eb;
+    C << nl << "void" << nl << "IceInternal::decRef(" << scoped << "* p)";
+    C << sb;
+    C << nl << "p->__decRef();";
+    C << eb;
 
     if (!p->isLocal())
     {
 	C << sp;
 	C << nl << "void" << nl << "IceInternal::incRef(::IceProxy" << scoped << "* p)";
 	C << sb;
-	C << "p->__incRef();";
+	C << nl << "p->__incRef();";
 	C << eb;
 	C << nl << "void" << nl << "IceInternal::decRef(::IceProxy" << scoped << "* p)";
 	C << sb;
-	C << "p->__decRef();";
+	C << nl << "p->__decRef();";
 	C << eb;
 	C << sp;
 	C << nl << "void" << nl << "IceInternal::checkedCast(::IceProxy::Ice::Object* b, ::IceProxy" << scoped

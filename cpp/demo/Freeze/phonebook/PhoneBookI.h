@@ -61,13 +61,13 @@ public:
     
     void remove(const std::string&, const std::string&);
     void move(const std::string&, const std::string&, const std::string&);
+    std::string getNewIdentity();
 
 private:
 
     Ice::ObjectAdapterPtr _adapter;
     Freeze::DBPtr _db;
     Freeze::EvictorPtr _evictor;
-    Ice::Long _nextContactIdentity;
     NameIdentitiesDictPtr _nameIdentitiesDict;
 };
 

@@ -113,25 +113,16 @@ PhoneBookI::createContact()
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
     
     //
-    // Get a unique ID
+    // Get a new unique identity.
     //
-    string identity = "phonebook.contact#";
-#ifdef WIN32 // COMPILERBUG
-    char s[20];
-    sprintf(s, "%I64d", _nextContactIdentity++);
-    identity += s;
-#else
-    ostringstream s;
-    s << _nextContactIdentity++;
-    identity += s.str();
-#endif
-    
+    string identity = getNewIdentity();
+
     //
     // Create a new contact Servant.
     //
     ContactIPtr contact = new ContactI(this, _evictor);
     contact->setIdentity(identity);
-
+    
     //
     // Create a new Ice Object in the evictor, using the new identity
     // and the new Servant.
@@ -145,13 +136,13 @@ PhoneBookI::createContact()
     Identities identities;
     try
     {
-	identities = _nameIdentitiesDict->get("");
+	identities = _nameIdentitiesDict->get("N");
     }
-    catch(const DBNotFoundException&)
+    catch(const DBNotFoundExceptionPtrE&)
     {
     }
     identities.push_back(identity);
-    _nameIdentitiesDict->put("", identities);
+    _nameIdentitiesDict->put("N", identities);
     
     //
     // Turn the identity into a Proxy and return the Proxy to the
@@ -172,9 +163,9 @@ PhoneBookI::findContacts(const string& name)
     Identities identities;
     try
     {
-	identities = _nameIdentitiesDict->get(name);
+	identities = _nameIdentitiesDict->get("N" + name);
     }
-    catch(const DBNotFoundException&)
+    catch(const DBNotFoundExceptionPtrE&)
     {
     }
 
@@ -198,13 +189,20 @@ PhoneBookI::remove(const string& identity, const string& name)
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
     //
-    // We do not catch DBNotFoundException, because it is an
+    // We do not catch DBNotFoundExceptionPtrE, because it is an
     // application error if name is not found.
     //
-    Identities identities  = _nameIdentitiesDict->get(name);
+    Identities identities  = _nameIdentitiesDict->get("N" + name);
     identities.erase(remove_if(identities.begin(), identities.end(), bind2nd(equal_to<string>(), identity)),
 		     identities.end());
-    _nameIdentitiesDict->put(name, identities);
+    if (identities.empty())
+    {
+	_nameIdentitiesDict->del("N" + name);
+    }
+    else
+    {
+	_nameIdentitiesDict->put("N" + name, identities);
+    }
 }
 
 void
@@ -219,11 +217,48 @@ PhoneBookI::move(const string& identity, const string& oldName, const string& ne
     Identities identities;
     try
     {
-	identities = _nameIdentitiesDict->get(newName);
+	identities = _nameIdentitiesDict->get("N" + newName);
     }
-    catch(const DBNotFoundException&)
+    catch(const DBNotFoundExceptionPtrE&)
     {
     }
     identities.push_back(identity);
-    _nameIdentitiesDict->put(newName, identities);
+    _nameIdentitiesDict->put("N" + newName, identities);
 }
+
+string
+PhoneBookI::getNewIdentity()
+{
+    Ice::Long id;
+    Identities ids;
+    try
+    {
+	ids = _nameIdentitiesDict->get("ID");
+	assert(ids.size() == 1);
+#ifdef WIN32
+	id = _atoi64(ids.front().c_str()) + 1;
+#else
+	id = atoll(ids.front().c_str()) + 1;
+#endif
+    }
+    catch(const DBNotFoundExceptionPtrE&)
+    {
+	id = 0;
+    }
+
+    char s[20];
+#ifdef WIN32
+    sprintf(s, "%I64d", id);
+#else
+    sprintf(s, "%lld", id);
+#endif
+    
+    ids.clear();
+    ids.push_back(s);
+    _nameIdentitiesDict->put("ID", ids);
+
+    return string("phonebook.contact#") + s;
+}
+
+
+

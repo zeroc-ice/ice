@@ -216,16 +216,6 @@ IceInternal::Collector::message(Stream& stream)
 	    {
 		JTCSyncT<JTCRecursiveMutex> sync(*this);
 		warning(ex);
-		setState(StateClosed);
-	    }
-	    catch(...)
-	    {
-		JTCSyncT<JTCRecursiveMutex> sync(*this);
-		string s("server exception:\n");
-		s += "unknown exception (no further information available)\n";
-		s += _transceiver->toString();
-		_logger->warning(s);
-		setState(StateClosed);
 	    }
 	}
 	while (batch && stream.i < stream.b.end());

@@ -11,16 +11,18 @@
 #ifndef PHONE_BOOK_ICE
 #define PHONE_BOOK_ICE
 
+#include <Freeze/DBException.ice>
+
 class Contact
 {
-    nonmutating string getName();
-    void setName(string name);
+    nonmutating string getName() throws Freeze::DBException;
+    void setName(string name) throws Freeze::DBException;
 
-    nonmutating string getAddress();
-    void setAddress(string address);
+    nonmutating string getAddress() throws Freeze::DBException;
+    void setAddress(string address) throws Freeze::DBException;
 
-    nonmutating string getPhone();
-    void setPhone(string phone);
+    nonmutating string getPhone() throws Freeze::DBException;
+    void setPhone(string phone) throws Freeze::DBException;
 
     //
     // Yes, destroy() is nonmutating. It doesn't change the state of
@@ -39,9 +41,9 @@ sequence<string> Identities; // Needed for slice2freeze
 
 interface PhoneBook
 {
-    Contact* createContact();
-    Contacts findContacts(string name);
-    void shutdown();
+    Contact* createContact() throws Freeze::DBException;
+    Contacts findContacts(string name) throws Freeze::DBException;
+    void shutdown() throws Freeze::DBException;
 };
 
 #endif

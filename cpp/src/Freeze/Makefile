@@ -19,8 +19,9 @@ VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
 TARGETS		= $(NAME) $(VERSIONED_NAME)
 
 OBJS		= DB.o \
-	  	  DBI.o \
+		  DBException.o \
 		  Evictor.o \
+	  	  DBI.o \
 		  EvictorI.o
 
 SRCS		= $(OBJS:.o=.cpp)
@@ -58,6 +59,14 @@ $(HDIR)/DBF.h: $(IDIR)/DBF.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/DBF.h
+
+$(HDIR)/DBException.h DBException.cpp: $(IDIR)/DBException.ice $(SLICE2CPP)
+	rm -f $(HDIR)/DBException.h DBException.cpp
+	$(SLICECMD) $(IDIR)/DBException.ice
+	mv DBException.h $(HDIR)
+
+clean::
+	rm -f $(HDIR)/DBException.h DBException.cpp
 
 $(HDIR)/Evictor.h Evictor.cpp: $(IDIR)/Evictor.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Evictor.h Evictor.cpp

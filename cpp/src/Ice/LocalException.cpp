@@ -77,6 +77,42 @@ Ice::operator<<(ostream& out, const LocalException& ex)
     return out << s;
 }
 
+Ice::UnknownException::UnknownException(const char* file, int line) :
+    LocalException(file, line)
+{
+}
+
+Ice::UnknownException::UnknownException(const UnknownException& ex) :
+    LocalException(ex)
+{
+}
+
+UnknownException&
+Ice::UnknownException::operator=(const UnknownException& ex)
+{
+    LocalException::operator=(ex);
+    return *this;
+}
+
+string
+Ice::UnknownException::toString() const
+{
+    string s = debugInfo() + "unknown exception";
+    return s;
+}
+
+LocalException*
+Ice::UnknownException::clone() const
+{
+    return new UnknownException(*this);
+}
+
+void
+Ice::UnknownException::raise() const
+{
+    throw *this;
+}
+
 Ice::UnknownUserException::UnknownUserException(const char* file, int line) :
     LocalException(file, line)
 {

@@ -214,7 +214,7 @@ writeDict(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output& C
     C << nl << "IceInternal::Stream keyStream(instance);";
     writeMarshalUnmarshalCode(C, keyType, "key", "keyStream", true);
     C << nl << "IceInternal::Stream valueStream(instance);";
-    writeMarshalUnmarshalCode(C, keyType, "key", "valueStream", true);
+    writeMarshalUnmarshalCode(C, keyType, "value", "valueStream", true);
     C << nl << "_db->put(keyStream.b, valueStream.b);";
     C << eb;
     C << sp << nl << typeToString(valueType) << nl << absolute << "::get(" << inputTypeToString(keyType)

@@ -18,7 +18,7 @@ using namespace Freeze;
 
 Freeze::EvictorI::EvictorI(const DBPtr& db, const CommunicatorPtr& communicator) :
     _db(db),
-    _evictorSize(static_cast<map<string, EvictorElement>::size_type>(10)),
+    _evictorSize(10),
     _persistenceMode(SaveUponEviction),
     _logger(communicator->getLogger()),
     _trace(0)

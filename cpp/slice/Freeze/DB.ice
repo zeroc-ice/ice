@@ -12,6 +12,7 @@
 #define FREEZE_DB_ICE
 
 #include <Ice/CommunicatorF.ice>
+#include <Freeze/DBException.ice>
 #include <Freeze/DBF.ice>
 #include <Freeze/EvictorF.ice>
 
@@ -22,46 +23,6 @@
  **/
 module Freeze
 {
-
-/**
- *
- * A Freeze database exception.
- *
- * @see DBEnvironment
- * @see DBTransaction
- * @see DB
- * @see Evictor
- *
- **/
-local class DBException
-{
-    /**
-     *
-     * A message describing the reason for the exception.
-     *
-     **/
-    string message;
-};
-
-/**
- *
- * A Freeze database exception, indicating that a database record
- * could not be found.
- *
- **/
-local class DBNotFoundException extends DBException
-{
-};
-
-/**
- *
- * A Freeze database deadlock exception. Transactions can react to
- * this exception by aborting and trying the transaction again.
- *
- **/
-local class DBDeadlockException extends DBException
-{
-};
 
 /**
  *
