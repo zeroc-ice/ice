@@ -40,9 +40,10 @@ protected:
     //
     // Generate code to marshal or unmarshal a type
     //
-    void writeMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, const std::string&, bool,
+    void writeMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, const std::string&, bool, bool,
                                    bool, const std::string& = "");
-    void writeSequenceMarshalUnmarshalCode(::IceUtil::Output&, const SequencePtr&, const std::string&, bool);
+    void writeSequenceMarshalUnmarshalCode(::IceUtil::Output&, const SequencePtr&, const std::string&,
+                                           bool, bool);
 
 private:
 
