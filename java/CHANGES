@@ -5,7 +5,7 @@ Changes since version 1.1.1
   a translator executable.
 
 - Implemented TwowayOnlyException. That exception is raised if an
-  attempt is made ot invoke an operation that has a return value,
+  attempt is made to invoke an operation that has a return value,
   out parameters, or an exception specification via a oneway or
   datagram proxy.
 
