@@ -10,3 +10,5 @@ ChangedMeaning.ice:83: `c1' has changed meaning
 ChangedMeaning.ice:84: `c2' has changed meaning
 ChangedMeaning.ice:95: `blue' has changed meaning
 ChangedMeaning.ice:105: `CounterSeq' has changed meaning
+ChangedMeaning.ice:112: `counter' has changed meaning
+ChangedMeaning.ice:113: `counter' is not a type

@@ -1,6 +1,12 @@
 WrongProxyType.ice:16: `Seq' must be class or interface
 WrongProxyType.ice:17: `Seq' must be class or interface
+WrongProxyType.ice:17: missing parameter name
+WrongProxyType.ice:18: warning: use of semicolon to indicate out parameters is deprecated -- use `out' keyword instead
 WrongProxyType.ice:18: `Seq' must be class or interface
+WrongProxyType.ice:18: missing parameter name
 WrongProxyType.ice:20: `Dict' must be class or interface
 WrongProxyType.ice:21: `Dict' must be class or interface
+WrongProxyType.ice:21: missing parameter name
+WrongProxyType.ice:22: warning: use of semicolon to indicate out parameters is deprecated -- use `out' keyword instead
 WrongProxyType.ice:22: `Dict' must be class or interface
+WrongProxyType.ice:22: missing parameter name

@@ -204,6 +204,8 @@ interface Foo {
     void op9() throws ::xxx::xx::E1;
     void op10() throws ::xxx::XX::e1;
     void op11() throws ::XXX::xx::e1;
+    void op12(long op12);
+    void op13(long OP13);
 };
 
 module CI

@@ -1677,10 +1677,10 @@ Slice::ClassDef::destroy()
 
 OperationPtr
 Slice::ClassDef::createOperation(const string& name,
-				 const TypePtr& returnType,
-				 const TypeStringList& inParams,
-				 const TypeStringList& outParams,
-				 const ExceptionList& throws)
+				 const TypePtr& returnType)
+				 //const TypeStringList& inParams,
+				 //const TypeStringList& outParams,
+				 //const ExceptionList& throws)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -1690,6 +1690,7 @@ Slice::ClassDef::createOperation(const string& name,
 	{
 	    if(_unit->ignRedefs())
 	    {
+		p->updateIncludeLevel();
 		return p;
 	    }
 	}
@@ -1706,48 +1707,6 @@ Slice::ClassDef::createOperation(const string& name,
 	return 0;
     }
 
-    {
-	TypeStringList allParams = inParams;
-	allParams.insert(allParams.end(), outParams.begin(), outParams.end());
-	
-	TypeStringList::const_iterator p = allParams.begin();
-	while(p != allParams.end())
-	{
-	    TypeStringList::const_iterator q = p;
-	    ++q;
-	    while(q != allParams.end())
-	    {
-		//
-		// Complain about duplicate parameters only if they are
-		// non-empty; otherwise, we get a complaint about duplicates
-		// if two or more parameter names are missing in an operation
-		// signature (but the missing parameters have been reported
-		// already).
-		//
-		string plc = p->second;
-		toLower(plc);
-		string qlc = q->second;
-		toLower(qlc);
-		if(p->second == q->second && p->second != "")
-		{
-		    string msg = "duplicate parameter `";
-		    msg += p->second;
-		    msg += "'";
-		    _unit->error(msg);
-		    return 0;
-		}
-		if(plc == qlc && plc != "")
-		{
-		    string msg = "parameter `" + p->second;
-		    msg += "' differs only in capitalization from parameter `" + q->second + "'";
-		    _unit->warning(msg);	// TODO: change to error in stable_39
-		}
-
-		++q;
-	    }
-	    ++p;
-	}
-    }
 
     //
     // Check whether enclosing interface/class has the same name.
@@ -1755,7 +1714,7 @@ Slice::ClassDef::createOperation(const string& name,
     if(name == this->name())
     {
 	string msg = isInterface() ? "interface" : "class";
-	msg += "name `" + name + "' cannot be used as operation name";
+	msg += " name `" + name + "' cannot be used as operation name";
 	_unit->error(msg);
 	return 0;
     }
@@ -1810,43 +1769,8 @@ Slice::ClassDef::createOperation(const string& name,
 	}
     }
     
-    //
-    // Check that no exception occurs more than once in the throws clause
-    //
-    ExceptionList uniqueExceptions = throws;
-    uniqueExceptions.sort();
-    uniqueExceptions.unique();
-    if(uniqueExceptions.size() != throws.size())
-    {
-	//
-	// At least one exception appears twice
-	//
-	ExceptionList tmp = throws;
-	tmp.sort();
-	ExceptionList duplicates;
-	set_difference(tmp.begin(), tmp.end(),
-		       uniqueExceptions.begin(), uniqueExceptions.end(),
-		       back_inserter(duplicates));
-	string msg = "operation `" + name + "' has a throws clause with ";
-	if(duplicates.size() == 1)
-	{
-	    msg += "a ";
-	}
-	msg += "duplicate exception";
-	if(duplicates.size() > 1)
-	{
-	    msg += "s";
-	}
-	ExceptionList::const_iterator i = duplicates.begin();
-	msg += ": `" + (*i)->name() + "'";
-	for(i = ++i; i != duplicates.end(); ++i)
-	{
-	    msg += ", `" + (*i)->name() + "'";
-	}
-	_unit->error(msg);
-    }
-
-    OperationPtr op = new Operation(this, name, returnType, inParams, outParams, uniqueExceptions);
+    //OperationPtr op = new Operation(this, name, returnType, inParams, outParams, uniqueExceptions);
+    OperationPtr op = new Operation(this, name, returnType);
     _contents.push_back(op);
     return op;
 }
@@ -2996,22 +2920,136 @@ Slice::Operation::returnType() const
     return _returnType;
 }
 
-TypeStringList
-Slice::Operation::inputParameters() const
+ParamDeclPtr
+Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool isOutParam)
 {
-    return _inParams;
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    if(!matches.empty())
+    {
+	ParamDeclPtr p = ParamDeclPtr::dynamicCast(matches.front());
+	if(p)
+	{
+	    if(_unit->ignRedefs())
+	    {
+		return p;
+	    }
+	}
+	string msg;
+	if(matches.front()->name() != name)
+	{
+	    msg = "parameter `" + name + "' differs only in capitalization from ";
+	    msg += "parameter `" + matches.front()->name() + "'";
+	    _unit->warning(msg);	// TODO: change to error in stable_39
+	}
+	else
+	{
+	    msg = "redefinition of parameter `" + name + "'";
+	    _unit->error(msg);
+	    return 0;
+	}
+    }
+
+    //
+    // Check whether enclosing operation has the same name
+    //
+    if(name == this->name())
+    {
+	string msg = "operation name `";
+	msg += name;
+	msg += "' cannot be used as parameter name";
+	_unit->error(msg);
+	return 0;
+    }
+    string newName = name;
+    toLower(newName);
+    string thisName = this->name();
+    toLower(thisName);
+    if(newName == thisName)
+    {
+	string msg = "parameter `" + name + "' differs only in capitalization from operation name `";
+	msg += this->name() + "'";
+	_unit->warning(msg);	// TODO: change to error in stable_39
+    }
+
+    //
+    // Check that in parameters don't follow out parameters
+    //
+    if(!_contents.empty())
+    {
+	// TODO: dynamicCast should always succeed here?
+	ParamDeclPtr p = ParamDeclPtr::dynamicCast(_contents.back());
+	if(p && p->isOutParam() && !isOutParam)
+	{
+	    _unit->error("in parameters cannot follow out parameters");
+	}
+    }
+
+    ParamDeclPtr p = new ParamDecl(this, name, type, isOutParam);
+    _contents.push_back(p);
+    return p;
 }
 
-TypeStringList
-Slice::Operation::outputParameters() const
+ParamDeclList
+Slice::Operation::parameters() const
 {
-    return _outParams;
+    ParamDeclList result;
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+	ParamDeclPtr q = ParamDeclPtr::dynamicCast(*p);
+	if(q)
+	{
+	    result.push_back(q);
+	}
+    }
+    return result;
 }
 
 ExceptionList
 Slice::Operation::throws() const
 {
     return _throws;
+}
+
+void
+Slice::Operation::setExceptionList(const ExceptionList& el)
+{
+    _throws = el;
+
+    //
+    // Check that no exception occurs more than once in the throws clause
+    //
+    ExceptionList uniqueExceptions = el;
+    uniqueExceptions.sort();
+    uniqueExceptions.unique();
+    if(uniqueExceptions.size() != el.size())
+    {
+	//
+	// At least one exception appears twice
+	//
+	ExceptionList tmp = el;
+	tmp.sort();
+	ExceptionList duplicates;
+	set_difference(tmp.begin(), tmp.end(),
+		       uniqueExceptions.begin(), uniqueExceptions.end(),
+		       back_inserter(duplicates));
+	string msg = "operation `" + name() + "' has a throws clause with ";
+	if(duplicates.size() == 1)
+	{
+	    msg += "a ";
+	}
+	msg += "duplicate exception";
+	if(duplicates.size() > 1)
+	{
+	    msg += "s";
+	}
+	ExceptionList::const_iterator i = duplicates.begin();
+	msg += ": `" + (*i)->name() + "'";
+	for(i = ++i; i != duplicates.end(); ++i)
+	{
+	    msg += ", `" + (*i)->name() + "'";
+	}
+	_unit->error(msg);
+    }
 }
 
 Contained::ContainedType
@@ -3032,24 +3070,6 @@ Slice::Operation::uses(const ContainedPtr& contained) const
     }
 
     TypeStringList::const_iterator p;
-
-    for(p = _inParams.begin(); p != _inParams.end(); ++p)
-    {
-	ContainedPtr contained2 = ContainedPtr::dynamicCast(p->first);
-	if(contained2 && contained2 == contained)
-	{
-	    return true;
-	}
-    }
-
-    for(p = _outParams.begin(); p != _outParams.end(); ++p)
-    {
-	ContainedPtr contained2 = ContainedPtr::dynamicCast(p->first);
-	if(contained2 && contained2 == contained)
-	{
-	    return true;
-	}
-    }
 
     ExceptionList::const_iterator q;
 
@@ -3077,15 +3097,70 @@ Slice::Operation::visit(ParserVisitor* visitor)
     visitor->visitOperation(this);
 }
 
-Slice::Operation::Operation(const ContainerPtr& container, const string& name, const TypePtr& returnType,
-			    const TypeStringList& inParams, const TypeStringList& outParams,
-			    const ExceptionList& throws) :
+Slice::Operation::Operation(const ContainerPtr& container, const string& name, const TypePtr& returnType) :
+			    //const TypeStringList& inParams, const TypeStringList& outParams,
+			    //const ExceptionList& throws) :
+    Contained(container, name),
+    Container(container->unit()),
+    SyntaxTreeBase(container->unit()),
+    _returnType(returnType)
+    //_inParams(inParams),
+    //_outParams(outParams),
+    //_throws(throws)
+{
+}
+
+// ----------------------------------------------------------------------
+// ParamDecl
+// ----------------------------------------------------------------------
+
+TypePtr
+Slice::ParamDecl::type() const
+{
+    return _type;
+}
+
+bool
+Slice::ParamDecl::isOutParam() const
+{
+    return _isOutParam;
+}
+
+Contained::ContainedType
+Slice::ParamDecl::containedType() const
+{
+    return ContainedTypeDataMember;
+}
+
+bool
+Slice::ParamDecl::uses(const ContainedPtr& contained) const
+{
+    ContainedPtr contained2 = ContainedPtr::dynamicCast(_type);
+    if(contained2 && contained2 == contained)
+    {
+	return true;
+    }
+
+    return false;
+}
+
+string
+Slice::ParamDecl::kindOf() const
+{
+    return "parameter declaration";
+}
+
+void
+Slice::ParamDecl::visit(ParserVisitor* visitor)
+{
+    visitor->visitParamDecl(this);
+}
+
+Slice::ParamDecl::ParamDecl(const ContainerPtr& container, const string& name, const TypePtr& type, bool isOutParam) :
     Contained(container, name),
     SyntaxTreeBase(container->unit()),
-    _returnType(returnType),
-    _inParams(inParams),
-    _outParams(outParams),
-    _throws(throws)
+    _type(type),
+    _isOutParam(isOutParam)
 {
 }
 

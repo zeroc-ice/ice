@@ -244,8 +244,14 @@ Slice::Gen::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::visitOperation(const OperationPtr& p)
 {
-    TypeStringList in = p->inputParameters();
-    TypeStringList out = p->outputParameters();
+    TypeStringList in;
+    TypeStringList out;
+    ParamDeclList paramList = p->parameters();
+    for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+    {
+	TypeStringList &listref = (*pli)->isOutParam() ? out : in;
+	listref.push_back(make_pair((*pli)->type(), (*pli)->name()));
+    }
     TypePtr ret = p->returnType();
     string scopeId = containedToId(p);
     ostringstream os;

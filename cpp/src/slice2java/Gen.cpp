@@ -28,70 +28,35 @@ Slice::JavaVisitor::~JavaVisitor()
 string
 Slice::JavaVisitor::getParams(const OperationPtr& op, const string& scope)
 {
-    TypeStringList inParams = op->inputParameters();
-    TypeStringList outParams = op->outputParameters();
-    TypeStringList::const_iterator q;
-
     string params;
-
-    for(q = inParams.begin(); q != inParams.end(); ++q)
+    ParamDeclList paramList = op->parameters();
+    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-        if(q != inParams.begin())
+        if(q != paramList.begin())
         {
             params += ", ";
         }
-
-        string typeString = typeToString(q->first, TypeModeIn, scope);
+	string typeString = typeToString((*q)->type(), (*q)->isOutParam() ? TypeModeOut : TypeModeIn, scope);
         params += typeString;
         params += ' ';
-        params += fixKwd(q->second);
+        params += fixKwd((*q)->name());
     }
-
-    for(q = outParams.begin(); q != outParams.end(); ++q)
-    {
-        if(q != outParams.begin() || !inParams.empty())
-        {
-            params += ", ";
-        }
-
-        string typeString = typeToString(q->first, TypeModeOut, scope);
-        params += typeString;
-        params += ' ';
-        params += fixKwd(q->second);
-    }
-
     return params;
 }
 
 string
 Slice::JavaVisitor::getArgs(const OperationPtr& op, const string& scope)
 {
-    TypeStringList inParams = op->inputParameters();
-    TypeStringList outParams = op->outputParameters();
-    TypeStringList::const_iterator q;
-
     string args;
-
-    for(q = inParams.begin(); q != inParams.end(); ++q)
+    ParamDeclList paramList = op->parameters();
+    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-        if(q != inParams.begin())
+        if(q != paramList.begin())
         {
             args += ", ";
         }
-
-        args += fixKwd(q->second);
+        args += fixKwd((*q)->name());
     }
-
-    for(q = outParams.begin(); q != outParams.end(); ++q)
-    {
-        if(q != outParams.begin() || !inParams.empty())
-        {
-            args += ", ";
-        }
-
-        args += fixKwd(q->second);
-    }
-
     return args;
 }
 
@@ -376,8 +341,15 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         string retS = typeToString(ret, TypeModeReturn, scope);
         int iter;
 
-        TypeStringList inParams = op->inputParameters();
-        TypeStringList outParams = op->outputParameters();
+        TypeStringList inParams;
+        TypeStringList outParams;
+	ParamDeclList paramList = op->parameters();
+	for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+	{
+	    TypeStringList &listref = (*pli)->isOutParam() ? outParams : inParams;
+	    listref.push_back(make_pair((*pli)->type(), (*pli)->name()));
+	}
+
         TypeStringList::const_iterator q;
 
         ExceptionList throws = op->throws();
@@ -2929,8 +2901,15 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         string retS = typeToString(ret, TypeModeReturn, scope);
         int iter;
 
-        TypeStringList inParams = op->inputParameters();
-        TypeStringList outParams = op->outputParameters();
+        TypeStringList inParams;
+        TypeStringList outParams;
+	ParamDeclList paramList = op->parameters();
+	for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+	{
+	    TypeStringList &listref = (*pli)->isOutParam() ? outParams : inParams;
+	    listref.push_back(make_pair((*pli)->type(), (*pli)->name()));
+	}
+
         TypeStringList::const_iterator q;
 
         ExceptionList throws = op->throws();
@@ -3098,9 +3077,6 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         string opName = fixKwd(op->name());
         TypePtr ret = op->returnType();
         string retS = typeToString(ret, TypeModeReturn, scope);
-
-        TypeStringList inParams = op->inputParameters();
-        TypeStringList outParams = op->outputParameters();
 
         ExceptionList throws = op->throws();
         throws.sort();

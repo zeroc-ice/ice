@@ -1224,14 +1224,30 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     TypePtr ret = p->returnType();
     string retS = returnTypeToString(ret);
 
-    TypeStringList inParams = p->inputParameters();
-    TypeStringList outParams = p->outputParameters();
-    TypeStringList::const_iterator q;
+    //TypeStringList inParams = p->inputParameters();
+    //TypeStringList outParams = p->outputParameters();
+    //TypeStringList::const_iterator q;
 
     string params = "(";
     string paramsDecl = "("; // With declarators
     string args = "(";
 
+    ParamDeclList paramList = p->parameters();
+    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    {
+	string typeString = (*q)->isOutParam() ? outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
+	params += typeString;
+	paramsDecl += typeString;
+	paramsDecl += ' ';
+	string name = (*q)->name();
+	paramsDecl += fixKwd(name);
+	args += fixKwd(name);
+	params += ", ";
+	paramsDecl += ", ";
+	args += ", ";
+    }
+
+#if 0
     for(q = inParams.begin(); q != inParams.end(); ++q)
     {
 	string typeString = inputTypeToString(q->first);
@@ -1257,6 +1273,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	paramsDecl += ", ";
 	args += ", ";
     }
+#endif
 
     params += "const ::Ice::Context& = ::Ice::Context())";
     paramsDecl += "const ::Ice::Context& __context)";
@@ -1406,22 +1423,16 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
     TypePtr ret = p->returnType();
     string retS = returnTypeToString(ret);
 
-    TypeStringList inParams = p->inputParameters();
-    TypeStringList outParams = p->outputParameters();
-    TypeStringList::const_iterator q;
+    //TypeStringList inParams = p->inputParameters();
+    //TypeStringList outParams = p->outputParameters();
+    //TypeStringList::const_iterator q;
 
     string params = "(";
 
-    for(q = inParams.begin(); q != inParams.end(); ++q)
+    ParamDeclList paramList = p->parameters();
+    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-	string typeString = inputTypeToString(q->first);
-	params += typeString;
-	params += ", ";
-    }
-
-    for(q = outParams.begin(); q != outParams.end(); ++q)
-    {
-	string typeString = outputTypeToString(q->first);
+	string typeString = (*q)->isOutParam() ? outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
 	params += typeString;
 	params += ", ";
     }
@@ -1531,31 +1542,32 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     TypePtr ret = p->returnType();
     string retS = returnTypeToString(ret);
 
-    TypeStringList inParams = p->inputParameters();
-    TypeStringList outParams = p->outputParameters();
-    TypeStringList::const_iterator q;
-
     string params = "(";
     string paramsDecl = "("; // With declarators
 
-    for(q = inParams.begin(); q != inParams.end(); ++q)
+    TypeStringList inParams;
+    TypeStringList outParams;
+    ParamDeclList paramList = p->parameters();
+    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-	string typeString = inputTypeToString(q->first);
+	string name = (*q)->name();
+	TypePtr type = (*q)->type();
+	bool isOutParam = (*q)->isOutParam();
+	string typeString;
+	if(isOutParam)
+	{
+	    outParams.push_back(make_pair(type, name));
+	    typeString = outputTypeToString(type);
+	}
+	else
+	{
+	    inParams.push_back(make_pair(type, name));
+	    typeString = inputTypeToString(type);
+	}
 	params += typeString;
 	paramsDecl += typeString;
 	paramsDecl += ' ';
-	paramsDecl += fixKwd(q->second);
-	params += ", ";
-	paramsDecl += ", ";
-    }
-
-    for(q = outParams.begin(); q != outParams.end(); ++q)
-    {
-	string typeString = outputTypeToString(q->first);
-	params += typeString;
-	paramsDecl += typeString;
-	paramsDecl += ' ';
-	paramsDecl += fixKwd(q->second);
+	paramsDecl += fixKwd(name);
 	params += ", ";
 	paramsDecl += ", ";
     }
@@ -1732,35 +1744,20 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     TypePtr ret = p->returnType();
     string retS = returnTypeToString(ret);
 
-    TypeStringList inParams = p->inputParameters();
-    TypeStringList outParams = p->outputParameters();
-    TypeStringList::const_iterator q;
-
     string params = "(";
     string paramsDecl = "("; // With declarators
     string args = "(";
 
-    for(q = inParams.begin(); q != inParams.end(); ++q)
+    ParamDeclList paramList = p->parameters();
+    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-	string typeString = inputTypeToString(q->first);
+	string typeString = (*q)->isOutParam() ? outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
 	params += typeString;
 	paramsDecl += typeString;
 	paramsDecl += ' ';
-	paramsDecl += fixKwd(q->second);
-	args += fixKwd(q->second);
-	params += ", ";
-	paramsDecl += ", ";
-	args += ", ";
-    }
-
-    for(q = outParams.begin(); q != outParams.end(); ++q)
-    {
-	string typeString = outputTypeToString(q->first);
-	params += typeString;
-	paramsDecl += typeString;
-	paramsDecl += ' ';
-	paramsDecl += fixKwd(q->second);
-	args += fixKwd(q->second);
+	string name = (*q)->name();
+	paramsDecl += fixKwd(name);
+	args += fixKwd(name);
 	params += ", ";
 	paramsDecl += ", ";
 	args += ", ";
@@ -2258,46 +2255,41 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     TypePtr ret = p->returnType();
     string retS = returnTypeToString(ret);
 
-    TypeStringList inParams = p->inputParameters();
-    TypeStringList outParams = p->outputParameters();
-    TypeStringList::const_iterator q;
-
     string params = "(";
     string paramsDecl = "("; // With declarators
     string args = "(";
 
-    for(q = inParams.begin(); q != inParams.end(); ++q)
+    TypeStringList inParams;
+    TypeStringList outParams;
+    ParamDeclList paramList = p->parameters();
+    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-	if(q != inParams.begin())
+	if(q != paramList.begin())
 	{
 	    params += ", ";
 	    paramsDecl += ", ";
 	    args += ", ";
 	}
 
-	string typeString = inputTypeToString(q->first);
-	params += typeString;
-	paramsDecl += typeString;
-	paramsDecl += ' ';
-	paramsDecl += fixKwd(q->second);
-	args += fixKwd(q->second);
-    }
-
-    for(q = outParams.begin(); q != outParams.end(); ++q)
-    {
-	if(q != outParams.begin() || !inParams.empty())
+	string name = (*q)->name();
+	TypePtr type = (*q)->type();
+	bool isOutParam = (*q)->isOutParam();
+	string typeString;
+	if(isOutParam)
 	{
-	    params += ", ";
-	    paramsDecl += ", ";
-	    args += ", ";
+	    outParams.push_back(make_pair(type, name));
+	    typeString = outputTypeToString(type);
 	}
-
-	string typeString = outputTypeToString(q->first);
+	else
+	{
+	    inParams.push_back(make_pair(type, name));
+	    typeString = inputTypeToString((*q)->type());
+	}
 	params += typeString;
 	paramsDecl += typeString;
 	paramsDecl += ' ';
-	paramsDecl += fixKwd(q->second);
-	args += fixKwd(q->second);
+	paramsDecl += fixKwd(name);
+	args += fixKwd(name);
     }
 
     if(!cl->isLocal())
@@ -2843,33 +2835,26 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         TypePtr ret = op->returnType();
         string retS = returnTypeToString(ret);
 
-        TypeStringList inParams = op->inputParameters();
-        TypeStringList outParams = op->outputParameters();
-        TypeStringList::const_iterator q;
+        //TypeStringList inParams = op->inputParameters();
+        //TypeStringList outParams = op->outputParameters();
+        //TypeStringList::const_iterator q;
 
         H << sp << nl << "virtual " << retS << ' ' << opName << '(';
         H.useCurrentPosAsIndent();
-        for(q = inParams.begin(); q != inParams.end(); ++q)
+	ParamDeclList paramList = op->parameters();
+	ParamDeclList::const_iterator q;
+        for(q = paramList.begin(); q != paramList.end(); ++q)
         {
-            if(q != inParams.begin())
+            if(q != paramList.begin())
             {
                 H << ',' << nl;
             }
-            string typeString = inputTypeToString(q->first);
-            H << typeString;
-        }
-        for(q = outParams.begin(); q != outParams.end(); ++q)
-        {
-            if(!inParams.empty() || q != outParams.begin())
-            {
-                H << ',' << nl;
-            }
-            string typeString = outputTypeToString(q->first);
+            string typeString = (*q)->isOutParam() ? outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
             H << typeString;
         }
         if(!p->isLocal())
         {
-            if(!inParams.empty() || !outParams.empty())
+            if(!paramList.empty())
             {
                 H << ',' << nl;
             }
@@ -2880,27 +2865,18 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         C << sp << nl << retS << nl << scoped.substr(2) << "I::" << opName << '(';
         C.useCurrentPosAsIndent();
-        for(q = inParams.begin(); q != inParams.end(); ++q)
+        for(q = paramList.begin(); q != paramList.end(); ++q)
         {
-            if(q != inParams.begin())
+            if(q != paramList.begin())
             {
                 C << ',' << nl;
             }
-            string typeString = inputTypeToString(q->first);
-            C << typeString << ' ' << fixKwd(q->second);
-        }
-        for(q = outParams.begin(); q != outParams.end(); ++q)
-        {
-            if(!inParams.empty() || q != outParams.begin())
-            {
-                C << ',' << nl;
-            }
-            string typeString = outputTypeToString(q->first);
-            C << typeString << ' ' << fixKwd(q->second);
+            string typeString = (*q)->isOutParam() ? outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
+            C << typeString << ' ' << fixKwd((*q)->name());
         }
         if(!p->isLocal())
         {
-            if(!inParams.empty() || !outParams.empty())
+            if(!paramList.empty())
             {
                 C << ',' << nl;
             }

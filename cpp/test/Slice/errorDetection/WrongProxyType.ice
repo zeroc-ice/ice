@@ -17,8 +17,8 @@ interface I
     void f2(Seq*);
     void f3(; Seq*);
 
-    Dict* f1();
-    void f2(Dict*);
-    void f3(; Dict*);
+    Dict* f4();
+    void f5(Dict*);
+    void f6(; Dict*);
     void op();
 };

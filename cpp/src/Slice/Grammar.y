@@ -11,6 +11,7 @@
 // **********************************************************************
 
 #include <Slice/GrammarUtil.h>
+#include <IceUtil/UUID.h>
 
 #ifdef _WIN32
 // I get this warning from some bison version:
@@ -26,6 +27,8 @@ yyerror(const char* s)
 {
     unit->error(s);
 }
+
+bool startOfOutParams;	// TODO: remove this for stable_39
 
 %}
 
@@ -72,23 +75,6 @@ yyerror(const char* s)
 %token ICE_STRING_LITERAL
 %token ICE_INTEGER_LITERAL
 %token ICE_FLOATING_POINT_LITERAL
-
-//
-// One shift/reduce conflict is caused by the presence of ICE_OUT
-// in the "keyword" production. That's because when the parser sees
-// something like
-// 
-// void op(out long l);
-//            ^
-// and has just consumed the ICE_OUT, it can either reduce ICE_OUT via
-// the "keyword" production or continue to shift via the "out_param_decl"
-// production. We could remove ICE_OUT from the "keyword" production,
-// but then we wouldn't detect other incorrect uses of ICE_OUT, such as
-// using "out" as the name of an operation. Overall, it's better to live
-// with the shift/reduce conflict (and the default shift action here is
-// what we want anyway).
-//
-%expect 1
 
 %%
 
@@ -873,14 +859,19 @@ exception
     ExceptionPtr exception = cont->lookupException(scoped->v);
     if(!exception)
     {
-	YYERROR; // Can't continue, jump to next yyerrok
+	$$ = cont->createException(IceUtil::generateUUID(), 0, false);
     }
     if(!cont->addIntroduced(scoped->v, exception))
     {
-	string msg = "`" + scoped->v + "' has changed meaning";
-	unit->error(msg);
+	unit->error("`" + scoped->v + "' has changed meaning");
     }
     $$ = exception;
+}
+| keyword
+{
+    StringTokPtr ident = StringTokPtr::dynamicCast($1);
+    unit->error("keyword `" + ident->v + "' cannot be used as exception name");
+    $$ = unit->currentContainer()->createException(IceUtil::generateUUID(), 0, false);
 }
 ;
 
@@ -1025,218 +1016,227 @@ type_id
 ;
 
 // ----------------------------------------------------------------------
-operation
+operation_preamble
 // ----------------------------------------------------------------------
-: type_id '(' parameters output_parameters ')' throws
+: type_id
 {
     TypeStringTokPtr tsp = TypeStringTokPtr::dynamicCast($1);
     TypePtr returnType = tsp->v.first;
     string name = tsp->v.second;
-    TypeStringListTokPtr inParms = TypeStringListTokPtr::dynamicCast($3);
-    TypeStringListTokPtr outParms = TypeStringListTokPtr::dynamicCast($4);
-    ExceptionListTokPtr throws = ExceptionListTokPtr::dynamicCast($6);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
-    OperationPtr op = cl->createOperation(name, returnType, inParms->v, outParms->v, throws->v);
+    OperationPtr op = cl->createOperation(name, returnType);
     if(!cl->addIntroduced(name, op))
     {
 	string msg = "`" + name + "' has changed meaning";
 	unit->error(msg);
     }
+    unit->pushContainer(op);
     $$ = op;
+    startOfOutParams = false;	// TODO: remove this for stable_39
 }
-| ICE_VOID ICE_IDENTIFIER '(' parameters output_parameters ')' throws
+| ICE_VOID ICE_IDENTIFIER
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    TypeStringListTokPtr inParms = TypeStringListTokPtr::dynamicCast($4);
-    TypeStringListTokPtr outParms = TypeStringListTokPtr::dynamicCast($5);
-    ExceptionListTokPtr throws = ExceptionListTokPtr::dynamicCast($7);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
-    OperationPtr op = cl->createOperation(ident->v, 0, inParms->v, outParms->v, throws->v);
+    OperationPtr op = cl->createOperation(ident->v, 0);
     if(!unit->currentContainer()->addIntroduced(ident->v, op))
     {
 	string msg = "`" + ident->v + "' has changed meaning";
 	unit->error(msg);
     }
+    unit->pushContainer(op);
     $$ = op;
+    startOfOutParams = false;	// TODO: remove this for stable_39
 }
-| type keyword '(' parameters output_parameters ')' throws
+| type keyword
 {
     TypePtr returnType = TypePtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    TypeStringListTokPtr inParms = TypeStringListTokPtr::dynamicCast($4);
-    TypeStringListTokPtr outParms = TypeStringListTokPtr::dynamicCast($5);
-    ExceptionListTokPtr throws = ExceptionListTokPtr::dynamicCast($7);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
     unit->error("keyword `" + ident->v + "' cannot be used as operation name");
-    $$ = cl->createOperation(ident->v, returnType, inParms->v, outParms->v, throws->v);
+    OperationPtr op = cl->createOperation(ident->v, returnType);
+    unit->pushContainer(op);
+    $$ = op;
+    startOfOutParams = false;	// TODO: remove this for stable_39
 }
-| ICE_VOID keyword '(' parameters output_parameters ')' throws
+| ICE_VOID keyword
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    TypeStringListTokPtr inParms = TypeStringListTokPtr::dynamicCast($4);
-    TypeStringListTokPtr outParms = TypeStringListTokPtr::dynamicCast($5);
-    ExceptionListTokPtr throws = ExceptionListTokPtr::dynamicCast($7);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
     unit->error("keyword `" + ident->v + "' cannot be used as operation name");
-    $$ = cl->createOperation(ident->v, 0, inParms->v, outParms->v, throws->v);
+    OperationPtr op = cl->createOperation(ident->v, 0);
+    unit->pushContainer(op);
+    $$ = op;
+    startOfOutParams = false;	// TODO: remove this for stable_39
+}
+;
+
+// ----------------------------------------------------------------------
+operation
+// ----------------------------------------------------------------------
+: operation_preamble '(' parameters ')'
+{
+    unit->popContainer();
+    $$ = $1;
+}
+throws
+{
+    OperationPtr op = OperationPtr::dynamicCast($5);
+    ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast($6);
+    assert(el);
+    if(op)
+    {
+        op->setExceptionList(el->v);
+    }
+}
+| operation_preamble '(' error ')'
+{
+    unit->popContainer();
+    yyerrok;
+}
+throws
+{
+    OperationPtr op = OperationPtr::dynamicCast($5);
+    ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast($6);
+    assert(el);
+    if(op)
+    {
+        op->setExceptionList(el->v);
+    }
 }
 ;
  
 // ----------------------------------------------------------------------
-parameters
+out_qualifier
 // ----------------------------------------------------------------------
-:  type_id ',' parameters
+: ICE_OUT
 {
-    TypeStringTokPtr typestring = TypeStringTokPtr::dynamicCast($1);
-    string ident = typestring->v.second;
-#if 0
-    // TODO: this isn't working yet -- parameter lists need to be in a scope
-    if(!unit->currentContainer()->addIntroduced(ident))
-    {
-	string msg = "`" + ident + "' has changed meaning";
-	unit->error(msg);
-    }
-#endif
-    TypeStringListTokPtr parms = TypeStringListTokPtr::dynamicCast($3);
-    parms->v.push_front(typestring->v);
-    $$ = parms;
-}
-| type_id
-{
-    TypeStringTokPtr typestring = TypeStringTokPtr::dynamicCast($1);
-    string ident = typestring->v.second;
-#if 0
-    // TODO: this isn't working yet -- parameter lists need to be in a scope
-    if(!unit->currentContainer()->addIntroduced(ident))
-    {
-	string msg = "`" + ident + "' has changed meaning";
-	unit->error(msg);
-    }
-#endif
-    TypeStringListTokPtr parms = new TypeStringListTok;
-    parms->v.push_front(typestring->v);
-    $$ = parms;
+    BoolTokPtr local = new BoolTok;
+    local->v = true;
+    $$ = local;
 }
 |
 {
-    $$ = new TypeStringListTok;
-}
-| type keyword ',' parameters
-{
-    TypePtr type = TypePtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    TypeStringListTokPtr parms = TypeStringListTokPtr::dynamicCast($4);
-    TypeStringTokPtr typestring = new TypeStringTok;
-    typestring->v = make_pair(type, ident->v);
-    parms->v.push_front(typestring->v);
-    unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
-    $$ = parms;
-}
-| type keyword
-{
-    TypePtr type = TypePtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    TypeStringTokPtr typestring = new TypeStringTok;
-    typestring->v = make_pair(type, ident->v);
-    TypeStringListTokPtr parms = new TypeStringListTok;
-    parms->v.push_front(typestring->v);
-    unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
-    $$ = parms;
-}
-| type
-{
-    unit->error("missing parameter name");
-    YYERROR; // Can't continue, jump to next yyerrok
+    BoolTokPtr local = new BoolTok;
+    local->v = false;
+    $$ = local;
 }
 ;
 
 // ----------------------------------------------------------------------
-output_parameters
+param_separator	// TODO: remove this rule for stable_39 and replace param_separator with ',' elsewhere
 // ----------------------------------------------------------------------
+: ','
+{
+}
+| ';'
+{
+    startOfOutParams = true;
+    unit->warning("use of semicolon to indicate out parameters is deprecated -- use `out' keyword instead");
+}
+;
 
-//
-// TODO: remove the first rule before releasing stable_39 -- the syntax
-// for out parameters has changed to use the out keyword, and the
-// semicolon syntax is deprecated for stable_38, to be removed with
-// stable_39.
-//
-: ';' parameters
+// ----------------------------------------------------------------------
+parameters
+// ----------------------------------------------------------------------
+: // empty
 {
-    unit->warning("deprecated use of semicolon to indicate out parameters");
-    unit->warning("use the out keyword instead");
-    $$ = $2
 }
-| ICE_OUT type_id ',' output_parameters
+| out_qualifier type_id
 {
-    TypeStringTokPtr typestring = TypeStringTokPtr::dynamicCast($2);
-    string ident = typestring->v.second;
-#if 0
-    // TODO: this isn't working yet -- parameter lists need to be in a scope
-    if(!unit->currentContainer()->addIntroduced(ident))
+    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
+    if(startOfOutParams)					// TODO: remove this for stable_39
+    {
+        isOutParam->v = true;
+    }
+    TypeStringTokPtr tsp = TypeStringTokPtr::dynamicCast($2);
+    TypePtr type = tsp->v.first;
+    string ident = tsp->v.second;
+    OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
+    assert(op);
+    ParamDeclPtr pd = op->createParamDecl(ident, type, isOutParam->v);
+    if(!unit->currentContainer()->addIntroduced(ident, pd))
     {
 	string msg = "`" + ident + "' has changed meaning";
-	unit->error(msg);
+    	unit->error(msg);
     }
-#endif
-    TypeStringListTokPtr parms = TypeStringListTokPtr::dynamicCast($4);
-    parms->v.push_front(typestring->v);
-    $$ = parms;
 }
-| ICE_OUT type_id
+| parameters param_separator out_qualifier type_id
 {
-    TypeStringTokPtr typestring = TypeStringTokPtr::dynamicCast($2);
-    string ident = typestring->v.second;
-#if 0
-    // TODO: this isn't working yet -- parameter lists need to be in a scope
-    if(!unit->currentContainer()->addIntroduced(ident))
+    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($3);
+    if(startOfOutParams)					// TODO: remove this for stable_39
+    {
+        isOutParam->v = true;
+    }
+    TypeStringTokPtr tsp = TypeStringTokPtr::dynamicCast($4);
+    TypePtr type = tsp->v.first;
+    string ident = tsp->v.second;
+    OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
+    assert(op);
+    ParamDeclPtr pd = op->createParamDecl(ident, type, isOutParam->v);
+    if(!unit->currentContainer()->addIntroduced(ident, pd))
     {
 	string msg = "`" + ident + "' has changed meaning";
-	unit->error(msg);
+    	unit->error(msg);
     }
-#endif
-    TypeStringListTokPtr parms = new TypeStringListTok;
-    parms->v.push_front(typestring->v);
-    $$ = parms;
 }
-|
+| out_qualifier type keyword
 {
-    $$ = new TypeStringListTok;
-}
-| ICE_OUT type_id ',' type_id
-{
-    unit->error("in parameters cannot follow out parameters");
-    YYERROR; // Can't continue, jump to next yyerrok
-}
-| ICE_OUT type keyword ',' output_parameters
-{
+    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
+    if(startOfOutParams)					// TODO: remove this for stable_39
+    {
+        isOutParam->v = true;
+    }
     TypePtr type = TypePtr::dynamicCast($2);
     StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    TypeStringListTokPtr parms = TypeStringListTokPtr::dynamicCast($5);
-    TypeStringTokPtr typestring = new TypeStringTok;
-    typestring->v = make_pair(type, ident->v);
-    parms->v.push_front(typestring->v);
+    OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
+    assert(op);
+    op->createParamDecl(ident->v, type, isOutParam->v);
     unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
-    $$ = parms;
 }
-| ICE_OUT type keyword
+| parameters param_separator out_qualifier type keyword
 {
+    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($3);
+    if(startOfOutParams)					// TODO: remove this for stable_39
+    {
+        isOutParam->v = true;
+    }
+    TypePtr type = TypePtr::dynamicCast($4);
+    StringTokPtr ident = StringTokPtr::dynamicCast($5);
+    OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
+    assert(op);
+    op->createParamDecl(ident->v, type, isOutParam->v);
+    unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
+}
+| out_qualifier type
+{
+    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
+    if(startOfOutParams)					// TODO: remove this for stable_39
+    {
+        isOutParam->v = true;
+    }
     TypePtr type = TypePtr::dynamicCast($2);
-    StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    TypeStringTokPtr typestring = new TypeStringTok;
-    typestring->v = make_pair(type, ident->v);
-    TypeStringListTokPtr parms = new TypeStringListTok;
-    parms->v.push_front(typestring->v);
-    unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
-    $$ = parms;
-}
-| ICE_OUT type
-{
+    OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
+    assert(op);
+    op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v);
     unit->error("missing parameter name");
-    YYERROR; // Can't continue, jump to next yyerrok
+}
+| parameters param_separator out_qualifier type
+{
+    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($3);
+    if(startOfOutParams)					// TODO: remove this for stable_39
+    {
+        isOutParam->v = true;
+    }
+    TypePtr type = TypePtr::dynamicCast($4);
+    OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
+    assert(op);
+    op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v);
+    unit->error("missing parameter name");
 }
 ;
 
@@ -1356,7 +1356,7 @@ type
 	    msg += scoped->v;
 	    msg += "' must be class or interface";
 	    unit->error(msg);
-	    YYERROR; // Can't continue, jump to next yyerrok
+	    cl = cont->createClassDecl(IceUtil::generateUUID(), false, false);
 	}
 	if(!cont->addIntroduced(scoped->v))
 	{
@@ -1513,8 +1513,10 @@ const_def
 }
 | ICE_CONST type '=' const_initializer
 {
+    TypePtr const_type = TypePtr::dynamicCast($2);
+    SyntaxTreeBaseStringTokPtr value = SyntaxTreeBaseStringTokPtr::dynamicCast($4);
     unit->error("missing constant name");
-    YYERROR; // Can't continue, jump to next yyerrok
+    $$ = unit->currentContainer()->createConstDef(IceUtil::generateUUID(), const_type, value->v.first, value->v.second);
 }
 ;
 

@@ -462,28 +462,18 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	    O << (returnType ? toString(returnType, p) : "<type>void</type>") << " <function>" << (*q)->name()
 	      << "</function>(";
 	    O.inc();
-	    TypeStringList inputParams = (*q)->inputParameters();
-	    TypeStringList::const_iterator r = inputParams.begin();
-	    while(r != inputParams.end())
+	    ParamDeclList paramList = (*q)->parameters();
+	    ParamDeclList::const_iterator r = paramList.begin();
+	    while(r != paramList.end())
 	    {
-		O << nl << toString(r->first, p) << " <parameter>" << r->second << "</parameter>";
-		if(++r != inputParams.end())
+		if((*r)->isOutParam())
+		{
+		    O << "out ";
+		}
+		O << nl << toString((*r)->type(), p) << " <parameter>" << (*r)->name() << "</parameter>";
+		if(++r != paramList.end())
 		{
 		    O << ',';
-		}
-	    }
-	    TypeStringList outputParams = (*q)->outputParameters();
-	    if(!outputParams.empty())
-	    {
-		O << ';';
-		r = outputParams.begin();
-		while(r != outputParams.end())
-		{
-		    O << nl << toString(r->first, p) << " <parameter>" << r->second << "</parameter>";
-		    if(++r != outputParams.end())
-		    {
-			O << ',';
-		    }
 		}
 	    }
 	    O << ')';

@@ -65,6 +65,7 @@ class Proxy;
 class Exception;
 class Struct;
 class Operation;
+class ParamDecl;
 class DataMember;
 class Sequence;
 class Dictionary;
@@ -88,6 +89,7 @@ typedef ::IceUtil::Handle<Proxy> ProxyPtr;
 typedef ::IceUtil::Handle<Exception> ExceptionPtr;
 typedef ::IceUtil::Handle<Struct> StructPtr;
 typedef ::IceUtil::Handle<Operation> OperationPtr;
+typedef ::IceUtil::Handle<ParamDecl> ParamDeclPtr;
 typedef ::IceUtil::Handle<DataMember> DataMemberPtr;
 typedef ::IceUtil::Handle<Sequence> SequencePtr;
 typedef ::IceUtil::Handle<Dictionary> DictionaryPtr;
@@ -143,6 +145,7 @@ typedef std::list<DictionaryPtr> DictionaryList;
 typedef std::list<EnumPtr> EnumList;
 typedef std::list<OperationPtr> OperationList;
 typedef std::list<DataMemberPtr> DataMemberList;
+typedef std::list<ParamDeclPtr> ParamDeclList;
 typedef std::list<EnumeratorPtr> EnumeratorList;
 typedef std::pair<SyntaxTreeBasePtr, std::string> SyntaxTreeBaseString;
 
@@ -167,6 +170,7 @@ public:
     virtual bool visitStructStart(const StructPtr&) { return true; }
     virtual void visitStructEnd(const StructPtr&) { }
     virtual void visitOperation(const OperationPtr&) { }
+    virtual void visitParamDecl(const ParamDeclPtr&) { }
     virtual void visitDataMember(const DataMemberPtr&) { }
     virtual void visitSequence(const SequencePtr&) { }
     virtual void visitDictionary(const DictionaryPtr&) { }
@@ -281,6 +285,7 @@ public:
 	ContainedTypeException,
 	ContainedTypeStruct,
 	ContainedTypeOperation,
+	ContainedTypeParamDecl,
 	ContainedTypeDataMember,
 	ContainedTypeConstant
     };
@@ -453,8 +458,7 @@ class SLICE_API ClassDef : virtual public Container, virtual public Contained
 public:
 
     virtual void destroy();
-    OperationPtr createOperation(const std::string&, const TypePtr&, const TypeStringList&, const TypeStringList&,
-				 const ExceptionList&);
+    OperationPtr createOperation(const std::string&, const TypePtr&);
     DataMemberPtr createDataMember(const std::string&, const TypePtr&);
     ClassDeclPtr declaration() const;
     ClassList bases() const;
@@ -681,14 +685,15 @@ protected:
 // Operation
 // ----------------------------------------------------------------------
 
-class SLICE_API Operation : virtual public Contained
+class SLICE_API Operation : virtual public Contained, virtual public Container
 {
 public:
 
     TypePtr returnType() const;
-    TypeStringList inputParameters() const;
-    TypeStringList outputParameters() const;
+    ParamDeclPtr createParamDecl(const std::string&, const TypePtr&, bool);
+    ParamDeclList parameters() const;
     ExceptionList throws() const;
+    void setExceptionList(const ExceptionList&);
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
@@ -696,14 +701,35 @@ public:
 
 protected:
 
-    Operation(const ContainerPtr&, const std::string&, const TypePtr&, const TypeStringList&, const TypeStringList&,
-	      const ExceptionList&);
+    Operation(const ContainerPtr&, const std::string&, const TypePtr&);
     friend class SLICE_API ClassDef;
 
     TypePtr _returnType;
-    TypeStringList _inParams;
-    TypeStringList _outParams;
     ExceptionList _throws;
+};
+
+// ----------------------------------------------------------------------
+// ParamDecl
+// ----------------------------------------------------------------------
+
+class SLICE_API ParamDecl : virtual public Contained
+{
+public:
+
+    TypePtr type() const;
+    bool isOutParam() const;
+    virtual ContainedType containedType() const;
+    virtual bool uses(const ContainedPtr&) const;
+    virtual std::string kindOf() const;
+    virtual void visit(ParserVisitor*);
+
+protected:
+
+    ParamDecl(const ContainerPtr&, const std::string&, const TypePtr&, bool isOutParam);
+    friend class SLICE_API Operation;
+
+    TypePtr _type;
+    bool _isOutParam;
 };
 
 // ----------------------------------------------------------------------

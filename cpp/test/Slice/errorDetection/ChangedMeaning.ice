@@ -108,6 +108,8 @@ module SS
 interface ParamTest
 {
     void op(long param);
-    void param(counter counter);	// TODO: this should fail
-    void op2(long counter, counter x);	// TODO: this should fail
+    void op2(counter param);
+    void param(counter counter);	// Changed meaning
+    void op3(long counter, counter x);	// Second "counter" is not a type
+    // void op4(long param, long param);// TODO: this causes an assertion failure
 };

@@ -7,10 +7,10 @@ CaseInsensitive.ice:28: redefinition of data member `l' as operation `L'
 CaseInsensitive.ice:33: warning: module `M1' is capitalized inconsistently with its previous name: `m1'
 CaseInsensitive.ice:34: redefinition of class `c1' as module
 CaseInsensitive.ice:35: warning: module `C1' differs only in capitalization from class name `c1'
-CaseInsensitive.ice:38: duplicate parameter `aa'
-CaseInsensitive.ice:39: warning: parameter `bb' differs only in capitalization from parameter `BB'
+CaseInsensitive.ice:38: redefinition of parameter `aa'
+CaseInsensitive.ice:39: warning: parameter `BB' differs only in capitalization from parameter `bb'
 CaseInsensitive.ice:43: warning: operation `I4' differs only in capitalization from enclosing interface name `i4'
-CaseInsensitive.ice:47: interfacename `i5' cannot be used as operation name
+CaseInsensitive.ice:47: interface name `i5' cannot be used as operation name
 CaseInsensitive.ice:55: operation `op' is already defined as an operation in a base interface or class
 CaseInsensitive.ice:59: warning: operation `OP' differs only in capitalization from operation `op', which is defined in a base interface or class
 CaseInsensitive.ice:67: operation `l' is already defined as a data member in a base interface or class
@@ -52,7 +52,7 @@ CaseInsensitive.ice:181: warning: sequence name `xxx::xx::S1' is capitalized inc
 CaseInsensitive.ice:182: warning: sequence name `xxx::XX::s1' is capitalized inconsistently with its previous name: `::xxx::xx::s1'
 CaseInsensitive.ice:183: warning: sequence name `xxx::XX::s1' is capitalized inconsistently with its previous name: `::xxx::xx::s1'
 CaseInsensitive.ice:188: warning: interface name `derived' is capitalized inconsistently with its previous name: `::xxx::xx::Derived'
-CaseInsensitive.ice:196: warning: parameter `param' differs only in capitalization from parameter `Param'
+CaseInsensitive.ice:196: warning: parameter `Param' differs only in capitalization from parameter `param'
 CaseInsensitive.ice:198: warning: exception name `E1' is capitalized inconsistently with its previous name: `::e1'
 CaseInsensitive.ice:200: warning: exception name `xxx::xx::E1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
 CaseInsensitive.ice:201: warning: exception name `xxx::XX::e1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
@@ -60,4 +60,6 @@ CaseInsensitive.ice:202: warning: exception name `XXX::xx::e1' is capitalized in
 CaseInsensitive.ice:204: warning: exception name `xxx::xx::E1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
 CaseInsensitive.ice:205: warning: exception name `xxx::XX::e1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
 CaseInsensitive.ice:206: warning: exception name `XXX::xx::e1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
-CaseInsensitive.ice:219: ambiguous multiple inheritance: `derived' inherits operations `op' and `OP', which differ only in capitalization, from unrelated base interfaces
+CaseInsensitive.ice:207: operation name `op12' cannot be used as parameter name
+CaseInsensitive.ice:208: warning: parameter `OP13' differs only in capitalization from operation name `op13'
+CaseInsensitive.ice:221: ambiguous multiple inheritance: `derived' inherits operations `op' and `OP', which differ only in capitalization, from unrelated base interfaces
