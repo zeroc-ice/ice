@@ -37,10 +37,15 @@ Changes since version 1.0.1
   it is necessary to install a factory for each abstract class, exactly
   as in version 1.0.x.
 
-- Factories for user exceptions no longer need to be installed by
-  applications, since they are now automatically installed by the Ice
-  run time. If you have existing code that implements user exception
-  factories, you can simply delete it.
+- User exception factories and user exception factory
+  managers no longer exist. The factories for user exceptions
+  are now automatically installed by the Ice run time.
+  If you have existing code that implements user exception factories,
+  you can simply delete it.
+
+- Fixed a bug in the Slice parser: the semantic check to see
+  whether an identifier introduced into a scope has changed
+  meaning was too stringent.
 
 - If a client receives a derived exception for which it does not have
   a user exception factory installed, the client receives the
@@ -172,6 +177,10 @@ Changes since version 1.0.1
 - Improved IceBox service deactivation. Instead of successively
   stopping a service and destroying its communicator, services are now
   all stopped first and then their communicators are destroyed.
+
+- Modified the Ice protocol to marshal sizes more efficiently.
+  Sizes less than 255 now require a single byte whereas
+  previously, sizes between 127 and 254 required five bytes.
 
 - Modified the Ice protocol to fix a problem with compression. The
   compressed message types have been removed, and a field has been

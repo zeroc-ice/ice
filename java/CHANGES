@@ -1,6 +1,21 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Ice now implements slicing for exceptions and classes: if process
+  receives an exception or class that is of a more derived type than
+  the receiver understands, the exception or class is automatically
+  sliced. (Previously, this situation resulted in an exception.)
+
+- User exception factories and user exception factory
+  managers no longer exist. The factories for user exceptions
+  are now automatically installed by the Ice run time.
+  If you have existing code that implements user exception factories,
+  you can simply delete it.
+
+- Fixed a bug in the Slice parser: the semantic check to see
+  whether an identifier introduced into a scope has changed
+  meaning was too stringent.
+
 - Fixed a bug with connections being closed even though they have
   outstanding batch requests.
 
@@ -47,6 +62,10 @@ Changes since version 1.0.1
 - Improved IceBox service deactivation. Instead of successively
   stoping a service and destroying its communicator, services are now
   all stopped first and then their communicators are destroyed.
+
+- Modified the Ice protocol to marshal sizes more efficiently.
+  Sizes less than 255 now require a single byte whereas
+  previously, sizes between 127 and 254 required five bytes.
 
 - Modified the Ice protocol to fix a problem with compression. The
   compressed message types have been removed, and a field has been
