@@ -3,10 +3,11 @@ Requirements
 =========================================================================
 
 - Python 2.3
-- Ice 1.6.0
+- Ice 2.0.0
 
 If you don't have Python 2.3 on your system, you can download the
 source distribution from http://www.python.org.
+
 
 =========================================================================
 Building the Ice extension for Python (Linux/Solaris/HP-UX/MacOS X/AIX)
@@ -36,10 +37,10 @@ Follow these steps to build the Ice extension for Python:
 
 5) Modify your PYTHONPATH environment variable to include the Ice
    for Python extension. Assuming you installed the extension in
-   the default directory (/opt/IcePy-1.6.0), you would modify your
+   the default directory (/opt/IcePy-2.0.0), you would modify your
    environment as shown below:
 
-   export ICEPY_HOME=/opt/IcePy-1.6.0
+   export ICEPY_HOME=/opt/IcePy-2.0.0
    export PYTHONPATH=$ICEPY_HOME/lib:$ICEPY_HOME/python:$PYTHONPATH
 
 
