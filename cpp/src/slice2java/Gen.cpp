@@ -3109,6 +3109,11 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         out << nl << "throw new Ice.UnknownUserException();";
         out << eb;
+        if(!outParams.empty() || ret)
+        {
+            out << nl << "try";
+            out << sb;
+        }
         for(q = outParams.begin(); q != outParams.end(); ++q)
         {
             writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), false, iter, true);
@@ -3118,6 +3123,14 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << retS << " __ret;";
             writeMarshalUnmarshalCode(out, scope, ret, "__ret", false, iter);
             out << nl << "return __ret;";
+        }
+        if(!outParams.empty() || ret)
+        {
+            out << eb;
+            out << nl << "catch(Ice.LocalException __ex)";
+            out << sb;
+            out << nl << "throw new IceInternal.NonRepeatable(__ex);";
+            out << eb;
         }
         out << eb;
         out << nl << "finally";

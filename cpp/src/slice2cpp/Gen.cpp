@@ -1706,7 +1706,17 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     }
     C << eb;
     writeAllocateCode(C, TypeStringList(), ret);
-    writeUnmarshalCode(C, outParams, ret);
+    if(!outParams.empty() || ret)
+    {
+        C << nl << "try";
+        C << sb;
+        writeUnmarshalCode(C, outParams, ret);
+        C << eb;
+        C << nl << "catch(const ::Ice::LocalException& __ex)";
+        C << sb;
+        C << nl << "throw ::IceInternal::NonRepeatable(__ex);";
+        C << eb;
+    }
     if(ret)
     {
 	C << nl << "return __ret;";
