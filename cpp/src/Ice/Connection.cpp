@@ -96,7 +96,7 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
 	_exception->ice_throw();
     }
     assert(_state < StateClosing);
-    
+
     Int requestId;
 
     try
@@ -397,7 +397,7 @@ IceInternal::Connection::message(BasicStream& stream)
 	    if (!batch)
 	    {
 		Int requestId;
-		stream.read(requestId);
+		is->read(requestId);
 		if (!_endpoint->oneway() && requestId != 0) // 0 means oneway
 		{
 		    response = true;
