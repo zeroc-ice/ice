@@ -301,7 +301,7 @@ def collocatedTest(name):
 def cleanDbDir(path):
 
     files = os.listdir(path)
-
+    
     for filename in files:
         if filename != "CVS" and filename != ".dummy":
             fullpath = os.path.join(path, filename);
