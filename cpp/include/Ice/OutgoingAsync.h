@@ -1,4 +1,3 @@
-
 // **********************************************************************
 //
 // Copyright (c) 2003
@@ -16,8 +15,7 @@
 #ifndef ICE_OUTGOING_ASYNC_H
 #define ICE_OUTGOING_ASYNC_H
 
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
+#include <IceUtil/Time.h>
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/ConnectionF.h>
@@ -50,6 +48,7 @@ protected:
 
     void __prepare(const IceInternal::ReferencePtr&, const std::string&, Ice::OperationMode, const Ice::Context&);
     void __send();
+    void __ice_exception(const Ice::Exception&);
 
     virtual void __response(bool) = 0;
 
@@ -62,15 +61,13 @@ private:
     void warning(const std::exception&) const;
     void warning() const;
 
+    void cleanup();
+
     ReferencePtr _reference;
     ConnectionPtr _connection;
-    IceUtil::Time _absoluteTimeout;
+    int _cnt;
 
-    //
-    // We use a data member mutex instead of deriving from one, so
-    // that user code is free to add mutex by derivation.
-    //
-    IceUtil::Monitor<IceUtil::Mutex> _monitor;
+    IceUtil::Time _absoluteTimeout;
 };
 
 }

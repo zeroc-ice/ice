@@ -103,28 +103,19 @@ IceInternal::Outgoing::invoke()
     {
 	case Reference::ModeTwoway:
 	{
-	    try
-	    {
-		_connection->sendRequest(&_os, this);
-	    }
-	    catch(const LocalException& ex)
-	    {
-		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-		_state = StateLocalException;
-		_exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
-		
-		//
-		// If soemthing goes wrong during sending, we can
-		// always retry the request without violating
-		// "at-most-once", and therefore do not have to wrap
-		// the exception in NonRepeatable.
-		//
-		_exception->ice_throw();
-	    }
+	    //
+	    // We let all exceptions raised by sending directly
+	    // propagate to the caller, because they can be retried
+	    // without violating "at-most-once". In case of such
+	    // exceptions, the connection object does not call back on
+	    // this object, so we don't need to lock the mutex, keep
+	    // track of state, or save exceptions.
+	    //
+	    _connection->sendRequest(&_os, this);
 	    
 	    //
-	    // Wait until the request has completed or for a timeout.
+	    // Wait until the request has completed, or until the
+	    // request times out.
 	    //
 
 	    bool timedOut = false;
@@ -223,12 +214,11 @@ IceInternal::Outgoing::invoke()
 	{
 	    //
 	    // For oneway and datagram requests, the connection object
-	    // does not call back on this object. Therefore we don't
-	    // need to lock the mutex, we don't need to set the state,
-	    // and we also don't need to save exceptions. Furthermore,
-	    // all exceptions from sending oneways or datagrams can be
-	    // retried without violating "at-most-once", so we let
-	    // exceptions simply propagate directly to the caller.
+	    // never calls back on this object. Therefore we don't
+	    // need to lock the mutex, keep track of state, or save
+	    // exceptions. We simply let all exceptions from sending
+	    // propagate to the caller, because such exceptions can be
+	    // retried without violating "at-most-once".
 	    //
 	    _connection->sendRequest(&_os, 0);
 	    break;
@@ -264,148 +254,143 @@ IceInternal::Outgoing::finished(BasicStream& is)
 
     assert(_reference->mode == Reference::ModeTwoway); // Can only be called for twoways.
 
-    //
-    // The state might be StateLocalException if there was a timeout
-    // in invoke().
-    //
-    if(_state <= StateInProgress)
+    assert(_state <= StateInProgress);
+
+    _is.swap(is);
+    Byte status;
+    _is.read(status);
+    
+    switch(static_cast<DispatchStatus>(status))
     {
-	_is.swap(is);
-	Byte status;
-	_is.read(status);
-
-	switch(static_cast<DispatchStatus>(status))
+	case DispatchOK:
 	{
-	    case DispatchOK:
-	    {
-		//
-		// Input and output parameters are always sent in an
-		// encapsulation, which makes it possible to forward
-		// oneway requests as blobs.
-		//
-		_is.startReadEncaps();
-		_state = StateOK;
-		break;
-	    }
-	    
-	    case DispatchUserException:
-	    {
-		//
-		// Input and output parameters are always sent in an
-		// encapsulation, which makes it possible to forward
-		// oneway requests as blobs.
-		//
-		_is.startReadEncaps();
-		_state = StateUserException;
-		break;
-	    }
-	    
-	    case DispatchObjectNotExist:
-	    case DispatchFacetNotExist:
-	    case DispatchOperationNotExist:
-	    {
-		_state = StateLocalException;
-                // Don't read the exception members directly into the
-                // exception. Otherwise if reading fails and raises an
-                // exception, you will have a memory leak.
-		Identity ident;
-		ident.__read(&_is);
-		vector<string> facet;
-		_is.read(facet);
-		string operation;
-		_is.read(operation);
-
-		RequestFailedException* ex;
-		switch(static_cast<DispatchStatus>(status))
-		{
-		    case DispatchObjectNotExist:
-		    {
-			ex = new ObjectNotExistException(__FILE__, __LINE__);
-			break;
-		    }
-
-		    case DispatchFacetNotExist:
-		    {
-			ex = new FacetNotExistException(__FILE__, __LINE__);
-			break;
-		    }
-
-		    case DispatchOperationNotExist:
-		    {
-			ex = new OperationNotExistException(__FILE__, __LINE__);
-			break;
-		    }
-
-		    default:
-		    {
-			ex = 0; // To keep the compiler from complaining.
-			assert(false);
-			break;
-		    }
-		}
-
-		ex->id = ident;
-		ex->facet = facet;
-		ex->operation = operation;
-		_exception = auto_ptr<LocalException>(ex);
-		break;
-	    }
-	    
-	    case DispatchUnknownException:
-	    case DispatchUnknownLocalException:
-	    case DispatchUnknownUserException:
-	    {
-		_state = StateLocalException;
-                // Don't read the exception members directly into the
-                // exception. Otherwise if reading fails and raises an
-                // exception, you will have a memory leak.
-		string unknown;
-		_is.read(unknown);
-
-		UnknownException* ex;
-		switch(static_cast<DispatchStatus>(status))
-		{
-		    case DispatchUnknownException:
-		    {
-			ex = new UnknownException(__FILE__, __LINE__);
-			break;
-		    }
-
-		    case DispatchUnknownLocalException:
-		    {
-			ex = new UnknownLocalException(__FILE__, __LINE__);
-			break;
-		    }
-
-		    case DispatchUnknownUserException:
-		    {
-			ex = new UnknownUserException(__FILE__, __LINE__);
-			break;
-		    }
-
-		    default:
-		    {
-			ex = 0; // To keep the compiler from complaining.
-			assert(false);
-			break;
-		    }
-		}
-
-		ex->unknown = unknown;
-		_exception = auto_ptr<LocalException>(ex);
-		break;
-	    }
-	    
-	    default:
-	    {
-		_state = StateLocalException;
-		_exception = auto_ptr<LocalException>(new UnknownReplyStatusException(__FILE__, __LINE__));
-		break;
-	    }
+	    //
+	    // Input and output parameters are always sent in an
+	    // encapsulation, which makes it possible to forward
+	    // oneway requests as blobs.
+	    //
+	    _is.startReadEncaps();
+	    _state = StateOK;
+	    break;
 	}
-
-	notify();
+	
+	case DispatchUserException:
+	{
+	    //
+	    // Input and output parameters are always sent in an
+	    // encapsulation, which makes it possible to forward
+	    // oneway requests as blobs.
+	    //
+	    _is.startReadEncaps();
+	    _state = StateUserException;
+	    break;
+	}
+	
+	case DispatchObjectNotExist:
+	case DispatchFacetNotExist:
+	case DispatchOperationNotExist:
+	{
+	    _state = StateLocalException;
+	    // Don't read the exception members directly into the
+	    // exception. Otherwise if reading fails and raises an
+	    // exception, you will have a memory leak.
+	    Identity ident;
+	    ident.__read(&_is);
+	    vector<string> facet;
+	    _is.read(facet);
+	    string operation;
+	    _is.read(operation);
+	    
+	    RequestFailedException* ex;
+	    switch(static_cast<DispatchStatus>(status))
+	    {
+		case DispatchObjectNotExist:
+		{
+		    ex = new ObjectNotExistException(__FILE__, __LINE__);
+		    break;
+		}
+		
+		case DispatchFacetNotExist:
+		{
+		    ex = new FacetNotExistException(__FILE__, __LINE__);
+		    break;
+		}
+		
+		case DispatchOperationNotExist:
+		{
+		    ex = new OperationNotExistException(__FILE__, __LINE__);
+		    break;
+		}
+		
+		default:
+		{
+		    ex = 0; // To keep the compiler from complaining.
+		    assert(false);
+		    break;
+		}
+	    }
+	    
+	    ex->id = ident;
+	    ex->facet = facet;
+	    ex->operation = operation;
+	    _exception = auto_ptr<LocalException>(ex);
+	    break;
+	}
+	
+	case DispatchUnknownException:
+	case DispatchUnknownLocalException:
+	case DispatchUnknownUserException:
+	{
+	    _state = StateLocalException;
+	    // Don't read the exception members directly into the
+	    // exception. Otherwise if reading fails and raises an
+	    // exception, you will have a memory leak.
+	    string unknown;
+	    _is.read(unknown);
+	    
+	    UnknownException* ex;
+	    switch(static_cast<DispatchStatus>(status))
+	    {
+		case DispatchUnknownException:
+		{
+		    ex = new UnknownException(__FILE__, __LINE__);
+		    break;
+		}
+		
+		case DispatchUnknownLocalException:
+		{
+		    ex = new UnknownLocalException(__FILE__, __LINE__);
+		    break;
+		}
+		
+		case DispatchUnknownUserException:
+		{
+		    ex = new UnknownUserException(__FILE__, __LINE__);
+		    break;
+		}
+		
+		default:
+		{
+		    ex = 0; // To keep the compiler from complaining.
+		    assert(false);
+		    break;
+		}
+	    }
+	    
+	    ex->unknown = unknown;
+	    _exception = auto_ptr<LocalException>(ex);
+	    break;
+	}
+	
+	default:
+	{
+	    _state = StateLocalException;
+	    _exception = auto_ptr<LocalException>(new UnknownReplyStatusException(__FILE__, __LINE__));
+	    break;
+	}
     }
+
+    notify();
 }
 
 void
@@ -415,14 +400,9 @@ IceInternal::Outgoing::finished(const LocalException& ex)
     
     assert(_reference->mode == Reference::ModeTwoway); // Can only be called for twoways.
 
-    //
-    // The state might be StateLocalException if there was a timeout
-    // in invoke().
-    //
-    if(_state <= StateInProgress)
-    {
-	_state = StateLocalException;
-	_exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
-	notify();
-    }
+    assert(_state <= StateInProgress);
+    
+    _state = StateLocalException;
+    _exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
+    notify();
 }

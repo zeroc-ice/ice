@@ -58,7 +58,7 @@ IceInternal::Connection::validate()
 	    if(_adapter)
 	    {
 		IceUtil::Mutex::Lock sendSync(_sendMutex);
-		assert(_threadPool); // The transceiver cannot be closed already.
+		assert(_transceiver); // The transceiver cannot be closed already.
 
 		//
 		// Incoming connections play the active role with respect to
@@ -258,7 +258,7 @@ bool
 IceInternal::Connection::isFinished() const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    return _threadPool == 0 && _dispatchCount == 0;
+    return _transceiver == 0 && _dispatchCount == 0;
 }
 
 void
@@ -293,7 +293,7 @@ IceInternal::Connection::waitUntilFinished()
     // Now we must wait for connection closure. If there is a timeout,
     // we force the connection closure.
     //
-    while(_threadPool)
+    while(_transceiver)
     {
 	if(_state != StateClosed && _endpoint->timeout() >= 0)
 	{
@@ -412,6 +412,8 @@ IceInternal::Connection::sendRequest(BasicStream* os, Outgoing* out)
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
+	assert(!(out && _endpoint->datagram())); // Twoway requests cannot be datagrams.
+	
 	if(_exception.get())
 	{
 	    _exception->ice_throw();
@@ -427,15 +429,6 @@ IceInternal::Connection::sendRequest(BasicStream* os, Outgoing* out)
 	    requestId = _nextRequestId++;
 	}
 	
-	//
-	// Only add to the request map if this is a twoway call.
-	//
-	if(out)
-	{
-	    assert(!_endpoint->datagram()); // Twoway requests cannot be datagrams.
-	    _requestsHint = _requests.insert(_requests.end(), pair<const Int, Outgoing*>(requestId, out));
-	}
-	
 	if(_acmTimeout > 0)
 	{
 	    _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
@@ -445,7 +438,7 @@ IceInternal::Connection::sendRequest(BasicStream* os, Outgoing* out)
     try
     {
 	IceUtil::Mutex::Lock sendSync(_sendMutex);
-	if(!_threadPool) // Has the transceiver already been closed?
+	if(!_transceiver) // Has the transceiver already been closed?
 	{
 	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	    assert(_exception.get());
@@ -524,6 +517,39 @@ IceInternal::Connection::sendRequest(BasicStream* os, Outgoing* out)
 	assert(_exception.get());
 	_exception->ice_throw();
     }
+
+    //
+    // Only add to the request map if this was a twoway call, and if
+    // there was no exception above.
+    //
+    if(out)
+    {
+	auto_ptr<LocalException> exception;
+    
+	{
+	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	    
+	    //
+	    // If there is already an exception set, we call
+	    // finished() directly (below, outside the thread
+	    // synchronization), because it's possible that finished()
+	    // has already been called on the request map.
+	    //
+	    if(_exception.get())
+	    {
+		exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(_exception->ice_clone()));
+	    }
+	    else
+	    {
+		_requestsHint = _requests.insert(_requests.end(), pair<const Int, Outgoing*>(requestId, out));
+	    }
+	}
+
+	if(exception.get())
+	{
+	    out->finished(*exception.get());
+	}
+    }
 }
 
 void
@@ -533,6 +559,8 @@ IceInternal::Connection::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPt
 
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+	assert(!_endpoint->datagram()); // Twoway requests cannot be datagrams, and async implies twoway.
 
 	if(_exception.get())
 	{
@@ -549,10 +577,6 @@ IceInternal::Connection::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPt
 	    requestId = _nextRequestId++;
 	}
 	
-	assert(!_endpoint->datagram()); // Twoway requests cannot be datagrams, and async implies twoway.
-	_asyncRequestsHint = _asyncRequests.insert(_asyncRequests.end(),
-						   pair<const Int, OutgoingAsyncPtr>(requestId, out));
-	
 	if(_acmTimeout > 0)
 	{
 	    _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
@@ -562,7 +586,7 @@ IceInternal::Connection::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPt
     try
     {
 	IceUtil::Mutex::Lock sendSync(_sendMutex);
-	if(!_threadPool) // Has the transceiver already been closed?
+	if(!_transceiver) // Has the transceiver already been closed?
 	{
 	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	    assert(_exception.get());
@@ -637,6 +661,36 @@ IceInternal::Connection::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPt
 	setState(StateClosed, ex);
 	assert(_exception.get());
 	_exception->ice_throw();
+    }
+
+    //
+    // Only add to the request map if there was no exception above.
+    //
+    auto_ptr<LocalException> exception;
+    
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	
+	//
+	// If there is already an exception set, we call __finished()
+	// directly (below, outside the thread synchronization),
+	// because it's possible that __finished() has already been
+	// called on the request map.
+	//
+	if(_exception.get())
+	{
+	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(_exception->ice_clone()));
+	}
+	else
+	{
+	    _asyncRequestsHint = _asyncRequests.insert(_asyncRequests.end(),
+						       pair<const Int, OutgoingAsyncPtr>(requestId, out));
+	}
+    }
+    
+    if(exception.get())
+    {
+	out->__finished(*exception.get());
     }
 }
 
@@ -758,7 +812,7 @@ IceInternal::Connection::flushBatchRequest()
     try
     {
 	IceUtil::Mutex::Lock sendSync(_sendMutex);
-	if(!_threadPool) // Has the transceiver already been closed?
+	if(!_transceiver) // Has the transceiver already been closed?
 	{
 	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	    assert(_exception.get());
@@ -876,7 +930,7 @@ IceInternal::Connection::sendResponse(BasicStream* os, Byte compressFlag)
     try
     {
 	IceUtil::Mutex::Lock sendSync(_sendMutex);
-	if(!_threadPool) // Has the transceiver already been closed?
+	if(!_transceiver) // Has the transceiver already been closed?
 	{
 	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	    assert(_exception.get());
@@ -1415,8 +1469,10 @@ IceInternal::Connection::finished(const ThreadPoolPtr& threadPool)
 		closeException = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 	    }
 
+	    assert(_transceiver);
+	    _transceiver = 0;
 	    assert(_threadPool);
-	    _threadPool = 0; // We don't need the thread pool anymore.
+	    _threadPool = 0;
 	    notifyAll();
 	}
 
@@ -1456,8 +1512,7 @@ IceInternal::Connection::exception(const LocalException& ex)
 string
 IceInternal::Connection::toString() const
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    return _transceiver->toString();
+    return _transceiverToString;
 }
 
 bool
@@ -1484,6 +1539,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
 				    const ObjectAdapterPtr& adapter) :
     EventHandler(instance),
     _transceiver(transceiver),
+    _transceiverToString(transceiver->toString()),
     _endpoint(endpoint),
     _adapter(adapter),
     _logger(_instance->logger()), // Cached for better performance.
@@ -1556,6 +1612,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
 IceInternal::Connection::~Connection()
 {
     assert(_state == StateClosed);
+    assert(!_transceiver);
     assert(!_threadPool);
     assert(_dispatchCount == 0);
     assert(_proxyCount == 0);
@@ -1726,8 +1783,10 @@ IceInternal::Connection::setState(State state)
 		    // Here we ignore any exceptions in close().
 		}
 
+		assert(_transceiver);
+		_transceiver = 0;
 		assert(_threadPool);
-		_threadPool = 0; // We don't need the thread pool anymore.
+		_threadPool = 0;
 		//notifyAll(); // We notify already below.
 	    }
 	    else
@@ -1766,7 +1825,7 @@ IceInternal::Connection::initiateShutdown() const
     if(!_endpoint->datagram())
     {
 	IceUtil::Mutex::Lock sendSync(_sendMutex);
-	assert(_threadPool); // The transceiver cannot be closed already.
+	assert(_transceiver); // The transceiver cannot be closed already.
 
 	//
 	// Before we shut down, we send a close connection message.

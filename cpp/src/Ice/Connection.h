@@ -133,7 +133,8 @@ private:
 
     bool closingOK() const;
 
-    const TransceiverPtr _transceiver;
+    TransceiverPtr _transceiver;
+    const std::string _transceiverToString;
     const EndpointPtr _endpoint;
 
     Ice::ObjectAdapterPtr _adapter;
