@@ -192,7 +192,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     end(); // xs:complexType
 
     O << sp << nl << "<xs:element name=\"" << scopeId << p->name()
-      << "\" type=\"tns:" << internalId << scopeId << p->name() << "Type\"/>";
+      << "\" type=\"tns:" << internalId << scopeId << p->name() << "Type\" nillable=\"true\"/>";
 
     return true;
 }
@@ -397,6 +397,9 @@ Slice::Gen::visitSequence(const SequencePtr& p)
       << "\" minOccurs=\"0\" maxOccurs=\"unbounded\"/>";
 
     end(); // xs:sequence
+
+    O << nl << "<xs:attribute name=\"length\" type=\"xs:long\"/>";
+
     end(); // xs:complexType
 
     O << sp;
@@ -456,6 +459,9 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
       << " minOccurs=\"0\" maxOccurs=\"unbounded\"/>";
 
     end(); // xs:sequence
+
+    O << nl << "<xs:attribute name=\"length\" type=\"xs:long\"/>";
+
     end(); // xs:complexType
 
     O << sp;

@@ -37,7 +37,7 @@ All Rights Reserved
     <xs:attribute name="type" type="xs:string"/>
   </xs:complexType>
 
-  <xs:element name="object" type="tns:_internal.objectType"/>
+  <xs:element name="object" type="tns:_internal.objectType" nillable="true"/>
 
   <xs:complexType name="_internal.facetContentType">
     <xs:sequence>
@@ -55,6 +55,7 @@ All Rights Reserved
     <xs:sequence>
       <xs:element name="e" type="tns:_internal.facetContentType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
+    <xs:attribute name="length" type="xs:long"/>
   </xs:complexType>
 
   <xs:element name="facet" type="tns:_internal.facetType"/>
