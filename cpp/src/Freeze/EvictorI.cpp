@@ -154,7 +154,11 @@ Freeze::EvictorI::destroyObject(const Identity& ident)
     // Delete the Ice Object from the database.
     //
     _dict.erase(ident);
-    remove(ident);
+    EvictorElementPtr element = remove(ident);
+    if(element)
+    {
+        element->destroyed = true;
+    }
 
     if(_trace >= 1)
     {
@@ -245,7 +249,7 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 	}
 
 	//
-	// Load the Ice Object from database and create and add a
+	// Load the Ice Object from database and add a
 	// Servant for it.
 	//
 	IdentityObjectDict::iterator p = _dict.find(current.id);
@@ -314,11 +318,12 @@ Freeze::EvictorI::finished(const Current& current, const ObjectPtr& servant, con
     
     //
     // If we are in SaveAfterMutatingOperation mode, we must save the
-    // Ice Object if this was a mutating call.
+    // Ice Object if this was a mutating call and the object has not
+    // been destroyed.
     //
     if(_persistenceMode == SaveAfterMutatingOperation)
     {
-	if(current.mode != Nonmutating)
+	if(current.mode != Nonmutating && !element->destroyed)
 	{
 	    _dict.insert(make_pair(current.id, servant));
 	}
@@ -445,23 +450,27 @@ Freeze::EvictorI::add(const Identity& ident, const ObjectPtr& servant)
     EvictorElementPtr element = new EvictorElement;
     element->servant = servant;
     element->position = _evictorList.begin();
-    element->usageCount = 0;    
+    element->usageCount = 0;
+    element->destroyed = false;
     _evictorMap[ident] = element;
     return element;
 }
 
-void
+Freeze::EvictorI::EvictorElementPtr
 Freeze::EvictorI::remove(const Identity& ident)
 {
     //
     // If the Ice Object is currently in the evictor, remove it.
     //
     map<Identity, EvictorElementPtr>::iterator p = _evictorMap.find(ident);
+    EvictorElementPtr element;
     if(p != _evictorMap.end())
     {
-	_evictorList.erase(p->second->position);
+        element = p->second;
+	_evictorList.erase(element->position);
 	_evictorMap.erase(p);
     }
+    return element;
 }
 
 void

@@ -51,12 +51,13 @@ private:
 	Ice::ObjectPtr servant;
 	std::list<Ice::Identity>::iterator position;
 	int usageCount;
+        bool destroyed;
     };
     typedef IceUtil::Handle<EvictorElement> EvictorElementPtr;
 
     void evict();
     EvictorElementPtr add(const Ice::Identity&, const Ice::ObjectPtr&);
-    void remove(const Ice::Identity&);
+    EvictorElementPtr remove(const Ice::Identity&);
     
     std::map<Ice::Identity, EvictorElementPtr> _evictorMap;
     std::list<Ice::Identity> _evictorList;
