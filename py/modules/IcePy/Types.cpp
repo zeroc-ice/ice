@@ -579,7 +579,7 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
             int isTrue = PyObject_IsTrue(item);
             if(isTrue < 0)
             {
-                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<bool>", i);
+                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<bool>", i);
                 throw AbortMarshaling();
             }
             seq[i] = isTrue ? true : false;
@@ -611,7 +611,7 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
 
             if(PyErr_Occurred() || val < 0 || val > 255)
             {
-                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<byte>", i);
+                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<byte>", i);
                 throw AbortMarshaling();
             }
             seq[i] = static_cast<Ice::Byte>(val);
@@ -643,7 +643,7 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
 
             if(PyErr_Occurred() || val < SHRT_MIN || val > SHRT_MAX)
             {
-                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<short>", i);
+                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<short>", i);
                 throw AbortMarshaling();
             }
             seq[i] = static_cast<Ice::Short>(val);
@@ -674,13 +674,13 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
             }
             else
             {
-                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<int>", i);
+                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<int>", i);
                 throw AbortMarshaling();
             }
 
             if(PyErr_Occurred() || val < INT_MIN || val > INT_MAX)
             {
-                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<int>", i);
+                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<int>", i);
                 throw AbortMarshaling();
             }
             seq[i] = static_cast<Ice::Int>(val);
@@ -711,13 +711,13 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
             }
             else
             {
-                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<int>", i);
+                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<int>", i);
                 throw AbortMarshaling();
             }
 
             if(PyErr_Occurred())
             {
-                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<int>", i);
+                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<int>", i);
                 throw AbortMarshaling();
             }
             seq[i] = val;
@@ -744,7 +744,7 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
             }
             else
             {
-                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<float>", i);
+                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<float>", i);
                 throw AbortMarshaling();
             }
 
@@ -772,7 +772,7 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
             }
             else
             {
-                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<double>", i);
+                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<double>", i);
                 throw AbortMarshaling();
             }
 
@@ -800,7 +800,7 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
             }
             else if(p != Py_None)
             {
-                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<string>", i);
+                PyErr_Format(PyExc_ValueError, "invalid value for element %d of sequence<string>", i);
                 throw AbortMarshaling();
             }
 
@@ -1121,7 +1121,7 @@ IcePy::StructInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMa
         }
         if(!member->type->validate(attr.get()))
         {
-            PyErr_Format(PyExc_AttributeError, "invalid value for %s member `%s'", const_cast<char*>(id.c_str()),
+            PyErr_Format(PyExc_ValueError, "invalid value for %s member `%s'", const_cast<char*>(id.c_str()),
                          memberName);
             throw AbortMarshaling();
         }
@@ -1209,8 +1209,7 @@ IcePy::SequenceInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Object
         }
         if(!elementType->validate(item))
         {
-            PyErr_Format(PyExc_AttributeError, "invalid value for element %d of `%s'", i,
-                         const_cast<char*>(id.c_str()));
+            PyErr_Format(PyExc_ValueError, "invalid value for element %d of `%s'", i, const_cast<char*>(id.c_str()));
             throw AbortMarshaling();
         }
         elementType->marshal(item, os, objectMap);
@@ -1300,14 +1299,14 @@ IcePy::DictionaryInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Obje
     {
         if(!keyType->validate(key))
         {
-            PyErr_Format(PyExc_AttributeError, "invalid key in `%s' element", const_cast<char*>(id.c_str()));
+            PyErr_Format(PyExc_ValueError, "invalid key in `%s' element", const_cast<char*>(id.c_str()));
             throw AbortMarshaling();
         }
         keyType->marshal(key, os, objectMap);
 
         if(!valueType->validate(value))
         {
-            PyErr_Format(PyExc_AttributeError, "invalid value in `%s' element", const_cast<char*>(id.c_str()));
+            PyErr_Format(PyExc_ValueError, "invalid value in `%s' element", const_cast<char*>(id.c_str()));
             throw AbortMarshaling();
         }
         valueType->marshal(value, os, objectMap);
@@ -1599,7 +1598,7 @@ IcePy::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
 
             if(!member->type->validate(val.get()))
             {
-                PyErr_Format(PyExc_AttributeError, "invalid value for %s member `%s'",
+                PyErr_Format(PyExc_ValueError, "invalid value for %s member `%s'",
                              const_cast<char*>(_info->id.c_str()), memberName);
                 throw AbortMarshaling();
             }
@@ -1799,7 +1798,7 @@ IcePy::ExceptionInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
 
             if(!member->type->validate(val.get()))
             {
-                PyErr_Format(PyExc_AttributeError, "invalid value for %s member `%s'", const_cast<char*>(id.c_str()),
+                PyErr_Format(PyExc_ValueError, "invalid value for %s member `%s'", const_cast<char*>(id.c_str()),
                              memberName);
                 throw AbortMarshaling();
             }
