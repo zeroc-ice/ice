@@ -1,0 +1,26 @@
+#!/bin/sh
+
+case $1 in
+  "full" | "incremental") echo "Performing $1 backup"
+          echo "====== Checkpoint ======"
+          db_checkpoint -1 -h db
+          echo "====== Retrieve list of old logs ======"
+          oldLogs=`db_archive -h db`
+          if [ $1 == "full" ]
+          then
+             echo "====== Data backup ======"
+             tar zcvf $1/data.tar.gz db/data/IntLongMap
+          fi
+          echo "====== Log backup ====="
+          tar zcvf $1/logs.tar.gz db/logs/log.*
+          echo "===== Remove old logs ====="
+          for i in $oldLogs
+          do
+               \rm db/logs/$i
+               echo "db/logs/$i deleted"
+          done
+          break ;;
+
+  *) echo "Usage: $0 [full | incremental]"
+     exit 1 ;;
+esac

@@ -77,8 +77,8 @@ dbErrCallback(const char* prefix, char* msg)
     const Freeze::SharedDbEnv* env = reinterpret_cast<const Freeze::SharedDbEnv*>(prefix);
     assert(env != 0);
     
-    Ice::Error out(env->getCommunicator()->getLogger());
-    out << "Freeze database error in DbEnv(\"" << env->getEnvName() << "\"): " << msg;
+    Ice::Trace out(env->getCommunicator()->getLogger(), "Berkeley DB");
+    out << "DbEnv \"" << env->getEnvName() << "\": " << msg;
 }
 
 
@@ -320,6 +320,29 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
 	{
 	    flags |= DB_PRIVATE;
 	}
+
+	/*
+	  
+	//
+	// Does not seem to work reliably in 4.1.25
+	//
+	
+	time_t timeStamp = properties->getPropertyAsIntWithDefault(propertyPrefix + ".tx_timestamp", 0);
+	
+	if(timeStamp != 0)
+	{
+	    try
+	    {
+		set_tx_timestamp(&timeStamp);
+	    }
+	    catch(const ::DbException& dx)
+	    {
+		DBException ex(__FILE__, __LINE__);
+		ex.message = dx.what();
+		throw ex;
+	    }
+	}
+	*/
 	
 	//
 	// Threading

@@ -16,7 +16,7 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= phonebook bench library
+SUBDIRS		= phonebook bench library backup
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

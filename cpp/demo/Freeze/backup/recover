@@ -1,0 +1,31 @@
+#!/bin/sh
+
+case $1 in
+  "full" | "incremental") echo "Performing $1 recovery"
+          echo "====== Save current logs ======"
+          tar zcvf db/logs.tar.gz db/logs --exclude db/logs/CVS --exclude db/logs/.dummy
+
+          echo "====== Restore last full backup ======" 
+          tar xzvf full/data.tar.gz
+          tar xzvf full/logs.tar.gz
+
+          if [ $1 == "incremental" ]
+          then
+             echo "====== Restore last incremental backup ======" 
+             tar xzvf incremental/logs.tar.gz
+          fi
+
+          echo "====== Restore 'current' logs ======"
+          tar xzvf db/logs.tar.gz
+          mv db/logs.tar.gz db/logs-`date +%T`.tar.gz
+
+          echo "====== Please run now ======"
+          echo "% db_recover -c -h db"
+          echo "or"
+          echo "client with Freeze.db.DbRecoverFatal=1"
+
+          break ;;
+
+  *) echo "Usage: $0 [full | incremental]"
+     exit 1 ;;
+esac
