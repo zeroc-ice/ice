@@ -1052,6 +1052,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name slice2py
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2vb
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2833,6 +2836,24 @@ Package=<4>
 ###############################################################################
 
 Project: "slice2py"=.\src\slice2py\slice2py.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Slice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "slice2vb"=.\src\slice2vb\slice2vb.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
