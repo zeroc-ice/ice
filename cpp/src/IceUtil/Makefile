@@ -20,6 +20,7 @@ TARGETS		= $(NAME) $(VERSIONED_NAME)
 
 OBJS		= Exception.o \
 		  Unicode.o \
+		  UUID.o \
 		  RecMutex.o \
 		  RWRecMutex.o \
 		  Cond.o \

@@ -111,7 +111,7 @@ local interface ObjectAdapter
      * Adapter.
      *
      * @see Identity
-     * @see addTemporary
+     * @see addWithUUID
      * @see remove
      *
      **/
@@ -119,24 +119,22 @@ local interface ObjectAdapter
 
     /**
      *
-     * Add a temporary Servant to this Object Adapter's Active Servant
-     * Map. "Temporary" means that the Ice Object implemented by the
-     * Servant does not have a fixed identity. Instead, a temporary
-     * identity is assigned by the Object Adapter. Such temporary
-     * identity is only valid for the lifetime of this Object Adapter,
-     * or until the Servant is removed with [remove].
+     * Add a Servant to this Object Adapter's Active Servant Map,
+     * using an automatically generated UUID as identity. Note that
+     * the generated UUID identity can be accessed using the Proxy's
+     * [ice_getIdentity] operation.
      *
      * @param servant The Servant to add.
      *
-     * @return A Proxy that matches the temporary identity and this
-     * Object Adapter.
+     * @return A Proxy that matches the generated UUID identity and
+     * this Object Adapter.
      *
      * @see Identity
      * @see add
      * @see remove
      *
      **/
-    Object* addTemporary(Object servant);
+    Object* addWithUUID(Object servant);
 
     /**
      *
@@ -149,7 +147,7 @@ local interface ObjectAdapter
      *
      * @see Identity
      * @see add
-     * @see addTemporary
+     * @see addWithUUID
      *
      **/
     void remove(Identity identity);

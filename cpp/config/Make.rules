@@ -42,7 +42,7 @@ CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
 #CXXFLAGS	= -O3 -DNDEBUG -ftemplate-depth-128 -fPIC -Wall
 CPPFLAGS	= -I$(includedir) -I$(STLPORT_HOME)/include/stlport
 LDFLAGS		= -L$(libdir) -L$(STLPORT_HOME)/lib -L$(OPENSSL_HOME)/lib -L$(XERCESC_HOME)/lib
-BASELIBS	= -lIceUtil -lstlport_gcc -lpthread
+BASELIBS	= -lIceUtil -lstlport_gcc -lpthread -luuid
 LIBS		= -lIce -lxerces-c1_5_2 -lssl -lcrypto $(BASELIBS)
 
 # For Intel's icc compiler. (Experimental!)
@@ -51,7 +51,7 @@ LIBS		= -lIce -lxerces-c1_5_2 -lssl -lcrypto $(BASELIBS)
 #CXXFLAGS	= -O3 -DNDEBUG -KPIC
 #CPPFLAGS	= -I$(includedir)
 #LDFLAGS 	= -L$(libdir) -L$(OPENSSL_HOME)/lib -L$(XERCESC_HOME)/lib
-#BASELIBS	= -lIceUtil -lpthread
+#BASELIBS	= -lIceUtil -lpthread -luuid
 #LIBS		= -lIce -lxerces-c1_5_2 -lssl -lcrypto $(BASELIBS)
 
 #

@@ -8,6 +8,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/UUID.h>
 #include <Ice/ObjectAdapterI.h>
 #include <Ice/ServantLocator.h>
 #include <Ice/Instance.h>
@@ -118,7 +119,7 @@ Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::addTemporary(const ObjectPtr& object)
+Ice::ObjectAdapterI::addWithUUID(const ObjectPtr& object)
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -127,20 +128,8 @@ Ice::ObjectAdapterI::addTemporary(const ObjectPtr& object)
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
 
-    ostringstream s;
-
-#ifdef WIN32
-    struct _timeb tb;
-    _ftime(&tb);
-    s << hex << '.' << tb.time << '.' << tb.millitm << '.' << rand();
-#else
-    timeval tv;
-    gettimeofday(&tv, 0);
-    s << hex << '.' << tv.tv_sec << '.' << tv.tv_usec / 1000 << '.' << rand();
-#endif
-
     Identity ident;
-    ident.name = s.str();
+    ident.name = IceUtil::generateUUID();
 
     _activeServantMapHint = _activeServantMap.insert(_activeServantMapHint, make_pair(ident, object));
 

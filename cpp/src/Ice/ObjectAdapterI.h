@@ -42,7 +42,7 @@ public:
     virtual void deactivate();
 
     virtual ObjectPrx add(const ObjectPtr&, const Identity&);
-    virtual ObjectPrx addTemporary(const ObjectPtr&);
+    virtual ObjectPrx addWithUUID(const ObjectPtr&);
     virtual void remove(const Identity&);
 
     virtual void addServantLocator(const ServantLocatorPtr&, const std::string&);
