@@ -292,49 +292,52 @@ public class AllTests
 
         System.out.println("ok");
 
-        System.out.print("catching unknown user exception... ");
-        System.out.flush();
+        if (thrower.supportsUndeclaredExceptions())
+        {
+            System.out.print("catching unknown user exception... ");
+            System.out.flush();
 
-        try
-        {
-            thrower.throwUndeclaredA(1);
-            test(false);
-        }
-        catch (Ice.UnknownUserException ex)
-        {
-        }
-        catch (Exception ex)
-        {
-            test(false);
-        }
+            try
+            {
+                thrower.throwUndeclaredA(1);
+                test(false);
+            }
+            catch (Ice.UnknownUserException ex)
+            {
+            }
+            catch (Exception ex)
+            {
+                test(false);
+            }
 
-        try
-        {
-            thrower.throwUndeclaredB(1, 2);
-            test(false);
-        }
-        catch (Ice.UnknownUserException ex)
-        {
-        }
-        catch (Exception ex)
-        {
-            test(false);
-        }
+            try
+            {
+                thrower.throwUndeclaredB(1, 2);
+                test(false);
+            }
+            catch (Ice.UnknownUserException ex)
+            {
+            }
+            catch (Exception ex)
+            {
+                test(false);
+            }
 
-        try
-        {
-            thrower.throwUndeclaredC(1, 2, 3);
-            test(false);
-        }
-        catch (Ice.UnknownUserException ex)
-        {
-        }
-        catch (Exception ex)
-        {
-            test(false);
-        }
+            try
+            {
+                thrower.throwUndeclaredC(1, 2, 3);
+                test(false);
+            }
+            catch (Ice.UnknownUserException ex)
+            {
+            }
+            catch (Exception ex)
+            {
+                test(false);
+            }
 
-        System.out.println("ok");
+            System.out.println("ok");
+        }
 
         System.out.print("catching unknown local exception... ");
         System.out.flush();
