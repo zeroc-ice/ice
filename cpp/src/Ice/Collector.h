@@ -44,8 +44,6 @@ public:
     bool destroyed() const;
     void hold();
     void activate();
-    void prepareReply(Incoming*);
-    void sendReply(Incoming*);
 
     //
     // Operations from EventHandler
@@ -119,7 +117,6 @@ private:
     {
 	StateActive,
 	StateHolding,
-	StateClosing,
 	StateClosed
     };
 
