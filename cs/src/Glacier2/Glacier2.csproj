@@ -3,13 +3,13 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{443F2166-8A31-48FD-9345-9070EA38FF39}"
+        ProjectGuid = "{F6EAFA67-FF43-4C8B-BF7F-86F79DCCDA1A}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "glaciercs"
+                AssemblyName = "glacier2cs"
                 AssemblyOriginatorKeyFile = ""
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
@@ -80,11 +80,25 @@
             <Include>
                 <File
                     RelPath = "AssemblyInfo.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "generated\PermissionsVerifier.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "generated\PermissionsVerifierF.cs"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "generated\Router.cs"
                     SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "generated\RouterF.cs"
                     BuildAction = "Compile"
                 />
                 <File
@@ -94,22 +108,6 @@
                 />
                 <File
                     RelPath = "generated\SessionF.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\SessionManager.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\SessionManagerF.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\Starter.cs"
-                    SubType = "Code"
                     BuildAction = "Compile"
                 />
             </Include>
