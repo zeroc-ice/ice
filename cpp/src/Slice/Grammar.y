@@ -136,42 +136,55 @@ definition
 // ----------------------------------------------------------------------
 : module_def
 {
+    assert($1 == 0 || ModulePtr::dynamicCast($1));
 }
 | class_decl
 {
+    assert($1 == 0 || ClassDeclPtr::dynamicCast($1));
 }
 | class_def
 {
+    assert($1 == 0 || ClassDefPtr::dynamicCast($1));
 }
 | interface_decl
 {
+    assert($1 == 0 || ClassDeclPtr::dynamicCast($1));
 }
 | interface_def
 {
+    assert($1 == 0 || ClassDefPtr::dynamicCast($1));
 }
 | exception_decl
 {
+    assert($1 == 0)
 }
 | exception_def
 {
+    assert($1 == 0 || ExceptionPtr::dynamicCast($1));
 }
 | struct_decl
 {
+    assert($1 == 0)
 }
 | struct_def
 {
+    assert($1 == 0 || StructPtr::dynamicCast($1));
 }
 | sequence_def
 {
+    assert($1 == 0 || SequencePtr::dynamicCast($1));
 }
 | dictionary_def
 {
+    assert($1 == 0 || DictionaryPtr::dynamicCast($1));
 }
 | enum_def
 {
+    assert($1 == 0 || EnumPtr::dynamicCast($1));
 }
 | const_def
 {
+    assert($1 == 0 || ConstPtr::dynamicCast($1));
 }
 ;
 
@@ -219,7 +232,7 @@ exception_decl
 : local_qualifier exception_id
 {
     unit->error("exceptions cannot be forward declared");
-    $$ = $2;
+    $$ = 0;
 }
 ;
 
@@ -329,7 +342,7 @@ struct_decl
 : local_qualifier struct_id
 {
     unit->error("structs cannot be forward declared");
-    $$ = $2;
+    $$ = 0;
 }
 ;
 
@@ -451,7 +464,7 @@ class_def
 '{' class_exports '}'
 {
     unit->popContainer();
-    $$ = $6;
+    $$ = $5;
 }
 ;
 
@@ -1452,14 +1465,14 @@ const_def
     TypePtr const_type = TypePtr::dynamicCast($2);
     StringTokPtr ident = StringTokPtr::dynamicCast($3);
     SyntaxTreeBaseStringTokPtr value = SyntaxTreeBaseStringTokPtr::dynamicCast($5);
-    $$ = unit->currentContainer()->createConstDef(ident->v, const_type, value->v.first, value->v.second);
+    $$ = unit->currentContainer()->createConst(ident->v, const_type, value->v.first, value->v.second);
 }
 | ICE_CONST type '=' const_initializer
 {
     TypePtr const_type = TypePtr::dynamicCast($2);
     SyntaxTreeBaseStringTokPtr value = SyntaxTreeBaseStringTokPtr::dynamicCast($4);
     unit->error("missing constant name");
-    $$ = unit->currentContainer()->createConstDef(IceUtil::generateUUID(), const_type, value->v.first, value->v.second);
+    $$ = unit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, value->v.first, value->v.second);
 }
 ;
 

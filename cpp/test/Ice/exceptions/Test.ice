@@ -37,7 +37,7 @@ exception D
     int dMem;
 };
 
-interface Thrower
+["ami"] interface Thrower
 {
     void shutdown();
     void throwAasA(int a) throws A;
@@ -55,7 +55,7 @@ interface Thrower
     void throwNonIceException();
 };
 
-interface WrongOperation
+["ami"] interface WrongOperation
 {
     void noSuchOperation();
 };

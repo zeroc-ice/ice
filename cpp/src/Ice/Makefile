@@ -68,6 +68,7 @@ OBJS		= Initialize.o \
 		  ProxyFactory.o \
 		  Proxy.o \
 		  Outgoing.o \
+		  OutgoingAsync.o \
 		  Incoming.o \
 		  Direct.o \
 		  Network.o \

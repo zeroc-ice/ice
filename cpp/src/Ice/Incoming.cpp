@@ -142,25 +142,6 @@ IceInternal::Incoming::invoke(bool response)
 	    }
 	}
     }
-    catch(const LocationForward& ex)
-    {
-	if(locator && servant)
-	{
-	    locator->finished(_current, servant, cookie);
-	}
-
-	_is.endReadEncaps();
-
-	if(response)
-	{
-	    _os.endWriteEncaps();
-	    _os.b.resize(statusPos);
-	    _os.write(static_cast<Byte>(DispatchLocationForward));
-	    _os.write(ex._prx);
-	}
-
-	return;
-    }
     catch(RequestFailedException& ex)
     {
 	if(locator && servant)

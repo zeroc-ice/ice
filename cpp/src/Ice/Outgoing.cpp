@@ -17,7 +17,6 @@
 #include <Ice/Connection.h>
 #include <Ice/Reference.h>
 #include <Ice/LocalException.h>
-#include <Ice/Instance.h>
 
 using namespace std;
 using namespace Ice;
@@ -54,14 +53,14 @@ IceInternal::Outgoing::Outgoing(const ConnectionPtr& connection, const Reference
 	case Reference::ModeOneway:
 	case Reference::ModeDatagram:
 	{
-	    _connection->prepareRequest(this);
+	    _connection->prepareRequest(&_os);
 	    break;
 	}
 
 	case Reference::ModeBatchOneway:
 	case Reference::ModeBatchDatagram:
 	{
-	    _connection->prepareBatchRequest(this);
+	    _connection->prepareBatchRequest(&_os);
 	    break;
 	}
     }
@@ -169,13 +168,6 @@ IceInternal::Outgoing::invoke()
 		return false;
 	    }
 
-	    if(_state == StateLocationForward)
-	    {
-		ObjectPrx p;
-		_is.read(p);
-		throw LocationForward(p);
-	    }
-
 	    assert(_state == StateOK);
 	    break;
 	}
@@ -200,7 +192,7 @@ IceInternal::Outgoing::invoke()
 	    // illegal.
 	    //
 	    _state = StateInProgress;
-	    _connection->finishBatchRequest(this);
+	    _connection->finishBatchRequest(&_os);
 	    break;
 	}
     }
@@ -208,11 +200,38 @@ IceInternal::Outgoing::invoke()
     return true;
 }
 
+/*
+void
+IceInternal::Outgoing::invokeAsync(const IceAMI::Ice::ObjectPtr& asyncCB)
+{
+    _asyncCB = asyncCB;
+    _os.endWriteEncaps();
+    
+    //
+    // We cannot set _state to StateInProgress after sendRequest(),
+    // because there would be a race with finished().
+    //
+    _state = StateInProgress;
+
+    //
+    // For asynchronous invocations, we always use twoway, regardless
+    // of what the reference says. There is no point in asynchronous
+    // oneways or datagrams, because there is no reply from the
+    // server.
+    //
+    _connection->sendRequest(this, false, _reference->compress);
+}
+*/
+
 void
 IceInternal::Outgoing::finished(BasicStream& is)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
+    //
+    // The state might be StateLocalException if there was a timeout
+    // in invoke().
+    //
     if(_state == StateInProgress)
     {
 	_is.swap(is);
@@ -242,12 +261,6 @@ IceInternal::Outgoing::finished(BasicStream& is)
 		//
 		_is.startReadEncaps();
 		_state = StateUserException;
-		break;
-	    }
-	    
-	    case DispatchLocationForward:
-	    {
-		_state = StateLocationForward;
 		break;
 	    }
 	    
@@ -361,7 +374,11 @@ void
 IceInternal::Outgoing::finished(const LocalException& ex)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
+    
+    //
+    // The state might be StateLocalException if there was a timeout
+    // in invoke().
+    //
     if(_state == StateInProgress)
     {
 	_state = StateLocalException;

@@ -75,7 +75,7 @@ class Sequence;
 class Dictionary;
 class Enum;
 class Enumerator;
-class ConstDef;
+class Const;
 class Unit;
 class CICompare;
 
@@ -99,7 +99,7 @@ typedef ::IceUtil::Handle<Sequence> SequencePtr;
 typedef ::IceUtil::Handle<Dictionary> DictionaryPtr;
 typedef ::IceUtil::Handle<Enum> EnumPtr;
 typedef ::IceUtil::Handle<Enumerator> EnumeratorPtr;
-typedef ::IceUtil::Handle<ConstDef> ConstDefPtr;
+typedef ::IceUtil::Handle<Const> ConstPtr;
 typedef ::IceUtil::Handle<Unit> UnitPtr;
 
 }
@@ -190,7 +190,7 @@ public:
     virtual void visitSequence(const SequencePtr&) { }
     virtual void visitDictionary(const DictionaryPtr&) { }
     virtual void visitEnum(const EnumPtr&) { }
-    virtual void visitConstDef(const ConstDefPtr&) { }
+    virtual void visitConst(const ConstPtr&) { }
 };
 
 // ----------------------------------------------------------------------
@@ -291,6 +291,7 @@ public:
     int includeLevel() const;
     void updateIncludeLevel();
 
+    bool hasMetaData(const std::string&) const;
     std::list<std::string> getMetaData() const;
     void setMetaData(const std::list<std::string>&);
 
@@ -350,7 +351,7 @@ public:
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const TypePtr&, bool);
     EnumPtr createEnum(const std::string&, bool);
     EnumeratorPtr createEnumerator(const std::string&);
-    ConstDefPtr createConstDef(const std::string, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
+    ConstPtr createConst(const std::string, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
     TypeList lookupType(const std::string&, bool = true);
     TypeList lookupTypeNoBuiltin(const std::string&, bool = true);
     ContainedList lookupContained(const std::string&, bool = true);
@@ -366,6 +367,7 @@ public:
     bool hasClassDecls() const;
     bool hasClassDefs() const;
     bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
+    bool hasContentsWithMetaData(const std::string&) const;
     std::string thisScope() const;
     void mergeModules();
     void sort();
@@ -716,10 +718,10 @@ protected:
 };
 
 // ----------------------------------------------------------------------
-// ConstDef
+// Const
 // ----------------------------------------------------------------------
 
-class SLICE_API ConstDef : virtual public Contained
+class SLICE_API Const : virtual public Contained
 {
 public:
 
@@ -737,7 +739,7 @@ public:
 
 protected:
 
-    ConstDef(const ContainerPtr&, const std::string&, const TypePtr&, const std::string&);
+    Const(const ContainerPtr&, const std::string&, const TypePtr&, const std::string&);
     friend class SLICE_API Container;
 
     TypePtr _type;

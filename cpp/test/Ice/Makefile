@@ -22,7 +22,6 @@ SUBDIRS		= operations \
 		  facets \
 		  objects \
 		  faultTolerance \
-		  locationForward \
 		  location \
 		  adapterDeactivation
 

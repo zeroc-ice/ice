@@ -42,7 +42,7 @@ public:
     virtual bool visitStructStart(const StructPtr&);
     virtual void visitOperation(const OperationPtr&);
     virtual void visitEnum(const EnumPtr&);
-    virtual void visitConstDef(const ConstDefPtr&);
+    virtual void visitConst(const ConstPtr&);
     virtual void visitSequence(const SequencePtr&);
     virtual void visitDictionary(const DictionaryPtr&);
 

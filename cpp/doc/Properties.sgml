@@ -178,6 +178,22 @@ and C++ exceptions. (default)</entry>
 </section>
 </section>
 
+<section><title>Ice.Warn.AMICallback</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Warn.AMICallback=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+warnings are printed if an AMI callback raises an exceptiion. The
+default value is 1.
+</para>
+</section>
+</section>
+
 <section><title>Ice.Warn.Leaks</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -337,11 +353,11 @@ In Java, <replaceable>entry_point</replaceable> is the name of a class.
 <section><title>&Ice; Thread Pool Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>Ice.ClientThreadPool.Size, Ice.ServerThreadPool.Size</title>
+<section><title>Ice.ThreadPool.Client.Size, Ice.ThreadPool.Server.Size</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.ClientThreadPool.Size=<replaceable>num</replaceable>
-Ice.ServerThreadPool.Size=<replaceable>num</replaceable>
+Ice.ThreadPool.Client.Size=<replaceable>num</replaceable>
+Ice.ThreadPool.Server.Size=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>

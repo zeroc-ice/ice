@@ -140,13 +140,6 @@ Ice::IllegalIdentityException::ice_print(ostream& out) const
     out << ":\nillegal identity: `" << id << "'";
 }
 
-void
-Ice::LocationForwardIdentityException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nidentity mismatch in location forward";
-}
-
 static void
 printFailedRequestData(ostream& out, const RequestFailedException& ex)
 {
@@ -430,4 +423,11 @@ Ice::PluginNotFoundException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nplugin not found";
+}
+
+void
+Ice::CollocationOptimizationException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nrequested feature not available with collocation optimization";
 }

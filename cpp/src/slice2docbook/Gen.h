@@ -41,7 +41,7 @@ public:
     virtual bool visitExceptionStart(const ExceptionPtr&);
     virtual bool visitStructStart(const StructPtr&);
     virtual void visitEnum(const EnumPtr&);
-    virtual void visitConstDef(const ConstDefPtr&);
+    virtual void visitConst(const ConstPtr&);
 
 private:
 

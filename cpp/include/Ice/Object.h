@@ -32,7 +32,6 @@ enum DispatchStatus
 {
     DispatchOK,
     DispatchUserException,
-    DispatchLocationForward,
     DispatchObjectNotExist,
     DispatchFacetNotExist,
     DispatchOperationNotExist,
@@ -45,20 +44,6 @@ enum DispatchStatus
 
 namespace Ice
 {
-
-class ICE_API LocationForward
-{
-public:
-
-    LocationForward(const LocationForward&);
-    LocationForward(const ObjectPrx&);
-
-protected:
-
-    ObjectPrx _prx;
-    friend class ::IceProxy::Ice::Object;
-    friend class ::IceInternal::Incoming;
-};
 
 class ICE_API Object : virtual public ::IceUtil::Shared
 {

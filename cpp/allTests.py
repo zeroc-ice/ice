@@ -39,7 +39,6 @@ tests = [ \
     "Ice/facets", \
     "Ice/objects", \
     "Ice/faultTolerance", \
-    "Ice/locationForward", \
     "Ice/location", \
     "Ice/adapterDeactivation", \
     "IceSSL/configuration", \

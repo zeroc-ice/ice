@@ -20,6 +20,7 @@
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/ObjectAdapterI.h>
 #include <Ice/Outgoing.h>
+#include <Ice/OutgoingAsync.h>
 #include <Ice/Direct.h>
 #include <Ice/Reference.h>
 #include <Ice/Endpoint.h>
@@ -33,8 +34,6 @@
 #include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/Functional.h>
-
-#include <Ice/Locator.h>
 
 using namespace std;
 using namespace Ice;
@@ -132,10 +131,6 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_isA(__id, __context);
 	}
-	catch(const LocationForward& __ex)
-	{
-	    __locationForward(__ex);
-	}
 	catch(const NonRepeatable& __ex)
 	{
 	    __handleException(*__ex.get(), __cnt);
@@ -159,10 +154,6 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
 	    __del->ice_ping(__context);
 	    return;
 	}
-	catch(const LocationForward& __ex)
-	{
-	    __locationForward(__ex);
-	}
 	catch(const NonRepeatable& __ex)
 	{
 	    __handleException(*__ex.get(), __cnt);
@@ -184,10 +175,6 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
 	{
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_ids(__context);
-	}
-	catch(const LocationForward& __ex)
-	{
-	    __locationForward(__ex);
 	}
 	catch(const NonRepeatable& __ex)
 	{
@@ -211,10 +198,6 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_id(__context);
 	}
-	catch(const LocationForward& __ex)
-	{
-	    __locationForward(__ex);
-	}
 	catch(const NonRepeatable& __ex)
 	{
 	    __handleException(*__ex.get(), __cnt);
@@ -236,10 +219,6 @@ IceProxy::Ice::Object::ice_facets(const Context& __context)
 	{
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_facets(__context);
-	}
-	catch(const LocationForward& __ex)
-	{
-	    __locationForward(__ex);
 	}
 	catch(const NonRepeatable& __ex)
 	{
@@ -267,10 +246,6 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_invoke(operation, mode, inParams, outParams, context);
 	}
-	catch(const LocationForward& __ex)
-	{
-	    __locationForward(__ex);
-	}
 	catch(const NonRepeatable& __ex)
 	{
 	    bool canRetry = mode == Nonmutating || mode == Idempotent;
@@ -282,6 +257,29 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 	    {
 		__rethrowException(*__ex.get());
 	    }
+	}
+	catch(const LocalException& __ex)
+	{
+	    __handleException(__ex, __cnt);
+	}
+    }
+}
+
+void
+IceProxy::Ice::Object::ice_invoke_async(const Object_ice_invokePtr& cb,
+					const string& operation,
+					OperationMode mode,
+					const vector<Byte>& inParams,
+					const Context& context)
+{
+    int __cnt = 0;
+    while(true)
+    {
+	try
+	{
+	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	    __del->ice_invoke_async(cb, operation, mode, inParams, context);
+	    return;
 	}
 	catch(const LocalException& __ex)
 	{
@@ -630,38 +628,6 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 }
 
 void
-IceProxy::Ice::Object::__locationForward(const LocationForward& ex)
-{
-    IceUtil::Mutex::Lock sync(*this);
-
-    _delegate = 0;
-
-    if(_reference->identity != ex._prx->_reference->identity)
-    {
-	throw LocationForwardIdentityException(__FILE__, __LINE__);
-    }
-
-    //
-    // TODO: BENOIT: This is not thread-safe. Everywhere else in the
-    // code, _reference is considered immutable and is not mutex
-    // protected.
-    //
-    _reference = _reference->changeAdapterId(ex._prx->_reference->adapterId);
-    _reference = _reference->changeEndpoints(ex._prx->_reference->endpoints);
-
-/*
-    TraceLevelsPtr traceLevels = _reference->instance->traceLevels();
-    LoggerPtr logger = _reference->instance->logger();
-
-    if(traceLevels->locationForward >= 1)
-    {
-	Trace out(logger, traceLevels->retryCat);
-	out << "location forward for object with identity `" << _reference.identity << "'";
-    }
-*/
-}
-
-void
 IceProxy::Ice::Object::__rethrowException(const LocalException& ex)
 {
     IceUtil::Mutex::Lock sync(*this);
@@ -837,6 +803,19 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
 	__is->readBlob(outParams, sz);
     }
     return ok;
+}
+
+void
+IceDelegateM::Ice::Object::ice_invoke_async(const Object_ice_invokePtr& cb,
+					    const string& operation,
+					    OperationMode mode,
+					    const vector<Byte>& inParams,
+					    const Context& context)
+{
+    cb->__setup(__connection, __reference, operation, mode, context);
+    BasicStream* __os = cb->__os();
+    __os->writeBlob(inParams);
+    cb->__invoke();
 }
 
 void
@@ -1124,35 +1103,29 @@ IceDelegateD::Ice::Object::ice_facets(const ::Ice::Context& __context)
 }
 
 bool
-IceDelegateD::Ice::Object::ice_invoke(const string& operation,
-				      OperationMode mode,
-				      const vector<Byte>& inParams,
-				      vector<Byte>& outParams,
-				      const Context& context)
+IceDelegateD::Ice::Object::ice_invoke(const string&,
+				      OperationMode,
+				      const vector<Byte>&,
+				      vector<Byte>&,
+				      const Context&)
 {
-    Current current;
-    __initCurrent(current, operation, mode, context);
-    while(true)
-    {
-	Direct __direct(current);
-	Blobject* servant = dynamic_cast<Blobject*>(__direct.facetServant().get());
-	if(!servant)
-	{
-	    OperationNotExistException opEx(__FILE__, __LINE__);
-	    opEx.id = current.id;
-	    opEx.facet = current.facet;
-	    opEx.operation = current.operation;
-	    throw opEx;
-	}
-	return servant->ice_invoke(inParams, outParams, current);
-    }
-    return false; // To keep the Visual C++ compiler happy.
+    throw CollocationOptimizationException(__FILE__, __LINE__);
+}
+
+void
+IceDelegateD::Ice::Object::ice_invoke_async(const Object_ice_invokePtr&,
+					    const string&,
+					    OperationMode,
+					    const vector<Byte>&,
+					    const Context&)
+{
+    throw CollocationOptimizationException(__FILE__, __LINE__);
 }
 
 void
 IceDelegateD::Ice::Object::ice_flush()
 {
-    // Nothing to do for direct delegates
+    // Nothing to do for direct delegates.
 }
 
 void

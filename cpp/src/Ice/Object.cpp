@@ -24,16 +24,6 @@ using namespace IceInternal;
 void IceInternal::incRef(Object* p) { p->__incRef(); }
 void IceInternal::decRef(Object* p) { p->__decRef(); }
 
-Ice::LocationForward::LocationForward(const LocationForward& p) :
-    _prx(p._prx)
-{
-}
-
-Ice::LocationForward::LocationForward(const ObjectPrx& p) :
-    _prx(p)
-{
-}
-
 Ice::Object::Object() :
     _activeFacetMapHint(_activeFacetMap.end())
 {

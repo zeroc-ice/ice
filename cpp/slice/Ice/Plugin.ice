@@ -15,8 +15,6 @@
 #ifndef ICE_PLUGIN_ICE
 #define ICE_PLUGIN_ICE
 
-#include <Ice/LocalException.ice>
-
 module Ice
 {
 
@@ -52,12 +50,8 @@ local interface PluginManager
      *
      * @return The plug-in.
      *
-     * @throws PluginNotFoundException Raised if no plug-in was
-     * found with the given name.
-     *
      **/
-    Plugin getPlugin(string name)
-        throws PluginNotFoundException;
+    Plugin getPlugin(string name);
 
     /**
      *
@@ -67,12 +61,8 @@ local interface PluginManager
      *
      * @param pi The plug-in.
      *
-     * @throws PluginExistsException Raised if a plug-in already
-     * exists with the given name.
-     *
      **/
-    void addPlugin(string name, Plugin pi)
-        throws PluginExistsException;
+    void addPlugin(string name, Plugin pi);
 
     /**
      *

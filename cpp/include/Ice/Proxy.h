@@ -24,6 +24,7 @@
 #include <Ice/ObjectF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ReferenceF.h>
+#include <Ice/OutgoingAsyncF.h>
 //#include <Ice/RouterF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
 //#include <Ice/LocatorF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
 #include <Ice/Current.h>
@@ -69,9 +70,9 @@ typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Router> RouterPrx;
 typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Locator> LocatorPrx;
 
 class LocalException;
-class LocationForward;
 
 }
+
 namespace IceProxy { namespace Ice
 {
 
@@ -92,6 +93,9 @@ public:
     bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 	            ::std::vector< ::Ice::Byte>&,
 		    const ::Ice::Context& = ::Ice::Context()); // Returns true if ok, false if user exception.
+    void ice_invoke_async(const ::Ice::Object_ice_invokePtr&,
+			  const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
+			  const ::Ice::Context& = ::Ice::Context());
 
     ::Ice::Identity ice_getIdentity() const;
     ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity&) const;
@@ -118,7 +122,6 @@ public:
     void __copyFrom(const ::Ice::ObjectPrx&);
     void __handleException(const ::Ice::LocalException&, int&);
     void __rethrowException(const ::Ice::LocalException&);
-    void __locationForward(const ::Ice::LocationForward&);
 
     ::IceInternal::Handle< ::IceDelegate::Ice::Object> __getDelegate();
 
@@ -152,6 +155,9 @@ public:
     virtual ::Ice::FacetPath ice_facets(const ::Ice::Context&) = 0;
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&) = 0;
+    virtual void ice_invoke_async(const ::Ice::Object_ice_invokePtr&,
+				  const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
+				  const ::Ice::Context&) = 0;
     virtual void ice_flush() = 0;
 };
 
@@ -173,6 +179,9 @@ public:
     virtual ::Ice::FacetPath ice_facets(const ::Ice::Context&);
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
+    virtual void ice_invoke_async(const ::Ice::Object_ice_invokePtr&,
+				  const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
+				  const ::Ice::Context&);
     virtual void ice_flush();
 
     void __copyFrom(const ::IceInternal::Handle< ::IceDelegateM::Ice::Object>&);
@@ -207,6 +216,9 @@ public:
     virtual ::Ice::FacetPath ice_facets(const ::Ice::Context&);
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
+    virtual void ice_invoke_async(const ::Ice::Object_ice_invokePtr&,
+				  const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
+				  const ::Ice::Context&);
     virtual void ice_flush();
 
     void __copyFrom(const ::IceInternal::Handle< ::IceDelegateD::Ice::Object>&);

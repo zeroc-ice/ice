@@ -19,7 +19,7 @@
 using namespace std;
 
 Test::MyClassPrx
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 {
     cout << "testing stringToProxy... " << flush;
     string ref = "test:default -p 12345 -t 2000";
@@ -43,6 +43,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     twoways(derived);
     derived->opDerived();
     cout << "ok" << endl;
+
+    if(!collocated)
+    {
+	cout << "testing twoway operations with AMI... " << flush;
+	void twowaysAMI(const Test::MyClassPrx&);
+	twowaysAMI(cl);
+	twowaysAMI(derived);
+	cout << "ok" << endl;
+    }
 
     return cl;
 }

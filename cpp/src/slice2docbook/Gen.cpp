@@ -719,7 +719,7 @@ Slice::Gen::visitEnum(const EnumPtr& p)
 }
 
 void
-Slice::Gen::visitConstDef(const ConstDefPtr& p)
+Slice::Gen::visitConst(const ConstPtr& p)
 {
     // TODO: Deal with constant definition here
 }

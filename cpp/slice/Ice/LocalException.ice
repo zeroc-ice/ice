@@ -238,17 +238,6 @@ local exception IllegalIdentityException
 
 /**
  *
- * This exception is raised if an operation call using a proxy
- * resulted in a location forward to another proxy that doesn't
- * match this proxy's identity.
- *
- **/
-local exception LocationForwardIdentityException
-{
-};
-
-/**
- *
  * This exception is raised if a request failed. This exception, and
  * all exceptions derived from [RequestFailedException], is
  * transmitted by the &Ice; protocol, even though it is declared
@@ -670,7 +659,8 @@ local exception PluginInitializationException
 
 /**
  *
- * A plug-in already exists with the same name.
+ * This exception indicates that a plug-in already exists with the
+ * same name.
  *
  **/
 local exception PluginExistsException
@@ -679,10 +669,20 @@ local exception PluginExistsException
 
 /**
  *
- * No plug-in exists with the given name.
+ * This exception indicates that no plug-in exists with the given name.
  *
  **/
 local exception PluginNotFoundException
+{
+};
+
+/**
+ *
+ * This exception is raised if a feature is requested that is not
+ * supported with collocation optimization.
+ *
+ **/
+local exception CollocationOptimizationException
 {
 };
 

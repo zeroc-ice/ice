@@ -149,8 +149,7 @@ Slice::JavaVisitor::writeDelegateThrowsClause(const string& scope, const Excepti
     out << nl;
     out << "throws ";
     out.useCurrentPosAsIndent();
-    out << "Ice.LocationForward,";
-    out << nl << "IceInternal.NonRepeatable";
+    out << "IceInternal.NonRepeatable";
 
     //
     // Don't include local exceptions in the throws clause
@@ -1729,7 +1728,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitConstDef(const ConstDefPtr& p)
+Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
     string name = fixKwd(p->name());
     string scoped = p->scoped();
@@ -2051,10 +2050,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << nl << "return;";
         }
-        out << eb;
-        out << nl << "catch(Ice.LocationForward __ex)";
-        out << sb;
-        out << nl << "__locationForward(__ex);";
         out << eb;
         out << nl << "catch(IceInternal.NonRepeatable __ex)";
         out << sb;

@@ -189,10 +189,10 @@ IcePack::Registry::start(bool nowarn)
 
     properties->setProperty("Ice.Daemon", "0");
     properties->setProperty("Ice.PrintProcessId", "0");
-    if(properties->getPropertyAsInt("IcePack.Registry.Internal.ServerThreadPool.Size") > 0)
+    if(properties->getPropertyAsInt("IcePack.Registry.Internal.ThreadPool.Server.Size") > 0)
     {
-	properties->setProperty("Ice.ServerThreadPool.Size", 
-				properties->getProperty("IcePack.Registry.Internal.ServerThreadPool.Size"));
+	properties->setProperty("Ice.ThreadPool.Server.Size", 
+				properties->getProperty("IcePack.Registry.Internal.ThreadPool.Server.Size"));
     }
 
     //
@@ -228,8 +228,8 @@ IcePack::Registry::start(bool nowarn)
 
     _locatorRegistryComm = Ice::initializeWithProperties(argc, argv, _communicator->getProperties());
     _locatorRegistryComm->getProperties()->setProperty(
-	"Ice.ServerThreadPool.Size", 
-	properties->getPropertyWithDefault("IcePack.Registry.LocatorRegistry.ServerThreadPool.Size", "2"));
+	"Ice.ThreadPool.Server.Size", 
+	properties->getPropertyWithDefault("IcePack.Registry.LocatorRegistry.ThreadPool.Server.Size", "2"));
 
     Ice::ObjectAdapterPtr locatorRegistryAdapter = 
 	_locatorRegistryComm->createObjectAdapter("IcePack.Registry.LocatorRegistry");    
@@ -252,8 +252,8 @@ IcePack::Registry::start(bool nowarn)
     _locatorComm = Ice::initializeWithProperties(argc, argv, _communicator->getProperties());
     _locatorComm->getProperties()->setProperty("Ice.Warn.Leaks", "0");
     _locatorComm->getProperties()->setProperty(
-	"Ice.ServerThreadPool.Size", 
-	properties->getPropertyWithDefault("IcePack.Registry.Locator.ServerThreadPool.Size", "6"));
+	"Ice.ThreadPool.Server.Size", 
+	properties->getPropertyWithDefault("IcePack.Registry.Locator.ThreadPool.Server.Size", "6"));
 
     Ice::ObjectAdapterPtr locatorAdapter = _locatorComm->createObjectAdapter("IcePack.Registry.Locator");
     
@@ -269,8 +269,8 @@ IcePack::Registry::start(bool nowarn)
     //
     _adminComm = Ice::initializeWithProperties(argc, argv, _communicator->getProperties());
     _adminComm->getProperties()->setProperty(
-	"Ice.ServerThreadPool.Size", 
-	properties->getPropertyWithDefault("IcePack.Registry.Admin.ServerThreadPool.Size", "2"));
+	"Ice.ThreadPool.Server.Size", 
+	properties->getPropertyWithDefault("IcePack.Registry.Admin.ThreadPool.Server.Size", "2"));
 
     properties->setProperty("IcePack.Registry.Admin.AdapterId", "IcePack.Registry.Admin");
     Ice::ObjectAdapterPtr adminAdapter = _communicator->createObjectAdapter("IcePack.Registry.Admin");

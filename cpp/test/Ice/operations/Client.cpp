@@ -21,8 +21,8 @@ using namespace std;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
-    Test::MyClassPrx myClass = allTests(communicator);
+    Test::MyClassPrx allTests(const Ice::CommunicatorPtr&, bool);
+    Test::MyClassPrx myClass = allTests(communicator, false);
 
     cout << "testing server shutdown... " << flush;
     myClass->shutdown();
@@ -47,6 +47,9 @@ main(int argc, char* argv[])
 
     try
     {
+	Ice::PropertiesPtr properties = Ice::getDefaultProperties();
+	properties->setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
+
 	communicator = Ice::initialize(argc, argv);
 	status = run(argc, argv, communicator);
     }

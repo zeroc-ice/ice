@@ -26,6 +26,7 @@
 #include <Ice/ThreadPoolF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
+#include <Ice/OutgoingAsyncF.h>
 #include <Ice/DefaultsAndOverridesF.h>
 #include <Ice/EventHandler.h>
 
@@ -51,11 +52,11 @@ public:
     void activate();
     void incUsageCount();
     void decUsageCount();
-    void prepareRequest(Outgoing*);
+    void prepareRequest(BasicStream*);
     void sendRequest(Outgoing*, bool, bool);
-    void removeRequest(Outgoing*);
-    void prepareBatchRequest(Outgoing*);
-    void finishBatchRequest(Outgoing*);
+    void sendAsyncRequest(const OutgoingAsyncPtr&, bool);
+    void prepareBatchRequest(BasicStream*);
+    void finishBatchRequest(BasicStream*);
     void abortBatchRequest();
     void flushBatchRequest(bool);
     int timeout() const;
@@ -111,9 +112,13 @@ private:
     const ThreadPoolPtr _clientThreadPool;
     const ThreadPoolPtr _serverThreadPool;
     const bool _warn;
+    const std::vector< ::Ice::Byte> _requestHdr;
+    const std::vector< ::Ice::Byte> _requestBatchHdr;
     ::Ice::Int _nextRequestId;
     std::map< ::Ice::Int, Outgoing*> _requests;
     std::map< ::Ice::Int, Outgoing*>::iterator _requestsHint;
+    std::map< ::Ice::Int, OutgoingAsyncPtr> _asyncRequests;
+    std::map< ::Ice::Int, OutgoingAsyncPtr>::iterator _asyncRequestsHint;
     std::auto_ptr< ::Ice::LocalException> _exception;
     BasicStream _batchStream;
     int _responseCount;

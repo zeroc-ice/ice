@@ -265,12 +265,6 @@ IceInternal::traceReply(const char* heading, const BasicStream& str, const ::Ice
 		break;
 	    }
 
-	    case DispatchLocationForward:
-	    {
-		s << "(location forward)";
-		break;
-	    }
-
 	    case DispatchObjectNotExist:
 	    case DispatchFacetNotExist:
 	    case DispatchOperationNotExist:

@@ -83,7 +83,6 @@ private:
 	StateUnsent,
 	StateInProgress,
 	StateOK,
-	StateLocationForward,
 	StateUserException,
 	StateLocalException,
     } _state;

@@ -171,6 +171,12 @@ Slice::Contained::updateIncludeLevel()
     _includeLevel = min(_includeLevel, _unit->currentIncludeLevel());
 }
 
+bool
+Slice::Contained::hasMetaData(const string& meta) const
+{
+    return find(_metaData.begin(), _metaData.end(), meta) != _metaData.end();
+}
+
 list<string>
 Slice::Contained::getMetaData() const
 {
@@ -706,8 +712,8 @@ Slice::Container::createEnumerator(const string& name)
     return p;
 }
 
-ConstDefPtr
-Slice::Container::createConstDef(const string name, const TypePtr& constType,
+ConstPtr
+Slice::Container::createConst(const string name, const TypePtr& constType,
 	                         const SyntaxTreeBasePtr& literalType, const string& value)
 {
     checkPrefix(name);
@@ -715,7 +721,7 @@ Slice::Container::createConstDef(const string name, const TypePtr& constType,
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
-	ConstDefPtr p = ConstDefPtr::dynamicCast(matches.front());
+	ConstPtr p = ConstPtr::dynamicCast(matches.front());
 	if(p)
 	{
 	    if(_unit->ignRedefs())
@@ -742,7 +748,7 @@ Slice::Container::createConstDef(const string name, const TypePtr& constType,
     //
     // Check that the constant type is legal
     //
-    if(!ConstDef::isLegalType(name, constType, _unit))
+    if(!Const::isLegalType(name, constType, _unit))
     {
 	return 0;
     }
@@ -750,7 +756,7 @@ Slice::Container::createConstDef(const string name, const TypePtr& constType,
     //
     // Check that the type of the constant is compatible with the type of the initializer
     //
-    if(!ConstDef::typesAreCompatible(name, constType, literalType, value, _unit))
+    if(!Const::typesAreCompatible(name, constType, literalType, value, _unit))
     {
 	return 0;
     }
@@ -758,12 +764,12 @@ Slice::Container::createConstDef(const string name, const TypePtr& constType,
     //
     // Check that the initializer is in range
     //
-    if(!ConstDef::isInRange(name, constType, value, _unit))
+    if(!Const::isInRange(name, constType, value, _unit))
     {
 	return 0;
     }
 
-    ConstDefPtr p = new ConstDef(this, name, constType, value);
+    ConstPtr p = new Const(this, name, constType, value);
     _contents.push_back(p);
     return p;
 }
@@ -1204,7 +1210,7 @@ Slice::Container::hasOtherConstructedOrExceptions() const
 	    return true;
 	}
 
-	if(ConstDefPtr::dynamicCast(*p))
+	if(ConstPtr::dynamicCast(*p))
 	{
 	    return true;
 	}
@@ -1214,6 +1220,26 @@ Slice::Container::hasOtherConstructedOrExceptions() const
 	{
 	    return true;
 	}
+    }
+
+    return false;
+}
+
+bool
+Slice::Container::hasContentsWithMetaData(const string& meta) const
+{
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+	if((*p)->hasMetaData(meta))
+	{
+	    return true;
+	}
+
+	ContainerPtr container = ContainerPtr::dynamicCast(*p);
+	if(container && container->hasContentsWithMetaData(meta))
+	{
+	    return true;
+	}	    
     }
 
     return false;
@@ -2874,48 +2900,48 @@ Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name)
 }
 
 // ----------------------------------------------------------------------
-// ConstDef
+// Const
 // ----------------------------------------------------------------------
 
 TypePtr
-Slice::ConstDef::type() const
+Slice::Const::type() const
 {
     return _type;
 }
 
 string
-Slice::ConstDef::value() const
+Slice::Const::value() const
 {
     return _value;
 }
 
 Contained::ContainedType
-Slice::ConstDef::containedType() const
+Slice::Const::containedType() const
 {
     return ContainedTypeConstant;
 }
 
 bool
-Slice::ConstDef::uses(const ContainedPtr& contained) const
+Slice::Const::uses(const ContainedPtr& contained) const
 {
     ContainedPtr contained2 = ContainedPtr::dynamicCast(_type);
     return (contained2 && contained2 == contained);
 }
 
 string
-Slice::ConstDef::kindOf() const
+Slice::Const::kindOf() const
 {
     return "constant";
 }
 
 void
-Slice::ConstDef::visit(ParserVisitor* visitor)
+Slice::Const::visit(ParserVisitor* visitor)
 {
-    visitor->visitConstDef(this);
+    visitor->visitConst(this);
 }
 
 bool
-Slice::ConstDef::isLegalType(const string& name, const TypePtr& constType, const UnitPtr& unit)
+Slice::Const::isLegalType(const string& name, const TypePtr& constType, const UnitPtr& unit)
 {
     if(constType == 0)
     {
@@ -2960,7 +2986,7 @@ Slice::ConstDef::isLegalType(const string& name, const TypePtr& constType, const
 }
 
 bool
-Slice::ConstDef::typesAreCompatible(const string& name, const TypePtr& constType,
+Slice::Const::typesAreCompatible(const string& name, const TypePtr& constType,
 				    const SyntaxTreeBasePtr& literalType, const string& value,
 				    const UnitPtr& unit)
 {
@@ -3050,7 +3076,7 @@ Slice::ConstDef::typesAreCompatible(const string& name, const TypePtr& constType
 }
 
 bool
-Slice::ConstDef::isInRange(const string& name, const TypePtr& constType, const string& value,
+Slice::Const::isInRange(const string& name, const TypePtr& constType, const string& value,
 	                   const UnitPtr& unit)
 {
     BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
@@ -3103,7 +3129,7 @@ Slice::ConstDef::isInRange(const string& name, const TypePtr& constType, const s
     return true; // Everything else is either in range or doesn't need checking
 }
 
-Slice::ConstDef::ConstDef(const ContainerPtr& container, const string& name,
+Slice::Const::Const(const ContainerPtr& container, const string& name,
 	                  const TypePtr& type, const string& value) :
     Contained(container, name),
     SyntaxTreeBase(container->unit()), _type(type), _value(value)
@@ -3857,7 +3883,7 @@ Slice::Unit::usesConsts() const
     {
 	for(ContainedList::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
 	{
-	    ConstDefPtr cd = ConstDefPtr::dynamicCast(*q);
+	    ConstPtr cd = ConstPtr::dynamicCast(*q);
 	    if(cd)
 	    {
 		return true;

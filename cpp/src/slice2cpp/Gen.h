@@ -68,7 +68,7 @@ private:
 	virtual void visitSequence(const SequencePtr&);
 	virtual void visitDictionary(const DictionaryPtr&);
 	virtual void visitEnum(const EnumPtr&);
-	virtual void visitConstDef(const ConstDefPtr&);
+	virtual void visitConst(const ConstPtr&);
 	virtual void visitDataMember(const DataMemberPtr&);
 
     private:
@@ -291,6 +291,24 @@ private:
         // Generate code to return a dummy value
         //
         void writeReturn(::IceUtil::Output&, const TypePtr&);
+    };
+
+    class AsyncVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    {
+    public:
+
+	AsyncVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
+
+	virtual bool visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual void visitOperation(const OperationPtr&);
+
+    private:
+
+	::IceUtil::Output& H;
+	::IceUtil::Output& C;
+
+	std::string _dllExport;
     };
 };
 
