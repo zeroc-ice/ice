@@ -15,13 +15,23 @@ public class Client
     menu()
     {
         System.out.println(
-            "usage:\n" +
-	    "s: send byte sequence\n" +
-	    "o: send byte sequence as oneway\n" +
-	    "r: receive byte sequence\n" +
-	    "e: echo (send and receive) byte sequence\n" +
-	    "x: exit\n" +
-            "?: help\n");
+        "usage:\n" +
+        "\n" +
+        "toggle type of data to send:\n" +
+        "1: sequence of bytes (default)\n" +
+        "2: sequence of strings (\"hello\")\n" +
+        "3: sequence of structs with a string (\"hello\") and a double\n" +
+        "\n" +
+        "select test to run:\n" +
+        "t: Send sequence as twoway\n" +
+        "o: Send sequence as oneway\n" +
+        "r: Receive sequence\n" +
+        "e: Echo (send and receive) sequence\n" +
+        "\n" +
+        "other commands:\n" +
+        "s: shutdown server\n" +
+        "x: exit\n" +
+        "?: help\n");
     }
 
     private static int
@@ -45,11 +55,28 @@ public class Client
         }
 	ThroughputPrx throughputOneway = ThroughputPrxHelper.uncheckedCast(throughput.ice_oneway());
 
-        byte[] seq = new byte[seqSize.value];
+        byte[] byteSeq = new byte[ByteSeqSize.value];
+
+	String[] stringSeq = new String[StringSeqSize.value];
+	for(int i = 0; i < StringSeqSize.value; ++i)
+	{
+	    stringSeq[i] = "hello";
+	}
+
+	StringDouble[] structSeq = new StringDouble[StringDoubleSeqSize.value];
+	for(int i = 0; i < StringDoubleSeqSize.value; ++i)
+	{
+	    structSeq[i] = new StringDouble();
+	    structSeq[i].s = "hello";
+	    structSeq[i].d = 3.14;
+	}
 
 	menu();
 
         java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+
+	char currentType = '1';
+	int seqSize = ByteSeqSize.value;
 
         String line = null;
         do
@@ -70,13 +97,41 @@ public class Client
 		long tmsec = System.currentTimeMillis();
 		final int repetitions = 100;
 
-                if(line.equals("s") || line.equals("o") || line.equals("r") || line.equals("e"))
+		if(line.equals("1") || line.equals("2") || line.equals("3"))
+		{
+		    currentType = line.charAt(0);
+
+		    switch(currentType)
+		    {
+		        case '1':
+			{
+			    System.out.println("using byte sequences");
+			    seqSize = ByteSeqSize.value;
+			    break;
+			}
+
+			case '2':
+			{
+			    System.out.println("using string sequences");
+			    seqSize = StringSeqSize.value;
+			    break;
+			}
+
+			case '3':
+			{
+			    System.out.println("using struct sequences");
+			    seqSize = StringDoubleSeqSize.value;
+			    break;
+			}
+		    }
+		}
+                else if(line.equals("t") || line.equals("o") || line.equals("r") || line.equals("e"))
                 {
 		    char c = line.charAt(0);
 
 		    switch(c)
 		    {
-			case 's':
+			case 't':
 			case 'o':
 			{
 			    System.out.print("sending");
@@ -96,7 +151,29 @@ public class Client
 			}
 		    }
 		    
-		    System.out.print(" " + repetitions + " sequences of size " + seqSize.value);
+		    System.out.print(" " + repetitions);
+		    switch(currentType)
+		    {
+		        case '1':
+			{
+			    System.out.print(" byte");
+			    break;
+			}
+
+		        case '2':
+			{
+			    System.out.print(" string");
+			    break;
+			}
+
+		        case '3':
+			{
+			    System.out.print(" struct");
+			    break;
+			}
+		    }
+		    
+		    System.out.print(" sequences of size " + seqSize);
 		    
 		    if(c == 'o')
 		    {
@@ -107,29 +184,98 @@ public class Client
 		    
 		    for(int i = 0; i < repetitions; ++i)
 		    {
-			switch(c)
+		        switch(currentType)
 			{
-			    case 's':
+			    case '1':
 			    {
-				throughput.sendByteSeq(seq);
+			        switch(c)
+			        {
+			            case 't':
+			            {
+				        throughput.sendByteSeq(byteSeq);
+				        break;
+			            }
+			    
+			            case 'o':
+			            {
+				        throughputOneway.sendByteSeq(byteSeq);
+				        break;
+			            }
+			    
+			            case 'r':
+			            {
+				        throughput.recvByteSeq();
+				        break;
+			            }
+			    
+			            case 'e':
+			            {
+				        throughput.echoByteSeq(byteSeq);
+				        break;
+			            }
+			        }
 				break;
 			    }
-			    
-			    case 'o':
+
+			    case '2':
 			    {
-				throughputOneway.sendByteSeq(seq);
+			        switch(c)
+			        {
+			            case 't':
+			            {
+				        throughput.sendStringSeq(stringSeq);
+				        break;
+			            }
+			    
+			            case 'o':
+			            {
+				        throughputOneway.sendStringSeq(stringSeq);
+				        break;
+			            }
+			    
+			            case 'r':
+			            {
+				        throughput.recvStringSeq();
+				        break;
+			            }
+			    
+			            case 'e':
+			            {
+				        throughput.echoStringSeq(stringSeq);
+				        break;
+			            }
+			        }
 				break;
 			    }
-			    
-			    case 'r':
+
+			    case '3':
 			    {
-				throughput.recvByteSeq();
-				break;
-			    }
+			        switch(c)
+			        {
+			            case 't':
+			            {
+				        throughput.sendStructSeq(structSeq);
+				        break;
+			            }
 			    
-			    case 'e':
-			    {
-				throughput.echoByteSeq(seq);
+			            case 'o':
+			            {
+				        throughputOneway.sendStructSeq(structSeq);
+				        break;
+			            }
+			    
+			            case 'r':
+			            {
+				        throughput.recvStructSeq();
+				        break;
+			            }
+			    
+			            case 'e':
+			            {
+				        throughput.echoStructSeq(structSeq);
+				        break;
+			            }
+			        }
 				break;
 			    }
 			}
@@ -138,12 +284,38 @@ public class Client
 		    double dmsec = System.currentTimeMillis() - tmsec;
 		    System.out.println("time for " + repetitions + " sequences: " + dmsec  + "ms");
 		    System.out.println("time per sequence: " + dmsec / repetitions + "ms");
-		    double mbit = repetitions * seqSize.value * 8.0 / dmsec / 1000.0;
+		    int wireSize = 0;
+		    switch(currentType)
+		    {
+		        case '1':
+			{
+			    wireSize = 1;
+			    break;
+			}
+
+			case '2':
+			{
+			    wireSize = stringSeq[0].length();
+			    break;
+			}
+
+			case '3':
+			{
+			    wireSize = structSeq[0].s.length();
+			    wireSize += 8; // Size of double on the wire.
+			    break;
+			}
+		    }
+		    double mbit = repetitions * seqSize * wireSize * 8.0 / dmsec / 1000.0;
 		    if(c == 'e')
 		    {
 			mbit *= 2;
 		    }
 		    System.out.println("throughput: " + mbit + " MBit/s");
+		}
+		else if(line.equals("s"))
+		{
+		    throughput.shutdown();
 		}
 		else if(line.equals("x"))
                 {

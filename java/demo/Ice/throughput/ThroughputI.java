@@ -14,7 +14,32 @@ public final class ThroughputI extends _ThroughputDisp
     public
     ThroughputI()
     {
-        _seq = new byte[seqSize.value];
+        _byteSeq = new byte[ByteSeqSize.value];
+
+	_stringSeq = new String[StringSeqSize.value];
+	for(int i = 0; i < StringSeqSize.value; ++i)
+	{
+	    _stringSeq[i] = "hello";
+	}
+
+	_structSeq = new StringDouble[StringDoubleSeqSize.value];
+	for(int i = 0; i < StringDoubleSeqSize.value; ++i)
+	{
+	    _structSeq[i] = new StringDouble();
+	    _structSeq[i].s = "hello";
+	    _structSeq[i].d = 3.14;
+	}
+    }
+
+    public void
+    sendByteSeq(byte[] seq, Ice.Current current)
+    {
+    }
+
+    public byte[]
+    recvByteSeq(Ice.Current current)
+    {
+        return _byteSeq;
     }
 
     public byte[]
@@ -23,16 +48,47 @@ public final class ThroughputI extends _ThroughputDisp
         return seq;
     }
 
-    public byte[]
-    recvByteSeq(Ice.Current current)
+    public void
+    sendStringSeq(String[] seq, Ice.Current current)
     {
-        return _seq;
+    }
+
+    public String[]
+    recvStringSeq(Ice.Current current)
+    {
+        return _stringSeq;
+    }
+
+    public String[]
+    echoStringSeq(String[] seq, Ice.Current current)
+    {
+        return seq;
     }
 
     public void
-    sendByteSeq(byte[] seq, Ice.Current current)
+    sendStructSeq(StringDouble[] seq, Ice.Current current)
     {
     }
 
-    private byte[] _seq;
+    public StringDouble[]
+    recvStructSeq(Ice.Current current)
+    {
+        return _structSeq;
+    }
+
+    public StringDouble[]
+    echoStructSeq(StringDouble[] seq, Ice.Current current)
+    {
+        return seq;
+    }
+
+    public void
+    shutdown(Ice.Current current)
+    {
+        current.adapter.getCommunicator().shutdown();
+    }
+
+    private byte[] _byteSeq;
+    private String[] _stringSeq;
+    private StringDouble[] _structSeq;
 }
