@@ -1,7 +1,7 @@
 // **********************************************************************
 //
 // Copyright (c) 2001
-// MutableRealms, Inc.
+// Mutable Realms, Inc.
 // Huntsville, AL, USA
 //
 // All Rights Reserved
@@ -451,7 +451,7 @@ Slice::Gen::printHeader()
 "<!--\n"
 "**********************************************************************\n"
 "Copyright (c) 2001\n"
-"MutableRealms, Inc.\n"
+"Mutable Realms, Inc.\n"
 "Huntsville, AL, USA\n"
 "\n"
 "All Rights Reserved\n"

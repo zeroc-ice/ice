@@ -1,7 +1,7 @@
 // **********************************************************************
 //
 // Copyright (c) 2001
-// MutableRealms, Inc.
+// Mutable Realms, Inc.
 // Huntsville, AL, USA
 //
 // All Rights Reserved
