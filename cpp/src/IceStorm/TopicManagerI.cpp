@@ -21,22 +21,44 @@ using namespace IceStorm;
 using namespace std;
 
 TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice::ObjectAdapterPtr& adapter,
-			     const TraceLevelsPtr& traceLevels, const Freeze::DBPtr& db) :
+			     const TraceLevelsPtr& traceLevels, const Freeze::DBEnvironmentPtr& dbEnv,
+			     const Freeze::DBPtr& db) :
     _communicator(communicator),
     _adapter(adapter),
     _traceLevels(traceLevels),
+    _dbEnv(dbEnv),
     _topics(db)
-
 {
     _flusher = new Flusher(_communicator, _traceLevels);
+    _factory = new SubscriberFactory(_traceLevels, _flusher);
 
     //
-    // Recreate each of the topics in the dictionary.
+    // Recreate each of the topics in the dictionary. If the topic
+    // database doesn't exist then the topic was previously destroyed,
+    // but not removed from the _topics dictionary. Normally this
+    // should only occur upon a crash.
     //
-    for (StringBoolDict::const_iterator p = _topics.begin(); p != _topics.end(); ++p)
+    StringBoolDict::iterator p = _topics.begin();
+    while (p != _topics.end())
     {
 	assert(_topicIMap.find(p->first) == _topicIMap.end());
-	installTopic("recreate", p->first);
+	try
+	{
+	    installTopic("recreate", p->first, false);
+	    ++p;
+	}
+	catch(const Freeze::DBNotFoundException& ex)
+	{
+	    if (_traceLevels->topicMgr > 0)
+	    {
+		ostringstream s;
+		s << ex;
+		_communicator->getLogger()->trace(_traceLevels->topicMgrCat, s.str());
+	    }
+	    StringBoolDict::iterator tmp = p;
+	    ++p;
+	    _topics.erase(tmp);
+	}
     }
 }
 
@@ -59,7 +81,7 @@ TopicManagerI::create(const string& name, const Ice::Current&)
         throw ex;
     }
 
-    installTopic("create", name);
+    installTopic("create", name, true);
     _topics.insert(make_pair(name, true));
 
     //
@@ -253,7 +275,7 @@ TopicManagerI::reap()
 }
 
 void
-TopicManagerI::installTopic(const std::string& message, const std::string& name)
+TopicManagerI::installTopic(const std::string& message, const std::string& name, bool create)
 {
     if (_traceLevels->topicMgr > 0)
     {
@@ -262,11 +284,16 @@ TopicManagerI::installTopic(const std::string& message, const std::string& name)
 	_communicator->getLogger()->trace(_traceLevels->topicMgrCat, s.str());
     }
 
+    // TODO: instance
+    // TODO: reserved names?
+    // TODO: failure? cleanup database?
+    Freeze::DBPtr db = _dbEnv->openDB(name, create);
+    
     //
     // Create topic implementation
     //
-    TopicIPtr topicI = new TopicI(_adapter, _traceLevels, _communicator->getLogger(), name, _flusher);
-
+    TopicIPtr topicI = new TopicI(_adapter, _traceLevels, name, _factory, db);
+    
     //
     // The identity is the name of the Topic.
     //

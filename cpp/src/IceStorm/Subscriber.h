@@ -11,61 +11,115 @@
 #ifndef SUBSCRIBER_H
 #define SUBSCRIBER_H
 
-#include <Ice/LoggerF.h>
+#include <Ice/Current.h> // For Ice::Context
+#include <Ice/Identity.h>
 
-#include <IceStorm/IceStorm.h> // For QoS (nasty!)
-#include <IceStorm/SubscriberF.h>
-#include <IceStorm/TraceLevelsF.h>
-#include <IceStorm/FlusherF.h>
-
-#include <list>
+#include <vector>
 
 namespace IceStorm
 {
 
-class Subscriber : public IceUtil::Shared
+//
+// Forward declarations.
+//
+class TraceLevels;
+typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+
+//
+// Note that at present this requires to copy the event which isn't
+// nice. If this indeed becomes a bottleneck then either the event can
+// carry a reference to the blob, context & op (while event itself
+// isn't copied), or the op, blob & context can be passed along as
+// arguments (or do copy on write, or some such trick).
+//
+struct Event
+{
+    bool forwarded;
+    int cost;
+    std::string op;
+    bool nonmutating;
+    std::vector< Ice::Byte> data;
+    Ice::Context context;
+};
+
+//
+// Subscriber interface.
+//
+class Subscriber : public virtual IceUtil::Shared
 {
 public:
 
-    Subscriber(const Ice::LoggerPtr&, const TraceLevelsPtr&, const FlusherPtr&, const QoS&, const Ice::ObjectPrx&);
+    Subscriber(const TraceLevelsPtr& traceLevels, const Ice::Identity&);
     ~Subscriber();
 
-    bool invalid() const;
+    virtual bool persistent() const = 0;
 
-    void unsubscribe();
+    //
+    // Subscriber state.
+    //
+    enum State
+    {
+	//
+	// The Subscriber is active
+	//
+	StateActive,
+	//
+	// The Subscriber encountered an error during event
+	// transmission
+	//
+	StateError,
+	//
+	// The Subscriber has been unsubscribed
+	//
+	StateUnsubscribed
+    };
 
-    void flush();
-    void publish(const std::string&, bool, const std::vector< ::Ice::Byte>&);
+    //
+    // This method is for ease of use with STL algorithms.
+    // Return _state != StateActive
+    //
+    bool inactive() const;
 
+    //
+    // Retrieve the state of the Subscriber.
+    //
+    State state() const;
+
+    //
+    // Retrieve the identity of the Subscriber.
+    //
     Ice::Identity id() const;
 
-    // TODO: should there be a global operator==?
-    bool operator==(const Subscriber&) const;
+    //
+    // Unsubscribe. Mark the state as Unsubscribed.
+    //
+    virtual void unsubscribe() = 0;
 
-private:
+    //
+    // Publish the given event. Mark the state as Error in the event
+    // of a problem.
+    //
+    virtual void publish(const Event&) = 0;
+
+protected:
 
     // Immutable
-    Ice::LoggerPtr _logger;
     TraceLevelsPtr _traceLevels; 
 
-    JTCMutex _invalidMutex;
-    bool _invalid;
+    JTCMutex _stateMutex;
+    State _state;
+
+private:
 
     //
     // This id is the full id of the subscriber for a particular topic
     // (that is <prefix>#<topicname>
     //
     // Immutable
-    std::string _id;
-
-    // Immutable
-    Ice::ObjectPrx _obj;
-
-    FlusherPtr _flusher;
+    Ice::Identity _id;
 };
 
-
-typedef std::list<SubscriberPtr> SubscriberList;
+typedef IceUtil::Handle<Subscriber> SubscriberPtr;
 
 } // End namespace IceStorm
 

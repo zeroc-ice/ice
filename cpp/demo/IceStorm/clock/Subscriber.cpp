@@ -49,15 +49,46 @@ Subscriber::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("ClockAdapter", "tcp");
-    ObjectPtr clock = new ClockI();
-    ObjectPrx object = adapter->add(clock, stringToIdentity("events#time"));
-
     //
-    // The set of topics to which to subscribe
+    // Gather the set of topics to subscribe to. It is either the set
+    // provided on the command line, or the topic "time".
     //
     IceStorm::StringSeq topics;
-    topics.push_back("time");
+    if (argc > 1)
+    {
+	for (int i = 1; i < argc; ++i)
+	{
+	    topics.push_back(argv[i]);
+	}
+    }
+    else
+    {
+	//
+	// The set of topics to which to subscribe
+	//
+	topics.push_back("time");
+    }
+
+    //
+    // Create the servant to receive the events. Then add the servant
+    // to the adapter for the given topics. Alternatively we could
+    // have used a ServantLocator for the same purpose. Note that any
+    // of the activated proxies will do since it the proxy is only a
+    // template from which the actual proxy is created by IceStorm.
+    //
+    ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("ClockAdapter", "tcp");
+    ObjectPtr clock = new ClockI();
+    ObjectPrx object;
+
+    assert(!topics.empty());
+    Ice::Identity ident;
+    ident.category = "events";
+
+    for (IceStorm::StringSeq::iterator p = topics.begin(); p != topics.end(); ++p)
+    {
+	ident.name = *p;
+	object = adapter->add(clock, ident);
+    }
 
     //
     // The requested quality of service. This requests "reliability" =

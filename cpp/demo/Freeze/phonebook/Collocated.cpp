@@ -45,8 +45,8 @@ PhoneBookCollocated::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& d
     PropertiesPtr properties = communicator()->getProperties();
     string value;
     
-    DBPtr dbPhoneBook = dbEnv->openDB("phonebook");
-    DBPtr dbContacts = dbEnv->openDB("contacts");
+    DBPtr dbPhoneBook = dbEnv->openDB("phonebook", true);
+    DBPtr dbContacts = dbEnv->openDB("contacts", true);
     
     //
     // Create an Evictor for contacts.
@@ -93,5 +93,9 @@ PhoneBookCollocated::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& d
     int runParser(int, char*[], const CommunicatorPtr&);
     int status = runParser(argc, argv, communicator());
     adapter->deactivate();
+
+    dbPhoneBook->remove();
+    dbContacts->remove();
+
     return status;
 }

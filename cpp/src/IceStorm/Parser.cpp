@@ -45,6 +45,7 @@ Parser::usage()
         "exit, quit                  Exit this program.\n"
         "create TOPICS               Add TOPICS.\n"
         "destroy TOPICS              Remove TOPICS.\n"
+        "link FROM TO COST           Link topics with the give COST.\n"
         "list                        List all server descriptions.\n"
         "shutdown                    Shut the IceStorm server down.\n";
 }
@@ -80,6 +81,60 @@ Parser::destroy(const list<string>& args)
 	    TopicPrx topic = _admin->retrieve(*i);
 	    topic->destroy();
 	}
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+Parser::link(const list<string>& _args)
+{
+    list<string> args = _args;
+
+    if (args.size() != 3)
+    {
+	error("`link' requires exactly three arguments (type `help' for more info)");
+	return;
+    }
+
+    try
+    {    
+	TopicPrx fromTopic;
+	TopicPrx toTopic;
+	
+	try
+	{
+	    fromTopic = _admin->retrieve(args.front());
+	}
+	catch(const IceStorm::NoSuchTopic&)
+	{
+	    ostringstream s;
+	    s << args.front() << ": topic doesn't exist";
+	    error(s.str());
+	    return;
+	}
+	args.pop_front();
+	
+	try
+	{
+	    toTopic = _admin->retrieve(args.front());
+	}
+	catch(const IceStorm::NoSuchTopic&)
+	{
+	    ostringstream s;
+	    s << args.front() << ": topic doesn't exist";
+	    error(s.str());
+	    return;
+	}
+	args.pop_front();
+
+	Ice::Int cost = atoi(args.front().c_str());
+	
+	fromTopic->link(toTopic, cost);
     }
     catch(const Exception& ex)
     {

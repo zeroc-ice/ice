@@ -25,9 +25,16 @@ OBJS		= IceStorm.o
 SOBJS		= TraceLevels.o \
 		  Flusher.o \
 		  Subscriber.o \
+		  OnewaySubscriber.o \
+		  OnewayBatchSubscriber.o \
+		  LinkSubscriber.o \
+		  SubscriberFactory.o \
 		  TopicI.o \
 		  TopicManagerI.o \
 		  StringBoolDict.o \
+		  IdentityLinkDict.o \
+		  LinkInfo.o \
+		  IceStormInternal.o \
 		  Server.o
 
 AOBJS		= Admin.o \
@@ -41,8 +48,8 @@ SRCS		= $(OBJS:.o=.cpp) \
 
 HDIR		= $(includedir)/IceStorm
 SDIR		= $(slicedir)/IceStorm
-SLICECMD	= $(SLICE2CPP) --include-dir IceStorm --dll-export ICE_STORM_API -I$(slicedir)
-SLICE2FREEZECMD = $(SLICE2FREEZE) --include-dir IceStorm
+SLICECMD	= $(SLICE2CPP) --include-dir IceStorm --dll-export ICE_STORM_API -I$(slicedir) -I..
+SLICE2FREEZECMD = $(SLICE2FREEZE) --include-dir IceStorm -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -74,12 +81,34 @@ $(HDIR)/IceStorm.h IceStorm.cpp: $(SDIR)/IceStorm.ice $(SLICE2CPP)
 clean::
 	rm -f $(HDIR)/IceStorm.h IceStorm.cpp
 
+IceStormInternal.h IceStormInternal.cpp: IceStormInternal.ice $(SLICE2CPP)
+	rm -f IceStormInternal.h IceStormInternal.cpp
+	$(SLICECMD) IceStormInternal.ice
+
+clean::
+	rm -f IceStormInternal.h IceStormInternal.cpp
+
 StringBoolDict.h StringBoolDict.cpp: $(SLICE2FREEZE)
 	rm -f StringBoolDict.h StringBoolDict.cpp
 	$(SLICE2FREEZECMD) --dict IceStorm::StringBoolDict,string,bool StringBoolDict
 
 clean::
 	rm -f StringBoolDict.h StringBoolDict.cpp
+
+LinkInfo.h LinkInfo.cpp: $(SLICE2CPP)
+	rm -f LinkInfo.h LinkInfo.cpp
+	$(SLICECMD) LinkInfo.ice
+
+clean::
+	rm -f LinkInfo.h LinkInfo.cpp
+
+IdentityLinkDict.h IdentityLinkDict.cpp: $(SLICE2FREEZE)
+	rm -f IdentityLinkDict.h IdentityLinkDict.cpp
+	$(SLICE2FREEZECMD) --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkInfo IdentityLinkDict \
+	LinkInfo.ice
+
+clean::
+	rm -f IdentityLinkDict.h IdentityLinkDict.cpp
 
 Grammar.cpp Grammar.h: Grammar.y
 	bison -dvt Grammar.y

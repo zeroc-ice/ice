@@ -11,55 +11,80 @@
 #ifndef TOPIC_I_H
 #define TOPIC_I_H
 
-#include <IceStorm/IceStorm.h>
-#include <IceStorm/TopicIF.h>
-#include <IceStorm/FlusherF.h>
-#include <IceStorm/TraceLevelsF.h>
+#include <IceStorm/IceStormInternal.h>
+#include <IceStorm/IdentityLinkDict.h>
+
+#include <IceStorm/SubscriberFactory.h>
 
 namespace IceStorm
 {
 
+//
+// Forward declarations.
+//
 class TopicSubscribers;
 typedef IceUtil::Handle<TopicSubscribers> TopicSubscribersPtr;
 
-class TopicI : public Topic
+class TraceLevels;
+typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+
+class SubscriberFactory;
+typedef IceUtil::Handle<SubscriberFactory> SubscriberFactoryPtr;
+
+//
+// TopicInternal implementation.
+//
+class TopicI : public TopicInternal, public JTCRecursiveMutex
 {
 public:
 
-    TopicI(const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&, const Ice::LoggerPtr&, const std::string&,
-	   const FlusherPtr&);
+    TopicI(const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&, const std::string&, const SubscriberFactoryPtr&,
+	   const Freeze::DBPtr&);
     ~TopicI();
 
     virtual std::string getName(const Ice::Current&);
     virtual Ice::ObjectPrx getPublisher(const Ice::Current&);
     virtual void destroy(const Ice::Current&);
+    virtual void link(const TopicPrx&, Ice::Int, const Ice::Current&);
+    virtual void unlink(const TopicPrx&, const Ice::Current&);
+
+    virtual TopicLinkPrx getLinkProxy(const Ice::Current&);
 
     // Internal methods
     bool destroyed() const;
     void subscribe(const Ice::ObjectPrx&, const std::string&, const QoS&);
     void unsubscribe(const std::string&);
 
+    void reap();
+
 private:
 
+    //
+    // Immutable members.
+    //
     Ice::ObjectAdapterPtr _adapter;
     TraceLevelsPtr _traceLevels;
-    Ice::LoggerPtr _logger;
+    std::string _name; // The topic name
+    SubscriberFactoryPtr _factory;
 
-    // Immutable
-    std::string _name;
+    Ice::ObjectPtr _publisher; // Publisher & associated proxy
+    Ice::ObjectPrx _publisherPrx;
 
-    FlusherPtr _flusher;
+    Ice::ObjectPtr _link; // TopicLink & associated proxy
+    TopicLinkPrx _linkPrx;
 
-    JTCMutex _destroyedMutex;
-    bool _destroyed;
+    //
+    // Mutable members. Protected by *this
+    //
+    bool _destroyed; // Has this Topic been destroyed?
 
-    TopicSubscribersPtr _subscribers;
+    TopicSubscribersPtr _subscribers; // Set of Subscribers
 
-    // Immutable
-    Ice::ObjectPtr _publisher;
-    Ice::ObjectPrx _obj;
-    //Ice::ServantLocatorPtr _locator;
+    IdentityLinkDict _links; // The database of Topic links
+    Freeze::DBPtr _linksDb;
 };
+
+typedef IceUtil::Handle<TopicI> TopicIPtr;
 
 } // End namespace IceStorm
 

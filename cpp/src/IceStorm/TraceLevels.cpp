@@ -14,7 +14,7 @@
 using namespace std;
 using namespace IceStorm;
 
-TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties) :
+TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, const Ice::LoggerPtr& thelogger) :
     topicMgr(0),
     topicMgrCat("TopicManager"),
     topic(0),
@@ -22,7 +22,8 @@ TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties) :
     flush(0),
     flushCat("Flush"),
     subscriber(0),
-    subscriberCat("Subscriber")
+    subscriberCat("Subscriber"),
+    logger(thelogger)
 {
     string value;
     const string keyBase = "IceStorm.Trace.";

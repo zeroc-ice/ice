@@ -57,6 +57,28 @@ interface Topic
 
     /**
      *
+     * Create a link to the given Topic with the cost. All events
+     * flowing through this topic will flow to the given Topic
+     * [linkTo].
+     *
+     * @param linkTo The topic to link to.
+     *
+     * @param cost The cost to the linked topic.
+     *
+     **/
+    void link(Topic* linkTo, int cost);
+
+    /**
+     *
+     * Destroy the link from this topic to the given Topic [linkTo].
+     *
+     * @param link The topic to destroy the link to.
+     *
+     **/
+    void unlink(Topic* linkTo);
+
+    /**
+     *
      * Destroy the Topic.
      *
      **/

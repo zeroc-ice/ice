@@ -108,6 +108,10 @@ NL	[\n]
     return ICE_STORM_LIST;
 }
 
+"link" {
+    return ICE_STORM_LINK;
+}
+
 "shutdown" {
     return ICE_STORM_SHUTDOWN;
 }

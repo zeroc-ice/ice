@@ -10,8 +10,10 @@
 
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
-#include <Single.h>
+#include <Event.h>
 #include <fstream>
+
+#include <TestCommon.h>
 
 #ifdef WIN32
 #   include <io.h>
@@ -21,30 +23,35 @@ using namespace std;
 using namespace Ice;
 using namespace IceStorm;
 
-class SingleI : public Single
+class EventI : public Event
 {
 public:
 
-    SingleI(const CommunicatorPtr& communicator) :
+    EventI(const CommunicatorPtr& communicator) :
 	_communicator(communicator),
 	_count(0)
     {
     }
 
-    virtual void event(const Current&)
+    virtual void pub(const string& data, const Ice::Current&)
     {
-	++_count;
-	if (_count == 10)
+	if (data == "shutdown")
 	{
 	    _communicator->shutdown();
+	    return;
 	}
+	++_count;
     }
+
+    int count() const { return _count; }
 
 private:
 
     CommunicatorPtr _communicator;
     int _count;
 };
+
+typedef IceUtil::Handle<EventI> EventIPtr;
 
 void
 createLock(const string& name)
@@ -90,15 +97,24 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default");
-    ObjectPtr single = new SingleI(communicator);
-    ObjectPrx object = adapter->add(single, stringToIdentity("events#single"));
+    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SubscriberAdapter", "default");
+    EventIPtr eventFed1 = new EventI(communicator);
+    EventIPtr eventFed2 = new EventI(communicator);
+    EventIPtr eventFed3 = new EventI(communicator);
+    //
+    // Any of the objects will do as long as they are all activated
+    //
+    ObjectPrx object = adapter->add(eventFed1, stringToIdentity("events#fed1"));
+    adapter->add(eventFed2, stringToIdentity("events#fed2"));
+    adapter->add(eventFed3, stringToIdentity("events#fed3"));
 
     //
     // The set of topics to which to subscribe
     //
     IceStorm::StringSeq topics;
-    topics.push_back("single");
+    topics.push_back("fed1");
+    topics.push_back("fed2");
+    topics.push_back("fed3");
 
     IceStorm::QoS qos;
     //TODO: qos["reliability"] = "batch";
@@ -115,6 +131,14 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     adapter->activate();
 
     communicator->waitForShutdown();
+
+    //cout << "eventFed1->count(): " << eventFed1->getCount() << endl;
+    //cout << "eventFed2->count(): " << eventFed2->getCount() << endl;
+    //cout << "eventFed3->count(): " << eventFed3->getCount() << endl;
+
+    test(eventFed1->count() == 30);
+    test(eventFed2->count() == 40);
+    test(eventFed3->count() == 30);
 
     deleteLock(lockfile);
 

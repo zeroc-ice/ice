@@ -13,7 +13,7 @@
 
 #include <IceUtil/Shared.h>
 #include <Ice/PropertiesF.h>
-#include <IceStorm/TraceLevelsF.h>
+#include <Ice/LoggerF.h>
 
 namespace IceStorm
 {
@@ -22,7 +22,7 @@ class TraceLevels : public ::IceUtil::Shared
 {
 public:
 
-    TraceLevels(const ::Ice::PropertiesPtr&);
+    TraceLevels(const ::Ice::PropertiesPtr&, const Ice::LoggerPtr&);
     virtual ~TraceLevels();
 
     const int topicMgr;
@@ -36,8 +36,12 @@ public:
 
     const int subscriber;
     const char* subscriberCat;
+
+    Ice::LoggerPtr logger;
 };
 
-}
+typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+
+} // End namespace IceStorm
 
 #endif

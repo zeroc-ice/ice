@@ -45,6 +45,7 @@ Freeze::checkBerkeleyDBReturn(int ret, const string& prefix, const string& op)
 	    throw ex;
 	}
 
+        case ENOENT: // The case that db->open was called with a non-existent database
 	case DB_NOTFOUND:
 	{
 	    DBNotFoundException ex;
@@ -122,7 +123,7 @@ Freeze::DBEnvironmentI::getCommunicator()
 }
 
 DBPtr
-Freeze::DBEnvironmentI::openDB(const string& name)
+Freeze::DBEnvironmentI::openDB(const string& name, bool create)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
 
@@ -144,7 +145,24 @@ Freeze::DBEnvironmentI::openDB(const string& name)
     ::DB* db;
     checkBerkeleyDBReturn(db_create(&db, _dbEnv, 0), _errorPrefix, "db_create");
     
-    return new DBI(_communicator, this, db, name);
+    try
+    {
+	return new DBI(_communicator, this, db, name, create);
+    }
+    catch(...)
+    {
+	//
+	// Cleanup after a failure to open the database. Ignore any
+	// errors.
+	//
+	p = _dbMap.find(name);
+	if (p != _dbMap.end())
+	{
+	    _dbMap.erase(p);
+	}
+	db->close(db, 0);
+	throw;
+    }
 }
 
 DBTransactionPtr
@@ -197,6 +215,26 @@ Freeze::DBEnvironmentI::remove(const string& name)
     JTCSyncT<JTCRecursiveMutex> sync(*this);
 
     _dbMap.erase(name);
+}
+
+void
+Freeze::DBEnvironmentI::eraseDB(const string& name)
+{
+    JTCSyncT<JTCRecursiveMutex> sync(*this);
+
+    //
+    // The database should not be open.
+    //
+    assert(_dbMap.find(name) == _dbMap.end());
+
+    ::DB* db;
+
+    checkBerkeleyDBReturn(db_create(&db, _dbEnv, 0), _errorPrefix, "db_create");
+
+    //
+    // Any failure in remove will cause the database to be closed.
+    //
+    checkBerkeleyDBReturn(db->remove(db, name.c_str(), 0, 0), _errorPrefix, "DB->remove");
 }
 
 DBEnvironmentPtr
@@ -552,7 +590,7 @@ DBCursorI::close()
 }
 
 Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvironmentIPtr& dbEnvObj, ::DB* db,
-		 const string& name) :
+		 const string& name, bool create) :
     _communicator(communicator),
     _trace(0),
     _dbEnvObj(dbEnvObj),
@@ -577,7 +615,8 @@ Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvironmentIPtr& d
 	_communicator->getLogger()->trace("DB", s.str());
     }
     
-    checkBerkeleyDBReturn(_db->open(_db, _name.c_str(), 0, DB_BTREE, DB_CREATE, FREEZE_DB_MODE), _errorPrefix,
+    u_int32_t flags = (create) ? DB_CREATE : 0;
+    checkBerkeleyDBReturn(_db->open(_db, _name.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE), _errorPrefix,
 			  "DB->open");
 
     _dbEnvObj->add(_name, this);
@@ -860,6 +899,44 @@ Freeze::DBI::close()
     _dbEnvObj->remove(_name);
     _dbEnvObj = 0;
     _db = 0;
+}
+
+void
+Freeze::DBI::remove()
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (!_db)
+    {
+	return;
+    }
+
+    if (_trace >= 1)
+    {
+	ostringstream s;
+	s << "removing database \"" << _name << "\"";
+	_communicator->getLogger()->trace("DB", s.str());
+    }
+
+    //
+    // Remove first needs to close the database object. It's not
+    // possible to remove an open database.
+    //
+    checkBerkeleyDBReturn(_db->close(_db, 0), _errorPrefix, "DB->close");
+
+    //
+    // Take a copy of the DBEnvironment to make cleanup easier.
+    //
+    DBEnvironmentIPtr dbEnvCopy = _dbEnvObj;
+
+    _dbEnvObj->remove(_name);
+    _dbEnvObj = 0;
+    _db = 0;
+
+    //
+    // Ask the DBEnvironment to erase the database.
+    //
+    dbEnvCopy->eraseDB(_name);
 }
 
 EvictorPtr

@@ -12,22 +12,40 @@
 #define TOPIC_MANAGER_I_H
 
 #include <IceStorm/IceStorm.h>
-#include <IceStorm/TopicIF.h>
-#include <IceStorm/FlusherF.h>
-#include <IceStorm/TraceLevelsF.h>
 #include <IceStorm/StringBoolDict.h>
 
 namespace IceStorm
 {
+
+//
+// Forward declarations.
+//
+class TopicI;
+typedef IceUtil::Handle<TopicI> TopicIPtr;
+
+class TraceLevels;
+typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+
+class Flusher;
+typedef IceUtil::Handle<Flusher> FlusherPtr;
  
+class SubscriberFactory;
+typedef IceUtil::Handle<SubscriberFactory> SubscriberFactoryPtr;
+
+//
+// Map of TopicImplementation objects.
+//
 typedef std::map<std::string, TopicIPtr> TopicIMap;
 
+//
+// TopicManager implementation.
+//
 class TopicManagerI : public TopicManager, public JTCMutex
 {
 public:
 
     TopicManagerI(const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&,
-		  const Freeze::DBPtr&);
+		  const Freeze::DBEnvironmentPtr&, const Freeze::DBPtr&);
     ~TopicManagerI();
 
     virtual TopicPrx create(const std::string&, const Ice::Current&);
@@ -42,13 +60,15 @@ public:
 
 private:
 
-    void installTopic(const std::string&, const std::string&);
+    void installTopic(const std::string&, const std::string&, bool);
 
     Ice::CommunicatorPtr _communicator;
     Ice::ObjectAdapterPtr _adapter;
     TraceLevelsPtr _traceLevels;
     TopicIMap _topicIMap;
     FlusherPtr _flusher;
+    SubscriberFactoryPtr _factory;
+    Freeze::DBEnvironmentPtr _dbEnv;
     StringBoolDict _topics;
 };
 

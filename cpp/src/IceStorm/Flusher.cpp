@@ -8,14 +8,16 @@
 //
 // **********************************************************************
 
+
 #include <Ice/Ice.h>
 #include <Ice/Functional.h>
 
-#include <IceStorm/Flusher.h>
-#include <IceStorm/Subscriber.h>
+#include <IceStorm/Flushable.h>
 #include <IceStorm/TraceLevels.h>
+#include <IceStorm/Flusher.h>
 
 #include <algorithm>
+#include <list>
 
 using namespace IceStorm;
 using namespace std;
@@ -23,13 +25,14 @@ using namespace std;
 namespace IceStorm
 {
 
+typedef std::list<FlushablePtr> FlushableList;
+
 class FlusherThread : public JTCThread, public JTCMonitor
 {
 public:
 
     FlusherThread(const Ice::CommunicatorPtr& communicator, const TraceLevelsPtr& traceLevels) :
 	_traceLevels(traceLevels),
-	_logger(communicator->getLogger()),
         _destroy(false)
     {
 	Ice::PropertiesPtr properties = communicator->getProperties();
@@ -97,7 +100,7 @@ public:
     // this issue is ignored.
     //
     void
-    add(const SubscriberPtr& subscriber)
+    add(const FlushablePtr& subscriber)
     {
 	JTCSyncT<JTCMonitor> sync(*this);
 	bool isEmpty = _subscribers.empty();
@@ -114,7 +117,7 @@ public:
     }
 
     void
-    remove(const SubscriberPtr& subscriber)
+    remove(const FlushablePtr& subscriber)
     {
 	JTCSyncT<JTCMonitor> sync(*this);
 	_subscribers.remove(subscriber);
@@ -139,11 +142,11 @@ private:
         // remove_if doesn't work with handle types. remove_if also
         // isn't present in the STLport implementation
         //
-        // _subscribers.remove_if(IceUtil::constMemFun(&Subscriber::invalid));
+        // _subscribers.remove_if(IceUtil::constMemFun(&Flushable::inactive));
         //
         _subscribers.erase(remove_if(_subscribers.begin(), _subscribers.end(),
-				     IceUtil::constMemFun(&Subscriber::invalid)), _subscribers.end());
-	for_each(_subscribers.begin(), _subscribers.end(), IceUtil::voidMemFun(&Subscriber::flush));
+				     IceUtil::constMemFun(&Flushable::inactive)), _subscribers.end());
+	for_each(_subscribers.begin(), _subscribers.end(), IceUtil::voidMemFun(&Flushable::flush));
 
 	//
 	// Trace after the flush so that the correct number of objects
@@ -154,7 +157,7 @@ private:
 	    ostringstream s;
 	    s << _subscribers.size() << " object(s)";
 	    
-	    _logger->trace(_traceLevels->flushCat, s.str());
+	    _traceLevels->logger->trace(_traceLevels->flushCat, s.str());
 	}
     }
 
@@ -165,9 +168,8 @@ private:
     }
 
     TraceLevelsPtr _traceLevels;
-    Ice::LoggerPtr _logger;
 
-    SubscriberList _subscribers;
+    FlushableList _subscribers;
     bool _destroy;
     long _flushTime;
 };
@@ -196,13 +198,13 @@ Flusher::~Flusher()
 }
 
 void
-Flusher::add(const SubscriberPtr& subscriber)
+Flusher::add(const FlushablePtr& subscriber)
 {
     _thread->add(subscriber);
 }
 
 void
-Flusher::remove(const SubscriberPtr& subscriber)
+Flusher::remove(const FlushablePtr& subscriber)
 {
     _thread->remove(subscriber);
 }

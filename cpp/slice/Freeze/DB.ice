@@ -56,21 +56,28 @@ local interface DBEnvironment
      
     /**
      *
-     * Open and return a database object. If the database has been
-     * opened before, the previously returned database object is
-     * returned again.
+     * Open and return a database object. If the database does not
+     * exist and the [create] flag is false a DBNotFoundException is
+     * raised. If the database has been opened before, the previously
+     * returned database object is returned again.
      *
      * @param name The database name.
+     *
+     * @param create Flag that determines whether the database is
+     * created, if necessary.
      *
      * @return The database object.
      *
      * @throws DBException Raised if a database failure occurred.
      *
+     * @throws DBNotFoundException Raised if a database does not exist
+     * and the [create] flag is false.
+     *
      * @see DB
      * @see DB::close
      *
      **/
-    DB openDB(string name) throws DBException;
+    DB openDB(string name, bool create) throws DBException;
 
     /**
      *
@@ -461,15 +468,30 @@ local interface DB
     /**
      *
      * Close the database and destroy this database object. Subsequent
-     * calls to [close] have no effect.
+     * calls to [close] or [remove] have no effect.
      *
      * @throws DBException Raised if a database failure occurred.
      *
      * @see DBEnvironment::openDB
      * @see DBEnvironment::close
+     * @see remove
      *
      **/
     void close() throws DBException;
+
+    /**
+     *
+     * Remove the database and destroy this database
+     * object. Subsequent calls to [remove] or [close] have no effect.
+     *
+     * @throws DBException Raised if a database failure occurred.
+     *
+     * @see DBEnvironment::openDB
+     * @see DBEnvironment::close
+     * @see close
+     *
+     **/
+    void remove() throws DBException;
 
     /**
      *

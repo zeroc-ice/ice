@@ -8,18 +8,12 @@
 //
 // **********************************************************************
 
-#ifndef SUBSCRIBER_F_H
-#define SUBSCRIBER_F_H
+#ifndef EVENT_ICE
+#define EVENT_ICE
 
-#include <IceUtil/Handle.h>
-
-namespace IceStorm
+interface Event
 {
-
-class Subscriber;
-
-typedef IceUtil::Handle<Subscriber> SubscriberPtr;
-
-} // End namespace IceStorm
+    void pub(string data);
+};
 
 #endif

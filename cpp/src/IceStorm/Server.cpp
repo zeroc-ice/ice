@@ -92,12 +92,12 @@ IceStorm::Server::runFreeze(int argc, char* argv[], const Freeze::DBEnvironmentP
 	}
     }
 
-    Freeze::DBPtr dbTopicManager = dbEnv->openDB("topicmanager");
+    Freeze::DBPtr dbTopicManager = dbEnv->openDB("topicmanager", true);
 
-    TraceLevelsPtr traceLevels = new TraceLevels(communicator()->getProperties());
+    TraceLevelsPtr traceLevels = new TraceLevels(communicator()->getProperties(), communicator()->getLogger());
     ObjectAdapterPtr adapter = communicator()->createObjectAdapterFromProperty("TopicManager",
 									       "IceStorm.TopicManager.Endpoints");
-    TopicManagerIPtr manager = new TopicManagerI(communicator(), adapter, traceLevels, dbTopicManager);
+    TopicManagerIPtr manager = new TopicManagerI(communicator(), adapter, traceLevels, dbEnv, dbTopicManager);
     adapter->add(manager, stringToIdentity("TopicManager"));
     adapter->activate();
 

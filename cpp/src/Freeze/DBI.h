@@ -38,7 +38,7 @@ public:
     virtual std::string getName();
     virtual ::Ice::CommunicatorPtr getCommunicator();
 
-    virtual DBPtr openDB(const std::string&);
+    virtual DBPtr openDB(const std::string&, bool);
 
     virtual DBTransactionPtr startTransaction();
 
@@ -46,10 +46,11 @@ public:
 
 private:
 
-    // DBI needs access to add and remove
+    // DBI needs access to add, remove & eraseDB
     friend class DBI;
     void add(const std::string&, const DBPtr&);
     void remove(const std::string&);
+    void eraseDB(const std::string&);
 
     ::Ice::CommunicatorPtr _communicator;
     int _trace;
@@ -116,7 +117,7 @@ class DBI : public DB, public JTCMutex
 {
 public:
     
-    DBI(const ::Ice::CommunicatorPtr&, const DBEnvironmentIPtr&, ::DB*, const std::string&);
+    DBI(const ::Ice::CommunicatorPtr&, const DBEnvironmentIPtr&, ::DB*, const std::string&, bool);
     virtual ~DBI();
 
     virtual std::string getName();
@@ -134,6 +135,7 @@ public:
     virtual void clear();
 
     virtual void close();
+    virtual void remove();
 
     virtual EvictorPtr createEvictor(EvictorPersistenceMode);
 

@@ -64,6 +64,7 @@ public:
     void create(const std::list<std::string>&);
     void destroy(const std::list<std::string>&);
     void listAll();
+    void link(const std::list<std::string>&);
     void shutdown();
 
     void getInput(char*, int&, int);

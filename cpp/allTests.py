@@ -35,6 +35,7 @@ tests = [ \
     "Freeze/dbmap", \
     "Freeze/complex", \
     "IceStorm/single", \
+    "IceStorm/federation", \
     ]
 
 #

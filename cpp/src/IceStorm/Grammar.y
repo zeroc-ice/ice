@@ -33,6 +33,7 @@ yyerror(const char* s)
 %token ICE_STORM_DESTROY
 %token ICE_STORM_LIST
 %token ICE_STORM_SHUTDOWN
+%token ICE_STORM_LINK
 %token ICE_STORM_STRING
 
 %%
@@ -77,6 +78,10 @@ command
 | ICE_STORM_DESTROY strings ';'
 {
     parser->destroy($2);
+}
+| ICE_STORM_LINK strings ';'
+{
+    parser->link($2);
 }
 | ICE_STORM_LIST ';'
 {

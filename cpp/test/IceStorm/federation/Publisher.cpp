@@ -10,7 +10,7 @@
 
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
-#include <Single.h>
+#include <Event.h>
 
 using namespace std;
 using namespace Ice;
@@ -36,10 +36,10 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    TopicPrx topic;
+    TopicPrx fed1;
     try
     {
-	topic = manager->retrieve("single");
+	fed1 = manager->retrieve("fed1");
     }
     catch(const NoSuchTopic& e)
     {
@@ -47,18 +47,87 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
 	
     }
-    assert(topic);
 
-    //
-    // Get a publisher object, create a oneway proxy and then cast to
-    // a Single object
-    //
-    ObjectPrx obj = topic->getPublisher();
+    TopicPrx fed2;
+    try
+    {
+	fed2 = manager->retrieve("fed2");
+    }
+    catch(const NoSuchTopic& e)
+    {
+	cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
+	return EXIT_FAILURE;
+	
+    }
+
+    TopicPrx fed3;
+    try
+    {
+	fed3 = manager->retrieve("fed3");
+    }
+    catch(const NoSuchTopic& e)
+    {
+	cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
+	return EXIT_FAILURE;
+	
+    }
+
+    ObjectPrx obj = fed1->getPublisher();
     obj = obj->ice_oneway();
-    SinglePrx single = SinglePrx::uncheckedCast(obj);
+    EventPrx eventFed1 = EventPrx::uncheckedCast(obj);
 
-    for (int i = 0; i < 10; ++i)
-	single->event();
+    obj = fed2->getPublisher();
+    obj = obj->ice_oneway();
+    EventPrx eventFed2 = EventPrx::uncheckedCast(obj);
+
+    obj = fed3->getPublisher();
+    obj = obj->ice_oneway();
+    EventPrx eventFed3 = EventPrx::uncheckedCast(obj);
+
+    Ice::Context context;
+    int i;
+    context["cost"] = "0";
+    for (i = 0; i < 10; ++i)
+    {
+	eventFed1->pub("fed1:0", context);
+    }
+
+    context["cost"] = "10";
+    for (i = 0; i < 10; ++i)
+    {
+	eventFed1->pub("fed1:10", context);
+    }
+
+    context["cost"] = "15";
+    for (i = 0; i < 10; ++i)
+    {
+	eventFed1->pub("fed1:15", context);
+    }
+
+    context["cost"] = "0";
+    for (i = 0; i < 10; ++i)
+    {
+	eventFed2->pub("fed2:0", context);
+    }
+
+    context["cost"] = "5";
+    for (i = 0; i < 10; ++i)
+    {
+	eventFed2->pub("fed2:5", context);
+    }
+
+    context["cost"] = "0";
+    for (i = 0; i < 10; ++i)
+    {
+	eventFed3->pub("fed3:0", context);
+    }
+
+    //
+    // Sleep for 2 seconds before shutting down.
+    //
+    sleep(2);
+
+    eventFed3->pub("shutdown");
 
     cout << "ok" << endl;
 

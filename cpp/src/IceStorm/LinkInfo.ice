@@ -8,17 +8,25 @@
 //
 // **********************************************************************
 
-#ifndef FLUSHER_F_H
-#define FLUSHER_F_H
+#ifndef LINK_INFO_ICE
+#define LINK_INFO_ICE
 
-#include <IceUtil/Handle.h>
+#include <IceStorm/IceStormInternal.ice>
 
-namespace IceStorm
+module IceStorm
 {
 
-class Flusher;
-typedef IceUtil::Handle<Flusher> FlusherPtr;
+/**
+ *
+ * Use to store persistent information on Topic federation.
+ *
+ **/
+struct LinkInfo
+{
+    TopicLink* obj;
+    int cost;
+};
 
-} // End namespace IceStorm
+}; // End module IceStorm
 
 #endif
