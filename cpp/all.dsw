@@ -138,12 +138,6 @@ Package=<4>
     Project_Dep_Name interfaceCOL
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name pickleR
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name pickleW
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name slice2cpp
     End Project Dependency
     Begin Project Dependency
@@ -592,42 +586,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name slice2freeze
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "pickleR"=.\demo\Ice\pickle\pickleR.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name compiler
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "pickleW"=.\demo\Ice\pickle\pickleW.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name compiler
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Ice
     End Project Dependency
 }}}
 

@@ -434,15 +434,6 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     C << eb;
 }
 
-void
-Slice::Gen::TypesVisitor::visitNative(const NativePtr& p)
-{
-    string name = p->name();
-
-    H << sp;
-    H << nl << "typedef ::IceNative::" << name << ' ' << name << ';';
-}
-
 Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& h, Output& c, const string& dllExport) :
     H(h), C(c), _dllExport(dllExport)
 {

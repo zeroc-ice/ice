@@ -252,14 +252,6 @@ using namespace Slice;
     return ICE_OP_KEYWORD;
 }
 
-"native" {
-    return ICE_NATIVE;
-}
-
-"native"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
 "sequence" {
     return ICE_SEQUENCE;
 }

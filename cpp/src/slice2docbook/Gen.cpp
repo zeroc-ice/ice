@@ -271,28 +271,6 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	end();
     }
 
-    NativeList natives = p->natives();
-    if (!natives.empty())
-    {
-	start("section", "Native Index");
-	start("variablelist");
-	
-	for (NativeList::const_iterator q = natives.begin(); q != natives.end(); ++q)
-	{
-	    start("varlistentry");
-	    start("term");
-	    O << nl << toString(*q, p);
-	    end();
-	    start("listitem");
-	    printSummary(*q);
-	    end();
-	    end();
-	}
-
-	end();
-	end();
-    }
-
     end();
 
     {
@@ -324,21 +302,6 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	    O.zeroIndent();
 	    O << nl << "<synopsis>dictionary&lt; " << toString(keyType, p) << ", " << toString(valueType, p)
 	      << " &gt; <type>" << (*q)->name() << "</type>;</synopsis>";
-	    O.restoreIndent();
-	    
-	    printComment(*q);
-	    
-	    end();
-	}
-    }
-
-    {
-	for (NativeList::const_iterator q = natives.begin(); q != natives.end(); ++q)
-	{
-	    start("section id=" + containedToId(*q), (*q)->name());
-	    
-	    O.zeroIndent();
-	    O << nl << "<synopsis>native <type>" << (*q)->name() << "</type>;</synopsis>";
 	    O.restoreIndent();
 	    
 	    printComment(*q);

@@ -18,7 +18,6 @@
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
 #include <Ice/LoggerI.h>
-#include <Ice/PicklerI.h>
 
 #ifndef WIN32
 #   include <Ice/SysLoggerI.h>
@@ -125,13 +124,6 @@ IceInternal::Instance::objectAdapterFactory()
 {
     JTCSyncT<JTCMutex> sync(*this);
     return _objectAdapterFactory;
-}
-
-PicklerPtr
-IceInternal::Instance::pickler()
-{
-    JTCSyncT<JTCMutex> sync(*this);
-    return _pickler;
 }
 
 ThreadPoolPtr
@@ -250,7 +242,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	_emitterFactory = new EmitterFactory(this);
 	_servantFactoryManager = new ServantFactoryManager();
 	_objectAdapterFactory = new ObjectAdapterFactory(this);
-	_pickler = new PicklerI(this);
 	_threadPool = new ThreadPool(this);
     }
     catch(...)
@@ -270,7 +261,6 @@ IceInternal::Instance::~Instance()
     assert(!_emitterFactory);
     assert(!_servantFactoryManager);
     assert(!_objectAdapterFactory);
-    assert(!_pickler);
     assert(!_threadPool);
 
     if (_globalStateMutex != 0)
@@ -373,13 +363,6 @@ IceInternal::Instance::destroy()
 	_objectAdapterFactory = 0;
     }
     
-    if(_pickler)
-    {
-	// No destroy function defined
-	// _pickler->destroy();
-	_pickler = 0;
-    }
-
     if(_threadPool)
     {
 	_threadPool->waitUntilFinished();

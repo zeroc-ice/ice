@@ -41,8 +41,6 @@ public:
     virtual LoggerPtr getLogger();
     virtual void setLogger(const LoggerPtr&);
 
-    virtual PicklerPtr getPickler();
-
 private:
 
     CommunicatorI(const PropertiesPtr&);

@@ -167,17 +167,6 @@ Ice::CommunicatorI::setLogger(const LoggerPtr& logger)
     _instance->logger(logger);
 }
 
-PicklerPtr
-Ice::CommunicatorI::getPickler()
-{
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
-    if (!_instance)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-    return _instance->pickler();
-}
-
 Ice::CommunicatorI::CommunicatorI(const PropertiesPtr& properties)
 {
     __setNoDelete(true);

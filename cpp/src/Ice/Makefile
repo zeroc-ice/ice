@@ -21,8 +21,6 @@ TARGETS		= $(NAME) $(VERSIONED_NAME)
 OBJS		= Application.o \
 		  Stream.o \
 		  LocalException.o \
-		  Pickler.o \
-		  PicklerI.o \
 		  Properties.o \
 		  PropertiesI.o \
 		  Logger.o \
@@ -132,20 +130,6 @@ $(HDIR)/ObjectAdapterF.h: $(SDIR)/ObjectAdapterF.ice $(SLICE2CPP)
 clean::
 	rm -f $(HDIR)/ObjectAdapterF.h
 
-$(HDIR)/Pickler.h Pickler.cpp: $(SDIR)/Pickler.ice $(SLICE2CPP)
-	rm -f $(HDIR)/Pickler.h Pickler.cpp
-	$(SLICECMD) $(SDIR)/Pickler.ice
-	mv Pickler.h $(HDIR)
-
-clean::
-	rm -f $(HDIR)/Pickler.h Pickler.cpp
-
-$(HDIR)/PicklerF.h: $(SDIR)/PicklerF.ice $(SLICE2CPP)
-	rm -f $(HDIR)/PicklerF.h PicklerF.cpp
-	$(SLICECMD) $(SDIR)/PicklerF.ice
-	mv PicklerF.h $(HDIR)
-	rm -f PicklerF.cpp
-
 $(HDIR)/Properties.h Properties.cpp: $(SDIR)/Properties.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Properties.h Properties.cpp
 	$(SLICECMD) $(SDIR)/Properties.ice
@@ -153,9 +137,6 @@ $(HDIR)/Properties.h Properties.cpp: $(SDIR)/Properties.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/Properties.h Properties.cpp
-
-clean::
-	rm -f $(HDIR)/PicklerF.h
 
 $(HDIR)/PropertiesF.h: $(SDIR)/PropertiesF.ice $(SLICE2CPP)
 	rm -f $(HDIR)/PropertiesF.h PropertiesF.cpp

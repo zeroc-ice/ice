@@ -518,39 +518,6 @@ Slice::Container::createEnumerator(const string& name)
     return p;
 }
 
-NativePtr
-Slice::Container::createNative(const string& name)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if (!matches.empty())
-    {
-	NativePtr p = NativePtr::dynamicCast(matches.front());
-	if (p)
-	{
-	    if (_unit->ignRedefs())
-	    {
-		return p;
-	    }
-
-	    string msg = "redefinition of native `";
-	    msg += name;
-	    msg += "'";
-	    _unit->error(msg);
-	    return 0;
-	}
-	
-	string msg = "redefinition of `";
-	msg += name;
-	msg += "' as native";
-	_unit->error(msg);
-	return 0;
-    }
-
-    NativePtr p = new Native(this, name);
-    _contents.push_back(p);
-    return p;
-}
-
 TypeList
 Slice::Container::lookupType(const string& scoped, bool printError)
 {
@@ -759,21 +726,6 @@ Slice::Container::enums()
     for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
 	EnumPtr q = EnumPtr::dynamicCast(*p);
-	if (q)
-	{
-	    result.push_back(q);
-	}
-    }
-    return result;
-}
-
-NativeList
-Slice::Container::natives()
-{
-    NativeList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-	NativePtr q = NativePtr::dynamicCast(*p);
 	if (q)
 	{
 	    result.push_back(q);
@@ -1717,36 +1669,6 @@ Slice::DataMember::DataMember(const ContainerPtr& container, const string& name,
     Contained(container, name),
     SyntaxTreeBase(container->unit()),
     _type(type)
-{
-}
-
-// ----------------------------------------------------------------------
-// Native
-// ----------------------------------------------------------------------
-
-bool
-Slice::Native::uses(const ConstructedPtr& constructed)
-{
-    return false;
-}
-
-Contained::ContainedType
-Slice::Native::containedType()
-{
-    return ContainedTypeNative;
-}
-
-void
-Slice::Native::visit(ParserVisitor* visitor)
-{
-    visitor->visitNative(this);
-}
-
-Slice::Native::Native(const ContainerPtr& container, const string& name) :
-    Constructed(container, name),
-    Type(container->unit()),
-    Contained(container, name),
-    SyntaxTreeBase(container->unit())
 {
 }
 

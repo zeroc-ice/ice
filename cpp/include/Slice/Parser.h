@@ -50,7 +50,6 @@ class Sequence;
 class Dictionary;
 class Enum;
 class Enumerator;
-class Native;
 class Unit;
 
 typedef ::IceUtil::Handle<GrammerBase> GrammerBasePtr;
@@ -71,7 +70,6 @@ typedef ::IceUtil::Handle<Sequence> SequencePtr;
 typedef ::IceUtil::Handle<Dictionary> DictionaryPtr;
 typedef ::IceUtil::Handle<Enum> EnumPtr;
 typedef ::IceUtil::Handle<Enumerator> EnumeratorPtr;
-typedef ::IceUtil::Handle<Native> NativePtr;
 typedef ::IceUtil::Handle<Unit> UnitPtr;
 
 }
@@ -109,7 +107,6 @@ typedef std::list<StructPtr> StructList;
 typedef std::list<SequencePtr> SequenceList;
 typedef std::list<DictionaryPtr> DictionaryList;
 typedef std::list<EnumPtr> EnumList;
-typedef std::list<NativePtr> NativeList;
 typedef std::list<OperationPtr> OperationList;
 typedef std::list<DataMemberPtr> DataMemberList;
 typedef std::list<EnumeratorPtr> EnumeratorList;
@@ -137,7 +134,6 @@ public:
     virtual void visitSequence(const SequencePtr&) { }
     virtual void visitDictionary(const DictionaryPtr&) { }
     virtual void visitEnum(const EnumPtr&) { }
-    virtual void visitNative(const NativePtr&) { }
 };
 
 // ----------------------------------------------------------------------
@@ -234,7 +230,6 @@ public:
 	ContainedTypeDictionary,
 	ContainedTypeEnum,
 	ContainedTypeEnumerator,
-	ContainedTypeNative,
 	ContainedTypeModule,
 	ContainedTypeClass,
 	ContainedTypeStruct,
@@ -277,7 +272,6 @@ public:
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const TypePtr&);
     EnumPtr createEnum(const std::string&);
     EnumeratorPtr createEnumerator(const std::string&);
-    NativePtr createNative(const std::string&);
     TypeList lookupType(const std::string&, bool = true);
     TypeList lookupTypeNoBuiltin(const std::string&, bool = true);
     ContainedList lookupContained(const std::string&, bool = true);
@@ -287,7 +281,6 @@ public:
     SequenceList sequences();
     DictionaryList dictionaries();
     EnumList enums();
-    NativeList natives();
     int includeLevel();
     void updateIncludeLevel();
     bool hasProxies();
@@ -576,24 +569,6 @@ protected:
 
     Enumerator(const ContainerPtr&, const std::string&);
     friend class SLICE_API Container;
-};
-
-// ----------------------------------------------------------------------
-// Native
-// ----------------------------------------------------------------------
-
-class Native : virtual public Constructed
-{
-public:
-
-    virtual bool uses(const ConstructedPtr&);
-    virtual ContainedType containedType();
-    virtual void visit(ParserVisitor*);
-
-protected:
-
-    Native(const ContainerPtr&, const std::string&);
-    friend class Container;
 };
 
 // ----------------------------------------------------------------------

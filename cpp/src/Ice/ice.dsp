@@ -192,14 +192,6 @@ SOURCE=.\Outgoing.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Pickler.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\PicklerI.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Properties.cpp
 # End Source File
 # Begin Source File
@@ -445,18 +437,6 @@ SOURCE=..\..\include\Ice\ObjectF.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\Outgoing.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\Pickler.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\PicklerF.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Ice\PicklerI.h
 # End Source File
 # Begin Source File
 
@@ -804,82 +784,6 @@ InputPath=..\..\slice\Ice\ObjectAdapterF.ice
 	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ObjectAdapterF.ice 
 	move ObjectAdapterF.h ..\..\include\Ice 
 	del ObjectAdapterF.cpp 
-	
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\Pickler.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\Pickler.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Pickler.ice \
-	move Pickler.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\Pickler.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Pickler.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\Pickler.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Pickler.ice \
-	move Pickler.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\Pickler.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Pickler.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\PicklerF.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\PicklerF.ice
-
-"..\..\include\Ice\PicklerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/PicklerF.ice 
-	move PicklerF.h ..\..\include\Ice 
-	del PicklerF.cpp 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\PicklerF.ice
-
-"..\..\include\Ice\PicklerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/PicklerF.ice 
-	move PicklerF.h ..\..\include\Ice 
-	del PicklerF.cpp 
 	
 # End Custom Build
 

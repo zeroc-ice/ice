@@ -49,7 +49,6 @@ yyerror(const char* s)
 %token ICE_WSTRING
 %token ICE_OBJECT
 %token ICE_LOCAL_OBJECT
-%token ICE_NATIVE
 %token ICE_SEQUENCE
 %token ICE_DICTIONARY
 %token ICE_ENUM
@@ -114,9 +113,6 @@ definition
 {
 }
 | struct_def
-{
-}
-| native_def
 {
 }
 | sequence_def
@@ -778,21 +774,6 @@ return_type
 ;
 
 // ----------------------------------------------------------------------
-native_def
-// ----------------------------------------------------------------------
-: ICE_NATIVE ICE_IDENTIFIER
-{
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    ContainerPtr cont = unit->currentContainer();
-    cont->createNative(ident->v);
-}
-| ICE_NATIVE keyword
-{
-    unit->error("keyword can not be used as native name");
-}
-;
-
-// ----------------------------------------------------------------------
 sequence_def
 // ----------------------------------------------------------------------
 : ICE_SEQUENCE '<' type '>' ICE_IDENTIFIER
@@ -975,9 +956,6 @@ keyword
 {
 }
 | ICE_LOCAL_OBJECT
-{
-}
-| ICE_NATIVE
 {
 }
 | ICE_SEQUENCE

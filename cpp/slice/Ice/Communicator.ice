@@ -13,7 +13,6 @@
 
 #include <Ice/LoggerF.ice>
 #include <Ice/ObjectAdapterF.ice>
-#include <Ice/PicklerF.ice>
 #include <Ice/PropertiesF.ice>
 #include <Ice/ServantFactoryF.ice>
 
@@ -236,15 +235,6 @@ local interface Communicator
      *
      **/
     void setLogger(Logger logger);
-
-    /**
-     *
-     * Get the Pickler for this Communicator.
-     *
-     * @return This Communicator's Pickler.
-     *
-     **/
-    Pickler getPickler();
 };
 
 };

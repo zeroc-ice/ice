@@ -200,12 +200,6 @@ Slice::inputTypeToString(const TypePtr& type)
 	return en->scoped();
     }
 	    
-    NativePtr native = NativePtr::dynamicCast(type);
-    if (native)
-    {
-	return native->scoped();
-    }
-	    
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if (contained)
     {
@@ -250,12 +244,6 @@ Slice::outputTypeToString(const TypePtr& type)
     if (proxy)
     {
 	return proxy->_class()->scoped() + "Prx&";
-    }
-	    
-    NativePtr native = NativePtr::dynamicCast(type);
-    if (native)
-    {
-	return native->scoped();
     }
 	    
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
@@ -308,12 +296,6 @@ Slice::exceptionTypeToString(const TypePtr& type)
     if (en)
     {
 	return en->scoped();
-    }
-	    
-    NativePtr native = NativePtr::dynamicCast(type);
-    if (native)
-    {
-	return native->scoped();
     }
 	    
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
@@ -433,9 +415,6 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    << dict->scope() << "__U__" << dict->name() << "());";
 	return;
     }
-    
-    NativePtr native = NativePtr::dynamicCast(type);
-    assert(!native); // TODO
     
     ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
     if (!constructed)

@@ -20,7 +20,6 @@ SGMLFILES	= manual.sgml \
 SLICEFILES	= ../slice/Ice/Communicator.ice \
 		  ../slice/Ice/Logger.ice \
 		  ../slice/Ice/ObjectAdapter.ice \
-		  ../slice/Ice/Pickler.ice \
 		  ../slice/Ice/Properties.ice \
 		  ../slice/Ice/ServantFactory.ice \
 		  ../slice/IcePack/Admin.ice \

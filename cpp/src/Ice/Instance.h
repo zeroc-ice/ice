@@ -22,7 +22,6 @@
 #include <Ice/EmitterF.h>
 #include <Ice/ServantFactoryManagerF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
-#include <Ice/PicklerF.h>
 #include <list>
 
 namespace Ice
@@ -48,7 +47,6 @@ public:
     EmitterFactoryPtr emitterFactory();
     ServantFactoryManagerPtr servantFactoryManager();
     ObjectAdapterFactoryPtr objectAdapterFactory();
-    ::Ice::PicklerPtr pickler();
     ThreadPoolPtr threadPool();
     
 private:
@@ -66,7 +64,6 @@ private:
     EmitterFactoryPtr _emitterFactory;
     ServantFactoryManagerPtr _servantFactoryManager;
     ObjectAdapterFactoryPtr _objectAdapterFactory;
-    ::Ice::PicklerPtr _pickler;
     ThreadPoolPtr _threadPool;
 
     //
