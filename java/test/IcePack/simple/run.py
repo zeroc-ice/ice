@@ -83,7 +83,7 @@ if TestUtil.isWin32() == 0:
     client = "java -ea -classpath \"" + classpath + "\" Client "
 
     print "registering server with icepack...",
-    IcePackAdmin.addServer(ice_home, "server", "", classpath, os.path.join(testdir, "simple_server.xml"));
+    IcePackAdmin.addServer(ice_home, "server", os.path.join(testdir, "simple_server.xml"), "", classpath, "");
     print "ok"
 
     print "testing adapter registration...",
