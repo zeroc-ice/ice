@@ -15,18 +15,50 @@ import Demo
 
 class ThroughputI(Demo.Throughput):
     def __init__(self):
-        self.seq = []
-        self.seq[0:Demo.seqSize] = range(0, Demo.seqSize)
-        self.seq = [0 for x in self.seq]
+        self.byteSeq = []
+        self.byteSeq[0:Demo.ByteSeqSize] = range(0, Demo.ByteSeqSize)
+        self.byteSeq = [0 for x in self.byteSeq]
+
+        self.stringSeq = []
+        self.stringSeq[0:Demo.StringSeqSize] = range(0, Demo.StringSeqSize)
+        self.stringSeq = ["hello" for x in self.stringSeq]
+
+        self.structSeq = []
+        self.structSeq[0:Demo.StringDoubleSeqSize] = range(0, Demo.StringDoubleSeqSize)
+	for i in range(0, Demo.StringDoubleSeqSize):
+	    self.structSeq[i] = Demo.StringDouble()
+	    self.structSeq[i].s = "hello"
+	    self.structSeq[i].d = 3.14
 
     def sendByteSeq(self, seq, current=None):
         pass
 
     def recvByteSeq(self, current=None):
-        return self.seq
+        return self.byteSeq
 
     def echoByteSeq(self, seq, current=None):
-        return self.seq
+        return seq
+
+    def sendStringSeq(self, seq, current=None):
+        pass
+
+    def recvStringSeq(self, current=None):
+        return self.stringSeq
+
+    def echoStringSeq(self, seq, current=None):
+        return seq
+
+    def sendStructSeq(self, seq, current=None):
+        pass
+
+    def recvStructSeq(self, current=None):
+        return self.structSeq
+
+    def echoStructSeq(self, seq, current=None):
+        return seq
+
+    def shutdown(self, current=None):
+        current.adapter.getCommunicator().shutdown()
 
 def run(argv, communicator):
     adapter = communicator.createObjectAdapter("Throughput")
