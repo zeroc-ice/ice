@@ -58,9 +58,9 @@ Other Ice utilities
 
 Some of the Ice for Java tests and demonstration programs require
 additional Ice for C++ utilities, such as IcePack and Glacier. The
-pre-compiled archives listed above contain only a subset of the
-Ice for C++ utilities, for space reasons. Therefore, not all Ice
-for Java tests can be run without building Ice for C++ yourself.
+pre-compiled archives listed above contain only a subset of the Ice
+for C++ utilities, for space reasons. Therefore, not all Ice for Java
+tests can be run without building Ice for C++ yourself.
 
 
 Berkeley DB
@@ -122,16 +122,16 @@ Compiling the Source
 ======================================================================
 
 There is generally no need to compile Ice for Java, because this
-distribution already contains the class files for the Ice core,
-Ice services, examples and tests.
+distribution already contains the class files for the Ice core, Ice
+services, examples and tests.
 
 If you want to rebuild the source code, you will need the 'ant'
 utility, which is available here:
 
 http://ant.apache.org/
 
-After installing ant, run the following commands to completely
-rebuild the Ice for Java source code:
+After installing ant, run the following commands to completely rebuild
+the Ice for Java source code:
 
 $ ant clean
 $ ant

@@ -1176,7 +1176,7 @@ IceInternal::Connection::finished(const ThreadPoolPtr& threadPool)
     {
 	registerWithPool();
     }
-    else if(_state == StateClosed)
+    else if(_state == StateClosed && _transceiver)
     {
 	_transceiver->close();
 	_transceiver = 0;

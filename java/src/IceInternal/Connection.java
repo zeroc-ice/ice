@@ -926,7 +926,7 @@ public final class Connection extends EventHandler
 	{
 	    registerWithPool();
 	}
-	else if(_state == StateClosed)
+	else if(_state == StateClosed && _transceiver != null)
 	{
 	    _transceiver.close();
 	    _transceiver = null;
