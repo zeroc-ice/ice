@@ -125,6 +125,27 @@ public:
 private:
 
     EntityNodePtr _target;
+    NodePtr _value;
+    string _valueStr;
+    string _type;
+    NodePtr _length;
+    string _lengthStr;
+    bool _convert;
+};
+
+class AddDescriptor : public Descriptor
+{
+public:
+
+    AddDescriptor(const DescriptorPtr&, int, const string&, const string&, const string&, const string&, bool);
+
+    virtual void addChild(const DescriptorPtr&);
+    virtual void validate();
+    virtual void execute(TransformSymbolTable&, DataInterceptor&);
+
+private:
+
+    EntityNodePtr _target;
     NodePtr _key;
     string _keyStr;
     NodePtr _value;
@@ -165,7 +186,7 @@ class FailDescriptor : public Descriptor
 {
 public:
 
-    FailDescriptor(const DescriptorPtr&, int, const string&);
+    FailDescriptor(const DescriptorPtr&, int, const string&, const string&);
 
     virtual void addChild(const DescriptorPtr&);
     virtual void validate();
@@ -173,6 +194,8 @@ public:
 
 private:
 
+    NodePtr _test;
+    string _testStr;
     string _message;
 };
 
@@ -485,9 +508,9 @@ Transform::TransformSymbolTable::getConstantValue(const string& name) const
             case Slice::Builtin::KindInt:
             case Slice::Builtin::KindLong:
             {
-                string::size_type pos;
+                string::size_type end;
                 Ice::Long n;
-                bool success = IceUtil::stringToInt64(value, n, pos);
+                bool success = IceUtil::stringToInt64(value, n, end);
                 assert(success);
                 result = _factory->createInteger(n, true);
                 break;
@@ -524,11 +547,11 @@ Transform::TransformSymbolTable::getConstantValue(const string& name) const
             Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
             assert(en);
             Slice::EnumeratorList el = en->getEnumerators();
-            for(Slice::EnumeratorList::iterator p = el.begin(); p != el.end(); ++p)
+            for(Slice::EnumeratorList::iterator q = el.begin(); q != el.end(); ++q)
             {
-                if((*p)->name() == value)
+                if((*q)->name() == value)
                 {
-                    e = *p;
+                    e = *q;
                     break;
                 }
             }
@@ -700,9 +723,9 @@ Transform::Descriptor::findType(const Slice::UnitPtr& u, const string& type)
 //
 // SetDescriptor
 //
-Transform::SetDescriptor::SetDescriptor(const DescriptorPtr& parent, int line, const string& target, const string& key,
-                                        const string& value, const string& type, bool convert) :
-    Descriptor(parent, line), _keyStr(key), _valueStr(value), _type(type), _convert(convert)
+Transform::SetDescriptor::SetDescriptor(const DescriptorPtr& parent, int line, const string& target,
+                                        const string& value, const string& type, const string& length, bool convert) :
+    Descriptor(parent, line), _valueStr(value), _type(type), _lengthStr(length), _convert(convert)
 {
     DescriptorErrorContext ctx(errorReporter(), "set", _line);
 
@@ -713,14 +736,14 @@ Transform::SetDescriptor::SetDescriptor(const DescriptorPtr& parent, int line, c
         errorReporter()->error("`target' attribute is not an entity: `" + target + "'");
     }
 
-    if(!key.empty())
-    {
-        _key = parse(key);
-    }
-
     if(!value.empty())
     {
         _value = parse(value);
+    }
+
+    if(!length.empty())
+    {
+        _length = parse(length);
     }
 }
 
@@ -747,19 +770,6 @@ Transform::SetDescriptor::execute(TransformSymbolTable& sym, DataInterceptor& in
         ostringstream ostr;
         ostr << _target;
         errorReporter()->error("target `" + ostr.str() + "' cannot be modified");
-    }
-
-    DataPtr key;
-    if(_key)
-    {
-        try
-        {
-            key = _key->evaluate(sym);
-        }
-        catch(const EvaluateException& ex)
-        {
-            errorReporter()->error("evaluation of key `" + _keyStr + "' failed:\n" + ex.reason());
-        }
     }
 
     DataPtr value;
@@ -794,21 +804,156 @@ Transform::SetDescriptor::execute(TransformSymbolTable& sym, DataInterceptor& in
         ref->instantiate();
     }
 
-    if(_key)
+    DataPtr length;
+    if(_length)
     {
-        DictionaryDataPtr dict = DictionaryDataPtr::dynamicCast(data);
-        if(!dict)
+        SequenceDataPtr seq = SequenceDataPtr::dynamicCast(data);
+        if(!seq)
         {
             ostringstream ostr;
             ostr << _target;
-            errorReporter()->error("target `" + ostr.str() + "' is not a dictionary");
+            errorReporter()->error("target `" + ostr.str() + "' is not a sequence");
         }
-        dict->put(key, value, interceptor, _convert);
+        try
+        {
+            length = _length->evaluate(sym);
+        }
+        catch(const EvaluateException& ex)
+        {
+            errorReporter()->error("evaluation of length `" + _lengthStr + "' failed:\n" + ex.reason());
+        }
+        seq->resize(length, value, interceptor, _convert);
     }
     else
     {
         data->set(value, interceptor, _convert);
     }
+}
+
+//
+// AddDescriptor
+//
+Transform::AddDescriptor::AddDescriptor(const DescriptorPtr& parent, int line, const string& target, const string& key,
+                                        const string& value, const string& type, bool convert) :
+    Descriptor(parent, line), _keyStr(key), _valueStr(value), _type(type), _convert(convert)
+{
+    DescriptorErrorContext ctx(errorReporter(), "add", _line);
+
+    NodePtr node = parse(target);
+    _target = EntityNodePtr::dynamicCast(node);
+    if(!_target)
+    {
+        errorReporter()->error("`target' attribute is not an entity: `" + target + "'");
+    }
+
+    assert(!key.empty());
+    _key = parse(key);
+
+    if(!value.empty())
+    {
+        _value = parse(value);
+    }
+}
+
+void
+Transform::AddDescriptor::addChild(const DescriptorPtr&)
+{
+    DescriptorErrorContext ctx(errorReporter(), "add", _line);
+    errorReporter()->error("<add> cannot have child elements");
+}
+
+void
+Transform::AddDescriptor::validate()
+{
+}
+
+void
+Transform::AddDescriptor::execute(TransformSymbolTable& sym, DataInterceptor& interceptor)
+{
+    DescriptorErrorContext ctx(errorReporter(), "add", _line);
+
+    DataPtr data = sym.getValue(_target);
+    if(data->readOnly())
+    {
+        ostringstream ostr;
+        ostr << _target;
+        errorReporter()->error("target `" + ostr.str() + "' cannot be modified");
+    }
+
+    DictionaryDataPtr dict = DictionaryDataPtr::dynamicCast(data);
+    if(!dict)
+    {
+        ostringstream ostr;
+        ostr << _target;
+        errorReporter()->error("target `" + ostr.str() + "' is not a dictionary");
+    }
+
+    Slice::DictionaryPtr type = Slice::DictionaryPtr::dynamicCast(dict->getType());
+    assert(type);
+
+    DataPtr key;
+    Destroyer<DataPtr> keyDestroyer;
+    try
+    {
+        DataPtr v = _key->evaluate(sym);
+        key = factory()->create(type->keyType(), false);
+        keyDestroyer.set(key);
+        key->set(v, interceptor, _convert);
+    }
+    catch(const EvaluateException& ex)
+    {
+        errorReporter()->error("evaluation of key `" + _keyStr + "' failed:\n" + ex.reason());
+    }
+
+    if(dict->getElement(key))
+    {
+        ostringstream ostr;
+        key->print(ostr);
+        errorReporter()->error("key " + ostr.str() + " already exists in dictionary");
+    }
+
+    DataPtr elem = factory()->create(type->valueType(), false);
+    Destroyer<DataPtr> elemDestroyer(elem);
+
+    DataPtr value;
+    if(_value)
+    {
+        try
+        {
+            value = _value->evaluate(sym);
+        }
+        catch(const EvaluateException& ex)
+        {
+            errorReporter()->error("evaluation of value `" + _valueStr + "' failed:\n" + ex.reason());
+        }
+    }
+
+    Destroyer<DataPtr> valueDestroyer;
+    if(!_type.empty())
+    {
+        assert(!value);
+        Slice::TypeList l = newUnit()->lookupType(_type, false);
+        if(l.empty())
+        {
+            errorReporter()->error("type `" + _type + "' not found");
+        }
+        value = factory()->create(l.front(), false);
+        valueDestroyer.set(value);
+        ObjectRefPtr ref = ObjectRefPtr::dynamicCast(value);
+        if(!ref)
+        {
+            errorReporter()->error("type `" + _type + "' is not a class");
+        }
+        ref->instantiate();
+    }
+
+    if(value)
+    {
+        elem->set(value, interceptor, _convert);
+    }
+    dict->add(key, elem);
+    keyDestroyer.release();
+    elemDestroyer.release();
 }
 
 //
@@ -904,9 +1049,21 @@ Transform::DeleteDescriptor::execute(TransformSymbolTable&, DataInterceptor&)
 //
 // FailDescriptor
 //
-Transform::FailDescriptor::FailDescriptor(const DescriptorPtr& parent, int line, const string& message) :
-    Descriptor(parent, line), _message(message)
+Transform::FailDescriptor::FailDescriptor(const DescriptorPtr& parent, int line, const string& test,
+                                          const string& message) :
+    Descriptor(parent, line), _testStr(test), _message(message)
 {
+    if(!test.empty())
+    {
+        _test = parse(test);
+    }
+
+    if(_message.empty())
+    {
+        ostringstream ostr;
+        ostr << "<fail> executed at line " << line << endl;
+        _message = ostr.str();
+    }
 }
 
 void
@@ -922,8 +1079,31 @@ Transform::FailDescriptor::validate()
 }
 
 void
-Transform::FailDescriptor::execute(TransformSymbolTable&, DataInterceptor&)
+Transform::FailDescriptor::execute(TransformSymbolTable& sym, DataInterceptor&)
 {
+    DescriptorErrorContext ctx(errorReporter(), "fail", _line);
+
+    if(_test)
+    {
+        try
+        {
+            DataPtr b = _test->evaluate(sym);
+            BooleanDataPtr bd = BooleanDataPtr::dynamicCast(b);
+            if(!bd)
+            {
+                errorReporter()->error("expression `" + _testStr + "' does not evaluate to a boolean");
+            }
+            if(!bd->booleanValue())
+            {
+                return;
+            }
+        }
+        catch(const EvaluateException& ex)
+        {
+            errorReporter()->error("evaluation of expression `" + _testStr + "' failed:\n" + ex.reason());
+        }
+    }
+
     throw TransformException(__FILE__, __LINE__, _message);
 }
 
@@ -1668,7 +1848,7 @@ Transform::DescriptorHandler::startElement(const string& name, const IceXML::Att
 
         IceXML::Attributes::const_iterator p;
 
-        string target, key, value, type;
+        string target, value, type, length;
         bool convert = false;
         p = attributes.find("target");
         if(p == attributes.end())
@@ -1677,11 +1857,66 @@ Transform::DescriptorHandler::startElement(const string& name, const IceXML::Att
         }
         target = p->second;
 
-        p = attributes.find("key");
+        p = attributes.find("value");
         if(p != attributes.end())
         {
-            key = p->second;
+            value = p->second;
         }
+
+        p = attributes.find("type");
+        if(p != attributes.end())
+        {
+            type = p->second;
+        }
+
+        p = attributes.find("length");
+        if(p != attributes.end())
+        {
+            length = p->second;
+        }
+
+        p = attributes.find("convert");
+        if(p != attributes.end())
+        {
+            convert = p->second == "true";
+        }
+
+        if(!value.empty() && !type.empty())
+        {
+            _errorReporter->descriptorError("<set> attributes `value' and 'type' are mutually exclusive", line);
+        }
+
+        if(value.empty() && type.empty() && length.empty())
+        {
+            _errorReporter->descriptorError("<set> requires a value for attributes `value', 'type' or 'length'", line);
+        }
+
+        d = new SetDescriptor(_current, line, target, value, type, length, convert);
+    }
+    else if(name == "add")
+    {
+        if(!_current)
+        {
+            _errorReporter->descriptorError("<add> cannot be a top-level element", line);
+        }
+
+        IceXML::Attributes::const_iterator p;
+
+        string target, key, value, type;
+        bool convert = false;
+        p = attributes.find("target");
+        if(p == attributes.end())
+        {
+            _errorReporter->descriptorError("required attribute `target' is missing from <add>", line);
+        }
+        target = p->second;
+
+        p = attributes.find("key");
+        if(p == attributes.end())
+        {
+            _errorReporter->descriptorError("required attribute `key' is missing from <add>", line);
+        }
+        key = p->second;
 
         p = attributes.find("value");
         if(p != attributes.end())
@@ -1701,12 +1936,12 @@ Transform::DescriptorHandler::startElement(const string& name, const IceXML::Att
             convert = p->second == "true";
         }
 
-        if((value.empty() && type.empty()) || (!value.empty() && !type.empty()))
+        if(!value.empty() && !type.empty())
         {
-            _errorReporter->descriptorError("<set> requires one of the attributes `value' or 'type'", line);
+            _errorReporter->descriptorError("<add> attributes `value' and 'type' are mutually exclusive", line);
         }
 
-        d = new SetDescriptor(_current, line, target, key, value, type, convert);
+        d = new AddDescriptor(_current, line, target, key, value, type, convert);
     }
     else if(name == "remove")
     {
@@ -1750,14 +1985,22 @@ Transform::DescriptorHandler::startElement(const string& name, const IceXML::Att
             _errorReporter->descriptorError("<fail> cannot be a top-level element", line);
         }
 
-        IceXML::Attributes::const_iterator p = attributes.find("message");
-        string message;
+        IceXML::Attributes::const_iterator p;
+        string test, message;
+
+        p = attributes.find("test");
+        if(p != attributes.end())
+        {
+            test = p->second;
+        }
+
+        p = attributes.find("message");
         if(p != attributes.end())
         {
             message = p->second;
         }
 
-        d = new FailDescriptor(_current, line, message);
+        d = new FailDescriptor(_current, line, test, message);
     }
     else if(name == "echo")
     {
