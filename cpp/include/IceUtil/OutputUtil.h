@@ -185,12 +185,24 @@ public:
 
     void se(const std::string&); // Start an element.
     void ee(); // End an element.
+    void attr(const std::string&, const std::string&); // Add an attribute to an element.
+
+    void startEscapes();
+    void endEscapes();
+
+    std::string currentElement() const;
 
 private:
 
+    ::std::string escape(const ::std::string&) const;
+
     std::stack<std::string> _elementStack;
-    bool _printed;
+
+    bool _se;
+    bool _text;
+
     bool _sgml;
+    bool _escape;
 };
 
 template<typename T>
@@ -219,29 +231,32 @@ operator<<(XMLOutput& o, const Separator&)
     return o;
 }
 
-// TODO: Not performance critical, does not need to be inlined.
+class ICE_UTIL_API EndElement
+{
+};
+extern ICE_UTIL_API EndElement ee;
+
+template<>
+inline XMLOutput&
+operator<<(XMLOutput& o, const EndElement&)
+{
+    o.ee();
+    return o;
+}
+
 class ICE_UTIL_API StartElement
 {
 public:
 
-    StartElement(const std::string& name) :
-	_name(name)
-    {
-    }
-    
-    ~StartElement()
-    {
-    }
+    StartElement(const std::string&);
 
-    const std::string& getName() const
-    {
-	return _name;
-    }
+    const std::string& getName() const;
 
 private:
 
     const std::string _name;
 };
+
 typedef StartElement se;
 
 template<>
@@ -252,14 +267,54 @@ operator<<(XMLOutput& o, const StartElement& e)
     return o;
 }
 
-class ICE_UTIL_API EndElement { };
-extern ICE_UTIL_API EndElement ee;
+class ICE_UTIL_API Attribute
+{
+public:
+
+    Attribute(const ::std::string&, const ::std::string&);
+
+    const ::std::string& getName() const;
+    const ::std::string& getValue() const;
+
+private:
+
+    const ::std::string _name;
+    const ::std::string _value;
+};
+
+typedef Attribute attr;
 
 template<>
 inline XMLOutput&
-operator<<(XMLOutput& o, const EndElement&)
+operator<<(XMLOutput& o, const Attribute& e)
 {
-    o.ee();
+    o.attr(e.getName(), e.getValue());
+    return o;
+}
+
+class ICE_UTIL_API StartEscapes
+{
+};
+extern ICE_UTIL_API StartEscapes startEscapes;
+
+class ICE_UTIL_API EndEscapes
+{
+};
+extern ICE_UTIL_API EndEscapes endEscapes;
+
+template<>
+inline XMLOutput&
+operator<<(XMLOutput& o, const StartEscapes&)
+{
+    o.startEscapes();
+    return o;
+}
+
+template<>
+inline XMLOutput&
+operator<<(XMLOutput& o, const EndEscapes&)
+{
+    o.endEscapes();
     return o;
 }
 

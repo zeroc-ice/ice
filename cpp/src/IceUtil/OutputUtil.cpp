@@ -21,6 +21,8 @@ StartBlock sb;
 EndBlock eb;
 Separator sp;
 EndElement ee;
+StartEscapes startEscapes;
+EndEscapes endEscapes;
 
 }
 
@@ -301,22 +303,28 @@ IceUtil::operator<<(Output& out, ios_base& (*val)(ios_base&))
 
 IceUtil::XMLOutput::XMLOutput() :
     OutputBase(),
-    _printed(true),
-    _sgml(false)
+    _se(false),
+    _text(false),
+    _sgml(false),
+    _escape(false)
 {
 }
 
 IceUtil::XMLOutput::XMLOutput(ostream& os) :
     OutputBase(os),
-    _printed(true),
-    _sgml(false)
+    _se(false),
+    _text(false),
+    _sgml(false),
+    _escape(false)
 {
 }
 
 IceUtil::XMLOutput::XMLOutput(const char* s) :
     OutputBase(s),
-    _printed(true),
-    _sgml(false)
+    _se(false),
+    _text(false),
+    _sgml(false),
+    _escape(false)
 {
 }
 
@@ -329,27 +337,37 @@ IceUtil::XMLOutput::setSGML(bool sgml)
 void
 IceUtil::XMLOutput::print(const char* s)
 {
-    if(!_printed)
+    if(_se)
     {
 	_out << '>';
-	_printed = true;
+	_se = false;
     }
-    OutputBase::print(s);
+    _text = true;
+
+    if(_escape)
+    {
+	string escaped = escape(s);
+	OutputBase::print(escaped.c_str());
+    }
+    else
+    {
+	OutputBase::print(s);
+    }
 }
 
 void
 IceUtil::XMLOutput::nl()
 {
-    if(!_printed)
+    if(_se)
     {
-	_printed = true;
+	_se = false;
 	_out << '>';
     }
     OutputBase::nl();
 }
 
 void
-IceUtil::XMLOutput::se(const std::string& element)
+IceUtil::XMLOutput::se(const string& element)
 {
     nl();
 
@@ -358,16 +376,16 @@ IceUtil::XMLOutput::se(const std::string& element)
     // deferred until either the //end-element (in which case a /> is
     // emitted) or until something //is displayed.
     //
-    _out << '<' << element;
-    if(_sgml)
+    if(_escape)
     {
-	_out << '>';
+	_out << '<' << escape(element);
     }
     else
     {
-	_printed = false;
+	_out << '<' << element;
     }
-
+    _se = true;
+    _text = false;
 
     string::size_type pos = element.find_first_of(" \t");
     if(pos == string::npos)
@@ -391,17 +409,127 @@ IceUtil::XMLOutput::ee()
     _elementStack.pop();
 
     dec();
-    if(!_printed)
+    if(_se)
     {
-	_out << "/>";
+	//
+	// SGML (docbook) doesn't support <foo/>.
+	//
+	if(_sgml)
+	{
+	    _out << "><" << element << '>';
+	}
+	else
+	{
+	    _out << "/>";
+	}
     }
     else
     {
-	nl();
+	if(!_text)
+	{
+	    nl();
+	}
 	_out << "</" << element << '>';
     }
     --_pos; // TODO: ???
-    _printed = true;
+
+    _se = false;
+    _text = false;
+}
+
+void
+IceUtil::XMLOutput::attr(const string& name, const string& value)
+{
+    //
+    // Precondition: Attributes can only be attached to elements.
+    //
+    assert(_se);
+    _out << " " << name << "=\"" << escape(value) << '"';
+}
+
+void
+IceUtil::XMLOutput::startEscapes()
+{
+    _escape = true;
+}
+
+void
+IceUtil::XMLOutput::endEscapes()
+{
+    _escape = false;
+}
+
+string
+IceUtil::XMLOutput::currentElement() const
+{
+    if(_elementStack.size() > 0)
+    {
+        return _elementStack.top();
+    }
+    else
+    {
+        return string();
+    }
+}
+
+string
+IceUtil::XMLOutput::escape(const string& input) const
+{
+    string v = input;
+
+    //
+    // Find out whether there is a reserved character to avoid
+    // conversion if not necessary.
+    //
+    static const string allReserved = "<>'\"&";
+    if(v.find_first_of(allReserved) != string::npos)
+    {
+	//
+	// First convert all & to &amp;
+	//
+	size_t pos = 0;
+	while((pos = v.find_first_of('&', pos)) != string::npos)
+	{
+	    v.insert(pos+1, "amp;");
+	    pos += 4;
+	}
+
+	//
+	// Next convert remaining reserved characters.
+	//
+	static const string reserved = "<>'\"";
+	pos = 0;
+	while((pos = v.find_first_of(reserved, pos)) != string::npos)
+	{
+	    string replace;
+	    switch(v[pos])
+	    {
+	    case '>':
+		replace = "&gt;";
+		break;
+
+	    case '<':
+		replace = "&lt;";
+		break;
+
+	    case '\'':
+		replace = "&apos;";
+		break;
+
+	    case '"':
+		replace = "&quot;";
+		break;
+
+	    default:
+		assert(false);
+	    }
+
+	    v.erase(pos, 1);
+	    v.insert(pos, replace);
+	    pos += replace.size();
+	}
+    }
+    return v;
 }
 
 XMLOutput&
@@ -411,4 +539,33 @@ IceUtil::operator<<(XMLOutput& out, ios_base& (*val)(ios_base&))
     s << val;
     out.print(s.str().c_str());
     return out;
+}
+
+IceUtil::StartElement::StartElement(const string& name) :
+    _name(name)
+{
+}
+    
+const string&
+IceUtil::StartElement::getName() const
+{
+    return _name;
+}
+
+IceUtil::Attribute::Attribute(const string& name, const string& value) :
+    _name(name),
+    _value(value)
+{
+}
+
+const string&
+IceUtil::Attribute::getName() const
+{
+    return _name;
+}
+
+const string&
+IceUtil::Attribute::getValue() const
+{
+    return _value;
 }
