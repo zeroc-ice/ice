@@ -451,11 +451,11 @@ class Twoways
         {
             java.util.Map di1 = new java.util.HashMap();
             di1.put(new Long(999999110L), new Float(-1.1f));
-            di1.put(new Long(9999991100L), new Float(123123.2f));
+            di1.put(new Long(999999111L), new Float(123123.2f));
             java.util.Map di2 = new java.util.HashMap();
             di2.put(new Long(999999110L), new Float(-1.1f));
-            di2.put(new Long(999999111L), new Float(-100.4f));
-            di2.put(new Long(9999991101L), new Float(0.5f));
+            di2.put(new Long(999999120L), new Float(-100.4f));
+            di2.put(new Long(999999130L), new Float(0.5f));
 
             Test.LongFloatDHolder _do = new Test.LongFloatDHolder();
             java.util.Map ro = p.opLongFloatD(di1, di2, _do);
@@ -463,9 +463,9 @@ class Twoways
             test(_do.value.equals(di1));
             test(ro.size() == 4);
             test(((Float)ro.get(new Long(999999110L))).floatValue() == -1.1f);
-            test(((Float)ro.get(new Long(999999111L))).floatValue() == -100.4f);
-            test(((Float)ro.get(new Long(9999991100L))).floatValue() == 123123.2f);
-            test(((Float)ro.get(new Long(9999991101L))).floatValue() == 0.5f);
+            test(((Float)ro.get(new Long(999999120L))).floatValue() == -100.4f);
+            test(((Float)ro.get(new Long(999999111L))).floatValue() == 123123.2f);
+            test(((Float)ro.get(new Long(999999130L))).floatValue() == 0.5f);
         }
 
         {

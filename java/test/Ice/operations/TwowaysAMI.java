@@ -726,13 +726,13 @@ class TwowaysAMI
 	{
             java.util.Map di1 = new java.util.HashMap();
             di1.put(new Long(999999110L), new Float(-1.1f));
-            di1.put(new Long(9999991100L), new Float(123123.2f));
+            di1.put(new Long(999999111L), new Float(123123.2f));
             test(_do.equals(di1));
             test(ro.size() == 4);
             test(((Float)ro.get(new Long(999999110L))).floatValue() == -1.1f);
-            test(((Float)ro.get(new Long(999999111L))).floatValue() == -100.4f);
-            test(((Float)ro.get(new Long(9999991100L))).floatValue() == 123123.2f);
-            test(((Float)ro.get(new Long(9999991101L))).floatValue() == 0.5f);
+            test(((Float)ro.get(new Long(999999120L))).floatValue() == -100.4f);
+            test(((Float)ro.get(new Long(999999111L))).floatValue() == 123123.2f);
+            test(((Float)ro.get(new Long(999999130L))).floatValue() == 0.5f);
 	    callback.called();
 	}
 
