@@ -52,7 +52,7 @@ populateDB(MAP& m)
 
     for(vector<Byte>::const_iterator j = alphabet.begin(); j != alphabet.end(); ++j)
     {
-	m.insert(make_pair(*j, j-alphabet.begin()));
+        m[*j] = j - alphabet.begin();
     }
 }
 
@@ -114,6 +114,13 @@ run(int argc, char* argv[], MAP& m)
 	cp = m.find(*j);
 	test(cp != m.end());
 	test(cp->first == *j && cp->second == j - alphabet.begin());
+    }
+    //
+    // Finally try operator[]
+    //
+    for(j = alphabet.begin(); j != alphabet.end(); ++j)
+    {
+        test(m[*j] == j - alphabet.begin());
     }
 
     test(!m.empty());

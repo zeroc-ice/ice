@@ -840,6 +840,74 @@ public:
 	return std::pair<const_iterator,const_iterator>(p,p);
     }
 
+    //
+    // Helper class used to implement operator[](key). If the function
+    // operator=(value) is invoked, then a new value is associated with
+    // the key. If operator mapped_type() is invoked, the value currently
+    // associated with the key is returned.
+    //
+    class ElementRef
+    {
+    public:
+        void operator=(const mapped_type& value)
+        {
+            ::Ice::CommunicatorPtr communicator = _db->getCommunicator();
+
+            Freeze::Key k;
+            Freeze::Value v;
+            KeyCodec::write(_key, k, communicator);
+            ValueCodec::write(value, v, communicator);
+
+            _db->put(k, v);
+        }
+
+        operator mapped_type()
+        {
+            ::Ice::CommunicatorPtr communicator = _db->getCommunicator();
+
+            Freeze::Key k;
+            KeyCodec::write(_key, k, communicator);
+
+            mapped_type value;
+            Freeze::Value v = _db->get(k);
+            ValueCodec::read(value, v, communicator);
+
+            return value;
+        }
+
+    private:
+        ElementRef(const DBPtr& db, const key_type& key) :
+            _db(db), _key(key)
+        {
+        }
+
+        DBPtr _db;
+        key_type _key;
+
+        //
+        // VC6 won't accept this:
+        // 
+        // friend class DBMap;
+        //
+        friend class DBMap<key_type, mapped_type, KeyCodec, ValueCodec>;
+    };
+
+    //
+    // The array index operator can be used to insert or replace an
+    // element, or to obtain the value associated with a key.
+    //
+    // Note that modifying the element value returned by this function
+    // has no effect on the persistent map. The only way to modify the
+    // map using this function is with the assignment operator. For
+    // example:
+    //
+    // myMap["key"] = "value";
+    //
+    ElementRef operator[](const key_type& key)
+    {
+        return ElementRef(_db, key);
+    }
+
 private:
 
     DBPtr _db;
