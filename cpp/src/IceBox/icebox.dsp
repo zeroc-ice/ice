@@ -13,7 +13,7 @@ CFG=icebox - Win32 Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "icebox.mak" CFG="IceBox - Win32 Debug"
+!MESSAGE NMAKE /f "icebox.mak" CFG="icebox - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 /nologo /dll /machine:I386 /out:"Release/icebox21.dll" /implib:"Release/icebox.lib"
+# ADD LINK32 /nologo /dll /incremental:yes /machine:I386 /out:"Release/icebox21.dll" /implib:"Release/icebox.lib"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
@@ -88,7 +88,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386
 # ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/icebox21d.dll" /implib:"Debug/iceboxd.lib"
-# SUBTRACT LINK32 /pdb:none /nodefaultlib
+# SUBTRACT LINK32 /pdb:none /incremental:no /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"

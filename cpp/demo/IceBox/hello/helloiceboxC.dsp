@@ -13,7 +13,7 @@ CFG=helloiceboxC - Win32 Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "helloiceboxC.mak" CFG="helloIceBoxC - Win32 Debug"
+!MESSAGE NMAKE /f "helloiceboxC.mak" CFG="helloiceboxC - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
@@ -51,7 +51,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 Ice.lib IceUtil.lib /nologo /subsystem:console /machine:I386 /out:"client.exe" /libpath:"../../../lib"
+# ADD LINK32 Ice.lib IceUtil.lib /nologo /subsystem:console /incremental:yes /machine:I386 /out:"client.exe" /libpath:"../../../lib"
 # SUBTRACT LINK32 /debug /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "helloiceboxC - Win32 Debug"
@@ -78,7 +78,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 Iced.lib IceUtild.lib /nologo /subsystem:console /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../lib"
-# SUBTRACT LINK32 /nodefaultlib
+# SUBTRACT LINK32 /incremental:no /nodefaultlib
 
 !ENDIF 
 

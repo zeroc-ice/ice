@@ -13,7 +13,7 @@ CFG=freezescriptevictor - Win32 Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "freezescriptevictor.mak" CFG="freezeScriptEvictor - Win32 Debug"
+!MESSAGE NMAKE /f "freezescriptevictor.mak" CFG="freezescriptevictor - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
@@ -51,7 +51,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 /nologo /subsystem:console /machine:I386 /out:"makedb.exe" /libpath:"../../../lib"
+# ADD LINK32 /nologo /subsystem:console /incremental:yes /machine:I386 /out:"makedb.exe" /libpath:"../../../lib"
 # SUBTRACT LINK32 /debug /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "freezescriptevictor - Win32 Debug"
@@ -78,7 +78,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"makedb.exe" /pdbtype:sept /libpath:"../../../lib"
-# SUBTRACT LINK32 /nodefaultlib
+# SUBTRACT LINK32 /incremental:no /nodefaultlib
 
 !ENDIF 
 
@@ -91,11 +91,11 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\TestOld.cpp
+SOURCE=.\makedb.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\makedb.cpp
+SOURCE=.\TestOld.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -115,7 +115,7 @@ SOURCE=.\TestOld.ice
 
 !IF  "$(CFG)" == "freezescriptevictor - Win32 Release"
 
-USERDEP__TESTOLD="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
+USERDEP__TESTO="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\TestOld.ice
 
@@ -131,7 +131,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "freezescriptevictor - Win32 Debug"
 
-USERDEP__TESTOLD="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
+USERDEP__TESTO="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\TestOld.ice
 
