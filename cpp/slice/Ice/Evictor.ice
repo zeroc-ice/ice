@@ -45,14 +45,14 @@ local interface Evictor extends ServantLocator
      * are ignored.) Reducing the size of the cache by [n] slots
      * causes eviction of the least-recently-used [n] servants.
      * (The actual eviction may be delayed because servants are evicted
-     * only once they are idle; eviction is triggered by [finished], that is,
+     * only once they are idle.) Eviction is triggered by [locate] and [finished], that is,
      * the evictor attempts to evict servants whenever an operation invocation
-     * completes.) Once the evictor is deactivated, all servants in the cache are evicted.
+     * starts or completes.) Once the evictor is deactivated, all servants in the cache are evicted.
      *
      * @param size The number of servants to hold in the cache.
      *
      **/
-    void setSize(int size);
+    idempotent void setSize(int size);
 
     /**
      *
