@@ -974,6 +974,18 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name TransformDB
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DumpDB
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cs
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sliceexAMDS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sliceobAMDS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2622,6 +2634,24 @@ Package=<4>
 
 ###############################################################################
 
+Project: "sliceexAMDS"=.\test\Ice\slicing\exceptions\sliceexAMDS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "sliceexC"=.\test\Ice\slicing\exceptions\sliceexC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -2641,6 +2671,24 @@ Package=<4>
 ###############################################################################
 
 Project: "sliceexS"=.\test\Ice\slicing\exceptions\sliceexS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sliceobAMDS"=.\test\Ice\slicing\objects\sliceobAMDS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
