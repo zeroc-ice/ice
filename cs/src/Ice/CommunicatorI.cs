@@ -21,7 +21,6 @@ namespace Ice
 		if(!_destroyed) // Don't destroy twice.
 		{
 		    _destroyed = true;
-		    _serverThreadPool = null;
 		    instance = _instance;
 		}
 	    }
@@ -107,14 +106,7 @@ namespace Ice
 		    throw new CommunicatorDestroyedException();
 		}
 		
-		ObjectAdapter adapter = _instance.objectAdapterFactory().createObjectAdapter(name);
-		
-		if(_serverThreadPool == null) // Lazy initialization of _serverThreadPool.
-		{
-		    _serverThreadPool = _instance.serverThreadPool();
-		}
-		
-		return adapter;
+		return _instance.objectAdapterFactory().createObjectAdapter(name);
 	    }
 	}
 	
@@ -225,6 +217,18 @@ namespace Ice
 	    }
 	}
 
+	public RouterPrx getDefaultRouter()
+	{
+	    lock(this)
+	    {
+		if(_destroyed)
+		{
+		    throw new CommunicatorDestroyedException();
+		}
+		return _instance.referenceFactory().getDefaultRouter();
+	    }
+	}
+
 	public void setDefaultRouter(RouterPrx router)
 	{
 	    lock(this)
@@ -234,6 +238,18 @@ namespace Ice
 		    throw new CommunicatorDestroyedException();
 		}
 		_instance.referenceFactory().setDefaultRouter(router);
+	    }
+	}
+
+	public LocatorPrx getDefaultLocator()
+	{
+	    lock(this)
+	    {
+		if(_destroyed)
+		{
+		    throw new CommunicatorDestroyedException();
+		}
+		return _instance.referenceFactory().getDefaultLocator();
 	    }
 	}
 
@@ -293,15 +309,6 @@ namespace Ice
 	
 	private bool _destroyed;
 	private IceInternal.Instance _instance;
-	
-	//
-	// We need _serverThreadPool directly in CommunicatorI. That's
-	// because the shutdown() operation is signal-safe, and thus must
-	// not access any mutex locks or _instance. It may only access
-	// _serverThreadPool.initiateShutdown(), which is signal-safe as
-	// well.
-	//
-	private IceInternal.ThreadPool _serverThreadPool;
     }
 
 }
