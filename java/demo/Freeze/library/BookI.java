@@ -21,40 +21,40 @@ class BookI extends Book
 	//
 	// Immutable.
 	//
-	return _description;
+	return description;
     }
 
     synchronized public String
     getRenterName(Ice.Current current)
 	throws BookNotRentedException
     {
-	if(_rentalCustomerName.length() == 0)
+	if(rentalCustomerName.length() == 0)
 	{
 	    throw new BookNotRentedException();
 	}
-	return _rentalCustomerName;
+	return rentalCustomerName;
     }
 
     synchronized public void
     rentBook(String name, Ice.Current current)
 	throws BookRentedException
     {
-	if(_rentalCustomerName.length() != 0)
+	if(rentalCustomerName.length() != 0)
 	{
 	    throw new BookRentedException();
 	}
-	_rentalCustomerName = name;
+	rentalCustomerName = name;
     }
 
     synchronized public void
     returnBook(Ice.Current current)
 	throws BookNotRentedException
     {
-	if(_rentalCustomerName.length() == 0)
+	if(rentalCustomerName.length() == 0)
 	{
 	    throw new BookNotRentedException();
 	}
-	_rentalCustomerName = new String();;
+	rentalCustomerName = new String();;
     }
 
     synchronized public void
@@ -63,7 +63,7 @@ class BookI extends Book
     {
 	try
 	{
-	    _library.remove(_description);
+	    _library.remove(description);
 	}
 	catch(Freeze.DBNotFoundException ex)
 	{
@@ -88,7 +88,7 @@ class BookI extends Book
 	// new creation of a book, and the other for restoring a
 	// previously saved book).
 	//
-	_rentalCustomerName = new String();
+	rentalCustomerName = new String();
     }
 
     private LibraryI _library;

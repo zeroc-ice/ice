@@ -53,7 +53,7 @@ public class Client
         readline(in);
 
         Simple simple = initial.getSimple();
-        System.out.println("==> " + simple._message);
+        System.out.println("==> " + simple.message);
 
         System.out.println();
         System.out.println("Ok, this worked. Now let's try to transfer an object for a class");
@@ -84,7 +84,7 @@ public class Client
         communicator.addObjectFactory(factory, "::Printer");
 
         initial.getPrinter(printer, printerProxy);
-        System.out.println("==> " + printer.value._message);
+        System.out.println("==> " + printer.value.message);
 
         System.out.println();
         System.out.println("Cool, it worked! Let's try calling the printBackwards() method");
@@ -143,7 +143,7 @@ public class Client
         System.out.println("[press enter]");
         readline(in);
 
-        System.out.println("==> " + derived._derivedMessage);
+        System.out.println("==> " + derived.derivedMessage);
         System.out.print("==> ");
         derived.printUppercase(null);
 
@@ -164,7 +164,7 @@ public class Client
             assert(derived != null);
         }
 
-        System.out.println("==> " + derived._derivedMessage);
+        System.out.println("==> " + derived.derivedMessage);
         System.out.print("==> ");
         derived.printUppercase(null);
 

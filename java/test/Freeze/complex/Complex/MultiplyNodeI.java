@@ -20,13 +20,13 @@ public class MultiplyNodeI extends MultiplyNode
     public
     MultiplyNodeI(Node left, Node right)
     {
-	_left = left;
-	_right = right;
+	this.left = left;
+	this.right = right;
     }
 
     public int
     calc(Ice.Current current)
     {
-	return _left.calc(current) * _right.calc(current);
+	return left.calc(current) * right.calc(current);
     }
 }

@@ -30,13 +30,13 @@ class Node {
 
 class NumberNode extends Node
 {
-    int _number;
+    int number;
 };
 
 class BinaryNode extends Node
 {
-    Node _left;
-    Node _right;
+    Node left;
+    Node right;
 };
 
 class AddNode extends BinaryNode

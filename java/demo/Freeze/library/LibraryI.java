@@ -36,7 +36,7 @@ class LibraryI extends _LibraryDisp
 	// Create a new book Servant.
 	//
 	BookI bookI = new BookI(this);
-	bookI._description = description;
+	bookI.description = description;
 
 	Ice.Identity ident = createBookIdentity(description.isbn);
 

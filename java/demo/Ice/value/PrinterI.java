@@ -13,7 +13,7 @@ class PrinterI extends Printer
     public void
     printBackwards(Ice.Current current)
     {
-        char[] arr = _message.toCharArray();
+        char[] arr = message.toCharArray();
         for(int i = 0; i < arr.length / 2; i++)
         {
             char tmp = arr[arr.length - i - 1];

@@ -137,7 +137,7 @@ class Book
      * this information is immutable.
      *
      **/
-    BookDescription _description;
+    BookDescription description;
 
     /**
      *
@@ -145,7 +145,7 @@ class Book
      * the book is not currently rented.
      *
      **/
-    string _rentalCustomerName;
+    string rentalCustomerName;
 };
 
 /**

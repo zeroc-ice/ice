@@ -196,6 +196,11 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
         {
             StringBuffer cmd = new StringBuffer();
 
+	    //
+	    // Add --ice
+	    //
+	    cmd.append(" --ice");
+
             //
             // Add --output-dir
             //

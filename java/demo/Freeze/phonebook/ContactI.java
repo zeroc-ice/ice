@@ -18,7 +18,7 @@ class ContactI extends Contact
     synchronized public String
     getName(Ice.Current current)
     {
-	return _name;
+	return name;
     }
 
     synchronized public void
@@ -26,32 +26,32 @@ class ContactI extends Contact
 	throws DatabaseException
     {
 	assert(_identity.name.length() != 0);
-	_phonebook.move(_identity, _name, name);
-	_name = name;
+	_phonebook.move(_identity, this.name, name);
+	this.name = name;
     }
 
     synchronized public String
     getAddress(Ice.Current current)
     {
-	return _address;
+	return address;
     }
 
     synchronized public void
     setAddress(String address, Ice.Current current)
     {
-	_address = address;
+	this.address = address;
     }
 
     synchronized public String
     getPhone(Ice.Current current)
     {
-	return _phone;
+	return phone;
     }
 
     synchronized public void
     setPhone(String phone, Ice.Current current)
     {
-	_phone = phone;
+	this.phone = phone;
     }
 
     synchronized public void
@@ -61,7 +61,7 @@ class ContactI extends Contact
 	try
 	{
 	    assert(_identity.name.length() != 0);
-	    _phonebook.remove(_identity, _name);
+	    _phonebook.remove(_identity, name);
 
 	    //
 	    // This can throw EvictorDeactivatedException (which
@@ -94,9 +94,9 @@ class ContactI extends Contact
 	// - one for original creation of the Contact and one for
 	// loading of an existing Contact.
 	//
-	_name = new String();
-	_address = new String();
-	_phone = new String();
+	name = new String();
+	address = new String();
+	phone = new String();
     }
 
     protected void

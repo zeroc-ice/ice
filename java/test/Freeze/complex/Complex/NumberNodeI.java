@@ -20,12 +20,12 @@ public class NumberNodeI extends NumberNode
     public
     NumberNodeI(int number)
     {
-	_number = number;
+	this.number = number;
     }
 
     public int
     calc(Ice.Current current)
     {
-	return _number;
+	return number;
     }
 }

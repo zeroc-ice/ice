@@ -15,16 +15,16 @@ class InitialI extends Initial
         _adapter = adapter;
 
         _simple = new Simple();
-        _simple._message = "a message 4 u";
+        _simple.message = "a message 4 u";
 
         _printer = new PrinterI();
-        _printer._message = "Ice rulez!";
+        _printer.message = "Ice rulez!";
         _printerProxy =
             PrinterPrxHelper.uncheckedCast(adapter.addWithUUID(_printer));
 
         _derivedPrinter = new DerivedPrinterI();
-        _derivedPrinter._message = _printer._message;
-        _derivedPrinter._derivedMessage = "Coming soon: the ultimate online " +
+        _derivedPrinter.message = _printer.message;
+        _derivedPrinter.derivedMessage = "Coming soon: the ultimate online " +
             "game from MutableRealms!";
         adapter.addWithUUID(_derivedPrinter);
     }
