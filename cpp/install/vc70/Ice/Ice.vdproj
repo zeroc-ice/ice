@@ -15,24 +15,6 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_1006EAF098724F0DB5B9935044FD36E3"
-        "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
-        "MsmSig" = "8:MergeModule.A32ACFF5E2BA440F958DA46F03D38012"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_1006EAF098724F0DB5B9935044FD36E3"
-        "OwnerKey" = "8:_9BEB629A281C4C0F983DE1C308E2E812"
-        "MsmSig" = "8:MergeModule.A32ACFF5E2BA440F958DA46F03D38012"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_23C85963F90C4ABC8D1986B9A7A577F3"
-        "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
-        "MsmSig" = "8:MergeModule.4E1047477590477A8EEC6153FAAF5A8A"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_2511B02D893B46C58BEA3748F3AF86EE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INSTALL\\COMMON\\THIRDPARTY-LICENSE.TXT"
@@ -45,33 +27,15 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3B40731560B948CCBE3939710E6948C9"
+        "MsmKey" = "8:_456D88FB353B442C96BFF242EAB5D1FF"
         "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
-        "MsmSig" = "8:MergeModule.7161FF60AEEF4446BDF1885A48B67886"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\IceRuntime.msm"
         }
         "Entry"
         {
-        "MsmKey" = "8:_42E99F3122664E1D86CB9169B8B27516"
-        "OwnerKey" = "8:_23C85963F90C4ABC8D1986B9A7A577F3"
-        "MsmSig" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_42E99F3122664E1D86CB9169B8B27516"
-        "OwnerKey" = "8:_9BEB629A281C4C0F983DE1C308E2E812"
-        "MsmSig" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_42E99F3122664E1D86CB9169B8B27516"
+        "MsmKey" = "8:_4D735063E6F24EBC8BD569A9FADA271F"
         "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
-        "MsmSig" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_42E99F3122664E1D86CB9169B8B27516"
-        "OwnerKey" = "8:_3B40731560B948CCBE3939710E6948C9"
-        "MsmSig" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
+        "MsmSig" = "8:MergeModule.A32ACFF5E2BA440F958DA46F03D38012"
         }
         "Entry"
         {
@@ -81,21 +45,33 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_77DD0ABD6CDA417E8E3030E16544347F"
+        "MsmKey" = "8:_89686A6152934092A7D609406355AD6F"
         "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
-        "MsmSig" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
+        "MsmSig" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
         }
         "Entry"
         {
-        "MsmKey" = "8:_77DD0ABD6CDA417E8E3030E16544347F"
-        "OwnerKey" = "8:_3B40731560B948CCBE3939710E6948C9"
-        "MsmSig" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
+        "MsmKey" = "8:_89890E7AF9C04168A5B436E33BB17C8B"
+        "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
+        "MsmSig" = "8:MergeModule.4E1047477590477A8EEC6153FAAF5A8A"
         }
         "Entry"
         {
-        "MsmKey" = "8:_9BEB629A281C4C0F983DE1C308E2E812"
+        "MsmKey" = "8:_954BD4D5B1354A8F964DFD5DACB42D47"
+        "OwnerKey" = "8:_89890E7AF9C04168A5B436E33BB17C8B"
+        "MsmSig" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_954BD4D5B1354A8F964DFD5DACB42D47"
         "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
-        "MsmSig" = "8:MergeModule.F5B44F99C9F941D9995A9C9EDB8BE45E"
+        "MsmSig" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A081C529521B46ACA073D72440FF7174"
+        "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
+        "MsmSig" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
         }
         "Entry"
         {
@@ -118,7 +94,7 @@
         "Entry"
         {
         "MsmKey" = "8:_C495E1518A4745C1BC010A65A005554F"
-        "OwnerKey" = "8:_E292B15C90A94AED894ED700E406C9C4"
+        "OwnerKey" = "8:_89686A6152934092A7D609406355AD6F"
         "MsmSig" = "8:VC_User_STL.BA9B76E9_0DE0_11D5_A548_0090278A1BB8"
         }
         "Entry"
@@ -129,18 +105,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E292B15C90A94AED894ED700E406C9C4"
-        "OwnerKey" = "8:_9BEB629A281C4C0F983DE1C308E2E812"
-        "MsmSig" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E292B15C90A94AED894ED700E406C9C4"
-        "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
-        "MsmSig" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_ED07297D7F0B48BC8341D557019A93FF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
@@ -148,14 +112,20 @@
         "Entry"
         {
         "MsmKey" = "8:_ED07297D7F0B48BC8341D557019A93FF"
-        "OwnerKey" = "8:_E292B15C90A94AED894ED700E406C9C4"
+        "OwnerKey" = "8:_89686A6152934092A7D609406355AD6F"
         "MsmSig" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
         }
         "Entry"
         {
         "MsmKey" = "8:_ED07297D7F0B48BC8341D557019A93FF"
-        "OwnerKey" = "8:_42E99F3122664E1D86CB9169B8B27516"
+        "OwnerKey" = "8:_954BD4D5B1354A8F964DFD5DACB42D47"
         "MsmSig" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F8A6A848D83143C584D832AAAE453231"
+        "OwnerKey" = "8:_C794CFA663984DB38C5877AC5896B75A"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\IceRuntimeDebug.msm"
         }
         "Entry"
         {
@@ -208,7 +178,7 @@
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_2511B02D893B46C58BEA3748F3AF86EE"
             {
             "SourcePath" = "8:..\\..\\common\\ThirdParty-LICENSE.txt"
-            "TargetName" = "8:THIRD-PARTY-LICENSE"
+            "TargetName" = "8:THIRD_PARTY_LICENSE"
             "Tag" = "8:"
             "Folder" = "8:_AF85601B0B0E44BF89B8FA6DD3DC9C22"
             "Condition" = "8:"
@@ -552,7 +522,18 @@
         }
         "MergeModule"
         {
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_1006EAF098724F0DB5B9935044FD36E3"
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_456D88FB353B442C96BFF242EAB5D1FF"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:IceRuntime.msm"
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_4D735063E6F24EBC8BD569A9FADA271F"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -573,84 +554,6 @@
                     }
                 }
             "LanguageId" = "3:1033"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_23C85963F90C4ABC8D1986B9A7A577F3"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:OpenSSLDevKit.msm"
-            "ModuleSignature" = "8:MergeModule.4E1047477590477A8EEC6153FAAF5A8A"
-                "Properties"
-                {
-                    "_BE8AE4ADB97F4C73980DC34D45DC8AC2.4E1047477590477A8EEC6153FAAF5A8A"
-                    {
-                    "Name" = "8:_BE8AE4ADB97F4C73980DC34D45DC8AC2.4E1047477590477A8EEC6153FAAF5A8A"
-                    "DisplayName" = "8:Module Retargetable Folder"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_3B40731560B948CCBE3939710E6948C9"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:IceRuntimeDebug.msm"
-            "ModuleSignature" = "8:MergeModule.7161FF60AEEF4446BDF1885A48B67886"
-                "Properties"
-                {
-                    "_A878B30F9D2140BF86D9BF18ACA4F0E5.7161FF60AEEF4446BDF1885A48B67886"
-                    {
-                    "Name" = "8:_A878B30F9D2140BF86D9BF18ACA4F0E5.7161FF60AEEF4446BDF1885A48B67886"
-                    "DisplayName" = "8:Module Retargetable Folder"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_42E99F3122664E1D86CB9169B8B27516"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:OpenSSLRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-                "Properties"
-                {
-                    "_FB65C60981A84F8A878AE7BDEC05F7C9.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-                    {
-                    "Name" = "8:_FB65C60981A84F8A878AE7BDEC05F7C9.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-                    "DisplayName" = "8:Module Retargetable Folder"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                }
-            "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
             "Feature" = "8:"
@@ -683,17 +586,17 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_77DD0ABD6CDA417E8E3030E16544347F"
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_89686A6152934092A7D609406355AD6F"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:BerkeleyDBRuntimeDebug.msm"
-            "ModuleSignature" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
+            "SourcePath" = "8:BerkeleyDBRuntime.msm"
+            "ModuleSignature" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
                 "Properties"
                 {
-                    "_28D9A93C72B347ED90A0256E6A900174.322C5D4010C3431087389006EF9BC602"
+                    "_7DC4317E664C43829847DA1D47C7ADF1.F9B82A94BAF2496A9CF7665CDE828FEC"
                     {
-                    "Name" = "8:_28D9A93C72B347ED90A0256E6A900174.322C5D4010C3431087389006EF9BC602"
+                    "Name" = "8:_7DC4317E664C43829847DA1D47C7ADF1.F9B82A94BAF2496A9CF7665CDE828FEC"
                     "DisplayName" = "8:Module Retargetable Folder"
                     "Description" = "8:"
                     "Type" = "3:32769"
@@ -709,17 +612,69 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_9BEB629A281C4C0F983DE1C308E2E812"
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_89890E7AF9C04168A5B436E33BB17C8B"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:IceRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.F5B44F99C9F941D9995A9C9EDB8BE45E"
+            "SourcePath" = "8:OpenSSLDevKit.msm"
+            "ModuleSignature" = "8:MergeModule.4E1047477590477A8EEC6153FAAF5A8A"
                 "Properties"
                 {
-                    "_20E11ABD430C44DD91C1839904224F28.F5B44F99C9F941D9995A9C9EDB8BE45E"
+                    "_BE8AE4ADB97F4C73980DC34D45DC8AC2.4E1047477590477A8EEC6153FAAF5A8A"
                     {
-                    "Name" = "8:_20E11ABD430C44DD91C1839904224F28.F5B44F99C9F941D9995A9C9EDB8BE45E"
+                    "Name" = "8:_BE8AE4ADB97F4C73980DC34D45DC8AC2.4E1047477590477A8EEC6153FAAF5A8A"
+                    "DisplayName" = "8:Module Retargetable Folder"
+                    "Description" = "8:"
+                    "Type" = "3:32769"
+                    "ContextData" = "8:_RetargetableFolder"
+                    "Attributes" = "3:6"
+                    "Setting" = "3:1"
+                    "UsePlugInResources" = "11:FALSE"
+                    }
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_954BD4D5B1354A8F964DFD5DACB42D47"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:OpenSSLRuntime.msm"
+            "ModuleSignature" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
+                "Properties"
+                {
+                    "_FB65C60981A84F8A878AE7BDEC05F7C9.AC78A5C4421B4F2FBD9AAFFA3084E88E"
+                    {
+                    "Name" = "8:_FB65C60981A84F8A878AE7BDEC05F7C9.AC78A5C4421B4F2FBD9AAFFA3084E88E"
+                    "DisplayName" = "8:Module Retargetable Folder"
+                    "Description" = "8:"
+                    "Type" = "3:32769"
+                    "ContextData" = "8:_RetargetableFolder"
+                    "Attributes" = "3:6"
+                    "Setting" = "3:1"
+                    "UsePlugInResources" = "11:FALSE"
+                    }
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_A081C529521B46ACA073D72440FF7174"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:BerkeleyDBRuntimeDebug.msm"
+            "ModuleSignature" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
+                "Properties"
+                {
+                    "_28D9A93C72B347ED90A0256E6A900174.322C5D4010C3431087389006EF9BC602"
+                    {
+                    "Name" = "8:_28D9A93C72B347ED90A0256E6A900174.322C5D4010C3431087389006EF9BC602"
                     "DisplayName" = "8:Module Retargetable Folder"
                     "Description" = "8:"
                     "Type" = "3:32769"
@@ -762,32 +717,6 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_E292B15C90A94AED894ED700E406C9C4"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:BerkeleyDBRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
-                "Properties"
-                {
-                    "_7DC4317E664C43829847DA1D47C7ADF1.F9B82A94BAF2496A9CF7665CDE828FEC"
-                    {
-                    "Name" = "8:_7DC4317E664C43829847DA1D47C7ADF1.F9B82A94BAF2496A9CF7665CDE828FEC"
-                    "DisplayName" = "8:Module Retargetable Folder"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
             "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_ED07297D7F0B48BC8341D557019A93FF"
             {
             "UseDynamicProperties" = "11:TRUE"
@@ -809,6 +738,17 @@
                     "UsePlugInResources" = "11:FALSE"
                     }
                 }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_F8A6A848D83143C584D832AAAE453231"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:IceRuntimeDebug.msm"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"

@@ -2985,12 +2985,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E173F532A4884958856117A8A4AE5EBE"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\README.FACETS"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_E22AF8D80F7C4663BB925A93EC94C96B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\ICEUTIL\\GC.H"
@@ -13316,26 +13310,6 @@
             "TargetName" = "8:Collocated.java"
             "Tag" = "8:"
             "Folder" = "8:_57EFC5B32A4B472F842CFF1522F97BB4"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E173F532A4884958856117A8A4AE5EBE"
-            {
-            "SourcePath" = "8:..\\..\\..\\README.FACETS"
-            "TargetName" = "8:README.FACETS"
-            "Tag" = "8:"
-            "Folder" = "8:_9CC2760FAF3948349E98706AE0817C64"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
