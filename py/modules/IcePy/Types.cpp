@@ -130,7 +130,7 @@ exceptionInfoDealloc(ExceptionInfoObject* self)
 static void
 addClassInfo(const string& id, const ClassInfoPtr& info)
 {
-    assert(_classInfoMap.find(id) == _classInfoMap.end());
+//    assert(_classInfoMap.find(id) == _classInfoMap.end());
     _classInfoMap.insert(ClassInfoMap::value_type(id, info));
 }
 
@@ -140,7 +140,7 @@ addClassInfo(const string& id, const ClassInfoPtr& info)
 static void
 addProxyInfo(const string& id, const ProxyInfoPtr& info)
 {
-    assert(_proxyInfoMap.find(id) == _proxyInfoMap.end());
+//    assert(_proxyInfoMap.find(id) == _proxyInfoMap.end());
     _proxyInfoMap.insert(ProxyInfoMap::value_type(id, info));
 }
 
@@ -164,7 +164,7 @@ lookupProxyInfo(const string& id)
 static void
 addExceptionInfo(const string& id, const ExceptionInfoPtr& info)
 {
-    assert(_exceptionInfoMap.find(id) == _exceptionInfoMap.end());
+//    assert(_exceptionInfoMap.find(id) == _exceptionInfoMap.end());
     _exceptionInfoMap.insert(ExceptionInfoMap::value_type(id, info));
 }
 
