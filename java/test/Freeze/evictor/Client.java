@@ -55,7 +55,7 @@ public class Client
 	evictor.setSize(size);
 
 	//
-	// Create some servants and verify they did not get saved
+	// Create some servants 
 	//
 	Test.ServantPrx[] servants = new Test.ServantPrx[size];
 	for(int i = 0; i < size; i++)
@@ -69,22 +69,13 @@ public class Client
 	    Test.FacetPrx facet2 = Test.FacetPrxHelper.checkedCast(facet1, "facet2");
 	    test(facet2 != null);
 	    facet2.setValue(100 * i);
-	    test(evictor.getLastSavedValue() == -1);
 	}
-	
-	//
-	// Save and verify
-	//
-	evictor.saveNow();
-
-	test(evictor.getLastSavedValue() == 100 * (size - 1));
 
 	//
 	// Evict and verify values.
 	//
 	evictor.setSize(0);
 	evictor.setSize(size);
-	evictor.clearLastSavedValue();
 	for(int i = 0; i < size; i++)
 	{
 	    test(servants[i].getValue() == i);
@@ -111,10 +102,6 @@ public class Client
 	    facet2.setValue(100 * i + 100);
 	}
 	
-	//
-	// Servants should not be saved yet.
-	//
-	test(evictor.getLastSavedValue() == -1);
 	for(int i = 0; i < size; i++)
 	{
 	    test(servants[i].getValue() == i + 100);
@@ -142,8 +129,6 @@ public class Client
 	    test(facet2.getValue() == 100 * i + 100);
 	}
 
-	evictor.saveNow();
-
 	// 
 	// Test saving while busy
 	//
@@ -151,8 +136,6 @@ public class Client
 	AMI_Servant_setValueAsyncI setCB = new AMI_Servant_setValueAsyncI();
 	for(int i = 0; i < size; i++)
 	{
-	    evictor.clearLastSavedValue();
-
 	    //
 	    // Start a mutating operation so that the object is not idle.
 	    //
@@ -168,30 +151,20 @@ public class Client
 	    catch(InterruptedException ex)
 	    {
 	    }
-	    //
-	    // Object should not have been modified or saved yet.
-	    //
+	    
 	    test(servants[i].getValue() == i + 100);
-	    test(evictor.getLastSavedValue() == -1);
 	    //
 	    // This operation modifies the object state but is not saved
 	    // because the setValueAsync operation is still pending.
 	    //
 	    servants[i].setValue(i + 200);
 	    test(servants[i].getValue() == i + 200);
-	    test(evictor.getLastSavedValue() == -1);
 	    
-	    evictor.saveNow();
-	    test(evictor.getLastSavedValue() == i + 200);
-
 	    //
 	    // Force the response to setValueAsync
 	    //
 	    servants[i].releaseAsync();
 	    test(servants[i].getValue() == i + 300);
-	    test(evictor.getLastSavedValue() == i + 200);
-	    evictor.saveNow();
-	    test(evictor.getLastSavedValue() == i + 300);
 	}
 
 
@@ -239,10 +212,6 @@ public class Client
 	    servants[i].removeAllFacets();
 	}
 
-	//
-	// Save and verify
-	//
-	evictor.saveNow();
 	evictor.setSize(0);
 	evictor.setSize(size);
 	

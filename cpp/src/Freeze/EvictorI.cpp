@@ -241,7 +241,6 @@ Freeze::EvictorI::EvictorI(const CommunicatorPtr communicator,
     _dbEnv(0),
     _dbEnvHolder(SharedDbEnv::get(communicator, envName)),
     _trace(0),
-    _noSyncAllowed(false),
     _generation(0)
 {
     _dbEnv = _dbEnvHolder.get();
@@ -258,7 +257,6 @@ Freeze::EvictorI::EvictorI(const CommunicatorPtr communicator,
     _communicator(communicator),
     _dbEnv(&dbEnv),
     _trace(0),
-    _noSyncAllowed(false),
     _generation(0)
 {
     init(envName, dbName, createDb);
@@ -268,8 +266,7 @@ void
 Freeze::EvictorI::init(const string& envName, const string& dbName, bool createDb)
 {
     _trace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Evictor");
-    _noSyncAllowed = (_communicator->getProperties()->getPropertyAsInt("Freeze.Evictor.NoSyncAllowed") != 0);
-
+   
     string propertyPrefix = string("Freeze.Evictor.") + envName + '.' + dbName; 
     
     //
@@ -1327,21 +1324,10 @@ Freeze::EvictorI::run()
 		    }
 		    else
 		    {
-			if(_noSyncAllowed)
-			{
-			    facet->status = clean;
-			    size_t index = streamedObjectQueue.size();
-			    streamedObjectQueue.resize(index + 1);
-			    StreamedObject& obj = streamedObjectQueue[index];
-			    streamFacet(facet, allObjects[i]->first, status, saveStart, obj);
-			}
-			else
-			{
-			    DatabaseException ex(__FILE__, __LINE__);
-			    ex.message = string(typeid(*facet->rec.servant).name()) 
-				+ " does not implement IceUtil::AbstractMutex and Freeze.Evictor.NoSyncAllowed is 0";
-			    throw ex;
-			}
+			DatabaseException ex(__FILE__, __LINE__);
+			ex.message = string(typeid(*facet->rec.servant).name()) 
+			    + " does not implement IceUtil::AbstractMutex";
+			throw ex;
 		    }
 		}
 	    } while(tryAgain);

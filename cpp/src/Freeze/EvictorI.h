@@ -225,7 +225,6 @@ private:
     std::auto_ptr<Db> _db;
     ServantInitializerPtr _initializer;
     Ice::Int _trace;
-    bool _noSyncAllowed;
 
     //
     // Threads that have requested a "saveNow" and are waiting for

@@ -124,13 +124,6 @@ Test::ServantI::destroy(const Current& current)
     _evictor->destroyObject(current.id);
 }
 
-void
-Test::ServantI::__write(IceInternal::BasicStream* os, bool marshalFacets) const
-{
-    assert(_remoteEvictor);
-    _remoteEvictor->setLastSavedValue(value);
-    Servant::__write(os, marshalFacets);
-}
 
 Test::FacetI::FacetI()
 {
@@ -157,20 +150,11 @@ Test::FacetI::setData(const string& d, const Current&)
     data = d;
 }
 
-void 
-Test::FacetI::__write(::IceInternal::BasicStream* os, bool marshalFacets) const
-{
-    assert(_remoteEvictor);
-    _remoteEvictor->setLastSavedValue(value);
-    Facet::__write(os, marshalFacets);
-}
-
 Test::RemoteEvictorI::RemoteEvictorI(const ObjectAdapterPtr& adapter, const string& category,
 				     const Freeze::EvictorPtr& evictor) :
     _adapter(adapter),
     _category(category),
-    _evictor(evictor),
-    _lastSavedValue(-1)
+    _evictor(evictor)
 {
     CommunicatorPtr communicator = adapter->getCommunicator();
     _evictorAdapter = communicator->createObjectAdapterWithEndpoints(IceUtil::generateUUID(), "default");
@@ -210,25 +194,6 @@ Test::RemoteEvictorI::getServant(Int id, const Current&)
     return ServantPrx::uncheckedCast(_evictorAdapter->createProxy(ident));
 }
 
-Int
-Test::RemoteEvictorI::getLastSavedValue(const Current&) const
-{
-    Int result = _lastSavedValue;
-    return result;
-}
-
-void
-Test::RemoteEvictorI::clearLastSavedValue(const Current&)
-{
-    _lastSavedValue = -1;
-}
-
-
-void
-Test::RemoteEvictorI::saveNow(const Current&)
-{
-    _evictor->saveNow();
-}
 
 void
 Test::RemoteEvictorI::deactivate(const Current& current)
@@ -250,14 +215,7 @@ Test::RemoteEvictorI::destroyAllServants(const Current&)
     while(p->hasNext())
     {
 	_evictor->destroyObject(p->next());
-	_evictor->saveNow();
     }
-}
-
-void
-Test::RemoteEvictorI::setLastSavedValue(Int value)
-{
-    _lastSavedValue = value;
 }
 
 class Initializer : public Freeze::ServantInitializer

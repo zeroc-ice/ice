@@ -44,7 +44,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     evictor->setSize(size);
     
     //
-    // Create some servants and verify they did not get saved
+    // Create some servants 
     //
     vector<Test::ServantPrx> servants;
     for(i = 0; i < size; i++)
@@ -58,23 +58,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	Test::FacetPrx facet2 = Test::FacetPrx::checkedCast(facet1, "facet2");
 	test(facet2);
 	facet2->setValue(100 * i);
-
-	test(evictor->getLastSavedValue() == -1);
     }
-    
-    //
-    // save and verify
-    //
-    evictor->saveNow();
-    test(evictor->getLastSavedValue() == 100 * (i - 1));
-
-	
+   
     //
     // Evict and verify values.
     //
     evictor->setSize(0);
     evictor->setSize(size);
-    evictor->clearLastSavedValue();
     for(i = 0; i < size; i++)
     {
 	test(servants[i]->getValue() == i);
@@ -102,21 +92,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
     
     //
-    // Servants should not be saved yet.
-    //
-    test(evictor->getLastSavedValue() == -1);
-    for(i = 0; i < size; i++)
-    {
-	test(servants[i]->getValue() == i + 100);
-	Test::FacetPrx facet1 = Test::FacetPrx::checkedCast(servants[i], "facet1");
-	test(facet1);
-	test(facet1->getValue() == 10 * i + 100);
-	Test::FacetPrx facet2 = Test::FacetPrx::checkedCast(facet1, "facet2");
-	test(facet2);
-	test(facet2->getValue() == 100 * i + 100);
-    }
-    
-    //
     // Evict and verify values.
     //
     evictor->setSize(0);
@@ -131,17 +106,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	test(facet2);
 	test(facet2->getValue() == 100 * i + 100);
     }
-    
-    evictor->saveNow();
-
     // 
     // Test saving while busy
     //
     Test::AMI_Servant_setValueAsyncPtr setCB = new AMI_Servant_setValueAsyncI;
     for(i = 0; i < size; i++)
     {
-	evictor->clearLastSavedValue();
-
 	//
 	// Start a mutating operation so that the object is not idle.
 	//
@@ -150,30 +120,20 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	// Wait for setValueAsync to be dispatched.
 	//
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
-	//
-	// Object should not have been modified or saved yet.
-	//
+
 	test(servants[i]->getValue() == i + 100);
-	test(evictor->getLastSavedValue() == -1);
 	//
 	// This operation modifies the object state but is not saved
 	// because the setValueAsync operation is still pending.
 	//
 	servants[i]->setValue(i + 200);
 	test(servants[i]->getValue() == i + 200);
-	test(evictor->getLastSavedValue() == -1);
-	
-	evictor->saveNow();
-	test(evictor->getLastSavedValue() == i + 200);
 
 	//
 	// Force the response to setValueAsync
 	//
 	servants[i]->releaseAsync();
 	test(servants[i]->getValue() == i + 300);
-	test(evictor->getLastSavedValue() == i + 200);
-	evictor->saveNow();
-	test(evictor->getLastSavedValue() == i + 300);
     }
 
     //
@@ -218,10 +178,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	servants[i]->removeAllFacets();
     }
 
-    //
-    // Save and verify
-    //
-    evictor->saveNow();
     evictor->setSize(0);
     evictor->setSize(size);
 

@@ -54,8 +54,6 @@ public:
 
     virtual void destroy(const Ice::Current& = Ice::Current());
 
-    virtual void __write(::IceInternal::BasicStream*, bool) const;
-
 protected:
 
     RemoteEvictorIPtr _remoteEvictor;
@@ -77,7 +75,6 @@ public:
 
     virtual void setData(const std::string&, const Ice::Current& = Ice::Current());
 
-    virtual void __write(::IceInternal::BasicStream*, bool) const;
 };
 
 class RemoteEvictorI : virtual public RemoteEvictor
@@ -92,17 +89,9 @@ public:
 
     virtual ::Test::ServantPrx getServant(::Ice::Int, const Ice::Current&);
 
-    virtual ::Ice::Int getLastSavedValue(const Ice::Current&) const;
-
-    virtual void clearLastSavedValue(const Ice::Current&);
-
-    virtual void saveNow(const Ice::Current&);
-
     virtual void deactivate(const Ice::Current&);
 
     virtual void destroyAllServants(const Ice::Current&);
-
-    void setLastSavedValue(Ice::Int);
 
 private:
 
@@ -110,7 +99,6 @@ private:
     std::string _category;
     Freeze::EvictorPtr _evictor;
     Ice::ObjectAdapterPtr _evictorAdapter;
-    Ice::Int _lastSavedValue;
 };
 
 class RemoteEvictorFactoryI : virtual public RemoteEvictorFactory

@@ -340,17 +340,6 @@ local interface Evictor extends Ice::ServantLocator
      *
      **/
     bool hasObject(Ice::Identity ident);
-
-
-    /**
-     *
-     * Saves immediately all created, modified and destroyed objects.
-     *
-     * @throws DatabaseException Raised if a database failure occurred.
-     *
-     **/
-    void saveNow();
-
 };
 
 };

@@ -107,7 +107,7 @@ public class ServantI implements Test._ServantOperations
 	System.arraycopy(current.facet, 0, facetPath, 0, current.facet.length);
 	facetPath[facetPath.length - 1] = name;
 
-	Server.FacetTie tie = new Server.FacetTie();
+	Test._FacetTie tie = new Test._FacetTie();
 	tie.ice_delegate(new FacetI(tie, _remoteEvictor, _evictor, 0, data));
 
 	try
@@ -142,14 +142,6 @@ public class ServantI implements Test._ServantOperations
     removeAllFacets(Ice.Current current)
     {
 	_evictor.removeAllFacets(current.id);
-    }
-
-    void setLastSavedValue()
-    {
-	synchronized(_tie)
-	{
-	    _remoteEvictor.setLastSavedValue(_tie.value);
-	}
     }
     
     protected RemoteEvictorI _remoteEvictor;

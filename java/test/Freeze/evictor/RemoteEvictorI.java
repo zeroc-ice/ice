@@ -23,7 +23,6 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
         _evictorAdapter = communicator.createObjectAdapterWithEndpoints(Ice.Util.generateUUID(), "default");
         _evictorAdapter.addServantLocator(evictor, category);
         _evictorAdapter.activate();
-        _lastSavedValue = -1;
     }
 
     public void
@@ -38,7 +37,7 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
         Ice.Identity ident = new Ice.Identity();
         ident.category = _category;
         ident.name = "" + id;
-	Server.ServantTie tie = new Server.ServantTie();
+	Test._ServantTie tie = new Test._ServantTie();
 	tie.ice_delegate(new ServantI(tie, this, _evictor, value));
         _evictor.createObject(ident, tie);
         return Test.ServantPrxHelper.uncheckedCast(_evictorAdapter.createProxy(ident));
@@ -51,25 +50,6 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
         ident.category = _category;
         ident.name = "" + id;
         return Test.ServantPrxHelper.uncheckedCast(_evictorAdapter.createProxy(ident));
-    }
-
-    public int
-    getLastSavedValue(Ice.Current current)
-    {
-        int result = _lastSavedValue;
-        return result;
-    }
-
-    public void
-    clearLastSavedValue(Ice.Current current)
-    {
-        _lastSavedValue = -1;
-    }
-
-    public
-    void saveNow(Ice.Current current)
-    {
-	_evictor.saveNow();
     }
 
     public void
@@ -93,19 +73,11 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
 	while(p.hasNext())
 	{
 	    _evictor.destroyObject((Ice.Identity) p.next());
-	    _evictor.saveNow();
 	}
-    }
-
-    void
-    setLastSavedValue(int value)
-    {
-        _lastSavedValue = value;
     }
 
     private Ice.ObjectAdapter _adapter;
     private String _category;
     private Freeze.Evictor _evictor;
     private Ice.ObjectAdapter _evictorAdapter;
-    private int _lastSavedValue;
 }

@@ -13,34 +13,14 @@
 // **********************************************************************
 
 public class Server
-{
-    static class ServantTie extends Test._ServantTie
-    {
-	public void
-	__write(IceInternal.BasicStream os, boolean marshalFacets)
-	{
-	    ((ServantI)ice_delegate()).setLastSavedValue();
-	    super.__write(os, marshalFacets);
-	}
-    }
-
-    static class FacetTie extends Test._FacetTie
-    {
-	public void
-	__write(IceInternal.BasicStream os, boolean marshalFacets)
-	{
-	    ((FacetI)ice_delegate()).setLastSavedValue();
-	    super.__write(os, marshalFacets);
-	}
-    }
-    
+{ 
     static class ServantFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
     {
         public Ice.Object
         create(String type)
         {
             assert(type.equals("::Test::Servant"));
-	    ServantTie tie = new ServantTie();
+	    Test._ServantTie tie = new Test._ServantTie();
 	    tie.ice_delegate(new ServantI(tie));
 	    return tie;
         }
@@ -57,7 +37,7 @@ public class Server
         create(String type)
         {
             assert(type.equals("::Test::Facet"));
-	    FacetTie tie = new FacetTie();
+	    Test._FacetTie tie = new Test._FacetTie();
 	    tie.ice_delegate(new FacetI(tie));
 	    return tie;
         }

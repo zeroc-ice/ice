@@ -90,17 +90,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	return _evictorSize;
     }
     
-    synchronized public void
-    saveNow()
-    {
-	if(_deactivated)
-	{
-	    throw new EvictorDeactivatedException();
-	}
-	
-	saveNowNoSync();
-    }
-
     public void
     createObject(Ice.Identity ident, Ice.Object servant)
     {
@@ -1296,6 +1285,17 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	return _errorPrefix;
     }
     
+    synchronized void
+    saveNow()
+    {
+	if(_deactivated)
+	{
+	    throw new EvictorDeactivatedException();
+	}
+	
+	saveNowNoSync();
+    }
+
     boolean
     load(com.sleepycat.db.Dbc dbc, com.sleepycat.db.Dbt key, com.sleepycat.db.Dbt value, 
 	 java.util.List identities, java.util.List evictorElements)

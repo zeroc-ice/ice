@@ -56,10 +56,7 @@ interface RemoteEvictor
     void setSize(int size);
     Servant* createServant(int id, int value);
     Servant* getServant(int id);
-  
-    nonmutating int getLastSavedValue();
-    void clearLastSavedValue();
-    void saveNow();
+
     void deactivate();
     void destroyAllServants();
 };
