@@ -71,8 +71,9 @@ Glacier::RouterApp::run(int argc, char* argv[])
     PropertiesPtr properties = communicator()->getProperties();
 
     //
-    // Initialize the object adapter.
-    //
+    // Initialize the object adapter (and make sure this object
+    // adapter doesn't register itself with the locator).
+    // 
     const char* endpointsProperty = "Glacier.Starter.Endpoints";
     string endpoints = properties->getProperty(endpointsProperty);
     if(endpoints.empty())
@@ -81,6 +82,7 @@ Glacier::RouterApp::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
     ObjectAdapterPtr adapter = communicator()->createObjectAdapterFromProperty("Starter", endpointsProperty);
+    adapter->setLocator(0);
 
     //
     // Get the password verifier, or create one if no verifier is

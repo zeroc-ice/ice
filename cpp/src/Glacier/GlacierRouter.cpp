@@ -175,6 +175,7 @@ Glacier::RouterApp::run(int argc, char* argv[])
     }
     ObjectAdapterPtr clientAdapter = communicator()->createObjectAdapterFromProperty("Client",
 										     clientEndpointsProperty);
+    clientAdapter->setLocator(0);
 
     //
     // Initialize the server object adapter.
@@ -185,6 +186,7 @@ Glacier::RouterApp::run(int argc, char* argv[])
     if(!serverEndpoints.empty())
     {
 	serverAdapter = communicator()->createObjectAdapterFromProperty("Server", serverEndpointsProperty);
+	serverAdapter->setLocator(0);
     }
 
     //
@@ -231,6 +233,7 @@ Glacier::RouterApp::run(int argc, char* argv[])
 
     ObjectAdapterPtr routerAdapter =
 	communicator()->createObjectAdapterFromProperty("Router", routerEndpointsProperty);
+    routerAdapter->setLocator(0);
     RouterPtr router = new RouterI(clientAdapter, serverAdapter, routingTable, sessionManagerPrx, userId);
     routerAdapter->add(router, stringToIdentity(routerIdentity));
 
