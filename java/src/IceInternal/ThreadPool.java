@@ -71,7 +71,7 @@ public final class ThreadPool
     public synchronized void
     waitUntilServerFinished()
     {
-        while (_clients + _servers != 0 && _threadNum != 0)
+        while (_servers != 0 && _threadNum != 0)
         {
             try
             {
@@ -310,7 +310,7 @@ catch (RuntimeException ex)
                     break;
                 }
 
-//System.out.println("  clearInterrupt - got byte " + (int)buf.get(0));
+//System.out.println("  - got byte " + (int)buf.get(0));
                 b = buf.get(0);
                 break;
             }
@@ -613,7 +613,7 @@ catch (RuntimeException ex)
                             assert(_clients > 0);
                             --_clients;
                         }
-//System.out.println("ThreadPool - _handlers = " + _handlers + ", _servers = " + _servers);
+//System.out.println("ThreadPool - handler is finished - _handlers = " + _handlers + ", _clients = " + _clients + ", _servers = " + _servers);
                         if (_clients == 0 || _servers == 0)
                         {
                             notifyAll(); // For waitUntil...Finished() methods.
