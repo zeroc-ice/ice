@@ -1924,7 +1924,9 @@ IcePHP::PHPObjectFactory::create(const string& scoped)
     {
         cls = findClassScoped(scoped TSRMLS_CC);
     }
-    if(cls && (cls->ce_flags & ZEND_ACC_ABSTRACT) == 0)
+
+    const int abstractFlags = ZEND_ACC_INTERFACE | ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
+    if(cls && (cls->ce_flags & abstractFlags) == 0)
     {
         Profile::ClassMap::iterator p = profile->classes.find(cls->name);
         if(p != profile->classes.end())

@@ -4,6 +4,9 @@ Changes since version 1.0.3
 - Fixed a bug that could cause a marshaling exception for uninitialized
   string data members.
 
+- Fixed a marshaling bug that caused an assertion failure in the value
+  demo.
+
 Changes since version 1.0.2
 ---------------------------
 
