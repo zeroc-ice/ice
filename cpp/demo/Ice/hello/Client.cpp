@@ -69,23 +69,23 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    cin >> c;
 	    if(c == 't')
 	    {
-		twoway->hello();
+		twoway->sayHello();
 	    }
 	    else if(c == 'o')
 	    {
-		oneway->hello();
+		oneway->sayHello();
 	    }
 	    else if(c == 'O')
 	    {
-		batchOneway->hello();
+		batchOneway->sayHello();
 	    }
 	    else if(c == 'd')
 	    {
-		datagram->hello();
+		datagram->sayHello();
 	    }
 	    else if(c == 'D')
 	    {
-		batchDatagram->hello();
+		batchDatagram->sayHello();
 	    }
 	    else if(c == 'f')
 	    {

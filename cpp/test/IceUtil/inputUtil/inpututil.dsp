@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="inpututil" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="inputUtil" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=inpututil - Win32 Debug
+CFG=inputUtil - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "inpututil.mak".
+!MESSAGE NMAKE /f "inputUtil.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "inpututil.mak" CFG="inpututil - Win32 Debug"
+!MESSAGE NMAKE /f "inputUtil.mak" CFG="inputUtil - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "inpututil - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "inpututil - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "inputUtil - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "inputUtil - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=inpututil - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "inpututil - Win32 Release"
+!IF  "$(CFG)" == "inputUtil - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../include" /D "NDEBUG" /D "_CONSOLE" /D "_inpututil" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../include" /D "NDEBUG" /D "_CONSOLE" /D "_inputUtil" /YX /FD /c
 # SUBTRACT CPP /Fr
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -54,7 +54,7 @@ LINK32=link.exe
 # ADD LINK32 /nologo /subsystem:console /machine:I386 /out:"client.exe" /libpath:"../../../lib"
 # SUBTRACT LINK32 /nodefaultlib
 
-!ELSEIF  "$(CFG)" == "inpututil - Win32 Debug"
+!ELSEIF  "$(CFG)" == "inputUtil - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -84,8 +84,8 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "inpututil - Win32 Release"
-# Name "inpututil - Win32 Debug"
+# Name "inputUtil - Win32 Release"
+# Name "inputUtil - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"

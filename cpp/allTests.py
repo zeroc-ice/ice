@@ -27,7 +27,7 @@ import TestUtil
 tests = [ \
     "IceUtil/thread", \
     "IceUtil/unicode", \
-    "IceUtil/inpututil", \
+    "IceUtil/inputUtil", \
     "Slice/errorDetection", \
     "Ice/operations", \
     "Ice/exceptions", \

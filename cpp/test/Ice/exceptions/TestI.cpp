@@ -26,7 +26,7 @@ void
 ThrowerI::throwAasA(Ice::Int a, const Ice::Current&)
 {
     A ex;
-    ex.a = a;
+    ex.a_mem = a;
     throw ex;
 }
 
@@ -36,13 +36,13 @@ ThrowerI::throwAorDasAorD(Ice::Int a, const Ice::Current&)
     if(a > 0)
     {
 	A ex;
-	ex.a = a;
+	ex.a_mem = a;
 	throw ex;
     }
     else
     {
 	D ex;
-	ex.d = a;
+	ex.d_mem = a;
 	throw ex;
     }
 }
@@ -63,8 +63,8 @@ void
 ThrowerI::throwBasB(Ice::Int a, Ice::Int b, const Ice::Current&)
 {
     B ex;
-    ex.a = a;
-    ex.b = b;
+    ex.a_mem = a;
+    ex.b_mem = b;
     throw ex;
 }
 
@@ -78,9 +78,9 @@ void
 ThrowerI::throwCasC(Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current&)
 {
     C ex;
-    ex.a = a;
-    ex.b = b;
-    ex.c = c;
+    ex.a_mem = a;
+    ex.b_mem = b;
+    ex.c_mem = c;
     throw ex;
 }
 
@@ -94,7 +94,7 @@ void
 ThrowerI::throwUndeclaredA(Ice::Int a, const Ice::Current&)
 {
     A ex;
-    ex.a = a;
+    ex.a_mem = a;
     throw ex;
 }
 
@@ -102,8 +102,8 @@ void
 ThrowerI::throwUndeclaredB(Ice::Int a, Ice::Int b, const Ice::Current&)
 {
     B ex;
-    ex.a = a;
-    ex.b = b;
+    ex.a_mem = a;
+    ex.b_mem = b;
     throw ex;
 }
 
@@ -111,9 +111,9 @@ void
 ThrowerI::throwUndeclaredC(Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current&)
 {
     C ex;
-    ex.a = a;
-    ex.b = b;
-    ex.c = c;
+    ex.a_mem = a;
+    ex.b_mem = b;
+    ex.c_mem = c;
     throw ex;
 }
 

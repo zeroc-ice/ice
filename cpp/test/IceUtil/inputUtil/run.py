@@ -21,7 +21,7 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-name = os.path.join("IceUtil", "inpututil")
+name = os.path.join("IceUtil", "inputUtil")
 testdir = os.path.join(toplevel, "test", name)
 
 client = os.path.join(testdir, "client")

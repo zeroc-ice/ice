@@ -678,7 +678,7 @@ Package=<4>
     Project_Dep_Name locationS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name inpututil
+    Project_Dep_Name inputUtil
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name helloIceBoxC
@@ -1347,7 +1347,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "inpututil"=.\test\IceUtil\inpututil\inpututil.dsp - Package Owner=<4>
+Project: "inputUtil"=.\test\IceUtil\inputUtil\inputUtil.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

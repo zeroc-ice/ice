@@ -19,7 +19,7 @@ HelloI::HelloI(const Ice::CommunicatorPtr& communicator) :
 }
 
 void
-HelloI::hello(const Ice::Current&)
+HelloI::sayHello(const Ice::Current&)
 {
     cout << "Hello World!" << endl;
 }

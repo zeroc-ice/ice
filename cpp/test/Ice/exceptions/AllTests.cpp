@@ -69,7 +69,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     catch(const A& ex)
     {
-	test(ex.a == 1);
+	test(ex.a_mem == 1);
     }
     catch (...)
     {
@@ -83,7 +83,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     catch(const A& ex)
     {
-	test(ex.a == 1);
+	test(ex.a_mem == 1);
     }
     catch (...)
     {
@@ -97,7 +97,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     catch(const D& ex)
     {
-	test(ex.d == -1);
+	test(ex.d_mem == -1);
     }
     catch (...)
     {
@@ -111,8 +111,8 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     catch(const B& ex)
     {
-	test(ex.a == 1);
-	test(ex.b == 2);
+	test(ex.a_mem == 1);
+	test(ex.b_mem == 2);
     }
     catch (...)
     {
@@ -126,9 +126,9 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     catch(const C& ex)
     {
-	test(ex.a == 1);
-	test(ex.b == 2);
-	test(ex.c == 3);
+	test(ex.a_mem == 1);
+	test(ex.b_mem == 2);
+	test(ex.c_mem == 3);
     }
     catch (...)
     {
@@ -146,7 +146,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     catch(const A& ex)
     {
-	test(ex.a == 1);
+	test(ex.a_mem == 1);
     }
     catch (...)
     {
@@ -160,8 +160,8 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     catch(const B& ex)
     {
-	test(ex.a == 1);
-	test(ex.b == 2);
+	test(ex.a_mem == 1);
+	test(ex.b_mem == 2);
     }
     catch (...)
     {
@@ -235,8 +235,8 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     catch(const B& ex)
     {
-	test(ex.a == 1);
-	test(ex.b == 2);
+	test(ex.a_mem == 1);
+	test(ex.b_mem == 2);
     }
     catch (...)
     {
@@ -250,9 +250,9 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     catch(const C& ex)
     {
-	test(ex.a == 1);
-    	test(ex.b == 2);
-    	test(ex.c == 3);
+	test(ex.a_mem == 1);
+    	test(ex.b_mem == 2);
+    	test(ex.c_mem == 3);
     }
     catch (...)
     {
@@ -266,9 +266,9 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     catch(const C& ex)
     {
-	test(ex.a == 1);
-	test(ex.b == 2);
-	test(ex.c == 3);
+	test(ex.a_mem == 1);
+	test(ex.b_mem == 2);
+	test(ex.c_mem == 3);
     }
     catch (...)
     {

@@ -13,7 +13,7 @@
 
 class Hello
 {
-    void hello();
+    void sayHello();
     void shutdown();
 };
 

@@ -69,7 +69,7 @@ NestedClient::run(int argc, char* argv[])
 	    int level = atoi(s.c_str());
 	    if(level > 0)
 	    {
-		nested->nested(level, self);
+		nested->nestedCall(level, self);
 	    }
 	}
 	catch(const Exception& ex)
