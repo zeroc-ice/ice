@@ -28,13 +28,13 @@ public class IndirectReference extends RoutableReference
 	_locatorInfo = locInfo;
     }
 
-    public String
+    public final String
     getAdapterId()
     {
         return _adapterId;
     }
 
-    public LocatorInfo
+    public final LocatorInfo
     getLocatorInfo()
     {
         return _locatorInfo;

@@ -17,6 +17,15 @@ public class Collocated
         Ice.Object object = new MyDerivedClassI(adapter, Ice.Util.stringToIdentity("test"));
         adapter.add(object, Ice.Util.stringToIdentity("test"));
 
+	//
+	// Make a separate adapter with a servant locator. We use this to test
+	// that ::Ice::Context is correctly passed to checkedCast() operation.
+	//
+	communicator.getProperties().setProperty("CheckedCastAdapter.Endpoints", "default -p 12346 -t 10000");
+	adapter = communicator.createObjectAdapter("CheckedCastAdapter");
+	Ice.ServantLocator checkedCastLocator = new CheckedCastLocator();
+	adapter.addServantLocator(checkedCastLocator, "");
+
         AllTests.allTests(communicator, true);
 
         return 0;

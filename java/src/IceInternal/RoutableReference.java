@@ -11,13 +11,13 @@ package IceInternal;
 
 public abstract class RoutableReference extends Reference
 {
-    public RouterInfo
+    public final RouterInfo
     getRouterInfo()
     {
         return _routerInfo;
     }
 
-    public Endpoint[]
+    public final Endpoint[]
     getRoutedEndpoints()
     {
         if(_routerInfo != null)
@@ -32,7 +32,7 @@ public abstract class RoutableReference extends Reference
 	return new Endpoint[0];
     }
 
-    public boolean
+    public final boolean
     getCollocationOptimization()
     {
         return _collocationOptimization;

@@ -1,6 +1,11 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Overloaded the checkedCast member function of the generated PrxHelper
+  classes to allow a trailing argument of type ::Ice::Context. This makes
+  it possible to do stateful things that require a context in a
+  servant locator's activate() method.
+
 - Added support for bzip2 protocol compression. The implementation
   uses the bzip2 classes from Ant. See the INSTALL file for more
   information.

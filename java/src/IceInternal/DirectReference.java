@@ -31,7 +31,7 @@ public class DirectReference extends RoutableReference
         return _endpoints;
     }
 
-    public Reference
+    public final Reference
     changeEndpoints(Endpoint[] newEndpoints)
     {
 	if(compare(newEndpoints, _endpoints))

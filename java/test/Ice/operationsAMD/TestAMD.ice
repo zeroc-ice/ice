@@ -10,6 +10,8 @@
 #ifndef TEST_AMD_ICE
 #define TEST_AMD_ICE
 
+#include<Ice/Current.ice>
+
 module Test
 {
 
@@ -152,6 +154,11 @@ dictionary<string, MyEnum> StringMyEnumD;
 ["ami", "amd"] class MyDerivedClass extends MyClass
 {
     void opDerived();
+};
+
+["ami", "amd"] interface TestCheckedCast
+{
+    Ice::Context getContext();
 };
 
 };

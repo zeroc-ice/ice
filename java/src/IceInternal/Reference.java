@@ -29,7 +29,7 @@ public abstract class Reference implements Cloneable
         return _identity;
     }
 
-    public java.util.Map
+    public final java.util.Map
     getContext()
     {
         return _context;
@@ -53,7 +53,7 @@ public abstract class Reference implements Cloneable
         return _instance;
     }
 
-    public Reference
+    public final Reference
     changeMode(int newMode)
     {
         if(newMode == _mode)
@@ -65,7 +65,7 @@ public abstract class Reference implements Cloneable
 	return r;
     }
 
-    public Reference
+    public final Reference
     changeIdentity(Ice.Identity newIdentity)
     {
         if(newIdentity.equals(_identity))
@@ -77,7 +77,7 @@ public abstract class Reference implements Cloneable
 	return r;
     }
 
-    public Reference
+    public final Reference
     changeContext(java.util.Map newContext)
     {
         if(newContext.equals(_context))
@@ -89,7 +89,7 @@ public abstract class Reference implements Cloneable
 	return r;
     }
 
-    public Reference
+    public final Reference
     changeFacet(String newFacet)
     {
         if(newFacet.equals(_facet))
@@ -101,7 +101,7 @@ public abstract class Reference implements Cloneable
 	return r;
     }
 
-    public Reference
+    public final Reference
     changeSecure(boolean newSecure)
     {
         if(newSecure == _secure)
@@ -113,7 +113,7 @@ public abstract class Reference implements Cloneable
 	return r;
     }
 
-    public synchronized int
+    public final synchronized int
     hashCode()
     {
 	if(_hashInitialized)
