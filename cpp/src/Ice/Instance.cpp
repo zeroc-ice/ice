@@ -360,6 +360,24 @@ IceInternal::Instance::messageSizeMax() const
     return _messageSizeMax;
 }
 
+void
+IceInternal::Instance::flushBatchRequests()
+{
+    OutgoingConnectionFactoryPtr factory;
+    std::map<std::string, ::Ice::ObjectAdapterIPtr> adapters;
+    {
+	IceUtil::RecMutex::Lock sync(*this);
+
+	factory = _outgoingConnectionFactory;
+	adapters = _objectAdapterFactory->_adapters;
+    }
+    factory->flushBatchRequests();
+    for(std::map<std::string, ::Ice::ObjectAdapterIPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+    {
+	p->second->flushBatchRequests();
+    }
+}
+
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, char* argv[],
                                 const PropertiesPtr& properties) :
     _destroyed(false),

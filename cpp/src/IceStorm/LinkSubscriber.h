@@ -30,7 +30,8 @@ class LinkSubscriber : public Subscriber, public Flushable
 {
 public:
 
-    LinkSubscriber(const SubscriberFactoryPtr&, const TraceLevelsPtr&, const QueuedProxyPtr&, Ice::Int);
+    LinkSubscriber(const SubscriberFactoryPtr&, const Ice::CommunicatorPtr&,
+	           const TraceLevelsPtr&, const QueuedProxyPtr&, Ice::Int);
     ~LinkSubscriber();
 
     virtual bool persistent() const;
@@ -46,6 +47,7 @@ private:
 
     // Immutable
     SubscriberFactoryPtr _factory;
+    Ice::CommunicatorPtr _communicator;
     QueuedProxyPtr _obj;
     Ice::Int _cost;
 };

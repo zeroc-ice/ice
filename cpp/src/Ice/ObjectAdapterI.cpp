@@ -466,6 +466,17 @@ Ice::ObjectAdapterI::getIncomingConnections() const
 }
 
 void
+Ice::ObjectAdapterI::flushBatchRequests()
+{
+    std::vector<IceInternal::IncomingConnectionFactoryPtr> f;
+    {
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+	f = _incomingConnectionFactories;
+    }
+    for_each(f.begin(), f.end(), Ice::voidMemFun(&IncomingConnectionFactory::flushBatchRequests));
+}
+
+void
 Ice::ObjectAdapterI::incDirectCount()
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);

@@ -35,7 +35,7 @@ TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice
     _topics(_communicator, envName, dbName)
 {
     _flusher = new Flusher(_communicator, _traceLevels);
-    _factory = new SubscriberFactory(_traceLevels, _flusher);
+    _factory = new SubscriberFactory(_communicator, _traceLevels, _flusher);
 
     //
     // Recreate each of the topics in the dictionary. If the topic

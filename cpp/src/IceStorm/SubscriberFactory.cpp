@@ -25,7 +25,10 @@
 using namespace std;
 using namespace IceStorm;
 
-SubscriberFactory::SubscriberFactory(const TraceLevelsPtr& traceLevels, const FlusherPtr& flusher) :
+SubscriberFactory::SubscriberFactory(const Ice::CommunicatorPtr& communicator,
+				     const TraceLevelsPtr& traceLevels,
+				     const FlusherPtr& flusher) :
+    _communicator(communicator),
     _traceLevels(traceLevels),
     _flusher(flusher)
 {
@@ -59,7 +62,7 @@ SubscriberFactory::createLinkSubscriber(const TopicLinkPrx& obj, Ice::Int cost)
         _proxies.insert(pair<Ice::ObjectPrx, ProxyInfo>(newObj, info));
     }
 
-    return new LinkSubscriber(this, _traceLevels, proxy, cost);
+    return new LinkSubscriber(this, _communicator, _traceLevels, proxy, cost);
 }
 
 SubscriberPtr
@@ -134,7 +137,7 @@ SubscriberFactory::createSubscriber(const QoS& qos, const Ice::ObjectPrx& obj)
 
     if(reliability == "batch")
     {
-        return new OnewayBatchSubscriber(this, _traceLevels, _flusher, proxy);
+        return new OnewayBatchSubscriber(this, _communicator, _traceLevels, _flusher, proxy);
     }
     else
     {

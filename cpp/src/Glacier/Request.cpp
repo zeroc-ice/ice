@@ -289,12 +289,7 @@ Glacier::RequestQueue::run()
             //
             // This sends all batched missives.
             //
-//	    sort(proxies.begin(), proxies.end());
-//	    proxies.erase(unique(proxies.begin(), proxies.end()), proxies.end());
-	    for(vector<ObjectPrx>::const_iterator q = proxies.begin(); q != proxies.end(); ++q)
-	    {
-		(*q)->ice_flush();
-	    }
+	    _communicator->flushBatchRequests();
         }
         catch(const Ice::Exception& ex)
         {

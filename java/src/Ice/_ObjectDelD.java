@@ -132,12 +132,6 @@ public class _ObjectDelD implements _ObjectDel
 	throw new CollocationOptimizationException();
     }
 
-    public void
-    ice_flush()
-    {
-        // Nothing to do for direct delegates.
-    }
-
     //
     // Only for use by ObjectPrx.
     //

@@ -475,6 +475,21 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         return arr;
     }
 
+    public void
+    flushBatchRequests()
+    {
+	java.util.ArrayList f;
+	synchronized(this)
+	{
+	    f = new java.util.ArrayList(_incomingConnectionFactories);
+	}
+	java.util.Iterator i = f.iterator();
+	while(i.hasNext())
+	{
+	    ((IceInternal.IncomingConnectionFactory)i.next()).flushBatchRequests();
+	}
+    }
+
     public synchronized void
     incDirectCount()
     {

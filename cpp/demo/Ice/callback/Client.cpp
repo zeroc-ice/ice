@@ -156,11 +156,7 @@ CallbackClient::run(int argc, char* argv[])
 	    }
 	    else if(c == 'f')
 	    {
-		batchOneway->ice_flush();
-                if(!secure)
-                {
-                    batchDatagram->ice_flush();
-                }
+		communicator()->flushBatchRequests();
 	    }
 	    else if(c == 'S')
 	    {

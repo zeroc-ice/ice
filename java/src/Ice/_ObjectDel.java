@@ -37,6 +37,4 @@ public interface _ObjectDel
 
     void ice_invoke_async(AMI_Object_ice_invoke cb, String operation, Ice.OperationMode mode, byte[] inParams,
 			  java.util.Map context);
-
-    void ice_flush();
 }

@@ -140,8 +140,6 @@ public:
     ::Ice::ObjectPrx ice_collocationOptimization(bool) const;
     ::Ice::ObjectPrx ice_default() const;
 
-    void ice_flush(); // Flush batch messages
-
     ::IceInternal::ReferencePtr __reference() const;
     void __copyFrom(const ::Ice::ObjectPrx&);
     void __handleException(const ::Ice::LocalException&, int&);
@@ -184,7 +182,6 @@ public:
     virtual void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&,
 				  const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 				  const ::Ice::Context&) = 0;
-    virtual void ice_flush() = 0;
 };
 
 } }
@@ -208,7 +205,6 @@ public:
     virtual void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&,
 				  const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 				  const ::Ice::Context&);
-    virtual void ice_flush();
 
     void __copyFrom(const ::IceInternal::Handle< ::IceDelegateM::Ice::Object>&);
 
@@ -245,8 +241,6 @@ public:
     virtual void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&,
 				  const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 				  const ::Ice::Context&);
-    virtual void ice_flush();
-
     void __copyFrom(const ::IceInternal::Handle< ::IceDelegateD::Ice::Object>&);
 
 protected:

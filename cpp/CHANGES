@@ -1,6 +1,11 @@
 Changes since version 1.1.1
 ---------------------------
 
+- Removed ice_flush() on the proxy base class. Batch requests are
+  now flushed by calling Communicator::flushBatchRequests(). This
+  flushes all requests that are currently batched in the communicator,
+  (for all connections).
+
 - Added back the connection closure timeout, but only for misbehaving
   peers. If a timeout is set, and a peer does't react to a close
   connection message, the connection is forcefully closed after the

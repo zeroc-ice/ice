@@ -176,11 +176,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    }
 	    else if(c == 'f')
 	    {
-		batchOneway->ice_flush();
-                if(!secure)
-                {
-                    batchDatagram->ice_flush();
-                }
+		communicator->flushBatchRequests();
 	    }
 	    else if(c == 'T')
 	    {

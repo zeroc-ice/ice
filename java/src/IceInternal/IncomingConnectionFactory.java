@@ -139,6 +139,16 @@ public class IncomingConnectionFactory extends EventHandler
         return arr;
     }
 
+    public void
+    flushBatchRequests()
+    {
+        Connection[] c = connections(); // connections() is synchronized, so no need to synchronize here.
+	for(int i = 0; i < c.length; i++)
+	{
+	    c[i].flushBatchRequest();
+	}
+    }
+
     //
     // Operations from EventHandler.
     //

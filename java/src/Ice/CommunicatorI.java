@@ -266,7 +266,7 @@ final class CommunicatorI extends LocalObjectImpl implements Communicator
     public void
     flushBatchRequests()
     {
-        // TODO: implement this.
+        _instance.flushBatchRequests();
     }
 
     CommunicatorI(StringSeqHolder args, Properties properties)

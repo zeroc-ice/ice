@@ -74,6 +74,7 @@ public:
     DynamicLibraryListPtr dynamicLibraryList();
     Ice::PluginManagerPtr pluginManager();
     size_t messageSizeMax() const;
+    void flushBatchRequests();
     
 private:
 

@@ -35,6 +35,7 @@ class FlusherThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::M
 public:
 
     FlusherThread(const Ice::CommunicatorPtr& communicator, const TraceLevelsPtr& traceLevels) :
+	_communicator(communicator),
 	_traceLevels(traceLevels),
         _destroy(false)
     {
@@ -131,7 +132,8 @@ private:
         //
         _subscribers.erase(remove_if(_subscribers.begin(), _subscribers.end(),
 				     IceUtil::constMemFun(&Flushable::inactive)), _subscribers.end());
-	for_each(_subscribers.begin(), _subscribers.end(), IceUtil::voidMemFun(&Flushable::flush));
+
+	_communicator->flushBatchRequests();
 
 	//
 	// Trace after the flush so that the correct number of objects
@@ -150,8 +152,8 @@ private:
 	return (_subscribers.empty()) ? 0 : _flushTime;
     }
 
+    Ice::CommunicatorPtr _communicator;
     TraceLevelsPtr _traceLevels;
-
     FlushableList _subscribers;
     bool _destroy;
     long _flushTime;

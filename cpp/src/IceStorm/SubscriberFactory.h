@@ -43,7 +43,7 @@ class SubscriberFactory  : public IceUtil::Shared
 {
 public:
 
-    SubscriberFactory(const TraceLevelsPtr&, const FlusherPtr&);
+    SubscriberFactory(const Ice::CommunicatorPtr&, const TraceLevelsPtr&, const FlusherPtr&);
 
     //
     // Create a link subscriber (that is a subscriber that points to
@@ -79,6 +79,7 @@ private:
         Ice::Int count;
     };
 
+    Ice::CommunicatorPtr _communicator;
     TraceLevelsPtr _traceLevels;
     FlusherPtr _flusher;
     IceUtil::RecMutex _proxiesMutex;

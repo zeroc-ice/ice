@@ -32,7 +32,8 @@ class OnewayBatchSubscriber : public OnewaySubscriber, public Flushable
 {
 public:
 
-    OnewayBatchSubscriber(const SubscriberFactoryPtr&, const TraceLevelsPtr&, const FlusherPtr&, const QueuedProxyPtr&);
+    OnewayBatchSubscriber(const SubscriberFactoryPtr&, const Ice::CommunicatorPtr&,
+	                  const TraceLevelsPtr&, const FlusherPtr&, const QueuedProxyPtr&);
     ~OnewayBatchSubscriber();
 
     virtual void unsubscribe();
@@ -45,6 +46,7 @@ public:
 
 private:
 
+    Ice::CommunicatorPtr _communicator;
     FlusherPtr _flusher;
 };
 

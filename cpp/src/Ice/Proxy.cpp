@@ -631,33 +631,6 @@ IceProxy::Ice::Object::ice_default() const
     }
 }
 
-void
-IceProxy::Ice::Object::ice_flush()
-{
-    //
-    // Retry is necessary for ice_flush in case the current connection
-    // is closed. If that's the case we need to get a new connection.
-    //
-    int __cnt = 0;
-    while(true)
-    {
-	try
-	{
-	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    __del->ice_flush();
-	    return;
-	}
-	catch(const DatagramLimitException&)
-	{
-	    throw; // DatagramLimitExcpetion is not repeatable.
-	}
-	catch(const LocalException& __ex)
-	{
-	    __handleException(__ex, __cnt);
-	}
-    }
-}
-
 ReferencePtr
 IceProxy::Ice::Object::__reference() const
 {
@@ -1006,12 +979,6 @@ IceDelegateM::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
 }
 
 void
-IceDelegateM::Ice::Object::ice_flush()
-{
-    __connection->flushBatchRequest();
-}
-
-void
 IceDelegateM::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegateM::Ice::Object>& from)
 {
     //
@@ -1316,12 +1283,6 @@ IceDelegateD::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr&,
 					    const Context&)
 {
     throw CollocationOptimizationException(__FILE__, __LINE__);
-}
-
-void
-IceDelegateD::Ice::Object::ice_flush()
-{
-    // Nothing to do for direct delegates.
 }
 
 void

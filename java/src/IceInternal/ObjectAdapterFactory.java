@@ -149,6 +149,20 @@ public final class ObjectAdapterFactory
         return null;
     }
 
+    public synchronized Ice.ObjectAdapterI[]
+    adapters()
+    {
+	java.util.LinkedList a = new java.util.LinkedList();
+	java.util.Iterator i = _adapters.values().iterator();
+	while(i.hasNext())
+	{
+	    a.add(i.next());
+	}
+	Ice.ObjectAdapterI[] arr = new Ice.ObjectAdapterI[a.size()];
+	a.toArray(arr);
+	return arr;
+    }
+
     //
     // Only for use by Instance.
     //

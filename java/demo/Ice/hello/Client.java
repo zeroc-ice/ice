@@ -97,8 +97,7 @@ public class Client
                 }
                 else if(line.equals("f"))
                 {
-                    batchOneway.ice_flush();
-                    batchDatagram.ice_flush();
+		    communicator.flushBatchRequests();
                 }
                 else if(line.equals("T"))
                 {

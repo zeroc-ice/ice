@@ -20,10 +20,10 @@
 using namespace IceStorm;
 using namespace std;
 
-LinkSubscriber::LinkSubscriber(const SubscriberFactoryPtr& factory, const TraceLevelsPtr& traceLevels,
-                               const QueuedProxyPtr& obj, Ice::Int cost) :
+LinkSubscriber::LinkSubscriber(const SubscriberFactoryPtr& factory, const Ice::CommunicatorPtr& communicator,
+			       const TraceLevelsPtr& traceLevels, const QueuedProxyPtr& obj, Ice::Int cost) :
     Subscriber(traceLevels, obj->proxy()->ice_getIdentity()),
-    _factory(factory), _obj(obj), _cost(cost)
+    _factory(factory), _communicator(communicator), _obj(obj), _cost(cost)
 {
     _factory->incProxyUsageCount(_obj);
 }
@@ -115,32 +115,7 @@ LinkSubscriber::publish(const EventPtr& event)
 void
 LinkSubscriber::flush()
 {
-    try
-    {
-	_obj->proxy()->ice_flush();
-    }
-    catch(const Ice::ObjectNotExistException& e)
-    {
-	//
-	// ObjectNotExist causes the link to be removed.
-	//
-	IceUtil::Mutex::Lock sync(_stateMutex);
-	_state = StateError;
-
-	if(_traceLevels->subscriber > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-	    out << id() << ": link topic flush failed: " << e;
-	}
-    }
-    catch(const Ice::LocalException& e)
-    {
-	if(_traceLevels->subscriber > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-	    out << id() << ": link topic flush failed: " << e;
-	}
-    }
+    _communicator->flushBatchRequests();
 }
 
 bool

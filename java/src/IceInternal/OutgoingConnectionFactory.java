@@ -393,6 +393,32 @@ public class OutgoingConnectionFactory
 	}
     }
 
+    public void
+    flushBatchRequests()
+    {
+	java.util.LinkedList c = new java.util.LinkedList();
+
+        synchronized(this)
+	{
+	    java.util.Iterator p = _connections.values().iterator();
+	    while(p.hasNext())
+	    {
+		java.util.LinkedList connectionList = (java.util.LinkedList)p.next();
+		java.util.Iterator q = connectionList.iterator();
+		while(q.hasNext())
+		{
+		    c.add(q.next());
+		}
+	    }
+	}
+
+	java.util.Iterator p = c.iterator();
+	while(p.hasNext())
+	{
+	    ((Connection)p.next()).flushBatchRequest();
+	}
+    }
+
     //
     // Only for use by Instance.
     //

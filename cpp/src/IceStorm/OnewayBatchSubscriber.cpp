@@ -20,9 +20,13 @@
 using namespace IceStorm;
 using namespace std;
 
-OnewayBatchSubscriber::OnewayBatchSubscriber(const SubscriberFactoryPtr& factory, const TraceLevelsPtr& traceLevels,
-                                             const FlusherPtr& flusher, const QueuedProxyPtr& obj) :
+OnewayBatchSubscriber::OnewayBatchSubscriber(const SubscriberFactoryPtr& factory,
+	                                     const Ice::CommunicatorPtr& communicator,
+					     const TraceLevelsPtr& traceLevels,
+                                             const FlusherPtr& flusher,
+					     const QueuedProxyPtr& obj) :
     OnewaySubscriber(factory, traceLevels, obj),
+    _communicator(communicator),
     _flusher(flusher)
 {
     _flusher->add(this);
@@ -79,28 +83,7 @@ OnewayBatchSubscriber::inactive() const
 void
 OnewayBatchSubscriber::flush()
 {
-    try
-    {
-	_obj->proxy()->ice_flush();
-    }
-    catch(const Ice::LocalException& e)
-    {
-	IceUtil::Mutex::Lock sync(_stateMutex);
-	//
-	// It's possible that the subscriber was unsubscribed, or
-	// marked invalid by another thread. Don't display a
-	// diagnostic in this case.
-	//
-	if(_state == StateActive)
-	{
-	    if(_traceLevels->subscriber > 0)
-	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-		out << id() << ": flush failed: " << e;
-	    }
-	    _state = StateError;
-	}
-    }
+    _communicator->flushBatchRequests();
 }
 
 bool

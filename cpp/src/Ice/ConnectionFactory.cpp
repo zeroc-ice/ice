@@ -380,6 +380,23 @@ IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& ad
     }
 }
 
+void
+IceInternal::OutgoingConnectionFactory::flushBatchRequests()
+{
+    list<ConnectionPtr> c;
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+	for(std::multimap<EndpointPtr, ConnectionPtr>::const_iterator p = _connections.begin();
+	    p != _connections.end();
+	    ++p)
+	{
+	    c.push_back(p->second);
+	}
+    }
+    for_each(c.begin(), c.end(), Ice::voidMemFun(&Connection::flushBatchRequest));
+}
+
 IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(const InstancePtr& instance) :
     _instance(instance),
     _destroyed(false)
@@ -491,6 +508,13 @@ IceInternal::IncomingConnectionFactory::connections() const
 		   Ice::constMemFun(&Connection::isDestroyed));
 
     return result;
+}
+
+void
+IceInternal::IncomingConnectionFactory::flushBatchRequests()
+{
+    list<ConnectionPtr> c = connections(); // connections() is synchronized, so need to synchronize here.
+    for_each(c.begin(), c.end(), Ice::voidMemFun(&Connection::flushBatchRequest));
 }
 
 bool

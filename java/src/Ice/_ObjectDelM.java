@@ -185,12 +185,6 @@ public class _ObjectDelM implements _ObjectDel
 	cb.__invoke();
     }
 
-    public void
-    ice_flush()
-    {
-        __connection.flushBatchRequest();
-    }
-
     //
     // Only for use by ObjectPrx
     //

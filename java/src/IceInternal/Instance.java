@@ -258,6 +258,23 @@ public class Instance
 	return _messageSizeMax;
     }
 
+    public void
+    flushBatchRequests()
+    {
+	OutgoingConnectionFactory f;
+	Ice.ObjectAdapterI adapters[];
+	synchronized(this)
+	{
+	    f = _outgoingConnectionFactory;
+	    adapters = _objectAdapterFactory.adapters();
+	}
+	f.flushBatchRequests();
+	for(int i = 0; i < adapters.length; i++)
+	{
+	    adapters[i].flushBatchRequests();
+	}
+    }
+
     public BufferManager
     bufferManager()
     {

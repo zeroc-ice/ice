@@ -260,7 +260,7 @@ Ice::CommunicatorI::getPluginManager()
 void
 Ice::CommunicatorI::flushBatchRequests()
 {
-    // TODO: implement this.
+    _instance->flushBatchRequests();
 }
 
 Ice::CommunicatorI::CommunicatorI(int& argc, char* argv[], const PropertiesPtr& properties) :

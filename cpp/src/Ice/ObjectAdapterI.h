@@ -74,6 +74,8 @@ public:
 
     std::list<IceInternal::ConnectionPtr> getIncomingConnections() const;
 
+    void flushBatchRequests();
+
     void incDirectCount();
     void decDirectCount();
 
