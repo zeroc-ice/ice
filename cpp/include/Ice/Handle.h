@@ -36,7 +36,7 @@ public:
     
     typedef T element_type;
     
-    /*explicit*/ Handle(T* p = 0)
+    Handle(T* p = 0)
 	: ptr_(p)
     {
 	if(ptr_)
@@ -71,6 +71,11 @@ public:
 	return *this;
     }
         
+//
+// Some compilers (like Visual C++ 6.0) do not support member
+// templates :-( I therefore don't use them completely, otherwise Ice
+// code could be non-portable.
+//
 /*
     template<typename Y>
     Handle(const Handle<Y>& r)
@@ -95,6 +100,8 @@ public:
 	}
 	return *this;
     }
+
+    template<typename Y> friend class Handle;
 */
 
     T& operator*() { return *ptr_; }
@@ -111,8 +118,6 @@ public:
 private:
 
     T* ptr_;
-
-//    template<typename Y> friend class Handle;
 };
 
 template<typename T, typename U>
