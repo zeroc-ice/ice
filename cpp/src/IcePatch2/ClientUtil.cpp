@@ -162,19 +162,25 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
     {
 	char cwd[_MAX_PATH];
 	if(_getcwd(cwd, _MAX_PATH) == NULL)
-#else
-    if(_dataDir[0] != '/')
-    {
-	char cwd[PATH_MAX];
-	if(getcwd(cwd, PATH_MAX) == NULL)
-#endif
 	{
 	    throw "cannot get the current directory:\n" + lastError();
 	}
     
 	const_cast<string&>(_dataDir) = string(cwd) + '/' + _dataDir;
     }
+#else
+    if(_dataDir[0] != '/')
+    {
+	char cwd[PATH_MAX];
+	if(getcwd(cwd, PATH_MAX) == NULL)
+	{
+	    throw "cannot get the current directory:\n" + lastError();
+	}
     
+	const_cast<string&>(_dataDir) = string(cwd) + '/' + _dataDir;
+    }
+#endif
+	
     PropertiesPtr properties = communicator->getProperties();
 
     const char* endpointsProperty = "IcePatch2.Endpoints";
