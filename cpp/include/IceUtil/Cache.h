@@ -39,7 +39,7 @@ public:
     Handle<Value> getIfPinned(const Key& key) const
     {
 	Mutex::Lock sync(_mutex);
-	typename Map::const_iterator p = _map.find(key);
+	typename CacheMap::const_iterator p = _map.find(key);
 	if(p != _map.end())
 	{
 	    return (*p).second;
@@ -53,7 +53,7 @@ public:
     Handle<Value> pin(const Key& key)
     {
 	Mutex::Lock sync(_mutex);
-	typename Map::iterator p = _map.find(key);
+	typename CacheMap::iterator p = _map.find(key);
 	if(p != _map.end())
 	{
 	    return (*p).second;
@@ -64,8 +64,8 @@ public:
 	 
 	    if(val != 0)
 	    {
-		std::pair<typename Map::iterator, bool> ir = 
-		    _map.insert(Map::value_type(key, val));
+		std::pair<CacheMap::iterator, bool> ir = 
+		    _map.insert(CacheMap::value_type(key, val));
 		pinned(val, ir.first);
 	    }
 	    return val;
@@ -102,8 +102,8 @@ public:
 	assert(val != 0);
 
 	Mutex::Lock sync(_mutex);
-	std::pair<typename Map::iterator, bool> ir = 
-	    _map.insert(Map::value_type(key, val));
+	std::pair<CacheMap::iterator, bool> ir = 
+	    _map.insert(CacheMap::value_type(key, val));
 
 	if(ir.second)
 	{
@@ -132,8 +132,8 @@ public:
     bool pin(const Key& key, const Handle<Value>& val)
     {
 	Mutex::Lock sync(_mutex);
-	std::pair<typename Map::iterator, bool> ir = 
-	    _map.insert(Map::value_type(key, val));
+	std::pair<CacheMap::iterator, bool> ir = 
+	    _map.insert(CacheMap::value_type(key, val));
 	if(ir.second)
 	{
 	    pinned(val, ir.first);
@@ -155,10 +155,10 @@ protected:
 
 private:
 
-    typedef std::map<Key, Handle<Value> > Map;
+    typedef std::map<Key, Handle<Value> > CacheMap;
     
     Mutex _mutex;
-    Map  _map;
+    CacheMap  _map;
 };
 
 }

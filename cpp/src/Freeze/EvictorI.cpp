@@ -155,9 +155,9 @@ Freeze::EvictorI::init(const string& envName, const vector<IndexPtr>& indices)
 	_storeMap.insert(StoreMap::value_type(facet, 0));
     }
 
-    for(vector<IndexPtr>::const_iterator p = indices.begin(); p != indices.end(); ++p)
+    for(vector<IndexPtr>::const_iterator i = indices.begin(); i != indices.end(); ++i)
     {
-	string facet = (*p)->facet();
+	string facet = (*i)->facet();
 
 	StoreMap::iterator q = _storeMap.find(facet);
 	if(q == _storeMap.end())
@@ -177,7 +177,7 @@ Freeze::EvictorI::init(const string& envName, const vector<IndexPtr>& indices)
 	{
 	    vector<IndexPtr> storeIndices;
 
-	    for(vector<IndexPtr>::const_iterator r = p; r != indices.end(); ++r)
+	    for(vector<IndexPtr>::const_iterator r = i; r != indices.end(); ++r)
 	    {
 		if((*r)->facet() == facet)
 		{
@@ -192,12 +192,12 @@ Freeze::EvictorI::init(const string& envName, const vector<IndexPtr>& indices)
     //
     // Finally, open all the stores without index
     //
-    for(StoreMap::iterator p = _storeMap.begin(); p != _storeMap.end(); ++p)
+    for(StoreMap::iterator q = _storeMap.begin(); q != _storeMap.end(); ++q)
     {
-	if((*p).second == 0)
+	if((*q).second == 0)
 	{
-	    const string& facet = (*p).first;
-	    (*p).second = new ObjectStore(_dbName, facet, _createDb, this);
+	    const string& facet = (*q).first;
+	    (*q).second = new ObjectStore(_dbName, facet, _createDb, this);
 	}
     }
 
@@ -1101,10 +1101,10 @@ Freeze::EvictorI::run()
 		//
 		// Release usage count
 		//
-		for(deque<EvictorElementPtr>::iterator q = allObjects.begin();
-		    q != allObjects.end(); q++)
+		for(deque<EvictorElementPtr>::iterator p = allObjects.begin();
+		    p != allObjects.end(); p++)
 		{
-		    EvictorElementPtr& element = *q;
+		    EvictorElementPtr& element = *p;
 		    element->usageCount--;
 		}
 		allObjects.clear();
