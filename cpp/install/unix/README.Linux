@@ -30,8 +30,8 @@ includes the following components:
   enable you to execute Ice applications.
 - Development kits for C++, Java, Python and C# (Mono). A development
   kit is required for building Ice applications using a supported
-  language mapping. The development kits include a variety of
-  examples that demonstrate various Ice features.
+  language mapping. The development kits include examples that
+  demonstrate various Ice features.
 
 
 ======================================================================
@@ -41,7 +41,7 @@ Requirements
 This binary distribution was compiled on Linux Fedora Core 3 (FC3)
 using FC3's default C++ compiler, GCC 3.4.2.
 
-This distribution also depends on a number of third-party libraries:
+This distribution depends on a number of third-party libraries:
 
 - Berkeley DB 4.2.52
 - expat 1.95
@@ -64,16 +64,35 @@ If you prefer to install the third-party libraries yourself, be
 aware that Berkeley DB must be configured with --enable-cxx and
 --enable-java.
 
+
+Java
+----
+
 Ice for Java requires J2SE 1.4.2 or 1.5.0. RPMs can be obtained
 from JavaSoft at http://www.javasoft.com/j2se
+
+
+Python
+------
 
 The Ice extension for Python included in this distribution requires
 Python 2.3.4. The Python run time RPM is python-2.3.4-11. If you
 prefer to use Python 2.4, you can download the Ice for Python source
 code from the ZeroC web site at http://www.zeroc.com/download.html.
 
-Ice for C# requires Mono 1.0.6, available at
-http://www.mono-project.com/Downloads
+
+C#
+--
+
+Ice for C# requires Mono 1.0.6. Two RPMs comprise the Mono core
+and development packages, respectively:
+
+mono-core-1.0.6-1.novell.9.1.i386.rpm
+mono-devel-1.0.6-1.novell.9.1.i386.rpm
+
+Both can be obtained from http://www.mono-project.com/Downloads
+Note that the core RPM depends on libicu-2.6.2-1.1.fc3.rf.i386.rpm
+available at http://dag.wieers.com/packages/icu/.
 
 
 ======================================================================
@@ -94,14 +113,19 @@ Setting up your environment to use Ice
 General
 -------
 
-The RPM installation places the Ice run time libraries and
-executables in standard directories so that no changes are necessary
-to PATH or LD_LIBRARY_PATH.
+It is possible to install this Ice distribution using RPMs or a
+simple archive. The installation method you choose determines the
+extent of the environmental changes you must make. In general,
+the RPM installation requires fewer changes because files such
+as executables and libraries are placed in standard directories.
+In the sample bash commands below, the non-RPM installation is
+assumed to reside in /opt/Ice-2.1.0. Your installation directory
+may be different, in which case the commands should be adjusted
+as necessary.
 
 If you did not install using RPMs, you need to add the Ice bin
-directory to your PATH and the lib directory to your LD_LIBRARY_PATH.
-For example, the following bash commands assume you have installed Ice
-in /opt/Ice-2.1.0:
+directory to your PATH and the lib directory to your LD_LIBRARY_PATH,
+as demonstrated by the following bash commands:
 
 $ export PATH=/opt/Ice-2.1.0/bin:$PATH
 $ export LD_LIBRARY_PATH=/opt/Ice-2.1.0/lib:$LD_LIBRARY_PATH
@@ -125,8 +149,11 @@ $ export CLASSPATH=/usr/lib/Ice-2.1.0/Ice.jar:$CLASSPATH
 
 Note that the Freeze component of Ice for Java requires Berkeley DB.
 In order to use Freeze, you must add db.jar to your CLASSPATH. In
-addition, if your installation of Berkeley DB is in a nonstandard
-location, you must add its lib directory to your LD_LIBRARY_PATH.
+addition, the JVM requires the directory containing the Berkeley DB
+libraries to be listed in java.library.path, therefore you must add
+this directory to your LD_LIBRARY_PATH (even if the libraries reside
+in /usr/lib).
+
 
 Python
 ------
@@ -142,7 +169,7 @@ $ export PYTHONPATH=/usr/lib/Ice-2.1.0/python
 Otherwise, PYTHONPATH should contain the python and lib directories
 from your Ice installation:
 
-$ export PYTHONPATH=/opt/Ice-2.1.0/python:/opt/Ice-2.1.0/lib
+$ export PYTHONPATH=/opt/Ice-2.1.0/python:/opt/Ice-2.1.0/lib:$PYTHONPATH
 
 
 Mono
