@@ -38,6 +38,21 @@ def find(path, patt):
     return result
 
 #
+# Do a search and replace on a file using regular expressions a la sed.
+#
+def sedFile(path, patt, replace):
+    src = open(path, "r")
+    srcLines = src.readlines()
+
+    dstLines = []
+    for x in srcLines:
+	dstLines.append(re.sub(patt, replace, x))
+
+    src.close()
+    dst = open(path, "w")
+    dst.writelines(dstLines)
+
+#
 # Are we on Windows?
 #
 win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
@@ -156,16 +171,12 @@ version = re.search("AssemblyVersion.*\"([0-9\.]*)\"", config.read()).group(1)
 #
 # Fix source dist demo project files.
 #
-hintPathFiles = ".*\/demo\/.*[^D]\.vbproj"
-hintPathSearch = "(HintPath = \\\"(\.\.\\\\)*)icecs(\\\\bin\\\\.*cs\.dll\\\")"
-hintPathReplace = "\\1IceCS-" + version + "\\3"
-os.system("find . -type f -regex " + 
-          hintPathFiles + 
-          " | xargs perl -p -i -e 's/" + 
-          hintPathSearch + 
-          "/" + 
-          hintPathReplace + 
-          "/'")
+hintPathSearch = r'(HintPath = "(\.\.\\)*)icecs(\\bin\\.*cs\.dll")'
+hintPathReplace = r'\1IceCS-' + version + r'\3'
+projectFiles = find(os.path.join("icevb", "demo"), "*.vbproj")
+for x in projectFiles:
+    if not x.endswith("D.vbproj"):
+	sedFile(x, hintPathSearch, hintPathReplace)
 
 #
 # Create source archives.
