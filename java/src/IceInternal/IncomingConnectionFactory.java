@@ -208,7 +208,7 @@ public class IncomingConnectionFactory extends EventHandler
         super(instance);
         _endpoint = endpoint;
         _adapter = adapter;
-	_warn = _instance.properties().getPropertyAsInt("Ice.ConnectionWarnings") > 0 ? true : false;
+	_warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connection") > 0 ? true : false;
         _state = StateHolding;
 	_registeredWithPool = false;
 

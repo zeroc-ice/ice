@@ -738,7 +738,7 @@ public final class Connection extends EventHandler
         _adapter = adapter;
         _logger = instance.logger();
         _traceLevels = instance.traceLevels();
-	_warn = _instance.properties().getPropertyAsInt("Ice.ConnectionWarnings") > 0 ? true : false;
+	_warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connection") > 0 ? true : false;
         _nextRequestId = 1;
         _batchStream = new BasicStream(instance);
         _responseCount = 0;

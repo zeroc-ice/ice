@@ -24,7 +24,7 @@ Ice.Adapter.HelloAdapter.Endpoints=tcp -p 10000:udp -p 10000
 #
 # Warn about connection exceptions
 #
-Ice.ConnectionWarnings=1
+Ice.Warn.Connection=1
 
 #
 # Network Tracing

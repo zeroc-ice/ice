@@ -221,13 +221,64 @@ public class Incoming
 		{
 		    assert(false);
 		}
-		// Write the data from the exception, not from _current,
-		// so that a RequestFailedException can override the
-		// information from _current.
-		ex.id.__write(_os);
-		_os.writeStringSeq(ex.facet);
-		_os.writeString(ex.operation);
+
+		//
+		// Write the data from the exception if set so that a
+		// RequestFailedException can override the information
+		// from _current.
+		//
+		if(ex.id != null)
+		{
+		    ex.id.__write(_os);
+		}
+		else
+		{
+		    _current.id.__write(_os);
+		}
+		
+		if(ex.facet != null)
+		{
+		    _os.writeStringSeq(ex.facet);
+		}
+		else
+		{
+		    _os.writeStringSeq(_current.facet);
+		}
+		
+		if(ex.operation != null && ex.operation.length() > 0)
+		{
+		    _os.writeString(ex.operation);
+		}
+		else
+		{
+		    _os.writeString(_current.operation);
+		}
             }
+
+	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		if(ex.id == null)
+		{
+		    ex.id = _current.id;
+		}
+
+		if(ex.facet == null)
+		{
+		    ex.facet = _current.facet;
+		}
+
+		if(ex.operation == null || ex.operation.length() == 0)
+		{
+		    ex.operation = _current.operation;
+		}
+
+		java.io.StringWriter sw = new java.io.StringWriter();
+		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		ex.printStackTrace(pw);
+		pw.flush();
+		String s = "dispatch exception:\n" + sw.toString();
+		_os.instance().logger().warning(s);
+	    }
 
 	    return;
         }
@@ -246,6 +297,16 @@ public class Incoming
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
 		_os.writeString(ex.toString());
             }
+
+	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		java.io.StringWriter sw = new java.io.StringWriter();
+		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		ex.printStackTrace(pw);
+		pw.flush();
+		String s = "dispatch exception: unknown local exception:\n" + sw.toString();
+		_os.instance().logger().warning(s);
+	    }
 
 	    return;
         }
@@ -272,6 +333,16 @@ public class Incoming
 		_os.writeString(ex.toString());
             }
 	    
+	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		java.io.StringWriter sw = new java.io.StringWriter();
+		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		ex.printStackTrace(pw);
+		pw.flush();
+		String s = "dispatch exception: unknown exception\n" + sw.toString();
+		_os.instance().logger().warning(s);
+	    }
+
 	    return;
         }
 	

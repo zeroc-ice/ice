@@ -4,4 +4,4 @@ Ice.ServerThreadPool.Size=50
 #Ice.Trace.Security=6
 #Ice.Trace.Network=1
 #Ice.Trace.Protocol=1
-#Ice.ConnectionWarnings=1
+#Ice.Warn.Connection=1

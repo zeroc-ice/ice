@@ -3,7 +3,7 @@ Callback.Client.Endpoints=tcp:udp
 
 #Ice.Trace.Network=1
 #Ice.Trace.Protocol=1
-Ice.ConnectionWarnings=1
+Ice.Warn.Connection=1
 
 Glacier.Router.Endpoints=default -p 10005
 Glacier.Router.Client.Endpoints=tcp:udp -c
