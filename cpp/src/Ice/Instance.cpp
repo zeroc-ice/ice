@@ -342,10 +342,17 @@ IceInternal::Instance::messageSizeMax() const
 }
 
 int
-IceInternal::Instance::connectionIdleTime() const
+IceInternal::Instance::clientConnectionIdleTime() const
 {
     // No mutex lock, immutable.
-    return _connectionIdleTime;
+    return _clientConnectionIdleTime;
+}
+
+int
+IceInternal::Instance::serverConnectionIdleTime() const
+{
+    // No mutex lock, immutable.
+    return _serverConnectionIdleTime;
 }
 
 void
@@ -387,7 +394,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     _destroyed(false),
     _properties(properties),
     _messageSizeMax(0),
-    _connectionIdleTime(0),
+    _clientConnectionIdleTime(0),
+    _serverConnectionIdleTime(0),
     _threadPerConnection(false),
     _threadPerConnectionStackSize(0)
 {
@@ -550,14 +558,27 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	}
 
 	{
-	    Int num = _properties->getPropertyAsIntWithDefault("Ice.ConnectionIdleTime", 60);
-	    if(num < 0)
+	    Int num = _properties->getPropertyAsInt("Ice.ConnectionIdleTime");
+	    if(num > 0)
 	    {
-		const_cast<Int&>(_connectionIdleTime) = 0;
+		const_cast<Int&>(_clientConnectionIdleTime) = num;
+		const_cast<Int&>(_serverConnectionIdleTime) = num;
 	    }
-	    else
+	}
+
+	{
+	    Int num = _properties->getPropertyAsIntWithDefault("Ice.ConnectionIdleTime.Client", 60);
+	    if(num > 0)
 	    {
-		const_cast<Int&>(_connectionIdleTime) = num;
+		const_cast<Int&>(_clientConnectionIdleTime) = num;
+	    }
+	}
+
+	{
+	    Int num = _properties->getPropertyAsInt("Ice.ConnectionIdleTime.Server");
+	    if(num > 0)
+	    {
+		const_cast<Int&>(_serverConnectionIdleTime) = num;
 	    }
 	}
 
@@ -707,7 +728,20 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     //
     // Start connection monitor if necessary.
     //
-    Int interval = _properties->getPropertyAsIntWithDefault("Ice.MonitorConnections", _connectionIdleTime);
+    Int interval = 0;
+    if(_clientConnectionIdleTime > 0 && _serverConnectionIdleTime > 0)
+    {
+	interval = min(_clientConnectionIdleTime, _serverConnectionIdleTime);
+    }
+    else if(_clientConnectionIdleTime > 0)
+    {
+	interval = _clientConnectionIdleTime;
+    }
+    else if(_serverConnectionIdleTime > 0)
+    {
+	interval = _serverConnectionIdleTime;
+    }
+    interval = _properties->getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
     if(interval > 0)
     {
 	_connectionMonitor = new ConnectionMonitor(this, interval);

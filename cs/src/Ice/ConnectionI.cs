@@ -1497,7 +1497,6 @@ namespace Ice
 	    _traceLevels = instance.traceLevels(); // Cached for better performance.
 	    _registeredWithPool = false;
 	    _warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0;
-	    _acmTimeout = _endpoint.datagram() ? 0 : _instance.connectionIdleTime();
 	    _acmAbsoluteTimeoutMillis = 0;
 	    _nextRequestId = 1;
 	    _batchStream = new IceInternal.BasicStream(instance);
@@ -1508,6 +1507,22 @@ namespace Ice
 	    _state = StateNotValidated;
 	    _stateTime = System.DateTime.Now.Ticks / 10;
 	    
+	    if(_endpoint.datagram())
+	    {
+		_acmTimeout = 0;
+	    }
+	    else
+	    {
+		if(_adapter != null)
+		{
+		    _acmTimeout = _instance.serverConnectionIdleTime();
+		}
+		else
+		{
+		    _acmTimeout = _instance.clientConnectionIdleTime();
+		}
+	    }
+
 	    try
 	    {
 	        if(_adapter != null)

@@ -1318,7 +1318,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _traceLevels = instance.traceLevels(); // Cached for better performance.
 	_registeredWithPool = false;
 	_warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
-	_acmTimeout = _endpoint.datagram() ? 0 : _instance.connectionIdleTime();
 	_acmAbsoluteTimeoutMillis = 0;
         _nextRequestId = 1;
         _batchStream = new IceInternal.BasicStream(instance);
@@ -1328,6 +1327,22 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _dispatchCount = 0;
         _state = StateNotValidated;
 	_stateTime = System.currentTimeMillis();
+
+	if(_endpoint.datagram())
+	{
+	    _acmTimeout = 0;
+	}
+	else
+	{
+	    if(_adapter != null)
+	    {
+		_acmTimeout = _instance.serverConnectionIdleTime();
+	    }
+	    else
+	    {
+		_acmTimeout = _instance.clientConnectionIdleTime();
+	    }
+	}
 
 	if(_adapter != null)
 	{

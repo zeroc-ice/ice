@@ -238,10 +238,17 @@ public class Instance
     }
 
     public int
-    connectionIdleTime()
+    clientConnectionIdleTime()
     {
 	// No mutex lock, immutable.
-	return _connectionIdleTime;
+	return _clientConnectionIdleTime;
+    }
+
+    public int
+    serverConnectionIdleTime()
+    {
+	// No mutex lock, immutable.
+	return _serverConnectionIdleTime;
     }
 
     public void
@@ -387,17 +394,36 @@ public class Instance
 		}
 	    }
 
+	    int clientConnectionIdleTime = 0;
+	    int serverConnectionIdleTime = 0;
+
 	    {
-		int num = _properties.getPropertyAsIntWithDefault("Ice.ConnectionIdleTime", 60);
-		if(num < 0)
+		int num = _properties.getPropertyAsInt("Ice.ConnectionIdleTime");
+		if(num > 0)
 		{
-		    _connectionIdleTime = 0;
-		}
-		else
-		{
-		    _connectionIdleTime = num;
+		    clientConnectionIdleTime = num;
+		    serverConnectionIdleTime = num;
 		}
 	    }
+	    
+	    {
+		int num = _properties.getPropertyAsIntWithDefault("Ice.ConnectionIdleTime.Client", 60);
+		if(num > 0)
+		{
+		    clientConnectionIdleTime = num;
+		}
+	    }
+
+	    {
+		int num = _properties.getPropertyAsInt("Ice.ConnectionIdleTime.Server");
+		if(num > 0)
+		{
+		    serverConnectionIdleTime = num;
+		}
+	    }
+
+	    _clientConnectionIdleTime = clientConnectionIdleTime;
+	    _serverConnectionIdleTime = serverConnectionIdleTime;
 
 	    _threadPerConnection = _properties.getPropertyAsInt("Ice.ThreadPerConnection") > 0;
 
@@ -493,7 +519,27 @@ public class Instance
 	//
 	// Start connection monitor if necessary.
 	//
-	int interval = _properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", _connectionIdleTime);
+	int interval = 0;
+	if(_clientConnectionIdleTime > 0 && _serverConnectionIdleTime > 0)
+	{
+	    if(_clientConnectionIdleTime < _serverConnectionIdleTime)
+	    {
+		interval = _clientConnectionIdleTime;
+	    }
+	    else
+	    {
+		interval = _serverConnectionIdleTime;
+	    }
+	}
+	else if(_clientConnectionIdleTime > 0)
+	{
+	    interval = _clientConnectionIdleTime;
+	}
+	else if(_serverConnectionIdleTime > 0)
+	{
+	    interval = _serverConnectionIdleTime;
+	}
+	interval = _properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
 	if(interval > 0)
 	{
 	    _connectionMonitor = new ConnectionMonitor(this, interval);
@@ -654,7 +700,8 @@ public class Instance
     private final TraceLevels _traceLevels; // Immutable, not reset by destroy().
     private final DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private final int _messageSizeMax; // Immutable, not reset by destroy().
-    private final int _connectionIdleTime; // Immutable, not reset by destroy().
+    private final int _clientConnectionIdleTime; // Immutable, not reset by destroy().
+    private final int _serverConnectionIdleTime; // Immutable, not reset by destroy().
     private RouterManager _routerManager;
     private LocatorManager _locatorManager;
     private ReferenceFactory _referenceFactory;

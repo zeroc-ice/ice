@@ -106,6 +106,8 @@ Ice:
     ChangeUser
     Config
     ConnectionIdleTime
+    ConnectionIdleTime.Client
+    ConnectionIdleTime.Server
     Default.Host
     Default.Locator
     Default.Package

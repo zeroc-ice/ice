@@ -1378,7 +1378,6 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     _traceLevels(_instance->traceLevels()), // Cached for better performance.
     _registeredWithPool(false),
     _warn(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0),
-    _acmTimeout(_endpoint->datagram() ?	0 : _instance->connectionIdleTime()),
     _requestHdr(headerSize + sizeof(Int), 0),
     _requestBatchHdr(headerSize + sizeof(Int), 0),
     _replyHdr(headerSize, 0),
@@ -1393,6 +1392,23 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     _state(StateNotValidated),
     _stateTime(IceUtil::Time::now())
 {
+    Int& acmTimeout = const_cast<Int&>(_acmTimeout);
+    if(_endpoint->datagram())
+    {
+	acmTimeout = 0;
+    }
+    else
+    {
+	if(_adapter)
+	{
+	    acmTimeout = _instance->serverConnectionIdleTime();
+	}
+	else
+	{
+	    acmTimeout = _instance->clientConnectionIdleTime();
+	}
+    }
+
     vector<Byte>& requestHdr = const_cast<vector<Byte>&>(_requestHdr);
     requestHdr[0] = magic[0];
     requestHdr[1] = magic[1];
