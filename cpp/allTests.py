@@ -85,6 +85,7 @@ tests = [ \
     "FreezeScript/evictor", \
     "IcePack/simple", \
     "IcePack/deployer", \
+    "Glacier2/router", \
     ]
 
 #
@@ -93,7 +94,6 @@ tests = [ \
 if TestUtil.isCygwin() == 0:
     tests += [ \
        "Glacier/starter", \
-       "Glacier2/router", \
       ]
 
 def usage():
