@@ -657,14 +657,23 @@ public class BasicStream
         else
         {
             final int len = v.length();
-            writeSize(len);
             if (len > 0)
             {
-                expand(len);
-                for (int i = 0; i < len; i++)
+                try
                 {
-                    _buf.put((byte)v.charAt(i));
+                    byte[] arr = v.getBytes("UTF8");
+                    writeSize(arr.length);
+                    expand(arr.length);
+                    _buf.put(arr);
                 }
+                catch (java.io.UnsupportedEncodingException ex)
+                {
+                    assert(false);
+                }
+            }
+            else
+            {
+                writeSize(0);
             }
         }
     }
@@ -702,7 +711,7 @@ public class BasicStream
                 */
                 byte[] arr = new byte[len];
                 _buf.get(arr);
-                String v = new String(arr, "ISO-8859-1");
+                String v = new String(arr, "UTF8");
                 return v;
             }
             catch (java.io.UnsupportedEncodingException ex)
