@@ -158,3 +158,16 @@ interface Blah3
     void op5() throws E::ee1;		// Introduces E
     void E();				// Changed meaning
 };
+
+module M1
+{
+    module M2
+    {
+        enum C { C1, C2, C3 };
+    };
+};
+
+const M1::M2::C MyConstant1 = M1::M2::C2; // OK
+const ::M1::M2::C MyConstant2 = M1::M2::C2; // OK
+const M1::M2::C MyConstant3 = ::M1::M2::C2; // OK
+const ::M1::M2::C MyConstant4 = ::M1::M2::C2; // OK
