@@ -21,15 +21,19 @@
 
     <condition property="installtype" value="src">
 	<and>
-	    <available file="${top.dir}/slice"/>
-	    <equals arg1="${installtype}" arg2=""/>
+            <available file="${top.dir}/slice"/>
+            <not>
+                <isset property="installtype"/>
+            </not>
 	</and>
     </condition>
 
     <condition property="installtype" value="rpm">
 	<and>
 	    <available file="/usr/share/slice"/>
-	    <equals arg1="${installtype}" arg2=""/>
+            <not>
+                <isset property="installtype"/>
+            </not>
 	</and>
     </condition>
     <echo message="${installtype}"/>
