@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{FB4F9B72-57B8-49E8-80C2-13447387D68B}"
+        ProjectGuid = "{0957A1E3-27E3-4CE2-BA24-05DF5D680BAE}"
     >
         <Build>
             <Settings
@@ -67,7 +67,7 @@
                 <Reference
                     Name = "System"
                     AssemblyName = "System"
-                    HintPath = "..\..\..\..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.dll"
+                    HintPath = "..\..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.dll"
                 />
                 <Reference
                     Name = "Ice"

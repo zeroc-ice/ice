@@ -12,10 +12,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adapterDeactivationC", "tes
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adapterDeactivationCOL", "test\Ice\adapterDeactivation\adapterDeactivationCOL.csproj", "{FB4F9B72-57B8-49E8-80C2-13447387D68B}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "exceptionsC", "test\Ice\exceptions\exceptionsC.csproj", "{2F7CDA15-1AD3-474B-8C6A-48B57F98129E}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -108,10 +104,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sliceobS", "test\Ice\slicin
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adapterDeactivationS", "test\Ice\adapterDeactivation\adapterDeactivationS.csproj", "{78F2C2EA-871B-4674-BB7E-E2B25279F48F}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "helloC", "demo\Ice\hello\helloC.csproj", "{36D1C0EC-E905-445F-90D9-9F9EAE31899A}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -184,6 +176,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "checksumS", "test\Ice\check
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adapterDeactivationS", "test\Ice\adapterDeactivation\adapterDeactivationS.csproj", "{24283E93-735E-48DB-859A-44703B0F4A31}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adapterDeactivationCOL", "test\Ice\adapterDeactivation\adapterDeactivationCOL.csproj", "{0957A1E3-27E3-4CE2-BA24-05DF5D680BAE}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -202,10 +202,6 @@ Global
 		{6C83F12B-140A-41FD-8278-74BF1B984163}.Debug.Build.0 = Debug|.NET
 		{6C83F12B-140A-41FD-8278-74BF1B984163}.Release.ActiveCfg = Release|.NET
 		{6C83F12B-140A-41FD-8278-74BF1B984163}.Release.Build.0 = Release|.NET
-		{FB4F9B72-57B8-49E8-80C2-13447387D68B}.Debug.ActiveCfg = Debug|.NET
-		{FB4F9B72-57B8-49E8-80C2-13447387D68B}.Debug.Build.0 = Debug|.NET
-		{FB4F9B72-57B8-49E8-80C2-13447387D68B}.Release.ActiveCfg = Release|.NET
-		{FB4F9B72-57B8-49E8-80C2-13447387D68B}.Release.Build.0 = Release|.NET
 		{2F7CDA15-1AD3-474B-8C6A-48B57F98129E}.Debug.ActiveCfg = Debug|.NET
 		{2F7CDA15-1AD3-474B-8C6A-48B57F98129E}.Debug.Build.0 = Debug|.NET
 		{2F7CDA15-1AD3-474B-8C6A-48B57F98129E}.Release.ActiveCfg = Release|.NET
@@ -298,10 +294,6 @@ Global
 		{56D34928-B8CB-4B74-9FC1-0CB8AE57676F}.Debug.Build.0 = Debug|.NET
 		{56D34928-B8CB-4B74-9FC1-0CB8AE57676F}.Release.ActiveCfg = Release|.NET
 		{56D34928-B8CB-4B74-9FC1-0CB8AE57676F}.Release.Build.0 = Release|.NET
-		{78F2C2EA-871B-4674-BB7E-E2B25279F48F}.Debug.ActiveCfg = Debug|.NET
-		{78F2C2EA-871B-4674-BB7E-E2B25279F48F}.Debug.Build.0 = Debug|.NET
-		{78F2C2EA-871B-4674-BB7E-E2B25279F48F}.Release.ActiveCfg = Release|.NET
-		{78F2C2EA-871B-4674-BB7E-E2B25279F48F}.Release.Build.0 = Release|.NET
 		{36D1C0EC-E905-445F-90D9-9F9EAE31899A}.Debug.ActiveCfg = Debug|.NET
 		{36D1C0EC-E905-445F-90D9-9F9EAE31899A}.Debug.Build.0 = Debug|.NET
 		{36D1C0EC-E905-445F-90D9-9F9EAE31899A}.Release.ActiveCfg = Release|.NET
@@ -374,6 +366,14 @@ Global
 		{FDA9A357-C076-4791-8D92-162FACB513B5}.Debug.Build.0 = Debug|.NET
 		{FDA9A357-C076-4791-8D92-162FACB513B5}.Release.ActiveCfg = Release|.NET
 		{FDA9A357-C076-4791-8D92-162FACB513B5}.Release.Build.0 = Release|.NET
+		{24283E93-735E-48DB-859A-44703B0F4A31}.Debug.ActiveCfg = Debug|.NET
+		{24283E93-735E-48DB-859A-44703B0F4A31}.Debug.Build.0 = Debug|.NET
+		{24283E93-735E-48DB-859A-44703B0F4A31}.Release.ActiveCfg = Release|.NET
+		{24283E93-735E-48DB-859A-44703B0F4A31}.Release.Build.0 = Release|.NET
+		{0957A1E3-27E3-4CE2-BA24-05DF5D680BAE}.Debug.ActiveCfg = Debug|.NET
+		{0957A1E3-27E3-4CE2-BA24-05DF5D680BAE}.Debug.Build.0 = Debug|.NET
+		{0957A1E3-27E3-4CE2-BA24-05DF5D680BAE}.Release.ActiveCfg = Release|.NET
+		{0957A1E3-27E3-4CE2-BA24-05DF5D680BAE}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
