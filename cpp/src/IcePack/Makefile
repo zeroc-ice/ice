@@ -75,10 +75,14 @@ SRCS		= $(LIB_OBJS:.o=.cpp) \
 		  IcePackNode.cpp \
 		  IcePackRegistry.cpp
 
+SLICE_SRCS	= $(SDIR)/Admin.ice \
+		  Internal.ice
+
 HDIR		= $(includedir)/IcePack
 LOCAL_HDIR	= ../IcePack
 SDIR		= $(slicedir)/IcePack
-SLICECMD	= $(SLICE2CPP) --ice --include-dir IcePack --dll-export ICE_PACK_API -I$(slicedir)
+SLICE2CPPFLAGS	= --ice --include-dir IcePack --dll-export ICE_PACK_API -I$(slicedir)
+SLICECMD	= $(SLICE2CPP) $(SLICE2CPPFLAGS)
 SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IcePack -I$(slicedir) -I..
 include $(top_srcdir)/config/Make.rules
 
@@ -154,3 +158,4 @@ clean::
 
 
 include .depend
+include .slicedepend

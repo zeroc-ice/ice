@@ -61,7 +61,7 @@ IcePack::ServerFactory::ServerFactory(const Ice::ObjectAdapterPtr& adapter,
     _activator(activator)
 {
     Ice::PropertiesPtr properties = _adapter->getCommunicator()->getProperties();
-    _waitTime = properties->getPropertyAsIntWithDefault("IcePack.Activation.WaitTime", 60);
+    _waitTime = properties->getPropertyAsIntWithDefault("IcePack.Node.WaitTime", 60);
     
     Freeze::ServantInitializerPtr initializer = new ServerFactoryServantInitializer();
 
