@@ -10,8 +10,7 @@
 
 top_srcdir	= ..
 
-TARGETS		= manual/index.html \
-#		  manual.pdf
+TARGETS		= manual/index.html
 
 SGMLFILES	= manual.sgml \
 		  ModuleIce.sgml \
@@ -41,6 +40,10 @@ manual.pdf: $(SGMLFILES)
 	rm -rf manual.pdf
 	db2pdf manual.sgml
 
+manual.dvi: $(SGMLFILES)
+	rm -rf manual.dvi
+	db2dvi manual.sgml
+
 clean::
 	rm -rf manual manual.out manual.texi
 
@@ -48,9 +51,12 @@ ModuleIce.sgml: $(ICEFILES) $(SLICE2DOCBOOK)
 	rm -f $@
 	$(SLICE2DOCBOOK) --no-globals -I$(top_srcdir)/slice $@ $(ICEFILES)
 
+clean::
+	rm -f ModuleIce.sgml
+
 ModuleIcePack.sgml: $(ICEPACKFILES) $(SLICE2DOCBOOK)
 	rm -f $@
 	$(SLICE2DOCBOOK) --no-globals -I$(top_srcdir)/slice $@ $(ICEPACKFILES)
 
 clean::
-	rm -f ModuleIce.sgml
+	rm -f ModuleIcePack.sgml

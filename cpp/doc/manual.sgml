@@ -1,5 +1,6 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN" [
 <!ENTITY Ice "<phrase>Ice</phrase>">
+<!ENTITY IcePack "<phrase>IcePack</phrase>">
 <!ENTITY ModuleIce SYSTEM "ModuleIce.sgml">
 <!ENTITY ModuleIcePack SYSTEM "ModuleIcePack.sgml">
 <!ENTITY Properties SYSTEM "Properties.sgml">
@@ -58,7 +59,7 @@ TBD
 &ModuleIce;
 </chapter>
 <chapter>
-<title>Module IcePack</title>
+<title>Module &IcePack;</title>
 &ModuleIcePack;
 </chapter>
 <chapter>

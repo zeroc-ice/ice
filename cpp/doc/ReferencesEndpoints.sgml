@@ -19,7 +19,7 @@ All Rights Reserved
 <arg>-o</arg>
 <arg>-s</arg>
 <arg>-d</arg>
-<arg choice=plain>:<replaceable>endpoints</replaceable></arg>
+<arg choice=plain> : <replaceable>endpoints</replaceable></arg>
 </cmdsynopsis>
 </section>
 
@@ -38,7 +38,7 @@ TBD
 <section><title>Synopsis</title>
 <cmdsynopsis>
 <arg choice=plain><replaceable>endpoint</replaceable></arg>
-<arg rep=repeat>:<replaceable>endpoint</replaceable></arg>
+<arg rep=repeat> : <replaceable>endpoint</replaceable></arg>
 </cmdsynopsis>
 </section>
 
