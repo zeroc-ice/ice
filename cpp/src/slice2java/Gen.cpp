@@ -12,11 +12,12 @@
 //
 // **********************************************************************
 
-#include <IceUtil/Functional.h>
 #include <Gen.h>
-#include <limits>
+#include <IceUtil/Functional.h>
 #include <IceUtil/Algorithm.h>
 #include <IceUtil/Iterator.h>
+
+#include <limits>
 
 using namespace std;
 using namespace Slice;
@@ -31,8 +32,10 @@ using IceUtil::nl;
 using IceUtil::sp;
 using IceUtil::sb;
 using IceUtil::eb;
+using IceUtil::spar;
+using IceUtil::epar;
 
-static string // Should be an anonymous namespace, but VC++ 6 can't handle that.
+static string
 sliceModeToIceMode(const OperationPtr& op)
 {
     string mode;
@@ -71,142 +74,139 @@ Slice::JavaVisitor::~JavaVisitor()
 {
 }
 
-string
+vector<string>
 Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package)
 {
-    string params;
+    vector<string> params;
+
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-        if(q != paramList.begin())
-        {
-            params += ", ";
-        }
 	string typeString = typeToString((*q)->type(), (*q)->isOutParam() ? TypeModeOut : TypeModeIn, package);
-        params += typeString;
-        params += ' ';
-        params += fixKwd((*q)->name());
+        params.push_back(typeString + ' ' + fixKwd((*q)->name()));
     }
+
     return params;
 }
 
-string
+vector<string>
 Slice::JavaVisitor::getParamsAsync(const OperationPtr& op, const string& package, bool amd)
 {
-    string name = fixKwd(op->name());
+    vector<string> params;
 
+    string name = fixKwd(op->name());
     ContainerPtr container = op->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
     string classNameAsync = getAbsolute(cl, package, amd ? "AMD_" : "AMI_", '_' + name);
+    params.push_back(classNameAsync + " __cb");
 
-    string params = classNameAsync + " __cb";
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
 	if(!(*q)->isOutParam())
 	{
 	    string typeString = typeToString((*q)->type(), TypeModeIn, package);
-	    params += ", ";
-	    params += typeString;
-	    params += ' ';
-	    params += fixKwd((*q)->name());
+	    params.push_back(typeString + ' ' + fixKwd((*q)->name()));
 	}
     }
+
     return params;
 }
 
-string
+vector<string>
 Slice::JavaVisitor::getParamsAsyncCB(const OperationPtr& op, const string& package)
 {
-    string params;
+    vector<string> params;
+
     TypePtr ret = op->returnType();
     if(ret)
     {
 	string retS = typeToString(ret, TypeModeIn, package);
-	params += retS;
-	params += " __ret";
+	params.push_back(retS + " __ret");
     }
+
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
 	if((*q)->isOutParam())
 	{
-	    if(!params.empty())
-	    {
-		params += ", ";
-	    }
 	    string typeString = typeToString((*q)->type(), TypeModeIn, package);
-	    params += typeString;
-	    params += ' ';
-	    params += fixKwd((*q)->name());
+	    params.push_back(typeString + ' ' + fixKwd((*q)->name()));
 	}
     }
+
     return params;
 }
 
-string
+vector<string>
 Slice::JavaVisitor::getArgs(const OperationPtr& op)
 {
-    string args;
+    vector<string> args;
+
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-        if(q != paramList.begin())
-        {
-            args += ", ";
-        }
-        args += fixKwd((*q)->name());
+        args.push_back(fixKwd((*q)->name()));
     }
+
     return args;
 }
 
-string
+vector<string>
 Slice::JavaVisitor::getArgsAsync(const OperationPtr& op)
 {
-    string args = "__cb";
+    vector<string> args;
+
+    args.push_back("__cb");
+
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
 	if(!(*q)->isOutParam())
 	{
-            args += ", ";
-	    args += fixKwd((*q)->name());
+	    args.push_back(fixKwd((*q)->name()));
 	}
     }
+
     return args;
 }
 
-string
+vector<string>
 Slice::JavaVisitor::getArgsAsyncCB(const OperationPtr& op)
 {
-    string args;
+    vector<string> args;
+
     TypePtr ret = op->returnType();
     if(ret)
     {
-	args += "__ret";
 	BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
 	if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
 	{
-	    args += ".value";
+	    args.push_back("__ret.value");
+	}
+	else
+	{
+	    args.push_back("__ret");
 	}
     }
+
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
 	if((*q)->isOutParam())
 	{
-	    if(!args.empty())
-	    {
-		args += ", ";
-	    }
-	    args += fixKwd((*q)->name());
 	    BuiltinPtr builtin = BuiltinPtr::dynamicCast((*q)->type());
 	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*q)->type()))
 	    {
-		args += ".value";
+		args.push_back(fixKwd((*q)->name()) + ".value");
+	    }
+	    else
+	    {
+		args.push_back(fixKwd((*q)->name()));
 	    }
 	}
     }
+
     return args;
 }
 
@@ -929,7 +929,7 @@ Slice::Gen::OpsVisitor::visitOperation(const OperationPtr& p)
     string package = getPackage(cl);
 
     TypePtr ret;
-    string params;
+    vector<string> params;
 
     bool amd = !cl->isLocal() && (cl->hasMetaData("amd") || p->hasMetaData("amd"));
 
@@ -948,16 +948,12 @@ Slice::Gen::OpsVisitor::visitOperation(const OperationPtr& p)
     Output& out = output();
     
     out << sp;
-    out << nl << retS << ' ' << name << (amd ? "_async(" : "(") << params;
+    out << nl << retS << ' ' << name << (amd ? "_async" : "") << spar << params;
     if(!cl->isLocal())
     {
-	if(!params.empty())
-	{
-	    out << ", ";
-	}
 	out << "Ice.Current __current";
     }
-    out << ')';
+    out << epar;
     ExceptionList throws = p->throws();
     throws.sort();
     throws.unique();
@@ -1066,7 +1062,8 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         TypePtr ret = (*r)->returnType();
         string retS = typeToString(ret, TypeModeReturn, package);
 
-        string params, args;
+        vector<string> params;
+	vector<string> args;
         if(hasAMD)
         {
             params = getParamsAsync((*r), package, true);
@@ -1079,17 +1076,12 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
 
         out << sp;
-        out << nl << "public " << (hasAMD ? "void" : retS) << nl << opName << '(' << params;
-
+        out << nl << "public " << (hasAMD ? "void" : retS) << nl << opName << spar << params;
         if(!p->isLocal())
         {
-            if(!params.empty() || hasAMD)
-            {
-                out << ", ";
-            }
             out << "Ice.Current __current";
         }
-        out << ')';
+        out << epar;
 
         ExceptionList throws = (*r)->throws();
         throws.sort();
@@ -1101,16 +1093,12 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << "return ";
         }
-        out << "_ice_delegate." << opName << "(" << args;
+        out << "_ice_delegate." << opName << spar << args;
         if(!p->isLocal())
         {
-            if(!args.empty())
-            {
-                out << ", ";
-            }
             out << "__current";
         }
-        out << ");";
+        out << epar << ';';
         out << eb;
     }
 
@@ -2244,8 +2232,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         TypePtr ret = op->returnType();
         string retS = typeToString(ret, TypeModeReturn, package);
 
-        string params = getParams(op, package);
-        string args = getArgs(op);
+        vector<string> params = getParams(op, package);
+        vector<string> args = getArgs(op);
 
         ExceptionList throws = op->throws();
         throws.sort();
@@ -2256,7 +2244,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         // context parameter
         //
         out << sp;
-        out << nl << "public " << retS << nl << opName << '(' << params << ')';
+        out << nl << "public " << retS << nl << opName << spar << params << epar;
         writeThrowsClause(package, throws);
         out << sb;
         out << nl;
@@ -2264,21 +2252,11 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << "return ";
         }
-        out << opName << '(' << args;
-        if(!args.empty())
-        {
-            out << ", ";
-        }
-        out << "__defaultContext());";
+        out << opName << spar << args << "__defaultContext()" << epar << ';';
         out << eb;
 
         out << sp;
-        out << nl << "public " << retS << nl << opName << '(' << params;
-        if(!params.empty())
-        {
-            out << ", ";
-        }
-        out << "java.util.Map __context)";
+        out << nl << "public " << retS << nl << opName << spar << params << "java.util.Map __ctx" << epar;
         writeThrowsClause(package, throws);
         out << sb;
         out << nl << "int __cnt = 0;";
@@ -2297,12 +2275,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << "return ";
         }
-        out << "__del." << opName << '(' << args;
-        if(!args.empty())
-        {
-            out << ", ";
-        }
-        out << "__context);";
+        out << "__del." << opName << spar << args << "__ctx" << epar << ';';
         if(!ret)
         {
             out << nl << "return;";
@@ -2328,42 +2301,26 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 	if(p->hasMetaData("ami") || op->hasMetaData("ami"))
 	{
-	    string paramsAMI = getParamsAsync(op, package, false);
-	    string argsAMI = getArgsAsync(op);
+	    vector<string> paramsAMI = getParamsAsync(op, package, false);
+	    vector<string> argsAMI = getArgsAsync(op);
 	    
 	    //
 	    // Write two versions of the operation - with and without a
 	    // context parameter
 	    //
 	    out << sp;
-	    out << nl << "public void" << nl << opName << "_async(" << paramsAMI << ')';
+	    out << nl << "public void" << nl << opName << "_async" << spar << paramsAMI << epar;
 	    out << sb;
-	    out << nl << opName << "_async(" << argsAMI << ", __defaultContext());";
+	    out << nl << opName << "_async" << spar << argsAMI << "__defaultContext()" << epar << ';';
 	    out << eb;
 
 	    out << sp;
-	    out << nl << "public void" << nl << opName << "_async(" << paramsAMI << ", java.util.Map __context)";
-	    out << sb;
-	    /*
-	    out << nl << "int __cnt = 0;";
-	    out << nl << "while(true)";
-	    out << sb;
-	    out << nl << "try";
+	    out << nl << "public void" << nl << opName << "_async" << spar << paramsAMI << "java.util.Map __ctx"
+		<< epar;
 	    out << sb;
 	    // Async requests may only be sent twoway.
-	    out << nl << "__checkTwowayOnly(\"" << opName << "\");";
-	    out << nl << "Ice._ObjectDel __delBase = __getDelegate();";
-	    out << nl << '_' << name << "Del __del = (_" << name
-		<< "Del)__delBase;";
-	    out << nl << "__del." << opName << "_async(" << argsAMI << ", __context);";
-            out << nl << "return;";
-	    out << eb;
-	    out << nl << "catch(Ice.LocalException __ex)";
-	    out << sb;
-	    out << nl << "__cnt = __handleException(__ex, __cnt);";
-	    out << eb;
-	    out << eb;
-	    */
+	    out << nl << "__checkTwowayOnly(\"" << p->name() << "\");";
+	    out << nl << "__cb.__invoke" << spar << "__reference()" << argsAMI << "__ctx" << epar << ';';
 	    out << eb;
 	}
     }
@@ -2901,7 +2858,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     TypePtr ret = p->returnType();
     string retS = typeToString(ret, TypeModeReturn, package);
-    string params = getParams(p, package);
+    vector<string> params = getParams(p, package);
     ExceptionList throws = p->throws();
     throws.sort();
     throws.unique();
@@ -2911,29 +2868,24 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // context parameter.
     //
     out << sp;
-    out << nl << "public " << retS << ' ' << name << '(' << params << ')';
+    out << nl << "public " << retS << ' ' << name << spar << params << epar;
     writeThrowsClause(package, throws);
     out << ';';
-    out << nl << "public " << retS << ' ' << name << '(' << params;
-    if(!params.empty())
-    {
-        out << ", ";
-    }
-    out << "java.util.Map __context)";
+    out << nl << "public " << retS << ' ' << name << spar << params << "java.util.Map __ctx" << epar;
     writeThrowsClause(package, throws);
     out << ';';
 
     if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
     {
-	string paramsAMI = getParamsAsync(p, package, false);
+	vector<string> paramsAMI = getParamsAsync(p, package, false);
 
 	//
 	// Write two versions of the operation - with and without a
 	// context parameter.
 	//
 	out << sp;
-	out << nl << "public void " << name << "_async(" << paramsAMI << ");";
-	out << nl << "public void " << name << "_async(" << paramsAMI << ", java.util.Map __context);";
+	out << nl << "public void " << name << "_async" << spar << paramsAMI << epar << ';';
+	out << nl << "public void " << name << "_async" << spar << paramsAMI << "java.util.Map __ctx" << epar << ';';
     }
 }
 
@@ -2994,19 +2946,14 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
         TypePtr ret = op->returnType();
         string retS = typeToString(ret, TypeModeReturn, package);
 
-        string params = getParams(op, package);
+        vector<string> params = getParams(op, package);
 
         ExceptionList throws = op->throws();
         throws.sort();
         throws.unique();
 
         out << sp;
-        out << nl << retS << ' ' << opName << '(' << params;
-        if(!params.empty())
-        {
-            out << ", ";
-        }
-        out << "java.util.Map __context)";
+        out << nl << retS << ' ' << opName << spar << params << "java.util.Map __ctx" << epar;
         writeDelegateThrowsClause(package, throws);
         out << ';';
     }
@@ -3078,20 +3025,15 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         throws.unique();
         throws.erase(remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal)), throws.end());
 
-        string params = getParams(op, package);
+        vector<string> params = getParams(op, package);
 
         out << sp;
-        out << nl << "public " << retS << nl << opName << '(' << params;
-        if(!params.empty())
-        {
-            out << ", ";
-        }
-        out << "java.util.Map __context)";
+        out << nl << "public " << retS << nl << opName << spar << params << "java.util.Map __ctx" << epar;
         writeDelegateThrowsClause(package, throws);
         out << sb;
 
         out << nl << "IceInternal.Outgoing __out = getOutgoing(\"" << op->name() << "\", " << sliceModeToIceMode(op)
-	    << ", __context);";
+	    << ", __ctx);";
         out << nl << "try";
         out << sb;
         if(!inParams.empty())
@@ -3225,16 +3167,11 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         throws.unique();
         throws.erase(remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal)), throws.end());
 
-        string params = getParams(op, package);
-        string args = getArgs(op);
+        vector<string> params = getParams(op, package);
+        vector<string> args = getArgs(op);
 
 	out << sp;
-        out << nl << "public " << retS << nl << opName << '(' << params;
-        if(!params.empty())
-        {
-            out << ", ";
-        }
-        out << "java.util.Map __context)";
+        out << nl << "public " << retS << nl << opName << spar << params << "java.util.Map __ctx" << epar;
         writeDelegateThrowsClause(package, throws);
         out << sb;
 	if(p->hasMetaData("amd") || op->hasMetaData("amd"))
@@ -3246,7 +3183,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    StringList metaData = op->getMetaData();
 	    out << nl << "Ice.Current __current = new Ice.Current();";
 	    out << nl << "__initCurrent(__current, \"" << op->name() << "\", " << sliceModeToIceMode(op)
-		<< ", __context);";
+		<< ", __ctx);";
 	    out << nl << "while(true)";
 	    out << sb;
 	    out << nl << "IceInternal.Direct __direct = new IceInternal.Direct(__current);";
@@ -3272,12 +3209,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    {
 		out << "return ";
 	    }
-	    out << "__servant." << opName << '(' << args;
-	    if(!args.empty())
-	    {
-		out << ", ";
-	    }
-	    out << "__current);";
+	    out << "__servant." << opName << spar << args << "__current" << epar << ';';
 	    if(!ret)
 	    {
 		out << nl << "return;";
@@ -3484,18 +3416,17 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, 
 
     TypePtr ret = op->returnType();
     string retS = typeToString(ret, TypeModeReturn, package);
-    string params = getParams(op, package);
+    vector<string> params = getParams(op, package);
 
     ContainerPtr container = op->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
 
     if(!local && (cl->hasMetaData("amd") || op->hasMetaData("amd")))
     {
-        ParamDeclList paramList = op->parameters();
-        ParamDeclList::const_iterator q;
+	vector<string> paramsAMD = getParamsAsync(op, package, false);
 
-        out << sp << nl << "public void" << nl << opName << "_async(" << getParamsAsync(op, package, true)
-            << ", Ice.Current __current)";
+        out << sp << nl << "public void" << nl << opName << "_async" << spar << paramsAMD << "Ice.Current __current"
+	    << epar;
 
         ExceptionList throws = op->throws();
         throws.sort();
@@ -3505,6 +3436,8 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, 
         out << sb;
 
         string result = "r";
+        ParamDeclList paramList = op->parameters();
+        ParamDeclList::const_iterator q;
         for(q = paramList.begin(); q != paramList.end(); ++q)
         {
             if((*q)->name() == result)
@@ -3547,16 +3480,12 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, 
     }
     else
     {
-        out << sp << nl << "public " << retS << nl << opName << '(' << params;
+        out << sp << nl << "public " << retS << nl << opName << spar << params;
         if(!local)
         {
-            if(!params.empty())
-            {
-                out << ", ";
-            }
             out << "Ice.Current __current";
         }
-        out << ')';
+        out << epar;
 
         ExceptionList throws = op->throws();
         throws.sort();
@@ -3752,6 +3681,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
         TypePtr ret = p->returnType();
 
+	TypeStringList inParams;
         TypeStringList outParams;
 	ParamDeclList paramList = p->parameters();
 	for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
@@ -3759,6 +3689,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    if((*pli)->isOutParam())
 	    {
 		outParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+	    }
+	    else
+	    {
+		inParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
 	    }
 	}
 
@@ -3769,19 +3703,48 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         TypeStringList::const_iterator q;
         int iter;
 
-	string paramsAMI = getParamsAsyncCB(p, classPkg);
-	string argsAMI = getArgsAsyncCB(p);
+	vector<string> params = getParamsAsyncCB(p, classPkg);
+	vector<string> args = getArgsAsyncCB(p);
+
+	vector<string> paramsInvoke = getParamsAsync(p, classPkg, false);
 
 	out << sp << nl << "public abstract class " << classNameAMI << '_' << name
 	    << " extends IceInternal.OutgoingAsync";
 	out << sb;
-	out << sp << nl << "public abstract void ice_response(" << paramsAMI << ");";
-	out << sp << nl << "public abstract void ice_exception(Ice.LocalException ex);";
+	out << sp;
+	out << nl << "public abstract void ice_response" << spar << params << epar << ';';
+	out << nl << "public abstract void ice_exception(Ice.LocalException ex);";
 	if(!throws.empty())
 	{
-	    out << sp << nl << "public abstract void ice_exception(Ice.UserException ex);";
+	    out << nl << "public abstract void ice_exception(Ice.UserException ex);";
 	}
-	out << sp << nl << "protected final void __response(boolean __ok)";
+	
+	out << sp << nl << "protected final void" << nl << "__invoke" << spar << "IceInternal.Reference __ref"
+	    << paramsInvoke << "java.util.Map __ctx" << epar;
+	out << sb;
+	out << nl << "try";
+	out << sb;
+	out << nl << "__prepare(__ref, \"" << p->name() << "\", " << sliceModeToIceMode(p) << ", __ctx);";
+	for(q = inParams.begin(); q != inParams.end(); ++q)
+	{
+	    string typeS = typeToString(q->first, TypeModeIn, classPkg);
+	    writeMarshalUnmarshalCode(out, classPkg, q->first, fixKwd(q->second), true, iter);
+	}
+	if(p->sendsClasses())
+	{
+	    out << nl << "__os.writePendingObjects();";
+	}
+	out << nl << "__os.endWriteEncaps();";
+	out << eb;
+	out << nl << "catch(Ice.LocalException __ex)";
+	out << sb;
+	out << nl << "__finished(__ex);";
+	out << nl << "return;";
+	out << eb;
+	out << nl << "__send();";
+	out << eb;
+
+	out << sp << nl << "protected final void" << nl << "__response(boolean __ok)";
 	out << sb;
         for(q = outParams.begin(); q != outParams.end(); ++q)
         {
@@ -3793,7 +3756,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    }
 	    else
 	    {
-		out << nl << typeS << ' ' << fixKwd(q->second) << ";";
+		out << nl << typeS << ' ' << fixKwd(q->second) << ';';
 	    }
         }
         if(ret)
@@ -3811,7 +3774,6 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         }
 	out << nl << "try";
 	out << sb;
-	out << nl << "IceInternal.BasicStream __is = this.__is();";
 	out << nl << "if(!__ok)";
         out << sb;
 	out << nl << "try";
@@ -3861,7 +3823,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
    	out << eb;
 	out << nl << "catch(Ice.LocalException __ex)";
 	out << sb;
-	out << nl << "ice_exception(__ex);";
+	out << nl << "__finished(__ex);";
 	out << nl << "return;";
 	out << eb;
 	if(!throws.empty())
@@ -3872,7 +3834,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    out << nl << "return;";
 	    out << eb;
 	}
-	out << nl << "ice_response(" << argsAMI << ");";
+	out << nl << "ice_response" << spar << args << epar << ';';
 	out << eb;
 	out << eb;
 
@@ -3887,7 +3849,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	string classNameAMDI = "_AMD_" + fixKwd(cl->name());
 	string absoluteAMDI = getAbsolute(cl, "", "_AMD_", "_" + name);
 
-	string paramsAMD = getParamsAsyncCB(p, classPkg);
+	vector<string> paramsAMD = getParamsAsyncCB(p, classPkg);
 
 	{
 	    if(!open(absoluteAMD))
@@ -3899,7 +3861,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    
 	    out << sp << nl << "public interface " << classNameAMD << '_' << name;
 	    out << sb;
-	    out << sp << nl << "void ice_response(" << paramsAMD << ");";
+	    out << sp << nl << "void ice_response" << spar << paramsAMD << epar << ';';
 	    out << sp << nl << "void ice_exception(java.lang.Exception ex);";
 	    out << eb;
 	    
@@ -3942,7 +3904,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    out << nl << "super(in);";
 	    out << eb;
 
-	    out << sp << nl << "public void" << nl << "ice_response(" << paramsAMD << ")";
+	    out << sp << nl << "public void" << nl << "ice_response" << spar << paramsAMD << epar;
 	    out << sb;
 	    out << nl << "if(!_finished)";
 	    out << sb;

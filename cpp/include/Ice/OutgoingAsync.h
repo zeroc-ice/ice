@@ -83,7 +83,7 @@ public:
     void __invoke(const IceInternal::ReferencePtr&, const std::string& operation, OperationMode,
 		  const std::vector<Byte>&, const Context&);
 
-private:
+protected:
 
     virtual void __response(bool);
 };

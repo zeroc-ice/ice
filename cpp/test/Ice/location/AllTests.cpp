@@ -121,7 +121,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 	cout << "ok" << endl;
     }
 
-    cout << "shutdown server manager..." << flush;
+    cout << "shutdown server manager... " << flush;
     manager->shutdown();
     cout << "ok" << endl;
 }

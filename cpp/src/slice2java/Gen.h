@@ -15,6 +15,8 @@
 #ifndef GEN_H
 #define GEN_H
 
+#include <Slice/Parser.h>
+#include <IceUtil/OutputUtil.h>
 #include <Slice/JavaUtil.h>
 
 namespace Slice
@@ -33,16 +35,16 @@ protected:
     //
     // Compose the parameter lists for an operation.
     //
-    std::string getParams(const OperationPtr&, const std::string&);
-    std::string getParamsAsync(const OperationPtr&, const std::string&, bool);
-    std::string getParamsAsyncCB(const OperationPtr&, const std::string&);
+    std::vector<std::string> getParams(const OperationPtr&, const std::string&);
+    std::vector<std::string> getParamsAsync(const OperationPtr&, const std::string&, bool);
+    std::vector<std::string> getParamsAsyncCB(const OperationPtr&, const std::string&);
 
     //
     // Compose the argument lists for an operation.
     //
-    std::string getArgs(const OperationPtr&);
-    std::string getArgsAsync(const OperationPtr&);
-    std::string getArgsAsyncCB(const OperationPtr&);
+    std::vector<std::string> getArgs(const OperationPtr&);
+    std::vector<std::string> getArgsAsync(const OperationPtr&);
+    std::vector<std::string> getArgsAsyncCB(const OperationPtr&);
 
     //
     // Generate a throws clause containing only non-local exceptions.

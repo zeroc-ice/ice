@@ -93,7 +93,7 @@ public class AllTests
 	hello.sayHello();
 	System.out.println("ok");
 
-	System.out.print("testing reference with unknown identity...");
+	System.out.print("testing reference with unknown identity... ");
 	System.out.flush();
 	try
 	{
@@ -108,7 +108,7 @@ public class AllTests
 	}
 	System.out.println("ok");	
 
-	System.out.print("testing reference with unknown adapter...");
+	System.out.print("testing reference with unknown adapter... ");
 	System.out.flush();
 	try
 	{
@@ -140,7 +140,7 @@ public class AllTests
             System.out.println("ok");
         }
 
-	System.out.print("shutdown server manager...");
+	System.out.print("shutdown server manager... ");
         System.out.flush();
 	manager.shutdown();
 	System.out.println("ok");

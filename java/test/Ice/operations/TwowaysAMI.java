@@ -50,6 +50,7 @@ class TwowaysAMI
 		}
 	    }
 
+	    _called = false;
 	    return true;
 	}
 	

@@ -350,7 +350,6 @@ public class Client
 	    test(m.get(new Byte((byte)'n')) == null);
 	    test(m.get(new Byte((byte)'z')) == null);
 
-	    System.out.print("repopulate... ");
 	    //
 	    // Re-populate.
 	    //

@@ -50,6 +50,7 @@ public class AllTests
 		}
 	    }
 
+	    _called = false;
 	    return true;
 	}
 	
