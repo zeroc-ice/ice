@@ -112,15 +112,15 @@ Note that these classes are a pure Java implementation of the bzip2
 algorithm and therefore add significant latency to Ice requests.
 
 
-Python 2.2
-----------
+Python
+------
 
-To run the automated test suite, you will need Python 2.2. If you have
-no interest in running the test scripts, Python is not required.
-Linux distributions usually include Python. For Windows 2000/XP, you
-can download a Python distribution from:
+To run the automated test suite, you will need Python 2.2 or later. 
+If you have no interest in running the test scripts, Python is not 
+required.  Linux distributions usually include Python. For Windows 
+2000/XP, you can download a Python distribution from:
 
-http://www.activestate.com
+http://www.python.org/download
 
 
 ======================================================================

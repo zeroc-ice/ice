@@ -3,21 +3,20 @@ Build instructions
 
 This version of Ice for C# requires Mono version 1.0.6.
 
-Unpack the Ice archive. The sources will be contained in the 'icecs'
-subdirectory.
+Unpack the archive. The sources will be contained in the 
+IceCS-<version> subdirectory.
 
-You must build the slice2cs compiler from the Ice for C++ source
-distribution. Make sure that slice2cs is in your PATH or,
-alternatively, place the slice2cs executable into the bin directory of
-the Ice for C# distribution. You also must ensure that the dynamic
-libraries that are required by slice2cs (iceutil and slice) are in
-your path. In addition, slice2cs calls icecpp.exe, which must also be
-in your path, as must be the Ice for C++ run-time libraries iceutil
-and slice.
+You will need the Slice to C# translator and supporting executables
+and libraries. You can download a binary distribution from the ZeroC
+web site, or you can build Ice for C++ yourself.
+
+Binary distributions for the supported platforms are available at
+
+http://www.zeroc.com/download.html
 
 To build Ice for C#, run
 
-$ make depend; make
+$ make
 
 in the top-level directory.
 
@@ -59,7 +58,7 @@ the kernel or Mono.
 Running the tests
 -----------------
 
-You must add icecs/bin to your MONO_PATH. (Don't forget to export
+You must add IceCS-<version>/bin to your MONO_PATH. (Don't forget to export
 MONO_PATH). Alternatively, you can install the Ice DLLs (from the bin
 directory) in the Global Assembly Cache (GAC), using gacutil -i
 <name>. For example:
@@ -68,9 +67,9 @@ $ gacutil -i icecs.dll
 
 To run the tests, you will need Python:
 
-http://www.activestate.com/Products/ActivePython/
+http://www.python.org/download
 
-Run "python allTests.py" from the icecs directory to run all of the
+Run "python allTests.py" from the top-level directory to run all of the
 tests, or "python allTests.py -l" to run the tests in an endless loop.
 
 You can also run individual tests in the various test directories with
@@ -85,7 +84,7 @@ allTests.py or run.py.
 Running the demos
 -----------------
 
-To run the demos, you need to have icecs/bin in your MONO_PATH (or
+To run the demos, you need to have IceCS-<version>/bin in your MONO_PATH (or
 install the Ice DLLs in the GAC, as for running the tests).  See the
 README file in each demo directory for a description of each demo.
 
@@ -93,9 +92,9 @@ README file in each demo directory for a description of each demo.
 Installation
 ------------
 
-Put the icecs/bin/icecs.dll file where you want it and add that
-directory to your MONO_PATH. When building applications, you need to
-reference the library with the -r option to mcs.
+Put the bin/icecs.dll file where you want it and add that directorya
+to your MONO_PATH. When building applications, you need to reference
+the library with the -r option to mcs.
 
 Alternatively, you can add icecs.dll to the global assembly cache. To
 do this, use

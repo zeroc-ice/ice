@@ -4,17 +4,22 @@ Build instructions
 The code has been built and tested with Visual C# Version 7.1.3088 and
 .NET Framework 1.1 Version 1.1.4322.
 
-Unpack the archive. The sources will be contained in the 'icecs'
-subdirectory.
+Unpack the archive. The sources will be contained in the 
+IceCS-<version> subdirectory.
 
-You can either build the slice2cs compiler from the Ice for C++ source
-distribution, or you can download the Ice binary package for Windows,
-which contains a compiled version of slice2cs. Make sure that the
-directory containing slice2cs is in your PATH. Note that icecpp.exe
-must be in your path as well, as must be the Ice for C++ run-time
-libraries iceutil and slice.
+You will need the Slice to C# translator and supporting executables
+and libraries. You can download a binary distribution from the ZeroC
+web site, or you can build Ice for C++ yourself.
 
-Open icecs/All.sln in Visual C# and build the "All" solution (both
+Binary distributions for the supported platforms are available at
+
+http://www.zeroc.com/download.html
+
+Make sure that the directory containing slice2cs is in your PATH. Note
+that icecpp.exe must be in your path as well, as must be the Ice for
+C++ run-time libraries iceutil and slice.
+
+Open All.sln in Visual C# and build the "All" solution (both
 debug and release builds are supported).
 
 Note: The first time you build, you will most likely find that you get
@@ -35,9 +40,9 @@ Running the tests
 
 To run the tests, you will need Python:
 
-http://www.activestate.com/Products/ActivePython/
+http://www.python.org/download
 
-Run "python allTests.py" from the icecs directory to run all of the
+Run "python allTests.py" from the top-level directory to run all of the
 tests, or "python allTests.py -l" to run the tests in an endless loop.
 
 You can also run individual tests in the various test directories with
@@ -60,7 +65,7 @@ demo.
 Installation
 ------------
 
-You can copy the generated icecs/bin/icecs.dll file where you want it
+You can copy the generated bin/icecs.dll file where you want it
 and then reference it in your appliation code.
 
 Alternatively, you can add icecs.dll to the global assembly cache. To
