@@ -18,7 +18,6 @@
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/ServantLocator.ice>
 #include <Ice/Identity.ice>
-#include <Ice/Facet.ice>
 #include <Freeze/Exception.ice>
 
 module Freeze
@@ -117,11 +116,11 @@ local exception EvictorDeactivatedException
 
 /**
  *
- * This exception is raised if an empty [Ice::FacetPath] is passed to
+ * This exception is raised if an empty facet is passed to
  * [Evictor::addFacet] or [Evictor::removeFacet].
  *
  **/
-local exception EmptyFacetPathException
+local exception EmptyFacetException
 {
 };
 
@@ -217,7 +216,7 @@ local interface Evictor extends Ice::ServantLocator
      * @throws EvictorDeactivatedException Raised if a the evictor has
      * been deactivated.
      *
-     * @throws EmptyFacetPathException Raised if the facet path is
+     * @throws EmptyFacetException Raised if the facet path is
      * empty.
      *
      *
@@ -225,7 +224,7 @@ local interface Evictor extends Ice::ServantLocator
      * @see removeFacet
      *
      **/
-    void addFacet(Ice::Identity identity, Ice::FacetPath facet, Object servant);
+    void addFacet(Ice::Identity identity, string facet, Object servant);
 
     /**
      *
@@ -262,14 +261,14 @@ local interface Evictor extends Ice::ServantLocator
      * @throws EvictorDeactivatedException Raised if a the evictor has
      * been deactivated.
      *
-     * @throws EmptyFacetPathException Raised if the facet path is
+     * @throws EmptyFacetException Raised if the facet path is
      * empty.
      *
      * @see Ice::Identity
      * @see addFacet
      *
      **/
-    Object removeFacet(Ice::Identity identity, Ice::FacetPath facet);
+    Object removeFacet(Ice::Identity identity, string facet);
     
 
     /**

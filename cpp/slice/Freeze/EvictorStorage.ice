@@ -16,7 +16,6 @@
 #define FREEZE_EVICTOR_STORAGE_ICE
 
 #include <Ice/Identity.ice>
-#include <Ice/Facet.ice>
 
 module Freeze
 {
@@ -29,7 +28,7 @@ module Freeze
 struct EvictorStorageKey
 {
     Ice::Identity identity;
-    Ice::FacetPath facet;
+    string facet;
 };
 
 /**

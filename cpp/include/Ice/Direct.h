@@ -31,7 +31,7 @@ public:
     Direct(const Ice::Current&);
     ~Direct();
 
-    const Ice::ObjectPtr& facetServant();    
+    const Ice::ObjectPtr& servant();    
 
 private:
 
@@ -42,7 +42,6 @@ private:
     const Ice::Current& _current;
 
     Ice::ObjectPtr _servant;
-    Ice::ObjectPtr _facetServant;
     Ice::ServantLocatorPtr _locator;
     Ice::LocalObjectPtr _cookie;
 };

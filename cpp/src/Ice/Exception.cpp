@@ -135,16 +135,7 @@ static void
 printFailedRequestData(ostream& out, const RequestFailedException& ex)
 {
     out << "\nidentity: " << ex.id;
-    out << "\nfacet: ";
-    vector<string>::const_iterator p = ex.facet.begin();
-    while(p != ex.facet.end())
-    {
-	out << encodeString(*p++, "/");
-	if(p != ex.facet.end())
-	{
-	    out << '/';
-	}
-    }
+    out << "\nfacet: " << ex.facet;
     out << "\noperation: " << ex.operation;
 }
 

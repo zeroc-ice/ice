@@ -59,7 +59,7 @@ IceInternal::checkedCast(const ObjectPrx& b, const string& f, ObjectPrx& d)
     d = 0;
     if(b)
     {
-	ObjectPrx bb = b->ice_appendFacet(f);
+	ObjectPrx bb = b->ice_newFacet(f);
 	try
 	{
 #ifdef NDEBUG
@@ -88,7 +88,7 @@ IceInternal::uncheckedCast(const ObjectPrx& b, const string& f, ObjectPrx& d)
     d = 0;
     if(b)
     {
-	d = b->ice_appendFacet(f);
+	d = b->ice_newFacet(f);
     }
 }
 
@@ -232,35 +232,6 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
     }
 }
 
-FacetPath
-IceProxy::Ice::Object::ice_facets()
-{
-    return ice_facets(_reference->context);
-}
-
-FacetPath
-IceProxy::Ice::Object::ice_facets(const Context& __context)
-{
-    int __cnt = 0;
-    while(true)
-    {
-	try
-	{
-	    __checkTwowayOnly("ice_facets");
-	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    return __del->ice_facets(__context);
-	}
-	catch(const NonRepeatable& __ex)
-	{
-	    __handleException(*__ex.get(), __cnt);
-	}
-	catch(const LocalException& __ex)
-	{
-	    __handleException(__ex, __cnt);
-	}
-    }
-}
-
 bool
 IceProxy::Ice::Object::ice_invoke(const string& operation,
 				  OperationMode mode,
@@ -366,14 +337,14 @@ IceProxy::Ice::Object::ice_newIdentity(const Identity& newIdentity) const
     }
 }
 
-FacetPath
+string
 IceProxy::Ice::Object::ice_getFacet() const
 {
     return _reference->facet;
 }
 
 ObjectPrx
-IceProxy::Ice::Object::ice_newFacet(const FacetPath& newFacet) const
+IceProxy::Ice::Object::ice_newFacet(const string& newFacet) const
 {
     if(newFacet == _reference->facet)
     {
@@ -385,16 +356,6 @@ IceProxy::Ice::Object::ice_newFacet(const FacetPath& newFacet) const
 	proxy->setup(_reference->changeFacet(newFacet));
 	return proxy;
     }
-}
-
-ObjectPrx
-IceProxy::Ice::Object::ice_appendFacet(const string& f) const
-{
-    FacetPath newFacet = _reference->facet;
-    newFacet.push_back(f);
-    ObjectPrx proxy(new ::IceProxy::Ice::Object());
-    proxy->setup(_reference->changeFacet(newFacet));
-    return proxy;
 }
 
 ObjectPrx
@@ -888,28 +849,6 @@ IceDelegateM::Ice::Object::ice_id(const Context& __context)
     return __ret;
 }
 
-FacetPath
-IceDelegateM::Ice::Object::ice_facets(const Context& __context)
-{
-    static const string __operation("ice_facets");
-    Outgoing __out(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
-    BasicStream* __is = __out.is();
-    FacetPath __ret;
-    try
-    {
-	if(!__out.invoke())
-	{
-	    __is->throwException();
-	}
-        __is->read(__ret);
-    }
-    catch(const ::Ice::LocalException& __ex)
-    {
-        throw ::IceInternal::NonRepeatable(__ex);
-    }
-    return __ret;
-}
-
 bool
 IceDelegateM::Ice::Object::ice_invoke(const string& operation,
                                       OperationMode mode,
@@ -980,7 +919,7 @@ IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context& __context)
     while(true)
     {
 	Direct __direct(__current);
-	return __direct.facetServant()->ice_isA(__id, __current);
+	return __direct.servant()->ice_isA(__id, __current);
     }
     return false; // To keep the Visual C++ compiler happy.
 }
@@ -993,7 +932,7 @@ IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context& __context)
     while(true)
     {
 	Direct __direct(__current);
-	__direct.facetServant()->ice_ping(__current);
+	__direct.servant()->ice_ping(__current);
 	return;
     }
 }
@@ -1006,7 +945,7 @@ IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context& __context)
     while(true)
     {
 	Direct __direct(__current);
-	return __direct.facetServant()->ice_ids(__current);
+	return __direct.servant()->ice_ids(__current);
     }
     return vector<string>(); // To keep the Visual C++ compiler happy.
 }
@@ -1019,22 +958,9 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context& __context)
     while(true)
     {
 	Direct __direct(__current);
-	return __direct.facetServant()->ice_id(__current);
+	return __direct.servant()->ice_id(__current);
     }
     return string(); // To keep the Visual C++ compiler happy.
-}
-
-FacetPath
-IceDelegateD::Ice::Object::ice_facets(const ::Ice::Context& __context)
-{
-    Current __current;
-    __initCurrent(__current, "ice_facets", ::Ice::Nonmutating, __context);
-    while(true)
-    {
-	Direct __direct(__current);
-	return __direct.facetServant()->ice_facets(__current);
-    }
-    return FacetPath(); // To keep the Visual C++ compiler happy.
 }
 
 bool
@@ -1165,8 +1091,8 @@ Ice::proxyIdentityAndFacetLess(const ObjectPrx& lhs, const ObjectPrx& rhs)
 	    return false;
 	}
 	
-	FacetPath lhsFacet = lhs->ice_getFacet();
-	FacetPath rhsFacet = rhs->ice_getFacet();
+	string lhsFacet = lhs->ice_getFacet();
+	string rhsFacet = rhs->ice_getFacet();
 	
 	if(lhsFacet < rhsFacet)
 	{
@@ -1203,8 +1129,8 @@ Ice::proxyIdentityAndFacetEqual(const ObjectPrx& lhs, const ObjectPrx& rhs)
 	
 	if(lhsIdentity == rhsIdentity)
 	{
-	    FacetPath lhsFacet = lhs->ice_getFacet();
-	    FacetPath rhsFacet = rhs->ice_getFacet();
+	    string lhsFacet = lhs->ice_getFacet();
+	    string rhsFacet = rhs->ice_getFacet();
 	    
 	    if(lhsFacet == rhsFacet)
 	    {

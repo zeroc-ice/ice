@@ -156,8 +156,7 @@ public:
 	}
 	catch(const Ice::FacetNotExistException& ex)
 	{
-	    test(ex.facet.size() == 1);
-	    test(ex.facet[0] == "no such facet");
+	    test(ex.facet == "no such facet");
 	}
 	catch(...)
 	{
@@ -168,37 +167,6 @@ public:
 };
 
 typedef IceUtil::Handle<AMI_Thrower_throwAasAFacetNotExistI> AMI_Thrower_throwAasAFacetNotExistIPtr;
-
-class AMI_Thrower_throwAasAFacetNotExist2I : public AMI_Thrower_throwAasA, public CallbackBase
-{
-public:
-
-    virtual void ice_response()
-    {
-	test(false);
-    }
-
-    virtual void ice_exception(const Ice::Exception& exc)
-    {
-	try
-	{
-	    exc.ice_throw();
-	}
-	catch(const Ice::FacetNotExistException& ex)
-	{
-	    test(ex.facet.size() == 2);
-	    test(ex.facet[0] == "no such facet");
-	    test(ex.facet[1] == "no such facet either");
-	}
-	catch(...)
-	{
-	    test(false);
-	}
-	called();
-    }
-};
-
-typedef IceUtil::Handle<AMI_Thrower_throwAasAFacetNotExist2I> AMI_Thrower_throwAasAFacetNotExist2IPtr;
 
 class AMI_Thrower_throwAorDasAorDI : public AMI_Thrower_throwAorDasAorD, public CallbackBase
 {
@@ -1013,21 +981,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	}
 	catch(const Ice::FacetNotExistException& ex)
 	{
-	    test(ex.facet.size() == 1);
-	    test(ex.facet[0] == "no such facet");
-	}
-
-	ThrowerPrx thrower3 = ThrowerPrx::uncheckedCast(thrower2, "no such facet either");
-	try
-	{
-	    thrower3->ice_ping();
-	    test(false);
-	}
-	catch(const Ice::FacetNotExistException& ex)
-	{
-	    test(ex.facet.size() == 2);
-	    test(ex.facet[0] == "no such facet");
-	    test(ex.facet[1] == "no such facet either");
+	    test(ex.facet == "no such facet");
 	}
     }
     catch(...)
@@ -1230,13 +1184,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	{
 	    AMI_Thrower_throwAasAFacetNotExistIPtr cb = new AMI_Thrower_throwAasAFacetNotExistI;
 	    thrower2->throwAasA_async(cb, 1);
-	    test(cb->check());
-	}
-
-	ThrowerPrx thrower3 = ThrowerPrx::uncheckedCast(thrower2, "no such facet either");
-	{
-	    AMI_Thrower_throwAasAFacetNotExist2IPtr cb = new AMI_Thrower_throwAasAFacetNotExist2I;
-	    thrower3->throwAasA_async(cb, 1);
 	    test(cb->check());
 	}
 

@@ -16,7 +16,6 @@
 #define ICE_LOCAL_EXCEPTION_ICE
 
 #include <Ice/Identity.ice>
-#include <Ice/Facet.ice>
 #include <Ice/BuiltinSequences.ice>
 
 module Ice
@@ -227,7 +226,7 @@ local exception RequestFailedException
     Identity id;
 
     /** The facet to which the request was sent. */
-    FacetPath facet;
+    string facet;
 
     /** The operation name of the request. */
     string operation;

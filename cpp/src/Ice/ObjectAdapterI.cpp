@@ -289,18 +289,30 @@ Ice::ObjectAdapterI::waitForDeactivate()
 ObjectPrx
 Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
 {
+    return addFacet(object, ident, "");
+}
+
+ObjectPrx
+Ice::ObjectAdapterI::addFacet(const ObjectPtr& object, const Identity& ident, const string& facet)
+{
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
     checkIdentity(ident);
 
-    _servantManager->addServant(object, ident);
+    _servantManager->addServant(object, ident, facet);
 
     return newProxy(ident);
 }
 
 ObjectPrx
 Ice::ObjectAdapterI::addWithUUID(const ObjectPtr& object)
+{
+    return addFacetWithUUID(object, "");
+}
+
+ObjectPrx
+Ice::ObjectAdapterI::addFacetWithUUID(const ObjectPtr& object, const string& facet)
 {
     Identity ident;
     ident.name = IceUtil::generateUUID();
@@ -310,12 +322,46 @@ Ice::ObjectAdapterI::addWithUUID(const ObjectPtr& object)
 void
 Ice::ObjectAdapterI::remove(const Identity& ident)
 {
+    removeFacet(ident, "");
+}
+
+void
+Ice::ObjectAdapterI::removeFacet(const Identity& ident, const string& facet)
+{
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
     checkIdentity(ident);
 
-    _servantManager->removeServant(ident);
+    _servantManager->removeServant(ident, facet);
+}
+
+ObjectPtr
+Ice::ObjectAdapterI::find(const Identity& ident)
+{
+    return findFacet(ident, "");
+}
+
+ObjectPtr
+Ice::ObjectAdapterI::findFacet(const Identity& ident, const string& facet)
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+    checkForDeactivation();
+    checkIdentity(ident);
+
+    return _servantManager->findServant(ident, facet);
+}
+
+ObjectPtr
+Ice::ObjectAdapterI::findByProxy(const ObjectPrx& proxy)
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+    checkForDeactivation();
+
+    ReferencePtr ref = proxy->__reference();
+    return findFacet(ref->identity, ref->facet);
 }
 
 void
@@ -336,28 +382,6 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix)
     checkForDeactivation();
 
     return _servantManager->findServantLocator(prefix);
-}
-
-ObjectPtr
-Ice::ObjectAdapterI::identityToServant(const Identity& ident)
-{
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
-    checkForDeactivation();
-    checkIdentity(ident);
-
-    return _servantManager->findServant(ident);
-}
-
-ObjectPtr
-Ice::ObjectAdapterI::proxyToServant(const ObjectPrx& proxy)
-{
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
-    checkForDeactivation();
-
-    ReferencePtr ref = proxy->__reference();
-    return identityToServant(ref->identity);
 }
 
 ObjectPrx
@@ -395,7 +419,7 @@ Ice::ObjectAdapterI::createReverseProxy(const Identity& ident)
     // reference.
     //
     vector<EndpointPtr> endpoints;
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), vector<string>(), Reference::ModeTwoway,
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "", Reference::ModeTwoway,
 							     false, "", endpoints, 0, 0, this, true);
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
@@ -730,7 +754,7 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident) const
 	// Create a reference with the adapter id.
 	//
 	vector<EndpointPtr> endpoints;
-	ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), vector<string>(),
+	ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "",
 								 Reference::ModeTwoway, false, _id,
 								 endpoints, 0, _locatorInfo, 0, true);
 
@@ -763,7 +787,7 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident) const
     //
     // Create a reference and return a proxy for this reference.
     //
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), vector<string>(), Reference::ModeTwoway,
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "", Reference::ModeTwoway,
 							     false, "", endpoints, 0, _locatorInfo, 0, true);
     return _instance->proxyFactory()->referenceToProxy(ref);
 

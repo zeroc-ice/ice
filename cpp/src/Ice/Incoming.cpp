@@ -92,16 +92,7 @@ IceInternal::IncomingBase::__warning(const string& msg) const
     
     out << "dispatch exception: " << msg;
     out << "\nidentity: " << _current.id;
-    out << "\nfacet: ";
-    vector<string>::const_iterator p = _current.facet.begin();
-    while(p != _current.facet.end())
-    {
-	out << encodeString(*p++, "/");
-	if(p != _current.facet.end())
-	{
-	    out << '/';
-	}
-    }
+    out << "\nfacet: " << encodeString(_current.facet, "");
     out << "\noperation: " << _current.operation;
 }
 
@@ -120,11 +111,25 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     // Read the current.
     //
     _current.id.__read(&_is);
-    _is.read(_current.facet);
+
+    //
+    // For compatibility with the old FacetPath.
+    //
+    vector<string> facetPath;
+    _is.read(facetPath);
+    string facet;
+    if(!facetPath.empty()) // TODO: Throw an exception if facetPath has more than one element?
+    {
+	facet.swap(facetPath[0]);
+    }
+    _current.facet.swap(facet);
+
     _is.read(_current.operation);
+
     Byte b;
     _is.read(b);
     _current.mode = static_cast<OperationMode>(b);
+
     Int sz;
     _is.readSize(sz);
     while(sz--)
@@ -156,7 +161,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     {
 	if(servantManager)
 	{
-	    _servant = servantManager->findServant(_current.id);
+	    _servant = servantManager->findServant(_current.id, _current.facet);
 	    
 	    if(!_servant && !_current.id.category.empty())
 	    {
@@ -179,26 +184,18 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    
 	if(!_servant)
 	{
-	    status = DispatchObjectNotExist;
-	}
-	else
-	{
-	    if(!_current.facet.empty())
+	    if(servantManager->hasServant(_current.id))
 	    {
-		ObjectPtr facetServant = _servant->ice_findFacetPath(_current.facet, 0);
-		if(!facetServant)
-		{
-		    status = DispatchFacetNotExist;
-		}
-		else
-		{
-		    status = facetServant->__dispatch(*this, _current);
-		}
+		status = DispatchFacetNotExist;
 	    }
 	    else
 	    {
-		status = _servant->__dispatch(*this, _current);
+		status = DispatchObjectNotExist;
 	    }
+	}
+	else
+	{
+	    status = _servant->__dispatch(*this, _current);
 	}
     }
     catch(RequestFailedException& ex)
@@ -243,8 +240,23 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    {
 		assert(false);
 	    }
+
 	    ex.id.__write(&_os);
-	    _os.write(ex.facet);
+
+	    //
+	    // For compatibility with the old FacetPath.
+	    //
+	    if(ex.facet.empty())
+	    {
+		_os.write(vector<string>());
+	    }
+	    else
+	    {
+		vector<string> facetPath;
+		facetPath.push_back(ex.facet);
+		_os.write(facetPath);
+	    }
+
 	    _os.write(ex.operation);
 	}
 
@@ -392,7 +404,21 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.write(static_cast<Byte>(status));
 	    
 	    _current.id.__write(&_os);
-	    _os.write(_current.facet);
+
+	    //
+	    // For compatibility with the old FacetPath.
+	    //
+	    if(_current.facet.empty())
+	    {
+		_os.write(vector<string>());
+	    }
+	    else
+	    {
+		vector<string> facetPath;
+		facetPath.push_back(_current.facet);
+		_os.write(facetPath);
+	    }
+
 	    _os.write(_current.operation);
 	}
 	else

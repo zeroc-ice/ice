@@ -70,51 +70,97 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 	    }
 	    
 	    case DispatchObjectNotExist:
-	    {
-		ObjectNotExistException ex(__FILE__, __LINE__);
-		ex.id.__read(__is);
-		__is->read(ex.facet);
-		__is->read(ex.operation);
-		throw ex;
-	    }
-	    
 	    case DispatchFacetNotExist:
-	    {
-		FacetNotExistException ex(__FILE__, __LINE__);
-		ex.id.__read(__is);
-		__is->read(ex.facet);
-		__is->read(ex.operation);
-		throw ex;
-	    }
-	    
 	    case DispatchOperationNotExist:
 	    {
-		OperationNotExistException ex(__FILE__, __LINE__);
-		ex.id.__read(__is);
-		__is->read(ex.facet);
-		__is->read(ex.operation);
-		throw ex;
+		Identity ident;
+		ident.__read(__is);
+		
+		//
+		// For compatibility with the old FacetPath.
+		//
+		vector<string> facetPath;
+		__is->read(facetPath);
+		string facet;
+		if(!facetPath.empty()) // TODO: Throw an exception if facetPath has more than one element?
+		{
+		    facet.swap(facetPath[0]);
+		}
+		
+		string operation;
+		__is->read(operation);
+		
+		auto_ptr<RequestFailedException> ex = auto_ptr<RequestFailedException>(0);
+		switch(static_cast<DispatchStatus>(status))
+		{
+		    case DispatchObjectNotExist:
+		    {
+			ex = auto_ptr<RequestFailedException>(new ObjectNotExistException(__FILE__, __LINE__));
+			break;
+		    }
+		    
+		    case DispatchFacetNotExist:
+		    {
+			ex = auto_ptr<RequestFailedException>(new FacetNotExistException(__FILE__, __LINE__));
+			break;
+		    }
+		    
+		    case DispatchOperationNotExist:
+		    {
+			ex = auto_ptr<RequestFailedException>(new OperationNotExistException(__FILE__, __LINE__));
+			break;
+		    }
+		    
+		    default:
+		    {
+			assert(false);
+			break;
+		    }
+		}
+
+		ex->id = ident;
+		ex->facet = facet;
+		ex->operation = operation;
+		ex->ice_throw();
 	    }
 	    
 	    case DispatchUnknownException:
-	    {
-		UnknownException ex(__FILE__, __LINE__);
-		__is->read(ex.unknown);
-		throw ex;
-	    }
-	    
 	    case DispatchUnknownLocalException:
-	    {
-		UnknownLocalException ex(__FILE__, __LINE__);
-		__is->read(ex.unknown);
-		throw ex;
-	    }
-	    
 	    case DispatchUnknownUserException:
 	    {
-		UnknownUserException ex(__FILE__, __LINE__);
-		__is->read(ex.unknown);
-		throw ex;
+		string unknown;
+		__is->read(unknown);
+		
+		auto_ptr<UnknownException> ex = auto_ptr<UnknownException>(0);
+		switch(static_cast<DispatchStatus>(status))
+		{
+		    case DispatchUnknownException:
+		    {
+			ex = auto_ptr<UnknownException>(new UnknownException(__FILE__, __LINE__));
+			break;
+		    }
+		    
+		    case DispatchUnknownLocalException:
+		    {
+			ex = auto_ptr<UnknownException>(new UnknownLocalException(__FILE__, __LINE__));
+			break;
+		    }
+		    
+		    case DispatchUnknownUserException:
+		    {
+			ex = auto_ptr<UnknownException>(new UnknownUserException(__FILE__, __LINE__));
+			break;
+		    }
+		    
+		    default:
+		    {
+			assert(false);
+			break;
+		    }
+		}
+		
+		ex->unknown = unknown;
+		ex->ice_throw();
 	    }
 	    
 	    default:
@@ -252,9 +298,25 @@ IceInternal::OutgoingAsync::__prepare(const ReferencePtr& ref, const string& ope
 	_connection->prepareRequest(__os);
 
 	_reference->identity.__write(__os);
-	__os->write(_reference->facet);
+
+	//
+	// For compatibility with the old FacetPath.
+	//
+	if(_reference->facet.empty())
+	{
+	    __os->write(vector<string>());
+	}
+	else
+	{
+	    vector<string> facetPath;
+	    facetPath.push_back(_reference->facet);
+	    __os->write(facetPath);
+	}
+
 	__os->write(operation);
+
 	__os->write(static_cast<Byte>(_mode));
+
 	__os->writeSize(Int(context.size()));
 	Context::const_iterator p;
 	for(p = context.begin(); p != context.end(); ++p)

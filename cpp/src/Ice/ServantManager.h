@@ -36,9 +36,10 @@ class ServantManager : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
-    void addServant(const Ice::ObjectPtr&, const Ice::Identity&);
-    void removeServant(const Ice::Identity&);
-    Ice::ObjectPtr findServant(const Ice::Identity&) const;
+    void addServant(const Ice::ObjectPtr&, const Ice::Identity&, const std::string&);
+    void removeServant(const Ice::Identity&, const std::string&);
+    Ice::ObjectPtr findServant(const Ice::Identity&, const std::string&) const;
+    bool hasServant(const Ice::Identity&) const;
 
     void addServantLocator(const Ice::ServantLocatorPtr& locator, const std::string&);
     Ice::ServantLocatorPtr findServantLocator(const std::string&) const;
@@ -54,8 +55,11 @@ private:
 
     const std::string _adapterName;
 
-    Ice::ObjectDict _servantMap;
-    mutable Ice::ObjectDict::iterator _servantMapHint;
+    typedef std::map<std::string, Ice::ObjectPtr> ServantMap;
+    typedef std::map<Ice::Identity, ServantMap> ServantMapMap;
+
+    ServantMapMap _servantMapMap;
+    mutable ServantMapMap::iterator _servantMapMapHint;
 
     std::map<std::string, Ice::ServantLocatorPtr> _locatorMap;
     mutable std::map<std::string, Ice::ServantLocatorPtr>::iterator _locatorMapHint;

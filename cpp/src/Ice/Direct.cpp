@@ -44,7 +44,7 @@ IceInternal::Direct::Direct(const Current& current) :
 
     try
     {
-	_servant = servantManager->findServant(_current.id);
+	_servant = servantManager->findServant(_current.id, _current.facet);
 	
 	if(!_servant && !_current.id.category.empty())
 	{
@@ -66,19 +66,17 @@ IceInternal::Direct::Direct(const Current& current) :
 	
 	if(!_servant)
 	{
-	    ObjectNotExistException ex(__FILE__, __LINE__);
-	    ex.id = _current.id;
-	    ex.facet = _current.facet;
-	    ex.operation = _current.operation;
-	    throw ex;
-	}
-
-	if(!_current.facet.empty())
-	{
-	    _facetServant = _servant->ice_findFacetPath(_current.facet, 0);
-	    if(!_facetServant)
+	    if(servantManager->hasServant(_current.id))
 	    {
 		FacetNotExistException ex(__FILE__, __LINE__);
+		ex.id = _current.id;
+		ex.facet = _current.facet;
+		ex.operation = _current.operation;
+		throw ex;
+	    }
+	    else
+	    {
+		ObjectNotExistException ex(__FILE__, __LINE__);
 		ex.id = _current.id;
 		ex.facet = _current.facet;
 		ex.operation = _current.operation;
@@ -128,14 +126,7 @@ IceInternal::Direct::~Direct()
 }
 
 const ObjectPtr&
-IceInternal::Direct::facetServant()
+IceInternal::Direct::servant()
 {
-    if(_facetServant)
-    {
-	return _facetServant;
-    }
-    else
-    {
-	return _servant;
-    }
+    return _servant;
 }

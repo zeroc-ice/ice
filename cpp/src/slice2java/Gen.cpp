@@ -214,7 +214,7 @@ void
 Slice::JavaVisitor::writeThrowsClause(const string& package, const ExceptionList& throws)
 {
     //
-    // Don't include local exceptions in the throws clause
+    // Don't include local exceptions in the throws clause.
     //
     ExceptionList::size_type localCount = ice_count_if(throws.begin(), throws.end(),
 						       IceUtil::constMemFun(&Exception::isLocal));
@@ -682,7 +682,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     {
         StringList allOpNames;
         transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::constMemFun(&Contained::name));
-        allOpNames.push_back("ice_facets");
         allOpNames.push_back("ice_id");
         allOpNames.push_back("ice_ids");
         allOpNames.push_back("ice_isA");
@@ -722,11 +721,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 
             out << nl << "case " << i++ << ':';
             out << sb;
-            if(opName == "ice_facets")
-            {
-                out << nl << "return ___ice_facets(this, in, __current);";
-            }
-            else if(opName == "ice_id")
+            if(opName == "ice_id")
             {
                 out << nl << "return ___ice_id(this, in, __current);";
             }
@@ -745,7 +740,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
             else
             {
                 //
-                // There's probably a better way to do this
+                // There's probably a better way to do this.
                 //
                 for(OperationList::const_iterator t = allOps.begin(); t != allOps.end(); ++t)
                 {
@@ -1270,7 +1265,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         DataMemberList::const_iterator d;
         int iter;
 
-        out << sp << nl << "public void" << nl << "__write(IceInternal.BasicStream __os, boolean __marshalFacets)";
+        out << sp << nl << "public void" << nl << "__write(IceInternal.BasicStream __os)";
         out << sb;
 	out << nl << "__os.writeTypeId(ice_staticId());";
 	out << nl << "__os.startWriteSlice();";
@@ -1281,7 +1276,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             writeMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), true, iter, false, metaData);
         }
 	out << nl << "__os.endWriteSlice();";
-        out << nl << "super.__write(__os, __marshalFacets);";
+        out << nl << "super.__write(__os);";
         out << eb;
 
 	DataMemberList allClassMembers = p->allClassDataMembers();
@@ -1976,9 +1971,9 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 	{
 	    case Builtin::KindString:
 	    {
-		out << "\"";					// Opening "
+		out << "\"";
 
-		ios_base::fmtflags originalFlags = out.flags();	// Save stream state
+		ios_base::fmtflags originalFlags = out.flags();
 		streamsize originalWidth = out.width();
 		ostream::char_type originalFill = out.fill();
 
@@ -1989,33 +1984,33 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 		    {
 			switch(*c)
 			{
-			    case '\\':				// Take care of \ and "
+			    case '\\':
 			    case '"':
 			    {
 				out << "\\";
 				break;
 			    }
 			}
-			out << *c;				// Print normally if printable
+			out << *c;
 		    }
 		    else
 		    {
 			switch(*c)
 			{
-			    case '\r':				// CR can't be written as a universal char name in Java
+			    case '\r':
 			    {
 				out << "\\r";
 				break;
 			    }
-			    case '\n':				// Ditto for NL
+			    case '\n':
 			    {
 				out << "\\n";
 				break;
 			    }
 			    default:
 			    {
-				unsigned char uc = *c;		// char may be signed, so make it positive
-				out << "\\u";    		// Print as universal character name if non-printable
+				unsigned char uc = *c;
+				out << "\\u";
 				out.flags(ios_base::hex);
 				out.width(4);
 				out.fill('0');
@@ -2026,21 +2021,21 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 		    }
 		}
 
-		out.fill(originalFill);				// Restore stream state
+		out.fill(originalFill);
 		out.width(originalWidth);
 		out.flags(originalFlags);
 
-		out << "\"";					// Closing "
+		out << "\"";
 		break;
 	    }
 	    case Builtin::KindByte:
 	    {
-		out << p->value() << " - 128";	// Slice byte runs from 0-255, Java byte runs from -128 - 127
+		out << p->value() << " -128"; // Slice byte runs from 0-255, Java byte runs from -128 - 127.
 		break;
 	    }
 	    case Builtin::KindLong:
 	    {
-		out << p->value() << "L";	// Need to append "L" modifier for long constants
+		out << p->value() << "L"; // Need to append "L" modifier for long constants.
 		break;
 	    }
             case Builtin::KindBool:
@@ -2360,7 +2355,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << name << "Prx d = null;";
     out << nl << "if(b != null)";
     out << sb;
-    out << nl << "Ice.ObjectPrx bb = b.ice_appendFacet(f);";
+    out << nl << "Ice.ObjectPrx bb = b.ice_newFacet(f);";
     out << nl << "try";
     out << sb;
     out << nl << "if(bb.ice_isA(\"" << scoped << "\"))";
@@ -2394,7 +2389,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << name << "Prx d = null;";
     out << nl << "if(b != null)";
     out << sb;
-    out << nl << "Ice.ObjectPrx bb = b.ice_appendFacet(f);";
+    out << nl << "Ice.ObjectPrx bb = b.ice_newFacet(f);";
     out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
     out << nl << "h.__copyFrom(bb);";
     out << nl << "d = h;";
@@ -3208,7 +3203,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    out << nl << name << " __servant = null;";
 	    out << nl << "try";
 	    out << sb;
-	    out << nl << "__servant = (" << name << ")__direct.facetServant();";
+	    out << nl << "__servant = (" << name << ")__direct.servant();";
 	    out << eb;
 	    out << nl << "catch(ClassCastException __ex)";
 	    out << sb;

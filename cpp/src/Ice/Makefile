@@ -56,7 +56,6 @@ OBJS		= Initialize.o \
 		  ReferenceFactory.o \
 		  Identity.o \
 		  IdentityUtil.o \
-		  Facet.o \
 		  Current.o \
 		  Router.o \
 		  RouterInfo.o \
@@ -112,7 +111,6 @@ SLICE_SRCS	= $(SDIR)/LocalException.ice \
 		  $(SDIR)/ObjectFactory.ice \
 		  $(SDIR)/ObjectFactoryF.ice \
 		  $(SDIR)/Identity.ice \
-		  $(SDIR)/Facet.ice \
 		  $(SDIR)/Current.ice \
 		  $(SDIR)/Router.ice \
 		  $(SDIR)/RouterF.ice \

@@ -29,22 +29,22 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("FacetExceptionTestAdapter");
     Ice::ObjectPtr obj = new EmptyI;
     adapter->add(obj, Ice::stringToIdentity("d"));
-    obj->ice_addFacet(obj, "facetABCD");
+    adapter->addFacet(obj, Ice::stringToIdentity("d"), "facetABCD");
     bool gotException = false;
     try
     {
-	obj->ice_addFacet(obj, "facetABCD");
+	adapter->addFacet(obj, Ice::stringToIdentity("d"), "facetABCD");
     }
     catch(Ice::AlreadyRegisteredException&)
     {
 	gotException = true;
     }
     test(gotException);
-    obj->ice_removeFacet("facetABCD");
+    adapter->removeFacet(Ice::stringToIdentity("d"), "facetABCD");
     gotException = false;
     try
     {
-	obj->ice_removeFacet("facetABCD");
+	adapter->removeFacet(Ice::stringToIdentity("d"), "facetABCD");
     }
     catch(Ice::NotRegisteredException&)
     {
@@ -53,7 +53,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(gotException);
     cout << "ok" << endl;
 
-    obj->ice_removeAllFacets();
     adapter->deactivate();
 
     cout << "testing stringToProxy... " << flush;
@@ -91,7 +90,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(ff->callF() == "F");
     cout << "ok" << endl;
 
-    cout << "testing facet G, which is a sub-facet of E and F... " << flush;
+    cout << "testing facet G... " << flush;
     GPrx gf = GPrx::checkedCast(ff, "facetGH");
     test(gf);
     test(gf->callG() == "G");

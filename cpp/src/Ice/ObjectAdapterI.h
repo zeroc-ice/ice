@@ -54,14 +54,17 @@ public:
     virtual void waitForDeactivate();
 
     virtual ObjectPrx add(const ObjectPtr&, const Identity&);
+    virtual ObjectPrx addFacet(const ObjectPtr&, const Identity&, const std::string&);
     virtual ObjectPrx addWithUUID(const ObjectPtr&);
+    virtual ObjectPrx addFacetWithUUID(const ObjectPtr&, const std::string&);
     virtual void remove(const Identity&);
+    virtual void removeFacet(const Identity&, const std::string&);
+    virtual ObjectPtr find(const Identity&);
+    virtual ObjectPtr findFacet(const Identity&, const std::string&);
+    virtual ObjectPtr findByProxy(const ObjectPrx&);
 
     virtual void addServantLocator(const ServantLocatorPtr&, const std::string&);
     virtual ServantLocatorPtr findServantLocator(const std::string&);
-
-    virtual ObjectPtr identityToServant(const Identity&);
-    virtual ObjectPtr proxyToServant(const ObjectPrx&);
 
     virtual ObjectPrx createProxy(const Identity&);
     virtual ObjectPrx createDirectProxy(const Identity&);

@@ -33,7 +33,7 @@ void IceInternal::decRef(::IceInternal::ReferenceFactory* p) { p->__decRef(); }
 ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const Context& context,
-				      const vector<string>& facet,
+				      const string& facet,
 				      Reference::Mode mode,
 				      bool secure,
 				      const string& adapterId,
@@ -215,7 +215,7 @@ IceInternal::ReferenceFactory::create(const string& str)
         }
     }
 
-    vector<string> facet;
+    string facet;
     Reference::Mode mode = Reference::ModeTwoway;
     bool secure = false;
     string adapter;
@@ -304,55 +304,12 @@ IceInternal::ReferenceFactory::create(const string& str)
 		    throw ex;
 		}
 
-                const string::size_type argLen = argument.size();
-
-                string::size_type argBeg = 0;
-                while(argBeg < argLen)
-                {
-                    //
-                    // Skip slashes
-                    //
-                    argBeg = argument.find_first_not_of("/", argBeg);
-                    if(argBeg == string::npos)
-                    {
-                        break;
-                    }
-
-                    //
-                    // Find unescaped slash
-                    //
-                    string::size_type argEnd = argBeg;
-                    while((argEnd = argument.find('/', argEnd)) != string::npos)
-                    {
-                        if(argument[argEnd - 1] != '\\')
-                        {
-                            break;
-                        }
-                        argEnd++;
-                    }
-
-                    if(argEnd == string::npos)
-                    {
-                        argEnd = argLen;
-                    }
-
-                    string token;
-                    if(!decodeString(argument, argBeg, argEnd, token))
-                    {
-			ProxyParseException ex(__FILE__, __LINE__);
-			ex.str = str;
-			throw ex;
-                    }
-                    facet.push_back(token);
-                    argBeg = argEnd + 1;
-                }
-
-                if(facet.size() == 0)
-                {
+		if(!decodeString(argument, 0, argument.size(), facet))
+		{
 		    ProxyParseException ex(__FILE__, __LINE__);
 		    ex.str = str;
 		    throw ex;
-                }
+		}
 
 		break;
 	    }
@@ -517,8 +474,16 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 	return 0;
     }
 
-    vector<string> facet;
-    s->read(facet);
+    //
+    // For compatibility with the old FacetPath.
+    //
+    vector<string> facetPath;
+    s->read(facetPath);
+    string facet;
+    if(!facetPath.empty()) // TODO: Throw an exception if facetPath has more than one element?
+    {
+	facet.swap(facetPath[0]);
+    }
 
     Byte modeAsByte;
     s->read(modeAsByte);

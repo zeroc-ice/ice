@@ -114,8 +114,23 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 	    {
 		assert(false);
 	    }
+
 	    ex.id.__write(&_os);
-	    _os.write(ex.facet);
+
+	    //
+	    // For compatibility with the old FacetPath.
+	    //
+	    if(ex.facet.empty())
+	    {
+		_os.write(vector<string>());
+	    }
+	    else
+	    {
+		vector<string> facetPath;
+		facetPath.push_back(ex.facet);
+		_os.write(facetPath);
+	    }
+
 	    _os.write(ex.operation);
 	}
     }

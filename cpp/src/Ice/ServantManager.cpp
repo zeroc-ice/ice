@@ -18,6 +18,7 @@
 #include <Ice/IdentityUtil.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Instance.h>
+#include <Ice/StringUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -27,67 +28,135 @@ void IceInternal::incRef(ServantManager* p) { p->__incRef(); }
 void IceInternal::decRef(ServantManager* p) { p->__decRef(); }
 
 void
-IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity& ident)
+IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity& ident, const string& facet)
 {
     IceUtil::Mutex::Lock sync(*this);
     
     assert(_instance); // Must not be called after destruction.
 
-    if(_servantMap.find(ident) != _servantMap.end())
+    ServantMapMap::iterator p = _servantMapMapHint;
+
+    if(p == _servantMapMap.end() || p->first != ident)
     {
-	AlreadyRegisteredException ex(__FILE__, __LINE__);
-	ex.kindOfObject = "servant";
-	ex.id = identityToString(ident);
-	throw ex;
+	p = _servantMapMap.find(ident);
     }
-    
-    _servantMapHint = _servantMap.insert(_servantMapHint, ObjectDict::value_type(ident, object));
+
+    if(p == _servantMapMap.end())
+    {
+	p = _servantMapMap.insert(_servantMapMapHint, pair<const Identity, ServantMap>(ident, ServantMap()));
+    }
+    else
+    {
+	if(p->second.find(facet) != p->second.end())
+	{
+	    AlreadyRegisteredException ex(__FILE__, __LINE__);
+	    ex.kindOfObject = "servant";
+	    ex.id = identityToString(ident);
+	    if(!facet.empty())
+	    {
+		ex.id += " -f " + encodeString(facet, "");
+	    }
+	    throw ex;
+	}
+    }
+
+    _servantMapMapHint = p;
+
+    p->second.insert(pair<const string, ObjectPtr>(facet, object));
 }
 
 void
-IceInternal::ServantManager::removeServant(const Identity& ident)
+IceInternal::ServantManager::removeServant(const Identity& ident, const string& facet)
 {
     IceUtil::Mutex::Lock sync(*this);
     
     assert(_instance); // Must not be called after destruction.
 
-    ObjectDict::iterator p = _servantMap.find(ident);
-    if(p == _servantMap.end())
+    ServantMapMap::iterator p = _servantMapMapHint;
+    ServantMap::iterator q;
+
+    if(p == _servantMapMap.end() || p->first != ident)
+    {
+	p = _servantMapMap.find(ident);
+    }
+    
+    if(p == _servantMapMap.end() || (q = p->second.find(facet)) == p->second.end())
     {
 	NotRegisteredException ex(__FILE__, __LINE__);
 	ex.kindOfObject = "servant";
 	ex.id = identityToString(ident);
+	if(!facet.empty())
+	{
+	    ex.id += " -f " + encodeString(facet, "");
+	}
 	throw ex;
     }
 
-    _servantMap.erase(p);
-    _servantMapHint = _servantMap.end();
+    p->second.erase(q);
+
+    if(p->second.empty())
+    {
+	if(p == _servantMapMapHint)
+	{
+	    _servantMapMap.erase(p++);
+	    _servantMapMapHint = p;
+	}
+	else
+	{
+	    _servantMapMap.erase(p);
+	}
+    }
 }
 
 ObjectPtr
-IceInternal::ServantManager::findServant(const Identity& ident) const
+IceInternal::ServantManager::findServant(const Identity& ident, const string& facet) const
 {
     IceUtil::Mutex::Lock sync(*this);
-
+    
     assert(_instance); // Must not be called after destruction.
 
-    if(_servantMap.end() != _servantMapHint)
+    ServantMapMap::iterator p = _servantMapMapHint;
+    ServantMap::iterator q;
+
+    if(p == _servantMapMap.end() || p->first != ident)
     {
-	if(_servantMapHint->first == ident)
-	{
-	    return _servantMapHint->second;
-	}
+	p = const_cast<ServantMapMap&>(_servantMapMap).find(ident);
     }
     
-    ObjectDict::iterator p = const_cast<Ice::ObjectDict&>(_servantMap).find(ident);
-    if(_servantMap.end() != p)
+    if(p == _servantMapMap.end() || (q = p->second.find(facet)) == p->second.end())
     {
-	_servantMapHint = p;
-	return p->second;
+	return 0;
     }
     else
     {
-	return 0;
+	_servantMapMapHint = p;
+	return q->second;
+    }
+}
+
+bool
+IceInternal::ServantManager::hasServant(const Identity& ident) const
+{
+    IceUtil::Mutex::Lock sync(*this);
+    
+    assert(_instance); // Must not be called after destruction.
+
+    ServantMapMap::iterator p = _servantMapMapHint;
+
+    if(p == _servantMapMap.end() || p->first != ident)
+    {
+	p = const_cast<ServantMapMap&>(_servantMapMap).find(ident);
+    }
+    
+    if(p == _servantMapMap.end())
+    {
+	return false;
+    }
+    else
+    {
+	_servantMapMapHint = p;
+	assert(!p->second.empty());
+	return true;
     }
 }
 
@@ -141,7 +210,7 @@ IceInternal::ServantManager::findServantLocator(const string& category) const
 IceInternal::ServantManager::ServantManager(const InstancePtr& instance, const string& adapterName)
     : _instance(instance),
       _adapterName(adapterName),
-      _servantMapHint(_servantMap.end()),
+      _servantMapMapHint(_servantMapMap.end()),
       _locatorMapHint(_locatorMap.end())
 {
 }
@@ -163,8 +232,8 @@ IceInternal::ServantManager::destroy()
     
     assert(_instance); // Must not be called after destruction.
 
-    _servantMap.clear();
-    _servantMapHint = _servantMap.end();
+    _servantMapMap.clear();
+    _servantMapMapHint = _servantMapMap.end();
 
     for(map<string, ServantLocatorPtr>::const_iterator p = _locatorMap.begin(); p != _locatorMap.end(); ++p)
     {

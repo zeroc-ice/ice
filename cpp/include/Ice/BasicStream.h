@@ -172,7 +172,6 @@ public:
     void writePendingObjects();
     void readPendingObjects();
 
-    void marshalFacets(bool);
     void sliceObjects(bool);
 
     struct PatchEntry 
@@ -258,7 +257,6 @@ private:
     int _traceSlicing;
     const char* _slicingCat;
 
-    bool _marshalFacets;
     bool _sliceObjects;
 
     const Container::size_type _messageSizeMax;

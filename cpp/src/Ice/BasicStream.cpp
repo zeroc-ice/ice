@@ -54,7 +54,6 @@ IceInternal::BasicStream::BasicStream(Instance* instance) :
     _currentReadEncaps(0),
     _currentWriteEncaps(0),
     _traceSlicing(-1),
-    _marshalFacets(true),
     _sliceObjects(true),
     _messageSizeMax(_instance->messageSizeMax()), // Cached for efficiency.
     _objectList(0)
@@ -1498,12 +1497,6 @@ IceInternal::BasicStream::readPendingObjects()
 }
 
 void
-IceInternal::BasicStream::marshalFacets(bool doMarshal)
-{
-    _marshalFacets = doMarshal;
-}
-
-void
 IceInternal::BasicStream::sliceObjects(bool doSlice)
 {
     _sliceObjects = doSlice;
@@ -1544,7 +1537,7 @@ IceInternal::BasicStream::writeInstance(const ObjectPtr& v, Int index)
         Ice::Warning out(_instance->logger());
         out << "unknown exception raised by ice_preMarshal";
     }
-    v->__write(this, _marshalFacets);
+    v->__write(this);
 }
 
 void

@@ -71,9 +71,6 @@ public:
     virtual const ::std::string& ice_id(const Current& = Current()) const;
     ::IceInternal::DispatchStatus ___ice_id(::IceInternal::Incoming&, const Current&);
 
-    ::std::vector< ::std::string> ice_facets(const Current& = Current()) const;
-    ::IceInternal::DispatchStatus ___ice_facets(::IceInternal::Incoming&, const Current&);
-
     static const ::std::string& ice_staticId();
 
     void __copyMembers(::Ice::ObjectPtr) const;
@@ -85,25 +82,11 @@ public:
     static ::std::string __all[];
     virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);
 
-    virtual void __write(::IceInternal::BasicStream*, bool) const;
-    virtual void __read(::IceInternal::BasicStream*, bool = true);
+    virtual void __write(::IceInternal::BasicStream*) const;
+    virtual void __read(::IceInternal::BasicStream*, bool);
 
     virtual void __gcReachable(::IceUtil::GCObjectMultiSet&) const;
     virtual void __gcClear();
-
-    void ice_addFacet(const ObjectPtr&, const ::std::string&);
-    ObjectPtr ice_removeFacet(const ::std::string&);
-    ObjectPtr ice_updateFacet(const ObjectPtr&, const ::std::string&);
-    void ice_removeAllFacets();
-    ObjectPtr ice_findFacet(const ::std::string&);
-    ObjectPtr ice_findFacetPath(const ::std::vector< ::std::string>&, int);
-
-private:
-
-    std::map<std::string, ObjectPtr> _activeFacetMap;
-    std::map<std::string, ObjectPtr>::iterator _activeFacetMapHint;
-    ::IceUtil::Mutex _activeFacetMapMutex;
-    static const char * const _kindOfObject;
 };
 
 class ICE_API Blobject : virtual public Object

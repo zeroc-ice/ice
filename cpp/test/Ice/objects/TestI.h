@@ -77,7 +77,6 @@ public:
     virtual CPtr getC(const Ice::Current&);
     virtual DPtr getD(const Ice::Current&);
     virtual void getAll(BPtr&, BPtr&, CPtr&, DPtr&, const Ice::Current&);
-    virtual void addFacetsToB1(const Ice::Current&);
 
 private:
 

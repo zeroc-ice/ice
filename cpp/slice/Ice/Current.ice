@@ -17,7 +17,6 @@
 
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/Identity.ice>
-#include <Ice/Facet.ice>
 
 module Ice
 {
@@ -109,7 +108,7 @@ local struct Current
      * The facet.
      *
      ***/
-    FacetPath facet;
+    string facet;
 
     /**
      *

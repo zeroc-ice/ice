@@ -156,11 +156,39 @@ local interface ObjectAdapter
      * adapter.
      *
      * @see Identity
+     * @see addFacet
      * @see addWithUUID
      * @see remove
+     * @see find
      *
      **/
     Object* add(Object servant, Identity id);
+
+    /**
+     *
+     * Like [add], but with a facet. Calling <code>add(servant,
+     * id)</code> is equivalent to calling [addFacet] with an empty
+     * facet.
+     *
+     * @param servant The servant to add.
+     *
+     * @param id The identity of the &Ice; object that is
+     * implemented by the servant.
+     *
+     * @param facet The facet. An empty facet means the default
+     * facet.
+     *
+     * @return A proxy that matches the given identity, facet, and
+     * this object adapter.
+     *
+     * @see Identity
+     * @see add
+     * @see addFacetWithUUID
+     * @see removeFacet
+     * @see findFacet
+     *
+     **/
+    Object* addFacet(Object servant, Identity id, string facet);
 
     /**
      *
@@ -176,10 +204,35 @@ local interface ObjectAdapter
      *
      * @see Identity
      * @see add
+     * @see addFacetWithUUID
      * @see remove
+     * @see find
      *
      **/
     Object* addWithUUID(Object servant);
+
+    /**
+     *
+     * Like [addWithUUID], but with a facet. Calling
+     * <code>addWithUUID(servant)</code> is equivalent to calling
+     * [addFacetWithUUID] with an empty facet.
+     *
+     * @param servant The servant to add.
+     *
+     * @param facet The facet. An empty facet means the default
+     * facet.
+     *
+     * @return A proxy that matches the generated UUID identity,
+     * facet, and this object adapter.
+     *
+     * @see Identity
+     * @see addFacet
+     * @see addWithUUID
+     * @see removeFacet
+     * @see findFacet
+     *
+     **/
+    Object* addFacetWithUUID(Object servant, string facet);
 
     /**
      *
@@ -200,16 +253,102 @@ local interface ObjectAdapter
 
     /**
      *
+     * Like [remove], but with a facet. Calling
+     * <code>remove(id)</code> is equivalent to calling
+     * [removeFacet] with an empty facet.
+     *
+     * @param id The identity of the &Ice; object that is
+     * implemented by the servant.
+     *
+     * @param facet The facet. An empty facet means the default
+     * facet.
+     *
+     * @see Identity
+     * @see addFacet
+     * @see addFacetWithUUID
+     *
+     **/
+    void removeFacet(Identity id, string facet);
+
+    /**
+     *
+     * Look up a servant in this object adapter's Active Servant Map
+     * by the identity of the &Ice; object it implements.
+     *
+     * <note><para>This operation only tries to lookup a servant in
+     * the Active Servant Map. It does not attempt to find a servant
+     * by using any installed [ServantLocator].</para></note>
+     *
+     * @param id The identity of the &Ice; object for which the
+     * servant should be returned.
+     *
+     * @return The servant that implements the &Ice; object with the
+     * given identity, or null if no such servant has been found.
+     *
+     * @see Identity
+     * @see findFacet
+     * @see findByProxy
+     *
+     **/
+    Object find(Identity id);
+
+    /**
+     *
+     * Like [find], but with a facet. Calling
+     * <code>find(id)</code> is equivalent to calling
+     * [findFacet] with an empty facet.
+     *
+     * @param id The identity of the &Ice; object for which the
+     * servant should be returned.
+     *
+     * @param facet The facet. An empty facet means the default
+     * facet.
+     *
+     * @return The servant that implements the &Ice; object with the
+     * given identity and facet, or null if no such servant has been
+     * found.
+     *
+     * @see Identity
+     * @see find
+     * @see findByProxy
+     *
+     **/
+    Object findFacet(Identity id, string facet);
+
+    /**
+     *
+     * Look up a servant in this object adapter's Active Servant Map,
+     * given a proxy.
+     *
+     * <note><para>This operation only tries to lookup a servant in
+     * the Active Servant Map. It does not attempt to find a servant
+     * via any installed [ServantLocator]s.</para></note>
+     *
+     * @param proxy The proxy for which the servant should be returned.
+     *
+     * @return The servant that matches the proxy, or null if no such
+     * servant has been found.
+     *
+     * @see find
+     * @see findFacet
+     *
+     **/
+    Object findByProxy(Object* proxy);
+
+    /**
+     *
      * Add a Servant Locator to this object adapter. Adding a servant
      * locator for a category for which a servant locator is already
      * registered throws [AlreadyRegisteredException]. To dispatch
      * operation calls on servants, the object adapter tries to find a
-     * servant for a given &Ice; object identity in the following order:
+     * servant for a given &Ice; object identity and facet in the
+     * following order:
      *
      * <orderedlist>
      *
      * <listitem><para>The object adapter tries to find a servant for
-     * the identity in the Active Servant Map.</para></listitem>
+     * the identity and facet in the Active Servant
+     * Map.</para></listitem>
      *
      * <listitem><para>If no servant has been found in the Active
      * Servant Map, the object adapter tries to find a locator for the
@@ -225,7 +364,8 @@ local interface ObjectAdapter
      *
      * <listitem><para>If no servant has been found with any of the
      * preceding steps, the object adapter gives up and the caller
-     * receives [ObjectNotExistException].</para></listitem>
+     * receives [ObjectNotExistException] or
+     * [FacetNotExistException].</para></listitem>
      *
      * </orderedlist>
      *
@@ -262,46 +402,6 @@ local interface ObjectAdapter
      *
      **/
     ServantLocator findServantLocator(string category);
-
-    /**
-     *
-     * Look up a servant in this object adapter's Active Servant Map
-     * by the identity of the &Ice; object it implements.
-     *
-     * <note><para>This operation only tries to lookup a servant in
-     * the Active Servant Map. It does not attempt to find a servant
-     * by using any installed [ServantLocator].</para></note>
-     *
-     * @param id The identity of the &Ice; object for which the
-     * servant should be returned.
-     *
-     * @return The servant that implements the &Ice; object with the
-     * given identity, or null if no such servant has been found.
-     *
-     * @see Identity
-     * @see proxyToServant
-     *
-     **/
-    Object identityToServant(Identity id);
-
-    /**
-     *
-     * Look up a servant in this object adapter's Active Servant Map,
-     * given a proxy.
-     *
-     * <note><para>This operation only tries to lookup a servant in
-     * the Active Servant Map. It does not attempt to find a servant
-     * via any installed [ServantLocator]s.</para></note>
-     *
-     * @param proxy The proxy for which the servant should be returned.
-     *
-     * @return The servant that matches the proxy, or null if no such
-     * servant has been found.
-     *
-     * see identityToServant
-     *
-     **/
-    Object proxyToServant(Object* proxy);
 
     /**
      *
@@ -396,17 +496,6 @@ local interface ObjectAdapter
      * 
      **/
     void setLocator(Locator* loc);
-
-    /**
-     *
-     * Get the locator configured for this object adapter.
-     *
-     * @return The locator proxy.
-     *
-     * @see Locator
-     *
-     **/
-    Locator* getLocator();
 };
 
 };

@@ -198,10 +198,6 @@ SOURCE=.\Exception.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Facet.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\FactoryTable.cpp
 # End Source File
 # Begin Source File
@@ -547,10 +543,6 @@ SOURCE=.\EventLoggerMsg.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\Exception.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\Facet.h
 # End Source File
 # Begin Source File
 
@@ -1127,49 +1119,6 @@ BuildCmds= \
    $(BuildCmds)
 
 "EventLoggerMsg.res" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\Facet.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-USERDEP__FACET="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\Facet.ice
-
-BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Facet.ice \
-	move Facet.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\Facet.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Facet.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-USERDEP__FACET="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\Facet.ice
-
-BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Facet.ice \
-	move Facet.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\Facet.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Facet.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
