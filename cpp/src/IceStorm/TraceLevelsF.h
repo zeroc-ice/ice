@@ -17,10 +17,19 @@ namespace IceStorm
 {
 
 class TraceLevels;
-void incRef(TraceLevels*);
-void decRef(TraceLevels*);
 typedef IceInternal::Handle<TraceLevels> TraceLevelsPtr;
 
 } // End namespace IceStorm
+
+//
+// This is necessary so that TraceLevelsPtr can be forward declared
+//
+namespace IceInternal
+{
+
+void incRef(IceStorm::TraceLevels*);
+void decRef(IceStorm::TraceLevels*);
+
+} // End namespace IceInternal
 
 #endif

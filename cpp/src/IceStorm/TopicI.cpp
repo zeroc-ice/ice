@@ -141,7 +141,13 @@ public:
 	// (see Meyers for details). If this is fixed then fix Flusher
 	// also.
 	//
-	_subscribers.remove_if(::Ice::constMemFun(&Subscriber::invalid));
+	// remove_if doesn't work with handle types. remove_if also //
+	// isn't present in the STLport implementation
+	//
+        // _subscribers.remove_if(IceUtil::constMemFun(&Subscriber::invalid));
+        //
+        _subscribers.erase(remove_if(_subscribers.begin(), _subscribers.end(),
+				     IceUtil::constMemFun(&Subscriber::invalid)), _subscribers.end());
 
 	for (SubscriberList::iterator i = _subscribers.begin(); i != _subscribers.end(); ++i)
 	{

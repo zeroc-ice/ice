@@ -17,8 +17,9 @@
 using namespace IceStorm;
 using namespace std;
 
-void IceStorm::incRef(Subscriber* p) { p->__incRef(); }
-void IceStorm::decRef(Subscriber* p) { p->__decRef(); }
+// TODO:
+//void IceInternal::incRef(Subscriber* p) { p->__incRef(); }
+//void IceInternal::decRef(Subscriber* p) { p->__decRef(); }
 
 Subscriber::Subscriber(const Ice::LoggerPtr& logger, const TraceLevelsPtr& traceLevels, const FlusherPtr& flusher,
 		       const QoS& qos, const Ice::ObjectPrx& obj)

@@ -19,9 +19,17 @@ namespace IceStorm
 class Flusher;
 typedef IceUtil::Handle<Flusher> FlusherPtr;
 
-void incRef(Flusher*);
-void decRef(Flusher*);
-
 } // End namespace IceStorm
+
+//
+// This is necessary so that FlusherPtr can be forward declared
+//
+namespace IceInternal
+{
+
+void incRef(IceStorm::Flusher*);
+void decRef(IceStorm::Flusher*);
+
+} // End namespace IceInternal
 
 #endif

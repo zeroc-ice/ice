@@ -20,8 +20,8 @@
 using namespace IceStorm;
 using namespace std;
 
-void IceStorm::incRef(Flusher* p) { p->__incRef(); }
-void IceStorm::decRef(Flusher* p) { p->__decRef(); }
+void IceInternal::incRef(Flusher* p) { p->__incRef(); }
+void IceInternal::decRef(Flusher* p) { p->__decRef(); }
 
 namespace IceStorm
 {
@@ -138,8 +138,14 @@ private:
 	// (see Meyers for details). If this is fixed then fix TopicI
 	// also.
 	//
-	_subscribers.remove_if(::Ice::constMemFun(&Subscriber::invalid));
-	for_each(_subscribers.begin(), _subscribers.end(), Ice::voidMemFun(&Subscriber::flush));
+        // remove_if doesn't work with handle types. remove_if also
+        // isn't present in the STLport implementation
+        //
+        // _subscribers.remove_if(IceUtil::constMemFun(&Subscriber::invalid));
+        //
+        _subscribers.erase(remove_if(_subscribers.begin(), _subscribers.end(),
+				     IceUtil::constMemFun(&Subscriber::invalid)), _subscribers.end());
+	for_each(_subscribers.begin(), _subscribers.end(), IceUtil::voidMemFun(&Subscriber::flush));
 
 	//
 	// Trace after the flush so that the correct number of objects
