@@ -87,7 +87,7 @@ Ice::ObjectAdapterI::deactivate()
 }
 
 void
-Ice::ObjectAdapterI::add(const ObjectPtr& object, const string& identity)
+Ice::ObjectAdapterI::add(const ObjectPtr& object, const string& ident)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -96,7 +96,7 @@ Ice::ObjectAdapterI::add(const ObjectPtr& object, const string& identity)
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
 
-    _objects.insert(make_pair(identity, object));
+    _objects.insert(make_pair(ident, object));
 }
 
 void
@@ -125,7 +125,7 @@ Ice::ObjectAdapterI::addTemporary(const ObjectPtr& object)
 }
 
 void
-Ice::ObjectAdapterI::remove(const string& identity)
+Ice::ObjectAdapterI::remove(const string& ident)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -134,7 +134,7 @@ Ice::ObjectAdapterI::remove(const string& identity)
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
 
-    _objects.erase(identity);
+    _objects.erase(ident);
 }
 
 void
@@ -152,11 +152,11 @@ Ice::ObjectAdapterI::getObjectLocator()
 }
 
 ObjectPtr
-Ice::ObjectAdapterI::identityToObject(const string& identity)
+Ice::ObjectAdapterI::identityToObject(const string& ident)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
-    map<string, ObjectPtr>::const_iterator p = _objects.find(identity);
+    map<string, ObjectPtr>::const_iterator p = _objects.find(ident);
     if (p == _objects.end())
     {
 	return 0;
@@ -229,7 +229,7 @@ Ice::ObjectAdapterI::objectToProxy(const ObjectPtr& object)
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::identityToProxy(const string& identity)
+Ice::ObjectAdapterI::identityToProxy(const string& ident)
 {
     JTCSyncT<JTCMutex> sync(*this);
     
@@ -242,7 +242,7 @@ Ice::ObjectAdapterI::identityToProxy(const string& identity)
     transform(_collectorFactories.begin(), _collectorFactories.end(), back_inserter(endpoints),
 	      constMemFun(&CollectorFactory::endpoint));
 
-    ReferencePtr reference = new Reference(_instance, identity, endpoints, endpoints);
+    ReferencePtr reference = new Reference(_instance, ident, endpoints, endpoints);
     return _instance->proxyFactory()->referenceToProxy(reference);
 }
 
