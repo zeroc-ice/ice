@@ -71,9 +71,15 @@ $(HDIR)/IceStorm.h IceStorm.cpp: $(SDIR)/IceStorm.ice $(SLICE2CPP)
 	$(SLICECMD) $(SDIR)/IceStorm.ice
 	mv IceStorm.h $(HDIR)
 
+clean::
+	rm -f $(HDIR)/IceStorm.h IceStorm.cpp
+
 StringBoolDict.h StringBoolDict.cpp: $(SLICE2FREEZE)
 	rm -f StringBoolDict.h StringBoolDict.cpp
 	$(SLICE2FREEZECMD) --dict IceStorm::StringBoolDict,string,bool StringBoolDict
+
+clean::
+	rm -f StringBoolDict.h StringBoolDict.cpp
 
 Grammar.cpp Grammar.h: Grammar.y
 	bison -dvt Grammar.y
@@ -87,8 +93,5 @@ Scanner.cpp: Scanner.l Grammar.h
 clean::
 	-rm -f Grammar.cpp Grammar.h Grammar.output
 	-rm -f Scanner.cpp lex.yy.c
-
-clean::
-	rm -f $(HDIR)/Clock.h Clock.cpp
 
 include .depend
