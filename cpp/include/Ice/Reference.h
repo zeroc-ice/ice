@@ -15,6 +15,7 @@
 #include <Ice/EndpointF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/Shared.h>
+#include <Ice/Stream.h>
 
 namespace __Ice
 {
@@ -25,7 +26,9 @@ public:
 
     ReferenceI(const Instance&, const std::string&,
 	       const std::vector<Endpoint>&);
-    virtual ~ReferenceI();
+    ReferenceI(Stream*);
+
+    void streamWrite(Stream*) const;
 
     //
     // All  members are const, because References are immutable.
@@ -59,6 +62,19 @@ private:
     ReferenceI(const ReferenceI&);
     void operator=(const ReferenceI&);
 };
+
+template<>
+inline void streamWrite<Reference>(Stream* s, const Reference& v)
+{
+    assert(v); // TODO: null references
+    v -> streamWrite(s);
+}
+
+template<>
+inline void streamRead<Reference>(Stream* s, Reference& v)
+{
+    v = new ReferenceI(s);
+}
 
 }
 

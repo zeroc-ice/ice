@@ -189,6 +189,18 @@ public:
     virtual void raise() const;
 };
 
+class ICE_API EncapsulationException : public ProtocolException
+{
+public:    
+    
+    EncapsulationException(const char*, int);
+    EncapsulationException(const EncapsulationException&);
+    EncapsulationException& operator=(const EncapsulationException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
 class ICE_API UnsupportedProtocolException : public ProtocolException
 {
 public:    

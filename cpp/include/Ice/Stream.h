@@ -11,9 +11,9 @@
 #ifndef ICE_STREAM_H
 #define ICE_STREAM_H
 
-
 #include <Ice/InstanceF.h>
 #include <Ice/Buffer.h>
+#include <stack>
 
 namespace __Ice
 {
@@ -26,10 +26,17 @@ public:
 
     Instance instance() const;
 
-    void bigendian(bool);
+    void swap(Stream&);
+
+    void pushBigendian(bool);
+    void popBigendian();
     bool bigendian() const;
 
-    void swap(Stream&);
+    void startWriteEncaps();
+    void endWriteEncaps();
+    void startReadEncaps();
+    void endReadEncaps();
+    void skipEncaps();
 
     void write(Ice::Byte v) { b.push_back(v); }
     void write(const std::vector<Ice::Byte>&);
@@ -80,6 +87,8 @@ private:
 
     Instance instance_;
     bool bigendian_;
+    std::stack<bool> bigendianStack_;
+    std::stack<Container::iterator> encapsStartStack_;
 };
 
 template<typename T>
