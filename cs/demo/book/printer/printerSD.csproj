@@ -3,13 +3,13 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{7ED53E0A-4E93-42CA-AE8E-BB97AAFCF579}"
+        ProjectGuid = "{2374126D-F982-4E2F-B9F3-278F8B38A310}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "client"
+                AssemblyName = "server"
                 AssemblyOriginatorKeyFile = ""
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
@@ -79,12 +79,12 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "Client.cs"
+                    RelPath = "Server.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "generated\Latency.cs"
+                    RelPath = "generated\Printer.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{7ED53E0A-4E93-42CA-AE8E-BB97AAFCF579}"
+        ProjectGuid = "{B48255A1-FF6B-4A45-AA80-E4149A75393D}"
     >
         <Build>
             <Settings
@@ -84,7 +84,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "generated\Latency.cs"
+                    RelPath = "generated\Printer.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

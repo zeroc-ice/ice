@@ -47,6 +47,22 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "valueSD", "Ice\value\valueS
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "printerCD", "book\printer\printerCD.csproj", "{B48255A1-FF6B-4A45-AA80-E4149A75393D}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "printerSD", "book\printer\printerSD.csproj", "{2374126D-F982-4E2F-B9F3-278F8B38A310}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpleCD", "book\simple_filesystem\simpleCD.csproj", "{2E01BB07-5E3A-4563-AE3B-C357672BEEF7}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpleSD", "book\simple_filesystem\simpleSD.csproj", "{ECF4A31E-8545-4A9D-ADC2-2020E53C9B46}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -101,6 +117,22 @@ Global
 		{0E78B6EA-2CDF-401A-BC2D-364E44A46636}.Debug.Build.0 = Debug|.NET
 		{0E78B6EA-2CDF-401A-BC2D-364E44A46636}.Release.ActiveCfg = Release|.NET
 		{0E78B6EA-2CDF-401A-BC2D-364E44A46636}.Release.Build.0 = Release|.NET
+		{B48255A1-FF6B-4A45-AA80-E4149A75393D}.Debug.ActiveCfg = Debug|.NET
+		{B48255A1-FF6B-4A45-AA80-E4149A75393D}.Debug.Build.0 = Debug|.NET
+		{B48255A1-FF6B-4A45-AA80-E4149A75393D}.Release.ActiveCfg = Release|.NET
+		{B48255A1-FF6B-4A45-AA80-E4149A75393D}.Release.Build.0 = Release|.NET
+		{2374126D-F982-4E2F-B9F3-278F8B38A310}.Debug.ActiveCfg = Debug|.NET
+		{2374126D-F982-4E2F-B9F3-278F8B38A310}.Debug.Build.0 = Debug|.NET
+		{2374126D-F982-4E2F-B9F3-278F8B38A310}.Release.ActiveCfg = Release|.NET
+		{2374126D-F982-4E2F-B9F3-278F8B38A310}.Release.Build.0 = Release|.NET
+		{2E01BB07-5E3A-4563-AE3B-C357672BEEF7}.Debug.ActiveCfg = Debug|.NET
+		{2E01BB07-5E3A-4563-AE3B-C357672BEEF7}.Debug.Build.0 = Debug|.NET
+		{2E01BB07-5E3A-4563-AE3B-C357672BEEF7}.Release.ActiveCfg = Release|.NET
+		{2E01BB07-5E3A-4563-AE3B-C357672BEEF7}.Release.Build.0 = Release|.NET
+		{ECF4A31E-8545-4A9D-ADC2-2020E53C9B46}.Debug.ActiveCfg = Debug|.NET
+		{ECF4A31E-8545-4A9D-ADC2-2020E53C9B46}.Debug.Build.0 = Debug|.NET
+		{ECF4A31E-8545-4A9D-ADC2-2020E53C9B46}.Release.ActiveCfg = Release|.NET
+		{ECF4A31E-8545-4A9D-ADC2-2020E53C9B46}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{7ED53E0A-4E93-42CA-AE8E-BB97AAFCF579}"
+        ProjectGuid = "{DC84831F-1B4B-476C-82F7-4A8144C63AD6}"
     >
         <Build>
             <Settings
@@ -16,7 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Exe"
-                PreBuildEvent = "$(SolutionDir)\..\bin\generate.exe $(SolutionDir) $(ProjectDir) $(ProjectName)"
+                PreBuildEvent = "$(SolutionDir)\bin\generate.exe $(SolutionDir) $(ProjectDir) $(ProjectName)"
                 PostBuildEvent = ""
                 RootNamespace = ""
                 RunPostBuildEvent = "OnBuildSuccess"
@@ -84,7 +84,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "generated\Latency.cs"
+                    RelPath = "generated\Printer.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
