@@ -80,6 +80,6 @@ public class Server
     main(String[] args)
     {
 	PhoneBookServer app = new PhoneBookServer("db");
-	app.main("demo.Freeze.phonebook.Server", args);
+	app.main("demo.Freeze.phonebook.Server", args, "config");
     }
 }
