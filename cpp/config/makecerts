@@ -1,0 +1,56 @@
+#!/bin/sh
+#
+# This script creates the required CA key and certificate (if they do not
+# already exist) and server certificate/key pairs.
+#
+
+#
+# Note: If you want private keys passphrase protected, comment this out.
+#
+PASSPHRASE=-nodes
+
+CA_HOME=$ICE_HOME/certs
+
+#
+# Set up required files for generation of server certificate.
+#
+if ! [ -f $CA_HOME/ca/serial ]; then
+    cd $CA_HOME
+    mkdir ca
+    cd ca
+    echo '01' > serial
+    touch index.txt
+fi
+
+SERIAL=`cat $CA_HOME/ca/serial`
+
+#
+# Generate our CA certificate and key if they do not already exist.
+#
+if ! [ -f $CA_HOME/cacert.pem ]; then
+    echo "You will be prompted for a passphrase - this is the passphrase that protects the CA signing authority key."
+    openssl req -config $ICE_HOME/config/ice_ca.cnf -x509 $PASSPHRASE -days 1825 -newkey rsa -out $CA_HOME/cacert.pem -outform PEM
+fi
+
+#
+# Create our Server certificate and key.
+#
+openssl req -config $ICE_HOME/config/server.cnf -newkey rsa $PASSPHRASE -keyout $CA_HOME/s_rsa1024_priv.pem -keyform PEM -out $CA_HOME/req.pem
+echo "You will be prompted for a passphrase - this is so we can sign the new Server Certificate."
+echo "Enter the passphrase for the CA signing authority."
+openssl ca -config $ICE_HOME/config/server.cnf -batch -in $CA_HOME/req.pem
+mv $CA_HOME/$SERIAL.pem $CA_HOME/s_rsa1024_pub.pem
+rm $CA_HOME/req.pem
+
+SERIAL=`cat $CA_HOME/ca/serial`
+
+#
+# Create our Server certificate and key.
+#
+openssl req -config $ICE_HOME/config/client.cnf -newkey rsa $PASSPHRASE -keyout $CA_HOME/c_rsa1024_priv.pem -keyform PEM -out $CA_HOME/req.pem
+echo "You will be prompted for a passphrase - this is so we can sign the new Client Certificate."
+echo "Enter the passphrase for the CA signing authority."
+openssl ca -config $ICE_HOME/config/client.cnf -batch -in $CA_HOME/req.pem
+mv $CA_HOME/$SERIAL.pem $CA_HOME/c_rsa1024_pub.pem
+rm $CA_HOME/req.pem
+
