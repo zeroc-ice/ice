@@ -1103,7 +1103,12 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     H << sp << nl << "virtual " << retS << ' ' << name << params << ';';
     C << sp << nl << retS << nl << "IceDelegateM" << scoped << paramsDecl;
     C << sb;
-    C << nl << "::IceInternal::Outgoing __out(__emitter, __reference, \"" << name << "\", __context);";
+    C << nl << "bool __sendRef = false;";
+    C << nl << "while (true)";
+    C << sb;
+    C << nl << "try";
+    C << sb;
+    C << nl << "::IceInternal::Outgoing __out(__emitter, __reference, __sendRef, \"" << name << "\", __context);";
     if (ret || !outParams.empty() || !throws.empty())
     {
 	C << nl << "::IceInternal::BasicStream* __is = __out.is();";
@@ -1155,6 +1160,16 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     {
 	C << nl << "return __ret;";
     }
+    else
+    {
+	C << nl << "return;";
+    }
+    C << eb;
+    C << nl << "catch (const ::Ice::ProxyRequested&)";
+    C << sb;
+    C << nl << "__sendRef = true;";
+    C << eb;
+    C << eb;
     C << eb;
 }
 
@@ -1304,6 +1319,8 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     C << nl << "::Ice::Current __current;";
     C << nl << "__initCurrent(__current, \"" << name << "\", __context);";
+    C << nl << "while (true)";
+    C << sb;
     C << nl << "::IceInternal::Direct __direct(__adapter, __current);";
     C << nl << cl->scoped() << "* __servant = dynamic_cast< " << cl->scoped() << "*>(__direct.facetServant().get());";
     C << nl << "if (!__servant)";
@@ -1318,6 +1335,10 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 	C << "return ";
     }
     C << "__servant->" << name << args << ';';
+    if (!ret)
+    {
+	C << nl << "return;";
+    }
     C << eb;
     ExceptionList throws = p->throws();
     throws.sort();
@@ -1330,6 +1351,10 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "throw;";
 	C << eb;
     }
+    C << nl << "catch (const ::Ice::ProxyRequested&)";
+    C << sb;
+    C << nl << "__initCurrentProxy(__current);";
+    C << eb;
     C << nl << "catch (const ::Ice::LocalException&)";
     C << sb;
     C << nl << "throw ::Ice::UnknownLocalException(__FILE__, __LINE__);";
@@ -1341,6 +1366,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     C << nl << "catch (...)";
     C << sb;
     C << nl << "throw ::Ice::UnknownException(__FILE__, __LINE__);";
+    C << eb;
     C << eb;
     C << eb;
 }

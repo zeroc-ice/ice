@@ -55,6 +55,10 @@ protected:
     friend class ::IceInternal::Incoming;
 };
 
+class ICE_API ProxyRequested
+{
+};
+
 class ICE_API Object : virtual public ::IceUtil::Shared
 {
 public:

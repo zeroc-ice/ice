@@ -22,5 +22,6 @@
 #include <Ice/ObjectAdapter.h>
 #include <Ice/ServantLocator.h>
 #include <Ice/Proxy.h>
+#include <Ice/Object.h>
 
 #endif

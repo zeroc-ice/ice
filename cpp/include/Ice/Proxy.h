@@ -144,6 +144,7 @@ protected:
     ::IceInternal::ReferencePtr __reference;
 
     void __initCurrent(::Ice::Current&, const std::string&, const ::Ice::Context&);
+    void __initCurrentProxy(::Ice::Current&);
 
 private:
 

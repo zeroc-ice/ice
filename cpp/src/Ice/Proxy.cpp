@@ -9,6 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Proxy.h>
+#include <Ice/ProxyFactory.h>
 #include <Ice/Object.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Outgoing.h>
@@ -166,14 +167,10 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 	    __del->ice_invoke(operation, inParams, outParams, __context);
 	    return;
 	}
-// For routers, we want to propagate location forwards to the caller.
-// TODO: Should this be configurable?
-/*
 	catch (const LocationForward& __ex)
 	{
 	    __locationForward(__ex);
 	}
-*/
 	catch (const NonRepeatable& __ex)
 	{
 	    if (nonmutating)
@@ -516,26 +513,49 @@ IceProxy::Ice::Object::setup(const ReferencePtr& ref)
 bool
 IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
-    Outgoing __out(__emitter, __reference, "ice_isA", __context);
-    BasicStream* __is = __out.is();
-    BasicStream* __os = __out.os();
-    __os->write(__id);
-    if (!__out.invoke())
+    bool __sendRef = false;
+    while (true)
     {
-	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
+	try
+	{
+	    Outgoing __out(__emitter, __reference, __sendRef, "ice_isA", __context);
+	    BasicStream* __is = __out.is();
+	    BasicStream* __os = __out.os();
+	    __os->write(__id);
+	    if (!__out.invoke())
+	    {
+		throw ::Ice::UnknownUserException(__FILE__, __LINE__);
+	    }
+	    bool __ret;
+	    __is->read(__ret);
+	    return __ret;
+	}
+	catch (const ProxyRequested&)
+	{
+	    __sendRef = true;
+	}
     }
-    bool __ret;
-    __is->read(__ret);
-    return __ret;
 }
 
 void
 IceDelegateM::Ice::Object::ice_ping(const Context& __context)
 {
-    Outgoing __out(__emitter, __reference, "ice_ping", __context);
-    if (!__out.invoke())
+    bool __sendRef = false;
+    while (true)
     {
-	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
+	try
+	{
+	    Outgoing __out(__emitter, __reference, __sendRef, "ice_ping", __context);
+	    if (!__out.invoke())
+	    {
+		throw ::Ice::UnknownUserException(__FILE__, __LINE__);
+	    }
+	    return;
+	}
+	catch (const ProxyRequested&)
+	{
+	    __sendRef = true;
+	}
     }
 }
 
@@ -545,15 +565,27 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
 				      vector<Byte>& outParams,
 				      const Context& __context)
 {
-    Outgoing __out(__emitter, __reference, operation.c_str(), __context);
-    BasicStream* __os = __out.os();
-    __os->writeBlob(inParams);
-    __out.invoke();
-    if (__reference->mode == Reference::ModeTwoway)
+    bool __sendRef = false;
+    while (true)
     {
-	BasicStream* __is = __out.is();
-	Int sz = __is->getReadEncapsSize();
-	__is->readBlob(outParams, sz);
+	try
+	{
+	    Outgoing __out(__emitter, __reference, __sendRef, operation.c_str(), __context);
+	    BasicStream* __os = __out.os();
+	    __os->writeBlob(inParams);
+	    __out.invoke();
+	    if (__reference->mode == Reference::ModeTwoway)
+	    {
+		BasicStream* __is = __out.is();
+		Int sz = __is->getReadEncapsSize();
+		__is->readBlob(outParams, sz);
+	    }
+	    return;
+	}
+	catch (const ProxyRequested&)
+	{
+	    __sendRef = true;
+	}
     }
 }
 
@@ -621,22 +653,29 @@ IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
     Current __current;
     __initCurrent(__current, "ice_isA", __context);
-    Direct __direct(__adapter, __current);
-    try
+    while (true)
     {
-	return __direct.facetServant()->ice_isA(__id, __current);
-    }
-    catch (const LocalException&)
-    {
-	throw UnknownLocalException(__FILE__, __LINE__);
-    }
-    catch (const UserException&)
-    {
-	throw UnknownUserException(__FILE__, __LINE__);
-    }
-    catch (...)
-    {
-	throw UnknownException(__FILE__, __LINE__);
+	Direct __direct(__adapter, __current);
+	try
+	{
+	    return __direct.facetServant()->ice_isA(__id, __current);
+	}
+	catch (const ProxyRequested&)
+	{
+	    __initCurrentProxy(__current);
+	}
+	catch (const LocalException&)
+	{
+	    throw UnknownLocalException(__FILE__, __LINE__);
+	}
+	catch (const UserException&)
+	{
+	    throw UnknownUserException(__FILE__, __LINE__);
+	}
+	catch (...)
+	{
+	    throw UnknownException(__FILE__, __LINE__);
+	}
     }
 }
 
@@ -645,22 +684,30 @@ IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context& __context)
 {
     Current __current;
     __initCurrent(__current, "ice_ping", __context);
-    Direct __direct(__adapter, __current);
-    try
+    while (true)
     {
-	__direct.facetServant()->ice_ping(__current);
-    }
-    catch (const LocalException&)
-    {
-	throw UnknownLocalException(__FILE__, __LINE__);
-    }
-    catch (const UserException&)
-    {
-	throw UnknownUserException(__FILE__, __LINE__);
-    }
-    catch (...)
-    {
-	throw UnknownException(__FILE__, __LINE__);
+	Direct __direct(__adapter, __current);
+	try
+	{
+	    __direct.facetServant()->ice_ping(__current);
+	    return;
+	}
+	catch (const ProxyRequested&)
+	{
+	    __initCurrentProxy(__current);
+	}
+	catch (const LocalException&)
+	{
+	    throw UnknownLocalException(__FILE__, __LINE__);
+	}
+	catch (const UserException&)
+	{
+	    throw UnknownUserException(__FILE__, __LINE__);
+	}
+	catch (...)
+	{
+	    throw UnknownException(__FILE__, __LINE__);
+	}
     }
 }
 
@@ -672,27 +719,35 @@ IceDelegateD::Ice::Object::ice_invoke(const string& operation,
 {
     Current __current;
     __initCurrent(__current, operation, context);
-    Direct __direct(__adapter, __current);
-    Blobject* __servant = dynamic_cast<Blobject*>(__direct.facetServant().get());
-    if (!__servant)
+    while (true)
     {
-	throw OperationNotExistException(__FILE__, __LINE__);
-    }
-    try
-    {
-	__servant->ice_invoke(inParams, outParams, __current);
-    }
-    catch (const LocalException&)
-    {
-	throw UnknownLocalException(__FILE__, __LINE__);
-    }
-    catch (const UserException&)
-    {
-	throw UnknownUserException(__FILE__, __LINE__);
-    }
-    catch (...)
-    {
-	throw UnknownException(__FILE__, __LINE__);
+	Direct __direct(__adapter, __current);
+	Blobject* __servant = dynamic_cast<Blobject*>(__direct.facetServant().get());
+	if (!__servant)
+	{
+	    throw OperationNotExistException(__FILE__, __LINE__);
+	}
+	try
+	{
+	    __servant->ice_invoke(inParams, outParams, __current);
+	    return;
+	}
+	catch (const ProxyRequested&)
+	{
+	    __initCurrentProxy(__current);
+	}
+	catch (const LocalException&)
+	{
+	    throw UnknownLocalException(__FILE__, __LINE__);
+	}
+	catch (const UserException&)
+	{
+	    throw UnknownUserException(__FILE__, __LINE__);
+	}
+	catch (...)
+	{
+	    throw UnknownException(__FILE__, __LINE__);
+	}
     }
 }
 
@@ -709,6 +764,12 @@ IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, con
     current.facet = __reference->facet;
     current.operation = op;
     current.context = context;
+}
+
+void
+IceDelegateD::Ice::Object::__initCurrentProxy(Current& current)
+{
+    current.proxy = __reference->instance->proxyFactory()->referenceToProxy(__reference);
 }
 
 void

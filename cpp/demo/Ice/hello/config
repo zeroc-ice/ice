@@ -2,7 +2,7 @@
 # The client reads this property to create the reference to the
 # "hello" object in the server.
 #
-Hello.Hello=hello:tcp -h pugdragon -p 10000:udp -h pugdragon -p 10000:ssl -h pugdragon -p 10001
+Hello.Hello=hello:tcp -p 10000:udp -p 10000:ssl -p 10001
 
 #
 # The server creates one single object adapter with the name

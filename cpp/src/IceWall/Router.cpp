@@ -14,18 +14,24 @@ using namespace std;
 using namespace Ice;
 using namespace IceWall;
 
-IceWall::Router::Router()
+void
+IceWall::Blobject::ice_invoke(const std::vector<Byte>& inParams, std::vector<Byte>& outParams, const Current& current)
 {
+    cout << current.identity << endl;
+    cout << current.facet << endl;
+    cout << current.operation << endl;
+    throw UnknownLocalException(__FILE__, __LINE__);
 }
 
-IceWall::Router::~Router()
+IceWall::Router::Router() :
+    _blobject(new IceWall::Blobject)
 {
 }
 
 ObjectPtr
-IceWall::Router::locate(const ObjectAdapterPtr& adapter, const Current& current, LocalObjectPtr&)
+IceWall::Router::locate(const ObjectAdapterPtr&, const Current&, LocalObjectPtr&)
 {
-    return 0;
+    return _blobject;
 }
 
 void
@@ -37,4 +43,5 @@ IceWall::Router::finished(const ObjectAdapterPtr&, const Current&, const ObjectP
 void
 IceWall::Router::deactivate()
 {
+    _blobject = 0;
 }

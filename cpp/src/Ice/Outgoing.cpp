@@ -35,10 +35,11 @@ IceInternal::NonRepeatable::get() const
     return _ex.get();
 }
 
-IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& ref, const char* operation,
-				const Context& context) :
+IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& ref, bool sendRef,
+				const char* operation, const Context& context) :
     _emitter(emitter),
     _reference(ref),
+    _sendRef(sendRef),
     _state(StateUnsent),
     _is(ref->instance),
     _os(ref->instance)
