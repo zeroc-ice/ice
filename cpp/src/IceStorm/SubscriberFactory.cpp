@@ -50,7 +50,14 @@ SubscriberFactory::createSubscriber(const QoS& qos, const Ice::ObjectPrx& obj)
 
     if(reliability == "batch")
     {
-	return new OnewayBatchSubscriber(_traceLevels, _flusher, obj->ice_batchOneway());
+        if(obj->ice_isDatagram())
+        {
+            return new OnewayBatchSubscriber(_traceLevels, _flusher, obj->ice_batchDatagram());
+        }
+        else
+        {
+            return new OnewayBatchSubscriber(_traceLevels, _flusher, obj->ice_batchOneway());
+        }
     }
     else // reliability == "oneway"
     {
@@ -62,7 +69,14 @@ SubscriberFactory::createSubscriber(const QoS& qos, const Ice::ObjectPrx& obj)
 		out << reliability <<" mode not understood.";
 	    }
 	}
-	return new OnewaySubscriber(_traceLevels, obj->ice_oneway());
+        if(obj->ice_isDatagram())
+        {
+            return new OnewaySubscriber(_traceLevels, obj->ice_datagram());
+        }
+        else
+        {
+            return new OnewaySubscriber(_traceLevels, obj->ice_oneway());
+        }
     }
 
     assert(false);
