@@ -49,6 +49,7 @@ IcePatch::DirectoryI::getContents(const Ice::Current& current)
     try
     {
 	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout);
+	bool syncUpgraded = false;
 	string path = identityToPath(current.identity);
 	StringSeq paths = readDirectory(path);
 	filteredPaths.reserve(paths.size() / 3);
@@ -60,7 +61,11 @@ IcePatch::DirectoryI::getContents(const Ice::Current& current)
 		    equal_range(paths.begin(), paths.end(), removeSuffix(*p));
 		if (r.first == r.second)
 		{
-		    sync.timedUpgrade(_busyTimeout);
+		    if (!syncUpgraded)
+		    {
+			sync.timedUpgrade(_busyTimeout);
+			syncUpgraded = true;
+		    }
 		    StringSeq paths2 = readDirectory(path);
 		    pair<StringSeq::const_iterator, StringSeq::const_iterator> r2 =
 			equal_range(paths2.begin(), paths2.end(), removeSuffix(*p));

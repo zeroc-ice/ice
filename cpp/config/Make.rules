@@ -23,12 +23,6 @@ DB_HOME		?= /opt/db
 OPENSSL_HOME	?= /opt/openssl
 XERCESC_HOME    ?= /opt/xerces-c
 
-XERCESC_FLAGS	= -I$(XERCESC_HOME)/include/xercesc
-XERCESC_LIBS	= -L$(XERCESC_HOME)/lib -lxerces-c1_5_2
-
-OPENSSL_FLAGS	= -I$(OPENSSL_HOME)/include
-OPENSSL_LIBS	= -L$(OPENSSL_HOME)/lib -lssl -lcrypto
-
 #
 # Don't change these lines!
 #
@@ -38,6 +32,12 @@ bindir		= $(top_srcdir)/bin
 libdir		= $(top_srcdir)/lib
 includedir	= $(top_srcdir)/include
 slicedir	= $(top_srcdir)/slice
+
+XERCESC_FLAGS	= -I$(XERCESC_HOME)/include/xercesc
+XERCESC_LIBS	= -L$(XERCESC_HOME)/lib -lxerces-c1_5_2
+
+OPENSSL_FLAGS	= -I$(OPENSSL_HOME)/include
+OPENSSL_LIBS	= -L$(OPENSSL_HOME)/lib -lssl -lcrypto
 
 #
 # Experts only: You can change the following lines, for example, to
