@@ -152,7 +152,6 @@ class CallbackClient extends Ice.Application
         }
         // If we use the glacier router, the exact exception reason gets
         // lost.
-        //catch(Ice.ConnectFailedException ex)
         catch(Ice.UnknownLocalException ex)
         {
             System.out.println("ok");
@@ -166,6 +165,10 @@ class CallbackClient extends Ice.Application
         {
             router.ice_ping();
             test(false);
+        }
+        catch(Ice.CloseConnectionException ex)
+        {
+            System.out.println("ok");
         }
         catch(Ice.ConnectFailedException ex)
         {
