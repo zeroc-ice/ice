@@ -2666,7 +2666,7 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::ObjectVisitor::emitGCInsertCode(const TypePtr& p, const string& name, const string& prefix, int level)
+Slice::Gen::ObjectVisitor::emitGCInsertCode(const TypePtr& p, const string& prefix, const string& name, int level)
 {
     if((BuiltinPtr::dynamicCast(p) && BuiltinPtr::dynamicCast(p)->kind() == Builtin::KindObject)
        || ClassDeclPtr::dynamicCast(p))
@@ -2682,7 +2682,7 @@ Slice::Gen::ObjectVisitor::emitGCInsertCode(const TypePtr& p, const string& name
 	{
 	    if((*i)->type()->usesClasses())
 	    {
-		emitGCInsertCode((*i)->type(), fixKwd((*i)->name()), name + ".", ++level);
+		emitGCInsertCode((*i)->type(), prefix + name + ".", fixKwd((*i)->name()), ++level);
 	    }
 	}
 	return;
@@ -2695,10 +2695,10 @@ Slice::Gen::ObjectVisitor::emitGCInsertCode(const TypePtr& p, const string& name
 	tmp << "_i" << level;
 	string iterName = tmp.str();
 	C << sb;
-	C << nl << "for(" << scoped << "::const_iterator " << iterName << " = " << name
-          << ".begin(); " << iterName << " != " << name << ".end(); ++" << iterName << ")";
+	C << nl << "for(" << scoped << "::const_iterator " << iterName << " = " << prefix + name
+          << ".begin(); " << iterName << " != " << prefix + name << ".end(); ++" << iterName << ")";
 	C << sb;
-	emitGCInsertCode(d->valueType(), string("(*") + iterName + ").second", "", ++level);
+	emitGCInsertCode(d->valueType(), "", string("(*") + iterName + ").second", ++level);
 	C << eb;
 	C << eb;
 	return;
@@ -2711,8 +2711,8 @@ Slice::Gen::ObjectVisitor::emitGCInsertCode(const TypePtr& p, const string& name
 	tmp << "_i" << level;
 	string iterName = tmp.str();
 	C << sb;
-	C << nl << "for(" << scoped << "::const_iterator " << iterName << " = " << name
-          << ".begin(); " << iterName << " != " << name << ".end(); ++" << iterName << ")";
+	C << nl << "for(" << scoped << "::const_iterator " << iterName << " = " << prefix + name
+          << ".begin(); " << iterName << " != " << prefix + name << ".end(); ++" << iterName << ")";
 	C << sb;
 	emitGCInsertCode(s->type(), string("(*") + iterName + ")", "", ++level);
 	C << eb;
@@ -2722,7 +2722,7 @@ Slice::Gen::ObjectVisitor::emitGCInsertCode(const TypePtr& p, const string& name
 }
 
 void
-Slice::Gen::ObjectVisitor::emitGCClearCode(const TypePtr& p, const string& name, const string& prefix, int level)
+Slice::Gen::ObjectVisitor::emitGCClearCode(const TypePtr& p, const string& prefix, const string& name, int level)
 {
     if((BuiltinPtr::dynamicCast(p) && BuiltinPtr::dynamicCast(p)->kind() == Builtin::KindObject)
        || ClassDeclPtr::dynamicCast(p))
@@ -2742,7 +2742,7 @@ Slice::Gen::ObjectVisitor::emitGCClearCode(const TypePtr& p, const string& name,
 	{
 	    if((*i)->type()->usesClasses())
 	    {
-		emitGCClearCode((*i)->type(), fixKwd((*i)->name()), name + ".", ++level);
+		emitGCClearCode((*i)->type(), prefix + name + ".", fixKwd((*i)->name()), ++level);
 	    }
 	}
 	return;
@@ -2755,10 +2755,10 @@ Slice::Gen::ObjectVisitor::emitGCClearCode(const TypePtr& p, const string& name,
 	tmp << "_i" << level;
 	string iterName = tmp.str();
 	C << sb;
-	C << nl << "for(" << scoped << "::iterator " << iterName << " = " << name
-          << ".begin(); " << iterName << " != " << name << ".end(); ++" << iterName << ")";
+	C << nl << "for(" << scoped << "::iterator " << iterName << " = " << prefix + name
+          << ".begin(); " << iterName << " != " << prefix + name << ".end(); ++" << iterName << ")";
 	C << sb;
-	emitGCClearCode(d->valueType(), string("(*") + iterName + ").second", "", ++level);
+	emitGCClearCode(d->valueType(), "", string("(*") + iterName + ").second", ++level);
 	C << eb;
 	C << eb;
 	return;
@@ -2771,10 +2771,10 @@ Slice::Gen::ObjectVisitor::emitGCClearCode(const TypePtr& p, const string& name,
 	tmp << "_i" << level;
 	string iterName = tmp.str();
 	C << sb;
-	C << nl << "for(" << scoped << "::iterator " << iterName << " = " << name
-          << ".begin(); " << iterName << " != " << name << ".end(); ++" << iterName << ")";
+	C << nl << "for(" << scoped << "::iterator " << iterName << " = " << prefix + name
+          << ".begin(); " << iterName << " != " << prefix + name << ".end(); ++" << iterName << ")";
 	C << sb;
-	emitGCClearCode(s->type(), string("(*") + iterName + ")", "", ++level);
+	emitGCClearCode(s->type(), "", string("(*") + iterName + ")", ++level);
 	C << eb;
 	C << eb;
 	return;
