@@ -18,9 +18,9 @@ public class OutputBase
         _out = null;
         _pos = 0;
         _indent = 0;
-        _separator = true;
-        _useTab = true;
         _indentSize = 4;
+        _useTab = true;
+        _separator = true;
     }
 
     public
@@ -29,9 +29,9 @@ public class OutputBase
         _out = out;
         _pos = 0;
         _indent = 0;
-        _separator = true;
-        _useTab = true;
         _indentSize = 4;
+        _useTab = true;
+        _separator = true;
     }
 
     public
@@ -40,11 +40,23 @@ public class OutputBase
         _out = null;
         _pos = 0;
         _indent = 0;
-        _separator = true;
-        _useTab = true;
         _indentSize = 4;
+        _useTab = true;
+        _separator = true;
 
         open(s);
+    }
+
+    public void
+    setIndent(int indentSize)
+    {
+        _indentSize = indentSize;
+    }
+
+    public void
+    setUseTab(boolean useTab)
+    {
+        _useTab = useTab;
     }
 
     public void
@@ -115,18 +127,6 @@ public class OutputBase
     }
 
     public void
-    setIndent(int indentSize)
-    {
-        _indentSize = indentSize;
-    }
-
-    public void
-    setUseTab(boolean useTab)
-    {
-        _useTab = useTab;
-    }
-
-    public void
     nl()
     {
         _out.println();
@@ -182,9 +182,9 @@ public class OutputBase
     protected java.io.PrintWriter _out;
     protected int _pos;
     protected int _indent;
+    protected int _indentSize;
     protected java.util.LinkedList _indentSave = new java.util.LinkedList();
+    protected boolean _useTab;
     protected boolean _separator;
 
-    protected boolean _useTab;
-    protected int _indentSize;
 }

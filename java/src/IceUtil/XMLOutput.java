@@ -16,24 +16,30 @@ public class XMLOutput extends OutputBase
     XMLOutput()
     {
         super();
-        _printed = true;
+        _se = false;
+        _text = false;
         _sgml = false;
+        _escape = false;
     }
 
     public
     XMLOutput(java.io.PrintWriter writer)
     {
         super(writer);
-        _printed = true;
+        _se = false;
+        _text = false;
         _sgml = false;
+        _escape = false;
     }
 
     public
     XMLOutput(String s)
     {
         super(s);
-        _printed = true;
+        _se = false;
+        _text = false;
         _sgml = false;
+        _escape = false;
     }
 
     public void
@@ -45,18 +51,170 @@ public class XMLOutput extends OutputBase
     public void
     print(String s)
     {
-        if(!_printed)
+        if(_se)
         {
             _out.print('>');
-            _printed = true;
+            _se = false;
         }
-        super.print(s);
+        _text = true;
+
+        if(_escape)
+        {
+            String escaped = escape(s);
+            super.print(escaped);
+        }
+        else
+        {
+            super.print(s);
+        }
+    }
+
+    public XMLOutput
+    write(String s)
+    {
+        print(s);
+        return this;
     }
 
     public void
-    printEscaped(String s)
+    nl()
     {
-        String v = s;
+        if(_se)
+        {
+            _se = false;
+            _out.print('>');
+        }
+        super.nl();
+    }
+
+    public XMLOutput
+    se(String element)
+    {
+        nl();
+
+        //
+        // If we're not in SGML mode the output of the '>' character is
+        // deferred until either the end-element (in which case a /> is
+        // emitted) or until something is displayed.
+        //
+        if(_escape)
+        {
+            _out.print('<');
+            _out.print(escape(element));
+        }
+        else
+        {
+            _out.print('<');
+            _out.print(element);
+        }
+        _se = true;
+        _text = false;
+
+        int pos = element.indexOf(' ');
+        if(pos == -1)
+        {
+            pos = element.indexOf('\t');
+        }
+        if(pos == -1)
+        {
+            _elementStack.addFirst(element);
+        }
+        else
+        {
+            _elementStack.addFirst(element.substring(0, pos));
+        }
+
+        ++_pos; // TODO: ???
+        inc();
+        _separator = false;
+        return this;
+    }
+
+    public XMLOutput
+    ee()
+    {
+        String element = (String)_elementStack.removeFirst();
+
+        dec();
+        if(_se)
+        {
+            //
+            // SGML (docbook) doesn't support <foo/>
+            //
+            if(_sgml)
+            {
+                _out.print("><");
+                _out.print(element);
+                _out.print(">");
+            }
+            else
+            {
+                _out.print("/>");
+            }
+        }
+        else
+        {
+            if(!_text)
+            {
+                nl();
+            }
+            _out.print("</");
+            _out.print(element);
+            _out.print(">");
+        }
+        --_pos; // TODO: ???
+
+        _se = false;
+        _text = false;
+        return this;
+    }
+
+    public XMLOutput
+    attr(String name, String value)
+    {
+        //
+        // Precondition: Attributes can only be attached to elements.
+        //
+        assert(_se);
+        _out.print(" ");
+        _out.print(name);
+        _out.print("=\"");
+        _out.print(escape(value));
+        _out.print("\"");
+        return this;
+    }
+
+    public XMLOutput
+    startEscapes()
+    {
+        _escape = true;
+        return this;
+    }
+
+    public XMLOutput
+    endEscapes()
+    {
+        _escape = false;
+        return this;
+    }
+
+    public String
+    currentElement()
+    {
+        if(_elementStack.size() > 0)
+        {
+            return (String)_elementStack.getFirst();
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    private String
+    escape(String input)
+    {
+        String v = input;
 
         //
         // Find out whether there is a reserved character to avoid
@@ -64,7 +222,7 @@ public class XMLOutput extends OutputBase
         //
         final String allReserved = "<>'\"&";
         boolean hasReserved = false;
-        char[] arr = s.toCharArray();
+        char[] arr = input.toCharArray();
         for(int i = 0; i < arr.length; i++)
         {
             if(allReserved.indexOf(arr[i]) != -1)
@@ -103,82 +261,14 @@ public class XMLOutput extends OutputBase
                 v = v.replaceAll("\"", "&quot;");
             }
         }
-        print(v);
-    }
-
-    public void
-    nl()
-    {
-        if(!_printed)
-        {
-            _out.print('>');
-            _printed = true;
-        }
-        super.nl();
-    }
-
-    public void
-    se(String element)
-    {
-        nl();
-
-        //
-        // If we're not in SGML mode the output of the '>' character is
-        // deferred until either the end-element (in which case a /> is
-        // emitted) or until something is displayed.
-        //
-        _out.print('<');
-        _out.print(element);
-        if(_sgml)
-        {
-            _out.print('>');
-        }
-        else
-        {
-            _printed = false;
-        }
-
-        int pos = element.indexOf(' ');
-        if(pos == -1)
-        {
-            pos = element.indexOf('\t');
-        }
-        if(pos == -1)
-        {
-            _elementStack.addFirst(element);
-        }
-        else
-        {
-            _elementStack.addFirst(element.substring(0, pos));
-        }
-
-        ++_pos; // TODO: ???
-        inc();
-        _separator = false;
-    }
-
-    public void
-    ee()
-    {
-        String element = (String)_elementStack.removeFirst();
-
-        dec();
-        if(!_printed)
-        {
-            _out.print("/>");
-        }
-        else
-        {
-            nl();
-            _out.print("</");
-            _out.print(element);
-            _out.print('>');
-        }
-        --_pos; // TODO: ???
-        _printed = true;
+        return v;
     }
 
     private java.util.LinkedList _elementStack = new java.util.LinkedList();
-    private boolean _printed;
+
+    boolean _se;
+    boolean _text;
+
     private boolean _sgml;
+    private boolean _escape;
 }
