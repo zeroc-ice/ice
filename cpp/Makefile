@@ -54,13 +54,6 @@ install::
 	    chmod a+rx $(install_slicedir) ; \
 	fi
 
-	@if test ! -d $(install_schemadir) ; \
-	then \
-	    echo "Creating $(install_schemadir)..." ; \
-	    mkdir $(install_schemadir) ; \
-	    chmod a+rx $(install_schemadir) ; \
-	fi
-
 	@if test ! -d $(install_docdir) ; \
 	then \
 	    echo "Creating $(install_docdir)..." ; \
