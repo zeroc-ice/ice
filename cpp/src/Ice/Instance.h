@@ -30,6 +30,7 @@
 #include <Ice/UserExceptionFactoryManagerF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
 #include <Ice/EndpointFactoryManagerF.h>
+#include <Ice/DynamicLibraryF.h>
 #include <Ice/PluginF.h>
 #include <list>
 
@@ -63,6 +64,7 @@ public:
     ThreadPoolPtr clientThreadPool();
     ThreadPoolPtr serverThreadPool();
     EndpointFactoryManagerPtr endpointFactoryManager();
+    DynamicLibraryListPtr dynamicLibraryList();
     ::Ice::PluginManagerPtr pluginManager();
     
 private:
@@ -89,6 +91,7 @@ private:
     ThreadPoolPtr _clientThreadPool;
     ThreadPoolPtr _serverThreadPool;
     EndpointFactoryManagerPtr _endpointFactoryManager;
+    DynamicLibraryListPtr _dynamicLibraryList;
     ::Ice::PluginManagerPtr _pluginManager;
 
     //

@@ -272,6 +272,13 @@ Ice::CommunicatorI::CommunicatorI(int& argc, char* argv[], const PropertiesPtr& 
     try
     {
 	_instance = new Instance(this, argc, argv, properties);
+
+        //
+        // Keep a reference to the dynamic library list to ensure
+        // the libraries are not unloaded until this Communicator's
+        // destructor is invoked.
+        //
+        _dynamicLibraryList = _instance->dynamicLibraryList();
     }
     catch(...)
     {

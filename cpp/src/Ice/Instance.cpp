@@ -28,6 +28,7 @@
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/TcpEndpoint.h>
 #include <Ice/UdpEndpoint.h>
+#include <Ice/DynamicLibrary.h>
 #include <Ice/PluginManagerI.h>
 #include <Ice/Initialize.h>
 
@@ -203,6 +204,13 @@ IceInternal::Instance::endpointFactoryManager()
     return _endpointFactoryManager;
 }
 
+DynamicLibraryListPtr
+IceInternal::Instance::dynamicLibraryList()
+{
+    IceUtil::RecMutex::Lock sync(*this);
+    return _dynamicLibraryList;
+}
+
 PluginManagerPtr
 IceInternal::Instance::pluginManager()
 {
@@ -321,7 +329,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
         EndpointFactoryPtr udpEndpointFactory = new UdpEndpointFactory(this);
         _endpointFactoryManager->add(udpEndpointFactory);
 
-        _pluginManager = new PluginManagerI(communicator);
+        _dynamicLibraryList = new DynamicLibraryList;
+
+        _pluginManager = new PluginManagerI(communicator, _dynamicLibraryList);
 
 	_outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -356,6 +366,7 @@ IceInternal::Instance::~Instance()
     assert(!_routerManager);
     assert(!_locatorManager);
     assert(!_endpointFactoryManager);
+    assert(!_dynamicLibraryList);
     assert(!_pluginManager);
 
     if(_globalStateMutex != 0)
@@ -556,6 +567,13 @@ IceInternal::Instance::destroy()
         //
         pluginManager = _pluginManager;
         _pluginManager = 0;
+
+	if(_dynamicLibraryList)
+	{
+	    // No destroy function defined
+	    // _dynamicLibraryList->destroy();
+	    _dynamicLibraryList = 0;
+	}
     }
     
     if(clientThreadPool)

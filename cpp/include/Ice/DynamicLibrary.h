@@ -88,6 +88,17 @@ private:
     std::string _err;
 };
 
+class ICE_API DynamicLibraryList : public ::IceUtil::Shared
+{
+public:
+
+    void add(const DynamicLibraryPtr&);
+
+private:
+
+    std::vector<DynamicLibraryPtr> _libraries;
+};
+
 }
 
 #endif

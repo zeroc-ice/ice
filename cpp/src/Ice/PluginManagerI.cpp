@@ -32,10 +32,10 @@ Ice::PluginManagerI::getPlugin(const string& name)
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    map<string, PluginInfo>::const_iterator r = _plugins.find(name);
+    map<string, PluginPtr>::const_iterator r = _plugins.find(name);
     if(r != _plugins.end())
     {
-        return (*r).second.plugin;
+        return (*r).second;
     }
 
     throw PluginNotFoundException(__FILE__, __LINE__);
@@ -51,14 +51,12 @@ Ice::PluginManagerI::addPlugin(const string& name, const PluginPtr& plugin)
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    map<string, PluginInfo>::const_iterator r = _plugins.find(name);
+    map<string, PluginPtr>::const_iterator r = _plugins.find(name);
     if(r != _plugins.end())
     {
         throw PluginExistsException(__FILE__, __LINE__);
     }
-    PluginInfo info;
-    info.plugin = plugin;
-    _plugins[name] = info;
+    _plugins[name] = plugin;
 }
 
 void
@@ -68,20 +66,22 @@ Ice::PluginManagerI::destroy()
 
     if(_communicator)
     {
-	map<string, PluginInfo>::iterator r;
+	map<string, PluginPtr>::iterator r;
 	for(r = _plugins.begin(); r != _plugins.end(); ++r)
 	{
-	    r->second.plugin->destroy();
-	    r->second.plugin = 0;
-	    r->second.library = 0;
+	    r->second->destroy();
+	    r->second = 0;
 	}
 	
 	_communicator = 0;
     }
+
+    _libraries = 0;
 }
 
-Ice::PluginManagerI::PluginManagerI(const CommunicatorPtr& communicator) :
-    _communicator(communicator)
+Ice::PluginManagerI::PluginManagerI(const CommunicatorPtr& communicator, const DynamicLibraryListPtr& libraries) :
+    _communicator(communicator),
+    _libraries(libraries)
 {
 }
 
@@ -160,13 +160,13 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& entryPoint, co
     //
     // Load the entry point symbol.
     //
-    PluginInfo info;
-    info.library = new DynamicLibrary();
-    DynamicLibrary::symbol_type sym = info.library->loadEntryPoint(entryPoint);
+    PluginPtr plugin;
+    DynamicLibraryPtr library = new DynamicLibrary();
+    DynamicLibrary::symbol_type sym = library->loadEntryPoint(entryPoint);
     if(sym == 0)
     {
         ostringstream out;
-        string msg = info.library->getErrorMessage();
+        string msg = library->getErrorMessage();
         out << "unable to load entry point `" << entryPoint << "'";
         if(!msg.empty())
         {
@@ -183,7 +183,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& entryPoint, co
     PLUGIN_FACTORY factory = (PLUGIN_FACTORY)sym;
     try
     {
-        info.plugin = factory(_communicator, name, args);
+        plugin = factory(_communicator, name, args);
     }
     catch(const Exception& ex)
     {
@@ -212,5 +212,6 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& entryPoint, co
         throw e;
     }
 
-    _plugins[name] = info;
+    _libraries->add(library);
+    _plugins[name] = plugin;
 }

@@ -14,6 +14,7 @@
 #include <IceUtil/RecMutex.h>
 
 #include <Ice/ThreadPoolF.h>
+#include <Ice/DynamicLibraryF.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
 
@@ -79,6 +80,12 @@ private:
     // well.
     //
     ::IceInternal::ThreadPoolPtr _serverThreadPool;
+
+    //
+    // We don't want the dynamic libraries to be unloaded until the
+    // Communicator's destructor is invoked.
+    //
+    ::IceInternal::DynamicLibraryListPtr _dynamicLibraryList;
 };
 
 }

@@ -21,6 +21,9 @@ using namespace std;
 void IceInternal::incRef(DynamicLibrary* p) { p->__incRef(); }
 void IceInternal::decRef(DynamicLibrary* p) { p->__decRef(); }
 
+void IceInternal::incRef(DynamicLibraryList* p) { p->__incRef(); }
+void IceInternal::decRef(DynamicLibraryList* p) { p->__decRef(); }
+
 IceInternal::DynamicLibrary::DynamicLibrary()
     : _hnd(0)
 {
@@ -139,4 +142,10 @@ const string&
 IceInternal::DynamicLibrary::getErrorMessage() const
 {
     return _err;
+}
+
+void
+IceInternal::DynamicLibraryList::add(const DynamicLibraryPtr& library)
+{
+    _libraries.push_back(library);
 }

@@ -32,20 +32,16 @@ public:
 
 private:
 
-    PluginManagerI(const CommunicatorPtr&);
+    PluginManagerI(const CommunicatorPtr&, const IceInternal::DynamicLibraryListPtr&);
     friend class IceInternal::Instance;
 
     void loadPlugins(int&, char*[]);
     void loadPlugin(const std::string&, const std::string&, const StringSeq&);
 
     CommunicatorPtr _communicator;
+    IceInternal::DynamicLibraryListPtr _libraries;
 
-    struct PluginInfo
-    {
-        PluginPtr plugin;
-        IceInternal::DynamicLibraryPtr library;
-    };
-    std::map<std::string, PluginInfo> _plugins;
+    std::map<std::string, PluginPtr> _plugins;
 };
 
 }

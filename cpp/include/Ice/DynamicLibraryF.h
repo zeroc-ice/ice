@@ -21,6 +21,11 @@ ICE_API void incRef(DynamicLibrary*);
 ICE_API void decRef(DynamicLibrary*);
 typedef Handle<DynamicLibrary> DynamicLibraryPtr;
 
+class DynamicLibraryList;
+ICE_API void incRef(DynamicLibraryList*);
+ICE_API void decRef(DynamicLibraryList*);
+typedef Handle<DynamicLibraryList> DynamicLibraryListPtr;
+
 }
 
 #endif
