@@ -112,7 +112,6 @@ global_meta_data
 : '[' '[' string_list ']' ']'
 {
     $$ = $3;
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($$);
 }
 ;
 
@@ -122,7 +121,6 @@ meta_data
 : '[' string_list ']'
 {
     $$ = $2;
-    StringListTokPtr metaData = StringListTokPtr::dynamicCast($$);
 }
 |
 {
