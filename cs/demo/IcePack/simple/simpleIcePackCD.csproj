@@ -72,12 +72,12 @@
                 <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
-                    HintPath = "..\..\..\bin\icecs.dll"
+                    HintPath = "..\..\bin\icecs.dll"
                 />
                 <Reference
                     Name = "icepackcs"
                     AssemblyName = "icepackcs"
-                    HintPath = "..\..\..\bin\icepackcs.dll"
+                    HintPath = "..\..\bin\icepackcs.dll"
                 />
             </References>
         </Build>
