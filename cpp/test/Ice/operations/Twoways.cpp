@@ -598,13 +598,13 @@ twoways(const Test::MyClassPrx& p)
 	ctx["two"] = "TWO";
 	ctx["three"] = "THREE";
 	{
-	    test(p->ice_getContext().empty());
 	    Test::StringStringD r = p->opContext();
+	    test(p->ice_getContext().empty());
 	    test(r != ctx);
 	}
 	{
-	    test(p->ice_getContext().empty());
 	    Test::StringStringD r = p->opContext(ctx);
+	    test(p->ice_getContext().empty());
 	    test(r == ctx);
 	}
 	{

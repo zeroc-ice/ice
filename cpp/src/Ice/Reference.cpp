@@ -45,6 +45,11 @@ IceInternal::Reference::operator==(const Reference& r) const
 	return false;
     }
 
+    if(context != r.context)
+    {
+	return false;
+    }
+
     if(facet != r.facet)
     {
 	return false;
@@ -112,6 +117,15 @@ IceInternal::Reference::operator<(const Reference& r) const
 	return true;
     }
     else if(r.identity < identity)
+    {
+	return false;
+    }
+    
+    if(context < r.context)
+    {
+	return true;
+    }
+    else if(r.context < context)
     {
 	return false;
     }
@@ -655,7 +669,8 @@ IceInternal::Reference::Reference(const InstancePtr& inst,
     Int h = 0;
 	
     string::const_iterator p;
-    FacetPath::const_iterator q;
+    Context::const_iterator q;
+    FacetPath::const_iterator r;
 
     for(p = identity.name.begin(); p != identity.name.end(); ++p)
     {
@@ -667,9 +682,21 @@ IceInternal::Reference::Reference(const InstancePtr& inst,
 	h = 5 * h + *p;
     }
 
-    for(q = facet.begin(); q != facet.end(); ++q)
+    for(q = context.begin(); q != context.end(); ++q)
     {
-	for(p = q->begin(); p != q->end(); ++p)
+	for(p = q->first.begin(); p != q->first.end(); ++p)
+	{
+	    h = 5 * h + *p;
+	}
+	for(p = q->second.begin(); p != q->second.end(); ++p)
+	{
+	    h = 5 * h + *p;
+	}
+    }
+
+    for(r = facet.begin(); r != facet.end(); ++r)
+    {
+	for(p = r->begin(); p != r->end(); ++p)
 	{
 	    h = 5 * h + *p;
 	}

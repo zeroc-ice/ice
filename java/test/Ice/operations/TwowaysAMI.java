@@ -849,6 +849,66 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
+    private static class AMI_MyClass_opContextEqualI extends Test.AMI_MyClass_opContext
+    {
+        AMI_MyClass_opContextEqualI(java.util.Map d)
+	{
+	    _d = d;
+	}
+
+	public void
+	ice_response(java.util.Map r)
+	{
+	    test(r.equals(_d));
+	    callback.called();
+	}
+
+	public void
+	ice_exception(Ice.LocalException ex)
+	{
+	    test(false);
+	}
+
+	public boolean
+	check()
+	{
+	    return callback.check();
+	}
+
+	private java.util.Map _d;
+	private Callback callback = new Callback();
+    };
+
+    private static class AMI_MyClass_opContextNotEqualI extends Test.AMI_MyClass_opContext
+    {
+        AMI_MyClass_opContextNotEqualI(java.util.Map d)
+	{
+	    _d = d;
+	}
+
+	public void
+	ice_response(java.util.Map r)
+	{
+	    test(!r.equals(_d));
+	    callback.called();
+	}
+
+	public void
+	ice_exception(Ice.LocalException ex)
+	{
+	    test(false);
+	}
+
+	public boolean
+	check()
+	{
+	    return callback.check();
+	}
+
+	private java.util.Map _d;
+	private Callback callback = new Callback();
+    };
+
     private static class AMI_MyDerivedClass_opDerivedI extends Test.AMI_MyDerivedClass_opDerived
     {
 	public void
@@ -1132,6 +1192,37 @@ class TwowaysAMI
 		}
 		AMI_MyClass_opIntSI cb = new AMI_MyClass_opIntSI(lengths[l]);
 		p.opIntS_async(cb, s);
+		test(cb.check());
+	    }
+	}
+
+	{
+	    java.util.Map ctx = new java.util.HashMap();
+	    ctx.put("one", "ONE");
+	    ctx.put("two", "TWO");
+	    ctx.put("three", "THREE");
+	    {
+		test(p.ice_getContext().isEmpty());
+		AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(ctx);
+		p.opContext_async(cb);
+		test(cb.check());
+	    }
+	    {
+		test(p.ice_getContext().isEmpty());
+		AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
+		p.opContext_async(cb, ctx);
+		test(cb.check());
+	    }
+	    Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_newContext(ctx));
+	    test(p2.ice_getContext().equals(ctx));
+	    {
+		AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
+		p2.opContext_async(cb);
+		test(cb.check());
+	    }
+	    {
+		AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
+		p2.opContext_async(cb, ctx);
 		test(cb.check());
 	    }
 	}

@@ -45,6 +45,9 @@ public interface ObjectPrx
     Identity ice_getIdentity();
     ObjectPrx ice_newIdentity(Identity newIdentity);
 
+    java.util.Map ice_getContext();
+    ObjectPrx ice_newContext(java.util.Map newContext);
+
     String[] ice_getFacet();
     ObjectPrx ice_newFacet(String[] newFacet);
     ObjectPrx ice_appendFacet(String f);

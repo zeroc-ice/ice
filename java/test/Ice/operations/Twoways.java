@@ -526,5 +526,30 @@ class Twoways
 		}
 	    }
         }
+
+	{
+	    java.util.HashMap ctx = new java.util.HashMap();
+	    ctx.put("one", "ONE");
+	    ctx.put("two", "TWO");
+	    ctx.put("three", "THREE");
+	    {
+		test(p.ice_getContext().isEmpty());
+		java.util.Map r = p.opContext();
+		test(!r.equals(ctx));
+	    }
+	    {
+		java.util.Map r = p.opContext(ctx);
+		test(p.ice_getContext().isEmpty());
+		test(r.equals(ctx));
+	    }
+	    {
+		Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_newContext(ctx));
+		test(p2.ice_getContext().equals(ctx));
+		java.util.Map r = p2.opContext();
+		test(r.equals(ctx));
+		r = p2.opContext(ctx);
+		test(r.equals(ctx));
+	    }
+	}
     }
 }

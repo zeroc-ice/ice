@@ -252,6 +252,27 @@ public class ObjectPrxHelper implements ObjectPrx
         }
     }
 
+    public final java.util.Map
+    ice_getContext()
+    {
+        return _reference.context;
+    }
+
+    public final ObjectPrx
+    ice_newContext(java.util.Map newContext)
+    {
+        if(newContext.equals(_reference.context))
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelper proxy = new ObjectPrxHelper();
+            proxy.setup(_reference.changeContext(newContext));
+            return proxy;
+        }
+    }
+
     public final String[]
     ice_getFacet()
     {
@@ -732,6 +753,12 @@ public class ObjectPrxHelper implements ObjectPrx
     __createDelegateD()
     {
         return new _ObjectDelD();
+    }
+
+    protected java.util.Map
+    __defaultContext()
+    {
+        return _reference.context;
     }
 
     //

@@ -336,6 +336,12 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     }
 
     public void
+    opContext_async(Test.AMD_MyClass_opContext cb, Ice.Current current)
+    {
+        cb.ice_response(current.ctx);
+    }
+
+    public void
     opStringS_async(Test.AMD_MyClass_opStringS cb,
 		    String[] p1, String[] p2,
 		    Ice.Current current)

@@ -54,6 +54,11 @@ public final class Reference
             return false;
         }
 
+	if(!context.equals(r.context))
+	{
+	    return false;
+	}
+
         if(!java.util.Arrays.equals(facet, r.facet))
         {
             return false;
@@ -285,6 +290,7 @@ public final class Reference
     //
     final public Instance instance;
     final public Ice.Identity identity;
+    final public java.util.Map context;
     final public String[] facet;
     final public int mode;
     final public boolean secure;
@@ -309,7 +315,22 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(newIdentity, facet, mode, secure, adapterId,
+            return instance.referenceFactory().create(newIdentity, context, facet, mode, secure, adapterId,
+ 						      endpoints, routerInfo, locatorInfo, reverseAdapter,
+						      collocationOptimization);
+        }
+    }
+
+    public Reference
+    changeContext(java.util.Map newContext)
+    {
+        if(newContext.equals(context))
+        {
+            return this;
+        }
+        else
+        {
+            return instance.referenceFactory().create(identity, newContext, facet, mode, secure, adapterId,
  						      endpoints, routerInfo, locatorInfo, reverseAdapter,
 						      collocationOptimization);
         }
@@ -324,7 +345,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, newFacet, mode, secure, adapterId,
+            return instance.referenceFactory().create(identity, context, newFacet, mode, secure, adapterId,
 						      endpoints, routerInfo, locatorInfo, reverseAdapter,
 						      collocationOptimization);
         }
@@ -375,7 +396,7 @@ public final class Reference
 	    newLocatorInfo = instance.locatorManager().get(newLocator);
 	}
 
-        return instance.referenceFactory().create(identity, facet, mode, secure, adapterId, 
+        return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId, 
 						  newEndpoints, newRouterInfo, newLocatorInfo, reverseAdapter,
 						  collocationOptimization);
     }
@@ -389,7 +410,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, newMode, secure, adapterId,
+            return instance.referenceFactory().create(identity, context, facet, newMode, secure, adapterId,
 						      endpoints, routerInfo, locatorInfo, reverseAdapter,
 						      collocationOptimization);
         }
@@ -404,7 +425,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, mode, newSecure, adapterId,
+            return instance.referenceFactory().create(identity, context, facet, mode, newSecure, adapterId,
 						      endpoints, routerInfo, locatorInfo, reverseAdapter,
 						      collocationOptimization);
         }
@@ -455,7 +476,7 @@ public final class Reference
 	    newLocatorInfo = instance.locatorManager().get(newLocator);
 	}
 
-        return instance.referenceFactory().create(identity, facet, mode, secure, adapterId, 
+        return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId, 
 						  newEndpoints, newRouterInfo, newLocatorInfo, reverseAdapter,
 						  collocationOptimization);
     }
@@ -469,7 +490,7 @@ public final class Reference
 	}
 	else
 	{
-	    return instance.referenceFactory().create(identity, facet, mode, secure, newAdapterId,
+	    return instance.referenceFactory().create(identity, context, facet, mode, secure, newAdapterId,
 						      endpoints, routerInfo, locatorInfo, reverseAdapter,
 						      collocationOptimization);
 	}
@@ -484,7 +505,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, mode, secure, adapterId,
+            return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
 						      newEndpoints, routerInfo, locatorInfo, reverseAdapter,
 						      collocationOptimization);
         }
@@ -502,7 +523,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, mode, secure, adapterId,
+            return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
 						      endpoints, newRouterInfo, locatorInfo, reverseAdapter,
 						      collocationOptimization);
         }
@@ -520,7 +541,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, mode, secure, adapterId,
+            return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
 						      endpoints, routerInfo, newLocatorInfo, reverseAdapter,
 						      collocationOptimization);
         }
@@ -535,7 +556,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, mode, secure, adapterId,
+            return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
 						      endpoints, routerInfo, locatorInfo, reverseAdapter,
 						      newCollocationOptimization);
         }
@@ -547,7 +568,7 @@ public final class Reference
         RouterInfo routerInfo = instance.routerManager().get(instance.referenceFactory().getDefaultRouter());
         LocatorInfo locatorInfo = instance.locatorManager().get(instance.referenceFactory().getDefaultLocator());
 
-        return instance.referenceFactory().create(identity, new String[0], ModeTwoway, false, adapterId,
+        return instance.referenceFactory().create(identity, context, new String[0], ModeTwoway, false, adapterId,
 						  endpoints, routerInfo, locatorInfo, null, true);
     }
 
@@ -556,6 +577,7 @@ public final class Reference
     //
     Reference(Instance inst,
               Ice.Identity ident,
+	      java.util.Map ctx,
               String[] fac,
               int md,
               boolean sec,
@@ -573,6 +595,7 @@ public final class Reference
 
         instance = inst;
         identity = ident;
+	context = ctx;
         facet = fac;
         mode = md;
         secure = sec;
@@ -596,6 +619,8 @@ public final class Reference
         {   
             h = 5 * h + (int)identity.category.charAt(i);
         }
+
+	h = 5 * h + context.entrySet().hashCode();
 
         for(int i = 0; i < facet.length; i++)
         {

@@ -2371,7 +2371,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << ", ";
         }
-        out << "null);";
+        out << "__defaultContext());";
         out << eb;
 
         out << sp;
@@ -2436,7 +2436,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    out << sp;
 	    out << nl << "public void" << nl << opName << "_async(" << paramsAMI << ')';
 	    out << sb;
-	    out << nl << opName << "_async(" << argsAMI << ", null);";
+	    out << nl << opName << "_async(" << argsAMI << ", __defaultContext());";
 	    out << eb;
 
 	    out << sp;

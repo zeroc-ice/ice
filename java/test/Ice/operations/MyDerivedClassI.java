@@ -298,6 +298,12 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return r;
     }
 
+    public java.util.Map
+    opContext(Ice.Current current)
+    {
+	return current.ctx;
+    }
+
     public String[]
     opStringS(String[] p1, String[] p2,
 	      Test.StringSHolder p3,

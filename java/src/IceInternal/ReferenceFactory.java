@@ -18,6 +18,7 @@ public final class ReferenceFactory
 {
     public synchronized Reference
     create(Ice.Identity ident,
+           java.util.Map context,
            String[] facet,
            int mode,
            boolean secure,
@@ -41,7 +42,7 @@ public final class ReferenceFactory
         //
         // Create a new reference
         //
-        Reference ref = new Reference(_instance, ident, facet, mode, secure, adapterId,
+        Reference ref = new Reference(_instance, ident, context, facet, mode, secure, adapterId,
 				      endpoints, routerInfo, locatorInfo, reverseAdapter, collocationOptimization);
 
         //
@@ -462,7 +463,8 @@ public final class ReferenceFactory
 
         RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
         LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
-        return create(ident, fac, mode, secure, adapter, endp, routerInfo, locatorInfo, null, true);
+        return create(ident, new java.util.HashMap(), fac, mode, secure,
+	              adapter, endp, routerInfo, locatorInfo, null, true);
     }
 
     public Reference
@@ -508,7 +510,8 @@ public final class ReferenceFactory
 
         RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
         LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
-        return create(ident, facet, mode, secure, adapterId, endpoints, routerInfo, locatorInfo, null, true);
+        return create(ident, new java.util.HashMap(), facet, mode, secure,
+	              adapterId, endpoints, routerInfo, locatorInfo, null, true);
     }
 
     public synchronized void
