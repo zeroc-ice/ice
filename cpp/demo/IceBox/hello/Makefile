@@ -16,7 +16,7 @@ top_srcdir	= ../../..
 
 CLIENT		= client
 
-NAME		= libHelloService.so
+NAME		= libHelloService.$(LIBEXT)
 VERSIONED_NAME	= $(NAME).$(VERSION)
 
 TARGETS		= $(CLIENT) $(NAME) $(VERSIONED_NAME)
