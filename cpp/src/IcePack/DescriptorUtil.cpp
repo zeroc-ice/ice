@@ -118,7 +118,7 @@ IcePack::equal(const ServerDescriptorPtr& lhs, const ServerDescriptorPtr& rhs)
 	return false;
     }
 
-    if(set<string>(lhs->options.begin(), rhs->options.end()) != set<string>(rhs->options.begin(), rhs->options.end()))
+    if(set<string>(lhs->options.begin(), lhs->options.end()) != set<string>(rhs->options.begin(), rhs->options.end()))
     {
 	return false;
     }

@@ -1,6 +1,9 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Fixed a bug in IcePack which could cause a core dump of the IcePack
+  registry or node when updating an application deployment.
+
 - The proxy returned by the object adapter operations addFacet and
   addFacetWithUUID did not contain the facet. This required the
   application to make an extra call to ice_newFacet in order to

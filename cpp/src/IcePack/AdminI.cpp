@@ -886,7 +886,6 @@ ServerCleaner::visitServerStart(const ServerWrapper&, const ServerDescriptorPtr&
 	_currentServer = _serverRegistry->findByName(server->name);
 	_currentServer->setActivationMode(Manual);
 	_currentServer->stop();
-	_serverRegistry->remove(server->name);
     }
     catch(const ServerNotExistException&)
     {
@@ -899,6 +898,15 @@ ServerCleaner::visitServerStart(const ServerWrapper&, const ServerDescriptorPtr&
     catch(const Ice::LocalException& ex)
     {
 	exception("couldn't contact node `" + server->node + "'", ex);
+    }
+
+    try
+    {
+	_serverRegistry->remove(server->name);
+    }
+    catch(const ServerNotExistException&)
+    {
+	exception("server `" + server->name + "' doesn't exist");
     }
 
     try
