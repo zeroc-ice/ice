@@ -56,8 +56,7 @@ public class _ObjectDelM implements _ObjectDel
     ice_ids(java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __out =
-            new IceInternal.Outgoing(__connection, __reference, "ice_ids", true, __context);
+        IceInternal.Outgoing __out = getOutgoing("ice_ids", true, __context);
         try
         {
             IceInternal.BasicStream __is = __out.is();
@@ -69,7 +68,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            __out.destroy();
+            reclaimOutgoing(__out);
         }
     }
 
@@ -77,8 +76,7 @@ public class _ObjectDelM implements _ObjectDel
     ice_id(java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __out =
-            new IceInternal.Outgoing(__connection, __reference, "ice_id", true, __context);
+        IceInternal.Outgoing __out = getOutgoing("ice_id", true, __context);
         try
         {
             IceInternal.BasicStream __is = __out.is();
@@ -90,7 +88,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            __out.destroy();
+            reclaimOutgoing(__out);
         }
     }
 
@@ -98,8 +96,7 @@ public class _ObjectDelM implements _ObjectDel
     ice_facets(java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __out =
-            new IceInternal.Outgoing(__connection, __reference, "ice_facets", true, __context);
+        IceInternal.Outgoing __out = getOutgoing("ice_facets", true, __context);
         try
         {
             IceInternal.BasicStream __is = __out.is();
@@ -111,7 +108,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            __out.destroy();
+            reclaimOutgoing(__out);
         }
     }
 
@@ -120,8 +117,7 @@ public class _ObjectDelM implements _ObjectDel
                java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __out =
-            new IceInternal.Outgoing(__connection, __reference, operation, nonmutating, __context);
+        IceInternal.Outgoing __out = getOutgoing(operation, nonmutating, __context);
         try
         {
             IceInternal.BasicStream __os = __out.os();
@@ -137,7 +133,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            __out.destroy();
+            reclaimOutgoing(__out);
         }
     }
 
@@ -186,11 +182,9 @@ public class _ObjectDelM implements _ObjectDel
             // connections from such object adapter.
             //
             ObjectAdapterI adapter = (ObjectAdapterI)__reference.reverseAdapter;
-            IceInternal.Connection[] connections =
-                adapter.getIncomingConnections();
+            IceInternal.Connection[] connections = adapter.getIncomingConnections();
 
-            IceInternal.Endpoint[] endpoints =
-                new IceInternal.Endpoint[connections.length];
+            IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[connections.length];
             for (int i = 0; i < connections.length; i++)
             {
                 endpoints[i] = connections[i].endpoint();
@@ -235,8 +229,7 @@ public class _ObjectDelM implements _ObjectDel
                 throw new NoEndpointException();
             }
 
-            IceInternal.OutgoingConnectionFactory factory =
-                __reference.instance.outgoingConnectionFactory();
+            IceInternal.OutgoingConnectionFactory factory = __reference.instance.outgoingConnectionFactory();
             __connection = factory.create(endpoints);
             assert(__connection != null);
 
