@@ -51,7 +51,7 @@ IceUtil::RWRecMutex::tryReadlock() const
     //
     if(_count < 0 || _waitingWriters != 0)
     {
-	throw LockedException(__FILE__, __LINE__);
+	throw ThreadLockedException(__FILE__, __LINE__);
     }
     _count++;
 }
@@ -75,7 +75,7 @@ IceUtil::RWRecMutex::timedTryReadlock(const Time& timeout) const
 	}
 	else
 	{
-	    throw LockedException(__FILE__, __LINE__);
+	    throw ThreadLockedException(__FILE__, __LINE__);
 	}
     }
 
@@ -142,7 +142,7 @@ IceUtil::RWRecMutex::tryWritelock() const
     //
     if(_count != 0)
     {
-	throw LockedException(__FILE__, __LINE__);
+	throw ThreadLockedException(__FILE__, __LINE__);
     }
 
     //
@@ -190,7 +190,7 @@ IceUtil::RWRecMutex::timedTryWritelock(const Time& timeout) const
 	}
 	else
 	{
-	    throw LockedException(__FILE__, __LINE__);
+	    throw ThreadLockedException(__FILE__, __LINE__);
 	}
     }
 
@@ -344,7 +344,7 @@ IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
 	    // that the _count is increased again before returning.
 	    //
 	    ++_count;
-	    throw LockedException(__FILE__, __LINE__);
+	    throw ThreadLockedException(__FILE__, __LINE__);
 	}
     }
 

@@ -44,7 +44,7 @@ IceUtil::RecMutex::trylock() const
 {
     if(!TryEnterCriticalSection(&_mutex))
     {
-	throw LockedException(__FILE__, __LINE__);
+	throw ThreadLockedException(__FILE__, __LINE__);
     }
     if(++_count > 1)
     {
@@ -88,7 +88,7 @@ IceUtil::RecMutex::RecMutex() :
     int rc = pthread_mutex_init(&_mutex, &attr);
     if(rc != 0)
     {
-	throw SyscallException(strerror(rc), __FILE__, __LINE__);
+	throw ThreadSyscallException(strerror(rc), __FILE__, __LINE__);
     }
 }
 
@@ -106,7 +106,7 @@ IceUtil::RecMutex::lock() const
     int rc = pthread_mutex_lock(&_mutex);
     if(rc != 0)
     {
-	throw SyscallException(strerror(rc), __FILE__, __LINE__);
+	throw ThreadSyscallException(strerror(rc), __FILE__, __LINE__);
     }
     if(++_count > 1)
     {
@@ -125,9 +125,9 @@ IceUtil::RecMutex::trylock() const
     {
 	if(rc == EBUSY)
 	{
-	    throw LockedException(__FILE__, __LINE__);
+	    throw ThreadLockedException(__FILE__, __LINE__);
 	}
-	throw SyscallException(strerror(rc), __FILE__, __LINE__);
+	throw ThreadSyscallException(strerror(rc), __FILE__, __LINE__);
     }
     if(++_count > 1)
     {

@@ -12,8 +12,8 @@
 #define ICE_UTIL_MUTEX_H
 
 #include <IceUtil/Config.h>
-#include <IceUtil/Exception.h> // Necessary for inline functions
 #include <IceUtil/Lock.h>
+#include <IceUtil/ThreadException.h>
 
 namespace IceUtil
 {
@@ -64,7 +64,7 @@ public:
     bool lock() const;
 
     //
-    // Throw LockedException in the case that the lock call would
+    // Throw ThreadLockedException in the case that the lock call would
     // block (that is the mutex is already owned by some other
     // thread). Returns true if the mutex has been locked for the
     // first time.
@@ -145,12 +145,12 @@ Mutex::trylock() const
 {
     if(!TryEnterCriticalSection(&_mutex))
     {
-	throw LockedException(__FILE__, __LINE__);
+	throw ThreadLockedException(__FILE__, __LINE__);
     }
     if(_mutex.RecursionCount > 1)
     {
 	LeaveCriticalSection(&_mutex);
-	throw LockedException(__FILE__, __LINE__);
+	throw ThreadLockedException(__FILE__, __LINE__);
     }
     return true;
 }
@@ -183,7 +183,7 @@ Mutex::Mutex()
     int rc = pthread_mutex_init(&_mutex, 0);
     if(rc != 0)
     {
-	throw SyscallException(strerror(rc), __FILE__, __LINE__);
+	throw ThreadSyscallException(strerror(rc), __FILE__, __LINE__);
     }
 }
 
@@ -201,7 +201,7 @@ Mutex::lock() const
     int rc = pthread_mutex_lock(&_mutex);
     if(rc != 0)
     {
-	throw SyscallException(strerror(rc), __FILE__, __LINE__);
+	throw ThreadSyscallException(strerror(rc), __FILE__, __LINE__);
     }
     return true;
 }
@@ -214,9 +214,9 @@ Mutex::trylock() const
     {
 	if(rc == EBUSY)
 	{
-	    throw LockedException(__FILE__, __LINE__);
+	    throw ThreadLockedException(__FILE__, __LINE__);
 	}
-	throw SyscallException(strerror(rc), __FILE__, __LINE__);
+	throw ThreadSyscallException(strerror(rc), __FILE__, __LINE__);
     }
     return true;
 }
@@ -227,7 +227,7 @@ Mutex::unlock() const
     int rc = pthread_mutex_unlock(&_mutex);
     if(rc != 0)
     {
-	throw SyscallException(strerror(rc), __FILE__, __LINE__);
+	throw ThreadSyscallException(strerror(rc), __FILE__, __LINE__);
     }
     return true;
 }

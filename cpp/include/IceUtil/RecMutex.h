@@ -13,6 +13,7 @@
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Lock.h>
+#include <IceUtil/ThreadException.h>
 
 namespace IceUtil
 {
@@ -56,7 +57,7 @@ public:
     bool lock() const;
 
     //
-    // Throw LockedException in the case that the lock call would
+    // Throw ThreadLockedException in the case that the lock call would
     // block (that is the mutex is already owned by some other
     // thread). Returns true if the mutex has been locked for the
     // first time.

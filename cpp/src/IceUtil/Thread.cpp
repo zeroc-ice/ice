@@ -9,8 +9,8 @@
 // **********************************************************************
 
 #include <IceUtil/Thread.h>
-#include <IceUtil/Exception.h>
 #include <IceUtil/Time.h>
+#include <IceUtil/ThreadException.h>
 
 using namespace std;
 
@@ -25,7 +25,7 @@ IceUtil::ThreadControl::ThreadControl() :
     int rc = DuplicateHandle(proc, current, proc, &_handle->handle, SYNCHRONIZE, TRUE, 0);
     if(rc == 0)
     {
-	throw SyscallException(SyscallException::errorToString(GetLastError()), __FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__);
     }
 }
 
@@ -56,10 +56,13 @@ IceUtil::ThreadControl::operator<(const ThreadControl& rhs) const
 void
 IceUtil::ThreadControl::join()
 {
-    int rc = WaitForSingleObject(_handle->handle, INFINITE);
-    if(rc != WAIT_OBJECT_0)
+    if(_handle->handle)
     {
-	throw SyscallException(SyscallException::errorToString(GetLastError()), __FILE__, __LINE__);
+	int rc = WaitForSingleObject(_handle->handle, INFINITE);
+	if(rc != WAIT_OBJECT_0)
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__);
+	}
     }
 }
 
@@ -139,7 +142,7 @@ IceUtil::Thread::start()
     if(_handle->handle == 0)
     {
 	__decRef();
-	throw SyscallException(SyscallException::errorToString(GetLastError()), __FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__);
     }
 			
     return ThreadControl(_handle, _id);
@@ -203,11 +206,14 @@ IceUtil::ThreadControl::operator<(const ThreadControl& rhs) const
 void
 IceUtil::ThreadControl::join()
 {
-    void* ignore = 0;
-    int rc = pthread_join(_id, &ignore);
-    if(rc != 0)
+    if(_id)
     {
-	throw SyscallException(strerror(rc), __FILE__, __LINE__);
+	void* ignore = 0;
+	int rc = pthread_join(_id, &ignore);
+	if(rc != 0)
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__);
+	}
     }
 }
 
@@ -279,7 +285,7 @@ IceUtil::Thread::start()
     if(rc != 0)
     {
 	__decRef();
-	throw SyscallException(strerror(rc), __FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__);
     }
     return ThreadControl(_id);
 }

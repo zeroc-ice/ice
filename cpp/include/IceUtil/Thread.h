@@ -31,7 +31,7 @@ struct HandleWrapper : public Shared
     // Inline for performance reasons.
     virtual ~HandleWrapper()
     {
-	if(handle != 0)
+	if(handle)
 	{
 	    CloseHandle(handle);
 	}
@@ -111,7 +111,7 @@ private:
 
 typedef Handle<Thread> ThreadPtr;
     
-} // End namespace IceUtil
+}
 
 #endif
 

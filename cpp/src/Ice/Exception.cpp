@@ -156,7 +156,7 @@ Ice::SyscallException::ice_print(ostream& out) const
     Exception::ice_print(out);
     if(error != 0)
     {
-        out << ":\nsystem exception: " << errorToString(error);
+        out << ":\nsyscall exception: " << errorToString(error);
     }
 }
 

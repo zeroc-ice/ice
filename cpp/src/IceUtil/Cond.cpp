@@ -21,7 +21,7 @@ IceUtil::Semaphore::Semaphore(long initial)
     _sem = CreateSemaphore(0, initial, 0x7fffffff, 0);
     if(_sem == INVALID_HANDLE_VALUE)
     {
-	throw SyscallException(SyscallException::errorToString(GetLastError()), __FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__);
     }
 }
 
@@ -36,7 +36,7 @@ IceUtil::Semaphore::wait() const
     int rc = WaitForSingleObject(_sem, INFINITE);
     if(rc != WAIT_OBJECT_0)
     {
-	throw SyscallException(SyscallException::errorToString(GetLastError()), __FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__);
     }
 }
 
@@ -49,7 +49,7 @@ IceUtil::Semaphore::timedWait(const Time& timeout) const
     int rc = WaitForSingleObject(_sem, msec);
     if(rc != WAIT_TIMEOUT && rc != WAIT_OBJECT_0)
     {
-	throw SyscallException(SyscallException::errorToString(GetLastError()), __FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__);
     }
     return rc != WAIT_TIMEOUT;
 }
@@ -60,7 +60,7 @@ IceUtil::Semaphore::post(int count) const
     int rc = ReleaseSemaphore(_sem, count, 0);
     if(rc == 0)
     {
-	throw SyscallException(SyscallException::errorToString(GetLastError()), __FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__);
     }
 }
 
@@ -199,7 +199,7 @@ IceUtil::Cond::Cond()
     int rc = pthread_cond_init(&_cond, 0);
     if(rc != 0)
     {
-	throw SyscallException(strerror(rc), __FILE__, __LINE__);
+	throw ThreadSyscallException(strerror(rc), __FILE__, __LINE__);
     }
 }
 
@@ -216,7 +216,7 @@ IceUtil::Cond::signal()
     int rc = pthread_cond_signal(&_cond);
     if(rc != 0)
     {
-	throw SyscallException(strerror(rc), __FILE__, __LINE__);
+	throw ThreadSyscallException(strerror(rc), __FILE__, __LINE__);
     }
 }
 
@@ -226,7 +226,7 @@ IceUtil::Cond::broadcast()
     int rc = pthread_cond_broadcast(&_cond);
     if(rc != 0)
     {
-	throw SyscallException(strerror(rc), __FILE__, __LINE__);
+	throw ThreadSyscallException(strerror(rc), __FILE__, __LINE__);
     }
 }
 

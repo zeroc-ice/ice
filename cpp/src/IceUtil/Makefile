@@ -24,6 +24,7 @@ OBJS		= Exception.o \
 		  RWRecMutex.o \
 		  Cond.o \
 		  Thread.o \
+		  ThreadException.o \
 		  Time.o \
 		  InputUtil.o \
 		  OutputUtil.o \

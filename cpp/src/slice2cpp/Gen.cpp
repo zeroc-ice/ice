@@ -356,8 +356,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << nl << _dllExport << "virtual ::std::string ice_name() const;";
     C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_name() const";
     C << sb;
-    C << nl << "static const ::std::string name(\"" << p->scoped().substr(2) << "\");";
-    C << nl << "return name;";
+    C << nl << "return \"" << p->scoped().substr(2) << "\";";
     C << eb;
     
     if(p->isLocal())

@@ -730,17 +730,24 @@ IceInternal::errorToString(int error)
 {
     if(error < WSABASEERR)
     {
-	LPVOID lpMsgBuf;
-	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		      NULL,
-		      error,
-		      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-		      (LPTSTR)&lpMsgBuf,
-		      0,
-		      NULL);
-	string result = (LPCTSTR)lpMsgBuf;
-	LocalFree( lpMsgBuf );
-	return result;
+	LPVOID lpMsgBuf = 0;
+	DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+				 FORMAT_MESSAGE_FROM_SYSTEM |
+				 FORMAT_MESSAGE_IGNORE_INSERTS,
+				 NULL,
+				 error,
+				 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+				 (LPTSTR)&lpMsgBuf,
+				 0,
+				 NULL);
+	if(ok)
+	{
+	    LPCTSTR msg = (LPCTSTR)lpMsgBuf;
+	    assert(msg && strlen(msg) > 0);
+	    string result = msg;
+	    LocalFree(lpMsgBuf);
+	    return result;
+	}
     }
 
     switch(error)

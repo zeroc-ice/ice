@@ -57,6 +57,7 @@ LINK32=link.exe
 # ADD LINK32 rpcrt4.lib /nologo /dll /machine:I386 /out:"Release/iceutil001.dll"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
+OutDir=.\Release
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\iceutil001.* ..\..\lib
 # End Special Build Tool
@@ -89,6 +90,7 @@ LINK32=link.exe
 # ADD LINK32 rpcrt4.lib /nologo /dll /debug /machine:I386 /out:"Debug/iceutil001d.dll" /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
+OutDir=.\Debug
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\iceutil001d.* ..\..\lib
 # End Special Build Tool
@@ -133,6 +135,10 @@ SOURCE=.\RWRecMutex.cpp
 # Begin Source File
 
 SOURCE=.\Thread.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ThreadException.cpp
 # End Source File
 # Begin Source File
 
@@ -213,6 +219,10 @@ SOURCE=..\..\include\IceUtil\Shared.h
 # Begin Source File
 
 SOURCE=..\..\include\IceUtil\Thread.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\ThreadException.h
 # End Source File
 # Begin Source File
 

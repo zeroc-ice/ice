@@ -12,8 +12,8 @@
 #define ICE_UTIL_COND_H
 
 #include <IceUtil/Config.h>
-#include <IceUtil/Exception.h>
 #include <IceUtil/Time.h>
+#include <IceUtil/ThreadException.h>
 
 #ifdef _WIN32
 //
@@ -294,7 +294,7 @@ Cond::waitImpl(const M& mutex) const
     
     if(rc != 0)
     {
-	throw SyscallException(strerror(rc), __FILE__, __LINE__);
+	throw ThreadSyscallException(strerror(rc), __FILE__, __LINE__);
     }
 }
 
@@ -321,7 +321,7 @@ Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
 	//
 	if(rc != ETIMEDOUT)
 	{
-	    throw SyscallException(strerror(rc), __FILE__, __LINE__);
+	    throw ThreadSyscallException(strerror(rc), __FILE__, __LINE__);
 	}
 	return false;
     }
