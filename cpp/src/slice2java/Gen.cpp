@@ -1820,6 +1820,9 @@ Slice::Gen::generate(const UnitPtr& unit)
     DelegateMVisitor delegateMVisitor(_dir, _package);
     unit->visit(&delegateMVisitor);
 
+    DelegateDVisitor delegateDVisitor(_dir, _package);
+    unit->visit(&delegateDVisitor);
+
     DispatcherVisitor dispatcherVisitor(_dir, _package);
     unit->visit(&dispatcherVisitor);
 }
@@ -2963,7 +2966,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "protected Ice._ObjectDelD"
         << nl << "__createDelegateD()";
     out << sb;
-    out << nl << "return null;";
+    out << nl << "return new _" << name << "DelD();";
     out << eb;
 
     //
@@ -3829,7 +3832,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	// ::IceUtil::memFun(&::Slice::Exception::isLocal)); is used
 	// hence the exceptionIsLocal function.
 	//
-        remove_if(throws.begin(), throws.end(), exceptionIsLocal);
+        throws.erase(remove_if(throws.begin(), throws.end(), exceptionIsLocal), throws.end());
 
         string params = getParams(op, scope);
 
@@ -3927,6 +3930,150 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             writeMarshalUnmarshalCode(out, scope, ret, "__ret", false, iter);
             out << nl << "return __ret;";
         }
+
+        out << eb;
+    }
+
+    out << eb;
+    close();
+
+    return false;
+}
+
+Slice::Gen::DelegateDVisitor::DelegateDVisitor(const string& dir,
+                                               const string& package) :
+    JavaVisitor(dir, package)
+{
+}
+
+bool
+Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if (p->isLocal())
+    {
+        return false;
+    }
+
+    string name = fixKwd(p->name());
+    string scoped = p->scoped();
+    ClassList bases = p->bases();
+    string scope = p->scope();
+    string absolute = getAbsolute(scoped, "", "_", "DelD");
+
+    if (!open(absolute))
+    {
+        return false;
+    }
+
+    Output& out = output();
+
+    out << sp << nl << "public final class _" << name
+        << "DelD extends Ice._ObjectDelD implements _" << name << "Del";
+    out << sb;
+
+    OperationList ops = p->allOperations();
+
+    OperationList::const_iterator r;
+    for (r = ops.begin(); r != ops.end(); ++r)
+    {
+        OperationPtr op = (*r);
+        string opName = fixKwd(op->name());
+        TypePtr ret = op->returnType();
+        string retS = typeToString(ret, TypeModeReturn, scope);
+
+        TypeStringList inParams = op->inputParameters();
+        TypeStringList outParams = op->outputParameters();
+
+        ExceptionList throws = op->throws();
+        throws.sort();
+        throws.unique();
+
+	//
+	// MSVC gets confused if
+	// ::IceUtil::memFun(&::Slice::Exception::isLocal)); is used
+	// hence the exceptionIsLocal function.
+	//
+        throws.erase(remove_if(throws.begin(), throws.end(), exceptionIsLocal), throws.end());
+
+        string params = getParams(op, scope);
+        string args = getArgs(op, scope);
+
+        out << sp;
+        out << nl;
+        out << "public " << retS << nl << opName << '(' << params;
+        if (!params.empty())
+        {
+            out << ", ";
+        }
+        out << "java.util.Map __context)";
+        writeDelegateThrowsClause(scope, throws);
+        out << sb;
+	list<string> metaData = op->getMetaData();
+	bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
+        out << nl << "Ice.Current __current = new Ice.Current();";
+        out << nl << "__initCurrent(__current, \"" << op->name() << "\", " << (nonmutating ? "true" : "false")
+            << ", __context);";
+        out << nl << "while (true)";
+        out << sb;
+        out << nl << "IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);";
+        out << nl << "try";
+        out << sb;
+        out << nl << name << " __servant = null;";
+        out << nl << "try";
+        out << sb;
+        out << nl << "__servant = (" << name << ")__direct.facetServant();";
+        out << eb;
+        out << nl << "catch (ClassCastException __ex)";
+        out << sb;
+        out << nl << "throw new Ice.OperationNotExistException();";
+        out << eb;
+        out << nl << "try";
+        out << sb;
+        out << nl;
+        if (ret)
+        {
+            out << "return ";
+        }
+        out << "__servant." << opName << '(' << args;
+        if (!args.empty())
+        {
+            out << ", ";
+        }
+        out << "__current);";
+        if (!ret)
+        {
+            out << nl << "return;";
+        }
+        out << eb;
+        ExceptionList::const_iterator r;
+        for (r = throws.begin(); r != throws.end(); ++r)
+        {
+            out << nl << "catch (" << getAbsolute((*r)->scoped(), scope) << " __ex)";
+            out << sb;
+            out << nl << "throw __ex;";
+            out << eb;
+        }
+        out << nl << "catch (Ice.LocalException __ex)";
+        out << sb;
+        out << nl << "Ice.UnknownLocalException __e = new Ice.UnknownLocalException();";
+        out << nl << "__e.initCause(__ex);";
+        out << nl << "throw __e;";
+        out << eb;
+        //
+        // No need to catch UserException because it's not possible in Java
+        //
+        out << nl << "catch (RuntimeException __ex)";
+        out << sb;
+        out << nl << "Ice.UnknownException __e = new Ice.UnknownException();";
+        out << nl << "__e.initCause(__ex);";
+        out << nl << "throw __e;";
+        out << eb;
+        out << eb;
+        out << nl << "finally";
+        out << sb;
+        out << nl << "__direct.destroy();";
+        out << eb;
+        out << eb;
 
         out << eb;
     }

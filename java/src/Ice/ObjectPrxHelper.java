@@ -443,6 +443,7 @@ public class ObjectPrxHelper implements ObjectPrx
         ObjectPrxHelper h = (ObjectPrxHelper)from;
         IceInternal.Reference ref = null;
         _ObjectDelM delegateM = null;
+        _ObjectDelD delegateD = null;
 
         synchronized(from)
         {
@@ -450,6 +451,13 @@ public class ObjectPrxHelper implements ObjectPrx
             try
             {
                 delegateM = (_ObjectDelM)h._delegate;
+            }
+            catch (ClassCastException ex)
+            {
+            }
+            try
+            {
+                delegateD = (_ObjectDelD)h._delegate;
             }
             catch (ClassCastException ex)
             {
@@ -463,7 +471,13 @@ public class ObjectPrxHelper implements ObjectPrx
 
         _reference = ref;
 
-        if (delegateM != null)
+        if (delegateD != null)
+        {
+            _ObjectDelD delegate = __createDelegateD();
+            delegate.__copyFrom(delegateD);
+            _delegate = delegate;
+        }
+        else if (delegateM != null)
         {
             _ObjectDelM delegate = __createDelegateM();
             delegate.__copyFrom(delegateM);
@@ -579,9 +593,7 @@ public class ObjectPrxHelper implements ObjectPrx
     {
         if (_delegate == null)
         {
-            /* TODO: Collocated
-            ObjectAdapter adapter = _reference.instance.objectAdapterFactory().
-                findObjectAdapter(this);
+            ObjectAdapter adapter = _reference.instance.objectAdapterFactory().findObjectAdapter(this);
             if (adapter != null)
             {
                 _ObjectDelD delegate = __createDelegateD();
@@ -589,7 +601,6 @@ public class ObjectPrxHelper implements ObjectPrx
                 _delegate = delegate;
             }
             else
-            */
             {
                 _ObjectDelM delegate = __createDelegateM();
                 delegate.setup(_reference);
@@ -619,9 +630,7 @@ public class ObjectPrxHelper implements ObjectPrx
     protected _ObjectDelD
     __createDelegateD()
     {
-        // TODO: Server
-        //return new _ObjectDelD();
-        return null;
+        return new _ObjectDelD();
     }
 
     //
