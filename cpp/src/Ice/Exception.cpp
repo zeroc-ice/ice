@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Exception.h>
-#include <Ice/LocalException.h>
+#include <Ice/RuntimeException.h>
 #include <Ice/Network.h>
 #include <Ice/Stream.h>
 #include <Ice/IdentityUtil.h>
@@ -27,13 +27,13 @@ Ice::UserException::ice_marshal(const ::std::string& __name, const ::Ice::Stream
     __os->endWriteException();
 }
 
-Ice::LocalException::LocalException(const char* file, int line) :
+Ice::RuntimeException::RuntimeException(const char* file, int line) :
     Exception(file, line)
 {
 }
 
 void
-Ice::UnknownLocalException::ice_print(ostream& out) const
+Ice::UnknownRuntimeException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nunknown local exception";

@@ -80,7 +80,7 @@ public final class Outgoing
                                 if(_state == StateInProgress)
                                 {
                                     timedOut = true;
-                                    _state = StateLocalException;
+                                    _state = StateRuntimeException;
                                     _exception = new Ice.TimeoutException();
                                 }
                             }
@@ -221,7 +221,7 @@ public final class Outgoing
 
                 case DispatchStatus._DispatchObjectNotExist:
                 {
-                    _state = StateLocalException;
+                    _state = StateRuntimeException;
                     Ice.ObjectNotExistException ex = new Ice.ObjectNotExistException();
 		    ex.id = new Ice.Identity();
 		    ex.id.__read(_is);
@@ -232,7 +232,7 @@ public final class Outgoing
 
                 case DispatchStatus._DispatchFacetNotExist:
                 {
-                    _state = StateLocalException;
+                    _state = StateRuntimeException;
                     Ice.FacetNotExistException ex = new Ice.FacetNotExistException();
 		    ex.facet = _is.readStringSeq();
 		    _exception = ex;
@@ -242,7 +242,7 @@ public final class Outgoing
 
                 case DispatchStatus._DispatchOperationNotExist:
                 {
-                    _state = StateLocalException;
+                    _state = StateRuntimeException;
                     Ice.OperationNotExistException ex = new Ice.OperationNotExistException();
 		    ex.operation = _is.readString();
 		    _exception = ex;
@@ -250,17 +250,17 @@ public final class Outgoing
                     break;
                 }
 
-                case DispatchStatus._DispatchUnknownLocalException:
+                case DispatchStatus._DispatchUnknownRuntimeException:
                 {
-                    _state = StateLocalException;
-                    _exception = new Ice.UnknownLocalException();
+                    _state = StateRuntimeException;
+                    _exception = new Ice.UnknownRuntimeException();
                     _fillStackTrace = true;
                     break;
                 }
 
                 case DispatchStatus._DispatchUnknownUserException:
                 {
-                    _state = StateLocalException;
+                    _state = StateRuntimeException;
                     _exception = new Ice.UnknownUserException();
                     _fillStackTrace = true;
                     break;
@@ -268,7 +268,7 @@ public final class Outgoing
 
                 case DispatchStatus._DispatchUnknownException:
                 {
-                    _state = StateLocalException;
+                    _state = StateRuntimeException;
                     _exception = new Ice.UnknownException();
                     _fillStackTrace = true;
                     break;
@@ -276,7 +276,7 @@ public final class Outgoing
 
                 default:
                 {
-                    _state = StateLocalException;
+                    _state = StateRuntimeException;
                     _exception = new Ice.UnknownReplyStatusException();
                     _fillStackTrace = true;
                     break;
@@ -287,11 +287,11 @@ public final class Outgoing
     }
 
     public synchronized void
-    finished(Ice.LocalException ex)
+    finished(Ice.RuntimeException ex)
     {
         if(_state == StateInProgress)
         {
-            _state = StateLocalException;
+            _state = StateRuntimeException;
             _exception = ex;
             notify();
         }
@@ -364,7 +364,7 @@ public final class Outgoing
 
     private Connection _connection;
     private Reference _reference;
-    private Ice.LocalException _exception;
+    private Ice.RuntimeException _exception;
     private boolean _fillStackTrace;
 
     private static final int StateUnsent = 0;
@@ -372,7 +372,7 @@ public final class Outgoing
     private static final int StateOK = 2;
     private static final int StateLocationForward = 3;
     private static final int StateUserException = 4;
-    private static final int StateLocalException = 5;
+    private static final int StateRuntimeException = 5;
     private int _state;
 
     private BasicStream _is;

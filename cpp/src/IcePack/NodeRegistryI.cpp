@@ -35,7 +35,7 @@ IcePack::NodeRegistryI::NodeRegistryI(const Freeze::DBPtr& db,
 	{
 	    remove(p->first);
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const Ice::RuntimeException& ex)
 	{
 	}
     }
@@ -54,7 +54,7 @@ IcePack::NodeRegistryI::add(const string& name, const NodePrx& node, const Ice::
 	    p->second->ice_ping();
 	    throw NodeActiveException();
 	}
-	catch(const Ice::LocalException&)
+	catch(const Ice::RuntimeException&)
 	{
 	    //
 	    // Node not active.
@@ -155,7 +155,7 @@ IcePack::NodeRegistryI::findByName(const string& name, const Ice::Current&)
 	catch(const Ice::ObjectNotExistException&)
 	{
 	}
-	catch(const Ice::LocalException&)
+	catch(const Ice::RuntimeException&)
 	{
 	    return NodePrx::uncheckedCast(p->second);
 	}

@@ -436,7 +436,7 @@ public final class Network
                 doConnect(sink, addr, -1);
                 fds.source = doAccept(fd, -1);
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.RuntimeException ex)
             {
                 try
                 {

@@ -12,7 +12,7 @@
 #include <Ice/Object.h>
 #include <Ice/Connection.h>
 #include <Ice/Reference.h>
-#include <Ice/LocalException.h>
+#include <Ice/RuntimeException.h>
 #include <Ice/Instance.h>
 
 using namespace std;
@@ -21,15 +21,15 @@ using namespace IceInternal;
 
 IceInternal::NonRepeatable::NonRepeatable(const NonRepeatable& ex)
 {
-    _ex = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.get()->ice_clone()));
+    _ex = auto_ptr<RuntimeException>(dynamic_cast<RuntimeException*>(ex.get()->ice_clone()));
 }
 
-IceInternal::NonRepeatable::NonRepeatable(const ::Ice::LocalException& ex)
+IceInternal::NonRepeatable::NonRepeatable(const ::Ice::RuntimeException& ex)
 {
-    _ex = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
+    _ex = auto_ptr<RuntimeException>(dynamic_cast<RuntimeException*>(ex.ice_clone()));
 }
 
-const ::Ice::LocalException*
+const ::Ice::RuntimeException*
 IceInternal::NonRepeatable::get() const
 {
     assert(_ex.get());
@@ -117,8 +117,8 @@ IceInternal::Outgoing::invoke()
 			if(_state == StateInProgress)
 			{
 			    timedOut = true;
-			    _state = StateLocalException;
-			    _exception = auto_ptr<LocalException>(new TimeoutException(__FILE__, __LINE__));
+			    _state = StateRuntimeException;
+			    _exception = auto_ptr<RuntimeException>(new TimeoutException(__FILE__, __LINE__));
 			}
 		    }
 		    else
@@ -248,68 +248,68 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    
 	    case DispatchObjectNotExist:
 	    {
-		_state = StateLocalException;
+		_state = StateRuntimeException;
                 // Don't do ex->identity.read(_is), as this operation
                 // might throw exceptions. In such case ex would leak.
 		Identity ident;
 		ident.__read(&_is);
 		ObjectNotExistException* ex = new ObjectNotExistException(__FILE__, __LINE__);
 		ex->id = ident;
-		_exception = auto_ptr<LocalException>(ex);
+		_exception = auto_ptr<RuntimeException>(ex);
 		break;
 	    }
 	    
 	    case DispatchFacetNotExist:
 	    {
-		_state = StateLocalException;
+		_state = StateRuntimeException;
                 // Don't do _is.read(ex->facet), as this operation
                 // might throw exceptions. In such case ex would leak.
 		vector<string> facet;
 		_is.read(facet);
 		FacetNotExistException* ex = new FacetNotExistException(__FILE__, __LINE__);
 		ex->facet = facet;
-		_exception = auto_ptr<LocalException>(ex);
+		_exception = auto_ptr<RuntimeException>(ex);
 		break;
 	    }
 	    
 	    case DispatchOperationNotExist:
 	    {
-		_state = StateLocalException;
+		_state = StateRuntimeException;
                 // Don't do _is.read(ex->operation), as this operation
                 // might throw exceptions. In such case ex would leak.
 		string operation;
 		_is.read(operation);
 		OperationNotExistException* ex = new OperationNotExistException(__FILE__, __LINE__);
 		ex->operation = operation;
-		_exception = auto_ptr<LocalException>(ex);
+		_exception = auto_ptr<RuntimeException>(ex);
 		break;
 	    }
 	    
-	    case DispatchUnknownLocalException:
+	    case DispatchUnknownRuntimeException:
 	    {
-		_state = StateLocalException;
-		_exception = auto_ptr<LocalException>(new UnknownLocalException(__FILE__, __LINE__));
+		_state = StateRuntimeException;
+		_exception = auto_ptr<RuntimeException>(new UnknownRuntimeException(__FILE__, __LINE__));
 		break;
 	    }
 	    
 	    case DispatchUnknownUserException:
 	    {
-		_state = StateLocalException;
-		_exception = auto_ptr<LocalException>(new UnknownUserException(__FILE__, __LINE__));
+		_state = StateRuntimeException;
+		_exception = auto_ptr<RuntimeException>(new UnknownUserException(__FILE__, __LINE__));
 		break;
 	    }
 	    
 	    case DispatchUnknownException:
 	    {
-		_state = StateLocalException;
-		_exception = auto_ptr<LocalException>(new UnknownException(__FILE__, __LINE__));
+		_state = StateRuntimeException;
+		_exception = auto_ptr<RuntimeException>(new UnknownException(__FILE__, __LINE__));
 		break;
 	    }
 	    
 	    default:
 	    {
-		_state = StateLocalException;
-		_exception = auto_ptr<LocalException>(new UnknownReplyStatusException(__FILE__, __LINE__));
+		_state = StateRuntimeException;
+		_exception = auto_ptr<RuntimeException>(new UnknownReplyStatusException(__FILE__, __LINE__));
 		break;
 	    }
 	}
@@ -319,14 +319,14 @@ IceInternal::Outgoing::finished(BasicStream& is)
 }
 
 void
-IceInternal::Outgoing::finished(const LocalException& ex)
+IceInternal::Outgoing::finished(const RuntimeException& ex)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(_state == StateInProgress)
     {
-	_state = StateLocalException;
-	_exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
+	_state = StateRuntimeException;
+	_exception = auto_ptr<RuntimeException>(dynamic_cast<RuntimeException*>(ex.ice_clone()));
 	notify();
     }
 }

@@ -11,7 +11,7 @@
 #include <Ice/CommunicatorI.h>
 #include <Ice/PropertiesI.h>
 #include <Ice/Initialize.h>
-#include <Ice/LocalException.h>
+#include <Ice/RuntimeException.h>
 
 using namespace std;
 using namespace Ice;

@@ -62,7 +62,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     {
 	obj2->ice_ping();
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::RuntimeException&)
     {
 	test(false);
     }

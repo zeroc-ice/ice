@@ -21,7 +21,7 @@ TARGETS		= $(NAME) $(VERSIONED_NAME)
 OBJS		= Initialize.o \
 		  Application.o \
 		  Exception.o \
-		  LocalException.o \
+		  RuntimeException.o \
 		  Properties.o \
 		  PropertiesI.o \
 		  Logger.o \
@@ -89,7 +89,7 @@ OBJS		= Initialize.o \
 
 SRCS		= $(OBJS:.o=.cpp)
 
-SLICE_SRCS	= $(SDIR)/LocalException.ice \
+SLICE_SRCS	= $(SDIR)/RuntimeException.ice \
 		  $(SDIR)/Communicator.ice \
 		  $(SDIR)/CommunicatorF.ice \
 		  $(SDIR)/Logger.ice \
@@ -134,13 +134,13 @@ $(NAME): $(VERSIONED_NAME)
 	rm -f $@
 	ln -s $(VERSIONED_BASE) $@
 
-$(HDIR)/LocalException.h LocalException.cpp: $(SDIR)/LocalException.ice $(SLICE2CPP)
-	rm -f $(HDIR)/LocalException.h LocalException.cpp
-	$(SLICECMD) $(SDIR)/LocalException.ice
-	mv LocalException.h $(HDIR)
+$(HDIR)/RuntimeException.h RuntimeException.cpp: $(SDIR)/RuntimeException.ice $(SLICE2CPP)
+	rm -f $(HDIR)/RuntimeException.h RuntimeException.cpp
+	$(SLICECMD) $(SDIR)/RuntimeException.ice
+	mv RuntimeException.h $(HDIR)
 
 clean::
-	rm -f $(HDIR)/LocalException.h LocalException.cpp
+	rm -f $(HDIR)/RuntimeException.h RuntimeException.cpp
 
 $(HDIR)/Communicator.h Communicator.cpp: $(SDIR)/Communicator.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Communicator.h Communicator.cpp

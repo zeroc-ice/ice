@@ -11,7 +11,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Buffer.h>
 #include <Ice/Network.h>
-#include <Ice/LocalException.h>
+#include <Ice/RuntimeException.h>
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/SslTransceiver.h>
 #include <IceSSL/OpenSSLPluginI.h>
@@ -312,7 +312,7 @@ IceSSL::SslTransceiver::verifyCertificate(int preVerifyOkay, X509_STORE_CTX* x50
         {
             preVerifyOkay = verifier->verify(preVerifyOkay, x509StoreContext, _sslConnection);
         }
-        catch(const Ice::LocalException& localEx)
+        catch(const Ice::RuntimeException& localEx)
         {
             if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
             {

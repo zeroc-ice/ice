@@ -61,7 +61,7 @@ class Parser
 	{
 	    error("the book already exists.");
 	}
-	catch(Ice.LocalException ex)
+	catch(Ice.RuntimeException ex)
 	{
 	    error(ex.toString());
 	}
@@ -97,7 +97,7 @@ class Parser
 	{
 	    error(ex.message);
 	}
-	catch(Ice.LocalException ex)
+	catch(Ice.RuntimeException ex)
 	{
 	    error(ex.toString());
 	}
@@ -123,7 +123,7 @@ class Parser
 	{
 	    error(ex.message);
 	}
-	catch(Ice.LocalException ex)
+	catch(Ice.RuntimeException ex)
 	{
 	    error(ex.toString());
 	}
@@ -170,7 +170,7 @@ class Parser
 		System.out.println("no current book");
 	    }
 	}
-	catch(Ice.LocalException ex)
+	catch(Ice.RuntimeException ex)
 	{
 	    error(ex.toString());
 	}
@@ -201,7 +201,7 @@ class Parser
 	{
 	    System.out.println("the book has already been rented.");
 	}
-	catch(Ice.LocalException ex)
+	catch(Ice.RuntimeException ex)
 	{
 	    error(ex.toString());
 	}
@@ -226,7 +226,7 @@ class Parser
 	{
 	    System.out.println("the book is not currently rented.");
 	}
-	catch(Ice.LocalException ex)
+	catch(Ice.RuntimeException ex)
 	{
 	    error(ex.toString());
 	}
@@ -251,7 +251,7 @@ class Parser
 	{
 	    error(ex.message);
 	}
-	catch(Ice.LocalException ex)
+	catch(Ice.RuntimeException ex)
 	{
 	    error(ex.toString());
 	}
@@ -279,7 +279,7 @@ class Parser
 	{
 	    error(ex.message);
 	}
-	catch(Ice.LocalException ex)
+	catch(Ice.RuntimeException ex)
 	{
 	    error(ex.toString());
 	}
@@ -292,7 +292,7 @@ class Parser
 	{
 	    _library.shutdown();
 	}
-	catch(Ice.LocalException ex)
+	catch(Ice.RuntimeException ex)
 	{
 	    error(ex.toString());
 	}

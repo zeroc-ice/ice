@@ -65,7 +65,7 @@ OnewaySubscriber::publish(const Event& event)
 	std::vector< ::Ice::Byte> dummy;
 	_obj->ice_invoke(event.op, ::Ice::Idempotent, event.data, dummy, event.context);
     }
-    catch(const Ice::LocalException& e)
+    catch(const Ice::RuntimeException& e)
     {
 	IceUtil::Mutex::Lock sync(_stateMutex);
 	//

@@ -10,7 +10,7 @@
 
 #include <Ice/Network.h>
 #include <Ice/BasicStream.h>
-#include <Ice/LocalException.h>
+#include <Ice/RuntimeException.h>
 #include <Ice/ProtocolPluginFacade.h>
 #include <IceSSL/SslEndpoint.h>
 #include <IceSSL/SslAcceptor.h>

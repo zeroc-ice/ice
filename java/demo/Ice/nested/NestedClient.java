@@ -68,7 +68,7 @@ class NestedClient extends Ice.Application
             {
                 ex.printStackTrace();
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.RuntimeException ex)
             {
                 ex.printStackTrace();
             }

@@ -10,7 +10,7 @@
 
 #include <Ice/LocatorInfo.h>
 #include <Ice/Locator.h>
-#include <Ice/LocalException.h>
+#include <Ice/RuntimeException.h>
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
@@ -245,7 +245,7 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, bool& cached)
 		    endpoints = object->__reference()->endpoints;
 		}
 	    }
-	    catch(const LocalException& ex)
+	    catch(const RuntimeException& ex)
 	    {
 		//
 		// Just trace the failure. The proxy will most likely get empty

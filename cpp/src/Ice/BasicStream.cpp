@@ -17,7 +17,7 @@
 #include <Ice/ObjectFactoryManager.h>
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/UserExceptionFactoryManager.h>
-#include <Ice/LocalException.h>
+#include <Ice/RuntimeException.h>
 
 using namespace std;
 using namespace Ice;

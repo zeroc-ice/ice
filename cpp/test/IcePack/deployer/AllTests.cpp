@@ -145,7 +145,7 @@ allTestsWithTarget(const Ice::CommunicatorPtr& communicator)
 	obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server-Server1"));
 	test(false);
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::RuntimeException&)
     {
     }
     admin->startServer("Server1");

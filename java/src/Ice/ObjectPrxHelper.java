@@ -49,7 +49,7 @@ public class ObjectPrxHelper implements ObjectPrx
             {
                 __cnt = __handleException(__ex.get(), __cnt);
             }
-            catch(LocalException __ex)
+            catch(RuntimeException __ex)
             {
                 __cnt = __handleException(__ex, __cnt);
             }
@@ -82,7 +82,7 @@ public class ObjectPrxHelper implements ObjectPrx
             {
                 __cnt = __handleException(__ex.get(), __cnt);
             }
-            catch(LocalException __ex)
+            catch(RuntimeException __ex)
             {
                 __cnt = __handleException(__ex, __cnt);
             }
@@ -114,7 +114,7 @@ public class ObjectPrxHelper implements ObjectPrx
             {
                 __cnt = __handleException(__ex.get(), __cnt);
             }
-            catch(LocalException __ex)
+            catch(RuntimeException __ex)
             {
                 __cnt = __handleException(__ex, __cnt);
             }
@@ -146,7 +146,7 @@ public class ObjectPrxHelper implements ObjectPrx
             {
                 __cnt = __handleException(__ex.get(), __cnt);
             }
-            catch(LocalException __ex)
+            catch(RuntimeException __ex)
             {
                 __cnt = __handleException(__ex, __cnt);
             }
@@ -178,7 +178,7 @@ public class ObjectPrxHelper implements ObjectPrx
             {
                 __cnt = __handleException(__ex.get(), __cnt);
             }
-            catch(LocalException __ex)
+            catch(RuntimeException __ex)
             {
                 __cnt = __handleException(__ex, __cnt);
             }
@@ -218,7 +218,7 @@ public class ObjectPrxHelper implements ObjectPrx
                     __rethrowException(__ex.get());
                 }
             }
-            catch(LocalException __ex)
+            catch(RuntimeException __ex)
             {
                 __cnt = __handleException(__ex, __cnt);
             }
@@ -507,7 +507,7 @@ public class ObjectPrxHelper implements ObjectPrx
     }
 
     public final int
-    __handleException(LocalException ex, int cnt)
+    __handleException(RuntimeException ex, int cnt)
     {
 	//
 	// Only _delegate needs to be mutex protected here.
@@ -582,7 +582,7 @@ public class ObjectPrxHelper implements ObjectPrx
     }
 
     public final synchronized void
-    __rethrowException(LocalException ex)
+    __rethrowException(RuntimeException ex)
     {
         _delegate = null;
 

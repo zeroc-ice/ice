@@ -181,7 +181,7 @@ Slice::Gen::generate(const UnitPtr& unit)
 	H << "\n#include <Ice/Incoming.h>";
 	H << "\n#include <Ice/Direct.h>";
 
-	C << "\n#include <Ice/LocalException.h>";
+	C << "\n#include <Ice/RuntimeException.h>";
 	C << "\n#include <Ice/ObjectFactory.h>";
 	C << "\n#include <Ice/BasicStream.h>";
 	C << "\n#include <Ice/Stream.h>";
@@ -316,7 +316,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
 	if(p->isLocal())
 	{
-	    H << "public ::Ice::LocalException";
+	    H << "public ::Ice::RuntimeException";
 	}
 	else
 	{
@@ -342,7 +342,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	C.inc();
 	if(!base)
 	{
-	    C << nl << "::Ice::LocalException(file, line)";
+	    C << nl << "::Ice::RuntimeException(file, line)";
 	}
 	else
 	{
@@ -1285,7 +1285,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "__rethrowException(*__ex.get());";
     }
     C << eb;
-    C << nl << "catch(const ::Ice::LocalException& __ex)";
+    C << nl << "catch(const ::Ice::RuntimeException& __ex)";
     C << sb;
     C << nl << "__handleException(__ex, __cnt);";
     C << eb;
@@ -1774,7 +1774,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__);";
     C << eb;
-    C << nl << "catch(const ::Ice::LocalException&)";
+    C << nl << "catch(const ::Ice::RuntimeException&)";
     C << sb;
     C << nl << "throw;";
     C << eb;

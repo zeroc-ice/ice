@@ -47,7 +47,7 @@ interface Thrower
     void throwUndeclaredA(int a) throws B, D;
     void throwUndeclaredB(int a, int b);
     void throwUndeclaredC(int a, int b, int c) throws D;
-    void throwLocalException();
+    void throwRuntimeException();
     void throwNonIceException();
 };
 

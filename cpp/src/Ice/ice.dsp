@@ -200,7 +200,7 @@ SOURCE=.\Instance.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\LocalException.cpp
+SOURCE=.\RuntimeException.cpp
 # End Source File
 # Begin Source File
 
@@ -532,7 +532,7 @@ SOURCE=..\..\include\Ice\InstanceF.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\LocalException.h
+SOURCE=..\..\include\Ice\RuntimeException.h
 # End Source File
 # Begin Source File
 
@@ -1094,24 +1094,24 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\Ice\LocalException.ice
+SOURCE=..\..\slice\Ice\RuntimeException.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
 USERDEP__LOCAL="../../bin/slice2cpp.exe"	
 # Begin Custom Build
-InputPath=..\..\slice\Ice\LocalException.ice
+InputPath=..\..\slice\Ice\RuntimeException.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/LocalException.ice \
-	move LocalException.h ..\..\include\Ice \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RuntimeException.ice \
+	move RuntimeException.h ..\..\include\Ice \
 	
 
-"..\..\include\Ice\LocalException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\Ice\RuntimeException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"LocalException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"RuntimeException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -1119,18 +1119,18 @@ BuildCmds= \
 
 USERDEP__LOCAL="../../bin/slice2cpp.exe"	
 # Begin Custom Build
-InputPath=..\..\slice\Ice\LocalException.ice
+InputPath=..\..\slice\Ice\RuntimeException.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/LocalException.ice \
-	move LocalException.h ..\..\include\Ice \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RuntimeException.ice \
+	move RuntimeException.h ..\..\include\Ice \
 	
 
-"..\..\include\Ice\LocalException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\Ice\RuntimeException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"LocalException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"RuntimeException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

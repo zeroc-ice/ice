@@ -60,7 +60,7 @@ public abstract class Application
             }
             status = run(argHolder.value);
         }
-        catch(LocalException ex)
+        catch(RuntimeException ex)
         {
             System.err.println(_appName + ": " + ex);
             ex.printStackTrace();
@@ -79,7 +79,7 @@ public abstract class Application
             {
                 _communicator.destroy();
             }
-            catch(LocalException ex)
+            catch(RuntimeException ex)
             {
                 System.err.println(_appName + ": " + ex);
                 ex.printStackTrace();

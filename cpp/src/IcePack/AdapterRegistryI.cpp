@@ -42,7 +42,7 @@ IcePack::AdapterRegistryI::add(const string& name, const AdapterPrx& adapter, co
 
 	    return;
 	}
-	catch(const Ice::LocalException&)
+	catch(const Ice::RuntimeException&)
 	{
 	}
 	throw AdapterExistsException();
@@ -88,7 +88,7 @@ IcePack::AdapterRegistryI::findByName(const string& name, const Ice::Current&)
 	{
 	    _dict.erase(p);
 	}
-	catch(const Ice::LocalException&)
+	catch(const Ice::RuntimeException&)
 	{
 	    return AdapterPrx::uncheckedCast(p->second);
 	}

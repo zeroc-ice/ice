@@ -79,7 +79,7 @@ OnewayBatchSubscriber::flush()
     {
 	_obj->ice_flush();
     }
-    catch(const Ice::LocalException& e)
+    catch(const Ice::RuntimeException& e)
     {
 	IceUtil::Mutex::Lock sync(_stateMutex);
 	//

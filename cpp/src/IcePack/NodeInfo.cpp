@@ -59,7 +59,7 @@ IcePack::NodeInfo::getAdapterRegistry() const
 	return AdapterRegistryPrx::checkedCast(
 	    _communicator->stringToProxy("IcePack/AdapterRegistry@IcePack.Registry.Internal"));
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::RuntimeException& ex)
     {
 	return 0;
     }
@@ -73,7 +73,7 @@ IcePack::NodeInfo::getServerRegistry() const
 	return ServerRegistryPrx::checkedCast(
 	    _communicator->stringToProxy("IcePack/ServerRegistry@IcePack.Registry.Internal"));
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::RuntimeException& ex)
     {
 	return 0;
     }
@@ -89,7 +89,7 @@ IcePack::NodeInfo::getYellowQuery() const
     {
 	return Yellow::QueryPrx::checkedCast(_communicator->stringToProxy("Yellow/Query@Yellow.Query"));
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::RuntimeException& ex)
     {
 	return 0;
     }
@@ -105,7 +105,7 @@ IcePack::NodeInfo::getYellowAdmin() const
     {
 	return Yellow::AdminPrx::checkedCast(_communicator->stringToProxy("Yellow/Admin@Yellow.Admin"));
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::RuntimeException& ex)
     {
 	return 0;
     }

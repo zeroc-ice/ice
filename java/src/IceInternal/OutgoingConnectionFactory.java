@@ -61,7 +61,7 @@ public class OutgoingConnectionFactory
         Ice.Logger logger = _instance.logger();
 
         Connection connection = null;
-        Ice.LocalException exception = null;
+        Ice.RuntimeException exception = null;
         for(int i = 0; i < endpoints.length; i++)
         {
   	    Endpoint endpoint = endpoints[i];

@@ -14,7 +14,7 @@
 #include <Ice/Properties.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Initialize.h>
-#include <Ice/LocalException.h>
+#include <Ice/RuntimeException.h>
 
 using namespace std;
 using namespace Ice;

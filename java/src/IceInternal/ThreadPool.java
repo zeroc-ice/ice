@@ -591,7 +591,7 @@ public final class ThreadPool
 		    {
 			handler.finished(this);
 		    }
-		    catch(Ice.LocalException ex)
+		    catch(Ice.RuntimeException ex)
 		    {
 			java.io.StringWriter sw = new java.io.StringWriter();
 			java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -627,7 +627,7 @@ public final class ThreadPool
                             {
                                 continue repeatSelect;
                             }
-                            catch(Ice.LocalException ex)
+                            catch(Ice.RuntimeException ex)
                             {
                                 if(TRACE_EXCEPTION)
                                 {
@@ -898,7 +898,7 @@ public final class ThreadPool
             {
 		ThreadPool.this.run(stream);
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.RuntimeException ex)
             {
                 java.io.StringWriter sw = new java.io.StringWriter();
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);

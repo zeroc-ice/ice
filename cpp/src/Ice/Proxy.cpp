@@ -27,7 +27,7 @@
 #include <Ice/RouterInfo.h>
 #include <Ice/LocatorInfo.h>
 #include <Ice/BasicStream.h>
-#include <Ice/LocalException.h>
+#include <Ice/RuntimeException.h>
 #include <Ice/Functional.h>
 
 #include <Ice/Locator.h>
@@ -135,7 +135,7 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	{
 	    __handleException(*__ex.get(), __cnt);
 	}
-	catch(const LocalException& __ex)
+	catch(const RuntimeException& __ex)
 	{
 	    __handleException(__ex, __cnt);
 	}
@@ -162,7 +162,7 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
 	{
 	    __handleException(*__ex.get(), __cnt);
 	}
-	catch(const LocalException& __ex)
+	catch(const RuntimeException& __ex)
 	{
 	    __handleException(__ex, __cnt);
 	}
@@ -188,7 +188,7 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
 	{
 	    __handleException(*__ex.get(), __cnt);
 	}
-	catch(const LocalException& __ex)
+	catch(const RuntimeException& __ex)
 	{
 	    __handleException(__ex, __cnt);
 	}
@@ -214,7 +214,7 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
 	{
 	    __handleException(*__ex.get(), __cnt);
 	}
-	catch(const LocalException& __ex)
+	catch(const RuntimeException& __ex)
 	{
 	    __handleException(__ex, __cnt);
 	}
@@ -240,7 +240,7 @@ IceProxy::Ice::Object::ice_facets(const Context& __context)
 	{
 	    __handleException(*__ex.get(), __cnt);
 	}
-	catch(const LocalException& __ex)
+	catch(const RuntimeException& __ex)
 	{
 	    __handleException(__ex, __cnt);
 	}
@@ -278,7 +278,7 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 		__rethrowException(*__ex.get());
 	    }
 	}
-	catch(const LocalException& __ex)
+	catch(const RuntimeException& __ex)
 	{
 	    __handleException(__ex, __cnt);
 	}
@@ -563,7 +563,7 @@ IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
 }
 
 void
-IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
+IceProxy::Ice::Object::__handleException(const RuntimeException& ex, int& cnt)
 {
     //
     // Only _delegate needs to be mutex protected here.
@@ -662,7 +662,7 @@ IceProxy::Ice::Object::__locationForward(const LocationForward& ex)
 }
 
 void
-IceProxy::Ice::Object::__rethrowException(const LocalException& ex)
+IceProxy::Ice::Object::__rethrowException(const RuntimeException& ex)
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -943,7 +943,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 		assert(__connection);
 		__connection->incProxyUsageCount();
 	    }
-	    catch(const LocalException& ex)
+	    catch(const RuntimeException& ex)
 	    {
 		if(!__reference->routerInfo && __reference->endpoints.empty())
 		{	
@@ -1056,9 +1056,9 @@ IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	{
 	    return __direct.facetServant()->ice_isA(__id, __current);
 	}
-	catch(const LocalException&)
+	catch(const RuntimeException&)
 	{
-	    throw UnknownLocalException(__FILE__, __LINE__);
+	    throw UnknownRuntimeException(__FILE__, __LINE__);
 	}
 	catch(const UserException&)
 	{
@@ -1085,9 +1085,9 @@ IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context& __context)
 	    __direct.facetServant()->ice_ping(__current);
 	    return;
 	}
-	catch(const LocalException&)
+	catch(const RuntimeException&)
 	{
-	    throw UnknownLocalException(__FILE__, __LINE__);
+	    throw UnknownRuntimeException(__FILE__, __LINE__);
 	}
 	catch(const UserException&)
 	{
@@ -1112,9 +1112,9 @@ IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context& __context)
 	{
 	    return __direct.facetServant()->ice_ids(__current);
 	}
-	catch(const LocalException&)
+	catch(const RuntimeException&)
 	{
-	    throw UnknownLocalException(__FILE__, __LINE__);
+	    throw UnknownRuntimeException(__FILE__, __LINE__);
 	}
 	catch(const UserException&)
 	{
@@ -1140,9 +1140,9 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context& __context)
 	{
 	    return __direct.facetServant()->ice_id(__current);
 	}
-	catch(const LocalException&)
+	catch(const RuntimeException&)
 	{
-	    throw UnknownLocalException(__FILE__, __LINE__);
+	    throw UnknownRuntimeException(__FILE__, __LINE__);
 	}
 	catch(const UserException&)
 	{
@@ -1168,9 +1168,9 @@ IceDelegateD::Ice::Object::ice_facets(const ::Ice::Context& __context)
 	{
 	    return __direct.facetServant()->ice_facets(__current);
 	}
-	catch(const LocalException&)
+	catch(const RuntimeException&)
 	{
-	    throw UnknownLocalException(__FILE__, __LINE__);
+	    throw UnknownRuntimeException(__FILE__, __LINE__);
 	}
 	catch(const UserException&)
 	{
@@ -1207,9 +1207,9 @@ IceDelegateD::Ice::Object::ice_invoke(const string& operation,
 	{
 	    return __servant->ice_invoke(inParams, outParams, current);
 	}
-	catch(const LocalException&)
+	catch(const RuntimeException&)
 	{
-	    throw UnknownLocalException(__FILE__, __LINE__);
+	    throw UnknownRuntimeException(__FILE__, __LINE__);
 	}
 	catch(const UserException&)
 	{

@@ -152,7 +152,7 @@ class CallbackClient extends Ice.Application
         }
         // If we use the glacier router, the exact exception reason gets
         // lost.
-        catch(Ice.UnknownLocalException ex)
+        catch(Ice.UnknownRuntimeException ex)
         {
             System.out.println("ok");
         }

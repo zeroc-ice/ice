@@ -156,7 +156,7 @@ public class Client
             {
                 ex.printStackTrace();
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.RuntimeException ex)
             {
                 ex.printStackTrace();
             }
@@ -179,7 +179,7 @@ public class Client
             communicator = Ice.Util.initializeWithProperties(args, properties);
             status = run(args, communicator);
         }
-        catch(Ice.LocalException ex)
+        catch(Ice.RuntimeException ex)
         {
             ex.printStackTrace();
             status = 1;
@@ -191,7 +191,7 @@ public class Client
             {
                 communicator.destroy();
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.RuntimeException ex)
             {
                 ex.printStackTrace();
                 status = 1;

@@ -93,7 +93,7 @@ LinkSubscriber::publish(const Event& event)
 	    out << _obj->ice_getIdentity() << ": link topic publish failed: " << e;
 	}
     }
-    catch(const Ice::LocalException& e)
+    catch(const Ice::RuntimeException& e)
     {
 	if(_traceLevels->subscriber > 0)
 	{
@@ -124,7 +124,7 @@ LinkSubscriber::flush()
 	    out << _obj->ice_getIdentity() << ": link topic flush failed: " << e;
 	}
     }
-    catch(const Ice::LocalException& e)
+    catch(const Ice::RuntimeException& e)
     {
 	if(_traceLevels->subscriber > 0)
 	{

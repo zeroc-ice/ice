@@ -1233,7 +1233,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         if(p->isLocal())
         {
-            out << "Ice.LocalException";
+            out << "Ice.RuntimeException";
         }
         else
         {
@@ -2053,7 +2053,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "__rethrowException(__ex.get());";
         }
         out << eb;
-        out << nl << "catch(Ice.LocalException __ex)";
+        out << nl << "catch(Ice.RuntimeException __ex)";
         out << sb;
         out << nl << "__cnt = __handleException(__ex, __cnt);";
         out << eb;
@@ -3192,11 +3192,11 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // No need to catch Ice.UserException because it's not possible in Java
         //
-        out << nl << "catch(Ice.LocalException __ex)";
+        out << nl << "catch(Ice.RuntimeException __ex)";
         out << sb;
         out << nl << "throw __ex;";
         out << eb;
-        out << nl << "catch(RuntimeException __ex)";
+        out << nl << "catch(java.lang.RuntimeException __ex)";
         out << sb;
         out << nl << "Ice.UnknownException __e = new Ice.UnknownException();";
         out << nl << "__e.initCause(__ex);";

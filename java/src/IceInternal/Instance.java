@@ -188,7 +188,7 @@ public class Instance
 
             _bufferManager = new BufferManager(); // Must be created before the ThreadPool
         }
-        catch(Ice.LocalException ex)
+        catch(Ice.RuntimeException ex)
         {
             destroy();
             throw ex;

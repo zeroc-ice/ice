@@ -131,7 +131,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             stopAll();
             return 1;
         }
-        catch(Ice.LocalException ex)
+        catch(Ice.RuntimeException ex)
         {
             java.io.StringWriter sw = new java.io.StringWriter();
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);

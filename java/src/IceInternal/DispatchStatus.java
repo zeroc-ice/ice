@@ -27,8 +27,8 @@ public final class DispatchStatus
     public static final DispatchStatus DispatchFacetNotExist = new DispatchStatus(_DispatchFacetNotExist);
     public static final int _DispatchOperationNotExist = 5;
     public static final DispatchStatus DispatchOperationNotExist = new DispatchStatus(_DispatchOperationNotExist);
-    public static final int _DispatchUnknownLocalException = 6;
-    public static final DispatchStatus DispatchUnknownLocalException = new DispatchStatus(_DispatchUnknownLocalException);
+    public static final int _DispatchUnknownRuntimeException = 6;
+    public static final DispatchStatus DispatchUnknownRuntimeException = new DispatchStatus(_DispatchUnknownRuntimeException);
     public static final int _DispatchUnknownUserException = 7;
     public static final DispatchStatus DispatchUnknownUserException = new DispatchStatus(_DispatchUnknownUserException);
     public static final int _DispatchUnknownException = 8;

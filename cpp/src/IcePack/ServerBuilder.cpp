@@ -52,7 +52,7 @@ public:
 	    ex.reason = os.str();
 	    throw ex;
 	}
-	catch(const Ice::LocalException& lex)
+	catch(const Ice::RuntimeException& lex)
 	{
 	    ostringstream os;
 	    os << "couldn't contact the server registry:\n" << lex << endl;
@@ -81,7 +81,7 @@ public:
 	    ex.reason = os.str();
 	    throw ex;
 	}
-	catch(const Ice::LocalException& lex)
+	catch(const Ice::RuntimeException& lex)
 	{
 	    ostringstream os;
 	    os << "couldn't contact the server registry:\n" << lex;
@@ -131,7 +131,7 @@ public:
 	    ex.reason = os.str();
 	    throw ex;
 	}
-	catch(const Ice::LocalException& lex)
+	catch(const Ice::RuntimeException& lex)
 	{
 	    ostringstream os;
 	    os << "couldn't contact the adapter registry: " << lex << endl;
@@ -160,7 +160,7 @@ public:
 	    ex.reason = os.str();
 	    throw ex;
 	}
-	catch(const Ice::LocalException& lex)
+	catch(const Ice::RuntimeException& lex)
 	{
 	    ostringstream os;
 	    os << "couldn't contact the adapter registry:\n" << lex;
@@ -465,7 +465,7 @@ IcePack::ServerBuilder::undo()
 		ex.reason = os.str();
 		throw ex;
 	    }
-	    catch(const Ice::LocalException& lex)
+	    catch(const Ice::RuntimeException& lex)
 	    {
 		ostringstream os;
 		os << "couldn't contact the server registry:\n" << lex;
@@ -488,7 +488,7 @@ IcePack::ServerBuilder::undo()
     {	
 	_server->destroy();
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::RuntimeException&)
     {
 	//
 	// This shouldn't happen. TODO: print a warning if this

@@ -11,7 +11,7 @@
 #include <Ice/Object.h>
 #include <Ice/Communicator.h>
 #include <Ice/Logger.h>
-#include <Ice/LocalException.h>
+#include <Ice/RuntimeException.h>
 #include <Ice/ObjectFactory.h>
 
 #include <IceXML/StreamI.h>

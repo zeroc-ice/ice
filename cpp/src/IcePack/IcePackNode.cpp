@@ -226,7 +226,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Free
 	out << "a node with the same name is already registered and active";
 	throw;
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::RuntimeException& ex)
     {
 	Ice::Error out(communicator->getLogger());
 	out << "couldn't contact the IcePack registry:";
@@ -254,7 +254,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Free
 	{
 	    admin = AdminPrx::checkedCast(communicator->stringToProxy("IcePack/Admin@IcePack.Registry.Admin"));
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const Ice::RuntimeException& ex)
 	{
 	    Ice::Warning out(communicator->getLogger());
 	    out << "couldn't contact IcePack admin interface to deploy application `" << descriptor << "':";
@@ -279,7 +279,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Free
 		out << "failed to deploy application `" << descriptor << "':\n";
 		out << ex << ": " << ex.component << ": " << ex.reason;
 	    }
-	    catch(const Ice::LocalException& ex)
+	    catch(const Ice::RuntimeException& ex)
 	    {
 		Ice::Warning out(communicator->getLogger());
 		out << "failed to deploy application `" << descriptor << "':\n";

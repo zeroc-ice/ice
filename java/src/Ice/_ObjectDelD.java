@@ -27,13 +27,13 @@ public class _ObjectDelD implements _ObjectDel
                 {
                     return __direct.facetServant().ice_isA(__id, __current);
                 }
-                catch(LocalException ex)
+                catch(RuntimeException ex)
                 {
-                    UnknownLocalException e = new UnknownLocalException();
+                    UnknownRuntimeException e = new UnknownRuntimeException();
                     e.initCause(ex);
                     throw e;
                 }
-                catch(RuntimeException ex)
+                catch(java.lang.RuntimeException ex)
                 {
                     UnknownException e = new UnknownException();
                     e.initCause(ex);
@@ -63,13 +63,13 @@ public class _ObjectDelD implements _ObjectDel
                     __direct.facetServant().ice_ping(__current);
                     return;
                 }
-                catch(LocalException ex)
+                catch(RuntimeException ex)
                 {
-                    UnknownLocalException e = new UnknownLocalException();
+                    UnknownRuntimeException e = new UnknownRuntimeException();
                     e.initCause(ex);
                     throw e;
                 }
-                catch(RuntimeException ex)
+                catch(java.lang.RuntimeException ex)
                 {
                     UnknownException e = new UnknownException();
                     e.initCause(ex);
@@ -98,13 +98,13 @@ public class _ObjectDelD implements _ObjectDel
                 {
                     return __direct.facetServant().ice_ids(__current);
                 }
-                catch(LocalException ex)
+                catch(RuntimeException ex)
                 {
-                    UnknownLocalException e = new UnknownLocalException();
+                    UnknownRuntimeException e = new UnknownRuntimeException();
                     e.initCause(ex);
                     throw e;
                 }
-                catch(RuntimeException ex)
+                catch(java.lang.RuntimeException ex)
                 {
                     UnknownException e = new UnknownException();
                     e.initCause(ex);
@@ -133,13 +133,13 @@ public class _ObjectDelD implements _ObjectDel
                 {
                     return __direct.facetServant().ice_id(__current);
                 }
-                catch(LocalException ex)
+                catch(RuntimeException ex)
                 {
-                    UnknownLocalException e = new UnknownLocalException();
+                    UnknownRuntimeException e = new UnknownRuntimeException();
                     e.initCause(ex);
                     throw e;
                 }
-                catch(RuntimeException ex)
+                catch(java.lang.RuntimeException ex)
                 {
                     UnknownException e = new UnknownException();
                     e.initCause(ex);
@@ -168,13 +168,13 @@ public class _ObjectDelD implements _ObjectDel
                 {
                     return __direct.facetServant().ice_facets(__current);
                 }
-                catch(LocalException ex)
+                catch(RuntimeException ex)
                 {
-                    UnknownLocalException e = new UnknownLocalException();
+                    UnknownRuntimeException e = new UnknownRuntimeException();
                     e.initCause(ex);
                     throw e;
                 }
-                catch(RuntimeException ex)
+                catch(java.lang.RuntimeException ex)
                 {
                     UnknownException e = new UnknownException();
                     e.initCause(ex);
@@ -215,13 +215,13 @@ public class _ObjectDelD implements _ObjectDel
                 {
                     return __servant.ice_invoke(inParams, outParams, current);
                 }
-                catch(LocalException ex)
+                catch(RuntimeException ex)
                 {
-                    UnknownLocalException e = new UnknownLocalException();
+                    UnknownRuntimeException e = new UnknownRuntimeException();
                     e.initCause(ex);
                     throw e;
                 }
-                catch(RuntimeException ex)
+                catch(java.lang.RuntimeException ex)
                 {
                     UnknownException e = new UnknownException();
                     e.initCause(ex);

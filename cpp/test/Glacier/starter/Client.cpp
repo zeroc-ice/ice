@@ -190,7 +190,7 @@ CallbackClient::run(int argc, char* argv[])
     }
     // If we use the glacier router, the exact exception reason gets
     // lost.
-    catch(const UnknownLocalException&)
+    catch(const UnknownRuntimeException&)
     {
 	cout << "ok" << endl;
     }

@@ -28,7 +28,7 @@
 namespace Ice
 {
 
-class LocalException;
+class RuntimeException;
 
 }
 
@@ -65,7 +65,7 @@ public:
     virtual void read(BasicStream&);
     virtual void message(BasicStream&, const ThreadPoolPtr&);
     virtual void finished(const ThreadPoolPtr&);
-    virtual void exception(const ::Ice::LocalException&);
+    virtual void exception(const ::Ice::RuntimeException&);
     virtual std::string toString() const;
 
 private:
@@ -89,7 +89,7 @@ private:
 	StateClosed
     };
 
-    void setState(State, const ::Ice::LocalException&);
+    void setState(State, const ::Ice::RuntimeException&);
     void setState(State);
     void validateConnection() const;
     void closeConnection() const;
@@ -110,7 +110,7 @@ private:
     ::Ice::Int _nextRequestId;
     std::map< ::Ice::Int, Outgoing*> _requests;
     std::map< ::Ice::Int, Outgoing*>::iterator _requestsHint;
-    std::auto_ptr< ::Ice::LocalException> _exception;
+    std::auto_ptr< ::Ice::RuntimeException> _exception;
     BasicStream _batchStream;
     int _responseCount;
     int _proxyUsageCount;

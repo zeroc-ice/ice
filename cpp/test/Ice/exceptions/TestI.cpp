@@ -118,7 +118,7 @@ ThrowerI::throwUndeclaredC(Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Curren
 }
 
 void
-ThrowerI::throwLocalException(const Ice::Current&)
+ThrowerI::throwRuntimeException(const Ice::Current&)
 {
     throw Ice::TimeoutException(__FILE__, __LINE__);
 }

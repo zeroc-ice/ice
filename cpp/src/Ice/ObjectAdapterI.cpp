@@ -19,7 +19,7 @@
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/ConnectionFactory.h>
 #include <Ice/RouterInfo.h>
-#include <Ice/LocalException.h>
+#include <Ice/RuntimeException.h>
 #include <Ice/Properties.h>
 #include <Ice/Functional.h>
 #include <Ice/LocatorInfo.h>

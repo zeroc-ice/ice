@@ -343,7 +343,7 @@ public class Client
 		System.err.println(args[0] + ": " + ex + ": " + ex.message);
 		status = 1;
 	    }
-	    catch(Ice.LocalException ex)
+	    catch(Ice.RuntimeException ex)
 	    {
 		System.err.println(args[0] + ": " + ex);
 		status = 1;

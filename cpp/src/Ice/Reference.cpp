@@ -10,7 +10,7 @@
 
 #include <Ice/Reference.h>
 #include <Ice/ReferenceFactory.h>
-#include <Ice/LocalException.h>
+#include <Ice/RuntimeException.h>
 #include <Ice/Instance.h>
 #include <Ice/IdentityUtil.h>
 #include <Ice/Endpoint.h>

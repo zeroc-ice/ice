@@ -13,7 +13,7 @@
 #include <Ice/ServantLocator.h>
 #include <Ice/Reference.h>
 #include <Ice/Object.h>
-#include <Ice/LocalException.h>
+#include <Ice/RuntimeException.h>
 
 using namespace std;
 using namespace Ice;
