@@ -71,7 +71,7 @@ public final class Incoming
             {
                 if (facet.length() > 0)
                 {
-                    Ice.Object facetServant = servant._findFacet(facet);
+                    Ice.Object facetServant = servant.ice_findFacet(facet);
                     if (facetServant == null)
                     {
                         _os.writeByte(

@@ -18,39 +18,39 @@ public abstract class Object
     }
 
     public final int
-    _hash()
+    ice_hash()
     {
         // TODO: replace with hashCode? Call hashCode?
         return 0;
     }
 
     public boolean
-    _isA(String s)
+    ice_isA(String s)
     {
         return s.equals("::Ice::Object");
     }
 
     public void
-    _ping()
+    ice_ping()
     {
         // Nothing to do
     }
 
     public final IceInternal.DispatchStatus
-    ____isA(IceInternal.Incoming __in)
+    ___ice_isA(IceInternal.Incoming __in)
     {
         Stream __is = __in.is();
         Stream __os = __in.os();
         String s = __is.readString();
-        boolean __ret = _isA(s);
+        boolean __ret = ice_isA(s);
         __os.writeBoolean(__ret);
         return IceInternal.DispatchStatus.DispatchOK;
     }
 
     public final IceInternal.DispatchStatus
-    ____ping(IceInternal.Incoming __in)
+    ___ice_ping(IceInternal.Incoming __in)
     {
-        _ping();
+        ice_ping();
         return IceInternal.DispatchStatus.DispatchOK;
     }
 
@@ -59,8 +59,8 @@ public abstract class Object
 
     public static String[] __all =
     {
-        "_isA",
-        "_ping"
+        "ice_isA",
+        "ice_ping"
     };
 
     public IceInternal.DispatchStatus
@@ -76,11 +76,11 @@ public abstract class Object
         {
             case 0:
             {
-                return ____isA(in);
+                return ___ice_isA(in);
             }
             case 1:
             {
-                return ____ping(in);
+                return ___ice_ping(in);
             }
         }
 
@@ -136,7 +136,7 @@ public abstract class Object
     }
 
     public final void
-    _addFacet(Object facet, String name)
+    ice_addFacet(Object facet, String name)
     {
         synchronized(_activeFacetMapMutex)
         {
@@ -145,7 +145,7 @@ public abstract class Object
     }
 
     public final void
-    _removeFacet(String name)
+    ice_removeFacet(String name)
     {
         synchronized(_activeFacetMapMutex)
         {
@@ -154,7 +154,7 @@ public abstract class Object
     }
 
     public final void
-    _removeAllFacets()
+    ice_removeAllFacets()
     {
         synchronized(_activeFacetMapMutex)
         {
@@ -163,7 +163,7 @@ public abstract class Object
     }
 
     public final Object
-    _findFacet(String name)
+    ice_findFacet(String name)
     {
         synchronized(_activeFacetMapMutex)
         {

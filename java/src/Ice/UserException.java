@@ -13,7 +13,7 @@ package Ice;
 public abstract class UserException extends Exception
 {
     public abstract String
-    _name();
+    ice_name();
 
     public abstract String[]
     __getExceptionIds();
