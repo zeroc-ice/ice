@@ -186,6 +186,10 @@ wish to build Ice in this configuration, you must first edit the file
 #       define _WIN32_WINNT 0x0400
 #   endif
 
+On Windows 98, Windows 98 SE and Windows ME, we also recommend to
+increase the number of connections supported by TCP/IP (to 500
+for example). See MaxConnections at
+http://support.microsoft.com/default.aspx?scid=kb;EN-US;158474
 
 ======================================================================
 Installation

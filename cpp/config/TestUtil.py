@@ -74,6 +74,15 @@ def isWin32():
     else:
         return 0
 
+def isWin9x():
+
+    if isWin32():
+        if os.environ.has_key("OS") and os.environ["OS"] == "Windows_NT":
+           return 0
+        return 1
+    else:
+        return 0
+
 def isSolaris():
 
     if sys.platform == "sunos5":

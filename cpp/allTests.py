@@ -23,6 +23,9 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
 else:
     raise "can't find toplevel directory!"
 
+sys.path.append(os.path.join(toplevel, "config"))
+import TestUtil
+
 def runTests(tests, num = 0):
 
     #
@@ -39,7 +42,11 @@ def runTests(tests, num = 0):
 	print "*** running tests in " + dir,
 	print
 
-	status = os.system(os.path.join(dir, "run.py"))
+        if TestUtil.isWin9x():
+	    status = os.system("python " + os.path.join(dir, "run.py"))
+        else:
+            status = os.system(os.path.join(dir, "run.py"))
+
 	if status:
 	    if(num > 0):
 		print "[" + str(num) + "]",
@@ -80,9 +87,16 @@ tests = [ \
     "FreezeScript/dbmap", \
     "FreezeScript/evictor", \
     "Glacier/starter", \
-    "IcePack/simple", \
-    "IcePack/deployer", \
     ]
+
+#
+# IcePack is currently disabled on Win9x
+#
+if TestUtil.isWin9x() == 0:
+    tests += [ \
+        "IcePack/simple", \
+        "IcePack/deployer", \
+        ]
 
 def usage():
     print "usage: " + sys.argv[0] + " [-l]"
