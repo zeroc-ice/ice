@@ -10,9 +10,7 @@ ICE_LICENSE file included in this distribution.
 This example demonstrates the use of a Glacier2 router and the
 implementation of a Glacier2 session server.
 
-To run the demo:
-
-Start the server:
+To run the demo, first start the server:
 
 $ ./server.exe
 
