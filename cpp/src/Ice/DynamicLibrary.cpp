@@ -36,6 +36,12 @@ IceInternal::DynamicLibrary::DynamicLibrary()
 
 IceInternal::DynamicLibrary::~DynamicLibrary()
 {
+    /*
+     * Closing the library here can cause a crash at program exit if
+     * the application holds references to library resources in global
+     * or static variables. Instead, we let the process discard the
+     * library.
+     *
     if(_hnd != 0)
     {
 #ifdef _WIN32
@@ -44,6 +50,7 @@ IceInternal::DynamicLibrary::~DynamicLibrary()
         dlclose(_hnd);
 #endif
     }
+    */
 }
 
 IceInternal::DynamicLibrary::symbol_type
