@@ -13,6 +13,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Time.h>
+#include <IceUtil/Thread.h> // For ThreadPerConnection.
 #include <Ice/Connection.h>
 #include <Ice/ConnectionIF.h>
 #include <Ice/ConnectionFactoryF.h>
@@ -56,6 +57,7 @@ public:
     bool isDestroyed() const;
     bool isFinished() const;
 
+    void waitUntilValidated() const;
     void waitUntilHolding() const;
     void waitUntilFinished(); // Not const, as this might close the connection upon timeout.
 
@@ -125,6 +127,26 @@ private:
 
     static void doCompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
     static void doUncompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
+
+    void parseMessage(IceInternal::BasicStream&, Int&, Int&, Byte&,
+		      IceInternal::ServantManagerPtr&, ObjectAdapterPtr&, IceInternal::OutgoingAsyncPtr&);
+    void invokeAll(IceInternal::BasicStream&, Int, Int, Byte,
+		   const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
+
+    void run();
+
+    class ThreadPerConnection : public IceUtil::Thread
+    {
+    public:
+	
+	ThreadPerConnection(const ConnectionIPtr&);
+	virtual void run();
+
+    private:
+	
+	ConnectionIPtr _connection;
+    };
+    friend class ThreadPerConnection;
 
     IceInternal::TransceiverPtr _transceiver;
     const std::string _desc;

@@ -27,10 +27,11 @@ class Buffer;
 class ICE_PROTOCOL_API Transceiver : public ::IceUtil::Shared
 {
 public:
-
+    
     virtual SOCKET fd() = 0;
     virtual void close() = 0;
-    virtual void shutdown() = 0;
+    virtual void shutdownWrite() = 0;
+    virtual void shutdownReadWrite() = 0;
     virtual void write(Buffer&, int) = 0;
     virtual void read(Buffer&, int) = 0;
     virtual std::string type() const = 0;

@@ -92,12 +92,12 @@ IceSSL::SslTransceiver::close()
 }
 
 void
-IceSSL::SslTransceiver::shutdown()
+IceSSL::SslTransceiver::shutdownWrite()
 {
     if(_traceLevels->network >= 2)
     {
  	Trace out(_logger, _traceLevels->networkCat);
-	out << "shutting down ssl connection\n" << toString();
+	out << "shutting down ssl connection for writing\n" << toString();
     }
 
     int shutdown = 0;
@@ -111,7 +111,30 @@ IceSSL::SslTransceiver::shutdown()
     while((shutdown == 0) && (retries < 0));
 
     assert(_fd != INVALID_SOCKET);
-    shutdownSocket(_fd);
+    shutdownSocketWrite(_fd);
+}
+
+void
+IceSSL::SslTransceiver::shutdownReadWrite()
+{
+    if(_traceLevels->network >= 2)
+    {
+ 	Trace out(_logger, _traceLevels->networkCat);
+	out << "shutting down ssl connection for reading and writing\n" << toString();
+    }
+
+    int shutdown = 0;
+    int numRetries = 100;
+    int retries = -numRetries;
+    do
+    {
+        shutdown = internalShutdown();
+        retries++;
+    }
+    while((shutdown == 0) && (retries < 0));
+
+    assert(_fd != INVALID_SOCKET);
+    shutdownSocketReadWrite(_fd);
 }
 
 void
@@ -497,7 +520,7 @@ IceSSL::SslTransceiver::internalShutdown(int timeout)
     if(retCode == 1)
     {
         // Shutdown successful - shut down the socket for writing.
-	shutdownSocket(SSL_get_fd(_sslConnection));
+	shutdownSocketWrite(SSL_get_fd(_sslConnection));
     }
     else if(retCode == -1)
     {

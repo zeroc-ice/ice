@@ -25,6 +25,14 @@ protocol = "ssl"
 compress = 1
 
 #
+# Set threadPerConnection to 1 in case you want to run the tests in
+# thread per connection mode.
+#
+
+threadPerConnection = 0
+#threadPerConnection = 1
+
+#
 # If you don't set "host" below, then the Ice library will try to find
 # out the IP address of this host. For the Ice test suite, it's best
 # to set the IP address explicitly to 127.0.0.1. This avoid problems
@@ -224,6 +232,11 @@ if compress:
     clientProtocol += " --Ice.Override.Compress"
     serverProtocol += " --Ice.Override.Compress"
     clientServerProtocol += " --Ice.Override.Compress"
+
+if threadPerConnection:
+    clientProtocol += " --Ice.ThreadPerConnection"
+    serverProtocol += " --Ice.ThreadPerConnection"
+    clientServerProtocol += " --Ice.ThreadPerConnection"
 
 if host != "":
     defaultHost = " --Ice.Default.Host=" + host

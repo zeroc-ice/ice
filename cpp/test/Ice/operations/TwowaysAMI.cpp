@@ -209,15 +209,19 @@ public:
 	test(c1->ice_getIdentity() == Ice::stringToIdentity("test"));
 	test(c2->ice_getIdentity() == Ice::stringToIdentity("noSuchIdentity"));
 	test(r->ice_getIdentity() == Ice::stringToIdentity("test"));
-	r->opVoid();
-	c1->opVoid();
-	try
+	// We can't do the callbacks below in thread per connection mode.
+	if(!Ice::getDefaultProperties()->getPropertyAsInt("Ice.ThreadPerConnection"))
 	{
-	    c2->opVoid();
-	    test(false);
-	}
-	catch(const Ice::ObjectNotExistException&)
-	{
+	    r->opVoid();
+	    c1->opVoid();
+	    try
+	    {
+		c2->opVoid();
+		test(false);
+	    }
+	    catch(const Ice::ObjectNotExistException&)
+	    {
+	    }
 	}
 	called();
     }
@@ -241,7 +245,11 @@ public:
 	test(rso.s.s == "def");
 	test(so.e == Test::enum3);
 	test(so.s.s == "a new string");
-	so.p->opVoid();
+	// We can't do the callbacks below in thread per connection mode.
+	if(!Ice::getDefaultProperties()->getPropertyAsInt("Ice.ThreadPerConnection"))
+	{
+	    so.p->opVoid();
+	}
 	called();
     }
 

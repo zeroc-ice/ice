@@ -43,7 +43,12 @@ IceInternal::UdpTransceiver::close()
 }
 
 void
-IceInternal::UdpTransceiver::shutdown()
+IceInternal::UdpTransceiver::shutdownWrite()
+{
+}
+
+void
+IceInternal::UdpTransceiver::shutdownReadWrite()
 {
 }
 

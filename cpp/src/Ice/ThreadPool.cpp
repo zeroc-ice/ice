@@ -35,7 +35,6 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _sizeMax(0),
     _sizeWarn(0),
     _stackSize(0),
-    _messageSizeMax(0),
     _running(0),
     _inUse(0),
     _load(0),
@@ -82,8 +81,6 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
 	stackSize = 0;
     }
     const_cast<size_t&>(_stackSize) = static_cast<size_t>(stackSize);
-
-    const_cast<int&>(_messageSizeMax) = instance->messageSizeMax();
 
     __setNoDelete(true);
     try
@@ -229,6 +226,12 @@ IceInternal::ThreadPool::joinWithAllThreads()
 #else
     for_each(_threads.begin(), _threads.end(), mem_fun_ref(&IceUtil::ThreadControl::join));
 #endif
+}
+
+string
+IceInternal::ThreadPool::prefix() const
+{
+    return _prefix;
 }
 
 void
@@ -758,7 +761,7 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
     {
 	throw IllegalMessageSizeException(__FILE__, __LINE__);
     }
-    if(size > _messageSizeMax)
+    if(size > static_cast<Int>(_instance->messageSizeMax()))
     {
 	throw MemoryLimitException(__FILE__, __LINE__);
     }

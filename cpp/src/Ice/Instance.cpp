@@ -69,14 +69,14 @@ void IceInternal::incRef(Instance* p) { p->__incRef(); }
 void IceInternal::decRef(Instance* p) { p->__decRef(); }
 
 PropertiesPtr
-IceInternal::Instance::properties()
+IceInternal::Instance::properties() const
 {
     // No mutex lock, immutable.
     return _properties;
 }
 
 LoggerPtr
-IceInternal::Instance::logger()
+IceInternal::Instance::logger() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -101,7 +101,7 @@ IceInternal::Instance::logger(const LoggerPtr& logger)
 }
 
 StatsPtr
-IceInternal::Instance::stats()
+IceInternal::Instance::stats() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -127,21 +127,21 @@ IceInternal::Instance::stats(const StatsPtr& stats)
 }
 
 TraceLevelsPtr
-IceInternal::Instance::traceLevels()
+IceInternal::Instance::traceLevels() const
 {
     // No mutex lock, immutable.
     return _traceLevels;
 }
 
 DefaultsAndOverridesPtr
-IceInternal::Instance::defaultsAndOverrides()
+IceInternal::Instance::defaultsAndOverrides() const
 {
     // No mutex lock, immutable.
     return _defaultsAndOverrides;
 }
 
 RouterManagerPtr
-IceInternal::Instance::routerManager()
+IceInternal::Instance::routerManager() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -154,7 +154,7 @@ IceInternal::Instance::routerManager()
 }
 
 LocatorManagerPtr
-IceInternal::Instance::locatorManager()
+IceInternal::Instance::locatorManager() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -167,7 +167,7 @@ IceInternal::Instance::locatorManager()
 }
 
 ReferenceFactoryPtr
-IceInternal::Instance::referenceFactory()
+IceInternal::Instance::referenceFactory() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -180,7 +180,7 @@ IceInternal::Instance::referenceFactory()
 }
 
 ProxyFactoryPtr
-IceInternal::Instance::proxyFactory()
+IceInternal::Instance::proxyFactory() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -193,7 +193,7 @@ IceInternal::Instance::proxyFactory()
 }
 
 OutgoingConnectionFactoryPtr
-IceInternal::Instance::outgoingConnectionFactory()
+IceInternal::Instance::outgoingConnectionFactory() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -206,7 +206,7 @@ IceInternal::Instance::outgoingConnectionFactory()
 }
 
 ConnectionMonitorPtr
-IceInternal::Instance::connectionMonitor()
+IceInternal::Instance::connectionMonitor() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -219,7 +219,7 @@ IceInternal::Instance::connectionMonitor()
 }
 
 ObjectFactoryManagerPtr
-IceInternal::Instance::servantFactoryManager()
+IceInternal::Instance::servantFactoryManager() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -232,7 +232,7 @@ IceInternal::Instance::servantFactoryManager()
 }
 
 ObjectAdapterFactoryPtr
-IceInternal::Instance::objectAdapterFactory()
+IceInternal::Instance::objectAdapterFactory() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -281,8 +281,15 @@ IceInternal::Instance::serverThreadPool()
     return _serverThreadPool;
 }
 
+bool
+IceInternal::Instance::threadPerConnection() const
+{
+    // No mutex lock, immutable.
+    return _threadPerConnection;
+}
+
 EndpointFactoryManagerPtr
-IceInternal::Instance::endpointFactoryManager()
+IceInternal::Instance::endpointFactoryManager() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -295,7 +302,7 @@ IceInternal::Instance::endpointFactoryManager()
 }
 
 DynamicLibraryListPtr
-IceInternal::Instance::dynamicLibraryList()
+IceInternal::Instance::dynamicLibraryList() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -308,7 +315,7 @@ IceInternal::Instance::dynamicLibraryList()
 }
 
 PluginManagerPtr
-IceInternal::Instance::pluginManager()
+IceInternal::Instance::pluginManager() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -360,7 +367,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     _destroyed(false),
     _properties(properties),
     _messageSizeMax(0),
-    _connectionIdleTime(0)
+    _connectionIdleTime(0),
+    _threadPerConnection(false)
 {
     
     try
@@ -531,6 +539,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 		const_cast<Int&>(_connectionIdleTime) = num;
 	    }
 	}
+
+	const_cast<bool&>(_threadPerConnection) = _properties->getPropertyAsInt("Ice.ThreadPerConnection") > 0;
 
 	_routerManager = new RouterManager;
 

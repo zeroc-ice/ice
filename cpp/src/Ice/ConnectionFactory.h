@@ -12,6 +12,7 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
+#include <IceUtil/Thread.h> // For ThreadPerAcceptor.
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ConnectionIF.h>
 #include <Ice/InstanceF.h>
@@ -35,7 +36,7 @@ class ObjectAdapterI;
 namespace IceInternal
 {
 
-class OutgoingConnectionFactory : public ::IceUtil::Shared, public ::IceUtil::Monitor< ::IceUtil::Mutex>
+class OutgoingConnectionFactory : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -60,7 +61,7 @@ private:
     std::set<EndpointPtr> _pending; // Endpoints for which connection establishment is pending.
 };
 
-class IncomingConnectionFactory : public EventHandler, public ::IceUtil::Monitor< ::IceUtil::Mutex>
+class IncomingConnectionFactory : public EventHandler, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -104,6 +105,21 @@ private:
     void registerWithPool();
     void unregisterWithPool();
 
+    void run();
+
+    class ThreadPerAcceptor : public IceUtil::Thread
+    {
+    public:
+	
+	ThreadPerAcceptor(const IncomingConnectionFactoryPtr&);
+	virtual void run();
+
+    private:
+	
+	IncomingConnectionFactoryPtr _factory;
+    };
+    friend class ThreadPerAcceptor;
+    
     AcceptorPtr _acceptor;
     const TransceiverPtr _transceiver;
     const EndpointPtr _endpoint;
@@ -111,6 +127,7 @@ private:
     const ::Ice::ObjectAdapterPtr _adapter;
 
     bool _registeredWithPool;
+    const IceInternal::ThreadPoolPtr _threadPool;
 
     const bool _warn;
 

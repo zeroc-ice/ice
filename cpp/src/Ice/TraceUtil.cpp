@@ -49,9 +49,35 @@ printRequestHeader(ostream& s, BasicStream& stream)
 {
     printIdentityFacetOperation(s, stream);
 
-    bool idempotent;
-    stream.read(idempotent);
-    s << "\nidempotent = " << (idempotent ? "true" : "false");
+    Byte mode;
+    stream.read(mode);
+    s << "\nmode = " << static_cast<int>(mode) << ' ';
+    switch(mode)
+    {
+	case Normal:
+	{
+	    s << "(normal)";
+	    break;
+	}
+
+	case Nonmutating:
+	{
+	    s << "(nonmutating)";
+	    break;
+	}
+
+	case Idempotent:
+	{
+	    s << "(idempotent)";
+	    break;
+	}
+
+	default:
+	{
+	    s << "(unknown)";
+	    break;
+	}
+    }
 
     Int sz;
     stream.readSize(sz);

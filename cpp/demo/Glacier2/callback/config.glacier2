@@ -1,3 +1,6 @@
+Glacier2.Server.ThreadPool.Size=1
+Glacier2.Server.ThreadPool.SizeWarn=0
+
 #
 # The client-visible endpoint of Glacier2. This should be an endpoint
 # visible from the public Internet, and it should be secure.
@@ -70,8 +73,8 @@ Glacier2.Client.ThreadStackSize=262144
 #
 # Various settings to trace requests, overrides, etc.
 #
-Glacier2.Client.Trace.Request=1
-Glacier2.Server.Trace.Request=1
+#Glacier2.Client.Trace.Request=1
+#Glacier2.Server.Trace.Request=1
 Glacier2.Client.Trace.Override=1
 Glacier2.Server.Trace.Override=1
 Glacier2.Client.Trace.Reject=1
@@ -83,7 +86,7 @@ Glacier2.Trace.RoutingTable=1
 #
 
 #Ice.Trace.Network=1
-#Ice.Trace.Protocol=1
+Ice.Trace.Protocol=1
 Ice.Warn.Connections=1
 
 Ice.Plugin.IceSSL=IceSSL:create

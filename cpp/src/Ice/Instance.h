@@ -48,26 +48,27 @@ class Instance : public IceUtil::Shared, public IceUtil::RecMutex
 {
 public:
 
-    Ice::PropertiesPtr properties();
-    Ice::LoggerPtr logger();
+    Ice::PropertiesPtr properties() const;
+    Ice::LoggerPtr logger() const;
     void logger(const Ice::LoggerPtr&);
-    Ice::StatsPtr stats();
+    Ice::StatsPtr stats() const;
     void stats(const Ice::StatsPtr&);
-    TraceLevelsPtr traceLevels();
-    DefaultsAndOverridesPtr defaultsAndOverrides();
-    RouterManagerPtr routerManager();
-    LocatorManagerPtr locatorManager();
-    ReferenceFactoryPtr referenceFactory();
-    ProxyFactoryPtr proxyFactory();
-    OutgoingConnectionFactoryPtr outgoingConnectionFactory();
-    ConnectionMonitorPtr connectionMonitor();
-    ObjectFactoryManagerPtr servantFactoryManager();
-    ObjectAdapterFactoryPtr objectAdapterFactory();
+    TraceLevelsPtr traceLevels() const;
+    DefaultsAndOverridesPtr defaultsAndOverrides() const;
+    RouterManagerPtr routerManager() const;
+    LocatorManagerPtr locatorManager() const;
+    ReferenceFactoryPtr referenceFactory() const;
+    ProxyFactoryPtr proxyFactory() const;
+    OutgoingConnectionFactoryPtr outgoingConnectionFactory() const;
+    ConnectionMonitorPtr connectionMonitor() const;
+    ObjectFactoryManagerPtr servantFactoryManager() const;
+    ObjectAdapterFactoryPtr objectAdapterFactory() const;
     ThreadPoolPtr clientThreadPool();
     ThreadPoolPtr serverThreadPool();
-    EndpointFactoryManagerPtr endpointFactoryManager();
-    DynamicLibraryListPtr dynamicLibraryList();
-    Ice::PluginManagerPtr pluginManager();
+    bool threadPerConnection() const;
+    EndpointFactoryManagerPtr endpointFactoryManager() const;
+    DynamicLibraryListPtr dynamicLibraryList() const;
+    Ice::PluginManagerPtr pluginManager() const;
     size_t messageSizeMax() const;
     Ice::Int connectionIdleTime() const;
     void flushBatchRequests();
@@ -98,6 +99,7 @@ private:
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ThreadPoolPtr _clientThreadPool;
     ThreadPoolPtr _serverThreadPool;
+    const bool _threadPerConnection;
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;
     Ice::PluginManagerPtr _pluginManager;

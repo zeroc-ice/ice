@@ -224,9 +224,36 @@ IceInternal::closeSocket(SOCKET fd)
 }
     
 void
-IceInternal::shutdownSocket(SOCKET fd)
+IceInternal::shutdownSocketWrite(SOCKET fd)
 {
     if(shutdown(fd, SHUT_WR) == SOCKET_ERROR)
+    {
+	//
+	// Ignore errors indicating that we are shutdown already.
+	//
+#ifdef _WIN32
+	int error = WSAGetLastError();
+	if(error == WSAENOTCONN)
+	{
+	    return;
+	}
+#else
+	if(errno == ENOTCONN)
+	{
+	    return;
+	}
+#endif
+
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
+    }
+}
+    
+void
+IceInternal::shutdownSocketReadWrite(SOCKET fd)
+{
+    if(shutdown(fd, SHUT_RDWR) == SOCKET_ERROR)
     {
 	//
 	// Ignore errors indicating that we are shutdown already.
@@ -574,11 +601,11 @@ repeatAccept:
 		struct timeval tv;
 		tv.tv_sec = timeout / 1000;
 		tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-		rs = ::select(fd + 1, 0, &fdSet, 0, &tv);
+		rs = ::select(fd + 1, &fdSet, 0, 0, &tv);
 	    }
 	    else
 	    {
-		rs = ::select(fd + 1, 0, &fdSet, 0, 0);
+		rs = ::select(fd + 1, &fdSet, 0, 0, 0);
 	    }
 	    
 	    if(rs == SOCKET_ERROR)

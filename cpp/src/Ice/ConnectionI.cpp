@@ -76,7 +76,6 @@ Ice::ConnectionI::validate()
 		is.i = is.b.begin();
 		_transceiver->read(is, _endpoint->timeout());
 		assert(is.i == is.b.end());
-		assert(is.i - is.b.begin() >= headerSize);
 		is.i = is.b.begin();
 		ByteSeq m(sizeof(magic), 0);
 		is.readBlob(m, static_cast<Int>(sizeof(magic)));
@@ -86,31 +85,10 @@ Ice::ConnectionI::validate()
 		    ex.badMagic = m;
 		    throw ex;
 		}
-
 		Byte pMajor;
 		Byte pMinor;
 		is.read(pMajor);
 		is.read(pMinor);
-
-		//
-		// We only check the major version number here. The
-		// minor version number is irrelevant -- no matter
-		// what minor version number is offered by the server,
-		// we can be certain that the server supports at least
-		// minor version 0.  As the client, we are obliged to
-		// never produce a message with a minor version number
-		// that is larger than what the server can understand,
-		// but we don't care if the server understands more
-		// than we do.
-		//
-		// Note: Once we add minor versions, we need to modify
-		// the client side to never produce a message with a
-		// minor number that is greater than what the server
-		// can handle. Similarly, the server side will have to
-		// be modified so it never replies with a minor
-		// version that is greater than what the client can
-		// handle.
-		//
 		if(pMajor != protocolMajor)
 		{
 		    UnsupportedProtocolException ex(__FILE__, __LINE__);
@@ -120,16 +98,10 @@ Ice::ConnectionI::validate()
 		    ex.minor = static_cast<unsigned char>(protocolMinor);
 		    throw ex;
 		}
-
 		Byte eMajor;
 		Byte eMinor;
 		is.read(eMajor);
 		is.read(eMinor);
-
-		//
-		// The same applies here as above -- only the major
-		// version number of the encoding is relevant.
-		//
 		if(eMajor != encodingMajor)
 		{
 		    UnsupportedEncodingException ex(__FILE__, __LINE__);
@@ -139,17 +111,14 @@ Ice::ConnectionI::validate()
 		    ex.minor = static_cast<unsigned char>(encodingMinor);
 		    throw ex;
 		}
-
 		Byte messageType;
 		is.read(messageType);
 		if(messageType != validateConnectionMsg)
 		{
 		    throw ConnectionNotValidatedException(__FILE__, __LINE__);
 		}
-
                 Byte compress;
                 is.read(compress); // Ignore compression status for validate connection.
-
 		Int size;
 		is.read(size);
 		if(size != headerSize)
@@ -235,6 +204,17 @@ Ice::ConnectionI::isFinished() const
 }
 
 void
+Ice::ConnectionI::waitUntilValidated() const
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    while(_state == StateNotValidated)
+    {
+	wait();
+    }
+}
+
+void
 Ice::ConnectionI::waitUntilHolding() const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -249,7 +229,7 @@ void
 Ice::ConnectionI::waitUntilFinished()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
+	
     //
     // We wait indefinitely until connection closing has been
     // initiated. We also wait indefinitely until all outstanding
@@ -261,7 +241,7 @@ Ice::ConnectionI::waitUntilFinished()
     {
 	wait();
     }
-
+	
     //
     // Now we must wait until close() has been called on the
     // transceiver.
@@ -272,7 +252,7 @@ Ice::ConnectionI::waitUntilFinished()
 	{
 	    IceUtil::Time timeout = IceUtil::Time::milliSeconds(_endpoint->timeout());
 	    IceUtil::Time waitTime = _stateTime + timeout - IceUtil::Time::now();
-	    
+		
 	    if(waitTime > IceUtil::Time())
 	    {
 		//
@@ -292,7 +272,7 @@ Ice::ConnectionI::waitUntilFinished()
 		//
 		setState(StateClosed, CloseTimeoutException(__FILE__, __LINE__));
 	    }
-
+		
 	    //
 	    // No return here, we must still wait until close() is
 	    // called on the _transceiver.
@@ -303,7 +283,7 @@ Ice::ConnectionI::waitUntilFinished()
 	    wait();
 	}
     }
-
+	
     assert(_state == StateClosed);
 }
 
@@ -1086,18 +1066,22 @@ Ice::ConnectionI::createProxy(const Identity& ident) const
 bool
 Ice::ConnectionI::datagram() const
 {
+    assert(!_instance->threadPerConnection()); // Only for use with a thread pool.
     return _endpoint->datagram(); // No mutex protection necessary, _endpoint is immutable.
 }
 
 bool
 Ice::ConnectionI::readable() const
 {
+    assert(!_instance->threadPerConnection()); // Only for use with a thread pool.
     return true;
 }
 
 void
 Ice::ConnectionI::read(BasicStream& stream)
 {
+    assert(!_instance->threadPerConnection()); // Only for use with a thread pool.
+
     _transceiver->read(stream, 0);
 
     //
@@ -1110,211 +1094,36 @@ Ice::ConnectionI::read(BasicStream& stream)
 void
 Ice::ConnectionI::message(BasicStream& stream, const ThreadPoolPtr& threadPool)
 {
-    ServantManagerPtr servantManager;
-    OutgoingAsyncPtr outAsync;
-    Int invoke = 0;
+    assert(!_instance->threadPerConnection()); // Only for use with a thread pool.
+
+    Byte compress = 0;
     Int requestId = 0;
-    Byte compress;
+    Int invokeNum = 0;
+    ServantManagerPtr servantManager;
+    ObjectAdapterPtr adapter;
+    OutgoingAsyncPtr outAsync;
 
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
 	//
-	// We must promote within the synchronization, otherwise
-	// there could be various race conditions with close
-	// connection messages and other messages.
+	// We must promote within the synchronization, otherwise there
+	// could be various race conditions with close connection
+	// messages and other messages.
 	//
 	threadPool->promoteFollower();
 
-	assert(_state > StateNotValidated);
+	if(_state != StateClosed)
+	{
+	    parseMessage(stream, invokeNum, requestId, compress, servantManager, adapter, outAsync);
+	}
 
+	//
+	// parseMessage() can close the connection, so we must check
+	// for closed state again.
+	//
 	if(_state == StateClosed)
 	{
-	    return;
-	}
-
-	if(_acmTimeout > 0)
-	{
-	    _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
-	}
-
-	try
-	{
-	    //
-	    // We don't need to check magic and version here. This
-	    // has already been done by the ThreadPool, which
-	    // provides us the stream.
-	    //
-	    assert(stream.i == stream.b.end());
-	    stream.i = stream.b.begin() + 8;
-	    Byte messageType;
-	    stream.read(messageType);
-	    stream.read(compress);
-	    if(compress == 2)
-	    {
-		BasicStream ustream(_instance.get());
-		doUncompress(stream, ustream);
-		stream.b.swap(ustream.b);
-	    }
-	    stream.i = stream.b.begin() + headerSize;
-
-	    switch(messageType)
-	    {
-		case closeConnectionMsg:
-		{
-		    traceHeader("received close connection", stream, _logger, _traceLevels);
-		    if(_endpoint->datagram() && _warn)
-		    {
-			Warning out(_logger);
-			out << "ignoring close connection message for datagram connection:\n" << _desc;
-		    }
-		    else
-		    {
-			setState(StateClosed, CloseConnectionException(__FILE__, __LINE__));
-		    }
-		    break;
-		}
-
-		case requestMsg:
-		{
-		    if(_state == StateClosing)
-		    {
-			traceRequest("received request during closing\n"
-				     "(ignored by server, client will retry)",
-				     stream, _logger, _traceLevels);
-		    }
-		    else
-		    {
-			traceRequest("received request", stream, _logger, _traceLevels);
-			stream.read(requestId);
-			invoke = 1;
-			++_dispatchCount;
-		    }
-		    break;
-		}
-		
-		case requestBatchMsg:
-		{
-		    if(_state == StateClosing)
-		    {
-			traceBatchRequest("received batch request during closing\n"
-					  "(ignored by server, client will retry)",
-					  stream, _logger, _traceLevels);
-		    }
-		    else
-		    {
-			traceBatchRequest("received batch request", stream, _logger, _traceLevels);
-			stream.read(invoke);
-			if(invoke < 0)
-			{
-			    throw NegativeSizeException(__FILE__, __LINE__);
-			}
-			_dispatchCount += invoke;
-		    }
-		    break;
-		}
-		
-		case replyMsg:
-		{
-                    traceReply("received reply", stream, _logger, _traceLevels);
-
-		    stream.read(requestId);
-		    
-		    map<Int, Outgoing*>::iterator p = _requests.end();
-		    map<Int, AsyncRequest>::iterator q = _asyncRequests.end();
-		    
-		    if(_requestsHint != _requests.end())
-		    {
-			if(_requestsHint->first == requestId)
-			{
-			    p = _requestsHint;
-			}
-		    }
-		    
-		    if(p == _requests.end())
-		    {
-			if(_asyncRequestsHint != _asyncRequests.end())
-			{
-			    if(_asyncRequestsHint->first == requestId)
-			    {
-				q = _asyncRequestsHint;
-			    }
-			}
-		    }
-		    
-		    if(p == _requests.end() && q == _asyncRequests.end())
-		    {
-			p = _requests.find(requestId);
-		    }
-
-		    if(p == _requests.end() && q == _asyncRequests.end())
-		    {
-			q = _asyncRequests.find(requestId);
-		    }
-		    
-		    if(p == _requests.end() && q == _asyncRequests.end())
-		    {
-			throw UnknownRequestIdException(__FILE__, __LINE__);
-		    }
-
-		    if(p != _requests.end())
-		    {
-			p->second->finished(stream);
-			
-			if(p == _requestsHint)
-			{
-			    _requests.erase(p++);
-			    _requestsHint = p;
-			}
-			else
-			{
-			    _requests.erase(p);
-			}
-		    }
-		    else
-		    {
-			assert(q != _asyncRequests.end());
-
-			outAsync = q->second.p;
-			
-			if(q == _asyncRequestsHint)
-			{
-			    _asyncRequests.erase(q++);
-			    _asyncRequestsHint = q;
-			}
-			else
-			{
-			    _asyncRequests.erase(q);
-			}
-		    }
-
-		    break;
-		}
-		
-		case validateConnectionMsg:
-		{
-		    traceHeader("received validate connection", stream, _logger, _traceLevels);
-		    if(_warn)
-		    {
-			Warning out(_logger);
-			out << "ignoring unexpected validate connection message:\n" << _desc;
-		    }
-		    break;
-		}
-		
-		default:
-		{
-		    traceHeader("received unknown message\n"
-				"(invalid, closing connection)",
-				stream, _logger, _traceLevels);
-		    throw UnknownMessageException(__FILE__, __LINE__);
-		    break;
-		}
-	    }
-	}
-	catch(const LocalException& ex)
-	{
-	    setState(StateClosed, ex);
 	    return;
 	}
     }
@@ -1333,68 +1142,14 @@ Ice::ConnectionI::message(BasicStream& stream, const ThreadPoolPtr& threadPool)
     // must be done outside the thread synchronization, so that nested
     // calls are possible.
     //
-    try
-    {
-	while(invoke > 0)
-	{
-	    //
-	    // Prepare the invocation.
-	    //
-	    bool response = !_endpoint->datagram() && requestId != 0;
-	    Incoming in(_instance.get(), this, _adapter, response, compress);
-	    BasicStream* is = in.is();
-	    stream.swap(*is);
-	    BasicStream* os = in.os();
-	    
-	    //
-	    // Prepare the response if necessary.
-	    //
-	    if(response)
-	    {
-		assert(invoke == 1); // No further invocations if a response is expected.
-		os->writeBlob(_replyHdr);
-		
-		//
-		// Add the request ID.
-		//
-		os->write(requestId);
-	    }
-	    
-	    in.invoke(_servantManager);
-	    
-	    //
-	    // If there are more invocations, we need the stream back.
-	    //
-	    if(--invoke > 0)
-	    {
-		stream.swap(*is);
-	    }
-	}
-    }
-    catch(const LocalException& ex)
-    {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	setState(StateClosed, ex);
-
-	//
-	// If invoke() above raised an exception, and therefore
-	// neither sendResponse() nor sendNoResponse() has been
-	// called, then we must decrement _dispatchCount here.
-	//
-	assert(invoke > 0);
-	assert(_dispatchCount > 0);
-	_dispatchCount -= invoke;
-	assert(_dispatchCount >= 0);
-	if(_dispatchCount == 0)
-	{
-	    notifyAll();
-	}
-    }
+    invokeAll(stream, invokeNum, requestId, compress, servantManager, adapter);
 }
 
 void
 Ice::ConnectionI::finished(const ThreadPoolPtr& threadPool)
 {
+    assert(!_instance->threadPerConnection()); // Only for use with a thread pool.
+
     threadPool->promoteFollower();
 
     auto_ptr<LocalException> exception;
@@ -1426,7 +1181,6 @@ Ice::ConnectionI::finished(const ThreadPoolPtr& threadPool)
 		exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 	    }
 
-	    assert(_transceiver);
 	    _transceiver = 0;
 	    notifyAll();
 	}
@@ -1531,13 +1285,35 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
 {
     if(_adapter)
     {
-	const_cast<ThreadPoolPtr&>(_threadPool) = dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool();
 	_servantManager = dynamic_cast<ObjectAdapterI*>(_adapter.get())->getServantManager();
+    }
+
+    if(!_instance->threadPerConnection())
+    {
+	//
+	// Only set _threadPool if we really need it, i.e., if we are
+	// not in thread per connection mode. Thread pools have lazy
+	// initialization in Instance, and we don't want them to be
+	// created if they are not needed.
+	//
+	if(_adapter)
+	{
+	    const_cast<ThreadPoolPtr&>(_threadPool) = dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool();
+	}
+	else
+	{
+	    const_cast<ThreadPoolPtr&>(_threadPool) = _instance->clientThreadPool();
+	}
     }
     else
     {
-	const_cast<ThreadPoolPtr&>(_threadPool) = _instance->clientThreadPool();
-	_servantManager = 0;
+	//
+	// If we are in thread per connection mode, create the thread
+	// for this connection.
+	//
+	IceUtil::ThreadPtr thread = new ThreadPerConnection(this);
+	thread->start();
+	thread->getThreadControl().detach();
     }
 
     vector<Byte>& requestHdr = const_cast<vector<Byte>&>(_requestHdr);
@@ -1673,7 +1449,10 @@ Ice::ConnectionI::setState(State state)
 	    {
 		return;
 	    }
-	    registerWithPool();
+	    if(!_instance->threadPerConnection())
+	    {
+		registerWithPool();
+	    }
 	    break;
 	}
 	
@@ -1687,7 +1466,10 @@ Ice::ConnectionI::setState(State state)
 	    {
 		return;
 	    }
-	    unregisterWithPool();
+	    if(!_instance->threadPerConnection())
+	    {
+		unregisterWithPool();
+	    }
 	    break;
 	}
 
@@ -1700,20 +1482,21 @@ Ice::ConnectionI::setState(State state)
 	    {
 		return;
 	    }
-	    registerWithPool(); // We need to continue to read in closing state.
+	    if(!_instance->threadPerConnection())
+	    {
+		registerWithPool(); // We need to continue to read in closing state.
+	    }
 	    break;
 	}
 	
 	case StateClosed:
 	{
-	    //
-	    // If we change from not validated, we can close right
-	    // away. Otherwise we first must make sure that we are
-	    // registered, then we unregister, and let finished() do
-	    // the close.
-	    //
 	    if(_state == StateNotValidated)
 	    {
+		//
+		// If we change from not validated we can close right
+		// away.
+		//
 		assert(!_registeredWithPool);
 		
 		//
@@ -1734,12 +1517,46 @@ Ice::ConnectionI::setState(State state)
 		_transceiver = 0;
 		//notifyAll(); // We notify already below.
 	    }
+	    else if(_instance->threadPerConnection())
+	    {
+		//
+		// If we are in thread per connection mode, we
+		// shutdown both for reading and writing. This will
+		// unblock and read call with an exception. The thread
+		// per connection then closes the transceiver.
+		//
+		_transceiver->shutdownReadWrite();
+	    }
 	    else
 	    {
+		//
+		// Otherwise we first must make sure that we are
+		// registered, then we unregister, and let finished()
+		// do the close.
+		//
 		registerWithPool();
 		unregisterWithPool();
 	    }
 	    break;
+	}
+    }
+
+    //
+    // We only register with the connection monitor if our new state
+    // is StateActive. Otherwise we unregister with the connection
+    // monitor, but only if we were registered before, i.e., if our
+    // old state was StateActive.
+    //
+    ConnectionMonitorPtr connectionMonitor = _instance->connectionMonitor();
+    if(connectionMonitor)
+    {
+	if(state == StateActive)
+	{
+	    connectionMonitor->add(this);
+	}
+	else if(_state == StateActive)
+	{
+	    connectionMonitor->remove(this);
 	}
     }
 
@@ -1790,39 +1607,31 @@ Ice::ConnectionI::initiateShutdown() const
 	os.i = os.b.begin();
 	traceHeader("sending close connection", os, _logger, _traceLevels);
 	_transceiver->write(os, _endpoint->timeout());
-	_transceiver->shutdown();
+	_transceiver->shutdownWrite();
     }
 }
 
 void
 Ice::ConnectionI::registerWithPool()
 {
+    assert(!_instance->threadPerConnection()); // Only for use with a thread pool.
+
     if(!_registeredWithPool)
     {
 	_threadPool->_register(_transceiver->fd(), this);
 	_registeredWithPool = true;
-
-	ConnectionMonitorPtr connectionMonitor = _instance->connectionMonitor();
-	if(connectionMonitor)
-	{
-	    connectionMonitor->add(this);
-	}
     }
 }
 
 void
 Ice::ConnectionI::unregisterWithPool()
 {
+    assert(!_instance->threadPerConnection()); // Only for use with a thread pool.
+
     if(_registeredWithPool)
     {
 	_threadPool->unregister(_transceiver->fd());
 	_registeredWithPool = false;
-
-	ConnectionMonitorPtr connectionMonitor = _instance->connectionMonitor();
-	if(connectionMonitor)
-	{
-	    connectionMonitor->remove(this);
-	}
     }
 }
 
@@ -1969,4 +1778,491 @@ Ice::ConnectionI::doUncompress(BasicStream& compressed, BasicStream& uncompresse
     }
 
     copy(compressed.b.begin(), compressed.b.begin() + headerSize, uncompressed.b.begin());
+}
+
+void
+Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& requestId, Byte& compress,
+			       ServantManagerPtr& servantManager, ObjectAdapterPtr& adapter,
+			       OutgoingAsyncPtr& outAsync)
+{
+    assert(_state > StateNotValidated && _state < StateClosed);
+    
+    if(_acmTimeout > 0)
+    {
+	_acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
+    }
+    
+    try
+    {
+	//
+	// We don't need to check magic and version here. This has
+	// already been done by the ThreadPool or ThreadPerConnection,
+	// which provides us with the stream.
+	//
+	assert(stream.i == stream.b.end());
+	stream.i = stream.b.begin() + 8;
+	Byte messageType;
+	stream.read(messageType);
+	stream.read(compress);
+	if(compress == 2)
+	{
+	    BasicStream ustream(_instance.get());
+	    doUncompress(stream, ustream);
+	    stream.b.swap(ustream.b);
+	}
+	stream.i = stream.b.begin() + headerSize;
+    
+	switch(messageType)
+	{
+	    case closeConnectionMsg:
+	    {
+		traceHeader("received close connection", stream, _logger, _traceLevels);
+		if(_endpoint->datagram() && _warn)
+		{
+		    Warning out(_logger);
+		    out << "ignoring close connection message for datagram connection:\n" << _desc;
+		}
+		else
+		{
+		    setState(StateClosed, CloseConnectionException(__FILE__, __LINE__));
+		}
+		break;
+	    }
+	
+	    case requestMsg:
+	    {
+		if(_state == StateClosing)
+		{
+		    traceRequest("received request during closing\n"
+				 "(ignored by server, client will retry)",
+				 stream, _logger, _traceLevels);
+		}
+		else
+		{
+		    traceRequest("received request", stream, _logger, _traceLevels);
+		    stream.read(requestId);
+		    invokeNum = 1;
+		    servantManager = _servantManager;
+		    adapter = _adapter;
+		    ++_dispatchCount;
+		}
+		break;
+	    }
+	
+	    case requestBatchMsg:
+	    {
+		if(_state == StateClosing)
+		{
+		    traceBatchRequest("received batch request during closing\n"
+				      "(ignored by server, client will retry)",
+				      stream, _logger, _traceLevels);
+		}
+		else
+		{
+		    traceBatchRequest("received batch request", stream, _logger, _traceLevels);
+		    stream.read(invokeNum);
+		    if(invokeNum < 0)
+		    {
+			invokeNum = 0;
+			throw NegativeSizeException(__FILE__, __LINE__);
+		    }
+		    servantManager = _servantManager;
+		    adapter = _adapter;
+		    _dispatchCount += invokeNum;
+		}
+		break;
+	    }
+	
+	    case replyMsg:
+	    {
+		traceReply("received reply", stream, _logger, _traceLevels);
+	    
+		stream.read(requestId);
+	    
+		map<Int, Outgoing*>::iterator p = _requests.end();
+		map<Int, AsyncRequest>::iterator q = _asyncRequests.end();
+	    
+		if(_requestsHint != _requests.end())
+		{
+		    if(_requestsHint->first == requestId)
+		    {
+			p = _requestsHint;
+		    }
+		}
+	    
+		if(p == _requests.end())
+		{
+		    if(_asyncRequestsHint != _asyncRequests.end())
+		    {
+			if(_asyncRequestsHint->first == requestId)
+			{
+			    q = _asyncRequestsHint;
+			}
+		    }
+		}
+	    
+		if(p == _requests.end() && q == _asyncRequests.end())
+		{
+		    p = _requests.find(requestId);
+		}
+	    
+		if(p == _requests.end() && q == _asyncRequests.end())
+		{
+		    q = _asyncRequests.find(requestId);
+		}
+	    
+		if(p == _requests.end() && q == _asyncRequests.end())
+		{
+		    throw UnknownRequestIdException(__FILE__, __LINE__);
+		}
+	    
+		if(p != _requests.end())
+		{
+		    p->second->finished(stream);
+		
+		    if(p == _requestsHint)
+		    {
+			_requests.erase(p++);
+			_requestsHint = p;
+		    }
+		    else
+		    {
+			_requests.erase(p);
+		    }
+		}
+		else
+		{
+		    assert(q != _asyncRequests.end());
+		
+		    outAsync = q->second.p;
+		
+		    if(q == _asyncRequestsHint)
+		    {
+			_asyncRequests.erase(q++);
+			_asyncRequestsHint = q;
+		    }
+		    else
+		    {
+			_asyncRequests.erase(q);
+		    }
+		}
+	    
+		break;
+	    }
+	
+	    case validateConnectionMsg:
+	    {
+		traceHeader("received validate connection", stream, _logger, _traceLevels);
+		if(_warn)
+		{
+		    Warning out(_logger);
+		    out << "ignoring unexpected validate connection message:\n" << _desc;
+		}
+		break;
+	    }
+	
+	    default:
+	    {
+		traceHeader("received unknown message\n"
+			    "(invalid, closing connection)",
+			    stream, _logger, _traceLevels);
+		throw UnknownMessageException(__FILE__, __LINE__);
+		break;
+	    }
+	}
+    }
+    catch(const LocalException& ex)
+    {
+	setState(StateClosed, ex);
+    }
+}
+
+void
+Ice::ConnectionI::invokeAll(BasicStream& stream, Int invokeNum, Int requestId, Byte compress,
+			    const ServantManagerPtr& servantManager, const ObjectAdapterPtr& adapter)
+{
+    //
+    // Note: In contrast to other private or protected methods, this
+    // operation must be called *without* the mutex locked.
+    //
+
+    try
+    {
+	while(invokeNum > 0)
+	{
+	    //
+	    // Prepare the invocation.
+	    //
+	    bool response = !_endpoint->datagram() && requestId != 0;
+	    Incoming in(_instance.get(), this, adapter, response, compress);
+	    BasicStream* is = in.is();
+	    stream.swap(*is);
+	    BasicStream* os = in.os();
+	    
+	    //
+	    // Prepare the response if necessary.
+	    //
+	    if(response)
+	    {
+		assert(invokeNum == 1); // No further invocations if a response is expected.
+		os->writeBlob(_replyHdr);
+		
+		//
+		// Add the request ID.
+		//
+		os->write(requestId);
+	    }
+	    
+	    in.invoke(servantManager);
+	    
+	    //
+	    // If there are more invocations, we need the stream back.
+	    //
+	    if(--invokeNum > 0)
+	    {
+		stream.swap(*is);
+	    }
+	}
+    }
+    catch(const LocalException& ex)
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	setState(StateClosed, ex);
+
+	//
+	// If invoke() above raised an exception, and therefore
+	// neither sendResponse() nor sendNoResponse() has been
+	// called, then we must decrement _dispatchCount here.
+	//
+	assert(invokeNum > 0);
+	assert(_dispatchCount > 0);
+	_dispatchCount -= invokeNum;
+	assert(_dispatchCount >= 0);
+	if(_dispatchCount == 0)
+	{
+	    notifyAll();
+	}
+    }
+}
+
+void
+Ice::ConnectionI::run()
+{
+    //
+    // First we must validate and activate this connection. This must
+    // be done here, and not in the connection factory. Please see the
+    // comments in the connection factory for details.
+    //
+    try
+    {
+	validate();
+    }
+    catch(const LocalException&)
+    {
+	//
+	// Ignore all exceptions while validating the
+	// connection. Warning or error messages for such exceptions
+	// are printed directly by the validation code.
+	//
+    }
+    
+    activate();
+
+    const bool warnUdp = _instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+
+    while(true)
+    {
+	//
+	// We must accept new connections outside the thread
+	// synchronization, because we use blocking accept.
+	//
+
+	BasicStream stream(_instance.get());
+
+	try
+	{
+	    stream.b.resize(headerSize);
+	    stream.i = stream.b.begin();
+	    _transceiver->read(stream, -1);
+	
+	    ptrdiff_t pos = stream.i - stream.b.begin();
+	    assert(pos >= headerSize);
+	    stream.i = stream.b.begin();
+	    ByteSeq m(sizeof(magic), 0);
+	    stream.readBlob(m, static_cast<Int>(sizeof(magic)));
+	    if(!equal(m.begin(), m.end(), magic))
+	    {
+		BadMagicException ex(__FILE__, __LINE__);
+		ex.badMagic = m;
+		throw ex;
+	    }
+	    Byte pMajor;
+	    Byte pMinor;
+	    stream.read(pMajor);
+	    stream.read(pMinor);
+	    if(pMajor != protocolMajor)
+	    {
+		UnsupportedProtocolException ex(__FILE__, __LINE__);
+		ex.badMajor = static_cast<unsigned char>(pMajor);
+		ex.badMinor = static_cast<unsigned char>(pMinor);
+		ex.major = static_cast<unsigned char>(protocolMajor);
+		ex.minor = static_cast<unsigned char>(protocolMinor);
+		throw ex;
+	    }
+	    Byte eMajor;
+	    Byte eMinor;
+	    stream.read(eMajor);
+	    stream.read(eMinor);
+	    if(eMajor != encodingMajor)
+	    {
+		UnsupportedEncodingException ex(__FILE__, __LINE__);
+		ex.badMajor = static_cast<unsigned char>(eMajor);
+		ex.badMinor = static_cast<unsigned char>(eMinor);
+		ex.major = static_cast<unsigned char>(encodingMajor);
+		ex.minor = static_cast<unsigned char>(encodingMinor);
+		throw ex;
+	    }
+	    Byte messageType;
+	    stream.read(messageType);
+	    Byte compress;
+	    stream.read(compress);
+	    Int size;
+	    stream.read(size);
+	    if(size < headerSize)
+	    {
+		throw IllegalMessageSizeException(__FILE__, __LINE__);
+	    }
+	    if(size > static_cast<Int>(_instance->messageSizeMax()))
+	    {
+		throw MemoryLimitException(__FILE__, __LINE__);
+	    }
+	    if(size > static_cast<Int>(stream.b.size()))
+	    {
+		stream.b.resize(size);
+	    }
+	    stream.i = stream.b.begin() + pos;
+	
+	    if(stream.i != stream.b.end())
+	    {
+		if(_endpoint->datagram())
+		{
+		    if(warnUdp)
+		    {
+			Warning out(_instance->logger());
+			out << "DatagramLimitException: maximum size of " << pos << " exceeded";
+		    }
+		    throw DatagramLimitException(__FILE__, __LINE__);
+		}
+		else
+		{
+		    _transceiver->read(stream, -1);
+		    assert(stream.i == stream.b.end());
+		}
+	    }
+	}
+	catch(const DatagramLimitException&) // Expected.
+	{
+	    continue;
+	}
+	catch(const LocalException& ex)
+	{
+	    exception(ex);
+	}
+
+	Byte compress = 0;
+	Int requestId = 0;
+	Int invokeNum = 0;
+	ServantManagerPtr servantManager;
+	ObjectAdapterPtr adapter;
+	OutgoingAsyncPtr outAsync;
+	
+	{
+	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+	    while(_state == StateHolding)
+	    {
+		wait();
+	    }
+	    
+	    if(_state != StateClosed)
+	    {
+		parseMessage(stream, invokeNum, requestId, compress, servantManager, adapter, outAsync);
+	    }
+
+	    //
+            // parseMessage() can close the connection, so we must
+            // check for closed state again.
+	    //
+	    if(_state == StateClosed)
+	    {
+		//
+		// We must make sure that nobody is sending when we close
+		// the transceiver.
+		//
+		IceUtil::Mutex::Lock sendSync(_sendMutex);
+		
+		try
+		{
+		    _transceiver->close();
+		}
+		catch(const LocalException& ex)
+		{
+		    _transceiver = 0;
+		    notifyAll();
+		    ex.ice_throw();
+		}
+		
+		_transceiver = 0;
+		notifyAll();
+		return;
+	    }
+	}
+	
+	//
+	// Asynchronous replies must be handled outside the thread
+	// synchronization, so that nested calls are possible.
+	//
+	if(outAsync)
+	{
+	    outAsync->__finished(stream);
+	}
+	
+	//
+	// Method invocation (or multiple invocations for batch messages)
+	// must be done outside the thread synchronization, so that nested
+	// calls are possible.
+	//
+	invokeAll(stream, invokeNum, requestId, compress, servantManager, adapter);
+    }
+}
+
+Ice::ConnectionI::ThreadPerConnection::ThreadPerConnection(const ConnectionIPtr& connection) :
+    _connection(connection)
+{
+}
+
+void
+Ice::ConnectionI::ThreadPerConnection::run()
+{
+    try
+    {
+	_connection->run();
+    }
+    catch(const Exception& ex)
+    {	
+	Error out(_connection->_instance->logger());
+	out << "exception in incoming connection connection:\n" << _connection->toString() << ex; 
+    }
+    catch(const std::exception& ex)
+    {
+	Error out(_connection->_instance->logger());
+	out << "std::exception in incoming connection connection:\n" << _connection->toString() << ex.what();
+    }
+    catch(...)
+    {
+	Error out(_connection->_instance->logger());
+	out << "unknown exception in incoming connection connection:\n" << _connection->toString();
+    }
+
+    _connection = 0; // Resolve cyclic dependency.
 }

@@ -130,7 +130,8 @@ public:
 
     virtual SOCKET fd();
     virtual void close();
-    virtual void shutdown();
+    virtual void shutdownWrite();
+    virtual void shutdownReadWrite();
     virtual void write(IceInternal::Buffer&, int) = 0;
     virtual void read(IceInternal::Buffer&, int);
     virtual std::string type() const;
