@@ -27,6 +27,8 @@ public:
 protected:
 
     Ice::ObjectAdapterPtr _adapter;
+    Ice::LoggerPtr _logger;
+    Ice::Int _traceLevel;
     static IceUtil::RWRecMutex _globalMutex;
 };
 

@@ -100,14 +100,12 @@ CallbackClient::run(int argc, char* argv[])
         IceSSL::SystemPtr sslSystem = communicator()->getSslSystem();
         IceSSL::SslExtensionPtr sslExtension = communicator()->getSslExtension();
 
-        // Configure Server, client is already configured
+        // Configure server, client is already configured.
         sslSystem->configure(IceSSL::Server);
-
         sslSystem->setCertificateVerifier(IceSSL::ClientServer, sslExtension->getSingleCertVerifier(routerCert));
 
         // Set the keys overrides.
         sslSystem->setRSAKeysBase64(IceSSL::ClientServer, privateKeyBase64, publicKeyBase64);
-
         sslSystem->addTrustedCertificateBase64(IceSSL::ClientServer, routerCertString);
     }
 

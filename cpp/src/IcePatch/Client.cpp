@@ -9,8 +9,13 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
+#include <Glacier/Glacier.h>
 #include <IcePatch/FileDescFactory.h>
 #include <IcePatch/Util.h>
+#include <Glacier/Glacier.h>
+#include <IceUtil/Base64.h>
+#include <Ice/System.h>
+#include <Ice/SslExtension.h>
 #include <iomanip>
 
 using namespace std;
@@ -70,6 +75,77 @@ IcePatch::Client::run(int argc, char* argv[])
         }
         
         PropertiesPtr properties = communicator()->getProperties();
+        
+        //
+        // Do Glacier setup, if so requested.
+        //
+        const char* glacierStarterEndpointsProperty = "Glacier.Starter.Endpoints";
+	string glacierStarterEndpoints = properties->getProperty(glacierStarterEndpointsProperty);
+	if (!glacierStarterEndpoints.empty())
+	{
+	    ObjectPrx starterBase = communicator()->stringToProxy("Glacier/starter:" + glacierStarterEndpoints);
+	    Glacier::StarterPrx starter = Glacier::StarterPrx::checkedCast(starterBase);
+	    if (!starter)
+	    {
+		cerr << appName() << ": endpoints `" << glacierStarterEndpoints
+		     << "' do not refer to a glacier router starter" << endl;
+		return EXIT_FAILURE;
+	    }
+
+	    ByteSeq privateKey;
+	    ByteSeq publicKey;
+	    ByteSeq routerCert;
+
+	    RouterPrx router;
+	    while (!router)
+	    {
+		string id;
+		string pw;
+
+		cout << "user id: " << flush;
+		cin >> id;
+		cout << "password: " << flush;
+		cin >> pw;
+		
+		try
+		{
+		    router = starter->startRouter(id, pw, privateKey, publicKey, routerCert);
+		}
+		catch (const Glacier::CannotStartRouterException& ex)
+		{
+		    cerr << appName() << ": " << ex << ":\n" << ex.reason << endl;
+		    return EXIT_FAILURE;
+		}
+		catch (const Glacier::InvalidPasswordException&)
+		{
+		    cout << "password is invalid, try again" << endl;
+		}
+	    }
+
+	    string clientConfig = properties->getProperty("Ice.SSL.Client.Config");
+	    string serverConfig = properties->getProperty("Ice.SSL.Server.Config");
+
+	    if (!clientConfig.empty() && !serverConfig.empty())
+	    {
+		string privateKeyBase64 = IceUtil::Base64::encode(privateKey);
+		string publicKeyBase64  = IceUtil::Base64::encode(publicKey);
+		string routerCertString = IceUtil::Base64::encode(routerCert);
+		
+		IceSSL::SystemPtr sslSystem = communicator()->getSslSystem();
+		IceSSL::SslExtensionPtr sslExtension = communicator()->getSslExtension();
+
+		// Configure Server, client is already configured.
+		sslSystem->configure(IceSSL::Server);
+		sslSystem->setCertificateVerifier(IceSSL::ClientServer,
+						  sslExtension->getSingleCertVerifier(routerCert));
+		
+		// Set the keys overrides.
+		sslSystem->setRSAKeysBase64(IceSSL::ClientServer, privateKeyBase64, publicKeyBase64);
+		sslSystem->addTrustedCertificateBase64(IceSSL::ClientServer, routerCertString);
+	    }
+
+	    communicator()->setDefaultRouter(router);
+	}
         
         //
         // Get the IcePatch endpoints.

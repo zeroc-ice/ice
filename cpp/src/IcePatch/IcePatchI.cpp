@@ -18,8 +18,10 @@ using namespace IcePatch;
 IceUtil::RWRecMutex IcePatch::FileI::_globalMutex;
 
 IcePatch::FileI::FileI(const ObjectAdapterPtr& adapter) :
-    _adapter(adapter)
+    _adapter(adapter),
+    _logger(adapter->getCommunicator()->getLogger())
 {
+    _traceLevel = atoi(adapter->getCommunicator()->getProperties()->getProperty("IcePatch.Trace.Files").c_str());
 }
 
 IcePatch::DirectoryI::DirectoryI(const ObjectAdapterPtr& adapter) :
@@ -61,9 +63,13 @@ IcePatch::DirectoryI::getContents(const Ice::Current& current)
 			equal_range(paths2.begin(), paths2.end(), removeSuffix(*p));
 		    if (r2.first == r2.second)
 		    {
-			cout << "removing orphaned file `" << *p << "'... " << flush;
 			removeRecursive(*p);
-			cout << "ok" << endl;
+
+			if (_traceLevel > 0)
+			{
+			    Trace out(_logger, "IcePatch");
+			    out << "removed orphaned file `" << *p << "'";
+			}
 		    }
 		}
 	    }
@@ -117,9 +123,13 @@ IcePatch::RegularI::describe(const Ice::Current& current)
 	infoMD5 = getFileInfo(path + ".md5", false);
 	if (infoMD5.type != FileTypeRegular || infoMD5.time < info.time)
 	{
-	    cout << "creating .md5 file for `" << path << "'... " << flush;
 	    createMD5(path);
-	    cout << "ok" << endl;
+
+	    if (_traceLevel > 0)
+	    {
+		Trace out(_logger, "IcePatch");
+		out << "created .md5 file for `" << path << "'";
+	    }
 	}
     }
 
@@ -143,9 +153,13 @@ IcePatch::RegularI::getBZ2Size(const Ice::Current& current)
 	infoBZ2 = getFileInfo(path + ".bz2", false);
 	if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
 	{
-	    cout << "creating .bz2 file for `" << path << "'... " << flush;
 	    createBZ2(path);
-	    cout << "ok" << endl;
+
+	    if (_traceLevel > 0)
+	    {
+		Trace out(_logger, "IcePatch");
+		out << "created .bz2 file for `" << path << "'";
+	    }
 
 	    // Get the .bz2 file info again, so that we can return the
 	    // size below. This time the .bz2 file must exist,
@@ -171,9 +185,13 @@ IcePatch::RegularI::getBZ2(Ice::Int pos, Ice::Int num, const Ice::Current& curre
 	infoBZ2 = getFileInfo(path + ".bz2", false);
 	if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
 	{
-	    cout << "creating .bz2 file for `" << path << "'... " << flush;
 	    createBZ2(path);
-	    cout << "ok" << endl;
+
+	    if (_traceLevel > 0)
+	    {
+		Trace out(_logger, "IcePatch");
+		out << "created .bz2 file for `" << path << "'";
+	    }
 	}
     }
 
