@@ -203,7 +203,8 @@ if strip:
 #
 # Create binary archives.
 #
-os.system("tar cvzf " + icever + "-bin-" + platform + ".tar.gz " + icever)
+os.system("tar cvf " + icever + "-bin-" + platform + ".tar " + icever)
+os.system("gzip -9 " + icever + "-bin-" + platform + ".tar")
 os.system("zip -9ry " + icever + "-bin-" + platform + ".zip " + icever)
 
 #
