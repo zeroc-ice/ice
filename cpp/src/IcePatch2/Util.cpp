@@ -433,7 +433,7 @@ IcePatch2::getDirname(const string& pa)
 	return path + "/";
     }
 #else
-    if(path.isEmpty())
+    if(path.empty())
     {
 	return "/";
     }
