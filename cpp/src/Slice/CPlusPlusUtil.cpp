@@ -464,7 +464,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	{
 	    string scope = fixKwd(seq->scope());
 	    out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
-		<< fixedParam << ", " << scope << "__U__" << seq->name() << "());";
+		<< fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
 	}
 	return;
     }
@@ -474,7 +474,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     {
 	string scope = fixKwd(dict->scope());
 	out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
-	    << fixedParam << ", " << scope << "__U__" << dict->name() << "());";
+	    << fixedParam << ", " << scope << "__U__" << fixKwd(dict->name()) << "());";
 	return;
     }
     
@@ -693,7 +693,7 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
 	{
 	    string scope = fixKwd(seq->scope());
 	    out << nl << scope << genFunc << tagName << ", " << (pointer ? "" : "&") << stream
-		<< ", " << fixedParam << ", " << scope << "__U__" << seq->name() << "());";
+		<< ", " << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
 	}
 	return;
     }
@@ -703,7 +703,7 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
     {
 	string scope = fixKwd(dict->scope());
 	out << nl << scope << genFunc << tagName << ", " << (pointer ? "" : "&") << stream
-	    << ", " << fixedParam << ", " << scope << "__U__" << dict->name() << "());";
+	    << ", " << fixedParam << ", " << scope << "__U__" << fixKwd(dict->name()) << "());";
 	return;
     }
     

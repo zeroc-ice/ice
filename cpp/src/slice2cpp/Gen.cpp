@@ -1224,10 +1224,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     TypePtr ret = p->returnType();
     string retS = returnTypeToString(ret);
 
-    //TypeStringList inParams = p->inputParameters();
-    //TypeStringList outParams = p->outputParameters();
-    //TypeStringList::const_iterator q;
-
     string params = "(";
     string paramsDecl = "("; // With declarators
     string args = "(";
@@ -1246,34 +1242,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	paramsDecl += ", ";
 	args += ", ";
     }
-
-#if 0
-    for(q = inParams.begin(); q != inParams.end(); ++q)
-    {
-	string typeString = inputTypeToString(q->first);
-	params += typeString;
-	paramsDecl += typeString;
-	paramsDecl += ' ';
-	paramsDecl += fixKwd(q->second);
-	args += fixKwd(q->second);
-	params += ", ";
-	paramsDecl += ", ";
-	args += ", ";
-    }
-
-    for(q = outParams.begin(); q != outParams.end(); ++q)
-    {
-	string typeString = outputTypeToString(q->first);
-	params += typeString;
-	paramsDecl += typeString;
-	paramsDecl += ' ';
-	paramsDecl += fixKwd(q->second);
-	args += fixKwd(q->second);
-	params += ", ";
-	paramsDecl += ", ";
-	args += ", ";
-    }
-#endif
 
     params += "const ::Ice::Context& = ::Ice::Context())";
     paramsDecl += "const ::Ice::Context& __context)";
@@ -1422,10 +1390,6 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 
     TypePtr ret = p->returnType();
     string retS = returnTypeToString(ret);
-
-    //TypeStringList inParams = p->inputParameters();
-    //TypeStringList outParams = p->outputParameters();
-    //TypeStringList::const_iterator q;
 
     string params = "(";
 
@@ -2091,7 +2055,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    {
 		C << nl << "case " << i++ << ':';
 		C << sb;
-		C << nl << "return ___" << *q << "(in, current);";
+		C << nl << "return ___" << fixKwd(*q) << "(in, current);";
 		C << eb;
 	    }
 	    C << eb;
@@ -2846,10 +2810,6 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         TypePtr ret = op->returnType();
         string retS = returnTypeToString(ret);
-
-        //TypeStringList inParams = op->inputParameters();
-        //TypeStringList outParams = op->outputParameters();
-        //TypeStringList::const_iterator q;
 
         H << sp << nl << "virtual " << retS << ' ' << opName << '(';
         H.useCurrentPosAsIndent();
