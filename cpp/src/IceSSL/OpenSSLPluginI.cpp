@@ -224,6 +224,9 @@ IceSSL::OpenSSLPluginI::~OpenSSLPluginI()
     CRYPTO_cleanup_all_ex_data();
 #endif
 
+    // TODO: Introduces a 72byte memory leak, if we kidnap the code from OpenSSL 0.9.7a for
+    //       ENGINE_cleanup(), we can fix that.
+
     ERR_free_strings();
     unregisterThreads();
 
