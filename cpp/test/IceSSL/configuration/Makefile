@@ -14,7 +14,7 @@ CLIENT		= configuration
 
 TARGETS		= $(CLIENT)
 
-OBJS		= configuration.o
+OBJS		= Configuration.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
