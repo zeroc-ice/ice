@@ -520,7 +520,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	    }
 	}
 
-	H << sp << nl << "struct __" << p->name() << "_init";
+	H << sp << nl << "struct ICE_API __" << p->name() << "_init";
 	H << sb;
 	H << nl << "__" << p->name() << "_init();";
 	H << eb << ';';
@@ -2274,7 +2274,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << nl << "extern \"C\" { void " << initfuncname << "() {} }";
 	    C << nl << "#endif";
 
-	    H << sp << nl << "struct __" << p->name() << "_init";
+	    H << sp << nl << "struct ICE_API __" << p->name() << "_init";
 	    H << sb;
 	    H << nl << "__" << p->name() << "_init();";
 	    H << eb << ';';
