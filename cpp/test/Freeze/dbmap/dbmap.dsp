@@ -91,16 +91,89 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\ByteIntMapBinary.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ByteIntMapXML.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Client.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\ByteIntMapBinary.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ByteIntMapXML.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# Begin Source File
+
+SOURCE=dummy.ice
+
+!IF  "$(CFG)" == "dbmap - Win32 Release"
+
+USERDEP__DUMMY="..\..\..\bin\slice2freeze.exe"	
+# Begin Custom Build
+InputPath=dummy.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\..\lib \
+	..\..\..\bin\slice2freeze.exe --dict ByteIntMapXML,byte,int ByteIntMapXML \
+	..\..\..\bin\slice2freeze.exe --binary --dict ByteIntMapBinary,byte,int ByteIntMapBinary \
+	
+
+"ByteIntMapXML.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ByteIntMapXML.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ByteIntMapBinary.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ByteIntMapBinary.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "dbmap - Win32 Debug"
+
+USERDEP__DUMMY="..\..\..\bin\slice2freeze.exe"	
+# Begin Custom Build
+InputPath=dummy.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\..\lib \
+	..\..\..\bin\slice2freeze.exe --dict ByteIntMapXML,byte,int ByteIntMapXML \
+	..\..\..\bin\slice2freeze.exe --binary --dict ByteIntMapBinary,byte,int ByteIntMapBinary \
+	
+
+"ByteIntMapXML.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ByteIntMapXML.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ByteIntMapBinary.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ByteIntMapBinary.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
 # End Group
 # End Target
 # End Project
