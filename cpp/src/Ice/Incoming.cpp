@@ -379,15 +379,3 @@ IceInternal::Incoming::invoke()
 
     __finishInvoke();
 }
-
-BasicStream*
-IceInternal::Incoming::is()
-{
-    return &_is;
-}
-
-BasicStream*
-IceInternal::Incoming::os()
-{
-    return &_os;
-}

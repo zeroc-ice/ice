@@ -1098,14 +1098,14 @@ public final class Connection extends EventHandler
         {
             if(_incomingCache == null)
             {
-                in = new Incoming(_instance, _adapter, this, response);
+                in = new Incoming(_instance, this, _adapter, response);
             }
             else
             {
                 in = _incomingCache;
                 _incomingCache = _incomingCache.next;
                 in.next = null;
-                in.reset(_instance, _adapter, this, response);
+                in.reset(_instance, this, _adapter, response);
             }
         }
 

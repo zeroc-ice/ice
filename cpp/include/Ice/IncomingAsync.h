@@ -38,8 +38,9 @@ protected:
     void __exception(const ::std::exception&);
     void __exception();
 
-    BasicStream* __is();
-    BasicStream* __os();
+    // Inlined for speed optimization.
+    BasicStream* __is() { return &_is; }
+    BasicStream* __os() { return &_os; }
 
 private:
 

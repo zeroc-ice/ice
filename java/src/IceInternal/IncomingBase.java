@@ -30,7 +30,7 @@ public class IncomingBase
     }
 
     protected
-    IncomingBase(IncomingBase in) // Adopts the IncomingBase argument. It must not be used afterwards.
+    IncomingBase(IncomingBase in) // Adopts the argument. It must not be used afterwards.
     {
 	_current = in._current;
 	_servant = in._servant;

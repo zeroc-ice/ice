@@ -386,15 +386,3 @@ IceInternal::Outgoing::finished(const LocalException& ex)
 	notify();
     }
 }
-
-BasicStream*
-IceInternal::Outgoing::is()
-{
-    return &_is;
-}
-
-BasicStream*
-IceInternal::Outgoing::os()
-{
-    return &_os;
-}

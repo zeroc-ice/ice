@@ -184,18 +184,6 @@ IceInternal::IncomingAsync::__exception()
     __finishInvoke();
 }
 
-BasicStream*
-IceInternal::IncomingAsync::__is()
-{
-    return &_is;
-}
-
-BasicStream*
-IceInternal::IncomingAsync::__os()
-{
-    return &_os;
-}
-
 IceAsync::Ice::AMD_Object_ice_invoke::AMD_Object_ice_invoke(Incoming& in) :
     IncomingAsync(in)
 {

@@ -51,7 +51,6 @@ protected:
 
     BasicStream _is;
     BasicStream _os;
-
 };
 
 class ICE_API Incoming : public IncomingBase
@@ -62,8 +61,9 @@ public:
 
     void invoke();
 
-    BasicStream* is();
-    BasicStream* os();
+    // Inlined for speed optimization.
+    BasicStream* is() { return &_is; }
+    BasicStream* os() { return &_os; }
 };
 
 }

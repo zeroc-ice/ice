@@ -63,8 +63,9 @@ public:
     void finished(BasicStream&);
     void finished(const ::Ice::LocalException&);
 
-    BasicStream* is();
-    BasicStream* os();
+    // Inlined for speed optimization.
+    BasicStream* is() { return &_is; }
+    BasicStream* os() { return &_os; }
 
 private:
 
