@@ -239,8 +239,8 @@ to do the following:
 
 4) Configure the include and library paths in Visual C++ for PHP and
    Ice. Assuming that you've extracted the PHP5 sources into C:\PHP5,
-   the binary distribution into C:\PHP5-Win32, and and installed Ice
-   into C:\Ice, then the following paths must be configured:
+   the binary distribution into C:\PHP5-Win32, and installed Ice into
+   C:\Ice, then the following paths must be configured:
 
    Include:
      C:\PHP5
@@ -279,7 +279,7 @@ by running the command-line version of PHP with the -i option.
 After compiling the dynamic extension on Linux and Solaris, the shared
 library can be found in the "modules" subdirectory of the PHP source
 tree. If you've compiled the dynamic Ice extension on Windows, the
-DLL is located in bin/Debug/php_ice.dll or bin/Release/php_ice.dll,
+DLL is located in bin/debug/php_ice.dll or bin/release/php_ice.dll,
 depending on the build configuration you selected.
 
 Once you've copied the dynamic extension to PHP's extension directory,
