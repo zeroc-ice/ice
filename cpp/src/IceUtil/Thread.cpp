@@ -131,7 +131,7 @@ IceUtil::Thread::~Thread()
 {
 }
 
-IceUtil::Thread::ThreadId
+IceUtil::ThreadId
 IceUtil::Thread::id() const
 {
     IceUtil::Mutex::Lock lock(_stateMutex);
