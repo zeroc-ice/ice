@@ -714,10 +714,9 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
 		continue; // Ignore class definitions
 	    }
 
-	    if(printError && matches.front()->name() != sc)
+	    if(printError && matches.front()->scoped() != (thisScope() + sc))
 	    {
-		string msg;
-		msg = "type name `" + sc;
+		string msg = (*p)->kindOf() + " name `" + scoped;
 		msg += "' is capitalized inconsistently with its previous name: `";
 		msg += matches.front()->scoped() + "'";
 		_unit->warning(msg);	// TODO: change to error in stable_39
@@ -752,10 +751,10 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
 		continue; // Ignore class definitions
 	    }
 
-	    if(printError && matches.front()->name() != sc)
+	    if(printError && matches.front()->scoped() != (thisScope() + sc))
 	    {
-		string msg;
-		msg = "type name `" + sc + "' is capitalized inconsistently with its previous name: `";
+		string msg = (*p)->kindOf() + " name `" + scoped;
+		msg += "' is capitalized inconsistently with its previous name: `";
 		msg += matches.front()->scoped() + "'";
 		_unit->warning(msg);	// TODO: change to error in stable_39
 	    }
@@ -841,15 +840,13 @@ Slice::Container::lookupContained(const string& scoped, bool printError)
 	{
 	    results.push_back(*p);
 
-	    if(printError && (*p)->name() != sc)
+	    if(printError && (*p)->scoped() != (thisScope() + sc))
 	    {
-		string msg;
-		msg = "`" + sc + "' is capitalized inconsistently with its previous name: `";
-		msg += (*p)->scoped() + "'";
+		string msg = (*p)->kindOf() + " name `" + scoped;
+		msg += "' is capitalized inconsistently with its previous name: `" + (*p)->scoped() + "'";
 		_unit->warning(msg);	// TODO: change to error in stable_39
 	    }
 	}
-
     }
 
     if(results.empty())
@@ -877,7 +874,7 @@ Slice::Container::lookupContained(const string& scoped, bool printError)
 ExceptionPtr
 Slice::Container::lookupException(const string& scoped, bool printError)
 {
-    ContainedList contained = lookupContained(scoped, false);
+    ContainedList contained = lookupContained(scoped, printError);
     if(contained.empty())
     {
 	return 0;
@@ -897,22 +894,6 @@ Slice::Container::lookupException(const string& scoped, bool printError)
 		_unit->error(msg);
 	    }
 	    return 0;
-	}
-	string sc;
-	if(scoped.size() >= 2 && scoped[0] == ':')
-	{
-	    sc = scoped.substr(2);
-	}
-	else
-	{
-	    sc = scoped;
-	}
-	if(printError && (*p)->name() != sc)
-	{
-	    string msg;
-	    msg = "exception name `" + scoped + "' is capitalized inconsistently with its previous name: `";
-	    msg += (*p)->scoped() + "'";
-	    _unit->warning(msg);	// TODO: change to error in stable_39
 	}
 	exceptions.push_back(ex);
     }
@@ -1511,8 +1492,12 @@ Slice::ClassDecl::uses(const ContainedPtr&) const
 string
 Slice::ClassDecl::kindOf() const
 {
-    string s = _interface ? "interface" : "class";
-    s += " declaration";
+    string s;
+    if(isLocal())
+    {
+	s += "local ";
+    }
+    s += _interface ? "interface" : "class";
     return s;
 }
 

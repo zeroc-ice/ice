@@ -44,13 +44,20 @@ CaseInsensitive.ice:157: redefinition of enumeration `en1' as enumerator
 CaseInsensitive.ice:158: warning: enumerator `EN1' differs only in capitalization from enumeration `en1'
 CaseInsensitive.ice:159: redefinition of module `m1' as enumerator
 CaseInsensitive.ice:160: warning: enumerator `M1' differs only in capitalization from module `m1'
-CaseInsensitive.ice:172: warning: type name `base' is capitalized inconsistently with its previous name: `::xxx::xx::Base'
+CaseInsensitive.ice:172: warning: interface name `base' is capitalized inconsistently with its previous name: `::xxx::xx::Base'
 CaseInsensitive.ice:172: redefinition of interface `Derived'
 CaseInsensitive.ice:176: warning: exception name `E1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
-CaseInsensitive.ice:180: warning: type name `S1' is capitalized inconsistently with its previous name: `::xxx::xx::s1'
-CaseInsensitive.ice:181: `xx::S1' is not defined
-CaseInsensitive.ice:182: warning: type name `XX::s1' is capitalized inconsistently with its previous name: `::xxx::xx::s1'
-CaseInsensitive.ice:187: warning: type name `derived' is capitalized inconsistently with its previous name: `::xxx::xx::Derived'
-CaseInsensitive.ice:195: warning: parameter `param' differs only in capitalization from parameter `Param'
-CaseInsensitive.ice:197: warning: exception name `E1' is capitalized inconsistently with its previous name: `::e1'
-CaseInsensitive.ice:210: ambiguous multiple inheritance: `derived' inherits operations `op' and `OP', which differ only in capitalization, from unrelated base interfaces
+CaseInsensitive.ice:180: warning: sequence name `S1' is capitalized inconsistently with its previous name: `::xxx::xx::s1'
+CaseInsensitive.ice:181: warning: sequence name `xxx::xx::S1' is capitalized inconsistently with its previous name: `::xxx::xx::s1'
+CaseInsensitive.ice:182: warning: sequence name `xxx::XX::s1' is capitalized inconsistently with its previous name: `::xxx::xx::s1'
+CaseInsensitive.ice:183: warning: sequence name `xxx::XX::s1' is capitalized inconsistently with its previous name: `::xxx::xx::s1'
+CaseInsensitive.ice:188: warning: interface name `derived' is capitalized inconsistently with its previous name: `::xxx::xx::Derived'
+CaseInsensitive.ice:196: warning: parameter `param' differs only in capitalization from parameter `Param'
+CaseInsensitive.ice:198: warning: exception name `E1' is capitalized inconsistently with its previous name: `::e1'
+CaseInsensitive.ice:200: warning: exception name `xxx::xx::E1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
+CaseInsensitive.ice:201: warning: exception name `xxx::XX::e1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
+CaseInsensitive.ice:202: warning: exception name `XXX::xx::e1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
+CaseInsensitive.ice:204: warning: exception name `xxx::xx::E1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
+CaseInsensitive.ice:205: warning: exception name `xxx::XX::e1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
+CaseInsensitive.ice:206: warning: exception name `XXX::xx::e1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
+CaseInsensitive.ice:219: ambiguous multiple inheritance: `derived' inherits operations `op' and `OP', which differ only in capitalization, from unrelated base interfaces

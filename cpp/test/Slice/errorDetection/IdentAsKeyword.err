@@ -58,10 +58,10 @@ IdentAsKeyword.ice:59: illegal identifier: `VOID' differs from keyword `void' on
 IdentAsKeyword.ice:59: parse error
 IdentAsKeyword.ice:59: illegal identifier: `VOID' differs from keyword `void' only in capitalization
 IdentAsKeyword.ice:61: keyword `local' cannot be used as enumeration name
-IdentAsKeyword.ice:61: redefinition of interface declaration `local' as enumeration
+IdentAsKeyword.ice:61: redefinition of interface `local' as enumeration
 IdentAsKeyword.ice:62: illegal identifier: `LOCAL' differs from keyword `local' only in capitalization
 IdentAsKeyword.ice:62: keyword `local' cannot be used as enumeration name
-IdentAsKeyword.ice:62: redefinition of interface declaration `local' as enumeration
+IdentAsKeyword.ice:62: redefinition of interface `local' as enumeration
 IdentAsKeyword.ice:62: warning: enumerator `c' differs only in capitalization from class `C'
 IdentAsKeyword.ice:64: keyword `long' cannot be used as enumerator
 IdentAsKeyword.ice:64: keyword `byte' cannot be used as enumerator
