@@ -15,11 +15,18 @@ Ice is available under the terms of the GNU General Public License
 customers who wish to use Ice in proprietary products. Please contact
 sales@zeroc.com for more information on licensing Ice.
 
-This file describes how to setup Visual Studio for Ice, and provides
-instructions for building and running the sample programs.
+This file describes how to setup Visual Studio 6.0 for Ice, and
+provides instructions for building and running the sample programs.
 
 See doc/README.html for information on the documentation included with
 this distribution.
+
+
+Visual Studio Requirements
+--------------------------
+
+Ice requires Visual Studio 6.0 Service Pack 5 or later. We recommend
+using the most recent update, Service Pack 6.
 
 
 Setting up Visual Studio 6.0
@@ -33,7 +40,9 @@ libraries, and executables.
 
 - Select "Include files"
 
-- Add C:\Ice-<version>\include and C:\Ice-<version>\include\stlport.
+- Add <Ice installation root directory>\include and
+  <Ice installation root directory>\include\stlport
+
   Move the stlport include directory to the top of the list, or at
   least before the Visual C++ include directories. This is necessary
   so that the compiler uses the STL headers from the STLport library
@@ -41,11 +50,11 @@ libraries, and executables.
 
 - Select "Library files"
 
-- Add C:\Ice-<version>\lib
+- Add <Ice installation root directory>\lib
 
 - Select "Executable files"
 
-- Add C:\Ice-<version>\bin
+- Add <Ice installation root directory>\bin
 
 
 Building and running the C++ demos
