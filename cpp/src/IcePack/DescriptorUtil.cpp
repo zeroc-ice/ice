@@ -134,7 +134,7 @@ IcePack::equal(const ServerDescriptorPtr& lhs, const ServerDescriptorPtr& rhs)
     ServiceDescriptorSeq slhs;
     ServiceDescriptorSeq srhs;
 
-    if(lhs->ice_id() == JavaServerDescriptor::ice_staticId())
+    if(JavaServerDescriptorPtr::dynamicCast(lhs))
     {
 	JavaServerDescriptorPtr jlhs = JavaServerDescriptorPtr::dynamicCast(lhs);
 	JavaServerDescriptorPtr jrhs = JavaServerDescriptorPtr::dynamicCast(rhs);
@@ -150,7 +150,7 @@ IcePack::equal(const ServerDescriptorPtr& lhs, const ServerDescriptorPtr& rhs)
 	    return false;
 	}
 	
-	if(lhs->ice_id() == JavaIceBoxDescriptor::ice_staticId())
+	if(JavaIceBoxDescriptorPtr::dynamicCast(lhs))
 	{
 	    JavaIceBoxDescriptorPtr ilhs = JavaIceBoxDescriptorPtr::dynamicCast(lhs);
 	    JavaIceBoxDescriptorPtr irhs = JavaIceBoxDescriptorPtr::dynamicCast(rhs);
@@ -169,7 +169,7 @@ IcePack::equal(const ServerDescriptorPtr& lhs, const ServerDescriptorPtr& rhs)
 	    srhs = irhs->services;
 	}
     }
-    else if(lhs->ice_id() == CppIceBoxDescriptor::ice_staticId())
+    else if(CppIceBoxDescriptorPtr::dynamicCast(lhs))
     {
 	CppIceBoxDescriptorPtr ilhs = CppIceBoxDescriptorPtr::dynamicCast(lhs);
 	CppIceBoxDescriptorPtr irhs = CppIceBoxDescriptorPtr::dynamicCast(rhs);
