@@ -1371,18 +1371,14 @@ IceInternal::BasicStream::read(vector<string>& v)
     startSeq(sz, 1);
     v.clear();
 
-    //
-    // For efficiency, we use reserve() here to avoid having the
-    // vector reallocate repeatedly.
-    //
-    v.reserve(sz);
+    v.resize(sz);
     for(int i = 0; i < sz; ++i)
     {
-	v.resize(i + 1);
-	read(v.back());
+	read(v[i]);
 	checkSeq();
 	endElement();
     }
+
     endSeq(sz);
 }
 
