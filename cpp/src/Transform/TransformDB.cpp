@@ -445,7 +445,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
             cerr << "The following types had no matching definitions in the new Slice:" << endl;
             for(vector<string>::const_iterator p = missingTypes.begin(); p != missingTypes.end(); ++p)
             {
-                cerr << *p << endl;
+                cerr << "  " << *p << endl;
             }
         }
 
