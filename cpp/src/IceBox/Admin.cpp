@@ -123,9 +123,13 @@ Client::run(int argc, char* argv[])
     for(Ice::SliceChecksumDict::const_iterator p = localChecksums.begin(); p != localChecksums.end(); ++p)
     {
         Ice::SliceChecksumDict::const_iterator q = serverChecksums.find(p->first);
-        if(q == serverChecksums.end() || p->second != q->second)
+        if(q == serverChecksums.end())
         {
-            cerr << appName() << ": server is using different Slice definitions" << endl;
+            cerr << appName() << ": server is using unknown Slice type `" << q->first << "'" << endl;
+        }
+        else if(p->second != q->second)
+        {
+            cerr << appName() << ": server is using a different Slice definition of `" << q->first << "'" << endl;
         }
     }
 
