@@ -16,12 +16,12 @@
 #include <IceStorm/IceStorm.h>
 #include <Single.h>
 
+#include <fcntl.h>
 #ifdef _WIN32
 #   include <io.h>
 #else
 #   include <sys/types.h>
 #   include <sys/stat.h>
-#   include <fcntl.h>
 #endif
 
 using namespace std;
