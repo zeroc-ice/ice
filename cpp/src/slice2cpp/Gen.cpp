@@ -525,7 +525,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	H << nl << "__" << p->name() << "_init();";
 	H << eb << ';';
 
-	C << sp << nl << p->name() << "::__" << p->name() << "_init::__" << p->name() << "_init()";
+	C << sp << nl << scoped << "::__" << p->name() << "_init::__" << p->name() << "_init()";
 	C << sb;
 	C << eb;
 
@@ -2279,7 +2279,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    H << nl << "__" << p->name() << "_init();";
 	    H << eb << ';';
 
-	    C << sp << nl << name << "::__" << p->name() << "_init::__" << name << "_init()";
+	    C << sp << nl << scoped << "::__" << p->name() << "_init::__" << name << "_init()";
 	    C << sb;
 	    C << eb;
 
