@@ -53,6 +53,10 @@ print "ok"
 name = os.path.join("Glacier", "starter")
 TestUtil.mixedClientServerTest(toplevel, name)
 
+# We run the test again, to check whether the glacier starter can
+# start up multiple routers.
+TestUtil.mixedClientServerTest(toplevel, name)
+
 print "shutting down glacier starter...",
 TestUtil.killServers() # TODO: Graceful shutdown.
 print "ok"
