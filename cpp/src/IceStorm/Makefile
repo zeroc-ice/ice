@@ -36,7 +36,7 @@ SERVICE_OBJS	= IceStorm.o \
 		  SubscriberFactory.o \
 		  TopicI.o \
 		  TopicManagerI.o \
-		  StringStringDict.o \
+		  StringBoolDict.o \
 		  IdentityLinkDict.o \
 		  LinkDB.o \
 		  IceStormInternal.o \
@@ -80,12 +80,12 @@ $(ADMIN): $(AOBJS) $(NAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(XERCESC_LIBS) $(READLINE_LIBS) $(LIBS)
 
-StringStringDict.h StringStringDict.cpp: $(SLICE2FREEZE)
-	rm -f StringStringDict.h StringStringDict.cpp
-	$(SLICE2FREEZECMD) --dict IceStorm::StringStringDict,string,string StringStringDict
+StringBoolDict.h StringBoolDict.cpp: $(SLICE2FREEZE)
+	rm -f StringBoolDict.h StringBoolDict.cpp
+	$(SLICE2FREEZECMD) --dict IceStorm::StringBoolDict,string,bool StringBoolDict
 
 clean::
-	rm -f StringStringDict.h StringStringDict.cpp
+	rm -f StringBoolDict.h StringBoolDict.cpp
 
 IdentityLinkDict.h IdentityLinkDict.cpp: ../IceStorm/LinkDB.ice $(slicedir)/Ice/Identity.ice $(SLICE2FREEZE)
 	rm -f IdentityLinkDict.h IdentityLinkDict.cpp

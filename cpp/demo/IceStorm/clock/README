@@ -13,7 +13,7 @@ working directory.
 
 In a separate window:
 
-$ ../../../bin/icestormadmin -e "create time ::Clock"
+$ ../../../bin/icestormadmin -e "create time"
 $ ./subscriber
 
 In another window:

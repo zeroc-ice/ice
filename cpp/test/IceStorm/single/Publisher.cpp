@@ -65,11 +65,6 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     ObjectPrx obj = topic->getPublisher();
     if(!obj->ice_isDatagram())
     {
-        if(!SinglePrx::checkedCast(obj->ice_twoway()))
-        {
-            cerr << argv[0] << ": checkedCast failed for publisher" << endl;
-            return EXIT_FAILURE;
-        }
         obj = obj->ice_oneway();
     }
     SinglePrx single = SinglePrx::uncheckedCast(obj);

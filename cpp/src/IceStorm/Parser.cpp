@@ -48,7 +48,7 @@ Parser::usage()
     cout <<
         "help                        Print this message.\n"
         "exit, quit                  Exit this program.\n"
-        "create TOPIC TYPE           Add TOPIC with TYPE.\n"
+        "create TOPICS               Add TOPICS.\n"
         "destroy TOPICS              Remove TOPICS.\n"
         "link FROM TO COST           Link FROM to TO with the given COST.\n"
         "unlink FROM TO              Unlink TO from FROM.\n"
@@ -60,15 +60,18 @@ Parser::usage()
 void
 Parser::create(const list<string>& args)
 {
-    if(args.size() != 2)
+    if(args.size() == 0)
     {
-        error("`create' requires exactly two arguments (type `help' for more info)");
+        error("`create' requires an argument (type `help' for more info)");
         return;
     }
 
     try
     {
-        _admin->create(args.front(), args.back());
+	for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
+	{
+            _admin->create(*i);
+	}
     }
     catch(const Exception& ex)
     {

@@ -35,8 +35,8 @@ class PublisherProxyI : public Ice::Blobject
 {
 public:
 
-    PublisherProxyI(const IceStorm::TopicSubscribersPtr& s, const string& type) :
-	_subscribers(s), _type(type)
+    PublisherProxyI(const IceStorm::TopicSubscribersPtr& s) :
+	_subscribers(s)
     {
     }
 
@@ -52,11 +52,6 @@ private:
     // Set of associated subscribers
     //
     IceStorm::TopicSubscribersPtr _subscribers;
-
-    //
-    // The topic type
-    //
-    string _type;
 };
 
 //
@@ -259,107 +254,26 @@ PublisherProxyI::ice_invoke(const vector< Ice::Byte>& inParams, vector< Ice::Byt
 {
     const Ice::Context& context = current.ctx;
 
-    //
-    // Intercept the operations ice_isA, ice_id, and ice_ids so that
-    // this publisher object can appear to have the topic type.
-    //
-    if(current.operation == "ice_isA")
+    Event event;
+    event.forwarded = false;
+    Ice::Context::const_iterator p = context.find("cost");
+    if(p != context.end())
     {
-        IceInternal::InstancePtr instance = IceInternal::getInstance(current.adapter->getCommunicator());
-        IceInternal::BasicStream is(instance.get());
-        is.b = inParams;
-        is.i = is.b.begin();
-        string type;
-        is.read(type);
-        bool b;
-        if(type == _type)
-        {
-            b = true;
-        }
-        else
-        {
-#ifdef _WIN32
-            b = Blobject::ice_isA(type);
-#else
-            b = Ice::Blobject::ice_isA(type);
-#endif
-        }
-        IceInternal::BasicStream os(instance.get());
-        os.write(b);
-        outParam = os.b;
-    }
-    else if(current.operation == "ice_id")
-    {
-        IceInternal::InstancePtr instance = IceInternal::getInstance(current.adapter->getCommunicator());
-        IceInternal::BasicStream os(instance.get());
-        os.write(_type);
-        outParam = os.b;
-    }
-    else if(current.operation == "ice_ids")
-    {
-        IceInternal::InstancePtr instance = IceInternal::getInstance(current.adapter->getCommunicator());
-        IceInternal::BasicStream os(instance.get());
-#ifdef _WIN32
-        vector<string> ids = Blobject::ice_ids();
-#else
-        vector<string> ids = Ice::Blobject::ice_ids();
-#endif
-        ids.insert(ids.begin(), _type);
-        os.write(ids);
-        outParam = os.b;
+        event.cost = atoi(p->second.c_str());
     }
     else
     {
-        Event event;
-        event.forwarded = false;
-        Ice::Context::const_iterator p = context.find("cost");
-        if(p != context.end())
-        {
-            event.cost = atoi(p->second.c_str());
-        }
-        else
-        {
-            event.cost = 0; // TODO: Default comes from property?
-        }
-        event.op = current.operation;
-        event.mode = current.mode;
-        event.data = inParams;
-        event.context = context;
-
-        _subscribers->publish(event);
+        event.cost = 0; // TODO: Default comes from property?
     }
+    event.op = current.operation;
+    event.mode = current.mode;
+    event.data = inParams;
+    event.context = context;
+
+    _subscribers->publish(event);
 
     return true;
 }
-
-#if 0
-bool
-PublisherProxyI::ice_isA(const string& id, const Ice::Current& current)
-{
-    if(id == _type)
-    {
-        return true;
-    }
-    else
-    {
-        return Ice::Blobject::ice_isA(id, current);
-    }
-}
-
-vector<string>
-PublisherProxyI::ice_ids(const Ice::Current& current)
-{
-    vector<string> ids = Ice::Blobject::ice_ids(current);
-    ids.insert(ids.begin(), _type);
-    return ids;
-}
-
-const string&
-PublisherProxyI::ice_id(const Ice::Current&)
-{
-    return _type;
-}
-#endif
 
 //
 // Incoming events from linked topics.
@@ -380,11 +294,10 @@ TopicLinkI::forward(const string& op, Ice::OperationMode mode, const ByteSeq& da
 }
 
 TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& traceLevels, const string& name,
-	       const string& type, const SubscriberFactoryPtr& factory, const Freeze::DBPtr& db) :
+	       const SubscriberFactoryPtr& factory, const Freeze::DBPtr& db) :
     _adapter(adapter),
     _traceLevels(traceLevels),
     _name(name),
-    _type(type),
     _factory(factory),
     _destroyed(false),
     _links(db),
@@ -397,7 +310,7 @@ TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& trace
     // identity is category=<topicname>, name=publish. Activate the
     // object and save a reference to give to publishers.
     //
-    _publisher = new PublisherProxyI(_subscribers, type);
+    _publisher = new PublisherProxyI(_subscribers);
     
     Ice::Identity id;
     id.category = _name;
@@ -443,13 +356,6 @@ TopicI::getName(const Ice::Current&) const
 {
     // Immutable
     return _name;
-}
-
-string
-TopicI::getType(const Ice::Current&) const
-{
-    // Immutable
-    return _type;
 }
 
 Ice::ObjectPrx

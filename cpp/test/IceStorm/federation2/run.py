@@ -121,19 +121,7 @@ TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
 print "ok"
 
 print "creating topics...",
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create fed1 ::Event"'
-iceStormAdminPipe = os.popen(command)
-iceStormAdminStatus = iceStormAdminPipe.close()
-if iceStormAdminStatus:
-    TestUtil.killServers()
-    sys.exit(1)
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create fed2 ::Event"'
-iceStormAdminPipe = os.popen(command)
-iceStormAdminStatus = iceStormAdminPipe.close()
-if iceStormAdminStatus:
-    TestUtil.killServers()
-    sys.exit(1)
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create fed3 ::Event"'
+command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create fed1 fed2 fed3"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:

@@ -43,13 +43,13 @@ TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice
     // but not removed from the _topics dictionary. Normally this
     // should only occur in the event of a crash.
     //
-    StringStringDict::iterator p = _topics.begin();
+    StringBoolDict::iterator p = _topics.begin();
     while(p != _topics.end())
     {
 	assert(_topicIMap.find(p->first) == _topicIMap.end());
 	try
 	{
-	    installTopic("recreate", p->first, p->second, false);
+	    installTopic("recreate", p->first, false);
 	    ++p;
 	}
 	catch(const Freeze::DBNotFoundException& ex)
@@ -59,7 +59,7 @@ TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice
 		Ice::Trace out(_traceLevels->logger, _traceLevels->topicMgrCat);
 		out << ex;
 	    }
-	    StringStringDict::iterator tmp = p;
+	    StringBoolDict::iterator tmp = p;
 	    ++p;
 	    _topics.erase(tmp);
 	}
@@ -71,10 +71,8 @@ TopicManagerI::~TopicManagerI()
 }
 
 TopicPrx
-TopicManagerI::create(const string& name, const string& type, const Ice::Current&)
+TopicManagerI::create(const string& name, const Ice::Current&)
 {
-    validateType(type);
-
     // TODO: reader/writer mutex
     IceUtil::Mutex::Lock sync(*this);
 
@@ -87,8 +85,8 @@ TopicManagerI::create(const string& name, const string& type, const Ice::Current
         throw ex;
     }
 
-    installTopic("create", name, type, true);
-    _topics.insert(pair<const string, const string>(name, type));
+    installTopic("create", name, true);
+    _topics.insert(pair<const string, const bool>(name, true));
 
     //
     // The identity is the name of the Topic.
@@ -183,7 +181,7 @@ TopicManagerI::reap()
 }
 
 void
-TopicManagerI::installTopic(const string& message, const string& name, const string& type, bool create)
+TopicManagerI::installTopic(const string& message, const string& name, bool create)
 {
     if(_traceLevels->topicMgr > 0)
     {
@@ -207,7 +205,7 @@ TopicManagerI::installTopic(const string& message, const string& name, const str
     //
     // Create topic implementation
     //
-    TopicIPtr topicI = new TopicI(_publishAdapter, _traceLevels, name, type, _factory, db);
+    TopicIPtr topicI = new TopicI(_publishAdapter, _traceLevels, name, _factory, db);
     
     //
     // The identity is the name of the Topic.
@@ -216,63 +214,6 @@ TopicManagerI::installTopic(const string& message, const string& name, const str
     id.name = name;
     _topicAdapter->add(topicI, id);
     _topicIMap.insert(TopicIMap::value_type(name, topicI));
-}
-
-void
-TopicManagerI::validateType(const string& type)
-{
-    bool fail = false;
-    const string::size_type len = type.size();
-    string::size_type pos = type.find("::");
-    if(pos != 0)
-    {
-        fail = true;
-    }
-
-    bool checkAlpha = false;
-    while(!fail && pos < len)
-    {
-        if(checkAlpha)
-        {
-            if(!isalpha(type[pos]))
-            {
-                fail = true;
-            }
-            else
-            {
-                checkAlpha = false;
-            }
-        }
-        else if(type[pos] == ':')
-        {
-            pos++;
-            if(pos == len || type[pos] != ':')
-            {
-                fail = true;
-            }
-            else
-            {
-                checkAlpha = true;
-            }
-        }
-        else if(!isalnum(type[pos]))
-        {
-            fail = true;
-        }
-        pos++;
-    }
-
-    if(checkAlpha) // type ended with "::"
-    {
-        fail = true;
-    }
-
-    if(fail)
-    {
-        InvalidType ex;
-        ex.type = type;
-        throw ex;
-    }
 }
 
 string

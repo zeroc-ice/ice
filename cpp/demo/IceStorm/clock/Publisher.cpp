@@ -75,8 +75,11 @@ Publisher::run(int argc, char* argv[])
     // reasons).
     //
     Ice::ObjectPrx obj = topic->getPublisher();
-    assert(obj->ice_isA(Clock::ice_staticId()));
-    ClockPrx clock = ClockPrx::uncheckedCast(obj->ice_oneway());
+    if(!obj->ice_isDatagram())
+    {
+        obj = obj->ice_oneway();
+    }
+    ClockPrx clock = ClockPrx::uncheckedCast(obj);
 
     cout << "publishing 10 tick events" << endl;
     for(int i = 0; i < 10; ++i)

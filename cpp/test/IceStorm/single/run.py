@@ -53,7 +53,7 @@ TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
 print "ok"
 
 print "creating topic...",
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create single ::Single"'
+command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create single"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:

@@ -24,9 +24,6 @@ Changes since version 1.0.1
   * Moved the subscribe and unsubscribe operations to the Topic
     interface.
 
-  * Added a type attribute to Topic to support the use of checkedCast
-    on Topic publisher objects.
-
   * Added an object adapter to host publisher objects, and hence a new
     configuration property IceStorm.Publish.Endpoints.
 

@@ -16,7 +16,7 @@
 #define TOPIC_MANAGER_I_H
 
 #include <IceStorm/IceStorm.h>
-#include <IceStorm/StringStringDict.h>
+#include <IceStorm/StringBoolDict.h>
 
 namespace IceStorm
 {
@@ -52,7 +52,7 @@ public:
                   const TraceLevelsPtr&, const Freeze::DBEnvironmentPtr&, const Freeze::DBPtr&);
     ~TopicManagerI();
 
-    virtual TopicPrx create(const std::string&, const std::string&, const Ice::Current&);
+    virtual TopicPrx create(const std::string&, const Ice::Current&);
     virtual TopicPrx retrieve(const std::string&, const Ice::Current&) const;
     virtual TopicDict retrieveAll(const Ice::Current&) const;
 
@@ -60,8 +60,7 @@ public:
 
 private:
 
-    void installTopic(const std::string&, const std::string&, const std::string&, bool);
-    static void validateType(const std::string&);
+    void installTopic(const std::string&, const std::string&, bool);
     static std::string getDatabaseName(const std::string&);
 
     Ice::CommunicatorPtr _communicator;
@@ -72,7 +71,7 @@ private:
     FlusherPtr _flusher;
     SubscriberFactoryPtr _factory;
     Freeze::DBEnvironmentPtr _dbEnv;
-    StringStringDict _topics;
+    StringBoolDict _topics;
 };
 
 typedef IceUtil::Handle<TopicManagerI> TopicManagerIPtr;

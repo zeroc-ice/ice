@@ -93,26 +93,13 @@ interface Topic
      *
      **/
     nonmutating string getName();
-    
-    /**
-     *
-     * Get the type of this topic.
-     *
-     * @return The type of the topic.
-     *
-     * @see TopicManager::create
-     *
-     **/
-    nonmutating string getType();
-    
+
     /**
      *
      * Get a proxy to a publisher object for this topic. To publish
      * data to a topic, the publisher calls [getPublisher] and then
-     * casts to the topic type. A checked cast may be used on the
-     * publisher object if IceStorm is configured with
-     * connection-oriented transports, otherwise an unchecked cast
-     * must be used.
+     * casts to the topic type. An unchecked cast must be used on
+     * this proxy.
      *
      * @return A proxy to publish data on this topic.
      *
@@ -128,8 +115,7 @@ interface Topic
      * @param qos The quality of service parameters for this
      * subscription.
      *
-     * @param subscriber The subscriber's proxy, which must
-     * implement the topic type.
+     * @param subscriber The subscriber's proxy.
      *
      * @see unsubscribe
      *
@@ -226,22 +212,6 @@ exception NoSuchTopic
 
 /**
  *
- * This exception indicates that a type ID does not have the
- * proper format.
- *
- **/
-exception InvalidType
-{
-    /**
-     *
-     * The invalid type.
-     *
-     */
-    string type;
-};
-
-/**
- *
  * A topic manager manages topics, and subscribers to topics.
  *
  * @see Topic
@@ -252,14 +222,9 @@ interface TopicManager
     /**
      *
      * Create a new topic. The topic name must be unique, otherwise
-     * [TopicExists] is raised. The topic type identifies the
-     * most-derived type of the topic and must be a fully-scoped
-     * Slice type ID (such as <literal>::A::B</literal>). If the
-     * format of the type ID is invalid, [InvalidType] is raised.
+     * [TopicExists] is raised.
      *
      * @param name The name of the topic.
-     *
-     * @param type The type ID of the topic.
      *
      * @return A proxy to the topic instance.
      *
@@ -267,7 +232,7 @@ interface TopicManager
      * exists.
      *
      **/
-    Topic* create(string name, string type) throws TopicExists, InvalidType;
+    Topic* create(string name) throws TopicExists;
 
     /**
      *
