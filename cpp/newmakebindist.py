@@ -95,16 +95,16 @@ def collectSourceDistributions(tag, sourceDir, cvsdir, distro):
     shutil.copy("dist/" + distro + ".tar.gz", sourceDir)
     os.chdir(cwd)
 
-def extractDemos(buildDir, version, distro, demoDir):
+def extractDemos(sources, buildDir, version, distro, demoDir):
     """Pulls the demo directory out of a distribution and massages its
        build system so it can be built against an installed version of
        Ice"""
     cwd = os.getcwd()
     os.chdir(buildDir + "/demotree")
-    os.system("gzip -dc ../sources/" + distro + ".tar.gz | tar xf - " + distro + "/demo " + distro + "/config " \
+    os.system("gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf - " + distro + "/demo " + distro + "/config " \
 	    + distro + "/certs")
     if demoDir == "":
-	os.system("gzip -dc ../sources/" + distro + ".tar.gz | tar xf - " + distro + "/install/rpm/README.DEMOS")
+	os.system("gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf - " + distro + "/install/rpm/README.DEMOS")
 	shutil.move(distro + "/install/rpm/README.DEMOS", buildDir + "/Ice-" + version + "-demos/README.DEMOS")
 	
     shutil.move(distro + "/demo", buildDir + "/Ice-" + version + "-demos/demo" + demoDir)
@@ -230,7 +230,7 @@ def archiveDemoTree(buildDir, version):
     os.system("gzip -9 Ice-" + version + "-demos.tar")
     os.chdir(cwd)
 
-def makeInstall(buildDir, installDir, distro, clean):
+def makeInstall(sources, buildDir, installDir, distro, clean):
     """Make the distro in buildDir sources and install it to installDir."""
     cwd = os.getcwd()
     os.chdir(buildDir)
@@ -238,7 +238,7 @@ def makeInstall(buildDir, installDir, distro, clean):
         shutil.rmtree(distro, True)
         
     if not os.path.exists(distro):
-        os.system("gzip -dc sources/" + distro + ".tar.gz | tar xf -")
+        os.system("gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf -")
         
     os.chdir(distro)
 
@@ -535,8 +535,8 @@ def main():
             if collectSources:
                 collectSourceDistributions(cvsTag, sources, cvs, tarball)
 
-            extractDemos(buildDir, version, tarball, demoDir)
-            makeInstall(buildDir, installDir + "/Ice-" + version, tarball, clean)
+            extractDemos(sources, buildDir, version, tarball, demoDir)
+            makeInstall(sources, buildDir, installDir + "/Ice-" + version, tarball, clean)
 
         #
         # Pack up demos
