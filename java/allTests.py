@@ -40,6 +40,7 @@ tests = [ \
     "Freeze/dbmap", \
     "Freeze/complex", \
     "Freeze/evictor", \
+    "Glacier/starter", \
     ]
 
 #
@@ -52,7 +53,6 @@ if sys.platform != "win32" and sys.platform[:6] != "cygwin":
     tests += [ \
         "IcePack/simple", \
         "IcePack/deployer", \
-        "Glacier/starter", \
         ]
 
 #
