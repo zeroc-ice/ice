@@ -113,7 +113,6 @@ class Package:
 	for perm, f in self.filelist:
 	    if perm == "dll":
 		ofile.write('gacutil -i ' + f + ' > /dev/null\n')
-		ofile.write('rm ' + f + '\n')
 	ofile.write('\n')
 
     def writePostUninstall(self, ofile, version, intVersion, installDir):
