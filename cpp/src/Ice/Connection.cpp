@@ -57,7 +57,7 @@ IceInternal::Connection::validate()
 		os.write(encodingMajor);
 		os.write(encodingMinor);
 		os.write(validateConnectionMsg);
-		os.write((Byte)1); // Compression status.
+		os.write(static_cast<Byte>(1)); // Compression status.
 		os.write(headerSize); // Message size.
 		os.i = os.b.begin();
 		traceHeader("sending validate connection", os, _logger, _traceLevels);
@@ -358,7 +358,7 @@ IceInternal::Connection::prepareRequest(BasicStream* os)
 }
 
 void
-IceInternal::Connection::sendRequest(BasicStream* os, Outgoing* out)
+IceInternal::Connection::sendRequest(BasicStream* os, Outgoing* out, bool compress)
 {
     Int requestId;
 
@@ -422,22 +422,12 @@ IceInternal::Connection::sendRequest(BasicStream* os, Outgoing* out)
 	    _exception->ice_throw(); // The exception is immutable at this point.
 	}
 	
-	bool compress;
-	if(os->b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
-	{
-	    compress = false;
-	}
-	else
-	{
-	    compress = _endpoint->compress();
-	}
-	
-	if(compress)
+	if(compress && os->b.size() >= 100) // Only compress messages larger than 100 bytes.
 	{
 	    //
-	    // Set compression status.
+	    // Message compressed, request compressed response.
 	    //
-	    os->b[9] = 2; // Message is compressed.
+	    os->b[9] = 2;
 	    
 	    //
 	    // Do compression.
@@ -455,6 +445,14 @@ IceInternal::Connection::sendRequest(BasicStream* os, Outgoing* out)
 	}
 	else
 	{
+	    if(out && compress)
+	    {
+		//
+		// Message not compressed, but request compressed response.
+		//
+		os->b[9] = 1;
+	    }
+
 	    //
 	    // No compression, just fill in the message size.
 	    //
@@ -520,7 +518,7 @@ IceInternal::Connection::sendRequest(BasicStream* os, Outgoing* out)
 }
 
 void
-IceInternal::Connection::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPtr& out)
+IceInternal::Connection::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPtr& out, bool compress)
 {
     Int requestId;
 
@@ -585,23 +583,13 @@ IceInternal::Connection::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPt
 	    _exception->ice_throw(); // The exception is immutable at this point.
 	}
 
-	bool compress;
-	if(os->b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
-	{
-	    compress = false;
-	}
-	else
-	{
-	    compress = _endpoint->compress();
-	}
-
-	if(compress)
+	if(compress && os->b.size() >= 100) // Only compress messages larger than 100 bytes.
 	{
 	    //
-	    // Set compression status.
+	    // Message compressed, request compressed response.
 	    //
-	    os->b[9] = 2; // Message is compressed.
-
+	    os->b[9] = 2;
+	    
 	    //
 	    // Do compression.
 	    //
@@ -618,6 +606,14 @@ IceInternal::Connection::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPt
 	}
 	else
 	{
+	    if(compress)
+	    {
+		//
+		// Message not compressed, but request compressed response.
+		//
+		os->b[9] = 1;
+	    }
+
 	    //
 	    // No compression, just fill in the message size.
 	    //
@@ -719,7 +715,7 @@ IceInternal::Connection::prepareBatchRequest(BasicStream* os)
 }
 
 void
-IceInternal::Connection::finishBatchRequest(BasicStream* os)
+IceInternal::Connection::finishBatchRequest(BasicStream* os, bool compress)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
@@ -733,6 +729,15 @@ IceInternal::Connection::finishBatchRequest(BasicStream* os)
 
     _batchStream.swap(*os); // Get the batch stream back.
     ++_batchRequestNum; // Increment the number of requests in the batch.
+
+    //
+    // We compress the whole batch if there is at least one compressed
+    // message.
+    //
+    if(compress)
+    {
+	_batchRequestCompress = true;
+    }
 
     //
     // Give the Connection back.
@@ -800,22 +805,12 @@ IceInternal::Connection::flushBatchRequest()
 	copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
 #endif
 	
-	bool compress;
-	if(_batchStream.b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
-	{
-	    compress = false;
-	}
-	else
-	{
-	    compress = _endpoint->compress();
-	}
-	
-	if(compress)
+	if(_batchRequestCompress && _batchStream.b.size() >= 100) // Only compress messages larger than 100 bytes.
 	{
 	    //
-	    // Set compression status.
+	    // Message compressed, request compressed response.
 	    //
-	    _batchStream.b[9] = 2; // Message is compressed.
+	    _batchStream.b[9] = 2;
 	    
 	    //
 	    // Do compression.
@@ -875,6 +870,7 @@ IceInternal::Connection::flushBatchRequest()
 	_batchStream.swap(dummy);
 	assert(_batchStream.b.empty());
 	_batchRequestNum = 0;
+	_batchRequestCompress = false;
 	_batchStreamInUse = false;
 	notifyAll();
     }
@@ -893,23 +889,17 @@ IceInternal::Connection::sendResponse(BasicStream* os, Byte compressFlag)
 	    _exception->ice_throw(); // The exception is immutable at this point.
 	}
 
-	bool compress;
-	if(os->b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
-	{
-	    compress = false;
-	}
-	else
-	{
-	    compress = _endpoint->compress() && compressFlag > 0;
-	}
-	
-	if(compress)
+	//
+	// Only compress if compression was requested by the client,
+	// and if the message is larger than 100 bytes.
+	//
+	if(compressFlag > 0 && os->b.size() >= 100)
 	{
 	    //
-	    // Set compression status.
+	    // Response is compressed.
 	    //
-	    os->b[9] = 2; // Message is compressed.
-	    
+	    os->b[9] = 2;
+
 	    //
 	    // Do compression.
 	    //
@@ -1484,6 +1474,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _batchStream(_instance.get()),
     _batchStreamInUse(false),
     _batchRequestNum(0),
+    _batchRequestCompress(false),
     _dispatchCount(0),
     _state(StateNotValidated),
     _stateTime(IceUtil::Time::now())
@@ -1509,7 +1500,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     requestHdr[6] = encodingMajor;
     requestHdr[7] = encodingMinor;
     requestHdr[8] = requestMsg;
-    requestHdr[9] = 1; // Default compression status: compression supported but not used.
+    requestHdr[9] = 0;
 
     vector<Byte>& requestBatchHdr = const_cast<vector<Byte>&>(_requestBatchHdr);
     requestBatchHdr[0] = magic[0];
@@ -1521,7 +1512,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     requestBatchHdr[6] = encodingMajor;
     requestBatchHdr[7] = encodingMinor;
     requestBatchHdr[8] = requestBatchMsg;
-    requestBatchHdr[9] = 1; // Default compression status: compression supported but not used.
+    requestBatchHdr[9] = 0;
 
     vector<Byte>& replyHdr = const_cast<vector<Byte>&>(_replyHdr);
     replyHdr[0] = magic[0];
@@ -1533,7 +1524,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     replyHdr[6] = encodingMajor;
     replyHdr[7] = encodingMinor;
     replyHdr[8] = replyMsg;
-    replyHdr[9] = 1; // Default compression status: compression supported but not used.
+    replyHdr[9] = 0;
 }
 
 IceInternal::Connection::~Connection()

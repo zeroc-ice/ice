@@ -287,7 +287,7 @@ IceInternal::OutgoingAsync::__prepare(const ObjectPrx& prx, const string& operat
 	
 	_reference = prx->__reference();
 	assert(!_connection);
-	_connection = _reference->getConnection();
+	_connection = _reference->getConnection(_compress);
 	_cnt = 0;
 	_mode = mode;
 	assert(!__is);
@@ -353,12 +353,12 @@ IceInternal::OutgoingAsync::__send()
 	{
 	    if(!_connection)
 	    {
-		_connection = _reference->getConnection();
+		_connection = _reference->getConnection(_compress);
 	    }
 	    
 	    try
 	    {
-		_connection->sendAsyncRequest(__os, this);
+		_connection->sendAsyncRequest(__os, this, _compress);
 		
 		//
 		// Don't do anything after sendAsyncRequest() returned

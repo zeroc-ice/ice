@@ -641,7 +641,7 @@ IceInternal::Reference::changeDefault() const
 }
 
 ConnectionPtr
-IceInternal::Reference::getConnection() const
+IceInternal::Reference::getConnection(bool& compress) const
 {
     ConnectionPtr connection;
 
@@ -678,6 +678,7 @@ IceInternal::Reference::getConnection() const
 	}
 	assert(p != connections.end());
 	connection = *p;
+	compress = (*p)->endpoint()->compress();
     }
     else
     {	
@@ -716,7 +717,7 @@ IceInternal::Reference::getConnection() const
 	    try
 	    {
 		OutgoingConnectionFactoryPtr factory = instance->outgoingConnectionFactory();
-		connection = factory->create(filteredEndpts);
+		connection = factory->create(filteredEndpts, compress);
 		assert(connection);
 	    }
 	    catch(const LocalException& ex)

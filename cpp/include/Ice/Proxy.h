@@ -187,6 +187,7 @@ protected:
 
     ::IceInternal::ReferencePtr __reference;
     ::IceInternal::ConnectionPtr __connection;
+    bool __compress;
 
 private:
 

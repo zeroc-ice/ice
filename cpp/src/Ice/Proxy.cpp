@@ -748,7 +748,7 @@ bool
 IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
     static const string __operation("ice_isA");
-    Outgoing __out(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
+    Outgoing __out(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context, __compress);
     BasicStream* __is = __out.is();
     BasicStream* __os = __out.os();
     __os->write(__id);
@@ -772,7 +772,7 @@ void
 IceDelegateM::Ice::Object::ice_ping(const Context& __context)
 {
     static const string __operation("ice_ping");
-    Outgoing __out(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
+    Outgoing __out(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context, __compress);
     BasicStream* __is = __out.is();
     try
     {
@@ -791,7 +791,7 @@ vector<string>
 IceDelegateM::Ice::Object::ice_ids(const Context& __context)
 {
     static const string __operation("ice_ids");
-    Outgoing __out(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
+    Outgoing __out(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context, __compress);
     BasicStream* __is = __out.is();
     vector<string> __ret;
     try
@@ -813,7 +813,7 @@ string
 IceDelegateM::Ice::Object::ice_id(const Context& __context)
 {
     static const string __operation("ice_id");
-    Outgoing __out(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
+    Outgoing __out(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context, __compress);
     BasicStream* __is = __out.is();
     string __ret;
     try
@@ -838,7 +838,7 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
 				      vector<Byte>& outParams,
 				      const Context& context)
 {
-    Outgoing __out(__connection.get(), __reference.get(), operation, mode, context);
+    Outgoing __out(__connection.get(), __reference.get(), operation, mode, context, __compress);
     BasicStream* __os = __out.os();
     __os->writeBlob(inParams);
     bool ok = __out.invoke();
@@ -876,6 +876,7 @@ IceDelegateM::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegate
 
     __reference = from->__reference;
     __connection = from->__connection;
+    __compress = from->__compress;
 }
 
 void
@@ -890,7 +891,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
     assert(!__connection);
 
     __reference = ref;
-    __connection = __reference->getConnection();
+    __connection = __reference->getConnection(__compress);
 }
 
 bool

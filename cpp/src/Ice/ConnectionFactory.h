@@ -43,7 +43,7 @@ public:
 
     void waitUntilFinished();
 
-    ConnectionPtr create(const std::vector<EndpointPtr>&);
+    ConnectionPtr create(const std::vector<EndpointPtr>&, bool&);
     void setRouter(const ::Ice::RouterPrx&);
     void removeAdapter(const ::Ice::ObjectAdapterPtr&);
     void flushBatchRequests();

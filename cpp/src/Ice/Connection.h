@@ -61,11 +61,11 @@ public:
     void monitor();
 
     void prepareRequest(BasicStream*);
-    void sendRequest(BasicStream*, Outgoing*);
-    void sendAsyncRequest(BasicStream*, const OutgoingAsyncPtr&);
+    void sendRequest(BasicStream*, Outgoing*, bool);
+    void sendAsyncRequest(BasicStream*, const OutgoingAsyncPtr&, bool);
 
     void prepareBatchRequest(BasicStream*);
-    void finishBatchRequest(BasicStream*);
+    void finishBatchRequest(BasicStream*, bool);
     void flushBatchRequest();
 
     void sendResponse(BasicStream*, Ice::Byte);
@@ -162,6 +162,7 @@ private:
     BasicStream _batchStream;
     bool _batchStreamInUse;
     int _batchRequestNum;
+    bool _batchRequestCompress;
 
     int _dispatchCount;
 

@@ -60,6 +60,7 @@ private:
     ConnectionPtr _connection;
     int _cnt;
     Ice::OperationMode _mode;
+    bool _compress;
 
     IceUtil::Monitor<IceUtil::RecMutex> _monitor;
 };

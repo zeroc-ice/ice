@@ -94,7 +94,7 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
 }
 
 ConnectionPtr
-IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts)
+IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts, bool& compress)
 {
     assert(!endpts.empty());
     vector<EndpointPtr> endpoints = endpts;
@@ -135,32 +135,40 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 		*q = (*q)->timeout(defaultsAndOverrides->overrideTimeoutValue);
 	    }
 
-	    if(defaultsAndOverrides->overrideCompress)
-	    {
-		*q = (*q)->compress(defaultsAndOverrides->overrideCompressValue);
-	    }
+	    //
+	    // The Connection object does not take the compression flag of
+	    // endpoints into account, but instead gets the information
+	    // about whether messages should be compressed or not from
+	    // other sources. In order to allow connection sharing for
+	    // endpoints that differ in the value of the compression flag
+	    // only, we always set the compression flag to false here in
+	    // this connection factory.
+	    //
+	    *q = (*q)->compress(false);
 	}
 
 	//
 	// Search for existing connections.
 	//
-	for(q = endpoints.begin(); q != endpoints.end(); ++q)
+	vector<EndpointPtr>::const_iterator r;
+	for(q = endpoints.begin(), r = endpts.begin(); q != endpoints.end(); ++q, ++r)
 	{
 	    pair<multimap<EndpointPtr, ConnectionPtr>::iterator,
-		 multimap<EndpointPtr, ConnectionPtr>::iterator> r = _connections.equal_range(*q);
+		 multimap<EndpointPtr, ConnectionPtr>::iterator> pr = _connections.equal_range(*q);
 	    
-	    while(r.first != r.second)
+	    while(pr.first != pr.second)
 	    {
 		//
 		// Don't return connections for which destruction has
 		// been initiated.
 		//
-		if(!r.first->second->isDestroyed())
+		if(!pr.first->second->isDestroyed())
 		{
-		    return r.first->second;
+		    compress = (*r)->compress();
+		    return pr.first->second;
 		}
 
-		++r.first;
+		++pr.first;
 	    }
 	}
 
@@ -201,23 +209,24 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	//
 	if(searchAgain)
 	{	
-	    for(q = endpoints.begin(); q != endpoints.end(); ++q)
+	    for(q = endpoints.begin(), r = endpts.begin(); q != endpoints.end(); ++q, ++r)
 	    {
 		pair<multimap<EndpointPtr, ConnectionPtr>::iterator,
- 		     multimap<EndpointPtr, ConnectionPtr>::iterator> r = _connections.equal_range(*q);
+ 		     multimap<EndpointPtr, ConnectionPtr>::iterator> pr = _connections.equal_range(*q);
 		
-		while(r.first != r.second)
+		while(pr.first != pr.second)
 		{
 		    //
 		    // Don't return connections for which destruction has
 		    // been initiated.
 		    //
-		    if(!r.first->second->isDestroyed())
+		    if(!pr.first->second->isDestroyed())
 		    {
-			return r.first->second;
+			compress = (*r)->compress();
+			return pr.first->second;
 		    }
 
-		    ++r.first;
+		    ++pr.first;
 		}
 	    }
 	}
@@ -235,7 +244,8 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
     auto_ptr<LocalException> exception;
     
     vector<EndpointPtr>::const_iterator q;
-    for(q = endpoints.begin(); q != endpoints.end(); ++q)
+    vector<EndpointPtr>::const_iterator r;
+    for(q = endpoints.begin(), r = endpts.begin(); q != endpoints.end(); ++q, ++r)
     {
 	EndpointPtr endpoint = *q;
 	
@@ -266,6 +276,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	    }	    
 	    connection = new Connection(_instance, transceiver, endpoint, 0);
 	    connection->validate();
+	    compress = (*r)->compress();
 	    break;
 	}
 	catch(const LocalException& ex)
@@ -357,23 +368,32 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 	{
 	    EndpointPtr endpoint = *p;
 
+	    //
+	    // Modify endpoints with overrides.
+	    //
 	    if(defaultsAndOverrides->overrideTimeout)
 	    {
 		endpoint = endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
 	    }
 
-	    if(defaultsAndOverrides->overrideCompress)
-	    {
-		endpoint = endpoint->compress(defaultsAndOverrides->overrideCompressValue);
-	    }
+	    //
+	    // The Connection object does not take the compression flag of
+	    // endpoints into account, but instead gets the information
+	    // about whether messages should be compressed or not from
+	    // other sources. In order to allow connection sharing for
+	    // endpoints that differ in the value of the compression flag
+	    // only, we always set the compression flag to false here in
+	    // this connection factory.
+	    //
+	    endpoint = endpoint->compress(false);
 
 	    pair<multimap<EndpointPtr, ConnectionPtr>::iterator,
-		 multimap<EndpointPtr, ConnectionPtr>::iterator> r = _connections.equal_range(endpoint);
+		 multimap<EndpointPtr, ConnectionPtr>::iterator> pr = _connections.equal_range(endpoint);
 	    
-	    while(r.first != r.second)
+	    while(pr.first != pr.second)
 	    {
-		r.first->second->setAdapter(adapter);
-		++r.first;
+		pr.first->second->setAdapter(adapter);
+		++pr.first;
 	    }
 	}
     }    

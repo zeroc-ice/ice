@@ -51,7 +51,7 @@ class ICE_API Outgoing : public ::IceUtil::noncopyable, public IceUtil::Monitor<
 {
 public:
 
-    Outgoing(Connection*, Reference*, const std::string&, ::Ice::OperationMode, const ::Ice::Context&);
+    Outgoing(Connection*, Reference*, const std::string&, ::Ice::OperationMode, const ::Ice::Context&, bool);
 
     bool invoke(); // Returns true if ok, false if user exception.
     void finished(BasicStream&);
@@ -83,6 +83,8 @@ private:
 
     BasicStream _is;
     BasicStream _os;
+
+    const bool _compress;
 };
 
 }

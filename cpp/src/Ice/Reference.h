@@ -94,7 +94,7 @@ public:
     //
     // Get a suitable connection for this reference.
     //
-    ConnectionPtr getConnection() const;
+    ConnectionPtr getConnection(bool&) const;
 
     //
     // Filter endpoints based on criteria from this reference.
