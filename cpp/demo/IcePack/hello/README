@@ -11,12 +11,11 @@ To run the demo:
 
 Start the IcePack service:
 
-$ ../../../bin/icepacknode --Ice.Config=config --warn
+$ icepacknode --Ice.Config=config --warn
 
 In a separate window:
 
-$ ../../../bin/icepackadmin --Ice.Config=config -e \
-  "application add 'application.xml'"
+$ icepackadmin --Ice.Config=config -e "application add 'application.xml'"
 $ ./client
 
 This will deploy the servers described in the file "application.xml"

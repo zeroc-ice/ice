@@ -18,7 +18,7 @@ $ ./server
 
 In a separate window, start the Glacier2 router:
 
-$ ../../../bin/glacier2router --Ice.Config=config.glacier2
+$ glacier2router --Ice.Config=config.glacier2
 
 In a separate window, start the client:
 

@@ -11,14 +11,14 @@ To run the demo:
 
 Start the IceStorm service:
 
-$ ../../../bin/icebox --Ice.Config=config_service
+$ icebox --Ice.Config=config_service
 
 This configuration assumes there is a subdirectory named db in the
 current working directory.
 
 In a separate window:
 
-$ ../../../bin/icestormadmin --Ice.Config=config -e "create time"
+$ icestormadmin --Ice.Config=config -e "create time"
 $ ./subscriber
 
 In another window:
