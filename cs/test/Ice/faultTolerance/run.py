@@ -43,6 +43,10 @@ testdir = os.path.join(toplevel, "test", name)
 server = os.path.join(testdir, "server")
 client = os.path.join(testdir, "client")
 
+if TestUtil.isCygwin():
+    print "\nYou may get spurious \"Signal 127\" messages during this test run."
+    print "These are expected and can be safely ignored.\n"
+
 num = 12
 base = 12340
 
