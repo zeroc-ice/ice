@@ -15,10 +15,11 @@
 top_srcdir	= ../..
 
 TRANSFORMDB	= $(top_srcdir)/bin/transformdb
+DUMPDB		= $(top_srcdir)/bin/dumpdb
 
-TARGETS		= $(TRANSFORMDB)
+TARGETS		= $(TRANSFORMDB) $(DUMPDB)
 
-OBJS		= Grammar.o \
+COMMON_OBJS	= Grammar.o \
 		  Scanner.o \
 		  AssignVisitor.o \
 		  Data.o \
@@ -27,15 +28,18 @@ OBJS		= Grammar.o \
 		  Exception.o \
 		  Parser.o \
 		  Print.o \
-		  TransformAnalyzer.o \
+		  Util.o
+
+TRANSFORM_OBJS	= TransformAnalyzer.o \
 		  TransformDescriptors.o \
 		  TransformVisitor.o \
 		  Transformer.o \
-		  Util.o
+		  TransformDB.o
 
-TRANSFORM_OBJS	= TransformDB.o
+DUMP_OBJS	= DumpDescriptors.o \
+		  DumpDB.o
 
-SRCS		= $(OBJS:.o=.cpp) $(TRANSFORM_OBJS:.o=.cpp)
+SRCS		= $(COMMON_OBJS:.o=.cpp) $(TRANSFORM_OBJS:.o=.cpp) $(DUMP_OBJS:.o=.cpp)
 
 HDIR		= $(includedir)/FreezeScript
 
@@ -45,7 +49,11 @@ CPPFLAGS	:= -I.. $(CPPFLAGS) $(DB_FLAGS)
 
 $(TRANSFORMDB): $(TRANSFORM_OBJS) $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(TRANSFORM_OBJS) $(OBJS) -lSlice -lIceXML $(LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(TRANSFORM_OBJS) $(COMMON_OBJS) -lSlice -lIceXML $(LIBS) $(DB_LIBS)
+
+$(DUMPDB): $(DUMP_OBJS) $(COMMON_OBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(DUMP_OBJS) $(COMMON_OBJS) -lSlice -lIceXML $(LIBS) $(DB_LIBS)
 
 clean::
 	rm -f Grammar.cpp Grammar.h
@@ -53,5 +61,6 @@ clean::
 
 install:: all
 	$(INSTALL_PROGRAM) $(TRANSFORMDB) $(install_bindir)
+	$(INSTALL_PROGRAM) $(DUMPDB) $(install_bindir)
 
 include .depend
