@@ -254,8 +254,6 @@ fileLists = [
                "",
 	       "",
                [("exe", "bin/slice2cs"),
-	        ("exe", "bin/generatecs.exe"),
-	        ("exe", "bin/icecpp.exe"),
 		("file", "share/doc/Ice-%version%/config/Make.rules.cs"),
 	        ("dir", "share/doc/Ice-%version%/democs")]),
     Subpackage("java-devel",
