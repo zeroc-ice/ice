@@ -73,7 +73,6 @@ typedef double Double;
 // TODO: Should not be inline, this is not performance critical.
 inline int getSystemErrno() { return GetLastError(); }
 inline int getSocketErrno() { return WSAGetLastError(); }
-inline int getDNSErrno() { return WSAGetLastError(); }
 
 #elif (defined(__linux__) || defined(__FreeBSD__)) && defined(i386) || defined (__sun)
 
@@ -104,8 +103,6 @@ typedef double Double;
 // TODO: Should not be inline, this is not performance critical.
 inline int getSystemErrno() { return errno; }
 inline int getSocketErrno() { return errno; }
-extern int h_errno;
-inline int getDNSErrno() { return h_errno; }
 
 #else
 

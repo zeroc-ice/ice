@@ -13,9 +13,6 @@
 // **********************************************************************
 
 #include <IceUtil/IceUtil.h>
-
-#include <stdio.h>
-
 #include <AliveTest.h>
 #include <TestCommon.h>
 
@@ -24,17 +21,19 @@ using namespace IceUtil;
 
 static const string createTestName("thread alive");
 
-class CondVar : public IceUtil::Monitor<IceUtil::Mutex>
+class CondVar : public IceUtil::Monitor<IceUtil::RecMutex>
 {
 public:
-    CondVar() : _done(false)
+
+    CondVar() :
+	_done(false)
     {
     }
 
     void waitForSignal()
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-	while (!_done)
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock lock(*this);
+	while(!_done)
 	{
 	    wait();
 	}
@@ -42,18 +41,20 @@ public:
 
     void signal()
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock lock(*this);
 	_done = true;
 	notify();
     }
 
 private:
+
     bool _done;
 };
 
 class AliveTestThread : public Thread
 {
 public:
+
     AliveTestThread(CondVar& childCreated, CondVar& parentReady) :
 	_childCreated(childCreated), _parentReady(parentReady)
     {
@@ -72,6 +73,7 @@ public:
     }
 
 private:
+
     CondVar& _childCreated;
     CondVar& _parentReady;
 };

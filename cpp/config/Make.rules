@@ -59,6 +59,13 @@ prefix			= /opt/Ice-$(VERSION)
 #OPENSSL_HOME		?= /opt/openssl
 
 #
+# Define if your OpenSSL requires Kerberos, and if Kerberos is not
+# installed in a standard location.
+#
+
+KERBEROS_HOME		?= /usr/kerberos
+
+#
 # If Xerces-C++ is not installed in a standard location where the
 # compiler can find it, set XERCESC_HOME to the Xerces-C++
 # installation directory.
@@ -134,6 +141,10 @@ ifneq ($(OPENSSL_HOME),)
 else
     OPENSSL_FLAGS	=
     OPENSSL_LIBS	= -lssl -lcrypto
+endif
+
+ifneq ($(KERBEROS_HOME),)
+    OPENSSL_FLAGS	+= -I$(KERBEROS_HOME)/include
 endif
 
 ifneq ($(DB_HOME),)

@@ -112,6 +112,7 @@ IceUtil::Monitor<T>::unlock() const
 	notifyImpl(_nnotify);
     }
     _mutex.unlock();
+
 /*
     int nnotify = _nnotify;
     if(_mutex.unlock())
@@ -160,6 +161,7 @@ IceUtil::Monitor<T>::wait() const
 	_nnotify = 0;
 	throw;
     }
+
     _nnotify = 0;
 }
 

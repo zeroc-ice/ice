@@ -105,10 +105,17 @@ IceInternal::Connection::waitUntilFinished()
 
     while(_transceiver || _dispatchCount > 0)
     {
-	if(timedWait(IceUtil::Time::milliSeconds(_endpoint->timeout())))
+	if(_endpoint->timeout() >= 0)
 	{
-	    setState(StateClosed, CloseTimeoutException(__FILE__, __LINE__));
-	    // No return here, we must still wait until _transceiver becomes null.
+	    if(!timedWait(IceUtil::Time::milliSeconds(_endpoint->timeout())))
+	    {
+		setState(StateClosed, CloseTimeoutException(__FILE__, __LINE__));
+		// No return here, we must still wait until _transceiver becomes null.
+	    }
+	}
+	else
+	{
+	    wait();
 	}
     }
 

@@ -313,7 +313,7 @@ Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
     timeval tv = Time::now() + timeout;
     timespec ts;
     ts.tv_sec = tv.tv_sec;
-    ts.tv_nsec = tv.tv_usec*1000;
+    ts.tv_nsec = tv.tv_usec * 1000;
     int rc = pthread_cond_timedwait(&_cond, state.mutex, &ts);
     mutex.lock(state);
     
@@ -331,6 +331,7 @@ Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
     }
     return true;
 }
+
 #endif
 
 } // End namespace IceUtil

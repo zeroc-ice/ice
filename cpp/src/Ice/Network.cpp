@@ -627,7 +627,11 @@ IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
 	if(!entry)
 	{
 	    DNSException ex(__FILE__, __LINE__);
-	    ex.error = getDNSErrno();
+#ifdef _WIN32
+	    ex.error = WSAGetLastError();
+#else
+	    ex.error = h_errno;
+#endif
 	    ex.host = host;
 	    throw ex;
 	}
@@ -666,7 +670,11 @@ IceInternal::getLocalHost(bool numeric)
 	if(!entry)
 	{
 	    DNSException ex(__FILE__, __LINE__);
-	    ex.error = getDNSErrno();
+#ifdef _WIN32
+	    ex.error = WSAGetLastError();
+#else
+	    ex.error = h_errno;
+#endif
 	    ex.host = host;
 	    throw ex;
 	}

@@ -200,7 +200,23 @@ IceUtil::Cond::timedDowait(const Time& timeout) const
 
 IceUtil::Cond::Cond()
 {
-    int rc = pthread_cond_init(&_cond, 0);
+    int rc;
+
+    pthread_condattr_t attr;
+
+    rc = pthread_condattr_init(&attr);
+    if(rc != 0)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__);
+    }
+
+    rc = pthread_cond_init(&_cond, &attr);
+    if(rc != 0)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__);
+    }
+
+    rc = pthread_condattr_destroy(&attr);
     if(rc != 0)
     {
 	throw ThreadSyscallException(__FILE__, __LINE__);

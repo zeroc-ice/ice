@@ -91,7 +91,9 @@ IceUtil::RecMutex::RecMutex() :
     int rc;
 
 #if _POSIX_VERSION >= 199506L
+
     pthread_mutexattr_t attr;
+
     rc = pthread_mutexattr_init(&attr);
     if(rc != 0)
     {
@@ -103,10 +105,15 @@ IceUtil::RecMutex::RecMutex() :
     {
 	throw ThreadSyscallException(__FILE__, __LINE__);
     }
+
 #elif defined(__linux__)
+
     const pthread_mutexattr_t attr = { PTHREAD_MUTEX_RECURSIVE_NP };
+
 #else
+
     const pthread_mutexattr_t attr = { PTHREAD_MUTEX_RECURSIVE };
+
 #endif
     
     rc = pthread_mutex_init(&_mutex, &attr);
@@ -114,6 +121,16 @@ IceUtil::RecMutex::RecMutex() :
     {
 	throw ThreadSyscallException(__FILE__, __LINE__);
     }
+
+#if _POSIX_VERSION >= 199506L
+
+    rc = pthread_mutexattr_destroy(&attr);
+    if(rc != 0)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__);
+    }
+
+#endif
 }
 
 IceUtil::RecMutex::~RecMutex()
