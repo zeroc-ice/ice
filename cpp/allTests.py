@@ -110,14 +110,14 @@ except getopt.GetoptError:
 if(args):
     usage()
 
-loop = False
+loop = 0
 for o, a in opts:
     if o == "-l":
-        loop = True
+        loop = 1
     
 if loop:
     num = 1
-    while True:
+    while 1:
 	runTests(tests, num)
 	num += 1
 else:
