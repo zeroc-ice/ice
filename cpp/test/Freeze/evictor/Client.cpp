@@ -95,7 +95,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
                 servants[i]->getValue();
                 test(false);
             }
-            catch(const Ice::ObjectNotExistException& ex)
+            catch(const Ice::ObjectNotExistException&)
             {
                 // Expected
             }
@@ -239,7 +239,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
                 servants[i]->getValue();
                 test(false);
             }
-            catch(const Ice::ObjectNotExistException& ex)
+            catch(const Ice::ObjectNotExistException&)
             {
                 // Expected
             }
