@@ -17,7 +17,7 @@ class BookFactory : virtual public Ice::ObjectFactory
 {
 public:
 
-    BookFactory(const LibraryIPtr&, const Freeze::EvictorPtr&);
+    BookFactory(const LibraryIPtr&);
 
     //
     // Operations from ObjectFactory
@@ -28,7 +28,6 @@ public:
 private:
 
     LibraryIPtr _library;
-    Freeze::EvictorPtr _evictor;
 };
 
 #endif

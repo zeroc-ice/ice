@@ -49,7 +49,7 @@ class BookI : public Book, public IceUtil::RWRecMutex
 {
 public:
 
-    BookI(const LibraryIPtr&, const Freeze::EvictorPtr&);
+    BookI(const LibraryIPtr&);
     virtual ~BookI();
 
     virtual ::BookDescription getBookDescription(const Ice::Current&);
@@ -58,12 +58,9 @@ public:
     virtual ::std::string getRenterName(const Ice::Current&);
     virtual void returnBook(const Ice::Current&);
 
-    static Ice::Identity createIdentity(const ::std::string&);
-
 private:
 
     LibraryIPtr _library;
-    Freeze::EvictorPtr _evictor;
 };
 
 #endif

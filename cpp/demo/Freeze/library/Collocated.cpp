@@ -78,7 +78,7 @@ LibraryCollocated::runFreeze(int argc, char* argv[], const Freeze::DBEnvironment
     //
     // Create and install a factory and initializer for books.
     //
-    Ice::ObjectFactoryPtr bookFactory = new BookFactory(library, evictor);
+    Ice::ObjectFactoryPtr bookFactory = new BookFactory(library);
     communicator()->addObjectFactory(bookFactory, "::Book");
 
     //

@@ -13,9 +13,8 @@
 
 using namespace std;
 
-BookI::BookI(const LibraryIPtr& library, const Freeze::EvictorPtr& evictor) :
-    _library(library),
-    _evictor(evictor)
+BookI::BookI(const LibraryIPtr& library) :
+    _library(library)
 {
 }
 
@@ -31,12 +30,6 @@ BookI::destroy(const Ice::Current&)
     try
     {
 	_library->remove(_description);
-
-	//
-	// This can throw EvictorDeactivatedException (which indicates
-	// an internal error). The exception is currently ignored.
-	//
-	_evictor->destroyObject(createIdentity(_description.isbn));
     }
     catch(const Freeze::DBNotFoundException&)
     {
@@ -95,8 +88,8 @@ BookI::returnBook(const Ice::Current&)
     _rentalCustomerName.clear();;
 }
 
-Ice::Identity
-BookI::createIdentity(const string& isbn)
+static Ice::Identity
+createBookIdentity(const string& isbn)
 {
     //
     // Note that the identity category is important since the locator
@@ -121,8 +114,7 @@ public:
     BookPrx
     operator()(const string& isbn)
     {
-	Ice::Identity ident = BookI::createIdentity(isbn);
-	return BookPrx::uncheckedCast(_adapter->createProxy(ident));
+	return BookPrx::uncheckedCast(_adapter->createProxy(createBookIdentity(isbn)));
     }
 
 private:
@@ -163,7 +155,7 @@ LibraryI::createBook(const ::BookDescription& description, const Ice::Current&)
 	//
     }
 
-    BookPtr bookI = new BookI(this, _evictor);
+    BookPtr bookI = new BookI(this);
     bookI->_description = description;
 
     //
@@ -173,7 +165,7 @@ LibraryI::createBook(const ::BookDescription& description, const Ice::Current&)
     // This can throw EvictorDeactivatedException (which indicates an
     // internal error). The exception is currently ignored.
     //
-    Ice::Identity ident = BookI::createIdentity(description.isbn);
+    Ice::Identity ident = createBookIdentity(description.isbn);
     _evictor->createObject(ident, bookI);
 
     //
@@ -293,6 +285,12 @@ LibraryI::remove(const BookDescription& description)
 	    //
 	    _authors.insert(make_pair(description.authors, isbnSeq));
 	}
+
+	//
+	// This can throw EvictorDeactivatedException (which indicates
+	// an internal error). The exception is currently ignored.
+	//
+	_evictor->destroyObject(createBookIdentity(description.isbn));
     }
     catch(const Freeze::DBException& ex)
     {

@@ -13,9 +13,8 @@
 using namespace std;
 using namespace Ice;
 
-BookFactory::BookFactory(const LibraryIPtr& library, const Freeze::EvictorPtr& evictor) :
-    _library(library),
-    _evictor(evictor)
+BookFactory::BookFactory(const LibraryIPtr& library) :
+    _library(library)
 {
 }
 
@@ -23,7 +22,7 @@ ObjectPtr
 BookFactory::create(const string& type)
 {
     assert(type == "::Book");
-    return new BookI(_library, _evictor);
+    return new BookI(_library);
 }
 
 void
@@ -33,5 +32,4 @@ BookFactory::destroy()
     // Break cyclic object dependencies
     //
     _library = 0;
-    _evictor = 0;
 }
