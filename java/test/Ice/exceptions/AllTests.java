@@ -200,7 +200,7 @@ public class AllTests
             }
             catch(A ex)
             {
-                assert(ex instanceof B);
+                test(ex instanceof B);
             }
 
             try
@@ -213,7 +213,7 @@ public class AllTests
             }
             catch(A ex)
             {
-                assert(ex instanceof C);
+                test(ex instanceof C);
             }
 
             try
@@ -227,7 +227,7 @@ public class AllTests
             }
             catch(B ex)
             {
-                assert(ex instanceof C);
+                test(ex instanceof C);
             }
 
             System.out.println("ok");
@@ -296,69 +296,71 @@ public class AllTests
 
         System.out.println("ok");
 
-        if(thrower.supportsUndeclaredExceptions())
-        {
-            System.out.print("catching unknown user exception... ");
-            System.out.flush();
+	if(thrower.supportsUndeclaredExceptions())
+	{
+	    test(!collocated);
 
-            try
-            {
-                thrower.throwUndeclaredA(1);
-                test(false);
-            }
-            catch(Ice.UnknownUserException ex)
-            {
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
-
-            try
-            {
-                thrower.throwUndeclaredB(1, 2);
-                test(false);
-            }
-            catch(Ice.UnknownUserException ex)
-            {
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
-
-            try
-            {
-                thrower.throwUndeclaredC(1, 2, 3);
-                test(false);
-            }
-            catch(Ice.UnknownUserException ex)
-            {
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
-
-            System.out.println("ok");
-        }
-
-        System.out.print("catching object not exist exception... ");
-        System.out.flush();
-
+	    System.out.print("catching unknown user exception... ");
+	    System.out.flush();
+	    
+	    try
+	    {
+		thrower.throwUndeclaredA(1);
+		test(false);
+	    }
+	    catch(Ice.UnknownUserException ex)
+	    {
+	    }
+	    catch(Exception ex)
+	    {
+		test(false);
+	    }
+	    
+	    try
+	    {
+		thrower.throwUndeclaredB(1, 2);
+		test(false);
+	    }
+	    catch(Ice.UnknownUserException ex)
+	    {
+	    }
+	    catch(Exception ex)
+	    {
+		test(false);
+	    }
+	    
+	    try
+	    {
+		thrower.throwUndeclaredC(1, 2, 3);
+		test(false);
+	    }
+	    catch(Ice.UnknownUserException ex)
+	    {
+	    }
+	    catch(Exception ex)
+	    {
+		test(false);
+	    }
+	    
+	    System.out.println("ok");
+	}
+	
+	System.out.print("catching object not exist exception... ");
+	System.out.flush();
+	
 	Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
-        try
-        {
+	try
+	{
 	    ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_newIdentity(id));
 	    thrower2.ice_ping();
 	    test(false);
-        }
-        catch(Ice.ObjectNotExistException ex)
-        {
+	}
+	catch(Ice.ObjectNotExistException ex)
+	{
 	    test(ex.id.equals(id));
-        }
-        catch(Exception ex)
-        {
+	}
+	catch(Exception ex)
+	{
             test(false);
         }
 
@@ -429,11 +431,19 @@ public class AllTests
         }
         catch(Ice.TimeoutException ex)
         {
+	    //
+	    // We get the original exception with collocation
+	    // optimization.
+	    //
+	    test(collocated);
 	}
         catch(Ice.UnknownLocalException ex)
         {
-	    // We get the an unknown local exception without collocation
-	    // optimization. 
+	    //
+	    // We get the an unknown local exception without
+	    // collocation optimization.
+	    //
+	    test(!collocated);
 	}
         catch(Exception ex)
         {
@@ -452,10 +462,19 @@ public class AllTests
         }
         catch(Ice.UnknownException ex)
         {
+	    //
+	    // We get the an unknown exception without collocation
+	    // optimization.
+	    //
+	    test(!collocated);
         }
-        catch(Exception ex)
+        catch(RuntimeException ex)
         {
-            test(false);
+	    //
+	    // We get the original exception with collocation
+	    // optimization.
+	    //
+	    test(collocated);
         }
 
         System.out.println("ok");

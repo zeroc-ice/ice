@@ -23,22 +23,7 @@ public class _ObjectDelD implements _ObjectDel
             IceInternal.Direct __direct = new IceInternal.Direct(__current);
             try
             {
-                try
-                {
-                    return __direct.facetServant().ice_isA(__id, __current);
-                }
-                catch(LocalException ex)
-                {
-                    UnknownLocalException e = new UnknownLocalException();
-                    e.initCause(ex);
-                    throw e;
-                }
-                catch(RuntimeException ex)
-                {
-                    UnknownException e = new UnknownException();
-                    e.initCause(ex);
-                    throw e;
-                }
+		return __direct.facetServant().ice_isA(__id, __current);
             }
             finally
             {
@@ -58,23 +43,8 @@ public class _ObjectDelD implements _ObjectDel
             IceInternal.Direct __direct = new IceInternal.Direct(__current);
             try
             {
-                try
-                {
-                    __direct.facetServant().ice_ping(__current);
-                    return;
-                }
-                catch(LocalException ex)
-                {
-                    UnknownLocalException e = new UnknownLocalException();
-                    e.initCause(ex);
-                    throw e;
-                }
-                catch(RuntimeException ex)
-                {
-                    UnknownException e = new UnknownException();
-                    e.initCause(ex);
-                    throw e;
-                }
+		__direct.facetServant().ice_ping(__current);
+		return;
             }
             finally
             {
@@ -94,22 +64,7 @@ public class _ObjectDelD implements _ObjectDel
             IceInternal.Direct __direct = new IceInternal.Direct(__current);
             try
             {
-                try
-                {
-                    return __direct.facetServant().ice_ids(__current);
-                }
-                catch(LocalException ex)
-                {
-                    UnknownLocalException e = new UnknownLocalException();
-                    e.initCause(ex);
-                    throw e;
-                }
-                catch(RuntimeException ex)
-                {
-                    UnknownException e = new UnknownException();
-                    e.initCause(ex);
-                    throw e;
-                }
+		return __direct.facetServant().ice_ids(__current);
             }
             finally
             {
@@ -129,22 +84,7 @@ public class _ObjectDelD implements _ObjectDel
             IceInternal.Direct __direct = new IceInternal.Direct(__current);
             try
             {
-                try
-                {
-                    return __direct.facetServant().ice_id(__current);
-                }
-                catch(LocalException ex)
-                {
-                    UnknownLocalException e = new UnknownLocalException();
-                    e.initCause(ex);
-                    throw e;
-                }
-                catch(RuntimeException ex)
-                {
-                    UnknownException e = new UnknownException();
-                    e.initCause(ex);
-                    throw e;
-                }
+		return __direct.facetServant().ice_id(__current);
             }
             finally
             {
@@ -164,22 +104,7 @@ public class _ObjectDelD implements _ObjectDel
             IceInternal.Direct __direct = new IceInternal.Direct(__current);
             try
             {
-                try
-                {
-                    return __direct.facetServant().ice_facets(__current);
-                }
-                catch(LocalException ex)
-                {
-                    UnknownLocalException e = new UnknownLocalException();
-                    e.initCause(ex);
-                    throw e;
-                }
-                catch(RuntimeException ex)
-                {
-                    UnknownException e = new UnknownException();
-                    e.initCause(ex);
-                    throw e;
-                }
+		return __direct.facetServant().ice_facets(__current);
             }
             finally
             {
@@ -200,33 +125,20 @@ public class _ObjectDelD implements _ObjectDel
             IceInternal.Direct __direct = new IceInternal.Direct(current);
             try
             {
-                Blobject __servant = null;
+                Blobject servant = null;
                 try
                 {
-                    __servant = (Blobject)__direct.facetServant();
+                    servant = (Blobject)__direct.facetServant();
                 }
                 catch(ClassCastException ex)
                 {
                     OperationNotExistException opEx = new OperationNotExistException();
+		    opEx.id = current.id;
+		    opEx.facet = current.facet;
 		    opEx.operation = current.operation;
 		    throw opEx;
                 }
-                try
-                {
-                    return __servant.ice_invoke(inParams, outParams, current);
-                }
-                catch(LocalException ex)
-                {
-                    UnknownLocalException e = new UnknownLocalException();
-                    e.initCause(ex);
-                    throw e;
-                }
-                catch(RuntimeException ex)
-                {
-                    UnknownException e = new UnknownException();
-                    e.initCause(ex);
-                    throw e;
-                }
+		return servant.ice_invoke(inParams, outParams, current);
             }
             finally
             {

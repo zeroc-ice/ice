@@ -24,12 +24,6 @@ public final class ThrowerI extends _ThrowerDisp
         _adapter.getCommunicator().shutdown();
     }
 
-    public boolean
-    supportsUndeclaredExceptions(Ice.Current current)
-    {
-        return false;
-    }
-
     public void
     throwAasA(int a, Ice.Current current)
         throws A
@@ -112,27 +106,30 @@ public final class ThrowerI extends _ThrowerDisp
         throw new RuntimeException();
     }
 
+    public boolean
+    supportsUndeclaredExceptions(Ice.Current current)
+    {
+        return false;
+    }
+
     public void
     throwUndeclaredA(int a, Ice.Current current)
-        throws B,
-               D
     {
-        // Not possible in Java
+        // Not possible in Java.
         throw new Ice.UnknownUserException();
     }
 
     public void
     throwUndeclaredB(int a, int b, Ice.Current current)
     {
-        // Not possible in Java
+        // Not possible in Java.
         throw new Ice.UnknownUserException();
     }
 
     public void
     throwUndeclaredC(int a, int b, int c, Ice.Current current)
-        throws D
     {
-        // Not possible in Java
+        // Not possible in Java.
         throw new Ice.UnknownUserException();
     }
 

@@ -29,7 +29,6 @@ public final class Outgoing
     {
         _state = StateUnsent;
         _exception = null;
-        _fillStackTrace = false;
 
         _is.reset();
         _os.reset();
@@ -120,16 +119,6 @@ public final class Outgoing
                     }
 
                     //
-                    // If _fillStackTrace is true, then we want to update
-                    // the exception's stack trace to reflect the calling
-                    // thread.
-                    //
-                    if(_fillStackTrace)
-                    {
-                        _exception.fillInStackTrace();
-                    }
-
-                    //
                     // Throw the exception wrapped in a NonRepeatable, to
                     // indicate that the request cannot be resent without
                     // potentially violating the "at-most-once" principle.
@@ -187,6 +176,7 @@ public final class Outgoing
         {
             _is.swap(is);
             byte status = _is.readByte();
+
             switch((int)status)
             {
                 case DispatchStatus._DispatchOK:
@@ -258,43 +248,57 @@ public final class Outgoing
 		    ex.facet = _is.readStringSeq();
 		    ex.operation = _is.readString();
 		    _exception = ex;
-                    _fillStackTrace = true;
-                    break;
-                }
-
-                case DispatchStatus._DispatchUnknownLocalException:
-                {
-                    _state = StateLocalException;
-                    _exception = new Ice.UnknownLocalException();
-                    _fillStackTrace = true;
-                    break;
-                }
-
-                case DispatchStatus._DispatchUnknownUserException:
-                {
-                    _state = StateLocalException;
-                    _exception = new Ice.UnknownUserException();
-                    _fillStackTrace = true;
                     break;
                 }
 
                 case DispatchStatus._DispatchUnknownException:
+                case DispatchStatus._DispatchUnknownLocalException:
+                case DispatchStatus._DispatchUnknownUserException:
                 {
-                    _state = StateLocalException;
-                    _exception = new Ice.UnknownException();
-                    _fillStackTrace = true;
+                   _state = StateLocalException;
+
+		    Ice.UnknownException ex = null;
+		    switch((int)status)
+		    {
+			case DispatchStatus._DispatchUnknownException:
+			{
+			    ex = new Ice.UnknownException();
+			    break;
+			}
+			
+			case DispatchStatus._DispatchUnknownLocalException:
+			{
+			    ex = new Ice.UnknownLocalException();
+			    break;
+			}
+			
+			case DispatchStatus._DispatchUnknownUserException: 
+			{
+			    ex = new Ice.UnknownUserException();
+			    break;
+			}
+			
+			default:
+			{
+			    assert(false);
+			    break;
+			}
+		    }
+
+                    ex.unknown = _is.readString();
+		    _exception = ex;
                     break;
                 }
-
+		
                 default:
                 {
                     _state = StateLocalException;
                     _exception = new Ice.UnknownReplyStatusException();
-                    _fillStackTrace = true;
                     break;
                 }
             }
         }
+
         notify();
     }
 
@@ -377,7 +381,6 @@ public final class Outgoing
     private Connection _connection;
     private Reference _reference;
     private Ice.LocalException _exception;
-    private boolean _fillStackTrace;
 
     private static final int StateUnsent = 0;
     private static final int StateInProgress = 1;

@@ -15,17 +15,61 @@ public class Incoming
     public
     Incoming(Instance instance, Ice.ObjectAdapter adapter)
     {
-        _adapter = adapter;
         _is = new BasicStream(instance);
         _os = new BasicStream(instance);
         _current = new Ice.Current();
+        _current.adapter = adapter;
         _current.id = new Ice.Identity();
         _cookie = new Ice.LocalObjectHolder();
+
+	if(_current.adapter != null)
+	{
+	    ((Ice.ObjectAdapterI)(_current.adapter)).incUsageCount();
+	}
+    }
+
+    //
+    // This function allows this object to be reused, rather than
+    // reallocated.
+    //
+    public void
+    reset(Ice.ObjectAdapter adapter)
+    {
+        _is.reset();
+        _os.reset();
+        if(_current.ctx != null)
+        {
+            _current.ctx.clear();
+        }
+        _current.adapter = adapter;
+
+	if(_current.adapter != null)
+	{
+	    ((Ice.ObjectAdapterI)(_current.adapter)).incUsageCount();
+	}
+    }
+
+    //
+    // Reclaim resources.
+    //
+    public void
+    destroy()
+    {
+        _is.destroy();
+        _os.destroy();
+
+	if(_current.adapter != null)
+	{
+	    ((Ice.ObjectAdapterI)(_current.adapter)).decUsageCount();
+	}
     }
 
     public void
     invoke(boolean response)
     {
+	//
+	// Read the current.
+	//
         _current.id.__read(_is);
         _current.facet = _is.readStringSeq();
         _current.operation = _is.readString();
@@ -42,54 +86,55 @@ public class Incoming
             _current.ctx.put(first, second);
         }
 
-        int statusPos = 0;
+        _is.startReadEncaps();
+
+        int statusPos;
         if(response)
         {
             statusPos = _os.size();
             _os.writeByte((byte)0);
-        }
-
-        //
-        // Input and output parameters are always sent in an
-        // encapsulation, which makes it possible to forward requests as
-        // blobs.
-        //
-        _is.startReadEncaps();
-        if(response)
-        {
             _os.startWriteEncaps();
         }
+	else
+	{
+	    statusPos = 0; // Initialize, to keep the compiler happy.
+	}
 
         Ice.Object servant = null;
         Ice.ServantLocator locator = null;
         _cookie.value = null;
+	DispatchStatus status;
+	
+	//
+	// Don't put the code above into the try block below. Exceptions
+	// in the code above are considered fatal, and must propagate to
+	// the caller of this operation.
+	//
 
         try
         {
-            if(_adapter != null)
-            {
-                servant = _adapter.identityToServant(_current.id);
-
-                if(servant == null && _current.id.category.length() > 0)
-                {
-                    locator = _adapter.findServantLocator(_current.id.category);
-                    if(locator != null)
-                    {
-                        servant = locator.locate(_current, _cookie);
-                    }
-                }
-
-                if(servant == null)
-                {
-                    locator = _adapter.findServantLocator("");
-                    if(locator != null)
-                    {
-                        servant = locator.locate(_current, _cookie);
-                    }
-                }
-            }
-
-            DispatchStatus status;
+	    if(_current.adapter != null)
+	    {
+		servant = _current.adapter.identityToServant(_current.id);
+		
+		if(servant == null && _current.id.category.length() > 0)
+		{
+		    locator = _current.adapter.findServantLocator(_current.id.category);
+		    if(locator != null)
+		    {
+			servant = locator.locate(_current, _cookie);
+		    }
+		}
+		
+		if(servant == null)
+		{
+		    locator = _current.adapter.findServantLocator("");
+		    if(locator != null)
+		    {
+			servant = locator.locate(_current, _cookie);
+		    }
+		}
+	    }
 
             if(servant == null)
             {
@@ -114,49 +159,16 @@ public class Incoming
                     status = servant.__dispatch(this, _current);
                 }
             }
-
-            if(locator != null && servant != null)
-            {
-                assert(_adapter != null);
-                locator.finished(_current, servant, _cookie.value);
-            }
-
-            _is.endReadEncaps();
-            if(response)
-            {
-                _os.endWriteEncaps();
-
-                if(status != DispatchStatus.DispatchOK && status != DispatchStatus.DispatchUserException)
-                {
-		    assert(status == DispatchStatus.DispatchObjectNotExist ||
-			   status == DispatchStatus.DispatchFacetNotExist ||
-			   status == DispatchStatus.DispatchOperationNotExist);
-
-                    _os.resize(statusPos, false);
-                    _os.writeByte((byte)status.value());
-
-		    _current.id.__write(_os);
-		    _os.writeStringSeq(_current.facet);
-		    _os.writeString(_current.operation);
-                }
-                else
-                {
-                    int save = _os.pos();
-                    _os.pos(statusPos);
-                    _os.writeByte((byte)status.value());
-                    _os.pos(save);
-                }
-            }
         }
         catch(Ice.LocationForward ex)
         {
             if(locator != null && servant != null)
             {
-                assert(_adapter != null);
                 locator.finished(_current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
+
             if(response)
             {
                 _os.endWriteEncaps();
@@ -164,21 +176,22 @@ public class Incoming
                 _os.writeByte((byte)DispatchStatus._DispatchLocationForward);
                 _os.writeProxy(ex._prx);
             }
+
+	    return;
         }
         catch(Ice.RequestFailedException ex)
         {
             if(locator != null && servant != null)
             {
-                assert(_adapter != null);
                 locator.finished(_current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
+
             if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(statusPos, false);
-
 		if(ex instanceof Ice.ObjectNotExistException)
 		{
 		    _os.writeByte((byte)DispatchStatus._DispatchObjectNotExist);
@@ -195,26 +208,20 @@ public class Incoming
 		{
 		    assert(false);
 		}
-
-		// Not current.id.__write(_os), so that the identity
-		// can be overwritten.
+		// Write the data from the exception, not from _current,
+		// so that a RequestFailedException can override the
+		// information from _current.
 		ex.id.__write(_os);
-		// Not _os.write(current.facet), so that the facet can
-		// be overwritten.
 		_os.writeStringSeq(ex.facet);
-		// Not _os.write(current.operation), so that the
-		// operation can be overwritten.
 		_os.writeString(ex.operation);
             }
 
-	    // Rethrow, so that the caller can print a warning.
-            throw ex;
+	    return;
         }
         catch(Ice.LocalException ex)
         {
             if(locator != null && servant != null)
             {
-                assert(_adapter != null);
                 locator.finished(_current, servant, _cookie.value);
             }
 
@@ -223,53 +230,70 @@ public class Incoming
             {
                 _os.endWriteEncaps();
                 _os.resize(statusPos, false);
-                _os.writeByte(
-                    (byte)DispatchStatus._DispatchUnknownLocalException);
+                _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
+		_os.writeString(ex.toString());
             }
 
-	    // Rethrow, so that the caller can print a warning.
-            throw ex;
+	    return;
         }
         /* Not possible in Java - UserExceptions are checked exceptions
         catch(Ice.UserException ex)
         {
-            if(locator != null && servant != null)
-            {
-                assert(_adapter != null);
-                locator.finished(_current, servant, _cookie.value);
-            }
-
-            _is.endReadEncaps();
-            if(response)
-            {
-                _os.endWriteEncaps();
-                _os.resize(statusPos, false);
-                _os.writeByte(
-                    (byte)DispatchStatus._DispatchUnknownUserException);
-            }
-
-            throw ex;
-        }
-        */
+	// ...
+	}
+	*/
         catch(RuntimeException ex)
         {
             if(locator != null && servant != null)
             {
-                assert(_adapter != null);
                 locator.finished(_current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
+
             if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(statusPos, false);
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
+		_os.writeString(ex.toString());
             }
-
-	    // Rethrow, so that the caller can print a warning.
-            throw ex;
+	    
+	    return;
         }
+	
+	if(locator != null && servant != null)
+	{
+	    locator.finished(_current, servant, _cookie.value);
+	}
+	
+	_is.endReadEncaps();
+
+	if(response)
+	{
+	    _os.endWriteEncaps();
+	    
+	    if(status != DispatchStatus.DispatchOK && status != DispatchStatus.DispatchUserException)
+	    {
+		assert(status == DispatchStatus.DispatchObjectNotExist ||
+		       status == DispatchStatus.DispatchFacetNotExist ||
+		       status == DispatchStatus.DispatchOperationNotExist);
+		
+		_os.resize(statusPos, false);
+		_os.writeByte((byte)status.value());
+		
+		_current.id.__write(_os);
+		_os.writeStringSeq(_current.facet);
+		_os.writeString(_current.operation);
+	    }
+	    else
+	    {
+		int save = _os.pos();
+		_os.pos(statusPos);
+		_os.writeByte((byte)status.value());
+		_os.pos(save);
+	    }
+	}
     }
 
     public BasicStream
@@ -284,31 +308,6 @@ public class Incoming
         return _os;
     }
 
-    //
-    // reset() allows this object to be reused, rather than reallocated
-    //
-    public void
-    reset()
-    {
-        _is.reset();
-        _os.reset();
-        if(_current.ctx != null)
-        {
-            _current.ctx.clear();
-        }
-    }
-
-    //
-    // Reclaim resources
-    //
-    public void
-    destroy()
-    {
-        _is.destroy();
-        _os.destroy();
-    }
-
-    private Ice.ObjectAdapter _adapter;
     private BasicStream _is;
     private BasicStream _os;
     private Ice.Current _current;

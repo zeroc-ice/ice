@@ -106,64 +106,55 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
         }
     }
 
-    public synchronized void
+    public void
     deactivate()
     {
-        if(_instance == null)
-        {
-            //
-            // Ignore deactivation requests if the Object Adapter has
-            // already been deactivated.
-            //
-            return;
-        }
+	synchronized(this)
+	{
+	    if(_instance == null)
+	    {
+		//
+		// Ignore deactivation requests if the Object Adapter has
+		// already been deactivated.
+		//
+		return;
+	    }
+	    
+	    final int sz = _incomingConnectionFactories.size();
+	    for(int i = 0; i < sz; ++i)
+	    {
+		IceInternal.IncomingConnectionFactory factory =
+		    (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
+		factory.destroy();
+	    }
+	    _incomingConnectionFactories.clear();
+	    
+	    _instance.outgoingConnectionFactory().removeAdapter(this);
+	    
+	    _instance = null;
+	    _communicator = null;
+	}
 
-        final int sz = _incomingConnectionFactories.size();
-        for(int i = 0; i < sz; ++i)
-        {
-            IceInternal.IncomingConnectionFactory factory =
-                (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
-            factory.destroy();
-        }
-
-	//
-	// Don't do a _incomingConnectionFactories.clear()!
-	// _incomingConnectionFactories is immutable. Even if all
-	// elements are destroyed, the elements are still needed by
-	// waitForDeactivate().
-	//
-
-	_instance.outgoingConnectionFactory().removeAdapter(this);
-
-	_activeServantMap.clear();
-
-        java.util.Iterator p = _locatorMap.values().iterator();
-        while(p.hasNext())
-        {
-            ServantLocator locator = (ServantLocator)p.next();
-            locator.deactivate();
-        }
-        _locatorMap.clear();
-
-        _instance = null;
-	_communicator = null;
+	decUsageCount();
     }
 
-    public void
+    public synchronized void
     waitForDeactivate()
     {
-	//
-	// _incommingConnectionFactories is immutable, thus no mutex
-	// lock is necessary. (A mutex lock wouldn't work here anyway,
-	// as there would be a deadlock with upcalls.)
-	//
-        final int sz = _incomingConnectionFactories.size();
-        for(int i = 0; i < sz; ++i)
-        {
-            IceInternal.IncomingConnectionFactory factory =
-                (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
-            factory.waitUntilFinished();
-        }
+	assert(_usageCount >= 0);
+
+	while(_usageCount > 0)
+	{
+	    try
+	    {
+		wait();
+	    }
+	    catch(java.lang.InterruptedException ex)
+	    {
+	    }
+	}
+
+	assert(_usageCount == 0);
     }
 
     public synchronized ObjectPrx
@@ -365,13 +356,14 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	_locatorInfo = _instance.locatorManager().get(locator);
     }
 
-    public IceInternal.Connection[]
+    public synchronized IceInternal.Connection[]
     getIncomingConnections()
     {
-	//
-	// _incommingConnectionFactories is immutable, thus no mutex lock
-	// is necessary.
-	//
+	if(_instance == null)
+	{
+	    throw new ObjectAdapterDeactivatedException();
+	}
+
         java.util.ArrayList connections = new java.util.ArrayList();
         final int sz = _incomingConnectionFactories.size();
         for(int i = 0; i < sz; ++i)
@@ -389,6 +381,40 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
         return arr;
     }
 
+    public synchronized void
+    incUsageCount()
+    {
+	assert(_instance != null); // Must not be called after deactivation.
+	assert(_usageCount >= 0);
+	++_usageCount;
+    }
+
+    public synchronized void
+    decUsageCount()
+    {
+	//
+	// The object adapter may already be deactivated when the usage
+	// count is decremented, thus no check for prior deactivation.
+	//
+
+	assert(_usageCount > 0);
+	--_usageCount;
+	if(_usageCount == 0)
+	{
+	    _activeServantMap.clear();
+	    
+	    java.util.Iterator p = _locatorMap.values().iterator();
+	    while(p.hasNext())
+	    {
+		ServantLocator locator = (ServantLocator)p.next();
+		locator.deactivate();
+	    }
+	    _locatorMap.clear();
+
+	    notify();
+        }
+    }
+
     //
     // Only for use by IceInternal.ObjectAdapterFactory
     //
@@ -400,6 +426,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	_printAdapterReadyDone = false;
         _name = name;
 	_id = id;
+	_usageCount = 1;
 	
 	String s = endpts.toLowerCase();
 
@@ -444,24 +471,14 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	    deactivate();
             throw ex;
         }
-
-//
-// Object Adapters without incoming connection factories are
-// permissible, as such Object Adapters can still be used with a
-// router. (See addRouter.)
-//
-/*
-        if(_incomingConnectionFactories.isEmpty())
-        {
-            throw new EndpointParseException();
-        }
-*/
     }
 
     protected void
     finalize()
         throws Throwable
     {
+	assert(_usageCount == 0);
+
         if(_instance != null)
         {
             _instance.logger().warning("object adapter has not been deactivated");
@@ -602,4 +619,5 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     private java.util.ArrayList _incomingConnectionFactories = new java.util.ArrayList();
     private java.util.ArrayList _routerEndpoints = new java.util.ArrayList();
     private IceInternal.LocatorInfo _locatorInfo;
+    private int _usageCount;
 }

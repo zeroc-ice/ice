@@ -174,13 +174,10 @@ public class IncomingConnectionFactory extends EventHandler
             _acceptor.close();
 
 	    //
-	    // Break cyclic object dependency. This is necessary,
-	    // because the object adapter never clears the list of
-	    // incoming connections it keeps.
+	    // We don't need the adapter anymore after we closed the
+	    // acceptor.
 	    //
 	    _adapter = null;
-
-	    notifyAll(); // For waitUntilFinished().
         }
     }
 
@@ -228,12 +225,10 @@ public class IncomingConnectionFactory extends EventHandler
                 Connection connection = new Connection(_instance, _transceiver, _endpoint, _adapter);
 		connection.validate();
                 _connections.add(connection);
-
+		
 		//
 		// We don't need an adapter anymore if we don't use an
-		// acceptor. So we break cyclic object dependency
-		// now. This is necessary, because the object adapter
-		// never clears the list of incoming connections it keeps.
+		// acceptor.
 		//
 		_adapter = null;
             }
@@ -273,21 +268,6 @@ public class IncomingConnectionFactory extends EventHandler
     destroy()
     {
         setState(StateClosed);
-    }
-
-    public synchronized void
-    waitUntilFinished()
-    {
-	while(_state != StateClosed || _adapter != null)
-	{
-	    try
-	    {
-		wait();
-	    }
-	    catch(InterruptedException ex)
-	    {
-	    }
-	}
     }
 
     private static final int StateActive = 0;

@@ -44,9 +44,9 @@ interface Thrower
     void throwCasB(int a, int b, int c) throws B;
     void throwCasC(int a, int b, int c) throws C;
     bool supportsUndeclaredExceptions();
-    void throwUndeclaredA(int a) throws B, D;
+    void throwUndeclaredA(int a);
     void throwUndeclaredB(int a, int b);
-    void throwUndeclaredC(int a, int b, int c) throws D;
+    void throwUndeclaredC(int a, int b, int c);
     void throwLocalException();
     void throwNonIceException();
 };

@@ -134,13 +134,13 @@ public final class Connection extends EventHandler
     }
 
     public void
-    incProxyUsageCount()
+    incUsageCount()
     {
 	_mutex.lock();
         try
         {
-	    assert(_proxyUsageCount >= 0);
-	    ++_proxyUsageCount;
+	    assert(_usageCount >= 0);
+	    ++_usageCount;
 	}
         finally
         {
@@ -149,14 +149,14 @@ public final class Connection extends EventHandler
     }
 
     public void
-    decProxyUsageCount()
+    decUsageCount()
     {
 	_mutex.lock();
         try
         {
-            assert(_proxyUsageCount > 0);
-	    --_proxyUsageCount;
-	    if(_proxyUsageCount == 0 && _adapter == null)
+            assert(_usageCount > 0);
+	    --_usageCount;
+	    if(_usageCount == 0 && _adapter == null)
 	    {
 		assert(_requests.isEmpty());
 		setState(StateClosing, new Ice.CloseConnectionException());
@@ -572,66 +572,37 @@ public final class Connection extends EventHandler
         {
             try
             {
+		//
+		// Prepare the invocation.
+		//
                 BasicStream is = in.is();
-                BasicStream os = in.os();
                 stream.swap(is);
-
-                boolean response = false;
+                BasicStream os = null;
 
                 try
                 {
+		    //
+		    // Prepare the response if necessary.
+		    //
                     if(!batch)
                     {
                         int requestId = is.readInt();
                         if(!_endpoint.datagram() && requestId != 0) // 0 means oneway.
                         {
-                            response = true;
                             ++_responseCount;
+			    os = in.os();
                             os.writeBlob(_replyHdr);
                             os.writeInt(requestId);
                         }
                     }
-
+		    
+		    //
+		    // Do the invocation, or multiple invocations for
+		    // batch messages.
+		    //
                     do
                     {
-                        try
-                        {
-                            in.invoke(response);
-                        }
-                        catch(Ice.LocalException ex)
-                        {
-                            _mutex.lock();
-                            reclaimIncoming(in);
-                            in = null;
-                            try
-                            {
-                                if(_warn)
-                                {
-                                    warning("connection exception", ex);
-                                }
-                            }
-                            finally
-                            {
-                                _mutex.unlock();
-                            }
-                        }
-                        catch(Exception ex)
-                        {
-                            _mutex.lock();
-                            reclaimIncoming(in);
-                            in = null;
-                            try
-                            {
-                                if(_warn)
-                                {
-                                    warning("unknown exception", ex);
-                                }
-                            }
-                            finally
-                            {
-                                _mutex.unlock();
-                            }
-                        }
+			in.invoke(os != null);
                     }
                     while(batch && is.pos() < is.size());
                 }
@@ -651,9 +622,13 @@ public final class Connection extends EventHandler
                     }
                 }
 
-                if(response)
+		//
+		// Send a response if necessary.
+		//
+                if(os != null)
                 {
                     _mutex.lock();
+
                     try
                     {
                         try
@@ -763,7 +738,7 @@ public final class Connection extends EventHandler
         _nextRequestId = 1;
         _batchStream = new BasicStream(instance);
         _responseCount = 0;
-	_proxyUsageCount = 0;
+	_usageCount = 0;
         _state = StateHolding;
 	_registeredWithPool = false;
     }
@@ -772,6 +747,7 @@ public final class Connection extends EventHandler
     finalize()
         throws Throwable
     {
+	assert(_usageCount == 0);
         assert(_state == StateClosed);
 
         //
@@ -1045,7 +1021,7 @@ public final class Connection extends EventHandler
             in = _incomingCache;
             _incomingCache = _incomingCache.next;
             in.next = null;
-            in.reset();
+            in.reset(_adapter);
         }
         return in;
     }
@@ -1070,7 +1046,7 @@ public final class Connection extends EventHandler
     private Ice.LocalException _exception;
     private BasicStream _batchStream;
     private int _responseCount;
-    private int _proxyUsageCount;
+    private int _usageCount;
     private int _state;
     private boolean _registeredWithPool;
     private RecursiveMutex _mutex = new RecursiveMutex();
