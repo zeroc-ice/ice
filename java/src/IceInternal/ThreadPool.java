@@ -30,7 +30,6 @@ public final class ThreadPool
         _instance = instance;
         _destroyed = false;
         _timeout = timeout;
-        _multipleThreads = false;
 	_promote = true;
         _prefix = prefix;
 
@@ -57,18 +56,21 @@ public final class ThreadPool
         //
         _keys = _selector.selectedKeys();
 
-	int threadNum = _instance.properties().getPropertyAsInt(_prefix + ".Size");
-    
-	if(threadNum < 1)
+	int size = _instance.properties().getPropertyAsInt(_prefix + ".Size");
+	if(size < 1)
 	{
-	    threadNum = 1;
+	    size = 1;
 	    _instance.properties().setProperty(_prefix + ".Size", "1");
 	}
+	_size = size;
 
-        if(threadNum > 1)
-        {
-            _multipleThreads = true;
-        }
+	int sizeMax = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".SizeMax", _size * 5);
+	if(sizeMax < _size)
+	{
+	    sizeMax = _size;
+	    _instance.properties().setProperty(_prefix + ".SizeMax", "" + sizeMax);
+	}
+	_sizeMax = sizeMax;
 
         //
         // Use Ice.ProgramName as the prefix for the thread names.
@@ -82,11 +84,12 @@ public final class ThreadPool
 
         try
         {
-            _threads = new EventHandlerThread[threadNum];
-            for(int i = 0; i < threadNum; i++)
+            _threads = new java.util.Vector(_size);
+            for(int i = 0; i < _size; i++)
             {
-                _threads[i] = new EventHandlerThread(programNamePrefix + _prefix + "-" + i);
-                _threads[i].start();
+		EventHandlerThread thread = new EventHandlerThread(programNamePrefix + _prefix + "-" + i);
+                _threads.add(thread);
+		thread.start();
             }
         }
         catch(RuntimeException ex)
@@ -204,7 +207,7 @@ public final class ThreadPool
     public void
     promoteFollower()
     {
-        if(_multipleThreads)
+        if(_size > 1)
         {
 	    if(!_promote) // Double-checked locking.
 	    {
@@ -234,19 +237,23 @@ public final class ThreadPool
     public void
     joinWithAllThreads()
     {
-        //
-        // _threads is immutable after the initial creation in the
-        // constructor, therefore no synchronization is
-        // needed. (Synchronization wouldn't be possible here anyway,
-        // because otherwise the other threads would never terminate.)
-        //
-        for(int i = 0; i < _threads.length; i++)
-        {
+	//
+	// _threads is immutable after destroy() has been called,
+	// therefore no synchronization is needed. (Synchronization
+	// wouldn't be possible here anyway, because otherwise the
+	// other threads would never terminate.)
+	//
+	assert(_destroyed);
+	java.util.Enumeration e = _threads.elements();
+	while(e.hasMoreElements())
+	{
+	    EventHandlerThread thread = (EventHandlerThread)e.nextElement();
+	    
             while(true)
             {
                 try
                 {
-                    _threads[i].join();
+                    thread.join();
                     break;
                 }
                 catch(InterruptedException ex)
@@ -255,7 +262,7 @@ public final class ThreadPool
             }
         }
     }
-
+    
     private boolean
     clearInterrupt()
     {
@@ -352,7 +359,7 @@ public final class ThreadPool
     {
         while(true)
         {
-            if(_multipleThreads)
+            if(_size > 1)
             {
 		synchronized(_promoteMonitor)
 		{
@@ -886,6 +893,8 @@ public final class ThreadPool
 
     private Instance _instance;
     private boolean _destroyed;
+    private final int _size;
+    private final int _sizeMax;
     private java.nio.channels.ReadableByteChannel _fdIntrRead;
     private java.nio.channels.SelectionKey _fdIntrReadKey;
     private java.nio.channels.WritableByteChannel _fdIntrWrite;
@@ -896,7 +905,6 @@ public final class ThreadPool
     private int _timeout;
     private boolean _promote;
     private java.lang.Object _promoteMonitor = new java.lang.Object();
-    private boolean _multipleThreads;
     private String _prefix;
 
     private final class EventHandlerThread extends Thread
@@ -944,5 +952,6 @@ public final class ThreadPool
             stream.destroy();
         }
     }
-    private EventHandlerThread[] _threads;
+
+    private java.util.Vector _threads; // All threads, running or not.
 }

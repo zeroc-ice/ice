@@ -618,7 +618,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    int threadNum = _instance.properties().getPropertyAsInt(_name + ".ThreadPool.Size");
 	    if(threadNum > 0)
 	    {
-		_threadPool = new IceInternal.ThreadPool(_instance, threadNum, 0, _name + ".ThreadPool");
+		_threadPool = new IceInternal.ThreadPool(_instance, _name + ".ThreadPool", 0);
 	    }
         }
         catch(LocalException ex)

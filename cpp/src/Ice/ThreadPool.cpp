@@ -34,8 +34,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _instance(instance),
     _destroyed(false),
     _lastFd(INVALID_SOCKET),
-    _timeout(timeout),
-    _multipleThreads(false)
+    _timeout(timeout)
 {
     SOCKET fds[2];
     createPipe(fds);
@@ -48,23 +47,28 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _maxFd = _fdIntrRead;
     _minFd = _fdIntrRead;
 
-    int threadNum = _instance->properties()->getPropertyAsInt(prefix + ".Size");
-
-    if(threadNum < 1)
+    int size = _instance->properties()->getPropertyAsInt(prefix + ".Size");
+    if(size < 1)
     {
-	threadNum = 1;
+	size = 1;
 	_instance->properties()->setProperty(prefix + ".Size", "1");
     }
+    const_cast<int&>(_size) = size;
 
-    if(threadNum > 1)
+    int sizeMax = _instance->properties()->getPropertyAsIntWithDefault(prefix + ".SizeMax", _size * 5);
+    if(sizeMax < _size)
     {
-	_multipleThreads = true;
+	sizeMax = _size;
+	ostringstream str;
+	str << sizeMax;
+	_instance->properties()->setProperty(prefix + ".SizeMax", str.str());
     }
+    const_cast<int&>(_sizeMax) = sizeMax;
 
     __setNoDelete(true);
     try
     {
-	for(int i = 0 ; i < threadNum ; ++i)
+	for(int i = 0 ; i < _size ; ++i)
 	{
 	    IceUtil::ThreadPtr thread = new EventHandlerThread(this);
 	    _threads.push_back(thread->start());
@@ -129,7 +133,7 @@ IceInternal::ThreadPool::unregister(SOCKET fd)
 void
 IceInternal::ThreadPool::promoteFollower()
 {
-    if(_multipleThreads)
+    if(_size > 1)
     {
 	_threadMutex.unlock();
     }
@@ -149,11 +153,12 @@ void
 IceInternal::ThreadPool::joinWithAllThreads()
 {
     //
-    // _threads is immutable after the initial creation in the
-    // constructor, therefore no synchronization is
-    // needed. (Synchronization wouldn't be possible here anyway,
-    // because otherwise the other threads would never terminate.)
+    // _threads is immutable after destroy() has been called,
+    // therefore no synchronization is needed. (Synchronization
+    // wouldn't be possible here anyway, because otherwise the other
+    // threads would never terminate.)
     //
+    assert(_destroyed);
     for(vector<IceUtil::ThreadControl>::iterator p = _threads.begin(); p != _threads.end(); ++p)
     {
 	p->join();
@@ -235,7 +240,7 @@ IceInternal::ThreadPool::run()
 
     while(true)
     {
-	if(_multipleThreads)
+	if(_size > 1)
 	{
 	    _threadMutex.lock();	
 	}

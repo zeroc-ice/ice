@@ -14,17 +14,20 @@ Changes since version 1.0.1
   stoping a service and destroying its communicator, services are now
   all stopped first and then their communicators are destroyed.
 
-- Added version negotiation to the Ice protocol. This permits future protocol
-  extensions to be added without breaking interoperability with older
-  deployed clients and servers. Unfortunately, doing this broke compatibility
-  with the existing protocol so, when upgrading to this version, you must
-  make sure that clients and servers use the same version of libIce.so.
+- Added version negotiation to the Ice protocol. This permits future
+  protocol extensions to be added without breaking interoperability
+  with older deployed clients and servers. Unfortunately, doing this
+  broke compatibility with the existing protocol so, when upgrading to
+  this version, you must make sure that clients and servers use the
+  same version of libIce.so.
 
 - Added a magic number to the Ice protocol. All Ice protocol messages
   have 'I', 'c', 'e', 'P' (encoded as ASCII) in the first four bytes.
-  This is useful to allow protocol analyzers to recognize Ice messages.
+  This is useful to allow protocol analyzers to recognize Ice
+  messages.
 
-- Changed the encoding of encapsulations. An encapsulation now looks like:
+- Changed the encoding of encapsulations. An encapsulation now looks
+  like:
 
 	size (4 bytes)
 	major version number (1 byte)

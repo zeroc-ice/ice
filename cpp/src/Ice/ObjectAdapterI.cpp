@@ -612,7 +612,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	int threadNum = _instance->properties()->getPropertyAsInt(_name + ".ThreadPool.Size");
 	if(threadNum > 0)
 	{
-	    _threadPool = new ThreadPool(_instance, threadNum, 0);
+	    _threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
 	}
     }
     catch(...)

@@ -60,6 +60,8 @@ private:
 
     InstancePtr _instance;
     bool _destroyed;
+    const int _size;
+    const int _sizeMax;
     SOCKET _maxFd;
     SOCKET _minFd;
     SOCKET _lastFd;
@@ -70,7 +72,6 @@ private:
     std::map<SOCKET, EventHandlerPtr> _handlerMap;
     int _timeout;
     ::IceUtil::Mutex _threadMutex;
-    bool _multipleThreads;
 
     class EventHandlerThread : public ::IceUtil::Thread
     {
