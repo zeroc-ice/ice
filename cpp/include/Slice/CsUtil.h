@@ -28,6 +28,11 @@ public:
     static std::string fixId(const std::string&);
     static std::string typeToString(const TypePtr&);
     static bool isValueType(const TypePtr&);
+    //
+    // Generate code to marshal or unmarshal a type
+    //
+    void writeMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, const std::string&,
+                                   bool, int&);
 
 #if 0
 protected:

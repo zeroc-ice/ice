@@ -211,6 +211,282 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
    return false;
 }
 
+void
+Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
+					      const TypePtr& type,
+					      const string& param,
+					      bool marshal,
+					      int& iter)
+{
+    string stream = marshal ? "__os" : "__is";
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if(builtin)
+    {
+        switch(builtin->kind())
+        {
+            case Builtin::KindByte:
+            {
+                if(marshal)
+                {
+                    out << nl << stream << ".writeByte(" << param << ");";
+                }
+                else
+                {
+                    out << nl << param << " = " << stream << ".readByte();";
+                }
+                break;
+            }
+            case Builtin::KindBool:
+            {
+                if(marshal)
+                {
+                    out << nl << stream << ".writeBool(" << param << ");";
+                }
+                else
+                {
+                    out << nl << param << " = " << stream << ".readBool();";
+                }
+                break;
+            }
+            case Builtin::KindShort:
+            {
+                if(marshal)
+                {
+                    out << nl << stream << ".writeShort(" << param << ");";
+                }
+                else
+                {
+                    out << nl << param << " = " << stream << ".readShort();";
+                }
+                break;
+            }
+            case Builtin::KindInt:
+            {
+                if(marshal)
+                {
+                    out << nl << stream << ".writeInt(" << param << ");";
+                }
+                else
+                {
+                    out << nl << param << " = " << stream << ".readInt();";
+                }
+                break;
+            }
+            case Builtin::KindLong:
+            {
+                if(marshal)
+                {
+                    out << nl << stream << ".writeLong(" << param << ");";
+                }
+                else
+                {
+                    out << nl << param << " = " << stream << ".readLong();";
+                }
+                break;
+            }
+            case Builtin::KindFloat:
+            {
+                if(marshal)
+                {
+                    out << nl << stream << ".writeFloat(" << param << ");";
+                }
+                else
+                {
+                    out << nl << param << " = " << stream << ".readFloat();";
+                }
+                break;
+            }
+            case Builtin::KindDouble:
+            {
+                if(marshal)
+                {
+                    out << nl << stream << ".writeDouble(" << param << ");";
+                }
+                else
+                {
+                    out << nl << param << " = " << stream << ".readDouble();";
+                }
+                break;
+            }
+            case Builtin::KindString:
+            {
+                if(marshal)
+                {
+                    out << nl << stream << ".writeString(" << param << ");";
+                }
+                else
+                {
+                    out << nl << param << " = " << stream << ".readString();";
+                }
+                break;
+            }
+#if 0
+            case Builtin::KindObject:
+            {
+                if(marshal)
+                {
+                    out << nl << stream << ".writeObject(" << param << ");";
+                }
+                else
+                {
+		    if(holder)
+		    {
+			out << nl << stream << ".readObject(" << param << ".getPatcher());";
+		    }
+		    else
+		    {
+                        if(patchParams.empty())
+                        {
+                            out << nl << stream << ".readObject(new Patcher());";
+                        }
+                        else
+                        {
+                            out << nl << stream << ".readObject(" << patchParams << ");";
+                        }
+		    }
+                }
+                break;
+            }
+#endif
+            case Builtin::KindObjectProxy:
+            {
+                if(marshal)
+                {
+                    out << nl << stream << ".writeProxy(" << param << ");";
+                }
+                else
+                {
+                    out << nl << param << " = " << stream << ".readProxy();";
+                }
+                break;
+            }
+            case Builtin::KindLocalObject:
+            {
+                assert(false);
+                break;
+            }
+        }
+        return;
+    }
+
+    ProxyPtr prx = ProxyPtr::dynamicCast(type);
+    if(prx)
+    {
+        string typeS = typeToString(type);
+        if(marshal)
+        {
+            out << nl << typeS << "Helper.__write(" << stream << ", " << param << ");";
+        }
+        else
+        {
+            out << nl << param << " = " << typeS << "Helper.__read(" << stream << ");";
+        }
+        return;
+    }
+
+#if 0
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    if(cl)
+    {
+        if(marshal)
+        {
+            out << nl << stream << ".writeObject(" << param << ");";
+        }
+        else
+        {
+            string typeS = typeToString(type);
+	    if(holder)
+	    {
+		out << nl << stream << ".readObject(" << param << ".getPatcher());";
+	    }
+	    else
+	    {
+                if(patchParams.empty())
+                {
+                    out << nl << stream << ".readObject(new Patcher());";
+                }
+                else
+                {
+                    out << nl << stream << ".readObject(" << patchParams << ");";
+                }
+	    }
+        }
+        return;
+    }
+#endif
+
+    StructPtr st = StructPtr::dynamicCast(type);
+    if(st)
+    {
+        if(marshal)
+        {
+            out << nl << param << ".__write(" << stream << ");";
+        }
+        else
+        {
+            string typeS = typeToString(type);
+            out << nl << param << " = new " << typeS << "();";
+            out << nl << param << ".__read(" << stream << ");";
+        }
+        return;
+    }
+
+    EnumPtr en = EnumPtr::dynamicCast(type);
+    if(en)
+    {
+	string func;
+	string cast;
+	int sz = en->getEnumerators().size();
+	if(sz <= 0x7f)
+	{
+	    func = marshal ? "writeByte" : "readByte";
+	    cast = marshal ? "(byte)" : "(" + fixId(en->scoped()) + ")";
+	}
+	else if(sz <= 0x7fff)
+	{
+	    func = marshal ? "writeShort" : "readShort";
+	    cast = marshal ? "(short)" : "(" + fixId(en->scoped()) + ")";
+	}
+	else
+	{
+	    func = marshal ? "writeInt" : "readInt";
+	    cast = marshal ? "(int)" : "(" + fixId(en->scoped()) + ")";
+	}
+	if(marshal)
+	{
+	    out << nl << stream << "." << func << "(" << cast << param << ");";
+	}
+	else
+	{
+	    out << nl << param << " = " << cast << stream << "." << func << "();";
+	}
+        return;
+    }
+
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if(seq)
+    {
+        // writeSequenceMarshalUnmarshalCode(out, scope, seq, v, marshal, iter, true, metaData); TODO
+	if(!marshal)
+	{
+	    out << nl << param << " = null;";
+	}
+        return;
+    }
+
+    ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
+    assert(constructed);
+    string typeS = typeToString(type);
+    if(marshal)
+    {
+        out << nl << typeS << "Helper.write(" << stream << ", " << param << ");";
+    }
+    else
+    {
+        out << nl << param << " = " << typeS << "Helper.read(" << stream << ");";
+    }
+}
 #if 0
 
 void

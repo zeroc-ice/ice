@@ -66,7 +66,6 @@ private:
         TypesVisitor(::IceUtil::Output&);
 
 	virtual bool visitModuleStart(const ModulePtr&);
-	virtual void visitModuleEnd(const ModulePtr&);
 	virtual bool visitClassDefStart(const ClassDefPtr&);
 	virtual void visitOperation(const OperationPtr&);
 	virtual void visitClassDefEnd(const ClassDefPtr&);
@@ -88,7 +87,6 @@ private:
         ProxyVisitor(::IceUtil::Output&);
 
 	virtual bool visitModuleStart(const ModulePtr&);
-	virtual void visitModuleEnd(const ModulePtr&);
 	virtual bool visitClassDefStart(const ClassDefPtr&);
 	virtual void visitClassDefEnd(const ClassDefPtr&);
 	virtual void visitOperation(const OperationPtr&);
@@ -101,7 +99,6 @@ private:
         OpsVisitor(::IceUtil::Output&);
 
 	virtual bool visitModuleStart(const ModulePtr&);
-	virtual void visitModuleEnd(const ModulePtr&);
 	virtual bool visitClassDefStart(const ClassDefPtr&);
 	virtual void visitClassDefEnd(const ClassDefPtr&);
 	virtual void visitOperation(const OperationPtr&);
@@ -114,9 +111,10 @@ private:
         HelperVisitor(::IceUtil::Output&);
 
 	virtual bool visitModuleStart(const ModulePtr&);
-	virtual void visitModuleEnd(const ModulePtr&);
 	virtual bool visitClassDefStart(const ClassDefPtr&);
 	virtual void visitClassDefEnd(const ClassDefPtr&);
+	virtual void visitSequence(const SequencePtr&);
+	virtual void visitDictionary(const DictionaryPtr&);
     };
 
     class DelegateVisitor : public CsVisitor
@@ -126,7 +124,6 @@ private:
         DelegateVisitor(::IceUtil::Output&);
 
 	virtual bool visitModuleStart(const ModulePtr&);
-	virtual void visitModuleEnd(const ModulePtr&);
 	virtual bool visitClassDefStart(const ClassDefPtr&);
 	virtual void visitClassDefEnd(const ClassDefPtr&);
     };
@@ -138,7 +135,6 @@ private:
         DelegateMVisitor(::IceUtil::Output&);
 
 	virtual bool visitModuleStart(const ModulePtr&);
-	virtual void visitModuleEnd(const ModulePtr&);
 	virtual bool visitClassDefStart(const ClassDefPtr&);
 	virtual void visitClassDefEnd(const ClassDefPtr&);
     };
@@ -150,7 +146,6 @@ private:
         DelegateDVisitor(::IceUtil::Output&);
 
 	virtual bool visitModuleStart(const ModulePtr&);
-	virtual void visitModuleEnd(const ModulePtr&);
 	virtual bool visitClassDefStart(const ClassDefPtr&);
 	virtual void visitClassDefEnd(const ClassDefPtr&);
     };

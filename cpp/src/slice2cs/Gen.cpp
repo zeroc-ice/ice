@@ -159,7 +159,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
     _out << nl << "return false;";
     _out << eb;
 
-    _out << sp << nl << "public override StringSeq ice_ids(Ice.Current __current)";
+    _out << sp << nl << "public override Ice.StringSeq ice_ids(Ice.Current __current)";
     _out << sb;
     _out << nl << "return __idSeq;";
     _out << eb;
@@ -203,14 +203,18 @@ Slice::CsVisitor::getArgs(const OperationPtr& op)
 	{
 	    args += ", ";
 	}
+	if((*q)->isOutParam())
+	{
+	    args += "out ";
+	}
 	args += fixId((*q)->name());
     }
     return args;
 }
 
-Slice::Gen::Gen(const string& name, const string& base, const vector<string>& includePaths) :
-    _base(base),
-    _includePaths(includePaths)
+Slice::Gen::Gen(const string& name, const string& base, const vector<string>& includePaths)
+    : _base(base),
+      _includePaths(includePaths)
 {
     string file = base + ".cs";
     _out.open(file.c_str());
@@ -303,15 +307,10 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
     string name = fixId(p->name());
     _out << sp << nl << "namespace " << name;
-    _out << sb;
+
+    _out << sb; // Corresponding end of block is emitted by DispatcherVisitor::visitModuleEnd()
 
     return true;
-}
-
-void
-Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
 }
 
 bool
@@ -420,7 +419,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
 	    _out << sp << nl << "#region Marshaling support";
 
-	    _out << sp << nl << "public static void __write(IceInternal.BasicStream __os, bool __marshalFacets)";
+	    _out << sp << nl << "public override void __write(IceInternal.BasicStream __os, bool __marshalFacets)";
 	    _out << sb;
 	    _out << nl << "__os.writeTypeId(ice_staticId());";
 	    _out << nl << "__os.startWriteSlice();";
@@ -502,7 +501,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 		_out << eb;
 	    }
 
-	    _out << sp << nl << "public void" << nl << "__read(IceInternal.BasicStream __is, bool __rid)";
+	    _out << sp << nl << "public override void" << nl << "__read(IceInternal.BasicStream __is, bool __rid)";
 	    _out << sb;
 	    _out << nl << "if(__rid)";
 	    _out << sb;
@@ -525,6 +524,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 		    }
 		}
 		// TODO: writeMarshalUnmarshalCode(_out, package, (*d)->type(), fixId((*d)->name()), false, iter, false, metaData, patchParams.str());
+		writeMarshalUnmarshalCode(_out, (*d)->type(), fixId((*d)->name()), false, iter);
 	    }
 	    _out << nl << "__is.endReadSlice();";
 	    _out << nl << "base.__read(__is, true);";
@@ -642,7 +642,9 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
 	_out << sp << nl << "public static bool Equals(" << name << " __lhs, " << name << " __rhs)";
 	_out << sb;
-	_out << nl << "return __lhs == null ? __rhs == null : __lhs.CompareTo(__rhs) == 0;";
+	_out << nl << "return object.ReferenceEquals(__lhs, null)";
+	_out << nl << "           ? object.ReferenceEquals(__rhs, null)";
+	_out << nl << "           : __lhs.CompareTo(__rhs) == 0;";
 	_out << eb;
 
 	_out << sp << nl << "#endregion"; // Object members
@@ -654,6 +656,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 void
 Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 {
+
     ClassDefPtr classDef = ClassDefPtr::dynamicCast(p->container());
     if(classDef->isInterface())
     {
@@ -664,26 +667,16 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 
     string name = fixId(p->name());
 
+    ParamDeclList paramList = p->parameters();
+    ParamDeclList::const_iterator q;
+
     _out << sp << nl << "public ";
     if(isLocal)
     {
         _out << "abstract ";
     }
     _out << typeToString(p->returnType()) << " " << name << "(";
-    ParamDeclList paramList = p->parameters();
-    ParamDeclList::const_iterator q;
-    for(q = paramList.begin(); q != paramList.end(); ++q)
-    {
-	if(q != paramList.begin())
-	{
-	    _out << ", ";
-	}
-	if((*q)->isOutParam())
-	{
-	    _out << "out ";
-	}
-	_out << typeToString((*q)->type()) << " " << fixId((*q)->name());
-    }
+    _out << getParams(p);
     _out << ")";
     if(isLocal)
     {
@@ -704,6 +697,10 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 	    {
 	        _out << ", ";
 	    }
+	    if((*q)->isOutParam())
+	    {
+	        _out << "out ";
+	    }
 	    _out << fixId((*q)->name());
 	}
 	if(!paramList.empty())
@@ -717,8 +714,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     if(!isLocal)
     {
 	_out << nl << "public abstract " << typeToString(p->returnType()) << " " << name << "(";
-	ParamDeclList paramList = p->parameters();
-	for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+	for(q = paramList.begin(); q != paramList.end(); ++q)
 	{
 	    if(q != paramList.begin())
 	    {
@@ -755,41 +751,38 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     _out << sb;
     _out << eb;
 
-    _out << sp << nl << "public " << name << "(" << s << "[] __s)";
+    _out << sp << nl << "public " << name << "(_System.Collections.ICollection __s)";
     _out << sb;
-    _out << nl << "InnerList.AddRange(__s);";
+    _out << sp << nl << "InnerList.AddRange(__s);";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // Constructors
 
-    _out << sp << nl << "#region Array conversions";
+    _out << sp << nl << "#region Array copy and conversion";
+
+    _out << sp << nl << "public void CopyTo(" << s << "[] __a)";
+    _out << sb;
+    _out << nl << "InnerList.CopyTo(__a);";
+    _out << eb;
 
     _out << sp << nl << "public void CopyTo(" << s << "[] __a, int __i)";
     _out << sb;
     _out << nl << "InnerList.CopyTo(__a, __i);";
     _out << eb;
 
+    _out << sp << nl << "public void CopyTo(int __i, " << s << "[] __a, int __ai, int __c)";
+    _out << sb;
+    _out << nl << "InnerList.CopyTo(__i, __a, __ai, __c);";
+    _out << eb;
+
     _out << sp << nl << "public " << s << "[] ToArray()";
     _out << sb;
-    if(isValue)
-    {
-	_out << nl << s << "[] __a = new " << s << "[InnerList.Count];";
-	_out << nl << "InnerList.CopyTo(__a, 0);";
-	_out << nl << "return __a;";
-    }
-    else
-    {
-        _out << nl << "return (" << s << "[])InnerList.ToArray();";
-    }
+    _out << nl << s << "[] __a = new " << s << "[InnerList.Count];";
+    _out << nl << "InnerList.CopyTo(__a, 0);";
+    _out << nl << "return __a;";
     _out << eb;
 
-    _out << sp << nl << "public void FromArray(" << s << "[] __a)";
-    _out << sb;
-    _out << nl << "InnerList.Clear();";
-    _out << nl << "InnerList.AddRange(__a);";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Array conversions
+    _out << sp << nl << "#endregion"; // Array copy and conversion
 
     _out << sp << nl << "#region Indexer";
 
@@ -807,6 +800,15 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     _out << eb;
 
     _out << sp << nl << "#endregion"; // Indexer
+
+    _out << sp << nl << "#region " << s << " members";
+
+    _out << sp << nl << "public void AddRange(_System.Collections.ICollection __s)";
+    _out << sb;
+    _out << nl << "InnerList.AddRange(__s);";
+    _out << eb;
+
+    _out << sp << nl << "#endregion"; // <s> operations";
 
     _out << sp << nl << "#region ICollectionBase members";
 
@@ -859,18 +861,18 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     _out << sb;
     if(!isValue)
     {
-	_out << nl << "if(this[__i] == null && ((" << name << ")__other)[__i] != null)";
+	_out << nl << "if(InnerList[__i] == null && ((" << name << ")__other)[__i] != null)";
 	_out << sb;
 	_out << nl << "return -1;";
 	_out << eb;
     }
-    _out << nl << "int __ret = this[__i].CompareTo(((" << name << ")__other)[__i]);";
+    _out << nl << "int __ret = ((" << s << ")(InnerList[__i])).CompareTo(((" << name << ")__other)[__i]);";
     _out << nl << "if(__ret != 0)";
     _out << sb;
     _out << nl << "return __ret;";
     _out << eb;
     _out << eb;
-    _out << nl << "return this.Count < ((" << name << ")__other).Count ? -1 : ((this.Count > (("
+    _out << nl << "return InnerList.Count < ((" << name << ")__other).Count ? -1 : ((InnerList.Count > (("
          << name << ")__other).Count) ? 1 : 0);";
     _out << eb;
 
@@ -930,10 +932,10 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     _out << sb;
     if(!isValue)
     {
-	_out << nl << "if((object)this[i] != null)";
+	_out << nl << "if((object)InnerList[i] != null)";
 	_out << sb;
     }
-    _out << nl << "hash = 5 * hash + this[i].GetHashCode();";
+    _out << nl << "hash = 5 * hash + InnerList[i].GetHashCode();";
     if(!isValue)
     {
 	_out << eb;
@@ -944,6 +946,10 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp << nl << "public override bool Equals(object other)";
     _out << sb;
+    _out << nl << "if(other == null || !(other is " << name << "))";
+    _out << sb;
+    _out << nl << "return false;";
+    _out << eb;
     _out << nl << "if(Count != ((" << name << ")other).Count)";
     _out << sb;
     _out << nl << "return false;";
@@ -953,7 +959,9 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp << nl << "public static bool Equals(" << name << " __lhs, " << name << " __rhs)";
     _out << sb;
-    _out << nl << "return __lhs == null ? __rhs == null : __lhs.Equals(__rhs);";
+    _out << nl << "return object.ReferenceEquals(__lhs, null)";
+    _out << nl << "           ? object.ReferenceEquals(__rhs, null)";
+    _out << nl << "           : __lhs.Equals(__rhs);";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // Object members
@@ -978,7 +986,10 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     _out << sb;
 
-    _out << sp << nl << "#region Slice data members";
+    if(!p->dataMembers().empty())
+    {
+	_out << sp << nl << "#region Slice data members";
+    }
 
     return true;
 }
@@ -991,11 +1002,16 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList::const_iterator q;
 
-    _out << sp << nl << "#endregion"; // Slice data members
+    if(!dataMembers.empty())
+    {
+	_out << sp << nl << "#endregion"; // Slice data members
+    }
 
     _out << sp << nl << "#region Constructors";
 
-    _out << sp << nl << "public " << name << "() : base(\"" << name << "\")";
+    _out << sp << nl << "private static readonly string _dflt = \"" << name << "\";";
+
+    _out << sp << nl << "public " << name << "() : base(_dflt)";
     _out << sb;
     _out << eb;
 
@@ -1003,8 +1019,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << sb;
     _out << eb;
 
-    _out << sp << nl << "private static readonly string _dflt = \"" << name << "\";";
-    _out << nl << "public " << name << "(_System.Exception __ex) : base(_dflt, __ex)";
+    _out << sp << nl << "public " << name << "(_System.Exception __ex) : base(_dflt, __ex)";
     _out << sb;
     _out << eb;
 
@@ -1210,7 +1225,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     _out << sp << nl << "public static bool Equals(" << name << " __lhs, " << name << " __rhs)";
     _out << sb;
-    _out << nl << "return __lhs == null ? __rhs == null : __lhs.Equals(__rhs);";
+    _out << nl << "return object.ReferenceEquals(__lhs, null)";
+    _out << nl << "           ? object.ReferenceEquals(__rhs, null)";
+    _out << nl << "           : __lhs.Equals(__rhs);";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // Object members
@@ -1248,7 +1265,10 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         _out << sp << nl << "public void __write(IceInternal.BasicStream __os)";
         _out << sb;
-	// TODO
+	for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	{
+	    writeMarshalUnmarshalCode(_out, (*q)->type(), fixId((*q)->name()), true, iter);
+	}
         _out << eb;
 
 	DataMemberList classMembers = p->classDataMembers();
@@ -1335,7 +1355,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 		    patchParams << "new Patcher(" << classMemberCount++ << ')';
 		}
 	    }
-            // TODO: writeMarshalUnmarshalCode(_out, package, (*d)->type(), fixId((*d)->name()), false, iter, false, metaData, patchParams.str());
+            writeMarshalUnmarshalCode(_out, (*q)->type(), fixId((*q)->name()), false, iter);
         }
         _out << eb;
 
@@ -1444,7 +1464,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp << nl << "public static bool Equals(" << name << " __lhs, " << name << " __rhs)";
     _out << sb;
-    _out << nl << "return __lhs == null ? __rhs == null : __lhs.CompareTo(__rhs) == 0;";
+    _out << nl << "return object.ReferenceEquals(__lhs, null)";
+    _out << nl << "           ? object.ReferenceEquals(__rhs, null)";
+    _out << nl << "           : __lhs.CompareTo(__rhs) == 0;";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // Object members
@@ -1463,6 +1485,22 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sp << nl << "public class " << name
          << " : _System.Collections.DictionaryBase, _System.IComparable, _System.ICloneable";
     _out << sb;
+
+    _out << sp << nl << "#region Constructors";
+
+    _out << sp << nl << "public " << name << "() : base()";
+    _out << sb;
+    _out << eb;
+
+    _out << sp << nl << "public " << name << "(" << name << " __d)";
+    _out << sb;
+    _out << nl << "foreach(_System.Collections.DictionaryEntry e in __d)";
+    _out << sb;
+    _out << nl << "Dictionary.Add(e.Key, e.Value);";
+    _out << eb;
+    _out << eb;
+
+    _out << sp << nl << "#endregion"; // Constructors
 
     _out << sp << nl << "#region " << name << " properties";
 
@@ -1500,6 +1538,18 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << eb;
 
     _out << sp << nl << "#endregion"; // properties
+
+    _out << sp << nl << "#region " << name << " members";
+
+    _out << sp << nl << "public void AddRange(" << name << " __d)";
+    _out << sb;
+    _out << nl << "foreach(_System.Collections.DictionaryEntry e in __d)";
+    _out << sb;
+    _out << nl << "Dictionary.Add(e.Key, e.Value);";
+    _out << eb;
+    _out << eb;
+
+    _out << sp << nl << "#endregion"; // <name> members
 
     _out << sp << nl << "#region IDictionary members";
 
@@ -1617,9 +1667,9 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sp << nl << "public object Clone()";
     _out << sb;
     _out << nl << name << " __ret = new " << name << "();";
-    _out << nl << "foreach(System.Collections.DictionaryEntry i in Dictionary)";
+    _out << nl << "foreach(System.Collections.DictionaryEntry e in Dictionary)";
     _out << sb;
-    _out << nl << "__ret[(" << ks << ")i.Key] = (" << vs << ")i.Value;";
+    _out << nl << "__ret[(" << ks << ")e.Key] = (" << vs << ")e.Value;";
     _out << eb;
     _out << nl << "return __ret;";
     _out << eb;
@@ -1650,6 +1700,10 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     _out << sp << nl << "public override bool Equals(object other)";
     _out << sb;
+    _out << nl << "if(other == null || !(other is " << name << "))";
+    _out << sb;
+    _out << nl << "return false;";
+    _out << eb;
     _out << nl << "if(Count != ((" << name << ")other).Count)";
     _out << sb;
     _out << nl << "return false;";
@@ -1659,7 +1713,9 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     _out << sp << nl << "public static bool Equals(" << name << " __lhs, " << name << " __rhs)";
     _out << sb;
-    _out << nl << "return __lhs == null ? __rhs == null : __lhs.Equals(__rhs);";
+    _out << nl << "return object.ReferenceEquals(__lhs, null)";
+    _out << nl << "           ? object.ReferenceEquals(__rhs, null)";
+    _out << nl << "           : __lhs.Equals(__rhs);";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // Object members
@@ -1774,17 +1830,7 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtil::Output& out)
 bool
 Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
-    string name = fixId(p->name());
-    _out << sp << nl << "namespace " << name;
-    _out << sb;
-
     return true;
-}
-
-void
-Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
 }
 
 bool
@@ -1825,9 +1871,8 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
+Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
-
     _out << eb;
 }
 
@@ -1874,19 +1919,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 }
 
 bool
-Slice::Gen::OpsVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::OpsVisitor::visitModuleStart(const ModulePtr&)
 {
-    string name = fixId(p->name());
-    _out << sp << nl << "namespace " << name;
-    _out << sb;
-
     return true;
-}
-
-void
-Slice::Gen::OpsVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
 }
 
 bool
@@ -1936,7 +1971,7 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::OpsVisitor::visitClassDefEnd(const ClassDefPtr& p)
+Slice::Gen::OpsVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
     _out << eb;
 }
@@ -1977,17 +2012,7 @@ Slice::Gen::HelperVisitor::HelperVisitor(IceUtil::Output& out)
 bool
 Slice::Gen::HelperVisitor::visitModuleStart(const ModulePtr& p)
 {
-    string name = fixId(p->name());
-    _out << sp << nl << "namespace " << name;
-    _out << sb;
-
     return true;
-}
-
-void
-Slice::Gen::HelperVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
 }
 
 bool
@@ -2185,9 +2210,382 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::HelperVisitor::visitClassDefEnd(const ClassDefPtr& p)
+Slice::Gen::HelperVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
     _out << eb;
+}
+
+void
+Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
+{
+    //
+    // Don't generate helper for a sequence of a local type
+    //
+    if(p->isLocal())
+    {
+        return;
+    }
+
+    string name = fixId(p->name());
+    string typeS = typeToString(p);
+
+    int iter;
+
+    _out << sp << nl << "public sealed class " << name << "Helper";
+    _out << sb;
+
+    _out << nl << "public static void" << nl << "write(IceInternal.BasicStream __os, " << typeS << " __v)";
+    _out << sb;
+    iter = 0;
+    // writeSequenceMarshalUnmarshalCode(_out, package, p, "__v", true, iter, false); TODO
+    _out << eb;
+
+    _out << sp << nl << "public static " << typeS << nl << "read(IceInternal.BasicStream __is)";
+    _out << sb;
+    _out << nl << typeS << " __v;";
+    iter = 0;
+    writeMarshalUnmarshalCode(_out, p, "__v", false, iter);
+    _out << nl << "return __v;";
+    _out << eb;
+
+    _out << eb;
+}
+
+void
+Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
+{
+    //
+    // Don't generate helper for a dictionary containing a local type
+    //
+    if(p->isLocal())
+    {
+        return;
+    }
+
+    TypePtr key = p->keyType();
+    TypePtr value = p->valueType();
+
+    string name = fixId(p->name());
+    string keyS = typeToString(key);
+    string valueS = typeToString(value);
+    int iter; // TODO: needed?
+
+    _out << sp << nl << "public sealed class " << name << "Helper";
+    _out << sb;
+
+    _out << nl << "public static void" << nl << "write(IceInternal.BasicStream __os, " << name << " __v)";
+    _out << sb;
+    _out << nl << "if(__v == null)";
+    _out << sb;
+    _out << nl << "__os.writeSize(0);";
+    _out << eb;
+    _out << nl << "else";
+    _out << sb;
+    _out << nl << "__os.writeSize(__v.Count);";
+    _out << nl << "foreach(_System.Collections.DictionaryEntry __e in __v)";
+    _out << sb;
+    iter = 0;
+    string keyArg = "(" + keyS + ")__e.Key";
+    writeMarshalUnmarshalCode(_out, key, keyArg, true, iter);
+    string valueArg = "(" + valueS + ")__e.Value";
+    writeMarshalUnmarshalCode(_out, value, valueArg, true, iter);
+    _out << eb;
+    _out << eb;
+
+    _out << eb;
+
+
+    _out << sp << nl << "public static " << name << " read(IceInternal.BasicStream __is)";
+    _out << sb;
+
+    _out << nl << "int __sz = __is.readSize();";
+    _out << nl << name << " __r = new " << name << "();";
+    _out << nl << "for(int __i = 0; __i < __sz; ++__i)";
+    _out << sb;
+    _out << nl << keyS << " __k;";
+    writeMarshalUnmarshalCode(_out, key, "__k", false, iter);
+    _out << nl << valueS << " __v;";
+    writeMarshalUnmarshalCode(_out, value, "__v", false, iter);
+    _out << nl << "__r[__k] = __v;";
+    _out << eb;
+    _out << nl << "return __r;";
+
+    _out << eb;
+
+
+    _out << eb;
+#if 0
+    _out << nl << "while(__i.hasNext())";
+    _out << sb;
+    _out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i.next();";
+    iter = 0;
+    for(i = 0; i < 2; i++)
+    {
+	string val;
+	string arg;
+	TypePtr type;
+	if(i == 0)
+	{
+	    arg = "__e.getKey()";
+	    type = key;
+	}
+	else
+	{
+	    arg = "__e.getValue()";
+	    type = value;
+	}
+
+	BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+	if(b)
+	{
+	    switch(b->kind())
+	    {
+		case Builtin::KindByte:
+		{
+		    val = "((java.lang.Byte)" + arg + ").byteValue()";
+		    break;
+		}
+		case Builtin::KindBool:
+		{
+		    val = "((java.lang.Boolean)" + arg + ").booleanValue()";
+		    break;
+		}
+		case Builtin::KindShort:
+		{
+		    val = "((java.lang.Short)" + arg + ").shortValue()";
+		    break;
+		}
+		case Builtin::KindInt:
+		{
+		    val = "((java.lang.Integer)" + arg + ").intValue()";
+		    break;
+		}
+		case Builtin::KindLong:
+		{
+		    val = "((java.lang.Long)" + arg + ").longValue()";
+		    break;
+		}
+		case Builtin::KindFloat:
+		{
+		    val = "((java.lang.Float)" + arg + ").floatValue()";
+		    break;
+		}
+		case Builtin::KindDouble:
+		{
+		    val = "((java.lang.Double)" + arg + ").doubleValue()";
+		    break;
+		}
+		case Builtin::KindString:
+		case Builtin::KindObject:
+		case Builtin::KindObjectProxy:
+		{
+		    break;
+		}
+		case Builtin::KindLocalObject:
+		{
+		    assert(false);
+		    break;
+		}
+	    }
+	}
+
+	if(val.empty())
+	{
+	    val = "((" + typeToString(type, TypeModeIn, package) + ')' + arg + ')';
+	}
+	writeMarshalUnmarshalCode(_out, package, type, val, true, iter, false);
+    }
+    _out << eb;
+    _out << eb;
+    _out << eb;
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(value);
+    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(value))
+    {
+	//
+	// The dictionary uses class values.
+	//
+	_out << sp << nl << "private static class Patcher implements IceInternal.Patcher";
+	_out << sb;
+	string keyTypeS = keyS;
+	BuiltinPtr b = BuiltinPtr::dynamicCast(key);
+	if(b)
+	{
+	    switch(b->kind())
+	    {
+		case Builtin::KindByte:
+		{
+		    keyTypeS = "java.lang.Byte";
+		    break;
+		}
+		case Builtin::KindBool:
+		{
+		    keyTypeS = "java.lang.Boolean";
+		    break;
+		}
+		case Builtin::KindShort:
+		{
+		    keyTypeS = "java.lang.Short";
+		    break;
+		}
+		case Builtin::KindInt:
+		{
+		    keyTypeS = "java.lang.Integer";
+		    break;
+		}
+		case Builtin::KindLong:
+		{
+		    keyTypeS = "java.lang.Long";
+		    break;
+		}
+		case Builtin::KindFloat:
+		{
+		    keyTypeS = "java.lang.Float";
+		    break;
+		}
+		case Builtin::KindDouble:
+		{
+		    keyTypeS = "java.lang.Double";
+		    break;
+		}
+		default:
+		{
+		    break;	// Do nothing
+		}
+	    }
+	}
+	_out << sp << nl << "Patcher(java.util.Map m, " << keyTypeS << " key)";
+	_out << sb;
+	_out << nl << "__m = m;";
+	_out << nl << "__key = key;";
+	_out << eb;
+
+	_out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
+	_out << sb;
+	_out << nl << valueS << " _v = (" << valueS << ")v;";
+	_out << nl << "__m.put(__key, v);";
+	_out << eb;
+
+	_out << sp << nl << "public String" << nl << "type()";
+	_out << sb;
+	_out << nl << "return \"" << value->typeId() << "\";";
+	_out << eb;
+
+	_out << sp << nl << "private java.util.Map __m;";
+	_out << nl << "private " << keyTypeS << " __key;";
+	_out << eb;
+    }
+
+    _out << sp << nl << "public static java.util.Map" << nl << "read(IceInternal.BasicStream __is)";
+    _out << sb;
+    _out << nl << "int __sz = __is.readSize();";
+    _out << nl << "java.util.Map __r = new java.util.HashMap(__sz);";
+    _out << nl << "for(int __i = 0; __i < __sz; __i++)";
+    _out << sb;
+    iter = 0;
+    for(i = 0; i < 2; i++)
+    {
+	string arg;
+	TypePtr type;
+	if(i == 0)
+	{
+	    arg = "__key";
+	    type = key;
+	}
+	else
+	{
+	    arg = "__value";
+	    type = value;
+	}
+
+	BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+	if(b)
+	{
+	    switch(b->kind())
+	    {
+		case Builtin::KindByte:
+		{
+		    _out << nl << "java.lang.Byte " << arg << " = new java.lang.Byte(__is.readByte());";
+		    break;
+		}
+		case Builtin::KindBool:
+		{
+		    _out << nl << "java.lang.Boolean " << arg << " = new java.lang.Boolean(__is.readBool());";
+		    break;
+		}
+		case Builtin::KindShort:
+		{
+		    _out << nl << "java.lang.Short " << arg << " = new java.lang.Short(__is.readShort());";
+		    break;
+		}
+		case Builtin::KindInt:
+		{
+		    _out << nl << "java.lang.Integer " << arg << " = new java.lang.Integer(__is.readInt());";
+		    break;
+		}
+		case Builtin::KindLong:
+		{
+		    _out << nl << "java.lang.Long " << arg << " = new java.lang.Long(__is.readLong());";
+		    break;
+		}
+		case Builtin::KindFloat:
+		{
+		    _out << nl << "java.lang.Float " << arg << " = new java.lang.Float(__is.readFloat());";
+		    break;
+		}
+		case Builtin::KindDouble:
+		{
+		    _out << nl << "java.lang.Double " << arg << " = new java.lang.Double(__is.readDouble());";
+		    break;
+		}
+		case Builtin::KindString:
+		{
+		    _out << nl << "java.lang.String " << arg << " = __is.readString();";
+		    break;
+		}
+		case Builtin::KindObject:
+		{
+		    _out << nl << "__is.readObject(new Patcher(__r, __key));";
+		    break;
+		}
+		case Builtin::KindObjectProxy:
+		{
+		    _out << nl << "Ice.ObjectPrx " << arg << " = __is.readProxy();";
+		    break;
+		}
+		case Builtin::KindLocalObject:
+		{
+		    assert(false);
+		    break;
+		}
+	    }
+	}
+	else
+	{
+	    string s = typeToString(type, TypeModeIn, package);
+	    BuiltinPtr builtin2 = BuiltinPtr::dynamicCast(type);
+	    if((builtin2 && builtin2->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type))
+	    {
+		writeMarshalUnmarshalCode(_out, package, type, arg, false, iter, false, StringList(),
+					  "new Patcher(__r, __key)");
+	    }
+	    else
+	    {
+		_out << nl << s << ' ' << arg << ';';
+		writeMarshalUnmarshalCode(_out, package, type, arg, false, iter, false);
+	    }
+	}
+    }
+    if(!(builtin && builtin->kind() == Builtin::KindObject) && !ClassDeclPtr::dynamicCast(value))
+    {
+	_out << nl << "__r.put(__key, __value);";
+    }
+    _out << eb;
+    _out << nl << "return __r;";
+    _out << eb;
+
+    _out << eb;
+#endif
 }
 
 Slice::Gen::DelegateVisitor::DelegateVisitor(IceUtil::Output& out)
@@ -2198,17 +2596,7 @@ Slice::Gen::DelegateVisitor::DelegateVisitor(IceUtil::Output& out)
 bool
 Slice::Gen::DelegateVisitor::visitModuleStart(const ModulePtr& p)
 {
-    string name = fixId(p->name());
-    _out << sp << nl << "namespace " << name;
-    _out << sb;
-
     return true;
-}
-
-void
-Slice::Gen::DelegateVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
 }
 
 bool
@@ -2233,7 +2621,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
        ClassList::const_iterator q = bases.begin();
        while(q != bases.end())
        {
-           _out << fixId((*q)->name())  << "Del";
+           _out << '_' << fixId((*q)->name())  << "Del";
 	   if(++q != bases.end())
 	   {
 	       _out << ',' << nl;
@@ -2271,7 +2659,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::DelegateVisitor::visitClassDefEnd(const ClassDefPtr& p)
+Slice::Gen::DelegateVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
     _out << eb;
 }
@@ -2284,17 +2672,7 @@ Slice::Gen::DelegateMVisitor::DelegateMVisitor(IceUtil::Output& out)
 bool
 Slice::Gen::DelegateMVisitor::visitModuleStart(const ModulePtr& p)
 {
-    string name = fixId(p->name());
-    _out << sp << nl << "namespace " << name;
-    _out << sb;
-
     return true;
-}
-
-void
-Slice::Gen::DelegateMVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
 }
 
 bool
@@ -2360,12 +2738,16 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	_out << sb;
 	if(!inParams.empty())
 	{
+	    _out << nl << "IceInternal.BasicStream __os = __out.ostr();";
+	}
+	if(!outParams.empty() || ret || !throws.empty())
+	{
 	    _out << nl << "IceInternal.BasicStream __is = __out.istr();";
 	}
 	iter = 0;
 	for(q = inParams.begin(); q != inParams.end(); ++q)
 	{
-	    // TODO: write marshal/unmarshal code here
+	    writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), true, iter);
 	}
 	if(op->sendsClasses())
 	{
@@ -2403,7 +2785,26 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	for(q = outParams.begin(); q != outParams.end(); ++q)
 	{
-	    // TODO: write marshal/unmarshal code here
+	    writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), false, iter);
+#if 0
+	    // TODO: write marshal/unmarshal code here and remove initialization
+	    if(isValueType(q->first))
+	    {
+	        BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
+		if(builtin && builtin->kind() == Builtin::KindBool)
+		{
+		    _out << fixId(q->second) << " = false;";
+		}
+		else
+		{
+		    _out << fixId(q->second) << " = 0;";
+		}
+	    }
+	    else
+	    {
+	        _out << fixId(q->second) << " = null;";
+	    }
+#endif
 	}
 	if(ret)
 	{
@@ -2415,8 +2816,25 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    }
 	    else
 	    {
-		_out << nl << retS << " __ret = null;"; // TODO: remove null initialization 
-		// TODO writeMarshalUnmarshalCode(_out, package, ret, "__ret", false, iter);
+		_out << nl << retS << " __ret;";
+		writeMarshalUnmarshalCode(_out, ret, "__ret", false, iter);
+#if 0
+		if(isValueType(ret))
+		{
+		    if(builtin && builtin->kind() == Builtin::KindBool)
+		    {
+		        _out << " = false;";
+		    }
+		    else
+		    {
+		        _out << " = 0;";
+		    }
+		}
+		else
+		{
+		    _out << " = null;";
+		}
+#endif
 	    }
 	}
 	if(op->returnsClasses())
@@ -2452,7 +2870,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::DelegateMVisitor::visitClassDefEnd(const ClassDefPtr& p)
+Slice::Gen::DelegateMVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
     _out << eb;
 }
@@ -2465,17 +2883,7 @@ Slice::Gen::DelegateDVisitor::DelegateDVisitor(IceUtil::Output& out)
 bool
 Slice::Gen::DelegateDVisitor::visitModuleStart(const ModulePtr& p)
 {
-    string name = fixId(p->name());
-    _out << sp << nl << "namespace " << name;
-    _out << sb;
-
     return true;
-}
-
-void
-Slice::Gen::DelegateDVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
 }
 
 bool
@@ -2584,7 +2992,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::DelegateDVisitor::visitClassDefEnd(const ClassDefPtr& p)
+Slice::Gen::DelegateDVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
     _out << eb;
 }
@@ -2597,17 +3005,13 @@ Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtil::Output &out)
 bool
 Slice::Gen::DispatcherVisitor::visitModuleStart(const ModulePtr& p)
 {
-    string name = fixId(p->name());
-    _out << sp << nl << "namespace " << name;
-    _out << sb;
-
     return true;
 }
 
 void
-Slice::Gen::DispatcherVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::DispatcherVisitor::visitModuleEnd(const ModulePtr&)
 {
-    _out << eb;
+    _out << eb; // Closes block opened by TypesVisitor::visitModuleStart()
 }
 
 bool

@@ -1,0 +1,78 @@
+// **********************************************************************
+//
+// Copyright (c) 2003
+// ZeroC, Inc.
+// Billerica, MA, USA
+//
+// All Rights Reserved.
+//
+// Ice is free software; you can redistribute it and/or modify it under
+// the terms of the GNU General Public License version 2 as published by
+// the Free Software Foundation.
+//
+// **********************************************************************
+
+namespace IceInternal
+{
+
+public abstract class EventHandler
+{
+    //
+    // Return true if the handler is for a datagram transport, false otherwise.
+    //
+    abstract public bool datagram();
+    
+    //
+    // Return true if read() must be called before calling message().
+    //
+    abstract public bool readable();
+    
+    //
+    // Read data via the event handler. May only be called if
+    // readable() returns true.
+    //
+    abstract public void read(BasicStream istr);
+    
+    //
+    // A complete message has been received.
+    //
+    abstract public void message(BasicStream stream, ThreadPool threadPool);
+    
+    //
+    // Will be called if the event handler is finally
+    // unregistered. (Calling unregister() does not unregister
+    // immediately.)
+    //
+    abstract public void finished(ThreadPool threadPool);
+    
+    //
+    // Propagate an exception to the event handler.
+    //
+    abstract public void exception(Ice.LocalException ex);
+    
+    //
+    // Get a textual representation of the event handler.
+    //
+    public override string ToString(){ return null; } // TODO
+    
+    protected internal
+    EventHandler(Instance instance)
+    {
+	_instance = instance;
+	_stream = new BasicStream(instance);
+    }
+    
+    ~EventHandler()
+    {
+	_stream.destroy();
+    }
+    
+    protected internal Instance _instance;
+    
+    //
+    // The _stream data member is for use by ThreadPool only.
+    //
+    internal BasicStream _stream;
+}
+
+}
