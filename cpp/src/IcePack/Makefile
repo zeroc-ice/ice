@@ -104,12 +104,12 @@ $(ADMIN): $(ADMIN_OBJS)
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS)
 	rm -f $@
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) \
-	-lYellow -lIcePack -lIceBox -lFreeze $(XERCESC_LIBS) $(LIBS) -ldb
+	-lYellow -lIcePack -lIceBox -lFreeze -lIceXML $(XERCESC_LIBS) $(LIBS) -ldb
 
 $(NODE_SERVER): $(NODE_SVR_OBJS)
 	rm -f $@
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) \
-	-lYellow -lIcePack -lIceBox -lFreeze $(XERCESC_LIBS) $(LIBS) -ldb
+	-lYellow -lIcePack -lIceBox -lFreeze -lIceXML $(XERCESC_LIBS) $(LIBS) -ldb
 
 Grammar.cpp Grammar.h: Grammar.y
 	bison -dvt Grammar.y
