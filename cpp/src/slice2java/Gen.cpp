@@ -277,8 +277,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 
     ClassList allBases = p->allBases();
     StringList ids;
-    transform(allBases.begin(), allBases.end(), back_inserter(ids),
-              ::IceUtil::memFun(&ClassDef::scoped));
+    transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::memFun(&ClassDef::scoped));
     StringList other;
     other.push_back(scoped);
     other.push_back("::Ice::Object");
@@ -341,9 +340,11 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     out << eb;
 
     //
-    // Dispatch operations
+    // Dispatch operations. We only generate methods for operations
+    // defined in this ClassDef, because we reuse existing methods
+    // for inherited operations.
     //
-    OperationList ops = p->allOperations();
+    OperationList ops = p->operations();
     OperationList::const_iterator r;
     for (r = ops.begin(); r != ops.end(); ++r)
     {
@@ -354,8 +355,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 
         string opName = fixKwd(op->name());
         out << sp << nl << "public static IceInternal.DispatchStatus"
-            << nl << "___" << opName << "(" << name
-            << " __obj, IceInternal.Incoming __in, Ice.Current __current)";
+            << nl << "___" << opName << "(" << name << " __obj, IceInternal.Incoming __in, Ice.Current __current)";
         out << sb;
 
         TypePtr ret = op->returnType();
@@ -394,8 +394,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         {
             string typeS = typeToString(q->first, TypeModeIn, scope);
             out << nl << typeS << ' ' << fixKwd(q->second) << ';';
-            writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second),
-                                      false, iter);
+            writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), false, iter);
         }
 
         //
@@ -404,8 +403,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         for (q = outParams.begin(); q != outParams.end(); ++q)
         {
             string typeS = typeToString(q->first, TypeModeOut, scope);
-            out << nl << typeS << ' ' << fixKwd(q->second) << " = new "
-                << typeS << "();";
+            out << nl << typeS << ' ' << fixKwd(q->second) << " = new " << typeS << "();";
         }
 
         if (!throws.empty())
@@ -438,8 +436,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         //
         for (q = outParams.begin(); q != outParams.end(); ++q)
         {
-            writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second),
-                                      true, iter, true);
+            writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), true, iter, true);
         }
         //
         // Marshal result
@@ -464,8 +461,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
                 out << nl << "catch (" << exS << " ex)";
                 out << sb;
                 out << nl << "__os.writeUserException(ex);";
-                out << nl << "return IceInternal.DispatchStatus."
-                    << "DispatchUserException;";
+                out << nl << "return IceInternal.DispatchStatus.DispatchUserException;";
                 out << eb;
             }
         }
@@ -554,7 +550,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
                         ContainerPtr container = (*r)->container();
                         ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
                         assert(cl);
-                        if (cl->name() == p->name())
+                        if (cl->scoped() == p->scoped())
                         {
                             out << nl << "return ___" << opName << "(this, in, current);";
                         }
@@ -584,9 +580,8 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     }
 }
 
-Slice::Gen::Gen(const string& name, const string& base,
-                const vector<string>& includePaths,
-                const string& package, const string& dir) :
+Slice::Gen::Gen(const string& name, const string& base, const vector<string>& includePaths, const string& package,
+                const string& dir) :
     _base(base),
     _includePaths(includePaths),
     _package(package),
