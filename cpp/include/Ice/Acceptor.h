@@ -15,6 +15,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/Shared.h>
+#include <netinet/in.h>
 
 namespace _Ice
 {
@@ -29,7 +30,8 @@ public:
     void shutdown();
     void listen();
     Transceiver accept();
-    
+    std::string toString() const;
+
 private:
 
     AcceptorI(const AcceptorI&);
@@ -42,8 +44,8 @@ private:
 
     Instance instance_;
     int fd_;
-    int port_;
     int backlog_;
+    struct sockaddr_in addr_;
 };
 
 }

@@ -29,6 +29,7 @@ public:
     void shutdown();
     void write(Buffer&);
     void read(Buffer&);
+    std::string toString() const;
     
 private:
 

@@ -31,7 +31,7 @@ class LocalException;
 namespace _Ice
 {
 
-class ICE_API CollectorI : public EventHandlerI, public JTCMutex
+class ICE_API CollectorI : public EventHandlerI, public JTCRecursiveMutex
 {
 public:
 
@@ -83,6 +83,8 @@ private:
     void destroy();
     // May create and destroy CollectorFactoryIs
     friend class CollectorFactoryFactoryI;
+
+    void warning(const Ice::LocalException&) const;
 
     Instance instance_;
     ThreadPool threadPool_;

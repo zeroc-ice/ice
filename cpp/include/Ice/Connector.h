@@ -15,6 +15,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/Shared.h>
+#include <netinet/in.h>
 
 namespace _Ice
 {
@@ -26,6 +27,7 @@ class ConnectorI : public Shared
 public:
     
     Transceiver connect();
+    std::string toString() const;
     
 private:
 
@@ -38,8 +40,7 @@ private:
     friend class EmitterFactoryI; // May create and destroy ConnectorIs
 
     Instance instance_;
-    std::string host_;
-    int port_;
+    struct sockaddr_in addr_;
 };
 
 }
