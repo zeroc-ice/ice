@@ -24,6 +24,8 @@
 #include <Ice/SslConfigErrorReporter.h>
 #include <Ice/SslConfig.h>
 
+#include <algorithm>
+
 using namespace std;
 using namespace IceSecurity::Ssl;
 
@@ -93,7 +95,7 @@ IceSecurity::Ssl::Parser::process()
 
         if (*fileBegin != '/')
         {
-            string::iterator pathEnd = _configPath.end();
+            string::reverse_iterator pathEnd = _configPath.rbegin();
 
             if (*pathEnd != '/')
             {
