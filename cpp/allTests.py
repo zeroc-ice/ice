@@ -19,20 +19,19 @@ else:
 
 for i in \
     [ \
-    ("Slice", "errorDetection"), \
-    ("Ice", "operations"), \
-    ("Ice", "exceptions"), \
-    ("Ice", "inheritance"), \
-    ("Ice", "faultTolerance"), \
-    ("Ice", "locationForward"), \
-    ("IcePack", "simple"), \
+    "Slice/errorDetection", \
+    "Ice/operations", \
+    "Ice/exceptions", \
+    "Ice/inheritance", \
+    "Ice/faultTolerance", \
+    "Ice/locationForward", \
+    "IcePack/simple", \
     ]:
 
-    dir = os.path.join(toplevel, "test", *i)
+    dir = os.path.normpath(toplevel + "/test/" + i)
     
     print
     print "*** running tests in " + dir + ":"
     print
 
-    os.system("python " + os.path.join(dir, "run.py"))
-    
+    os.system("python " + os.path.normpath(dir + "/run.py"))
