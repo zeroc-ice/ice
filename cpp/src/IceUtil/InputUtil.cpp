@@ -45,10 +45,11 @@ strToInt64(const char* s, char** endptr, int base)
     // Check for sign
     //
     int sign = 1;
-    if (*s == '+')
+    if(*s == '+')
     {
 	++s;
-    } else if (*s == '-')
+    }
+    else if(*s == '-')
     {
 	sign = -1;
 	++s;
@@ -82,7 +83,7 @@ strToInt64(const char* s, char** endptr, int base)
     //
     // Check that we have something left to parse
     //
-    if (*s == '/0')
+    if(*s == '/0')
     {
 	return 0;
     }
