@@ -50,8 +50,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     communicator->addObjectFactory(factory, "::C");
     communicator->addObjectFactory(factory, "::D");
 
-    InitialPrx allTests(const Ice::CommunicatorPtr&);
-    InitialPrx initial = allTests(communicator);
+    InitialPrx allTests(const Ice::CommunicatorPtr&, bool);
+    InitialPrx initial = allTests(communicator, false);
     initial->shutdown();
     return EXIT_SUCCESS;
 }

@@ -15,7 +15,7 @@
 using namespace std;
 
 InitialPrx
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 {
     cout << "testing stringToProxy... " << flush;
     string ref("initial:tcp -p 12345 -t 2000");
@@ -68,6 +68,36 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(d->c == 0);
     cout << "ok" << endl;
 
+    //
+    // Break cyclic dependencies
+    //
+    if (!collocated)
+    {
+	BPtr::dynamicCast(b1->a)->a = 0;
+	BPtr::dynamicCast(b1->a)->b = 0;
+	BPtr::dynamicCast(b1->a)->c = 0;
+	b1->a = 0;
+	b1->b = 0;
+
+	b2->a = 0;
+	b2->b->a = 0;
+	b2->b->b = 0;
+	b2->c = 0;
+
+	c->b->a = 0;
+	c->b->b->a = 0;
+	c->b->b->b = 0;
+	c->b = 0;
+
+	BPtr::dynamicCast(BPtr::dynamicCast(d->a)->a)->a = 0;
+	BPtr::dynamicCast(BPtr::dynamicCast(d->a)->a)->b = 0;
+	BPtr::dynamicCast(d->a)->b->a = 0;
+	BPtr::dynamicCast(d->a)->b->b = 0;
+	d->b->a = 0;
+	d->b->b = 0;
+	d->b->c = 0;
+    }
+
     cout << "getting B1, B2, C, and D all at once... " << flush;
     initial->getAll(b1, b2, c, d);
     test(b1);
@@ -94,6 +124,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(d->b == b2);
     test(d->c == 0);
     cout << "ok" << endl;
+
+    //
+    // Break cyclic dependencies
+    //
+    if (!collocated)
+    {
+	b1->a = 0;
+	b1->b = 0;
+	b2->a = 0;
+	b2->b = 0;
+	b2->c = 0;
+	c->b = 0;
+	d->a = 0;
+	d->b = 0;
+    }
 
     cout << "adding facets to B1... " << flush;
     initial->addFacetsToB1();
@@ -135,6 +180,24 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(fd->b == fb2);
     test(fd->c == 0);
     cout << "ok" << endl;
+
+    //
+    // Break cyclic dependencies
+    //
+    if (!collocated)
+    {
+	BPtr::dynamicCast(fb1->a)->a = 0;
+	BPtr::dynamicCast(fb1->a)->b = 0;
+	fb1->a = 0;
+	fb1->b = 0;
+	fb1->_removeAllFacets();
+	fb2->a = 0;
+	fb2->b = 0;
+	fb2->c = 0;
+	fc->b = 0;
+	fd->a = 0;
+	fd->b = 0;
+    }
 
     cout << "getting B1 with facets, and B2, C, and D all at once... " << flush;
     initial->getAll(b1, b2, c, d);
@@ -192,28 +255,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
     //
     // Break cyclic dependencies
     //
-    b1->a = 0;
-    b1->b = 0;
-    b1->c = 0;
-    b1->_removeAllFacets();
-    b1 = 0;
-    fb1 = 0;
-    b2->a = 0;
-    b2->b = 0;
-    b2->c = 0;
-    b2->_removeAllFacets();
-    b2 = 0;
-    fb2 = 0;
-    c->b = 0;
-    c->_removeAllFacets();
-    c = 0;
-    fc = 0;
-    d->a = 0;
-    d->b = 0;
-    d->c = 0;
-    d->_removeAllFacets();
-    d = 0;
-    fd = 0;
+    if (!collocated)
+    {
+	fb1->a = 0;
+	fb1->b = 0;
+	fb1->_removeAllFacets();
+	fb2->a = 0;
+	fb2->b = 0;
+	fb2->c = 0;
+	fc->b = 0;
+	fd->a = 0;
+	fd->b = 0;
+    }
 
     return initial;
 }

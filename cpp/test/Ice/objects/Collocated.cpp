@@ -20,8 +20,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter", endpts);
     InitialPtr initial = new InitialI(adapter);
     adapter->add(initial, "initial");
-    InitialPrx allTests(const Ice::CommunicatorPtr&);
-    allTests(communicator);
+    InitialPrx allTests(const Ice::CommunicatorPtr&, bool);
+    initial->shutdown(); // We must call shutdown even in the collocated case for cyclic dependency cleanup
     return EXIT_SUCCESS;
 }
 

@@ -45,20 +45,16 @@ InitialI::shutdown()
     _b1->b = 0;
     _b1->c = 0;
     _b1->_removeAllFacets();
-    _b1 = 0;
     _b2->a = 0;
     _b2->b = 0;
     _b2->c = 0;
     _b2->_removeAllFacets();
-    _b2 = 0;
     _c->b = 0;
     _c->_removeAllFacets();
-    _c = 0;
     _d->a = 0;
     _d->b = 0;
     _d->c = 0;
     _d->_removeAllFacets();
-    _d = 0;
 }
 
 BPtr
