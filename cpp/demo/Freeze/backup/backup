@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # See "Selecting a page size" in the Berkeley DB Reference Guide. 

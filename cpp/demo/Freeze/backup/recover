@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 case $1 in
   "full" | "incremental") echo "Performing $1 recovery"
@@ -16,7 +16,7 @@ case $1 in
           \cp full/data/IntLongMap db/data
 	  \cp full/logs/log.* db/logs
          
-          if [ $1 == "incremental" ]
+          if [ $1 = "incremental" ]
           then
              echo "====== Restore last incremental backup ======" 
               \cp incremental/logs/log.* db/logs
