@@ -155,6 +155,15 @@ public:
     void read(Ice::Double&);
     void read(std::vector<Ice::Double>&);
 
+    //
+    // NOTE: This function is not implemented. It is declared here to
+    // catch programming errors that assume a call such as write("")
+    // will invoke write(const std::string&), when in fact the compiler
+    // will silently select a different overloading. A link error is the
+    // intended result.
+    //
+    void write(const char*);
+
     void write(const std::string&);
     void write(const std::vector<std::string>&);
     void read(std::string&);

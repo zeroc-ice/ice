@@ -1061,6 +1061,18 @@ IceInternal::BasicStream::read(vector<Double>& v)
     }
 }
 
+//
+// NOTE: This member function is intentionally omitted in order to
+// cause a link error if it is used. See BasicStream.h for more
+// information.
+//
+/*
+void
+IceInternal::BasicStream::write(const char*)
+{
+}
+*/
+
 void
 IceInternal::BasicStream::write(const string& v)
 {
