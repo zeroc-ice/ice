@@ -1396,7 +1396,12 @@ Freeze::EvictorI::run()
 		    EvictorElementPtr& element = *q;
 		    if(!element->stale)
 		    {
-			if(element->usageCount == 0 && element->keepCount == 0)
+			//
+			// Can be stale when there are duplicate elements on the
+			// deadObjecst queue
+			//
+
+			if(!element->stale && element->usageCount == 0 && element->keepCount == 0)
 			{
 			    //
 			    // Get rid of unused dead elements

@@ -1426,6 +1426,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    for(int i = 0; i < allObjects.size(); i++)
 		    {    
 			EvictorElement element = (EvictorElement) allObjects.get(i);
+			assert element.usageCount > 0;
 			element.usageCount--;
 		    }
 		    allObjects.clear();
@@ -1434,7 +1435,11 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    while(p.hasNext())
 		    {
 			EvictorElement element = (EvictorElement) p.next();
-			if(element.usageCount == 0 && element.keepCount == 0)
+
+			//
+			// Can be stale when there are duplicates on the deadObjects list
+			//
+			if(!element.stale && element.usageCount == 0 && element.keepCount == 0)
 			{
 			    //
 			    // Get rid of unused dead elements
@@ -1557,6 +1562,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		
 		assert !element.stale;
 		assert element.keepCount == 0;
+		assert element.evictPosition != null;
 
 		if(_trace >= 2 || (_trace >= 1 && _evictorList.size() % 50 == 0))
 		{
@@ -1579,6 +1585,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		element.stale = true;
 		element.store.cache().unpin(element.identity);
 		p.remove();
+		element.evictPosition = null;
 		_currentEvictorSize--;	
 	    }
 	}
