@@ -234,8 +234,8 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
                                         serverName, clientName):
 
     testdir = os.path.join(toplevel, "test", name)
-    server = os.path.join(testdir, serverName)
-    client = os.path.join(testdir, clientName)
+    server = serverName
+    client = clientName
  
     cwd = os.getcwd()
     os.chdir(testdir)
@@ -263,46 +263,6 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
 
     os.chdir(cwd)
 
-def clientServerTestWithPath(name, serverPath, clientPath):
-
-    testdir = os.path.join(toplevel, "test", name)
-    serverName = "Server.py"
-    clientName = "Client.py"
-    server = os.path.join(testdir, serverName)
-    client = os.path.join(testdir, clientName)
- 
-    cwd = os.getcwd()
-    os.chdir(testdir)
-
-    oldPath = os.getenv("PYTHONPATH", "")
-
-    os.environ["PYTHONPATH"] = serverPath + ":" + oldPath
-    print "starting " + serverName + "...",
-    serverCmd = "python " + server + serverOptions + " 2>&1"
-    serverPipe = os.popen(serverCmd)
-    getServerPid(serverPipe)
-    getAdapterReady(serverPipe)
-    print "ok"
-
-    os.environ["PYTHONPATH"] = clientPath + ":" + oldPath
-    print "starting " + clientName + "...",
-    clientCmd = "python " + client + clientOptions + " 2>&1"
-    clientPipe = os.popen(clientCmd)
-    print "ok"
-
-    os.environ["PYTHONPATH"] = oldPath
-
-    printOutputFromPipe(clientPipe)
-
-    clientStatus = clientPipe.close()
-    serverStatus = serverPipe.close()
-
-    if clientStatus or serverStatus:
-	killServers()
-	sys.exit(1)
-
-    os.chdir(cwd)
-
 def clientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
 
     clientServerTestWithOptionsAndNames(name, additionalServerOptions, additionalClientOptions,
@@ -315,8 +275,8 @@ def clientServerTest(name):
 def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
 
     testdir = os.path.join(toplevel, "test", name)
-    server = os.path.join(testdir, "Server.py")
-    client = os.path.join(testdir, "Client.py")
+    server = "Server.py"
+    client = "Client.py"
 
     cwd = os.getcwd()
     os.chdir(testdir)

@@ -23,8 +23,11 @@ import TestUtil
 name = os.path.join("Ice", "faultTolerance")
 testdir = os.path.join(toplevel, "test", name)
 
-server = os.path.join(testdir, "Server.py")
-client = os.path.join(testdir, "Client.py")
+cwd = os.getcwd()
+os.chdir(testdir)
+
+server = "Server.py"
+client = "Client.py"
 
 num = 12
 base = 12340
@@ -54,6 +57,8 @@ for i in range(0, num):
 if clientStatus:
     TestUtil.killServers()
     sys.exit(1)
+
+os.chdir(cwd)
 
 #
 # Exit with status 0 even though some servers failed to shutdown
