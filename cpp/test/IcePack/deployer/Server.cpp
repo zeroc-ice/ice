@@ -28,7 +28,7 @@ int
     Ice::PropertiesPtr properties = communicator()->getProperties();
     string name = properties->getProperty("Ice.ProgramName");
 
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter(name);
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Server");
     Ice::ObjectPtr object = new TestI(adapter, properties);
     adapter->add(object, Ice::stringToIdentity(name));
     adapter->activate();

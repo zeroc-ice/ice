@@ -50,7 +50,7 @@ IcePack::AdminI::addServer(const string& node, const string& name, const string&
 			   const string& descriptor, const Targets& targets, const Current&)
 {
     ApplicationBuilder builder(_communicator, _nodeRegistry, targets);
-    builder.addServer(name, node, descriptor, path, ldpath);
+    builder.addServer(name, node, descriptor, path, ldpath, "");
     builder.execute();
 }
 
@@ -63,7 +63,7 @@ IcePack::AdminI::removeServer(const string& name, const Current&)
 	ServerDescription desc = server->getServerDescription();
 	
 	ApplicationBuilder builder(_communicator, _nodeRegistry, desc.theTargets);
-	builder.addServer(name, desc.node, desc.descriptor, desc.path, "");
+	builder.addServer(name, desc.node, desc.descriptor, desc.path, "", "");
 	builder.undo();
     }
     catch(const Ice::ObjectNotExistException&)

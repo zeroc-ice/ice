@@ -51,8 +51,9 @@ private:
 
 }
 
-IcePack::ActivatorI::ActivatorI(const TraceLevelsPtr& traceLevels) :
+IcePack::ActivatorI::ActivatorI(const TraceLevelsPtr& traceLevels, const PropertiesPtr& properties) :
     _traceLevels(traceLevels),
+    _properties(properties),
     _deactivating(false)
 {
     int fds[2];
@@ -126,7 +127,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     //
     // Compute arguments.
     //
-    int argc = server->description.theArgs.size() + 2;
+    int argc = server->description.theArgs.size() + 3;
     char** argv = static_cast<char**>(malloc(argc * sizeof(char*)));
     argv[0] = strdup(path.c_str());
     unsigned int i = 0;
@@ -135,6 +136,8 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     {
 	argv[i + 1] = strdup(q->c_str());
     }
+    string locatorArg = "--Ice.Default.Locator=" + _properties->getProperty("Ice.Default.Locator");
+    argv[argc - 2] = strdup(locatorArg.c_str());
     argv[argc - 1] = 0;
     
     if(_traceLevels->activator > 1)

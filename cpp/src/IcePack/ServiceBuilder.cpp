@@ -75,34 +75,29 @@ IcePack::ServiceHandler::startElement(const XMLCh *const name, AttributeList &at
     }
     else if(str == "adapter")
     {
+	assert(!_currentAdapterId.empty());
 	string name = getAttributeValue(attrs, "name");
-	string id = getAttributeValueWithDefault(attrs, "id", "");
-
-	//
-	// If the adapter id is not specified or empty, generate one
-	// from the server, service and adapter name: <adapter
-	// name>-<server name>-<service name>
-	//
-	if(id.empty())
-	{
-	    id = name + "-" + _builder.getServerBuilder().substitute("${name}") + _builder.substitute("${name}");
-	}
-	_builder.getServerBuilder().registerAdapter(name, getAttributeValue(attrs, "endpoints"), id);
+	_builder.getServerBuilder().registerAdapter(name, getAttributeValue(attrs, "endpoints"), _currentAdapterId);
     }
 }
 
 IcePack::ServiceBuilder::ServiceBuilder(const NodeInfoPtr& nodeInfo,
 					ServerBuilder& serverBuilder,
 					const map<string, string>& variables,
-					const string& componentPath,
 					const vector<string>& targets) :
-    ComponentBuilder(nodeInfo->getCommunicator(), componentPath, targets),
+    ComponentBuilder(nodeInfo->getCommunicator(), variables, targets),
     _nodeInfo(nodeInfo),
     _serverBuilder(serverBuilder)
 {
-    _yellowAdmin = nodeInfo->getYellowAdmin();
+    assert(_variables.find("parent") != _variables.end());
+    assert(_variables.find("name") != _variables.end());
+    assert(_variables.find("fqn") != _variables.end());
+    assert(_variables.find("datadir") != _variables.end());
 
-    _variables = variables;
+    //
+    // Required for the component builder.
+    //
+    _yellowAdmin = nodeInfo->getYellowAdmin();
 }
 
 void
@@ -168,3 +163,14 @@ IcePack::ServiceBuilder::setDBEnv(const string& dir)
     _serverBuilder.addProperty("IceBox.DBEnvName." + _variables["name"], path);
 }
 
+//
+// Compute an adapter id for a given adapter name.
+//
+string
+IcePack::ServiceBuilder::getDefaultAdapterId(const string& name)
+{
+    //
+    // Concatenate the server and service name to the adapter name.
+    //
+    return name + "-" + _variables["parent"] + "." + _variables["name"];
+}

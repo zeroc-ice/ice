@@ -84,9 +84,11 @@ ServiceI::start(const string& name,
 		const CommunicatorPtr& communicator,
 		const StringSeq& args)
 {
+    Ice::PropertiesPtr properties = communicator->getProperties();
+
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter(name);
-    Ice::ObjectPtr object = new TestI(adapter, communicator->getProperties());
-    adapter->add(object, Ice::stringToIdentity(name));
+    Ice::ObjectPtr object = new TestI(adapter, properties);
+    adapter->add(object, Ice::stringToIdentity(properties->getProperty(name + ".Identity")));
     adapter->activate();
 }
 
@@ -114,9 +116,11 @@ FreezeServiceI::start(const string& name,
     //
     Freeze::DBPtr db = dbEnv->openDB("testdb", true);
 
+    Ice::PropertiesPtr properties = communicator->getProperties();
+
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter(name);
     Ice::ObjectPtr object = new TestI(adapter, communicator->getProperties());
-    adapter->add(object, Ice::stringToIdentity(name));
+    adapter->add(object, Ice::stringToIdentity(properties->getProperty(name + ".Identity")));
     adapter->activate();
 }
 

@@ -293,8 +293,8 @@ IcePack::ServerI::terminated(const Ice::Current&)
 	    }
 	    catch(const Ice::LocalException& ex)
 	    {
-		cerr << (*p)->__reference()->toString() << endl;
-		cerr << ex << endl;
+		//cerr << (*p)->__reference()->toString() << endl;
+		//cerr << ex << endl;
 		throw;
 	    }
 	}

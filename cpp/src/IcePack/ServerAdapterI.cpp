@@ -97,11 +97,14 @@ IcePack::ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Cu
     //
     // If the adapter proxy is not null the given proxy can only be
     // null. We don't allow to overide an existing proxy by another
-    // non null proxy.
+    // non null proxy if the server is active.
     //
     if(prx && _proxy)
     {
-	throw AdapterActiveException();
+	if(theServer->getState() == Active)
+	{
+	    throw AdapterActiveException();
+	}
     }
 
     _proxy = prx;

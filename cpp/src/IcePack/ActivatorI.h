@@ -25,7 +25,7 @@ class ActivatorI : public Activator, public IceUtil::Monitor< IceUtil::Mutex>
 {
 public:
 
-    ActivatorI(const TraceLevelsPtr&);
+    ActivatorI(const TraceLevelsPtr&, const Ice::PropertiesPtr&);
     virtual ~ActivatorI();
 
     virtual bool activate(const ::IcePack::ServerPtr&);
@@ -56,6 +56,7 @@ private:
     };
 
     TraceLevelsPtr _traceLevels;
+    Ice::PropertiesPtr _properties;
     std::vector<Process> _processes;
     bool _deactivating;
 
@@ -64,8 +65,6 @@ private:
 
     IceUtil::ThreadPtr _thread;
 };
-
-typedef IceUtil::Handle<ActivatorI> ActivatorIPtr;
 
 }
 

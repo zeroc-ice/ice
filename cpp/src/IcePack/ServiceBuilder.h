@@ -29,8 +29,9 @@ public:
 	ServiceKindFreeze
     };
 
-    ServiceBuilder(const NodeInfoPtr&, ServerBuilder&, const std::map<std::string, std::string>&,
-		   const std::string&, const std::vector<std::string>&);
+    ServiceBuilder(const NodeInfoPtr&, ServerBuilder&, 
+		   const std::map<std::string, std::string>&,
+		   const std::vector<std::string>&);
 
     void parse(const std::string&);
 
@@ -39,6 +40,8 @@ public:
     void setKind(ServiceKind);
     void setEntryPoint(const std::string&);
     void setDBEnv(const std::string&);
+
+    virtual std::string getDefaultAdapterId(const std::string&);
 
 private:
 

@@ -6,7 +6,7 @@
   </target>
 
   <adapters>
-    <adapter name="${name}" endpoints="default" id="${name}Adapter">
+    <adapter name="Server" endpoints="default">
       <offer interface="::Test" identity="${name}"/>
     </adapter>
   </adapters>
@@ -16,6 +16,18 @@
     <property name="Name" value="${name}"/>
     <property name="Ice.ConnectionWarnings" value="1"/>
   </properties>
+
+  <target name="target1">
+    <properties>
+      <property name="Target1" value="1"/>
+    </properties>    
+  </target>
+
+  <target name="target2">
+    <properties>
+      <property name="Target2" value="1"/>
+    </properties>    
+  </target>
 
   <target name="ssl">
     <properties>

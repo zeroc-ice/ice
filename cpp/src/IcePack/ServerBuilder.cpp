@@ -257,7 +257,9 @@ IcePack::ServerHandler::startElement(const XMLCh *const name, AttributeList &att
 	    //
 	    _builder.addProperty("IceBox.ServiceManager.Identity", _builder.substitute("${name}/ServiceManager"));
 	    
-	    _builder.registerAdapter("IceBox.ServiceManager", getAttributeValue(attrs, "endpoints"), "");
+	    _builder.registerAdapter("IceBox.ServiceManager", 
+				     getAttributeValue(attrs, "endpoints"),
+				     _builder.getDefaultAdapterId("IceBox.ServiceManager"));
 	}
 	else if(kind == "java-icebox")
 	{
@@ -270,20 +272,23 @@ IcePack::ServerHandler::startElement(const XMLCh *const name, AttributeList &att
 	    //
 	    _builder.addProperty("IceBox.ServiceManager.Identity", _builder.substitute("${name}/ServiceManager"));
 
-	    _builder.registerAdapter("IceBox.ServiceManager", getAttributeValue(attrs, "endpoints"), "");
+	    _builder.registerAdapter("IceBox.ServiceManager", 
+				     getAttributeValue(attrs, "endpoints"),
+				     _builder.getDefaultAdapterId("IceBox.ServiceManager"));
 	}
     }
     else if(str == "service")
     {
 	string name = getAttributeValue(attrs, "name");
 	string descriptor = getAttributeValue(attrs, "descriptor");
-	_builder.addService(name, descriptor);
+	string targets = getAttributeValueWithDefault(attrs, "targets", "");
+	_builder.addService(name, descriptor, targets);
     }
     else if(str == "adapter")
     {
-	_builder.registerAdapter(getAttributeValue(attrs, "name"), 
-				 getAttributeValue(attrs, "endpoints"),
-				 getAttributeValueWithDefault(attrs, "id", ""));
+	assert(!_currentAdapterId.empty());
+	string name = getAttributeValue(attrs, "name");
+	_builder.registerAdapter(name, getAttributeValue(attrs, "endpoints"), _currentAdapterId);
     }
     else if(str == "activation")
     {
@@ -325,36 +330,31 @@ IcePack::ServerHandler::endElement(const XMLCh *const name)
 
 IcePack::ServerBuilder::ServerBuilder(const NodeInfoPtr& nodeInfo,
 				      const map<string, string>& variables,
-				      const string& componentPath,
 				      const vector<string>& targets) :
-    ComponentBuilder(nodeInfo->getCommunicator(), componentPath, targets),
+    ComponentBuilder(nodeInfo->getCommunicator(), variables, targets),
     _nodeInfo(nodeInfo)
 {
-    _yellowAdmin = _nodeInfo->getYellowAdmin();
-    
-    map<string, string>::const_iterator p = variables.find("name");
-    assert(p != variables.end());
-    
-    _variables["name"] = p->second;
-    _variables["datadir"] += "/" + _variables["name"];
+    assert(_variables.find("parent") != _variables.end());
+    assert(_variables.find("name") != _variables.end());
+    assert(_variables.find("fqn") != _variables.end());
+    assert(_variables.find("datadir") != _variables.end());
+    assert(_variables.find("binpath") != _variables.end());
+    assert(_variables.find("libpath") != _variables.end());
 
+    //
+    // Required for the component builder.
+    //
+    _yellowAdmin = _nodeInfo->getYellowAdmin();
+
+    //
+    // Begin to populate the server description.
+    //
+    _description.name = _variables["name"];
+    _description.path = _variables["binpath"];
+    _libraryPath = _variables["libpath"];
     _description.node = nodeInfo->getNode()->getName();
-    _description.name = p->second;
     _description.theTargets = targets;
     _description.activation = OnDemand;
-
-    //
-    // TODO: variables should be passed to the component handler. We
-    // should also get rid of the _componentPath variable and instead
-    // use a "parent" variable.
-    //
-    p = variables.find("binpath");
-    assert(p != variables.end());
-    _description.path = p->second;
-
-    p = variables.find("libpath");
-    assert(p != variables.end());
-    _libraryPath = p->second;
 }
 
 void
@@ -381,12 +381,6 @@ IcePack::ServerBuilder::parse(const std::string& descriptor)
     //
     _properties->setProperty("Yellow.Query", 
 			     _nodeInfo->getCommunicator()->proxyToString(_nodeInfo->getYellowQuery()));
-
-    //
-    // TODO: we shouldn't generate this in the configuration. See
-    // comment in main() in IcePackNode.cpp
-    //
-    _properties->setProperty("Ice.Default.Locator", props->getProperty("Ice.Default.Locator"));
 
     if(_kind == ServerKindJavaServer || _kind == ServerKindJavaIceBox)
     {
@@ -553,31 +547,29 @@ IcePack::ServerBuilder::registerAdapter(const string& name, const string& endpoi
     {
 	throw DeploySAXParseException("empty adapter endpoints", _locator);
     }
+    if(adapterId.empty())
+    {
+	throw DeploySAXParseException("empty adapter id", _locator);
+    }
     
-    //
-    // If the adapter id is not specified, generate one from the
-    // server and adapter name.
-    //
-    string id = adapterId.empty() ? name + "-" + _variables["name"] : adapterId;
-
     //
     // A server adapter object will be created with the server when
     // the server is created (see ServerBuilder::execute()
     // method). The RegisterServerAdapter task will get the server
     // adapter proxy through the builder method getServerAdapter().
     //
-    _serverAdapterNames.push_back(id);
-    _tasks.push_back(new RegisterServerAdapterTask(adapterRegistry, id, *this));
+    _serverAdapterNames.push_back(adapterId);
+    _tasks.push_back(new RegisterServerAdapterTask(adapterRegistry, adapterId, *this));
 
     //
     // Generate adapter configuration properties.
     //
     addProperty(name + ".Endpoints", endpoints);
-    addProperty(name + ".AdapterId", id);
+    addProperty(name + ".AdapterId", adapterId);
 }
 
 void
-IcePack::ServerBuilder::addService(const string& name, const string& descriptor)
+IcePack::ServerBuilder::addService(const string& name, const string& descriptor, const string& additionalTargets)
 {
     if(_kind != ServerKindCppIceBox && _kind !=  ServerKindJavaIceBox)
     {
@@ -597,11 +589,14 @@ IcePack::ServerBuilder::addService(const string& name, const string& descriptor)
     // Setup new variables for the service, overides the name value.
     //
     std::map<std::string, std::string> variables = _variables;
+    variables["parent"] = _variables["name"];
     variables["name"] = name;
+    variables["fqn"] = _variables["fqn"] + "." + name;
 
-    string componentPath = _componentPath + "." + name;
+    vector<string> targets = toTargets(additionalTargets);
+    copy(_targets.begin(), _targets.end(), back_inserter(targets));
 
-    ServiceBuilder* task = new ServiceBuilder(_nodeInfo, *this, variables, componentPath, _targets);
+    ServiceBuilder* task = new ServiceBuilder(_nodeInfo, *this, variables, targets);
     try
     {
 	task->parse(toLocation(descriptor));

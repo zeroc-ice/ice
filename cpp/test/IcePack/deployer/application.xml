@@ -6,7 +6,7 @@
      <server name="IceBox1" descriptor="icebox.xml"/>
      <server name="IceBox2" descriptor="icebox.xml"/>
      <server name="Server1" binpath="./server" descriptor="server.xml"/>
-     <server name="Server2" binpath="./server" descriptor="server.xml"/>
+     <server name="Server2" binpath="./server" descriptor="server.xml" targets="target1 target2"/>
 
    </node>
 

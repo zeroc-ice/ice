@@ -30,18 +30,20 @@ void
 IcePack::ServerDeployerI::add(const string& name, const string& descriptor, const string& binPath, 
 			      const string& libPath, const Targets& targets, const Ice::Current&)
 {
+    //
+    // Setup required variables.
+    //
     map<string, string> variables;
+    variables["parent"] = _nodeInfo->getNode()->getName();
     variables["name"] = name;
+    variables["fqn"] = _nodeInfo->getNode()->getName() + "." + name;
     variables["binpath"] = binPath;
     variables["libpath"] = libPath;
-	
-    //
-    // Component path is used to identify the component. For example:
-    // node1.server1.service3
-    //
-    string componentPath = _nodeInfo->getNode()->getName() + "." + name;
 
-    ServerBuilder builder(_nodeInfo, variables, componentPath, targets);
+    string dataDir = _nodeInfo->getCommunicator()->getProperties()->getProperty("IcePack.Node.Data");
+    variables["datadir"] = dataDir + (dataDir[dataDir.length() - 1] == '/' ? "" : "/") + "servers/" + name;
+
+    ServerBuilder builder(_nodeInfo, variables, targets);
 
     //
     // Parse the server deployment descriptors.
@@ -107,11 +109,16 @@ IcePack::ServerDeployerI::remove(const string& name, const Ice::Current&)
     }
 
     map<string, string> variables;
+    variables["parent"] = _nodeInfo->getNode()->getName();
     variables["name"] = name;
-    variables["binpath"] = desc.path; // Required for parsing to succeed.
+    variables["fqn"] = _nodeInfo->getNode()->getName() + "." + name;
+    variables["binpath"] = desc.path;
     variables["libpath"] = "";
 
-    ServerBuilder builder(_nodeInfo, variables, componentPath, desc.theTargets);
+    string dataDir = _nodeInfo->getCommunicator()->getProperties()->getProperty("IcePack.Node.Data");
+    variables["datadir"] = dataDir + (dataDir[dataDir.length() - 1] == '/' ? "" : "/") + "servers/" + name;
+
+    ServerBuilder builder(_nodeInfo, variables, desc.theTargets);
 
     //
     // Parse the server deployment descriptors.

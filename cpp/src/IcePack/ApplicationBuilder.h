@@ -25,7 +25,8 @@ public:
 
     void parse(const std::string&);
 
-    void addServer(const std::string&, const std::string&, const std::string&, const std::string&, const std::string&);
+    void addServer(const std::string&, const std::string&, const std::string&, const std::string&, const std::string&,
+		   const std::string&);
     void setBaseDir(const std::string&);
 
 private:

@@ -164,11 +164,13 @@ IcePack::ApplicationHandler::startElement(const XMLCh* name, AttributeList& attr
 	    throw DeploySAXParseException("Server element is not allowed outside the scope of a node element", 
 					  _locator);
 	}
+
 	string name = getAttributeValue(attrs, "name");
 	string descriptor = _builder.toLocation(getAttributeValue(attrs, "descriptor"));
 	string binpath = _builder.toLocation(getAttributeValueWithDefault(attrs, "binpath", ""));
 	string libpath = getAttributeValueWithDefault(attrs, "libpath", "");
-	_builder.addServer(name, _currentNode, descriptor, binpath, libpath);
+	string targets = getAttributeValueWithDefault(attrs, "targets", "");
+	_builder.addServer(name, _currentNode, descriptor, binpath, libpath, targets);
     }
 }
 
@@ -192,7 +194,7 @@ IcePack::ApplicationHandler::endElement(const XMLCh* name)
 IcePack::ApplicationBuilder::ApplicationBuilder(const Ice::CommunicatorPtr& communicator,
 						const NodeRegistryPtr& nodeRegistry,
 						const vector<string>& targets) :
-    ComponentBuilder(communicator, "", targets),
+    ComponentBuilder(communicator, map<string, string>(), targets),
     _nodeRegistry(nodeRegistry)
 {
 }
@@ -210,7 +212,8 @@ IcePack::ApplicationBuilder::addServer(const string& name,
 				       const string& nodeName,
 				       const string& descriptor, 
 				       const string& binpath,
-				       const string& libpath)
+				       const string& libpath,
+				       const string& additionalTargets)
 {
     if(name.empty())
     {
@@ -224,6 +227,9 @@ IcePack::ApplicationBuilder::addServer(const string& name,
     {
 	throw DeploySAXParseException("descriptor attribute value is empty", _locator);
     }
+    
+    vector<string> targets = toTargets(additionalTargets);
+    copy(_targets.begin(), _targets.end(), back_inserter(targets));
 
     NodePrx node;
     try
@@ -242,7 +248,7 @@ IcePack::ApplicationBuilder::addServer(const string& name,
     try
     {
 	ServerDeployerPrx deployer = node->getServerDeployer();	    
-	_tasks.push_back(new AddServer(deployer, nodeName, name, descriptor, binpath, libpath, _targets));
+	_tasks.push_back(new AddServer(deployer, nodeName, name, descriptor, binpath, libpath, targets));
     }
     catch(::Ice::LocalException&)
     {

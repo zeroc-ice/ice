@@ -355,16 +355,27 @@ IcePack::ComponentHandler::startElement(const XMLCh *const name, AttributeList &
     }
     else if(str == "adapter")
     {
-	if(!_currentAdapter.empty())
+	if(!_currentAdapterId.empty())
 	{
 	    throw DeploySAXParseException("Adapter element enclosed in an adapter element is not allowed", _locator);
 	}
-	_currentAdapter = getAttributeValue(attrs, "name");
+
+	//
+	// If the id is not specified, we ask the builder to generate
+	// an id for us based on the adapter name.
+	//
+	string name = getAttributeValue(attrs, "name");
+	if(name.empty())
+	{
+	    throw DeploySAXParseException("empty adapter name", _locator);
+	}
+	_currentAdapterId = getAttributeValueWithDefault(attrs, "id", _builder.getDefaultAdapterId(name));
     }
     else if(str == "offer")
     {
-	_builder.addOffer(getAttributeValue(attrs, "interface"), _currentAdapter, 
-			   getAttributeValue(attrs, "identity"));
+	_builder.addOffer(getAttributeValue(attrs, "interface"),
+			  _currentAdapterId, 
+			  getAttributeValue(attrs, "identity"));
     }
     else if(str == "target")
     {
@@ -392,7 +403,7 @@ IcePack::ComponentHandler::endElement(const XMLCh *const name)
     {
 	if(str == "adapter")
 	{
-	    _currentAdapter = "";
+	    _currentAdapterId = "";
 	}
     }
 }
@@ -482,24 +493,13 @@ IcePack::ComponentHandler::isCurrentTargetDeployable() const
 }
 
 IcePack::ComponentBuilder::ComponentBuilder(const Ice::CommunicatorPtr& communicator,
-					    const string& componentPath,
+					    const map<string, string>& variables,
 					    const vector<string>& targets) :
     _communicator(communicator),
     _properties(Ice::createProperties()),
-    _componentPath(componentPath),
+    _variables(variables),
     _targets(targets)
 {
-    Ice::PropertiesPtr properties = _communicator->getProperties();
-
-    //
-    // TODO: this probably doesn't belong to ComponentBuilder since
-    // it's also used by the registry...
-    //
-    string serversPath = properties->getProperty("IcePack.Node.Data");
-    if(!serversPath.empty())
-    {
-	_variables["datadir"] = serversPath + (serversPath[serversPath.length() - 1] == '/' ? "" : "/") + "servers";
-    }
 }
 
 void 
@@ -544,7 +544,7 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
 	os << xmlFile << ":" << e.getLineNumber() << ": " << toString(e.getMessage());
 
 	ParserDeploymentException ex;
-	ex.component = _componentPath;
+	ex.component = _variables["fqn"];
 	ex.reason = os.str();
 	throw ex;
     }
@@ -556,7 +556,7 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
 	os << xmlFile << ": SAXException: " << toString(e.getMessage());
 
 	ParserDeploymentException ex;
-	ex.component = _componentPath;
+	ex.component = _variables["fqn"];
 	ex.reason = os.str();
 	throw ex;
     }
@@ -568,7 +568,7 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
 	os << xmlFile << ": XMLException: " << toString(e.getMessage());
 
 	ParserDeploymentException ex;
-	ex.component = _componentPath;
+	ex.component = _variables["fqn"];
 	ex.reason = os.str();
 	throw ex;
     }
@@ -580,7 +580,7 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
 	os << xmlFile << ": unknown exception while parsing file";
 
 	ParserDeploymentException ex;
-	ex.component = _componentPath;
+	ex.component = _variables["fqn"];
 	ex.reason = os.str();
 	throw ex;
     }
@@ -591,7 +591,7 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
     if(rc > 0)
     {
 	ParserDeploymentException ex;
-	ex.component = _componentPath;
+	ex.component = _variables["fqn"];
 	ex.reason = xmlFile + ": parse error";
 	throw ex;
     }
@@ -606,6 +606,10 @@ IcePack::ComponentBuilder::setDocumentLocator(const Locator* locator)
 bool
 IcePack::ComponentBuilder::isTargetDeployable(const string& target) const
 {
+    map<string, string>::const_iterator p = _variables.find("fqn");
+    assert(p != _variables.end());
+    const string fqn = p->second;
+
     for(vector<string>::const_iterator p = _targets.begin(); p != _targets.end(); ++p)
     {
 	if((*p) == target)
@@ -619,17 +623,18 @@ IcePack::ComponentBuilder::isTargetDeployable(const string& target) const
 	    while(end != string::npos)
 	    {
 		//
-		// Add the first component name to the component target
-		// path.
+		// Add the first component name from the component
+		// fully qualified name to the target and see if
+		// matches.
 		//
-		end = _componentPath.find('.', end);
+		end = fqn.find('.', end);
 		if(end == string::npos)
 		{
-		    componentTarget = _componentPath + "." + target;
+		    componentTarget = fqn + "." + target;
 		}
 		else
 		{
-		    componentTarget = _componentPath.substr(0, end) + "." + target;
+		    componentTarget = fqn.substr(0, end) + "." + target;
 		    ++end;
 		}
 
@@ -658,7 +663,7 @@ IcePack::ComponentBuilder::execute()
 	{
 	    if(ex.component.empty())
 	    {
-		ex.component = _componentPath;
+		ex.component = _variables["fqn"];
 	    }
 	    undoFrom(p);
 	    throw;
@@ -678,7 +683,7 @@ IcePack::ComponentBuilder::undo()
 	catch(const DeploymentException& ex)
 	{
 	    ostringstream os;
-	    os << "exception while removing component " << (ex.component.empty() ? _componentPath : ex.component);
+	    os << "exception while removing component " << (ex.component.empty() ? _variables["fqn"] : ex.component);
 	    os << ":\n" << ex << ": " << ex.reason;
 
 	    _communicator->getLogger()->warning(os.str());
@@ -708,9 +713,9 @@ IcePack::ComponentBuilder::addProperty(const string& name, const string& value)
 }
 
 void
-IcePack::ComponentBuilder::addOffer(const string& offer, const string& adapter, const string& identity)
+IcePack::ComponentBuilder::addOffer(const string& offer, const string& adapterId, const string& identity)
 {
-    assert(!adapter.empty());
+    assert(!adapterId.empty());
 
     if(!_yellowAdmin)
     {	
@@ -718,7 +723,7 @@ IcePack::ComponentBuilder::addOffer(const string& offer, const string& adapter, 
 	throw DeploySAXParseException(msg, _locator);
     }
 
-    Ice::ObjectPrx object = _communicator->stringToProxy(identity + "@" + adapter);
+    Ice::ObjectPrx object = _communicator->stringToProxy(identity + "@" + adapterId);
     assert(object);
     
     _tasks.push_back(new RegisterOffer(_yellowAdmin, offer, object));
@@ -735,6 +740,18 @@ IcePack::ComponentBuilder::overrideBaseDir(const string& basedir)
     {
 	_variables["basedir"] += "/" + basedir;
     }
+}
+
+//
+// Compute an adapter id for a given adapter name.
+//
+string
+IcePack::ComponentBuilder::getDefaultAdapterId(const string& name)
+{
+    //
+    // Concatenate the component name to the adapter name.
+    //
+    return name + "-" + _variables["name"];
 }
 
 //
@@ -787,6 +804,34 @@ IcePack::ComponentBuilder::substitute(const string& v) const
     return value;
 }
 
+vector<string>
+IcePack::ComponentBuilder::toTargets(const string& targets) const
+{
+    vector<string> result;
+
+    if(!targets.empty())
+    {
+	const string delim = " \t\n\r";
+
+	string::size_type beg = 0;
+	string::size_type end = 0;
+	do
+	{
+	    end = targets.find_first_of(delim, end);
+	    if(end == string::npos)
+	    {
+		end = targets.size();
+	    }
+
+	    result.push_back(targets.substr(beg, end - beg));
+	    beg = ++end;
+	}
+	while(end < targets.size());
+    }
+
+    return result;
+}
+
 void
 IcePack::ComponentBuilder::undoFrom(vector<TaskPtr>::iterator p)
 {
@@ -801,7 +846,7 @@ IcePack::ComponentBuilder::undoFrom(vector<TaskPtr>::iterator p)
 	    catch(const DeploymentException& ex)
 	    {
 		ostringstream os;
-		os << "exception while removing component " << _componentPath << ": " << ex.reason << ":" << endl;
+		os << "exception while removing component " << _variables["fqn"] << ": " << ex.reason << ":" << endl;
 		os << ex;
 		
 		_communicator->getLogger()->warning(os.str());

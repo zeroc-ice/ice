@@ -113,7 +113,7 @@ protected:
 
     ComponentBuilder& _builder;
     std::stack<std::string> _elements;
-    std::string _currentAdapter;
+    std::string _currentAdapterId;
     std::string _currentTarget;
     bool _isCurrentTargetDeployable;
 
@@ -137,7 +137,9 @@ class ComponentBuilder : public Task
 {
 public:
 
-    ComponentBuilder(const Ice::CommunicatorPtr&, const std::string&, const std::vector<std::string>&);
+    ComponentBuilder(const Ice::CommunicatorPtr&,
+		     const std::map<std::string, std::string>&,
+		     const std::vector<std::string>&);
 
     virtual void execute();
     virtual void undo();
@@ -155,8 +157,10 @@ public:
     void addOffer(const std::string&, const std::string&, const std::string&);
     void overrideBaseDir(const std::string&);
 
+    virtual std::string getDefaultAdapterId(const std::string&);
     std::string toLocation(const std::string&) const;
     std::string substitute(const std::string&) const;
+    std::vector<std::string> toTargets(const std::string&) const;
     void undoFrom(std::vector<TaskPtr>::iterator);
 
 protected:
@@ -168,7 +172,6 @@ protected:
     std::map<std::string, std::string> _variables;
     std::vector<TaskPtr> _tasks;
     std::string _configFile;
-    std::string _componentPath;
     std::vector<std::string> _targets;
 
     const Locator* _locator;

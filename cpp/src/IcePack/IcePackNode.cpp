@@ -182,7 +182,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Free
     //
     // Create the activator.
     //
-    activator = new ActivatorI(traceLevels);
+    activator = new ActivatorI(traceLevels, properties);
 
     //
     // Creates the server factory. The server factory creates server
@@ -354,6 +354,17 @@ main(int argc, char* argv[])
 	Ice::PropertiesPtr properties = communicator->getProperties();
 
 	//
+	// Disable server idle time. Otherwise, the adapter would be
+	// shutdown permaturaly and the deactivation would
+	// fail. Deactivation of the node relies on the object adapter
+	// to be active since it needs to terminate servers.
+	//
+	// TODO: implement Ice.ServerIdleTime in the activator
+	// termination listener instead?
+	//
+	properties->setProperty("Ice.ServerIdleTime", "0");
+
+	//
 	// Remove IcePack and Freeze command line options from argv.
 	//
 	Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
@@ -385,16 +396,8 @@ main(int argc, char* argv[])
 	    
 	    //
 	    // Set the Ice.Default.Locator property to point to the
-	    // collocated locator (this property is used in the server
-	    // builder when generating server configuration files).
-	    //
-	    // TODO: Actually I don't think think this is really
-	    // correct. We shouldn't put the Ice.Default.Locator in
-	    // the generated server configuration file. If for some
-	    // reasons the locator endpoint change we would need to
-	    // re-generated everything. Instead, we should pass this
-	    // property to the activator and pass it to the server
-	    // through the command line.
+	    // collocated locator (this property is passed by the
+	    // activator to each activated server).
 	    //
 	    string locatorPrx = "IcePack/Locator:" + properties->getProperty("IcePack.Registry.Locator.Endpoints");
 	    properties->setProperty("Ice.Default.Locator", locatorPrx);

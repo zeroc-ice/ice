@@ -47,11 +47,11 @@ allCommonTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing adapter registration... " << flush;
     Ice::StringSeq adapterNames = admin->getAllAdapterNames();
-    test(find(adapterNames.begin(), adapterNames.end(), "Server1Adapter") != adapterNames.end());
-    test(find(adapterNames.begin(), adapterNames.end(), "Server2Adapter") != adapterNames.end());
-    test(find(adapterNames.begin(), adapterNames.end(), "IceBox1Service1Adapter") != adapterNames.end());
+    test(find(adapterNames.begin(), adapterNames.end(), "Server-Server1") != adapterNames.end());
+    test(find(adapterNames.begin(), adapterNames.end(), "Server-Server2") != adapterNames.end());
+    test(find(adapterNames.begin(), adapterNames.end(), "Service1-IceBox1.Service1") != adapterNames.end());
     test(find(adapterNames.begin(), adapterNames.end(), "IceBox1Service2Adapter") != adapterNames.end());
-    test(find(adapterNames.begin(), adapterNames.end(), "IceBox2Service1Adapter") != adapterNames.end());
+    test(find(adapterNames.begin(), adapterNames.end(), "Service1-IceBox2.Service1") != adapterNames.end());
     test(find(adapterNames.begin(), adapterNames.end(), "IceBox2Service2Adapter") != adapterNames.end());
     cout << "ok" << endl;
 
@@ -63,10 +63,10 @@ allCommonTests(const Ice::CommunicatorPtr& communicator)
     Ice::ObjectProxySeq offers = yellow->lookupAll("::Test");
     test(find_if(offers.begin(), offers.end(), bind2nd(ProxyIdentityEqual(),"Server1")) != offers.end());
     test(find_if(offers.begin(), offers.end(), bind2nd(ProxyIdentityEqual(),"Server2")) != offers.end());
-    test(find_if(offers.begin(), offers.end(), bind2nd(ProxyIdentityEqual(),"IceBox1Service1")) != offers.end());
-    test(find_if(offers.begin(), offers.end(), bind2nd(ProxyIdentityEqual(),"IceBox1Service2")) != offers.end());
-    test(find_if(offers.begin(), offers.end(), bind2nd(ProxyIdentityEqual(),"IceBox2Service1")) != offers.end());
-    test(find_if(offers.begin(), offers.end(), bind2nd(ProxyIdentityEqual(),"IceBox2Service2")) != offers.end());
+    test(find_if(offers.begin(), offers.end(), bind2nd(ProxyIdentityEqual(),"IceBox1-Service1")) != offers.end());
+    test(find_if(offers.begin(), offers.end(), bind2nd(ProxyIdentityEqual(),"IceBox1-Service2")) != offers.end());
+    test(find_if(offers.begin(), offers.end(), bind2nd(ProxyIdentityEqual(),"IceBox2-Service1")) != offers.end());
+    test(find_if(offers.begin(), offers.end(), bind2nd(ProxyIdentityEqual(),"IceBox2-Service2")) != offers.end());
 
     cout << "ok" << endl;
 }
@@ -88,35 +88,39 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     TestPrx obj;
 
-    obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server1Adapter"));
-    obj = TestPrx::checkedCast(communicator->stringToProxy("Server2@Server2Adapter"));
-    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1Service1@IceBox1Service1Adapter"));
-    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1Service2@IceBox1Service2Adapter"));
-    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox2Service1@IceBox2Service1Adapter"));
-    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox2Service2@IceBox2Service2Adapter"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server-Server1"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("Server2@Server-Server2"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@Service1-IceBox1.Service1"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1-Service2@IceBox1Service2Adapter"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox2-Service1@Service1-IceBox2.Service1"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
     
     cout << "ok" << endl;
 
     cout << "testing server configuration... " << flush;
 
-    obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server1Adapter"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server-Server1"));
     test(obj->getProperty("Type") == "Server");
     test(obj->getProperty("Name") == "Server1");
+
+    obj = TestPrx::checkedCast(communicator->stringToProxy("Server2@Server-Server2"));
+    test(obj->getProperty("Target1") == "1");
+    test(obj->getProperty("Target2") == "1");
 
     cout << "ok" << endl;
 
     cout << "testing service configuration... " << flush;
 
-    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1Service1@IceBox1Service1Adapter"));
-    test(obj->getProperty("IceBox1Service1.Type") == "standard");
-    test(obj->getProperty("IceBox1Service1.ServiceName") == "IceBox1Service1");
+    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@Service1-IceBox1.Service1"));
+    test(obj->getProperty("Service1.Type") == "standard");
+    test(obj->getProperty("Service1.ServiceName") == "Service1");
     
-    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox2Service2@IceBox2Service2Adapter"));
-    test(obj->getProperty("IceBox2Service2.Type") == "freeze");
-    test(obj->getProperty("IceBox2Service2.ServiceName") == "IceBox2Service2");
+    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
+    test(obj->getProperty("Service2.Type") == "freeze");
+    test(obj->getProperty("Service2.ServiceName") == "Service2");
 
-    test(obj->getProperty("IceBox2Service2.DebugProperty") == "");
-    test(obj->getProperty("IceBox1Service1.DebugProperty") == "");
+    test(obj->getProperty("Service2.DebugProperty") == "");
+    test(obj->getProperty("Service1.DebugProperty") == "");
     
     cout << "ok" << endl;
 }
@@ -138,7 +142,7 @@ allTestsWithTarget(const Ice::CommunicatorPtr& communicator)
     TestPrx obj;
     try
     {
-	obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server1Adapter"));
+	obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server-Server1"));
 	test(false);
     }
     catch(const Ice::LocalException&)
@@ -146,14 +150,14 @@ allTestsWithTarget(const Ice::CommunicatorPtr& communicator)
     }
     admin->startServer("Server1");
     
-    obj = TestPrx::checkedCast(communicator->stringToProxy("Server2@Server2Adapter"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("Server2@Server-Server2"));
 
     cout << "ok" << endl;
 
     cout << "testing service configuration... " << flush;
 
-    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1Service1@IceBox1Service1Adapter"));
-    test(obj->getProperty("IceBox1Service1.DebugProperty") == "debug");
+    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@Service1-IceBox1.Service1"));
+    test(obj->getProperty("Service1.DebugProperty") == "debug");
 
     cout << "ok" << endl;
 }
