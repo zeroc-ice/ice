@@ -357,7 +357,7 @@ IceInternal::BasicStream::endWriteSlice()
 {
     Int sz = b.size() - _writeSlice + sizeof(Int);
     const Byte* p = reinterpret_cast<const Byte*>(&sz);
-#ifdef ICE_UTIL_BIGENDIAN
+#ifdef ICE_BIG_ENDIAN
     reverse_copy(p, p + sizeof(Int), b.begin() + _writeSlice - sizeof(Int));
 #else
     copy(p, p + sizeof(Int), b.begin() + _writeSlice - sizeof(Int));
@@ -433,11 +433,11 @@ IceInternal::BasicStream::readSize(Ice::Int& v)
 void
 BasicStream::writeTypeId(const string& id)
 {
-    TypeIdWriteMap::const_iterator i = _currentWriteEncaps->typeIdMap->find(id);
-    if(i != _currentWriteEncaps->typeIdMap->end())
+    TypeIdWriteMap::const_iterator k = _currentWriteEncaps->typeIdMap->find(id);
+    if(k != _currentWriteEncaps->typeIdMap->end())
     {
 	write(true);
-	writeSize(i->second);
+	writeSize(k->second);
     }
     else
     {
@@ -456,12 +456,12 @@ BasicStream::readTypeId(string& id)
     {
 	Ice::Int index;
 	readSize(index);
-	TypeIdReadMap::const_iterator i = _currentReadEncaps->typeIdMap->find(index);
-	if(i == _currentReadEncaps->typeIdMap->end())
+	TypeIdReadMap::const_iterator k = _currentReadEncaps->typeIdMap->find(index);
+	if(k == _currentReadEncaps->typeIdMap->end())
 	{
 	    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
 	}
-	id = i->second;
+	id = k->second;
     }
     else
     {
@@ -1086,7 +1086,7 @@ IceInternal::BasicStream::write(const ObjectPtr& v)
 		//
 		q = _currentWriteEncaps->toBeMarshaledMap->insert(
 			_currentWriteEncaps->toBeMarshaledMap->end(),
-			make_pair(v, ++_currentWriteEncaps->writeIndex));
+			pair<const ObjectPtr, Int>(v, ++_currentWriteEncaps->writeIndex));
 	    }
 	    p = q;
 	}
@@ -1294,7 +1294,7 @@ BasicStream::readPendingObjects()
     do
     {
 	readSize(num);
-	for(int i = num; i > 0; --i)
+	for(Int k = num; k > 0; --k)
 	{
 	    read(0, 0);
 	}
@@ -1335,9 +1335,9 @@ BasicStream::patchPointers(Int index, PatchMap::iterator patchPos, IndexToPtrMap
     if(patchPos != _currentReadEncaps->patchMap->end())
     {
 	ObjectPtr v = unmarshaledPos->second;
-	for(PatchList::iterator i = patchPos->second.begin(); i != patchPos->second.end(); ++i)
+	for(PatchList::iterator k = patchPos->second.begin(); k != patchPos->second.end(); ++k)
 	{
-	    (*i->patchFunc)(i->patchAddr, v);
+	    (*k->patchFunc)(k->patchAddr, v);
 	}
 	_currentReadEncaps->patchMap->erase(patchPos);
     }
