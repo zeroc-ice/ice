@@ -59,14 +59,6 @@ clean::
 install::
 	@if test -f reference/index.html ; \
 	then \
-	    if test ! -d $(install_docdir)/images ; \
-	    then \
-		echo "Creating $(install_docdir)/images..." ; \
-		mkdir $(install_docdir)/images ; \
-		chmod a+rx $(install_docdir)/images ; \
-	    fi ; \
-	    echo "Installing images..." ; \
-	    ${INSTALL_DATA} images/*.gif $(install_docdir)/images ; \
 	    if test ! -d $(install_docdir)/reference ; \
 	    then \
 		echo "Creating $(install_docdir)/reference..." ; \
@@ -82,8 +74,8 @@ install::
 		mkdir $(install_docdir)/reference/stylesheet-images ; \
 		chmod a+rx $(install_docdir)/reference/stylesheet-images ; \
 	    fi ; \
-	    echo "Installing image links..." ; \
-            (cd $(install_docdir)/reference/stylesheet-images; ln -f -s ../../images/*.gif .) ; \
+	    echo "Installing images..." ; \
+	    ${INSTALL_DATA} images/*.gif $(install_docdir)/reference/stylesheet-images ; \
 	fi
 	@if test -f reference.pdf ; \
 	then \
