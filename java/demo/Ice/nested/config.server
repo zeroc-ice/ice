@@ -1,6 +1,6 @@
 Nested.Server.Endpoints=default -p 10000 -t 10000
 
-Ice.ServerThreadPool.Size=50
+Ice.ThreadPool.Server.Size=50
 #Ice.Trace.Security=6
 #Ice.Trace.Network=1
 #Ice.Trace.Protocol=1

@@ -182,9 +182,8 @@ public final class Connection extends EventHandler
     };
 
     public void
-    prepareRequest(Outgoing out)
+    prepareRequest(BasicStream os)
     {
-        BasicStream os = out.os();
         os.writeBlob(_requestHdr);
     }
 
@@ -246,7 +245,7 @@ public final class Connection extends EventHandler
         }
     }
 
-    private final static byte[] _batchRequestHdr =
+    private final static byte[] _requestBatchHdr =
     {
         Protocol.protocolVersion,
         Protocol.encodingVersion,
@@ -255,7 +254,7 @@ public final class Connection extends EventHandler
     };
 
     public void
-    prepareBatchRequest(Outgoing out)
+    prepareBatchRequest(BasicStream os)
     {
         _mutex.lock();
 
@@ -267,24 +266,24 @@ public final class Connection extends EventHandler
         assert(_state < StateClosing);
 
         //
-        // The Connection now belongs to `out', until finishBatchRequest() is
-        // called.
+        // The Connection now belongs to the caller, until
+        // finishBatchRequest() is called.
         //
 
         if(_batchStream.size() == 0)
         {
-            _batchStream.writeBlob(_batchRequestHdr);
+            _batchStream.writeBlob(_requestBatchHdr);
         }
 
         //
-        // Give the batch stream to `out', until finishBatchRequest() is
-        // called.
+        // Give the batch stream to caller, until finishBatchRequest()
+        // is called.
         //
-        _batchStream.swap(out.os());
+        _batchStream.swap(os);
     }
 
     public void
-    finishBatchRequest(Outgoing out)
+    finishBatchRequest(BasicStream os)
     {
         if(_exception != null)
         {
@@ -293,7 +292,7 @@ public final class Connection extends EventHandler
         }
         assert(_state < StateClosing);
 
-        _batchStream.swap(out.os()); // Get the batch stream back.
+        _batchStream.swap(os); // Get the batch stream back.
         _mutex.unlock(); // Give the Connection back.
     }
 
@@ -570,7 +569,7 @@ public final class Connection extends EventHandler
 
         //
         // Method invocation must be done outside the thread
-        // synchronization, so that nested callbacks are possible.
+        // synchronization, so that nested calls are possible.
         //
         if(in != null)
         {

@@ -173,25 +173,6 @@ public class Incoming
                 }
             }
         }
-        catch(Ice.LocationForward ex)
-        {
-            if(locator != null && servant != null)
-            {
-                locator.finished(_current, servant, _cookie.value);
-            }
-
-            _is.endReadEncaps();
-
-            if(response)
-            {
-                _os.endWriteEncaps();
-                _os.resize(statusPos, false);
-                _os.writeByte((byte)DispatchStatus._DispatchLocationForward);
-                _os.writeProxy(ex._prx);
-            }
-
-	    return;
-        }
         catch(Ice.RequestFailedException ex)
         {
             if(locator != null && servant != null)

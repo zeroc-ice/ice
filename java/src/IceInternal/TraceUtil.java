@@ -117,12 +117,6 @@ final class TraceUtil
                     break;
                 }
 
-                case DispatchStatus._DispatchLocationForward:
-                {
-                    s.write("(location forward)");
-                    break;
-                }
-
                 case DispatchStatus._DispatchObjectNotExist:
                 case DispatchStatus._DispatchFacetNotExist:
                 case DispatchStatus._DispatchOperationNotExist:

@@ -57,7 +57,7 @@ public final class Outgoing
     // Returns true if ok, false if user exception.
     public boolean
     invoke()
-        throws Ice.LocationForward, NonRepeatable
+        throws NonRepeatable
     {
         _os.endWriteEncaps();
 
@@ -137,12 +137,6 @@ public final class Outgoing
                     return false;
                 }
 
-                if(_state == StateLocationForward)
-                {
-                    Ice.ObjectPrx p = _is.readProxy();
-                    throw new Ice.LocationForward(p);
-                }
-
                 assert(_state == StateOK);
                 break;
             }
@@ -167,7 +161,7 @@ public final class Outgoing
                 // illegal.
                 //
                 _state = StateInProgress;
-                _connection.finishBatchRequest(this);
+                _connection.finishBatchRequest(_os);
                 break;
             }
         }
@@ -178,6 +172,10 @@ public final class Outgoing
     public synchronized void
     finished(BasicStream is)
     {
+	//
+	// The state might be StateLocalException if there was a
+	// timeout in invoke().
+	//
         if(_state == StateInProgress)
         {
             _is.swap(is);
@@ -206,12 +204,6 @@ public final class Outgoing
                     //
                     _is.startReadEncaps();
                     _state = StateUserException;
-                    break;
-                }
-
-                case DispatchStatus._DispatchLocationForward:
-                {
-                    _state = StateLocationForward;
                     break;
                 }
 
@@ -311,6 +303,10 @@ public final class Outgoing
     public synchronized void
     finished(Ice.LocalException ex)
     {
+	//
+	// The state might be StateLocalException if there was a
+	// timeout in invoke().
+	//
         if(_state == StateInProgress)
         {
             _state = StateLocalException;
@@ -340,14 +336,14 @@ public final class Outgoing
             case Reference.ModeOneway:
             case Reference.ModeDatagram:
             {
-                _connection.prepareRequest(this);
+                _connection.prepareRequest(_os);
                 break;
             }
 
             case Reference.ModeBatchOneway:
             case Reference.ModeBatchDatagram:
             {
-                _connection.prepareBatchRequest(this);
+                _connection.prepareBatchRequest(_os);
                 break;
             }
         }
@@ -391,9 +387,8 @@ public final class Outgoing
     private static final int StateUnsent = 0;
     private static final int StateInProgress = 1;
     private static final int StateOK = 2;
-    private static final int StateLocationForward = 3;
-    private static final int StateUserException = 4;
-    private static final int StateLocalException = 5;
+    private static final int StateUserException = 3;
+    private static final int StateLocalException = 4;
     private int _state;
 
     private BasicStream _is;

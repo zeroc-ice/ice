@@ -383,6 +383,7 @@ public class AllTests
 	    }
 	    catch(Ice.FacetNotExistException ex)
 	    {
+		test(ex.facet.length == 1);
 		test(ex.facet[0].equals("no such facet"));
 	    }
 
@@ -394,6 +395,7 @@ public class AllTests
 	    }
 	    catch(Ice.FacetNotExistException ex)
 	    {
+		test(ex.facet.length == 2);
 		test(ex.facet[0].equals("no such facet"));
 		test(ex.facet[1].equals("no such facet either"));
 	    }

@@ -18,7 +18,7 @@ public class _ObjectDelD implements _ObjectDel
 {
     public boolean
     ice_isA(String __id, java.util.Map __context)
-        throws LocationForward, IceInternal.NonRepeatable
+        throws IceInternal.NonRepeatable
     {
         Current __current = new Current();
         __initCurrent(__current, "ice_isA", OperationMode.Nonmutating, __context);
@@ -38,7 +38,7 @@ public class _ObjectDelD implements _ObjectDel
 
     public void
     ice_ping(java.util.Map __context)
-        throws LocationForward, IceInternal.NonRepeatable
+        throws IceInternal.NonRepeatable
     {
         Current __current = new Current();
         __initCurrent(__current, "ice_ping", OperationMode.Nonmutating, __context);
@@ -59,7 +59,7 @@ public class _ObjectDelD implements _ObjectDel
 
     public String[]
     ice_ids(java.util.Map __context)
-        throws LocationForward, IceInternal.NonRepeatable
+        throws IceInternal.NonRepeatable
     {
         Current __current = new Current();
         __initCurrent(__current, "ice_ids", OperationMode.Nonmutating, __context);
@@ -79,7 +79,7 @@ public class _ObjectDelD implements _ObjectDel
 
     public String
     ice_id(java.util.Map __context)
-        throws LocationForward, IceInternal.NonRepeatable
+        throws IceInternal.NonRepeatable
     {
         Current __current = new Current();
         __initCurrent(__current, "ice_id", OperationMode.Nonmutating, __context);
@@ -99,7 +99,7 @@ public class _ObjectDelD implements _ObjectDel
 
     public String[]
     ice_facets(java.util.Map __context)
-        throws LocationForward, IceInternal.NonRepeatable
+        throws IceInternal.NonRepeatable
     {
         Current __current = new Current();
         __initCurrent(__current, "ice_facets", OperationMode.Nonmutating, __context);
@@ -119,46 +119,20 @@ public class _ObjectDelD implements _ObjectDel
 
     public boolean
     ice_invoke(String operation, Ice.OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
-               java.util.Map context)
-        throws LocationForward, IceInternal.NonRepeatable
+	       java.util.Map context)
+        throws IceInternal.NonRepeatable
     {
-        Current current = new Current();
-        __initCurrent(current, operation, mode, context);
-        while(true)
-        {
-            IceInternal.Direct __direct = new IceInternal.Direct(current);
-            try
-            {
-                Blobject servant = null;
-                try
-                {
-                    servant = (Blobject)__direct.facetServant();
-                }
-                catch(ClassCastException ex)
-                {
-                    OperationNotExistException opEx = new OperationNotExistException();
-		    opEx.id = current.id;
-		    opEx.facet = current.facet;
-		    opEx.operation = current.operation;
-		    throw opEx;
-                }
-		return servant.ice_invoke(inParams, outParams, current);
-            }
-            finally
-            {
-                __direct.destroy();
-            }
-        }
+	throw new CollocationOptimizationException();
     }
 
     public void
     ice_flush()
     {
-        // Nothing to do for direct delegates
+        // Nothing to do for direct delegates.
     }
 
     //
-    // Only for use by ObjectPrx
+    // Only for use by ObjectPrx.
     //
     final void
     __copyFrom(_ObjectDelD from)

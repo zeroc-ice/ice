@@ -45,10 +45,6 @@ public class ObjectPrxHelper implements ObjectPrx
                 _ObjectDel __del = __getDelegate();
                 return __del.ice_isA(__id, __context);
             }
-            catch(LocationForward __ex)
-            {
-                __locationForward(__ex);
-            }
             catch(IceInternal.NonRepeatable __ex)
             {
                 __cnt = __handleException(__ex.get(), __cnt);
@@ -78,10 +74,6 @@ public class ObjectPrxHelper implements ObjectPrx
                 __del.ice_ping(__context);
                 return;
             }
-            catch(LocationForward __ex)
-            {
-                __locationForward(__ex);
-            }
             catch(IceInternal.NonRepeatable __ex)
             {
                 __cnt = __handleException(__ex.get(), __cnt);
@@ -109,10 +101,6 @@ public class ObjectPrxHelper implements ObjectPrx
             {
                 _ObjectDel __del = __getDelegate();
                 return __del.ice_ids(__context);
-            }
-            catch(LocationForward __ex)
-            {
-                __locationForward(__ex);
             }
             catch(IceInternal.NonRepeatable __ex)
             {
@@ -142,10 +130,6 @@ public class ObjectPrxHelper implements ObjectPrx
                 _ObjectDel __del = __getDelegate();
                 return __del.ice_id(__context);
             }
-            catch(LocationForward __ex)
-            {
-                __locationForward(__ex);
-            }
             catch(IceInternal.NonRepeatable __ex)
             {
                 __cnt = __handleException(__ex.get(), __cnt);
@@ -173,10 +157,6 @@ public class ObjectPrxHelper implements ObjectPrx
             {
                 _ObjectDel __del = __getDelegate();
                 return __del.ice_facets(__context);
-            }
-            catch(LocationForward __ex)
-            {
-                __locationForward(__ex);
             }
             catch(IceInternal.NonRepeatable __ex)
             {
@@ -206,10 +186,6 @@ public class ObjectPrxHelper implements ObjectPrx
             {
                 _ObjectDel __del = __getDelegate();
                 return __del.ice_invoke(operation, mode, inParams, outParams, __context);
-            }
-            catch(LocationForward __ex)
-            {
-                __locationForward(__ex);
             }
             catch(IceInternal.NonRepeatable __ex)
             {
@@ -586,38 +562,6 @@ public class ObjectPrxHelper implements ObjectPrx
         _delegate = null;
 
         throw ex;
-    }
-
-    public final synchronized void
-    __locationForward(LocationForward ex)
-    {
-        _delegate = null;
-
-        ObjectPrxHelper h = (ObjectPrxHelper)ex._prx;
-        if(!_reference.identity.equals(h.__reference().identity))
-        {
-            throw new LocationForwardIdentityException();
-        }
-
-	//
-	// TODO: BENOIT: This is not thread-safe. Everywhere else in the
-	// code, _reference is considered immutable and is not mutex
-	// protected.
-	//
-        _reference = _reference.changeAdapterId(h.__reference().adapterId);
-        _reference = _reference.changeEndpoints(h.__reference().endpoints);
-
-        /*
-        IceInternal.TraceLevels traceLevels =
-            _reference.instance.traceLevels();
-        Logger logger = _reference.instance.logger();
-
-        if(traceLevels.locationForward >= 1)
-        {
-            String s = "location forward for object with identity `" + _reference.identity + "'";
-            logger.trace(traceLevels.locationForwardCat, s);
-        }
-        */
     }
 
     public final synchronized _ObjectDel

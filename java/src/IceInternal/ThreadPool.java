@@ -187,11 +187,11 @@ public final class ThreadPool
         {
             _timeout = _instance.properties().getPropertyAsInt("Ice.ServerIdleTime");
             _timeoutMillis = _timeout * 1000;
-            _threadNum = _instance.properties().getPropertyAsIntWithDefault("Ice.ServerThreadPool.Size", 10);
+            _threadNum = _instance.properties().getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 10);
         }
         else
         {
-            _threadNum = _instance.properties().getPropertyAsIntWithDefault("Ice.ClientThreadPool.Size", 1);
+            _threadNum = _instance.properties().getPropertyAsIntWithDefault("Ice.ThreadPool.Client.Size", 1);
         }
 
 	if(_threadNum < 1)

@@ -19,7 +19,6 @@ the Free Software Foundation.
         <ant dir="facets"/>
         <ant dir="faultTolerance"/>
         <ant dir="inheritance"/>
-        <ant dir="locationForward"/>
         <ant dir="location"/>
         <ant dir="objects"/>
         <ant dir="operations"/>
@@ -31,7 +30,6 @@ the Free Software Foundation.
         <ant dir="facets" target="clean"/>
         <ant dir="faultTolerance" target="clean"/>
         <ant dir="inheritance" target="clean"/>
-        <ant dir="locationForward" target="clean"/>
         <ant dir="location" target="clean"/>
         <ant dir="objects" target="clean"/>
         <ant dir="operations" target="clean"/>
