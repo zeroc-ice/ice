@@ -15,6 +15,7 @@
 #include <Ice/UserExceptionFactoryManager.h>
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/Functional.h>
+#include <Ice/LocalException.h>
 
 using namespace std;
 using namespace Ice;
@@ -27,6 +28,16 @@ void
 IceInternal::UserExceptionFactoryManager::add(const UserExceptionFactoryPtr& factory, const string& id)
 {
     IceUtil::Mutex::Lock sync(*this);
+
+    if(   (_factoryMapHint != _factoryMap.end() && _factoryMapHint->first == id)
+       || _factoryMap.find(id) != _factoryMap.end())
+    {
+	AlreadyRegisteredException ex(__FILE__, __LINE__);
+	ex.kindOfObject = _kindOfObject;
+	ex.id = id;
+	throw ex;
+    }
+
     _factoryMapHint = _factoryMap.insert(_factoryMapHint, make_pair(id, factory));
 }
 
@@ -48,21 +59,26 @@ IceInternal::UserExceptionFactoryManager::remove(const string& id)
     if(p == _factoryMap.end())
     {
 	p = _factoryMap.find(id);
+	if(p == _factoryMap.end())
+	{
+	    NotRegisteredException ex(__FILE__, __LINE__);
+	    ex.kindOfObject = _kindOfObject;
+	    ex.id = id;
+	    throw ex;
+	}
     }
+    assert(p != _factoryMap.end());
     
-    if(p != _factoryMap.end())
-    {
-	p->second->destroy();
+    p->second->destroy();
 
-	if(p == _factoryMapHint)
-	{
-	    _factoryMap.erase(p++);
-	    _factoryMapHint = p;
-	}
-	else
-	{
-	    _factoryMap.erase(p);
-	}
+    if(p == _factoryMapHint)
+    {
+	_factoryMap.erase(p);
+	_factoryMapHint = ++p;
+    }
+    else
+    {
+	_factoryMap.erase(p);
     }
 }
 

@@ -16,6 +16,7 @@
 #include <Ice/Incoming.h>
 #include <Ice/Current.h>
 #include <Ice/Stream.h>
+#include <Ice/LocalException.h>
 
 using namespace std;
 using namespace Ice;
@@ -286,6 +287,15 @@ Ice::Object::ice_addFacet(const ObjectPtr& facet, const string& name)
 {
     IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
 
+    if(   (_activeFacetMapHint != _activeFacetMap.end() && _activeFacetMapHint->first == name)
+       || _activeFacetMap.find(name) != _activeFacetMap.end())
+    {
+	AlreadyRegisteredException ex(__FILE__, __LINE__);
+	ex.kindOfObject = _kindOfObject;
+	ex.id = name;
+	throw ex;
+    }
+
     _activeFacetMapHint = _activeFacetMap.insert(_activeFacetMapHint, make_pair(name, facet));
 }
 
@@ -297,7 +307,6 @@ Ice::Object::ice_removeFacet(const string& name)
     ObjectPtr result;
 
     map<string, ObjectPtr>::iterator p = _activeFacetMap.end();
-    
     if(_activeFacetMapHint != _activeFacetMap.end())
     {
 	if(_activeFacetMapHint->first == name)
@@ -309,21 +318,26 @@ Ice::Object::ice_removeFacet(const string& name)
     if(p == _activeFacetMap.end())
     {
 	p = _activeFacetMap.find(name);
+	if(p == _activeFacetMap.end())
+	{
+	    NotRegisteredException ex(__FILE__, __LINE__);
+	    ex.kindOfObject = _kindOfObject;
+	    ex.id = name;
+	    throw ex;
+	}
     }
+    assert(p != _activeFacetMap.end());
     
-    if(p != _activeFacetMap.end())
-    {
-        result = p->second;
+    result = p->second;
 
-	if(p == _activeFacetMapHint)
-	{
-	    _activeFacetMap.erase(p++);
-	    _activeFacetMapHint = p;
-	}
-	else
-	{
-	    _activeFacetMap.erase(p);
-	}
+    if(p == _activeFacetMapHint)
+    {
+	_activeFacetMap.erase(p);
+	_activeFacetMapHint = ++p;
+    }
+    else
+    {
+	_activeFacetMap.erase(p);
     }
 
     return result;

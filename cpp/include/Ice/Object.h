@@ -98,6 +98,7 @@ private:
     std::map<std::string, ObjectPtr> _activeFacetMap;
     std::map<std::string, ObjectPtr>::iterator _activeFacetMapHint;
     ::IceUtil::Mutex _activeFacetMapMutex;
+    static const char * const _kindOfObject = "facet";
 };
 
 class ICE_API Blobject : virtual public Object

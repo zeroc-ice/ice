@@ -29,6 +29,7 @@
 #include <Ice/LocatorInfo.h>
 #include <Ice/Locator.h>
 #include <Ice/LoggerUtil.h>
+#include <Ice/IdentityUtil.h>
 
 #ifdef _WIN32
 #   include <sys/timeb.h>
@@ -86,15 +87,16 @@ Ice::ObjectAdapterI::activate()
 	    }
 	    catch(const Ice::AdapterNotRegisteredException&)
 	    {
-		ObjectAdapterNotRegisteredException ex(__FILE__, __LINE__);
-		ex.name = _name;
+		NotRegisteredException ex(__FILE__, __LINE__);
+		ex.kindOfObject = _kindOfObject;
+		ex.id = _id;
 		throw ex;
 	    }
 	    catch(const Ice::AdapterAlreadyActiveException&)
 	    {
-		ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
+		AlreadyRegisteredException ex(__FILE__, __LINE__);
+		ex.kindOfObject = _kindOfObject;
 		ex.id = _id;
-		ex.name = _name;
 		throw ex;
 	    }
 	}
@@ -187,6 +189,15 @@ Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
 
     checkIdentity(ident);
 
+    if(   (_activeServantMapHint != _activeServantMap.end() && _activeServantMapHint->first == ident)
+       || _activeServantMap.find(ident) != _activeServantMap.end())
+    {
+	AlreadyRegisteredException ex(__FILE__, __LINE__);
+	ex.kindOfObject = _kindOfObject;
+	ex.id = identityToString(ident);
+	throw ex;
+    }
+
     _activeServantMapHint = _activeServantMap.insert(_activeServantMapHint, make_pair(ident, object));
 
     return newProxy(ident);
@@ -226,7 +237,16 @@ Ice::ObjectAdapterI::remove(const Identity& ident)
 
     checkIdentity(ident);
 
-    _activeServantMap.erase(ident);
+    ObjectDict::iterator p = _activeServantMap.find(ident);
+    if(p == _activeServantMap.end())
+    {
+	NotRegisteredException ex(__FILE__, __LINE__);
+	ex.kindOfObject = _kindOfObject;
+	ex.id = identityToString(ident);
+	throw ex;
+    }
+
+    _activeServantMap.erase(p);
     _activeServantMapHint = _activeServantMap.end();
 }
 
@@ -239,6 +259,15 @@ Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const s
     {
 	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
 	ex.name = _name;
+	throw ex;
+    }
+
+    if(   (_locatorMapHint != _locatorMap.end() && _locatorMapHint->first == prefix)
+       || _locatorMap.find(prefix) != _locatorMap.end())
+    {
+	AlreadyRegisteredException ex(__FILE__, __LINE__);
+	ex.kindOfObject = _kindOfObject;
+	ex.id = prefix;
 	throw ex;
     }
 
@@ -270,21 +299,26 @@ Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
     if(p == _locatorMap.end())
     {
 	p = _locatorMap.find(prefix);
+	if (p == _locatorMap.end())
+	{
+	    NotRegisteredException ex(__FILE__, __LINE__);
+	    ex.kindOfObject = _kindOfObject;
+	    ex.id = prefix;
+	    throw ex;
+	}
     }
+    assert(p != _locatorMap.end());
     
-    if(p != _locatorMap.end())
-    {
-	p->second->deactivate();
+    p->second->deactivate();
 
-	if(p == _locatorMapHint)
-	{
-	    _locatorMap.erase(p++);
-	    _locatorMapHint = p;
-	}
-	else
-	{
-	    _locatorMap.erase(p);
-	}
+    if(p == _locatorMapHint)
+    {
+	_locatorMap.erase(p);
+	_locatorMapHint = ++p;
+    }
+    else
+    {
+	_locatorMap.erase(p);
     }
 }
 

@@ -117,48 +117,6 @@ local exception ObjectAdapterDeactivatedException
 
 /**
  *
- * This exception is raised only if the [ObjectAdapter] [Locator] is
- * set and if the [ObjectAdapter] activation failed because it's not
- * already registered with the [Locator].
- *
- **/
-local exception ObjectAdapterNotRegisteredException
-{
-    /**
-     * 
-     * Name of the adapter.
-     *
-     **/
-    string name;
-};
-
-/**
- *
- * This exception is raised only if the [ObjectAdapter] [Locator] is
- * set and if the [ObjectAdapter] can't be activated because the
- * [Locator] detected another active [ObjectAdapter] with the same
- * id.
- *
- **/
-local exception ObjectAdapterIdInUseException
-{
-    /**
-     * 
-     * Adapter name.
-     *
-     **/
-    string name;
-    
-    /**
-     *
-     * Adapter id.
-     *
-     **/
-    string id;
-};
- 
-/**
- *
  * This exception is raised if no suitable endpoint is available.
  *
  **/
@@ -659,31 +617,62 @@ local exception PluginInitializationException
 
 /**
  *
- * This exception indicates that a plug-in already exists with the
- * same name.
- *
- **/
-local exception PluginExistsException
-{
-};
-
-/**
- *
- * This exception indicates that no plug-in exists with the given name.
- *
- **/
-local exception PluginNotFoundException
-{
-};
-
-/**
- *
  * This exception is raised if a feature is requested that is not
  * supported with collocation optimization.
  *
  **/
 local exception CollocationOptimizationException
 {
+};
+
+/**
+ *
+ * This exception is raised if an attempt is made to register
+ * a servant, servant locator, facet, object factory, plug-in, object
+ * adapter, or user exception factory more than once for the same ID.
+ **/
+local exception AlreadyRegisteredException
+{
+    /**
+     *
+     * The kind of object that is registered already: "servant",
+     * "servant locator", "facet", "object factory", "plug-in", "object
+     * adapter", or "user exception factory".
+     *
+     **/
+    string kindOfObject;
+
+    /**
+     *
+     * The id (or name) of the object that is registered already.
+     *
+     **/
+    string id;
+};
+
+/**
+ *
+ * This exception is raised if an attempt is made to remove
+ * a servant, servant locator, facet, object factory, plug-in, object
+ * adapter, or user exception factory that is not currently registered.
+ **/
+local exception NotRegisteredException
+{
+    /**
+     *
+     * The kind of object that could not be removed: "servant",
+     * "servant locator", "facet", "object factory", "plug-in", "object
+     * adapter", or "user exception factory".
+     *
+     **/
+    string kindOfObject;
+
+    /**
+     *
+     * The id (or name) of the object that could not be removed.
+     *
+     **/
+    string id;
 };
 
 };

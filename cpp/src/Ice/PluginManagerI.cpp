@@ -42,7 +42,10 @@ Ice::PluginManagerI::getPlugin(const string& name)
         return (*r).second;
     }
 
-    throw PluginNotFoundException(__FILE__, __LINE__);
+    NotRegisteredException ex(__FILE__, __LINE__);
+    ex.kindOfObject = _kindOfObject;
+    ex.id = name;
+    throw ex;
 }
 
 void
@@ -58,7 +61,10 @@ Ice::PluginManagerI::addPlugin(const string& name, const PluginPtr& plugin)
     map<string, PluginPtr>::const_iterator r = _plugins.find(name);
     if(r != _plugins.end())
     {
-        throw PluginExistsException(__FILE__, __LINE__);
+        AlreadyRegisteredException ex(__FILE__, __LINE__);
+	ex.kindOfObject = _kindOfObject;
+	ex.id = name;
+	throw ex;
     }
     _plugins[name] = plugin;
 }

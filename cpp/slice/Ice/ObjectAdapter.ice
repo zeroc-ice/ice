@@ -112,7 +112,9 @@ local interface ObjectAdapter
      *
      * Add a Servant to this object adapter's Active Servant Map. Note
      * that one Servant can implement several &Ice; objects by
-     * registering the Servant with multiple identities.
+     * registering the Servant with multiple identities. Adding a
+     * servant with an identity that is in the map already throws
+     * [AlreadyRegisteredException].
      *
      * @param servant The Servant to add.
      *
@@ -155,7 +157,8 @@ local interface ObjectAdapter
      * @param id The identity of the &Ice; object that is
      * implemented by the Servant. If the Servant implements multiple
      * &Ice; objects, [remove] has to be called for all such &Ice;
-     * objects.
+     * objects. Removing an identity that is not in the map throws
+     * [NotRegisteredException].
      *
      * @see Identity
      * @see add
@@ -166,9 +169,9 @@ local interface ObjectAdapter
 
     /**
      *
-     * Add a Servant Locator to this object adapter. If a locator has
-     * already been installed for the given category, the current
-     * locator for this category is replaced by the new one. To dispatch
+     * Add a Servant Locator to this object adapter. Adding a servant
+     * locator for a catogory for which a servant locator is installed
+     * already throws [AlreadyRegisteredException]. To dispatch
      * operation calls on Servants, the object adapter tries to find a
      * Servant for a given &Ice; object identity in the following order:
      *
@@ -214,9 +217,9 @@ local interface ObjectAdapter
 
     /**
      *
-     * Remove a Servant Locator from this object adapter. This
-     * operation does nothing if no locator for the given category has
-     * been installed.
+     * Remove a Servant Locator from this object adapter. Removing
+     * a category for which no servant locator is installed throws
+     * [NotRegisteredException].
      *
      * @param category The category for which the Servant Locator can
      * locate Servants, or an empty string if the Servant Locator does

@@ -92,20 +92,6 @@ Ice::ObjectAdapterDeactivatedException::ice_print(ostream& out) const
 }
 
 void
-Ice::ObjectAdapterIdInUseException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nobject adapter `" << name << "' uses an id `" << id << "' which is already in use";
-}
-
-void
-Ice::ObjectAdapterNotRegisteredException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nobject adapter `" << name << "' not registered with the locator";
-}
-
-void
 Ice::NoEndpointException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
@@ -412,22 +398,22 @@ Ice::PluginInitializationException::ice_print(ostream& out) const
 }
 
 void
-Ice::PluginExistsException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nplugin already exists";
-}
-
-void
-Ice::PluginNotFoundException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nplugin not found";
-}
-
-void
 Ice::CollocationOptimizationException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nrequested feature not available with collocation optimization";
+}
+
+void
+Ice::AlreadyRegisteredException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\n" << kindOfObject << " already registered under ID `" << id << "'";
+}
+
+void
+Ice::NotRegisteredException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\n no " << kindOfObject << " registered under ID `" << id << "'";
 }

@@ -46,6 +46,7 @@ private:
     IceInternal::DynamicLibraryListPtr _libraries;
 
     std::map<std::string, PluginPtr> _plugins;
+    static const char * const _kindOfObject = "plug-in";
 };
 
 }

@@ -15,6 +15,10 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+interface Empty
+{
+};
+
 interface Thrower;
 
 exception A

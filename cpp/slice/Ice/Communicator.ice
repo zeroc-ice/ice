@@ -172,9 +172,9 @@ local interface Communicator
 
     /**
      *
-     * Add a Servant factory to this communicator. If a factory has
-     * already been installed for the given id, the current factory
-     * for this id is replaced by the new one.
+     * Add a Servant factory to this communicator. Installing a
+     * factory with an id for which a factory is installed already
+     * throws [AlreadyRegisteredException].
      *
      * @param factory The factory to add.
      *
@@ -190,8 +190,8 @@ local interface Communicator
 
     /**
      *
-     * Remove a Servant factory from this communicator. This operation
-     * does nothing if no factory for the given id has been installed.
+     * Remove a Servant factory from this communicator. Removing an id
+     * for which no factory is installed throws [NotRegisteredException].
      *
      * @param id The type id for which the factory can create
      * instances.
@@ -222,9 +222,9 @@ local interface Communicator
 
     /**
      *
-     * Add a user exception factory to this communicator. If a factory
-     * has already been installed for the given id, the current
-     * factory for this id is replaced by the new one.
+     * Add a user exception factory to this communicator. Adding a
+     * factory with an id for which a factory is registered already
+     * throws [AlreadyRegisteredException].
      *
      * @param factory The factory to add.
      *
@@ -240,9 +240,8 @@ local interface Communicator
 
     /**
      *
-     * Remove a user exception factory from this communicator. This
-     * operation does nothing if no factory for the given id has been
-     * installed.
+     * Remove a user exception factory from this communicator. Removing
+     * an id for which no factory is installed throws [NotRegisteredException].
      *
      * @param id The type id for which the factory can create user
      * exceptions.

@@ -18,6 +18,22 @@
 
 using namespace std;
 
+class EmptyI : virtual public Empty {
+};
+
+class ServantLocatorI : virtual public Ice::ServantLocator {
+public:
+    virtual ::Ice::ObjectPtr locate(const ::Ice::Current&, ::Ice::LocalObjectPtr&) { return 0; }
+    virtual void finished(const ::Ice::Current&, const ::Ice::ObjectPtr&, const ::Ice::LocalObjectPtr&) {}
+    virtual void deactivate() {}
+};
+
+class ObjectFactoryI : virtual public Ice::ObjectFactory {
+public:
+    virtual ::Ice::ObjectPtr create(const string&) { return 0; }
+    virtual void destroy() {}
+};
+
 class MyExceptionFactory : public Ice::UserExceptionFactory
 {
 public:
@@ -652,6 +668,120 @@ typedef ::IceUtil::Handle< ::WrongOperation_noSuchOperationI> WrongOperation_noS
 ThrowerPrx
 allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 {
+    cout << "testing AlreadyRegisteredException and NotRegisteredException for servant... " << flush;
+    {
+	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
+	Ice::ObjectPtr obj = new EmptyI;
+	adapter->add(obj, Ice::stringToIdentity("x"));
+	bool gotException = false;
+	try {
+	    adapter->add(obj, Ice::stringToIdentity("x"));
+	}
+	catch(const Ice::AlreadyRegisteredException&)
+	{
+	    gotException = true;
+	}
+	test(gotException);
+
+	gotException = false;
+	adapter->remove(Ice::stringToIdentity("x"));
+	try {
+	    adapter->remove(Ice::stringToIdentity("x"));
+	}
+	catch(const Ice::NotRegisteredException&)
+	{
+	    gotException = true;
+	}
+	test(gotException);
+
+	adapter->deactivate();
+    }
+    cout << "ok" << endl;
+
+    cout << "testing AlreadyRegisteredException and NotRegisteredException for servant locator... " << flush;
+    {
+	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter2");
+	Ice::ServantLocatorPtr loc = new ServantLocatorI;
+	adapter->addServantLocator(loc, "x");
+	bool gotException = false;
+	try {
+	    adapter->addServantLocator(loc, "x");
+	}
+	catch(const Ice::AlreadyRegisteredException&)
+	{
+	    gotException = true;
+	}
+	test(gotException);
+
+	gotException = false;
+	adapter->removeServantLocator("x");
+	try {
+	    adapter->removeServantLocator("x");
+	}
+	catch(const Ice::NotRegisteredException&)
+	{
+	    gotException = true;
+	}
+	test(gotException);
+
+	adapter->deactivate();
+    }
+    cout << "ok" << endl;
+
+    cout << "testing AlreadyRegisteredException and NotRegisteredException for object factory... " << flush;
+    {
+	Ice::ObjectFactoryPtr of = new ObjectFactoryI;
+	communicator->addObjectFactory(of, "x");
+	bool gotException = false;
+	try {
+	    communicator->addObjectFactory(of, "x");
+	}
+	catch(const Ice::AlreadyRegisteredException&)
+	{
+	    gotException = true;
+	}
+	test(gotException);
+
+	gotException = false;
+	communicator->removeObjectFactory("x");
+	try {
+	    communicator->removeObjectFactory("x");
+	}
+	catch(const Ice::NotRegisteredException&e)
+	{
+	    gotException = true;
+	}
+	test(gotException);
+    }
+    cout << "ok" << endl;
+
+    cout << "testing AlreadyRegisteredException and NotRegisteredException for user exception factory... " << flush;
+    {
+	Ice::UserExceptionFactoryPtr f = new MyExceptionFactory;
+	communicator->addUserExceptionFactory(f, "::x");
+	bool gotException = false;
+	try {
+	    communicator->addUserExceptionFactory(f, "::x");
+	}
+	catch(const Ice::AlreadyRegisteredException&)
+	{
+	    gotException = true;
+	}
+	test(gotException);
+
+	gotException = false;
+	communicator->removeUserExceptionFactory("::x");
+	try {
+	    communicator->removeUserExceptionFactory("::x");
+	}
+	catch(const Ice::NotRegisteredException&)
+	{
+	    gotException = true;
+	}
+	test(gotException);
+    }
+    cout << "ok" << endl;
+
     cout << "testing stringToProxy... " << flush;
     string ref = "thrower:default -p 12345 -t 2000";
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
@@ -1287,6 +1417,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	communicator->removeUserExceptionFactory("::B");
 	communicator->removeUserExceptionFactory("::C");
 	communicator->removeUserExceptionFactory("::D");
+
     }
 
     return thrower;
