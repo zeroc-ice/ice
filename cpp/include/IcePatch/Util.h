@@ -24,6 +24,7 @@ ICE_PATCH_API Ice::Identity pathToIdentity(const std::string&);
 
 ICE_PATCH_API std::string pathToName(const std::string&);
 ICE_PATCH_API std::string getSuffix(const std::string&);
+ICE_PATCH_API std::string removeSuffix(const std::string&);
 
 enum FileInfo
 {
@@ -47,6 +48,8 @@ ICE_PATCH_API Ice::Int getSizeBZ2(const std::string&);
 ICE_PATCH_API Ice::ByteSeq getBytesBZ2(const std::string&, Ice::Int, Ice::Int);
 ICE_PATCH_API void createBZ2(const std::string&);
 ICE_PATCH_API void createBZ2Recursive(const std::string&);
+
+ICE_PATCH_API void removeOrphanedRecursive(const std::string&);
 
 class ICE_PATCH_API ProgressCB
 {

@@ -721,7 +721,7 @@ IcePatch::removeOrphanedRecursive(const string& path)
     for (p = paths.begin(); p != paths.end(); ++p)
     {
 	string suffix = getSuffix(*p);
-	if (suffix == ".md5" || suffix == ".bz2")
+	if (suffix == "md5" || suffix == "bz2")
 	{
 	    pair<StringSeq::const_iterator, StringSeq::const_iterator> r =
 		equal_range(paths.begin(), paths.end(), removeSuffix(*p));

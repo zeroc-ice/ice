@@ -98,11 +98,6 @@ IcePatch::Client::run(int argc, char* argv[])
         communicator()->addObjectFactory(factory, "::IcePatch::FileDesc");
         
 	//
-	// Remove orphaned MD5 and BZ2 files.
-	//
-	removeOrphanedRecursive(".");
-        
-	//
 	// Patch all nodes.
 	//
 	Identity identity = pathToIdentity(".");
@@ -115,6 +110,13 @@ IcePatch::Client::run(int argc, char* argv[])
 	cout << pathToName(path) << endl;
 	cout << "|" << endl;
 	patch(topDesc->directory->getContents(), "");
+
+	//
+	// Remove orphaned MD5 and BZ2 files.
+	//
+	cout << "removing orphaned .bz2 and .md5 files... " << flush;
+	removeOrphanedRecursive(".");
+	cout << "ok" << endl;
     }
     catch (const NodeAccessException& ex)
     {

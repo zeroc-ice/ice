@@ -87,6 +87,11 @@ IcePatch::Server::run(int argc, char* argv[])
         {
             changeDirectory(directory);
         }
+
+	//
+	// Remove orphaned MD5 and BZ2 files.
+	//
+	removeOrphanedRecursive(".");
         
         //
         // Create MD5 and BZ2 files.
