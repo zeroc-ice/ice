@@ -544,7 +544,7 @@ public class ObjectPrxHelper implements ObjectPrx
             String s = "re-trying operation call";
 	    if(cnt > 0 && retryIntervals[cnt - 1] > 0)
 	    {
-		s += " in " + retryIntervals[cnt - 1] + " (ms)";
+		s += " in " + retryIntervals[cnt - 1] + "ms";
 	    }
 	    s += " because of exception\n" + ex;
             logger.trace(traceLevels.retryCat, s);

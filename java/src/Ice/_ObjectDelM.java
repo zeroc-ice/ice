@@ -255,10 +255,10 @@ public class _ObjectDelM implements _ObjectDel
 			IceInternal.TraceLevels traceLevels = __reference.instance.traceLevels();
 			Logger logger = __reference.instance.logger();
 		    
-			if(traceLevels.retry >= 1)
+			if(traceLevels.retry >= 2)
 			{
-			    String s = "connection to cached endpoint failed, removing endpoint from cache\n" +
- 				       "and trying one more time\n" + ex;
+			    String s = "connection to cached endpoints failed\n" +
+				       "removing endpoints from cache and trying one more time\n" + ex;
 			    logger.trace(traceLevels.retryCat, s);
 			}
 			
