@@ -214,7 +214,7 @@ private:
 
     protected:
 
-	void writeOperation(const OperationPtr&, bool, bool, bool);
+	void writeOperation(const OperationPtr&, bool, bool);
 
     private:
 

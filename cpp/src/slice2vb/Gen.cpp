@@ -130,7 +130,12 @@ Slice::VbVisitor::writeInheritedOperations(const ClassDefPtr& p)
 		_out << nl << "End " << vbOp;
 
 		_out << sp << nl << "Public MustOverride " << vbOp << ' ' << fixId(name, DotNet::ICloneable, true)
-		     << spar << params << "ByVal __current As Ice.Current" << epar;
+		     << spar << params;
+		if(!containingClass->isLocal())
+		{
+		    _out << "ByVal __current As Ice.Current";
+		}
+		_out << epar;
 		if(ret)
 		{
 		    _out << " As " << retS;
@@ -1072,7 +1077,12 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    _out << nl << "Inherits Ice.Object";
 	}
-	_out << ", _" << p->name() << "Operations, _" << p->name() << "OperationsNC";
+	_out << ", _" << p->name();
+	if(!p->isLocal())
+	{
+	    _out << "Operations, _" << p->name();
+	}
+	_out << "OperationsNC";
 	if(!bases.empty())
 	{
 	    ClassList::const_iterator q = bases.begin();
@@ -1111,7 +1121,12 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	if(p->isAbstract())
 	{
-	    _out << nl << "Implements _" << p->name() << "Operations, _" << p->name() << "OperationsNC";
+	    _out << nl << "Implements _" << p->name();
+	    if(!p->isLocal())
+	    {
+	        _out << "Operations, _" << p->name();
+	    }
+	    _out << "OperationsNC";
 	}
 	for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
 	{
@@ -2937,7 +2952,10 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
 	return false;
     }
 
-    writeOperations(p, false);
+    if(!p->isLocal())
+    {
+	writeOperations(p, false);
+    }
     writeOperations(p, true);
 
     return false;
@@ -2949,13 +2967,13 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
     string name = p->name();
     string scoped = fixId(p->scoped());
     ClassList bases = p->bases();
-
-
-    _out << sp << nl << "Public Interface _" << name << "Operations";
-    if(noCurrent)
+    string opIntfName = "Operations";
+    if(noCurrent || p->isLocal())
     {
-        _out << "NC";
+        opIntfName += "NC";
     }
+
+    _out << sp << nl << "Public Interface _" << name << opIntfName;
     _out.inc();
     if((bases.size() == 1 && bases.front()->isAbstract()) || bases.size() > 1)
     {
@@ -3012,23 +3030,13 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 
 	string vbOp = ret ? "Function" : "Sub";
 
-	if(!noCurrent)
-	{ 
-	    _out << sp << nl << vbOp << ' ' << name << spar << params;
-	    if(!p->isLocal())
-	    {
-		_out << "ByVal __current As Ice.Current";
-	    }
-	    _out << epar;
-	}
-	else
+	_out << sp << nl << vbOp << ' ' << name << spar << params;
+	if(!noCurrent && !p->isLocal())
 	{
-	    if(!p->isLocal())
-	    {
-		_out << sp << nl << vbOp << ' ' << name << spar << params << epar;
-	    }
+	    _out << "ByVal __current As Ice.Current";
 	}
-	if(!p->isLocal() && ret)
+	_out << epar;
+	if(ret)
 	{
 	    _out << " As " << typeToString(ret);
 	}
@@ -4465,6 +4473,11 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     
     string name = p->name();
+    string opIntfName = "Operations";
+    if(p->isLocal())
+    {
+        opIntfName += "NC";
+    }
 
     _out << sp << nl << "public class _" << name << "Tie";
     _out.inc();
@@ -4489,7 +4502,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp << nl << "Public Sub New()";
     _out << nl << "End Sub";
 
-    _out << sp << nl << "Public Sub New(ByVal del As _" << name << "Operations)";
+    _out << sp << nl << "Public Sub New(ByVal del As _" << name << opIntfName << ")";
     _out.inc();
     _out << nl << "_ice_delegate = del";
     _out.dec();
@@ -4503,7 +4516,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out << sp << nl << "Public Sub ice_delegate(ByVal del As Object) Implements Ice.TieBase.ice_delegate";
     _out.inc();
-    _out << nl << "_ice_delegate = CType(del, _" << name << "Operations)";
+    _out << nl << "_ice_delegate = CType(del, _" << name << opIntfName << ")";
     _out.dec();
     _out << nl << "End Sub";
 
@@ -4618,7 +4631,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeInheritedOperations(*i, opNames);
     }
 
-    _out << sp << nl << "Private _ice_delegate As _" << name << "Operations";
+    _out << sp << nl << "Private _ice_delegate As _" << name << opIntfName;
 
     return true;
 }
@@ -4706,7 +4719,7 @@ Slice::Gen::BaseImplVisitor::BaseImplVisitor(IceUtil::Output& out)
 }
 
 void
-Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool local, bool comment, bool forTie)
+Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment, bool forTie)
 {
     ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
     string opName = op->name();
@@ -4724,7 +4737,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool local, 
 	_out << sp << nl;
     }
 
-    if(!local && (cl->hasMetaData("amd") || op->hasMetaData("amd")))
+    if(!cl->isLocal() && (cl->hasMetaData("amd") || op->hasMetaData("amd")))
     {
         vector<string> pDecl = getParamsAsync(op, true);
 
@@ -4783,12 +4796,12 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool local, 
 	string vbOp = ret ? "Function" : "Sub";
 
 	_out << "Public Overloads ";
-	if(!forTie)
+	if(!forTie && !cl->isLocal())
 	{
 	    _out << "Overrides ";
 	}
 	_out << vbOp << ' ' << fixId(opName, DotNet::ICloneable, true) << spar << pDecls;
-	if(!local)
+	if(!cl->isLocal())
 	{
 	    _out << "ByVal __current As Ice.Current";
 	}
@@ -4942,7 +4955,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     OperationList ops = p->allOperations();
     for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
     {
-        writeOperation(*r, p->isLocal(), false, false);
+        writeOperation(*r, false, false);
     }
 
     return true;
@@ -5039,11 +5052,11 @@ Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "'";
             _out << nl << "' Implemented by " << bases.front()->name() << 'I';
             _out << nl << "'";
-            writeOperation(*r, p->isLocal(), true, true);
+            writeOperation(*r, true, true);
         }
         else
         {
-            writeOperation(*r, p->isLocal(), false, true);
+            writeOperation(*r, false, true);
         }
     }
 
