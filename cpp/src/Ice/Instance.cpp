@@ -260,6 +260,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 	{
 	    srand(static_cast<timeval>(IceUtil::Time::now()).tv_usec);
 	    
+	    if(_properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
+	    {
+		IceUtil::nullHandleAbort = true;
+	    }
+
 #ifdef _WIN32
 	    WORD version = MAKEWORD(1, 1);
 	    WSADATA data;
@@ -313,11 +318,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 		    _identForOpenlog = "<Unknown Ice Program>";
 		}
 		openlog(_identForOpenlog.c_str(), LOG_PID, LOG_USER);
-	    }
-
-	    if(_properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
-	    {
-		IceUtil::nullHandleAbort = true;
 	    }
 #endif
 	}
