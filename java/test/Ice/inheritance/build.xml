@@ -1,4 +1,4 @@
-<project name="demo_Ice_hello" default="all" basedir=".">
+<project name="test_Ice_inheritance" default="all" basedir=".">
 
     <!-- install slice2java task -->
     <taskdef name="slice2java" classname="Slice2JavaTask" />
@@ -20,7 +20,7 @@
         <mkdir dir="${generated.dir}"/>
         <mkdir dir="${tags.dir}"/>
         <slice2java tagdir="${tags.dir}" outputdir="${generated.dir}">
-            <fileset dir="." includes="Hello.ice"/>
+            <fileset dir="." includes="Test.ice"/>
         </slice2java>
     </target>
 

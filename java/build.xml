@@ -42,11 +42,17 @@
             source="1.4"/>
     </target>
 
-    <target name="all" depends="compile"/>
+    <target name="all" depends="compile">
+        <ant inheritAll="false" dir="demo"/>
+        <ant inheritAll="false" dir="test"/>
+    </target>
 
     <target name="clean">
         <delete dir="${tags.dir}"/>
         <delete dir="${generated.dir}"/>
+        <delete dir="${lib.dir}"/>
+        <ant inheritAll="false" dir="demo" target="clean"/>
+        <ant inheritAll="false" dir="test" target="clean"/>
     </target>
 
 </project>

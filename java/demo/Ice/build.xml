@@ -1,0 +1,15 @@
+<project name="demo_Ice" default="all" basedir=".">
+
+    <target name="all">
+        <ant dir="hello"/>
+        <ant dir="latency"/>
+        <ant dir="value"/>
+    </target>
+
+    <target name="clean">
+        <ant dir="hello" target="clean"/>
+        <ant dir="latency" target="clean"/>
+        <ant dir="value" target="clean"/>
+    </target>
+
+</project>
