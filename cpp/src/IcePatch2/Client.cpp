@@ -27,7 +27,8 @@ class TextPatcherFeedback : public PatcherFeedback
 {
 public:
 
-    TextPatcherFeedback()
+    TextPatcherFeedback() :
+	_pressAnyKeyMessage(false)
     {
 #ifndef _WIN32
 	tcgetattr(0, &_savedTerm);
@@ -66,6 +67,12 @@ public:
     virtual bool
     checksumStart()
     {
+	if(!_pressAnyKeyMessage)
+	{
+	    cout << "[Press any key to abort]" << endl;
+	    _pressAnyKeyMessage = true;
+	}
+
 	return !keyPressed();
     }
 
@@ -85,6 +92,12 @@ public:
     virtual bool
     fileListStart()
     {
+	if(!_pressAnyKeyMessage)
+	{
+	    cout << "[Press any key to abort]" << endl;
+	    _pressAnyKeyMessage = true;
+	}
+
 	_lastProgress = "0%";
 	cout << "Getting list of files to patch: " << _lastProgress << flush;
 	return !keyPressed();
@@ -114,6 +127,12 @@ public:
     virtual bool
     patchStart(const string& path, Long size, Long totalProgress, Long totalSize)
     {
+	if(!_pressAnyKeyMessage)
+	{
+	    cout << "[Press any key to abort]" << endl;
+	    _pressAnyKeyMessage = true;
+	}
+
 	ostringstream s;
 	s << "0/" << size << " (" << totalProgress << '/' << totalSize << ')';
 	_lastProgress = s.str();
@@ -177,8 +196,6 @@ private:
 	    fcntl(0, F_SETFL, flags);
 
 	    _block = false;
-
-	    cout << "[Press any key to abort]" << endl;
 	}
 
 	bool pressed = false;
@@ -197,6 +214,7 @@ private:
 #endif
 
     string _lastProgress;
+    bool _pressAnyKeyMessage;
 };
 
 class Client : public Application
@@ -255,7 +273,7 @@ Client::run(int argc, char* argv[])
     }
     if(args.size() == 1)
     {
-	properties->setProperty("IcePatch2.Directory", args[0]);
+	properties->setProperty("IcePatch2.Directory", simplify(args[0]));
     }
 
     bool aborted = false;

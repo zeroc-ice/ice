@@ -142,7 +142,7 @@ private:
 
 IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFeedbackPtr& feedback) :
     _feedback(feedback),
-    _dataDir(simplify(communicator->getProperties()->getProperty("IcePatch2.Directory"))),
+    _dataDir(simplify(communicator->getProperties()->getPropertyWithDefault("IcePatch2.Directory", "."))),
     _thorough(communicator->getProperties()->getPropertyAsInt("IcePatch2.Thorough") > 0),
     _chunkSize(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.ChunkSize", 100000)),
     _remove(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.Remove", 1))
@@ -157,29 +157,24 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
 	const_cast<Int&>(_chunkSize) = 1;
     }
 
-#ifdef _WIN32
-    if(_dataDir[0] != '/' && !(_dataDir.size() > 1 && isalpha(_dataDir[0]) && _dataDir[1] == ':'))
+    if(!isAbsolute(_dataDir))
     {
+#ifdef _WIN32
 	char cwd[_MAX_PATH];
 	if(_getcwd(cwd, _MAX_PATH) == NULL)
 	{
 	    throw "cannot get the current directory:\n" + lastError();
 	}
-    
-	const_cast<string&>(_dataDir) = string(cwd) + '/' + _dataDir;
-    }
 #else
-    if(_dataDir[0] != '/')
-    {
 	char cwd[PATH_MAX];
 	if(getcwd(cwd, PATH_MAX) == NULL)
 	{
 	    throw "cannot get the current directory:\n" + lastError();
 	}
+#endif
     
 	const_cast<string&>(_dataDir) = string(cwd) + '/' + _dataDir;
     }
-#endif
 	
     PropertiesPtr properties = communicator->getProperties();
 

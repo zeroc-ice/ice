@@ -260,6 +260,18 @@ IcePatch2::simplify(const string& path)
     return result;
 }
 
+bool
+IcePatch2::isAbsolute(const string& pa)
+{
+    const string path = simplify(pa);
+
+#ifdef _WIN32
+    return path[0] == '/' || path.size() > 1 && isalpha(path[0]) && path[1] == ':';
+#else
+    return path[0] == '/';
+#endif
+}
+
 string
 IcePatch2::getSuffix(const string& pa)
 {

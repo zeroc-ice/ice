@@ -192,39 +192,26 @@ main(int argc, char* argv[])
 	{
 	    throw "cannot get the current directory:\n" + lastError();
 	}
-	
-	if(absDataDir[0] != '/' && !(absDataDir.size() > 1 && isalpha(absDataDir[0]) && absDataDir[1] == ':'))
-	{
-	    absDataDir = string(cwd) + '/' + absDataDir;
-	}
-	
-	for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
-	{
-	    if((*p)[0] != '/' && !(p->size() > 1 && isalpha((*p)[0]) && (*p)[1] == ':'))
-	    {
-		*p = string(cwd) + '/' + *p;
-	    }
-	}
 #else
 	char cwd[PATH_MAX];
 	if(getcwd(cwd, PATH_MAX) == NULL)
 	{
 	    throw "cannot get the current directory:\n" + lastError();
 	}
-	
-	if(absDataDir[0] != '/')
+#endif	
+
+	if(!isAbsolute(absDataDir))
 	{
-	    absDataDir = string(cwd) + '/' + absDataDir;
+	    absDataDir = simplify(string(cwd) + '/' + absDataDir);
 	}
 	
 	for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
 	{
-	    if((*p)[0] != '/')
+	    if(!isAbsolute(*p))
 	    {
 		*p = string(cwd) + '/' + *p;
 	    }
 	}
-#endif
 
 	string absDataDirWithSlash = absDataDir + '/';
 	

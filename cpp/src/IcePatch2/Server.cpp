@@ -69,7 +69,7 @@ IcePatch2::PatcherService::PatcherService()
 bool
 IcePatch2::PatcherService::start(int argc, char* argv[])
 {
-    string dataDir;
+    PropertiesPtr properties = communicator()->getProperties();
 
     IceUtil::Options opts;
     opts.addOpt("h", "help");
@@ -106,34 +106,27 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
     }
     if(args.size() == 1)
     {
-        dataDir = args[0];
+	properties->setProperty("IcePatch2.Directory", simplify(args[0]));
     }
 
-    PropertiesPtr properties = communicator()->getProperties();
-
+    string dataDir = properties->getPropertyWithDefault("IcePatch2.Directory", ".");
     if(dataDir.empty())
     {
-	dataDir = properties->getProperty("IcePatch2.Directory");
-	if(dataDir.empty())
-	{
-	    error("no data directory specified");
-	    usage(argv[0]);
-	    return false;
-	}
+	error("no data directory specified");
+	usage(argv[0]);
+	return false;
     }
 
     FileInfoSeq infoSeq;
 
     try
     {
-#ifdef _WIN32
-	if(dataDir[0] != '/' && !(dataDir.size() > 1 && isalpha(dataDir[0]) && dataDir[1] == ':'))
+	if(!isAbsolute(dataDir))
 	{
+#ifdef _WIN32
 	    char cwd[_MAX_PATH];
 	    if(_getcwd(cwd, _MAX_PATH) == NULL)
 #else
-	if(dataDir[0] != '/')
-	{
 	    char cwd[PATH_MAX];
 	    if(getcwd(cwd, PATH_MAX) == NULL)
 #endif
