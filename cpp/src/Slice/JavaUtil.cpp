@@ -243,6 +243,7 @@ Slice::JavaGenerator::getAbsolute(const string& scoped,
 {
     string result;
     string::size_type start = 0;
+    string fscoped = fixKwd(scoped);
     string fscope = fixKwd(scope);
 
     if(!fscope.empty())
@@ -255,9 +256,9 @@ Slice::JavaGenerator::getAbsolute(const string& scoped,
         // scope=::A, scoped=::A::B::C, result=::A::B::C
         //
 	string::size_type fscopeSize = fscope.size();
-	if(scoped.compare(0, fscopeSize, fscope) == 0)
+	if(fscoped.compare(0, fscopeSize, fscope) == 0)
 	{
-	    if(scoped.size() > fscopeSize && scoped[fscopeSize] == ':')
+	    if(fscoped.size() > fscopeSize && fscoped[fscopeSize - 1] == ':')
 	    {
 		start = fscopeSize;
 	    }
@@ -267,9 +268,9 @@ Slice::JavaGenerator::getAbsolute(const string& scoped,
     //
     // Skip leading "::"
     //
-    if(scoped[start] == ':')
+    if(fscoped[start] == ':')
     {
-        assert(scoped[start + 1] == ':');
+        assert(fscoped[start + 1] == ':');
         start += 2;
     }
 
@@ -279,16 +280,16 @@ Slice::JavaGenerator::getAbsolute(const string& scoped,
     string::size_type pos;
     do
     {
-        pos = scoped.find(':', start);
+        pos = fscoped.find(':', start);
         string fix;
         if(pos == string::npos)
         {
-            fix = prefix + fixKwd(scoped.substr(start)) + suffix;
+            fix = prefix + fixKwd(fscoped.substr(start)) + suffix;
         }
         else
         {
-            assert(scoped[pos + 1] == ':');
-            fix = fixKwd(scoped.substr(start, pos - start));
+            assert(fscoped[pos + 1] == ':');
+            fix = fixKwd(fscoped.substr(start, pos - start));
             start = pos + 2;
         }
 
