@@ -18,9 +18,10 @@ public class Instance
         return _communicator;
     }
 
-    public synchronized Ice.Properties
+    public Ice.Properties
     properties()
     {
+	// No mutex lock, immutable.
         return _properties;
     }
 
@@ -36,23 +37,24 @@ public class Instance
         _logger = logger;
     }
 
-    public synchronized TraceLevels
+    public TraceLevels
     traceLevels()
     {
+	// No mutex lock, immutable.
         return _traceLevels;
     }
 
     public String
     defaultProtocol()
     {
-        // No synchronization necessary
+	// No mutex lock, immutable.
         return _defaultProtocol;
     }
 
     public String
     defaultHost()
     {
-        // No synchronization necessary
+	// No mutex lock, immutable.
         return _defaultHost;
     }
 
@@ -104,14 +106,10 @@ public class Instance
         return _threadPool;
     }
 
-    //
-    // TODO: This should be synchronized, but it causes a deadlock
-    // on shutdown if a BasicStream is created while the Instance
-    // is already locked (e.g., in ThreadPool)
-    //
-    public /*synchronized*/ BufferManager
+    public BufferManager
     bufferManager()
     {
+	// No mutex lock, immutable.
         return _bufferManager;
     }
 
@@ -167,10 +165,6 @@ public class Instance
         throws Throwable
     {
         assert(_communicator == null);
-        assert(_properties == null);
-        assert(_logger == null);
-        assert(_traceLevels == null);
-        assert(_routerManager == null);
         assert(_referenceFactory == null);
         assert(_proxyFactory == null);
         assert(_outgoingConnectionFactory == null);
@@ -178,6 +172,7 @@ public class Instance
         assert(_userExceptionFactoryManager == null);
         assert(_objectAdapterFactory == null);
         assert(_threadPool == null);
+        assert(_routerManager == null);
 
         super.finalize();
     }
@@ -185,104 +180,89 @@ public class Instance
     //
     // Only for use by Ice.CommunicatorI
     //
-    public synchronized void
+    public void
     destroy()
     {
-        //
-        // Destroy all contained objects. Then set all references to null,
-        // to avoid cyclic object dependencies.
-        //
+	ThreadPool threadPool;
 
-        if (_communicator != null)
-        {
-            // Don't destroy the communicator -- the communicator destroys
-            // this object, not the other way.
-            _communicator = null;
-        }
+	synchronized(this)
+	{
+	    //
+	    // Destroy all contained objects. Then set all references to null,
+	    // to avoid cyclic object dependencies.
+	    //
+	    
+	    if (_communicator != null)
+	    {
+		// Don't destroy the communicator -- the communicator destroys
+		// this object, not the other way.
+		_communicator = null;
+	    }
 
-        if (_objectAdapterFactory != null)
-        {
-            _objectAdapterFactory.shutdown(); // ObjectAdapterFactory has
-                                              // shutdown(), not destroy()
-            _objectAdapterFactory = null;
-        }
+	    if (_objectAdapterFactory != null)
+	    {
+		// Don't shut down the object adapters -- the communicator
+		// must do this before it destroys this object.
+		_objectAdapterFactory = null;
+	    }
+	    
+	    if (_servantFactoryManager != null)
+	    {
+		_servantFactoryManager.destroy();
+		_servantFactoryManager = null;
+	    }
+	    
+	    if (_userExceptionFactoryManager != null)
+	    {
+		_userExceptionFactoryManager.destroy();
+		_userExceptionFactoryManager = null;
+	    }
+	    
+	    if (_referenceFactory != null)
+	    {
+		_referenceFactory.destroy();
+		_referenceFactory = null;
+	    }
+	    
+	    if (_proxyFactory != null)
+	    {
+		// No destroy function defined
+		// _proxyFactory.destroy();
+		_proxyFactory = null;
+	    }
+	    
+	    if (_outgoingConnectionFactory != null)
+	    {
+		_outgoingConnectionFactory.destroy();
+		_outgoingConnectionFactory = null;
+	    }
+	    
+	    if (_routerManager != null)
+	    {
+		_routerManager.destroy();
+		_routerManager = null;
+	    }
 
-        if (_servantFactoryManager != null)
-        {
-            _servantFactoryManager.destroy();
-            _servantFactoryManager = null;
-        }
-
-        if (_userExceptionFactoryManager != null)
-        {
-            _userExceptionFactoryManager.destroy();
-            _userExceptionFactoryManager = null;
-        }
-
-        if (_referenceFactory != null)
-        {
-            _referenceFactory.destroy();
-            _referenceFactory = null;
-        }
-
-        if (_proxyFactory != null)
-        {
-            // No destroy function defined
-            // _proxyFactory.destroy();
-            _proxyFactory = null;
-        }
-
-        if (_outgoingConnectionFactory != null)
-        {
-            _outgoingConnectionFactory.destroy();
-            _outgoingConnectionFactory = null;
-        }
-
-        if (_routerManager != null)
-        {
-            _routerManager.destroy();
-            _routerManager = null;
-        }
-
-        if (_threadPool != null)
+	    //
+	    // We destroy the thread pool outside the thread
+	    // synchronization.
+	    //
+	    threadPool = _threadPool;
+	    _threadPool = null;
+	}
+	
+        if (threadPool != null)
         {   
-            _threadPool.waitUntilFinished();
-            _threadPool.destroy();
-            _threadPool.joinWithAllThreads();
-            _threadPool = null;
-        }
-
-        if (_properties != null)
-        {
-            // No destroy function defined
-            // _properties.destroy();
-            _properties = null;
-        }
-
-        if (_logger != null)
-        {
-            _logger.destroy();
-            _logger = null;
-        }
-
-        if (_traceLevels != null)
-        {
-            // No destroy function defined
-            // _traceLevels.destroy();
-            _traceLevels = null;
-        }
-
-        if (_bufferManager != null)
-        {
-            _bufferManager.destroy();
-            _bufferManager = null;
+            threadPool.waitUntilFinished();
+            threadPool.destroy();
+            threadPool.joinWithAllThreads();
         }
     }
 
     private Ice.Communicator _communicator;
-    private Ice.Properties _properties;
-    private Ice.Logger _logger;
-    private TraceLevels _traceLevels;
+    private Ice.Properties _properties; // Immutable, not reset by destroy().
+    private Ice.Logger _logger; // Not reset by destroy().
+    private TraceLevels _traceLevels; // Immutable, not reset by destroy().
     private RouterManager _routerManager;
     private ReferenceFactory _referenceFactory;
     private ProxyFactory _proxyFactory;
@@ -291,7 +271,7 @@ public class Instance
     private UserExceptionFactoryManager _userExceptionFactoryManager;
     private ObjectAdapterFactory _objectAdapterFactory;
     private ThreadPool _threadPool;
-    private String _defaultProtocol;
-    private String _defaultHost;
-    private BufferManager _bufferManager;
+    private String _defaultProtocol; // Immutable, not reset by destroy().
+    private String _defaultHost; // Immutable, not reset by destroy().
+    private BufferManager _bufferManager; // Immutable, not reset by destroy().
 }

@@ -17,11 +17,6 @@ final class BufferManager
         _head = null;
     }
 
-    void
-    destroy()
-    {
-    }
-
     java.nio.ByteBuffer
     allocate(int size)
     {

@@ -73,8 +73,8 @@ public final class ThreadPool
 
         if (_servers != 0)
         {
-            _instance.logger().error("can't wait for graceful server termination in thread pool\n" +
-                                     "since all threads have vanished");
+            _logger.error("can't wait for graceful server termination in thread pool\n" +
+			  "since all threads have vanished");
         }
     }
 
@@ -94,8 +94,8 @@ public final class ThreadPool
 
         if (_handlers != 0)
         {
-            _instance.logger().error("can't wait for graceful application termination in thread pool\n" +
-                                     "since all threads have vanished");
+            _logger.error("can't wait for graceful application termination in thread pool\n" +
+			  "since all threads have vanished");
         }
     }
 
@@ -149,6 +149,8 @@ public final class ThreadPool
     ThreadPool(Instance instance)
     {
         _instance = instance;
+	_logger = _instance.logger();
+	_properties = _instance.properties();
         _destroyed = false;
         _adds = null;
         _removes = null;
@@ -190,7 +192,7 @@ public final class ThreadPool
         //
         _keysIter = null;
 
-        String value = _instance.properties().getProperty("Ice.ServerIdleTime");
+        String value = _properties.getProperty("Ice.ServerIdleTime");
         if (value != null)
         {
             try
@@ -199,27 +201,20 @@ public final class ThreadPool
             }
             catch (NumberFormatException ex)
             {
-                // TODO: Error?
             }
         }
 
-        _threadNum = 10;
-        value = _instance.properties().getProperty("Ice.ThreadPool.Size");
-        if (value != null)
-        {
-            try
-            {
-                _threadNum = Integer.parseInt(value);
-                if (_threadNum < 1)
-                {
-                    _threadNum = 1;
-                }
-            }
-            catch (NumberFormatException ex)
-            {
-                // TODO: Error?
-            }
-        }
+	try
+	{
+	    _threadNum = Integer.parseInt(_properties.getPropertyWithDefault("Ice.ThreadPool.Size", "10"));
+	}
+	catch (NumberFormatException ex)
+	{
+	}
+	if (_threadNum < 1)
+	{
+	    _threadNum = 1;
+	}
 
         try
         {
@@ -238,7 +233,7 @@ public final class ThreadPool
 
         // Must be called after _threadNum is set
         int maxConnections = 0;
-        value = _instance.properties().getProperty("Ice.ThreadPool.MaxConnections");
+        value = _properties.getProperty("Ice.ThreadPool.MaxConnections");
         if (value != null)
         {
             try
@@ -247,7 +242,6 @@ public final class ThreadPool
             }
             catch (NumberFormatException ex)
             {
-                // TODO: Error?
             }
         }
         setMaxConnections(maxConnections);
@@ -399,7 +393,11 @@ catch (RuntimeException ex)
                 {
 //System.out.println("ThreadPool - shutdown");
                     shutdown = false;
-                    _instance.objectAdapterFactory().shutdown();
+		    ObjectAdapterFactory factory = _instance.objectAdapterFactory();
+		    if (factory != null)
+		    {
+			factory.shutdown();
+		    }
                 }
 
                 if (_keysIter == null) // Need to select.
@@ -727,6 +725,8 @@ catch (RuntimeException ex)
     }
 
     private Instance _instance;
+    private Ice.Logger _logger;
+    private Ice.Properties _properties;
     private boolean _destroyed;
     private java.nio.channels.ReadableByteChannel _fdIntrRead;
     private java.nio.channels.SelectionKey _fdIntrReadKey;
@@ -762,7 +762,7 @@ catch (RuntimeException ex)
                 ex.printStackTrace(pw);
                 pw.flush();
                 String s = "exception in thread pool:\n" + sw.toString();
-                _pool._instance.logger().error(s);
+                _pool._logger.error(s);
             }
             catch (RuntimeException ex)
             {
@@ -771,7 +771,7 @@ catch (RuntimeException ex)
                 ex.printStackTrace(pw);
                 pw.flush();
                 String s = "unknown exception in thread pool:\n" + sw.toString();
-                _pool._instance.logger().error(s);
+                _pool._logger.error(s);
             }
 
             synchronized(_pool)
