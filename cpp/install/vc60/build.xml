@@ -641,15 +641,31 @@
     </target>
 
     <target name="ice-installer" depends="ice">
+    
 	<exec dir="." executable="ISCmdBld.exe">
-	    <arg line="-p Ice.ism -r ICE_MSI -c COMP -a ZEROC"/>
+	    <arg line="-p Ice.ism -c COMP -a ZEROC -r ICE_MSI"/>
 	</exec>
+
+	<copy todir="${install.dir}">
+	    <fileset dir="Ice/ZEROC/ICE_MSI/DiskImages/DISK1">
+		<include name="*.msi"/>
+	    </fileset>
+	</copy>
+
     </target>
 
     <target name="packages-installer" depends="packages">
+
 	<exec dir="." executable="ISCmdBld.exe">
-	    <arg line="-p ThirdParty.ism -r THIRD_PARTY_MSI -c COMP -a ZEROC"/>
+	    <arg line="-p ThirdParty.ism -c COMP -a ZEROC -r THIRD_PARTY_MSI"/>
 	</exec>
+
+	<copy todir="${install.dir}">
+	    <fileset dir="ThirdParty/ZEROC/THIRD_PARTY_MSI/DiskImages/DISK1">
+		<include name="*.msi"/>
+	    </fileset>
+	</copy>
+
     </target>
 
     <target name="all" depends="merge-modules,packages-installer,ice-installer"/>

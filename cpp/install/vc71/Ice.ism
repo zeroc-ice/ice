@@ -52,7 +52,7 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>Installation Database</title>
-		<subject>##ID_STRING4##</subject>
+		<subject>Blank Project Template</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>Contact:  Your local administrator</comments>
@@ -261,9 +261,9 @@
 		<row><td>NewBinary16</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\InstallFirstUse.ico</td></row>
 		<row><td>NewBinary17</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\InstallPartial.ico</td></row>
 		<row><td>NewBinary18</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\InstallStateMenu.ico</td></row>
-		<row><td>NewBinary19</td><td/><td>&lt;ISProjectFolder&gt;\install\packages-common\images\installer-main.bmp</td></row>
+		<row><td>NewBinary19</td><td/><td>&lt;ISProjectFolder&gt;\install\ice-common\images\installer-main.bmp</td></row>
 		<row><td>NewBinary2</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\New.ibd</td></row>
-		<row><td>NewBinary20</td><td/><td>&lt;ISProjectFolder&gt;\install\packages-common\images\installer-header.bmp</td></row>
+		<row><td>NewBinary20</td><td/><td>&lt;ISProjectFolder&gt;\install\ice-common\images\installer-header.bmp</td></row>
 		<row><td>NewBinary3</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\Up.ibd</td></row>
 		<row><td>NewBinary4</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\WarningIcon.ibd</td></row>
 		<row><td>NewBinary5</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\IsDialogBitmap.ibd</td></row>
@@ -338,7 +338,28 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>CommonDoc</td><td>{5945E51C-B40A-4B0B-BA38-46499EA746B1}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_glacier2cs</td><td>{FEC3532C-7323-4158-9E7E-5DF09630AFAE}</td><td>GlobalAssemblyCache</td><td>8</td><td/><td>glacier2cs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_icecs</td><td>{C3F958D8-5F24-4437-B912-4CCAF3309A55}</td><td>GlobalAssemblyCache</td><td>8</td><td/><td>icecs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_icepackcs</td><td>{104E4B7B-4703-4688-8343-8F199BF881C4}</td><td>GlobalAssemblyCache</td><td>8</td><td/><td>icepackcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_icepatch2cs</td><td>{8F2DE27A-B0F5-4FE0-A27C-A6DD3C9FCA2B}</td><td>GlobalAssemblyCache</td><td>8</td><td/><td>icepatch2cs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_icestormcs</td><td>{1E8D7135-C067-4CE8-943C-D21F1760E6C5}</td><td>GlobalAssemblyCache</td><td>8</td><td/><td>icestormcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceCSharpDemo</td><td>{A4BB2878-87EF-462B-B1D0-EF5A859702FA}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceCSharpDev</td><td>{A7182719-2C34-4246-8C00-C0673BE6EBF4}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceCppDemo</td><td>{C1392163-339E-452B-A401-D0B4E27F0600}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceCppDev</td><td>{F40D5465-8797-479E-ACD2-89216631CF7F}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceCppRuntime</td><td>{218943FB-F791-430F-B27E-9E839F0732C1}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceDoc</td><td>{7FBEE10C-DD9F-4525-A1AF-6EDC938DB5FB}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceJavaDemo</td><td>{76F76C01-E468-46DC-8989-15EE4BC662F8}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceJavaDev</td><td>{23924FBE-9F6C-4DDD-BB38-4D6431973B01}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceJavaRuntime</td><td>{3B1D1400-067A-40CE-A243-2CEB8F504FB7}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceManual</td><td>{5CE66822-33A2-458B-8A26-A5E18E8D3D07}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IcePhpDemo</td><td>{C6BAE4AD-8C22-4865-8880-0EC88168D32D}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IcePhpExtension</td><td>{D6A61A6B-6E8B-4A35-BDCE-95E5C9AEC142}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IcePythonDemo</td><td>{DC74F8DE-1571-43DA-8E48-2585970FE3D8}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IcePythonDev</td><td>{DBEF9446-CEED-4917-B5A1-D8E7A4220A1D}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IcePythonRuntime</td><td>{3AD51C61-A673-45A1-89AD-AA473FB32078}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceVBasicDemo</td><td>{AC62A141-A625-471F-8E97-9B3D3608E463}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceVBasicDev</td><td>{BCB14EA4-57EE-4A46-B6D2-86B3754A7AAB}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>VisualStudioRuntime</td><td>{00E5A9B9-3E93-4C0A-8188-9BD486B642E3}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
@@ -549,7 +570,7 @@
 		<row><td>LicenseAgreement</td><td>DlgDesc</td><td>Text</td><td>21</td><td>23</td><td>292</td><td>25</td><td>65539</td><td/><td>##IDS__IsLicenseDlg_ReadLicenseAgreement##</td><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>LicenseAgreement</td><td>DlgLine</td><td>Line</td><td>48</td><td>234</td><td>326</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>LicenseAgreement</td><td>DlgTitle</td><td>Text</td><td>13</td><td>6</td><td>292</td><td>25</td><td>65539</td><td/><td>##IDS__IsLicenseDlg_LicenseAgreement##</td><td/><td/><td>0</td><td/><td/><td/></row>
-		<row><td>LicenseAgreement</td><td>Memo</td><td>ScrollableText</td><td>8</td><td>55</td><td>358</td><td>130</td><td>7</td><td/><td/><td/><td/><td>0</td><td/><td>&lt;ISProjectFolder&gt;\doc\ThirdParty-LICENSE.rtf</td><td/></row>
+		<row><td>LicenseAgreement</td><td>Memo</td><td>ScrollableText</td><td>8</td><td>55</td><td>358</td><td>130</td><td>7</td><td/><td/><td/><td/><td>0</td><td/><td>&lt;ISProjectFolder&gt;\doc\Ice-LICENSE.rtf</td><td/></row>
 		<row><td>LicenseAgreement</td><td>Next</td><td>PushButton</td><td>230</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS_NEXT##</td><td>Cancel</td><td/><td>0</td><td/><td/><td/></row>
 		<row><td>MaintenanceType</td><td>Back</td><td>PushButton</td><td>164</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS_BACK##</td><td>Next</td><td/><td>0</td><td/><td/><td/></row>
 		<row><td>MaintenanceType</td><td>Banner</td><td>Bitmap</td><td>0</td><td>0</td><td>374</td><td>44</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td>NewBinary20</td></row>
@@ -827,7 +848,7 @@
 		<row><td>AdminWelcome</td><td>Next</td><td>NewDialog</td><td>AdminNetworkLocation</td><td>1</td><td>0</td></row>
 		<row><td>CancelSetup</td><td>No</td><td>EndDialog</td><td>Return</td><td>1</td><td>0</td></row>
 		<row><td>CancelSetup</td><td>Yes</td><td>EndDialog</td><td>Exit</td><td>1</td><td>2</td></row>
-		<row><td>CustomSetup</td><td>Back</td><td>NewDialog</td><td>DestinationFolder</td><td>Installed</td><td>0</td></row>
+		<row><td>CustomSetup</td><td>Back</td><td>NewDialog</td><td>MaintenanceType</td><td>Installed</td><td>0</td></row>
 		<row><td>CustomSetup</td><td>Back</td><td>NewDialog</td><td>SetupType</td><td>NOT Installed</td><td>0</td></row>
 		<row><td>CustomSetup</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>0</td></row>
 		<row><td>CustomSetup</td><td>ChangeFolder</td><td>SelectionBrowse</td><td>InstallChangeFolder</td><td>1</td><td>0</td></row>
@@ -840,7 +861,7 @@
 		<row><td>CustomerInformation</td><td>Back</td><td>NewDialog</td><td>LicenseAgreement</td><td>1</td><td>1</td></row>
 		<row><td>CustomerInformation</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>0</td></row>
 		<row><td>CustomerInformation</td><td>Next</td><td>EndDialog</td><td>Exit</td><td>(SERIALNUMVALRETRYLIMIT) And (SERIALNUMVALRETRYLIMIT&lt;0) And (SERIALNUMVALRETURN&lt;&gt;SERIALNUMVALSUCCESSRETVAL)</td><td>3</td></row>
-		<row><td>CustomerInformation</td><td>Next</td><td>NewDialog</td><td>DestinationFolder</td><td>(Not SERIALNUMVALRETURN) OR (SERIALNUMVALRETURN=SERIALNUMVALSUCCESSRETVAL)</td><td>4</td></row>
+		<row><td>CustomerInformation</td><td>Next</td><td>NewDialog</td><td>SetupType</td><td>(Not SERIALNUMVALRETURN) OR (SERIALNUMVALRETURN=SERIALNUMVALSUCCESSRETVAL)</td><td>4</td></row>
 		<row><td>CustomerInformation</td><td>Next</td><td>[ALLUSERS]</td><td>1</td><td>ApplicationUsers = "AllUsers" And Privileged</td><td>1</td></row>
 		<row><td>CustomerInformation</td><td>Next</td><td>[ALLUSERS]</td><td>{}</td><td>ApplicationUsers = "OnlyCurrentUser" And Privileged</td><td>2</td></row>
 		<row><td>DatabaseFolder</td><td>Back</td><td>NewDialog</td><td>CustomerInformation</td><td>1</td><td>1</td></row>
@@ -852,7 +873,7 @@
 		<row><td>DestinationFolder</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>1</td></row>
 		<row><td>DestinationFolder</td><td>ChangeFolder</td><td>SpawnDialog</td><td>InstallChangeFolder</td><td>1</td><td>1</td></row>
 		<row><td>DestinationFolder</td><td>ChangeFolder</td><td>[_BrowseProperty]</td><td>INSTALLDIR</td><td>1</td><td>2</td></row>
-		<row><td>DestinationFolder</td><td>Next</td><td>NewDialog</td><td>ReadyToInstall</td><td>1</td><td>0</td></row>
+		<row><td>DestinationFolder</td><td>Next</td><td>NewDialog</td><td>SetupType</td><td>1</td><td>0</td></row>
 		<row><td>DiskSpaceRequirements</td><td>OK</td><td>EndDialog</td><td>Return</td><td>1</td><td>0</td></row>
 		<row><td>FilesInUse</td><td>Exit</td><td>EndDialog</td><td>Exit</td><td>1</td><td>0</td></row>
 		<row><td>FilesInUse</td><td>Ignore</td><td>EndDialog</td><td>Ignore</td><td>1</td><td>0</td></row>
@@ -894,8 +915,8 @@
 		<row><td>PatchWelcome</td><td>Next</td><td>Reinstall</td><td>ALL</td><td>PATCH And REINSTALL=""</td><td>1</td></row>
 		<row><td>PatchWelcome</td><td>Next</td><td>ReinstallMode</td><td>omus</td><td>PATCH And REINSTALLMODE=""</td><td>2</td></row>
 		<row><td>ReadyToInstall</td><td>Back</td><td>NewDialog</td><td>CustomSetup</td><td>Installed OR _IsSetupTypeMin = "Custom"</td><td>2</td></row>
-		<row><td>ReadyToInstall</td><td>Back</td><td>NewDialog</td><td>DestinationFolder</td><td>NOT Installed AND _IsSetupTypeMin &lt;&gt; "Custom"</td><td>1</td></row>
 		<row><td>ReadyToInstall</td><td>Back</td><td>NewDialog</td><td>MaintenanceType</td><td>Installed AND _IsMaintenance = "Reinstall"</td><td>3</td></row>
+		<row><td>ReadyToInstall</td><td>Back</td><td>NewDialog</td><td>SetupType</td><td>NOT Installed AND _IsSetupTypeMin &lt;&gt; "Custom"</td><td>1</td></row>
 		<row><td>ReadyToInstall</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>0</td></row>
 		<row><td>ReadyToInstall</td><td>InstallNow</td><td>EndDialog</td><td>Return</td><td>OutOfNoRbDiskSpace &lt;&gt; 1</td><td>0</td></row>
 		<row><td>ReadyToInstall</td><td>InstallNow</td><td>NewDialog</td><td>OutOfSpace</td><td>OutOfNoRbDiskSpace = 1</td><td>0</td></row>
@@ -1031,14 +1052,14 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
+		<row><td>ICE</td><td>WindowsVolume</td><td>ICE-2_~1|Ice-2.1.0</td><td/><td>0</td><td/></row>
 		<row><td>ICE_2.1.0_THIRD_PARTY_PACKAGES</td><td>WindowsVolume</td><td>ICE-2_~1|Ice-2.1.0-ThirdParty</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR</td><td>ICE_2.1.0_THIRD_PARTY_PACKAGES</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR</td><td>ICE</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
-		<row><td>ISMyProductDir</td><td>ISMyCompanyDir</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
+		<row><td>ISMyProductDir</td><td>WindowsVolume</td><td>ICE-2_~1|Ice-2.1.0</td><td/><td>0</td><td/></row>
 		<row><td>ISUpdateServiceFolder</td><td>ISCommonFilesFolder</td><td>UPDATE~1|UpdateService</td><td/><td>0</td><td/></row>
 		<row><td>LocalAppDataFolder</td><td>TARGETDIR</td><td>.:LocalA~1|LocalAppData</td><td/><td>0</td><td/></row>
-		<row><td>MY_PRODUCT_NAME</td><td>ZEROC</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
 		<row><td>MyPicturesFolder</td><td>TARGETDIR</td><td>.:MyPict~1|MyPictures</td><td/><td>0</td><td/></row>
 		<row><td>PersonalFolder</td><td>TARGETDIR</td><td>.:Personal</td><td/><td>0</td><td/></row>
 		<row><td>PrimaryVolumePath</td><td>TARGETDIR</td><td>.:Primar~1|PrimaryVolumePath</td><td/><td>0</td><td/></row>
@@ -1057,7 +1078,6 @@
 		<row><td>USERPROFILE</td><td>TARGETDIR</td><td>.:USERPR~1|UserProfile</td><td/><td>0</td><td/></row>
 		<row><td>WindowsFolder</td><td>TARGETDIR</td><td>.:Windows</td><td/><td>0</td><td/></row>
 		<row><td>WindowsVolume</td><td>TARGETDIR</td><td>.:WinRoot</td><td/><td>0</td><td/></row>
-		<row><td>ZEROC</td><td>ProgramFilesFolder</td><td>ZeroC</td><td/><td>0</td><td/></row>
 	</table>
 
 	<table name="DrLocator">
@@ -1080,6 +1100,7 @@
 		<col def="l255">Name</col>
 		<col def="L255">Value</col>
 		<col def="s72">Component_</col>
+		<row><td>NewEnvironment1</td><td>##ID_STRING15##</td><td/><td>IceCppRuntime</td></row>
 	</table>
 
 	<table name="Error">
@@ -1262,13 +1283,55 @@
 		<col def="S255">ISComments</col>
 		<col def="S255">ISFeatureCabName</col>
 		<col def="S255">ISProFeatureName</col>
-		<row><td>packages</td><td/><td>##IDS_FEATURE_DISPLAY_NAME4##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
+		<row><td>ice_cpp</td><td/><td>##ID_STRING2##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
+		<row><td>ice_cpp_demo</td><td>ice_cpp_dev</td><td>##ID_STRING4##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_cpp_dev</td><td>ice_cpp</td><td>##ID_STRING3##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_csharp</td><td/><td>##ID_STRING17##</td><td/><td>6</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_csharp_demo</td><td>ice_csharp</td><td>##ID_STRING18##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_doc</td><td/><td>##ID_STRING21##</td><td/><td>16</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_java</td><td/><td>##ID_STRING6##</td><td/><td>8</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_java_demo</td><td>ice_java_dev</td><td>##ID_STRING7##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_java_dev</td><td>ice_java</td><td>##ID_STRING12##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_php</td><td/><td>##ID_STRING10##</td><td/><td>10</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_php_demo</td><td>ice_php</td><td>##ID_STRING11##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_python</td><td/><td>##ID_STRING8##</td><td/><td>12</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_python_demo</td><td>ice_python_dev</td><td>##ID_STRING9##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_python_dev</td><td>ice_python</td><td>##ID_STRING13##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_vbasic</td><td/><td>##ID_STRING19##</td><td/><td>14</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_vbasic_demo</td><td>ice_vbasic</td><td>##ID_STRING20##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>packages</td><td>ice_cpp</td><td>##ID_STRING1##</td><td/><td>0</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="FeatureComponents">
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="s72">Component_</col>
-		<row><td>packages</td><td>CommonDoc</td></row>
+		<row><td>ice_cpp</td><td>IceCppRuntime</td></row>
+		<row><td>ice_cpp</td><td>IceDoc</td></row>
+		<row><td>ice_cpp_demo</td><td>IceCppDemo</td></row>
+		<row><td>ice_cpp_dev</td><td>IceCppDev</td></row>
+		<row><td>ice_csharp</td><td>GAC_glacier2cs</td></row>
+		<row><td>ice_csharp</td><td>GAC_icecs</td></row>
+		<row><td>ice_csharp</td><td>GAC_icepackcs</td></row>
+		<row><td>ice_csharp</td><td>GAC_icepatch2cs</td></row>
+		<row><td>ice_csharp</td><td>GAC_icestormcs</td></row>
+		<row><td>ice_csharp</td><td>IceCSharpDev</td></row>
+		<row><td>ice_csharp_demo</td><td>IceCSharpDemo</td></row>
+		<row><td>ice_doc</td><td>IceManual</td></row>
+		<row><td>ice_java</td><td>IceJavaRuntime</td></row>
+		<row><td>ice_java_demo</td><td>IceJavaDemo</td></row>
+		<row><td>ice_java_dev</td><td>IceJavaDev</td></row>
+		<row><td>ice_php</td><td>IcePhpExtension</td></row>
+		<row><td>ice_php_demo</td><td>IcePhpDemo</td></row>
+		<row><td>ice_python</td><td>IcePythonRuntime</td></row>
+		<row><td>ice_python_demo</td><td>IcePythonDemo</td></row>
+		<row><td>ice_python_dev</td><td>IcePythonDev</td></row>
+		<row><td>ice_vbasic</td><td>GAC_glacier2cs</td></row>
+		<row><td>ice_vbasic</td><td>GAC_icecs</td></row>
+		<row><td>ice_vbasic</td><td>GAC_icepackcs</td></row>
+		<row><td>ice_vbasic</td><td>GAC_icepatch2cs</td></row>
+		<row><td>ice_vbasic</td><td>GAC_icestormcs</td></row>
+		<row><td>ice_vbasic</td><td>IceVBasicDev</td></row>
+		<row><td>ice_vbasic_demo</td><td>IceVBasicDemo</td></row>
 		<row><td>packages</td><td>VisualStudioRuntime</td></row>
 	</table>
 
@@ -1284,8 +1347,15 @@
 		<col def="S255">ISBuildSourcePath</col>
 		<col def="I4">ISAttributes</col>
 		<col def="S72">ISComponentSubFolder_</col>
-		<row><td>ThirdParty_LICENSE.txt</td><td>CommonDoc</td><td>THIRDP~1.TXT|ThirdParty-LICENSE.txt</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\doc\ThirdParty-LICENSE.txt</td><td>1</td><td/></row>
-		<row><td>ThirdParty_SOURCES.txt</td><td>CommonDoc</td><td>THIRDP~1.TXT|ThirdParty-SOURCES.txt</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\doc\ThirdParty-SOURCES.txt</td><td>1</td><td/></row>
+		<row><td>Ice_LICENSE.txt</td><td>IceDoc</td><td>ICE-LI~1.TXT|Ice-LICENSE.txt</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\doc\Ice-LICENSE.txt</td><td>1</td><td/></row>
+		<row><td>Ice_README.txt</td><td>IceDoc</td><td>ICE-RE~1.TXT|Ice-README.txt</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\doc\Ice-README.txt</td><td>1</td><td/></row>
+		<row><td>Ice_SOURCES.txt</td><td>IceDoc</td><td>ICE-SO~1.TXT|Ice-SOURCES.txt</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\doc\Ice-SOURCES.txt</td><td>1</td><td/></row>
+		<row><td>ThirdParty_LICENSE.txt</td><td>IceDoc</td><td>THIRDP~1.TXT|ThirdParty-LICENSE.txt</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\doc\ThirdParty-LICENSE.txt</td><td>1</td><td/></row>
+		<row><td>glacier2cs.dll</td><td>GAC_glacier2cs</td><td>GLACIE~1.DLL|glacier2cs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice-csharp\gac\glacier2cs.dll</td><td>1</td><td/></row>
+		<row><td>icecs.dll</td><td>GAC_icecs</td><td>icecs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice-csharp\gac\icecs.dll</td><td>1</td><td/></row>
+		<row><td>icepackcs.dll</td><td>GAC_icepackcs</td><td>ICEPAC~1.DLL|icepackcs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice-csharp\gac\icepackcs.dll</td><td>1</td><td/></row>
+		<row><td>icepatch2cs.dll</td><td>GAC_icepatch2cs</td><td>ICEPAT~1.DLL|icepatch2cs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice-csharp\gac\icepatch2cs.dll</td><td>1</td><td/></row>
+		<row><td>icestormcs.dll</td><td>GAC_icestormcs</td><td>ICESTO~1.DLL|icestormcs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice-csharp\gac\icestormcs.dll</td><td>1</td><td/></row>
 	</table>
 
 	<table name="FileSFPCatalog">
@@ -1438,7 +1508,28 @@
 		<col def="S0">FTPLocation</col>
 		<col def="S0">HTTPLocation</col>
 		<col def="S0">Miscellaneous</col>
-		<row><td>CommonDoc</td><td/><td/><td>_B053A960_5DAC_427F_98DD_CB66761F11C7_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>GAC_glacier2cs</td><td/><td/><td>_6791A0B1_69E0_496B_BBBB_6DD59B697B46_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>GAC_icecs</td><td/><td/><td>_600A5FAE_4674_435B_8700_897F353856EE_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>GAC_icepackcs</td><td/><td/><td>_72EC117B_5915_4A1F_A08E_E956F2DC75FD_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>GAC_icepatch2cs</td><td/><td/><td>_4148F83B_B26E_4415_A51D_5580DE431AFC_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>GAC_icestormcs</td><td/><td/><td>_74B66A95_80BE_43A1_9A2E_508B6CBB795E_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceCSharpDemo</td><td/><td/><td>_7DD0A005_2547_4846_B573_62AFE1194756_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceCSharpDev</td><td/><td/><td>_3471DDA3_D6D8_440C_837A_1DF61C7914ED_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceCppDemo</td><td/><td/><td>_FC69CAF8_66AC_4793_A8ED_AFD7D168B544_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceCppDev</td><td/><td/><td>_770F5B6A_0687_4BB0_B0D6_E1E5F6EAF0A7_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceCppRuntime</td><td/><td/><td>_DC33EA7A_C8B8_4C51_AA1A_6FA971C84A5F_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceDoc</td><td/><td/><td>_12A3BACF_1B61_45A5_928F_45572487D618_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceJavaDemo</td><td/><td/><td>_CDB69F49_081A_4B76_A0E6_FB3312C328F7_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceJavaDev</td><td/><td/><td>_109869C1_DCF5_4B8D_A5FE_B1C4DFDFCF56_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceJavaRuntime</td><td/><td/><td>_9DED8A42_54C6_45D9_8CDB_5DD14869E158_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceManual</td><td/><td/><td>_39A98665_B8A5_4D60_B66F_B6A1C75C4080_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IcePhpDemo</td><td/><td/><td>_94CABF79_5ABF_45A5_A3BA_649D69CDD302_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IcePhpExtension</td><td/><td/><td>_2390D3AD_94FC_4318_8D6A_2069DADC9C4D_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IcePythonDemo</td><td/><td/><td>_5F8824EE_DF7F_431F_8E8B_366272B2BB21_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IcePythonDev</td><td/><td/><td>_37D67ECC_6F7F_43FB_A312_4B2BC92EBA4E_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IcePythonRuntime</td><td/><td/><td>_EC956E1E_E548_4E9D_A837_18AB200F9E4D_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceVBasicDemo</td><td/><td/><td>_955C0399_0F87_4B8F_84C1_607A66776625_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceVBasicDev</td><td/><td/><td>_042B5FA2_6F7D_44F8_BC5A_C14BBF2AE7EE_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>VisualStudioRuntime</td><td/><td/><td>_30BA3320_69CB_4682_87F9_962EE1BF4FF1_FILTER</td><td/><td/><td/><td/></row>
 	</table>
 
@@ -1467,6 +1558,22 @@
 		<col def="S255">IncludeFiles</col>
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
+		<row><td>IceCSharpDemo</td><td>&lt;ISProjectFolder&gt;\install\ice-csharp\demo</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceCSharpDev</td><td>&lt;ISProjectFolder&gt;\install\ice-csharp\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceCppDemo</td><td>&lt;ISProjectFolder&gt;\install\ice-cpp\demo</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceCppDev</td><td>&lt;ISProjectFolder&gt;\install\ice-cpp\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceCppRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice-cpp\runtime</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceJavaDemo</td><td>&lt;ISProjectFolder&gt;\install\ice-java\demo</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceJavaDev</td><td>&lt;ISProjectFolder&gt;\install\ice-java\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceJavaRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice-java\runtime</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceManual</td><td>&lt;ISProjectFolder&gt;\install\ice-common\html</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IcePhpDemo</td><td>&lt;ISProjectFolder&gt;\install\ice-php\demo</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IcePhpExtension</td><td>&lt;ISProjectFolder&gt;\install\ice-php\extension</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IcePythonDemo</td><td>&lt;ISProjectFolder&gt;\install\ice-python\demo</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IcePythonDev</td><td>&lt;ISProjectFolder&gt;\install\ice-python\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IcePythonRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice-python\runtime</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceVBasicDemo</td><td>&lt;ISProjectFolder&gt;\install\ice-vbasic\demo</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceVBasicDev</td><td>&lt;ISProjectFolder&gt;\install\ice-vbasic\dev</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>VisualStudioRuntime</td><td>&lt;ISProjectFolder&gt;\install\microsoft\runtime</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
@@ -1480,15 +1587,11 @@
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="s255">ISMergeModule_</col>
 		<col key="yes" def="i2">Language_</col>
-		<row><td>packages</td><td>BZip2DevKit.VC60.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>0</td></row>
-		<row><td>packages</td><td>BerkeleyDBDevKit.VC60.9D7EE251_9423_4C69_B4B4_73580837DA18</td><td>0</td></row>
-		<row><td>packages</td><td>BerkeleyDBRuntime.VC60.D5C9196F_ABFE_4664_807F_F216926DAE24</td><td>0</td></row>
-		<row><td>packages</td><td>ExpatDevKit.VC60.B8AA5B6F_EB6F_4721_9E56_433C572CB9F8</td><td>0</td></row>
-		<row><td>packages</td><td>ExpatRuntime.VC60.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td>0</td></row>
-		<row><td>packages</td><td>OpenSSLDevKit.VC60.50663C31_D47C_49EE_B7EF_303D541A08DE</td><td>0</td></row>
-		<row><td>packages</td><td>OpenSSLRuntime.VC60.80A6164B_103B_4318_9AB0_4C6DE95AC097</td><td>0</td></row>
-		<row><td>packages</td><td>STLPortDevKit.VC60.3FCE994D_E327_4276_A95A_3C928E7A52D4</td><td>0</td></row>
-		<row><td>packages</td><td>STLPortRuntime.VC60.A9A58AC6_551C_4FFF_B9B5_3D503E8CC4C0</td><td>0</td></row>
+		<row><td>packages</td><td>BerkeleyDBDevKit.VC71.81F93940_63FD_4AB8_B655_5F66F500C497</td><td>0</td></row>
+		<row><td>packages</td><td>BerkeleyDBRuntime.VC71.D4F6A049_6694_4A3A_98BB_FA2BF3B29275</td><td>0</td></row>
+		<row><td>packages</td><td>ExpatRuntime.VC71.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>0</td></row>
+		<row><td>packages</td><td>OpenSSLDevKit.VC71.1EDEFD63_5320_4657_82FE_73F602750180</td><td>0</td></row>
+		<row><td>packages</td><td>OpenSSLRuntime.VC71.25046D23_B4CC_4B64_BF3F_61A05B6EFA95</td><td>0</td></row>
 	</table>
 
 	<table name="ISInstallScriptAction">
@@ -1553,7 +1656,7 @@
 		<col def="S255">Cabinet</col>
 		<col def="S32">VolumeLabel</col>
 		<col def="S32">Source</col>
-		<row><td>1</td><td>ZEROC</td><td>THIRD_PARTY_MSI</td><td>0</td><td/><td/><td/><td/></row>
+		<row><td>1</td><td>ZEROC</td><td>ICE_MSI</td><td>0</td><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="ISLogicalDiskFeatures">
@@ -1571,15 +1674,11 @@
 		<col def="s255">Name</col>
 		<col def="S255">Destination</col>
 		<col def="I4">ISAttributes</col>
-		<row><td>BZip2DevKit.VC60.26A5C268_88C6_4181_9199_1AADF1E5B574</td><td>0</td><td>BZip2 Dev Kit for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>BerkeleyDBDevKit.VC60.9D7EE251_9423_4C69_B4B4_73580837DA18</td><td>0</td><td>BerkeleyDB Dev Kit for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>BerkeleyDBRuntime.VC60.D5C9196F_ABFE_4664_807F_F216926DAE24</td><td>0</td><td>BerkeleyDB Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>ExpatDevKit.VC60.B8AA5B6F_EB6F_4721_9E56_433C572CB9F8</td><td>0</td><td>Expat Dev Kit for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>ExpatRuntime.VC60.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td>0</td><td>Expat Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>OpenSSLDevKit.VC60.50663C31_D47C_49EE_B7EF_303D541A08DE</td><td>0</td><td>OpenSSL Dev Kit for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>OpenSSLRuntime.VC60.80A6164B_103B_4318_9AB0_4C6DE95AC097</td><td>0</td><td>OpenSSL Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>STLPortDevKit.VC60.3FCE994D_E327_4276_A95A_3C928E7A52D4</td><td>0</td><td>STLPort Dev Kit for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>STLPortRuntime.VC60.A9A58AC6_551C_4FFF_B9B5_3D503E8CC4C0</td><td>0</td><td>STLPort Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>BerkeleyDBDevKit.VC71.81F93940_63FD_4AB8_B655_5F66F500C497</td><td>0</td><td>BerkeleyDB Dev Kit for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>BerkeleyDBRuntime.VC71.D4F6A049_6694_4A3A_98BB_FA2BF3B29275</td><td>0</td><td>BerkeleyDB Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>ExpatRuntime.VC71.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>0</td><td>Expat Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>OpenSSLDevKit.VC71.1EDEFD63_5320_4657_82FE_73F602750180</td><td>0</td><td>OpenSSL Dev Kit for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>OpenSSLRuntime.VC71.25046D23_B4CC_4B64_BF3F_61A05B6EFA95</td><td>0</td><td>OpenSSL Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 	</table>
 
 	<table name="ISMergeModuleCfgValues">
@@ -1684,7 +1783,7 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>ThirdParty-2.1.0-VC60</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-2.1.0-VC71</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
 	</table>
 
@@ -1718,7 +1817,7 @@
 		<col def="S255">CDBrowser</col>
 		<col def="S255">DotNetBuildConfiguration</col>
 		<col def="S255">MsiCommandLine</col>
-		<row><td>THIRD_PARTY_MSI</td><td>ZEROC</td><td>&lt;ISProjectDataFolder&gt;</td><td>PackageName</td><td>1</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>0</td><td>0</td><td>1</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>8396812</td><td/><td/><td/></row>
+		<row><td>ICE_MSI</td><td>ZEROC</td><td>&lt;ISProjectDataFolder&gt;</td><td>PackageName</td><td>1</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>0</td><td>0</td><td>1</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>8396812</td><td/><td/><td/></row>
 	</table>
 
 	<table name="ISReleaseExtended">
@@ -1749,7 +1848,7 @@
 		<col def="S50">JSharpCmdLine</col>
 		<col def="I4">Attributes</col>
 		<col def="I4">JSharpRedistLocation</col>
-		<row><td>THIRD_PARTY_MSI</td><td>ZEROC</td><td>0</td><td>http://</td><td>0</td><td>install</td><td>install</td><td>[WindowsFolder]Downloaded Installations</td><td>0</td><td>http://www.installengine.com/Msiengine20</td><td>http://www.installengine.com/Msiengine20</td><td>0</td><td>http://www.installengine.com/cert03/isengine</td><td/><td/><td/><td/><td>3</td><td>http://www.installengine.com/cert03/dotnetfx</td><td>0</td><td>1033</td><td/><td/><td/><td/><td/><td>3</td></row>
+		<row><td>ICE_MSI</td><td>ZEROC</td><td>0</td><td>http://</td><td>0</td><td>install</td><td>install</td><td>[WindowsFolder]Downloaded Installations</td><td>0</td><td>http://www.installengine.com/Msiengine20</td><td>http://www.installengine.com/Msiengine20</td><td>0</td><td>http://www.installengine.com/cert03/isengine</td><td/><td/><td/><td/><td>3</td><td>http://www.installengine.com/cert03/dotnetfx</td><td>0</td><td>1033</td><td/><td/><td/><td/><td/><td>3</td></row>
 	</table>
 
 	<table name="ISScriptFile">
@@ -1784,10 +1883,10 @@
 		<col def="I2">Encoded</col>
 		<col def="S0">Comment</col>
 		<col def="I4">TimeStamp</col>
-		<row><td>COMPANY_NAME</td><td>1033</td><td>ZeroC</td><td>0</td><td/><td>-1860587920</td></row>
+		<row><td>COMPANY_NAME</td><td>1033</td><td>ZeroC</td><td>0</td><td/><td>-1457939797</td></row>
 		<row><td>DN_AlwaysInstall</td><td>1033</td><td>Always Install</td><td>0</td><td>	</td><td>479664453</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_COLOR</td><td>1033</td><td>The color settings of your system are not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
-		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_OS</td><td>1033</td><td>The operating system is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
+		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_OS</td><td>1033</td><td>[ProductName] requires that your computer is running Windows NT 4.0 or Windows 2000 or Windows XP or Windows 2003 Server</td><td>0</td><td/><td>-1457925461</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_PROCESSOR</td><td>1033</td><td>The processor is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_SCREEN</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
@@ -2061,7 +2160,6 @@
 		<row><td>IDS_ERROR_97</td><td>1033</td><td>Could not register font [2].  Verify that you have sufficient permissions to install fonts, and that the system supports this font.</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS_ERROR_98</td><td>1033</td><td>Could not unregister font [2]. Verify that you have sufficient permissions to remove fonts.</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS_ERROR_99</td><td>1033</td><td>Could not create shortcut [2]. Verify that the destination folder exists and that you can access it.</td><td>0</td><td/><td>479664453</td></row>
-		<row><td>IDS_FEATURE_DISPLAY_NAME4</td><td>1033</td><td>Third Party Packages</td><td>0</td><td/><td>-1860589776</td></row>
 		<row><td>IDS_INSTALLDIR</td><td>1033</td><td>[INSTALLDIR]</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS_INSTALLSHIELD</td><td>1033</td><td>InstallShield</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS_INSTALLSHIELD_FORMATTED</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>479664453</td></row>
@@ -2320,10 +2418,27 @@
 		<row><td>IDS__TargetReq_DESC_PROCESSOR</td><td>1033</td><td>The processor is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
-		<row><td>ID_STRING1</td><td>1033</td><td>Ice 2.1.0 Third Party Packages</td><td>0</td><td/><td>-1860590000</td></row>
-		<row><td>ID_STRING2</td><td>1033</td><td>ZeroC</td><td>0</td><td/><td>-1860585904</td></row>
-		<row><td>ID_STRING3</td><td>1033</td><td>http://www.zeroc.com</td><td>0</td><td/><td>-1860628848</td></row>
-		<row><td>ID_STRING4</td><td>1033</td><td>Ice 2.1.0 Third Party Packages for Visual Studio 6.0</td><td>0</td><td/><td>-1860585039</td></row>
+		<row><td>ID_STRING1</td><td>1033</td><td>Third Party Packages</td><td>0</td><td/><td>-1457977878</td></row>
+		<row><td>ID_STRING10</td><td>1033</td><td>Ice for PHP</td><td>0</td><td/><td>295294006</td></row>
+		<row><td>ID_STRING11</td><td>1033</td><td>PHP Demos</td><td>0</td><td/><td>-1457924566</td></row>
+		<row><td>ID_STRING12</td><td>1033</td><td>Java Development</td><td>0</td><td/><td>-1457953302</td></row>
+		<row><td>ID_STRING13</td><td>1033</td><td>Python Development</td><td>0</td><td/><td>-1457924630</td></row>
+		<row><td>ID_STRING14</td><td>1033</td><td>http://www.zeroc.com</td><td>0</td><td/><td>-1457931605</td></row>
+		<row><td>ID_STRING15</td><td>1033</td><td>+ICE_HOME</td><td>0</td><td/><td>-1457951093</td></row>
+		<row><td>ID_STRING16</td><td>1033</td><td>Ice for C#</td><td>0</td><td/><td>-1055268626</td></row>
+		<row><td>ID_STRING17</td><td>1033</td><td>Ice for C#</td><td>0</td><td/><td>295271542</td></row>
+		<row><td>ID_STRING18</td><td>1033</td><td>C# Demos</td><td>0</td><td/><td>-1055313650</td></row>
+		<row><td>ID_STRING19</td><td>1033</td><td>Ice for Visual Basic</td><td>0</td><td/><td>295265398</td></row>
+		<row><td>ID_STRING2</td><td>1033</td><td>Ice for C++</td><td>0</td><td/><td>-1457961558</td></row>
+		<row><td>ID_STRING20</td><td>1033</td><td>Visual Basic Demos</td><td>0</td><td/><td>-1055272690</td></row>
+		<row><td>ID_STRING21</td><td>1033</td><td>HTML Documentation</td><td>0</td><td/><td>161051760</td></row>
+		<row><td>ID_STRING3</td><td>1033</td><td>C++ Development</td><td>0</td><td/><td>-1457951318</td></row>
+		<row><td>ID_STRING4</td><td>1033</td><td>C++ Demos</td><td>0</td><td/><td>-1457943126</td></row>
+		<row><td>ID_STRING5</td><td>1033</td><td>Third Party Development Packages</td><td>0</td><td/><td>-1457924662</td></row>
+		<row><td>ID_STRING6</td><td>1033</td><td>Ice for Java</td><td>0</td><td/><td>-1457963542</td></row>
+		<row><td>ID_STRING7</td><td>1033</td><td>Java Demos</td><td>0</td><td/><td>-1457945110</td></row>
+		<row><td>ID_STRING8</td><td>1033</td><td>Ice for Python</td><td>0</td><td/><td>-1457934870</td></row>
+		<row><td>ID_STRING9</td><td>1033</td><td>Python Demos</td><td>0</td><td/><td>-1457918486</td></row>
 		<row><td>IIDS_UITEXT_FeatureUninstalled</td><td>1033</td><td>This feature will remain uninstalled.</td><td>0</td><td/><td>479664453</td></row>
 	</table>
 
@@ -2485,8 +2600,8 @@
 		<col def="S0">Value</col>
 		<row><td>ActiveLanguage</td><td>1033</td></row>
 		<row><td>Comments</td><td/></row>
-		<row><td>CurrentMedia</td><td dt:dt="bin.base64" md5="5295dc0beb6d8ef559c15e531e4dc86c">
-VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
+		<row><td>CurrentMedia</td><td dt:dt="bin.base64" md5="8ca2d114ee35fac5af4c48e522c64e0c">
+SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 			</td></row>
 		<row><td>ISCompilerOption_CompileBeforeBuild</td><td>1</td></row>
 		<row><td>ISCompilerOption_Debug</td><td>0</td></row>
@@ -2550,6 +2665,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 	<table name="LaunchCondition">
 		<col key="yes" def="s255">Condition</col>
 		<col def="l255">Description</col>
+		<row><td>(Not Version9X)</td><td>##IDPROP_EXPRESS_LAUNCH_CONDITION_OS##</td></row>
 	</table>
 
 	<table name="ListBox">
@@ -2700,7 +2816,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<col def="L0">Value</col>
 		<col def="S255">ISComments</col>
 		<row><td>ARPPRODUCTICON</td><td>ARPPRODUCTICON.exe</td><td/></row>
-		<row><td>ARPURLINFOABOUT</td><td>##ID_STRING3##</td><td/></row>
+		<row><td>ARPURLINFOABOUT</td><td>##ID_STRING14##</td><td/></row>
 		<row><td>AgreeToLicense</td><td>No</td><td/></row>
 		<row><td>ApplicationUsers</td><td>AllUsers</td><td/></row>
 		<row><td>DWUSINTERVAL</td><td>30</td><td/></row>
@@ -2715,16 +2831,17 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>INSTALLLEVEL</td><td>100</td><td/></row>
 		<row><td>ISCHECKFORPRODUCTUPDATES</td><td>1</td><td/></row>
 		<row><td>ISENABLEDWUSFINISHDIALOG</td><td/><td/></row>
+		<row><td>ISJITCOMPILEATINSTALLPROPERTY</td><td/><td/></row>
 		<row><td>ISSCRIPT_VERSION_MISSING</td><td>##IDS_ISSCRIPT_VERSION_MISSING##</td><td/></row>
 		<row><td>ISSCRIPT_VERSION_OLD</td><td>##IDS_ISSCRIPT_VERSION_OLD##</td><td/></row>
 		<row><td>ISVROOT_PORT_NO</td><td>0</td><td/></row>
 		<row><td>InstallChoice</td><td>AR</td><td/></row>
 		<row><td>Manufacturer</td><td>##COMPANY_NAME##</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{62382654-2648-4B73-A022-EF59D8F4ACF9}</td><td/></row>
+		<row><td>ProductCode</td><td>{D7CF2920-DCE3-4959-9F27-05625E1D0C24}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 2.1.0 Third Party Packages for Visual Studio 6.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 2.1.0 for Visual Studio .NET 2003</td><td/></row>
 		<row><td>ProductVersion</td><td>2.1.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
@@ -2734,7 +2851,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{E2A1D005-47AC-4826-8A4B-E492EF9089E1}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{471C040D-D093-457C-BE3B-B1606ED6C8D4}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>
