@@ -13,8 +13,9 @@ top_srcdir	= ../..
 include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= operations \
-		  inheritance \
 		  exceptions \
+		  inheritance \
+		  facets \
 		  faultTolerance \
 		  locationForward
 

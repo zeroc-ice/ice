@@ -57,6 +57,8 @@ class ICE_API Object : virtual public ::IceUtil::Shared
 {
 public:
 
+    Object();
+
     virtual bool _isA(const std::string&);
     virtual void _ping();
     ::IceInternal::DispatchStatus ____isA(::IceInternal::Incoming&);
@@ -72,7 +74,7 @@ public:
 
     void _addFacet(const ObjectPtr&, const ::std::string&);
     void _removeFacet(const ::std::string&);
-    void _removeAllFacets(const ::std::string&);
+    void _removeAllFacets();
     ObjectPtr _findFacet(const ::std::string&);
 
 private:

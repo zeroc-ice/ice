@@ -23,6 +23,7 @@ for i in \
     "Ice/operations", \
     "Ice/exceptions", \
     "Ice/inheritance", \
+    "Ice/facets", \
     "Ice/faultTolerance", \
     "Ice/locationForward", \
     "IcePack/simple", \

@@ -28,6 +28,11 @@ Ice::LocationForward::LocationForward(const ObjectPrx& p) :
 {
 }
 
+Ice::Object::Object() :
+    _activeFacetMapHint(_activeFacetMap.end())
+{
+}
+
 bool
 Ice::Object::_isA(const string& s)
 {
@@ -138,7 +143,7 @@ Ice::Object::_removeFacet(const string& name)
 }
 
 void
-Ice::Object::_removeAllFacets(const string& name)
+Ice::Object::_removeAllFacets()
 {
     JTCSyncT<JTCMutex> sync(_activeFacetMapMutex);
 

@@ -24,7 +24,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& ident, 
 				  const vector<EndpointPtr>& origEndpts, const vector<EndpointPtr>& endpts) :
     instance(inst),
     identity(ident),
-    facet(facet),
+    facet(fac),
     mode(md),
     secure(sec),
     origEndpoints(origEndpts),
