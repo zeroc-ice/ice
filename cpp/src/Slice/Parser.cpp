@@ -382,16 +382,16 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
 	    }
 	    else
 	    {
+		if(_unit->ignRedefs())
+		{
+		    def->updateIncludeLevel();
+		    return def;
+		}
+
 		string msg = "redefinition of ";
 		msg += intf ? "interface" : "class";
 		msg += " `" + name + "'";
 		_unit->error(msg);
-	    }
-
-	    if(_unit->ignRedefs())
-	    {
-		def->updateIncludeLevel();
-		return def;
 	    }
 	}
 	else if(!_unit->caseSensitive() && differsOnlyInCase)
