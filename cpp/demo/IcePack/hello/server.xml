@@ -8,7 +8,7 @@
     <!-- ============================================================= -->
     <adapters>
       <adapter name="Hello" endpoints="default" register="true">
-        <object identity="${name}" type="::HelloFactory"/>
+        <object identity="${name}" type="::Demo::HelloFactory"/>
       </adapter>
     </adapters>
 

@@ -4,7 +4,7 @@
  
     <adapters>
       <adapter name="Hello" endpoints="tcp:udp:ssl" register="true">
-        <object identity="${name}" type="::Hello"/>
+        <object identity="${name}" type="::Demo::Hello"/>
       </adapter>
     </adapters>
   

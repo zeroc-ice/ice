@@ -37,7 +37,7 @@ public class Client
         //
         // Get an object implementing the HelloFactory interface.
         //
-        HelloFactoryPrx factory = HelloFactoryPrxHelper.checkedCast(query.findObjectByType("::HelloFactory"));
+        HelloFactoryPrx factory = HelloFactoryPrxHelper.checkedCast(query.findObjectByType("::Demo::HelloFactory"));
 
         //
         // By default we create a Hello object named 'Foo'.
@@ -86,7 +86,7 @@ public class Client
                         }
                         catch(NameNotExistException ex)
                         {
-                            factory = HelloFactoryPrxHelper.checkedCast(query.findObjectByType("::HelloFactory"));
+                            factory = HelloFactoryPrxHelper.checkedCast(query.findObjectByType("::Demo::HelloFactory"));
                             hello = factory.create(name);
                         }
                     }
@@ -130,7 +130,7 @@ public class Client
                 }
                 else if(line.equals("r"))
                 {
-                    hello = HelloPrxHelper.checkedCast(query.findObjectByType("::Hello"));
+                    hello = HelloPrxHelper.checkedCast(query.findObjectByType("::Demo::Hello"));
                 }
                 else if(line.equals("S"))
                 {

@@ -38,7 +38,7 @@ public class Client
 	Ice.ObjectPrx base = null;
 	try
 	{
-	    base = query.findObjectByType("::Hello");
+	    base = query.findObjectByType("::Demo::Hello");
 	}
 	catch(IcePack.ObjectNotExistException e)
 	{

@@ -39,7 +39,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     //
     // Get an object implementing the HelloFactory interface.
     //
-    HelloFactoryPrx factory = HelloFactoryPrx::checkedCast(query->findObjectByType("::HelloFactory"));
+    HelloFactoryPrx factory = HelloFactoryPrx::checkedCast(query->findObjectByType("::Demo::HelloFactory"));
 
     //
     // By default we create a Hello object named 'Foo'.
@@ -83,7 +83,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		    }
 		    catch(const NameNotExistException&)
 		    {
-			factory = HelloFactoryPrx::checkedCast(query->findObjectByType("::HelloFactory"));
+			factory = HelloFactoryPrx::checkedCast(query->findObjectByType("::Demo::HelloFactory"));
 			hello = factory->create(name);
 		    }
 		}
@@ -126,7 +126,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    }
 	    else if(c == 'r')
 	    {
-		hello = HelloPrx::checkedCast(query->findObjectByType("::Hello"));
+		hello = HelloPrx::checkedCast(query->findObjectByType("::Demo::Hello"));
 	    }
 	    else if(c == 'S')
 	    {

@@ -4,7 +4,7 @@
 
     <adapters>
       <adapter name="${name}" endpoints="tcp:udp">
-        <object identity="${name}" type="::Hello"/>
+        <object identity="${name}" type="::Demo::Hello"/>
       </adapter>
     </adapters>
 
