@@ -23,7 +23,7 @@ public class OutgoingConnectionFactory
         assert(endpoints.length > 0);
 
         //
-        // Reap destroyed connections
+        // Reap destroyed connections.
         //
         java.util.Iterator p = _connections.values().iterator();
         while (p.hasNext())
@@ -36,7 +36,7 @@ public class OutgoingConnectionFactory
         }
 
         //
-        // Search for existing connections
+        // Search for existing connections.
         //
         for (int i = 0; i < endpoints.length; i++)
         {
@@ -67,8 +67,7 @@ public class OutgoingConnectionFactory
                     transceiver = connector.connect(endpoints[i].timeout());
                     assert(transceiver != null);
                 }
-                connection = new Connection(_instance, transceiver,
-                                            endpoints[i], null);
+                connection = new Connection(_instance, transceiver, endpoints[i], null);
                 connection.activate();
                 _connections.put(endpoints[i], connection);
                 break;
@@ -170,7 +169,7 @@ public class OutgoingConnectionFactory
     }
 
     //
-    // Only for use by Instance
+    // Only for use by Instance.
     //
     OutgoingConnectionFactory(Instance instance)
     {

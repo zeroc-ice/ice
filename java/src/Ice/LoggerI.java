@@ -15,8 +15,7 @@ public class LoggerI implements Logger
     public synchronized void
     trace(String category, String message)
     {
-        String s = "[ " + category + ": Thread(" + Thread.currentThread().getName() + ") ";
-        // TODO: Better way to do this?
+        String s = "[ " + category + ": ";
         int start = 0;
         int next;
         while((next = message.indexOf('\n', start)) != -1)

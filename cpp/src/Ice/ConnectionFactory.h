@@ -89,7 +89,6 @@ private:
     };
 
     void setState(State);
-    void clearBacklog();
 
     EndpointPtr _endpoint;
     ::Ice::ObjectAdapterPtr _adapter;

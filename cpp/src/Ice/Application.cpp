@@ -10,7 +10,7 @@
 
 #include <Ice/Application.h>
 #ifndef WIN32
-#   include <signal.h>
+#   include <csignal>
 #endif
 
 using namespace std;

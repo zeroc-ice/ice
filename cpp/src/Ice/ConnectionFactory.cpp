@@ -49,7 +49,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
     assert(!endpoints.empty());
 
     //
-    // Reap destroyed connections
+    // Reap destroyed connections.
     //
     std::map<EndpointPtr, ConnectionPtr>::iterator p = _connections.begin();
     while (p != _connections.end())
@@ -65,7 +65,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
     }
 
     //
-    // Search for existing connections
+    // Search for existing connections.
     //
     vector<EndpointPtr>::const_iterator q;
     for (q = endpoints.begin(); q != endpoints.end(); ++q)
@@ -78,7 +78,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
     }
 
     //
-    // No connections exist, try to create one
+    // No connections exist, try to create one.
     //
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     LoggerPtr logger = _instance->logger();
@@ -272,7 +272,7 @@ IceInternal::IncomingConnectionFactory::connections() const
     IceUtil::Mutex::Lock sync(*this);
 
     //
-    // Reap destroyed connections
+    // Reap destroyed connections.
     //
     list<ConnectionPtr>& connections = const_cast<list<ConnectionPtr>& >(_connections);
     connections.erase(remove_if(connections.begin(), connections.end(), ::Ice::constMemFun(&Connection::destroyed)),
@@ -296,7 +296,7 @@ IceInternal::IncomingConnectionFactory::readable() const
 void
 IceInternal::IncomingConnectionFactory::read(BasicStream&)
 {
-    assert(false); // Must not be called
+    assert(false); // Must not be called.
 }
 
 void
@@ -312,13 +312,13 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&)
     }
     
     //
-    // Reap destroyed connections
+    // Reap destroyed connections.
     //
     _connections.erase(remove_if(_connections.begin(), _connections.end(), ::Ice::constMemFun(&Connection::destroyed)),
 		      _connections.end());
 
     //
-    // Now accept a new connection and create a new ConnectionPtr
+    // Now accept a new connection.
     //
     try
     {
@@ -339,7 +339,7 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&)
     }
     catch (const TimeoutException&)
     {
-	// Ignore timeouts
+	// Ignore timeouts.
     }
     catch (const LocalException& ex)
     {
@@ -357,16 +357,46 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&)
 void
 IceInternal::IncomingConnectionFactory::exception(const LocalException&)
 {
-    assert(false); // Must not be called
+    assert(false); // Must not be called.
 }
 
 void
 IceInternal::IncomingConnectionFactory::finished()
 {
     IceUtil::Mutex::Lock sync(*this);
+
     assert(_state == StateClosed);
+    
     _acceptor->shutdown();
-    clearBacklog();
+    
+#ifdef _STLP_BEGIN_NAMESPACE
+    // voidbind2nd is an STLport extension for broken compilers in IceUtil/Functional.h
+    for_each(_connections.begin(), _connections.end(),
+	     voidbind2nd(Ice::voidMemFun1(&Connection::destroy), Connection::ObjectAdapterDeactivated));
+#else
+    for_each(_connections.begin(), _connections.end(),
+	     bind2nd(Ice::voidMemFun1(&Connection::destroy), Connection::ObjectAdapterDeactivated));
+#endif
+    _connections.clear();
+    
+    //
+    // Clear listen() backlog properly by accepting all queued
+    // connections, and then shutting them down.
+    //
+    while (true)
+    {
+	try
+	{
+	    TransceiverPtr transceiver = _acceptor->accept(0);
+	    ConnectionPtr connection = new Connection(_instance, transceiver, _endpoint, _adapter);
+	    connection->exception(ObjectAdapterDeactivatedException(__FILE__, __LINE__));
+	}
+	catch (const Exception&)
+	{
+	    break;
+	}
+    }
+
     _acceptor->close();
 }
 
@@ -430,7 +460,7 @@ IceInternal::IncomingConnectionFactory::destroy()
 void
 IceInternal::IncomingConnectionFactory::setState(State state)
 {
-    if (_state == state) // Don't switch twice
+    if (_state == state) // Don't switch twice.
     {
 	return;
     }
@@ -439,7 +469,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
     {
 	case StateActive:
 	{
-	    if (_state != StateHolding) // Can only switch from holding to active
+	    if (_state != StateHolding) // Can only switch from holding to active.
 	    {
 		return;
 	    }
@@ -483,40 +513,9 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 		}
 		_threadPool->unregister(_acceptor->fd(), true);
 	    }
-#ifdef _STLP_BEGIN_NAMESPACE
-	    // voidbind2nd is an STLport extension for broken compilers in IceUtil/Functional.h
-	    for_each(_connections.begin(), _connections.end(),
-		     voidbind2nd(Ice::voidMemFun1(&Connection::destroy), Connection::ObjectAdapterDeactivated));
-#else
-	    for_each(_connections.begin(), _connections.end(),
-		     bind2nd(Ice::voidMemFun1(&Connection::destroy), Connection::ObjectAdapterDeactivated));
-#endif
-	    _connections.clear();
 	    break;
 	}
     }
 
     _state = state;
-}
-
-void
-IceInternal::IncomingConnectionFactory::clearBacklog()
-{
-    //
-    // Clear listen() backlog properly by accepting all queued
-    // connections, and then shutting them down.
-    //
-    while (true)
-    {
-	try
-	{
-	    TransceiverPtr transceiver = _acceptor->accept(0);
-	    ConnectionPtr connection = new Connection(_instance, transceiver, _endpoint, _adapter);
-	    connection->exception(ObjectAdapterDeactivatedException(__FILE__, __LINE__));
-	}
-	catch (const Exception&)
-	{
-	    break;
-	}
-    }
 }

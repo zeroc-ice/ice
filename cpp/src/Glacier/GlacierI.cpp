@@ -8,21 +8,20 @@
 //
 // **********************************************************************
 
+#ifdef WIN32
+#   error Sorry, the Glacier Starter is not yet supported on WIN32.
+#endif
+
 #include <IceUtil/UUID.h>
 #include <Ice/RSAKeyPair.h>
 #include <Glacier/GlacierI.h>
 #include <fcntl.h>
-
-#ifdef WIN32
-#   error Sorry, the glacier starter is not yet supported on WIN32.
-#endif
 
 using namespace std;
 using namespace Ice;
 using namespace Glacier;
 
 using IceSSL::OpenSSL::RSAKeyPairPtr;
-
 
 Glacier::StarterI::StarterI(const CommunicatorPtr& communicator) :
     _communicator(communicator),
@@ -73,11 +72,11 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
     assert(_communicator); // Destroyed?
 
     //
-    // TODO: userId/password check
+    // TODO: userId/password check.
     //
 
     //
-    // Create a certificate for the Client and the Router
+    // Create a certificate for the client and the router.
     //
     RSAKeyPairPtr clientKeyPair = _certificateGenerator.generate(_certContext);
     RSAKeyPairPtr routerKeyPair = _certificateGenerator.generate(_certContext);
@@ -86,6 +85,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
     clientKeyPair->certToByteSeq(publicKey);
     routerKeyPair->certToByteSeq(routerCert);
 
+    //
     // routerPrivateKeyBase64 and routerCertificateBase64 are passed to the
     // router as the values for the properties
     //  * IceSSL.Server.Overrides.Server.RSA.PrivateKey
@@ -101,6 +101,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
     // The value of clientCertificateBase64 should be passed in to the router
     // in the property
     //  * Glacier.Router.ClientCertificate
+    //
     string routerPrivateKeyBase64;
     string routerCertificateBase64;
     string clientCertificateBase64;
@@ -110,7 +111,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
     clientKeyPair->certToBase64(clientCertificateBase64);
 
     //
-    // Start a router
+    // Start a router.
     //
     string path = _properties->getPropertyWithDefault("Glacier.Starter.RouterPath", "glacier");
     string uuid = IceUtil::generateUUID();
@@ -140,7 +141,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	ex.ice_throw();
     }
 
-    if (pid == 0) // Child process
+    if (pid == 0) // Child process.
     {
 	//
 	// Close all filedescriptors, except for standard input,
@@ -247,12 +248,12 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	    exit(EXIT_FAILURE);
 	}
     }
-    else // Parent process
+    else // Parent process.
     {
 	try
 	{
 	    //
-	    // Close the write side of the newly created pipe
+	    // Close the write side of the newly created pipe.
 	    //
 	    close(fds[1]);
 	    
@@ -294,7 +295,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 		throw ex;
 	    }
 	    
-	    if (ret == 0) // Timeout
+	    if (ret == 0) // Timeout.
 	    {
 		CannotStartRouterException ex;
 		ex.reason = "timeout while starting `" + path + "'";
@@ -304,7 +305,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	    assert(FD_ISSET(fds[0], &fdSet));
 	
 	    //
-	    // Read the response
+	    // Read the response.
 	    //
 	    char buf[4*1024];
 	    ssize_t sz = read(fds[0], buf, sizeof(buf)/sizeof(char) - 1);

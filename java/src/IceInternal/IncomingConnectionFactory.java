@@ -47,7 +47,7 @@ public class IncomingConnectionFactory extends EventHandler
     connections()
     {
         //
-        // Reap destroyed connections
+        // Reap destroyed connections.
         //
         java.util.ListIterator iter = _connections.listIterator();
         while (iter.hasNext())
@@ -65,7 +65,7 @@ public class IncomingConnectionFactory extends EventHandler
     }
 
     //
-    // Operations from EventHandler
+    // Operations from EventHandler.
     //
     public boolean
     server()
@@ -82,14 +82,14 @@ public class IncomingConnectionFactory extends EventHandler
     public boolean
     tryRead(BasicStream unused)
     {
-        assert(false); // Must not be called
+        assert(false); // Must not be called.
         return false;
     }
 
     public void
     read(BasicStream unused)
     {
-        assert(false); // Must not be called
+        assert(false); // Must not be called.
     }
 
     public synchronized void
@@ -103,7 +103,7 @@ public class IncomingConnectionFactory extends EventHandler
         }
 
         //
-        // Reap destroyed connections
+        // Reap destroyed connections.
         //
         java.util.ListIterator iter = _connections.listIterator();
         while (iter.hasNext())
@@ -116,13 +116,12 @@ public class IncomingConnectionFactory extends EventHandler
         }
 
         //
-        // Now accept a new connection and create a new Connection
+        // Now accept a new connection.
         //
         try
         {
             Transceiver transceiver = _acceptor.accept(0);
-            Connection connection = new Connection(_instance, transceiver,
-                                                   _endpoint, _adapter);
+            Connection connection = new Connection(_instance, transceiver, _endpoint, _adapter);
             connection.activate();
             _connections.add(connection);
         }
@@ -140,7 +139,7 @@ public class IncomingConnectionFactory extends EventHandler
         }
         catch (Ice.TimeoutException ex)
         {
-            // Ignore timeouts
+            // Ignore timeouts.
         }
         catch (Ice.LocalException ex)
         {
@@ -157,15 +156,43 @@ public class IncomingConnectionFactory extends EventHandler
     public void
     exception(Ice.LocalException ex)
     {
-        assert(false); // Must not be called
+        assert(false); // Must not be called.
     }
 
     public synchronized void
     finished()
     {
         assert(_state == StateClosed);
+
         _acceptor.shutdown();
-        clearBacklog();
+
+	java.util.ListIterator iter = _connections.listIterator();
+	while (iter.hasNext())
+	{
+	    Connection connection = (Connection)iter.next();
+	    connection.destroy(Connection.ObjectAdapterDeactivated);
+	}
+	_connections.clear();
+
+        //
+        // Clear listen() backlog properly by accepting all queued
+        // connections, and then shutting them down.
+        //
+        while (true)
+        {
+            try
+            {
+                Transceiver transceiver = _acceptor.accept(0);
+                Connection connection = new Connection(_instance, transceiver, _endpoint, _adapter);
+                connection.exception(
+                    new Ice.ObjectAdapterDeactivatedException());
+            }
+            catch (Exception ex)
+            {
+                break;
+            }
+        }
+
         _acceptor.close();
     }
 
@@ -208,8 +235,7 @@ public class IncomingConnectionFactory extends EventHandler
             if (_transceiver != null)
             {
                 _endpoint = h.value;
-                Connection connection = new Connection(_instance, _transceiver,
-                                                       _endpoint, _adapter);
+                Connection connection = new Connection(_instance, _transceiver, _endpoint, _adapter);
                 _connections.add(connection);
             }
             else
@@ -250,7 +276,7 @@ public class IncomingConnectionFactory extends EventHandler
     private void
     setState(int state)
     {
-        if (_state == state) // Don't switch twice
+        if (_state == state) // Don't switch twice.
         {
             return;
         }
@@ -259,8 +285,8 @@ public class IncomingConnectionFactory extends EventHandler
         {
             case StateActive:
             {
-                if (_state != StateHolding) // Can only switch from holding to
-                {                           // active
+                if (_state != StateHolding) // Can only switch from holding to active.
+                {
                     return;
                 }
 
@@ -313,43 +339,11 @@ public class IncomingConnectionFactory extends EventHandler
                     }
                     _threadPool.unregister(_acceptor.fd(), true);
                 }
-
-                java.util.ListIterator iter = _connections.listIterator();
-                while (iter.hasNext())
-                {
-                    Connection connection = (Connection)iter.next();
-                    connection.destroy(Connection.ObjectAdapterDeactivated);
-                }
-                _connections.clear();
                 break;
             }
         }
 
         _state = state;
-    }
-
-    private void
-    clearBacklog()
-    {
-        //
-        // Clear listen() backlog properly by accepting all queued
-        // connections, and then shutting them down.
-        //
-        while (true)
-        {
-            try
-            {
-                Transceiver transceiver = _acceptor.accept(0);
-                Connection connection = new Connection(_instance, transceiver,
-                                                       _endpoint, _adapter);
-                connection.exception(
-                    new Ice.ObjectAdapterDeactivatedException());
-            }
-            catch (Exception ex)
-            {
-                break;
-            }
-        }
     }
 
     private void

@@ -8,11 +8,14 @@
 //
 // **********************************************************************
 
+#ifdef WIN32
+#   error Sorry, the IcePack Activator is not yet supported on WIN32.
+#endif
+
 #include <Ice/Ice.h>
 #include <IcePack/Activator.h>
 #include <IcePack/Admin.h>
 #include <fcntl.h>
-#include <sys/wait.h>
 
 using namespace std;
 using namespace Ice;
@@ -71,7 +74,7 @@ IcePack::Activator::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_destroy) // Don't destroy twice
+    if (_destroy) // Don't destroy twice.
     {
 	return;
     }
@@ -97,7 +100,7 @@ IcePack::Activator::activate(const ServerDescription& desc)
     }
 
     //
-    // Normalize the pathname a bit
+    // Normalize the pathname a bit.
     //
     string::size_type pos;
     while ((pos = path.find("//")) != string::npos)
@@ -110,7 +113,7 @@ IcePack::Activator::activate(const ServerDescription& desc)
     }
 
     //
-    // Do nothing if the process exists
+    // Do nothing if the process exists.
     //
     if (_processes.count(path))
     {
@@ -118,7 +121,7 @@ IcePack::Activator::activate(const ServerDescription& desc)
     }
 
     //
-    // Process does not exist, activate and create
+    // Process does not exist, activate and create.
     //
     int fds[2];
     if (pipe(fds) != 0)
@@ -134,7 +137,7 @@ IcePack::Activator::activate(const ServerDescription& desc)
 	ex.error = getSystemErrno();
 	throw ex;
     }
-    if (pid == 0) // Child process
+    if (pid == 0) // Child process.
     {
 	//
 	// Close all filedescriptors, except for standard input,
@@ -174,7 +177,7 @@ IcePack::Activator::activate(const ServerDescription& desc)
 	    exit(EXIT_FAILURE);
 	}
     }
-    else // Parent process
+    else // Parent process.
     {
 	close(fds[1]);
 
@@ -301,28 +304,16 @@ IcePack::Activator::terminationListener()
 		}
 	    }
 	}
-
-	//
-	// Remove zombie processes, if any
-	//
-	if (waitpid(-1, 0, WNOHANG | WUNTRACED) == -1)
-	{
-	    if (errno != ECHILD) // Ignore ECHILD
-	    {
-		SystemException ex(__FILE__, __LINE__);
-		ex.error = getSystemErrno();
-		throw ex;
-	    }
-	}
     }
 }
 
 void
 IcePack::Activator::clearInterrupt()
 {
-    char s[32]; // Clear up to 32 interrupts at once
+    char s[32]; // Clear up to 32 interrupts at once.
     while (read(_fdIntrRead, s, 32) == 32)
-	;
+    {
+    }
 }
 
 void

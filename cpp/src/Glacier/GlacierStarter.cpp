@@ -8,8 +8,14 @@
 //
 // **********************************************************************
 
+#ifdef WIN32
+#   error Sorry, the Glacier Starter is not yet supported on WIN32.
+#endif
+
 #include <Ice/Application.h>
 #include <Glacier/GlacierI.h>
+#include <signal.h>
+#include <sys/wait.h>
 
 using namespace std;
 using namespace Ice;
@@ -95,9 +101,26 @@ Glacier::Router::run(int argc, char* argv[])
     return EXIT_SUCCESS;
 }
 
+static void
+childHandler(int)
+{
+    wait(0);
+}
+
 int
 main(int argc, char* argv[])
 {
+    //
+    // This application forks, so we need a signal handler for child
+    // termination.
+    //
+    struct sigaction action;
+    action.sa_handler = childHandler;
+    sigemptyset(&action.sa_mask);
+    sigaddset(&action.sa_mask, SIGCHLD);
+    action.sa_flags = 0;
+    sigaction(SIGCHLD, &action, 0);
+
     addArgumentPrefix("Glacier");
 
     //

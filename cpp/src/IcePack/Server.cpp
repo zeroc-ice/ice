@@ -11,6 +11,10 @@
 #include <Ice/Application.h>
 #include <IcePack/AdminI.h>
 #include <IcePack/Forward.h>
+#ifndef WIN32
+#   include <signal.h>
+#   include <sys/wait.h>
+#endif
 
 using namespace std;
 using namespace Ice;
@@ -24,9 +28,30 @@ public:
     virtual int run(int, char*[]);
 };
 
+#ifndef WIN32
+static void
+childHandler(int)
+{
+    wait(0);
+}
+#endif
+
 int
 main(int argc, char* argv[])
 {
+#ifndef WIN32
+    //
+    // This application forks, so we need a signal handler for child
+    // termination.
+    //
+    struct sigaction action;
+    action.sa_handler = childHandler;
+    sigemptyset(&action.sa_mask);
+    sigaddset(&action.sa_mask, SIGCHLD);
+    action.sa_flags = 0;
+    sigaction(SIGCHLD, &action, 0);
+#endif
+
     addArgumentPrefix("IcePack");
     Server app;
     return app.main(argc, argv);
