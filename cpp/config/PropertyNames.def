@@ -418,6 +418,7 @@ Freeze:
     Evictor.<any>.<any>.SavePeriod
     Evictor.<any>.<any>.SaveSizeTrigger
     Evictor.<any>.<any>.StreamTimeout
+    Evictor.<any>.<any>.PopulateEmptyIndices
     Trace.DbEnv
     Trace.Evictor
     Trace.Map
