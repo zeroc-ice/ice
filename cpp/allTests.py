@@ -53,7 +53,7 @@ tests = [ \
 #
 # Certain tests only work on Linux.
 #
-if TestUtil.isWin32() == 0 and TestUtil.isCygwin() == 0:
+if TestUtil.isWin32() == 0:
     tests += [ \
         "Glacier/starter", \
         ]
