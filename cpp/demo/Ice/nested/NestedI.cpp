@@ -25,6 +25,6 @@ NestedI::nested(Int level, const NestedPrx& proxy, const Ice::Current& current)
     cout << level << endl;
     if(--level > 0)
     {
-	proxy->nested(level, _self, current.context);
+	proxy->nested(level, _self, current.ctx);
     }
 }

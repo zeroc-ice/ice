@@ -63,13 +63,13 @@ CallbackI::CallbackI(const Ice::CommunicatorPtr& communicator) :
 void
 CallbackI::initiateCallback(const CallbackReceiverPrx& proxy, const Current& current)
 {
-    proxy->callback(current.context);
+    proxy->callback(current.ctx);
 }
 
 void
 CallbackI::initiateCallbackEx(const CallbackReceiverPrx& proxy, const Current& current)
 {
-    proxy->callbackEx(current.context);
+    proxy->callbackEx(current.ctx);
 }
 
 void

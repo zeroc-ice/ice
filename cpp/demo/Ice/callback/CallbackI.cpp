@@ -29,7 +29,7 @@ void
 CallbackI::initiateCallback(const CallbackReceiverPrx& proxy, const Current& current)
 {
     cout << "initiating callback" << endl;
-    proxy->callback(current.context);
+    proxy->callback(current.ctx);
 }
 
 void
