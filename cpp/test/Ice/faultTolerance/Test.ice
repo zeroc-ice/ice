@@ -13,8 +13,8 @@
 
 interface Test
 {
-    idempotent void shutdown();
-    idempotent void abort();
+    void shutdown();
+    void abort();
     idempotent void idempotentAbort();
     int pid();
 };
