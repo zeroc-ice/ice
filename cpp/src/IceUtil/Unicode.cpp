@@ -17,7 +17,7 @@ string
 IceUtil::wstringToString(const wstring& str)
 {
     string result;
-    result.reserve(str.length() * SIZEOF_WCHAR_T);
+    result.reserve(str.length() * 2);
 
     for (unsigned int i = 0; i < str.length(); ++i)
     {
@@ -66,11 +66,13 @@ IceUtil::stringToWstring(const string& str)
     {
 	unsigned char c = str[i];
 	wchar_t wc;
+	int minval;
 
 	if (c < 0x80)
 	{
 	    wc = c;
 	    len = 1;
+	    minval = 0;
 	}
 	else if (c < 0xc0) // Lead byte must not be 10xxxxxx
 	{
@@ -80,29 +82,34 @@ IceUtil::stringToWstring(const string& str)
 	{
 	    wc = c & 0x1f;
 	    len = 2;
+	    minval = 0x80;
 	}
 	else if(c < 0xf0) // 1110xxxx
 	{
 	    wc = c & 0xf;
 	    len = 3;
+	    minval = 0x800;
 	}
 #if SIZEOF_WCHAR_T >= 4
 	else if(c < 0xf8) // 11110xxx
 	{
 	    wc = c & 7;
 	    len = 4;
+	    minval = 0x10000;
 	}
 	else if (c < 0xfc) // 111110xx
 	{
 	    // Length 5 and 6 is declared invalid in Unicode 3.1 and ISO 10646:2001.
 	    wc = c & 3;
 	    len = 5;
+	    minval = 0x110000;
 	}
 	else if (c < 0xfe) // 1111110x
 	{
 	    // Length 5 and 6 is declared invalid in Unicode 3.1 and ISO 10646:2001.
 	    wc = c & 1;
 	    len = 6;
+	    minval = 0; // TODO
 	}
 #endif
 	else
@@ -123,7 +130,14 @@ IceUtil::stringToWstring(const string& str)
 		wc |= str[i + j] & 0x3f;
 	    }
 
-	    result += wc;
+	    if (wc < minval)
+	    {
+		return result; // Error, non-shortest form.
+	    }
+	    else
+	    {
+		result += wc;
+	    }
 	}
 	else
 	{

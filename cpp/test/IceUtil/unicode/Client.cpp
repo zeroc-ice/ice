@@ -40,7 +40,7 @@ main(int, char**)
  
     cout << "ok" << endl;
 
-    cout << "ditto, but with random utf-8 data... ";
+    cout << "ditto, but with random unicode text... ";
 
     ifstream numeric("numeric.txt");
     test(numeric.good());
