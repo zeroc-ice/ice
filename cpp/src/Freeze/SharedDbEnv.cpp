@@ -61,8 +61,17 @@ operator<(const MapKey& lhs, const MapKey& rhs)
 	((lhs.communicator == rhs.communicator) && (lhs.envName < rhs.envName));
 }
 
+#if DB_VERSION_MAJOR != 4
+   #error Freeze requires DB 4.x
+#endif
+
+#if DB_VERSION_MINOR < 3
 void
 dbErrCallback(const char* prefix, char* msg)
+#else
+void
+dbErrCallback(const ::DbEnv* ignored, const char* prefix, const char* msg)
+#endif    
 {
     const Freeze::SharedDbEnv* env = reinterpret_cast<const Freeze::SharedDbEnv*>(prefix);
     assert(env != 0);
@@ -70,7 +79,6 @@ dbErrCallback(const char* prefix, char* msg)
     Ice::Trace out(env->getCommunicator()->getLogger(), "Berkeley DB");
     out << "DbEnv \"" << env->getEnvName() << "\": " << msg;
 }
-
 
 StaticMutex _mapMutex = ICE_STATIC_MUTEX_INITIALIZER;
 StaticMutex _refCountMutex = ICE_STATIC_MUTEX_INITIALIZER;  
@@ -221,8 +229,9 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
     try
     {
 	set_errpfx(reinterpret_cast<char*>(this));
+
 	set_errcall(dbErrCallback);
-    
+
 #ifdef _WIN32
 	//
 	// Berkeley DB may use a different C++ runtime

@@ -460,7 +460,7 @@ Freeze::IteratorHelperI::set(const Value& value)
     // key ignored
     //
     Dbt dbKey;
-    dbKey.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
+    dbKey.set_flags(DB_DBT_USERMEM);
 
     Dbt dbValue;
     initializeInDbt(value, dbValue);
@@ -1049,7 +1049,24 @@ Freeze::MapHelperI::size() const
     // TODO: DB_FAST_STAT doesn't seem to do what the documentation says...
     //
     DB_BTREE_STAT* s;
-    _db->stat(&s, 0);
+
+    try
+    {
+#if DB_VERSION_MAJOR != 4
+   #error Freeze requires DB 4.x
+#endif
+#if DB_VERSION_MINOR < 3
+       _db->stat(&s, 0);
+#else
+       _db->stat(_connection->dbTxn(), &s, 0);
+#endif
+    }
+    catch(const ::DbException& dx)
+    {
+	DatabaseException ex(__FILE__, __LINE__);
+	ex.message = dx.what();
+	throw ex;
+    }
 
     size_t num = s->bt_ndata;
     free(s);

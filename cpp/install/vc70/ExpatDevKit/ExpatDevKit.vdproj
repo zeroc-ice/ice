@@ -17,19 +17,25 @@
         {
         "MsmKey" = "8:_2EA469AEDB2B4B6AB359491FE01D8C99"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\EXPAT-1.95.7\\SOURCE\\LIB\\EXPAT.H"
+        "MsmSig" = "8:C:\\BUILDS\\EXPAT-1.95.8\\SOURCE\\LIB\\EXPAT.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_45678EE7CB114D88A25498B98CADF3D2"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\EXPAT-1.95.7\\SOURCE\\LIB\\RELEASE-W\\LIBEXPATW.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\EXPAT-1.95.8\\SOURCE\\LIB\\RELEASE-W\\LIBEXPATW.LIB"
         }
         "Entry"
         {
         "MsmKey" = "8:_7B553249C86A43DABE5BD2110F02060F"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\EXPAT-1.95.7\\SOURCE\\LIB\\RELEASE\\LIBEXPAT.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\EXPAT-1.95.8\\SOURCE\\LIB\\RELEASE\\LIBEXPAT.LIB"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CB8BE847592E45A1A18F93C23D86DE51"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\EXPAT-1.95.8\\SOURCE\\LIB\\EXPAT_EXTERNAL.H"
         }
         "Entry"
         {
@@ -72,7 +78,7 @@
         {
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_2EA469AEDB2B4B6AB359491FE01D8C99"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\Expat-1.95.7\\Source\\lib\\expat.h"
+            "SourcePath" = "8:..\\..\\..\\..\\Expat-1.95.8\\Source\\lib\\expat.h"
             "TargetName" = "8:expat.h"
             "Tag" = "8:"
             "Folder" = "8:_862C9AAEFDED485BBBEC5E104D6E4A15"
@@ -92,7 +98,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_45678EE7CB114D88A25498B98CADF3D2"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\Expat-1.95.7\\Source\\lib\\Release-w\\libexpatw.lib"
+            "SourcePath" = "8:..\\..\\..\\..\\Expat-1.95.8\\Source\\lib\\Release-w\\libexpatw.lib"
             "TargetName" = "8:libexpatw.lib"
             "Tag" = "8:"
             "Folder" = "8:_650BE57C81CD4945B5721411115CA2EA"
@@ -112,10 +118,30 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_7B553249C86A43DABE5BD2110F02060F"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\Expat-1.95.7\\Source\\lib\\Release\\libexpat.lib"
+            "SourcePath" = "8:..\\..\\..\\..\\Expat-1.95.8\\Source\\lib\\Release\\libexpat.lib"
             "TargetName" = "8:libexpat.lib"
             "Tag" = "8:"
             "Folder" = "8:_650BE57C81CD4945B5721411115CA2EA"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_CB8BE847592E45A1A18F93C23D86DE51"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\Expat-1.95.8\\Source\\lib\\expat_external.h"
+            "TargetName" = "8:expat_external.h"
+            "Tag" = "8:"
+            "Folder" = "8:_862C9AAEFDED485BBBEC5E104D6E4A15"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -284,7 +310,7 @@
         "Module"
         {
         "ModuleSignature" = "8:MergeModule.9D1FD48B7768405DB0E5CF2ECA44360C"
-        "Version" = "8:1.95.7.0"
+        "Version" = "8:1.95.8.0"
         "Title" = "8:ExpatDevKit"
         "Subject" = "8:"
         "Author" = "8:ZeroC,Inc"

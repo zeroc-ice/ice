@@ -2,18 +2,18 @@ License Agreement for Berkeley DB:
 ---------------------------------
 
 /*-
- * Id: LICENSE,v 11.10 2003/01/08 04:00:54 bostic Exp
+ * Id: LICENSE,v 11.12 2004/03/30 20:49:44 bostic Exp $
  */
 
 The following is the license that applies to this copy of the Berkeley DB
 software.  For a license to use the Berkeley DB software under conditions
 other than those described here, or to purchase support for this software,
-please contact Sleepycat Software by email at db@sleepycat.com, or on the
-Web at http://www.sleepycat.com.
+please contact Sleepycat Software by email at info@sleepycat.com, or on
+the Web at http://www.sleepycat.com.
 
 =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 /*
- * Copyright (c) 1990-2003
+ * Copyright (c) 1990-2004
  *	Sleepycat Software.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -275,12 +275,13 @@ License Agreement for OpenSSL:
  * [including the GNU Public Licence.]
  */
 
+
 License Agreement for Expat:
 ----------------------------
 
 Copyright (c) 1998, 1999, 2000 Thai Open Source Software Center Ltd
                                and Clark Cooper
-Copyright (c) 2001, 2002 Expat maintainers.
+Copyright (c) 2001, 2002, 2003 Expat maintainers.
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

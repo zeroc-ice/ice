@@ -17,13 +17,13 @@
         {
         "MsmKey" = "8:_1C7DBF19628649A09E171D186F805DBF"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\EXPAT-1.95.7\\SOURCE\\LIB\\RELEASE-W\\LIBEXPATW.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\EXPAT-1.95.8\\SOURCE\\LIB\\RELEASE-W\\LIBEXPATW.DLL"
         }
         "Entry"
         {
         "MsmKey" = "8:_AD00F11DE10A4B61BC7EA5A936813358"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\EXPAT-1.95.7\\SOURCE\\LIB\\RELEASE\\LIBEXPAT.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\EXPAT-1.95.8\\SOURCE\\LIB\\RELEASE\\LIBEXPAT.DLL"
         }
     }
     "Configurations"
@@ -60,7 +60,7 @@
         {
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_1C7DBF19628649A09E171D186F805DBF"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\Expat-1.95.7\\Source\\lib\\Release-w\\libexpatw.dll"
+            "SourcePath" = "8:..\\..\\..\\..\\Expat-1.95.8\\Source\\lib\\Release-w\\libexpatw.dll"
             "TargetName" = "8:libexpatw.dll"
             "Tag" = "8:"
             "Folder" = "8:_645BA9CE4E1A4D9FAE926B3BEFF219B2"
@@ -80,7 +80,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_AD00F11DE10A4B61BC7EA5A936813358"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\Expat-1.95.7\\Source\\lib\\Release\\libexpat.dll"
+            "SourcePath" = "8:..\\..\\..\\..\\Expat-1.95.8\\Source\\lib\\Release\\libexpat.dll"
             "TargetName" = "8:libexpat.dll"
             "Tag" = "8:"
             "Folder" = "8:_645BA9CE4E1A4D9FAE926B3BEFF219B2"
@@ -175,7 +175,7 @@
         "Module"
         {
         "ModuleSignature" = "8:MergeModule.A32ACFF5E2BA440F958DA46F03D38012"
-        "Version" = "8:1.95.7.0"
+        "Version" = "8:1.95.8.0"
         "Title" = "8:ExpatRuntime"
         "Subject" = "8:"
         "Author" = "8:ZeroC,Inc"

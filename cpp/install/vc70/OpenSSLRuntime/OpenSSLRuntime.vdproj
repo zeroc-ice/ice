@@ -17,7 +17,7 @@
         {
         "MsmKey" = "8:_5A0597F22ADE49109AD9193CE0614CA2"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\OUT32DLL\\SSLEAY32.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\OUT32DLL\\SSLEAY32.DLL"
         }
         "Entry"
         {
@@ -29,13 +29,13 @@
         {
         "MsmKey" = "8:_DF2DDAF58BF34C7EAA28094FDEEE2E7F"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\OUT32DLL\\LIBEAY32.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\OUT32DLL\\LIBEAY32.DLL"
         }
         "Entry"
         {
         "MsmKey" = "8:_F010B2C474DF43D091E8ADD186476C2C"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\OUT32DLL\\OPENSSL.EXE"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\OUT32DLL\\OPENSSL.EXE"
         }
     }
     "Configurations"
@@ -88,7 +88,7 @@
         {
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5A0597F22ADE49109AD9193CE0614CA2"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\out32dll\\ssleay32.dll"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\out32dll\\ssleay32.dll"
             "TargetName" = "8:ssleay32.dll"
             "Tag" = "8:"
             "Folder" = "8:_2DA0904B4553447D8F5E1680A7583627"
@@ -108,7 +108,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_DF2DDAF58BF34C7EAA28094FDEEE2E7F"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\out32dll\\libeay32.dll"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\out32dll\\libeay32.dll"
             "TargetName" = "8:libeay32.dll"
             "Tag" = "8:"
             "Folder" = "8:_2DA0904B4553447D8F5E1680A7583627"
@@ -128,7 +128,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_F010B2C474DF43D091E8ADD186476C2C"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\out32dll\\openssl.exe"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\out32dll\\openssl.exe"
             "TargetName" = "8:openssl.exe"
             "Tag" = "8:"
             "Folder" = "8:_2DA0904B4553447D8F5E1680A7583627"

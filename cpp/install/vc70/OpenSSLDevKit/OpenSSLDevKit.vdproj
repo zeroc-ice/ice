@@ -23,403 +23,403 @@
         {
         "MsmKey" = "8:_01881DF5929B4A089EFD3A5D302C466E"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\RC4.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\RC4.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_033594E51C374E35A3641508BF2CB1F3"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\OUT32DLL\\LIBEAY32.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\OUT32DLL\\LIBEAY32.LIB"
         }
         "Entry"
         {
         "MsmKey" = "8:_04502CA6926441DB8306163177B27C34"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\CAST.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\CAST.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_05E67045CEAD417890AF021010AE447F"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\TXT_DB.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\TXT_DB.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_06FCDF5DB99747DAA4CDC0EFACF62609"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\PKCS12.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\PKCS12.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_08D0798BD9C2435BB83998DA33A8F099"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\RAND.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\RAND.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_099B4A26CCD04891A51E627D2A8F6778"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\RIPEMD.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\RIPEMD.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_0C0532B09B454F9D9C7F2481650C370A"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\UI_COMPAT.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\UI_COMPAT.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_0EE0522C0E6547BEA739DADC3C4D920E"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\DES.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\DES.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_0FFD1FF1EA314AE39EDFFB8D3B0D5078"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\TMDIFF.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\TMDIFF.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_184734F491ED45EDB2200130D614F5EE"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\RC2.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\RC2.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_25DB889AFC504A01A76E1C2637A66B5D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\CRYPTO.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\CRYPTO.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_27E60B410E5A4B1C85687E8142C93EED"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\ENGINE.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\ENGINE.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_33280CA916F043DF81C3E17F202FEB35"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\EBCDIC.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\EBCDIC.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_34B55DE919E94A1A9E34A56C9E853561"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\SSL23.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\SSL23.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_36B2BC1B194941749CB68F2E4CBF1E4A"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\X509_VFY.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\X509_VFY.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_3768D43AB8FD43CB8C6C5B18B7E5C482"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\ASN1_MAC.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\ASN1_MAC.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_39F35AF85D1B431988A3C72CCC9A4DB2"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\AES.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\AES.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_409B4A7BE2DF44349B7960E1DD24A34C"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\MD5.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\MD5.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_44652A6BB334472CA2EA84A646C88594"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\RC5.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\RC5.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_486861CE17ED455E9F9EB906D87D3666"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\SYMHACKS.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\SYMHACKS.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_4F0522E90B6D4701B3076A8646975911"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\DSA.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\DSA.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_527261929DB242BAA6F1EE648636E94D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\SHA.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\SHA.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_554DAF4D7FAF4E2C8F8A081A3090F615"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\OCSP.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\OCSP.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_581B8404DCDF4C629C8FA96D58D1A2FB"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\OPENSSLCONF.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\OPENSSLCONF.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_5D039ED1F69748CAB6A0D0372C907174"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\X509.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\X509.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_5ECBE880A9DC4229A5E2C115E5AF9155"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\OUT32DLL\\SSLEAY32.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\OUT32DLL\\SSLEAY32.LIB"
         }
         "Entry"
         {
         "MsmKey" = "8:_6011EA08585A4593903062F1AFE1184C"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\PKCS7.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\PKCS7.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_63048AA012A041C49A996B00425B7560"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\PEM2.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\PEM2.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_68492293F4CF454DB0418CBC39881F05"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\ASN1.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\ASN1.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_68F22E6531AA43C38FCEF5775AF91BCD"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\IDEA.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\IDEA.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_6B5E826090CA451ABC46FB0D42B33F6A"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\EC.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\EC.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_6CF202FCC834425781457951F04FAFFD"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\MD4.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\MD4.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_6FD13E6519D74D1CB70BCFD269F2CB81"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\PEM.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\PEM.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_70D1DCF03F384B9ABB7BA61C6793C0F5"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\EVP.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\EVP.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_71FEFFCFE9134059886CC31422425269"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\SSL2.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\SSL2.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_86B685D682B440EC8585E406D3B5AC53"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\OSSL_TYP.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\OSSL_TYP.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_8B3FA0AB676C46B39025EA89C855E3EC"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\SSL.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\SSL.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_8C33A2FC72064ABCB919AAFE61FE1365"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\HMAC.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\HMAC.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_90B2477F42344412924D4019E42929BC"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\CONF.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\CONF.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_910B22BD0FA14670B7AE82DD83109AE1"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\CONF_API.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\CONF_API.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_9C2518EA2D224415BFCF6BAA006E1412"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\BUFFER.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\BUFFER.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_9E21221FC93748B49915EC2F0169E117"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\STACK.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\STACK.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_A0AAFD6375FF40799175008A5C6F8AE2"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\SAFESTACK.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\SAFESTACK.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_AB6A7FBDEBF04E698ADAA8EAC57938B8"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\ASN1T.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\ASN1T.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_AE5AACB1107C45DAB22A809B7DD72AAE"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\SSL3.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\SSL3.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_B674CCD44A8649CAA05A6FFADF0DCECF"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\LHASH.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\LHASH.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_BA128FBB81674CD38625AC9B32CE3863"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\MDC2.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\MDC2.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_BAEA6A9CC7EB411DBACFEF7E2C763495"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\OPENSSLV.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\OPENSSLV.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_BEB0BF0959834309BD2BF5B5A479CC10"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\X509V3.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\X509V3.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_BF5F0980986F4DE49A3ADA62231325EE"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\RSA.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\RSA.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_BF71EE73FC0748A991E4D710A1372FC0"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\KSSL.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\KSSL.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_C0792F792DD048128E2DEA76AADC64E9"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\KRB5_ASN.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\KRB5_ASN.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_C6F1F15395E24E5FAD17F3CA9B6C3C2F"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\OBJECTS.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\OBJECTS.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_C7055DC3398343098E6416CA355FBF24"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\ERR.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\ERR.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_CCC4CFC1045645CA89D1FEF16F5C6CB7"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\DES_OLD.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\DES_OLD.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_CDB63E51C10B4A8CA51D6C327D250F01"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\BIO.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\BIO.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_CF3AA723266742BA8F5CB2049E72F28A"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\DSO.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\DSO.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_D5939409C85A4067886C0DE8B90D9109"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\BLOWFISH.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\BLOWFISH.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_D84B2A191D5A4CA1A82E2F270744DE77"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\DH.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\DH.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_D8B35B0BFC874ED4AD936DEBB7B2AB80"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\COMP.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\COMP.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_D922F302D9EC460582C1F91650EBB260"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\UI.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\UI.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_E538CC620D3549D891DE306DDCFA5689"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\MD2.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\MD2.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_E95C5CB100C84DF8BAD61A34716B192A"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\TLS1.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\TLS1.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_EA8A4CA2A4CA477EADAE0ECB11ACBB90"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\OBJ_MAC.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\OBJ_MAC.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_EAD692B4CDC046F0A01DCE20BC21E145"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\E_OS2.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\E_OS2.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_F8923980041F4EEC88179B1251735A3C"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7D\\INC32\\OPENSSL\\BN.H"
+        "MsmSig" = "8:C:\\BUILDS\\OPENSSL-0.9.7E\\INC32\\OPENSSL\\BN.H"
         }
     }
     "Configurations"
@@ -472,7 +472,7 @@
         {
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_01881DF5929B4A089EFD3A5D302C466E"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\rc4.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\rc4.h"
             "TargetName" = "8:rc4.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -492,7 +492,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_033594E51C374E35A3641508BF2CB1F3"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\out32dll\\libeay32.lib"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\out32dll\\libeay32.lib"
             "TargetName" = "8:libeay32.lib"
             "Tag" = "8:"
             "Folder" = "8:_E2E76777D0964E8A9F05F600077B0164"
@@ -512,7 +512,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_04502CA6926441DB8306163177B27C34"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\cast.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\cast.h"
             "TargetName" = "8:cast.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -532,7 +532,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_05E67045CEAD417890AF021010AE447F"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\txt_db.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\txt_db.h"
             "TargetName" = "8:txt_db.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -552,7 +552,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_06FCDF5DB99747DAA4CDC0EFACF62609"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\pkcs12.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\pkcs12.h"
             "TargetName" = "8:pkcs12.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -572,7 +572,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_08D0798BD9C2435BB83998DA33A8F099"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\rand.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\rand.h"
             "TargetName" = "8:rand.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -592,7 +592,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_099B4A26CCD04891A51E627D2A8F6778"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\ripemd.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\ripemd.h"
             "TargetName" = "8:ripemd.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -612,7 +612,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_0C0532B09B454F9D9C7F2481650C370A"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\ui_compat.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\ui_compat.h"
             "TargetName" = "8:ui_compat.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -632,7 +632,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_0EE0522C0E6547BEA739DADC3C4D920E"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\des.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\des.h"
             "TargetName" = "8:des.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -652,7 +652,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_0FFD1FF1EA314AE39EDFFB8D3B0D5078"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\tmdiff.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\tmdiff.h"
             "TargetName" = "8:tmdiff.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -672,7 +672,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_184734F491ED45EDB2200130D614F5EE"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\rc2.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\rc2.h"
             "TargetName" = "8:rc2.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -692,7 +692,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_25DB889AFC504A01A76E1C2637A66B5D"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\crypto.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\crypto.h"
             "TargetName" = "8:crypto.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -712,7 +712,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_27E60B410E5A4B1C85687E8142C93EED"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\engine.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\engine.h"
             "TargetName" = "8:engine.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -732,7 +732,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_33280CA916F043DF81C3E17F202FEB35"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\ebcdic.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\ebcdic.h"
             "TargetName" = "8:ebcdic.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -752,7 +752,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_34B55DE919E94A1A9E34A56C9E853561"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\ssl23.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\ssl23.h"
             "TargetName" = "8:ssl23.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -772,7 +772,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_36B2BC1B194941749CB68F2E4CBF1E4A"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\x509_vfy.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\x509_vfy.h"
             "TargetName" = "8:x509_vfy.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -792,7 +792,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_3768D43AB8FD43CB8C6C5B18B7E5C482"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\asn1_mac.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\asn1_mac.h"
             "TargetName" = "8:asn1_mac.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -812,7 +812,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_39F35AF85D1B431988A3C72CCC9A4DB2"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\aes.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\aes.h"
             "TargetName" = "8:aes.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -832,7 +832,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_409B4A7BE2DF44349B7960E1DD24A34C"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\md5.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\md5.h"
             "TargetName" = "8:md5.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -852,7 +852,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_44652A6BB334472CA2EA84A646C88594"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\rc5.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\rc5.h"
             "TargetName" = "8:rc5.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -872,7 +872,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_486861CE17ED455E9F9EB906D87D3666"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\symhacks.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\symhacks.h"
             "TargetName" = "8:symhacks.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -892,7 +892,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_4F0522E90B6D4701B3076A8646975911"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\dsa.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\dsa.h"
             "TargetName" = "8:dsa.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -912,7 +912,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_527261929DB242BAA6F1EE648636E94D"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\sha.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\sha.h"
             "TargetName" = "8:sha.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -932,7 +932,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_554DAF4D7FAF4E2C8F8A081A3090F615"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\ocsp.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\ocsp.h"
             "TargetName" = "8:ocsp.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -952,7 +952,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_581B8404DCDF4C629C8FA96D58D1A2FB"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\opensslconf.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\opensslconf.h"
             "TargetName" = "8:opensslconf.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -972,7 +972,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5D039ED1F69748CAB6A0D0372C907174"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\x509.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\x509.h"
             "TargetName" = "8:x509.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -992,7 +992,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5ECBE880A9DC4229A5E2C115E5AF9155"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\out32dll\\ssleay32.lib"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\out32dll\\ssleay32.lib"
             "TargetName" = "8:ssleay32.lib"
             "Tag" = "8:"
             "Folder" = "8:_E2E76777D0964E8A9F05F600077B0164"
@@ -1012,7 +1012,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6011EA08585A4593903062F1AFE1184C"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\pkcs7.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\pkcs7.h"
             "TargetName" = "8:pkcs7.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1032,7 +1032,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_63048AA012A041C49A996B00425B7560"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\pem2.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\pem2.h"
             "TargetName" = "8:pem2.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1052,7 +1052,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_68492293F4CF454DB0418CBC39881F05"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\asn1.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\asn1.h"
             "TargetName" = "8:asn1.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1072,7 +1072,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_68F22E6531AA43C38FCEF5775AF91BCD"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\idea.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\idea.h"
             "TargetName" = "8:idea.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1092,7 +1092,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6B5E826090CA451ABC46FB0D42B33F6A"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\ec.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\ec.h"
             "TargetName" = "8:ec.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1112,7 +1112,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6CF202FCC834425781457951F04FAFFD"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\md4.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\md4.h"
             "TargetName" = "8:md4.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1132,7 +1132,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6FD13E6519D74D1CB70BCFD269F2CB81"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\pem.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\pem.h"
             "TargetName" = "8:pem.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1152,7 +1152,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_70D1DCF03F384B9ABB7BA61C6793C0F5"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\evp.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\evp.h"
             "TargetName" = "8:evp.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1172,7 +1172,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_71FEFFCFE9134059886CC31422425269"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\ssl2.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\ssl2.h"
             "TargetName" = "8:ssl2.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1192,7 +1192,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_86B685D682B440EC8585E406D3B5AC53"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\ossl_typ.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\ossl_typ.h"
             "TargetName" = "8:ossl_typ.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1212,7 +1212,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8B3FA0AB676C46B39025EA89C855E3EC"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\ssl.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\ssl.h"
             "TargetName" = "8:ssl.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1232,7 +1232,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8C33A2FC72064ABCB919AAFE61FE1365"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\hmac.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\hmac.h"
             "TargetName" = "8:hmac.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1252,7 +1252,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_90B2477F42344412924D4019E42929BC"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\conf.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\conf.h"
             "TargetName" = "8:conf.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1272,7 +1272,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_910B22BD0FA14670B7AE82DD83109AE1"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\conf_api.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\conf_api.h"
             "TargetName" = "8:conf_api.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1292,7 +1292,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_9C2518EA2D224415BFCF6BAA006E1412"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\buffer.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\buffer.h"
             "TargetName" = "8:buffer.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1312,7 +1312,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_9E21221FC93748B49915EC2F0169E117"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\stack.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\stack.h"
             "TargetName" = "8:stack.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1332,7 +1332,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_A0AAFD6375FF40799175008A5C6F8AE2"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\safestack.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\safestack.h"
             "TargetName" = "8:safestack.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1352,7 +1352,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_AB6A7FBDEBF04E698ADAA8EAC57938B8"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\asn1t.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\asn1t.h"
             "TargetName" = "8:asn1t.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1372,7 +1372,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_AE5AACB1107C45DAB22A809B7DD72AAE"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\ssl3.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\ssl3.h"
             "TargetName" = "8:ssl3.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1392,7 +1392,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_B674CCD44A8649CAA05A6FFADF0DCECF"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\lhash.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\lhash.h"
             "TargetName" = "8:lhash.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1412,7 +1412,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BA128FBB81674CD38625AC9B32CE3863"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\mdc2.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\mdc2.h"
             "TargetName" = "8:mdc2.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1432,7 +1432,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BAEA6A9CC7EB411DBACFEF7E2C763495"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\opensslv.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\opensslv.h"
             "TargetName" = "8:opensslv.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1452,7 +1452,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BEB0BF0959834309BD2BF5B5A479CC10"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\x509v3.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\x509v3.h"
             "TargetName" = "8:x509v3.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1472,7 +1472,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BF5F0980986F4DE49A3ADA62231325EE"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\rsa.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\rsa.h"
             "TargetName" = "8:rsa.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1492,7 +1492,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BF71EE73FC0748A991E4D710A1372FC0"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\kssl.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\kssl.h"
             "TargetName" = "8:kssl.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1512,7 +1512,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C0792F792DD048128E2DEA76AADC64E9"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\krb5_asn.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\krb5_asn.h"
             "TargetName" = "8:krb5_asn.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1532,7 +1532,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C6F1F15395E24E5FAD17F3CA9B6C3C2F"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\objects.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\objects.h"
             "TargetName" = "8:objects.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1552,7 +1552,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C7055DC3398343098E6416CA355FBF24"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\err.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\err.h"
             "TargetName" = "8:err.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1572,7 +1572,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_CCC4CFC1045645CA89D1FEF16F5C6CB7"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\des_old.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\des_old.h"
             "TargetName" = "8:des_old.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1592,7 +1592,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_CDB63E51C10B4A8CA51D6C327D250F01"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\bio.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\bio.h"
             "TargetName" = "8:bio.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1612,7 +1612,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_CF3AA723266742BA8F5CB2049E72F28A"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\dso.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\dso.h"
             "TargetName" = "8:dso.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1632,7 +1632,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_D5939409C85A4067886C0DE8B90D9109"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\blowfish.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\blowfish.h"
             "TargetName" = "8:blowfish.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1652,7 +1652,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_D84B2A191D5A4CA1A82E2F270744DE77"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\dh.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\dh.h"
             "TargetName" = "8:dh.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1672,7 +1672,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_D8B35B0BFC874ED4AD936DEBB7B2AB80"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\comp.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\comp.h"
             "TargetName" = "8:comp.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1692,7 +1692,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_D922F302D9EC460582C1F91650EBB260"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\ui.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\ui.h"
             "TargetName" = "8:ui.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1712,7 +1712,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E538CC620D3549D891DE306DDCFA5689"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\md2.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\md2.h"
             "TargetName" = "8:md2.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1732,7 +1732,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E95C5CB100C84DF8BAD61A34716B192A"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\tls1.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\tls1.h"
             "TargetName" = "8:tls1.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1752,7 +1752,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_EA8A4CA2A4CA477EADAE0ECB11ACBB90"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\obj_mac.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\obj_mac.h"
             "TargetName" = "8:obj_mac.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1772,7 +1772,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_EAD692B4CDC046F0A01DCE20BC21E145"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\e_os2.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\e_os2.h"
             "TargetName" = "8:e_os2.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"
@@ -1792,7 +1792,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_F8923980041F4EEC88179B1251735A3C"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7d\\inc32\\openssl\\bn.h"
+            "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7e\\inc32\\openssl\\bn.h"
             "TargetName" = "8:bn.h"
             "Tag" = "8:"
             "Folder" = "8:_D7F50865E5924EE585C505200C6B3542"

@@ -15,9 +15,15 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_C12C26B269874E359B1BA818440DD24D"
+        "MsmKey" = "8:_4F24A4AB13C642B190446B8548F5E54D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\DEBUG\\LIBDB42D.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\DEBUG\\LIBDB43D.DLL"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FBB6AE84C43142FABAEB782F1E825669"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\DEBUG\\DB_DLL.PDB"
         }
     }
     "Configurations"
@@ -68,10 +74,30 @@
         }
         "File"
         {
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C12C26B269874E359B1BA818440DD24D"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_4F24A4AB13C642B190446B8548F5E54D"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Debug\\libdb42d.dll"
-            "TargetName" = "8:libdb42d.dll"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Debug\\libdb43d.dll"
+            "TargetName" = "8:libdb43d.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_41C668252C5E45BC856D33ED6359A0AA"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_FBB6AE84C43142FABAEB782F1E825669"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Debug\\db_dll.pdb"
+            "TargetName" = "8:db_dll.pdb"
             "Tag" = "8:"
             "Folder" = "8:_41C668252C5E45BC856D33ED6359A0AA"
             "Condition" = "8:"
@@ -117,6 +143,17 @@
                         {
                         }
                     }
+                }
+            }
+            "{777C097F-0ED8-11D3-8D6C-00A0C9CFCEE6}:_8A39D7B3D21E4C2F98D168F27C8BD30F"
+            {
+            "Name" = "8:#1910"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Property" = "8:CommonFilesFolder"
+                "Folders"
+                {
                 }
             }
         }
@@ -165,7 +202,7 @@
         "Module"
         {
         "ModuleSignature" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
-        "Version" = "8:4.2.52.0"
+        "Version" = "8:4.3.21.0"
         "Title" = "8:BerkeleyDBRuntimeDebug"
         "Subject" = "8:"
         "Author" = "8:ZeroC, Inc"
