@@ -137,101 +137,16 @@ void
 Ice::PluginManagerI::loadPlugin(const string& name, const string& entryPoint, const StringSeq& args)
 {
     //
-    // Parse the entry point. An entry point has the following format:
-    //
-    // name[,version]:function
-    //
-    // The name of the shared library/DLL is constructed from the
-    // given information. If no version is supplied, the Ice version
-    // is used. For example, consider the following entry point:
-    //
-    // foo:create
-    //
-    // This would result in libfoo.so.0.0.1 (Unix) and foo001.dll (Windows),
-    // where the Ice version is 0.0.1.
-    //
-    // Now consider this entry point:
-    //
-    // foo,1.1:create
-    //
-    // The library names in this case are libfoo.so.1.1 (Unix) and
-    // foo11.dll (Windows).
-    //
-    // On Windows platforms, a 'd' is appended to the version for debug
-    // builds.
-    //
-    string::size_type colon = entryPoint.rfind(':');
-    string::size_type comma = entryPoint.find(',');
-    if (colon == string::npos || colon == entryPoint.size() - 1 ||
-        (comma != string::npos && (comma > colon || comma == colon - 1)))
-    {
-        Error out(_instance->logger());
-        out << "PluginManager: invalid entry point format `" << entryPoint << "'";
-        SystemException ex(__FILE__, __LINE__);
-        ex.error = 0;
-        throw ex;
-    }
-    string libSpec = entryPoint.substr(0, colon);
-    string funcName = entryPoint.substr(colon + 1);
-    string libName, version, debug;
-    if (comma == string::npos)
-    {
-        libName = libSpec;
-        version = ICE_STRING_VERSION;
-    }
-    else
-    {
-        libName = libSpec.substr(0, comma);
-        version = libSpec.substr(comma + 1);
-    }
-
-    string lib;
-
-#ifdef _WIN32
-    lib = libName;
-    for (string::size_type n = 0; n < version.size(); n++)
-    {
-        if (version[n] != '.') // Remove periods
-        {
-            lib += version[n];
-        }
-    }
-#   ifdef _DEBUG
-    lib += 'd';
-#   endif
-    lib += ".dll";
-#else
-    lib = "lib" + libName + ".so." + version;
-#endif
-
-    //
-    // Load the dynamic library.
+    // Load the entry point symbol.
     //
     PluginInfo info;
     info.library = new DynamicLibrary();
-    if (!info.library->load(lib))
-    {
-        Error out(_instance->logger());
-        string msg = info.library->getErrorMessage();
-        out << "PluginManager: unable to load library `" << lib << "'";
-        if (!msg.empty())
-        {
-            out << ": " + msg;
-        }
-        SystemException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
-    }
-
-    //
-    // Lookup the factory function.
-    //
-    DynamicLibrary::symbol_type sym = info.library->getSymbol(funcName);
+    DynamicLibrary::symbol_type sym = info.library->loadEntryPoint(entryPoint);
     if (sym == 0)
     {
         Error out(_instance->logger());
         string msg = info.library->getErrorMessage();
-        out << "PluginManager: unable to find function `" << funcName << "' in library `" << lib << "'";
+        out << "PluginManager: unable to load entry point `" << entryPoint << "'";
         if (!msg.empty())
         {
             out << ": " + msg;
@@ -252,7 +167,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& entryPoint, co
     catch (const Exception& ex)
     {
         Error out(_instance->logger());
-        out << "PluginManager: exception in factory function `" << funcName << "': " << ex.ice_name();
+        out << "PluginManager: exception in entry point `" << entryPoint << "': " << ex.ice_name();
         SystemException e(__FILE__, __LINE__);
         e.error = 0;
         throw e;

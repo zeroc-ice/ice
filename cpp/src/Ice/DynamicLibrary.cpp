@@ -38,6 +38,58 @@ IceInternal::DynamicLibrary::~DynamicLibrary()
     }
 }
 
+IceInternal::DynamicLibrary::symbol_type
+IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint)
+{
+    string::size_type colon = entryPoint.rfind(':');
+    string::size_type comma = entryPoint.find(',');
+    if (colon == string::npos || colon == entryPoint.size() - 1 ||
+        (comma != string::npos && (comma > colon || comma == colon - 1)))
+    {
+        _err = "invalid entry point format `" + entryPoint + "'";
+        return 0;
+    }
+    string libSpec = entryPoint.substr(0, colon);
+    string funcName = entryPoint.substr(colon + 1);
+    string libName, version, debug;
+    if (comma == string::npos)
+    {
+        libName = libSpec;
+        version = ICE_STRING_VERSION;
+    }
+    else
+    {
+        libName = libSpec.substr(0, comma);
+        version = libSpec.substr(comma + 1);
+    }
+
+    string lib;
+
+#ifdef _WIN32
+    lib = libName;
+    for (string::size_type n = 0; n < version.size(); n++)
+    {
+        if (version[n] != '.') // Remove periods
+        {
+            lib += version[n];
+        }
+    }
+#   ifdef _DEBUG
+    lib += 'd';
+#   endif
+    lib += ".dll";
+#else
+    lib = "lib" + libName + ".so." + version;
+#endif
+
+    if (!load(lib))
+    {
+        return 0;
+    }
+
+    return getSymbol(funcName);
+}
+
 bool
 IceInternal::DynamicLibrary::load(const string& lib)
 {

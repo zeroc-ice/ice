@@ -68,7 +68,7 @@ IceBox::ServiceManagerI::run()
         // with the prefix "IceBox.Service.". These properties should
         // have the following format:
         //
-        // IceBox.Service.Foo=libFoo.so:create [args]
+        // IceBox.Service.Foo=entry_point [args]
         //
         const string prefix = "IceBox.Service.";
         PropertiesPtr properties = _communicator->getProperties();
@@ -81,16 +81,16 @@ IceBox::ServiceManagerI::run()
             //
             // Separate the entry point from the arguments.
             //
-            string exec;
+            string entryPoint;
             StringSeq args;
             string::size_type pos = value.find_first_of(" \t\n");
             if (pos == string::npos)
             {
-                exec = value;
+                entryPoint = value;
             }
             else
             {
-                exec = value.substr(0, pos);
+                entryPoint = value.substr(0, pos);
                 string::size_type beg = value.find_first_not_of(" \t\n", pos);
                 while (beg != string::npos)
                 {
@@ -108,7 +108,7 @@ IceBox::ServiceManagerI::run()
                 }
             }
 
-            init(name, exec, args);
+            init(name, entryPoint, args);
         }
 
         //
@@ -182,7 +182,7 @@ IceBox::ServiceManagerI::run()
 }
 
 IceBox::ServicePtr
-IceBox::ServiceManagerI::init(const string& service, const string& exec, const StringSeq& args)
+IceBox::ServiceManagerI::init(const string& service, const string& entryPoint, const StringSeq& args)
 {
     //
     // We need to create a property set to pass to init().
@@ -225,23 +225,15 @@ IceBox::ServiceManagerI::init(const string& service, const string& exec, const S
     serviceArgs = serviceProperties->parseCommandLineOptions(service, serviceArgs);
 
     //
-    // Load the dynamic library.
+    // Load the entry point.
     //
-    string::size_type colon = exec.rfind(':');
-    if (colon == string::npos || colon == exec.size() - 1)
-    {
-        FailureException ex;
-        ex.reason = "ServiceManager: invalid factory format `" + exec + "'";
-        throw ex;
-    }
-    string libName = exec.substr(0, colon);
-    string funcName = exec.substr(colon + 1);
     DynamicLibraryPtr library = new DynamicLibrary();
-    if (!library->load(libName))
+    DynamicLibrary::symbol_type sym = library->loadEntryPoint(entryPoint);
+    if (sym == 0)
     {
         string msg = library->getErrorMessage();
         FailureException ex;
-        ex.reason = "ServiceManager: unable to load library `" + libName + "'";
+        ex.reason = "ServiceManager: unable to load entry point `" + entryPoint + "'";
         if (!msg.empty())
         {
             ex.reason += ": " + msg;
@@ -250,20 +242,8 @@ IceBox::ServiceManagerI::init(const string& service, const string& exec, const S
     }
 
     //
-    // Lookup the factory function and invoke it.
+    // Invoke the factory function.
     //
-    DynamicLibrary::symbol_type sym = library->getSymbol(funcName);
-    if (sym == 0)
-    {
-        string msg = library->getErrorMessage();
-        FailureException ex;
-        ex.reason = "ServiceManager: unable to load symbol `" + funcName + "'";
-        if (!msg.empty())
-        {
-            ex.reason += ": " + msg;
-        }
-        throw ex;
-    }
     SERVICE_FACTORY factory = (SERVICE_FACTORY)sym;
     ServiceInfo info;
     try
@@ -273,7 +253,7 @@ IceBox::ServiceManagerI::init(const string& service, const string& exec, const S
     catch (const Exception& ex)
     {
         FailureException e;
-        e.reason = "ServiceManager: exception in factory function `" + funcName + "': " + ex.ice_name();
+        e.reason = "ServiceManager: exception in entry point `" + entryPoint + "': " + ex.ice_name();
         throw e;
     }
 

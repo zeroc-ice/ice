@@ -6,7 +6,7 @@ IceBox.ServiceManager.Endpoints=tcp -p 9998:ssl -p 9999
 #
 # The hello service
 #
-IceBox.Service.Hello=helloservice.dll:create
+IceBox.Service.Hello=HelloService:create
 
 #
 # The client reads this property to create the reference to the
