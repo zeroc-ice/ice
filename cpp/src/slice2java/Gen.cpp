@@ -1236,6 +1236,22 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "return _ice_delegate.hashCode();";
     out << eb;
 
+    if(p->isLocal())
+    {
+        out << sp << nl << "public int" << nl << "ice_hash()";
+	out << sb;
+	out << nl << "return hashCode();";
+	out << eb;
+
+	out << sp << nl << "public java.lang.Object" << nl << "clone()";
+	out.inc();
+	out << nl << "throws java.lang.CloneNotSupportedException";
+	out.dec();
+	out << sb;
+	out << nl << "return super.clone();";
+	out << eb;
+    }
+
     OperationList ops = p->allOperations();
     OperationList::const_iterator r;
     for(r = ops.begin(); r != ops.end(); ++r)

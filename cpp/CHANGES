@@ -1,6 +1,9 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Fixed bug in slice2java: with the --impl-tie option, incorrect
+  code was generated for local interfaces and classes.
+
 - Tightened semantic check for all Slice compilers: previously,
   a local interface or class could be derived from a non-local
   interface or class. This is now correctly diagnosed as an error.
