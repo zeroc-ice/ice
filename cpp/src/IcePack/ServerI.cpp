@@ -43,9 +43,9 @@ IcePack::ServerI::getServerDescription(const Ice::Current&)
 }
 
 bool
-IcePack::ServerI::start(ServerActivation activation, const Ice::Current& current)
+IcePack::ServerI::start(ServerActivation act, const Ice::Current& current)
 {
-    if(activation < description.activation)
+    if(act < activation)
     {
 	return false;
     }
@@ -314,6 +314,20 @@ Ice::Int
 IcePack::ServerI::getPid(const Ice::Current& current)
 {
     return _activator->getServerPid(this);
+}
+
+void 
+IcePack::ServerI::setActivationMode(ServerActivation mode, const ::Ice::Current&)
+{
+    IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    activation = mode;
+}
+
+ServerActivation 
+IcePack::ServerI::getActivationMode(const ::Ice::Current&)
+{
+    IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    return activation;
 }
 
 void

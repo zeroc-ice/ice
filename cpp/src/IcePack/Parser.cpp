@@ -60,6 +60,8 @@ IcePack::Parser::usage()
 	"server describe NAME        Get server NAME description.\n"
 	"server state NAME           Get server NAME state.\n"
 	"server pid NAME             Get server NAME pid.\n"
+	"server activation NAME [on-demand | manual] Set the server activation mode to\n"
+	"                            on-demand or manual activation"
 	"server start NAME           Starts server NAME.\n"
 	"server stop NAME            Stop server NAME.\n"
         "server remove NAME          Remove server NAME.\n"
@@ -335,12 +337,13 @@ IcePack::Parser::describeServer(const list<string>& args)
     try
     {
 	ServerDescription desc = _admin->getServerDescription(args.front());
+	ServerActivation activation = _admin->getServerActivation(args.front());
 
 	cout << "name = " << desc.name << endl;
 	cout << "node = " << desc.node << endl;
 	cout << "path = " << desc.path << endl;
 	cout << "pwd = " << desc.pwd << endl;
-	cout << "activation = " << (desc.activation == OnDemand ? "on-demand" : "manual") << endl;
+	cout << "activation = " << (activation == OnDemand ? "on-demand" : "manual") << endl;
 	cout << "args = ";
 	copy(desc.theArgs.begin(), desc.theArgs.end(), ostream_iterator<string>(cout," "));
 	cout << endl;
@@ -418,6 +421,42 @@ IcePack::Parser::pidServer(const list<string>& args)
     try
     {
 	cout << _admin->getServerPid(args.front()) << endl;
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::activationServer(const list<string>& args)
+{
+    if(args.size() != 2)
+    {
+	error("`server activation' requires exactly two arguments\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	list<string>::const_iterator p = args.begin();
+	string name = *p++;
+	string mode = *p++;
+
+	if(mode == "on-demand")
+	{
+	    _admin->setServerActivation(name, OnDemand);
+	}
+	else if(mode == "manual")
+	{
+	    _admin->setServerActivation(name, Manual);
+	}
+	else
+	{
+	    error("Unknown mode: " + mode);
+	}
     }
     catch(const Exception& ex)
     {

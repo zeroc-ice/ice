@@ -244,6 +244,20 @@ class Server
     int getPid();
 
     /**
+     *
+     * Set the server activation mode.
+     *
+     **/
+    void setActivationMode(ServerActivation mode);
+
+    /**
+     *
+     * Get the server activation mode.
+     *
+     **/
+    ServerActivation getActivationMode();
+    
+    /**
      * 
      * The description of this server.
      *
@@ -258,6 +272,13 @@ class Server
      *
      **/
     ServerAdapters adapters;
+
+    /**
+     *
+     * The server activation mode.
+     *
+     **/
+    ServerActivation activation;
 };
 
 /**

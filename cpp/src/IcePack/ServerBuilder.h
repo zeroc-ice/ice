@@ -47,7 +47,6 @@ public:
     void addOption(const std::string&);
     void addJavaOption(const std::string&);
     void setKind(ServerKind);
-    void setActivationMode(ServerActivation);
 
     ServerPrx getServer() const;
     ServerAdapterPrx getServerAdapter(const std::string& name) const;

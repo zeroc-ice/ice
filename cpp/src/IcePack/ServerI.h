@@ -43,6 +43,9 @@ public:
     virtual ServerState getState(const ::Ice::Current&);
     virtual Ice::Int getPid(const ::Ice::Current&);
 
+    virtual void setActivationMode(ServerActivation, const ::Ice::Current&);
+    virtual ServerActivation getActivationMode(const ::Ice::Current&);
+
 private:
 
     void stopInternal();

@@ -158,6 +158,11 @@ IcePack::ServerFactory::createServerAndAdapters(const ServerDescription& descrip
 	serverI->adapters.push_back(adapterProxy);
     }
 
+    //
+    // By default server is always activated on demand.
+    //
+    serverI->activation = OnDemand;
+
     _adapter->add(serverI, id);
     
     _serverEvictor->createObject(id, serverI);

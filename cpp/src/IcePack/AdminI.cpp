@@ -168,6 +168,42 @@ IcePack::AdminI::getAllServerNames(const Current&) const
     return _serverRegistry->getAll();
 }
 
+ServerActivation 
+IcePack::AdminI::getServerActivation(const ::std::string& name, const Ice::Current&) const
+{
+    ServerPrx server = _serverRegistry->findByName(name);
+    try
+    {
+	return server->getActivationMode();
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+	throw ServerNotExistException();
+    }
+    catch(const Ice::LocalException&)
+    {
+	throw NodeUnreachableException();
+    }
+}
+
+void 
+IcePack::AdminI::setServerActivation(const ::std::string& name, ServerActivation mode, const Ice::Current&)
+{
+    ServerPrx server = _serverRegistry->findByName(name);
+    try
+    {
+	return server->setActivationMode(mode);
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+	throw ServerNotExistException();
+    }
+    catch(const Ice::LocalException&)
+    {
+	throw NodeUnreachableException();
+    }
+}
+
 string 
 IcePack::AdminI::getAdapterEndpoints(const string& name, const Current&) const
 {

@@ -290,22 +290,6 @@ IcePack::ServerHandler::startElement(const XMLCh *const name, AttributeList &att
 	string name = getAttributeValue(attrs, "name");
 	_builder.registerAdapter(name, getAttributeValue(attrs, "endpoints"), _currentAdapterId);
     }
-    else if(str == "activation")
-    {
-	string mode = getAttributeValue(attrs, "mode");
-	if(mode == "manual")
-	{
-	    _builder.setActivationMode(Manual);
-	}
-	else if(mode == "on-demand")
-	{
-	    _builder.setActivationMode(OnDemand);
-	}
-	else
-	{
-	    throw DeploySAXParseException("unkown value for attribute mode", _locator);
-	}
-    }
 }
 
 void
@@ -354,7 +338,6 @@ IcePack::ServerBuilder::ServerBuilder(const NodeInfoPtr& nodeInfo,
     _libraryPath = _variables["libpath"];
     _description.node = nodeInfo->getNode()->getName();
     _description.theTargets = targets;
-    _description.activation = OnDemand;
 }
 
 void
@@ -673,12 +656,6 @@ IcePack::ServerBuilder::setKind(ServerBuilder::ServerKind kind)
     }
     
     _kind = kind;
-}
-
-void
-IcePack::ServerBuilder::setActivationMode(ServerActivation activation)
-{
-    _description.activation = activation;
 }
 
 ServerPrx

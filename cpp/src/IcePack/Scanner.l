@@ -156,6 +156,10 @@ NL	[\n]
     return ICE_PACK_PING;
 }
 
+"activation" {
+    return ICE_PACK_ACTIVATION;
+}
+
 {WS}*(\\{WS}*{NL})? {
     int len = strlen(yytext);
     for(int i = 0; i < len; ++i)

@@ -51,6 +51,7 @@ yyerror(const char* s)
 %token ICE_PACK_STATE
 %token ICE_PACK_PID
 %token ICE_PACK_ENDPOINTS
+%token ICE_PACK_ACTIVATION
 
 %%
 
@@ -130,6 +131,10 @@ command
 | ICE_PACK_SERVER ICE_PACK_PID strings ';'
 {
     parser->pidServer($3);
+}
+| ICE_PACK_SERVER ICE_PACK_ACTIVATION strings ';'
+{
+    parser->activationServer($3);
 }
 | ICE_PACK_SERVER ICE_PACK_REMOVE strings ';'
 {

@@ -36,6 +36,8 @@ public:
     virtual bool startServer(const ::std::string&, const Ice::Current&);
     virtual void stopServer(const ::std::string&, const Ice::Current&);
     virtual Ice::StringSeq getAllServerNames(const Ice::Current&) const;
+    virtual ServerActivation getServerActivation(const ::std::string&, const Ice::Current&) const;
+    virtual void setServerActivation(const ::std::string&, ServerActivation, const Ice::Current&);
 
     virtual ::std::string getAdapterEndpoints(const ::std::string&, const ::Ice::Current&) const;
     virtual Ice::StringSeq getAllAdapterNames(const ::Ice::Current&) const;
