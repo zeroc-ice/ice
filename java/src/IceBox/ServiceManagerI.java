@@ -371,6 +371,13 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 		    info.communicator.shutdown();
 		    info.communicator.waitForShutdown();
 		}
+		catch(Ice.CommunicatorDestroyedException e)
+		{
+		    //
+		    // Ignore, the service might have already destroyed
+		    // the communicator for its own reasons.
+		    //
+		}
 		catch(Exception e)
 		{
 		    java.io.StringWriter sw = new java.io.StringWriter();

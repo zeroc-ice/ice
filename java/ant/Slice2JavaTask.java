@@ -271,18 +271,24 @@ public class Slice2JavaTask extends SliceTask
                 cmd.append(f.toString());
             }
 
+	    //
+	    // It's not possible anymore to re-use the same output property since Ant 1.5.x. so we use a 
+	    // unique property name here. Perhaps we should output the dependencies to a file instead.
+	    //
+	    final String outputProperty = "slice2java.depend." + System.currentTimeMillis();
+
 	    task = (ExecTask)project.createTask("exec");
             task.setFailonerror(true);
 	    arg = task.createArg();
             arg.setLine(cmd.toString());
             task.setExecutable(_translator.toString());
-	    task.setOutputproperty("slice2java.depend");
+	    task.setOutputproperty(outputProperty);
             task.execute();
 
 	    //
 	    // Update dependency file.
 	    //
-	    java.util.List newDependencies = parseDependencies(project.getProperty("slice2java.depend"));
+	    java.util.List newDependencies = parseDependencies(project.getProperty(outputProperty));
 	    p = newDependencies.iterator();
 	    while(p.hasNext())
 	    {

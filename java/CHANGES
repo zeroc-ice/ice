@@ -39,6 +39,11 @@ Changes since version 1.1.0
 - Changed the return type of the ice_invoke_async method in
   Ice.BlobjectAsync to void instead of boolean.
 
+- Fixed a bug where the locator cache wasn't correctly updated upon a
+  connection failure to a server. This was causing IceJ to try to
+  re-establish the connection to the same server endpoints without
+  asking the locator if eventually the endpoints had changed.
+
 - Fixed a bug where the operation mode argument wasn't used in the
   implementation of the Ice.ObjectPrx ice_invoke method.
 

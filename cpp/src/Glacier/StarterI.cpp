@@ -148,11 +148,10 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
     }
 
     //
-    // Start a router.
+    // Setup the pipe between the router and starter.
     //
     string path = _properties->getPropertyWithDefault("Glacier.Starter.RouterPath", "glacierrouter");
     string uuid = IceUtil::generateUUID();
-    pid_t pid = -1; // Initialize to keep the compiler happy.
     int fds[2];
 
     try
@@ -163,7 +162,107 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	    ex.error = getSystemErrno();
 	    throw ex;
 	}
+    }
+    catch(const LocalException& ex)
+    {
+	Error out(_logger);
+	out << ex;
+	ex.ice_throw();
+    }
 
+    //
+    // Setup arguments to start the router with.
+    //
+    StringSeq args = _properties->getCommandLineOptions();
+
+    //
+    // Filter all arguments that don't start with "--Ice.",
+    // "--IceSSL.", or "--Glacier.Router.".
+    //
+    args.erase(remove_if(args.begin(), args.end(), prefixOK), args.end());
+
+    args.push_back("--Glacier.Router.Identity=" + uuid);
+
+    //
+    // TODO: Potential security risk, command line parameters can
+    // be seen with `ps'. Keys and certificate should rather be
+    // passed through a pipe? (ML will take care of this...)
+    //
+    if(sslConfigured)
+    {
+	args.push_back("--IceSSL.Server.Overrides.RSA.PrivateKey=" + routerPrivateKeyBase64);
+	args.push_back("--IceSSL.Server.Overrides.RSA.Certificate=" + routerCertificateBase64);
+	args.push_back("--IceSSL.Client.Overrides.RSA.PrivateKey=" + routerPrivateKeyBase64);
+	args.push_back("--IceSSL.Client.Overrides.RSA.Certificate=" + routerCertificateBase64);
+	args.push_back("--Glacier.Router.AcceptCert=" + clientCertificateBase64);
+    }
+
+    args.push_back("--Glacier.Router.UserId=" + userId);
+	
+    int addUserMode = _properties->getPropertyAsIntWithDefault("Glacier.Starter.AddUserToAllowCategories", 0);
+    if(addUserMode == 1)
+    {
+	// Add user id to allowed categories.
+	args.push_back("--Glacier.Router.AllowCategories=" +
+		       _properties->getProperty("Glacier.Router.AllowCategories") + " " + userId);
+    }
+    else if(addUserMode == 2)
+    {
+	// Add user id with prepended underscore to allowed categories.
+	args.push_back("--Glacier.Router.AllowCategories=" +
+		       _properties->getProperty("Glacier.Router.AllowCategories") + " _" + userId);
+    }
+
+    ostringstream s;
+    s << "--Glacier.Router.PrintProxyOnFd=" << fds[1];
+    args.push_back(s.str());
+    string overwrite = _properties->getProperty("Glacier.Starter.PropertiesOverride");
+    if(!overwrite.empty())
+    {
+	string::size_type end = 0;
+	while(end != string::npos)
+	{
+	    const string delim = " \t\r\n";
+		
+	    string::size_type beg = overwrite.find_first_not_of(delim, end);
+	    if(beg == string::npos)
+	    {
+		break;
+	    }
+		
+	    end = overwrite.find_first_of(delim, beg);
+	    string arg;
+	    if(end == string::npos)
+	    {
+		arg = overwrite.substr(beg);
+	    }
+	    else
+	    {
+		arg = overwrite.substr(beg, end - beg);
+	    }
+	    if(arg.find("--") != 0)
+	    {
+		arg = "--" + arg;
+	    }
+	    args.push_back(arg);
+	}
+    }
+    
+/*
+  StringSeq::iterator seqElem = args.begin();
+  while(seqElem != args.end())
+  {
+  cerr << *seqElem << endl;
+  seqElem++;
+  }
+*/	
+    
+    //
+    // Start a router.
+    //
+    pid_t pid = -1; // Initialize to keep the compiler happy.
+    try
+    {
 	pid = fork();
 
 	if(pid == -1)
@@ -197,93 +296,6 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 		close(fd);
 	    }
 	}
-	
-	//
-	// Setup arguments to start the router with.
-	//
-	StringSeq args = _properties->getCommandLineOptions();
-
-	//
-	// Filter all arguments that don't start with "--Ice.",
-	// "--IceSSL.", or "--Glacier.Router.".
-	//
-	args.erase(remove_if(args.begin(), args.end(), prefixOK), args.end());
-
-	args.push_back("--Glacier.Router.Identity=" + uuid);
-
-        //
-	// TODO: Potential security risk, command line parameters can
-	// be seen with `ps'. Keys and certificate should rather be
-	// passed through a pipe? (ML will take care of this...)
-	//
-        if(sslConfigured)
-        {
-            args.push_back("--IceSSL.Server.Overrides.RSA.PrivateKey=" + routerPrivateKeyBase64);
-            args.push_back("--IceSSL.Server.Overrides.RSA.Certificate=" + routerCertificateBase64);
-            args.push_back("--IceSSL.Client.Overrides.RSA.PrivateKey=" + routerPrivateKeyBase64);
-            args.push_back("--IceSSL.Client.Overrides.RSA.Certificate=" + routerCertificateBase64);
-            args.push_back("--Glacier.Router.AcceptCert=" + clientCertificateBase64);
-        }
-
-	args.push_back("--Glacier.Router.UserId=" + userId);
-	
-	int addUserMode = _properties->getPropertyAsIntWithDefault("Glacier.Starter.AddUserToAllowCategories", 0);
-	if(addUserMode == 1)
-	{
-	    // Add user id to allowed categories.
-	    args.push_back("--Glacier.Router.AllowCategories=" +
-			   _properties->getProperty("Glacier.Router.AllowCategories") + " " + userId);
-	}
-	else if(addUserMode == 2)
-	{
-	    // Add user id with prepended underscore to allowed categories.
-	    args.push_back("--Glacier.Router.AllowCategories=" +
-			   _properties->getProperty("Glacier.Router.AllowCategories") + " _" + userId);
-	}
-
-	ostringstream s;
-	s << "--Glacier.Router.PrintProxyOnFd=" << fds[1];
-	args.push_back(s.str());
-	string overwrite = _properties->getProperty("Glacier.Starter.PropertiesOverride");
-	if(!overwrite.empty())
-	{
-	    string::size_type end = 0;
-	    while(end != string::npos)
-	    {
-		const string delim = " \t\r\n";
-		
-		string::size_type beg = overwrite.find_first_not_of(delim, end);
-		if(beg == string::npos)
-		{
-		    break;
-		}
-		
-		end = overwrite.find_first_of(delim, beg);
-		string arg;
-		if(end == string::npos)
-		{
-		    arg = overwrite.substr(beg);
-		}
-		else
-		{
-		    arg = overwrite.substr(beg, end - beg);
-		}
-		if(arg.find("--") != 0)
-		{
-		    arg = "--" + arg;
-		}
-		args.push_back(arg);
-	    }
-	}
-
-/*
-        StringSeq::iterator seqElem = args.begin();
-        while(seqElem != args.end())
-        {
-            cerr << *seqElem << endl;
-            seqElem++;
-        }
-*/
 	
 	//
 	// Convert to standard argc/argv.

@@ -85,6 +85,14 @@ public final class Connection extends EventHandler
 	{
 	    try
 	    {
+		//
+		// We wait indefinitely until all outstanding requests are
+		// completed. If we were using a timeout here we couldn't
+		// guarantee that there are no outstanding calls when
+		// deactivate() is called on the servant locators.
+		//
+		wait();
+/*
 		if(_endpoint.timeout() >= 0)
 		{
 		    long absoluteTimeoutMillis = System.currentTimeMillis() + _endpoint.timeout();
@@ -102,6 +110,7 @@ public final class Connection extends EventHandler
 		{
 		    wait();
 		}
+*/
 	    }
 	    catch(InterruptedException ex)
 	    {

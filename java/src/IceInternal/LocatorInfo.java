@@ -215,7 +215,7 @@ public final class LocatorInfo
 	}
 	else if(ref.endpoints.length == 0)
 	{
-	    Ice.ObjectPrx object = _table.getProxy(ref.identity);
+	    Ice.ObjectPrx object = _table.removeProxy(ref.identity);
 	    if(object != null)
 	    {
 		Reference r = ((Ice.ObjectPrxHelper)object).__reference();

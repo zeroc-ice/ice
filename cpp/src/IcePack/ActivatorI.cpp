@@ -166,27 +166,13 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     }
 
     //
-    // Compute arguments.
+    // Setup arguments.
     //
-    int argc = static_cast<int>(server->description.args.size() + _propertiesOverride.size() + 3);
-    char** argv = static_cast<char**>(malloc(argc * sizeof(char*)));
-    argv[0] = strdup(path.c_str());
-
-    unsigned int i = 0;
-    vector<string>::const_iterator q;
-
-    for(q = server->description.args.begin(); q != server->description.args.end(); ++q, ++i)
-    {
-	argv[i + 1] = strdup(q->c_str());
-    }
-    for(q = _propertiesOverride.begin(); q != _propertiesOverride.end(); ++q, ++i)
-    {
-	argv[i + 1] = strdup(q->c_str());
-    }
-
-    string locatorArg = "--Ice.Default.Locator=" + _properties->getProperty("Ice.Default.Locator");
-    argv[argc - 2] = strdup(locatorArg.c_str());
-    argv[argc - 1] = 0;    
+    StringSeq args;
+    args.push_back(path);
+    args.insert(args.end(), server->description.args.begin(), server->description.args.end());
+    args.insert(args.end(), _propertiesOverride.begin(), _propertiesOverride.end());
+    args.push_back("--Ice.Default.Locator=" + _properties->getProperty("Ice.Default.Locator"));
 
     if(_traceLevels->activator > 1)
     {
@@ -199,11 +185,9 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	    out << "pwd = " << pwd << "\n";
 	    out << "args = ";
 
-	    char **args = argv;
-	    while(*args)
+	    for(StringSeq::const_iterator p = ++args.begin(); p != args.end(); ++p)
 	    {
-		out << " " << *args;
-		args++;
+		out << " " << *p;
 	    }
 	}
     }
@@ -249,7 +233,21 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	    }
 	}
 
-	for(q = server->description.envs.begin(); q != server->description.envs.end(); ++q)
+	//
+	// Convert to standard argc/argv.
+	//
+	int argc = static_cast<int>(args.size());
+	char** argv = static_cast<char**>(malloc((argc + 1) * sizeof(char*)));
+	int i = 0;
+	for(StringSeq::const_iterator p = args.begin(); p != args.end(); ++p, ++i)
+	{
+	    assert(i < argc);
+	    argv[i] = strdup(p->c_str());
+	}
+	assert(i == argc);
+	argv[argc] = 0;
+
+	for(StringSeq::const_iterator q = server->description.envs.begin(); q != server->description.envs.end(); ++q)
 	{
 	    if(putenv(strdup(q->c_str())) != 0)
 	    {
