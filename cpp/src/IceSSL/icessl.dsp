@@ -434,7 +434,7 @@ SOURCE=..\..\slice\IceSSL\CertificateVerifier.ice
 
 !IF  "$(CFG)" == "IceSSL - Win32 Release"
 
-USERDEP__CERTI="..\..\bin\slice2cpp.exe"	
+USERDEP__CERTI="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\IceSSL\CertificateVerifier.ice
 
@@ -452,7 +452,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "IceSSL - Win32 Debug"
 
-USERDEP__CERTI="..\..\bin\slice2cpp.exe"	
+USERDEP__CERTI="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\IceSSL\CertificateVerifier.ice
 
@@ -477,7 +477,7 @@ SOURCE=..\..\slice\IceSSL\CertificateVerifierF.ice
 
 !IF  "$(CFG)" == "IceSSL - Win32 Release"
 
-USERDEP__CERTIF="..\..\bin\slice2cpp.exe"	
+USERDEP__CERTIF="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\IceSSL\CertificateVerifierF.ice
 
@@ -490,7 +490,7 @@ InputPath=..\..\slice\IceSSL\CertificateVerifierF.ice
 
 !ELSEIF  "$(CFG)" == "IceSSL - Win32 Debug"
 
-USERDEP__CERTIF="..\..\bin\slice2cpp.exe"	
+USERDEP__CERTIF="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\IceSSL\CertificateVerifierF.ice
 
@@ -510,7 +510,7 @@ SOURCE=..\..\slice\IceSSL\Exception.ice
 
 !IF  "$(CFG)" == "IceSSL - Win32 Release"
 
-USERDEP__EXCEP="..\..\bin\slice2cpp.exe"	
+USERDEP__EXCEP="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\IceSSL\Exception.ice
 
@@ -528,7 +528,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "IceSSL - Win32 Debug"
 
-USERDEP__EXCEP="..\..\bin\slice2cpp.exe"	
+USERDEP__EXCEP="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\IceSSL\Exception.ice
 
@@ -553,7 +553,7 @@ SOURCE=..\..\slice\IceSSL\Plugin.ice
 
 !IF  "$(CFG)" == "IceSSL - Win32 Release"
 
-USERDEP__PLUGI="..\..\bin\slice2cpp.exe"	
+USERDEP__PLUGI="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\IceSSL\Plugin.ice
 
@@ -571,7 +571,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "IceSSL - Win32 Debug"
 
-USERDEP__PLUGI="..\..\bin\slice2cpp.exe"	
+USERDEP__PLUGI="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\IceSSL\Plugin.ice
 
@@ -596,7 +596,7 @@ SOURCE=..\..\slice\IceSSL\PluginF.ice
 
 !IF  "$(CFG)" == "IceSSL - Win32 Release"
 
-USERDEP__PLUGIN="..\..\bin\slice2cpp.exe"	
+USERDEP__PLUGIN="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\IceSSL\PluginF.ice
 
@@ -609,7 +609,7 @@ InputPath=..\..\slice\IceSSL\PluginF.ice
 
 !ELSEIF  "$(CFG)" == "IceSSL - Win32 Debug"
 
-USERDEP__PLUGIN="..\..\bin\slice2cpp.exe"	
+USERDEP__PLUGIN="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\IceSSL\PluginF.ice
 

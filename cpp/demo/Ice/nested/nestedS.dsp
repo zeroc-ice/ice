@@ -123,7 +123,7 @@ SOURCE=.\Nested.ice
 
 !IF  "$(CFG)" == "nestedS - Win32 Release"
 
-USERDEP__NESTE="..\..\..\bin\slice2cpp.exe"	
+USERDEP__NESTE="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Nested.ice
 
@@ -139,7 +139,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "nestedS - Win32 Debug"
 
-USERDEP__NESTE="..\..\..\bin\slice2cpp.exe"	
+USERDEP__NESTE="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Nested.ice
 

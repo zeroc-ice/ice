@@ -155,7 +155,7 @@ SOURCE=.\Forward.ice
 
 !IF  "$(CFG)" == "sliceobS - Win32 Release"
 
-USERDEP__FORWA="..\..\..\..\bin\slice2cpp.exe"	
+USERDEP__FORWA="..\..\..\..\bin\slice2cpp.exe"	"..\..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Forward.ice
 
@@ -171,7 +171,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "sliceobS - Win32 Debug"
 
-USERDEP__FORWA="..\..\..\..\bin\slice2cpp.exe"	
+USERDEP__FORWA="..\..\..\..\bin\slice2cpp.exe"	"..\..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Forward.ice
 
@@ -194,7 +194,7 @@ SOURCE=.\ServerPrivate.ice
 
 !IF  "$(CFG)" == "sliceobS - Win32 Release"
 
-USERDEP__SERVE="..\..\..\..\bin\slice2cpp.exe"	"Test.ice"	
+USERDEP__SERVE="..\..\..\..\bin\slice2cpp.exe"	"Test.ice"	"..\..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\ServerPrivate.ice
 
@@ -210,7 +210,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "sliceobS - Win32 Debug"
 
-USERDEP__SERVE="..\..\..\..\bin\slice2cpp.exe"	"Test.ice"	
+USERDEP__SERVE="..\..\..\..\bin\slice2cpp.exe"	"Test.ice"	"..\..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\ServerPrivate.ice
 
@@ -233,7 +233,7 @@ SOURCE=.\Test.ice
 
 !IF  "$(CFG)" == "sliceobS - Win32 Release"
 
-USERDEP__TEST_="..\..\..\..\bin\slice2cpp.exe"	
+USERDEP__TEST_="..\..\..\..\bin\slice2cpp.exe"	"..\..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Test.ice
 
@@ -249,7 +249,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "sliceobS - Win32 Debug"
 
-USERDEP__TEST_="..\..\..\..\bin\slice2cpp.exe"	
+USERDEP__TEST_="..\..\..\..\bin\slice2cpp.exe"	"..\..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Test.ice
 

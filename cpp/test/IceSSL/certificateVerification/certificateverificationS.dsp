@@ -113,7 +113,7 @@ SOURCE=.\Pinger.ice
 
 !IF  "$(CFG)" == "certificateVerificationS - Win32 Release"
 
-USERDEP__PINGE="..\..\..\bin\slice2cpp.exe"	
+USERDEP__PINGE="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Pinger.ice
 
@@ -129,7 +129,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "certificateVerificationS - Win32 Debug"
 
-USERDEP__PINGE="..\..\..\bin\slice2cpp.exe"	
+USERDEP__PINGE="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Pinger.ice
 

@@ -162,7 +162,7 @@ SOURCE=..\..\slice\Glacier\Router.ice
 
 !IF  "$(CFG)" == "Glacier - Win32 Release"
 
-USERDEP__ROUTE="..\..\bin\slice2cpp.exe"	
+USERDEP__ROUTE="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Glacier\Router.ice
 
@@ -180,7 +180,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Glacier - Win32 Debug"
 
-USERDEP__ROUTE="..\..\bin\slice2cpp.exe"	
+USERDEP__ROUTE="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Glacier\Router.ice
 
@@ -205,7 +205,7 @@ SOURCE=..\..\slice\Glacier\Session.ice
 
 !IF  "$(CFG)" == "Glacier - Win32 Release"
 
-USERDEP__SESSI="..\..\bin\slice2cpp.exe"	
+USERDEP__SESSI="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Glacier\Session.ice
 
@@ -223,7 +223,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Glacier - Win32 Debug"
 
-USERDEP__SESSI="..\..\bin\slice2cpp.exe"	
+USERDEP__SESSI="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Glacier\Session.ice
 
@@ -248,7 +248,7 @@ SOURCE=..\..\slice\Glacier\SessionF.ice
 
 !IF  "$(CFG)" == "Glacier - Win32 Release"
 
-USERDEP__SESSIO="..\..\bin\slice2cpp.exe"	
+USERDEP__SESSIO="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Glacier\SessionF.ice
 
@@ -261,7 +261,7 @@ InputPath=..\..\slice\Glacier\SessionF.ice
 
 !ELSEIF  "$(CFG)" == "Glacier - Win32 Debug"
 
-USERDEP__SESSIO="..\..\bin\slice2cpp.exe"	
+USERDEP__SESSIO="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Glacier\SessionF.ice
 
@@ -281,7 +281,7 @@ SOURCE=..\..\slice\Glacier\SessionManager.ice
 
 !IF  "$(CFG)" == "Glacier - Win32 Release"
 
-USERDEP__SESSION="..\..\bin\slice2cpp.exe"	
+USERDEP__SESSION="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Glacier\SessionManager.ice
 
@@ -299,7 +299,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Glacier - Win32 Debug"
 
-USERDEP__SESSION="..\..\bin\slice2cpp.exe"	
+USERDEP__SESSION="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Glacier\SessionManager.ice
 
@@ -324,7 +324,7 @@ SOURCE=..\..\slice\Glacier\SessionManagerF.ice
 
 !IF  "$(CFG)" == "Glacier - Win32 Release"
 
-USERDEP__SESSIONM="..\..\bin\slice2cpp.exe"	
+USERDEP__SESSIONM="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Glacier\SessionManagerF.ice
 
@@ -337,7 +337,7 @@ InputPath=..\..\slice\Glacier\SessionManagerF.ice
 
 !ELSEIF  "$(CFG)" == "Glacier - Win32 Debug"
 
-USERDEP__SESSIONM="..\..\bin\slice2cpp.exe"	
+USERDEP__SESSIONM="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Glacier\SessionManagerF.ice
 
@@ -357,7 +357,7 @@ SOURCE=..\..\slice\Glacier\Starter.ice
 
 !IF  "$(CFG)" == "Glacier - Win32 Release"
 
-USERDEP__START="..\..\bin\slice2cpp.exe"	
+USERDEP__START="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Glacier\Starter.ice
 
@@ -375,7 +375,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Glacier - Win32 Debug"
 
-USERDEP__START="..\..\bin\slice2cpp.exe"	
+USERDEP__START="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Glacier\Starter.ice
 

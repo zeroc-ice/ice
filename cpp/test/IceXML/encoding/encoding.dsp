@@ -115,7 +115,7 @@ SOURCE=.\Test.ice
 
 !IF  "$(CFG)" == "encoding - Win32 Release"
 
-USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2xsd.exe"	
+USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2xsd.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Test.ice
 
@@ -136,7 +136,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "encoding - Win32 Debug"
 
-USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2xsd.exe"	
+USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2xsd.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Test.ice
 

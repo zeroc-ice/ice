@@ -131,7 +131,7 @@ SOURCE=.\Value.ice
 
 !IF  "$(CFG)" == "valueC - Win32 Release"
 
-USERDEP__VALUE="..\..\..\bin\slice2cpp.exe"	
+USERDEP__VALUE="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Value.ice
 
@@ -147,7 +147,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "valueC - Win32 Debug"
 
-USERDEP__VALUE="..\..\..\bin\slice2cpp.exe"	
+USERDEP__VALUE="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Value.ice
 

@@ -182,7 +182,7 @@ SOURCE=.\PhoneBook.ice
 
 !IF  "$(CFG)" == "phonebookC - Win32 Release"
 
-USERDEP__PHONE="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	
+USERDEP__PHONE="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\PhoneBook.ice
 
@@ -206,7 +206,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "phonebookC - Win32 Debug"
 
-USERDEP__PHONE="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	
+USERDEP__PHONE="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\PhoneBook.ice
 

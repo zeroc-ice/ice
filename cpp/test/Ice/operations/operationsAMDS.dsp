@@ -123,7 +123,7 @@ SOURCE=.\TestAMD.ice
 
 !IF  "$(CFG)" == "operationsAMDS - Win32 Release"
 
-USERDEP__TESTA="..\..\..\bin\slice2cpp.exe"	
+USERDEP__TESTA="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\TestAMD.ice
 
@@ -139,7 +139,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "operationsAMDS - Win32 Debug"
 
-USERDEP__TESTA="..\..\..\bin\slice2cpp.exe"	
+USERDEP__TESTA="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\TestAMD.ice
 

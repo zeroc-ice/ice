@@ -123,7 +123,7 @@ SOURCE=dummy.ice
 
 !IF  "$(CFG)" == "dbmap - Win32 Release"
 
-USERDEP__DUMMY="..\..\..\bin\slice2freeze.exe"	
+USERDEP__DUMMY="..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=dummy.ice
 

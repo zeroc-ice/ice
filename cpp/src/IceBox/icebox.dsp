@@ -130,7 +130,7 @@ SOURCE=..\..\slice\IceBox\IceBox.ice
 
 !IF  "$(CFG)" == "IceBox - Win32 Release"
 
-USERDEP__ICEBO="..\..\bin\slice2cpp.exe"	
+USERDEP__ICEBO="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\IceBox\IceBox.ice
 
@@ -148,7 +148,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "IceBox - Win32 Debug"
 
-USERDEP__ICEBO="..\..\bin\slice2cpp.exe"	
+USERDEP__ICEBO="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\IceBox\IceBox.ice
 

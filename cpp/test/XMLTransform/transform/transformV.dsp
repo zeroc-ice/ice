@@ -227,7 +227,7 @@ SOURCE=.\TestNew.ice
 
 !IF  "$(CFG)" == "transformV - Win32 Release"
 
-USERDEP__TESTN="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	
+USERDEP__TESTN="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\TestNew.ice
 
@@ -300,7 +300,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "transformV - Win32 Debug"
 
-USERDEP__TESTN="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	
+USERDEP__TESTN="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\TestNew.ice
 

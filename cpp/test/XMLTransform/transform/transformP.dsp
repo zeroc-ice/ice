@@ -227,7 +227,7 @@ SOURCE=..\..\..\slice\Ice\Identity.ice
 
 !IF  "$(CFG)" == "transformP - Win32 Release"
 
-USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"	
+USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\..\slice\Ice\Identity.ice
 
@@ -238,7 +238,7 @@ InputPath=..\..\..\slice\Ice\Identity.ice
 
 !ELSEIF  "$(CFG)" == "transformP - Win32 Debug"
 
-USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"	
+USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\..\slice\Ice\Identity.ice
 
@@ -256,7 +256,7 @@ SOURCE=..\..\..\slice\Freeze\ObjectRecord.ice
 
 !IF  "$(CFG)" == "transformP - Win32 Release"
 
-USERDEP__OBJEC="..\..\..\bin\slice2xsd.exe"	
+USERDEP__OBJEC="..\..\..\bin\slice2xsd.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\..\slice\Freeze\ObjectRecord.ice
 
@@ -267,7 +267,7 @@ InputPath=..\..\..\slice\Freeze\ObjectRecord.ice
 
 !ELSEIF  "$(CFG)" == "transformP - Win32 Debug"
 
-USERDEP__OBJEC="..\..\..\bin\slice2xsd.exe"	
+USERDEP__OBJEC="..\..\..\bin\slice2xsd.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\..\slice\Freeze\ObjectRecord.ice
 
@@ -285,7 +285,7 @@ SOURCE=.\TestNew.ice
 
 !IF  "$(CFG)" == "transformP - Win32 Release"
 
-USERDEP__TESTN="..\..\..\bin\slice2xsd.exe"	
+USERDEP__TESTN="..\..\..\bin\slice2xsd.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\TestNew.ice
 
@@ -296,7 +296,7 @@ InputPath=.\TestNew.ice
 
 !ELSEIF  "$(CFG)" == "transformP - Win32 Debug"
 
-USERDEP__TESTN="..\..\..\bin\slice2xsd.exe"	
+USERDEP__TESTN="..\..\..\bin\slice2xsd.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\TestNew.ice
 
@@ -314,7 +314,7 @@ SOURCE=.\TestOld.ice
 
 !IF  "$(CFG)" == "transformP - Win32 Release"
 
-USERDEP__TESTO="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2xsd.exe"	"..\..\..\bin\slice2freeze.exe"	
+USERDEP__TESTO="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2xsd.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\TestOld.ice
 
@@ -433,7 +433,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "transformP - Win32 Debug"
 
-USERDEP__TESTO="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2xsd.exe"	"..\..\..\bin\slice2freeze.exe"	
+USERDEP__TESTO="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2xsd.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\TestOld.ice
 

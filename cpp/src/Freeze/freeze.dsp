@@ -214,7 +214,7 @@ SOURCE=..\..\slice\Freeze\DB.ice
 
 !IF  "$(CFG)" == "Freeze - Win32 Release"
 
-USERDEP__DB_IC="..\..\bin\slice2cpp.exe"	
+USERDEP__DB_IC="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Freeze\DB.ice
 
@@ -232,7 +232,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
 
-USERDEP__DB_IC="..\..\bin\slice2cpp.exe"	
+USERDEP__DB_IC="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Freeze\DB.ice
 
@@ -257,7 +257,7 @@ SOURCE=..\..\slice\Freeze\DBException.ice
 
 !IF  "$(CFG)" == "Freeze - Win32 Release"
 
-USERDEP__DBEXC="..\..\bin\slice2cpp.exe"	
+USERDEP__DBEXC="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Freeze\DBException.ice
 
@@ -300,7 +300,7 @@ SOURCE=..\..\slice\Freeze\Evictor.ice
 
 !IF  "$(CFG)" == "Freeze - Win32 Release"
 
-USERDEP__EVICT="..\..\bin\slice2cpp.exe"	
+USERDEP__EVICT="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Freeze\Evictor.ice
 
@@ -343,7 +343,7 @@ SOURCE=..\..\slice\Freeze\EvictorF.ice
 
 !IF  "$(CFG)" == "Freeze - Win32 Release"
 
-USERDEP__EVICTO="..\..\bin\slice2cpp.exe"	
+USERDEP__EVICTO="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Freeze\EvictorF.ice
 
@@ -376,7 +376,7 @@ SOURCE=..\..\slice\Ice\Identity.ice
 
 !IF  "$(CFG)" == "Freeze - Win32 Release"
 
-USERDEP__IDENT="..\..\bin\slice2freeze.exe"	
+USERDEP__IDENT="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\Identity.ice
 
@@ -415,7 +415,7 @@ SOURCE=..\..\slice\Freeze\ObjectRecord.ice
 
 !IF  "$(CFG)" == "Freeze - Win32 Release"
 
-USERDEP__OBJEC="..\..\bin\slice2cpp.exe"	
+USERDEP__OBJEC="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Freeze\ObjectRecord.ice
 
@@ -433,7 +433,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
 
-USERDEP__OBJEC="..\..\bin\slice2cpp.exe"	
+USERDEP__OBJEC="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Freeze\ObjectRecord.ice
 

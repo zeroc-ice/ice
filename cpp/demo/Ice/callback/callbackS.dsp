@@ -123,7 +123,7 @@ SOURCE=.\Callback.ice
 
 !IF  "$(CFG)" == "callbackS - Win32 Release"
 
-USERDEP__CALLB="..\..\..\bin\slice2cpp.exe"	
+USERDEP__CALLB="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Callback.ice
 
@@ -139,7 +139,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "callbackS - Win32 Debug"
 
-USERDEP__CALLB="..\..\..\bin\slice2cpp.exe"	
+USERDEP__CALLB="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Callback.ice
 

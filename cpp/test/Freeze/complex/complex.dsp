@@ -139,7 +139,7 @@ SOURCE=.\Complex.ice
 
 !IF  "$(CFG)" == "complex - Win32 Release"
 
-USERDEP__COMPL="..\..\..\bin\slice2freeze.exe"	"..\..\..\bin\slice2cpp.exe"	
+USERDEP__COMPL="..\..\..\bin\slice2freeze.exe"	"..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Complex.ice
 
@@ -163,7 +163,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "complex - Win32 Debug"
 
-USERDEP__COMPL="..\..\..\bin\slice2freeze.exe"	"..\..\..\bin\slice2cpp.exe"	
+USERDEP__COMPL="..\..\..\bin\slice2freeze.exe"	"..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Complex.ice
 

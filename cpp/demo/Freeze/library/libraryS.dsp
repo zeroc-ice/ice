@@ -139,7 +139,7 @@ SOURCE=.\Library.ice
 
 !IF  "$(CFG)" == "libraryS - Win32 Release"
 
-USERDEP__LIBRA="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	
+USERDEP__LIBRA="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Library.ice
 
@@ -163,7 +163,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "libraryS - Win32 Debug"
 
-USERDEP__LIBRA="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	
+USERDEP__LIBRA="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Library.ice
 

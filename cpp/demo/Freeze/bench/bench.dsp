@@ -123,7 +123,7 @@ SOURCE=.\Test.ice
 
 !IF  "$(CFG)" == "bench - Win32 Release"
 
-USERDEP__TEST_="..\..\..\bin\slice2freeze.exe"	"..\..\..\bin\slice2java.exe"	
+USERDEP__TEST_="..\..\..\bin\slice2freeze.exe"	"..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Test.ice
 
@@ -147,7 +147,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "bench - Win32 Debug"
 
-USERDEP__TEST_="..\..\..\bin\slice2freeze.exe"	"..\..\..\bin\slice2cpp.exe"	
+USERDEP__TEST_="..\..\..\bin\slice2freeze.exe"	"..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Test.ice
 

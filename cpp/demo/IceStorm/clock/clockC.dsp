@@ -115,7 +115,7 @@ SOURCE=.\Clock.ice
 
 !IF  "$(CFG)" == "clockC - Win32 Release"
 
-USERDEP__CLOCK="..\..\..\bin\slice2cpp.exe"	
+USERDEP__CLOCK="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Clock.ice
 
@@ -131,7 +131,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "clockC - Win32 Debug"
 
-USERDEP__CLOCK="..\..\..\bin\slice2cpp.exe"	
+USERDEP__CLOCK="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Clock.ice
 

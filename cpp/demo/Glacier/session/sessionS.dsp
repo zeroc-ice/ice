@@ -123,7 +123,7 @@ SOURCE=.\HelloSession.ice
 
 !IF  "$(CFG)" == "sessionS - Win32 Release"
 
-USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	
+USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\HelloSession.ice
 
@@ -139,7 +139,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "sessionS - Win32 Debug"
 
-USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	
+USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\HelloSession.ice
 

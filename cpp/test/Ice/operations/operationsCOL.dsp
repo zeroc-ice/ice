@@ -135,7 +135,7 @@ SOURCE=.\Test.ice
 
 !IF  "$(CFG)" == "operationsCOL - Win32 Release"
 
-USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	
+USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Test.ice
 
@@ -151,7 +151,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "operationsCOL - Win32 Debug"
 
-USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	
+USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Test.ice
 
