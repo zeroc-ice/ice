@@ -30,6 +30,52 @@ def find(path, patt):
     return result
 
 #
+# Comment out rules in a Makefile.
+#
+def fixMakefile(file, target):
+    origfile = file + ".orig"
+    os.rename(file, origfile)
+    oldMakefile = open(origfile, "r")
+    newMakefile = open(file, "w")
+    origLines = oldMakefile.readlines()
+
+    doComment = 0
+    doCheck = 0
+    newLines = []
+    for x in origLines:
+        #
+        # If the line starts with target string, then
+        # comment out this make target.
+        #
+        if x.startswith(target) and not x.startswith(target + ".o"):
+            doComment = 1
+        #
+        # If the line starts with "clean::", then check
+        # the following lines and comment out any that
+        # contain the target string.
+        #
+        elif x.startswith("clean::"):
+            doCheck = 1
+        #
+        # Stop when we encounter an empty line.
+        #
+        elif len(x.strip()) == 0:
+            doComment = 0
+            doCheck = 0
+
+        if doComment:
+            x = "#" + x
+        elif doCheck:
+            if x.find(target) != -1:
+                x = "#" + x
+        newLines.append(x)
+
+    newMakefile.writelines(newLines)
+    newMakefile.close()
+    oldMakefile.close()
+    os.remove(origfile)
+
+#
 # Check arguments
 #
 tag = "-rHEAD"
@@ -69,13 +115,23 @@ for x in filesToRemove:
 cwd = os.getcwd()
 grammars = find("ice", "*.y")
 for x in grammars:
+    #
+    # Change to the directory containing the file.
+    #
     (dir,file) = os.path.split(x)
     os.chdir(dir)
     (base,ext) = os.path.splitext(file)
+    #
+    # Run gmake to create the output files.
+    #
     if file == "cexp.y":
         os.system("gmake cexp.c")
     else:
         os.system("gmake " + base + ".cpp")
+    #
+    # Edit the Makefile to comment out the grammar rules.
+    #
+    fixMakefile("Makefile", base)
     os.chdir(cwd)
 
 #
@@ -84,10 +140,20 @@ for x in grammars:
 cwd = os.getcwd()
 scanners = find("ice", "*.l")
 for x in scanners:
+    #
+    # Change to the directory containing the file.
+    #
     (dir,file) = os.path.split(x)
     os.chdir(dir)
     (base,ext) = os.path.splitext(file)
+    #
+    # Run gmake to create the output files.
+    #
     os.system("gmake " + base + ".cpp")
+    #
+    # Edit the Makefile to comment out the flex rules.
+    #
+    fixMakefile("Makefile", base)
     os.chdir(cwd)
 
 #
