@@ -14,6 +14,7 @@
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/CommunicatorF.ice>
 #include <Ice/PropertiesF.ice>
+#include <Freeze/DB.ice>
 
 module IceBox
 {
@@ -38,8 +39,8 @@ exception FailureException
 
 /**
  *
- * An application service managed by a [ServiceManager].  The
- * [ServiceManager] will invoke [init] on all services prior to
+ * Base interface for an application service managed by a [ServiceManager].
+ * The * [ServiceManager] will invoke [init] on all services prior to
  * calling [start], and will invoke [stop] on all services when
  * [ServiceManager::shutdown] is called. The order in which the
  * services are invoked is not defined. The service lifecycle
@@ -72,9 +73,46 @@ exception FailureException
  * will be configured before [start] is invoked.  </para></note>
  *
  * @see ServiceManager
+ * @see Service
+ * @see FreezeService
  *
  **/
-local interface Service
+local interface ServiceBase
+{
+    /**
+     *
+     * Start the service.
+     *
+     * @throws FailureException Raised if [start] failed.
+     *
+     **/
+    void start()
+        throws FailureException;
+
+    /**
+     *
+     * Stop the service.
+     *
+     **/
+    void stop();
+
+#if 0
+    //
+    // Potential future operations
+    //
+    Ice::StringSeq getParameters() throws ServiceNotExist; // Need better return type
+    void setParameter(string param, string value) throws FailureException; // Use a different except?
+#endif
+};
+
+/**
+ *
+ * A standard application service managed by a [ServiceManager].
+ *
+ * @see ServiceBase
+ *
+ **/
+local interface Service extends ServiceBase
 {
     /**
      *
@@ -108,30 +146,53 @@ local interface Service
     void init(string name, Ice::Communicator communicator, Ice::Properties properties, Ice::StringSeq args)
         throws FailureException;
 
+};
+
+/**
+ * 
+ * A Freeze application service managed by the [ServiceManager]. It takes
+ * care of the the initialization and shutdown of the Freeze database for
+ * the application.
+ *
+ * @see ServiceBase
+ * 
+ */
+local interface FreezeService extends ServiceBase
+{
     /**
      *
-     * Start the service.
+     * Initialize the service. The given Communicator is created by
+     * the [ServiceManager]. The service may use this instance, or may
+     * create its own as needed. The advantage of using this
+     * Communicator instance is that invocations between collocated
+     * services are optimized.
      *
-     * @throws FailureException Raised if [start] failed.
+     * <note><para>The [ServiceManager] owns this Communicator, and is
+     * responsible for destroying it.</para></note>
+     *
+     * @param name The service's name, as determined by the
+     * configuration.
+     *
+     * @param communicator The [ServiceManager]'s Communicator
+     * instance.
+     *
+     * @param properties The property set representing the service's
+     * command-line arguments of the form
+     * [--<replaceable>name</replaceable>.key=value].
+     *
+     * @param args The service arguments which were not converted into
+     * properties.
+     *
+     * @param dbEnv The Freeze database environment.
+     *
+     * @throws FailureException Raised if [init] failed.
+     *
+     * @see ServiceBase
      *
      **/
-    void start()
+    void init(string name, Ice::Communicator communicator, Ice::Properties properties, Ice::StringSeq args,
+     	      Freeze::DBEnvironment dbEnv)
         throws FailureException;
-
-    /**
-     *
-     * Stop the service.
-     *
-     **/
-    void stop();
-
-#if 0
-    //
-    // Potential future operations
-    //
-    Ice::StringSeq getParameters() throws ServiceNotExist; // Need better return type
-    void setParameter(string param, string value) throws FailureException; // Use a different except?
-#endif
 };
 
 /**

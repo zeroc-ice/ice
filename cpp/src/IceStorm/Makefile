@@ -16,14 +16,21 @@ VERSIONED_BASE	= $(BASE).$(VERSION)
 NAME		= $(top_srcdir)/lib/$(BASE)
 VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
 
+SBASE		= libIceStormService.so
+VERSIONED_SBASE	= $(SBASE).$(VERSION)
+
+SNAME		= $(top_srcdir)/lib/$(SBASE)
+VERSIONED_SNAME	= $(top_srcdir)/lib/$(VERSIONED_SBASE)
+
 SERVER		= $(top_srcdir)/bin/icestorm
 ADMIN		= $(top_srcdir)/bin/icestormadmin
 
-TARGETS		= $(NAME) $(VERSIONED_NAME) $(SERVER) $(ADMIN)
+TARGETS		= $(NAME) $(VERSIONED_NAME) $(SNAME) $(VERSIONED_SNAME) $(SERVER) $(ADMIN)
 
 OBJS		= IceStorm.o
 
-SOBJS		= TraceLevels.o \
+SERVICE_OBJS	= IceStorm.o \
+		  TraceLevels.o \
 		  Flusher.o \
 		  Subscriber.o \
 		  OnewaySubscriber.o \
@@ -36,7 +43,9 @@ SOBJS		= TraceLevels.o \
 		  IdentityLinkDict.o \
 		  LinkDB.o \
 		  IceStormInternal.o \
-		  Server.o
+		  Service.o
+
+SERVER_OBJS	=  Server.o
 
 AOBJS		= Admin.o \
 		  Grammar.o \
@@ -45,7 +54,8 @@ AOBJS		= Admin.o \
 		  Parser.o
 
 SRCS		= $(OBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
+		  $(SERVICE_OBJS:.o=.cpp) \
+		  $(SERVER_OBJS:.o=.cpp) \
 		  $(AOBJS:.o=.cpp)
 
 HDIR		= $(includedir)/IceStorm
@@ -66,9 +76,18 @@ $(NAME): $(VERSIONED_NAME)
 	rm -f $@
 	ln -s $(VERSIONED_BASE) $@
 
-$(SERVER): $(SOBJS)
+$(VERSIONED_SNAME): $(SERVICE_OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIceStorm -lFreeze $(LIBS) $(XERCESC_LIBS) -ldb
+	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_SBASE) $(LDFLAGS) -shared -o $@ $(SERVICE_OBJS)
+
+$(SNAME): $(VERSIONED_SNAME)
+	rm -f $@
+	ln -s $(VERSIONED_SBASE) $@
+
+$(SERVER): $(SERVER_OBJS)
+	rm -f $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SERVER_OBJS) -lIceStormService -lFreeze \
+	$(LIBS) $(XERCESC_LIBS) -ldb
 
 $(ADMIN): $(AOBJS)
 	rm -f $@

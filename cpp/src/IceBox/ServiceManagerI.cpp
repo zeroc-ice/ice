@@ -11,6 +11,8 @@
 #include <Ice/Ice.h>
 #include <Ice/DynamicLibrary.h>
 #include <IceBox/ServiceManagerI.h>
+#include <Freeze/Initialize.h>
+#include <Freeze/DB.h>
 
 using namespace Ice;
 using namespace IceInternal;
@@ -18,10 +20,10 @@ using namespace std;
 
 typedef IceBox::Service* (*SERVICE_FACTORY)(CommunicatorPtr);
 
-IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[])
-    : _communicator(communicator)
+IceBox::ServiceManagerI::ServiceManagerI(Application* server, int& argc, char* argv[])
+    : _server(server)
 {
-    _logger = _communicator->getLogger();
+    _logger = _server->communicator()->getLogger();
 
     if(argc > 0)
     {
@@ -33,7 +35,7 @@ IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc
         _argv.push_back(argv[i]);
     }
 
-    PropertiesPtr properties = _communicator->getProperties();
+    PropertiesPtr properties = _server->communicator()->getProperties();
     _options = properties->getCommandLineOptions();
 }
 
@@ -44,7 +46,7 @@ IceBox::ServiceManagerI::~ServiceManagerI()
 void
 IceBox::ServiceManagerI::shutdown(const Current& current)
 {
-    _communicator->shutdown();
+    _server->communicator()->shutdown();
 }
 
 int
@@ -59,7 +61,7 @@ IceBox::ServiceManagerI::run()
         // this object adapter, as the endpoint(s) for this object adapter
         // will most likely need to be firewalled for security reasons.
         //
-        ObjectAdapterPtr adapter = _communicator->createObjectAdapterFromProperty("ServiceManagerAdapter",
+        ObjectAdapterPtr adapter = _server->communicator()->createObjectAdapterFromProperty("ServiceManagerAdapter",
                                                                                   "IceBox.ServiceManager.Endpoints");
         adapter->add(obj, stringToIdentity("ServiceManager"));
 
@@ -71,7 +73,7 @@ IceBox::ServiceManagerI::run()
         // IceBox.Service.Foo=entry_point [args]
         //
         const string prefix = "IceBox.Service.";
-        PropertiesPtr properties = _communicator->getProperties();
+        PropertiesPtr properties = _server->communicator()->getProperties();
         PropertyDict services = properties->getPropertiesForPrefix(prefix);
 	PropertyDict::const_iterator p;
 	for(p = services.begin(); p != services.end(); ++p)
@@ -157,7 +159,8 @@ IceBox::ServiceManagerI::run()
         //
         adapter->activate();
 
-        _communicator->waitForShutdown();
+	_server->shutdownOnInterrupt();
+        _server->communicator()->waitForShutdown();
 
         //
         // Invoke stop() on the services.
@@ -182,7 +185,7 @@ IceBox::ServiceManagerI::run()
     return EXIT_SUCCESS;
 }
 
-IceBox::ServicePtr
+void
 IceBox::ServiceManagerI::init(const string& service, const string& entryPoint, const StringSeq& args)
 {
     //
@@ -249,7 +252,7 @@ IceBox::ServiceManagerI::init(const string& service, const string& entryPoint, c
     ServiceInfo info;
     try
     {
-        info.service = factory(_communicator);
+        info.service = factory(_server->communicator());
     }
     catch(const Exception& ex)
     {
@@ -269,9 +272,53 @@ IceBox::ServiceManagerI::init(const string& service, const string& entryPoint, c
     //
     try
     {
-        info.service->init(service, _communicator, serviceProperties, serviceArgs);
+        ::IceBox::ServicePtr s = ::IceBox::ServicePtr::dynamicCast(info.service);
+        if(s)
+	{
+	    //
+	    // IceBox::Service
+	    //
+            s->init(service, _server->communicator(), serviceProperties, serviceArgs);
+	}
+	else
+	{
+	    //
+	    // IceBox::FreezeService
+	    //
+	    // Either open the database environment or if it has already been opened
+	    // retrieve it from the map.
+	    //
+            ::IceBox::FreezeServicePtr fs = ::IceBox::FreezeServicePtr::dynamicCast(info.service);
+
+	    PropertiesPtr properties = _server->communicator()->getProperties();
+	    string propName = "IceBox.DBEnvName." + service;
+	    info.dbEnvName = properties->getProperty(propName);
+
+	    DBEnvironmentInfo dbInfo;
+	    map<string,DBEnvironmentInfo>::iterator r = _dbEnvs.find(info.dbEnvName);
+	    if(r == _dbEnvs.end())
+	    {
+	        dbInfo.dbEnv = ::Freeze::initialize(_server->communicator(), info.dbEnvName);
+	        dbInfo.openCount = 1;
+	    }
+	    else
+	    {
+	        dbInfo = r->second;
+		++dbInfo.openCount;
+	    }
+	    _dbEnvs[info.dbEnvName] = dbInfo;
+
+            fs->init(service, _server->communicator(), serviceProperties, serviceArgs, dbInfo.dbEnv);
+	}
         info.library = library;
         _services[service] = info;
+    }
+    catch(const Freeze::DBException& ex)
+    {
+        FailureException e;
+        e.reason = "ServiceManager: database exception while initializing service " + service + ": " + ex.ice_name() +
+		   "\n" + ex.message;
+        throw e;
     }
     catch(const FailureException&)
     {
@@ -283,8 +330,6 @@ IceBox::ServiceManagerI::init(const string& service, const string& entryPoint, c
         e.reason = "ServiceManager: exception while initializing service " + service + ": " + ex.ice_name();
         throw e;
     }
-
-    return info.service;
 }
 
 void
@@ -298,6 +343,40 @@ IceBox::ServiceManagerI::stop(const string& service)
     try
     {
         info.service->stop();
+
+	//
+	// Close the database environment if service is a Freeze service and the 
+	// database open count is one.
+	//
+        ::IceBox::FreezeServicePtr fs = IceBox::FreezeServicePtr::dynamicCast(info.service);
+	if(fs)
+	{
+	    map<string,DBEnvironmentInfo>::iterator r = _dbEnvs.find(info.dbEnvName);
+	    assert(r != _dbEnvs.end());
+	    DBEnvironmentInfo dbInfo = r->second;
+	    if(--dbInfo.openCount == 0)
+	    {
+	        dbInfo.dbEnv->close();
+		_dbEnvs.erase(info.dbEnvName);
+	    }
+	    else
+	    {
+	        _dbEnvs[info.dbEnvName] = dbInfo;
+	    }
+	}
+    }
+    catch(const ::Freeze::DBException& ex)
+    {
+        //
+        // Release the service before the library
+        //
+        info.service = 0;
+        info.library = 0;
+
+        FailureException e;
+        e.reason = "ServiceManager: database exception in stop for service " + service + ": " + ex.ice_name() +
+		   "\n" + ex.message;
+        throw e;
     }
     catch(const Exception& ex)
     {

@@ -4,9 +4,13 @@ export ICE_CONFIG=config
 
 or use --Ice.Config=config for all subsequent commands.
 
-Start the IceStorm daemon:
+Either start the IceStorm daemon:
 
-../../bin/icestorm
+../../../bin/icestorm
+
+or to run IceStorm as an IceBox service:
+
+../../../bin/icebox --Ice.Config=config_service,config
 
 This currently assumes there is a directory called db in the cwd.
 

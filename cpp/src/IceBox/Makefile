@@ -39,7 +39,8 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) --include-dir IceBox -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS)
+CPPFLAGS	:= -I.. -I$(DB_HOME)/include $(CPPFLAGS)
+LDFLAGS         := $(LDFLAGS) -L$(DB_HOME)/lib
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
@@ -51,7 +52,7 @@ $(NAME): $(VERSIONED_NAME)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIceBox $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIceBox -lFreeze $(LIBS) -ldb
 
 $(ADMIN): $(AOBJS)
 	rm -f $@

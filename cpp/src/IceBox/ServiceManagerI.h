@@ -15,6 +15,8 @@
 #include <Ice/LoggerF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/DynamicLibraryF.h>
+#include <Ice/Application.h>
+#include <Freeze/DBI.h>
 #include <map>
 
 namespace IceBox
@@ -24,7 +26,7 @@ class ServiceManagerI : public ServiceManager
 {
 public:
 
-    ServiceManagerI(::Ice::CommunicatorPtr, int&, char*[]);
+    ServiceManagerI(::Ice::Application*, int&, char*[]);
     virtual ~ServiceManagerI();
 
     virtual void shutdown(const ::Ice::Current&);
@@ -33,22 +35,30 @@ public:
 
     struct ServiceInfo
     {
-        ServicePtr service;
+        ServiceBasePtr service;
+        std::string dbEnvName;
         ::IceInternal::DynamicLibraryPtr library;
     };
 
 private:
 
-    ServicePtr init(const std::string&, const std::string&, const ::Ice::StringSeq&);
+    void init(const std::string&, const std::string&, const ::Ice::StringSeq&);
     void stop(const std::string&);
     void stopAll();
 
-    ::Ice::CommunicatorPtr _communicator;
+    struct DBEnvironmentInfo
+    {
+        ::Freeze::DBEnvironmentPtr dbEnv;
+	unsigned int openCount;
+    };
+
+    ::Ice::Application* _server;
     ::Ice::LoggerPtr _logger;
     std::string _progName; // argv[0]
     ::Ice::StringSeq _argv; // Filtered server argument vector, not including program name
     ::Ice::StringSeq _options; // Server property set converted to command-line options
     std::map<std::string, ServiceInfo> _services;
+    std::map<std::string, DBEnvironmentInfo> _dbEnvs;
 };
 
 }
