@@ -14,6 +14,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+IceUtil::Mutex Ice::LoggerI::_globalMutex;
+
 Ice::LoggerI::LoggerI(const string& prefix)
 {
     if(!prefix.empty())
@@ -30,7 +32,7 @@ Ice::LoggerI::LoggerI(const string& prefix)
 void
 Ice::LoggerI::trace(const string& category, const string& message)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(_globalMutex);
     string s = "[ " + category + ": " + message + " ]";
     string::size_type idx = 0;
     while((idx = s.find("\n", idx)) != string::npos)
@@ -45,13 +47,13 @@ Ice::LoggerI::trace(const string& category, const string& message)
 void
 Ice::LoggerI::warning(const string& message)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(_globalMutex);
     cerr << _prefix  << "warning: " << message << endl;
 }
 
 void
 Ice::LoggerI::error(const string& message)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(_globalMutex);
     cerr  << _prefix << "error: " << message << endl;
 }
