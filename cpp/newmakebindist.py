@@ -130,6 +130,12 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
 	os.system("rm " + buildDir + "/Ice-" + version + "-demos/certs/makecerts")
 
     #
+    # Remove MFC demo.
+    #
+    if demoDir == "":
+	os.system("rm -rf " + buildDir + "/Ice-" + version + "-demos/demo/Ice/MFC")	
+
+    #
     # C++ specific build modifications.
     #
     if demoDir == "" or demoDir == "cs":
@@ -236,6 +242,7 @@ def archiveDemoTree(buildDir, version):
 
     os.system("tar cvf Ice-" + version + "-demos.tar Ice-" + version + "-demos")
     os.system("gzip -9 Ice-" + version + "-demos.tar")
+    os.system("zip -9ry Ice-" + version + "-demos.zip Ice-" + version + "-demos")
     os.chdir(cwd)
 
 def makeInstall(sources, buildDir, installDir, distro, clean):
@@ -552,6 +559,7 @@ def main():
         #
         archiveDemoTree(buildDir, version)
         shutil.move(buildDir + "/Ice-" + version + "-demos.tar.gz", installDir + "/Ice-" + version + "-demos.tar.gz")
+        shutil.move(buildDir + "/Ice-" + version + "-demos.zip", installDir + "/Ice-" + version + "-demos.zip")
 
     elif cvsMode:
 	collectSources = False
