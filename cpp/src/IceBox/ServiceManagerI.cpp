@@ -346,99 +346,108 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 }
 
 void
-IceBox::ServiceManagerI::stop(const string& service)
+IceBox::ServiceManagerI::stopAll()
 {
-    map<string,ServiceInfo>::iterator r = _services.find(service);
-    assert(r != _services.end());
-    ServiceInfo info = r->second;
-    _services.erase(r);
+    map<string,ServiceInfo>::iterator p;
 
-    std::auto_ptr<FailureException> failureEx;
-
-    try
+    //
+    // First, for each service, we call stop on the service and flush its database environment to 
+    // the disk.
+    //
+    for(p = _services.begin(); p != _services.end(); ++p)
     {
-        info.service->stop();
+	ServiceInfo& info = p->second;
 
-	if(info.communicator)
+	try
 	{
-	    info.communicator->shutdown();
-	    info.communicator->waitForShutdown();
+	    info.service->stop();
+	}
+	catch(const Ice::Exception& ex)
+	{
+            Warning out(_logger);
+	    out << "ServiceManager: exception in stop for service " << p->first << ":\n";
+	    out << ex;
+	}
+	catch(...)
+	{
+            Warning out(_logger);
+	    out << "ServiceManager: unknown exception in stop for service " << p->first;
 	}
 
 	if(info.dbEnv)
 	{
-	    info.dbEnv->close();
-	    info.dbEnv = 0;
+	    try
+	    {
+		info.dbEnv->sync();
+	    }
+	    catch(const Ice::Exception& ex)
+	    {
+		Warning out(_logger);
+		out << "ServiceManager: exception in stop for service " << p->first << ":\n";
+		out << ex;
+	    }
 	}
     }
-    catch(const ::Freeze::DBException& ex)
+
+    for(p = _services.begin(); p != _services.end(); ++p)
     {
-	ostringstream s;
-	s << "ServiceManager: database exception in stop for service " << service << ":\n";
-	s << ex;
+	ServiceInfo& info = p->second;
 
-	failureEx = auto_ptr<FailureException>(new FailureException(__FILE__, __LINE__));
-        failureEx->reason = s.str();
-    }
-    catch(const Exception& ex)
-    {
-	ostringstream s;
-	s << "ServiceManager: exception in stop for service " << service << ":\n";
-	s << ex;
-
-	failureEx = auto_ptr<FailureException>(new FailureException(__FILE__, __LINE__));
-        failureEx->reason = s.str();
-    }
-
-    //
-    // Release the service, the service communicator and then the
-    // library. The order is important, the service must be released
-    // before destroying the communicator so that the communicator
-    // leak detector doesn't report potential leaks, and the
-    // communicator must be destroyed before the library is released
-    // since the library will destroy its global state.
-    //
-    info.service = 0;
-
-    if(info.communicator)
-    {
-	try
+	if(info.communicator)
 	{
-	    info.communicator->destroy();
+	    try
+	    {
+		info.communicator->shutdown();
+		info.communicator->waitForShutdown();
+	    }
+	    catch(const Ice::Exception& ex)
+	    {
+		Warning out(_logger);
+		out << "ServiceManager: exception in stop for service " << p->first << ":\n";
+		out << ex;
+	    }
 	}
-	catch(const Exception& ex)
-	{
-	    ostringstream s;
-	    s << "ServiceManager: exception in stop for service " << service << ":\n";
-	    s << ex;
 
-	    failureEx = auto_ptr<FailureException>(new FailureException(__FILE__, __LINE__));
-	    failureEx->reason = s.str();
+	if(info.dbEnv)
+	{
+	    try
+	    {
+		info.dbEnv->close();
+		info.dbEnv = 0;
+	    }
+	    catch(const Ice::Exception& ex)
+	    {
+		Warning out(_logger);
+		out << "ServiceManager: exception in stop for service " << p->first << ":\n";
+		out << ex;
+	    }
 	}
-	info.communicator = 0;
-    }
 
-    info.library = 0;
+	//
+	// Release the service, the service communicator and then the library. The order is important, 
+	// the service must be released before destroying the communicator so that the communicator
+	// leak detector doesn't report potential leaks, and the communicator must be destroyed before 
+	// the library is released since the library will destroy its global state.
+	//
+	info.service = 0;
 
-    if(failureEx.get())
-    {
-	failureEx->ice_throw();
-    }
-}
-
-void
-IceBox::ServiceManagerI::stopAll()
-{
-    while(!_services.empty())
-    {
-	try
+	if(info.communicator)
 	{
-	    stop(_services.begin()->first);
-        }
-        catch(const FailureException& ex)
-        {
-            Error out(_logger);
-            out << ex.reason;
-        }
+	    try
+	    {
+		info.communicator->destroy();
+	    }
+	    catch(const Exception& ex)
+	    {
+		Warning out(_logger);
+		out << "ServiceManager: exception in stop for service " << p->first << ":\n";
+		out << ex;
+	    }
+	    info.communicator = 0;
+	}
+	
+	info.library = 0;
     }
+
+    _services.clear();
 }

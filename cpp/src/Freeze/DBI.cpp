@@ -270,10 +270,9 @@ Freeze::DBEnvironmentI::sync()
 	return;
     }
 
-    while(!_dbMap.empty())
+    for(map<string, DBPtr>::iterator p = _dbMap.begin(); p != _dbMap.end(); ++p)
     {
-	DBPtr db = _dbMap.begin()->second;
-	db->sync();
+	p->second->sync();
     }
 }
 

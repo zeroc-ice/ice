@@ -48,7 +48,6 @@ public:
 private:
 
     void start(const std::string&, const std::string&, const ::Ice::StringSeq&);
-    void stop(const std::string&);
     void stopAll();
 
     ::Ice::Application* _server;
