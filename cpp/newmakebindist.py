@@ -228,6 +228,7 @@ endif
 		if line.startswith('prefix'):
 		    state = 'done'
 
+	fileinput.close()
         # Dependency files are all going to be bogus.  The makedepend
         # script doesn't seem to work properly for the slice files.
         os.chdir("..")
@@ -239,6 +240,7 @@ endif
         os.chdir(buildDir + "/Ice-" + version + "-demos/config")
 	for line in fileinput.input('common.xml', True, ".bak"):
 	    print line.rstrip('\n').replace('ICE_VERSION', version)
+	fileinput.close()
         os.chdir(tcwd)
         
     shutil.rmtree(buildDir + "/demotree/" + distro, True)
@@ -371,7 +373,15 @@ def getDBFiles(dbLocation):
     pipe_stdin.close()
     pipe_stdout.close()
     fileList.extend(lines)
+    if getPlatform == 'aix':
+	pipe_stdin, pipe_stdout = os.popen2('find lib -name "*.a" -type f')
+	lines = pipe_stdout.readlines()
+	pipe_stdin.close()
+	pipe_stdout.close()
+	fileList.extend(lines)
+
     os.chdir(cwd)
+    return fileList
 
 def usage():
     """Print usage/help information"""
