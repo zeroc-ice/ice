@@ -11,14 +11,12 @@
 
 <icepack>
 
-  <variable name="ice.dir" value="../../.."/>
-
   <application name="Simple">
 
      <node name="node">
 
        <!-- First, we deploy the regular server --> 
-       <server name="Server" kind="cpp" exe="${ice.dir}/demo/IcePack/simple/server" activation="on-demand">
+       <server name="Server" kind="cpp" exe="../../../demo/IcePack/simple/server" activation="on-demand">
  
          <adapters>
            <adapter name="Hello" endpoints="tcp:udp:ssl" register="true">
@@ -29,7 +27,7 @@
          <properties>
 	   <property name="Identity" value="hello1"/>
            <property name="Ice.Plugin.IceSSL" value="IceSSL:create"/>
-           <property name="IceSSL.Server.CertPath" value="${ice.dir}/certs"/>
+           <property name="IceSSL.Server.CertPath" value="../../../certs"/>
            <property name="IceSSL.Server.Config" value="sslconfig.xml"/>
          </properties>
        </server>
@@ -53,7 +51,7 @@
            <property name="IceBox.UseSharedCommunicator.Hello" value="1"/>
            <property name="Ice.Plugin.IceSSL" value="IceSSL:create"/>
            <property name="IceSSL.Server.Config" value="sslconfig.xml"/>
-           <property name="IceSSL.Server.CertPath" value="${ice.dir}/certs"/>
+           <property name="IceSSL.Server.CertPath" value="../../../certs"/>
          </properties>
  
        </server>
