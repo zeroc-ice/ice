@@ -100,7 +100,7 @@ Ice::Trace::flush()
     string s = _str.str();
     if (!s.empty())
     {
-	_logger->trace(s, _category);
+	_logger->trace(_category, s);
     }
     _str.str("");
 }
