@@ -12,4 +12,6 @@ package Ice;
 
 public abstract class LocalException extends RuntimeException
 {
+    public abstract String
+    _name();
 }

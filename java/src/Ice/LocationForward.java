@@ -10,17 +10,13 @@
 
 package Ice;
 
-public abstract class UserException extends Exception
+public class LocationForward extends Exception
 {
-    public abstract String
-    _name();
+    public
+    LocationForward(ObjectPrx prx)
+    {
+        _prx = prx;
+    }
 
-    public abstract String[]
-    __getExceptionIds();
-
-    public abstract void
-    __write(Stream out);
-
-    public abstract void
-    __read(Stream out);
+    public ObjectPrx _prx;
 }
