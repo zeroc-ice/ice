@@ -56,8 +56,12 @@ namespace IceInternal
 	    {
 		_fd.Shutdown(SocketShutdown.Send);
 	    }
-	    catch(System.IO.IOException ex)
+	    catch(SocketException ex)
 	    {
+	        if(Network.notConnected(ex))
+		{
+		    return;
+		}
 	        throw new Ice.SocketException(ex);
 	    }
 	}
@@ -75,8 +79,12 @@ namespace IceInternal
 	    {
 		_fd.Shutdown(SocketShutdown.Both);
 	    }
-	    catch(System.IO.IOException ex)
+	    catch(SocketException ex)
 	    {
+	        if(Network.notConnected(ex))
+		{
+		    return;
+		}
 	        throw new Ice.SocketException(ex);
 	    }
 	}
