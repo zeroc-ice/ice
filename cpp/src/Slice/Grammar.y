@@ -297,7 +297,7 @@ exception_def
 }
 '{' exception_exports '}'
 {
-    if($4);
+    if($4)
     {
 	unit->popContainer();
     }
