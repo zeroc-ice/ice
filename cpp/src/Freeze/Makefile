@@ -43,8 +43,7 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir Freeze $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -I$(DB_HOME)/include
-LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
+CPPFLAGS	:= -I.. $(DB_FLAGS) $(CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@

@@ -51,20 +51,19 @@ SLICE_SRCS	= PhoneBook.ice
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. -I$(DB_HOME)/include $(CPPFLAGS)
-LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
+CPPFLAGS	:= -I. $(DB_FLAGS) $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lFreeze -lIceXML $(LIBS) -ldb -lreadline -lcurses
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS) -lreadline -lcurses
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze -lIceXML $(LIBS) -ldb
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
 
 $(COLLOCATED): $(OBJS) $(COLOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) -lFreeze -lIceXML $(LIBS) -ldb -lreadline -lcurses
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) -lFreeze -lIceXML $(LIBS) $(DB_LIBS) -lreadline -lcurses
 
 Grammar.cpp Grammar.h: Grammar.y
 	bison -dvt Grammar.y

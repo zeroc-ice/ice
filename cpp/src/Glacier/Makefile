@@ -63,11 +63,11 @@ $(VERSIONED_NAME): $(OBJS)
 
 $(ROUTER): $(ROBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(ROBJS) -lGlacier $(SSLLIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(ROBJS) -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS)
 
 $(STARTER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lGlacier $(SSLLIBS) $(LIBS) -lcrypt
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS) -lcrypt
 
 $(HDIR)/Starter.h Starter.cpp: $(SDIR)/Starter.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Starter.h Starter.cpp

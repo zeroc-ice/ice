@@ -32,8 +32,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. -I../../include -I$(DB_HOME)/include $(CPPFLAGS)
-LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
+CPPFLAGS	:= -I. -I../../include $(DB_FLAGS) $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
@@ -41,7 +40,7 @@ $(CLIENT): $(OBJS) $(COBJS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze -lIceXML $(LIBS) -ldb
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
 
 Test.h Test.cpp: Test.ice $(SLICE2CPP)
 	rm -f Test.h Test.cpp

@@ -54,7 +54,7 @@ $(VERSIONED_NAME): $(OBJS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) -lIcePatch -lGlacier $(SSLLIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) -lIcePatch -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS)
 
 $(SERVER): $(SOBJS)
 	rm -f $@

@@ -16,7 +16,7 @@ top_srcdir	= ../../..
 
 CLIENT		= client
 
-TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
+TARGETS		= $(CLIENT)
 
 OBJS		= Client.o BenchTypes.o Test.o
 
@@ -26,12 +26,11 @@ SLICE_SRCS	= Test.ice
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. -I$(DB_HOME)/include $(CPPFLAGS)
-LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
+CPPFLAGS	:= -I. $(DB_FLAGS) $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lFreeze -lIceXML $(LIBS) -ldb
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
 
 Test.h Test.cpp: Test.ice $(SLICE2CPP)
 	rm -f Test.h Test.cpp

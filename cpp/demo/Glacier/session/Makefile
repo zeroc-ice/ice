@@ -37,7 +37,7 @@ SLICECMD	= $(SLICE2CPP) -I$(slicedir)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lGlacier $(SSLLIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@

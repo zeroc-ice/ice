@@ -32,12 +32,14 @@ compress = 1
 #compress = 0
 
 #
-# Set the host to the host name the test servers are running on. If not
-# set, the local host is used.
+# Set the host to the host name the test servers are running on. If
+# not set, Ice will try to find out the IP address for the
+# hostname. If you DNS isn't set up propertly, you should therefore
+# use "localhost".
 #
 
 #host = "someotherhost"
-host = ""
+host = "localhost"
 
 #
 # Don't change anything below this line!
@@ -70,10 +72,10 @@ else:
 commonServerOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerThreadPool.Size=3" + \
                       " --Ice.ConnectionWarnings --Ice.ServerIdleTime=30"
 
-serverOptions = commonServerOptions + serverProtocol
 clientOptions = clientProtocol + defaultHost
-clientServerOptions = commonServerOptions + clientServerProtocol + defaultHost
-collocatedOptions = clientServerProtocol
+serverOptions = serverProtocol + defaultHost + commonServerOptions
+clientServerOptions = clientServerProtocol + defaultHost + commonServerOptions
+collocatedOptions = clientServerProtocol + defaultHost
 
 def isCygwin():
 

@@ -37,11 +37,11 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(SSLLIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lIceSSL $(LIBS) $(OPENSSL_LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(SSLLIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lIceSSL $(LIBS) $(OPENSSL_LIBS)
 
 Pinger.h Pinger.cpp: Pinger.ice $(SLICE2CPP)
 	rm -f Pinger.h Pinger.cpp

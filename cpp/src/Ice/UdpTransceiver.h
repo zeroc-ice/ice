@@ -44,17 +44,14 @@ public:
 
     bool equivalent(const std::string&, int) const;
     int effectivePort();
-    void setProtocolName(const std::string&);
 
 private:
 
-    UdpTransceiver(const InstancePtr&, const std::string&, int, const std::string& protocolName = "udp");
-    UdpTransceiver(const InstancePtr&, const std::string&, int, bool, const std::string& protocolName = "udp");
+    UdpTransceiver(const InstancePtr&, const std::string&, int);
+    UdpTransceiver(const InstancePtr&, const std::string&, int, bool);
     virtual ~UdpTransceiver();
 
     friend class UdpEndpoint;
-//    friend class SUdpEndpoint; // TODO: Remove as soon as SUdpEndpoint uses SUdpTransceiver.
-//    friend class SUdpTransceiver;
 
     TraceLevelsPtr _traceLevels;
     ::Ice::LoggerPtr _logger;
@@ -64,7 +61,6 @@ private:
     struct sockaddr_in _addr;
     fd_set _rFdSet;
     fd_set _wFdSet;
-    std::string _protocolName;
 };
 
 }

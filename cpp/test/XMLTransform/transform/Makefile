@@ -63,16 +63,15 @@ SCHEMAS		= TestOld.xsd \
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. -I../../include $(XERCESC_FLAGS) -I$(DB_HOME)/include $(CPPFLAGS)
-LDFLAGS		:= $(LDFLAGS) $(XERCESC_LIBS) -L$(DB_HOME)/lib
+CPPFLAGS	:= -I. -I../../include $(XERCESC_FLAGS) $(DB_FLAGS) $(CPPFLAGS)
 
 $(POPULATE): $(POPULATE_OBJS) $(SCHEMAS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(POPULATE_OBJS) -lFreeze -lIceXML -lXMLTransform $(LIBS) -ldb
+	$(CXX) $(LDFLAGS) -o $@ $(POPULATE_OBJS) -lFreeze -lIceXML -lXMLTransform $(LIBS) $(XERCESC_LIBS) $(DB_LIBS)
 
 $(VALIDATE): $(VALIDATE_OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(VALIDATE_OBJS) -lFreeze -lIceXML -lXMLTransform $(LIBS) -ldb
+	$(CXX) $(LDFLAGS) -o $@ $(VALIDATE_OBJS) -lFreeze -lIceXML -lXMLTransform $(LIBS) $(XERCESC_LIBS) $(DB_LIBS)
 
 IntByteMap.h IntByteMap.cpp: $(SLICE2FREEZE)
 	rm -f IntByteMap.h IntByteMap.cpp

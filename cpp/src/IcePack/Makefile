@@ -90,7 +90,6 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) $(XERCESC_FLAGS)
 ICECPPFLAGS	:= -I.. $(ICECPPFLAGS)
-LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
 
 $(VERSIONED_NAME): $(LIB_OBJS)
 	rm -f $@
@@ -103,12 +102,12 @@ $(ADMIN): $(ADMIN_OBJS)
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) \
-	-lYellow -lIcePack -lIceBox -lFreeze -lIceXML $(XERCESC_LIBS) $(LIBS) -ldb
+	-lYellow -lIcePack -lIceBox -lFreeze -lIceXML $(LIBS) $(XERCESC_LIBS) $(DB_LIBS)
 
 $(NODE_SERVER): $(NODE_SVR_OBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) \
-	-lYellow -lIcePack -lIceBox -lFreeze -lIceXML $(XERCESC_LIBS) $(LIBS) -ldb
+	-lYellow -lIcePack -lIceBox -lFreeze -lIceXML $(XERCESC_LIBS) $(LIBS) $(DB_LIBS)
 
 Grammar.cpp Grammar.h: Grammar.y
 	bison -dvt Grammar.y

@@ -20,6 +20,10 @@
 #include <Freeze/DB.h>
 #include <db.h>
 
+#if DB_VERSION_MAJOR < 3 || (DB_VERSION_MAJOR == 3 && DB_VERSION_MINOR < 3)
+#    error "Berkeley DB versions older than 3.3 are not supported!"
+#endif
+
 namespace Freeze
 {
 

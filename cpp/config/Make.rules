@@ -25,26 +25,27 @@
 # If you don't want to use STLport, but the compiler's default STL
 # implementation, then define STLPORT_HOME as empty string.
 #
-#STLPORT_HOME	?= /opt/STLport
-DB_HOME		?= /opt/db
-OPENSSL_HOME	?= /opt/openssl
-XERCESC_HOME    ?= /opt/xerces-c
+#STLPORT_HOME		?= /opt/STLport
+#DB_HOME		?= /opt/db
+#OPENSSL_HOME		?= /opt/openssl
+#XERCESC_HOME		?= /opt/xerces-c
 
 #
 # Define OPTIMIZE as yes if you want to build with
 # optimization. Otherwise Ice is build with debug information.
 #
-#OPTIMIZE=yes
+#OPTIMIZE		= yes
 
-#
-# Don't change these lines!
-#
-SHELL		= /bin/sh
-VERSION		= 0.0.1
-bindir		= $(top_srcdir)/bin
-libdir		= $(top_srcdir)/lib
-includedir	= $(top_srcdir)/include
-slicedir	= $(top_srcdir)/slice
+# ----------------------------------------------------------------------
+# Don't change anything below this line!
+# ----------------------------------------------------------------------
+
+SHELL			= /bin/sh
+VERSION			= 0.0.1
+bindir			= $(top_srcdir)/bin
+libdir			= $(top_srcdir)/lib
+includedir		= $(top_srcdir)/include
+slicedir		= $(top_srcdir)/slice
 
 ifneq ($(STLPORT_HOME),)
     STLPORT_FLAGS	= -I$(STLPORT_HOME)/include/stlport
@@ -53,47 +54,63 @@ ifneq ($(STLPORT_HOME),)
     else
         STLPORT_LIBS	= -L$(STLPORT_HOME)/lib -lstlport_gcc_stldebug
     endif
-endif
-
-XERCESC_FLAGS	= -I$(XERCESC_HOME)/include
-XERCESC_LIBS	= -L$(XERCESC_HOME)/lib -lxerces-c
-
-OPENSSL_FLAGS	= -I$(OPENSSL_HOME)/include
-OPENSSL_LIBS	= -L$(OPENSSL_HOME)/lib -lssl -lcrypto
-
-#
-# Don't change anything below this line!
-#
-
-CXX		= c++
-CXXFLAGS 	= -ftemplate-depth-128 -fPIC -Wall
-ifeq ($(OPTIMIZE),yes)
-    CXXFLAGS	:= -O3 -DNDEBUG $(CXXFLAGS)
 else
-    CXXFLAGS	:= -g $(CXXFLAGS)
+    STLPORT_FLAGS	=
+    STLPORT_LIBS	=
 endif
 
-CPPFLAGS	= -I$(includedir) $(STLPORT_FLAGS)
-ICECPPFLAGS	= -I$(slicedir)
+ifneq ($(OPENSSL_HOME),)
+    OPENSSL_FLAGS	= -I$(OPENSSL_HOME)/include
+    OPENSSL_LIBS	= -L$(OPENSSL_HOME)/lib -lssl -lcrypto
+else
+    OPENSSL_FLAGS	=
+    OPENSSL_LIBS	= -lssl -lcrypto
+endif
 
-LDFLAGS		= -L$(libdir)
-SHLIB_LDFLAGS	= -shared -Xlinker -soname -Xlinker $(@F)
+ifneq ($(DB_HOME),)
+    DB_FLAGS		= -I$(DB_HOME)/include
+    DB_LIBS		= -L$(DB_HOME)/lib -ldb
+else
+    DB_FLAGS		=
+    DB_LIBS		= -ldb
+endif
 
-LIBEXT		= so
+ifneq ($(XERCESC_HOME),)
+    XERCESC_FLAGS	= -I$(XERCESC_HOME)/include
+    XERCESC_LIBS	= -L$(XERCESC_HOME)/lib -lxerces-c
+else
+    XERCESC_FLAGS	=
+    XERCESC_LIBS	= -lxerces-c
+endif
 
-BASELIBS	= -lIceUtil -lpthread -luuid $(STLPORT_LIBS)
-LIBS		= -lIce -ldl -lbz2 $(BASELIBS)
-SSLLIBS		= -lIceSSL $(OPENSSL_LIBS)
+CXX			= c++
+CXXFLAGS 		= -ftemplate-depth-128 -fPIC -Wall
+ifeq ($(OPTIMIZE),yes)
+    CXXFLAGS		:= -O3 -DNDEBUG $(CXXFLAGS)
+else
+    CXXFLAGS		:= -g $(CXXFLAGS)
+endif
 
-SLICE2CPP	= $(bindir)/slice2cpp
-SLICE2XSD	= $(bindir)/slice2xsd
-SLICE2FREEZE	= $(bindir)/slice2freeze
-SLICE2DOCBOOK	= $(bindir)/slice2docbook
+CPPFLAGS		= -I$(includedir) $(STLPORT_FLAGS)
+ICECPPFLAGS		= -I$(slicedir)
 
-EVERYTHING	= all depend clean
+LDFLAGS			= -L$(libdir)
+SHLIB_LDFLAGS		= -shared -Xlinker -soname -Xlinker $(@F)
+
+LIBEXT			= so
+
+BASELIBS		= -lIceUtil -lpthread -luuid $(STLPORT_LIBS)
+LIBS			= -lIce -ldl -lbz2 $(BASELIBS)
+
+SLICE2CPP		= $(bindir)/slice2cpp
+SLICE2XSD		= $(bindir)/slice2xsd
+SLICE2FREEZE		= $(bindir)/slice2freeze
+SLICE2DOCBOOK		= $(bindir)/slice2docbook
+
+EVERYTHING		= all depend clean
 
 .SUFFIXES:
-.SUFFIXES:	.cpp .c .o
+.SUFFIXES:		.cpp .c .o
 
 .cpp.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<

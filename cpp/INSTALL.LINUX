@@ -6,11 +6,11 @@ C++ compiler
 
 - GCC 3.2; or
 
-- GCC 2.96 with STLport 4.5.3
+- GCC 2.96 with STLport 4.5
 
 The STL (Standard Template Library) that is included with GCC 2.96 is
-not supported! You must use STLport 4.5.3 with GCC 2.96. You can
-download STLport 4.5.3 from:
+not supported! You must use STLport 4.5 with GCC 2.96. You can
+download STLport 4.5 from:
 
 http://www.stlport.org/download.html
 
@@ -30,29 +30,34 @@ running the test scripts, Python is not required.
 Third-party libraries
 ---------------------
 
-- Berkeley DB 3.3.11
-
 - Xerces-C++ 2.1.0
+
+- Berkeley DB 3.3 or 4.0
 
 - OpenSSL 0.9.6
 
 - e2fsprogs 1.27 (only for the UUID library, which is part of this
   package)
 
-- bzip2 1.0.2
+- bzip2 1.0
 
-You can download Berkeley DB 3.3.11 from:
+Xerces-C++ can be download from:
 
-http://www.sleepycat.com/update/index.html.
+http://xml.apache.org/xerces-c
 
-OpenSSL, e2fsprogs, and bzip2 are usually available with your Linux
-distribution. The RPMs for Redhat 8.0 are:
+Berkeley DB, OpenSSL, e2fsprogs, and bzip2 are usually available with
+your Linux distribution. The RPMs for Redhat 8.0 are:
 
+db4-devel-4.0.14-14
 openssl-devel-0.9.6b-29
 e2fsprogs-devel-1.27-9
 bzip2-devel-1.0.2-5
 
-If you don't have them, you can download OpenSSL from:
+If you don't have them, you can download Berkeley DB from :
+
+http://www.sleepycat.com/update/index.html
+
+And OpenSSL from:
 
 http://www.openssl.org
 
@@ -60,6 +65,7 @@ And bzip2 from:
 
 http://sources.redhat.com/bzip2
 
-Sorry, but we are not aware of any download possibility for e2fsprogs
-(or the UUID routines of this package). But to our knowledge, every
-Linux distribution includes this, so there should be no problem.
+Sorry, but we are not aware of any download possibilities for
+e2fsprogs (or the UUID routines included in this package). But to our
+knowledge, every Linux distribution includes this, so there should be
+no problem.

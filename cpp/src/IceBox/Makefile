@@ -43,8 +43,7 @@ SLICECMD	= $(SLICE2CPP) --ice --include-dir IceBox $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. -I$(DB_HOME)/include $(CPPFLAGS)
-LDFLAGS         := $(LDFLAGS) -L$(DB_HOME)/lib
+CPPFLAGS	:= -I.. $(DB_FLAGS) $(CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
@@ -52,7 +51,7 @@ $(VERSIONED_NAME): $(OBJS)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lIceBox -lFreeze -lIceXML $(LIBS) -ldb
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lIceBox -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
 
 $(ADMIN): $(AOBJS)
 	rm -f $@

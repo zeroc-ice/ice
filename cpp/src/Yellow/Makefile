@@ -51,8 +51,7 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir Yellow $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. -I$(DB_HOME)/include $(CPPFLAGS)
-LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
+CPPFLAGS	:= -I.. $(CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@

@@ -26,12 +26,11 @@ SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. -I../../include -I$(DB_HOME)/include $(CPPFLAGS)
-LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
+CPPFLAGS	:= -I. -I../../include $(DB_FLAGS) $(CPPFLAGS)
 
 $(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lFreeze -lIceXML $(LIBS) -ldb
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
 
 ByteIntMapXML.h ByteIntMapXML.cpp: $(SLICE2FREEZE)
 	rm -f ByteIntMapXML.h ByteIntMapXML.cpp
