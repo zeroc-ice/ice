@@ -2,7 +2,6 @@
 
 import os, sys, shutil, fnmatch, re, glob
 
-
 #
 # Program usage.
 #
