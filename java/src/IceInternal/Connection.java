@@ -965,6 +965,7 @@ public final class Connection extends EventHandler
     public void
     message(BasicStream stream, ThreadPool threadPool)
     {
+	ServantManager servantManager = null;
 	OutgoingAsync outAsync = null;
 	int invoke = 0;
 	int requestId = 0;
@@ -1037,6 +1038,7 @@ public final class Connection extends EventHandler
                             TraceUtil.traceRequest("received request", stream, _logger, _traceLevels);
 			    requestId = stream.readInt();
 			    invoke = 1;
+			    servantManager = _servantManager;
 			    ++_dispatchCount;
                         }
                         break;
@@ -1058,6 +1060,7 @@ public final class Connection extends EventHandler
 			    {
 				throw new Ice.NegativeSizeException();
 			    }
+			    servantManager = _servantManager;
 			    _dispatchCount += invoke;
                         }
                         break;
@@ -1152,7 +1155,12 @@ public final class Connection extends EventHandler
 		    os.writeInt(requestId);
 		}
 		
-		in.invoke(_servantManager);
+		//
+		// _servantManager might be changed by setAdapter() during
+		// execution, so we must operate on a copy.
+		//
+		assert(servantManager != null);
+		in.invoke(servantManager);
 		
 		//
 		// If there are more invocations, we need the stream back.

@@ -1079,6 +1079,7 @@ IceInternal::Connection::read(BasicStream& stream)
 void
 IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threadPool)
 {
+    ServantManagerPtr servantManager;
     OutgoingAsyncPtr outAsync;
     Int invoke = 0;
     Int requestId = 0;
@@ -1156,6 +1157,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 			traceRequest("received request", stream, _logger, _traceLevels);
 			stream.read(requestId);
 			invoke = 1;
+			servantManager = _servantManager;
 			++_dispatchCount;
 		    }
 		    break;
@@ -1177,6 +1179,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 			{
 			    throw NegativeSizeException(__FILE__, __LINE__);
 			}
+			servantManager = _servantManager;
 			_dispatchCount += invoke;
 		    }
 		    break;
@@ -1328,7 +1331,12 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		os->write(requestId);
 	    }
 	    
-	    in.invoke(_servantManager);
+	    //
+	    // _servantManager might be changed by setAdapter() during
+	    // execution, so we must operate on a copy.
+	    //
+	    assert(servantManager);
+	    in.invoke(servantManager);
 	    
 	    //
 	    // If there are more invocations, we need the stream back.
