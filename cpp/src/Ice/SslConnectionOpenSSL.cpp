@@ -145,20 +145,44 @@ IceSecurity::Ssl::OpenSSL::Connection::renegotiate()
 int
 IceSecurity::Ssl::OpenSSL::Connection::initialize(int timeout)
 {
-    HandshakeSentinel handshakeSentinel(_handshakeFlag);
-
     ICE_METHOD_INV("OpenSSL::Connection::initialize()");
 
-    int retCode;
+    int retCode = 0;
+ 
+    while (true)
+    {
+        // One lucky thread will get the honor of carrying out the hanshake,
+        // if there is one to perform.  The HandshakeSentinel effectively
+        // establishes a first-come, first-serve policy.  One thread will own
+        // the handshake, and the others will either return rejected to the
+        // caller (who will figure out what to do with them) OR wait until
+        // our lead thread is done.  Then, the shuffle begins again.
+        // Eventually, all threads will filter through.
 
-    if (!handshakeSentinel.ownHandshake())
-    {
-        // We don't own the handshake, we can't go any further.
-        retCode =  -1;
-    }
-    else
-    {
-        retCode = init(timeout);
+        HandshakeSentinel handshakeSentinel(_handshakeFlag);
+
+        if (!handshakeSentinel.ownHandshake())
+        {
+            if (timeout >= 0)
+            {
+                // We should return immediately here - do not block,
+                // leave it to the caller to figure this out.
+                retCode = -1;
+                break;
+            }
+            else
+            {
+                // We will wait here - blocking IO is being used.
+                IceUtil::Mutex::Lock sync(_handshakeWaitMutex);
+            }
+        }
+        else
+        {
+            // Perform our init(), then leave.
+            IceUtil::Mutex::Lock sync(_handshakeWaitMutex);
+            retCode = init(timeout);
+            break;
+        }
     }
 
     ICE_METHOD_RET("OpenSSL::Connection::initialize()");
@@ -447,16 +471,19 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
     int bytesPending;
     int bytesRead;
 
+    int initReturn = 0;
+
     // We keep reading until we're done.
     while (buf.i != buf.b.end())
     {
         // Ensure we're initialized.
-        int initReturn = initialize(timeout);
+        initReturn = initialize(timeout);
 
+/////
         if (initReturn == -1)
         {
-            // Handshake underway, we should just return with what we've got (even if that's nothing).
-            break;
+            // Handshake underway, timeout immediately, easy way to deal with this.
+            throw TimeoutException(__FILE__, __LINE__);
         }
 
         if (initReturn == 0)
@@ -464,6 +491,7 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
             // Retry the initialize call
             continue;
         }
+/////
 
         // initReturn must be > 0, so we're okay to try a write
 

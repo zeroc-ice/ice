@@ -282,19 +282,15 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
     }
 #endif
 
+    int initReturn = 0;
+
     // We keep writing until we're done.
     while (buf.i != buf.b.end())
     {
         // Ensure we're initialized.
-        int initReturn = initialize(timeout);
+        initReturn = initialize(timeout);
 
-        if (initReturn == -1)
-        {
-            // Handshake underway, we should just return with what we've got (even if that's nothing).
-            break;
-        }
-
-        if (initReturn == 0)
+        if (initReturn <= 0)
         {
             // Retry the initialize call
             continue;

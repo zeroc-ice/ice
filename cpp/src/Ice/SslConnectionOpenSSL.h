@@ -175,6 +175,8 @@ protected:
     Buffer _inBuffer;
     ::IceUtil::Mutex _inBufferMutex;
 
+    ::IceUtil::Mutex _handshakeWaitMutex;
+
     TraceLevelsPtr _traceLevels;
     LoggerPtr _logger;
 
