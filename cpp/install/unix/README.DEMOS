@@ -69,8 +69,10 @@ $ java Client
 Running the C# demos
 ====================
 
-The C# demos are only officially supported under Linux or
-Windows.
+The C# demos are only officially supported under Linux or Windows. The
+C# runtime is only provided under the Linux and Windows
+distributions. For the adventurous you may download the runtime source
+from the ZeroC website.
 
 To run a demo, open a terminal window, change to the desired demo
 directory, and enter the following command to run the server:
