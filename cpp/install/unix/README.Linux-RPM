@@ -1,0 +1,110 @@
+======================================================================
+The Internet Communications Engine
+======================================================================
+
+Ice is a modern alternative to object middleware such as CORBA or
+COM/DCOM/COM+. It is easy to learn, yet provides a powerful network
+infrastructure for demanding technical applications. It features an
+object-oriented specification language, easy to use C++, Java, Python,
+PHP, C#, and Visual Basic mappings, a highly efficient protocol,
+asynchronous method invocation and dispatch, dynamic transport
+plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
+solution, and much more.
+
+Ice is available under the terms of the GNU General Public License
+(GPL) (see LICENSE file). Commercial licenses are available for
+customers who wish to use Ice with proprietary products. Please
+contact sales@zeroc.com for more information about licensing Ice.
+
+
+======================================================================
+About this distribution
+======================================================================
+
+This distribution is an RPM release of the Ice 2.1.0 run time for
+Linux and includes executables for the Ice services, HTML
+documentation, Slice files, and the C++ run time libraries.
+
+Additional Ice components are provided in separate RPM packages:
+
+- Run time libraries for Java, Python, and C# (Mono). These libraries
+  enable you to execute Ice applications.
+
+- Development kits for C++, Java, Python and C# (Mono). A development
+  kit is required for building Ice applications using a supported
+  language mapping. The development kits include examples that
+  demonstrate various Ice features.
+
+These RPMs are available for download at the ZeroC web site at
+
+http://www.zeroc.com/download.html
+
+
+======================================================================
+64 bit builds on x86-64
+======================================================================
+
+The RPMs provided by ZeroC contain only 32-bit binaries. If you need
+64-bit binaries, you can download the Ice sources from the ZeroC web
+site at http://www.zeroc.com/download.html and build Ice in 64-bit
+mode. See the INSTALL.LINUX file of the source distribution for more
+details.
+
+
+======================================================================
+Setting up your environment to use Ice
+======================================================================
+
+
+C++
+---
+
+No additional compiler or linker options are required for an RPM
+installation of the Ice for C++ development kit.
+
+
+Java
+----
+
+To use Ice for Java, you must add Ice.jar to your CLASSPATH, as
+shown in the following bash command:
+
+$ export CLASSPATH=/usr/lib/Ice-2.1.0/Ice.jar:$CLASSPATH
+
+Note that the Freeze component of Ice for Java requires Berkeley DB.
+In order to use Freeze, you must add db.jar to your CLASSPATH. In
+addition, the JVM requires the directory containing the Berkeley DB
+libraries to be listed in java.library.path, therefore you must add
+this directory to your LD_LIBRARY_PATH. Assuming you are using the
+RPM installation of Berkeley DB, the bash command is shown below:
+
+$ export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
+
+
+Python
+------
+
+To use Ice for Python, the PYTHONPATH environment variable must
+be updated so that the interpreter can load the Ice extension and
+supporting Python files:
+
+$ export PYTHONPATH=/usr/lib/Ice-2.1.0/python:$PYTHONPATH
+
+
+Mono
+----
+
+The RPM installation adds the C# run time libraries to the global
+assembly cache (GAC), so that no changes to your environment are
+necessary to locate the assemblies.
+
+
+======================================================================
+Demos and documentation
+======================================================================
+
+Sample programs are included with each development kit. See the file
+README.DEMOS for instructions on building and running the demos.
+
+See doc/README.html for information on the documentation included with
+this distribution.
