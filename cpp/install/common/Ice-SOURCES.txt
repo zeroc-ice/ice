@@ -9,6 +9,6 @@ http://www.zeroc.com/download.html (Ice)
 http://www.sleepycat.com/download (Berkeley DB)
 http://sources.redhat.com/bzip2 (bzip2/libbzip2)
 http://www.openssl.org (OpenSSL)
-http://sourceforge.net/projects/expat(Expat)
+http://sourceforge.net/projects/expat (Expat)
 
 

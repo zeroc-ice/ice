@@ -22,10 +22,9 @@ The solution has two configurations:
 
  - Ice, to build the Ice.msi and IcePDB.msi installers from Ice and 
    IceJ source distributions, and merge modules for Berkeley DB, 
-   OpenSSL and Expat Ice must be built with both Debug and 
-   Release configurations; IceJ should be built with optimize set to
-   on. The required merge modules can be either created through 
-   the ThirdParty configuration (which requires building the
-   corresponding source distributions) or downloaded from
-   http://www.zeroc.com/download.html
+   OpenSSL and Expat. Ice must be built with both Debug and Release 
+   configurations; IceJ should be built with optimize set to on. The 
+   required merge modules can be either created through the ThirdParty
+   configuration (which requires building the corresponding source 
+   distributions) or downloaded from http://www.zeroc.com/download.html
 

@@ -295,7 +295,6 @@
                 "UseDynamicProperties" = "11:TRUE"
                 "IsDependency" = "11:FALSE"
                 "SourcePath" = "8:..\\MergeModules\\IceRuntimeDebugPDB.msm"
-                "ModuleSignature" = "8:MergeModule.05D62AF072BE4A568B636D3ED4DC95D0"
                     "Properties"
                     {
                         "_B7E87A49239640DCA1DEAE9292E379F6.05D62AF072BE4A568B636D3ED4DC95D0"
@@ -322,8 +321,8 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Ice 1.2.0 PDB Files"
-        "ProductCode" = "8:{43DD2C1C-AFC7-4575-A001-F3F072004B11}"
-        "PackageCode" = "8:{AB5BE2E6-0A44-4EFA-B2AB-5532A19C4416}"
+        "ProductCode" = "8:{D021C312-A127-4A94-B397-D064BBFBD206}"
+        "PackageCode" = "8:{2866CC5C-5854-4C1F-8280-4A319C13B1CA}"
         "UpgradeCode" = "8:{34AFF334-5D5C-45B4-B836-54CDDE95ABB0}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"

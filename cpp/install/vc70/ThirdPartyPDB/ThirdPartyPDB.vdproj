@@ -261,7 +261,7 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Ice 1.2.0 Third Party PDB Files"
-        "ProductCode" = "8:{2084C220-6D77-4BE4-8602-7283EFE1A888}"
+        "ProductCode" = "8:{A9A7D7CA-4776-4FC6-830B-E710EE1FB848}"
         "PackageCode" = "8:{0F8A32DE-080B-476D-9E17-66B8A89F252F}"
         "UpgradeCode" = "8:{616DB637-F348-4E5F-BD03-C58BF099453D}"
         "RestartWWWService" = "11:FALSE"
