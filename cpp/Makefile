@@ -20,3 +20,6 @@ $(EVERYTHING)::
 	    echo "making $@ in $$subdir"; \
 	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
 	done
+
+test::
+	@python $(top_srcdir)/allTests.py

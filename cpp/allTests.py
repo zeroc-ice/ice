@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2002
+# Copyright (c) 2001
 # MutableRealms, Inc.
 # Huntsville, AL, USA
 #
