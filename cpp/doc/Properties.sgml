@@ -2223,11 +2223,9 @@ Glacier.Router.Server.Throttle.Twoways=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 <replaceable>num</replaceable> is the maximum number of twoway
-requests that the router will forward simultanously. The default is
-zero, meaning no limit. Setting thsleep time (delay) in milliseconds
-after a request or message batch has been forwarded. The default value
-is zero, meaning no delay. Enabling twoway message throtteling is
-useful to avoid that one router can consume too many resources of
+requests that the router will forward simultaneously. The default is
+zero, meaning no limit. Enabling twoway message throttling is
+useful to prevent a router from consuming too many resources of
 backend services.
 </para>
 </section>
