@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Gen.h>
+#include <Slice/Checksum.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/Algorithm.h>
 #include <IceUtil/Iterator.h>
@@ -850,6 +851,65 @@ Slice::Gen::generateImplTie(const UnitPtr& p)
 {
     ImplTieVisitor implTieVisitor(_dir);
     p->visit(&implTieVisitor);
+}
+
+void
+Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, const ChecksumMap& map)
+{
+    //
+    // Attempt to open the source file for the checksum class.
+    //
+    JavaOutput out;
+    if(!out.openClass(checksumClass, dir))
+    {
+        cerr << "can't open class `" << checksumClass << "' for writing: " << strerror(errno) << endl;
+        return;
+    }
+
+    //
+    // Get the class name.
+    //
+    string className;
+    string::size_type pos = checksumClass.rfind('.');
+    if(pos == string::npos)
+    {
+        className = checksumClass;
+    }
+    else
+    {
+        className = checksumClass.substr(pos + 1);
+    }
+
+    //
+    // Emit the class.
+    //
+    out << sp << nl << "public class " << className;
+    out << sb;
+
+    //
+    // Use a static initializer to populate the checksum map.
+    //
+    out << sp << nl << "public static java.util.Map checksums;";
+    out << sp << nl << "static";
+    out << sb;
+    out << nl << "java.util.Map map = new java.util.HashMap();";
+    for(ChecksumMap::const_iterator p = map.begin(); p != map.end(); ++p)
+    {
+        out << nl << "map.put(\"" << p->first << "\", \"";
+        ostringstream str;
+        str.flags(ios_base::hex);
+        str.fill('0');
+        for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+        {
+            str << (int)(*q);
+        }
+        out << str.str() << "\");";
+    }
+    out << nl << "checksums = java.util.Collections.unmodifiableMap(map);";
+
+    out << eb;
+    out << eb;
+    out << nl;
 }
 
 Slice::Gen::OpsVisitor::OpsVisitor(const string& dir) :

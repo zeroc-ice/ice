@@ -11,6 +11,7 @@
 #include <Slice/CPlusPlusUtil.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
+#include <Slice/Checksum.h>
 
 #include <limits>
 #include <sys/stat.h>
@@ -21,14 +22,15 @@ using namespace IceUtil;
 
 Slice::Gen::Gen(const string& name, const string& base,	const string& headerExtension,
 	        const string& sourceExtension, const string& include, const vector<string>& includePaths,
-		const string& dllExport, const string& dir, bool imp) :
+		const string& dllExport, const string& dir, bool imp, bool checksum) :
     _base(base),
     _headerExtension(headerExtension),
     _sourceExtension(sourceExtension),
     _include(include),
     _includePaths(includePaths),
     _dllExport(dllExport),
-    _impl(imp)
+    _impl(imp),
+    _checksum(checksum)
 {
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
@@ -215,6 +217,11 @@ Slice::Gen::generate(const UnitPtr& p)
 	H << "\n#include <Ice/FactoryTable.h>";
     }
 
+    if(_checksum)
+    {
+        C << "\n#include <Ice/SliceChecksum.h>";
+    }
+
     StringList includes = p->includeFiles();
 
     for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
@@ -285,6 +292,31 @@ Slice::Gen::generate(const UnitPtr& p)
 
         ImplVisitor implVisitor(implH, implC, _dllExport);
         p->visit(&implVisitor);
+    }
+
+    if(_checksum)
+    {
+        ChecksumMap map = createChecksums(p);
+        if(!map.empty())
+        {
+            C << sp << nl << "static const char* __sliceChecksums[] =";
+            C << sb;
+            for(ChecksumMap::const_iterator p = map.begin(); p != map.end(); ++p)
+            {
+                C << nl << "\"" << p->first << "\", \"";
+                ostringstream str;
+                str.flags(ios_base::hex);
+                str.fill('0');
+                for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+                {
+                    str << (int)(*q);
+                }
+                C << str.str() << "\",";
+            }
+            C << nl << "0";
+            C << eb << ';';
+            C << nl << "static IceInternal::SliceChecksumInit __sliceChecksumInit(__sliceChecksums);";
+        }
     }
 }
 
@@ -1851,7 +1883,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << "public:";
     H.inc();
 
-    if(!p->isAbstract())
+    if(!p->isAbstract() && !p->isLocal())
     {
 	H << sp << nl << "void __copyMembers(" << scoped << "Ptr) const;";
 

@@ -33,7 +33,9 @@ OBJS		= Exception.o \
 		  GCShared.o \
 		  GCRecMutex.o \
 		  GC.o \
-                  CountDownLatch.o
+                  CountDownLatch.o \
+                  MD5.o \
+                  MD5I.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -47,7 +49,7 @@ CFLAGS          :=      $(CFLAGS) -fomit-frame-pointer
 endif
 
 
-CPPFLAGS        := $(CPPFLAGS) -DICE_UTIL_API_EXPORTS
+CPPFLAGS        := $(CPPFLAGS) -DICE_UTIL_API_EXPORTS -I..
 
 LINKWITH        := $(STLPORT_LIBS) $(ICEUTIL_OS_LIBS)
 

@@ -13,6 +13,7 @@
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/CommunicatorF.ice>
 #include <Ice/PropertiesF.ice>
+#include <Ice/SliceChecksumDict.ice>
 
 /**
  *
@@ -89,6 +90,15 @@ local interface Service
  **/
 interface ServiceManager
 {
+    /**
+     *
+     * Returns the checksums for the IceBox Slice definitions.
+     *
+     * @return A dictionary mapping Slice type ids to their checksums.
+     *
+     **/
+    nonmutating Ice::SliceChecksumDict getSliceChecksums();
+
     /**
      *
      * Shutdown all services. This will cause [Service::stop] to be

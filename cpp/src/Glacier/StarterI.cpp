@@ -10,6 +10,7 @@
 #include <IceUtil/UUID.h>
 #include <IceSSL/RSAKeyPair.h>
 #include <Glacier/StarterI.h>
+#include <Ice/SliceChecksum.h>
 #ifndef _WIN32
 #   include <fcntl.h>
 #endif
@@ -744,6 +745,12 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 
     assert(false); // Should never be reached.
     return 0; // To keep the compiler from complaining.
+}
+
+SliceChecksumDict
+Glacier::StarterI::getSliceChecksums(const Current&) const
+{
+    return sliceChecksums;
 }
 
 Glacier::CryptPasswordVerifierI::CryptPasswordVerifierI(const map<string, string>& passwords) :

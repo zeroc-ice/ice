@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <Ice/SliceChecksum.h>
 #include <IceStorm/TopicManagerI.h>
 #include <IceStorm/TopicI.h>
 #include <IceStorm/Flusher.h>
@@ -128,6 +129,12 @@ TopicManagerI::retrieveAll(const Ice::Current&) const
 	      TransformToTopicDict(_topicAdapter));
 
     return all;
+}
+
+Ice::SliceChecksumDict
+TopicManagerI::getSliceChecksums(const Ice::Current&) const
+{
+    return Ice::sliceChecksums;
 }
 
 void

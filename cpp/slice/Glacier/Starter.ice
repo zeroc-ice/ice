@@ -12,6 +12,7 @@
 
 #include <Glacier/Router.ice>
 #include <Ice/BuiltinSequences.ice>
+#include <Ice/SliceChecksumDict.ice>
 
 /**
  *
@@ -86,6 +87,15 @@ interface Starter
     Glacier::Router* startRouter(string userId, string password,
 				 out Ice::ByteSeq privateKey, out Ice::ByteSeq publicKey, out Ice::ByteSeq routerCert)
 	throws PermissionDeniedException, CannotStartRouterException;
+
+    /**
+     *
+     * Returns the checksums for the Glacier Slice definitions.
+     *
+     * @return A dictionary mapping Slice type ids to their checksums.
+     *
+     **/
+    nonmutating Ice::SliceChecksumDict getSliceChecksums();
 };
 
 /**

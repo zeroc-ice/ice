@@ -27,6 +27,8 @@ public:
     ServiceManagerI(::Ice::Application*, int&, char*[]);
     virtual ~ServiceManagerI();
 
+    virtual Ice::SliceChecksumDict getSliceChecksums(const Ice::Current&) const;
+
     virtual void shutdown(const ::Ice::Current&);
 
     int run();

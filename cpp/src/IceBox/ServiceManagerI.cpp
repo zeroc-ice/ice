@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <Ice/DynamicLibrary.h>
+#include <Ice/SliceChecksum.h>
 #include <IceBox/ServiceManagerI.h>
 
 using namespace Ice;
@@ -35,6 +36,12 @@ IceBox::ServiceManagerI::ServiceManagerI(Application* server, int& argc, char* a
 
 IceBox::ServiceManagerI::~ServiceManagerI()
 {
+}
+
+SliceChecksumDict
+IceBox::ServiceManagerI::getSliceChecksums(const Current&) const
+{
+    return sliceChecksums;
 }
 
 void

@@ -32,6 +32,7 @@ usage(const char* n)
 	"--depend                Generate Makefile dependencies.\n"
         "-d, --debug             Print debug messages.\n"
         "--ice                   Permit `Ice' prefix (for building Ice source code only)\n"
+        "--checksum CLASS        Generate checksums for Slice definitions into CLASS.\n"
         ;
     // Note: --case-sensitive is intentionally not shown here!
 }
@@ -49,6 +50,7 @@ main(int argc, char* argv[])
     bool ice = false;
     bool caseSensitive = false;
     bool depend = false;
+    string checksumClass;
 
     int idx = 1;
     while(idx < argc)
@@ -70,8 +72,7 @@ main(int argc, char* argv[])
             }
             --argc;
         }
-        else if(strncmp(argv[idx], "-D", 2) == 0 ||
-                 strncmp(argv[idx], "-U", 2) == 0)
+        else if(strncmp(argv[idx], "-D", 2) == 0 || strncmp(argv[idx], "-U", 2) == 0)
         {
             cppArgs += ' ';
             cppArgs += argv[idx];
@@ -82,20 +83,17 @@ main(int argc, char* argv[])
             }
             --argc;
         }
-        else if(strcmp(argv[idx], "-h") == 0 ||
-                 strcmp(argv[idx], "--help") == 0)
+        else if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
         {
             usage(argv[0]);
             return EXIT_SUCCESS;
         }
-        else if(strcmp(argv[idx], "-v") == 0 ||
-                 strcmp(argv[idx], "--version") == 0)
+        else if(strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
         {
             cout << ICE_STRING_VERSION << endl;
             return EXIT_SUCCESS;
         }
-        else if(strcmp(argv[idx], "-d") == 0 ||
-                 strcmp(argv[idx], "--debug") == 0)
+        else if(strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
         {
             debug = true;
             for(int i = idx ; i + 1 < argc ; ++i)
@@ -126,8 +124,7 @@ main(int argc, char* argv[])
         {
             if(idx + 1 >= argc)
             {
-                cerr << argv[0] << ": argument expected for`" << argv[idx]
-                     << "'" << endl;
+                cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
                 usage(argv[0]);
                 return EXIT_FAILURE;
             }
@@ -175,10 +172,25 @@ main(int argc, char* argv[])
 	    }
 	    --argc;
 	}
+	else if(strcmp(argv[idx], "--checksum") == 0)
+	{
+            if(idx + 1 >= argc)
+            {
+                cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
+                usage(argv[0]);
+                return EXIT_FAILURE;
+            }
+
+            checksumClass = argv[idx + 1];
+            for(int i = idx ; i + 2 < argc ; ++i)
+            {
+                argv[i] = argv[i + 2];
+            }
+            argc -= 2;
+	}
         else if(argv[idx][0] == '-')
         {
-            cerr << argv[0] << ": unknown option `" << argv[idx] << "'"
-                 << endl;
+            cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
             usage(argv[0]);
             return EXIT_FAILURE;
         }
@@ -203,6 +215,8 @@ main(int argc, char* argv[])
     }
 
     int status = EXIT_SUCCESS;
+
+    ChecksumMap checksums;
 
     for(idx = 1 ; idx < argc ; ++idx)
     {
@@ -254,10 +268,23 @@ main(int argc, char* argv[])
 		{
 		    gen.generateImplTie(p);
 		}
+                if(!checksumClass.empty())
+                {
+                    //
+                    // Calculate checksums for the Slice definitions in the unit.
+                    //
+                    ChecksumMap m = createChecksums(p);
+                    copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
+                }
 	    }
 
 	    p->destroy();
 	}
+    }
+
+    if(!checksumClass.empty())
+    {
+        Gen::writeChecksumClass(checksumClass, output, checksums);
     }
 
     return status;

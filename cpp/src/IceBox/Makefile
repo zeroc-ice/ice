@@ -40,7 +40,7 @@ SDIR		= $(slicedir)/IceBox
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_BOX_API_EXPORTS $(DB_FLAGS) 
-SLICE2CPPFLAGS	:= --ice --dll-export ICE_BOX_API --include-dir IceBox $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS	:= --checksum --ice --dll-export ICE_BOX_API --include-dir IceBox $(SLICE2CPPFLAGS)
 LINKWITH	:= -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(OBJS)

@@ -10,6 +10,8 @@
 #ifndef ICE_STORM_ICE
 #define ICE_STORM_ICE
 
+#include <Ice/SliceChecksumDict.ice>
+
 /**
  *
  * A messaging service with support for federation. In contrast to
@@ -287,6 +289,15 @@ interface TopicManager
      *
      **/
     nonmutating TopicDict retrieveAll();
+
+    /**
+     *
+     * Returns the checksums for the IceStorm Slice definitions.
+     *
+     * @return A dictionary mapping Slice type ids to their checksums.
+     *
+     **/
+    nonmutating Ice::SliceChecksumDict getSliceChecksums();
 };
 
 };

@@ -35,6 +35,8 @@ public:
 			  Ice::ByteSeq&,
 			  const Ice::Current&);
 
+    virtual Ice::SliceChecksumDict getSliceChecksums(const Ice::Current&) const;
+
 private:
 
     Ice::CommunicatorPtr _communicator;

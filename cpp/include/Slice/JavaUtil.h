@@ -16,6 +16,31 @@
 namespace Slice
 {
 
+class SLICE_API JavaOutput : public ::IceUtil::Output
+{
+public:
+
+    JavaOutput();
+    JavaOutput(std::ostream&);
+    JavaOutput(const char*);
+
+    //
+    // Open a file to hold the source for a Java class. The first
+    // argument is the class name (including an optional leading
+    // package). Intermediate directories will be created as
+    // necessary to open the file in the package. The second
+    // argument specifies a directory prefix in which to locate
+    // the class.
+    //
+    // After successfully opening the file, the function invokes
+    // printHeader() and then emits a "package" statement if
+    // necessary.
+    //
+    bool openClass(const std::string&, const std::string& = std::string());
+
+    virtual void printHeader();
+};
+
 class SLICE_API JavaGenerator : public ::IceUtil::noncopyable
 {
 public:
@@ -126,10 +151,7 @@ private:
         StringSet _history;
     };
 
-    void printHeader();
-
     std::string _dir;
-
     ::IceUtil::Output* _out;
 };
 

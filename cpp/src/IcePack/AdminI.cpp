@@ -13,6 +13,7 @@
 #include <IcePack/DescriptorUtil.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceUtil.h>
+#include <Ice/SliceChecksum.h>
 
 using namespace std;
 using namespace Ice;
@@ -1470,4 +1471,10 @@ void
 IcePack::AdminI::shutdown(const Current&)
 {
     _communicator->shutdown();
+}
+
+SliceChecksumDict
+IcePack::AdminI::getSliceChecksums(const Current&) const
+{
+    return sliceChecksums;
 }

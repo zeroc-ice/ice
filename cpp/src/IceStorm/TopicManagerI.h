@@ -51,6 +51,8 @@ public:
     virtual TopicPrx retrieve(const std::string&, const Ice::Current&) const;
     virtual TopicDict retrieveAll(const Ice::Current&) const;
 
+    virtual Ice::SliceChecksumDict getSliceChecksums(const Ice::Current&) const;
+
     void reap();
 
     void shutdown();

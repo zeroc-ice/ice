@@ -17,3 +17,5 @@ GCShared.o: GCShared.cpp ../../include/IceUtil/GCShared.h ../../include/IceUtil/
 GCRecMutex.o: GCRecMutex.cpp ../../include/IceUtil/GCRecMutex.h ../../include/IceUtil/RecMutex.h ../../include/IceUtil/Config.h ../../include/IceUtil/Lock.h ../../include/IceUtil/ThreadException.h ../../include/IceUtil/Exception.h
 GC.o: GC.cpp ../../include/IceUtil/GC.h ../../include/Ice/Config.h ../../include/IceUtil/Config.h ../../include/IceUtil/Thread.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Handle.h ../../include/IceUtil/Exception.h ../../include/IceUtil/Mutex.h ../../include/IceUtil/Lock.h ../../include/IceUtil/ThreadException.h ../../include/IceUtil/Monitor.h ../../include/IceUtil/Cond.h ../../include/IceUtil/Time.h ../../include/IceUtil/GCRecMutex.h ../../include/IceUtil/RecMutex.h ../../include/IceUtil/GCShared.h
 CountDownLatch.o: CountDownLatch.cpp ../../include/IceUtil/CountDownLatch.h ../../include/IceUtil/Config.h ../../include/IceUtil/ThreadException.h ../../include/IceUtil/Exception.h
+MD5.o: MD5.cpp ../../include/IceUtil/MD5.h ../../include/IceUtil/Config.h ../IceUtil/MD5I.h
+MD5I.o: MD5I.cpp ../IceUtil/MD5I.h

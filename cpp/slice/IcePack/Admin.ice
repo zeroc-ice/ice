@@ -12,6 +12,7 @@
 
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
+#include <Ice/SliceChecksumDict.ice>
 #include <IceBox/IceBox.ice>
 #include <IcePack/Exception.ice>
 
@@ -890,6 +891,15 @@ interface Admin
      *
      **/
     idempotent void shutdown();
+
+    /**
+     *
+     * Returns the checksums for the IcePack Slice definitions.
+     *
+     * @return A dictionary mapping Slice type ids to their checksums.
+     *
+     **/
+    nonmutating Ice::SliceChecksumDict getSliceChecksums();
 };
 
 };

@@ -20,7 +20,8 @@ SUBDIRS		= operations \
 		  location \
 		  adapterDeactivation \
 		  slicing \
-		  gc
+		  gc \
+		  checksum
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

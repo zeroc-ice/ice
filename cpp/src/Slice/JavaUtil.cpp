@@ -25,35 +25,36 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 
-Slice::JavaGenerator::JavaGenerator(const string& dir) :
-    _dir(dir),
-    _out(0)
+Slice::JavaOutput::JavaOutput()
 {
 }
 
-Slice::JavaGenerator::~JavaGenerator()
+Slice::JavaOutput::JavaOutput(ostream& os) :
+    Output(os)
 {
-    assert(_out == 0);
+}
+
+Slice::JavaOutput::JavaOutput(const char* s) :
+    Output(s)
+{
 }
 
 bool
-Slice::JavaGenerator::open(const string& absolute)
+Slice::JavaOutput::openClass(const string& cls, const string& prefix)
 {
     string package;
     string file;
-    string path = _dir;
+    string path = prefix;
 
-    assert(_out == 0);
-
-    string::size_type pos = absolute.rfind('.');
+    string::size_type pos = cls.rfind('.');
     if(pos != string::npos)
     {
-        package = absolute.substr(0, pos);
-        file = absolute.substr(pos + 1);
+        package = cls.substr(0, pos);
+        file = cls.substr(pos + 1);
         string dir = package;
 
         //
-        // Create package directories if necessary
+        // Create package directories if necessary.
         //
         pos = 0;
         string::size_type start = 0;
@@ -88,8 +89,6 @@ Slice::JavaGenerator::open(const string& absolute)
 #endif
             if(result != 0)
             {
-                cerr << "can't create directory `" << path << "': "
-                     << strerror(errno) << endl;
                 return false;
             }
         }
@@ -97,36 +96,85 @@ Slice::JavaGenerator::open(const string& absolute)
     }
     else
     {
-        file = absolute;
+        file = cls;
     }
     file += ".java";
 
     //
-    // Open class file
+    // Open class file.
     //
     if(!path.empty())
     {
         path += "/";
     }
     path += file;
-    _out = new Output();
-    _out->open(path.c_str());
-    if(!(*_out))
+
+    open(path.c_str());
+    if(isOpen())
     {
-        cerr << "can't open `" << path << "' for writing: "
-             << strerror(errno) << endl;
-        close();
-        return false;
+        printHeader();
+
+        if(!package.empty())
+        {
+            sp();
+            nl();
+            print("package ");
+            print(package.c_str());
+            print(";");
+        }
+
+        return true;
     }
 
-    printHeader();
+    return false;
+}
 
-    if(!package.empty())
+void
+Slice::JavaOutput::printHeader()
+{
+    static const char* header =
+"// **********************************************************************\n"
+"//\n"
+"// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.\n"
+"//\n"
+"// This copy of Ice is licensed to you under the terms described in the\n"
+"// ICE_LICENSE file included in this distribution.\n"
+"//\n"
+"// **********************************************************************\n"
+        ;
+
+    print(header);
+    print("\n// Ice version ");
+    print(ICE_STRING_VERSION);
+}
+
+Slice::JavaGenerator::JavaGenerator(const string& dir) :
+    _dir(dir),
+    _out(0)
+{
+}
+
+Slice::JavaGenerator::~JavaGenerator()
+{
+    assert(_out == 0);
+}
+
+bool
+Slice::JavaGenerator::open(const string& absolute)
+{
+    assert(_out == 0);
+
+    JavaOutput* out = new JavaOutput;
+    if(out->openClass(absolute, _dir))
     {
-        *_out << sp << nl << "package " << package << ';';
+        _out = out;
+    }
+    else
+    {
+        delete out;
     }
 
-    return true;
+    return _out != 0;
 }
 
 void
@@ -1297,25 +1345,6 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             }
         }
     }
-}
-
-void
-Slice::JavaGenerator::printHeader()
-{
-    static const char* header =
-"// **********************************************************************\n"
-"//\n"
-"// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.\n"
-"//\n"
-"// This copy of Ice is licensed to you under the terms described in the\n"
-"// ICE_LICENSE file included in this distribution.\n"
-"//\n"
-"// **********************************************************************\n"
-        ;
-
-    Output& out = output();
-    out << header;
-    out << "\n// Ice version " << ICE_STRING_VERSION;
 }
 
 string
