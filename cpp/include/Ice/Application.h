@@ -83,6 +83,15 @@ public:
     //
     static bool interrupted();
 
+
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x530)
+//
+// Sun C++ 5.3 does not like classes with no data members 
+//
+private:
+    char _dummy;
+#endif
+
 };
 }
 
