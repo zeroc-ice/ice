@@ -1,19 +1,39 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Added support for IcePack and Glacier on Windows platforms.
+  The IcePack Registry, IcePack Node and Glacier Starter programs
+  can optionally be installed as Windows services. See the Ice
+  manual for more information.
+
+- Added a new logger implementation that uses the Windows Event Log.
+  To use it, set the Ice.UseEventLog property to a non-zero value.
+
 - Three new icepackadmin commands:
-  * server signal NAME SIGNAL: to have the IcePackNode send a signal 
-    to a server. (Unix only)
-  * server stdout NAME MESSAGE: writes MESSAGE on server's stdout.
-  * server stderr NAME MESSAGE: writes MESSAGE on server's stderr.
+
+  * server signal NAME SIGNAL
+
+    Causes the IcePackNode to send a signal to a server. (Unix only)
+
+  * server stdout NAME MESSAGE
+
+    Writes MESSAGE on server's stdout.
+
+  * server stderr NAME MESSAGE
+
+    Writes MESSAGE on server's stderr.
 
 - Two new IcePack.Node properties:
+
   * IcePack.Node.Output=<path>
+
     If set, the IcePack node will redirect the stdout and stderr 
     output of the started servers to files named <server>.out and 
     <server>.err in this directory. Otherwise, the started servers 
     share the stdout and stderr of the IcePack node.
+
   * IcePack.Node.RedirectErrToOut=<num>
+
     If <num> is set to a value larger than zero, the stderr of each
     started server is redirected to the server's stdout.
 
@@ -105,6 +125,7 @@ Changes since version 1.2.0
   new semantics of the sleep times.
 
 - Added STL functors for partial proxy comparison:
+
   * ProxyIdentityLess
   * ProxyIdentityEqual
   * ProxyIdentityAndFacetLess
