@@ -20,7 +20,7 @@ class ICE_API Outgoing
 {
 public:
 
-    Outgoing(const Reference&, const std::string&);
+    Outgoing(const Reference&, const char*);
     ~Outgoing();
 
     void invoke();
@@ -30,8 +30,8 @@ private:
     Outgoing(const Outgoing&);
     void operator=(const Outgoing&);
 
-    Reference reference_;
-    std::string operation_;
+    const Reference& reference_;
+    const char* operation_;
 };
 
 }
