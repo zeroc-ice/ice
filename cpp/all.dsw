@@ -1821,24 +1821,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "icepatch"=.\src\icepatch\icepatch.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "icepatch2"=.\src\icepatch2\icepatch2.dsp - Package Owner=<4>
 
 Package=<5>
@@ -1912,81 +1894,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name icepatch2
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "icepatchC"=.\src\icepatch\icepatchC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icepatch
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name glacier
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icessl
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "icepatchS"=.\src\icepatch\icepatchS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icepatch
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "icepatchcalc"=.\src\IcePatch\icepatchcalc.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name glacier
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icepatch
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icessl
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name iceutil
