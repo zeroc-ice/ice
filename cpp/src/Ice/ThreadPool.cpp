@@ -231,7 +231,9 @@ repeat:
 
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
-	throw ex;
+	//throw ex;
+	Error out(_instance->logger());
+	out << "exception in `" << _prefix << "':\n" << ex; 
     }
 #else
     if(::read(_fdIntrRead, &c, 1) == -1)
@@ -243,7 +245,9 @@ repeat:
 
 	SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
-	throw ex;
+	//throw ex;
+	Error out(_instance->logger());
+	out << "exception in `" << _prefix << "':\n" << ex; 
     }
 #endif
     
@@ -265,7 +269,9 @@ repeat:
 
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
-	throw ex;
+	//throw ex;
+	Error out(_instance->logger());
+	out << "exception in `" << _prefix << "':\n" << ex; 
     }
 #else
     if(::write(_fdIntrWrite, &c, 1) == -1)
@@ -277,7 +283,9 @@ repeat:
 
 	SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
-	throw ex;
+	//throw ex;
+	Error out(_instance->logger());
+	out << "exception in `" << _prefix << "':\n" << ex; 
     }
 #endif
 }
@@ -326,7 +334,9 @@ IceInternal::ThreadPool::run()
 	    
 	    SocketException ex(__FILE__, __LINE__);
 	    ex.error = getSocketErrno();
-	    throw ex;
+	    //throw ex;
+	    Error out(_instance->logger());
+	    out << "exception in `" << _prefix << "':\n" << ex; 
 	}
 	
 	EventHandlerPtr handler;

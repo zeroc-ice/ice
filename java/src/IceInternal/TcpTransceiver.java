@@ -36,14 +36,15 @@ final class TcpTransceiver implements Transceiver
         try
         {
             _fd.close();
+	    _fd = null;
         }
         catch(java.io.IOException ex)
         {
+	    _fd = null;
 	    Ice.SocketException se = new Ice.SocketException();
 	    se.initCause(ex);
 	    throw se;
         }
-        _fd = null;
     }
 
     public void

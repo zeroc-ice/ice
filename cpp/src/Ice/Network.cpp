@@ -202,7 +202,6 @@ IceInternal::closeSocket(SOCKET fd)
 	ex.error = getSocketErrno();
 	throw ex;
     }
-    close(fd);
     errno = error;
 #endif
 }

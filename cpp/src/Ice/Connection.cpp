@@ -1294,8 +1294,10 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 void
 IceInternal::Connection::finished(const ThreadPoolPtr& threadPool)
 {
-    std::map<Ice::Int, Outgoing*> requests;
-    std::map<Ice::Int, OutgoingAsyncPtr> asyncRequests;
+    auto_ptr<LocalException> closeException;
+    
+    map<Int, Outgoing*> requests;
+    map<Int, OutgoingAsyncPtr> asyncRequests;
 
     {
 	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -1308,12 +1310,21 @@ IceInternal::Connection::finished(const ThreadPoolPtr& threadPool)
 	}
 	else if(_state == StateClosed && _transceiver)
 	{
-	    _transceiver->close();
+	    try
+	    {
+		_transceiver->close();
+	    }
+	    catch(const LocalException& ex)
+	    {
+		closeException = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
+	    }
+
 	    {
 		// See _queryMutex comment in header file.
 		IceUtil::Mutex::Lock s(_queryMutex);
 		_transceiver = 0;
 	    }
+
 	    _threadPool = 0; // We don't need the thread pool anymore.
 	    notifyAll();
 	}
@@ -1337,6 +1348,11 @@ IceInternal::Connection::finished(const ThreadPoolPtr& threadPool)
     {
 	q->second->__finished(*_exception.get()); // Exception is immutable at this point.
     }
+
+    if(closeException.get())
+    {
+	closeException->ice_throw();
+    }    
 }
 
 void
@@ -1599,12 +1615,22 @@ IceInternal::Connection::setState(State state)
 	    if(_state == StateNotValidated)
 	    {
 		assert(!_registeredWithPool);
-		_transceiver->close();
+
+		try
+		{
+		    _transceiver->close();
+		}
+		catch(const LocalException&)
+		{
+		    // Here we ignore any exceptions in close().
+		}
+
 		{
 		    // See _queryMutex comment in header file.
 		    IceUtil::Mutex::Lock sync(_queryMutex);
 		    _transceiver = 0;
 		}
+
 		_threadPool = 0; // We don't need the thread pool anymore.
 	    }
 	    else

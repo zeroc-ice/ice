@@ -349,7 +349,13 @@ public final class ThreadPool
         {
             Ice.SocketException se = new Ice.SocketException();
             se.initCause(ex);
-            throw se;
+            //throw se;
+	    java.io.StringWriter sw = new java.io.StringWriter();
+	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+	    se.printStackTrace(pw);
+	    pw.flush();
+	    String s = "exception in `" + _prefix + "':\n" + sw.toString();
+	    _instance.logger().error(s);
         }
 
         return b == (byte)1; // Return true if shutdown has been initiated.
@@ -386,7 +392,13 @@ public final class ThreadPool
             {
                 Ice.SocketException se = new Ice.SocketException();
                 se.initCause(ex);
-                throw se;
+                //throw se;
+		java.io.StringWriter sw = new java.io.StringWriter();
+		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		se.printStackTrace(pw);
+		pw.flush();
+		String s = "exception in `" + _prefix + "':\n" + sw.toString();
+		_instance.logger().error(s);
             }
         }
     }
@@ -914,7 +926,13 @@ public final class ThreadPool
 
                 Ice.SocketException se = new Ice.SocketException();
                 se.initCause(ex);
-                throw se;
+                //throw se;
+		java.io.StringWriter sw = new java.io.StringWriter();
+		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		se.printStackTrace(pw);
+		pw.flush();
+		String s = "exception in `" + _prefix + "':\n" + sw.toString();
+		_instance.logger().error(s);
             }
         }
     }
@@ -961,7 +979,13 @@ public final class ThreadPool
 
                 Ice.SocketException se = new Ice.SocketException();
                 se.initCause(ex);
-                throw se;
+                //throw se;
+		java.io.StringWriter sw = new java.io.StringWriter();
+		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		se.printStackTrace(pw);
+		pw.flush();
+		String s = "exception in `" + _prefix + "':\n" + sw.toString();
+		_instance.logger().error(s);
             }
 
             if(TRACE_SELECT)

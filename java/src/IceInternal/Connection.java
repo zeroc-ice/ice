@@ -1110,6 +1110,8 @@ public final class Connection extends EventHandler
     public void
     finished(ThreadPool threadPool)
     {
+	Ice.LocalException closeException = null;
+
 	IntMap requests = null;
 	IntMap asyncRequests = null;
 
@@ -1123,7 +1125,15 @@ public final class Connection extends EventHandler
 	    }
 	    else if(_state == StateClosed && _transceiver != null)
 	    {
-		_transceiver.close();
+		try
+		{
+		    _transceiver.close();
+		}
+		catch(Ice.LocalException ex)
+		{
+		    closeException = ex;
+		}
+
 		_transceiver = null;
 		_threadPool = null; // We don't need the thread pool anymore.
 		notifyAll();
@@ -1159,6 +1169,11 @@ public final class Connection extends EventHandler
 		OutgoingAsync out = (OutgoingAsync)e.getValue();
 		out.__finished(_exception); // Exception is immutable at this point.
 	    }
+	}
+
+	if(closeException != null)
+	{
+	    throw closeException;
 	}
     }
 
