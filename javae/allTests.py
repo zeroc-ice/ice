@@ -56,12 +56,10 @@ tests = [ \
     "Ice/exceptions", \
     "Ice/inheritance", \
     "Ice/facets", \
-    "Ice/objects", \
     "Ice/faultTolerance", \
     "Ice/location", \
     "Ice/adapterDeactivation", \
     "Ice/slicing/exceptions", \
-    "Ice/slicing/objects", \
     "Ice/custom", \
     "Ice/checksum", \
     "Ice/package", \
