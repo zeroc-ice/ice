@@ -73,7 +73,7 @@
                 <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
-                    HintPath = "..\..\bin\icecs.DLL"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
             </References>
             <Imports>
