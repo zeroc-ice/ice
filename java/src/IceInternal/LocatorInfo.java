@@ -92,6 +92,15 @@ public final class LocatorInfo
 			endpoints = ((Ice.ObjectPrxHelper)object).__reference().endpoints;
 		    }
 		}
+		catch(Ice.AdapterNotRegisteredException ex)
+		{
+		    if(ref.instance.traceLevels().location >= 1)
+		    {
+			StringBuffer s = new StringBuffer();
+			s.append("adapter `" + ref.adapterId + "' is not registered");
+			ref.instance.logger().trace(ref.instance.traceLevels().locationCat, s.toString());
+		    }
+		}
 		catch(Ice.LocalException ex)
 		{
 		    //
