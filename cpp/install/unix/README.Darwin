@@ -25,13 +25,10 @@ This distribution is a binary release of Ice 2.1.0 for Mac OS X and
 includes the following components:
 
 - The Ice run time, including executables for the Ice services, HTML
-  documentation, Slice files, and the C++ run time libraries.
-- Run time libraries for Java, and Python. These libraries
-  enable you to execute Ice applications.  
-- Development kits for C++, Java and Python. A development
-  kit is required for building Ice applications using a supported
-  language mapping. The development kits include examples that
-  demonstrate various Ice features.
+  documentation and Slice files.
+- Run time libraries for C++, Java, and Python. These
+  libraries enable you to execute Ice applications.
+- Tools and libraries for developing Ice applications.
 
 
 ======================================================================
@@ -80,58 +77,68 @@ Setting up your environment to use Ice
 General
 -------
 
-In the sample bash commands below, Ice is assumed to reside in
-/opt/Ice-2.1.0. Your installation directory may be different, in which
-case the commands should be adjusted as necessary.
+The discussion below assumes you have defined the ICE_HOME variable
+with the directory of your Ice installation.
 
-You need to add the Ice bin directory to your PATH and the lib
-directory to your DYLD_LIBRARY_PATH, as demonstrated by the following
-bash commands:
+In order to use Ice services and tools such as Slice translators,
+you need to add $ICE_HOME/bin to your PATH and $ICE_HOME/lib to your
+DYLD_LIBRARY_PATH, as shown in the bash commands below:
 
-$ export PATH=/opt/Ice-2.1.0/bin:$PATH
-$ export DYLD_LIBRARY_PATH=/opt/Ice-2.1.0/lib:$DYLD_LIBRARY_PATH
+$ export PATH=$ICE_HOME/bin:$PATH
+$ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
 
 
 C++
 ---
 
-When compiling Ice for C++ programs, you must pass the location of the
-Ice include directory to the compiler with the -I option, and the
-location of the Ice lib directory with the -L option.
+When compiling Ice for C++ programs, you must pass $ICE_HOME/include
+to the compiler with the -I option, and $ICE_HOME/lib with the -L
+option. Furthermore, a C++ program needs to link with at least libIce
+and libIceUtil, so a typical link command would look like this:
+
+$ c++ -o myprogram myprogram.o -L$ICE_HOME/lib -lIce -lIceUtil
+
+Additional libraries are necessary if you are using an Ice service
+such as IcePack or Glacier2.
 
 
 Java
 ----
 
-To use Ice for Java, you must add Ice.jar to your CLASSPATH.
+To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar to your
+CLASSPATH, as shown below:
+
+$ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$CLASSPATH
 
 Note that the Freeze component of Ice for Java requires Berkeley DB.
 In order to use Freeze, you must add db.jar to your CLASSPATH. In
 addition, the JVM requires the directory containing the Berkeley DB
 libraries to be listed in java.library.path, therefore you must add
-this directory to your DYLD_LIBRARY_PATH.
+this directory to your DYLD_LIBRARY_PATH (even if the libraries reside
+in /usr/lib).
 
 
 Python
 ------
 
-To use Ice for Python, the PYTHONPATH environment variable must be
-updated so that the interpreter can load the Ice extension and
-supporting Python files. PYTHONPATH should contain the python and lib
-directories from your Ice installation:
+To use Ice for Python, the PYTHONPATH environment variable must
+be updated so that the interpreter can load the Ice extension and
+supporting Python files:
 
-$ export PYTHONPATH=/opt/Ice-2.1.0/python:/opt/Ice-2.1.0/lib:$PYTHONPATH
+$ export PYTHONPATH=$ICE_HOME/python:$ICE_HOME/lib:$PYTHONPATH
 
 
 ======================================================================
 Demos and documentation
 ======================================================================
 
-To try the sample programs, you need to download the
-Ice-2.1.0-demos.tar.gz package from the ZeroC web site at
-http://www.zeroc.com/download.html and see the README.DEMOS file
-included in that package.
+Sample programs are provided in the Ice-2.1.0-demos.tar.gz package,
+which can be downloaded from the ZeroC web site at
+
+http://www.zeroc.com/download.html
+
+Please refer to the README.DEMOS file included in that package for
+more information.
 
 See doc/README.html for information on the documentation included with
 this distribution.
-
