@@ -129,13 +129,13 @@ final class CommunicatorI extends LocalObjectImpl implements Communicator
 
 	    adapter = _instance.objectAdapterFactory().createObjectAdapter(name, endpts, id);
 
-	    String router = _instance.properties().getProperty("Ice.Adapter." + name + ".Router");
+	    String router = _instance.properties().getProperty(name + ".Router");
 	    if(router.length() > 0)
 	    {
 		adapter.addRouter(RouterPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(router)));
 	    }
 
-	    String locator = _instance.properties().getProperty("Ice.Adapter." + name + ".Locator");
+	    String locator = _instance.properties().getProperty(name + ".Locator");
 	    if(locator.length() > 0)
 	    {
 		adapter.setLocator(LocatorPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(locator)));
