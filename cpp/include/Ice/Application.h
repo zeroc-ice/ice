@@ -16,8 +16,9 @@
 #define ICE_APPLICATION_H
 
 #include <Ice/Ice.h>
+
 #ifndef _WIN32
-#include <csignal>
+#   include <csignal>
 #endif
 
 namespace Ice
@@ -74,20 +75,22 @@ public:
 
     //
     // These methods can be used to temporarily block a signal and
-    // arrange for delivery of a pending signal later. Any signal
-    // that is received after holdInterrupt() was called is remember
-    // and delivered when releaseInterupt() is called. That signal
-    // is then handled according to the signal disposition established
-    // with shutdownOnInterrupt(), ignoreInterrupt(), or defaultInterrupt().
+    // arrange for delivery of a pending signal later. Any signal that
+    // is received after holdInterrupt() was called is remember and
+    // delivered when releaseInterupt() is called. That signal is then
+    // handled according to the signal disposition established with
+    // shutdownOnInterrupt(), ignoreInterrupt(), or
+    // defaultInterrupt().
     //
     static void holdInterrupt();
     static void releaseInterrupt();
 
     //
     // This method returns true if a signal handler was triggered,
-    // false otherwise. This can be used once Communicator::waitForShutdown()
-    // returns to test whether the shutdown was due to an interrupt (interrupted()
-    // returns true in that case) or because Communicator::shutdown() was called
+    // false otherwise. This can be used once
+    // Communicator::waitForShutdown() returns to test whether the
+    // shutdown was due to an interrupt (interrupted() returns true in
+    // that case) or because Communicator::shutdown() was called
     // (interupted() returns false in that case).
     //
     static bool interrupted();

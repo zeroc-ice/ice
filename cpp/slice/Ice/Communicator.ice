@@ -105,7 +105,7 @@ local interface Communicator
      *
      * Convert a string into a proxy. For example,
      * <literal>MyCategory/MyObject:tcp -h some_host -p
-     * 10000</literal> creates a proxy that refers to the &&Ice;; object
+     * 10000</literal> creates a proxy that refers to the &Ice; object
      * having an identity with a name "MyObject" and a category
      * "MyCategory", with the server running on host "some_host", port
      * 10000.

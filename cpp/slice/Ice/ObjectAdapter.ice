@@ -252,16 +252,16 @@ local interface ObjectAdapter
     /**
      *
      * Look up a Servant in this object adapter's Active Servant Map
-     * by the identity of the &&Ice;; object it implements.
+     * by the identity of the &Ice; object it implements.
      *
      * <note><para>This operation only tries to lookup a Servant in
      * the Active Servant Map. It does not attempt to find a Servant
      * by using any installed [ServantLocator].</para></note>
      *
-     * @param id The identity of the &&Ice;; object for which the
+     * @param id The identity of the &Ice; object for which the
      * Servant should be returned.
      *
-     * @return The Servant that implements the &&Ice;; object with the
+     * @return The Servant that implements the &Ice; object with the
      * given identity, or null if no such Servant has been found.
      *
      * @see Identity
