@@ -127,7 +127,7 @@ public:
     DBIterator operator++(int)
     {
 	DBIterator tmp = *this;
-	tmp.incr();
+	incr();
 	return tmp;
     }
 
@@ -322,7 +322,7 @@ public:
     ConstDBIterator operator++(int)
     {
 	ConstDBIterator tmp = *this;
-	tmp.incr();
+	incr();
 	return tmp;
     }
 
