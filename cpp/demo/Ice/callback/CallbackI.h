@@ -28,14 +28,9 @@ class CallbackI : public Callback
 {
 public:
 
-    CallbackI(const Ice::CommunicatorPtr&);
-
     virtual void initiateCallback(const CallbackReceiverPrx&, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
-private:
-
-    Ice::CommunicatorPtr _communicator;
 };
 
 #endif

@@ -25,14 +25,8 @@ class HELLO_API HelloI : public Hello
 {
 public:
 
-    HelloI(const Ice::CommunicatorPtr&);
-
     virtual void sayHello(const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
-
-private:
-
-    Ice::CommunicatorPtr _communicator;
 };
 
 #endif

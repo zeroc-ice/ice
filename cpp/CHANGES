@@ -1,6 +1,9 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Fixed a number of incorrect property settings in the config files
+  for the demos.
+
 - Added new property: Ice.Trace.Slicing. When set to a value > 0,
   unknown exception and class types that are sliced emit a warning.
 

@@ -17,11 +17,6 @@
 
 using namespace std;
 
-HelloI::HelloI(const Ice::CommunicatorPtr& communicator) :
-    _communicator(communicator)
-{
-}
-
 void
 HelloI::sayHello(const Ice::Current&)
 {
@@ -29,8 +24,8 @@ HelloI::sayHello(const Ice::Current&)
 }
 
 void
-HelloI::shutdown(const Ice::Current&)
+HelloI::shutdown(const Ice::Current& c)
 {
     cout << "Shutting down..." << endl;
-    _communicator->shutdown();
+    c.adapter->getCommunicator()->shutdown();
 }
