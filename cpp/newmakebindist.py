@@ -195,7 +195,7 @@ fileLists = [
 		("file", "share/doc/Ice-%version%/config/Make.cs.rules"),
 	        ("dir", "share/doc/Ice-%version%/demo_csharp")]),
     Subpackage("java",
-               "ice",
+               "ice db4-java >= 4.2",
                "Ice runtime for Java applications",
                "Development/Libraries",
                "",
@@ -223,7 +223,7 @@ fileLists = [
 	        ("file", "share/doc/Ice-%version%/config/common.xml"),
 		("dir", "share/doc/Ice-%version%/demo_java")]),
     Subpackage("python",
-               "ice",
+               "ice python",
                "Ice runtime for Python applications",
                "Development/Libraries",
                "",
@@ -324,7 +324,8 @@ def extractDemos(buildDir, version, distro, demoDir):
        Ice"""
     cwd = os.getcwd()
     os.chdir(buildDir + "/demotree")
-    os.system("tar xvfz ../sources/" + distro + ".tar.gz " + distro + "/demo " + distro + "/config " + distro + "/certs")
+    os.system("tar xvfz ../sources/" + distro + ".tar.gz " + distro + "/demo " + distro + "/config " \
+	    + distro + "/certs")
     shutil.move(distro + "/demo", buildDir + "/Ice-" + version + "-demos/demo_" + demoDir)
 
     #
@@ -359,7 +360,8 @@ def extractDemos(buildDir, version, distro, demoDir):
         script = script + "endif\n/' Make.cxx.rules"
         os.system(script)
 
-        script = "perl -pi -e 's/^([a-z]*dir.*=)\s*\$\(top_srcdir\)\/([A-Za-z]*)$/$1 \\x24\(ICE_DIR\)\/$2/' Make.cxx.rules"
+        script = "perl -pi -e 's/^([a-z]*dir.*=)\s*\$\(top_srcdir\)\/([A-Za-z]*)$/$1 \\x24\(ICE_DIR\)\/$2/'" + \
+	         " Make.cxx.rules"
         os.system(script)
 
         script = "perl -pi -e 's/^slicedir.*$/ifeq (\$(ICE_DIR),\/usr)\n    slicedir \= \$(ICE_DIR)\/share\/slice\n"
@@ -480,7 +482,8 @@ def makeInstall(buildDir, installDir, distro, clean):
             logging.info("PYTHON_HOME is not set, figuring it out and trying that")
             pyHome = sys.exec_prefix
             
-        os.system("perl -pi -e 's/^PYTHON.HOME.*$/PYTHON\_HOME \?= "+ pyHome.replace("/", "\/") + "/' config/Make.rules")
+        os.system("perl -pi -e 's/^PYTHON.HOME.*$/PYTHON\_HOME \?= "+ pyHome.replace("/", "\/") + \
+		"/' config/Make.rules")
     os.system("gmake RPM_BUILD_ROOT=" + installDir + " install")
     os.chdir(cwd)
     
