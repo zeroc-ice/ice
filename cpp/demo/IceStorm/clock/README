@@ -10,7 +10,7 @@ Start the IceStorm daemon:
 
 In a seperate window:
 
-../../../bin/icestormadmin -e create time
+../../../bin/icestormadmin -e "create time"
 ./subscriber
 
 In another window:
