@@ -4,12 +4,14 @@
         <ant dir="Ice"/>
         <ant dir="IceXML"/>
         <ant dir="Freeze"/>
+        <ant dir="Glacier"/>
     </target>
 
     <target name="clean">
         <ant dir="Ice" target="clean"/>
         <ant dir="IceXML" target="clean"/>
         <ant dir="Freeze" target="clean"/>
+        <ant dir="Glacier" target="clean"/>
     </target>
 
 </project>

@@ -64,6 +64,48 @@ clientOptions = clientProtocol + defaultHost
 clientServerOptions = commonServerOptions + clientServerProtocol + defaultHost
 collocatedOptions = clientServerProtocol
 
+serverPids = []
+
+#
+# Only used for C++ programs
+#
+def killServers():
+
+    global serverPids
+
+    for pid in serverPids:
+        if sys.platform == "cygwin":
+            print "killServers(): not implemented for cygwin python."
+            sys.exit(1)
+        elif sys.platform == "win32":
+            try:
+                import win32api
+                handle = win32api.OpenProcess(1, 0, pid)
+                win32api.TerminateProcess(handle, 0)
+            except:
+                pass # Ignore errors, such as non-existing processes.
+        else:
+            try:
+                os.kill(pid, 9)
+            except:
+                pass # Ignore errors, such as non-existing processes.
+
+    serverPids = []
+
+#
+# Only used for C++ programs
+#
+def getServerPid(serverPipe):
+
+    output = serverPipe.readline().strip()
+
+    if not output:
+        print "failed!"
+        killServers()
+        sys.exit(1)
+
+    serverPids.append(int(output))
+
 def getAdapterReady(serverPipe):
 
     output = serverPipe.readline().strip()
@@ -102,6 +144,39 @@ def clientServerTest(toplevel, name):
         if not output:
             break;
         print output,
+    serverPipe.close()
+    clientPipe.close()
+
+def clientServerHybridTest(toplevel, name):
+
+    testdir = os.path.join(toplevel, "test", name)
+    classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + os.environ['CLASSPATH']
+    server = "java -classpath \"" + classpath + "\" Server "
+    client = "java -classpath \"" + classpath + "\" Client "
+
+    updatedServerOptions = clientServerOptions.replace("TOPLEVELDIR", toplevel)
+    updatedClientOptions = updatedServerOptions
+
+    print "starting server...",
+    serverPipe = os.popen(server + updatedServerOptions)
+    getAdapterReady(serverPipe)
+    print "ok"
+    
+    print "starting client...",
+    clientPipe = os.popen(client + updatedClientOptions)
+    output = clientPipe.readline()
+    if not output:
+        print "failed!"
+        serverPipe.close()
+        clientPipe.close()
+        sys.exit(1)
+    print "ok"
+    while 1:
+        output = clientPipe.readline()
+        if not output:
+            break;
+        print output,
+    killServers()
     serverPipe.close()
     clientPipe.close()
 

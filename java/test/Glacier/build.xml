@@ -1,0 +1,11 @@
+<project name="test_Ice" default="all" basedir=".">
+
+    <target name="all">
+        <ant dir="starter"/>
+    </target>
+
+    <target name="clean">
+        <ant dir="starter" target="clean"/>
+    </target>
+
+</project>

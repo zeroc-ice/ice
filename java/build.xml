@@ -48,6 +48,14 @@
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
+            <fileset dir="${slice.dir}/Glacier">
+                <include name="Glacier.ice" />
+            </fileset>
+        </slice2java>
+        <slice2java tagdir="${tags.dir}" outputdir="${generated.dir}">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
             <fileset dir="${slice.dir}/Freeze">
                 <include name="DB.ice" />
                 <include name="DBException.ice" />
