@@ -28,6 +28,9 @@ Changes since version 2.1.0
   when the patch client is run without the --IcePatch2.Endpoints 
   option.
 
+- Fixed bug where data transfer statistics were not being reported
+  on outgoing datagram requests.
+
 Changes since version 2.0.0
 ---------------------------
 

@@ -292,6 +292,7 @@ IceInternal::UdpTransceiver::effectivePort() const
 IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
+    _stats(instance->stats()),
     _incoming(false),
     _connect(true),
     _warn(instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0),
