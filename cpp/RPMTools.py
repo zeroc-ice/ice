@@ -74,7 +74,7 @@ class Package:
 	ofile.write("\n")
 	ofile.write("\n")
 
-    def writeFileList(self, ofile, version, intVersion):
+    def writeFileList(self, ofile, version, intVersion, installDir):
         ofile.write("%defattr(644, root, root, 755)\n\n")
         for perm, f in self.filelist:
             prefix = ""
@@ -100,25 +100,52 @@ class Package:
 
         ofile.write("\n")    
 
-    def writePostInstall(self, ofile, version, intVersion):
+    def writePostInstall(self, ofile, version, intVersion, installDir):
+	ofile.write('cd /usr\n')
 	for perm, f in self.filelist:
 	    if perm == "dll":
-		ofile.write("cd /usr ;  gacutil -i " + f + " ; cd - \n")
+		ofile.write('gacutil -i ' + f + '\n')
+		ofile.write('rm ' + f + '\n')
+	ofile.write('\n')
 
-    def writePostUninstall(self, ofile, version, intVersion):
+    def writePostUninstall(self, ofile, version, intVersion, installDir):
 	for perm, f in self.filelist:
-	    if perm == "dll":
-		ofile.write("\n")
+	    if perm == 'dll':
+		if os.path.exists(installDir + '/usr/' + f):
+		    #
+		    # We need to trap the assembly name from the DLL. We can use the monodis command to do this.
+		    #
+		    pipe_stdin, pipe_stdout = os.popen2('monodis --assembly ' + installDir + '/usr/' + f);
+		    lines = pipe_stdout.readlines()
+		    print lines
+		    pipe_stdin.close()
+		    pipe_stdout.close()
+		    assemblyName = ''
+		    assemblyVersion = ''
+		    for l in lines:
+			if l.startswith('Name:'):
+			    assemblyName = l.split(':')[1].strip()
+			elif l.startswith('Version:'):
+			    assemblyVersion = l.split(':')[1].strip()
 
-    def writeFiles(self, ofile, version, intVersion):
+		    ofile.write('gacutil -u ' + assemblyName + ', version=' + assemblyVersion + '\n')
+		else:
+		    ofile.write('# Unable to determine assembly information for ' + f)
+		    ofile.write(', please adjust the file manually\n')
+
+	ofile.write('\n')
+
+    def writeFiles(self, ofile, version, intVersion, installDir):
         ofile.write("%files\n")
-        self.writeFileList(ofile, version, intVersion)
+        self.writeFileList(ofile, version, intVersion, installDir)
+	ofile.write('\n')
 
 	ofile.write("%post\n")
-	self.writePostInstall(ofile, version, intVersion)
+	self.writePostInstall(ofile, version, intVersion, installDir)
 
 	ofile.write("%postun\n")
-	self.writePostUninstall(ofile, version, intVersion)
+	self.writePostUninstall(ofile, version, intVersion, installDir)
+	ofile.write('\n')
 
     def addPrepGenerator(self, gen):
 	if self.prepTextGen == None:
@@ -152,15 +179,15 @@ class Subpackage(Package):
         ofile.write("%description " + self.name + "\n")
         ofile.write(self.description)
 
-    def writeFiles(self, ofile, version, intVersion):
+    def writeFiles(self, ofile, version, intVersion, installDir):
         ofile.write("%files " + self.name + "\n")
-        self.writeFileList(ofile, version, intVersion)
+        self.writeFileList(ofile, version, intVersion, installDir)
 
 	ofile.write("%post " + self.name + "\n")
-	self.writePostInstall(ofile, version, intVersion)
+	self.writePostInstall(ofile, version, intVersion, installDir)
 
 	ofile.write("%postun " + self.name + "\n")
-	self.writePostUninstall(ofile, version, intVersion)
+	self.writePostUninstall(ofile, version, intVersion, installDir)
 
 #
 # NOTE: File transforms should be listed before directory transforms.
@@ -183,7 +210,7 @@ transforms = [ ("file", "lib/Ice.jar", "lib/Ice-%version%/Ice.jar" ),
 fileLists = [
     Package("ice",
             "",
-	    "The Internet Communications Engine (ICE) runtime and services",
+	    "The Internet Communications Engine (Ice) runtime and services",
             "System Environment/Libraries",
             """Ice is a modern alternative to object middleware such as CORBA or COM/DCOM/COM+.
 It is easy to learn, yet provides a powerful network infrastructure for
@@ -193,10 +220,10 @@ highly efficient protocol, asynchronous method invocation and dispatch, dynamic
 transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
 solution, and much more.""",
 	    "",
-            [("doc", "share/doc/Ice-%version%/ICE_LICENSE"),
+            [("xdir", "share/doc/Ice-%version%"),
+             ("doc", "share/doc/Ice-%version%/ICE_LICENSE"),
              ("doc", "share/doc/Ice-%version%/LICENSE"),
              ("doc", "share/doc/Ice-%version%/README"),
-             ("doc", "share/doc/Ice-%version%/README.html"),
              ("doc", "share/doc/Ice-%version%/SOURCES"),
              ("exe", "bin/dumpdb"),
              ("exe", "bin/transformdb"),
@@ -226,6 +253,7 @@ solution, and much more.""",
              ("lib", "lib/libSlice.so.VERSION"),
              ("dir", "share/slice"),
              ("dir", "share/doc/Ice-%version%/doc"),
+             ("xdir", "share/doc/Ice-%version%/certs"),
 	     ("file", "share/doc/Ice-%version%/certs/cacert.pem"),
 	     ("file", "share/doc/Ice-%version%/certs/c_dh1024.pem"),
 	     ("file", "share/doc/Ice-%version%/certs/client_sslconfig.xml"),
@@ -240,7 +268,7 @@ solution, and much more.""",
 	     ("file", "share/doc/Ice-%version%/README.DEMOS")]),
     Subpackage("c++-devel",
                "",
-               "Ice tools, files and libraries for developing Ice applications in C++",
+               "Tools, files and libraries for developing Ice applications in C++",
                "Development/Tools",
 	       """Ice is a modern alternative to object middleware such as CORBA or COM/DCOM/COM+.
 It is easy to learn, yet provides a powerful network infrastructure for
@@ -265,7 +293,9 @@ solution, and much more.""",
 		("lib", "lib/libIceUtil.so"),
 		("lib", "lib/libIceXML.so"),
 		("lib", "lib/libSlice.so"),
+		("xdir", "share/doc/Ice-%version%"),
 		("dir", "share/doc/Ice-%version%/demo"),
+		("xdir", "share/doc/Ice-%version%/config"),
 		("file", "share/doc/Ice-%version%/config/Make.rules"),
 		("file", "share/doc/Ice-%version%/config/makedepend.py"),
 		("file", "share/doc/Ice-%version%/config/makeprops.py"),
@@ -273,7 +303,7 @@ solution, and much more.""",
 		]),
     Subpackage("dotnet",
                "ice = %version%, mono-core >= 1.0.6, mono-core < 1.1",
-               "Ice runtime for C\# applications",
+               "Ice runtime for C# applications",
                "System Environment/Libraries",
 	       """Ice is a modern alternative to object middleware such as CORBA or COM/DCOM/COM+.
 It is easy to learn, yet provides a powerful network infrastructure for
@@ -290,7 +320,7 @@ solution, and much more.""",
 		("dll", "bin/icestormcs.dll")]),
     Subpackage("csharp-devel",
                "ice-dotnet = %version%",
-               "Ice tools for developing Ice applications in C\#",
+               "Tools for developing Ice applications in C#",
                "Development/Tools",
 	       """Ice is a modern alternative to object middleware such as CORBA or COM/DCOM/COM+.
 It is easy to learn, yet provides a powerful network infrastructure for
@@ -301,11 +331,13 @@ transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
 solution, and much more.""",
 	       "",
                [("exe", "bin/slice2cs"),
+		("xdir", "share/doc/Ice-%version%"),
+		("xdir", "share/doc/Ice-%version%/config"),
 		("file", "share/doc/Ice-%version%/config/Make.rules.cs"),
 	        ("dir", "share/doc/Ice-%version%/democs")]),
     Subpackage("java-devel",
                "ice-java = %version%",
-               "Ice tools developing Ice applications in Java",
+               "Tools developing Ice applications in Java",
                "Development/Tools",
 	       """Ice is a modern alternative to object middleware such as CORBA or COM/DCOM/COM+.
 It is easy to learn, yet provides a powerful network infrastructure for
@@ -317,10 +349,14 @@ solution, and much more.""",
 	       "",
                [("exe", "bin/slice2java"),
                 ("exe", "bin/slice2freezej"),
+		("xdir", "lib/Ice-%version%"),
 		("dir", "lib/Ice-%version%/ant"),
+		("xdir", "share/doc/Ice-%version%"),
+		("xdir", "share/doc/Ice-%version%/certs"),
 	        ("file", "share/doc/Ice-%version%/certs/certs.jks"),
 	        ("file", "share/doc/Ice-%version%/certs/client.jks"),
 	        ("file", "share/doc/Ice-%version%/certs/server.jks"),
+		("xdir", "share/doc/Ice-%version%/config"),
 	        ("file", "share/doc/Ice-%version%/config/build.properties"),
 	        ("file", "share/doc/Ice-%version%/config/common.xml"),
 		("dir", "share/doc/Ice-%version%/demoj")]),
@@ -339,7 +375,7 @@ solution, and much more.""",
                [("lib", "lib/IcePy.so.VERSION"), ("lib", "lib/IcePy.so"), ("dir", "lib/Ice-%version%/python")]),
     Subpackage("python-devel",
                "ice-python = %version%",
-               "Ice tools for developing Ice applications in Python",
+               "Tools for developing Ice applications in Python",
                "Development/Tools",
 	       """Ice is a modern alternative to object middleware such as CORBA or COM/DCOM/COM+.
 It is easy to learn, yet provides a powerful network infrastructure for
@@ -350,6 +386,7 @@ transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
 solution, and much more.""",
 	       "",
                [("exe", "bin/slice2py"),
+		("xdir", "share/doc/Ice-%version%"),
 	        ("dir", "share/doc/Ice-%version%/demopy")])
     ]
 
@@ -366,7 +403,8 @@ highly efficient protocol, asynchronous method invocation and dispatch, dynamic
 transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
 solution, and much more.""",
 	    "BuildArch: noarch",
-	    [("dir", "lib/Ice-%version%/Ice.jar")
+	    [ ("xdir", "lib/Ice-%version%"),
+              ("dir", "lib/Ice-%version%/Ice.jar")
 	    ])
     ]
 
@@ -442,7 +480,7 @@ def createArchSpecFile(ofile, installDir, version, soVersion):
 	v.writeHdr(ofile, version, "1", installDir)
 	ofile.write("\n\n\n")
     for v in fileLists:
-	v.writeFiles(ofile, version, soVersion)
+	v.writeFiles(ofile, version, soVersion, installDir)
 	ofile.write("\n")
 
 def createNoArchSpecFile(ofile, installDir, version, soVersion):
@@ -450,7 +488,7 @@ def createNoArchSpecFile(ofile, installDir, version, soVersion):
 	v.writeHdr(ofile, version, "1", installDir)
 	ofile.write("\n\n\n")
     for v in noarchFileList:
-	v.writeFiles(ofile, version, soVersion)
+	v.writeFiles(ofile, version, soVersion, installDir)
 	ofile.write("\n")
 
 def createFullSpecFile(ofile, installDir, version, soVersion):
@@ -475,19 +513,18 @@ def createFullSpecFile(ofile, installDir, version, soVersion):
 	v.writeHdr(ofile, version, "1", installDir)
 	ofile.write("\n\n\n")
     for v in fullFileList:
-	v.writeFiles(ofile, version, soVersion)
+	v.writeFiles(ofile, version, soVersion, installDir)
 	ofile.write("\n")
 
 def createRPMSFromBinaries(buildDir, installDir, version, soVersion):
     _transformDirectories(transforms, version, installDir)
+    os.system("tar xfz " + installDir + "/Ice-" + version + "-demos.tar.gz -C " + installDir)
+    shutil.move(installDir + "/Ice-" + version, installDir + "/usr")
 
     ofile = open(buildDir + "/Ice-" + version + ".spec", "w")
     createArchSpecFile(ofile, installDir, version, soVersion)
     ofile.flush()
     ofile.close()
-
-    os.system("tar xvfz " + installDir + "/Ice-" + version + "-demos.tar.gz -C " + installDir)
-    shutil.move(installDir + "/Ice-" + version, installDir + "/usr")
     #
     # Copy demo files so the RPM spec file can pick them up.
     #
@@ -583,7 +620,7 @@ def writeDemoPkgCommands(ofile, version):
     ofile.write('# Extract the contents of the demo packaged into the installed location.\n')
     ofile.write('#\n')
     ofile.write('mkdir -p $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}\n')
-    ofile.write('tar xvfz $RPM_SOURCE_DIR/Ice-%{version}-demos.tar.gz -C $RPM_BUILD_ROOT/usr/share/doc\n')
+    ofile.write('tar xfz $RPM_SOURCE_DIR/Ice-%{version}-demos.tar.gz -C $RPM_BUILD_ROOT/usr/share/doc\n')
     ofile.write('cp -pR $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}-demos/* $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}\n')
     ofile.write('rm -rf $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}-demos\n')
 	
