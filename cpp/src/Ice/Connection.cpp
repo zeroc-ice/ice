@@ -699,6 +699,8 @@ IceInternal::Connection::prepareBatchRequest(BasicStream* os)
 void
 IceInternal::Connection::finishBatchRequest(BasicStream* os)
 {
+    assert(!_batchFlushInProgress);
+
     if(_exception.get())
     {
 	unlock();
@@ -715,6 +717,8 @@ IceInternal::Connection::finishBatchRequest(BasicStream* os)
 void
 IceInternal::Connection::abortBatchRequest()
 {
+    assert(!_batchFlushInProgress);
+
     setState(StateClosed, AbortBatchRequestException(__FILE__, __LINE__));
     unlock(); // Give the Connection back.
 }
