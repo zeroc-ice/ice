@@ -108,7 +108,7 @@ static const char digitVal[] =
     {	
 	if(!overflow)
 	{
-	    int digit = digitVal[toupper(*s++) - '0'];
+	    int digit = digitVal[toupper(*s) - '0'];
 	    assert(digit != 100);
 	    if(result < INT64MAX / base)
 	    {
@@ -126,6 +126,7 @@ static const char digitVal[] =
 		result = sign == -1 ? INT64MIN : INT64MAX;
 	    }
 	}
+	++s;
     }
 
     if(overflow)
