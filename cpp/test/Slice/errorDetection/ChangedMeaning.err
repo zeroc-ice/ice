@@ -13,3 +13,4 @@ ChangedMeaning.ice:105: `CounterSeq' has changed meaning
 ChangedMeaning.ice:112: `counter' has changed meaning
 ChangedMeaning.ice:113: `counter' is not a type
 ChangedMeaning.ice:114: redefinition of parameter `param'
+ChangedMeaning.ice:120: `is' has changed meaning

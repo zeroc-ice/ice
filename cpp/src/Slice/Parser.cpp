@@ -1329,7 +1329,7 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
     //
     // Check if we have the introduced name in the map already...
     //
-    map<string, ContainedPtr>::const_iterator it = _introducedMap.find(firstComponent);
+    map<string, ContainedPtr, CICompare>::const_iterator it = _introducedMap.find(firstComponent);
     if(it == _introducedMap.end())
     {
 	_introducedMap[firstComponent] = namedThing;	// No, insert it
@@ -2436,10 +2436,13 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type)
 	_unit->error(msg);
     }
 
+    //
+    // Structures cannot contain themselves
+    //
     if(type.get() == this)
     {
 	string msg = "struct `";
-	msg += name;
+	msg += this->name();
 	msg += "' cannot contain itself";
 	_unit->error(msg);
 	return 0;

@@ -113,3 +113,14 @@ interface ParamTest
     void op3(long counter, counter x);	// Second "counter" is not a type
     void op4(long param, long param);
 };
+
+sequence<int> IS;
+struct x
+{
+    IS is;				// Changed meaning (case-insensitive)
+};
+
+struct y
+{
+    ::IS is;				// OK, nothing introduced
+};

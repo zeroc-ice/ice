@@ -150,6 +150,17 @@ typedef std::list<EnumeratorPtr> EnumeratorList;
 typedef std::pair<SyntaxTreeBasePtr, std::string> SyntaxTreeBaseString;
 
 // ----------------------------------------------------------------------
+// CICompare -- function object to do case-insensitive string comparison.
+// ----------------------------------------------------------------------
+
+class CICompare : public std::binary_function<std::string, std::string, bool>
+{
+public:
+
+    bool operator()(const std::string&, const std::string&) const;
+};
+
+// ----------------------------------------------------------------------
 // ParserVisitor
 // ----------------------------------------------------------------------
 
@@ -368,7 +379,7 @@ protected:
     bool checkInterfaceAndLocal(const std::string&, bool, bool, bool, bool, bool);
 
     ContainedList _contents;
-    std::map<std::string, ContainedPtr> _introducedMap;
+    std::map<std::string, ContainedPtr, CICompare> _introducedMap;
 };
 
 // ----------------------------------------------------------------------
@@ -850,17 +861,6 @@ private:
 };
 
 extern SLICE_API Unit* unit;		// The current parser for bison/flex
-
-// ----------------------------------------------------------------------
-// CICompare -- function object to do case-insensitive string comparison.
-// ----------------------------------------------------------------------
-
-class CICompare : public std::binary_function<std::string, std::string, bool>
-{
-public:
-
-    bool operator()(const std::string&, const std::string&) const;
-};
 
 }
 
