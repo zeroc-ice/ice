@@ -134,6 +134,7 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
     #
     if demoDir == "":
 	os.system("rm -rf " + buildDir + "/Ice-" + version + "-demos/demo/Ice/MFC")	
+	os.system("rm -rf " + buildDir + "/Ice-" + version + "-demos/demo/IcePatch2/MFC")	
 
     #
     # C++ specific build modifications.
