@@ -50,6 +50,7 @@ tests = [ \
     "IceStorm/federation", \
     "IceStorm/federation2", \
     "Yellow/basicYellow", \
+    "XMLTransform/transform", \
     ]
 
 #
