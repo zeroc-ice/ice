@@ -8,6 +8,8 @@
 //
 // **********************************************************************
 
+// TODO: ML: Please reformat to comply with our coding conventions.
+
 struct s1 {};			// Illegal empty struct
 struct s2 { long l; };		// One member, OK
 struct s3 { [ ] long l; };	// One member, OK

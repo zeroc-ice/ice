@@ -14,7 +14,6 @@ IllegalUseOfKeyword.ice:47: keyword cannot be used as data member name
 IllegalUseOfKeyword.ice:48: keyword cannot be used as data member name
 IllegalUseOfKeyword.ice:49: keyword cannot be used as data member name
 IllegalUseOfKeyword.ice:50: keyword cannot be used as data member name
-IllegalUseOfKeyword.ice:51: class must have at least one data member
 IllegalUseOfKeyword.ice:53: keyword cannot be used as sequence name
 IllegalUseOfKeyword.ice:55: keyword cannot be used as dictionary name
 IllegalUseOfKeyword.ice:57: keyword cannot be used as enum name
