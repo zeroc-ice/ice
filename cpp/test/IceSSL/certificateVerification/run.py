@@ -34,6 +34,10 @@ testOptions = " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "test", "Ice
               " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "test", "IceSSL", "certs") + \
               " --IceSSL.Server.Config= "
 
+oldClientOptions = TestUtil.clientOptions
+oldServerOptions = TestUtil.serverOptions
+oldClientServerOptions = TestUtil.clientServerOptions
+
 TestUtil.clientOptions += " --TestSSL.Client.CertPath=" + \
                           os.path.join(toplevel, "test", "IceSSL", "certs")
 TestUtil.serverOptions += " --TestSSL.Server.CertPath=" + \
@@ -53,5 +57,9 @@ print "testing single-certificate certificate verifier."
 TestUtil.clientOptions += " --TestSSL.Client.CertificateVerifier=singleCert"
 TestUtil.serverOptions += " --TestSSL.Server.CertificateVerifier=singleCert"
 TestUtil.clientServerTest(name)
+
+TestUtil.clientOptions = oldClientOptions
+TestUtil.serverOptions = oldServerOptions
+TestUtil.clientServerOptions = oldClientServerOptions
 
 sys.exit(0)
