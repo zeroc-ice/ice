@@ -35,7 +35,8 @@ SAMDOBJS	= TestAMD.o \
 		  ServerAMD.o
 
 SRCS		= $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
+		  $(SOBJS:.o=.cpp) \
+		  $(SAMDOBJS:.o=.cpp)
 
 SLICE_SRCS	= Test.ice TestAMD.ice ServerPrivate.ice ServerPrivateAMD.ice
 
@@ -55,6 +56,6 @@ $(SERVER): $(SOBJS)
 
 $(SERVERAMD): $(SAMDOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SAMDOBJS) $(LIBS)
 
 include .depend
