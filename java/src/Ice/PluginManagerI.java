@@ -186,6 +186,10 @@ public final class PluginManagerI extends LocalObjectImpl implements PluginManag
         {
             plugin = factory.create(_communicator, name, args);
         }
+        catch(PluginInitializationException ex)
+        {
+            throw ex;
+        }
         catch(java.lang.Exception ex)
         {
             PluginInitializationException e = new PluginInitializationException();
@@ -193,6 +197,13 @@ public final class PluginManagerI extends LocalObjectImpl implements PluginManag
             e.initCause(ex);
             throw e;
         }
+
+	if(plugin == null)
+	{
+            PluginInitializationException e = new PluginInitializationException();
+            e.reason = "failure in factory " + className;
+            throw e;
+	}
 
         _plugins.put(name, plugin);
     }

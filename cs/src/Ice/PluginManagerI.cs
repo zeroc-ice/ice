@@ -186,6 +186,10 @@ namespace Ice
 	    {
 		plugin = factory.create(_communicator, name, args);
 	    }
+	    catch(PluginInitializationException ex)
+	    {
+		throw ex;
+	    }
 	    catch(System.Exception ex)
 	    {
 		PluginInitializationException e = new PluginInitializationException(ex);
@@ -193,6 +197,13 @@ namespace Ice
 		throw e;
 	    }
 	    
+	    if(plugin == null)
+	    {
+		PluginInitializationException ex = new PluginInitializationException();
+		ex.reason = "failure in factory " + className;
+		throw ex;
+	    }
+
 	    _plugins[name] = plugin;
 	}
 	
