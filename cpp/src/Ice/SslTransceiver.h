@@ -11,10 +11,7 @@
 #ifndef ICE_SSL_TRANSCEIVER_H
 #define ICE_SSL_TRANSCEIVER_H
 
-#ifdef SSL_EXTENSION
 #include <Ice/SslConnection.h>
-#endif
-
 #include <Ice/InstanceF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
@@ -23,9 +20,7 @@
 namespace IceInternal
 {
 
-#ifdef SSL_EXTENSION
 using IceSecurity::Ssl::Connection;
-#endif
 
 class SslConnector;
 class SslAcceptor;
@@ -43,11 +38,7 @@ public:
 
 private:
 
-#ifdef SSL_EXTENSION
     SslTransceiver(const InstancePtr&, int, Connection*);
-#else
-    SslTransceiver(const InstancePtr&, int);
-#endif
 
     virtual ~SslTransceiver();
     void cleanUpSSL();
@@ -61,9 +52,7 @@ private:
     fd_set _rFdSet;
     fd_set _wFdSet;
 
-#ifdef SSL_EXTENSION
     Connection* _sslConnection;
-#endif
 };
 
 }

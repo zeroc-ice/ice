@@ -11,12 +11,9 @@
 #pragma warning(disable:4786)
 #endif
 
-#ifdef SSL_EXTENSION
 #include <Ice/SslFactory.h>
 #include <Ice/SslSystem.h>
 #include <Ice/Properties.h>
-#endif
-
 #include <Ice/SslAcceptor.h>
 #include <Ice/SslTransceiver.h>
 #include <Ice/Instance.h>
@@ -24,11 +21,7 @@
 #include <Ice/Logger.h>
 #include <Ice/Network.h>
 #include <Ice/Exception.h>
-
-#ifdef SSL_EXTENSION
 #include <Ice/SslException.h>
-#endif
-
 #include <sstream>
 
 using namespace std;
@@ -37,13 +30,10 @@ using namespace IceInternal;
 
 using std::string;
 using std::ostringstream;
-
-#ifdef SSL_EXTENSION
 using IceSecurity::Ssl::Connection;
 using IceSecurity::Ssl::Factory;
 using IceSecurity::Ssl::System;
 using IceSecurity::Ssl::ShutdownException;
-#endif
 
 int
 IceInternal::SslAcceptor::fd()
@@ -112,7 +102,6 @@ IceInternal::SslAcceptor::accept(int timeout)
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
-#ifdef SSL_EXTENSION
     // This is the Ice SSL Configuration File on which we will base
     // all connections in this communicator.
     string configFile = _instance->properties()->getProperty("Ice.Ssl.Config");
@@ -155,10 +144,6 @@ IceInternal::SslAcceptor::accept(int timeout)
 
     Factory::releaseSystem(sslSystem);
     sslSystem = 0;
-
-#else
-    TransceiverPtr transPtr = new SslTransceiver(_instance, fd);
-#endif
 
     return transPtr;
 }
