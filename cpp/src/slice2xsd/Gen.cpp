@@ -155,6 +155,13 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     startString += "Type\"";
     start(startString);
     start("xs:complexContent");
+
+    start("xs:annotation");
+    start("xs:appinfo");
+    O << nl << "<type>class</type>";
+    end(); // xs:annotation
+    end(); // xs:appinfo
+    
     start("xs:extension base=\"ice:_internal.objectType\"");
     start("xs:sequence");
 
@@ -232,6 +239,13 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     startString += "Type\"";
     start(startString);
 
+    start("xs:annotation");
+    start("xs:appinfo");
+    O << nl << "<type>exception</type>";
+    end(); // xs:annotation
+    end(); // xs:appinfo
+
+
     start("xs:sequence");
 
     //
@@ -267,6 +281,13 @@ Slice::Gen::visitStructStart(const StructPtr& p)
     startString += scopeId + "_internal." + p->name();
     startString += "Type\"";
     start(startString);
+
+    // TODO: refactor into method
+    start("xs:annotation");
+    start("xs:appinfo");
+    O << nl << "<type>struct</type>";
+    end(); // xs:annotation
+    end(); // xs:appinfo
 
     DataMemberList dataMembers = p->dataMembers();
     if (!dataMembers.empty())
@@ -308,6 +329,12 @@ Slice::Gen::visitEnum(const EnumPtr& p)
     startString += "Type\"";
     start(startString);
 
+    start("xs:annotation");
+    start("xs:appinfo");
+    O << nl << "<type>enumeration</type>";
+    end(); // xs:annotation
+    end(); // xs:appinfo
+
     EnumeratorList enumerators = p->getEnumerators();
     assert (!enumerators.empty());
 
@@ -340,6 +367,12 @@ Slice::Gen::visitSequence(const SequencePtr& p)
     startString += "Type\"";
     start(startString);
     start("xs:sequence");
+
+    start("xs:annotation");
+    start("xs:appinfo");
+    O << nl << "<type>sequence</type>";
+    end(); // xs:annotation
+    end(); // xs:appinfo
 
     O << nl << "<xs:element name=\"e\" type=\"" << toString(p->type())
       << "\" minOccurs=\"0\" maxOccurs=\"unbounded\"/>";
@@ -389,6 +422,13 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     startString += "Type\"";
     start(startString);
     start("xs:sequence");
+
+    start("xs:annotation");
+    start("xs:appinfo");
+    O << nl << "<type>dictionary</type>";
+    end(); // xs:annotation
+    end(); // xs:appinfo
+
 
     O << nl << "<xs:element name=\"e\" type=\"tns:" << scopeId + "_internal." + p->name() + "ContentType\"/>";
 

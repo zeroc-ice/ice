@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+**********************************************************************
+Copyright (c) 2001
+MutableRealms, Inc.
+Huntsville, AL, USA
+
+All Rights Reserved
+**********************************************************************
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+	   xmlns:tns="http://www.mutablerealms.com"
+	   targetNamespace="http://www.mutablerealms.com">
+
+  <xs:simpleType name="_internal.proxyType">
+    <xs:annotation>
+      <xs:appinfo>
+        <type>proxy</type>
+       </xs:appinfo>
+     </xs:annotation>
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+
+  <xs:element name="proxy" type="tns:_internal.proxyType"/>
+
+  <xs:complexType name="_internal.objectType">
+    <xs:annotation>
+      <xs:appinfo>
+        <type>class</type>
+       </xs:appinfo>
+     </xs:annotation>
+    <xs:sequence>
+      <xs:element name="facets" type="tns:_internal.facetType"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:element name="object" type="tns:_internal.objectType"/>
+
+  <xs:complexType name="_internal.facetContentType">
+    <xs:sequence>
+      <xs:element name="key" type="xs:string"/>
+      <xs:element name="value" type="tns:_internal.objectType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="_internal.facetType">
+    <xs:annotation>
+      <xs:appinfo>
+        <type>dictionary</type>
+       </xs:appinfo>
+     </xs:annotation>
+    <xs:sequence>
+      <xs:element name="e" type="tns:_internal.facetContentType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="facet" type="tns:_internal.facetType"/>
+
+</xs:schema>
