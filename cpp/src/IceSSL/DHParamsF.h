@@ -16,21 +16,16 @@
 namespace IceSSL
 {
 
-namespace OpenSSL
-{
-
 class DHParams;
 typedef IceInternal::Handle<DHParams> DHParamsPtr;
-
-}
 
 }
 
 namespace IceInternal
 {
 
-void incRef(::IceSSL::OpenSSL::DHParams*);
-void decRef(::IceSSL::OpenSSL::DHParams*);
+void incRef(::IceSSL::DHParams*);
+void decRef(::IceSSL::DHParams*);
 
 }
 

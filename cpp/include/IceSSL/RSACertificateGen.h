@@ -26,9 +26,6 @@
 namespace IceSSL
 {
 
-namespace OpenSSL
-{
-
 using namespace std;
 
 class ICE_SSL_API RSACertificateGenContext
@@ -100,8 +97,6 @@ public:
     RSAKeyPairPtr generate(const RSACertificateGenContext&);
     RSAKeyPairPtr loadKeyPair(const std::string&, const std::string&);
 };
-
-}
 
 }
 

@@ -16,12 +16,13 @@
 #include <IceSSL/SslAcceptor.h>
 #include <IceSSL/SslConnector.h>
 #include <IceSSL/SslTransceiver.h>
+#include <IceSSL/OpenSSLPluginI.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceSSL::SslEndpoint::SslEndpoint(const PluginBaseIPtr& plugin, const string& ho, Int po, Int ti) :
+IceSSL::SslEndpoint::SslEndpoint(const OpenSSLPluginIPtr& plugin, const string& ho, Int po, Int ti) :
     _plugin(plugin),
     _host(ho),
     _port(po),
@@ -29,7 +30,7 @@ IceSSL::SslEndpoint::SslEndpoint(const PluginBaseIPtr& plugin, const string& ho,
 {
 }
 
-IceSSL::SslEndpoint::SslEndpoint(const PluginBaseIPtr& plugin, const string& str) :
+IceSSL::SslEndpoint::SslEndpoint(const OpenSSLPluginIPtr& plugin, const string& str) :
     _plugin(plugin),
     _port(0),
     _timeout(-1)
@@ -117,7 +118,7 @@ IceSSL::SslEndpoint::SslEndpoint(const PluginBaseIPtr& plugin, const string& str
     }
 }
 
-IceSSL::SslEndpoint::SslEndpoint(const PluginBaseIPtr& plugin, BasicStream* s) :
+IceSSL::SslEndpoint::SslEndpoint(const OpenSSLPluginIPtr& plugin, BasicStream* s) :
     _plugin(plugin),
     _port(0),
     _timeout(-1)
@@ -338,7 +339,7 @@ IceSSL::SslEndpoint::operator<(const Endpoint& r) const
     return false;
 }
 
-IceSSL::SslEndpointFactory::SslEndpointFactory(const PluginBaseIPtr& plugin)
+IceSSL::SslEndpointFactory::SslEndpointFactory(const OpenSSLPluginIPtr& plugin)
     : _plugin(plugin)
 {
 }

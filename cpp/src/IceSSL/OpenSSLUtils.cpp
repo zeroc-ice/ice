@@ -144,7 +144,7 @@ static const char *mon[12]=
 };
 
 string
-IceSSL::OpenSSL::getGeneralizedTime(ASN1_GENERALIZEDTIME *tm)
+IceSSL::getGeneralizedTime(ASN1_GENERALIZEDTIME *tm)
 {
     assert(tm != 0);
 
@@ -199,7 +199,7 @@ err:
 }
 
 string
-IceSSL::OpenSSL::getUTCTime(ASN1_UTCTIME *tm)
+IceSSL::getUTCTime(ASN1_UTCTIME *tm)
 {
     assert(tm != 0);
 
@@ -258,7 +258,7 @@ err:
 }
 
 string
-IceSSL::OpenSSL::getASN1time(ASN1_TIME *tm)
+IceSSL::getASN1time(ASN1_TIME *tm)
 {
     assert(tm != 0);
 
@@ -289,7 +289,7 @@ IceSSL::OpenSSL::getASN1time(ASN1_TIME *tm)
 }
 
 DH*
-IceSSL::OpenSSL::loadDHParam(const char* dhfile)
+IceSSL::loadDHParam(const char* dhfile)
 {
     assert(dhfile != 0);
 
@@ -306,7 +306,7 @@ IceSSL::OpenSSL::loadDHParam(const char* dhfile)
 }
 
 DH*
-IceSSL::OpenSSL::getTempDH(unsigned char* p, int plen, unsigned char* g, int glen)
+IceSSL::getTempDH(unsigned char* p, int plen, unsigned char* g, int glen)
 {
     assert(p != 0);
     assert(g != 0);
@@ -330,7 +330,7 @@ IceSSL::OpenSSL::getTempDH(unsigned char* p, int plen, unsigned char* g, int gle
 }
 
 DH*
-IceSSL::OpenSSL::getTempDH512()
+IceSSL::getTempDH512()
 {
     DH* dh = getTempDH(dh512_p, sizeof(dh512_p), dh512_g, sizeof(dh512_g));
 
@@ -338,7 +338,7 @@ IceSSL::OpenSSL::getTempDH512()
 }
 
 DH*
-IceSSL::OpenSSL::getTempDH1024()
+IceSSL::getTempDH1024()
 {
     DH* dh = getTempDH(dh1024_p, sizeof(dh1024_p), dh1024_g, sizeof(dh1024_g));
 
@@ -346,7 +346,7 @@ IceSSL::OpenSSL::getTempDH1024()
 }
 
 DH*
-IceSSL::OpenSSL::getTempDH2048()
+IceSSL::getTempDH2048()
 {
     DH* dh = getTempDH(dh2048_p, sizeof(dh2048_p), dh2048_g, sizeof(dh2048_g));
 
@@ -354,7 +354,7 @@ IceSSL::OpenSSL::getTempDH2048()
 }
 
 DH*
-IceSSL::OpenSSL::getTempDH4096()
+IceSSL::getTempDH4096()
 {
     DH* dh = getTempDH(dh4096_p, sizeof(dh4096_p), dh4096_g, sizeof(dh4096_g));
 
@@ -362,7 +362,7 @@ IceSSL::OpenSSL::getTempDH4096()
 }
 
 string
-IceSSL::OpenSSL::sslGetErrors()
+IceSSL::sslGetErrors()
 {
     IceUtil::Mutex::Lock sync(sslErrorsMutex);
     
@@ -409,7 +409,7 @@ IceSSL::OpenSSL::sslGetErrors()
 }
 
 string
-IceSSL::OpenSSL::getVerificationError(int errorCode)
+IceSSL::getVerificationError(int errorCode)
 {
     static char* errorStrings[] =
     {
@@ -481,9 +481,7 @@ tmpRSACallback(SSL* sslConnection, int isExport, int keyLength)
 
     void* p = SSL_get_ex_data(sslConnection, 0);
     assert(p != 0);
-    IceSSL::PluginBaseI* plugin = static_cast<IceSSL::PluginBaseI*>(p);
-
-    IceSSL::OpenSSL::PluginI* openSslPlugin = dynamic_cast<IceSSL::OpenSSL::PluginI*>(plugin);
+    IceSSL::OpenSSLPluginI* openSslPlugin = static_cast<IceSSL::OpenSSLPluginI*>(p);
     assert(openSslPlugin != 0);
 
     return openSslPlugin->getRSAKey(isExport, keyLength);
@@ -496,9 +494,8 @@ tmpDHCallback(SSL* sslConnection, int isExport, int keyLength)
 
     void* p = SSL_get_ex_data(sslConnection, 0);
     assert(p != 0);
-    IceSSL::PluginBaseI* plugin = static_cast<IceSSL::PluginBaseI*>(p);
+    IceSSL::OpenSSLPluginI* openSslPlugin = static_cast<IceSSL::OpenSSLPluginI*>(p);
 
-    IceSSL::OpenSSL::PluginI* openSslPlugin = dynamic_cast<IceSSL::OpenSSL::PluginI*>(plugin);
     assert(openSslPlugin != 0);
 
     return openSslPlugin->getDHParams(isExport, keyLength);

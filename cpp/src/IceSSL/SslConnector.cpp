@@ -11,7 +11,7 @@
 #include <Ice/Logger.h>
 #include <Ice/Network.h>
 
-#include <IceSSL/PluginBaseI.h>
+#include <IceSSL/OpenSSLPluginI.h>
 #include <IceSSL/SslConnector.h>
 #include <IceSSL/SslTransceiver.h>
 #include <IceSSL/TraceLevels.h>
@@ -53,7 +53,7 @@ IceSSL::SslConnector::toString() const
     return addrToString(_addr);
 }
 
-IceSSL::SslConnector::SslConnector(const PluginBaseIPtr& plugin, const string& host, int port) :
+IceSSL::SslConnector::SslConnector(const OpenSSLPluginIPtr& plugin, const string& host, int port) :
     _plugin(plugin)
 {
     getAddress(host.c_str(), port, _addr);

@@ -16,21 +16,16 @@
 namespace IceSSL
 {
 
-namespace OpenSSL
-{
-
 class RSAPrivateKey;
 typedef IceInternal::Handle<RSAPrivateKey> RSAPrivateKeyPtr;
-
-}
 
 }
 
 namespace IceInternal
 {
 
-void incRef(::IceSSL::OpenSSL::RSAPrivateKey*);
-void decRef(::IceSSL::OpenSSL::RSAPrivateKey*);
+void incRef(::IceSSL::RSAPrivateKey*);
+void decRef(::IceSSL::RSAPrivateKey*);
 
 }
 

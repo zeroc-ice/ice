@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2002
+// Copyright (c) 2001
 // Mutable Realms, Inc.
 // Huntsville, AL, USA
 //
@@ -12,21 +12,28 @@
 #define ICE_SSL_OPENSSL_PLUGIN_I_H
 
 #include <IceUtil/RecMutex.h>
-#include <IceSSL/PluginBaseI.h>
+
+#include <Ice/LoggerF.h>
+#include <Ice/PropertiesF.h>
+#include <Ice/ProtocolPluginFacadeF.h>
+
+#include <IceSSL/Plugin.h>
+#include <IceSSL/OpenSSLPluginIF.h>
+#include <IceSSL/CertificateVerifierF.h>
+#include <IceSSL/TraceLevelsF.h>
+#include <IceSSL/SslTransceiverF.h>
 #include <IceSSL/CertificateDesc.h>
 #include <IceSSL/CertificateAuthority.h>
 #include <IceSSL/BaseCerts.h>
 #include <IceSSL/TempCerts.h>
-#include <IceSSL/ContextOpenSSLServer.h>
-#include <IceSSL/ContextOpenSSLClient.h>
+#include <IceSSL/ServerContext.h>
+#include <IceSSL/ClientContext.h>
 #include <IceSSL/RSAPrivateKeyF.h>
 #include <IceSSL/DHParamsF.h>
+
 #include <openssl/ssl.h>
 
 namespace IceSSL
-{
-
-namespace OpenSSL
 {
 
 typedef std::map<int,RSAPrivateKeyPtr> RSAMap;
@@ -35,19 +42,20 @@ typedef std::map<int,DHParamsPtr> DHMap;
 typedef std::map<int,CertificateDesc> RSACertMap;
 typedef std::map<int,DiffieHellmanParamsFile> DHParamsMap;
 
-class PluginI : public PluginBaseI
+class OpenSSLPluginI : public Plugin
 {
 public:
 
-    PluginI(const IceInternal::ProtocolPluginFacadePtr&);
-    ~PluginI();
-    
-    virtual IceSSL::SslTransceiverPtr createTransceiver(ContextType, int);
+    OpenSSLPluginI(const IceInternal::ProtocolPluginFacadePtr&);
+    virtual ~OpenSSLPluginI();
+
+
+    virtual SslTransceiverPtr createTransceiver(ContextType, int);
 
     virtual bool isConfigured(ContextType);
     virtual void configure();
     virtual void configure(ContextType);
-    virtual void loadConfig(ContextType, const std::string&, const std::string&);
+    virtual void loadConfig(ContextType, const ::std::string&, const ::std::string&);
 
     // Returns the desired RSA Key, or creates it if not already created.
     // This is public because the tmpRSACallback must be able to access it.
@@ -60,23 +68,26 @@ public:
     // This is public because the tmpDHCallback must be able to access it.
     DH* getDHParams(int, int);
 
-    virtual void setCertificateVerifier(ContextType, const IceSSL::CertificateVerifierPtr&);
-
+    virtual void setCertificateVerifier(ContextType, const CertificateVerifierPtr&);
     virtual void addTrustedCertificateBase64(ContextType, const std::string&);
-
     virtual void addTrustedCertificate(ContextType, const Ice::ByteSeq&);
-
     virtual void setRSAKeysBase64(ContextType, const std::string&, const std::string&);
-
-    virtual void setRSAKeys(ContextType, const Ice::ByteSeq&, const Ice::ByteSeq&);
+    virtual void setRSAKeys(ContextType, const ::Ice::ByteSeq&, const ::Ice::ByteSeq&);
 
     virtual IceSSL::CertificateVerifierPtr getDefaultCertVerifier();
-
     virtual IceSSL::CertificateVerifierPtr getSingleCertVerifier(const Ice::ByteSeq&);
-
     virtual void destroy();
 
+    TraceLevelsPtr getTraceLevels() const;
+    Ice::LoggerPtr getLogger() const;
+    Ice::PropertiesPtr getProperties() const;
+    IceInternal::ProtocolPluginFacadePtr getProtocolPluginFacade() const;
+
 private:
+    IceInternal::ProtocolPluginFacadePtr _protocolPluginFacade;
+    TraceLevelsPtr _traceLevels;
+    Ice::LoggerPtr _logger;
+    Ice::PropertiesPtr _properties;
 
     IceSSL::ServerContext _serverContext;
     IceSSL::ClientContext _clientContext;
@@ -113,6 +124,5 @@ private:
 
 }
 
-}
-
 #endif
+

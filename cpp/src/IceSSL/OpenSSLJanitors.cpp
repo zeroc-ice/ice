@@ -10,13 +10,13 @@
 
 #include <IceSSL/OpenSSLJanitors.h>
 
-IceSSL::OpenSSL::RSAJanitor::RSAJanitor(RSA* rsa) :
+IceSSL::RSAJanitor::RSAJanitor(RSA* rsa) :
                             _rsa(rsa)
 {
     assert(_rsa != 0);
 }
 
-IceSSL::OpenSSL::RSAJanitor::~RSAJanitor()
+IceSSL::RSAJanitor::~RSAJanitor()
 {
     if(_rsa)
     {
@@ -25,24 +25,24 @@ IceSSL::OpenSSL::RSAJanitor::~RSAJanitor()
 }
 
 void
-IceSSL::OpenSSL::RSAJanitor::clear()
+IceSSL::RSAJanitor::clear()
 {
     _rsa = 0;
 }
 
 RSA*
-IceSSL::OpenSSL::RSAJanitor::get() const
+IceSSL::RSAJanitor::get() const
 {
     return _rsa;
 }
 
-IceSSL::OpenSSL::EVP_PKEYJanitor::EVP_PKEYJanitor(EVP_PKEY* evp_pkey) :
+IceSSL::EVP_PKEYJanitor::EVP_PKEYJanitor(EVP_PKEY* evp_pkey) :
                                  _evp_pkey(evp_pkey)
 {
     assert(_evp_pkey != 0);
 }
 
-IceSSL::OpenSSL::EVP_PKEYJanitor::~EVP_PKEYJanitor()
+IceSSL::EVP_PKEYJanitor::~EVP_PKEYJanitor()
 {
     if(_evp_pkey)
     {
@@ -51,24 +51,24 @@ IceSSL::OpenSSL::EVP_PKEYJanitor::~EVP_PKEYJanitor()
 }
 
 void
-IceSSL::OpenSSL::EVP_PKEYJanitor::clear()
+IceSSL::EVP_PKEYJanitor::clear()
 {
     _evp_pkey = 0;
 }
 
 EVP_PKEY*
-IceSSL::OpenSSL::EVP_PKEYJanitor::get() const
+IceSSL::EVP_PKEYJanitor::get() const
 {
     return _evp_pkey;
 }
 
-IceSSL::OpenSSL::X509_REQJanitor::X509_REQJanitor(X509_REQ* x509_req) :
+IceSSL::X509_REQJanitor::X509_REQJanitor(X509_REQ* x509_req) :
                                  _x509_req(x509_req)
 {
     assert(_x509_req != 0);
 }
 
-IceSSL::OpenSSL::X509_REQJanitor::~X509_REQJanitor()
+IceSSL::X509_REQJanitor::~X509_REQJanitor()
 {
     if(_x509_req)
     {
@@ -77,24 +77,24 @@ IceSSL::OpenSSL::X509_REQJanitor::~X509_REQJanitor()
 }
 
 void
-IceSSL::OpenSSL::X509_REQJanitor::clear()
+IceSSL::X509_REQJanitor::clear()
 {
     _x509_req = 0;
 }
 
 X509_REQ*
-IceSSL::OpenSSL::X509_REQJanitor::get() const
+IceSSL::X509_REQJanitor::get() const
 {
     return _x509_req;
 }
 
-IceSSL::OpenSSL::X509Janitor::X509Janitor(X509* x509) :
+IceSSL::X509Janitor::X509Janitor(X509* x509) :
                              _x509(x509)
 {
     assert(_x509 != 0);
 }
 
-IceSSL::OpenSSL::X509Janitor::~X509Janitor()
+IceSSL::X509Janitor::~X509Janitor()
 {
     if(_x509)
     {
@@ -103,24 +103,24 @@ IceSSL::OpenSSL::X509Janitor::~X509Janitor()
 }
 
 void
-IceSSL::OpenSSL::X509Janitor::clear()
+IceSSL::X509Janitor::clear()
 {
     _x509 = 0;
 }
 
 X509*
-IceSSL::OpenSSL::X509Janitor::get() const
+IceSSL::X509Janitor::get() const
 {
     return _x509;
 }
 
-IceSSL::OpenSSL::BIOJanitor::BIOJanitor(BIO* bio) :
+IceSSL::BIOJanitor::BIOJanitor(BIO* bio) :
                             _bio(bio)
 {
     assert(_bio != 0);
 }
 
-IceSSL::OpenSSL::BIOJanitor::~BIOJanitor()
+IceSSL::BIOJanitor::~BIOJanitor()
 {
     if(_bio)
     {
@@ -129,13 +129,13 @@ IceSSL::OpenSSL::BIOJanitor::~BIOJanitor()
 }
 
 void
-IceSSL::OpenSSL::BIOJanitor::clear()
+IceSSL::BIOJanitor::clear()
 {
     _bio = 0;
 }
 
 BIO*
-IceSSL::OpenSSL::BIOJanitor::get() const
+IceSSL::BIOJanitor::get() const
 {
     return _bio;
 }

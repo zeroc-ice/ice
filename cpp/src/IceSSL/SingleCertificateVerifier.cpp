@@ -17,13 +17,13 @@
 using namespace std;
 using Ice::ByteSeq;
 
-IceSSL::OpenSSL::SingleCertificateVerifier::SingleCertificateVerifier(const ByteSeq& publicKey) :
+IceSSL::SingleCertificateVerifier::SingleCertificateVerifier(const ByteSeq& publicKey) :
                                            _publicKey(publicKey)
 {
 }
 
 int
-IceSSL::OpenSSL::SingleCertificateVerifier::verify(int preVerifyOkay,
+IceSSL::SingleCertificateVerifier::verify(int preVerifyOkay,
                                                    X509_STORE_CTX* x509StoreContext,
                                                    SSL* sslConnection)
 {
@@ -92,7 +92,7 @@ IceSSL::OpenSSL::SingleCertificateVerifier::verify(int preVerifyOkay,
 }
 
 ByteSeq
-IceSSL::OpenSSL::SingleCertificateVerifier::toByteSeq(X509* certificate)
+IceSSL::SingleCertificateVerifier::toByteSeq(X509* certificate)
 {
     ByteSeq certByteSeq;
 

@@ -22,7 +22,7 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier;
 
-using IceSSL::OpenSSL::RSAKeyPairPtr;
+using IceSSL::RSAKeyPairPtr;
 
 Glacier::StarterI::StarterI(const CommunicatorPtr& communicator, const PasswordVerifierPrx& verifier) :
     _communicator(communicator),
@@ -45,7 +45,7 @@ Glacier::StarterI::StarterI(const CommunicatorPtr& communicator, const PasswordV
     Int bitStrength = _properties->getPropertyAsIntWithDefault(
 	"Glacier.Starter.Certificate.BitStrength", 1024);
     Int secondsValid = _properties->getPropertyAsIntWithDefault(
-	"Glacier.Starter.Certificate.SecondsValid", IceSSL::OpenSSL::RSACertificateGenContext::daysToSeconds(1));
+	"Glacier.Starter.Certificate.SecondsValid", IceSSL::RSACertificateGenContext::daysToSeconds(1));
     Int issuedAdjust = _properties->getPropertyAsIntWithDefault("Glacier.Starter.Certificate.IssuedAdjust", 0);
     
     _certContext.setCountry(country);

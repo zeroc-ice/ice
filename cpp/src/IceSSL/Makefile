@@ -20,7 +20,6 @@ TARGETS		= $(NAME) $(VERSIONED_NAME)
 
 OBJS		= Plugin.o \
                   Exception.o \
-                  PluginBaseI.o \
                   OpenSSLPluginI.o \
                   SslEndpoint.o \
                   SslException.o \
@@ -34,9 +33,9 @@ OBJS		= Plugin.o \
                   CertificateDesc.o \
                   ConfigParser.o \
                   ConfigParserErrorReporter.o \
-                  ContextOpenSSL.o \
-                  ContextOpenSSLClient.o \
-                  ContextOpenSSLServer.o \
+                  Context.o \
+                  ClientContext.o \
+                  ServerContext.o \
                   GeneralConfig.o \
                   TempCerts.o \
                   CertificateVerifier.o \

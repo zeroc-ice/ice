@@ -11,7 +11,7 @@
 #include <Ice/Logger.h>
 #include <Ice/Network.h>
 
-#include <IceSSL/PluginBaseI.h>
+#include <IceSSL/OpenSSLPluginI.h>
 #include <IceSSL/SslAcceptor.h>
 #include <IceSSL/SslTransceiver.h>
 #include <IceSSL/TraceLevels.h>
@@ -98,7 +98,7 @@ IceSSL::SslAcceptor::effectivePort()
     return ntohs(_addr.sin_port);
 }
 
-IceSSL::SslAcceptor::SslAcceptor(const PluginBaseIPtr& plugin, const string& host, int port) :
+IceSSL::SslAcceptor::SslAcceptor(const OpenSSLPluginIPtr& plugin, const string& host, int port) :
     _plugin(plugin),
     _traceLevels(plugin->getTraceLevels()),
     _logger(plugin->getLogger()),

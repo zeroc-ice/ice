@@ -168,9 +168,6 @@ local exception CertificateVerifierTypeException extends SslException
 {
 };
 
-module OpenSSL
-{
-
 /**
  *
  * A problem was encountered while setting up the [IceSSL::System]
@@ -256,8 +253,6 @@ local exception CertificateKeyMatchException extends ContextException
  **/
 local exception TrustedCertificateAddException extends ContextException
 {
-};
-
 };
 
 };

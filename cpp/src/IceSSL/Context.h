@@ -22,19 +22,12 @@
 #include <IceSSL/BaseCerts.h>
 #include <IceSSL/TempCerts.h>
 #include <IceSSL/SslTransceiver.h>
-#include <IceSSL/ContextOpenSSLF.h>
+#include <IceSSL/ContextF.h>
 #include <IceSSL/RSAPublicKey.h>
 #include <IceSSL/RSAKeyPairF.h>
 
 namespace IceSSL
 {
-
-namespace OpenSSL
-{
-
-class PluginI;
-
-}
 
 class Context : public IceUtil::Shared
 {
@@ -44,7 +37,7 @@ public:
 
     bool isConfigured();
 
-    virtual void setCertificateVerifier(const OpenSSL::CertificateVerifierPtr&);
+    virtual void setCertificateVerifier(const CertificateVerifierPtr&);
 
     virtual void addTrustedCertificateBase64(const std::string&);
 
@@ -59,7 +52,7 @@ public:
                            const BaseCertificates&);
 
     // Takes a socket fd as the first parameter.
-    virtual SslTransceiverPtr createTransceiver(int, const PluginBaseIPtr&) = 0;
+    virtual SslTransceiverPtr createTransceiver(int, const OpenSSLPluginIPtr&) = 0;
 
 protected:
 
@@ -74,11 +67,11 @@ protected:
 
     void checkKeyCert();
 
-    void addTrustedCertificate(const OpenSSL::RSAPublicKey&);
+    void addTrustedCertificate(const RSAPublicKey&);
 
     void addKeyCert(const CertificateFile&, const CertificateFile&);
 
-    void addKeyCert(const OpenSSL::RSAKeyPair&);
+    void addKeyCert(const RSAKeyPair&);
 
     void addKeyCert(const Ice::ByteSeq&, const Ice::ByteSeq&);
 
@@ -105,7 +98,7 @@ protected:
     std::string _passphraseRetriesProperty;
     std::string _maxPassphraseRetriesDefault;
 
-    OpenSSL::CertificateVerifierPtr _certificateVerifier;
+    CertificateVerifierPtr _certificateVerifier;
 
     SSL_CTX* _sslContext;
 

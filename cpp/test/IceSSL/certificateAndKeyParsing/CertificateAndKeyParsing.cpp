@@ -289,7 +289,7 @@ testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin,
         plugin->setRSAKeysBase64(IceSSL::Client, key, cert);
         test(false);
     }
-    catch(const IceSSL::OpenSSL::ContextNotConfiguredException&)
+    catch(const IceSSL::ContextNotConfiguredException&)
     {
     }
     catch(const Ice::LocalException&)
@@ -322,7 +322,7 @@ testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin,
         plugin->setRSAKeys(IceSSL::Client, key, cert);
         test(false);
     }
-    catch(const IceSSL::OpenSSL::ContextNotConfiguredException&)
+    catch(const IceSSL::ContextNotConfiguredException&)
     {
     }
     catch(const Ice::LocalException&)
@@ -353,7 +353,7 @@ testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin, const s
         plugin->addTrustedCertificateBase64(IceSSL::Client, cert);
         test(false);
     }
-    catch(const IceSSL::OpenSSL::ContextNotConfiguredException&)
+    catch(const IceSSL::ContextNotConfiguredException&)
     {
     }
     catch(const Ice::LocalException&)
@@ -384,7 +384,7 @@ testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin, const I
         plugin->addTrustedCertificate(IceSSL::Client, cert);
         test(false);
     }
-    catch(const IceSSL::OpenSSL::ContextNotConfiguredException&)
+    catch(const IceSSL::ContextNotConfiguredException&)
     {
     }
     catch(const Ice::LocalException&)
@@ -417,7 +417,7 @@ testExpectCertificateKeyMatchException(const IceSSL::PluginPtr& plugin,
         plugin->setRSAKeysBase64(IceSSL::Client, key, cert);
         test(false);
     }
-    catch(const IceSSL::OpenSSL::CertificateKeyMatchException&)
+    catch(const IceSSL::CertificateKeyMatchException&)
     {
     }
     catch(const Ice::LocalException&)
@@ -450,7 +450,7 @@ testExpectCertificateKeyMatchException(const IceSSL::PluginPtr& plugin,
         plugin->setRSAKeys(IceSSL::Client, key, cert);
         test(false);
     }
-    catch(const IceSSL::OpenSSL::CertificateKeyMatchException&)
+    catch(const IceSSL::CertificateKeyMatchException&)
     {
     }
     catch(const Ice::LocalException&)
@@ -591,10 +591,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     string clientTestCertPath = properties->getProperty("IceSSL.Test.Client.CertPath");
 
-    IceSSL::OpenSSL::RSACertificateGen certGen;
+    IceSSL::RSACertificateGen certGen;
 
-    IceSSL::OpenSSL::RSAKeyPairPtr goodKeyPair1;
-    IceSSL::OpenSSL::RSAKeyPairPtr goodKeyPair2;
+    IceSSL::RSAKeyPairPtr goodKeyPair1;
+    IceSSL::RSAKeyPairPtr goodKeyPair2;
 
     string goodKey1File = clientTestCertPath + "/goodKey_1.pem";
     string goodCert1File = clientTestCertPath + "/goodCert_1.pem";

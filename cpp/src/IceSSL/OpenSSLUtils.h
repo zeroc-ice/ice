@@ -14,9 +14,6 @@
 namespace IceSSL
 {
 
-namespace OpenSSL
-{
-
 std::string getGeneralizedTime(ASN1_GENERALIZEDTIME*);
 
 std::string getUTCTime(ASN1_UTCTIME*);
@@ -35,8 +32,6 @@ DH* getTempDH4096();
 std::string sslGetErrors();
 
 std::string getVerificationError(int);
-
-}
 
 }
 

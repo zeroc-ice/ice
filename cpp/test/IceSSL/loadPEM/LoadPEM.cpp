@@ -30,11 +30,11 @@ testExpectCertificateAndPrivateKeyLoadException(const Ice::CommunicatorPtr& comm
         sslPlugin->configure(IceSSL::Client);
         test(false);
     }
-    catch(const IceSSL::OpenSSL::CertificateLoadException&)
+    catch(const IceSSL::CertificateLoadException&)
     {
         std::cout << "ok" << std::endl;
     }
-    catch(const IceSSL::OpenSSL::PrivateKeyLoadException&)
+    catch(const IceSSL::PrivateKeyLoadException&)
     {
         std::cout << "ok" << std::endl;
     }
@@ -69,7 +69,7 @@ testExpectPrivateKeyLoadException(const Ice::CommunicatorPtr& communicator, cons
         sslPlugin->configure(IceSSL::Client);
         test(false);
     }
-    catch(const IceSSL::OpenSSL::PrivateKeyLoadException&)
+    catch(const IceSSL::PrivateKeyLoadException&)
     {
         std::cout << "ok" << std::endl;
     }
@@ -104,7 +104,7 @@ testExpectCertificateLoadException(const Ice::CommunicatorPtr& communicator, con
         sslPlugin->configure(IceSSL::Client);
         test(false);
     }
-    catch(const IceSSL::OpenSSL::CertificateLoadException&)
+    catch(const IceSSL::CertificateLoadException&)
     {
         std::cout << "ok" << std::endl;
     }
@@ -139,7 +139,7 @@ testExpectCertificateKeyMatchException(const Ice::CommunicatorPtr& communicator,
         sslPlugin->configure(IceSSL::Client);
         test(false);
     }
-    catch(const IceSSL::OpenSSL::CertificateKeyMatchException&)
+    catch(const IceSSL::CertificateKeyMatchException&)
     {
         std::cout << "ok" << std::endl;
     }

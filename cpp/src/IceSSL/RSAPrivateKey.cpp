@@ -16,15 +16,15 @@
 #include <IceSSL/Exception.h>
 #include <assert.h>
 
-void ::IceInternal::incRef(::IceSSL::OpenSSL::RSAPrivateKey* p) { p->__incRef(); }
-void ::IceInternal::decRef(::IceSSL::OpenSSL::RSAPrivateKey* p) { p->__decRef(); }
+void ::IceInternal::incRef(::IceSSL::RSAPrivateKey* p) { p->__incRef(); }
+void ::IceInternal::decRef(::IceSSL::RSAPrivateKey* p) { p->__decRef(); }
 
 using std::back_inserter;
 using std::string;
 using Ice::ByteSeq;
 using IceUtil::Base64;
 
-IceSSL::OpenSSL::RSAPrivateKey::RSAPrivateKey(const string& key)
+IceSSL::RSAPrivateKey::RSAPrivateKey(const string& key)
 {
     assert(!key.empty());
 
@@ -35,7 +35,7 @@ IceSSL::OpenSSL::RSAPrivateKey::RSAPrivateKey(const string& key)
     byteSeqToKey(keySeq);
 }
 
-IceSSL::OpenSSL::RSAPrivateKey::RSAPrivateKey(const ByteSeq& keySeq)
+IceSSL::RSAPrivateKey::RSAPrivateKey(const ByteSeq& keySeq)
 {
     assert(!keySeq.empty());
 
@@ -44,13 +44,13 @@ IceSSL::OpenSSL::RSAPrivateKey::RSAPrivateKey(const ByteSeq& keySeq)
     byteSeqToKey(keySeq);
 }
 
-IceSSL::OpenSSL::RSAPrivateKey::RSAPrivateKey(RSA* rsa) :
+IceSSL::RSAPrivateKey::RSAPrivateKey(RSA* rsa) :
                                _privateKey(rsa)
 {
     assert(_privateKey != 0);
 }
 
-IceSSL::OpenSSL::RSAPrivateKey::~RSAPrivateKey()
+IceSSL::RSAPrivateKey::~RSAPrivateKey()
 {
     if(_privateKey != 0)
     {
@@ -59,7 +59,7 @@ IceSSL::OpenSSL::RSAPrivateKey::~RSAPrivateKey()
 }
 
 void
-IceSSL::OpenSSL::RSAPrivateKey::keyToBase64(string& b64Key)
+IceSSL::RSAPrivateKey::keyToBase64(string& b64Key)
 {
     ByteSeq keySeq;
     keyToByteSeq(keySeq);
@@ -67,7 +67,7 @@ IceSSL::OpenSSL::RSAPrivateKey::keyToBase64(string& b64Key)
 }
 
 void
-IceSSL::OpenSSL::RSAPrivateKey::keyToByteSeq(ByteSeq& keySeq)
+IceSSL::RSAPrivateKey::keyToByteSeq(ByteSeq& keySeq)
 {
     assert(_privateKey);
 
@@ -89,13 +89,13 @@ IceSSL::OpenSSL::RSAPrivateKey::keyToByteSeq(ByteSeq& keySeq)
 }
 
 RSA*
-IceSSL::OpenSSL::RSAPrivateKey::get() const
+IceSSL::RSAPrivateKey::get() const
 {
     return _privateKey;
 }
 
 void
-IceSSL::OpenSSL::RSAPrivateKey::byteSeqToKey(const ByteSeq& keySeq)
+IceSSL::RSAPrivateKey::byteSeqToKey(const ByteSeq& keySeq)
 {
     unsigned char* privateKeyBuffer = byteSeqToUChar(keySeq);
     assert(privateKeyBuffer != 0);

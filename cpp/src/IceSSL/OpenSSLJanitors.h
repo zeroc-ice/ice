@@ -17,9 +17,6 @@
 namespace IceSSL
 {
 
-namespace OpenSSL
-{
-
 class RSAJanitor
 {
 public:
@@ -94,8 +91,6 @@ private:
 
     BIO* _bio;
 };
-
-}
 
 }
 

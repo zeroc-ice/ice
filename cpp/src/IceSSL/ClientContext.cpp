@@ -11,7 +11,7 @@
 #include <Ice/Logger.h>
 
 #include <IceSSL/Exception.h>
-#include <IceSSL/ContextOpenSSLClient.h>
+#include <IceSSL/ClientContext.h>
 #include <IceSSL/SslClientTransceiver.h>
 #include <IceSSL/TraceLevels.h>
 
@@ -50,11 +50,11 @@ IceSSL::ClientContext::configure(const GeneralConfig& generalConfig,
 }
 
 IceSSL::SslTransceiverPtr
-IceSSL::ClientContext::createTransceiver(int socket, const PluginBaseIPtr& plugin)
+IceSSL::ClientContext::createTransceiver(int socket, const OpenSSLPluginIPtr& plugin)
 {
     if(_sslContext == 0)
     {
-        OpenSSL::ContextNotConfiguredException contextEx(__FILE__, __LINE__);
+        ContextNotConfiguredException contextEx(__FILE__, __LINE__);
 
         throw contextEx;
     }

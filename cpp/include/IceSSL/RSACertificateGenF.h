@@ -14,13 +14,8 @@
 namespace IceSSL
 {
 
-namespace OpenSSL
-{
-
 class RSACertificateGenContext;
 class RSACertificateGen;
-
-}
 
 }
 

@@ -32,9 +32,6 @@
 namespace IceSSL
 {
 
-namespace OpenSSL
-{
-
 class ICE_SSL_API RSAPrivateKey : public IceUtil::Shared
 {
 public:
@@ -65,8 +62,6 @@ private:
 
     RSA* _privateKey;
 };
-
-}
 
 }
 

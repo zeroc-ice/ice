@@ -26,21 +26,16 @@
 namespace IceSSL
 {
 
-namespace OpenSSL
-{
-
 class RSAKeyPair;
 typedef IceInternal::Handle<RSAKeyPair> RSAKeyPairPtr;
-
-}
 
 }
 
 namespace IceInternal
 {
 
-void ICE_SSL_API incRef(::IceSSL::OpenSSL::RSAKeyPair*);
-void ICE_SSL_API decRef(::IceSSL::OpenSSL::RSAKeyPair*);
+void ICE_SSL_API incRef(::IceSSL::RSAKeyPair*);
+void ICE_SSL_API decRef(::IceSSL::RSAKeyPair*);
 
 }
 

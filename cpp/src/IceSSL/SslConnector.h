@@ -13,7 +13,7 @@
 
 #include <Ice/TransceiverF.h>
 #include <Ice/Connector.h>
-#include <IceSSL/PluginBaseIF.h>
+#include <IceSSL/OpenSSLPluginIF.h>
 
 #ifndef _WIN32
 #   include <netinet/in.h> // For struct sockaddr_in
@@ -33,11 +33,11 @@ public:
     
 private:
     
-    SslConnector(const PluginBaseIPtr&, const std::string&, int);
+    SslConnector(const OpenSSLPluginIPtr&, const std::string&, int);
     virtual ~SslConnector();
     friend class SslEndpoint;
 
-    PluginBaseIPtr _plugin;
+    OpenSSLPluginIPtr _plugin;
     struct sockaddr_in _addr;
 };
 

@@ -18,10 +18,7 @@
 namespace IceSSL
 {
 
-namespace OpenSSL
-{
-
-class DefaultCertificateVerifier : public IceSSL::OpenSSL::CertificateVerifier
+class DefaultCertificateVerifier : public IceSSL::CertificateVerifierOpenSSL
 {
 public:
 
@@ -34,8 +31,6 @@ private:
     IceSSL::TraceLevelsPtr _traceLevels;
     Ice::LoggerPtr _logger;
 };
-
-}
 
 }
 

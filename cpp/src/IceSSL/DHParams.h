@@ -18,9 +18,6 @@
 namespace IceSSL
 {
 
-namespace OpenSSL
-{
-
 class DHParams : public IceUtil::Shared
 {
 public:
@@ -37,8 +34,6 @@ private:
 
     DH* _dhParams;
 };
-
-}
 
 }
 

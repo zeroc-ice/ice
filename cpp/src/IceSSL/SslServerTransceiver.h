@@ -24,7 +24,7 @@ public:
 
 protected:
     virtual void showConnectionInfo();
-    SslServerTransceiver(const PluginBaseIPtr&, SOCKET, const OpenSSL::CertificateVerifierPtr&, SSL*);
+    SslServerTransceiver(const OpenSSLPluginIPtr&, SOCKET, const CertificateVerifierPtr&, SSL*);
     friend class ServerContext;
 };
 

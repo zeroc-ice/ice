@@ -14,7 +14,7 @@
 #include <Ice/Network.h>
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/SslClientTransceiver.h>
-#include <IceSSL/PluginBaseI.h>
+#include <IceSSL/OpenSSLPluginI.h>
 #include <IceSSL/TraceLevels.h>
 
 #include <Ice/LocalException.h>
@@ -144,7 +144,7 @@ IceSSL::SslClientTransceiver::write(Buffer& buf, int timeout)
 
                     // Protocol Error: Unexpected EOF
                     protocolEx.message = "encountered an EOF that violates the ssl protocol\n";
-                    protocolEx.message += OpenSSL::sslGetErrors();
+                    protocolEx.message += sslGetErrors();
 
                     throw protocolEx;
                 }
@@ -160,7 +160,7 @@ IceSSL::SslClientTransceiver::write(Buffer& buf, int timeout)
                 ProtocolException protocolEx(__FILE__, __LINE__);
 
                 protocolEx.message = "encountered a violation of the ssl protocol\n";
-                protocolEx.message += OpenSSL::sslGetErrors();
+                protocolEx.message += sslGetErrors();
 
                 throw protocolEx;
             }
@@ -294,9 +294,9 @@ IceSSL::SslClientTransceiver::handshake(int timeout)
 	        {
                     CertificateVerificationException certVerEx(__FILE__, __LINE__);
 
-                    certVerEx.message = OpenSSL::getVerificationError(verifyError);
+                    certVerEx.message = getVerificationError(verifyError);
 
-                    string errors = OpenSSL::sslGetErrors();
+                    string errors = sslGetErrors();
 
                     if(!errors.empty())
                     {
@@ -311,7 +311,7 @@ IceSSL::SslClientTransceiver::handshake(int timeout)
                     ProtocolException protocolEx(__FILE__, __LINE__);
 
                     protocolEx.message = "encountered a violation of the ssl protocol during handshake\n";
-                    protocolEx.message += OpenSSL::sslGetErrors();
+                    protocolEx.message += sslGetErrors();
 
                     throw protocolEx;
                 }
@@ -353,7 +353,7 @@ IceSSL::SslClientTransceiver::showConnectionInfo()
     // Only in extreme cases do we enable this, partially because it doesn't use the Logger.
     if((_traceLevels->security >= SECURITY_PROTOCOL_DEBUG) && 0)
     {
-        OpenSSL::BIOJanitor bioJanitor(BIO_new_fp(stdout, BIO_NOCLOSE));
+        BIOJanitor bioJanitor(BIO_new_fp(stdout, BIO_NOCLOSE));
         BIO* bio = bioJanitor.get();
 
         showCertificateChain(bio);
@@ -381,9 +381,9 @@ IceSSL::SslClientTransceiver::showConnectionInfo()
 //       but unfortunately, it appears that this is not properly picked up.
 //
 
-IceSSL::SslClientTransceiver::SslClientTransceiver(const PluginBaseIPtr& plugin,
+IceSSL::SslClientTransceiver::SslClientTransceiver(const OpenSSLPluginIPtr& plugin,
                                                    SOCKET fd,
-                                                   const OpenSSL::CertificateVerifierPtr& certVerifier,
+                                                   const CertificateVerifierPtr& certVerifier,
                                                    SSL* sslConnection) :
     SslTransceiver(plugin, fd, certVerifier, sslConnection)
 {

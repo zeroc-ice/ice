@@ -10,16 +10,16 @@
 
 #include <IceSSL/DHParams.h>
 
-void ::IceInternal::incRef(::IceSSL::OpenSSL::DHParams* p) { p->__incRef(); }
-void ::IceInternal::decRef(::IceSSL::OpenSSL::DHParams* p) { p->__decRef(); }
+void ::IceInternal::incRef(::IceSSL::DHParams* p) { p->__incRef(); }
+void ::IceInternal::decRef(::IceSSL::DHParams* p) { p->__decRef(); }
 
-IceSSL::OpenSSL::DHParams::DHParams(DH* dhParams) :
-                          _dhParams(dhParams)
+IceSSL::DHParams::DHParams(DH* dhParams) :
+    _dhParams(dhParams)
 {
     assert(_dhParams != 0);
 }
 
-IceSSL::OpenSSL::DHParams::~DHParams()
+IceSSL::DHParams::~DHParams()
 {
     if(_dhParams != 0)
     {
@@ -28,7 +28,7 @@ IceSSL::OpenSSL::DHParams::~DHParams()
 }
 
 DH*
-IceSSL::OpenSSL::DHParams::get() const
+IceSSL::DHParams::get() const
 {
     return _dhParams;
 }

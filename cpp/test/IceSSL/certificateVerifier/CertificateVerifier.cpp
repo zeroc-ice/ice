@@ -27,7 +27,7 @@ class BadCertificateVerifier : virtual public ::IceSSL::CertificateVerifier
 public:
 };
 
-class GoodCertificateVerifier : virtual public ::IceSSL::OpenSSL::CertificateVerifier
+class GoodCertificateVerifier : virtual public ::IceSSL::CertificateVerifierOpenSSL
 {
 public:
     virtual int verify(int, X509_STORE_CTX*, SSL*);

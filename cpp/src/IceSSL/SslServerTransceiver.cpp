@@ -13,7 +13,7 @@
 #include <Ice/Buffer.h>
 #include <Ice/Network.h>
 #include <IceSSL/OpenSSL.h>
-#include <IceSSL/PluginBaseI.h>
+#include <IceSSL/OpenSSLPluginI.h>
 #include <IceSSL/TraceLevels.h>
 
 #include <Ice/LocalException.h>
@@ -136,7 +136,7 @@ IceSSL::SslServerTransceiver::write(Buffer& buf, int timeout)
 
                     // Protocol Error: Unexpected EOF.
                     protocolEx.message = "encountered an EOF that violates the ssl protocol\n";
-                    protocolEx.message += IceSSL::OpenSSL::sslGetErrors();
+                    protocolEx.message += IceSSL::sslGetErrors();
 
                     throw protocolEx;
                 }
@@ -147,7 +147,7 @@ IceSSL::SslServerTransceiver::write(Buffer& buf, int timeout)
                 ProtocolException protocolEx(__FILE__, __LINE__);
 
                 protocolEx.message = "encountered a violation of the ssl protocol\n";
-                protocolEx.message += IceSSL::OpenSSL::sslGetErrors();
+                protocolEx.message += IceSSL::sslGetErrors();
 
                 throw protocolEx;
             }
@@ -218,7 +218,7 @@ IceSSL::SslServerTransceiver::handshake(int timeout)
                 ProtocolException protocolEx(__FILE__, __LINE__);
 
                 protocolEx.message = "encountered an ssl protocol violation during handshake\n";
-                protocolEx.message += IceSSL::OpenSSL::sslGetErrors();
+                protocolEx.message += IceSSL::sslGetErrors();
 
                 throw protocolEx;
             }
@@ -281,7 +281,7 @@ IceSSL::SslServerTransceiver::handshake(int timeout)
 
                     // Protocol Error: Unexpected EOF
                     protocolEx.message = "encountered an eof during handshake that violates the ssl protocol\n";
-                    protocolEx.message += IceSSL::OpenSSL::sslGetErrors();
+                    protocolEx.message += IceSSL::sslGetErrors();
 
                     throw protocolEx;
                 }
@@ -292,7 +292,7 @@ IceSSL::SslServerTransceiver::handshake(int timeout)
                 ProtocolException protocolEx(__FILE__, __LINE__);
 
                 protocolEx.message = "encountered a violation of the ssl protocol during handshake\n";
-                protocolEx.message += IceSSL::OpenSSL::sslGetErrors();
+                protocolEx.message += IceSSL::sslGetErrors();
 
                 throw protocolEx;
             }
@@ -329,7 +329,7 @@ IceSSL::SslServerTransceiver::showConnectionInfo()
     // Only in extreme cases do we enable this, partially because it doesn't use the Logger.
     if((_traceLevels->security >= IceSSL::SECURITY_PROTOCOL_DEBUG) && 0)
     {
-        IceSSL::OpenSSL::BIOJanitor bioJanitor(BIO_new_fp(stdout, BIO_NOCLOSE));
+        BIOJanitor bioJanitor(BIO_new_fp(stdout, BIO_NOCLOSE));
         BIO* bio = bioJanitor.get();
 
         showCertificateChain(bio);
@@ -351,9 +351,9 @@ IceSSL::SslServerTransceiver::showConnectionInfo()
 //       but unfortunately, it appears that this is not properly picked up.
 //
 
-IceSSL::SslServerTransceiver::SslServerTransceiver(const PluginBaseIPtr& plugin,
+IceSSL::SslServerTransceiver::SslServerTransceiver(const OpenSSLPluginIPtr& plugin,
                                                    SOCKET fd,
-                                                   const IceSSL::OpenSSL::CertificateVerifierPtr& certVerifier,
+                                                   const IceSSL::CertificateVerifierPtr& certVerifier,
                                                    SSL* sslConnection) :
     SslTransceiver(plugin, fd, certVerifier, sslConnection)
 {

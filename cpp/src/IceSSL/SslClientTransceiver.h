@@ -11,11 +11,7 @@
 #ifndef ICE_SSL_CLIENT_TRANSCEIVER_H
 #define ICE_SSL_CLIENT_TRANSCEIVER_H
 
-#include <Ice/LoggerF.h>
 #include <IceSSL/SslTransceiver.h>
-#include <IceSSL/ContextOpenSSLClient.h>
-#include <IceSSL/PluginBaseIF.h>
-#include <IceSSL/TraceLevelsF.h>
 
 namespace IceSSL
 {
@@ -30,7 +26,7 @@ public:
 
 protected:
     virtual void showConnectionInfo();
-    SslClientTransceiver(const PluginBaseIPtr&, SOCKET, const OpenSSL::CertificateVerifierPtr&, SSL*);
+    SslClientTransceiver(const OpenSSLPluginIPtr&, SOCKET, const CertificateVerifierPtr&, SSL*);
     friend class ClientContext;
 };
 

@@ -11,7 +11,7 @@
 #include <Ice/Logger.h>
 
 #include <IceSSL/Exception.h>
-#include <IceSSL/ContextOpenSSLServer.h>
+#include <IceSSL/ServerContext.h>
 #include <IceSSL/SslServerTransceiver.h>
 #include <IceSSL/OpenSSLUtils.h>
 #include <IceSSL/TraceLevels.h>
@@ -71,11 +71,11 @@ IceSSL::ServerContext::configure(const GeneralConfig& generalConfig,
 }
 
 IceSSL::SslTransceiverPtr 
-IceSSL::ServerContext::createTransceiver(int socket, const PluginBaseIPtr& plugin)
+IceSSL::ServerContext::createTransceiver(int socket, const OpenSSLPluginIPtr& plugin)
 {
     if(_sslContext == 0)
     {
-        OpenSSL::ContextNotConfiguredException contextEx(__FILE__, __LINE__);
+        ContextNotConfiguredException contextEx(__FILE__, __LINE__);
 
         throw contextEx;
     }
@@ -126,7 +126,7 @@ IceSSL::ServerContext::loadCertificateAuthority(const CertificateAuthority& cert
         if(_traceLevels->security >= SECURITY_WARNINGS)
         {
             string errorString = "unable to load certificate authorities certificate names from " + caFile + "\n";
-            errorString += OpenSSL::sslGetErrors();
+            errorString += sslGetErrors();
             _logger->trace(_traceLevels->securityCat, "WRN " + errorString);
         }
     }

@@ -11,7 +11,7 @@
 #ifndef ICESSL_SERVER_CONTEXT_H
 #define ICESSL_SERVER_CONTEXT_H
 
-#include <IceSSL/ContextOpenSSL.h>
+#include <IceSSL/Context.h>
 
 namespace IceSSL
 {
@@ -25,7 +25,7 @@ public:
                            const BaseCertificates&);
 
     // Takes a socket fd as the first parameter.
-    virtual SslTransceiverPtr createTransceiver(int, const PluginBaseIPtr&);
+    virtual SslTransceiverPtr createTransceiver(int, const OpenSSLPluginIPtr&);
 
 protected:
 
@@ -33,7 +33,7 @@ protected:
 
     virtual void loadCertificateAuthority(const CertificateAuthority& certAuth);
 
-    friend class OpenSSL::PluginI;
+    friend class OpenSSLPluginI;
 };
 
 }

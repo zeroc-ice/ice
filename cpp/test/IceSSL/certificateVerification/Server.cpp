@@ -21,8 +21,8 @@ class KeyManagerI : public KeyManager
 {
 
 public:
-    KeyManagerI(const IceSSL::OpenSSL::RSAKeyPairPtr&, const IceSSL::OpenSSL::RSAKeyPairPtr&,
-                const IceSSL::OpenSSL::RSAKeyPairPtr&, const IceSSL::OpenSSL::RSAKeyPairPtr&,
+    KeyManagerI(const IceSSL::RSAKeyPairPtr&, const IceSSL::RSAKeyPairPtr&,
+                const IceSSL::RSAKeyPairPtr&, const IceSSL::RSAKeyPairPtr&,
                 const Ice::CommunicatorPtr&);
 
     virtual void getServerCerts(Ice::ByteSeq&, Ice::ByteSeq&, const ::Ice::Current&);
@@ -31,17 +31,17 @@ public:
     virtual void shutdown(const ::Ice::Current&);
 
 protected:
-    IceSSL::OpenSSL::RSAKeyPairPtr _serverTrusted;
-    IceSSL::OpenSSL::RSAKeyPairPtr _serverUntrusted;
-    IceSSL::OpenSSL::RSAKeyPairPtr _clientTrusted;
-    IceSSL::OpenSSL::RSAKeyPairPtr _clientUntrusted;
+    IceSSL::RSAKeyPairPtr _serverTrusted;
+    IceSSL::RSAKeyPairPtr _serverUntrusted;
+    IceSSL::RSAKeyPairPtr _clientTrusted;
+    IceSSL::RSAKeyPairPtr _clientUntrusted;
     Ice::CommunicatorPtr _communicator;
 };
 
-KeyManagerI::KeyManagerI(const IceSSL::OpenSSL::RSAKeyPairPtr& serverTrusted,
-                         const IceSSL::OpenSSL::RSAKeyPairPtr& serverUntrusted,
-                         const IceSSL::OpenSSL::RSAKeyPairPtr& clientTrusted,
-                         const IceSSL::OpenSSL::RSAKeyPairPtr& clientUntrusted,
+KeyManagerI::KeyManagerI(const IceSSL::RSAKeyPairPtr& serverTrusted,
+                         const IceSSL::RSAKeyPairPtr& serverUntrusted,
+                         const IceSSL::RSAKeyPairPtr& clientTrusted,
+                         const IceSSL::RSAKeyPairPtr& clientUntrusted,
                          const Ice::CommunicatorPtr& communicator) :
             _serverTrusted(serverTrusted), _serverUntrusted(serverUntrusted),
             _clientTrusted(clientTrusted), _clientUntrusted(clientUntrusted),
@@ -108,9 +108,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     IceSSL::PluginPtr sslPlugin = IceSSL::PluginPtr::dynamicCast(plugin);
     sslPlugin->configure(IceSSL::Server);
 
-    IceSSL::OpenSSL::RSACertificateGen certGen;
+    IceSSL::RSACertificateGen certGen;
 
-    IceSSL::OpenSSL::RSACertificateGenContext certGenContext;
+    IceSSL::RSACertificateGenContext certGenContext;
 
     // Base setup.
     certGenContext.setCountry("US");
@@ -119,12 +119,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     certGenContext.setOrganization("Some Company Inc.");
     certGenContext.setOrgainizationalUnit("Sales");
     certGenContext.setBitStrength(1024);
-    certGenContext.setSecondsValid(IceSSL::OpenSSL::RSACertificateGenContext::hoursToSeconds(1));
+    certGenContext.setSecondsValid(IceSSL::RSACertificateGenContext::hoursToSeconds(1));
 
-    IceSSL::OpenSSL::RSAKeyPairPtr serverTrusted;
-    IceSSL::OpenSSL::RSAKeyPairPtr serverUntrusted;
-    IceSSL::OpenSSL::RSAKeyPairPtr clientTrusted;
-    IceSSL::OpenSSL::RSAKeyPairPtr clientUntrusted;
+    IceSSL::RSAKeyPairPtr serverTrusted;
+    IceSSL::RSAKeyPairPtr serverUntrusted;
+    IceSSL::RSAKeyPairPtr clientTrusted;
+    IceSSL::RSAKeyPairPtr clientUntrusted;
 
     certGenContext.setCommonName("Server Trusted");
     serverTrusted = certGen.generate(certGenContext);

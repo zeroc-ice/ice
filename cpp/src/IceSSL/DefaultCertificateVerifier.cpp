@@ -18,16 +18,15 @@
 
 using namespace std;
 
-IceSSL::OpenSSL::DefaultCertificateVerifier::DefaultCertificateVerifier(const IceSSL::TraceLevelsPtr& traceLevels,
-                                                                        const Ice::LoggerPtr& logger) :
+IceSSL::DefaultCertificateVerifier::DefaultCertificateVerifier(const IceSSL::TraceLevelsPtr& traceLevels,
+                                                               const Ice::LoggerPtr& logger) :
     _traceLevels(traceLevels),
     _logger(logger)
 {
 }
 
 int
-IceSSL::OpenSSL::DefaultCertificateVerifier::verify(int preVerifyOkay, X509_STORE_CTX* x509StoreContext,
-                                                    SSL* sslConnection)
+IceSSL::DefaultCertificateVerifier::verify(int preVerifyOkay, X509_STORE_CTX* x509StoreContext, SSL* sslConnection)
 {
     //
     // Default verification steps.

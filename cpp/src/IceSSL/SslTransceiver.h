@@ -16,7 +16,7 @@
 #include <Ice/Buffer.h>
 #include <IceUtil/Mutex.h>
 #include <IceSSL/SslTransceiverF.h>
-#include <IceSSL/PluginBaseIF.h>
+#include <IceSSL/OpenSSLPluginIF.h>
 #include <IceSSL/TraceLevelsF.h>
 #include <IceSSL/CertificateVerifierF.h>
 #include <IceSSL/CertificateVerifierOpenSSL.h>
@@ -195,7 +195,7 @@ protected:
 
     ConnectPhase _phase;
  
-    SslTransceiver(const PluginBaseIPtr&, SOCKET, const IceSSL::OpenSSL::CertificateVerifierPtr&, SSL*);
+    SslTransceiver(const OpenSSLPluginIPtr&, SOCKET, const IceSSL::CertificateVerifierPtr&, SSL*);
     virtual ~SslTransceiver();
 
     TraceLevelsPtr _traceLevels;
@@ -204,7 +204,7 @@ protected:
     fd_set _rFdSet;
     fd_set _wFdSet;
 
-    IceSSL::OpenSSL::CertificateVerifierPtr _certificateVerifier;
+    IceSSL::CertificateVerifierPtr _certificateVerifier;
 };
 
 }

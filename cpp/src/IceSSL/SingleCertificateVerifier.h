@@ -17,10 +17,7 @@
 namespace IceSSL
 {
 
-namespace OpenSSL
-{
-
-class SingleCertificateVerifier : public IceSSL::OpenSSL::CertificateVerifier
+class SingleCertificateVerifier : public IceSSL::CertificateVerifierOpenSSL
 {
 public:
 
@@ -34,8 +31,6 @@ protected:
 
     Ice::ByteSeq _publicKey;
 };
-
-}
 
 }
 

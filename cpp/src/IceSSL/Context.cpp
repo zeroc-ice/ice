@@ -16,7 +16,7 @@
 #include <IceSSL/RSAKeyPair.h>
 #include <IceSSL/CertificateDesc.h>
 #include <IceSSL/SslTransceiver.h>
-#include <IceSSL/ContextOpenSSL.h>
+#include <IceSSL/Context.h>
 #include <IceSSL/OpenSSLJanitors.h>
 #include <IceSSL/OpenSSLUtils.h>
 #include <IceSSL/TraceLevels.h>
@@ -47,7 +47,7 @@ IceSSL::Context::isConfigured()
 }
 
 void
-IceSSL::Context::setCertificateVerifier(const OpenSSL::CertificateVerifierPtr& verifier)
+IceSSL::Context::setCertificateVerifier(const CertificateVerifierPtr& verifier)
 {
     _certificateVerifier = verifier;
 }
@@ -55,7 +55,7 @@ IceSSL::Context::setCertificateVerifier(const OpenSSL::CertificateVerifierPtr& v
 void
 IceSSL::Context::addTrustedCertificateBase64(const string& trustedCertString)
 {
-    OpenSSL::RSAPublicKey pubKey(trustedCertString);
+    RSAPublicKey pubKey(trustedCertString);
 
     addTrustedCertificate(pubKey);
 }
@@ -63,7 +63,7 @@ IceSSL::Context::addTrustedCertificateBase64(const string& trustedCertString)
 void
 IceSSL::Context::addTrustedCertificate(const Ice::ByteSeq& trustedCert)
 {
-    OpenSSL::RSAPublicKey pubKey(trustedCert);
+    RSAPublicKey pubKey(trustedCert);
 
     addTrustedCertificate(pubKey);
 }
@@ -145,7 +145,7 @@ IceSSL::Context::Context(const TraceLevelsPtr& traceLevels, const LoggerPtr& log
     _logger(logger),
     _properties(properties)
 {
-    _certificateVerifier = new OpenSSL::DefaultCertificateVerifier(traceLevels, logger);
+    _certificateVerifier = new DefaultCertificateVerifier(traceLevels, logger);
     _sslContext = 0;
 
     _maxPassphraseRetriesDefault = "4";
@@ -214,9 +214,9 @@ IceSSL::Context::createContext(SslProtocol sslProtocol)
 
     if(_sslContext == 0)
     {
-        OpenSSL::ContextInitializationException contextInitEx(__FILE__, __LINE__);
+        ContextInitializationException contextInitEx(__FILE__, __LINE__);
 
-        contextInitEx.message = "unable to create ssl context\n" + OpenSSL::sslGetErrors();
+        contextInitEx.message = "unable to create ssl context\n" + sslGetErrors();
 
         throw contextInitEx;
     }
@@ -320,10 +320,10 @@ IceSSL::Context::checkKeyCert()
     // set against the SSL context match up.
     if(!SSL_CTX_check_private_key(_sslContext))
     {
-        OpenSSL::CertificateKeyMatchException certKeyMatchEx(__FILE__, __LINE__);
+        CertificateKeyMatchException certKeyMatchEx(__FILE__, __LINE__);
 
         certKeyMatchEx.message = "private key does not match the certificate public key";
-        string sslError = OpenSSL::sslGetErrors();
+        string sslError = sslGetErrors();
 
         if(!sslError.empty())
         {
@@ -336,11 +336,11 @@ IceSSL::Context::checkKeyCert()
 }
 
 void
-IceSSL::Context::addTrustedCertificate(const OpenSSL::RSAPublicKey& trustedCertificate)
+IceSSL::Context::addTrustedCertificate(const RSAPublicKey& trustedCertificate)
 {
     if(_sslContext == 0)
     {
-        OpenSSL::ContextNotConfiguredException contextConfigEx(__FILE__, __LINE__);
+        ContextNotConfiguredException contextConfigEx(__FILE__, __LINE__);
 
         contextConfigEx.message = "ssl context not configured";
 
@@ -353,9 +353,9 @@ IceSSL::Context::addTrustedCertificate(const OpenSSL::RSAPublicKey& trustedCerti
 
     if(X509_STORE_add_cert(certStore, trustedCertificate.getX509PublicKey()) == 0)
     {
-        OpenSSL::TrustedCertificateAddException trustEx(__FILE__, __LINE__);
+        TrustedCertificateAddException trustEx(__FILE__, __LINE__);
 
-        trustEx.message = OpenSSL::sslGetErrors();
+        trustEx.message = sslGetErrors();
 
         throw trustEx;
     }
@@ -379,12 +379,12 @@ IceSSL::Context::addKeyCert(const CertificateFile& privateKey, const Certificate
         // Set which Public Key file to use.
         if(SSL_CTX_use_certificate_file(_sslContext, publicFile, publicEncoding) <= 0)
         {
-            OpenSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
+            CertificateLoadException certLoadEx(__FILE__, __LINE__);
 
             certLoadEx.message = "unable to load certificate from '";
             certLoadEx.message += publicFile;
             certLoadEx.message += "'\n";
-            certLoadEx.message += OpenSSL::sslGetErrors();
+            certLoadEx.message += sslGetErrors();
 
             throw certLoadEx;
         }
@@ -407,7 +407,7 @@ IceSSL::Context::addKeyCert(const CertificateFile& privateKey, const Certificate
         while(retryCount != _maxPassphraseTries)
         {
             // We ignore the errors and remove them from the stack.
-            string errorString = OpenSSL::sslGetErrors();
+            string errorString = sslGetErrors();
 
             // Set which Private Key file to use.
             pkLoadResult = SSL_CTX_use_PrivateKey_file(_sslContext, privKeyFile, privKeyFileType);
@@ -444,10 +444,10 @@ IceSSL::Context::addKeyCert(const CertificateFile& privateKey, const Certificate
             //       key matches the private key when calling SSL_CTX_use_PrivateKey_file().
             if(errCode == X509_R_KEY_VALUES_MISMATCH || errCode == X509_R_KEY_TYPE_MISMATCH)
             {
-                OpenSSL::CertificateKeyMatchException certKeyMatchEx(__FILE__, __LINE__);
+                CertificateKeyMatchException certKeyMatchEx(__FILE__, __LINE__);
 
                 certKeyMatchEx.message = "private key does not match the certificate public key";
-                string sslError = OpenSSL::sslGetErrors();
+                string sslError = sslGetErrors();
 
                 if(!sslError.empty())
                 {
@@ -459,12 +459,12 @@ IceSSL::Context::addKeyCert(const CertificateFile& privateKey, const Certificate
             }
             else
             {
-                OpenSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
+                PrivateKeyLoadException pklEx(__FILE__, __LINE__);
 
                 pklEx.message = "unable to load private key from '";
                 pklEx.message += privKeyFile;
                 pklEx.message += "'\n";
-                pklEx.message += OpenSSL::sslGetErrors();
+                pklEx.message += sslGetErrors();
 
 	        throw pklEx;
             }
@@ -475,11 +475,11 @@ IceSSL::Context::addKeyCert(const CertificateFile& privateKey, const Certificate
 }
 
 void
-IceSSL::Context::addKeyCert(const OpenSSL::RSAKeyPair& keyPair)
+IceSSL::Context::addKeyCert(const RSAKeyPair& keyPair)
 {
     if(_sslContext == 0)
     {
-        OpenSSL::ContextNotConfiguredException contextConfigEx(__FILE__, __LINE__);
+        ContextNotConfiguredException contextConfigEx(__FILE__, __LINE__);
 
         contextConfigEx.message = "ssl context not configured";
 
@@ -494,10 +494,10 @@ IceSSL::Context::addKeyCert(const OpenSSL::RSAKeyPair& keyPair)
     // Set which Public Key file to use.
     if(SSL_CTX_use_certificate(_sslContext, keyPair.getX509PublicKey()) <= 0)
     {
-        OpenSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
+        CertificateLoadException certLoadEx(__FILE__, __LINE__);
 
         certLoadEx.message = "unable to set certificate from memory";
-        string sslError = OpenSSL::sslGetErrors();
+        string sslError = sslGetErrors();
 
         if(!sslError.empty())
         {
@@ -517,10 +517,10 @@ IceSSL::Context::addKeyCert(const OpenSSL::RSAKeyPair& keyPair)
         //       key matches the private key when calling SSL_CTX_use_PrivateKey_file().
         if(errCode == X509_R_KEY_VALUES_MISMATCH || errCode == X509_R_KEY_TYPE_MISMATCH)
         {
-            OpenSSL::CertificateKeyMatchException certKeyMatchEx(__FILE__, __LINE__);
+            CertificateKeyMatchException certKeyMatchEx(__FILE__, __LINE__);
 
             certKeyMatchEx.message = "private key does not match the certificate public key";
-            string sslError = OpenSSL::sslGetErrors();
+            string sslError = sslGetErrors();
 
             if(!sslError.empty())
             {
@@ -532,10 +532,10 @@ IceSSL::Context::addKeyCert(const OpenSSL::RSAKeyPair& keyPair)
         }
         else
         {
-            OpenSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
+            PrivateKeyLoadException pklEx(__FILE__, __LINE__);
 
             pklEx.message = "unable to set private key from memory";
-            string sslError = OpenSSL::sslGetErrors();
+            string sslError = sslGetErrors();
 
             if(!sslError.empty())
             {
@@ -566,7 +566,7 @@ IceSSL::Context::addKeyCert(const Ice::ByteSeq& privateKey, const Ice::ByteSeq& 
     }
 
     // Make a key pair based on the DER encoded byte sequences.
-    addKeyCert(OpenSSL::RSAKeyPair(privKey, publicKey));
+    addKeyCert(RSAKeyPair(privKey, publicKey));
 }
 
 void
@@ -585,7 +585,7 @@ IceSSL::Context::addKeyCert(const string& privateKey, const string& publicKey)
     }
 
     // Make a key pair based on the Base64 encoded strings.
-    addKeyCert(OpenSSL::RSAKeyPair(privKey, publicKey));
+    addKeyCert(RSAKeyPair(privKey, publicKey));
 }
 
 SSL*
@@ -621,7 +621,7 @@ IceSSL::Context::setCipherList(const string& cipherList)
         (_traceLevels->security >= IceSSL::SECURITY_WARNINGS))
     {
         string errorString = "WRN error setting cipher list " + cipherList + " -- using default list\n";
-        errorString += OpenSSL::sslGetErrors();
+        errorString += sslGetErrors();
         _logger->trace(_traceLevels->securityCat, errorString);
     }
 }
@@ -637,7 +637,7 @@ IceSSL::Context::setDHParams(const BaseCertificates& baseCerts)
     // File type must be PEM - that's the only way we can load DH Params, apparently.
     if((!dhFile.empty()) && (encoding == SSL_FILETYPE_PEM))
     {
-        dh = OpenSSL::loadDHParam(dhFile.c_str());
+        dh = loadDHParam(dhFile.c_str());
     }
 
     if(dh == 0)
@@ -648,7 +648,7 @@ IceSSL::Context::setDHParams(const BaseCertificates& baseCerts)
                            "WRN Could not load Diffie-Hellman params, generating a temporary 512bit key.");
         }
 
-        dh = OpenSSL::getTempDH512();
+        dh = getTempDH512();
     }
 
     if(dh != 0)

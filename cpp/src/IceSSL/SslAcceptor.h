@@ -14,7 +14,7 @@
 #include <Ice/TransceiverF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/Acceptor.h>
-#include <IceSSL/PluginBaseIF.h>
+#include <IceSSL/OpenSSLPluginIF.h>
 #include <IceSSL/TraceLevelsF.h>
 
 #ifndef _WIN32
@@ -41,11 +41,11 @@ public:
 
 private:
 
-    SslAcceptor(const PluginBaseIPtr&, const std::string&, int);
+    SslAcceptor(const OpenSSLPluginIPtr&, const std::string&, int);
     virtual ~SslAcceptor();
     friend class SslEndpoint;
 
-    PluginBaseIPtr _plugin;
+    OpenSSLPluginIPtr _plugin;
     TraceLevelsPtr _traceLevels;
     ::Ice::LoggerPtr _logger;
     SOCKET _fd;

@@ -22,105 +22,103 @@
 using std::string;
 using std::back_inserter;
 
-using namespace IceSSL::OpenSSL;
-
 long
-IceSSL::OpenSSL::RSACertificateGenContext::minutesToSeconds(long minutes)
+IceSSL::RSACertificateGenContext::minutesToSeconds(long minutes)
 {
     return minutes * 60L;
 }
 
 long
-IceSSL::OpenSSL::RSACertificateGenContext::hoursToSeconds(long hours)
+IceSSL::RSACertificateGenContext::hoursToSeconds(long hours)
 {
     return minutesToSeconds(hours * 60L);
 }
 
 long
-IceSSL::OpenSSL::RSACertificateGenContext::daysToSeconds(long days)
+IceSSL::RSACertificateGenContext::daysToSeconds(long days)
 {
     return hoursToSeconds(days * 24L);
 }
 
 long
-IceSSL::OpenSSL::RSACertificateGenContext::weeksToSeconds(long weeks)
+IceSSL::RSACertificateGenContext::weeksToSeconds(long weeks)
 {
     return daysToSeconds(weeks * 7L);
 }
 
 long
-IceSSL::OpenSSL::RSACertificateGenContext::yearsToSeconds(long years)
+IceSSL::RSACertificateGenContext::yearsToSeconds(long years)
 {
     return weeksToSeconds(years * 365L);
 }
 
-IceSSL::OpenSSL::RSACertificateGenContext::RSACertificateGenContext() :
+IceSSL::RSACertificateGenContext::RSACertificateGenContext() :
                                           _modulusLength(0),
                                           _secondsValid(0),
                                           _issuedAdjustment(0)
 {
 }
 
-IceSSL::OpenSSL::RSACertificateGenContext::~RSACertificateGenContext()
+IceSSL::RSACertificateGenContext::~RSACertificateGenContext()
 {
 }
 
 void
-IceSSL::OpenSSL::RSACertificateGenContext::setCountry(const string& country)
+IceSSL::RSACertificateGenContext::setCountry(const string& country)
 {
     _country = country;
 }
 
 void
-IceSSL::OpenSSL::RSACertificateGenContext::setStateProvince(const string& stateProvince)
+IceSSL::RSACertificateGenContext::setStateProvince(const string& stateProvince)
 {
     _stateProvince = stateProvince;
 }
 
 void
-IceSSL::OpenSSL::RSACertificateGenContext::setLocality(const string& locality)
+IceSSL::RSACertificateGenContext::setLocality(const string& locality)
 {
     _locality = locality;
 }
 
 void
-IceSSL::OpenSSL::RSACertificateGenContext::setOrganization(const string& organization)
+IceSSL::RSACertificateGenContext::setOrganization(const string& organization)
 {
     _organization = organization;
 }
 
 void
-IceSSL::OpenSSL::RSACertificateGenContext::setOrgainizationalUnit(const string& organizationalUnit)
+IceSSL::RSACertificateGenContext::setOrgainizationalUnit(const string& organizationalUnit)
 {
     _organizationalUnit = organizationalUnit;
 }
 
 void
-IceSSL::OpenSSL::RSACertificateGenContext::setCommonName(const string& commonName)
+IceSSL::RSACertificateGenContext::setCommonName(const string& commonName)
 {
     _commonName = commonName;
 }
 
 void
-IceSSL::OpenSSL::RSACertificateGenContext::setBitStrength(int bitStrength)
+IceSSL::RSACertificateGenContext::setBitStrength(int bitStrength)
 {
     _modulusLength = bitStrength;
 }
 
 void
-IceSSL::OpenSSL::RSACertificateGenContext::setSecondsValid(long secondsValid)
+IceSSL::RSACertificateGenContext::setSecondsValid(long secondsValid)
 {
     _secondsValid = secondsValid;
 }
 
 void
-IceSSL::OpenSSL::RSACertificateGenContext::setIssuedAdjustment(long issuedAdjustment)
+IceSSL::RSACertificateGenContext::setIssuedAdjustment(long issuedAdjustment)
 {
     _issuedAdjustment = issuedAdjustment;
 }
 
 unsigned char*
-IceSSL::OpenSSL::RSACertificateGenContext::getCountry() const
+IceSSL::RSACertificateGenContext::getCountry() const
 {
     unsigned char* country = reinterpret_cast<unsigned char *>(const_cast<char*>(_country.c_str()));
 
@@ -130,7 +128,7 @@ IceSSL::OpenSSL::RSACertificateGenContext::getCountry() const
 }
 
 unsigned char*
-IceSSL::OpenSSL::RSACertificateGenContext::getStateProvince() const
+IceSSL::RSACertificateGenContext::getStateProvince() const
 {
     unsigned char* stateProvince =  reinterpret_cast<unsigned char *>(const_cast<char*>(_stateProvince.c_str()));
 
@@ -140,7 +138,7 @@ IceSSL::OpenSSL::RSACertificateGenContext::getStateProvince() const
 }
 
 unsigned char*
-IceSSL::OpenSSL::RSACertificateGenContext::getLocality() const
+IceSSL::RSACertificateGenContext::getLocality() const
 {
     unsigned char* locality = reinterpret_cast<unsigned char *>(const_cast<char*>(_locality.c_str()));
 
@@ -150,7 +148,7 @@ IceSSL::OpenSSL::RSACertificateGenContext::getLocality() const
 }
 
 unsigned char*
-IceSSL::OpenSSL::RSACertificateGenContext::getOrganization() const
+IceSSL::RSACertificateGenContext::getOrganization() const
 {
     unsigned char* organization = reinterpret_cast<unsigned char *>(const_cast<char*>(_organization.c_str()));
 
@@ -160,7 +158,7 @@ IceSSL::OpenSSL::RSACertificateGenContext::getOrganization() const
 }
 
 unsigned char*
-IceSSL::OpenSSL::RSACertificateGenContext::getOrgainizationalUnit() const
+IceSSL::RSACertificateGenContext::getOrgainizationalUnit() const
 {
     unsigned char* orgUnit = reinterpret_cast<unsigned char *>(const_cast<char*>(_organizationalUnit.c_str()));
 
@@ -170,7 +168,7 @@ IceSSL::OpenSSL::RSACertificateGenContext::getOrgainizationalUnit() const
 }
 
 unsigned char*
-IceSSL::OpenSSL::RSACertificateGenContext::getCommonName() const
+IceSSL::RSACertificateGenContext::getCommonName() const
 {
     unsigned char* commonName = reinterpret_cast<unsigned char *>(const_cast<char*>(_commonName.c_str()));
 
@@ -180,34 +178,34 @@ IceSSL::OpenSSL::RSACertificateGenContext::getCommonName() const
 }
 
 int
-IceSSL::OpenSSL::RSACertificateGenContext::getModulusLength() const
+IceSSL::RSACertificateGenContext::getModulusLength() const
 {
     return _modulusLength;
 }
 
 long
-IceSSL::OpenSSL::RSACertificateGenContext::getSecondsValid() const
+IceSSL::RSACertificateGenContext::getSecondsValid() const
 {
     return _secondsValid;
 }
 
 long
-IceSSL::OpenSSL::RSACertificateGenContext::getIssuedAdjustment() const
+IceSSL::RSACertificateGenContext::getIssuedAdjustment() const
 {
     return _issuedAdjustment;
 }
 
-IceSSL::OpenSSL::RSACertificateGen::RSACertificateGen()
+IceSSL::RSACertificateGen::RSACertificateGen()
 {
     ERR_load_crypto_strings();
 }
 
-IceSSL::OpenSSL::RSACertificateGen::~RSACertificateGen()
+IceSSL::RSACertificateGen::~RSACertificateGen()
 {
 }
 
-IceSSL::OpenSSL::RSAKeyPairPtr
-IceSSL::OpenSSL::RSACertificateGen::generate(const RSACertificateGenContext& context)
+IceSSL::RSAKeyPairPtr
+IceSSL::RSACertificateGen::generate(const RSACertificateGenContext& context)
 {
     // Generate an RSA key pair.
     RSAJanitor rsaJanitor(RSA_generate_key(context.getModulusLength(), RSA_F4, 0, 0));
@@ -290,8 +288,8 @@ IceSSL::OpenSSL::RSACertificateGen::generate(const RSACertificateGenContext& con
     return keyPairPtr;
 }
 
-IceSSL::OpenSSL::RSAKeyPairPtr
-IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, const std::string& certFile)
+IceSSL::RSAKeyPairPtr
+IceSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, const std::string& certFile)
 {
     //
     // Read in the X509 Certificate Structure
@@ -299,7 +297,7 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
     BIOJanitor certBIO(BIO_new_file(certFile.c_str(), "r"));
     if(certBIO.get() == 0)
     {
-        IceSSL::OpenSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
+        IceSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
 
         certLoadEx.message = "unable to load certificate from '";
         certLoadEx.message += certFile;
@@ -313,7 +311,7 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
 
     if(x509Janitor.get() == 0)
     {
-        IceSSL::OpenSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
+        IceSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
 
         certLoadEx.message = "unable to load certificate from '";
         certLoadEx.message += certFile;
@@ -329,7 +327,7 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
     BIOJanitor keyBIO(BIO_new_file(keyFile.c_str(), "r"));
     if(keyBIO.get() == 0)
     {
-        IceSSL::OpenSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
+        IceSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
 
         pklEx.message = "unable to load private key from '";
         pklEx.message += keyFile;
@@ -343,7 +341,7 @@ IceSSL::OpenSSL::RSACertificateGen::loadKeyPair(const std::string& keyFile, cons
 
     if(rsaJanitor.get() == 0)
     {
-        IceSSL::OpenSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
+        IceSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
 
         pklEx.message = "unable to load private key from '";
         pklEx.message += keyFile;

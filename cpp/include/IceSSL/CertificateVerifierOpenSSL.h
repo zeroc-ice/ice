@@ -27,29 +27,24 @@
 namespace IceSSL
 {
 
-namespace OpenSSL
-{
-
-class ICE_SSL_API CertificateVerifier : public IceSSL::CertificateVerifier
+class ICE_SSL_API CertificateVerifierOpenSSL : public IceSSL::CertificateVerifier
 {
 public:
 
-    virtual ~CertificateVerifier();
+    virtual ~CertificateVerifierOpenSSL();
 
     virtual int verify(int, X509_STORE_CTX*, SSL*) = 0;
 };
 
-typedef IceInternal::Handle<IceSSL::OpenSSL::CertificateVerifier> CertificateVerifierPtr;
-
-}
+typedef IceInternal::Handle<IceSSL::CertificateVerifierOpenSSL> CertificateVerifierOpenSSLPtr;
 
 }
 
 namespace IceInternal
 {
 
-ICE_SSL_API void incRef(IceSSL::OpenSSL::CertificateVerifier*);
-ICE_SSL_API void decRef(IceSSL::OpenSSL::CertificateVerifier*);
+ICE_SSL_API void incRef(IceSSL::CertificateVerifierOpenSSL*);
+ICE_SSL_API void decRef(IceSSL::CertificateVerifierOpenSSL*);
 
 }
 

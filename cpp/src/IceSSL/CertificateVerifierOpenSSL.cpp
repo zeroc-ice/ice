@@ -10,18 +10,18 @@
 
 #include <IceSSL/CertificateVerifierOpenSSL.h>
 
-IceSSL::OpenSSL::CertificateVerifier::~CertificateVerifier()
+IceSSL::CertificateVerifierOpenSSL::~CertificateVerifierOpenSSL()
 {
 }
 
 void
-IceInternal::incRef(::IceSSL::OpenSSL::CertificateVerifier* p)
+IceInternal::incRef(::IceSSL::CertificateVerifierOpenSSL* p)
 {
     p->__incRef();
 }
 
 void
-IceInternal::decRef(::IceSSL::OpenSSL::CertificateVerifier* p)
+IceInternal::decRef(::IceSSL::CertificateVerifierOpenSSL* p)
 {
     p->__decRef();
 }

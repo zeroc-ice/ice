@@ -97,49 +97,49 @@ IceSSL::CertificateVerifierTypeException::ice_print(ostream& out) const
 }
 
 void
-IceSSL::OpenSSL::ContextException::ice_print(ostream& out) const
+IceSSL::ContextException::ice_print(ostream& out) const
 {
     SslException::ice_print(out);
 }
 
 void
-IceSSL::OpenSSL::ContextInitializationException::ice_print(ostream& out) const
+IceSSL::ContextInitializationException::ice_print(ostream& out) const
 {
     SslException::ice_print(out);
 }
 
 void
-IceSSL::OpenSSL::ContextNotConfiguredException::ice_print(ostream& out) const
+IceSSL::ContextNotConfiguredException::ice_print(ostream& out) const
 {
     SslException::ice_print(out);
 }
 
 void
-IceSSL::OpenSSL::UnsupportedContextException::ice_print(ostream& out) const
+IceSSL::UnsupportedContextException::ice_print(ostream& out) const
 {
     SslException::ice_print(out);
 }
 
 void
-IceSSL::OpenSSL::CertificateLoadException::ice_print(ostream& out) const
+IceSSL::CertificateLoadException::ice_print(ostream& out) const
 {
     SslException::ice_print(out);
 }
 
 void
-IceSSL::OpenSSL::PrivateKeyLoadException::ice_print(ostream& out) const
+IceSSL::PrivateKeyLoadException::ice_print(ostream& out) const
 {
     SslException::ice_print(out);
 }
 
 void
-IceSSL::OpenSSL::CertificateKeyMatchException::ice_print(ostream& out) const
+IceSSL::CertificateKeyMatchException::ice_print(ostream& out) const
 {
     SslException::ice_print(out);
 }
 
 void
-IceSSL::OpenSSL::TrustedCertificateAddException::ice_print(ostream& out) const
+IceSSL::TrustedCertificateAddException::ice_print(ostream& out) const
 {
     SslException::ice_print(out);
 }

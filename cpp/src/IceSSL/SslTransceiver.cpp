@@ -13,7 +13,7 @@
 #include <Ice/Network.h>
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/SslTransceiver.h>
-#include <IceSSL/PluginBaseI.h>
+#include <IceSSL/OpenSSLPluginI.h>
 #include <IceSSL/TraceLevels.h>
 
 // Added
@@ -33,7 +33,6 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-using namespace IceSSL::OpenSSL;
 
 //
 // Static Member Initialization
@@ -305,8 +304,8 @@ IceSSL::SslTransceiver::verifyCertificate(int preVerifyOkay, X509_STORE_CTX* x50
     assert(_certificateVerifier.get() != 0);
 
     // Get the verifier, make sure it is for OpenSSL connections
-    IceSSL::OpenSSL::CertificateVerifierPtr verifier;
-    verifier = dynamic_cast<IceSSL::OpenSSL::CertificateVerifier*>(_certificateVerifier.get());
+    CertificateVerifierOpenSSLPtr verifier;
+    verifier = dynamic_cast<CertificateVerifierOpenSSL*>(_certificateVerifier.get());
 
     // Check to make sure we have a proper verifier for the operation.
     if(verifier)
@@ -937,9 +936,9 @@ IceSSL::SslTransceiver::showClientCAList(BIO* bio, const char* connType)
 // Private Methods
 //
 
-IceSSL::SslTransceiver::SslTransceiver(const PluginBaseIPtr& plugin,
+IceSSL::SslTransceiver::SslTransceiver(const OpenSSLPluginIPtr& plugin,
                                        SOCKET fd,
-		                       const IceSSL::OpenSSL::CertificateVerifierPtr& certificateVerifier,
+		                       const CertificateVerifierPtr& certificateVerifier,
                                        SSL* sslConnection) :
     _sslConnection(sslConnection),
     _traceLevels(plugin->getTraceLevels()),
