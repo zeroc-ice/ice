@@ -466,11 +466,13 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	    ParamDeclList::const_iterator r = paramList.begin();
 	    while(r != paramList.end())
 	    {
+		O << nl;
 		if((*r)->isOutParam())
 		{
 		    O << "out ";
 		}
-		O << nl << toString((*r)->type(), p) << " <parameter>" << (*r)->name() << "</parameter>";
+		O << toString((*r)->type(), *q) << " <parameter>";
+		O << (*r)->name() << "</parameter>";
 		if(++r != paramList.end())
 		{
 		    O << ',';
@@ -1233,6 +1235,17 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container, 
 	}
 	s = getScopedMinimized(en, container);
 	tag = "constant";
+    }
+
+    OperationPtr op = OperationPtr::dynamicCast(p);
+    if(op)
+    {
+	if(withLink && op->includeLevel() == 0)
+	{
+	    linkend = containedToId(op);
+	}
+	s = getScopedMinimized(op, container);
+	tag = "function";
     }
 
     if(s.empty())
