@@ -32,7 +32,7 @@ public:
     void shutdown();
     void waitForShutdown();
 
-    Object_pptr stringToProxy(const std::string&);
+    Object_prx stringToProxy(const std::string&);
 
     ObjectAdapter_ptr createObjectAdapter(const std::string&);
     ObjectAdapter_ptr createObjectAdapter(const std::string&, const std::string&);

@@ -34,7 +34,7 @@ void ICE_API decRef(::__IceDelegateM::Ice::Object*);
 namespace Ice
 {
 
-typedef __Ice::Handle< ::__IceProxy::Ice::Object> Object_pptr;
+typedef __Ice::Handle< ::__IceProxy::Ice::Object> Object_prx;
 
 }
 

@@ -88,8 +88,8 @@ public:
     void read(std::wstring&);
     void read(std::vector<std::wstring>&);
 
-    void write(const ::Ice::Object_iptr&);
-    void read(::Ice::Object_iptr&, const std::string&);
+    void write(const ::Ice::Object_ptr&);
+    void read(::Ice::Object_ptr&, const std::string&);
 
 private:
 

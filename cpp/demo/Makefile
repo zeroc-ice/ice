@@ -12,7 +12,7 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= hello value
+SUBDIRS		= hello value latency
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

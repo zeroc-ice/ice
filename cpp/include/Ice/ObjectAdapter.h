@@ -35,15 +35,15 @@ public:
     void hold();
     void deactivate();
 
-    void add(const Object_iptr&, const std::string&);
+    void add(const Object_ptr&, const std::string&);
     void remove(const std::string&);
-    std::string identity(const Object_iptr&);
-    Object_iptr object(const std::string&);
+    std::string identity(const Object_ptr&);
+    Object_ptr object(const std::string&);
 
-    Object_pptr proxy(const std::string&);
+    Object_prx proxy(const std::string&);
 
     ::__Ice::Instance_ptr __instance() const;
-    Object_iptr __findServant(const std::string&) const;
+    Object_ptr __findServant(const std::string&) const;
 
 private:
 
@@ -55,7 +55,7 @@ private:
     ::__Ice::Instance_ptr instance_;
     std::string name_;
     std::vector< __Ice::CollectorFactory_ptr> collectorFactories_;
-    std::map<std::string, Object_iptr> objects_;
+    std::map<std::string, Object_ptr> objects_;
 };
 
 }

@@ -24,7 +24,7 @@ public:
 
     ValueFactory() { }
     virtual std::vector<std::string> ids() = 0;
-    virtual Ice::Object_iptr create(const std::string&) = 0;
+    virtual Ice::Object_ptr create(const std::string&) = 0;
 };
 
 }

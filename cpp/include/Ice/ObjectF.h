@@ -26,7 +26,7 @@ void ICE_API decRef(::Ice::Object*);
 namespace Ice
 {
 
-typedef __Ice::Handle< Object > Object_iptr;
+typedef __Ice::Handle< Object > Object_ptr;
 
 }
 

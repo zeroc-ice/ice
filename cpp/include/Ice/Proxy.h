@@ -22,8 +22,8 @@ namespace __Ice
 
 class Stream;
 
-ICE_API void write(Stream*, const ::Ice::Object_pptr&);
-ICE_API void read(Stream*, ::Ice::Object_pptr&);
+ICE_API void write(Stream*, const ::Ice::Object_prx&);
+ICE_API void read(Stream*, ::Ice::Object_prx&);
 
 }
 
@@ -39,10 +39,10 @@ public:
     bool operator==(const Object&) const;
     bool operator!=(const Object&) const;
 
-    ::Ice::Object_pptr _twoway() const;
-    ::Ice::Object_pptr _oneway() const;
-    ::Ice::Object_pptr _datagram() const;
-    ::Ice::Object_pptr _timeout(int) const;
+    ::Ice::Object_prx _twoway() const;
+    ::Ice::Object_prx _oneway() const;
+    ::Ice::Object_prx _datagram() const;
+    ::Ice::Object_prx _timeout(int) const;
 
     ::__Ice::Reference_ptr __reference() const;
     void __copyTo(Object*) const;
