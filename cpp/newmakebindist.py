@@ -790,8 +790,10 @@ def main():
         #
         sourceTarBalls = [ ("ice", "Ice-" + version, ""),
                            ("icej","IceJ-" + version, "j"),
-                           ("icecs","IceCS-" + version, "cs"),
                            ("icepy","IcePy-" + version, "py") ]
+
+	if getPlatform() == "linux":
+	    sourceTarBalls.append(("icecs","IceCS-" + version, "cs"))
 
         os.environ['ICE_HOME'] = installDir + "/Ice-" + version
         currentLibraryPath = None
