@@ -27,7 +27,7 @@ public:
 	_locator(locator), _id(id), _adapter(adapter)
     {
     }
-
+    
     virtual void ice_response(const ::Ice::ObjectPrx& obj)
     {
 	assert(obj);

@@ -703,6 +703,12 @@ Activator::activate(const string& name,
     {
 	close(fds[1]);
 
+	for(i = 0; argv[i]; i++)
+	{
+	    free(argv[i]);
+	}
+	free(argv);
+
 	for(i = 0; i < envCount; ++i)
 	{
 	    free(envArray[i]);

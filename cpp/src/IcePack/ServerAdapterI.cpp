@@ -105,6 +105,8 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
 	    out << "waiting for activation of server adapter `" << id << "'";
 	}
+
+	_factory->getWaitQueue()->add(new WaitForAdapterActivation(this, _traceLevels, cb), _waitTime);
     }
 
     //
@@ -116,16 +118,7 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
     {
 	if(svr->start(OnDemand))
 	{
-	    //
-	    // Now that the server is activated, wait for the adapter
-	    // direct proxy to be set.
-	    //
-	    Lock sync(*this);
-	    if(!_proxy)
-	    {
-		_factory->getWaitQueue()->add(new WaitForAdapterActivation(this, _traceLevels, cb), _waitTime);
-		return;
-	    }
+	    return;
 	}
     }
     catch(const Ice::ObjectNotExistException&)
@@ -136,26 +129,18 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
 	// an ObjectNotExist exception.
 	//
 	destroy(current);
-
-	Ice::ObjectNotExistException ex(__FILE__,__LINE__);
-	ex.id = current.id;
-	throw ex;
     }
 
     //
-    // The server couldn't be activated, trace and return the current
-    // adapter proxy.
+    // The server couldn't be activated, trace and return the current adapter proxy.
     //
+    if(_traceLevels->adapter > 1)
     {
-	Lock sync(*this);
-	if(_traceLevels->adapter > 1)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-	    out << "server adapter `" << id << "' activation failed, couldn't start the server";
-	}
-
-	cb->ice_response(_proxy);
-    }   
+	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
+	out << "server adapter `" << id << "' activation failed, couldn't start the server";
+    }
+    
+    _factory->getWaitQueue()->notifyAllWaitingOn(this);
 }
 
 Ice::ObjectPrx

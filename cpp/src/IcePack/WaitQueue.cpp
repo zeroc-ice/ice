@@ -11,36 +11,37 @@
 #include <IcePack/WaitQueue.h>
 
 using namespace std;
+using namespace IcePack;
 
-IcePack::WaitItem::WaitItem(const Ice::ObjectPtr& object) :
+WaitItem::WaitItem(const Ice::ObjectPtr& object) :
     _object(object)
 {
 }
 
-IcePack::WaitItem::~WaitItem()
+WaitItem::~WaitItem()
 {
 }
 
 const IceUtil::Time&
-IcePack::WaitItem:: getExpirationTime()
+WaitItem:: getExpirationTime()
 {
     return _expiration;
 }
 
 void 
-IcePack::WaitItem::setExpirationTime(const IceUtil::Time& time)
+WaitItem::setExpirationTime(const IceUtil::Time& time)
 {
     _expiration = time;
 }
 
-IcePack::WaitQueue::WaitQueue() : _destroyed(false)
+WaitQueue::WaitQueue() : _destroyed(false)
 {
 }
 
 void
-IcePack::WaitQueue::run()
+WaitQueue::run()
 {
-    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+    Lock sync(*this);
 
     while(true)
     {
@@ -124,10 +125,10 @@ IcePack::WaitQueue::run()
 }
 
 void
-IcePack::WaitQueue::destroy()
+WaitQueue::destroy()
 {
     {
-	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+	Lock sync(*this);
 	_destroyed = true;
 	notify();
     }
@@ -136,9 +137,9 @@ IcePack::WaitQueue::destroy()
 }
 
 void
-IcePack::WaitQueue::add(const WaitItemPtr& item, const IceUtil::Time& wait)
+WaitQueue::add(const WaitItemPtr& item, const IceUtil::Time& wait)
 {
-    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+    Lock sync(*this);
 
     //
     // We'll have to notify the thread if it's sleeping for good.
@@ -174,9 +175,9 @@ IcePack::WaitQueue::add(const WaitItemPtr& item, const IceUtil::Time& wait)
 }
 
 void
-IcePack::WaitQueue::notifyAllWaitingOn(const Ice::ObjectPtr& object)
+WaitQueue::notifyAllWaitingOn(const Ice::ObjectPtr& object)
 {
-    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+    Lock sync(*this);
 
     //
     // TODO: OPTIMIZATION: Use a map with the object as a key.
