@@ -883,9 +883,10 @@ ServerCleaner::visitServerStart(const ServerWrapper&, const ServerDescriptorPtr&
 
     try
     {
-	_currentServer = _serverRegistry->remove(server->name);
+	_currentServer = _serverRegistry->findByName(server->name);
 	_currentServer->setActivationMode(Manual);
 	_currentServer->stop();
+	_serverRegistry->remove(server->name);
     }
     catch(const ServerNotExistException&)
     {
