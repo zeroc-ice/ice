@@ -1,9 +1,5 @@
 To run the demo:
 
-$ export ICE_CONFIG=config
-
-Or use --Ice.Config=config for all subsequent commands.
-
 Start the IceStorm service:
 
 $ ../../../bin/icebox --Ice.Config=config_service
@@ -13,7 +9,7 @@ working directory.
 
 In a separate window:
 
-$ ../../../bin/icestormadmin -e "create time"
+$ ../../../bin/icestormadmin --Ice.Config=config -e "create time"
 $ ./subscriber
 
 In another window:
