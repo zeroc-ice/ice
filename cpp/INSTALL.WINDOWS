@@ -157,27 +157,30 @@ failure, the tests abort with "failed".
 If you want to try out any of the demos, make sure to add the "bin"
 directory, which contains DLLs and executables, to your PATH.
 
+
 ======================================================================
 Windows 98, Windows 98 SE, Windows ME, Windows NT 3.51 
 ======================================================================
+
 By default, IceUtil::Mutex and related classes are implemented using 
-Windows CriticalSection, and in particular use the 
-TryEnterCriticalSection function. This function is either not present 
-or implemented as a "no-op" call on Windows 98, Windows 98 SE, Windows 
+Windows' CriticalSection, and in particular they use the function
+TryEnterCriticalSection. This function is either not present or
+implemented as a "no-op" call on Windows 98, Windows 98 SE, Windows 
 ME and Windows NT 3.51, so default Ice builds cannot be used on these 
 versions of Windows.
-IceUtil::Mutex and related classes can also use "heavier" Mutex 
-objects; such Ice builds will work on all Windows versions (>= 98).
 
-To switch to full Mutex, you need to edit %ICE_HOME%\include\IceUtil\
-Config.h and comment out the following lines:
+IceUtil::Mutex and related classes can also use "heavier" mutex objects
+that allow Ice to work on all Windows versions (>= 98). If you wish to
+build Ice in this configuration, you must first edit the file
+%ICE_HOME%\include\IceUtil\Config.h and comment out the following lines:
+
 #   ifndef _WIN32_WINNT
         //
         // Necessary for TryEnterCriticalSection.
         //
 #       define _WIN32_WINNT 0x0400
 #   endif
-before building Ice.
+
 
 ======================================================================
 Installation
