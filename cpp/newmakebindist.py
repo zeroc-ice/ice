@@ -355,7 +355,12 @@ def getDBfiles(dbLocation):
     fileList = ['lib/db.jar']
     fileList.extend(lines)
 
-    pipe_stdin, pipe_stdout = os.popen2('find lib -name "*'  + getPlatformLibExtension() + '" -type f')
+    findCmd = ''
+    if getPlatform() == 'solaris':
+	findCmd = 'find lib -name "*'  + getPlatformLibExtension() + '" -type f -maxdepth 1'
+    else:
+	findCmd = 'find lib -name "*'  + getPlatformLibExtension() + '" -type f'
+    pipe_stdin, pipe_stdout = os.popen2(findCmd)
     lines = pipe_stdout.readlines()
     pipe_stdin.close()
     pipe_stdout.close()
