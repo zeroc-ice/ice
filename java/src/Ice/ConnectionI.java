@@ -1009,10 +1009,12 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     public void
     message(IceInternal.BasicStream stream, IceInternal.ThreadPool threadPool)
     {
-	IceInternal.OutgoingAsync outAsync = null;
-	int invoke = 0;
-	int requestId = 0;
 	byte compress = 0;
+	int requestId = 0;
+	int invokeNum = 0;
+	IceInternal.ServantManager servantManager = null;
+	ObjectAdapter adapter = null;
+	IceInternal.OutgoingAsync outAsync = null;
 
         synchronized(this)
         {
@@ -1082,7 +1084,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                             IceInternal.TraceUtil.traceRequest("received request", stream, 
 							       _logger, _traceLevels);
 			    requestId = stream.readInt();
-			    invoke = 1;
+			    invokeNum = 1;
+			    servantManager = _servantManager;
+			    adapter = _adapter;
 			    ++_dispatchCount;
                         }
                         break;
@@ -1101,12 +1105,14 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                         {
                             IceInternal.TraceUtil.traceBatchRequest("received batch request",
 								    stream, _logger, _traceLevels);
-			    invoke = stream.readInt();
-			    if(invoke < 0)
+			    invokeNum = stream.readInt();
+			    if(invokeNum < 0)
 			    {
 				throw new NegativeSizeException();
 			    }
-			    _dispatchCount += invoke;
+			    servantManager = _servantManager;
+			    adapter = _adapter;
+			    _dispatchCount += invokeNum;
                         }
                         break;
                     }
@@ -1175,14 +1181,14 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	IceInternal.Incoming in = null;
 	try
 	{
-	    while(invoke > 0)
+	    while(invokeNum > 0)
 	    {
 		
 		//
 		// Prepare the invocation.
 		//
 		boolean response = !_endpoint.datagram() && requestId != 0;
-		in = getIncoming(response, compress);
+		in = getIncoming(adapter, response, compress);
 		IceInternal.BasicStream is = in.is();
 		stream.swap(is);
 		IceInternal.BasicStream os = in.os();
@@ -1192,7 +1198,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		//
 		if(response)
 		{
-		    assert(invoke == 1); // No further invocations if a response is expected.
+		    assert(invokeNum == 1); // No further invocations if a response is expected.
 		    os.writeBlob(_replyHdr);
 		    
 		    //
@@ -1201,12 +1207,12 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		    os.writeInt(requestId);
 		}
 		
-		in.invoke(_servantManager);
+		in.invoke(servantManager);
 		
 		//
 		// If there are more invocations, we need the stream back.
 		//
-		if(--invoke > 0)
+		if(--invokeNum > 0)
 		{
 		    stream.swap(is);
                 }
@@ -1217,7 +1223,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	}
 	catch(LocalException ex)
 	{
-	    assert(invoke > 0);
+	    assert(invokeNum > 0);
 
 	    synchronized(this)
 	    {
@@ -1226,7 +1232,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	}
 	catch(AssertionError ex)
 	{
-	    assert(invoke > 0);
+	    assert(invokeNum > 0);
 
 	    //
 	    // Java only: Upon an assertion, we don't kill the whole
@@ -1257,12 +1263,12 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    // neither sendResponse() nor sendNoResponse() has been
 	    // called, then we must decrement _dispatchCount here.
 	    //
-	    if(invoke > 0)
+	    if(invokeNum > 0)
 	    {
 		synchronized(this)
 		{
 		    assert(_dispatchCount > 0);
-		    _dispatchCount -= invoke;
+		    _dispatchCount -= invokeNum;
 		    assert(_dispatchCount >= 0);
 		    if(_dispatchCount == 0)
 		    {
@@ -1703,7 +1709,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     }
 
     private IceInternal.Incoming
-    getIncoming(boolean response, byte compress)
+    getIncoming(ObjectAdapter adapter, boolean response, byte compress)
     {
         IceInternal.Incoming in = null;
 
@@ -1711,14 +1717,14 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             if(_incomingCache == null)
             {
-                in = new IceInternal.Incoming(_instance, this, _adapter, response, compress);
+                in = new IceInternal.Incoming(_instance, this, adapter, response, compress);
             }
             else
             {
                 in = _incomingCache;
                 _incomingCache = _incomingCache.next;
                 in.next = null;
-                in.reset(_instance, this, _adapter, response, compress);
+                in.reset(_instance, this, adapter, response, compress);
             }
         }
 

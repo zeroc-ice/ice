@@ -1033,11 +1033,13 @@ namespace Ice
 	
 	public override void message(IceInternal.BasicStream stream, IceInternal.ThreadPool threadPool)
 	{
-	    IceInternal.OutgoingAsync outAsync = null;
-	    int invoke = 0;
-	    int requestId = 0;
 	    byte compress = 0;
-	    
+	    int requestId = 0;
+	    int invokeNum = 0;
+	    IceInternal.ServantManager servantManager = null;
+	    ObjectAdapter adapter = null;
+	    IceInternal.OutgoingAsync outAsync = null;
+
 	    lock(this)
 	    {
 		//
@@ -1091,7 +1093,8 @@ namespace Ice
 							      _traceLevels);
 			    if(_endpoint.datagram() && _warn)
 			    {
-				_logger.warning("ignoring close connection message for datagram connection:\n" + _desc);
+				_logger.warning("ignoring close connection message for datagram connection:\n"
+						+ _desc);
 			    }
 			    else
 			    {
@@ -1111,7 +1114,9 @@ namespace Ice
 			    {
 				IceInternal.TraceUtil.traceRequest("received request", stream, _logger, _traceLevels);
 				requestId = stream.readInt();
-				invoke = 1;
+				invokeNum = 1;
+				servantManager = _servantManager;
+				adapter = _adapter;
 				++_dispatchCount;
 			    }
 			    break;
@@ -1129,12 +1134,14 @@ namespace Ice
 			    {
 				IceInternal.TraceUtil.traceBatchRequest("received batch request", stream, _logger, 
 									_traceLevels);
-				invoke = stream.readInt();
-				if(invoke < 0)
+				invokeNum = stream.readInt();
+				if(invokeNum < 0)
 				{
 				    throw new Ice.NegativeSizeException();
 				}
-				_dispatchCount += invoke;
+				servantManager = _servantManager;
+				adapter = _adapter;
+				_dispatchCount += invokeNum;
 			    }
 			    break;
 			}
@@ -1205,13 +1212,13 @@ namespace Ice
 	    IceInternal.Incoming inc = null;
 	    try
 	    {
-		while(invoke > 0)
+		while(invokeNum > 0)
 		{
 		    //
 		    // Prepare the invocation.
 		    //
 		    bool response = !_endpoint.datagram() && requestId != 0;
-		    inc = getIncoming(response, compress);
+		    inc = getIncoming(adapter, response, compress);
 		    IceInternal.BasicStream ins = inc.istr();
 		    stream.swap(ins);
 		    IceInternal.BasicStream os = inc.ostr();
@@ -1221,7 +1228,7 @@ namespace Ice
 		    //
 		    if(response)
 		    {
-			Debug.Assert(invoke == 1); // No further invocations if a response is expected.
+			Debug.Assert(invokeNum == 1); // No further invocations if a response is expected.
 			os.writeBlob(_replyHdr);
 			
 			//
@@ -1230,12 +1237,12 @@ namespace Ice
 			os.writeInt(requestId);
 		    }
 		    
-		    inc.invoke(_servantManager);
+		    inc.invoke(servantManager);
 		    
 		    //
 		    // If there are more invocations, we need the stream back.
 		    //
-		    if(--invoke > 0)
+		    if(--invokeNum > 0)
 		    {
 			stream.swap(ins);
 		    }
@@ -1246,7 +1253,7 @@ namespace Ice
 	    }
 	    catch(Ice.LocalException ex)
 	    {
-		Debug.Assert(invoke > 0);
+		Debug.Assert(invokeNum > 0);
 
 		lock(this)
 		{
@@ -1278,12 +1285,12 @@ namespace Ice
 		// neither sendResponse() nor sendNoResponse() has been
 		// called, then we must decrement _dispatchCount here.
 		//
-		if(invoke > 0)
+		if(invokeNum > 0)
 		{
 		    lock(this)
 		    {
 			Debug.Assert(_dispatchCount > 0);
-			_dispatchCount -= invoke;
+			_dispatchCount -= invokeNum;
 			Debug.Assert(_dispatchCount >= 0);
 			if(_dispatchCount == 0)
 			{
@@ -1698,7 +1705,7 @@ namespace Ice
 	    _logger.warning(msg + ":\n" + ex + "\n" + _transceiver.ToString());
 	}
 	
-	private IceInternal.Incoming getIncoming(bool response, byte compress)
+	private IceInternal.Incoming getIncoming(ObjectAdapter adapter, bool response, byte compress)
 	{
 	    IceInternal.Incoming inc = null;
 	    
@@ -1706,14 +1713,14 @@ namespace Ice
 	    {
 		if(_incomingCache == null)
 		{
-		    inc = new IceInternal.Incoming(_instance, this, _adapter, response, compress);
+		    inc = new IceInternal.Incoming(_instance, this, adapter, response, compress);
 		}
 		else
 		{
 		    inc = _incomingCache;
 		    _incomingCache = _incomingCache.next;
 		    inc.next = null;
-		    inc.reset(_instance, this, _adapter, response, compress);
+		    inc.reset(_instance, this, adapter, response, compress);
 		}
 	    }
 	    

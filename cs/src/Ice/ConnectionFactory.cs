@@ -262,17 +262,13 @@ namespace IceInternal
 	    catch(Ice.LocalException)
 	    {
 		//
-		// Ignore all exceptions while activating or validating
-		// the connection object. Warning or error messages for
-		// such exceptions must be printed directly in the
-		// connection object code.
+		// Ignore all exceptions while validating the
+		// connection.  Warning or error messages for such
+		// exceptions are printed directly by the validation
+		// code.
 		//
 	    }
 	    
-	    //
-	    // The factory must be active at this point, so we activate
-	    // the connection, too.
-	    //
 	    connection.activate();
 	}
 	
