@@ -46,6 +46,8 @@ SRCS		= Acceptor.cs \
 		  ObjectAdapterI.cs \
 		  Object.cs \
 		  ObjectFactoryManager.cs \
+		  ObjectReader.cs \
+		  ObjectWriter.cs \
 		  OutgoingAsync.cs \
 		  Outgoing.cs \
 		  OutputBase.cs \
