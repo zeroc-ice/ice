@@ -10,7 +10,7 @@ Changes since version 2.0.0
 - Fixed a bug where the endpoint cache for indirect proxies wasn't
   always cleared upon a communication failure with an object.
 
-- Fixed a race condition in the IcePack on demand server activation
+- Fixed a race condition in the IcePack on-demand server activation
   code which could cause clients to hang under rare conditions if the
   server couldn't be activated.
 
@@ -26,27 +26,32 @@ Changes since version 2.0.0
   property Ice.Override.ConnectTimeout and will raise
   Ice::ConnectTimeoutException if the connection validation times out.
 
-- Fixed an assert which could occur on connection establishment if
-  there wasn't anymore file descriptors available.
+- Fixed an assert that could occur during connection establishment if
+  no more file descriptors are available.
 
-- Improved support for on demand server activation in IcePack.
+- Improved support for on-demand server activation in IcePack.
 
 - Improved the IcePack registry to prevent potential deadlocks caused
-  by thread starvation. NOTE: it's now required to configure the
-  endpoints of IcePack.Registry.Internal object adapter.
+  by thread starvation.
+
+- The Ice manual stated that the IcePack configuration property
+  IcePack.Registry.Internal.Endpoints was only necessary when nodes
+  were being used, but in fact the property is required regardless
+  of whether nodes are used. The manual has been updated accordingly.
 
 - Fixed a bug where Ice::ObjectAdapter::activate() could throw
   Ice::ObjectAdapterDeactivatedException if the object adapter was
   deactivated concurrently.
 
-- Fixed a bug where setting the locator proxy on a indirect proxy
+- Fixed a bug where setting the locator proxy on an indirect proxy
   could cause an assert.
 
 - Fixed a bug in IceSSL when multiple communicators are used.
 
-- Added ice_ping optimization in the Freeze evictor: for operation
-  "ice_ping", the object is not loaded in the cache, Freeze only
-  checks if the object is in the cache or the database.
+- Added an optimization to the Freeze evictor for the ice_ping
+  operation. The object is no longer loaded into the cache by this
+  operation; Freeze simply checks if the object is in the cache or
+  the database.
 
 - Fixed a slice2cpp failure when the --output-dir option specified a
   directory containing backslashes.
@@ -65,7 +70,7 @@ Changes since version 2.0.0
 
 - Added setDefaultContext() and getDefaultContext() to the
   Ice::Communicator interface. This allows a default context to be
-  established on a communicator-wide basis. See section 29.8.3 in the
+  established on a communicator-wide basis. See section 29.9.3 in the
   doc.
 
   Added ice_defaultContext to Ice::ObjectProxy. This creates a new
@@ -75,7 +80,7 @@ Changes since version 2.0.0
   encounter an UnmarshalOutOfBoundsException.
 
 - Overloaded the checkedCast member function of the generated Prx
-  classes to allow a trailing argument of type ::Ice::Context. This
+  classes to allow a trailing argument of type Ice::Context. This
   makes it possible to do stateful things that require a context in a
   servant locator's activate() method.
 

@@ -1,28 +1,28 @@
 Changes since version 2.0.0
 ---------------------------
 
-- Fixed bug where marshalling would fail for sequences of integral types on
-  big endian platforms.
+- Fixed bug where marshalling would fail for sequences of integral
+  types on big endian platforms.
 
 - Fixed bug where connection establishment could raise a 
   System.Net.Sockets.SocketException instead of an Ice.SocketException.
 
-- Added setDefaultContext() and getDefaultContext() to
-  the Ice.Communicator interface. This allows a default context
-  to be established on a communicator-wide basis. See section
-  29.8.3 in the doc.
+- Added setDefaultContext() and getDefaultContext() to the
+  Ice.Communicator interface. This allows a default context to be
+  established on a communicator-wide basis. See section 29.9.3 in the
+  doc.
 
   Added ice_defaultContext to Ice.ObjectPrx. This creates a new
   proxy that uses the default context established on the communicator.
 
 - Overloaded the checkedCast member function of the generated PrxHelper
-  classes to allow a trailing argument of type ::Ice::Context. This makes
+  classes to allow a trailing argument of type Ice::Context. This makes
   it possible to do stateful things that require a context in a
   servant locator's activate() method.
 
-- Fixed a bug in slice2cs: incorrect code was generated if an
-  interface was derived from a base interface in a different module
-  and the base interface contained an AMD operation.
+- Fixed a bug in slice2cs: incorrect code was generated if an interface
+  was derived from a base interface in a different module and the base
+  interface contained an AMD operation.
 
 Changes since version 1.5.1
 ---------------------------

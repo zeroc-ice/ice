@@ -9,20 +9,21 @@ Changes since version 2.0.0
   must be defined for any communicator in which the plug-in is
   installed. See the Ice manual for more information.
 
-- Added ice_ping optimization in the Freeze evictor: for operation
-  "ice_ping", the object is not loaded in the cache, Freeze only
-  checks if the object is in the cache or the database.
+- Added an optimization to the Freeze evictor for the ice_ping
+  operation. The object is no longer loaded into the cache by this
+  operation; Freeze simply checks if the object is in the cache or
+  the database.
 
 - Added setDefaultContext() and getDefaultContext() to the
   Ice.Communicator interface. This allows a default context to be
-  established on a communicator-wide basis. See section 29.8.3 in
+  established on a communicator-wide basis. See section 29.9.3 in
   the doc.
 
   Added ice_defaultContext to Ice.ObjectPrx. This creates a new
   proxy that uses the default context established on the communicator.
 
 - Overloaded the checkedCast member function of the generated proxy
-  helper classes to allow a trailing argument of type ::Ice::Context.
+  helper classes to allow a trailing argument of type Ice::Context.
   This makes it possible to do stateful things that require a context
   in a servant locator's activate() method.
 
