@@ -41,7 +41,7 @@ public:
 
 private:
 
-    SslAcceptor(const InstancePtr&, int);
+    SslAcceptor(const InstancePtr&, const std::string&, int);
     virtual ~SslAcceptor();
     friend class SslEndpoint;
 

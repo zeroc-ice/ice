@@ -91,17 +91,7 @@ public final class Util
     stringToIdentity(String s)
     {
         Identity ident = new Identity();
-        int hashPos = s.indexOf('#');
-        int slashPos = s.indexOf('/');
-        int pos = -1;
-        if (hashPos != -1 && slashPos != -1)
-        {
-            pos = Math.min(hashPos, slashPos);
-        }
-        else if (hashPos != -1 || slashPos != -1)
-        {
-            pos = Math.max(hashPos, slashPos);
-        }
+        int pos = s.indexOf('/');
         if (pos != -1)
         {
             ident.category = s.substring(0, pos);

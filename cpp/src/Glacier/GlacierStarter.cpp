@@ -83,7 +83,7 @@ Glacier::Router::run(int argc, char* argv[])
     ObjectAdapterPtr starterAdapter = communicator()->createObjectAdapterFromProperty("Starter",
 										      starterEndpointsProperty);
     StarterPtr starter = new StarterI(communicator());
-    starterAdapter->add(starter, stringToIdentity("Glacier#starter"));
+    starterAdapter->add(starter, stringToIdentity("Glacier/starter"));
     starterAdapter->activate();
 
     //

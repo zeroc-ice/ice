@@ -23,7 +23,7 @@ final class UdpTransceiver implements Transceiver
     {
         if (_traceLevels.network >= 1)
         {
-            String s = "closing " + _protocolName + " connection\n" + toString();
+            String s = "closing udp connection\n" + toString();
             _logger.trace(_traceLevels.networkCat, s);
         }
 
@@ -61,7 +61,7 @@ final class UdpTransceiver implements Transceiver
 
                 if (_traceLevels.network >= 3)
                 {
-                    String s = "sent " + ret + " bytes via " + _protocolName + "\n" + toString();
+                    String s = "sent " + ret + " bytes via udp\n" + toString();
                     _logger.trace(_traceLevels.networkCat, s);
                 }
 
@@ -115,7 +115,7 @@ final class UdpTransceiver implements Transceiver
 
                     if (_traceLevels.network >= 1)
                     {
-                        String s = "connected " + _protocolName + "socket\n" + toString();
+                        String s = "connected udp socket\n" + toString();
                         _logger.trace(_traceLevels.networkCat, s);
                     }
                 }
@@ -154,7 +154,7 @@ final class UdpTransceiver implements Transceiver
 
         if (_traceLevels.network >= 3)
         {
-            String s = "received " + ret + " bytes via " + _protocolName + "\n" + toString();
+            String s = "received " + ret + " bytes via udp\n" + toString();
             _logger.trace(_traceLevels.networkCat, s);
         }
 
@@ -171,17 +171,8 @@ final class UdpTransceiver implements Transceiver
     public final boolean
     equivalent(String host, int port)
     {
-        assert(_incoming); // This equivalence test is only valid for incoming connections.
-
         java.net.InetSocketAddress addr = Network.getAddress(host, port);
-        if (addr.getAddress().isLoopbackAddress())
-        {
-            return port == _addr.getPort();
-        }
-
-        java.net.InetSocketAddress localAddr =
-            Network.getLocalAddress(_addr.getPort());
-        return addr.equals(localAddr);
+        return addr.equals(_addr);
     }
 
     public final int
@@ -190,47 +181,27 @@ final class UdpTransceiver implements Transceiver
         return _addr.getPort();
     }
 
-    public final void
-    setProtocolName(String protocolName)
-    {
-        _protocolName = protocolName;
-    }
-
     //
     // Only for use by UdpEndpoint
     //
-    UdpTransceiver(Instance instance,
-                   String host,
-                   int port)
-    {
-        this(instance, host, port, "udp");
-    }
-
-    //
-    // Only for use by UdpEndpoint
-    //
-    UdpTransceiver(Instance instance,
-                   String host,
-                   int port,
-                   String protocolName)
+    UdpTransceiver(Instance instance, String host, int port)
     {
         _instance = instance;
         _traceLevels = instance.traceLevels();
         _logger = instance.logger();
         _incoming = false;
         _connect = true;
-        _protocolName = protocolName;
 
         try
         {
-            _addr = Network.getAddress(host, port);
             _fd = Network.createUdpSocket();
+            _addr = Network.getAddress(host, port);
             Network.doConnect(_fd, _addr, -1);
             _connect = false; // We're connected now
 
             if (_traceLevels.network >= 1)
             {
-                String s = "starting to send " + _protocolName + " packets\n" + toString();
+                String s = "starting to send udp packets\n" + toString();
                 _logger.trace(_traceLevels.networkCat, s);
             }
         }
@@ -244,37 +215,23 @@ final class UdpTransceiver implements Transceiver
     //
     // Only for use by UdpEndpoint
     //
-    UdpTransceiver(Instance instance,
-                   int port,
-                   boolean connect)
-    {
-        this(instance, port, connect, "udp");
-    }
-
-    //
-    // Only for use by UdpEndpoint
-    //
-    UdpTransceiver(Instance instance,
-                   int port,
-                   boolean connect,
-                   String protocolName)
+    UdpTransceiver(Instance instance, String host, int port, boolean connect)
     {
         _instance = instance;
         _traceLevels = instance.traceLevels();
         _logger = instance.logger();
         _incoming = true;
         _connect = connect;
-        _protocolName = protocolName;
 
         try
         {
-            _addr = new java.net.InetSocketAddress(port);
             _fd = Network.createUdpSocket();
-            _addr = Network.doBind(_fd, _addr);
+            java.net.InetSocketAddress addr = new java.net.InetSocketAddress(host, port);
+            _addr = Network.doBind(_fd, addr);
 
             if (_traceLevels.network >= 1)
             {
-                String s = "starting to receive " + _protocolName + " packets\n" + toString();
+                String s = "starting to receive udp packets\n" + toString();
                 _logger.trace(_traceLevels.networkCat, s);
             }
         }
@@ -300,5 +257,4 @@ final class UdpTransceiver implements Transceiver
     private boolean _connect;
     private java.nio.channels.DatagramChannel _fd;
     private java.net.InetSocketAddress _addr;
-    private String _protocolName;
 }

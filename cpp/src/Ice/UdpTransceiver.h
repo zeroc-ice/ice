@@ -45,7 +45,7 @@ public:
 private:
 
     UdpTransceiver(const InstancePtr&, const std::string&, int, const std::string& protocolName = "udp");
-    UdpTransceiver(const InstancePtr&, int, bool, const std::string& protocolName = "udp");
+    UdpTransceiver(const InstancePtr&, const std::string&, int, bool, const std::string& protocolName = "udp");
     virtual ~UdpTransceiver();
 
     friend class UdpEndpoint;

@@ -105,9 +105,9 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     //
     // Activate the servants.
     //
-    ObjectPrx objFed1 = adapter->add(eventFed1, stringToIdentity("fed1#events"));
-    ObjectPrx objFed2 = adapter->add(eventFed2, stringToIdentity("fed2#events"));
-    ObjectPrx objFed3 = adapter->add(eventFed3, stringToIdentity("fed3#events"));
+    ObjectPrx objFed1 = adapter->add(eventFed1, stringToIdentity("fed1/events"));
+    ObjectPrx objFed2 = adapter->add(eventFed2, stringToIdentity("fed2/events"));
+    ObjectPrx objFed3 = adapter->add(eventFed3, stringToIdentity("fed3/events"));
 
     IceStorm::QoS qos;
     //TODO: qos["reliability"] = "batch";

@@ -84,15 +84,8 @@ bool
 IceInternal::TcpAcceptor::equivalent(const string& host, int port) const
 {
     struct sockaddr_in addr;
-    getAddress(host.c_str(), port, addr);
-    if (addr.sin_addr.s_addr == htonl(INADDR_LOOPBACK))
-    {
-	return port == ntohs(_addr.sin_port);
-    }
-
-    struct sockaddr_in localAddr;
-    getLocalAddress(ntohs(_addr.sin_port), localAddr);
-    return memcmp(&addr, &localAddr, sizeof(struct sockaddr_in)) == 0;    
+    getAddress(host, port, addr);
+    return memcmp(&addr, &_addr, sizeof(struct sockaddr_in)) == 0;    
 }
 
 int
@@ -101,7 +94,7 @@ IceInternal::TcpAcceptor::effectivePort()
     return ntohs(_addr.sin_port);
 }
 
-IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, int port) :
+IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string& host, int port) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
@@ -114,12 +107,8 @@ IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, int port) :
 
     try
     {
-	memset(&_addr, 0, sizeof(_addr));
-	_addr.sin_family = AF_INET;
-	_addr.sin_port = htons(port);
-	_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    
 	_fd = createSocket(false);
+	getAddress(host, port, _addr);
 	doBind(_fd, _addr);
     }
     catch(...)

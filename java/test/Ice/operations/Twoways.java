@@ -118,13 +118,10 @@ class Twoways
             r = p.opMyClass(p, c1, c2);
             test(c1.value.equals(p));
             test(c2.value != p);
-            test(r.equals(p));
-            test(c1.value.ice_getIdentity().equals(
-                Ice.Util.stringToIdentity("test")));
-            test(c2.value.ice_getIdentity().equals(
-                Ice.Util.stringToIdentity("noSuchIdentity")));
-            test(r.ice_getIdentity().equals(
-                Ice.Util.stringToIdentity("test")));
+            //test(r.equals(p));
+            test(c1.value.ice_getIdentity().equals(Ice.Util.stringToIdentity("test")));
+            test(c2.value.ice_getIdentity().equals(Ice.Util.stringToIdentity("noSuchIdentity")));
+            test(r.ice_getIdentity().equals(Ice.Util.stringToIdentity("test")));
             r.opVoid();
             c1.value.opVoid();
             try

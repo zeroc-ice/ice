@@ -81,9 +81,7 @@ void doListen(SOCKET, int);
 void doConnect(SOCKET, struct sockaddr_in&, int);
 SOCKET doAccept(SOCKET, int);
 
-void getAddress(const char*, int, struct sockaddr_in&);
-void getLocalAddress(int, struct sockaddr_in&);
-std::string getLocalHost(bool);
+void getAddress(const std::string&, int, struct sockaddr_in&);
 
 void createPipe(SOCKET fds[2]);
 

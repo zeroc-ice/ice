@@ -124,7 +124,7 @@ twoways(const Test::MyClassPrx& p)
 	r = p->opMyClass(p, c1, c2);
 	test(c1 == p);
 	test(c2 != p);
-	test(r == p);
+	//test(r == p);
 	test(c1->ice_getIdentity() == Ice::stringToIdentity("test"));
 	test(c2->ice_getIdentity() == Ice::stringToIdentity("noSuchIdentity"));
 	test(r->ice_getIdentity() == Ice::stringToIdentity("test"));

@@ -575,12 +575,12 @@ repeatAccept:
 static IceUtil::Mutex getHostByNameMutex;
 
 void
-IceInternal::getAddress(const char* host, int port, struct sockaddr_in& addr)
+IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
 {
     memset(&addr, 0, sizeof(struct sockaddr_in));
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
-    addr.sin_addr.s_addr = inet_addr(host);
+    addr.sin_addr.s_addr = inet_addr(host.c_str());
 
     if (addr.sin_addr.s_addr == INADDR_NONE)
     {
@@ -591,7 +591,7 @@ IceInternal::getAddress(const char* host, int port, struct sockaddr_in& addr)
 
 	do
 	{
-	    entry = gethostbyname(host);
+	    entry = gethostbyname(host.c_str());
 	}
 #ifdef WIN32
 	while (!entry && WSAGetLastError() == WSATRY_AGAIN && --retry >= 0);
@@ -607,96 +607,6 @@ IceInternal::getAddress(const char* host, int port, struct sockaddr_in& addr)
 	}
 
 	memcpy(&addr.sin_addr, entry->h_addr, entry->h_length);
-    }
-}
-
-void
-IceInternal::getLocalAddress(int port, struct sockaddr_in& addr)
-{
-    char host[1024 + 1];
-    if (gethostname(host, 1024) == SOCKET_ERROR)
-    {
-	SystemException ex(__FILE__, __LINE__);
-	ex.error = getSystemErrno();
-	throw ex;
-    }
-
-    memset(&addr, 0, sizeof(struct sockaddr_in));
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
-
-    {
-	IceUtil::Mutex::Lock sync(getHostByNameMutex);
-	
-	struct hostent* entry;
-	int retry = 5;
-	
-	do
-	{
-	    entry = gethostbyname(host);
-	}
-#ifdef WIN32
-	while (!entry && WSAGetLastError() == WSATRY_AGAIN && --retry >= 0);
-#else
-	while (!entry && h_errno == TRY_AGAIN && --retry >= 0);
-#endif
-	
-	if (!entry)
-	{
-	    DNSException ex(__FILE__, __LINE__);
-	    ex.error = getDNSErrno();
-	    throw ex;
-	}
-
-	memcpy(&addr.sin_addr, entry->h_addr, entry->h_length);
-    }
-}
-
-string
-IceInternal::getLocalHost(bool numeric)
-{
-    char host[1024 + 1];
-    if (gethostname(host, 1024) == SOCKET_ERROR)
-    {
-	SystemException ex(__FILE__, __LINE__);
-	ex.error = getSystemErrno();
-	throw ex;
-    }
-
-    {
-	IceUtil::Mutex::Lock sync(getHostByNameMutex);
-	
-	struct hostent* entry;
-	int retry = 5;
-	
-	do
-	{
-	    entry = gethostbyname(host);
-	}
-#ifdef WIN32
-	while (!entry && WSAGetLastError() == WSATRY_AGAIN && --retry >= 0);
-#else
-	while (!entry && h_errno == TRY_AGAIN && --retry >= 0);
-#endif
-	
-	if (!entry)
-	{
-	    DNSException ex(__FILE__, __LINE__);
-	    ex.error = getDNSErrno();
-	    throw ex;
-	}
-
-	if (numeric)
-	{
-	    struct sockaddr_in addr;
-	    memset(&addr, 0, sizeof(struct sockaddr_in));
-	    memcpy(&addr.sin_addr, entry->h_addr, entry->h_length);
-	    return string(inet_ntoa(addr.sin_addr));
-	}
-	else
-	{
-	    return string(entry->h_name);
-	}
     }
 }
 

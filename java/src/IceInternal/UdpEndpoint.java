@@ -231,7 +231,7 @@ public final class UdpEndpoint extends Endpoint
     public Transceiver
     serverTransceiver(EndpointHolder endpoint)
     {
-        UdpTransceiver p = new UdpTransceiver(_instance, _port, _connect);
+        UdpTransceiver p = new UdpTransceiver(_instance, _host, _port, _connect);
         endpoint.value = new UdpEndpoint(_instance, _host, p.effectivePort());
         return p;
     }

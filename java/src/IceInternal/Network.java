@@ -17,8 +17,7 @@ public final class Network
     {
         try
         {
-            java.nio.channels.SocketChannel fd =
-                java.nio.channels.SocketChannel.open();
+            java.nio.channels.SocketChannel fd = java.nio.channels.SocketChannel.open();
             java.net.Socket socket = fd.socket();
             socket.setTcpNoDelay(true);
             socket.setKeepAlive(true);
@@ -340,44 +339,6 @@ public final class Network
         {
             throw new Ice.DNSException();
         }
-    }
-
-    public static java.net.InetSocketAddress
-    getLocalAddress(int port)
-    {
-        try
-        {
-            java.net.InetAddress addr = java.net.InetAddress.getLocalHost();
-            return new java.net.InetSocketAddress(addr, port);
-        }
-        catch (java.net.UnknownHostException ex)
-        {
-            throw new Ice.DNSException();
-        }
-    }
-
-    public static String
-    getLocalHost(boolean numeric)
-    {
-        String host;
-
-        try
-        {
-            if (!numeric)
-            {
-                host = java.net.InetAddress.getLocalHost().getHostName();
-            }
-            else
-            {
-                host = java.net.InetAddress.getLocalHost().getHostAddress();
-            }
-        }
-        catch(java.net.UnknownHostException ex)
-        {
-            throw new Ice.DNSException();
-        }
-
-        return host;
     }
 
     public static class SocketPair

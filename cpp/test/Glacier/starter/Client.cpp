@@ -56,7 +56,7 @@ CallbackClient::run(int argc, char* argv[])
     cout << "ok" << endl;
 
     cout << "testing stringToProxy for glacier starter... " << flush;
-    ref = "Glacier#starter:default -p 12346 -t 5000";
+    ref = "Glacier/starter:default -p 12346 -t 5000";
     ObjectPrx starterBase = communicator()->stringToProxy(ref);
     cout << "ok" << endl;
 

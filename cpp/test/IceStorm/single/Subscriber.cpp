@@ -92,7 +92,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default");
     ObjectPtr single = new SingleI(communicator);
-    ObjectPrx object = adapter->add(single, stringToIdentity("single#events"));
+    ObjectPrx object = adapter->add(single, stringToIdentity("single/events"));
 
     IceStorm::QoS qos;
     //TODO: qos["reliability"] = "batch";

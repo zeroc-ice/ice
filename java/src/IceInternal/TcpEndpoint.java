@@ -267,9 +267,8 @@ public final class TcpEndpoint extends Endpoint
     public Acceptor
     acceptor(EndpointHolder endpoint)
     {
-        TcpAcceptor p = new TcpAcceptor(_instance, _port);
-        endpoint.value = new TcpEndpoint(_instance, _host, p.effectivePort(),
-                                         _timeout);
+        TcpAcceptor p = new TcpAcceptor(_instance, _host, _port);
+        endpoint.value = new TcpEndpoint(_instance, _host, p.effectivePort(), _timeout);
         return p;
     }
 

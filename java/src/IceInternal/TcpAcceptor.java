@@ -78,9 +78,7 @@ class TcpAcceptor implements Acceptor
     equivalent(String host, int port)
     {
         java.net.InetSocketAddress addr = Network.getAddress(host, port);
-        java.net.InetSocketAddress localAddr =
-            Network.getLocalAddress(_addr.getPort());
-        return addr.equals(localAddr);
+        return addr.equals(_addr);
     }
 
     int
@@ -89,7 +87,7 @@ class TcpAcceptor implements Acceptor
         return _addr.getPort();
     }
 
-    TcpAcceptor(Instance instance, int port)
+    TcpAcceptor(Instance instance, String host, int port)
     {
         _instance = instance;
         _traceLevels = instance.traceLevels();
@@ -103,10 +101,8 @@ class TcpAcceptor implements Acceptor
 
         try
         {
-            java.net.InetSocketAddress addr =
-                new java.net.InetSocketAddress(port);
-
             _fd = Network.createTcpServerSocket();
+            java.net.InetSocketAddress addr = new java.net.InetSocketAddress(host, port);
             _addr = Network.doBind(_fd, addr);
         }
         catch (RuntimeException ex)

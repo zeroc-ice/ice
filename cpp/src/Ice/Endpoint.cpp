@@ -467,7 +467,7 @@ IceInternal::TcpEndpoint::connector() const
 AcceptorPtr
 IceInternal::TcpEndpoint::acceptor(EndpointPtr& endp) const
 {
-    TcpAcceptor* p = new TcpAcceptor(_instance, _port);
+    TcpAcceptor* p = new TcpAcceptor(_instance, _host, _port);
     endp = new TcpEndpoint(_instance, _host, p->effectivePort(), _timeout);
     return p;
 }
@@ -802,7 +802,7 @@ IceInternal::SslEndpoint::connector() const
 AcceptorPtr
 IceInternal::SslEndpoint::acceptor(EndpointPtr& endp) const
 {
-    SslAcceptor* p = new SslAcceptor(_instance, _port);
+    SslAcceptor* p = new SslAcceptor(_instance, _host, _port);
     endp = new SslEndpoint(_instance, _host, p->effectivePort(), _timeout);
     return p;
 }
@@ -1119,7 +1119,7 @@ IceInternal::UdpEndpoint::clientTransceiver() const
 TransceiverPtr
 IceInternal::UdpEndpoint::serverTransceiver(EndpointPtr& endp) const
 {
-    UdpTransceiver* p = new UdpTransceiver(_instance, _port, _connect);
+    UdpTransceiver* p = new UdpTransceiver(_instance, _host, _port, _connect);
     endp = new UdpEndpoint(_instance, _host, p->effectivePort());
     return p;
 }

@@ -148,18 +148,9 @@ IceInternal::UdpTransceiver::toString() const
 bool
 IceInternal::UdpTransceiver::equivalent(const string& host, int port) const
 {
-    assert(_incoming); // This equivalence test is only valid for incoming connections.
-
     struct sockaddr_in addr;
-    getAddress(host.c_str(), port, addr);
-    if (addr.sin_addr.s_addr == htonl(INADDR_LOOPBACK))
-    {
-	return port == ntohs(_addr.sin_port);
-    }
-
-    struct sockaddr_in localAddr;
-    getLocalAddress(ntohs(_addr.sin_port), localAddr);
-    return memcmp(&addr, &localAddr, sizeof(struct sockaddr_in)) == 0;    
+    getAddress(host, port, addr);
+    return memcmp(&addr, &_addr, sizeof(struct sockaddr_in)) == 0;    
 }
 
 int
@@ -174,9 +165,7 @@ IceInternal::UdpTransceiver::setProtocolName(const string& protocolName)
     _protocolName = protocolName;
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance,
-                                            const string& host,
-                                            int port,
+IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port,
                                             const string& protocolName) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
@@ -187,9 +176,8 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance,
 {
     try
     {
-	getAddress(host.c_str(), port, _addr);
-
 	_fd = createSocket(true);
+	getAddress(host, port, _addr);
 	doConnect(_fd, _addr, -1);
 	_connect = false; // We're connected now
 	
@@ -206,8 +194,8 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance,
     }
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, int port, bool connect,
-					    const string& protocolName) :
+IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port,
+					    bool connect, const string& protocolName) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
@@ -217,12 +205,8 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, int por
 {
     try
     {
-	memset(&_addr, 0, sizeof(_addr));
-	_addr.sin_family = AF_INET;
-	_addr.sin_port = htons(port);
-	_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	
 	_fd = createSocket(true);
+	getAddress(host, port, _addr);
 	doBind(_fd, _addr);
 	    
 	if (_traceLevels->network >= 1)
