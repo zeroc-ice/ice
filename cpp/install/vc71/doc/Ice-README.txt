@@ -55,7 +55,7 @@ You also need to set the following environment variables:
 set JAVA_HOME=<Java SDK installation root directory>
 set ICE_HOME=<Ice installation root directory>
 set PATH=%ICE_HOME%\bin;%PATH%
-set CLASSPATH=%ICE_HOME%\lib\Ice.jar;%ICE_HOME%\lib\db.jar;%CLASSPATH%
+set CLASSPATH=%ICE_HOME%\lib\Ice.jar;%ICE_HOME%\lib\db.jar;classes;%CLASSPATH%
 
 Then add the ant bin directory to your PATH, open a Command Prompt
 and type 'ant' in any demo subdirectory to build the corresponding
@@ -64,12 +64,12 @@ Java demo.
 To run a demo, open a Command Prompt, change to the desired demo
 directory, and enter the following command to run the server:
 
-java -cp "classes;%CLASSPATH%" Server
+java Server
 
 In a separate Command Prompt window, enter the following command to
 run the client:
 
-java -cp "classes;%CLASSPATH%" Client
+java Client
 
 Some demo directories contain README files if additional requirements
 are necessary.
