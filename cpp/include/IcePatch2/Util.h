@@ -67,17 +67,9 @@ ICEPATCH2_API void loadFileInfoSeq(const std::string&, FileInfoSeq&);
 ICEPATCH2_API std::ostream& operator<<(std::ostream&, const FileInfo&);
 ICEPATCH2_API std::istream& operator>>(std::istream&, FileInfo&);
 
-struct FileTree2
-{
-    FileInfoSeq files;
-    Ice::ByteSeq checksum;
-};
-
-typedef std::vector<FileTree2> FileTree2Seq;
-
 struct FileTree1
 {
-    FileTree2Seq nodes;
+    FileInfoSeq files;
     Ice::ByteSeq checksum;
 };
 
@@ -89,7 +81,6 @@ struct FileTree0
     Ice::ByteSeq checksum;
 };
 
-ICEPATCH2_API void getFileTree2(const FileInfoSeq&, FileTree2&);
 ICEPATCH2_API void getFileTree1(const FileInfoSeq&, FileTree1&);
 ICEPATCH2_API void getFileTree0(const FileInfoSeq&, FileTree0&);
 

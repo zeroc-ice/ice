@@ -26,59 +26,21 @@ IcePatch2::FileServerI::FileServerI(const FileInfoSeq& infoSeq)
 {
     FileTree0& tree0 = const_cast<FileTree0&>(_tree0);
     getFileTree0(infoSeq, tree0);
-
-/*
-    assert(tree0.nodes.size() == 256);
-    for(int i = 0; i < 256; ++i)
-    {
-	FileTree1& tree1 = tree0.nodes[i];
-	assert(tree1.nodes.size() == 256);
-	for(int j = 0; j < 256; ++j)
-	{
-	    FileTree2& tree2 = tree1.nodes[j];
-	}
-    }
-
-    cout << "Summary ===> " << bytesToString(tree0.checksum) << endl;
-*/
 }
 
 FileInfoSeq
-IcePatch2::FileServerI::getFileInfoSeq(Int node0, Int node1, const Current&) const
+IcePatch2::FileServerI::getFileInfo1Seq(Int node0, const Current&) const
 {
     if(node0 < 0 || node0 > 255)
     {
 	throw NodeOutOfRangeException();
     }
 
-    if(node1 < 0 || node1 > 255)
-    {
-	throw NodeOutOfRangeException();
-    }
-
-    return _tree0.nodes[node0].nodes[node1].files;
+    return _tree0.nodes[node0].files;
 }
 
 ByteSeqSeq
-IcePatch2::FileServerI::getChecksum2Seq(Int node0, const Current&) const
-{
-    if(node0 < 0 || node0 > 255)
-    {
-	throw NodeOutOfRangeException();
-    }
-
-    ByteSeqSeq checksums(256);
-
-    for(int node1 = 0; node1 < 256; ++node1)
-    {
-	checksums[node1] = _tree0.nodes[node0].nodes[node1].checksum;
-    }
-
-    return checksums;
-}
-
-ByteSeqSeq
-IcePatch2::FileServerI::getChecksum1Seq(const Current&) const
+IcePatch2::FileServerI::getChecksum0Seq(const Current&) const
 {
     ByteSeqSeq checksums(256);
 
@@ -91,7 +53,7 @@ IcePatch2::FileServerI::getChecksum1Seq(const Current&) const
 }
 
 ByteSeq
-IcePatch2::FileServerI::getChecksum0(const Current&) const
+IcePatch2::FileServerI::getChecksum(const Current&) const
 {
     return _tree0.checksum;
 }

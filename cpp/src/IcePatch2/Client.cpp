@@ -177,14 +177,19 @@ IcePatch2::Client::run(int argc, char* argv[])
 
 	FileTree0 tree0;
 	getFileTree0(infoSeq, tree0);
-
+	
 	FileInfoSeq removeFiles;
 	FileInfoSeq updateFiles;
 
-	if(tree0.checksum != fileServer->getChecksum0())
+	ByteSeq empty(20, 0);
+
+	if(tree0.checksum != fileServer->getChecksum())
 	{
-	    ByteSeqSeq checksum1Seq = fileServer->getChecksum1Seq();
-	    if(checksum1Seq.size() != 256)
+	    string progress = "0%";
+	    cout << "Getting list of files to patch: " << progress << flush;
+
+	    ByteSeqSeq checksum0Seq = fileServer->getChecksum0Seq();
+	    if(checksum0Seq.size() != 256)
 	    {
 		cerr << argv[0] << ": server returned illegal value" << endl;
 		return EXIT_FAILURE;
@@ -192,40 +197,39 @@ IcePatch2::Client::run(int argc, char* argv[])
 
 	    for(int node0 = 0; node0 < 256; ++node0)
 	    {
-		if(tree0.nodes[node0].checksum != checksum1Seq[node0])
+		if(tree0.nodes[node0].checksum != checksum0Seq[node0])
 		{
-		    ByteSeqSeq checksum2Seq = fileServer->getChecksum2Seq(node0);
-		    if(checksum2Seq.size() != 256)
-		    {
-			cerr << argv[0] << ": server returned illegal value" << endl;
-			return EXIT_FAILURE;
-		    }
+		    FileInfoSeq fileSeq = fileServer->getFileInfo1Seq(node0);
+		    
+		    sort(fileSeq.begin(), fileSeq.end(), FileInfoCompare());
+		    
+		    set_difference(tree0.nodes[node0].files.begin(),
+				   tree0.nodes[node0].files.end(),
+				   fileSeq.begin(),
+				   fileSeq.end(),
+				   back_inserter(removeFiles),
+				   FileInfoCompare());
 
-		    for(int node1 = 0; node1 < 256; ++node1)
-		    {
-			if(tree0.nodes[node0].nodes[node1].checksum != checksum2Seq[node1])
-			{
-			    FileInfoSeq fileSeq = fileServer->getFileInfoSeq(node0, node1);
-			    sort(fileSeq.begin(), fileSeq.end(), FileInfoCompare());
-
-			    set_difference(tree0.nodes[node0].nodes[node1].files.begin(),
-					   tree0.nodes[node0].nodes[node1].files.end(),
-					   fileSeq.begin(),
-					   fileSeq.end(),
-					   back_inserter(removeFiles),
-					   FileInfoCompare());
-
-			    set_difference(fileSeq.begin(),
-					   fileSeq.end(),
-					   tree0.nodes[node0].nodes[node1].files.begin(),
-					   tree0.nodes[node0].nodes[node1].files.end(),
-					   back_inserter(updateFiles),
-					   FileInfoCompare());
-			}
-		    }
+		    set_difference(fileSeq.begin(),
+				   fileSeq.end(),
+				   tree0.nodes[node0].files.begin(),
+				   tree0.nodes[node0].files.end(),
+				   back_inserter(updateFiles),
+				   FileInfoCompare());
 		}
+		
+		for(unsigned int i = 0; i < progress.size(); ++i)
+		{
+		    cout << '\b';
+		}
+		ostringstream s;
+		s << (node0 + 1) * 100 / 256 << '%';
+		progress = s.str();
+		cout << progress << flush;
 	    }
 	}
+
+	cout << endl;
 
 	sort(removeFiles.begin(), removeFiles.end(), FileInfoCompare());
 	sort(updateFiles.begin(), updateFiles.end(), FileInfoCompare());

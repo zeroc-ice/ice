@@ -22,13 +22,11 @@ public:
 
     FileServerI(const FileInfoSeq&);
 
-    FileInfoSeq getFileInfoSeq(Ice::Int, Ice::Int, const Ice::Current&) const;
+    FileInfoSeq getFileInfo1Seq(Ice::Int, const Ice::Current&) const;
 
-    ByteSeqSeq getChecksum2Seq(Ice::Int, const Ice::Current&) const;
+    ByteSeqSeq getChecksum0Seq(const Ice::Current&) const;
 
-    ByteSeqSeq getChecksum1Seq(const Ice::Current&) const;
-
-    Ice::ByteSeq getChecksum0(const Ice::Current&) const;
+    Ice::ByteSeq getChecksum(const Ice::Current&) const;
 
     Ice::ByteSeq getFileCompressed(const std::string&, Ice::Int pos, Ice::Int num, const Ice::Current&) const;
 

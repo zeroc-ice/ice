@@ -718,6 +718,43 @@ IcePatch2::loadFileInfoSeq(const string& path, FileInfoSeq& infoSeq)
 }
 
 void
+IcePatch2::getFileTree1(const FileInfoSeq& infoSeq, FileTree1& tree1)
+{
+    if(infoSeq.empty())
+    {
+	tree1.files.clear();
+	tree1.checksum.resize(20, 0);
+    }
+    else
+    {
+	tree1.files.reserve(infoSeq.size());
+	
+	FileInfoSeq::const_iterator p = infoSeq.begin();
+	
+	ByteSeq allChecksums;
+	allChecksums.resize(infoSeq.size() * 20);
+	ByteSeq::iterator q = allChecksums.begin();
+	
+	while(p < infoSeq.end())
+	{
+	    tree1.files.push_back(*p);
+	    
+	    assert(p->checksum.size() == 20);
+	    copy(p->checksum.begin(), p->checksum.end(), q);
+	    
+	    ++p;
+	    q += 20;
+	}
+
+	sort(tree1.files.begin(), tree1.files.end(), FileInfoCompare());
+	
+	tree1.checksum.resize(20);
+	SHA1(reinterpret_cast<unsigned char*>(&allChecksums[0]), allChecksums.size(),
+	     reinterpret_cast<unsigned char*>(&tree1.checksum[0]));
+    }
+}
+
+void
 IcePatch2::getFileTree0(const FileInfoSeq& infoSeq, FileTree0& tree0)
 {
     tree0.nodes.resize(256);
@@ -749,77 +786,6 @@ IcePatch2::getFileTree0(const FileInfoSeq& infoSeq, FileTree0& tree0)
     tree0.checksum.resize(20);
     SHA1(reinterpret_cast<unsigned char*>(&allChecksums[0]), allChecksums.size(),
 	 reinterpret_cast<unsigned char*>(&tree0.checksum[0]));
-}
-
-void
-IcePatch2::getFileTree1(const FileInfoSeq& infoSeq, FileTree1& tree1)
-{
-    tree1.nodes.resize(256);
-
-    ByteSeq allChecksums;
-    allChecksums.resize(256 * 20);
-    ByteSeq::iterator q = allChecksums.begin();
-
-    for(int i = 0; i < 256; ++i)
-    {
-	FileInfoSeq infoSeq2;
-
-	for(FileInfoSeq::const_iterator p = infoSeq.begin(); p != infoSeq.end(); ++p)
-	{
-	    if(i == static_cast<int>(p->checksum[20 - 1]))
-	    {
-		infoSeq2.push_back(*p);
-	    }
-	}
-
-	getFileTree2(infoSeq2, tree1.nodes[i]);
-
-	assert(tree1.nodes[i].checksum.size() == 20);
-	copy(tree1.nodes[i].checksum.begin(), tree1.nodes[i].checksum.end(), q);
-
-	q += 20;
-    }
-
-    tree1.checksum.resize(20);
-    SHA1(reinterpret_cast<unsigned char*>(&allChecksums[0]), allChecksums.size(),
-	 reinterpret_cast<unsigned char*>(&tree1.checksum[0]));
-}
-
-void
-IcePatch2::getFileTree2(const FileInfoSeq& infoSeq, FileTree2& tree2)
-{
-    if(infoSeq.empty())
-    {
-	tree2.files.clear();
-	tree2.checksum.resize(20, 0);
-    }
-    else
-    {
-	tree2.files.reserve(infoSeq.size());
-	
-	FileInfoSeq::const_iterator p = infoSeq.begin();
-	
-	ByteSeq allChecksums;
-	allChecksums.resize(infoSeq.size() * 20);
-	ByteSeq::iterator q = allChecksums.begin();
-	
-	while(p < infoSeq.end())
-	{
-	    tree2.files.push_back(*p);
-	    
-	    assert(p->checksum.size() == 20);
-	    copy(p->checksum.begin(), p->checksum.end(), q);
-	    
-	    ++p;
-	    q += 20;
-	}
-
-	sort(tree2.files.begin(), tree2.files.end(), FileInfoCompare());
-	
-	tree2.checksum.resize(20);
-	SHA1(reinterpret_cast<unsigned char*>(&allChecksums[0]), allChecksums.size(),
-	     reinterpret_cast<unsigned char*>(&tree2.checksum[0]));
-    }
 }
 
 ostream&
