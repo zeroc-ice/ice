@@ -15,6 +15,9 @@
 namespace Glacier
 {
 
+class ServerBlobject;
+typedef IceUtil::Handle<ServerBlobject> ServerBlobjectPtr;
+
 class ServerBlobject : public Glacier::Blobject
 {
 public:

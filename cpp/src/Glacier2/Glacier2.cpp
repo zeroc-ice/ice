@@ -7,37 +7,21 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
-#include <Ice/RoutingTable.h>
-#include <Glacier2/RouterI.h>
-#include <Glacier2/ClientBlobject.h>
-#include <Glacier2/ServerBlobject.h>
-#include <Glacier/SessionManager.h>
 #include <IceUtil/Base64.h>
+#include <Ice/Application.h>
 #include <IceSSL/CertificateVerifierF.h>
 #include <IceSSL/Plugin.h>
+#include <Glacier/SessionManager.h>
+#include <Glacier2/ClientServantLocator.h>
+#include <Glacier2/ServerServantLocator.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Glacier;
 
+
 namespace Glacier
 {
-
-class ServantLocator : public Ice::ServantLocator
-{
-public:
-
-    ServantLocator(const ObjectPtr&);
-    
-    virtual ObjectPtr locate(const Current&, LocalObjectPtr&);
-    virtual void finished(const Current&, const ObjectPtr&, const LocalObjectPtr&);
-    virtual void deactivate(const string&);
-
-private:
-
-    ObjectPtr _blobject;
-};
 
 class RouterApp : public Application
 {
@@ -48,41 +32,6 @@ public:
 };
 
 };
-
-Glacier::ServantLocator::ServantLocator(const ObjectPtr& blobject) :
-    _blobject(blobject)
-{
-}
-
-ObjectPtr
-Glacier::ServantLocator::locate(const Current&, LocalObjectPtr&)
-{
-    return _blobject;
-}
-
-void
-Glacier::ServantLocator::finished(const Current&, const ObjectPtr&, const LocalObjectPtr&)
-{
-    // Nothing to do
-}
-
-void
-Glacier::ServantLocator::deactivate(const string&)
-{
-    ClientBlobject* clientBlobject = dynamic_cast<ClientBlobject*>(_blobject.get());
-    if(clientBlobject)
-    {
-	clientBlobject->destroy();
-    }
-    
-    ServerBlobject* serverBlobject = dynamic_cast<ServerBlobject*>(_blobject.get());
-    if(serverBlobject)
-    {
-	serverBlobject->destroy();
-    }
-    
-    _blobject = 0;
-}
 
 void
 Glacier::RouterApp::usage()
@@ -157,9 +106,15 @@ Glacier::RouterApp::run(int argc, char* argv[])
     }
 
     //
-    // Create the routing table.
+    // Get the session manager.
     //
-    IceInternal::RoutingTablePtr routingTable = new IceInternal::RoutingTable;
+    const char* sessionManagerProperty = "Glacier.Router.SessionManager";
+    string sessionManager = properties->getProperty(sessionManagerProperty);
+    SessionManagerPrx sessionManagerPrx;
+    if(!sessionManager.empty())
+    {
+	sessionManagerPrx = SessionManagerPrx::checkedCast(communicator()->stringToProxy(sessionManager));
+    }
 
     //
     // Initialize the client object adapter.
@@ -182,49 +137,18 @@ Glacier::RouterApp::run(int argc, char* argv[])
     }
 
     //
-    // Create the client and server blobjects and the associated
-    // servant locators.
+    // Create and add the servant locators.
     //
-    const char* allowCategoriesProperty = "Glacier.Router.AllowCategories";
-    string allowCategories = properties->getProperty(allowCategoriesProperty);
-    ObjectPtr clientBlobject = new ClientBlobject(communicator(), routingTable, allowCategories);
-    Ice::ServantLocatorPtr clientServantLocator = new Glacier::ServantLocator(clientBlobject);
+    Ice::ServantLocatorPtr clientServantLocator = new ClientServantLocator(clientAdapter,
+									   serverAdapter,
+									   sessionManagerPrx);
     clientAdapter->addServantLocator(clientServantLocator, "");
+
     if(serverAdapter)
     {
-	ObjectPtr serverBlobject = new ServerBlobject(clientAdapter);
-	Ice::ServantLocatorPtr serverServantLocator = new Glacier::ServantLocator(serverBlobject);
+	Ice::ServantLocatorPtr serverServantLocator = new ServerServantLocator(clientAdapter);
 	serverAdapter->addServantLocator(serverServantLocator, "");
     }
-
-    //
-    // Initialize the router object adapter and the router object.
-    //
-    const char* routerEndpointsProperty = "Glacier.Router.Endpoints";
-    if(properties->getProperty(routerEndpointsProperty).empty())
-    {
-	cerr << appName() << ": property `" << routerEndpointsProperty << "' is not set" << endl;
-	return EXIT_FAILURE;
-    }
-
-    const char* routerIdentityProperty = "Glacier.Router.Identity";
-    string routerIdentity = properties->getPropertyWithDefault(routerIdentityProperty, "Glacier/router");
-
-    const char* sessionManagerProperty = "Glacier.Router.SessionManager";
-    string sessionManager = properties->getProperty(sessionManagerProperty);
-
-    SessionManagerPrx sessionManagerPrx;
-    if(!sessionManager.empty())
-    {
-	sessionManagerPrx = SessionManagerPrx::checkedCast(communicator()->stringToProxy(sessionManager));
-    }
-
-    const char* userIdProperty = "Glacier.Router.UserId";
-    string userId = properties->getProperty(userIdProperty);
-
-    ObjectAdapterPtr routerAdapter = communicator()->createObjectAdapter("Glacier.Router");
-    RouterPtr router = new RouterI(clientAdapter, serverAdapter, routingTable, sessionManagerPrx, userId);
-    routerAdapter->add(router, stringToIdentity(routerIdentity));
 
     //
     // Everything ok, let's go.
@@ -235,20 +159,8 @@ Glacier::RouterApp::run(int argc, char* argv[])
     {
 	serverAdapter->activate();
     }
-    routerAdapter->activate();
     communicator()->waitForShutdown();
     ignoreInterrupt();
-
-    //
-    // Destroy the router. The client and server blobjects get
-    // destroyed by ServantLocator::deactivate.
-    //
-    // Destroying the router will also destroy all sessions associated
-    // with the router.
-    //
-    RouterI* rtr = dynamic_cast<RouterI*>(router.get());
-    assert(rtr);
-    rtr->destroy();
 
     return EXIT_SUCCESS;
 }
@@ -270,6 +182,6 @@ main(int argc, char* argv[])
 	exit(EXIT_FAILURE);
     }
 
-    Glacier::RouterApp app;
+    RouterApp app;
     return app.main(argc, argv);
 }

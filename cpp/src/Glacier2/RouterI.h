@@ -22,7 +22,7 @@ class RouterI : public Router
 {
 public:
 
-    RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const ::IceInternal::RoutingTablePtr&,
+    RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const IceInternal::RoutingTablePtr&,
 	    const SessionManagerPrx&, const std::string&);
 	    
     virtual ~RouterI();
@@ -40,7 +40,7 @@ private:
     Ice::ObjectAdapterPtr _clientAdapter;
     Ice::ObjectAdapterPtr _serverAdapter;
     Ice::LoggerPtr _logger;
-    ::IceInternal::RoutingTablePtr _routingTable;
+    IceInternal::RoutingTablePtr _routingTable;
     int _routingTableTraceLevel;
 
     IceUtil::Mutex _sessionMutex;
