@@ -295,7 +295,7 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
 
 	H << nl << "__indices.push_back(new " << capitalizedMembers[i] << "Index(" << indexName << "));";
     }
-    H << nl << "_helper.reset(Freeze::MapHelper::create(__connection, __dbName, __indices, __createDb));";
+    H << nl << "this->_helper.reset(Freeze::MapHelper::create(__connection, __dbName, __indices, __createDb));";
     H << nl << "while(__first != __last)";
     H << sb;
     H << nl << "put(*__first);";
