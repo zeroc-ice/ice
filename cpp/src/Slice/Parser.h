@@ -23,18 +23,10 @@ int yyparse();
 int yylex();
 void yyerror(const char* s);
 
-// ----------------------------------------------------------------------
-// Type_ptr declarations, reference counting, and handle types
-// ----------------------------------------------------------------------
-
 namespace Slice
 {
 
-class Token;
-class String;
-class Parameters;
-class Enumerators;
-class Throws;
+class GrammerBase;
 class SyntaxTreeBase;
 class Type;
 class Builtin;
@@ -51,23 +43,15 @@ class Vector;
 class Enum;
 class Enumerator;
 class Native;
-class Parser;
+class Unit;
 
 }
 
 namespace __Ice
 {
 
-void ICE_API incRef(::Slice::Token*);
-void ICE_API decRef(::Slice::Token*);
-void ICE_API incRef(::Slice::String*);
-void ICE_API decRef(::Slice::String*);
-void ICE_API incRef(::Slice::Parameters*);
-void ICE_API decRef(::Slice::Parameters*);
-void ICE_API incRef(::Slice::Enumerators*);
-void ICE_API decRef(::Slice::Enumerators*);
-void ICE_API incRef(::Slice::Throws*);
-void ICE_API decRef(::Slice::Throws*);
+void ICE_API incRef(::Slice::GrammerBase*);
+void ICE_API decRef(::Slice::GrammerBase*);
 void ICE_API incRef(::Slice::SyntaxTreeBase*);
 void ICE_API decRef(::Slice::SyntaxTreeBase*);
 void ICE_API incRef(::Slice::Type*);
@@ -100,19 +84,15 @@ void ICE_API incRef(::Slice::Enumerator*);
 void ICE_API decRef(::Slice::Enumerator*);
 void ICE_API incRef(::Slice::Native*);
 void ICE_API decRef(::Slice::Native*);
-void ICE_API incRef(::Slice::Parser*);
-void ICE_API decRef(::Slice::Parser*);
+void ICE_API incRef(::Slice::Unit*);
+void ICE_API decRef(::Slice::Unit*);
 
 }
 
 namespace Slice
 {
 
-typedef ::__Ice::Handle<Token> Token_ptr;
-typedef ::__Ice::Handle<String> String_ptr;
-typedef ::__Ice::Handle<Parameters> Parameters_ptr;
-typedef ::__Ice::Handle<Enumerators> Enumerators_ptr;
-typedef ::__Ice::Handle<Throws> Throws_ptr;
+typedef ::__Ice::Handle<GrammerBase> GrammerBase_ptr;
 typedef ::__Ice::Handle<SyntaxTreeBase> SyntaxTreeBase_ptr;
 typedef ::__Ice::Handle<Type> Type_ptr;
 typedef ::__Ice::Handle<Builtin> Builtin_ptr;
@@ -129,7 +109,7 @@ typedef ::__Ice::Handle<Vector> Vector_ptr;
 typedef ::__Ice::Handle<Enum> Enum_ptr;
 typedef ::__Ice::Handle<Enumerator> Enumerator_ptr;
 typedef ::__Ice::Handle<Native> Native_ptr;
-typedef ::__Ice::Handle<Parser> Parser_ptr;
+typedef ::__Ice::Handle<Unit> Unit_ptr;
 
 }
 
@@ -140,6 +120,7 @@ typedef std::list<Type_ptr> TypeList;
 typedef std::list<std::string> StringList;
 typedef std::pair<Type_ptr, std::string> TypeString;
 typedef std::list<TypeString> TypeStringList;
+typedef std::list<ClassDef_ptr> ClassList;
 
 // ----------------------------------------------------------------------
 // ParserVisitor
@@ -150,8 +131,8 @@ class ICE_API ParserVisitor
 public:
 
     virtual ~ParserVisitor() { }
-    virtual void visitUnitStart(const Parser_ptr&) { };
-    virtual void visitUnitEnd(const Parser_ptr&) { };
+    virtual void visitUnitStart(const Unit_ptr&) { };
+    virtual void visitUnitEnd(const Unit_ptr&) { };
     virtual void visitModuleStart(const Module_ptr&) { };
     virtual void visitModuleEnd(const Module_ptr&) { };
     virtual void visitClassDecl(const ClassDecl_ptr&) { };
@@ -165,93 +146,45 @@ public:
 };
 
 // ----------------------------------------------------------------------
-// Token
+// GrammerBase
 // ----------------------------------------------------------------------
 
-class ICE_API Token : virtual public ::__Ice::SimpleShared
+class ICE_API GrammerBase : public ::__Ice::SimpleShared
 {
 };
 
-#define YYSTYPE Slice::Token_ptr
-
-// ----------------------------------------------------------------------
-// String
-// ----------------------------------------------------------------------
-
-class ICE_API String : virtual public Token
-{
-public:
-
-    String() { }
-    std::string v;
-};
-
-// ----------------------------------------------------------------------
-// Parameters
-// ----------------------------------------------------------------------
-
-class ICE_API Parameters : virtual public Token
-{
-public:
-
-    Parameters() { }
-    TypeStringList v;
-};
-
-// ----------------------------------------------------------------------
-// Enumerators
-// ----------------------------------------------------------------------
-
-class ICE_API Enumerators : virtual public Token
-{
-public:
-
-    Enumerators() { }
-    StringList v;
-};
-
-// ----------------------------------------------------------------------
-// Throws
-// ----------------------------------------------------------------------
-
-class ICE_API Throws : virtual public Token
-{
-public:
-
-    Throws() { }
-    TypeList v;
-};
+#define YYSTYPE Slice::GrammerBase_ptr
 
 // ----------------------------------------------------------------------
 // SyntaxTreeBase
 // ----------------------------------------------------------------------
 
-class ICE_API SyntaxTreeBase : virtual public ::__Ice::SimpleShared
+class ICE_API SyntaxTreeBase : public GrammerBase
 {
 public:
 
     virtual void destroy();
-    Parser_ptr parser();
+    Unit_ptr unit();
     virtual void visit(ParserVisitor*);
 
 protected:
 
-    SyntaxTreeBase(const Parser_ptr&);
+    SyntaxTreeBase(const Unit_ptr&);
 
-    Parser_ptr parser_;
+    Unit_ptr unit_;
 };
 
 // ----------------------------------------------------------------------
 // Type
 // ----------------------------------------------------------------------
 
-class ICE_API Type : virtual public SyntaxTreeBase, virtual public Token
+class ICE_API Type : virtual public SyntaxTreeBase
 {
 public:
 
 protected:
 
-    Type(const Parser_ptr&);
+    Type(const Unit_ptr&);
 };
 
 // ----------------------------------------------------------------------
@@ -281,8 +214,8 @@ public:
 
 protected:
 
-    Builtin(const Parser_ptr&, Kind);
-    friend class ICE_API Parser;
+    Builtin(const Unit_ptr&, Kind);
+    friend class ICE_API Unit;
 
     Kind kind_;
 };
@@ -339,7 +272,8 @@ public:
 
     virtual void destroy();
     Module_ptr createModule(const std::string&);
-    ClassDef_ptr createClassDef(const std::string&, const ClassDef_ptr&, bool);
+    ClassDef_ptr createClassDef(const std::string&, const ClassDef_ptr&,
+				const ClassList&, bool);
     ClassDecl_ptr createClassDecl(const std::string&, bool);
     Vector_ptr createVector(const std::string&, const Type_ptr&);
     Enum_ptr createEnum(const std::string&, const StringList&);
@@ -358,7 +292,7 @@ public:
 
 protected:
 
-    Container(const Parser_ptr&);
+    Container(const Unit_ptr&);
 
     int includeLevel_;
     std::list<Contained_ptr> contents_;
@@ -405,7 +339,8 @@ class ICE_API ClassDecl : virtual public Constructed
 public:
 
     ClassDef_ptr definition();
-    bool local();
+    bool isLocal();
+    bool isInterface();
     virtual ContainedType containedType();
     virtual void visit(ParserVisitor*);
 
@@ -413,20 +348,21 @@ protected:
 
     ClassDecl(const Container_ptr&,
 	      const std::string&,
+	      bool,
 	      bool);
     friend class ICE_API Container;
     friend class ICE_API ClassDef;
 
-    bool local_;
     ClassDef_ptr definition_;
+    bool local_;
+    bool interface_;
 };
 
 // ----------------------------------------------------------------------
 // ClassDef
 // ----------------------------------------------------------------------
 
-class ICE_API ClassDef : virtual public Container, virtual public Contained,
-		 virtual public Token 
+class ICE_API ClassDef : virtual public Container, virtual public Contained
 {
 public:
 
@@ -438,8 +374,9 @@ public:
     ClassDef_ptr base();
     std::list<Operation_ptr> operations();
     std::list<DataMember_ptr> dataMembers();
-    bool abstract();
-    bool local();
+    bool isAbstract();
+    bool isLocal();
+    bool isInterface();
     virtual ContainedType containedType();
     virtual void visit(ParserVisitor*);
 
@@ -448,11 +385,15 @@ protected:
     ClassDef(const Container_ptr&,
 	     const std::string&,
 	     const ClassDef_ptr&,
+	     const ClassList&,
+	     bool,
 	     bool);
     friend class ICE_API Container;
 
     ClassDef_ptr base_;
+    ClassList implements_;
     bool local_;
+    bool interface_;
 };
 
 // ----------------------------------------------------------------------
@@ -605,14 +546,14 @@ protected:
 };
 
 // ----------------------------------------------------------------------
-// Parser
+// Unit
 // ----------------------------------------------------------------------
 
-class ICE_API Parser : virtual public Container
+class ICE_API Unit : virtual public Container
 {
 public:
 
-    static Parser_ptr createParser(bool, bool);
+    static Unit_ptr createUnit(bool, bool);
 
     bool ignRedefs();
 
@@ -645,7 +586,7 @@ public:
 
 private:
 
-    Parser(bool, bool);
+    Unit(bool, bool);
 
     bool ignRedefs_;
     bool all_;
@@ -660,7 +601,7 @@ private:
     std::map<std::string, std::list<Contained_ptr> > contentMap_;
 };
 
-extern Parser* parser; // The current parser for bison/flex
+extern Unit* unit; // The current parser for bison/flex
 
 }
 

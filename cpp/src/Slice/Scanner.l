@@ -10,8 +10,8 @@
 //
 // **********************************************************************
 
-#include <Parser.h>
 #include <Grammer.h>
+#include <GrammerUtil.h>
 
 using namespace std;
 using namespace Slice;
@@ -29,19 +29,19 @@ L			[a-zA-Z_]
 %%
 
 ^"#"{S}*{D}+{S}*$ {
-    parser -> scanPosition(yytext);
+    unit -> scanPosition(yytext);
 }
 
 ^"#"{S}*{D}+{S}+"\""[^\"]*"\"".*$ {
-    parser -> scanPosition(yytext);
+    unit -> scanPosition(yytext);
 }
 
 ^"#"{S}*"line"{S}+{D}+{S}*$ {
-    parser -> scanPosition(yytext);
+    unit -> scanPosition(yytext);
 }
 
 ^"#"{S}*"line"{S}+{D}+{S}+"\""[^\"]*"\"".*$ {
-    parser -> scanPosition(yytext);
+    unit -> scanPosition(yytext);
 }
 
 "//" {
@@ -53,7 +53,7 @@ L			[a-zA-Z_]
     {
 	c = yyinput();
 	if(c == '\n')
-	    parser -> nextLine();
+	    unit -> nextLine();
     }
     while(c != '\n' && c != EOF);
 }
@@ -69,7 +69,7 @@ L			[a-zA-Z_]
 	
 	if(c == '\n')
 	{
-	    parser -> nextLine();
+	    unit -> nextLine();
 	}
 	else if(c == '*')
 	{
@@ -82,13 +82,13 @@ L			[a-zA-Z_]
 	}
 	else if(c == EOF)
 	{
-	    parser -> warning("EOF in comment");
+	    unit -> warning("EOF in comment");
 	    break;
 	}
     }
 
     if(comment[0] == '*')
-	parser -> setComment(comment);
+	unit -> setComment(comment);
 }
 
 "::" {
@@ -103,12 +103,20 @@ L			[a-zA-Z_]
     return ICE_CLASS;
 }
 
+"interface" {
+    return ICE_INTERFACE;
+}
+
 "local" {
     return ICE_LOCAL;
 }
 
 "extends" {
     return ICE_EXTENDS;
+}
+
+"implements" {
+    return ICE_IMPLEMENTS;
 }
 
 "throws" {
@@ -181,7 +189,7 @@ L			[a-zA-Z_]
     if(s[0] == '\\') // Strip leading backslash
 	++s;
     
-    String_ptr ident = new String;
+    StringTok_ptr ident = new StringTok;
     ident -> v = s;
     yylval = ident;
     return ICE_IDENTIFIER;
@@ -193,7 +201,7 @@ L			[a-zA-Z_]
     if(s[0] == '\\') // Strip leading backslash
 	++s;
     
-    String_ptr ident = new String;
+    StringTok_ptr ident = new StringTok;
     ident -> v = s;
     ident -> v.erase(ident -> v.find_first_of(" \t\v\n\r\f("));
     yylval = ident;
@@ -204,7 +212,7 @@ L			[a-zA-Z_]
     // Igore white-space
     
     if(yytext[0] == '\n')
-	parser -> nextLine();
+	unit -> nextLine();
 }
 
 . {

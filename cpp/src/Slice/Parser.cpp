@@ -17,22 +17,12 @@ using namespace Slice;
 namespace Slice
 {
 
-Parser* parser;
+Unit* unit;
 
 }
 
-void __Ice::incRef(Token* p) { p -> __incRef(); }
-void __Ice::decRef(Token* p) { p -> __decRef(); }
-void __Ice::incRef(String* p) { p -> __incRef(); }
-void __Ice::decRef(String* p) { p -> __decRef(); }
-void __Ice::incRef(Parameters* p) { p -> __incRef(); }
-void __Ice::decRef(Parameters* p) { p -> __decRef(); }
-void __Ice::incRef(Enumerators* p) { p -> __incRef(); }
-void __Ice::decRef(Enumerators* p) { p -> __decRef(); }
-void __Ice::incRef(Throws* p) { p -> __incRef(); }
-void __Ice::decRef(Throws* p) { p -> __decRef(); }
-void __Ice::incRef(DataMember* p) { p -> __incRef(); }
-void __Ice::decRef(DataMember* p) { p -> __decRef(); }
+void __Ice::incRef(GrammerBase* p) { p -> __incRef(); }
+void __Ice::decRef(GrammerBase* p) { p -> __decRef(); }
 void __Ice::incRef(SyntaxTreeBase* p) { p -> __incRef(); }
 void __Ice::decRef(SyntaxTreeBase* p) { p -> __decRef(); }
 void __Ice::incRef(Type* p) { p -> __incRef(); }
@@ -55,6 +45,8 @@ void __Ice::incRef(Proxy* p) { p -> __incRef(); }
 void __Ice::decRef(Proxy* p) { p -> __decRef(); }
 void __Ice::incRef(Operation* p) { p -> __incRef(); }
 void __Ice::decRef(Operation* p) { p -> __decRef(); }
+void __Ice::incRef(DataMember* p) { p -> __incRef(); }
+void __Ice::decRef(DataMember* p) { p -> __decRef(); }
 void __Ice::incRef(Vector* p) { p -> __incRef(); }
 void __Ice::decRef(Vector* p) { p -> __decRef(); }
 void __Ice::incRef(Enum* p) { p -> __incRef(); }
@@ -63,8 +55,8 @@ void __Ice::incRef(Enumerator* p) { p -> __incRef(); }
 void __Ice::decRef(Enumerator* p) { p -> __decRef(); }
 void __Ice::incRef(Native* p) { p -> __incRef(); }
 void __Ice::decRef(Native* p) { p -> __decRef(); }
-void __Ice::incRef(Parser* p) { p -> __incRef(); }
-void __Ice::decRef(Parser* p) { p -> __decRef(); }
+void __Ice::incRef(Unit* p) { p -> __incRef(); }
+void __Ice::decRef(Unit* p) { p -> __decRef(); }
 
 // ----------------------------------------------------------------------
 // SyntaxTreeBase
@@ -73,13 +65,13 @@ void __Ice::decRef(Parser* p) { p -> __decRef(); }
 void
 Slice::SyntaxTreeBase::destroy()
 {
-    parser_ = 0;
+    unit_ = 0;
 }
 
-Parser_ptr
-Slice::SyntaxTreeBase::parser()
+Unit_ptr
+Slice::SyntaxTreeBase::unit()
 {
-    return parser_;
+    return unit_;
 }
 
 void
@@ -87,8 +79,8 @@ Slice::SyntaxTreeBase::visit(ParserVisitor*)
 {
 }
 
-Slice::SyntaxTreeBase::SyntaxTreeBase(const Parser_ptr& parser)
-    : parser_(parser)
+Slice::SyntaxTreeBase::SyntaxTreeBase(const Unit_ptr& unit)
+    : unit_(unit)
 {
 }
 
@@ -96,8 +88,8 @@ Slice::SyntaxTreeBase::SyntaxTreeBase(const Parser_ptr& parser)
 // Type
 // ----------------------------------------------------------------------
 
-Slice::Type::Type(const Parser_ptr& parser)
-    : SyntaxTreeBase(parser)
+Slice::Type::Type(const Unit_ptr& unit)
+    : SyntaxTreeBase(unit)
 {
 }
 
@@ -111,9 +103,9 @@ Slice::Builtin::kind()
     return kind_;
 }
 
-Slice::Builtin::Builtin(const Parser_ptr& parser, Kind kind)
-    : Type(parser),
-      SyntaxTreeBase(parser),
+Slice::Builtin::Builtin(const Unit_ptr& unit, Kind kind)
+    : Type(unit),
+      SyntaxTreeBase(unit),
       kind_(kind)
 {
 }
@@ -156,7 +148,7 @@ Slice::Contained::comment()
 
 Slice::Contained::Contained(const Container_ptr& container,
 			    const string& name)
-    : SyntaxTreeBase(container -> parser()),
+    : SyntaxTreeBase(container -> unit()),
       container_(container),
       name_(name)
 {
@@ -164,10 +156,10 @@ Slice::Contained::Contained(const Container_ptr& container,
     if(cont)
 	scoped_ = cont -> scoped();
     scoped_ += "::" + name_;				       
-    if(parser_)
+    if(unit_)
     {
-	parser_ -> addContent(this);
-	comment_ = parser_ -> currentComment();
+	unit_ -> addContent(this);
+	comment_ = unit_ -> currentComment();
     }
 }
 
@@ -203,7 +195,7 @@ Slice::Container::destroy()
 Module_ptr
 Slice::Container::createModule(const string& name)
 {
-    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
+    list<Contained_ptr> matches = unit_ -> findContents(thisScope() + name);
     for(list<Contained_ptr>::iterator p = matches.begin();
 	p != matches.end();
 	++p)
@@ -223,18 +215,19 @@ Slice::Container::createModule(const string& name)
 ClassDef_ptr
 Slice::Container::createClassDef(const string& name,
 				 const ClassDef_ptr& base,
+				 const ClassList& implements,
 				 bool local)
 {
-    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
+    list<Contained_ptr> matches = unit_ -> findContents(thisScope() + name);
     for(list<Contained_ptr>::iterator p = matches.begin();
 	p != matches.end();
 	++p)
     {
 	ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(*p);
 	if(cl)
-	    continue; // TODO: Check whether locality matches
+	    continue; // TODO: Check whether local matches
 
-	if(parser_ -> ignRedefs())
+	if(unit_ -> ignRedefs())
 	{
 	    ClassDef_ptr def = ClassDef_ptr::dynamicCast(*p);
 	    if(def)
@@ -244,7 +237,8 @@ Slice::Container::createClassDef(const string& name,
 	assert(false); // TODO: Already exists and not a class declaration
     }
     
-    ClassDef_ptr def = new ClassDef(this, name, base, local);
+    ClassDef_ptr def = new ClassDef(this, name, base, implements,
+				    local, false);
     contents_.push_back(def);
     
     for(list<Contained_ptr>::iterator q = matches.begin();
@@ -270,7 +264,7 @@ Slice::Container::createClassDecl(const string& name, bool local)
 {
     ClassDef_ptr def;
 
-    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
+    list<Contained_ptr> matches = unit_ -> findContents(thisScope() + name);
     for(list<Contained_ptr>::iterator p = matches.begin();
 	p != matches.end();
 	++p)
@@ -280,12 +274,12 @@ Slice::Container::createClassDecl(const string& name, bool local)
 	{
 	    assert(!def);
 	    def = clDef;
-	    continue; // TODO: Check whether locality matches
+	    continue; // TODO: Check whether local matches
 	}
 	
 	ClassDecl_ptr clDecl = ClassDecl_ptr::dynamicCast(*p);
 	if(clDecl)
-	    continue; // TODO: Check whether locality matches
+	    continue; // TODO: Check whether local matches
 
 	// TODO: Already defined as something other than a class
 	assert(false);
@@ -310,7 +304,7 @@ Slice::Container::createClassDecl(const string& name, bool local)
 	}
     }
 
-    ClassDecl_ptr cl = new ClassDecl(this, name, local);
+    ClassDecl_ptr cl = new ClassDecl(this, name, local, false);
     contents_.push_back(cl);
 
     if(def)
@@ -322,10 +316,10 @@ Slice::Container::createClassDecl(const string& name, bool local)
 Vector_ptr
 Slice::Container::createVector(const string& name, const Type_ptr& type)
 {
-    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
+    list<Contained_ptr> matches = unit_ -> findContents(thisScope() + name);
     if(!matches.empty())
     {
-	if(parser_ -> ignRedefs())
+	if(unit_ -> ignRedefs())
 	{
 	    Vector_ptr p = Vector_ptr::dynamicCast(matches.front());
 	    if(p)
@@ -343,10 +337,10 @@ Slice::Container::createVector(const string& name, const Type_ptr& type)
 Enum_ptr
 Slice::Container::createEnum(const string& name, const StringList& enumerators)
 {
-    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
+    list<Contained_ptr> matches = unit_ -> findContents(thisScope() + name);
     if(!matches.empty())
     {
-	if(parser_ -> ignRedefs())
+	if(unit_ -> ignRedefs())
 	{
 	    Enum_ptr p = Enum_ptr::dynamicCast(matches.front());
 	    if(p)
@@ -364,10 +358,10 @@ Slice::Container::createEnum(const string& name, const StringList& enumerators)
 Enumerator_ptr
 Slice::Container::createEnumerator(const std::string& name)
 {
-    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
+    list<Contained_ptr> matches = unit_ -> findContents(thisScope() + name);
     if(!matches.empty())
     {
-	if(parser_ -> ignRedefs())
+	if(unit_ -> ignRedefs())
 	{
 	    Enumerator_ptr p = Enumerator_ptr::dynamicCast(matches.front());
 	    if(p)
@@ -385,10 +379,10 @@ Slice::Container::createEnumerator(const std::string& name)
 Native_ptr
 Slice::Container::createNative(const string& name)
 {
-    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
+    list<Contained_ptr> matches = unit_ -> findContents(thisScope() + name);
     if(!matches.empty())
     {
-	if(parser_ -> ignRedefs())
+	if(unit_ -> ignRedefs())
 	{
 	    Native_ptr p = Native_ptr::dynamicCast(matches.front());
 	    if(p)
@@ -409,10 +403,10 @@ Slice::Container::lookupType(const string& scoped)
     assert(!scoped.empty());
 
     if(scoped[0] == ':')
-	return parser_ -> lookupType(scoped.substr(2));
+	return unit_ -> lookupType(scoped.substr(2));
     
     list<Contained_ptr> matches =
-	parser_ -> findContents(thisScope() + scoped);
+	unit_ -> findContents(thisScope() + scoped);
     if(matches.empty())
     {
 	Contained_ptr contained = Contained_ptr::dynamicCast(this);
@@ -452,7 +446,7 @@ Slice::Container::hasProxies()
 	++p)
     {
 	ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(*p);
-	if(cl && !cl -> local())
+	if(cl && !cl -> isLocal())
 	    return true;
 
 	Container_ptr container = Container_ptr::dynamicCast(*p);
@@ -564,7 +558,7 @@ Slice::Container::mergeModules()
 	    if(mod1 -> comment_.length() < mod2 -> comment_.length())
 		mod1 -> comment_ = mod2 -> comment_;
 
-	    parser_ -> removeContent(*q);
+	    unit_ -> removeContent(*q);
 	    q = contents_.erase(q);
 	}
 	
@@ -598,11 +592,11 @@ Slice::Container::visit(ParserVisitor* visitor)
     }
 }
 
-Slice::Container::Container(const Parser_ptr& parser)
-    : SyntaxTreeBase(parser)
+Slice::Container::Container(const Unit_ptr& unit)
+    : SyntaxTreeBase(unit)
 {
-    if(parser_)
-	includeLevel_ = parser -> currentIncludeLevel();
+    if(unit_)
+	includeLevel_ = unit_ -> currentIncludeLevel();
     else
 	includeLevel_ = 0;
 }
@@ -631,8 +625,8 @@ Slice::Module::visit(ParserVisitor* visitor)
 Slice::Module::Module(const Container_ptr& container,
 			const string& name)
     : Contained(container, name),
-      Container(container -> parser()),
-      SyntaxTreeBase(container -> parser())
+      Container(container -> unit()),
+      SyntaxTreeBase(container -> unit())
 {
 }
 
@@ -642,9 +636,9 @@ Slice::Module::Module(const Container_ptr& container,
 
 Slice::Constructed::Constructed(const Container_ptr& container,
 				  const string& name)
-    : Type(container -> parser()),
+    : Type(container -> unit()),
       Contained(container, name),
-      SyntaxTreeBase(container -> parser())
+      SyntaxTreeBase(container -> unit())
 {
 }
 
@@ -659,9 +653,15 @@ Slice::ClassDecl::definition()
 }
 
 bool
-Slice::ClassDecl::local()
+Slice::ClassDecl::isLocal()
 {
     return local_;
+}
+
+bool
+Slice::ClassDecl::isInterface()
+{
+    return interface_;
 }
 
 Slice::Contained::ContainedType
@@ -677,13 +677,15 @@ Slice::ClassDecl::visit(ParserVisitor* visitor)
 }
 
 Slice::ClassDecl::ClassDecl(const Container_ptr& container,
-			      const string& name,
-			      bool local)
+			    const string& name,
+			    bool local,
+			    bool interface)
     : Constructed(container, name),
-      Type(container -> parser()),
+      Type(container -> unit()),
       Contained(container, name),
-      SyntaxTreeBase(container -> parser()),
-      local_(local)
+      SyntaxTreeBase(container -> unit()),
+      local_(local),
+      interface_(interface)
 {
 }
 
@@ -705,10 +707,10 @@ Slice::ClassDef::createOperation(const string& name,
 				 const TypeStringList& outParams,
 				 const TypeList& throws)
 {
-    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
+    list<Contained_ptr> matches = unit_ -> findContents(thisScope() + name);
     if(!matches.empty())
     {
-	if(parser_ -> ignRedefs())
+	if(unit_ -> ignRedefs())
 	{
 	    Operation_ptr p = Operation_ptr::dynamicCast(matches.front());
 	    if(p)
@@ -727,10 +729,10 @@ Slice::ClassDef::createOperation(const string& name,
 DataMember_ptr
 Slice::ClassDef::createDataMember(const string& name, const Type_ptr& type)
 {
-    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
+    list<Contained_ptr> matches = unit_ -> findContents(thisScope() + name);
     if(!matches.empty())
     {
-	if(parser_ -> ignRedefs())
+	if(unit_ -> ignRedefs())
 	{
 	    DataMember_ptr p = DataMember_ptr::dynamicCast(matches.front());
 	    if(p)
@@ -782,9 +784,9 @@ Slice::ClassDef::dataMembers()
 }
 
 bool
-Slice::ClassDef::abstract()
+Slice::ClassDef::isAbstract()
 {
-    if(base_ && base_ -> abstract())
+    if(base_ && base_ -> isAbstract())
 	return true;
 
     for(list<Contained_ptr>::const_iterator p = contents_.begin();
@@ -799,9 +801,15 @@ Slice::ClassDef::abstract()
 }
 
 bool
-Slice::ClassDef::local()
+Slice::ClassDef::isLocal()
 {
     return local_;
+}
+
+bool
+Slice::ClassDef::isInterface()
+{
+    return interface_;
 }
 
 Slice::Contained::ContainedType
@@ -824,12 +832,16 @@ Slice::ClassDef::visit(ParserVisitor* visitor)
 Slice::ClassDef::ClassDef(const Container_ptr& container,
 			  const string& name,
 			  const ClassDef_ptr& base,
-			  bool local)
+			  const ClassList& implements,
+			  bool local,
+			  bool interface)
     : Contained(container, name),
-      Container(container -> parser()),
-      SyntaxTreeBase(container -> parser()),
+      Container(container -> unit()),
+      SyntaxTreeBase(container -> unit()),
       base_(base),
-      local_(local)
+      implements_(implements),
+      local_(local),
+      interface_(interface)
 {
 }
 
@@ -844,8 +856,8 @@ Slice::Proxy::_class()
 }
 
 Slice::Proxy::Proxy(const ClassDecl_ptr& cl)
-    : Type(cl -> parser()),
-      SyntaxTreeBase(cl -> parser()),
+    : Type(cl -> unit()),
+      SyntaxTreeBase(cl -> unit()),
       class_(cl)
 {
 }
@@ -897,7 +909,7 @@ Slice::Operation::Operation(const Container_ptr& container,
 			    const TypeStringList& outParams,
 			    const TypeList& throws)
     : Contained(container, name),
-      SyntaxTreeBase(container -> parser()),
+      SyntaxTreeBase(container -> unit()),
       returnType_(returnType),
       inParams_(inParams),
       outParams_(outParams),
@@ -931,7 +943,7 @@ Slice::DataMember::DataMember(const Container_ptr& container,
 				const string& name,
 				const Type_ptr& type)
     : Contained(container, name),
-      SyntaxTreeBase(container -> parser()),
+      SyntaxTreeBase(container -> unit()),
       type_(type)
 {
 }
@@ -955,9 +967,9 @@ Slice::Native::visit(ParserVisitor* visitor)
 Slice::Native::Native(const Container_ptr& container,
 		      const string& name)
     : Constructed(container, name),
-      Type(container -> parser()),
+      Type(container -> unit()),
       Contained(container,  name),
-      SyntaxTreeBase(container -> parser())
+      SyntaxTreeBase(container -> unit())
 {
 }
 
@@ -987,9 +999,9 @@ Slice::Vector::Vector(const Container_ptr& container,
 		      const string& name,
 		      const Type_ptr& type)
     : Constructed(container, name),
-      Type(container -> parser()),
+      Type(container -> unit()),
       Contained(container,  name),
-      SyntaxTreeBase(container -> parser()),
+      SyntaxTreeBase(container -> unit()),
       type_(type)
 {
 }
@@ -1020,9 +1032,9 @@ Slice::Enum::Enum(const Container_ptr& container,
 		  const string& name,
 		  const StringList& enumerators)
     : Constructed(container, name),
-      Type(container -> parser()),
+      Type(container -> unit()),
       Contained(container,  name),
-      SyntaxTreeBase(container -> parser()),
+      SyntaxTreeBase(container -> unit()),
       enumerators_(enumerators)
 {
 }
@@ -1040,28 +1052,28 @@ Slice::Enumerator::containedType()
 Slice::Enumerator::Enumerator(const Container_ptr& container,
 			      const string& name)
     : Contained(container, name),
-      SyntaxTreeBase(container -> parser())
+      SyntaxTreeBase(container -> unit())
 {
 }
 
 // ----------------------------------------------------------------------
-// Parser
+// Unit
 // ----------------------------------------------------------------------
 
-Parser_ptr
-Slice::Parser::createParser(bool ignRedefs, bool all)
+Unit_ptr
+Slice::Unit::createUnit(bool ignRedefs, bool all)
 {
-    return new Parser(ignRedefs, all);
+    return new Unit(ignRedefs, all);
 }
 
 bool
-Slice::Parser::ignRedefs()
+Slice::Unit::ignRedefs()
 {
     return ignRedefs_;
 }
 
 void
-Slice::Parser::setComment(const std::string& comment)
+Slice::Unit::setComment(const std::string& comment)
 {
     currentComment_.empty();
 
@@ -1078,7 +1090,7 @@ Slice::Parser::setComment(const std::string& comment)
 }
 
 std::string
-Slice::Parser::currentComment()
+Slice::Unit::currentComment()
 {
     string comment;
     comment.swap(currentComment_);
@@ -1086,13 +1098,13 @@ Slice::Parser::currentComment()
 }
 
 void
-Slice::Parser::nextLine()
+Slice::Unit::nextLine()
 {
     currentLine_++;
 }
 
 void
-Slice::Parser::scanPosition(const char* s)
+Slice::Unit::scanPosition(const char* s)
 {
     string line(s);
     string::size_type idx;
@@ -1155,7 +1167,7 @@ Slice::Parser::scanPosition(const char* s)
 }
 
 int
-Slice::Parser::currentIncludeLevel()
+Slice::Unit::currentIncludeLevel()
 {
     if(all_)
 	return 0;
@@ -1164,46 +1176,46 @@ Slice::Parser::currentIncludeLevel()
 }
 
 void
-Slice::Parser::error(const char* s)
+Slice::Unit::error(const char* s)
 {
     cerr << currentFile_ << ':' << currentLine_ << " error: " << s << endl;
     yynerrs++;
 }
 
 void
-Slice::Parser::warning(const char* s)
+Slice::Unit::warning(const char* s)
 {
     cerr << currentFile_ << ':' << currentLine_ << " warning: " << s << endl;
 }
 
 Container_ptr
-Slice::Parser::currentContainer()
+Slice::Unit::currentContainer()
 {
     assert(!containerStack_.empty());
     return containerStack_.top();
 }
 
 void
-Slice::Parser::pushContainer(const Container_ptr& cont)
+Slice::Unit::pushContainer(const Container_ptr& cont)
 {
     containerStack_.push(cont);    
 }
 
 void
-Slice::Parser::popContainer()
+Slice::Unit::popContainer()
 {
     assert(!containerStack_.empty());
     containerStack_.pop();
 }
 
 void
-Slice::Parser::addContent(const Contained_ptr& contained)
+Slice::Unit::addContent(const Contained_ptr& contained)
 {
     contentMap_[contained -> scoped()].push_back(contained);
 }
 
 void
-Slice::Parser::removeContent(const Contained_ptr& contained)
+Slice::Unit::removeContent(const Contained_ptr& contained)
 {
     string scoped = contained -> scoped();
     map<string, list<Contained_ptr> >::iterator p = contentMap_.find(scoped);
@@ -1221,7 +1233,7 @@ Slice::Parser::removeContent(const Contained_ptr& contained)
 }
 
 list<Contained_ptr>
-Slice::Parser::findContents(const string& scoped)
+Slice::Unit::findContents(const string& scoped)
 {
     assert(!scoped.empty());
     assert(scoped[0] == ':');
@@ -1235,19 +1247,19 @@ Slice::Parser::findContents(const string& scoped)
 }
 
 list<string>
-Slice::Parser::includeFiles()
+Slice::Unit::includeFiles()
 {
     return includeFiles_;
 }
 
 int
-Slice::Parser::parse(FILE* file, bool debug)
+Slice::Unit::parse(FILE* file, bool debug)
 {
     extern int yydebug;
     yydebug = debug ? 1 : 0;
 
-    assert(!Slice::parser);
-    Slice::parser = this;
+    assert(!Slice::unit);
+    Slice::unit = this;
 
     currentLine_ = 1;
     currentIncludeLevel_ = 0;
@@ -1263,19 +1275,19 @@ Slice::Parser::parse(FILE* file, bool debug)
     assert(containerStack_.size() == 1);
     popContainer();
 
-    Slice::parser = 0;
+    Slice::unit = 0;
     return status;
 }
 
 void
-Slice::Parser::destroy()
+Slice::Unit::destroy()
 {
     builtins_.clear();
     Container::destroy();
 }
 
 void
-Slice::Parser::visit(ParserVisitor* visitor)
+Slice::Unit::visit(ParserVisitor* visitor)
 {
     visitor -> visitUnitStart(this);
     Container::visit(visitor);
@@ -1283,7 +1295,7 @@ Slice::Parser::visit(ParserVisitor* visitor)
 }
 
 Builtin_ptr
-Slice::Parser::builtin(Builtin::Kind kind)
+Slice::Unit::builtin(Builtin::Kind kind)
 {
     map<Builtin::Kind, Builtin_ptr>::iterator p = builtins_.find(kind);
     if(p != builtins_.end())
@@ -1293,11 +1305,11 @@ Slice::Parser::builtin(Builtin::Kind kind)
     return builtin;
 }
 
-Slice::Parser::Parser(bool ignRedefs, bool all)
+Slice::Unit::Unit(bool ignRedefs, bool all)
     : SyntaxTreeBase(0),
       Container(0),
       ignRedefs_(ignRedefs),
       all_(all)
 {
-    parser_ = this;
+    unit_ = this;
 }

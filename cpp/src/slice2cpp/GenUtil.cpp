@@ -177,7 +177,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const Type_ptr& type,
 		<< "::__implements[0]);";
 	    out << nl << "if(!__obj)";
 	    ClassDef_ptr def = cl -> definition();
-	    if(def && !def -> abstract())
+	    if(def && !def -> isAbstract())
 	    {
 		out << sb;
 		out << nl << "__obj = new " << cl -> scoped() << ";";

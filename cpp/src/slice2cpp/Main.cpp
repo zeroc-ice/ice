@@ -168,8 +168,8 @@ main(int argc, char* argv[])
 	    return EXIT_FAILURE;
 	}
 	
-	Parser_ptr parser = Parser::createParser(false, false);
-	int status = parser -> parse(cppHandle, debug);
+	Unit_ptr unit = Unit::createUnit(false, false);
+	int status = unit -> parse(cppHandle, debug);
 	
 #ifdef WIN32
 	_pclose(cppHandle);
@@ -183,9 +183,9 @@ main(int argc, char* argv[])
 	Gen gen(argv[0], base, include, includePaths, dllExport);
 	if(!gen)
 	    return EXIT_FAILURE;
-	gen.generate(parser);
+	gen.generate(unit);
 
-	parser -> destroy();
+	unit -> destroy();
     }
 
     return EXIT_SUCCESS;

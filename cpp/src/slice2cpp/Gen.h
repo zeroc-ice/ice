@@ -30,7 +30,7 @@ public:
 
     bool operator!() const; // Returns true if there was a constructor error
 
-    void generate(const Parser_ptr&);
+    void generate(const Unit_ptr&);
 
 private:
 
@@ -71,8 +71,8 @@ private:
 
 	ProxyDeclVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitUnitStart(const Parser_ptr&);
-	virtual void visitUnitEnd(const Parser_ptr&);
+	virtual void visitUnitStart(const Unit_ptr&);
+	virtual void visitUnitEnd(const Unit_ptr&);
 	virtual void visitModuleStart(const Module_ptr&);
 	virtual void visitModuleEnd(const Module_ptr&);
 	virtual void visitClassDecl(const ClassDecl_ptr&);
@@ -91,8 +91,8 @@ private:
 
 	ProxyVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitUnitStart(const Parser_ptr&);
-	virtual void visitUnitEnd(const Parser_ptr&);
+	virtual void visitUnitStart(const Unit_ptr&);
+	virtual void visitUnitEnd(const Unit_ptr&);
 	virtual void visitModuleStart(const Module_ptr&);
 	virtual void visitModuleEnd(const Module_ptr&);
 	virtual void visitClassDefStart(const ClassDef_ptr&);
@@ -113,8 +113,8 @@ private:
 
 	DelegateVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitUnitStart(const Parser_ptr&);
-	virtual void visitUnitEnd(const Parser_ptr&);
+	virtual void visitUnitStart(const Unit_ptr&);
+	virtual void visitUnitEnd(const Unit_ptr&);
 	virtual void visitModuleStart(const Module_ptr&);
 	virtual void visitModuleEnd(const Module_ptr&);
 	virtual void visitClassDefStart(const ClassDef_ptr&);
@@ -135,8 +135,8 @@ private:
 
 	DelegateMVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitUnitStart(const Parser_ptr&);
-	virtual void visitUnitEnd(const Parser_ptr&);
+	virtual void visitUnitStart(const Unit_ptr&);
+	virtual void visitUnitEnd(const Unit_ptr&);
 	virtual void visitModuleStart(const Module_ptr&);
 	virtual void visitModuleEnd(const Module_ptr&);
 	virtual void visitClassDefStart(const ClassDef_ptr&);
@@ -196,8 +196,8 @@ private:
 
 	IceVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitUnitStart(const Parser_ptr&);
-	virtual void visitUnitEnd(const Parser_ptr&);
+	virtual void visitUnitStart(const Unit_ptr&);
+	virtual void visitUnitEnd(const Unit_ptr&);
 	virtual void visitClassDecl(const ClassDecl_ptr&);
 	virtual void visitClassDefStart(const ClassDef_ptr&);
 

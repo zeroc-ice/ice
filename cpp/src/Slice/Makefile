@@ -21,6 +21,7 @@ TARGETS		= $(NAME) $(VERSIONED_NAME)
 OBJS		= Shared.o \
 		  Scanner.o \
 		  Grammer.o \
+		  GrammerUtil.o \
 		  Parser.o \
 		  OutputUtil.o
 
