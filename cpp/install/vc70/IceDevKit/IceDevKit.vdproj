@@ -243,6 +243,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_0EDD70AE4E1644B3860870F5A5E208DF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\CONFIG\\BUILD.PROPERTIES"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_0FD1E1A87513472FA02F6E4EAF597324"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICEUTILD.LIB"
@@ -3574,6 +3580,26 @@
             "TargetName" = "8:Server.java"
             "Tag" = "8:"
             "Folder" = "8:_E6229EDA65EE4F358447AA99172BFABA"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_0EDD70AE4E1644B3860870F5A5E208DF"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\config\\build.properties"
+            "TargetName" = "8:build.properties"
+            "Tag" = "8:"
+            "Folder" = "8:_9DB91970DFF2409CB4FFD0E104CDCAC7"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"

@@ -1,0 +1,31 @@
+Installer for Visual Studio .NET 2002 aka VC 7.0:
+------------------------------------------------
+
+This directory contains a Visual Studio .NET 2002 solution to
+create Microsoft Windows Installers (.msi) for Ice and the
+third party products Ice depends on.
+
+These projects were created with all the source distributions
+installed in C:\builds; the Ice source distribution was 
+installed in C:\builds\ice and the IceJ source distribution
+was installed in c:\builds\icej. If you use a different directory
+structure, you may need to adjust some paths in the project files.
+
+The solution has two configurations:
+ - ThirdParty, to build the ThirdParty.msi and ThirdPartyPDB.msi 
+   installers from source distributions of Berkeley DB, 
+   bzip2/libbzip2, OpenSSL and Xerces-C++. All the source 
+   distributions must be built with both Debug and Release 
+   configurations, except OpenSSL (release only). This configuration 
+   also generates Merge Modules (.msm files) for these products in 
+   the MergeModules directory.
+
+ - Ice, to build the Ice.msi and IcePDB.msi installers from Ice and 
+   IceJ source distributions, and merge modules for Berkeley DB, 
+   OpenSSL and Xerces-C++. Ice must be built with both Debug and 
+   Release configurations; IceJ should be built with optimize set to
+   on. The required merge modules can be either created through 
+   the ThirdParty configuration (which requires building the
+   corresponding source distributions) or downloaded from
+   http://www.zeroc.com/download.html
+

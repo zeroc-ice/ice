@@ -23,7 +23,13 @@
         {
         "MsmKey" = "8:_C51538F69EC848EEB5F6E6E2A13E9A33"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\INSTALL\\ZEROC.JPG"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\INSTALL\\COMMON\\ZEROC.JPG"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CAACA2C93E53483FB0B54E1D7EC7879C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\INSTALL\\THIRDPARTY-LICENSE.RTF"
         }
     }
     "Configurations"
@@ -63,8 +69,28 @@
         {
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C51538F69EC848EEB5F6E6E2A13E9A33"
             {
-            "SourcePath" = "8:..\\..\\zeroc.jpg"
+            "SourcePath" = "8:..\\..\\common\\zeroc.jpg"
             "TargetName" = "8:zeroc.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_8253E84378124796AA61A128EA5DC1E7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_CAACA2C93E53483FB0B54E1D7EC7879C"
+            {
+            "SourcePath" = "8:..\\..\\common\\ThirdParty-LICENSE.rtf"
+            "TargetName" = "8:ThirdParty-LICENSE.rtf"
             "Tag" = "8:"
             "Folder" = "8:_8253E84378124796AA61A128EA5DC1E7"
             "Condition" = "8:"
@@ -427,7 +453,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:WARNING: Berkeley DB, Bzlib2, OpenSSL and Xerces-C++ are protected by copyright law and international treaties. Please read carefully each program's license for information on its conditions of use and distribution."
+                            "Value" = "8:WARNING: Berkeley DB, libzlib2, OpenSSL and Xerces-C++ are protected by copyright law and international treaties. Please read carefully their respective license agreements on the next page."
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -440,8 +466,57 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:The installer will guide you through the steps required to install [ProductName] for Visual Studio .NET on your computer."
+                            "Value" = "8:The installer will guide you through the steps required to install [ProductName] for Visual Studio .NET 2002 on your computer."
                             "DefaultValue" = "8:#1203"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                        }
+                    }
+                    "{E4ECAB24-4AB7-11D3-8D78-00A0C9CFCEE6}:_DDD18F2A4D5248A5B25A2A64EA92C0B1"
+                    {
+                    "Sequence" = "3:110"
+                    "DisplayName" = "8:License Agreement"
+                    "UseDynamicProperties" = "11:TRUE"
+                    "IsDependency" = "11:FALSE"
+                    "SourcePath" = "8:<VsdDialogDir>\\VsdLicenseDlg.wid"
+                    "ModuleSignature" = "8:VsdDialogs.8FA7D956_B864_4FF4_92F0_FB2799B33176"
+                        "Properties"
+                        {
+                            "BannerBitmap"
+                            {
+                            "Name" = "8:BannerBitmap"
+                            "DisplayName" = "8:#1001"
+                            "Description" = "8:#1101"
+                            "Type" = "3:8"
+                            "ContextData" = "8:Bitmap"
+                            "Attributes" = "3:4"
+                            "Setting" = "3:2"
+                            "Value" = "8:_C51538F69EC848EEB5F6E6E2A13E9A33"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "EulaText"
+                            {
+                            "Name" = "8:EulaText"
+                            "DisplayName" = "8:#1008"
+                            "Description" = "8:#1108"
+                            "Type" = "3:6"
+                            "ContextData" = "8:"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:2"
+                            "Value" = "8:_CAACA2C93E53483FB0B54E1D7EC7879C"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Sunken"
+                            {
+                            "Name" = "8:Sunken"
+                            "DisplayName" = "8:#1007"
+                            "Description" = "8:#1107"
+                            "Type" = "3:5"
+                            "ContextData" = "8:4;True=4;False=0"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:0"
+                            "Value" = "3:4"
+                            "DefaultValue" = "3:4"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -517,7 +592,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:WARNING: Berkeley DB, Bzlib2, OpenSSL and Xerces-C++ are protected by copyright law and international treaties. Please read carefully each program license for information on its conditions of use and distribution."
+                            "Value" = "8:WARNING: Berkeley DB, libzlib2, OpenSSL and Xerces-C++ are protected by copyright law and international treaties. Please read carefully their respective license agreements on the next page."
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -580,6 +655,55 @@
                             "Attributes" = "3:4"
                             "Setting" = "3:2"
                             "Value" = "8:_C51538F69EC848EEB5F6E6E2A13E9A33"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                        }
+                    }
+                    "{E4ECAB24-4AB7-11D3-8D78-00A0C9CFCEE6}:_A4B1351F2CAC42F2A835F97AA3F6C79C"
+                    {
+                    "Sequence" = "3:110"
+                    "DisplayName" = "8:License Agreement"
+                    "UseDynamicProperties" = "11:TRUE"
+                    "IsDependency" = "11:FALSE"
+                    "SourcePath" = "8:<VsdDialogDir>\\VsdAdminLicenseDlg.wid"
+                    "ModuleSignature" = "8:VsdDialogs.836CEFDB_3154_4E4C_84F8_DC115871E5E1"
+                        "Properties"
+                        {
+                            "BannerBitmap"
+                            {
+                            "Name" = "8:BannerBitmap"
+                            "DisplayName" = "8:#1001"
+                            "Description" = "8:#1101"
+                            "Type" = "3:8"
+                            "ContextData" = "8:Bitmap"
+                            "Attributes" = "3:4"
+                            "Setting" = "3:2"
+                            "Value" = "8:_C51538F69EC848EEB5F6E6E2A13E9A33"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "EulaText"
+                            {
+                            "Name" = "8:EulaText"
+                            "DisplayName" = "8:#1008"
+                            "Description" = "8:#1108"
+                            "Type" = "3:6"
+                            "ContextData" = "8:"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:2"
+                            "Value" = "8:_CAACA2C93E53483FB0B54E1D7EC7879C"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Sunken"
+                            {
+                            "Name" = "8:Sunken"
+                            "DisplayName" = "8:#1007"
+                            "Description" = "8:#1107"
+                            "Type" = "3:5"
+                            "ContextData" = "8:4;True=4;False=0"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:0"
+                            "Value" = "3:4"
+                            "DefaultValue" = "3:4"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }

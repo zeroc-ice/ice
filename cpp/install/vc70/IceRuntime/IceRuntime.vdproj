@@ -141,12 +141,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_BD4F8D94C9C747B3B1B1B5D554CA5987"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LICENSE"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_C0C9DF0118D94D1883CCD7CF7CAABAB7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\SLICE11.DLL"
@@ -534,26 +528,6 @@
             "TargetName" = "8:icestormservice11.dll"
             "Tag" = "8:"
             "Folder" = "8:_16965972D27742F196A05A88F2D678CB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BD4F8D94C9C747B3B1B1B5D554CA5987"
-            {
-            "SourcePath" = "8:..\\..\\..\\LICENSE"
-            "TargetName" = "8:Ice-LICENSE"
-            "Tag" = "8:"
-            "Folder" = "8:_20E11ABD430C44DD91C1839904224F28"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"

@@ -19,6 +19,18 @@
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:MergeModule.05D62AF072BE4A568B636D3ED4DC95D0"
         }
+        "Entry"
+        {
+        "MsmKey" = "8:_411CE6E93C224DF79CF69FFDE20038A4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\INSTALL\\COMMON\\ICE-LICENSE.RTF"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_BFE389366D01457484B3F902A73DF72E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\INSTALL\\COMMON\\ZEROC.JPG"
+        }
     }
     "Configurations"
     {
@@ -55,6 +67,46 @@
         }
         "File"
         {
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_411CE6E93C224DF79CF69FFDE20038A4"
+            {
+            "SourcePath" = "8:..\\..\\common\\Ice-LICENSE.rtf"
+            "TargetName" = "8:Ice-LICENSE.rtf"
+            "Tag" = "8:"
+            "Folder" = "8:_DC75A081CD2645F0A19BA83C8279A41E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BFE389366D01457484B3F902A73DF72E"
+            {
+            "SourcePath" = "8:..\\..\\common\\zeroc.jpg"
+            "TargetName" = "8:zeroc.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_DC75A081CD2645F0A19BA83C8279A41E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
         }
         "FileType"
         {
@@ -85,7 +137,7 @@
             }
             "{EE62640D-12F2-11D3-8D6C-00A0C9CFCEE6}:_DC75A081CD2645F0A19BA83C8279A41E"
             {
-            "DefaultLocation" = "8:[ProgramFilesFolder]\\Ice 1.1.0"
+            "DefaultLocation" = "8:C:\\Ice-[ProductVersion]"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -246,10 +298,10 @@
                 "ModuleSignature" = "8:MergeModule.05D62AF072BE4A568B636D3ED4DC95D0"
                     "Properties"
                     {
-                        "_E54623ED41D94401802F27F808D75315.05D62AF072BE4A568B636D3ED4DC95D0"
+                        "_B7E87A49239640DCA1DEAE9292E379F6.05D62AF072BE4A568B636D3ED4DC95D0"
                         {
-                        "Name" = "8:_E54623ED41D94401802F27F808D75315.05D62AF072BE4A568B636D3ED4DC95D0"
-                        "DisplayName" = "8:bin"
+                        "Name" = "8:_B7E87A49239640DCA1DEAE9292E379F6.05D62AF072BE4A568B636D3ED4DC95D0"
+                        "DisplayName" = "8:Module Retargetable Folder"
                         "Description" = "8:"
                         "Type" = "3:32769"
                         "ContextData" = "8:_RetargetableFolder"
@@ -271,7 +323,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Ice 1.1.0 PDB Files"
         "ProductCode" = "8:{88C03833-F637-4FA9-9A8F-BB44E47C973C}"
-        "PackageCode" = "8:{677BFE60-C7AB-41F4-B02F-CD7DF993950F}"
+        "PackageCode" = "8:{AB5BE2E6-0A44-4EFA-B2AB-5532A19C4416}"
         "UpgradeCode" = "8:{34AFF334-5D5C-45B4-B836-54CDDE95ABB0}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -325,7 +377,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_BFE389366D01457484B3F902A73DF72E"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "ShowProgress"
@@ -352,6 +405,55 @@
             "Attributes" = "3:1"
                 "Dialogs"
                 {
+                    "{E4ECAB24-4AB7-11D3-8D78-00A0C9CFCEE6}:_253BDF42F3094332B980178949FE5B74"
+                    {
+                    "Sequence" = "3:110"
+                    "DisplayName" = "8:License Agreement"
+                    "UseDynamicProperties" = "11:TRUE"
+                    "IsDependency" = "11:FALSE"
+                    "SourcePath" = "8:<VsdDialogDir>\\VsdLicenseDlg.wid"
+                    "ModuleSignature" = "8:VsdDialogs.8FA7D956_B864_4FF4_92F0_FB2799B33176"
+                        "Properties"
+                        {
+                            "BannerBitmap"
+                            {
+                            "Name" = "8:BannerBitmap"
+                            "DisplayName" = "8:#1001"
+                            "Description" = "8:#1101"
+                            "Type" = "3:8"
+                            "ContextData" = "8:Bitmap"
+                            "Attributes" = "3:4"
+                            "Setting" = "3:2"
+                            "Value" = "8:_BFE389366D01457484B3F902A73DF72E"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "EulaText"
+                            {
+                            "Name" = "8:EulaText"
+                            "DisplayName" = "8:#1008"
+                            "Description" = "8:#1108"
+                            "Type" = "3:6"
+                            "ContextData" = "8:"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:2"
+                            "Value" = "8:_411CE6E93C224DF79CF69FFDE20038A4"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Sunken"
+                            {
+                            "Name" = "8:Sunken"
+                            "DisplayName" = "8:#1007"
+                            "Description" = "8:#1107"
+                            "Type" = "3:5"
+                            "ContextData" = "8:4;True=4;False=0"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:0"
+                            "Value" = "3:4"
+                            "DefaultValue" = "3:4"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                        }
+                    }
                     "{E4ECAB24-4AB7-11D3-8D78-00A0C9CFCEE6}:_38CAE4A01A374146AA6E36AAC7D0DA99"
                     {
                     "Sequence" = "3:200"
@@ -370,7 +472,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_BFE389366D01457484B3F902A73DF72E"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -393,7 +496,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_BFE389366D01457484B3F902A73DF72E"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "CopyrightWarning"
@@ -405,7 +509,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:WARNING: This copy of the Internet Communication Engine (Ice) is licensed to you under the terms of the GNU General Public License, version 2. To use Ice under a different license, please contact ZeroC (info@zeroc.com)."
+                            "Value" = "8:WARNING: Ice, Berkeley DB, libzlib2, OpenSSL and Xerces-C++ are protected by copyright law and international treaties. Please read carefully their respective license agreements on the next page."
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -418,7 +522,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:The installer will guide you through the steps required to install the [ProductName] on your computer."
+                            "Value" = "8:The installer will guide you through the steps required to install [ProductName] for Visual Studio .NET 2002 on your computer."
                             "DefaultValue" = "8:#1203"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -442,7 +546,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_BFE389366D01457484B3F902A73DF72E"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -474,7 +579,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_BFE389366D01457484B3F902A73DF72E"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "ShowProgress"
@@ -519,7 +625,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_BFE389366D01457484B3F902A73DF72E"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -551,7 +658,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_BFE389366D01457484B3F902A73DF72E"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -597,7 +705,57 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_BFE389366D01457484B3F902A73DF72E"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                        }
+                    }
+                    "{E4ECAB24-4AB7-11D3-8D78-00A0C9CFCEE6}:_7721F7FCF84F47DDB9C6B8CD996915BA"
+                    {
+                    "Sequence" = "3:110"
+                    "DisplayName" = "8:License Agreement"
+                    "UseDynamicProperties" = "11:TRUE"
+                    "IsDependency" = "11:FALSE"
+                    "SourcePath" = "8:<VsdDialogDir>\\VsdAdminLicenseDlg.wid"
+                    "ModuleSignature" = "8:VsdDialogs.836CEFDB_3154_4E4C_84F8_DC115871E5E1"
+                        "Properties"
+                        {
+                            "BannerBitmap"
+                            {
+                            "Name" = "8:BannerBitmap"
+                            "DisplayName" = "8:#1001"
+                            "Description" = "8:#1101"
+                            "Type" = "3:8"
+                            "ContextData" = "8:Bitmap"
+                            "Attributes" = "3:4"
+                            "Setting" = "3:2"
+                            "Value" = "8:_BFE389366D01457484B3F902A73DF72E"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "EulaText"
+                            {
+                            "Name" = "8:EulaText"
+                            "DisplayName" = "8:#1008"
+                            "Description" = "8:#1108"
+                            "Type" = "3:6"
+                            "ContextData" = "8:"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:2"
+                            "Value" = "8:_411CE6E93C224DF79CF69FFDE20038A4"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Sunken"
+                            {
+                            "Name" = "8:Sunken"
+                            "DisplayName" = "8:#1007"
+                            "Description" = "8:#1107"
+                            "Type" = "3:5"
+                            "ContextData" = "8:4;True=4;False=0"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:0"
+                            "Value" = "3:4"
+                            "DefaultValue" = "3:4"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -632,7 +790,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:WARNING: This copy of the Internet Communication Engine (Ice) is licensed to you under the terms of the GNU General Public License, version 2. To use Ice under a different license, please contact ZeroC (info@zeroc.com)."
+                            "Value" = "8:WARNING: Ice, Berkeley DB, libzlib2, OpenSSL and Xerces-C++ are protected by copyright law and international treaties. Please read carefully their respective license agreements on the next page."
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -645,7 +803,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:The installer will guide you through the steps required to install the [ProductName] on your computer."
+                            "Value" = "8:The installer will guide you through the steps required to install [ProductName] for Visual Studio .NET 2002 on your computer."
                             "DefaultValue" = "8:#1203"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -669,7 +827,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_BFE389366D01457484B3F902A73DF72E"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
