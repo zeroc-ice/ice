@@ -27,6 +27,7 @@
 #include <Ice/RouterF.h>
 #include <Ice/EventHandler.h>
 #include <list>
+#include <set>
 
 namespace Ice
 {
@@ -57,8 +58,10 @@ private:
     virtual ~OutgoingConnectionFactory();
     friend class Instance;
 
-    InstancePtr _instance;
+    const InstancePtr _instance;
+    bool _destroyed;
     std::map<EndpointPtr, ConnectionPtr> _connections;
+    std::set<EndpointPtr> _pending;
 };
 
 class IncomingConnectionFactory : public EventHandler, public ::IceUtil::Monitor< ::IceUtil::Mutex>

@@ -19,7 +19,7 @@ public class OutgoingConnectionFactory
     public synchronized void
     destroy()
     {
-        if(_instance == null)
+        if(_destroyed)
         {
             return;
         }
@@ -31,7 +31,7 @@ public class OutgoingConnectionFactory
             connection.destroy(Connection.CommunicatorDestroyed);
         }
 
-        _instance = null;
+        _destroyed = true;
     }
 
     public synchronized void
@@ -40,7 +40,7 @@ public class OutgoingConnectionFactory
 	//
 	// First we wait until the factory is destroyed.
 	//
-	while(_instance != null)
+	while(!_destroyed)
 	{
 	    try
 	    {
@@ -71,16 +71,14 @@ public class OutgoingConnectionFactory
     public Connection
     create(Endpoint[] endpoints)
     {
-	Connection connection = null;
+	assert(endpoints.length > 0);
 
 	synchronized(this)
 	{
-	    if(_instance == null)
+	    if(_destroyed)
 	    {
 		throw new Ice.CommunicatorDestroyedException();
 	    }
-
-	    assert(endpoints.length > 0);
 
 	    //
 	    // Reap connections for which destruction has completed.
@@ -96,108 +94,196 @@ public class OutgoingConnectionFactory
 	    }
 
 	    //
-	    // Search for existing connections.
+	    // Modify endpoints with overrides.
 	    //
 	    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
 	    for(int i = 0; i < endpoints.length; i++)
 	    {
-		Endpoint endpoint = endpoints[i];
 		if(defaultsAndOverrides.overrideTimeout)
 		{
-		    endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
+		    endpoints[i] = endpoints[i].timeout(defaultsAndOverrides.overrideTimeoutValue);
 		}
+	    }
 
-		Connection con = (Connection)_connections.get(endpoint);
-		if(con != null)
+	    //
+	    // Search for existing connections.
+	    //
+	    for(int i = 0; i < endpoints.length; i++)
+	    {
+		Connection connection = (Connection)_connections.get(endpoints[i]);
+		if(connection != null)
 		{
 		    //
 		    // Don't return connections for which destruction
 		    // has been initiated.
 		    //
-		    if(!con.isDestroyed())
+		    if(!connection.isDestroyed())
 		    {
-			connection = con;
-			break;
+			return connection;
 		    }
 		}
 	    }
 
 	    //
-	    // No connections exist, try to create one.
+	    // If some other thread is currently trying to establish a
+	    // connection to any of our endpoints, we wait until this
+	    // thread is finished.
 	    //
-	    if(connection == null)
+	    boolean searchAgain = false;
+	    while(!_destroyed)
 	    {
-		TraceLevels traceLevels = _instance.traceLevels();
-		Ice.Logger logger = _instance.logger();
-		
-		Ice.LocalException exception = null;
-		for(int i = 0; i < endpoints.length; i++)
+		int i;
+		for(i = 0; i < endpoints.length; i++)
 		{
-		    Endpoint endpoint = endpoints[i];
-		    if(defaultsAndOverrides.overrideTimeout)
+		    if(_pending.contains(endpoints[i]))
 		    {
-			endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
-		    }
-		    
-		    try
-		    {
-			Transceiver transceiver = endpoint.clientTransceiver();
-			if(transceiver == null)
-			{
-			    Connector connector = endpoint.connector();
-			    assert(connector != null);
-			    transceiver = connector.connect(endpoint.timeout());
-			    assert(transceiver != null);
-			}
-			connection = new Connection(_instance, transceiver, endpoint, null);
-			_connections.put(endpoint, connection);
 			break;
 		    }
-		    catch(Ice.LocalException ex)
-		    {
-			exception = ex;
-		    }
-		    
-		    if(traceLevels.retry >= 2)
-		    {
-			StringBuffer s = new StringBuffer();
-			s.append("connection to endpoint failed");
-			if(i < endpoints.length - 1)
-			{
-			    s.append(", trying next endpoint\n");
-			}
-			else
-			{
-			    s.append(" and no more endpoints to try\n");
-			}
-			s.append(exception.toString());
-			logger.trace(traceLevels.retryCat, s.toString());
-		    }
 		}
-
-		if(connection == null)
+		
+		if(i == endpoints.length)
 		{
-		    assert(exception != null);
-		    throw exception;
+		    break;
 		}
+		
+		searchAgain = true;
+
+		try
+		{
+		    wait();
+		}
+		catch(InterruptedException ex)
+		{
+		}
+	    }
+
+	    if(_destroyed)
+	    {
+		throw new Ice.CommunicatorDestroyedException();
+	    }
+
+	    //
+	    // Search for existing connections again if we waited
+	    // above, as new connections might have been added in the
+	    // meantime.
+	    //
+	    if(searchAgain)
+	    {
+		for(int i = 0; i < endpoints.length; i++)
+		{
+		    Connection connection = (Connection)_connections.get(endpoints[i]);
+		    if(connection != null)
+		    {
+			//
+			// Don't return connections for which
+			// destruction has been initiated.
+			//
+			if(!connection.isDestroyed())
+			{
+			    return connection;
+			}
+		    }
+		}
+	    }
+
+	    //
+	    // No connection to any of our endpoints exists yet, so we
+	    // will try to create one. To avoid that other threads try
+	    // to create connections to the same endpoints, we add our
+	    // endpoints to _pending.
+	    //
+	    for(int i = 0; i < endpoints.length; i++)
+	    {
+		_pending.add(endpoints[i]);
 	    }
 	}
 
-	//
-	// We validate and activate outside the thread
-	// synchronization, to not block the factory.
-	//
-	assert(connection != null);
-	connection.validate();
-	connection.activate();
+	Connection connection = null;
+	Ice.LocalException exception = null;
 
+	for(int i = 0; i < endpoints.length; i++)
+	{
+	    Endpoint endpoint = endpoints[i];
+	    
+	    try
+	    {
+		Transceiver transceiver = endpoint.clientTransceiver();
+		if(transceiver == null)
+		{
+		    Connector connector = endpoint.connector();
+		    assert(connector != null);
+		    transceiver = connector.connect(endpoint.timeout());
+		    assert(transceiver != null);
+		}
+		connection = new Connection(_instance, transceiver, endpoint, null);
+		connection.validate();
+		connection.activate();
+		break;
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		exception = ex;
+	    }
+	    
+	    TraceLevels traceLevels = _instance.traceLevels();
+	    if(traceLevels.retry >= 2)
+	    {
+		StringBuffer s = new StringBuffer();
+		s.append("connection to endpoint failed");
+		if(i < endpoints.length - 1)
+		{
+		    s.append(", trying next endpoint\n");
+		}
+		else
+		{
+		    s.append(" and no more endpoints to try\n");
+		}
+		s.append(exception.toString());
+		_instance.logger().trace(traceLevels.retryCat, s.toString());
+	    }
+	}
+	
+	synchronized(this)
+	{
+	    if(_destroyed)
+	    {
+		if(connection != null)
+		{
+		    connection.destroy(Connection.CommunicatorDestroyed);
+		}
+		
+		throw new Ice.CommunicatorDestroyedException();
+	    }
+
+	    //
+	    // Signal other threads that we are done with trying to
+	    // establish connections to our endpoints.
+	    //
+	    for(int i = 0; i < endpoints.length; i++)
+	    {
+		_pending.remove(endpoints[i]);
+	    }
+	    notifyAll();
+	    
+	    if(connection == null)
+	    {
+		assert(exception != null);
+		throw exception;
+	    }
+	    else
+	    {
+		_connections.put(connection.endpoint(), connection);
+	    }
+	}
+	
+	assert(connection != null);
         return connection;
     }
 
     public synchronized void
     setRouter(Ice.RouterPrx router)
     {
-        if(_instance == null)
+        if(_destroyed)
         {
             throw new Ice.CommunicatorDestroyedException();
         }
@@ -235,7 +321,7 @@ public class OutgoingConnectionFactory
     public synchronized void
     removeAdapter(Ice.ObjectAdapter adapter)
     {
-        if(_instance == null)
+        if(_destroyed)
         {
             throw new Ice.CommunicatorDestroyedException();
         }
@@ -257,17 +343,21 @@ public class OutgoingConnectionFactory
     OutgoingConnectionFactory(Instance instance)
     {
         _instance = instance;
+	_destroyed = false;
     }
 
     protected void
     finalize()
         throws Throwable
     {
-        assert(_instance == null);
+        assert(_destroyed);
+	assert(_connections.isEmpty());
 
         super.finalize();
     }
 
-    private Instance _instance;
+    private final Instance _instance;
+    private boolean _destroyed;
     private java.util.HashMap _connections = new java.util.HashMap();
+    private java.util.HashSet _pending = new java.util.HashSet();
 }

@@ -60,7 +60,7 @@ public final class Connection extends EventHandler
     public synchronized boolean
     isFinished()
     {
-	return _transceiver == null;
+	return _transceiver == null && _dispatchCount == 0;
     }
 
     public synchronized void
@@ -1060,9 +1060,10 @@ public final class Connection extends EventHandler
             case StateActive:
             {
 		//
-		// Can only switch from holding to active.
+		// Can only switch from holding or not validated to
+		// active.
 		//
-                if(_state != StateHolding)
+                if(_state != StateHolding && _state != StateNotValidated)
                 {
                     return;
                 }
@@ -1093,30 +1094,30 @@ public final class Connection extends EventHandler
                 {
                     return;
                 }
-                if(_state == StateHolding)
-                {
-                    //
-                    // We need to continue to read data in closing state.
-                    //
-                    registerWithPool();
-                }
+		registerWithPool(); // We need to continue to read in closing state.
                 break;
             }
-
+	    
             case StateClosed:
             {
-                if(_state == StateHolding)
-                {
-                    //
-                    // If we come from holding state, we first need to
-                    // register again before we unregister, so that
-                    // finished() is called correctly.
-                    //
-                    registerWithPool();
-                }
-                unregisterWithPool();
-                destroyIncomingCache();
-                break;
+		if(!_registeredWithPool)
+		{
+		    //
+		    // If we are not registered with the thread pool,
+		    // we can close right now.
+		    //
+		    _transceiver.close();
+		    _transceiver = null;
+		}
+		else
+		{
+		    //
+		    // If we are registered with the thread pool, we
+		    // unregister. finish() will then do the close.
+		    //
+		    unregisterWithPool();
+		}
+		break;
             }
         }
 

@@ -45,7 +45,7 @@ IceInternal::OutgoingConnectionFactory::destroy()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(!_instance)
+    if(_destroyed)
     {
 	return;
     }
@@ -61,19 +61,19 @@ IceInternal::OutgoingConnectionFactory::destroy()
 		     (&Connection::destroy), Connection::CommunicatorDestroyed));
 #endif
 
-    _instance = 0;
+    _destroyed = true;
     notifyAll();
 }
 
 void
 IceInternal::OutgoingConnectionFactory::waitUntilFinished()
 {
-    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     //
     // First we wait until the factory is destroyed.
     //
-    while(_instance)
+    while(!_destroyed)
     {
 	wait();
     }
@@ -92,19 +92,18 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
 }
 
 ConnectionPtr
-IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoints)
+IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts)
 {
-    ConnectionPtr connection;
+    assert(!endpts.empty());
+    vector<EndpointPtr> endpoints = endpts;
 
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-	if(!_instance)
+	if(_destroyed)
 	{
 	    throw CommunicatorDestroyedException(__FILE__, __LINE__);
 	}
-
-	assert(!endpoints.empty());
 
 	//
 	// Reap connections for which destruction has completed.
@@ -123,104 +122,182 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
 	}
 
 	//
-	// Search for existing connections.
+	// Modify endpoints with overrides.
 	//
 	DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
-	vector<EndpointPtr>::const_iterator q;
+	vector<EndpointPtr>::iterator q;
 	for(q = endpoints.begin(); q != endpoints.end(); ++q)
 	{
-	    EndpointPtr endpoint = *q;
 	    if(defaultsAndOverrides->overrideTimeout)
 	    {
-		endpoint = endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
+		*q = (*q)->timeout(defaultsAndOverrides->overrideTimeoutValue);
 	    }
+	}
 
-	    map<EndpointPtr, ConnectionPtr>::const_iterator r = _connections.find(endpoint);
+	//
+	// Search for existing connections.
+	//
+	for(q = endpoints.begin(); q != endpoints.end(); ++q)
+	{
+	    map<EndpointPtr, ConnectionPtr>::const_iterator r = _connections.find(*q);
 	    if(r != _connections.end())
 	    {
 		//
-		// Don't return connections for which destruction has been
-		// initiated.
+		// Don't return connections for which destruction has
+		// been initiated.
 		//
 		if(!r->second->isDestroyed())
 		{
-		    connection = r->second;
-		    break;
+		    return r->second;
 		}
 	    }
 	}
 
 	//
-	// No connections exist, try to create one.
+	// If some other thread is currently trying to establish a
+	// connection to any of our endpoints, we wait until this
+	// thread is finished.
 	//
-	if(!connection)
+	bool searchAgain = false;
+	while(!_destroyed)
 	{
-	    TraceLevelsPtr traceLevels = _instance->traceLevels();
-	    LoggerPtr logger = _instance->logger();
-	    
-	    auto_ptr<LocalException> exception;
-	    q = endpoints.begin();
-	    while(q != endpoints.end())
+	    for(q = endpoints.begin(); q != endpoints.end(); ++q)
 	    {
-		EndpointPtr endpoint = *q;
-		if(defaultsAndOverrides->overrideTimeout)
+		if(_pending.find(*q) != _pending.end())
 		{
-		    endpoint = endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
-		}
-		
-		try
-		{
-		    TransceiverPtr transceiver = endpoint->clientTransceiver();
-		    if(!transceiver)
-		    {
-			ConnectorPtr connector = endpoint->connector();
-			assert(connector);
-			transceiver = connector->connect(endpoint->timeout());
-			assert(transceiver);
-		    }	    
-		    connection = new Connection(_instance, transceiver, endpoint, 0);
-		    _connections.insert(make_pair(endpoint, connection));
 		    break;
 		}
-		catch(const LocalException& ex)
-		{
-		    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
-		}
-		
-		++q;
-		
-		if(traceLevels->retry >= 2)
-		{
-		    Trace out(logger, traceLevels->retryCat);
-		    out << "connection to endpoint failed";
-		    if(q != endpoints.end())
-		    {
-			out << ", trying next endpoint\n";
-		    }
-		    else
-		    {
-			out << " and no more endpoints to try\n";
-		    }
-		    out << *exception.get();
-		}
 	    }
-	    
-	    if(!connection)
+
+	    if(q == endpoints.end())
 	    {
-		assert(exception.get());
-		exception->ice_throw();
+		break;
 	    }
+
+	    searchAgain = true;
+
+	    wait();
+	}
+
+	if(_destroyed)
+	{
+	    throw CommunicatorDestroyedException(__FILE__, __LINE__);
+	}
+
+	//
+	// Search for existing connections again if we waited above,
+	// as new connections might have been added in the meantime.
+	//
+	if(searchAgain)
+	{
+	    for(q = endpoints.begin(); q != endpoints.end(); ++q)
+	    {
+		map<EndpointPtr, ConnectionPtr>::const_iterator r = _connections.find(*q);
+		if(r != _connections.end())
+		{
+		    //
+		    // Don't return connections for which destruction has
+		    // been initiated.
+		    //
+		    if(!r->second->isDestroyed())
+		    {
+			return r->second;
+		    }
+		}
+	    }
+	}
+
+	//
+	// No connection to any of our endpoints exists yet, so we
+	// will try to create one. To avoid that other threads try to
+	// create connections to the same endpoints, we add our
+	// endpoints to _pending.
+	//
+	_pending.insert(endpoints.begin(), endpoints.end());
+    }
+
+    ConnectionPtr connection;
+    auto_ptr<LocalException> exception;
+    
+    vector<EndpointPtr>::const_iterator q;
+    for(q = endpoints.begin(); q != endpoints.end(); ++q)
+    {
+	EndpointPtr endpoint = *q;
+	
+	try
+	{
+	    TransceiverPtr transceiver = endpoint->clientTransceiver();
+	    if(!transceiver)
+	    {
+		ConnectorPtr connector = endpoint->connector();
+		assert(connector);
+		transceiver = connector->connect(endpoint->timeout());
+		assert(transceiver);
+	    }	    
+	    connection = new Connection(_instance, transceiver, endpoint, 0);
+	    connection->validate();
+	    connection->activate();
+	    break;
+	}
+	catch(const LocalException& ex)
+	{
+	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
+	}
+	
+	TraceLevelsPtr traceLevels = _instance->traceLevels();
+	if(traceLevels->retry >= 2)
+	{
+	    Trace out(_instance->logger(), traceLevels->retryCat);
+
+	    out << "connection to endpoint failed";
+	    if(q != endpoints.end())
+	    {
+		out << ", trying next endpoint\n";
+	    }
+	    else
+	    {
+		out << " and no more endpoints to try\n";
+	    }
+	    out << *exception.get();
+	}
+    }
+    
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	
+	if(_destroyed)
+	{
+	    if(connection)
+	    {
+		connection->destroy(Connection::CommunicatorDestroyed);
+	    }
+
+	    throw CommunicatorDestroyedException(__FILE__, __LINE__);
+	}
+
+	//
+	// Signal other threads that we are done with trying to
+	// establish connections to our endpoints.
+	//
+	vector<EndpointPtr>::const_iterator q;
+	for(q = endpoints.begin(); q != endpoints.end(); ++q)
+	{
+	    _pending.erase(*q);
+	}
+	notifyAll();
+
+	if(!connection)
+	{
+	    assert(exception.get());
+	    exception->ice_throw();
+	}
+	else
+	{
+	    _connections.insert(make_pair(connection->endpoint(), connection));
 	}
     }
 
-    //
-    // We validate and activate outside the thread synchronization, to
-    // not block the factory.
-    //
     assert(connection);
-    connection->validate();
-    connection->activate();
-
     return connection;
 }
 
@@ -229,7 +306,7 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(!_instance)
+    if(_destroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -269,7 +346,7 @@ IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& ad
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
-    if(!_instance)
+    if(_destroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -284,41 +361,42 @@ IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& ad
 }
 
 IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(const InstancePtr& instance) :
-    _instance(instance)
+    _instance(instance),
+    _destroyed(false)
 {
 }
 
 IceInternal::OutgoingConnectionFactory::~OutgoingConnectionFactory()
 {
-    assert(!_instance);
+    assert(_destroyed);
     assert(_connections.empty());
 }
 
 void
 IceInternal::IncomingConnectionFactory::activate()
 {
-    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     setState(StateActive);
 }
 
 void
 IceInternal::IncomingConnectionFactory::hold()
 {
-    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     setState(StateHolding);
 }
 
 void
 IceInternal::IncomingConnectionFactory::destroy()
 {
-    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     setState(StateClosed);
 }
 
 void
 IceInternal::IncomingConnectionFactory::waitUntilHolding() const
 {
-    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     //
     // First we wait until the connection factory itself is in holding
@@ -338,7 +416,7 @@ IceInternal::IncomingConnectionFactory::waitUntilHolding() const
 void
 IceInternal::IncomingConnectionFactory::waitUntilFinished()
 {
-    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     //
     // First we wait until the factory is destroyed.
@@ -382,7 +460,7 @@ IceInternal::IncomingConnectionFactory::equivalent(const EndpointPtr& endp) cons
 list<ConnectionPtr>
 IceInternal::IncomingConnectionFactory::connections() const
 {
-    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     list<ConnectionPtr> result;
 
@@ -390,7 +468,7 @@ IceInternal::IncomingConnectionFactory::connections() const
     // Only copy connections which have not been destroyed.
     //
     remove_copy_if(_connections.begin(), _connections.end(), back_inserter(result),
-		   ::Ice::constMemFun(&Connection::isDestroyed));
+		   Ice::constMemFun(&Connection::isDestroyed));
 
     return result;
 }
@@ -413,7 +491,7 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
     ConnectionPtr connection;
 
     {
-	::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
 	if(_state != StateActive)
 	{
@@ -426,7 +504,7 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
 	// Reap connections for which destruction has completed.
 	//
 	_connections.erase(remove_if(_connections.begin(), _connections.end(),
-				     ::Ice::constMemFun(&Connection::isFinished)),
+				     Ice::constMemFun(&Connection::isFinished)),
 			   _connections.end());
 	
 	//
@@ -504,7 +582,7 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
 void
 IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool)
 {
-    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     threadPool->promoteFollower();
     
@@ -529,7 +607,7 @@ IceInternal::IncomingConnectionFactory::exception(const LocalException&)
 string
 IceInternal::IncomingConnectionFactory::toString() const
 {
-    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(_transceiver)
     {
@@ -595,7 +673,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 		return;
 	    }
 	    registerWithPool();
-	    for_each(_connections.begin(), _connections.end(), ::Ice::voidMemFun(&Connection::activate));
+	    for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&Connection::activate));
 	    break;
 	}
 	
@@ -606,7 +684,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 		return;
 	    }
 	    unregisterWithPool();
-	    for_each(_connections.begin(), _connections.end(), ::Ice::voidMemFun(&Connection::hold));
+	    for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&Connection::hold));
 	    break;
 	}
 	

@@ -85,7 +85,7 @@ IceInternal::Connection::isFinished() const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
-    return _transceiver == 0;
+    return _transceiver == 0 && _dispatchCount == 0;
 }
 
 void
@@ -1342,9 +1342,10 @@ IceInternal::Connection::setState(State state)
 	case StateActive:
 	{
 	    //
-            // Can only switch from holding to active.
+            // Can only switch from holding or not validated to
+            // active.
 	    //
-	    if(_state != StateHolding)
+	    if(_state != StateHolding && _state != StateNotValidated)
 	    {
 		return;
 	    }
@@ -1375,28 +1376,29 @@ IceInternal::Connection::setState(State state)
 	    {
 		return;
 	    }
-	    if(_state == StateHolding)
-	    {
-		//
-		// We need to continue to read data in closing state.
-		//
-		registerWithPool();
-	    }
+	    registerWithPool(); // We need to continue to read in closing state.
 	    break;
 	}
 	
 	case StateClosed:
 	{
-	    if(_state == StateHolding)
+	    if(!_registeredWithPool)
 	    {
 		//
-		// If we come from holding state, we first need to
-		// register again before we unregister, so that
-		// finished() is called correctly.
+		// If we are not registered with the thread pool, we
+		// can close right now.
 		//
-		registerWithPool();
+		_transceiver->close();
+		_transceiver = 0;
 	    }
-	    unregisterWithPool();
+	    else
+	    {
+		//
+		// If we are registered with the thread pool, we
+		// unregister. finish() will then do the close.
+		//
+		unregisterWithPool();
+	    }
 	    break;
 	}
     }
