@@ -36,13 +36,17 @@ the Free Software Foundation.
 
         <!-- Define the slice.dir property -->
         <condition property="slice.dir" value="slice">
-            <available file="slice"/>
+            <available file="slice" type="dir"/>
         </condition>
         <condition property="slice.dir" value="${env.ICE_HOME}/slice">
-            <not>
-                <available file="slice"/>
-            </not>
+            <and>
+                <available type="dir" file="${env.ICE_HOME}/slice"/>
+                <not>
+                    <available file="slice" type="dir"/>
+                </not>
+            </and>
         </condition>
+        <fail message="Slice source directory not found" unless="slice.dir"/>
     </target>
 
     <target name="generate" depends="init">
