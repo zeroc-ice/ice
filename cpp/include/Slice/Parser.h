@@ -353,7 +353,7 @@ public:
     virtual void visit(ParserVisitor*);
     void containerRecDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
-    bool addIntroduced(const std::string&, ContainedPtr = 0);
+    bool checkIntroduced(const std::string&, ContainedPtr = 0);
 
 protected:
 
@@ -667,10 +667,10 @@ public:
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
 
-    static bool isLegalType(const std::string&, const TypePtr&, const UnitPtr&, bool = true);
+    static bool isLegalType(const std::string&, const TypePtr&, const UnitPtr&);
     static bool typesAreCompatible(const std::string&, const TypePtr&,
-	                           const SyntaxTreeBasePtr&, const std::string&, const UnitPtr&, bool = true);
-    static bool isInRange(const std::string&, const TypePtr&, const std::string&, const UnitPtr&, bool = true);
+	                           const SyntaxTreeBasePtr&, const std::string&, const UnitPtr&);
+    static bool isInRange(const std::string&, const TypePtr&, const std::string&, const UnitPtr&);
 
 protected:
 

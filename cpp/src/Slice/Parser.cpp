@@ -1244,7 +1244,7 @@ Slice::Container::containerRecDependencies(set<ConstructedPtr>& dependencies)
 }
 
 bool
-Slice::Container::addIntroduced(const string& scoped, ContainedPtr namedThing)
+Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
 {
     if(scoped[0] == ':')	// Only unscoped names introduce anything
     {
@@ -1258,7 +1258,7 @@ Slice::Container::addIntroduced(const string& scoped, ContainedPtr namedThing)
     string firstComponent = scoped.substr(0, pos);
 
     //
-    // If we don't have type, use the Contained for the first component
+    // If we don't have a type, use the Contained for the first component
     //
     if(namedThing == 0)
     {
@@ -1281,7 +1281,12 @@ Slice::Container::addIntroduced(const string& scoped, ContainedPtr namedThing)
     }
     else
     {
-	return it->second == namedThing;		// Return whether it is the same as last time
+	if(it->second != namedThing)
+	{
+	    _unit->error("`" + scoped + "' has changed meaning");
+	    return false;
+	}
+	return true;
     }
 }
 
@@ -2731,7 +2736,7 @@ Slice::ConstDef::visit(ParserVisitor* visitor)
 }
 
 bool
-Slice::ConstDef::isLegalType(const string& name, const TypePtr& constType, const UnitPtr& unit, bool printError)
+Slice::ConstDef::isLegalType(const string& name, const TypePtr& constType, const UnitPtr& unit)
 {
     if(constType == 0)
     {
@@ -2778,7 +2783,7 @@ Slice::ConstDef::isLegalType(const string& name, const TypePtr& constType, const
 bool
 Slice::ConstDef::typesAreCompatible(const string& name, const TypePtr& constType,
 				    const SyntaxTreeBasePtr& literalType, const string& value,
-				    const UnitPtr& unit, bool printError)
+				    const UnitPtr& unit)
 {
     BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
     BuiltinPtr lt = BuiltinPtr::dynamicCast(literalType);
@@ -2858,7 +2863,7 @@ Slice::ConstDef::typesAreCompatible(const string& name, const TypePtr& constType
 
 bool
 Slice::ConstDef::isInRange(const string& name, const TypePtr& constType, const string& value,
-	                   const UnitPtr& unit, bool printError)
+	                   const UnitPtr& unit)
 {
     BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
     if (!ct)
@@ -2976,15 +2981,16 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
     //
     if(!_contents.empty())
     {
-	// TODO: dynamicCast should always succeed here?
 	ParamDeclPtr p = ParamDeclPtr::dynamicCast(_contents.back());
-	if(p && p->isOutParam() && !isOutParam)
+	assert(p);
+	if(p->isOutParam() && !isOutParam)
 	{
-	    _unit->error("in parameters cannot follow out parameters");
+	    _unit->error("`" + name + "': in parameters cannot follow out parameters");
 	}
     }
 
     ParamDeclPtr p = new ParamDecl(this, name, type, isOutParam);
+cerr << "Pushing " << name << endl;
     _contents.push_back(p);
     return p;
 }

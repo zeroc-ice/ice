@@ -28,8 +28,6 @@ yyerror(const char* s)
     unit->error(s);
 }
 
-bool startOfOutParams;	// TODO: remove this for stable_39
-
 %}
 
 %pure_parser
@@ -181,11 +179,7 @@ module_def
     {
 	YYERROR; // Can't continue, jump to next yyerrok
     }
-    if(!cont->addIntroduced(ident->v, module))
-    {
-	string msg = "`" + ident->v + "' has changed meaning";
-    	unit->error(msg);
-    }
+    cont->checkIntroduced(ident->v, module);
     unit->pushContainer(module);
     $$ = module;
 }
@@ -235,11 +229,7 @@ exception_def
     {
 	YYERROR; // Can't continue, jump to next yyerrok
     }
-    if(!cont->addIntroduced(ident->v, ex))
-    {
-	string msg = "`" + ident->v + "' has changed meaning";
-	unit->error(msg);
-    }
+    cont->checkIntroduced(ident->v, ex);
     unit->pushContainer(ex);
     $$ = ex;
 }
@@ -258,11 +248,7 @@ exception_extends
     StringTokPtr scoped = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
     ContainedPtr contained = cont->lookupException(scoped->v);
-    if(!cont->addIntroduced(scoped->v))
-    {
-	string msg = "`" + scoped->v + "' has changed meaning";
-    	unit->error(msg);
-    }
+    cont->checkIntroduced(scoped->v);
     $$ = contained;
 }
 |
@@ -306,11 +292,7 @@ exception_export
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     assert(ex);
     DataMemberPtr dm = ex->createDataMember(ident, type);
-    if(!unit->currentContainer()->addIntroduced(ident, dm))
-    {
-	string msg = "`" + ident + "' has changed meaning";
-    	unit->error(msg);
-    }
+    unit->currentContainer()->checkIntroduced(ident, dm);
     $$ = dm;
 }
 | type keyword
@@ -368,11 +350,7 @@ struct_def
     {
 	YYERROR; // Can't continue, jump to next yyerrok
     }
-    if(!cont->addIntroduced(ident->v, st))
-    {
-	string msg = "`" + ident->v + "' has changed meaning";
-    	unit->error(msg);
-    }
+    cont->checkIntroduced(ident->v, st);
     unit->pushContainer(st);
     $$ = st;
 }
@@ -428,11 +406,7 @@ struct_export
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     assert(st);
     DataMemberPtr dm = st->createDataMember(ident, type);
-    if(!unit->currentContainer()->addIntroduced(ident, dm))
-    {
-	string msg = "`" + ident + "' has changed meaning";
-    	unit->error(msg);
-    }
+    unit->currentContainer()->checkIntroduced(ident, dm);
     $$ = dm;
 }
 | type keyword
@@ -501,11 +475,7 @@ class_def
     {
 	YYERROR; // Can't continue, jump to next yyerrok
     }
-    if(!cont->addIntroduced(ident->v, cl))
-    {
-	string msg = "`" + ident->v + "' has changed meaning";
-    	unit->error(msg);
-    }
+    cont->checkIntroduced(ident->v, cl);
     unit->pushContainer(cl);
     $$ = cl;
 }
@@ -547,11 +517,7 @@ class_extends
 	    }
 	    else
 	    {
-	    	if(!cont->addIntroduced(scoped->v))
-		{
-		    string msg = "`" + scoped->v + "' has changed meaning";
-		    unit->error(msg);
-		}
+	    	cont->checkIntroduced(scoped->v);
 		$$ = def;
 	    }
 	}
@@ -614,11 +580,7 @@ class_export
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
     DataMemberPtr dm = cl->createDataMember(ident, type);
-    if(!cl->addIntroduced(ident, dm))
-    {
-	string msg = "`" + ident + "' has changed meaning";
-	unit->error(msg);
-    }
+    cl->checkIntroduced(ident, dm);
     $$ = dm;
 }
 | type keyword
@@ -664,11 +626,7 @@ interface_decl
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
     ClassDeclPtr cl = cont->createClassDecl(ident->v, true, local->v);
-    if(!cont->addIntroduced(ident->v, cl))
-    {
-	string msg = "`" + ident->v + "' has changed meaning";
-	unit->error(msg);
-    }
+    cont->checkIntroduced(ident->v, cl);
     $$ = cl;
 }
 ;
@@ -687,11 +645,7 @@ interface_def
     {
 	YYERROR; // Can't continue, jump to next yyerrok
     }
-    if(!cont->addIntroduced(ident->v, cl))
-    {
-	string msg = "`" + ident->v + "' has changed meaning";
-	unit->error(msg);
-    }
+    cont->checkIntroduced(ident->v, cl);
     unit->pushContainer(cl);
     $$ = cl;
 }
@@ -733,11 +687,7 @@ interface_list
 	    }
 	    else
 	    {
-	    	if(!cont->addIntroduced(scoped->v))
-		{
-		    string msg = "`" + scoped->v + "' has changed meaning";
-		    unit->error(msg);
-		}
+	    	cont->checkIntroduced(scoped->v);
 		intfs->v.push_front(def);
 	    }
 	}
@@ -772,11 +722,7 @@ interface_list
 	    }
 	    else
 	    {
-	    	if (!cont->addIntroduced(scoped->v))
-		{
-		    string msg = "`" + scoped->v + "' has changed meaning";
-		    unit->error(msg);
-		}
+	    	cont->checkIntroduced(scoped->v);
 		intfs->v.push_front(def);
 	    }
 	}
@@ -861,10 +807,7 @@ exception
     {
 	$$ = cont->createException(IceUtil::generateUUID(), 0, false);
     }
-    if(!cont->addIntroduced(scoped->v, exception))
-    {
-	unit->error("`" + scoped->v + "' has changed meaning");
-    }
+    cont->checkIntroduced(scoped->v, exception);
     $$ = exception;
 }
 | keyword
@@ -945,11 +888,7 @@ enum_def
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
     EnumPtr en = cont->createEnum(ident->v, local->v);
-    if(!cont->addIntroduced(ident->v, en))
-    {
-	string msg = "`" + ident->v + "' has changed meaning";
-	unit->error(msg);
-    }
+    cont->checkIntroduced(ident->v, en);
     $$ = en;
 }
 '{' enumerator_list '}'
@@ -1026,14 +965,9 @@ operation_preamble
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
     OperationPtr op = cl->createOperation(name, returnType);
-    if(!cl->addIntroduced(name, op))
-    {
-	string msg = "`" + name + "' has changed meaning";
-	unit->error(msg);
-    }
+    cl->checkIntroduced(name, op);
     unit->pushContainer(op);
     $$ = op;
-    startOfOutParams = false;	// TODO: remove this for stable_39
 }
 | ICE_VOID ICE_IDENTIFIER
 {
@@ -1041,14 +975,9 @@ operation_preamble
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
     OperationPtr op = cl->createOperation(ident->v, 0);
-    if(!unit->currentContainer()->addIntroduced(ident->v, op))
-    {
-	string msg = "`" + ident->v + "' has changed meaning";
-	unit->error(msg);
-    }
+    unit->currentContainer()->checkIntroduced(ident->v, op);
     unit->pushContainer(op);
     $$ = op;
-    startOfOutParams = false;	// TODO: remove this for stable_39
 }
 | type keyword
 {
@@ -1060,7 +989,6 @@ operation_preamble
     OperationPtr op = cl->createOperation(ident->v, returnType);
     unit->pushContainer(op);
     $$ = op;
-    startOfOutParams = false;	// TODO: remove this for stable_39
 }
 | ICE_VOID keyword
 {
@@ -1071,7 +999,6 @@ operation_preamble
     OperationPtr op = cl->createOperation(ident->v, 0);
     unit->pushContainer(op);
     $$ = op;
-    startOfOutParams = false;	// TODO: remove this for stable_39
 }
 ;
 
@@ -1128,19 +1055,6 @@ out_qualifier
 ;
 
 // ----------------------------------------------------------------------
-param_separator	// TODO: remove this rule for stable_39 and replace param_separator with ',' elsewhere
-// ----------------------------------------------------------------------
-: ','
-{
-}
-| ';'
-{
-    startOfOutParams = true;
-    unit->warning("use of semicolon to indicate out parameters is deprecated -- use `out' keyword instead");
-}
-;
-
-// ----------------------------------------------------------------------
 parameters
 // ----------------------------------------------------------------------
 : // empty
@@ -1149,48 +1063,28 @@ parameters
 | out_qualifier type_id
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
-    if(startOfOutParams)					// TODO: remove this for stable_39
-    {
-        isOutParam->v = true;
-    }
     TypeStringTokPtr tsp = TypeStringTokPtr::dynamicCast($2);
     TypePtr type = tsp->v.first;
     string ident = tsp->v.second;
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     assert(op);
     ParamDeclPtr pd = op->createParamDecl(ident, type, isOutParam->v);
-    if(!unit->currentContainer()->addIntroduced(ident, pd))
-    {
-	string msg = "`" + ident + "' has changed meaning";
-    	unit->error(msg);
-    }
+    unit->currentContainer()->checkIntroduced(ident, pd);
 }
-| parameters param_separator out_qualifier type_id
+| parameters ',' out_qualifier type_id
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($3);
-    if(startOfOutParams)					// TODO: remove this for stable_39
-    {
-        isOutParam->v = true;
-    }
     TypeStringTokPtr tsp = TypeStringTokPtr::dynamicCast($4);
     TypePtr type = tsp->v.first;
     string ident = tsp->v.second;
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     assert(op);
     ParamDeclPtr pd = op->createParamDecl(ident, type, isOutParam->v);
-    if(!unit->currentContainer()->addIntroduced(ident, pd))
-    {
-	string msg = "`" + ident + "' has changed meaning";
-    	unit->error(msg);
-    }
+    unit->currentContainer()->checkIntroduced(ident, pd);
 }
 | out_qualifier type keyword
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
-    if(startOfOutParams)					// TODO: remove this for stable_39
-    {
-        isOutParam->v = true;
-    }
     TypePtr type = TypePtr::dynamicCast($2);
     StringTokPtr ident = StringTokPtr::dynamicCast($3);
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
@@ -1198,13 +1092,9 @@ parameters
     op->createParamDecl(ident->v, type, isOutParam->v);
     unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
 }
-| parameters param_separator out_qualifier type keyword
+| parameters ',' out_qualifier type keyword
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($3);
-    if(startOfOutParams)					// TODO: remove this for stable_39
-    {
-        isOutParam->v = true;
-    }
     TypePtr type = TypePtr::dynamicCast($4);
     StringTokPtr ident = StringTokPtr::dynamicCast($5);
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
@@ -1215,23 +1105,15 @@ parameters
 | out_qualifier type
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
-    if(startOfOutParams)					// TODO: remove this for stable_39
-    {
-        isOutParam->v = true;
-    }
     TypePtr type = TypePtr::dynamicCast($2);
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     assert(op);
     op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v);
     unit->error("missing parameter name");
 }
-| parameters param_separator out_qualifier type
+| parameters ',' out_qualifier type
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($3);
-    if(startOfOutParams)					// TODO: remove this for stable_39
-    {
-        isOutParam->v = true;
-    }
     TypePtr type = TypePtr::dynamicCast($4);
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     assert(op);
@@ -1331,11 +1213,7 @@ type
     {
 	YYERROR; // Can't continue, jump to next yyerrok
     }
-    if(!cont->addIntroduced(scoped->v))
-    {
-	string msg = "`" + scoped->v + "' has changed meaning";
-	unit->error(msg);
-    }
+    cont->checkIntroduced(scoped->v);
     $$ = types.front();
 }
 | scoped_name '*'
@@ -1356,13 +1234,9 @@ type
 	    msg += scoped->v;
 	    msg += "' must be class or interface";
 	    unit->error(msg);
-	    cl = cont->createClassDecl(IceUtil::generateUUID(), false, false);
+	    YYERROR; // Can't continue, jump to next yyerrok
 	}
-	if(!cont->addIntroduced(scoped->v))
-	{
-	    string msg = "`" + scoped->v + "' has changed meaning";
-	    unit->error(msg);
-	}
+	cont->checkIntroduced(scoped->v);
 	*p = new Proxy(cl);
     }
     $$ = types.front();
@@ -1466,11 +1340,7 @@ const_initializer
 	    msg += " " + kindOf;
 	    unit->error(msg);
 	}
-	if(!unit->currentContainer()->addIntroduced(scoped->v, enumerator))
-	{
-	    string msg = "`" + scoped->v + "' has changed meaning";
-	    unit->error(msg);
-	}
+	unit->currentContainer()->checkIntroduced(scoped->v, enumerator);
 	basestring->v = make_pair(enumerator, scoped->v);
     }
     $$ = basestring;
