@@ -747,7 +747,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             memberList.push_back(make_pair((*q)->type(), fixKwd((*q)->name())));
         }
         out << sp << nl << "public void" << nl
-            << "__write(IceInternal.Stream __os)";
+            << "__write(IceInternal.BasicStream __os)";
         out << sb;
         // TODO
         //writeMarshalCode(_out, memberList, 0);
@@ -757,7 +757,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
         out << eb;
         out << sp << nl << "public void" << nl
-            << "__read(IceInternal.Stream __is)";
+            << "__read(IceInternal.BasicStream __is)";
         out << sb;
         // TODO
         //writeUnmarshalCode(_out, memberList, 0);
@@ -1101,7 +1101,7 @@ Slice::Gen::HelperVisitor::visitEnum(const EnumPtr& p)
         // write
         //
         out << sp << nl << "public static void" << nl
-            << "write(Ice.Stream ice_os, " << name << " ice_v)";
+            << "write(IceInternal.BasicStream ice_os, " << name << " ice_v)";
         out << sb;
         if (sz <= 0x7f)
         {
@@ -1125,7 +1125,7 @@ Slice::Gen::HelperVisitor::visitEnum(const EnumPtr& p)
         // read
         //
         out << sp << nl << "public static " << name << nl
-            << "read(Ice.Stream ice_is)";
+            << "read(IceInternal.BasicStream ice_is)";
         out << sb;
         if (sz <= 0x7f)
         {
