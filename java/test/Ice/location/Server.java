@@ -23,6 +23,7 @@ public class Server
 	// communicator and object adapter).
 	//
 	Ice.Properties properties = communicator.getProperties();
+	properties.setProperty("Ice.ThreadPool.Server.Size", "2");
 	properties.setProperty("ServerManagerAdapter.Endpoints", "default -p 12345");
 
 	Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");

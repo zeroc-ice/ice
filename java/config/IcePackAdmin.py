@@ -14,6 +14,7 @@
 # **********************************************************************
 
 import sys, os, TestUtil
+from threading import Thread
 
 if not os.environ.has_key('ICE_HOME'):
     print "ICE_HOME is not defined."
@@ -22,6 +23,27 @@ if not os.environ.has_key('ICE_HOME'):
 ice_home = os.environ['ICE_HOME']
 
 icePackPort = "0";
+
+class ReaderThread(Thread):
+    def __init__(self, pipe, token):
+        self.pipe = pipe
+        self.token = token
+        Thread.__init__(self)
+
+    def run(self):
+
+        try:
+            while 1:
+                line = self.pipe.readline()
+                if not line: break
+                print self.token + ": " + line,
+        except IOError:
+            pass
+
+        try:
+            self.pipe.close()
+        except IOError:
+            pass
 
 def startIcePackRegistry(port, testdir):
 
@@ -45,13 +67,16 @@ def startIcePackRegistry(port, testdir):
               r' --IcePack.Registry.DynamicRegistration' + \
               r' --Ice.ProgramName=icepackregistry'
 
-    icePackPipe = os.popen(command)
+    (stdin, icePackPipe) = os.popen4(command)
     TestUtil.getAdapterReady(icePackPipe)
     TestUtil.getAdapterReady(icePackPipe)
     TestUtil.getAdapterReady(icePackPipe)
     TestUtil.getAdapterReady(icePackPipe)
     print "ok"
-    return icePackPipe
+
+    readerThread = ReaderThread(icePackPipe, "IcePackRegistry")
+    readerThread.start()
+    return readerThread
 
 def startIcePackNode(testdir):
 
@@ -61,7 +86,8 @@ def startIcePackNode(testdir):
     if not os.path.exists(dataDir):
         os.mkdir(dataDir)
 
-    overrideOptions = '"' + TestUtil.clientServerOptions.replace("--", "") + '"'
+    overrideOptions = '"' + TestUtil.clientServerOptions.replace("--", "") + \
+	              ' Ice.PrintProcessId=0 Ice.PrintAdapterReady=0' + '"'
 
     print "starting icepack node...",
     command = icePack + TestUtil.clientServerOptions + ' --nowarn ' + \
@@ -76,13 +102,16 @@ def startIcePackNode(testdir):
               r' --IcePack.Node.Trace.Server=0' + \
               r' --IcePack.Node.PrintServersReady=node'
     
-    icePackPipe = os.popen(command)
+    (stdin, icePackPipe) = os.popen4(command)
     TestUtil.getAdapterReady(icePackPipe)
     TestUtil.waitServiceReady(icePackPipe, 'node')
     print "ok"
-    return icePackPipe
 
-def shutdownIcePackRegistry(icePackPipe):
+    readerThread = ReaderThread(icePackPipe, "IcePackNode")
+    readerThread.start()
+    return readerThread
+
+def shutdownIcePackRegistry():
 
     global icePackPort
     icePackAdmin = os.path.join(ice_home, "bin", "icepackadmin")
@@ -93,15 +122,14 @@ def shutdownIcePackRegistry(icePackPipe):
               r' -e "shutdown" '
 
     icePackAdminPipe = os.popen(command)
+    TestUtil.printOutputFromPipe(icePackAdminPipe)
     icePackAdminStatus = icePackAdminPipe.close()
-    icePackPipe.close()
-    print "ok"
-
     if icePackAdminStatus:
         TestUtil.killServers()
         sys.exit(1)
+    print "ok"
         
-def shutdownIcePackNode(icePackPipe):
+def shutdownIcePackNode():
 
     global icePackPort
     icePackAdmin = os.path.join(ice_home, "bin", "icepackadmin")
@@ -112,13 +140,12 @@ def shutdownIcePackNode(icePackPipe):
               r' -e "node shutdown localnode" '
 
     icePackAdminPipe = os.popen(command)
+    TestUtil.printOutputFromPipe(icePackAdminPipe)
     icePackAdminStatus = icePackAdminPipe.close()
-    icePackPipe.close()
-    print "ok"
-
     if icePackAdminStatus:
         TestUtil.killServers()
         sys.exit(1)
+    print "ok"
         
 def addApplication(descriptor, targets):
 

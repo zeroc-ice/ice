@@ -59,8 +59,8 @@ def startClient(options):
 #
 IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
 
-icePackRegistryPipe = IcePackAdmin.startIcePackRegistry("12346", testdir)
-icePackNodePipe = IcePackAdmin.startIcePackNode(testdir)
+icePackRegistryThread = IcePackAdmin.startIcePackRegistry("12346", testdir)
+icePackNodeThread = IcePackAdmin.startIcePackNode(testdir)
 
 #
 # Deploy the application, run the client and remove the application.
@@ -92,7 +92,9 @@ print "ok"
 #
 # Shutdown IcePack.
 #
-IcePackAdmin.shutdownIcePackNode(icePackNodePipe)
-IcePackAdmin.shutdownIcePackRegistry(icePackRegistryPipe)
+IcePackAdmin.shutdownIcePackNode()
+icePackNodeThread.join()
+IcePackAdmin.shutdownIcePackRegistry()
+icePackRegistryThread.join()
 
 sys.exit(0)
