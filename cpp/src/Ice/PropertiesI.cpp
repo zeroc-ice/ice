@@ -372,6 +372,7 @@ static const string freezeProps[] =
     "Trace.DbEnv",
     "Trace.Evictor",
     "Trace.Map",
+    "Trace.Transaction",
     "Warn.CloseInFinalize",
     "Warn.Deadlocks"
 };
