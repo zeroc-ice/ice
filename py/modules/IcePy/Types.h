@@ -10,7 +10,7 @@
 #ifndef ICEPY_TYPES_H
 #define ICEPY_TYPES_H
 
-#include <Operation.h>
+#include <Python.h>
 #include <Util.h>
 #include <Ice/Stream.h>
 
@@ -244,54 +244,6 @@ typedef IceUtil::Handle<DictionaryInfo> DictionaryInfoPtr;
 
 typedef std::vector<TypeInfoPtr> TypeInfoList;
 
-//
-// Operation information.
-//
-const int OP_NORMAL      = 0;
-const int OP_NONMUTATING = 1;
-const int OP_IDEMPOTENT  = 2;
-
-class ParamInfo : public UnmarshalCallback
-{
-public:
-
-    virtual void unmarshaled(PyObject*, PyObject*, void*);
-
-    TypeInfoPtr type;
-};
-typedef IceUtil::Handle<ParamInfo> ParamInfoPtr;
-typedef std::vector<ParamInfoPtr> ParamInfoList;
-
-class OperationInfo : public Operation
-{
-public:
-
-    virtual PyObject* invoke(const Ice::ObjectPrx&, const Ice::CommunicatorPtr&, PyObject*);
-    virtual bool dispatch(PyObject*, const std::vector<Ice::Byte>&, std::vector<Ice::Byte>&, const Ice::Current&);
-
-    bool checkDispatchException(std::vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
-
-    void unmarshalException(const std::vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
-
-    //
-    // Verify that the given Python exception is legal to be thrown from this operation.
-    //
-    bool validateException(PyObject*) const;
-
-    std::string name;
-    int mode;
-    ParamInfoList inParams;
-    ParamInfoList outParams;
-    ParamInfoPtr returnType;
-    ExceptionInfoList exceptions;
-};
-typedef IceUtil::Handle<OperationInfo> OperationInfoPtr;
-
-//
-// Class information.
-//
-typedef std::map<std::string, OperationInfoPtr> OperationInfoMap;
-
 class ClassInfo : public TypeInfo
 {
 public:
@@ -305,15 +257,11 @@ public:
 
     virtual void destroy();
 
-    OperationInfoPtr findOperation(const std::string&) const;
-    bool hasOperations() const;
-
     std::string id;
-    bool isInterface;
+    bool isAbstract;
     ClassInfoPtr base;
     ClassInfoList interfaces;
     DataMemberList members;
-    OperationInfoMap operations;
     PyObjectHandle pythonType;
 };
 
@@ -396,19 +344,20 @@ typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
 
 TypeInfoPtr getTypeInfo(const std::string&);
 ExceptionInfoPtr getExceptionInfo(const std::string&);
+TypeInfoPtr convertType(PyObject*);
 
 bool initTypes(PyObject*);
 
 }
 
-extern "C" PyObject* Ice_defineEnum(PyObject*, PyObject*);
-extern "C" PyObject* Ice_defineStruct(PyObject*, PyObject*);
-extern "C" PyObject* Ice_defineSequence(PyObject*, PyObject*);
-extern "C" PyObject* Ice_defineDictionary(PyObject*, PyObject*);
-extern "C" PyObject* Ice_declareProxy(PyObject*, PyObject*);
-extern "C" PyObject* Ice_defineProxy(PyObject*, PyObject*);
-extern "C" PyObject* Ice_declareClass(PyObject*, PyObject*);
-extern "C" PyObject* Ice_defineClass(PyObject*, PyObject*);
-extern "C" PyObject* Ice_defineException(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_defineEnum(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_defineStruct(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_defineSequence(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_defineDictionary(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_declareProxy(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_defineProxy(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_declareClass(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_defineClass(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_defineException(PyObject*, PyObject*);
 
 #endif
