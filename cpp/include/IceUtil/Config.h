@@ -37,7 +37,7 @@
 // We are a linux sparc, which forces 32 bit usr land, no matter the architecture
 //
 #   define  ICE_32
-#elif (defined(__sun) && defined(__sparcv9)) || (defined(__linux) && defined(__x86_64)) || (defined(__hppa) &&defined(__LP64__))
+#elif (defined(__sun) && defined(__sparcv9)) || (defined(__linux) && defined(__x86_64)) || (defined(__hppa) && defined(__LP64__))
 #   define ICE_64
 #else
 #   define ICE_32
@@ -93,16 +93,6 @@
 
 #   if !defined(_DLL) || !defined(_MT)
 #       error "Only multi-threaded DLL libraries can be used with Ice!"
-#   endif
-
-//
-// The Windows default of 64 is too small -- we want more concurrent
-// connections than that. However, we don't redefine it if it's already
-// set, because that means windows.h has already been included and
-// therefore it's too late to change it here.
-//
-#   ifndef FD_SETSIZE
-#      define FD_SETSIZE 1024
 #   endif
 
 #   include <windows.h>
