@@ -22,7 +22,7 @@ class Gen : ::__Ice::noncopyable, public ParserVisitor
 {
 public:
 
-    Gen(const std::string&, const std::string&);
+    Gen(const std::string&, const std::string&, bool);
     virtual ~Gen();
 
     bool operator!() const; // Returns true if there was a constructor error
@@ -47,6 +47,7 @@ private:
 
     Output O;
 
+    bool standAlone_;
     std::stack<std::string> elementStack_;
 };
 

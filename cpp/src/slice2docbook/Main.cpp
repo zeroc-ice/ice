@@ -20,6 +20,7 @@ usage(const char* n)
     cerr << "Usage: " << n << " [options] docbook-file slice-files ...\n";
     cerr <<	
 "Options:\n"
+"-s, --stand-alone    Create stand-alone docbook file.\n"
 "-h, --help           Show this message.\n"
 "-DNAME               Define NAME as 1.\n"
 "-DNAME=DEF           Define NAME as DEF.\n"
@@ -35,6 +36,7 @@ main(int argc, char* argv[])
     string cpp("cpp -C");
     vector<string> includePaths;
     bool debug = false;
+    bool standAlone = false;
 
     int idx = 1;
     while(idx < argc)
@@ -58,6 +60,14 @@ main(int argc, char* argv[])
 	    cpp += ' ';
 	    cpp += argv[idx];
 
+	    for(int i = idx ; i + 1 < argc ; ++i)
+		argv[i] = argv[i + 1];
+	    --argc;
+	}
+	else if(strcmp(argv[idx], "-s") == 0 ||
+		strcmp(argv[idx], "--stand-alone") == 0)
+	{
+	    standAlone = true;
 	    for(int i = idx ; i + 1 < argc ; ++i)
 		argv[i] = argv[i + 1];
 	    --argc;
@@ -179,7 +189,7 @@ main(int argc, char* argv[])
 
     if(status == EXIT_SUCCESS)
     {
-	Gen gen(argv[0], docbook);
+	Gen gen(argv[0], docbook, standAlone);
 	if(!gen)
 	{
 	    unit -> destroy();

@@ -21,12 +21,6 @@ yyerror(const char* s)
     unit -> error(s);
 }
 
-void
-yyerror(const string& s)
-{
-    unit -> error(s.c_str());
-}
-
 %}
 
 %token ICE_SCOPE_DELIMITOR
@@ -77,7 +71,7 @@ definitions
 }
 | definition
 {
-    yyerror("`;' missing after definition");
+    unit -> error("`;' missing after definition");
 }
 |
 {
@@ -124,7 +118,7 @@ class_exports
 }
 | class_export
 {
-    yyerror("`;' missing after definition");
+    unit -> error("`;' missing after definition");
 }
 |
 {
@@ -153,7 +147,7 @@ interface_exports
 }
 | interface_export
 {
-    yyerror("`;' missing after definition");
+    unit -> error("`;' missing after definition");
 }
 |
 {
@@ -260,7 +254,7 @@ class_extends
 	    string msg = "`";
 	    msg += scoped -> v;
 	    msg += "' is not a class";
-	    yyerror(msg);
+	    unit -> error(msg);
 	}
 	else
 	{
@@ -270,7 +264,7 @@ class_extends
 		string msg = "`";
 		msg += scoped -> v;
 		msg += "' has been declared but not defined";
-		yyerror(msg);
+		unit -> error(msg);
 	    }
 	    else
 	    {
@@ -353,7 +347,7 @@ interface_list
 	    string msg = "`";
 	    msg += scoped -> v;
 	    msg += "' is not an interface";
-	    yyerror(msg);
+	    unit -> error(msg);
 	}
 	else
 	{
@@ -363,7 +357,7 @@ interface_list
 		string msg = "`";
 		msg += scoped -> v;
 		msg += "' has been declared but not defined";
-		yyerror(msg);
+		unit -> error(msg);
 	    }
 	    else
 	    {
@@ -387,7 +381,7 @@ interface_list
 	    string msg = "`";
 	    msg += scoped -> v;
 	    msg += "' is not an interface";
-	    yyerror(msg);
+	    unit -> error(msg);
 	}
 	else
 	{
@@ -397,7 +391,7 @@ interface_list
 		string msg = "`";
 		msg += scoped -> v;
 		msg += "' has been declared but not defined";
-		yyerror(msg);
+		unit -> error(msg);
 	    }
 	    else
 	    {
@@ -576,7 +570,7 @@ type
 	    string msg = "`";
 	    msg += scoped -> v;
 	    msg += "' must be class or interface";
-	    yyerror(msg);
+	    unit -> error(msg);
 	    YYERROR; // Can't continue, jump to next yyerrok
 	}
 	*p = new Proxy(cl);

@@ -21,8 +21,6 @@ extern int yynerrs;
 
 int yyparse();
 int yylex();
-void yyerror(const char* s);
-void yyerror(const std::string& s);
 
 namespace Slice
 {
@@ -287,7 +285,9 @@ public:
     Enum_ptr createEnum(const std::string&, const StringList&);
     Enumerator_ptr createEnumerator(const std::string&);
     Native_ptr createNative(const std::string&);
-    TypeList lookupType(const std::string&);
+    TypeList lookupType(const std::string&, bool = true);
+    TypeList lookupTypeNoBuiltin(const std::string&, bool = true);
+    ContainedList lookupContained(const std::string&, bool = true);
     ModuleList modules();
     ClassList classes();
     VectorList vectors();
@@ -581,7 +581,10 @@ public:
     int currentIncludeLevel();
 
     void error(const char*);
+    void error(const std::string&);
+
     void warning(const char*);
+    void warning(const std::string&);
 
     Container_ptr currentContainer();
     void pushContainer(const Container_ptr&);

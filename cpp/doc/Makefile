@@ -11,7 +11,7 @@
 top_srcdir	= ..
 
 TARGETS		= manual/index.html \
-		  manual.pdf
+#		  manual.pdf
 
 SLICEFILES	= ../slice/Ice/Communicator.ice \
 		  ../slice/Ice/Logger.ice \

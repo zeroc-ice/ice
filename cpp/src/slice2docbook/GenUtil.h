@@ -18,7 +18,9 @@ namespace Slice
 {
 
 std::string typeToString(const Type_ptr&);
+std::string addLink(const std::string&, const Container_ptr&);
 std::string scopedToFile(const std::string&);
+std::string scopedToId(const std::string&);
 
 }
 

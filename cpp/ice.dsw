@@ -18,6 +18,21 @@ Package=<4>
 
 ###############################################################################
 
+Project: "docbook"=.\src\slice\docbook\docbook.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name parser
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "exceptionsC"=.\test\exceptions\exceptionsC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -94,21 +109,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name library
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "html"=.\src\slice\html\html.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name parser
     End Project Dependency
 }}}
 
