@@ -51,6 +51,10 @@ FREEZE_API ConnectionPtr createConnection(const Ice::CommunicatorPtr& communicat
 					  const std::string& envName, 
 					  DbEnv& dbEnv);
 
+
+typedef void (*FatalErrorCallback)(const EvictorPtr&, const Ice::CommunicatorPtr&);
+FREEZE_API FatalErrorCallback registerFatalErrorCallback(FatalErrorCallback);
+
 }
 
 #endif

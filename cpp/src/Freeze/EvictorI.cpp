@@ -61,6 +61,35 @@ Freeze::createEvictor(const ObjectAdapterPtr& adapter,
     return new EvictorI(adapter, envName, dbEnv, filename, initializer, indices, createDb);
 }
 
+//
+// Fatal error callback
+//
+
+static Freeze::FatalErrorCallback fatalErrorCallback = 0;
+static IceUtil::StaticMutex fatalErrorCallbackMutex = ICE_STATIC_MUTEX_INITIALIZER;
+
+Freeze::FatalErrorCallback 
+Freeze::registerFatalErrorCallback(Freeze::FatalErrorCallback cb)
+{
+    IceUtil::StaticMutex::Lock lock(fatalErrorCallbackMutex);
+    FatalErrorCallback result = fatalErrorCallback;
+    return result;
+}
+
+static void 
+handleFatalError(const Freeze::EvictorPtr& evictor, const Ice::CommunicatorPtr& communicator)
+{
+    IceUtil::StaticMutex::Lock lock(fatalErrorCallbackMutex);
+    if(fatalErrorCallback != 0)
+    {
+	fatalErrorCallback(evictor, communicator);
+    }
+    else
+    {
+	::abort();
+    }
+}
+
 
 //
 // Helper functions
@@ -178,6 +207,65 @@ Freeze::DeactivateController::deactivationComplete()
     _deactivated = true;
     _deactivating = false;
     notifyAll();
+}
+
+//
+// WatchDogThread
+//
+
+Freeze::WatchDogThread::WatchDogThread(long timeout, EvictorI& evictor) :
+    _timeout(IceUtil::Time::milliSeconds(timeout)),
+    _evictor(evictor),
+    _done(false),
+    _active(false)     
+{
+}
+    
+
+void 
+Freeze::WatchDogThread::run()
+{
+    Lock sync(*this);
+
+    while(!_done)
+    {
+	if(_active)
+	{
+	    if(timedWait(_timeout) == false && _active && !_done)
+	    {
+		Error out(_evictor.communicator()->getLogger());
+		out << "Fatal error: streaming watch dog thread timed out.";
+		out.flush();
+		handleFatalError(&_evictor, _evictor.communicator());
+	    }
+	}
+	else
+	{
+	    wait();
+	}
+    }
+}
+
+void Freeze::WatchDogThread::activate()
+{
+    Lock sync(*this);
+    _active = true;
+    notify();
+}
+
+void Freeze::WatchDogThread::deactivate()
+{
+    Lock sync(*this);
+    _active = false;
+    notify();
+}
+ 
+void 
+Freeze::WatchDogThread::terminate()
+{
+    Lock sync(*this);
+    _done = true;
+    notify();
 }
 
 
@@ -324,6 +412,18 @@ Freeze::EvictorI::init(const string& envName, const vector<IndexPtr>& indices)
 	{
 	    ir.first->second = new ObjectStore(facet, _createDb, this);
 	}
+    }
+
+    //
+    // By default, no stream timeout
+    //
+    long streamTimeout = _communicator->getProperties()->
+	getPropertyAsIntWithDefault(propertyPrefix+ ".StreamTimeout", 0) * 1000;
+    
+    if(streamTimeout > 0)
+    {
+	_watchDogThread = new WatchDogThread(streamTimeout, *this);
+	_watchDogThread->start();
     }
 
     //
@@ -1181,6 +1281,12 @@ Freeze::EvictorI::deactivate(const string&)
 	    sync.release();
 	    getThreadControl().join();
 	    
+	    if(_watchDogThread != 0)
+	    {
+		_watchDogThread->terminate();
+		_watchDogThread->getThreadControl().join();  
+	    }
+
 	    for(StoreMap::iterator p = _storeMap.begin(); p != _storeMap.end(); ++p)
 	    {
 		(*p).second->close();
@@ -1346,11 +1452,21 @@ Freeze::EvictorI::run()
 			    if(!lockServant.acquired())
 			    {
 				lockElement.release();
+
+				if(_watchDogThread != 0)
+				{
+				    _watchDogThread->activate();
+				}
 				lockServant.acquire();
+				if(_watchDogThread != 0)
+				{
+				    _watchDogThread->deactivate();
+				}
+
 				lockElement.acquire();
 				status = element->status;
 			    }
-			    
+  
 			    switch(status)
 			    {
 				case EvictorElement::created:
@@ -1550,21 +1666,21 @@ Freeze::EvictorI::run()
 	Error out(_communicator->getLogger());
 	out << "Saving thread killed by exception: " << ex;
 	out.flush();
-	::abort();
+	handleFatalError(this, _communicator);
     }
     catch(const std::exception& ex)
     {
 	Error out(_communicator->getLogger());
 	out << "Saving thread killed by std::exception: " << ex.what();
 	out.flush();
-	::abort();
+	handleFatalError(this, _communicator);
     }
     catch(...)
     {
 	Error out(_communicator->getLogger());
 	out << "Saving thread killed by unknown exception";
 	out.flush();
-	::abort();
+	handleFatalError(this, _communicator);
     }
 }
 

@@ -80,6 +80,36 @@ private:
 };
 
 
+class EvictorI;
+
+//
+// The WatchDogThread is used by the saving thread to ensure the
+// streaming of some object does not take more than timeout ms.
+// We only measure the time necessary to acquire the lock on the
+// object (servant), not the streaming itself.
+//
+
+class WatchDogThread : public IceUtil::Thread, private IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+    
+    WatchDogThread(long, EvictorI&);
+    
+    void run();
+
+    void activate();
+    void deactivate();
+    void terminate();
+    
+private:
+    const IceUtil::Time _timeout;
+    EvictorI& _evictor;
+    bool _done;
+    bool _active;
+};
+
+typedef IceUtil::Handle<WatchDogThread> WatchDogThreadPtr;
+
 
 class EvictorI : public Evictor,  public IceUtil::Monitor<IceUtil::Mutex>, public IceUtil::Thread
 {
@@ -191,6 +221,7 @@ private:
 
     DeactivateController _deactivateController;
     bool _savingThreadDone;
+    WatchDogThreadPtr _watchDogThread;
 
     Ice::ObjectAdapterPtr _adapter;
     Ice::CommunicatorPtr _communicator;
