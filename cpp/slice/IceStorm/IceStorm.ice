@@ -68,7 +68,7 @@ sequence<LinkInfo> LinkInfoSeq;
  *
  * This dictionary represents Quality of service parameters.
  *
- * @see TopicManager::subscribe
+ * @see Topic::subscribe
  *
  */
 dictionary<string, string> QoS;
