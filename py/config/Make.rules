@@ -47,7 +47,8 @@ prefix			= /opt/IcePy-$(VERSION)
 #
 
 ifneq ($(PYTHON_HOME),)
-    PYTHON_VERSION	= $(notdir $(wildcard $(PYTHON_HOME)/include/*))
+    PYTHON_VERSION	= $(notdir $(wildcard $(PYTHON_HOME)/include/python2*))
+
     PYTHON_INCLUDE_DIR	= $(PYTHON_HOME)/include/$(PYTHON_VERSION)
     #
     # The Python shared library is installed in $(PYTHON_HOME)/lib on HP-UX
