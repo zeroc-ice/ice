@@ -57,6 +57,21 @@ final class TcpTransceiver implements Transceiver
         {
             socket.shutdownOutput(); // Shutdown socket for writing
         }
+        catch(java.net.SocketException ex)
+        {
+	    //
+	    // Ignore errors indicating that we are shutdown already.
+	    //
+	    String msg = ex.getMessage().toLowerCase();
+	    if(msg.indexOf("transport endpoint is not connected") != -1)
+	    {
+		return;
+	    }
+
+	    Ice.SocketException se = new Ice.SocketException();
+	    se.initCause(ex);
+	    throw se;
+        }
         catch(java.io.IOException ex)
         {
 	    Ice.SocketException se = new Ice.SocketException();
