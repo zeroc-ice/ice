@@ -45,7 +45,6 @@ http://hpux.cs.utah.edu, are required to use this distribution:
 
 - bzip2 1.0.2
 - expat 1.95.8
-- openssl 0.9.7e
 
 
 Java
@@ -65,12 +64,13 @@ to use the configure option --enable-shared.
 
 
 ======================================================================
-Berkeley DB
+Berkeley DB and OpenSSL
 ======================================================================
 
 This distribution includes the C++ and Java runtime for Berkeley DB
-4.2.52. The C++ runtime was built using HP aC++ version A.03.37.  The
-Berkeley DB license is provided in the file THIRD_PARTY_LICENSE.
+4.2.52 and the OpenSSL libraries. The Berkeley DB C++ runtime was 
+built using HP aC++ version A.03.37.  The Berkeley DB and OpenSSL
+licenses are provided in the file THIRD_PARTY_LICENSE.
 
 
 ======================================================================
