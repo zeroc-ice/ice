@@ -106,7 +106,27 @@ currentGetter(CurrentObject* self, void* closure)
     {
         if(self->adapter == NULL)
         {
-            self->adapter = createObjectAdapter(self->current->adapter);
+            //
+            // Create an Ice.ObjectAdapter wrapper for IcePy.ObjectAdapter.
+            //
+            PyObjectHandle adapterI = createObjectAdapter(self->current->adapter);
+            if(adapterI.get() == NULL)
+            {
+                return NULL;
+            }
+            PyObject* wrapper = lookupType("Ice.ObjectAdapterI");
+            assert(wrapper != NULL);
+            PyObjectHandle args = PyTuple_New(1);
+            if(args.get() == NULL)
+            {
+                return NULL;
+            }
+            PyTuple_SET_ITEM(args.get(), 0, adapterI.release());
+            self->adapter = PyObject_Call(wrapper, args.get(), NULL);
+            if(self->adapter == NULL)
+            {
+                return NULL;
+            }
         }
         Py_INCREF(self->adapter);
         result = self->adapter;
