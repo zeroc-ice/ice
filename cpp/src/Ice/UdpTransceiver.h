@@ -25,6 +25,8 @@ namespace IceInternal
 
 class UdpEndpoint;
 
+class SUdpTransceiver;
+
 class UdpTransceiver : public Transceiver
 {
 public:
@@ -40,12 +42,16 @@ public:
     
     int effectivePort();
 
+    void setProtocolName(const std::string&);
+
 private:
 
-    UdpTransceiver(const InstancePtr&, const std::string&, int);
-    UdpTransceiver(const InstancePtr&, int);
+    UdpTransceiver(const InstancePtr&, const std::string&, int, const std::string& protocolName = "udp");
+    UdpTransceiver(const InstancePtr&, int, const std::string& protocolName = "udp");
     virtual ~UdpTransceiver();
+
     friend class UdpEndpoint;
+    friend class SUdpTransceiver;
 
     InstancePtr _instance;
     TraceLevelsPtr _traceLevels;
@@ -53,6 +59,7 @@ private:
     bool _sender;
     SOCKET _fd;
     struct sockaddr_in _addr;
+    std::string _protocolName;
 };
 
 }

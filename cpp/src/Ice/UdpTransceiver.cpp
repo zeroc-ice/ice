@@ -34,11 +34,11 @@ IceInternal::UdpTransceiver::close()
 	ostringstream s;
 	if (_sender)
 	{
-	    s << "stopping to send udp packets to " << toString();
+	    s << "stopping to send " << _protocolName << " packets to " << toString();
 	}
 	else
 	{
-	    s << "stopping to receive udp packets at " << toString();
+	    s << "stopping to receive " << _protocolName << " packets at " << toString();
 	}
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
@@ -81,7 +81,7 @@ repeat:
     if (_traceLevels->network >= 3)
     {
 	ostringstream s;
-	s << "sent " << ret << " bytes via udp to " << toString();
+	s << "sent " << ret << " bytes via " << _protocolName << " to " << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
     
@@ -117,7 +117,7 @@ repeat:
     if (_traceLevels->network >= 3)
     {
 	ostringstream s;
-	s << "received " << ret << " bytes via udp at " << toString();
+	s << "received " << ret << " bytes via " << _protocolName << " at " << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
@@ -157,11 +157,21 @@ IceInternal::UdpTransceiver::effectivePort()
     return ntohs(_addr.sin_port);
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port) :
+void
+IceInternal::UdpTransceiver::setProtocolName(const string& protocolName)
+{
+    _protocolName = protocolName;
+}
+
+IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance,
+                                            const string& host,
+                                            int port,
+                                            const string& protocolName) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
-    _sender(true)
+    _sender(true),
+    _protocolName(protocolName)
 {
     try
     {
@@ -173,7 +183,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 	if (_traceLevels->network >= 1)
 	{
 	    ostringstream s;
-	    s << "starting to send udp packets to " << toString();
+	    s << "starting to send " << _protocolName << " packets to " << toString();
 	    _logger->trace(_traceLevels->networkCat, s.str());
 	}
     }
@@ -184,11 +194,12 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     }
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, int port) :
+IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, int port, const string& protocolName) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
-    _sender(false)
+    _sender(false),
+    _protocolName(protocolName)
 {
     try
     {
@@ -203,7 +214,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, int por
 	if (_traceLevels->network >= 1)
 	{
 	    ostringstream s;
-	    s << "starting to receive udp packets at " << toString();
+	    s << "starting to receive " << _protocolName << " packets at " << toString();
 	    _logger->trace(_traceLevels->networkCat, s.str());
 	}
     }

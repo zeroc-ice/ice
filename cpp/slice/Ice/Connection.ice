@@ -38,8 +38,8 @@ local interface ProtocolInfo
 {
     /**
      *
-     * Get the name of the protocol. For example, "tcp", "udp", or
-     * "ssl".
+     * Get the name of the protocol. For example, "tcp", "udp", "ssl"
+     * or "sudp".
      *
      * @return the name of the protocol.
      *
@@ -73,6 +73,16 @@ local interface UdpProtocolInfo extends ProtocolInfo
  *
  **/
 local interface SslProtocolInfo extends ProtocolInfo
+{
+    // No entry yet
+};
+
+/**
+ *
+ * Specific information about the SUDP protocol.
+ *
+ **/
+local interface SUdpProtocolInfo extends ProtocolInfo
 {
     // No entry yet
 };

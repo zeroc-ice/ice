@@ -84,7 +84,12 @@ OBJS		= Initialize.o \
                   SslSystem.o \
                   SslSystemOpenSSL.o \
                   SslTempCerts.o \
-		  UdpTransceiver.o
+		  UdpTransceiver.o \
+                  SUdpTransceiver.o \
+                  SUdpControlChannel.o \
+                  SUdpServerControlChannel.o \
+                  SUdpClientControlChannel.o \
+                  SecureUdp.o 
 
 
 SRCS		= $(OBJS:.o=.cpp)
@@ -189,6 +194,14 @@ $(HDIR)/ObjectAdapterF.h: $(SDIR)/ObjectAdapterF.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/ObjectAdapterF.h
+
+$(HDIR)/SecureUdp.h SecureUdp.cpp: $(SDIR)/SecureUdp.ice $(SLICE2CPP)
+	rm -f $(HDIR)/SecureUdp.h SecureUdp.cpp
+	$(SLICECMD) $(SDIR)/SecureUdp.ice
+	mv SecureUdp.h $(HDIR)
+
+clean::
+	rm -f $(HDIR)/SecureUdp.h SecureUdp.cpp
 
 $(HDIR)/ServantLocator.h ServantLocator.cpp: $(SDIR)/ServantLocator.ice $(SLICE2CPP)
 	rm -f $(HDIR)/ServantLocator.h ServantLocator.cpp

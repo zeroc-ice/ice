@@ -18,6 +18,7 @@ local interface ProtocolInfo;
 local interface TcpProtocolInfo;
 local interface UdpProtocolInfo;
 local interface SslProtocolInfo;
+local interface SUdpProtocolInfo;
 local interface Connection;
 local interface IncomingConnection;
 local interface OutgoingConnection;
