@@ -57,8 +57,9 @@ LINK32=link.exe
 # ADD LINK32 xerces-c_2.lib /nologo /dll /machine:I386 /out:"Release/xmltransform001.dll" /libpath:"../../../lib"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
+OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\xmltransform001.lib ..\..\lib	copy $(OutDir)\xmltransform001.pdb ..\..\lib	copy $(OutDir)\xmltransform001.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\xmltransform001.lib ..\..\lib	copy $(OutDir)\xmltransform001.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "XMLTransform - Win32 Debug"
@@ -89,6 +90,7 @@ LINK32=link.exe
 # ADD LINK32 xerces-c_2D.lib /nologo /dll /debug /machine:I386 /out:"Debug/xmltransform001d.dll" /pdbtype:sept /libpath:"../../../lib"
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
+OutDir=.\Debug
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\xmltransform001d.lib ..\..\lib	copy $(OutDir)\xmltransform001d.pdb ..\..\lib	copy $(OutDir)\xmltransform001d.dll ..\..\bin
 # End Special Build Tool
@@ -104,11 +106,11 @@ PostBuild_Cmds=copy $(OutDir)\xmltransform001d.lib ..\..\lib	copy $(OutDir)\xmlt
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\XMLTransform.cpp
+SOURCE=.\ErrorReporter.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ErrorReporter.cpp
+SOURCE=.\XMLTransform.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -121,6 +123,7 @@ SOURCE=..\..\include\XMLTransform\XMLTransform.h
 # End Group
 # Begin Group "Resource Files"
 
+# PROP Default_Filter ""
 # End Group
 # End Target
 # End Project

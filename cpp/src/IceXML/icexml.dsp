@@ -57,8 +57,9 @@ LINK32=link.exe
 # ADD LINK32 xerces-c_2.lib /nologo /dll /machine:I386 /out:"Release/icexml001.dll"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
+OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icexml001.lib ..\..\lib	copy $(OutDir)\icexml001.pdb ..\..\lib	copy $(OutDir)\icexml001.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\icexml001.lib ..\..\lib	copy $(OutDir)\icexml001.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "IceXML - Win32 Debug"
@@ -89,6 +90,7 @@ LINK32=link.exe
 # ADD LINK32 xerces-c_2D.lib /nologo /dll /debug /machine:I386 /out:"Debug/icexml001d.dll" /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
+OutDir=.\Debug
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\icexml001d.lib ..\..\lib	copy $(OutDir)\icexml001d.pdb ..\..\lib	copy $(OutDir)\icexml001d.dll ..\..\bin
 # End Special Build Tool

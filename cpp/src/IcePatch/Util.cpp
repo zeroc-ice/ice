@@ -17,17 +17,18 @@
 #include <fstream>
 #include <sys/stat.h>
 #include <openssl/md5.h>
-#include <utime.h>
 #include <bzlib.h>
 
 #ifdef _WIN32
 #   include <direct.h>
 #   include <io.h>
+#   include <sys/utime.h>
 #   define S_ISDIR(mode) ((mode) & _S_IFDIR)
 #   define S_ISREG(mode) ((mode) & _S_IFREG)
 #else
 #   include <unistd.h>
 #   include <dirent.h>
+#   include <utime.h>
 #endif
 
 //
@@ -175,7 +176,7 @@ IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist, const Ice::L
 	    out << "modification time for `" << path << "' is in the future\n";
 	    out << "setting modification time to the current time.";
 	}
-	    
+
 	if(::utime(path.c_str(), 0) == -1)
 	{
 	    if(errno != ENOENT)

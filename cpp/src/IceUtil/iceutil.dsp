@@ -59,7 +59,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\iceutil001.lib ..\..\lib	copy $(OutDir)\iceutil001.pdb ..\..\lib	copy $(OutDir)\iceutil001.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\iceutil001.lib ..\..\lib	copy $(OutDir)\iceutil001.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "IceUtil - Win32 Debug"

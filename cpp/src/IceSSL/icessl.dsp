@@ -59,7 +59,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icessl001.lib ..\..\lib	copy $(OutDir)\icessl001.pdb ..\..\lib	copy $(OutDir)\icessl001.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\icessl001.lib ..\..\lib	copy $(OutDir)\icessl001.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "IceSSL - Win32 Debug"

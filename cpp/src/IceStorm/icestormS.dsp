@@ -57,8 +57,9 @@ LINK32=link.exe
 # ADD LINK32 /nologo /dll /machine:I386 /out:"Release/icestormservice001.dll" /libpath:"../../../lib"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
+OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icestormservice001.lib ..\..\lib	copy $(OutDir)\icestormservice001.pdb ..\..\lib	copy $(OutDir)\icestormservice001.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\icestormservice001.lib ..\..\lib	copy $(OutDir)\icestormservice001.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "IceStormS - Win32 Debug"
@@ -89,6 +90,7 @@ LINK32=link.exe
 # ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/icestormservice001d.dll" /pdbtype:sept /libpath:"../../../lib"
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
+OutDir=.\Debug
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\icestormservice001d.lib ..\..\lib	copy $(OutDir)\icestormservice001d.pdb ..\..\lib	copy $(OutDir)\icestormservice001d.dll ..\..\bin
 # End Special Build Tool
@@ -237,8 +239,7 @@ USERDEP__DUMMY="..\..\bin\slice2freeze.exe"
 InputPath=.\dummy.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --include-dir IceStorm  --dict IceStorm::StringBoolDict,string,bool StringBoolDict \
-	
+	..\..\bin\slice2freeze.exe --include-dir IceStorm  --dict IceStorm::StringBoolDict,string,bool StringBoolDict
 
 "StringBoolDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -254,8 +255,7 @@ USERDEP__DUMMY="..\..\bin\slice2freeze.exe"
 InputPath=.\dummy.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --include-dir IceStorm  --dict IceStorm::StringBoolDict,string,bool StringBoolDict \
-	
+	..\..\bin\slice2freeze.exe --include-dir IceStorm  --dict IceStorm::StringBoolDict,string,bool StringBoolDict
 
 "StringBoolDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -278,8 +278,7 @@ USERDEP__ICEST="..\..\bin\slice2cpp.exe"
 InputPath=.\IceStormInternal.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice IceStormInternal.ice \
-	
+	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice IceStormInternal.ice
 
 "IceStormInternal.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -295,8 +294,7 @@ USERDEP__ICEST="..\..\bin\slice2cpp.exe"
 InputPath=.\IceStormInternal.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice IceStormInternal.ice \
-	
+	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice IceStormInternal.ice
 
 "IceStormInternal.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
