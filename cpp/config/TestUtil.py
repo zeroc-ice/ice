@@ -18,16 +18,16 @@
 # protocol. Otherwise TCP is used.
 #
 
-protocol = "ssl"
 #protocol = ""
+protocol = "ssl"
 
 #
 # Set compressed to 1 in case you want to run the tests with
 # protocol compression.
 #
 
-compress = 1
 #compress = 0
+compress = 1
 
 #
 # Set the host to the host name the test servers are running on. If
