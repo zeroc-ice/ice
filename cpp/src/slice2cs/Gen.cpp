@@ -720,7 +720,7 @@ Slice::CsVisitor::getArgsAsyncCB(const OperationPtr& op)
 }
 
 Slice::Gen::Gen(const string& name, const string& base, const vector<string>& includePaths, const string& dir,
-                bool impl)
+                bool impl, bool implTie)
     : _base(base),
       _includePaths(includePaths)
 {
@@ -780,7 +780,7 @@ Slice::Gen::Gen(const string& name, const string& base, const vector<string>& in
     _out << sp << nl << "using _System = System;";
     _out << nl << "using _Microsoft = Microsoft;";
 
-    if(impl)
+    if(impl || implTie)
     {
         struct stat st;
 	if(stat(fileImpl.c_str(), &st) == 0)
@@ -861,6 +861,13 @@ Slice::Gen::generateImpl(const UnitPtr& p)
 {
     ImplVisitor implVisitor(_impl);
     p->visit(&implVisitor);
+}
+
+void
+Slice::Gen::generateImplTie(const UnitPtr& p)
+{
+    ImplTieVisitor implTieVisitor(_impl);
+    p->visit(&implTieVisitor);
 }
 
 void
@@ -3725,11 +3732,6 @@ Slice::Gen::TieVisitor::visitModuleEnd(const ModulePtr&)
     _out << eb;
 }
 
-Slice::Gen::ImplVisitor::ImplVisitor(IceUtil::Output& out)
-    : CsVisitor(out)
-{
-}
-
 bool
 Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
@@ -3944,71 +3946,13 @@ Slice::Gen::TieVisitor::writeInheritedOperations(const ClassDefPtr& p, NameSet& 
     }
 }
 
-bool
-Slice::Gen::ImplVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::BaseImplVisitor::BaseImplVisitor(IceUtil::Output& out)
+    : CsVisitor(out)
 {
-    if(!p->hasClassDefs())
-    {
-        return false;
-    }
-
-    _out << sp << nl << "namespace " << fixId(p->name());
-    _out << sb;
-
-    return true;
 }
 
 void
-Slice::Gen::ImplVisitor::visitModuleEnd(const ModulePtr&)
-{
-    _out << eb;
-}
-
-bool
-Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(!p->isAbstract())
-    {
-        return false;
-    }
-
-    string name = fixId(p->name());
-
-    _out << sp << nl << "public sealed class " << name << 'I';
-    if(p->isInterface())
-    {
-        if(p->isLocal())
-	{
-	    _out << " : Ice.LocalObjectImpl, " << name;
-	}
-	else
-	{
-	    _out << " : " << name << "_Disp";
-	}
-    }
-    else
-    {
-        _out << " : " << name;
-    }
-    _out << sb;
-
-    OperationList ops = p->allOperations();
-    for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
-    {
-        writeOperation(*r, p->isLocal());
-    }
-
-    return true;
-}
-
-void
-Slice::Gen::ImplVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
-    _out << eb;
-}
-
-void
-Slice::Gen::ImplVisitor::writeOperation(const OperationPtr& op, bool local)
+Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool local, bool comment, bool forTie)
 {
     ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
     string opName = fixId(op->name());
@@ -4017,12 +3961,32 @@ Slice::Gen::ImplVisitor::writeOperation(const OperationPtr& op, bool local)
     ParamDeclList params = op->parameters();
     ParamDeclList::const_iterator i;
 
+    if(comment)
+    {
+	_out << nl << "// ";
+    }
+    else
+    {
+	_out << sp << nl;
+    }
+
     if(!local && (cl->hasMetaData("amd") || op->hasMetaData("amd")))
     {
         vector<string> pDecl = getParamsAsync(op, true);
 
-	_out << sp << nl << "public override void " << opName << "_async"
-	     << spar << pDecl << "Ice.Current __current" << epar;
+	_out << "public ";
+	if(!forTie)
+	{
+	    _out << "override ";
+	}
+	_out << "void " << opName << "_async" << spar << pDecl << "Ice.Current __current" << epar;
+
+	if(comment)
+	{
+	    _out << ';';
+	    return;
+	}
+
 	_out << sb;
 	if(ret)
 	{
@@ -4062,12 +4026,22 @@ Slice::Gen::ImplVisitor::writeOperation(const OperationPtr& op, bool local)
     {
 	vector<string> pDecls = getParams(op);
 
-        _out << sp << nl << "public override " << retS << ' ' << opName << spar << pDecls;
+	_out << "public ";
+	if(!forTie)
+	{
+	    _out << "override ";
+	}
+	_out << retS << ' ' << opName << spar << pDecls;
 	if(!local)
 	{
 	    _out << "Ice.Current __current";
 	}
 	_out << epar;
+	if(comment)
+	{
+	    _out << ';';
+	    return;
+	}
 	_out << sb;
 	for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
 	{
@@ -4087,7 +4061,7 @@ Slice::Gen::ImplVisitor::writeOperation(const OperationPtr& op, bool local)
 }
 
 string
-Slice::Gen::ImplVisitor::writeValue(const TypePtr& type)
+Slice::Gen::BaseImplVisitor::writeValue(const TypePtr& type)
 {
     assert(type);
 
@@ -4140,4 +4114,161 @@ Slice::Gen::ImplVisitor::writeValue(const TypePtr& type)
     }
 
     return "null";
+}
+
+Slice::Gen::ImplVisitor::ImplVisitor(IceUtil::Output& out)
+    : BaseImplVisitor(out)
+{
+}
+
+bool
+Slice::Gen::ImplVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if(!p->hasClassDefs())
+    {
+        return false;
+    }
+
+    _out << sp << nl << "namespace " << fixId(p->name());
+    _out << sb;
+
+    return true;
+}
+
+void
+Slice::Gen::ImplVisitor::visitModuleEnd(const ModulePtr&)
+{
+    _out << eb;
+}
+
+bool
+Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if(!p->isAbstract())
+    {
+        return false;
+    }
+
+    string name = fixId(p->name());
+
+    _out << sp << nl << "public sealed class " << name << 'I';
+    if(p->isInterface())
+    {
+        if(p->isLocal())
+	{
+	    _out << " : Ice.LocalObjectImpl, " << name;
+	}
+	else
+	{
+	    _out << " : " << name << "_Disp";
+	}
+    }
+    else
+    {
+        _out << " : " << name;
+    }
+    _out << sb;
+
+    OperationList ops = p->allOperations();
+    for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
+    {
+        writeOperation(*r, p->isLocal(), false, false);
+    }
+
+    return true;
+}
+
+void
+Slice::Gen::ImplVisitor::visitClassDefEnd(const ClassDefPtr&)
+{
+    _out << eb;
+}
+
+Slice::Gen::ImplTieVisitor::ImplTieVisitor(IceUtil::Output& out)
+    : BaseImplVisitor(out)
+{
+}
+
+bool
+Slice::Gen::ImplTieVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if(!p->hasClassDefs())
+    {
+        return false;
+    }
+
+    _out << sp << nl << "namespace " << fixId(p->name());
+    _out << sb;
+
+    return true;
+}
+
+void
+Slice::Gen::ImplTieVisitor::visitModuleEnd(const ModulePtr&)
+{
+    _out << eb;
+}
+
+bool
+Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if(!p->isAbstract())
+    {
+        return false;
+    }
+
+    string name = fixId(p->name());
+    ClassList bases = p->bases();
+
+    //
+    // Use implementation inheritance in the following situations:
+    //
+    // * if a class extends another class
+    // * if a class implements a single interface
+    // * if an interface extends only one interface
+    //
+    bool inheritImpl = (!p->isInterface() && !bases.empty() && !bases.front()->isInterface()) || (bases.size() == 1);
+
+    _out << sp << nl << "public class " << name << "I : ";
+    if(inheritImpl)
+    {
+        _out << fixId(bases.front()->name()) << "I, ";
+    }
+    _out << name << "_Operations";
+    _out << sb;
+
+    _out << nl << "public " << name << "I()";
+    _out << sb;
+    _out << eb;
+
+    OperationList ops = p->allOperations();
+    ops.sort();
+
+    OperationList baseOps;
+    if(inheritImpl)
+    {
+        baseOps = bases.front()->allOperations();
+        baseOps.sort();
+    }
+
+    OperationList::const_iterator r;
+    for(r = ops.begin(); r != ops.end(); ++r)
+    {
+        if(inheritImpl && binary_search(baseOps.begin(), baseOps.end(), *r))
+        {
+            _out << sp;
+            _out << nl << "// ";
+            _out << nl << "// Implemented by " << fixId(bases.front()->name()) << 'I';
+            _out << nl << "//";
+            writeOperation(*r, p->isLocal(), true, true);
+        }
+        else
+        {
+            writeOperation(*r, p->isLocal(), false, true);
+        }
+    }
+
+    _out << eb;
+
+    return true;
 }

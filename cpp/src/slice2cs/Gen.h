@@ -44,6 +44,7 @@ public:
         const std::string&,
         const std::vector<std::string>&,
 	const std::string&,
+	bool,
 	bool);
     ~Gen();
 
@@ -52,6 +53,7 @@ public:
     void generate(const UnitPtr&);
     void generateTie(const UnitPtr&);
     void generateImpl(const UnitPtr&);
+    void generateImplTie(const UnitPtr&);
 
 private:
 
@@ -203,7 +205,22 @@ private:
 	void writeInheritedOperations(const ClassDefPtr&, NameSet&);
     };
 
-    class ImplVisitor : public CsVisitor
+    class BaseImplVisitor : public CsVisitor
+    {
+    public:
+
+        BaseImplVisitor(::IceUtil::Output&);
+
+    protected:
+
+	void writeOperation(const OperationPtr&, bool, bool, bool);
+
+    private:
+
+	::std::string writeValue(const TypePtr&);
+    };
+
+    class ImplVisitor : public BaseImplVisitor
     {
     public:
 
@@ -213,11 +230,17 @@ private:
 	virtual void visitModuleEnd(const ModulePtr&);
 	virtual bool visitClassDefStart(const ClassDefPtr&);
 	virtual void visitClassDefEnd(const ClassDefPtr&);
+    };
 
-    private:
+    class ImplTieVisitor : public BaseImplVisitor
+    {
+    public:
 
-	void writeOperation(const OperationPtr&, bool);
-	::std::string writeValue(const TypePtr&);
+        ImplTieVisitor(::IceUtil::Output&);
+
+	virtual bool visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
     };
 };
 
