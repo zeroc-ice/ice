@@ -97,10 +97,10 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             {
                 java.util.Map.Entry entry = (java.util.Map.Entry)r.next();
                 String name = (String)entry.getKey();
-                Service svc = (Service)entry.getValue();
+                ServiceInfo info = (ServiceInfo)entry.getValue();
                 try
                 {
-                    svc.start();
+                    info.service.start();
                 }
                 catch(FailureException ex)
                 {
@@ -180,7 +180,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         return 0;
     }
 
-    private Service
+    private void
     init(String service, String className, String[] args)
         throws FailureException
     {
@@ -229,14 +229,14 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         //
         // Instantiate the class.
         //
-        Service svc = null;
+	ServiceInfo info = new ServiceInfo();
         try
         {
             Class c = Class.forName(className);
             java.lang.Object obj = c.newInstance();
             try
             {
-                svc = (Service)obj;
+                info.service = (ServiceBase)obj;
             }
             catch(ClassCastException ex)
             {
@@ -272,9 +272,53 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         //
         try
         {
-            svc.init(service, _communicator, serviceProperties, serviceArgs.value);
-            _services.put(service, svc);
+	    try
+	    {
+	        //
+		// IceBox::Service
+		//
+	        Service s = (Service)info.service;
+	        info.dbEnvName = null;
+                s.init(service, _communicator, serviceProperties, serviceArgs.value);
+	    }
+	    catch(ClassCastException e)
+	    {
+	        //
+		// IceBox::FreezeService
+		//
+		// Either open the database environment or if it has already been opened
+		// retrieve it from the map.
+		//
+	        FreezeService fs = (FreezeService)info.service;
+
+                Ice.Properties properties = _communicator.getProperties();
+		String propName = "IceBox.DBEnvName." + service;
+		info.dbEnvName = properties.getProperty(propName);
+
+		DBEnvironmentInfo dbInfo = (DBEnvironmentInfo)_dbEnvs.get(info.dbEnvName);
+		if(dbInfo == null)
+		{
+		    dbInfo = new DBEnvironmentInfo();
+		    dbInfo.dbEnv = Freeze.Util.initialize(_communicator, info.dbEnvName);
+		    dbInfo.openCount = 1;
+		}
+		else
+		{
+		    ++dbInfo.openCount;
+		}
+		_dbEnvs.put(info.dbEnvName, dbInfo);
+		
+                fs.init(service, _communicator, serviceProperties, serviceArgs.value, dbInfo.dbEnv);
+	    }
+            _services.put(service, info);
         }
+	catch(Freeze.DBException ex)
+	{
+            FailureException e = new FailureException();
+            e.reason = "ServiceManager: database exception while initializing service " + service + ": " + ex;
+            e.initCause(ex);
+            throw e;
+	}
         catch(FailureException ex)
         {
             throw ex;
@@ -286,21 +330,45 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             e.initCause(ex);
             throw e;
         }
-
-        return svc;
     }
 
     private void
     stop(String service)
         throws FailureException
     {
-        Service svc = (Service)_services.remove(service);
-        assert(svc != null);
+        ServiceInfo info = (ServiceInfo)_services.remove(service);
+        assert(info != null);
 
         try
         {
-            svc.stop();
+            info.service.stop();
+	    try
+	    {
+	        FreezeService fs = (FreezeService)info.service;
+		
+	        DBEnvironmentInfo dbInfo = (DBEnvironmentInfo)_dbEnvs.get(info.dbEnvName);
+		assert(dbInfo != null);
+		if(--dbInfo.openCount == 0)
+		{
+		    dbInfo.dbEnv.close();
+		    _dbEnvs.remove(info.dbEnvName);
+		}
+		else
+		{
+		    _dbEnvs.put(info.dbEnvName, dbInfo);
+		}
+	    }
+	    catch(ClassCastException e)
+	    {
+	    }
         }
+	catch(Freeze.DBException ex)
+	{
+            FailureException e = new FailureException();
+            e.reason = "ServiceManager: database exception in stop for service " + service + ": " + ex;
+            e.initCause(ex);
+            throw e;
+	}
         catch(Exception ex)
         {
             FailureException e = new FailureException();
@@ -318,10 +386,10 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         {
             java.util.Map.Entry e = (java.util.Map.Entry)r.next();
             String name = (String)e.getKey();
-            Service service = (Service)e.getValue();
+            ServiceInfo info = (ServiceInfo)e.getValue();
             try
             {
-                service.stop();
+                info.service.stop();
             }
             catch(Exception ex)
             {
@@ -335,9 +403,22 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         _services.clear();
     }
 
+    class ServiceInfo
+    {
+        public ServiceBase service;
+	public String dbEnvName;
+    }
+
+    class DBEnvironmentInfo
+    {
+        Freeze.DBEnvironment dbEnv;
+        public int openCount;
+    }
+
     private Ice.Communicator _communicator;
     private Ice.Logger _logger;
     private String[] _argv; // Filtered server argument vector
     private String[] _options; // Server property set converted to command-line options
     private java.util.HashMap _services = new java.util.HashMap();
+    private java.util.HashMap _dbEnvs = new java.util.HashMap();
 }
