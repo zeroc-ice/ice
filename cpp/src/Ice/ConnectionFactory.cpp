@@ -83,7 +83,7 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
     // finished.
     //
     for_each(_connections.begin(), _connections.end(),
-	     Ice::secondConstVoidMemFun<EndpointPtr, Connection>(&Connection::waitUntilFinished));
+	     Ice::secondVoidMemFun<EndpointPtr, Connection>(&Connection::waitUntilFinished));
 
     //
     // We're done, now we can throw away all connections.
@@ -451,7 +451,7 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
     // Now we wait until the destruction of each connection has
     // finished.
     //
-    for_each(_connections.begin(), _connections.end(), Ice::constVoidMemFun(&Connection::waitUntilFinished));
+    for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&Connection::waitUntilFinished));
 
     //
     // We're done, now we can throw away all connections.

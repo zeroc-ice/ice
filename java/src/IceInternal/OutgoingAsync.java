@@ -99,7 +99,7 @@ public abstract class OutgoingAsync
 
 	    if(_connection.timeout() >= 0)
 	    {
-		_absoluteTimeoutMillis = System.currentTimeMillis() + _connection.timeout() * 1000;
+		_absoluteTimeoutMillis = System.currentTimeMillis() + _connection.timeout();
 	    }
 	}
         catch(RuntimeException ex)

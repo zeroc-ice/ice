@@ -59,7 +59,7 @@ public:
     bool isFinished() const;
 
     void waitUntilHolding() const;
-    void waitUntilFinished() const;
+    void waitUntilFinished(); // Not const, as this might close the connection upon timeout.
 
     void monitor();
 

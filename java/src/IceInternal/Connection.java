@@ -85,7 +85,22 @@ public final class Connection extends EventHandler
 	{
 	    try
 	    {
-		wait();
+		if(_endpoint.timeout() >= 0)
+		{
+		    long absoluteTimeoutMillis = System.currentTimeMillis() + _endpoint.timeout();
+		    
+		    wait(_endpoint.timeout());
+		    
+		    if(System.currentTimeMillis() >= absoluteTimeoutMillis)
+		    {
+			setState(StateClosed, new Ice.CloseTimeoutException());
+			// No return here, we must still wait until _transceiver becomes null.
+		    }
+		}
+		else
+		{
+		    wait();
+		}
 	    }
 	    catch(InterruptedException ex)
 	    {

@@ -1,6 +1,9 @@
 Changes since version 1.0.1
 ---------------------------
 
+- The connection timeout is now also used when connections are
+  closed. This avoid hanging processes if the peer misbehaves.
+
 - In some cases, communicator destruction could result in a
   NullHandleException. This has been fixed. Now a
   CommunicatorDestroyedException is raised.

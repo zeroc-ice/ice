@@ -99,13 +99,17 @@ IceInternal::Connection::waitUntilHolding() const
 }
 
 void
-IceInternal::Connection::waitUntilFinished() const
+IceInternal::Connection::waitUntilFinished()
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     while(_transceiver || _dispatchCount > 0)
     {
-	wait();
+	if(timedWait(IceUtil::Time::milliSeconds(_endpoint->timeout())))
+	{
+	    setState(StateClosed, CloseTimeoutException(__FILE__, __LINE__));
+	    // No return here, we must still wait until _transceiver becomes null.
+	}
     }
 
     assert(_state == StateClosed);

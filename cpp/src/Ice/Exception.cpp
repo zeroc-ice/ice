@@ -244,6 +244,13 @@ Ice::ConnectTimeoutException::ice_print(ostream& out) const
 }
 
 void
+Ice::CloseTimeoutException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\ntimeout while closing a connection";
+}
+
+void
 Ice::ConnectionTimeoutException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

@@ -352,10 +352,20 @@ local exception TimeoutException
 /**
  *
  * This exception is a specialization of [TimeoutException] for
- * connection timeout conditions.
+ * connection establishment timeout conditions.
  *
  **/
 local exception ConnectTimeoutException extends TimeoutException
+{
+};
+
+/**
+ *
+ * This exception is a specialization of [TimeoutException] for
+ * connection closure timeout conditions.
+ *
+ **/
+local exception CloseTimeoutException extends TimeoutException
 {
 };
 
