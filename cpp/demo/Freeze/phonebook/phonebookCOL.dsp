@@ -103,7 +103,7 @@ SOURCE=.\Grammar.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\NameIdentitiesDict.cpp
+SOURCE=.\NameIndex.cpp
 # End Source File
 # Begin Source File
 
@@ -139,7 +139,7 @@ SOURCE=.\Grammar.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\NameIdentitiesDict.h
+SOURCE=.\NameIndex.h
 # End Source File
 # Begin Source File
 
@@ -212,7 +212,7 @@ InputPath=.\PhoneBook.ice
 
 BuildCmds= \
 	..\..\..\bin\slice2cpp.exe -I../../../slice PhoneBook.ice \
-	..\..\..\bin\slice2freeze.exe -I../../../slice --dict NameIdentitiesDict,string,Identities NameIdentitiesDict PhoneBook.ice \
+	..\..\..\bin\slice2freeze.exe -I../../../slice --index NameIndex,Contact,name,case-insensitive NameIndex PhoneBook.ice \
 	
 
 "PhoneBook.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -221,10 +221,10 @@ BuildCmds= \
 "PhoneBook.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"NameIdentitiesDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NameIndex.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"NameIdentitiesDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NameIndex.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -236,7 +236,7 @@ InputPath=.\PhoneBook.ice
 
 BuildCmds= \
 	..\..\..\bin\slice2cpp.exe -I../../../slice PhoneBook.ice \
-	..\..\..\bin\slice2freeze.exe -I../../../slice --dict NameIdentitiesDict,string,Identities NameIdentitiesDict PhoneBook.ice \
+	..\..\..\bin\slice2freeze.exe -I../../../slice --index NameIndex,Contact,name,case-insensitive NameIndex PhoneBook.ice \
 	
 
 "PhoneBook.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -245,10 +245,10 @@ BuildCmds= \
 "PhoneBook.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"NameIdentitiesDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NameIndex.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"NameIdentitiesDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NameIndex.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

@@ -134,6 +134,22 @@ SOURCE=.\EvictorI.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\EvictorIteratorI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Util.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Index.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\IndexI.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\MapI.cpp
 # End Source File
 # Begin Source File
@@ -214,7 +230,23 @@ SOURCE=..\..\include\Freeze\EvictorF.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\Freeze\Index.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\EvictorI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\EvictorIteratorI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Util.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\IndexI.h
 # End Source File
 # Begin Source File
 
@@ -231,18 +263,6 @@ SOURCE=..\..\include\Freeze\Map.h
 # Begin Source File
 
 SOURCE=..\..\include\Freeze\EvictorStorage.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Freeze\Strategy.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Freeze\StrategyF.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\StrategyI.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

@@ -128,7 +128,7 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
 		toClose->close();
 		break; // for (;;)
 	    }
-	    catch(const DbDeadlockException& dx)
+	    catch(const DbDeadlockException&)
 	    {
 		if(dbc != 0)
 		{
@@ -221,7 +221,7 @@ Freeze::IndexI::untypedCount(const Key& bytes) const
 		toClose->close();
 		break; // for (;;)
 	    }
-	    catch(const DbDeadlockException& dx)
+	    catch(const DbDeadlockException&)
 	    {
 		if(dbc != 0)
 		{
