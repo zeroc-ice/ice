@@ -10,7 +10,7 @@
 
 package Ice;
 
-public abstract class LocalObjectImpl implements LocalObject
+public abstract class LocalObjectImpl implements LocalObject, java.lang.Cloneable
 {
     public boolean
     equals(java.lang.Object rhs)
@@ -30,33 +30,7 @@ public abstract class LocalObjectImpl implements LocalObject
     clone()
         throws java.lang.CloneNotSupportedException
     {
-        LocalObject result = null;
-
-        try
-        {
-            result = (LocalObject)getClass().newInstance();
-            ((LocalObjectImpl)result).ice_copyStateFrom(this);
-        }
-        catch(InstantiationException ex)
-        {
-            CloneNotSupportedException e = new CloneNotSupportedException();
-            e.initCause(ex);
-            throw e;
-        }
-        catch(IllegalAccessException ex)
-        {
-            CloneNotSupportedException e = new CloneNotSupportedException();
-            e.initCause(ex);
-            throw e;
-        }
-
-        return result;
-    }
-
-    protected void
-    ice_copyStateFrom(LocalObject obj)
-        throws java.lang.CloneNotSupportedException
-    {
+        return super.clone();
     }
 
     public int

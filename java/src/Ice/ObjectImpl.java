@@ -10,7 +10,7 @@
 
 package Ice;
 
-public class ObjectImpl implements Object
+public class ObjectImpl implements Object, java.lang.Cloneable
 {
     public
     ObjectImpl()
@@ -35,57 +35,28 @@ public class ObjectImpl implements Object
     clone()
         throws java.lang.CloneNotSupportedException
     {
-        Object result = null;
-
-        try
-        {
-            result = (Object)getClass().newInstance();
-            ((ObjectImpl)result).ice_copyStateFrom(this);
-        }
-        catch(InstantiationException ex)
-        {
-            CloneNotSupportedException e = new CloneNotSupportedException();
-            e.initCause(ex);
-            throw e;
-        }
-        catch(IllegalAccessException ex)
-        {
-            CloneNotSupportedException e = new CloneNotSupportedException();
-            e.initCause(ex);
-            throw e;
-        }
-
-        return result;
-    }
-
-    protected final void
-    ice_cloneFacets(Object obj)
-        throws java.lang.CloneNotSupportedException
-    {
         //
-        // Clone facets.
+        // Use super.clone() to perform a shallow copy of all members,
+        // and then clone the facets manually.
         //
-        ObjectImpl impl = (ObjectImpl)obj;
-        synchronized(impl._activeFacetMap)
+        ObjectImpl result = (ObjectImpl)super.clone();
+
+        result._activeFacetMap = new java.util.HashMap();
+        synchronized(_activeFacetMap)
         {
-            if(!impl._activeFacetMap.isEmpty())
+            if(!_activeFacetMap.isEmpty())
             {
-                java.util.Iterator p = impl._activeFacetMap.entrySet().iterator();
+                java.util.Iterator p = _activeFacetMap.entrySet().iterator();
                 while(p.hasNext())
                 {
                     java.util.Map.Entry e = (java.util.Map.Entry)p.next();
                     Object facet = (Object)e.getValue();
-                    _activeFacetMap.put(e.getKey(), facet.clone());
+                    result._activeFacetMap.put(e.getKey(), facet.clone());
                 }
             }
         }
-    }
 
-    protected void
-    ice_copyStateFrom(Object obj)
-        throws java.lang.CloneNotSupportedException
-    {
-        ice_cloneFacets(obj);
+        return result;
     }
 
     public int
