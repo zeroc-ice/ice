@@ -24,10 +24,9 @@ name = "Freeze/cursor"
 
 testdir = os.path.normpath(toplevel + "/test/" + name)
 client = os.path.normpath(testdir + "/client")
-clientOptions = " --Ice.Config=" + testdir + "/config " + testdir;
 
 print "starting client...",
-clientPipe = os.popen(client + clientOptions)
+clientPipe = os.popen(client)
 output = clientPipe.read().strip()
 if not output:
     print "failed!"
