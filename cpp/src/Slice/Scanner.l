@@ -10,8 +10,8 @@
 //
 // **********************************************************************
 
+#include <GrammerUtil.h> // Before Grammer.h, so that YYSTYPE is defined
 #include <Grammer.h>
-#include <GrammerUtil.h>
 
 using namespace std;
 using namespace Slice;

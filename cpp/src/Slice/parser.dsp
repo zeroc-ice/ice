@@ -96,6 +96,10 @@ SOURCE=.\Grammer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\GrammerUtil.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\OutputUtil.cpp
 # End Source File
 # Begin Source File
@@ -117,6 +121,10 @@ SOURCE=..\..\library\Shared.cpp
 # Begin Source File
 
 SOURCE=.\Grammer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\GrammerUtil.h
 # End Source File
 # Begin Source File
 

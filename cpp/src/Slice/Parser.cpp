@@ -679,13 +679,13 @@ Slice::ClassDecl::visit(ParserVisitor* visitor)
 Slice::ClassDecl::ClassDecl(const Container_ptr& container,
 			    const string& name,
 			    bool local,
-			    bool interface)
+			    bool intf)
     : Constructed(container, name),
       Type(container -> unit()),
       Contained(container, name),
       SyntaxTreeBase(container -> unit()),
       local_(local),
-      interface_(interface)
+      interface_(intf)
 {
 }
 
@@ -834,14 +834,14 @@ Slice::ClassDef::ClassDef(const Container_ptr& container,
 			  const ClassDef_ptr& base,
 			  const ClassList& implements,
 			  bool local,
-			  bool interface)
+			  bool intf)
     : Contained(container, name),
       Container(container -> unit()),
       SyntaxTreeBase(container -> unit()),
       base_(base),
       implements_(implements),
       local_(local),
-      interface_(interface)
+      interface_(intf)
 {
 }
 

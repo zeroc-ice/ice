@@ -112,7 +112,7 @@ Slice::Gen::generate(const Unit_ptr& unit)
 
     H << "\n#include <Ice/ProxyF.h>";
     H << "\n#include <Ice/ObjectF.h>";
-    H << "\n#include <Ice/IsLocalObjectF.h>";
+    H << "\n#include <Ice/LocalObjectF.h>";
     H << "\n#include <Ice/Native.h>";
     if(unit -> hasProxies())
     {
@@ -120,11 +120,11 @@ Slice::Gen::generate(const Unit_ptr& unit)
 	H << "\n#include <Ice/Object.h>";
 	H << "\n#include <Ice/Outgoing.h>";
 	H << "\n#include <Ice/Incoming.h>";
-	H << "\n#include <Ice/IsLocalException.h>";
+	H << "\n#include <Ice/LocalException.h>";
     }
     else
     {
-	H << "\n#include <Ice/IsLocalObject.h>";
+	H << "\n#include <Ice/LocalObject.h>";
 	C << "\n#include <Ice/Stream.h>";
     }
 
@@ -1042,7 +1042,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDef_ptr& p)
     else
     {
 	if(isLocal)
-	    baseS = "::Ice::IsLocalObject";
+	    baseS = "::Ice::LocalObject";
 	else
 	    baseS = "::Ice::Object";
     }
