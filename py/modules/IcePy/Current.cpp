@@ -37,13 +37,13 @@ struct CurrentObject
 //
 // Member identifiers.
 //
-const int CURRENT_ADAPTER   = 0;
-const int CURRENT_TRANSPORT = 1;
-const int CURRENT_ID        = 2;
-const int CURRENT_FACET     = 3;
-const int CURRENT_OPERATION = 4;
-const int CURRENT_MODE      = 5;
-const int CURRENT_CTX       = 6;
+const int CURRENT_ADAPTER    = 0;
+const int CURRENT_CONNECTION = 1;
+const int CURRENT_ID         = 2;
+const int CURRENT_FACET      = 3;
+const int CURRENT_OPERATION  = 4;
+const int CURRENT_MODE       = 5;
+const int CURRENT_CTX        = 6;
 
 }
 
@@ -135,9 +135,9 @@ currentGetter(CurrentObject* self, void* closure)
         result = self->adapter;
         break;
     }
-    case CURRENT_TRANSPORT:
+    case CURRENT_CONNECTION:
     {
-        // TODO: TransportInfo
+        // TODO: Connection
         break;
     }
     case CURRENT_ID:
@@ -220,7 +220,7 @@ currentGetter(CurrentObject* self, void* closure)
 static PyGetSetDef CurrentGetSetters[] =
 {
     {"adapter", (getter)currentGetter, NULL, "object adapter", (void*)CURRENT_ADAPTER},
-    {"con", (getter)currentGetter, NULL, "connection info", (void*)CURRENT_TRANSPORT},
+    {"con", (getter)currentGetter, NULL, "connection info", (void*)CURRENT_CONNECTION},
     {"id", (getter)currentGetter, NULL, "identity", (void*)CURRENT_ID},
     {"facet", (getter)currentGetter, NULL, "facet name", (void*)CURRENT_FACET},
     {"operation", (getter)currentGetter, NULL, "operation name", (void*)CURRENT_OPERATION},
