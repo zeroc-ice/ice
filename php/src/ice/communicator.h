@@ -24,10 +24,10 @@ extern "C"
 
 #include <Ice/Ice.h>
 
-bool Ice_Communicator_init(TSRMLS_DC);
-bool Ice_Communicator_create(zval* TSRMLS_DC);
-Ice::CommunicatorPtr Ice_Communicator_instance();
-bool Ice_Communicator_shutdown(TSRMLS_DC);
+bool Ice_Communicator_init(TSRMLS_D);
+bool Ice_Communicator_create(TSRMLS_DC);
+Ice::CommunicatorPtr Ice_Communicator_instance(TSRMLS_D);
+//bool Ice_Communicator_shutdown(TSRMLS_D);
 
 //
 // Ice_Communicator class methods.

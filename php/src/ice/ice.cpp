@@ -104,11 +104,6 @@ ZEND_MSHUTDOWN_FUNCTION(ice)
 
     int status = SUCCESS;
 
-    if(!Ice_Communicator_shutdown(TSRMLS_CC))
-    {
-        status = FAILURE;
-    }
-
     if(!Slice_shutdown(TSRMLS_CC))
     {
         status = FAILURE;
@@ -120,19 +115,12 @@ ZEND_MSHUTDOWN_FUNCTION(ice)
 ZEND_RINIT_FUNCTION(ice)
 {
     //
-    // Register the global variable "ICE" to hold the communicator. We have to do this
-    // during request initialization, and not module initialization, because PHP's
-    // environment is essentially recreated for each request.
+    // Create a new communicator for each request, storing it in the global variable "ICE".
     //
-    zval* global;
-    MAKE_STD_ZVAL(global);
-    if(!Ice_Communicator_create(global TSRMLS_CC))
+    if(!Ice_Communicator_create(TSRMLS_CC))
     {
         return FAILURE;
     }
-
-    ICE_G(z_communicator) = global;
-    ZEND_SET_GLOBAL_VAR("ICE", global);
 
     return SUCCESS;
 }
