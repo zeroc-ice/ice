@@ -41,14 +41,14 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     if(!value.empty())
     {
 	const_cast<bool&>(overrideTimeout) = true;
-	const_cast<Int&>(overrideTimeoutValue) = atoi(value.c_str());
+	const_cast<Int&>(overrideTimeoutValue) = properties->getPropertyAsInt("Ice.Override.Timeout");
     }
 
     value = properties->getProperty("Ice.Override.Compress");
     if(!value.empty())
     {
 	const_cast<bool&>(overrideComppress) = true;
-	const_cast<bool&>(overrideComppressValue) = atoi(value.c_str());
+	const_cast<bool&>(overrideComppressValue) = properties->getPropertyAsInt("Ice.Override.Compress");
     }
 
     const_cast<string&>(defaultLocator) = properties->getProperty("Ice.Default.Locator");

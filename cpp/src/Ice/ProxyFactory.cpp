@@ -129,9 +129,13 @@ IceInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) :
 	    break;
 	}
 
-	string value = str.substr(beg, end - beg);
+	istringstream value(str.substr(beg, end - beg));
 
-	int v = atoi(value.c_str());
+	int v;
+	if(!(value >> v) || !value.eof())
+	{
+	    v = 0;
+	}
 
 	//
 	// If -1 is the first value, no retry and wait intervals.

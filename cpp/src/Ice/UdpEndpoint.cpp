@@ -85,11 +85,11 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 
 	    case 'p':
 	    {
-		if(argument.empty())
+		istringstream p(argument);
+		if(!(p >> const_cast<Int&>(_port)) || !p.eof())
 		{
 		    throw EndpointParseException(__FILE__, __LINE__);
 		}
-		const_cast<Int&>(_port) = atoi(argument.c_str());
 		break;
 	    }
 

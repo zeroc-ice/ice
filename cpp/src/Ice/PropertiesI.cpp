@@ -62,12 +62,14 @@ Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value)
     map<string, string>::const_iterator p = _properties.find(key);
     if(p != _properties.end())
     {
-	return static_cast<Int>(atoi(p->second.c_str()));
+	istringstream v(p->second);
+	if(!(v >> value) || !v.eof())
+	{
+	    return 0;
+	}
     }
-    else
-    {
-	return value;
-    }
+
+    return value;
 }
 
 PropertyDict
