@@ -15,7 +15,7 @@
 
      <node name="node">
 
-       <server name="Server" kind="cpp" exe="./server" activation="on-demand">
+       <server name="Server" kind="cpp" exe="./server.exe" activation="on-demand">
  
          <adapters>
            <adapter name="Hello" endpoints="tcp:udp" register="true">

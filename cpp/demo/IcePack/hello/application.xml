@@ -11,8 +11,6 @@
 
 <icepack>
 
-  <variable name="ice.dir" value="../../.."/>
-
   <application name="hello">
 
      <!-- =========================================================== -->
