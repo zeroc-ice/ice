@@ -66,6 +66,7 @@ Berkeley DB
 
 Freeze for Java uses Berkeley DB as its underlying database. It requires
 Berkeley DB 4.1.25 or 4.2.52.
+
 Even though Berkeley DB is included with many Linux distributions, the 
 Java files for Berkeley DB are usually not available. This means that you
 must build Berkeley DB manually.
@@ -153,3 +154,14 @@ Installation
 No automatic installation for Ice for Java is supported. Simply copy
 the Ice.jar file from the lib directory to the directory of your
 choice, and then add Ice.jar to your CLASSPATH.
+
+
+======================================================================
+MacOS X Notes
+======================================================================
+
+On MacOS X, an Ice server may not correctly detect the closure of
+client connections, which can lead to a hang during server shutdown.
+This appears to be caused by a problem in the JVM implementation, but
+we are still looking into this issue. Until we resolve this matter,
+We recommend the use of timeouts in object adapter endpoints.
