@@ -57,6 +57,7 @@ LINK32=link.exe
 # ADD LINK32 /nologo /dll /machine:I386 /out:"Release/slice001.dll"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
+OutDir=.\Release
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\slice001.* ..\..\lib
 # End Special Build Tool
@@ -89,6 +90,7 @@ LINK32=link.exe
 # ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/slice001d.dll" /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
+OutDir=.\Debug
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\slice001d.* ..\..\lib
 # End Special Build Tool
@@ -120,6 +122,10 @@ SOURCE=.\Parser.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Preprocessor.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Scanner.cpp
 # End Source File
 # End Group
@@ -145,6 +151,10 @@ SOURCE=..\..\incluce\Slice\OutputUtil.h
 # Begin Source File
 
 SOURCE=..\..\include\Slice\Parser.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Slice\Preprocessor.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -204,7 +214,7 @@ InputPath=.\Scanner.l
 
 "Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	flex Scanner.l 
-	echo #include "IceUtil/Config.h" > Scanner.cpp
+	echo #include "IceUtil/Config.h" > Scanner.cpp 
 	type lex.yy.c >> Scanner.cpp 
 	
 # End Custom Build
@@ -216,7 +226,7 @@ InputPath=.\Scanner.l
 
 "Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	flex Scanner.l 
-	echo #include "IceUtil/Config.h" > Scanner.cpp
+	echo #include "IceUtil/Config.h" > Scanner.cpp 
 	type lex.yy.c >> Scanner.cpp 
 	
 # End Custom Build

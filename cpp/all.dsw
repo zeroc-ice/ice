@@ -413,6 +413,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IceUtil
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icecpp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -898,6 +901,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name evictorS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icecpp
     End Project Dependency
 }}}
 
@@ -1559,6 +1565,18 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IceSSL
     End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "icecpp"=.\src\icecpp\icecpp.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################
