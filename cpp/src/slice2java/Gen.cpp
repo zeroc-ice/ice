@@ -1519,6 +1519,10 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp << nl << "public final class " << name;
     out << sb;
+    out << nl << "private static " << name << "[] __values = new "
+        << name << "[" << sz << "];";
+    out << nl << "private int __value;";
+    out << sp;
     en = enumerators.begin();
     int n;
     for (en = enumerators.begin(), n = 0; en != enumerators.end(); ++en, ++n)
@@ -1546,9 +1550,6 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "__value = val;";
     out << nl << "__values[val] = this;";
     out << eb;
-    out << sp << nl << "private static " << name << "[] __values = new "
-        << name << "[" << sz << "];";
-    out << sp << nl << "private int __value;";
 
     //
     // write
@@ -2099,7 +2100,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         //
         out << nl << "public static void"
             << nl << "write(IceInternal.BasicStream __os, "
-            << "java.util.HashMap __v)";
+            << "java.util.Map __v)";
         out << sb;
         out << nl << "__os.writeInt(__v.size());";
         out << nl << "java.util.Iterator __i = __v.entrySet().iterator();";
@@ -2182,7 +2183,8 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
             if (val.empty())
             {
-                val = "(" + typeToString(type, TypeModeIn, scope) + ")" + arg;
+                val = "((" + typeToString(type, TypeModeIn, scope) + ")" +
+                    arg + ")";
             }
             writeMarshalUnmarshalCode(out, scope, type, val, true, iter,
                                       false);
@@ -2193,11 +2195,11 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         //
         // read
         //
-        out << sp << nl << "public static java.util.HashMap"
+        out << sp << nl << "public static java.util.Map"
             << nl << "read(IceInternal.BasicStream __is)";
         out << sb;
         out << nl << "int __sz = __is.readInt();";
-        out << nl << "java.util.HashMap __r = new java.util.HashMap(__sz);";
+        out << nl << "java.util.Map __r = new java.util.HashMap(__sz);";
         {
             //
             // Optimization to avoid excessive allocation of ObjectHolder
