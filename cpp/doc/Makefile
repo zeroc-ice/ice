@@ -17,28 +17,33 @@ SGMLFILES	= manual.sgml \
 		  Properties.sgml \
 		  ReferencesEndpoints.sgml
 
-SLICEFILES	= ../slice/Ice/LocalException.ice \
-		  ../slice/Ice/Properties.ice \
-		  ../slice/Ice/Logger.ice \
-		  ../slice/Ice/Stream.ice \
+SLICEFILES	= ../slice/Ice/BuiltinSequences.ice \
+		  ../slice/Ice/CertificateVerifier.ice \
 		  ../slice/Ice/Communicator.ice \
-		  ../slice/Ice/ObjectFactory.ice \
-		  ../slice/Ice/UserExceptionFactory.ice \
-		  ../slice/Ice/ObjectAdapter.ice \
-		  ../slice/Ice/ServantLocator.ice \
-		  ../slice/Ice/SslException.ice \
-                  ../slice/Ice/SslExtension.ice \
-                  ../slice/Ice/System.ice \
-		  ../slice/Ice/Identity.ice \
+		  ../slice/Ice/Connection.ice \
 		  ../slice/Ice/Current.ice \
+		  ../slice/Ice/Identity.ice \
+		  ../slice/Ice/LocalException.ice \
+		  ../slice/Ice/Logger.ice \
+		  ../slice/Ice/ObjectAdapter.ice \
+		  ../slice/Ice/ObjectFactory.ice \
+		  ../slice/Ice/Properties.ice \
 		  ../slice/Ice/Router.ice \
-		  ../slice/IcePack/Admin.ice \
+		  ../slice/Ice/ServantLocator.ice \
+		  ../slice/Ice/Service.ice \
+		  ../slice/Ice/SslException.ice \
+		  ../slice/Ice/SslExtension.ice \
+		  ../slice/Ice/Stream.ice \
+		  ../slice/Ice/System.ice \
+		  ../slice/Ice/UserExceptionFactory.ice \
 		  ../slice/Freeze/DB.ice \
 		  ../slice/Freeze/DBException.ice \
 		  ../slice/Freeze/Evictor.ice \
 		  ../slice/IceStorm/IceStorm.ice \
+		  ../slice/IcePack/Admin.ice \
 		  ../slice/Glacier/Glacier.ice \
-		  ../slice/IceBox/IceBox.ice
+		  ../slice/IceBox/IceBox.ice \
+		  ../slice/IcePatch/Node.ice
 
 include $(top_srcdir)/config/Make.rules
 

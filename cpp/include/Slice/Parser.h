@@ -237,6 +237,9 @@ public:
     std::string file();
     std::string comment();
 
+    int includeLevel();
+    void updateIncludeLevel();
+
     std::list<std::string> getMetaData();
     void setMetaData(const std::list<std::string>&);
 
@@ -270,6 +273,7 @@ protected:
     std::string _scoped;
     std::string _file;
     std::string _comment;
+    int _includeLevel;
     std::list<std::string> _metaData;
 };
 
@@ -302,8 +306,6 @@ public:
     SequenceList sequences();
     DictionaryList dictionaries();
     EnumList enums();
-    int includeLevel();
-    void updateIncludeLevel();
     bool hasProxies();
     bool hasClassDecls();
     bool hasClassDefs();
@@ -321,7 +323,6 @@ protected:
 
     bool checkInterfaceAndLocal(const std::string&, bool, bool, bool, bool, bool);
 
-    int _includeLevel;
     ContainedList _contents;
 };
 

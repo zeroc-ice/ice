@@ -117,6 +117,9 @@ void
 Slice::Gen::visitContainer(const ContainerPtr& p)
 {
     ModuleList modules = p->modules();
+    modules.erase(remove_if(modules.begin(), modules.end(), ::IceUtil::memFun(&Contained::includeLevel)),
+		  modules.end());
+
     if (!modules.empty())
     {
 	start("section", "Module Index");
@@ -137,13 +140,16 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     }
 
     ClassList classesAndInterfaces = p->classes();
+    classesAndInterfaces.erase(remove_if(classesAndInterfaces.begin(), classesAndInterfaces.end(),
+					 ::IceUtil::memFun(&Contained::includeLevel)),
+			       classesAndInterfaces.end());
     ClassList classes;
     ClassList interfaces;
     remove_copy_if(classesAndInterfaces.begin(), classesAndInterfaces.end(), back_inserter(classes),
 		   ::IceUtil::memFun(&ClassDef::isInterface));
     remove_copy_if(classesAndInterfaces.begin(), classesAndInterfaces.end(), back_inserter(interfaces),
 		   not1(::IceUtil::memFun(&ClassDef::isInterface)));
-    
+
     if (!classes.empty())
     {
 	start("section", "Class Index");
@@ -183,6 +189,9 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     }
 
     ExceptionList exceptions = p->exceptions();
+    exceptions.erase(remove_if(exceptions.begin(), exceptions.end(), ::IceUtil::memFun(&Contained::includeLevel)),
+		     exceptions.end());
+
     if (!exceptions.empty())
     {
 	start("section", "Exception Index");
@@ -203,6 +212,9 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     }
 
     StructList structs = p->structs();
+    structs.erase(remove_if(structs.begin(), structs.end(), ::IceUtil::memFun(&Contained::includeLevel)),
+		  structs.end());
+
     if (!structs.empty())
     {
 	start("section", "Struct Index");
@@ -223,6 +235,9 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     }
 
     SequenceList sequences = p->sequences();
+    sequences.erase(remove_if(sequences.begin(), sequences.end(), ::IceUtil::memFun(&Contained::includeLevel)),
+		    sequences.end());
+
     if (!sequences.empty())
     {
 	start("section", "Sequence Index");
@@ -243,6 +258,10 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     }
 
     DictionaryList dictionaries = p->dictionaries();
+    dictionaries.erase(remove_if(dictionaries.begin(), dictionaries.end(),
+				 ::IceUtil::memFun(&Contained::includeLevel)),
+		       dictionaries.end());
+
     if (!dictionaries.empty())
     {
 	start("section", "Dictionary Index");
@@ -263,6 +282,9 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     }
 
     EnumList enums = p->enums();
+    enums.erase(remove_if(enums.begin(), enums.end(), ::IceUtil::memFun(&Contained::includeLevel)),
+		enums.end());
+
     if (!enums.empty())
     {
 	start("section", "Enum Index");
@@ -1159,7 +1181,10 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
     ProxyPtr proxy = ProxyPtr::dynamicCast(p);
     if (proxy)
     {
-	linkend = containedToId(proxy->_class());
+	if (proxy->_class()->includeLevel() == 0)
+	{
+	    linkend = containedToId(proxy->_class());
+	}
 	s = getScopedMinimized(proxy->_class(), container);
 	s += "*";
 	tag = "classname";
@@ -1173,7 +1198,7 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
         // declaration, provided that a definition is available.
 	//
 	ContainedPtr definition = cl->definition();
-	if (definition)
+	if (definition && definition->includeLevel() == 0)
 	{
 	    linkend = containedToId(definition);
 	}
@@ -1184,7 +1209,10 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
     ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
     if (ex)
     {
-	linkend = containedToId(ex);
+	if (ex->includeLevel() == 0)
+	{
+	    linkend = containedToId(ex);
+	}
 	s = getScopedMinimized(ex, container);
 	tag = "classname";
     }
@@ -1192,7 +1220,10 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
     StructPtr st = StructPtr::dynamicCast(p);
     if (st)
     {
-	linkend = containedToId(st);
+	if (st->includeLevel() == 0)
+	{
+	    linkend = containedToId(st);
+	}
 	s = getScopedMinimized(st, container);
 	tag = "structname";
     }
@@ -1200,7 +1231,10 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
     EnumeratorPtr en = EnumeratorPtr::dynamicCast(p);
     if (en)
     {
-	linkend = containedToId(en);
+	if (en->includeLevel() == 0)
+	{
+	    linkend = containedToId(en);
+	}
 	s = getScopedMinimized(en, container);
 	tag = "constant";
     }
@@ -1209,7 +1243,10 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
     {
 	ContainedPtr contained = ContainedPtr::dynamicCast(p);
 	assert(contained);
-	linkend = containedToId(contained);
+	if (contained->includeLevel() == 0)
+	{
+	    linkend = containedToId(contained);
+	}
 	s = getScopedMinimized(contained, container);
 	tag = "type";
     }

@@ -118,6 +118,18 @@ Slice::Contained::comment()
     return _comment;
 }
 
+int
+Slice::Contained::includeLevel()
+{
+    return _includeLevel;
+}
+
+void
+Slice::Contained::updateIncludeLevel()
+{
+    _includeLevel = min(_includeLevel, _unit->currentIncludeLevel());
+}
+
 list<string>
 Slice::Contained::getMetaData()
 {
@@ -157,6 +169,7 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
     _unit->addContent(this);
     _file = _unit->currentFile();
     _comment = _unit->currentComment();
+    _includeLevel = _unit->currentIncludeLevel();
 }
 
 // ----------------------------------------------------------------------
@@ -900,18 +913,6 @@ Slice::Container::enums()
     return result;
 }
 
-int
-Slice::Container::includeLevel()
-{
-    return _includeLevel;
-}
-
-void
-Slice::Container::updateIncludeLevel()
-{
-    _includeLevel = min(_includeLevel, _unit->currentIncludeLevel());
-}
-
 bool
 Slice::Container::hasProxies()
 {
@@ -1103,14 +1104,6 @@ Slice::Container::containerRecDependencies(set<ConstructedPtr>& dependencies)
 Slice::Container::Container(const UnitPtr& unit) :
     SyntaxTreeBase(unit)
 {
-    if (_unit)
-    {
-	_includeLevel = _unit->currentIncludeLevel();
-    }
-    else
-    {
-	_includeLevel = 0;
-    }
 }
 
 bool

@@ -520,8 +520,8 @@ IceInternal::TcpEndpoint::operator==(const Endpoint& r) const
 	//
 	struct sockaddr_in laddr;
 	struct sockaddr_in raddr;
-	getAddress(_host.c_str(), _port, laddr);
-	getAddress(p->_host.c_str(), p->_port, raddr);
+	getAddress(_host, _port, laddr);
+	getAddress(p->_host, p->_port, raddr);
 	return compareAddress(laddr, raddr);
     }
 
@@ -588,8 +588,8 @@ IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
 	//
 	struct sockaddr_in laddr;
 	struct sockaddr_in raddr;
-	getAddress(_host.c_str(), _port, laddr);
-	getAddress(p->_host.c_str(), p->_port, raddr);
+	getAddress(_host, _port, laddr);
+	getAddress(p->_host, p->_port, raddr);
 	if (laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
 	{
 	    return true;
@@ -852,8 +852,8 @@ IceInternal::SslEndpoint::operator==(const Endpoint& r) const
 	//
 	struct sockaddr_in laddr;
 	struct sockaddr_in raddr;
-	getAddress(_host.c_str(), _port, laddr);
-	getAddress(p->_host.c_str(), p->_port, raddr);
+	getAddress(_host, _port, laddr);
+	getAddress(p->_host, p->_port, raddr);
 	return compareAddress(laddr, raddr);
     }
 
@@ -920,8 +920,8 @@ IceInternal::SslEndpoint::operator<(const Endpoint& r) const
 	//
 	struct sockaddr_in laddr;
 	struct sockaddr_in raddr;
-	getAddress(_host.c_str(), _port, laddr);
-	getAddress(p->_host.c_str(), p->_port, raddr);
+	getAddress(_host, _port, laddr);
+	getAddress(p->_host, p->_port, raddr);
 	if (laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
 	{
 	    return true;
@@ -1179,8 +1179,8 @@ IceInternal::UdpEndpoint::operator==(const Endpoint& r) const
 	//
 	struct sockaddr_in laddr;
 	struct sockaddr_in raddr;
-	getAddress(_host.c_str(), _port, laddr);
-	getAddress(p->_host.c_str(), p->_port, raddr);
+	getAddress(_host, _port, laddr);
+	getAddress(p->_host, p->_port, raddr);
 	return compareAddress(laddr, raddr);
     }
 
@@ -1247,8 +1247,8 @@ IceInternal::UdpEndpoint::operator<(const Endpoint& r) const
 	//
 	struct sockaddr_in laddr;
 	struct sockaddr_in raddr;
-	getAddress(_host.c_str(), _port, laddr);
-	getAddress(p->_host.c_str(), p->_port, raddr);
+	getAddress(_host, _port, laddr);
+	getAddress(p->_host, p->_port, raddr);
 	if (laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
 	{
 	    return true;
