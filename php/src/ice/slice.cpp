@@ -137,6 +137,10 @@ static const char* _coreTypes =
     "{\n"
     "}\n"
     "\n"
+    "class Ice_LocalObjectImpl implements Ice_LocalObject\n"
+    "{\n"
+    "}\n"
+    "\n"
     "interface Ice_Object\n"
     "{\n"
     "}\n"
@@ -425,6 +429,10 @@ CodeVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
                 _out << ice_flatten((*q)->scoped());
             }
         }
+        else if(p->isLocal())
+        {
+            _out << "Ice_LocalObject";
+        }
         else
         {
             _out << "Ice_Object";
@@ -441,6 +449,10 @@ CodeVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
         {
             _out << ice_flatten(bases.front()->scoped());
             bases.pop_front();
+        }
+        else if(p->isLocal())
+        {
+            _out << "Ice_LocalObjectImpl";
         }
         else
         {

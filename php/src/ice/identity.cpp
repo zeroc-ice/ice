@@ -29,7 +29,7 @@ Ice_Identity_create(zval* zv, const Ice::Identity& id TSRMLS_DC)
 
     if(object_init_ex(zv, cls) != SUCCESS)
     {
-        zend_error(E_ERROR, "unable to initialize Ice::Identity in %s()", get_active_function_name(TSRMLS_C));
+        zend_error(E_ERROR, "%s(): unable to initialize Ice::Identity", get_active_function_name(TSRMLS_C));
         return false;
     }
 
@@ -46,7 +46,7 @@ Ice_Identity_extract(zval* zv, Ice::Identity& id TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_OBJECT)
     {
-        zend_error(E_ERROR, "value does not contain an object");
+        zend_error(E_ERROR, "%s(): value does not contain an object", get_active_function_name(TSRMLS_C));
         return false;
     }
 
@@ -56,7 +56,7 @@ Ice_Identity_extract(zval* zv, Ice::Identity& id TSRMLS_DC)
     zend_class_entry* ce = Z_OBJCE_P(zv);
     if(ce != cls)
     {
-        zend_error(E_ERROR, "expected an identity but received %s", ce->name);
+        zend_error(E_ERROR, "%s(): expected an identity but received %s", get_active_function_name(TSRMLS_C), ce->name);
         return false;
     }
 
@@ -67,7 +67,7 @@ Ice_Identity_extract(zval* zv, Ice::Identity& id TSRMLS_DC)
     zval** nameVal;
     if(zend_hash_find(Z_OBJPROP_P(zv), "name", sizeof("name"), (void**)&nameVal) == FAILURE)
     {
-        zend_error(E_ERROR, "identity value does not contain member `name'");
+        zend_error(E_ERROR, "%s(): identity value does not contain member `name'", get_active_function_name(TSRMLS_C));
         return false;
     }
     zend_hash_find(Z_OBJPROP_P(zv), "category", sizeof("category"), (void**)&categoryVal);
@@ -75,14 +75,16 @@ Ice_Identity_extract(zval* zv, Ice::Identity& id TSRMLS_DC)
     if(Z_TYPE_PP(nameVal) != IS_STRING)
     {
         string s = ice_zendTypeToString(Z_TYPE_PP(nameVal));
-        zend_error(E_ERROR, "expected a string value for identity member `name' but received %s", s.c_str());
+        zend_error(E_ERROR, "%s(): expected a string value for identity member `name' but received %s",
+                   get_active_function_name(TSRMLS_C), s.c_str());
         return false;
     }
 
     if(categoryVal && Z_TYPE_PP(categoryVal) != IS_STRING && Z_TYPE_PP(categoryVal) != IS_NULL)
     {
         string s = ice_zendTypeToString(Z_TYPE_PP(categoryVal));
-        zend_error(E_ERROR, "expected a string value for identity member `category' but received %s", s.c_str());
+        zend_error(E_ERROR, "%s(): expected a string value for identity member `category' but received %s",
+                   get_active_function_name(TSRMLS_C), s.c_str());
         return false;
     }
 

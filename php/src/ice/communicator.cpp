@@ -211,7 +211,8 @@ ZEND_FUNCTION(Ice_Communicator_proxyToString)
     }
 
     Ice::ObjectPrx proxy;
-    if(!Ice_ObjectPrx_fetch(zprx, proxy TSRMLS_CC))
+    Slice::ClassDefPtr def;
+    if(!Ice_ObjectPrx_fetch(zprx, proxy, def TSRMLS_CC))
     {
         RETURN_EMPTY_STRING();
     }
@@ -263,7 +264,7 @@ handleDestroy(void* p, zend_object_handle handle TSRMLS_DC)
         {
             ostringstream ostr;
             ex.ice_print(ostr);
-            zend_error(E_ERROR, "unable to destroy Ice::Communicator:\n%s", ostr.str().c_str());
+            zend_error(E_ERROR, "unable to destroy communicator:\n%s", ostr.str().c_str());
         }
         delete _this;
     }

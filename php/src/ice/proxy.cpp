@@ -192,30 +192,11 @@ Ice_ObjectPrx_create(zval* zv, const Ice::ObjectPrx& p TSRMLS_DC)
 }
 
 bool
-Ice_ObjectPrx_create(zval* zv, const Ice::ObjectPrx& p, const Slice::ClassDeclPtr& decl TSRMLS_DC)
+Ice_ObjectPrx_create(zval* zv, const Ice::ObjectPrx& p, const Slice::ClassDefPtr& def TSRMLS_DC)
 {
-    Slice::ClassDefPtr def;
-    if(decl)
-    {
-        def = decl->definition();
-        if(!def)
-        {
-            string scoped = decl->scoped();
-            zend_error(E_ERROR, "%s(): no definition for type %s", get_active_function_name(TSRMLS_C), scoped.c_str());
-            return false;
-        }
-
-        if(decl->isLocal())
-        {
-            string scoped = decl->scoped();
-            zend_error(E_ERROR, "%s(): cannot use local type %s", get_active_function_name(TSRMLS_C), scoped.c_str());
-            return false;
-        }
-    }
-
     if(object_init_ex(zv, Ice_ObjectPrx_entry_ptr) != SUCCESS)
     {
-        zend_error(E_ERROR, "unable to initialize proxy in %s()", get_active_function_name(TSRMLS_C));
+        zend_error(E_ERROR, "unable to initialize proxy");
         return false;
     }
 
@@ -227,27 +208,26 @@ Ice_ObjectPrx_create(zval* zv, const Ice::ObjectPrx& p, const Slice::ClassDeclPt
 }
 
 bool
-Ice_ObjectPrx_fetch(zval* zv, Ice::ObjectPrx& prx TSRMLS_DC)
+Ice_ObjectPrx_fetch(zval* zv, Ice::ObjectPrx& prx, Slice::ClassDefPtr& def TSRMLS_DC)
 {
     if(!ZVAL_IS_NULL(zv))
     {
         void* p = zend_object_store_get_object(zv TSRMLS_CC);
         if(!p)
         {
-            zend_error(E_ERROR, "unable to retrieve proxy object from object store in %s()",
-                      get_active_function_name(TSRMLS_C));
+            zend_error(E_ERROR, "unable to retrieve proxy object from object store");
             return false;
         }
-        zend_object* zo = static_cast<zend_object*>(p);
-        if(zo->ce != Ice_ObjectPrx_entry_ptr)
+        if(Z_OBJCE_P(zv) != Ice_ObjectPrx_entry_ptr)
         {
-            zend_error(E_ERROR, "value is not a proxy in %s()", get_active_function_name(TSRMLS_C));
+            zend_error(E_ERROR, "%s(): value is not a proxy", get_active_function_name(TSRMLS_C));
             return false;
         }
         ice_object* obj = static_cast<ice_object*>(p);
         assert(obj->ptr);
         Proxy* proxy = static_cast<Proxy*>(obj->ptr);
         prx = proxy->getProxy();
+        def = proxy->getClass();
     }
     return true;
 }
@@ -501,7 +481,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_newFacet)
     {
         if(Z_TYPE_PP(val) != IS_STRING)
         {
-            zend_error(E_ERROR, "facet must be a string array");
+            zend_error(E_ERROR, "%s(): facet must be a string array", get_active_function_name(TSRMLS_C));
             RETURN_NULL();
         }
         facet.push_back(string(Z_STRVAL_PP(val), Z_STRLEN_PP(val)));
@@ -978,20 +958,8 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 
     try
     {
-        //
-        // The proxy may not have a class definition, in which case it represents an Ice::ObjectPrx
-        // (i.e., a proxy which has not been narrowed).
-        //
-        Slice::ClassDefPtr def = _this->getClass();
-
         Slice::UnitPtr unit = Slice_getUnit();
-        Slice::TypeList l;
-
-        if(unit)
-        {
-            l = unit->lookupTypeNoBuiltin(id, false);
-        }
-
+        Slice::TypeList l = unit->lookupTypeNoBuiltin(id, false);
         if(l.empty())
         {
             zend_error(E_ERROR, "%s(): no Slice definition found for type %s", get_active_function_name(TSRMLS_C), id);
@@ -1013,19 +981,36 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
             decl = Slice::ClassDeclPtr::dynamicCast(type);
         }
 
+        string scoped = decl->scoped();
+
         if(!decl)
         {
-            zend_error(E_ERROR, "%s(): type %s is not a class or interface", get_active_function_name(TSRMLS_C), id);
+            zend_error(E_ERROR, "%s(): type %s is not a class or interface", get_active_function_name(TSRMLS_C),
+                       scoped.c_str());
+            RETURN_NULL();
+        }
+
+        if(decl->isLocal())
+        {
+            zend_error(E_ERROR, "%s(): %s is a local type", get_active_function_name(TSRMLS_C), scoped.c_str());
+            RETURN_NULL();
+        }
+
+        Slice::ClassDefPtr def = decl->definition();
+        if(!def)
+        {
+            zend_error(E_ERROR, "%s(): %s is declared but not defined", get_active_function_name(TSRMLS_C),
+                       scoped.c_str());
             RETURN_NULL();
         }
 
         //
         // Verify that the script has compiled the Slice definition for this type.
         //
-        if(ice_findClassScoped(decl->scoped(), "" TSRMLS_CC) == 0)
+        if(ice_findClassScoped(scoped TSRMLS_CC) == 0)
         {
             zend_error(E_ERROR, "%s(): the Slice definition for type %s has not been compiled",
-                       get_active_function_name(TSRMLS_C), id);
+                       get_active_function_name(TSRMLS_C), scoped.c_str());
             RETURN_NULL();
         }
 
@@ -1041,13 +1026,13 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
             // Verify that the object supports the requested type. We don't use id here,
             // because it might contain a proxy type (e.g., "::MyClass*").
             //
-            if(!prx->ice_isA(decl->scoped()))
+            if(!prx->ice_isA(scoped))
             {
                 RETURN_NULL();
             }
         }
 
-        if(!Ice_ObjectPrx_create(return_value, prx, decl TSRMLS_CC))
+        if(!Ice_ObjectPrx_create(return_value, prx, def TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -1152,12 +1137,13 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     int i;
 
     //
-    // Verify that the expected number of arguments are supplied.
+    // Verify that the expected number of arguments are supplied. The context argument is optional.
     //
-    vector<MarshalerPtr>::size_type numParams = _inParams.size() + _outParams.size();
-    if(ZEND_NUM_ARGS() != static_cast<int>(numParams))
+    int numParams = static_cast<int>(_inParams.size() + _outParams.size());
+    if(ZEND_NUM_ARGS() != numParams && ZEND_NUM_ARGS() != numParams + 1)
     {
-        zend_error(E_ERROR, "operation %s expects %d parameter%s", _name.c_str(), numParams, numParams == 1 ? "" : "s");
+        zend_error(E_ERROR, "%s(): incorrect number of parameters (%d)", get_active_function_name(TSRMLS_C),
+                   numParams);
         return;
     }
 
@@ -1175,11 +1161,12 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     //
     // Verify that the zvals for out parameters are passed by reference.
     //
-    for(i = static_cast<int>(_inParams.size()); i < ZEND_NUM_ARGS(); ++i)
+    for(i = static_cast<int>(_inParams.size()); i < numParams; ++i)
     {
         if(!PZVAL_IS_REF(*args[i]))
         {
-            zend_error(E_ERROR, "argument for out parameter %s must be passed by reference", _paramNames[i].c_str());
+            zend_error(E_ERROR, "%s(): argument for out parameter %s must be passed by reference",
+                       get_active_function_name(TSRMLS_C), _paramNames[i].c_str());
             return;
         }
     }
@@ -1205,10 +1192,62 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         }
 
         //
+        // Populate the context (if necessary).
+        //
+        Ice::Context ctx;
+        if(ZEND_NUM_ARGS() == numParams + 1)
+        {
+            if(Z_TYPE_PP(args[numParams]) != IS_ARRAY)
+            {
+                string s = ice_zendTypeToString(Z_TYPE_PP(args[i]));
+                zend_error(E_ERROR, "%s(): expected an array for the context argument but received %s",
+                           get_active_function_name(TSRMLS_C), s.c_str());
+                return;
+            }
+
+            HashTable* arr = Z_ARRVAL_PP(args[i]);
+            HashPosition pos;
+            zval** val;
+
+            zend_hash_internal_pointer_reset_ex(arr, &pos);
+            while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+            {
+                //
+                // Get the key (which can be a long or a string).
+                //
+                char* keyStr;
+                uint keyLen;
+                ulong keyNum;
+                int keyType = zend_hash_get_current_key_ex(arr, &keyStr, &keyLen, &keyNum, 0, &pos);
+
+                //
+                // Store the key in a zval, so that we can reuse the PrimitiveMarshaler logic.
+                //
+                zval zkey;
+                if(keyType != HASH_KEY_IS_STRING)
+                {
+                    zend_error(E_ERROR, "%s(): context key must be a string", get_active_function_name(TSRMLS_C));
+                    return;
+                }
+
+                zend_hash_get_current_data_ex(arr, (void**)&val, &pos);
+                if(Z_TYPE_PP(val) != IS_STRING)
+                {
+                    zend_error(E_ERROR, "%s(): context value must be a string", get_active_function_name(TSRMLS_C));
+                    return;
+                }
+
+                ctx[keyStr] = Z_STRVAL_PP(val);
+
+                zend_hash_move_forward_ex(arr, &pos);
+            }
+        }
+
+        //
         // Invoke the operation. Don't use _name here.
         //
         PHPStream is(_instance.get());
-        bool status = _proxy->ice_invoke(_op->name(), mode, os.b, is.b);
+        bool status = _proxy->ice_invoke(_op->name(), mode, os.b, is.b, ctx);
 
         //
         // Reset the input stream's iterator.
@@ -1280,7 +1319,8 @@ Operation::throwException(IceInternal::BasicStream& is TSRMLS_DC)
         {
             if(ex->isLocal())
             {
-                zend_error(E_ERROR, "cannot unmarshal local exception %s", id.c_str());
+                zend_error(E_ERROR, "%s(): cannot unmarshal local exception %s", get_active_function_name(TSRMLS_C),
+                           id.c_str());
                 return;
             }
 
@@ -1452,7 +1492,7 @@ handleClone(zval* zv TSRMLS_DC)
     MAKE_STD_ZVAL(clone);
     if(object_init_ex(clone, Ice_ObjectPrx_entry_ptr) != SUCCESS)
     {
-        zend_error(E_ERROR, "unable to initialize proxy in %s()", get_active_function_name(TSRMLS_C));
+        zend_error(E_ERROR, "unable to initialize proxy");
         return result;
     }
 
@@ -1495,14 +1535,14 @@ handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
 
         if(!_this->getClass())
         {
-            zend_error(E_ERROR, "proxy has not been narrowed");
+            zend_error(E_ERROR, "%s(): proxy has not been narrowed", get_active_function_name(TSRMLS_C));
             return NULL;
         }
 
         OperationPtr op = _this->getOperation(method);
         if(!op)
         {
-            zend_error(E_ERROR, "unknown operation %s", method);
+            zend_error(E_ERROR, "%s(): unknown operation", get_active_function_name(TSRMLS_C));
             return NULL;
         }
 

@@ -20,8 +20,8 @@
 
 bool Ice_ObjectPrx_init(TSRMLS_D);
 bool Ice_ObjectPrx_create(zval*, const Ice::ObjectPrx& TSRMLS_DC);
-bool Ice_ObjectPrx_create(zval*, const Ice::ObjectPrx&, const Slice::ClassDeclPtr& TSRMLS_DC);
-bool Ice_ObjectPrx_fetch(zval*, Ice::ObjectPrx& TSRMLS_DC);
+bool Ice_ObjectPrx_create(zval*, const Ice::ObjectPrx&, const Slice::ClassDefPtr& TSRMLS_DC);
+bool Ice_ObjectPrx_fetch(zval*, Ice::ObjectPrx&, Slice::ClassDefPtr& TSRMLS_DC);
 
 //
 // Class entry.

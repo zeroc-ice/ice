@@ -50,7 +50,7 @@ zend_class_entry* ice_findClass(const std::string& TSRMLS_DC);
 //
 // Find the class entry for a scoped type with suffix.
 //
-zend_class_entry* ice_findClassScoped(const std::string&, const std::string& TSRMLS_DC);
+zend_class_entry* ice_findClassScoped(const std::string& TSRMLS_DC);
 
 //
 // Split a string into a vector of arguments. Quoted arguments are supported.

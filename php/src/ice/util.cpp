@@ -138,7 +138,7 @@ ice_throwException(const IceUtil::Exception& ex TSRMLS_DC)
     catch(const Ice::UnknownException& e)
     {
         string name = e.ice_name();
-        zend_class_entry* cls = ice_findClassScoped(name, "" TSRMLS_CC);
+        zend_class_entry* cls = ice_findClassScoped(name TSRMLS_CC);
         if(!cls)
         {
             zend_error(E_ERROR, "unable to find class %s", name.c_str());
@@ -174,7 +174,7 @@ ice_throwException(const IceUtil::Exception& ex TSRMLS_DC)
     catch(const Ice::RequestFailedException& e)
     {
         string name = e.ice_name();
-        zend_class_entry* cls = ice_findClassScoped(name, "" TSRMLS_CC);
+        zend_class_entry* cls = ice_findClassScoped(name TSRMLS_CC);
         if(!cls)
         {
             zend_error(E_ERROR, "unable to find class %s", name.c_str());
@@ -311,9 +311,9 @@ ice_findClass(const string& flat TSRMLS_DC)
 }
 
 zend_class_entry*
-ice_findClassScoped(const string& scoped, const string& suffix TSRMLS_DC)
+ice_findClassScoped(const string& scoped TSRMLS_DC)
 {
-    return ice_findClass(ice_flatten(scoped) + suffix TSRMLS_CC);
+    return ice_findClass(ice_flatten(scoped) TSRMLS_CC);
 }
 
 bool
