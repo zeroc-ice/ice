@@ -51,7 +51,7 @@ for file in files:
             print "failed!"
             status = 1
             break
-        i += 1
+        i = i + 1
     else:
         print "ok"
 

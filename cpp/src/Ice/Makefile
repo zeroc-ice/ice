@@ -62,6 +62,8 @@ OBJS		= Application.o \
 		  TcpConnector.o \
 		  TcpAcceptor.o \
 		  TcpTransceiver.o \
+                  SecurityException.o \
+                  SecurityException2.o \
                   SslConnector.o \
                   SslAcceptor.o \
 		  SslTransceiver.o \
@@ -73,7 +75,6 @@ OBJS		= Application.o \
                   SslConnectionOpenSSLClient.o \
                   SslConnectionOpenSSL.o \
                   SslConnectionOpenSSLServer.o \
-                  SslException.o \
                   SslFactory.o \
                   SslGeneralConfig.o \
                   SslSystem.o \
@@ -108,6 +109,14 @@ $(HDIR)/LocalException.h LocalException.cpp: $(SDIR)/LocalException.ice $(SLICE2
 
 clean::
 	rm -f $(HDIR)/LocalException.h LocalException.cpp
+
+$(HDIR)/SecurityException.h SecurityException.cpp: $(SDIR)/SecurityException.ice $(SLICE2CPP)
+	rm -f $(HDIR)/SecurityException.h SecurityException.cpp
+	$(SLICECMD) $(SDIR)/SecurityException.ice
+	mv SecurityException.h $(HDIR)
+
+clean::
+	rm -f $(HDIR)/SecurityException.h SecurityException.cpp
 
 $(HDIR)/Communicator.h Communicator.cpp: $(SDIR)/Communicator.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Communicator.h Communicator.cpp
