@@ -217,7 +217,7 @@ Glacier::Router::run(int argc, char* argv[])
     string routerIdentity = properties->getProperty(routerIdentityProperty);
     if (routerIdentity.empty())
     {
-	routerIdentity = "Glacier#router";
+	routerIdentity = "Glacier/router";
     }
 
     ObjectAdapterPtr routerAdapter =
