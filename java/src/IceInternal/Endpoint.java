@@ -83,13 +83,13 @@ public abstract class Endpoint implements java.lang.Comparable
                 break;
             }
 
+            /* TODO: SSL
             case SslEndpointType:
             {
-                // TODO: SSL
-                //v = new SslEndpoint(s);
-                v = null;
+                v = new SslEndpoint(s);
                 break;
             }
+            */
 
             case UdpEndpointType:
             {
