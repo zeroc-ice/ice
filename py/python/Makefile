@@ -49,10 +49,12 @@ GLACIER_SRCS	= Glacier_Router_ice.py \
 		  Glacier_SessionManager_ice.py \
 		  Glacier_Starter_ice.py
 
-GLACIER2_SRCS	= Glacier2_PermissionsVerifierF_ice.py \
-		  Glacier2_PermissionsVerifier_ice.py \
-		  Glacier2_RouterF_ice.py \
-		  Glacier2_Router_ice.py
+GLACIER2_SRCS	= Glacier2_RouterF_ice.py \
+		  Glacier2_Router_ice.py \
+		  Glacier2_SessionF_ice.py \
+		  Glacier2_Session_ice.py \
+		  Glacier2_PermissionsVerifierF_ice.py \
+		  Glacier2_PermissionsVerifier_ice.py
 
 ICEBOX_SRCS	= IceBox_IceBox_ice.py
 

@@ -61,10 +61,12 @@ GLACIER_SRCS	= Glacier_Router_ice.py \
 		  Glacier_SessionManager_ice.py \
 		  Glacier_Starter_ice.py
 
-GLACIER2_SRCS	= Glacier2_PermissionsVerifierF_ice.py \
-		  Glacier2_PermissionsVerifier_ice.py \
-		  Glacier2_RouterF_ice.py \
-		  Glacier2_Router_ice.py
+GLACIER2_SRCS	= Glacier2_RouterF_ice.py \
+		  Glacier2_Router_ice.py \
+		  Glacier2_SessionF_ice.py \
+		  Glacier2_Session_ice.py \
+		  Glacier2_PermissionsVerifierF_ice.py \
+		  Glacier2_PermissionsVerifier_ice.py
 
 ICEBOX_SRCS	= IceBox_IceBox_ice.py
 
@@ -200,17 +202,23 @@ Glacier_Starter_ice.py: $(slicedir)/Glacier/Starter.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier_ $(slicedir)/Glacier/Starter.ice
 
 
-Glacier2_PermissionsVerifierF_ice.py: $(slicedir)/Glacier2/PermissionsVerifierF.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/PermissionsVerifierF.ice
-
-Glacier2_PermissionsVerifier_ice.py: $(slicedir)/Glacier2/PermissionsVerifier.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/PermissionsVerifier.ice
-
 Glacier2_RouterF_ice.py: $(slicedir)/Glacier2/RouterF.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/RouterF.ice
 
 Glacier2_Router_ice.py: $(slicedir)/Glacier2/Router.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/Router.ice
+
+Glacier2_SessionF_ice.py: $(slicedir)/Glacier2/SessionF.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/SessionF.ice
+
+Glacier2_Session_ice.py: $(slicedir)/Glacier2/Session.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/Session.ice
+
+Glacier2_PermissionsVerifierF_ice.py: $(slicedir)/Glacier2/PermissionsVerifierF.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/PermissionsVerifierF.ice
+
+Glacier2_PermissionsVerifier_ice.py: $(slicedir)/Glacier2/PermissionsVerifier.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix Glacier2_ $(slicedir)/Glacier2/PermissionsVerifier.ice
 
 
 IceBox_IceBox_ice.py: $(slicedir)/IceBox/IceBox.ice
