@@ -11,7 +11,7 @@
 #ifndef ICE_OUTGOING_H
 #define ICE_OUTGOING_H
 
-#include <Ice/EmitterF.h>
+#include <Ice/ConnectionF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Current.h>
@@ -50,7 +50,7 @@ class ICE_API Outgoing : public ::IceUtil::noncopyable, public JTCMonitorT< JTCM
 {
 public:
 
-    Outgoing(const EmitterPtr&, const ReferencePtr&, bool, const std::string&, bool, const ::Ice::Context&);
+    Outgoing(const ConnectionPtr&, const ReferencePtr&, bool, const std::string&, bool, const ::Ice::Context&);
     ~Outgoing();
 
     bool invoke();
@@ -63,10 +63,10 @@ public:
 private:
 
     //
-    // Optimization. The emitter and the reference may not be deleted
+    // Optimization. The connection and the reference may not be deleted
     // while a stack-allocated Incoming still holds it.
     //
-    const EmitterPtr& _emitter;
+    const ConnectionPtr& _connection;
     const ReferencePtr& _reference;
 
     std::auto_ptr< ::Ice::LocalException> _exception;

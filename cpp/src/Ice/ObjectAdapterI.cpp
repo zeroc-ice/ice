@@ -316,7 +316,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
 	    // number if a zero port number is given.
 	    //
 	    EndpointPtr endp = Endpoint::endpointFromString(instance, es);
-	    _collectorFactories.push_back(new CollectorFactory(instance, this, endp));
+	    _collectorFactories.push_back(new CollectorFactory(instance, endp, this));
 	    
 	    if (end == s.length())
 	    {

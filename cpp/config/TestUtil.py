@@ -47,7 +47,7 @@ else:
     defaultHost = ""
 
 commonServerOptions = \
-" --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.WarnAboutServerExceptions --Ice.ServerIdleTime=30"
+" --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ConnectionWarnings --Ice.ServerIdleTime=30"
 
 serverOptions = commonServerOptions + serverProtocol
 clientOptions = clientProtocol + defaultHost

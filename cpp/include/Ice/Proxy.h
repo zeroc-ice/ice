@@ -14,7 +14,7 @@
 #include <IceUtil/Shared.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ProxyFactoryF.h>
-#include <Ice/EmitterF.h>
+#include <Ice/ConnectionF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ReferenceF.h>
@@ -115,7 +115,7 @@ public:
 
 protected:
 
-    ::IceInternal::EmitterPtr __emitter;
+    ::IceInternal::ConnectionPtr __connection;
     ::IceInternal::ReferencePtr __reference;
 
 private:

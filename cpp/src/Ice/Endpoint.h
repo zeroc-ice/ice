@@ -58,11 +58,6 @@ public:
     virtual ::Ice::Short type() const = 0;
     
     //
-    // Return true if the endpoint only supports oneway operations.
-    //
-    virtual bool oneway() const = 0;
-
-    //
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //
@@ -139,7 +134,6 @@ public:
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
     virtual ::Ice::Short type() const;
-    virtual bool oneway() const;
     virtual ::Ice::Int timeout() const;
     virtual EndpointPtr timeout(::Ice::Int) const;
     virtual bool datagram() const;
@@ -175,7 +169,6 @@ public:
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
     virtual ::Ice::Short type() const;
-    virtual bool oneway() const;
     virtual ::Ice::Int timeout() const;
     virtual EndpointPtr timeout(::Ice::Int) const;
     virtual bool datagram() const;
@@ -213,7 +206,6 @@ public:
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
     virtual ::Ice::Short type() const;
-    virtual bool oneway() const;
     virtual ::Ice::Int timeout() const;
     virtual EndpointPtr timeout(::Ice::Int) const;
     virtual bool datagram() const;
@@ -251,7 +243,6 @@ public:
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
     virtual ::Ice::Short type() const;
-    virtual bool oneway() const;
     virtual ::Ice::Int timeout() const;
     virtual EndpointPtr timeout(::Ice::Int) const;
     virtual bool datagram() const;

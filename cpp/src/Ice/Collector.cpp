@@ -12,15 +12,13 @@
 #include <Ice/Instance.h>
 #include <Ice/Logger.h>
 #include <Ice/Properties.h>
-#include <Ice/TraceUtil.h>
 #include <Ice/Transceiver.h>
 #include <Ice/Acceptor.h>
+#include <Ice/Connection.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/Endpoint.h>
-#include <Ice/Incoming.h>
 #include <Ice/Exception.h>
-#include <Ice/Protocol.h>
 #include <Ice/Functional.h>
 #include <Ice/SecurityException.h> // TODO: bandaid, see below.
 
@@ -28,479 +26,26 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(Collector* p) { p->__incRef(); }
-void IceInternal::decRef(Collector* p) { p->__decRef(); }
-
 void IceInternal::incRef(CollectorFactory* p) { p->__incRef(); }
 void IceInternal::decRef(CollectorFactory* p) { p->__decRef(); }
 
-IceInternal::Collector::Collector(const InstancePtr& instance,
-				  const ObjectAdapterPtr& adapter,
-				  const TransceiverPtr& transceiver,
-				  const EndpointPtr& endpoint) :
-    EventHandler(instance),
-    _adapter(adapter),
-    _transceiver(transceiver),
-    _endpoint(endpoint),
-    _traceLevels(instance->traceLevels()),
-    _logger(instance->logger()),
-    _responseCount(0),
-    _state(StateHolding)
-{
-    _warnAboutExceptions =
-	atoi(_instance->properties()->getProperty("Ice.WarnAboutServerExceptions").c_str()) > 0 ? true : false;
-
-    _threadPool = _instance->threadPool();
-}
-
-IceInternal::Collector::~Collector()
-{
-    assert(_state == StateClosed);
-}
-
-void
-IceInternal::Collector::destroy()
-{
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
-    setState(StateClosing);
-}
-
-bool
-IceInternal::Collector::destroyed() const
-{
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
-    return _state >= StateClosing;
-}
-
-void
-IceInternal::Collector::hold()
-{
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
-    setState(StateHolding);
-}
-
-void
-IceInternal::Collector::activate()
-{
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
-    setState(StateActive);
-}
-
-bool
-IceInternal::Collector::server() const
-{
-    return true;
-}
-
-bool
-IceInternal::Collector::readable() const
-{
-    return true;
-}
-
-void
-IceInternal::Collector::read(BasicStream& stream)
-{
-    _transceiver->read(stream, 0);
-}
-
-void
-IceInternal::Collector::message(BasicStream& stream)
-{
-    Incoming in(_instance, _adapter);
-    BasicStream* is = in.is();
-    BasicStream* os = in.os();
-    stream.swap(*is);
-    bool invoke = false;
-    bool batch = false;
-    bool response = false;
-
-    {
-	JTCSyncT<JTCRecursiveMutex> sync(*this);
-
-	_threadPool->promoteFollower();
-
-	if (_state != StateActive && _state != StateClosing)
-	{
-	    JTCThread::yield();
-	    return;
-	}
-	
-	try
-	{
-	    assert(is->i == is->b.end());
-	    is->i = is->b.begin() + 2;
-	    Byte messageType;
-	    is->read(messageType);
-	    is->i = is->b.begin() + headerSize;
-
-	    //
-	    // Write partial message header
-	    //
-	    os->write(protocolVersion);
-	    os->write(encodingVersion);
-
-	    switch (messageType)
-	    {
-		case requestMsg:
-		{
-		    if (_state == StateClosing)
-		    {
-			traceRequest("received request during closing\n"
-				     "(ignored by server, client will retry)",
-				     *is, _logger, _traceLevels);
-		    }
-		    else
-		    {
-			traceRequest("received request",
-				     *is, _logger, _traceLevels);
-			invoke = true;
-			Int requestId;
-			is->read(requestId);
-			if (!_endpoint->oneway() && requestId != 0) // 0 means oneway
-			{
-			    response = true;
-			    ++_responseCount;
-			    os->write(replyMsg);
-			    os->write(Int(0)); // Message size (placeholder)
-			    os->write(requestId);
-			}
-		    }
-		    break;
-		}
-		
-		case requestBatchMsg:
-		{
-		    if (_state == StateClosing)
-		    {
-			traceBatchRequest("received batch request during closing\n"
-					  "(ignored by server, client will retry)",
-					  *is, _logger, _traceLevels);
-		    }
-		    else
-		    {
-			traceBatchRequest("received batch request",
-					  *is, _logger, _traceLevels);
-			invoke = true;
-			batch = true;
-		    }
-		    break;
-		}
-		
-		case replyMsg:
-		{
-		    traceReply("received reply on server side\n"
-			       "(invalid, closing connection)",
-			       *is, _logger, _traceLevels);
-		    throw InvalidMessageException(__FILE__, __LINE__);
-		    break;
-		}
-		
-		case closeConnectionMsg:
-		{
-		    traceHeader("received close connection on server side\n"
-				"(invalid, closing connection)",
-				*is, _logger, _traceLevels);
-		    throw InvalidMessageException(__FILE__, __LINE__);
-		    break;
-		}
-		
-		default:
-		{
-		    traceHeader("received unknown message\n"
-				"(invalid, closing connection)",
-				*is, _logger, _traceLevels);
-		    throw UnknownMessageException(__FILE__, __LINE__);
-		    break;
-		}
-	    }
-	}
-	catch (const ConnectionLostException&)
-	{
-	    setState(StateClosed); // Connection drop from client is ok
-	    return;
-	}
-	catch (const LocalException& ex)
-	{
-	    warning(ex);
-	    setState(StateClosed);
-	    return;
-	}
-    }
-
-    if (invoke)
-    {
-	do
-	{
-	    try
-	    {
-		in.invoke();
-	    }
-	    catch (const Exception& ex)
-	    {
-		JTCSyncT<JTCRecursiveMutex> sync(*this);
-		warning(ex);
-	    }
-	    catch (...)
-	    {
-		assert(false); // Should not happen
-	    }
-	}
-	while (batch && is->i < is->b.end());
-    }
-
-    if (response)
-    {
-	JTCSyncT<JTCRecursiveMutex> sync(*this);
-	
-	if (_state != StateActive && _state != StateClosing)
-	{
-	    return;
-	}
-	
-	try
-	{
-	    os->i = os->b.begin();
-	    
-	    //
-	    // Fill in the message size
-	    //
-	    const Byte* p;
-	    Int sz = os->b.size();
-	    p = reinterpret_cast<Byte*>(&sz);
-	    copy(p, p + sizeof(Int), os->i + 3);
-	    
-	    traceReply("sending reply", *os, _logger, _traceLevels);
-	    _transceiver->write(*os, _endpoint->timeout());
-	    
-	    --_responseCount;
-
-	    if (_state == StateClosing && _responseCount == 0)
-	    {
-		closeConnection();
-	    }
-	}
-	catch (const ConnectionLostException&)
-	{
-	    setState(StateClosed); // Connection drop from client is ok
-	    return;
-	}
-	catch (const LocalException& ex)
-	{
-	    warning(ex);
-	    setState(StateClosed);
-	    return;
-	}
-    }
-}
-
-void
-IceInternal::Collector::exception(const LocalException& ex)
-{
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
-
-    if (_state != StateActive && _state != StateClosing)
-    {
-	return;
-    }
-
-    if (!dynamic_cast<const ConnectionLostException*>(&ex))
-    {
-	warning(ex);
-    }
-
-    setState(StateClosed);
-}
-
-void
-IceInternal::Collector::finished()
-{
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
-    assert(_state == StateClosed);
-    _transceiver->close();
-}
-
-bool
-IceInternal::Collector::tryDestroy()
-{
-    bool isLocked = trylock();
-    if(!isLocked)
-    {
-	return false;
-    }
-
-    _threadPool->promoteFollower();
-
-    try
-    {
-	setState(StateClosing);
-    }
-    catch (...)
-    {
-	unlock();
-	throw;
-    }
-    
-    unlock();    
-    return true;
-}
-
-InternetAddress
-IceInternal::Collector::getLocalAddress()
-{
-    assert(false); // TODO: Not implemented yet.
-    return InternetAddress();
-}
-
-InternetAddress
-IceInternal::Collector::getRemoteAddress()
-{
-    assert(false); // TODO: Not implemented yet.
-    return InternetAddress();
-}
-
-ProtocolInfoPtr
-IceInternal::Collector::getProtocolInfo()
-{
-    assert(false); // TODO: Not implemented yet.
-    return 0;
-}
-
-void
-IceInternal::Collector::setState(State state)
-{
-    if (_endpoint->oneway() && state == StateClosing)
-    {
-	state = StateClosed;
-    }
-    
-    if (_state == state) // Don't switch twice
-    {
-	return;
-    }
-    
-    switch (state)
-    {
-	case StateActive:
-	{
-	    if (_state != StateHolding) // Can only switch from holding to active
-	    {
-		return;
-	    }
-
-	    _threadPool->_register(_transceiver->fd(), this);
-	    break;
-	}
-	
-	case StateHolding:
-	{
-	    if (_state != StateActive) // Can only switch from active to holding
-	    {
-		return;
-	    }
-
-	    _threadPool->unregister(_transceiver->fd(), false);
-	    break;
-	}
-
-	case StateClosing:
-	{
-	    if (_state == StateClosed) // Can't change back from closed
-	    {
-		return;
-	    }
-
-	    if (_responseCount == 0)
-	    {
-		try
-		{
-		    closeConnection();
-		}
-		catch (const ConnectionLostException&)
-		{
-		    state = StateClosed;
-		    setState(state); // Connection drop from client is ok
-		}
-		catch (const LocalException& ex)
-		{
-		    warning(ex);
-		    state = StateClosed;
-		    setState(state);
-		}
-	    }
-	    
-	    //
-	    // We need to continue to read data in closing state
-	    //
-	    if (_state == StateHolding)
-	    {
-		_threadPool->_register(_transceiver->fd(), this);
-	    }
-	    break;
-	}
-
-	case StateClosed:
-	{
-	    //
-	    // If we come from holding state, we first need to
-	    // register again before we unregister.
-	    //
-	    if (_state == StateHolding)
-	    {
-		_threadPool->_register(_transceiver->fd(), this);
-	    }
-	    _threadPool->unregister(_transceiver->fd(), true);
-	}
-    }
-
-    _state = state;
-}
-
-void
-IceInternal::Collector::closeConnection()
-{
-    BasicStream os(_instance);
-    os.write(protocolVersion);
-    os.write(encodingVersion);
-    os.write(closeConnectionMsg);
-    os.write(headerSize); // Message size
-    os.i = os.b.begin();
-    traceHeader("sending close connection", os, _logger, _traceLevels);
-    _transceiver->write(os, _endpoint->timeout());
-    _transceiver->shutdown();
-}
-
-void
-IceInternal::Collector::warning(const Exception& ex) const
-{
-    if (_warnAboutExceptions)
-    {
-	ostringstream s;
-	s << "server exception:\n" << ex << '\n' << _transceiver->toString();
-	_logger->warning(s.str());
-    }
-}
-
 IceInternal::CollectorFactory::CollectorFactory(const InstancePtr& instance,
-						const ObjectAdapterPtr& adapter,
-						const EndpointPtr& endpoint) :
+						const EndpointPtr& endpoint,
+						const ObjectAdapterPtr& adapter) :
     EventHandler(instance),
-    _adapter(adapter),
     _endpoint(endpoint),
-    _traceLevels(instance->traceLevels()),
-    _logger(instance->logger()),
+    _adapter(adapter),
     _state(StateHolding)
 {
-    _warnAboutExceptions =
-	atoi(_instance->properties()->getProperty("Ice.WarnAboutServerExceptions").c_str()) > 0 ? true : false;
+    _warn = atoi(_instance->properties()->getProperty("Ice.ConnectionWarnings").c_str()) > 0 ? true : false;
 
     try
     {
 	_transceiver = _endpoint->serverTransceiver(_endpoint);
 	if (_transceiver)
 	{
-	    CollectorPtr collector = new Collector(_instance, _adapter, _transceiver, _endpoint);
-	    _collectors.push_back(collector);
+	    ConnectionPtr connection = new Connection(_instance, _transceiver, _endpoint, _adapter);
+	    _connections.push_back(connection);
 	}
 	else
 	{
@@ -592,22 +137,22 @@ IceInternal::CollectorFactory::message(BasicStream&)
     }
     
     //
-    // First reap destroyed collectors
+    // First reap destroyed connections
     //
-    // Can't use _collectors.remove_if(constMemFun(...)), because VC++
+    // Can't use _connections.remove_if(constMemFun(...)), because VC++
     // doesn't support member templates :-(
-    _collectors.erase(remove_if(_collectors.begin(), _collectors.end(), ::Ice::constMemFun(&Collector::destroyed)),
-		      _collectors.end());
+    _connections.erase(remove_if(_connections.begin(), _connections.end(), ::Ice::constMemFun(&Connection::destroyed)),
+		      _connections.end());
 
     //
-    // Now accept a new connection and create a new CollectorPtr
+    // Now accept a new connection and create a new ConnectionPtr
     //
     try
     {
 	TransceiverPtr transceiver = _acceptor->accept(0);
-	CollectorPtr collector = new Collector(_instance, _adapter, transceiver, _endpoint);
-	collector->activate();
-	_collectors.push_back(collector);
+	ConnectionPtr connection = new Connection(_instance, transceiver, _endpoint, _adapter);
+	connection->activate();
+	_connections.push_back(connection);
     }
     catch (const IceSecurity::SecurityException& ex)
     {
@@ -682,7 +227,7 @@ IceInternal::CollectorFactory::setState(State state)
 		_threadPool->_register(_acceptor->fd(), this);
 	    }
 
-	    for_each(_collectors.begin(), _collectors.end(), ::Ice::voidMemFun(&Collector::activate));
+	    for_each(_connections.begin(), _connections.end(), ::Ice::voidMemFun(&Connection::activate));
 	    break;
 	}
 	
@@ -698,7 +243,7 @@ IceInternal::CollectorFactory::setState(State state)
 		_threadPool->unregister(_acceptor->fd(), false);
 	    }
 
-	    for_each(_collectors.begin(), _collectors.end(), ::Ice::voidMemFun(&Collector::hold));
+	    for_each(_connections.begin(), _connections.end(), ::Ice::voidMemFun(&Connection::hold));
 	    break;
 	}
 	
@@ -716,8 +261,9 @@ IceInternal::CollectorFactory::setState(State state)
 		}
 		_threadPool->unregister(_acceptor->fd(), true);
 	    }
-	    for_each(_collectors.begin(), _collectors.end(), ::Ice::voidMemFun(&Collector::destroy));
-	    _collectors.clear();
+	    for_each(_connections.begin(), _connections.end(),
+		     bind2nd(Ice::voidMemFun1(&Connection::destroy), Connection::ObjectAdapterDeactivated));
+	    _connections.clear();
 	    break;
 	}
     }
@@ -737,8 +283,8 @@ IceInternal::CollectorFactory::clearBacklog()
 	try
 	{
 	    TransceiverPtr transceiver = _acceptor->accept(0);
-	    CollectorPtr collector = new Collector(_instance, _adapter, transceiver, _endpoint);
-	    collector->destroy();
+	    ConnectionPtr connection = new Connection(_instance, transceiver, _endpoint, _adapter);
+	    connection->exception(ObjectAdapterDeactivatedException(__FILE__, __LINE__));
 	}
 	catch (const Exception&)
 	{
@@ -748,12 +294,12 @@ IceInternal::CollectorFactory::clearBacklog()
 }
 
 void
-IceInternal::CollectorFactory::warning(const Exception& ex) const
+IceInternal::CollectorFactory::warning(const LocalException& ex) const
 {
-    if (_warnAboutExceptions)
+    if (_warn)
     {
 	ostringstream s;
-	s << "server exception:\n" << ex << '\n' << _acceptor->toString();
-	_logger->warning(s.str());
+	s << "connection exception:\n" << ex << '\n' << _acceptor->toString();
+	_instance->logger()->warning(s.str());
     }
 }

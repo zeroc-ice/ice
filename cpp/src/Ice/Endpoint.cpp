@@ -129,12 +129,6 @@ IceInternal::UnknownEndpoint::type() const
     return UnknownEndpointType;
 }
 
-bool
-IceInternal::UnknownEndpoint::oneway() const
-{
-    return false;
-}
-
 Int
 IceInternal::UnknownEndpoint::timeout() const
 {
@@ -385,12 +379,6 @@ Short
 IceInternal::TcpEndpoint::type() const
 {
     return TcpEndpointType;
-}
-
-bool
-IceInternal::TcpEndpoint::oneway() const
-{
-    return false;
 }
 
 Int
@@ -695,12 +683,6 @@ IceInternal::SslEndpoint::type() const
     return SslEndpointType;
 }
 
-bool
-IceInternal::SslEndpoint::oneway() const
-{
-    return false;
-}
-
 Int
 IceInternal::SslEndpoint::timeout() const
 {
@@ -990,12 +972,6 @@ Short
 IceInternal::UdpEndpoint::type() const
 {
     return UdpEndpointType;
-}
-
-bool
-IceInternal::UdpEndpoint::oneway() const
-{
-    return true;
 }
 
 Int

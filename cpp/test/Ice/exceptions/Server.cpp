@@ -17,7 +17,7 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
-    properties->setProperty("Ice.WarnAboutServerExceptions", "0");
+    properties->setProperty("Ice.ConnectionWarnings", "0");
     string endpts = "default -p 12345 -t 2000";
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter", endpts);
     Ice::ObjectPtr object = new ThrowerI(adapter);

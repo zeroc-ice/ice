@@ -12,9 +12,9 @@ Hello.Hello=hello:tcp -p 10000:udp -p 10000:ssl -p 10001
 Ice.Adapter.HelloAdapter.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 
 #
-# Warn about server exceptions
+# Warn about connection exceptions
 #
-Ice.WarnAboutServerExceptions=1
+Ice.ConnectionWarnings=1
 
 #
 # Network Tracing
@@ -24,7 +24,7 @@ Ice.WarnAboutServerExceptions=1
 # 2 = like 1, but more detailed
 # 3 = like 2, but also trace data transfer
 #
-Ice.Trace.Network=3
+Ice.Trace.Network=2
 
 #
 # Protocol Tracing
@@ -32,7 +32,7 @@ Ice.Trace.Network=3
 # 0 = no protocol tracing
 # 1 = trace protocol messages
 #
-Ice.Trace.Protocol=1
+#Ice.Trace.Protocol=1
 
 #
 # Security Tracing
@@ -45,7 +45,7 @@ Ice.Trace.Protocol=1
 # 5 = protocol trace
 # 6 = protocol debug (full trace, stats and internal data)
 #
-Ice.Trace.Security=2
+#Ice.Trace.Security=2
 
 #
 # SSL Configuration File

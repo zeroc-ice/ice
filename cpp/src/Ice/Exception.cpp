@@ -239,13 +239,6 @@ Ice::UnsupportedEncodingException::ice_print(ostream& out) const
 }
 
 void
-Ice::InvalidMessageException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: invalid message type";
-}
-
-void
 Ice::UnknownMessageException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
@@ -270,7 +263,7 @@ void
 Ice::CloseConnectionException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nprotocol error: connection closed by server";
+    out << ":\nprotocol error: connection closed";
 }
 
 void

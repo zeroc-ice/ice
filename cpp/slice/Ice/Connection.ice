@@ -138,6 +138,12 @@ local interface IncomingConnection extends Connection
  **/
 local interface OutgoingConnection extends Connection
 {
+    /**
+     *
+     * Flush all batched requests for the connection.
+     *
+     **/
+    void flush();
 };
 
 };

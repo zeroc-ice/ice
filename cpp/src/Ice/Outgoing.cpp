@@ -10,7 +10,7 @@
 
 #include <Ice/Outgoing.h>
 #include <Ice/Object.h>
-#include <Ice/Emitter.h>
+#include <Ice/Connection.h>
 #include <Ice/Reference.h>
 #include <Ice/Exception.h>
 #include <Ice/Instance.h>
@@ -38,9 +38,9 @@ IceInternal::NonRepeatable::get() const
     return _ex.get();
 }
 
-IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& ref, bool sendProxy,
+IceInternal::Outgoing::Outgoing(const ConnectionPtr& connection, const ReferencePtr& ref, bool sendProxy,
 				const string& operation, bool nonmutating, const Context& context) :
-    _emitter(emitter),
+    _connection(connection),
     _reference(ref),
     _state(StateUnsent),
     _is(ref->instance),
@@ -52,14 +52,14 @@ IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& r
 	case Reference::ModeOneway:
 	case Reference::ModeDatagram:
 	{
-	    _emitter->prepareRequest(this);
+	    _connection->prepareRequest(this);
 	    break;
 	}
 
 	case Reference::ModeBatchOneway:
 	case Reference::ModeBatchDatagram:
 	{
-	    _emitter->prepareBatchRequest(this);
+	    _connection->prepareBatchRequest(this);
 	    break;
 	}
     }
@@ -98,7 +98,7 @@ IceInternal::Outgoing::~Outgoing()
     if (_state == StateUnsent &&
 	(_reference->mode == Reference::ModeBatchOneway || _reference->mode == Reference::ModeBatchDatagram))
     {
-	_emitter->abortBatchRequest();
+	_connection->abortBatchRequest();
     }
 }
 
@@ -116,10 +116,10 @@ IceInternal::Outgoing::invoke()
 	    {
 		JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
 		
-		_emitter->sendRequest(this, false);
+		_connection->sendRequest(this, false);
 		_state = StateInProgress;
 		
-		Int timeout = _emitter->timeout();
+		Int timeout = _connection->timeout();
 		while (_state == StateInProgress)
 		{
 		    try
@@ -151,7 +151,7 @@ IceInternal::Outgoing::invoke()
 		// Must be called outside the synchronization of this
 		// object.
 		//
-		_emitter->exception(*_exception.get());
+		_connection->exception(*_exception.get());
 	    }
 
 	    if (_exception.get())
@@ -201,7 +201,7 @@ IceInternal::Outgoing::invoke()
 	case Reference::ModeOneway:
 	case Reference::ModeDatagram:
 	{
-	    _emitter->sendRequest(this, true);
+	    _connection->sendRequest(this, true);
 	    _state = StateInProgress;
 	    break;
 	}
@@ -218,7 +218,7 @@ IceInternal::Outgoing::invoke()
 	    // illegal.
 	    //
 	    _state = StateInProgress;
-	    _emitter->finishBatchRequest(this);
+	    _connection->finishBatchRequest(this);
 	    break;
 	}
     }

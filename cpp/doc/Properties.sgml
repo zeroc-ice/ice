@@ -491,19 +491,18 @@ value of <literal>Ice.ProgramName</literal>. (Unix only.)
 </section>
 </section>
 
-<section><title>Ice.WarnAboutServerExceptions</title>
+<section><title>Ice.ConnectionWarnings</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.WarnAboutServerExceptions=<replaceable>num</replaceable>
+Ice.ConnectionWarnings=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-servers print warning messages if they encounter an unexpected
-exception while accepting connection requests from clients, or while
-dispatching operation calls invoked by clients.
+Ice applications will print warning messages for certain exceptional
+conditions in connections.
 </para>
 </section>
 </section>

@@ -20,6 +20,7 @@
 #include <Ice/Logger.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/Emitter.h>
+#include <Ice/Connection.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Exception.h>
 #include <Ice/Functional.h>
@@ -525,7 +526,7 @@ IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	try
 	{
 	    static const string __operation("ice_isA");
-	    Outgoing __out(__emitter, __reference, __sendProxy, __operation, true, __context);
+	    Outgoing __out(__connection, __reference, __sendProxy, __operation, true, __context);
 	    BasicStream* __is = __out.is();
 	    BasicStream* __os = __out.os();
 	    __os->write(__id);
@@ -553,7 +554,7 @@ IceDelegateM::Ice::Object::ice_ping(const Context& __context)
 	try
 	{
 	    static const string __operation("ice_ping");
-	    Outgoing __out(__emitter, __reference, __sendProxy, __operation, true, __context);
+	    Outgoing __out(__connection, __reference, __sendProxy, __operation, true, __context);
 	    if (!__out.invoke())
 	    {
 		throw ::Ice::UnknownUserException(__FILE__, __LINE__);
@@ -579,7 +580,7 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
     {
 	try
 	{
-	    Outgoing __out(__emitter, __reference, __sendProxy, operation, nonmutating, __context);
+	    Outgoing __out(__connection, __reference, __sendProxy, operation, nonmutating, __context);
 	    BasicStream* __os = __out.os();
 	    __os->writeBlob(inParams);
 	    __out.invoke();
@@ -601,7 +602,7 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
 void
 IceDelegateM::Ice::Object::ice_flush()
 {
-    __emitter->flushBatchRequest();
+    __connection->flushBatchRequest();
 }
 
 void
@@ -634,33 +635,35 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	}
     }
 
+    //
+    // Randomize the order of endpoints.
+    //
+    random_shuffle(endpoints.begin(), endpoints.end());
+
+    //
+    // If a secure connection is requested, remove all non-secure
+    // endpoints. Otherwise make non-secure endpoints preferred over
+    // secure endpoints by partitioning the endpoint vector, so that
+    // non-secure endpoints come first.
+    //
     if (__reference->secure)
     {
 	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(::Ice::constMemFun(&Endpoint::secure))),
 			endpoints.end());
     }
-//
-// We allow secure connections also if they are not explicitly
-// required.
-//
-/*
     else
     {
-	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), ::Ice::constMemFun(&Endpoint::secure)),
-			endpoints.end());
+	partition(endpoints.begin(), endpoints.end(), not1(::Ice::constMemFun(&Endpoint::secure)));
     }
-*/
-
+    
     if (endpoints.empty())
     {
 	throw NoEndpointException(__FILE__, __LINE__);
     }
 
-    random_shuffle(endpoints.begin(), endpoints.end());
-
     EmitterFactoryPtr factory = __reference->instance->emitterFactory();
-    __emitter = factory->create(endpoints);
-    assert(__emitter);
+    __connection = factory->create(endpoints);
+    assert(__connection);
 }
 
 bool

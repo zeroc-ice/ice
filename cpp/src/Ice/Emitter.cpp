@@ -11,15 +11,12 @@
 #include <Ice/Emitter.h>
 #include <Ice/Instance.h>
 #include <Ice/Logger.h>
-#include <Ice/TraceUtil.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/Transceiver.h>
 #include <Ice/Connector.h>
-#include <Ice/ThreadPool.h>
+#include <Ice/Connection.h>
 #include <Ice/Endpoint.h>
-#include <Ice/Outgoing.h>
 #include <Ice/Exception.h>
-#include <Ice/Protocol.h>
 #include <Ice/Functional.h>
 #include <Ice/SecurityException.h> // TODO: bandaid, see below.
 
@@ -27,445 +24,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(Emitter* p) { p->__incRef(); }
-void IceInternal::decRef(Emitter* p) { p->__decRef(); }
-
 void IceInternal::incRef(EmitterFactory* p) { p->__incRef(); }
 void IceInternal::decRef(EmitterFactory* p) { p->__decRef(); }
-
-IceInternal::Emitter::Emitter(const InstancePtr& instance,
-			      const TransceiverPtr& transceiver,
-			      const EndpointPtr& endpoint) :
-    EventHandler(instance),
-    _transceiver(transceiver),
-    _endpoint(endpoint),
-    _logger(instance->logger()),
-    _traceLevels(instance->traceLevels()),
-    _nextRequestId(1),
-    _requestsHint(_requests.end()),
-    _batchStream(instance),
-    _state(StateActive)
-{
-    if (!_endpoint->oneway())
-    {
-	_threadPool = _instance->threadPool();
-	_threadPool->_register(_transceiver->fd(), this);
-    }
-}
-
-IceInternal::Emitter::~Emitter()
-{
-    assert(_state == StateClosed);
-}
-
-void
-IceInternal::Emitter::destroy()
-{
-    JTCSyncT<JTCMutex> sync(*this);
-    setState(StateClosed, CommunicatorDestroyedException(__FILE__, __LINE__));
-}
-
-bool
-IceInternal::Emitter::destroyed() const
-{
-    JTCSyncT<JTCMutex> sync(*this);
-    return _state == StateClosed;
-}
-
-void
-IceInternal::Emitter::prepareRequest(Outgoing* out)
-{
-    BasicStream* os = out->os();
-    os->write(protocolVersion);
-    os->write(encodingVersion);
-    os->write(requestMsg);
-    os->write(Int(0)); // Message size (placeholder)
-    os->write(Int(0)); // Request ID (placeholder)
-}
-
-void
-IceInternal::Emitter::sendRequest(Outgoing* out, bool oneway)
-{
-    JTCSyncT<JTCMutex> sync(*this);
-
-    if (_exception.get())
-    {
-	_exception->ice_throw();
-    }
-    assert(_state == StateActive);
-    
-    Int requestId;
-
-    try
-    {
-	BasicStream* os = out->os();
-	os->i = os->b.begin();
-	
-	//
-	// Fill in the message size and request ID
-	//
-	const Byte* p;
-	Int sz = os->b.size();
-	p = reinterpret_cast<Byte*>(&sz);
-	copy(p, p + sizeof(Int), os->i + 3);
-	if (!_endpoint->oneway() && !oneway)
-	{
-	    requestId = _nextRequestId++;
-	    if (requestId <= 0)
-	    {
-		_nextRequestId = 1;
-		requestId = _nextRequestId++;
-	    }		
-	    p = reinterpret_cast<Byte*>(&requestId);
-	    copy(p, p + sizeof(Int), os->i + headerSize);
-	}
-	traceRequest("sending request", *os, _logger, _traceLevels);
-	_transceiver->write(*os, _endpoint->timeout());
-    }
-    catch(const LocalException& ex)
-    {
-	setState(StateClosed, ex);
-	ex.ice_throw();
-    }
-    
-    //
-    // Only add to the request map if there was no exception, and if
-    // the operation is not oneway.
-    //
-    if (!_endpoint->oneway() && !oneway)
-    {
-	_requestsHint = _requests.insert(_requests.end(), make_pair(requestId, out));
-    }
-}
-
-void
-IceInternal::Emitter::prepareBatchRequest(Outgoing* out)
-{
-    lock();
-
-    if (_exception.get())
-    {
-	unlock();
-	_exception->ice_throw();
-    }
-    assert(_state == StateActive);
-
-    //
-    // The Emitter now belongs to `out', until finishBatchRequest() is
-    // called.
-    //
-
-    if (_batchStream.b.empty())
-    {
-	_batchStream.write(protocolVersion);
-	_batchStream.write(encodingVersion);
-	_batchStream.write(requestBatchMsg);
-	_batchStream.write(Int(0)); // Message size (placeholder)
-    }
-
-    //
-    // Give the batch stream to `out', until finishBatchRequest() is
-    // called.
-    //
-    _batchStream.swap(*out->os());
-}
-
-void
-IceInternal::Emitter::finishBatchRequest(Outgoing* out)
-{
-    if (_exception.get())
-    {
-	unlock();
-	_exception->ice_throw();
-    }
-    assert(_state == StateActive);
-
-    _batchStream.swap(*out->os()); // Get the batch stream back 
-    unlock(); // Give the Emitter back
-}
-
-void
-IceInternal::Emitter::abortBatchRequest()
-{
-    setState(StateClosed, AbortBatchRequestException(__FILE__, __LINE__));
-    unlock(); // Give the Emitter back
-}
-
-void
-IceInternal::Emitter::flushBatchRequest()
-{
-    JTCSyncT<JTCMutex> sync(*this);
-
-    if (_exception.get())
-    {
-	_exception->ice_throw();
-    }
-    assert(_state == StateActive);
-    
-    try
-    {
-	if(_batchStream.b.empty())
-	{
-	    return; // Nothing to send
-	}
-
-	_batchStream.i = _batchStream.b.begin();
-	
-	//
-	// Fill in the message size
-	//
-	const Byte* p;
-	Int sz = _batchStream.b.size();
-	p = reinterpret_cast<Byte*>(&sz);
-	copy(p, p + sizeof(Int), _batchStream.i + 3);
-	traceBatchRequest("sending batch request", _batchStream, _logger, _traceLevels);
-	_transceiver->write(_batchStream, _endpoint->timeout());
-
-	//
-	// Reset _batchStream so that new batch messages can be sent.
-	//
-	BasicStream dummy(_instance);
-	_batchStream.swap(dummy);
-	assert(_batchStream.b.empty());
-    }
-    catch(const LocalException& ex)
-    {
-	setState(StateClosed, ex);
-	ex.ice_throw();
-    }
-}
-
-int
-IceInternal::Emitter::timeout() const
-{
-    return _endpoint->timeout();
-}
-
-bool
-IceInternal::Emitter::server() const
-{
-    return false;
-}
-
-bool
-IceInternal::Emitter::readable() const
-{
-    return true;
-}
-
-void
-IceInternal::Emitter::read(BasicStream& stream)
-{
-    _transceiver->read(stream, 0);
-}
-
-void
-IceInternal::Emitter::message(BasicStream& stream)
-{
-    JTCSyncT<JTCMutex> sync(*this);
-
-    _threadPool->promoteFollower();
-    
-    if (_state != StateActive)
-    {
-	JTCThread::yield();
-	return;
-    }
-
-    try
-    {
-	assert(stream.i == stream.b.end());
-	stream.i = stream.b.begin() + 2;
-	Byte messageType;
-	stream.read(messageType);
-	stream.i = stream.b.begin() + headerSize;
-	
-	switch (messageType)
-	{
-	    case requestMsg:
-	    {
-		traceRequest("received request on the client side\n"
-			     "(invalid, closing connection)",
-			     stream, _logger, _traceLevels);
-		throw InvalidMessageException(__FILE__, __LINE__);
-		break;
-	    }
-	    
-	    case requestBatchMsg:
-	    {
-		traceRequest("received request batch on the client side\n"
-			     "(invalid, closing connection)",
-			     stream, _logger, _traceLevels);
-		throw InvalidMessageException(__FILE__, __LINE__);
-		break;
-	    }
-	    
-	    case replyMsg:
-	    {
-		traceReply("received reply", stream, _logger, _traceLevels);
-		Int requestId;
-		stream.read(requestId);
-		
-		map<Int, Outgoing*>::iterator p = _requests.end();
-
-		if (_requestsHint != _requests.end())
-		{
-		    if (_requestsHint->first == requestId)
-		    {
-			p = _requestsHint;
-		    }
-		}
-
-		if (_requestsHint == _requests.end())
-		{
-		    p = _requests.find(requestId);
-		}
-
-		if (p == _requests.end())
-		{
-		    throw UnknownRequestIdException(__FILE__, __LINE__);
-		}
-		p->second->finished(stream);
-		_requests.erase(p);
-		_requestsHint = _requests.end();
-		break;
-	    }
-	    
-	    case closeConnectionMsg:
-	    {
-		traceHeader("received close connection",
-			    stream, _logger, _traceLevels);
-		throw CloseConnectionException(__FILE__, __LINE__);
-		break;
-	    }
-	    
-	    default:
-	    {
-		traceHeader("received unknown message\n"
-			    "(invalid, closing connection)",
-			    stream, _logger, _traceLevels);
-		throw UnknownMessageException(__FILE__, __LINE__);
-		break;
-	    }
-	}
-    }
-    catch(const LocalException& ex)
-    {
-	setState(StateClosed, ex);
-	return;
-    }
-}
-
-void
-IceInternal::Emitter::exception(const LocalException& ex)
-{
-    JTCSyncT<JTCMutex> sync(*this);
-    setState(StateClosed, ex);
-}
-
-void
-IceInternal::Emitter::finished()
-{
-    JTCSyncT<JTCMutex> sync(*this);
-    assert(_state == StateClosed);
-    _transceiver->close();
-}
-
-bool
-IceInternal::Emitter::tryDestroy()
-{
-    bool isLocked = trylock();
-    if(!isLocked)
-    {
-	return false;
-    }
-
-    _threadPool->promoteFollower();
-
-    try
-    {
-	setState(StateClosed, CommunicatorDestroyedException(__FILE__, __LINE__));
-    }
-    catch(...)
-    {
-	unlock();
-	throw;
-    }
-
-    unlock();    
-    return true;
-}
-
-InternetAddress
-IceInternal::Emitter::getLocalAddress()
-{
-    assert(false); // TODO: Not implemented yet.
-    return InternetAddress();
-}
-
-InternetAddress
-IceInternal::Emitter::getRemoteAddress()
-{
-    assert(false); // TODO: Not implemented yet.
-    return InternetAddress();
-}
-
-ProtocolInfoPtr
-IceInternal::Emitter::getProtocolInfo()
-{
-    assert(false); // TODO: Not implemented yet.
-    return 0;
-}
-
-void
-IceInternal::Emitter::flush()
-{
-    flushBatchRequest();
-}
-
-void
-IceInternal::Emitter::setState(State state, const LocalException& ex)
-{
-    if (_state == state) // Don't switch twice
-    {
-	return;
-    }
-
-    switch (state)
-    {
-	case StateActive:
-	{
-	    return;
-	}
-	
-	case StateClosed:
-	{
-	    if (_threadPool)
-	    {
-		_threadPool->unregister(_transceiver->fd(), true);
-	    }
-	    else
-	    {
-		_transceiver->close();
-	    }
-	    break;
-	}
-    }
-    
-    if (!_exception.get())
-    {
-	_exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
-    }
-
-    for (std::map< ::Ice::Int, Outgoing*>::iterator p = _requests.begin(); p != _requests.end(); ++p)
-    {
-	p->second->finished(*_exception.get());
-    }
-    _requests.clear();
-    _requestsHint = _requests.end();
-    
-    _state = state;
-}
 
 IceInternal::EmitterFactory::EmitterFactory(const InstancePtr& instance) :
     _instance(instance)
@@ -477,7 +37,7 @@ IceInternal::EmitterFactory::~EmitterFactory()
     assert(!_instance);
 }
 
-EmitterPtr
+ConnectionPtr
 IceInternal::EmitterFactory::create(const vector<EndpointPtr>& endpoints)
 {
     JTCSyncT<JTCMutex> sync(*this);
@@ -490,16 +50,16 @@ IceInternal::EmitterFactory::create(const vector<EndpointPtr>& endpoints)
     assert(!endpoints.empty());
 
     //
-    // First reap destroyed emitters
+    // First reap destroyed connections
     //
-    std::map<EndpointPtr, EmitterPtr>::iterator p = _emitters.begin();
-    while (p != _emitters.end())
+    std::map<EndpointPtr, ConnectionPtr>::iterator p = _connections.begin();
+    while (p != _connections.end())
     {
-	if (p -> second -> destroyed())
+	if (p->second->destroyed())
 	{
-	    std::map<EndpointPtr, EmitterPtr>::iterator p2 = p;	    
+	    std::map<EndpointPtr, ConnectionPtr>::iterator p2 = p;	    
 	    ++p;
-	    _emitters.erase(p2);
+	    _connections.erase(p2);
 	}
 	else
 	{
@@ -508,25 +68,25 @@ IceInternal::EmitterFactory::create(const vector<EndpointPtr>& endpoints)
     }
 
     //
-    // Search for existing emitters
+    // Search for existing connections
     //
     vector<EndpointPtr>::const_iterator q;
     for (q = endpoints.begin(); q != endpoints.end(); ++q)
     {
-	map<EndpointPtr, EmitterPtr>::const_iterator r = _emitters.find(*q);
-	if (r != _emitters.end())
+	map<EndpointPtr, ConnectionPtr>::const_iterator r = _connections.find(*q);
+	if (r != _connections.end())
 	{
 	    return r->second;
 	}
     }
 
     //
-    // No emitters exist, try to create one
+    // No connections exist, try to create one
     //
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     LoggerPtr logger = _instance->logger();
 
-    EmitterPtr emitter;
+    ConnectionPtr connection;
     auto_ptr<LocalException> exception;
     q = endpoints.begin();
     while (q != endpoints.end())
@@ -541,8 +101,9 @@ IceInternal::EmitterFactory::create(const vector<EndpointPtr>& endpoints)
 		transceiver = connector->connect((*q)->timeout());
 		assert(transceiver);
 	    }	    
-	    emitter = new Emitter(_instance, transceiver, *q);
-	    _emitters.insert(make_pair(*q, emitter));
+	    connection = new Connection(_instance, transceiver, *q, 0);
+	    connection->activate();
+	    _connections.insert(make_pair(*q, connection));
 	    break;
 	}
 	catch (const SocketException& ex)
@@ -581,13 +142,13 @@ IceInternal::EmitterFactory::create(const vector<EndpointPtr>& endpoints)
 	}
     }
 
-    if (!emitter)
+    if (!connection)
     {
 	assert(exception.get());
 	exception->ice_throw();
     }
 
-    return emitter;
+    return connection;
 }
 
 void
@@ -600,7 +161,9 @@ IceInternal::EmitterFactory::destroy()
 	return;
     }
 
-    for_each(_emitters.begin(), _emitters.end(), secondVoidMemFun<EndpointPtr, Emitter>(&Emitter::destroy));
-    _emitters.clear();
+    for_each(_connections.begin(), _connections.end(),
+	     bind2nd(Ice::secondVoidMemFun1<EndpointPtr, Connection, Connection::DestructionReason>
+		     (&Connection::destroy), Connection::CommunicatorDestroyed));
+    _connections.clear();
     _instance = 0;
 }

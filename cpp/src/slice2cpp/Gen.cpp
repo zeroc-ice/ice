@@ -223,7 +223,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << sb;
 
     H.dec();
-    H << nl << "public: ";
+    H << nl << "public:";
     H.inc();
 
     H << sp;
@@ -775,7 +775,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     H << sb;
     H.dec();
-    H << nl << "public: ";
+    H << nl << "public:";
     H.inc();
 
     return true;
@@ -997,7 +997,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     H << sb;
     H.dec();
-    H << nl << "public: ";
+    H << nl << "public:";
     H.inc();
 
     return true;
@@ -1121,7 +1121,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
     H.restoreIndent();
     H << sb;
     H.dec();
-    H << nl << "public: ";
+    H << nl << "public:";
     H.inc();
 
     return true;
@@ -1187,7 +1187,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << nl << "try";
     C << sb;
     C << nl << "static const ::std::string __operation(\"" << name << "\");";
-    C << nl << "::IceInternal::Outgoing __out(__emitter, __reference, __sendProxy, __operation, "
+    C << nl << "::IceInternal::Outgoing __out(__connection, __reference, __sendProxy, __operation, "
       << (p->nonmutating() ? "true" : "false") << ", __context);";
     if (ret || !outParams.empty() || !throws.empty())
     {
@@ -1332,7 +1332,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
     H.restoreIndent();
     H << sb;
     H.dec();
-    H << nl << "public: ";
+    H << nl << "public:";
     H.inc();
 
     return true;
@@ -1566,7 +1566,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     H.restoreIndent();
     H << sb;
     H.dec();
-    H << nl << "public: ";
+    H << nl << "public:";
     H.inc();
 
     if (!p->isLocal())

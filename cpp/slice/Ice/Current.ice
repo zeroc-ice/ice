@@ -11,7 +11,7 @@
 #ifndef ICE_CURRENT_ICE
 #define ICE_CURRENT_ICE
 
-#include <Ice/ConnectionF.ice>
+//#include <Ice/ConnectionF.ice>
 #include <Ice/Identity.ice>
 
 module Ice
@@ -95,7 +95,7 @@ local struct Current
      * [connection] is set to null.
      *
      **/
-    Connection connection;
+//    Connection connection;
 };
 
 };

@@ -31,9 +31,9 @@ class MemFun : public std::unary_function<H, R>
 public:
 
     explicit MemFun(MemberFN p) : _mfn(p) { }
-    R operator()(H p) const
+    R operator()(H handle) const
     {
-	return (p.get() ->* _mfn)();
+	return (handle.get() ->* _mfn)();
     }
 };
 
@@ -46,9 +46,9 @@ class MemFun1 : public std::binary_function<H, A, R>
 public:
 
     explicit MemFun1(MemberFN p) : _mfn(p) { }
-    R operator()(H h, A arg) const
+    R operator()(H handle, A arg) const
     {
-	return (p.get() ->* _mfn)(arg);
+	return (handle.get() ->* _mfn)(arg);
     }
 };
 
@@ -61,9 +61,9 @@ class VoidMemFun : public std::unary_function<H, void>
 public:
 
     explicit VoidMemFun(MemberFN p) : _mfn(p) { }
-    void operator()(H p) const
+    void operator()(H handle) const
     {
-	(p.get() ->* _mfn)();
+	(handle.get() ->* _mfn)();
     }
 };
 
@@ -76,9 +76,9 @@ class VoidMemFun1 : public std::binary_function<H, A, void>
 public:
 
     explicit VoidMemFun1(MemberFN p) : _mfn(p) { }
-    void operator()(H h, A arg) const
+    void operator()(H handle, A arg) const
     {
-	(p.get() ->* _mfn)(arg);
+	(handle.get() ->* _mfn)(arg);
     }
 };
 
@@ -91,9 +91,9 @@ class SecondMemFun : public std::unary_function<std::pair<K, H>, R>
 public:
 
     explicit SecondMemFun(MemberFN p) : _mfn(p) { }
-    R operator()(std::pair<K, H> p) const
+    R operator()(std::pair<K, H> pair) const
     {
-	return (p.second.get() ->* _mfn)();
+	return (pair.second.get() ->* _mfn)();
     }
 };
 
@@ -106,9 +106,9 @@ class SecondMemFun1 : public std::binary_function<std::pair<K, H>, A, R>
 public:
 
     explicit SecondMemFun1(MemberFN p) : _mfn(p) { }
-    R operator()(std::pair<K, H> h, A arg) const
+    R operator()(std::pair<K, H> pair, A arg) const
     {
-	return (p.second.get() ->* _mfn)(arg);
+	return (pair.second.get() ->* _mfn)(arg);
     }
 };
 
@@ -121,9 +121,9 @@ class SecondVoidMemFun : public std::unary_function<std::pair<K, H>, void>
 public:
 
     explicit SecondVoidMemFun(MemberFN p) : _mfn(p) { }
-    void operator()(std::pair<K, H> p) const
+    void operator()(std::pair<K, H> pair) const
     {
-	(p.second.get() ->* _mfn)();
+	(pair.second.get() ->* _mfn)();
     }
 };
 
@@ -136,9 +136,9 @@ class SecondVoidMemFun1 : public std::binary_function<std::pair<K, H>, A, void>
 public:
 
     explicit SecondVoidMemFun1(MemberFN p) : _mfn(p) { }
-    void operator()(std::pair<K, H> h, A arg) const
+    void operator()(std::pair<K, H> pair, A arg) const
     {
-	(p.second.get() ->* _mfn)(arg);
+	(pair.second.get() ->* _mfn)(arg);
     }
 };
 
@@ -151,9 +151,9 @@ class ConstMemFun : public std::unary_function<H, R>
 public:
 
     explicit ConstMemFun(MemberFN p) : _mfn(p) { }
-    R operator()(H p) const
+    R operator()(H handle) const
     {
-	return (p.get() ->* _mfn)();
+	return (handle.get() ->* _mfn)();
     }
 };
 
@@ -166,9 +166,9 @@ class ConstMemFun1 : public std::binary_function<H, A, R>
 public:
 
     explicit ConstMemFun1(MemberFN p) : _mfn(p) { }
-    R operator()(H h, A arg) const
+    R operator()(H handle, A arg) const
     {
-	return (p.get() ->* _mfn)(arg);
+	return (handle.get() ->* _mfn)(arg);
     }
 };
 
@@ -181,9 +181,9 @@ class ConstVoidMemFun : public std::unary_function<H, void>
 public:
 
     explicit ConstVoidMemFun(MemberFN p) : _mfn(p) { }
-    void operator()(H p) const
+    void operator()(H handle) const
     {
-	(p.get() ->* _mfn)();
+	(handle.get() ->* _mfn)();
     }
 };
 
@@ -196,9 +196,9 @@ class ConstVoidMemFun1 : public std::binary_function<H, A, void>
 public:
 
     explicit ConstVoidMemFun1(MemberFN p) : _mfn(p) { }
-    void operator()(H h, A arg) const
+    void operator()(H handle, A arg) const
     {
-	(p.get() ->* _mfn)(arg);
+	(handle.get() ->* _mfn)(arg);
     }
 };
 
@@ -211,9 +211,9 @@ class SecondConstMemFun : public std::unary_function<std::pair<K, H>, R>
 public:
 
     explicit SecondConstMemFun(MemberFN p) : _mfn(p) { }
-    R operator()(std::pair<K, H> p) const
+    R operator()(std::pair<K, H> pair) const
     {
-	return (p.second.get() ->* _mfn)();
+	return (pair.second.get() ->* _mfn)();
     }
 };
 
@@ -226,9 +226,9 @@ class SecondConstMemFun1 : public std::binary_function<std::pair<K, H>, A, R>
 public:
 
     explicit SecondConstMemFun1(MemberFN p) : _mfn(p) { }
-    R operator()(std::pair<K, H> h, A arg) const
+    R operator()(std::pair<K, H> pair, A arg) const
     {
-	return (p.second.get() ->* _mfn)(arg);
+	return (pair.second.get() ->* _mfn)(arg);
     }
 };
 
@@ -241,9 +241,9 @@ class SecondConstVoidMemFun : public std::unary_function<std::pair<K, H>, void>
 public:
 
     explicit SecondConstVoidMemFun(MemberFN p) : _mfn(p) { }
-    void operator()(std::pair<K, H> p) const
+    void operator()(std::pair<K, H> pair) const
     {
-	(p.second.get() ->* _mfn)();
+	(pair.second.get() ->* _mfn)();
     }
 };
 
@@ -256,9 +256,9 @@ class SecondConstVoidMemFun1 : public std::binary_function<std::pair<K, H>, A, v
 public:
 
     explicit SecondConstVoidMemFun1(MemberFN p) : _mfn(p) { }
-    void operator()(std::pair<K, H> h, A arg) const
+    void operator()(std::pair<K, H> pair, A arg) const
     {
-	(p.second.get() ->* _mfn)(arg);
+	(pair.second.get() ->* _mfn)(arg);
     }
 };
 

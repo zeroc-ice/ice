@@ -27,7 +27,7 @@ class LocalException;
 namespace IceInternal
 {
 
-class EventHandler : virtual public ::IceUtil::Shared
+class EventHandler : public ::IceUtil::Shared
 {
 public:
     

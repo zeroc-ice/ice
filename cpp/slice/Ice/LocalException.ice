@@ -372,16 +372,6 @@ local exception UnsupportedEncodingException extends ProtocolException
 /**
  *
  * This exception is a specialization of [ProtocolException],
- * indicating that an invalid protocol message has been received.
- *
- **/
-local exception InvalidMessageException extends ProtocolException
-{
-};
-
-/**
- *
- * This exception is a specialization of [ProtocolException],
  * indicating that an unknown protocol message has been received.
  *
  **/
