@@ -40,6 +40,7 @@
                 <include name="Properties.ice" />
                 <include name="Router.ice" />
                 <include name="ServantLocator.ice" />
+                <include name="Service.ice" />
                 <include name="Stream.ice" />
             </fileset>
             <fileset dir="${slice.dir}/Glacier">
