@@ -483,16 +483,14 @@ public class Client
 	    servants[i] = evictor.createServant(i, i);
 	    servants[i].setTransientValue(i);
 	}
-    
+
 	//
-	// Create 100 servants, then save to evict.
+	// Evict
 	//
-	for(int i = 0; i < 100; i++)
-	{
-	    Test.ServantPrx servant = evictor.createServant(size + i, size + i);
-	}
 	evictor.saveNow();
-	
+	evictor.setSize(0);
+	evictor.setSize(size);
+
 	//
 	// Check the transient value
 	//
@@ -510,14 +508,10 @@ public class Client
 	    servants[i].keepInCache();
 	    servants[i].setTransientValue(i);
 	}
-	
-	for(int i = 0; i < 100; i++)
-	{
-	    Test.ServantPrx servant = evictor.getServant(size + i);
-	    servant.setValue(1);
-	}
 	evictor.saveNow();
-    
+	evictor.setSize(0);
+	evictor.setSize(size);
+	
 	//
 	// Check the transient value
 	//
@@ -533,12 +527,9 @@ public class Client
 	{
 	    servants[i].release();
 	}
-	for(int i = 0; i < 100; i++)
-	{
-	    Test.ServantPrx servant = evictor.getServant(size + i);
-	    servant.setValue(2);
-	}
 	evictor.saveNow();
+	evictor.setSize(0);
+	evictor.setSize(size);
 	for(int i = 0; i < size; i++)
 	{
 	    test(servants[i].getTransientValue() == i);
@@ -551,12 +542,10 @@ public class Client
 	{
 	    servants[i].release();
 	}
-	for(int i = 0; i < 100; i++)
-	{
-	    Test.ServantPrx servant = evictor.getServant(size + i);
-	    servant.setValue(3);
-	}
 	evictor.saveNow();
+	evictor.setSize(0);
+	evictor.setSize(size);
+	
 	for(int i = 0; i < size; i++)
 	{
 	    test(servants[i].getTransientValue() == -1);
