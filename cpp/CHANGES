@@ -1,6 +1,12 @@
 Changes since version 2.1.0
 ---------------------------
 
+- As announced with version 1.6, slice2cpp and slice2freeze
+  now require all Slice definitions to be nested inside a
+  module; definitions at global scope (other than module
+  definitions) now cause a hard error (whereas, previously,
+  they only caused a warning).
+  
 - Fixed a bug in the option parsing for Ice tools such as
   slice2cpp, slice2java, slice2cs, etc. The option parser
   used to incorrectly complain about repeated options when

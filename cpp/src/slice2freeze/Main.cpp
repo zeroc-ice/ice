@@ -1303,7 +1303,7 @@ main(int argc, char* argv[])
 	    return EXIT_FAILURE;
 	}
 	
-	status = u->parse(cppHandle, debug, false);
+	status = u->parse(cppHandle, debug);
 
 	if(!icecpp.close())
 	{

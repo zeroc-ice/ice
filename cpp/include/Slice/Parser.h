@@ -382,8 +382,7 @@ public:
     virtual void destroy();
     ModulePtr createModule(const std::string&);
     ClassDefPtr createClassDef(const std::string&, bool, const ClassList&, bool);
-    // TODO: remove final (defaulted) bool parameter once deprecated features are outlawed.
-    ClassDeclPtr createClassDecl(const std::string&, bool, bool, bool = false);
+    ClassDeclPtr createClassDecl(const std::string&, bool, bool);
     ExceptionPtr createException(const std::string&, const ExceptionPtr&, bool);
     StructPtr createStruct(const std::string&, bool);
     SequencePtr createSequence(const std::string&, const TypePtr&, bool);
@@ -422,10 +421,8 @@ public:
     void containerRecDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
     bool checkIntroduced(const std::string&, ContainedPtr = 0);
-    // TODO: remove final (defaulted) bool parameter once deprecated features are outlawed.
-    bool nameIsLegal(const std::string&, const char *, bool = false);
-    // TODO: remove final (defaulted) bool parameter once deprecated features are outlawed.
-    bool checkForGlobalDef(const std::string&, const char *, bool = false);
+    bool nameIsLegal(const std::string&, const char *);
+    bool checkForGlobalDef(const std::string&, const char *);
 
 protected:
 
@@ -931,11 +928,10 @@ public:
     bool usesProxies() const;
     bool usesNonLocals() const;
     bool usesConsts() const;
-    bool disallowDeprecatedFeatures() const; // TODO: remove this once global definitions are outlawed.
 
     StringList includeFiles() const;
 
-    int parse(FILE*, bool, bool = true); // TODO: remove third parameter once global definitions are outlawed.
+    int parse(FILE*, bool);
 
     virtual void destroy();
     virtual void visit(ParserVisitor*, bool);
@@ -950,7 +946,6 @@ private:
     bool _all;
     bool _allowIcePrefix;
     bool _caseSensitive;
-    bool _disallowDeprecatedFeatures; // TODO: remove this once global definitions are outlawed.
     int _errors;
     std::string _currentComment;
     int _currentLine;
