@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/IntStream.h> // Not included in Ice/Ice.h
+#include <Ice/BasicStream.h> // Not included in Ice/Ice.h
 #include <Freeze/DBException.h>
 #include <Freeze/DBI.h>
 #include <Freeze/EvictorI.h>
@@ -466,7 +466,7 @@ Freeze::DBI::putServant(const string& identity, const ObjectPtr& servant)
     }
 
     IceInternal::InstancePtr instance = IceInternal::getInstance(_communicator);
-    IceInternal::IntStream stream(instance);
+    IceInternal::BasicStream stream(instance);
     stream.write(servant);
 
     DBT dbKey, dbData;
@@ -517,7 +517,7 @@ Freeze::DBI::getServant(const string& identity)
     checkBerkeleyDBReturn(_db->get(_db, 0, &dbKey, &dbData, 0), _errorPrefix, "DB->get");
 
     IceInternal::InstancePtr instance = IceInternal::getInstance(_communicator);
-    IceInternal::IntStream stream(instance);
+    IceInternal::BasicStream stream(instance);
     stream.b.resize(dbData.size);
     copy(static_cast<Byte*>(dbData.data), static_cast<Byte*>(dbData.data) + dbData.size, stream.b.begin());
     stream.i = stream.b.begin();

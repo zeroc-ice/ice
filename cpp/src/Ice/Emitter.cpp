@@ -49,7 +49,7 @@ IceInternal::Emitter::destroyed() const
 void
 IceInternal::Emitter::prepareRequest(Outgoing* out)
 {
-    IntStream* os = out->os();
+    BasicStream* os = out->os();
     os->write(protocolVersion);
     os->write(encodingVersion);
     os->write(requestMsg);
@@ -72,7 +72,7 @@ IceInternal::Emitter::sendRequest(Outgoing* out, bool oneway)
 
     try
     {
-	IntStream* os = out->os();
+	BasicStream* os = out->os();
 	os->i = os->b.begin();
 	
 	//
@@ -199,7 +199,7 @@ IceInternal::Emitter::flushBatchRequest()
 	// Reset _batchStream and _batchRequestId, so that new batch
 	// messages can be sent.
 	//
-	IntStream dummy(_instance);
+	BasicStream dummy(_instance);
 	_batchStream.swap(dummy);
 	assert(_batchStream.b.empty());
     }
@@ -229,13 +229,13 @@ IceInternal::Emitter::readable() const
 }
 
 void
-IceInternal::Emitter::read(IntStream& stream)
+IceInternal::Emitter::read(BasicStream& stream)
 {
     _transceiver->read(stream, 0);
 }
 
 void
-IceInternal::Emitter::message(IntStream& stream)
+IceInternal::Emitter::message(BasicStream& stream)
 {
     JTCSyncT<JTCMutex> sync(*this);
 

@@ -18,7 +18,7 @@
 namespace IceInternal
 {
 
-class IntStream;
+class BasicStream;
 
 }
 

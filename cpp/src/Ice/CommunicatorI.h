@@ -41,6 +41,8 @@ public:
     virtual LoggerPtr getLogger();
     virtual void setLogger(const LoggerPtr&);
 
+    virtual StreamPtr createStream();
+
 private:
 
     CommunicatorI(const PropertiesPtr&);

@@ -15,6 +15,7 @@
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/PropertiesF.ice>
 #include <Ice/ServantFactoryF.ice>
+#include <Ice/StreamF.ice>
 
 /**
  *
@@ -235,6 +236,15 @@ local interface Communicator
      *
      **/
     void setLogger(Logger logger);
+
+    /**
+     *
+     * Create a stream for marshaling and unmarshaling data.
+     *
+     * @return The new stream object.
+     *
+     **/
+    Stream createStream();
 };
 
 };

@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Ice/PicklerI.h>
-#include <Ice/IntStream.h>
+#include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/Protocol.h>
 
@@ -20,7 +20,7 @@ using namespace IceInternal;
 void
 Ice::PicklerI::pickle(const ObjectPtr& servant, std::ostream& out)
 {
-    IntStream s(_instance);
+    BasicStream s(_instance);
     s.startWriteEncaps();
     s.write(servant);
     s.endWriteEncaps();
@@ -34,7 +34,7 @@ Ice::PicklerI::pickle(const ObjectPtr& servant, std::ostream& out)
 ObjectPtr
 Ice::PicklerI::unpickle(const string& type, std::istream& in)
 {
-    IntStream s(_instance);
+    BasicStream s(_instance);
     s.b.resize(4); // Encapsulation length == Ice::Int
     in.read(s.b.begin(), 4);
     if (in.eof())

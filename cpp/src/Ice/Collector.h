@@ -59,8 +59,8 @@ public:
     //
     virtual bool server() const;
     virtual bool readable() const;
-    virtual void read(IntStream&);
-    virtual void message(IntStream&);
+    virtual void read(BasicStream&);
+    virtual void message(BasicStream&);
     virtual void exception(const ::Ice::LocalException&);
     virtual void finished();
     virtual bool tryDestroy();
@@ -109,8 +109,8 @@ public:
     //
     virtual bool server() const;
     virtual bool readable() const;
-    virtual void read(IntStream&);
-    virtual void message(IntStream&);
+    virtual void read(BasicStream&);
+    virtual void message(BasicStream&);
     virtual void exception(const ::Ice::LocalException&);
     virtual void finished();
     virtual bool tryDestroy();

@@ -16,6 +16,7 @@
 #include <Ice/ServantFactoryManager.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Logger.h>
+#include <Ice/StreamI.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
 
@@ -165,6 +166,18 @@ Ice::CommunicatorI::setLogger(const LoggerPtr& logger)
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
     _instance->logger(logger);
+}
+
+StreamPtr
+Ice::CommunicatorI::createStream()
+{
+    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    if (!_instance)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
+    return new StreamI(_instance);
 }
 
 Ice::CommunicatorI::CommunicatorI(const PropertiesPtr& properties)

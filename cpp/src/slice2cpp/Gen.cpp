@@ -112,7 +112,7 @@ Slice::Gen::generate(const UnitPtr& unit)
     else
     {
 	H << "\n#include <Ice/LocalObject.h>";
-	C << "\n#include <Ice/IntStream.h>";
+	C << "\n#include <Ice/BasicStream.h>";
     }
 
     StringList includes = unit->includeFiles();
@@ -214,8 +214,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     string scoped = p->scoped();
 
     H << sp;
-    H << nl << _dllExport << "void __write(::IceInternal::IntStream*) const;"; // NOT virtual!
-    H << nl << _dllExport << "void __read(::IceInternal::IntStream*);"; // NOT virtual!
+    H << nl << _dllExport << "void __write(::IceInternal::BasicStream*) const;"; // NOT virtual!
+    H << nl << _dllExport << "void __read(::IceInternal::BasicStream*);"; // NOT virtual!
     H << eb << ';';
     
     TypeStringList memberList;
@@ -225,12 +225,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	memberList.push_back(make_pair((*q)->type(), (*q)->name()));
     }
     C << sp;
-    C << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::IntStream* __os) const";
+    C << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
     C << sb;
     writeMarshalCode(C, memberList, 0);
     C << eb;
     C << sp;
-    C << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::IntStream* __is)";
+    C << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
     C << sb;
     writeUnmarshalCode(C, memberList, 0);
     C << eb;
@@ -266,10 +266,10 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
 	H << sp;
 	H << nl << "class __U__" << name << " { };";
-	H << nl << _dllExport << "void __write(::IceInternal::IntStream*, const " << name << "&, __U__" << name << ");";
-	H << nl << _dllExport << "void __read(::IceInternal::IntStream*, " << name << "&, __U__" << name << ");";
+	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "&, __U__" << name << ");";
+	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&, __U__" << name << ");";
 	C << sp;
-	C << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::IntStream* __os, const " << scoped
+	C << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const " << scoped
 	  << "& v, " << scope << "__U__" << name << ')';
 	C << sb;
 	C << nl << "__os->write(::Ice::Int(v.size()));";
@@ -280,7 +280,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	C << eb;
 	C << eb;
 	C << sp;
-	C << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::IntStream* __is, " << scoped
+	C << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " << scoped
 	  << "& v, " << scope << "__U__" << name << ')';
 	C << sb;
 	C << nl << "::Ice::Int sz;";
@@ -326,10 +326,10 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     
     H << sp;
     H << nl << "class __U__" << name << " { };";
-    H << nl << _dllExport << "void __write(::IceInternal::IntStream*, const " << name << "&, __U__" << name << ");";
-    H << nl << _dllExport << "void __read(::IceInternal::IntStream*, " << name << "&, __U__" << name << ");";
+    H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "&, __U__" << name << ");";
+    H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&, __U__" << name << ");";
     C << sp;
-    C << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::IntStream* __os, const " << scoped
+    C << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const " << scoped
       << "& v, " << scope << "__U__" << name << ')';
     C << sb;
     C << nl << "__os->write(::Ice::Int(v.size()));";
@@ -341,7 +341,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     C << eb;
     C << eb;
     C << sp;
-    C << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::IntStream* __is, " << scoped
+    C << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " << scoped
       << "& v, " << scope << "__U__" << name << ')';
     C << sb;
     C << nl << "::Ice::Int sz;";
@@ -381,10 +381,10 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     int sz = enumerators.size();
     
     H << sp;
-    H << nl << _dllExport << "void __write(::IceInternal::IntStream*, " << name << ");";
-    H << nl << _dllExport << "void __read(::IceInternal::IntStream*, " << name << "&);";
+    H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, " << name << ");";
+    H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&);";
     C << sp;
-    C << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::IntStream* __os, " << scoped << " v)";
+    C << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, " << scoped << " v)";
     C << sb;
     if (sz <= 0x7f)
     {
@@ -404,7 +404,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     }
     C << eb;
     C << sp;
-    C << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::IntStream* __is, " << scoped << "& v)";
+    C << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " << scoped << "& v)";
     C << sb;
     if (sz <= 0x7f)
     {
@@ -1018,9 +1018,9 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << nl << "::IceInternal::Outgoing __out(__emitter, __reference);";
     if (ret || !outParams.empty() || !throws.empty())
     {
-	C << nl << "::IceInternal::IntStream* __is = __out.is();";
+	C << nl << "::IceInternal::BasicStream* __is = __out.is();";
     }
-    C << nl << "::IceInternal::IntStream* __os = __out.os();";
+    C << nl << "::IceInternal::BasicStream* __os = __out.os();";
     C << nl << "__os->write(\"" << name << "\");";
     writeMarshalCode(C, inParams, 0);
     C << nl << "if (!__out.invoke())";
@@ -1702,8 +1702,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << eb;
 	}
 	H << sp;
-	H << nl << exp2 << "virtual void __write(::IceInternal::IntStream*);";
-	H << nl << exp2 << "virtual void __read(::IceInternal::IntStream*);";
+	H << nl << exp2 << "virtual void __write(::IceInternal::BasicStream*);";
+	H << nl << exp2 << "virtual void __read(::IceInternal::BasicStream*);";
 	TypeStringList memberList;
 	DataMemberList dataMembers = p->dataMembers();
 	for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -1711,7 +1711,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    memberList.push_back(make_pair((*q)->type(), (*q)->name()));
 	}
 	C << sp;
-	C << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::IntStream* __os)";
+	C << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os)";
 	C << sb;
 	C << nl << "__os->startWriteEncaps();";
 	writeMarshalCode(C, memberList, 0);
@@ -1732,7 +1732,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	}
 	C << eb;
 	C << sp;
-	C << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::IntStream* __is)";
+	C << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
 	C << sb;
 	C << nl << "__is->startReadEncaps();";
 	writeUnmarshalCode(C, memberList, 0);
@@ -1843,11 +1843,11 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	C << sb;
 	if (!inParams.empty())
 	{
-	    C << nl << "::IceInternal::IntStream* __is = __in.is();";
+	    C << nl << "::IceInternal::BasicStream* __is = __in.is();";
 	}
 	if (ret || !outParams.empty() || !throws.empty())
 	{
-	    C << nl << "::IceInternal::IntStream* __os = __in.os();";
+	    C << nl << "::IceInternal::BasicStream* __os = __in.os();";
 	}
 	writeAllocateCode(C, inParams, 0);
 	writeUnmarshalCode(C, inParams, 0);
@@ -2041,8 +2041,8 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
     {
 	H << nl << "typedef ::IceInternal::ProxyHandle< ::IceProxy" << scoped << "> " << name << "Prx;";
 	H << sp;
-	H << nl << _dllExport << "void __write(::IceInternal::IntStream*, const " << name << "Prx&);";
-	H << nl << _dllExport << "void __read(::IceInternal::IntStream*, " << name << "Prx&);";
+	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "Prx&);";
+	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "Prx&);";
     }
 }
 
@@ -2058,12 +2058,12 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
     string scope = p->scope();
 
     C << sp;
-    C << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::IntStream* __os, const " << scoped << "Prx& v)";
+    C << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const " << scoped << "Prx& v)";
     C << sb;
     C << nl << "__os->write(::Ice::ObjectPrx(v));";
     C << eb;
     C << sp;
-    C << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::IntStream* __is, " << scoped << "Prx& v)";
+    C << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " << scoped << "Prx& v)";
     C << sb;
     C << nl << "::Ice::ObjectPrx proxy;";
     C << nl << "__is->read(proxy);";

@@ -19,16 +19,16 @@
 namespace IceInternal
 {
 
-class ICE_API IntStream : public Buffer
+class ICE_API BasicStream : public Buffer
 {
 public:
 
-    IntStream(const InstancePtr&);
-    ~IntStream();
+    BasicStream(const InstancePtr&);
+    ~BasicStream();
 
     InstancePtr instance() const;
 
-    void swap(IntStream&);
+    void swap(BasicStream&);
 
     void resize(int);
     void reserve(int);

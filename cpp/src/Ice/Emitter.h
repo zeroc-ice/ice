@@ -59,8 +59,8 @@ public:
     //
     virtual bool server() const;
     virtual bool readable() const;
-    virtual void read(IntStream&);
-    virtual void message(IntStream&);
+    virtual void read(BasicStream&);
+    virtual void message(BasicStream&);
     virtual void exception(const ::Ice::LocalException&);
     virtual void finished();
     virtual bool tryDestroy();
@@ -89,7 +89,7 @@ private:
     ::Ice::Int _nextRequestId;
     std::map< ::Ice::Int, Outgoing*> _requests;
     std::auto_ptr< ::Ice::LocalException> _exception;
-    IntStream _batchStream;
+    BasicStream _batchStream;
     State _state;
 };
 

@@ -163,9 +163,9 @@ writeDict(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output& C
       << inputTypeToString(valueType) << " value)";
     C << sb;
     C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());";
-    C << nl << "IceInternal::IntStream keyStream(instance);";
+    C << nl << "IceInternal::BasicStream keyStream(instance);";
     writeMarshalUnmarshalCode(C, keyType, "key", true, "keyStream", false);
-    C << nl << "IceInternal::IntStream valueStream(instance);";
+    C << nl << "IceInternal::BasicStream valueStream(instance);";
     writeMarshalUnmarshalCode(C, keyType, "value", true, "valueStream", false);
     C << nl << "_db->put(keyStream.b, valueStream.b);";
     C << eb;
@@ -173,9 +173,9 @@ writeDict(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output& C
       << " key)";
     C << sb;
     C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());";
-    C << nl << "IceInternal::IntStream keyStream(instance);";
+    C << nl << "IceInternal::BasicStream keyStream(instance);";
     writeMarshalUnmarshalCode(C, keyType, "key", true, "keyStream", false);
-    C << nl << "IceInternal::IntStream valueStream(instance);";
+    C << nl << "IceInternal::BasicStream valueStream(instance);";
     C << nl << "valueStream.b = _db->get(keyStream.b);";
     C << nl << "valueStream.i = valueStream.b.begin();";
     C << nl << typeToString(valueType) << " value;";
@@ -185,7 +185,7 @@ writeDict(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output& C
     C << sp << nl << "void" << nl << absolute << "::del(" << inputTypeToString(keyType) << " key)";
     C << sb;
     C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());";
-    C << nl << "IceInternal::IntStream keyStream(instance);";
+    C << nl << "IceInternal::BasicStream keyStream(instance);";
     writeMarshalUnmarshalCode(C, keyType, "key", true, "keyStream", false);
     C << nl << "_db->del(keyStream.b);";
     C << eb;
@@ -502,7 +502,7 @@ main(int argc, char* argv[])
 	H << "\n#define __" << s << "__";
 	H << '\n';
 	H << "\n#include <Ice/Ice.h>";
-	H << "\n#include <Ice/IntStream.h>";
+	H << "\n#include <Ice/BasicStream.h>";
 	H << "\n#include <Freeze/DB.h>";
 	
 	{

@@ -168,6 +168,14 @@ SOURCE=.\LoggerI.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Stream.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\StreamI.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Network.cpp
 # End Source File
 # Begin Source File
@@ -232,7 +240,7 @@ SOURCE=.\SslTransceiver.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IntStream.cpp
+SOURCE=.\BasicStream.cpp
 # End Source File
 # Begin Source File
 
@@ -400,6 +408,18 @@ SOURCE=.\Ice\LoggerI.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\Ice\Stream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\StreamF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Ice\StreamI.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\Ice\Native.h
 # End Source File
 # Begin Source File
@@ -512,7 +532,7 @@ SOURCE=.\Ice\SslTransceiver.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\IntStream.h
+SOURCE=..\..\include\Ice\BasicStream.h
 # End Source File
 # Begin Source File
 
@@ -708,6 +728,82 @@ InputPath=..\..\slice\Ice\LoggerF.ice
 	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/LoggerF.ice 
 	move LoggerF.h ..\..\include\Ice 
 	del LoggerF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\Stream.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Stream.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Stream.ice \
+	move Stream.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Stream.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Stream.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Stream.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Stream.ice \
+	move Stream.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Stream.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Stream.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\StreamF.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\StreamF.ice
+
+"..\..\include\Ice\StreamF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/StreamF.ice 
+	move StreamF.h ..\..\include\Ice 
+	del StreamF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\StreamF.ice
+
+"..\..\include\Ice\StreamF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/StreamF.ice 
+	move StreamF.h ..\..\include\Ice 
+	del StreamF.cpp 
 	
 # End Custom Build
 

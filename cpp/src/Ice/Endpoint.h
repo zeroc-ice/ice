@@ -21,7 +21,7 @@
 namespace IceInternal
 {
 
-class IntStream;
+class BasicStream;
 
 const ::Ice::Short UnknownEndpointType = 0;
 const ::Ice::Short TcpEndpointType = 1;
@@ -42,12 +42,12 @@ public:
     //
     // Unmarshal an endpoint
     //
-    static void streamRead(IntStream*, EndpointPtr&);
+    static void streamRead(BasicStream*, EndpointPtr&);
     
     //
     // Marshal the endpoint
     //
-    virtual void streamWrite(IntStream*) const = 0;
+    virtual void streamWrite(BasicStream*) const = 0;
 
     //
     // Convert the endpoint to its string form
@@ -135,9 +135,9 @@ class UnknownEndpoint : public Endpoint
 {
 public:
 
-    UnknownEndpoint(IntStream*);
+    UnknownEndpoint(BasicStream*);
 
-    virtual void streamWrite(IntStream*) const;
+    virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
     virtual ::Ice::Short type() const;
     virtual bool oneway() const;
@@ -169,9 +169,9 @@ public:
 
     TcpEndpoint(const std::string&, ::Ice::Int, ::Ice::Int);
     TcpEndpoint(const std::string&);
-    TcpEndpoint(IntStream*);
+    TcpEndpoint(BasicStream*);
 
-    virtual void streamWrite(IntStream*) const;
+    virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
     virtual ::Ice::Short type() const;
     virtual bool oneway() const;
@@ -205,9 +205,9 @@ public:
 
     SslEndpoint(const std::string&, ::Ice::Int, ::Ice::Int);
     SslEndpoint(const std::string&);
-    SslEndpoint(IntStream*);
+    SslEndpoint(BasicStream*);
 
-    virtual void streamWrite(IntStream*) const;
+    virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
     virtual ::Ice::Short type() const;
     virtual bool oneway() const;
@@ -241,9 +241,9 @@ public:
 
     UdpEndpoint(const std::string&, ::Ice::Int);
     UdpEndpoint(const std::string&);
-    UdpEndpoint(IntStream*);
+    UdpEndpoint(BasicStream*);
 
-    virtual void streamWrite(IntStream*) const;
+    virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
     virtual ::Ice::Short type() const;
     virtual bool oneway() const;

@@ -13,7 +13,7 @@
 
 #include <Ice/EmitterF.h>
 #include <Ice/ReferenceF.h>
-#include <Ice/IntStream.h>
+#include <Ice/BasicStream.h>
 
 namespace IceUtil
 {
@@ -60,11 +60,11 @@ public:
     ~Outgoing();
 
     bool invoke();
-    void finished(IntStream&);
+    void finished(BasicStream&);
     void finished(const ::Ice::LocalException&);
 
-    IntStream* is();
-    IntStream* os();
+    BasicStream* is();
+    BasicStream* os();
 
 private:
 
@@ -82,8 +82,8 @@ private:
 	StateLocalException,
     } _state;
 
-    IntStream _is;
-    IntStream _os;
+    BasicStream _is;
+    BasicStream _os;
 };
 
 }

@@ -82,8 +82,8 @@ Ice::Object::_ping()
 DispatchStatus
 Ice::Object::____isA(Incoming& __in)
 {
-    IntStream* __is = __in.is();
-    IntStream* __os = __in.os();
+    BasicStream* __is = __in.is();
+    BasicStream* __os = __in.os();
     string s;
     __is->read(s);
     bool __ret = _isA(s);

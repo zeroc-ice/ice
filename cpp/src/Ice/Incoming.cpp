@@ -29,7 +29,7 @@ IceInternal::Incoming::~Incoming()
 }
 
 void
-IceInternal::Incoming::invoke(IntStream& is)
+IceInternal::Incoming::invoke(BasicStream& is)
 {
     _is.swap(is);
     string identity;
@@ -37,7 +37,7 @@ IceInternal::Incoming::invoke(IntStream& is)
     string operation;
     _is.read(operation);
 
-    IntStream::Container::size_type statusPos = _os.b.size();
+    BasicStream::Container::size_type statusPos = _os.b.size();
 
     ObjectPtr servant;
     ServantLocatorPtr locator;
@@ -118,13 +118,13 @@ IceInternal::Incoming::invoke(IntStream& is)
     }
 }
 
-IntStream*
+BasicStream*
 IceInternal::Incoming::is()
 {
     return &_is;
 }
 
-IntStream*
+BasicStream*
 IceInternal::Incoming::os()
 {
     return &_os;

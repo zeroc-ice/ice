@@ -19,12 +19,14 @@ VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
 TARGETS		= $(NAME) $(VERSIONED_NAME)
 
 OBJS		= Application.o \
-		  IntStream.o \
 		  LocalException.o \
 		  Properties.o \
 		  PropertiesI.o \
 		  Logger.o \
 		  LoggerI.o \
+		  Stream.o \
+		  StreamI.o \
+		  BasicStream.o \
 		  SysLoggerI.o \
 		  TraceLevels.o \
 		  TraceUtil.o \
@@ -112,6 +114,23 @@ $(HDIR)/LoggerF.h: $(SDIR)/LoggerF.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/LoggerF.h
+
+$(HDIR)/Stream.h Stream.cpp: $(SDIR)/Stream.ice $(SLICE2CPP)
+	rm -f $(HDIR)/Stream.h Stream.cpp
+	$(SLICECMD) $(SDIR)/Stream.ice
+	mv Stream.h $(HDIR)
+
+clean::
+	rm -f $(HDIR)/Stream.h Stream.cpp
+
+$(HDIR)/StreamF.h: $(SDIR)/StreamF.ice $(SLICE2CPP)
+	rm -f $(HDIR)/StreamF.h StreamF.cpp
+	$(SLICECMD) $(SDIR)/StreamF.ice
+	mv StreamF.h $(HDIR)
+	rm -f StreamF.cpp
+
+clean::
+	rm -f $(HDIR)/StreamF.h
 
 $(HDIR)/ObjectAdapter.h ObjectAdapter.cpp: $(SDIR)/ObjectAdapter.ice $(SLICE2CPP)
 	rm -f $(HDIR)/ObjectAdapter.h ObjectAdapter.cpp

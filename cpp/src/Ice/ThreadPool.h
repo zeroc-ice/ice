@@ -20,7 +20,7 @@
 namespace IceInternal
 {
 
-class IntStream;
+class BasicStream;
 
 class ThreadPool : public ::IceUtil::Shared, public JTCMonitorT<JTCMutex>
 {

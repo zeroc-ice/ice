@@ -10,7 +10,7 @@
 
 #include <Ice/Reference.h>
 #include <Ice/Endpoint.h>
-#include <Ice/IntStream.h>
+#include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
 
 using namespace std;
@@ -179,7 +179,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
     }
 }
 
-IceInternal::Reference::Reference(const string& ident, IntStream* s) :
+IceInternal::Reference::Reference(const string& ident, BasicStream* s) :
     instance(s->instance()),
     identity(ident),
     mode(ModeTwoway),
@@ -218,7 +218,7 @@ IceInternal::Reference::Reference(const string& ident, IntStream* s) :
 }
 
 void
-IceInternal::Reference::streamWrite(IntStream* s) const
+IceInternal::Reference::streamWrite(BasicStream* s) const
 {
     //
     // Don't write the identity here. Operations calling streamWrite
