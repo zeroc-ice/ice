@@ -26,40 +26,34 @@ using namespace std;
 
 ZEND_EXTERN_MODULE_GLOBALS(ice)
 
-#if 0
 //
-// We're using a little hack. For performance reasons, we want to parse the Slice files and create
-// the corresponding PHP classes during module startup, not request startup. In order for these
-// classes to persist across requests, we need to register them as "internal" classes, and not
-// "user" classes. User classes are created when PHP scripts are parsed, and destroyed when the
-// script terminates.
+// PHP has two types of classes: internal and user. Internal classes are intended to be
+// implemented by extensions, whereas user classes are generally created while parsing
+// class definitions in a script. The lifetimes of these two types of classes are different:
+// user classes are destroyed after each request, whereas internal classes survive until
+// module shutdown. PHP also requires the use of different allocation schemes for creating
+// internal and user classes, which has additional implications.
 //
-// The decision about which type of class to create influences memory management. If we use PHP's
-// e* functions (e.g., emalloc), then that memory is reclaimed after each request. Therefore, we
-// cannot use these functions to create internal classes.
+// In order for a script to have access to Slice types, the classes for those types must be
+// defined prior to script execution. We initially tried creating internal classes for
+// the Slice types, because we would only have to create them once, during module startup.
+// However, we eventually realized that these classes should not be internal classes - the
+// extension is not implementing these classes, it is simply defining them. In other words,
+// the extension needs to create classes just like PHP's parser does, as if the Slice
+// definitions had first been translated into PHP code, and then parsed by the interpreter.
 //
-// There are also two types of class methods: internal functions and user functions. Internal
-// functions are implemented by the extension, whereas user functions are implemented in PHP.
-// PHP assumes that a user function descriptor is allocated using the e* functions, because
-// a user function is normally only created by the PHP parser and therefore the function must
-// have been defined within a user class.
+// Therefore, we now create user classes from the Slice definitions for every request.
+// Note that we encountered problems when trying to create function prototypes for class or
+// interface operations, so we do not attempt that.
 //
-// This means that if we want to define a user function in an internal class, as is necessary for
-// definining operation prototypes for Slice classes and interfaces, we have to be very careful
-// about memory management. Therefore, when PHP is shutting down, we iterate over the classes
-// we've created and manually free the user functions we created. If we didn't do this, then PHP
-// would use the wrong memory management functions to free this data.
+// For structs, classes and exceptions, we create "default properties" in the class
+// definition taht correspond to the type's data members. When a new instance of the class
+// is created, the interpreter copies these default properties to the new instance so that
+// the data members have default values. It's not technically necessary to do this, but it
+// does resolve a usability issue. Namely, the marshaling code expects all data members to
+// be defined. If we did not supply default properties, then the user would be required to
+// ensure that each data member was defined before attempting to marshal it.
 //
-// There are two alternatives:
-//
-// 1. Create the PHP classes for Slice types for each request. These could then be created as
-//    user classes, not internal classes.
-//
-// 2. Generate PHP classes from the Slice types. This avoids the need to create the classes
-//    manually, but we would likely still need to parse the Slice files in the extension, which
-//    means the user would need both the PHP classes and the Slice files.
-//
-#endif
 
 //
 // PHPVisitor descends the Slice parse tree and creates PHP classes for certain Slice types.
@@ -109,7 +103,7 @@ parseSlice(const string& argStr)
     string cppArgs;
     vector<string> files;
     bool debug = false;
-    bool ice = false;
+    bool ice = true; // This must be true so that we can create Ice::Identity when necessary
     bool caseSensitive = false;
 
     vector<string>::const_iterator p;
@@ -129,10 +123,6 @@ parseSlice(const string& argStr)
             {
                 cppArgs += arg;
             }
-        }
-        else if(arg == "--ice")
-        {
-            ice = true;
         }
         else if(arg == "--case-sensitive")
         {
@@ -226,7 +216,39 @@ Slice_init(TSRMLS_D)
     }
     else
     {
-        _unit = Slice::Unit::createUnit(false, false, false, false);
+        //
+        // We must be allowed to obtain builtin types, as well as create Ice::Identity if necessary.
+        //
+        _unit = Slice::Unit::createUnit(false, false, true, false);
+    }
+
+    //
+    // Create the Slice definition for Ice::Identity if it doesn't exist. The PHP class will
+    // be created automatically by PHPVisitor.
+    //
+    string scoped = "::Ice::Identity";
+    Slice::TypeList l = _unit->lookupTypeNoBuiltin(scoped, false);
+    if(l.empty())
+    {
+        Slice::ContainedList c = _unit->lookupContained("Ice", false);
+        Slice::ModulePtr module;
+        if(c.empty())
+        {
+            module = _unit->createModule("Ice");
+        }
+        else
+        {
+            module = Slice::ModulePtr::dynamicCast(c.front());
+            if(!module)
+            {
+                zend_error(E_ERROR, "the symbol `::Ice' is defined in Slice but is not a module");
+                return false;
+            }
+        }
+        Slice::StructPtr identity = module->createStruct("Identity", false);
+        Slice::TypePtr str = _unit->builtin(Slice::Builtin::KindString);
+        identity->createDataMember("category", str);
+        identity->createDataMember("name", str);
     }
 
     return true;
@@ -263,15 +285,19 @@ Slice_createClasses(int module TSRMLS_DC)
     //
     // Create the class Ice_Object.
     //
-    string scoped = Ice::Object::ice_staticId();
-    Slice::TypePtr p = _unit->builtin(Slice::Builtin::KindObject);
-    zend_class_entry* cls = allocClass(scoped, p TSRMLS_CC);
-    zval* facetMap;
-    MAKE_STD_ZVAL(facetMap);
-    array_init(facetMap);
-    zend_hash_add(&cls->default_properties, "ice_facets", sizeof("ice_facets"), (void**)&facetMap, sizeof(zval*), NULL);
-    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, (void**)&cls, sizeof(zend_class_entry*), NULL);
-    (*typeMap)[scoped] = cls;
+    {
+        string scoped = Ice::Object::ice_staticId();
+        Slice::TypePtr p = _unit->builtin(Slice::Builtin::KindObject);
+        zend_class_entry* cls = allocClass(scoped, p TSRMLS_CC);
+        zval* facetMap;
+        MAKE_STD_ZVAL(facetMap);
+        array_init(facetMap);
+        zend_hash_add(&cls->default_properties, "ice_facets", sizeof("ice_facets"), (void**)&facetMap, sizeof(zval*),
+                      NULL);
+        zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, (void**)&cls, sizeof(zend_class_entry*),
+                         NULL);
+        (*typeMap)[scoped] = cls;
+    }
 
     //
     // Descend the parse tree and create PHP classes.
@@ -463,14 +489,6 @@ bool
 PHPVisitor::visitStructStart(const Slice::StructPtr& p)
 {
     string scoped = p->scoped();
-
-    //
-    // Special case for Ice::Identity, which is predefined.
-    //
-    if(scoped == "::Ice::Identity")
-    {
-        return false;
-    }
 
     zend_class_entry* cls = allocClass(scoped, p TSRMLS_CC);
     cls->ce_flags |= ZEND_ACC_FINAL;

@@ -17,14 +17,8 @@
 
 #include "common.h"
 
-bool Ice_Identity_init(TSRMLS_D);
 bool Ice_Identity_create(zval*, const Ice::Identity& TSRMLS_DC);
 bool Ice_Identity_extract(zval*, Ice::Identity& TSRMLS_DC);
-
-//
-// Class entry.
-//
-extern zend_class_entry* Ice_Identity_entry_ptr;
 
 //
 // Ice_Identity global functions.

@@ -75,11 +75,6 @@ ZEND_MINIT_FUNCTION(ice)
         return FAILURE;
     }
 
-    if(!Ice_Identity_init(TSRMLS_C))
-    {
-        return FAILURE;
-    }
-
     if(!Ice_ObjectPrx_init(TSRMLS_C))
     {
         return FAILURE;

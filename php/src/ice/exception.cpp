@@ -35,6 +35,7 @@ extern "C"
 {
 static zend_object_value handleAlloc(zend_class_entry* TSRMLS_DC);
 static void handleDestroy(void*, zend_object_handle TSRMLS_DC);
+static zend_object_value handleClone(zval* TSRMLS_DC);
 }
 
 //
@@ -58,6 +59,7 @@ Ice_LocalException_init(TSRMLS_D)
     ce_LocalException.create_object = handleAlloc;
     Ice_LocalException_entry_ptr = zend_register_internal_class(&ce_LocalException TSRMLS_CC);
     memcpy(&Ice_LocalException_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    Ice_LocalException_handlers.clone_obj = handleClone;
     return true;
 }
 
@@ -171,4 +173,13 @@ handleDestroy(void* p, zend_object_handle handle TSRMLS_DC)
     }
 
     zend_objects_destroy_object(static_cast<zend_object*>(p), handle TSRMLS_CC);
+}
+
+static zend_object_value
+handleClone(zval* zv TSRMLS_DC)
+{
+    zend_object_value result;
+    memset(&result, 0, sizeof(zend_object_value));
+    zend_error(E_ERROR, "__clone is not supported for Ice_LocalException");
+    return result;
 }

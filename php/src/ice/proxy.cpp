@@ -26,6 +26,8 @@
 
 using namespace std;
 
+ZEND_EXTERN_MODULE_GLOBALS(ice)
+
 //
 // Here's a brief description of how proxies are handled by this extension.
 //
@@ -124,6 +126,7 @@ extern "C"
 {
 static zend_object_value handleAlloc(zend_class_entry* TSRMLS_DC);
 static void handleDestroy(void*, zend_object_handle TSRMLS_DC);
+static zend_object_value handleClone(zval* TSRMLS_DC);
 static union _zend_function* handleGetMethod(zval*, char*, int TSRMLS_DC);
 static int handleCompare(zval*, zval* TSRMLS_DC);
 ZEND_FUNCTION(Ice_ObjectPrx_call);
@@ -176,6 +179,7 @@ Ice_ObjectPrx_init(TSRMLS_D)
     ce_ObjectPrx.create_object = handleAlloc;
     Ice_ObjectPrx_entry_ptr = zend_register_internal_class(&ce_ObjectPrx TSRMLS_CC);
     memcpy(&Ice_ObjectPrx_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    Ice_ObjectPrx_handlers.clone_obj = handleClone;
     Ice_ObjectPrx_handlers.get_method = handleGetMethod;
     Ice_ObjectPrx_handlers.compare_objects = handleCompare;
 
@@ -418,9 +422,13 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_newIdentity)
     assert(obj->ptr);
     Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
+    TypeMap* typeMap = static_cast<TypeMap*>(ICE_G(typeMap));
+    TypeMap::iterator p = typeMap->find("::Ice::Identity");
+    assert(p != typeMap->end());
+
     zval *zid;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &zid, Ice_Identity_entry_ptr) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &zid, p->second) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -1404,6 +1412,45 @@ handleDestroy(void* p, zend_object_handle handle TSRMLS_DC)
     delete _this;
 
     zend_objects_destroy_object(static_cast<zend_object*>(p), handle TSRMLS_CC);
+}
+
+static zend_object_value
+handleClone(zval* zv TSRMLS_DC)
+{
+    //
+    // Create a new object that shares a C++ proxy instance with this object.
+    //
+
+    zend_object_value result;
+    memset(&result, 0, sizeof(zend_object_value));
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(zv TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    zval* clone;
+    MAKE_STD_ZVAL(clone);
+    if(object_init_ex(clone, Ice_ObjectPrx_entry_ptr) != SUCCESS)
+    {
+        zend_error(E_ERROR, "unable to initialize proxy in %s()", get_active_function_name(TSRMLS_C));
+        return result;
+    }
+
+    ice_object* cobj = static_cast<ice_object*>(zend_object_store_get_object(clone TSRMLS_CC));
+    assert(!cobj->ptr);
+    cobj->ptr = new Proxy(_this->getProxy(), _this->getClass() TSRMLS_CC);
+
+    //
+    // We only need to return the new object's handle, so we must destroy the zval containing
+    // a reference to the new object. We increment the object's reference count to ensure it
+    // does not get destroyed.
+    //
+    result = clone->value.obj;
+    Z_OBJ_HT_P(clone)->add_ref(clone TSRMLS_CC);
+    zval_dtor(clone);
+    efree(clone);
+
+    return result;
 }
 
 static union _zend_function*

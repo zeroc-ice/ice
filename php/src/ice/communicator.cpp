@@ -40,6 +40,7 @@ extern "C"
 {
 static zend_object_value handleAlloc(zend_class_entry* TSRMLS_DC);
 static void handleDestroy(void*, zend_object_handle TSRMLS_DC);
+static zend_object_value handleClone(zval* TSRMLS_DC);
 static union _zend_function* handleGetMethod(zval*, char*, int TSRMLS_DC);
 }
 
@@ -67,6 +68,7 @@ Ice_Communicator_init(TSRMLS_D)
     ce_Communicator.create_object = handleAlloc;
     Ice_Communicator_entry_ptr = zend_register_internal_class(&ce_Communicator TSRMLS_CC);
     memcpy(&Ice_Communicator_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    Ice_Communicator_handlers.clone_obj = handleClone;
     Ice_Communicator_handlers.get_method = handleGetMethod;
 
     return true;
@@ -262,6 +264,15 @@ handleDestroy(void* p, zend_object_handle handle TSRMLS_DC)
     }
 
     zend_objects_destroy_object(static_cast<zend_object*>(p), handle TSRMLS_CC);
+}
+
+static zend_object_value
+handleClone(zval* zv TSRMLS_DC)
+{
+    zend_object_value result;
+    memset(&result, 0, sizeof(zend_object_value));
+    zend_error(E_ERROR, "__clone is not supported for Ice_Communicator");
+    return result;
 }
 
 static union _zend_function*

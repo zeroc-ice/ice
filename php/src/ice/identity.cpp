@@ -22,28 +22,16 @@
 
 using namespace std;
 
-//
-// Class entries represent the PHP class implementations we have registered.
-//
-zend_class_entry* Ice_Identity_entry_ptr;
-
-bool
-Ice_Identity_init(TSRMLS_D)
-{
-    //
-    // Register the Ice_Identity class.
-    //
-    zend_class_entry ce;
-    INIT_CLASS_ENTRY(ce, "Ice_Identity", NULL);
-    Ice_Identity_entry_ptr = zend_register_internal_class(&ce TSRMLS_CC);
-
-    return true;
-}
+ZEND_EXTERN_MODULE_GLOBALS(ice)
 
 bool
 Ice_Identity_create(zval* zv, const Ice::Identity& id TSRMLS_DC)
 {
-    if(object_init_ex(zv, Ice_Identity_entry_ptr) != SUCCESS)
+    TypeMap* typeMap = static_cast<TypeMap*>(ICE_G(typeMap));
+    TypeMap::iterator p = typeMap->find("::Ice::Identity");
+    assert(p != typeMap->end());
+
+    if(object_init_ex(zv, p->second) != SUCCESS)
     {
         zend_error(E_ERROR, "unable to initialize Ice::Identity in %s()", get_active_function_name(TSRMLS_C));
         return false;
@@ -73,7 +61,11 @@ Ice_Identity_extract(zval* zv, Ice::Identity& id TSRMLS_DC)
         return false;
     }
 
-    if(obj->ce != Ice_Identity_entry_ptr)
+    TypeMap* typeMap = static_cast<TypeMap*>(ICE_G(typeMap));
+    TypeMap::iterator p = typeMap->find("::Ice::Identity");
+    assert(p != typeMap->end());
+
+    if(obj->ce != p->second)
     {
         zend_error(E_ERROR, "expected an identity but received %s", obj->ce->name);
         return false;
@@ -151,9 +143,13 @@ ZEND_FUNCTION(Ice_identityToString)
         WRONG_PARAM_COUNT;
     }
 
+    TypeMap* typeMap = static_cast<TypeMap*>(ICE_G(typeMap));
+    TypeMap::iterator p = typeMap->find("::Ice::Identity");
+    assert(p != typeMap->end());
+
     zval *zid;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &zid, Ice_Identity_entry_ptr) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &zid, p->second) == FAILURE)
     {
         RETURN_NULL();
     }
