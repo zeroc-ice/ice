@@ -1,0 +1,18 @@
+<transformer>
+    <database key="::Freeze::EvictorStorageKey" value="::Freeze::ObjectRecord">
+	<record/>
+    </database>
+    
+    <!-- enum ::E -->
+    <transform type="::E"/>
+    
+    <!-- class ::MainObject -->
+    <transform type="::MainObject">
+	<!-- NOTICE: renamed has been removed -->
+        <!-- NOTICE: newname has been added -->
+        <set target="new.newname" value="old.renamed"/>
+    </transform>
+    
+    <!-- class ::RenamedFacetObject -->
+    <transform type="::RenamedFacetObject" rename="::FacetObject"/>
+</transformer>
