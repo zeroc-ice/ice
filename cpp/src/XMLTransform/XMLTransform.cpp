@@ -168,6 +168,36 @@ XMLTransform::SchemaViolation::ice_throw() const
     throw *this;
 }
 
+XMLTransform::MissingTypeException::MissingTypeException(const char* file, int line) :
+    Exception(file, line)
+{
+}
+
+string
+XMLTransform::MissingTypeException::ice_name() const
+{
+    return "MissingTypeException";
+}
+
+void
+XMLTransform::MissingTypeException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\n" << reason;
+}
+
+::IceUtil::Exception*
+XMLTransform::MissingTypeException::ice_clone() const
+{
+    return new MissingTypeException(*this);
+}
+
+void
+XMLTransform::MissingTypeException::ice_throw() const
+{
+    throw *this;
+}
+
 XMLTransform::TransformException::TransformException(const char* file, int line) :
     Exception(file, line)
 {
@@ -511,7 +541,7 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, DOMNode* node)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, DOMNode* node, const MissingTypeMap&)
     {
 	if(node == 0)
 	{
@@ -543,7 +573,7 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput&, const DocumentInfoPtr&, const string&, DOMNode*)
+    transform(::IceUtil::XMLOutput&, const DocumentInfoPtr&, const string&, DOMNode*, const MissingTypeMap&)
     {
         throw SchemaViolation(__FILE__, __LINE__);
     }
@@ -576,7 +606,7 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, DOMNode*)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, DOMNode*, const MissingTypeMap&)
     {
     }
 
@@ -605,9 +635,16 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string&, DOMNode* node)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string&, DOMNode* node,
+              const MissingTypeMap& map)
     {
-	_transform->transform(os, info, _name, node);
+	_transform->transform(os, info, _name, node, map);
+    }
+
+    virtual void
+    checkMissingTypes(const DocumentInfoPtr& info, DOMNode* node, const MissingTypeMap& map)
+    {
+        _transform->checkMissingTypes(info, node, map);
     }
 
     virtual ostream&
@@ -645,7 +682,7 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, DOMNode* node)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, DOMNode* node, const MissingTypeMap&)
     {
 	if(node == 0)
 	{
@@ -693,7 +730,7 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, DOMNode* node)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, DOMNode* node, const MissingTypeMap&)
     {
 	if(node == 0)
 	{
@@ -769,7 +806,7 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, DOMNode* node)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, DOMNode* node, const MissingTypeMap&)
     {
 	if(node == 0)
 	{
@@ -812,22 +849,52 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string&, DOMNode* node)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string&, DOMNode* node,
+              const MissingTypeMap& map)
     {
 	if(node == 0)
 	{
 	    throw SchemaViolation(__FILE__, __LINE__);
 	}
-	string name = toString(node->getNodeName());
-	os << ::IceUtil::se(name);
+
 	string length = getAttributeByName(node, "length");
-
-	os << ::IceUtil::attr("length", length);
-
 	long l = atol(length.c_str());
 
+        //
+        // Before we emit anything, we check for missing types.
+        // If a MissingTypeException is raised for an element,
+        // that element will be skipped. We have to do this in
+        // advance in order to properly compute the sequence length.
+        //
 	DOMNodeList* children = node->getChildNodes();
-	for(unsigned int i = 0; i < children->getLength(); ++i)
+        unsigned int i;
+	for(i = 0; i < children->getLength(); ++i)
+	{
+	    DOMNode* child = children->item(i);
+	    if(child->getNodeType() != DOMNode::ELEMENT_NODE)
+	    {
+		continue;
+	    }
+
+            try
+            {
+                _transform->checkMissingTypes(info, child, map);
+            }
+            catch(const MissingTypeException& ex)
+            {
+                --l;
+            }
+	}
+
+	string name = toString(node->getNodeName());
+	os << ::IceUtil::se(name);
+
+        ostringstream lstr;
+        lstr << l;
+
+	os << ::IceUtil::attr("length", lstr.str());
+
+	for(i = 0; i < children->getLength(); ++i)
 	{
 	    DOMNode* child = children->item(i);
 	    if(child->getNodeType() != DOMNode::ELEMENT_NODE)
@@ -840,11 +907,38 @@ public:
 	    {
 		throw SchemaViolation(__FILE__, __LINE__);
 	    }
-	    _transform->transform(os, info, nodeName, child);
-	    --l;
+
+            try
+            {
+                _transform->transform(os, info, nodeName, child, map);
+            }
+            catch(const MissingTypeException&)
+            {
+                // Skip this element
+            }
 	}
 
 	os << ::IceUtil::ee;
+    }
+
+    virtual void
+    checkMissingTypes(const DocumentInfoPtr& info, DOMNode* node, const MissingTypeMap& map)
+    {
+	if(node == 0)
+	{
+	    throw SchemaViolation(__FILE__, __LINE__);
+	}
+	DOMNodeList* children = node->getChildNodes();
+	for(unsigned int i = 0; i < children->getLength(); ++i)
+	{
+	    DOMNode* child = children->item(i);
+	    if(child->getNodeType() != DOMNode::ELEMENT_NODE)
+	    {
+		continue;
+	    }
+
+            _transform->checkMissingTypes(info, child, map);
+	}
     }
 
     virtual ostream&
@@ -887,7 +981,8 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string&, DOMNode* node)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string&, DOMNode* node,
+              const MissingTypeMap& map)
     {
 	if(node == 0)
 	{
@@ -904,10 +999,41 @@ public:
 	for(vector<ElementTransformPtr>::const_iterator p = _transforms.begin(); p != _transforms.end(); ++p)
 	{
 	    DOMNode* child = findChild(node, (*p)->namespaceURI(), (*p)->name());
-	    (*p)->transform(os, info, (*p)->name(), child);
+            try
+            {
+                (*p)->transform(os, info, (*p)->name(), child, map);
+            }
+            catch(const MissingTypeException& ex)
+            {
+                //
+                // A struct member cannot be removed if it refers to
+                // a missing type, so we translate MissingTypeException
+                // into SchemaViolation.
+                //
+                SchemaViolation e(__FILE__, __LINE__);
+                ostringstream ostr;
+                ostr << "error during transform of struct member `" << (*p)->name() << "':" << endl << ex.reason;
+                e.reason = ostr.str();
+                throw e;
+            }
 	}
 
 	os << ::IceUtil::ee;
+    }
+
+    virtual void
+    checkMissingTypes(const DocumentInfoPtr& info, DOMNode* node, const MissingTypeMap& map)
+    {
+	if(node == 0)
+	{
+	    throw SchemaViolation(__FILE__, __LINE__);
+	}
+
+	for(vector<ElementTransformPtr>::const_iterator p = _transforms.begin(); p != _transforms.end(); ++p)
+	{
+	    DOMNode* child = findChild(node, (*p)->namespaceURI(), (*p)->name());
+	    (*p)->checkMissingTypes(info, child, map);
+	}
     }
 
     virtual ostream&
@@ -944,21 +1070,9 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string& name, DOMNode* node)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string& name, DOMNode* node,
+              const MissingTypeMap& map)
     {
-        //
-        // First check for the "href" attribute, which indicates a
-        // reference to another object. We simply emit the node
-        // as-is. The referenced object, which is a child of the
-        // root node, will be transformed automatically.
-        //
-        string id = getAttributeByName(node, "href");
-        if(!id.empty())
-        {
-            os << node;
-            return;
-        }
-
 	//
 	// If the object is null simply emit the node as-is.
 	//
@@ -987,11 +1101,57 @@ public:
 	TransformMap::const_iterator p = _transforms->find(n);
 	if(p == _transforms->end())
 	{
-	    SchemaViolation ex(__FILE__, __LINE__);
-	    ex.reason = "unable to find a transformation for type `" + n + "'";
-	    throw ex;
+            //
+            // No transformation found for this type. This should
+            // have already been discovered by collectMissingTypes.
+            //
+            string id = getAttributeByName(node, "id");
+            assert(!id.empty());
+            MissingTypeMap::const_iterator q = map.find(id);
+            assert(q != map.end());
+            MissingTypeException ex(__FILE__, __LINE__);
+            ex.reason = "unable to find a transformation for type `" + n + "'";
+            throw ex;
 	}
-	p->second->transform(os, info, name, node);
+	p->second->transform(os, info, name, node, map);
+    }
+
+    virtual void
+    collectMissingTypes(const DocumentInfoPtr& info, DOMNode* node, MissingTypeMap& map)
+    {
+	//
+	// Check if the object is null.
+	//
+	string nil = getAttributeByName(node, "xsi:nil");
+        if(!nil.empty() && nil == "true")
+        {
+            return;
+        }
+
+        //
+        // Otherwise, xsi:type must be present.
+        //
+	string type = getAttributeByName(node, "xsi:type");
+	if(type.empty())
+	{
+	    throw SchemaViolation(__FILE__, __LINE__);
+	}
+
+	string n = convertQName(type, info);
+
+	//
+	// Technically this is only permitted to be a more derived
+	// type - however, this will not be enforced here.
+	//
+	TransformMap::const_iterator p = _transforms->find(n);
+	if(p == _transforms->end())
+	{
+            string id = getAttributeByName(node, "id");
+            assert(!id.empty());
+            string sliceType = getAttributeByName(node, "type");
+            assert(!sliceType.empty());
+            map.insert(make_pair(id, sliceType));
+	}
     }
 
     virtual ostream&
@@ -1010,6 +1170,92 @@ private:
 typedef ::IceUtil::Handle<ClassTransform> ClassTransformPtr;
 
 //
+// Transform for an object reference.
+//
+class ReferenceTransform : public Transform
+{
+public:
+
+    ReferenceTransform()
+    {
+    }
+
+    virtual void
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string& name, DOMNode* node,
+              const MissingTypeMap& map)
+    {
+        //
+        // First check for the "href" attribute, which indicates a
+        // reference to another object. The referenced object, which
+        // is a child of the root node, will be transformed automatically.
+        //
+        string id = getAttributeByName(node, "href");
+        if(!id.empty())
+        {
+            id.erase(0, 1); // Remove the '#'.
+            //
+            // If the id is present in the missing type map, then
+            // we must raise an exception.
+            //
+            MissingTypeMap::const_iterator q = map.find(id);
+            if(q != map.end())
+            {
+                MissingTypeException ex(__FILE__, __LINE__);
+                ex.reason = "unable to find a transformation for type `" + q->second + "'";
+                throw ex;
+            }
+
+            os << node;
+            return;
+        }
+
+	//
+	// If there is no "href" attribute, then the object must be nil.
+	//
+	string nil = getAttributeByName(node, "xsi:nil");
+	if(nil.empty())
+	{
+	    throw SchemaViolation(__FILE__, __LINE__);
+	}
+        os << node;
+    }
+
+    virtual void
+    checkMissingTypes(const DocumentInfoPtr& info, DOMNode* node, const MissingTypeMap& map)
+    {
+        //
+        // First check for the "href" attribute, which indicates a
+        // reference to another object.
+        //
+        string id = getAttributeByName(node, "href");
+        if(!id.empty())
+        {
+            id.erase(0, 1); // Remove the '#'.
+            //
+            // If the id is present in the missing types map, then
+            // we must raise an exception.
+            //
+            MissingTypeMap::const_iterator q = map.find(id);
+            if(q != map.end())
+            {
+                MissingTypeException ex(__FILE__, __LINE__);
+                ex.reason = "unable to find a transformation for type `" + q->second + "'";
+                throw ex;
+            }
+        }
+    }
+
+    virtual ostream&
+    print(ostream& os)
+    {
+	os << "[reference]\n";
+	return os;
+    }
+};
+
+typedef ::IceUtil::Handle<ReferenceTransform> ReferenceTransformPtr;
+
+//
 // This transform produces a new struct. The contents of the struct will contain whatever default value is
 // appropriate.
 //
@@ -1023,7 +1269,8 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string& name, DOMNode* node)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string& name, DOMNode* node,
+              const MissingTypeMap& map)
     {
 	os << ::IceUtil::se(name);
 
@@ -1031,7 +1278,7 @@ public:
 
 	for(vector<ElementTransformPtr>::const_iterator p = _transforms.begin(); p != _transforms.end(); ++p)
 	{
-	    (*p)->transform(os, info, (*p)->name(), child);
+	    (*p)->transform(os, info, (*p)->name(), child, map);
 	}
 
 	os << ::IceUtil::ee;
@@ -1069,7 +1316,7 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string& name, DOMNode*)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string& name, DOMNode*, const MissingTypeMap&)
     {
 	os << ::IceUtil::se(name);
 	os << ::IceUtil::startEscapes << _s << ::IceUtil::endEscapes;
@@ -1104,7 +1351,7 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string& name, DOMNode*)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string& name, DOMNode*, const MissingTypeMap&)
     {
 	os << ::IceUtil::se(name);
         os << ::IceUtil::attr(_attrName, _attrValue);
@@ -1389,9 +1636,9 @@ XMLTransform::TransformFactory::create(DOMDocument* fromDoc, DOMDocument* toDoc,
     //
     // Finally process each element from the old schema document.
     //
-    for(DocumentMap::const_iterator p = _fromDocs.begin(); p != _fromDocs.end(); ++p)
+    for(DocumentMap::const_iterator q = _fromDocs.begin(); q != _fromDocs.end(); ++q)
     {
-	processElements(p->second);
+	processElements(q->second);
     }
 }
 
@@ -1909,9 +2156,14 @@ XMLTransform::TransformFactory::createTransform(const DocumentInfoPtr& fromTypeI
 
 	case TypeString:
 	case TypeProxy: // Same as string
-	case TypeReference: // Same as string
 	{
 	    transform = new NilTransform();
+	    break;
+	}
+
+	case TypeReference:
+	{
+	    transform = new ReferenceTransform();
 	    break;
 	}
 
@@ -1956,48 +2208,10 @@ XMLTransform::TransformFactory::createTransform(const DocumentInfoPtr& fromTypeI
 	    break;
 	}
 
+        //
+        // A dictionary is treated as a sequence of struct.
+        //
 	case TypeDictionary:
-	{
-	    //
-	    // If the type names are not the same then it's illegal.
-	    //
-	    // TODO: This doesn't allow the renaming of types. By removing this comparison renaming of types
-	    // would be permitted. Should this be permitted?
-	    //
-	    if(fromTypeName != toTypeName)
-	    {
-		IllegalTransform ex(__FILE__, __LINE__);
-                ex.reason = "renaming types is not supported (from " + fromTypeName + " to " + toTypeName + ")";
-		throw ex;
-	    }
-
-	    DOMNode* fromSeq = findChild(from, sequenceElementName);
-	    DOMNode* toSeq = findChild(to, sequenceElementName);
-	    if(fromSeq == 0 || toSeq == 0)
-	    {
-		InvalidSchema ex(__FILE__, __LINE__);
-                ex.reason = "missing sequence element in " + fromTypeName;
-		throw ex;
-	    }
-	    
-	    //
-	    // Sequences have one element - which contains the type of the sequence.
-	    //
-	    DOMNode* fromElement = findChild(fromSeq, elementElementName);
-	    DOMNode* toElement = findChild(toSeq, elementElementName);
-	    
-	    if(fromElement == 0 || toElement == 0)
-	    {
-		InvalidSchema ex(__FILE__, __LINE__);
-                ex.reason = "invalid sequence element in " + fromTypeName;
-		throw ex;
-	    }
-	    
-	    transform = new SequenceTransform(createTransform(fromInfo, getTypeAttribute(fromElement),
-							      toInfo, getTypeAttribute(toElement)));
-	    break;
-	}
-
 	case TypeSequence:
 	{
 	    //
@@ -2033,7 +2247,7 @@ XMLTransform::TransformFactory::createTransform(const DocumentInfoPtr& fromTypeI
                 ex.reason = "invalid sequence element in " + fromTypeName;
 		throw ex;
 	    }
-	    
+
 	    transform = new SequenceTransform(createTransform(fromInfo, getTypeAttribute(fromElement),
 							      toInfo, getTypeAttribute(toElement)));
 	    break;
@@ -2529,7 +2743,7 @@ XMLTransform::Transformer::~Transformer()
 }
 
 void
-XMLTransform::Transformer::transform(::IceUtil::XMLOutput& os, DOMDocument* doc, bool emitRoot)
+XMLTransform::Transformer::transform(::IceUtil::XMLOutput& os, DOMDocument* doc, bool force, bool emitRoot)
 {
     DOMNode* root = doc->getFirstChild();
 
@@ -2549,6 +2763,12 @@ XMLTransform::Transformer::transform(::IceUtil::XMLOutput& os, DOMDocument* doc,
     DocumentInfoPtr info = new DocumentInfo(doc, false, root);
     
     DOMNodeList* children = root->getChildNodes();
+
+    //
+    // Collect the missing types from all elements before
+    // transforming.
+    //
+    Transform::MissingTypeMap map;
     for(i = 0; i < children->getLength(); ++i)
     {
 	DOMNode* child = children->item(i);
@@ -2572,7 +2792,68 @@ XMLTransform::Transformer::transform(::IceUtil::XMLOutput& os, DOMDocument* doc,
 	    throw ex;
 	}
 
-	p->second->transform(os, info, nodeName, child);
+        p->second->collectMissingTypes(info, child, map);
+    }
+
+    //
+    // If there are missing types, and we are not told to
+    // force removal of objects, then raise an exception.
+    //
+    if(!map.empty() && !force)
+    {
+        set<string> types;
+        for(Transform::MissingTypeMap::const_iterator q = map.begin(); q != map.end(); ++q)
+        {
+            types.insert(q->second);
+        }
+        ostringstream ostr;
+        ostr << "The following types could not be found:";
+        for(set<string>::const_iterator r = types.begin(); r != types.end(); ++r)
+        {
+            ostr << endl << "  " << *r;
+        }
+        MissingTypeException ex(__FILE__, __LINE__);
+        ex.reason = ostr.str();
+        throw ex;
+    }
+
+    //
+    // Transform.
+    //
+    for(i = 0; i < children->getLength(); ++i)
+    {
+	DOMNode* child = children->item(i);
+	if(child->getNodeType() != DOMNode::ELEMENT_NODE)
+	{
+	    continue;
+	}
+
+	string nodeName = toString(child->getNodeName());
+
+	//
+	// Create local@namespace version of the element name.
+	//
+	string n = convertQName(nodeName, info);
+
+	TransformMap::const_iterator p = _elements.find(n);
+	if(p == _elements.end())
+	{
+	    SchemaViolation ex(__FILE__, __LINE__);
+	    ex.reason = "cannot find element " + n;
+	    throw ex;
+	}
+
+        try
+        {
+            p->second->transform(os, info, nodeName, child, map);
+        }
+        catch(const MissingTypeException&)
+        {
+            if(!force)
+            {
+                throw;
+            }
+        }
     }
 
     if(emitRoot)
@@ -2581,7 +2862,12 @@ XMLTransform::Transformer::transform(::IceUtil::XMLOutput& os, DOMDocument* doc,
     }
 }
 
-XMLTransform::DBTransformer::DBTransformer()
+XMLTransform::DBTransformer::DBTransformer(const DBEnvironmentPtr& dbEnv, const DBPtr& db,
+                                           const Ice::StringSeq& loadOld, const Ice::StringSeq& loadNew,
+                                           const Ice::StringSeq& pathOld, const Ice::StringSeq& pathNew,
+                                           bool force) :
+    _dbEnv(dbEnv), _db(db), _loadOld(loadOld), _loadNew(loadNew), _pathOld(pathOld), _pathNew(pathNew),
+    _force(force)
 {
     try
     {
@@ -2600,10 +2886,7 @@ XMLTransform::DBTransformer::~DBTransformer()
 }
 
 void
-XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPtr& db,
-                                       const Ice::StringSeq& loadOld, const Ice::StringSeq& loadNew,
-                                       const Ice::StringSeq& pathOld, const Ice::StringSeq& pathNew,
-                                       DOMDocument* oldSchema, DOMDocument* newSchema)
+XMLTransform::DBTransformer::transform(DOMDocument* oldSchema, DOMDocument* newSchema)
 {
     DOMTreeErrorReporter errReporter;
 
@@ -2617,7 +2900,7 @@ XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPt
     string reason;
     try
     {
-        Transformer transformer(loadOld, loadNew, pathOld, pathNew, oldSchema, newSchema);
+        Transformer transformer(_loadOld, _loadNew, _pathOld, _pathNew, oldSchema, newSchema);
 
         //
         // Header and footer for instance documents.
@@ -2634,7 +2917,7 @@ XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPt
         // keys first, then update the records.
         //
         vector<Key> keys;
-        cursor = db->getCursor();
+        cursor = _db->getCursor();
         do
         {
             Key k;
@@ -2646,7 +2929,7 @@ XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPt
         cursor->close();
         cursor = 0;
 
-        txn = dbEnv->startTransaction();
+        txn = _dbEnv->startTransaction();
 
         vector<Key>::const_iterator p;
         for(p = keys.begin(); p != keys.end(); ++p)
@@ -2666,7 +2949,7 @@ XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPt
 
             ostringstream keyStream;
             IceUtil::XMLOutput keyOut(keyStream);
-            transformer.transform(keyOut, keyDoc, false);
+            transformer.transform(keyOut, keyDoc, _force, false);
 
             Key newKey;
             const std::string& keyStr = keyStream.str();
@@ -2676,7 +2959,7 @@ XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPt
             //
             // Transform value
             //
-            Value value = db->getWithTxn(txn, k);
+            Value value = _db->getWithTxn(txn, k);
             string fullValue;
             fullValue.append(header);
             fullValue.append(&value[0], value.size());
@@ -2687,7 +2970,7 @@ XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPt
 
             ostringstream valueStream;
             IceUtil::XMLOutput valueOut(valueStream);
-            transformer.transform(valueOut, valueDoc, false);
+            transformer.transform(valueOut, valueDoc, _force, false);
 
             Value newValue;
             const std::string& valueStr = valueStream.str();
@@ -2698,15 +2981,15 @@ XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPt
             // Update database - only insert new key,value pair if the transformed
             // key doesn't match an existing key.
             //
-            db->delWithTxn(txn, k);
-            if(db->containsWithTxn(txn, newKey))
+            _db->delWithTxn(txn, k);
+            if(_db->containsWithTxn(txn, newKey))
             {
                 reason = "transformed key matches an existing record:\n" + keyStr;
                 txn->abort();
                 txn = 0;
                 break;
             }
-            db->putWithTxn(txn, newKey, newValue);
+            _db->putWithTxn(txn, newKey, newValue);
         }
 
         if(txn)
@@ -2765,10 +3048,7 @@ XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPt
 }
 
 void
-XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPtr& db,
-                                       const Ice::StringSeq& loadOld, const Ice::StringSeq& loadNew,
-                                       const Ice::StringSeq& pathOld, const Ice::StringSeq& pathNew,
-                                       const string& oldSchemaFile, const string& newSchemaFile)
+XMLTransform::DBTransformer::transform(const string& oldSchemaFile, const string& newSchemaFile)
 {
     DOMTreeErrorReporter errReporter;
 
@@ -2807,14 +3087,11 @@ XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPt
         throw e;
     }
 
-    transform(dbEnv, db, loadOld, loadNew, pathOld, pathNew, oldSchema, newSchema);
+    transform(oldSchema, newSchema);
 }
 
 void
-XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPtr& db,
-                                       const Ice::StringSeq& loadOld, const Ice::StringSeq& loadNew,
-                                       const Ice::StringSeq& pathOld, const Ice::StringSeq& pathNew,
-                                       const string& schemaStr)
+XMLTransform::DBTransformer::transform(const string& schemaStr)
 {
     DOMTreeErrorReporter errReporter;
 
@@ -2850,5 +3127,5 @@ XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPt
         throw e;
     }
 
-    transform(dbEnv, db, loadOld, loadNew, pathOld, pathNew, schema, schema);
+    transform(schema, schema);
 }

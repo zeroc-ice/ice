@@ -20,6 +20,8 @@
 
 #include <xercesc/dom/DOM.hpp>
 
+#include <map>
+
 #ifdef WIN32
 #   ifdef XML_TRANSFORM_API_EXPORTS
 #       define XML_TRANSFORM_API __declspec(dllexport)
@@ -102,6 +104,23 @@ public:
 };
 
 //
+// Raised if a type was not found in the new schema.
+//
+class XML_TRANSFORM_API MissingTypeException : public ::IceUtil::Exception
+{
+public:
+
+    MissingTypeException(const char*, int);
+
+    virtual ::std::string ice_name() const;
+    virtual void ice_print(::std::ostream&) const;
+    virtual ::IceUtil::Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+    ::std::string reason;
+};
+
+//
 // Raised in the case of a general transformation failure.
 //
 class XML_TRANSFORM_API TransformException : public ::IceUtil::Exception
@@ -158,7 +177,12 @@ public:
     Transform();
     virtual ~Transform();
 
-    virtual void transform(::IceUtil::XMLOutput&, const DocumentInfoPtr&, const ::std::string&, DOMNode*) = 0;
+    typedef ::std::map< ::std::string, ::std::string > MissingTypeMap;
+
+    virtual void transform(::IceUtil::XMLOutput&, const DocumentInfoPtr&, const ::std::string&, DOMNode*,
+                           const MissingTypeMap&) = 0;
+    virtual void checkMissingTypes(const DocumentInfoPtr&, DOMNode*, const MissingTypeMap&) { }
+    virtual void collectMissingTypes(const DocumentInfoPtr&, DOMNode*, MissingTypeMap&) { }
     virtual ::std::ostream& print(::std::ostream&) = 0;
 };
 
@@ -181,7 +205,7 @@ public:
                 DOMDocument*, DOMDocument*);
     ~Transformer();
 
-    void transform(::IceUtil::XMLOutput&, DOMDocument*, bool = true);
+    void transform(::IceUtil::XMLOutput&, DOMDocument*, bool, bool = true);
 
 private:
 
@@ -200,28 +224,36 @@ private:
 
 class XML_TRANSFORM_API DBTransformer
 {
-    void transform(const Freeze::DBEnvironmentPtr&, const Freeze::DBPtr&, const Ice::StringSeq&, const Ice::StringSeq&,
-                   const Ice::StringSeq&, const Ice::StringSeq&, DOMDocument*, DOMDocument*);
-
 public:
 
-    DBTransformer();
+    DBTransformer(const Freeze::DBEnvironmentPtr&, const Freeze::DBPtr&, const Ice::StringSeq&, const Ice::StringSeq&,
+                  const Ice::StringSeq&, const Ice::StringSeq&, bool);
     ~DBTransformer();
 
     //
     // This version allows the caller to specify the filenames for the
     // old and new schemas.
     //
-    void transform(const Freeze::DBEnvironmentPtr&, const Freeze::DBPtr&, const Ice::StringSeq&, const Ice::StringSeq&,
-                   const Ice::StringSeq&, const Ice::StringSeq&, const std::string&, const std::string&);
+    void transform(const std::string&, const std::string&);
 
     //
     // This version allows the caller to specify a single schema for
     // transformation. This is commonly used for schemas whose formal
     // types don't change, but whose actual (instance) types do change.
     //
-    void transform(const Freeze::DBEnvironmentPtr&, const Freeze::DBPtr&, const Ice::StringSeq&, const Ice::StringSeq&,
-                   const Ice::StringSeq&, const Ice::StringSeq&, const std::string&);
+    void transform(const std::string&);
+
+private:
+
+    void transform(DOMDocument*, DOMDocument*);
+
+    Freeze::DBEnvironmentPtr _dbEnv;
+    Freeze::DBPtr _db;
+    Ice::StringSeq _loadOld;
+    Ice::StringSeq _loadNew;
+    Ice::StringSeq _pathOld;
+    Ice::StringSeq _pathNew;
+    bool _force;
 };
 
 } // End namespace XMLTransform

@@ -31,6 +31,7 @@ usage(const string& appName)
         "--load-new PATH      Load new schema from the given file or directory.\n"
         "--path-old DIR       Add directory DIR to the old schema import search path.\n"
         "--path-new DIR       Add directory DIR to the new schema import search path.\n"
+        "--force              Force removal of objects whose types cannot be found.\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
         ;
@@ -51,6 +52,7 @@ main(int argc, char* argv[])
         bool evictor = false;
         Ice::StringSeq loadOld, loadNew;
         Ice::StringSeq pathOld, pathNew;
+        bool force = false;
 
         int idx = 1;
         while(idx < argc)
@@ -128,6 +130,15 @@ main(int argc, char* argv[])
                 }
                 --argc;
             }
+            else if(strcmp(argv[idx], "--force") == 0)
+            {
+                force = true;
+                for(int i = idx ; i + 1 < argc ; ++i)
+                {
+                    argv[i] = argv[i + 1];
+                }
+                --argc;
+            }
             else if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
             {
                 usage(argv[0]);
@@ -159,9 +170,9 @@ main(int argc, char* argv[])
         try
         {
             dbEnv = Freeze::initializeWithTxn(communicator, argv[1]);
-            db = dbEnv->openDB(argv[2], false);
+            db = dbEnv->openDBWithTxn(0, argv[2], false);
 
-            XMLTransform::DBTransformer transformer;
+            XMLTransform::DBTransformer transformer(dbEnv, db, loadOld, loadNew, pathOld, pathNew, force);
 
             if(evictor)
             {
@@ -183,11 +194,11 @@ main(int argc, char* argv[])
                     "    <xs:element name=\"Key\" type=\"_internal.Ice.IdentityType\"/>"
                     "    <xs:element name=\"Value\" type=\"ice:_internal.objectType\"/></xs:schema>";
 
-                transformer.transform(dbEnv, db, loadOld, loadNew, pathOld, pathNew, schema);
+                transformer.transform(schema);
             }
             else
             {
-                transformer.transform(dbEnv, db, loadOld, loadNew, pathOld, pathNew, argv[3], argv[4]);
+                transformer.transform(argv[3], argv[4]);
             }
         }
         catch(const Freeze::DBNotFoundException&)
