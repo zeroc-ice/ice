@@ -230,23 +230,23 @@ public:
 
     virtual void startDownload(Int)
     {
-	cout << "download   0% " << flush;
+	cout << " download   0%" << flush;
     }
 
     virtual void updateDownload(Int total, Int pos)
     {
 	Ice::Int percent = pos * 100 / total;
-	cout << "\b\b\b\b\b" << setw(3) << percent << "% " << flush;
+	cout << "\b\b\b\b" << setw(3) << percent << "%" << flush;
     }
 
     virtual void finishedDownload(Int)
     {
-	cout << "\b\b\b\b\b" << setw(3) << 100 << "% " << flush;
+	cout << "\b\b\b\b" << setw(3) << 100 << "%" << flush;
     }
 
     virtual void startUncompress(Int)
     {
-	cout << "uncompress   0% " << flush;
+	cout << " uncompress   0%" << flush;
     }
 
     virtual void updateUncompress(Int total, Int pos)
@@ -257,6 +257,7 @@ public:
     virtual void finishedUncompress(Int total)
     {
 	finishedDownload(total);
+	cout << endl;
     }
 };
 
@@ -292,43 +293,40 @@ IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 	    {
 		newIndent = indent + "| ";
 	    }
-	    cout << indent << "+-" << pathToName(path) << ": " << flush;
+	    cout << indent << "+-" << pathToName(path) << ":";
 
 	    FileInfo info = getFileInfo(path, false);
 	    switch (info.type)
 	    {
 		case FileTypeNotExist:
 		{
-		    cout << "creating directory... " << flush;
 		    createDirectory(path);
+		    cout << " created" << endl;
 		    break;
 		}
 
 		case FileTypeDirectory:
 		{
+		    cout << " ok" << endl;
 		    break;
 		}
-
+		
 		case FileTypeRegular:
 		{
-		    cout << "removing file... " << flush;
 		    removeRecursive(path);
-		    cout << "creating directory... " << flush;
 		    createDirectory(path);
+		    cout << " created" << endl;
 		    break;
 		}
 
 		case FileTypeUnknown:
 		{
-		    cout << "removing unknown file... " << flush;
 		    removeRecursive(path);
-		    cout << "creating directory... " << flush;
 		    createDirectory(path);
+		    cout << " created" << endl;
 		    break;
 		}
 	    }
-
-	    cout << "ok" << endl;
 
 	    cout << newIndent << "|" << endl;
 	    patch(directoryDesc->directory->getContents(), newIndent);
@@ -336,7 +334,7 @@ IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 	else
 	{
 	    assert(regularDesc);
-	    cout << indent << "+-" << pathToName(path) << ": " << flush;
+	    cout << indent << "+-" << pathToName(path) << ":";
 
 	    MyProgressCB progressCB;
 
@@ -345,16 +343,13 @@ IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 	    {
 		case FileTypeNotExist:
 		{
-		    cout << "getting file... " << flush;
 		    getRegular(regularDesc->regular, progressCB);
 		    break;
 		}
 
 		case FileTypeDirectory:
 		{
-		    cout << "removing directory... " << flush;
 		    removeRecursive(path);
-		    cout << "getting file... " << flush;
 		    getRegular(regularDesc->regular, progressCB);
 		    break;
 		}
@@ -372,10 +367,12 @@ IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 
 		    if (md5 != regularDesc->md5)
 		    {
-			cout << "removing file... " << flush;
 			removeRecursive(path);
-			cout << "getting file... " << flush;
 			getRegular(regularDesc->regular, progressCB);
+		    }
+		    else
+		    {
+			cout << " ok" << endl;
 		    }
 
 		    break;
@@ -383,15 +380,11 @@ IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 
 		case FileTypeUnknown:
 		{
-		    cout << "removing unknown file... " << flush;
 		    removeRecursive(path);
-		    cout << "getting file... " << flush;
 		    getRegular(regularDesc->regular, progressCB);
 		    break;
 		}
 	    }
-
-	    cout << "ok" << endl;
 
 	    if (last)
 	    {
