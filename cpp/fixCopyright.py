@@ -22,15 +22,7 @@ def copyright(commentMark):
     result.append(commentMark)
     result.append("\n")
     result.append(commentMark)
-    result.append(" Copyright (c) 2003 - 2004\n")
-    result.append(commentMark)
-    result.append(" ZeroC, Inc.\n")
-    result.append(commentMark)
-    result.append(" North Palm Beach, FL, USA\n")
-    result.append(commentMark)
-    result.append("\n")
-    result.append(commentMark)
-    result.append(" All Rights Reserved.\n")
+    result.append(" Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.\n")
     result.append(commentMark)
     result.append("\n")
     result.append(commentMark)
@@ -58,6 +50,8 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
     beforeCopyrightLines = []
     newLines = []
 
+    justDone = 0
+
     if commentBegin == "":
         for x in oldLines:
             if not commentFound and not x.startswith(commentMark):
@@ -68,8 +62,23 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
                     copyrightFound = 1
                 # skip this comment line                  
             else:
-                done = 1
-                newLines.append(x)
+                if not done:
+                    done = 1
+                    justDone = 1
+                
+                # Eliminate double blank lines after copyright (bug introduced by previous fixCopyright script)
+                if justDone == 1:
+                    newLines.append(x)
+                    if x != "\n":
+                        justDone = 0
+                    else:
+                        justDone = 2
+                elif justDone == 2:
+                    if x != "\n":
+                         newLines.append(x)
+                    justDone = 0                    
+                else:
+                    newLines.append(x)
 
     else:
          for x in oldLines:
@@ -83,10 +92,23 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
                    # skip this comment line 
                    if x.find(commentEnd) != -1:
                        done = 1
+                       justDone = 1
                 else:
                     beforeCopyrightLines.append(x)    
             else:
-                newLines.append(x)
+                # Eliminate double blank lines after copyright (bug introduced by previous fixCopyright script)
+                if justDone == 1:
+                    newLines.append(x)
+                    if x != "\n":
+                        justDone = 0
+                    else:
+                        justDone = 2
+                elif justDone == 2:
+                    if x != "\n":
+                         newLines.append(x)
+                    justDone = 0                    
+                else:
+                    newLines.append(x)
 
 
     oldFile.close()
@@ -102,8 +124,12 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
         #
         # Hack to keep the .err files
         #
-        if fnmatch.fnmatch(file, "*test/Slice/errorDetection/*.ice") != -1: 
-            newFile.write("\n")
+        if fnmatch.fnmatch(file, "*test/Slice/errorDetection/*.ice") > 0: 
+        	newFile.write("\n")
+		newFile.write("\n")
+            	newFile.write("\n")
+            	newFile.write("\n")
+                newFile.write("\n")
 
         newFile.writelines(newLines)
         newFile.close()        
