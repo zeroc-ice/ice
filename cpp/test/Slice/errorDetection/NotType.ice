@@ -22,3 +22,15 @@ class BarClass2 implements Module1, Module2, Module3 { };
 class BarClass3 extends Module implements Module1, Module2, Module3 { };
 
 };
+
+exception E { };
+
+struct S
+{
+    E e;
+};
+
+interface I
+{
+    E foo(E e1; E e2);
+};

@@ -43,6 +43,7 @@ class Constructed;
 class ClassDecl;
 class ClassDef;
 class Proxy;
+class Exception;
 class Struct;
 class Operation;
 class DataMember;
@@ -63,6 +64,7 @@ typedef ::IceUtil::Handle<Constructed> ConstructedPtr;
 typedef ::IceUtil::Handle<ClassDecl> ClassDeclPtr;
 typedef ::IceUtil::Handle<ClassDef> ClassDefPtr;
 typedef ::IceUtil::Handle<Proxy> ProxyPtr;
+typedef ::IceUtil::Handle<Exception> ExceptionPtr;
 typedef ::IceUtil::Handle<Struct> StructPtr;
 typedef ::IceUtil::Handle<Operation> OperationPtr;
 typedef ::IceUtil::Handle<DataMember> DataMemberPtr;
@@ -103,6 +105,7 @@ typedef std::list<TypeString> TypeStringList;
 typedef std::list<ContainedPtr> ContainedList;
 typedef std::list<ModulePtr> ModuleList;
 typedef std::list<ClassDefPtr> ClassList;
+typedef std::list<ExceptionPtr> ExceptionList;
 typedef std::list<StructPtr> StructList;
 typedef std::list<SequencePtr> SequenceList;
 typedef std::list<DictionaryPtr> DictionaryList;
@@ -127,6 +130,8 @@ public:
     virtual void visitClassDecl(const ClassDeclPtr&) { }
     virtual bool visitClassDefStart(const ClassDefPtr&) { return true; }
     virtual void visitClassDefEnd(const ClassDefPtr&) { }
+    virtual bool visitExceptionStart(const ExceptionPtr&) { return true; }
+    virtual void visitExceptionEnd(const ExceptionPtr&) { }
     virtual bool visitStructStart(const StructPtr&) { return true; }
     virtual void visitStructEnd(const StructPtr&) { }
     virtual void visitOperation(const OperationPtr&) { }
@@ -232,6 +237,7 @@ public:
 	ContainedTypeEnumerator,
 	ContainedTypeModule,
 	ContainedTypeClass,
+	ContainedTypeException,
 	ContainedTypeStruct,
 	ContainedTypeOperation,
 	ContainedTypeDataMember
@@ -267,6 +273,7 @@ public:
     ModulePtr createModule(const std::string&);
     ClassDefPtr createClassDef(const std::string&, bool, bool, const ClassList&);
     ClassDeclPtr createClassDecl(const std::string&, bool, bool);
+    ExceptionPtr createException(const std::string&);
     StructPtr createStruct(const std::string&);
     SequencePtr createSequence(const std::string&, const TypePtr&);
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const TypePtr&);
@@ -277,6 +284,7 @@ public:
     ContainedList lookupContained(const std::string&, bool = true);
     ModuleList modules();
     ClassList classes();
+    ExceptionList exceptions();
     StructList structs();
     SequenceList sequences();
     DictionaryList dictionaries();
@@ -417,6 +425,27 @@ protected:
 };
 
 // ----------------------------------------------------------------------
+// Exception
+// ----------------------------------------------------------------------
+
+// No inheritance from Constructed, as this is not a Type
+class SLICE_API Exception : virtual public Container, virtual public Contained
+{
+public:
+
+    DataMemberPtr createDataMember(const std::string&, const TypePtr&);
+    DataMemberList dataMembers();
+    virtual ContainedType containedType();
+    virtual bool uses(const ConstructedPtr&);
+    virtual void visit(ParserVisitor*);
+
+protected:
+
+    Exception(const ContainerPtr&, const std::string&);
+    friend class SLICE_API Container;
+};
+
+// ----------------------------------------------------------------------
 // Struct
 // ----------------------------------------------------------------------
 
@@ -484,6 +513,7 @@ protected:
     DataMember(const ContainerPtr&, const std::string&, const TypePtr&);
     friend class SLICE_API ClassDef;
     friend class SLICE_API Struct;
+    friend class SLICE_API Exception;
 
     TypePtr _type;
 };

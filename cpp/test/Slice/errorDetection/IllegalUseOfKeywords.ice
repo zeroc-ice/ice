@@ -8,7 +8,13 @@
 //
 // **********************************************************************
 
-struct module;
+exception module;
+exception void
+{
+    int i;
+};
+
+struct exception;
 struct class
 {
     int i;
@@ -45,13 +51,11 @@ class Bar
     wstring string;
 };
 
-native wstring;
-
 sequence<int> Object;
 
 dictionary<int, int> LocalObject;
 
-enum native
+enum wstring
 {
     a, b, c
 };

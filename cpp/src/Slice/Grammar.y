@@ -32,6 +32,7 @@ yyerror(const char* s)
 %token ICE_MODULE
 %token ICE_CLASS
 %token ICE_INTERFACE
+%token ICE_EXCEPTION
 %token ICE_STRUCT
 %token ICE_LOCAL
 %token ICE_EXTENDS
@@ -109,6 +110,12 @@ definition
 | interface_def
 {
 }
+| exception_decl
+{
+}
+| exception_def
+{
+}
 | struct_decl
 {
 }
@@ -177,6 +184,72 @@ interface_exports
 interface_export
 // ----------------------------------------------------------------------
 : operation
+{
+}
+;
+
+// ----------------------------------------------------------------------
+exception_decl
+// ----------------------------------------------------------------------
+: ICE_EXCEPTION ICE_IDENTIFIER
+{
+    unit->error("exceptions can not be forward declared");
+}
+| ICE_EXCEPTION keyword
+{
+    unit->error("keyword can not be used as exception name");
+}
+;
+
+// ----------------------------------------------------------------------
+exception_def
+// ----------------------------------------------------------------------
+: ICE_EXCEPTION ICE_IDENTIFIER
+{
+    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    ContainerPtr cont = unit->currentContainer();
+    ExceptionPtr st = cont->createException(ident->v);
+    if (!st)
+    {
+	YYERROR; // Can't continue, jump to next yyerrok
+    }
+    unit->pushContainer(st);
+}
+'{' exception_exports '}'
+{
+    unit->popContainer();
+}
+| ICE_EXCEPTION keyword
+{
+    unit->error("keyword can not be used as exception name");
+}
+'{' exception_exports '}'
+{
+}
+;
+
+// ----------------------------------------------------------------------
+exception_exports
+// ----------------------------------------------------------------------
+: exception_export ';' exception_exports
+{
+}
+| error ';' exception_exports
+{
+}
+| exception_export
+{
+    unit->error("`;' missing after definition");
+}
+|
+{
+}
+;
+
+// ----------------------------------------------------------------------
+exception_export
+// ----------------------------------------------------------------------
+: data_member
 {
 }
 ;
@@ -646,6 +719,11 @@ data_member
     {
 	st->createDataMember(ident->v, type);
     }
+    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
+    if (ex)
+    {
+	ex->createDataMember(ident->v, type);
+    }
 }
 | type keyword
 {
@@ -905,6 +983,9 @@ keyword
 {
 }
 | ICE_INTERFACE
+{
+}
+| ICE_EXCEPTION
 {
 }
 | ICE_STRUCT

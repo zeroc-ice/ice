@@ -353,6 +353,39 @@ Slice::Container::createClassDecl(const string& name, bool local, bool intf)
     return decl;
 }
 
+ExceptionPtr
+Slice::Container::createException(const string& name)
+{
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    if (!matches.empty())
+    {
+	ExceptionPtr p = ExceptionPtr::dynamicCast(matches.front());
+	if (p)
+	{
+	    if (_unit->ignRedefs())
+	    {
+		return p;
+	    }
+
+	    string msg = "redefinition of exception `";
+	    msg += name;
+	    msg += "'";
+	    _unit->error(msg);
+	    return 0;
+	}
+	
+	string msg = "redefinition of `";
+	msg += name;
+	msg += "' as exception";
+	_unit->error(msg);
+	return 0;
+    }
+
+    ExceptionPtr p = new Exception(this, name);
+    _contents.push_back(p);
+    return p;
+}
+
 StructPtr
 Slice::Container::createStruct(const string& name)
 {
@@ -586,6 +619,19 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
 		continue; // Ignore class definitions
 	    }
 
+	    ExceptionPtr ex = ExceptionPtr::dynamicCast(*p);
+	    if (ex)
+	    {
+		if (printError)
+		{
+		    string msg = "`";
+		    msg += scoped;
+		    msg += "' is an exception, which cannot be used as a type";
+		    _unit->error(msg);
+		}
+		return TypeList();
+	    }
+
 	    TypePtr type = TypePtr::dynamicCast(*p);
 	    if (!type)
 	    {
@@ -666,6 +712,21 @@ Slice::Container::classes()
     for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
 	ClassDefPtr q = ClassDefPtr::dynamicCast(*p);
+	if (q)
+	{
+	    result.push_back(q);
+	}
+    }
+    return result;
+}
+
+ExceptionList
+Slice::Container::exceptions()
+{
+    ExceptionList result;
+    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+	ExceptionPtr q = ExceptionPtr::dynamicCast(*p);
 	if (q)
 	{
 	    result.push_back(q);
@@ -1177,7 +1238,7 @@ Slice::ClassDef::createOperation(const string& name,
 	    msg = "class name `";
 	}
 	msg += name;
-	msg += "' can not be used as operation";
+	msg += "' cannot be used as operation";
 	_unit->error(msg);
 	return 0;
     }
@@ -1229,7 +1290,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
 	    msg = "class name `";
 	}
 	msg += name;
-	msg += "' can not be used as data member";
+	msg += "' cannot be used as data member";
 	_unit->error(msg);
 	return 0;
     }
@@ -1422,6 +1483,101 @@ Slice::Proxy::Proxy(const ClassDeclPtr& cl) :
 }
 
 // ----------------------------------------------------------------------
+// Exception
+// ----------------------------------------------------------------------
+
+DataMemberPtr
+Slice::Exception::createDataMember(const string& name, const TypePtr& type)
+{
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    if (!matches.empty())
+    {
+	DataMemberPtr p = DataMemberPtr::dynamicCast(matches.front());
+	if (p)
+	{
+	    if (_unit->ignRedefs())
+	    {
+		return p;
+	    }
+
+	    string msg = "redefinition of data member `";
+	    msg += name;
+	    msg += "'";
+	    _unit->error(msg);
+	    return 0;
+	}
+	
+	string msg = "redefinition of `";
+	msg += name;
+	msg += "' as data member";
+	_unit->error(msg);
+	return 0;
+    }
+
+    if (name == this->name())
+    {
+	string msg = "exception name `";
+	msg += name;
+	msg += "' cannot be used as data member";
+	_unit->error(msg);
+	return 0;
+    }
+
+    DataMemberPtr p = new DataMember(this, name, type);
+    _contents.push_back(p);
+    return p;
+}
+
+DataMemberList
+Slice::Exception::dataMembers()
+{
+    DataMemberList result;
+    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+	DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
+	if (q)
+	{
+	    result.push_back(q);
+	}
+    }
+    return result;
+}
+
+bool
+Slice::Exception::uses(const ConstructedPtr&)
+{
+    return false;
+}
+
+Contained::ContainedType
+Slice::Exception::containedType()
+{
+    return ContainedTypeException;
+}
+
+void
+Slice::Exception::visit(ParserVisitor* visitor)
+{
+    if (_includeLevel > 0)
+    {
+	return;
+    }
+
+    if (visitor->visitExceptionStart(this))
+    {
+	Container::visit(visitor);
+	visitor->visitExceptionEnd(this);
+    }
+}
+
+Slice::Exception::Exception(const ContainerPtr& container, const string& name) :
+    Container(container->unit()),
+    Contained(container, name),
+    SyntaxTreeBase(container->unit())
+{
+}
+
+// ----------------------------------------------------------------------
 // Struct
 // ----------------------------------------------------------------------
 
@@ -1457,7 +1613,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type)
     {
 	string msg = "struct name `";
 	msg += name;
-	msg += "' can not be used as data member";
+	msg += "' cannot be used as data member";
 	_unit->error(msg);
 	return 0;
     }
@@ -1466,7 +1622,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type)
     {
 	string msg = "struct `";
 	msg += name;
-	msg += "' can not contain itself";
+	msg += "' cannot contain itself";
 	_unit->error(msg);
 	return 0;
     }

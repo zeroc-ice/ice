@@ -121,6 +121,14 @@ using namespace Slice;
     return ICE_OP_KEYWORD;
 }
 
+"exception" {
+    return ICE_EXCEPTION;
+}
+
+"exception"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
+}
+
 "struct" {
     return ICE_STRUCT;
 }

@@ -23,6 +23,11 @@ class Bar
     string Bar;
 };
 
+exception EBar
+{
+    string EBar;
+};
+
 struct SBar
 {
     string SBar;
