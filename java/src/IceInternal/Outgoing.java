@@ -109,6 +109,8 @@ public final class Outgoing
 
                 if(_exception != null)
                 {
+		    _exception.fillInStackTrace();
+
                     //      
                     // A CloseConnectionException indicates graceful
                     // server shutdown, and is therefore always repeatable

@@ -374,7 +374,9 @@ public final class Network
         }
         catch(java.net.UnknownHostException ex)
         {
-            throw new Ice.DNSException();
+	    Ice.DNSException e = new Ice.DNSException();
+	    e.host = host;
+	    throw e;
         }
     }
 
