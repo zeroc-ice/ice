@@ -51,8 +51,8 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=xilink6.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 /nologo /subsystem:console /machine:I386 /nodefaultlib /out:"client.exe" /libpath:"../../../lib"
-# SUBTRACT LINK32 /debug
+# ADD LINK32 /nologo /subsystem:console /machine:I386 /out:"client.exe" /libpath:"../../../lib"
+# SUBTRACT LINK32 /debug /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "callbackC - Win32 Debug"
 
@@ -91,15 +91,15 @@ LINK32=xilink6.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Client.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Callback.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\CallbackI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Client.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -123,7 +123,7 @@ SOURCE=.\Callback.ice
 
 !IF  "$(CFG)" == "callbackC - Win32 Release"
 
-USERDEP__NESTE="../../../bin/slice2cpp.exe"	
+USERDEP__CALLB="../../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Callback.ice
 
@@ -141,7 +141,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "callbackC - Win32 Debug"
 
-USERDEP__NESTE="../../../bin/slice2cpp.exe"	
+USERDEP__CALLB="../../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Callback.ice
 
