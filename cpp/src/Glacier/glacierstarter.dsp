@@ -103,11 +103,11 @@ PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\StarterI.cpp
+SOURCE=.\GlacierStarter.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\GlacierStarter.cpp
+SOURCE=.\StarterI.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"

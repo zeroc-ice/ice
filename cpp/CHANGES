@@ -1,5 +1,13 @@
-Changes since version 1.4.0
----------------------------
+- Changed the names of Windows executables to lower case, for consistency
+  with non-Windows platforms. The following executables have been renamed:
+
+    DumpDB.exe		-> dumpdb.exe
+    GlacierRouter.exe	-> glacierrouter.exe
+    GlacierStarter.exe	-> glacierstarter.exe
+    IcePackNode.exe	-> icepacknode.exe
+    IcePackRegistry.exe	-> icepackregistry.exe
+    IcePatchCalc.exe	-> icepatchcalc.exe
+    TransformDB.exe	-> transformdb.exe
 
 - Changed the default behavior of the IcePatch client to dynamically
   calculate the unique signatures of local files in order to reduce
