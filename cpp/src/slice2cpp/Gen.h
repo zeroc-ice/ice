@@ -26,7 +26,8 @@ public:
 	const std::string&,
 	const std::vector<std::string>&,
 	const std::string&,
-	const std::string&);
+	const std::string&,
+        bool);
     ~Gen();
 
     bool operator!() const; // Returns true if there was a constructor error
@@ -38,10 +39,14 @@ private:
     Output H;
     Output C;
 
+    Output implH;
+    Output implC;
+
     std::string _base;
     std::string _include;
     std::vector<std::string> _includePaths;
     std::string _dllExport;
+    bool _impl;
 
     class TypesVisitor : public ::IceUtil::noncopyable, public ParserVisitor
     {
@@ -254,6 +259,29 @@ private:
 	Output& C;
 
 	std::string _dllExport;
+    };
+
+    class ImplVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    {
+    public:
+
+	ImplVisitor(Output&, Output&, const std::string&);
+
+	virtual bool visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
+
+    private:
+
+	Output& H;
+	Output& C;
+
+	std::string _dllExport;
+
+        //
+        // Generate code to assign a value
+        //
+        void writeAssign(Output&, const TypePtr&, const std::string&, int&);
     };
 };
 

@@ -29,6 +29,7 @@ usage(const char* n)
         "--include-dir DIR    Use DIR as the header include directory.\n"
         "--output-dir DIR     Create files in the directory DIR.\n"
         "--dll-export SYMBOL  Use SYMBOL for DLL exports.\n"
+        "--impl               Generate sample implementations.\n"
         "-d, --debug          Print debug messages.\n"
         ;
 }
@@ -41,6 +42,7 @@ main(int argc, char* argv[])
     string include;
     string output;
     string dllExport;
+    bool impl = false;
     bool debug = false;
 
     int idx = 1;
@@ -141,6 +143,15 @@ main(int argc, char* argv[])
 	    }
 	    argc -= 2;
 	}
+	else if (strcmp(argv[idx], "--impl") == 0)
+	{
+	    impl = true;
+	    for (int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
+	}
 	else if (argv[idx][0] == '-')
 	{
 	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
@@ -214,7 +225,8 @@ main(int argc, char* argv[])
 	}
 	else
 	{
-	    Gen gen(argv[0], base, include, includePaths, dllExport, output);
+	    Gen gen(argv[0], base, include, includePaths, dllExport, output,
+                    impl);
 	    if (!gen)
 	    {
 		unit->destroy();
