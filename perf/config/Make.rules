@@ -8,7 +8,7 @@
 # **********************************************************************
 
 #
-# If you want to compile TAO performance tests, set TAO_ROOT to the
+# If you want to compile TAO performance tests, set TAO_HOME to the
 # TAO source distribution directory.
 #
 #TAO_HOME	?=

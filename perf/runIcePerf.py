@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, time, pickle, getopt, re
+import os, sys, time, getopt, re
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -24,7 +24,7 @@ def usage():
     print "usage: " + sys.argv[0] + " [-h|--help] [-i|--iter N] [-n|--hostname HOSTNAME] [-o|--output FILENAME]"
     print ""
     print "Run the Ice performance test suite. If the ICE_HOME environment variable is"
-    print "defined the Ice tests will be run. If the TAO_ROOT environment variable is"
+    print "defined the Ice tests will be run. If the TAO_HOME environment variable is"
     print "defined the TAO tests will be run. The results are stored in the file named"
     print "runIcePerf.results. This file get overwritten each time the performance tests"
     print "are run. If you want to print the results stored in this file, you can use"
@@ -160,8 +160,8 @@ if not os.environ.has_key('ICE_HOME'):
     if os.path.exists(os.path.join(toplevel, "..", "ice")):
         os.environ['ICE_HOME'] = os.path.join(toplevel, "..", "ice")
 
-if not os.environ.has_key('ICE_HOME') and not os.environ.has_key('TAO_ROOT'):
-    print "You need to set at least ICE_HOME or TAO_ROOT!"
+if not os.environ.has_key('ICE_HOME') and not os.environ.has_key('TAO_HOME'):
+    print "You need to set at least ICE_HOME or TAO_HOME!"
     sys.exit(1)
     
 results = TestUtil.HostResults(hostname, outputFile)
@@ -171,7 +171,7 @@ while i < niter:
     try:
         if os.environ.has_key('ICE_HOME'):
             runIcePerfs(expr, results, i)
-        if os.environ.has_key('TAO_ROOT'):
+        if os.environ.has_key('TAO_HOME'):
             runTAOPerfs(expr, results, i)
         i += 1
     except KeyboardInterrupt:

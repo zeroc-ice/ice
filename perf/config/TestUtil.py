@@ -69,7 +69,21 @@ class TestResults :
                 for i in result.results[n][p]:
                     self.add(p, n, i)
 
+    def remove(self, expr):
+
+        for n in self.names:
+            for p in self.products:
+                if expr.match(p + " " + self.test + " " + n):
+                    if self.results.has_key(n) and self.results[n].has_key(p):
+                        self.results[n].pop(p)
+                        if len(self.results[n]) == 0:
+                            self.results.pop(n)
+                        print "removed " + p + " " + self.test + " " + n
+
     def addToResults(self, results, tests, names, products, id):
+
+        if len(self.results) == 0:
+            return
 
         if not self.test in tests:
             tests.append(self.test)
@@ -82,39 +96,45 @@ class TestResults :
             if not results[self.test].has_key(n):
                 results[self.test][n] = { }
                     
-            refbest = -1.0
+            refmean = -1.0
             if not n in names:
                 names.append(n)
 
-            for p in self.products:
+            if self.results.has_key(n):
+                
+                for p in self.products:
+                    
+                    if self.results[n].has_key(p):
+                        
+                        if not results[self.test][n].has_key(p):
+                            results[self.test][n][p] = { }
 
-                if self.results[n].has_key(p):
+                        if not p in products:
+                            products.append(p)
 
-                    if not results[self.test][n].has_key(p):
-                        results[self.test][n][p] = { }
+                        (mean, best) = self.calcMeanAndBest(self.results[n][p])
 
-                    if not p in products:
-                        products.append(p)
+                        if refmean < 0.0:
+                            refmean = mean
 
-                    (mean, best) = self.calcMeanAndBest(self.results[n][p])
-
-                    if refbest < 0.0:
-                        refbest = best
-
-                    results[self.test][n][p][id] = (best, best / refbest)
+                        results[self.test][n][p][id] = (mean, mean / refmean)
 
     def calcMeanAndBest(self, values):
 
-            mean = 0.0
-            best = max
+        if len(values) == 0:
+            return (0, 0)
 
-            for r in values:
-                mean += r
-                if r < best:
-                    best = r
-            mean /= len(values)
-
-            return (mean, best)
+        values.sort()
+        values = values[0:len(values) / 2 + 1]
+        best = values[0]
+        
+        mean = 0.0
+        for r in values:
+            mean += r
+            
+        mean /= len(values)
+            
+        return (mean, best)
         
 class HostResults :
 
@@ -151,6 +171,20 @@ class HostResults :
 
             self.results[t].merge(results.results[t])
 
+    def remove(self, expr):
+
+        for r in self.results.itervalues():
+            r.remove(expr)
+
+    def save(self, outputFile):
+
+        if outputFile == "":
+            outputFile = self.outputFile
+
+        f = file(outputFile, 'w')
+        pickle.dump(self, f);
+        f.close()        
+
     def addToResults(self, results, tests, names, products, hosts):
 
         if not self.id in hosts:
@@ -170,7 +204,21 @@ class AllResults :
             self.results[results.id].merge(results)
         else:
             self.results[results.id] = results
-            
+
+    def remove(self, expr):
+
+        for result in self.results.itervalues():
+            result.remove(expr)
+
+    def saveAll(self, outputFile):
+
+        if outputFile != "" and len(self.results) > 1:
+            print "You can't use --output with input file from different host/operating system"
+            return
+
+        for result in self.results.itervalues():
+            result.save(outputFile)
+    
     def printAll(self, csv):
 
         results = { }
