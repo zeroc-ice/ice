@@ -1,6 +1,10 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Fixed bug in slice2cpp: for statically linked binaries under
+  Windows, exceptions and classes could cause an
+  UnmarshalOutOfBoundsException.
+
 - Fixed bug in slice2java: with the --impl-tie option, incorrect
   code was generated for local interfaces and classes.
 
