@@ -519,6 +519,12 @@ local exception CompressionNotSupportedException extends ProtocolException
  **/
 local exception CompressionException extends ProtocolException
 {
+    /**
+     *
+     * A description of the problem with compress or uncompress.
+     *
+     **/
+    string reason;
 };
 
 /**

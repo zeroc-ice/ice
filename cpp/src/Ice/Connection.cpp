@@ -1080,6 +1080,67 @@ IceInternal::Connection::unregisterWithPool()
     }
 }
 
+static string
+getBZ2Error(int bzError)
+{
+    if(bzError == BZ_RUN_OK)
+    {
+	return ": BZ_RUN_OK";
+    }
+    else if(bzError == BZ_FLUSH_OK)
+    {
+	return ": BZ_FLUSH_OK";
+    }
+    else if(bzError == BZ_FINISH_OK)
+    {
+	return ": BZ_FINISH_OK";
+    }
+    else if(bzError == BZ_STREAM_END)
+    {
+	return ": BZ_STREAM_END";
+    }
+    else if(bzError == BZ_CONFIG_ERROR)
+    {
+	return ": BZ_CONFIG_ERROR";
+    }
+    else if(bzError == BZ_SEQUENCE_ERROR)
+    {
+	return ": BZ_SEQUENCE_ERROR";
+    }
+    else if(bzError == BZ_PARAM_ERROR)
+    {
+	return ": BZ_PARAM_ERROR";
+    }
+    else if(bzError == BZ_MEM_ERROR)
+    {
+	return ": BZ_MEM_ERROR";
+    }
+    else if(bzError == BZ_DATA_ERROR)
+    {
+	return ": BZ_DATA_ERROR";
+    }
+    else if(bzError == BZ_DATA_ERROR_MAGIC)
+    {
+	return ": BZ_DATA_ERROR_MAGIC";
+    }
+    else if(bzError == BZ_IO_ERROR)
+    {
+	return ": BZ_IO_ERROR";
+    }
+    else if(bzError == BZ_UNEXPECTED_EOF)
+    {
+	return ": BZ_UNEXPECTED_EOF";
+    }
+    else if(bzError == BZ_OUTBUFF_FULL)
+    {
+	return ": BZ_OUTBUFF_FULL";
+    }
+    else
+    {
+	return "";
+    }
+}
+
 void
 IceInternal::Connection::compress(BasicStream& uncompressed, BasicStream& compressed)
 {
@@ -1096,7 +1157,9 @@ IceInternal::Connection::compress(BasicStream& uncompressed, BasicStream& compre
 					   1, 0, 0);
     if(bzError != BZ_OK)
     {
-	throw CompressionException(__FILE__, __LINE__);
+	CompressionException ex(__FILE__, __LINE__);
+	ex.reason = "BZ2_bzBuffToBuffCompress failed" + getBZ2Error(bzError);
+	throw ex;
     }
     compressed.b.resize(headerSize + sizeof(Int) + compressedLen);
     
@@ -1144,7 +1207,9 @@ IceInternal::Connection::uncompress(BasicStream& compressed, BasicStream& uncomp
 					     0, 0);
     if(bzError != BZ_OK)
     {
-	throw CompressionException(__FILE__, __LINE__);
+	CompressionException ex(__FILE__, __LINE__);
+	ex.reason = "BZ2_bzBuffToBuffCompress failed" + getBZ2Error(bzError);
+	throw ex;
     }
 
     copy(compressed.b.begin(), compressed.b.begin() + headerSize, uncompressed.b.begin());

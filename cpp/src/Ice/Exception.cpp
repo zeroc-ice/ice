@@ -338,6 +338,10 @@ Ice::CompressionException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: failed to compress or uncompress data";
+    if(!reason.empty())
+    {
+	out << ":\n" << reason;
+    }
 }
 
 void
