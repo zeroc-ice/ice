@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "PARSER_EXPORTS" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /Ze /W3 /GR /GX /O2 /I ".." /I "../../include" /I "dummyinclude" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_USRDLL" /D "SLICE_API_EXPORTS" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /I "dummyinclude" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_USRDLL" /D "SLICE_API_EXPORTS" /YX /FD /c
 # SUBTRACT CPP /Fr
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
@@ -75,8 +75,8 @@ PostBuild_Cmds=copy Release\slice001.* ..\..\lib
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "PARSER_EXPORTS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /Ze /W3 /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /I "dummyinclude" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_USRDLL" /D "SLICE_API_EXPORTS" /YX /FD /GZ /c
-# SUBTRACT CPP /Fr
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /I "dummyinclude" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_USRDLL" /D "SLICE_API_EXPORTS" /YX /FD /GZ /c
+# SUBTRACT CPP /WX /Fr
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -104,15 +104,15 @@ PostBuild_Cmds=copy Debug\slice001d.* ..\..\lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\CPlusPlusUtil.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Grammar.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\OutputUtil.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\CPlusPlusUtil.cpp
 # End Source File
 # Begin Source File
 
@@ -128,6 +128,10 @@ SOURCE=.\Scanner.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=..\..\incluce\Slice\CPlusPlusUtil.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Grammar.h
 # End Source File
 # Begin Source File
@@ -137,10 +141,6 @@ SOURCE=.\GrammarUtil.h
 # Begin Source File
 
 SOURCE=..\..\incluce\Slice\OutputUtil.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\incluce\Slice\CPlusPlusUtil.h
 # End Source File
 # Begin Source File
 

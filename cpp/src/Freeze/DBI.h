@@ -35,8 +35,8 @@ public:
     DBEnvironmentI(const ::Ice::CommunicatorPtr&, const std::string&);
     virtual ~DBEnvironmentI();
 
-    virtual ::Ice::CommunicatorPtr getCommunicator();
     virtual std::string getName();
+    virtual ::Ice::CommunicatorPtr getCommunicator();
 
     virtual DBPtr openDB(const std::string&);
 
@@ -52,7 +52,6 @@ private:
     void remove(const std::string&);
 
     ::Ice::CommunicatorPtr _communicator;
-    ::Ice::LoggerPtr _logger;
     int _trace;
 
     ::DB_ENV* _dbEnv;
@@ -76,7 +75,6 @@ public:
 private:
 
     ::Ice::CommunicatorPtr _communicator;
-    ::Ice::LoggerPtr _logger;
     int _trace;
 
     ::DB_TXN* _tid;
@@ -92,8 +90,8 @@ public:
     DBI(const ::Ice::CommunicatorPtr&, const DBEnvironmentIPtr&, ::DB*, const std::string&);
     virtual ~DBI();
 
-    virtual ::Ice::CommunicatorPtr getCommunicator();
     virtual std::string getName();
+    virtual ::Ice::CommunicatorPtr getCommunicator();
 
     virtual void put(const Key&, const Value&);
     virtual Value get(const Key&);
@@ -110,7 +108,6 @@ public:
 private:
 
     ::Ice::CommunicatorPtr _communicator;
-    ::Ice::LoggerPtr _logger;
     int _trace;
 
     DBEnvironmentIPtr _dbEnvObj;

@@ -63,7 +63,6 @@ Freeze::checkBerkeleyDBReturn(int ret, const string& prefix, const string& op)
 
 Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, const string& name) :
     _communicator(communicator),
-    _logger(communicator->getLogger()),
     _trace(0),
     _dbEnv(0),
     _name(name)
@@ -85,7 +84,7 @@ Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, cons
     {
 	ostringstream s;
 	s << "opening database environment \"" << _name << "\"";
-	_logger->trace("DB", s.str());
+	_communicator->getLogger()->trace("DB", s.str());
     }
 
     checkBerkeleyDBReturn(_dbEnv->open(_dbEnv, _name.c_str(),
@@ -175,7 +174,7 @@ Freeze::DBEnvironmentI::close()
     {
 	ostringstream s;
 	s << "closing database environment \"" << _name << "\"";
-	_logger->trace("DB", s.str());
+	_communicator->getLogger()->trace("DB", s.str());
     }
 
     checkBerkeleyDBReturn(_dbEnv->close(_dbEnv, 0), _errorPrefix, "DB_ENV->close");
@@ -207,7 +206,6 @@ Freeze::initialize(const CommunicatorPtr& communicator, const string& name)
 
 Freeze::DBTransactionI::DBTransactionI(const CommunicatorPtr& communicator, ::DB_ENV* dbEnv, const string& name) :
     _communicator(communicator),
-    _logger(communicator->getLogger()),
     _trace(0),
     _tid(0),
     _name(name)
@@ -227,7 +225,7 @@ Freeze::DBTransactionI::DBTransactionI(const CommunicatorPtr& communicator, ::DB
     {
 	ostringstream s;
 	s << "starting transaction for environment \"" << _name << "\"";
-	_logger->trace("DB", s.str());
+	_communicator->getLogger()->trace("DB", s.str());
     }
     
     checkBerkeleyDBReturn(txn_begin(dbEnv, 0, &_tid, 0), _errorPrefix, "txn_begin");
@@ -261,7 +259,7 @@ Freeze::DBTransactionI::commit()
     {
 	ostringstream s;
 	s << "committing transaction for environment \"" << _name << "\"";
-	_logger->trace("DB", s.str());
+	_communicator->getLogger()->trace("DB", s.str());
     }
     
     checkBerkeleyDBReturn(txn_commit(_tid, 0), _errorPrefix, "txn_commit");
@@ -287,7 +285,7 @@ Freeze::DBTransactionI::abort()
     {
 	ostringstream s;
 	s << "aborting transaction for environment \"" << _name << "\" due to deadlock";
-	_logger->trace("DB", s.str());
+	_communicator->getLogger()->trace("DB", s.str());
     }
     
     checkBerkeleyDBReturn(txn_abort(_tid), _errorPrefix, "txn_abort");
@@ -298,7 +296,6 @@ Freeze::DBTransactionI::abort()
 Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvironmentIPtr& dbEnvObj, ::DB* db,
 		 const string& name) :
     _communicator(communicator),
-    _logger(communicator->getLogger()),
     _trace(0),
     _dbEnvObj(dbEnvObj),
     _db(db),
@@ -319,7 +316,7 @@ Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvironmentIPtr& d
     {
 	ostringstream s;
 	s << "opening database \"" << _name << "\" in environment \"" << _dbEnvObj->getName() << "\"";
-	_logger->trace("DB", s.str());
+	_communicator->getLogger()->trace("DB", s.str());
     }
     
     checkBerkeleyDBReturn(_db->open(_db, _name.c_str(), 0, DB_BTREE, DB_CREATE, FREEZE_DB_MODE), _errorPrefix,
@@ -338,18 +335,18 @@ Freeze::DBI::~DBI()
     }
 }
 
-CommunicatorPtr
-Freeze::DBI::getCommunicator()
-{
-    // No mutex lock necessary, _communicator is immutable
-    return _communicator;
-}
-
 string
 Freeze::DBI::getName()
 {
     // No mutex lock necessary, _name is immutable
     return _name;
+}
+
+CommunicatorPtr
+Freeze::DBI::getCommunicator()
+{
+    // No mutex lock necessary, _communicator is immutable
+    return _communicator;
 }
 
 void
@@ -378,7 +375,7 @@ Freeze::DBI::put(const Key& key, const Value& value)
     {
 	ostringstream s;
 	s << "writing value in database \"" << _name << "\"";
-	_logger->trace("DB", s.str());
+	_communicator->getLogger()->trace("DB", s.str());
     }
 
     checkBerkeleyDBReturn(_db->put(_db, 0, &dbKey, &dbData, 0), _errorPrefix, "DB->put");
@@ -387,7 +384,9 @@ Freeze::DBI::put(const Key& key, const Value& value)
 Value
 Freeze::DBI::get(const Key& key)
 {
+    cout << "xxx" << endl;
     JTCSyncT<JTCMutex> sync(*this);
+    cout << "yyy" << endl;
 
     if (!_db)
     {
@@ -408,7 +407,7 @@ Freeze::DBI::get(const Key& key)
     {
 	ostringstream s;
 	s << "reading value from database \"" << _name << "\"";
-	_logger->trace("DB", s.str());
+	_communicator->getLogger()->trace("DB", s.str());
     }
     
     checkBerkeleyDBReturn(_db->get(_db, 0, &dbKey, &dbData, 0), _errorPrefix, "DB->get");
@@ -439,7 +438,7 @@ Freeze::DBI::del(const Key& key)
     {
 	ostringstream s;
 	s << "deleting value from database \"" << _name << "\"";
-	_logger->trace("DB", s.str());
+	_communicator->getLogger()->trace("DB", s.str());
     }
     
     checkBerkeleyDBReturn(_db->del(_db, 0, &dbKey, 0), _errorPrefix, "DB->del");
@@ -480,7 +479,7 @@ Freeze::DBI::putServant(const string& identity, const ObjectPtr& servant)
     {
 	ostringstream s;
 	s << "writing Servant for identity \"" << identity << "\" in database \"" << _name << "\"";
-	_logger->trace("DB", s.str());
+	_communicator->getLogger()->trace("DB", s.str());
     }
     
     checkBerkeleyDBReturn(_db->put(_db, 0, &dbKey, &dbData, 0), _errorPrefix, "DB->put");
@@ -510,7 +509,7 @@ Freeze::DBI::getServant(const string& identity)
     {
 	ostringstream s;
 	s << "reading Servant for identity \"" << identity << "\" from database \"" << _name << "\"";
-	_logger->trace("DB", s.str());
+	_communicator->getLogger()->trace("DB", s.str());
     }
     
     checkBerkeleyDBReturn(_db->get(_db, 0, &dbKey, &dbData, 0), _errorPrefix, "DB->get");
@@ -555,7 +554,7 @@ Freeze::DBI::delServant(const string& identity)
     {
 	ostringstream s;
 	s << "deleting Servant for identity \"" << identity << "\" from database \"" << _name << "\"";
-	_logger->trace("DB", s.str());
+	_communicator->getLogger()->trace("DB", s.str());
     }
     
     checkBerkeleyDBReturn(_db->del(_db, 0, &dbKey, 0), _errorPrefix, "DB->del");
@@ -575,7 +574,7 @@ Freeze::DBI::close()
     {
 	ostringstream s;
 	s << "closing database \"" << _name << "\"";
-	_logger->trace("DB", s.str());
+	_communicator->getLogger()->trace("DB", s.str());
     }
     
     checkBerkeleyDBReturn(_db->close(_db, 0), _errorPrefix, "DB->close");
@@ -599,5 +598,5 @@ Freeze::DBI::createEvictor(EvictorPersistenceMode persistenceMode)
 	throw ex;
     }
 
-    return new EvictorI(this, _communicator, persistenceMode);
+    return new EvictorI(this, persistenceMode);
 }

@@ -50,6 +50,15 @@ local interface ServantInitializer
 
 /**
  *
+ * This exception is raised if the evictor has been deactivated.
+ *
+ **/
+exception EvictorDeactivatedException
+{
+};
+
+/**
+ *
  * A semi-automatic Ice Object persistence manager, based on the
  * evictor pattern. The Evictor is an extended Servant Locator, with
  * an implementation in the Freeze module. Instances of this
@@ -69,10 +78,13 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @return The database used by this Evictor.
      *
+     * @throws EvictorDeactivatedException Raised if a the evictor has
+     * been deactivated.
+     *
      * @see DB::createEvictor
      *
      **/
-    DB getDB();
+    DB getDB() throws EvictorDeactivatedException;
 
     /**
      *
@@ -93,10 +105,13 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @throws DBException Raised if a database failure occurred.
      *
+     * @throws EvictorDeactivatedException Raised if a the evictor has
+     * been deactivated.
+     *
      * @see getSize
      *
      **/
-    void setSize(int sz) throws DBException;
+    void setSize(int sz) throws DBException, EvictorDeactivatedException;
 
     /**
      *
@@ -104,10 +119,13 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @return The Evictor's Servant queue size.
      *
+     * @throws EvictorDeactivatedException Raised if a the evictor has
+     * been deactivated.
+     *
      * @see setSize
      *
      **/
-    int getSize();
+    int getSize() throws EvictorDeactivatedException;
 
     /**
      *
@@ -122,10 +140,13 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @throws DBException Raised if a database failure occurred.
      *
+     * @throws EvictorDeactivatedException Raised if a the evictor has
+     * been deactivated.
+     *
      * @see destroyObject
      *
      **/
-    void createObject(string identity, Object servant) throws DBException;
+    void createObject(string identity, Object servant) throws DBException, EvictorDeactivatedException;
 
     /**
      *
@@ -138,10 +159,13 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @throws DBException Raised if a database failure occurred.
      *
+     * @throws EvictorDeactivatedException Raised if a the evictor has
+     * been deactivated.
+     *
      * @see createObject
      *
      **/
-    void destroyObject(string identity) throws DBException;
+    void destroyObject(string identity) throws DBException, EvictorDeactivatedException;
 
     /**
      *
@@ -154,8 +178,11 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @see ServantInitializer
      *
+     * @throws EvictorDeactivatedException Raised if a the evictor has
+     * been deactivated.
+     *
      **/
-    void installServantInitializer(ServantInitializer initializer);
+    void installServantInitializer(ServantInitializer initializer) throws EvictorDeactivatedException;
 };
 
 };

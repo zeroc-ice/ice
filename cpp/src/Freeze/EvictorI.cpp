@@ -15,15 +15,14 @@ using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
-Freeze::EvictorI::EvictorI(const DBPtr& db, const CommunicatorPtr& communicator,
-			   EvictorPersistenceMode persistenceMode) :
-    _db(db),
+Freeze::EvictorI::EvictorI(const DBPtr& db, EvictorPersistenceMode persistenceMode) :
     _evictorSize(10),
+    _deactivated(false),
+    _db(db),
     _persistenceMode(persistenceMode),
-    _logger(communicator->getLogger()),
     _trace(0)
 {
-    PropertiesPtr properties = communicator->getProperties();
+    PropertiesPtr properties = _db->getCommunicator()->getProperties();
     string value;
 
     value = properties->getProperty("Freeze.Trace.Evictor");
@@ -33,13 +32,24 @@ Freeze::EvictorI::EvictorI(const DBPtr& db, const CommunicatorPtr& communicator,
     }
 }
 
+Freeze::EvictorI::~EvictorI()
+{
+    if (!_deactivated)
+    {
+	_db->getCommunicator()->getLogger()->warning("evictor has not been deactivated");
+    }
+}
+
 DBPtr
 Freeze::EvictorI::getDB()
 {
-    //
-    // No synchronizaton necessary, _db is immutable once the Evictor
-    // has been created
-    //
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (_deactivated)
+    {
+	throw EvictorDeactivatedException();
+    }
+
     return _db;
 }
 
@@ -47,6 +57,11 @@ void
 Freeze::EvictorI::setSize(Int evictorSize)
 {
     JTCSyncT<JTCMutex> sync(*this);
+
+    if (_deactivated)
+    {
+	throw EvictorDeactivatedException();
+    }
 
     //
     // Ignore requests to set the evictor size to values smaller than zero.
@@ -72,6 +87,11 @@ Freeze::EvictorI::getSize()
 {
     JTCSyncT<JTCMutex> sync(*this);
 
+    if (_deactivated)
+    {
+	throw EvictorDeactivatedException();
+    }
+
     return static_cast<Int>(_evictorSize);
 }
 
@@ -79,6 +99,11 @@ void
 Freeze::EvictorI::createObject(const string& identity, const ObjectPtr& servant)
 {
     JTCSyncT<JTCMutex> sync(*this);
+
+    if (_deactivated)
+    {
+	throw EvictorDeactivatedException();
+    }
 
     //
     // Save the new Ice Object to the database.
@@ -90,7 +115,7 @@ Freeze::EvictorI::createObject(const string& identity, const ObjectPtr& servant)
     {
 	ostringstream s;
 	s << "created \"" << identity << "\"";
-	_logger->trace("Evictor", s.str());
+	_db->getCommunicator()->getLogger()->trace("Evictor", s.str());
     }
 
     //
@@ -104,6 +129,11 @@ Freeze::EvictorI::destroyObject(const string& identity)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
+    if (_deactivated)
+    {
+	throw EvictorDeactivatedException();
+    }
+
     //
     // Delete the Ice Object from the database.
     //
@@ -114,7 +144,7 @@ Freeze::EvictorI::destroyObject(const string& identity)
     {
 	ostringstream s;
 	s << "destroyed \"" << identity << "\"";
-	_logger->trace("Evictor", s.str());
+	_db->getCommunicator()->getLogger()->trace("Evictor", s.str());
     }
 }
 
@@ -122,6 +152,11 @@ void
 Freeze::EvictorI::installServantInitializer(const ServantInitializerPtr& initializer)
 {
     JTCSyncT<JTCMutex> sync(*this);
+
+    if (_deactivated)
+    {
+	throw EvictorDeactivatedException();
+    }
 
     _initializer = initializer;
 }
@@ -132,6 +167,12 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& identity
 {
     JTCSyncT<JTCMutex> sync(*this);
 
+    //
+    // If this operation is called on a deactivated servant locator,
+    // it's a bug in Ice.
+    //
+    assert(!_deactivated);
+
     EvictorElementPtr element;
 
     map<string, EvictorElementPtr>::iterator p = _evictorMap.find(identity);
@@ -141,7 +182,7 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& identity
 	{
 	    ostringstream s;
 	    s << "found \"" << identity << "\" in the queue";
-	    _logger->trace("Evictor", s.str());
+	    _db->getCommunicator()->getLogger()->trace("Evictor", s.str());
 	}
 
 	//
@@ -160,7 +201,7 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& identity
 	    ostringstream s;
 	    s << "couldn't find \"" << identity << "\" in the queue\n"
 	      << "loading \"" << identity << "\" from the database";
-	    _logger->trace("Evictor", s.str());
+	    _db->getCommunicator()->getLogger()->trace("Evictor", s.str());
 	}
 
 	//
@@ -217,6 +258,12 @@ Freeze::EvictorI::finished(const ObjectAdapterPtr&, const string& identity, cons
     assert(servant);
 
     //
+    // It's possible that the locator has been deactivated already. In
+    // this case, _evictorSize is set to zero.
+    //
+    assert(!_deactivated || _evictorSize);
+
+    //
     // Decrease the usage count of the evictor queue element.
     //
     EvictorElementPtr element = EvictorElementPtr::dynamicCast(cookie);
@@ -247,32 +294,20 @@ Freeze::EvictorI::deactivate()
 {
     JTCSyncT<JTCMutex> sync(*this);
 
-    if (_trace >= 1)
+    if (!_deactivated)
     {
-	ostringstream s;
-	s << "deactivating, saving all Ice Objects in the queue to the database";
-	_logger->trace("Evictor", s.str());
-    }
-
-    for (map<string, EvictorElementPtr>::iterator p = _evictorMap.begin(); p != _evictorMap.end(); ++p)
-    {
-	assert(p->second->usageCount == 0); // If the Servant is still in use, something is broken.
-
-	//
-	// If we are not in SaveAfterMutatingOperation mode, we must save
-	// all Ice Objects in the database upon deactivation.
-	//
-	if (_persistenceMode != SaveAfterMutatingOperation)
+	_deactivated = true;
+	
+	if (_trace >= 1)
 	{
-	    _db->putServant(*(p->second->position), p->second->servant);
+	    ostringstream s;
+	    s << "deactivating, saving unsaved Ice Objects in the queue to the database";
+	    _db->getCommunicator()->getLogger()->trace("Evictor", s.str());
 	}
-    }
 
-    //
-    // We must clear the evictor queue upon deactivation.
-    //
-    _evictorMap.clear();
-    _evictorList.clear();
+	_evictorSize = 0;
+	evict();
+    }
 }
 
 void
@@ -331,7 +366,7 @@ Freeze::EvictorI::evict()
 	    ostringstream s;
 	    s << "evicted \"" << identity << "\" from the queue\n"
 	      << "number of elements in the queue: " << _evictorMap.size();
-	    _logger->trace("Evictor", s.str());
+	    _db->getCommunicator()->getLogger()->trace("Evictor", s.str());
 	}
     }
 }

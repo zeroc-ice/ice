@@ -73,6 +73,7 @@ Freeze::Application::run(int argc, char* argv[])
 	    cerr << appName() << ": unknown exception" << endl;
 	    status = EXIT_FAILURE;
 	}
+	dbEnv = 0;
     }
 
     defaultInterrupt();

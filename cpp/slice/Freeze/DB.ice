@@ -38,21 +38,21 @@ local interface DBEnvironment
 {
     /**
      *
-     * Get the Communicator for this database environment.
-     *
-     * @return The Communicator for this database environment.
-     *
-     **/
-    Ice::Communicator getCommunicator();
-     
-    /**
-     *
      * Get the name of the database environment.
      *
      * @return The name of this database environment.
      *
      **/
     string getName();
+     
+    /**
+     *
+     * Get the Communicator for this database environment.
+     *
+     * @return The Communicator for this database environment.
+     *
+     **/
+    Ice::Communicator getCommunicator();
      
     /**
      *

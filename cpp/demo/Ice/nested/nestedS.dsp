@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /Ze /W3 /GR /GX /O2 /I "." /I "../../../include" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /FD /c
 # SUBTRACT CPP /Fr
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -67,8 +67,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /Ze /W3 /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /YX /FD /GZ /c
-# SUBTRACT CPP /Fr
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /YX /FD /GZ /c
+# SUBTRACT CPP /WX /Fr
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -121,7 +121,7 @@ SOURCE=.\Nested.ice
 
 !IF  "$(CFG)" == "nestedS - Win32 Release"
 
-USERDEP__NESTED="../../../bin/slice2cpp.exe"	
+USERDEP__NESTE="../../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Nested.ice
 
@@ -139,7 +139,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "nestedS - Win32 Debug"
 
-USERDEP__NESTED="../../../bin/slice2cpp.exe"	
+USERDEP__NESTE="../../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Nested.ice
 

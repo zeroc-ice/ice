@@ -24,7 +24,8 @@ class EvictorI : public Evictor, public JTCMutex
 {
 public:
 
-    EvictorI(const Freeze::DBPtr&, const Ice::CommunicatorPtr&, EvictorPersistenceMode);
+    EvictorI(const Freeze::DBPtr&, EvictorPersistenceMode);
+    virtual ~EvictorI();
 
     virtual DBPtr getDB();
 
@@ -56,17 +57,14 @@ private:
     EvictorElementPtr add(const std::string&, const Ice::ObjectPtr&);
     void remove(const std::string&);
     
-    Freeze::DBPtr _db;
-
     std::map<std::string, EvictorElementPtr> _evictorMap;
     std::list<std::string> _evictorList;
     std::map<std::string, EvictorElementPtr>::size_type _evictorSize;
 
+    bool _deactivated;
+    Freeze::DBPtr _db;
     EvictorPersistenceMode _persistenceMode;
-
     ServantInitializerPtr _initializer;
-
-    ::Ice::LoggerPtr _logger;
     int _trace;
 };
 

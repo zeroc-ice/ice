@@ -114,19 +114,25 @@ PhoneBookI::createContact()
     //
     // Get a new unique identity.
     //
+    cout << "xxx" << endl;
     string identity = getNewIdentity();
 
     //
     // Create a new Contact Servant.
     //
+    cout << "yyy" << endl;
     ContactIPtr contact = new ContactI(this, _evictor);
+    cout << "zzz" << endl;
     contact->setIdentity(identity);
+    cout << "111" << endl;
     
     //
     // Create a new Ice Object in the evictor, using the new identity
     // and the new Servant.
     //
+    cout << "222" << endl;
     _evictor->createObject(identity, contact);
+    cout << "333" << endl;
 
     //
     // Add the identity to our name/identities map. The initial name
@@ -240,11 +246,14 @@ PhoneBookI::move(const string& identity, const string& oldName, const string& ne
 string
 PhoneBookI::getNewIdentity()
 {
+    cout << "aaaa" << endl;
     Ice::Long id;
     Identities ids;
     try
     {
+    cout << "bbbb" << endl;
 	ids = _nameIdentitiesDict->get("ID");
+    cout << "cccc" << endl;
 	assert(ids.size() == 1);
 #ifdef WIN32
 	id = _atoi64(ids.front().c_str()) + 1;
@@ -266,7 +275,9 @@ PhoneBookI::getNewIdentity()
     
     ids.clear();
     ids.push_back(s);
+    cout << "dddd" << endl;
     _nameIdentitiesDict->put("ID", ids);
+    cout << "eeee" << endl;
 
     return string("contact#") + s;
 }

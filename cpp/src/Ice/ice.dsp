@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I ".." /I "../../include" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_USRDLL" /D "ICE_API_EXPORTS" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_USRDLL" /D "ICE_API_EXPORTS" /YX /FD /c
 # SUBTRACT CPP /Fr
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
@@ -76,7 +76,7 @@ PostBuild_Cmds=copy Release\ice001.* ..\..\lib
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_USRDLL" /D "ICE_API_EXPORTS" /YX /FD /GZ /c
-# SUBTRACT CPP /Fr
+# SUBTRACT CPP /WX /Fr
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -112,6 +112,10 @@ SOURCE=.\Application.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\BasicStream.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Collector.cpp
 # End Source File
 # Begin Source File
@@ -144,15 +148,15 @@ SOURCE=.\EventHandler.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Exception.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Incoming.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\Instance.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\Exception.cpp
 # End Source File
 # Begin Source File
 
@@ -172,14 +176,6 @@ SOURCE=.\LoggerI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Stream.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\StreamI.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Network.cpp
 # End Source File
 # Begin Source File
@@ -189,10 +185,6 @@ SOURCE=.\Object.cpp
 # Begin Source File
 
 SOURCE=.\ObjectAdapter.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ServantLocator.cpp
 # End Source File
 # Begin Source File
 
@@ -236,11 +228,7 @@ SOURCE=.\ServantFactoryManager.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\UserExceptionFactory.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\UserExceptionFactoryManager.cpp
+SOURCE=.\ServantLocator.cpp
 # End Source File
 # Begin Source File
 
@@ -256,7 +244,11 @@ SOURCE=.\SslTransceiver.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\BasicStream.cpp
+SOURCE=.\Stream.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\StreamI.cpp
 # End Source File
 # Begin Source File
 
@@ -290,6 +282,14 @@ SOURCE=.\Transceiver.cpp
 
 SOURCE=.\UdpTransceiver.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\UserExceptionFactory.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\UserExceptionFactoryManager.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -305,6 +305,10 @@ SOURCE=.\Ice\AcceptorF.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\Application.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\BasicStream.h
 # End Source File
 # Begin Source File
 
@@ -372,6 +376,10 @@ SOURCE=.\Ice\EventHandlerF.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\Ice\Exception.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\Ice\Functional.h
 # End Source File
 # Begin Source File
@@ -400,10 +408,6 @@ SOURCE=..\..\include\Ice\InstanceF.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\Exception.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\include\Ice\LocalException.h
 # End Source File
 # Begin Source File
@@ -428,18 +432,6 @@ SOURCE=.\Ice\LoggerI.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\Stream.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\StreamF.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Ice\StreamI.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\include\Ice\Native.h
 # End Source File
 # Begin Source File
@@ -449,14 +441,6 @@ SOURCE=.\Ice\Network.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\Object.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\ServantLocator.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\ServantLocatorF.h
 # End Source File
 # Begin Source File
 
@@ -548,19 +532,11 @@ SOURCE=.\Ice\ServantFactoryManagerF.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\UserExceptionFactory.h
+SOURCE=..\..\include\Ice\ServantLocator.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\UserExceptionFactoryF.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Ice\UserExceptionFactoryManager.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Ice\UserExceptionFactoryManagerF.h
+SOURCE=..\..\include\Ice\ServantLocatorF.h
 # End Source File
 # Begin Source File
 
@@ -576,7 +552,15 @@ SOURCE=.\Ice\SslTransceiver.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\BasicStream.h
+SOURCE=..\..\include\Ice\Stream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\StreamF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Ice\StreamI.h
 # End Source File
 # Begin Source File
 
@@ -622,53 +606,26 @@ SOURCE=.\Ice\TransceiverF.h
 
 SOURCE=.\Ice\UdpTransceiver.h
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\UserExceptionFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\UserExceptionFactoryF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Ice\UserExceptionFactoryManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Ice\UserExceptionFactoryManagerF.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\LocalException.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\LocalException.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/LocalException.ice \
-	move LocalException.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\LocalException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"LocalException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\LocalException.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/LocalException.ice \
-	move LocalException.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\LocalException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"LocalException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
 # Begin Source File
 
 SOURCE=..\..\slice\Ice\Communicator.ice
@@ -740,6 +697,49 @@ InputPath=..\..\slice\Ice\CommunicatorF.ice
 	move CommunicatorF.h ..\..\include\Ice 
 	del CommunicatorF.cpp 
 	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\LocalException.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\LocalException.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/LocalException.ice \
+	move LocalException.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\LocalException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"LocalException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\LocalException.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/LocalException.ice \
+	move LocalException.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\LocalException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"LocalException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
 # End Custom Build
 
 !ENDIF 
@@ -823,82 +823,6 @@ InputPath=..\..\slice\Ice\LoggerF.ice
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\Ice\Stream.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\Stream.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Stream.ice \
-	move Stream.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\Stream.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Stream.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\Stream.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Stream.ice \
-	move Stream.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\Stream.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Stream.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\StreamF.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\StreamF.ice
-
-"..\..\include\Ice\StreamF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/StreamF.ice 
-	move StreamF.h ..\..\include\Ice 
-	del StreamF.cpp 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\StreamF.ice
-
-"..\..\include\Ice\StreamF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/StreamF.ice 
-	move StreamF.h ..\..\include\Ice 
-	del StreamF.cpp 
-	
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\slice\Ice\ObjectAdapter.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
@@ -967,82 +891,6 @@ InputPath=..\..\slice\Ice\ObjectAdapterF.ice
 	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ObjectAdapterF.ice 
 	move ObjectAdapterF.h ..\..\include\Ice 
 	del ObjectAdapterF.cpp 
-	
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\ServantLocator.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\ServantLocator.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantLocator.ice \
-	move ServantLocator.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\ServantLocator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"ServantLocator.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\ServantLocator.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantLocator.ice \
-	move ServantLocator.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\ServantLocator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"ServantLocator.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\ServantLocatorF.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\ServantLocatorF.ice
-
-"..\..\include\Ice\ServantLocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantLocatorF.ice 
-	move ServantLocatorF.h ..\..\include\Ice 
-	del ServantLocatorF.cpp 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\ServantLocatorF.ice
-
-"..\..\include\Ice\ServantLocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantLocatorF.ice 
-	move ServantLocatorF.h ..\..\include\Ice 
-	del ServantLocatorF.cpp 
 	
 # End Custom Build
 
@@ -1195,6 +1043,158 @@ InputPath=..\..\slice\Ice\ServantFactoryF.ice
 	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantFactoryF.ice 
 	move ServantFactoryF.h ..\..\include\Ice 
 	del ServantFactoryF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\ServantLocator.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\ServantLocator.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantLocator.ice \
+	move ServantLocator.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\ServantLocator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ServantLocator.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\ServantLocator.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantLocator.ice \
+	move ServantLocator.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\ServantLocator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ServantLocator.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\ServantLocatorF.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\ServantLocatorF.ice
+
+"..\..\include\Ice\ServantLocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantLocatorF.ice 
+	move ServantLocatorF.h ..\..\include\Ice 
+	del ServantLocatorF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\ServantLocatorF.ice
+
+"..\..\include\Ice\ServantLocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantLocatorF.ice 
+	move ServantLocatorF.h ..\..\include\Ice 
+	del ServantLocatorF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\Stream.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Stream.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Stream.ice \
+	move Stream.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Stream.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Stream.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Stream.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Stream.ice \
+	move Stream.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Stream.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Stream.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\StreamF.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\StreamF.ice
+
+"..\..\include\Ice\StreamF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/StreamF.ice 
+	move StreamF.h ..\..\include\Ice 
+	del StreamF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\StreamF.ice
+
+"..\..\include\Ice\StreamF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/StreamF.ice 
+	move StreamF.h ..\..\include\Ice 
+	del StreamF.cpp 
 	
 # End Custom Build
 
