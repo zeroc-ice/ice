@@ -24,7 +24,7 @@ StaticMutex _refCountMutex = ICE_STATIC_MUTEX_INITIALIZER;
 
 }
 
-Freeze::SharedDb::Map* Freeze::SharedDb::sharedDbMap = 0;
+Freeze::SharedDb::SharedDbMap* Freeze::SharedDb::sharedDbMap = 0;
 
 Freeze::SharedDbPtr 
 Freeze::SharedDb::get(const ConnectionIPtr& connection, 
@@ -36,7 +36,7 @@ Freeze::SharedDb::get(const ConnectionIPtr& connection,
 
     if(sharedDbMap == 0)
     {
-	sharedDbMap = new Map;
+	sharedDbMap = new SharedDbMap;
     }
 
     MapKey key;
@@ -45,7 +45,7 @@ Freeze::SharedDb::get(const ConnectionIPtr& connection,
     key.dbName = dbName;
 
     {
-	Map::iterator p = sharedDbMap->find(key);
+	SharedDbMap::iterator p = sharedDbMap->find(key);
 	if(p != sharedDbMap->end())
 	{
 	    p->second->connectIndices(indices);
@@ -61,8 +61,8 @@ Freeze::SharedDb::get(const ConnectionIPtr& connection,
     //
     // Insert it into the map
     //
-    pair<Map::iterator, bool> insertResult;
-    insertResult= sharedDbMap->insert(Map::value_type(key, result.get()));
+    pair<SharedDbMap::iterator, bool> insertResult;
+    insertResult= sharedDbMap->insert(SharedDbMap::value_type(key, result.get()));
     assert(insertResult.second);
     
     return result.release();

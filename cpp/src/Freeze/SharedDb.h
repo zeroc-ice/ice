@@ -96,7 +96,7 @@ private:
 	operator<(const MapKey& rhs) const;
     };
 
-    typedef std::map<MapKey, Freeze::SharedDb*> Map;
+    typedef std::map<MapKey, Freeze::SharedDb*> SharedDbMap;
    
     SharedDb(const MapKey&, const ConnectionIPtr&, 
 	     const std::vector<MapIndexBasePtr>&, bool);
@@ -110,7 +110,7 @@ private:
 
     IndexMap _indices;
 
-    static Map* sharedDbMap;
+    static SharedDbMap* sharedDbMap;
 };
 
 inline const std::string& 

@@ -491,11 +491,11 @@ run(const CommunicatorPtr& communicator, const string& envName, const string&dbN
     populateDB(connection, m);
 
     size_t length = alphabet.size();
-    for(size_t j = 0; j < length; ++j)
+    for(size_t k = 0; k < length; ++k)
     {
-	p = m.findByValue(static_cast<Int>(j));
+	p = m.findByValue(static_cast<Int>(k));
 	test(p != m.end());
-	test(p->first == alphabet[j]);
+	test(p->first == alphabet[k]);
 	test(++p == m.end());
     }
 
@@ -529,7 +529,7 @@ run(const CommunicatorPtr& communicator, const string& envName, const string&dbN
 	p.set(18);
 	test(false);
     }
-    catch(const DatabaseException& ex)
+    catch(const DatabaseException&)
     {
 	// Expected
     }

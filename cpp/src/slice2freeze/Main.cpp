@@ -447,7 +447,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
     // Constructor
     //
     
-    C << sp << nl << absolute << "::" << name << "::" << name
+    C << sp << nl << absolute << "::" << name
       << "(const Freeze::ConnectionPtr& __connection, const std::string& __dbName , bool __createDb)";
     
     C.inc();

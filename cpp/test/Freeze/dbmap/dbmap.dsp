@@ -120,8 +120,7 @@ USERDEP__DUMMY="..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\slice.lib"
 InputPath=dummy.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2freeze.exe --dict Test::ByteIntMap,byte,int --dict-index Test::ByteIntMap ByteIntMap \
-	
+	..\..\..\bin\slice2freeze.exe --dict Test::ByteIntMap,byte,int --dict-index Test::ByteIntMap ByteIntMap
 
 "ByteIntMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -137,8 +136,7 @@ USERDEP__DUMMY="..\..\..\bin\slice2freeze.exe"
 InputPath=dummy.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2freeze.exe  --dict Test::ByteIntMap,byte,int --dict-index Test::ByteIntMap ByteIntMap \	
-
+	..\..\..\bin\slice2freeze.exe  --dict Test::ByteIntMap,byte,int --dict-index Test::ByteIntMap ByteIntMap
 
 "ByteIntMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

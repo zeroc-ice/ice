@@ -1171,9 +1171,9 @@ Freeze::MapIndexI::~MapIndexI()
 }
 
 IteratorHelper* 
-Freeze::MapIndexI::untypedFind(const Key& k, bool ro, const MapHelperI& map) const
+Freeze::MapIndexI::untypedFind(const Key& k, bool ro, const MapHelperI& m) const
 {
-    auto_ptr<IteratorHelperI> r(new IteratorHelperI(map, ro, _index));
+    auto_ptr<IteratorHelperI> r(new IteratorHelperI(m, ro, _index));
 
     if(r->find(k))
     {
