@@ -42,7 +42,6 @@ import java.io.BufferedWriter;
  * Attributes specific to slice2java:
  *
  *   translator - The pathname of the translator (default: "slice2java").
- *   package - The value for the --package translator option.
  *   tie - The value for the --tie translator option.
  *
  * Example:
@@ -52,7 +51,7 @@ import java.io.BufferedWriter;
  *        <property name="slice.dir" value="../include/slice"/>
  *        <target name="generate">
  *            <mkdir dir="tags" />
- *            <slice2java tagdir="tags" outputdir="out" package="com.foo">
+ *            <slice2java tagdir="tags" outputdir="out">
  *                <define name="SYMBOL" value="VALUE"/>
  *                <includepath>
  *                    <pathelement path="${slice.dir}" />
@@ -72,7 +71,6 @@ public class Slice2JavaTask extends SliceTask
     Slice2JavaTask()
     {
         _translator = null;
-        _package = null;
         _tie = false;
     }
 
@@ -80,12 +78,6 @@ public class Slice2JavaTask extends SliceTask
     setTranslator(File prog)
     {
         _translator = prog;
-    }
-
-    public void
-    setPackage(String pkg)
-    {
-        _package = pkg;
     }
 
     public void
@@ -166,15 +158,6 @@ public class Slice2JavaTask extends SliceTask
             {
                 cmd.append(" --output-dir ");
                 cmd.append(_outputDir.toString());
-            }
-
-            //
-            // Add --package
-            //
-            if(_package != null)
-            {
-                cmd.append(" --package ");
-                cmd.append(_package);
             }
 
             //
@@ -329,6 +312,5 @@ public class Slice2JavaTask extends SliceTask
     }
 
     private File _translator;
-    private String _package;
     private boolean _tie;
 }

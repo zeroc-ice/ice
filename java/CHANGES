@@ -1,6 +1,22 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Added new mechanism for generating Java code into packages.
+  The global metadata prefix "java:package:" now specifies the
+  package for all types in a Slice file. For example, the metadata
+  [["java:package:com.zeroc"]] causes all of the classes to be
+  generated in the com.zeroc package. The --package option is no
+  longer supported by the translator, and the slice2java ant task
+  has been changed accordingly.
+
+- Changed the metadata prefix for specifying custom sequence types.
+  The new prefix is "java:type:", to be consistent with the new
+  package metadata described above. The old prefix "java:" is now
+  deprecated.
+
+- Added test/Ice/translator to exercise the translator's support
+  for packages.
+
 - Errors during close() or shutdown() on connections now cause
   exceptions.
 
