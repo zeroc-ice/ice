@@ -6,3 +6,8 @@ $ icebox --Ice.Config=config
 In the second window, run the client:
 
 $ ./client
+
+Note that, for icebox to be able to find the library containing the service,
+you must add the current directory to LD_LIBRARY_PATH (Linux) or Path (Windows).
+Alternatively, you can copy libHelloService.{so,dll} to a directory that is
+in the path.
