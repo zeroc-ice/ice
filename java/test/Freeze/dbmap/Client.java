@@ -214,7 +214,7 @@ public class Client
 
 	int j;
 
-	System.out.print("  testing populate... ");
+	System.out.print("testing populate... ");
         System.out.flush();
 	for(j = 0; j < alphabet.length(); ++j)
 	{
@@ -236,7 +236,7 @@ public class Client
 	test(!m.isEmpty());
 	System.out.println("ok");
 
-	System.out.print("  testing erase... ");
+	System.out.print("testing erase... ");
         System.out.flush();
 	m.remove(new Byte((byte)'a'));
 	m.remove(new Byte((byte)'b'));
@@ -257,7 +257,7 @@ public class Client
 	populateDB(connection, m);
 
 	{
-	    System.out.print("  testing keySet... ");
+	    System.out.print("testing keySet... ");
 	    System.out.flush();
 	    java.util.Set keys = m.keySet();
 	    test(keys.size() == alphabet.length());
@@ -275,7 +275,7 @@ public class Client
 	}
 
 	{
-	    System.out.print("  testing values... ");
+	    System.out.print("testing values... ");
 	    System.out.flush();
 	    java.util.Collection values = m.values();
 	    test(values.size() == alphabet.length());
@@ -293,7 +293,7 @@ public class Client
 	}
 
 	{
-	    System.out.print("  testing entrySet... ");
+	    System.out.print("testing entrySet... ");
 	    System.out.flush();
 	    java.util.Set entrySet = m.entrySet();
 	    test(entrySet.size() == alphabet.length());
@@ -312,7 +312,7 @@ public class Client
 	}
 
 	{
-	    System.out.print("  testing iterator.remove... ");
+	    System.out.print("testing iterator.remove... ");
 	    System.out.flush();
 
 	    test(m.size() == 26);
@@ -350,7 +350,7 @@ public class Client
 	    test(m.get(new Byte((byte)'n')) == null);
 	    test(m.get(new Byte((byte)'z')) == null);
 
-	    System.out.print("  repopulate... ");
+	    System.out.print("repopulate... ");
 	    //
 	    // Re-populate.
 	    //
@@ -379,7 +379,7 @@ public class Client
 	}
 
         {
-            System.out.print("  testing entry.setValue... ");
+            System.out.print("testing entry.setValue... ");
             System.out.flush();
 
             //
@@ -424,7 +424,7 @@ public class Client
 	((Freeze.Map) m).closeAllIterators();
 
 	{
-	    System.out.print("  testing concurrent access... ");
+	    System.out.print("testing concurrent access... ");
 	    System.out.flush();
 	
 	    m.clear();
@@ -499,7 +499,6 @@ public class Client
 		envName += "db";
 	    }
 	    
-	    System.out.println("testing encoding...");
 	    status = run(args, communicator, envName, "binary");
 	}
 	catch(DatabaseException ex)

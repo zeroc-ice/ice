@@ -215,7 +215,7 @@ run(const CommunicatorPtr& communicator, const string& envName, const string&dbN
     ByteIntMap::iterator p;
     ByteIntMap::const_iterator cp;
 
-    cout << "  testing populate... ";
+    cout << "testing populate... ";
     //
     // First try non-const iterator
     //
@@ -239,7 +239,7 @@ run(const CommunicatorPtr& communicator, const string& envName, const string&dbN
     test(m.size() == alphabet.size());
     cout << "ok" << endl;
 
-    cout << "  testing map::find... ";
+    cout << "testing map::find... ";
     j = find(alphabet.begin(), alphabet.end(), 'n');
     
     cp = m.find(*j);
@@ -247,7 +247,7 @@ run(const CommunicatorPtr& communicator, const string& envName, const string&dbN
     test(cp->first == 'n' && cp->second == j - alphabet.begin());
     cout << "ok" << endl;
 
-    cout << "  testing erase... ";
+    cout << "testing erase... ";
 
     //
     // erase first offset characters (first offset characters is
@@ -289,12 +289,12 @@ run(const CommunicatorPtr& communicator, const string& envName, const string&dbN
     //
     // Get an iterator for the deleted element - this should fail.
     //
-    cout << "  testing map::find (again)... ";
+    cout << "testing map::find (again)... ";
     cp = m.find('a');
     test(cp == m.end());
     cout << "ok" << endl;
 
-    cout << "  testing iterators... ";
+    cout << "testing iterators... ";
     p = m.begin();
     ByteIntMap::iterator p2 = p;
 
@@ -354,7 +354,7 @@ run(const CommunicatorPtr& communicator, const string& envName, const string&dbN
     //
     // Test writing into an iterator.
     //
-    cout << "  testing iterator.set... ";
+    cout << "testing iterator.set... ";
 
     p = m.find('d');
     test(p != m.end() && p->second == 3);
@@ -430,7 +430,7 @@ run(const CommunicatorPtr& communicator, const string& envName, const string&dbN
     //
     populateDB(connection, m);
 
-    cout << "  testing algorithms... ";
+    cout << "testing algorithms... ";
 
     for_each(m.begin(), m.end(), ForEachTest);
 
@@ -490,7 +490,7 @@ run(const CommunicatorPtr& communicator, const string& envName, const string&dbN
     }
     cout << "ok" << endl;
 
-    cout << "  testing concurrent access... " << flush;
+    cout << "testing concurrent access... " << flush;
     m.clear();
     populateDB(connection, m);
 
@@ -529,7 +529,6 @@ main(int argc, char* argv[])
 	    envName += "db";
 	}
        
-	cout << "testing encoding..." << endl;
 	status = run(communicator, envName, "binary");
     }
     catch(const Ice::Exception& ex)

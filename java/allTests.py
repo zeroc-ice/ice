@@ -14,6 +14,7 @@
 # **********************************************************************
 
 import os, sys
+import optparse
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -21,6 +22,31 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
         break
 else:
     raise "can't find toplevel directory!"
+
+def runTests(tests, num = 0):
+
+    #
+    # Run each of the tests.
+    #
+    for i in tests:
+
+	i = os.path.normpath(i)
+	dir = os.path.join(toplevel, "test", i)
+
+	print
+	if(num > 0):
+	    print "[" + str(num) + "]",
+	print "*** running tests in " + dir,
+	print
+
+	try:
+	    execfile(os.path.join(dir, "run.py"))
+	except SystemExit, (status,):
+	    if status:
+		if(num > 0):
+		    print "[" + str(num) + "]",
+		print "test in " + dir + " failed with exit status", status,
+		sys.exit(status)
 
 #
 # List of all basic tests.
@@ -55,32 +81,15 @@ if sys.platform != "win32" and sys.platform[:6] != "cygwin":
         "IcePack/deployer", \
         ]
 
-#
-# The user can supply a subset of tests on the command line.
-#
-if sys.argv[1:]:
-    print "limiting tests"
-    newtests = []
-    for i in tests:
-	if i in sys.argv[1:]:
-	    newtests.append(i)
-    tests = newtests
+parser = optparse.OptionParser()
+parser.add_option("-l", "--loop", action="store_true", dest="loop", default=False,
+		  help="run tests continously in an endless loop")
+(options, args) = parser.parse_args()
 
-#
-# Run each of the tests.
-#
-for i in tests:
-
-    i = os.path.normpath(i)
-    dir = os.path.join(toplevel, "test", i)
-
-    print
-    print "*** running tests in " + dir + ":"
-    print
-
-    try:
-        execfile(os.path.join(dir, "run.py"))
-    except SystemExit, (status,):
-        if status:
-            print "test failed with exit status", status
-            sys.exit(status)
+if options.loop:
+    num = 1
+    while 1:
+	runTests(tests, num)
+	num += 1
+else:
+    runTests(tests)

@@ -3453,11 +3453,9 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	C << eb;
 	C << nl << "catch(const ::Ice::UserException& __ex)";
 	C << sb;
-	C << nl << "__cleanup();";
 	C << nl << "ice_exception(__ex);";
 	C << nl << "return;";
 	C << eb;
-	C << nl << "__cleanup();";
 	C << nl << "ice_response" << spar << args << epar << ';';
 	C << eb;
     }
