@@ -221,6 +221,13 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     public Ice.ObjectPrx
     addFacet(Ice.Object servant, Ice.Identity ident, String facet)
     {
+	checkIdentity(ident);
+	if(facet == null)
+        {
+            facet = "";
+        }
+
+
 	//
 	// Need to clone in case the given ident changes.
 	//
@@ -365,9 +372,9 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
 	    ex.kindOfObject = "servant";
 	    ex.id = Ice.Util.identityToString(ident);
-	    if(facet.length() != 0)
+	    if(facet.length() > 0)
 	    {
-		ex.id += " -f " + facet;
+		ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
 	    }
 	    throw ex;
 	}
@@ -385,11 +392,12 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		"added " + objString + " in the database");
 	}
 	
-	//
-	// TODO: there is currently no way to create an ObjectPrx
-	// with a facet!
-	//
-	return null;
+	Ice.ObjectPrx obj = _adapter.createProxy(ident);
+	if(facet.length() > 0)
+	{
+	    obj = obj.ice_newFacet(facet);
+	}
+	return obj;
     }
 
 
@@ -399,6 +407,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     public void
     createObject(Ice.Identity ident, Ice.Object servant)
     {
+	checkIdentity(ident);
+
 	//
 	// Need to clone in case the given ident changes.
 	//
@@ -520,6 +530,12 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     public void
     removeFacet(Ice.Identity ident, String facet)
     {
+	checkIdentity(ident);
+	if(facet == null)
+        {
+            facet = "";
+        }
+
 	//
 	// Need to clone in case the given ident changes.
 	//
@@ -632,9 +648,9 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
 	    ex.kindOfObject = "servant";
 	    ex.id = Ice.Util.identityToString(ident);
-	    if(facet.length() != 0)
+	    if(facet.length() > 0)
 	    {
-		ex.id += " -f " + facet;
+		ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
 	    }
 	    throw ex;
 	}
@@ -661,6 +677,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     public void
     destroyObject(Ice.Identity ident)
     {
+	checkIdentity(ident);
+
 	try
 	{
 	    remove(ident);
@@ -683,6 +701,12 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     public void
     keepFacet(Ice.Identity ident, String facet)
     {
+	checkIdentity(ident);
+	if(facet == null)
+        {
+            facet = "";
+        }
+
 	boolean notThere = false;
 
 	ObjectStore store = findStore(facet);
@@ -762,9 +786,9 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
 	    ex.kindOfObject = "servant";
 	    ex.id = Ice.Util.identityToString(ident);
-	    if(facet.length() != 0)
+	    if(facet.length() > 0)
 	    {
-		ex.id += " -f " + facet;
+		ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
 	    }
 	    throw ex;
 	}
@@ -779,6 +803,12 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     public void
     releaseFacet(Ice.Identity ident, String facet)
     {
+	checkIdentity(ident);
+	if(facet == null)
+        {
+            facet = "";
+        }
+
 	synchronized(this)
 	{
 	    if(_deactivated)
@@ -826,10 +856,11 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
 	ex.kindOfObject = "servant";
 	ex.id = Ice.Util.identityToString(ident);
-	if(facet.length() != 0)
+	if(facet.length() > 0)
 	{
-	    ex.id += " -f " + facet;
+	    ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
 	}
+	
 	throw ex;
     }
     
@@ -837,6 +868,11 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     public EvictorIterator
     getIterator(String facet, int batchSize)
     {
+	if(facet == null)
+        {
+            facet = "";
+        }
+
 	ObjectStore store = null;
 	synchronized(this)
 	{
@@ -863,6 +899,12 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     public boolean
     hasFacet(Ice.Identity ident, String facet)
     {
+	checkIdentity(ident);
+	if(facet == null)
+        {
+            facet = "";
+        }
+
 	ObjectStore store = null;
 
 	synchronized(this)
@@ -1795,6 +1837,26 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	return result;
     }
     
+
+    private static void
+    checkIdentity(Ice.Identity ident)
+    {
+        if(ident.name == null || ident.name.length() == 0)
+        {
+            Ice.IllegalIdentityException e = 
+		new Ice.IllegalIdentityException();
+            try
+            {
+                e.id = (Ice.Identity)ident.clone();
+            }
+            catch(CloneNotSupportedException ex)
+            {
+                assert(false);
+            }
+            throw e;
+        }
+    }
+
     static class StreamedObject
     {
 	byte[] key = null;

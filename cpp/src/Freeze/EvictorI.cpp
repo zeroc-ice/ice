@@ -15,6 +15,7 @@
 #include <Freeze/EvictorI.h>
 #include <Freeze/Initialize.h>
 #include <IceUtil/AbstractMutex.h>
+#include <IceUtil/StringUtil.h>
 #include <Freeze/Util.h>
 #include <Freeze/EvictorIteratorI.h>
 
@@ -25,8 +26,17 @@ using namespace Freeze;
 using namespace Ice;
 
 
+//
+// Static members
+//
+
 string Freeze::EvictorI::defaultDb = "$default";
 string Freeze::EvictorI::indexPrefix = "$index:";
+
+
+//
+// createEvictor functions
+// 
 
 Freeze::EvictorPtr
 Freeze::createEvictor(const ObjectAdapterPtr& adapter, 
@@ -51,6 +61,25 @@ Freeze::createEvictor(const ObjectAdapterPtr& adapter,
     return new EvictorI(adapter, envName, dbEnv, filename, initializer, indices, createDb);
 }
 
+
+//
+// Helper functions
+//
+
+inline void
+checkIdentity(const Identity& ident)
+{
+    if(ident.name.size() == 0)
+    {
+        IllegalIdentityException e(__FILE__, __LINE__);
+        e.id = ident;
+        throw e;
+    }
+}
+
+//
+// EvictorI
+//
 
 Freeze::EvictorI::EvictorI(const ObjectAdapterPtr& adapter, 
 			   const string& envName, 
@@ -271,6 +300,8 @@ Freeze::EvictorI::add(const ObjectPtr& servant, const Identity& ident)
 Ice::ObjectPrx
 Freeze::EvictorI::addFacet(const ObjectPtr& servant, const Identity& ident, const string& facet)
 {
+    checkIdentity(ident);
+
     ObjectStore* store = 0;
     
     for(;;)
@@ -399,7 +430,7 @@ Freeze::EvictorI::addFacet(const ObjectPtr& servant, const Identity& ident, cons
 	ex.id = identityToString(ident);
 	if(!facet.empty())
 	{
-	    ex.id += " -f " + facet;
+	    ex.id += " -f " + IceUtil::escapeString(facet, "");
 	}
 	throw ex;
     }
@@ -414,12 +445,12 @@ Freeze::EvictorI::addFacet(const ObjectPtr& servant, const Identity& ident, cons
 	}
     }
 
-    
-    //
-    // TODO: there is currently no way to create an ObjectPrx
-    // with a facet!
-    //
-    return 0;
+    ObjectPrx obj = _adapter->createProxy(ident);
+    if(!facet.empty())
+    {
+	obj = obj->ice_newFacet(facet);
+    }
+    return obj;
 }
 
 //
@@ -428,6 +459,8 @@ Freeze::EvictorI::addFacet(const ObjectPtr& servant, const Identity& ident, cons
 void
 Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
 {
+    checkIdentity(ident);
+
     ObjectStore* store = findStore("");
     assert(store != 0);
   
@@ -531,6 +564,8 @@ Freeze::EvictorI::remove(const Identity& ident)
 void
 Freeze::EvictorI::removeFacet(const Identity& ident, const string& facet)
 {
+    checkIdentity(ident);
+
     ObjectStore* store = findStore(facet);
     bool notThere = (store == 0);
 
@@ -627,7 +662,7 @@ Freeze::EvictorI::removeFacet(const Identity& ident, const string& facet)
 	ex.id = identityToString(ident);
 	if(!facet.empty())
 	{
-	    ex.id += " -f " + facet;
+	    ex.id += " -f " + IceUtil::escapeString(facet, "");
 	}
 	throw ex;
     }
@@ -649,6 +684,8 @@ Freeze::EvictorI::removeFacet(const Identity& ident, const string& facet)
 void
 Freeze::EvictorI::destroyObject(const Identity& ident)
 {
+    checkIdentity(ident);
+
     try
     {
 	remove(ident);
@@ -670,6 +707,8 @@ Freeze::EvictorI::keep(const Identity& ident)
 void
 Freeze::EvictorI::keepFacet(const Identity& ident, const string& facet)
 {
+    checkIdentity(ident);
+
     bool notThere = false;
 
     ObjectStore* store = findStore(facet);
@@ -747,7 +786,7 @@ Freeze::EvictorI::keepFacet(const Identity& ident, const string& facet)
 	ex.id = identityToString(ident);
 	if(!facet.empty())
 	{
-	    ex.id += " -f " + facet;
+	    ex.id += " -f " + IceUtil::escapeString(facet, "");
 	}
 	throw ex;
     }
@@ -762,6 +801,8 @@ Freeze::EvictorI::release(const Identity& ident)
 void
 Freeze::EvictorI::releaseFacet(const Identity& ident, const string& facet)
 {
+    checkIdentity(ident);
+
     {
 	Lock sync(*this);
 	
@@ -807,7 +848,7 @@ Freeze::EvictorI::releaseFacet(const Identity& ident, const string& facet)
     ex.id = identityToString(ident);
     if(!facet.empty())
     {
-	ex.id += " -f " + facet;
+	ex.id += " -f " + IceUtil::escapeString(facet, "");
     }
     throw ex;
 }
@@ -842,6 +883,7 @@ Freeze::EvictorI::hasObject(const Identity& ident)
 bool
 Freeze::EvictorI::hasFacet(const Identity& ident, const string& facet)
 {
+    checkIdentity(ident);
     ObjectStore* store = 0;
 
     {
