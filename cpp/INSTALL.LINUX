@@ -11,6 +11,8 @@ A recent Linux distribution for Intel x86 or AMD Opteron (x86-64).
 C++ compiler
 ------------
 
+- GCC 3.3; or
+
 - GCC 3.2; or
 
 - Intel C++ 8.0; or
@@ -27,7 +29,7 @@ For STLport installation instructions, please see:
 
 http://www.stlport.org/doc/install.html
 
-For GCC 3.2 or ICC 8.0, you can use the included STL library. Downloading 
+For GCC 3.x or ICC 8.0, you can use the included STL library. Downloading 
 and installing STLport is not required for these compilers.
 
 
