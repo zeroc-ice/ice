@@ -48,7 +48,7 @@ IcePack::ServerAdapterI::getDirectProxy(bool activate, const Ice::Current& curre
 	
 	try
 	{
-	    if(server->start(OnDemand))
+	    if(theServer->start(OnDemand))
 	    {
 		_notified = false;
 

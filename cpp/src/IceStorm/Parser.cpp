@@ -355,7 +355,7 @@ Parser::graph(const list<string>& _args)
 	    for(LinkInfoSeq::const_iterator r = seq.begin(); r != seq.end(); ++r)
 	    {
 		++unlinks;
-		topic->unlink((*r).topic);
+		topic->unlink((*r).theTopic);
 	    }
 	}
 	cout << "graph: " << links << " new or changed links. " << unlinks << " unlinks." << endl;

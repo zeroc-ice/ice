@@ -62,7 +62,7 @@ IcePack::AdminI::removeServer(const string& name, const Current&)
     {
 	ServerDescription desc = server->getServerDescription();
 	
-	ApplicationBuilder builder(_communicator, _nodeRegistry, desc.targets);
+	ApplicationBuilder builder(_communicator, _nodeRegistry, desc.theTargets);
 	builder.addServer(name, desc.node, desc.descriptor, desc.path, "");
 	builder.undo();
     }

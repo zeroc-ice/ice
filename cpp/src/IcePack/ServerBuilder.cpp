@@ -340,7 +340,7 @@ IcePack::ServerBuilder::ServerBuilder(const NodeInfoPtr& nodeInfo,
 
     _description.node = nodeInfo->getNode()->getName();
     _description.name = p->second;
-    _description.targets = targets;
+    _description.theTargets = targets;
     _description.activation = OnDemand;
 
     //
@@ -400,11 +400,11 @@ IcePack::ServerBuilder::parse(const std::string& descriptor)
 
 	for(vector<string>::reverse_iterator p = _javaOptions.rbegin(); p != _javaOptions.rend(); ++p)
 	{
-	    _description.args.insert(_description.args.begin(), *p);
+	    _description.theArgs.insert(_description.theArgs.begin(), *p);
 	}
     }
 
-    _description.args.push_back("--Ice.Config=" + _configFile);
+    _description.theArgs.push_back("--Ice.Config=" + _configFile);
 }
 
 void
@@ -617,7 +617,7 @@ IcePack::ServerBuilder::addService(const string& name, const string& descriptor)
 void
 IcePack::ServerBuilder::addOption(const string& option)
 {
-    _description.args.push_back(option);
+    _description.theArgs.push_back(option);
 }
 
 void

@@ -274,7 +274,7 @@ struct ServerDescription
      * Targets used to deploy the server.
      *
      **/
-    Targets targets;
+    Targets theTargets;
 
     /**
      *
@@ -313,7 +313,7 @@ struct ServerDescription
      * @see pwd
      *
      **/
-    Args args;
+    Args theArgs;
     
     /**
      *

@@ -18,19 +18,19 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
     _c(new C),
     _d(new D)
 {
-    _b1->a = _b2; // Cyclic reference to another B
-    _b1->b = _b1; // Self reference.
-    _b1->c = 0; // Null reference.
+    _b1->theA = _b2; // Cyclic reference to another B
+    _b1->theB = _b1; // Self reference.
+    _b1->theC = 0; // Null reference.
 
-    _b2->a = _b2; // Self reference, using base.
-    _b2->b = _b1; // Cyclic reference to another B
-    _b2->c = _c; // Cyclic reference to a C.
+    _b2->theA = _b2; // Self reference, using base.
+    _b2->theB = _b1; // Cyclic reference to another B
+    _b2->theC = _c; // Cyclic reference to a C.
 
-    _c->b = _b2; // Cyclic reference to a B.
+    _c->theB = _b2; // Cyclic reference to a B.
 
-    _d->a = _b1; // Reference to a B.
-    _d->b = _b2; // Reference to a B.
-    _d->c = 0; // Reference to a C.
+    _d->theA = _b1; // Reference to a B.
+    _d->theB = _b2; // Reference to a B.
+    _d->theC = 0; // Reference to a C.
 }
 
 void
@@ -41,19 +41,19 @@ InitialI::shutdown(const Ice::Current&)
     //
     // Break cyclic dependencies
     //
-    _b1->a = 0;
-    _b1->b = 0;
-    _b1->c = 0;
+    _b1->theA = 0;
+    _b1->theB = 0;
+    _b1->theC = 0;
     _b1->ice_removeAllFacets();
-    _b2->a = 0;
-    _b2->b = 0;
-    _b2->c = 0;
+    _b2->theA = 0;
+    _b2->theB = 0;
+    _b2->theC = 0;
     _b2->ice_removeAllFacets();
-    _c->b = 0;
+    _c->theB = 0;
     _c->ice_removeAllFacets();
-    _d->a = 0;
-    _d->b = 0;
-    _d->c = 0;
+    _d->theA = 0;
+    _d->theB = 0;
+    _d->theC = 0;
     _d->ice_removeAllFacets();
 }
 

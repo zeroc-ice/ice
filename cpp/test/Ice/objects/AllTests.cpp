@@ -56,16 +56,16 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     test(b2 != c);
     test(b2 != d);
     test(c != d);
-    test(b1->b == b1);
-    test(b1->c == 0);
-    test(BPtr::dynamicCast(b1->a));
-    test(BPtr::dynamicCast(b1->a)->a == b1->a);
-    test(BPtr::dynamicCast(b1->a)->b == b1);
-    test(CPtr::dynamicCast(BPtr::dynamicCast(b1->a)->c));
-    test(CPtr::dynamicCast(BPtr::dynamicCast(b1->a)->c)->b == b1->a);
+    test(b1->theB == b1);
+    test(b1->theC == 0);
+    test(BPtr::dynamicCast(b1->theA));
+    test(BPtr::dynamicCast(b1->theA)->theA == b1->theA);
+    test(BPtr::dynamicCast(b1->theA)->theB == b1);
+    test(CPtr::dynamicCast(BPtr::dynamicCast(b1->theA)->theC));
+    test(CPtr::dynamicCast(BPtr::dynamicCast(b1->theA)->theC)->theB == b1->theA);
     // More tests possible for b2 and d, but I think this is already sufficient.
-    test(b2->a == b2);
-    test(d->c == 0);
+    test(b2->theA == b2);
+    test(d->theC == 0);
     cout << "ok" << endl;
 
     //
@@ -73,29 +73,29 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     //
     if(!collocated)
     {
-	BPtr::dynamicCast(b1->a)->a = 0;
-	BPtr::dynamicCast(b1->a)->b = 0;
-	BPtr::dynamicCast(b1->a)->c = 0;
-	b1->a = 0;
-	b1->b = 0;
+	BPtr::dynamicCast(b1->theA)->theA = 0;
+	BPtr::dynamicCast(b1->theA)->theB = 0;
+	BPtr::dynamicCast(b1->theA)->theC = 0;
+	b1->theA = 0;
+	b1->theB = 0;
 
-	b2->a = 0;
-	b2->b->a = 0;
-	b2->b->b = 0;
-	b2->c = 0;
+	b2->theA = 0;
+	b2->theB->theA = 0;
+	b2->theB->theB = 0;
+	b2->theC = 0;
 
-	c->b->a = 0;
-	c->b->b->a = 0;
-	c->b->b->b = 0;
-	c->b = 0;
+	c->theB->theA = 0;
+	c->theB->theB->theA = 0;
+	c->theB->theB->theB = 0;
+	c->theB = 0;
 
-	BPtr::dynamicCast(BPtr::dynamicCast(d->a)->a)->a = 0;
-	BPtr::dynamicCast(BPtr::dynamicCast(d->a)->a)->b = 0;
-	BPtr::dynamicCast(d->a)->b->a = 0;
-	BPtr::dynamicCast(d->a)->b->b = 0;
-	d->b->a = 0;
-	d->b->b = 0;
-	d->b->c = 0;
+	BPtr::dynamicCast(BPtr::dynamicCast(d->theA)->theA)->theA = 0;
+	BPtr::dynamicCast(BPtr::dynamicCast(d->theA)->theA)->theB = 0;
+	BPtr::dynamicCast(d->theA)->theB->theA = 0;
+	BPtr::dynamicCast(d->theA)->theB->theB = 0;
+	d->theB->theA = 0;
+	d->theB->theB = 0;
+	d->theB->theC = 0;
     }
 
     cout << "getting B1, B2, C, and D all at once... " << flush;
@@ -113,16 +113,16 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     test(b2 != c);
     test(b2 != d);
     test(c != d);
-    test(b1->a == b2);
-    test(b1->b == b1);
-    test(b1->c == 0);
-    test(b2->a == b2);
-    test(b2->b == b1);
-    test(b2->c == c);
-    test(c->b == b2);
-    test(d->a == b1);
-    test(d->b == b2);
-    test(d->c == 0);
+    test(b1->theA == b2);
+    test(b1->theB == b1);
+    test(b1->theC == 0);
+    test(b2->theA == b2);
+    test(b2->theB == b1);
+    test(b2->theC == c);
+    test(c->theB == b2);
+    test(d->theA == b1);
+    test(d->theB == b2);
+    test(d->theC == 0);
     cout << "ok" << endl;
 
     //
@@ -130,14 +130,14 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     //
     if(!collocated)
     {
-	b1->a = 0;
-	b1->b = 0;
-	b2->a = 0;
-	b2->b = 0;
-	b2->c = 0;
-	c->b = 0;
-	d->a = 0;
-	d->b = 0;
+	b1->theA = 0;
+	b1->theB = 0;
+	b2->theA = 0;
+	b2->theB = 0;
+	b2->theC = 0;
+	c->theB = 0;
+	d->theA = 0;
+	d->theB = 0;
     }
 
     cout << "adding facets to B1... " << flush;
@@ -150,13 +150,13 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     cout << "ok" << endl;
     
     cout << "checking consistency... " << flush;
-    test(b1->b == b1);
-    test(b1->c == 0);
-    test(BPtr::dynamicCast(b1->a));
-    test(BPtr::dynamicCast(b1->a)->a == b1->a);
-    test(BPtr::dynamicCast(b1->a)->b == b1);
-    test(CPtr::dynamicCast(BPtr::dynamicCast(b1->a)->c));
-    test(CPtr::dynamicCast(BPtr::dynamicCast(b1->a)->c)->b == b1->a);
+    test(b1->theB == b1);
+    test(b1->theC == 0);
+    test(BPtr::dynamicCast(b1->theA));
+    test(BPtr::dynamicCast(b1->theA)->theA == b1->theA);
+    test(BPtr::dynamicCast(b1->theA)->theB == b1);
+    test(CPtr::dynamicCast(BPtr::dynamicCast(b1->theA)->theC));
+    test(CPtr::dynamicCast(BPtr::dynamicCast(b1->theA)->theC)->theB == b1->theA);
     cout << "ok" << endl;
 
     cout << "checking facet consistency... " << flush;
@@ -169,16 +169,16 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     DPtr fd = DPtr::dynamicCast(fb2->ice_findFacet("d"));
     test(fd);
     test(b1 == fb1);
-    test(fb1->a == fb2);
-    test(fb1->b == fb1);
-    test(fb1->c == 0);
-    test(fb2->a == fb2);
-    test(fb2->b == fb1);
-    test(fb2->c == fc);
-    test(fc->b == fb2);
-    test(fd->a == fb1);
-    test(fd->b == fb2);
-    test(fd->c == 0);
+    test(fb1->theA == fb2);
+    test(fb1->theB == fb1);
+    test(fb1->theC == 0);
+    test(fb2->theA == fb2);
+    test(fb2->theB == fb1);
+    test(fb2->theC == fc);
+    test(fc->theB == fb2);
+    test(fd->theA == fb1);
+    test(fd->theB == fb2);
+    test(fd->theC == 0);
     cout << "ok" << endl;
 
     //
@@ -186,17 +186,17 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     //
     if(!collocated)
     {
-	BPtr::dynamicCast(fb1->a)->a = 0;
-	BPtr::dynamicCast(fb1->a)->b = 0;
-	fb1->a = 0;
-	fb1->b = 0;
+	BPtr::dynamicCast(fb1->theA)->theA = 0;
+	BPtr::dynamicCast(fb1->theA)->theB = 0;
+	fb1->theA = 0;
+	fb1->theB = 0;
 	fb1->ice_removeAllFacets();
-	fb2->a = 0;
-	fb2->b = 0;
-	fb2->c = 0;
-	fc->b = 0;
-	fd->a = 0;
-	fd->b = 0;
+	fb2->theA = 0;
+	fb2->theB = 0;
+	fb2->theC = 0;
+	fc->theB = 0;
+	fd->theA = 0;
+	fd->theB = 0;
     }
 
     cout << "getting B1 with facets, and B2, C, and D all at once... " << flush;
@@ -214,16 +214,16 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     test(b2 != c);
     test(b2 != d);
     test(c != d);
-    test(b1->a == b2);
-    test(b1->b == b1);
-    test(b1->c == 0);
-    test(b2->a == b2);
-    test(b2->b == b1);
-    test(b2->c == c);
-    test(c->b == b2);
-    test(d->a == b1);
-    test(d->b == b2);
-    test(d->c == 0);
+    test(b1->theA == b2);
+    test(b1->theB == b1);
+    test(b1->theC == 0);
+    test(b2->theA == b2);
+    test(b2->theB == b1);
+    test(b2->theC == c);
+    test(c->theB == b2);
+    test(d->theA == b1);
+    test(d->theB == b2);
+    test(d->theC == 0);
     cout << "ok" << endl;
 
     cout << "checking facet consistency... " << flush;
@@ -239,17 +239,17 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     test(b2 == fb2);
     test(c == fc);
     test(d == fd);
-    test(fb1->a == fb2);
-    test(fb1->a == fb2);
-    test(fb1->b == fb1);
-    test(fb1->c == 0);
-    test(fb2->a == fb2);
-    test(fb2->b == fb1);
-    test(fb2->c == fc);
-    test(fc->b == fb2);
-    test(fd->a == fb1);
-    test(fd->b == fb2);
-    test(fd->c == 0);
+    test(fb1->theA == fb2);
+    test(fb1->theA == fb2);
+    test(fb1->theB == fb1);
+    test(fb1->theC == 0);
+    test(fb2->theA == fb2);
+    test(fb2->theB == fb1);
+    test(fb2->theC == fc);
+    test(fc->theB == fb2);
+    test(fd->theA == fb1);
+    test(fd->theB == fb2);
+    test(fd->theC == 0);
     cout << "ok" << endl;
 
     //
@@ -257,15 +257,15 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     //
     if(!collocated)
     {
-	fb1->a = 0;
-	fb1->b = 0;
+	fb1->theA = 0;
+	fb1->theB = 0;
 	fb1->ice_removeAllFacets();
-	fb2->a = 0;
-	fb2->b = 0;
-	fb2->c = 0;
-	fc->b = 0;
-	fd->a = 0;
-	fd->b = 0;
+	fb2->theA = 0;
+	fb2->theB = 0;
+	fb2->theC = 0;
+	fc->theB = 0;
+	fd->theA = 0;
+	fd->theB = 0;
     }
 
     return initial;

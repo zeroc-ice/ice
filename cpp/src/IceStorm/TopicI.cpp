@@ -455,7 +455,7 @@ TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
     //
     LinkDB dbInfo;
     dbInfo.obj = link;
-    dbInfo.info.topic = topic;
+    dbInfo.info.theTopic = topic;
     dbInfo.info.name = name;
     dbInfo.info.cost = cost;
 

@@ -33,7 +33,7 @@ struct LinkInfo
      * The linked topic.
      *
      **/
-    Topic* topic;
+    Topic* theTopic;
 
     /**
      *
@@ -240,7 +240,7 @@ interface TopicManager
      * @see unsubscribe
      *
      **/
-    void subscribe(QoS qos, Object* subscriber) throws NoSuchTopic;
+    void subscribe(QoS theQoS, Object* subscriber) throws NoSuchTopic;
 
     /**
      *

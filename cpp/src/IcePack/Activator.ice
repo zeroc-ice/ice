@@ -26,28 +26,28 @@ local interface Activator
      * @param server The server to activate.
      *
      **/
-    bool activate(Server server);
+    bool activate(Server theServer);
 
     /**
      *
      * Deactivate a server.
      *
      **/
-    void deactivate(Server server);
+    void deactivate(Server theServer);
 
     /**
      *
      * Kill a server.
      *
      **/
-    void kill(Server server);
+    void kill(Server theServer);
 
     /**
      *
      * Returns the server pid.
      *
      **/
-     int getServerPid(Server server);
+     int getServerPid(Server theServer);
     
     /**
      *

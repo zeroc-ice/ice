@@ -111,7 +111,7 @@ IcePack::ServerDeployerI::remove(const string& name, const Ice::Current&)
     variables["binpath"] = desc.path; // Required for parsing to succeed.
     variables["libpath"] = "";
 
-    ServerBuilder builder(_nodeInfo, variables, componentPath, desc.targets);
+    ServerBuilder builder(_nodeInfo, variables, componentPath, desc.theTargets);
 
     //
     // Parse the server deployment descriptors.

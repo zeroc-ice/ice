@@ -66,7 +66,7 @@ local interface Plugin extends Ice::Plugin
      * @param contextType The <literal>Context</literal>(s) to configure.
      *
      **/
-    void configure(ContextType contextType);
+    void configure(ContextType cType);
 
     /**
      *
@@ -92,7 +92,7 @@ local interface Plugin extends Ice::Plugin
      * [configFile] may be found.
      *
      **/
-    void loadConfig(ContextType contextType, string configFile, string certPath);
+    void loadConfig(ContextType cType, string configFile, string certPath);
 
     /**
      *
@@ -112,7 +112,7 @@ local interface Plugin extends Ice::Plugin
      * @see IceSSL::CertificateVerifier
      *
      **/
-    void setCertificateVerifier(ContextType contextType, CertificateVerifier certVerifier);
+    void setCertificateVerifier(ContextType cType, CertificateVerifier certVerifier);
 
     /**
      *
@@ -132,7 +132,7 @@ local interface Plugin extends Ice::Plugin
      * DER format, to be trusted.
      *
      **/
-    void addTrustedCertificateBase64(ContextType contextType, string certificate);
+    void addTrustedCertificateBase64(ContextType cType, string certificate);
 
     /**
      *
@@ -150,7 +150,7 @@ local interface Plugin extends Ice::Plugin
      * @param certificate The certificate, in binary DER format, to be trusted.
      *
      **/
-    void addTrustedCertificate(ContextType contextType, Ice::ByteSeq certificate);
+    void addTrustedCertificate(ContextType cType, Ice::ByteSeq certificate);
 
     /**
      *
@@ -170,7 +170,7 @@ local interface Plugin extends Ice::Plugin
      * DER format.
      *
      **/
-    void setRSAKeysBase64(ContextType contextType, string privateKey, string publicKey);
+    void setRSAKeysBase64(ContextType cType, string privateKey, string publicKey);
 
     /**
      *
@@ -188,7 +188,7 @@ local interface Plugin extends Ice::Plugin
      * @param publicKey The RSA public key, in binary DER format.
      *
      **/
-    void setRSAKeys(ContextType contextType, Ice::ByteSeq privateKey, Ice::ByteSeq publicKey);
+    void setRSAKeys(ContextType cType, Ice::ByteSeq privateKey, Ice::ByteSeq publicKey);
 
     /**
      *

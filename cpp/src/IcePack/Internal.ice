@@ -153,7 +153,7 @@ class ServerAdapter implements Adapter
      * The adapter server.
      *
      **/
-    Server* server;
+    Server* theServer;
 
     /**
      *

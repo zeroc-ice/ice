@@ -180,7 +180,7 @@ IcePack::ServerFactory::createServerAdapter(const string& name, const ServerPrx&
 {
     ServerAdapterPtr adapterI = new ServerAdapterI(this, _traceLevels, _waitTime);
     adapterI->name = name;
-    adapterI->server = server;
+    adapterI->theServer = server;
 
     Ice::Identity id;
     id.category = "IcePackServerAdapter";
