@@ -10,8 +10,9 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
-TestI::TestI(const Ice::ObjectAdapterPtr& adapter) :
-    _adapter(adapter)
+TestI::TestI(const Ice::ObjectAdapterPtr& adapter, const CleanerPtr& cleaner) :
+    _adapter(adapter),
+    _cleaner(cleaner)
 {
 }
 
@@ -47,4 +48,19 @@ TestI::pid(const Ice::Current&)
 #else
     return getpid();
 #endif
+}
+
+CleanerI::CleanerI(const Ice::CommunicatorPtr& communicator)
+{
+    _communicator = communicator;
+}
+
+void
+CleanerI::cleanup(const Ice::Current&)
+{
+    if(_communicator)
+    {
+        _communicator->destroy();
+	_communicator = 0;
+    }
 }

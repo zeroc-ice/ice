@@ -19,4 +19,9 @@
     idempotent int pid();
 };
 
+interface Cleaner
+{
+    void cleanup();
+};
+
 #endif

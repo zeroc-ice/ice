@@ -213,10 +213,17 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 
 	if(j == 0)
 	{
+	    ostringstream str;
+	    str << (ports[i] + 1);
+	    string cleanerPort = str.str();
+	    Ice::ObjectPrx objPrx = communicator->stringToProxy("Cleaner:default -t 60000 -p " + cleanerPort);
+	    CleanerPrx cleaner = CleanerPrx::checkedCast(objPrx);
+
 	    if(!ami)
 	    {
 		cout << "shutting down server #" << i << "... " << flush;
 		obj->shutdown();
+		cleaner->cleanup();
 		cout << "ok" << endl;
 	    }
 	    else
@@ -224,6 +231,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 		cout << "shutting down server #" << i << " with AMI... " << flush;
 		AMI_Test_shutdownIPtr cb = new AMI_Test_shutdownI;
 		obj->shutdown_async(cb);
+		cleaner->cleanup();
 		test(cb->check());
 		cout << "ok" << endl;
 	    }
@@ -327,6 +335,10 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
     {
 	obj->ice_ping();
 	test(false);
+    }
+    catch(const Ice::TimeoutException&)
+    {
+        test(false);
     }
     catch(const Ice::LocalException&)
     {

@@ -21,6 +21,12 @@ usage(const char* n)
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
+    if(argc != 2)
+    {
+        usage(argv[0]);
+	return EXIT_FAILURE;
+    }
+
     int port = 0;
     for(int i = 1; i < argc; ++i)
     {
@@ -48,14 +54,41 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
+    CleanerPtr cleaner = new CleanerI(communicator);
+
     ostringstream endpts;
     endpts << "default  -p " << port;
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", endpts.str());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = new TestI(adapter);
+    Ice::ObjectPtr object = new TestI(adapter, cleaner);
     adapter->add(object, Ice::stringToIdentity("test"));
+
+    int dummyArgc = 0;
+    char* dummyArgv[] = { 0 };
+
+    Ice::CommunicatorPtr cleanupCommunicator = Ice::initialize(dummyArgc, dummyArgv);
+
+    ostringstream str;
+    str << (port + 1);
+    string cleanupPort = str.str();
+    cleanupCommunicator->getProperties()->setProperty("CleanupAdapter.Endpoints", "default -p " + cleanupPort);
+
+    Ice::ObjectAdapterPtr cleanupAdapter = cleanupCommunicator->createObjectAdapter("CleanupAdapter");
+    cleanupAdapter->add(cleaner, Ice::stringToIdentity("Cleaner"));
+
+    string adapterReady = cleanupCommunicator->getProperties()->getProperty("Ice.PrintAdapterReady");
+    cleanupCommunicator->getProperties()->setProperty("Ice.PrintAdapterReady", "0");
+
+    cleanupAdapter->activate();
+    cleanupCommunicator->getProperties()->setProperty("Ice.PrintAdapterReady", adapterReady);
+
     adapter->activate();
     communicator->waitForShutdown();
+
+    cleaner->cleanup();
+
+    cleanupCommunicator->destroy();
+
     return EXIT_SUCCESS;
 }
 
