@@ -1251,7 +1251,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	C << sb;
 	// Async requests may only be sent twoway.
 	C << nl << "__checkTwowayOnly(\"" << p->name() << "\");";
-	C << nl << "__cb->__invoke" << spar << "__reference()" << argsAMI << "__ctx" << epar << ';';
+	C << nl << "__cb->__invoke" << spar << "this" << argsAMI << "__ctx" << epar << ';';
 	C << eb;
     }
 }
@@ -3341,11 +3341,13 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
     string name = fixKwd(p->name());
     
-    string classNameAMI = "AMI_" + fixKwd(cl->name());
-    string classNameAMD = "AMD_" + fixKwd(cl->name());
+    string className = fixKwd(cl->name());
+    string classNameAMI = "AMI_" + className;
+    string classNameAMD = "AMD_" + className;
     string classScope = fixKwd(cl->scope());
     string classScopedAMI = classScope + classNameAMI;
     string classScopedAMD = classScope + classNameAMD;
+    string proxyName = classScope + className + "Prx";
     
     vector<string> params;
     vector<string> paramsDecl;
@@ -3354,8 +3356,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     vector<string> paramsInvoke;
     vector<string> paramsDeclInvoke;
 
-    paramsInvoke.push_back("const ::IceInternal::ReferencePtr&");
-    paramsDeclInvoke.push_back("const ::IceInternal::ReferencePtr& __ref");
+    paramsInvoke.push_back("const " + proxyName + "&");
+    paramsDeclInvoke.push_back("const " + proxyName + "& __prx");
 
     TypePtr ret = p->returnType();
     string retS = inputTypeToString(ret);
@@ -3425,7 +3427,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "try";
 	C << sb;
 	C << nl << "static const ::std::string __operation(\"" << p->name() << "\");";
-	C << nl << "__prepare(__ref, __operation, static_cast< ::Ice::OperationMode>(" << p->mode() << "), __ctx);";
+	C << nl << "__prepare(__prx, __operation, static_cast< ::Ice::OperationMode>(" << p->mode() << "), __ctx);";
 	writeMarshalCode(C, inParams, 0);
 	if(p->sendsClasses())
 	{

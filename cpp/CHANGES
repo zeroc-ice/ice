@@ -1,10 +1,13 @@
 Changes since version 1.3.0
 ---------------------------
 
+- Fixed a bug when making asynchronous invocations on a routed
+  proxy.
+
 - Removed slice2wsdl.
 
 - Freeze Evictor changes to adapt to the facet redesign, and 
-  improvements:
+  make several improvements:
   
   * The Freeze Evictor now has add, addFacet, remove and removeFacet
     operations with the same signature and behavior as the Ice

@@ -2323,7 +2323,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    out << sb;
 	    // Async requests may only be sent twoway.
 	    out << nl << "__checkTwowayOnly(\"" << p->name() << "\");";
-	    out << nl << "__cb.__invoke" << spar << "__reference()" << argsAMI << "__ctx" << epar << ';';
+	    out << nl << "__cb.__invoke" << spar << "this" << argsAMI << "__ctx" << epar << ';';
 	    out << eb;
 	}
     }
@@ -3730,12 +3730,12 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    out << nl << "public abstract void ice_exception(Ice.UserException ex);";
 	}
 	
-	out << sp << nl << "public final void" << nl << "__invoke" << spar << "IceInternal.Reference __ref"
+	out << sp << nl << "public final void" << nl << "__invoke" << spar << "Ice.ObjectPrx __prx"
 	    << paramsInvoke << "java.util.Map __ctx" << epar;
 	out << sb;
 	out << nl << "try";
 	out << sb;
-	out << nl << "__prepare(__ref, \"" << p->name() << "\", " << sliceModeToIceMode(p) << ", __ctx);";
+	out << nl << "__prepare(__prx, \"" << p->name() << "\", " << sliceModeToIceMode(p) << ", __ctx);";
 	for(q = inParams.begin(); q != inParams.end(); ++q)
 	{
 	    string typeS = typeToString(q->first, TypeModeIn, classPkg);

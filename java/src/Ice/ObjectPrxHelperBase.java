@@ -192,7 +192,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
 		     java.util.Map context)
     {
 	__checkTwowayOnly("ice_invoke_async");
-	cb.__invoke(__reference(), operation, mode, inParams, context);
+	cb.__invoke(this, operation, mode, inParams, context);
     }
 
     public final Identity

@@ -1,6 +1,9 @@
 Changes since version 1.3.0
 ---------------------------
 
+- Fixed a bug when making asynchronous invocations on a routed
+  proxy.
+
 - Removed a bogus assert that could happen under certain race
   conditions when a connection timeout occurs.
 

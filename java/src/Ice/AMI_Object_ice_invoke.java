@@ -19,12 +19,12 @@ public abstract class AMI_Object_ice_invoke extends IceInternal.OutgoingAsync
     public abstract void ice_response(boolean ok, byte[] outParams);
     public abstract void ice_exception(LocalException ex);
 
-    public final void __invoke(IceInternal.Reference ref, String operation, OperationMode mode,
+    public final void __invoke(Ice.ObjectPrx prx, String operation, OperationMode mode,
 			       byte[] inParams, java.util.Map context)
     {
 	try
 	{
-	    __prepare(ref, operation, mode, context);
+	    __prepare(prx, operation, mode, context);
 	    __os.writeBlob(inParams);
 	    __os.endWriteEncaps();
 	}

@@ -22,6 +22,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/LocatorInfo.h>
 #include <Ice/ProxyFactory.h>
+#include <Ice/RouterInfo.h>
 
 using namespace std;
 using namespace Ice;
@@ -217,7 +218,7 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 	// violating "at-most-once". That's because by sending a close
 	// connection message, the server guarantees that all
 	// outstanding requests can safely be repeated. Otherwise, we
-	// can also retry if the operation mode Nonmutating or
+	// can also retry if the operation mode is Nonmutating or
 	// Idempotent.
 	//
 	if(_mode == Nonmutating || _mode == Idempotent || dynamic_cast<const CloseConnectionException*>(&exc))
@@ -270,7 +271,7 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 }
 
 void
-IceInternal::OutgoingAsync::__prepare(const ReferencePtr& ref, const string& operation, OperationMode mode,
+IceInternal::OutgoingAsync::__prepare(const ObjectPrx& prx, const string& operation, OperationMode mode,
 				      const Context& context)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(_monitor);
@@ -285,7 +286,7 @@ IceInternal::OutgoingAsync::__prepare(const ReferencePtr& ref, const string& ope
 	    _monitor.wait();
 	}
 	
-	_reference = ref;
+	_reference = prx->__reference();
 	assert(!_connection);
 	_connection = _reference->getConnection();
 	_cnt = 0;
@@ -295,6 +296,14 @@ IceInternal::OutgoingAsync::__prepare(const ReferencePtr& ref, const string& ope
 	assert(!__os);
 	__os = new BasicStream(_reference->instance.get());
 	
+	//
+	// If we are using a router, then add the proxy to the router info object.
+	//
+	if(_reference->routerInfo)
+	{
+	    _reference->routerInfo->addProxy(prx);
+	}
+
 	_connection->prepareRequest(__os);
 
 	_reference->identity.__write(__os);
@@ -447,12 +456,12 @@ IceInternal::OutgoingAsync::cleanup()
 }
 
 void
-Ice::AMI_Object_ice_invoke::__invoke(const IceInternal::ReferencePtr& ref, const string& operation, OperationMode mode,
+Ice::AMI_Object_ice_invoke::__invoke(const ObjectPrx& prx, const string& operation, OperationMode mode,
 				     const vector<Byte>& inParams, const Context& context)
 {
     try
     {
-	__prepare(ref, operation, mode, context);
+	__prepare(prx, operation, mode, context);
 	__os->writeBlob(inParams);
 	__os->endWriteEncaps();
     }

@@ -190,7 +190,7 @@ public abstract class OutgoingAsync
 		// sending a close connection message, the server
 		// guarantees that all outstanding requests can safely
 		// be repeated. Otherwise, we can also retry if the
-		// operation mode Nonmutating or Idempotent.
+		// operation mode is Nonmutating or Idempotent.
 		//
 		if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent ||
 		   exc instanceof Ice.CloseConnectionException)
@@ -258,7 +258,7 @@ public abstract class OutgoingAsync
     }
 
     protected final void
-    __prepare(Reference ref, String operation, Ice.OperationMode mode, java.util.Map context)
+    __prepare(Ice.ObjectPrx prx, String operation, Ice.OperationMode mode, java.util.Map context)
     {
 	synchronized(_monitor)
 	{
@@ -278,7 +278,7 @@ public abstract class OutgoingAsync
 		    }
 		}
 		
-		_reference = ref;
+		_reference = ((Ice.ObjectPrxHelperBase)prx).__reference();
 		assert(_connection == null);
 		_connection = _reference.getConnection();
 		_cnt = 0;
@@ -288,20 +288,28 @@ public abstract class OutgoingAsync
 		assert(__os == null);
 		__os = new BasicStream(_reference.instance);
 		
+                //
+                // If we are using a router, then add the proxy to the router info object.
+                //
+                if(_reference.routerInfo != null)
+                {
+                    _reference.routerInfo.addProxy(prx);
+                }
+
 		_connection.prepareRequest(__os);
 		
-		ref.identity.__write(__os);
+		_reference.identity.__write(__os);
 
                 //
                 // For compatibility with the old FacetPath.
                 //
-                if(ref.facet == null || ref.facet.length() == 0)
+                if(_reference.facet == null || _reference.facet.length() == 0)
                 {
                     __os.writeStringSeq(null);
                 }
                 else
                 {
-                    String[] facetPath = { ref.facet };
+                    String[] facetPath = { _reference.facet };
                     __os.writeStringSeq(facetPath);
                 }
 
