@@ -19,7 +19,7 @@ public class HelloServiceI extends Ice.LocalObjectImpl implements IceBox.Service
         throws IceBox.FailureException
     {
         _adapter = communicator.createObjectAdapter(name);
-        Ice.Object object = new HelloI(communicator);
+        Ice.Object object = new HelloI();
         _adapter.add(object, Ice.Util.stringToIdentity("hello"));
         _adapter.activate();
     }
