@@ -74,16 +74,15 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "Nested.vb"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "NestedI.vb"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
-                <Folder RelPath = "generated\" />
+                <File
+                    RelPath = "generated\Nested.vb"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
             </Include>
         </Files>
     </VisualBasic>
