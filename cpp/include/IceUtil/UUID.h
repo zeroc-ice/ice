@@ -16,9 +16,20 @@
 #define ICE_UTIL_UUID_H
 
 #include <IceUtil/Config.h>
+#include <IceUtil/Exception.h>
 
 namespace IceUtil
 {
+
+class ICE_UTIL_API UUIDGenerationException : public Exception
+{
+public:
+    
+    UUIDGenerationException(const char*, int);
+    virtual std::string ice_name() const;
+    virtual Exception* ice_clone() const;
+    virtual void ice_throw() const;
+};
 
 ICE_UTIL_API std::string generateUUID();
 

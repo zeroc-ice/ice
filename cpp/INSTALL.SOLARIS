@@ -2,6 +2,12 @@
 Requirements
 ======================================================================
 
+OS
+--
+Solaris 8 or Solaris 9 on SPARC.
+
+You also need to have /dev/urandom installed. This is the default with
+Solaris 9; on Solaris 8, you need to install patch 112438-01.
 
 C++ compiler
 ------------
@@ -17,9 +23,6 @@ Third-party libraries
 - Berkeley DB 4.1
 
 - OpenSSL 0.97
-
-- e2fsprogs 1.32 (only for the UUID library, which is part of this
-  package)
 
 - bzip2 1.0
 
@@ -38,10 +41,6 @@ http://www.openssl.org
 And bzip2 from:
 
 http://sources.redhat.com/bzip2
-
-And E2fsprogs from:
-
-http://sourceforge.net/projects/e2fsprogs
 
 
 Python 2.2

@@ -75,18 +75,6 @@ KERBEROS_HOME		?= /usr/kerberos
 
 
 #
-# If E2fsprogs is not installed in a standard location where the
-# compiler can find it, set E2FSPROGS_HOME to the E2fsprogs
-# installation directory.
-# E2fsprogs is used only for its UUID library.
-#
-#
-
-#E2FSPROGS_HOME		?= /opt/e2fsprogs
-
-
-
-#
 # If readline is not installed in a standard location where the
 # compiler can find it, AND you want to use readline,
 # set READLINE_HOME to the readline installation directory.
@@ -169,14 +157,6 @@ ifneq ($(XERCESC_HOME),)
 else
     XERCESC_FLAGS	=
     XERCESC_LIBS	= -lxerces-c
-endif
-
-ifneq ($(E2FSPROGS_HOME),)
-    E2FSPROGS_FLAGS	= -I$(E2FSPROGS_HOME)/include
-    E2FSPROGS_LIBS	= -L$(E2FSPROGS_HOME)/lib -luuid
-else
-    E2FSPROGS_FLAGS	=
-    E2FSPROGS_LIBS	= -luuid
 endif
 
 ifneq ($(USE_READLINE),)

@@ -1,6 +1,9 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Removed dependency on E2FSPROGS for UUID generation. On Unix,
+  UUIDs are now generated directly with /dev/urandom.
+
 - Added support for `env' XML element in IcePack descriptors to allow
   setting environment variables.
 

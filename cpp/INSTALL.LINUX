@@ -33,21 +33,17 @@ Third-party libraries
 
 - OpenSSL 0.96 or 0.97
 
-- e2fsprogs 1.27 (only for the UUID library, which is part of this
-  package)
-
 - bzip2 1.0
 
 Xerces-C++ can be download from:
 
 http://xml.apache.org/xerces-c
 
-Berkeley DB, OpenSSL, e2fsprogs, and bzip2 are usually available with
-your Linux distribution. The RPMs for Redhat 8.0 are:
+Berkeley DB, OpenSSL, and bzip2 are usually available with your Linux 
+distribution. The RPMs for Redhat 8.0 are:
 
 db4-devel-4.0.14-14
 openssl-devel-0.9.6b-29
-e2fsprogs-devel-1.27-9
 bzip2-devel-1.0.2-5
 
 If you don't have them, you can download Berkeley DB from:
@@ -61,10 +57,6 @@ http://www.openssl.org
 And bzip2 from:
 
 http://sources.redhat.com/bzip2
-
-We are not aware of any download possibilities for e2fsprogs-devel (or
-the UUID routines included in this RPM). But to our knowledge, every
-Linux distribution includes this, so there should be no problem.
 
 
 Python 2.2
