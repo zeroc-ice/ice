@@ -775,10 +775,12 @@ def main():
     #
     # Configure environment.
     #
-    if getPlatform() <> "aix":
-	dylibEnvironmentVar = 'LD_LIBRARY_PATH'
-    else:
+    if getPlatform() == "aix":
 	dylibEnvironmentVar = 'LIBPATH'
+    elif getPlatform() == "hpux":
+	dylibEnvironmentVar = 'SHLIB_PATH'
+    else:
+	dylibEnvironmentVar = 'LD_LIBRARY_PATH'
 
     for k, v in buildEnvironment.iteritems():
 	os.environ[k] = v
