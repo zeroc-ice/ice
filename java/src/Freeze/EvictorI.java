@@ -20,10 +20,11 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     final static String defaultDb = "$default";
     final static String indexPrefix = "$index:";
 
-
     //
     // The WatchDogThread is used by the saving thread to ensure the
     // streaming of some object does not take more than timeout ms.
+    // We only measure the time necessary to acquire the lock on the
+    // object (servant), not the streaming itself.
     //
     class WatchDogThread extends Thread
     {
@@ -38,7 +39,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	{
 	    while(!_done)
 	    {
-		boolean interrupted = false;
 		long startTime = 0;
 
 		//
@@ -74,16 +74,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			_communicator.getLogger().error
 			    (_errorPrefix + "Fatal error: streaming watch dog thread timed out.");
 
-			FatalErrorCallback cb = Freeze.Util.getFatalErrorCallback();
-			if(cb != null)
-			{
-			    cb.handleError(EvictorI.this, _communicator, null);
-			}
-			else
-			{
-			    _communicator.getLogger().error(_errorPrefix + "*** Halting JVM ***");
-			    Runtime.getRuntime().halt(1);
-			}
+			Util.handleFatalError(EvictorI.this, _communicator, null);
 		    }
 		}
 	    }
@@ -1610,6 +1601,11 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			    }
 			    synchronized(servant)
 			    {
+				if(_watchDogThread != null)
+				{
+				    _watchDogThread.deactivate();
+				}
+
 				synchronized(element)
 				{
 				    byte status = element.status;
@@ -1653,10 +1649,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 					}
 				    }
 				}
-			    }
-			    if(_watchDogThread != null)
-			    {
-				_watchDogThread.deactivate();
 			    }
 			}
 		    } while(tryAgain);
@@ -1815,16 +1807,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    _communicator.getLogger().
 		error(_errorPrefix + "Fatal error in saving thread:\n" + sw.toString());
 
-	    FatalErrorCallback cb = Freeze.Util.getFatalErrorCallback();
-	    if(cb != null)
-	    {
-		cb.handleError(this, _communicator, ex);
-	    }
-	    else
-	    {
-		_communicator.getLogger().error(_errorPrefix + "*** Halting JVM ***");
-		Runtime.getRuntime().halt(1);
-	    }
+	    Util.handleFatalError(this, _communicator, ex);
 	}
     }
 

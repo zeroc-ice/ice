@@ -52,11 +52,19 @@ public class Util
 	return result;
     }
     
-    public static synchronized FatalErrorCallback
-    getFatalErrorCallback()
+    static synchronized void handleFatalError(Evictor evictor, Ice.Communicator communicator, RuntimeException ex)
     {
-	return _fatalErrorCallback;
+	if(_fatalErrorCallback != null)
+	{
+	    _fatalErrorCallback.handleError(evictor, communicator, ex);
+	}
+	else
+	{
+	    communicator.getLogger().error("*** Halting JVM ***");
+	    Runtime.getRuntime().halt(1);
+	}
     }
+
 
     private static FatalErrorCallback _fatalErrorCallback = null;
 }
