@@ -77,6 +77,7 @@ OBJS		= Initialize.o \
 		  TcpAcceptor.o \
 		  TcpTransceiver.o \
 		  UdpTransceiver.o \
+		  TransportInfo.o \
 		  DynamicLibrary.o \
 		  Plugin.o \
 		  PluginManagerI.o \
@@ -120,7 +121,9 @@ SLICE_SRCS	= $(SDIR)/LocalException.ice \
                   $(SDIR)/Process.ice \
                   $(SDIR)/ProcessF.ice \
 		  $(SDIR)/FacetMap.ice \
-		  $(SDIR)/SliceChecksumDict.ice
+		  $(SDIR)/SliceChecksumDict.ice \
+		  $(SDIR)/TransportInfo.ice \
+		  $(SDIR)/TransportInfoF.ice
 
 HDIR		= $(includedir)/Ice
 SDIR		= $(slicedir)/Ice
