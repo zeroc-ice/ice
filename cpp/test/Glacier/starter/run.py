@@ -56,8 +56,8 @@ print "ok"
 name = os.path.join("Glacier", "starter")
 TestUtil.clientServerTest(toplevel, name)
 
-# print "shutting down glacier starter...",
-# TestUtil.killServers() # TODO: Graceful shutdown
-# print "ok"
+print "shutting down glacier starter...",
+TestUtil.killServers() # TODO: Graceful shutdown
+print "ok"
 
 sys.exit(0)

@@ -9,10 +9,9 @@
 // **********************************************************************
 
 #include <IceUtil/UUID.h>
+#include <Ice/SslRSAKeyPair.h>
 #include <Glacier/GlacierI.h>
 #include <fcntl.h>
-#include <Ice/SslRSAKeyPair.h>
-//#include <sys/wait.h>
 
 #ifdef WIN32
 #   error Sorry, the glacier starter is not yet supported on WIN32.
@@ -33,6 +32,10 @@ Glacier::StarterI::StarterI(const CommunicatorPtr& communicator) :
     _traceLevel = atoi(_properties->getProperty("Glacier.Trace.Starter").c_str());
 
     // Set up the Certificate Generation context
+    // TODO: Why do we need these from properties? Isn't the value of
+    // all these properties completely irrelevant, as this is for
+    // temporary certificate? If so, why not just supply some dummy
+    // values, and get rid of all these properties?
     _certContext.setCountry(_properties->getProperty("Glacier.Starter.Certificate.Country"));
     _certContext.setStateProvince(_properties->getProperty("Glacier.Starter.Certificate.StateProvince"));
     _certContext.setLocality(_properties->getProperty("Glacier.Starter.Certificate.Locality"));
@@ -56,7 +59,8 @@ Glacier::StarterI::destroy()
 }
 
 RouterPrx
-Glacier::StarterI::startRouter(const string& userId, const string& password, ByteSeq& privateKey, ByteSeq& publicKey, ByteSeq& routerCert, const Current&)
+Glacier::StarterI::startRouter(const string& userId, const string& password, ByteSeq& privateKey, ByteSeq& publicKey,
+			       ByteSeq& routerCert, const Current&)
 {
     assert(_communicator); // Destroyed?
 
@@ -149,6 +153,11 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	//
 	StringSeq args = _properties->getCommandLineOptions();
 	args.push_back("--Glacier.Router.Identity=" + uuid);
+	//
+	// TODO: Potential security risk, command line parameters can
+	// be seen with `ps'. Keys and certificate should rather be
+	// passed through a pipe? (ML will take care of this...)
+	//
         args.push_back("--Ice.Security.Ssl.Overrides.Server.RSA.PrivateKey=" + routerPrivateKeyBase64);
         args.push_back("--Ice.Security.Ssl.Overrides.Server.RSA.Certificate=" + routerCertificateBase64);
         args.push_back("--Ice.Security.Ssl.Overrides.Client.RSA.PrivateKey=" + routerPrivateKeyBase64);

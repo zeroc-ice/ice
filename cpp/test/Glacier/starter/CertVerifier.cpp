@@ -16,7 +16,7 @@
 using namespace std;
 
 CertVerifier::CertVerifier(const ByteSeq& publicKey) :
-             _publicKey(publicKey)
+    _publicKey(publicKey)
 {
 }
 
