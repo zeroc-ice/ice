@@ -95,15 +95,15 @@ SOURCE=.\Collocated.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ContactFactory.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Grammar.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\NameIdentitiesDict.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ObjectFactory.cpp
 # End Source File
 # Begin Source File
 
@@ -131,15 +131,15 @@ SOURCE=.\Scanner.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\ContactFactory.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Grammar.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\NameIdentitiesDict.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ObjectFactory.h
 # End Source File
 # Begin Source File
 

@@ -25,7 +25,7 @@ CFG=phonebookS - Win32 Debug
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
-CPP=xicl6.exe
+CPP=cl.exe
 RSC=rc.exe
 
 !IF  "$(CFG)" == "phonebookS - Win32 Release"
@@ -49,7 +49,7 @@ RSC=rc.exe
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=xilink6.exe
+LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 # ADD LINK32 /nologo /subsystem:console /machine:I386 /out:"server.exe" /libpath:"../../../lib"
 # SUBTRACT LINK32 /debug /nodefaultlib
@@ -75,7 +75,7 @@ LINK32=xilink6.exe
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=xilink6.exe
+LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"server.exe" /pdbtype:sept /libpath:"../../../lib"
 # SUBTRACT LINK32 /nodefaultlib
@@ -91,11 +91,11 @@ LINK32=xilink6.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\NameIdentitiesDict.cpp
+SOURCE=.\ContactFactory.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ObjectFactory.cpp
+SOURCE=.\NameIdentitiesDict.cpp
 # End Source File
 # Begin Source File
 
@@ -115,11 +115,11 @@ SOURCE=.\Server.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\NameIdentitiesDict.h
+SOURCE=.\ContactFactory.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ObjectFactory.h
+SOURCE=.\NameIdentitiesDict.h
 # End Source File
 # Begin Source File
 
