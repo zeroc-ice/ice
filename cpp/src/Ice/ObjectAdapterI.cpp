@@ -457,7 +457,11 @@ Ice::ObjectAdapterI::incUsageCount()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
  
-    assert(_instance); // Must not be called after deactivation.
+    if(!_instance)
+    {
+	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+    }
+
     assert(_usageCount >= 0);
     ++_usageCount;
 }

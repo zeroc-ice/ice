@@ -22,10 +22,10 @@ using namespace IceInternal;
 IceInternal::Direct::Direct(const Current& current) :
     _current(current)
 {
+    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->incUsageCount();
+
     try
     {
-	dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->incUsageCount();
-
 	_servant = _current.adapter->identityToServant(_current.id);
     
 	if(!_servant && !_current.id.category.empty())
