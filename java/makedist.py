@@ -24,6 +24,7 @@ def usage():
     print "Options:"
     print "-h    Show this message."
     print "-d    Skip SGML documentation conversion."
+    print "-v    Be verbose."
     print
     print "If no tag is specified, HEAD is used."
 
@@ -51,12 +52,15 @@ win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
 #
 tag = "-rHEAD"
 skipDocs = 0
+verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
     elif x == "-d":
         skipDocs = 1
+    elif x == "-v":
+        verbose = 1
     elif x.startswith("-"):
         print sys.argv[0] + ": unknown option `" + x + "'"
         print
@@ -81,17 +85,23 @@ os.chdir(distdir)
 #
 # Export Java sources from CVS.
 #
-os.system("cvs -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " icej")
+print "Checking out CVS tag " + tag + "..."
+if verbose:
+    quiet = ""
+else:
+    quiet = "-Q"
+os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " icej")
 
 #
 # Export C++ sources.
 #
 # NOTE: Assumes that the C++ and Java trees will use the same tag.
 #
-os.system("cvs -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice")
+os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice")
 #
 # Copy Slice directories.
 #
+print "Copying Slice directories..."
 slicedirs = [\
     "Freeze",\
     "Glacier",\
@@ -108,6 +118,7 @@ for x in slicedirs:
 # and slice2docbook first.
 #
 if not skipDocs:
+    print "Generating documentation..."
     cwd = os.getcwd()
     os.chdir(os.path.join("ice", "src", "icecpp"))
     os.system("gmake")
@@ -131,6 +142,7 @@ shutil.rmtree("ice")
 #
 # Remove files.
 #
+print "Removing unnecessary files..."
 filesToRemove = [ \
     os.path.join("icej", "makedist.py"), \
     os.path.join("icej", "makebindist.py"), \
@@ -142,9 +154,14 @@ for x in filesToRemove:
 #
 # Build sources.
 #
+print "Compiling..."
 cwd = os.getcwd()
 os.chdir("icej")
-os.system("ant")
+if verbose:
+    quiet = ""
+else:
+    quiet = " -q"
+os.system("ant" + quiet)
 
 #
 # Clean out the lib directory but save Ice.jar.
@@ -165,10 +182,19 @@ version = re.search("ICE_STRING_VERSION = \"([0-9\.]*)\"", config.read()).group(
 #
 # Create source archives.
 #
+print "Creating distribution..."
 icever = "IceJ-" + version
 os.rename("icej", icever)
-os.system("tar cvzf " + icever + ".tar.gz " + icever)
-os.system("zip -9 -r " + icever + ".zip " + icever)
+if verbose:
+    quiet = "v"
+else:
+    quiet = ""
+os.system("tar c" + quiet + "zf " + icever + ".tar.gz " + icever)
+if verbose:
+    quiet = ""
+else:
+    quiet = "-q"
+os.system("zip -9 -r " + quiet + " " + icever + ".zip " + icever)
 
 #
 # Copy files (README, etc.).
@@ -178,4 +204,6 @@ shutil.copyfile(os.path.join(icever, "CHANGES"), "IceJ-" + version + "-CHANGES")
 #
 # Done.
 #
+print "Cleaning up..."
 shutil.rmtree(icever)
+print "Done."
