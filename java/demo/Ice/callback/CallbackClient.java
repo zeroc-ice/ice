@@ -32,7 +32,7 @@ class CallbackClient extends Ice.Application
     run(String[] args)
     {
         Ice.Properties properties = communicator().getProperties();
-        final String proxyProperty = "Callback.Client.Callback";
+        final String proxyProperty = "Callback.Client.CallbackServer";
         String proxy = properties.getProperty(proxyProperty);
         if(proxy.length() == 0)
         {

@@ -1005,6 +1005,13 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     public synchronized void
     setAdapter(ObjectAdapter adapter)
     {
+	if(_exception != null)
+	{
+	    throw _exception;
+	}
+	
+	assert(_state < StateClosing);
+
 	//
 	// Before we set an adapter (or reset it) we wait until the
 	// dispatch count with any old adapter is zero.

@@ -28,7 +28,7 @@ Class CallbackClient
 
     Public Overloads Overrides Function run(ByVal args() As String) As Integer
 	Dim properties As Ice.Properties = communicator().getProperties()
-	Dim proxyProperty As String = "Callback.Client.Callback"
+	Dim proxyProperty As String = "Callback.Client.CallbackServer"
 	Dim proxy As String = properties.getProperty(proxyProperty)
 	If proxy.Length = 0 Then
 	    Console.Error.WriteLine("property `" & proxyProperty & "' not set")

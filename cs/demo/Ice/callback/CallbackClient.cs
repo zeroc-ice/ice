@@ -29,7 +29,7 @@ class CallbackClient : Ice.Application
     public override int run(string[] args)
     {
         Ice.Properties properties = communicator().getProperties();
-        string proxyProperty = "Callback.Client.Callback";
+        string proxyProperty = "Callback.Client.CallbackServer";
         string proxy = properties.getProperty(proxyProperty);
         if(proxy.Length == 0)
         {

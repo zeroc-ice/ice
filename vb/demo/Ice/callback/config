@@ -1,4 +1,4 @@
-Callback.Client.Callback=callback:tcp -p 10000:udp -p 10000
+Callback.Client.CallbackServer=callback:tcp -p 10000:udp -p 10000
 Callback.Client.Endpoints=tcp:udp
 Callback.Server.Endpoints=tcp -p 10000:udp -p 10000
 

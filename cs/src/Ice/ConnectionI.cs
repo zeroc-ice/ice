@@ -1011,6 +1011,13 @@ namespace Ice
 	{
 	    lock(this)
 	    {
+		if(_exception != null)
+		{
+		    throw _exception;
+		}
+		
+		Debug.Assert(_state < StateClosing);
+
 		//
 		// Before we set an adapter (or reset it) we wait until the
 		// dispatch count with any old adapter is zero.

@@ -34,7 +34,7 @@ class CallbackReceiverI(Demo.CallbackReceiver):
 class CallbackClient(Ice.Application):
     def run(self, args):
         properties = self.communicator().getProperties()
-        proxyProperty = 'Callback.Client.Callback'
+        proxyProperty = 'Callback.Client.CallbackServer'
         proxy = properties.getProperty(proxyProperty)
         if len(proxy) == 0:
             print self.appName() + ": property `" + proxyProperty + "' not set"

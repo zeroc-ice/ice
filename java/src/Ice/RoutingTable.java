@@ -36,7 +36,7 @@ public final class RoutingTable
             return false;
         }
 
-        ObjectPrx proxy = prx.ice_default(); // We insert the proxy in it's default form into the routing table.
+        ObjectPrx proxy = prx.ice_default(); // We insert the proxy in its default form into the routing table.
 
         synchronized(this)
         {
