@@ -23,15 +23,6 @@
 #    include <IceUtil/Mutex.h>
 #endif
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-//
-// Needed for implementation with VC++ 6.0
-// See member-template note for waitImpl & timedWaitImpl.
-//
-#    include <IceUtil/StaticMutex.h>
-#    include <IceUtil/RecMutex.h>
-#endif
-
 namespace IceUtil
 {
 
@@ -67,12 +58,12 @@ private:
 // Condition variable implementation. Conforms to the same semantics
 // as a POSIX threads condition variable.
 //
-class ICE_UTIL_API Cond : public noncopyable
+class Cond : public noncopyable
 {
 public:
 
-    Cond();
-    ~Cond();
+    ICE_UTIL_API Cond();
+    ICE_UTIL_API ~Cond();
 
     //
     // signal restarts one of the threads that are waiting on the
@@ -80,14 +71,14 @@ public:
     // nothing happens. If several threads are waiting on cond,
     // exactly one is restarted, but it is not specified which.
     //
-    void signal();
+    ICE_UTIL_API void signal();
 
     //
     // broadcast restarts all the threads that are waiting on the
     // condition variable cond. Nothing happens if no threads are
     // waiting on cond.
     //
-    void broadcast();
+    ICE_UTIL_API void broadcast();
 
     //
     // MSVC doesn't support out-of-class definitions of member
@@ -136,143 +127,6 @@ private:
     //
 #ifdef _WIN32
 
-#   if defined(_MSC_VER) && (_MSC_VER < 1300)
-
-    //
-    // For some reason under WIN32 with VC6 using a member-template
-    // for waitImpl & timedWaitImpl results in a link error for
-    // RecMutex.
-    //
-
-    void
-    waitImpl(const RecMutex& mutex) const
-    {
-	preWait();
-
-	RecMutex::LockState state;
-	mutex.unlock(state);
-
-	try
-	{
-	    dowait();
-	    mutex.lock(state);
-	}
-	catch(...)
-	{
-	    mutex.lock(state);
-	    throw;
-	}
-    }
-
-    void
-    waitImpl(const Mutex& mutex) const
-    {
-	preWait();
-
-	Mutex::LockState state;
-	mutex.unlock(state);
-
-	try
-	{
-	    dowait();
-	    mutex.lock(state);
-	}
-	catch(...)
-	{
-	    mutex.lock(state);
-	    throw;
-	}
-    }
-
-    
-    void
-    waitImpl(const StaticMutex& mutex) const
-    {
-	preWait();
-
-	StaticMutex::LockState state;
-	mutex.unlock(state);
-
-	try
-	{
-	    dowait();
-	    mutex.lock(state);
-	}
-	catch(...)
-	{
-	    mutex.lock(state);
-	    throw;
-	}
-    }
-
-
-    
-    bool
-    timedWaitImpl(const RecMutex& mutex, const Time& timeout) const
-    {
-	preWait();
-
-	RecMutex::LockState state;
-	mutex.unlock(state);
-
-	try
-	{
-	    bool rc = timedDowait(timeout);
-	    mutex.lock(state);
-	    return rc;
-	}
-	catch(...)
-	{
-	    mutex.lock(state);
-	    throw;
-	}
-    }
-
-    bool
-    timedWaitImpl(const Mutex& mutex, const Time& timeout) const
-    {
-	preWait();
-
-	Mutex::LockState state;
-	mutex.unlock(state);
-
-	try
-	{
-	    bool rc = timedDowait(timeout);
-	    mutex.lock(state);
-	    return rc;
-	}
-	catch(...)
-	{
-	    mutex.lock(state);
-	    throw;
-	}
-    }
-
-    bool
-    timedWaitImpl(const StaticMutex& mutex, const Time& timeout) const
-    {
-	preWait();
-
-	StaticMutex::LockState state;
-	mutex.unlock(state);
-
-	try
-	{
-	    bool rc = timedDowait(timeout);
-	    mutex.lock(state);
-	    return rc;
-	}
-	catch(...)
-	{
-	    mutex.lock(state);
-	    throw;
-	}
-    }
-
-
-#   else
-
     template <typename M> void
     waitImpl(const M& mutex) const
     {
@@ -316,8 +170,6 @@ private:
             throw;
         }
     }
-
-#   endif
     
 #else
 
@@ -327,11 +179,11 @@ private:
 #endif
 
 #ifdef _WIN32
-    void wake(bool);
-    void preWait() const;
-    void postWait(bool) const;
-    bool timedDowait(const Time&) const;
-    void dowait() const;
+    ICE_UTIL_API void wake(bool);
+    ICE_UTIL_API void preWait() const;
+    ICE_UTIL_API void postWait(bool) const;
+    ICE_UTIL_API bool timedDowait(const Time&) const;
+    ICE_UTIL_API void dowait() const;
 
     Mutex _internal;
     Semaphore _gate;
