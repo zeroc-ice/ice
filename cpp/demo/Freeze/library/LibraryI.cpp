@@ -214,6 +214,10 @@ LibraryI::findByAuthors(const string& authors, const Ice::Current&)
 {
     IceUtil::RWRecMutex::RLock sync(*this);
 
+    //
+    // Lookup all books that match the given authors, and return them
+    // to the caller.
+    //
     StringIsbnSeqDict::const_iterator p =  _authors.find(authors);
 
     BookPrxSeq books;
