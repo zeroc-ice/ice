@@ -1525,7 +1525,17 @@ Ice::ConnectionI::setState(State state)
 	
 	case StateClosed:
 	{
-	    if(_state == StateNotValidated)
+	    if(_instance->threadPerConnection())
+	    {
+		//
+		// If we are in thread per connection mode, we
+		// shutdown both for reading and writing. This will
+		// unblock and read call with an exception. The thread
+		// per connection then closes the transceiver.
+		//
+		_transceiver->shutdownReadWrite();
+	    }
+	    else if(_state == StateNotValidated)
 	    {
 		//
 		// If we change from not validated we can close right
@@ -1550,16 +1560,6 @@ Ice::ConnectionI::setState(State state)
 
 		_transceiver = 0;
 		//notifyAll(); // We notify already below.
-	    }
-	    else if(_instance->threadPerConnection())
-	    {
-		//
-		// If we are in thread per connection mode, we
-		// shutdown both for reading and writing. This will
-		// unblock and read call with an exception. The thread
-		// per connection then closes the transceiver.
-		//
-		_transceiver->shutdownReadWrite();
 	    }
 	    else
 	    {

@@ -68,7 +68,7 @@ IceSSL::SslTransceiver::close()
 	int retries = -numRetries;
 	do
 	{
-	    shutdown = internalShutdown();
+	    shutdown = internalShutdownWrite(0);
 	    retries++;
 	}
 	while((shutdown == 0) && (retries < 0));
@@ -105,7 +105,7 @@ IceSSL::SslTransceiver::shutdownWrite()
     int retries = -numRetries;
     do
     {
-        shutdown = internalShutdown();
+        shutdown = internalShutdownWrite(0);
         retries++;
     }
     while((shutdown == 0) && (retries < 0));
@@ -123,15 +123,17 @@ IceSSL::SslTransceiver::shutdownReadWrite()
 	out << "shutting down ssl connection for reading and writing\n" << toString();
     }
 
+/*
     int shutdown = 0;
     int numRetries = 100;
     int retries = -numRetries;
     do
     {
-        shutdown = internalShutdown();
+        shutdown = internalShutdownWrite(0);
         retries++;
     }
     while((shutdown == 0) && (retries < 0));
+*/
 
     assert(_fd != INVALID_SOCKET);
     shutdownSocketReadWrite(_fd);
@@ -481,7 +483,7 @@ IceSSL::SslTransceiver::verifyCertificate(int preVerifyOkay, X509_STORE_CTX* x50
 //
 
 int
-IceSSL::SslTransceiver::internalShutdown(int timeout)
+IceSSL::SslTransceiver::internalShutdownWrite(int timeout)
 {
     if(_sslConnection == 0)
     {
@@ -704,7 +706,7 @@ IceSSL::SslTransceiver::initialize(int timeout)
 
                     case Shutdown : 
                     {
-                        retCode = internalShutdown(timeout);
+                        retCode = internalShutdownWrite(timeout);
                         break;
                     }
 

@@ -20,11 +20,14 @@ class ClientContext;
 class SslClientTransceiver : public SslTransceiver
 {
 public:
+
     virtual int handshake(int timeout = 0);
     virtual void write(IceInternal::Buffer&, int);
 
 protected:
+
     virtual void showConnectionInfo();
+
     SslClientTransceiver(const OpenSSLPluginIPtr&, SOCKET, const CertificateVerifierPtr&, SSL*);
     friend class ClientContext;
 };

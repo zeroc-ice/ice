@@ -148,7 +148,7 @@ public:
 
 protected:
 
-    virtual int internalShutdown(int timeout = 0);
+    int internalShutdownWrite(int timeout);
 
     int connect();
     int accept();
@@ -170,8 +170,6 @@ protected:
     static void addTransceiver(SSL*, SslTransceiver*);
     static void removeTransceiver(SSL*);
 
-    virtual void showConnectionInfo() = 0;
-
     void showCertificateChain(BIO*);
     void showPeerCertificate(BIO*, const char*);
     void showSharedCiphers(BIO*);
@@ -180,7 +178,9 @@ protected:
     void showHandshakeStats(BIO*);
     void showClientCAList(BIO*, const char*);
 
-    void setLastError(int errorCode) { _lastError = errorCode; };
+    void setLastError(int errorCode) { _lastError = errorCode; }
+
+    virtual void showConnectionInfo() = 0;
 
     static SslTransceiverMap _transceiverMap;
     static IceUtil::StaticMutex _transceiverRepositoryMutex;

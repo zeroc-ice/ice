@@ -18,11 +18,14 @@ namespace IceSSL
 class SslServerTransceiver : public SslTransceiver
 {
 public:
+
     virtual int handshake(int timeout = 0);
     virtual void write(IceInternal::Buffer&, int);
 
 protected:
+
     virtual void showConnectionInfo();
+
     SslServerTransceiver(const OpenSSLPluginIPtr&, SOCKET, const CertificateVerifierPtr&, SSL*);
     friend class ServerContext;
 };
