@@ -34,7 +34,6 @@ enum DispatchStatus
 namespace Ice
 {
 
-// No virtual inheritance for ice objects
 class ICE_API Object : virtual public ::__IceDelegate::Ice::Object
 {
 public:
@@ -56,6 +55,13 @@ public:
     virtual void __read(::__Ice::Stream*) = 0;
 };
 
+// No virtual inheritance for local objects
+class ICE_API LocalObject : public ::__Ice::Shared
+{
+};
+
 }
 
 #endif
+
+
