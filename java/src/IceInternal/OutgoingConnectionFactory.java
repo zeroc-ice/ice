@@ -40,28 +40,43 @@ public class OutgoingConnectionFactory
         _destroyed = true;
     }
 
-    public synchronized void
+    public void
     waitUntilFinished()
     {
-	//
-	// First we wait until the factory is destroyed.
-	//
-	while(!_destroyed || !_pending.isEmpty())
+	java.util.HashMap connections;
+
+	synchronized(this)
 	{
-	    try
+	    //
+	    // First we wait until the factory is destroyed. We also
+	    // wait until there are no pending connections
+	    // anymore. Only then we can be sure the _connections
+	    // contains all connections.
+	    //
+	    while(!_destroyed || !_pending.isEmpty())
 	    {
-		wait();
+		try
+		{
+		    wait();
+		}
+		catch(InterruptedException ex)
+		{
+		}
 	    }
-	    catch(InterruptedException ex)
-	    {
-	    }
+
+	    //
+	    // We want to wait until all connections are finished
+	    // outside the thread synchronization.
+	    //
+	    connections = _connections;
+	    _connections = new java.util.HashMap();
 	}
 	
 	//
 	// Now we wait for until the destruction of each connection is
 	// finished.
 	//
-        java.util.Iterator p = _connections.values().iterator();
+        java.util.Iterator p = connections.values().iterator();
         while(p.hasNext())
         {
 	    java.util.LinkedList connectionList = (java.util.LinkedList)p.next();
@@ -72,14 +87,7 @@ public class OutgoingConnectionFactory
 		Connection connection = (Connection)q.next();
 		connection.waitUntilFinished();
 	    }
-
-	    connectionList.clear();
         }
-
-	//
-	// We're done, now we can throw away all connections.
-	//
-        _connections.clear();
     }
 
     public Connection

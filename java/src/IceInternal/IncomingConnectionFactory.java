@@ -34,28 +34,39 @@ public class IncomingConnectionFactory extends EventHandler
         setState(StateClosed);
     }
 
-    public synchronized void
+    public void
     waitUntilHolding()
     {
-	//
-	// First we wait until the connection factory itself is in
-	// holding state.
-	//
-	while(_state < StateHolding)
+	java.util.LinkedList connections;
+
+	synchronized(this)
 	{
-	    try
+	    //
+	    // First we wait until the connection factory itself is in
+	    // holding state.
+	    //
+	    while(_state < StateHolding)
 	    {
-		wait();
+		try
+		{
+		    wait();
+		}
+		catch(InterruptedException ex)
+		{
+		}
 	    }
-	    catch(InterruptedException ex)
-	    {
-	    }
+
+	    //
+	    // We want to wait until all connections are in holding state
+	    // outside the thread synchronization.
+	    //
+	    connections = (java.util.LinkedList)_connections.clone();
 	}
-	
+
 	//
 	// Now we wait until each connection is in holding state.
 	//
-	java.util.ListIterator p = _connections.listIterator();
+	java.util.ListIterator p = connections.listIterator();
 	while(p.hasNext())
 	{
 	    Connection connection = (Connection)p.next();
@@ -63,38 +74,45 @@ public class IncomingConnectionFactory extends EventHandler
 	}
     }
 
-    public synchronized void
+    public void
     waitUntilFinished()
     {
-	//
-	// First we wait until the factory is destroyed.
-	//
-	while(_acceptor != null)
+	java.util.LinkedList connections;
+
+	synchronized(this)
 	{
-	    try
+	    //
+	    // First we wait until the factory is destroyed.
+	    //
+	    while(_acceptor != null)
 	    {
-		wait();
+		try
+		{
+		    wait();
+		}
+		catch(InterruptedException ex)
+		{
+		}
 	    }
-	    catch(InterruptedException ex)
-	    {
-	    }
+	    
+	    //
+	    // We want to wait until all connections are finished
+	    // outside the thread synchronization.
+	    //
+	    connections = _connections;
+	    _connections = new java.util.LinkedList();
 	}
 	
 	//
 	// Now we wait for until the destruction of each connection is
 	// finished.
 	//
-	java.util.ListIterator p = _connections.listIterator();
+	java.util.ListIterator p = connections.listIterator();
 	while(p.hasNext())
 	{
 	    Connection connection = (Connection)p.next();
 	    connection.waitUntilFinished();
 	}
-	
-	//
-	// We're done, now we can throw away all connections.
-	//
-	_connections.clear();
     }
 
     public Endpoint

@@ -2,8 +2,9 @@
 Requirements
 ======================================================================
 
-OS
---
+
+Operating System
+----------------
 
 A recent Linux distribution for Intel x86 or AMD Opteron (x86-64).
 
@@ -73,6 +74,7 @@ http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
 
 And ncurses from:
 http://www.gnu.org/software/ncurses/ncurses.html
+
 
 Python 2.2
 ----------

@@ -2,30 +2,34 @@
 Requirements
 ======================================================================
 
-OS
---
+
+Operating System
+----------------
 
 Solaris 8 or Solaris 9 on SPARC.
 
 You also need to have /dev/urandom installed. This is the default with
 Solaris 9; on Solaris 8, you need to install patch 112438-01.
 
+
 C++ compiler
 ------------
 
 - Sun C++ 5.3 (part of Forte 6 update 2 aka Sun WorkShop 6 update 2)
-  with patch 111685-14 (or later) applied.
-  It is necessary to setup Sun C++ 5.3 to use the shared version of
-  libCstd, as described in 
+  with patch 111685-14 (or later) applied.  It is necessary to setup
+  Sun C++ 5.3 to use the shared version of libCstd, as described in
   <F6U2 install base>/SUNWspro/READMEs/c++ C.1.b (line 168).
  
-or
+  or
+
 - Sun C++ 5.4 (part of Sun ONE Studio 7.0 aka Forte Developer 7)
 
-or
-- Sun C++ 5.5 (part of Sun ONE Studio 8.0)
-  Ice takes advantage of the new linker scoping feature to reduce
-  the number of symbols exported by Ice shared libraries.
+  or
+
+- Sun C++ 5.5 (part of Sun ONE Studio 8.0) Ice takes advantage of the
+  new linker scoping feature to reduce the number of symbols exported
+  by Ice shared libraries.
+
 
 Third-party libraries
 ---------------------
@@ -57,6 +61,7 @@ GNU Make 3.80
 
 GNU Make 3.80 is required to build Ice on SPARC/Solaris.
 You can download GNU Make from http://www.sunfreeware.com.
+
 
 Python 2.2
 ----------
@@ -91,8 +96,10 @@ $ gmake
 This will build the Ice core library, all add-ons, all tests, and all
 examples. 
 
-CC 5.4 note:
+
+CC 5.4 note
 -----------
+
 The Sun CC 5.4 build produces a large number of warnings about
 hidden functions in the fstream and sstream standard headers. This
 is a known Sun bug (#4852754). You can suppress them by removing
@@ -126,17 +133,21 @@ $ export PATH=`pwd`/bin:$PATH
 $ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
 $ export LD_LIBRARY_PATH_64=`pwd`/lib:$LD_LIBRARY_PATH_64
 
+
 ======================================================================
 64 bit builds
 ======================================================================
 
 To build Ice in 64 bit mode, you need to:
- - Obtain or build all the third party dependencies, and put the 64 bit
-   libraries in the "lib/sparcv9" directories. For example put 
-   Berkeley DB 64 bit libraries in $DB_HOME/lib/sparcv9.
- - Set the environment variable LP64 to yes, e.g.:
-   $ export LP64=yes
- - Build and test as described above.
+
+- Obtain or build all the third party dependencies, and put the 64 bit
+  libraries in the "lib/sparcv9" directories. For example put Berkeley
+  DB 64 bit libraries in $DB_HOME/lib/sparcv9.
+
+- Set the environment variable LP64 to yes, e.g.:
+  $ export LP64=yes
+
+- Build and test as described above.
 
 
 ======================================================================
@@ -154,6 +165,6 @@ with the -I option, and the location of the <prefix>/lib directory
 with the -L option.
 
 If you built in 64 bit mode, the libraries are installed in
-<prefix>/lib/sparcv9 and the programs are installed in 
+<prefix>/lib/sparcv9 and the programs are installed in
 <prefix>/bin/sparcv9. Other files are identical for 32 and 64 bit.
  

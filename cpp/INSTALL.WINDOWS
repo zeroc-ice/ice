@@ -2,6 +2,7 @@
 Requirements
 ======================================================================
 
+
 Windows version
 ---------------
 
@@ -11,6 +12,7 @@ supported.
 
 Ice binary distributions for Visual C++ .NET 2002 and 2003 are
 also available from http://www.zeroc.com/download.html.
+
 
 C++ compiler
 ------------
@@ -36,6 +38,7 @@ http://www.stlport.org/doc/install.html
 For Visual C++ .NET 2002 and 2003, you can use the included STL 
 library. Downloading and installing STLport is not required for 
 these compiler versions.
+
 
 Third-party libraries
 ---------------------
@@ -75,6 +78,7 @@ expect if you build a debug version of Ice.
 
 We recommend that you use the same Visual C++ version to build all
 of the third party libraries.
+
 
 Python 2.2
 ----------
