@@ -84,7 +84,7 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
     //
     progressCB.startDownload(totalBZ2, posBZ2);
 
-    ofstream fileBZ2(pathBZ2.c_str(), ios::binary | (posBZ2 ? ios::app : 0));
+    ofstream fileBZ2(pathBZ2.c_str(), ios::binary | (posBZ2 ? ios::app : ios::openmode(0)));
     if(!fileBZ2)
     {
 	FileAccessException ex;

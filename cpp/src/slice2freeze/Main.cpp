@@ -281,7 +281,7 @@ main(int argc, char* argv[])
             }
 
 	    string s = argv[idx + 1];
-	    s.erase(remove_if(s.begin(), s.end(), isspace), s.end());
+	    s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
 	    
 	    Dict dict;
 

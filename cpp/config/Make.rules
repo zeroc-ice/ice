@@ -21,7 +21,7 @@
 STLPORT_HOME	?= /opt/STLport
 DB_HOME		?= /opt/db
 OPENSSL_HOME	?= /opt/openssl
-XERCESC_HOME    ?= /opt/xerces-c
+XERCESC_HOME    ?= /opt/xerces-c-2.1.0-gcc-3.2
 
 #
 # Don't change these lines!
@@ -43,6 +43,10 @@ OPENSSL_LIBS	= -L$(OPENSSL_HOME)/lib -lssl -lcrypto
 # Experts only: You can change the following lines, for example, to
 # set different compilation options for debug or optimization
 #
+
+#
+# GCC 2.96
+#
 CXX		= c++
 CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
 #CXXFLAGS	= -O3 -DNDEBUG -ftemplate-depth-128 -fPIC -Wall
@@ -55,10 +59,26 @@ SSLLIBS		= -lIceSSL $(OPENSSL_LIBS)
 CC		= gcc
 CFLAGS		= $(CXXFLAGS)
 
-# For Intel's icc compiler. (Experimental!)
+#
+# GCC 3.2
+#
+#CXX		= c++
+#CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
+##CXXFLAGS	= -O3 -DNDEBUG -ftemplate-depth-128 -fPIC -Wall
+#CPPFLAGS	= -I$(includedir)
+#LDFLAGS		= -L$(libdir)
+#BASELIBS	= -lIceUtil -lpthread -luuid -ldl -lbz2
+#LIBS		= -lIce $(BASELIBS)
+#SSLLIBS		= -lIceSSL $(OPENSSL_LIBS)
+#CC		= gcc
+#CFLAGS		= $(CXXFLAGS)
+
+#
+# Intel's icc compiler (Experimental!)
+#
 #CXX		= icc
 #CXXFLAGS	= -g -KPIC -w1
-#CXXFLAGS	= -O3 -DNDEBUG -KPIC
+##CXXFLAGS	= -O3 -DNDEBUG -KPIC
 #CPPFLAGS	= -I$(includedir)
 #LDFLAGS 	= -L$(libdir) -L$(OPENSSL_HOME)/lib -L$(XERCESC_HOME)/lib
 #BASELIBS	= -lIceUtil -lpthread -luuid -ldl -lbz2

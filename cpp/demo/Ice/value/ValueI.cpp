@@ -70,6 +70,6 @@ DerivedPrinterI::printUppercase(const Ice::Current&)
 {
     string s;
     s.resize(derivedMessage.length());
-    transform(derivedMessage.begin(), derivedMessage.end(), s.begin(), toupper);
+    transform(derivedMessage.begin(), derivedMessage.end(), s.begin(), ::toupper);
     cout << s << endl;
 }
