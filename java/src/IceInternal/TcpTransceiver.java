@@ -259,7 +259,7 @@ final class TcpTransceiver implements Transceiver
     public String
     toString()
     {
-        return Network.fdToString(_fd);
+        return _desc;
     }
 
     //
@@ -270,6 +270,7 @@ final class TcpTransceiver implements Transceiver
         _fd = fd;
         _traceLevels = instance.traceLevels();
         _logger = instance.logger();
+        _desc = Network.fdToString(_fd);
     }
 
     protected void
@@ -284,4 +285,5 @@ final class TcpTransceiver implements Transceiver
     private java.nio.channels.SocketChannel _fd;
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
+    private String _desc;
 }
