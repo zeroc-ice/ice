@@ -22,6 +22,7 @@ class CallbackClient extends Ice.Application
             "D: send callback as batch datagram\n" +
             "f: flush all batch requests\n" +
             "S: switch secure mode on/off\n" +
+	    "v: set/reset override context field\n" +
             "s: shutdown server\n" +
             "x: exit\n" +
             "?: help\n");
@@ -67,6 +68,7 @@ class CallbackClient extends Ice.Application
 
         boolean secure = false;
         String secureStr = "";
+	String overwrite = null;
 
         menu();
 
@@ -99,7 +101,11 @@ class CallbackClient extends Ice.Application
                 else if (line.equals("O"))
                 {
                     java.util.HashMap context = new java.util.HashMap();
-                    context.put("_fwd", "o" + secureStr);
+                    context.put("_fwd", "O" + secureStr);
+		    if (overwrite != null)
+		    {
+			context.put("_ovwt", overwrite);
+		    }
                     batchOneway.initiateCallback(onewayR, context);
                 }
                 else if (line.equals("d"))
@@ -111,8 +117,12 @@ class CallbackClient extends Ice.Application
                 else if (line.equals("D"))
                 {
                     java.util.HashMap context = new java.util.HashMap();
-                    context.put("_fwd", "d" + secureStr);
-                    batchDatagram.initiateCallback(datagramR, context);
+                    context.put("_fwd", "D" + secureStr);
+		    if (overwrite != null)
+		    {
+			context.put("_ovwt", overwrite);
+		    } 
+		    batchDatagram.initiateCallback(datagramR, context);
                 }
                 else if (line.equals("f"))
                 {
@@ -145,6 +155,19 @@ class CallbackClient extends Ice.Application
                         System.out.println("secure mode is now off");
                     }
                 }
+		else if (line.equals("v"))
+		{
+		    if (overwrite == null)
+		    {
+			overwrite = "some_value";
+			System.out.println("overwrite context field is now `" + overwrite + "'");
+		    }
+		    else
+		    {
+			overwrite = null;
+			System.out.println("overwrite context field is empty");
+		    }
+		}
                 else if (line.equals("s"))
                 {
                     twoway.shutdown();
