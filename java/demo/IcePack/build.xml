@@ -15,10 +15,12 @@ the Free Software Foundation.
 
     <target name="all">
         <ant dir="hello"/>
+        <ant dir="simple"/>
     </target>
 
     <target name="clean">
         <ant dir="hello" target="clean"/>
+        <ant dir="simple" target="clean"/>
     </target>
 
 </project>

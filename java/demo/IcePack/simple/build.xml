@@ -11,7 +11,7 @@ the terms of the GNU General Public License version 2 as published by
 the Free Software Foundation.
 
 -->
-<project name="demo_IcePack_hello" default="all" basedir=".">
+<project name="demo_IcePack_simple" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>

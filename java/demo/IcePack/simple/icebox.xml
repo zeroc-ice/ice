@@ -1,0 +1,3 @@
+<server kind="java-icebox" endpoints="default">
+  <service name="Hello" descriptor="service.xml"/>
+</server>

@@ -1,0 +1,18 @@
+To run the demo:
+
+Start the IcePack service:
+
+$ icepacknode --Ice.Config=config --warn
+
+In a separate window:
+
+$ icepackadmin --Ice.Config=config -e 'application add "application.xml"'
+$ java Client
+
+This will deploy the servers described in the "application.xml"
+descriptor and start the client.
+
+Messages will be displayed in the IcePack service window.
+
+These commands require the "Ice.jar" file and the local subdirectory
+"classes" to be in your CLASSPATH.
