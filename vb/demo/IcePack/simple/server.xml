@@ -1,0 +1,25 @@
+<icepack>
+
+  <server name="${name}" kind="cpp" exe="${ice.dir}/demo/IcePack/simple/server" activation="on-demand">
+
+    <adapters>
+      <adapter name="Hello" endpoints="tcp:udp" register="true">
+        <object identity="${name}" type="::IcePackSimpleDemo::Hello"/>
+      </adapter>
+    </adapters>
+
+    <properties>
+      <!-- The identity of the hello object will be the name of the server -->
+      <property name="Identity" value="${name}"/>
+    </properties>
+ 
+    <target name="debug">
+      <properties>
+        <property name="Ice.Network.Trace" value="1"/>
+        <property name="Ice.Network.Protocol" value="1"/>
+      </properties>
+    </target>
+  
+  </server>
+
+</icepack>

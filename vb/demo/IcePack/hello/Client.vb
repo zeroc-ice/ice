@@ -10,7 +10,7 @@
 Imports System
 Imports IcePackHelloDemo
 
-Public Module Client
+Public Module IcePackHelloClient
 
     Private Sub menu()
         Console.WriteLine("usage:")
