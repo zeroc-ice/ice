@@ -399,7 +399,8 @@ class Application(object):
         # Install our handler for the signals we are interested in. We assume main()
         # is called from the main thread.
         #
-        signal.signal(signal.SIGHUP, Application.signalHandler)
+        if signal.__dict__.has_key('SIGHUP'):
+            signal.signal(signal.SIGHUP, Application.signalHandler)
         signal.signal(signal.SIGINT, Application.signalHandler)
         signal.signal(signal.SIGTERM, Application.signalHandler)
 

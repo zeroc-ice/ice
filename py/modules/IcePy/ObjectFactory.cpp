@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Config.h>
 #include <ObjectFactory.h>
 #include <Types.h>
 #include <Util.h>

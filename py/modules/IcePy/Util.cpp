@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Config.h>
 #include <Util.h>
 #include <Ice/IdentityUtil.h>
 #include <Ice/LocalException.h>
@@ -88,14 +89,14 @@ IcePy::AdoptThread::~AdoptThread()
 }
 
 bool
-IcePy::listToStringSeq(PyObject* list, Ice::StringSeq& seq)
+IcePy::listToStringSeq(PyObject* l, Ice::StringSeq& seq)
 {
-    assert(PyList_Check(list));
+    assert(PyList_Check(l));
 
-    int sz = PyList_Size(list);
+    int sz = PyList_Size(l);
     for(int i = 0; i < sz; ++i)
     {
-        PyObject* item = PyList_GetItem(list, i);
+        PyObject* item = PyList_GetItem(l, i);
         if(item == NULL)
         {
             return false;
@@ -112,23 +113,23 @@ IcePy::listToStringSeq(PyObject* list, Ice::StringSeq& seq)
 }
 
 bool
-IcePy::stringSeqToList(const Ice::StringSeq& seq, PyObject* list)
+IcePy::stringSeqToList(const Ice::StringSeq& seq, PyObject* l)
 {
-    assert(PyList_Check(list));
+    assert(PyList_Check(l));
 
     for(Ice::StringSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
         PyObject* str = Py_BuildValue("s", p->c_str());
         if(str == NULL)
         {
-            Py_DECREF(list);
+            Py_DECREF(l);
             return false;
         }
-        int status = PyList_Append(list, str);
+        int status = PyList_Append(l, str);
         Py_DECREF(str); // Give ownership to the list.
         if(status < 0)
         {
-            Py_DECREF(list);
+            Py_DECREF(l);
             return false;
         }
     }
@@ -393,7 +394,7 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.operation.c_str()));
         PyObject_SetAttrString(p, "operation", m.get());
     }
-    catch(const Ice::LocalException& e)
+    catch(const Ice::LocalException&)
     {
         //
         // Nothing to do.
@@ -435,7 +436,7 @@ IcePy::convertException(const Ice::Exception& ex)
             }
         }
     }
-    catch(const Ice::UserException& e)
+    catch(const Ice::UserException&)
     {
         type = lookupType("Ice.UnknownUserException");
         assert(type != NULL);
@@ -446,7 +447,7 @@ IcePy::convertException(const Ice::Exception& ex)
             PyObject_SetAttrString(p.get(), "unknown", s.get());
         }
     }
-    catch(const Ice::Exception& e)
+    catch(const Ice::Exception&)
     {
         type = lookupType("Ice.UnknownException");
         assert(type != NULL);
@@ -633,7 +634,7 @@ IcePy::handleSystemExit(PyObject* ex)
 }
 
 PyObject*
-IcePy::createIdentity(const Ice::Identity& identity)
+IcePy::createIdentity(const Ice::Identity& ident)
 {
     PyObject* identityType = lookupType("Ice.Identity");
 
@@ -643,7 +644,7 @@ IcePy::createIdentity(const Ice::Identity& identity)
         return NULL;
     }
 
-    if(!setIdentity(obj.get(), identity))
+    if(!setIdentity(obj.get(), ident))
     {
         return NULL;
     }
@@ -659,11 +660,11 @@ IcePy::checkIdentity(PyObject* p)
 }
 
 bool
-IcePy::setIdentity(PyObject* p, const Ice::Identity& identity)
+IcePy::setIdentity(PyObject* p, const Ice::Identity& ident)
 {
     assert(checkIdentity(p));
-    PyObjectHandle name = PyString_FromString(const_cast<char*>(identity.name.c_str()));
-    PyObjectHandle category = PyString_FromString(const_cast<char*>(identity.category.c_str()));
+    PyObjectHandle name = PyString_FromString(const_cast<char*>(ident.name.c_str()));
+    PyObjectHandle category = PyString_FromString(const_cast<char*>(ident.category.c_str()));
     if(name.get() == NULL || category.get() == NULL)
     {
         return false;
@@ -676,7 +677,7 @@ IcePy::setIdentity(PyObject* p, const Ice::Identity& identity)
 }
 
 bool
-IcePy::getIdentity(PyObject* p, Ice::Identity& identity)
+IcePy::getIdentity(PyObject* p, Ice::Identity& ident)
 {
     assert(checkIdentity(p));
     PyObjectHandle name = PyObject_GetAttrString(p, "name");
@@ -689,7 +690,7 @@ IcePy::getIdentity(PyObject* p, Ice::Identity& identity)
             PyErr_Format(PyExc_ValueError, "identity name must be a string");
             return false;
         }
-        identity.name = s;
+        ident.name = s;
     }
     if(category.get() != NULL)
     {
@@ -699,7 +700,7 @@ IcePy::getIdentity(PyObject* p, Ice::Identity& identity)
             PyErr_Format(PyExc_ValueError, "identity category must be a string");
             return false;
         }
-        identity.category = s;
+        ident.category = s;
     }
     return true;
 }

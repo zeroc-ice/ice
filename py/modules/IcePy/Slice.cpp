@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Config.h>
 #include <Slice.h>
 #include <Util.h>
 #include <Slice/Preprocessor.h>

@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Config.h>
 #include <Types.h>
 #include <Current.h>
 #include <Proxy.h>
@@ -219,6 +220,7 @@ IcePy::PrimitiveInfo::getId() const
         return "string";
     }
     assert(false);
+    return string();
 }
 
 bool

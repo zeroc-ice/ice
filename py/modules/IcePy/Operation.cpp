@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Config.h>
 #include <Operation.h>
 #include <Current.h>
 #include <Proxy.h>

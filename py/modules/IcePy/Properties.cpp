@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Config.h>
 #include <Properties.h>
 #include <Util.h>
 #include <Ice/Initialize.h>

@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Config.h>
 #include <Current.h>
 #include <structmember.h>
 #include <ObjectAdapter.h>

@@ -2,7 +2,7 @@
 Requirements
 =========================================================================
 
-- Python 2.3
+- Python 2.3 (http://www.python.org)
 - Ice 1.6.0
 
 
@@ -45,8 +45,43 @@ Follow these steps to build the Ice extension for Python:
 Building the Ice extension for Python (Windows)
 =========================================================================
 
-TBD
+The Python interpreter is readily available on Windows platforms. You
+can build it yourself using Microsoft Visual C++, or obtain a binary
+distribution such as ActivePython (http://www.activestate.com).
 
+Follow these steps to build the Ice extension for Python:
+
+1) Configure Visual C++ so that it can find the Python include files
+   and libraries.
+
+2) Open the "all.dsw" workspace. If you are using Visual C++ .NET,
+   the project files will first need to be converted from the Visual
+   C++ 6.0 format.
+
+3) Set your active project to "IcePy". Note that the default
+   configuration is a Debug build, which requires that the debug
+   libraries be available for Python and Ice.
+
+4) Build the "IcePy" project.
+
+5) Modify your environment to allow Python to find the Ice for
+   Python extension. The interpreter must be able to locate
+   the extension DLL as well as the Python source files in the
+   "python" subdirectory. This is normally accomplished by setting
+   the PYTHONPATH environment variable to contain the necessary
+   subdirectories. For example, if the Ice for Python extension is
+   installed in C:\IcePy, you could configure your environment as
+   follows:
+
+   set ICEPY_HOME=C:\IcePy
+   set PYTHONPATH=%ICEPY_HOME%\bin;%ICEPY_HOME%\python
+
+
+NOTE: When compiling the Python interpreter from sources using
+Microsoft Visual C++ 6.0, the presence of the STLport header files
+causes a compilation error. The solution is to temporarily remove or
+rename the STLport include directory in your Visual C++ settings using
+Tools/Options/Directories/Include files.
 
 
 =========================================================================

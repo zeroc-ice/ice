@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Config.h>
 #include <Communicator.h>
 #include <Current.h>
 #include <Logger.h>
