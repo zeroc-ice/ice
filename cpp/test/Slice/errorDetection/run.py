@@ -12,6 +12,7 @@
 import os, sys, re
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+    toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
 else:
@@ -31,10 +32,10 @@ for file in files:
 
     print file + "...",
 
-    stdin, stdout, stderr = os.popen3(slice2cpp + " " + os.path.join(directory, file))
+    command = slice2cpp + " " + os.path.join(directory, file);
+    stdin, stdout, stderr = os.popen3(command)
     lines1 = stderr.readlines()
     lines2 = open(os.path.join(directory, regex1.sub(".err", file)), "r").readlines()
-
     if len(lines1) != len(lines2):
         print "failed!"
         sys.exit(1)
