@@ -29,7 +29,7 @@ Running the Ice Demos
 
 Most demos consist of a single server and client. The instructions to
 run the demo depend on the programming language. Instructions for each
-langauge are included below.  Some demo directories contain README
+language are included below.  Some demo directories contain README
 files if additional steps are necessary.
 
 
@@ -69,6 +69,9 @@ $ java Client
 Running the C# demos
 ====================
 
+The C# demos are only officially supported under Linux or
+Windows.
+
 To run a demo, open a terminal window, change to the desired demo
 directory, and enter the following command to run the server:
 
@@ -92,9 +95,3 @@ To run the client, open another terminal window, also change to the
 desired demo directory, and run:
 
 $ python Client.py
-
-
-Running the PHP demos
-=====================
-
-The PHP demos have their own README files.
