@@ -8,15 +8,22 @@
 //
 // **********************************************************************
 
+#include <Ice/Application.h>
 #include <Parser.h>
 
 using namespace std;
 using namespace Ice;
 
-void
-usage(const char* n)
+class PhoneBookClient : public Application
 {
-    cerr << "Usage: " << n << " [options] [file...]\n";
+    void usage();
+    int run(int argc, char* argv[]);
+};
+
+void
+PhoneBookClient::usage()
+{
+    cerr << "Usage: " << appName() << " [options] [file...]\n";
     cerr <<	
 	"Options:\n"
 	"-h, --help           Show this message.\n"
@@ -27,7 +34,7 @@ usage(const char* n)
 }
 
 int
-run(int argc, char* argv[], const CommunicatorPtr& communicator)
+PhoneBookClient::run(int argc, char* argv[])
 {
     string commands;
     bool debug = false;
@@ -37,7 +44,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     {
 	if (strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
 	{
-	    usage(argv[0]);
+	    usage();
 	    return EXIT_SUCCESS;
 	}
 	else if (strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
@@ -50,7 +57,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	    if (idx + 1 >= argc)
             {
 		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
-		usage(argv[0]);
+		usage();
 		return EXIT_FAILURE;
             }
 	    
@@ -75,7 +82,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	else if (argv[idx][0] == '-')
 	{
 	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
-	    usage(argv[0]);
+	    usage();
 	    return EXIT_FAILURE;
 	}
 	else
@@ -87,11 +94,11 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     if (argc >= 2 && !commands.empty())
     {
 	cerr << argv[0] << ": `-e' option cannot be used if input files are given" << endl;
-	usage(argv[0]);
+	usage();
 	return EXIT_FAILURE;
     }
 
-    PropertiesPtr properties = communicator->getProperties();
+    PropertiesPtr properties = communicator()->getProperties();
     const char* refProperty = "PhoneBook.PhoneBook";
     string ref = properties->getProperty(refProperty);
     if (ref.empty())
@@ -100,7 +107,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    ObjectPrx base = communicator->stringToProxy(ref);
+    ObjectPrx base = communicator()->stringToProxy(ref);
     PhoneBookPrx phoneBook = PhoneBookPrx::checkedCast(base);
     if (!phoneBook)
     {
@@ -108,7 +115,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    ParserPtr parser = Parser::createParser(communicator, phoneBook);
+    ParserPtr parser = Parser::createParser(communicator(), phoneBook);
     int status = EXIT_SUCCESS;
 
     if (argc < 2) // No files given
@@ -158,33 +165,6 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 int
 main(int argc, char* argv[])
 {
-    int status;
-    CommunicatorPtr communicator;
-
-    try
-    {
-	PropertiesPtr properties = createPropertiesFromFile(argc, argv, "config");
-	communicator = initializeWithProperties(properties);
-	status = run(argc, argv, communicator);
-    }
-    catch(const LocalException& ex)
-    {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
-    }
-
-    if (communicator)
-    {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const LocalException& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-    }
-
-    return status;
+    PhoneBookClient app;
+    app.main(argc, argv, "config");
 }

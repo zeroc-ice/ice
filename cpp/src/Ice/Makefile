@@ -18,7 +18,8 @@ VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
 
 TARGETS		= $(NAME) $(VERSIONED_NAME)
 
-OBJS		= Stream.o \
+OBJS		= Application.o \
+		  Stream.o \
 		  LocalException.o \
 		  Pickler.o \
 		  PicklerI.o \
