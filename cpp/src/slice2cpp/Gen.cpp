@@ -1428,10 +1428,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    StringList allOpNames;
 	    transform(allOperations.begin(), allOperations.end(), back_inserter(allOpNames),
 		      ::Ice::memFun(&Operation::name));
-	    StringList other;
-	    other.push_back("_isA");
-	    //other.sort();
-	    allOpNames.merge(other);
+	    allOpNames.push_back("_isA");
+	    allOpNames.sort();
 	    allOpNames.unique();
 	    
 	    StringList::iterator q;
