@@ -21,10 +21,10 @@ public final class Direct
     {
         _current = current;
 
-	((Ice.ObjectAdapterI)(_current.adapter)).incUsageCount();
-
         try
         {
+	    ((Ice.ObjectAdapterI)(_current.adapter)).incUsageCount();
+
 	    _servant = _current.adapter.identityToServant(_current.id);
 	    
 	    if(_servant == null && _current.id.category.length() > 0)
