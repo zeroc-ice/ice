@@ -130,8 +130,7 @@ IceInternal::encodeString(const string& s, const string& special)
 
 //
 // Decodes a UTF8 string. Decoding starts at the given start position
-// (inclusive) and stops at the given end position (exclusive). If the end
-// position is zero, then the remainder of the string is used. Upon success,
+// (inclusive) and stops at the given end position (exclusive). Upon success,
 // the result parameter holds the decoded string and true is returned.
 // A return value of false indicates an error was detected in the encoding.
 //
@@ -139,10 +138,6 @@ bool
 IceInternal::decodeString(const string& s, string::size_type start, string::size_type end, string& result)
 {
     const string::size_type len = s.size();
-    if(end == 0)
-    {
-        end = len;
-    }
     assert(start >= 0);
     assert(end <= len);
     assert(start <= end);

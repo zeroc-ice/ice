@@ -184,8 +184,7 @@ public final class StringUtil
 
     //
     // Decodes a UTF8 string. Decoding starts at the given start position
-    // (inclusive) and stops at the given end position (exclusive). If the end
-    // position is zero, then the remainder of the string is used. Upon success,
+    // (inclusive) and stops at the given end position (exclusive). Upon success,
     // the result parameter holds the decoded string and true is returned.
     // A return value of false indicates an error was detected in the encoding.
     //
@@ -193,10 +192,6 @@ public final class StringUtil
     decodeString(String s, int start, int end, Ice.StringHolder result)
     {
         final int len = s.length();
-        if(end == 0)
-        {
-            end = len;
-        }
         assert(start >= 0);
         assert(end <= len);
         assert(start <= end);
