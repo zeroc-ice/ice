@@ -22,15 +22,6 @@
 namespace IcePatch
 {
 
-class ICE_PATCH_API AbortException : public IceUtil::Exception
-{
-public:
-    AbortException(const char*, int);
-    virtual std::string ice_name() const;
-    virtual IceUtil::Exception* ice_clone() const;
-    virtual void ice_throw() const;
-};
-
 class ICE_PATCH_API ProgressCB
 {
 public:

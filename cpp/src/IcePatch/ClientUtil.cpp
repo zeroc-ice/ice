@@ -21,31 +21,6 @@ using namespace std;
 using namespace Ice;
 using namespace IcePatch;
 
-// TODO: ML: Move AbortException out of IcePatch, and into
-// WishPatch. It is not used in IcePatch.
-AbortException::AbortException(const char* file, int line) : 
-    IceUtil::Exception(file, line)
-{
-}
-
-std::string 
-AbortException::ice_name() const
-{
-    return "AbortException";
-}
-
-Exception*
-AbortException::ice_clone() const
-{
-    return new AbortException(*this);
-}
-
-void
-AbortException::ice_throw() const
-{
-    throw *this;
-}
-
 string
 IcePatch::pathToName(const string& path)
 {
@@ -179,8 +154,6 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 	        {
 		    ex.reason += string(": ") + strerror(errno);
 	        }
-	        BZ2_bzReadClose(&bzError, bzFile);
-	        fclose(stdioFileBZ2);
 	        throw ex;
 	    }
 	    
@@ -191,8 +164,6 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 	        {
 		    FileAccessException ex;
 		    ex.reason = "cannot get read position for `" + pathBZ2 + "': " + strerror(errno);
-		    BZ2_bzReadClose(&bzError, bzFile);
-		    fclose(stdioFileBZ2);
 		    throw ex;
 	        }
 
@@ -203,8 +174,6 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 	        {
 		    FileAccessException ex;
 		    ex.reason = "cannot write `" + path + "': " + strerror(errno);
-		    BZ2_bzReadClose(&bzError, bzFile);
-		    fclose(stdioFileBZ2);
 		    throw ex;
 	        }
 	    }
@@ -212,10 +181,6 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
     
         progressCB.finishedUncompress(totalBZ2);
     }
-    // TODO: ML: The code is broken. If an exception is raised above
-    // (for example, from the if(!file) {...} block), then
-    // BZ2_bzReadClose and fclose are called twice! Solution: Only
-    // close in this block, but not when an exception is raised above.
     catch(...)
     {
         BZ2_bzReadClose(&bzError, bzFile);
