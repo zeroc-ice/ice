@@ -22,7 +22,7 @@ class EntryI : public Entry, public JTCMutex
 {
 public:
 
-    EntryI(const std::string& identity, const Ice::ObjectAdapterPtr&, const PhoneBookIPtr&);
+    EntryI(const std::string& identity, const PhoneBookIPtr&);
     ~EntryI();
 
     virtual std::wstring getName();
@@ -32,14 +32,13 @@ public:
     virtual void setAddress(const std::wstring&);
 
     virtual std::string getNumber();
-    virtual void setNumber(std::string);
+    virtual void setNumber(const std::string&);
 
     virtual void destroy();
 
 private:
 
     std::string _identity;
-    Ice::ObjectAdapterPtr _adapter;
     PhoneBookIPtr _phoneBook;
 };
 

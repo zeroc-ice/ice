@@ -8,31 +8,16 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <PhoneBookI.h>
 #include <sstream>
 
 using namespace std;
 using namespace Ice;
 
-EntryI::EntryI(const string& identity, const ObjectAdapterPtr& adapter, const PhoneBookIPtr& phoneBook) :
+EntryI::EntryI(const string& identity, const PhoneBookIPtr& phoneBook) :
     _identity(identity),
-    _adapter(adapter),
     _phoneBook(phoneBook)
 {
-    __setNoDelete(true);
-
-    try
-    {
-	EntryPrx self = EntryPrx::uncheckedCast(_adapter->add(this, _identity));
-    }
-    catch(...)
-    {
-	__setNoDelete(false);
-	throw;
-    }
-
-    __setNoDelete(false);
 }
 
 EntryI::~EntryI()
@@ -42,14 +27,14 @@ EntryI::~EntryI()
 wstring
 EntryI::getName()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     return _name;
 }
 
 void
 EntryI::setName(const wstring& name)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     _phoneBook->move(_identity, _name, name);
     _name = name;
 }
@@ -57,42 +42,40 @@ EntryI::setName(const wstring& name)
 wstring
 EntryI::getAddress()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     return _address;
 }
 
 void
 EntryI::setAddress(const wstring& address)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     _address = address;
 }
 
 string
 EntryI::getNumber()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     return _number;
 }
 
 void
-EntryI::setNumber(string number)
+EntryI::setNumber(const string& number)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     _number = number;
 }
 
 void
 EntryI::destroy()
 {
-    JTCSyncT<JTCMutex> sync(*this);
-    _adapter->remove(_identity);
+    JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     _phoneBook->remove(_identity, _name);
 }
 
-PhoneBookI::PhoneBookI(const ObjectAdapterPtr& adapter) :
-    _adapter(adapter),
-    _nextEntryIdentity(0)
+PhoneBookI::PhoneBookI(const Ice::ObjectAdapterPtr& adapter) :
+    _adapter(adapter)
 {
 }
 
@@ -103,7 +86,8 @@ PhoneBookI::~PhoneBookI()
 EntryPrx
 PhoneBookI::createEntry()
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
+
     
 #ifdef WIN32 // COMPILERBUG
     char s[20];
@@ -142,7 +126,7 @@ private:
 Entries
 PhoneBookI::findEntries(const wstring& name)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
     EntryIdentitiesDict::iterator p = _entryIdentitiesDict.find(name);
     if (p != _entryIdentitiesDict.end())
@@ -160,14 +144,16 @@ PhoneBookI::findEntries(const wstring& name)
 void
 PhoneBookI::add(const string& identity, const wstring& name)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
+
     _entryIdentitiesDict[name].push_back(identity);
 }
 
 void
 PhoneBookI::remove(const string& identity, const wstring& name)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
+
     EntryIdentitiesDict::iterator p = _entryIdentitiesDict.find(name);
     assert(p != _entryIdentitiesDict.end());
     p->second.erase(remove_if(p->second.begin(), p->second.end(), bind2nd(equal_to<string>(), identity)),
@@ -177,7 +163,8 @@ PhoneBookI::remove(const string& identity, const wstring& name)
 void
 PhoneBookI::move(const string& identity, const wstring& oldName, const wstring& newName)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
+
     remove(identity, oldName);
     add(identity, newName);
 }

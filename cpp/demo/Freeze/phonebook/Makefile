@@ -20,6 +20,7 @@ OBJS		= PhoneBook.o
 COBJS		= Client.o
 
 SOBJS		= PhoneBookI.o \
+		  Evictor.o \
 		  Server.o
 
 SRCS		= $(OBJS:.o=.cpp) \
@@ -36,7 +37,7 @@ $(CLIENT): $(OBJS) $(COBJS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze $(LIBS)
 
 PhoneBook.h PhoneBook.cpp: PhoneBook.ice $(SLICE)
 	rm -f PhoneBook.h PhoneBook.cpp
