@@ -13,6 +13,7 @@
 interface ServerManager
 {
     void startServer();
+    void cleanup();
     void shutdown();
 };
 

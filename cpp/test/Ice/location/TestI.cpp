@@ -44,9 +44,14 @@ ServerManagerI::startServer(const Ice::Current&)
 }
 
 void
+ServerManagerI::cleanup(const Ice::Current&)
+{
+    _serverCommunicator->destroy();
+}
+
+void
 ServerManagerI::shutdown(const Ice::Current&)
 {
-    _serverCommunicator->shutdown();
     _adapter->getCommunicator()->shutdown();
 }
 

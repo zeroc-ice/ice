@@ -18,6 +18,7 @@ public:
     ServerManagerI(const Ice::ObjectAdapterPtr&);
     
     virtual void startServer(const Ice::Current&);
+    virtual void cleanup(const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
 private:
