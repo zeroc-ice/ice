@@ -118,6 +118,13 @@ class CommunicatorI extends LocalObjectImpl implements Communicator
         return adapter;
     }
 
+    public synchronized ObjectAdapter
+    createObjectAdapterWithEndpoints(String name, String endpoints)
+    {
+	getProperties()->setProperty(name + ".Endpoints", endpoints);
+	return createObjectAdapter(name);
+    }
+
     public synchronized void
     addObjectFactory(ObjectFactory factory, String id)
     {
