@@ -29,25 +29,25 @@
         {
         "MsmKey" = "8:_763C97E2542A43B78BB40911766BE01F"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\DB.H"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\DB.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_88E25C3F145141788ED123688BDC0A3F"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\DB_CXX.H"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\DB_CXX.H"
         }
         "Entry"
         {
         "MsmKey" = "8:_9D8AE32FCAA64A7796A359A2FDDB2854"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\DEBUG\\LIBDB43D.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\DEBUG\\LIBDB42D.LIB"
         }
         "Entry"
         {
         "MsmKey" = "8:_D5487CC2C86545099A59D246182C0F2E"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\RELEASE\\LIBDB43.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\RELEASE\\LIBDB42.LIB"
         }
     }
     "Configurations"
@@ -100,7 +100,7 @@
         {
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_763C97E2542A43B78BB40911766BE01F"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\db.h"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\db.h"
             "TargetName" = "8:db.h"
             "Tag" = "8:"
             "Folder" = "8:_1FB536E1F7AF491CB56D186108621C30"
@@ -120,7 +120,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_88E25C3F145141788ED123688BDC0A3F"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\db_cxx.h"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\db_cxx.h"
             "TargetName" = "8:db_cxx.h"
             "Tag" = "8:"
             "Folder" = "8:_1FB536E1F7AF491CB56D186108621C30"
@@ -140,8 +140,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_9D8AE32FCAA64A7796A359A2FDDB2854"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Debug\\libdb43d.lib"
-            "TargetName" = "8:libdb43d.lib"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Debug\\libdb42d.lib"
+            "TargetName" = "8:libdb42d.lib"
             "Tag" = "8:"
             "Folder" = "8:_9EBB450083A64417830CE5A529F489E9"
             "Condition" = "8:"
@@ -160,8 +160,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_D5487CC2C86545099A59D246182C0F2E"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Release\\libdb43.lib"
-            "TargetName" = "8:libdb43.lib"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Release\\libdb42.lib"
+            "TargetName" = "8:libdb42.lib"
             "Tag" = "8:"
             "Folder" = "8:_9EBB450083A64417830CE5A529F489E9"
             "Condition" = "8:"
@@ -407,7 +407,7 @@
         "Module"
         {
         "ModuleSignature" = "8:MergeModule.8FAAA943571D45AFBB980B5631FF1D3E"
-        "Version" = "8:4.3.21.0"
+        "Version" = "8:4.2.52.0"
         "Title" = "8:BerkeleyDBDevKit"
         "Subject" = "8:"
         "Author" = "8:ZeroC, Inc"

@@ -17,25 +17,25 @@
         {
         "MsmKey" = "8:_0D28C9ED0C334D5E80943802AA26E4B1"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\RELEASE\\DB_STAT.EXE"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\RELEASE\\DB_STAT.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_0EB489370ABB4F93B68836503015E226"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\RELEASE\\DB_RECOVER.EXE"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\RELEASE\\DB_RECOVER.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_185A65C05A99449B8EFEE1572E2C200A"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\RELEASE\\LIBDB43.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\RELEASE\\LIBDB42.DLL"
         }
         "Entry"
         {
         "MsmKey" = "8:_1A188BC33B544EA6B2AE09385F2714F1"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\RELEASE\\DB_ARCHIVE.EXE"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\RELEASE\\DB_ARCHIVE.EXE"
         }
         "Entry"
         {
@@ -53,55 +53,55 @@
         {
         "MsmKey" = "8:_4844554039F647E29995F4A2FE5EF4B5"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\RELEASE\\LIBDB_JAVA43.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\RELEASE\\LIBDB_JAVA42.DLL"
         }
         "Entry"
         {
         "MsmKey" = "8:_4CF58439155843B8B4B00008F68B9374"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\RELEASE\\DB_LOAD.EXE"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\RELEASE\\DB_LOAD.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_4D960730A50C48AFA78F66B734122FBE"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\RELEASE\\DB.JAR"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\RELEASE\\DB.JAR"
         }
         "Entry"
         {
         "MsmKey" = "8:_5121FCA830024336AC4B32654F81B235"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\RELEASE\\DB_UPGRADE.EXE"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\RELEASE\\DB_UPGRADE.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_61CC070888934C09A336476D97C20304"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\RELEASE\\DB_CHECKPOINT.EXE"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\RELEASE\\DB_CHECKPOINT.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_65F7F3B70B594ADA9CF07DF5B1FA15A7"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\RELEASE\\DB_PRINTLOG.EXE"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\RELEASE\\DB_PRINTLOG.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_98D3D626D17646898363BC6BDBC0419B"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\RELEASE\\DB_DUMP.EXE"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\RELEASE\\DB_DUMP.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_D8B829E43F2A470285E3D6787E18103A"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\RELEASE\\DB_VERIFY.EXE"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\RELEASE\\DB_VERIFY.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_DA5D9358208441E9AB74C1E07EF36355"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\RELEASE\\DB_DEADLOCK.EXE"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\RELEASE\\DB_DEADLOCK.EXE"
         }
     }
     "Configurations"
@@ -154,7 +154,7 @@
         {
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_0D28C9ED0C334D5E80943802AA26E4B1"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Release\\db_stat.exe"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Release\\db_stat.exe"
             "TargetName" = "8:db_stat.exe"
             "Tag" = "8:"
             "Folder" = "8:_960E1A72653C4D889AFC062E21AEE40A"
@@ -174,7 +174,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_0EB489370ABB4F93B68836503015E226"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Release\\db_recover.exe"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Release\\db_recover.exe"
             "TargetName" = "8:db_recover.exe"
             "Tag" = "8:"
             "Folder" = "8:_960E1A72653C4D889AFC062E21AEE40A"
@@ -194,8 +194,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_185A65C05A99449B8EFEE1572E2C200A"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Release\\libdb43.dll"
-            "TargetName" = "8:libdb43.dll"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Release\\libdb42.dll"
+            "TargetName" = "8:libdb42.dll"
             "Tag" = "8:"
             "Folder" = "8:_960E1A72653C4D889AFC062E21AEE40A"
             "Condition" = "8:"
@@ -214,7 +214,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_1A188BC33B544EA6B2AE09385F2714F1"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Release\\db_archive.exe"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Release\\db_archive.exe"
             "TargetName" = "8:db_archive.exe"
             "Tag" = "8:"
             "Folder" = "8:_960E1A72653C4D889AFC062E21AEE40A"
@@ -234,8 +234,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_4844554039F647E29995F4A2FE5EF4B5"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Release\\libdb_java43.dll"
-            "TargetName" = "8:libdb_java43.dll"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Release\\libdb_java42.dll"
+            "TargetName" = "8:libdb_java42.dll"
             "Tag" = "8:"
             "Folder" = "8:_960E1A72653C4D889AFC062E21AEE40A"
             "Condition" = "8:"
@@ -254,7 +254,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_4CF58439155843B8B4B00008F68B9374"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Release\\db_load.exe"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Release\\db_load.exe"
             "TargetName" = "8:db_load.exe"
             "Tag" = "8:"
             "Folder" = "8:_960E1A72653C4D889AFC062E21AEE40A"
@@ -274,7 +274,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_4D960730A50C48AFA78F66B734122FBE"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Release\\db.jar"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Release\\db.jar"
             "TargetName" = "8:db.jar"
             "Tag" = "8:"
             "Folder" = "8:_753ACC8749D641B08D91F3ED0CDCD491"
@@ -294,7 +294,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5121FCA830024336AC4B32654F81B235"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Release\\db_upgrade.exe"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Release\\db_upgrade.exe"
             "TargetName" = "8:db_upgrade.exe"
             "Tag" = "8:"
             "Folder" = "8:_960E1A72653C4D889AFC062E21AEE40A"
@@ -314,7 +314,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_61CC070888934C09A336476D97C20304"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Release\\db_checkpoint.exe"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Release\\db_checkpoint.exe"
             "TargetName" = "8:db_checkpoint.exe"
             "Tag" = "8:"
             "Folder" = "8:_960E1A72653C4D889AFC062E21AEE40A"
@@ -334,7 +334,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_65F7F3B70B594ADA9CF07DF5B1FA15A7"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Release\\db_printlog.exe"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Release\\db_printlog.exe"
             "TargetName" = "8:db_printlog.exe"
             "Tag" = "8:"
             "Folder" = "8:_960E1A72653C4D889AFC062E21AEE40A"
@@ -354,7 +354,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_98D3D626D17646898363BC6BDBC0419B"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Release\\db_dump.exe"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Release\\db_dump.exe"
             "TargetName" = "8:db_dump.exe"
             "Tag" = "8:"
             "Folder" = "8:_960E1A72653C4D889AFC062E21AEE40A"
@@ -374,7 +374,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_D8B829E43F2A470285E3D6787E18103A"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Release\\db_verify.exe"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Release\\db_verify.exe"
             "TargetName" = "8:db_verify.exe"
             "Tag" = "8:"
             "Folder" = "8:_960E1A72653C4D889AFC062E21AEE40A"
@@ -394,7 +394,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_DA5D9358208441E9AB74C1E07EF36355"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Release\\db_deadlock.exe"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Release\\db_deadlock.exe"
             "TargetName" = "8:db_deadlock.exe"
             "Tag" = "8:"
             "Folder" = "8:_960E1A72653C4D889AFC062E21AEE40A"
@@ -500,7 +500,7 @@
         "Module"
         {
         "ModuleSignature" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
-        "Version" = "8:4.3.21.0"
+        "Version" = "8:4.2.52.0"
         "Title" = "8:BerkeleyDBRuntime"
         "Subject" = "8:"
         "Author" = "8:ZeroC, Inc"

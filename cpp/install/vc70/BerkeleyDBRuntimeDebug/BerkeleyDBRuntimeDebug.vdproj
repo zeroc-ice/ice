@@ -15,15 +15,15 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_4F24A4AB13C642B190446B8548F5E54D"
+        "MsmKey" = "8:_DDD509BBEBBF469C9997CCECC2A459CE"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\DEBUG\\LIBDB43D.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\DEBUG\\LIBDB42D.DLL"
         }
         "Entry"
         {
         "MsmKey" = "8:_FBB6AE84C43142FABAEB782F1E825669"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.3.21\\BUILD_WIN32\\DEBUG\\DB_DLL.PDB"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\DEBUG\\DB_DLL.PDB"
         }
     }
     "Configurations"
@@ -74,10 +74,10 @@
         }
         "File"
         {
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_4F24A4AB13C642B190446B8548F5E54D"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_DDD509BBEBBF469C9997CCECC2A459CE"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Debug\\libdb43d.dll"
-            "TargetName" = "8:libdb43d.dll"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Debug\\libdb42d.dll"
+            "TargetName" = "8:libdb42d.dll"
             "Tag" = "8:"
             "Folder" = "8:_41C668252C5E45BC856D33ED6359A0AA"
             "Condition" = "8:"
@@ -96,7 +96,7 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_FBB6AE84C43142FABAEB782F1E825669"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.3.21\\build_win32\\Debug\\db_dll.pdb"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Debug\\db_dll.pdb"
             "TargetName" = "8:db_dll.pdb"
             "Tag" = "8:"
             "Folder" = "8:_41C668252C5E45BC856D33ED6359A0AA"
@@ -202,7 +202,7 @@
         "Module"
         {
         "ModuleSignature" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
-        "Version" = "8:4.3.21.0"
+        "Version" = "8:4.2.52.0"
         "Title" = "8:BerkeleyDBRuntimeDebug"
         "Subject" = "8:"
         "Author" = "8:ZeroC, Inc"

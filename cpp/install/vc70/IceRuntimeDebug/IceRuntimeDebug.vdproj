@@ -15,9 +15,21 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_100C02729DEE443F9A9CE7121F8B1F53"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEPACK20D.DLL"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_1064FF485F624BD8B6502CF8D12C6060"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICEBOX\\DEBUG\\ICEBOX.EXE"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_19995B0403C74D2FA0622CD5FE6AC28A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEPATCH20D.DLL"
         }
         "Entry"
         {
@@ -27,69 +39,141 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_245C5A1435374421B5E0991F765BCED2"
+        "MsmKey" = "8:_2118C4168F024F58996FC4C1D8BD9851"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESTORM15D.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESTORMSERVICE20D.DLL"
         }
         "Entry"
         {
-        "MsmKey" = "8:_3DD59FC1DD00486297049E2746019574"
+        "MsmKey" = "8:_2D5C9D0AF49146D78DDA120DE38FA833"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEUTIL15D.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESTORMSERVICE20D.PDB"
         }
         "Entry"
         {
-        "MsmKey" = "8:_451557EC70AE4FA59C2F472ECBC8FF04"
+        "MsmKey" = "8:_370590F1336646AE8494EA91BA12AC7F"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICE15D.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEPATCH20D.PDB"
         }
         "Entry"
         {
-        "MsmKey" = "8:_6464D9D9D5484E449998E26A40183A72"
+        "MsmKey" = "8:_40C53B18CECA4E6D93EDC1BB8FABF50F"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEPATCH15D.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEXML20D.DLL"
         }
         "Entry"
         {
-        "MsmKey" = "8:_9551FC12B72741179FE1FBAD733DDF07"
+        "MsmKey" = "8:_4359532B26F44599B18C1EEEFF9E84E1"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEBOX15D.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESSL20D.PDB"
         }
         "Entry"
         {
-        "MsmKey" = "8:_ACEBB2B0F00B42ADBB512C0A6374AB15"
+        "MsmKey" = "8:_480CC582021A4F109B1BC7AB362A9507"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\SLICE15D.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\GLACIER220D.DLL"
         }
         "Entry"
         {
-        "MsmKey" = "8:_B4EAF52EFE1C4790A7BDFDB50302D916"
+        "MsmKey" = "8:_4A2FC6C895514BA790A5E088F74F5FB7"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\FREEZE15D.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\SLICE20D.PDB"
         }
         "Entry"
         {
-        "MsmKey" = "8:_B62FB5D599B74C8488C0B7732BF1428C"
+        "MsmKey" = "8:_52BC002DF48346DBACBB3CB284289B09"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESSL15D.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\FREEZE20D.PDB"
         }
         "Entry"
         {
-        "MsmKey" = "8:_CEE188307AF746E7B3DD435EFE51FD06"
+        "MsmKey" = "8:_56EE901ACE2F4DBEAD414E763CB7929A"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEPACK15D.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICE20D.DLL"
         }
         "Entry"
         {
-        "MsmKey" = "8:_D2C5C085D427407B8A7147841C25E002"
+        "MsmKey" = "8:_6CBC661C377F4434AE49DA4E54B487C4"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESTORMSERVICE15D.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEBOX20D.DLL"
         }
         "Entry"
         {
-        "MsmKey" = "8:_DDD20CDAF14F4D3184D9A74B1BFF5F17"
+        "MsmKey" = "8:_75F07FACE0834462A2E6B676A4DE8D0B"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEXML15D.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEXML20D.PDB"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7812FD874473400F825BE5BEBE4B8A34"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICE20D.PDB"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7F6B0387C33C416A987CE04602791E22"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEBOX20D.PDB"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_824C6369A3C84FDE809B710AB917D1DB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\GLACIER20D.PDB"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_94D7F1ED867A4A74915B6234555DBD61"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\GLACIER220D.PDB"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A1883C4909944C07A7EFEDF087855D52"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESTORM20D.PDB"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A3A9105CD1104BF3981A2FBFD7161333"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\GLACIER20D.DLL"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_BA06A35BE0404970BEAAC9E0231E3059"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\FREEZE20D.DLL"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_BF84A9B8D7694E4CA9B099C1BA916DE5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESTORM20D.DLL"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C34712A426654C5DB320AA3EEC50B6A6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESSL20D.DLL"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DDA9B260C1EE49BC867F2FED08EEACFB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEUTIL20D.PDB"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E95A48E3DE3F41E092C79C0BBA32C83D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\SLICE20D.DLL"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_EBD77B8B3048422687775C94FD3A13EF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEUTIL20D.DLL"
         }
         "Entry"
         {
@@ -99,9 +183,9 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_ECFC174C44A5445498758D6FB337A337"
+        "MsmKey" = "8:_EEC4E33A54DD453799EB1220103F6CAB"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\GLACIER15D.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEPACK20D.PDB"
         }
     }
     "Configurations"
@@ -136,6 +220,26 @@
         }
         "File"
         {
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_100C02729DEE443F9A9CE7121F8B1F53"
+            {
+            "SourcePath" = "8:..\\..\\..\\bin\\icepack20d.dll"
+            "TargetName" = "8:icepack20d.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_1064FF485F624BD8B6502CF8D12C6060"
             {
             "SourcePath" = "8:..\\..\\..\\src\\IceBox\\Debug\\icebox.exe"
@@ -156,10 +260,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_245C5A1435374421B5E0991F765BCED2"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_19995B0403C74D2FA0622CD5FE6AC28A"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\icestorm15d.dll"
-            "TargetName" = "8:icestorm15d.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\icepatch20d.dll"
+            "TargetName" = "8:icepatch20d.dll"
             "Tag" = "8:"
             "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
             "Condition" = "8:"
@@ -176,10 +280,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_3DD59FC1DD00486297049E2746019574"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_2118C4168F024F58996FC4C1D8BD9851"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\iceutil15d.dll"
-            "TargetName" = "8:iceutil15d.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\icestormservice20d.dll"
+            "TargetName" = "8:icestormservice20d.dll"
             "Tag" = "8:"
             "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
             "Condition" = "8:"
@@ -196,10 +300,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_451557EC70AE4FA59C2F472ECBC8FF04"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_2D5C9D0AF49146D78DDA120DE38FA833"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\ice15d.dll"
-            "TargetName" = "8:ice15d.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\icestormservice20d.pdb"
+            "TargetName" = "8:icestormservice20d.pdb"
             "Tag" = "8:"
             "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
             "Condition" = "8:"
@@ -216,10 +320,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6464D9D9D5484E449998E26A40183A72"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_370590F1336646AE8494EA91BA12AC7F"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\icepatch15d.dll"
-            "TargetName" = "8:icepatch15d.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\icepatch20d.pdb"
+            "TargetName" = "8:icepatch20d.pdb"
             "Tag" = "8:"
             "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
             "Condition" = "8:"
@@ -236,10 +340,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_9551FC12B72741179FE1FBAD733DDF07"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_40C53B18CECA4E6D93EDC1BB8FABF50F"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\icebox15d.dll"
-            "TargetName" = "8:icebox15d.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\icexml20d.dll"
+            "TargetName" = "8:icexml20d.dll"
             "Tag" = "8:"
             "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
             "Condition" = "8:"
@@ -256,10 +360,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_ACEBB2B0F00B42ADBB512C0A6374AB15"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_4359532B26F44599B18C1EEEFF9E84E1"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\slice15d.dll"
-            "TargetName" = "8:slice15d.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\icessl20d.pdb"
+            "TargetName" = "8:icessl20d.pdb"
             "Tag" = "8:"
             "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
             "Condition" = "8:"
@@ -276,10 +380,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_B4EAF52EFE1C4790A7BDFDB50302D916"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_480CC582021A4F109B1BC7AB362A9507"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\freeze15d.dll"
-            "TargetName" = "8:freeze15d.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\glacier220d.dll"
+            "TargetName" = "8:glacier220d.dll"
             "Tag" = "8:"
             "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
             "Condition" = "8:"
@@ -296,10 +400,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_B62FB5D599B74C8488C0B7732BF1428C"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_4A2FC6C895514BA790A5E088F74F5FB7"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\icessl15d.dll"
-            "TargetName" = "8:icessl15d.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\slice20d.pdb"
+            "TargetName" = "8:slice20d.pdb"
             "Tag" = "8:"
             "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
             "Condition" = "8:"
@@ -316,10 +420,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_CEE188307AF746E7B3DD435EFE51FD06"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_52BC002DF48346DBACBB3CB284289B09"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\icepack15d.dll"
-            "TargetName" = "8:icepack15d.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\freeze20d.pdb"
+            "TargetName" = "8:freeze20d.pdb"
             "Tag" = "8:"
             "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
             "Condition" = "8:"
@@ -336,10 +440,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_D2C5C085D427407B8A7147841C25E002"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_56EE901ACE2F4DBEAD414E763CB7929A"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\icestormservice15d.dll"
-            "TargetName" = "8:icestormservice15d.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\ice20d.dll"
+            "TargetName" = "8:ice20d.dll"
             "Tag" = "8:"
             "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
             "Condition" = "8:"
@@ -356,10 +460,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_DDD20CDAF14F4D3184D9A74B1BFF5F17"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6CBC661C377F4434AE49DA4E54B487C4"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\icexml15d.dll"
-            "TargetName" = "8:icexml15d.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\icebox20d.dll"
+            "TargetName" = "8:icebox20d.dll"
             "Tag" = "8:"
             "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
             "Condition" = "8:"
@@ -376,10 +480,270 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_ECFC174C44A5445498758D6FB337A337"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_75F07FACE0834462A2E6B676A4DE8D0B"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\glacier15d.dll"
-            "TargetName" = "8:glacier15d.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\icexml20d.pdb"
+            "TargetName" = "8:icexml20d.pdb"
+            "Tag" = "8:"
+            "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_7812FD874473400F825BE5BEBE4B8A34"
+            {
+            "SourcePath" = "8:..\\..\\..\\bin\\ice20d.pdb"
+            "TargetName" = "8:ice20d.pdb"
+            "Tag" = "8:"
+            "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_7F6B0387C33C416A987CE04602791E22"
+            {
+            "SourcePath" = "8:..\\..\\..\\bin\\icebox20d.pdb"
+            "TargetName" = "8:icebox20d.pdb"
+            "Tag" = "8:"
+            "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_824C6369A3C84FDE809B710AB917D1DB"
+            {
+            "SourcePath" = "8:..\\..\\..\\bin\\glacier20d.pdb"
+            "TargetName" = "8:glacier20d.pdb"
+            "Tag" = "8:"
+            "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_94D7F1ED867A4A74915B6234555DBD61"
+            {
+            "SourcePath" = "8:..\\..\\..\\bin\\glacier220d.pdb"
+            "TargetName" = "8:glacier220d.pdb"
+            "Tag" = "8:"
+            "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_A1883C4909944C07A7EFEDF087855D52"
+            {
+            "SourcePath" = "8:..\\..\\..\\bin\\icestorm20d.pdb"
+            "TargetName" = "8:icestorm20d.pdb"
+            "Tag" = "8:"
+            "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_A3A9105CD1104BF3981A2FBFD7161333"
+            {
+            "SourcePath" = "8:..\\..\\..\\bin\\glacier20d.dll"
+            "TargetName" = "8:glacier20d.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BA06A35BE0404970BEAAC9E0231E3059"
+            {
+            "SourcePath" = "8:..\\..\\..\\bin\\freeze20d.dll"
+            "TargetName" = "8:freeze20d.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BF84A9B8D7694E4CA9B099C1BA916DE5"
+            {
+            "SourcePath" = "8:..\\..\\..\\bin\\icestorm20d.dll"
+            "TargetName" = "8:icestorm20d.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C34712A426654C5DB320AA3EEC50B6A6"
+            {
+            "SourcePath" = "8:..\\..\\..\\bin\\icessl20d.dll"
+            "TargetName" = "8:icessl20d.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_DDA9B260C1EE49BC867F2FED08EEACFB"
+            {
+            "SourcePath" = "8:..\\..\\..\\bin\\iceutil20d.pdb"
+            "TargetName" = "8:iceutil20d.pdb"
+            "Tag" = "8:"
+            "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E95A48E3DE3F41E092C79C0BBA32C83D"
+            {
+            "SourcePath" = "8:..\\..\\..\\bin\\slice20d.dll"
+            "TargetName" = "8:slice20d.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_EBD77B8B3048422687775C94FD3A13EF"
+            {
+            "SourcePath" = "8:..\\..\\..\\bin\\iceutil20d.dll"
+            "TargetName" = "8:iceutil20d.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_EEC4E33A54DD453799EB1220103F6CAB"
+            {
+            "SourcePath" = "8:..\\..\\..\\bin\\icepack20d.pdb"
+            "TargetName" = "8:icepack20d.pdb"
             "Tag" = "8:"
             "Folder" = "8:_AD97A58C53F64E5AA2E81975B7091A86"
             "Condition" = "8:"
@@ -484,7 +848,7 @@
         "Module"
         {
         "ModuleSignature" = "8:MergeModule.7161FF60AEEF4446BDF1885A48B67886"
-        "Version" = "8:1.3.0.0"
+        "Version" = "8:2.0.0.0"
         "Title" = "8:IceRuntimeDebug"
         "Subject" = "8:"
         "Author" = "8:ZeroC, Inc"

@@ -6,26 +6,31 @@ create Microsoft Windows Installers (.msi) for Ice and the
 third party products Ice depends on.
 
 These projects were created with all the source distributions
-installed in C:\builds; the Ice source distribution was 
-installed in C:\builds\ice, the IceJ source distribution
-was installed in c:\builds\icej and the IceCs source distribution
-was installed in C:\builds\icecs. If you use a different directory
-structure, you will need to adjust some paths in the project files.
+installed in C:\builds i.e.:
+ - C:\builds\ice (Ice for C++)
+ - C:\builds\icej (Ice for Java)
+ - C:\builds\icepy (Ice for Python)
+ - C:\buids\icephp (Ice for PHP)
+ - C:\builds\icecs (Ice for C#) (optional)
+ - C:\builds\icevb (Ice for Visual Basic) (optional)
+
+If you use a different directory structure, you will need to adjust 
+some paths in the project files.
 
 The solution has two configurations:
- - ThirdParty, to build the ThirdParty.msi and ThirdPartyPDB.msi 
-   installers from source distributions of Berkeley DB, 
-   bzip2/libbzip2, OpenSSL and Expat. All the source distributions 
-   must be built with both Debug and Release configurations, except 
-   OpenSSL and Expat (release only). This configuration also 
-   generates Merge Modules (.msm files) for these products in 
-   the MergeModules directory.
+ - ThirdParty, to build the ThirdParty.msi installers from source 
+   distributions of Berkeley DB, bzip2/libbzip2, OpenSSL and Expat. All 
+   the source distributions must be built with both Debug and Release 
+   configurations, except OpenSSL and Expat (release only). This 
+   configuration also generates Merge Modules (.msm files) for these 
+   products in the MergeModules directory.
 
- - Ice, to build the Ice.msi and IcePDB.msi installers from Ice and 
-   IceJ source distributions, and merge modules for Berkeley DB, 
-   OpenSSL and Expat. Ice must be built with both Debug and Release 
-   configurations; IceJ should be built with optimize set to on; 
-   IceCs should be built debug only, with Visual C# 7.1.
+ - Ice, to build the Ice.msi installers from the various Ice source 
+   distributions, and merge modules for Berkeley DB, OpenSSL and Expat. 
+   Ice for C++ must be built with both Debug and Release configurations; 
+   Ice for Java should be built with optimize set to on; Ice for Python 
+   and Ice for PHP should be built only with the Release configuration.
+   Ice for C# should be built debug only, with Visual C# 7.1.
    The merge modules for the third party dependencies can be either
    created through the ThirdParty configuration (which requires 
    building the corresponding source distributions) or downloaded from
