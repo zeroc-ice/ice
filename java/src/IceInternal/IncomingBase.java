@@ -12,7 +12,8 @@ package IceInternal;
 public class IncomingBase
 {
     protected
-    IncomingBase(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
+    IncomingBase(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response,
+                 byte compress)
     {
         _current = new Ice.Current();
         _current.id = new Ice.Identity();
@@ -73,29 +74,17 @@ public class IncomingBase
     }
 
     //
-    // This function allows this object to be reused, rather than
-    // reallocated.
+    // This function allows this object to be reused, rather than reallocated.
     //
     public void
     reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
     {
-	if(_current == null)
-	{
-	    _current = new Ice.Current();
-	    _current.id = new Ice.Identity();
-	    _current.adapter = adapter;
-	}
-	else
-	{
-	    assert(_current.id != null);
-	    _current.adapter = adapter;
-            _current.facet = null;
-
-	    if(_current.ctx != null)
-	    {
-		_current.ctx.clear();
-	    }
-	}
+        //
+        // Don't recycle the Current object, because servants may keep a reference to it.
+        //
+        _current = new Ice.Current();
+        _current.id = new Ice.Identity();
+        _current.adapter = adapter;
 
 	_servant = null;
 
