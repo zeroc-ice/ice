@@ -110,7 +110,7 @@ HelloI::HelloI(const string& n)
 void
 HelloI::sayHello(const Ice::Current&) const
 {
-    cout << name << " say Hello World!" << endl;
+    cout << name << " says Hello World!" << endl;
 }
 
 void
