@@ -99,9 +99,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
 
+    std::string certPath = properties->getProperty("Ice.SSL.Test.Server.CertPath");
+    properties->setProperty("Ice.SSL.Server.CertPath", certPath);
+
     properties->setProperty("Ice.ConnectionWarnings", "0");
-    properties->setProperty("Ice.SSL.Client.CertPath","../certs");
-    properties->setProperty("Ice.SSL.Client.Config", "sslconfig_8.xml");
+    properties->setProperty("Ice.SSL.Server.Config", "sslconfig_8.xml");
 
     IceSSL::SystemPtr sslSystem = communicator->getSslSystem();
     sslSystem->configure(IceSSL::Server);

@@ -21,6 +21,18 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
+if TestUtil.protocol != "ssl":
+    print "This test may only be run with SSL enabled."
+    sys.exit(0)
+
+TestUtil.clientOptions += \
+    " --Ice.SSL.Test.Client.CertPath=TOPLEVELDIR/test/IceSSL/certs"
+TestUtil.serverOptions += \
+    " --Ice.SSL.Test.Server.CertPath=TOPLEVELDIR/test/IceSSL/certs"
+TestUtil.clientServerOptions += \
+    " --Ice.SSL.Test.Client.CertPath=TOPLEVELDIR/test/IceSSL/certs" + \
+    " --Ice.SSL.Test.Server.CertPath=TOPLEVELDIR/test/IceSSL/certs"
+
 name = os.path.join("IceSSL", "certificateVerification")
 
 print "testing default certificate verifier."

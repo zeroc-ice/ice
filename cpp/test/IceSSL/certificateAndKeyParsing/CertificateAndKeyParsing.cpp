@@ -589,13 +589,20 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     PropertiesPtr properties = communicator->getProperties();
     IceSSL::SystemPtr system = communicator->getSslSystem();
 
+    std::string clientTestCertPath = properties->getProperty("Ice.SSL.Test.Client.CertPath");
+
     IceSSL::OpenSSL::RSACertificateGen certGen;
 
     IceSSL::OpenSSL::RSAKeyPairPtr goodKeyPair1;
     IceSSL::OpenSSL::RSAKeyPairPtr goodKeyPair2;
 
-    goodKeyPair1 = certGen.loadKeyPair("../certs/goodKey_1.pem", "../certs/goodCert_1.pem");
-    goodKeyPair2 = certGen.loadKeyPair("../certs/goodKey_2.pem", "../certs/goodCert_2.pem");
+    std::string goodKey1File = clientTestCertPath + "/goodKey_1.pem";
+    std::string goodCert1File = clientTestCertPath + "/goodCert_1.pem";
+    std::string goodKey2File = clientTestCertPath + "/goodKey_2.pem";
+    std::string goodCert2File = clientTestCertPath + "/goodCert_2.pem";
+
+    goodKeyPair1 = certGen.loadKeyPair(goodKey1File, goodCert1File);
+    goodKeyPair2 = certGen.loadKeyPair(goodKey2File, goodCert2File);
 
     Ice::ByteSeq gcert1;
     Ice::ByteSeq gkey1;
@@ -622,8 +629,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     goodKeyPair2->certToBase64(gcert2b64);
     goodKeyPair2->keyToBase64(gkey2b64);
 
-    std::ifstream keyStream("../certs/badKey.b64");
-    std::ifstream certStream("../certs/badCert.b64");
+    std::string badKeyFile = clientTestCertPath + "/badKey.b64"; 
+    std::string badCertFile = clientTestCertPath + "/badCert.b64";
+
+    std::ifstream keyStream(badKeyFile.c_str());
+    std::ifstream certStream(badCertFile.c_str());
 
     keyStream >> badKeyb64;
     certStream >> badCertb64;
@@ -680,7 +690,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     std::cout << "Good certificate as a trusted certificate (Base64)... " << std::flush;
     testExpectContextNotConfiguredException(system, gcert1b64);
 
-    properties->setProperty("Ice.SSL.Client.CertPath", "../certs");
+    properties->setProperty("Ice.SSL.Client.CertPath", clientTestCertPath);
     properties->setProperty("Ice.SSL.Client.Config", "sslconfig_6.xml");
     system->configure(IceSSL::Client);
 

@@ -25,6 +25,11 @@ tests = [ \
     "IceUtil/thread", \
     "IceUtil/unicode", \
     "Slice/errorDetection", \
+    "IceSSL/configuration", \
+    "IceSSL/loadPEM", \
+    "IceSSL/certificateAndKeyParsing", \
+    "IceSSL/certificateVerifier", \
+    "IceSSL/certificateVerification", \
     "Ice/operations", \
     "Ice/exceptions", \
     "Ice/inheritance", \
@@ -35,12 +40,12 @@ tests = [ \
     "IceXML/encoding", \
     "IcePack/simple", \
     "Freeze/cursor", \
+    "Freeze/dbmap", \
     "Freeze/complex", \
     "IceStorm/single", \
     "IceStorm/federation", \
     "IceStorm/federation2", \
     ]
-# "Freeze/dbmap", \
 
 #
 # Only add Glacier tests for Linux systems

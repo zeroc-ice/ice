@@ -39,6 +39,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     Ice::PropertiesPtr properties = communicator->getProperties();
 
+    // Use test related paths - override values in TestUtil.py
+    std::string clientCertPath = properties->getProperty("Ice.SSL.Test.Client.CertPath");
+    std::string serverCertPath = properties->getProperty("Ice.SSL.Test.Server.CertPath");
+    properties->setProperty("Ice.SSL.Client.CertPath", clientCertPath);
+    properties->setProperty("Ice.SSL.Server.CertPath", serverCertPath);
+
     bool singleCertVerifier = false;
     if (properties->getProperty("Ice.SSL.Client.CertificateVerifier") == "singleCert")
     {
@@ -55,7 +61,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
         cout << "client and server trusted, client using stock certificate... ";
 
-        properties->setProperty("Ice.SSL.Client.CertPath","../certs");
         properties->setProperty("Ice.SSL.Client.Config", "sslconfig_6.xml");
         sslSystem->configure(IceSSL::Client);
         sslSystem->addTrustedCertificate(IceSSL::Client, serverTrustedCert);
@@ -74,7 +79,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 */
 
-    properties->setProperty("Ice.SSL.Client.CertPath","../certs");
     properties->setProperty("Ice.SSL.Client.Config", "sslconfig_7.xml");
 
     cout << "client and server do not trust each other... " << flush;

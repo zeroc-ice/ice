@@ -21,12 +21,19 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
+if TestUtil.protocol != "ssl":
+    print "This test may only be run with SSL enabled."
+    sys.exit(0)
+
+testOptions = " --Ice.SSL.Client.CertPath=TOPLEVELDIR/test/IceSSL/certs"
+
 testdir = os.path.join(toplevel,"test", "IceSSL", "loadPEM")
 client = os.path.join(testdir, "loadPEM")
 
 updatedOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
+testOptions = testOptions.replace("TOPLEVELDIR", toplevel)
 print "starting loadPEM...",
-clientPipe = os.popen(client + updatedOptions)
+clientPipe = os.popen(client + updatedOptions + testOptions)
 output = clientPipe.read().strip()
 if not output:
     print "failed!"

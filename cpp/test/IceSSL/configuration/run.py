@@ -21,6 +21,10 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
+if TestUtil.protocol != "ssl":
+    print "This test may only be run with SSL enabled."
+    sys.exit(0)
+
 testdir = os.path.join(toplevel,"test", "IceSSL", "configuration")
 client = os.path.join(testdir, "configuration")
 

@@ -191,7 +191,7 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     PropertiesPtr properties = communicator->getProperties();
-    properties->setProperty("Ice.SSL.Client.CertPath", "../certs");
+    // properties->setProperty("Ice.SSL.Client.CertPath", "../certs");
 
     std::cout << "Bad private key and certificate... " << std::flush;
     testExpectCertificateAndPrivateKeyLoadException(communicator, "sslconfig_1.xml");
