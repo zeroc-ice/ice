@@ -57,7 +57,7 @@ private:
     nextItem()
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-	if (_queue.empty())
+	while (_queue.empty())
 	{
 	    _monitor.wait();
 	}
