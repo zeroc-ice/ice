@@ -84,7 +84,7 @@ public abstract class Object
             }
         }
 
-        assert false;
+        assert(false);
         return IceInternal.DispatchStatus.DispatchOperationNotExist;
     }
 
