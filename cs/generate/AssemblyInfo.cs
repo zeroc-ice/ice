@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-[assembly: AssemblyTitle("generate")]
+[assembly: AssemblyTitle("generatecs")]
 [assembly: AssemblyDescription("Make-like program to compile Slice files")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("ZerocC, Inc.")]
