@@ -202,17 +202,17 @@ Slice::JavaVisitor::getAbsolute(const string& scoped,
         // scope=::A, scoped=::A::B, result=B
         // scope=::A, scoped=::A::B::C, result=::A::B::C
         //
-        if (scoped.compare(0, scope.size(), scope) == 0)
+        string::size_type scopeSize = scope.size();
+        if (scoped.compare(0, scopeSize, scope) == 0)
         {
-            start = scoped.find(':', scope.size());
+            start = scoped.find(':', scopeSize);
             if (start == string::npos)
             {
-                start = 0;
+                start = scopeSize;
             }
             else
             {
-                assert(scoped[start + 1] == ':');
-                start += 2;
+                start = 0;
             }
         }
     }
@@ -537,11 +537,10 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 void
 Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 {
+    string name = fixKwd(p->name());
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string name = fixKwd(p->name());
-    string scoped = p->scoped();
-    string scope = p->scope();
+    string scope = cl->scope();
 
     TypePtr ret = p->returnType();
     string retS = typeToString(ret, TypeModeReturn, scope);
