@@ -1,6 +1,8 @@
 Changes since version 2.0.0
 ---------------------------
 
+- The Java build system now requires Apache ant version 1.6.2 or greater.
+
 - We do not retry oneway or batch oneway requests anymore, except if
   there are problems during connection establishment. If we retry a
   oneway or batch oneway, previous oneways from the same batch, or
