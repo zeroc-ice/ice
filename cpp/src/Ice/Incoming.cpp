@@ -11,7 +11,6 @@
 #include <Ice/Incoming.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/ServantLocator.h>
-#include <Ice/Proxy.h>
 #include <Ice/Object.h>
 #include <Ice/Exception.h>
 
@@ -27,22 +26,12 @@ IceInternal::Incoming::Incoming(const InstancePtr& instance, const ObjectAdapter
 }
 
 void
-IceInternal::Incoming::invoke()
+IceInternal::Incoming::invoke(bool response)
 {
     Current current;
-    bool gotProxy;
-    _is.read(gotProxy);
-    if (gotProxy)
-    {
-	_is.read(current.proxy);
-	current.identity = current.proxy->ice_getIdentity();
-	current.facet = current.proxy->ice_getFacet();
-    }
-    else
-    {
-	current.identity.__read(&_is);
-	_is.read(current.facet);
-    }
+    current.response = response;
+    current.identity.__read(&_is);
+    _is.read(current.facet);
     _is.read(current.operation);
     _is.read(current.nonmutating);
     Int sz;
@@ -55,16 +44,23 @@ IceInternal::Incoming::invoke()
 	current.context.insert(current.context.end(), pair);
     }
 
-    BasicStream::Container::size_type statusPos = _os.b.size();
-    _os.write(static_cast<Byte>(0));
+    BasicStream::Container::size_type statusPos;
+    if (response)
+    {
+	statusPos = _os.b.size();
+	_os.write(static_cast<Byte>(0));
+    }
 
     //
     // Input and output parameters are always sent in an
-    // encapsulation, which makes it possible to forward oneway
-    // requests as blobs.
+    // encapsulation, which makes it possible to forward requests as
+    // blobs.
     //
     _is.startReadEncaps();
-    _os.startWriteEncaps();
+    if (response)
+    {
+	_os.startWriteEncaps();
+    }
 
     ObjectPtr servant;
     ServantLocatorPtr locator;
@@ -128,16 +124,18 @@ IceInternal::Incoming::invoke()
 	}
 	
 	_is.endReadEncaps();
-	_os.endWriteEncaps();
-	
-	if (status != DispatchOK && status != DispatchUserException)
+	if (response)
 	{
-	    _os.b.resize(statusPos);
-	    _os.write(static_cast<Byte>(status));
-	}
-	else
-	{
-	    *(_os.b.begin() + statusPos) = static_cast<Byte>(status);
+	    _os.endWriteEncaps();
+	    if (status != DispatchOK && status != DispatchUserException)
+	    {
+		_os.b.resize(statusPos);
+		_os.write(static_cast<Byte>(status));
+	    }
+	    else
+	    {
+		*(_os.b.begin() + statusPos) = static_cast<Byte>(status);
+	    }
 	}
     }
     catch (const LocationForward& ex)
@@ -149,13 +147,15 @@ IceInternal::Incoming::invoke()
 	}
 
 	_is.endReadEncaps();
-	_os.endWriteEncaps();
-
-	_os.b.resize(statusPos);
-	_os.write(static_cast<Byte>(DispatchLocationForward));
-	_os.write(ex._prx);
+	if (response)
+	{
+	    _os.endWriteEncaps();
+	    _os.b.resize(statusPos);
+	    _os.write(static_cast<Byte>(DispatchLocationForward));
+	    _os.write(ex._prx);
+	}
     }
-    catch (const ProxyRequested&)
+    catch (const ObjectNotExistException&)
     {
 	if (locator && servant)
 	{
@@ -164,10 +164,44 @@ IceInternal::Incoming::invoke()
 	}
 
 	_is.endReadEncaps();
-	_os.endWriteEncaps();
+	if (response)
+	{
+	    _os.endWriteEncaps();
+	    _os.b.resize(statusPos);
+	    _os.write(static_cast<Byte>(DispatchObjectNotExist));
+	}
+    }
+    catch (const FacetNotExistException&)
+    {
+	if (locator && servant)
+	{
+	    assert(_adapter);
+	    locator->finished(_adapter, current, servant, cookie);
+	}
 
-	_os.b.resize(statusPos);
-	_os.write(static_cast<Byte>(DispatchProxyRequested));
+	_is.endReadEncaps();
+	if (response)
+	{
+	    _os.endWriteEncaps();
+	    _os.b.resize(statusPos);
+	    _os.write(static_cast<Byte>(DispatchFacetNotExist));
+	}
+    }
+    catch (const OperationNotExistException&)
+    {
+	if (locator && servant)
+	{
+	    assert(_adapter);
+	    locator->finished(_adapter, current, servant, cookie);
+	}
+
+	_is.endReadEncaps();
+	if (response)
+	{
+	    _os.endWriteEncaps();
+	    _os.b.resize(statusPos);
+	    _os.write(static_cast<Byte>(DispatchOperationNotExist));
+	}
     }
     catch (const LocalException& ex)
     {
@@ -178,10 +212,12 @@ IceInternal::Incoming::invoke()
 	}
 
 	_is.endReadEncaps();
-	_os.endWriteEncaps();
-
-	_os.b.resize(statusPos);
-	_os.write(static_cast<Byte>(DispatchUnknownLocalException));
+	if (response)
+	{
+	    _os.endWriteEncaps();
+	    _os.b.resize(statusPos);
+	    _os.write(static_cast<Byte>(DispatchUnknownLocalException));
+	}
 
 	ex.ice_throw();
     }
@@ -194,10 +230,12 @@ IceInternal::Incoming::invoke()
 	}
 
 	_is.endReadEncaps();
-	_os.endWriteEncaps();
-
-	_os.b.resize(statusPos);
-	_os.write(static_cast<Byte>(DispatchUnknownUserException));
+	if (response)
+	{
+	    _os.endWriteEncaps();
+	    _os.b.resize(statusPos);
+	    _os.write(static_cast<Byte>(DispatchUnknownUserException));
+	}
 
 	ex.ice_throw();
     }
@@ -210,10 +248,12 @@ IceInternal::Incoming::invoke()
 	}
 
 	_is.endReadEncaps();
-	_os.endWriteEncaps();
-
-	_os.b.resize(statusPos);
-	_os.write(static_cast<Byte>(DispatchUnknownException));
+	if (response)
+	{
+	    _os.endWriteEncaps();
+	    _os.b.resize(statusPos);
+	    _os.write(static_cast<Byte>(DispatchUnknownException));
+	}
 
 	throw UnknownException(__FILE__, __LINE__);
     }

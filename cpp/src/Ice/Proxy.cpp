@@ -12,6 +12,7 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/Object.h>
 #include <Ice/ObjectAdapterFactory.h>
+#include <Ice/ObjectAdapterI.h>
 #include <Ice/Outgoing.h>
 #include <Ice/Direct.h>
 #include <Ice/Reference.h>
@@ -21,6 +22,7 @@
 #include <Ice/TraceLevels.h>
 #include <Ice/ConnectionFactory.h>
 #include <Ice/Connection.h>
+#include <Ice/RouterInfo.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Exception.h>
 #include <Ice/Functional.h>
@@ -163,7 +165,7 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 				  bool nonmutating,
 				  const vector<Byte>& inParams,
 				  vector<Byte>& outParams,
-				  const Context& __context)
+				  const Context& context)
 {
     int __cnt = 0;
     while (true)
@@ -171,7 +173,7 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 	try
 	{
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    __del->ice_invoke(operation, nonmutating, inParams, outParams, __context);
+	    __del->ice_invoke(operation, nonmutating, inParams, outParams, context);
 	    return;
 	}
 	catch (const LocationForward& __ex)
@@ -350,6 +352,38 @@ IceProxy::Ice::Object::ice_timeout(int t) const
     }
 }
 
+ObjectPrx
+IceProxy::Ice::Object::ice_router(const RouterPrx& router) const
+{
+    ReferencePtr ref = _reference->changeRouter(router);
+    if (ref == _reference)
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(ref);
+	return proxy;
+    }
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_default() const
+{
+    ReferencePtr ref = _reference->changeDefault();
+    if (ref == _reference)
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(ref);
+	return proxy;
+    }
+}
+
 void
 IceProxy::Ice::Object::ice_flush()
 {
@@ -366,7 +400,37 @@ IceProxy::Ice::Object::__reference() const
 void
 IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
 {
-    setup(from->__reference());
+    ReferencePtr ref;
+    Handle< ::IceDelegateD::Ice::Object> delegateD;
+    Handle< ::IceDelegateM::Ice::Object> delegateM;
+
+    {
+	IceUtil::Mutex::Lock sync(*from.get());
+
+	ref = from->_reference;
+	delegateD = dynamic_cast< ::IceDelegateD::Ice::Object*>(from->_delegate.get());
+	delegateM = dynamic_cast< ::IceDelegateM::Ice::Object*>(from->_delegate.get());
+    }
+
+    //
+    // No need to synchronize "*this", as this operation is only
+    // called upon initialization.
+    //
+
+    _reference = ref;
+    
+    if (delegateD)
+    {
+	Handle< ::IceDelegateD::Ice::Object> delegate = __createDelegateD();
+	delegate->__copyFrom(delegateD);
+	_delegate = delegate;
+    }
+    else if (delegateM)
+    {
+	Handle< ::IceDelegateM::Ice::Object> delegate = __createDelegateM();
+	delegate->__copyFrom(delegateM);
+	_delegate = delegate;
+    }
 }
 
 void
@@ -475,6 +539,7 @@ Handle< ::IceDelegate::Ice::Object>
 IceProxy::Ice::Object::__getDelegate()
 {
     IceUtil::Mutex::Lock sync(*this);
+
     if (!_delegate)
     {
 	ObjectAdapterPtr adapter = _reference->instance->objectAdapterFactory()->findObjectAdapter(this);
@@ -489,6 +554,16 @@ IceProxy::Ice::Object::__getDelegate()
 	    Handle< ::IceDelegateM::Ice::Object> delegate = __createDelegateM();
 	    delegate->setup(_reference);
 	    _delegate = delegate;
+
+	    //
+	    // If this proxy is for a non-local object, and we are
+	    // using a router, then add this proxy to the router info
+	    // object.
+	    //
+	    if (_reference->routerInfo)
+	    {
+		_reference->routerInfo->addProxy(this);
+	    }
 	}
     }
 
@@ -511,8 +586,8 @@ void
 IceProxy::Ice::Object::setup(const ReferencePtr& ref)
 {
     //
-    // No need to synchronize, as this operation is only called
-    // upon initial initialization.
+    // No need to synchronize "*this", as this operation is only
+    // called upon initialization.
     //
     _reference = ref;
 }
@@ -520,51 +595,28 @@ IceProxy::Ice::Object::setup(const ReferencePtr& ref)
 bool
 IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
-    bool __sendProxy = false;
-    while (true)
+    static const string __operation("ice_isA");
+    Outgoing __out(__connection, __reference, __operation, true, __context);
+    BasicStream* __is = __out.is();
+    BasicStream* __os = __out.os();
+    __os->write(__id);
+    if (!__out.invoke())
     {
-	try
-	{
-	    static const string __operation("ice_isA");
-	    Outgoing __out(__connection, __reference, __sendProxy, __operation, true, __context);
-	    BasicStream* __is = __out.is();
-	    BasicStream* __os = __out.os();
-	    __os->write(__id);
-	    if (!__out.invoke())
-	    {
-		throw ::Ice::UnknownUserException(__FILE__, __LINE__);
-	    }
-	    bool __ret;
-	    __is->read(__ret);
-	    return __ret;
-	}
-	catch (const ProxyRequested&)
-	{
-	    __sendProxy = true;
-	}
+	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
     }
+    bool __ret;
+    __is->read(__ret);
+    return __ret;
 }
 
 void
 IceDelegateM::Ice::Object::ice_ping(const Context& __context)
 {
-    bool __sendProxy = false;
-    while (true)
+    static const string __operation("ice_ping");
+    Outgoing __out(__connection, __reference, __operation, true, __context);
+    if (!__out.invoke())
     {
-	try
-	{
-	    static const string __operation("ice_ping");
-	    Outgoing __out(__connection, __reference, __sendProxy, __operation, true, __context);
-	    if (!__out.invoke())
-	    {
-		throw ::Ice::UnknownUserException(__FILE__, __LINE__);
-	    }
-	    return;
-	}
-	catch (const ProxyRequested&)
-	{
-	    __sendProxy = true;
-	}
+	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
     }
 }
 
@@ -573,29 +625,17 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
 				      bool nonmutating,
 				      const vector<Byte>& inParams,
 				      vector<Byte>& outParams,
-				      const Context& __context)
+				      const Context& context)
 {
-    bool __sendProxy = false;
-    while (true)
+    Outgoing __out(__connection, __reference, operation, nonmutating, context);
+    BasicStream* __os = __out.os();
+    __os->writeBlob(inParams);
+    __out.invoke();
+    if (__reference->mode == Reference::ModeTwoway)
     {
-	try
-	{
-	    Outgoing __out(__connection, __reference, __sendProxy, operation, nonmutating, __context);
-	    BasicStream* __os = __out.os();
-	    __os->writeBlob(inParams);
-	    __out.invoke();
-	    if (__reference->mode == Reference::ModeTwoway)
-	    {
-		BasicStream* __is = __out.is();
-		Int sz = __is->getReadEncapsSize();
-		__is->readBlob(outParams, sz);
-	    }
-	    return;
-	}
-	catch (const ProxyRequested&)
-	{
-	    __sendProxy = true;
-	}
+	BasicStream* __is = __out.is();
+	Int sz = __is->getReadEncapsSize();
+	__is->readBlob(outParams, sz);
     }
 }
 
@@ -606,14 +646,104 @@ IceDelegateM::Ice::Object::ice_flush()
 }
 
 void
+IceDelegateM::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegateM::Ice::Object>& from)
+{
+    //
+    // No need to synchronize "from", as the delegate is immutable
+    // after creation.
+    //
+
+    //
+    // No need to synchronize "*this", as this operation is only
+    // called upon initialization.
+    //
+
+    __reference = from->__reference;
+    __connection = from->__connection;
+}
+
+void
 IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 {
     //
-    // No need to synchronize, as this operation is only called
-    // upon initial initialization.
+    // No need to synchronize "*this", as this operation is only
+    // called upon initialization.
     //
     __reference = ref;
 
+    if (__reference->reverseAdapter)
+    {
+	//
+	// If we have a reverse object adapter, we use the incoming
+	// connections from such object adapter.
+	//
+	ObjectAdapterIPtr adapter = ObjectAdapterIPtr::dynamicCast(__reference->reverseAdapter);
+	assert(adapter);
+	list<ConnectionPtr> connections = adapter->getIncomingConnections();
+
+	vector<EndpointPtr> endpoints;
+	endpoints.reserve(connections.size());
+	transform(connections.begin(), connections.end(), back_inserter(endpoints),
+		  ::Ice::constMemFun(&Connection::endpoint));
+	endpoints = filterEndpoints(endpoints);
+	
+	if (endpoints.empty())
+	{
+	    throw NoEndpointException(__FILE__, __LINE__);
+	}
+
+	list<ConnectionPtr>::iterator p;
+	for (p = connections.begin(); p != connections.end(); ++p)
+	{
+	    if ((*p)->endpoint() == endpoints.front());
+	    {
+		break;
+	    }
+	}
+	assert(p != connections.end());
+	__connection = *p;
+    }
+    else
+    {
+	vector<EndpointPtr> endpoints;	
+	if (__reference->routerInfo)
+	{
+	    //
+	    // If we route, we send everything to the router's client
+	    // proxy endpoints.
+	    //
+	    ObjectPrx proxy = __reference->routerInfo->getClientProxy();
+	    endpoints = filterEndpoints(proxy->__reference()->endpoints);
+	}
+	else
+	{
+	    endpoints = filterEndpoints(__reference->endpoints);
+	}
+	
+	if (endpoints.empty())
+	{
+	    throw NoEndpointException(__FILE__, __LINE__);
+	}
+	
+	OutgoingConnectionFactoryPtr factory = __reference->instance->outgoingConnectionFactory();
+	__connection = factory->create(endpoints);
+	assert(__connection);
+	
+	//
+	// If we have a router, add the object adapter for this router (if
+	// any) to the new connection, so that callbacks from the router
+	// can be received over this new connection.
+	//
+	if (__reference->routerInfo)
+	{
+	    __connection->setAdapter(__reference->routerInfo->getAdapter());
+	}
+    }
+}
+
+vector<EndpointPtr>
+IceDelegateM::Ice::Object::filterEndpoints(const vector<EndpointPtr>& allEndpoints) const
+{
     vector<EndpointPtr> endpoints;
     switch (__reference->mode)
     {
@@ -621,7 +751,10 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	case Reference::ModeOneway:
 	case Reference::ModeBatchOneway:
 	{
-	    remove_copy_if(__reference->endpoints.begin(), __reference->endpoints.end(), back_inserter(endpoints), 
+	    //
+	    // Filter out datagram endpoints.
+	    //
+	    remove_copy_if(allEndpoints.begin(), allEndpoints.end(), back_inserter(endpoints), 
 			   ::Ice::constMemFun(&Endpoint::datagram));
 	    break;
 	}
@@ -629,17 +762,20 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	case Reference::ModeDatagram:
 	case Reference::ModeBatchDatagram:
 	{
-	    remove_copy_if(__reference->endpoints.begin(), __reference->endpoints.end(), back_inserter(endpoints),
+	    //
+	    // Filter out non-datagram endpoints.
+	    //
+	    remove_copy_if(allEndpoints.begin(), allEndpoints.end(), back_inserter(endpoints),
 			   not1(::Ice::constMemFun(&Endpoint::datagram)));
 	    break;
 	}
     }
-
+    
     //
     // Randomize the order of endpoints.
     //
     random_shuffle(endpoints.begin(), endpoints.end());
-
+    
     //
     // If a secure connection is requested, remove all non-secure
     // endpoints. Otherwise make non-secure endpoints preferred over
@@ -656,14 +792,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	partition(endpoints.begin(), endpoints.end(), not1(::Ice::constMemFun(&Endpoint::secure)));
     }
     
-    if (endpoints.empty())
-    {
-	throw NoEndpointException(__FILE__, __LINE__);
-    }
-
-    OutgoingConnectionFactoryPtr factory = __reference->instance->outgoingConnectionFactory();
-    __connection = factory->create(endpoints);
-    assert(__connection);
+    return endpoints;
 }
 
 bool
@@ -677,10 +806,6 @@ IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	try
 	{
 	    return __direct.facetServant()->ice_isA(__id, __current);
-	}
-	catch (const ProxyRequested&)
-	{
-	    __initCurrentProxy(__current);
 	}
 	catch (const LocalException&)
 	{
@@ -709,10 +834,6 @@ IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context& __context)
 	{
 	    __direct.facetServant()->ice_ping(__current);
 	    return;
-	}
-	catch (const ProxyRequested&)
-	{
-	    __initCurrentProxy(__current);
 	}
 	catch (const LocalException&)
 	{
@@ -751,10 +872,6 @@ IceDelegateD::Ice::Object::ice_invoke(const string& operation,
 	    __servant->ice_invoke(inParams, outParams, __current);
 	    return;
 	}
-	catch (const ProxyRequested&)
-	{
-	    __initCurrentProxy(__current);
-	}
 	catch (const LocalException&)
 	{
 	    throw UnknownLocalException(__FILE__, __LINE__);
@@ -777,6 +894,23 @@ IceDelegateD::Ice::Object::ice_flush()
 }
 
 void
+IceDelegateD::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegateD::Ice::Object>& from)
+{
+    //
+    // No need to synchronize "from", as the delegate is immutable
+    // after creation.
+    //
+
+    //
+    // No need to synchronize "*this", as this operation is only
+    // called upon initialization.
+    //
+
+    __reference = from->__reference;
+    __adapter = from->__adapter;
+}
+
+void
 IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, bool nonmutating, const Context& context)
 {
     current.identity = __reference->identity;
@@ -787,17 +921,11 @@ IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, boo
 }
 
 void
-IceDelegateD::Ice::Object::__initCurrentProxy(Current& current)
-{
-    current.proxy = __reference->instance->proxyFactory()->referenceToProxy(__reference);
-}
-
-void
 IceDelegateD::Ice::Object::setup(const ReferencePtr& ref, const ObjectAdapterPtr& adapter)
 {
     //
-    // No need to synchronize, as this operation is only called
-    // upon initial initialization.
+    // No need to synchronize "*this", as this operation is only
+    // called upon initialization.
     //
     __reference = ref;
     __adapter = adapter;

@@ -14,6 +14,7 @@
 #include <IceUtil/RecMutex.h>
 
 #include <Ice/ConnectionF.h>
+#include <Ice/ConnectionFactoryF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/ObjectAdapterF.h>
@@ -39,16 +40,6 @@ class Connection : public EventHandler, public ::IceUtil::RecMutex
 {
 public:
 
-    Connection(const InstancePtr&, const TransceiverPtr&, const EndpointPtr&, const ::Ice::ObjectAdapterPtr&);
-    virtual ~Connection();
-
-    enum DestructionReason
-    {
-	ObjectAdapterDeactivated,
-	CommunicatorDestroyed
-    };
-
-    void destroy(DestructionReason);
     bool destroyed() const;
     void hold();
     void activate();
@@ -60,6 +51,9 @@ public:
     void abortBatchRequest();
     void flushBatchRequest();
     int timeout() const;
+    EndpointPtr endpoint() const;
+    void setAdapter(const ::Ice::ObjectAdapterPtr&);
+    ::Ice::ObjectAdapterPtr getAdapter() const;
 
     //
     // Operations from EventHandler
@@ -72,6 +66,17 @@ public:
     virtual void finished();
 
 private:
+
+    Connection(const InstancePtr&, const TransceiverPtr&, const EndpointPtr&, const ::Ice::ObjectAdapterPtr&);
+    virtual ~Connection();
+    enum DestructionReason
+    {
+	ObjectAdapterDeactivated,
+	CommunicatorDestroyed
+    };
+    void destroy(DestructionReason);
+    friend class IncomingConnectionFactory;
+    friend class OutgoingConnectionFactory;
 
     enum State
     {

@@ -27,7 +27,6 @@ enum DispatchStatus
     DispatchOK,
     DispatchUserException,
     DispatchLocationForward,
-    DispatchProxyRequested,
     DispatchObjectNotExist,
     DispatchFacetNotExist,
     DispatchOperationNotExist,
@@ -55,10 +54,6 @@ protected:
     ObjectPrx _prx;
     friend class ::IceProxy::Ice::Object;
     friend class ::IceInternal::Incoming;
-};
-
-class ICE_API ProxyRequested
-{
 };
 
 class ICE_API Object : virtual public ::IceUtil::Shared

@@ -24,7 +24,7 @@ public:
 
     Incoming(const InstancePtr&, const ::Ice::ObjectAdapterPtr&);
 
-    void invoke();
+    void invoke(bool);
 
     BasicStream* is();
     BasicStream* os();

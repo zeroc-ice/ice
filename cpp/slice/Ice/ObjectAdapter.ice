@@ -13,6 +13,7 @@
 
 #include <Ice/CommunicatorF.ice>
 #include <Ice/ServantLocatorF.ice>
+#include <Ice/RouterF.ice>
 #include <Ice/Identity.ice>
 
 module Ice
@@ -292,6 +293,49 @@ local interface ObjectAdapter
      *
      **/
     Object* createProxy(Identity identity);
+
+    /**
+     *
+     * Create a "reverse Proxy" that matches this Object Adapter and
+     * the given identity. A reverse Proxy uses connections that have
+     * been established from a client to this Object Adapter.
+     *
+     * <note><para> Like the [Router] interface, this operation is
+     * intended to be used by router implementations. Regular user
+     * code should not attempt to use this operation
+     * directly. </para></note>
+     *
+     * @param identity The identity for which a Proxy is to be created.
+     *
+     * @return A "reverse Proxy" that matches the given identity and
+     * this Object Adapter.
+     *
+     * @see Identity
+     *
+     **/
+    Object* createReverseProxy(Identity identity);
+
+    /**
+     *
+     * Add a router to this Object Adapter. By doing so, this object
+     * adapter can receive callbacks from this router, using
+     * connections which are established from this process to the
+     * router, instead of the router having to establish a connection
+     * back to this object adapter.
+     *
+     * <note><para> You can only add a particular router to one single
+     * Object Adapter. Adding a router to more than one Object Adapter
+     * will result in undefined behavior. However, it is possible to
+     * add different routers to different Object
+     * Adapters. </para></note>
+     *
+     * @param router The router to add to this Object Adapter.
+     *
+     * @see Router
+     * @see Communicator::setDefaultRouter
+     *
+     **/
+    void addRouter(Router* router);
 };
 
 };

@@ -13,13 +13,16 @@
 
 #include <Ice/Stream.ice>
 
+// TODO: Add slice2docbook comments for this file.
+// TODO: Add SecureUdpF.ice for forward declarations?
+
 module IceSecurity
 {
 
 module SecureUdp
 {
 
-class ClientChannel
+interface ClientChannel
 {
     void serverHello(long clientID, Ice::ByteSeq key);
 
@@ -28,7 +31,7 @@ class ClientChannel
     void serverGoodbye();
 };
 
-class ServerChannel
+interface ServerChannel
 {
     void clientHello(ClientChannel client, Ice::ByteSeq MACkey);
 

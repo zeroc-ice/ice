@@ -45,6 +45,7 @@ LDFLAGS		= -L$(libdir) -L$(STLPORT_HOME)/lib -L$(OPENSSL_HOME)/lib -L$(XERCESC_H
 BASELIBS	= -lIceUtil -lstlport_gcc -lpthread
 LIBS		= -lIce -lxerces-c1_5_2 -lssl -lcrypto $(BASELIBS)
 
+# For Intel's icc compiler. (Experimental!)
 #CXX		= icc
 #CXXFLAGS	= -g -KPIC -w1
 #CXXFLAGS	= -O3 -DNDEBUG -KPIC

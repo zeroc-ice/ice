@@ -18,6 +18,8 @@
 #include <Ice/PropertiesF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
+#include <Ice/RouterInfoF.h>
+#include <Ice/ReferenceFactoryF.h>
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/ConnectionFactoryF.h>
@@ -45,6 +47,8 @@ public:
     ::Ice::LoggerPtr logger();
     void logger(const ::Ice::LoggerPtr&);
     TraceLevelsPtr traceLevels();
+    RouterManagerPtr routerManager();
+    ReferenceFactoryPtr referenceFactory();
     ProxyFactoryPtr proxyFactory();
     OutgoingConnectionFactoryPtr outgoingConnectionFactory();
     ObjectFactoryManagerPtr servantFactoryManager();
@@ -65,6 +69,8 @@ private:
     ::Ice::PropertiesPtr _properties;
     ::Ice::LoggerPtr _logger;
     TraceLevelsPtr _traceLevels;
+    RouterManagerPtr _routerManager;
+    ReferenceFactoryPtr _referenceFactory;
     ProxyFactoryPtr _proxyFactory;
     OutgoingConnectionFactoryPtr _outgoingConnectionFactory;
     ObjectFactoryManagerPtr _servantFactoryManager;

@@ -29,52 +29,6 @@ using namespace IceInternal;
 void IceInternal::incRef(Connection* p) { p->__incRef(); }
 void IceInternal::decRef(Connection* p) { p->__decRef(); }
 
-IceInternal::Connection::Connection(const InstancePtr& instance,
-				    const TransceiverPtr& transceiver,
-				    const EndpointPtr& endpoint,
-				    const ObjectAdapterPtr& adapter) :
-    EventHandler(instance),
-    _transceiver(transceiver),
-    _endpoint(endpoint),
-    _adapter(adapter),
-    _threadPool(instance->threadPool()),
-    _logger(instance->logger()),
-    _traceLevels(instance->traceLevels()),
-    _nextRequestId(1),
-    _requestsHint(_requests.end()),
-    _batchStream(instance),
-    _responseCount(0),
-    _state(StateHolding)
-{
-    _warn = atoi(_instance->properties()->getProperty("Ice.ConnectionWarnings").c_str()) > 0 ? true : false;
-}
-
-IceInternal::Connection::~Connection()
-{
-    assert(_state == StateClosed);
-}
-
-void
-IceInternal::Connection::destroy(DestructionReason reason)
-{
-    RecMutex::Lock sync(*this);
-
-    switch (reason)
-    {
-	case ObjectAdapterDeactivated:
-	{
-	    setState(StateClosing, ObjectAdapterDeactivatedException(__FILE__, __LINE__));
-	    break;
-	}
-
-	case CommunicatorDestroyed:
-	{
-	    setState(StateClosing, CommunicatorDestroyedException(__FILE__, __LINE__));
-	    break;
-	}
-    }
-}
-
 bool
 IceInternal::Connection::destroyed() const
 {
@@ -262,12 +216,35 @@ IceInternal::Connection::flushBatchRequest()
 int
 IceInternal::Connection::timeout() const
 {
+    // No mutex protection necessary, _endpoint is immutable.
     return _endpoint->timeout();
+}
+
+EndpointPtr
+IceInternal::Connection::endpoint() const
+{
+    // No mutex protection necessary, _endpoint is immutable.
+    return _endpoint;
+}
+
+void
+IceInternal::Connection::setAdapter(const ObjectAdapterPtr& adapter)
+{
+    IceUtil::RecMutex::Lock sync(*this);
+    _adapter = adapter;
+}
+
+ObjectAdapterPtr
+IceInternal::Connection::getAdapter() const
+{
+    IceUtil::RecMutex::Lock sync(*this);
+    return _adapter;
 }
 
 bool
 IceInternal::Connection::server() const
 {
+    IceUtil::RecMutex::Lock sync(*this);
     return _adapter;
 }
 
@@ -361,7 +338,7 @@ IceInternal::Connection::message(BasicStream& stream)
 			}
 		    }
 		    
-		    if (_requestsHint == _requests.end())
+		    if (p == _requests.end())
 		    {
 			p = _requests.find(requestId);
 		    }
@@ -370,9 +347,19 @@ IceInternal::Connection::message(BasicStream& stream)
 		    {
 			throw UnknownRequestIdException(__FILE__, __LINE__);
 		    }
+
 		    p->second->finished(stream);
-		    _requests.erase(p);
-		    _requestsHint = _requests.end();
+
+		    if (p == _requestsHint)
+		    {
+			_requests.erase(p++);
+			_requestsHint = p;
+		    }
+		    else
+		    {
+			_requests.erase(p);
+		    }
+
 		    break;
 		}
 		
@@ -448,7 +435,7 @@ IceInternal::Connection::message(BasicStream& stream)
 	    {
 		try
 		{
-		    in.invoke();
+		    in.invoke(response);
 		}
 		catch (const Exception& ex)
 		{
@@ -551,6 +538,52 @@ IceInternal::Connection::tryDestroy()
     return true;
 }
 */
+
+IceInternal::Connection::Connection(const InstancePtr& instance,
+				    const TransceiverPtr& transceiver,
+				    const EndpointPtr& endpoint,
+				    const ObjectAdapterPtr& adapter) :
+    EventHandler(instance),
+    _transceiver(transceiver),
+    _endpoint(endpoint),
+    _adapter(adapter),
+    _threadPool(instance->threadPool()),
+    _logger(instance->logger()),
+    _traceLevels(instance->traceLevels()),
+    _nextRequestId(1),
+    _requestsHint(_requests.end()),
+    _batchStream(instance),
+    _responseCount(0),
+    _state(StateHolding)
+{
+    _warn = atoi(_instance->properties()->getProperty("Ice.ConnectionWarnings").c_str()) > 0 ? true : false;
+}
+
+IceInternal::Connection::~Connection()
+{
+    assert(_state == StateClosed);
+}
+
+void
+IceInternal::Connection::destroy(DestructionReason reason)
+{
+    RecMutex::Lock sync(*this);
+
+    switch (reason)
+    {
+	case ObjectAdapterDeactivated:
+	{
+	    setState(StateClosing, ObjectAdapterDeactivatedException(__FILE__, __LINE__));
+	    break;
+	}
+
+	case CommunicatorDestroyed:
+	{
+	    setState(StateClosing, CommunicatorDestroyedException(__FILE__, __LINE__));
+	    break;
+	}
+    }
+}
 
 void
 IceInternal::Connection::setState(State state, const LocalException& ex)

@@ -1181,13 +1181,8 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     H << sp << nl << "virtual " << retS << ' ' << name << params << ';';
     C << sp << nl << retS << nl << "IceDelegateM" << scoped << paramsDecl;
     C << sb;
-    C << nl << "bool __sendProxy = false;";
-    C << nl << "while (true)";
-    C << sb;
-    C << nl << "try";
-    C << sb;
     C << nl << "static const ::std::string __operation(\"" << name << "\");";
-    C << nl << "::IceInternal::Outgoing __out(__connection, __reference, __sendProxy, __operation, "
+    C << nl << "::IceInternal::Outgoing __out(__connection, __reference, __operation, "
       << (p->nonmutating() ? "true" : "false") << ", __context);";
     if (ret || !outParams.empty() || !throws.empty())
     {
@@ -1240,16 +1235,6 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     {
 	C << nl << "return __ret;";
     }
-    else
-    {
-	C << nl << "return;";
-    }
-    C << eb;
-    C << nl << "catch (const ::Ice::ProxyRequested&)";
-    C << sb;
-    C << nl << "__sendProxy = true;";
-    C << eb;
-    C << eb;
     C << eb;
 }
 
@@ -1432,10 +1417,6 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "throw;";
 	C << eb;
     }
-    C << nl << "catch (const ::Ice::ProxyRequested&)";
-    C << sb;
-    C << nl << "__initCurrentProxy(__current);";
-    C << eb;
     C << nl << "catch (const ::Ice::LocalException&)";
     C << sb;
     C << nl << "throw ::Ice::UnknownLocalException(__FILE__, __LINE__);";

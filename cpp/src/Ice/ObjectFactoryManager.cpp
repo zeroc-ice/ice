@@ -49,8 +49,16 @@ IceInternal::ObjectFactoryManager::remove(const string& id)
     if (p != _factoryMap.end())
     {
 	p->second->destroy();
-	_factoryMap.erase(p);
-	_factoryMapHint = _factoryMap.end();
+
+	if (p == _factoryMapHint)
+	{
+	    _factoryMap.erase(p++);
+	    _factoryMapHint = p;
+	}
+	else
+	{
+	    _factoryMap.erase(p);
+	}
     }
 }
 

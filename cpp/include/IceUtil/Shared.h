@@ -27,11 +27,11 @@
 #if !defined(WIN32) && !defined(ICE_USE_MUTEX_SHARED)
 
 //
-// Linux only. Unfortunately, asm/ice_atomic.h builds non-SMP safe
-// code with non-SMP kernels. This means that executables compiled
-// with a non-SMP kernel would fail randomly due to concurrency errors
-// with reference counting on SMP hosts. Therefore the relevent pieces
-// of ice_atomic.h are more-or-less duplicated.
+// Linux only. Unfortunately, asm/atomic.h builds non-SMP safe code
+// with non-SMP kernels. This means that executables compiled with a
+// non-SMP kernel would fail randomly due to concurrency errors with
+// reference counting on SMP hosts. Therefore the relevent pieces of
+// atomic.h are more-or-less duplicated.
 //
 
 /*
@@ -49,7 +49,7 @@ typedef struct { volatile int counter; } ice_atomic_t;
  * Atomically sets the value of @v to @i.  Note that the guaranteed
  * useful range of an ice_atomic_t is only 24 bits.
  */ 
-#define ice_atomic_set(v,i)		(((v)->counter) = (i))
+#define ice_atomic_set(v,i) (((v)->counter) = (i))
 
 /**
  * ice_atomic_inc - increment ice_atomic variable
@@ -153,7 +153,7 @@ public:
 	}
     }
 
-    int __getRef()
+    int __getRef() const
     {
 	return _ref;
     }
@@ -177,7 +177,7 @@ public:
     virtual ~Shared();
     void __incRef();
     void __decRef();
-    int __getRef();
+    int __getRef() const;
     void __setNoDelete(bool);
 
 private:
@@ -234,7 +234,7 @@ Shared::__decRef()
 }
 
 inline int
-Shared::__getRef()
+Shared::__getRef() const
 {
     _mutex.lock();
     int ref = _ref;
@@ -282,9 +282,9 @@ Shared::__decRef()
 }
 
 inline int
-Shared::__getRef()
+Shared::__getRef() const
 {
-    return InterlockedExchangeAdd(&_ref, 0);
+    return InterlockedExchangeAdd(const_cast<ice_atomic_t*>(&_ref), 0);
 }
 
 inline void
@@ -325,9 +325,9 @@ Shared::__decRef()
 }
 
 inline int
-Shared::__getRef()
+Shared::__getRef() const
 {
-    return ice_atomic_exchange_add(0, &_ref);
+    return ice_atomic_exchange_add(0, const_cast<ice_atomic_t*>(&_ref));
 }
 
 inline void
@@ -335,8 +335,8 @@ Shared::__setNoDelete(bool b)
 {
     _noDelete = b;
 }
-#endif
 
+#endif
 
 }
 

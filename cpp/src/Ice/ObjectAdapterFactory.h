@@ -28,7 +28,6 @@ public:
 private:
 
     ObjectAdapterFactory(const InstancePtr&);
-    void destroy();
     friend class Instance;
 
     InstancePtr _instance;

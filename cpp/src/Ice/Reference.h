@@ -13,8 +13,12 @@
 
 #include <IceUtil/Shared.h>
 #include <Ice/ReferenceF.h>
+#include <Ice/ReferenceFactoryF.h>
 #include <Ice/EndpointF.h>
 #include <Ice/InstanceF.h>
+#include <Ice/RouterF.h>
+#include <Ice/RouterInfoF.h>
+#include <Ice/ObjectAdapterF.h>
 #include <Ice/Identity.h>
 
 namespace IceInternal
@@ -33,13 +37,8 @@ public:
 	ModeBatchOneway,
 	ModeDatagram,
 	ModeBatchDatagram,
-	ModeBatchLast = ModeBatchDatagram
+	ModeLast = ModeBatchDatagram
     };
-
-    Reference(const InstancePtr&, const Ice::Identity&, const std::string&, Mode, bool,
-	      const std::vector<EndpointPtr>&, const std::vector<EndpointPtr>&);
-    Reference(const InstancePtr&, const std::string&);
-    Reference(const Ice::Identity&, BasicStream*);
 
     bool operator==(const Reference&) const;
     bool operator!=(const Reference&) const;
@@ -63,8 +62,10 @@ public:
     const std::string facet;
     const Mode mode;
     const bool secure;
-    const std::vector<EndpointPtr> origEndpoints; // Original endpoints
-    const std::vector<EndpointPtr> endpoints; // Actual endpoints (set by a location forward)
+    const std::vector<EndpointPtr> origEndpoints; // Original endpoints.
+    const std::vector<EndpointPtr> endpoints; // Actual endpoints, changed by a location forwards.
+    const RouterInfoPtr routerInfo; // Null if no router is used.
+    const Ice::ObjectAdapterPtr reverseAdapter; // For reverse communications using the adapter's incoming connections.
     const Ice::Int hashValue;
 
     //
@@ -77,8 +78,15 @@ public:
     ReferencePtr changeMode(Mode) const;
     ReferencePtr changeSecure(bool) const;
     ReferencePtr changeEndpoints(const std::vector<EndpointPtr>&) const;
+    ReferencePtr changeRouter(const ::Ice::RouterPrx&) const;
+    ReferencePtr changeDefault() const;
  
 private:
+
+    Reference(const InstancePtr&, const Ice::Identity&, const std::string&, Mode, bool,
+	      const std::vector<EndpointPtr>&, const std::vector<EndpointPtr>&,
+	      const RouterInfoPtr&, const Ice::ObjectAdapterPtr&);
+    friend class ReferenceFactory;
 
     void calcHashValue();
 };

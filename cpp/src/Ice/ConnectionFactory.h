@@ -19,6 +19,7 @@
 #include <Ice/EndpointF.h>
 #include <Ice/AcceptorF.h>
 #include <Ice/TransceiverF.h>
+#include <Ice/RouterF.h>
 #include <Ice/EventHandler.h>
 #include <list>
 
@@ -26,6 +27,7 @@ namespace Ice
 {
 
 class LocalException;
+class ObjectAdapterI;
 
 }
 
@@ -36,13 +38,16 @@ class OutgoingConnectionFactory : public ::IceUtil::Shared, public ::IceUtil::Mu
 {
 public:
 
-    OutgoingConnectionFactory(const InstancePtr&);
-    virtual ~OutgoingConnectionFactory();
-
-    void destroy();
     ConnectionPtr create(const std::vector<EndpointPtr>&);
+    void setRouter(const ::Ice::RouterPrx&);
+    void removeAdapter(const ::Ice::ObjectAdapterPtr&);
 
 private:
+
+    OutgoingConnectionFactory(const InstancePtr&);
+    virtual ~OutgoingConnectionFactory();
+    void destroy();
+    friend class Instance;
 
     InstancePtr _instance;
     std::map<EndpointPtr, ConnectionPtr> _connections;
@@ -52,15 +57,12 @@ class IncomingConnectionFactory : public EventHandler, public ::IceUtil::Mutex
 {
 public:
 
-    IncomingConnectionFactory(const InstancePtr&, const EndpointPtr&, const ::Ice::ObjectAdapterPtr&);
-    virtual ~IncomingConnectionFactory();
-
-    void destroy();
     void hold();
     void activate();
 
     EndpointPtr endpoint() const;
     bool equivalent(const EndpointPtr&) const;
+    std::list<ConnectionPtr> connections() const;
 
     //
     // Operations from EventHandler
@@ -71,9 +73,13 @@ public:
     virtual void message(BasicStream&);
     virtual void exception(const ::Ice::LocalException&);
     virtual void finished();
-    virtual bool tryDestroy();
     
 private:
+
+    IncomingConnectionFactory(const InstancePtr&, const EndpointPtr&, const ::Ice::ObjectAdapterPtr&);
+    virtual ~IncomingConnectionFactory();
+    void destroy();
+    friend class ::Ice::ObjectAdapterI;
 
     enum State
     {

@@ -71,25 +71,10 @@ static void
 printRequestHeader(ostream& s, BasicStream& stream)
 {
     Identity identity;
-    string facet;
-    bool gotProxy;
-    stream.read(gotProxy);
-    s << "\naddressing = " << static_cast<int>(gotProxy);
-    if (gotProxy)
-    {
-	s << " (proxy)";
-	ObjectPrx proxy;
-	stream.read(proxy);
-	identity = proxy->ice_getIdentity();
-	facet = proxy->ice_getFacet();
-    }
-    else
-    {
-	s << " (identity)";
-	identity.__read(&stream);
-	stream.read(facet);
-    }
+    identity.__read(&stream);
     s << "\nidentity = " << identity;
+    string facet;
+    stream.read(facet);
     s << "\nfacet = " << facet;
     string operation;
     stream.read(operation);
@@ -212,11 +197,6 @@ IceInternal::traceReply(const char* heading, const BasicStream& str, const ::Ice
 	    case DispatchLocationForward:
 	    {
 		s << "(location forward)";
-		break;
-	    }
-	    case DispatchProxyRequested:
-	    {
-		s << "(proxy requested)";
 		break;
 	    }
 	    case DispatchObjectNotExist:

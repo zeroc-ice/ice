@@ -11,6 +11,7 @@
 #include <Ice/CommunicatorI.h>
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
+#include <Ice/ReferenceFactory.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ObjectFactoryManager.h>
@@ -31,6 +32,7 @@ Ice::CommunicatorI::destroy()
 
     if (_instance)
     {
+	_instance->objectAdapterFactory()->shutdown();
 	_instance->destroy();
 	_instance = 0;
     }
@@ -80,7 +82,13 @@ Ice::CommunicatorI::proxyToString(const ObjectPrx& proxy)
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapter(const string& name)
 {
-    return createObjectAdapterFromProperty(name, "Ice.Adapter." + name + ".Endpoints");
+    ObjectAdapterPtr adapter = createObjectAdapterFromProperty(name, "Ice.Adapter." + name + ".Endpoints");
+    string router = _instance->properties()->getProperty("Ice.Adapter." + name + ".Router");
+    if (!router.empty())
+    {
+	adapter->addRouter(RouterPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(router)));
+    }
+    return adapter;
 }
 
 ObjectAdapterPtr
@@ -203,6 +211,12 @@ Ice::CommunicatorI::setLogger(const LoggerPtr& logger)
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
     _instance->logger(logger);
+}
+
+void
+Ice::CommunicatorI::setDefaultRouter(const RouterPrx& router)
+{
+    _instance->referenceFactory()->setDefaultRouter(router);
 }
 
 StreamPtr

@@ -124,6 +124,18 @@ SOURCE=.\CommunicatorI.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Router.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\RouterInfo.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\RoutingTable.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Connection.cpp
 # End Source File
 # Begin Source File
@@ -241,6 +253,10 @@ SOURCE=.\ProxyFactory.cpp
 # Begin Source File
 
 SOURCE=.\Reference.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ReferenceFactory.cpp
 # End Source File
 # Begin Source File
 
@@ -372,11 +388,11 @@ SOURCE=.\UserExceptionFactoryManager.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\Ice\Acceptor.h
+SOURCE=.\Acceptor.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\AcceptorF.h
+SOURCE=.\AcceptorF.h
 # End Source File
 # Begin Source File
 
@@ -400,7 +416,31 @@ SOURCE=..\..\include\Ice\CommunicatorF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\CommunicatorI.h
+SOURCE=.\CommunicatorI.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\Router.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\RouterF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\RouterInfo.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\RouterInfoF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\RoutingTable.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\RoutingTableF.h
 # End Source File
 # Begin Source File
 
@@ -416,7 +456,7 @@ SOURCE=..\..\include\Ice\ConnectionF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\ConnectionFactory.h
+SOURCE=.\ConnectionFactory.h
 # End Source File
 # Begin Source File
 
@@ -424,11 +464,11 @@ SOURCE=..\..\include\Ice\ConnectionFactoryF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\Connector.h
+SOURCE=.\Connector.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\ConnectorF.h
+SOURCE=.\ConnectorF.h
 # End Source File
 # Begin Source File
 
@@ -440,19 +480,19 @@ SOURCE=..\..\include\Ice\Direct.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\Endpoint.h
+SOURCE=.\Endpoint.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\EndpointF.h
+SOURCE=..\..\include\Ice\EndpointF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\EventHandler.h
+SOURCE=.\EventHandler.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\EventHandlerF.h
+SOURCE=.\EventHandlerF.h
 # End Source File
 # Begin Source File
 
@@ -488,7 +528,7 @@ SOURCE=..\..\include\Ice\Initialize.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\Instance.h
+SOURCE=.\Instance.h
 # End Source File
 # Begin Source File
 
@@ -516,7 +556,7 @@ SOURCE=..\..\include\Ice\LoggerF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\LoggerI.h
+SOURCE=.\LoggerI.h
 # End Source File
 # Begin Source File
 
@@ -524,7 +564,7 @@ SOURCE=..\..\include\Ice\Native.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\Network.h
+SOURCE=.\Network.h
 # End Source File
 # Begin Source File
 
@@ -540,7 +580,7 @@ SOURCE=..\..\include\Ice\ObjectAdapterF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\ObjectAdapterFactory.h
+SOURCE=.\ObjectAdapterFactory.h
 # End Source File
 # Begin Source File
 
@@ -548,7 +588,7 @@ SOURCE=..\..\include\Ice\ObjectAdapterFactoryF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\ObjectAdapterI.h
+SOURCE=.\ObjectAdapterI.h
 # End Source File
 # Begin Source File
 
@@ -564,11 +604,11 @@ SOURCE=..\..\include\Ice\ObjectFactoryF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\ObjectFactoryManager.h
+SOURCE=.\ObjectFactoryManager.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\ObjectFactoryManagerF.h
+SOURCE=.\ObjectFactoryManagerF.h
 # End Source File
 # Begin Source File
 
@@ -584,7 +624,7 @@ SOURCE=..\..\include\Ice\PropertiesF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\PropertiesI.h
+SOURCE=.\PropertiesI.h
 # End Source File
 # Begin Source File
 
@@ -600,7 +640,7 @@ SOURCE=..\..\include\Ice\ProxyF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\ProxyFactory.h
+SOURCE=.\ProxyFactory.h
 # End Source File
 # Begin Source File
 
@@ -612,11 +652,19 @@ SOURCE=..\..\include\Ice\ProxyHandle.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\Reference.h
+SOURCE=.\Reference.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\include\Ice\ReferenceF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ReferenceFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ReferenceFactoryF.h
 # End Source File
 # Begin Source File
 
@@ -708,27 +756,27 @@ SOURCE=..\..\include\Ice\StreamF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\StreamI.h
+SOURCE=.\StreamI.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\TcpAcceptor.h
+SOURCE=.\TcpAcceptor.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\TcpConnector.h
+SOURCE=.\TcpConnector.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\TcpTransceiver.h
+SOURCE=.\TcpTransceiver.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\ThreadPool.h
+SOURCE=.\ThreadPool.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\ThreadPoolF.h
+SOURCE=.\ThreadPoolF.h
 # End Source File
 # Begin Source File
 
@@ -740,19 +788,19 @@ SOURCE=.\TraceLevelsF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\TraceUtil.h
+SOURCE=.\TraceUtil.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\Transceiver.h
+SOURCE=.\Transceiver.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\TransceiverF.h
+SOURCE=.\TransceiverF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\UdpTransceiver.h
+SOURCE=.\UdpTransceiver.h
 # End Source File
 # Begin Source File
 
@@ -764,11 +812,11 @@ SOURCE=..\..\include\Ice\UserExceptionFactoryF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\UserExceptionFactoryManager.h
+SOURCE=.\UserExceptionFactoryManager.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\UserExceptionFactoryManagerF.h
+SOURCE=.\UserExceptionFactoryManagerF.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -848,6 +896,86 @@ InputPath=..\..\slice\Ice\CommunicatorF.ice
 	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/CommunicatorF.ice 
 	move CommunicatorF.h ..\..\include\Ice 
 	del CommunicatorF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\Router.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__COMMU="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Router.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Router.ice \
+	move Router.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__COMMU="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Router.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Router.ice \
+	move Router.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\RouterF.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__COMMUN="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\RouterF.ice
+
+"..\..\include\Ice\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RouterF.ice 
+	move RouterF.h ..\..\include\Ice 
+	del RouterF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__COMMUN="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\RouterF.ice
+
+"..\..\include\Ice\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RouterF.ice 
+	move RouterF.h ..\..\include\Ice 
+	del RouterF.cpp 
 	
 # End Custom Build
 

@@ -22,7 +22,7 @@ main(int argc, char** argv)
 {
     try
     {
-	InitializeTestSuite();
+	initializeTestSuite();
 
 	for (list<TestBasePtr>::const_iterator p = allTests.begin(); p != allTests.end(); ++p)
 	{

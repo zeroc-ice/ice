@@ -87,7 +87,7 @@ constMemFun(R (T::*p)(void) const)
 
 template<class R, class T, class A>
 inline ::IceUtilInternal::ConstMemFun1<R, T, ::IceInternal::Handle<T>, A>
-constMemFun1(R (T::*p)(A))
+constMemFun1(R (T::*p)(A) const)
 {
     return ::IceUtilInternal::ConstMemFun1<R, T, ::IceInternal::Handle<T>, A>(p);
 }
@@ -101,7 +101,7 @@ constVoidMemFun(void (T::*p)(void) const)
 
 template<class T, class A>
 inline ::IceUtilInternal::ConstVoidMemFun1<T, ::IceInternal::Handle<T>, A>
-constVoidMemFun1(void (T::*p)(A))
+constVoidMemFun1(void (T::*p)(A) const)
 {
     return ::IceUtilInternal::ConstVoidMemFun1<T, ::IceInternal::Handle<T>, A>(p);
 }
@@ -115,7 +115,7 @@ secondConstMemFun(R (T::*p)(void) const)
 
 template<class R, class K, class T, class A>
 inline ::IceUtilInternal::SecondConstMemFun1<R, K, T, ::IceInternal::Handle<T>, A>
-secondConstMemFun1(R (T::*p)(A))
+secondConstMemFun1(R (T::*p)(A) const)
 {
     return ::IceUtilInternal::SecondConstMemFun1<R, K, T, ::IceInternal::Handle<T>, A>(p);
 }
@@ -129,7 +129,7 @@ secondConstVoidMemFun(void (T::*p)(void) const)
 
 template<class K, class T, class A>
 inline ::IceUtilInternal::SecondConstVoidMemFun1<K, T, ::IceInternal::Handle<T>, A>
-secondConstVoidMemFun1(void (T::*p)(A))
+secondConstVoidMemFun1(void (T::*p)(A) const)
 {
     return ::IceUtilInternal::SecondConstVoidMemFun1<K, T, ::IceInternal::Handle<T>, A>(p);
 }

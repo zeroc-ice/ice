@@ -22,6 +22,7 @@
 #include <Ice/ObjectF.h>
 #include <Ice/Exception.h>
 #include <Ice/EndpointF.h>
+#include <list>
 
 namespace Ice
 {
@@ -52,6 +53,11 @@ public:
     virtual ObjectPtr proxyToServant(const ObjectPrx&);
 
     virtual ObjectPrx createProxy(const Identity&);
+    virtual ObjectPrx createReverseProxy(const Identity&);
+
+    virtual void addRouter(const RouterPrx&);
+
+    std::list< ::IceInternal::ConnectionPtr> getIncomingConnections() const;
 
 private:
 
@@ -59,16 +65,18 @@ private:
     virtual ~ObjectAdapterI();
     friend ::IceInternal::ObjectAdapterFactory;
     
-    ObjectPrx newProxy(const Identity&);
-    bool isLocal(const ObjectPrx&);
+    ObjectPrx newProxy(const Identity&) const;
+    bool isLocal(const ObjectPrx&) const;
 
     ::IceInternal::InstancePtr _instance;
+    bool _deactivated;
     std::string _name;
-    std::vector< IceInternal::IncomingConnectionFactoryPtr> _collectorFactories;
     ObjectDict _activeServantMap;
     ObjectDict::iterator _activeServantMapHint;
     std::map<std::string, ServantLocatorPtr> _locatorMap;
     std::map<std::string, ServantLocatorPtr>::iterator _locatorMapHint;
+    std::vector< ::IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
+    std::vector< ::IceInternal::EndpointPtr> _routerEndpoints;
 };
 
 }

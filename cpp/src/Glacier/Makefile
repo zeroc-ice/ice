@@ -10,21 +10,23 @@
 
 top_srcdir	= ../..
 
-SERVER		= $(top_srcdir)/bin/icewall
+ROUTER		= $(top_srcdir)/bin/glacier
 
-TARGETS		= $(SERVER)
+TARGETS		= $(ROUTER)
 
-SOBJS		= Router.o \
-		  Server.o
+ROBJS		= GlacierRouter.o \
+		  RouterI.o \
+		  ClientBlobject.o \
+		  ServerBlobject.o
 
-SRCS		= $(SOBJS:.o=.cpp)
+SRCS		= $(ROBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS)
 
-$(SERVER): $(SOBJS)
+$(ROUTER): $(ROBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(ROBJS) $(LIBS)
 
 include .depend

@@ -24,6 +24,24 @@ Package=<4>
 
 ###############################################################################
 
+Project: "GlacierRouter"=.\src\Glacier\GlacierRouter.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "Ice"=.\src\Ice\Ice.dsp - Package Owner=<4>
 
 Package=<5>
@@ -394,6 +412,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name thread
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name GlacierRouter
     End Project Dependency
 }}}
 
@@ -1252,24 +1273,6 @@ Package=<4>
 ###############################################################################
 
 Project: "slice2java"=.\src\slice2java\slice2java.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Slice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "slice2xsd"=.\src\slice2xsd\slice2xsd.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

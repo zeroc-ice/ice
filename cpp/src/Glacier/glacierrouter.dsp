@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="IceWallS" - Wallage Owner=<4>
+# Microsoft Developer Studio Project File - Name="GlacierRouter" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=IceWallS - Win32 Debug
+CFG=GlacierRouter - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "IceWallS.mak".
+!MESSAGE NMAKE /f "GlacierRouter.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "IceWallS.mak" CFG="IceWallS - Win32 Debug"
+!MESSAGE NMAKE /f "GlacierRouter.mak" CFG="GlacierRouter - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "IceWallS - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "IceWallS - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "GlacierRouter - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "GlacierRouter - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=IceWallS - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "IceWallS - Win32 Release"
+!IF  "$(CFG)" == "GlacierRouter - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -51,9 +51,9 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 ws2_32.lib jtc.lib /nologo /subsystem:console /machine:I386 /out:"../../bin/icewall.exe" /libpath:"../../../lib"
+# ADD LINK32 /nologo /subsystem:console /machine:I386 /out:"C:\marc\ice\bin\glacier.exe" /libpath:"../../../lib"
 
-!ELSEIF  "$(CFG)" == "IceWallS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "GlacierRouter - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -76,24 +76,28 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ws2_32.lib jtcd.lib /nologo /subsystem:console /debug /machine:I386 /out:"../../bin/icewall.exe" /pdbtype:sept /libpath:"../../../lib"
+# ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"C:\marc\ice\bin\glacier.exe" /pdbtype:sept /libpath:"../../../lib"
 
 !ENDIF 
 
 # Begin Target
 
-# Name "IceWallS - Win32 Release"
-# Name "IceWallS - Win32 Debug"
+# Name "GlacierRouter - Win32 Release"
+# Name "GlacierRouter - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Router.cpp
+SOURCE=.\ClientBlobject.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Server.cpp
+SOURCE=.\GlacierRouter.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\RouterI.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -101,7 +105,11 @@ SOURCE=.\Server.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\Router.h
+SOURCE=.\ClientBlobject.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\RouterI.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

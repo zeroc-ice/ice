@@ -48,6 +48,8 @@ public:
     virtual LoggerPtr getLogger();
     virtual void setLogger(const LoggerPtr&);
 
+    virtual void setDefaultRouter(const RouterPrx&);
+
     virtual StreamPtr createStream();
 
 private:

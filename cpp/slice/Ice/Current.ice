@@ -11,7 +11,6 @@
 #ifndef ICE_CURRENT_ICE
 #define ICE_CURRENT_ICE
 
-//#include <Ice/ConnectionF.ice>
 #include <Ice/Identity.ice>
 
 module Ice
@@ -63,6 +62,14 @@ local struct Current
 
     /**
      *
+     * Set to false if the operation call was sent oneway or with a
+     * datagram protocol.
+     *
+     **/
+    bool response;
+
+    /**
+     *
      * Set to true if the operation is nonmutating.
      *
      **/
@@ -76,26 +83,6 @@ local struct Current
      *
      **/
     Context context;
-
-    /**
-     *
-     * The proxy via which this request was sent. If not available
-     * (i.e., if set to null) the server can ask the client to repeat
-     * the request with including a proxy by throwing an
-     * [Ice::ProxyRequested] exception.
-     *
-     **/
-    Object* proxy;
-
-    /**
-     *
-     * The connection over which the request was received. In case no
-     * connection was involved for propagating the request, like if
-     * the request was sent directly by a collocated client,
-     * [connection] is set to null.
-     *
-     **/
-//    Connection connection;
 };
 
 };

@@ -29,6 +29,7 @@ SLICEFILES	= ../slice/Ice/LocalException.ice \
 		  ../slice/Ice/SecurityException.ice \
 		  ../slice/Ice/Identity.ice \
 		  ../slice/Ice/Current.ice \
+		  ../slice/Ice/Router.ice \
 		  ../slice/IcePack/Admin.ice \
 		  ../slice/Freeze/DB.ice \
 		  ../slice/Freeze/DBException.ice \

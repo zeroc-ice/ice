@@ -375,6 +375,22 @@ instead. The default value is the local host name.
 </section>
 </section>
 
+<section><title>Ice.DefaultRouter</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.DefaultRouter=<replaceable>router</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a default router (object reference) to be used for all
+Proxies, unless the router is overwritten with the Proxy's
+[ice_router] operation. The default value is no default router.
+</para>
+</section>
+</section>
+
 </section>
 
 <!-- ********************************************************************** -->

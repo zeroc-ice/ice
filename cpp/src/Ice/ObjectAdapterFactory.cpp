@@ -11,8 +11,6 @@
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/ObjectAdapterI.h>
 #include <Ice/Functional.h>
-
-
 #include <Ice/Instance.h>
 
 using namespace std;

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2002
+// Copyright (c) 2001
 // MutableRealms, Inc.
 // Huntsville, AL, USA
 //
@@ -8,18 +8,18 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ENDPOINT_F_H
-#define ICE_ENDPOINT_F_H
+#ifndef ICE_REFERENCE_FACTORY_F_H
+#define ICE_REFERENCE_FACTORY_F_H
 
 #include <Ice/Handle.h>
 
 namespace IceInternal
 {
 
-class Endpoint;
-void incRef(Endpoint*);
-void decRef(Endpoint*);
-typedef IceInternal::Handle<Endpoint> EndpointPtr;
+class ReferenceFactory;
+ICE_API void incRef(ReferenceFactory*);
+ICE_API void decRef(ReferenceFactory*);
+typedef IceInternal::Handle<ReferenceFactory> ReferenceFactoryPtr;
 
 }
 

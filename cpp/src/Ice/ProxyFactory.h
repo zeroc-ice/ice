@@ -12,6 +12,7 @@
 #define ICE_PROXY_FACTORY_H
 
 #include <IceUtil/Shared.h>
+#include <IceUtil/Mutex.h>
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ReferenceF.h>
@@ -26,12 +27,13 @@ class ProxyFactory : public ::IceUtil::Shared
 {
 public:
     
-    ::Ice::ObjectPrx stringToProxy(const std::string&);
-    std::string proxyToString(const ::Ice::ObjectPrx&);
+    ::Ice::ObjectPrx stringToProxy(const std::string&) const;
+    std::string proxyToString(const ::Ice::ObjectPrx&) const;
 
-    ::Ice::ObjectPrx streamToProxy(BasicStream*);
-    ::Ice::ObjectPrx referenceToProxy(const ReferencePtr&);
-    void proxyToStream(const ::Ice::ObjectPrx&, BasicStream*);
+    ::Ice::ObjectPrx streamToProxy(BasicStream*) const;
+    void proxyToStream(const ::Ice::ObjectPrx&, BasicStream*) const;
+
+    ::Ice::ObjectPrx referenceToProxy(const ReferencePtr&) const;
 
 private:
 

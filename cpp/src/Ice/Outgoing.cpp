@@ -14,8 +14,6 @@
 #include <Ice/Reference.h>
 #include <Ice/Exception.h>
 #include <Ice/Instance.h>
-#include <Ice/Proxy.h>
-#include <Ice/ProxyFactory.h>
 
 using namespace std;
 using namespace Ice;
@@ -38,8 +36,8 @@ IceInternal::NonRepeatable::get() const
     return _ex.get();
 }
 
-IceInternal::Outgoing::Outgoing(const ConnectionPtr& connection, const ReferencePtr& ref, bool sendProxy,
-				const string& operation, bool nonmutating, const Context& context) :
+IceInternal::Outgoing::Outgoing(const ConnectionPtr& connection, const ReferencePtr& ref, const string& operation,
+				bool nonmutating, const Context& context) :
     _connection(connection),
     _reference(ref),
     _state(StateUnsent),
@@ -64,17 +62,8 @@ IceInternal::Outgoing::Outgoing(const ConnectionPtr& connection, const Reference
 	}
     }
 
-    _os.write(sendProxy);
-    if (sendProxy)
-    {
-	ObjectPrx proxy = _reference->instance->proxyFactory()->referenceToProxy(_reference);
-	_os.write(proxy);
-    }
-    else
-    {
-	_reference->identity.__write(&_os);
-	_os.write(_reference->facet);
-    }
+    _reference->identity.__write(&_os);
+    _os.write(_reference->facet);
     _os.write(operation);
     _os.write(nonmutating);
     _os.write(Int(context.size()));
@@ -87,8 +76,8 @@ IceInternal::Outgoing::Outgoing(const ConnectionPtr& connection, const Reference
     
     //
     // Input and output parameters are always sent in an
-    // encapsulation, which makes it possible to forward oneway
-    // requests as blobs.
+    // encapsulation, which makes it possible to forward requests as
+    // blobs.
     //
     _os.startWriteEncaps();
 }
@@ -128,8 +117,8 @@ IceInternal::Outgoing::invoke()
 			if (_state == StateInProgress)
 			{
 			    timedOut = true;
-				_state = StateLocalException;
-				_exception = auto_ptr<LocalException>(new TimeoutException(__FILE__, __LINE__));
+			    _state = StateLocalException;
+			    _exception = auto_ptr<LocalException>(new TimeoutException(__FILE__, __LINE__));
 			}
 		    }
 		    else
@@ -181,11 +170,6 @@ IceInternal::Outgoing::invoke()
 		ObjectPrx p;
 		_is.read(p);
 		throw LocationForward(p);
-	    }
-
-	    if (_state == StateProxyRequested)
-	    {
-		throw ProxyRequested();
 	    }
 
 	    assert(_state == StateOK);
@@ -259,12 +243,6 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    case DispatchLocationForward:
 	    {
 		_state = StateLocationForward;
-		break;
-	    }
-	    
-	    case DispatchProxyRequested:
-	    {
-		_state = StateProxyRequested;
 		break;
 	    }
 	    

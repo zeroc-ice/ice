@@ -16,7 +16,7 @@
 
 extern std::list<TestBasePtr> allTests;
 
-void InitializeTestSuite();
+void initializeTestSuite();
 
 #endif
 

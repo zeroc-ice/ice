@@ -19,7 +19,9 @@
 #include <Ice/Acceptor.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ObjectAdapter.h>
+#include <Ice/Reference.h>
 #include <Ice/Endpoint.h>
+#include <Ice/RouterInfo.h>
 #include <Ice/Exception.h>
 #include <Ice/Functional.h>
 #include <Ice/SecurityException.h> // TODO: bandaid, see below.
@@ -34,16 +36,6 @@ void IceInternal::decRef(OutgoingConnectionFactory* p) { p->__decRef(); }
 void IceInternal::incRef(IncomingConnectionFactory* p) { p->__incRef(); }
 void IceInternal::decRef(IncomingConnectionFactory* p) { p->__decRef(); }
 
-IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(const InstancePtr& instance) :
-    _instance(instance)
-{
-}
-
-IceInternal::OutgoingConnectionFactory::~OutgoingConnectionFactory()
-{
-    assert(!_instance);
-}
-
 ConnectionPtr
 IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoints)
 {
@@ -57,16 +49,14 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
     assert(!endpoints.empty());
 
     //
-    // First reap destroyed connections
+    // Reap destroyed connections
     //
     std::map<EndpointPtr, ConnectionPtr>::iterator p = _connections.begin();
     while (p != _connections.end())
     {
 	if (p->second->destroyed())
 	{
-	    std::map<EndpointPtr, ConnectionPtr>::iterator p2 = p;	    
-	    ++p;
-	    _connections.erase(p2);
+	    _connections.erase(p++);
 	}
 	else
 	{
@@ -159,6 +149,68 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
 }
 
 void
+IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    if (!_instance)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
+    RouterInfoPtr routerInfo = _instance->routerManager()->get(router);
+    if (routerInfo)
+    {
+	//
+	// Search for connections to the router's client proxy
+	// endpoints, and update the object adapter for such
+	// connections, so that callbacks from the router can be
+	// received over such connections.
+	//
+	ObjectPrx proxy = routerInfo->getClientProxy();
+	ObjectAdapterPtr adapter = routerInfo->getAdapter();
+	vector<EndpointPtr>::const_iterator p;
+	for (p = proxy->__reference()->endpoints.begin(); p != proxy->__reference()->endpoints.end(); ++p)
+	{
+	    map<EndpointPtr, ConnectionPtr>::const_iterator q = _connections.find(*p);
+	    if (q != _connections.end())
+	    {
+		q->second->setAdapter(adapter);
+	    }
+	}
+    }    
+}
+
+void
+IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& adapter)
+{
+    IceUtil::Mutex::Lock sync(*this);
+    
+    if (!_instance)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    
+    for (map<EndpointPtr, ConnectionPtr>::const_iterator p = _connections.begin(); p != _connections.end(); ++p)
+    {
+	if (p->second->getAdapter() == adapter)
+	{
+	    p->second->setAdapter(0);
+	}
+    }
+}
+
+IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(const InstancePtr& instance) :
+    _instance(instance)
+{
+}
+
+IceInternal::OutgoingConnectionFactory::~OutgoingConnectionFactory()
+{
+    assert(!_instance);
+}
+
+void
 IceInternal::OutgoingConnectionFactory::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
@@ -182,51 +234,6 @@ IceInternal::OutgoingConnectionFactory::destroy()
     _instance = 0;
 }
 
-IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const InstancePtr& instance,
-						const EndpointPtr& endpoint,
-						const ObjectAdapterPtr& adapter) :
-    EventHandler(instance),
-    _endpoint(endpoint),
-    _adapter(adapter),
-    _state(StateHolding)
-{
-    _warn = atoi(_instance->properties()->getProperty("Ice.ConnectionWarnings").c_str()) > 0 ? true : false;
-
-    try
-    {
-	_transceiver = _endpoint->serverTransceiver(_endpoint);
-	if (_transceiver)
-	{
-	    ConnectionPtr connection = new Connection(_instance, _transceiver, _endpoint, _adapter);
-	    _connections.push_back(connection);
-	}
-	else
-	{
-	    _acceptor = _endpoint->acceptor(_endpoint);
-	    assert(_acceptor);
-	    _acceptor->listen();
-	    _threadPool = _instance->threadPool();
-	}
-    }
-    catch (...)
-    {
-	setState(StateClosed);
-	throw;
-    }
-}
-
-IceInternal::IncomingConnectionFactory::~IncomingConnectionFactory()
-{
-    assert(_state == StateClosed);
-}
-
-void
-IceInternal::IncomingConnectionFactory::destroy()
-{
-    IceUtil::Mutex::Lock sync(*this);
-    setState(StateClosed);
-}
-
 void
 IceInternal::IncomingConnectionFactory::hold()
 {
@@ -244,6 +251,7 @@ IceInternal::IncomingConnectionFactory::activate()
 EndpointPtr
 IceInternal::IncomingConnectionFactory::endpoint() const
 {
+    // No mutex protection necessary, _endpoint is immutable.
     return _endpoint;
 }
 
@@ -257,6 +265,21 @@ IceInternal::IncomingConnectionFactory::equivalent(const EndpointPtr& endp) cons
     
     assert(_acceptor);
     return endp->equivalent(_acceptor);
+}
+
+list<ConnectionPtr>
+IceInternal::IncomingConnectionFactory::connections() const
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    //
+    // Reap destroyed connections
+    //
+    list<ConnectionPtr>& connections = const_cast<list<ConnectionPtr>& >(_connections);
+    connections.erase(remove_if(connections.begin(), connections.end(), ::Ice::constMemFun(&Connection::destroyed)),
+		      connections.end());
+
+    return _connections;
 }
 
 bool
@@ -290,10 +313,8 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&)
     }
     
     //
-    // First reap destroyed connections
+    // Reap destroyed connections
     //
-    // Can't use _connections.remove_if(constMemFun(...)), because VC++
-    // doesn't support member templates :-(
     _connections.erase(remove_if(_connections.begin(), _connections.end(), ::Ice::constMemFun(&Connection::destroyed)),
 		      _connections.end());
 
@@ -348,6 +369,7 @@ IceInternal::IncomingConnectionFactory::finished()
     _acceptor->close();
 }
 
+/*
 bool
 IceInternal::IncomingConnectionFactory::tryDestroy()
 {
@@ -356,6 +378,52 @@ IceInternal::IncomingConnectionFactory::tryDestroy()
     // active connection management.
     //
     return false;
+}
+*/
+
+IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const InstancePtr& instance,
+								  const EndpointPtr& endpoint,
+								  const ObjectAdapterPtr& adapter) :
+    EventHandler(instance),
+    _endpoint(endpoint),
+    _adapter(adapter),
+    _state(StateHolding)
+{
+    _warn = atoi(_instance->properties()->getProperty("Ice.ConnectionWarnings").c_str()) > 0 ? true : false;
+
+    try
+    {
+	_transceiver = _endpoint->serverTransceiver(_endpoint);
+	if (_transceiver)
+	{
+	    ConnectionPtr connection = new Connection(_instance, _transceiver, _endpoint, _adapter);
+	    _connections.push_back(connection);
+	}
+	else
+	{
+	    _acceptor = _endpoint->acceptor(_endpoint);
+	    assert(_acceptor);
+	    _acceptor->listen();
+	    _threadPool = _instance->threadPool();
+	}
+    }
+    catch (...)
+    {
+	setState(StateClosed);
+	throw;
+    }
+}
+
+IceInternal::IncomingConnectionFactory::~IncomingConnectionFactory()
+{
+    assert(_state == StateClosed);
+}
+
+void
+IceInternal::IncomingConnectionFactory::destroy()
+{
+    IceUtil::Mutex::Lock sync(*this);
+    setState(StateClosed);
 }
 
 void

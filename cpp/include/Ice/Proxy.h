@@ -16,19 +16,45 @@
 #include <Ice/ProxyF.h>
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/ConnectionF.h>
+#include <Ice/EndpointF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ReferenceF.h>
+//#include <Ice/RouterF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
 #include <Ice/Current.h>
+
+namespace IceProxy
+{
 
 namespace Ice
 {
+
+class Router;
+
+}
+
+}
+
+namespace IceInternal
+{
+
+ICE_API void incRef(::IceProxy::Ice::Router*);
+ICE_API void decRef(::IceProxy::Ice::Router*);
+
+ICE_API void checkedCast(const ::Ice::ObjectPrx&, const ::std::string&, ProxyHandle< ::IceProxy::Ice::Router>&);
+ICE_API void uncheckedCast(const ::Ice::ObjectPrx&, const ::std::string&, ProxyHandle< ::IceProxy::Ice::Router>&);
+
+}
+
+namespace Ice
+{
+
+typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Router> RouterPrx;
 
 class LocalException;
 class LocationForward;
 
 }
-
 namespace IceProxy { namespace Ice
 {
 
@@ -59,6 +85,8 @@ public:
     ::Ice::ObjectPrx ice_batchDatagram() const;
     ::Ice::ObjectPrx ice_secure(bool) const;
     ::Ice::ObjectPrx ice_timeout(int) const;
+    ::Ice::ObjectPrx ice_router(const ::Ice::RouterPrx&) const;
+    ::Ice::ObjectPrx ice_default() const;
 
     void ice_flush(); // Flush batch messages
 
@@ -68,9 +96,10 @@ public:
     void __rethrowException(const ::Ice::LocalException&);
     void __locationForward(const ::Ice::LocationForward&);
 
+    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __getDelegate();
+
 protected:
 
-    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __getDelegate();
     virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();
     virtual ::IceInternal::Handle< ::IceDelegateD::Ice::Object> __createDelegateD();
 
@@ -114,6 +143,8 @@ public:
 			    const ::Ice::Context&);
     virtual void ice_flush();
 
+    void __copyFrom(const ::IceInternal::Handle< ::IceDelegateM::Ice::Object>&);
+
 protected:
 
     ::IceInternal::ConnectionPtr __connection;
@@ -123,6 +154,8 @@ private:
 
     void setup(const ::IceInternal::ReferencePtr&);
     friend class ::IceProxy::Ice::Object;
+
+    std::vector< ::IceInternal::EndpointPtr> filterEndpoints(const std::vector< ::IceInternal::EndpointPtr>&) const;
 };
 
 } }
@@ -140,13 +173,14 @@ public:
 			    const ::Ice::Context&);
     virtual void ice_flush();
 
+    void __copyFrom(const ::IceInternal::Handle< ::IceDelegateD::Ice::Object>&);
+
 protected:
 
     ::Ice::ObjectAdapterPtr __adapter;
     ::IceInternal::ReferencePtr __reference;
 
     void __initCurrent(::Ice::Current&, const std::string&, bool, const ::Ice::Context&);
-    void __initCurrentProxy(::Ice::Current&);
 
 private:
 

@@ -10,6 +10,8 @@
 
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
+#include <Ice/RouterInfo.h>
+#include <Ice/ReferenceFactory.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ConnectionFactory.h>
@@ -64,21 +66,21 @@ static GlobalStateMutexDestroyer destroyer;
 void IceInternal::incRef(Instance* p) { p->__incRef(); }
 void IceInternal::decRef(Instance* p) { p->__decRef(); }
 
-::Ice::CommunicatorPtr
+CommunicatorPtr
 IceInternal::Instance::communicator()
 {
     IceUtil::Mutex::Lock sync(*this);
     return _communicator;
 }
 
-::Ice::PropertiesPtr
+PropertiesPtr
 IceInternal::Instance::properties()
 {
     IceUtil::Mutex::Lock sync(*this);
     return _properties;
 }
 
-::Ice::LoggerPtr
+LoggerPtr
 IceInternal::Instance::logger()
 {
     IceUtil::Mutex::Lock sync(*this);
@@ -86,7 +88,7 @@ IceInternal::Instance::logger()
 }
 
 void
-IceInternal::Instance::logger(const ::Ice::LoggerPtr& logger)
+IceInternal::Instance::logger(const LoggerPtr& logger)
 {
     IceUtil::Mutex::Lock sync(*this);
     _logger = logger;
@@ -97,6 +99,36 @@ IceInternal::Instance::traceLevels()
 {
     IceUtil::Mutex::Lock sync(*this);
     return _traceLevels;
+}
+
+string
+IceInternal::Instance::defaultProtocol()
+{
+    // No synchronization necessary
+    // IceUtil::Mutex::Lock sync(*this);
+    return _defaultProtocol;
+}
+
+string
+IceInternal::Instance::defaultHost()
+{
+    // No synchronization necessary
+    // IceUtil::Mutex::Lock sync(*this);
+    return _defaultHost;
+}
+
+RouterManagerPtr
+IceInternal::Instance::routerManager()
+{
+    IceUtil::Mutex::Lock sync(*this);
+    return _routerManager;
+}
+
+ReferenceFactoryPtr
+IceInternal::Instance::referenceFactory()
+{
+    IceUtil::Mutex::Lock sync(*this);
+    return _referenceFactory;
 }
 
 ProxyFactoryPtr
@@ -139,22 +171,6 @@ IceInternal::Instance::threadPool()
 {
     IceUtil::Mutex::Lock sync(*this);
     return _threadPool;
-}
-
-string
-IceInternal::Instance::defaultProtocol()
-{
-    // No synchronization necessary
-    // IceUtil::Mutex::Lock sync(*this);
-    return _defaultProtocol;
-}
-
-string
-IceInternal::Instance::defaultHost()
-{
-    // No synchronization necessary
-    // IceUtil::Mutex::Lock sync(*this);
-    return _defaultHost;
 }
 
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
@@ -248,8 +264,10 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 
     try
     {
+	__setNoDelete(true);
+	string value;
 #ifndef WIN32
-	string value = _properties->getProperty("Ice.UseSyslog");
+	value = _properties->getProperty("Ice.UseSyslog");
 	if (atoi(value.c_str()) >= 1)
 	{
 	    _logger = new SysLoggerI;
@@ -262,12 +280,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	_logger = new LoggerI;
 #endif
 	_traceLevels = new TraceLevels(_properties);
-	_proxyFactory = new ProxyFactory(this);
-	_outgoingConnectionFactory = new OutgoingConnectionFactory(this);
-	_servantFactoryManager = new ObjectFactoryManager();
-	_userExceptionFactoryManager = new UserExceptionFactoryManager();
-	_objectAdapterFactory = new ObjectAdapterFactory(this);
-	_threadPool = new ThreadPool(this);
 	_defaultProtocol = _properties->getProperty("Ice.DefaultProtocol");
 	if (_defaultProtocol.empty())
 	{
@@ -278,10 +290,25 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	{
 	    _defaultHost = getLocalHost(true);
 	}
+	_routerManager = new RouterManager;
+	_referenceFactory = new ReferenceFactory(this);
+	_proxyFactory = new ProxyFactory(this);
+	value = _properties->getProperty("Ice.DefaultRouter");
+	if (!value.empty())
+	{
+	    _referenceFactory->setDefaultRouter(RouterPrx::uncheckedCast(_proxyFactory->stringToProxy(value)));
+	}
+	_outgoingConnectionFactory = new OutgoingConnectionFactory(this);
+	_servantFactoryManager = new ObjectFactoryManager();
+	_userExceptionFactoryManager = new UserExceptionFactoryManager();
+	_objectAdapterFactory = new ObjectAdapterFactory(this);
+	_threadPool = new ThreadPool(this);
+	__setNoDelete(false);
     }
     catch(...)
     {
 	destroy();
+	__setNoDelete(false);
 	throw;
     }
 }
@@ -292,12 +319,14 @@ IceInternal::Instance::~Instance()
     assert(!_properties);
     assert(!_logger);
     assert(!_traceLevels);
+    assert(!_referenceFactory);
     assert(!_proxyFactory);
     assert(!_outgoingConnectionFactory);
     assert(!_servantFactoryManager);
     assert(!_userExceptionFactoryManager);
     assert(!_objectAdapterFactory);
     assert(!_threadPool);
+    assert(!_routerManager);
 
     if (_globalStateMutex != 0)
     {
@@ -344,69 +373,82 @@ IceInternal::Instance::destroy()
     // to avoid cyclic object dependencies.
     //
 
-    if(_communicator)
+    if (_communicator)
     {
 	// Don't destroy the communicator -- the communicator destroys
-	// this object, not the other way
+	// this object, not the other way.
 	_communicator = 0;
     }
 
-    if(_properties)
+    if (_objectAdapterFactory)
     {
-	// No destroy function defined
-	// _properties->destroy();
-	_properties = 0;
+	// Don't shut down the object adapters -- the communicator
+	// must do this before it destroys this object.
+	_objectAdapterFactory = 0;
+    }
+    
+    if (_servantFactoryManager)
+    {
+	_servantFactoryManager->destroy();
+	_servantFactoryManager = 0;
     }
 
-    if(_logger)
+    if (_userExceptionFactoryManager)
     {
-	_logger->destroy();
-	_logger = 0;
+	_userExceptionFactoryManager->destroy();
+	_userExceptionFactoryManager = 0;
     }
 
-    if(_traceLevels)
+    if (_referenceFactory)
     {
-	// No destroy function defined
-	// _traceLevels->destroy();
-	_traceLevels = 0;
+	_referenceFactory->destroy();
+	_referenceFactory = 0;
     }
 
-    if(_proxyFactory)
+    if (_proxyFactory)
     {
 	// No destroy function defined
 	// _proxyFactory->destroy();
 	_proxyFactory = 0;
     }
 
-    if(_outgoingConnectionFactory)
+    if (_outgoingConnectionFactory)
     {
 	_outgoingConnectionFactory->destroy();
 	_outgoingConnectionFactory = 0;
     }
 
-    if(_servantFactoryManager)
+    if (_routerManager)
     {
-	_servantFactoryManager->destroy();
-	_servantFactoryManager = 0;
+	_routerManager->destroy();
+	_routerManager = 0;
     }
 
-    if(_userExceptionFactoryManager)
-    {
-	_userExceptionFactoryManager->destroy();
-	_userExceptionFactoryManager = 0;
-    }
-
-    if(_objectAdapterFactory)
-    {
-	_objectAdapterFactory->shutdown(); // ObjectAdapterFactory has shutdown(), not destroy()
-	_objectAdapterFactory = 0;
-    }
-    
-    if(_threadPool)
+    if (_threadPool)
     {
 	_threadPool->waitUntilFinished();
 	_threadPool->destroy();
 	_threadPool->joinWithAllThreads();
 	_threadPool = 0;
+    }
+
+    if (_properties)
+    {
+	// No destroy function defined
+	// _properties->destroy();
+	_properties = 0;
+    }
+
+    if (_logger)
+    {
+	_logger->destroy();
+	_logger = 0;
+    }
+
+    if (_traceLevels)
+    {
+	// No destroy function defined
+	// _traceLevels->destroy();
+	_traceLevels = 0;
     }
 }

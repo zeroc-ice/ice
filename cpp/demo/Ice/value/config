@@ -1,6 +1,9 @@
-Value.Initial=initial:tcp -p 10000
-Ice.Adapter.ValueAdapter.Endpoints=tcp -p 10000
-# Value.Initial=initial -s :ssl -p 10000
-# Ice.Adapter.ValueAdapter.Endpoints=ssl -p 10000
+Value.Initial=initial:default -p 10000
+Ice.Adapter.ValueAdapter.Endpoints=default -p 10000
+
 Ice.Security.Ssl.CertPath=../../../certs
 Ice.Security.Ssl.Config=sslconfig.xml
+
+#Glacier.Router.Endpoints=default -p 10005
+#Glacier.Client.Endpoints=default -p 10010
+#Ice.DefaultRouter=router:default -p 10005

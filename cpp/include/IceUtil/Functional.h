@@ -160,7 +160,7 @@ public:
 template<class R, class T, class H, class A>
 class ConstMemFun1 : public std::binary_function<H, A, R>
 {
-    typedef R (T::*MemberFN)(A);
+    typedef R (T::*MemberFN)(A) const;
     MemberFN _mfn;
 
 public:
@@ -190,7 +190,7 @@ public:
 template<class T, class H, class A>
 class ConstVoidMemFun1 : public std::binary_function<H, A, void>
 {
-    typedef void (T::*MemberFN)(A);
+    typedef void (T::*MemberFN)(A) const;
     MemberFN _mfn;
 
 public:
@@ -220,7 +220,7 @@ public:
 template<class R, class K, class T, class H, class A>
 class SecondConstMemFun1 : public std::binary_function<std::pair<K, H>, A, R>
 {
-    typedef R (T::*MemberFN)(A);
+    typedef R (T::*MemberFN)(A) const;
     MemberFN _mfn;
 
 public:
@@ -250,7 +250,7 @@ public:
 template<class K, class T, class H, class A>
 class SecondConstVoidMemFun1 : public std::binary_function<std::pair<K, H>, A, void>
 {
-    typedef void (T::*MemberFN)(A);
+    typedef void (T::*MemberFN)(A) const;
     MemberFN _mfn;
 
 public:
@@ -337,7 +337,7 @@ constMemFun(R (T::*p)(void) const)
 
 template<class R, class T, class A>
 inline ::IceUtilInternal::ConstMemFun1<R, T, Handle<T>, A>
-constMemFun1(R (T::*p)(A))
+constMemFun1(R (T::*p)(A) const)
 {
     return ::IceUtilInternal::ConstMemFun1<R, T, Handle<T>, A>(p);
 }
@@ -351,7 +351,7 @@ constVoidMemFun(void (T::*p)(void) const)
 
 template<class T, class A>
 inline ::IceUtilInternal::ConstVoidMemFun1<T, Handle<T>, A>
-constVoidMemFun1(void (T::*p)(A))
+constVoidMemFun1(void (T::*p)(A) const)
 {
     return ::IceUtilInternal::ConstVoidMemFun1<T, Handle<T>, A>(p);
 }
@@ -365,7 +365,7 @@ secondConstMemFun(R (T::*p)(void) const)
 
 template<class R, class K, class T, class A>
 inline ::IceUtilInternal::SecondConstMemFun1<R, K, T, Handle<T>, A>
-secondConstMemFun1(R (T::*p)(A))
+secondConstMemFun1(R (T::*p)(A) const)
 {
     return ::IceUtilInternal::SecondConstMemFun1<R, K, T, Handle<T>, A>(p);
 }
@@ -379,7 +379,7 @@ secondConstVoidMemFun(void (T::*p)(void) const)
 
 template<class K, class T, class A>
 inline ::IceUtilInternal::SecondConstVoidMemFun1<K, T, Handle<T>, A>
-secondConstVoidMemFun1(void (T::*p)(A))
+secondConstVoidMemFun1(void (T::*p)(A) const)
 {
     return ::IceUtilInternal::SecondConstVoidMemFun1<K, T, Handle<T>, A>(p);
 }

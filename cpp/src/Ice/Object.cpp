@@ -196,8 +196,15 @@ Ice::Object::ice_removeFacet(const string& name)
     
     if (p != _activeFacetMap.end())
     {
-	_activeFacetMap.erase(p);
-	_activeFacetMapHint = _activeFacetMap.end();
+	if (p == _activeFacetMapHint)
+	{
+	    _activeFacetMap.erase(p++);
+	    _activeFacetMapHint = p;
+	}
+	else
+	{
+	    _activeFacetMap.erase(p);
+	}
     }
 }
 
@@ -249,6 +256,6 @@ Ice::Blobject::__dispatch(Incoming& in, const Current& current)
     Int sz = in.is()->getReadEncapsSize();
     in.is()->readBlob(inParams, sz);
     ice_invoke(inParams, outParams, current);
-    in.is()->writeBlob(outParams);
+    in.os()->writeBlob(outParams);
     return ::IceInternal::DispatchOK;
 }

@@ -19,7 +19,7 @@
 std::list<TestBasePtr> allTests;
 
 void
-InitializeTestSuite()
+initializeTestSuite()
 {
     allTests.push_back(new CreateTest);
     allTests.push_back(new MutexTest);

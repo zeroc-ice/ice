@@ -52,7 +52,7 @@ class ICE_API Outgoing : public ::IceUtil::noncopyable, public IceUtil::Monitor<
 {
 public:
 
-    Outgoing(const ConnectionPtr&, const ReferencePtr&, bool, const std::string&, bool, const ::Ice::Context&);
+    Outgoing(const ConnectionPtr&, const ReferencePtr&, const std::string&, bool, const ::Ice::Context&);
     ~Outgoing();
 
     bool invoke();
@@ -79,7 +79,6 @@ private:
 	StateInProgress,
 	StateOK,
 	StateLocationForward,
-	StateProxyRequested,
 	StateException,
 	StateLocalException,
     } _state;

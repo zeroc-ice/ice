@@ -24,7 +24,7 @@ Ice.ConnectionWarnings=1
 # 2 = like 1, but more detailed
 # 3 = like 2, but also trace data transfer
 #
-Ice.Trace.Network=2
+Ice.Trace.Network=3
 
 #
 # Protocol Tracing
@@ -32,7 +32,7 @@ Ice.Trace.Network=2
 # 0 = no protocol tracing
 # 1 = trace protocol messages
 #
-#Ice.Trace.Protocol=1
+Ice.Trace.Protocol=1
 
 #
 # Security Tracing
@@ -55,3 +55,10 @@ Ice.Trace.Network=2
 #
 Ice.Security.Ssl.CertPath=../../../certs
 Ice.Security.Ssl.Config=sslconfig.xml
+
+#
+# If we use a router
+#
+Glacier.Router.Endpoints=tcp -p 10005
+Glacier.Client.Endpoints=tcp -p 10010:udp -p 10010:ssl -p 10011
+Ice.DefaultRouter=router:default -p 10005

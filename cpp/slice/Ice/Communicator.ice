@@ -16,6 +16,7 @@
 #include <Ice/PropertiesF.ice>
 #include <Ice/ObjectFactoryF.ice>
 #include <Ice/UserExceptionFactoryF.ice>
+#include <Ice/RouterF.ice>
 #include <Ice/StreamF.ice>
 
 /**
@@ -290,36 +291,63 @@ local interface Communicator
 
     /**
      *
-     * Get the Properties for this Communicator.
+     * Get the properties for this Communicator.
      *
-     * @return This Communicator's Properties.
+     * @return This Communicator's properties.
+     *
+     * @see Properties
      *
      **/
     Properties getProperties();
 
     /**
      *
-     * Get the Logger for this Communicator.
+     * Get the logger for this Communicator.
      *
      * @return This Communicator's Logger.
+     *
+     * @see Logger
      *
      **/
     Logger getLogger();
 
     /**
      *
-     * Set the Logger for this Communicator.
+     * Set the logger for this Communicator.
      *
      * @param logger The logger to use for this Communicator.
+     *
+     * @see Logger
      *
      **/
     void setLogger(Logger logger);
 
     /**
      *
+     * Set a default router for this Communicator. All newly created
+     * Proxies will use this default router. To disable the default
+     * router, null can be passed as argument. Note that this
+     * operation has no effect on already existing Proxies.
+     *
+     * <note><para> You can also set a router for an individual Proxy
+     * by calling the operation [ice_router] on such
+     * Proxy.</para></note>
+     *
+     * @param router The default router to use for this Communicator.
+     *
+     * @see Router
+     * @see ObjectAdapter::addRouter
+     *
+     **/
+    void setDefaultRouter(Router* router);
+
+    /**
+     *
      * Create a stream for marshaling and unmarshaling data.
      *
      * @return The new stream object.
+     *
+     * @see Stream
      *
      **/
     Stream createStream();

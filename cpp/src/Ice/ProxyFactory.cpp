@@ -11,8 +11,7 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/Instance.h>
 #include <Ice/Proxy.h>
-#include <Ice/Reference.h>
-#include <Ice/Endpoint.h>
+#include <Ice/ReferenceFactory.h>
 #include <Ice/BasicStream.h>
 
 using namespace std;
@@ -23,20 +22,20 @@ void IceInternal::incRef(ProxyFactory* p) { p->__incRef(); }
 void IceInternal::decRef(ProxyFactory* p) { p->__decRef(); }
 
 ObjectPrx
-IceInternal::ProxyFactory::stringToProxy(const string& s)
+IceInternal::ProxyFactory::stringToProxy(const string& str) const
 {
-    ReferencePtr reference = new Reference(_instance, s);
-    return referenceToProxy(reference);
+    ReferencePtr ref = _instance->referenceFactory()->create(str);
+    return referenceToProxy(ref);
 }
 
 string
-IceInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy)
+IceInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy) const
 {
     return proxy->__reference()->toString();
 }
 
 ObjectPrx
-IceInternal::ProxyFactory::streamToProxy(BasicStream* s)
+IceInternal::ProxyFactory::streamToProxy(BasicStream* s) const
 {
     Identity ident;
     ident.__read(s);
@@ -47,21 +46,13 @@ IceInternal::ProxyFactory::streamToProxy(BasicStream* s)
     }
     else
     {
-	ReferencePtr reference = new Reference(ident, s);
-	return referenceToProxy(reference);
+	ReferencePtr ref = _instance->referenceFactory()->create(ident, s);
+	return referenceToProxy(ref);
     }
 }
 
-ObjectPrx
-IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& reference)
-{
-    ObjectPrx proxy = new ::IceProxy::Ice::Object;
-    proxy->setup(reference);
-    return proxy;
-}
-
 void
-IceInternal::ProxyFactory::proxyToStream(const ObjectPrx& proxy, BasicStream* s)
+IceInternal::ProxyFactory::proxyToStream(const ObjectPrx& proxy, BasicStream* s) const
 {
     if (proxy)
     {
@@ -75,8 +66,16 @@ IceInternal::ProxyFactory::proxyToStream(const ObjectPrx& proxy, BasicStream* s)
     }
 }
 
-IceInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance)
-    : _instance(instance)
+ObjectPrx
+IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
+{
+    ObjectPrx proxy = new ::IceProxy::Ice::Object;
+    proxy->setup(ref);
+    return proxy;
+}
+
+IceInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) :
+    _instance(instance)
 {
 }
 

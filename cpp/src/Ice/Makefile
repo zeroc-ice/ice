@@ -45,9 +45,13 @@ OBJS		= Initialize.o \
 		  UserExceptionFactoryManager.o \
 		  Endpoint.o \
 		  Reference.o \
+		  ReferenceFactory.o \
 		  Identity.o \
 		  IdentityUtil.o \
 		  Current.o \
+		  Router.o \
+		  RouterInfo.o \
+		  RoutingTable.o \
 		  Connection.o \
 		  ConnectionFactory.o \
 		  LocalObject.o \
@@ -286,5 +290,22 @@ $(HDIR)/Current.h Current.cpp: $(SDIR)/Current.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/Current.h Current.cpp
+
+$(HDIR)/Router.h Router.cpp: $(SDIR)/Router.ice $(SLICE2CPP)
+	rm -f $(HDIR)/Router.h Router.cpp
+	$(SLICECMD) $(SDIR)/Router.ice
+	mv Router.h $(HDIR)
+
+clean::
+	rm -f $(HDIR)/Router.h Router.cpp
+
+$(HDIR)/RouterF.h: $(SDIR)/RouterF.ice $(SLICE2CPP)
+	rm -f $(HDIR)/RouterF.h RouterF.cpp
+	$(SLICECMD) $(SDIR)/RouterF.ice
+	mv RouterF.h $(HDIR)
+	rm -f RouterF.cpp
+
+clean::
+	rm -f $(HDIR)/RouterF.h
 
 include .depend
