@@ -1,7 +1,7 @@
 Changes since version 1.2.0
 ---------------------------
 
-- The IceStorm server is now using a single database for all topics,
+- The IceStorm server now uses a single database for all topics,
   which makes topic creation much faster.
 
 - Added the virtual member functions ice_preMarshal and
