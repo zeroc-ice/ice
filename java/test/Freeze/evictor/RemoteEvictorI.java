@@ -101,6 +101,12 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
     }
 
     public void
+    saveNow(Ice.Current current)
+    {
+	_evictor.getIterator("", 1);
+    }
+
+    public void
     deactivate(Ice.Current current)
     {
         _evictorAdapter.deactivate();

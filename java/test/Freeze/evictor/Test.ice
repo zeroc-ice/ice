@@ -70,6 +70,8 @@ interface RemoteEvictor
 
     Servant* getServant(int id);
 
+    void saveNow();
+
     void deactivate();
     void destroyAllServants(string facet);
 };

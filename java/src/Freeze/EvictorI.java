@@ -27,7 +27,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	{
 	    if(_deactivated || _deactivating)
 	    {
-		System.err.println("throw new EvictorDeactivatedException()");
 		throw new EvictorDeactivatedException();
 	    }
 	    _guardCount++;
