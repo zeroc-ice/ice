@@ -474,7 +474,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
             for(r = throws.begin(); r != throws.end(); ++r)
             {
                 string exS = getAbsolute((*r)->scoped(), scope);
-                out << nl << "catch (" << exS << " ex)";
+                out << nl << "catch(" << exS << " ex)";
                 out << sb;
                 out << nl << "__os.writeUserException(ex);";
                 out << nl << "return IceInternal.DispatchStatus.DispatchUserException;";
@@ -3098,8 +3098,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << eb;
             for(r = throws.begin(); r != throws.end(); ++r)
             {
-                out << nl << "catch (" << getAbsolute((*r)->scoped(), scope)
-                    << " __ex)";
+                out << nl << "catch(" << getAbsolute((*r)->scoped(), scope) << " __ex)";
                 out << sb;
                 out << nl << "throw __ex;";
                 out << eb;
@@ -3113,8 +3112,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         for(q = outParams.begin(); q != outParams.end(); ++q)
         {
-            writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second),
-                                      false, iter, true);
+            writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), false, iter, true);
         }
 
         if(ret)
@@ -3244,20 +3242,18 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         ExceptionList::const_iterator r;
         for(r = throws.begin(); r != throws.end(); ++r)
         {
-            out << nl << "catch (" << getAbsolute((*r)->scoped(), scope) << " __ex)";
+            out << nl << "catch(" << getAbsolute((*r)->scoped(), scope) << " __ex)";
             out << sb;
             out << nl << "throw __ex;";
             out << eb;
         }
+        //
+        // No need to catch Ice.UserException because it's not possible in Java
+        //
         out << nl << "catch(Ice.LocalException __ex)";
         out << sb;
-        out << nl << "Ice.UnknownLocalException __e = new Ice.UnknownLocalException();";
-        out << nl << "__e.initCause(__ex);";
-        out << nl << "throw __e;";
+        out << nl << "throw __ex;";
         out << eb;
-        //
-        // No need to catch UserException because it's not possible in Java
-        //
         out << nl << "catch(RuntimeException __ex)";
         out << sb;
         out << nl << "Ice.UnknownException __e = new Ice.UnknownException();";

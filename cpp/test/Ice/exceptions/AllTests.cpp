@@ -71,7 +71,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
 	test(ex.aMem == 1);
     }
-    catch (...)
+    catch(...)
     {
 	test(false);
     }
@@ -85,7 +85,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
 	test(ex.aMem == 1);
     }
-    catch (...)
+    catch(...)
     {
 	test(false);
     }
@@ -99,7 +99,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
 	test(ex.dMem == -1);
     }
-    catch (...)
+    catch(...)
     {
 	test(false);
     }
@@ -114,7 +114,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	test(ex.aMem == 1);
 	test(ex.bMem == 2);
     }
-    catch (...)
+    catch(...)
     {
 	test(false);
     }
@@ -130,7 +130,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	test(ex.bMem == 2);
 	test(ex.cMem == 3);
     }
-    catch (...)
+    catch(...)
     {
 	test(false);
     }
@@ -148,7 +148,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
 	test(ex.aMem == 1);
     }
-    catch (...)
+    catch(...)
     {
 	test(false);
     }
@@ -163,7 +163,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	test(ex.aMem == 1);
 	test(ex.bMem == 2);
     }
-    catch (...)
+    catch(...)
     {
 	test(false);
     }
@@ -182,7 +182,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	catch(const Ice::NoUserExceptionFactoryException&)
 	{
 	}
-	catch (...)
+	catch(...)
 	{
 	    test(false);
 	}
@@ -195,7 +195,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	catch(const Ice::NoUserExceptionFactoryException&)
 	{
 	}
-	catch (...)
+	catch(...)
 	{
 	    test(false);
 	}
@@ -208,7 +208,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	catch(const Ice::NoUserExceptionFactoryException&)
 	{
 	}
-	catch (...)
+	catch(...)
 	{
 	    test(false);
 	}
@@ -238,7 +238,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	test(ex.aMem == 1);
 	test(ex.bMem == 2);
     }
-    catch (...)
+    catch(...)
     {
 	test(false);
     }
@@ -254,7 +254,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     	test(ex.bMem == 2);
     	test(ex.cMem == 3);
     }
-    catch (...)
+    catch(...)
     {
 	test(false);
     }
@@ -270,7 +270,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	test(ex.bMem == 2);
 	test(ex.cMem == 3);
     }
-    catch (...)
+    catch(...)
     {
 	test(false);
     }
@@ -294,7 +294,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             cout << ex << endl;
             test(false);
         }
-        catch (...)
+        catch(...)
         {
             test(false);
         }
@@ -307,7 +307,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         catch(const Ice::UnknownUserException&)
         {
         }
-        catch (...)
+        catch(...)
         {
             test(false);
         }
@@ -320,7 +320,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         catch(const Ice::UnknownUserException&)
         {
         }
-        catch (...)
+        catch(...)
         {
             test(false);
         }
@@ -341,7 +341,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
 	test(ex.id == id);
     }
-    catch (...)
+    catch(...)
     {
 	test(false);
     }
@@ -375,7 +375,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	    test(ex.facet[1] == "no such facet either");
 	}
     }
-    catch (...)
+    catch(...)
     {
 	test(false);
     }
@@ -394,7 +394,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
 	test(ex.operation == "noSuchOperation");
     }
-    catch (...)
+    catch(...)
     {
 	test(false);
     }
@@ -408,10 +408,17 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	thrower->throwLocalException();
 	test(false);
     }
+    catch(const Ice::TimeoutException&)
+    {
+	// We get the original exception with collocation
+	// optimization.
+    }
     catch(const Ice::UnknownLocalException&)
     {
+	// We get the an unknown local exception without collocation
+	// optimization.
     }
-    catch (...)
+    catch(...)
     {
 	test(false);
     }
@@ -428,7 +435,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     catch(const Ice::UnknownException&)
     {
     }
-    catch (...)
+    catch(...)
     {
 	test(false);
     }

@@ -1770,13 +1770,13 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "throw;";
 	C << eb;
     }
-    C << nl << "catch(const ::Ice::LocalException&)";
-    C << sb;
-    C << nl << "throw ::Ice::UnknownLocalException(__FILE__, __LINE__);";
-    C << eb;
     C << nl << "catch(const ::Ice::UserException&)";
     C << sb;
     C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__);";
+    C << eb;
+    C << nl << "catch(const ::Ice::LocalException&)";
+    C << sb;
+    C << nl << "throw;";
     C << eb;
     C << nl << "catch(...)";
     C << sb;
