@@ -79,7 +79,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor
 	//
 	// Save the new Ice Object to the database.
 	//
-	_dict.put(identCopy, servant);
+	_dict.fastPut(identCopy, servant);
 	add(identCopy, servant);
 	
 	if(_trace >= 1)
@@ -104,7 +104,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor
 	//
 	// Delete the Ice Object from the database.
 	//
-	_dict.remove(ident);
+	_dict.fastRemove(ident);
 	remove(ident);
 	
 	if(_trace >= 1)
@@ -277,7 +277,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor
 	{
 	    if(current.mode != Ice.OperationMode.Nonmutating)
 	    {
-		_dict.put(current.id, servant);
+		_dict.fastPut(current.id, servant);
 	    }
 	}
 	
@@ -343,7 +343,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor
 		//
 		if(_persistenceMode == EvictorPersistenceMode.SaveUponEviction)
 		{
-		    _dict.put(ident, element.servant);
+		    _dict.fastPut(ident, element.servant);
 		}
 	    
 		//
