@@ -16,9 +16,9 @@
 #include "config.h"
 #endif
 
-#include "identity.h"
-#include "exception.h"
-#include "util.h"
+#include "ice_identity.h"
+#include "ice_exception.h"
+#include "ice_util.h"
 
 using namespace std;
 

@@ -16,10 +16,10 @@
 #include "config.h"
 #endif
 
-#include "marshal.h"
-#include "proxy.h"
-#include "slice.h"
-#include "util.h"
+#include "ice_marshal.h"
+#include "ice_proxy.h"
+#include "ice_slice.h"
+#include "ice_util.h"
 
 #include <IceUtil/InputUtil.h>
 
@@ -714,7 +714,7 @@ PrimitiveMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
         }
         else
         {
-            ZVAL_LONG(zv, val);
+            ZVAL_LONG(zv, static_cast<long>(val));
         }
         break;
     }
@@ -952,9 +952,9 @@ StructMarshaler::StructMarshaler(const Slice::StructPtr& type TSRMLS_DC) :
     _class = p->second;
 
     Slice::DataMemberList members = type->dataMembers();
-    for(Slice::DataMemberList::iterator p = members.begin(); p != members.end(); ++p)
+    for(Slice::DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
-        MarshalerPtr marshaler = createMemberMarshaler((*p)->name(), (*p)->type() TSRMLS_CC);
+        MarshalerPtr marshaler = createMemberMarshaler((*q)->name(), (*q)->type() TSRMLS_CC);
         assert(marshaler);
         _members.push_back(marshaler);
     }

@@ -16,8 +16,8 @@
 #include "config.h"
 #endif
 
-#include "exception.h"
-#include "util.h"
+#include "ice_exception.h"
+#include "ice_util.h"
 
 using namespace std;
 
@@ -92,7 +92,7 @@ ice_throw_exception(const IceUtil::Exception& ex TSRMLS_DC)
         obj->ptr = estrdup(ostr.str().c_str());
         EG(exception) = zex;
     }
-    catch(const Ice::UserException& e)
+    catch(const Ice::UserException&)
     {
         assert(false);
     }
@@ -147,6 +147,7 @@ ZEND_FUNCTION(Ice_LocalException_message)
     RETURN_STRING(static_cast<char*>(obj->ptr), 1);
 }
 
+extern "C"
 static zend_object_value
 handleAlloc(zend_class_entry* ce TSRMLS_DC)
 {
@@ -161,6 +162,7 @@ handleAlloc(zend_class_entry* ce TSRMLS_DC)
     return result;
 }
 
+extern "C"
 static void
 handleDestroy(void* p, zend_object_handle handle TSRMLS_DC)
 {
@@ -175,6 +177,7 @@ handleDestroy(void* p, zend_object_handle handle TSRMLS_DC)
     zend_objects_destroy_object(static_cast<zend_object*>(p), handle TSRMLS_CC);
 }
 
+extern "C"
 static zend_object_value
 handleClone(zval* zv TSRMLS_DC)
 {

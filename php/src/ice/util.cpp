@@ -16,7 +16,7 @@
 #include "config.h"
 #endif
 
-#include "util.h"
+#include "ice_util.h"
 #include <algorithm>
 #include <ctype.h>
 
@@ -79,6 +79,13 @@ splitScopedName(const string& scoped)
     return ids;
 }
 
+extern "C"
+static void
+dtor_wrapper(void* p)
+{
+    zval_ptr_dtor((zval**)p);
+}
+
 ice_object*
 ice_newObject(zend_class_entry* ce TSRMLS_DC)
 {
@@ -92,7 +99,7 @@ ice_newObject(zend_class_entry* ce TSRMLS_DC)
     obj->ptr = 0;
 
     obj->zobj.properties = static_cast<HashTable*>(emalloc(sizeof(HashTable)));
-    zend_hash_init(obj->zobj.properties, 0, NULL, ZVAL_PTR_DTOR, 0);
+    zend_hash_init(obj->zobj.properties, 0, NULL, dtor_wrapper, 0);
     zend_hash_copy(obj->zobj.properties, &ce->default_properties, (copy_ctor_func_t) zval_add_ref, &tmp,
                    sizeof(zval*));
 

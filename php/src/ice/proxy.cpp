@@ -16,13 +16,13 @@
 #include "config.h"
 #endif
 
-#include "proxy.h"
-#include "communicator.h"
-#include "identity.h"
-#include "exception.h"
-#include "marshal.h"
-#include "slice.h"
-#include "util.h"
+#include "ice_proxy.h"
+#include "ice_communicator.h"
+#include "ice_identity.h"
+#include "ice_exception.h"
+#include "ice_marshal.h"
+#include "ice_slice.h"
+#include "ice_util.h"
 
 using namespace std;
 
@@ -1147,7 +1147,7 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     // Verify that the expected number of arguments are supplied.
     //
     vector<MarshalerPtr>::size_type numParams = _inParams.size() + _outParams.size();
-    if(ZEND_NUM_ARGS() != numParams)
+    if(ZEND_NUM_ARGS() != static_cast<int>(numParams))
     {
         zend_error(E_ERROR, "operation %s expects %d parameter%s", _name.c_str(), numParams, numParams == 1 ? "" : "s");
         return;
@@ -1397,6 +1397,7 @@ Proxy::getOperation(const string& name)
     return result;
 }
 
+extern "C"
 static zend_object_value
 handleAlloc(zend_class_entry* ce TSRMLS_DC)
 {
@@ -1411,6 +1412,7 @@ handleAlloc(zend_class_entry* ce TSRMLS_DC)
     return result;
 }
 
+extern "C"
 static void
 handleDestroy(void* p, zend_object_handle handle TSRMLS_DC)
 {
@@ -1422,6 +1424,7 @@ handleDestroy(void* p, zend_object_handle handle TSRMLS_DC)
     zend_objects_destroy_object(static_cast<zend_object*>(p), handle TSRMLS_CC);
 }
 
+extern "C"
 static zend_object_value
 handleClone(zval* zv TSRMLS_DC)
 {
@@ -1461,6 +1464,7 @@ handleClone(zval* zv TSRMLS_DC)
     return result;
 }
 
+extern "C"
 static union _zend_function*
 handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
 {
@@ -1497,6 +1501,7 @@ handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
     return result;
 }
 
+extern "C"
 static int
 handleCompare(zval* zobj1, zval* zobj2 TSRMLS_DC)
 {

@@ -16,9 +16,9 @@
 #include "config.h"
 #endif
 
-#include "slice.h"
-#include "marshal.h"
-#include "util.h"
+#include "ice_slice.h"
+#include "ice_marshal.h"
+#include "ice_util.h"
 
 #include <Slice/Preprocessor.h>
 
@@ -415,7 +415,6 @@ PHPVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
         if(!bases.empty())
         {
             interfaces = static_cast<zend_class_entry**>(emalloc(bases.size() * sizeof(zend_class_entry*)));
-            Slice::ClassList::iterator q;
             for(Slice::ClassList::iterator q = bases.begin(); q != bases.end(); ++q, ++numInterfaces)
             {
                 interfaces[numInterfaces] = findClass((*q)->scoped());

@@ -16,11 +16,11 @@
 #include "config.h"
 #endif
 
-#include "communicator.h"
-#include "proxy.h"
-#include "marshal.h"
-#include "exception.h"
-#include "util.h"
+#include "ice_communicator.h"
+#include "ice_proxy.h"
+#include "ice_marshal.h"
+#include "ice_exception.h"
+#include "ice_util.h"
 
 using namespace std;
 
@@ -229,6 +229,7 @@ ZEND_FUNCTION(Ice_Communicator_proxyToString)
     }
 }
 
+extern "C"
 static zend_object_value
 handleAlloc(zend_class_entry* ce TSRMLS_DC)
 {
@@ -243,6 +244,7 @@ handleAlloc(zend_class_entry* ce TSRMLS_DC)
     return result;
 }
 
+extern "C"
 static void
 handleDestroy(void* p, zend_object_handle handle TSRMLS_DC)
 {
@@ -266,6 +268,7 @@ handleDestroy(void* p, zend_object_handle handle TSRMLS_DC)
     zend_objects_destroy_object(static_cast<zend_object*>(p), handle TSRMLS_CC);
 }
 
+extern "C"
 static zend_object_value
 handleClone(zval* zv TSRMLS_DC)
 {
@@ -275,6 +278,7 @@ handleClone(zval* zv TSRMLS_DC)
     return result;
 }
 
+extern "C"
 static union _zend_function*
 handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
 {

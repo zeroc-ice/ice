@@ -16,12 +16,12 @@
 #include "config.h"
 #endif
 
-#include "communicator.h"
-#include "identity.h"
-#include "proxy.h"
-#include "exception.h"
-#include "slice.h"
-#include "util.h"
+#include "ice_communicator.h"
+#include "ice_identity.h"
+#include "ice_proxy.h"
+#include "ice_exception.h"
+#include "ice_slice.h"
+#include "ice_util.h"
 
 using namespace std;
 
@@ -34,7 +34,7 @@ function_entry ice_functions[] =
 {
     ICE_PHP_COMMUNICATOR_FUNCTIONS
     ICE_PHP_IDENTITY_FUNCTIONS
-    ICE_PHP_OBJECT_PRX_FUNCTIONS
+    ICE_PHP_PROXY_FUNCTIONS
     ICE_PHP_LOCAL_EXCEPTION_FUNCTIONS
     {NULL, NULL, NULL}
 };

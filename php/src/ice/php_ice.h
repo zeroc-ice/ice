@@ -15,6 +15,10 @@
 #ifndef PHP_ICE_H
 #define PHP_ICE_H
 
+/*
+ * This file may be included by PHP's build system, therefore we have
+ * to guard the use of 'extern "C"'.
+ */
 #ifdef __cplusplus
 extern "C"
 {
