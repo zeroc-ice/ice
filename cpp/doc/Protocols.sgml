@@ -1,0 +1,71 @@
+<!--
+**********************************************************************
+Copyright (c) 2001
+MutableRealms, Inc.
+Huntsville, AL, USA
+
+All Rights Reserved
+**********************************************************************
+-->
+
+<!-- ********************************************************************** -->
+<section><title>TCP/IP</title>
+<!-- ********************************************************************** -->
+
+<section><title>Synopsis</title>
+<cmdsynopsis>
+<command>tcp</command>
+<arg>-h <replaceable>host</replaceable></arg>
+<arg>-p <replaceable>port</replaceable></arg>
+<arg>-t <replaceable>timeout</replaceable></arg>
+</cmdsynopsis>
+</section>
+
+<section><title>Description</title>
+<para>
+TBD
+</para>
+</section>
+
+</section>
+
+<!-- ********************************************************************** -->
+<section><title>UDP/IP</title>
+<!-- ********************************************************************** -->
+
+<section><title>Synopsis</title>
+<cmdsynopsis>
+<command>udp</command>
+<arg>-h <replaceable>host</replaceable></arg>
+<arg>-p <replaceable>port</replaceable></arg>
+</cmdsynopsis>
+</section>
+
+<section><title>Description</title>
+<para>
+TBD
+</para>
+</section>
+
+</section>
+
+<!-- ********************************************************************** -->
+<section><title>SSL</title>
+<!-- ********************************************************************** -->
+
+<section><title>Synopsis</title>
+<cmdsynopsis>
+<command>ssl</command>
+<arg>-h <replaceable>host</replaceable></arg>
+<arg>-p <replaceable>port</replaceable></arg>
+<arg>-t <replaceable>timeout</replaceable></arg>
+</cmdsynopsis>
+</section>
+
+<section><title>Description</title>
+<para>
+TBD
+</para>
+</section>
+
+</section>

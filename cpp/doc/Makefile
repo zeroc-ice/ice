@@ -15,7 +15,8 @@ TARGETS		= manual/index.html \
 
 SGMLFILES	= manual.sgml \
 		  ModuleIce.sgml \
-		  Properties.sgml
+		  Properties.sgml \
+		  Protocols.sgml
 
 SLICEFILES	= ../slice/Ice/Communicator.ice \
 		  ../slice/Ice/Logger.ice \

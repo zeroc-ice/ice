@@ -1,7 +1,8 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN" [
-<!ENTITY Ice "Ice">
+<!ENTITY Ice "<phrase>Ice</phrase>">
 <!ENTITY ModuleIce SYSTEM "ModuleIce.sgml">
 <!ENTITY Properties SYSTEM "Properties.sgml">
+<!ENTITY Protocols SYSTEM "Protocols.sgml">
 ]>
 <!--
 **********************************************************************
@@ -58,6 +59,10 @@ TBD
 <chapter>
 <title>Properties</title>
 &Properties;
+</chapter>
+<chapter>
+<title>Protocols</title>
+&Protocols;
 </chapter>
 </part>
 </book>

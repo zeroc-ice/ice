@@ -8,8 +8,9 @@ All Rights Reserved
 **********************************************************************
 -->
 
+<!-- ********************************************************************** -->
 <section><title>Tracing</title>
-
+<!-- ********************************************************************** -->
 
 <section><title>ice.trace.network</title>
 
@@ -27,20 +28,20 @@ The network tracing level:
 <tgroup cols=2>
 <tbody>
 <row>
-<entry><literal>0</literal></entry>
+<entry>0</entry>
 <entry>no network tracing (default)</entry>
 </row>
 <row>
-<entry><literal>1</literal></entry>
+<entry>1</entry>
 <entry>trace connection establishment and closure</entry>
 </row>
 <row>
-<entry><literal>2</literal></entry>
-<entry>like <literal>1</literal>, but more detailed</entry>
+<entry>2</entry>
+<entry>like 1, but more detailed</entry>
 </row>
 <row>
-<entry><literal>3</literal></entry>
-<entry>like <literal>2</literal>, but also trace data transfers</entry>
+<entry>3</entry>
+<entry>like 2, but also trace data transfers</entry>
 </row>
 </tbody>
 </tgroup>
@@ -49,7 +50,6 @@ The network tracing level:
 </section>
 
 </section>
-
 
 <section><title>ice.trace.protocol</title>
 
@@ -67,11 +67,11 @@ The protocol tracing level:
 <tgroup cols=2>
 <tbody>
 <row>
-<entry><literal>0</literal></entry>
+<entry>0</entry>
 <entry>no protocol tracing (default)</entry>
 </row>
 <row>
-<entry><literal>1</literal></entry>
+<entry>1</entry>
 <entry>trace &Ice; protocol messages</entry>
 </row>
 </tbody>
@@ -82,88 +82,54 @@ The protocol tracing level:
 
 </section>
 
+</section>
+
+<!-- ********************************************************************** -->
+<section><title>Object Adapter</title>
+<!-- ********************************************************************** -->
+
+<section><title>ice.adapter.<replaceable>name</replaceable>.endpoints</title>
+
+<section><title>Synopsis</title>
+<synopsis>
+ice.adapter.<replaceable>name</replaceable>.endpoints=<replaceable>endpoint_list</replaceable>
+</synopsis>
+</section>
+
+<section>
+<title>Description</title>
+<para>
+Sets the endpoints for an object adapter
+<replaceable>name</replaceable> to
+<replaceable>enpoint_list</replaceable>.
+</para>
+</section>
 
 </section>
 
-<!--
-<variablelist>
-<varlistentry>
-<term>
-<literal>
-ice.trace.network=<replaceable>num</replaceable>
-</literal>
-</term>
-<listitem>
-<variablelist>
-<varlistentry>
-<term>
-Constraints
-</term>
-<listitem>
-<para>
-<literal>
-<replaceable>num</replaceable> &ge; 0
-</literal>
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term>
-Default Value
-</term>
-<listitem>
-<para>
-<literal>
-<replaceable>num</replaceable> = 0
-</literal>
-</para>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term>
-Description
-</term>
-<listitem>
-<para>
-The network tracing level.
-0 = no network tracing
-1 = trace connection establishment and closure
-2 = like 1, but more detailed
-3 = like 2, but also trace data transfer
-</para>
-</listitem>
-</varlistentry>
-</variablelist>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term>
-ice.trace.protocol=<replaceable>num</replaceable>
-</term>
-<listitem>
-<para>
-The protocol tracing level.
-0 = no protocol tracing
-1 = trace protocol messages
-</para>
-</listitem>
-</varlistentry>
-</variablelist>
 </section>
 
+<!-- ********************************************************************** -->
 <section><title>Thread Pool</title>
-<variablelist>
-<varlistentry>
-<term>
+<!-- ********************************************************************** -->
+
+<section><title>ice.thread_pool.size</title>
+
+<section><title>Synopsis</title>
+<synopsis>
 ice.thread_pool.size=<replaceable>num</replaceable>
-</term>
-<listitem>
-<para>
-The number of threads in the thread pool. The default value is
-10. <replaceable>num</replaceable> must be equal to or larger than 1.
-</para>
-</listitem>
-</varlistentry>
-</variablelist>
+</synopsis>
 </section>
--->
+
+<section>
+<title>Description</title>
+<para>
+The number of threads in the thread pool. Default is 10.
+<replaceable>num</replaceable> must be equal to or larger than 1.
+</para>
+</section>
+
+</section>
+
+</section>
+
