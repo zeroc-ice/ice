@@ -285,11 +285,22 @@ public class Instance
 			
 			if(stdOut.length() > 0)
 			{
+			    //
+			    // We need to close the existing stdout for JVM thread dump to go
+			    // to the new file
+			    //
+			    System.out.close();
+
 			    outStream = new java.io.PrintStream(new java.io.FileOutputStream(stdOut, true));
 			    System.setOut(outStream);
 			}
 			if(stdErr.length() > 0)
 			{
+			    //
+			    // close for consistency with stdout
+			    //
+			    System.err.close();
+
 			    if(stdErr.equals(stdOut))
 			    {
 				System.setErr(outStream); 
