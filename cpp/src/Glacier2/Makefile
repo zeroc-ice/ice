@@ -35,7 +35,8 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(ROBJS:.o=.cpp)
 
 SLICE_SRCS	= $(SDIR)/Router.ice \
-		  $(SDIR)/PermissionsVerifier.ice
+		  $(SDIR)/PermissionsVerifier.ice \
+		  $(SDIR)/PermissionsVerifierF.ice
 
 HDIR		= $(includedir)/Glacier2
 SDIR		= $(slicedir)/Glacier2

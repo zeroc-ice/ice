@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <Glacier2/PermissionsVerifier.h>
 #include <Glacier2/SessionRouterI.h>
 #include <Glacier2/RouterI.h>
 
@@ -46,11 +47,13 @@ private:
 };
 
 Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
-					 const ObjectAdapterPtr& serverAdapter) :
+					 const ObjectAdapterPtr& serverAdapter,
+					 const PermissionsVerifierPrx& verifier) :
     _logger(clientAdapter->getCommunicator()->getLogger()),
+    _traceLevel(clientAdapter->getCommunicator()->getProperties()->getPropertyAsInt("Glacier2.Trace.Session")),
     _clientAdapter(clientAdapter),
     _serverAdapter(serverAdapter),
-    _traceLevel(clientAdapter->getCommunicator()->getProperties()->getPropertyAsInt("Glacier2.Trace.Session")),
+    _verifier(verifier),
     _sessionThread(new SessionThread(this)),
     _routersHint(_routers.end()),
     _destroy(false)
@@ -111,6 +114,17 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
     assert(!_destroy);
 
     //
+    // Check the user-id and password.
+    //
+    string reason;
+    if(!_verifier->checkPermissions(userId, password, reason))
+    {
+	PermissionDeniedException ex;
+	ex.reason = reason;
+	throw ex;
+    }
+
+    //
     // Add a new per-client router.
     //
     RouterIPtr router = new RouterI(_clientAdapter, _serverAdapter, current.con);
@@ -119,7 +133,7 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
     if(_traceLevel >= 1)
     {
 	Trace out(_logger, "Glacier2");
-	out << "added session for:\n";
+	out << "added session for `" << userId << "':\n";
 	out << current.con->toString();
     }
 }

@@ -148,7 +148,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
 	// permissions verifier. We can't use the client adapter.
 	//
 	ObjectAdapterPtr verifierAdapter =
-	    communicator()->createObjectAdapterWithEndpoints(IceUtil::generateUUID(), "");
+	    communicator()->createObjectAdapterWithEndpoints(IceUtil::generateUUID(), "tcp -h 127.0.0.1");
 	verifier = PermissionsVerifierPrx::uncheckedCast(verifierAdapter->addWithUUID(verifierImpl));
     }
 
@@ -156,7 +156,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
     // Create a router implementation that can handle sessions, and
     // add it to the client object adapter.
     //
-    _sessionRouter = new SessionRouterI(clientAdapter, serverAdapter);
+    _sessionRouter = new SessionRouterI(clientAdapter, serverAdapter, verifier);
     const char* routerIdProperty = "Glacier2.RouterIdentity";
     Identity routerId = stringToIdentity(properties->getPropertyWithDefault(routerIdProperty, "Glacier2/router"));
     clientAdapter->add(_sessionRouter, routerId);

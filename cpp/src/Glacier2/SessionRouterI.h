@@ -13,6 +13,7 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
 #include <Ice/Ice.h>
+#include <Glacier2/PermissionsVerifierF.h>
 #include <Glacier2/Router.h>
 
 namespace Glacier2
@@ -28,7 +29,7 @@ class SessionRouterI : public Router, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    SessionRouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&);
+    SessionRouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const PermissionsVerifierPrx&);
     virtual ~SessionRouterI();
     void destroy();
 
@@ -44,9 +45,10 @@ public:
 private:
 
     const Ice::LoggerPtr _logger;
+    const int _traceLevel;
     const Ice::ObjectAdapterPtr _clientAdapter;
     const Ice::ObjectAdapterPtr _serverAdapter;
-    const int _traceLevel;
+    const PermissionsVerifierPrx _verifier;
 
     //
     // TODO: I can't inherit directly from IceUtil::Thread, because of

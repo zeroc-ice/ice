@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef GLACIER2_ROUTER_I_H
-#define GLACIER2_ROUTER_I_H
+#ifndef GLACIER2_CRYPT_PERMISSIONS_VERIFIER_I_H
+#define GLACIER2_CRYPT_PERMISSIONS_VERIFIER_I_H
 
 #include <Ice/Ice.h>
 #include <Glacier2/PermissionsVerifier.h>
