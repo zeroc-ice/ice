@@ -2,11 +2,11 @@
 Requirements
 =========================================================================
 
-- Python 2.3
+- Python 2.3 or 2.4
 - Ice 2.0.0
 
-If you don't have Python 2.3 on your system, you can download the
-source distribution from http://www.python.org.
+If you don't have Python 2.3 or Python 2.4 on your system, you can
+download a source distribution from http://www.python.org.
 
 If you have downloaded a source distribution, see the build
 instructions below.
@@ -34,7 +34,7 @@ Follow these steps to build the Ice extension for Python:
            linker to find the Python shared library. See Python
            Platform Notes below for more information.
 
-2) Execute 'python -V' to verify that the Python 2.3 interpreter
+2) Execute 'python -V' to verify that the correct Python interpreter
    is in your executable search path.
 
 3) Run 'make'.
