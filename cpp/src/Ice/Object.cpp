@@ -96,7 +96,7 @@ Ice::Object::___ice_ping(Incoming&, const Current& __current)
 
 const char* Ice::Object::__all[] =
 {
-    "ice_isA"
+    "ice_isA",
     "ice_ping"
 };
 
@@ -108,6 +108,7 @@ Ice::Object::__dispatch(Incoming& in, const Current& current)
     pair<const char**, const char**> r = equal_range(b, e, current.operation);
     if (r.first == r.second)
     {
+	cout << "xxx" << endl;
 	return DispatchOperationNotExist;
     }					     
 
