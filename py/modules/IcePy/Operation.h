@@ -13,6 +13,7 @@
 #include <Python.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/Current.h>
+#include <Ice/Object.h>
 
 namespace IcePy
 {
@@ -27,7 +28,8 @@ public:
     virtual PyObject* invokeAsync(const Ice::ObjectPrx&, const Ice::CommunicatorPtr&, PyObject*, PyObject*,
                                   PyObject*) = 0;
 
-    virtual bool dispatch(PyObject*, const std::vector<Ice::Byte>&, std::vector<Ice::Byte>&, const Ice::Current&) = 0;
+    virtual void dispatch(PyObject*, const Ice::AMD_Object_ice_invokePtr&, const std::vector<Ice::Byte>&,
+                          const Ice::Current&) = 0;
 };
 typedef IceUtil::Handle<Operation> OperationPtr;
 
