@@ -376,15 +376,13 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         //
         EG(exception) = zex;
     }
-    catch(const Ice::LocalException& e)
+    catch(const Ice::NoObjectFactoryException& e)
     {
-        //
-        // All other local exceptions are raised as UnknownLocalException.
-        //
-        zend_class_entry* cls = findClass("Ice_UnknownLocalException" TSRMLS_CC);
+        string name = e.ice_name();
+        zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
         if(!cls)
         {
-            zend_error(E_ERROR, "unable to find class Ice_UnknownLocalException");
+            zend_error(E_ERROR, "unable to find class %s", name.c_str());
             return;
         }
 
@@ -397,20 +395,72 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         }
 
         //
-        // Set the unknown member.
+        // Set the type member.
         //
-        zval* unknown;
-        MAKE_STD_ZVAL(unknown);
-        ostringstream ostr;
-        e.ice_print(ostr);
-        string str = ostr.str();
-        ZVAL_STRINGL(unknown, const_cast<char*>(str.c_str()), str.length(), 1);
-        if(add_property_zval(zex, "unknown", unknown) == FAILURE)
+        zval* type;
+        MAKE_STD_ZVAL(type);
+        ZVAL_STRINGL(type, const_cast<char*>(e.type.c_str()), e.type.length(), 1);
+        if(add_property_zval(zex, "type", type) == FAILURE)
         {
-            zend_error(E_ERROR, "unable to set unknown member of %s", cls->name);
+            zend_error(E_ERROR, "unable to set type member of %s", cls->name);
             return;
         }
-        zval_ptr_dtor(&unknown); // add_property_zval increments the refcount
+        zval_ptr_dtor(&type); // add_property_zval increments the refcount
+
+        //
+        // Throw the exception.
+        //
+        EG(exception) = zex;
+    }
+    catch(const Ice::LocalException& e)
+    {
+        zval* zex;
+        MAKE_STD_ZVAL(zex);
+
+        //
+        // See if we have a PHP class for the exception, otherwise raise UnknownLocalException.
+        //
+        string name = e.ice_name();
+        zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
+        if(cls)
+        {
+            if(object_init_ex(zex, cls) != SUCCESS)
+            {
+                zend_error(E_ERROR, "unable to create exception %s", cls->name);
+                return;
+            }
+        }
+        else
+        {
+            cls = findClass("Ice_UnknownLocalException" TSRMLS_CC);
+            if(!cls)
+            {
+                zend_error(E_ERROR, "unable to find class Ice_UnknownLocalException");
+                return;
+            }
+
+            if(object_init_ex(zex, cls) != SUCCESS)
+            {
+                zend_error(E_ERROR, "unable to create exception %s", cls->name);
+                return;
+            }
+
+            //
+            // Set the unknown member.
+            //
+            zval* unknown;
+            MAKE_STD_ZVAL(unknown);
+            ostringstream ostr;
+            e.ice_print(ostr);
+            string str = ostr.str();
+            ZVAL_STRINGL(unknown, const_cast<char*>(str.c_str()), str.length(), 1);
+            if(add_property_zval(zex, "unknown", unknown) == FAILURE)
+            {
+                zend_error(E_ERROR, "unable to set unknown member of %s", cls->name);
+                return;
+            }
+            zval_ptr_dtor(&unknown); // add_property_zval increments the refcount
+        }
 
         //
         // Throw the exception.
@@ -657,4 +707,28 @@ IcePHP::getContext(zval* zv, Ice::Context& ctx TSRMLS_DC)
     }
 
     return true;
+}
+
+bool
+IcePHP::checkClass(zend_class_entry* ce, zend_class_entry* base)
+{
+    while(ce != NULL)
+    {
+        if(ce == base)
+        {
+            return true;
+        }
+
+        for(zend_uint i = 0; i < ce->num_interfaces; ++i)
+        {
+            if(checkClass(ce->interfaces[i], base))
+            {
+                return true;
+            }
+        }
+
+        ce = ce->parent;
+    }
+
+    return false;
 }

@@ -1,0 +1,8 @@
+This is a PHP version of the Ice "value" demo client. First, start the
+C++ or Java version of the value demo server on the same host. Then
+run this client with the following command:
+
+$ php -c php.ini -f Client.php
+
+Note that this client requires user input, therefore you must run this
+example using the CLI version of the PHP interpreter.

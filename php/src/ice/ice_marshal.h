@@ -84,7 +84,8 @@ class AbortMarshaling
 
 //
 // PHPObjectFactory is an implementation of Ice::ObjectFactory that creates PHP objects.
-// A single instance can be used for all types.
+// It is also the registry for user-defined PHP factory implementations. A single instance
+// can be used for all types.
 //
 class PHPObjectFactory : public Ice::ObjectFactory
 {
@@ -94,11 +95,17 @@ public:
     virtual Ice::ObjectPtr create(const std::string&);
     virtual void destroy();
 
+    void addObjectFactory(zval*, const std::string& TSRMLS_DC);
+    void removeObjectFactory(const std::string& TSRMLS_DC);
+    void findObjectFactory(const std::string&, zval* TSRMLS_DC);
+
 private:
 #ifdef ZTS
     TSRMLS_D;
 #endif
+    std::map<std::string, zval*> _factories;
 };
+typedef IceUtil::Handle<PHPObjectFactory> PHPObjectFactoryPtr;
 
 } // End of namespace IcePHP
 

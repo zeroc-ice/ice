@@ -51,9 +51,13 @@ static void initCommunicator(ice_object* TSRMLS_DC);
 //
 static function_entry _methods[] =
 {
-    {"__construct",   PHP_FN(Ice_Communicator___construct),   NULL},
-    {"stringToProxy", PHP_FN(Ice_Communicator_stringToProxy), NULL},
-    {"proxyToString", PHP_FN(Ice_Communicator_proxyToString), NULL},
+    {"__construct",   PHP_FN(Ice_Communicator___construct),               NULL},
+    {"stringToProxy", PHP_FN(Ice_Communicator_stringToProxy),             NULL},
+    {"proxyToString", PHP_FN(Ice_Communicator_proxyToString),             NULL},
+    {"addObjectFactory", PHP_FN(Ice_Communicator_addObjectFactory),       NULL},
+    {"removeObjectFactory", PHP_FN(Ice_Communicator_removeObjectFactory), NULL},
+    {"findObjectFactory", PHP_FN(Ice_Communicator_findObjectFactory),     NULL},
+    {"flushBatchRequests", PHP_FN(Ice_Communicator_flushBatchRequests),   NULL},
     {NULL, NULL, NULL}
 };
 
@@ -151,6 +155,11 @@ ZEND_FUNCTION(Ice_Communicator___construct)
 
 ZEND_FUNCTION(Ice_Communicator_stringToProxy)
 {
+    if(ZEND_NUM_ARGS() != 1)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
     ice_object* obj = getObject(getThis() TSRMLS_CC);
     if(!obj)
     {
@@ -158,11 +167,6 @@ ZEND_FUNCTION(Ice_Communicator_stringToProxy)
     }
     assert(obj->ptr);
     Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
-
-    if(ZEND_NUM_ARGS() != 1)
-    {
-        WRONG_PARAM_COUNT;
-    }
 
     char *str;
     int len;
@@ -191,6 +195,11 @@ ZEND_FUNCTION(Ice_Communicator_stringToProxy)
 
 ZEND_FUNCTION(Ice_Communicator_proxyToString)
 {
+    if(ZEND_NUM_ARGS() != 1)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
     ice_object* obj = getObject(getThis() TSRMLS_CC);
     if(!obj)
     {
@@ -198,11 +207,6 @@ ZEND_FUNCTION(Ice_Communicator_proxyToString)
     }
     assert(obj->ptr);
     Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
-
-    if(ZEND_NUM_ARGS() != 1)
-    {
-        WRONG_PARAM_COUNT;
-    }
 
     zval* zprx;
 
@@ -227,6 +231,146 @@ ZEND_FUNCTION(Ice_Communicator_proxyToString)
     {
         throwException(ex TSRMLS_CC);
         RETURN_EMPTY_STRING();
+    }
+}
+
+ZEND_FUNCTION(Ice_Communicator_addObjectFactory)
+{
+    if(ZEND_NUM_ARGS() != 2)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = getObject(getThis() TSRMLS_CC);
+    if(!obj)
+    {
+        return;
+    }
+    assert(obj->ptr);
+    Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
+
+    zval* zfactory;
+    char* id;
+    int len;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "os", &zfactory, &id, &len) == FAILURE)
+    {
+        return;
+    }
+
+    //
+    // Verify that the object implements Ice_ObjectFactory.
+    //
+    // TODO: When zend_check_class is changed to also check interfaces, we can remove this code and
+    // pass the class entry for Ice_ObjectFactory to zend_parse_parameters instead.
+    //
+    zend_class_entry* ce = Z_OBJCE_P(zfactory);
+    zend_class_entry* base = findClass("Ice_ObjectFactory" TSRMLS_CC);
+    assert(base);
+    if(!checkClass(ce, base))
+    {
+        zend_error(E_ERROR, "%s(): object does not implement Ice_ObjectFactory", get_active_function_name(TSRMLS_C));
+        return;
+    }
+
+    //
+    // Retrieve the PHPObjectFactory.
+    //
+    Ice::ObjectFactoryPtr factory = (*_this)->findObjectFactory("");
+    PHPObjectFactoryPtr phpFactory = PHPObjectFactoryPtr::dynamicCast(factory);
+    assert(phpFactory);
+
+    phpFactory->addObjectFactory(zfactory, id TSRMLS_CC);
+}
+
+ZEND_FUNCTION(Ice_Communicator_removeObjectFactory)
+{
+    if(ZEND_NUM_ARGS() != 1)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = getObject(getThis() TSRMLS_CC);
+    if(!obj)
+    {
+        RETURN_NULL();
+    }
+    assert(obj->ptr);
+    Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
+
+    char* id;
+    int len;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &id, len) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    //
+    // Retrieve the PHPObjectFactory.
+    //
+    Ice::ObjectFactoryPtr factory = (*_this)->findObjectFactory("");
+    PHPObjectFactoryPtr phpFactory = PHPObjectFactoryPtr::dynamicCast(factory);
+    assert(phpFactory);
+
+    phpFactory->removeObjectFactory(id TSRMLS_CC);
+}
+
+ZEND_FUNCTION(Ice_Communicator_findObjectFactory)
+{
+    if(ZEND_NUM_ARGS() != 1)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = getObject(getThis() TSRMLS_CC);
+    if(!obj)
+    {
+        RETURN_NULL();
+    }
+    assert(obj->ptr);
+    Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
+
+    char* id;
+    int len;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &id, len) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    //
+    // Retrieve the PHPObjectFactory.
+    //
+    Ice::ObjectFactoryPtr factory = (*_this)->findObjectFactory("");
+    PHPObjectFactoryPtr phpFactory = PHPObjectFactoryPtr::dynamicCast(factory);
+    assert(phpFactory);
+
+    phpFactory->findObjectFactory(id, return_value TSRMLS_CC);
+}
+
+ZEND_FUNCTION(Ice_Communicator_flushBatchRequests)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = getObject(getThis() TSRMLS_CC);
+    if(!obj)
+    {
+        return;
+    }
+    assert(obj->ptr);
+    Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
+
+    try
+    {
+        (*_this)->flushBatchRequests();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
     }
 }
 

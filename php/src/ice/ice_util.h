@@ -111,6 +111,11 @@ bool isNativeKey(const Slice::TypePtr&);
 bool getContext(zval*, Ice::Context& TSRMLS_DC);
 
 //
+// Determines whether a class (or interface) inherits from a base class (or interface).
+//
+bool checkClass(zend_class_entry*, zend_class_entry*);
+
+//
 // Exception-safe efree.
 //
 class AutoEfree
@@ -121,6 +126,19 @@ public:
 
 private:
     void* _p;
+};
+
+//
+// Exception-safe zval destroy.
+//
+class AutoDestroy
+{
+public:
+    AutoDestroy(zval* zv) : _zv(zv) {}
+    ~AutoDestroy() { if(_zv) zval_ptr_dtor(&_zv); }
+
+private:
+    zval* _zv;
 };
 
 } // End of namespace IcePHP
