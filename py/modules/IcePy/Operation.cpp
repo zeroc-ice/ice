@@ -66,7 +66,7 @@ public:
 
 private:
 
-    bool prepareRequest(const Ice::CommunicatorPtr&, PyObject*, vector<Ice::Byte>&);
+    bool prepareRequest(const Ice::CommunicatorPtr&, PyObject*, bool, vector<Ice::Byte>&);
     PyObject* unmarshalResults(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     PyObject* unmarshalException(const std::vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     bool validateException(PyObject*) const;
@@ -422,7 +422,7 @@ IcePy::OperationI::invoke(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPt
     // Marshal the input parameters to a byte sequence.
     //
     Ice::ByteSeq params;
-    if(!prepareRequest(communicator, args, params))
+    if(!prepareRequest(communicator, args, false, params))
     {
         return NULL;
     }
@@ -529,7 +529,7 @@ IcePy::OperationI::invokeAsync(const Ice::ObjectPrx& proxy, const Ice::Communica
     // Marshal the input parameters to a byte sequence.
     //
     Ice::ByteSeq params;
-    if(!prepareRequest(communicator, args, params))
+    if(!prepareRequest(communicator, args, true, params))
     {
         return NULL;
     }
@@ -808,7 +808,8 @@ IcePy::OperationI::sendResponse(const Ice::AMD_Object_ice_invokePtr& cb, PyObjec
             {
                 // TODO: Provide the parameter name instead?
                 ostringstream ostr;
-                ostr << "invalid value for out argument " << (i + 1) << " in operation `" << fixIdent(name) << "'";
+                ostr << "invalid value for out argument " << (i + 1) << " in operation `" << fixIdent(name)
+                     << (amd ? "_async" : "") << "'";
                 string str = ostr.str();
                 PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
                 throw Ice::MarshalException(__FILE__, __LINE__);
@@ -914,7 +915,7 @@ IcePy::OperationI::sendException(const Ice::AMD_Object_ice_invokePtr& cb, PyObje
 }
 
 bool
-IcePy::OperationI::prepareRequest(const Ice::CommunicatorPtr& communicator, PyObject* args,
+IcePy::OperationI::prepareRequest(const Ice::CommunicatorPtr& communicator, PyObject* args, bool async,
                                   vector<Ice::Byte>& bytes)
 {
     assert(PyTuple_Check(args));
@@ -945,8 +946,17 @@ IcePy::OperationI::prepareRequest(const Ice::CommunicatorPtr& communicator, PyOb
             PyObject* arg = PyTuple_GET_ITEM(args, i);
             if(!(*p)->type->validate(arg))
             {
-                PyErr_Format(PyExc_ValueError, "invalid value for argument %d in operation `%s'", i + 1,
-                             const_cast<char*>(name.c_str()));
+                string opName;
+                if(async)
+                {
+                    opName = fixIdent(name) + "_async";
+                }
+                else
+                {
+                    opName = fixIdent(name);
+                }
+                PyErr_Format(PyExc_ValueError, "invalid value for argument %d in operation `%s'",
+                             async ? i + 2 : i + 1, const_cast<char*>(opName.c_str()));
                 return false;
             }
             (*p)->type->marshal(arg, os, &objectMap);
