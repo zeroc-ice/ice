@@ -124,10 +124,6 @@ NL	[\n]
     return ICE_STORM_GRAPH;
 }
 
-"shutdown" {
-    return ICE_STORM_SHUTDOWN;
-}
-
 {WS}*(\\{WS}*{NL})? {
     int len = strlen(yytext);
     for(int i = 0; i < len; ++i)

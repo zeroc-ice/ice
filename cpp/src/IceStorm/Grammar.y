@@ -44,7 +44,6 @@ yyerror(const char* s)
 %token ICE_STORM_CREATE
 %token ICE_STORM_DESTROY
 %token ICE_STORM_LIST
-%token ICE_STORM_SHUTDOWN
 %token ICE_STORM_LINK
 %token ICE_STORM_UNLINK
 %token ICE_STORM_GRAPH
@@ -113,10 +112,6 @@ command
 | ICE_STORM_LIST strings ';'
 {
     parser->dolist($2);
-}
-| ICE_STORM_SHUTDOWN ';'
-{
-    parser->shutdown();
 }
 | error ';'
 {
