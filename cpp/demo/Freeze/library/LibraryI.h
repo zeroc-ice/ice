@@ -26,8 +26,8 @@ public:
     virtual ::BookPrx createBook(const ::BookDescription&, const Ice::Current&);
     virtual ::BookPrx findByIsbn(const ::std::string&, const Ice::Current&) const;
     virtual ::BookPrxSeq findByAuthors(const ::std::string&, const Ice::Current&) const;
-    virtual void setEvictorSize(::Ice::Int, const Ice::Current&) const;
-    virtual void shutdown(const Ice::Current&) const;
+    virtual void setEvictorSize(::Ice::Int, const Ice::Current&);
+    virtual void shutdown(const Ice::Current&);
 
     void remove(const BookDescription&);
 
@@ -53,7 +53,7 @@ public:
     virtual ~BookI();
 
     virtual ::BookDescription getBookDescription(const Ice::Current&) const;
-    virtual void destroy(const Ice::Current&) const;
+    virtual void destroy(const Ice::Current&);
     virtual void rentBook(const ::std::string&, const Ice::Current&);
     virtual ::std::string getRenterName(const Ice::Current&) const;
     virtual void returnBook(const Ice::Current&);

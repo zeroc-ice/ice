@@ -1764,7 +1764,7 @@ Slice::ClassDef::destroy()
 OperationPtr
 Slice::ClassDef::createOperation(const string& name,
 				 const TypePtr& returnType,
-				 bool nonmutating)
+				 Operation::Mode mode)
 {
     checkPrefix(name);
 
@@ -1865,7 +1865,7 @@ Slice::ClassDef::createOperation(const string& name,
 	_unit->error(msg);
     }
     
-    OperationPtr op = new Operation(this, name, returnType, nonmutating);
+    OperationPtr op = new Operation(this, name, returnType, mode);
     _contents.push_back(op);
     return op;
 }
@@ -3158,10 +3158,22 @@ Slice::Operation::throws() const
     return _throws;
 }
 
+Operation::Mode
+Slice::Operation::mode() const
+{
+    return _mode;
+}
+
 bool
 Slice::Operation::nonmutating() const
 {
-    return _nonmutating;
+    return _mode == Nonmutating;
+}
+
+bool
+Slice::Operation::idempotent() const
+{
+    return _mode == Nonmutating || _mode == Idempotent;
 }
 
 void
@@ -3272,12 +3284,12 @@ Slice::Operation::visit(ParserVisitor* visitor)
 Slice::Operation::Operation(const ContainerPtr& container,
 	                    const string& name,
 			    const TypePtr& returnType,
-			    bool nonmutating) :
+			    Mode mode) :
     Contained(container, name),
     Container(container->unit()),
     SyntaxTreeBase(container->unit()),
     _returnType(returnType),
-    _nonmutating(nonmutating)
+    _mode(mode)
 {
 }
 

@@ -23,7 +23,7 @@ BookI::~BookI()
 }
 
 void
-BookI::destroy(const Ice::Current&) const
+BookI::destroy(const Ice::Current&)
 {
     IceUtil::RWRecMutex::RLock sync(*this);
 
@@ -232,7 +232,7 @@ LibraryI::findByAuthors(const string& authors, const Ice::Current&) const
 }
 
 void
-LibraryI::setEvictorSize(::Ice::Int size, const Ice::Current&) const
+LibraryI::setEvictorSize(::Ice::Int size, const Ice::Current&)
 {
     //
     // No synchronization necessary, _evictor is immutable.
@@ -241,7 +241,7 @@ LibraryI::setEvictorSize(::Ice::Int size, const Ice::Current&) const
 }
 
 void
-LibraryI::shutdown(const Ice::Current& current) const
+LibraryI::shutdown(const Ice::Current& current)
 {
     //
     // No synchronization necessary, _adapter is immutable.

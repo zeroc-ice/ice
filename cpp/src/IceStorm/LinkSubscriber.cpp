@@ -77,7 +77,7 @@ LinkSubscriber::publish(const Event& event)
 
     try
     {
-	_obj->forward(event.op, event.nonmutating, event.data, event.context);
+	_obj->forward(event.op, event.isIdempotent, event.data, event.context);
     }
     catch(const Ice::ObjectNotExistException& e)
     {

@@ -46,8 +46,8 @@ interface TopicLink
      *
      * @param op The operation name.
      *
-     * @param nonmutating Flag indicating whether the operation is
-     * nonmutating.
+     * @param isIdempotent Flag indicating whether the operation is
+     * idempotent.
      *
      * @param data The encoded for the operation in parameters.
      *
@@ -55,7 +55,7 @@ interface TopicLink
      * originating request.
      *
      **/
-    void forward(string op, bool \nonmutating, ByteSeq data, ContextData context);
+    void forward(string op, bool isIdempotent, ByteSeq data, ContextData context);
 };
 
 /**
@@ -74,7 +74,7 @@ interface TopicInternal extends Topic
      * @return The TopicLink for the Topic.
      *
      **/
-    TopicLink* getLinkProxy();
+    idempotent TopicLink* getLinkProxy();
 };
 
 }; // End module IceStorm

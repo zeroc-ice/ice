@@ -55,7 +55,7 @@ interface Router
      * @param proxy The proxy to add.
      *
      **/
-    void addProxy(Object* proxy);
+    idempotent void addProxy(Object* proxy);
 };
 
 };

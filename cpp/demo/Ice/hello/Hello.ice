@@ -14,7 +14,7 @@
 class Hello
 {
     nonmutating void sayHello();
-    void shutdown();
+    idempotent void shutdown();
 };
 
 #endif

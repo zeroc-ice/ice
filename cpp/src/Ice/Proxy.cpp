@@ -249,7 +249,7 @@ IceProxy::Ice::Object::ice_facets(const Context& __context)
 
 bool
 IceProxy::Ice::Object::ice_invoke(const string& operation,
-				  bool nonmutating,
+				  bool isIdempotent,
 				  const vector<Byte>& inParams,
 				  vector<Byte>& outParams,
 				  const Context& context)
@@ -260,7 +260,7 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 	try
 	{
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    return __del->ice_invoke(operation, nonmutating, inParams, outParams, context);
+	    return __del->ice_invoke(operation, isIdempotent, inParams, outParams, context);
 	}
 	catch(const LocationForward& __ex)
 	{
@@ -268,7 +268,7 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 	}
 	catch(const NonRepeatable& __ex)
 	{
-	    if(nonmutating)
+	    if(isIdempotent)
 	    {
 		__handleException(*__ex.get(), __cnt);
 	    }
@@ -817,12 +817,12 @@ IceDelegateM::Ice::Object::ice_facets(const Context& __context)
 
 bool
 IceDelegateM::Ice::Object::ice_invoke(const string& operation,
-				      bool nonmutating,
+				      bool isIdempotent,
 				      const vector<Byte>& inParams,
 				      vector<Byte>& outParams,
 				      const Context& context)
 {
-    Outgoing __out(__connection, __reference, operation, nonmutating, context);
+    Outgoing __out(__connection, __reference, operation, isIdempotent, context);
     BasicStream* __os = __out.os();
     __os->writeBlob(inParams);
     bool ok = __out.invoke();
@@ -1192,13 +1192,13 @@ IceDelegateD::Ice::Object::ice_facets(const ::Ice::Context& __context)
 
 bool
 IceDelegateD::Ice::Object::ice_invoke(const string& operation,
-				      bool nonmutating,
+				      bool isIdempotent,
 				      const vector<Byte>& inParams,
 				      vector<Byte>& outParams,
 				      const ::Ice::Context& context)
 {
     Current current;
-    __initCurrent(current, operation, nonmutating, context);
+    __initCurrent(current, operation, isIdempotent, context);
     while(true)
     {
 	Direct __direct(__adapter, current);
@@ -1253,12 +1253,12 @@ IceDelegateD::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegate
 }
 
 void
-IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, bool nonmutating, const Context& context)
+IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, bool idempotent, const Context& context)
 {
     current.id = __reference->identity;
     current.facet = __reference->facet;
     current.operation = op;
-    current.isNonmutating = nonmutating;
+    current.isIdempotent = idempotent;
     current.ctx = context;
 }
 

@@ -64,10 +64,10 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 	}
 	else if(j == 2)
 	{
-	    cout << "aborting server #" << i << " and #" << i + 1 << " with nonmutating call... " << flush;
+	    cout << "aborting server #" << i << " and #" << i + 1 << " with idempotent call... " << flush;
 	    try
 	    {
-		obj->nonmutatingAbort();
+		obj->idempotentAbort();
 		test(false);
 	    }
 	    catch(const Ice::SocketException&)

@@ -34,11 +34,11 @@ Glacier::Missive::invoke()
     std::vector<Byte> dummy;
     if(_forwardContext)
     {
-	_proxy->ice_invoke(_current.operation, _current.isNonmutating, _inParams, dummy, _current.ctx);
+	_proxy->ice_invoke(_current.operation, _current.isIdempotent, _inParams, dummy, _current.ctx);
     }
     else
     {
-	_proxy->ice_invoke(_current.operation, _current.isNonmutating, _inParams, dummy);
+	_proxy->ice_invoke(_current.operation, _current.isIdempotent, _inParams, dummy);
     }
 }
 
@@ -161,7 +161,7 @@ Glacier::MissiveQueue::run()
 			out << "batch routing to:\n"
 			    << "proxy = " << _communicator->proxyToString(proxy) << '\n'
 			    << "operation = " << current.operation << '\n'
-			    << "isNonmutating = " << (current.isNonmutating ? "true" : "false");
+			    << "isIdempotent = " << (current.isIdempotent ? "true" : "false");
 		    }
 		    
 		    (*p)->invoke();

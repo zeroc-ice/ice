@@ -111,9 +111,9 @@ printRequestHeader(ostream& s, BasicStream& stream)
     string operation;
     stream.read(operation);
     s << "\noperation = " << operation;
-    bool nonmutating;
-    stream.read(nonmutating);
-    s << "\nnonmutating = " << (nonmutating ? "true" : "false");
+    bool idempotent;
+    stream.read(idempotent);
+    s << "\nidempotent = " << (idempotent ? "true" : "false");
     Int sz;
     stream.readSize(sz);
     s << "\ncontext = ";

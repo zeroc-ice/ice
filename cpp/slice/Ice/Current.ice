@@ -63,10 +63,10 @@ local struct Current
 
     /**
      *
-     * Set to true if the operation is nonmutating.
+     * Set to true if the operation is idempotent.
      *
      **/
-    bool isNonmutating;
+    bool isIdempotent;
 
     /**
      *

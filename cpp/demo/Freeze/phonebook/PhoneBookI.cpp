@@ -72,7 +72,7 @@ ContactI::setPhone(const string& phone, const Ice::Current&)
 }
 
 void
-ContactI::destroy(const Ice::Current&) const
+ContactI::destroy(const Ice::Current&)
 {
     IceUtil::RWRecMutex::RLock sync(*this);
 

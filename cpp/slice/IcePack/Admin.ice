@@ -416,7 +416,7 @@ class Admin
      * @see removeAdapter
      *
      **/
-    void addAdapterWithEndpoints(string name, string endpoints)
+    idempotent void addAdapterWithEndpoints(string name, string endpoints)
 	throws AdapterExistsException;
 
     /**
@@ -461,7 +461,7 @@ class Admin
      * Shut down &IcePack;.
      *
      **/
-    void shutdown();
+    idempotent void shutdown();
 };
 
 };

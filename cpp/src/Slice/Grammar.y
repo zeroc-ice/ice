@@ -65,6 +65,7 @@ yyerror(const char* s)
 %token ICE_FALSE
 %token ICE_TRUE
 %token ICE_NONMUTATING
+%token ICE_IDEMPOTENT
 
 //
 // Other tokens.
@@ -620,7 +621,7 @@ operation_preamble
     string name = StringTokPtr::dynamicCast($2)->v;
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
-    OperationPtr op = cl->createOperation(name, returnType, false);
+    OperationPtr op = cl->createOperation(name, returnType);
     cl->checkIntroduced(name, op);
     unit->pushContainer(op);
     $$ = op;
@@ -631,7 +632,18 @@ operation_preamble
     string name = StringTokPtr::dynamicCast($3)->v;
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
-    OperationPtr op = cl->createOperation(name, returnType, true);
+    OperationPtr op = cl->createOperation(name, returnType, Operation::Nonmutating);
+    cl->checkIntroduced(name, op);
+    unit->pushContainer(op);
+    $$ = op;
+}
+| ICE_IDEMPOTENT return_type ICE_IDENT_OP
+{
+    TypePtr returnType = TypePtr::dynamicCast($2);
+    string name = StringTokPtr::dynamicCast($3)->v;
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
+    assert(cl);
+    OperationPtr op = cl->createOperation(name, returnType, Operation::Idempotent);
     cl->checkIntroduced(name, op);
     unit->pushContainer(op);
     $$ = op;
@@ -642,7 +654,7 @@ operation_preamble
     string name = StringTokPtr::dynamicCast($2)->v;
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
-    OperationPtr op = cl->createOperation(name, returnType, false);
+    OperationPtr op = cl->createOperation(name, returnType);
     unit->pushContainer(op);
     unit->error("keyword `" + name + "' cannot be used as operation name");
     $$ = op;
@@ -653,7 +665,18 @@ operation_preamble
     string name = StringTokPtr::dynamicCast($3)->v;
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
-    OperationPtr op = cl->createOperation(name, returnType, true);
+    OperationPtr op = cl->createOperation(name, returnType, Operation::Nonmutating);
+    unit->pushContainer(op);
+    unit->error("keyword `" + name + "' cannot be used as operation name");
+    $$ = op;
+}
+| ICE_IDEMPOTENT return_type ICE_KEYWORD_OP
+{
+    TypePtr returnType = TypePtr::dynamicCast($2);
+    string name = StringTokPtr::dynamicCast($3)->v;
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
+    assert(cl);
+    OperationPtr op = cl->createOperation(name, returnType, Operation::Idempotent);
     unit->pushContainer(op);
     unit->error("keyword `" + name + "' cannot be used as operation name");
     $$ = op;
@@ -1516,6 +1539,9 @@ keyword
 {
 }
 | ICE_NONMUTATING
+{
+}
+| ICE_IDEMPOTENT
 {
 }
 ;

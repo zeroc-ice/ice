@@ -38,7 +38,7 @@ struct Event
     bool forwarded;
     int cost;
     std::string op;
-    bool nonmutating;
+    bool isIdempotent;
     std::vector< Ice::Byte> data;
     Ice::Context context;
 };

@@ -2067,7 +2067,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
         out << nl << "catch(IceInternal.NonRepeatable __ex)";
         out << sb;
-        if(op->nonmutating())
+        if(op->idempotent())
         {
             out << nl << "__cnt = __handleException(__ex.get(), __cnt);";
         }
@@ -3005,7 +3005,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
 	list<string> metaData = op->getMetaData();
         out << nl << "IceInternal.Outgoing __out = getOutgoing(\"" << op->name() << "\", "
-            << (op->nonmutating() ? "true" : "false") << ", __context);";
+            << (op->idempotent() ? "true" : "false") << ", __context);";
         out << nl << "try";
         out << sb;
         if(!inParams.empty())
@@ -3170,7 +3170,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
 	list<string> metaData = op->getMetaData();
         out << nl << "Ice.Current __current = new Ice.Current();";
-        out << nl << "__initCurrent(__current, \"" << op->name() << "\", " << (op->nonmutating() ? "true" : "false")
+        out << nl << "__initCurrent(__current, \"" << op->name() << "\", " << (op->idempotent() ? "true" : "false")
             << ", __context);";
         out << nl << "while(true)";
         out << sb;

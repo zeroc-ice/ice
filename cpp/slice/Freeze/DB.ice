@@ -159,7 +159,7 @@ enum EvictorPersistenceMode
      *
      * This mode instructs the Evictor to save a Servant after each
      * mutating operation call. A mutating operation call is a call to
-     * any operation that has not been declared as [nonmutating].
+     * any operation that has not been declared as nonmutating.
      *
      **/
     SaveAfterMutatingOperation

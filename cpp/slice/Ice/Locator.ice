@@ -74,7 +74,7 @@ interface LocatorRegistry
      * with the adapter).
      *
      */
-    void addAdapter(string name, Object* proxy);
+    idempotent void addAdapter(string name, Object* proxy);
 };
 
 };

@@ -104,7 +104,7 @@ interface Topic
      * @param cost The cost to the linked topic.
      *
      **/
-    void link(Topic* linkTo, int cost);
+    idempotent void link(Topic* linkTo, int cost);
 
     /**
      *
@@ -113,7 +113,7 @@ interface Topic
      * @param link The topic to destroy the link to.
      *
      **/
-    void unlink(Topic* linkTo);
+    idempotent void unlink(Topic* linkTo);
 
     /**
      *
@@ -129,7 +129,7 @@ interface Topic
      * Destroy the Topic.
      *
      **/
-    void destroy();
+    idempotent void destroy();
 };
 
 /**
@@ -253,14 +253,14 @@ interface TopicManager
      * @see subscribe
      *
      **/
-    void unsubscribe(Object* subscriber);
+    idempotent void unsubscribe(Object* subscriber);
 
     /**
      *
      * Shutdown the &IceStorm; instance.
      *
      **/
-    void shutdown();
+    idempotent void shutdown();
 };
 
 };

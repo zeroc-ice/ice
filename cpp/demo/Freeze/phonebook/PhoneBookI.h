@@ -40,7 +40,7 @@ public:
     virtual std::string getPhone(const Ice::Current&) const;
     virtual void setPhone(const std::string&, const Ice::Current&);
 
-    virtual void destroy(const Ice::Current&) const;
+    virtual void destroy(const Ice::Current&);
 
 private:
 

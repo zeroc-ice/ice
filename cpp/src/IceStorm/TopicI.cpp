@@ -294,7 +294,7 @@ PublisherProxyI::ice_invoke(const vector< Ice::Byte>& inParams, vector< Ice::Byt
 	event.cost = 0; // TODO: Default comes from property?
     }
     event.op = current.operation;
-    event.nonmutating = current.isNonmutating;
+    event.isIdempotent = current.isIdempotent;
     event.data = inParams;
     event.context = context;
 
@@ -307,14 +307,14 @@ PublisherProxyI::ice_invoke(const vector< Ice::Byte>& inParams, vector< Ice::Byt
 // Incoming events from linked topics.
 //
 void
-TopicLinkI::forward(const string& op, bool nonmutating, const ByteSeq& data, const ContextData& context,
+TopicLinkI::forward(const string& op, bool isIdempotent, const ByteSeq& data, const ContextData& context,
                     const Ice::Current& current)
 {
     Event event;
     event.forwarded = true;
     event.cost = 0;
     event.op = op;
-    event.nonmutating = nonmutating;
+    event.isIdempotent = isIdempotent;
     event.data = data;
     event.context = context;
 

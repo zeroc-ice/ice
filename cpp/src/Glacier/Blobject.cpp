@@ -74,16 +74,16 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const vector<Byte>& inParams, vector
 		out << "routing to:\n"
 		    << "proxy = " << _communicator->proxyToString(proxy) << '\n'
 		    << "operation = " << current.operation << '\n'
-		    << "nonmutating = " << (current.isNonmutating ? "true" : "false");
+		    << "idempotent = " << (current.isIdempotent ? "true" : "false");
 	    }
 	    
 	    if(_forwardContext)
 	    {
-		return proxy->ice_invoke(current.operation, current.isNonmutating, inParams, outParams, current.ctx);
+		return proxy->ice_invoke(current.operation, current.isIdempotent, inParams, outParams, current.ctx);
 	    }
 	    else
 	    {
-		return proxy->ice_invoke(current.operation, current.isNonmutating, inParams, outParams);
+		return proxy->ice_invoke(current.operation, current.isIdempotent, inParams, outParams);
 	    }
 	}
     }

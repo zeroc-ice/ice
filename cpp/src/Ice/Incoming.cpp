@@ -32,7 +32,7 @@ IceInternal::Incoming::invoke(bool response)
     current.id.__read(&_is);
     _is.read(current.facet);
     _is.read(current.operation);
-    _is.read(current.isNonmutating);
+    _is.read(current.isIdempotent);
     Int sz;
     _is.readSize(sz);
     while(sz--)

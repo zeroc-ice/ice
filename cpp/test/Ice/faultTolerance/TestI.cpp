@@ -29,7 +29,7 @@ TestI::abort(const Ice::Current&)
 }
 
 void
-TestI::nonmutatingAbort(const Ice::Current&) const
+TestI::idempotentAbort(const Ice::Current&)
 {
     exit(0);
 }

@@ -449,6 +449,39 @@ private:
 };
 
 // ----------------------------------------------------------------------
+// Operation
+// ----------------------------------------------------------------------
+
+class SLICE_API Operation : virtual public Contained, virtual public Container
+{
+public:
+    
+    enum Mode { Normal, Nonmutating, Idempotent };
+
+    TypePtr returnType() const;
+    ParamDeclPtr createParamDecl(const std::string&, const TypePtr&, bool);
+    ParamDeclList parameters() const;
+    ExceptionList throws() const;
+    Mode mode() const;
+    bool nonmutating() const;
+    bool idempotent() const;
+    void setExceptionList(const ExceptionList&);
+    virtual ContainedType containedType() const;
+    virtual bool uses(const ContainedPtr&) const;
+    virtual std::string kindOf() const;
+    virtual void visit(ParserVisitor*);
+
+protected:
+
+    Operation(const ContainerPtr&, const std::string&, const TypePtr&, Mode);
+    friend class SLICE_API ClassDef;
+
+    TypePtr _returnType;
+    ExceptionList _throws;
+    Mode _mode;
+};
+
+// ----------------------------------------------------------------------
 // ClassDef
 // ----------------------------------------------------------------------
 
@@ -464,7 +497,7 @@ class SLICE_API ClassDef : virtual public Container, virtual public Contained
 public:
 
     virtual void destroy();
-    OperationPtr createOperation(const std::string&, const TypePtr&, bool);
+    OperationPtr createOperation(const std::string&, const TypePtr&, Operation::Mode = Operation::Normal);
     DataMemberPtr createDataMember(const std::string&, const TypePtr&);
     ClassDeclPtr declaration() const;
     ClassList bases() const;
@@ -687,35 +720,6 @@ protected:
 
     TypePtr _type;
     std::string _value;
-};
-
-// ----------------------------------------------------------------------
-// Operation
-// ----------------------------------------------------------------------
-
-class SLICE_API Operation : virtual public Contained, virtual public Container
-{
-public:
-
-    TypePtr returnType() const;
-    ParamDeclPtr createParamDecl(const std::string&, const TypePtr&, bool);
-    ParamDeclList parameters() const;
-    ExceptionList throws() const;
-    bool nonmutating() const;
-    void setExceptionList(const ExceptionList&);
-    virtual ContainedType containedType() const;
-    virtual bool uses(const ContainedPtr&) const;
-    virtual std::string kindOf() const;
-    virtual void visit(ParserVisitor*);
-
-protected:
-
-    Operation(const ContainerPtr&, const std::string&, const TypePtr&, bool);
-    friend class SLICE_API ClassDef;
-
-    TypePtr _returnType;
-    ExceptionList _throws;
-    bool _nonmutating;
 };
 
 // ----------------------------------------------------------------------

@@ -1276,7 +1276,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     C << nl << "catch(const ::IceInternal::NonRepeatable& __ex)";
     C << sb;
-    if(p->nonmutating())
+    if(p->idempotent())
     {
 	C << nl << "__handleException(*__ex.get(), __cnt);";
     }
@@ -1547,7 +1547,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     C << nl << "static const ::std::string __operation(\"" << p->name() << "\");";
     C << nl << "::IceInternal::Outgoing __out(__connection, __reference, __operation, "
-      << (p->nonmutating() ? "true" : "false") << ", __context);";
+      << (p->idempotent() ? "true" : "false") << ", __context);";
     if(ret || !outParams.empty() || !throws.empty())
     {
 	C << nl << "::IceInternal::BasicStream* __is = __out.is();";
@@ -1732,7 +1732,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     C << sp << nl << retS << nl << "IceDelegateD" << scoped << paramsDecl;
     C << sb;
     C << nl << "::Ice::Current __current;";
-    C << nl << "__initCurrent(__current, \"" << p->name() << "\", " << (p->nonmutating() ? "true" : "false")
+    C << nl << "__initCurrent(__current, \"" << p->name() << "\", " << (p->idempotent() ? "true" : "false")
       << ", __context);";
     C << nl << "while(true)";
     C << sb;

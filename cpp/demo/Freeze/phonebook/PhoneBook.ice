@@ -21,21 +21,16 @@ exception DatabaseException
 class Contact
 {
     nonmutating string getName();
-    void setName(string name)
+    idempotent void setName(string name)
 	throws DatabaseException;
 
     nonmutating string getAddress();
-    void setAddress(string address);
+    idempotent void setAddress(string address);
 
     nonmutating string getPhone();
-    void setPhone(string phone);
+    idempotent void setPhone(string phone);
 
-    //
-    // Yes, destroy() is nonmutating. It doesn't change the state of
-    // the Contact. It removes the Contact completely, but doesn't
-    // touch state.
-    //
-    nonmutating void destroy()
+    idempotent void destroy()
 	throws DatabaseException;
 
     string name;
@@ -53,7 +48,7 @@ interface PhoneBook
     nonmutating Contacts findContacts(string name)
 	throws DatabaseException;
 
-    void setEvictorSize(int size)
+    idempotent void setEvictorSize(int size)
 	throws DatabaseException;
     nonmutating void shutdown();
 };
