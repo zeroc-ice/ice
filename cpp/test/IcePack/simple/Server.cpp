@@ -20,6 +20,10 @@ using namespace std;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
+    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
+    args = communicator->getProperties()->parseCommandLineOptions("TestAdapter", args);
+    Ice::stringSeqToArgs(args, argc, argv);
+
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = new TestI(adapter);
     adapter->add(object, Ice::stringToIdentity("test"));

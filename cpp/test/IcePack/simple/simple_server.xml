@@ -1,24 +1,13 @@
 <server kind="cpp">
 
   <adapters>
-    <adapter name="TestAdapter" endpoints="default -h 127.0.0.1" id="TestAdapter"/>
+    <adapter name="TestAdapter" endpoints="default" id="TestAdapter"/>
   </adapters>
 
   <target name="debug">
     <properties>
       <property name="Ice.Network.Trace" value="1"/>
       <property name="Ice.Network.Protocol" value="1"/>
-    </properties>
-  </target>
-
-  <target name="ssl">
-    <properties>
-      <property name="Ice.Plugin.IceSSL" value="IceSSL:create"/>
-      <property name="Ice.Default.Protocol" value="ssl"/>
-      <property name="IceSSL.Client.CertPath" location="../../../certs"/>
-      <property name="IceSSL.Client.Config" value="client_sslconfig.xml"/>
-      <property name="IceSSL.Server.CertPath" location="../../../certs"/>
-      <property name="IceSSL.Server.Config" value="server_sslconfig.xml"/>
     </properties>
   </target>
   

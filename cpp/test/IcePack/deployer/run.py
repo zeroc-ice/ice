@@ -50,19 +50,10 @@ def startClient(options):
     if clientStatus:
         print "failed"
 
-if TestUtil.protocol == "ssl":
-    targets = "ssl"
-else:
-    targets = ""
-
 #
 # Start IcePack.
 #
-if os.path.exists(os.path.join(testdir, "db/registry")):
-    TestUtil.cleanDbDir(os.path.join(testdir, "db/registry"))
-    
-if os.path.exists(os.path.join(testdir, "db/node/db")):
-    TestUtil.cleanDbDir(os.path.join(testdir, "db/node/db"))
+IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
 
 icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(toplevel, "12346", testdir)
 icePackNodePipe = IcePackAdmin.startIcePackNode(toplevel, testdir)
@@ -71,7 +62,7 @@ icePackNodePipe = IcePackAdmin.startIcePackNode(toplevel, testdir)
 # Deploy the application, run the client and remove the application.
 #
 print "deploying application...",
-IcePackAdmin.addApplication(toplevel, os.path.join(testdir, "application.xml"), targets);
+IcePackAdmin.addApplication(toplevel, os.path.join(testdir, "application.xml"), "");
 print "ok"
 
 startClient("")
@@ -85,8 +76,7 @@ print "ok"
 # client to test targets (-t options) and remove the application.
 #
 print "deploying application with target...",
-IcePackAdmin.addApplication(toplevel, os.path.join(testdir, "application.xml"),
-                            targets + " debug localnode.Server1.manual")
+IcePackAdmin.addApplication(toplevel, os.path.join(testdir, "application.xml"), "debug localnode.Server1.manual")
 print "ok"
 
 startClient("-t")

@@ -1148,6 +1148,25 @@ each deployed server.
 </section>
 </section>
 
+<section><title>IcePack.Node.PropertiesOverride</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Node.PropertiesOverride=<replaceable>overrides</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines a list (separated by whitespace) of properties which are used
+in addition or which override the properties defined in the server
+deployment descriptor. For example in some cases it's desirable to set
+the property <literal>Ice.Default.Host</literal> for servers, but not
+in the server deployment descriptor since it's a system dependent
+property.
+</para>
+</section>
+</section>
+
 <section><title>IcePack.Node.WaitTime</title>
 <section><title>Synopsis</title>
 <synopsis>

@@ -29,15 +29,4 @@
     </properties>    
   </target>
 
-  <target name="ssl">
-    <properties>
-      <property name="Ice.Plugin.IceSSL" value="IceSSL:create"/>
-      <property name="Ice.Default.Protocol" value="ssl"/>
-      <property name="IceSSL.Client.CertPath" location="../../../certs"/>
-      <property name="IceSSL.Client.Config" value="client_sslconfig.xml"/>
-      <property name="IceSSL.Server.CertPath" location="../../../certs"/>
-      <property name="IceSSL.Server.Config" value="server_sslconfig.xml"/>
-    </properties>
-  </target>
-
 </server>

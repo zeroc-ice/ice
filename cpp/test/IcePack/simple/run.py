@@ -36,8 +36,7 @@ testdir = os.path.join(toplevel, "test", "IcePack", "simple")
 additionalOptions = " --Ice.Default.Locator=\"IcePack/Locator:default -p 12346\""
 
 
-if os.path.exists(os.path.join(testdir, "db/registry")):
-    TestUtil.cleanDbDir(os.path.join(testdir, "db/registry"))
+IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
 
 #
 # Start IcePack registry
@@ -47,18 +46,19 @@ icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(toplevel, "12346", testd
 #
 # Test client/server without on demand activation.
 #
-TestUtil.mixedClientServerTestWithOptions(toplevel, name, additionalOptions, additionalOptions)
+additionalServerOptions=" --TestAdapter.Endpoints=default --TestAdapter.AdapterId=TestAdapter " + additionalOptions
+TestUtil.mixedClientServerTestWithOptions(toplevel, name, additionalServerOptions, additionalOptions)
 
 #
 # Shutdown the registry.
 #
 IcePackAdmin.shutdownIcePackRegistry(toplevel, icePackRegistryPipe)
 
-TestUtil.cleanDbDir(os.path.join(testdir, "db/registry"))
+IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
 
-if os.path.exists(os.path.join(testdir, "db/node/db")):
-    TestUtil.cleanDbDir(os.path.join(testdir, "db/node/db"))
-
+#
+# Start the registry and a node.
+#
 icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(toplevel, "12346", testdir)
 icePackNodePipe = IcePackAdmin.startIcePackNode(toplevel, testdir)
 
@@ -68,13 +68,8 @@ icePackNodePipe = IcePackAdmin.startIcePackNode(toplevel, testdir)
 server = os.path.join(testdir, "server")
 client = os.path.join(testdir, "client")
 
-if TestUtil.protocol == "ssl":
-    targets = "ssl"
-else:
-    targets = ""
-
 print "registering server with icepack...",
-IcePackAdmin.addServer(toplevel, "server", os.path.join(testdir, "simple_server.xml"), server, "", targets);
+IcePackAdmin.addServer(toplevel, "server", os.path.join(testdir, "simple_server.xml"), server, "", "");
 print "ok"
   
 updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel) + additionalOptions

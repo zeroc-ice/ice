@@ -67,6 +67,8 @@ private:
     int _fdIntrRead;
     int _fdIntrWrite;
 
+    std::vector<std::string> _propertiesOverride;
+    
     IceUtil::ThreadPtr _thread;
 };
 

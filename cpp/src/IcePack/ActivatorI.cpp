@@ -72,6 +72,41 @@ IcePack::ActivatorI::ActivatorI(const TraceLevelsPtr& traceLevels, const Propert
     int flags = fcntl(_fdIntrRead, F_GETFL);
     flags |= O_NONBLOCK;
     fcntl(_fdIntrRead, F_SETFL, flags);
+
+    //
+    // Parse the properties override property.
+    //
+    string props = _properties->getProperty("IcePack.Node.PropertiesOverride");
+    if(!props.empty())
+    {
+	string::size_type end = 0;
+	while(end != string::npos)
+	{
+	    const string delim = " \t\r\n";
+		
+	    string::size_type beg = props.find_first_not_of(delim, end);
+	    if(beg == string::npos)
+	    {
+		break;
+	    }
+		
+	    end = props.find_first_of(delim, beg);
+	    string arg;
+	    if(end == string::npos)
+	    {
+		arg = props.substr(beg);
+	    }
+	    else
+	    {
+		arg = props.substr(beg, end - beg);
+	    }
+	    if(arg.find("--") != 0)
+	    {
+		arg = "--" + arg;
+	    }
+	    _propertiesOverride.push_back(arg);
+	}
+    }    
 }
 
 IcePack::ActivatorI::~ActivatorI()
@@ -127,19 +162,26 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	    pwd.erase(pos, 2);
 	}
     }
-    
+
     //
     // Compute arguments.
     //
-    int argc = server->description.theArgs.size() + 3;
+    int argc = server->description.theArgs.size() + _propertiesOverride.size() + 3;
     char** argv = static_cast<char**>(malloc(argc * sizeof(char*)));
     argv[0] = strdup(path.c_str());
+
     unsigned int i = 0;
     vector<string>::const_iterator q;
+
     for(q = server->description.theArgs.begin(); q != server->description.theArgs.end(); ++q, ++i)
     {
 	argv[i + 1] = strdup(q->c_str());
     }
+    for(q = _propertiesOverride.begin(); q != _propertiesOverride.end(); ++q, ++i)
+    {
+	argv[i + 1] = strdup(q->c_str());
+    }
+
     string locatorArg = "--Ice.Default.Locator=" + _properties->getProperty("Ice.Default.Locator");
     argv[argc - 2] = strdup(locatorArg.c_str());
     argv[argc - 1] = 0;
