@@ -3,20 +3,20 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{00A4F0AD-90F0-44F4-9FF5-6EEF02BE5362}"
+        ProjectGuid = "{D708E322-EF83-44E1-89D1-C0F9E8529A16}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "server"
+                AssemblyName = "simpleFSCommon"
                 AssemblyOriginatorKeyFile = ""
                 AssemblyOriginatorKeyMode = "None"
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
-                OutputType = "Exe"
+                OutputType = "Library"
                 OptionCompare = "Binary"
                 OptionExplicit = "On"
                 OptionStrict = "Off"
@@ -66,11 +66,6 @@
                     AssemblyName = "icecs"
                     HintPath = "..\..\..\..\icecs\bin\icecs.dll"
                 />
-                <Reference
-                    Name = "simpleFSCommon"
-                    Project = "{D708E322-EF83-44E1-89D1-C0F9E8529A16}"
-                    Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
-                />
             </References>
             <Imports>
                 <Import Namespace = "System" />
@@ -79,17 +74,7 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "DirectoryI.vb"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "FileI.vb"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Server.vb"
+                    RelPath = "generated\Filesystem.vb"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

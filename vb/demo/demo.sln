@@ -1,0 +1,344 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionCD", "Glacier\session\sessionCD.vbproj", "{36EAB45F-D8CC-4186-9CEB-0F178E0FAC25}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3027C39E-5369-4C7B-A6AA-9FC7CAFFC330} = {3027C39E-5369-4C7B-A6AA-9FC7CAFFC330}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionCommonD", "Glacier\session\sessionCommonD.vbproj", "{3027C39E-5369-4C7B-A6AA-9FC7CAFFC330}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionSD", "Glacier\session\sessionSD.vbproj", "{BACF2D60-2C16-4DA0-89C9-79FCC6CA748E}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "compileSlice", "compileSlice.vcproj", "{F47C2D68-B976-4D14-B4D5-E563001011D1}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "callbackCD", "Ice\callback\callbackCD.vbproj", "{C0226AF9-D73D-4F55-A34B-CA24689F7607}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2589CB66-F45D-4F17-A799-ADD9EA001A94} = {2589CB66-F45D-4F17-A799-ADD9EA001A94}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "callbackCommonD", "Ice\callback\callbackCommonD.vbproj", "{2589CB66-F45D-4F17-A799-ADD9EA001A94}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "callbackSD", "Ice\callback\callbackSD.vbproj", "{B04DBAC4-083D-4F57-8823-1C9C3B46E4E5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2589CB66-F45D-4F17-A799-ADD9EA001A94} = {2589CB66-F45D-4F17-A799-ADD9EA001A94}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloCD", "Ice\hello\helloCD.vbproj", "{E705273D-4882-47AF-AF7D-41A12CFEFBE4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{59486F58-E9F1-4B78-B0D0-B52570350BE9} = {59486F58-E9F1-4B78-B0D0-B52570350BE9}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloCommonD", "Ice\hello\helloCommonD.vbproj", "{59486F58-E9F1-4B78-B0D0-B52570350BE9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloSD", "Ice\hello\helloSD.vbproj", "{B7CA51A2-E26B-48E6-A4EA-828B9A2AD2B5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{59486F58-E9F1-4B78-B0D0-B52570350BE9} = {59486F58-E9F1-4B78-B0D0-B52570350BE9}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "invokeCD", "Ice\invoke\invokeCD.vbproj", "{62CD2F2A-281F-4371-B5D8-CCFA113EEDA5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C2A070AF-8C67-4F5F-BA72-9CF92794790A} = {C2A070AF-8C67-4F5F-BA72-9CF92794790A}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "invokeCommonD", "Ice\invoke\invokeCommonD.vbproj", "{C2A070AF-8C67-4F5F-BA72-9CF92794790A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "invokeSD", "Ice\invoke\invokeSD.vbproj", "{6BF3EEA6-EF93-409C-BB0A-612F54CCFFE1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C2A070AF-8C67-4F5F-BA72-9CF92794790A} = {C2A070AF-8C67-4F5F-BA72-9CF92794790A}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "latencyCD", "Ice\latency\latencyCD.vbproj", "{367DB319-3ADF-4787-94DD-A9F0C5EDD102}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5FEE2505-2240-455A-9A5D-FCACB7274C46} = {5FEE2505-2240-455A-9A5D-FCACB7274C46}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "latencyCommonD", "Ice\latency\latencyCommonD.vbproj", "{5FEE2505-2240-455A-9A5D-FCACB7274C46}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "latencySD", "Ice\latency\latencySD.vbproj", "{E0D2CCD8-B988-43D5-8E4B-76A15110D5D7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5FEE2505-2240-455A-9A5D-FCACB7274C46} = {5FEE2505-2240-455A-9A5D-FCACB7274C46}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "nestedCD", "Ice\nested\nestedCD.vbproj", "{73E26C91-7786-4085-B58A-F0A2993FDB53}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A0B88A9F-B84D-494D-A763-78712667E592} = {A0B88A9F-B84D-494D-A763-78712667E592}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "nestedCommonD", "Ice\nested\nestedCommonD.vbproj", "{A0B88A9F-B84D-494D-A763-78712667E592}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "nestedSD", "Ice\nested\nestedSD.vbproj", "{E2E33D96-D09B-4040-8C01-8543772BEA55}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A0B88A9F-B84D-494D-A763-78712667E592} = {A0B88A9F-B84D-494D-A763-78712667E592}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "throughputCD", "Ice\throughput\throughputCD.vbproj", "{AFAF737D-61D5-478E-969C-B0F7CF15CCA5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{93030D8A-FD38-4445-80BE-13BDCA62349F} = {93030D8A-FD38-4445-80BE-13BDCA62349F}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "throughputCommonD", "Ice\throughput\throughputCommonD.vbproj", "{93030D8A-FD38-4445-80BE-13BDCA62349F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "throughputSD", "Ice\throughput\throughputSD.vbproj", "{345B2ED1-378D-4C6B-921F-8FD80350CC92}"
+	ProjectSection(ProjectDependencies) = postProject
+		{93030D8A-FD38-4445-80BE-13BDCA62349F} = {93030D8A-FD38-4445-80BE-13BDCA62349F}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "valueCD", "Ice\value\valueCD.vbproj", "{CAB44FDA-91DB-4890-8E8C-8F56422C6508}"
+	ProjectSection(ProjectDependencies) = postProject
+		{801CAF98-F8CF-42E2-98AD-1373A8ABA749} = {801CAF98-F8CF-42E2-98AD-1373A8ABA749}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "valueCommonD", "Ice\value\valueCommonD.vbproj", "{801CAF98-F8CF-42E2-98AD-1373A8ABA749}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "valueSD", "Ice\value\valueSD.vbproj", "{DAA748B3-725F-49CF-B485-9C7F7FC3BECE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{801CAF98-F8CF-42E2-98AD-1373A8ABA749} = {801CAF98-F8CF-42E2-98AD-1373A8ABA749}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloIcePackCD", "IcePack\hello\helloIcePackCD.vbproj", "{C33A09FC-F01D-4685-B17A-EA7BB8842A09}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0AD253C4-238A-47F1-B2F2-BEFBCDB42337} = {0AD253C4-238A-47F1-B2F2-BEFBCDB42337}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloIcePackCommonD", "IcePack\hello\helloIcePackCommonD.vbproj", "{0AD253C4-238A-47F1-B2F2-BEFBCDB42337}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloIcePackSD", "IcePack\hello\helloIcePackSD.vbproj", "{102BBD19-FBB4-4BA8-83AE-7F1A0D51B201}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0AD253C4-238A-47F1-B2F2-BEFBCDB42337} = {0AD253C4-238A-47F1-B2F2-BEFBCDB42337}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleIcePackCD", "IcePack\simple\simpleIcePackCD.vbproj", "{7FB58889-D708-408F-A74A-86FD7A4CFE76}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A535829D-6CF9-4371-AD86-91D82B704BFC} = {A535829D-6CF9-4371-AD86-91D82B704BFC}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleIcePackSD", "IcePack\simple\simpleIcePackSD.vbproj", "{65A4B12D-C788-4EF5-A476-0CD675FCF6D7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A535829D-6CF9-4371-AD86-91D82B704BFC} = {A535829D-6CF9-4371-AD86-91D82B704BFC}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleIcePackCommonD", "IcePack\simple\simpleIcePackCommonD.vbproj", "{A535829D-6CF9-4371-AD86-91D82B704BFC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "printerCD", "book\printer\printerCD.vbproj", "{A9808C9D-94C3-43FC-9100-BB55328865BD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE} = {5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "printerCommonD", "book\printer\printerCommonD.vbproj", "{5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "printerSD", "book\printer\printerSD.vbproj", "{EAD5FEB2-1CA9-44C6-AD31-B1939BF83104}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE} = {5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleFSCD", "book\simple_filesystem\simpleFSCD.vbproj", "{1BEB3E09-5C48-4F9D-9295-C91FD52E662D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B2902411-A398-421B-A848-64073F8B9EC9} = {B2902411-A398-421B-A848-64073F8B9EC9}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleFSCommonD", "book\simple_filesystem\simpleFSCommonD.vbproj", "{B2902411-A398-421B-A848-64073F8B9EC9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleFSSD", "book\simple_filesystem\simpleFSSD.vbproj", "{357ADC23-03C4-4A8B-8017-07810895F3AF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A535829D-6CF9-4371-AD86-91D82B704BFC} = {A535829D-6CF9-4371-AD86-91D82B704BFC}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{36EAB45F-D8CC-4186-9CEB-0F178E0FAC25}.Debug.ActiveCfg = Debug|.NET
+		{36EAB45F-D8CC-4186-9CEB-0F178E0FAC25}.Debug.Build.0 = Debug|.NET
+		{36EAB45F-D8CC-4186-9CEB-0F178E0FAC25}.Release.ActiveCfg = Release|.NET
+		{36EAB45F-D8CC-4186-9CEB-0F178E0FAC25}.Release.Build.0 = Release|.NET
+		{3027C39E-5369-4C7B-A6AA-9FC7CAFFC330}.Debug.ActiveCfg = Debug|.NET
+		{3027C39E-5369-4C7B-A6AA-9FC7CAFFC330}.Debug.Build.0 = Debug|.NET
+		{3027C39E-5369-4C7B-A6AA-9FC7CAFFC330}.Release.ActiveCfg = Release|.NET
+		{3027C39E-5369-4C7B-A6AA-9FC7CAFFC330}.Release.Build.0 = Release|.NET
+		{BACF2D60-2C16-4DA0-89C9-79FCC6CA748E}.Debug.ActiveCfg = Debug|.NET
+		{BACF2D60-2C16-4DA0-89C9-79FCC6CA748E}.Debug.Build.0 = Debug|.NET
+		{BACF2D60-2C16-4DA0-89C9-79FCC6CA748E}.Release.ActiveCfg = Release|.NET
+		{BACF2D60-2C16-4DA0-89C9-79FCC6CA748E}.Release.Build.0 = Release|.NET
+		{F47C2D68-B976-4D14-B4D5-E563001011D1}.Debug.ActiveCfg = Debug|Win32
+		{F47C2D68-B976-4D14-B4D5-E563001011D1}.Debug.Build.0 = Debug|Win32
+		{F47C2D68-B976-4D14-B4D5-E563001011D1}.Release.ActiveCfg = Release|Win32
+		{F47C2D68-B976-4D14-B4D5-E563001011D1}.Release.Build.0 = Release|Win32
+		{C0226AF9-D73D-4F55-A34B-CA24689F7607}.Debug.ActiveCfg = Debug|.NET
+		{C0226AF9-D73D-4F55-A34B-CA24689F7607}.Debug.Build.0 = Debug|.NET
+		{C0226AF9-D73D-4F55-A34B-CA24689F7607}.Release.ActiveCfg = Release|.NET
+		{C0226AF9-D73D-4F55-A34B-CA24689F7607}.Release.Build.0 = Release|.NET
+		{2589CB66-F45D-4F17-A799-ADD9EA001A94}.Debug.ActiveCfg = Debug|.NET
+		{2589CB66-F45D-4F17-A799-ADD9EA001A94}.Debug.Build.0 = Debug|.NET
+		{2589CB66-F45D-4F17-A799-ADD9EA001A94}.Release.ActiveCfg = Release|.NET
+		{2589CB66-F45D-4F17-A799-ADD9EA001A94}.Release.Build.0 = Release|.NET
+		{B04DBAC4-083D-4F57-8823-1C9C3B46E4E5}.Debug.ActiveCfg = Debug|.NET
+		{B04DBAC4-083D-4F57-8823-1C9C3B46E4E5}.Debug.Build.0 = Debug|.NET
+		{B04DBAC4-083D-4F57-8823-1C9C3B46E4E5}.Release.ActiveCfg = Release|.NET
+		{B04DBAC4-083D-4F57-8823-1C9C3B46E4E5}.Release.Build.0 = Release|.NET
+		{E705273D-4882-47AF-AF7D-41A12CFEFBE4}.Debug.ActiveCfg = Debug|.NET
+		{E705273D-4882-47AF-AF7D-41A12CFEFBE4}.Debug.Build.0 = Debug|.NET
+		{E705273D-4882-47AF-AF7D-41A12CFEFBE4}.Release.ActiveCfg = Release|.NET
+		{E705273D-4882-47AF-AF7D-41A12CFEFBE4}.Release.Build.0 = Release|.NET
+		{59486F58-E9F1-4B78-B0D0-B52570350BE9}.Debug.ActiveCfg = Debug|.NET
+		{59486F58-E9F1-4B78-B0D0-B52570350BE9}.Debug.Build.0 = Debug|.NET
+		{59486F58-E9F1-4B78-B0D0-B52570350BE9}.Release.ActiveCfg = Release|.NET
+		{59486F58-E9F1-4B78-B0D0-B52570350BE9}.Release.Build.0 = Release|.NET
+		{B7CA51A2-E26B-48E6-A4EA-828B9A2AD2B5}.Debug.ActiveCfg = Debug|.NET
+		{B7CA51A2-E26B-48E6-A4EA-828B9A2AD2B5}.Debug.Build.0 = Debug|.NET
+		{B7CA51A2-E26B-48E6-A4EA-828B9A2AD2B5}.Release.ActiveCfg = Release|.NET
+		{B7CA51A2-E26B-48E6-A4EA-828B9A2AD2B5}.Release.Build.0 = Release|.NET
+		{62CD2F2A-281F-4371-B5D8-CCFA113EEDA5}.Debug.ActiveCfg = Debug|.NET
+		{62CD2F2A-281F-4371-B5D8-CCFA113EEDA5}.Debug.Build.0 = Debug|.NET
+		{62CD2F2A-281F-4371-B5D8-CCFA113EEDA5}.Release.ActiveCfg = Release|.NET
+		{62CD2F2A-281F-4371-B5D8-CCFA113EEDA5}.Release.Build.0 = Release|.NET
+		{C2A070AF-8C67-4F5F-BA72-9CF92794790A}.Debug.ActiveCfg = Debug|.NET
+		{C2A070AF-8C67-4F5F-BA72-9CF92794790A}.Debug.Build.0 = Debug|.NET
+		{C2A070AF-8C67-4F5F-BA72-9CF92794790A}.Release.ActiveCfg = Release|.NET
+		{C2A070AF-8C67-4F5F-BA72-9CF92794790A}.Release.Build.0 = Release|.NET
+		{6BF3EEA6-EF93-409C-BB0A-612F54CCFFE1}.Debug.ActiveCfg = Debug|.NET
+		{6BF3EEA6-EF93-409C-BB0A-612F54CCFFE1}.Debug.Build.0 = Debug|.NET
+		{6BF3EEA6-EF93-409C-BB0A-612F54CCFFE1}.Release.ActiveCfg = Release|.NET
+		{6BF3EEA6-EF93-409C-BB0A-612F54CCFFE1}.Release.Build.0 = Release|.NET
+		{367DB319-3ADF-4787-94DD-A9F0C5EDD102}.Debug.ActiveCfg = Debug|.NET
+		{367DB319-3ADF-4787-94DD-A9F0C5EDD102}.Debug.Build.0 = Debug|.NET
+		{367DB319-3ADF-4787-94DD-A9F0C5EDD102}.Release.ActiveCfg = Release|.NET
+		{367DB319-3ADF-4787-94DD-A9F0C5EDD102}.Release.Build.0 = Release|.NET
+		{5FEE2505-2240-455A-9A5D-FCACB7274C46}.Debug.ActiveCfg = Debug|.NET
+		{5FEE2505-2240-455A-9A5D-FCACB7274C46}.Debug.Build.0 = Debug|.NET
+		{5FEE2505-2240-455A-9A5D-FCACB7274C46}.Release.ActiveCfg = Release|.NET
+		{5FEE2505-2240-455A-9A5D-FCACB7274C46}.Release.Build.0 = Release|.NET
+		{E0D2CCD8-B988-43D5-8E4B-76A15110D5D7}.Debug.ActiveCfg = Debug|.NET
+		{E0D2CCD8-B988-43D5-8E4B-76A15110D5D7}.Debug.Build.0 = Debug|.NET
+		{E0D2CCD8-B988-43D5-8E4B-76A15110D5D7}.Release.ActiveCfg = Release|.NET
+		{E0D2CCD8-B988-43D5-8E4B-76A15110D5D7}.Release.Build.0 = Release|.NET
+		{73E26C91-7786-4085-B58A-F0A2993FDB53}.Debug.ActiveCfg = Debug|.NET
+		{73E26C91-7786-4085-B58A-F0A2993FDB53}.Debug.Build.0 = Debug|.NET
+		{73E26C91-7786-4085-B58A-F0A2993FDB53}.Release.ActiveCfg = Release|.NET
+		{73E26C91-7786-4085-B58A-F0A2993FDB53}.Release.Build.0 = Release|.NET
+		{A0B88A9F-B84D-494D-A763-78712667E592}.Debug.ActiveCfg = Debug|.NET
+		{A0B88A9F-B84D-494D-A763-78712667E592}.Debug.Build.0 = Debug|.NET
+		{A0B88A9F-B84D-494D-A763-78712667E592}.Release.ActiveCfg = Release|.NET
+		{A0B88A9F-B84D-494D-A763-78712667E592}.Release.Build.0 = Release|.NET
+		{E2E33D96-D09B-4040-8C01-8543772BEA55}.Debug.ActiveCfg = Debug|.NET
+		{E2E33D96-D09B-4040-8C01-8543772BEA55}.Debug.Build.0 = Debug|.NET
+		{E2E33D96-D09B-4040-8C01-8543772BEA55}.Release.ActiveCfg = Release|.NET
+		{E2E33D96-D09B-4040-8C01-8543772BEA55}.Release.Build.0 = Release|.NET
+		{AFAF737D-61D5-478E-969C-B0F7CF15CCA5}.Debug.ActiveCfg = Debug|.NET
+		{AFAF737D-61D5-478E-969C-B0F7CF15CCA5}.Debug.Build.0 = Debug|.NET
+		{AFAF737D-61D5-478E-969C-B0F7CF15CCA5}.Release.ActiveCfg = Release|.NET
+		{AFAF737D-61D5-478E-969C-B0F7CF15CCA5}.Release.Build.0 = Release|.NET
+		{93030D8A-FD38-4445-80BE-13BDCA62349F}.Debug.ActiveCfg = Debug|.NET
+		{93030D8A-FD38-4445-80BE-13BDCA62349F}.Debug.Build.0 = Debug|.NET
+		{93030D8A-FD38-4445-80BE-13BDCA62349F}.Release.ActiveCfg = Release|.NET
+		{93030D8A-FD38-4445-80BE-13BDCA62349F}.Release.Build.0 = Release|.NET
+		{345B2ED1-378D-4C6B-921F-8FD80350CC92}.Debug.ActiveCfg = Debug|.NET
+		{345B2ED1-378D-4C6B-921F-8FD80350CC92}.Debug.Build.0 = Debug|.NET
+		{345B2ED1-378D-4C6B-921F-8FD80350CC92}.Release.ActiveCfg = Release|.NET
+		{345B2ED1-378D-4C6B-921F-8FD80350CC92}.Release.Build.0 = Release|.NET
+		{CAB44FDA-91DB-4890-8E8C-8F56422C6508}.Debug.ActiveCfg = Debug|.NET
+		{CAB44FDA-91DB-4890-8E8C-8F56422C6508}.Debug.Build.0 = Debug|.NET
+		{CAB44FDA-91DB-4890-8E8C-8F56422C6508}.Release.ActiveCfg = Release|.NET
+		{CAB44FDA-91DB-4890-8E8C-8F56422C6508}.Release.Build.0 = Release|.NET
+		{801CAF98-F8CF-42E2-98AD-1373A8ABA749}.Debug.ActiveCfg = Debug|.NET
+		{801CAF98-F8CF-42E2-98AD-1373A8ABA749}.Debug.Build.0 = Debug|.NET
+		{801CAF98-F8CF-42E2-98AD-1373A8ABA749}.Release.ActiveCfg = Release|.NET
+		{801CAF98-F8CF-42E2-98AD-1373A8ABA749}.Release.Build.0 = Release|.NET
+		{DAA748B3-725F-49CF-B485-9C7F7FC3BECE}.Debug.ActiveCfg = Debug|.NET
+		{DAA748B3-725F-49CF-B485-9C7F7FC3BECE}.Debug.Build.0 = Debug|.NET
+		{DAA748B3-725F-49CF-B485-9C7F7FC3BECE}.Release.ActiveCfg = Release|.NET
+		{DAA748B3-725F-49CF-B485-9C7F7FC3BECE}.Release.Build.0 = Release|.NET
+		{C33A09FC-F01D-4685-B17A-EA7BB8842A09}.Debug.ActiveCfg = Debug|.NET
+		{C33A09FC-F01D-4685-B17A-EA7BB8842A09}.Debug.Build.0 = Debug|.NET
+		{C33A09FC-F01D-4685-B17A-EA7BB8842A09}.Release.ActiveCfg = Release|.NET
+		{C33A09FC-F01D-4685-B17A-EA7BB8842A09}.Release.Build.0 = Release|.NET
+		{0AD253C4-238A-47F1-B2F2-BEFBCDB42337}.Debug.ActiveCfg = Debug|.NET
+		{0AD253C4-238A-47F1-B2F2-BEFBCDB42337}.Debug.Build.0 = Debug|.NET
+		{0AD253C4-238A-47F1-B2F2-BEFBCDB42337}.Release.ActiveCfg = Release|.NET
+		{0AD253C4-238A-47F1-B2F2-BEFBCDB42337}.Release.Build.0 = Release|.NET
+		{102BBD19-FBB4-4BA8-83AE-7F1A0D51B201}.Debug.ActiveCfg = Debug|.NET
+		{102BBD19-FBB4-4BA8-83AE-7F1A0D51B201}.Debug.Build.0 = Debug|.NET
+		{102BBD19-FBB4-4BA8-83AE-7F1A0D51B201}.Release.ActiveCfg = Release|.NET
+		{102BBD19-FBB4-4BA8-83AE-7F1A0D51B201}.Release.Build.0 = Release|.NET
+		{7FB58889-D708-408F-A74A-86FD7A4CFE76}.Debug.ActiveCfg = Debug|.NET
+		{7FB58889-D708-408F-A74A-86FD7A4CFE76}.Debug.Build.0 = Debug|.NET
+		{7FB58889-D708-408F-A74A-86FD7A4CFE76}.Release.ActiveCfg = Release|.NET
+		{7FB58889-D708-408F-A74A-86FD7A4CFE76}.Release.Build.0 = Release|.NET
+		{65A4B12D-C788-4EF5-A476-0CD675FCF6D7}.Debug.ActiveCfg = Debug|.NET
+		{65A4B12D-C788-4EF5-A476-0CD675FCF6D7}.Debug.Build.0 = Debug|.NET
+		{65A4B12D-C788-4EF5-A476-0CD675FCF6D7}.Release.ActiveCfg = Release|.NET
+		{65A4B12D-C788-4EF5-A476-0CD675FCF6D7}.Release.Build.0 = Release|.NET
+		{A535829D-6CF9-4371-AD86-91D82B704BFC}.Debug.ActiveCfg = Debug|.NET
+		{A535829D-6CF9-4371-AD86-91D82B704BFC}.Debug.Build.0 = Debug|.NET
+		{A535829D-6CF9-4371-AD86-91D82B704BFC}.Release.ActiveCfg = Release|.NET
+		{A535829D-6CF9-4371-AD86-91D82B704BFC}.Release.Build.0 = Release|.NET
+		{A9808C9D-94C3-43FC-9100-BB55328865BD}.Debug.ActiveCfg = Debug|.NET
+		{A9808C9D-94C3-43FC-9100-BB55328865BD}.Debug.Build.0 = Debug|.NET
+		{A9808C9D-94C3-43FC-9100-BB55328865BD}.Release.ActiveCfg = Release|.NET
+		{A9808C9D-94C3-43FC-9100-BB55328865BD}.Release.Build.0 = Release|.NET
+		{5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE}.Debug.ActiveCfg = Debug|.NET
+		{5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE}.Debug.Build.0 = Debug|.NET
+		{5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE}.Release.ActiveCfg = Release|.NET
+		{5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE}.Release.Build.0 = Release|.NET
+		{EAD5FEB2-1CA9-44C6-AD31-B1939BF83104}.Debug.ActiveCfg = Debug|.NET
+		{EAD5FEB2-1CA9-44C6-AD31-B1939BF83104}.Debug.Build.0 = Debug|.NET
+		{EAD5FEB2-1CA9-44C6-AD31-B1939BF83104}.Release.ActiveCfg = Release|.NET
+		{EAD5FEB2-1CA9-44C6-AD31-B1939BF83104}.Release.Build.0 = Release|.NET
+		{1BEB3E09-5C48-4F9D-9295-C91FD52E662D}.Debug.ActiveCfg = Debug|.NET
+		{1BEB3E09-5C48-4F9D-9295-C91FD52E662D}.Debug.Build.0 = Debug|.NET
+		{1BEB3E09-5C48-4F9D-9295-C91FD52E662D}.Release.ActiveCfg = Release|.NET
+		{1BEB3E09-5C48-4F9D-9295-C91FD52E662D}.Release.Build.0 = Release|.NET
+		{B2902411-A398-421B-A848-64073F8B9EC9}.Debug.ActiveCfg = Debug|.NET
+		{B2902411-A398-421B-A848-64073F8B9EC9}.Debug.Build.0 = Debug|.NET
+		{B2902411-A398-421B-A848-64073F8B9EC9}.Release.ActiveCfg = Release|.NET
+		{B2902411-A398-421B-A848-64073F8B9EC9}.Release.Build.0 = Release|.NET
+		{357ADC23-03C4-4A8B-8017-07810895F3AF}.Debug.ActiveCfg = Debug|.NET
+		{357ADC23-03C4-4A8B-8017-07810895F3AF}.Debug.Build.0 = Debug|.NET
+		{357ADC23-03C4-4A8B-8017-07810895F3AF}.Release.ActiveCfg = Release|.NET
+		{357ADC23-03C4-4A8B-8017-07810895F3AF}.Release.Build.0 = Release|.NET
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

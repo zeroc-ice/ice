@@ -3,24 +3,24 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{D708E322-EF83-44E1-89D1-C0F9E8529A16}"
+        ProjectGuid = "{C33A09FC-F01D-4685-B17A-EA7BB8842A09}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "simpleCommon"
+                AssemblyName = "client"
                 AssemblyOriginatorKeyFile = ""
                 AssemblyOriginatorKeyMode = "None"
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
-                OutputType = "Library"
+                OutputType = "Exe"
                 OptionCompare = "Binary"
                 OptionExplicit = "On"
                 OptionStrict = "Off"
-                RootNamespace = ""
+                RootNamespace = "helloIcePackCD"
                 StartupObject = ""
             >
                 <Config
@@ -62,9 +62,23 @@
                     AssemblyName = "System"
                 />
                 <Reference
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
+                />
+                <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                    HintPath = "..\..\bin\icecs.DLL"
+                />
+                <Reference
+                    Name = "helloIcePackCommonD"
+                    Project = "{0AD253C4-238A-47F1-B2F2-BEFBCDB42337}"
+                    Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
+                />
+                <Reference
+                    Name = "icepackcs"
+                    AssemblyName = "icepackcs"
+                    HintPath = "..\..\bin\icepackcs.dll"
                 />
             </References>
             <Imports>
@@ -74,7 +88,7 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "generated\Filesystem.vb"
+                    RelPath = "Client.vb"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

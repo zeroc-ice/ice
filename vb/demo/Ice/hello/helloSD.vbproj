@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{00A4F0AD-90F0-44F4-9FF5-6EEF02BE5362}"
+        ProjectGuid = "{B7CA51A2-E26B-48E6-A4EA-828B9A2AD2B5}"
     >
         <Build>
             <Settings
@@ -33,10 +33,10 @@
                     DebugSymbols = "true"
                     IncrementalBuild = "true"
                     Optimize = "false"
-                    OutputPath = ".\"
+                    OutputPath = "bin\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "true"
+                    TreatWarningsAsErrors = "false"
                     WarningLevel = "1"
                 />
                 <Config
@@ -49,10 +49,10 @@
                     DebugSymbols = "false"
                     IncrementalBuild = "false"
                     Optimize = "true"
-                    OutputPath = ".\"
+                    OutputPath = "bin\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "true"
+                    TreatWarningsAsErrors = "false"
                     WarningLevel = "1"
                 />
             </Settings>
@@ -62,29 +62,32 @@
                     AssemblyName = "System"
                 />
                 <Reference
-                    Name = "icecs"
-                    AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
                 />
                 <Reference
-                    Name = "simpleFSCommon"
-                    Project = "{D708E322-EF83-44E1-89D1-C0F9E8529A16}"
+                    Name = "helloCommonD"
+                    Project = "{59486F58-E9F1-4B78-B0D0-B52570350BE9}"
                     Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
+                />
+                <Reference
+                    Name = "icecs"
+                    AssemblyName = "icecs"
+                    HintPath = "..\..\bin\icecs.DLL"
                 />
             </References>
             <Imports>
+                <Import Namespace = "Microsoft.VisualBasic" />
                 <Import Namespace = "System" />
+                <Import Namespace = "System.Collections" />
+                <Import Namespace = "System.Data" />
+                <Import Namespace = "System.Diagnostics" />
             </Imports>
         </Build>
         <Files>
             <Include>
                 <File
-                    RelPath = "DirectoryI.vb"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "FileI.vb"
+                    RelPath = "HelloI.vb"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

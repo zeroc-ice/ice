@@ -115,16 +115,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "compileSlice", "generate\co
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleFSC", "demo\book\simple_filesystem\simpleFSC.vbproj", "{3E2FDAF6-9978-478A-B511-A71203F3BFDB}"
 	ProjectSection(ProjectDependencies) = postProject
-		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleCommon", "demo\book\simple_filesystem\simpleCommon.vbproj", "{D708E322-EF83-44E1-89D1-C0F9E8529A16}"
-	ProjectSection(ProjectDependencies) = postProject
+		{D708E322-EF83-44E1-89D1-C0F9E8529A16} = {D708E322-EF83-44E1-89D1-C0F9E8529A16}
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleFSS", "demo\book\simple_filesystem\simpleFSS.vbproj", "{00A4F0AD-90F0-44F4-9FF5-6EEF02BE5362}"
 	ProjectSection(ProjectDependencies) = postProject
+		{D708E322-EF83-44E1-89D1-C0F9E8529A16} = {D708E322-EF83-44E1-89D1-C0F9E8529A16}
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
@@ -183,6 +180,11 @@ EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleIcePackS", "demo\IcePack\simple\simpleIcePackS.vbproj", "{4533E9BE-84FB-49AF-BE06-0FF3CE9310BE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6ECA60C0-C79A-4B36-B004-D646F876095D} = {6ECA60C0-C79A-4B36-B004-D646F876095D}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleFSCommon", "demo\book\simple_filesystem\simpleFSCommon.vbproj", "{D708E322-EF83-44E1-89D1-C0F9E8529A16}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
 Global
@@ -287,10 +289,6 @@ Global
 		{3E2FDAF6-9978-478A-B511-A71203F3BFDB}.Debug.Build.0 = Debug|.NET
 		{3E2FDAF6-9978-478A-B511-A71203F3BFDB}.Release.ActiveCfg = Release|.NET
 		{3E2FDAF6-9978-478A-B511-A71203F3BFDB}.Release.Build.0 = Release|.NET
-		{D708E322-EF83-44E1-89D1-C0F9E8529A16}.Debug.ActiveCfg = Debug|.NET
-		{D708E322-EF83-44E1-89D1-C0F9E8529A16}.Debug.Build.0 = Debug|.NET
-		{D708E322-EF83-44E1-89D1-C0F9E8529A16}.Release.ActiveCfg = Release|.NET
-		{D708E322-EF83-44E1-89D1-C0F9E8529A16}.Release.Build.0 = Release|.NET
 		{00A4F0AD-90F0-44F4-9FF5-6EEF02BE5362}.Debug.ActiveCfg = Debug|.NET
 		{00A4F0AD-90F0-44F4-9FF5-6EEF02BE5362}.Debug.Build.0 = Debug|.NET
 		{00A4F0AD-90F0-44F4-9FF5-6EEF02BE5362}.Release.ActiveCfg = Release|.NET
@@ -343,6 +341,10 @@ Global
 		{4533E9BE-84FB-49AF-BE06-0FF3CE9310BE}.Debug.Build.0 = Debug|.NET
 		{4533E9BE-84FB-49AF-BE06-0FF3CE9310BE}.Release.ActiveCfg = Release|.NET
 		{4533E9BE-84FB-49AF-BE06-0FF3CE9310BE}.Release.Build.0 = Release|.NET
+		{D708E322-EF83-44E1-89D1-C0F9E8529A16}.Debug.ActiveCfg = Debug|.NET
+		{D708E322-EF83-44E1-89D1-C0F9E8529A16}.Debug.Build.0 = Debug|.NET
+		{D708E322-EF83-44E1-89D1-C0F9E8529A16}.Release.ActiveCfg = Release|.NET
+		{D708E322-EF83-44E1-89D1-C0F9E8529A16}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

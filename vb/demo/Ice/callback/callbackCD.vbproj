@@ -3,13 +3,13 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{00A4F0AD-90F0-44F4-9FF5-6EEF02BE5362}"
+        ProjectGuid = "{C0226AF9-D73D-4F55-A34B-CA24689F7607}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "server"
+                AssemblyName = "client"
                 AssemblyOriginatorKeyFile = ""
                 AssemblyOriginatorKeyMode = "None"
                 DefaultClientScript = "JScript"
@@ -62,13 +62,17 @@
                     AssemblyName = "System"
                 />
                 <Reference
-                    Name = "icecs"
-                    AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
                 />
                 <Reference
-                    Name = "simpleFSCommon"
-                    Project = "{D708E322-EF83-44E1-89D1-C0F9E8529A16}"
+                    Name = "icecs"
+                    AssemblyName = "icecs"
+                    HintPath = "..\..\bin\icecs.DLL"
+                />
+                <Reference
+                    Name = "callbackCommonD"
+                    Project = "{2589CB66-F45D-4F17-A799-ADD9EA001A94}"
                     Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
                 />
             </References>
@@ -79,17 +83,17 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "DirectoryI.vb"
+                    RelPath = "CallbackClient.vb"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "FileI.vb"
+                    RelPath = "CallbackReceiverI.vb"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Server.vb"
+                    RelPath = "Client.vb"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

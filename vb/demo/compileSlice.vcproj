@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="compileSlice"
+	ProjectGUID="{F47C2D68-B976-4D14-B4D5-E563001011D1}"
+	Keyword="MakeFileProj">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="Debug"
+			IntermediateDirectory="Debug"
+			ConfigurationType="0">
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="$(SolutionDir)\..\bin\generatevb.exe $(SolutionDir) build"
+				ReBuildCommandLine="$(SolutionDir)\..\bin\generatevb.exe $(SolutionDir) rebuild"
+				CleanCommandLine="$(SolutionDir)\..\bin\generatevb.exe $(SolutionDir) clean"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="Release"
+			IntermediateDirectory="Release"
+			ConfigurationType="0">
+			<Tool
+				Name="VCNMakeTool"
+				Output="generatevb.exe"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<File
+			RelativePath=".\README.txt">
+		</File>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>

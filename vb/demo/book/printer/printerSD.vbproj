@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{00A4F0AD-90F0-44F4-9FF5-6EEF02BE5362}"
+        ProjectGuid = "{EAD5FEB2-1CA9-44C6-AD31-B1939BF83104}"
     >
         <Build>
             <Settings
@@ -20,7 +20,7 @@
                 OptionCompare = "Binary"
                 OptionExplicit = "On"
                 OptionStrict = "Off"
-                RootNamespace = ""
+                RootNamespace = "printerDemo"
                 StartupObject = ""
             >
                 <Config
@@ -62,14 +62,18 @@
                     AssemblyName = "System"
                 />
                 <Reference
-                    Name = "icecs"
-                    AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                    Name = "System.Data"
+                    AssemblyName = "System.Data"
                 />
                 <Reference
-                    Name = "simpleFSCommon"
-                    Project = "{D708E322-EF83-44E1-89D1-C0F9E8529A16}"
+                    Name = "printerCommonD"
+                    Project = "{5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE}"
                     Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
+                />
+                <Reference
+                    Name = "icecs"
+                    AssemblyName = "icecs"
+                    HintPath = "..\..\bin\icecs.DLL"
                 />
             </References>
             <Imports>
@@ -78,16 +82,6 @@
         </Build>
         <Files>
             <Include>
-                <File
-                    RelPath = "DirectoryI.vb"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "FileI.vb"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
                 <File
                     RelPath = "Server.vb"
                     SubType = "Code"
