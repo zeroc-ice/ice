@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import sys, Ice
+import sys, traceback, Ice
 
 Ice.loadSlice('-I. --all ServerPrivate.ice Forward.ice')
 import Test
@@ -30,24 +30,24 @@ class TestI(Test.TestIntf):
         sbskd = Test.SBSKnownDerived()
         sbskd.sb = "SBSKnownDerived.sb"
         sbskd.sbskd = "SBSKnownDerived.sbskd"
-        return sbskd;
+        return sbskd
 
     def SBSKnownDerivedAsSBSKnownDerived(self, current=None):
         sbskd = Test.SBSKnownDerived()
         sbskd.sb = "SBSKnownDerived.sb"
         sbskd.sbskd = "SBSKnownDerived.sbskd"
-        return sbskd;
+        return sbskd
 
     def SBSUnknownDerivedAsSBase(self, current=None):
         sbsud = Test.SBSUnknownDerived()
         sbsud.sb = "SBSUnknownDerived.sb"
         sbsud.sbsud = "SBSUnknownDerived.sbsud"
-        return sbsud;
+        return sbsud
 
     def SUnknownAsObject(self, current=None):
         su = Test.SUnknown()
         su.su = "SUnknown.su"
-        return su;
+        return su
 
     def oneElementCycle(self, current=None):
         b = Test.B()
@@ -57,12 +57,12 @@ class TestI(Test.TestIntf):
 
     def twoElementCycle(self, current=None):
         b1 = Test.B()
-        b1.sb = "B1.sb";
+        b1.sb = "B1.sb"
         b2 = Test.B()
-        b2.sb = "B2.sb";
-        b2.pb = b1;
-        b1.pb = b2;
-        return b1;
+        b2.sb = "B2.sb"
+        b2.pb = b1
+        b1.pb = b2
+        return b1
 
     def D1AsB(self, current=None):
         d1 = Test.D1()
