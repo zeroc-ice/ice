@@ -37,7 +37,7 @@ public:
     const int subscriber;
     const char* subscriberCat;
 
-    Ice::LoggerPtr logger;
+    const Ice::LoggerPtr logger;
 };
 
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;

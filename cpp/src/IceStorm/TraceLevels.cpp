@@ -14,12 +14,12 @@
 using namespace std;
 using namespace IceStorm;
 
-TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, const Ice::LoggerPtr& thelogger) :
+TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, const Ice::LoggerPtr& theLogger) :
     topicMgrCat("TopicManager"),
     topicCat("Topic"),
     flushCat("Flush"),
     subscriberCat("Subscriber"),
-    logger(thelogger)
+    logger(theLogger)
 {
     const string keyBase = "IceStorm.Trace.";
     const_cast<int&>(topicMgr) = properties->getPropertyAsInt(keyBase + topicMgrCat);

@@ -27,10 +27,13 @@ public:
 
     const int network;
     const char* networkCat;
+
     const int protocol;
     const char* protocolCat;
+
     const int retry;
     const char* retryCat;
+
     const int security;
     const char* securityCat;
 };
