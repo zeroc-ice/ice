@@ -986,6 +986,24 @@ public class BasicStream
         throw new Ice.NoUserExceptionFactoryException();
     }
 
+    int
+    pos()
+    {
+        return _buf.pos;
+    }
+
+    void
+    pos(int p)
+    {
+        _buf.pos = p;
+    }
+
+    int
+    size()
+    {
+        return _buf.len;
+    }
+
     private IceInternal.Instance _instance;
     private Buffer _buf = new Buffer();
 
