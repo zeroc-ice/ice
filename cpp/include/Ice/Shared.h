@@ -29,11 +29,13 @@ public:
 
     void __incRef()
     {
+	assert(_ref >= 0);
 	++_ref;
     }
 
     void __decRef()
     {
+	assert(_ref > 0);
 	if (--_ref == 0)
 	{
 	    if(!_noDelete)
@@ -72,6 +74,7 @@ public:
     void __incRef()
     {
 	_mutex.lock();
+	assert(_ref >= 0);
 	++_ref;
 	_mutex.unlock();
     }
@@ -80,6 +83,7 @@ public:
     {
 	_mutex.lock();
 	bool doDelete = false;
+	assert(_ref > 0);
 	if (--_ref == 0)
 	{
 	    doDelete = !_noDelete;
