@@ -180,30 +180,37 @@ public abstract class Application
             _done = false;
         }
 
-        public synchronized void
+        public void
         run()
         {
-            communicator().shutdown();
-            while(!_done)
+            synchronized(_doneMutex)
             {
-                try
+                communicator().shutdown();
+                while(!_done)
                 {
-                    wait();
-                }
-                catch(InterruptedException ex)
-                {
+                    try
+                    {
+                        _doneMutex.wait();
+                    }
+                    catch(InterruptedException ex)
+                    {
+                    }
                 }
             }
         }
 
-        synchronized void
+        void
         done()
         {
-            _done = true;
-            notify();
+            synchronized(_doneMutex)
+            {
+                _done = true;
+                _doneMutex.notify();
+            }
         }
 
         private boolean _done;
+        private java.lang.Object _doneMutex = new java.lang.Object();
     }
 
     private static String _appName;
