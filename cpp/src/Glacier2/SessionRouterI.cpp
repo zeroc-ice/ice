@@ -82,7 +82,7 @@ Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
 					 const SessionManagerPrx& sessionManager) :
     _properties(clientAdapter->getCommunicator()->getProperties()),
     _logger(clientAdapter->getCommunicator()->getLogger()),
-    _traceLevel(_properties->getPropertyAsInt("Glacier2.Trace.Session")),
+    _sessionTraceLevel(_properties->getPropertyAsInt("Glacier2.Trace.Session")),
     _clientAdapter(clientAdapter),
     _serverAdapter(serverAdapter),
     _verifier(verifier),
@@ -173,7 +173,7 @@ Glacier2::SessionRouterI::destroy()
 	}
 	catch(const Exception& ex)
 	{
-	    if(_traceLevel >= 1)
+	    if(_sessionTraceLevel >= 1)
 	    {
 		Trace out(_logger, "Glacier2");
 		out << "exception while destroying session\n" << ex;
@@ -304,7 +304,7 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 	}
 	catch(const Exception& ex)
 	{
-	    if(_traceLevel >= 1)
+	    if(_sessionTraceLevel >= 1)
 	    {
 		Trace out(_logger, "Glacier2");
 		out << "exception while verifying password\n" << ex;
@@ -419,7 +419,7 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 		_routersByCategoryHint, pair<const string, RouterIPtr>(category, router));
 	}
 	
-	if(_traceLevel >= 1)
+	if(_sessionTraceLevel >= 1)
 	{
 	    Trace out(_logger, "Glacier2");
 	    out << "created session\n";
@@ -480,7 +480,7 @@ Glacier2::SessionRouterI::destroySession(const Current& current)
     //
     try
     {
-	if(_traceLevel >= 1)
+	if(_sessionTraceLevel >= 1)
 	{
 	    Trace out(_logger, "Glacier2");
 	    out << "destroying session\n";
@@ -491,7 +491,7 @@ Glacier2::SessionRouterI::destroySession(const Current& current)
     }
     catch(const Exception& ex)
     {
-	if(_traceLevel >= 1)
+	if(_sessionTraceLevel >= 1)
 	{
 	    Trace out(_logger, "Glacier2");
 	    out << "exception while destroying session\n" << ex;
@@ -612,7 +612,7 @@ Glacier2::SessionRouterI::expireSessions()
 	
 	try
 	{
-	    if(_traceLevel >= 1)
+	    if(_sessionTraceLevel >= 1)
 	    {
 		Trace out(_logger, "Glacier2");
 		out << "expiring session\n";
@@ -623,7 +623,7 @@ Glacier2::SessionRouterI::expireSessions()
 	}
 	catch(const Exception& ex)
 	{
-	    if(_traceLevel >= 1)
+	    if(_sessionTraceLevel >= 1)
 	    {
 		Trace out(_logger, "Glacier2");
 		out << "exception while expiring session\n" << ex;

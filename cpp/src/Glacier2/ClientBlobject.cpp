@@ -67,7 +67,7 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& 
 	{
 	    if(_rejectTraceLevel >= 1)
 	    {
-		Trace out(current.adapter->getCommunicator()->getLogger(), "Glacier2");
+		Trace out(_logger, "Glacier2");
 		out << "rejecting request\n";
 		out << "identity: " << identityToString(current.id);
 	    }

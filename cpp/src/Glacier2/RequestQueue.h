@@ -24,22 +24,22 @@ class Request : virtual public IceUtil::Shared
 {
 public:
 
-    Request(const Ice::ObjectPrx&, const std::vector<Ice::Byte>&, const Ice::Current&,
-	    const Ice::AMI_Object_ice_invokePtr&);
+    Request(const Ice::ObjectPrx&, const std::vector<Ice::Byte>&, const Ice::Current&, bool,
+	    const Ice::AMD_Object_ice_invokePtr&);
     
-    void invoke(bool);
+    void invoke();
     bool override(const RequestPtr&) const;
     const Ice::ObjectPrx& getProxy() const;
     const Ice::Current& getCurrent() const;
 
 private:
 
-    Ice::ObjectPrx _proxy;
-    std::vector<Ice::Byte> _inParams;
-    Ice::Current _current;
-    bool _forwardContext;
-    Ice::AMI_Object_ice_invokePtr _amiCB;
-    std::string _override;
+    const Ice::ObjectPrx _proxy;
+    const std::vector<Ice::Byte> _inParams;
+    const Ice::Current _current;
+    const bool _forwardContext;
+    const Ice::AMI_Object_ice_invokePtr _amiCB;
+    const std::string _override;
 };
 
 class RequestQueue;
@@ -63,10 +63,9 @@ private:
 
     const Ice::LoggerPtr _logger;
     const bool _reverse;
-    const int _traceLevelRequest;
-    const int _traceLevelOverride;
-    const bool _forwardContext;
     const IceUtil::Time _sleepTime;
+    const int _requestTraceLevel;
+    const int _overrideTraceLevel;
 
     std::vector<RequestPtr> _requests;
 

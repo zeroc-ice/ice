@@ -13,24 +13,44 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
+static const string serverForwardContext = "Glacier2.Server.ForwardContext";
+static const string clientForwardContext = "Glacier2.Client.ForwardContext";
+static const string serverUnbuffered = "Glacier2.Server.Unbuffered";
+static const string clientUnbuffered = "Glacier2.Client.Unbuffered";
 static const string serverAlwaysBatch = "Glacier2.Server.AlwaysBatch";
 static const string clientAlwaysBatch = "Glacier2.Client.AlwaysBatch";
 static const string serverThreadStackSize = "Glacier2.Server.ThreadStackSize";
 static const string clientThreadStackSize = "Glacier2.Client.ThreadStackSize";
+static const string serverTraceRequest = "Glacier2.Server.Trace.Request";
+static const string clientTraceRequest = "Glacier2.Client.Trace.Request";
 
 Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
-    _properties(communicator->getProperties()),
-    _logger(communicator->getLogger()),
-    _alwaysBatch(reverse ?
+    _communicator(communicator),
+    _properties(_communicator->getProperties()),
+    _logger(_communicator->getLogger()),
+    _reverse(reverse),
+    _forwardContext(_reverse ?
+		    _properties->getPropertyAsInt(serverForwardContext) > 0 :
+		    _properties->getPropertyAsInt(clientForwardContext) > 0),
+    _unbuffered(_reverse ?
+		_properties->getPropertyAsInt(serverUnbuffered) > 0 :
+		_properties->getPropertyAsInt(clientUnbuffered) > 0),
+    _alwaysBatch(_reverse ?
 		 _properties->getPropertyAsInt(serverAlwaysBatch) > 0 :
-		 _properties->getPropertyAsInt(clientAlwaysBatch) > 0)
+		 _properties->getPropertyAsInt(clientAlwaysBatch) > 0),
+    _requestTraceLevel(_reverse ?
+		       _properties->getPropertyAsInt(serverTraceRequest) :
+		       _properties->getPropertyAsInt(clientTraceRequest))
 {
-    Int threadStackSize = reverse ?
-	_properties->getPropertyAsInt(serverThreadStackSize) :
-	_properties->getPropertyAsInt(clientThreadStackSize);
-
-    _requestQueue = new RequestQueue(communicator, reverse);
-    _requestQueue->start(static_cast<size_t>(threadStackSize));
+    if(!_unbuffered)
+    {
+	Int threadStackSize = _reverse ?
+	    _properties->getPropertyAsInt(serverThreadStackSize) :
+	    _properties->getPropertyAsInt(clientThreadStackSize);
+	
+	_requestQueue = new RequestQueue(_communicator, _reverse);
+	_requestQueue->start(static_cast<size_t>(threadStackSize));
+    }
 }
 
 Glacier2::Blobject::~Blobject()
@@ -41,43 +61,17 @@ Glacier2::Blobject::~Blobject()
 void
 Glacier2::Blobject::destroy()
 {
-    assert(_requestQueue); // Destroyed?
-    _requestQueue->destroy();
-    _requestQueue = 0;
+    if(_requestQueue)
+    {
+	_requestQueue->destroy();
+	_requestQueue = 0;
+    }
 }
-
-class Glacier2CB : public AMI_Object_ice_invoke
-{
-public:
-
-    Glacier2CB(const AMD_Object_ice_invokePtr& cb) :
-	_cb(cb)
-    {
-    }
-
-    virtual void
-    ice_response(bool ok, const vector<Byte>& outParams)
-    {
-	_cb->ice_response(ok, outParams);
-    }
-
-    virtual void
-    ice_exception(const Exception& ex)
-    {
-	_cb->ice_exception(ex);
-    }
-
-private:
-
-    AMD_Object_ice_invokePtr _cb;
-};
 
 void
 Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
-			  const Current& current)
+			   const Current& current)
 {
-    assert(_requestQueue); // Destroyed?
-
     //
     // Set the correct facet on the proxy.
     //
@@ -105,7 +99,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
 		
 		case 'o':
 		{
-		    if(_alwaysBatch)
+		    if(_alwaysBatch && !_unbuffered)
 		    {
 			proxy = proxy->ice_batchOneway();
 		    }
@@ -118,7 +112,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
 		
 		case 'd':
 		{
-		    if(_alwaysBatch)
+		    if(_alwaysBatch && !_unbuffered)
 		    {
 			proxy = proxy->ice_batchDatagram();
 		    }
@@ -131,13 +125,27 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
 		
 		case 'O':
 		{
-		    proxy = proxy->ice_batchOneway();
+		    if(!_unbuffered)
+		    {
+			proxy = proxy->ice_batchOneway();
+		    }
+		    else
+		    {
+			proxy = proxy->ice_oneway();
+		    }
 		    break;
 		}
 		
 		case 'D':
 		{
-		    proxy = proxy->ice_batchDatagram();
+		    if(!_unbuffered)
+		    {
+			proxy = proxy->ice_batchDatagram();
+		    }
+		    else
+		    {
+			proxy = proxy->ice_datagram();
+		    }
 		    break;
 		}
 		
@@ -163,18 +171,64 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
 	}
     }
     
-    //
-    // Create a new request and add it to the request queue.
-    //
-    if(proxy->ice_isTwoway())
+    if(_unbuffered)
     {
-	AMI_Object_ice_invokePtr amiCB = new Glacier2CB(amdCB);
-	_requestQueue->addRequest(new Request(proxy, inParams, current, amiCB));
+	//
+	// If we are in unbuffered mode, we sent the request directly.
+	//
+
+	if(_requestTraceLevel >= 1)
+	{
+	    Trace out(_logger, "Glacier2");
+	    if(_reverse)
+	    {
+		out << "reverse ";
+	    }
+	    out << "routing (unbuffered)";
+	    out << "\nproxy = " << _communicator->proxyToString(proxy);
+	    out << "\noperation = " << current.operation;
+	    out << "\ncontext = ";
+	    Context::const_iterator q = current.ctx.begin();
+	    while(q != current.ctx.end())
+	    {
+		out << q->first << '/' << q->second;
+		if(++q != current.ctx.end())
+		{
+		    out << ", ";
+		}
+	    }
+	}
+
+	bool ok;
+	vector<Byte> outParams;
+
+	try
+	{
+	    if(_forwardContext)
+	    {
+		ok = proxy->ice_invoke(current.operation, current.mode, inParams, outParams, current.ctx);
+	    }
+	    else
+	    {
+		ok = proxy->ice_invoke(current.operation, current.mode, inParams, outParams);
+	    }
+	}
+	catch(const LocalException& ex)
+	{
+	    amdCB->ice_exception(ex);
+	    return;
+	}
+	
+	amdCB->ice_response(ok, outParams);
     }
     else
-    {
-	vector<Byte> dummy;
-	amdCB->ice_response(true, dummy);
-	_requestQueue->addRequest(new Request(proxy, inParams, current, 0));
+    {    
+	//
+	// If we are not in unbuffered mode, we create a new request
+	// and add it to the request queue. If the request is twoway,
+	// we use AMI.
+	//
+
+	_requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, amdCB));
     }
 }

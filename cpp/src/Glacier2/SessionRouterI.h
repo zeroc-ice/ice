@@ -50,7 +50,7 @@ private:
 
     const Ice::PropertiesPtr _properties;
     const Ice::LoggerPtr _logger;
-    const int _traceLevel;
+    const int _sessionTraceLevel;
     const Ice::ObjectAdapterPtr _clientAdapter;
     const Ice::ObjectAdapterPtr _serverAdapter;
     const PermissionsVerifierPrx _verifier;

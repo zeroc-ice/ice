@@ -30,12 +30,17 @@ protected:
     void invoke(Ice::ObjectPrx&, const Ice::AMD_Object_ice_invokePtr&, const std::vector<Ice::Byte>&,
 		const Ice::Current&);
 
+    const Ice::CommunicatorPtr _communicator;
     const Ice::PropertiesPtr _properties;
     const Ice::LoggerPtr _logger;
 
 private:
 
+    const bool _reverse;
+    const bool _forwardContext;
+    const bool _unbuffered;
     const bool _alwaysBatch;
+    const int _requestTraceLevel;
     RequestQueuePtr _requestQueue;
 };
 
