@@ -72,7 +72,7 @@ private:
     {
     public:
 	
-	EventHandlerThread(ThreadPoolPtr pool) : _pool(pool) { }
+	EventHandlerThread(const ThreadPoolPtr& pool) : _pool(pool) { }
 	virtual void run();
 
     private:
