@@ -198,6 +198,7 @@ namespace Ice
 		string[] args = parseCommandLineOptions("Ice", options);
 		args = parseCommandLineOptions("Freeze", args);
 		args = parseCommandLineOptions("Glacier", args);
+		args = parseCommandLineOptions("Glacier2", args);
 		args = parseCommandLineOptions("IceBox", args);
 		args = parseCommandLineOptions("IcePack", args);
 		args = parseCommandLineOptions("IcePatch", args);
@@ -597,6 +598,28 @@ namespace Ice
 	    "Starter.Trace"
 	};
 	    
+	private static readonly string[] _glacier2Props = new string[]
+	{
+	    "Client.Endpoints",
+	    "Client.ForwardContext",
+	    "Client.SleepTime",
+	    "Client.Trace.Override",
+	    "Client.Trace.Reject",
+	    "Client.Trace.Request",
+	    "CryptPasswords",
+	    "PermissionsVerifier",
+	    "RouterIdentity",
+	    "Server.Endpoints",
+	    "Server.ForwardContext",
+	    "Server.SleepTime",
+	    "Server.Trace.Override",
+	    "Server.Trace.Request",
+	    "SessionManager",
+	    "SessionTimeout",
+	    "Trace.RoutingTable",
+	    "Trace.Session"
+	};
+	    
 	private static readonly string[] _freezeProps = new string[]
 	{
 	    "DbEnv.*",
@@ -615,6 +638,7 @@ namespace Ice
 		_vp = new Hashtable();
 		_vp["Freeze"] = Ice.PropertiesI._freezeProps;
 		_vp["Glacier"] = Ice.PropertiesI._glacierProps;
+		_vp["Glacier2"] = Ice.PropertiesI._glacier2Props;
 		_vp["IceBox"] = Ice.PropertiesI._iceBoxProps;
 		_vp["Ice"] = Ice.PropertiesI._iceProps;
 		_vp["IcePack"] = Ice.PropertiesI._icePackProps;

@@ -9,11 +9,10 @@
 
 using Test;
 
-sealed class CallbackI : Callback
+sealed class CallbackI : _CallbackDisp
 {
-    internal CallbackI(Ice.Communicator communicator)
+    internal CallbackI()
     {
-        _communicator = communicator;
     }
     
     public override void initiateCallback(CallbackReceiverPrx proxy, Ice.Current current)
@@ -28,8 +27,6 @@ sealed class CallbackI : Callback
     
     public override void shutdown(Ice.Current current)
     {
-        _communicator.shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
-    
-    private Ice.Communicator _communicator;
 }

@@ -19,7 +19,7 @@ exception CallbackException
     string someString;
 };
 
-class CallbackReceiver
+interface CallbackReceiver
 {
     void callback();
 
@@ -27,7 +27,7 @@ class CallbackReceiver
 	throws CallbackException;
 };
 
-class Callback
+interface Callback
 {
     void initiateCallback(CallbackReceiver* proxy);
 

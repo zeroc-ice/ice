@@ -197,6 +197,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
         String[] args = parseCommandLineOptions("Ice", options);
         args = parseCommandLineOptions("Freeze", args);
         args = parseCommandLineOptions("Glacier", args);
+        args = parseCommandLineOptions("Glacier2", args);
         args = parseCommandLineOptions("IceBox", args);
         args = parseCommandLineOptions("IcePack", args);
         args = parseCommandLineOptions("IcePatch", args);
@@ -589,6 +590,28 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"Starter.Trace"
     };
 
+    private static final String _glacier2Props[] =
+    {
+	"Client.Endpoints",
+	"Client.ForwardContext",
+	"Client.SleepTime",
+	"Client.Trace.Override",
+	"Client.Trace.Reject",
+	"Client.Trace.Request",
+	"CryptPasswords",
+	"PermissionsVerifier",
+	"RouterIdentity",
+	"Server.Endpoints",
+	"Server.ForwardContext",
+	"Server.SleepTime",
+	"Server.Trace.Override",
+	"Server.Trace.Request",
+	"SessionManager",
+	"SessionTimeout",
+	"Trace.RoutingTable",
+	"Trace.Session"
+    };
+
     private static final String _freezeProps[] =
     {
 	"DbEnv.*",
@@ -606,6 +629,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	{
 	    _validProps.put("Freeze", _freezeProps);
 	    _validProps.put("Glacier", _glacierProps);
+	    _validProps.put("Glacier2", _glacier2Props);
 	    _validProps.put("IceBox", _iceBoxProps);
 	    _validProps.put("Ice", _iceProps);
 	    _validProps.put("IcePack", _icePackProps);

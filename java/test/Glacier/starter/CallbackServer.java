@@ -17,7 +17,7 @@ class CallbackServer extends Ice.Application
 	communicator().getProperties().setProperty("CallbackAdapter.Endpoints", "tcp -p 12345 -t 10000");
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("CallbackAdapter");
         CallbackPrx self = CallbackPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("callback")));
-        adapter.add(new CallbackI(communicator()), Ice.Util.stringToIdentity("callback"));
+        adapter.add(new CallbackI(), Ice.Util.stringToIdentity("callback"));
         adapter.activate();
         communicator().waitForShutdown();
         return 0;

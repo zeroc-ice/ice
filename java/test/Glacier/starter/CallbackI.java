@@ -9,11 +9,10 @@
 
 import Test.*;
 
-final class CallbackI extends Callback
+final class CallbackI extends _CallbackDisp
 {
-    CallbackI(Ice.Communicator communicator)
+    CallbackI()
     {
-        _communicator = communicator;
     }
 
     public void
@@ -32,8 +31,6 @@ final class CallbackI extends Callback
     public void
     shutdown(Ice.Current current)
     {
-        _communicator.shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
-
-    private Ice.Communicator _communicator;
 }

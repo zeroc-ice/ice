@@ -9,7 +9,7 @@
 
 import Test.*;
 
-final class CallbackReceiverI extends CallbackReceiver
+final class CallbackReceiverI extends _CallbackReceiverDisp
 {
     CallbackReceiverI()
     {

@@ -11,7 +11,7 @@ using System.Diagnostics;
 using System.Threading;
 using Test;
 
-sealed class CallbackReceiverI:CallbackReceiver
+sealed class CallbackReceiverI : _CallbackReceiverDisp
 {
     internal CallbackReceiverI()
     {
