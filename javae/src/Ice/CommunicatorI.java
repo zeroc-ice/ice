@@ -144,26 +144,6 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
         _instance.logger(logger);
     }
 
-    public synchronized Stats
-    getStats()
-    {
-        if(_destroyed)
-        {
-            throw new CommunicatorDestroyedException();
-        }
-        return _instance.stats();
-    }
-
-    public synchronized void
-    setStats(Stats stats)
-    {
-        if(_destroyed)
-        {
-            throw new CommunicatorDestroyedException();
-        }
-        _instance.stats(stats);
-    }
-
     public synchronized RouterPrx
     getDefaultRouter()
     {

@@ -39,28 +39,6 @@ public class Instance
         _logger = logger;
     }
 
-    public synchronized Ice.Stats
-    stats()
-    {
-	if(_destroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
-
-        return _stats;
-    }
-
-    public synchronized void
-    stats(Ice.Stats stats)
-    {
-	if(_destroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
-
-        _stats = stats;
-    }
-
     public TraceLevels
     traceLevels()
     {
@@ -312,8 +290,6 @@ public class Instance
 					  _properties.getPropertyAsInt("Ice.Logger.Timestamp") > 0);
 	    }
 
-	    _stats = null; // There is no default statistics callback object.
-
             validatePackages();
 
             _traceLevels = new TraceLevels(_properties);
@@ -542,7 +518,6 @@ public class Instance
     private boolean _destroyed;
     private final Ice.Properties _properties; // Immutable, not reset by destroy().
     private Ice.Logger _logger; // Not reset by destroy().
-    private Ice.Stats _stats; // Not reset by destroy().
     private final TraceLevels _traceLevels; // Immutable, not reset by destroy().
     private final DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private final int _messageSizeMax; // Immutable, not reset by destroy().

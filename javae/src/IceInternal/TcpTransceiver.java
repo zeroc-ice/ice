@@ -174,11 +174,6 @@ final class TcpTransceiver implements Transceiver
 			String s = "sent " + ret + " of " + buf.limit() + " bytes via tcp\n" + toString();
 			_logger.trace(_traceLevels.networkCat, s);
 		    }
-
-                    if(_stats != null)
-                    {
-                        _stats.bytesSent(type(), ret);
-                    }
 		}
 		catch(java.io.InterruptedIOException ex)
 		{
@@ -279,11 +274,6 @@ final class TcpTransceiver implements Transceiver
                             String s = "received " + ret + " of " + remaining + " bytes via tcp\n" + toString();
                             _logger.trace(_traceLevels.networkCat, s);
                         }
-
-                        if(_stats != null)
-                        {
-                            _stats.bytesReceived(type(), ret);
-                        }
                     }
 		}
 		catch(java.io.InterruptedIOException ex)
@@ -341,7 +331,6 @@ final class TcpTransceiver implements Transceiver
         _fd = fd;
         _traceLevels = instance.traceLevels();
         _logger = instance.logger();
-        _stats = instance.stats();
         _desc = Network.fdToString(_fd);
     }
 
@@ -357,6 +346,5 @@ final class TcpTransceiver implements Transceiver
     private java.nio.channels.SocketChannel _fd;
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
-    private Ice.Stats _stats;
     private String _desc;
 }
