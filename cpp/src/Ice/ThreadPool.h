@@ -56,6 +56,7 @@ private:
     std::vector<int> _removes;
     std::map<int, EventHandlerPtr> _handlers;
     int _servers;
+    int _timeout;
     JTCMutex _threadMutex;
 
     class EventHandlerThread : public JTCThread

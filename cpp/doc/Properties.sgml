@@ -8,18 +8,23 @@ All Rights Reserved
 **********************************************************************
 -->
 
+<para>
+If not stated otherwise in the description of the individual
+properties, the default value for all properties is the empty
+string. If the property takes a numeric parameter as value, the empty
+string is interpreted as zero.
+</para>
+
 <!-- ********************************************************************** -->
 <section><title>Tracing</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.Trace.Network</title>
-
 <section><title>Synopsis</title>
 <synopsis>
 Ice.Trace.Network=<replaceable>num</replaceable>
 </synopsis>
 </section>
-
 <section>
 <title>Description</title>
 <para>
@@ -29,7 +34,7 @@ The network tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>no network tracing (default)</entry>
+<entry>no network tracing</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -48,17 +53,14 @@ The network tracing level:
 </informaltable>
 </para>
 </section>
-
 </section>
 
 <section><title>Ice.Trace.Protocol</title>
-
 <section><title>Synopsis</title>
 <synopsis>
 Ice.Trace.Protocol=<replaceable>num</replaceable>
 </synopsis>
 </section>
-
 <section>
 <title>Description</title>
 <para>
@@ -68,7 +70,7 @@ The protocol tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>no protocol tracing (default)</entry>
+<entry>no protocol tracing</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -79,17 +81,14 @@ The protocol tracing level:
 </informaltable>
 </para>
 </section>
-
 </section>
 
 <section><title>Ice.Trace.Retry</title>
-
 <section><title>Synopsis</title>
 <synopsis>
 Ice.Trace.Retry=<replaceable>num</replaceable>
 </synopsis>
 </section>
-
 <section>
 <title>Description</title>
 <para>
@@ -99,7 +98,7 @@ The request retry tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>no request retry tracing (default)</entry>
+<entry>no request retry tracing</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -114,7 +113,6 @@ The request retry tracing level:
 </informaltable>
 </para>
 </section>
-
 </section>
 
 </section>
@@ -130,16 +128,14 @@ The request retry tracing level:
 Ice.Adapter.<replaceable>name</replaceable>.Endpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
-
 <section>
 <title>Description</title>
 <para>
 Sets the endpoints for the object adapter
 <replaceable>name</replaceable> to
-<replaceable>enpoint_list</replaceable>.
+<replaceable>enpoints</replaceable>.
 </para>
 </section>
-
 </section>
 
 </section>
@@ -155,15 +151,13 @@ Sets the endpoints for the object adapter
 Ice.ThreadPool.Size=<replaceable>num</replaceable>
 </synopsis>
 </section>
-
 <section>
 <title>Description</title>
 <para>
 The number of threads in the thread pool. Default is 10.
-<replaceable>num</replaceable> must be equal to or larger than 1.
+<replaceable>num</replaceable> must be larger than zero.
 </para>
 </section>
-
 </section>
 
 </section>
@@ -172,14 +166,50 @@ The number of threads in the thread pool. Default is 10.
 <section><title>Miscellaneous</title>
 <!-- ********************************************************************** -->
 
-<section><title>Ice.ProgramName</title>
+<section><title>Ice.Daemon, Ice.DaemonNoClose, Ice.DaemonNoChdir</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Daemon=<replaceable>num</replaceable>
+Ice.DaemonNoClose=<replaceable>noclose</replaceable>
+Ice.DaemonNoChdir=<replaceable>nochdir</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the &Ice; process daeamonizes itself with the
+<literal>daemon</literal> system call. If
+<replaceable>noclose</replaceable> is set to a value larger than zero,
+standard input, output, and error output are not redirected to
+<literal>/dev/null</literal>. If <replaceable>nochdir</replaceable> is
+set to a value larger than zero, &Ice; doesn't change its working
+directory to the root directory. (Unix only.)
+</para>
+</section>
+</section>
 
+<section><title>Ice.PrintProcessId</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.PrintProcessId=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the process ID is printed on standard output upon startup.
+</para>
+</section>
+</section>
+
+<section><title>Ice.ProgramName</title>
 <section><title>Synopsis</title>
 <synopsis>
 Ice.ProgramName=<replaceable>name</replaceable>
 </synopsis>
 </section>
-
 <section>
 <title>Description</title>
 <para>
@@ -189,45 +219,43 @@ initialization. However, a different name can be used by overwriting
 this property.
 </para>
 </section>
-
 </section>
 
-<section><title>Ice.PrintProcessId</title>
-
+<section><title>Ice.ServerIdleTime</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.PrintProcessId=<replaceable>num</replaceable>
+Ice.ServerIdleTime=<replaceable>num</replaceable>
 </synopsis>
 </section>
-
 <section>
 <title>Description</title>
 <para>
-If <replaceable>num</replaceable> is set to a value larger or equal to
-1, the process ID is printed on standard output upon startup.
+If <replaceable>num</replaceable> is set to a value larger than zero,
+&Ice; will automatically call
+<literal>Communicator::shutdown</literal> after the Communicator has
+been idle for <replaceable>num</replaceable> seconds. This will shut
+down the Communicator's server side, and all threads waiting in
+<literal>Communicator::waitForShutdown</literal> will return. After
+that, a server will typically do some cleanup work, and then exit.
 </para>
 </section>
-
 </section>
 
 <section><title>Ice.UseSyslog</title>
-
 <section><title>Synopsis</title>
 <synopsis>
 Ice.UseSyslog=<replaceable>num</replaceable>
 </synopsis>
 </section>
-
 <section>
 <title>Description</title>
 <para>
-If <replaceable>num</replaceable> is set to a value larger or equal to
-1, a special logger is installed, which logs to the syslog facility
+If <replaceable>num</replaceable> is set to a value larger than zero,
+a special logger is installed, which logs to the syslog facility
 instead of to standard error output. The identfier for syslog is the
 value of <literal>Ice.ProgramName</literal>. (Unix only.)
 </para>
 </section>
-
 </section>
 
 </section>

@@ -13,6 +13,7 @@
 #include <Ice/Network.h>
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
+#include <Ice/Communicator.h>
 #include <Ice/Properties.h>
 #include <Ice/Functional.h>
 
@@ -101,7 +102,8 @@ IceInternal::ThreadPool::joinWithAllThreads()
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
     _instance(instance),
     _lastFd(-1),
-    _servers(0)
+    _servers(0),
+    _timeout(0)
 {
     int fds[2];
     createPipe(fds);
@@ -138,6 +140,8 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
 	destroy();
 	throw;
     }
+
+    _timeout = atoi(_instance->properties()->getProperty("Ice.ServerIdleTime").c_str());
 }
 
 IceInternal::ThreadPool::~ThreadPool()
@@ -193,7 +197,28 @@ IceInternal::ThreadPool::run()
     repeatSelect:
 	fd_set fdSet;
 	memcpy(&fdSet, &_fdSet, sizeof(fd_set));
-	if (::select(_maxFd + 1, &fdSet, 0, 0, 0) == SOCKET_ERROR)
+	int ret;
+	if (_timeout)
+	{
+	    struct timeval tv;
+	    tv.tv_sec = _timeout;
+	    tv.tv_usec = 0;
+	    ret = ::select(_maxFd + 1, &fdSet, 0, 0, &tv);
+	}
+	else
+	{
+	    ret = ::select(_maxFd + 1, &fdSet, 0, 0, 0);
+	}
+
+	if (ret == 0) // Timeout
+	{
+	    assert(_timeout);
+	    _timeout = 0;
+	    _instance->communicator()->shutdown();
+	    goto repeatSelect;
+	}
+	
+	if (ret == SOCKET_ERROR)
 	{
 	    if (interrupted())
 	    {
@@ -203,7 +228,7 @@ IceInternal::ThreadPool::run()
 	    _threadMutex.unlock();
 	    throw SocketException(__FILE__, __LINE__);
 	}
-	
+
 	{
 	    JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
 

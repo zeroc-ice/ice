@@ -150,6 +150,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     {
 	string value;
 
+	// Must be done before "Ice.Daemon" is checked
 	value = properties->getProperty("Ice.PrintProcessId");
 	if (atoi(value.c_str()) >= 1)
 	{
@@ -160,6 +161,28 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 #endif
 	}
 
+#ifndef WIN32
+	value = properties->getProperty("Ice.Daemon");
+	if (atoi(value.c_str()) >= 1)
+	{
+	    value = properties->getProperty("Ice.DaemonNoClose");
+	    int noclose = atoi(value.c_str());
+
+	    value = properties->getProperty("Ice.DaemonNoChdir");
+	    int nochdir = atoi(value.c_str());
+
+	    if (daemon(nochdir, noclose) == -1)
+	    {
+		--_globalStateCounter;
+		if (_globalStateMutex != 0)
+		{
+		    _globalStateMutex->unlock();
+		}
+		throw SystemException(__FILE__, __LINE__);
+	    }
+	}
+#endif
+	
 #ifndef WIN32
 	value = properties->getProperty("Ice.UseSyslog");
 	if (atoi(value.c_str()) >= 1)
