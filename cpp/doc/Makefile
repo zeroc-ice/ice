@@ -42,7 +42,7 @@ manual/index.html: $(SGMLFILES)
 	db2html manual.sgml
 	(mkdir -p manual/stylesheet-images; \
 	 cd manual/stylesheet-images; \
-	 ln -s ../../images/*.gif .)
+	 ln -f -s ../../images/*.gif .)
 
 manual.pdf: $(SGMLFILES)
 	rm -rf manual.pdf

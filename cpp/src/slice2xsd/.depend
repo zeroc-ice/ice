@@ -1,0 +1,2 @@
+Gen.o: Gen.cpp ../../include/IceUtil/Functional.h ../../include/IceUtil/Handle.h ../../include/IceUtil/Exception.h ../../include/IceUtil/Config.h ../../include/Slice/CPlusPlusUtil.h ../../include/Slice/Parser.h ../../include/IceUtil/Shared.h ../../include/Slice/OutputUtil.h Gen.h
+Main.o: Main.cpp Gen.h ../../include/Slice/Parser.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Handle.h ../../include/IceUtil/Exception.h ../../include/Slice/OutputUtil.h

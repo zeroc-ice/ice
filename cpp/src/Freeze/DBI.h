@@ -28,7 +28,7 @@ void checkBerkeleyDBReturn(int ret, const std::string&, const std::string&);
 class DBEnvironmentI;
 typedef IceUtil::Handle<DBEnvironmentI> DBEnvironmentIPtr;
 
-    class DBEnvironmentI : public DBEnvironment, public IceUtil::RecMutex
+class DBEnvironmentI : public DBEnvironment, public IceUtil::RecMutex
 {
 public:
 
