@@ -172,8 +172,8 @@ Slice::JavaVisitor::writeDelegateThrowsClause(const string& scope,
 }
 
 void
-Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type,
-                                  const string& name, int& iter)
+Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type, const string& name, int& iter,
+                                  const list<string>& metaData)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if (builtin)
@@ -251,14 +251,28 @@ Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type,
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if (seq)
     {
-        out << nl << "for (int __i" << iter << " = 0; __i" << iter
-            << " < " << name << ".length; __i" << iter << "++)";
-        out << sb;
-        ostringstream elem;
-        elem << name << "[__i" << iter << ']';
-        iter++;
-        writeHashCode(out, seq->type(), elem.str(), iter);
-        out << eb;
+        string listType = findMetaData(metaData);
+        if (listType.empty())
+        {
+            list<string> l = seq->getMetaData();
+            listType = findMetaData(l);
+        }
+
+        if (!listType.empty())
+        {
+            out << nl << "__h = 5 * __h + " << name << ".hashCode();";
+        }
+        else
+        {
+            out << nl << "for (int __i" << iter << " = 0; __i" << iter
+                << " < " << name << ".length; __i" << iter << "++)";
+            out << sb;
+            ostringstream elem;
+            elem << name << "[__i" << iter << ']';
+            iter++;
+            writeHashCode(out, seq->type(), elem.str(), iter);
+            out << eb;
+        }
         return;
     }
 
@@ -1030,7 +1044,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 for (d = members.begin(); d != members.end(); ++d)
                 {
                     string memberName = fixKwd((*d)->name());
-                    writeHashCode(out, (*d)->type(), memberName, iter);
+                    list<string> metaData = (*d)->getMetaData();
+                    writeHashCode(out, (*d)->type(), memberName, iter, metaData);
                 }
                 if (baseHasDataMembers)
                 {
@@ -1088,7 +1103,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         iter = 0;
         for (d = members.begin(); d != members.end(); ++d)
         {
-            writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), true, iter, false);
+            list<string> metaData = (*d)->getMetaData();
+            writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), true, iter, false, metaData);
         }
         out << nl << "super.__write(__os);";
         out << eb;
@@ -1102,7 +1118,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         iter = 0;
         for (d = members.begin(); d != members.end(); ++d)
         {
-            writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), false, iter, false);
+            list<string> metaData = (*d)->getMetaData();
+            writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData);
         }
         out << nl << "super.__read(__is);";
         out << eb;
@@ -1117,7 +1134,9 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         for (d = members.begin(); d != members.end(); ++d)
         {
             string s = (*d)->name();
-            writeGenericMarshalUnmarshalCode(out, scope, (*d)->type(), "\"" + s + "\"", fixKwd(s), true, iter, false);
+            list<string> metaData = (*d)->getMetaData();
+            writeGenericMarshalUnmarshalCode(out, scope, (*d)->type(), "\"" + s + "\"", fixKwd(s), true, iter, false,
+                                             metaData);
         }
         out << eb;
 
@@ -1131,7 +1150,9 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         for (d = members.begin(); d != members.end(); ++d)
         {
             string s = (*d)->name();
-            writeGenericMarshalUnmarshalCode(out, scope, (*d)->type(), "\"" + s + "\"", fixKwd(s), false, iter, false);
+            list<string> metaData = (*d)->getMetaData();
+            writeGenericMarshalUnmarshalCode(out, scope, (*d)->type(), "\"" + s + "\"", fixKwd(s), false, iter, false,
+                                             metaData);
         }
         out << eb;
 
@@ -1256,8 +1277,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         iter = 0;
         for (d = members.begin(); d != members.end(); ++d)
         {
-            writeMarshalUnmarshalCode(out, scope, (*d)->type(),
-                                      fixKwd((*d)->name()), true, iter, false);
+            list<string> metaData = (*d)->getMetaData();
+            writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), true, iter, false, metaData);
         }
         if (base)
         {
@@ -1274,9 +1295,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         iter = 0;
         for (d = members.begin(); d != members.end(); ++d)
         {
-            writeMarshalUnmarshalCode(out, scope, (*d)->type(),
-                                      fixKwd((*d)->name()), false, iter,
-                                      false);
+            list<string> metaData = (*d)->getMetaData();
+            writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData);
         }
         if (base)
         {
@@ -1298,7 +1318,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         for (d = members.begin(); d != members.end(); ++d)
         {
             string s = (*d)->name();
-            writeGenericMarshalUnmarshalCode(out, scope, (*d)->type(), "\"" + s + "\"", fixKwd(s), true, iter, false);
+            list<string> metaData = (*d)->getMetaData();
+            writeGenericMarshalUnmarshalCode(out, scope, (*d)->type(), "\"" + s + "\"", fixKwd(s), true, iter, false,
+                                             metaData);
         }
         out << eb;
 
@@ -1316,7 +1338,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         for (d = members.begin(); d != members.end(); ++d)
         {
             string s = (*d)->name();
-            writeGenericMarshalUnmarshalCode(out, scope, (*d)->type(), "\"" + s + "\"", fixKwd(s), false, iter, false);
+            list<string> metaData = (*d)->getMetaData();
+            writeGenericMarshalUnmarshalCode(out, scope, (*d)->type(), "\"" + s + "\"", fixKwd(s), false, iter, false,
+                                             metaData);
         }
         out << eb;
 
@@ -1402,8 +1426,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                     case Builtin::KindFloat:
                     case Builtin::KindDouble:
                     {
-                        out << nl << "if (" << memberName << " != _r."
-                            << memberName << ")";
+                        out << nl << "if (" << memberName << " != _r." << memberName << ")";
                         out << sb;
                         out << nl << "return false;";
                         out << eb;
@@ -1415,8 +1438,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                     case Builtin::KindObjectProxy:
                     case Builtin::KindLocalObject:
                     {
-                        out << nl << "if (!" << memberName << ".equals(_r."
-                            << memberName << "))";
+                        out << nl << "if (!" << memberName << ".equals(_r." << memberName << "))";
                         out << sb;
                         out << nl << "return false;";
                         out << eb;
@@ -1426,8 +1448,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             }
             else
             {
-                out << nl << "if (!" << memberName << ".equals(_r."
-                    << memberName << "))";
+                out << nl << "if (!" << memberName << ".equals(_r." << memberName << "))";
                 out << sb;
                 out << nl << "return false;";
                 out << eb;
@@ -1449,7 +1470,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         for (d = members.begin(); d != members.end(); ++d)
         {
             string memberName = fixKwd((*d)->name());
-            writeHashCode(out, (*d)->type(), memberName, iter);
+            list<string> metaData = (*d)->getMetaData();
+            writeHashCode(out, (*d)->type(), memberName, iter, metaData);
         }
         out << nl << "return __h;";
         out << eb;
@@ -1465,8 +1487,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         iter = 0;
         for (d = members.begin(); d != members.end(); ++d)
         {
-            writeMarshalUnmarshalCode(out, scope, (*d)->type(),
-                                      fixKwd((*d)->name()), true, iter, false);
+            list<string> metaData = (*d)->getMetaData();
+            writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), true, iter, false, metaData);
         }
         out << eb;
 
@@ -1478,9 +1500,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         iter = 0;
         for (d = members.begin(); d != members.end(); ++d)
         {
-            writeMarshalUnmarshalCode(out, scope, (*d)->type(),
-                                      fixKwd((*d)->name()), false, iter,
-                                      false);
+            list<string> metaData = (*d)->getMetaData();
+            writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData);
         }
         out << eb;
 
@@ -1495,7 +1516,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         for (d = members.begin(); d != members.end(); ++d)
         {
             string s = (*d)->name();
-            writeGenericMarshalUnmarshalCode(out, scope, (*d)->type(), "\"" + s + "\"", fixKwd(s), true, iter, false);
+            list<string> metaData = (*d)->getMetaData();
+            writeGenericMarshalUnmarshalCode(out, scope, (*d)->type(), "\"" + s + "\"", fixKwd(s), true, iter, false,
+                                             metaData);
         }
         out << nl << "__os.endWriteStruct();";
         out << eb;
@@ -1511,7 +1534,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         for (d = members.begin(); d != members.end(); ++d)
         {
             string s = (*d)->name();
-            writeGenericMarshalUnmarshalCode(out, scope, (*d)->type(), "\"" + s + "\"", fixKwd(s), false, iter, false);
+            list<string> metaData = (*d)->getMetaData();
+            writeGenericMarshalUnmarshalCode(out, scope, (*d)->type(), "\"" + s + "\"", fixKwd(s), false, iter, false,
+                                             metaData);
         }
         out << nl << "__is.endReadStruct();";
         out << eb;
@@ -1527,7 +1552,8 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     string name = fixKwd(p->name());
     ContainerPtr container = p->container();
     ContainedPtr contained = ContainedPtr::dynamicCast(container);
-    string s = typeToString(p->type(), TypeModeMember, contained->scope());
+    list<string> metaData = p->getMetaData();
+    string s = typeToString(p->type(), TypeModeMember, contained->scope(), metaData);
     Output& out = output();
     out << sp << nl << "public " << s << ' ' << name << ';';
 }
@@ -2060,40 +2086,12 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 void
 Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
-    static const char* builtinTable[] =
-    {
-        "Byte",
-        "Bool",
-        "Short",
-        "Int",
-        "Long",
-        "Float",
-        "Double",
-        "String",
-        "???", // Ice.Object
-        "???", // Ice.ObjectPrx
-        "???" // Ice.LocalObject
-    };
-
     //
     // Don't generate helper for a sequence of a local type
     //
     if (p->isLocal())
     {
         return;
-    }
-
-    //
-    // Determine sequence depth
-    //
-    int depth = 0;
-    TypePtr origContent = p->type();
-    SequencePtr s = SequencePtr::dynamicCast(origContent);
-    while (s)
-    {
-        depth++;
-        origContent = s->type();
-        s = SequencePtr::dynamicCast(origContent);
     }
 
     string name = fixKwd(p->name());
@@ -2105,11 +2103,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     if (open(helper))
     {
         Output& out = output();
-        int iter, d;
-
-        BuiltinPtr b = BuiltinPtr::dynamicCast(p->type());
-
-        string origContentS = typeToString(origContent, TypeModeIn, scope);
+        int iter;
 
         out << sp << nl << "public final class " << name << "Helper";
         out << sb;
@@ -2118,22 +2112,10 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         // write
         //
         out << nl << "public static void"
-            << nl << "write(IceInternal.BasicStream __os, " << typeS
-            << " __v)";
+            << nl << "write(IceInternal.BasicStream __os, " << typeS << " __v)";
         out << sb;
-        if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy)
-        {
-            out << nl << "__os.write" << builtinTable[b->kind()] << "Seq(__v);";
-        }
-        else
-        {
-            out << nl << "__os.writeSize(__v.length);";
-            out << nl << "for (int __i = 0; __i < __v.length; __i++)";
-            out << sb;
-            iter = 0;
-            writeMarshalUnmarshalCode(out, scope, p->type(), "__v[__i]", true, iter, false);
-            out << eb;
-        }
+        iter = 0;
+        writeSequenceMarshalUnmarshalCode(out, scope, p, "__v", true, iter, false);
         out << eb;
 
         //
@@ -2142,51 +2124,20 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         out << sp << nl << "public static " << typeS
             << nl << "read(IceInternal.BasicStream __is)";
         out << sb;
-        if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy)
-        {
-            out << nl << "return __is.read" << builtinTable[b->kind()] << "Seq();";
-        }
-        else
-        {
-            out << nl << "int __len = __is.readSize();";
-            out << nl << typeS << " __v = new " << origContentS << "[__len]";
-            d = depth;
-            while (d--)
-            {
-                out << "[]";
-            }
-            out << ';';
-            out << nl << "for (int __i = 0; __i < __len; __i++)";
-            out << sb;
-            iter = 0;
-            writeMarshalUnmarshalCode(out, scope, p->type(), "__v[__i]", false,
-                                      iter, false);
-            out << eb;
-            out << nl << "return __v;";
-        }
+        out << nl << typeS << " __v;";
+        iter = 0;
+        writeSequenceMarshalUnmarshalCode(out, scope, p, "__v", false, iter, false);
+        out << nl << "return __v;";
         out << eb;
 
         //
         // ice_marshal
         //
         out << sp << nl << "public static void"
-            << nl << "ice_marshal(String __name, Ice.Stream __os, " << typeS
-            << " __v)";
+            << nl << "ice_marshal(String __name, Ice.Stream __os, " << typeS << " __v)";
         out << sb;
-        if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy)
-        {
-            out << nl << "__os.write" << builtinTable[b->kind()] << "Seq(__name, __v);";
-        }
-        else
-        {
-            out << nl << "__os.startWriteSequence(__name, __v.length);";
-            out << nl << "for (int __i = 0; __i < __v.length; __i++)";
-            out << sb;
-            iter = 0;
-            writeGenericMarshalUnmarshalCode(out, scope, p->type(), "\"e\"", "__v[__i]", true, iter, false);
-            out << eb;
-            out << nl << "__os.endWriteSequence();";
-        }
+        iter = 0;
+        writeGenericSequenceMarshalUnmarshalCode(out, scope, p, "__name", "__v", true, iter, false);
         out << eb;
 
         //
@@ -2195,28 +2146,10 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         out << sp << nl << "public static " << typeS
             << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
         out << sb;
-        if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy)
-        {
-            out << nl << "return __is.read" << builtinTable[b->kind()] << "Seq(__name);";
-        }
-        else
-        {
-            out << nl << "int __len = __is.startReadSequence(__name);";
-            out << nl << typeS << " __v = new " << origContentS << "[__len]";
-            d = depth;
-            while (d--)
-            {
-                out << "[]";
-            }
-            out << ';';
-            out << nl << "for (int __i = 0; __i < __len; __i++)";
-            out << sb;
-            iter = 0;
-            writeGenericMarshalUnmarshalCode(out, scope, p->type(), "\"e\"", "__v[__i]", false, iter, false);
-            out << eb;
-            out << nl << "__is.endReadSequence();";
-            out << nl << "return __v;";
-        }
+        out << nl << typeS << " __v;";
+        iter = 0;
+        writeGenericSequenceMarshalUnmarshalCode(out, scope, p, "__name", "__v", false, iter, false);
+        out << nl << "return __v;";
         out << eb;
 
         out << eb;

@@ -275,7 +275,8 @@ Slice::JavaGenerator::getAbsolute(const string& scoped,
 string
 Slice::JavaGenerator::typeToString(const TypePtr& type,
                                    TypeMode mode,
-                                   const string& scope) const
+                                   const string& scope,
+                                   const list<string>& metaData) const
 {
     static const char* builtinTable[] =
     {
@@ -369,8 +370,21 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         }
         else
         {
-            TypePtr content = seq->type();
-            return typeToString(content, mode, scope) + "[]";
+            string listType = findMetaData(metaData);
+            if (listType.empty())
+            {
+                list<string> l = seq->getMetaData();
+                listType = findMetaData(l);
+            }
+            if (!listType.empty())
+            {
+                return listType;
+            }
+            else
+            {
+                TypePtr content = seq->type();
+                return typeToString(content, mode, scope) + "[]";
+            }
         }
     }
 
@@ -397,7 +411,8 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                                                 const string& param,
                                                 bool marshal,
                                                 int& iter,
-                                                bool holder)
+                                                bool holder,
+                                                const list<string>& metaData)
 {
     string stream = marshal ? "__os" : "__is";
     string v;
@@ -617,8 +632,320 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if (seq)
     {
+        writeSequenceMarshalUnmarshalCode(out, scope, seq, v, marshal, iter, true, metaData);
+        return;
+    }
+
+    ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
+    assert(constructed);
+    string typeS = getAbsolute(constructed->scoped(), scope);
+    if (marshal)
+    {
+        out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
+    }
+    else
+    {
+        out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
+    }
+}
+
+void
+Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
+                                                        const string& scope,
+                                                        const SequencePtr& seq,
+                                                        const string& param,
+                                                        bool marshal,
+                                                        int& iter,
+                                                        bool useHelper,
+                                                        const list<string>& metaData)
+{
+    string stream = marshal ? "__os" : "__is";
+    string v = param;
+
+    //
+    // Check for metadata that overrides the default sequence
+    // mapping. If no metadata is found, we use a regular Java
+    // array. If metadata is found, the value of the metadata
+    // must be the name of a class which implements the
+    // java.util.List interface.
+    //
+    // There are two sources of metadata - that passed into
+    // this function (which most likely comes from a data
+    // member definition), and that associated with the type
+    // itself. If data member metadata is found, and does
+    // not match the type's metadata, then we cannot use
+    // the type's Helper class for marshalling - we must
+    // generate marshalling code inline.
+    //
+    string listType = findMetaData(metaData);
+    list<string> typeMetaData = seq->getMetaData();
+    if (listType.empty())
+    {
+        listType = findMetaData(typeMetaData);
+    }
+    else
+    {
+        string s = findMetaData(typeMetaData);
+        if (listType != s)
+        {
+            useHelper = false;
+        }
+    }
+
+    //
+    // If we can use the sequence's helper, it's easy.
+    //
+    if (useHelper)
+    {
+        string typeS = getAbsolute(seq->scoped(), scope);
+        if (marshal)
+        {
+            out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
+        }
+        else
+        {
+            out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
+        }
+        return;
+    }
+
+    //
+    // Determine sequence depth
+    //
+    int depth = 0;
+    TypePtr origContent = seq->type();
+    SequencePtr s = SequencePtr::dynamicCast(origContent);
+    while (s)
+    {
+        depth++;
+        origContent = s->type();
+        s = SequencePtr::dynamicCast(origContent);
+    }
+    string origContentS = typeToString(origContent, TypeModeIn, scope);
+
+    if (!listType.empty())
+    {
         BuiltinPtr b = BuiltinPtr::dynamicCast(seq->type());
-        if (b)
+        if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy)
+        {
+            if (marshal)
+            {
+                out << nl << stream << ".writeSize(" << v << ".size());";
+                ostringstream o;
+                o << "__i" << iter;
+                string it = o.str();
+                iter++;
+                out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
+                out << nl << "while (" << it << ".hasNext())";
+                out << sb;
+
+                switch (b->kind())
+                {
+                    case Builtin::KindByte:
+                    {
+                        out << nl << "java.lang.Byte __elem = (java.lang.Byte)" << it << ".next();";
+                        out << nl << stream << ".writeByte(__elem.byteValue());";
+                        break;
+                    }
+                    case Builtin::KindBool:
+                    {
+                        out << nl << "java.lang.Boolean __elem = (java.lang.Boolean)" << it << ".next();";
+                        out << nl << stream << ".writeBool(__elem.booleanValue());";
+                        break;
+                    }
+                    case Builtin::KindShort:
+                    {
+                        out << nl << "java.lang.Short __elem = (java.lang.Short)" << it << ".next();";
+                        out << nl << stream << ".writeShort(__elem.shortValue());";
+                        break;
+                    }
+                    case Builtin::KindInt:
+                    {
+                        out << nl << "java.lang.Integer __elem = (java.lang.Integer)" << it << ".next();";
+                        out << nl << stream << ".writeInt(__elem.intValue());";
+                        break;
+                    }
+                    case Builtin::KindLong:
+                    {
+                        out << nl << "java.lang.Long __elem = (java.lang.Long)" << it << ".next();";
+                        out << nl << stream << ".writeLong(__elem.longValue());";
+                        break;
+                    }
+                    case Builtin::KindFloat:
+                    {
+                        out << nl << "java.lang.Float __elem = (java.lang.Float)" << it << ".next();";
+                        out << nl << stream << ".writeFloat(__elem.floatValue());";
+                        break;
+                    }
+                    case Builtin::KindDouble:
+                    {
+                        out << nl << "java.lang.Double __elem = (java.lang.Double)" << it << ".next();";
+                        out << nl << stream << ".writeDouble(__elem.doubleValue());";
+                        break;
+                    }
+                    case Builtin::KindString:
+                    {
+                        out << nl << "java.lang.String __elem = (java.lang.String)" << it << ".next();";
+                        out << nl << stream << ".writeString(__elem);";
+                        break;
+                    }
+                    case Builtin::KindObject:
+                    case Builtin::KindObjectProxy:
+                    case Builtin::KindLocalObject:
+                    {
+                        assert(false);
+                        break;
+                    }
+                }
+                out << eb; // while
+            }
+            else
+            {
+                out << nl << v << " = new " << listType << "();";
+                ostringstream o;
+                o << origContentS << "[]";
+                int d = depth;
+                while (d--)
+                {
+                    o << "[]";
+                }
+                switch (b->kind())
+                {
+                    case Builtin::KindByte:
+                    {
+                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readByteSeq();";
+                        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
+                            << ".length; __i" << iter << "++)";
+                        out << sb;
+                        out << nl << v << ".add(new java.lang.Byte(__seq" << iter << "[__i" << iter << "]));";
+                        out << eb;
+                        iter++;
+                        break;
+                    }
+                    case Builtin::KindBool:
+                    {
+                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readByteSeq();";
+                        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
+                            << ".length; __i" << iter << "++)";
+                        out << sb;
+                        out << nl << v << ".add(__seq" << iter << "[__i" << iter
+                            << "] ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE);";
+                        out << eb;
+                        iter++;
+                        break;
+                    }
+                    case Builtin::KindShort:
+                    {
+                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readShortSeq();";
+                        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
+                            << ".length; __i" << iter << "++)";
+                        out << sb;
+                        out << nl << v << ".add(new java.lang.Short(__seq" << iter << "[__i" << iter << "]));";
+                        out << eb;
+                        iter++;
+                        break;
+                    }
+                    case Builtin::KindInt:
+                    {
+                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readIntSeq();";
+                        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
+                            << ".length; __i" << iter << "++)";
+                        out << sb;
+                        out << nl << v << ".add(new java.lang.Integer(__seq" << iter << "[__i" << iter << "]));";
+                        out << eb;
+                        iter++;
+                        break;
+                    }
+                    case Builtin::KindLong:
+                    {
+                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readLongSeq();";
+                        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
+                            << ".length; __i" << iter << "++)";
+                        out << sb;
+                        out << nl << v << ".add(new java.lang.Long(__seq" << iter << "[__i" << iter << "]));";
+                        out << eb;
+                        iter++;
+                        break;
+                    }
+                    case Builtin::KindFloat:
+                    {
+                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readFloatSeq();";
+                        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
+                            << ".length; __i" << iter << "++)";
+                        out << sb;
+                        out << nl << v << ".add(new java.lang.Float(__seq" << iter << "[__i" << iter << "]));";
+                        out << eb;
+                        iter++;
+                        break;
+                    }
+                    case Builtin::KindDouble:
+                    {
+                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readDoubleSeq();";
+                        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
+                            << ".length; __i" << iter << "++)";
+                        out << sb;
+                        out << nl << v << ".add(new java.lang.Double(__seq" << iter << "[__i" << iter << "]));";
+                        out << eb;
+                        iter++;
+                        break;
+                    }
+                    case Builtin::KindString:
+                    {
+                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readStringSeq();";
+                        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
+                            << ".length; __i" << iter << "++)";
+                        out << sb;
+                        out << nl << v << ".add(__seq" << iter << "[__i" << iter << "]);";
+                        out << eb;
+                        iter++;
+                        break;
+                    }
+                    case Builtin::KindObject:
+                    case Builtin::KindObjectProxy:
+                    case Builtin::KindLocalObject:
+                    {
+                        assert(false);
+                        break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            string typeS = getAbsolute(seq->scoped(), scope);
+            if (marshal)
+            {
+                out << nl << stream << ".writeSize(" << v << ".size());";
+                ostringstream o;
+                o << "__i" << iter;
+                iter++;
+                string it = o.str();
+                out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
+                out << nl << "while (" << it << ".hasNext())";
+                out << sb;
+                out << nl << origContentS << " __elem = (" << origContentS << ")" << it << ".next();";
+                writeMarshalUnmarshalCode(out, scope, seq->type(), "__elem", true, iter, false);
+                out << eb;
+            }
+            else
+            {
+                out << nl << v << " = new " << listType << "();";
+                out << nl << "int __len" << iter << " = " << stream << ".readSize();";
+                out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __len" << iter << "; __i" << iter
+                    << "++);";
+                out << sb;
+                out << nl << origContentS << " __elem;";
+                iter++;
+                writeMarshalUnmarshalCode(out, scope, seq->type(), "__elem", false, iter, false);
+                out << nl << v << ".add(__elem);";
+                out << eb;
+            }
+        }
+    }
+    else
+    {
+        BuiltinPtr b = BuiltinPtr::dynamicCast(seq->type());
+        if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy)
         {
             switch (b->kind())
             {
@@ -720,18 +1047,6 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
-                {
-                    string typeS = getAbsolute(seq->scoped(), scope);
-                    if (marshal)
-                    {
-                        out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
-                    }
-                    else
-                    {
-                        out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
-                    }
-                    break;
-                }
                 case Builtin::KindLocalObject:
                 {
                     assert(false);
@@ -741,31 +1056,38 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         }
         else
         {
-            ContainedPtr cont = ContainedPtr::dynamicCast(type);
-            assert(cont);
-            string typeS = getAbsolute(cont->scoped(), scope);
             if (marshal)
             {
-                out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
+                out << nl << stream << ".writeSize(" << v << ".length);";
+                out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < " << v << ".length; __i" << iter
+                    << "++)";
+                out << sb;
+                ostringstream o;
+                o << v << "[__i" << iter << "]";
+                iter++;
+                writeMarshalUnmarshalCode(out, scope, seq->type(), o.str(), true, iter, false);
+                out << eb;
             }
             else
             {
-                out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
+                out << nl << "int __len" << iter << " = " << stream << ".readSize();";
+                out << nl << v << " = new " << origContentS << "[__len" << iter << "]";
+                int d = depth;
+                while (d--)
+                {
+                    out << "[]";
+                }
+                out << ';';
+                out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __len" << iter << "; __i" << iter
+                    << "++)";
+                out << sb;
+                ostringstream o;
+                o << v << "[__i" << iter << "]";
+                iter++;
+                writeMarshalUnmarshalCode(out, scope, seq->type(), o.str(), false, iter, false);
+                out << eb;
             }
         }
-        return;
-    }
-
-    ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
-    assert(constructed);
-    string typeS = getAbsolute(constructed->scoped(), scope);
-    if (marshal)
-    {
-        out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
-    }
-    else
-    {
-        out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
     }
 }
 
@@ -777,7 +1099,8 @@ Slice::JavaGenerator::writeGenericMarshalUnmarshalCode(Output& out,
                                                        const string& param,
                                                        bool marshal,
                                                        int& iter,
-                                                       bool holder)
+                                                       bool holder,
+                                                       const list<string>& metaData)
 {
     string stream = marshal ? "__os" : "__is";
     string v;
@@ -1007,8 +1330,325 @@ Slice::JavaGenerator::writeGenericMarshalUnmarshalCode(Output& out,
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if (seq)
     {
+        writeGenericSequenceMarshalUnmarshalCode(out, scope, seq, name, v, marshal, iter, true, metaData);
+        return;
+    }
+
+    ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
+    assert(constructed);
+    string typeS = getAbsolute(constructed->scoped(), scope);
+    if (marshal)
+    {
+        out << nl << typeS << "Helper.ice_marshal(" << name << ", " << stream << ", " << v << ");";
+    }
+    else
+    {
+        out << nl << v << " = " << typeS << "Helper.ice_unmarshal(" << name << ", " << stream << ");";
+    }
+}
+
+void
+Slice::JavaGenerator::writeGenericSequenceMarshalUnmarshalCode(Output& out,
+                                                               const string& scope,
+                                                               const SequencePtr& seq,
+                                                               const string& name,
+                                                               const string& param,
+                                                               bool marshal,
+                                                               int& iter,
+                                                               bool useHelper,
+                                                               const list<string>& metaData)
+{
+    string stream = marshal ? "__os" : "__is";
+    string v = param;
+
+    //
+    // Check for metadata that overrides the default sequence
+    // mapping. If no metadata is found, we use a regular Java
+    // array. If metadata is found, the value of the metadata
+    // must be the name of a class which implements the
+    // java.util.List interface.
+    //
+    // There are two sources of metadata - that passed into
+    // this function (which most likely comes from a data
+    // member definition), and that associated with the type
+    // itself. If data member metadata is found, and does
+    // not match the type's metadata, then we cannot use
+    // the type's Helper class for marshalling - we must
+    // generate marshalling code inline.
+    //
+    string listType = findMetaData(metaData);
+    list<string> typeMetaData = seq->getMetaData();
+    if (listType.empty())
+    {
+        listType = findMetaData(typeMetaData);
+    }
+    else
+    {
+        string s = findMetaData(typeMetaData);
+        if (listType != s)
+        {
+            useHelper = false;
+        }
+    }
+
+    //
+    // If we can use the sequence's helper, it's easy.
+    //
+    if (useHelper)
+    {
+        string typeS = getAbsolute(seq->scoped(), scope);
+        if (marshal)
+        {
+            out << nl << typeS << "Helper.ice_marshal(" << name << ", " << stream << ", " << v << ");";
+        }
+        else
+        {
+            out << nl << v << " = " << typeS << "Helper.ice_unmarshal(" << name << ", " << stream << ");";
+        }
+        return;
+    }
+
+    //
+    // Determine sequence depth
+    //
+    int depth = 0;
+    TypePtr origContent = seq->type();
+    SequencePtr s = SequencePtr::dynamicCast(origContent);
+    while (s)
+    {
+        depth++;
+        origContent = s->type();
+        s = SequencePtr::dynamicCast(origContent);
+    }
+    string origContentS = typeToString(origContent, TypeModeIn, scope);
+
+    if (!listType.empty())
+    {
         BuiltinPtr b = BuiltinPtr::dynamicCast(seq->type());
-        if (b)
+        if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy)
+        {
+            if (marshal)
+            {
+                out << nl << stream << ".startWriteSequence(" << name << ", " << v << ".size());";
+                ostringstream o;
+                o << "__i" << iter;
+                string it = o.str();
+                iter++;
+                out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
+                out << nl << "while (" << it << ".hasNext())";
+                out << sb;
+
+                switch (b->kind())
+                {
+                    case Builtin::KindByte:
+                    {
+                        out << nl << "java.lang.Byte __elem = (java.lang.Byte)" << it << ".next();";
+                        out << nl << stream << ".writeByte(\"e\", __elem.byteValue());";
+                        break;
+                    }
+                    case Builtin::KindBool:
+                    {
+                        out << nl << "java.lang.Boolean __elem = (java.lang.Boolean)" << it << ".next();";
+                        out << nl << stream << ".writeBool(\"e\", __elem.booleanValue());";
+                        break;
+                    }
+                    case Builtin::KindShort:
+                    {
+                        out << nl << "java.lang.Short __elem = (java.lang.Short)" << it << ".next();";
+                        out << nl << stream << ".writeShort(\"e\", __elem.shortValue());";
+                        break;
+                    }
+                    case Builtin::KindInt:
+                    {
+                        out << nl << "java.lang.Integer __elem = (java.lang.Integer)" << it << ".next();";
+                        out << nl << stream << ".writeInt(\"e\", __elem.intValue());";
+                        break;
+                    }
+                    case Builtin::KindLong:
+                    {
+                        out << nl << "java.lang.Long __elem = (java.lang.Long)" << it << ".next();";
+                        out << nl << stream << ".writeLong(\"e\", __elem.longValue());";
+                        break;
+                    }
+                    case Builtin::KindFloat:
+                    {
+                        out << nl << "java.lang.Float __elem = (java.lang.Float)" << it << ".next();";
+                        out << nl << stream << ".writeFloat(\"e\", __elem.floatValue());";
+                        break;
+                    }
+                    case Builtin::KindDouble:
+                    {
+                        out << nl << "java.lang.Double __elem = (java.lang.Double)" << it << ".next();";
+                        out << nl << stream << ".writeDouble(\"e\", __elem.doubleValue());";
+                        break;
+                    }
+                    case Builtin::KindString:
+                    {
+                        out << nl << "java.lang.String __elem = (java.lang.String)" << it << ".next();";
+                        out << nl << stream << ".writeString(\"e\", __elem);";
+                        break;
+                    }
+                    case Builtin::KindObject:
+                    case Builtin::KindObjectProxy:
+                    case Builtin::KindLocalObject:
+                    {
+                        assert(false);
+                        break;
+                    }
+                }
+                out << eb; // while
+                out << nl << stream << ".endWriteSequence();";
+            }
+            else
+            {
+                out << nl << v << " = new " << listType << "();";
+                ostringstream o;
+                o << origContentS << "[]";
+                int d = depth;
+                while (d--)
+                {
+                    o << "[]";
+                }
+                switch (b->kind())
+                {
+                    case Builtin::KindByte:
+                    {
+                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readByteSeq(" << name << ");";
+                        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
+                            << ".length; __i" << iter << "++)";
+                        out << sb;
+                        out << nl << v << ".add(new java.lang.Byte(__seq" << iter << "[__i" << iter << "]));";
+                        out << eb;
+                        iter++;
+                        break;
+                    }
+                    case Builtin::KindBool:
+                    {
+                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readByteSeq(" << name << ");";
+                        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
+                            << ".length; __i" << iter << "++)";
+                        out << sb;
+                        out << nl << v << ".add(__seq" << iter << "[__i" << iter
+                            << "] ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE);";
+                        out << eb;
+                        iter++;
+                        break;
+                    }
+                    case Builtin::KindShort:
+                    {
+                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readShortSeq(" << name << ");";
+                        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
+                            << ".length; __i" << iter << "++)";
+                        out << sb;
+                        out << nl << v << ".add(new java.lang.Short(__seq" << iter << "[__i" << iter << "]));";
+                        out << eb;
+                        iter++;
+                        break;
+                    }
+                    case Builtin::KindInt:
+                    {
+                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readIntSeq(" << name << ");";
+                        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
+                            << ".length; __i" << iter << "++)";
+                        out << sb;
+                        out << nl << v << ".add(new java.lang.Integer(__seq" << iter << "[__i" << iter << "]));";
+                        out << eb;
+                        iter++;
+                        break;
+                    }
+                    case Builtin::KindLong:
+                    {
+                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readLongSeq(" << name << ");";
+                        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
+                            << ".length; __i" << iter << "++)";
+                        out << sb;
+                        out << nl << v << ".add(new java.lang.Long(__seq" << iter << "[__i" << iter << "]));";
+                        out << eb;
+                        iter++;
+                        break;
+                    }
+                    case Builtin::KindFloat:
+                    {
+                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readFloatSeq(" << name << ");";
+                        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
+                            << ".length; __i" << iter << "++)";
+                        out << sb;
+                        out << nl << v << ".add(new java.lang.Float(__seq" << iter << "[__i" << iter << "]));";
+                        out << eb;
+                        iter++;
+                        break;
+                    }
+                    case Builtin::KindDouble:
+                    {
+                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readDoubleSeq(" << name
+                            << ");";
+                        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
+                            << ".length; __i" << iter << "++)";
+                        out << sb;
+                        out << nl << v << ".add(new java.lang.Double(__seq" << iter << "[__i" << iter << "]));";
+                        out << eb;
+                        iter++;
+                        break;
+                    }
+                    case Builtin::KindString:
+                    {
+                        out << nl << o.str() << " __seq" << iter << " = " << stream << ".readStringSeq(" << name
+                            << ");";
+                        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __seq" << iter
+                            << ".length; __i" << iter << "++)";
+                        out << sb;
+                        out << nl << v << ".add(__seq" << iter << "[__i" << iter << "]);";
+                        out << eb;
+                        iter++;
+                        break;
+                    }
+                    case Builtin::KindObject:
+                    case Builtin::KindObjectProxy:
+                    case Builtin::KindLocalObject:
+                    {
+                        assert(false);
+                        break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            string typeS = getAbsolute(seq->scoped(), scope);
+            if (marshal)
+            {
+                out << nl << stream << ".startWriteSequence(" << name << ", " << v << ".size());";
+                ostringstream o;
+                o << "__i" << iter;
+                iter++;
+                string it = o.str();
+                out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
+                out << nl << "while (" << it << ".hasNext())";
+                out << sb;
+                out << nl << origContentS << " __elem = (" << origContentS << ")" << it << ".next();";
+                writeGenericMarshalUnmarshalCode(out, scope, seq->type(), "\"e\"", "__elem", true, iter, false);
+                out << eb;
+                out << nl << stream << ".endWriteSequence();";
+            }
+            else
+            {
+                out << nl << v << " = new " << listType << "();";
+                out << nl << "int __len" << iter << " = " << stream << ".startReadSequence(" << name << ");";
+                out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < __len" << iter << "; __i" << iter
+                    << "++);";
+                out << sb;
+                out << nl << origContentS << " __elem;";
+                iter++;
+                writeGenericMarshalUnmarshalCode(out, scope, seq->type(), "\"e\"", "__elem", false, iter, false);
+                out << nl << v << ".add(__elem);";
+                out << eb;
+            }
+        }
+    }
+    else
+    {
+        BuiltinPtr b = BuiltinPtr::dynamicCast(seq->type());
+        if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy)
         {
             switch (b->kind())
             {
@@ -1110,18 +1750,6 @@ Slice::JavaGenerator::writeGenericMarshalUnmarshalCode(Output& out,
                 }
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
-                {
-                    string typeS = getAbsolute(seq->scoped(), scope);
-                    if (marshal)
-                    {
-                        out << nl << typeS << "Helper.ice_marshal(" << name << ", " << stream << ", " << v << ");";
-                    }
-                    else
-                    {
-                        out << nl << v << " = " << typeS << "Helper.ice_unmarshal(" << name << ", " << stream << ");";
-                    }
-                    break;
-                }
                 case Builtin::KindLocalObject:
                 {
                     assert(false);
@@ -1131,31 +1759,41 @@ Slice::JavaGenerator::writeGenericMarshalUnmarshalCode(Output& out,
         }
         else
         {
-            ContainedPtr cont = ContainedPtr::dynamicCast(type);
-            assert(cont);
-            string typeS = getAbsolute(cont->scoped(), scope);
+            string typeS = getAbsolute(seq->scoped(), scope);
             if (marshal)
             {
-                out << nl << typeS << "Helper.ice_marshal(" << name << ", " << stream << ", " << v << ");";
+                out << nl << stream << ".startWriteSequence(" << name << ", " << v << ".length);";
+                out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < " << v << ".length; __i" << iter
+                    << "++)";
+                out << sb;
+                ostringstream o;
+                o << v << "[__i" << iter << "]";
+                iter++;
+                writeGenericMarshalUnmarshalCode(out, scope, seq->type(), "\"e\"", o.str(), true, iter, false);
+                out << eb;
+                out << nl << stream << ".endWriteSequence();";
             }
             else
             {
-                out << nl << v << " = " << typeS << "Helper.ice_unmarshal(" << name << ", " << stream << ");";
+                out << nl << "int __len" << iter << " = " << stream << ".startReadSequence(" << name << ");";
+                out << nl << v << " = new " << origContentS << "[__len" << iter << "]";
+                int d = depth;
+                while (d--)
+                {
+                    out << "[]";
+                }
+                out << ';';
+                out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < " << v << ".length; __i" << iter
+                    << "++)";
+                out << sb;
+                ostringstream o;
+                o << v << "[__i" << iter << "]";
+                iter++;
+                writeGenericMarshalUnmarshalCode(out, scope, seq->type(), "\"e\"", o.str(), false, iter, false);
+                out << eb;
+                out << nl << stream << ".endReadSequence();";
             }
         }
-        return;
-    }
-
-    ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
-    assert(constructed);
-    string typeS = getAbsolute(constructed->scoped(), scope);
-    if (marshal)
-    {
-        out << nl << typeS << "Helper.ice_marshal(" << name << ", " << stream << ", " << v << ");";
-    }
-    else
-    {
-        out << nl << v << " = " << typeS << "Helper.ice_unmarshal(" << name << ", " << stream << ");";
     }
 }
 
@@ -1177,4 +1815,19 @@ Slice::JavaGenerator::printHeader()
     Output& out = output();
     out << header;
     out << "\n// Ice version " << ICE_STRING_VERSION;
+}
+
+string
+Slice::JavaGenerator::findMetaData(const list<string>& metaData)
+{
+    static const string prefix = "java:";
+    for (list<string>::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    {
+        if ((*q).find(prefix) == 0)
+        {
+            return (*q).substr(prefix.size());
+        }
+    }
+
+    return "";
 }

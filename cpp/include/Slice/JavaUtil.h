@@ -63,20 +63,39 @@ protected:
         TypeModeReturn
     };
     std::string typeToString(const TypePtr&, TypeMode mode,
-                             const std::string& = std::string()) const;
+                             const std::string& = std::string(),
+                             const std::list<std::string>& = std::list<std::string>()) const;
 
     //
     // Generate code to marshal or unmarshal a type
     //
-    void writeMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const TypePtr&,
-                                   const std::string&, bool, int&, bool = false);
+    void writeMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const TypePtr&, const std::string&,
+                                   bool, int&, bool = false, const std::list<std::string>& = std::list<std::string>());
+
+    //
+    // Generate code to marshal or unmarshal a sequence type
+    //
+    void writeSequenceMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const SequencePtr&,
+                                           const std::string&, bool, int&, bool,
+                                           const std::list<std::string>& = std::list<std::string>());
 
     //
     // Generate generic code to marshal or unmarshal a type
     //
     void writeGenericMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const TypePtr&,
-                                          const std::string&, const std::string&, bool, int&,
-                                          bool = false);
+                                          const std::string&, const std::string&, bool, int&, bool = false,
+                                          const std::list<std::string>& = std::list<std::string>());
+
+    //
+    // Generate generic code to marshal or unmarshal a sequence type
+    //
+    void writeGenericSequenceMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const SequencePtr&,
+                                                  const std::string&, const std::string&, bool, int&, bool,
+                                                  const std::list<std::string>& = std::list<std::string>());
+
+protected:
+
+    static std::string findMetaData(const std::list<std::string>&);
 
 private:
 

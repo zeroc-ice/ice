@@ -50,7 +50,8 @@ protected:
     //
     // Generate code to compute a hash code for a type
     //
-    void writeHashCode(::IceUtil::Output&, const TypePtr&, const std::string&, int&);
+    void writeHashCode(::IceUtil::Output&, const TypePtr&, const std::string&, int&,
+                       const std::list<std::string>& = std::list<std::string>());
 
     //
     // Generate dispatch methods for a class or interface
