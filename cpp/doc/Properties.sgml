@@ -404,11 +404,11 @@ pool to a value larger than one. </para></note>
 thread pool <replaceable>name</replaceable>. Thread pools in Ice grow
 and shrink dynamically, based on an average load factor. Thread
 pools do not grow larger than the parameter specified by
-<literal>SizeMax</literal>, and they won't shrink to a number of
+<literal>SizeMax</literal>, and they do not shrink to a number of
 threads smaller than the value specified by <literal>Size</literal>.
 </para>
 <para>
-The default value for for <literal>SizeMax</literal> is one for the
+The default value for <literal>SizeMax</literal> is 1 for the
 client-side thread pool. For all other thread pools, it is 10 times
 the value of <literal>Size</literal>.
 </para>
@@ -425,7 +425,7 @@ the value of <literal>Size</literal>.
 <title>Description</title>
 <para>
 Whenever <replaceable>num</replaceable> threads are active in a thread
-pool, a "low on threads" warning is printed. The default value for for
+pool, a "low on threads" warning is printed. The default value for
 <literal>SizeWarn</literal> is 80% of the value specified by
 <literal>SizeMax</literal>.
 </para>
