@@ -486,8 +486,11 @@ IceInternal::Reference::changeLocator(const LocatorPrx& newLocator) const
 ReferencePtr
 IceInternal::Reference::changeDefault() const
 {
+    RouterInfoPtr routerInfo = instance->routerManager()->get(instance->referenceFactory()->getDefaultRouter());
+    LocatorInfoPtr locatorInfo = instance->locatorManager()->get(instance->referenceFactory()->getDefaultLocator());
+
     return instance->referenceFactory()->create(identity, "", ModeTwoway, false, false, adapterId,
-						endpoints, 0, 0, 0);
+						endpoints, routerInfo, locatorInfo, 0);
 }
 
 IceInternal::Reference::Reference(const InstancePtr& inst,
