@@ -20,7 +20,7 @@ public class ServiceManagerAdmin
             "\n" +
             "Options:\n" +
             "\n" +
-            "  -h          Display this message." +
+            "  -h          Display this message.\n" +
             "\n" +
             "Commands:\n" +
             "\n" +
@@ -30,18 +30,38 @@ public class ServiceManagerAdmin
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
+        if (args.length == 0)
+        {
+            usage();
+            return 1;
+        }
+
+        int i = 0;
+        while (i < args.length && args[i].charAt(0) == '-')
+        {
+            if (args[i].equals("-h"))
+            {
+                usage();
+                return 0;
+            }
+            else
+            {
+                System.err.println("unknown option `" + args[i] + "'");
+                usage();
+                return 1;
+            }
+            //
+            // Unreachable until there are more options
+            //
+            //i++;
+        }
+
         Ice.Properties properties = communicator.getProperties();
         final String refProperty = "ServiceManager";
         String ref = properties.getProperty(refProperty);
         if (ref.length() == 0)
         {
             System.err.println("property `" + refProperty + "' not set");
-            return 1;
-        }
-
-        if (args.length == 0)
-        {
-            usage();
             return 1;
         }
 
@@ -54,15 +74,19 @@ public class ServiceManagerAdmin
             return 1;
         }
 
-        if (args[0].equals("shutdown"))
+        while (i < args.length)
         {
-            mgr.shutdown();
-        }
-        else
-        {
-            System.err.println("unknown command `" + args[0] + "'");
-            usage();
-            return 1;
+            if (args[i].equals("shutdown"))
+            {
+                mgr.shutdown();
+            }
+            else
+            {
+                System.err.println("unknown command `" + args[i] + "'");
+                usage();
+                return 1;
+            }
+            i++;
         }
 
         return 0;
