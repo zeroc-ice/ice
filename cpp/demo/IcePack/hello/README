@@ -7,14 +7,14 @@ ICE_LICENSE file included in this distribution.
 
 **********************************************************************
 
-To run the demo:
+The IcePack configuration for this example includes an IceBox
+service, which requires that you add the current directory to your
+your shared library search path (such as LD_LIBRARY_PATH on Unix
+or PATH on Windows). Alternatively, you can copy the shared library
+for the example IceBox service (i.e., the file libHelloService.so or
+HelloService.dll) to a directory that is already in your search path.
 
-For icebox to be able to find the library containing the service, you
-must add the current directory to LD_LIBRARY_PATH (Linux) or Path
-(Windows). Alternatively, you can copy libHelloService.{so,dll} to a
-directory that is in the path.
-
-Start the IcePack service:
+To run the demo, first start the IcePack service:
 
 $ icepacknode --Ice.Config=config --warn
 
@@ -28,12 +28,14 @@ and start the client.
 
 Messages will be displayed in the IcePack service window.
 
-The deployment descriptors contain a "debug" target, this target
-allows easy deployment of your application with more tracing
-information. To deploy your application with this target:
+The deployment descriptors contain a "debug" target that configures
+the application to display additional tracing information. To deploy
+the application with this target, include the "debug" target on the
+command line as shown below:
 
 $ icepackadmin --Ice.Config=config -e "application add 'application.xml' debug"
 
-Or if you have already deployed your application:
+If you have already deployed your application, you can update it with
+the following command:
 
 $ icepackadmin --Ice.Config=config -e "application update 'application.xml' debug"
