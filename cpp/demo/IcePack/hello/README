@@ -13,5 +13,4 @@ $ ./client
 This will deploy the servers described in the "application.xml"
 descriptor and start the client.
 
-Messages to each server are recorded into files in the current
-directory.
+Messages will be displayed in the IcePack service window.
