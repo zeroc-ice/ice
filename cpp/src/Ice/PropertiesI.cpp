@@ -505,42 +505,6 @@ Ice::PropertiesI::PropertiesI(StringSeq& args)
     args = parseIceCommandLineOptions(args);
 }
 
-Ice::PropertiesI::PropertiesI(int& argc, char* argv[])
-{
-    for(int i = 1; i < argc; ++i)
-    {
-        if(strncmp(argv[i], "--Ice.Config", 12) == 0)
-        {
-            string line = argv[i];
-            if(line.find('=') == string::npos)
-            {
-                line += "=1";
-            }
-            parseLine(line.substr(2));
-            for(int j = i; j + 1 < argc; ++j)
-            {
-                argv[j] = argv[j + 1];
-            }
-            --argc;
-        }
-    }
-
-    loadConfig();
-
-    StringSeq args = argsToStringSeq(argc, argv);
-    args = parseIceCommandLineOptions(args);
-    stringSeqToArgs(args, argc, argv);
-
-    if(argc > 0)
-    {
-        string name = getProperty("Ice.ProgramName");
-        if(name.empty())
-        {
-            setProperty("Ice.ProgramName", argv[0]);
-        }
-    }
-}
-
 void
 Ice::PropertiesI::parseLine(const string& line)
 {

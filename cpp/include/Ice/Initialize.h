@@ -23,16 +23,7 @@
 namespace Ice
 {
 
-ICE_API CommunicatorPtr initialize(int&, char*[], Int = ICE_INT_VERSION);
-ICE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int = ICE_INT_VERSION);
-
-ICE_API PropertiesPtr getDefaultProperties();
-ICE_API PropertiesPtr getDefaultProperties(StringSeq&);
-ICE_API PropertiesPtr getDefaultProperties(int&, char*[]);
-
-ICE_API PropertiesPtr createProperties();
-ICE_API PropertiesPtr createProperties(StringSeq&);
-ICE_API PropertiesPtr createProperties(int&, char*[]);
+ICE_API void collectGarbage();
 
 ICE_API StringSeq argsToStringSeq(int, char*[]);
 //
@@ -43,7 +34,16 @@ ICE_API StringSeq argsToStringSeq(int, char*[]);
 //
 ICE_API void stringSeqToArgs(const StringSeq&, int&, char*[]);
 
-ICE_API void collectGarbage();
+ICE_API PropertiesPtr createProperties();
+ICE_API PropertiesPtr createProperties(StringSeq&);
+ICE_API PropertiesPtr createProperties(int&, char*[]);
+
+ICE_API CommunicatorPtr initialize(int&, char*[], Int = ICE_INT_VERSION);
+ICE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int = ICE_INT_VERSION);
+
+ICE_API PropertiesPtr getDefaultProperties();
+ICE_API PropertiesPtr getDefaultProperties(StringSeq&);
+ICE_API PropertiesPtr getDefaultProperties(int&, char*[]);
 
 }
 

@@ -41,7 +41,7 @@ private:
 
     PropertiesI();
     PropertiesI(StringSeq&);
-    PropertiesI(int&, char*[]);
+
     friend ICE_API PropertiesPtr createProperties();
     friend ICE_API PropertiesPtr createProperties(StringSeq&);
     friend ICE_API PropertiesPtr createProperties(int&, char*[]);

@@ -38,99 +38,6 @@ Ice::collectGarbage()
     }
 }
 
-CommunicatorPtr
-Ice::initialize(int& argc, char* argv[], Int version)
-{
-#ifndef ICE_IGNORE_VERSION
-    if(version != ICE_INT_VERSION)
-    {
-	throw VersionMismatchException(__FILE__, __LINE__);
-    }
-#endif
-
-    PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
-    CommunicatorI* communicatorI = new CommunicatorI(defaultProperties);
-    CommunicatorPtr result = communicatorI; // For exception safety.
-    communicatorI->finishSetup(argc, argv);
-    return result;
-}
-
-CommunicatorPtr
-Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& properties, Int version)
-{
-#ifndef ICE_IGNORE_VERSION
-    if(version != ICE_INT_VERSION)
-    {
-	throw VersionMismatchException(__FILE__, __LINE__);
-    }
-#endif
-
-    CommunicatorI* communicatorI = new CommunicatorI(properties);
-    CommunicatorPtr result = communicatorI; // For exception safety.
-    communicatorI->finishSetup(argc, argv);
-    return result;
-}
-
-static PropertiesPtr defaultProperties;
-class DefaultPropertiesDestroyer
-{
-public:
-
-    ~DefaultPropertiesDestroyer()
-    {
-	defaultProperties = 0;
-    }
-};
-static DefaultPropertiesDestroyer defaultPropertiesDestroyer;
-
-PropertiesPtr
-Ice::getDefaultProperties()
-{
-    if(!defaultProperties)
-    {
-	defaultProperties = createProperties();
-    }
-    return defaultProperties;
-}
-
-PropertiesPtr
-Ice::getDefaultProperties(StringSeq& args)
-{
-    if(!defaultProperties)
-    {
-	defaultProperties = createProperties(args);
-    }
-    return defaultProperties;
-}
-
-PropertiesPtr
-Ice::getDefaultProperties(int& argc, char* argv[])
-{
-    if(!defaultProperties)
-    {
-	defaultProperties = createProperties(argc, argv);
-    }
-    return defaultProperties;
-}
-
-PropertiesPtr
-Ice::createProperties()
-{
-    return new PropertiesI();
-}
-
-PropertiesPtr
-Ice::createProperties(StringSeq& args)
-{
-    return new PropertiesI(args);
-}
-
-PropertiesPtr
-Ice::createProperties(int& argc, char* argv[])
-{
-    return new PropertiesI(argc, argv);
-}
-
 StringSeq
 Ice::argsToStringSeq(int argc, char* argv[])
 {
@@ -173,6 +80,95 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, char* argv[])
     {
 	argv[argc] = 0;
     }
+}
+
+PropertiesPtr
+Ice::createProperties()
+{
+    return new PropertiesI();
+}
+
+PropertiesPtr
+Ice::createProperties(StringSeq& args)
+{
+    return new PropertiesI(args);
+}
+
+PropertiesPtr
+Ice::createProperties(int& argc, char* argv[])
+{
+    StringSeq args = argsToStringSeq(argc, argv);
+    PropertiesPtr properties = createProperties(args);
+    stringSeqToArgs(args, argc, argv);
+    return properties;
+}
+
+static PropertiesPtr defaultProperties;
+class DefaultPropertiesDestroyer
+{
+public:
+
+    ~DefaultPropertiesDestroyer()
+    {
+	defaultProperties = 0;
+    }
+};
+static DefaultPropertiesDestroyer defaultPropertiesDestroyer;
+
+PropertiesPtr
+Ice::getDefaultProperties()
+{
+    if(!defaultProperties)
+    {
+	defaultProperties = createProperties();
+    }
+    return defaultProperties;
+}
+
+PropertiesPtr
+Ice::getDefaultProperties(StringSeq& args)
+{
+    if(!defaultProperties)
+    {
+	defaultProperties = createProperties(args);
+    }
+    return defaultProperties;
+}
+
+PropertiesPtr
+Ice::getDefaultProperties(int& argc, char* argv[])
+{
+    StringSeq args = argsToStringSeq(argc, argv);
+    PropertiesPtr properties = getDefaultProperties(args);
+    stringSeqToArgs(args, argc, argv);
+    return properties;
+}
+
+CommunicatorPtr
+Ice::initialize(int& argc, char* argv[], Int version)
+{
+    PropertiesPtr properties = getDefaultProperties(argc, argv);
+    return initializeWithProperties(argc, argv, properties, version);
+}
+
+CommunicatorPtr
+Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& properties, Int version)
+{
+#ifndef ICE_IGNORE_VERSION
+    if(version != ICE_INT_VERSION)
+    {
+	throw VersionMismatchException(__FILE__, __LINE__);
+    }
+#endif
+
+    StringSeq args = argsToStringSeq(argc, argv);
+    args = properties->parseIceCommandLineOptions(args);
+    stringSeqToArgs(args, argc, argv);
+
+    CommunicatorI* communicatorI = new CommunicatorI(properties);
+    CommunicatorPtr result = communicatorI; // For exception safety.
+    communicatorI->finishSetup(argc, argv);
+    return result;
 }
 
 InstancePtr
