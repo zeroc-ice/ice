@@ -1,3 +1,10 @@
+Changes since version 2.1.0
+---------------------------
+
+- The Windows demo/IcePatch2/MFC example displays an error dialog 
+  when the patch client is run without the --IcePatch2.Endpoints 
+  option.
+
 Changes since version 2.0.0
 ---------------------------
 
