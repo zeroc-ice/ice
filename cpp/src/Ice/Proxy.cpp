@@ -30,6 +30,8 @@
 #include <Ice/LocalException.h>
 #include <Ice/Functional.h>
 
+#include <Ice/Locator.h>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -451,6 +453,22 @@ ObjectPrx
 IceProxy::Ice::Object::ice_router(const RouterPrx& router) const
 {
     ReferencePtr ref = _reference->changeRouter(router);
+    if(ref == _reference)
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(ref);
+	return proxy;
+    }
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_locator(const LocatorPrx& locator) const
+{
+    ReferencePtr ref = _reference->changeLocator(locator);
     if(ref == _reference)
     {
 	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
