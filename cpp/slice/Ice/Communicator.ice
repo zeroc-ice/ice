@@ -76,7 +76,6 @@ local interface Communicator
      * requests. </para></note>
      *
      * @see destroy
-     * @see signalShutdown
      * @see waitForShutdown
      * @see ObjectAdapter::deactivate
      *
@@ -96,7 +95,6 @@ local interface Communicator
      * exits the application.
      *
      * @see shutdown
-     * @see signalShutdown
      * @see destroy
      * @see ObjectAdapter::waitForDeactivate
      *
