@@ -3,20 +3,20 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{03CD2196-1D2E-4223-A23D-F343B16A9132}"
+        ProjectGuid = "{9CC40C8F-8336-479D-B337-9C2AA53A23C3}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "latencyCommon"
+                AssemblyName = "client"
                 AssemblyOriginatorKeyFile = ""
                 AssemblyOriginatorKeyMode = "None"
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
-                OutputType = "Library"
+                OutputType = "Exe"
                 OptionCompare = "Binary"
                 OptionExplicit = "On"
                 OptionStrict = "Off"
@@ -62,6 +62,11 @@
                     AssemblyName = "System"
                 />
                 <Reference
+                    Name = "callbackCommon"
+                    Project = "{0411FF4A-01A0-424F-8C63-C7040471AA70}"
+                    Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
+                />
+                <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
                     HintPath = "..\..\..\..\icecs\bin\icecs.dll"
@@ -75,7 +80,17 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "generated\Latency.vb"
+                    RelPath = "CallbackClient.vb"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "CallbackReceiverI.vb"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Client.vb"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

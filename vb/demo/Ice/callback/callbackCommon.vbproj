@@ -3,13 +3,13 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{03CD2196-1D2E-4223-A23D-F343B16A9132}"
+        ProjectGuid = "{0411FF4A-01A0-424F-8C63-C7040471AA70}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "latencyCommon"
+                AssemblyName = "callbackCommon"
                 AssemblyOriginatorKeyFile = ""
                 AssemblyOriginatorKeyMode = "None"
                 DefaultClientScript = "JScript"
@@ -75,7 +75,7 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "generated\Latency.vb"
+                    RelPath = "generated\Callback.vb"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
