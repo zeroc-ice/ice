@@ -8,6 +8,7 @@ IcePy = Extension(
                     'Communicator.cpp',
                     'Current.cpp',
                     'Init.cpp',
+                    'Logger.cpp',
                     'ObjectAdapter.cpp',
                     'ObjectFactory.cpp',
                     'Operation.cpp',
