@@ -11,39 +11,10 @@
 #ifndef ICE_STUB_H
 #define ICE_STUB_H
 
-#include <Ice/StubF.h>
 #include <Ice/ObjectFactoryF.h>
+#include <Ice/ObjectHandle.h>
 #include <Ice/Shared.h>
 #include <Ice/Outgoing.h>
-
-namespace _Ice
-{
-
-//
-// Special handle class for Ice objects, which support the static
-// member function cast().
-//
-template<typename T>
-class ObjectHandle : public Handle<T>
-{
-public:
-    
-    ObjectHandle(T* p = 0) : Handle<T>(p) { }
-    ObjectHandle(const ObjectHandle& r) : Handle<T>(r) { }
-
-    ObjectHandle& operator=(const ObjectHandle& r)
-    {
-	Handle<T>::operator=(r);
-	return *this;
-    }
-
-    static ObjectHandle<T> cast(const ::Ice::Object& r)
-    {
-	return T::_cast(r);
-    }
-};
-
-}
 
 namespace _IceObj { namespace Ice
 {
@@ -56,7 +27,7 @@ public:
     bool operator!=(const ObjectI&) const;
 
     ::_Ice::Reference _reference() const;
-    void _copyTo(ObjectI*) const;
+    void _copyTo(::_IceObj::Ice::ObjectI*) const;
 
 protected:
 
