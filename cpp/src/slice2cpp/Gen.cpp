@@ -1,7 +1,7 @@
 // **********************************************************************
 //
-// Copyright (c) 2003
-// ZeroC, Inc.
+// copyright (c) 2003
+// zeroc, inc.
 // Billerica, MA, USA
 //
 // All Rights Reserved.
@@ -2357,6 +2357,15 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	    ExceptionList throws = p->throws();
 	    throws.sort();
 	    throws.unique();
+
+	    //
+	    // Arrange exceptions into most-derived to least-derived order. If we don't
+	    // do this, a base exception handler can appear before a derived exception
+	    // handler, causing compiler warnings and resulting in the base exception
+	    // being marshaled instead of the derived exception.
+	    //
+	    throws.sort(Slice::DerivedToBaseCompare());
+
 	    if(!inParams.empty())
 	    {
 		C << nl << "::IceInternal::BasicStream* __is = __in.is();";
@@ -3544,6 +3553,14 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     throws.sort();
     throws.unique();
     
+    //
+    // Arrange exceptions into most-derived to least-derived order. If we don't
+    // do this, a base exception handler can appear before a derived exception
+    // handler, causing compiler warnings and resulting in the base exception
+    // being marshaled instead of the derived exception.
+    //
+    throws.sort(Slice::DerivedToBaseCompare());
+
     TypePtr ret = p->returnType();
     string retS = inputTypeToString(ret);
     

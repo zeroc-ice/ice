@@ -479,6 +479,14 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    throws.unique();
 	    remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal));
 
+	    //
+	    // Arrange exceptions into most-derived to least-derived order. If we don't
+	    // do this, a base exception handler can appear before a derived exception
+	    // handler, causing compiler warnings and resulting in the base exception
+	    // being marshaled instead of the derived exception.
+	    //
+	    throws.sort(Slice::DerivedToBaseCompare());
+
 	    TypeStringList::const_iterator q;
 	    int iter;
 	    
@@ -3024,6 +3032,14 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         throws.sort();
         throws.unique();
         throws.erase(remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal)), throws.end());
+
+	//
+	// Arrange exceptions into most-derived to least-derived order. If we don't
+	// do this, a base exception handler can appear before a derived exception
+	// handler, causing compiler warnings and resulting in the base exception
+	// being marshaled instead of the derived exception.
+	//
+	throws.sort(Slice::DerivedToBaseCompare());
 
         vector<string> params = getParams(op, package);
 

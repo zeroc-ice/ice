@@ -2813,6 +2813,24 @@ Slice::Exception::allBases() const
 }
 
 bool
+Slice::Exception::isBaseOf(const ExceptionPtr& other) const
+{
+    if(this->scoped() == other->scoped())
+    {
+	return false;
+    }
+    ExceptionList bases = other->allBases();
+    for(ExceptionList::const_iterator i = bases.begin(); i != bases.end(); ++i)
+    {
+	if((*i)->scoped() == scoped())
+	{
+	    return true;
+	}
+    }
+    return false;
+}
+
+bool
 Slice::Exception::isLocal() const
 {
     return _local;
@@ -4653,4 +4671,14 @@ Slice::CICompare::operator()(const string& s1, const string& s2) const
     {
 	return ::tolower(*p1) < ::tolower(*p2);
     }
+};
+
+// ----------------------------------------------------------------------
+// DerivedToBaseCompare
+// ----------------------------------------------------------------------
+
+bool
+Slice::DerivedToBaseCompare::operator()(const ExceptionPtr& e1, const ExceptionPtr& e2) const
+{
+    return e2->isBaseOf(e1);
 };

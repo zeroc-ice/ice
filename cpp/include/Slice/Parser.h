@@ -85,6 +85,7 @@ class Enumerator;
 class Const;
 class Unit;
 class CICompare;
+class DerivedToBaseCompare;
 
 typedef ::IceUtil::Handle<GrammarBase> GrammarBasePtr;
 typedef ::IceUtil::Handle<SyntaxTreeBase> SyntaxTreeBasePtr;
@@ -139,6 +140,18 @@ class CICompare : public std::binary_function<std::string, std::string, bool>
 public:
 
     bool operator()(const std::string&, const std::string&) const;
+};
+
+// ----------------------------------------------------------------------
+// DerivedToBaseCompare -- function object to do sort exceptions into
+// most-derived to least-derived order.
+// ----------------------------------------------------------------------
+
+class DerivedToBaseCompare : public std::binary_function<std::string, std::string, bool>
+{
+public:
+
+    bool operator()(const ExceptionPtr&, const ExceptionPtr&) const;
 };
 
 // ----------------------------------------------------------------------
@@ -612,6 +625,7 @@ public:
     DataMemberList allClassDataMembers() const;
     ExceptionPtr base() const;
     ExceptionList allBases() const;
+    virtual bool isBaseOf(const ExceptionPtr&) const;
     virtual bool isLocal() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
