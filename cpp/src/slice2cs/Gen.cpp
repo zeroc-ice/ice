@@ -2976,7 +2976,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = p->name();
     ClassList bases = p->bases();
 
-    _out << sp << nl << "public class " << name << "PrxHelper : Ice.ObjectPrxHelperBase, " << name << "Prx";
+    _out << sp << nl << "public sealed class " << name << "PrxHelper : Ice.ObjectPrxHelperBase, " << name << "Prx";
     _out << sb;
 
     OperationList ops = p->allOperations();

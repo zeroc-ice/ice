@@ -1,0 +1,46 @@
+**********************************************************************
+
+Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
+
+This copy of Ice is licensed to you under the terms described in the
+ICE_LICENSE file included in this distribution.
+
+**********************************************************************
+
+Demos in this directory:
+
+- callback
+
+  A simple callback demo that illustrates how a client can pass a proxy to
+  a server, invoke an operation in the server, and the server call back
+  into an object provided by the client as part of that invocation.
+
+- hello
+
+  This demo illustrates how to invoke ordinary (twoway) operations, as well
+  as how to invoke oneway operations, use datagrams, secure invocations, and
+  how to used batched invocations.
+
+- invoke
+
+  This demo illustrates the use of the Ice streaming API.
+
+- latency
+
+  A simple latency test that measures the basic call dispatch delay of Ice.
+
+- nested
+
+  A demo to illustrate how nested callbacks work, and how the size of the
+  thread pool affects the maximum nesting depth.
+
+- throughput
+
+  A simple throughput demo that allows you send byte sequences between
+  client and server and to measure the maximum bandwidth that can be
+  achieved with Ice.
+
+- value
+
+  This demo shows how to use classes, class factories, and the difference
+  between local and remote invocations of class operations.

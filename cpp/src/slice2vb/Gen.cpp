@@ -3386,7 +3386,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = p->name();
     ClassList bases = p->bases();
 
-    _out << sp << nl << "Public Class " << name << "PrxHelper";
+    _out << sp << nl << "Public NotInheritable Class " << name << "PrxHelper";
     _out.inc();
     _out << nl << "Inherits Ice.ObjectPrxHelperBase";
     _out << nl << "Implements " << name << "Prx";
