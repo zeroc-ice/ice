@@ -154,7 +154,7 @@ function allTests()
         $gotException = false;
         try
         {
-            $test->knownIntermediateAsknownIntermediate();
+            $test->knownIntermediateAsKnownIntermediate();
         }
         catch(KnownIntermediate $ki)
         {
