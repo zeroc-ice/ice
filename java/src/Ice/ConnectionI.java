@@ -711,14 +711,14 @@ public final class ConnectionI extends IceInternal.EventHandler
 		throw _exception;
 	    }
 
-	    assert(_state > StateNotValidated);
-	    assert(_state < StateClosing);
-	    
 	    if(_batchStream.isEmpty())
 	    {
 		return; // Nothing to do.
 	    }
 
+	    assert(_state > StateNotValidated);
+	    assert(_state < StateClosing);
+	    
 	    //
 	    // Fill in the message size.
 	    //

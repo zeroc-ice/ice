@@ -743,14 +743,14 @@ namespace Ice
 		    throw _exception;
 		}
 
-		Debug.Assert(_state > StateNotValidated);
-		Debug.Assert(_state < StateClosing);
-		
 		if(_batchStream.isEmpty())
 		{
 		    return; // Nothing to do.
 		}
-			
+
+		Debug.Assert(_state > StateNotValidated);
+		Debug.Assert(_state < StateClosing);
+		
 		//
 		// Fill in the message size.
 		//

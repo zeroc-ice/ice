@@ -765,13 +765,13 @@ Ice::ConnectionI::flushBatchRequests()
 	    _exception->ice_throw();
 	}
 
-	assert(_state > StateNotValidated);
-	assert(_state < StateClosing);
-
 	if(_batchStream.b.empty())
 	{
 	    return; // Nothing to do.
 	}
+
+	assert(_state > StateNotValidated);
+	assert(_state < StateClosing);
 
 	_batchStream.i = _batchStream.b.begin();
 
