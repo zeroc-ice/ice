@@ -10,7 +10,7 @@
 
 #include <Ice/Ice.h>
 #include <Pickle.h>
-#include <Factory.h>
+#include <ServantFactory.h>
 #include <fstream>
 
 using namespace std;
@@ -18,7 +18,7 @@ using namespace std;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    Ice::ServantFactoryPtr factory = new Factory;
+    Ice::ServantFactoryPtr factory = new ServantFactory;
     communicator->installServantFactory(factory, "::Persistent");
     
     ifstream in("persistent");

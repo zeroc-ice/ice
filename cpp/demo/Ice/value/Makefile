@@ -19,7 +19,7 @@ OBJS		= Value.o \
 		  ValueI.o
 
 COBJS		= Client.o \
-		  Factory.o
+		  ServantFactory.o
 
 SOBJS		= Server.o
 

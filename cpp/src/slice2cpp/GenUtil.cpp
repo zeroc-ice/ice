@@ -279,7 +279,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    out << nl << param << " = " << cl->scoped() << "Ptr::dynamicCast(__obj);";
 	    out << nl << "if (!" << param << ')';
 	    out << sb;
-	    out << nl << "throw ::Ice::ValueUnmarshalException(__FILE__, __LINE__);";
+	    out << nl << "throw ::Ice::ServantUnmarshalException(__FILE__, __LINE__);";
 	    out << eb;
 	}
 	out << eb;

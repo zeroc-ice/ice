@@ -8,14 +8,20 @@
 //
 // **********************************************************************
 
-#ifndef FACTORY_H
-#define FACTORY_H
+#include <Ice/Ice.h>
+#include <ServantFactory.h>
+#include <Pickle.h>
 
-class Factory : public Ice::ServantFactory
+using namespace std;
+
+Ice::ObjectPtr
+ServantFactory::create(const string& id)
 {
-public:
+    if (id == "::Persistent")
+    {
+	return new Persistent;
+    }
 
-    virtual Ice::ObjectPtr create(const std::string&);
-};
-
-#endif
+    assert(false);
+    return 0;
+}

@@ -93,7 +93,7 @@ SOURCE=.\Client.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Factory.cpp
+SOURCE=.\ServantFactory.cpp
 # End Source File
 # Begin Source File
 
@@ -109,7 +109,7 @@ SOURCE=.\ValueI.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\Factory.h
+SOURCE=.\ServantFactory.h
 # End Source File
 # Begin Source File
 

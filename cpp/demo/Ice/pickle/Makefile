@@ -18,7 +18,7 @@ TARGETS		= $(READER) $(WRITER)
 OBJS		= Pickle.o \
 
 ROBJS		= Reader.o \
-		  Factory.o
+		  ServantFactory.o
 
 WOBJS		= Writer.o
 
