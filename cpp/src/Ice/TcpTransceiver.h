@@ -49,6 +49,7 @@ private:
     const Ice::LoggerPtr _logger;
     const Ice::StatsPtr _stats;
     const std::string _name;
+    const std::string _desc;
     
     SOCKET _fd;
     fd_set _rFdSet;

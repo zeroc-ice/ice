@@ -280,7 +280,7 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 string
 IceInternal::TcpTransceiver::toString() const
 {
-    return fdToString(_fd);
+    return _desc;
 }
 
 IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET fd) :
@@ -292,6 +292,11 @@ IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET 
 {
     FD_ZERO(&_rFdSet);
     FD_ZERO(&_wFdSet);
+
+    //
+    // fdToString may raise a socket exception.
+    //
+    const_cast<string&>(_desc) = fdToString(_fd);
 }
 
 IceInternal::TcpTransceiver::~TcpTransceiver()

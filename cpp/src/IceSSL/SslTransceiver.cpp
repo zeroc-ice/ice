@@ -164,7 +164,7 @@ IceSSL::SslTransceiver::read(Buffer& buf, int timeout)
                     {
  	                Trace out(_logger, _traceLevels->networkCat);
                         out << "received " << bytesRead << " of " << packetSize;
-                        out << " bytes via ssl\n" << fdToString(SSL_get_fd(_sslConnection));
+                        out << " bytes via ssl\n" << toString();
                     }
 
 		    if(_stats)
@@ -272,7 +272,7 @@ IceSSL::SslTransceiver::read(Buffer& buf, int timeout)
 string
 IceSSL::SslTransceiver::toString() const
 {
-    return fdToString(_fd);
+    return _desc;
 }
 
 void
@@ -303,8 +303,7 @@ IceSSL::SslTransceiver::forceHandshake()
         if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         {
  	    Trace out(_logger, _traceLevels->securityCat);
-            out << "Handshake retry maximum reached.\n";
-            out << fdToString(SSL_get_fd(_sslConnection));
+            out << "Handshake retry maximum reached.\n" << toString();
         }
 
         // If the handshake fails, the connection failed.
@@ -1017,6 +1016,11 @@ IceSSL::SslTransceiver::SslTransceiver(const OpenSSLPluginIPtr& plugin,
 
     // Set up the SSL to be able to refer back to our connection object.
     addTransceiver(_sslConnection, this);
+
+    //
+    // fdToString may raise a socket exception.
+    //
+    const_cast<string&>(_desc) = fdToString(_fd);
 }
 
 IceSSL::SslTransceiver::~SslTransceiver()
