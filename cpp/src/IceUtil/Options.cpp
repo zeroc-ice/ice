@@ -97,14 +97,16 @@ IceUtil::Options::parse(int argc, char* argv[])
 
     if(parseCalled)
     {
-	throw APIError("Cannot call parse() more than once on the same Option instance");
+	throw APIError("cannot call parse() more than once on the same Option instance");
     }
     parseCalled = true;
 
+    vector<string> result;
+
     int i;
-    for(i = 1; i < argc && *argv[i] == '-'; ++i)
+    for(i = 1; i < argc; ++i)
     {
-	if(argv[i][1] == '\0' || strcmp(argv[i], "--") == 0)
+	if(strcmp(argv[i], "-") == 0 || strcmp(argv[i], "--") == 0)
 	{
 	    ++i;
 	    break; // "-" and "--" indicate end of options.
@@ -114,7 +116,7 @@ IceUtil::Options::parse(int argc, char* argv[])
 	ValidOpts::iterator pos;
         bool argDone = false;
 
-	if(argv[i][1] == '-')
+	if(strncmp(argv[i], "--", 2) == 0)
 	{
 	    //
 	    // Long option. If the option has an argument, it can either be separated by '='
@@ -152,7 +154,7 @@ IceUtil::Options::parse(int argc, char* argv[])
 		argDone = true;
 	    }
 	}
-	else
+	else if(*argv[i] == '-')
 	{
 	    //
 	    // Short option.
@@ -176,6 +178,11 @@ IceUtil::Options::parse(int argc, char* argv[])
 		    argDone = true;
 		}
 	    }
+	}
+	else
+	{
+	    result.push_back(argv[i]); // Not an option or option argument.
+	    argDone = true;
 	}
 
 	if(!argDone)
@@ -202,7 +209,6 @@ IceUtil::Options::parse(int argc, char* argv[])
 	}
     }
 
-    vector<string> result;
     while(i < argc)
     {
         result.push_back(argv[i++]);
@@ -273,7 +279,6 @@ IceUtil::Options::argVec(const string& opt) const
 	    err.push_back('-');
 	}
 	err += opt + "': is a non-repeating option -- use optArg() to get its argument";
-	cerr << "p7" << endl;
 	throw APIError(err);
     }
 
