@@ -26,7 +26,7 @@ template<class InputIterator, class Predicate>
 inline typename InputIterator::difference_type
 ice_count_if(InputIterator first, InputIterator last, Predicate pred)
 {
-    InputIterator::difference_type result;
+    InputIterator::difference_type result = 0;
     std::count_if(first, last, pred, result);
     return result;
 }
