@@ -29,7 +29,7 @@ CPPFLAGS	:= -I. -I../../include $(DB_FLAGS) $(CPPFLAGS)
 
 $(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lFreeze $(DB_LIBS) $(LIBS)
 
 ByteIntMap.h ByteIntMap.cpp: $(SLICE2FREEZE)
 	rm -f ByteIntMap.h ByteIntMap.cpp

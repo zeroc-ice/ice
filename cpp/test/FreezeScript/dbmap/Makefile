@@ -32,7 +32,7 @@ CPPFLAGS	:= -I. $(DB_FLAGS) $(CPPFLAGS)
 
 $(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lFreeze $(DB_LIBS) $(LIBS)
 
 IntSMap.h IntSMap.cpp: $(SLICE2FREEZE)
 	rm -f IntSMap.h IntSMap.cpp

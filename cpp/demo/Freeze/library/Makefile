@@ -60,11 +60,11 @@ $(CLIENT): $(OBJS) $(COBJS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze $(DB_LIBS) $(LIBS)
 
 $(COLLOCATED): $(OBJS) $(COLOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) -lFreeze $(LIBS) $(READLINE_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) -lFreeze $(DB_LIBS) $(LIBS) $(READLINE_LIBS)
 
 LibraryTypes.h LibraryTypes.cpp: Library.ice $(SLICE2FREEZE)
 	rm -f LibraryTypes.h LibraryTypes.cpp
