@@ -890,25 +890,26 @@ namespace IceInternal
 
 	private bool compare(object[] arr1, object[] arr2)
 	{
-	    if(arr1 == arr2)
+	    if(arr1 == null)
 	    {
-		return true;
+		return arr2 == null;
 	    }
-	    
-	    if(arr1.Length == arr2.Length)
+	    if(arr2 == null)
 	    {
-		for(int i = 0; i < arr1.Length; i++)
+	        return false;
+	    }
+	    if(arr1.Length != arr2.Length)
+	    {
+	        return false;
+	    }
+	    for(int i = 0; i < arr1.Length; i++)
+	    {
+		if(!arr1[i].Equals(arr2[i]))
 		{
-		    if(!arr1[i].Equals(arr2[i]))
-		    {
-			return false;
-		    }
+		    return false;
 		}
-		
-		return true;
 	    }
-	    
-	    return false;
+	    return true;
 	}	
     }
 
