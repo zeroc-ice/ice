@@ -114,6 +114,20 @@ SOURCE=.\ClientTest.ice
 
 !IF  "$(CFG)" == "sliceexC - Win32 Release"
 
+USERDEP__CLIEN="../../../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=.\ClientTest.ice
+
+BuildCmds= \
+	..\..\..\..\bin\slice2cpp.exe ClientTest.ice
+
+"ClientTest.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ClientTest.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "sliceexC - Win32 Debug"
 
 USERDEP__CLIEN="..\..\..\..\bin\slice2cpp.exe"	
