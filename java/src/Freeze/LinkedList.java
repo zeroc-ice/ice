@@ -12,7 +12,7 @@
 //
 // **********************************************************************
 
-package IceInternal;
+package Freeze;
 
 //
 // Stripped down LinkedList implementation for use in the Evictor. The

@@ -530,7 +530,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
     //
     // This is a list of Ice.Identity.
     //
-    private IceInternal.LinkedList _evictorList = new IceInternal.LinkedList();
+    private Freeze.LinkedList _evictorList = new Freeze.LinkedList();
 
     private int _evictorSize = 10;
     private boolean _deactivated = false;

@@ -263,6 +263,12 @@ final class CommunicatorI extends LocalObjectImpl implements Communicator
         return null;
     }
 
+    public void
+    flushBatchRequests()
+    {
+        // TODO: implement this.
+    }
+
     CommunicatorI(StringSeqHolder args, Properties properties)
     {
 	_destroyed = false;

@@ -47,8 +47,6 @@ OBJS		= Initialize.o \
 		  ObjectAdapterFactory.o \
 		  ServantManager.o \
 		  ServantLocator.o \
-		  Evictor.o \
-		  EvictorBase.o \
 		  Endpoint.o \
 		  EndpointFactory.o \
 		  EndpointFactoryManager.o \
@@ -110,7 +108,6 @@ SLICE_SRCS	= $(SDIR)/LocalException.ice \
 		  $(SDIR)/ObjectAdapterF.ice \
 		  $(SDIR)/ServantLocator.ice \
 		  $(SDIR)/ServantLocatorF.ice \
-		  $(SDIR)/Evictor.ice \
 		  $(SDIR)/Properties.ice \
 		  $(SDIR)/PropertiesF.ice \
 		  $(SDIR)/ObjectFactory.ice \

@@ -5,9 +5,6 @@ Changes since version 1.1.0
   message size accepted by the Ice protocol in kiloBytes. The default value
   is 1024 (1 MB).
 
-- Added Ice::EvictorBase servant locator. This locator automatically
-  maintains a cache of servants in LRU order.
-
 - Fixed a number of incorrect property settings in the config files
   for the demos.
 
