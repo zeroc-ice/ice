@@ -204,7 +204,7 @@ def writeEntry(lang, label, entry):
 # Check arguments.
 #
 if len(sys.argv) != 3:
-    usage(progname)
+    usage()
     sys.exit(1)
 
 option = sys.argv[1]
@@ -215,10 +215,10 @@ elif option == "-java":
 elif option == "-cs":
     lang = "cs"
 elif option == "-h" or option == "-?":
-    usage(progname)
+    usage()
     sys.exit(0)
 else:
-    usage(progname)
+    usage()
     sys.exit(1)
 
 #
