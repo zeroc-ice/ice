@@ -565,17 +565,9 @@ def makeInstall(buildDir, installDir, distro, clean):
 		"/' config/Make.rules")
 
     if getPlatform() <> "linux":
-	if distro.startswith("Ice-"):
-	    os.system("perl -pi -e 's/^#(BZIP2_HOME)/$1/' config/Make.rules")
-	    os.system("perl -pi -e 's/^#(DB_HOME)/$1/' config/Make.rules")
-	    os.system("perl -pi -e 's/^#(OPENSSL_HOME)/$1/' config/Make.rules")
-	    os.system("perl -pi -e 's/^#(EXPAT_HOME)/$1/' config/Make.rules")
-	    os.system("perl -pi -e 's/^#(READLINE_HOME)/$1/' config/Make.rules")
-	elif distro.startswith("IcePy"):
-	    os.system("perl -pi -e 's/^PYTHON.INCLUDE.DIR.*$/PYTHON_INCLUDE_DIR = \$\(PYTHON_HOME\)\/include\/" + \
-		      "\$\(PYTHON_VERSION\)/' config/Make.rules")
-	    os.system("perl -pi -e 's/^PYTHON.LIB.DIR.*$/PYTHON_LIB_DIR = \$\(PYTHON_HOME\)\/lib\/" + \
-		      "\$\(PYTHON_VERSION\)\/config/' config/Make.rules")
+	if distro.startswith("IcePy"):
+	    os.system("perl -pi -e 's/^PYTHON.INCLUDE.DIR.*$/PYTHON_INCLUDE_DIR = \$\(PYTHON_HOME\)\/include\/\$\(PYTHON_VERSION\)/' config/Make.rules")
+	    os.system("perl -pi -e 's/^PYTHON.LIB.DIR.*$/PYTHON_LIB_DIR = \$\(PYTHON_HOME\)\/lib\/\$\(PYTHON_VERSION\)\/config/' config/Make.rules")
 
     os.system("gmake OPTIMIZE=yes RPM_BUILD_ROOT=" + installDir + " install")
     os.chdir(cwd)
@@ -667,41 +659,87 @@ def usage():
     print "Usage: " + sys.argv[0] + " [options] [tag]"
     print
     print "Options:"
-    print "-h    Show this message."
-    print "--build-dir     Specify the directory where the distributions will be unpacked and built."
-    print "--install-dir   Specify the directory where the distribution contents will be installed to."
-    print "--install-root  Specify the root directory that will appear in the tarball."
-    print "--sources       Specify the location of the sources directory.  If this is omitted makebindist"
-    print "                will traverse ../icej ../icepy ../icecs, etc and make the distributions for you."
-    print "-v, --verbose   Print verbose processing messages."
-    print "-t, --tag       Specify the CVS version tag for the packages."
-    print "--noclean       Do not clean up current sources where applicable (some bits will still be cleaned."
-    print "--nobuild       Run through the process but don't build anything new."
-    print "--specfile      Just print the RPM spec file and exit."
+    print "-h                     Show this message."
+    print "--build-dir=[path]     Specify the directory where the distributions"
+    print "                       will be unpacked and built."
+    print "--install-dir=[path]   Specify the directory where the distribution"
+    print "                       contents will be installed to."
+    print "--install-root=[path]  Specify the root directory that will appear"
+    print "                       in the tarball."
+    print "--sources=[path]       Specify the location of the sources directory."
+    print "                       If this is omitted makebindist will traverse"
+    print "                       ../icej ../icepy ../icecs, etc and make the"
+    print "                       distributions for you."
+    print "-v, --verbose          Print verbose processing messages."
+    print "-t, --tag              Specify the CVS version tag for the packages."
+    print "--noclean              Do not clean up current sources where"
+    print "                       applicable (some bits will still be cleaned."
+    print "--nobuild              Run through the process but don't build"
+    print "                       anything new."
+    print "--specfile             Just print the RPM spec file and exit."
+    print 
+    print "The following options set the locations for third party libraries"
+    print "that may be required on your platform.  Alternatively, you can"
+    print "set these locations using environment variables of the form.  If"
+    print "you do not set locations through the enviroment or through the "
+    print "command line, default locations will be used (system defaults +"
+    print "the default locations indicated)."
+    print 
+    print "LIBRARY_HOME=[path to library]"
+    print
+    print "e.g. for bzip2"
+    print 
+    print "export BZIP2_HOME=/opt/bzip2-1.0.3"
+    print 
+    print "--stlporthome=[path]   Specify location of the STLPort libraries, "
+    print "                       if required."
+    print "--bzip2home=[path]     Specify location of the bzip2 libraries "
+    print "                       (default=/opt/bzip2)."
+    print "--dbhome=[path]        Specify location of Berkeley DB"
+    print "                       (default=/opt/db)."
+    print "--sslhome=[path]       Specify location of OpenSSL"
+    print "                       (default=/opt/openssl)."
+    print "--expathome=[path]	  Specify location of expat libraries "
+    print "                       (default=/opt/expat)."
+    print "--readlinehome=[path]  Specify readline library and location "
+    print "                       (defaults to /opt/readline if set)."
     print
     print "If no tag is specified, HEAD is used."
 
 def main():
 
+    buildEnvironment = dict()
+    environmentDefaults = dict([
+	    ("STLPORT_HOME", "/opt/STLPort"),
+	    ("BZIP2_HOME", "/opt/bzip2"),
+	    ("DB_HOME", "/opt/db"),
+	    ("OPENSSL_HOME", "/opt/openssl"),
+	    ("EXPAT_HOME", "/opt/expat"),
+	    ("READLINE_HOME", "/opt/readline")
+	    ])
+    buildDir = None
+    installDir = None
+    sources = None
+    installRoot = None
+    verbose = False
+    cvsTag = "HEAD"
+    clean = True
+    build = True
+    version = None
+    soVersion = 0
+    printSpecFile = False
+
     #
     # Process args.
     #
     try:
-        buildDir = None
-        installDir = None
-        sources = None
-        installRoot = None
-        verbose = False
-        cvsTag = "HEAD"
-        clean = True
-        build = True
-        version = None
-        soVersion = 0
-        printSpecFile = False
-        
+
+
         optionList, args = getopt.getopt(sys.argv[1:], "hvt:",
                                          [ "build-dir=", "install-dir=", "install-root=", "sources=",
-                                           "verbose", "tag=", "noclean", "nobuild", "specfile"])
+                                           "verbose", "tag=", "noclean", "nobuild", "specfile",
+					   "stlporthome=", "bzip2home=", "dbhome=", "sslhome=",
+					   "expathome=", "readlinehome="])
                
     except getopt.GetoptError:
         usage()
@@ -729,6 +767,31 @@ def main():
             build = False
         elif o == "--specfile":
             printSpecFile = True
+	elif o == "--stlporthome":
+	    buildEnvironment['STLPORT_HOME'] = a
+	elif o == "--bzip2home":
+	    buildEnvironment['BZIP2_HOME'] = a
+	elif o == "--dbhome":
+	    buildEnvironment['DB_HOME'] = a
+	elif o == "--sslhome":
+	    buildEnvironment['OPENSSL_HOME'] = a
+	elif o == "--expathome":
+	    buildEnvironment['EXPAT_HOME'] = a
+	elif o == "--readlinehome":
+	    buildEnvironment['READLINE_HOME'] = a
+
+    #
+    # Configure environment.
+    #
+    for k, v in environmentDefaults.iteritems():
+	if buildEnvironment.has_key(k):
+	    os.environ[k] = buildEnvironment[k] 
+	#
+	# We pick up defaults for non-linux platforms only.  Our binary build platform is Linux and should
+	# come with all of the required packages installed in 'system' locations.
+	#
+	elif not os.environ.has_key(k) and getPlatform() <> "linux":
+	    os.environ[k] = v
 
     if buildDir == None:
         logging.info("No build directory specified, defaulting to $HOME/tmp/icebuild")
