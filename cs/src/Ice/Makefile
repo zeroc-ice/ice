@@ -56,6 +56,7 @@ SRCS		= Acceptor.cs \
 		  Patcher.cs \
 		  PluginManagerI.cs \
 		  PropertiesI.cs \
+		  PropertyNames.cs \
 		  Protocol.cs \
 		  Proxy.cs \
 		  ProxyFactory.cs \
