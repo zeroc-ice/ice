@@ -54,7 +54,7 @@ Third-party libraries
   therefore if you intend to use Ice for Java with Berkeley DB,
   you must use version 4.2.52 and the option --enable-java.
 
-- OpenSSL 0.9.7c, which can be downloaded from http://www.openssl.org
+- OpenSSL 0.9.7, which can be downloaded from http://www.openssl.org
 
   We do not recommend to use the binary distribution available from
   the "Software Porting And Archive Centre for HP-UX" as it depends on
