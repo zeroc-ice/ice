@@ -62,7 +62,8 @@ private:
     CollectorI(const CollectorI&);
     void operator=(const CollectorI&);
 
-    CollectorI(const ::Ice::ObjectAdapter&, const Transceiver&);
+    CollectorI(const ::Ice::ObjectAdapter&, const Endpoint&,
+	       const Transceiver&);
     virtual ~CollectorI();
     friend class CollectorFactoryI; // May create CollectorIs
 
@@ -79,8 +80,9 @@ private:
     void warning(const ::Ice::LocalException&) const;
 
     ::Ice::ObjectAdapter adapter_;
-    ThreadPool threadPool_;
+    Endpoint endpoint_;
     Transceiver transceiver_;
+    ThreadPool threadPool_;
     int responseCount_;
     State state_;
 #ifndef ICE_NO_TRACE
@@ -129,8 +131,9 @@ private:
     void warning(const ::Ice::LocalException&) const;
 
     ::Ice::ObjectAdapter adapter_;
-    ThreadPool threadPool_;
+    Endpoint endpoint_;
     Acceptor acceptor_;
+    ThreadPool threadPool_;
     std::list<Collector> collectors_;
     State state_;
 #ifndef ICE_NO_TRACE

@@ -72,8 +72,8 @@ private:
     void setState(State, const ::Ice::LocalException&);
 
     Endpoint endpoint_;
-    ThreadPool threadPool_;
     Transceiver transceiver_;
+    ThreadPool threadPool_;
     ::Ice::Int nextRequestId_;
     std::map< ::Ice::Int, Outgoing*> requests_;
     std::auto_ptr< ::Ice::LocalException> exception_;

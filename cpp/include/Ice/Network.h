@@ -80,7 +80,7 @@ void setSendBufferSize(int, int);
 
 void doBind(int, struct sockaddr_in&);
 void doListen(int, int);
-bool doConnect(int, struct sockaddr_in&, int);
+void doConnect(int, struct sockaddr_in&, int);
 int doAccept(int, int);
 
 void getHostByName(const char*, int, struct sockaddr_in&);
