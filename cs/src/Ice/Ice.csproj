@@ -405,6 +405,17 @@
                 />
                 <File
                     RelPath = "generated\CommunicatorF.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "generated\Connection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "generated\ConnectionF.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -434,6 +445,7 @@
                 />
                 <File
                     RelPath = "generated\LocatorF.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -443,6 +455,7 @@
                 />
                 <File
                     RelPath = "generated\LoggerF.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -452,6 +465,7 @@
                 />
                 <File
                     RelPath = "generated\ObjectAdapterF.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -461,6 +475,7 @@
                 />
                 <File
                     RelPath = "generated\ObjectFactoryF.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -470,6 +485,7 @@
                 />
                 <File
                     RelPath = "generated\PluginF.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -479,6 +495,7 @@
                 />
                 <File
                     RelPath = "generated\ProcessF.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -488,6 +505,7 @@
                 />
                 <File
                     RelPath = "generated\PropertiesF.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -497,6 +515,7 @@
                 />
                 <File
                     RelPath = "generated\RouterF.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -506,6 +525,7 @@
                 />
                 <File
                     RelPath = "generated\ServantLocatorF.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -520,15 +540,6 @@
                 />
                 <File
                     RelPath = "generated\StatsF.cs"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\Connection.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\ConnectionF.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
