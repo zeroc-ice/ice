@@ -19,9 +19,13 @@ void IceInternal::incRef(TraceLevels* p) { p->__incRef(); }
 void IceInternal::decRef(TraceLevels* p) { p->__decRef(); }
 
 IceInternal::TraceLevels::TraceLevels(const PropertiesPtr& properties) :
+    network(0),
     networkCat("Network"),
+    protocol(0),
     protocolCat("Protocol"),
+    retry(0),
     retryCat("Retry"),
+    security(0),
     securityCat("Security")
 {
     const string keyBase = "Ice.Trace.";

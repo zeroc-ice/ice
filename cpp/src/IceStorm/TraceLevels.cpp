@@ -15,9 +15,13 @@ using namespace std;
 using namespace IceStorm;
 
 TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, const Ice::LoggerPtr& theLogger) :
+    topicMgr(0),
     topicMgrCat("TopicManager"),
+    topic(0),
     topicCat("Topic"),
+    flush(0),
     flushCat("Flush"),
+    subscriber(0),
     subscriberCat("Subscriber"),
     logger(theLogger)
 {

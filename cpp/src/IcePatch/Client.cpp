@@ -17,6 +17,9 @@
 #include <Ice/System.h>
 #include <Ice/SslExtension.h>
 #include <iomanip>
+#ifdef _WIN32
+#   include <direct.h>
+#endif
 
 using namespace std;
 using namespace Ice;
