@@ -10,4 +10,4 @@
 
 class C { long l; };
 sequence<int> Seq;
-enum E { C, Seq };
+enum E { C, Seq, blah };

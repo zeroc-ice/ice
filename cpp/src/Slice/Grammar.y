@@ -897,6 +897,10 @@ enum_def
     if(en)
     {
 	EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
+	if(enumerators->v.empty())
+	{
+	    unit->error("enum `" + en->name() + "' must have at least one enumerator");
+	}
 	en->setEnumerators(enumerators->v);
     }
     $$ = $3;
@@ -936,6 +940,11 @@ enumerator
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
     unit->error("keyword `" + ident->v + "' cannot be used as enumerator");
+    EnumeratorListTokPtr ens = new EnumeratorListTok;
+    $$ = ens;
+}
+|
+{
     EnumeratorListTokPtr ens = new EnumeratorListTok;
     $$ = ens;
 }

@@ -37,7 +37,6 @@ CaseInsensitive.ice:148: warning: dictionary `D' differs only in capitalization 
 CaseInsensitive.ice:149: redefinition of module `m1' as dictionary
 CaseInsensitive.ice:150: warning: dictionary `M1' differs only in capitalization from module `m1'
 CaseInsensitive.ice:153: warning: enumeration `eN1' differs only in capitalization from enumeration `en1'
-CaseInsensitive.ice:153: redefinition of enumerator `red' as enumerator
 CaseInsensitive.ice:154: redefinition of module `m1' as enumeration
 CaseInsensitive.ice:155: warning: enumeration `M1' differs only in capitalization from module `m1'
 CaseInsensitive.ice:157: redefinition of enumeration `en1' as enumerator

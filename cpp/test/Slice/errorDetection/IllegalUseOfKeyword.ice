@@ -63,5 +63,6 @@ enum E
 {
     sequence,
     dictionary,
-    enum
+    enum,
+    laksdjflkj
 };

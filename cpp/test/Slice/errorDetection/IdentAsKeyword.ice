@@ -61,8 +61,8 @@ dictionary<VOID, VOID> d6;
 enum local { a, b };
 enum LOCAL { c, e };
 
-enum e1 { long, byte };
-enum e2 { LONG, BYTE };
+enum e1 { long, byte, foo };
+enum e2 { LONG, BYTE, bar };
 
 interface i1 { long module(); };
 interface i2 { long mODule(); };
