@@ -11,6 +11,7 @@ import IcePy
 ObjectPrx = IcePy.ObjectPrx
 identityToString = IcePy.identityToString
 stringToIdentity = IcePy.stringToIdentity
+generateUUID = IcePy.generateUUID
 loadSlice = IcePy.loadSlice
 
 #

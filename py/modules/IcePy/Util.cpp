@@ -10,6 +10,7 @@
 #include <Util.h>
 #include <Ice/IdentityUtil.h>
 #include <Ice/LocalException.h>
+#include <IceUtil/UUID.h>
 #include <Slice/PythonUtil.h>
 
 using namespace std;
@@ -755,4 +756,12 @@ IcePy_stringToIdentity(PyObject* /*self*/, PyObject* args)
     }
 
     return IcePy::createIdentity(id);
+}
+
+extern "C"
+PyObject*
+IcePy_generateUUID(PyObject* /*self*/)
+{
+    string uuid = IceUtil::generateUUID();
+    return PyString_FromString(const_cast<char*>(uuid.c_str()));
 }

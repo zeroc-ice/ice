@@ -32,6 +32,8 @@ static PyMethodDef methods[] =
         PyDoc_STR("identityToString(id) -> string") },
     { "stringToIdentity", (PyCFunction)IcePy_stringToIdentity, METH_VARARGS,
         PyDoc_STR("stringToIdentity(str) -> Ice.Identity") },
+    { "generateUUID", (PyCFunction)IcePy_generateUUID, METH_NOARGS,
+        PyDoc_STR("generateUUID() -> string") },
     { "createProperties", (PyCFunction)IcePy_createProperties, METH_VARARGS,
         PyDoc_STR("createProperties([args]) -> Ice.Properties") },
     { "getDefaultProperties", (PyCFunction)IcePy_getDefaultProperties, METH_VARARGS,
