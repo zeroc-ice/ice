@@ -17,21 +17,54 @@ using namespace std;
 using namespace Ice;
 using namespace IcePatch2;
 
-struct FileInfoPathEqual: public binary_function<const FileInfo&, const FileInfo&, bool>
-{
-    bool
-    operator()(const FileInfo& lhs, const FileInfo& rhs)
-    {
-	return lhs.path != rhs.path;
-    }
-};
-
 struct FileInfoPathLess: public binary_function<const FileInfo&, const FileInfo&, bool>
 {
     bool
     operator()(const FileInfo& lhs, const FileInfo& rhs)
     {
 	return lhs.path < rhs.path;
+    }
+};
+
+struct IFileInfoPathEqual: public binary_function<const FileInfo&, const FileInfo&, bool>
+{
+    bool
+    operator()(const FileInfo& lhs, const FileInfo& rhs)
+    {
+	if(lhs.path.size() != rhs.path.size())
+	{
+	    return false;
+	}
+
+	for(string::size_type i = 0; i < lhs.path.size(); ++i)
+	{
+	    if(::tolower(lhs.path[i]) != ::tolower(rhs.path[i]))
+	    {
+		return false;
+	    }
+	}
+
+	return true;
+    }
+};
+
+struct IFileInfoPathLess: public binary_function<const FileInfo&, const FileInfo&, bool>
+{
+    bool
+    operator()(const FileInfo& lhs, const FileInfo& rhs)
+    {
+	for(string::size_type i = 0; i < lhs.path.size() && i < rhs.path.size(); ++i)
+	{
+	    if(::tolower(lhs.path[i]) < ::tolower(rhs.path[i]))
+	    {
+		return true;
+	    }
+	    else if(::tolower(lhs.path[i]) > ::tolower(rhs.path[i]))
+	    {
+		return false;
+	    }
+	}
+	return lhs.path.size() < rhs.path.size();
     }
 };
 
@@ -67,11 +100,12 @@ usage(const char* appName)
     cerr << "Usage: " << appName << " [options] DIR [FILES...]\n";
     cerr <<     
         "Options:\n"
-        "-h, --help           Show this message.\n"
-        "-v, --version        Display the Ice version.\n"
-        "-z, --compress       Always compress files.\n"
-        "-Z, --no-compress    Never compress files.\n"
-        "-V, --verbose        Verbose mode.\n"
+        "-h, --help              Show this message.\n"
+        "-v, --version           Display the Ice version.\n"
+        "-z, --compress          Always compress files.\n"
+        "-Z, --no-compress       Never compress files.\n"
+        "-i, --case-insensitive  Files must not differ in case only.\n"
+        "-V, --verbose           Verbose mode.\n"
         ;
 }
 
@@ -81,6 +115,7 @@ main(int argc, char* argv[])
     string dataDir;
     StringSeq fileSeq;
     int compress = 1;
+    bool caseInsensitive = false;
     bool verbose = false;
 
     int i;
@@ -103,6 +138,10 @@ main(int argc, char* argv[])
         else if(strcmp(argv[i], "-Z") == 0 || strcmp(argv[i], "--no-compress") == 0)
         {
             compress = 0;
+        }
+        else if(strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--case-insensitive") == 0)
+        {
+            caseInsensitive = true;
         }
         else if(strcmp(argv[i], "-V") == 0 || strcmp(argv[i], "--verbose") == 0)
         {
@@ -239,6 +278,30 @@ main(int argc, char* argv[])
 			  FileInfoPathLess());
 
 		infoSeq.swap(newInfoSeq);
+	    }
+	}
+
+	if(caseInsensitive)
+	{
+	    FileInfoSeq newInfoSeq = infoSeq;
+	    sort(newInfoSeq.begin(), newInfoSeq.end(), IFileInfoPathLess());
+
+	    string ex;
+	    FileInfoSeq::iterator p = newInfoSeq.begin();
+	    while((p = adjacent_find(p, newInfoSeq.end(), IFileInfoPathEqual())) != newInfoSeq.end())
+	    {
+		do
+		{
+		    ex += '\n' + p->path;
+		    ++p;
+		}
+		while(p < newInfoSeq.end() && IFileInfoPathEqual()(*(p - 1), *p));
+	    }
+
+	    if(!ex.empty())
+	    {
+		ex = "duplicate files:" + ex;
+		throw ex;
 	    }
 	}
 
