@@ -448,7 +448,7 @@ Glacier::CryptPasswordVerifierI::checkPassword(const string& userId, const strin
     }
 
     {
-	IceUtil::Lock<IceUtil::Mutex> sync(*this); // Need a lock as crypt() is not reentrant.
+	IceUtil::Mutex::Lock sync(*this); // Need a lock as crypt() is not reentrant.
 	
 	return p->second == crypt(password.c_str(), p->second.substr(0, 2).c_str());
     }
