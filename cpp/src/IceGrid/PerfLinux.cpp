@@ -318,7 +318,6 @@ IcePerf::getPerfData(const StringSeq& keys)
     return result;
 } 
 
-
 //
 // Parser implementation
 //

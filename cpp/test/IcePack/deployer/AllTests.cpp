@@ -121,6 +121,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(obj->getProperty("Variable1") == "");
     test(obj->getProperty("Variable2") == "");
 
+    test(obj->getProperty("NameName") == "Server1Server1");
+    test(obj->getProperty("NameEscaped") == "${name}");
+    test(obj->getProperty("NameEscapeEscaped") == "$Server1");
+    test(obj->getProperty("NameEscapedEscapeEscaped") == "$${name}");
+    test(obj->getProperty("ManyEscape") == "$$$${name}");
+
     obj = TestIntfPrx::checkedCast(communicator->stringToProxy("Server2@Server2.Server"));
     test(obj->getProperty("Target1") == "1");
     test(obj->getProperty("Target2") == "1");

@@ -1406,6 +1406,12 @@ AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 }
 
 void 
+AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
+{
+    _objectRegistry->update(proxy);
+}
+
+void 
 AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const ::Ice::Current&)
 {
     ObjectDescriptor desc;

@@ -819,6 +819,19 @@ interface Admin
 
     /**
      *
+     * Update an object in the object registry.
+     *
+     * @param obj The object to be updated to the registry.
+     *
+     * @throws ObjectNotExistException Raised if the object cannot be
+     * found.
+     *
+     **/
+    void updateObject(Object* obj)
+	throws ObjectNotExistException;
+
+    /**
+     *
      * Add an object to the object registry and explicitly specify
      * its type.
      *

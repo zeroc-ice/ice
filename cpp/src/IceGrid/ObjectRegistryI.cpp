@@ -86,6 +86,33 @@ ObjectRegistryI::add(const ObjectDescriptor& obj, const Ice::Current&)
 }
 
 void
+ObjectRegistryI::update(const Ice::ObjectPrx& obj, const Ice::Current&)
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+    IdentityObjectDescDict objects(connection, _objectsDbName);
+
+    Ice::Identity id = obj->ice_getIdentity();
+
+    IdentityObjectDescDict::iterator p = objects.find(id);
+    if(p == objects.end())
+    {
+	throw ObjectNotExistException();
+    }
+
+    ObjectDescriptor desc = p->second;
+    desc.proxy = obj;
+    p.set(desc);
+
+    if(_traceLevels->objectRegistry > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->objectRegistryCat);
+	out << "updated object `" << Ice::identityToString(id) << "'";
+    }
+}
+
+void
 ObjectRegistryI::remove(const Ice::Identity& id, const Ice::Current&)
 {
     IceUtil::Mutex::Lock sync(*this);

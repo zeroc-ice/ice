@@ -24,6 +24,11 @@
     <property name="Variable" value="${var0}"/>
     <property name="Type" value="Server"/>
     <property name="Name" value="${name}"/>
+    <property name="NameName" value="${name}${name}"/>
+    <property name="NameEscaped" value="$${name}"/>
+    <property name="NameEscapeEscaped" value="$$${name}"/> 
+    <property name="NameEscapedEscapeEscaped" value="$$$${name}"/> 
+    <property name="ManyEscape" value="$$$$$$$${name}"/>
     <property name="Ice.Warn.Connections" value="1"/>
   </properties>
 

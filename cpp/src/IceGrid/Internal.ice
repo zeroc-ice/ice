@@ -35,6 +35,14 @@ interface ObjectRegistry
 
     /**
      *
+     * Update an object in the registry.
+     *
+     **/
+    void update(Object* obj)
+	throws ObjectNotExistException;
+
+    /**
+     *
      * Remove an object from the registry.
      *
      **/

@@ -52,6 +52,7 @@ public:
     virtual Ice::StringSeq getAllAdapterIds(const ::Ice::Current&) const;
 
     virtual void addObject(const ::Ice::ObjectPrx&, const ::Ice::Current&);
+    virtual void updateObject(const ::Ice::ObjectPrx&, const ::Ice::Current&);
     virtual void addObjectWithType(const ::Ice::ObjectPrx&, const ::std::string&, const ::Ice::Current&);
     virtual void removeObject(const ::Ice::Identity&, const ::Ice::Current&);
     virtual ObjectDescriptor getObjectDescriptor(const Ice::Identity&, const ::Ice::Current&) const;

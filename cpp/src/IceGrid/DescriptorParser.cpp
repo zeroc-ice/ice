@@ -667,6 +667,26 @@ DescriptorHandler::substitute(const string& v) const
 
     while((beg = value.find("${", beg)) != string::npos)
     {
+	if(beg > 0 && value[beg - 1] == '$')
+	{
+	    string::size_type escape = beg - 1;
+	    while(escape > 0 && value[escape - 1] == '$')
+	    {
+		--escape;
+	    }
+
+	    value.replace(escape, beg - escape, (beg - escape) / 2, '$');
+	    if((beg - escape) % 2)
+	    {
+		++beg;
+		continue;
+	    }
+	    else
+	    {
+		beg -= (beg - escape) / 2;
+	    }
+	}
+
 	end = value.find("}", beg);
 	
 	if(end == string::npos)

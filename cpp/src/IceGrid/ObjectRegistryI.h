@@ -28,6 +28,7 @@ public:
     ObjectRegistryI(const Ice::CommunicatorPtr& communicator, const std::string&, const TraceLevelsPtr& traceLevels);
 
     virtual void add(const IceGrid::ObjectDescriptor&, const ::Ice::Current&);
+    virtual void update(const Ice::ObjectPrx&, const ::Ice::Current&);
     virtual void remove(const Ice::Identity&, const ::Ice::Current&);
 
     virtual ObjectDescriptor getObjectDescriptor(const Ice::Identity&, const ::Ice::Current&) const;
