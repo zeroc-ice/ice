@@ -1092,7 +1092,8 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             {
                 bool isObject = false;
 		BuiltinPtr builtin = BuiltinPtr::dynamicCast(origContent);
-		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(origContent))
+                ClassDeclPtr cl = ClassDeclPtr::dynamicCast(origContent);
+		if((builtin && builtin->kind() == Builtin::KindObject) || cl)
                 {
                     isObject = true;
                 }
@@ -1107,7 +1108,16 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     }
                     else
                     {
-                        out << nl << "final String __type" << iter << " = " << origContentS << ".ice_staticId();";
+                        assert(cl);
+                        if(cl->isInterface())
+                        {
+                            out << nl << "final String __type" << iter << " = "
+                                << getAbsolute(cl, package, "_", "Disp") << ".ice_staticId();";
+                        }
+                        else
+                        {
+                            out << nl << "final String __type" << iter << " = " << origContentS << ".ice_staticId();";
+                        }
                     }
                 }
                 out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __len" << iter << "; __i" << iter
@@ -1295,7 +1305,8 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             else
             {
                 bool isObject = false;
-		if((b && b->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(origContent))
+                ClassDeclPtr cl = ClassDeclPtr::dynamicCast(origContent);
+		if((b && b->kind() == Builtin::KindObject) || cl)
                 {
                     isObject = true;
                 }
@@ -1309,7 +1320,16 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     }
                     else
                     {
-                        out << nl << "final String __type" << iter << " = " << origContentS << ".ice_staticId();";
+                        assert(cl);
+                        if(cl->isInterface())
+                        {
+                            out << nl << "final String __type" << iter << " = "
+                                << getAbsolute(cl, package, "_", "Disp") << ".ice_staticId();";
+                        }
+                        else
+                        {
+                            out << nl << "final String __type" << iter << " = " << origContentS << ".ice_staticId();";
+                        }
                     }
                 }
                 out << nl << v << " = new " << origContentS << "[__len" << iter << "]";
@@ -1410,7 +1430,7 @@ bool
 Slice::JavaGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 {
     validate(p);
-    return false;
+    return true;
 }
 
 void
