@@ -7,6 +7,23 @@
 ' 
 '  **********************************************************************
 
+'
+' Simple poor-man's make replacement to automatically generate VB from Slice definitions.
+'
+' Usage: generate.exe dir [build|rebuild|clean]
+'
+' For example:
+'
+'    generate.exe . build
+'
+' locates all Slice files in the sub-tree rooted at the current directory and compiles them.
+'
+' When a Slice file is found in a directory, generate.exe checks whether the directory containing
+' the Slice file contains a directory called "generated". If so, it places the generated .vb file
+' into the "generated" directory; otherwise, the generated .vb file is placed into the directory
+' that contains the Slice file.
+'
+
 Imports System
 Imports System.Diagnostics
 Imports System.IO
@@ -14,66 +31,66 @@ Imports System.Text
 Imports System.Threading
 
 Module Generate
+
+    Private proc As Process
+
+    Private Sub RedirectStandardOutput()
+	Dim output As String = proc.StandardOutput.ReadToEnd()
+	Console.Out.Write(output)
+	Console.Out.Flush()
+    End Sub
+
+    Private Sub RedirectStandardError()
+	Dim output As String = proc.StandardError.ReadToEnd()
+	Console.Error.Write(output)
+	Console.Error.Flush()
+    End Sub
+
     Enum BuildAction As Integer
 	build
 	rebuild
 	clean
     End Enum
 
-    Private Sub usage(ByVal progName As String)
-	Console.Error.WriteLine("usage: {0} solution_dir build|rebuild|clean", progName)
-	Environment.Exit(1)
-    End Sub
-
-    Dim p As Process
-
-    Private Sub RedirectStandardOutput()
-	Dim output As String = p.StandardOutput.ReadToEnd()
-	Console.Out.Write(output)
-	Console.Out.Flush()
-    End Sub
-
-    Private Sub RedirectStandardError()
-	Dim output As String = p.StandardError.ReadToEnd()
-	Console.Error.Write(output)
-	Console.Error.Flush()
-    End Sub
-
     Class Processor
 
 	Private _slice2vb As String
+	Private _includes As String
 	Private _action As BuildAction
 
-	Public Sub New(ByVal slice2vb As String, ByVal action As BuildAction)
-	    _action = action
+	Public Sub New(ByVal slice2vb As String, ByVal includes As String, ByVal action As BuildAction)
 	    _slice2vb = slice2vb
+	    _includes = includes
+	    _action = action
 	End Sub
 
 	'
 	' Compile a Slice file, redirecting standard output and standard error to the console.
 	'
-	Private Sub doCompile(ByVal sliceFile As String, ByVal outputDir As String)
-	    Dim cmdArgs As String = "--output-dir " & outputDir & " " & sliceFile
+	Private Function doCompile(ByVal sliceFile As String, ByVal outputDir As String) As Integer
+	    Dim cmdArgs As String = "--output-dir " & outputDir & " --ice " & _includes & " " & sliceFile
 	    Dim info As ProcessStartInfo = New ProcessStartInfo(_slice2vb, cmdArgs)
 	    info.CreateNoWindow = True
 	    info.UseShellExecute = False
 	    info.RedirectStandardOutput = True
 	    info.RedirectStandardError = True
-	    p = Process.Start(info)
+	    proc = Process.Start(info)
 	    Dim t1 As Thread = New Thread(New ThreadStart(AddressOf RedirectStandardOutput))
 	    Dim t2 As Thread = New Thread(New ThreadStart(AddressOf RedirectStandardError))
 	    t1.Start()
 	    t2.Start()
-	    p.WaitForExit()
+	    proc.WaitForExit()
+	    Dim rc As Integer = proc.ExitCode
 	    t1.Join()
 	    t2.Join()
-	End Sub
+	    Return rc
+	End Function
 
 	'
 	' Do a recursive decent on the directory hierarchy rooted at "currentDir" and look
 	' for Slice files. Apply the build action to each Slice file found.
 	'
-	Public Sub processDirectory(ByVal currentDir As String)
+	Public Function processDirectory(ByVal currentDir As String) As Integer
 
 	    '
 	    ' Set output directory.
@@ -87,6 +104,7 @@ Module Generate
 	    '
 	    ' Look for Slice files and apply the build action to each Slice file.
 	    '
+	    Dim rc As Integer = 0
 	    Const slicePat As String = "*.ice"
 	    Dim sliceFiles() As String = Directory.GetFiles(currentDir, slicePat)
 	    For Each sliceFile As String In sliceFiles
@@ -101,11 +119,17 @@ Module Generate
 			End If
 			If needCompile Then
 			    Console.WriteLine(Path.GetFileName(sliceFile))
-			    doCompile(sliceFile, outputDir)
+			    Dim exitCode = doCompile(sliceFile, outputDir)
+			    If rc = 0 Then
+				rc = exitCode
+			    End If
 			End If
 		    Case BuildAction.build.rebuild
 			Console.WriteLine(Path.GetFileName(sliceFile))
-			doCompile(sliceFile, outputDir)
+			Dim exitCode = doCompile(sliceFile, outputDir)
+			If rc = 0 Then
+			    rc = exitCode
+			End If
 		    Case BuildAction.build.clean
 			If File.Exists(vbFile) Then
 			    File.Delete(vbFile)
@@ -120,14 +144,22 @@ Module Generate
 	    Dim dirs() As String = Directory.GetDirectories(currentDir)
 	    For Each dir As String In dirs
 		If Not dir.Equals("generate") Then
-		    processDirectory(dir)
+		    Dim exitCode As Integer = processDirectory(dir)
+		    If rc = 0 Then
+			rc = exitCode
+		    End If
 		End If
 	    Next
 
-	End Sub
+	    Return rc
+	End Function
 
     End Class
 
+    Private Sub usage(ByVal progName As String)
+	Console.Error.WriteLine("usage: {0} solution_dir build|rebuild|clean", progName)
+	Environment.Exit(1)
+    End Sub
 
     Public Sub Main(ByVal args() As String)
 
@@ -152,7 +184,7 @@ Module Generate
 	End If
 
 	'
-	' Work out where slice2vb is. If neither in ${SolutionDir} nor in %ICE_HOME%\bin,
+	' Work out where slice2vb is. If neither in $(SolutionDir) nor in %ICE_HOME%\bin,
 	' assume that slice2vb is in PATH.
 	'
 	Const slice2vbName As String = "slice2vb"
@@ -170,14 +202,22 @@ Module Generate
 	    slice2vb = slice2vbName
 	End If
 
+	Dim includes As String = ""
+	If Directory.Exists(Path.Combine(solDir, "slice")) Then
+	    includes = "-I" & Path.Combine(solDir, "slice")
+	End If
+	If Not iceHome Is Nothing Then
+	    If Directory.Exists(Path.Combine(iceHome, "slice")) Then
+		includes = includes & " -I" & Path.Combine(iceHome, "slice")
+	    End If
+	End If
+
 	'
 	' Change to the solution directory and recursively look for Slice files.
 	'
 	Directory.SetCurrentDirectory(solDir)
-	Dim proc As Processor = New Processor(slice2vb, action)
-	proc.processDirectory(".")
-
-	Environment.Exit(0)
+	Dim proc As Processor = New Processor(slice2vb, includes, action)
+	Environment.Exit(proc.processDirectory("."))
 
     End Sub
 

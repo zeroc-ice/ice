@@ -3,24 +3,24 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{11003592-223B-41AE-B7F3-F93EEE0CEF06}"
+        ProjectGuid = "{D708E322-EF83-44E1-89D1-C0F9E8529A16}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "client"
+                AssemblyName = "simpleCommon"
                 AssemblyOriginatorKeyFile = ""
                 AssemblyOriginatorKeyMode = "None"
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
-                OutputType = "Exe"
+                OutputType = "Library"
                 OptionCompare = "Binary"
                 OptionExplicit = "On"
                 OptionStrict = "Off"
-                RootNamespace = "latencyC"
+                RootNamespace = ""
                 StartupObject = ""
             >
                 <Config
@@ -62,11 +62,6 @@
                     AssemblyName = "System"
                 />
                 <Reference
-                    Name = "latencyCommon"
-                    Project = "{03CD2196-1D2E-4223-A23D-F343B16A9132}"
-                    Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
-                />
-                <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
                     HintPath = "..\..\..\..\icecs\bin\icecs.dll"
@@ -79,7 +74,7 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "Client.vb"
+                    RelPath = "generated\Filesystem.vb"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

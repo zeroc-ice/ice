@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{11003592-223B-41AE-B7F3-F93EEE0CEF06}"
+        ProjectGuid = "{F9015E65-8312-4FAA-9261-F72C9989C6D7}"
     >
         <Build>
             <Settings
@@ -20,7 +20,7 @@
                 OptionCompare = "Binary"
                 OptionExplicit = "On"
                 OptionStrict = "Off"
-                RootNamespace = "latencyC"
+                RootNamespace = "printerDemo"
                 StartupObject = ""
             >
                 <Config
@@ -62,14 +62,14 @@
                     AssemblyName = "System"
                 />
                 <Reference
-                    Name = "latencyCommon"
-                    Project = "{03CD2196-1D2E-4223-A23D-F343B16A9132}"
-                    Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
-                />
-                <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
                     HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                />
+                <Reference
+                    Name = "printerCommon"
+                    Project = "{DF6F3718-DC85-4DEA-A4AF-57967A8E222D}"
+                    Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
                 />
             </References>
             <Imports>

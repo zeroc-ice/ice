@@ -113,6 +113,41 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "compileSlice", "generate\co
 		{0EFCB594-52A9-44DE-8508-7446F3E7A529} = {0EFCB594-52A9-44DE-8508-7446F3E7A529}
 	EndProjectSection
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "operationsAMDCommon", "test\Ice\operations\operationsAMDCommon.vbproj", "{296560B0-FB0E-4A01-AB21-E28B7F06D934}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleC", "demo\book\simple_filesystem\simpleC.vbproj", "{3E2FDAF6-9978-478A-B511-A71203F3BFDB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleCommon", "demo\book\simple_filesystem\simpleCommon.vbproj", "{D708E322-EF83-44E1-89D1-C0F9E8529A16}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleS", "demo\book\simple_filesystem\simpleS.vbproj", "{00A4F0AD-90F0-44F4-9FF5-6EEF02BE5362}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "printerC", "demo\book\printer\printerC.vbproj", "{F9015E65-8312-4FAA-9261-F72C9989C6D7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "printerCommon", "demo\book\printer\printerCommon.vbproj", "{DF6F3718-DC85-4DEA-A4AF-57967A8E222D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "printerS", "demo\book\printer\printerS.vbproj", "{FF2648CB-716F-4B33-865E-43F492EF45A9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -211,6 +246,34 @@ Global
 		{F47C2D68-B976-4D14-B4D5-E563001011D1}.Debug.Build.0 = Debug|Win32
 		{F47C2D68-B976-4D14-B4D5-E563001011D1}.Release.ActiveCfg = Release|Win32
 		{F47C2D68-B976-4D14-B4D5-E563001011D1}.Release.Build.0 = Release|Win32
+		{296560B0-FB0E-4A01-AB21-E28B7F06D934}.Debug.ActiveCfg = Debug|.NET
+		{296560B0-FB0E-4A01-AB21-E28B7F06D934}.Debug.Build.0 = Debug|.NET
+		{296560B0-FB0E-4A01-AB21-E28B7F06D934}.Release.ActiveCfg = Release|.NET
+		{296560B0-FB0E-4A01-AB21-E28B7F06D934}.Release.Build.0 = Release|.NET
+		{3E2FDAF6-9978-478A-B511-A71203F3BFDB}.Debug.ActiveCfg = Debug|.NET
+		{3E2FDAF6-9978-478A-B511-A71203F3BFDB}.Debug.Build.0 = Debug|.NET
+		{3E2FDAF6-9978-478A-B511-A71203F3BFDB}.Release.ActiveCfg = Release|.NET
+		{3E2FDAF6-9978-478A-B511-A71203F3BFDB}.Release.Build.0 = Release|.NET
+		{D708E322-EF83-44E1-89D1-C0F9E8529A16}.Debug.ActiveCfg = Debug|.NET
+		{D708E322-EF83-44E1-89D1-C0F9E8529A16}.Debug.Build.0 = Debug|.NET
+		{D708E322-EF83-44E1-89D1-C0F9E8529A16}.Release.ActiveCfg = Release|.NET
+		{D708E322-EF83-44E1-89D1-C0F9E8529A16}.Release.Build.0 = Release|.NET
+		{00A4F0AD-90F0-44F4-9FF5-6EEF02BE5362}.Debug.ActiveCfg = Debug|.NET
+		{00A4F0AD-90F0-44F4-9FF5-6EEF02BE5362}.Debug.Build.0 = Debug|.NET
+		{00A4F0AD-90F0-44F4-9FF5-6EEF02BE5362}.Release.ActiveCfg = Release|.NET
+		{00A4F0AD-90F0-44F4-9FF5-6EEF02BE5362}.Release.Build.0 = Release|.NET
+		{F9015E65-8312-4FAA-9261-F72C9989C6D7}.Debug.ActiveCfg = Debug|.NET
+		{F9015E65-8312-4FAA-9261-F72C9989C6D7}.Debug.Build.0 = Debug|.NET
+		{F9015E65-8312-4FAA-9261-F72C9989C6D7}.Release.ActiveCfg = Release|.NET
+		{F9015E65-8312-4FAA-9261-F72C9989C6D7}.Release.Build.0 = Release|.NET
+		{DF6F3718-DC85-4DEA-A4AF-57967A8E222D}.Debug.ActiveCfg = Debug|.NET
+		{DF6F3718-DC85-4DEA-A4AF-57967A8E222D}.Debug.Build.0 = Debug|.NET
+		{DF6F3718-DC85-4DEA-A4AF-57967A8E222D}.Release.ActiveCfg = Release|.NET
+		{DF6F3718-DC85-4DEA-A4AF-57967A8E222D}.Release.Build.0 = Release|.NET
+		{FF2648CB-716F-4B33-865E-43F492EF45A9}.Debug.ActiveCfg = Debug|.NET
+		{FF2648CB-716F-4B33-865E-43F492EF45A9}.Debug.Build.0 = Debug|.NET
+		{FF2648CB-716F-4B33-865E-43F492EF45A9}.Release.ActiveCfg = Release|.NET
+		{FF2648CB-716F-4B33-865E-43F492EF45A9}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
