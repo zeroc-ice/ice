@@ -8,6 +8,7 @@
 #include "ace/OS_NS_errno.h"
 
 #include "tao/Strategies/advanced_resource.h"
+#include "tao/Messaging/Messaging.h"
 #include <iostream>
 
 #ifdef _WIN32
@@ -59,6 +60,31 @@ main (int argc, char *argv[])
       CORBA::ORB_var orb =
         CORBA::ORB_init (argc, argv, "" ACE_ENV_ARG_PARAMETER);
       ACE_TRY_CHECK;
+
+      CORBA::Object_var object =
+        orb->resolve_initial_references ("PolicyCurrent" ACE_ENV_ARG_PARAMETER);
+      ACE_CHECK;
+
+      CORBA::PolicyCurrent_var policy_current =
+        CORBA::PolicyCurrent::_narrow (object.in () ACE_ENV_ARG_PARAMETER);
+      ACE_CHECK;
+
+      CORBA::Any scope_as_any;
+      scope_as_any <<= Messaging::SYNC_WITH_TRANSPORT;
+
+      CORBA::PolicyList policies(1);
+      policies.length(1);
+      policies[0] =
+        orb->create_policy(Messaging::SYNC_SCOPE_POLICY_TYPE, 
+			   scope_as_any
+			   ACE_ENV_ARG_PARAMETER);
+      ACE_CHECK;
+
+      policy_current->set_policy_overrides (policies, CORBA::ADD_OVERRIDE ACE_ENV_ARG_PARAMETER);
+      ACE_CHECK;
+
+      policies[0]->destroy (ACE_ENV_SINGLE_ARG_PARAMETER);
+      ACE_CHECK;
 
     bool latency = false;
     bool oneway = false;
@@ -116,7 +142,7 @@ main (int argc, char *argv[])
     }
 
 
-      CORBA::Object_var object =
+      object =
         orb->string_to_object (ior ACE_ENV_ARG_PARAMETER);
       ACE_TRY_CHECK;
 
