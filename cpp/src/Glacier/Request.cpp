@@ -40,13 +40,20 @@ Glacier::Request::invoke()
     if(_proxy->ice_isTwoway())
     {
 	assert(_amiCB);
-	if(_forwardContext)
+	try
 	{
-	    _proxy->ice_invoke_async(_amiCB, _current.operation, _current.mode, _inParams, _current.ctx);
+	    if(_forwardContext)
+	    {
+		_proxy->ice_invoke_async(_amiCB, _current.operation, _current.mode, _inParams, _current.ctx);
+	    }
+	    else
+	    {
+		_proxy->ice_invoke_async(_amiCB, _current.operation, _current.mode, _inParams);
+	    }
 	}
-	else
+	catch(const Ice::Exception& ex)
 	{
-	    _proxy->ice_invoke_async(_amiCB, _current.operation, _current.mode, _inParams);
+	    _amiCB->ice_exception(ex);
 	}
     }
     else
