@@ -135,6 +135,9 @@ IceUtil::GC::stop()
 void
 IceUtil::GC::collectGarbage()
 {
+    //
+    // Do nothing if the collector is running already.
+    //
     {
 	Monitor<Mutex>::Lock sync(*this);
 
@@ -145,67 +148,75 @@ IceUtil::GC::collectGarbage()
 	_collecting = true;
     }
 
-    typedef map<GCShared*, int> ObjectCounts;
-    ObjectCounts counts;
+    RecMutex::Lock sync(*gcRecMutex._m); // Prevent any further class reference count activity.
 
     Time t;
     GCStats stats;
 
-    RecMutex::Lock sync(*gcRecMutex._m); // Prevent any further class reference count activity.
-
     if(_statsCallback)
     {
 	t = Time::now();
+	stats.examined = gcObjects.size();
     }
 
     //
-    // Initialize a set of pairs <GCShared*, ref count> for all class instances.
+    // gcObjects contains the set of class instances that have at least one member of class type,
+    // that is, gcObjects contains all those instances that can point at other instances.
+    // Call this the the candiate set.
+    // Build a multiset of instances that are immediately (not recursively) reachable from instances
+    // in the candidate set. This adds leaf nodes (class instances that are pointed at, but cannot
+    // point at anything themselves) to the multiset.
     //
+    GCObjectMultiSet reachable;
     {
 	for(GCObjectSet::const_iterator i = gcObjects.begin(); i != gcObjects.end(); ++i)
 	{
-	    assert(*i);
-	    counts[*i] = (*i)->_ref;
+	    (*i)->__gcReachable(reachable);
 	}
     }
 
-    if(_statsCallback)
-    {
-	stats.examined = counts.size();
-    }
-
     //
-    // For each class instance in the set, find which class instances can be reached from that instance.
-    // For each reachable instance, decrement the reachable instance's ref count.
+    // Create a map of reference counts.
     //
+    typedef map<GCShared*, int> ObjectCounts;
+    ObjectCounts counts;
     {
-	for(GCObjectSet::const_iterator i = gcObjects.begin(); i != gcObjects.end(); ++i)
+	ObjectCounts::iterator pos;
+	for(GCObjectMultiSet::const_iterator i = reachable.begin(); i != reachable.end(); ++i)
 	{
-	    GCObjectMultiSet reachable;
-	    (*i)->__gcReachable(reachable);
-	    for(GCObjectMultiSet::const_iterator j = reachable.begin(); j != reachable.end(); ++j)
+	    pos = counts.find(*i);
+
+	    //
+	    // If this instance is not in the counts set yet, insert it with its reference count - 1;
+	    // otherwise, decrement its reference count.
+	    //
+	    if(pos == counts.end())
 	    {
-		--(counts.find(*j)->second);
+		counts.insert(pos, ObjectCounts::value_type(*i, (*i)->_ref - 1));
+	    }
+	    else
+	    {
+		--(pos->second);
 	    }
 	}
     }
 
     //
     // Any instances with a ref count > 0 are referenced from outside the set of class instances (and therefore
-    // reachable from the program, for example, via Ptr variable on the stack). Remove these reachable instances
+    // reachable from the program, for example, via Ptr variable on the stack). Remove these instances
     // (and all instances reachable from them) from the overall set of objects.
     //
     {
-	GCObjectSet reachable;
+	GCObjectSet liveObjects;
 	for(ObjectCounts::const_iterator i = counts.begin(); i != counts.end(); ++i)
 	{
 	    if(i->second > 0)
 	    {
-		recursivelyReachable(i->first, reachable);
+		recursivelyReachable(i->first, liveObjects);
 	    }
 	}
 
-	for(GCObjectSet::const_iterator j = reachable.begin(); j != reachable.end(); ++j)
+	for(GCObjectSet::const_iterator j = liveObjects.begin(); j != liveObjects.end(); ++j)
 	{
 	    counts.erase(*j);
 	}

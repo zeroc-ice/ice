@@ -11,7 +11,9 @@
 
 namespace IceUtil
 {
+
 GCObjectSet gcObjects;
+
 }
 
 using namespace IceUtil;

@@ -1,6 +1,9 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Fixed a bug in the garbage collector that caused a crash
+  in rare circumstances.
+
 - Freeze dictionaries now support indices. You can index on the
   full value of the dictionary, or on a member (when the value
   is a struct or a class). When you index on a member, you 
