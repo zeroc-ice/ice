@@ -4,11 +4,7 @@ export ICE_CONFIG=config
 
 or use --Ice.Config=config for all subsequent commands.
 
-Either start the IceStorm daemon:
-
-../../../bin/icestorm
-
-or to run IceStorm as an IceBox service:
+Start the IceStorm service:
 
 ../../../bin/icebox --Ice.Config=config_service
 

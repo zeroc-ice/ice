@@ -22,10 +22,9 @@ VERSIONED_SBASE	= $(SBASE).$(VERSION)
 SNAME		= $(top_srcdir)/lib/$(SBASE)
 VERSIONED_SNAME	= $(top_srcdir)/lib/$(VERSIONED_SBASE)
 
-SERVER		= $(top_srcdir)/bin/icestorm
 ADMIN		= $(top_srcdir)/bin/icestormadmin
 
-TARGETS		= $(NAME) $(VERSIONED_NAME) $(SNAME) $(VERSIONED_SNAME) $(SERVER) $(ADMIN)
+TARGETS		= $(NAME) $(VERSIONED_NAME) $(SNAME) $(VERSIONED_SNAME) $(ADMIN)
 
 OBJS		= IceStorm.o
 
@@ -44,8 +43,6 @@ SERVICE_OBJS	= IceStorm.o \
 		  LinkDB.o \
 		  IceStormInternal.o \
 		  Service.o
-
-SERVER_OBJS	=  Server.o
 
 AOBJS		= Admin.o \
 		  Grammar.o \
@@ -83,11 +80,6 @@ $(VERSIONED_SNAME): $(SERVICE_OBJS)
 $(SNAME): $(VERSIONED_SNAME)
 	rm -f $@
 	ln -s $(VERSIONED_SBASE) $@
-
-$(SERVER): $(SERVER_OBJS)
-	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SERVER_OBJS) -lIceStormService -lFreeze \
-	$(LIBS) $(XERCESC_LIBS) -ldb
 
 $(ADMIN): $(AOBJS)
 	rm -f $@
