@@ -393,9 +393,16 @@ public class BasicStream
     public void
     writeByteSeq(byte[] v)
     {
-        writeSize(v.length);
-        expand(v.length);
-        _buf.put(v);
+	if(v == null)
+	{
+	    writeSize(0);
+	}
+	else
+	{
+	    writeSize(v.length);
+	    expand(v.length);
+	    _buf.put(v);
+	}
     }
 
     public byte
@@ -437,12 +444,19 @@ public class BasicStream
     public void
     writeBoolSeq(boolean[] v)
     {
-        writeSize(v.length);
-        expand(v.length);
-        for(int i = 0; i < v.length; i++)
-        {
-            _buf.put(v[i] ? (byte)1 : (byte)0);
-        }
+	if(v == null)
+	{
+	    writeSize(0);
+	}
+	else
+	{
+	    writeSize(v.length);
+	    expand(v.length);
+	    for(int i = 0; i < v.length; i++)
+	    {
+		_buf.put(v[i] ? (byte)1 : (byte)0);
+	    }
+	}
     }
 
     public boolean
@@ -487,11 +501,18 @@ public class BasicStream
     public void
     writeShortSeq(short[] v)
     {
-        writeSize(v.length);
-        expand(v.length * 2);
-        java.nio.ShortBuffer shortBuf = _buf.asShortBuffer();
-        shortBuf.put(v);
-        _buf.position(_buf.position() + v.length * 2);
+	if(v == null)
+	{
+	    writeSize(0);
+	}
+	else
+	{
+	    writeSize(v.length);
+	    expand(v.length * 2);
+	    java.nio.ShortBuffer shortBuf = _buf.asShortBuffer();
+	    shortBuf.put(v);
+	    _buf.position(_buf.position() + v.length * 2);
+	}
     }
 
     public short
@@ -535,11 +556,18 @@ public class BasicStream
     public void
     writeIntSeq(int[] v)
     {
-	writeSize(v.length);
-        expand(v.length * 4);
-        java.nio.IntBuffer intBuf = _buf.asIntBuffer();
-        intBuf.put(v);
-        _buf.position(_buf.position() + v.length * 4);
+	if(v == null)
+	{
+	    writeSize(0);
+	}
+	else
+	{
+	    writeSize(v.length);
+	    expand(v.length * 4);
+	    java.nio.IntBuffer intBuf = _buf.asIntBuffer();
+	    intBuf.put(v);
+	    _buf.position(_buf.position() + v.length * 4);
+	}
     }
 
     public int
@@ -583,11 +611,18 @@ public class BasicStream
     public void
     writeLongSeq(long[] v)
     {
-	writeSize(v.length);
-        expand(v.length * 8);
-        java.nio.LongBuffer longBuf = _buf.asLongBuffer();
-        longBuf.put(v);
-        _buf.position(_buf.position() + v.length * 8);
+	if(v == null)
+	{
+	    writeSize(0);
+	}
+	else
+	{
+	    writeSize(v.length);
+	    expand(v.length * 8);
+	    java.nio.LongBuffer longBuf = _buf.asLongBuffer();
+	    longBuf.put(v);
+	    _buf.position(_buf.position() + v.length * 8);
+	}
     }
 
     public long
@@ -631,11 +666,18 @@ public class BasicStream
     public void
     writeFloatSeq(float[] v)
     {
-	writeSize(v.length);
-        expand(v.length * 4);
-        java.nio.FloatBuffer floatBuf = _buf.asFloatBuffer();
-        floatBuf.put(v);
-        _buf.position(_buf.position() + v.length * 4);
+	if(v == null)
+	{
+	    writeSize(0);
+	}
+	else
+	{
+	    writeSize(v.length);
+	    expand(v.length * 4);
+	    java.nio.FloatBuffer floatBuf = _buf.asFloatBuffer();
+	    floatBuf.put(v);
+	    _buf.position(_buf.position() + v.length * 4);
+	}
     }
 
     public float
@@ -679,11 +721,18 @@ public class BasicStream
     public void
     writeDoubleSeq(double[] v)
     {
-	writeSize(v.length);
-        expand(v.length * 8);
-        java.nio.DoubleBuffer doubleBuf = _buf.asDoubleBuffer();
-        doubleBuf.put(v);
-        _buf.position(_buf.position() + v.length * 8);
+	if(v == null)
+	{
+	    writeSize(0);
+	}
+	else
+	{
+	    writeSize(v.length);
+	    expand(v.length * 8);
+	    java.nio.DoubleBuffer doubleBuf = _buf.asDoubleBuffer();
+	    doubleBuf.put(v);
+	    _buf.position(_buf.position() + v.length * 8);
+	}
     }
 
     public double
@@ -751,11 +800,18 @@ public class BasicStream
     public void
     writeStringSeq(String[] v)
     {
-        writeSize(v.length);
-        for(int i = 0; i < v.length; i++)
-        {
-            writeString(v[i]);
-        }
+	if(v == null)
+	{
+	    writeSize(0);
+	}
+	else
+	{
+	    writeSize(v.length);
+	    for(int i = 0; i < v.length; i++)
+	    {
+		writeString(v[i]);
+	    }
+	}
     }
 
     public String
