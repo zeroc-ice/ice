@@ -113,6 +113,7 @@ IcePatch::Server::run(int argc, char* argv[])
 #endif
 	{
 	    cerr << appName() << ": cannot change to directory `" << directory << "': " << strerror(errno) << endl;
+            return EXIT_FAILURE;
 	}
     }
     
