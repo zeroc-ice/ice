@@ -130,10 +130,10 @@ else:
     quiet = "-Q"
 if platform == "aix":
     os.environ["LIBPATH"] = ""
-    os.system("cvs " + quiet + " -d cvsint.mutablerealms.com:/home/cvsroot export " + tag +
+    os.system("cvs " + quiet + " -d cvsint.zeroc.com:/home/cvsroot export " + tag +
               " ice/slice ice/include/IceUtil/Config.h icepy")
 else:
-    os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag +
+    os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
               " ice/slice ice/include/IceUtil/Config.h icepy")
 
 #

@@ -214,7 +214,7 @@ if verbose:
     quiet = ""
 else:
     quiet = "-Q"
-os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice")
+os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " ice")
 
 #
 # Remove files.

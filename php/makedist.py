@@ -67,7 +67,7 @@ os.chdir(distdir)
 #
 # Export sources from CVS.
 #
-os.system("cvs -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " icephp")
+os.system("cvs -d cvs.zeroc.com:/home/cvsroot export " + tag + " icephp")
 
 #
 # Remove files.

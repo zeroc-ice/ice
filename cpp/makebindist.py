@@ -87,9 +87,9 @@ cwd = os.getcwd()
 #
 if platform == "aix":
     os.environ["LIBPATH"] = ""
-    os.system("cvs -d cvsint.mutablerealms.com:/home/cvsroot export " + tag + " ice/include/IceUtil/Config.h")
+    os.system("cvs -d cvsint.zeroc.com:/home/cvsroot export " + tag + " ice/include/IceUtil/Config.h")
 else:
-    os.system("cvs -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice/include/IceUtil/Config.h")
+    os.system("cvs -d cvs.zeroc.com:/home/cvsroot export " + tag + " ice/include/IceUtil/Config.h")
 
 #
 # Get Ice version.

@@ -74,7 +74,7 @@ def getVersion(cvsTag, buildDir):
     os.chdir(buildDir)
     if getPlatform() == "aix":
         os.environ["LIBPATH"] = ""
-    os.system("cvs -d cvs.mutablerealms.com:/home/cvsroot export -r " + cvsTag + " ice/include/IceUtil/Config.h")
+    os.system("cvs -d cvs.zeroc.com:/home/cvsroot export -r " + cvsTag + " ice/include/IceUtil/Config.h")
 
     result = [ getIceVersion("ice/include/IceUtil/Config.h"), getIceSoVersion("ice/include/IceUtil/Config.h")]
     os.remove("ice/include/IceUtil/Config.h")
@@ -87,8 +87,8 @@ def getInstallFiles(cvsTag, buildDir):
     cwd = os.getcwd()
     os.chdir(buildDir)
     os.system('rm -rf ' + buildDir + '/ice/install')
-    os.system('cvs -d cvs.mutablerealms.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/unix')
-    os.system('cvs -d cvs.mutablerealms.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/rpm')
+    os.system('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/unix')
+    os.system('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/rpm')
     os.chdir(cwd)
     return buildDir + '/ice/install'
 

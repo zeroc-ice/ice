@@ -102,7 +102,7 @@ if verbose:
     quiet = ""
 else:
     quiet = "-Q"
-os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag +
+os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
           " icevb ice/bin ice/config ice/doc ice/include ice/lib ice/slice ice/src" +
           " icecs/src/Ice/AssemblyInfo.cs")
 
