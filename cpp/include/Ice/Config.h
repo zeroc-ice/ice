@@ -30,8 +30,6 @@
 #       define ICE_API __declspec(dllimport)
 #   endif
 
-#   include <windows.h>
-
 #else // !WIN32
 
 #   define ICE_API /**/

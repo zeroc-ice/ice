@@ -34,9 +34,9 @@ private:
     void destroy();
     friend class xxxI; // May create and destroy ConnectorIs
 
+    int fd_;
     std::string host_;
     int port_;
-    int fd_;
 };
 
 }

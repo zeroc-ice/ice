@@ -22,6 +22,7 @@ class ICE_API AcceptorI : public Shared
 {
 public:
     
+    void listen();
     Transceiver accept();
     
 private:
@@ -34,8 +35,9 @@ private:
     void destroy();
     friend class xxxI; // May create and destroy AcceptorIs
 
-    int port_;
     int fd_;
+    int port_;
+    int backlog_;
 };
 
 }
