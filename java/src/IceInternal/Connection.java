@@ -1328,6 +1328,7 @@ public final class Connection extends EventHandler
 		    assert(!_registeredWithPool);
 		    _transceiver.close();
 		    _transceiver = null;
+		    _threadPool = null; // We don't need the thread pool anymore.
 		}
 		else
 		{

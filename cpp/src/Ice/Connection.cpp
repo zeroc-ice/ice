@@ -1563,8 +1563,9 @@ IceInternal::Connection::setState(State state)
 		{
 		    // See _queryMutex comment in header file.
 		    IceUtil::Mutex::Lock sync(_queryMutex);
+		    _transceiver = 0;
 		}
-		_transceiver = 0;
+		_threadPool = 0; // We don't need the thread pool anymore.
 	    }
 	    else
 	    {
