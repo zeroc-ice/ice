@@ -825,7 +825,7 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Generate the operations interface
     //
-    out << sp << nl << "public interface _" << name << "Operations";
+    out << sp << nl << "public interface " << '_' << name << "Operations";
     if((bases.size() == 1 && bases.front()->isAbstract()) || bases.size() > 1)
     {
         out << " extends ";
@@ -921,7 +921,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     string scoped = p->scoped();
     ClassList bases = p->bases();
     string scope = p->scope();
-    string absolute = getAbsolute(scoped);
+    string absolute = getAbsolute(scoped, "", "_", "Tie");
 
     //
     // Don't generate a TIE class for a non-abstract class
@@ -931,7 +931,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
-    if(!open(absolute + "Tie"))
+    if(!open(absolute))
     {
         return false;
     }
@@ -941,7 +941,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Generate the TIE class
     //
-    out << sp << nl << "public class " << name << "Tie";
+    out << sp << nl << "public class " << '_' << name << "Tie";
     if(p->isInterface())
     {
         if(p->isLocal())
@@ -960,21 +960,21 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sb;
 
-    out << sp << nl << "public" << nl << name << "Tie()";
+    out << sp << nl << "public" << nl << '_' << name << "Tie()";
     out << sb;
     out << eb;
 
-    out << sp << nl << "public" << nl << name << "Tie(_" << name << "Operations delegate)";
+    out << sp << nl << "public" << nl << '_' << name << "Tie(" << '_' << name << "Operations delegate)";
     out << sb;
     out << nl << "_ice_delegate = delegate;";
     out << eb;
 
-    out << sp << nl << "public _" << name << "Operations" << nl << "ice_delegate()";
+    out << sp << nl << "public " << '_' << name << "Operations" << nl << "ice_delegate()";
     out << sb;
     out << nl << "return _ice_delegate;";
     out << eb;
 
-    out << sp << nl << "public void" << nl << "ice_delegate(_" << name << "Operations delegate)";
+    out << sp << nl << "public void" << nl << "ice_delegate(" << '_' << name << "Operations delegate)";
     out << sb;
     out << nl << "_ice_delegate = delegate;";
     out << eb;
@@ -985,11 +985,11 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sb;
     out << nl << "return true;";
     out << eb;
-    out << nl << "if(!(rhs instanceof " << name << "Tie))";
+    out << nl << "if(!(rhs instanceof " << '_' << name << "Tie))";
     out << sb;
     out << nl << "return false;";
     out << eb;
-    out << sp << nl << "return _ice_delegate.equals(((" << name << "Tie)rhs)._ice_delegate);";
+    out << sp << nl << "return _ice_delegate.equals(((" << '_' << name << "Tie)rhs)._ice_delegate);";
     out << eb;
 
     out << sp << nl << "public int" << nl << "hashCode()";
@@ -1044,7 +1044,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
     }
 
-    out << sp << nl << "private _" << name << "Operations _ice_delegate;";
+    out << sp << nl << "private " << '_' << name << "Operations _ice_delegate;";
     out << eb;
     close();
 
@@ -1087,7 +1087,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << "Ice.Object";
         }
-        out << "," << nl << "_" << name << "Operations";
+        out << "," << nl << '_' << name << "Operations";
         if(!bases.empty())
         {
             ClassList::const_iterator q = bases.begin();
@@ -3673,7 +3673,7 @@ Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         out << " extends " << fixKwd(bases.front()->name()) << 'I';
     }
-    out << " implements _" << name << "Operations";
+    out << " implements " << '_' << name << "Operations";
     out << sb;
 
     out << nl << "public" << nl << name << "I()";
