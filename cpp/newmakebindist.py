@@ -300,6 +300,25 @@ def extractDemos(buildDir, version, distro, demoDir):
         os.system("sh -c 'for f in `find . -name .depend` ; do echo \"\" > $f ; done'")
         
         os.chdir(tcwd)
+    # C# specific build modifications
+    elif demoDir == "cs":
+        tcwd = os.getcwd()
+        os.chdir(buildDir + "/Ice-" + version + "-demos/config_" + demoDir)
+        script = "perl -pi -e 's/^slice_home.*$/ifeq (\$(ICE_HOME),)\n   ICE_DIR  \= \/usr\nelse\n"
+        script = script + "   ICE_DIR \= \$(ICE_HOME)\n"
+        script = script + "endif\n/' Make.rules"
+        os.system(script)
+
+        script = "perl -pi -e 's/^((?:lib|bin)dir.*=)\s*\$\(top_srcdir\)\/([A-Za-z]*).*$/$1 \\x24\(ICE_DIR\)\/$2/' "
+        script = script + "Make.rules"
+        os.system(script)
+
+        
+        script = "perl -pi -e 's/^slicedir.*slice_home.*$/ifeq (\$(ICE_DIR),\/usr)\n"
+        script = script + "   slicedir \:= \\x24\(ICE_DIR\)\/share\/slice\nelse\n"
+        script = script + "   slicedir \:= \\x24\(ICE_DIR\)\/slice\nendif\n/' Make.rules"
+        os.system(script)
+        os.chdir(tcwd)
         
     shutil.rmtree(buildDir + "/demotree/" + distro, True)
     os.chdir(cwd)
