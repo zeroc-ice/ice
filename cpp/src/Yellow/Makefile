@@ -49,7 +49,7 @@ HDIR		= $(includedir)/Yellow
 SDIR		= $(slicedir)/Yellow
 SLICE2CPPFLAGS	= -I$(slicedir)
 SLICECMD	= $(SLICE2CPP) --ice --include-dir Yellow $(SLICE2CPPFLAGS)
-SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --binary --include-dir Yellow -I$(slicedir)
+SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir Yellow -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 
