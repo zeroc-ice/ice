@@ -33,7 +33,7 @@ public:
 
 protected:
 
-    ServerContext(const TraceLevelsPtr&, const Ice::LoggerPtr&, const Ice::PropertiesPtr&);
+    ServerContext(const TraceLevelsPtr&, const Ice::CommunicatorPtr&);
 
     virtual void loadCertificateAuthority(const CertificateAuthority& certAuth);
 

@@ -15,7 +15,7 @@
 #ifndef ICE_SSL_DEFAULT_CERTIFICATE_VERIFIER_H
 #define ICE_SSL_DEFAULT_CERTIFICATE_VERIFIER_H
 
-#include <Ice/LoggerF.h>
+#include <Ice/CommunicatorF.h>
 #include <IceSSL/TraceLevelsF.h>
 #include <IceSSL/CertificateVerifierOpenSSL.h>
 
@@ -26,14 +26,14 @@ class DefaultCertificateVerifier : public IceSSL::CertificateVerifierOpenSSL
 {
 public:
 
-    DefaultCertificateVerifier(const IceSSL::TraceLevelsPtr&, const Ice::LoggerPtr&);
+    DefaultCertificateVerifier(const IceSSL::TraceLevelsPtr&, const Ice::CommunicatorPtr&);
 
     virtual int verify(int, X509_STORE_CTX*, SSL*);
 
 private:
 
     IceSSL::TraceLevelsPtr _traceLevels;
-    Ice::LoggerPtr _logger;
+    Ice::CommunicatorPtr _communicator;
 };
 
 }

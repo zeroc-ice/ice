@@ -12,6 +12,7 @@
 //
 // **********************************************************************
 
+#include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Properties.h>
 
@@ -124,8 +125,8 @@ IceSSL::Context::configure(const GeneralConfig& generalConfig,
     SSL_CTX_set_verify_depth(_sslContext, generalConfig.getVerifyDepth());
 
     // Determine the number of retries the user gets on passphrase entry.
-    string passphraseRetries = _properties->getPropertyWithDefault(_passphraseRetriesProperty,
-                                                                   _maxPassphraseRetriesDefault);
+    string passphraseRetries = _communicator->getProperties()->getPropertyWithDefault(_passphraseRetriesProperty,
+										      _maxPassphraseRetriesDefault);
     int retries = atoi(passphraseRetries.c_str());
     retries = (retries < 0 ? 0 : retries);
     _maxPassphraseTries = retries + 1;
@@ -147,12 +148,11 @@ IceSSL::Context::configure(const GeneralConfig& generalConfig,
 // Protected
 //
 
-IceSSL::Context::Context(const TraceLevelsPtr& traceLevels, const LoggerPtr& logger, const PropertiesPtr& properties) :
+IceSSL::Context::Context(const TraceLevelsPtr& traceLevels, const CommunicatorPtr& communicator) :
     _traceLevels(traceLevels),
-    _logger(logger),
-    _properties(properties)
+    _communicator(communicator)
 {
-    _certificateVerifier = new DefaultCertificateVerifier(traceLevels, logger);
+    _certificateVerifier = new DefaultCertificateVerifier(traceLevels, communicator);
     _sslContext = 0;
 
     _maxPassphraseRetriesDefault = "4";
@@ -187,7 +187,7 @@ IceSSL::Context::getSslMethod(SslProtocol sslVersion)
         {
             if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
             { 
-                Trace out(_logger, _traceLevels->securityCat);
+                Trace out(_communicator->getLogger(), _traceLevels->securityCat);
                 out << "WRN ssl version " << sslVersion;
                 out << " not supported (defaulting to SSL_V23)";
             }
@@ -256,7 +256,7 @@ IceSSL::Context::loadCertificateAuthority(const CertificateAuthority& certAuth)
     { 
         if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         {
-            Trace out(_logger, _traceLevels->securityCat);
+            Trace out(_communicator->getLogger(), _traceLevels->securityCat);
             out << "WRN unable to load certificate authorities.";
         }
     }
@@ -267,13 +267,13 @@ IceSSL::Context::loadCertificateAuthority(const CertificateAuthority& certAuth)
 
         if(!setDefaultVerifyPathsRet && (_traceLevels->security >= IceSSL::SECURITY_WARNINGS))
         { 
-            Trace out(_logger, _traceLevels->securityCat);
+            Trace out(_communicator->getLogger(), _traceLevels->securityCat);
             out << "WRN unable to verify certificate authorities.";
         }
     }
 
     // Now we add whatever override/addition that we wish to put into the trusted certificates list
-    string caCertBase64 = _properties->getProperty(_caCertificateProperty);
+    string caCertBase64 = _communicator->getProperties()->getProperty(_caCertificateProperty);
     if(!caCertBase64.empty())
     {
          addTrustedCertificateBase64(caCertBase64);
@@ -290,12 +290,12 @@ IceSSL::Context::setKeyCert(const CertificateDesc& certDesc,
 
     if(!privateProperty.empty())
     {
-        privateKey = _properties->getProperty(privateProperty);
+        privateKey = _communicator->getProperties()->getProperty(privateProperty);
     }
 
     if(!publicProperty.empty())
     {
-        publicKey = _properties->getProperty(publicProperty);
+        publicKey = _communicator->getProperties()->getProperty(publicProperty);
     }
 
     if(!privateKey.empty() && !publicKey.empty())
@@ -390,7 +390,7 @@ IceSSL::Context::addKeyCert(const CertificateFile& privateKey, const Certificate
         {
             if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
             { 
-                Trace out(_logger, _traceLevels->securityCat);
+                Trace out(_communicator->getLogger(), _traceLevels->securityCat);
                 out << "WRN no private key specified -- using the certificate";
             }
 
@@ -557,7 +557,7 @@ IceSSL::Context::addKeyCert(const Ice::ByteSeq& privateKey, const Ice::ByteSeq& 
     {
         if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         { 
-            Trace out(_logger, _traceLevels->securityCat);
+            Trace out(_communicator->getLogger(), _traceLevels->securityCat);
             out << "WRN no private key specified -- using the certificate";
         }
 
@@ -577,7 +577,7 @@ IceSSL::Context::addKeyCert(const string& privateKey, const string& publicKey)
     {
         if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         { 
-            Trace out(_logger, _traceLevels->securityCat);
+            Trace out(_communicator->getLogger(), _traceLevels->securityCat);
             out << "WRN no private key specified -- using the certificate";
         }
 
@@ -609,7 +609,7 @@ IceSSL::Context::transceiverSetup(const SslTransceiverPtr& transceiver, int time
     // This timeout is implemented once on the first read after hanshake.
     transceiver->setHandshakeReadTimeout(timeout < 5000 ? 5000 : timeout);
 
-    int retries = _properties->getPropertyAsIntWithDefault(_connectionHandshakeRetries, 10);
+    int retries = _communicator->getProperties()->getPropertyAsIntWithDefault(_connectionHandshakeRetries, 10);
     transceiver->setHandshakeRetries(retries);
 }
 
@@ -621,7 +621,7 @@ IceSSL::Context::setCipherList(const string& cipherList)
     if(!cipherList.empty() && (!SSL_CTX_set_cipher_list(_sslContext, cipherList.c_str())) &&
         (_traceLevels->security >= IceSSL::SECURITY_WARNINGS))
     {
-        Trace out(_logger, _traceLevels->securityCat);
+        Trace out(_communicator->getLogger(), _traceLevels->securityCat);
         out << "WRN error setting cipher list " << cipherList << " -- using default list" << "\n";
         out << sslGetErrors();
     }
@@ -645,7 +645,7 @@ IceSSL::Context::setDHParams(const BaseCertificates& baseCerts)
     {
         if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         { 
-            Trace out(_logger, _traceLevels->securityCat);
+            Trace out(_communicator->getLogger(), _traceLevels->securityCat);
             out << "WRN Could not load Diffie-Hellman params, generating a temporary 512bit key.";
         }
 

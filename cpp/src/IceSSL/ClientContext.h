@@ -33,7 +33,7 @@ public:
 
 protected:
 
-    ClientContext(const TraceLevelsPtr&, const Ice::LoggerPtr&, const Ice::PropertiesPtr&);
+    ClientContext(const TraceLevelsPtr&, const Ice::CommunicatorPtr&);
 
     friend class OpenSSLPluginI;
 };

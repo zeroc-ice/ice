@@ -15,8 +15,7 @@
 #ifndef ICESSL_CONTEXT_H
 #define ICESSL_CONTEXT_H
 
-#include <Ice/LoggerF.h>
-#include <Ice/PropertiesF.h>
+#include <Ice/CommunicatorF.h>
 #include <Ice/BuiltinSequences.h>
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/TraceLevelsF.h>
@@ -60,7 +59,7 @@ public:
 
 protected:
 
-    Context(const TraceLevelsPtr&, const Ice::LoggerPtr&, const Ice::PropertiesPtr&);
+    Context(const TraceLevelsPtr&, const Ice::CommunicatorPtr&);
 
     SSL_METHOD* getSslMethod(SslProtocol);
     void createContext(SslProtocol);
@@ -90,8 +89,7 @@ protected:
     void setDHParams(const BaseCertificates&);
 
     TraceLevelsPtr _traceLevels;
-    Ice::LoggerPtr _logger;
-    Ice::PropertiesPtr _properties;
+    Ice::CommunicatorPtr _communicator;
 
     std::string _rsaPrivateKeyProperty;
     std::string _rsaPublicKeyProperty;

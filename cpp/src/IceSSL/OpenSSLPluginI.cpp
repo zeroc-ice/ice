@@ -179,14 +179,9 @@ std::vector<unsigned long> IceSSL::OpenSSLPluginI::_threadIdCache;
 IceSSL::OpenSSLPluginI::OpenSSLPluginI(const ProtocolPluginFacadePtr& protocolPluginFacade) :
     _protocolPluginFacade(protocolPluginFacade),
     _traceLevels(new TraceLevels(_protocolPluginFacade)),
-    _logger(_protocolPluginFacade->getCommunicator()->getLogger()),
     _properties(_protocolPluginFacade->getCommunicator()->getProperties()),
-    _serverContext(new TraceLevels(protocolPluginFacade),
-                   protocolPluginFacade->getCommunicator()->getLogger(),
-                   protocolPluginFacade->getCommunicator()->getProperties()),
-    _clientContext(new TraceLevels(protocolPluginFacade),
-                   protocolPluginFacade->getCommunicator()->getLogger(),
-                   protocolPluginFacade->getCommunicator()->getProperties()),
+    _serverContext(new TraceLevels(protocolPluginFacade), protocolPluginFacade->getCommunicator()),
+    _clientContext(new TraceLevels(protocolPluginFacade), protocolPluginFacade->getCommunicator()),
     _randSeeded(0)
 {
     SSL_load_error_strings();
@@ -371,7 +366,7 @@ IceSSL::OpenSSLPluginI::loadConfig(ContextType contextType,
         throw configEx;
     }
 
-    ConfigParser sslConfig(configFile, certPath, _traceLevels, _logger);
+    ConfigParser sslConfig(configFile, certPath, _traceLevels, getLogger());
 
     // Actually parse the file now.
     sslConfig.process();
@@ -409,7 +404,7 @@ IceSSL::OpenSSLPluginI::loadConfig(ContextType contextType,
 
             if(_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
             {
-                Trace out(_logger, _traceLevels->securityCat);
+                Trace out(getLogger(), _traceLevels->securityCat);
 
                 out << "temporary certificates (server)\n";
                 out << "-------------------------------\n";
@@ -500,7 +495,7 @@ IceSSL::OpenSSLPluginI::getRSAKey(int isExport, int keyLength)
         }
         else if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         {
-            Trace out(_logger, _traceLevels->securityCat);
+            Trace out(getLogger(), _traceLevels->securityCat);
             out << "WRN Unable to obtain a " << dec << keyLength << "-bit RSA key.\n";
         }
     }
@@ -576,7 +571,7 @@ IceSSL::OpenSSLPluginI::getDHParams(int isExport, int keyLength)
         }
         else if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         {
-            Trace out(_logger, _traceLevels->securityCat);
+            Trace out(getLogger(), _traceLevels->securityCat);
             out << "WRN Unable to obtain a " << dec << keyLength << "-bit Diffie-Hellman parameter group.\n";
         }
     }
@@ -681,7 +676,7 @@ IceSSL::OpenSSLPluginI::setRSAKeys(ContextType contextType,
 IceSSL::CertificateVerifierPtr
 IceSSL::OpenSSLPluginI::getDefaultCertVerifier()
 {
-    return new DefaultCertificateVerifier(getTraceLevels(), getLogger());
+    return new DefaultCertificateVerifier(getTraceLevels(), _protocolPluginFacade->getCommunicator());
 }
 
 IceSSL::CertificateVerifierPtr
@@ -704,7 +699,7 @@ IceSSL::OpenSSLPluginI::getTraceLevels() const
 LoggerPtr
 IceSSL::OpenSSLPluginI::getLogger() const
 {
-    return _logger;
+    return _protocolPluginFacade->getCommunicator()->getLogger();
 }
 
 StatsPtr
@@ -822,7 +817,7 @@ IceSSL::OpenSSLPluginI::initRandSystem(const string& randBytesFiles)
         // In this case, there are two options open to us - specify a random data file using the
         // RANDFILE environment variable, or specify additional random data files in the
         // SSL configuration file.
-        Trace out(_logger, _traceLevels->securityCat);
+        Trace out(getLogger(), _traceLevels->securityCat);
         out << "WRN there is a lack of random data, consider specifying additional random data files";
     }
 

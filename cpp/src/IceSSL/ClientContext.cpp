@@ -12,6 +12,7 @@
 //
 // **********************************************************************
 
+#include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
 
 #include <IceSSL/Exception.h>
@@ -33,7 +34,7 @@ IceSSL::ClientContext::configure(const GeneralConfig& generalConfig,
 
     if(_traceLevels->security >= SECURITY_PROTOCOL)
     {
-        Trace out(_logger, _traceLevels->securityCat);
+        Trace out(_communicator->getLogger(), _traceLevels->securityCat);
 
         out << "\n";
         out << "general configuration (client)\n";
@@ -71,9 +72,8 @@ IceSSL::ClientContext::createTransceiver(int socket, const OpenSSLPluginIPtr& pl
     return transceiver;
 }
 
-IceSSL::ClientContext::ClientContext(const TraceLevelsPtr& traceLevels, const LoggerPtr& logger,
-                                     const PropertiesPtr& properties) :
-    Context(traceLevels, logger, properties)
+IceSSL::ClientContext::ClientContext(const TraceLevelsPtr& traceLevels, const CommunicatorPtr& communicator) :
+    Context(traceLevels, communicator)
 {
     _rsaPrivateKeyProperty = "IceSSL.Client.Overrides.RSA.PrivateKey";
     _rsaPublicKeyProperty  = "IceSSL.Client.Overrides.RSA.Certificate";

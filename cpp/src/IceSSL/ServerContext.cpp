@@ -12,6 +12,7 @@
 //
 // **********************************************************************
 
+#include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
 
 #include <IceSSL/Exception.h>
@@ -56,7 +57,7 @@ IceSSL::ServerContext::configure(const GeneralConfig& generalConfig,
 
     if(_traceLevels->security >= SECURITY_PROTOCOL)
     {
-        Trace out(_logger, _traceLevels->securityCat);
+        Trace out(_communicator->getLogger(), _traceLevels->securityCat);
 
         out << "\n";
         out << "general configuration (server)\n";
@@ -96,9 +97,8 @@ IceSSL::ServerContext::createTransceiver(int socket, const OpenSSLPluginIPtr& pl
 // Protected
 //
 
-IceSSL::ServerContext::ServerContext(const TraceLevelsPtr& traceLevels, const LoggerPtr& logger,
-                                     const PropertiesPtr& properties) :
-    Context(traceLevels, logger, properties)
+IceSSL::ServerContext::ServerContext(const TraceLevelsPtr& traceLevels, const CommunicatorPtr& communicator) :
+    Context(traceLevels, communicator)
 {
     _rsaPrivateKeyProperty = "IceSSL.Server.Overrides.RSA.PrivateKey";
     _rsaPublicKeyProperty  = "IceSSL.Server.Overrides.RSA.Certificate";
@@ -129,7 +129,7 @@ IceSSL::ServerContext::loadCertificateAuthority(const CertificateAuthority& cert
     {
         if(_traceLevels->security >= SECURITY_WARNINGS)
         {
-            Trace out(_logger, _traceLevels->securityCat);
+            Trace out(_communicator->getLogger(), _traceLevels->securityCat);
             out << "WRN unable to load certificate authorities certificate names from " << caFile << "\n";
             out << sslGetErrors();
         }
