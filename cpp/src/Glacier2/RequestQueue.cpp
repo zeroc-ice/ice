@@ -105,7 +105,7 @@ Glacier2::Request::override(const RequestPtr& other) const
 bool
 Glacier2::Request::isBatch() const
 {
-    return _proxy->ice_batchOneway() || _proxy->ice_batchDatagram();
+    return _proxy->ice_isBatchOneway() || _proxy->ice_isBatchDatagram();
 }
 
 ConnectionPtr
@@ -220,17 +220,24 @@ Glacier2::RequestQueue::run()
 	{
 	    if((*p)->isBatch())
 	    {
-		flushSet.insert((*p)->getConnection());
+		try
+		{
+		    flushSet.insert((*p)->getConnection());
+		}
+		catch(const LocalException&)
+		{
+		    // Ignore.
+		}
 	    }
 	    
-	    (*p)->invoke();
+	    (*p)->invoke(); // Exceptions are caught within invoke().
 	}
 
 	for(set<ConnectionPtr>::const_iterator q = flushSet.begin(); q != flushSet.end(); ++q)
 	{
 	    try
 	    {
-		for_each(flushSet.begin(), flushSet.end(), Ice::voidMemFun(&Connection::flushBatchRequests));
+		(*q)->flushBatchRequests();
 	    }
 	    catch(const LocalException&)
 	    {

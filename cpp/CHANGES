@@ -1,6 +1,8 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Glacier2 could hang if a server is not running. This has been fixed.
+
 - Added support for g++ builds on Solaris.
 
 - Fixed IcePack node and registry database environment names. They
