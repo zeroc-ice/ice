@@ -23,6 +23,9 @@ namespace IceInternal
 
         static BasicStream()
         {
+#if __MonoCS__
+	    _bzlibInstalled = false; // TODO: Make this work for Mono.
+#else
             //
             // Simple trick to find out whether libbz2.dll is installed:
             // Call the BZ2_bzlibVersion() function in the library. If we get
@@ -38,6 +41,7 @@ namespace IceInternal
             {
                 _bzlibInstalled = false;
             }
+#endif
         }
 
 	public BasicStream(IceInternal.Instance instance)
