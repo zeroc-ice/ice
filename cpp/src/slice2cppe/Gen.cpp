@@ -3387,7 +3387,7 @@ Slice::Gen::ImplVisitor::writeDecl(Output& out, const string& name, const TypePt
             }
 	    case Builtin::KindObject: // XXX we should do something about this not being permitted here.
 	    {
-		assert("Slice classes not support in IceE" = 0);
+		assert("Slice classes not support in IceE" == 0);
 	    }
         }
     }
@@ -3442,7 +3442,7 @@ Slice::Gen::ImplVisitor::writeReturn(Output& out, const TypePtr& type)
             }
 	    case Builtin::KindObject: // XXX we should do something about this not being permitted here.
 	    {
-		assert("Slice classes not support in IceE" = 0);
+		assert("Slice classes not support in IceE" == 0);
 	    }
 
         }
