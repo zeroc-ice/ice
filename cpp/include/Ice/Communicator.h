@@ -14,6 +14,7 @@
 #include <Ice/CommunicatorF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/StubF.h>
+#include <Ice/EndpointF.h>
 #include <Ice/Shared.h>
 
 namespace Ice
@@ -24,9 +25,12 @@ class ICE_API CommunicatorI : public ::_Ice::Shared, public JTCMutex
 public:
     
     void destroy();
+    void run();
 
     Object referenceFromString(const std::string&);
     std::string referenceToString(const Object&);
+
+    Endpoint createEndpoint(); // TODO: arguments
 
 private:
 

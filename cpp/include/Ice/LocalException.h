@@ -16,14 +16,68 @@
 namespace Ice
 {
 
-struct ICE_API LocalException
+class ICE_API LocalException
 {
+public:
+
     virtual ~LocalException();
-    virtual std::string toString() const = 0;
-    virtual LocalException* clone() const = 0;
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
 };
 
-std::ostream& operator<<(std::ostream&, const LocalException&);
+ICE_API std::ostream& operator<<(std::ostream&, const LocalException&);
+
+class ICE_API SystemException : public LocalException
+{
+public:    
+
+    SystemException();
+    SystemException(const SystemException&);
+    SystemException& operator=(const SystemException&);
+
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+
+protected:
+
+    int error;
+};
+
+class ICE_API SocketException : public SystemException
+{
+public:    
+
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+};
+
+class ICE_API ConnectFailedException : public SocketException
+{
+public:    
+
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+};
+
+class ICE_API ConnectionLostException : public SocketException
+{
+public:    
+
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+};
+
+class ICE_API DNSException : public SystemException
+{
+public:    
+
+    DNSException();
+    DNSException(const DNSException&);
+    DNSException& operator=(const DNSException&);
+
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+};
 
 }
 

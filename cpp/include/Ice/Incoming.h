@@ -8,33 +8,31 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OUTGOING_H
-#define ICE_OUTGOING_H
+#ifndef ICE_INCOMING_H
+#define ICE_INCOMING_H
 
-#include <Ice/EmitterF.h>
+#include <Ice/CollectorF.h>
 #include <Ice/Buffer.h>
 
 namespace _Ice
 {
 
-class ICE_API Outgoing
+class ICE_API Incoming
 {
 public:
 
-    Outgoing(const Emitter&, const char*);
-    ~Outgoing();
-
-    void invoke();
+    Incoming(const Collector&);
+    ~Incoming();
 
     Buffer* obuf() { return &obuf_; }
     Buffer* ibuf() { return &ibuf_; }
 
 private:
 
-    Outgoing(const Outgoing&);
-    void operator=(const Outgoing&);
+    Incoming(const Incoming&);
+    void operator=(const Incoming&);
 
-    const Emitter& emitter_;
+    const Collector& collector_;
     const char* operation_;
     Buffer obuf_;
     Buffer ibuf_;

@@ -18,7 +18,7 @@ namespace _Ice
 {
 
 //
-// Generic handle class, using intrusive reference counting. Two
+// Generic handle class, using intrusive referenceData counting. Two
 // global operations _Ice::_incRef(T*) and _Ice::_decRef(T*) must be
 // declared for each T before using this template. The use of global
 // operations allows this template to be used for types which are
@@ -52,6 +52,21 @@ public:
 	    _decRef(ptr_);
     }
     
+    Handle& operator=(T* p)
+    {
+	if(ptr_ != p)
+	{
+	    if(ptr_)
+		_decRef(ptr_);
+	    
+	    ptr_ = p;
+	    
+	    if(ptr_)
+		_incRef(ptr_);
+	}
+	return *this;
+    }
+        
     Handle& operator=(const Handle& r)
     {
 	if(ptr_ != r.ptr_)
@@ -123,6 +138,12 @@ template<typename T, typename U>
 inline bool operator!=(const Handle<T>& a, const Handle<U>& b)
 {
     return *a.get() != *b.get();
+}
+
+template<typename T, typename U>
+inline bool operator<(const Handle<T>& a, const Handle<U>& b)
+{
+    return *a.get() < *b.get();
 }
 
 }

@@ -8,28 +8,25 @@
 //
 // **********************************************************************
 
-#ifndef ICE_BUFFER_H
-#define ICE_BUFFER_H
+#ifndef ICE_ENDPOINT_F_H
+#define ICE_ENDPOINT_F_H
 
-#include <Ice/Config.h>
+#include <Ice/Handle.h>
+
+namespace Ice { class EndpointI; }
 
 namespace _Ice
 {
 
-class ICE_API Buffer
+void ICE_API _incRef(::Ice::EndpointI*);
+void ICE_API _decRef(::Ice::EndpointI*);
+
+}
+
+namespace Ice
 {
-public:
 
-    Buffer() { }
-
-    std::vector<char> b;
-    std::vector<char>::iterator i;
-
-private:
-
-    Buffer(const Buffer&);
-    void operator=(const Buffer&);
-};
+typedef _Ice::Handle<EndpointI> Endpoint;
 
 }
 

@@ -23,8 +23,8 @@ class ICE_API ObjectFactoryI : public Shared, JTCMutex
 {
 public:
     
-    Ice::Object referenceFromString(const std::string&);
-    std::string referenceToString(const Ice::Object&);
+    Ice::Object referenceDataFromString(const std::string&);
+    std::string referenceDataToString(const Ice::Object&);
 
 private:
 

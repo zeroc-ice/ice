@@ -18,6 +18,8 @@
 namespace _Ice
 {
 
+class EmitterFactoryI;
+
 class ConnectorI : public Shared
 {
 public:
@@ -32,7 +34,7 @@ private:
     ConnectorI(const std::string&, int);
     virtual ~ConnectorI();
     void destroy();
-    friend class xxxI; // May create and destroy ConnectorIs
+    friend class EmitterFactoryI; // May create and destroy ConnectorIs
 
     std::string host_;
     int port_;

@@ -15,6 +15,8 @@
 #include <Ice/CommunicatorF.h>
 #include <Ice/ObjectFactoryF.h>
 #include <Ice/ThreadPoolF.h>
+#include <Ice/EmitterF.h>
+#include <Ice/CollectorF.h>
 #include <Ice/Shared.h>
 
 namespace _Ice
@@ -26,6 +28,8 @@ public:
 
     ObjectFactory objectFactory();
     ThreadPool threadPool();
+    EmitterFactoryFactory emitterFactoryFactory();
+    CollectorFactoryFactory collectorFactoryFactory();
     
 private:
 
@@ -39,6 +43,8 @@ private:
 
     ObjectFactory objectFactory_;
     ThreadPool threadPool_;
+    EmitterFactoryFactory emitterFactoryFactory_;
+    CollectorFactoryFactory collectorFactoryFactory_;
 
     //
     // Global state management

@@ -27,7 +27,8 @@ public:
 
     void _register(const EventHandler&);
     void unregister(int);
-    void reregister(int);    
+    void reregister(int);
+    void waitForAllThreads();
     
 private:
 
@@ -60,8 +61,7 @@ private:
     {
     public:
 	
-	EventHandlerThread(JTCThreadGroupHandle& group, ThreadPool pool)
-	    : JTCThread(group), pool_(pool) { }
+	EventHandlerThread(ThreadPool pool) : pool_(pool) { }
 	virtual void run();
 
     private:
@@ -69,6 +69,7 @@ private:
 	ThreadPool pool_;
     };
     friend class EventHandlerThread;
+    std::list<JTCThreadHandle> threads_;
 };
 
 }

@@ -17,7 +17,7 @@ namespace _Ice
 {
 
 //
-// Simple, non thread-safe intrusive base class for reference-counted
+// Simple, non thread-safe intrusive base class for referenceData-counted
 // types.
 //
 class ICE_API SimpleShared
@@ -48,7 +48,7 @@ private:
 };
 
 //
-// Thread-safe intrusive base class for reference-counted types.
+// Thread-safe intrusive base class for referenceData-counted types.
 //
 class ICE_API Shared
 {

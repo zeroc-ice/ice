@@ -22,7 +22,10 @@ class Buffer;
 class TransceiverI : public Shared
 {
 public:
-    
+
+    int fd() { return fd_; }
+    void destroy();
+    void shutdown();
     void write(Buffer&);
     void read(Buffer&);
     
@@ -33,9 +36,8 @@ private:
 
     TransceiverI(int);
     virtual ~TransceiverI();
-    void destroy();
-    friend class ConnectorI; // May create and destroy TransceiverIs
-    friend class AcceptorI; // May create and destroy TransceiverIs
+    friend class ConnectorI; // May create TransceiverIs
+    friend class AcceptorI; // May create TransceiverIs
 
     int fd_;
 };

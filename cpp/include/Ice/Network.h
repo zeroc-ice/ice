@@ -30,6 +30,26 @@
 typedef int socklen_t;
 #endif
 
+#ifndef SHUT_RD
+#   define SHUT_RD 0
+#endif
+
+#ifndef SHUT_WR
+#   define SHUT_WR 1
+#endif
+
+#ifndef SHUT_RDWR
+#   define SHUT_RDWR 2
+#endif
+
+#ifndef NETDB_INTERNAL
+#   define NETDB_INTERNAL -1
+#endif
+
+#ifndef NETDB_SUCCESS
+#   define NETDB_SUCCESS 0
+#endif
+
 namespace _Ice
 {
 
@@ -45,7 +65,12 @@ void getHostByName(const char*, int, struct sockaddr_in&);
 void doBind(int, struct sockaddr_in&);
 void doListen(int, int);
 void doConnect(int, struct sockaddr_in&);
-int doAccept(int, struct sockaddr_in&);
+int doAccept(int);
+void createPipe(int fds[2]);
+const char* errorToString(int);
+const char* errorToStringDNS(int);
+const char* lastErrorToString();
+const char* lastErrorToStringDNS();
 
 }
 

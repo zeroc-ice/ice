@@ -18,10 +18,14 @@
 namespace _Ice
 {
 
+class CollectorFactoryI;
+
 class AcceptorI : public Shared
 {
 public:
     
+    int fd() { return fd_; }
+    void shutdown();
     void listen();
     Transceiver accept();
     
@@ -33,7 +37,7 @@ private:
     AcceptorI(int);
     virtual ~AcceptorI();
     void destroy();
-    friend class xxxI; // May create and destroy AcceptorIs
+    friend class CollectorFactoryI; // May create and destroy AcceptorIs
 
     int fd_;
     int port_;
