@@ -32,22 +32,20 @@ public abstract class Map extends java.util.AbstractMap
     size()
     {
 	//
-	// It's not necessary to close outstanding iterators prior to
-	// calling size().
+	// It's not necessary to close outstanding iterators.
 	//
 	// If it was it would be a problem - it doesn't change the Map
 	// - therefore open iterators should not be invalidated
 	// (according the Java spec).
+	//
+	// closeIterators();
+
 	//
 	// The number of records cannot be cached and then adjusted by
 	// the member functions since the map would no longer work in
 	// the presence of transactions - if a record is added (and
 	// the size adjusted) and the transaction aborted then the
 	// cached map size() would be incorrect.
-	//
-
-	//
-	// closeIterators();
 	//
 
 	return (int)_db.getNumberOfRecords();
@@ -64,7 +62,14 @@ public abstract class Map extends java.util.AbstractMap
     public boolean
     containsKey(Object key)
     {
-	closeIterators();
+	//
+	// It's not necessary to close outstanding iterators.
+	//
+	// If it was it would be a problem - it doesn't change the Map
+	// - therefore open iterators should not be invalidated
+	// (according the Java spec).
+	//
+	//closeIterators();
 
 	byte[] k = encodeKey(key, _db.getCommunicator());
 	return _db.contains(k);
@@ -73,7 +78,14 @@ public abstract class Map extends java.util.AbstractMap
     public Object
     get(Object key)
     {
-	closeIterators();
+	//
+	// It's not necessary to close outstanding iterators.
+	//
+	// If it was it would be a problem - it doesn't change the Map
+	// - therefore open iterators should not be invalidated
+	// (according the Java spec).
+	//
+	//closeIterators();
 
 	byte[] k = encodeKey(key, _db.getCommunicator());
 	try
