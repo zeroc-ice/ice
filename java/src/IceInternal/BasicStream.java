@@ -1116,17 +1116,41 @@ public class BasicStream
 	{
 	    String id = readTypeId();
 
+            //
+            // Try to find a factory registered for the specific type.
+            //
             Ice.ObjectFactory userFactory = _instance.servantFactoryManager().find(id);
             if(userFactory != null)
             {
                 v = userFactory.create(id);
             }
 
+            //
+            // If that fails, invoke the default factory if one has been registered.
+            //
+            if(v == null)
+            {
+                userFactory = _instance.servantFactoryManager().find("");
+                if(userFactory != null)
+                {
+                    v = userFactory.create(id);
+                }
+            }
+
+            //
+            // There isn't a static factory for Ice::Object, so check for that case now.
+            // We do this *after* the factory inquiries above so that a factory could be
+            // registered for "::Ice::Object".
+            //
 	    if(v == null && id.equals(Ice.ObjectImpl.ice_staticId()))
 	    {
 	        v = new Ice.ObjectImpl();
 	    }
 
+            //
+            // Last chance: check the table of static factories (i.e., automatically generated
+            // factories for concrete classes).
+            //
             if(v == null)
             {
                 userFactory = loadObjectFactory(id);
