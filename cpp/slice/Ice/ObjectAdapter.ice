@@ -282,6 +282,18 @@ local class ServantLocator
      *
      **/
     void finished(ObjectAdapter adapter, string identity, Object servant, Object cookie);
+
+    /**
+     *
+     * Called when the Object Adapter this Servant Locator is
+     * installed with is deactivated.
+     *
+     * @see ObjectAdapter::deactivate
+     * @see Communicator::shutdown
+     * @see Communicator::destroy
+     *
+     **/
+    void deactivate();
 };
 
 };

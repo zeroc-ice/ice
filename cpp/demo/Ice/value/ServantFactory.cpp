@@ -30,3 +30,9 @@ ServantFactory::create(const string& type)
     assert(false);
     return 0;
 }
+
+void
+ServantFactory::destroy()
+{
+    // Nothing to do
+}

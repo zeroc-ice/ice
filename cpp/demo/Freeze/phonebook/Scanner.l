@@ -207,12 +207,28 @@ L	[a-zA-Z_]
     return TOK_PRINT_CURRENT;
 }
 
+"name" {
+    return TOK_SET_CURRENT_NAME;
+}
+
+"address" {
+    return TOK_SET_CURRENT_ADDRESS;
+}
+
+"phone" {
+    return TOK_SET_CURRENT_PHONE;
+}
+
 "remove" {
     return TOK_REMOVE_CURRENT;
 }
 
 "list" {
     return TOK_LIST_NAMES;
+}
+
+"shutdown" {
+    return TOK_SHUTDOWN;
 }
 
 {WS}*(\\{WS}*{NL})? {

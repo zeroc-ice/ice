@@ -58,8 +58,12 @@ public:
     void findEntries(const std::list<std::string>&);
     void nextFoundEntry();
     void printCurrent();
+    void setCurrentName(const std::list<std::string>&);
+    void setCurrentAddress(const std::list<std::string>&);
+    void setCurrentPhone(const std::list<std::string>&);
     void removeCurrent();
     void listNames();
+    void shutdown();
 
     void getInput(char*, int&, int);
     void nextLine();

@@ -30,13 +30,14 @@ namespace IceInternal
 {
 
 template<typename T>
-class Handle
+class Handle : public ::IceUtil::HandleBase<T>
 {
 public:
     
-    Handle(T* p = 0) :
-	_ptr(p)
+    Handle(T* p = 0)
     {
+	_ptr = p;
+
 	if (_ptr)
 	{
 	    incRef(_ptr);
@@ -44,9 +45,10 @@ public:
     }
     
     template<typename Y>
-    Handle(const Handle<Y>& r) :
-	_ptr(r._ptr)
+    Handle(const Handle<Y>& r)
     {
+	_ptr = r._ptr;
+
 	if (_ptr)
 	{
 	    incRef(_ptr);
@@ -54,9 +56,10 @@ public:
     }
 
     template<typename Y>
-    Handle(const ::IceUtil::Handle<Y>& r) :
-	_ptr(r._ptr)
+    Handle(const ::IceUtil::Handle<Y>& r)
     {
+	_ptr = r._ptr;
+
 	if (_ptr)
 	{
 	    incRef(_ptr);
@@ -65,12 +68,13 @@ public:
 
 #ifdef WIN32 // COMPILERBUG: Is VC++ or GNU C++ right here???
     template<>
-    Handle(const Handle<T>& r) :
+    Handle(const Handle<T>& r)
 #else
-    Handle(const Handle& r) :
+    Handle(const Handle& r)
 #endif
-	_ptr(r._ptr)
     {
+	_ptr = r._ptr;
+
 	if (_ptr)
 	{
 	    incRef(_ptr);
@@ -169,7 +173,7 @@ public:
     }
         
     template<class Y>
-    static Handle dynamicCast(const Handle<Y>& r)
+    static Handle dynamicCast(const ::IceUtil::HandleBase<Y>& r)
     {
 	return Handle(dynamic_cast<T*>(r._ptr));
     }
@@ -179,16 +183,6 @@ public:
     {
 	return Handle(dynamic_cast<T*>(p));
     }
-
-    typedef T element_type;
-    
-    T* get() const { return _ptr; }
-    T* operator->() const { return _ptr; }
-    operator bool() const { return _ptr ? true : false; }
-
-    void swap(Handle& other) { std::swap(_ptr, other._ptr); }
-
-    T* _ptr;
 };
 
 template<typename T, typename U>

@@ -13,13 +13,13 @@
 
 class Entry
 {
-    string getName();
+    nonmutating string getName();
     void setName(string name);
 
-    string getAddress();
+    nonmutating string getAddress();
     void setAddress(string address);
 
-    string getPhone();
+    nonmutating string getPhone();
     void setPhone(string phone);
 
     void destroy();
@@ -37,8 +37,9 @@ sequence<string> Names;
 class PhoneBook
 {
     Entry* createEntry();
-    Entries findEntries(string name);
-    Names getAllNames();
+    nonmutating Entries findEntries(string name);
+    nonmutating Names getAllNames();
+    void shutdown();
 
     NameIdentitiesDict _nameIdentitiesDict;
 };

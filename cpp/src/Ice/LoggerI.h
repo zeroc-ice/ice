@@ -23,6 +23,7 @@ public:
     virtual void trace(const std::string&, const std::string&);
     virtual void warning(const std::string&);
     virtual void error(const std::string&);
+    virtual void destroy();
 };
 
 }

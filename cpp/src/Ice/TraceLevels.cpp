@@ -31,15 +31,21 @@ IceInternal::TraceLevels::TraceLevels(const PropertiesPtr& properties) :
 
     value = properties->getProperty(keyBase + networkCat);
     if (!value.empty())
+    {
 	const_cast<int&>(network) = atoi(value.c_str());
+    }
     
     value = properties->getProperty(keyBase + protocolCat);
     if (!value.empty())
+    {
 	const_cast<int&>(protocol) = atoi(value.c_str());
+    }
 
     value = properties->getProperty(keyBase + retryCat);
     if (!value.empty())
+    {
 	const_cast<int&>(retry) = atoi(value.c_str());
+    }
 }
 
 IceInternal::TraceLevels::~TraceLevels()

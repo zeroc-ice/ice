@@ -22,9 +22,15 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
-    std::string ref = properties->getProperty("Latency.Ping");
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    const char* refProperty = "Latency.Ping";
+    std::string ref = properties->getProperty(refProperty);
+    if (ref.empty())
+    {
+	cerr << argv[0] << ": property `" << refProperty << "' not set" << endl;
+	return EXIT_FAILURE;
+    }
 
+    Ice::ObjectPrx base = communicator->stringToProxy(ref);
     PingPrx ping = PingPrx::checkedCast(base);
     if (!ping)
     {

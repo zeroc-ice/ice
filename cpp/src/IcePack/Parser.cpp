@@ -39,14 +39,13 @@ void
 IcePack::Parser::usage()
 {
     cout <<
-	"help                        Print this message.\n"
-	"exit, quit                  Exit this program.\n"
-	"add proxy [path [args...]]  Add a proxy with an optional path and program\n"
-	"                            arguments.\n"
-	"remove proxy                Remove a proxy.\n"
-	"list                        List all server descriptions.\n"
-	"shutdown                    Shutdown the IcePack server.\n"
-	 << endl;
+        "help                        Print this message.\n"
+        "exit, quit                  Exit this program.\n"
+        "add PROXY [PATH [ARGS...]]  Add PROXY with an optional PATH and program\n"
+        "                            arguments ARGS.\n"
+        "remove PROXY                Remove PROXY.\n"
+        "list                        List all server descriptions.\n"
+        "shutdown                    Shut the IcePack server down.\n";
 }
 
 void
@@ -54,8 +53,7 @@ IcePack::Parser::add(const list<string>& args)
 {
     if (args.empty())
     {
-	error("`add' requires at least a proxy argument\n"
-	      "(type `help' for more info)");
+	error("`add' requires at least one argument (type `help' for more info)");
 	return;
     }
 
@@ -87,8 +85,7 @@ IcePack::Parser::remove(const list<string>& args)
 {
     if (args.size() != 1)
     {
-	error("`remove' requires exactly one proxy argument\n"
-	      "(type `help' for more info)");
+	error("`remove' requires exactly one argument (type `help' for more info)");
 	return;
     }
 

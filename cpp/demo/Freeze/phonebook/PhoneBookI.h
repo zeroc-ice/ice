@@ -20,6 +20,9 @@
 class PhoneBookI;
 typedef IceUtil::Handle<PhoneBookI> PhoneBookIPtr;
 
+class EntryI;
+typedef IceUtil::Handle<EntryI> EntryIPtr;
+
 class EntryI : public Entry, public JTCMutex
 {
 public:
@@ -55,8 +58,8 @@ public:
     virtual EntryPrx createEntry();
     virtual Entries findEntries(const std::string&);
     virtual Names getAllNames();
+    virtual void shutdown();
     
-    void add(const std::string&, const std::string&);
     void remove(const std::string&, const std::string&);
     void move(const std::string&, const std::string&, const std::string&);
 

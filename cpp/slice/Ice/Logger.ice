@@ -16,7 +16,7 @@ module Ice
 
 /**
  *
- * The Ice message logger. Applications can provide their own logger
+ * The Ice message logger. Applications can provide their own Logger
  * by implementing this interface and installing it with with a
  * Communicator.
  *
@@ -58,6 +58,16 @@ local class Logger
      *
      **/
     void error(string message);
+
+    /**
+     *
+     * Called when the Communicator this Logger is installed with is
+     * destroyed.
+     *
+     * @see Communicator::destroy
+     *
+     **/
+    void destroy();
 };
 
 };

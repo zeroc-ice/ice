@@ -46,6 +46,16 @@ local class ServantFactory
      *
      **/
     Object create(string type);
+
+    /**
+     *
+     * Called when the Communicator this Servant Factory is installed
+     * with is destroyed.
+     *
+     * @see Communicator::destroy
+     *
+     **/
+    void destroy();
 };
 
 };

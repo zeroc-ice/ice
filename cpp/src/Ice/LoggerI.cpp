@@ -41,3 +41,9 @@ Ice::LoggerI::error(const string& message)
     JTCSyncT<JTCMutex> sync(*this);
     cerr << "error: " << message << endl;
 }
+
+void
+Ice::LoggerI::destroy()
+{
+    // Nothing to do
+}

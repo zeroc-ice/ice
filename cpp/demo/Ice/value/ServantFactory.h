@@ -16,6 +16,7 @@ class ServantFactory : public Ice::ServantFactory
 public:
 
     virtual Ice::ObjectPtr create(const std::string&);
+    virtual void destroy();
 };
 
 #endif

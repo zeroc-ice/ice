@@ -19,18 +19,34 @@ int
 run(int argc, char* argv[], const CommunicatorPtr& communicator, const DBEnvPtr& dbenv)
 {
     ObjectAdapterPtr adapter = communicator->createObjectAdapter("PhoneBookAdapter");
-    DBPtr db = dbenv->open("entries");
+    DBPtr db = dbenv->open("phonebook");
     EvictorPtr evictor = new Evictor(db, 3); // TODO: Evictor size must be configurable
     adapter->setServantLocator(evictor);
 
-    PhoneBookIPtr phoneBook = new PhoneBookI(adapter, evictor);
+    ServantFactoryPtr phoneBookFactory = new PhoneBookFactory(adapter, evictor);
+    communicator->installServantFactory(phoneBookFactory, "::PhoneBook");
+
+    PhoneBookIPtr phoneBook;
+    ObjectPtr servant = db->get("phonebook");
+    if (!servant)
+    {
+	PhoneBookIPtr phoneBook = new PhoneBookI(adapter, evictor);
+    }
+    else
+    {
+	phoneBook = PhoneBookIPtr::dynamicCast(servant);
+    }
+    assert(phoneBook);
     adapter->add(phoneBook, "phonebook");
 
-    ServantFactoryPtr factory = new ::ServantFactory(phoneBook, evictor);
-    communicator->installServantFactory(factory, "::Entry");
+    ServantFactoryPtr entryFactory = new EntryFactory(phoneBook, evictor);
+    communicator->installServantFactory(entryFactory, "::Entry");
 
     adapter->activate();
     communicator->waitForShutdown();
+
+    db->put("phonebook", phoneBook);
+
     return EXIT_SUCCESS;
 }
 

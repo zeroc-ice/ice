@@ -26,7 +26,7 @@ void
 Evictor::createObject(const string& identity, const ObjectPtr& servant)
 {
     //
-    // Put the Ice Object in the database.
+    // Save the new Ice Object to the database.
     //
     _db->put(identity, servant);
 
@@ -52,8 +52,7 @@ Evictor::destroyObject(const string& identity)
     map<string, EvictorEntry>::iterator p = _evictorMap.find(identity);
     if (p != _evictorMap.end())
     {
-	assert(*(p->second._position) == identity);
-	_evictorList.erase(p->second._position);
+	_evictorList.erase(p->second.position);
 	_evictorMap.erase(p);
     }
 }
@@ -70,15 +69,14 @@ Evictor::locate(const ObjectAdapterPtr&, const string& identity, ObjectPtr&)
 	// Ice Object found in evictor map. Push it to the front of
 	// the evictor list, so that it will be evicted last.
 	//
-	assert(*(p->second._position) == identity);
-	_evictorList.erase(p->second._position);
+	_evictorList.erase(p->second.position);
 	_evictorList.push_front(identity);
-	p->second._position = _evictorList.begin();
+	p->second.position = _evictorList.begin();
 
 	//
 	// Return the servant for the Ice Object.
 	//
-	return p->second._servant;
+	return p->second.servant;
     }
     else
     {
@@ -105,7 +103,7 @@ Evictor::locate(const ObjectAdapterPtr&, const string& identity, ObjectPtr&)
 	//
 	// TODO: That's the only PhoneBook specific stuff!
 	//
-	EntryI* entry = dynamic_cast<EntryI*>(servant.get());
+	EntryIPtr entry = EntryIPtr::dynamicCast(servant);
 	assert(entry);
 	entry->setIdentity(identity);
 
@@ -124,6 +122,24 @@ Evictor::locate(const ObjectAdapterPtr&, const string& identity, ObjectPtr&)
 void
 Evictor::finished(const ObjectAdapterPtr&, const string&, const ObjectPtr&, const ObjectPtr&)
 {
+    //JTCSyncT<JTCMutex> sync(*this);
+}
+
+void
+Evictor::deactivate()
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    //
+    // Save all Ice Objects in the database upon deactivation, and
+    // clear the evictor map and list.
+    //
+    for (map<string, EvictorEntry>::iterator p = _evictorMap.begin(); p != _evictorMap.end(); ++p)
+    {
+	_db->put(*(p->second.position), p->second.servant);
+    }
+    _evictorMap.clear();
+    _evictorList.clear();
 }
 
 void
@@ -136,14 +152,25 @@ Evictor::evict()
     if (_evictorMap.size() > _evictorSize)
     {
 	//
-	// Evictor size exceeded. Save and remove last element.
+	// Evictor size exceeded. Remove last element from the evictor list.
 	//
 	string identity = _evictorList.back();
+	_evictorList.pop_back();
+
+	//
+	// Find corresponding element in the evictor map
+	//
 	map<string, EvictorEntry>::iterator p = _evictorMap.find(identity);
 	assert(p != _evictorMap.end());
-	assert(*(p->second._position) == identity);
-	_db->put(identity, p->second._servant);
-	_evictorList.pop_back();
+
+	//
+	// Save the evicted Ice Object to the database.
+	//
+	_db->put(identity, p->second.servant);
+
+	//
+	// Remove the element from the evictor map.
+	//
 	_evictorMap.erase(identity);
 	assert(_evictorMap.size() == _evictorSize);
     }
@@ -158,7 +185,7 @@ Evictor::add(const string& identity, const ObjectPtr& servant)
     //
     _evictorList.push_front(identity);
     EvictorEntry evictorEntry;
-    evictorEntry._servant = servant;
-    evictorEntry._position = _evictorList.begin();
+    evictorEntry.servant = servant;
+    evictorEntry.position = _evictorList.begin();
     _evictorMap[identity] = evictorEntry;
 }

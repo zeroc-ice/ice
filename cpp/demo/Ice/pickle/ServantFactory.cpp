@@ -20,3 +20,9 @@ ServantFactory::create(const string& type)
     assert(type == "::Persistent");
     return new Persistent;
 }
+
+void
+ServantFactory::destroy()
+{
+    // Nothing to do
+}

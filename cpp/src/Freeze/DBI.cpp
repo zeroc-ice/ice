@@ -11,6 +11,7 @@
 #include <Freeze/DBI.h>
 #include <Ice/Stream.h>
 #include <sys/stat.h>
+#include <sstream>
 
 using namespace std;
 using namespace Ice;
@@ -31,7 +32,10 @@ Freeze::DBI::~DBI()
 {
     if (_db)
     {
-	_communicator->getLogger()->warning("database has not been closed");
+	ostringstream s;
+	s << "Freeze::DB(\"" << _name << "\"): ";
+	s << "\"" << _name << "\" has not been closed";
+	_communicator->getLogger()->warning(s.str());
     }
 }
 
@@ -47,8 +51,11 @@ Freeze::DBI::put(const std::string& key, const ::Ice::ObjectPtr& servant)
 
     if(!_db)
     {
+	ostringstream s;
+	s << "Freeze::DB(\"" << _name << "\"): ";
+	s << "\"" << _name << "\" has been closed";
 	DBException ex;
-	ex.message = "Freeze::DB::open: database has been closed";
+	ex.message = s.str();
 	throw ex;
     }
 
@@ -77,9 +84,11 @@ Freeze::DBI::put(const std::string& key, const ::Ice::ObjectPtr& servant)
 	ret = txn_begin(_dbenv, 0, &tid, 0);
 	if (ret != 0)
 	{
+	    ostringstream s;
+	    s << "Freeze::DB(\"" << _name << "\"): ";
+	    s << "txn_begin: " << db_strerror(ret);
 	    DBException ex;
-	    ex.message = "txn_begin: ";
-	    ex.message += db_strerror(ret);
+	    ex.message = s.str();
 	    throw ex;
 	}
 	
@@ -94,9 +103,11 @@ Freeze::DBI::put(const std::string& key, const ::Ice::ObjectPtr& servant)
 		ret = txn_commit(tid, 0);
 		if (ret != 0)
 		{
+		    ostringstream s;
+		    s << "Freeze::DB(\"" << _name << "\"): ";
+		    s << "txn_commit: " << db_strerror(ret);
 		    DBException ex;
-		    ex.message = "txn_commit: ";
-		    ex.message += db_strerror(ret);
+		    ex.message = s.str();
 		    throw ex;
 		}
 		return; // We're done
@@ -110,9 +121,11 @@ Freeze::DBI::put(const std::string& key, const ::Ice::ObjectPtr& servant)
 		ret = txn_abort(tid);
 		if (ret != 0)
 		{
+		    ostringstream s;
+		    s << "Freeze::DB(\"" << _name << "\"): ";
+		    s << "txn_abort: " << db_strerror(ret);
 		    DBException ex;
-		    ex.message = "txn_abort: ";
-		    ex.message += db_strerror(ret);
+		    ex.message = s.str();
 		    throw ex;
 		}
 		break; // Repeat
@@ -123,9 +136,11 @@ Freeze::DBI::put(const std::string& key, const ::Ice::ObjectPtr& servant)
 		//
 		// Error, run recovery
 		//
+		ostringstream s;
+		s << "Freeze::DB(\"" << _name << "\"): ";
+		s << "DB->put: " << db_strerror(ret);
 		DBException ex;
-		ex.message = "DB->put: ";
-		ex.message += db_strerror(ret);
+		ex.message = s.str();
 		throw ex;
 	    }
 	}
@@ -144,8 +159,11 @@ Freeze::DBI::get(const std::string& key)
 
     if(!_db)
     {
+	ostringstream s;
+	s << "Freeze::DB(\"" << _name << "\"): ";
+	s << "\"" << _name << "\" has been closed";
 	DBException ex;
-	ex.message = "Freeze::DB::open: database has been closed";
+	ex.message = s.str();
 	throw ex;
     }
 
@@ -204,12 +222,11 @@ Freeze::DBI::get(const std::string& key)
 	
 	default:
 	{
-	    //
-	    // Error, run recovery
-	    //
+	    ostringstream s;
+	    s << "Freeze::DB(\"" << _name << "\"): ";
+	    s << "DB->get: " << db_strerror(ret);
 	    DBException ex;
-	    ex.message = "DB->get: ";
-	    ex.message += db_strerror(ret);
+	    ex.message = s.str();
 	    throw ex;
 	}
     }
@@ -227,8 +244,11 @@ Freeze::DBI::del(const std::string& key)
 
     if(!_db)
     {
+	ostringstream s;
+	s << "Freeze::DB(\"" << _name << "\"): ";
+	s << "\"" << _name << "\" has been closed";
 	DBException ex;
-	ex.message = "Freeze::DB::open: database has been closed";
+	ex.message = s.str();
 	throw ex;
     }
 }
@@ -246,9 +266,11 @@ Freeze::DBI::close()
     int ret = _db->close(_db, 0);
     if(ret != 0)
     {
+	ostringstream s;
+	s << "Freeze::DB(\"" << _name << "\"): ";
+	s << "DB->close: " << db_strerror(ret);
 	DBException ex;
-	ex.message = "DB->close: ";
-	ex.message += db_strerror(ret);
+	ex.message = s.str();
 	throw ex;
     }
 
@@ -263,26 +285,26 @@ Freeze::DBEnvI::DBEnvI(const CommunicatorPtr& communicator, const PropertiesPtr&
     _properties(properties),
     _dbenv(0)
 {
+    _directory = _properties->getProperty("Freeze.Directory");
+    if (_directory.empty())
+    {
+	_directory = ".";
+    }
+
     int ret;
 
     ret = db_env_create(&_dbenv, 0);
     if (ret != 0)
     {
+	ostringstream s;
+	s << "Freeze::DBEnv(\"" << _directory << "\"): ";
+	s << "db_env_create: " << db_strerror(ret);
 	DBException ex;
-	ex.message = "db_env_create: ";
-	ex.message += db_strerror(ret);
+	ex.message = s.str();
 	throw ex;
     }
 
-    _directory = _properties->getProperty("Freeze.Directory");
-
-    const char* dir = 0;
-    if (!_directory.empty())
-    {
-	dir = _directory.c_str();
-    }
-
-    ret = _dbenv->open(_dbenv, dir,
+    ret = _dbenv->open(_dbenv, _directory.c_str(),
 		       DB_CREATE |
 		       DB_INIT_LOCK |
 		       DB_INIT_LOG |
@@ -293,9 +315,11 @@ Freeze::DBEnvI::DBEnvI(const CommunicatorPtr& communicator, const PropertiesPtr&
 		       S_IRUSR | S_IWUSR);
     if (ret != 0)
     {
+	ostringstream s;
+	s << "Freeze::DBEnv(\"" << _directory << "\"): ";
+	s << "DB_ENV->open: " << db_strerror(ret);
 	DBException ex;
-	ex.message = "DB_ENV->open: ";
-	ex.message += db_strerror(ret);
+	ex.message = s.str();
 	throw ex;
     }
 }
@@ -304,7 +328,10 @@ Freeze::DBEnvI::~DBEnvI()
 {
     if (_dbenv)
     {
-	_communicator->getLogger()->warning("database environment object has not been closed");
+	ostringstream s;
+	s << "Freeze::DBEnv(\"" << _directory << "\"): ";
+	s << "\"" << _directory << "\" has not been closed";
+	_communicator->getLogger()->warning(s.str());
     }
 }
 
@@ -315,8 +342,11 @@ Freeze::DBEnvI::open(const string& name)
 
     if(!_dbenv)
     {
+	ostringstream s;
+	s << "Freeze::DBEnv(\"" << _directory << "\"): ";
+	s << "\"" << _directory << "\" has been closed";
 	DBException ex;
-	ex.message = "Freeze::DBEnv::open: database environment has been closed";
+	ex.message = s.str();
 	throw ex;
     }
 
@@ -332,18 +362,22 @@ Freeze::DBEnvI::open(const string& name)
     ret = db_create(&db, _dbenv, 0);
     if(ret != 0)
     {
+	ostringstream s;
+	s << "Freeze::DBEnv(\"" << _directory << "\"): ";
+	s << "db_create: " << db_strerror(ret);
 	DBException ex;
-	ex.message = "db_create: ";
-	ex.message += db_strerror(ret);
+	ex.message = s.str();
 	throw ex;
     }
 
     ret = db->open(db, name.c_str(), 0, DB_BTREE, DB_CREATE | DB_THREAD, S_IRUSR | S_IWUSR);
     if(ret != 0)
     {
+	ostringstream s;
+	s << "Freeze::DBEnv(\"" << _directory << "\"): ";
+	s << "DB->open: " << db_strerror(ret);
 	DBException ex;
-	ex.message = "DB->open: ";
-	ex.message += db_strerror(ret);
+	ex.message = s.str();
 	throw ex;
     }
 
@@ -371,9 +405,11 @@ Freeze::DBEnvI::close()
     int ret = _dbenv->close(_dbenv, 0);
     if(ret != 0)
     {
+	ostringstream s;
+	s << "Freeze::DBEnv(\"" << _directory << "\"): ";
+	s << "DB_ENV->close: " << db_strerror(ret);
 	DBException ex;
-	ex.message = "DB_ENV->close: ";
-	ex.message += db_strerror(ret);
+	ex.message = s.str();
 	throw ex;
     }
 

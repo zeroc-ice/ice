@@ -92,9 +92,21 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
 
     PropertiesPtr properties = communicator->getProperties();
-    std::string ref = properties->getProperty("PhoneBook.PhoneBook");
+    const char* refProperty = "PhoneBook.PhoneBook";
+    string ref = properties->getProperty(refProperty);
+    if (ref.empty())
+    {
+	cerr << argv[0] << ": property `" << refProperty << "' not set" << endl;
+	return EXIT_FAILURE;
+    }
+
     ObjectPrx base = communicator->stringToProxy(ref);
     PhoneBookPrx phoneBook = PhoneBookPrx::checkedCast(base);
+    if (!phoneBook)
+    {
+	cerr << argv[0] << ": invalid object reference" << endl;
+	return EXIT_FAILURE;
+    }
 
     ParserPtr parser = Parser::createParser(communicator, phoneBook);
     int status = EXIT_SUCCESS;

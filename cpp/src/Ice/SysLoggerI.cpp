@@ -42,3 +42,9 @@ Ice::SysLoggerI::error(const string& message)
     JTCSyncT<JTCMutex> sync(*this);
     syslog(LOG_ERR, "%s", message.c_str());
 }
+
+void
+Ice::SysLoggerI::destroy()
+{
+    // Nothing to do
+}

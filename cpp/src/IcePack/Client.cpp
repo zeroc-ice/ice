@@ -122,16 +122,16 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
 
     PropertiesPtr properties = communicator->getProperties();
-
-    string adminEndpoints = properties->getProperty("Ice.Adapter.Admin.Endpoints");
-    if (adminEndpoints.length() == 0)
+    const char* adminEndpointsProperty = "Ice.Adapter.Admin.Endpoints";
+    string adminEndpoints = properties->getProperty(adminEndpointsProperty);
+    if (adminEndpoints.empty())
     {
-	cerr << argv[0] << ": `Ice.Adapter.Admin.Endpoints' property is not set" << endl;
+	cerr << argv[0] << ": property `" << adminEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx adminBase = communicator->stringToProxy("admin:" + adminEndpoints);
-    AdminPrx admin = AdminPrx::checkedCast(adminBase);
+    Ice::ObjectPrx base = communicator->stringToProxy("admin:" + adminEndpoints);
+    AdminPrx admin = AdminPrx::checkedCast(base);
     if (!admin)
     {
 	cerr << argv[0] << ": `" << adminEndpoints << "' are no valid administrative endpoints" << endl;

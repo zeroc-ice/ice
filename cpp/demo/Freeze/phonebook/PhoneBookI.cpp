@@ -38,6 +38,7 @@ void
 EntryI::setName(const string& name)
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
+    assert(!_identity.empty());
     _phoneBook->move(_identity, _name, name);
     _name = name;
 }
@@ -74,6 +75,7 @@ void
 EntryI::destroy()
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
+    assert(!_identity.empty());
     _phoneBook->remove(_identity, _name);
     _evictor->destroyObject(_identity);
 }
@@ -83,30 +85,6 @@ PhoneBookI::PhoneBookI(const ObjectAdapterPtr& adapter, const EvictorPtr& evicto
     _evictor(evictor),
     _nextEntryIdentity(0)
 {
-}
-
-EntryPrx
-PhoneBookI::createEntry()
-{
-    JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
-
-    
-#ifdef WIN32 // COMPILERBUG
-    char s[20];
-    sprintf(s, "%I64d", _nextEntryIdentity++);
-    string identity = s;
-#else
-    ostringstream s;
-    s << _nextEntryIdentity++;
-    string identity = s.str();
-#endif
-    
-    EntryPtr entry = new EntryI(this, _evictor);
-    _evictor->createObject(identity, entry);
-
-    add(identity, "");
-
-    return EntryPrx::uncheckedCast(_adapter->createProxy(identity));
 }
 
 class IdentityToEntry
@@ -128,11 +106,59 @@ private:
     ObjectAdapterPtr _adapter;
 };
 
+EntryPrx
+PhoneBookI::createEntry()
+{
+    JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
+    
+    //
+    // Get a unique ID
+    //
+    string identity = "phonebook.entry#";
+#ifdef WIN32 // COMPILERBUG
+    char s[20];
+    sprintf(s, "%I64d", _nextEntryIdentity++);
+    identity += s;
+#else
+    ostringstream s;
+    s << _nextEntryIdentity++;
+    identity += s.str();
+#endif
+    
+    //
+    // Create a new entry Servant.
+    //
+    EntryIPtr entry = new EntryI(this, _evictor);
+    entry->setIdentity(identity);
+
+    //
+    // Create a new Ice Object in the evictor, using the new identity
+    // and the new Servant.
+    //
+    _evictor->createObject(identity, entry);
+
+    //
+    // Add identity to our name/identity map. The initial name is the
+    // empty string.
+    //
+    _nameIdentitiesDict[""].push_back(identity);
+
+    //
+    // Turn the identity into a Proxy and return the Proxy to the
+    // caller.
+    //
+    return IdentityToEntry(_adapter)(identity);
+}
+
 Entries
 PhoneBookI::findEntries(const string& name)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
+    //
+    // Lookup all phone book entries that match a name, and return
+    // them to the caller.
+    //
     NameIdentitiesDict::iterator p = _nameIdentitiesDict.find(name);
     if (p != _nameIdentitiesDict.end())
     {
@@ -152,6 +178,9 @@ PhoneBookI::getAllNames()
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
+    //
+    // Get all names from this phone book.
+    //
     Names names;
     for (NameIdentitiesDict::iterator p = _nameIdentitiesDict.begin(); p != _nameIdentitiesDict.end(); ++p)
     {
@@ -169,11 +198,11 @@ PhoneBookI::getAllNames()
 }
 
 void
-PhoneBookI::add(const string& identity, const string& name)
+PhoneBookI::shutdown()
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
-    _nameIdentitiesDict[name].push_back(identity);
+    _adapter->getCommunicator()->shutdown();
 }
 
 void
@@ -181,6 +210,9 @@ PhoneBookI::remove(const string& identity, const string& name)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
+    //
+    // Called by EntryI to remove itself from the phone book.
+    //
     NameIdentitiesDict::iterator p = _nameIdentitiesDict.find(name);
     assert(p != _nameIdentitiesDict.end());
     p->second.erase(remove_if(p->second.begin(), p->second.end(), bind2nd(equal_to<string>(), identity)),
@@ -192,6 +224,9 @@ PhoneBookI::move(const string& identity, const string& oldName, const string& ne
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
+    //
+    // Called by EntryI in case the name has been changed.
+    //
     remove(identity, oldName);
-    add(identity, newName);
+    _nameIdentitiesDict[newName].push_back(identity);
 }

@@ -13,13 +13,29 @@
 
 #include <PhoneBookI.h>
 
-class ServantFactory : public Ice::ServantFactory
+class PhoneBookFactory : public Ice::ServantFactory
 {
 public:
 
-    ServantFactory(const PhoneBookIPtr&, const EvictorPtr&);
+    PhoneBookFactory(const Ice::ObjectAdapterPtr&, const EvictorPtr&);
 
     virtual Ice::ObjectPtr create(const std::string&);
+    virtual void destroy();
+
+private:
+
+    Ice::ObjectAdapterPtr _adapter;
+    EvictorPtr _evictor;
+};
+
+class EntryFactory : public Ice::ServantFactory
+{
+public:
+
+    EntryFactory(const PhoneBookIPtr&, const EvictorPtr&);
+
+    virtual Ice::ObjectPtr create(const std::string&);
+    virtual void destroy();
 
 private:
 

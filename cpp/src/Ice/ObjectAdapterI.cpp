@@ -85,6 +85,8 @@ Ice::ObjectAdapterI::deactivate()
     _collectorFactories.clear();
     _activeServantMap.clear();
     _activeServantMapHint = _activeServantMap.begin();
+    _locator->deactivate();
+    _locator = 0;
 }
 
 ObjectPrx

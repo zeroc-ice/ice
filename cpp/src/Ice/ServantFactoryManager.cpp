@@ -49,5 +49,9 @@ void
 IceInternal::ServantFactoryManager::destroy()
 {
     JTCSyncT<JTCMutex> sync(*this);
+    for (map<string, ::Ice::ServantFactoryPtr>::iterator p = 0; p != _factories.end(); ++p)
+    {
+	p->second->destroy();
+    }
     _factories.clear();
 }

@@ -46,7 +46,7 @@ public:
     ProxyFactoryPtr proxyFactory();
     ThreadPoolPtr threadPool();
     EmitterFactoryPtr emitterFactory();
-    ServantFactoryManagerPtr valueFactoryManager();
+    ServantFactoryManagerPtr servantFactoryManager();
     ObjectAdapterFactoryPtr objectAdapterFactory();
     ::Ice::PicklerPtr pickler();
     
@@ -64,7 +64,7 @@ private:
     ProxyFactoryPtr _proxyFactory;
     ThreadPoolPtr _threadPool;
     EmitterFactoryPtr _emitterFactory;
-    ServantFactoryManagerPtr _valueFactoryManager;
+    ServantFactoryManagerPtr _servantFactoryManager;
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ::Ice::PicklerPtr _pickler;
 

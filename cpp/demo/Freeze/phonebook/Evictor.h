@@ -30,6 +30,7 @@ public:
     virtual Ice::ObjectPtr locate(const Ice::ObjectAdapterPtr&, const std::string&, Ice::ObjectPtr&);
     virtual void finished(const Ice::ObjectAdapterPtr&, const std::string&, const Ice::ObjectPtr&,
 			  const Ice::ObjectPtr&);
+    virtual void deactivate();
 
 private:
 
@@ -40,8 +41,8 @@ private:
 
     struct EvictorEntry
     {
-	Ice::ObjectPtr _servant;
-	std::list<std::string>::iterator _position;
+	Ice::ObjectPtr servant;
+	std::list<std::string>::iterator position;
     };
     std::map<std::string, EvictorEntry> _evictorMap;
     std::list<std::string> _evictorList;

@@ -35,9 +35,15 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
-    std::string ref = properties->getProperty("Hello.Hello");
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    const char* refProperty = "Hello.Hello";
+    std::string ref = properties->getProperty(refProperty);
+    if (ref.empty())
+    {
+	cerr << argv[0] << ": property `" << refProperty << "' not set" << endl;
+	return EXIT_FAILURE;
+    }
 
+    Ice::ObjectPrx base = communicator->stringToProxy(ref);
     HelloPrx twoway = HelloPrx::checkedCast(base);
     if (!twoway)
     {

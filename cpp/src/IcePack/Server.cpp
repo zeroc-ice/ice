@@ -58,16 +58,19 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     PropertiesPtr properties = communicator->getProperties();
 
-    string adminEndpoints = properties->getProperty("Ice.Adapter.Admin.Endpoints");
-    if (adminEndpoints.length() != 0 && !nowarn)
+    const char* adminEndpointsProperty = "Ice.Adapter.Admin.Endpoints";
+    string adminEndpoints = properties->getProperty(adminEndpointsProperty);
+    if (!adminEndpoints.empty() && !nowarn)
     {
-	cerr << argv[0] << ": warning: administrative endpoints `Ice.Adapter.Admin.Endpoints' enabled" << endl;
+	cerr << argv[0] << ": warning: administrative endpoints property `" << adminEndpointsProperty << "' enabled"
+	     << endl;
     }
 
-    string forwardEndpoints = properties->getProperty("Ice.Adapter.Forward.Endpoints");
-    if (forwardEndpoints.length() == 0)
+    const char* forwardEndpointsProperty = "Ice.Adapter.Forward.Endpoints";
+    string forwardEndpoints = properties->getProperty(forwardEndpointsProperty);
+    if (forwardEndpoints.empty())
     {
-	cerr << argv[0] << ": `Ice.Adapter.Forward.Endpoints' property is not set" << endl;
+	cerr << argv[0] << ": property `" << forwardEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
     }
 

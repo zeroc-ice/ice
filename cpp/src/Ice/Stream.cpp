@@ -820,7 +820,7 @@ IceInternal::Stream::read(ObjectPtr& v, const string& type)
     vector<string>::const_iterator p;
     for (p = classIds.begin(); p != classIds.end(); ++p)
     {
-	ServantFactoryPtr factory = _instance->valueFactoryManager()->lookup(*p);
+	ServantFactoryPtr factory = _instance->servantFactoryManager()->lookup(*p);
 	
 	if (factory)
 	{

@@ -32,8 +32,12 @@ yyerror(const char* s)
 %token TOK_FIND_ENTRIES
 %token TOK_NEXT_FOUND_ENTRY
 %token TOK_PRINT_CURRENT
+%token TOK_SET_CURRENT_NAME
+%token TOK_SET_CURRENT_ADDRESS
+%token TOK_SET_CURRENT_PHONE
 %token TOK_REMOVE_CURRENT
 %token TOK_LIST_NAMES
+%token TOK_SHUTDOWN
 %token TOK_STRING
 
 %%
@@ -87,6 +91,18 @@ command
 {
     parser->printCurrent();
 }
+| TOK_SET_CURRENT_NAME strings ';'
+{
+    parser->setCurrentName($2);
+}
+| TOK_SET_CURRENT_ADDRESS strings ';'
+{
+    parser->setCurrentAddress($2);
+}
+| TOK_SET_CURRENT_PHONE strings ';'
+{
+    parser->setCurrentPhone($2);
+}
 | TOK_REMOVE_CURRENT ';'
 {
     parser->removeCurrent();
@@ -94,6 +110,10 @@ command
 | TOK_LIST_NAMES ';'
 {
     parser->listNames();
+}
+| TOK_SHUTDOWN ';'
+{
+    parser->shutdown();
 }
 | error ';'
 {

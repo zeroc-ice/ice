@@ -122,10 +122,10 @@ IceInternal::Instance::emitterFactory()
 }
 
 ServantFactoryManagerPtr
-IceInternal::Instance::valueFactoryManager()
+IceInternal::Instance::servantFactoryManager()
 {
     JTCSyncT<JTCMutex> sync(*this);
-    return _valueFactoryManager;
+    return _servantFactoryManager;
 }
 
 ObjectAdapterFactoryPtr
@@ -262,7 +262,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	_proxyFactory = new ProxyFactory(this);
 	_threadPool = new ThreadPool(this);
 	_emitterFactory = new EmitterFactory(this);
-	_valueFactoryManager = new ServantFactoryManager();
+	_servantFactoryManager = new ServantFactoryManager();
 	_objectAdapterFactory = new ObjectAdapterFactory(this);
 	_pickler = new PicklerI(this);
     }
@@ -282,7 +282,7 @@ IceInternal::Instance::~Instance()
     assert(!_proxyFactory);
     assert(!_threadPool);
     assert(!_emitterFactory);
-    assert(!_valueFactoryManager);
+    assert(!_servantFactoryManager);
     assert(!_objectAdapterFactory);
     assert(!_pickler);
 
@@ -350,8 +350,7 @@ IceInternal::Instance::destroy()
 
     if(_logger)
     {
-	// No destroy function defined
-	// _logger->destroy();
+	_logger->destroy();
 	_logger = 0;
     }
 
@@ -375,10 +374,10 @@ IceInternal::Instance::destroy()
 	_emitterFactory = 0;
     }
 
-    if(_valueFactoryManager)
+    if(_servantFactoryManager)
     {
-	_valueFactoryManager->destroy();
-	_valueFactoryManager = 0;
+	_servantFactoryManager->destroy();
+	_servantFactoryManager = 0;
     }
 
     if(_objectAdapterFactory)

@@ -27,16 +27,19 @@ void
 Parser::usage()
 {
     cout <<
-	"help          Print this message.\n"
-	"exit, quit    Exit this program.\n"
-	"add names...  Create new entries in the phonebooks.\n"
-	"find name     Find all entries in the phonebook that match the given name.\n"
-	"              Set the current entry to the first one found.\n"
-	"next          Set the current entry to the next one that was found.\n"
-	"current       Display the current entry.\n"
-	"remove        Permanently remove the current entry from the phonebook.\n"
-	"list          List all names in the phonebook.\n"
-	 << endl;
+        "help             Print this message.\n"
+        "exit, quit       Exit this program.\n"
+        "add NAMES...     Create new entries for NAMES in the phonebook.\n"
+        "find NAME        Find all entries in the phonebook that match NAME.\n"
+        "                 Set the current entry to the first one found.\n"
+        "next             Set the current entry to the next one that was found.\n"
+        "current          Display the current entry.\n"
+        "name NAME        Set the name for the current entry to NAME.\n"
+        "address ADDRESS  Set the address for the current entry to ADDRESS.\n"
+        "phone PHONE      Set the phone number for the current entry to PHONE.\n"
+        "remove           Permanently remove the current entry from the phonebook.\n"
+        "list             List all names in the phonebook.\n"
+        "shutdown         Shut the phonebook server down.\n";
 }
 
 ParserPtr
@@ -50,8 +53,7 @@ Parser::addEntries(const std::list<std::string>& args)
 {
     if (args.empty())
     {
-	error("`add' requires at least one name as argument\n"
-	      "(type `help' for more info)");
+	error("`add' requires at least one rgument (type `help' for more info)");
 	return;
     }
 
@@ -75,8 +77,7 @@ Parser::findEntries(const std::list<std::string>& args)
 {
     if (args.size() != 1)
     {
-	error("`find' requires exactly one name as argument\n"
-	      "(type `help' for more info)");
+	error("`find' requires exactly one argument (type `help' for more info)");
 	return;
     }
 
@@ -127,6 +128,87 @@ Parser::printCurrent()
 }
 
 void
+Parser::setCurrentName(const std::list<std::string>& args)
+{
+    if (args.size() != 1)
+    {
+	error("`name' requires exactly one argument (type `help' for more info)");
+	return;
+    }
+
+    try
+    {
+	if (_current != _foundEntries.end())
+	{
+	    (*_current)->setName(args.front());
+	    cout << "changed name to `" << args.front() << "'" << endl;
+	}
+	else
+	{
+	    cout << "no current entry" << endl;
+	}
+    }
+    catch(const LocalException& ex)
+    {
+	error(ex.toString());
+    }
+}
+
+void
+Parser::setCurrentAddress(const std::list<std::string>& args)
+{
+    if (args.size() != 1)
+    {
+	error("`address' requires exactly one argument (type `help' for more info)");
+	return;
+    }
+
+    try
+    {
+	if (_current != _foundEntries.end())
+	{
+	    (*_current)->setAddress(args.front());
+	    cout << "changed address to `" << args.front() << "'" << endl;
+	}
+	else
+	{
+	    cout << "no current entry" << endl;
+	}
+    }
+    catch(const LocalException& ex)
+    {
+	error(ex.toString());
+    }
+}
+
+void
+Parser::setCurrentPhone(const std::list<std::string>& args)
+{
+    if (args.size() != 1)
+    {
+	error("`phone' requires exactly one argument (type `help' for more info)");
+	return;
+    }
+
+    try
+    {
+	if (_current != _foundEntries.end())
+	{
+	    (*_current)->setPhone(args.front());
+	    cout << "changed phone number to `" << args.front() << "'" << endl;
+	}
+	else
+	{
+	    cout << "no current entry" << endl;
+	}
+    }
+    catch(const LocalException& ex)
+    {
+	error(ex.toString());
+    }
+}
+
+void
 Parser::removeCurrent()
 {
     try
@@ -157,6 +239,19 @@ Parser::listNames()
 	{
 	    cout << *p << endl;
 	}
+    }
+    catch(const LocalException& ex)
+    {
+	error(ex.toString());
+    }
+}
+
+void
+Parser::shutdown()
+{
+    try
+    {
+	_phoneBook->shutdown();
     }
     catch(const LocalException& ex)
     {

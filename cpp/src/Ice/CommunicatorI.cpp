@@ -114,7 +114,7 @@ Ice::CommunicatorI::installServantFactory(const ServantFactoryPtr& factory, cons
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
-    _instance->valueFactoryManager()->install(factory, id);
+    _instance->servantFactoryManager()->install(factory, id);
 }
 
 PropertiesPtr
