@@ -15,9 +15,6 @@
 #include <IceUtil/Mutex.h>
 #include <Ice/SslConnection.h>
 #include <Ice/SslSystem.h>
-#include <Ice/Buffer.h>
-#include <Ice/TraceLevels.h>
-#include <Ice/Logger.h>
 
 namespace IceSecurity
 {

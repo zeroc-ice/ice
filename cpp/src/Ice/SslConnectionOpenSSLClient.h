@@ -11,8 +11,6 @@
 #ifndef ICE_SSL_CONNECTION_OPENSSL_CLIENT_H
 #define ICE_SSL_CONNECTION_OPENSSL_CLIENT_H
 
-#include <openssl/ssl.h>
-#include <Ice/Buffer.h>
 #include <Ice/SslConnectionOpenSSL.h>
 
 namespace IceSecurity

@@ -14,12 +14,11 @@
 #include <string>
 #include <map>
 #include <Ice/Config.h>
-#include <Ice/TraceLevels.h>
-#include <Ice/Logger.h>
+#include <Ice/TraceLevelsF.h>
+#include <Ice/LoggerF.h>
 #include <Ice/SslFactory.h>
 #include <Ice/SslSystem.h>
 #include <Ice/SslConnection.h>
-#include <Ice/SslConnectionOpenSSL.h>
 
 namespace IceSecurity
 {

@@ -12,8 +12,8 @@
 #define ICE_SSL_CONNECTION_H
 
 #include <Ice/Buffer.h>
-#include <Ice/TraceLevels.h>
-#include <Ice/Logger.h>
+#include <Ice/TraceLevelsF.h>
+#include <Ice/LoggerF.h>
 
 namespace IceSecurity
 {

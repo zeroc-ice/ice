@@ -18,7 +18,11 @@
 #include <Ice/Security.h>
 #include <Ice/SecurityException.h>
 #include <Ice/SslConnection.h>
+#include <Ice/SslConnectionOpenSSL.h>
 #include <Ice/SslSystemOpenSSL.h>
+
+#include <Ice/TraceLevels.h>
+#include <Ice/Logger.h>
 
 using namespace std;
 using namespace IceInternal;

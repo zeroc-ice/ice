@@ -15,6 +15,9 @@
 #include <Ice/SecurityException.h>
 #include <Ice/SslConnectionOpenSSLClient.h>
 
+#include <Ice/TraceLevels.h>
+#include <Ice/Logger.h>
+
 using IceSecurity::Ssl::ShutdownException;
 using namespace IceInternal;
 using namespace std;

@@ -29,6 +29,9 @@
 #include <Ice/SslConnectionOpenSSLServer.h>
 #include <Ice/SslConfig.h>
 
+#include <Ice/TraceLevels.h>
+#include <Ice/Logger.h>
+
 using namespace std;
 
 namespace IceSecurity

@@ -11,7 +11,6 @@
 #pragma warning(disable:4786)
 #endif
 
-#include <openssl/ssl.h>
 #include <Ice/SslCertificateDesc.h>
 
 using namespace std;

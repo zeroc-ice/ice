@@ -11,9 +11,12 @@
 #include <string>
 #include <sstream>
 #include <Ice/Network.h>
-#include <Ice/Security.h>
+// #include <Ice/Security.h>
 #include <Ice/SecurityException.h>
 #include <Ice/SslConnectionOpenSSLServer.h>
+
+#include <Ice/TraceLevels.h>
+#include <Ice/Logger.h>
 
 using IceSecurity::Ssl::CertificateException;
 using IceSecurity::Ssl::ProtocolException;

@@ -15,6 +15,8 @@
 #include <Ice/SslConfigErrorReporter.h>
 #include <stdlib.h>
 #include <string.h>
+#include <Ice/TraceLevels.h>
+#include <Ice/Logger.h>
 #include <Ice/Security.h>
 
 using namespace std;

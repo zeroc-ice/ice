@@ -15,8 +15,8 @@
 #include <util/XercesDefs.hpp>
 #include <dom/DOMString.hpp>
 #include <sax/ErrorHandler.hpp>
-#include <Ice/TraceLevels.h>
-#include <Ice/Logger.h>
+#include <Ice/TraceLevelsF.h>
+#include <Ice/LoggerF.h>
 
 namespace IceSecurity
 {
