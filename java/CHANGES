@@ -1,18 +1,20 @@
 Changes since version 1.5.1
 ---------------------------
 
-- Fixed a bug that caused marshaling failures when global metadata
-  was used to define an alternate Java package. Two new properties
-  are supported: Ice.Package.* and Ice.Default.Package. See the
-  manual for more information.
+- Fixed tracing of operation mode.
 
-- Fixed bug in slice2java: with the --impl-tie option, incorrect
-  code was generated for local interfaces and classes.
+- Fixed a bug that caused marshaling failures when global metadata was
+  used to define an alternate Java package. Two new properties are
+  supported: Ice.Package.* and Ice.Default.Package. See the manual for
+  more information.
 
-- Changed code generation in slice2java: for local interfaces,
-  only an OperationsNC (but no Operations) interface is generated
-  now. (Previously, both interfaces were generated, with one of
-  them being empty.)
+- Fixed bug in slice2java: with the --impl-tie option, incorrect code
+  was generated for local interfaces and classes.
+
+- Changed code generation in slice2java: for local interfaces, only an
+  OperationsNC (but no Operations) interface is generated
+  now. (Previously, both interfaces were generated, with one of them
+  being empty.)
 
 - Freeze dictionaries now support indices. You can index on the full
   value of the dictionary, or on a member (when the value is a struct
@@ -20,27 +22,28 @@ Changes since version 1.5.1
   indices (for different members).  See the Freeze bench demo and the
   Freeze dbmap test for examples.
 
-- Fixed the slice2java compiler for operations with multiple exceptions
-  in an exception specification: if an exception was a base of one or
-  more other exceptions in the same exception specification, the code
-  generator sometimes emitted the catch blocks in the marshaling and
-  dispatch code in the wrong order. (This applied only to interfaces
-  with an ["amd"] metadata directive.)
+- Fixed the slice2java compiler for operations with multiple
+  exceptions in an exception specification: if an exception was a base
+  of one or more other exceptions in the same exception specification,
+  the code generator sometimes emitted the catch blocks in the
+  marshaling and dispatch code in the wrong order. (This applied only
+  to interfaces with an ["amd"] metadata directive.)
 
 - The documentation has always stated that same-named constructs
-  cannot be directly nested inside each other. (For example, a
-  module `M' cannot contain a constant named `M'. The slice2java
-  compiler did not enforce this correctly up to now for modules
-  containing constructs with the same name as the enclosing module.
-  This has been fixed and now results in a diagnostic.
+  cannot be directly nested inside each other. (For example, a module
+  `M' cannot contain a constant named `M'. The slice2java compiler did
+  not enforce this correctly up to now for modules containing
+  constructs with the same name as the enclosing module.  This has
+  been fixed and now results in a diagnostic.
 
-- The slice2java compiler now deprecates Slice definitions at global scope:
-  only modules can be defined at global scope. Everything else
-  (constants, classes, interfaces, etc.) must be defined inside a module.
+- The slice2java compiler now deprecates Slice definitions at global
+  scope: only modules can be defined at global scope. Everything else
+  (constants, classes, interfaces, etc.) must be defined inside a
+  module.
 
-  For the time being, the compiler issues a warning for each global definition
-  but continues to compile the code. Global non-module definitions will
-  elicit a hard error two releases from now.
+  For the time being, the compiler issues a warning for each global
+  definition but continues to compile the code. Global non-module
+  definitions will elicit a hard error two releases from now.
 
 - Several demos used Slice classes where interface were more
   appropriate. This has been fixed.
@@ -83,8 +86,8 @@ Changes since version 1.5.1
       void op();
   }
 
-  This changes allows you to call an operation on a class without having
-  to supply a null dummy argument:
+  This changes allows you to call an operation on a class without
+  having to supply a null dummy argument:
 
   Foo f = new FooI();
   f.op(null);		// Previously, null had to be passed. This still works.

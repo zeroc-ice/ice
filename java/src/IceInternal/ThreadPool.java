@@ -89,8 +89,6 @@ public final class ThreadPool
 	_sizeMax = sizeMax;
 	_sizeWarn = sizeWarn;
 	
-        _messageSizeMax = _instance.messageSizeMax();
-
 	try
         {
             _threads = new java.util.ArrayList();
@@ -859,7 +857,7 @@ public final class ThreadPool
         {
             throw new Ice.IllegalMessageSizeException();
         }
-        if(size > _messageSizeMax)
+        if(size > _instance.messageSizeMax())
         {
             throw new Ice.MemoryLimitException();
         }
@@ -1149,8 +1147,6 @@ public final class ThreadPool
     private final int _size; // Number of threads that are pre-created.
     private final int _sizeMax; // Maximum number of threads.
     private final int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
-
-    private final int _messageSizeMax;
 
     private java.util.ArrayList _threads; // All threads, running or not.
     private int _threadIndex; // For assigning thread names.

@@ -310,8 +310,34 @@ public final class TraceUtil
 
         try
         {
-            boolean nonmutating = stream.readBool();
-            out.write("\nnonmutating = " + nonmutating);
+            byte mode = stream.readByte();
+            out.write("\nmode = " + (int)mode + ' ');
+	    switch(mode)
+	    {
+		case Ice.OperationMode._Normal:
+		{
+		    out.write("(normal)");
+		    break;
+		}
+		
+		case Ice.OperationMode._Nonmutating:
+		{
+		    out.write("(nonmutating)");
+		    break;
+		}
+		
+		case Ice.OperationMode._Idempotent:
+		{
+		    out.write("(idempotent)");
+		    break;
+		}
+		
+		default:
+		{
+		    out.write("(unknown)");
+		    break;
+		}
+	    }
 
             int sz = stream.readSize();
             out.write("\ncontext = ");
