@@ -86,6 +86,7 @@ IceUtil::RWRecMutex::timedTryReadlock(const Time& timeout) const
     _count++;
 }
 
+#include <iostream.h>
 void
 IceUtil::RWRecMutex::writelock() const
 {
@@ -124,6 +125,7 @@ IceUtil::RWRecMutex::writelock() const
     // Got the lock, indicate it's held by a writer.
     //
     _count = -1;
+    _writerControl = ThreadControl();
 }
 
 void
@@ -153,6 +155,7 @@ IceUtil::RWRecMutex::tryWritelock() const
     // Got the lock, indicate it's held by a writer.
     //
     _count = -1;
+    _writerControl = ThreadControl();
 }
 
 void
@@ -163,7 +166,6 @@ IceUtil::RWRecMutex::timedTryWritelock(const Time& timeout) const
     //
     // If the mutex is already write locked by this writer then
     // decrement _count, and return.
-    //
     if(_count < 0 && _writerControl == ThreadControl())
     {
 	--_count;
@@ -202,6 +204,7 @@ IceUtil::RWRecMutex::timedTryWritelock(const Time& timeout) const
     // Got the lock, indicate it's held by a writer.
     //
     _count = -1;
+    _writerControl = ThreadControl();
 }
 
 void
@@ -307,6 +310,7 @@ IceUtil::RWRecMutex::upgrade() const
     // Got the lock, indicate it's held by a writer.
     //
     _count = -1;
+    _writerControl = ThreadControl();
 }
 
 void
@@ -356,4 +360,5 @@ IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
     // Got the lock, indicate it's held by a writer.
     //
     _count = -1;
+    _writerControl = ThreadControl();
 }
