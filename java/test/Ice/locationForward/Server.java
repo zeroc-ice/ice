@@ -27,19 +27,24 @@ public class Server
             {
                 if (i + 1 >= args.length)
                 {
-                    System.err.println("Server: argument expected for `" +
-                                       args[i] + "'");
+                    System.err.println("Server: argument expected for `" + args[i] + "'");
                     usage();
                     return 1;
                 }
 
                 fwd = communicator.stringToProxy(args[++i]);
+                continue;
             }
             else if (args[i].charAt(0) == '-')
             {
-                System.err.println("Server: unknown option `" + args[i] + "'");
-                usage();
-                return 1;
+                //
+                // TODO: Arguments recognized by the communicator are not
+                // removed from the argument list.
+                //
+                //System.err.println("Server: unknown option `" + args[i] + "'");
+                //usage();
+                //return 1;
+                continue;
             }
 
             if (port > 0)
@@ -69,9 +74,7 @@ public class Server
         }
 
         String endpts = "default -p " + port;
-        Ice.ObjectAdapter adapter =
-            communicator.createObjectAdapterWithEndpoints("TestAdapter",
-                                                          endpts);
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("TestAdapter", endpts);
         Ice.Object object = new TestI(adapter, fwd);
         adapter.add(object, Ice.Util.stringToIdentity("test"));
         adapter.activate();

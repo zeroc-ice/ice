@@ -24,10 +24,14 @@ public class Client
         {
             if (args[i].charAt(0) == '-')
             {
-                System.err.println("Client: unknown option `" + args[i]
-                                   + "'");
-                usage();
-                return 1;
+                //
+                // TODO: Arguments recognized by the communicator are not
+                // removed from the argument list.
+                //
+                //System.err.println("Client: unknown option `" + args[i] + "'");
+                //usage();
+                //return 1;
+                continue;
             }
 
             int port = 0;

@@ -24,9 +24,14 @@ public class Server
         {
             if (args[i].charAt(0) == '-')
             {
-                System.err.println("Server: unknown option `" + args[i] + "'");
-                usage();
-                return 1;
+                //
+                // TODO: Arguments recognized by the communicator are not
+                // removed from the argument list.
+                //
+                //System.err.println("Server: unknown option `" + args[i] + "'");
+                //usage();
+                //return 1;
+                continue;
             }
 
             if (port > 0)
