@@ -26,11 +26,10 @@ public class Instance
     public synchronized Ice.Logger
     logger()
     {
-	if(_destroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
-
+	//
+	// Don't throw CommunicatorDestroyedException if destroyed. We
+	// need the logger also after destructions.
+	//
         return _logger;
     }
 

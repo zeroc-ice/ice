@@ -98,11 +98,10 @@ IceInternal::Instance::logger()
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
+    //
+    // Don't throw CommunicatorDestroyedException if destroyed. We
+    // need the logger also after destructions.
+    //
     return _logger;
 }
 
