@@ -39,6 +39,7 @@ usage(const char* n)
 	"                      using KEY as key, and VALUE as value. This\n"
 	"                      option may be specified multiple times for\n"
 	"                      different names. NAME may be a scoped name.\n"
+	"--output-dir DIR      Create files in the directory DIR.\n"
 	"-d, --debug           Print debug messages.\n"
 	;
 }
@@ -199,6 +200,7 @@ main(int argc, char* argv[])
     vector<string> includePaths;
     string include;
     string dllExport;
+    string output;
     bool debug = false;
     vector<Dict> dicts;
 
@@ -342,6 +344,22 @@ main(int argc, char* argv[])
 	    }
 	    argc -= 2;
 	}
+	else if (strcmp(argv[idx], "--output-dir") == 0)
+	{
+	    if (idx + 1 >= argc)
+	    {
+		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	    }
+	    
+	    output = argv[idx + 1];
+	    for (int i = idx ; i + 2 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 2];
+	    }
+	    argc -= 2;
+	}
 	else if (argv[idx][0] == '-')
 	{
 	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
@@ -368,10 +386,22 @@ main(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
+    if (argc < 3)
+    {
+	cerr << argv[0] << ": no input file" << endl;
+	usage(argv[0]);
+	return EXIT_FAILURE;
+    }
+
     string fileH = argv[1];
     fileH += ".h";
     string fileC = argv[1];
     fileC += ".cpp";
+    if (!output.empty())
+    {
+	fileH = output + '/' + fileH;
+	fileC = output + '/' + fileC;
+    }
 
     UnitPtr unit = Unit::createUnit(true, false);
 
