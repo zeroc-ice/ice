@@ -513,7 +513,7 @@ Ice::SystemException::SystemException(const char* file, int line) :
     LocalException(file, line)
 {
 #ifdef WIN32
-    _error = WSAGetLastError();
+    _error = GetLastError();
 #else
     _error = errno;
 #endif
@@ -559,6 +559,13 @@ Ice::SystemException::raise() const
 Ice::SocketException::SocketException(const char* file, int line) :
     SystemException(file, line)
 {
+#ifdef WIN32
+    //
+    // Overwrite _error, which has been set by GetLastError() in the
+    // SystemException constructor, with WSAGetLastError()
+    //
+    _error = WSAGetLastError();
+#endif
 }
 
 Ice::SocketException::SocketException(const SocketException& ex) :

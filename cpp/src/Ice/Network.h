@@ -89,10 +89,10 @@ std::string getLocalHost(bool);
 
 void createPipe(int fds[2]);
 
-const char* errorToString(int);
-const char* errorToStringDNS(int);
-const char* lastErrorToString();
-const char* lastErrorToStringDNS();
+std::string errorToString(int);
+std::string errorToStringDNS(int);
+std::string lastErrorToString();
+std::string lastErrorToStringDNS();
 
 std::string fdToString(int);
 std::string addrToString(const struct sockaddr_in&);

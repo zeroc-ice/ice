@@ -1,0 +1,2 @@
+Latency.Ping=ping:tcp -p 10000
+Ice.Adapter.LatencyAdapter.Endpoints=tcp -p 10000

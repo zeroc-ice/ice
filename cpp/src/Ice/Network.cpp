@@ -617,9 +617,24 @@ IceInternal::createPipe(int fds[2])
 
 #ifdef WIN32
 
-const char*
+string
 IceInternal::errorToString(int error)
 {
+    if (error < WSABASEERR)
+    {
+	LPVOID lpMsgBuf;
+	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		      NULL,
+		      error,
+		      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+		      (LPTSTR)&lpMsgBuf,
+		      0,
+		      NULL);
+	string result = (LPCTSTR)lpMsgBuf;
+	LocalFree( lpMsgBuf );
+	return result;
+    }
+
     switch (error)
     {
     case WSAEINTR:
@@ -776,11 +791,11 @@ IceInternal::errorToString(int error)
 	return "WSANO_DATA";
 
     default:
-	return "unknown error";
+	return "unknown socket error";
     }
 }
 
-const char*
+string
 IceInternal::errorToStringDNS(int error)
 {
     return errorToString(error);
@@ -788,13 +803,13 @@ IceInternal::errorToStringDNS(int error)
 
 #else
 
-const char*
+string
 IceInternal::errorToString(int error)
 {
     return strerror(error);
 }
 
-const char*
+string
 IceInternal::errorToStringDNS(int error)
 {
     switch (error)
@@ -818,13 +833,13 @@ IceInternal::errorToStringDNS(int error)
 	return "name has no IP address";
 
     default:
-	return "unknown error";
+	return "unknown DNS error";
     }
 }
 
 #endif
 
-const char*
+string
 IceInternal::lastErrorToString()
 {
 #ifdef WIN32
@@ -834,7 +849,7 @@ IceInternal::lastErrorToString()
 #endif
 }
 
-const char*
+string
 IceInternal::lastErrorToStringDNS()
 {
 #ifdef WIN32
