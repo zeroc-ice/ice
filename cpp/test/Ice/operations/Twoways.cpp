@@ -516,11 +516,11 @@ twoways(const Test::MyClassPrx& p)
     {
 	Test::LongFloatD di1;
 	di1[999999110] = Ice::Float(-1.1);
-	di1[9999991100] = Ice::Float(123123.2);
+	di1[999999111] = Ice::Float(123123.2);
 	Test::LongFloatD di2;
 	di2[999999110] = Ice::Float(-1.1);
-	di2[999999111] = Ice::Float(-100.4);
-	di2[9999991101] = Ice::Float(0.5);
+	di2[999999120] = Ice::Float(-100.4);
+	di2[999999130] = Ice::Float(0.5);
 
 	Test::LongFloatD _do;
 	Test::LongFloatD ro = p->opLongFloatD(di1, di2, _do);
@@ -528,9 +528,9 @@ twoways(const Test::MyClassPrx& p)
 	test(_do == di1);
 	test(ro.size() == 4);
 	test(ro[999999110] == Ice::Float(-1.1));
-	test(ro[999999111] == Ice::Float(-100.4));
-	test(ro[9999991100] == Ice::Float(123123.2));
-	test(ro[9999991101] == Ice::Float(0.5));
+	test(ro[999999120] == Ice::Float(-100.4));
+	test(ro[999999111] == Ice::Float(123123.2));
+	test(ro[999999130] == Ice::Float(0.5));
     }
 
     {

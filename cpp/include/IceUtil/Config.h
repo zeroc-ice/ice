@@ -121,10 +121,12 @@ private:
 typedef __int64 Int64;
 const Int64 Int64Min = -9223372036854775808i64;
 const Int64 Int64Max =  9223372036854775807i64;
+#define ICE_INT64(x) Int64(x##i64)
 #elif defined(__linux__) && defined(i386)
 typedef long long Int64;
 const Int64 Int64Min = -0x7fffffffffffffffLL-1LL;
 const Int64 Int64Max = 0x7fffffffffffffffLL;
+#define ICE_INT64(x) Int64(x##LL)
 #endif
 
 }

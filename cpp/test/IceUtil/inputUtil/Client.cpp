@@ -78,21 +78,21 @@ main(int, char**)
     test(!b && result == 0 && pos == 1);
 
     b = stringToInt64("-9223372036854775807", result, pos);
-    test(b && result == -9223372036854775807 && pos == string::npos);
+    test(b && result == ICE_INT64(-9223372036854775807) && pos == string::npos);
     b = stringToInt64("-9223372036854775808", result, pos);
     test(b && result == Int64Min && pos == string::npos);
     b = stringToInt64("-9223372036854775809", result, pos);
     test(!b && result == Int64Min && pos == string::npos);
 
     b = stringToInt64("9223372036854775806", result, pos);
-    test(b && result == 9223372036854775806 && pos == string::npos);
+    test(b && result == ICE_INT64(9223372036854775806) && pos == string::npos);
     b = stringToInt64("9223372036854775807", result, pos);
     test(b && result == Int64Max && pos == string::npos);
     b = stringToInt64("9223372036854775808", result, pos);
     test(!b && result == Int64Max && pos == string::npos);
 
     b = stringToInt64("-9223372036854775807Q", result, pos);
-    test(b && result == -9223372036854775807 && pos == 20);
+    test(b && result == ICE_INT64(-9223372036854775807) && pos == 20);
     b = stringToInt64("-9223372036854775808Q", result, pos);
     test(b && result == Int64Min && pos == 20);
     b = stringToInt64("-9223372036854775809Q", result, pos);

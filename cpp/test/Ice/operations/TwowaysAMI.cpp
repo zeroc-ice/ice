@@ -616,17 +616,17 @@ public:
     {
 	Test::LongFloatD di1;
 	di1[999999110] = Ice::Float(-1.1);
-	di1[9999991100] = Ice::Float(123123.2);
+	di1[999999111] = Ice::Float(123123.2);
 	test(_do == di1);
 	test(ro.size() == 4);
 	test(ro.find(999999110) != ro.end());
 	test(ro.find(999999110)->second == Ice::Float(-1.1));
+	test(ro.find(999999120) != ro.end());
+	test(ro.find(999999120)->second == Ice::Float(-100.4));
 	test(ro.find(999999111) != ro.end());
-	test(ro.find(999999111)->second == Ice::Float(-100.4));
-	test(ro.find(9999991100) != ro.end());
-	test(ro.find(9999991100)->second == Ice::Float(123123.2));
-	test(ro.find(9999991101) != ro.end());
-	test(ro.find(9999991101)->second == Ice::Float(0.5));
+	test(ro.find(999999111)->second == Ice::Float(123123.2));
+	test(ro.find(999999130) != ro.end());
+	test(ro.find(999999130)->second == Ice::Float(0.5));
 	called();
     }
 
@@ -955,11 +955,11 @@ twowaysAMI(const Test::MyClassPrx& p)
     {
 	Test::LongFloatD di1;
 	di1[999999110] = Ice::Float(-1.1);
-	di1[9999991100] = Ice::Float(123123.2);
+	di1[999999111] = Ice::Float(123123.2);
 	Test::LongFloatD di2;
 	di2[999999110] = Ice::Float(-1.1);
-	di2[999999111] = Ice::Float(-100.4);
-	di2[9999991101] = Ice::Float(0.5);
+	di2[999999120] = Ice::Float(-100.4);
+	di2[999999130] = Ice::Float(0.5);
 
 	AMI_MyClass_opLongFloatDIPtr cb = new AMI_MyClass_opLongFloatDI;
 	p->opLongFloatD_async(cb, di1, di2);
