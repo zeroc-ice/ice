@@ -21,12 +21,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_145A418DCAC48F4BCD0FE878A1905619"
-        "OwnerKey" = "8:_1D9D10F4F36A412DB1EF1C24884C1E48"
-        "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_151EC853DD6F4FB5913269E9A0A5FCBE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESTORMSERVICE15.DLL"
@@ -36,12 +30,6 @@
         "MsmKey" = "8:_15FC81304674410F947C248607F7F40B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICESTORM\\RELEASE\\ICESTORMADMIN.EXE"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_1D9D10F4F36A412DB1EF1C24884C1E48"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:icecs_d6faf857e466dda9c0851b8bbf7c18ef"
         }
         "Entry"
         {
@@ -84,12 +72,6 @@
         "MsmKey" = "8:_4C6FB600FE0A4D23A8E75D4FC9C332E4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICEPATCH\\RELEASE\\ICEPATCHSERVER.EXE"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_4CFF2BCC559788D006A1DFB477A9656C"
-        "OwnerKey" = "8:_145A418DCAC48F4BCD0FE878A1905619"
-        "MsmSig" = "8:system.xml_3e5fe87b0e28b717e6c8ac9b88cac515"
         }
         "Entry"
         {
@@ -270,37 +252,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{C7BF5952-4B9D-11D3-8E24-00C04F6837D0}:_145A418DCAC48F4BCD0FE878A1905619"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:TRUE"
-            "AssemblyAsmDisplayName" = "8:System, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
-                "ScatterAssemblies"
-                {
-                    "_145A418DCAC48F4BCD0FE878A1905619"
-                    {
-                    "Name" = "8:System.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:System.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_9858DC33B3124FE48DB6E6923C107496"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_151EC853DD6F4FB5913269E9A0A5FCBE"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\icestormservice15.dll"
@@ -327,37 +278,6 @@
             "TargetName" = "8:icestormadmin.exe"
             "Tag" = "8:"
             "Folder" = "8:_16965972D27742F196A05A88F2D678CB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{C7BF5952-4B9D-11D3-8E24-00C04F6837D0}:_1D9D10F4F36A412DB1EF1C24884C1E48"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:icecs, Version=1.5.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381"
-                "ScatterAssemblies"
-                {
-                    "_1D9D10F4F36A412DB1EF1C24884C1E48"
-                    {
-                    "Name" = "8:icecs.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\bin\\icecs.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_9858DC33B3124FE48DB6E6923C107496"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -490,37 +410,6 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{C7BF5952-4B9D-11D3-8E24-00C04F6837D0}:_4CFF2BCC559788D006A1DFB477A9656C"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:TRUE"
-            "AssemblyAsmDisplayName" = "8:System.Xml, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
-                "ScatterAssemblies"
-                {
-                    "_4CFF2BCC559788D006A1DFB477A9656C"
-                    {
-                    "Name" = "8:System.Xml.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:System.Xml.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_9858DC33B3124FE48DB6E6923C107496"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_61E3EE2588D34F5282DF3DBAC5EB5C6C"

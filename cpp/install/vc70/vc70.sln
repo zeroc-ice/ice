@@ -31,6 +31,8 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "ExpatRuntime", "ExpatRuntim
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "ExpatDevKit", "ExpatDevKit\ExpatDevKit.vdproj", "{3233A9BF-272E-4A04-AFAE-649745FFFA91}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "IceCS", "IceCS\IceCS.vdproj", "{CE97B407-1204-403B-AEFF-8A34C68AD97C}"
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		ConfigName.0 = Debug
@@ -153,6 +155,13 @@ Global
 		{3233A9BF-272E-4A04-AFAE-649745FFFA91}.Release.Build.0 = ThirdParty
 		{3233A9BF-272E-4A04-AFAE-649745FFFA91}.ThirdParty.ActiveCfg = ThirdParty
 		{3233A9BF-272E-4A04-AFAE-649745FFFA91}.ThirdParty.Build.0 = ThirdParty
+		{CE97B407-1204-403B-AEFF-8A34C68AD97C}.Debug.ActiveCfg = Ice
+		{CE97B407-1204-403B-AEFF-8A34C68AD97C}.Debug.Build.0 = Ice
+		{CE97B407-1204-403B-AEFF-8A34C68AD97C}.Ice.ActiveCfg = Ice
+		{CE97B407-1204-403B-AEFF-8A34C68AD97C}.Ice.Build.0 = Ice
+		{CE97B407-1204-403B-AEFF-8A34C68AD97C}.Release.ActiveCfg = Ice
+		{CE97B407-1204-403B-AEFF-8A34C68AD97C}.Release.Build.0 = Ice
+		{CE97B407-1204-403B-AEFF-8A34C68AD97C}.ThirdParty.ActiveCfg = Ice
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

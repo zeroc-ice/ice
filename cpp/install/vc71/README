@@ -29,5 +29,8 @@ replace ".NET 2002" by ".NET 2003", either using Visual
 Studio or by opening the corresponding .vdproj files with a 
 text editor.
 
+(6) (Optional) Add the IceCS project utput to the Ice project to
+include Ice for C# in the installer.
+
 Then refer to the vc70\README for further information on
 these installer projects.
