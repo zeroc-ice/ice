@@ -8,7 +8,7 @@
     <property name="src.dir" value="src"/>
     <property name="lib.dir" value="lib"/>
     <property name="generated.dir" value="generated"/>
-    <property name="tags.dir" value="tags"/>
+    <property name="tags.dir" value="${generated.dir}/.tags"/>
 
     <target name="init">
         <!-- Create the time stamp -->
@@ -38,14 +38,15 @@
     </target>
 
     <target name="compile" depends="generate">
+        <mkdir dir="${lib.dir}"/>
         <javac srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}"/>
     </target>
 
     <target name="all" depends="compile"/>
 
     <target name="clean">
-        <delete dir="${generated.dir}"/>
         <delete dir="${tags.dir}"/>
+        <delete dir="${generated.dir}"/>
     </target>
 
 </project>
