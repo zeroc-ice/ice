@@ -29,7 +29,8 @@ class AcceptorI : public Shared
 {
 public:
     
-    int fd() { return fd_; }
+    int fd();
+    void close();
     void shutdown();
     void listen();
     Transceiver accept();
@@ -42,8 +43,7 @@ private:
 
     AcceptorI(Instance, int);
     virtual ~AcceptorI();
-    void destroy();
-    friend class CollectorFactoryI; // May create and destroy AcceptorIs
+    friend class CollectorFactoryI; // May create AcceptorIs
 
     Instance instance_;
     int fd_;

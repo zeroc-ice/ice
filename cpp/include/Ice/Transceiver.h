@@ -28,8 +28,8 @@ class TransceiverI : public Shared
 {
 public:
 
-    int fd() { return fd_; }
-    void destroy();
+    int fd();
+    void close();
     void shutdown();
     void write(Buffer&);
     void read(Buffer&);

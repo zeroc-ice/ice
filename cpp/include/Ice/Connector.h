@@ -39,8 +39,7 @@ private:
 
     ConnectorI(Instance, const std::string&, int);
     virtual ~ConnectorI();
-    void destroy();
-    friend class EmitterFactoryI; // May create and destroy ConnectorIs
+    friend class EmitterFactoryI; // May create ConnectorIs
 
     Instance instance_;
     struct sockaddr_in addr_;

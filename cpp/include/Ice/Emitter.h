@@ -38,8 +38,8 @@ public:
     // Operations from EventHandlerI
     //
     virtual int fd();
-    virtual void close();
     virtual void receive();
+    virtual void finished();
 
 private:
 

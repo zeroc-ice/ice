@@ -11,7 +11,6 @@
 #ifndef ICE_INCOMING_H
 #define ICE_INCOMING_H
 
-#include <Ice/CollectorF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/Stream.h>
 
@@ -22,7 +21,7 @@ class ICE_API Incoming
 {
 public:
 
-    Incoming(const Collector&, const ::Ice::ObjectAdapter&);
+    Incoming(const ::Ice::ObjectAdapter&);
     ~Incoming();
 
     void invoke();
@@ -35,7 +34,6 @@ private:
     Incoming(const Incoming&);
     void operator=(const Incoming&);
 
-    Collector collector_;
     ::Ice::ObjectAdapter adapter_;
 
     Stream is_;

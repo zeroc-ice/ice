@@ -18,6 +18,7 @@ namespace __Ice
 
 class Stream;
 
+void traceHeader(const char*, const Stream&);
 void traceRequest(const char*, const Stream&);
 void traceReply(const char*, const Stream&);
 

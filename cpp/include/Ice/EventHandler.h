@@ -22,8 +22,8 @@ class ICE_API EventHandlerI : public Shared
 public:
     
     virtual int fd() = 0;
-    virtual void close() = 0;
     virtual void receive() = 0;
+    virtual void finished() = 0;
 
 protected:
     

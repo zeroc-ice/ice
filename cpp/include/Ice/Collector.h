@@ -41,6 +41,8 @@ public:
     Instance instance() const;
     void destroy();
     bool destroyed() const;
+    void hold();
+    void activate();
     void prepareReply(Incoming*);
     void sendReply(Incoming*);
 
@@ -48,8 +50,8 @@ public:
     // Operations from EventHandlerI
     //
     virtual int fd();
-    virtual void close();
     virtual void receive();
+    virtual void finished();
 
 private:
 
@@ -60,37 +62,60 @@ private:
     virtual ~CollectorI();
     friend class CollectorFactoryI; // May create CollectorIs
 
+    enum State
+    {
+	StateActive,
+	StateHolding,
+	StateClosing,
+	StateClosed
+    };
+
+    void setState(State);
+    void closeConnection();
     void warning(const Ice::LocalException&) const;
 
     ::Ice::ObjectAdapter adapter_;
     ThreadPool threadPool_;
     Transceiver transceiver_;
     int fd_;
+    State state_;
+    int responseCount_;
 };
 
 class ICE_API CollectorFactoryI : public EventHandlerI, public JTCMutex
 {
 public:
 
+    Instance instance() const;
     void destroy();
+    void hold();
+    void activate();
 
     //
     // Operations from EventHandlerI
     //
     virtual int fd();
-    virtual void close();
     virtual void receive();
-
+    virtual void finished();
+    
 private:
 
     CollectorFactoryI(const CollectorFactoryI&);
     void operator=(const CollectorFactoryI&);
 
-    CollectorFactoryI(const Instance&, const ::Ice::ObjectAdapter&,
-		      const Endpoint&);
+    CollectorFactoryI(const ::Ice::ObjectAdapter&, const Endpoint&);
     virtual ~CollectorFactoryI();
     friend class CollectorFactoryFactoryI; // May create CollectorFactoryIs
 
+    enum State
+    {
+	StateActive,
+	StateHolding,
+	StateClosing,
+	StateClosed
+    };
+
+    void setState(State);
     void warning(const Ice::LocalException&) const;
 
     Instance instance_;
@@ -99,6 +124,7 @@ private:
     Acceptor acceptor_;
     int fd_;
     std::list<Collector> collectors_;
+    State state_;
 };
 
 class ICE_API CollectorFactoryFactoryI : public Shared, public JTCMutex
