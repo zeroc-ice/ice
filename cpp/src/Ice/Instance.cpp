@@ -73,7 +73,7 @@ void IceInternal::decRef(Instance* p) { p->__decRef(); }
 CommunicatorPtr
 IceInternal::Instance::communicator()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
     return _communicator;
 }
 
@@ -87,14 +87,14 @@ IceInternal::Instance::properties()
 LoggerPtr
 IceInternal::Instance::logger()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
     return _logger;
 }
 
 void
 IceInternal::Instance::logger(const LoggerPtr& logger)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
     _logger = logger;
 }
 
@@ -128,57 +128,82 @@ IceInternal::Instance::getSslSystem()
 RouterManagerPtr
 IceInternal::Instance::routerManager()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
     return _routerManager;
 }
 
 ReferenceFactoryPtr
 IceInternal::Instance::referenceFactory()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
     return _referenceFactory;
 }
 
 ProxyFactoryPtr
 IceInternal::Instance::proxyFactory()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
     return _proxyFactory;
 }
 
 OutgoingConnectionFactoryPtr
 IceInternal::Instance::outgoingConnectionFactory()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
     return _outgoingConnectionFactory;
 }
 
 ObjectFactoryManagerPtr
 IceInternal::Instance::servantFactoryManager()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
     return _servantFactoryManager;
 }
 
 UserExceptionFactoryManagerPtr
 IceInternal::Instance::userExceptionFactoryManager()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
     return _userExceptionFactoryManager;
 }
 
 ObjectAdapterFactoryPtr
 IceInternal::Instance::objectAdapterFactory()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
     return _objectAdapterFactory;
 }
 
 ThreadPoolPtr
-IceInternal::Instance::threadPool()
+IceInternal::Instance::clientThreadPool()
 {
-    IceUtil::Mutex::Lock sync(*this);
-    return _threadPool;
+    IceUtil::RecMutex::Lock sync(*this);
+
+    if (_communicator) // Not destroyed?
+    {
+	if (!_clientThreadPool) // Lazy initialization.
+	{
+	    _clientThreadPool = new ThreadPool(this, false);
+	}
+    }
+
+    return _clientThreadPool;
+}
+
+ThreadPoolPtr
+IceInternal::Instance::serverThreadPool()
+{
+    IceUtil::RecMutex::Lock sync(*this);
+
+    if (_communicator) // Not destroyed?
+    {
+	if (!_serverThreadPool) // Lazy initialization.
+	{
+	    _serverThreadPool = new ThreadPool(this, true);
+	}
+    }
+
+    return _serverThreadPool;
 }
 
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
@@ -342,10 +367,14 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	}
 
 	//
-	// Thread pool initialization must be done after daemon() is
+	// Thread pool initializations must be done after daemon() is
 	// called, since daemon() forks.
 	//
-	_threadPool = new ThreadPool(this);
+
+	//
+	// Thread pool initialization is now lazy initialization in
+	// clientThreadPool() and serverThreadPool().
+	//
 	__setNoDelete(false);
     }
     catch(...)
@@ -366,7 +395,8 @@ IceInternal::Instance::~Instance()
     assert(!_servantFactoryManager);
     assert(!_userExceptionFactoryManager);
     assert(!_objectAdapterFactory);
-    assert(!_threadPool);
+    assert(!_clientThreadPool);
+    assert(!_serverThreadPool);
     assert(!_routerManager);
     assert(!_sslSystem);
 
@@ -408,10 +438,11 @@ IceInternal::Instance::~Instance()
 void
 IceInternal::Instance::destroy()
 {
-    ThreadPoolPtr threadPool;
+    ThreadPoolPtr clientThreadPool;
+    ThreadPoolPtr serverThreadPool;
 
     {
-	IceUtil::Mutex::Lock sync(*this);
+	IceUtil::RecMutex::Lock sync(*this);
 	
 	//
 	// Destroy all contained objects. Then set all references to null,
@@ -479,14 +510,23 @@ IceInternal::Instance::destroy()
 	// We destroy the thread pool outside the thread
 	// synchronization.
 	//
-	threadPool = _threadPool;
-        _threadPool = 0;
+	clientThreadPool = _clientThreadPool;
+        _clientThreadPool = 0;
+	serverThreadPool = _serverThreadPool;
+        _serverThreadPool = 0;
     }
     
-    if (threadPool)
+    if (clientThreadPool)
     {
-	threadPool->waitUntilFinished();
-	threadPool->destroy();
-	threadPool->joinWithAllThreads();
+	clientThreadPool->waitUntilFinished();
+	clientThreadPool->destroy();
+	clientThreadPool->joinWithAllThreads();
+    }
+
+    if (serverThreadPool)
+    {
+	serverThreadPool->waitUntilFinished();
+	serverThreadPool->destroy();
+	serverThreadPool->joinWithAllThreads();
     }
 }

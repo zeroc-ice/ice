@@ -67,11 +67,10 @@ public:
     //
     // Operations from EventHandler
     //
-    virtual bool server() const;
     virtual bool readable() const;
     virtual void read(BasicStream&);
-    virtual void message(BasicStream&);
-    virtual void finished();
+    virtual void message(BasicStream&, const ThreadPoolPtr&);
+    virtual void finished(const ThreadPoolPtr&);
     virtual void exception(const ::Ice::LocalException&);
     
 private:
@@ -89,12 +88,14 @@ private:
     };
 
     void setState(State);
+    void registerWithPool();
+    void unregisterWithPool();
 
     EndpointPtr _endpoint;
     ::Ice::ObjectAdapterPtr _adapter;
-    ThreadPoolPtr _threadPool;
     AcceptorPtr _acceptor;
     TransceiverPtr _transceiver;
+    ThreadPoolPtr _serverThreadPool;
     std::list<ConnectionPtr> _connections;
     State _state;
     bool _warn;

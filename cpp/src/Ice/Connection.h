@@ -60,11 +60,10 @@ public:
     //
     // Operations from EventHandler
     //
-    virtual bool server() const;
     virtual bool readable() const;
     virtual void read(BasicStream&);
-    virtual void message(BasicStream&);
-    virtual void finished();
+    virtual void message(BasicStream&, const ThreadPoolPtr&);
+    virtual void finished(const ThreadPoolPtr&);
     virtual void exception(const ::Ice::LocalException&);
 
 private:
@@ -91,13 +90,16 @@ private:
     void setState(State, const ::Ice::LocalException&);
     void setState(State);
     void closeConnection();
+    void registerWithPool();
+    void unregisterWithPool();
 
     TransceiverPtr _transceiver;
     EndpointPtr _endpoint;
     ::Ice::ObjectAdapterPtr _adapter;
-    ThreadPoolPtr _threadPool;
     ::Ice::LoggerPtr _logger;
     TraceLevelsPtr _traceLevels;
+    ThreadPoolPtr _clientThreadPool;
+    ThreadPoolPtr _serverThreadPool;
     ::Ice::Int _nextRequestId;
     std::map< ::Ice::Int, Outgoing*> _requests;
     std::map< ::Ice::Int, Outgoing*>::iterator _requestsHint;

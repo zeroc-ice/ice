@@ -45,7 +45,7 @@ Ice::CommunicatorI::shutdown()
     //
     // No mutex locking here! This operation must be signal-safe.
     //
-    _threadPool->initiateServerShutdown();
+    _serverThreadPool->initiateShutdown();
 }
 
 void
@@ -55,7 +55,7 @@ Ice::CommunicatorI::waitForShutdown()
     // No mutex locking here, otherwise the communicator is blocked
     // while waiting for shutdown.
     //
-    _threadPool->waitUntilServerFinished();
+    _serverThreadPool->waitUntilFinished();
 }
 
 ObjectPrx
@@ -258,9 +258,9 @@ Ice::CommunicatorI::CommunicatorI(const PropertiesPtr& properties)
 
     //
     // See the comments in the header file for an explanation of why we
-    // need _threadPool directly in CommunicatorI.
+    // need _serverThreadPool directly in CommunicatorI.
     //
-    _threadPool = _instance->threadPool();
+    _serverThreadPool = _instance->serverThreadPool();
 }
 
 Ice::CommunicatorI::~CommunicatorI()

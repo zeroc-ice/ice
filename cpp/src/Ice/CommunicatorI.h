@@ -68,13 +68,14 @@ private:
     ::IceInternal::InstancePtr _instance;
 
     //
-    // We need _threadPool directly in CommunicatorI, and it must
-    // never be set to null. That's because the shutdown() operation
-    // is signal-safe, and thus must not access any mutex locks or
-    // _instance. It may only access _threadPool->initiateShutdown(),
-    // which is signal-safe as well.
+    // We need _serverThreadPool directly in CommunicatorI, and it
+    // must never be set to null. That's because the shutdown()
+    // operation is signal-safe, and thus must not access any mutex
+    // locks or _instance. It may only access
+    // _serverThreadPool->initiateShutdown(), which is signal-safe as
+    // well.
     //
-    ::IceInternal::ThreadPoolPtr _threadPool;
+    ::IceInternal::ThreadPoolPtr _serverThreadPool;
 };
 
 }

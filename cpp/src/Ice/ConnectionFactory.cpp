@@ -282,12 +282,6 @@ IceInternal::IncomingConnectionFactory::connections() const
 }
 
 bool
-IceInternal::IncomingConnectionFactory::server() const
-{
-    return true;
-}
-
-bool
 IceInternal::IncomingConnectionFactory::readable() const
 {
     return false;
@@ -300,11 +294,11 @@ IceInternal::IncomingConnectionFactory::read(BasicStream&)
 }
 
 void
-IceInternal::IncomingConnectionFactory::message(BasicStream&)
+IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPtr& threadPool)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    _threadPool->promoteFollower();
+    threadPool->promoteFollower();
 
     if (_state != StateActive)
     {
@@ -354,18 +348,18 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&)
 }
 
 void
-IceInternal::IncomingConnectionFactory::finished()
+IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    assert(_state == StateClosed || _state == StateHolding);
-
-    _threadPool->promoteFollower();
+    threadPool->promoteFollower();
     
-    if (_state == StateClosed)
+    if (_state == StateActive)
     {
-	assert(_connections.empty());
-	
+	registerWithPool();
+    }
+    else if (_state == StateClosed)
+    {
 	try
 	{
 	    //
@@ -407,7 +401,7 @@ IceInternal::IncomingConnectionFactory::exception(const LocalException&)
 
 /*
 bool
-IceInternal::IncomingConnectionFactory::tryDestroy()
+IceInternal::IncomingConnectionFactory::tryDestroy(const ThreadPoolPtr&)
 {
     //
     // Do nothing. We don't want collector factories to be closed by
@@ -440,7 +434,6 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 	    _acceptor = _endpoint->acceptor(_endpoint);
 	    assert(_acceptor);
 	    _acceptor->listen();
-	    _threadPool = _instance->threadPool();
 	}
     }
     catch (...)
@@ -478,12 +471,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 	    {
 		return;
 	    }
-
-	    if (_threadPool)
-	    {
-		_threadPool->_register(_acceptor->fd(), this);
-	    }
-
+	    registerWithPool();
 	    for_each(_connections.begin(), _connections.end(), ::Ice::voidMemFun(&Connection::activate));
 	    break;
 	}
@@ -494,30 +482,22 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 	    {
 		return;
 	    }
-
-	    if (_threadPool)
-	    {
-		_threadPool->unregister(_acceptor->fd());
-	    }
-
+	    unregisterWithPool();
 	    for_each(_connections.begin(), _connections.end(), ::Ice::voidMemFun(&Connection::hold));
 	    break;
 	}
 	
 	case StateClosed:
 	{
-	    if (_threadPool)
+	    //
+	    // If we come from holding state, we first need to
+	    // register again before we unregister.
+	    //
+	    if (_state == StateHolding)
 	    {
-		//
-		// If we come from holding state, we first need to
-		// register again before we unregister.
-		//
-		if (_state == StateHolding)
-		{
-		    _threadPool->_register(_acceptor->fd(), this);
-		}
-		_threadPool->unregister(_acceptor->fd());
+		registerWithPool();
 	    }
+	    unregisterWithPool();
 
 #ifdef _STLP_BEGIN_NAMESPACE
 	    // voidbind2nd is an STLport extension for broken compilers in IceUtil/Functional.h
@@ -534,4 +514,28 @@ IceInternal::IncomingConnectionFactory::setState(State state)
     }
 
     _state = state;
+}
+
+void
+IceInternal::IncomingConnectionFactory::registerWithPool()
+{
+    if (_acceptor)
+    {
+	if (!_serverThreadPool)
+	{
+	    _serverThreadPool = _instance->serverThreadPool();
+	    assert(_serverThreadPool);
+	}
+	_serverThreadPool->_register(_acceptor->fd(), this);
+    }
+}
+
+void
+IceInternal::IncomingConnectionFactory::unregisterWithPool()
+{
+    if (_acceptor)
+    {
+	assert(_serverThreadPool);
+	_serverThreadPool->unregister(_acceptor->fd());
+    }
 }

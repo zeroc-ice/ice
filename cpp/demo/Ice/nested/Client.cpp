@@ -54,9 +54,9 @@ NestedClient::run(int argc, char* argv[])
     adapter->activate();
 
     cout << "Note: The maximum nesting level is (sz - 1) * 2, with sz\n"
-	 << "being the number of threads in the thread pool. if you\n"
-	 << "specify a value higher than that, the application will block\n"
-	 << "or timeout.\n"
+	 << "being the number of threads in the server thread pool. if\n"
+	 << "you specify a value higher than that, the application will\n"
+	 << "block or timeout.\n"
 	 << endl;
 
     string s;

@@ -179,24 +179,7 @@ has been created with
 <section><title>&Ice; Thread Pool Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>Ice.ThreadPool.MaxConnections</title>
-<section><title>Synopsis</title>
-<synopsis>
-Ice.ThreadPool.MaxConnections=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-The maximum number of connections the thread pool will use. Default is
-zero, meaning no limit. If <replaceable>num</replaceable> is not set
-to zero, it must be set to a value larger than the number of threads
-in the thread pool. <note><para>Currently not implemented!</para></note>
-</para>
-</section>
-</section>
-
-<section><title>Ice.ThreadPool.Size</title>
+<section><title>Ice.ClientThreadPool.Size, Ice.ServerThreadPool.Size</title>
 <section><title>Synopsis</title>
 <synopsis>
 Ice.ThreadPool.Size=<replaceable>num</replaceable>
@@ -205,8 +188,15 @@ Ice.ThreadPool.Size=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The number of threads in the thread pool. Default is 10.
-<replaceable>num</replaceable> must be larger than zero.
+The number of threads in the client and server thread pools. Default
+is one thread for the client thread pool, and 10 threads for the
+server thread pool. The number of threads in each pool must be larger
+than zero. <note><para> At present, there is no need to set the number
+of threads in the client thread pool to a value larger than
+one. Having multiple threads will only be of benefit with future
+versions of &Ice; that support callbacks on the client, which are
+invoked when a response from the server is received (for asynchronous
+method invocations). </para></note>
 </para>
 </section>
 </section>

@@ -32,12 +32,6 @@ class EventHandler : public ::IceUtil::Shared
 public:
     
     //
-    // Returns true if the event handler belongs to the server-side of
-    // an application. Client-side otherwise.
-    //
-    virtual bool server() const = 0;
-
-    //
     // Return true if read() must be called before calling message().
     //
     virtual bool readable() const = 0;
@@ -51,14 +45,14 @@ public:
     //
     // A complete message has been received.
     //
-    virtual void message(BasicStream&) = 0;
+    virtual void message(BasicStream&, const ThreadPoolPtr&) = 0;
 
     //
     // Will be called if the event handler is finally
     // unregistered. (Calling unregister() does not unregister
     // immediately.)
     //
-    virtual void finished() = 0;
+    virtual void finished(const ThreadPoolPtr&) = 0;
 
     //
     // Propagate an exception to the event handler.
@@ -70,7 +64,7 @@ public:
     // handler cannot be destroyed because it is in use, or true
     // otherwise.
     //
-//    virtual bool tryDestroy() = 0;
+//    virtual bool tryDestroy(const ThreadPoolPtr&) = 0;
 
 protected:
     

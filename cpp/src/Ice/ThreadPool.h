@@ -38,19 +38,14 @@ public:
 
     void _register(SOCKET, const EventHandlerPtr&);
     void unregister(SOCKET);
-    void serverIsNowClient();
-    void clientIsNowServer();
     void promoteFollower();
-    void initiateServerShutdown(); // Signal-safe shutdown initiation.
-    void waitUntilServerFinished();
+    void initiateShutdown(); // Signal-safe shutdown initiation.
     void waitUntilFinished();
     void joinWithAllThreads();
-    void setMaxConnections(int);
-    int getMaxConnections();
     
 private:
 
-    ThreadPool(const InstancePtr&);
+    ThreadPool(const InstancePtr&, bool);
     virtual ~ThreadPool();
     void destroy();
     friend class Instance;
@@ -62,8 +57,6 @@ private:
     void read(const EventHandlerPtr&);
 
     InstancePtr _instance;
-    ::Ice::LoggerPtr _logger;
-    ::Ice::PropertiesPtr _properties;
     bool _destroyed;
     SOCKET _maxFd;
     SOCKET _minFd;
@@ -73,8 +66,7 @@ private:
     fd_set _fdSet;
     std::list<std::pair<SOCKET, EventHandlerPtr> > _changes; // Event handler set for addition; null for removal.
     std::map<SOCKET, EventHandlerPtr> _handlerMap;
-    int _clients;
-    int _servers;
+    int _handlers;
     int _timeout;
     ::IceUtil::Mutex _threadMutex;
 
@@ -93,7 +85,6 @@ private:
 
     std::vector<IceUtil::ThreadControl> _threads; // Control for all threads, running or not.
     int _threadNum; // Number of running threads.
-    int _maxConnections; // Maximum number of connections. If set to zero, the number of connections is not limited.
 };
 
 }

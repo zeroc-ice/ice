@@ -13,6 +13,7 @@
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
+#include <IceUtil/RecMutex.h>
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/PropertiesF.h>
@@ -40,7 +41,7 @@ class CommunicatorI;
 namespace IceInternal
 {
 
-class Instance : public ::IceUtil::Shared, public ::IceUtil::Mutex
+class Instance : public ::IceUtil::Shared, public ::IceUtil::RecMutex
 {
 public:
 
@@ -56,7 +57,8 @@ public:
     ObjectFactoryManagerPtr servantFactoryManager();
     UserExceptionFactoryManagerPtr userExceptionFactoryManager();
     ObjectAdapterFactoryPtr objectAdapterFactory();
-    ThreadPoolPtr threadPool();
+    ThreadPoolPtr clientThreadPool();
+    ThreadPoolPtr serverThreadPool();
     std::string defaultProtocol();
     std::string defaultHost();
     ::IceSSL::SystemInternalPtr getSslSystem();
@@ -79,7 +81,8 @@ private:
     ObjectFactoryManagerPtr _servantFactoryManager;
     UserExceptionFactoryManagerPtr _userExceptionFactoryManager;
     ObjectAdapterFactoryPtr _objectAdapterFactory;
-    ThreadPoolPtr _threadPool;
+    ThreadPoolPtr _clientThreadPool;
+    ThreadPoolPtr _serverThreadPool;
     std::string _defaultProtocol; // Immutable, not reset by destroy().
     std::string _defaultHost; // Immutable, not reset by destroy().
     ::IceSSL::SystemInternalPtr _sslSystem;
