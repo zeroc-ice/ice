@@ -27,7 +27,6 @@ public class ObjectAdapterI implements ObjectAdapter
     public synchronized void
     activate()
     {
-        
         if (_deactivated)
         {
             throw new ObjectAdapterDeactivatedException();
@@ -379,7 +378,7 @@ public class ObjectAdapterI implements ObjectAdapter
             String value = _instance.properties().getProperty("Ice.PrintAdapterReady");
             if (Integer.parseInt(value) >= 1)
             {
-                System.out.println(_name + " readY");
+                System.out.println(_name + " ready");
             }
         }
         catch (NumberFormatException ex)
@@ -426,13 +425,14 @@ public class ObjectAdapterI implements ObjectAdapter
         sz = _routerEndpoints.size();
         for (int i = 0; i < sz; i++)
         {
-            endpoints[i] = (IceInternal.Endpoint)_routerEndpoints.get(i);
+            endpoints[_incomingConnectionFactories.size() + i] = (IceInternal.Endpoint)_routerEndpoints.get(i);
         }
 
         //
         // Create a reference and return a proxy for this reference.
         //
-        IceInternal.Reference reference = _instance.referenceFactory().create(ident, "", IceInternal.Reference.ModeTwoway, false,
+        IceInternal.Reference reference = _instance.referenceFactory().create(ident, "",
+                                                                              IceInternal.Reference.ModeTwoway, false,
                                                                               endpoints, endpoints, null, null);
         return _instance.proxyFactory().referenceToProxy(reference);
     }
