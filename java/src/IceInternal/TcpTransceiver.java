@@ -113,6 +113,13 @@ final class TcpTransceiver implements Transceiver
     tryRead(BasicStream stream)
     {
         java.nio.ByteBuffer buf = stream.prepareRead();
+
+        int remaining = 0;
+        if (_traceLevels.network >= 3)
+        {
+            remaining = buf.remaining();
+        }
+
         while (true)
         {
             try
@@ -126,7 +133,7 @@ final class TcpTransceiver implements Transceiver
 
                 if (ret > 0 && _traceLevels.network >= 3)
                 {
-                    String s = "received " + ret + " of " + buf.limit() + " bytes via tcp\n" + toString();
+                    String s = "received " + ret + " of " + remaining + " bytes via tcp\n" + toString();
                     _logger.trace(_traceLevels.networkCat, s);
                 }
 
@@ -164,6 +171,13 @@ final class TcpTransceiver implements Transceiver
     read(BasicStream stream, int timeout)
     {
         java.nio.ByteBuffer buf = stream.prepareRead();
+
+        int remaining = 0;
+        if (_traceLevels.network >= 3)
+        {
+            remaining = buf.remaining();
+        }
+
         while (buf.hasRemaining())
         {
             try
@@ -220,7 +234,7 @@ final class TcpTransceiver implements Transceiver
 
                 if (ret > 0 && _traceLevels.network >= 3)
                 {
-                    String s = "received " + ret + " of " + buf.limit() + " bytes via tcp\n" + toString();
+                    String s = "received " + ret + " of " + remaining + " bytes via tcp\n" + toString();
                     _logger.trace(_traceLevels.networkCat, s);
                 }
             }
