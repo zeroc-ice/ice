@@ -1,7 +1,15 @@
 #!/usr/bin/env python
+# **********************************************************************
+#
+# Copyright (c) 2001
+# MutableRealms, Inc.
+# Huntsville, AL, USA
+#
+# All Rights Reserved
+#
+# **********************************************************************
 
-import fileinput
-import string
+import fileinput, string
 
 previous = ""
 
