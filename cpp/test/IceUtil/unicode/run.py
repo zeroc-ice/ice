@@ -50,4 +50,7 @@ if not output:
 print "ok"
 print output
 
+os.remove("numeric.txt")
+os.remove("utf8.txt")
+
 sys.exit(0)
