@@ -1,11 +1,9 @@
 Throughput.Throughput=throughput:default -p 10000
 Throughput.Endpoints=default -p 10000
 
-#Ice.Plugin.IceSSL=IceSSL:create
-IceSSL.Client.CertPath=../../../certs
-IceSSL.Client.Config=./sslconfig.xml
-IceSSL.Server.CertPath=../../../certs
-IceSSL.Server.Config=./sslconfig.xml
+# For optimal performance, we use a thread pool of size 1.
+Ice.ThreadPool.Server.SizeMax=1
+Ice.ThreadPool.Server.Size=1
 
 Glacier.Router.Endpoints=default -p 10005
 Glacier.Router.Client.Endpoints=default
