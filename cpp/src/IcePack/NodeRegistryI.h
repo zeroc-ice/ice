@@ -26,8 +26,8 @@ class NodeRegistryI : public NodeRegistry, public IceUtil::Mutex
 {
 public:
 
-    NodeRegistryI(const Ice::CommunicatorPtr&, const std::string&, const std::string&,
-		  const AdapterRegistryPtr&, const AdapterFactoryPtr&, const TraceLevelsPtr&);
+    NodeRegistryI(const Ice::CommunicatorPtr&, const std::string&, const AdapterRegistryPtr&, 
+		  const AdapterFactoryPtr&, const TraceLevelsPtr&);
 
     virtual void add(const std::string&, const NodePrx&, const ::Ice::Current&);
     virtual void remove(const std::string&, const ::Ice::Current& = Ice::Current());
@@ -37,6 +37,8 @@ public:
 
 private:
 
+    static const std::string _dbName;
+
     Freeze::ConnectionPtr _connectionCache;
     StringObjectProxyDict _dictCache;
     AdapterRegistryPtr _adapterRegistry;
@@ -44,7 +46,6 @@ private:
     TraceLevelsPtr _traceLevels;
     const std::string _envName;
     const Ice::CommunicatorPtr _communicator;
-    const std::string _dbName;
 };
 
 }

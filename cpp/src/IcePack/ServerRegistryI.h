@@ -24,8 +24,7 @@ class ServerRegistryI : public ServerRegistry
 {
 public:
 
-    ServerRegistryI(const Ice::CommunicatorPtr&, const std::string&, const std::string&, const std::string&,
-		    const TraceLevelsPtr&);
+    ServerRegistryI(const Ice::CommunicatorPtr&, const std::string&, const TraceLevelsPtr&);
 
     virtual void add(const std::string&, const ServerPrx&, const ServerDescriptorPtr&, const ::Ice::Current&);
     virtual ServerPrx remove(const std::string&, const ::Ice::Current&);
@@ -37,14 +36,15 @@ public:
 
 private:
 
+    static const std::string _dbName;
+    static const std::string _dbDescriptorName;
+
     Freeze::ConnectionPtr _connectionCache;
     StringObjectProxyDict _dictCache;
     StringServerDescriptorDict _dictDescriptorCache;
     TraceLevelsPtr _traceLevels;
     const std::string _envName;
     const Ice::CommunicatorPtr _communicator;
-    const std::string _dbName;
-    const std::string _dbDescriptorName;
 };
 
 }

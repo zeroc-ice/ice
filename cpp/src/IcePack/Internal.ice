@@ -112,7 +112,7 @@ interface Adapter
      * active adapter.
      *
      **/
-    void setDirectProxy(Object* proxy)
+    ["ami"] void setDirectProxy(Object* proxy)
 	throws AdapterActiveException;
 
     /**
@@ -150,10 +150,11 @@ interface AdapterRegistry
 
     /**
      *
-     * Remove an adapter from the registry.
+     * Remove an adapter from the registry. If the given adapter proxy is not null, the adapter will
+     * be removed from the registry only if the proxy matches.
      *
      **/
-    Adapter* remove(string id)
+    Adapter* remove(string id, Adapter* adpt)
 	throws AdapterNotExistException;
     
     /**
@@ -333,7 +334,7 @@ class Server
      * Set the process proxy.
      *
      **/
-    void setProcess(Ice::Process* proc);
+    ["ami"] void setProcess(Ice::Process* proc);
 
     /**
      *

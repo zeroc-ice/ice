@@ -84,9 +84,9 @@ IcePack::RegistryService::start(int argc, char* argv[])
     }
 
     _registry = auto_ptr<Registry>(new Registry(communicator()));
-    if(!_registry->start(nowarn, false))
+    if(!_registry->start(nowarn))
     {
-        return false;
+	return false;
     }
 
     return true;

@@ -14,15 +14,15 @@
 using namespace std;
 using namespace IcePack;
 
-IcePack::AdapterRegistryI::AdapterRegistryI(const Ice::CommunicatorPtr& communicator,
-					    const string& envName, const string& dbName,
+const string AdapterRegistryI::_dbName = "adapterregistry";
+
+IcePack::AdapterRegistryI::AdapterRegistryI(const Ice::CommunicatorPtr& communicator, const string& envName, 
 					    const TraceLevelsPtr& traceLevels) :
     _connectionCache(Freeze::createConnection(communicator, envName)),
-    _dictCache(_connectionCache, dbName),
+    _dictCache(_connectionCache, _dbName),
     _traceLevels(traceLevels),
     _envName(envName),
-    _communicator(communicator),
-    _dbName(dbName)
+    _communicator(communicator)
 {
 }
 
@@ -84,7 +84,7 @@ IcePack::AdapterRegistryI::add(const string& id, const AdapterPrx& adapter, cons
 }
 
 AdapterPrx
-IcePack::AdapterRegistryI::remove(const string& id, const Ice::Current&)
+IcePack::AdapterRegistryI::remove(const string& id, const AdapterPrx& orig, const Ice::Current&)
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     StringObjectProxyDict dict(connection, _dbName); 
@@ -96,6 +96,10 @@ IcePack::AdapterRegistryI::remove(const string& id, const Ice::Current&)
     }
 
     AdapterPrx adapter = AdapterPrx::uncheckedCast(p->second);
+    if(orig != 0 && orig != adapter) // Only remove if the adapter is equal to the provided proxy (if not null)
+    {
+	return 0;
+    }
     dict.erase(p);
 
     if(_traceLevels->adapterRegistry > 0)
@@ -116,19 +120,7 @@ IcePack::AdapterRegistryI::findById(const string& id, const Ice::Current&)
     StringObjectProxyDict::iterator p = dict.find(id);
     if(p != dict.end())
     {
-	try
-	{
-	    p->second->ice_ping();
-	    return AdapterPrx::uncheckedCast(p->second->ice_collocationOptimization(false));
-	}
-	catch(const Ice::ObjectNotExistException&)
-	{
-	    dict.erase(p);
-	}
-	catch(const Ice::LocalException&)
-	{
-	    return AdapterPrx::uncheckedCast(p->second->ice_collocationOptimization(false));
-	}
+	return AdapterPrx::uncheckedCast(p->second->ice_collocationOptimization(false));
     }
     throw AdapterNotExistException();
 }

@@ -142,7 +142,7 @@ interface LocatorRegistry
      * id is already active.
      *
      **/
-    idempotent void setAdapterDirectProxy(string id, Object* proxy)
+    ["amd"] idempotent void setAdapterDirectProxy(string id, Object* proxy)
 	throws AdapterNotFoundException, AdapterAlreadyActiveException;
 
     /**
@@ -157,7 +157,7 @@ interface LocatorRegistry
      * be found.
      *
      **/
-    idempotent void setServerProcessProxy(string id, Process* proxy)
+    ["amd"] idempotent void setServerProcessProxy(string id, Process* proxy)
 	throws ServerNotFoundException;
 };
 

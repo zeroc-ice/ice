@@ -23,22 +23,23 @@ class AdapterRegistryI : public AdapterRegistry
 {
 public:
 
-    AdapterRegistryI(const Ice::CommunicatorPtr&, const std::string&, const std::string&, const TraceLevelsPtr&);
+    AdapterRegistryI(const Ice::CommunicatorPtr&, const std::string&, const TraceLevelsPtr&);
 
     virtual void add(const std::string&, const AdapterPrx&, const ::Ice::Current&);
-    virtual AdapterPrx remove(const std::string&, const ::Ice::Current&);
+    virtual AdapterPrx remove(const std::string&, const AdapterPrx&, const ::Ice::Current&);
 
     virtual AdapterPrx findById(const ::std::string&, const ::Ice::Current&);
     virtual Ice::StringSeq getAll(const ::Ice::Current&) const;
 
 private:
 
+    static const std::string _dbName;
+
     Freeze::ConnectionPtr _connectionCache;
     StringObjectProxyDict _dictCache;
     TraceLevelsPtr _traceLevels;
     const std::string _envName;
     const Ice::CommunicatorPtr _communicator;
-    const std::string _dbName;
 
 };
 

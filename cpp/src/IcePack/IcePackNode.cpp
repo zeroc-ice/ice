@@ -178,7 +178,6 @@ IcePack::NodeService::start(int argc, char* argv[])
     // termination listener instead?
     //
     properties->setProperty("Ice.ServerIdleTime", "0");
-
     if(properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 5) <= 5)
     {
 	properties->setProperty("Ice.ThreadPool.Server.Size", "5");
@@ -190,8 +189,7 @@ IcePack::NodeService::start(int argc, char* argv[])
     if(properties->getPropertyAsInt("IcePack.Node.CollocateRegistry") > 0)
     {
         //
-        // The node needs a different thread pool to avoid
-        // deadlocks in connection validation.
+        // The node needs a different thread pool.
         //
         if(properties->getPropertyAsInt("IcePack.Node.ThreadPool.Size") == 0)
         {
@@ -207,7 +205,7 @@ IcePack::NodeService::start(int argc, char* argv[])
         }
 
         _registry = auto_ptr<Registry>(new Registry(communicator()));
-        if(!_registry->start(nowarn, true))
+        if(!_registry->start(nowarn))
         {
             return false;
         }
@@ -321,11 +319,9 @@ IcePack::NodeService::start(int argc, char* argv[])
     }
 
     //
-    // Set the adapter id for this node and create the node object
-    // adapter.
+    // Set the adapter id for this node and create the node object adapter.
     //
     properties->setProperty("IcePack.Node.AdapterId", "IcePack.Node." + name);
-
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IcePack.Node");
 
     TraceLevelsPtr traceLevels = new TraceLevels(properties, communicator()->getLogger());
@@ -347,25 +343,25 @@ IcePack::NodeService::start(int argc, char* argv[])
     // evictors and object factories necessary to store these objects.
     //
     ServerFactoryPtr serverFactory = new ServerFactory(adapter, traceLevels, envName, _activator, _waitQueue);
-
     NodePtr node = new NodeI(_activator, name, serverFactory, communicator(), properties);
-    NodePrx nodeProxy = NodePrx::uncheckedCast(adapter->addWithUUID(node));
+    Identity id = stringToIdentity(IceUtil::generateUUID());
+    adapter->add(node, id);
+    NodePrx nodeProxy = NodePrx::uncheckedCast(adapter->createDirectProxy(id));
 
     //
     // Register this node with the node registry.
     //
     try
     {
-        NodeRegistryPrx nodeRegistry = NodeRegistryPrx::checkedCast(
-            communicator()->stringToProxy("IcePack/NodeRegistry@IcePack.Registry.Internal"));
-        nodeRegistry->add(name, nodeProxy);
+	ObjectPrx nodeRegistry = communicator()->stringToProxy("IcePack/NodeRegistry@IcePack.Registry.Internal");
+	NodeRegistryPrx::uncheckedCast(nodeRegistry)->add(name, nodeProxy);
     }
     catch(const NodeActiveException&)
     {
         error("a node with the same name is already registered and active");
         return false;
     }
-    catch(const LocalException&)
+    catch(const LocalException& ex)
     {
         error("couldn't contact the IcePack registry");
         return false;
@@ -385,9 +381,14 @@ IcePack::NodeService::start(int argc, char* argv[])
     _activator->start();
 
     //
-    // We are ready to go! Activate the object adapter.
+    // We are ready to go! Activate the object adapter. NOTE: we don't want the activate call to 
+    // set the direct proxy of the object adapter with the locator registry. This was already 
+    // taken care of by the node registry. Furthermore, this wouldn't work anyway because the 
+    // locator registry proxy would have collocation optimization enabled.
     //
+    adapter->setLocator(0);
     adapter->activate();
+    adapter->setLocator(communicator()->getDefaultLocator());
 
     //
     // Deploy application if a descriptor is passed as a command-line option.
@@ -418,15 +419,13 @@ IcePack::NodeService::start(int argc, char* argv[])
             catch(const DeploymentException& ex)
             {
                 ostringstream ostr;
-                ostr << "failed to deploy application `" << descriptor << "':" << endl
-                     << ex << ": " << ex.reason;
+                ostr << "failed to deploy application `" << descriptor << "':" << endl << ex << ": " << ex.reason;
                 warning(ostr.str());
             }
             catch(const LocalException& ex)
             {
                 ostringstream ostr;
-                ostr << "failed to deploy application `" << descriptor << "':" << endl
-                     << ex;
+                ostr << "failed to deploy application `" << descriptor << "':" << endl << ex;
                 warning(ostr.str());
             }
         }

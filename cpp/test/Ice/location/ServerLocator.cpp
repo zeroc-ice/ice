@@ -18,15 +18,20 @@ ServerLocatorRegistry::ServerLocatorRegistry()
 }
 
 void 
-ServerLocatorRegistry::setAdapterDirectProxy(const ::std::string& adapter, const ::Ice::ObjectPrx& object, 
-					     const ::Ice::Current&)
+ServerLocatorRegistry::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_setAdapterDirectProxyPtr& cb,
+						   const ::std::string& adapter, const ::Ice::ObjectPrx& object, 
+						   const ::Ice::Current&)
 {
     _adapters[adapter] = object;
+    cb->ice_response();
 }
 
 void 
-ServerLocatorRegistry::setServerProcessProxy(const ::std::string&, const ::Ice::ProcessPrx&, const ::Ice::Current&)
+ServerLocatorRegistry::setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_setServerProcessProxyPtr& cb,
+						   const ::std::string&, const ::Ice::ProcessPrx&, 
+						   const ::Ice::Current&)
 {
+    cb->ice_response();
 }
 
 Ice::ObjectPrx

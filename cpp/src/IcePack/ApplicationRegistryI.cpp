@@ -14,23 +14,23 @@
 using namespace std;
 using namespace IcePack;
 
-IcePack::ApplicationRegistryI::ApplicationRegistryI(const Ice::CommunicatorPtr& communicator,
-						    const ServerRegistryPtr& serverRegistry,
-						    const string& envName, 
-						    const string& dbName,
-						    const TraceLevelsPtr& traceLevels) :
+const string ApplicationRegistryI::_dbName = "applicationregistry";
+
+ApplicationRegistryI::ApplicationRegistryI(const Ice::CommunicatorPtr& communicator, 
+					   const ServerRegistryPtr& serverRegistry,
+					   const string& envName, 
+					   const TraceLevelsPtr& traceLevels) :
     _serverRegistry(serverRegistry),
     _connectionCache(Freeze::createConnection(communicator, envName)),
-    _dictCache(_connectionCache, dbName),
+    _dictCache(_connectionCache, _dbName),
     _traceLevels(traceLevels),
     _envName(envName),
-    _communicator(communicator),
-    _dbName(dbName)
+    _communicator(communicator)
 {
 }
 
 void
-IcePack::ApplicationRegistryI::add(const string& name, const Ice::Current&)
+ApplicationRegistryI::add(const string& name, const Ice::Current&)
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     StringStringSeqDict dict(connection, _dbName); 
@@ -51,7 +51,7 @@ IcePack::ApplicationRegistryI::add(const string& name, const Ice::Current&)
 }
 
 void
-IcePack::ApplicationRegistryI::remove(const string& name, const Ice::Current&)
+ApplicationRegistryI::remove(const string& name, const Ice::Current&)
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     StringStringSeqDict dict(connection, _dbName); 
@@ -140,7 +140,7 @@ ApplicationRegistryI::getDescriptor(const string& name, const Ice::Current&)
 }
 
 Ice::StringSeq
-IcePack::ApplicationRegistryI::getAll(const Ice::Current&) const
+ApplicationRegistryI::getAll(const Ice::Current&) const
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     StringStringSeqDict dict(connection, _dbName); 

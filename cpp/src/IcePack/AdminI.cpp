@@ -970,7 +970,7 @@ ServerCleaner::visitAdapterStart(const AdapterWrapper&, const AdapterDescriptor&
     AdapterPrx adpt;
     try
     {
-	adpt = _adapterRegistry->remove(adapter.id);
+	adpt = _adapterRegistry->remove(adapter.id, 0);
 	adpt->destroy();
     }
     catch(const AdapterNotExistException&)

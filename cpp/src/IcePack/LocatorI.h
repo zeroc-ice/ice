@@ -16,7 +16,7 @@
 namespace IcePack
 {
 
-class LocatorI : public ::Ice::Locator
+class LocatorI : public Ice::Locator
 {
 public:
 
@@ -32,9 +32,9 @@ public:
 
 private:
     
-    AdapterRegistryPtr _adapterRegistry;
-    ObjectRegistryPtr _objectRegistry;
-    Ice::LocatorRegistryPrx _locatorRegistry;
+    const AdapterRegistryPtr _adapterRegistry;
+    const ObjectRegistryPtr _objectRegistry;
+    const Ice::LocatorRegistryPrx _locatorRegistry;
 };
 
 }

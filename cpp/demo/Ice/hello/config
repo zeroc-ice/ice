@@ -66,6 +66,7 @@ IceSSL.Server.Config=sslconfig.xml
 # 
 IcePack.Registry.Client.Endpoints=default -p 10006
 IcePack.Registry.Server.Endpoints=default
+IcePack.Registry.Internal.Endpoints=default
 IcePack.Registry.Admin.Endpoints=default
 IcePack.Registry.Data=db
 IcePack.Registry.DynamicRegistration=1

@@ -14,24 +14,22 @@
 using namespace std;
 using namespace IcePack;
 
-IcePack::ServerRegistryI::ServerRegistryI(const Ice::CommunicatorPtr& communicator,
-					  const string& envName, 
-					  const string& dbName,
-					  const string& dbDescriptorName,
-					  const TraceLevelsPtr& traceLevels) :
+const string ServerRegistryI::_dbName = "serverregistry";
+const string ServerRegistryI::_dbDescriptorName = "serverdescriptors";
+
+ServerRegistryI::ServerRegistryI(const Ice::CommunicatorPtr& communicator, const string& envName, 
+				 const TraceLevelsPtr& traceLevels) :
     _connectionCache(Freeze::createConnection(communicator, envName)),
-    _dictCache(_connectionCache, dbName),
-    _dictDescriptorCache(_connectionCache, dbDescriptorName),
+    _dictCache(_connectionCache, _dbName),
+    _dictDescriptorCache(_connectionCache, _dbDescriptorName),
     _traceLevels(traceLevels),
     _envName(envName),
-    _communicator(communicator),
-    _dbName(dbName),
-    _dbDescriptorName(dbDescriptorName)
+    _communicator(communicator)
 {
 }
 
 void
-IcePack::ServerRegistryI::add(const string& name, 
+ServerRegistryI::add(const string& name, 
 			      const ServerPrx& server,
 			      const ServerDescriptorPtr& descriptor,
 			      const Ice::Current& current)
@@ -83,7 +81,7 @@ IcePack::ServerRegistryI::add(const string& name,
 }
 
 ServerPrx
-IcePack::ServerRegistryI::remove(const string& name, const Ice::Current&)
+ServerRegistryI::remove(const string& name, const Ice::Current&)
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     StringObjectProxyDict dict(connection, _dbName); 
@@ -109,7 +107,7 @@ IcePack::ServerRegistryI::remove(const string& name, const Ice::Current&)
 }
 
 ServerPrx
-IcePack::ServerRegistryI::findByName(const string& name, const Ice::Current&)
+ServerRegistryI::findByName(const string& name, const Ice::Current&)
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     StringObjectProxyDict dict(connection, _dbName); 
@@ -148,7 +146,7 @@ ServerRegistryI::getDescriptor(const string& name, const Ice::Current&)
 }
 
 Ice::StringSeq
-IcePack::ServerRegistryI::getAll(const Ice::Current&) const
+ServerRegistryI::getAll(const Ice::Current&) const
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     StringObjectProxyDict dict(connection, _dbName); 
@@ -165,7 +163,7 @@ IcePack::ServerRegistryI::getAll(const Ice::Current&) const
 }
 
 ServerDescriptorSeq
-IcePack::ServerRegistryI::getAllDescriptorsOnNode(const string& node, const Ice::Current&) const
+ServerRegistryI::getAllDescriptorsOnNode(const string& node, const Ice::Current&) const
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     StringServerDescriptorDict dict(connection, _dbDescriptorName); 

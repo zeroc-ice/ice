@@ -23,7 +23,7 @@ class ApplicationRegistryI : public ApplicationRegistry
 {
 public:
 
-    ApplicationRegistryI(const Ice::CommunicatorPtr&, const ServerRegistryPtr&, const std::string&, const std::string&,
+    ApplicationRegistryI(const Ice::CommunicatorPtr&, const ServerRegistryPtr&, const std::string&,
 			 const TraceLevelsPtr&);
 
     virtual void add(const std::string&, const ::Ice::Current&);
@@ -36,6 +36,8 @@ public:
     virtual Ice::StringSeq getAll(const ::Ice::Current&) const;
 
 private:
+    
+    static const std::string _dbName;
 
     ServerRegistryPtr _serverRegistry;
     Freeze::ConnectionPtr _connectionCache;
@@ -43,7 +45,6 @@ private:
     TraceLevelsPtr _traceLevels;
     const std::string _envName;
     const Ice::CommunicatorPtr _communicator;
-    const std::string _dbName;
 };
 
 }
