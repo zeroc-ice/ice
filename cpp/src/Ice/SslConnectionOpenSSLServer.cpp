@@ -119,11 +119,19 @@ IceSSL::OpenSSL::ServerConnection::init(int timeout)
 
             if (verify_error != X509_V_OK)
             {
-                CertificateException certEx(__FILE__, __LINE__);
+                CertificateVerificationException certVerEx(__FILE__, __LINE__);
 
-                certEx._message = "SSL certificate verification error.";
+                certVerEx._message = "SSL certificate verification error.";
 
-                throw certEx;
+                string errors = sslGetErrors();
+
+                if (!errors.empty())
+                {
+                    certVerEx._message += "\n";
+                    certVerEx._message += errors;
+                }
+
+                throw certVerEx;
             }
             else
             {

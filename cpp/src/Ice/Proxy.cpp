@@ -535,7 +535,7 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
     {
 	++cnt;
     }
-    catch (const IceSSL::SecurityException&) // TODO: bandaid to make retry w/ ssl work.
+    catch (const IceSSL::SslException&) // TODO: bandaid to make retry w/ ssl work.
     {
 	++cnt;
     }

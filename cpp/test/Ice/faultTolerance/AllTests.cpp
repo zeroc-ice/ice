@@ -62,7 +62,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 	    {
 		cout << "ok" << endl;
 	    }
-	    catch(const IceSSL::SecurityException&)
+	    catch(const IceSSL::SslException&)
 	    {
 		cout << "ok" << endl;
 	    }
@@ -79,7 +79,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 	    {
 		cout << "ok" << endl;
 	    }
-	    catch(const IceSSL::SecurityException&)
+	    catch(const IceSSL::SslException&)
 	    {
 		cout << "ok" << endl;
 	    }
@@ -101,7 +101,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
     {
 	cout << "ok" << endl;
     }    
-    catch(const IceSSL::SecurityException&)
+    catch(const IceSSL::SslException&)
     {
 	cout << "ok" << endl;
     }

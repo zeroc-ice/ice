@@ -54,22 +54,27 @@ IceSSL::OpenSSL::Context::addTrustedCertificate(const std::string& trustedCertSt
 {
     if (_sslContext == 0)
     {
-        // ContextNotConfiguredException contextEx(__FILE__, __LINE__);
-        IceSSL::OpenSSL::ContextException contextEx(__FILE__, __LINE__);
+        IceSSL::OpenSSL::ContextNotConfiguredException contextConfigEx(__FILE__, __LINE__);
 
-        contextEx._message = "SSL Context not configured.";
+        contextConfigEx._message = "SSL Context not configured.";
 
-        throw contextEx;
+        throw contextConfigEx;
     }
 
     RSAPublicKey pubKey(trustedCertString);
 
     X509_STORE* certStore = SSL_CTX_get_cert_store(_sslContext);
 
-    int addedCertAuthorityCert = X509_STORE_add_cert(certStore, pubKey.getX509PublicKey());
+    assert(certStore != 0);
 
-    // TODO: Make this an exception?
-    assert(addedCertAuthorityCert != 0);
+    if (X509_STORE_add_cert(certStore, pubKey.getX509PublicKey()) == 0)
+    {
+        IceSSL::OpenSSL::TrustedCertificateAddException trustEx(__FILE__, __LINE__);
+
+        trustEx._message = sslGetErrors();
+
+        throw trustEx;
+    }
 }
 
 void
@@ -78,12 +83,11 @@ IceSSL::OpenSSL::Context::setRSAKeysBase64(const std::string& privateKey,
 {
     if (_sslContext == 0)
     {
-        // ContextNotConfiguredException contextEx(__FILE__, __LINE__);
-        IceSSL::OpenSSL::ContextException contextEx(__FILE__, __LINE__);
+        IceSSL::OpenSSL::ContextNotConfiguredException contextConfigEx(__FILE__, __LINE__);
 
-        contextEx._message = "SSL Context not configured.";
+        contextConfigEx._message = "SSL Context not configured.";
 
-        throw contextEx;
+        throw contextConfigEx;
     }
 
     addKeyCert(privateKey, publicKey);
@@ -94,12 +98,11 @@ IceSSL::OpenSSL::Context::setRSAKeys(const Ice::ByteSeq& privateKey, const Ice::
 {
     if (_sslContext == 0)
     {
-        // ContextNotConfiguredException contextEx(__FILE__, __LINE__);
-        IceSSL::OpenSSL::ContextException contextEx(__FILE__, __LINE__);
+        IceSSL::OpenSSL::ContextNotConfiguredException contextConfigEx(__FILE__, __LINE__);
 
-        contextEx._message = "SSL Context not configured.";
+        contextConfigEx._message = "SSL Context not configured.";
 
-        throw contextEx;
+        throw contextConfigEx;
     }
 
     addKeyCert(privateKey, publicKey);
@@ -215,11 +218,11 @@ IceSSL::OpenSSL::Context::createContext(SslProtocol sslProtocol)
 
     if (_sslContext == 0)
     {
-        IceSSL::OpenSSL::ContextException contextEx(__FILE__, __LINE__);
+        IceSSL::OpenSSL::ContextInitializationException contextInitEx(__FILE__, __LINE__);
 
-        contextEx._message = "Unable to create SSL Context.\n" + sslGetErrors();
+        contextInitEx._message = "Unable to create SSL Context.\n" + sslGetErrors();
 
-        throw contextEx;
+        throw contextInitEx;
     }
 
     // Turn off session caching, supposedly fixes a problem with multithreading.
@@ -321,18 +324,18 @@ IceSSL::OpenSSL::Context::checkKeyCert()
     // set against the SSL context match up.
     if (!SSL_CTX_check_private_key(_sslContext))
     {
-        IceSSL::OpenSSL::ContextException contextEx(__FILE__, __LINE__);
+        IceSSL::OpenSSL::CertificateKeyMatchException certKeyMatchEx(__FILE__, __LINE__);
 
-        contextEx._message = "Private key does not match the certificate public key.";
+        certKeyMatchEx._message = "Private key does not match the certificate public key.";
         std::string sslError = sslGetErrors();
 
         if (!sslError.empty())
         {
-            contextEx._message += "\n";
-            contextEx._message += sslError;
+            certKeyMatchEx._message += "\n";
+            certKeyMatchEx._message += sslError;
         }
 
-        throw contextEx;
+        throw certKeyMatchEx;
     }
 }
 
@@ -354,14 +357,14 @@ IceSSL::OpenSSL::Context::addKeyCert(const CertificateFile& privateKey, const Ce
         // Set which Public Key file to use.
         if (SSL_CTX_use_certificate_file(_sslContext, publicFile, publicEncoding) <= 0)
         {
-            IceSSL::OpenSSL::ContextException contextEx(__FILE__, __LINE__);
+            IceSSL::OpenSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
 
-            contextEx._message = "Unable to get certificate from '";
-            contextEx._message += publicFile;
-            contextEx._message += "'\n";
-            contextEx._message += sslGetErrors();
+            certLoadEx._message = "Unable to get certificate from '";
+            certLoadEx._message += publicFile;
+            certLoadEx._message += "'\n";
+            certLoadEx._message += sslGetErrors();
 
-            throw contextEx;
+            throw certLoadEx;
         }
 
         if (privateKey.getFileName().empty())
@@ -378,14 +381,14 @@ IceSSL::OpenSSL::Context::addKeyCert(const CertificateFile& privateKey, const Ce
         // Set which Private Key file to use.
         if (SSL_CTX_use_PrivateKey_file(_sslContext, privKeyFile, privKeyFileType) <= 0)
         {
-            IceSSL::OpenSSL::ContextException contextEx(__FILE__, __LINE__);
+            IceSSL::OpenSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
 
-            contextEx._message = "Unable to get private key from '";
-            contextEx._message += privKeyFile;
-            contextEx._message += "'\n";
-            contextEx._message += sslGetErrors();
+            pklEx._message = "Unable to get private key from '";
+            pklEx._message += privKeyFile;
+            pklEx._message += "'\n";
+            pklEx._message += sslGetErrors();
 
-	    throw contextEx;
+	    throw pklEx;
         }
 
         checkKeyCert();
@@ -402,18 +405,18 @@ IceSSL::OpenSSL::Context::addKeyCert(const RSAKeyPair& keyPair)
     // Set which Public Key file to use.
     if (SSL_CTX_use_certificate(_sslContext, x509Janitor.get()) <= 0)
     {
-        IceSSL::OpenSSL::ContextException contextEx(__FILE__, __LINE__);
+        IceSSL::OpenSSL::CertificateLoadException certLoadEx(__FILE__, __LINE__);
 
-        contextEx._message = "Unable to set certificate from memory.";
+        certLoadEx._message = "Unable to set certificate from memory.";
         std::string sslError = sslGetErrors();
 
         if (!sslError.empty())
         {
-            contextEx._message += "\n";
-            contextEx._message += sslError;
+            certLoadEx._message += "\n";
+            certLoadEx._message += sslError;
         }
 
-        throw contextEx;
+        throw certLoadEx;
     }
 
     x509Janitor.clear();
@@ -421,18 +424,18 @@ IceSSL::OpenSSL::Context::addKeyCert(const RSAKeyPair& keyPair)
     // Set which Private Key file to use.
     if (SSL_CTX_use_RSAPrivateKey(_sslContext, rsaJanitor.get()) <= 0)
     {
-        IceSSL::OpenSSL::ContextException contextEx(__FILE__, __LINE__);
+        IceSSL::OpenSSL::PrivateKeyLoadException pklEx(__FILE__, __LINE__);
 
-        contextEx._message = "Unable to set private key from memory.";
+        pklEx._message = "Unable to set private key from memory.";
         std::string sslError = sslGetErrors();
 
         if (!sslError.empty())
         {
-            contextEx._message += "\n";
-            contextEx._message += sslError;
+            pklEx._message += "\n";
+            pklEx._message += sslError;
         }
 
-        throw contextEx;
+        throw pklEx;
     }
 
     rsaJanitor.clear();

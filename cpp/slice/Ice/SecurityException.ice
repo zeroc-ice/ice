@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SECURITY_EXCEPTION_ICE
-#define ICE_SECURITY_EXCEPTION_ICE
+#ifndef ICE_SSL_EXCEPTION_ICE
+#define ICE_SSL_EXCEPTION_ICE
 
 module IceSSL
 {
@@ -23,7 +23,7 @@ module IceSSL
  * for external clients/servers.
  *
  **/
-local exception SecurityException
+local exception SslException
 {
     /**
      *
@@ -38,15 +38,31 @@ local exception SecurityException
 
 /**
  *
+ * This exception indicates that an attempt was made to load the
+ * configuration for a [System] <literal>Context</literal>, but the
+ * property specifying the indicated <literal>Context</literal>'s 
+ * SSL configuration file was not set.  Check the values for the
+ * applicable property, either <literal>Ice.SSL.Client.Config</literal>
+ * or <literal>Ice.SSL.Server.Config</literal>.
+ *
+ **/
+local exception ConfigurationLoadingException extends SslException
+{
+};
+
+/**
+ *
  * This exception indicates that there has been a problem encountered
  * while parsing the SSL Configuration file, or while attempting to
  * locate the configuration file.  This exception could indicate a
- * problem with the <literal>Ice.Ssl.Config</literal> or
- * <literal>Ice.Ssl.CertPath</literal> properties for your
+ * problem with the <literal>Ice.SSL.Client.Config</literal>,
+ * <literal>Ice.SSL.Server.Config</literal>,
+ * <literal>Ice.SSL.Client.CertPath</literal> or
+ * <literal>Ice.SSL.Server.CertPath</literal> properties for your
  * [Ice::Communicator].
  *
  **/
-local exception ConfigParseException extends SecurityException
+local exception ConfigParseException extends SslException
 {
 };
 
@@ -56,7 +72,7 @@ local exception ConfigParseException extends SecurityException
  * problem that has led to the shutdown of an SSL connection.
  *
  **/
-local exception ShutdownException extends SecurityException
+local exception ShutdownException extends SslException
 {
 };
 
@@ -72,11 +88,42 @@ local exception ProtocolException extends ShutdownException
 
 /**
  *
- * This exception indicates that a problem was encoutnered validating
+ * This exception indicates that a problem was encountered validating
  * a client certificate during SSL protocol handshake.
  *
  **/
 local exception CertificateException extends ShutdownException
+{
+};
+
+/**
+ *
+ * Thrown when a problem has been encountered during the certificate
+ * verification phase of the SSL handshake.  This is currently only
+ * thrown by server connections.
+ *
+ **/
+local exception CertificateVerificationException extends CertificateException
+{
+};
+
+/**
+ *
+ * Indicates that a problem was encountered signing certificates during
+ * temporary RSA certificate generation.
+ *
+ **/
+local exception CertificateSigningException extends CertificateException
+{
+};
+
+/**
+ *
+ * Indicates that the signature verification of a newly signed temporary
+ * RSA certificate has failed.
+ *
+ **/
+local exception CertificateSignatureException extends CertificateException
 {
 };
 
@@ -87,7 +134,7 @@ local exception CertificateException extends ShutdownException
  * the appropriate interface.
  *
  */
-local exception CertificateVerifierTypeException extends SecurityException
+local exception CertificateVerifierTypeException extends SslException
 {
 };
 
@@ -96,13 +143,88 @@ module OpenSSL
 
 /**
  *
- * A problem was encountered while setting up the
- * <literal>SSL_CTX</literal> context structure.  This can include
- * problems related to parsing the key files or allocating a
- * <literal>SSL_CTX</literal> structure.
+ * A problem was encountered while setting up the [IceSSL::System]
+ * <literal>Context</literal>.  This can include problems related
+ * to loading certificates and keys or calling methods on a
+ * <literal>Context</lieral> that has not been initialized as of yet.
  *
  **/
-local exception ContextException extends SecurityException
+local exception ContextException extends SslException
+{
+};
+
+/**
+ *
+ * This exception is generated when a problem was encountered initializing
+ * the context structure of the underlying SSL implementation.
+ *
+ **/
+local exception ContextInitializationException extends ContextException
+{
+};
+
+/**
+ *
+ * This exception is thrown when an attempt is made to make a call on a
+ * <literal>Context</literal> that has not been configured yet.
+ *
+ **/
+local exception ContextNotConfiguredException extends ContextException
+{
+};
+
+/**
+ *
+ * An attempt was made to call a method that references a
+ * [IceSSL::ContextType] that is not supported for that operation.
+ * This typically happens when an attempt is made to, for example,
+ * request a [IceSSL::ClientServer] connection from a [IceSSL::System].
+ *
+ **/
+local exception UnsupportedContextException extends ContextException
+{
+};
+
+/**
+ *
+ * Generated when a problem was encountered loading a certificate
+ * into a <literal>Context</literal> from either a memory buffer
+ * or from a file.
+ *
+ **/
+local exception CertificateLoadException extends ContextException
+{
+};
+
+/**
+ *
+ * Generated when a problem was encountered loading a private key
+ * into a <literal>Context</literal> from either a memory buffer
+ * or from a file.
+ *
+ **/
+local exception PrivateKeyLoadException extends ContextException
+{
+};
+
+/**
+ *
+ * When loading a Public and Private key pair into a
+ * <literal>Context</literal>, the load succeeded, but the private
+ * key and public key (certificate) did not match.
+ *
+ **/
+local exception CertificateKeyMatchException extends ContextException
+{
+};
+
+/**
+ *
+ * An attempt to add a certificate to the <literal>Context</literal>'s
+ * trusted certifificate store has failed.
+ *
+ **/
+local exception TrustedCertificateAddException extends ContextException
 {
 };
 

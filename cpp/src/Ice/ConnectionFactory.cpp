@@ -107,7 +107,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
 	{
 	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 	}
-	catch (const IceSSL::SecurityException& ex) // TODO: bandaid to make retry w/ ssl work.
+	catch (const IceSSL::SslException& ex) // TODO: bandaid to make retry w/ ssl work.
 	{
 	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 	}
@@ -327,7 +327,7 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&)
 	connection->activate();
 	_connections.push_back(connection);
     }
-    catch (const IceSSL::SecurityException&)
+    catch (const IceSSL::SslException&)
     {
         // TODO: bandaid. Takes care of SSL Handshake problems during
         // creation of a Transceiver. Ignore, nothing we can do here.

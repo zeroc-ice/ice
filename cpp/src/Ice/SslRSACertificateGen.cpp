@@ -14,6 +14,7 @@
 #include <Ice/SslRSAKeyPair.h>
 #include <Ice/SslRSAPrivateKey.h>
 #include <Ice/SslRSAPublicKey.h>
+#include <Ice/SecurityException.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
@@ -252,17 +253,13 @@ IceSSL::OpenSSL::RSACertificateGen::generate(const RSACertificateGenContext& con
     // Sign the public key using an MD5 digest
     if (!X509_sign(x509SelfSigned, pkey, EVP_md5()))
     {
-        // TODO: Throw exception here.
-        // throw CertificateSigningException(__FILE__, __LINE__);
-        return 0;
+        throw IceSSL::CertificateSigningException(__FILE__, __LINE__);
     }
 
     // Verify the Signature (paranoia)
     if (!X509_REQ_verify(signingRequest, pkey))
     {
-        // TODO: Throw exception here (signature verification)
-        // throw CertificateSignatureException(__FILE__, __LINE__);
-        return 0;
+        throw IceSSL::CertificateSignatureException(__FILE__, __LINE__);
     }
 
     // Nasty Hack: Getting the pkey to let go of our rsaKeyPair - we own that.

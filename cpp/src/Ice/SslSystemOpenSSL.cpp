@@ -41,6 +41,7 @@ using IceInternal::TraceLevelsPtr;
 using Ice::LoggerPtr;
 
 using IceSSL::OpenSSL::ContextException;
+using IceSSL::OpenSSL::UnsupportedContextException;
 using IceSSL::SystemInternalPtr;
 
 IceSSL::ConnectionPtr
@@ -48,7 +49,11 @@ IceSSL::OpenSSL::System::createConnection(ContextType connectionType, int socket
 {
     if (connectionType == ClientServer)
     {
-        // TODO: Throw exception, Unsupported Context Type?
+        UnsupportedContextException unsupportedException(__FILE__, __LINE__);
+
+        unsupportedException._message = "Unable to create ClientServer connections.";
+
+        throw unsupportedException;
     }
 
     // Configure the context if need be.
@@ -174,7 +179,7 @@ IceSSL::OpenSSL::System::loadConfig(ContextType contextType,
 {
     if (configFile.empty())
     {
-        IceSSL::OpenSSL::ContextException contextEx(__FILE__, __LINE__);
+        IceSSL::ConfigurationLoadingException configEx(__FILE__, __LINE__);
 
         string contextString;
 
@@ -199,11 +204,11 @@ IceSSL::OpenSSL::System::loadConfig(ContextType contextType,
             }
         }
 
-        contextEx._message = "No SSL configuration file specified for ";
-        contextEx._message += contextString;
-        contextEx._message += ".";
+        configEx._message = "No SSL configuration file specified for ";
+        configEx._message += contextString;
+        configEx._message += ".";
 
-        throw contextEx;
+        throw configEx;
     }
 
     Parser sslConfig(configFile, certPath);

@@ -78,10 +78,7 @@ IceSSL::OpenSSL::ServerContext::createConnection(int socket, const SystemInterna
 {
     if (_sslContext == 0)
     {
-        // ContextNotConfiguredException contextEx(__FILE__, __LINE__);
-        IceSSL::OpenSSL::ContextException contextEx(__FILE__, __LINE__);
-
-        contextEx._message = "SSL Context not configured.";
+        IceSSL::OpenSSL::ContextNotConfiguredException contextEx(__FILE__, __LINE__);
 
         throw contextEx;
     }
