@@ -197,13 +197,6 @@ public class Instance
 
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
-	    int acmTimeout = _properties.getPropertyAsInt("Ice.ConnectionIdleTime");
-	    int interval = _properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", acmTimeout);
-	    if(interval > 0)
-	    {
-		_connectionMonitor = new ConnectionMonitor(this, interval);
-	    }
-
             _servantFactoryManager = new ObjectFactoryManager();
 
             _userExceptionFactoryManager = new UserExceptionFactoryManager();
@@ -267,6 +260,17 @@ public class Instance
 		    _proxyFactory.stringToProxy(_defaultsAndOverrides.defaultLocator)));
 	}
 	
+	//
+	// Connection monitor initializations must be done after
+	// daemon() is called, since daemon() forks.
+	//
+	int acmTimeout = _properties.getPropertyAsInt("Ice.ConnectionIdleTime");
+	int interval = _properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", acmTimeout);
+	if(interval > 0)
+	{
+	    _connectionMonitor = new ConnectionMonitor(this, interval);
+	}
+
         //
         // Thread pool initialization is now lazy initialization in
         // clientThreadPool() and serverThreadPool().

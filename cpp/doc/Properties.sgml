@@ -555,6 +555,43 @@ application is executed by the super-user. (Unix only.)
 </section>
 </section>
 
+<section><title>Ice.ConnectionIdleTime</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.ConnectionIdleTime=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+&Ice; connections that have been idle for
+<replaceable>num</replaceable> seconds are closed. The default value
+is zero, meaning that connections are not automatically closed if they
+have been idle for some time.
+</para>
+</section>
+</section>
+
+<section><title>Ice.MonitorConnections</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.MonitorConnections=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+&Ice; will start a thread that monitors connections. Such thread is
+responsible for shutting down idle connections (see
+<literal>Ice.ConnectionIdleTime</literal>), as well as for enforcing
+AMI timeouts. The default value is the value of
+<literal>Ice.ConnectionIdleTime</literal>.
+</para>
+</section>
+</section>
+
 <section><title>Ice.PrintProcessId</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -602,7 +639,9 @@ If <replaceable>num</replaceable> is set to a value larger than zero,
 been idle for <replaceable>num</replaceable> seconds. This will shut
 down the Communicator's server side, and all threads waiting in
 <literal>Communicator::waitForShutdown</literal> will return. After
-that, a server will typically do some cleanup work, and then exit.
+that, a server will typically do some cleanup work, and then exit. The
+default value is zero, meaning that the server won't shut down after
+it has been idle for some time.
 </para>
 </section>
 </section>
