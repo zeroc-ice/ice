@@ -8,6 +8,8 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Thread.h>
+#include <IceUtil/Monitor.h>
 
 #include <Ice/Ice.h>
 #include <Ice/Functional.h>
@@ -27,7 +29,7 @@ namespace IceStorm
 
 typedef std::list<FlushablePtr> FlushableList;
 
-class FlusherThread : public JTCThread, public JTCMonitor
+class FlusherThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -59,23 +61,17 @@ public:
     virtual void
     run()
     {
-	JTCSyncT<JTCMonitor> sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	while (!_destroy)
 	{
 	    long tout = calcTimeout();
-	    try
+	    if (tout == 0)
 	    {
-		if (tout == 0)
-		{
-		    wait();
-		}
-		else
-		{
-		    wait(tout);
-		}
+		wait();
 	    }
-	    catch(const JTCInterruptedException&)
+	    else
 	    {
+		timedwait(tout);
 	    }
 	    if (_destroy)
 	    {
@@ -88,7 +84,7 @@ public:
     void
     destroy()
     {
-	JTCSyncT<JTCMonitor> sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	_destroy = true;
 	notify();
     }
@@ -102,7 +98,7 @@ public:
     void
     add(const FlushablePtr& subscriber)
     {
-	JTCSyncT<JTCMonitor> sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	bool isEmpty = _subscribers.empty();
 	_subscribers.push_back(subscriber);
 
@@ -119,7 +115,7 @@ public:
     void
     remove(const FlushablePtr& subscriber)
     {
-	JTCSyncT<JTCMonitor> sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	_subscribers.remove(subscriber);
     }
 
@@ -130,7 +126,7 @@ private:
     flushAll()
     {
 	// This is always called with the monitor locked
-	//JTCSyncT<JTCMonitor> sync(*this);
+	//IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
 	//
 	// Using standard algorithms I don't think there is a way to
@@ -185,16 +181,7 @@ Flusher::Flusher(const Ice::CommunicatorPtr& communicator, const TraceLevelsPtr&
 Flusher::~Flusher()
 {
     _thread->destroy();
-    while(_thread->isAlive())
-    {
-	try
-	{
-	    _thread->join();
-	}
-	catch(const JTCInterruptedException&)
-	{
-	}
-    }
+    _thread->getThreadControl().join();
 }
 
 void

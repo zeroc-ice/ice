@@ -19,7 +19,11 @@ VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
 TARGETS		= $(NAME) $(VERSIONED_NAME)
 
 OBJS		= Exception.o \
-		  Unicode.o
+		  Unicode.o \
+		  RecMutex.o \
+		  RWRecMutex.o \
+		  Cond.o \
+		  Thread.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

@@ -29,14 +29,14 @@ ContactI::setIdentity(const Identity& ident)
 string
 ContactI::getName(const Ice::Current&)
 {
-    JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
+    IceUtil::Mutex::Lock sync(*this); // TODO: Reader/Writer lock
     return _name;
 }
 
 void
 ContactI::setName(const string& name, const Ice::Current&)
 {
-    JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
+    IceUtil::Mutex::Lock sync(*this); // TODO: Reader/Writer lock
     assert(!_identity.name.empty());
     _phoneBook->move(_identity, _name, name);
     _name = name;
@@ -45,35 +45,35 @@ ContactI::setName(const string& name, const Ice::Current&)
 string
 ContactI::getAddress(const Ice::Current&)
 {
-    JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
+    IceUtil::Mutex::Lock sync(*this); // TODO: Reader/Writer lock
     return _address;
 }
 
 void
 ContactI::setAddress(const string& address, const Ice::Current&)
 {
-    JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
+    IceUtil::Mutex::Lock sync(*this); // TODO: Reader/Writer lock
     _address = address;
 }
 
 string
 ContactI::getPhone(const Ice::Current&)
 {
-    JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
+    IceUtil::Mutex::Lock sync(*this); // TODO: Reader/Writer lock
     return _phone;
 }
 
 void
 ContactI::setPhone(const string& phone, const Ice::Current&)
 {
-    JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
+    IceUtil::Mutex::Lock sync(*this); // TODO: Reader/Writer lock
     _phone = phone;
 }
 
 void
 ContactI::destroy(const Ice::Current&)
 {
-    JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
+    IceUtil::Mutex::Lock sync(*this); // TODO: Reader/Writer lock
     assert(!_identity.name.empty());
     _phoneBook->remove(_identity, _name);
     _evictor->destroyObject(_identity);
@@ -109,7 +109,7 @@ private:
 ContactPrx
 PhoneBookI::createContact(const Ice::Current&)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
+    IceUtil::RecMutex::Lock sync(*this); // TODO: Reader/Writer lock
     
     //
     // Get a new unique identity.
@@ -153,7 +153,7 @@ PhoneBookI::createContact(const Ice::Current&)
 Contacts
 PhoneBookI::findContacts(const string& name, const Ice::Current&)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
+    IceUtil::RecMutex::Lock sync(*this); // TODO: Reader/Writer lock
     
     //
     // Lookup all phone book contacts that match a name, and return
@@ -196,7 +196,7 @@ PhoneBookI::shutdown(const Ice::Current&)
 void
 PhoneBookI::remove(const Identity& ident, const string& name)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
+    IceUtil::RecMutex::Lock sync(*this); // TODO: Reader/Writer lock
 
     //
     // See the comment in getNewIdentity why the prefix "N" is needed.
@@ -233,7 +233,7 @@ PhoneBookI::remove(const Identity& ident, const string& name)
 void
 PhoneBookI::move(const Identity& ident, const string& oldName, const string& newName)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
+    IceUtil::RecMutex::Lock sync(*this); // TODO: Reader/Writer lock
 
     //
     // Called by ContactI in case the name has been changed. See the

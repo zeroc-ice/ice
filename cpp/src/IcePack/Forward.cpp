@@ -169,6 +169,7 @@ IcePack::Forward::deactivate()
 {
 #ifndef WIN32
     _activator->destroy();
+    _activator->getThreadControl().join();
     _activator = 0;
 #endif
 }

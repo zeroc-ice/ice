@@ -25,7 +25,7 @@ void IceInternal::decRef(ObjectAdapterFactory* p) { p->__decRef(); }
 void
 IceInternal::ObjectAdapterFactory::shutdown()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     for_each(_adapters.begin(), _adapters.end(),
 	     Ice::secondVoidMemFun<string, ObjectAdapter>(&ObjectAdapter::deactivate));
     _adapters.clear();
@@ -34,7 +34,7 @@ IceInternal::ObjectAdapterFactory::shutdown()
 ObjectAdapterPtr
 IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const string& endpts)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     map<string, ObjectAdapterIPtr>::iterator p = _adapters.find(name);
     if (p != _adapters.end())
     {

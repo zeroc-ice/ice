@@ -11,6 +11,7 @@
 #ifndef ICE_OUTGOING_H
 #define ICE_OUTGOING_H
 
+#include <IceUtil/Monitor.h>
 #include <Ice/ConnectionF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/BasicStream.h>
@@ -46,7 +47,7 @@ private:
     std::auto_ptr< ::Ice::LocalException> _ex;
 };
 
-class ICE_API Outgoing : public ::IceUtil::noncopyable, public JTCMonitorT< JTCMutex >
+class ICE_API Outgoing : public ::IceUtil::noncopyable, public IceUtil::Monitor< IceUtil::Mutex >
 {
 public:
 

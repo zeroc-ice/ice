@@ -1,0 +1,238 @@
+// **********************************************************************
+//
+// Copyright (c) 2001
+// MutableRealms, Inc.
+// Huntsville, AL, USA
+//
+// All Rights Reserved
+//
+// **********************************************************************
+
+#ifndef ICE_UTIL_MONITOR_H
+#define ICE_UTIL_MONITOR_H
+
+#include <IceUtil/Config.h>
+#include <IceUtil/Lock.h>
+#include <IceUtil/Cond.h>
+
+namespace IceUtil
+{
+
+//
+// This monitor implements the Mesa monitor semantics. That is any
+// calls to notify() or notifyAll() are delayed until the monitor is
+// unlocked.
+//
+template <class T>
+class ICE_UTIL_API Monitor
+{
+public:
+
+    typedef Lock<Monitor<T> > Lock;
+    typedef TryLock<Monitor<T> > TryLock;
+
+    typedef ConstLock<Monitor<T> > ConstLock;
+    typedef ConstTryLock<Monitor<T> > ConstTryLock;
+
+    Monitor();
+    ~Monitor();
+
+    //
+    // Note that lock/trylock & unlock in general should not be used
+    // directly. Instead use Lock & TryLock.
+    //
+    void lock();
+    void unlock();
+    void trylock();
+
+    void wait();
+    bool timedwait(long);
+    void notify();
+    void notifyAll();
+
+private:
+
+    // noncopyable
+    Monitor(const Monitor&);
+    void operator=(const Monitor&);
+
+    void notifyImpl(int);
+
+    Cond _cond;
+    T _mutex;
+    int _nnotify;
+};
+
+} // End namespace IceUtil
+
+//
+// Since this monitor implements the Mesa monitor semantics calls to
+// notify() or notifyAll() are delayed until the monitor is
+// unlocked. This can happen either due to a call to unlock(), or a
+// call to wait(). The _nnotify flag keeps track of the number of
+// pending notification calls. -1 indicates a broadcast, a positive
+// number indicates <n> calls to notify(). The _nnotify flag is reset
+// upon initial acquisition of the monitor lock (either through a call
+// to lock(), or a return from wait().
+//
+
+template <class T> inline
+IceUtil::Monitor<T>::Monitor() :
+    _nnotify(0)
+{
+}
+
+template <class T> inline
+IceUtil::Monitor<T>::~Monitor()
+{
+}
+
+template <class T> inline void
+IceUtil::Monitor<T>::lock()
+{
+    if (_mutex.lock())
+    {
+	//
+	// On the first mutex acquisition reset the number pending
+	// notifications.
+	//
+	_nnotify = 0;
+    }
+}
+
+template <class T> inline void
+IceUtil::Monitor<T>::unlock()
+{
+    int nnotify = _nnotify;
+    if (_mutex.unlock())
+    {
+	//
+	// Perform any pending notifications.
+	//
+	notifyImpl(nnotify);
+    }
+}
+
+template <class T> inline void
+IceUtil::Monitor<T>::trylock()
+{
+    if (_mutex.trylock())
+    {
+	//
+	// On the first mutex acquisition reset the number pending
+	// notifications.
+	//
+	_nnotify = 0;
+    }
+}
+
+template <class T> inline void
+IceUtil::Monitor<T>::wait()
+{
+    //
+    // Perform any pending notifies
+    //
+    notifyImpl(_nnotify);
+
+    //
+    // Wait for a notification
+    //
+    try
+    {
+	_cond.waitImpl(_mutex);
+	//
+	// Reset the nnotify count once wait() returns.
+	//
+    }
+    catch(...)
+    {
+	_nnotify = 0;
+	throw;
+    }
+    _nnotify = 0;
+}
+
+template <class T> inline bool
+IceUtil::Monitor<T>::timedwait(long msec)
+{
+    //
+    // Perform any pending notifies.
+    //
+    notifyImpl(_nnotify);
+
+    bool rc;
+    //
+    // Wait for a notification.
+    //
+    try
+    {
+	rc = _cond.timedwaitImpl(_mutex, msec);
+
+	//
+	// Reset the nnotify count once wait() returns.
+	//
+    }
+    catch(...)
+    {
+	_nnotify = 0;
+	throw;
+    }
+
+    _nnotify = 0;
+    return rc;
+}
+
+template <class T> inline void
+IceUtil::Monitor<T>::notify()
+{
+    //
+    // Increment the _nnotify flag, unless a broadcast has already
+    // been requested.
+    //
+    if (_nnotify != -1)
+    {
+	++_nnotify;
+    }
+}
+
+template <class T> inline void
+IceUtil::Monitor<T>::notifyAll()
+{
+    //
+    // -1 (indicates broadcast)
+    //
+    _nnotify = -1;
+}
+
+
+template <class T> inline void
+IceUtil::Monitor<T>::notifyImpl(int nnotify)
+{
+    //
+    // Zero indicates no notifies.
+    //
+    if (nnotify != 0)
+    {
+	//
+	// -1 means notifyAll.
+	//
+	if (nnotify == -1)
+	{
+	    _cond.broadcast();
+	    return;
+	}
+	else
+	{
+	    //
+	    // Otherwise notify n times.
+	    //
+	    while (nnotify > 0)
+	    {
+		_cond.signal();
+		--nnotify;
+	    }
+	}
+    }
+}
+
+#endif

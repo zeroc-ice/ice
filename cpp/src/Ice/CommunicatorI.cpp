@@ -27,7 +27,7 @@ using namespace IceInternal;
 void
 Ice::CommunicatorI::destroy()
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    RecMutex::Lock sync(*this);
 
     if (_instance)
     {
@@ -58,7 +58,7 @@ Ice::CommunicatorI::waitForShutdown()
 ObjectPrx
 Ice::CommunicatorI::stringToProxy(const string& s)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    RecMutex::Lock sync(*this);
     if (!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -69,7 +69,7 @@ Ice::CommunicatorI::stringToProxy(const string& s)
 string
 Ice::CommunicatorI::proxyToString(const ObjectPrx& proxy)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    RecMutex::Lock sync(*this);
     if (!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -86,7 +86,7 @@ Ice::CommunicatorI::createObjectAdapter(const string& name)
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapterFromProperty(const string& name, const string& property)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    RecMutex::Lock sync(*this);
     if (!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -98,7 +98,7 @@ Ice::CommunicatorI::createObjectAdapterFromProperty(const string& name, const st
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const string& endpts)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    RecMutex::Lock sync(*this);
     if (!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -109,7 +109,7 @@ Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const s
 void
 Ice::CommunicatorI::addObjectFactory(const ObjectFactoryPtr& factory, const string& id)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    RecMutex::Lock sync(*this);
     if (!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -120,7 +120,7 @@ Ice::CommunicatorI::addObjectFactory(const ObjectFactoryPtr& factory, const stri
 void
 Ice::CommunicatorI::removeObjectFactory(const string& id)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    RecMutex::Lock sync(*this);
     if (!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -131,7 +131,7 @@ Ice::CommunicatorI::removeObjectFactory(const string& id)
 ObjectFactoryPtr
 Ice::CommunicatorI::findObjectFactory(const string& id)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    RecMutex::Lock sync(*this);
     if (!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -142,7 +142,7 @@ Ice::CommunicatorI::findObjectFactory(const string& id)
 void
 Ice::CommunicatorI::addUserExceptionFactory(const UserExceptionFactoryPtr& factory, const string& id)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    RecMutex::Lock sync(*this);
     if (!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -153,7 +153,7 @@ Ice::CommunicatorI::addUserExceptionFactory(const UserExceptionFactoryPtr& facto
 void
 Ice::CommunicatorI::removeUserExceptionFactory(const string& id)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    RecMutex::Lock sync(*this);
     if (!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -164,7 +164,7 @@ Ice::CommunicatorI::removeUserExceptionFactory(const string& id)
 UserExceptionFactoryPtr
 Ice::CommunicatorI::findUserExceptionFactory(const string& id)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    RecMutex::Lock sync(*this);
     if (!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -175,7 +175,7 @@ Ice::CommunicatorI::findUserExceptionFactory(const string& id)
 PropertiesPtr
 Ice::CommunicatorI::getProperties()
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    RecMutex::Lock sync(*this);
     if (!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -186,7 +186,7 @@ Ice::CommunicatorI::getProperties()
 LoggerPtr
 Ice::CommunicatorI::getLogger()
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    RecMutex::Lock sync(*this);
     if (!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -197,7 +197,7 @@ Ice::CommunicatorI::getLogger()
 void
 Ice::CommunicatorI::setLogger(const LoggerPtr& logger)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    RecMutex::Lock sync(*this);
     if (!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -208,7 +208,7 @@ Ice::CommunicatorI::setLogger(const LoggerPtr& logger)
 StreamPtr
 Ice::CommunicatorI::createStream()
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    RecMutex::Lock sync(*this);
     if (!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);

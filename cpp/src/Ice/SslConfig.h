@@ -14,8 +14,8 @@
 #include <string>
 
 #include <dom/DOM.hpp>
-#include <Ice/TraceLevels.h>
-#include <Ice/Logger.h>
+#include <Ice/TraceLevelsF.h>
+#include <Ice/LoggerF.h>
 
 #include <Ice/SslCertificateDesc.h>
 #include <Ice/SslGeneralConfig.h>

@@ -16,7 +16,7 @@
 namespace IceInternal
 {
 
-class ObjectAdapterFactory : public ::IceUtil::Shared, public JTCMutex
+class ObjectAdapterFactory : public ::IceUtil::Shared, public ::IceUtil::Mutex
 {
 public:
 

@@ -136,7 +136,7 @@ Ice::Object::__dispatch(Incoming& in, const Current& current)
 void
 Ice::Object::__write(::IceInternal::BasicStream* __os) const
 {
-    JTCSyncT<JTCMutex> sync(_activeFacetMapMutex);
+    IceUtil::Mutex::ConstLock sync(_activeFacetMapMutex);
     
     __os->write(Int(_activeFacetMap.size()));
     for (map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
@@ -149,7 +149,7 @@ Ice::Object::__write(::IceInternal::BasicStream* __os) const
 void
 Ice::Object::__read(::IceInternal::BasicStream* __is)
 {
-    JTCSyncT<JTCMutex> sync(_activeFacetMapMutex);
+    IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
 
     Int sz;
     __is->read(sz);
@@ -169,7 +169,7 @@ Ice::Object::__read(::IceInternal::BasicStream* __is)
 void
 Ice::Object::ice_addFacet(const ObjectPtr& facet, const string& name)
 {
-    JTCSyncT<JTCMutex> sync(_activeFacetMapMutex);
+    IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
 
     _activeFacetMapHint = _activeFacetMap.insert(_activeFacetMapHint, make_pair(name, facet));
 }
@@ -177,7 +177,7 @@ Ice::Object::ice_addFacet(const ObjectPtr& facet, const string& name)
 void
 Ice::Object::ice_removeFacet(const string& name)
 {
-    JTCSyncT<JTCMutex> sync(_activeFacetMapMutex);
+    IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
 
     map<string, ObjectPtr>::iterator p = _activeFacetMap.end();
     
@@ -204,7 +204,7 @@ Ice::Object::ice_removeFacet(const string& name)
 void
 Ice::Object::ice_removeAllFacets()
 {
-    JTCSyncT<JTCMutex> sync(_activeFacetMapMutex);
+    IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
 
     _activeFacetMap.clear();
     _activeFacetMapHint = _activeFacetMap.end();
@@ -213,7 +213,7 @@ Ice::Object::ice_removeAllFacets()
 ObjectPtr
 Ice::Object::ice_findFacet(const string& name)
 {
-    JTCSyncT<JTCMutex> sync(_activeFacetMapMutex);
+    IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
     
     map<string, ObjectPtr>::iterator p = _activeFacetMap.end();
     

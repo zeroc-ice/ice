@@ -28,14 +28,14 @@ Subscriber::~Subscriber()
 bool
 Subscriber::inactive() const
 {
-    JTCSyncT<JTCMutex> sync(_stateMutex);
+    IceUtil::Mutex::Lock sync(_stateMutex);
     return _state != StateActive;;
 }
 
 Subscriber::State
 Subscriber::state() const
 {
-    JTCSyncT<JTCMutex> sync(_stateMutex);
+    IceUtil::Mutex::Lock sync(_stateMutex);
     return _state;
 }
 

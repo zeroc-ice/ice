@@ -60,12 +60,6 @@ IcePack::Activator::run()
 	s << "exception in process termination listener:\n" << ex;
 	_communicator->getLogger()->error(s.str());
     }
-    catch (const JTCException& ex)
-    {
-	ostringstream s;
-	s << "exception in process termination listener:\n" << ex;
-	_communicator->getLogger()->error(s.str());
-    }
     catch (...)
     {
 	_communicator->getLogger()->error("unknown exception in process termination listener");
@@ -75,7 +69,7 @@ IcePack::Activator::run()
 void
 IcePack::Activator::destroy()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_destroy) // Don't destroy twice
     {
@@ -89,7 +83,7 @@ IcePack::Activator::destroy()
 bool
 IcePack::Activator::activate(const ServerDescription& desc)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_destroy)
     {
@@ -213,7 +207,7 @@ IcePack::Activator::terminationListener()
 	FD_SET(_fdIntrRead, &fdSet);
 	
 	{
-	    JTCSyncT<JTCMutex> sync(*this);
+	    IceUtil::Mutex::Lock sync(*this);
 
 	    if (_destroy)
 	    {
@@ -248,7 +242,7 @@ IcePack::Activator::terminationListener()
 	}
 	
 	{
-	    JTCSyncT<JTCMutex> sync(*this);
+	    IceUtil::Mutex::Lock sync(*this);
 	    
 	    if (FD_ISSET(_fdIntrRead, &fdSet))
 	    {

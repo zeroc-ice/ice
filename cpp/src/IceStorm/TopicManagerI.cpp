@@ -70,7 +70,7 @@ TopicPrx
 TopicManagerI::create(const string& name, const Ice::Current&)
 {
     // TODO: reader/writer mutex
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     reap();
 
@@ -95,7 +95,7 @@ TopicManagerI::create(const string& name, const Ice::Current&)
 TopicPrx
 TopicManagerI::retrieve(const string& name, const Ice::Current&)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     reap();
 
@@ -125,7 +125,7 @@ transformToTopicDict(TopicIMap::value_type p, Ice::ObjectAdapterPtr adapter)
 TopicDict
 TopicManagerI::retrieveAll(const Ice::Current&)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     reap();
 
@@ -140,7 +140,7 @@ void
 TopicManagerI::subscribe(const string& id, const QoS& qos, const StringSeq& topics, const Ice::ObjectPrx& tmpl,
 			 const Ice::Current&)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_traceLevels->topicMgr > 0)
     {
@@ -204,7 +204,7 @@ TopicManagerI::subscribe(const string& id, const QoS& qos, const StringSeq& topi
 void
 TopicManagerI::unsubscribe(const string& id, const StringSeq& topics, const Ice::Current&)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_traceLevels->topicMgr > 0)
     {
@@ -251,7 +251,7 @@ TopicManagerI::reap()
     //
     // Always Called with mutex locked
     //
-    // JTCSyncT<JTCMutex> sync(*this);
+    // IceUtil::Mutex::Lock sync(*this);
     //
     TopicIMap::iterator i = _topicIMap.begin();
     while (i != _topicIMap.end())

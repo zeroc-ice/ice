@@ -57,7 +57,7 @@ IceInternal::Connection::~Connection()
 void
 IceInternal::Connection::destroy(DestructionReason reason)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    RecMutex::Lock sync(*this);
 
     switch (reason)
     {
@@ -78,21 +78,21 @@ IceInternal::Connection::destroy(DestructionReason reason)
 bool
 IceInternal::Connection::destroyed() const
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::ConstLock sync(*this);
     return _state >= StateClosing;
 }
 
 void
 IceInternal::Connection::hold()
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
     setState(StateHolding);
 }
 
 void
 IceInternal::Connection::activate()
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
     setState(StateActive);
 }
 
@@ -110,7 +110,7 @@ IceInternal::Connection::prepareRequest(Outgoing* out)
 void
 IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if (_exception.get())
     {
@@ -218,7 +218,7 @@ IceInternal::Connection::abortBatchRequest()
 void
 IceInternal::Connection::flushBatchRequest()
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if (_exception.get())
     {
@@ -290,13 +290,13 @@ IceInternal::Connection::message(BasicStream& stream)
     bool batch = false;
 
     {
-	JTCSyncT<JTCRecursiveMutex> sync(*this);
+	IceUtil::RecMutex::Lock sync(*this);
 	
 	_threadPool->promoteFollower();
 	
 	if (_state == StateClosed)
 	{
-	    JTCThread::yield();
+	    ::IceUtil::ThreadControl::yield();
 	    return;
 	}
 
@@ -452,7 +452,7 @@ IceInternal::Connection::message(BasicStream& stream)
 		}
 		catch (const Exception& ex)
 		{
-		    JTCSyncT<JTCRecursiveMutex> sync(*this);
+		    IceUtil::RecMutex::Lock sync(*this);
 		    warning(ex);
 		}
 		catch (...)
@@ -464,14 +464,14 @@ IceInternal::Connection::message(BasicStream& stream)
 	}
 	catch (const LocalException& ex)
 	{
-	    JTCSyncT<JTCRecursiveMutex> sync(*this);
+	    IceUtil::RecMutex::Lock sync(*this);
 	    setState(StateClosed, ex);
 	    return;
 	}
 	
 	if (response)
 	{
-	    JTCSyncT<JTCRecursiveMutex> sync(*this);
+	    IceUtil::RecMutex::Lock sync(*this);
 	    
 	    try
 	    {
@@ -513,14 +513,14 @@ IceInternal::Connection::message(BasicStream& stream)
 void
 IceInternal::Connection::exception(const LocalException& ex)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
     setState(StateClosed, ex);
 }
 
 void
 IceInternal::Connection::finished()
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
     assert(_state == StateClosed);
     _transceiver->close();
 }

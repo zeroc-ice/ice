@@ -106,7 +106,7 @@ protected:
     // Immutable
     TraceLevelsPtr _traceLevels; 
 
-    JTCMutex _stateMutex;
+    mutable IceUtil::Mutex _stateMutex;
     State _state;
 
 private:

@@ -43,7 +43,7 @@ LinkSubscriber::inactive() const
 void
 LinkSubscriber::unsubscribe()
 {
-    JTCSyncT<JTCMutex> sync(_stateMutex);
+    IceUtil::Mutex::Lock sync(_stateMutex);
     _state = StateUnsubscribed;
 
     if (_traceLevels->subscriber > 0)
@@ -74,7 +74,7 @@ LinkSubscriber::publish(const Event& event)
 	//
 	// ObjectNotExist causes the link to be removed.
 	//
-	JTCSyncT<JTCMutex> sync(_stateMutex);
+	IceUtil::Mutex::Lock sync(_stateMutex);
 	_state = StateError;
 
 	if (_traceLevels->subscriber > 0)
@@ -107,7 +107,7 @@ LinkSubscriber::flush()
 	//
 	// ObjectNotExist causes the link to be removed.
 	//
-	JTCSyncT<JTCMutex> sync(_stateMutex);
+	IceUtil::Mutex::Lock sync(_stateMutex);
 	_state = StateError;
 
 	if (_traceLevels->subscriber > 0)

@@ -13,6 +13,9 @@
 
 #if defined(WIN32)
 
+// Necessary for TryEnterCriticalSection
+#   define _WIN32_WINNT 0x0400
+
 #   if !defined(_UNICODE)
 #       error "Only UNICODE libraries can be used with Ice!"
 #   endif
@@ -62,10 +65,13 @@
 #include <iostream>
 #include <sstream>
 
-//
-// We need Threads/C++
-//
-#include <JTC/JTC.h>
+#ifndef WIN32
+#    ifndef _REENTRANT
+#        define _REENTRANT 1
+#    endif
+#    include <pthread.h>
+#    include <errno.h>
+#endif
 
 //
 // By deriving from this class, other classes are made non-copyable

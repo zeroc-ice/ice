@@ -25,7 +25,7 @@ CFG=objectsCOL - Win32 Debug
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
-CPP=xicl6.exe
+CPP=cl.exe
 RSC=rc.exe
 
 !IF  "$(CFG)" == "objectsCOL - Win32 Release"
@@ -49,9 +49,9 @@ RSC=rc.exe
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=xilink6.exe
+LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 ws2_32.lib jtc.lib /nologo /subsystem:console /machine:I386 /out:"collocated.exe" /libpath:"../../../lib"
+# ADD LINK32 /nologo /subsystem:console /machine:I386 /out:"collocated.exe" /libpath:"../../../lib"
 # SUBTRACT LINK32 /debug
 
 !ELSEIF  "$(CFG)" == "objectsCOL - Win32 Debug"
@@ -75,9 +75,9 @@ LINK32=xilink6.exe
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=xilink6.exe
+LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ws2_32.lib jtcd.lib /nologo /subsystem:console /debug /machine:I386 /out:"collocated.exe" /pdbtype:sept /libpath:"../../../lib"
+# ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"collocated.exe" /pdbtype:sept /libpath:"../../../lib"
 
 !ENDIF 
 

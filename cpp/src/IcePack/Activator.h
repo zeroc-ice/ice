@@ -11,12 +11,14 @@
 #ifndef ICE_PACK_ACTIVATOR_H
 #define ICE_PACK_ACTIVATOR_H
 
+#include <IceUtil/Thread.h>
+
 namespace IcePack
 {
 
 struct ServerDescription;
 
-class Activator : public JTCThread, public JTCMutex
+class Activator : public IceUtil::Thread, public IceUtil::Mutex
 {
 public:
 
@@ -46,7 +48,7 @@ private:
     int _fdIntrWrite;
 };
 
-typedef JTCHandleT<Activator> ActivatorHandle;
+typedef IceUtil::Handle<Activator> ActivatorPtr;
 
 }
 

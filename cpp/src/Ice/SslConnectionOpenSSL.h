@@ -43,7 +43,7 @@ public:
 
     bool checkAndSet()
     {
-        JTCSyncT<JTCMutex> sync(_mutex);
+        ::IceUtil::Mutex::Lock sync(_mutex);
 
         if (_flag)
         {
@@ -58,27 +58,26 @@ public:
 
     bool check()
     {
-        JTCSyncT<JTCMutex> sync(_mutex);
+        ::IceUtil::Mutex::Lock sync(_mutex);
         return _flag;
     }
 
     void set()
     {
-        JTCSyncT<JTCMutex> sync(_mutex);
+        ::IceUtil::Mutex::Lock sync(_mutex);
         _flag = true;
     }
 
     void unset()
     {
-        JTCSyncT<JTCMutex> sync(_mutex);
+        ::IceUtil::Mutex::Lock sync(_mutex);
         _flag = false;
     }
 
 private:
-    JTCMutex _mutex;
+    ::IceUtil::Mutex _mutex;
     bool _flag;
 };
-
 
 class HandshakeSentinel
 {
@@ -176,7 +175,7 @@ protected:
     // Buffer for application data that may be returned during handshake
     // (probably won't contain anything, may be removed later).
     Buffer _inBuffer;
-    JTCMutex _inBufferMutex;
+    ::IceUtil::Mutex _inBufferMutex;
 
     TraceLevelsPtr _traceLevels;
     LoggerPtr _logger;

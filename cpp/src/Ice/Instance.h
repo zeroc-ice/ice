@@ -35,7 +35,7 @@ class CommunicatorI;
 namespace IceInternal
 {
 
-class Instance : public ::IceUtil::Shared, public JTCMutex
+class Instance : public ::IceUtil::Shared, public ::IceUtil::Mutex
 {
 public:
 
@@ -78,8 +78,7 @@ private:
     //
     friend class GlobalStateMutexDestroyer;
     static int _globalStateCounter;
-    static JTCMutex* _globalStateMutex;
-    static JTCInitialize* _globalStateJTC;
+    static ::IceUtil::Mutex* _globalStateMutex;
 #ifndef WIN32
     static std::string _identForOpenlog;
 #endif

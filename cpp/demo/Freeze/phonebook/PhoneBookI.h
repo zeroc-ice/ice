@@ -23,7 +23,7 @@ typedef IceUtil::Handle<PhoneBookI> PhoneBookIPtr;
 class ContactI;
 typedef IceUtil::Handle<ContactI> ContactIPtr;
 
-class ContactI : public Contact, public JTCMutex
+class ContactI : public Contact, public IceUtil::Mutex
 {
 public:
 
@@ -49,7 +49,7 @@ private:
     Ice::Identity _identity;
 };
 
-class PhoneBookI : public PhoneBook, public JTCRecursiveMutex
+class PhoneBookI : public PhoneBook, public IceUtil::RecMutex
 {
 public: 
 

@@ -15,7 +15,6 @@
 #include <string>
 #include <sstream>
 #include <Ice/Network.h>
-#include <JTC/JTC.h>
 #include <Ice/Security.h>
 #include <Ice/SecurityException.h>
 #include <Ice/SslConnection.h>
@@ -286,7 +285,7 @@ IceSecurity::Ssl::OpenSSL::Connection::protocolWrite()
 int
 IceSecurity::Ssl::OpenSSL::Connection::readInBuffer(Buffer& buf)
 {
-    JTCSyncT<JTCMutex> sync(_inBufferMutex);
+    IceUtil::Mutex::Lock sync(_inBufferMutex);
 
     ICE_METHOD_INV("OpenSSL::Connection::readInBuffer()");
 
@@ -335,7 +334,7 @@ IceSecurity::Ssl::OpenSSL::Connection::readSelect(int timeout)
     ICE_METHOD_INV("OpenSSL::Connection::readSelect()");
 
     int ret;
-    int fd = SSL_get_fd(_sslConnection);
+    SOCKET fd = SSL_get_fd(_sslConnection);
     fd_set rFdSet;
 
     struct timeval tv;
@@ -388,7 +387,7 @@ IceSecurity::Ssl::OpenSSL::Connection::writeSelect(int timeout)
     ICE_METHOD_INV("OpenSSL::Connection::writeSelect()");
 
     int ret;
-    int fd = SSL_get_fd(_sslConnection);
+    SOCKET fd = SSL_get_fd(_sslConnection);
     fd_set wFdSet;
 
     struct timeval tv;

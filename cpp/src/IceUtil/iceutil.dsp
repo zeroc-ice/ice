@@ -25,7 +25,7 @@ CFG=IceUtil - Win32 Debug
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
-CPP=xicl6.exe
+CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
@@ -52,9 +52,9 @@ RSC=rc.exe
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=xilink6.exe
+LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 ws2_32.lib /nologo /dll /machine:I386 /out:"Release/iceutil001.dll"
+# ADD LINK32 /nologo /dll /machine:I386 /out:"Release/iceutil001.dll"
 # SUBTRACT LINK32 /pdb:none /debug
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
@@ -84,9 +84,9 @@ PostBuild_Cmds=copy Release\iceutil001.* ..\..\lib
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=xilink6.exe
+LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 jtcd.lib /nologo /dll /debug /machine:I386 /out:"Debug/iceutil001d.dll" /pdbtype:sept
+# ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/iceutil001d.dll" /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
@@ -104,7 +104,23 @@ PostBuild_Cmds=copy Debug\iceutil001d.* ..\..\lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\Cond.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Exception.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\RecMutex.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\RWRecMutex.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Thread.cpp
 # End Source File
 # Begin Source File
 
@@ -114,6 +130,10 @@ SOURCE=.\Unicode.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\Cond.h
+# End Source File
 # Begin Source File
 
 SOURCE=..\..\include\IceUtil\Config.h
@@ -136,7 +156,31 @@ SOURCE=..\..\include\IceUtil\IceUtil.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\IceUtil\Lock.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\Monitor.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\Mutex.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\RecMutex.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\RWRecMutex.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\IceUtil\Shared.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\Thread.h
 # End Source File
 # Begin Source File
 

@@ -36,7 +36,7 @@ private:
     Ice::CommunicatorPtr _communicator;
     AdminPtr _admin;
 #ifndef WIN32
-    ActivatorHandle _activator;
+    ActivatorPtr _activator;
     int _waitTime;
 #endif
 };

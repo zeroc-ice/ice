@@ -38,8 +38,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 int Instance::_globalStateCounter = 0;
-JTCMutex* Instance::_globalStateMutex = new JTCMutex;
-JTCInitialize* Instance::_globalStateJTC = 0;
+IceUtil::Mutex* Instance::_globalStateMutex = new IceUtil::Mutex;
 #ifndef WIN32
 string Instance::_identForOpenlog;
 #endif
@@ -68,77 +67,77 @@ void IceInternal::decRef(Instance* p) { p->__decRef(); }
 ::Ice::CommunicatorPtr
 IceInternal::Instance::communicator()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     return _communicator;
 }
 
 ::Ice::PropertiesPtr
 IceInternal::Instance::properties()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     return _properties;
 }
 
 ::Ice::LoggerPtr
 IceInternal::Instance::logger()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     return _logger;
 }
 
 void
 IceInternal::Instance::logger(const ::Ice::LoggerPtr& logger)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     _logger = logger;
 }
 
 TraceLevelsPtr
 IceInternal::Instance::traceLevels()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     return _traceLevels;
 }
 
 ProxyFactoryPtr
 IceInternal::Instance::proxyFactory()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     return _proxyFactory;
 }
 
 OutgoingConnectionFactoryPtr
 IceInternal::Instance::outgoingConnectionFactory()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     return _outgoingConnectionFactory;
 }
 
 ObjectFactoryManagerPtr
 IceInternal::Instance::servantFactoryManager()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     return _servantFactoryManager;
 }
 
 UserExceptionFactoryManagerPtr
 IceInternal::Instance::userExceptionFactoryManager()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     return _userExceptionFactoryManager;
 }
 
 ObjectAdapterFactoryPtr
 IceInternal::Instance::objectAdapterFactory()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     return _objectAdapterFactory;
 }
 
 ThreadPoolPtr
 IceInternal::Instance::threadPool()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     return _threadPool;
 }
 
@@ -146,7 +145,7 @@ string
 IceInternal::Instance::defaultProtocol()
 {
     // No synchronization necessary
-    // JTCSyncT<JTCMutex> sync(*this);
+    // IceUtil::Mutex::Lock sync(*this);
     return _defaultProtocol;
 }
 
@@ -154,7 +153,7 @@ string
 IceInternal::Instance::defaultHost()
 {
     // No synchronization necessary
-    // JTCSyncT<JTCMutex> sync(*this);
+    // IceUtil::Mutex::Lock sync(*this);
     return _defaultHost;
 }
 
@@ -243,10 +242,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	srand(tv.tv_usec);
 #endif
 	
-	if (!JTCInitialize::initialized())
-	{
-	    _globalStateJTC = new JTCInitialize();
-	}
     }
 
     _globalStateMutex->unlock();
@@ -331,9 +326,6 @@ IceInternal::Instance::~Instance()
 	    _identForOpenlog.clear();
 	}
 #endif
-
-	delete _globalStateJTC;
-	_globalStateJTC = 0;
     }
     
     if (_globalStateMutex != 0)
@@ -345,7 +337,7 @@ IceInternal::Instance::~Instance()
 void
 IceInternal::Instance::destroy()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     //
     // Destroy all contained objects. Then set all references to null,

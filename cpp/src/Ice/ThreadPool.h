@@ -12,6 +12,9 @@
 #define ICE_THREAD_POOL_H
 
 #include <IceUtil/Shared.h>
+#include <IceUtil/Monitor.h>
+#include <IceUtil/Thread.h>
+
 #include <Ice/ThreadPoolF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/EventHandlerF.h>
@@ -26,7 +29,7 @@ namespace IceInternal
 
 class BasicStream;
 
-class ThreadPool : public ::IceUtil::Shared, public JTCMonitorT<JTCMutex>
+class ThreadPool : public ::IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -66,9 +69,9 @@ private:
     std::map<SOCKET, EventHandlerPtr> _handlerMap;
     int _servers;
     int _timeout;
-    JTCMutex _threadMutex;
+    ::IceUtil::Mutex _threadMutex;
 
-    class EventHandlerThread : public JTCThread
+    class EventHandlerThread : public ::IceUtil::Thread
     {
     public:
 	
@@ -80,7 +83,7 @@ private:
 	ThreadPoolPtr _pool;
     };
     friend class EventHandlerThread;
-    std::vector<JTCThreadHandle> _threads; // Handles for all threads, running or not.
+    std::vector<IceUtil::ThreadControl> _threads; // Control for all threads, running or not.
     int _threadNum; // Number of running threads.
     int _maxConnections; // Maximum number of connections. If set to zero, the number of connections is not limited.
 };

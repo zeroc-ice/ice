@@ -47,7 +47,7 @@ IceInternal::OutgoingConnectionFactory::~OutgoingConnectionFactory()
 ConnectionPtr
 IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoints)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_instance)
     {
@@ -161,7 +161,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
 void
 IceInternal::OutgoingConnectionFactory::destroy()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_instance)
     {
@@ -223,21 +223,21 @@ IceInternal::IncomingConnectionFactory::~IncomingConnectionFactory()
 void
 IceInternal::IncomingConnectionFactory::destroy()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     setState(StateClosed);
 }
 
 void
 IceInternal::IncomingConnectionFactory::hold()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     setState(StateHolding);
 }
 
 void
 IceInternal::IncomingConnectionFactory::activate()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     setState(StateActive);
 }
 
@@ -280,12 +280,12 @@ IceInternal::IncomingConnectionFactory::read(BasicStream&)
 void
 IceInternal::IncomingConnectionFactory::message(BasicStream&)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_state != StateActive)
     {
 	_threadPool->promoteFollower();
-	JTCThread::yield();
+	IceUtil::ThreadControl::yield();
 	return;
     }
     
@@ -341,7 +341,7 @@ IceInternal::IncomingConnectionFactory::exception(const LocalException&)
 void
 IceInternal::IncomingConnectionFactory::finished()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     assert(_state == StateClosed);
     _acceptor->shutdown();
     clearBacklog();

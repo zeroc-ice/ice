@@ -392,6 +392,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name slice2java
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name thread
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1256,6 +1259,27 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name Slice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "thread"=.\test\IceUtil\thread\thread.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
 }}}
 
 ###############################################################################

@@ -22,14 +22,14 @@ void IceInternal::decRef(UserExceptionFactoryManager* p) { p->__decRef(); }
 void
 IceInternal::UserExceptionFactoryManager::add(const UserExceptionFactoryPtr& factory, const string& id)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     _factoryMapHint = _factoryMap.insert(_factoryMapHint, make_pair(id, factory));
 }
 
 void
 IceInternal::UserExceptionFactoryManager::remove(const string& id)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     map<string, ::Ice::UserExceptionFactoryPtr>::iterator p = _factoryMap.end();
     
@@ -57,7 +57,7 @@ IceInternal::UserExceptionFactoryManager::remove(const string& id)
 UserExceptionFactoryPtr
 IceInternal::UserExceptionFactoryManager::find(const string& id)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     
     map<string, ::Ice::UserExceptionFactoryPtr>::iterator p = _factoryMap.end();
     
@@ -93,7 +93,7 @@ IceInternal::UserExceptionFactoryManager::UserExceptionFactoryManager() :
 void
 IceInternal::UserExceptionFactoryManager::destroy()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     for_each(_factoryMap.begin(), _factoryMap.end(),
 	     Ice::secondVoidMemFun<string, UserExceptionFactory>(&UserExceptionFactory::destroy));
     _factoryMap.clear();

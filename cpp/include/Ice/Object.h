@@ -95,7 +95,7 @@ private:
 
     std::map<std::string, ObjectPtr> _activeFacetMap;
     std::map<std::string, ObjectPtr>::iterator _activeFacetMapHint;
-    JTCMutex _activeFacetMapMutex;
+    ::IceUtil::Mutex _activeFacetMapMutex;
 };
 
 class ICE_API Blobject : virtual public Object

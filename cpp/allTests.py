@@ -22,6 +22,7 @@ else:
 # List of all tests.
 #
 tests = [ \
+    "IceUtil/thread", \
     "Slice/errorDetection", \
     "Ice/operations", \
     "Ice/exceptions", \

@@ -14,5 +14,10 @@
 #include <IceUtil/Functional.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/Unicode.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/RecMutex.h>
+#include <IceUtil/RWRecMutex.h>
+#include <IceUtil/Monitor.h>
+#include <IceUtil/Thread.h>
 
 #endif

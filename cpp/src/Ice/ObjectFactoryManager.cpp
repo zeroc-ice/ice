@@ -22,14 +22,14 @@ void IceInternal::decRef(ObjectFactoryManager* p) { p->__decRef(); }
 void
 IceInternal::ObjectFactoryManager::add(const ObjectFactoryPtr& factory, const string& id)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     _factoryMapHint = _factoryMap.insert(_factoryMapHint, make_pair(id, factory));
 }
 
 void
 IceInternal::ObjectFactoryManager::remove(const string& id)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     map<string, ::Ice::ObjectFactoryPtr>::iterator p = _factoryMap.end();
     
@@ -57,7 +57,7 @@ IceInternal::ObjectFactoryManager::remove(const string& id)
 ObjectFactoryPtr
 IceInternal::ObjectFactoryManager::find(const string& id)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     
     map<string, ::Ice::ObjectFactoryPtr>::iterator p = _factoryMap.end();
     
@@ -93,7 +93,7 @@ IceInternal::ObjectFactoryManager::ObjectFactoryManager() :
 void
 IceInternal::ObjectFactoryManager::destroy()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     for_each(_factoryMap.begin(), _factoryMap.end(),
 	     Ice::secondVoidMemFun<string, ObjectFactory>(&ObjectFactory::destroy));
     _factoryMap.clear();

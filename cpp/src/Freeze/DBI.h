@@ -28,7 +28,7 @@ void checkBerkeleyDBReturn(int ret, const std::string&, const std::string&);
 class DBEnvironmentI;
 typedef IceUtil::Handle<DBEnvironmentI> DBEnvironmentIPtr;
 
-class DBEnvironmentI : public DBEnvironment, public JTCRecursiveMutex
+    class DBEnvironmentI : public DBEnvironment, public IceUtil::RecMutex
 {
 public:
 
@@ -63,7 +63,7 @@ private:
     std::map<std::string, DBPtr> _dbMap;
 };
 
-class DBTransactionI : public DBTransaction, public JTCMutex
+class DBTransactionI : public DBTransaction, public IceUtil::Mutex
 {
 public:
 
@@ -84,7 +84,7 @@ private:
     std::string _errorPrefix;
 };
 
-class DBCursorI : public DBCursor, public JTCMutex
+class DBCursorI : public DBCursor, public IceUtil::Mutex
 {
 public:
 
@@ -113,7 +113,7 @@ private:
     DBC* _cursor;
 };
 
-class DBI : public DB, public JTCMutex
+class DBI : public DB, public IceUtil::Mutex
 {
 public:
     

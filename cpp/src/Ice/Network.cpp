@@ -570,7 +570,7 @@ repeatAccept:
     return ret;
 }
 
-static JTCMutex getHostByNameMutex;
+static IceUtil::Mutex getHostByNameMutex;
 
 void
 IceInternal::getAddress(const char* host, int port, struct sockaddr_in& addr)
@@ -582,7 +582,7 @@ IceInternal::getAddress(const char* host, int port, struct sockaddr_in& addr)
 
     if (addr.sin_addr.s_addr == INADDR_NONE)
     {
-	JTCSyncT<JTCMutex> sync(getHostByNameMutex);
+	IceUtil::Mutex::Lock sync(getHostByNameMutex);
 
 	struct hostent* entry;
 	int retry = 5;
@@ -624,7 +624,7 @@ IceInternal::getLocalAddress(int port, struct sockaddr_in& addr)
     addr.sin_port = htons(port);
 
     {
-	JTCSyncT<JTCMutex> sync(getHostByNameMutex);
+	IceUtil::Mutex::Lock sync(getHostByNameMutex);
 	
 	struct hostent* entry;
 	int retry = 5;
@@ -662,7 +662,7 @@ IceInternal::getLocalHost(bool numeric)
     }
 
     {
-	JTCSyncT<JTCMutex> sync(getHostByNameMutex);
+	IceUtil::Mutex::Lock sync(getHostByNameMutex);
 	
 	struct hostent* entry;
 	int retry = 5;
@@ -994,7 +994,7 @@ IceInternal::lastErrorToStringDNS()
 #endif
 }
 
-static JTCMutex inetNtoaMutex;
+static IceUtil::Mutex inetNtoaMutex;
 
 std::string
 IceInternal::fdToString(SOCKET fd)
@@ -1035,7 +1035,7 @@ IceInternal::fdToString(SOCKET fd)
     ostringstream s;
 
     {
-	JTCSyncT<JTCMutex> sync(inetNtoaMutex);
+	IceUtil::Mutex::Lock sync(inetNtoaMutex);
 
 	s << "local address = " << inet_ntoa(localAddr.sin_addr) << ':' << ntohs(localAddr.sin_port);
 	if (peerNotConnected)
@@ -1054,7 +1054,7 @@ IceInternal::fdToString(SOCKET fd)
 std::string
 IceInternal::addrToString(const struct sockaddr_in& addr)
 {
-    JTCSyncT<JTCMutex> sync(inetNtoaMutex);
+    IceUtil::Mutex::Lock sync(inetNtoaMutex);
     ostringstream s;
     s << inet_ntoa(addr.sin_addr) << ':' << ntohs(addr.sin_port);
     return s.str();

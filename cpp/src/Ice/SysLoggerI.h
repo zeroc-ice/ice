@@ -16,7 +16,7 @@
 namespace Ice
 {
 
-class SysLoggerI : public Logger, public JTCMutex
+class SysLoggerI : public Logger, public ::IceUtil::Mutex
 {
 public:
 

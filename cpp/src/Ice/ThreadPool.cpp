@@ -29,7 +29,7 @@ void IceInternal::decRef(ThreadPool* p) { p->__decRef(); }
 void
 IceInternal::ThreadPool::_register(SOCKET fd, const EventHandlerPtr& handler)
 {
-    JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if (handler->server())
     {
 	++_servers;
@@ -41,7 +41,7 @@ IceInternal::ThreadPool::_register(SOCKET fd, const EventHandlerPtr& handler)
 void
 IceInternal::ThreadPool::unregister(SOCKET fd, bool callFinished)
 {
-    JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     _removes.push_back(make_pair(fd, callFinished));
     setInterrupt();
 }
@@ -66,17 +66,11 @@ IceInternal::ThreadPool::initiateServerShutdown()
 void
 IceInternal::ThreadPool::waitUntilServerFinished()
 {
-    JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     while (_servers != 0 && _threadNum != 0)
     {
-	try
-	{
-	    wait();
-	}
-	catch (const JTCInterruptedException&)
-	{
-	}
+	wait();
     }
 
     if (_servers != 0)
@@ -89,17 +83,11 @@ IceInternal::ThreadPool::waitUntilServerFinished()
 void
 IceInternal::ThreadPool::waitUntilFinished()
 {
-    JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
     while (!_handlerMap.empty() && _threadNum != 0)
     {
-	try
-	{
-	    wait();
-	}
-	catch (const JTCInterruptedException&)
-	{
-	}
+	wait();
     }
 
     if (!_handlerMap.empty())
@@ -118,16 +106,16 @@ IceInternal::ThreadPool::joinWithAllThreads()
     // needed. (Synchronization wouldn't be possible here anyway,
     // because otherwise the other threads would never terminate.)
     //
-    for (vector<JTCThreadHandle>::iterator p = _threads.begin(); p != _threads.end(); ++p)
+    for (vector<IceUtil::ThreadControl>::iterator p = _threads.begin(); p != _threads.end(); ++p)
     {
-	(*p)->join();
+	(*p).join();
     }
 }
 
 void
 IceInternal::ThreadPool::setMaxConnections(int maxConnections)
 {
-    JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if (maxConnections < _threadNum + 1 && maxConnections != 0)
     {
 	_maxConnections = _threadNum + 1;
@@ -141,7 +129,7 @@ IceInternal::ThreadPool::setMaxConnections(int maxConnections)
 int
 IceInternal::ThreadPool::getMaxConnections()
 {
-    JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     return _maxConnections;
 }
 
@@ -165,28 +153,31 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
 
     _timeout = atoi(_instance->properties()->getProperty("Ice.ServerIdleTime").c_str());
 
-    try
+    _threadNum = 10;
+    string value = _instance->properties()->getProperty("Ice.ThreadPool.Size");
+    if (!value.empty())
     {
-	_threadNum = 10;
-	string value = _instance->properties()->getProperty("Ice.ThreadPool.Size");
-	if (!value.empty())
+	_threadNum = atoi(value.c_str());
+	if (_threadNum < 1)
 	{
-	    _threadNum = atoi(value.c_str());
-	    if (_threadNum < 1)
-	    {
-		_threadNum = 1;
-	    }
-	}
-
-	for (int i = 0 ; i < _threadNum ; ++i)
-	{
-	    JTCThreadHandle thread = new EventHandlerThread(this);
-	    thread->start();
-	    _threads.push_back(thread);
+	    _threadNum = 1;
 	}
     }
-    catch (const JTCException&)
+
+    try
     {
+	for (int i = 0 ; i < _threadNum ; ++i)
+	{
+	    IceUtil::ThreadPtr thread = new EventHandlerThread(this);
+	    _threads.push_back(thread->start());
+	}
+    }
+    catch (const IceUtil::Exception&)
+    {
+	//
+	// TODO: This doesn't look correct to me -- where are the
+	// started threads joined with in the event of a failure?
+	//
 	destroy();
 	throw;
     }
@@ -205,7 +196,7 @@ IceInternal::ThreadPool::~ThreadPool()
 void
 IceInternal::ThreadPool::destroy()
 {
-    JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     assert(!_destroyed);
     _destroyed = true;
     setInterrupt();
@@ -297,7 +288,7 @@ IceInternal::ThreadPool::run()
 	EventHandlerPtr handler;
 
 	{
-	    JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
+	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	    
 	    if (_destroyed)
 	    {
@@ -551,19 +542,13 @@ IceInternal::ThreadPool::EventHandlerThread::run()
 	s << "exception in thread pool:\n" << ex;
 	_pool->_instance->logger()->error(s.str());
     }
-    catch (const JTCException& ex)
-    {
-	ostringstream s;
-	s << "JThreads/C++ exception in thread pool:\n" << ex;
-	_pool->_instance->logger()->error(s.str());
-    }
     catch (...)
     {
 	_pool->_instance->logger()->error("unknown exception in thread pool");
     }
 
     {
-	JTCSyncT<JTCMonitorT<JTCMutex> > sync(*_pool.get());
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*_pool.get());
 	--_pool->_threadNum;
 	assert(_pool->_threadNum >= 0);
 

@@ -12,6 +12,7 @@
 #define ICE_UTIL_SHARED_H
 
 #include <IceUtil/Config.h>
+#include <IceUtil/Mutex.h>
 
 //
 // Base classes for reference counted types. The IceUtil::Handle
@@ -136,7 +137,7 @@ private:
 
     int _ref;
     bool _noDelete;
-    JTCMutex _mutex;
+    Mutex _mutex;
 };
 
 }

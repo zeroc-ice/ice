@@ -31,7 +31,7 @@ class LocalException;
 namespace IceInternal
 {
 
-class OutgoingConnectionFactory : public ::IceUtil::Shared, public JTCMutex
+class OutgoingConnectionFactory : public ::IceUtil::Shared, public ::IceUtil::Mutex
 {
 public:
 
@@ -47,7 +47,7 @@ private:
     std::map<EndpointPtr, ConnectionPtr> _connections;
 };
 
-class IncomingConnectionFactory : public EventHandler, public JTCMutex
+class IncomingConnectionFactory : public EventHandler, public ::IceUtil::Mutex
 {
 public:
 

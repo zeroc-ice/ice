@@ -105,7 +105,7 @@ public:
     void
     add(const SubscriberPtr& subscriber)
     {
-	JTCSyncT<JTCMutex> sync(_subscribersMutex);
+	IceUtil::Mutex::Lock sync(_subscribersMutex);
 
 	//
 	// Add to the set of subscribers
@@ -122,7 +122,7 @@ public:
     void
     unsubscribe(const Ice::Identity& id)
     {
-	JTCSyncT<JTCMutex> sync(_subscribersMutex);
+	IceUtil::Mutex::Lock sync(_subscribersMutex);
 
 	SubscriberList::iterator i;
 	for (i = _subscribers.begin() ; i != _subscribers.end(); ++i)
@@ -166,7 +166,7 @@ public:
     void
     publish(const Event& event)
     {
-	JTCSyncT<JTCMutex> sync(_subscribersMutex);
+	IceUtil::Mutex::Lock sync(_subscribersMutex);
 
 	//
 	// Using standard algorithms I don't think there is a way to
@@ -190,7 +190,7 @@ public:
 
 	if (p != _subscribers.end())
 	{
-	    JTCSyncT<JTCMutex> errorSync(errorMutex_);
+	    IceUtil::Mutex::Lock errorSync(_errorMutex);
 	    //
 	    // Copy each of the invalid subscribers that was not
 	    // unsubscribed. Note that there is no copy_if algorithm.
@@ -223,7 +223,7 @@ public:
 	//
 	// Uses splice for efficiency
 	//
-	JTCSyncT<JTCMutex> errorSync(errorMutex_);
+	IceUtil::Mutex::Lock errorSync(_errorMutex);
 	SubscriberList c;
 	c.splice(c.begin(), _error);
 	return c;
@@ -233,13 +233,13 @@ private:
     
     TraceLevelsPtr _traceLevels;
 
-    JTCMutex    _subscribersMutex;
+    IceUtil::Mutex  _subscribersMutex;
     SubscriberList _subscribers;
 
     //
     // Set of subscribers that encountered an error.
     //
-    JTCMutex errorMutex_;
+    mutable IceUtil::Mutex _errorMutex;
     mutable SubscriberList _error;
 };
 
@@ -363,7 +363,7 @@ TopicI::getPublisher(const Ice::Current&)
 void
 TopicI::destroy(const Ice::Current&)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if (_destroyed)
     {
@@ -395,7 +395,7 @@ TopicI::destroy(const Ice::Current&)
 void
 TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if (_destroyed)
     {
@@ -447,7 +447,7 @@ TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
 void
 TopicI::unlink(const TopicPrx& topic, const Ice::Current&)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if (_destroyed)
     {
@@ -483,7 +483,7 @@ TopicI::unlink(const TopicPrx& topic, const Ice::Current&)
 LinkInfoSeq
 TopicI::getLinkInfoSeq(const Ice::Current&)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if (_destroyed)
     {
@@ -513,14 +513,14 @@ TopicI::getLinkProxy(const Ice::Current&)
 bool
 TopicI::destroyed() const
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::ConstLock sync(*this);
     return _destroyed;
 }
 
 void
 TopicI::subscribe(const Ice::ObjectPrx& tmpl, const string& id, const QoS& qos)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if (_destroyed)
     {
@@ -548,7 +548,7 @@ TopicI::subscribe(const Ice::ObjectPrx& tmpl, const string& id, const QoS& qos)
 void
 TopicI::unsubscribe(const string& id)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if (_destroyed)
     {
@@ -573,7 +573,7 @@ TopicI::unsubscribe(const string& id)
 void
 TopicI::reap()
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if (_destroyed)
     {

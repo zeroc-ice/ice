@@ -11,6 +11,8 @@
 #ifndef ICE_COMMUNICATOR_I_H
 #define ICE_COMMUNICATOR_I_H
 
+#include <IceUtil/RecMutex.h>
+
 #include <Ice/ThreadPoolF.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
@@ -18,7 +20,7 @@
 namespace Ice
 {
 
-class CommunicatorI : public Communicator, public JTCRecursiveMutex
+class CommunicatorI : public Communicator, public ::IceUtil::RecMutex
 {
 public:
     

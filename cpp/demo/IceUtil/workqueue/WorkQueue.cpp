@@ -1,0 +1,108 @@
+// **********************************************************************
+//
+// Copyright (c) 2001
+// MutableRealms, Inc.
+// Huntsville, AL, USA
+//
+// All Rights Reserved
+//
+// **********************************************************************
+
+#include <IceUtil/Thread.h>
+#include <IceUtil/Exception.h>
+#include <IceUtil/Monitor.h>
+#include <IceUtil/Mutex.h>
+
+#include <list>
+
+using namespace std;
+
+class WorkQueue : public IceUtil::Thread
+{
+public:
+
+    WorkQueue() { }
+    ~WorkQueue() { }
+
+    virtual void
+    run()
+    {
+	while (1)
+	{
+	    string item = nextItem();
+	    if (item == "destroy")
+	    {
+		break;
+	    }
+
+	    cout << "work item: " << item << endl;
+	    IceUtil::ThreadControl::sleep(1000);
+	}
+    }
+
+    void
+    add(const string& item)
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+	if (_queue.empty())
+	{
+	    _monitor.notify();
+	}
+	_queue.push_back(item);
+    }
+
+private:
+
+    string
+    nextItem()
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+	if (_queue.empty())
+	{
+	    _monitor.wait();
+	}
+	
+	string item = _queue.front();
+	_queue.pop_front();
+	return item;
+    }
+
+
+    IceUtil::Monitor<IceUtil::Mutex> _monitor;
+    list<string> _queue;
+};
+
+typedef IceUtil::Handle<WorkQueue> WorkQueuePtr;
+
+int
+main()
+{
+    try
+    {
+	WorkQueuePtr h = new WorkQueue();
+	IceUtil::ThreadControl control = h->start();
+	cout << "Pushing work items";
+	cout << '.' << flush;
+	h->add("item1");
+	cout << '.' << flush;
+	h->add("item2");
+	cout << '.' << flush;
+	h->add("item3");
+	cout << '.' << flush;
+	h->add("item4");
+	cout << '.' << flush;
+	h->add("item5");
+	cout << '.' << flush;
+	h->add("destroy");
+	cout << " ok" << endl;
+	cout << "Waiting for WorkQueue to terminate" << endl;
+	control.join();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+	cerr << ex << endl;
+	return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}

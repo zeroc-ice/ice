@@ -28,7 +28,7 @@ namespace Ice
 class ObjectAdapterI;
 typedef IceUtil::Handle<ObjectAdapterI> ObjectAdapterIPtr;
 
-class ObjectAdapterI : public ObjectAdapter, public JTCMutex
+class ObjectAdapterI : public ObjectAdapter, public ::IceUtil::Mutex
 {
 public:
 

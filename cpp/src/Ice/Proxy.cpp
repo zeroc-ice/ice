@@ -372,7 +372,7 @@ IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
 void
 IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     _delegate = 0;
 
@@ -437,7 +437,7 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 void
 IceProxy::Ice::Object::__locationForward(const LocationForward& ex)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     _delegate = 0;
 
@@ -464,7 +464,7 @@ IceProxy::Ice::Object::__locationForward(const LocationForward& ex)
 void
 IceProxy::Ice::Object::__rethrowException(const LocalException& ex)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     _delegate = 0;
 
@@ -474,7 +474,7 @@ IceProxy::Ice::Object::__rethrowException(const LocalException& ex)
 Handle< ::IceDelegate::Ice::Object>
 IceProxy::Ice::Object::__getDelegate()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     if (!_delegate)
     {
 	ObjectAdapterPtr adapter = _reference->instance->objectAdapterFactory()->findObjectAdapter(this);

@@ -125,7 +125,7 @@ Freeze::DBEnvironmentI::getCommunicator()
 DBPtr
 Freeze::DBEnvironmentI::openDB(const string& name, bool create)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if (!_dbEnv)
     {
@@ -168,7 +168,7 @@ Freeze::DBEnvironmentI::openDB(const string& name, bool create)
 DBTransactionPtr
 Freeze::DBEnvironmentI::startTransaction()
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     return new DBTransactionI(_communicator, _dbEnv, _name);
 }
@@ -176,7 +176,7 @@ Freeze::DBEnvironmentI::startTransaction()
 void
 Freeze::DBEnvironmentI::close()
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if (!_dbEnv)
     {
@@ -204,7 +204,7 @@ Freeze::DBEnvironmentI::close()
 void
 Freeze::DBEnvironmentI::add(const string& name, const DBPtr& db)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     _dbMap[name] = db;
 }
@@ -212,7 +212,7 @@ Freeze::DBEnvironmentI::add(const string& name, const DBPtr& db)
 void
 Freeze::DBEnvironmentI::remove(const string& name)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     _dbMap.erase(name);
 }
@@ -220,7 +220,7 @@ Freeze::DBEnvironmentI::remove(const string& name)
 void
 Freeze::DBEnvironmentI::eraseDB(const string& name)
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     //
     // The database should not be open.
@@ -283,7 +283,7 @@ Freeze::DBTransactionI::~DBTransactionI()
 void
 Freeze::DBTransactionI::commit()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_tid)
     {
@@ -309,7 +309,7 @@ Freeze::DBTransactionI::commit()
 void
 Freeze::DBTransactionI::abort()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_tid)
     {
@@ -377,7 +377,7 @@ DBCursorI::getCommunicator()
 void
 DBCursorI::curr(Key& key, Value& value)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_cursor)
     {
@@ -411,7 +411,7 @@ DBCursorI::curr(Key& key, Value& value)
 void
 DBCursorI::set(const Value& value)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_cursor)
     {
@@ -444,7 +444,7 @@ DBCursorI::set(const Value& value)
 bool
 DBCursorI::next()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_cursor)
     {
@@ -486,7 +486,7 @@ DBCursorI::next()
 bool
 DBCursorI::prev()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_cursor)
     {
@@ -528,7 +528,7 @@ DBCursorI::prev()
 void
 DBCursorI::del()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_cursor)
     {
@@ -552,7 +552,7 @@ DBCursorI::del()
 DBCursorPtr
 DBCursorI::clone()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_cursor)
     {
@@ -571,7 +571,7 @@ DBCursorI::clone()
 void
 DBCursorI::close()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_cursor)
     {
@@ -649,7 +649,7 @@ Freeze::DBI::getCommunicator()
 Long
 Freeze::DBI::getNumberOfRecords()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_db)
     {
@@ -673,7 +673,7 @@ Freeze::DBI::getNumberOfRecords()
 DBCursorPtr
 Freeze::DBI::getCursor()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_db)
     {
@@ -718,7 +718,7 @@ Freeze::DBI::getCursor()
 DBCursorPtr
 Freeze::DBI::getCursorAtKey(const Key& key)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_db)
     {
@@ -769,7 +769,7 @@ Freeze::DBI::getCursorAtKey(const Key& key)
 void
 Freeze::DBI::put(const Key& key, const Value& value)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_db)
     {
@@ -801,7 +801,7 @@ Freeze::DBI::put(const Key& key, const Value& value)
 Value
 Freeze::DBI::get(const Key& key)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_db)
     {
@@ -833,7 +833,7 @@ Freeze::DBI::get(const Key& key)
 void
 Freeze::DBI::del(const Key& key)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_db)
     {
@@ -862,7 +862,7 @@ Freeze::DBI::del(const Key& key)
 void
 Freeze::DBI::clear()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_db)
     {
@@ -880,7 +880,7 @@ Freeze::DBI::clear()
 void
 Freeze::DBI::close()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_db)
     {
@@ -904,7 +904,7 @@ Freeze::DBI::close()
 void
 Freeze::DBI::remove()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_db)
     {
@@ -942,7 +942,7 @@ Freeze::DBI::remove()
 EvictorPtr
 Freeze::DBI::createEvictor(EvictorPersistenceMode persistenceMode)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_db)
     {

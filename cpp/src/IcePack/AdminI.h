@@ -16,7 +16,7 @@
 namespace IcePack
 {
 
-class AdminI : public Admin, public JTCMutex
+class AdminI : public Admin, public IceUtil::Mutex
 {
 public:
 

@@ -13,7 +13,6 @@
 
 #include <string>
 #include <map>
-#include <JTC/JTC.h>
 #include <Ice/SslSystem.h>
 
 namespace IceSecurity
@@ -48,7 +47,7 @@ public:
 private:
     static SslHandleSystemMap _sslHandleSystemRepository;
     static SystemMap _systemRepository;
-    static JTCMutex _systemRepositoryMutex;
+    static ::IceUtil::Mutex _systemRepositoryMutex;
 };
 
 }

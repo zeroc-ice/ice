@@ -35,7 +35,7 @@ OnewaySubscriber::persistent() const
 void
 OnewaySubscriber::unsubscribe()
 {
-    JTCSyncT<JTCMutex> sync(_stateMutex);
+    IceUtil::Mutex::Lock sync(_stateMutex);
     _state = StateUnsubscribed;
 
     if (_traceLevels->subscriber > 0)
@@ -56,7 +56,7 @@ OnewaySubscriber::publish(const Event& event)
     }
     catch(const Ice::LocalException& e)
     {
-	JTCSyncT<JTCMutex> sync(_stateMutex);
+	IceUtil::Mutex::Lock sync(_stateMutex);
 	//
 	// It's possible that the subscriber was unsubscribed, or
 	// marked invalid by another thread. Don't display a

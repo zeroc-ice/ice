@@ -13,7 +13,6 @@
 #include <openssl/ssl.h>
 #include <string>
 #include <map>
-#include <JTC/JTC.h>
 #include <Ice/Config.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
@@ -126,11 +125,11 @@ private:
 
     // Keep a cache of all temporary RSA keys.
     RSAMap _tempRSAKeys;
-    JTCMutex _tempRSAKeysMutex;
+    ::IceUtil::Mutex _tempRSAKeysMutex;
 
     // Keep a cache of all temporary Diffie-Hellman keys.
     DHMap _tempDHKeys;
-    JTCMutex _tempDHKeysMutex;
+    ::IceUtil::Mutex _tempDHKeysMutex;
 
     // Maps of all temporary keying information.
     // The files themselves will not be loaded until

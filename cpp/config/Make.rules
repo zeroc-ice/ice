@@ -28,7 +28,6 @@ slicedir	= $(top_srcdir)/slice
 # export STLPORT_HOME=/usr/local/STLport-4.5
 #
 STLPORT_HOME	?= /opt/STLport
-JTC_HOME	?= /opt/JTC
 DB_HOME		?= /opt/db
 OPENSSL_HOME	?= /opt/openssl
 XERCESC_HOME    ?= /opt/xerces-c
@@ -40,16 +39,16 @@ XERCESC_HOME    ?= /opt/xerces-c
 CXX		= c++
 CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
 #CXXFLAGS	= -O3 -DNDEBUG -ftemplate-depth-128 -fPIC -Wall
-CPPFLAGS	= -I$(includedir) -I$(STLPORT_HOME)/include/stlport -I$(JTC_HOME)/include
-LDFLAGS		= -L$(libdir) -L$(STLPORT_HOME)/lib -L$(JTC_HOME)/lib -L$(OPENSSL_HOME)/lib -L$(XERCESC_HOME)/lib
-BASELIBS	= -lIceUtil -lstlport_gcc -lJTC -lpthread
+CPPFLAGS	= -I$(includedir) -I$(STLPORT_HOME)/include/stlport
+LDFLAGS		= -L$(libdir) -L$(STLPORT_HOME)/lib -L$(OPENSSL_HOME)/lib -L$(XERCESC_HOME)/lib
+BASELIBS	= -lIceUtil -lstlport_gcc -lpthread
 LIBS		= -lIce -lxerces-c1_5_2 -lssl -lcrypto $(BASELIBS)
 
 #CXX		= icc
 #CXXFLAGS	= -O3 -DNDEBUG
-#CPPFLAGS	= -I$(includedir) -I$(JTC_HOME)/include
-#LDFLAGS 	= -L$(libdir) -L$(JTC_HOME)/lib -L$(OPENSSL_HOME)/lib -L$(XERCESC_HOME)/lib
-#BASELIBS	= -lIceUtil -lJTC -lpthread
+#CPPFLAGS	= -I$(includedir)
+#LDFLAGS 	= -L$(libdir) -L$(OPENSSL_HOME)/lib -L$(XERCESC_HOME)/lib
+#BASELIBS	= -lIceUtil -lpthread
 #LIBS		= -lIce -lxerces-c1_5_2 -lssl -lcrypto $(BASELIBS)
 
 #

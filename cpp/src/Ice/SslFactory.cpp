@@ -36,7 +36,7 @@ extern "C"
 }
 
 // Static member instantiations.
-JTCMutex Factory::_systemRepositoryMutex;
+IceUtil::Mutex Factory::_systemRepositoryMutex;
 SystemMap Factory::_systemRepository;
 SslHandleSystemMap Factory::_sslHandleSystemRepository;
 
@@ -54,7 +54,7 @@ public:
         CRYPTO_set_locking_callback(NULL);
     }
 
-    JTCMutex sslLocks[CRYPTO_NUM_LOCKS];
+    IceUtil::Mutex sslLocks[CRYPTO_NUM_LOCKS];
 
 };
 
@@ -80,7 +80,7 @@ void IceSecurity::Ssl::lockingCallback(int mode, int type, const char *file, int
 IceSecurity::Ssl::System*
 IceSecurity::Ssl::Factory::getSystem(string& systemIdentifier)
 {
-    JTCSyncT<JTCMutex> sync(_systemRepositoryMutex);
+    IceUtil::Mutex::Lock sync(_systemRepositoryMutex);
 
     System* _system = _systemRepository[systemIdentifier];
 
@@ -110,7 +110,7 @@ IceSecurity::Ssl::Factory::getSystem(string& systemIdentifier)
 void
 IceSecurity::Ssl::Factory::releaseSystem(System* system)
 {
-    JTCSyncT<JTCMutex> sync(_systemRepositoryMutex);
+    IceUtil::Mutex::Lock sync(_systemRepositoryMutex);
 
     assert(system);
 
@@ -134,7 +134,7 @@ IceSecurity::Ssl::Factory::addSystemHandle(void* sslHandle, System* system)
 IceSecurity::Ssl::System*
 IceSecurity::Ssl::Factory::getSystemFromHandle(void* sslHandle)
 {
-    JTCSyncT<JTCMutex> sync(_systemRepositoryMutex);
+    IceUtil::Mutex::Lock sync(_systemRepositoryMutex);
 
     assert(sslHandle);
 
@@ -150,7 +150,7 @@ IceSecurity::Ssl::Factory::getSystemFromHandle(void* sslHandle)
 void
 IceSecurity::Ssl::Factory::releaseSystemFromHandle(void* sslHandle, System* system)
 {
-    JTCSyncT<JTCMutex> sync(_systemRepositoryMutex);
+    IceUtil::Mutex::Lock sync(_systemRepositoryMutex);
 
     assert(sslHandle);
     assert(system);

@@ -18,7 +18,7 @@
 namespace IceInternal
 {
 
-class UserExceptionFactoryManager : public ::IceUtil::Shared, public JTCMutex
+class UserExceptionFactoryManager : public ::IceUtil::Shared, public ::IceUtil::Mutex
 {
 public:
 

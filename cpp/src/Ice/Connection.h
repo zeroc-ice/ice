@@ -11,6 +11,8 @@
 #ifndef ICE_CONNECTION_H
 #define ICE_CONNECTION_H
 
+#include <IceUtil/RecMutex.h>
+
 #include <Ice/ConnectionF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/TransceiverF.h>
@@ -33,7 +35,7 @@ namespace IceInternal
 
 class Outgoing;
 
-class Connection : public EventHandler, public JTCRecursiveMutex
+class Connection : public EventHandler, public ::IceUtil::RecMutex
 {
 public:
 

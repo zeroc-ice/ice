@@ -11,7 +11,13 @@
 #pragma warning(disable:4786)
 #endif
 
+//
+// This needs to be first since the openssl headers redefine _WIN32_WINNT.
+//
+#include <IceUtil/Mutex.h>
+
 #include <sstream>
+#include <IceUtil/Mutex.h>
 #include <openssl/err.h>
 #include <openssl/e_os.h>
 #include <openssl/rand.h>
@@ -693,7 +699,7 @@ IceSecurity::Ssl::OpenSSL::System::getRSAKey(SSL *s, int isExport, int keyLength
 {
     ICE_METHOD_INV("OpenSSL::System::getRSAKey()");
 
-    JTCSyncT<JTCMutex> sync(_tempRSAKeysMutex);
+    IceUtil::Mutex::Lock sync(_tempRSAKeysMutex);
 
     RSA* rsa_tmp = 0;
 
@@ -777,7 +783,7 @@ IceSecurity::Ssl::OpenSSL::System::getDHParams(SSL *s, int isExport, int keyLeng
 {
     ICE_METHOD_INV("OpenSSL::System::getDHParams()");
 
-    JTCSyncT<JTCMutex> sync(_tempDHKeysMutex);
+    IceUtil::Mutex::Lock sync(_tempDHKeysMutex);
 
     DH *dh_tmp = 0;
 

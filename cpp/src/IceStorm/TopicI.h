@@ -11,6 +11,8 @@
 #ifndef TOPIC_I_H
 #define TOPIC_I_H
 
+#include <IceUtil/RecMutex.h>
+
 #include <IceStorm/IceStormInternal.h>
 #include <IceStorm/IdentityLinkDict.h>
 
@@ -34,7 +36,7 @@ typedef IceUtil::Handle<SubscriberFactory> SubscriberFactoryPtr;
 //
 // TopicInternal implementation.
 //
-class TopicI : public TopicInternal, public JTCRecursiveMutex
+class TopicI : public TopicInternal, public IceUtil::RecMutex
 {
 public:
 

@@ -44,7 +44,7 @@ Freeze::EvictorI::~EvictorI()
 DBPtr
 Freeze::EvictorI::getDB()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_deactivated)
     {
@@ -57,7 +57,7 @@ Freeze::EvictorI::getDB()
 void
 Freeze::EvictorI::setSize(Int evictorSize)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_deactivated)
     {
@@ -86,7 +86,7 @@ Freeze::EvictorI::setSize(Int evictorSize)
 Int
 Freeze::EvictorI::getSize()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_deactivated)
     {
@@ -99,7 +99,7 @@ Freeze::EvictorI::getSize()
 void
 Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_deactivated)
     {
@@ -128,7 +128,7 @@ Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
 void
 Freeze::EvictorI::destroyObject(const Identity& ident)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_deactivated)
     {
@@ -152,7 +152,7 @@ Freeze::EvictorI::destroyObject(const Identity& ident)
 void
 Freeze::EvictorI::installServantInitializer(const ServantInitializerPtr& initializer)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_deactivated)
     {
@@ -165,7 +165,7 @@ Freeze::EvictorI::installServantInitializer(const ServantInitializerPtr& initial
 ObjectPtr
 Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current, LocalObjectPtr& cookie)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     assert(_db);
 
@@ -261,7 +261,7 @@ void
 Freeze::EvictorI::finished(const ObjectAdapterPtr&, const Current& current,
 			   const ObjectPtr& servant, const LocalObjectPtr& cookie)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     assert(_db);
     assert(servant);
@@ -301,7 +301,7 @@ Freeze::EvictorI::finished(const ObjectAdapterPtr&, const Current& current,
 void
 Freeze::EvictorI::deactivate()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (!_deactivated)
     {

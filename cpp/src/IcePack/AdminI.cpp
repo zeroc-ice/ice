@@ -23,7 +23,7 @@ IcePack::AdminI::AdminI(const CommunicatorPtr& communicator) :
 void
 IcePack::AdminI::add(const ServerDescription& desc, const Ice::Current&)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (desc.object)
     {
@@ -34,14 +34,14 @@ IcePack::AdminI::add(const ServerDescription& desc, const Ice::Current&)
 void
 IcePack::AdminI::remove(const Identity& ident, const Ice::Current&)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     _serverDescriptions.erase(ident);
 }
 
 ServerDescription
 IcePack::AdminI::find(const Identity& ident, const Ice::Current&)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     ServerDescriptions::iterator p = _serverDescriptions.find(ident);
     if (p != _serverDescriptions.end())

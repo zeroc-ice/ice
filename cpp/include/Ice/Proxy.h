@@ -31,7 +31,7 @@ class LocationForward;
 namespace IceProxy { namespace Ice
 {
 
-class ICE_API Object : public ::IceUtil::Shared, JTCMutex
+class ICE_API Object : public ::IceUtil::Shared, ::IceUtil::Mutex
 {
 public:
 

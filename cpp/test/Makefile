@@ -12,7 +12,8 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= Ice \
+SUBDIRS		= IceUtil \
+		  Ice \
 		  IceStorm \
 		  IcePack \
 		  Freeze

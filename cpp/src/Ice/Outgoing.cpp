@@ -114,7 +114,7 @@ IceInternal::Outgoing::invoke()
 	    bool timedOut = false;
 
 	    {
-		JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
+		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 		
 		_connection->sendRequest(this, false);
 		_state = StateInProgress;
@@ -122,25 +122,19 @@ IceInternal::Outgoing::invoke()
 		Int timeout = _connection->timeout();
 		while (_state == StateInProgress)
 		{
-		    try
-		    {
-			if (timeout >= 0)
-			{	
-			    wait(timeout);
-			    if (_state == StateInProgress)
-			    {
-				timedOut = true;
+		    if (timeout >= 0)
+		    {	
+			timedwait(timeout);
+			if (_state == StateInProgress)
+			{
+			    timedOut = true;
 				_state = StateLocalException;
 				_exception = auto_ptr<LocalException>(new TimeoutException(__FILE__, __LINE__));
-			    }
-			}
-			else
-			{
-			    wait();
 			}
 		    }
-		    catch(const JTCInterruptedException&)
+		    else
 		    {
+			wait();
 		    }
 		}
 	    }
@@ -229,7 +223,7 @@ IceInternal::Outgoing::invoke()
 void
 IceInternal::Outgoing::finished(BasicStream& is)
 {
-    JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if (_state == StateInProgress)
     {
@@ -331,7 +325,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 void
 IceInternal::Outgoing::finished(const LocalException& ex)
 {
-    JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if (_state == StateInProgress)
     {

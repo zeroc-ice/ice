@@ -21,7 +21,7 @@
 namespace Freeze
 {
 
-class EvictorI : public Evictor, public JTCMutex
+class EvictorI : public Evictor, public IceUtil::Mutex
 {
 public:
 

@@ -22,7 +22,7 @@ namespace IceStorm
 // Forward declarations.
 //
 class FlusherThread;
-typedef JTCHandleT<FlusherThread> FlusherThreadHandle;    
+typedef IceUtil::Handle<FlusherThread> FlusherThreadPtr;
 
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
@@ -46,7 +46,7 @@ public:
 
 private:
 
-    FlusherThreadHandle _thread;
+    FlusherThreadPtr _thread;
 };
 
 typedef IceUtil::Handle<Flusher> FlusherPtr;

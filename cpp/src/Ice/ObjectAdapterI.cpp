@@ -45,7 +45,7 @@ Ice::ObjectAdapterI::getCommunicator()
 void
 Ice::ObjectAdapterI::activate()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_collectorFactories.empty())
     {
@@ -58,7 +58,7 @@ Ice::ObjectAdapterI::activate()
 void
 Ice::ObjectAdapterI::hold()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_collectorFactories.empty())
     {
@@ -71,7 +71,7 @@ Ice::ObjectAdapterI::hold()
 void
 Ice::ObjectAdapterI::deactivate()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_collectorFactories.empty())
     {
@@ -97,7 +97,7 @@ Ice::ObjectAdapterI::deactivate()
 ObjectPrx
 Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_collectorFactories.empty())
     {
@@ -112,7 +112,7 @@ Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
 ObjectPrx
 Ice::ObjectAdapterI::addTemporary(const ObjectPtr& object)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_collectorFactories.empty())
     {
@@ -142,7 +142,7 @@ Ice::ObjectAdapterI::addTemporary(const ObjectPtr& object)
 void
 Ice::ObjectAdapterI::remove(const Identity& ident)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_collectorFactories.empty())
     {
@@ -156,7 +156,7 @@ Ice::ObjectAdapterI::remove(const Identity& ident)
 void
 Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const string& prefix)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_collectorFactories.empty())
     {
@@ -169,7 +169,7 @@ Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const s
 void
 Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_collectorFactories.empty())
     {
@@ -202,7 +202,7 @@ Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
 ServantLocatorPtr
 Ice::ObjectAdapterI::findServantLocator(const string& prefix)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     
     if (_collectorFactories.empty())
     {
@@ -238,7 +238,7 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix)
 ObjectPtr
 Ice::ObjectAdapterI::identityToServant(const Identity& ident)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     if (_activeServantMapHint != _activeServantMap.end())
     {
@@ -270,7 +270,7 @@ Ice::ObjectAdapterI::proxyToServant(const ObjectPrx& proxy)
 ObjectPrx
 Ice::ObjectAdapterI::createProxy(const Identity& ident)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     
     if (_collectorFactories.empty())
     {

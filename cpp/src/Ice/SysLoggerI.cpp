@@ -18,7 +18,7 @@ using namespace IceInternal;
 void
 Ice::SysLoggerI::trace(const string& category, const string& message)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     string s = "[ " + category + ": " + message + " ]";
     string::size_type idx = 0;
     while ((idx = s.find("\n", idx)) != string::npos)
@@ -32,14 +32,14 @@ Ice::SysLoggerI::trace(const string& category, const string& message)
 void
 Ice::SysLoggerI::warning(const string& message)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     syslog(LOG_WARNING, "%s", message.c_str());
 }
 
 void
 Ice::SysLoggerI::error(const string& message)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     syslog(LOG_ERR, "%s", message.c_str());
 }
 

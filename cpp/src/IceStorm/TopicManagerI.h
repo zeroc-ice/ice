@@ -40,7 +40,7 @@ typedef std::map<std::string, TopicIPtr> TopicIMap;
 //
 // TopicManager implementation.
 //
-class TopicManagerI : public TopicManager, public JTCMutex
+class TopicManagerI : public TopicManager, public IceUtil::Mutex
 {
 public:
 
