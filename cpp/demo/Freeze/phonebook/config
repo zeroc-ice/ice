@@ -1,8 +1,8 @@
-Ice.Adapter.PhoneBookAdapter.Endpoints=tcp -p 10000
+Ice.Adapter.PhoneBookAdapter.Endpoints=default -p 10000
 Ice.ConnectionWarnings=1
 #Ice.Trace.Network=3
 #Ice.Trace.Protocol=1
-PhoneBook.PhoneBook=phonebook:tcp -p 10000
+PhoneBook.PhoneBook=phonebook:default -p 10000
 PhoneBook.EvictorSize=3
 #PhoneBook.SaveAfterMutatingOperation=1
 Freeze.Trace.DB=1
