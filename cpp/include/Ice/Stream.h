@@ -22,6 +22,11 @@ public:
 
     Stream();
 
+    void swap(bool);
+    bool swap() const;
+
+    void swap(Stream&);
+
     void writeByte(Ice::Byte value) { b.push_back(value); }
     Ice::Byte readByte();
 
@@ -46,6 +51,13 @@ public:
     void writeString(const std::string&);
     void writeString(const char*); // Optimized version for const char*
     std::string readString();
+
+private:
+
+    Stream(const Stream&);
+    void operator=(const Stream&);
+
+    bool swap_;
 };
 
 }

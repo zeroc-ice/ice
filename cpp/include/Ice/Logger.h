@@ -26,6 +26,8 @@ public:
     virtual ~LoggerI();
 
     virtual void trace(const std::string&, const std::string&) = 0;
+    virtual void warning(const std::string&) = 0;
+    virtual void error(const std::string&) = 0;
 
 private:
 
@@ -40,6 +42,8 @@ public:
     StderrLoggerI();
 
     virtual void trace(const std::string&, const std::string&);
+    virtual void warning(const std::string&);
+    virtual void error(const std::string&);
 
 private:
 

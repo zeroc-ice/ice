@@ -53,6 +53,7 @@ private:
     Instance instance_;
     ThreadPool threadPool_;
     Transceiver transceiver_;
+    int fd_;
 };
 
 class ICE_API EmitterFactoryI : public Shared, public JTCMutex

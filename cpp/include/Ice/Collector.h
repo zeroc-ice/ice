@@ -21,6 +21,13 @@
 #include <list>
 #include <map>
 
+namespace Ice
+{
+
+class LocalException;
+
+}
+
 namespace _Ice
 {
 
@@ -47,9 +54,12 @@ private:
     void destroy();
     friend class CollectorFactoryI; // May create and destroy CollectorIs
 
+    void warning(const Ice::LocalException&) const;
+
     Instance instance_;
     ThreadPool threadPool_;
     Transceiver transceiver_;
+    int fd_;
 };
 
 class ICE_API CollectorFactoryI : public EventHandlerI, public JTCMutex
@@ -77,6 +87,7 @@ private:
     Instance instance_;
     ThreadPool threadPool_;
     Acceptor acceptor_;
+    int fd_;
     std::list<Collector> collectors_;
 };
 
