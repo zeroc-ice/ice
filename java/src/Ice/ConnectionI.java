@@ -27,52 +27,52 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     public void
     validate()
     {
-	boolean active;
-
-	synchronized(this)
-	{
-	    if(_instance.threadPerConnection() && _threadPerConnection != Thread.currentThread())
-	    {
-		//
-		// In thread per connection mode, this connection's thread
-		// will take care of connection validation. Therefore all we
-		// have to do here is to wait until this thread has completed
-		// validation.
-		//
-		while(_state == StateNotValidated)
-		{
-		    try
-		    {
-			wait();
-		    }
-		    catch(InterruptedException ex)
-		    {
-		    }
-		}
-		
-		if(_state >= StateClosing)
-		{
-		    assert(_exception != null);
-		    throw _exception;
-		}
-		
-		return;
-	    }
-
-	    assert(_state == StateNotValidated);
-
-	    if(_adapter != null)
-	    {
-		active = true; // The server side has the active role for connection validation.
-	    }
-	    else
-	    {
-		active = false; // The client side has the passive role for connection validation.
-	    }	    
-	}
-	    
 	if(!_endpoint.datagram()) // Datagram connections are always implicitly validated.
 	{
+	    boolean active;
+	    
+	    synchronized(this)
+	    {
+		if(_instance.threadPerConnection() && _threadPerConnection != Thread.currentThread())
+		{
+		    //
+		    // In thread per connection mode, this connection's thread
+		    // will take care of connection validation. Therefore all we
+		    // have to do here is to wait until this thread has completed
+		    // validation.
+		    //
+		    while(_state == StateNotValidated)
+		    {
+			try
+			{
+			    wait();
+			}
+			catch(InterruptedException ex)
+			{
+			}
+		    }
+		    
+		    if(_state >= StateClosing)
+		    {
+			assert(_exception != null);
+			throw _exception;
+		    }
+		    
+		    return;
+		}
+		
+		assert(_state == StateNotValidated);
+		
+		if(_adapter != null)
+		{
+		    active = true; // The server side has the active role for connection validation.
+		}
+		else
+		{
+		    active = false; // The client side has the passive role for connection validation.
+		}	    
+	    }
+
 	    try
 	    {
 		int timeout;
