@@ -79,7 +79,12 @@ Win32 Release" project. For details, please see:
 
 http://www.sleepycat.com/docs/index.html
 
-Make sure to add db.jar to your CLASSPATH.
+Make sure to add db.jar to your CLASSPATH. And verify that the Berkeley
+DB shared libraries are in your java.library.path. On Linux, this can
+be achieved by adding <Berkeley DB home>/lib to your LD_LIBRARY_PATH,
+for example:
+
+$ export LD_LIBRARY_PATH=/opt/db4/lib:$LD_LIBRARY_PATH
 
 Note that the Ice for Java distribution is compiled against Berkeley
 DB 4.1.25. If you are using an older version of Berkeley DB, you

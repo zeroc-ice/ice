@@ -274,6 +274,18 @@ class DBEnvironmentI extends Ice.LocalObjectImpl implements DBEnvironment, com.s
 		com.sleepycat.db.Db.DB_RECOVER;
 	}
 
+	//
+	// Use process-private memory and mutexes. In the way we can use a 
+	// Berkeley DB built using the POSIX thread library on Linux, like the 
+	// Berkeley DB that comes with RedHat 9.
+	//
+	// TODO: make setting or not setting DB_PRIVATE configurable.
+	// When DB_PRIVATE is set, only one process can use a DB environment 
+	// at a time.
+	//
+	
+	flags |= com.sleepycat.db.Db.DB_PRIVATE;
+
 	try
 	{
 	    _dbEnv.open(_name, flags, 0); //TODO: FREEZE_DB_MODE)
