@@ -14,23 +14,22 @@ C++ compiler
 
 - GCC 3.2, 3.3 or 3.4; or
 
-- Intel C++ 8.0
+- Intel C++ 8.1
 
 
 Third-party libraries
 ---------------------
 
-- Berkeley DB 4.1.25 or 4.2.52 configured with --enable-cxx
-  You can download the Berkeley DB source distribution 
-  from http://www.sleepycat.com/download
+- Berkeley DB 4.2.52 or 4.3.21 configured with --enable-cxx. You
+  can download the Berkeley DB source distribution from
+  http://www.sleepycat.com/download
 
-  With Intel C++, it is critical to build and link libdb_cxx-4.?.so
-  with icc (not cc). A recommended configuration is:
-  CXX="icc -no-gcc" CC=icc ../dist/configure --enable-cxx
-  (and --prefix=<dir> and --enable-java if you like)
+  Note that Ice for Java is not compatible with version 4.3.21,
+  therefore if you intend to use Ice for Java with Berkeley DB,
+  you must use version 4.2.52 and the option --enable-java.
 
-  Also, if you are using RedHat 9 and do not want to use NTPL, 
-  set LD_ASSUME_KERNEL to 2.4.1 before running configure.
+  If you are using RedHat 9 and do not want to use NTPL, set
+  LD_ASSUME_KERNEL=2.4.1 before running configure.
 
 - expat 1.9x
 
@@ -92,8 +91,11 @@ file. Make sure that the paths for the third-party libraries are set
 correctly if they are not installed in the default location /usr/lib
 and /usr/include.
 
-If you want to build Ice with the Intel C++ compiler, set CXX to icc:
-$ export CXX=icc
+If you want to build Ice with the Intel C++ compiler, first set the
+following environment variables:
+
+$ export CC=icc
+$ export CXX=icpc
 
 Now you're ready to build Ice:
 

@@ -7,15 +7,6 @@
 //
 // **********************************************************************
 
-#ifdef __INTEL_COMPILER
-//
-// COMPILERBUG: The Ice/exception test fails when this file is built
-// with ICC 8.0.55 with -O1 or -O2. It would be nice to isolate and
-// work-around this bug.
-//
-#pragma optimize("", off)
-#endif
-
 #include <Ice/Outgoing.h>
 #include <Ice/Object.h>
 #include <Ice/ConnectionI.h>
