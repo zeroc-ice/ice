@@ -114,7 +114,7 @@ public class Instance
         {
             if (_serverThreadPool == null) // Lazy initialization.
             {
-                _serverThreadPool = new ThreadPool(this, false, "ServerThreadPool");
+                _serverThreadPool = new ThreadPool(this, true, "ServerThreadPool");
             }
         }
 
