@@ -60,8 +60,13 @@ public:
 
 
 #ifdef _WIN32
-    mutable bool _mutexInitialized;
+    mutable bool             _mutexInitialized;
+#   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
     mutable CRITICAL_SECTION* _mutex;
+#   else
+    mutable HANDLE _mutex;
+    mutable int _recursionCount;
+#   endif
 #else
     mutable pthread_mutex_t _mutex;
 #endif
@@ -121,6 +126,8 @@ extern ICE_UTIL_API StaticMutex globalMutex;
 
 #ifdef _WIN32
 
+#   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
+
 inline void
 StaticMutex::lock() const
 {
@@ -129,10 +136,6 @@ StaticMutex::lock() const
 	initialize();
     }
     EnterCriticalSection(_mutex);
-    //
-    // If necessary this can be removed and replaced with a _count
-    // member (like the UNIX implementation of RecStaticMutex).
-    //
     assert(_mutex->RecursionCount == 1);
 }
 
@@ -179,6 +182,83 @@ StaticMutex::lock(LockState&) const
     }
     EnterCriticalSection(_mutex);
 }
+
+#    else
+
+inline void
+StaticMutex::lock() const
+{
+    if (!_mutexInitialized)
+    {
+	initialize();
+    }
+
+    DWORD rc = WaitForSingleObject(_mutex, INFINITE);
+    if(rc != WAIT_OBJECT_0)
+    {
+	if(rc == WAIT_FAILED)
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+	}
+	else
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__, 0);
+	}
+    }
+    _recursionCount++;
+    assert(_recursionCount == 1);
+}
+
+inline bool
+StaticMutex::tryLock() const
+{
+    if (!_mutexInitialized)
+    {
+	initialize();
+    }
+
+    DWORD rc = WaitForSingleObject(_mutex, 0);
+    if(rc != WAIT_OBJECT_0)
+    {
+	return false;
+    }
+    else if(_recursionCount == 1)
+    {
+	_recursionCount++;
+	unlock();
+	return false;
+    }
+    else
+    {
+	_recursionCount++;
+	return true;
+    }
+}
+
+inline void
+StaticMutex::unlock() const
+{
+    _recursionCount--;
+    BOOL rc = ReleaseMutex(_mutex);
+    if(rc == 0)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+    }
+}
+
+inline void
+StaticMutex::unlock(LockState& state) const
+{
+    unlock();
+}
+
+inline void
+StaticMutex::lock(LockState&) const
+{
+    lock();
+}
+
+#    endif
 
 #else
 

@@ -19,6 +19,16 @@ Changes since version 1.1.1
 - Fixed a bug in the slice2java code generator: tie classes were not
   generated correctly for operations with an "amd" metadata directive.
 
+- On Windows, you can now build IceUtil in such a way that mutexes 
+  are used instead of critical sections. See IceUtil/Config.h.
+
+- Added back the connection closure timeout, but only for misbehaving
+  peers. If a timeout is set, and a peer does't react to a close
+  connection message, the connection is forcefully closed after the
+  timeout. However, it is never forcefully closed if requests are
+  still outstanding. Doing so would violate ordering guarantees for
+  finished() and deactivate() on servant locators.
+
 - Fixed a bug where Ice would print a dispatch warning for
   Ice::RequestFailedException even if the Ice.Warn.Dispatch property
   was set to 1.

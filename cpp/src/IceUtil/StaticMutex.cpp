@@ -22,7 +22,14 @@
 using namespace std;
 
 static CRITICAL_SECTION _criticalSection;
-static list<CRITICAL_SECTION*>* _criticalSectionList; 
+
+#   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
+typedef list<CRITICAL_SECTION*> MutexList;
+#   else
+typedef list<HANDLE> MutexList;
+#   endif
+
+static MutexList* _mutexList;
 
 // Although apparently not documented by Microsoft, static objects are
 // initialized before DllMain/DLL_PROCESS_ATTACH and finalized after
@@ -45,19 +52,24 @@ static Init _init;
 Init::Init()
 {
     InitializeCriticalSection(&_criticalSection);
-    _criticalSectionList = new list<CRITICAL_SECTION*>;
+
+    _mutexList = new MutexList;
 }
 
 Init::~Init()
 {
-    for(list<CRITICAL_SECTION*>::iterator p = _criticalSectionList->begin(); 
-	p != _criticalSectionList->end(); ++p)
+#   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
+    for(MutexList::iterator p = _mutexList->begin(); 
+	p != _mutexList->end(); ++p)
     {
 	DeleteCriticalSection(*p);
 	delete *p;
     }
-  
-    delete _criticalSectionList;
+#   else
+    for_each(_mutexList->begin(), _mutexList->end(), 
+	     CloseHandle);
+#   endif
+    delete _mutexList;
     DeleteCriticalSection(&_criticalSection);
 }
 }
@@ -73,8 +85,21 @@ void IceUtil::StaticMutex::initialize() const
     {
         _mutex = new CRITICAL_SECTION;
 	InitializeCriticalSection(_mutex);
+
+#   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
+	_mutex = new CRITICAL_SECTION;
+	InitializeCriticalSection(_mutex);
+	_mutexList->push_back(_mutex);
+#   else
+	_recursionCount = 0;
+	_mutex = CreateMutex(0, false, 0);
+	if(_mutex == 0)
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+	}
+	_mutexList->push_back(_mutex);
+#   endif
 	_mutexInitialized = true;
-	_criticalSectionList->push_back(_mutex);
     }
     LeaveCriticalSection(&_criticalSection);
 }

@@ -19,6 +19,8 @@ using namespace std;
 
 #ifdef _WIN32
 
+#   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
+
 IceUtil::RecMutex::RecMutex() :
     _count(0)
 {
@@ -78,6 +80,120 @@ IceUtil::RecMutex::lock(LockState& state) const
     EnterCriticalSection(&_mutex);
     _count = state.count;
 }
+
+#   else
+
+IceUtil::RecMutex::RecMutex() :
+    _count(0)
+{
+    _mutex = CreateMutex(0, false, 0);
+    if(_mutex == 0)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+    }
+}
+
+IceUtil::RecMutex::~RecMutex()
+{
+    assert(_count == 0);
+    BOOL rc = CloseHandle(_mutex);
+    if(rc == 0)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+    }
+}
+
+void
+IceUtil::RecMutex::lock() const
+{
+    DWORD rc = WaitForSingleObject(_mutex, INFINITE);
+    if(rc != WAIT_OBJECT_0)
+    {
+	if(rc == WAIT_FAILED)
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+	}
+	else
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__, 0);
+	}
+    }
+    
+    if(++_count > 1)
+    {
+	BOOL rc2 = ReleaseMutex(_mutex);
+	if(rc2 == 0)
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+	}
+    }
+}
+
+bool
+IceUtil::RecMutex::tryLock() const
+{
+    DWORD rc = WaitForSingleObject(_mutex, 0);
+    if(rc != WAIT_OBJECT_0)
+    {
+	return false;
+    }
+    if(++_count > 1)
+    {
+	BOOL rc2 = ReleaseMutex(_mutex);
+	if(rc2 == 0)
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+	}
+    }
+    return true;
+}
+
+void
+IceUtil::RecMutex::unlock() const
+{
+    if(--_count == 0)
+    {
+	BOOL rc = ReleaseMutex(_mutex);
+	if(rc == 0)
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+	}
+    }
+}
+
+void
+IceUtil::RecMutex::unlock(LockState& state) const
+{
+    state.count = _count;
+    _count = 0;
+    BOOL rc = ReleaseMutex(_mutex);
+    if(rc == 0)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+    }
+}
+
+void
+IceUtil::RecMutex::lock(LockState& state) const
+{
+    DWORD rc = WaitForSingleObject(_mutex, INFINITE);
+    if(rc != WAIT_OBJECT_0)
+    {
+	if(rc == WAIT_FAILED)
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+	}
+	else
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__, 0);
+	}
+    }
+    
+    _count = state.count;
+}
+
+#   endif
+
 #else
 
 IceUtil::RecMutex::RecMutex() :

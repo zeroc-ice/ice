@@ -80,8 +80,18 @@
 
 #if defined(_WIN32)
 
-// Necessary for TryEnterCriticalSection.
-#   define _WIN32_WINNT 0x0400
+
+//
+// Comment out the following block if you want to run on Windows 9x
+// or Windows NT 3.51.
+//
+#   ifndef _WIN32_WINNT
+        //
+        // Necessary for TryEnterCriticalSection.
+        //
+#       define _WIN32_WINNT 0x0400
+#   endif
+
 
 #   if !defined(_UNICODE)
 #       error "Only unicode libraries can be used with Ice!"
