@@ -101,7 +101,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
 
     if(!_instance)
     {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
 
     map<string, ObjectAdapterIPtr>::iterator p = _adapters.find(name);
@@ -122,7 +122,7 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrx& proxy)
 
     if(!_instance)
     {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+	return 0;
     }
 
     for(map<string, ObjectAdapterIPtr>::iterator p = _adapters.begin(); p != _adapters.end(); ++p)

@@ -107,7 +107,7 @@ public final class ObjectAdapterFactory
     {
 	if(_instance == null)
 	{
-	    throw new Ice.CommunicatorDestroyedException();
+	    throw new Ice.ObjectAdapterDeactivatedException();
 	}
 
         Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)_adapters.get(name);
@@ -126,7 +126,7 @@ public final class ObjectAdapterFactory
     {
 	if(_instance == null)
 	{
-	    throw new Ice.CommunicatorDestroyedException();
+	    return null;
 	}
 
         java.util.Iterator i = _adapters.values().iterator();
