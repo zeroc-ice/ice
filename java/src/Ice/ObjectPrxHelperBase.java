@@ -588,21 +588,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	    _delegate = null;
 	}
 
-	if(ice_isOneway() || ice_isBatchOneway())
-	{
-	    //
-	    // We do not retry oneway or batch oneway requests (except
-	    // for problems during connection establishment, which are
-	    // not handled here anyway). If we retry a oneway or batch
-	    // oneway, previous oneways from the same batch, or
-	    // previous oneways that are buffered by the IP stack
-	    // implementation, are silently thrown away. This can lead
-	    // to a situation where the latest oneway succeeds due to
-	    // retry, but former oneways are discarded.
-	    //
-	    throw ex;
-	}
-
 	IceInternal.ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
 	if(proxyFactory != null)
 	{
