@@ -19,11 +19,11 @@ namespace IceInternal
 
 //
 // Generic handle class, using intrusive reference counting. Two
-// global operations IceInternal::incRef(T*) and IceInternal::decRef(T*) must be
-// declared for each T before using this template. The use of global
-// operations allows this template to be used for types which are
-// declared but not defined, provided that the two above mentioned
-// operations are declared as well.
+// global operations IceInternal::incRef(T*) and
+// IceInternal::decRef(T*) must be declared for each T before using
+// this template. The use of global operations allows this template to
+// be used for types which are declared but not defined, provided that
+// the two above mentioned operations are declared as well.
 //
 template<typename T>
 class Handle
@@ -32,52 +32,50 @@ public:
     
     typedef T element_type;
     
-//    Handle() : Ptr(0) { }
-    
-    Handle(T* p = 0)
-	: Ptr(p)
+    Handle(T* p = 0) :
+	_ptr(p)
     {
-	if (Ptr)
-	    incRef(Ptr);
+	if (_ptr)
+	    incRef(_ptr);
     }
     
     template<typename Y>
-    Handle(const Handle<Y>& r)
-	: Ptr(r.Ptr)
+    Handle(const Handle<Y>& r) :
+	_ptr(r._ptr)
     {
-	if (Ptr)
-	    incRef(Ptr);
+	if (_ptr)
+	    incRef(_ptr);
     }
 
 #ifdef WIN32 // COMPILERBUG: Is VC++ or GNU C++ right here???
     template<>
-    Handle(const Handle<T>& r)
+    Handle(const Handle<T>& r) :
 #else
-    Handle(const Handle& r)
+    Handle(const Handle& r) :
 #endif
-	: Ptr(r.Ptr)
+	_ptr(r._ptr)
     {
-	if (Ptr)
-	    incRef(Ptr);
+	if (_ptr)
+	    incRef(_ptr);
     }
     
     ~Handle()
     {
-	if (Ptr)
-	    decRef(Ptr);
+	if (_ptr)
+	    decRef(_ptr);
     }
     
     Handle& operator=(T* p)
     {
-	if (Ptr != p)
+	if (_ptr != p)
 	{
 	    if (p)
 		incRef(p);
 
-	    if (Ptr)
-		decRef(Ptr);
+	    if (_ptr)
+		decRef(_ptr);
 	    
-	    Ptr = p;
+	    _ptr = p;
 	}
 	return *this;
     }
@@ -85,15 +83,15 @@ public:
     template<typename Y>
     Handle& operator=(const Handle<Y>& r)
     {
-	if (Ptr != r.Ptr)
+	if (_ptr != r._ptr)
 	{
-	    if (r.Ptr)
-		incRef(r.Ptr);
+	    if (r._ptr)
+		incRef(r._ptr);
 
-	    if (Ptr)
-		decRef(Ptr);
+	    if (_ptr)
+		decRef(_ptr);
 	    
-	    Ptr = r.Ptr;
+	    _ptr = r._ptr;
 	}
 	return *this;
     }
@@ -105,15 +103,15 @@ public:
     Handle& operator=(const Handle& r)
 #endif
     {
-	if (Ptr != r.Ptr)
+	if (_ptr != r._ptr)
 	{
-	    if (r.Ptr)
-		incRef(r.Ptr);
+	    if (r._ptr)
+		incRef(r._ptr);
 
-	    if (Ptr)
-		decRef(Ptr);
+	    if (_ptr)
+		decRef(_ptr);
 	    
-	    Ptr = r.Ptr;
+	    _ptr = r._ptr;
 	}
 	return *this;
     }
@@ -121,7 +119,7 @@ public:
     template<class Y>
     static Handle dynamicCast(const Handle<Y>& r)
     {
-	return Handle(dynamic_cast<T*>(r.Ptr));
+	return Handle(dynamic_cast<T*>(r._ptr));
     }
 
     template<class Y>
@@ -130,11 +128,11 @@ public:
 	return Handle(dynamic_cast<T*>(p));
     }
 
-    T* get() const { return Ptr; }
-    T* operator->() const { return Ptr; }
-    operator bool() const { return Ptr ? true : false; }
+    T* get() const { return _ptr; }
+    T* operator->() const { return _ptr; }
+    operator bool() const { return _ptr ? true : false; }
 
-    void swap(Handle& other) { std::swap(Ptr, other.Ptr); }
+    void swap(Handle& other) { std::swap(_ptr, other._ptr); }
 
 #ifndef WIN32 // COMPILERBUG: VC++ 6.0 doesn't understand this
  
@@ -144,7 +142,7 @@ protected:
 
 #endif
 
-    T* Ptr;
+    T* _ptr;
 };
 
 template<typename T, typename U>
