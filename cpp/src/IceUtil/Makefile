@@ -18,7 +18,8 @@ VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
 
 TARGETS		= $(NAME) $(VERSIONED_NAME)
 
-OBJS		= Exception.o
+OBJS		= Exception.o \
+		  Unicode.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

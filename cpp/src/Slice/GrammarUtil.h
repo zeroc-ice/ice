@@ -32,16 +32,11 @@ typedef ::IceUtil::Handle<ExceptionListTok> ExceptionListTokPtr;
 typedef ::IceUtil::Handle<ClassListTok> ClassListTokPtr;
 typedef ::IceUtil::Handle<EnumeratorListTok> EnumeratorListTokPtr;
 
-}
-
-namespace Slice
-{
-
 // ----------------------------------------------------------------------
 // StringTok
 // ----------------------------------------------------------------------
 
-class SLICE_API StringTok : public GrammerBase
+class SLICE_API StringTok : public GrammarBase
 {
 public:
 
@@ -53,7 +48,7 @@ public:
 // TypeStringListTok
 // ----------------------------------------------------------------------
 
-class SLICE_API TypeStringListTok : public GrammerBase
+class SLICE_API TypeStringListTok : public GrammarBase
 {
 public:
 
@@ -65,7 +60,7 @@ public:
 // StringListTok
 // ----------------------------------------------------------------------
 
-class SLICE_API StringListTok : public GrammerBase
+class SLICE_API StringListTok : public GrammarBase
 {
 public:
 
@@ -77,7 +72,7 @@ public:
 // BoolTok
 // ----------------------------------------------------------------------
 
-class SLICE_API BoolTok : public GrammerBase
+class SLICE_API BoolTok : public GrammarBase
 {
 public:
 
@@ -89,7 +84,7 @@ public:
 // ExceptionListTok
 // ----------------------------------------------------------------------
 
-class SLICE_API ExceptionListTok : public GrammerBase
+class SLICE_API ExceptionListTok : public GrammarBase
 {
 public:
 
@@ -101,7 +96,7 @@ public:
 // ClassListTok
 // ----------------------------------------------------------------------
 
-class SLICE_API ClassListTok : public GrammerBase
+class SLICE_API ClassListTok : public GrammarBase
 {
 public:
 
@@ -113,7 +108,7 @@ public:
 // EnumeratorListTok
 // ----------------------------------------------------------------------
 
-class SLICE_API EnumeratorListTok : public GrammerBase
+class SLICE_API EnumeratorListTok : public GrammarBase
 {
 public:
 

@@ -8,11 +8,17 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_ICE_UTIL_H
-#define ICE_UTIL_ICE_UTIL_H
+#ifndef ICE_UTIL_UNICODE_H
+#define ICE_UTIL_UNICODE_H
 
-#include <IceUtil/Functional.h>
-#include <IceUtil/Shared.h>
-#include <IceUtil/Unicode.h>
+#include <IceUtil/Config.h>
+
+namespace IceUtil
+{
+
+std::string wstringToString(const std::wstring&);
+std::wstring stringToWstring(const std::string&);
+
+}
 
 #endif

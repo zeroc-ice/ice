@@ -32,7 +32,7 @@
 namespace Slice
 {
 
-class GrammerBase;
+class GrammarBase;
 class SyntaxTreeBase;
 class Type;
 class Builtin;
@@ -53,7 +53,7 @@ class Enum;
 class Enumerator;
 class Unit;
 
-typedef ::IceUtil::Handle<GrammerBase> GrammerBasePtr;
+typedef ::IceUtil::Handle<GrammarBase> GrammarBasePtr;
 typedef ::IceUtil::Handle<SyntaxTreeBase> SyntaxTreeBasePtr;
 typedef ::IceUtil::Handle<Type> TypePtr;
 typedef ::IceUtil::Handle<Builtin> BuiltinPtr;
@@ -80,7 +80,7 @@ typedef ::IceUtil::Handle<Unit> UnitPtr;
 // Stuff for flex and bison
 //
 
-#define YYSTYPE Slice::GrammerBasePtr
+#define YYSTYPE Slice::GrammarBasePtr
 #define YY_DECL int yylex(YYSTYPE* yylvalp)
 YY_DECL;
 int yyparse();
@@ -143,10 +143,10 @@ public:
 };
 
 // ----------------------------------------------------------------------
-// GrammerBase
+// GrammarBase
 // ----------------------------------------------------------------------
 
-class SLICE_API GrammerBase : public ::IceUtil::SimpleShared
+class SLICE_API GrammarBase : public ::IceUtil::SimpleShared
 {
 };
 
@@ -154,7 +154,7 @@ class SLICE_API GrammerBase : public ::IceUtil::SimpleShared
 // SyntaxTreeBase
 // ----------------------------------------------------------------------
 
-class SLICE_API SyntaxTreeBase : public GrammerBase
+class SLICE_API SyntaxTreeBase : public GrammarBase
 {
 public:
 

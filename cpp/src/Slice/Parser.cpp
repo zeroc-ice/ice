@@ -676,6 +676,11 @@ ExceptionPtr
 Slice::Container::lookupException(const string& scoped, bool printError)
 {
     ContainedList contained = lookupContained(scoped, printError);
+    if (contained.empty())
+    {
+	return 0;
+    }
+
     ExceptionList exceptions;
     for (ContainedList::iterator p = contained.begin(); p != contained.end(); ++p)
     {
