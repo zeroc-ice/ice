@@ -16,7 +16,7 @@ SUBDIRS		= Freeze \
 		  Ice \
 		  IceBox \
 		  IcePack \
-		  IcePatch \
+		  IcePatch2 \
 		  IceSSL \
 		  IceStorm
 
