@@ -54,12 +54,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 ws2_32.lib libbz2.lib /nologo /dll /machine:I386 /out:"Release/ice100.dll"
+# ADD LINK32 ws2_32.lib libbz2.lib /nologo /dll /machine:I386 /out:"Release/ice101.dll"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\ice100.lib ..\..\lib	copy $(OutDir)\ice100.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\ice101.lib ..\..\lib	copy $(OutDir)\ice101.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
@@ -87,12 +87,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ws2_32.lib libbz2d.lib /nologo /dll /debug /machine:I386 /out:"Debug/ice100d.dll" /pdbtype:sept
+# ADD LINK32 ws2_32.lib libbz2d.lib /nologo /dll /debug /machine:I386 /out:"Debug/ice101d.dll" /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\ice100d.lib ..\..\lib	copy $(OutDir)\ice100d.pdb ..\..\lib	copy $(OutDir)\ice100d.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\ice101d.lib ..\..\lib	copy $(OutDir)\ice101d.pdb ..\..\lib	copy $(OutDir)\ice101d.dll ..\..\bin
 # End Special Build Tool
 
 !ENDIF 

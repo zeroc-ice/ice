@@ -54,12 +54,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 /nologo /dll /machine:I386 /out:"Release/slice100.dll"
+# ADD LINK32 /nologo /dll /machine:I386 /out:"Release/slice101.dll"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\slice100.lib ..\..\lib	copy $(OutDir)\slice100.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\slice101.lib ..\..\lib	copy $(OutDir)\slice101.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "Slice - Win32 Debug"
@@ -87,12 +87,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/slice100d.dll" /pdbtype:sept
+# ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/slice101d.dll" /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\slice100d.lib ..\..\lib	copy $(OutDir)\slice100d.pdb ..\..\lib	copy $(OutDir)\slice100d.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\slice101d.lib ..\..\lib	copy $(OutDir)\slice101d.pdb ..\..\lib	copy $(OutDir)\slice101d.dll ..\..\bin
 # End Special Build Tool
 
 !ENDIF 

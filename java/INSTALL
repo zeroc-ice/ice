@@ -46,8 +46,8 @@ server, or you can build Ice for C++ yourself.
 
 The pre-compiled archives are available for Linux and Windows 2000/XP:
 
-Linux:             ftp://ftp.zeroc.com/pub/Ice/1.0/Ice-1.0.0-bin-linux.tar.gz
-Windows 2000/XP:   ftp://ftp.zeroc.com/pub/Ice/1.0/Ice-1.0.0-bin-win32.zip
+Linux:             ftp://ftp.zeroc.com/pub/Ice/1.0/Ice-1.0.1-bin-linux.tar.gz
+Windows 2000/XP:   ftp://ftp.zeroc.com/pub/Ice/1.0/Ice-1.0.1-bin-win32.zip
 
 After downloading an archive, extract it into a directory of your
 choosing, and add the 'bin' subdirectory to your PATH.

@@ -137,7 +137,7 @@ IceUtil::Time::operator timeval() const
 
 IceUtil::Time::operator double() const
 {
-    return _usec / 1000000;
+    return _usec / 1000000.0L;
 }
 
 Time::Time(Int64 usec) :
