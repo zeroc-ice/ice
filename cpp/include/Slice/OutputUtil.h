@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef OUTPUT_UTIL_H
-#define OUTPUT_UTIL_H
+#ifndef SLICE_OUTPUT_UTIL_H
+#define SLICE_OUTPUT_UTIL_H
 
 #include <fstream>
 #include <sstream>

@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <Forward.h>
+#include <IcePack/Forward.h>
 
 using namespace std;
 using namespace Ice;

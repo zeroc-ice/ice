@@ -23,7 +23,10 @@ TARGETS		= $(NAME) $(VERSIONED_NAME) $(CLIENT) $(SERVER)
 
 OBJS		= Admin.o
 
-COBJS		= Client.o
+COBJS		= Grammer.o \
+		  Scanner.o \
+		  Parser.o \
+		  Client.o
 
 SOBJS		= Server.o \
 		  Forward.o \
@@ -39,7 +42,7 @@ SLICECMD	= $(SLICE) --include-dir IcePack --dll-export ICE_PACK_API -I$(slicedir
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. -I.. $(CPPFLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
@@ -51,11 +54,24 @@ $(NAME): $(VERSIONED_NAME)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(COBJS) -lIcePack $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(COBJS) -lIcePack $(LIBS) -lreadline -lcurses
 
 $(SERVER): $(SOBJS)
 	rm -f $@
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIcePack $(LIBS)
+
+Grammer.cpp Grammer.h: Grammer.y
+	bison -dvt Grammer.y
+	rm -f Grammer.cpp ; mv Grammer.tab.c Grammer.cpp
+	rm -f Grammer.h ; mv Grammer.tab.h Grammer.h
+
+Scanner.cpp: Scanner.l Grammer.h
+	flex Scanner.l
+	rm -f Scanner.cpp ; mv lex.yy.c Scanner.cpp
+
+clean::
+	-rm -f Grammer.cpp Grammer.h Grammer.output
+	-rm -f Scanner.cpp lex.yy.c
 
 $(HDIR)/Admin.h Admin.cpp: $(IDIR)/Admin.ice $(SLICE)
 	rm -f $(HDIR)/Admin.h Admin.cpp

@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef GRAMMER_UTIL_H
-#define GRAMMER_UTIL_H
+#ifndef SLICE_GRAMMER_UTIL_H
+#define SLICE_GRAMMER_UTIL_H
 
 #include <Slice/Parser.h>
 

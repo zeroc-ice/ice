@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <AdminI.h>
+#include <IcePack/AdminI.h>
 
 using namespace std;
 using namespace Ice;

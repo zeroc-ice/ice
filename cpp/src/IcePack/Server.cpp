@@ -9,8 +9,8 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <AdminI.h>
-#include <Forward.h>
+#include <IcePack/AdminI.h>
+#include <IcePack/Forward.h>
 
 using namespace std;
 using namespace Ice;
@@ -29,8 +29,33 @@ usage(const char* n)
 }
 
 int
-run(int argc, char* argv[], CommunicatorPtr communicator, bool nowarn)
+run(int argc, char* argv[], CommunicatorPtr communicator)
 {
+    bool nowarn = false;
+    for (int i = 1; i < argc; ++i)
+    {
+	if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
+	{
+	    usage(argv[0]);
+	    return EXIT_SUCCESS;
+	}
+	else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
+	{
+	    cout << ICE_STRING_VERSION << endl;
+	    return EXIT_SUCCESS;
+	}
+	else if(strcmp(argv[i], "--nowarn") == 0)
+	{
+	    nowarn = true;
+	}
+	else
+	{
+	    cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+    }
+
     PropertiesPtr properties = communicator->getProperties();
 
     string adminEndpoints = properties->getProperty("Ice.Adapter.Admin.Endpoints");
@@ -67,40 +92,13 @@ run(int argc, char* argv[], CommunicatorPtr communicator, bool nowarn)
 int
 main(int argc, char* argv[])
 {
-    PropertiesPtr properties = getDefaultProperties(argc, argv);
-
-    bool nowarn = false;
-    for (int i = 1; i < argc; ++i)
-    {
-	if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
-	{
-	    usage(argv[0]);
-	    return EXIT_SUCCESS;
-	}
-	else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
-	{
-	    cout << ICE_STRING_VERSION << endl;
-	    return EXIT_SUCCESS;
-	}
-	else if(strcmp(argv[i], "--nowarn") == 0)
-	{
-	    nowarn = true;
-	}
-	else
-	{
-	    cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
-	}
-    }
-
     int status;
     CommunicatorPtr communicator;
 
     try
     {
-	communicator = initializeWithProperties(properties);
-	status = run(argc, argv, communicator, nowarn);
+	communicator = initialize(argc, argv);
+	status = run(argc, argv, communicator);
     }
     catch(const LocalException& ex)
     {

@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef ADMIN_I_H
-#define ADMIN_I_H
+#ifndef ICE_PACK_ADMIN_I_H
+#define ICE_PACK_ADMIN_I_H
 
 #include <IcePack/Admin.h>
 #include <map>

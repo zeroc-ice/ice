@@ -66,6 +66,7 @@ const bool bigendian = false;
 #   include <unistd.h>
 
 #   define ICE_API /**/
+#   define HAVE_READLINE
 
 namespace Ice
 {

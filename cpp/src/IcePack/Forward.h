@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef FORWARD_H
-#define FORWARD_H
+#ifndef ICE_PACK_FORWARD_H
+#define ICE_PACK_FORWARD_H
 
 #include <IcePack/Admin.h>
 #include <map>

@@ -25,8 +25,8 @@ icePackAdmin = os.path.normpath(toplevel + "/bin/icepackadmin")
 
 print "starting icepack...",
 icePackPipe = os.popen(icePack + ' --Ice.PrintProcessId --nowarn' + \
-                       ' "--Ice.Adapter.Forward.Endpoints=tcp -p 12346 -t 2000"' + \
-                       ' "--Ice.Adapter.Admin.Endpoints=tcp -p 12347 -t 2000"')
+                       r' "--Ice.Adapter.Forward.Endpoints=tcp -p 12346 -t 2000"' + \
+                       r' "--Ice.Adapter.Admin.Endpoints=tcp -p 12347 -t 2000"')
 output = icePackPipe.readline().strip()
 if not output:
     print "failed!"
@@ -36,8 +36,8 @@ print "ok"
 
 print "registering server with icepack...",
 icePackAdminPipe = os.popen(icePackAdmin + \
-                            ' "--Ice.Adapter.Admin.Endpoints=tcp -p 12347 -t 2000"' + \
-                            ' add "test:tcp -p 12345 -t 2000"')
+                            r' "--Ice.Adapter.Admin.Endpoints=tcp -p 12347 -t 2000"' + \
+                            r' -e "add \"test:tcp -p 12345 -t 2000\""')
 icePackAdminPipe.close()
 print "ok"
 
@@ -47,8 +47,8 @@ TestUtil.collocatedTest(toplevel, name)
 
 print "shutting down icepack...",
 icePackAdminPipe = os.popen(icePackAdmin + \
-                            ' "--Ice.Adapter.Admin.Endpoints=tcp -p 12347 -t 2000"' + \
-                            ' shutdown')
+                            r' "--Ice.Adapter.Admin.Endpoints=tcp -p 12347 -t 2000"' + \
+                            r' -e "shutdown"')
 icePackAdminPipe.close()
 print "ok"
 
