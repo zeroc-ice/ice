@@ -352,6 +352,10 @@ SOURCE=.\SslGeneralConfig.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\SslIceUtils.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\SslJanitors.cpp
 # End Source File
 # Begin Source File
@@ -365,6 +369,14 @@ SOURCE=.\SslRSACertificateGen.cpp
 # Begin Source File
 
 SOURCE=.\SslRSAKeyPair.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslRSAPrivateKey.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslRSAPublicKey.cpp
 # End Source File
 # Begin Source File
 
@@ -776,6 +788,10 @@ SOURCE=.\SecureUdp.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\Ice\Security.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\Ice\ServantLocator.h
 # End Source File
 # Begin Source File
@@ -805,6 +821,10 @@ SOURCE=..\..\include\Ice\SslCertificateVerifier.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\SslCertificateVerifierF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\SslCertificateVerifierOpenSSL.h
 # End Source File
 # Begin Source File
 
@@ -852,6 +872,10 @@ SOURCE=.\SslGeneralConfig.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\SslIceUtils.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\SslJanitors.h
 # End Source File
 # Begin Source File
@@ -873,6 +897,22 @@ SOURCE=..\..\include\Ice\SslRSAKeyPair.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\SslRSAKeyPairF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\SslRSAPrivateKey.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\SslRSAPrivateKeyF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\SslRSAPublicKey.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\SslRSAPublicKeyF.h
 # End Source File
 # Begin Source File
 

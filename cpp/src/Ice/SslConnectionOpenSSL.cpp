@@ -105,7 +105,7 @@ IceSecurity::Ssl::OpenSSL::DefaultCertificateVerifier::verify(int preVerifyOkay,
 
         ostringstream outStringStream;
 
-        outStringStream << "depth = " << errorDepth << ":" << buf << endl;
+        outStringStream << "depth = " << dec << errorDepth << ":" << buf << std::endl;
 
         if (!preVerifyOkay)
         {

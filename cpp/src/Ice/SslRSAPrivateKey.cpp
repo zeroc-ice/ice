@@ -19,6 +19,7 @@ void ::IceInternal::decRef(::IceSecurity::Ssl::OpenSSL::RSAPrivateKey* p) { p->_
 
 using std::back_inserter;
 using std::string;
+using Ice::ByteSeq;
 using IceUtil::Base64;
 
 IceSecurity::Ssl::OpenSSL::RSAPrivateKey::RSAPrivateKey(const string& key)

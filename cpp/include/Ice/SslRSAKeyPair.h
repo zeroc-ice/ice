@@ -41,10 +41,7 @@ namespace Ssl
 namespace OpenSSL
 {
 
-using namespace std;
-using IceUtil::Shared;
-
-class RSAKeyPair : public Shared
+class ICE_API RSAKeyPair : public IceUtil::Shared
 {
 
 public:
@@ -69,18 +66,9 @@ public:
     X509* getX509PublicKey() const;
 
 private:
-    // RSAKeyPair(RSA*, X509*);
     RSAKeyPair(const RSAPrivateKeyPtr&, const RSAPublicKeyPtr&);
 
     friend class RSACertificateGen;
-
-    // void byteSeqToKey(const Ice::ByteSeq&);
-    // void byteSeqToCert(const Ice::ByteSeq&);
-    // void ucharToByteSeq(unsigned char*, int, Ice::ByteSeq&);
-    // unsigned char* byteSeqToUChar(const Ice::ByteSeq&);
-
-    // RSA* _privateKey;
-    // X509* _publicKey;
 
     RSAPrivateKeyPtr _privateKey;
     RSAPublicKeyPtr _publicKey;

@@ -57,15 +57,15 @@ public:
     //
 
     RSACertificateGenContext();
-    ~RSACertificateGenContext() {};
+    ~RSACertificateGenContext();
 
     // Distinguished Name methods (setters)
-    void setCountry(const string&);
-    void setStateProvince(const string&);
-    void setLocality(const string&);
-    void setOrganization(const string&);
-    void setOrgainizationalUnit(const string&);
-    void setCommonName(const string&);
+    void setCountry(const std::string&);
+    void setStateProvince(const std::string&);
+    void setLocality(const std::string&);
+    void setOrganization(const std::string&);
+    void setOrgainizationalUnit(const std::string&);
+    void setCommonName(const std::string&);
 
     // Setters
     void setBitStrength(int);
@@ -85,12 +85,12 @@ public:
 
 
 private:
-    string _country;
-    string _stateProvince;
-    string _locality;
-    string _organization;
-    string _organizationalUnit;
-    string _commonName;
+    std::string _country;
+    std::string _stateProvince;
+    std::string _locality;
+    std::string _organization;
+    std::string _organizationalUnit;
+    std::string _commonName;
     int _modulusLength;
     long _secondsValid;
 };

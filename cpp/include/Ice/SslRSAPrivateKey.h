@@ -38,21 +38,15 @@ namespace Ssl
 namespace OpenSSL
 {
 
-using namespace std;
-using IceUtil::Shared;
-
-using std::string;
-using Ice::ByteSeq;
-
-class RSAPrivateKey : public Shared
+class ICE_API RSAPrivateKey : public IceUtil::Shared
 {
 
 public:
     // Construction from Base64 encoding
-    RSAPrivateKey(const string&);
+    RSAPrivateKey(const std::string&);
 
     // Construction from ByteSeq
-    RSAPrivateKey(const ByteSeq&);
+    RSAPrivateKey(const Ice::ByteSeq&);
 
     // Construction from RSA Private Key structure
     RSAPrivateKey(RSA*);
@@ -60,16 +54,16 @@ public:
     ~RSAPrivateKey();
 
     // Conversions to Base64 encoding
-    void keyToBase64(string&);
+    void keyToBase64(std::string&);
 
     // Conversions to ByteSequence
-    void keyToByteSeq(ByteSeq&);
+    void keyToByteSeq(Ice::ByteSeq&);
 
     // Get the key structure
     RSA* getRSAPrivateKey() const;
 
 private:
-    void byteSeqToKey(const ByteSeq&);
+    void byteSeqToKey(const Ice::ByteSeq&);
 
     RSA* _privateKey;
 
