@@ -193,9 +193,9 @@ public class Outgoing
 		_is.swap(istr);
 		byte status = _is.readByte();
 		
-		switch((int) status)
+		switch((DispatchStatus)status)
 		{
-		    case DispatchStatus._DispatchOK: 
+		    case DispatchStatus.DispatchOK: 
 		    {
 			//
 			// Input and output parameters are always sent in an
@@ -207,7 +207,7 @@ public class Outgoing
 			break;
 		    }
 		    
-		    case DispatchStatus._DispatchUserException: 
+		    case DispatchStatus.DispatchUserException: 
 		    {
 			//
 			// Input and output parameters are always sent in an
@@ -219,28 +219,28 @@ public class Outgoing
 			break;
 		    }
 		    
-		    case DispatchStatus._DispatchObjectNotExist: 
-		    case DispatchStatus._DispatchFacetNotExist: 
-		    case DispatchStatus._DispatchOperationNotExist: 
+		    case DispatchStatus.DispatchObjectNotExist: 
+		    case DispatchStatus.DispatchFacetNotExist: 
+		    case DispatchStatus.DispatchOperationNotExist: 
 		    {
 			_state = StateLocalException;
 			
 			Ice.RequestFailedException ex = null;
-			switch((int) status)
+			switch((DispatchStatus)status)
 			{
-			    case DispatchStatus._DispatchObjectNotExist: 
+			    case DispatchStatus.DispatchObjectNotExist: 
 			    {
 				ex = new Ice.ObjectNotExistException();
 				break;
 			    }
 			    
-			    case DispatchStatus._DispatchFacetNotExist: 
+			    case DispatchStatus.DispatchFacetNotExist: 
 			    {
 				ex = new Ice.FacetNotExistException();
 				break;
 			    }
 			    
-			    case DispatchStatus._DispatchOperationNotExist: 
+			    case DispatchStatus.DispatchOperationNotExist: 
 			    {
 				ex = new Ice.OperationNotExistException();
 				break;
@@ -261,28 +261,28 @@ public class Outgoing
 			break;
 		    }
 		    
-		    case DispatchStatus._DispatchUnknownException: 
-		    case DispatchStatus._DispatchUnknownLocalException: 
-		    case DispatchStatus._DispatchUnknownUserException: 
+		    case DispatchStatus.DispatchUnknownException: 
+		    case DispatchStatus.DispatchUnknownLocalException: 
+		    case DispatchStatus.DispatchUnknownUserException: 
 		    {
 			_state = StateLocalException;
 			
 			Ice.UnknownException ex = null;
-			switch((int) status)
+			switch((DispatchStatus)status)
 			{
-			    case DispatchStatus._DispatchUnknownException: 
+			    case DispatchStatus.DispatchUnknownException: 
 			    {
 				ex = new Ice.UnknownException();
 				break;
 			    }
 			    
-			    case DispatchStatus._DispatchUnknownLocalException: 
+			    case DispatchStatus.DispatchUnknownLocalException: 
 			    {
 				ex = new Ice.UnknownLocalException();
 				break;
 			    }
 			    
-			    case DispatchStatus._DispatchUnknownUserException: 
+			    case DispatchStatus.DispatchUnknownUserException: 
 			    {
 				ex = new Ice.UnknownUserException();
 				break;

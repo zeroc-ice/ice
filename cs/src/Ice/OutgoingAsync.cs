@@ -119,9 +119,9 @@ public abstract class OutgoingAsync
 	    _is.swap(istr);
 	    byte status = _is.readByte();
 	    
-	    switch((int)status)
+	    switch((DispatchStatus)status)
 	    {
-		case DispatchStatus._DispatchOK: 
+		case DispatchStatus.DispatchOK: 
 		{
 		    //
 		    // Input and output parameters are always sent in an
@@ -133,7 +133,7 @@ public abstract class OutgoingAsync
 		    break;
 		}
 		
-		case DispatchStatus._DispatchUserException: 
+		case DispatchStatus.DispatchUserException: 
 		{
 		    //
 		    // Input and output parameters are always sent in an
@@ -145,7 +145,7 @@ public abstract class OutgoingAsync
 		    break;
 		}
 		
-		case DispatchStatus._DispatchObjectNotExist: 
+		case DispatchStatus.DispatchObjectNotExist: 
 		{
 		    Ice.ObjectNotExistException ex = new Ice.ObjectNotExistException();
 		    ex.id = new Ice.Identity();
@@ -156,7 +156,7 @@ public abstract class OutgoingAsync
 		    break;
 		}
 		
-		case DispatchStatus._DispatchFacetNotExist: 
+		case DispatchStatus.DispatchFacetNotExist: 
 		{
 		    Ice.FacetNotExistException ex = new Ice.FacetNotExistException();
 		    ex.id = new Ice.Identity();
@@ -167,7 +167,7 @@ public abstract class OutgoingAsync
 		    break;
 		}
 		
-		case DispatchStatus._DispatchOperationNotExist: 
+		case DispatchStatus.DispatchOperationNotExist: 
 		{
 		    Ice.OperationNotExistException ex = new Ice.OperationNotExistException();
 		    ex.id = new Ice.Identity();
@@ -178,7 +178,7 @@ public abstract class OutgoingAsync
 		    break;
 		}
 		
-		case DispatchStatus._DispatchUnknownException: 
+		case DispatchStatus.DispatchUnknownException: 
 		{
 		    Ice.UnknownException ex = new Ice.UnknownException();
 		    ex.unknown = _is.readString();
@@ -186,7 +186,7 @@ public abstract class OutgoingAsync
 		    break;
 		}
 		
-		case DispatchStatus._DispatchUnknownLocalException: 
+		case DispatchStatus.DispatchUnknownLocalException: 
 		{
 		    Ice.UnknownLocalException ex = new Ice.UnknownLocalException();
 		    ex.unknown = _is.readString();
@@ -194,7 +194,7 @@ public abstract class OutgoingAsync
 		    break;
 		}
 		
-		case DispatchStatus._DispatchUnknownUserException: 
+		case DispatchStatus.DispatchUnknownUserException: 
 		{
 		    Ice.UnknownUserException ex = new Ice.UnknownUserException();
 		    ex.unknown = _is.readString();

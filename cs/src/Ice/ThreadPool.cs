@@ -408,6 +408,7 @@ public sealed class ThreadPool
 		{
 		    #if TRACE_SELECT || TRACE_INTERRUPT
 			trace("detected interrupt");
+			trace("available = " + _fdIntrRead.Available);
 		    #endif
 		    
 		    //

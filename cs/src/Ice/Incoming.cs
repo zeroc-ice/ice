@@ -163,15 +163,15 @@ sealed public class Incoming : IncomingBase
 		_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
 		if(ex is Ice.ObjectNotExistException)
 		{
-		    _os.writeByte((byte)DispatchStatus._DispatchObjectNotExist);
+		    _os.writeByte((byte)DispatchStatus.DispatchObjectNotExist);
 		}
 		else if(ex is Ice.FacetNotExistException)
 		{
-		    _os.writeByte((byte)DispatchStatus._DispatchFacetNotExist);
+		    _os.writeByte((byte)DispatchStatus.DispatchFacetNotExist);
 		}
 		else if(ex is Ice.OperationNotExistException)
 		{
-		    _os.writeByte((byte)DispatchStatus._DispatchOperationNotExist);
+		    _os.writeByte((byte)DispatchStatus.DispatchOperationNotExist);
 		}
 		else
 		{
@@ -197,7 +197,7 @@ sealed public class Incoming : IncomingBase
 	    {
 		_os.endWriteEncaps();
 		_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-		_os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
+		_os.writeByte((byte)DispatchStatus.DispatchUnknownLocalException);
 		_os.writeString(ex.ToString());
 	    }
 	    
@@ -224,7 +224,7 @@ sealed public class Incoming : IncomingBase
 	    {
 		_os.endWriteEncaps();
 		_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-		_os.writeByte((byte) DispatchStatus._DispatchUnknownException);
+		_os.writeByte((byte) DispatchStatus.DispatchUnknownException);
 		_os.writeString(ex.ToString());
 	    }
 	    
@@ -265,7 +265,7 @@ sealed public class Incoming : IncomingBase
 			     status == DispatchStatus.DispatchOperationNotExist);
 		
 		_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-		_os.writeByte((byte)status.val());
+		_os.writeByte((byte)status);
 		
 		_current.id.__write(_os);
 		_os.writeStringSeq(_current.facet);
@@ -275,7 +275,7 @@ sealed public class Incoming : IncomingBase
 	    {
 		int save = _os.pos();
 		_os.pos(Protocol.headerSize + 4); // Dispatch status position.
-		_os.writeByte((byte)status.val());
+		_os.writeByte((byte)status);
 		_os.pos(save);
 	    }
 	}

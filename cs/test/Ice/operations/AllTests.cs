@@ -28,27 +28,27 @@ public class AllTests
     {
 	Console.Out.Write("testing stringToProxy... ");
 	Console.Out.Flush();
-	String ref_Renamed = "test:default -p 12345 -t 2000";
-	Ice.ObjectPrx base_Renamed = communicator.stringToProxy(ref_Renamed);
-	test(base_Renamed != null);
+	String rf = "test:default -p 12345 -t 2000";
+	Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
+	test(baseProxy != null);
 	Console.Out.WriteLine("ok");
 	
 	Console.Out.Write("testing checked cast... ");
 	Console.Out.Flush();
-	Test.MyClassPrx cl = Test.MyClassPrxHelper._checkedCast(base_Renamed);
+	Test.MyClassPrx cl = Test.MyClassPrxHelper._checkedCast(baseProxy);
 	test(cl != null);
-	Test.MyDerivedClassPrx derived = Test.MyDerivedClassPrxHelper._checkedCast(cl);
-	test(derived != null);
-	test(cl.Equals(base_Renamed));
-	test(derived.Equals(base_Renamed));
-	test(cl.Equals(derived));
+	Test.MyDerivedClassPrx derivedProxy = Test.MyDerivedClassPrxHelper._checkedCast(cl);
+	test(derivedProxy != null);
+	test(cl.Equals(baseProxy));
+	test(derivedProxy.Equals(baseProxy));
+	test(cl.Equals(derivedProxy));
 	Console.Out.WriteLine("ok");
 	
 	Console.Out.Write("testing twoway operations... ");
 	Console.Out.Flush();
 	Twoways.twoways(cl);
-	Twoways.twoways(derived);
-	derived.opDerived();
+	Twoways.twoways(derivedProxy);
+	derivedProxy.opDerived();
 	Console.Out.WriteLine("ok");
 	
 	if (!collocated)
@@ -56,7 +56,7 @@ public class AllTests
 	    Console.Out.Write("testing twoway operations with AMI... ");
 	    Console.Out.Flush();
 	    //TwowaysAMI.twowaysAMI(cl);
-	    //TwowaysAMI.twowaysAMI(derived);
+	    //TwowaysAMI.twowaysAMI(derivedProxy);
 	    Console.Out.WriteLine("ok");
 	}
 	

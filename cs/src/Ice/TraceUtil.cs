@@ -109,39 +109,39 @@ sealed class TraceUtil
 	    byte status = str.readByte();
 	    s.Write("\nreply status = " + (int) status + ' ');
 	    
-	    switch(status)
+	    switch((DispatchStatus)status)
 	    {
-		case (byte)(DispatchStatus._DispatchOK): 
+		case DispatchStatus.DispatchOK: 
 		{
 		    s.Write("(ok)");
 		    break;
 		}
 		
-		case (byte)(DispatchStatus._DispatchUserException): 
+		case DispatchStatus.DispatchUserException: 
 		{
 		    s.Write("(user exception)");
 		    break;
 		}
 		
-		case (byte)(DispatchStatus._DispatchObjectNotExist): 
-		case (byte)(DispatchStatus._DispatchFacetNotExist): 
-		case (byte)(DispatchStatus._DispatchOperationNotExist): 
+		case DispatchStatus.DispatchObjectNotExist: 
+		case DispatchStatus.DispatchFacetNotExist: 
+		case DispatchStatus.DispatchOperationNotExist: 
 		{
-		    switch(status)
+		    switch((DispatchStatus)status)
 		    {
-			case (byte)(DispatchStatus._DispatchObjectNotExist): 
+			case DispatchStatus.DispatchObjectNotExist: 
 			{
 			    s.Write("(object not exist)");
 			    break;
 			}
 			
-			case (byte)(DispatchStatus._DispatchFacetNotExist): 
+			case DispatchStatus.DispatchFacetNotExist: 
 			{
 			    s.Write("(facet not exist)");
 			    break;
 			}
 			
-			case (byte)(DispatchStatus._DispatchOperationNotExist): 
+			case DispatchStatus.DispatchOperationNotExist: 
 			{
 			    s.Write("(operation not exist)");
 			    break;
@@ -158,25 +158,25 @@ sealed class TraceUtil
 		    break;
 		}
 		
-		case (byte)(DispatchStatus._DispatchUnknownException): 
-		case (byte)(DispatchStatus._DispatchUnknownLocalException): 
-		case (byte)(DispatchStatus._DispatchUnknownUserException): 
+		case DispatchStatus.DispatchUnknownException: 
+		case DispatchStatus.DispatchUnknownLocalException: 
+		case DispatchStatus.DispatchUnknownUserException: 
 		{
-		    switch(status)
+		    switch((DispatchStatus)status)
 		    {
-			case (byte)(DispatchStatus._DispatchUnknownException): 
+			case DispatchStatus.DispatchUnknownException: 
 			{
 			    s.Write("(unknown exception)");
 			    break;
 			}
 			
-			case (byte)(DispatchStatus._DispatchUnknownLocalException): 
+			case DispatchStatus.DispatchUnknownLocalException: 
 			{
 			    s.Write("(unknown local exception)");
 			    break;
 			}
 			
-			case (byte)(DispatchStatus._DispatchUnknownUserException): 
+			case DispatchStatus.DispatchUnknownUserException: 
 			{
 			    s.Write("(unknown user exception)");
 			    break;

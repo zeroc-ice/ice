@@ -54,11 +54,11 @@ public class IncomingAsync : IncomingBase
 	    
 	    if(ok)
 	    {
-		_os.writeByte((byte)DispatchStatus._DispatchOK);
+		_os.writeByte((byte)DispatchStatus.DispatchOK);
 	    }
 	    else
 	    {
-		_os.writeByte((byte)DispatchStatus._DispatchUserException);
+		_os.writeByte((byte)DispatchStatus.DispatchUserException);
 	    }
 	    
 	    _os.pos(save);
@@ -105,15 +105,15 @@ public class IncomingAsync : IncomingBase
 		_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
 		if(ex is Ice.ObjectNotExistException)
 		{
-		    _os.writeByte((byte)DispatchStatus._DispatchObjectNotExist);
+		    _os.writeByte((byte)DispatchStatus.DispatchObjectNotExist);
 		}
 		else if(ex is Ice.FacetNotExistException)
 		{
-		    _os.writeByte((byte)DispatchStatus._DispatchFacetNotExist);
+		    _os.writeByte((byte)DispatchStatus.DispatchFacetNotExist);
 		}
 		else if(ex is Ice.OperationNotExistException)
 		{
-		    _os.writeByte((byte)DispatchStatus._DispatchOperationNotExist);
+		    _os.writeByte((byte)DispatchStatus.DispatchOperationNotExist);
 		}
 		else
 		{
@@ -135,7 +135,7 @@ public class IncomingAsync : IncomingBase
 	    {
 		_os.endWriteEncaps();
 		_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-		_os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
+		_os.writeByte((byte)DispatchStatus.DispatchUnknownLocalException);
 		_os.writeString(ex.ToString());
 	    }
 	}
@@ -150,7 +150,7 @@ public class IncomingAsync : IncomingBase
 	    {
 		_os.endWriteEncaps();
 		_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-		_os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
+		_os.writeByte((byte)DispatchStatus.DispatchUnknownUserException);
 		_os.writeString(ex.ToString());
 	    }
 	}
@@ -165,7 +165,7 @@ public class IncomingAsync : IncomingBase
 	    {
 		_os.endWriteEncaps();
 		_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-		_os.writeByte((byte)DispatchStatus._DispatchUnknownException);
+		_os.writeByte((byte)DispatchStatus.DispatchUnknownException);
 		_os.writeString(ex.ToString());
 	    }
 	}
