@@ -69,8 +69,6 @@ public:
     void write(const std::string&);
     void write(const char*); // Optimized version for const char*
     void read(std::string&);
-    void write(const std::vector<std::string>&);
-    void read(std::vector<std::string>&);
 
 private:
 
@@ -80,6 +78,126 @@ private:
     Instance instance_;
     bool bigendian_;
 };
+
+template<typename T>
+inline void
+streamRead(Stream* s, T& value)
+{
+    s -> read(value);
+}
+
+template<typename T>
+inline void
+streamRead(Stream* s, std::vector<T>& value)
+{
+    ::Ice::Int sz;
+    s -> read(sz);
+    value.resize(sz);
+    typename std::vector<T>::iterator p;
+    for(p = value.begin(); p != value.end(); ++p)
+	streamRead(s, *p);
+}
+
+inline void
+streamRead(Stream* s, std::vector< ::Ice::Byte>& value)
+{
+    s -> read(value);
+}
+
+inline void
+streamRead(Stream* s, std::vector<bool>& value)
+{
+    s -> read(value);
+}
+
+inline void
+streamRead(Stream* s, std::vector< ::Ice::Short>& value)
+{
+    s -> read(value);
+}
+
+inline void
+streamRead(Stream* s, std::vector< ::Ice::Int>& value)
+{
+    s -> read(value);
+}
+
+inline void
+streamRead(Stream* s, std::vector< ::Ice::Long>& value)
+{
+    s -> read(value);
+}
+
+inline void
+streamRead(Stream* s, std::vector< ::Ice::Float>& value)
+{
+    s -> read(value);
+}
+
+inline void
+streamRead(Stream* s, std::vector< ::Ice::Double>& value)
+{
+    s -> read(value);
+}
+
+template<typename T>
+inline void
+streamWrite(Stream* s, const T& value)
+{
+    s -> write(value);
+}
+
+template<typename T>
+inline void
+streamWrite(Stream* s, const std::vector<T>& value)
+{
+    s -> write(::Ice::Int(value.size()));
+    typename std::vector<T>::const_iterator p;
+    for(p = value.begin(); p != value.end(); ++p)
+	streamWrite(s, *p);
+}
+
+inline void
+streamWrite(Stream* s, const std::vector< ::Ice::Byte>& value)
+{
+    s -> write(value);
+}
+
+inline void
+streamWrite(Stream* s, const std::vector<bool>& value)
+{
+    s -> write(value);
+}
+
+inline void
+streamWrite(Stream* s, const std::vector< ::Ice::Short>& value)
+{
+    s -> write(value);
+}
+
+inline void
+streamWrite(Stream* s, const std::vector< ::Ice::Int>& value)
+{
+    s -> write(value);
+}
+
+inline void
+streamWrite(Stream* s, const std::vector< ::Ice::Long>& value)
+{
+    s -> write(value);
+}
+
+inline void
+streamWrite(Stream* s, const std::vector< ::Ice::Float>& value)
+{
+    s -> write(value);
+}
+
+inline void
+streamWrite(Stream* s, const std::vector< ::Ice::Double>& value)
+{
+    s -> write(value);
+}
 
 }
 
