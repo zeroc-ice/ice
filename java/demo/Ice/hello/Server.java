@@ -42,20 +42,12 @@ public class Server
         {
             ex.printStackTrace();
             status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
+        } finally {
+	    if(communicator != null)
+	    {
+		communicator.destroy();
+	    }
+	}
 
         System.exit(status);
     }
