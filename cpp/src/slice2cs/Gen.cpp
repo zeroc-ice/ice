@@ -196,32 +196,26 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 
     _out << sp << nl << "public override bool ice_isA(string s)";
     _out << sb;
-    _out.zeroIndent();
-    _out << nl << "#if __MonoCS__ // Bug in Mono 1.0 DefaultInvariant";
-    _out.restoreIndent();
+    _out << nl << "if(_System.Type.GetType(\"Mono.Runtime\", false) != null) // Bug in Mono 1.0 DefaultInvariant";
+    _out << sb;
     _out << nl << "return _System.Array.BinarySearch(__ids, s) >= 0;";
-    _out.zeroIndent();
-    _out << nl << "#else";
-    _out.restoreIndent();
+    _out << eb;
+    _out << "else";
+    _out << sb;
     _out << nl << "return _System.Array.BinarySearch(__ids, s, _System.Collections.Comparer.DefaultInvariant) >= 0;";
-    _out.zeroIndent();
-    _out << nl << "#endif";
-    _out.restoreIndent();
+    _out << eb;
     _out << eb;
 
     _out << sp << nl << "public override bool ice_isA(string s, Ice.Current __current)";
     _out << sb;
-    _out.zeroIndent();
-    _out << nl << "#if __MonoCS__ // Bug in Mono 1.0 DefaultInvariant";
-    _out.restoreIndent();
+    _out << nl << "if(_System.Type.GetType(\"Mono.Runtime\", false) != null) // Bug in Mono 1.0 DefaultInvariant";
+    _out << sb;
     _out << nl << "return _System.Array.BinarySearch(__ids, s) >= 0;";
-    _out.zeroIndent();
-    _out << nl << "#else";
-    _out.restoreIndent();
+    _out << eb;
+    _out << "else";
+    _out << sb;
     _out << nl << "return _System.Array.BinarySearch(__ids, s, _System.Collections.Comparer.DefaultInvariant) >= 0;";
-    _out.zeroIndent();
-    _out << nl << "#endif";
-    _out.restoreIndent();
+    _out << eb;
     _out << eb;
 
     _out << sp << nl << "public override string[] ice_ids()";
@@ -548,18 +542,16 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 	_out << sp << nl << "public override IceInternal.DispatchStatus "
 	     << "__dispatch(IceInternal.Incoming __in, Ice.Current __current)";
 	_out << sb;
-	_out.zeroIndent();
-	_out << nl << "#if __MonoCS__ // Bug in Mono 1.0 DefaultInvariant";
-	_out.restoreIndent();
-	_out << nl << "int pos = _System.Array.BinarySearch(__all, __current.operation);";
-	_out.zeroIndent();
-	_out << nl << "#else";
-	_out.restoreIndent();
-	_out << nl << "int pos = _System.Array.BinarySearch(__all, __current.operation, "
+	_out << "int pos;";
+	_out << nl << "if(_System.Type.GetType(\"Mono.Runtime\", false) != null) // Bug in Mono 1.0 DefaultInvariant";
+	_out << sb;
+	_out << nl << "pos = _System.Array.BinarySearch(__all, __current.operation);";
+	_out << eb;
+	_out << nl << "else";
+	_out << sb;
+	_out << nl << "pos = _System.Array.BinarySearch(__all, __current.operation, "
 	     << "_System.Collections.Comparer.DefaultInvariant);";
-	_out.zeroIndent();
-	_out << nl << "#endif";
-	_out.restoreIndent();
+	_out << eb;
 	_out << nl << "if(pos < 0)";
 	_out << sb;
 	_out << nl << "return IceInternal.DispatchStatus.DispatchOperationNotExist;";
