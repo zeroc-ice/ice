@@ -77,13 +77,20 @@ childHandler(int)
     // process and avoid zombie processes. See man wait or waitpid for
     // more information.
     //
-    pid_t childPid;
+    int olderrno = errno;
+
+    pid_t pid;
     do
-    { 
-        int status;
-        childPid = waitpid(-1, &status, WNOHANG);
-    } while(childPid > 0);
+    {
+	pid = waitpid(-1, 0, WNOHANG);
+    }
+    while(pid > 0);
+
+    assert(pid != -1 || errno == ECHILD);
+
+    errno = olderrno;
 }
+
 }
 #endif
 
