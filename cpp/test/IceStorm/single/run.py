@@ -12,6 +12,7 @@
 import os, sys, time
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+    toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
 else:
@@ -36,6 +37,7 @@ print "starting icestorm...",
 dbEnvName = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbEnvName)
 command = iceStorm + updatedClientServerOptions + iceStormEndpoint + " --IceStorm.DBEnvName=" + dbEnvName
+print command
 iceStormPipe = os.popen(command)
 TestUtil.getServerPid(iceStormPipe)
 TestUtil.getAdapterReady(iceStormPipe)

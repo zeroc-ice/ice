@@ -160,6 +160,9 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
 
     FD_ZERO(&_fdSet);
     FD_SET(_fdIntrRead, &_fdSet);
+#ifdef WIN32 // Optimization for WIN32 fd_set
+    _fdIntrReadIdx = _fdSet.fd_count - 1;
+#endif
     _maxFd = _fdIntrRead;
     _minFd = _fdIntrRead;
 
@@ -310,7 +313,12 @@ IceInternal::ThreadPool::run()
 	    }
 	    
 	    bool interrupt = false;
+
+#ifdef WIN32 // Optimization for WIN32 fd_set
+	    if (fdSet.fd_array[_fdIntrReadIdx] == static_cast<SOCKET>(_fdIntrRead))
+#else
 	    if (FD_ISSET(_fdIntrRead, &fdSet))
+#endif
 	    {
 		shutdown = clearInterrupt();
 		interrupt = true;

@@ -58,6 +58,9 @@ private:
     int _fdIntrRead;
     int _fdIntrWrite;
     fd_set _fdSet;
+#ifdef WIN32
+    int _fdIntrReadIdx;
+#endif
     std::vector<std::pair<int, EventHandlerPtr> > _adds;
     std::vector<int> _removes;
     std::map<int, std::pair<EventHandlerPtr, std::list<int>::iterator> > _handlerMap;

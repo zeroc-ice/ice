@@ -12,6 +12,7 @@
 import os, sys
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+    toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
 else:
@@ -21,7 +22,6 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
 name = os.path.join("Freeze", "cursor")
-
 testdir = os.path.join(toplevel, "test", name)
 
 dbdir = os.path.join(testdir, "db")

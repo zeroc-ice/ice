@@ -12,6 +12,7 @@
 import os, sys
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+    toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
 else:
@@ -47,20 +48,13 @@ if sys.argv[1:]:
 	    newtests.append(i)
     tests = newtests
 
-import string
-
 #
 # Run each of the tests.
 #
 for i in tests:
-    dir = os.path.join(toplevel, "test")
 
-    #
-    # Construct the test path
-    #
-    pathElements = os.path.join(string.split(i, "/"))
-    for element in pathElements:
-        dir = os.path.join(dir, element)
+    i = os.path.normpath(i)
+    dir = os.path.join(toplevel, "test", i)
 
     print
     print "*** running tests in " + dir + ":"
