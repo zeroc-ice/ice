@@ -98,6 +98,7 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
+    properties->setProperty("Ice.ConnectionWarnings", "0");
     properties->setProperty("Ice.SSL.Client.CertPath","../certs");
     properties->setProperty("Ice.SSL.Client.Config", "sslconfig_8.xml");
 
