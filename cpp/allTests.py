@@ -18,6 +18,9 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
 else:
     raise "can't find toplevel directory!"
 
+sys.path.append(os.path.join(toplevel, "config"))
+import TestUtil
+
 #
 # List of all basic tests.
 #
@@ -50,10 +53,7 @@ tests = [ \
 #
 # Certain tests only work on Linux.
 #
-# The substring on sys.platform is required because some cygwin
-# versions return "cygwin_nt-4.01".
-#
-if sys.platform != "win32" and sys.platform[:6] != "cygwin":
+if TestUtil.isWin32() == 0 and TestUtil.isCygwin() == 0:
     tests += [ \
         "Glacier/starter", \
         ]

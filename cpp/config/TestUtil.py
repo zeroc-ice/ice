@@ -71,16 +71,32 @@ clientOptions = clientProtocol + defaultHost
 clientServerOptions = commonServerOptions + clientServerProtocol + defaultHost
 collocatedOptions = clientServerProtocol
 
+def isCygwin():
+
+    # The substring on sys.platform is required because some cygwin
+    # versions return variations like "cygwin_nt-4.01".
+    if sys.platform[:6] == "cygwin":
+        return 1
+    else:
+        return 0
+
+def isWin32():
+
+    if sys.platform == "win32":
+        return 1
+    else:
+        return 0
+        
 serverPids = []
 def killServers():
 
     global serverPids
 
     for pid in serverPids:
-        if sys.platform == "cygwin":
+        if isCygwin():
             print "killServers(): not implemented for cygwin python."
             sys.exit(1)
-        elif sys.platform == "win32":
+        elif isWin32():
             try:
                 import win32api
                 handle = win32api.OpenProcess(1, 0, pid)
