@@ -134,6 +134,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, bool server) :
 	_multipleThreads = true;
     }
 
+    __setNoDelete(true);
     try
     {
 	for (int i = 0 ; i < _threadNum ; ++i)
@@ -151,8 +152,15 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, bool server) :
 
 	destroy();
 	joinWithAllThreads();
+	__setNoDelete(false);
 	throw;
     }
+    catch (...)
+    {
+	__setNoDelete(false);
+	throw;
+    }
+    __setNoDelete(false);
 }
 
 IceInternal::ThreadPool::~ThreadPool()
