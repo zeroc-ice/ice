@@ -61,6 +61,11 @@ public final class LocatorInfo
 	if(_locatorRegistry == null) // Lazy initialization
 	{
 	    _locatorRegistry = _locator.getRegistry();
+
+	    //
+	    // The locator registry can't be located.
+	    //
+	    _locatorRegistry = Ice.LocatorRegistryPrxHelper.uncheckedCast(_locatorRegistry.ice_locator(null));
 	}
 	
 	return _locatorRegistry;

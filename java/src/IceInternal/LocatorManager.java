@@ -38,12 +38,17 @@ public final class LocatorManager
     // the locator info if it doesn't exist yet.
     //
     public LocatorInfo
-    get(Ice.LocatorPrx locator)
+    get(Ice.LocatorPrx loc)
     {
-        if(locator == null)
+        if(loc == null)
         {
             return null;
         }
+
+	//
+	// The locator can't be located.
+	//
+	Ice.LocatorPrx locator = Ice.LocatorPrxHelper.uncheckedCast(loc.ice_locator(null));
 
 	//
 	// TODO: reap unused locator info objects?
