@@ -153,7 +153,6 @@ twoways(const Test::MyClassPrx& p)
 	test(c2 != 0);
 	test(r == p);
 	r->opVoid();
-/*
 	try
 	{
 	    c1->opVoid();
@@ -178,7 +177,6 @@ twoways(const Test::MyClassPrx& p)
 	{
 	    test(false);
 	}
-*/
     }
 
 
