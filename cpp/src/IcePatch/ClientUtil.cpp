@@ -17,27 +17,27 @@ using namespace std;
 using namespace Ice;
 using namespace IcePatch;
 
-ProgressCB::ProgressCB() :
-    _aborted(false)
+AbortException::AbortException(const char* file, int line) : 
+    IceUtil::Exception(file, line)
 {
 }
 
-ProgressCB::~ProgressCB()
+std::string 
+AbortException::ice_name() const
 {
+    return "AbortException";
+}
+
+Exception*
+AbortException::ice_clone() const
+{
+    return new AbortException(*this);
 }
 
 void
-IcePatch::ProgressCB::abort()
+AbortException::ice_throw() const
 {
-    IceUtil::Mutex::Lock lock(*this);
-    _aborted = true;
-}
-
-bool
-IcePatch::ProgressCB::isAborted()
-{
-    IceUtil::Mutex::Lock lock(*this);
-    return _aborted;
+    throw *this;
 }
 
 string
@@ -157,53 +157,63 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
     
     const Int numBZ2 = 64 * 1024;
     Byte bytesBZ2[numBZ2];
-    
-    progressCB.startUncompress(totalBZ2, 0);
-    
-    while(bzError != BZ_STREAM_END)
-    {
-	int sz = BZ2_bzRead(&bzError, bzFile, bytesBZ2, numBZ2);
-	if(bzError != BZ_OK && bzError != BZ_STREAM_END)
-	{
-	    FileAccessException ex;
-	    ex.reason = "BZ2_bzRead failed";
-	    if(bzError == BZ_IO_ERROR)
-	    {
-		ex.reason += string(": ") + strerror(errno);
-	    }
-	    BZ2_bzReadClose(&bzError, bzFile);
-	    fclose(stdioFileBZ2);
-	    throw ex;
-	}
-	
-	if(sz > 0)
-	{
-	    long pos = ftell(stdioFileBZ2);
-	    if(pos == -1)
-	    {
-		FileAccessException ex;
-		ex.reason = "cannot get read position for `" + pathBZ2 + "': " + strerror(errno);
-		BZ2_bzReadClose(&bzError, bzFile);
-		fclose(stdioFileBZ2);
-		throw ex;
-	    }
 
-	    progressCB.updateUncompress(totalBZ2, pos);
-	    
-	    file.write(bytesBZ2, sz);
-	    if(!file)
+    try
+    {
+        progressCB.startUncompress(totalBZ2, 0);
+    
+        while(bzError != BZ_STREAM_END)
+        {
+	    int sz = BZ2_bzRead(&bzError, bzFile, bytesBZ2, numBZ2);
+	    if(bzError != BZ_OK && bzError != BZ_STREAM_END)
 	    {
-		FileAccessException ex;
-		ex.reason = "cannot write `" + path + "': " + strerror(errno);
-		BZ2_bzReadClose(&bzError, bzFile);
-		fclose(stdioFileBZ2);
-		throw ex;
+	        FileAccessException ex;
+	        ex.reason = "BZ2_bzRead failed";
+	        if(bzError == BZ_IO_ERROR)
+	        {
+		    ex.reason += string(": ") + strerror(errno);
+	        }
+	        BZ2_bzReadClose(&bzError, bzFile);
+	        fclose(stdioFileBZ2);
+	        throw ex;
 	    }
-	}
+	    
+	    if(sz > 0)
+	    {
+	        long pos = ftell(stdioFileBZ2);
+	        if(pos == -1)
+	        {
+		    FileAccessException ex;
+		    ex.reason = "cannot get read position for `" + pathBZ2 + "': " + strerror(errno);
+		    BZ2_bzReadClose(&bzError, bzFile);
+		    fclose(stdioFileBZ2);
+		    throw ex;
+	        }
+
+	        progressCB.updateUncompress(totalBZ2, pos);
+	        
+	        file.write(bytesBZ2, sz);
+	        if(!file)
+	        {
+		    FileAccessException ex;
+		    ex.reason = "cannot write `" + path + "': " + strerror(errno);
+		    BZ2_bzReadClose(&bzError, bzFile);
+		    fclose(stdioFileBZ2);
+		    throw ex;
+	        }
+	    }
+        }
+    
+        progressCB.finishedUncompress(totalBZ2);
     }
-    
-    progressCB.finishedUncompress(totalBZ2);
-    
+    catch(...)
+    {
+        BZ2_bzReadClose(&bzError, bzFile);
+        fclose(stdioFileBZ2);
+        file.close();
+        throw;
+    }
+
     BZ2_bzReadClose(&bzError, bzFile);
     if(bzError != BZ_OK)
     {
