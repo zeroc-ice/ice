@@ -22,7 +22,6 @@
 #include "exception.h"
 #include "slice.h"
 #include "util.h"
-#include "php_ice.h"
 
 using namespace std;
 
@@ -69,6 +68,7 @@ PHP_INI_END()
 ZEND_MINIT_FUNCTION(ice)
 {
     REGISTER_INI_ENTRIES();
+    ZEND_INIT_MODULE_GLOBALS(ice, NULL, NULL);
 
     if(!Ice_Communicator_init(TSRMLS_C))
     {
@@ -114,6 +114,9 @@ ZEND_MSHUTDOWN_FUNCTION(ice)
 
 ZEND_RINIT_FUNCTION(ice)
 {
+    ICE_G(communicator) = NULL;
+    ICE_G(typeMap) = new TypeMap;
+
     //
     // Create a new communicator for each request, storing it in the global variable "ICE".
     //
@@ -125,7 +128,16 @@ ZEND_RINIT_FUNCTION(ice)
     //
     // Define the PHP classes for Slice types.
     //
-    if(!Slice_defineClasses(module_number TSRMLS_CC))
+    if(!Slice_createClasses(module_number TSRMLS_CC))
+    {
+        return FAILURE;
+    }
+
+    //
+    // Register factories in the communicator.
+    //
+    Ice::CommunicatorPtr communicator = Ice_Communicator_instance(TSRMLS_C);
+    if(!Slice_registerFactories(communicator TSRMLS_CC))
     {
         return FAILURE;
     }
@@ -135,6 +147,10 @@ ZEND_RINIT_FUNCTION(ice)
 
 ZEND_RSHUTDOWN_FUNCTION(ice)
 {
+    Slice_destroyClasses(TSRMLS_C);
+
+    delete static_cast<TypeMap*>(ICE_G(typeMap));
+
     return SUCCESS;
 }
 
