@@ -51,7 +51,8 @@ public:
 
     virtual EntryPrx createEntry();
     virtual Entries findEntries(const std::wstring&);
-
+    virtual Names listNames();
+    
     void add(const std::string&, const std::wstring&);
     void remove(const std::string&, const std::wstring&);
     void move(const std::string&, const std::wstring&, const std::wstring&);

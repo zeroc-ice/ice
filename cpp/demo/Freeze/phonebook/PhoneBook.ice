@@ -30,15 +30,17 @@ class Entry
 };
 
 sequence<Entry*> Entries;
-sequence<string> EntryIdentities;
-dictionary<wstring, EntryIdentities> EntryIdentitiesDict;
+sequence<string> Identities;
+dictionary<wstring, Identities> NameIdentitiesDict;
+sequence<wstring> Names;
 
 class PhoneBook
 {
     Entry* createEntry();
     Entries findEntries(wstring name);
+    Names listNames();
 
-    EntryIdentitiesDict _entryIdentitiesDict;
+    NameIdentitiesDict _nameIdentitiesDict;
 };
 
 #endif

@@ -128,10 +128,11 @@ PhoneBookI::findEntries(const wstring& name)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
-    EntryIdentitiesDict::iterator p = _entryIdentitiesDict.find(name);
-    if (p != _entryIdentitiesDict.end())
+    NameIdentitiesDict::iterator p = _nameIdentitiesDict.find(name);
+    if (p != _nameIdentitiesDict.end())
     {
 	Entries entries;
+	entries.reserve(p->second.size());
 	transform(p->second.begin(), p->second.end(), back_inserter(entries), IdentityToEntry(_adapter));
 	return entries;
     }
@@ -141,12 +142,33 @@ PhoneBookI::findEntries(const wstring& name)
     }
 }
 
+Names
+PhoneBookI::listNames()
+{
+    JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
+
+    Names names;
+    for (NameIdentitiesDict::iterator p = _nameIdentitiesDict.begin(); p != _nameIdentitiesDict.begin(); ++p)
+    {
+	//
+	// If there are multiple entries for one name, I want the name
+	// listed just as many times.
+	//
+	for (Identities::size_type i = 0; i < p->second.size(); ++i)
+	{
+	    names.push_back(p->first);
+	}
+    }
+
+    return names;
+}
+
 void
 PhoneBookI::add(const string& identity, const wstring& name)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
-    _entryIdentitiesDict[name].push_back(identity);
+    _nameIdentitiesDict[name].push_back(identity);
 }
 
 void
@@ -154,8 +176,8 @@ PhoneBookI::remove(const string& identity, const wstring& name)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
-    EntryIdentitiesDict::iterator p = _entryIdentitiesDict.find(name);
-    assert(p != _entryIdentitiesDict.end());
+    NameIdentitiesDict::iterator p = _nameIdentitiesDict.find(name);
+    assert(p != _nameIdentitiesDict.end());
     p->second.erase(remove_if(p->second.begin(), p->second.end(), bind2nd(equal_to<string>(), identity)),
 		    p->second.end());
 }
