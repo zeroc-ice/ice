@@ -46,10 +46,16 @@ public interface ObjectPrx
     ObjectPrx ice_appendFacet(String f);
 
     ObjectPrx ice_twoway();
+    boolean ice_isTwoway();
     ObjectPrx ice_oneway();
+    boolean ice_isOneway();
     ObjectPrx ice_batchOneway();
+    boolean ice_isBatchOneway();
     ObjectPrx ice_datagram();
+    boolean ice_isDatagram();
     ObjectPrx ice_batchDatagram();
+    boolean ice_isBatchDatagram();
+
     ObjectPrx ice_secure(boolean b);
     ObjectPrx ice_timeout(int t);
     ObjectPrx ice_router(Ice.RouterPrx router);

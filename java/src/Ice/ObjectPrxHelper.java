@@ -274,6 +274,12 @@ public class ObjectPrxHelper implements ObjectPrx
         }
     }
 
+    public final boolean
+    ice_isTwoway()
+    {
+	return _reference.mode == IceInternal.Reference.ModeTwoway;
+    }
+
     public final ObjectPrx
     ice_oneway()
     {
@@ -288,6 +294,12 @@ public class ObjectPrxHelper implements ObjectPrx
             proxy.setup(ref);
             return proxy;
         }
+    }
+
+    public final boolean
+    ice_isOneway()
+    {
+	return _reference.mode == IceInternal.Reference.ModeOneway;
     }
 
     public final ObjectPrx
@@ -306,6 +318,12 @@ public class ObjectPrxHelper implements ObjectPrx
         }
     }
 
+    public final boolean
+    ice_isBatchOneway()
+    {
+	return _reference.mode == IceInternal.Reference.ModeBatchOneway;
+    }
+
     public final ObjectPrx
     ice_datagram()
     {
@@ -322,6 +340,12 @@ public class ObjectPrxHelper implements ObjectPrx
         }
     }
 
+    public final boolean
+    ice_isDatagram()
+    {
+	return _reference.mode == IceInternal.Reference.ModeDatagram;
+    }
+
     public final ObjectPrx
     ice_batchDatagram()
     {
@@ -336,6 +360,12 @@ public class ObjectPrxHelper implements ObjectPrx
             proxy.setup(ref);
             return proxy;
         }
+    }
+
+    public final boolean
+    ice_isBatchDatagram()
+    {
+	return _reference.mode == IceInternal.Reference.ModeBatchDatagram;
     }
 
     public final ObjectPrx
