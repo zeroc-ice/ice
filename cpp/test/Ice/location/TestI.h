@@ -11,7 +11,7 @@
 #define TEST_I_H
 
 #include <Test.h>
-#include <set>
+#include <vector>
 
 class ServerManagerI : public ServerManager
 {
@@ -24,7 +24,7 @@ public:
 private:
 
     Ice::ObjectAdapterPtr _adapter;
-    std::set<Ice::CommunicatorPtr> _communicators;
+    std::vector<Ice::CommunicatorPtr> _communicators;
 };
 
 class HelloI : public Hello

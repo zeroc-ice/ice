@@ -31,7 +31,7 @@ ServerManagerI::startServer(const Ice::Current&)
     // the adapter id instead of the endpoints.
     //
     Ice::CommunicatorPtr serverCommunicator = Ice::initialize(argc, argv);
-    _communicators.insert(serverCommunicator);
+    _communicators.push_back(serverCommunicator);
     serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints", "default");
     serverCommunicator->getProperties()->setProperty("TestAdapter.AdapterId", "TestAdapter");
     Ice::ObjectAdapterPtr adapter = serverCommunicator->createObjectAdapter("TestAdapter");
@@ -47,7 +47,7 @@ ServerManagerI::startServer(const Ice::Current&)
 void
 ServerManagerI::shutdown(const Ice::Current&)
 {
-    for(::std::set<Ice::CommunicatorPtr>::const_iterator i = _communicators.begin(); i != _communicators.end(); ++i)
+    for(::std::vector<Ice::CommunicatorPtr>::const_iterator i = _communicators.begin(); i != _communicators.end(); ++i)
     {
 	(*i)->destroy();
     }
