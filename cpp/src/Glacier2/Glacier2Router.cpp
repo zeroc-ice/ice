@@ -83,24 +83,24 @@ Glacier2::RouterService::start(int argc, char* argv[])
     {
         cerr << e.reason << endl;
 	usage(argv[0]);
-	return EXIT_FAILURE;
+	return false;
     }
 
     if(opts.isSet("h") || opts.isSet("help"))
     {
 	usage(argv[0]);
-	return EXIT_SUCCESS;
+	return false;
     }
     if(opts.isSet("v") || opts.isSet("version"))
     {
 	cout << ICE_STRING_VERSION << endl;
-	return EXIT_SUCCESS;
+	return false;
     }
 
     if(!args.empty())
     {
 	usage(argv[0]);
-	return EXIT_FAILURE;
+	return false;
     }
 
     PropertiesPtr properties = communicator()->getProperties();

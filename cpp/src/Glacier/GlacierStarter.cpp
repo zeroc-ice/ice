@@ -92,24 +92,24 @@ Glacier::StarterService::start(int argc, char* argv[])
     {
 	cerr << argv[0] << ": " << e.reason << endl;
 	usage(argv[0]);
-	return EXIT_FAILURE;
+	return false;
     }
 
     if(opts.isSet("h") || opts.isSet("help"))
     {
 	usage(argv[0]);
-	return EXIT_SUCCESS;
+	return false;
     }
     if(opts.isSet("v") || opts.isSet("version"))
     {
 	cout << ICE_STRING_VERSION << endl;
-	return EXIT_SUCCESS;
+	return false;
     }
 
     if(!args.empty())
     {
 	usage(argv[0]);
-	return EXIT_FAILURE;
+	return false;
     }
 
     Ice::PropertiesPtr properties = communicator()->getProperties();

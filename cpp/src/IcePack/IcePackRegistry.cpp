@@ -62,25 +62,25 @@ IcePack::RegistryService::start(int argc, char* argv[])
     {
         cerr << e.reason << endl;
 	usage(argv[0]);
-	return EXIT_FAILURE;
+	return false;
     }
 
     if(opts.isSet("h") || opts.isSet("help"))
     {
 	usage(argv[0]);
-	return EXIT_SUCCESS;
+	return false;
     }
     if(opts.isSet("v") || opts.isSet("version"))
     {
 	cout << ICE_STRING_VERSION << endl;
-	return EXIT_SUCCESS;
+	return false;
     }
     nowarn = opts.isSet("nowarn");
 
     if(!args.empty())
     {
 	usage(argv[0]);
-	return EXIT_FAILURE;
+	return false;
     }
 
     _registry = auto_ptr<Registry>(new Registry(communicator()));
