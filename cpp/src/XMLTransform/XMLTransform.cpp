@@ -999,23 +999,7 @@ public:
 	for(vector<ElementTransformPtr>::const_iterator p = _transforms.begin(); p != _transforms.end(); ++p)
 	{
 	    DOMNode* child = findChild(node, (*p)->namespaceURI(), (*p)->name());
-            try
-            {
-                (*p)->transform(os, info, (*p)->name(), child, map);
-            }
-            catch(const MissingTypeException& ex)
-            {
-                //
-                // A struct member cannot be removed if it refers to
-                // a missing type, so we translate MissingTypeException
-                // into SchemaViolation.
-                //
-                SchemaViolation e(__FILE__, __LINE__);
-                ostringstream ostr;
-                ostr << "error during transform of struct member `" << (*p)->name() << "':" << endl << ex.reason;
-                e.reason = ostr.str();
-                throw e;
-            }
+            (*p)->transform(os, info, (*p)->name(), child, map);
 	}
 
 	os << ::IceUtil::ee;
@@ -2743,7 +2727,8 @@ XMLTransform::Transformer::~Transformer()
 }
 
 void
-XMLTransform::Transformer::transform(::IceUtil::XMLOutput& os, DOMDocument* doc, bool force, bool emitRoot)
+XMLTransform::Transformer::transform(::IceUtil::XMLOutput& os, DOMDocument* doc, const string& primaryElement,
+                                     bool force, bool emitRoot)
 {
     DOMNode* root = doc->getFirstChild();
 
@@ -2849,7 +2834,12 @@ XMLTransform::Transformer::transform(::IceUtil::XMLOutput& os, DOMDocument* doc,
         }
         catch(const MissingTypeException&)
         {
-            if(!force)
+            //
+            // If a missing type is encountered in the primary element,
+            // we cannot ignore it. Otherwise, we ignore the exception
+            // if force is true.
+            //
+            if(nodeName == primaryElement || !force)
             {
                 throw;
             }
@@ -2936,60 +2926,78 @@ XMLTransform::DBTransformer::transform(DOMDocument* oldSchema, DOMDocument* newS
         {
             const Key& k = *p;
 
-            //
-            // Transform key
-            //
-            string fullKey;
-            fullKey.append(header);
-            fullKey.append(&k[0], k.size());
-            fullKey.append(footer);
-            MemBufInputSource keySource((const XMLByte*)fullKey.data(), fullKey.size(), "key");
-            parser.parse(keySource);
-            DOMDocument* keyDoc = parser.getDocument();
-
-            ostringstream keyStream;
-            IceUtil::XMLOutput keyOut(keyStream);
-            transformer.transform(keyOut, keyDoc, _force, false);
-
-            Key newKey;
-            const std::string& keyStr = keyStream.str();
-            newKey.resize(keyStr.size());
-            std::copy(keyStr.begin(), keyStr.end(), newKey.begin());
-
-            //
-            // Transform value
-            //
-            Value value = _db->getWithTxn(txn, k);
-            string fullValue;
-            fullValue.append(header);
-            fullValue.append(&value[0], value.size());
-            fullValue.append(footer);
-            MemBufInputSource valueSource((const XMLByte*)fullValue.data(), fullValue.size(), "value");
-            parser.parse(valueSource);
-            DOMDocument* valueDoc = parser.getDocument();
-
-            ostringstream valueStream;
-            IceUtil::XMLOutput valueOut(valueStream);
-            transformer.transform(valueOut, valueDoc, _force, false);
-
-            Value newValue;
-            const std::string& valueStr = valueStream.str();
-            newValue.resize(valueStr.size());
-            std::copy(valueStr.begin(), valueStr.end(), newValue.begin());
-
-            //
-            // Update database - only insert new key,value pair if the transformed
-            // key doesn't match an existing key.
-            //
-            _db->delWithTxn(txn, k);
-            if(_db->containsWithTxn(txn, newKey))
+            try
             {
-                reason = "transformed key matches an existing record:\n" + keyStr;
-                txn->abort();
-                txn = 0;
-                break;
+                //
+                // Transform key
+                //
+                string fullKey;
+                fullKey.append(header);
+                fullKey.append(&k[0], k.size());
+                fullKey.append(footer);
+                MemBufInputSource keySource((const XMLByte*)fullKey.data(), fullKey.size(), "key");
+                parser.parse(keySource);
+                DOMDocument* keyDoc = parser.getDocument();
+
+                ostringstream keyStream;
+                IceUtil::XMLOutput keyOut(keyStream);
+                transformer.transform(keyOut, keyDoc, "Key", _force, false);
+
+                Key newKey;
+                const std::string& keyStr = keyStream.str();
+                newKey.resize(keyStr.size());
+                std::copy(keyStr.begin(), keyStr.end(), newKey.begin());
+
+                //
+                // Transform value
+                //
+                Value value = _db->getWithTxn(txn, k);
+                string fullValue;
+                fullValue.append(header);
+                fullValue.append(&value[0], value.size());
+                fullValue.append(footer);
+                MemBufInputSource valueSource((const XMLByte*)fullValue.data(), fullValue.size(), "value");
+                parser.parse(valueSource);
+                DOMDocument* valueDoc = parser.getDocument();
+
+                ostringstream valueStream;
+                IceUtil::XMLOutput valueOut(valueStream);
+                transformer.transform(valueOut, valueDoc, "Value", _force, false);
+
+                Value newValue;
+                const std::string& valueStr = valueStream.str();
+                newValue.resize(valueStr.size());
+                std::copy(valueStr.begin(), valueStr.end(), newValue.begin());
+
+                //
+                // Update database - only insert new key,value pair if the transformed
+                // key doesn't match an existing key.
+                //
+                _db->delWithTxn(txn, k);
+                if(_db->containsWithTxn(txn, newKey))
+                {
+                    reason = "transformed key matches an existing record:\n" + keyStr;
+                    txn->abort();
+                    txn = 0;
+                    break;
+                }
+                _db->putWithTxn(txn, newKey, newValue);
             }
-            _db->putWithTxn(txn, newKey, newValue);
+            catch(const MissingTypeException&)
+            {
+                //
+                // If a missing type is encountered and _force is true,
+                // then remove the key,value pair from the database.
+                //
+                if(_force)
+                {
+                    _db->delWithTxn(txn, k);
+                }
+                else
+                {
+                    throw;
+                }
+            }
         }
 
         if(txn)

@@ -205,7 +205,7 @@ public:
                 DOMDocument*, DOMDocument*);
     ~Transformer();
 
-    void transform(::IceUtil::XMLOutput&, DOMDocument*, bool, bool = true);
+    void transform(::IceUtil::XMLOutput&, DOMDocument*, const std::string&, bool, bool = true);
 
 private:
 
