@@ -1416,7 +1416,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << sp << nl << "public final void" << nl
             << "__write(IceInternal.BasicStream __os)";
         out << sb;
-        if (sz <= 0xff)
+        if (sz <= 0x7f)
         {
             out << nl << "__os.writeByte((byte)__value);";
         }
@@ -1436,7 +1436,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << sp << nl << "public static " << name << nl
             << "__read(IceInternal.BasicStream __is)";
         out << sb;
-        if (sz <= 0xff)
+        if (sz <= 0x7f)
         {
             out << nl << "int __v = __is.readByte();";
         }

@@ -867,7 +867,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 	C << sp << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, " << scoped
 	  << " v)";
 	C << sb;
-	if (sz <= 0xff)
+	if (sz <= 0x7f)
 	{
 	    C << nl << "__os->write(static_cast< ::Ice::Byte>(v));";
 	}
@@ -884,7 +884,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 	C << sp << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " << scoped
 	  << "& v)";
 	C << sb;
-	if (sz <= 0xff)
+	if (sz <= 0x7f)
 	{
 	    C << nl << "::Ice::Byte val;";
 	    C << nl << "__is->read(val);";

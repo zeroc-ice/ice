@@ -193,9 +193,9 @@ IceInternal::BasicStream::skipEncaps()
 void
 IceInternal::BasicStream::writeSize(Int v)
 {
-    if (v >= 0xff)
+    if (v > 0x7f)
     {
-	write(Byte(0xff));
+	write(Byte(255));
 	write(v);
     }
     else
@@ -209,7 +209,7 @@ IceInternal::BasicStream::readSize(Ice::Int& v)
 {
     Byte b;
     read(b);
-    if (b == Byte(0xff))
+    if (b > Byte(0x7f))
     {
 	read(v);
     }
