@@ -34,7 +34,7 @@ public:
 	return *this;
     }
 
-    static ObjectHandle<T> cast(::_IceObj::Ice::ObjectI* from)
+    static ObjectHandle<T> cast(::Ice::ObjectI* from)
     {
 	T* to;
 	_cast(from, to);

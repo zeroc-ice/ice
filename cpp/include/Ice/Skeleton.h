@@ -14,24 +14,24 @@
 #include <Ice/SkeletonF.h>
 #include <Ice/Shared.h>
 
-namespace IceServant { namespace Ice
+namespace IceServant
 {
 
-class ICE_API ServantS : virtual public ::_Ice::Shared
+class ICE_API ObjectS : virtual public ::_Ice::Shared
 {
 public:
 
 protected:
 
-    ServantS();
-    virtual ~ServantS();
+    ObjectS();
+    virtual ~ObjectS();
 
 private:
 
-    ServantS(const ServantS&);
-    void operator=(const ServantS&);
+    ObjectS(const ObjectS&);
+    void operator=(const ObjectS&);
 };
 
-} }
+}
 
 #endif

@@ -18,7 +18,7 @@
 #include <Ice/Shared.h>
 #include <Ice/Outgoing.h>
 
-namespace _IceObj { namespace Ice
+namespace Ice
 {
 
 class ICE_API ObjectI : virtual public ::_Ice::Shared, JTCMutex
@@ -29,7 +29,7 @@ public:
     bool operator!=(const ObjectI&) const;
 
     ::_Ice::ReferenceData _referenceData() const;
-    void _copyTo(::_IceObj::Ice::ObjectI*) const;
+    void _copyTo(ObjectI*) const;
 
 protected:
 
@@ -52,7 +52,7 @@ private:
     friend class ::_Ice::ObjectFactoryI; // May create and setup ObjectIs
 };
 
-} }
+}
 
 namespace _IceStub { namespace Ice
 {
@@ -73,7 +73,7 @@ private:
 
     virtual void setup(const ::_Ice::ReferenceData&) = 0;
 
-    friend class ::_IceObj::Ice::ObjectI; // May create and setup ObjectIs
+    friend class ::Ice::ObjectI; // May create and setup ObjectIs
 };
 
 } }
@@ -102,7 +102,7 @@ private:
 
     void setup(const ::_Ice::ReferenceData&);
 
-    friend class ::_IceObj::Ice::ObjectI; // May create and setup ObjectIs
+    friend class ::Ice::ObjectI; // May create and setup ObjectIs
 };
 
 } }

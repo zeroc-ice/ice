@@ -13,15 +13,15 @@
 
 #include <Ice/Handle.h>
 
-namespace _IceObj { namespace Ice { class ObjectI; } }
+namespace Ice { class ObjectI; }
 namespace _IceStub { namespace Ice { class ObjectI; } }
 namespace _IceStubM { namespace Ice { class ObjectI; } }
 
 namespace _Ice
 {
 
-void ICE_API _incRef(::_IceObj::Ice::ObjectI*);
-void ICE_API _decRef(::_IceObj::Ice::ObjectI*);
+void ICE_API _incRef(::Ice::ObjectI*);
+void ICE_API _decRef(::Ice::ObjectI*);
 
 void ICE_API _incRef(::_IceStub::Ice::ObjectI*);
 void ICE_API _decRef(::_IceStub::Ice::ObjectI*);
@@ -34,21 +34,21 @@ void ICE_API _decRef(::_IceStubM::Ice::ObjectI*);
 namespace Ice
 {
 
-typedef _Ice::Handle< ::_IceObj::Ice::ObjectI > Object;
+typedef _Ice::Handle< ObjectI > Object;
 
 }
 
 namespace _IceStub { namespace Ice
 {
 
-typedef _Ice::Handle< ::_IceStub::Ice::ObjectI > Object;
+typedef _Ice::Handle< ObjectI > Object;
 
 } }
 
 namespace _IceStubM { namespace Ice
 {
 
-typedef _Ice::Handle< ::_IceStubM::Ice::ObjectI > Object;
+typedef _Ice::Handle< ObjectI > Object;
 
 } }
 

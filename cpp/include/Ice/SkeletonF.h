@@ -13,20 +13,20 @@
 
 #include <Ice/Handle.h>
 
-namespace IceServant { namespace Ice { class ServantS; } }
+namespace IceServant { class ObjectS; }
 
 namespace _Ice
 {
 
-void ICE_API _incRef(::IceServant::Ice::ServantS*);
-void ICE_API _decRef(::IceServant::Ice::ServantS*);
+void ICE_API _incRef(::IceServant::ObjectS*);
+void ICE_API _decRef(::IceServant::ObjectS*);
 
 }
 
-namespace Ice
+namespace IceServant
 {
 
-typedef _Ice::Handle< ::IceServant::Ice::ServantS > Servant;
+typedef _Ice::Handle< ObjectS > Object;
 
 }
 
