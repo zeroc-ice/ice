@@ -173,8 +173,11 @@ Slice::Output::nl()
 void
 Slice::Output::sb()
 {
-    nl();
-    _out << _blockStart;
+    if (_blockStart.length())
+    {
+        nl();
+        _out << _blockStart;
+    }
     ++_pos;
     inc();
     _separator = false;
@@ -184,8 +187,11 @@ void
 Slice::Output::eb()
 {
     dec();
-    nl();
-    _out << _blockEnd;
+    if (_blockEnd.length())
+    {
+        nl();
+        _out << _blockEnd;
+    }
     --_pos;
 }
 
