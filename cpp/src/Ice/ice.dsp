@@ -370,6 +370,14 @@ SOURCE=.\Stats.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Stream.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\StreamI.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TcpAcceptor.cpp
 # End Source File
 # Begin Source File
@@ -863,6 +871,14 @@ SOURCE=..\..\include\Ice\Stats.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\StatsF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\Stream.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\StreamF.h
 # End Source File
 # Begin Source File
 
