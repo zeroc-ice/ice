@@ -2246,110 +2246,23 @@ void
 Slice::JavaGenerator::validateMetaData(const UnitPtr& unit)
 {
     MetaDataVisitor visitor;
-    unit->visit(&visitor, false);
+    unit->visit(&visitor, true);
 }
 
 bool
 Slice::JavaGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 {
-    validate(p);
-    return true;
-}
-
-void
-Slice::JavaGenerator::MetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
-{
-    validate(p);
-}
-
-bool
-Slice::JavaGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    validate(p);
-    return true;
-}
-
-void
-Slice::JavaGenerator::MetaDataVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
-}
-
-bool
-Slice::JavaGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
-{
-    validate(p);
-    return true;
-}
-
-void
-Slice::JavaGenerator::MetaDataVisitor::visitExceptionEnd(const ExceptionPtr&)
-{
-}
-
-bool
-Slice::JavaGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
-{
-    validate(p);
-    return true;
-}
-
-void
-Slice::JavaGenerator::MetaDataVisitor::visitStructEnd(const StructPtr&)
-{
-}
-
-void
-Slice::JavaGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
-{
-    validate(p);
-}
-
-void
-Slice::JavaGenerator::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
-{
-    validate(p);
-}
-
-void
-Slice::JavaGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
-{
-    validate(p);
-}
-
-void
-Slice::JavaGenerator::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
-{
-    validate(p);
-}
-
-void
-Slice::JavaGenerator::MetaDataVisitor::visitEnum(const EnumPtr& p)
-{
-    validate(p);
-}
-
-void
-Slice::JavaGenerator::MetaDataVisitor::visitConst(const ConstPtr& p)
-{
-    validate(p);
-}
-
-void
-Slice::JavaGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
-{
-    DefinitionContextPtr dc = cont->definitionContext();
+    //
+    // Validate global metadata.
+    //
+    DefinitionContextPtr dc = p->definitionContext();
     assert(dc);
     StringList globalMetaData = dc->getMetaData();
     string file = dc->filename();
-
-    StringList localMetaData = cont->getMetaData();
-
-    StringList::const_iterator p;
     static const string prefix = "java:";
-
-    for(p = globalMetaData.begin(); p != globalMetaData.end(); ++p)
+    for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
     {
-        string s = *p;
+        string s = *q;
         if(_history.count(s) == 0)
         {
             if(s.find(prefix) == 0)
@@ -2364,35 +2277,172 @@ Slice::JavaGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
         }
     }
 
-    for(p = localMetaData.begin(); p != localMetaData.end(); ++p)
+    StringList metaData = getMetaData(p);
+    validate(p, metaData, p->definitionContext()->filename(), p->line());
+    return true;
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
+{
+    StringList metaData = getMetaData(p);
+    validate(p, metaData, p->definitionContext()->filename(), p->line());
+}
+
+bool
+Slice::JavaGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    StringList metaData = getMetaData(p);
+    validate(p, metaData, p->definitionContext()->filename(), p->line());
+    return true;
+}
+
+bool
+Slice::JavaGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    StringList metaData = getMetaData(p);
+    validate(p, metaData, p->definitionContext()->filename(), p->line());
+    return true;
+}
+
+bool
+Slice::JavaGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
+{
+    StringList metaData = getMetaData(p);
+    validate(p, metaData, p->definitionContext()->filename(), p->line());
+    return true;
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
+{
+    StringList metaData = getMetaData(p);
+    TypePtr returnType = p->returnType();
+    if(!metaData.empty())
+    {
+	if(!returnType)
+	{
+	    cout << p->definitionContext()->filename() << ":" << p->line()
+		 << ": warning: invalid metadata for operation" << endl;
+	}
+	else
+	{
+	    validate(returnType, metaData, p->definitionContext()->filename(), p->line());
+	}
+    }
+
+    ParamDeclList params = p->parameters();
+    for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
+    {
+	metaData = getMetaData(*q);
+	validate((*q)->type(), metaData, p->definitionContext()->filename(), (*q)->line());
+    }
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
+{
+    StringList metaData = getMetaData(p);
+    validate(p->type(), metaData, p->definitionContext()->filename(), p->line());
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
+{
+    StringList metaData = getMetaData(p);
+    validate(p, metaData, p->definitionContext()->filename(), p->line());
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
+{
+    StringList metaData = getMetaData(p);
+    validate(p, metaData, p->definitionContext()->filename(), p->line());
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::visitEnum(const EnumPtr& p)
+{
+    StringList metaData = getMetaData(p);
+    validate(p, metaData, p->definitionContext()->filename(), p->line());
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::visitConst(const ConstPtr& p)
+{
+    StringList metaData = getMetaData(p);
+    validate(p, metaData, p->definitionContext()->filename(), p->line());
+}
+
+StringList
+Slice::JavaGenerator::MetaDataVisitor::getMetaData(const ContainedPtr& cont)
+{
+    StringList metaData = cont->getMetaData();
+    DefinitionContextPtr dc = cont->definitionContext();
+    assert(dc);
+    string file = dc->filename();
+
+    StringList result;
+    static const string prefix = "java:";
+
+    for(StringList::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
     {
         string s = *p;
-        if(_history.count(s) == 0)
+        if(_history.count(s) == 0) // Don't complain about the same metadata more than once.
         {
             if(s.find(prefix) == 0)
             {
                 string::size_type pos = s.find(':', prefix.size());
                 if(pos == string::npos)
                 {
-                    cout << file << ":" << cont->line() << ": warning: metadata `" << s << "' uses deprecated syntax"
-		         << endl;
+		    if(s.size() > prefix.size())
+		    {
+			cout << file << ":" << cont->line() << ": warning: metadata `" << s
+			     << "' uses deprecated syntax" << endl;
+			//
+			// Translate java:X into java:type:X.
+			//
+			result.push_back(prefix + "type:" + s.substr(prefix.size()));
+			continue;
+		    }
                 }
-                else if(s.substr(prefix.size(), pos - prefix.size()) != "type")
+                else if(s.substr(prefix.size(), pos - prefix.size()) == "type")
                 {
-                    cout << file << ":" << cont->line() << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+		    result.push_back(s);
+		    continue;
                 }
-		if(SequencePtr::dynamicCast(cont))
-		{
-		    continue;
-		}
-		DataMemberPtr m = DataMemberPtr::dynamicCast(cont);
-		if(m && SequencePtr::dynamicCast(m->type()))
-		{
-		    continue;
-		}
+
 		cout << file << ":" << cont->line() << ": warning: ignoring invalid metadata `" << s << "'" << endl;
             }
+
             _history.insert(s);
         }
+    }
+
+    return result;
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::validate(const SyntaxTreeBasePtr& p, const StringList& metaData,
+						const string& file, const string& line)
+{
+    //
+    // Currently only sequence types can be affected by metadata.
+    //
+    if(!metaData.empty() && !SequencePtr::dynamicCast(p))
+    {
+	string str;
+	ContainedPtr cont = ContainedPtr::dynamicCast(p);
+	if(cont)
+	{
+	    str = cont->kindOf();
+	}
+	else
+	{
+	    BuiltinPtr b = BuiltinPtr::dynamicCast(p);
+	    assert(b);
+	    str = b->typeId();
+	}
+	cout << file << ":" << line << ": warning: invalid metadata for " << str << endl;
     }
 }
