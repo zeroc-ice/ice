@@ -15,7 +15,8 @@ include $(top_srcdir)/config/Make.rules
 SUBDIRS		= IceUtil \
 		  Ice \
 		  Freeze \
-		  IceStorm
+		  IceStorm \
+		  IceBox
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
