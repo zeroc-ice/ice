@@ -65,7 +65,7 @@ Berkeley DB
 -----------
 
 Freeze for Java uses Berkeley DB as its underlying database. It requires
-Berkeley DB 4.1.25 or 4.2.52.
+Berkeley DB 4.2.52.
 
 Even though Berkeley DB is included with many Linux distributions, the 
 Java files for Berkeley DB are usually not available. This means that you
