@@ -126,45 +126,43 @@ IceInternal::Connection::waitUntilFinished()
 void
 IceInternal::Connection::monitor()
 {
-    try
+    
+    IceUtil::Monitor<IceUtil::RecMutex>::TryLock sync(*this);
+    if(!sync.acquired())
     {
-	IceUtil::Monitor<IceUtil::RecMutex>::TryLock sync(*this);
-	
-	if(_state != StateActive)
+	return;
+    }
+    
+    if(_state != StateActive)
+    {
+	return;
+    }
+    
+    //
+    // Check for timed out async requests.
+    //
+    for(map<Int, OutgoingAsyncPtr>::iterator p = _asyncRequests.begin(); p != _asyncRequests.end(); ++p)
+    {
+	if(p->second->__timedOut())
 	{
+	    setState(StateClosed, TimeoutException(__FILE__, __LINE__));
 	    return;
 	}
-
-	//
-	// Check for timed out async requests.
-	//
-	for(map<Int, OutgoingAsyncPtr>::iterator p = _asyncRequests.begin(); p != _asyncRequests.end(); ++p)
-	{
-	    if(p->second->__timedOut())
-	    {
-		setState(StateClosed, TimeoutException(__FILE__, __LINE__));
-		return;
-	    }
-	}
-
-	//
-	// Active connection management for idle connections.
-	//
-	// TODO: Hack: ACM for incoming connections doesn't work right
-	// with AMI.
-	//
-	if(_acmTimeout > 0 && closeOK() && !_adapter)
-	{
-	    if(IceUtil::Time::now() >= _acmAbsoluteTimeout)
-	    {
-		setState(StateClosing, ConnectionTimeoutException(__FILE__, __LINE__));
-		return;
-	    }
-	}
     }
-    catch(const IceUtil::ThreadLockedException&)
+    
+    //
+    // Active connection management for idle connections.
+    //
+    // TODO: Hack: ACM for incoming connections doesn't work right
+    // with AMI.
+    //
+    if(_acmTimeout > 0 && closeOK() && !_adapter)
     {
-	// Ignore.
+	if(IceUtil::Time::now() >= _acmAbsoluteTimeout)
+	{
+	    setState(StateClosing, ConnectionTimeoutException(__FILE__, __LINE__));
+	    return;
+	}
     }
 }
 

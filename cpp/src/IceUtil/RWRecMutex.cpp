@@ -62,7 +62,7 @@ IceUtil::RWRecMutex::tryReadlock() const
 }
 
 bool
-IceUtil::RWRecMutex::timedTryReadlock(const Time& timeout) const
+IceUtil::RWRecMutex::timedReadlock(const Time& timeout) const
 {
     Mutex::Lock lock(_mutex);
 
@@ -76,7 +76,10 @@ IceUtil::RWRecMutex::timedTryReadlock(const Time& timeout) const
 	Time remainder = end - Time::now();
 	if(remainder > Time())
 	{
-	    _readers.timedWait(lock, remainder);
+	    if(_readers.timedWait(lock, remainder) == false)
+	    {
+		return false;
+	    }
 	}
 	else
 	{
@@ -161,7 +164,7 @@ IceUtil::RWRecMutex::tryWritelock() const
 }
 
 bool
-IceUtil::RWRecMutex::timedTryWritelock(const Time& timeout) const
+IceUtil::RWRecMutex::timedWritelock(const Time& timeout) const
 {
     Mutex::Lock lock(_mutex);
 
@@ -187,14 +190,18 @@ IceUtil::RWRecMutex::timedTryWritelock(const Time& timeout) const
 	    _waitingWriters++;
 	    try
 	    {
-		_writers.timedWait(lock, remainder);
+		bool result = _writers.timedWait(lock, remainder);
+		_waitingWriters--;
+		if(result == false)
+		{
+		    return false;
+		}
 	    }
 	    catch(...)
 	    {
 		--_waitingWriters;
 		throw;
 	    }
-	    _waitingWriters--;
 	}
 	else
 	{
@@ -284,16 +291,14 @@ IceUtil::RWRecMutex::upgrade() const
 {
     Mutex::Lock lock(_mutex);
 
-    //
-    // Reader called unlock
+    // Reader owns at least one count
     //
     assert(_count > 0);
-    --_count;
-
+   
     //
     // Wait to acquire the write lock.
     //
-    while(_count != 0)
+    while(_count != 1)
     {
 	_waitingWriters++;
 	try
@@ -305,9 +310,7 @@ IceUtil::RWRecMutex::upgrade() const
 	    --_waitingWriters;
 	    throw;
 	}
-	_waitingWriters--;
-
-	
+	_waitingWriters--;	
     }
 
     //
@@ -317,22 +320,20 @@ IceUtil::RWRecMutex::upgrade() const
     _writerId = ThreadControl().id();
 }
 
-void
+bool
 IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
 {
     Mutex::Lock lock(_mutex);
 
-    //
-    // Reader called unlock
+    // Reader owns at least one count
     //
     assert(_count > 0);
-    --_count;
 
     //
     // Wait to acquire the write lock.
     //
     Time end = Time::now() + timeout;
-    while(_count != 0)
+    while(_count != 1)
     {
 	Time remainder = end - Time::now();
 	if(remainder > Time())
@@ -340,23 +341,24 @@ IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
 	    _waitingWriters++;
 	    try
 	    {
-		_writers.timedWait(lock, remainder);
+		bool result = _writers.timedWait(lock, remainder);
+		_waitingWriters--;
+		if(result == false)
+		{
+		    return false;
+		}
 	    }
 	    catch(...)
 	    {
 		--_waitingWriters;
 		throw;
 	    }
-	    _waitingWriters--;
 	}
 	else
 	{
 	    //
-	    // If a timeout occurred then the lock wasn't acquired. Ensure
-	    // that the _count is increased again before returning.
-	    //
-	    ++_count;
-	    throw ThreadLockedException(__FILE__, __LINE__);
+	    // If a timeout occurred then the lock wasn't acquired
+	    return false;
 	}
     }
 
@@ -365,4 +367,5 @@ IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
     //
     _count = -1;
     _writerId = ThreadControl().id();
+    return true;
 }

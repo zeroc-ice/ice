@@ -43,53 +43,53 @@ IcePatch::FileI::readMD5(const Current& current) const
 	return ByteSeq();
     }
     
-    try
-    {
-	IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
-	
-	FileInfo info = getFileInfo(path, true, _fileTraceLogger);
-	FileInfo infoMD5 = getFileInfo(path + ".md5", false, _fileTraceLogger);
-
-	if(infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
-	{
-	    sync.timedUpgrade(_busyTimeout);
-
-	    infoMD5 = getFileInfo(path + ".md5", false, _fileTraceLogger);
-	    while(infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
-	    {
-		//
-		// Timestamps have only a resolution of one second, so
-		// we sleep if it's likely that the created MD5 file
-		// would have the same time stamp as the source file.
-		//
-		IceUtil::Time diff = IceUtil::Time::seconds(info.time + 1) - IceUtil::Time::now();
-		if(diff > IceUtil::Time())
-		{
-		    IceUtil::ThreadControl::sleep(diff);
-		}
-
-		createMD5(path, _fileTraceLogger);
-
-		//
-		// If the source file size has changed after we
-		// created the MD5 file, we try again.
-		//
-		FileInfo oldInfo = info;
-		info = getFileInfo(path, true, _fileTraceLogger);
-		infoMD5 = getFileInfo(path + ".md5", true, _fileTraceLogger); // Must exist.
-		if(info.size != oldInfo.size)
-		{
-		    info.time = infoMD5.time;
-		}
-	    }
-	}
-	
-	return getMD5(path);
-    }
-    catch(const IceUtil::ThreadLockedException&)
+    IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
+    if(!sync.acquired())
     {
 	throw BusyException();
     }
+
+    FileInfo info = getFileInfo(path, true, _fileTraceLogger);
+    FileInfo infoMD5 = getFileInfo(path + ".md5", false, _fileTraceLogger);
+    
+    if(infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
+    {
+	if(!sync.timedUpgrade(_busyTimeout))
+	{
+	    throw BusyException();
+	}
+	
+	infoMD5 = getFileInfo(path + ".md5", false, _fileTraceLogger);
+	while(infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
+	{
+	    //
+	    // Timestamps have only a resolution of one second, so
+	    // we sleep if it's likely that the created MD5 file
+	    // would have the same time stamp as the source file.
+	    //
+	    IceUtil::Time diff = IceUtil::Time::seconds(info.time + 1) - IceUtil::Time::now();
+	    if(diff > IceUtil::Time())
+	    {
+		IceUtil::ThreadControl::sleep(diff);
+	    }
+	    
+	    createMD5(path, _fileTraceLogger);
+	    
+	    //
+	    // If the source file size has changed after we
+	    // created the MD5 file, we try again.
+	    //
+	    FileInfo oldInfo = info;
+	    info = getFileInfo(path, true, _fileTraceLogger);
+	    infoMD5 = getFileInfo(path + ".md5", true, _fileTraceLogger); // Must exist.
+	    if(info.size != oldInfo.size)
+	    {
+		info.time = infoMD5.time;
+	    }
+	}
+    }
+	
+    return getMD5(path);
 }
 
 IcePatch::DirectoryI::DirectoryI(const ObjectAdapterPtr& adapter) :
@@ -112,9 +112,12 @@ IcePatch::DirectoryI::getContents(const Current& current) const
 {
     StringSeq filteredPaths;
 
-    try
     {
 	IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
+	if(!sync.acquired())
+	{
+	    throw BusyException();
+	}
 
 	bool syncUpgraded = false;
 	string path = identityToPath(current.id);
@@ -130,8 +133,11 @@ IcePatch::DirectoryI::getContents(const Current& current) const
 		{
 		    if(!syncUpgraded)
 		    {
-			sync.timedUpgrade(_busyTimeout);
-			syncUpgraded = true;
+			syncUpgraded = sync.timedUpgrade(_busyTimeout);
+			if(!syncUpgraded)
+			{
+			    throw BusyException();
+			}
 		    }
 		    StringSeq paths2 = readDirectory(path);
 		    pair<StringSeq::iterator, StringSeq::iterator> r2 =
@@ -148,10 +154,7 @@ IcePatch::DirectoryI::getContents(const Current& current) const
 	    }
 	}
     }
-    catch(const IceUtil::ThreadLockedException&)
-    {
-	throw BusyException();
-    }
+   
 
     //
     // Call describe() outside the thread synchronization, to avoid
@@ -195,131 +198,134 @@ IcePatch::RegularI::describe(const Current& current) const
 Int
 IcePatch::RegularI::getBZ2Size(const Current& current) const
 {
-    try
-    {
-	IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
-	
-	string path = identityToPath(current.id);
-
-	FileInfo info = getFileInfo(path, true, _fileTraceLogger);
-	assert(info.type == FileTypeRegular);
-	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false, _fileTraceLogger);
-
-	if(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
-	{
-	    sync.timedUpgrade(_busyTimeout);
-
-	    infoBZ2 = getFileInfo(path + ".bz2", false, _fileTraceLogger);
-	    while(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
-	    {
-		createBZ2(path, _fileTraceLogger);
-		
-		//
-		// If the source file size has changed after we
-		// created the BZ2 file, we try again.
-		//
-		FileInfo oldInfo = info;
-		info = getFileInfo(path, true, _fileTraceLogger);
-		infoBZ2 = getFileInfo(path + ".bz2", true, _fileTraceLogger); // Must exist.
-		if(info.size != oldInfo.size)
-		{
-		    info.time = infoBZ2.time;
-		}
-	    }
-	}
-	
-	return static_cast<Int>(infoBZ2.size);
-    }
-    catch(const IceUtil::ThreadLockedException&)
+   
+    IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
+    if(!sync.acquired())
     {
 	throw BusyException();
     }
+    
+    string path = identityToPath(current.id);
+    
+    FileInfo info = getFileInfo(path, true, _fileTraceLogger);
+    assert(info.type == FileTypeRegular);
+    FileInfo infoBZ2 = getFileInfo(path + ".bz2", false, _fileTraceLogger);
+    
+    if(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
+    {
+	if(!sync.timedUpgrade(_busyTimeout))
+	{
+	    throw BusyException();
+	}
+	
+	infoBZ2 = getFileInfo(path + ".bz2", false, _fileTraceLogger);
+	while(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
+	{
+	    createBZ2(path, _fileTraceLogger);
+	    
+	    //
+	    // If the source file size has changed after we
+	    // created the BZ2 file, we try again.
+	    //
+	    FileInfo oldInfo = info;
+	    info = getFileInfo(path, true, _fileTraceLogger);
+	    infoBZ2 = getFileInfo(path + ".bz2", true, _fileTraceLogger); // Must exist.
+	    if(info.size != oldInfo.size)
+	    {
+		info.time = infoBZ2.time;
+	    }
+	}
+    }
+    
+    return static_cast<Int>(infoBZ2.size);
+   
 }
 
 ByteSeq
 IcePatch::RegularI::getBZ2(Int pos, Int num, const Current& current) const
 {
-    try
-    {
-	IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
-	
-	string path = identityToPath(current.id);
-
-	FileInfo info = getFileInfo(path, true, _fileTraceLogger);
-	assert(info.type == FileTypeRegular);
-	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false, _fileTraceLogger);
-
-	if(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
-	{
-	    sync.timedUpgrade(_busyTimeout);
-
-	    infoBZ2 = getFileInfo(path + ".bz2", false, _fileTraceLogger);
-	    while(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
-	    {
-		createBZ2(path, _fileTraceLogger);
-
-		//
-		// If the source file size has changed after we
-		// created the BZ2 file, we try again.
-		//
-		FileInfo oldInfo = info;
-		info = getFileInfo(path, true, _fileTraceLogger);
-		infoBZ2 = getFileInfo(path + ".bz2", true, _fileTraceLogger); // Must exist.
-		if(info.size != oldInfo.size)
-		{
-		    info.time = infoBZ2.time;
-		}
-	    }
-	}
-	
-	return IcePatch::getBZ2(path, pos, num);
-    }
-    catch(const IceUtil::ThreadLockedException&)
+    IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
+    if(!sync.acquired())
     {
 	throw BusyException();
     }
+
+    string path = identityToPath(current.id);
+    
+    FileInfo info = getFileInfo(path, true, _fileTraceLogger);
+    assert(info.type == FileTypeRegular);
+    FileInfo infoBZ2 = getFileInfo(path + ".bz2", false, _fileTraceLogger);
+    
+    if(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
+    {
+	if(!sync.timedUpgrade(_busyTimeout))
+	{
+	    throw BusyException();
+	}
+	
+	infoBZ2 = getFileInfo(path + ".bz2", false, _fileTraceLogger);
+	while(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
+	{
+	    createBZ2(path, _fileTraceLogger);
+	    
+	    //
+	    // If the source file size has changed after we
+	    // created the BZ2 file, we try again.
+	    //
+	    FileInfo oldInfo = info;
+	    info = getFileInfo(path, true, _fileTraceLogger);
+	    infoBZ2 = getFileInfo(path + ".bz2", true, _fileTraceLogger); // Must exist.
+	    if(info.size != oldInfo.size)
+	    {
+		info.time = infoBZ2.time;
+	    }
+	}
+    }
+    
+    return IcePatch::getBZ2(path, pos, num);
 }
 
 ByteSeq
 IcePatch::RegularI::getBZ2MD5(Int size, const Current& current) const
 {
-    try
-    {
-	IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
-	
-	string path = identityToPath(current.id);
-
-	FileInfo info = getFileInfo(path, true, _fileTraceLogger);
-	assert(info.type == FileTypeRegular);
-	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false, _fileTraceLogger);
-
-	if(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
-	{
-	    sync.timedUpgrade(_busyTimeout);
-
-	    infoBZ2 = getFileInfo(path + ".bz2", false, _fileTraceLogger);
-	    while(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
-	    {
-		createBZ2(path, _fileTraceLogger);
-
-		//
-		// If the source file size has changed after we
-		// created the BZ2 file, we try again.
-		//
-		FileInfo oldInfo = info;
-		info = getFileInfo(path, true, _fileTraceLogger);
-		infoBZ2 = getFileInfo(path + ".bz2", true, _fileTraceLogger); // Must exist.
-		if(info.size != oldInfo.size)
-		{
-		    info.time = infoBZ2.time;
-		}
-	    }
-	}
-	
-	return IcePatch::calcPartialMD5(path + ".bz2", size, _fileTraceLogger);
-    }
-    catch(const IceUtil::ThreadLockedException&)
+   
+    IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
+    if(!sync.acquired())
     {
 	throw BusyException();
     }
+
+    string path = identityToPath(current.id);
+
+    FileInfo info = getFileInfo(path, true, _fileTraceLogger);
+    assert(info.type == FileTypeRegular);
+    FileInfo infoBZ2 = getFileInfo(path + ".bz2", false, _fileTraceLogger);
+    
+    if(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
+    {
+	if(!sync.timedUpgrade(_busyTimeout))
+	{
+	    throw BusyException();
+	}
+	
+	infoBZ2 = getFileInfo(path + ".bz2", false, _fileTraceLogger);
+	while(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
+	{
+	    createBZ2(path, _fileTraceLogger);
+	    
+	    //
+	    // If the source file size has changed after we
+	    // created the BZ2 file, we try again.
+	    //
+	    FileInfo oldInfo = info;
+	    info = getFileInfo(path, true, _fileTraceLogger);
+	    infoBZ2 = getFileInfo(path + ".bz2", true, _fileTraceLogger); // Must exist.
+	    if(info.size != oldInfo.size)
+	    {
+		info.time = infoBZ2.time;
+	    }
+	}
+    }
+    
+    return IcePatch::calcPartialMD5(path + ".bz2", size, _fileTraceLogger);
 }
