@@ -154,7 +154,7 @@ public:
 	    }
 	}
 
-	void copyToVector(std::vector<value_type>& v) const
+	void copyToVector(std::vector<value_type>& v)
 	{
 	    if(empty())
 	    {
