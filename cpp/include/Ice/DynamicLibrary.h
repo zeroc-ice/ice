@@ -44,8 +44,10 @@ public:
     // name[,version]:function
     //
     // The name of the library is constructed from the given
-    // information. If no version is supplied, the Ice version is
-    // used. For example, consider the following entry point:
+    // information. If no version is supplied and the boolean
+    // argument is true, the Ice version is used instead.
+    //
+    // For example, consider the following entry point:
     //  
     // foo:create 
     //
@@ -64,7 +66,7 @@ public:
     //
     // Returns 0 if a failure occurred.
     //
-    symbol_type loadEntryPoint(const std::string&);
+    symbol_type loadEntryPoint(const std::string&, bool = true);
 
     //
     // Open a library with the given path.

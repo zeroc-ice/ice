@@ -47,7 +47,7 @@ IceInternal::DynamicLibrary::~DynamicLibrary()
 }
 
 IceInternal::DynamicLibrary::symbol_type
-IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint)
+IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIceVersion)
 {
     string::size_type colon = entryPoint.rfind(':');
     string::size_type comma = entryPoint.find(',');
@@ -63,7 +63,10 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint)
     if(comma == string::npos)
     {
         libName = libSpec;
-        version = ICE_STRING_VERSION;
+        if(useIceVersion)
+        {
+            version = ICE_STRING_VERSION;
+        }
     }
     else
     {
@@ -75,19 +78,26 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint)
 
 #ifdef _WIN32
     lib = libName;
-    for(string::size_type n = 0; n < version.size(); n++)
+    if(!version.empty())
     {
-        if(version[n] != '.') // Remove periods
+        for(string::size_type n = 0; n < version.size(); n++)
         {
-            lib += version[n];
+            if(version[n] != '.') // Remove periods
+            {
+                lib += version[n];
+            }
         }
-    }
 #   ifdef _DEBUG
-    lib += 'd';
+        lib += 'd';
 #   endif
+    }
     lib += ".dll";
 #else
-    lib = "lib" + libName + ".so." + version;
+    lib = "lib" + libName + ".so";
+    if(!version.empty())
+    {
+        lib += "." + version;
+    }
 #endif
 
     if(!load(lib))
