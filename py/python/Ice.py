@@ -98,6 +98,11 @@ IcePy._t_Object = IcePy.declareClass('::Ice::Object')
 IcePy._t_ObjectPrx = IcePy.declareProxy('::Ice::Object')
 
 #
+# Slice checksum dictionary.
+#
+sliceChecksums = {}
+
+#
 # Import Ice types.
 #
 import BuiltinSequences_ice
@@ -134,6 +139,9 @@ Identity.__str__ = Identity__str__
 del Identity__str__
 
 def Identity__hash__(self):
+    #
+    # Return 32-bit integer.
+    #
     return (5 * hash(self.category) + hash(self.name)) % 0x7fffffff
 Identity.__hash__ = Identity__hash__
 del Identity__hash__
