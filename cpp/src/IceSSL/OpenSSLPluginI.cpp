@@ -68,19 +68,33 @@ create(const CommunicatorPtr& communicator, const string& name, const StringSeq&
     try
     {
         plugin->configure();
+
+        //
+        // Install the SSL endpoint factory
+        //
+        EndpointFactoryPtr sslEndpointFactory = new SslEndpointFactory(plugin);
+        facade->addEndpointFactory(sslEndpointFactory);
+    }
+    catch(const Exception& ex)
+    {
+        Ice::PluginPtr ptr = plugin; // Reclaim the plug-in instance
+
+        Error out(communicator->getLogger());
+        out << "exception in IceSSL plug-in:\n" << ex;
+
+        // Can't throw from an extern "C" function
+        return 0;
     }
     catch (...)
     {
         Ice::PluginPtr ptr = plugin; // Reclaim the plug-in instance
-        // TODO: can't throw from an extern "C" function
-	// throw;
-    }
 
-    //
-    // Install the SSL endpoint factory
-    //
-    EndpointFactoryPtr sslEndpointFactory = new SslEndpointFactory(plugin);
-    facade->addEndpointFactory(sslEndpointFactory);
+        Error out(communicator->getLogger());
+        out << "unknown exception in IceSSL plug-in";
+
+        // Can't throw from an extern "C" function
+        return 0;
+    }
 
     return plugin;
 }
