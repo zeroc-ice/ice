@@ -854,7 +854,16 @@ namespace IceInternal
 			{
 			    foreach(Ice.ConnectionI connection in connectionList)
 			    {
-				connection.setAdapter(adapter);
+			        try
+				{
+				    connection.setAdapter(adapter);
+				}
+				catch(Ice.LocalException)
+				{
+				    //
+				    // Ignore, the connection is being closed or closed.
+				    //
+				}
 			    }
 			}
 		    }
@@ -877,7 +886,16 @@ namespace IceInternal
 		    {
 			if(connection.getAdapter() == adapter)
 			{
-			    connection.setAdapter(null);
+			    try
+			    {
+			        connection.setAdapter(null);
+			    }
+			    catch(Ice.LocalException)
+			    {
+			        //
+			        // Ignore, the connection is being closed or closed.
+			        //
+			    }
 			}
 		    }
 		}
