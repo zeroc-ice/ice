@@ -54,6 +54,9 @@ using namespace IceSSL;
 void IceInternal::incRef(OpenSSLPluginI* p) { p->__incRef(); }
 void IceInternal::decRef(OpenSSLPluginI* p) { p->__decRef(); }
 
+static IceUtil::StaticMutex staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
+static int instanceCount = 0;
+
 //
 // Plugin factory function
 //
@@ -186,22 +189,32 @@ IceSSL::OpenSSLPluginI::OpenSSLPluginI(const IceInternal::ProtocolPluginFacadePt
     _clientContext(new TraceLevels(protocolPluginFacade), protocolPluginFacade->getCommunicator()),
     _randSeeded(0)
 {
-    if(_memDebug != 0)
+    //
+    // It is possible for multiple instances of OpenSSLPluginI to be created
+    // (one for each communicator). We use a mutex-protected counter to know
+    // when to initialize and clean up OpenSSL.
+    //
+    IceUtil::StaticMutex::Lock sync(staticMutex);
+    if(instanceCount == 0)
     {
-        CRYPTO_malloc_debug_init();
-        CRYPTO_set_mem_debug_options(V_CRYPTO_MDEBUG_ALL);
-        CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_ON);
+	if(_memDebug != 0)
+	{
+	    CRYPTO_malloc_debug_init();
+	    CRYPTO_set_mem_debug_options(V_CRYPTO_MDEBUG_ALL);
+	    CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_ON);
+	}
+	else
+	{
+	    CRYPTO_set_mem_debug_functions(0, 0, 0, 0, 0);
+	}
+
+	SSL_library_init();
+
+	SSL_load_error_strings();
+
+	OpenSSL_add_ssl_algorithms();
     }
-    else
-    {
-        CRYPTO_set_mem_debug_functions(0, 0, 0, 0, 0);
-    }
-
-    SSL_library_init();
-
-    SSL_load_error_strings();
-
-    OpenSSL_add_ssl_algorithms();
+    ++instanceCount;
 }
 
 IceSSL::OpenSSLPluginI::~OpenSSLPluginI()
@@ -209,23 +222,28 @@ IceSSL::OpenSSLPluginI::~OpenSSLPluginI()
     _serverContext.cleanUp();
     _clientContext.cleanUp();
 
+    unregisterThreads();
+
+    IceUtil::StaticMutex::Lock sync(staticMutex);
+    if(--instanceCount == 0)
+    {
 #if OPENSSL_VERSION_NUMBER >= 0x0090700fL
-    ENGINE_cleanup();
-    CRYPTO_cleanup_all_ex_data();
+	ENGINE_cleanup();
+	CRYPTO_cleanup_all_ex_data();
 #endif
 
-    // TODO: Introduces a 72byte memory leak, if we kidnap the code from OpenSSL 0.9.7a for
-    //       ENGINE_cleanup(), we can fix that.
+	// TODO: Introduces a 72byte memory leak, if we kidnap the code from OpenSSL 0.9.7a for
+	//       ENGINE_cleanup(), we can fix that.
 
-    ERR_free_strings();
-    unregisterThreads();
-    ERR_remove_state(0);
+	ERR_free_strings();
+	ERR_remove_state(0);
 
-    EVP_cleanup();
+	EVP_cleanup();
 
-    if(_memDebug != 0)
-    {
-        CRYPTO_mem_leaks_fp(stderr);
+	if(_memDebug != 0)
+	{
+	    CRYPTO_mem_leaks_fp(stderr);
+	}
     }
 }
 
