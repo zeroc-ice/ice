@@ -76,18 +76,19 @@ public class BasicStream
     public void
     resize(int total)
     {
-        // TODO
-        /*
         if (total > MAX)
         {
             throw new Ice.MemoryLimitException();
         }
-        if (total > _buf.capacity())
+        if (total > _capacity)
         {
-            // TODO - Get new buffer
+            final int cap2 = _capacity << 1;
+            int newCapacity = cap2 > total ? cap2 : total;
+            _buf = _bufferManager.reallocate(_buf, newCapacity);
+            _capacity = _buf.capacity();
         }
         _buf.limit(total);
-        */
+        _limit = total;
     }
 
     /* TODO - Remove?
@@ -101,6 +102,12 @@ public class BasicStream
         _buf.reserve(total);
     }
     */
+
+    java.nio.ByteBuffer
+    prepareRead()
+    {
+        return _buf;
+    }
 
     java.nio.ByteBuffer
     prepareWrite()
@@ -118,6 +125,7 @@ public class BasicStream
         enc.start = _buf.position();
         enc.encoding = 0;
         _encapsStack.add(enc);
+        writeByte(enc.encoding);
     }
 
     public void
@@ -900,13 +908,16 @@ public class BasicStream
     private void
     expand(int size)
     {
-        _limit += size;
-        if (_limit > _capacity)
+        if (_buf.position() == _limit)
         {
-            final int cap2 = _capacity << 1;
-            int newCapacity = cap2 > _limit ? cap2 : _limit;
-            _buf = _bufferManager.reallocate(_buf, newCapacity);
-            _capacity = _buf.capacity();
+            _limit += size;
+            if (_limit > _capacity)
+            {
+                final int cap2 = _capacity << 1;
+                int newCapacity = cap2 > _limit ? cap2 : _limit;
+                _buf = _bufferManager.reallocate(_buf, newCapacity);
+                _capacity = _buf.capacity();
+            }
         }
     }
 
