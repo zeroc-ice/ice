@@ -324,9 +324,9 @@ local interface Communicator
 
     /**
      *
-     * Set a default router for this Communicator. All newly created
-     * Proxies will use this default router. To disable the default
-     * router, null can be passed as argument. Note that this
+     * Set a default &Glacier; router for this Communicator. All newly
+     * created Proxies will use this default router. To disable the
+     * default router, null can be passed as argument. Note that this
      * operation has no effect on already existing Proxies.
      *
      * <note><para> You can also set a router for an individual Proxy

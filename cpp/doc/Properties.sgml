@@ -34,19 +34,19 @@ The network tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>no network tracing</entry>
+<entry>No network tracing.</entry>
 </row>
 <row>
 <entry>1</entry>
-<entry>trace connection establishment and closure</entry>
+<entry>Trace connection establishment and closure.</entry>
 </row>
 <row>
 <entry>2</entry>
-<entry>like 1, but more detailed</entry>
+<entry>Like 1, but more detailed.</entry>
 </row>
 <row>
 <entry>3</entry>
-<entry>like 2, but also trace data transfers</entry>
+<entry>Like 2, but trace also data transfer.</entry>
 </row>
 </tbody>
 </tgroup>
@@ -70,11 +70,11 @@ The protocol tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>no protocol tracing</entry>
+<entry>No protocol tracing.</entry>
 </row>
 <row>
 <entry>1</entry>
-<entry>trace &Ice; protocol messages</entry>
+<entry>Trace &Ice; protocol messages.</entry>
 </row>
 </tbody>
 </tgroup>
@@ -98,15 +98,15 @@ The request retry tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>no request retry tracing</entry>
+<entry>No request retry tracing.</entry>
 </row>
 <row>
 <entry>1</entry>
-<entry>trace &Ice; operation call retries</entry>
+<entry>Trace &Ice; operation call retries.</entry>
 </row>
 <row>
 <entry>2</entry>
-<entry>trace also &Ice; endpoint usage</entry>
+<entry>Trace also &Ice; endpoint usage.</entry>
 </row>
 </tbody>
 </tgroup>
@@ -130,81 +130,17 @@ The Security extension tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>no security tracing</entry>
+<entry>No security tracing.</entry>
 </row>
 <row>
 <entry>1</entry>
-<entry>verbose, security warnings</entry>
+<entry>Trace security warnings.</entry>
 </row>
 <row>
 <entry>2</entry>
-<entry>more verbose, includes warnings during configuration file parse step</entry>
-</row>
-</tbody>
-</tgroup>
-</informaltable>
-</para>
-</section>
-</section>
-
-
-<section><title>Freeze.Trace.DB</title>
-<section><title>Synopsis</title>
-<synopsis>
-Freeze.Trace.DB=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-The &Freeze; database activity tracing level:
-<informaltable>
-<tgroup cols=2>
-<tbody>
-<row>
-<entry>0</entry>
-<entry>no database activity tracing</entry>
-</row>
-<row>
-<entry>1</entry>
-<entry>trace database activity</entry>
-</row>
-<row>
-<entry>2</entry>
-<entry>trace also database transactions</entry>
-</row>
-</tbody>
-</tgroup>
-</informaltable>
-</para>
-</section>
-</section>
-
-<section><title>Freeze.Trace.Evictor</title>
-<section><title>Synopsis</title>
-<synopsis>
-Freeze.Trace.Evictor=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-The &Freeze; Evictor activity tracing level:
-<informaltable>
-<tgroup cols=2>
-<tbody>
-<row>
-<entry>0</entry>
-<entry>no Evictor activity tracing</entry>
-</row>
-<row>
-<entry>1</entry>
-<entry>trace Ice Object creation and destruction, as well as
-Evictor deactivation</entry>
-</row>
-<row>
-<entry>2</entry>
-<entry>trace also Evictor queue activity</entry>
+<entry>Like 1, but more verbose, includes warnings during
+configuration file parse step.
+</entry>
 </row>
 </tbody>
 </tgroup>
@@ -375,6 +311,12 @@ instead. The default value is the local host name.
 </section>
 </section>
 
+</section>
+
+<!-- ********************************************************************** -->
+<section><title>Routing</title>
+<!-- ********************************************************************** -->
+
 <section><title>Ice.DefaultRouter</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -384,9 +326,34 @@ Ice.DefaultRouter=<replaceable>router</replaceable>
 <section>
 <title>Description</title>
 <para>
-Specifies a default router (object reference) to be used for all
+Specifies a default &Glacier; router (as stingified object reference
+to the &Glacier; router control interface) which is to be used for all
 Proxies, unless the router is overwritten with the Proxy's
-[ice_router] operation. The default value is no default router.
+<literal>ice_router()</literal> operation. The default value is no
+router.
+</para>
+</section>
+</section>
+
+<section><title>Ice.Adapter.<replaceable>name</replaceable>.Router</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Adapter.<replaceable>name</replaceable>.Router=<replaceable>router</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a &Glacier; router (as stingified object reference to the
+&Glacier; router control interface) for the object adapter with the
+name <replaceable>name</replaceable>. By doing so, the object adapter
+can receive callbacks from this router, using connections which are
+established from this process to the router, instead of the router
+having to establish a connection back to the named object adapter.
+<note><para> You can only specify a particular router for one single
+object adapter. Specifying the same router for more than one object
+adapter will result in undefined behavior. The default value is no
+router. </para></note>
 </para>
 </section>
 </section>
@@ -526,8 +493,44 @@ conditions in connections.
 </section>
 
 <!-- ********************************************************************** -->
+<section><title>&IcePack; Properties</title>
+<!-- ********************************************************************** -->
+
+<section><title>IcePack.Admin.Endpoints, IcePack.Forward.Endpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Admin.Endpoints=<replaceable>endpoints</replaceable>
+IcePack.Forward.Endpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the endpoints of the &IcePack; administrative interface and of
+the &IcePack; forwarder.
+</para>
+</section>
+</section>
+
+</section>
+
+<!-- ********************************************************************** -->
 <section><title>&IceStorm; Properties</title>
 <!-- ********************************************************************** -->
+
+<section><title>IceStorm.TopicManager.Endpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceStorm.TopicManager.Endpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the endpoints that the &IceStorm; topic manager uses.
+</para>
+</section>
+</section>
 
 <section><title>IceStorm.Trace.TopicManager</title>
 <section><title>Synopsis</title>
@@ -544,15 +547,17 @@ The topic manager tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>no tracing</entry>
+<entry>No tracing.</entry>
 </row>
 <row>
 <entry>1</entry>
-<entry>topic creation, subscription, unsubscription</entry>
+<entry>Trace topic creation, subscription, and unsubscription.</entry>
 </row>
 <row>
 <entry>2</entry>
-<entry>more verbose, includes qos information, and other diagnostic information</entry>
+<entry>Like 1, but more verbose, includes QoS information, and other
+diagnostic information.
+</entry>
 </row>
 </tbody>
 </tgroup>
@@ -576,11 +581,11 @@ The Topic tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>no tracing</entry>
+<entry>No tracing.</entry>
 </row>
 <row>
 <entry>1</entry>
-<entry>trace topic diagnostic information</entry>
+<entry>Trace topic diagnostic information.</entry>
 </row>
 </tbody>
 </tgroup>
@@ -604,11 +609,11 @@ Trace information on the thread that flushes batch reliability events to subscri
 <tbody>
 <row>
 <entry>0</entry>
-<entry>no tracing</entry>
+<entry>No tracing.</entry>
 </row>
 <row>
 <entry>1</entry>
-<entry>trace each flush</entry>
+<entry>Trace each flush.</entry>
 </row>
 </tbody>
 </tgroup>
@@ -632,11 +637,13 @@ The Subscriber tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>no tracing</entry>
+<entry>No tracing.</entry>
 </row>
 <row>
 <entry>1</entry>
-<entry>trace topic diagnostic information on subscription/unsubscription</entry>
+<entry>Trace topic diagnostic information on subscription and
+unsubscription.
+</entry>
 </row>
 </tbody>
 </tgroup>
@@ -661,16 +668,144 @@ property is 100 ms.
 </section>
 </section>
 
-<section><title>IceStorm.TopicManager.Endpoints</title>
+</section>
+
+<!-- ********************************************************************** -->
+<section><title>&Glacier; Properties</title>
+<!-- ********************************************************************** -->
+
+<section><title>Glacier.Router.Endpoints, Glacier.Client.Endpoints, Glacier.Server.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IceStorm.TopicManager.Endpoints=<replaceable>endpoints</replaceable>
+Glacier.Router.Endpoints=<replaceable>endpoints</replaceable>
+Glacier.Client.Endpoints=<replaceable>endpoints</replaceable>
+Glacier.Server.Endpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints that the &IceStorm; topic manager uses.
+Defines the endpoints of the &Glacier; router control interface, the
+client interface, and the server interface. The router endpoints and
+the client endpoints must be accessible to Glacier clients from which
+the router forwards requests, and to which the router sends
+callbacks. The server endpoints must be accessible to Glacier servers
+to which the router forwards requests, and from which the router
+accepts callbacks for the client.
+</para>
+</section>
+</section>
+
+<section><title>Glacier.Router.Identity</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Router.Identity=<replaceable>identity</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The identity of the router control interface. If not specified, the
+default value <literal>router</literal> is used.
+</para>
+</section>
+</section>
+
+<section><title>Glacier.Trace.Client</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Trace.Client=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The client interface tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No tracing.</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace exceptions during request forwarding from the client to
+the server.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Trace also detailed forward routing information from
+the client to the server.
+</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>Glacier.Trace.Server</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Trace.Server=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The server interface tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No tracing.</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace exceptions during callbacks from the server back
+to the client.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Trace also detailed reverse routing information for
+callbacks from the server to the client.
+</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>Glacier.Trace.RoutingTable</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Trace.RoutingTable=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The routing table tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No tracing.</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace additions to the &Glacier; routing table.
+</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
 </para>
 </section>
 </section>
@@ -678,21 +813,70 @@ Defines the endpoints that the &IceStorm; topic manager uses.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>&IcePack; Properties</title>
+<section><title>&Freeze; Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>IcePack.Admin.Endpoints, IcePack.Forward.Endpoints</title>
+<section><title>Freeze.Trace.DB</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Admin.Endpoints=<replaceable>endpoints</replaceable>
-IcePack.Forward.Endpoints=<replaceable>endpoints</replaceable>
+Freeze.Trace.DB=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints that the &IcePack; administrative interface, and
-of the &IcePack; forwarder.
+The &Freeze; database activity tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No database activity tracing.</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace database activity.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Trace also database transactions.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>Freeze.Trace.Evictor</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.Trace.Evictor=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The &Freeze; evictor activity tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No evictor activity tracing.</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace Ice Object creation and destruction, as well as
+evictor deactivation.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Trace also evictor queue activity.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
 </para>
 </section>
 </section>

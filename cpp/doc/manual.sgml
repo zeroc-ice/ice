@@ -1,9 +1,10 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN" [
 
-<!ENTITY Ice "<abbrev>Ice</abbrev>">
-<!ENTITY IcePack "<abbrev>IcePack</abbrev>">
-<!ENTITY IceStorm "<abbrev>IceStorm</abbrev>">
-<!ENTITY Freeze "<abbrev>Freeze</abbrev>">
+<!ENTITY Ice "<phrase>Ice</phrase>">
+<!ENTITY IcePack "<phrase>IcePack</phrase>">
+<!ENTITY IceStorm "<phrase>IceStorm</phrase>">
+<!ENTITY Glacier "<phrase>Glacier</phrase>">
+<!ENTITY Freeze "<phrase>Freeze</phrase>">
 
 <!ENTITY SliceDoc SYSTEM "SliceDoc.sgml">
 <!ENTITY Properties SYSTEM "Properties.sgml">

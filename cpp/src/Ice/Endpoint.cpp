@@ -1035,7 +1035,8 @@ IceInternal::UdpEndpoint::UdpEndpoint(BasicStream* s) :
     s->startReadEncaps();
     s->read(const_cast<string&>(_host));
     s->read(const_cast<Int&>(_port));
-    s->read(const_cast<bool&>(_connect));
+    // Not transmitted.
+    //s->read(const_cast<bool&>(_connect));
     s->endReadEncaps();
 }
 
@@ -1046,7 +1047,8 @@ IceInternal::UdpEndpoint::streamWrite(BasicStream* s) const
     s->startWriteEncaps();
     s->write(_host);
     s->write(_port);
-    s->write(_connect);
+    // Not transmitted.
+    //s->write(_connect);
     s->endWriteEncaps();
 }
 
@@ -1364,7 +1366,8 @@ IceInternal::SUdpEndpoint::SUdpEndpoint(BasicStream* s) :
     s->startReadEncaps();
     s->read(const_cast<string&>(_host));
     s->read(const_cast<Int&>(_port));
-    s->read(const_cast<bool&>(_connect));
+    // Not transmitted.
+    //s->read(const_cast<bool&>(_connect));
     s->endReadEncaps();
 }
 
@@ -1375,7 +1378,8 @@ IceInternal::SUdpEndpoint::streamWrite(BasicStream* s) const
     s->startWriteEncaps();
     s->write(_host);
     s->write(_port);
-    s->write(_connect);
+    // Not transmitted.
+    //s->write(_connect);
     s->endWriteEncaps();
 }
 

@@ -315,11 +315,11 @@ local interface ObjectAdapter
 
     /**
      *
-     * Add a router to this Object Adapter. By doing so, this object
-     * adapter can receive callbacks from this router, using
-     * connections which are established from this process to the
-     * router, instead of the router having to establish a connection
-     * back to this object adapter.
+     * Add a &Glacier; router to this Object Adapter. By doing so,
+     * this object adapter can receive callbacks from this router,
+     * using connections which are established from this process to
+     * the router, instead of the router having to establish a
+     * connection back to this object adapter.
      *
      * <note><para> You can only add a particular router to one single
      * Object Adapter. Adding a router to more than one Object Adapter
