@@ -182,7 +182,10 @@ Transform::ObjectReader::__read(IceInternal::BasicStream* is, bool rid)
     {
         string id;
         is->readTypeId(id);
-        assert(id == Ice::Object::ice_staticId());
+        if(id != Ice::Object::ice_staticId())
+        {
+            throw Ice::MarshalException(__FILE__, __LINE__);
+        }
     }
     is->startReadSlice();
     _value->_facetMap->unmarshal(*is);
