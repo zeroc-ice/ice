@@ -29,17 +29,17 @@
 
 <book><?dbhtml filename="index.html">
 <bookinfo>
-<title>Ice Reference Manual</title>
+<title>Ice Reference Documentation</title>
 <publisher>
 <publishername>ZeroC, Inc.</publishername>
 <address>
-<city>North Palm Beach</city>
+<city>Palm Beach Gardens</city>
 <state>Florida</state>
 <country>USA</country>
 </address>
 </publisher>
 <copyright>
-<year>2003</year>
+<year>2003-2005</year>
 <holder>ZeroC, Inc. All rights reserved.</holder>
 </copyright>
 </bookinfo>
