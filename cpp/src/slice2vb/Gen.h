@@ -45,6 +45,7 @@ public:
         const std::vector<std::string>&,
 	const std::string&,
 	bool,
+	bool,
 	bool);
     ~Gen();
 
@@ -64,13 +65,15 @@ private:
     std::string _base;
     std::vector<std::string> _includePaths;
 
+    bool _stream;
+
     void printHeader();
 
     class TypesVisitor : public VbVisitor
     {
     public:
 
-        TypesVisitor(::IceUtil::Output&);
+        TypesVisitor(::IceUtil::Output&, bool);
 
 	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
@@ -86,6 +89,10 @@ private:
 	virtual void visitEnum(const EnumPtr&);
 	virtual void visitConst(const ConstPtr&);
 	virtual void visitDataMember(const DataMemberPtr&);
+
+    private:
+
+        bool _stream;
     };
 
     class ProxyVisitor : public VbVisitor
@@ -119,7 +126,7 @@ private:
     {
     public:
 
-        HelperVisitor(::IceUtil::Output&);
+        HelperVisitor(::IceUtil::Output&, bool);
 
 	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
@@ -127,6 +134,10 @@ private:
 	virtual void visitClassDefEnd(const ClassDefPtr&);
 	virtual void visitSequence(const SequencePtr&);
 	virtual void visitDictionary(const DictionaryPtr&);
+
+    private:
+
+        bool _stream;
     };
 
     class DelegateVisitor : public VbVisitor

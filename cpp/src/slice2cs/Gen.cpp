@@ -1207,7 +1207,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    {
 	    	_out << "new ";
 	    }
-	    _out << "class __Patcher : IceInternal.Patcher, Ice.ReadObjectCallback";
+	    _out << "class __Patcher : IceInternal.Patcher";
 	    _out << sb;
 	    _out << sp << nl << "internal __Patcher(Ice.ObjectImpl instance";
 	    if(allClassMembers.size() > 1)
@@ -1253,11 +1253,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    {
 		_out << eb;
 	    }
-	    _out << eb;
-
-	    _out << sp << nl << "public override void invoke(Ice.Object v)";
-	    _out << sb;
-	    _out << nl << "patch(v);";
 	    _out << eb;
 
 	    _out << sp << nl << "private " << name << " _instance;";
@@ -1850,7 +1845,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	    {
 	    	_out << "new ";
 	    }
-	    _out << "class __Patcher : IceInternal.Patcher, Ice.ReadObjectCallback";
+	    _out << "class __Patcher : IceInternal.Patcher";
 	    _out << sb;
 	    _out << sp << nl << "internal __Patcher(Ice.Exception instance";
 	    if(allClassMembers.size() > 1)
@@ -2194,10 +2189,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	if(classMembers.size() != 0)
 	{
 	    _out << sp << nl << "public sealed class __Patcher : IceInternal.Patcher";
-	    if(_stream)
-	    {
-		_out << ", Ice.ReadObjectCallback";
-	    }
 	    _out << sb;
 	    _out << sp << nl << "internal __Patcher(" << name;
 	    if(patchStruct)
@@ -2249,14 +2240,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 		_out << eb;
 	    }
 	    _out << eb;
-
-	    if(_stream)
-	    {
-		_out << sp << nl << "public override void invoke(Ice.Object v)";
-		_out << sb;
-		_out << nl << "patch(v);";
-		_out << eb;
-	    }
 
 	    _out << sp << nl << "private " << name;
 	    if(patchStruct)
@@ -3335,7 +3318,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     bool hasClassValue = (builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(value);
     if(hasClassValue)
     {
-	_out << sp << nl << "public sealed class __Patcher : IceInternal.Patcher, Ice.ReadObjectCallback";
+	_out << sp << nl << "public sealed class __Patcher : IceInternal.Patcher";
 	_out << sb;
 	_out << sp << nl << "internal __Patcher(" << name << " m, " << keyS << " key)";
 	_out << sb;
@@ -3347,11 +3330,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 	_out << sb;
 	_out << nl << "_type = typeof(" << typeToString(p->valueType()) << ");";
 	_out << nl << "_m[_key] = (" << valueS << ")v;";
-	_out << eb;
-
-	_out << sp << nl << "public override void invoke(Ice.Object __v)";
-	_out << sb;
-	_out << nl << "patch(__v);";
 	_out << eb;
 
 	_out << sp << nl << "private " << name << " _m;";
