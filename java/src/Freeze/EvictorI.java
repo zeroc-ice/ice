@@ -1598,12 +1598,14 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	boolean populateEmptyIndices = (_communicator.getProperties().getPropertyAsIntWithDefault
 					(propertyPrefix + ".PopulateEmptyIndices", 0) != 0);
 	
+	com.sleepycat.db.DbTxn txn = null;
+
 	try
 	{
 	    
 	    _db = new com.sleepycat.db.Db(_dbEnv, 0);
 	    
-	    com.sleepycat.db.DbTxn txn = _dbEnv.txn_begin(null, 0);
+	    txn = _dbEnv.txn_begin(null, 0);
 
 	    //
 	    // TODO: FREEZE_DB_MODE
@@ -1623,7 +1625,9 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		}
 	    }
 
-	    txn.commit(0);
+	    com.sleepycat.db.DbTxn toCommit = txn;
+	    txn = null;
+	    toCommit.commit(0);
 	}
 	catch(java.io.FileNotFoundException dx)
 	{
@@ -1639,7 +1643,20 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    ex.message = _errorPrefix + "Db.open: " + dx.getMessage();
 	    throw ex;
 	}
-	
+	finally
+	{
+	    if(txn != null)
+	    {
+		try
+		{
+		    txn.abort();
+		}
+		catch(com.sleepycat.db.DbException dx)
+		{
+		}
+	    }
+	}
+    
 	_lastSave = System.currentTimeMillis();
 	
 	//
