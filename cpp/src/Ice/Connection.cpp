@@ -906,6 +906,12 @@ IceInternal::Connection::getAdapter() const
 }
 
 bool
+IceInternal::Connection::datagram() const
+{
+    return _endpoint->datagram();
+}
+
+bool
 IceInternal::Connection::readable() const
 {
     return true;
@@ -1020,23 +1026,6 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		stream.b.swap(ustream.b);
 	    }
 
-	    if(_endpoint->datagram())
-	    {
-		Int messageSize;
-		stream.read(messageSize);
-		if(messageSize > _maxRecvSize)		// Truncated datagram
-		{
-		    DatagramLimitException ex(__FILE__, __LINE__);
-		    ex.maxSize = _maxRecvSize;
-		    if(_warnUdp)
-		    {
-			Warning out(_logger);
-			out << "datagram exception:\n" << ex << '\n' << _transceiver->toString();
-		    }
-		    throw ex;
-		}
-	    }
-	    
 	    stream.i = stream.b.begin() + headerSize;
 	    
 	    switch(messageType)
@@ -1344,8 +1333,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _batchRequestNum(0),
     _dispatchCount(0),
     _proxyCount(0),
-    _state(StateNotValidated),
-    _maxRecvSize(transceiver->maxRecvSize())
+    _state(StateNotValidated)
 {
     if(_adapter)
     {

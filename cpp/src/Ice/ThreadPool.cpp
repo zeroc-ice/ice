@@ -42,7 +42,8 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _messageSizeMax(0),
     _running(0),
     _inUse(0),
-    _load(0)
+    _load(0),
+    _warnUdp(_instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0)
 {
     SOCKET fds[2];
     createPipe(fds);
@@ -702,8 +703,22 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
     
     if(stream.i != stream.b.end())
     {
-	handler->read(stream);
-	assert(stream.i == stream.b.end());
+	if(handler->datagram())
+	{
+	    if(_warnUdp)
+	    {
+		Warning out(_instance->logger());
+		out << "DatagramLimitException: maximum size of " << pos << " exceeded";
+		stream.resize(0);
+		stream.i = stream.b.begin();
+	    }
+	    throw DatagramLimitException(__FILE__, __LINE__);
+	}
+	else
+	{
+	    handler->read(stream);
+	    assert(stream.i == stream.b.end());
+	}
     }
 }
 

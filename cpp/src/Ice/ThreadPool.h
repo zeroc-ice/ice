@@ -100,6 +100,8 @@ private:
     int _inUse; // Number of threads that are currently in use.
     double _load; // Current load in number of threads.
 
+    bool _warnUdp;
+
     IceUtil::Mutex _promoteMutex;
 };
 

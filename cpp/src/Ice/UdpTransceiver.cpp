@@ -59,9 +59,10 @@ IceInternal::UdpTransceiver::write(Buffer& buf, int)
     const int packetSize = min(_maxPacketSize, _sndSize - _udpOverhead);
     if(packetSize < static_cast<int>(buf.b.size()))
     {
-	Ice::DatagramLimitException ex(__FILE__, __LINE__);
-	ex.maxSize = packetSize;
-	throw ex;
+	//
+	// We don't log a warning here because the client gets an exception anyway.
+	//
+	throw Ice::DatagramLimitException(__FILE__, __LINE__);
     }
 
 repeat:
@@ -127,9 +128,16 @@ IceInternal::UdpTransceiver::read(Buffer& buf, int)
     const int packetSize = min(_maxPacketSize, _rcvSize - _udpOverhead);
     if(packetSize < static_cast<int>(buf.b.size()))
     {
-	Ice::DatagramLimitException ex(__FILE__, __LINE__);
-	ex.maxSize = packetSize;
-	throw ex;
+	    //
+	    // We log a warning here because this is the server side -- without the
+	    // the warning, there would only be silence.
+	    //
+	    if(_warn)
+	    {
+		Warning out(_logger);
+		out << "DatagramLimitException: maximum size of " << packetSize << " exceeded";
+	    }
+	throw Ice::DatagramLimitException(__FILE__, __LINE__);
     }
     buf.b.resize(packetSize);
     buf.i = buf.b.begin();
@@ -200,11 +208,10 @@ repeat:
 	if(recvTruncated())
 	{
 	    DatagramLimitException ex(__FILE__, __LINE__);
-	    ex.maxSize = packetSize;
 	    if(_warn)
 	    {
 		Warning out(_logger);
-		out << "datagram exception:\n" << ex << '\n' << toString();
+		out << "DatagramLimitException: maximum size of " << packetSize << " exceeded";
 	    }
 	    throw ex;
 
@@ -234,18 +241,6 @@ string
 IceInternal::UdpTransceiver::toString() const
 {
     return fdToString(_fd);
-}
-
-int
-IceInternal::UdpTransceiver::maxRecvSize() const
-{
-    return _rcvSize;
-}
-
-int
-IceInternal::UdpTransceiver::maxSendSize() const
-{
-    return _sndSize;
 }
 
 bool
@@ -299,7 +294,8 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     _stats(instance->stats()),
     _name("udp"),
     _incoming(true),
-    _connect(connect)
+    _connect(connect),
+    _warn(instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0)
 {
     try
     {
@@ -344,8 +340,6 @@ IceInternal::UdpTransceiver::setBufSize(const InstancePtr& instance)
 {
     assert(_fd != INVALID_SOCKET);
 
-    _warn = instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0;
-
     for(int i = 0; i < 2; ++i)
     {
 	string direction;
@@ -358,6 +352,7 @@ IceInternal::UdpTransceiver::setBufSize(const InstancePtr& instance)
 	    prop = "Ice.UDP.RcvSize";
 	    addr = &_rcvSize;
 	    dfltSize = getRecvBufferSize(_fd);
+	    _rcvSize = dfltSize;
 	}
 	else
 	{
@@ -365,6 +360,7 @@ IceInternal::UdpTransceiver::setBufSize(const InstancePtr& instance)
 	    prop = "Ice.UDP.SndSize";
 	    addr = &_sndSize;
 	    dfltSize = getSendBufferSize(_fd);
+	    _sndSize = dfltSize;
 	}
 
 	//
@@ -386,7 +382,7 @@ IceInternal::UdpTransceiver::setBufSize(const InstancePtr& instance)
 	{
 	    Warning out(_logger);
 	    out << "UDP " << direction << " buffer size: requested size of " << sizeRequested << " adjusted to ";
-	    sizeRequested = min(messageSizeMax + _udpOverhead, static_cast<size_t>(_maxPacketSize) + _udpOverhead);
+	    sizeRequested = min(messageSizeMax, static_cast<size_t>(_maxPacketSize)) + _udpOverhead;
 	    out << sizeRequested << " (Ice.MessageSizeMax takes precendence)";
 	}
 	    
@@ -417,10 +413,6 @@ IceInternal::UdpTransceiver::setBufSize(const InstancePtr& instance)
 		out << "UDP " << direction << " buffer size: requested size of "
 		    << sizeRequested << " adjusted to " << *addr;
 	    }
-	}
-	else
-	{
-	    *addr = dfltSize;
 	}
     }
 }

@@ -385,7 +385,7 @@ void
 Ice::DatagramLimitException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nprotocol error: maximum datagram payload size of " << maxSize << " bytes exceeded";
+    out << ":\nprotocol error: maximum datagram payload size exceeded";
 }
 
 void

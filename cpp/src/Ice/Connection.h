@@ -89,6 +89,7 @@ public:
     //
     // Operations from EventHandler
     //
+    virtual bool datagram() const;
     virtual bool readable() const;
     virtual void read(BasicStream&);
     virtual void message(BasicStream&, const ThreadPoolPtr&);
@@ -168,8 +169,6 @@ private:
     int _proxyCount; // The number of proxies using this connection.
 
     State _state;
-
-    int _maxRecvSize;
 };
 
 }

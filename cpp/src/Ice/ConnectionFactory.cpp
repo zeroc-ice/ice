@@ -494,6 +494,12 @@ IceInternal::IncomingConnectionFactory::connections() const
 }
 
 bool
+IceInternal::IncomingConnectionFactory::datagram() const
+{
+    return _endpoint->datagram();
+}
+
+bool
 IceInternal::IncomingConnectionFactory::readable() const
 {
     return false;

@@ -611,12 +611,6 @@ local exception MarshalException extends ProtocolException
  **/
 local exception DatagramLimitException extends ProtocolException
 {
-    /**
-     *
-     * The maximum message size that can be used.
-     *
-     **/
-    int maxSize;
 };
 
 /**

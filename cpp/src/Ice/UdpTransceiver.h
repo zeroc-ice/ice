@@ -42,8 +42,6 @@ public:
     virtual void write(Buffer&, int);
     virtual void read(Buffer&, int);
     virtual std::string toString() const;
-    virtual int maxRecvSize() const;
-    virtual int maxSendSize() const;
 
     bool equivalent(const std::string&, int) const;
     int effectivePort() const;
@@ -71,9 +69,9 @@ private:
     bool _connect;
     int _rcvSize;
     int _sndSize;
+    bool _warn;
     static const int _udpOverhead;
     static const int _maxPacketSize;
-    bool _warn;
 };
 
 }
