@@ -1,0 +1,734 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<project name="stage" default="all">
+
+    <!-- Initialize -->
+    <target name="init">
+	<property environment="env"/>
+
+	<!-- Sources -->
+	<property name="ice.dir" value="${sources.dir}/Ice-${sources.version}"/>
+	<property name="icecs.dir" value="${sources.dir}/IceCS-${sources.version}"/>
+	<property name="icej.dir" value="${sources.dir}/IceJ-${sources.version}"/>
+	<property name="icephp.dir" value="${sources.dir}/IcePHP-${sources.version}"/>
+	<property name="icepy.dir" value="${sources.dir}/IcePY-${sources.version}"/>
+	<property name="icevb.dir" value="${sources.dir}/IceVB-${sources.version}"/>
+
+        <!-- Extras -->
+	<property name="common.dir" value="${install.dir}/common"/>
+	<property name="doc.dir" value="${install.dir}/${install.version}/doc"/>
+    </target>
+
+    <!-- Clean up everything -->
+    <target name="clean" depends="init">
+	<delete dir="${stage.dir}"/>
+	<delete dir="${install.version}/BZip2DevKit"/>
+	<delete dir="${install.version}/BerkeleyDBDevKit"/>
+	<delete dir="${install.version}/BerkeleyDBRuntime"/>
+	<delete dir="${install.version}/BerkeleyDBJava"/>
+	<delete dir="${install.version}/ExpatDevKit"/>
+	<delete dir="${install.version}/ExpatRuntime"/>
+	<delete dir="${install.version}/OpenSSLDevKit"/>
+	<delete dir="${install.version}/OpenSSLRuntime"/>
+	<delete dir="${install.version}/STLPortDevKit"/>
+	<delete dir="${install.version}/STLPortRuntime"/>
+	<delete dir="${install.version}/Ice"/>
+	<delete dir="${install.version}/ThirdParty"/>
+    </target>
+
+    <!-- Prepare the install -->
+    <target name="setup" depends="init">
+	<mkdir dir="${stage.dir}"/>
+    </target>
+
+    <!-- Ice Common -->
+    <target name="ice-common" depends="setup">
+
+	<!-- Installer -->
+	<mkdir dir="${stage.dir}/ice-common"/>
+	<copy file="${common.dir}/installer-main.bmp" todir="${stage.dir}/ice-common"/>
+	<copy file="${common.dir}/installer-header.bmp" todir="${stage.dir}/ice-common"/>
+	<copy file="${common.dir}/LICENSE.rtf" todir="${stage.dir}/ice-common"/>
+
+	<!-- README, licenses, etc. -->
+	<mkdir dir="${stage.dir}/ice-common/doc"/>
+	<copy file="${ice.dir}/LICENSE" todir="${stage.dir}/ice-common/doc"/>
+	<copy file="${ice.dir}/ICE_LICENSE" todir="${stage.dir}/ice-common/doc"/>
+	<copy todir="${stage.dir}/ice-common/doc">
+	    <fileset dir="${doc.dir}">
+		<exclude name="THIRD_PARTY_LICENSE.rtf"/>
+		<exclude name="THIRD_PARTY_SOURCES"/>
+	    </fileset>
+	</copy>
+
+	<!-- HTML documentation -->
+	<mkdir dir="${stage.dir}/ice-common/html/doc"/>
+	<copy todir="${stage.dir}/ice-common/html/doc">
+	    <fileset dir="${ice.dir}/doc">
+		<include name="README.html"/>
+		<include name="reference/**"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- Packages Common -->
+    <target name="packages-common" depends="setup">
+
+	<!-- Installer -->
+	<mkdir dir="${stage.dir}/packages-common"/>
+	<copy file="${common.dir}/installer-main.bmp" todir="${stage.dir}/packages-common"/>
+	<copy file="${common.dir}/installer-header.bmp" todir="${stage.dir}/packages-common"/>
+	<copy file="${doc.dir}/THIRD_PARTY_LICENSE.rtf" tofile="${stage.dir}/packages-common/LICENSE.rtf"/>
+
+	<!-- README, licenses, etc. -->
+	<mkdir dir="${stage.dir}/packages-common/doc"/>
+	<copy file="${doc.dir}/THIRD_PARTY_LICENSE" tofile="${stage.dir}/packages-common/doc/LICENSE"/>
+	<copy file="${doc.dir}/THIRD_PARTY_SOURCES" tofile="${stage.dir}/packages-common/doc/SOURCES"/>
+
+    </target>
+
+    <!-- Ice for C++ Runtime-->
+    <target name="ice-cpp-runtime" depends="setup">
+
+	<!-- Binaries -->
+	<mkdir dir="${stage.dir}/ice-cpp/runtime/bin"/>
+	<copy todir="${stage.dir}/ice-cpp/runtime/bin" flatten="true">
+	    <fileset dir="${ice.dir}/bin">
+		<include name="freeze21.dll"/>
+		<include name="glacier221.dll"/>
+		<include name="ice21.dll"/>
+		<include name="icebox21.dll"/>
+		<include name="icepack21.dll"/>
+		<include name="icepatch221.dll"/>
+		<include name="icessl21.dll"/>
+		<include name="icestorm21.dll"/>
+		<include name="icestormService21.dll"/>
+		<include name="iceutil21.dll"/>
+		<include name="icexml21.dll"/>
+		<include name="slice21.dll"/>
+	    </fileset>
+	    <fileset dir="${ice.dir}/src">
+		<include name="FreezeScript/Release/dumpdb.exe"/>
+		<include name="FreezeScript/Release/TransformDB.exe"/>
+		<include name="Glacier2/Release/glacier2router.exe"/>
+		<include name="IceBox/Release/icebox.exe"/>
+		<include name="IceBox/Release/iceboxadmin.exe"/>
+		<include name="icecpp/Release/icecpp.exe"/>
+		<include name="IcePack/Release/icepackadmin.exe"/>
+		<include name="IcePack/Release/icepacknode.exe"/>
+		<include name="IcePack/Release/icepackRegistry.exe"/>
+		<include name="IcePatch2/Release/icepatch2calc.exe"/>
+		<include name="IcePatch2/Release/icepatch2client.exe"/>
+		<include name="IcePatch2/Release/icepatch2server.exe"/>
+		<include name="IceStorm/Release/icestormadmin.exe"/>
+		<include name="slice2docbook/Release/slice2docbook.exe"/>
+	    </fileset>
+	</copy>
+
+	<!-- Certificates -->
+	<mkdir dir="${stage.dir}/ice-cpp/runtime/certs"/>
+	<copy todir="${stage.dir}/ice-cpp/runtime/certs">
+	    <fileset dir="${ice.dir}/certs">
+		<exclude name="openssl/**"/>
+		<exclude name="makecerts"/>
+	    </fileset>
+	</copy>
+
+	<!-- Slice -->
+	<mkdir dir="${stage.dir}/ice-cpp/runtime/slice"/>
+	<copy todir="${stage.dir}/ice-cpp/runtime/slice">
+	    <fileset dir="${ice.dir}/slice">
+		<include name="**/*.ice"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- Ice for C++ Dev -->
+    <target name="ice-cpp-dev" depends="setup">
+
+	<!-- Binaries -->
+	<mkdir dir="${stage.dir}/ice-cpp/dev/bin"/>
+	<copy todir="${stage.dir}/ice-cpp/dev/bin" flatten="true">
+	    <fileset dir="${ice.dir}/bin">
+		<include name="freeze21d.*"/>
+		<include name="glacier221d.*"/>
+		<include name="ice21d.*"/>
+		<include name="icebox21d.*"/>
+		<include name="icepack21d.*"/>
+		<include name="icepatch221d.*"/>
+		<include name="icessl21d.*"/>
+		<include name="icestorm21d.*"/>
+		<include name="icestormService21d.*"/>
+		<include name="iceutil21d.*"/>
+		<include name="icexml21d.*"/>
+		<include name="slice21d.*"/>
+		<include name="slice2cpp/Release/slice2cpp.exe"/>
+		<include name="slice2freeze/Release/slice2freeze.exe"/>
+	    </fileset>
+	</copy>
+
+	<mkdir dir="${stage.dir}/ice-cpp/dev/bin/debug"/>
+	<copy todir="${stage.dir}/ice-cpp/dev/bin/debug" flatten="true">
+	    <fileset dir="${ice.dir}/src">
+		<include name="IceBox/Debug/icebox.exe"/>
+	    </fileset>
+	</copy>
+
+	<!-- Libraries -->
+	<mkdir dir="${stage.dir}/ice-cpp/dev/lib"/>
+	<copy todir="${stage.dir}/ice-cpp/dev/lib">
+	    <fileset dir="${ice.dir}/lib">
+	        <include name="freeze.lib"/>
+	        <include name="freezed.lib"/>
+	        <include name="glacier2.lib"/>
+	        <include name="glacier2d.lib"/>
+	        <include name="icebox.lib"/>
+	        <include name="iceboxd.lib"/>
+	        <include name="ice.lib"/>
+	        <include name="iced.lib"/>
+	        <include name="icepack.lib"/>
+	        <include name="icepackd.lib"/>
+	        <include name="icepatch2.lib"/>
+	        <include name="icepatch2d.lib"/>
+	        <include name="icessl.lib"/>
+	        <include name="icessld.lib"/>
+	        <include name="icestorm.lib"/>
+	        <include name="icestormd.lib"/>
+	        <include name="icestormservice.lib"/>
+	        <include name="icestormserviced.lib"/>
+	        <include name="iceutil.lib"/>
+	        <include name="iceutild.lib"/>
+	        <include name="icexml.lib"/>
+	        <include name="icexmld.lib"/>
+	        <include name="slice.lib"/>
+	        <include name="sliced.lib"/>
+	    </fileset>
+	</copy>
+
+	<!-- Headers -->
+	<mkdir dir="${stage.dir}/ice-cpp/dev/include"/>
+	<copy todir="${stage.dir}/ice-cpp/dev/include">
+	    <fileset dir="${ice.dir}/include">
+		<include name="**/*.h"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- Ice for C++ Demo -->
+    <target name="ice-cpp-demo" depends="setup">
+
+	<mkdir dir="${stage.dir}/ice-cpp/demo/demo"/>
+	<copy todir="${stage.dir}/ice-cpp/demo/demo">
+	    <fileset dir="${ice.dir}/demo">
+		<exclude name="**/*.dsp"/>
+		<exclude name="**/*.dsw"/>
+		<exclude name="**/*.ncb"/>
+		<exclude name="**/*.suo"/>
+		<exclude name="**/*.exe"/>
+		<exclude name="**/*.ilk"/>
+		<exclude name="**/*.pdb"/>
+		<exclude name="**/.depend"/>
+		<exclude name="**/.dummy"/>
+		<exclude name="**/Makefile"/>
+		<exclude name="**/Debug/**"/>
+		<exclude name="**/Release/**"/>
+		<exclude name="Freeze/backup/**"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- Ice for C# Assemblies -->
+    <target name="ice-csharp-runtime" depends="setup">
+
+	<!-- Binaries -->
+	<mkdir dir="${stage.dir}/ice-csharp/runtime/bin"/>
+	<copy todir="${stage.dir}/ice-csharp/runtime/bin">
+	    <fileset dir="${icecs.dir}/bin">
+		<include name="*.dll"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- Ice for C# Dev -->
+    <target name="ice-csharp-dev" depends="setup">
+
+	<!-- Binaries -->
+	<mkdir dir="${stage.dir}/ice-csharp/dev/bin"/>
+	<copy todir="${stage.dir}/ice-csharp/dev/bin" flatten="true">
+	    <fileset dir="${icecs.dir}/bin">
+		<include name="generatecs.exe"/>
+		<include name="*.pdb"/>
+		<exclude name="generatecs.pdb"/>
+	    </fileset>
+	    <fileset dir="${ice.dir}/bin">
+		<include name="slice2cs/Release/slice2cs.exe"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- Ice for C# Demo -->
+    <target name="ice-csharp-demo" depends="setup">
+
+	<mkdir dir="${stage.dir}/ice-csharp/demo/democs"/>
+	<copy todir="${stage.dir}/ice-csharp/demo/democs">
+	    <fileset dir="${icecs.dir}/demo">
+		<exclude name="**/*.csproj*"/>
+		<exclude name="**/*.exe"/>
+		<exclude name="**/*.pdb"/>
+		<exclude name="**/*.dll"/>
+		<exclude name="**/*.bat"/>
+		<exclude name="**/.depend"/>
+		<exclude name="**/.dummy"/>
+		<exclude name="**/Makefile"/>
+		<exclude name="**/generated/**"/>
+		<exclude name="**/obj/**"/>
+	    </fileset>
+	    <fileset dir="${icecs.dir}/demo">
+		<include name="**/*D.csproj"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- Ice for Java Runtime-->
+    <target name="ice-java-runtime" depends="setup">
+
+	<!-- Jars -->
+	<mkdir dir="${stage.dir}/ice-java/runtime/lib"/>
+	<copy file="${icej.dir}/lib/Ice.jar" todir="${stage.dir}/ice-java/runtime/lib"/>
+
+    </target>
+
+    <!-- Ice for Java -->
+    <target name="ice-java-dev" depends="setup">
+
+	<!-- Ant classes -->
+	<mkdir dir="${stage.dir}/ice-java/dev/ant"/>
+	<copy todir="${stage.dir}/ice-java/dev/ant">
+	    <fileset dir="${icej.dir}/ant">
+		<include name="**/*.class"/>
+	    </fileset>
+	</copy>
+
+	<!-- Binaries -->
+	<mkdir dir="${stage.dir}/ice-java/dev/bin"/>
+	<copy todir="${stage.dir}/ice-java/dev/bin" flatten="true">
+	    <fileset dir="${ice.dir}/bin">
+		<include name="slice2java/Release/slice2java.exe"/>
+		<include name="slice2freezej/Release/slice2freezej.exe"/>
+	    </fileset>
+	</copy>
+
+	<!-- Configuration -->
+	<mkdir dir="${stage.dir}/ice-java/dev/config"/>
+	<copy file="${icej.dir}/config/build.properties" todir="${stage.dir}/ice-java/dev/config"/>
+	<copy file="${icej.dir}/config/common.xml" todir="${stage.dir}/ice-java/dev/config"/>
+
+	<mkdir dir="${stage.dir}/ice-java/dev/certs"/>
+	<copy todir="${stage.dir}/ice-java/dev/certs">
+	    <fileset dir="${icej.dir}/certs">
+	        <!-- Only need these because the core ice runtime will install the rest -->
+		<include name="*.jks"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- Ice for Java Demo -->
+    <target name="ice-java-demo" depends="setup">
+
+	<mkdir dir="${stage.dir}/ice-java/demo/demoj"/>
+	<copy todir="${stage.dir}/ice-java/demo/demoj">
+	    <fileset dir="${icej.dir}/demo">
+		<exclude name="**/.dummy"/>
+		<exclude name="**/classes/**"/>
+		<exclude name="**/generated/**"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- Ice for Python Runtime -->
+    <target name="ice-python-runtime" depends="setup">
+
+	<!-- Binaries -->
+	<mkdir dir="${stage.dir}/ice-python/runtime/bin"/>
+	<copy todir="${stage.dir}/ice-python/runtime/bin">
+	    <fileset dir="${icepy.dir}/bin">
+		<include name="*.dll"/>
+	    </fileset>
+	</copy>
+
+	<!-- Python Files -->
+	<mkdir dir="${stage.dir}/ice-python/runtime/python"/>
+	<copy todir="${stage.dir}/ice-python/runtime/python">
+	    <fileset dir="${icepy.dir}/python">
+		<include name="**/*.py"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- Ice for Python Dev -->
+    <target name="ice-python-dev" depends="setup">
+
+	<!-- Binaries -->
+	<mkdir dir="${stage.dir}/ice-python/dev/bin"/>
+	<copy todir="${stage.dir}/ice-python/dev/bin" flatten="true">
+	    <fileset dir="${ice.dir}/bin">
+		<include name="slice2py/Release/slice2py.exe"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- Ice for Python Demo -->
+    <target name="ice-python-demo" depends="setup">
+
+	<mkdir dir="${stage.dir}/ice-python/demo/demopy"/>
+	<copy todir="${stage.dir}/ice-python/demo/demopy">
+	    <fileset dir="${icepy.dir}/demo">
+		<include name="**"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- Ice PHP Dynamic Extension -->
+    <target name="ice-php-extension" depends="setup">
+
+	<mkdir dir="${stage.dir}/ice-php/extension/bin"/>
+	<copy file="${icephp.dir}/src/ice/Release/php_ice.dll" todir="${stage.dir}/ice-php/extension/bin"/>
+
+    </target>
+
+    <!-- Ice PHP Demo -->
+    <target name="ice-php-demo" depends="setup">
+
+	<mkdir dir="${stage.dir}/ice-php/demo/demophp"/>
+	<copy todir="${stage.dir}/ice-php/demo/demophp">
+	    <fileset dir="${icephp.dir}/demo">
+		<include name="**"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- Ice for Visual Basic Runtime -->
+    <target name="ice-vbasic-dev" depends="setup">
+
+	<!-- Binaries -->
+	<mkdir dir="${stage.dir}/ice-vbasic/dev/bin"/>
+	<copy todir="${stage.dir}/ice-vbasic/dev/bin" flatten="true">
+	    <fileset dir="${icevb.dir}/bin">
+		<include name="generatevb.exe"/>
+	    </fileset>
+	    <fileset dir="${ice.dir}/bin">
+		<include name="slice2vb/Release/slice2vb.exe"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- Ice for Visual Basic Demo -->
+    <target name="ice-vbasic-demo" depends="setup">
+
+	<mkdir dir="${stage.dir}/ice-vbasic/demo/demovb"/>
+	<copy todir="${stage.dir}/ice-vbasic/demo/demovb">
+	    <fileset dir="${icevb.dir}/demo">
+		<exclude name="**/*.vbproj*"/>
+		<exclude name="**/*.exe"/>
+		<exclude name="**/*.pdb"/>
+		<exclude name="**/*.dll"/>
+		<exclude name="**/*.bat"/>
+		<exclude name="**/.depend"/>
+		<exclude name="**/.dummy"/>
+		<exclude name="**/Makefile"/>
+		<exclude name="**/generated/**"/>
+		<exclude name="**/obj/**"/>
+	    </fileset>
+	    <fileset dir="${icevb.dir}/demo">
+		<include name="**/*D.vbproj"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- Berkeley DB Dev Kit -->
+    <target name="berkeley-dev" depends="setup">
+
+	<mkdir dir="${stage.dir}/berkeley/dev/bin"/>
+	<copy todir="${stage.dir}/berkeley/dev/bin">
+	    <fileset dir="${env.BERKELEY_HOME}/build_win32/Debug">
+		<include name="*.dll"/>
+		<include name="*.pdb"/>
+		<exclude name="*java*"/>
+	    </fileset>
+	</copy>
+
+	<mkdir dir="${stage.dir}/berkeley/dev/lib"/>
+	<copy todir="${stage.dir}/berkeley/dev/lib">
+	    <fileset dir="${env.BERKELEY_HOME}/build_win32/Debug">
+		<include name="*.lib"/>
+		<exclude name="*java*"/>
+	    </fileset>
+	    <fileset dir="${env.BERKELEY_HOME}/build_win32/Release">
+		<include name="*.lib"/>
+		<exclude name="*java*"/>
+	    </fileset>
+	</copy>
+
+	<mkdir dir="${stage.dir}/berkeley/dev/include"/>
+	<copy todir="${stage.dir}/berkeley/dev/include">
+	    <fileset dir="${env.BERKELEY_HOME}/build_win32">
+		<include name="db.h"/>
+		<include name="db_cxx.h"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- Berkeley DB Runtime -->
+    <target name="berkeley-runtime" depends="setup">
+
+	<mkdir dir="${stage.dir}/berkeley/runtime/bin"/>
+	<copy todir="${stage.dir}/berkeley/runtime/bin">
+	    <fileset dir="${env.BERKELEY_HOME}/build_win32/Release">
+		<include name="*.dll"/>
+		<include name="db_archive.exe"/>
+		<include name="db_checkpoint.exe"/>
+		<include name="db_deadlock.exe"/>
+		<include name="db_dump.exe"/>
+		<include name="db_load.exe"/>
+		<include name="db_printlog.exe"/>
+		<include name="db_recover.exe"/>
+		<include name="db_stat.exe"/>
+		<include name="db_upgrade.exe"/>
+		<include name="db_verify.exe"/>
+		<exclude name="*java*.dll"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- Berkeley DB Java Runtime -->
+    <target name="berkeley-java" depends="setup">
+
+	<mkdir dir="${stage.dir}/berkeley/java/bin"/>
+	<copy todir="${stage.dir}/berkeley/java/bin">
+	    <fileset dir="${env.BERKELEY_HOME}/build_win32/Release">
+		<include name="*java*.dll"/>
+	    </fileset>
+	</copy>
+
+	<mkdir dir="${stage.dir}/berkeley/java/lib"/>
+	<copy todir="${stage.dir}/berkeley/java/lib">
+	    <fileset dir="${env.BERKELEY_HOME}/build_win32/Release">
+		<include name="db.jar"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- bZip2 Dev Kit -->
+    <target name="bzip2-dev" depends="setup">
+
+	<mkdir dir="${stage.dir}/bzip2/dev/lib"/>
+	<copy file="${env.BZIP2_HOME}/libbz2d.lib" todir="${stage.dir}/bzip2/dev/lib"/>
+	<copy file="${env.BZIP2_HOME}/libbz2.lib" todir="${stage.dir}/bzip2/dev/lib"/>
+
+	<mkdir dir="${stage.dir}/bzip2/dev/include"/>
+	<copy file="${env.BZIP2_HOME}/bzlib.h" todir="${stage.dir}/bzip2/dev/include"/>
+
+    </target>
+
+    <!-- eXpat Dev Kit -->
+    <target name="expat-dev" depends="setup">
+
+	<mkdir dir="${stage.dir}/expat/dev/lib"/>
+	<copy todir="${stage.dir}/expat/dev/lib">
+	    <fileset dir="${env.EXPAT_HOME}/Source/lib/Release">
+		<include name="*.lib"/>
+	    </fileset>
+	</copy>
+	<copy todir="${stage.dir}/expat/dev/lib">
+	    <fileset dir="${env.EXPAT_HOME}/Source/lib/Release-w">
+		<include name="*.lib"/>
+	    </fileset>
+	</copy>
+
+	<mkdir dir="${stage.dir}/expat/dev/include"/>
+	<copy todir="${stage.dir}/expat/dev/include">
+	    <fileset dir="${env.EXPAT_HOME}/Source/lib">
+		<include name="expat.h"/>
+		<include name="expat_external.h"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- eXpat Runtime -->
+    <target name="expat-runtime" depends="setup">
+
+	<mkdir dir="${stage.dir}/expat/runtime/bin"/>
+	<copy todir="${stage.dir}/expat/runtime/bin">
+	    <fileset dir="${env.EXPAT_HOME}/Source/lib/Release">
+		<include name="*.dll"/>
+	    </fileset>
+	</copy>
+	<copy todir="${stage.dir}/expat/runtime/bin">
+	    <fileset dir="${env.EXPAT_HOME}/Source/lib/Release-w">
+		<include name="*.dll"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- OpenSSL Dev Kit -->
+    <target name="openssl-dev" depends="setup">
+
+	<mkdir dir="${stage.dir}/openssl/dev/lib"/>
+	<copy todir="${stage.dir}/openssl/dev/lib">
+	    <fileset dir="${env.OPENSSL_HOME}/out32dll">
+		<include name="*.lib"/>
+	    </fileset>
+	</copy>
+
+	<mkdir dir="${stage.dir}/openssl/dev/include"/>
+	<copy todir="${stage.dir}/openssl/dev/include">
+	    <fileset dir="${env.OPENSSL_HOME}/inc32">
+		<include name="**"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- OpenSSL Runtime -->
+    <target name="openssl-runtime" depends="setup">
+    
+	<mkdir dir="${stage.dir}/openssl/runtime/bin"/>
+	<copy todir="${stage.dir}/openssl/runtime/bin">
+	    <fileset dir="${env.OPENSSL_HOME}/out32dll">
+		<include name="*.dll"/>
+		<include name="openssl.exe"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- STLPort Dev Kit -->
+    <target name="stlport-dev" depends="setup">
+
+	<mkdir dir="${stage.dir}/stlport/dev/bin"/>
+	<copy todir="${stage.dir}/stlport/dev/bin">
+	    <fileset dir="${env.STLPORT_HOME}/lib">
+		<include name="*debug*.dll"/>
+		<include name="*.pdb"/>
+	    </fileset>
+	</copy>
+
+	<mkdir dir="${stage.dir}/stlport/dev/lib"/>
+	<copy todir="${stage.dir}/stlport/dev/lib">
+	    <fileset dir="${env.STLPORT_HOME}/lib">
+		<include name="*.lib"/>
+		<exclude name="*static*.lib"/>
+	    </fileset>
+	</copy>
+
+	<mkdir dir="${stage.dir}/stlport/dev/include"/>
+	<copy todir="${stage.dir}/stlport/dev/include/stlport">
+	    <fileset dir="${env.STLPORT_HOME}/stlport">
+		<include name="**"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- STLPort Runtime -->
+    <target name="stlport-runtime" depends="setup">
+
+	<mkdir dir="${stage.dir}/stlport/runtime/bin"/>
+	<copy todir="${stage.dir}/stlport/runtime/bin">
+	    <fileset dir="${env.STLPORT_HOME}/lib">
+		<include name="*.dll"/>
+		<exclude name="*debug*.dll"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <target name="packages-stage-vc60" 
+            depends="packages-common,
+		     berkeley-dev,
+		     berkeley-runtime,
+		     berkeley-java,
+		     bzip2-dev,
+		     expat-dev,
+		     expat-runtime,
+		     openssl-dev,
+		     openssl-runtime,
+		     stlport-dev,
+		     stlport-runtime">
+	<mkdir dir="${stage.dir}/microsoft/runtime/bin"/>
+	<copy file="${env.SystemRoot}/System32/msvcrt.dll" todir="${stage.dir}/microsoft/runtime/bin"/>
+	<copy file="${env.SystemRoot}/System32/msvcp60.dll" todir="${stage.dir}/microsoft/runtime/bin"/>
+     </target>
+
+    <target name="packages-stage-vc71" 
+            depends="packages-common,
+		     berkeley-dev,
+		     berkeley-runtime,
+		     berkeley-java,
+		     bzip2-dev,
+		     expat-dev,
+		     expat-runtime,
+		     openssl-dev,
+		     openssl-runtime">
+	<mkdir dir="${stage.dir}/microsoft/runtime/bin"/>
+	<copy file="${env.SystemRoot}/System32/msvcr71.dll" todir="${stage.dir}/microsoft/runtime/bin"/>
+	<copy file="${env.SystemRoot}/System32/msvcp71.dll" todir="${stage.dir}/microsoft/runtime/bin"/>
+     </target>
+
+    <target name="ice-stage-vc60" 
+            depends="ice-common,
+		     ice-cpp-runtime,
+		     ice-cpp-dev,
+		     ice-cpp-demo"/>
+
+    <target name="ice-stage-vc71" 
+            depends="ice-common,
+		     ice-cpp-runtime,
+		     ice-cpp-dev,
+		     ice-cpp-demo,
+		     ice-csharp-runtime,
+		     ice-csharp-dev,
+		     ice-csharp-demo,
+		     ice-java-runtime,
+		     ice-java-dev,
+		     ice-java-demo,
+		     ice-python-runtime,
+		     ice-python-dev,
+		     ice-python-demo,
+		     ice-php-extension,
+		     ice-php-demo,
+		     ice-vbasic-dev,
+		     ice-vbasic-demo"/>
+
+    <target name="all" depends="packages-stage-vc71,ice-stage-vc71"/>
+
+</project>
