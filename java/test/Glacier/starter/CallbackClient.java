@@ -15,11 +15,17 @@ class CallbackClient extends Ice.Application
     {
         String ref;
 
+        Ice.ObjectAdapter adapter =
+	    communicator().createObjectAdapterWithEndpoints("CallbackReceiverAdapter", "default");
+        adapter.activate();
+	// Put the print statement after activate(), so that if
+	// Ice.PrintAdapterReady is set, the "ready" is the first output
+	// from the client, and not the print statement below. Otherwise
+	// the Python test scripts will be confused, as they expect the
+	// "ready" from the Object Adapter to be the first thing that is
+	// printed.
         System.out.print("creating and activating callback receiver adapter... ");
         System.out.flush();
-        Ice.ObjectAdapter adapter =
-            communicator().createObjectAdapterWithEndpoints("CallbackReceiverAdapter", "default");
-        adapter.activate();
         System.out.println("ok");
 
         System.out.print("creating and adding callback receiver object... ");
@@ -157,9 +163,6 @@ class CallbackClient extends Ice.Application
         System.out.print("shutting down glacier router... ");
         System.out.flush();
         router.shutdown();
-        // No ping, otherwise the glacier router prints a warning
-        // message if it's started with --Ice.ConnectionWarnings.
-        System.out.println("ok");
         try
         {
             router.ice_ping();

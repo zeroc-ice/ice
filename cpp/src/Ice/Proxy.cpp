@@ -666,6 +666,14 @@ IceProxy::Ice::Object::setup(const ReferencePtr& ref)
     _reference = ref;
 }
 
+IceDelegateM::Ice::Object::~Object()
+{
+    if (__connection)
+    {
+	__connection->decProxyUsageCount();
+    }
+}
+
 bool
 IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
@@ -780,6 +788,7 @@ IceDelegateM::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegate
 
     __reference = from->__reference;
     __connection = from->__connection;
+    __connection->incProxyUsageCount();
 }
 
 void
@@ -822,6 +831,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	}
 	assert(p != connections.end());
 	__connection = *p;
+	__connection->incProxyUsageCount();
     }
     else
     {
@@ -848,11 +858,12 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	OutgoingConnectionFactoryPtr factory = __reference->instance->outgoingConnectionFactory();
 	__connection = factory->create(endpoints);
 	assert(__connection);
+	__connection->incProxyUsageCount();
 	
 	//
-	// If we have a router, add the object adapter for this router (if
-	// any) to the new connection, so that callbacks from the router
-	// can be received over this new connection.
+	// If we have a router, set the object adapter for this router
+	// (if any) to the new connection, so that callbacks from the
+	// router can be received over this new connection.
 	//
 	if (__reference->routerInfo)
 	{

@@ -51,12 +51,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         singleCertVerifier = true;
     }
 
-/*
-
-// Note: This section is commented out because Ice is currently not destroying SslTransceivers
-//       properly, resulting in cached connections (which cause the expected failure sections
-//       to succeed, causing the test to fail).
-
     if (!singleCertVerifier)
     {
         cout << "client and server trusted, client using stock certificate... ";
@@ -69,16 +63,14 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
             PingerPrx pinger = PingerPrx::checkedCast(communicator->stringToProxy(ref));
             pinger->ping();
             cout << "ok" << endl;
-            pinger = 0;
         }
-        catch(const Ice::LocalException& localEx)
+        catch(const Ice::LocalException& ex)
         {
-            cout << localEx << endl;
+            cout << ex << endl;
             km->shutdown();
             test(false);
         }
     }
-*/
 
     properties->setProperty("Ice.SSL.Client.Config", "sslconfig_7.xml");
 

@@ -143,6 +143,8 @@ class ICE_API Object : virtual public ::IceDelegate::Ice::Object
 {
 public:
 
+    virtual ~Object();
+
     virtual bool ice_isA(const std::string&, const ::Ice::Context&);
     virtual void ice_ping(const ::Ice::Context&);
     virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);

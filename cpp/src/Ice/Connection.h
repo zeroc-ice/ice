@@ -43,6 +43,8 @@ public:
     bool destroyed() const;
     void hold();
     void activate();
+    void incProxyUsageCount();
+    void decProxyUsageCount();
     void prepareRequest(Outgoing*);
     void sendRequest(Outgoing*, bool);
     void removeRequest(Outgoing*);
@@ -102,6 +104,7 @@ private:
     std::auto_ptr< ::Ice::LocalException> _exception;
     BasicStream _batchStream;
     int _responseCount;
+    int _proxyUsageCount;
     State _state;
     bool _warn;
 };

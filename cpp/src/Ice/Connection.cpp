@@ -51,14 +51,34 @@ IceInternal::Connection::activate()
 }
 
 void
+IceInternal::Connection::incProxyUsageCount()
+{
+    IceUtil::RecMutex::Lock sync(*this);
+    assert(_proxyUsageCount >= 0);
+    ++_proxyUsageCount;
+}
+
+void
+IceInternal::Connection::decProxyUsageCount()
+{
+    IceUtil::RecMutex::Lock sync(*this);
+    assert(_proxyUsageCount > 0);
+    if (--_proxyUsageCount == 0)
+    {
+	assert(_requests.empty());
+	setState(StateClosing);
+    }
+}
+
+void
 IceInternal::Connection::prepareRequest(Outgoing* out)
 {
     BasicStream* os = out->os();
     os->write(protocolVersion);
     os->write(encodingVersion);
     os->write(requestMsg);
-    os->write(Int(0)); // Message size (placeholder)
-    os->write(Int(0)); // Request ID (placeholder)
+    os->write(Int(0)); // Message size (placeholder).
+    os->write(Int(0)); // Request ID (placeholder).
 }
 
 void
@@ -80,7 +100,7 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
 	os->i = os->b.begin();
 	
 	//
-	// Fill in the message size and request ID
+	// Fill in the message size and request ID.
 	//
 	const Byte* p;
 	Int sz = os->b.size();
@@ -138,7 +158,7 @@ IceInternal::Connection::prepareBatchRequest(Outgoing* out)
 	_batchStream.write(protocolVersion);
 	_batchStream.write(encodingVersion);
 	_batchStream.write(requestBatchMsg);
-	_batchStream.write(Int(0)); // Message size (placeholder)
+	_batchStream.write(Int(0)); // Message size (placeholder).
     }
 
     //
@@ -158,15 +178,15 @@ IceInternal::Connection::finishBatchRequest(Outgoing* out)
     }
     assert(_state < StateClosing);
 
-    _batchStream.swap(*out->os()); // Get the batch stream back 
-    unlock(); // Give the Connection back
+    _batchStream.swap(*out->os()); // Get the batch stream back.
+    unlock(); // Give the Connection back.
 }
 
 void
 IceInternal::Connection::abortBatchRequest()
 {
     setState(StateClosed, AbortBatchRequestException(__FILE__, __LINE__));
-    unlock(); // Give the Connection back
+    unlock(); // Give the Connection back.
 }
 
 void
@@ -184,13 +204,13 @@ IceInternal::Connection::flushBatchRequest()
     {
 	if(_batchStream.b.empty())
 	{
-	    return; // Nothing to send
+	    return; // Nothing to send.
 	}
 
 	_batchStream.i = _batchStream.b.begin();
 	
 	//
-	// Fill in the message size
+	// Fill in the message size.
 	//
 	const Byte* p;
 	Int sz = _batchStream.b.size();
@@ -418,14 +438,14 @@ IceInternal::Connection::message(BasicStream& stream)
 	    {
 		Int requestId;
 		is->read(requestId);
-		if (!_endpoint->datagram() && requestId != 0) // 0 means oneway
+		if (!_endpoint->datagram() && requestId != 0) // 0 means oneway.
 		{
 		    response = true;
 		    ++_responseCount;
 		    os->write(protocolVersion);
 		    os->write(encodingVersion);
 		    os->write(replyMsg);
-		    os->write(Int(0)); // Message size (placeholder)
+		    os->write(Int(0)); // Message size (placeholder).
 		    os->write(requestId);
 		}
 	    }
@@ -488,7 +508,7 @@ IceInternal::Connection::message(BasicStream& stream)
 		os->i = os->b.begin();
 		
 		//
-		// Fill in the message size
+		// Fill in the message size.
 		//
 		const Byte* p;
 		Int sz = os->b.size();
@@ -571,6 +591,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _requestsHint(_requests.end()),
     _batchStream(instance),
     _responseCount(0),
+    _proxyUsageCount(0),
     _state(StateHolding)
 {
     _warn = atoi(_instance->properties()->getProperty("Ice.ConnectionWarnings").c_str()) > 0;
@@ -605,7 +626,7 @@ IceInternal::Connection::destroy(DestructionReason reason)
 void
 IceInternal::Connection::setState(State state, const LocalException& ex)
 {
-    if (_state == state) // Don't switch twice
+    if (_state == state) // Don't switch twice.
     {
 	return;
     }
@@ -652,7 +673,7 @@ IceInternal::Connection::setState(State state)
 	state = StateClosed;
     }
 
-    if (_state == state) // Don't switch twice
+    if (_state == state) // Don't switch twice.
     {
 	return;
     }
@@ -661,7 +682,7 @@ IceInternal::Connection::setState(State state)
     {
 	case StateActive:
 	{
-	    if (_state != StateHolding) // Can only switch from holding to active
+	    if (_state != StateHolding) // Can only switch from holding to active.
 	    {
 		return;
 	    }
@@ -671,7 +692,7 @@ IceInternal::Connection::setState(State state)
 	
 	case StateHolding:
 	{
-	    if (_state != StateActive) // Can only switch from active to holding
+	    if (_state != StateActive) // Can only switch from active to holding.
 	    {
 		return;
 	    }
@@ -681,14 +702,14 @@ IceInternal::Connection::setState(State state)
 
 	case StateClosing:
 	{
-	    if (_state == StateClosed) // Can't change back from closed
+	    if (_state == StateClosed) // Can't change back from closed.
 	    {
 		return;
 	    }
 	    if (_state == StateHolding)
 	    {
 		//
-		// We need to continue to read data in closing state
+		// We need to continue to read data in closing state.
 		//
 		_threadPool->_register(_transceiver->fd(), this);
 	    }
@@ -733,7 +754,7 @@ IceInternal::Connection::closeConnection()
     os.write(protocolVersion);
     os.write(encodingVersion);
     os.write(closeConnectionMsg);
-    os.write(headerSize); // Message size
+    os.write(headerSize); // Message size.
     os.i = os.b.begin();
     traceHeader("sending close connection", os, _logger, _traceLevels);
     _transceiver->write(os, _endpoint->timeout());

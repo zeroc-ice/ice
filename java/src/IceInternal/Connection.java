@@ -54,13 +54,47 @@ public final class Connection extends EventHandler
         }
     }
 
+    public void
+    incProxyUsageCount()
+    {
+	_mutex.lock();
+        try
+        {
+	    assert(_proxyUsageCount >= 0);
+	    ++_proxyUsageCount;
+	}
+        finally
+        {
+            _mutex.unlock();
+        }
+    }
+
+    public void
+    decProxyUsageCount()
+    {
+	_mutex.lock();
+        try
+        {
+	    assert(_proxyUsageCount >= 0);
+	    if (--_proxyUsageCount == 0)
+	    {
+		assert(_requests.isEmpty());
+		setState(StateClosing);
+	    }
+	}
+        finally
+        {
+            _mutex.unlock();
+        }
+    }
+
     private final static byte[] _requestHdr =
     {
         Protocol.protocolVersion,
         Protocol.encodingVersion,
         Protocol.requestMsg,
-        (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder)
-        (byte)0, (byte)0, (byte)0, (byte)0  // Request ID (placeholder)
+        (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
+        (byte)0, (byte)0, (byte)0, (byte)0  // Request ID (placeholder).
     };
 
     public void
@@ -90,7 +124,7 @@ public final class Connection extends EventHandler
                 os.pos(3);
 
                 //
-                // Fill in the message size and request ID
+                // Fill in the message size and request ID.
                 //
                 os.writeInt(os.size());
                 if (!_endpoint.datagram() && !oneway)
@@ -132,7 +166,7 @@ public final class Connection extends EventHandler
         Protocol.protocolVersion,
         Protocol.encodingVersion,
         Protocol.requestBatchMsg,
-        (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder)
+        (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder).
     };
 
     public void
@@ -174,15 +208,15 @@ public final class Connection extends EventHandler
         }
         assert(_state < StateClosing);
 
-        _batchStream.swap(out.os()); // Get the batch stream back
-        _mutex.unlock(); // Give the Connection back
+        _batchStream.swap(out.os()); // Get the batch stream back.
+        _mutex.unlock(); // Give the Connection back.
     }
 
     public void
     abortBatchRequest()
     {
         setState(StateClosed, new Ice.AbortBatchRequestException());
-        _mutex.unlock(); // Give the Connection back
+        _mutex.unlock(); // Give the Connection back.
     }
 
     public void
@@ -201,13 +235,13 @@ public final class Connection extends EventHandler
             {
                 if (_batchStream.size() == 0)
                 {
-                    return; // Nothing to send
+                    return; // Nothing to send.
                 }
 
                 _batchStream.pos(3);
 
                 //
-                // Fill in the message size
+                // Fill in the message size.
                 //
                 _batchStream.writeInt(_batchStream.size());
                 TraceUtil.traceBatchRequest("sending batch request", _batchStream, _logger, _traceLevels);
@@ -313,7 +347,7 @@ public final class Connection extends EventHandler
         Protocol.protocolVersion,
         Protocol.encodingVersion,
         Protocol.replyMsg,
-        (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder)
+        (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder).
     };
 
     public void
@@ -445,7 +479,7 @@ public final class Connection extends EventHandler
                     if (!batch)
                     {
                         int requestId = is.readInt();
-                        if (!_endpoint.datagram() && requestId != 0) // 0 = oneway
+                        if (!_endpoint.datagram() && requestId != 0) // 0 means oneway.
                         {
                             response = true;
                             ++_responseCount;
@@ -526,7 +560,7 @@ public final class Connection extends EventHandler
                             }
 
                             //
-                            // Fill in the message size
+                            // Fill in the message size.
                             //
                             os.pos(3);
                             final int sz = os.size();
@@ -637,6 +671,7 @@ public final class Connection extends EventHandler
         _nextRequestId = 1;
         _batchStream = new BasicStream(instance);
         _responseCount = 0;
+	_proxyUsageCount = 0;
         _state = StateHolding;
 
         try
@@ -700,7 +735,7 @@ public final class Connection extends EventHandler
     private void
     setState(int state, Ice.LocalException ex)
     {
-        if (_state == state) // Don't switch twice
+        if (_state == state) // Don't switch twice.
         {
             return;
         }
@@ -749,7 +784,7 @@ public final class Connection extends EventHandler
             state = StateClosed;
         }
 
-        if (_state == state) // Don't switch twice
+        if (_state == state) // Don't switch twice.
         {
             return;
         }
@@ -758,8 +793,8 @@ public final class Connection extends EventHandler
         {
             case StateActive:
             {
-                if (_state != StateHolding) // Can only switch from holding
-                {                           // to active
+                if (_state != StateHolding) // Can only switch from holding to active.
+                {
                     return;
                 }
                 _threadPool._register(_transceiver.fd(), this);
@@ -768,8 +803,8 @@ public final class Connection extends EventHandler
 
             case StateHolding:
             {
-                if (_state != StateActive) // Can only switch from active
-                {                          // to holding
+                if (_state != StateActive) // Can only switch from active to holding.
+                {
                     return;
                 }
                 _threadPool.unregister(_transceiver.fd(), false);
@@ -778,14 +813,14 @@ public final class Connection extends EventHandler
 
             case StateClosing:
             {
-                if (_state == StateClosed) // Can't change back from closed
+                if (_state == StateClosed) // Can't change back from closed.
                 {
                     return;
                 }
                 if (_state == StateHolding)
                 {
                     //
-                    // We need to continue to read data in closing state
+                    // We need to continue to read data in closing state.
                     //
                     _threadPool._register(_transceiver.fd(), this);
                 }
@@ -831,7 +866,7 @@ public final class Connection extends EventHandler
         os.writeByte(Protocol.protocolVersion);
         os.writeByte(Protocol.encodingVersion);
         os.writeByte(Protocol.closeConnectionMsg);
-        os.writeInt(Protocol.headerSize); // Message size
+        os.writeInt(Protocol.headerSize); // Message size.
         _transceiver.write(os, _endpoint.timeout());
         _transceiver.shutdown();
     }
@@ -883,6 +918,7 @@ public final class Connection extends EventHandler
     private Ice.LocalException _exception;
     private BasicStream _batchStream;
     private int _responseCount;
+    private int _proxyUsageCount;
     private int _state;
     private boolean _warn;
     private RecursiveMutex _mutex = new RecursiveMutex();

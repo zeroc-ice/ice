@@ -161,6 +161,7 @@ public class _ObjectDelM implements _ObjectDel
 
         __reference = from.__reference;
         __connection = from.__connection;
+	__connection.incProxyUsageCount();
     }
 
     protected IceInternal.Connection __connection;
@@ -206,6 +207,7 @@ public class _ObjectDelM implements _ObjectDel
             }
             assert(j < connections.length);
             __connection = connections[j];
+	    __connection.incProxyUsageCount();
         }
         else
         {
@@ -232,11 +234,13 @@ public class _ObjectDelM implements _ObjectDel
             IceInternal.OutgoingConnectionFactory factory = __reference.instance.outgoingConnectionFactory();
             __connection = factory.create(endpoints);
             assert(__connection != null);
+	    __connection.incProxyUsageCount();
 
             //
-            // If we have a router, add the object adapter for this router (if
-            // any) to the new connection, so that callbacks from the router
-            // can be received over this new connection.
+            // If we have a router, set the object adapter for this
+            // router (if any) to the new connection, so that
+            // callbacks from the router can be received over this new
+            // connection.
             //
             if (__reference.routerInfo != null)
             {
@@ -395,6 +399,11 @@ public class _ObjectDelM implements _ObjectDel
     finalize()
         throws Throwable
     {
+	if (__connection != null)
+	{
+	    __connection.decProxyUsageCount();
+	}
+	
         while (__outgoingCache != null)
         {
             IceInternal.Outgoing next = __outgoingCache.next;

@@ -9,13 +9,15 @@
 #
 # **********************************************************************
 
+import sys, os
+
 #
 # Set protocol to "ssl" in case you want to run the tests with the SSL
 # protocol. Otherwise TCP is used.
 #
 
-protocol = "ssl"
-#protocol = ""
+#protocol = "ssl"
+protocol = ""
 
 #
 # Set the host to the host name the test servers are running on. If not
@@ -54,8 +56,6 @@ serverOptions = commonServerOptions + serverProtocol
 clientOptions = clientProtocol + defaultHost
 clientServerOptions = commonServerOptions + clientServerProtocol + defaultHost
 collocatedOptions = clientServerProtocol
-
-import sys, os
 
 serverPids = []
 

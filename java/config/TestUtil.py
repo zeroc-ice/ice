@@ -112,6 +112,7 @@ def getAdapterReady(serverPipe):
 
     if not output:
         print "failed!"
+        killServers()
         sys.exit(1)
 
 def clientServerTest(toplevel, name):
@@ -136,6 +137,7 @@ def clientServerTest(toplevel, name):
         print "failed!"
         serverPipe.close()
         clientPipe.close()
+        killServers()
         sys.exit(1)
     print "ok"
     print output,
@@ -147,7 +149,7 @@ def clientServerTest(toplevel, name):
     serverPipe.close()
     clientPipe.close()
 
-def clientServerHybridTest(toplevel, name):
+def mixedClientServerTest(toplevel, name):
 
     testdir = os.path.join(toplevel, "test", name)
     classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + os.environ['CLASSPATH']
@@ -169,6 +171,7 @@ def clientServerHybridTest(toplevel, name):
         print "failed!"
         serverPipe.close()
         clientPipe.close()
+        killServers()
         sys.exit(1)
     print "ok"
     while 1:
@@ -176,7 +179,6 @@ def clientServerHybridTest(toplevel, name):
         if not output:
             break;
         print output,
-    killServers()
     serverPipe.close()
     clientPipe.close()
 
