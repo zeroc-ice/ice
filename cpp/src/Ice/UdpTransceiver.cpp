@@ -50,6 +50,21 @@ IceInternal::UdpTransceiver::shutdownWrite()
 void
 IceInternal::UdpTransceiver::shutdownReadWrite()
 {
+    if(_traceLevels->network >= 2)
+    {
+	Trace out(_logger, _traceLevels->networkCat);
+	out << "shutting down udp connection for reading and writing\n" << toString();
+    }
+
+    //
+    // Set a flag and then shutdown the socket in order to wake a thread that is
+    // blocked in read().
+    //
+    IceUtil::Mutex::Lock sync(_shutdownReadWriteMutex);
+    _shutdownReadWrite = true;
+
+    assert(_fd != INVALID_SOCKET);
+    shutdownSocketReadWrite(_fd);
 }
 
 void
@@ -144,6 +159,17 @@ IceInternal::UdpTransceiver::read(Buffer& buf, int)
 
 repeat:
 
+    //
+    // Check the shutdown flag.
+    //
+    {
+	IceUtil::Mutex::Lock sync(_shutdownReadWriteMutex);
+	if(_shutdownReadWrite)
+	{
+	    throw ConnectionLostException(__FILE__, __LINE__);
+	}
+    }
+
     ssize_t ret;
     if(_connect)
     {
@@ -174,7 +200,7 @@ repeat:
 	assert(_fd != INVALID_SOCKET);
 	ret = ::recv(_fd, reinterpret_cast<char*>(&buf.b[0]), packetSize, 0);
     }
-    
+
     if(ret == SOCKET_ERROR)
     {
 	if(interrupted())
@@ -189,7 +215,7 @@ repeat:
 	    assert(_fd != INVALID_SOCKET);
 	    FD_SET(_fd, &_rFdSet);
 	    int rs = ::select(_fd + 1, &_rFdSet, 0, 0, 0);
-	    
+
 	    if(rs == SOCKET_ERROR)
 	    {
 		if(interrupted())
@@ -268,7 +294,8 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     _logger(instance->logger()),
     _incoming(false),
     _connect(true),
-    _warn(instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0)
+    _warn(instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0),
+    _shutdownReadWrite(false)
 {
     try
     {
@@ -301,7 +328,8 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     _stats(instance->stats()),
     _incoming(true),
     _connect(connect),
-    _warn(instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0)
+    _warn(instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0),
+    _shutdownReadWrite(false)
 {
     try
     {

@@ -80,7 +80,7 @@ public class IncomingConnectionFactory extends EventHandler
 	    //
 	    // First we wait until the factory is destroyed.
 	    //
-	    while(_acceptor != null)
+	    while(_state != StateClosed)
 	    {
 		try
 		{
@@ -90,8 +90,6 @@ public class IncomingConnectionFactory extends EventHandler
 		{
 		}
 	    }
-
-	    assert(_state == StateClosed);
 
 	    threadPerIncomingConnectionFactory = _threadPerIncomingConnectionFactory;
 	    _threadPerIncomingConnectionFactory = null;

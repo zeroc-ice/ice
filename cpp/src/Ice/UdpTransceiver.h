@@ -15,6 +15,7 @@
 #include <Ice/LoggerF.h>
 #include <Ice/StatsF.h>
 #include <Ice/Transceiver.h>
+#include <IceUtil/Mutex.h>
 
 #ifndef _WIN32
 #   include <netinet/in.h> // For struct sockaddr_in
@@ -68,6 +69,8 @@ private:
     const bool _warn;
     static const int _udpOverhead;
     static const int _maxPacketSize;
+    bool _shutdownReadWrite;
+    IceUtil::Mutex _shutdownReadWriteMutex;
 };
 
 }

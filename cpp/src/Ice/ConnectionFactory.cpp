@@ -540,13 +540,11 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
 	//
 	// First we wait until the factory is destroyed.
 	//
-	while(_acceptor)
+	while(_state != StateClosed)
 	{
 	    wait();
 	}
 	
-	assert(_state == StateClosed);
-
 	threadPerIncomingConnectionFactory = _threadPerIncomingConnectionFactory;
 	_threadPerIncomingConnectionFactory = 0;
 
