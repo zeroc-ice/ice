@@ -15,30 +15,36 @@ public final class Util
     public static Properties
     getDefaultProperties(String[] args)
     {
-        return null;
+        if (_defaultProperties == null)
+        {
+            _defaultProperties = createProperties(args);
+        }
+        return _defaultProperties;
     }
 
     public static Properties
     createProperties(String[] args)
     {
-        return null;
+        return new PropertiesI(args);
     }
 
     public static Properties
-    createPropertiesFromFile(String[] args, String configFile)
+    createPropertiesFromFile(String[] args, String file)
     {
-        return null;
+        return new PropertiesI(args, file);
     }
 
     public static Communicator
     initialize(String[] args)
     {
-        return null;
+        return new CommunicatorI(getDefaultProperties(args));
     }
 
     public static Communicator
     initializeWithProperties(Properties properties)
     {
-        return null;
+        return new CommunicatorI(properties);
     }
+
+    private static _defaultProperties = null;
 }
