@@ -10,7 +10,7 @@ Either start the IceStorm daemon:
 
 or to run IceStorm as an IceBox service:
 
-../../../bin/icebox --Ice.Config=config_service,config
+../../../bin/icebox --Ice.Config=config_service
 
 This currently assumes there is a directory called db in the cwd.
 
