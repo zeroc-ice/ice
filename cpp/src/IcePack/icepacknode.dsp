@@ -55,7 +55,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
-TargetName=icepacknode
+TargetName=IcePackNode
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
@@ -87,7 +87,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
-TargetName=icepacknode
+TargetName=IcePackNode
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
@@ -352,7 +352,7 @@ USERDEP__DUMMY="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"
 InputPath=.\dummy1.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice -I.. -I../../slice --include-dir IcePack  --dict IcePack::IdentityObjectDescDict,Ice::Identity,IcePack::ObjectDescriptor IdentityObjectDescDict ../../slice/Ice/Identity.ice ../IcePack/Internal.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir IcePack -I../../slice -I.. --include-dir IcePack  --dict IcePack::IdentityObjectDescDict,Ice::Identity,IcePack::ObjectDescriptor IdentityObjectDescDict ../../slice/Ice/Identity.ice ../IcePack/Internal.ice
 
 "IdentityObjectDescDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -368,7 +368,7 @@ USERDEP__DUMMY="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"
 InputPath=.\dummy1.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice -I.. -I../../slice --include-dir IcePack  --dict IcePack::IdentityObjectDescDict,Ice::Identity,IcePack::ObjectDescriptor IdentityObjectDescDict ../../slice/Ice/Identity.ice ../IcePack/Internal.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir IcePack -I../../slice -I.. --include-dir IcePack  --dict IcePack::IdentityObjectDescDict,Ice::Identity,IcePack::ObjectDescriptor IdentityObjectDescDict ../../slice/Ice/Identity.ice ../IcePack/Internal.ice
 
 "IdentityObjectDescDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -429,7 +429,7 @@ USERDEP__DUMMY3="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"
 InputPath=.\dummy3.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice -I../../slice --include-dir IcePack  --dict IcePack::StringObjectProxySeqDict,string,Ice::ObjectProxySeq StringObjectProxySeqDict ../../slice/Ice/BuiltinSequences.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir IcePack -I../../slice --dict IcePack::StringObjectProxySeqDict,string,Ice::ObjectProxySeq StringObjectProxySeqDict ../../slice/Ice/BuiltinSequences.ice
 
 "StringObjectProxySeqDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -445,7 +445,7 @@ USERDEP__DUMMY3="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"
 InputPath=.\dummy3.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice -I../../slice --include-dir IcePack  --dict IcePack::StringObjectProxySeqDict,string,Ice::ObjectProxySeq StringObjectProxySeqDict ../../slice/Ice/BuiltinSequences.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir IcePack -I../../slice --dict IcePack::StringObjectProxySeqDict,string,Ice::ObjectProxySeq StringObjectProxySeqDict ../../slice/Ice/BuiltinSequences.ice
 
 "StringObjectProxySeqDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -468,7 +468,7 @@ USERDEP__DUMMY4="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"
 InputPath=.\dummy4.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice -I../../slice --include-dir IcePack  --dict IcePack::StringStringSeqDict,string,Ice::StringSeq StringStringSeqDict ../../slice/Ice/BuiltinSequences.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir IcePack -I../../slice --dict IcePack::StringStringSeqDict,string,Ice::StringSeq StringStringSeqDict ../../slice/Ice/BuiltinSequences.ice
 
 "StringStringSeqDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -484,7 +484,7 @@ USERDEP__DUMMY4="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"
 InputPath=.\dummy4.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice -I../../slice --include-dir IcePack  --dict IcePack::StringStringSeqDict,string,Ice::StringSeq StringStringSeqDict ../../slice/Ice/BuiltinSequences.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir IcePack -I../../slice --dict IcePack::StringStringSeqDict,string,Ice::StringSeq StringStringSeqDict ../../slice/Ice/BuiltinSequences.ice
 
 "StringStringSeqDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -507,7 +507,7 @@ USERDEP__DUMMY5="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"
 InputPath=.\dummy5.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice -I../../slice --include-dir IcePack  --dict IcePack::StringServerDescriptorDict,string,IcePack::ServerDescriptor StringServerDescriptorDict ../../slice/IcePack/Admin.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir IcePack -I../../slice --dict IcePack::StringServerDescriptorDict,string,IcePack::ServerDescriptor StringServerDescriptorDict ../../slice/IcePack/Admin.ice
 
 "StringServerDescriptorDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -523,7 +523,7 @@ USERDEP__DUMMY5="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"
 InputPath=.\dummy5.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice -I../../slice --include-dir IcePack  --dict IcePack::StringServerDescriptorDict,string,IcePack::ServerDescriptor StringServerDescriptorDict ../../slice/IcePack/Admin.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir IcePack -I../../slice --dict IcePack::StringServerDescriptorDict,string,IcePack::ServerDescriptor StringServerDescriptorDict ../../slice/IcePack/Admin.ice
 
 "StringServerDescriptorDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -546,9 +546,9 @@ USERDEP__INTER="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=.\Internal.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --include-dir IcePack -I.. -I../../slice ./Internal.ice
+	..\..\bin\slice2cpp.exe --ice --include-dir IcePack -I../../slice Internal.ice
 
-".\Internal.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Internal.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "Internal.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -562,9 +562,9 @@ USERDEP__INTER="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=.\Internal.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --include-dir IcePack -I.. -I../../slice ./Internal.ice
+	..\..\bin\slice2cpp.exe --ice --include-dir IcePack -I../../slice Internal.ice
 
-".\Internal.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Internal.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "Internal.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
