@@ -11,13 +11,16 @@
 import os, sys, traceback, threading, Ice
 
 slice_dir = os.getenv('ICEPY_HOME', '')
-if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, "slice")):
+if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, 'slice')):
     slice_dir = os.getenv('ICE_HOME', '')
-if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, "slice")):
+if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, 'slice')):
+    slice_dir = os.path.join('/', 'usr', 'share')
+if not os.path.exists(os.path.join(slice_dir, 'slice')):
+    print slice_dir
     print sys.argv[0] + ': Slice directory not found. Define ICEPY_HOME or ICE_HOME.'
     sys.exit(1)
 
-Ice.loadSlice('-I' + slice_dir + '/slice Callback.ice')
+Ice.loadSlice('-I' + os.path.join(slice_dir, 'slice') + ' Callback.ice')
 import Demo
 
 class CallbackSenderI(Demo.CallbackSender, threading.Thread):
