@@ -27,7 +27,7 @@ OBJS		= Initialize.o \
 		  Logger.o \
 		  LoggerI.o \
 		  Stream.o \
-		  StreamI.o \
+		  BuiltinSequences.o \
 		  BasicStream.o \
 		  SysLoggerI.o \
 		  TraceLevels.o \
@@ -97,8 +97,7 @@ OBJS		= Initialize.o \
                   SUdpControlChannel.o \
                   SUdpServerControlChannel.o \
                   SUdpClientControlChannel.o \
-                  SecureUdp.o 
-
+                  SecureUdp.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -185,6 +184,14 @@ $(HDIR)/StreamF.h: $(SDIR)/StreamF.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/StreamF.h
+
+$(HDIR)/BuiltinSequences.h BuiltinSequences.cpp: $(SDIR)/BuiltinSequences.ice $(SLICE2CPP)
+	rm -f $(HDIR)/BuiltinSequences.h BuiltinSequences.cpp
+	$(SLICECMD) $(SDIR)/BuiltinSequences.ice
+	mv BuiltinSequences.h $(HDIR)
+
+clean::
+	rm -f $(HDIR)/BuiltinSequences.h BuiltinSequences.cpp
 
 $(HDIR)/ObjectAdapter.h ObjectAdapter.cpp: $(SDIR)/ObjectAdapter.ice $(SLICE2CPP)
 	rm -f $(HDIR)/ObjectAdapter.h ObjectAdapter.cpp

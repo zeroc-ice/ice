@@ -10,10 +10,19 @@
 
 #include <Ice/Exception.h>
 #include <Ice/Network.h>
+#include <Ice/Stream.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
+
+void
+Ice::UserException::ice_marshal(const ::std::string& __name, const ::Ice::StreamPtr& __os)
+{
+    __os->startWriteException(__name);
+    __marshal(__os);
+    __os->endWriteException();
+}
 
 Ice::LocalException::LocalException(const char* file, int line) :
     Exception(file, line)
@@ -173,6 +182,13 @@ Ice::ProtocolException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nunknown protocol exception";
+}
+
+void
+Ice::UnmarshalException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: error during unmarshaling";
 }
 
 void

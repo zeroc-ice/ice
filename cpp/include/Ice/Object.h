@@ -15,6 +15,7 @@
 #include <IceUtil/Mutex.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
+#include <Ice/StreamF.h>
 
 namespace IceInternal
 {
@@ -81,6 +82,12 @@ public:
 
     virtual void __write(::IceInternal::BasicStream*) const;
     virtual void __read(::IceInternal::BasicStream*);
+
+    virtual void __marshal(const ::Ice::StreamPtr&) const;
+    virtual void __unmarshal(const ::Ice::StreamPtr&);
+
+    void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&);
+    static void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&, ObjectPtr&);
 
     void ice_addFacet(const ObjectPtr&, const ::std::string&);
     void ice_removeFacet(const ::std::string&);

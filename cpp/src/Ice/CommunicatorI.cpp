@@ -18,7 +18,6 @@
 #include <Ice/UserExceptionFactoryManager.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Logger.h>
-#include <Ice/StreamI.h>
 #include <Ice/Exception.h>
 
 using namespace std;
@@ -217,18 +216,6 @@ void
 Ice::CommunicatorI::setDefaultRouter(const RouterPrx& router)
 {
     _instance->referenceFactory()->setDefaultRouter(router);
-}
-
-StreamPtr
-Ice::CommunicatorI::createStream()
-{
-    RecMutex::Lock sync(*this);
-    if (!_instance)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
-    return new StreamI(_instance);
 }
 
 Ice::CommunicatorI::CommunicatorI(const PropertiesPtr& properties)

@@ -13,6 +13,7 @@
 
 #include <IceUtil/Shared.h>
 #include <Ice/LocalObjectF.h>
+#include <Ice/StreamF.h>
 
 namespace IceInternal
 {

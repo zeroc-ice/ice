@@ -117,41 +117,9 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     string scopeId = containedToId(p);
 
     //
-    // Emit class-name-data
-    //
-    string startString = "xs:group";
-    startString += " name=\"";
-    startString += internalId + scopeId + p->name();
-    startString += "Data\"";
-    start(startString);
-
-    DataMemberList dataMembers = p->dataMembers();
-    if (!dataMembers.empty())
-    {
-	start("xs:sequence");
-	
-	for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    O << nl << "<xs:element name=\"" << (*q)->name() << "\" type=\"";
-	    O << toString((*q)->type());
-	    O << "\"/>";
-	}
-
-	end();
-    }
-    else
-    {
-	O << nl << "<xs:sequence/>";
-    }
-    
-    end();
-
-    O << sp;
-
-    //
     // Emit class-name-type
     //
-    startString = "xs:complexType";
+    string startString = "xs:complexType";
     startString += " name=\"";
     startString += internalId + scopeId + p->name();
     startString += "Type\"";
@@ -168,25 +136,39 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 
     start("xs:complexContent");
     
-    start("xs:extension base=\"ice:_internal.objectType\"");
-    start("xs:sequence");
-
-    //
-    // Emit base Data
-    //
+    string extension = "xs:extension base=\"";
     ClassList bases = p->bases();
-    while (!bases.empty())
+    if (bases.empty() || bases.front()->isInterface())
     {
-	ClassDefPtr base = bases.front();
-	if (base->isInterface())
-	    break;
-	string baseScopeId = containedToId(base);
-	O << nl << "<xs:group ref=\"tns:" << internalId << baseScopeId << base->name() << "Data\"/>";
-	bases = base->bases();
+	extension += "ice:_internal.object";
     }
-    O << nl << "<xs:group ref=\"tns:" << internalId << scopeId << p->name() << "Data\"/>";
+    else
+    {
+	extension += "tns:";
+	ClassDefPtr base = bases.front();
+	extension += internalId + containedToId(base) + base->name();
+    }
+    extension += "Type\"";
+    
+    start(extension);
 
-    end(); // xs:sequence
+    DataMemberList dataMembers = p->dataMembers();
+    if (!dataMembers.empty())
+    {
+	start("xs:sequence");
+	for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	{
+	    O << nl << "<xs:element name=\"" << (*q)->name() << "\" type=\"";
+	    O << toString((*q)->type());
+	    O << "\"/>";
+	}
+	end(); // xs:sequence
+    }
+    else
+    {
+	O << nl << "<xs:sequence/>";
+    }
+
     end(); // xs:extension
     end(); // xs:complexContent
     end(); // xs:complexType
@@ -205,13 +187,39 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     string scopeId = containedToId(p);
 
     //
-    // Emit exception-name-data
+    // Emit exception-name-type
     //
-    string startString = "xs:group";
+    string startString = "xs:complexType";
     startString += " name=\"";
     startString += internalId + scopeId + p->name();
-    startString += "Data\"";
+    startString += "Type\"";
+    startString += " id=\"";
+    startString += p->scoped();
+    startString += "\"";
     start(startString);
+
+    start("xs:annotation");
+    start("xs:appinfo");
+    O << nl << "<type>exception</type>";
+    end(); // xs:annotation
+    end(); // xs:appinfo
+
+    //
+    // Emit base Data
+    //
+    ExceptionPtr base = p->base();
+    if (base)
+    {
+	string baseScopeId = containedToId(base);
+
+	start("xs:complexContent");
+
+	string extension = "xs:extension base=\"";
+	extension += "tns:";
+	extension += internalId + baseScopeId + base->name();
+	extension += "Type\"";
+	start(extension);
+    }
 
     DataMemberList dataMembers = p->dataMembers();
     if (!dataMembers.empty())
@@ -231,46 +239,14 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     {
 	O << nl << "<xs:sequence/>";
     }
-    
-    end();
 
-    O << sp;
-
-    //
-    // Emit exception-name-type
-    //
-    startString = "xs:complexType";
-    startString += " name=\"";
-    startString += internalId + scopeId + p->name();
-    startString += "Type\"";
-    startString += " id=\"";
-    startString += p->scoped();
-    startString += "\"";
-    start(startString);
-
-    start("xs:annotation");
-    start("xs:appinfo");
-    O << nl << "<type>exception</type>";
-    end(); // xs:annotation
-    end(); // xs:appinfo
-
-
-    start("xs:sequence");
-
-    //
-    // Emit base Data
-    //
-    ExceptionPtr base = p->base();
-    while (base)
+    if (base)
     {
-	string baseScopeId = containedToId(base);
-	O << nl << "<xs:group ref=\"tns:" << internalId << baseScopeId << base->name() << "Data\"/>";
-	base = base->base();
+	end(); // xs:extension
+	end(); // xs:complexContent
     }
-    O << nl << "<xs:group ref=\"tns:" << internalId << scopeId << p->name() << "Data\"/>";
 
-    end();
-    end();
+    end(); // xs:complexType
 
     O << sp << nl << "<xs:element name=\"" << scopeId << p->name()
       << "\" type=\"tns:" << internalId << scopeId << p->name() << "Type\"/>";
@@ -571,7 +547,7 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p)
 	"xs:float",
 	"xs:double",
 	"xs:string",
-	"ice:_internal.objectType", /* Object */
+	"ice:_internal.reference", /* Object */
 	"ice:_internal.proxyType", /* Object* */
 	"???" /* LocalObject */
     };

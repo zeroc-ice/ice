@@ -816,8 +816,8 @@ IceInternal::BasicStream::write(const ObjectPtr& v)
     }
 }
 
-bool
-IceInternal::BasicStream::read(const string& signatureType, ObjectPtr& v)
+void
+IceInternal::BasicStream::read(const string& signatureType, const ObjectFactoryPtr& factory, ObjectPtr& v)
 {
     if (!_currentReadEncaps) // Lazy initialization
     {
@@ -835,7 +835,6 @@ IceInternal::BasicStream::read(const string& signatureType, ObjectPtr& v)
 	    throw IllegalIndirectionException(__FILE__, __LINE__);
 	}
 	v = _currentReadEncaps->objectsRead[pos];
-	return true;
     }
     else
     {
@@ -846,49 +845,35 @@ IceInternal::BasicStream::read(const string& signatureType, ObjectPtr& v)
 	if (id.empty())
 	{
 	    v = 0;
-	    return true;
+	    return;
 	}
 	else if (id == iceObject)
 	{
 	    v = new ::Ice::Object;
-	    read(v);
-	    return true;
 	}
 	else
 	{
-	    ObjectFactoryPtr factory = _instance->servantFactoryManager()->find(id);
-	    
-	    if (factory)
+	    ObjectFactoryPtr userFactory = _instance->servantFactoryManager()->find(id);
+	    if (userFactory)
 	    {
-		v = factory->create(id);
-		if (v)
-		{
-		    read(v);
-		    return true;
-		}
+		v = userFactory->create(id);
 	    }
-	    
-	    if (id == signatureType)
-	    {
-		return false;
-	    }
-	    
-	    throw NoObjectFactoryException(__FILE__, __LINE__);
-	}
-    }
-}
 
-void
-IceInternal::BasicStream::read(const ObjectPtr& v)
-{
-    assert(v);
-    if (!_currentReadEncaps) // Lazy initialization
-    {
-	_readEncapsStack.resize(1);
-	_currentReadEncaps = &_readEncapsStack.back();
+	    if (!v && id == signatureType)
+	    {
+		assert(factory);
+		v = factory->create(id);
+		assert(v);
+	    }
+	    
+	    if (!v)
+	    {
+		throw NoObjectFactoryException(__FILE__, __LINE__);
+	    }
+	}
+	_currentReadEncaps->objectsRead.push_back(v.get());
+	v->__read(this);
     }
-    _currentReadEncaps->objectsRead.push_back(v.get());
-    v->__read(this);
 }
 
 void

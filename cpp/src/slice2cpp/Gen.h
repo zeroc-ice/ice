@@ -68,6 +68,8 @@ private:
 
     private:
 
+	void emitExceptionBase(const ExceptionPtr&, const std::string&);
+
 	Output& H;
 	Output& C;
 
@@ -216,6 +218,8 @@ private:
 	virtual void visitDataMember(const DataMemberPtr&);
 
     private:
+
+	void emitClassBase(const ClassDefPtr&, const std::string&);
 
 	Output& H;
 	Output& C;

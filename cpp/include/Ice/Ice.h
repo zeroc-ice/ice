@@ -15,7 +15,6 @@
 #include <Ice/Exception.h>
 #include <Ice/Properties.h>
 #include <Ice/Logger.h>
-#include <Ice/Stream.h>
 #include <Ice/Communicator.h>
 #include <Ice/ObjectFactory.h>
 #include <Ice/UserExceptionFactory.h>
@@ -24,5 +23,7 @@
 #include <Ice/Proxy.h>
 #include <Ice/Object.h>
 #include <Ice/IdentityUtil.h>
+
+//#include <Ice/Stream.h>
 
 #endif

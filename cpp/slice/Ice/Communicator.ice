@@ -17,7 +17,6 @@
 #include <Ice/ObjectFactoryF.ice>
 #include <Ice/UserExceptionFactoryF.ice>
 #include <Ice/RouterF.ice>
-#include <Ice/StreamF.ice>
 
 /**
  *
@@ -340,17 +339,6 @@ local interface Communicator
      *
      **/
     void setDefaultRouter(Router* router);
-
-    /**
-     *
-     * Create a stream for marshaling and unmarshaling data.
-     *
-     * @return The new stream object.
-     *
-     * @see Stream
-     *
-     **/
-    Stream createStream();
 };
 
 };

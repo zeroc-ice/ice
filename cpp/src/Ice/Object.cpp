@@ -11,6 +11,7 @@
 #include <Ice/Object.h>
 #include <Ice/Incoming.h>
 #include <Ice/Current.h>
+#include <Ice/Stream.h>
 
 using namespace std;
 using namespace Ice;
@@ -161,9 +162,65 @@ Ice::Object::__read(::IceInternal::BasicStream* __is)
     {
 	pair<string, ObjectPtr> v;
 	__is->read(v.first);
-	__is->read("", v.second);
+	__is->read("", 0, v.second);
 	_activeFacetMapHint = _activeFacetMap.insert(_activeFacetMapHint, v);
     }
+}
+
+void
+Ice::Object::__marshal(const ::Ice::StreamPtr& __os) const
+{
+    IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
+
+    __os->startWriteDictionary("ice:facets", _activeFacetMap.size());
+    for (map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
+    {
+	__os->startWriteDictionaryElement();
+	__os->writeString("key", p->first);
+	__os->writeObject("value", p->second);
+	__os->endWriteDictionaryElement();
+    }
+    __os->endWriteDictionary();
+}
+
+
+void
+Ice::Object::__unmarshal(const ::Ice::StreamPtr& __is)
+{
+    IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
+ 
+    static const string facetsName = "facets";  // Not ice:facets since xerces eats namespaces
+    static const string keyName = "key";
+    static const string valueName = "value";
+
+    Int sz;
+    __is->startReadDictionary(facetsName, sz);
+    
+    _activeFacetMap.clear();
+    _activeFacetMapHint = _activeFacetMap.end();
+    
+    while (sz-- > 0)
+    {
+	__is->startReadDictionaryElement();
+	pair<string, ObjectPtr> v;
+	__is->readString(keyName, v.first);
+	__is->readObject(valueName, "", 0, v.second);
+	_activeFacetMapHint = _activeFacetMap.insert(_activeFacetMapHint, v);
+	__is->endReadDictionaryElement();
+    }
+    __is->endReadDictionary();
+}
+
+void
+Ice::Object::ice_marshal(const string& name, const ::Ice::StreamPtr& stream)
+{
+    stream->writeObject(name, this);
+}
+
+void
+Ice::Object::ice_unmarshal(const string& name, const ::Ice::StreamPtr& stream, ObjectPtr& value)
+{
+    stream->readObject(name, "", 0, value);
 }
 
 void

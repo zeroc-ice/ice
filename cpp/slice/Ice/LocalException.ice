@@ -299,6 +299,16 @@ local exception NoUserExceptionFactoryException extends ProtocolException
 /**
  *
  * This exception is a specialization of [ProtocolException], which is
+ * raised upon an error in unmarshaling data.
+ *
+ **/
+local exception UnmarshalException extends ProtocolException
+{
+};
+
+/**
+ *
+ * This exception is a specialization of [ProtocolException], which is
  * raised if inconsistent data is received while unmarshaling a proxy.
  *
  **/

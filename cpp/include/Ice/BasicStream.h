@@ -15,6 +15,7 @@
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/Buffer.h>
+#include <Ice/ObjectFactoryF.h>
 
 //#define ICE_ACTIVE_STRING_INDIRECTION
 
@@ -96,8 +97,7 @@ public:
     void read(Ice::ObjectPrx&);
 
     void write(const Ice::ObjectPtr&);
-    bool read(const std::string&, Ice::ObjectPtr&);
-    void read(const Ice::ObjectPtr&);
+    void read(const std::string&, const ::Ice::ObjectFactoryPtr&, Ice::ObjectPtr&);
 
     void write(const Ice::UserException&);
     ::Ice::Int throwException(const std::string*, const std::string*);

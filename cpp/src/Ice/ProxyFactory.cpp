@@ -24,14 +24,29 @@ void IceInternal::decRef(ProxyFactory* p) { p->__decRef(); }
 ObjectPrx
 IceInternal::ProxyFactory::stringToProxy(const string& str) const
 {
-    ReferencePtr ref = _instance->referenceFactory()->create(str);
-    return referenceToProxy(ref);
+    if (str.empty())
+    {
+	return 0;
+    }
+    else
+    {
+	ReferencePtr ref = _instance->referenceFactory()->create(str);
+	return referenceToProxy(ref);
+    }
 }
 
 string
 IceInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy) const
 {
-    return proxy->__reference()->toString();
+    static const string nilProxy("");
+    if (proxy)
+    {
+	return proxy->__reference()->toString();
+    }
+    else
+    {
+	return nilProxy;
+    }
 }
 
 ObjectPrx

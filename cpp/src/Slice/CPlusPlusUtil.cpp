@@ -299,7 +299,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    }
 	    else
 	    {
-		out << nl << stream << deref << func << "::Ice::Object::__classIds[0], " << param << ");";
+		out << nl << stream << deref << func << "::Ice::Object::__classIds[0], 0, " << param << ");";
 	    }
 	    return;
 	}
@@ -323,24 +323,22 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	{
 	    out << nl << "::Ice::ObjectPtr " << obj << ';';
 	    ClassDefPtr def = cl->definition();
+	    string factory;
+	    string type;
 	    if (def && !def->isAbstract())
 	    {
-		out << nl << "if (" << stream << deref << func << cl->scoped() << "::__classIds[0], " << obj << "))";
-		out << sb;
-		out << nl << param << " = " << cl->scoped() << "Ptr::dynamicCast(" << obj << ");";
-		out << eb;
-		out << nl << "else";
-		out << sb;
-		out << nl << param << " = new " << cl->scoped() << ';';
-		out << nl << obj << " = " << param << ';';
-		out << nl << stream << deref << func << obj << ");";
-		out << eb;
+		factory = cl->scoped();
+		factory += "::_factory";
+		type = cl->scoped();
+		type += "::__classIds[0]";
 	    }
 	    else
 	    {
-		out << nl << stream << deref << func << "\"\"," << obj << ");";
-		out << nl << param << " = " << cl->scoped() << "Ptr::dynamicCast(" << obj << ");";
+		factory = "0";
+		type = "\"\"";
 	    }
+	    out << nl << stream << deref << func << type << ", " << factory << ", " << obj << ");";
+	    out << nl << param << " = " << cl->scoped() << "Ptr::dynamicCast(" << obj << ");";
 	}
 	out << eb;
 
@@ -426,5 +424,199 @@ Slice::writeAllocateCode(Output& out, const list<pair<TypePtr, string> >& params
     for (list<pair<TypePtr, string> >::const_iterator p = ps.begin(); p != ps.end(); ++p)
     {
 	out << nl << typeToString(p->first) << ' ' << p->second << ';';
+    }
+}
+
+void
+Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, 
+					bool marshal, const string& tn, const string& str, bool pointer)
+{
+    string stream;
+    if (str.empty())
+    {
+	stream = marshal ? "__os" : "__is";
+    }
+    else
+    {
+	stream = str;
+    }
+    
+    string deref;
+    if (pointer)
+    {
+	deref = "->";
+    }
+    else
+    {
+	deref = '.';
+    }
+    
+    string obj;
+    if (stream.find("__") == 0)
+    {
+	obj = "__obj";
+    }
+    else
+    {
+	obj = "obj";
+    }
+
+    static const char* outputBuiltinTable[] =
+    {
+	"Byte",
+	"Bool",
+	"Short",
+	"Int",
+	"Long",
+	"Float",
+	"Double",
+	"String",
+	"Object",
+	"Proxy",
+	"???"
+    };
+    string tagName;
+    if (tn.empty())
+    {
+	tagName = "\"";
+	tagName += param;
+	tagName += "\"";
+    }
+    else
+    {
+	tagName = tn;
+    }
+
+    string streamFunc = marshal ? "write" : "read";
+    string genFunc = marshal ? "ice_marshal(" : "ice_unmarshal(";
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if (builtin)
+    {
+	if (builtin->kind() == Builtin::KindObject)
+	{
+	    streamFunc +=  outputBuiltinTable[builtin->kind()];
+	    if (marshal)
+	    {
+		out << nl << stream << deref << streamFunc << "(" << tagName << ", " << param << ");";
+	    }
+	    else
+	    {
+		out << nl << stream << deref << streamFunc << "(" << tagName << ", ::Ice::Object::__classIds[0], 0, "
+		    << param << ");";
+	    }
+	    return;
+	}
+	else
+	{
+	    out << nl << stream << deref << streamFunc << outputBuiltinTable[builtin->kind()]
+		<< "(" << tagName << ", " << param << ");";
+	    return;
+	}
+    }
+
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    if (cl)
+    {
+	out << sb;
+	if (marshal)
+	{
+	    out << nl << "::Ice::ObjectPtr " << obj << " = " << param << ';';
+	    out << nl << stream << deref << streamFunc << "Object(" << tagName << ", " << obj << ");";
+	}
+	else
+	{
+	    out << nl << "::Ice::ObjectPtr " << obj << ';';
+	    ClassDefPtr def = cl->definition();
+	    string factory;
+	    string type;
+	    if (def && !def->isAbstract())
+	    {
+		factory = cl->scoped();
+		factory += "::_factory";
+		type = cl->scoped();
+		type += "::__classIds[0]";
+	    }
+	    else
+	    {
+		factory = "0";
+		type = "\"\"";
+	    }
+	    out << nl << stream << deref << streamFunc << "Object(" << tagName << ", "
+		<< type << ", " << factory << ", " << obj << ");";
+	    out << nl << param << " = " << cl->scoped() << "Ptr::dynamicCast(" << obj << ");";
+	}
+	out << eb;
+
+	return;
+    }
+    
+    StructPtr st = StructPtr::dynamicCast(type);
+    if (st)
+    {
+	out << nl << param << "." << genFunc << tagName << ", " << (pointer ? "" : "&") << stream << ");";
+	return;
+    }
+
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if (seq)
+    {
+	BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+	if (builtin)
+	{
+	    out << nl << stream << deref << streamFunc << outputBuiltinTable[builtin->kind()] << "Seq("
+		<< tagName << ", " << param << ");";
+	}
+	else
+	{
+	    out << nl << seq->scope() << genFunc << tagName << ", " << (pointer ? "" : "&") << stream
+		<< ", " << param << ", " << seq->scope() << "__U__" << seq->name() << "());";
+	}
+	return;
+    }
+
+    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    if (dict)
+    {
+	out << nl << dict->scope() << genFunc << tagName << ", " << (pointer ? "" : "&") << stream
+	    << ", " << param << ", " << dict->scope() << "__U__" << dict->name() << "());";
+	return;
+    }
+    
+    ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
+    if (!constructed)
+    {
+	ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+	assert(proxy);
+	constructed = proxy->_class();
+    }
+
+    out << nl << constructed->scope() << genFunc << tagName << ", " << (pointer ? "" : "&") << stream
+	<< ", " << param << ");";
+}
+
+void
+Slice::writeGenericMarshalCode(Output& out, const list<pair<TypePtr, string> >& params, const TypePtr& ret)
+{
+    for (list<pair<TypePtr, string> >::const_iterator p = params.begin(); p != params.end(); ++p)
+    {
+	writeGenericMarshalUnmarshalCode(out, p->first, p->second, true);
+    }
+    if (ret)
+    {
+	writeGenericMarshalUnmarshalCode(out, ret, "__ret", true);
+    }
+}
+
+void
+Slice::writeGenericUnmarshalCode(Output& out, const list<pair<TypePtr, string> >& params, const TypePtr& ret)
+{
+    for (list<pair<TypePtr, string> >::const_iterator p = params.begin(); p != params.end(); ++p)
+    {
+	writeGenericMarshalUnmarshalCode(out, p->first, p->second, false);
+    }
+    if (ret)
+    {
+	writeGenericMarshalUnmarshalCode(out, ret, "__ret", false);
     }
 }

@@ -38,6 +38,12 @@ SLICE_API void writeMarshalCode(Output&, const std::list<std::pair<TypePtr, std:
 SLICE_API void writeUnmarshalCode(Output&, const std::list<std::pair<TypePtr, std::string> >&, const TypePtr&);
 SLICE_API void writeAllocateCode(Output&,	const std::list<std::pair<TypePtr, std::string> >&, const TypePtr&);
 
+SLICE_API void writeGenericMarshalUnmarshalCode(Output&, const TypePtr&, const std::string&, bool,
+						const std::string& = "", const std::string& = "", bool = true);
+
+SLICE_API void writeGenericMarshalCode(Output&, const std::list<std::pair<TypePtr, std::string> >&, const TypePtr&);
+SLICE_API void writeGenericUnmarshalCode(Output&, const std::list<std::pair<TypePtr, std::string> >&, const TypePtr&);
+
 }
 
 #endif

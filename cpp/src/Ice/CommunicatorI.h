@@ -50,8 +50,6 @@ public:
 
     virtual void setDefaultRouter(const RouterPrx&);
 
-    virtual StreamPtr createStream();
-
 private:
 
     CommunicatorI(const PropertiesPtr&);
