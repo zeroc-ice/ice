@@ -31,6 +31,7 @@ namespace Ice
 {
 
 class LocalException;
+class LocationForward;
 
 class ICE_API ObjectPrxE
 {
@@ -45,7 +46,7 @@ public:
 
 protected:
 
-    ObjectPrx _prx;        
+    ObjectPrx _prx;
 };
 
 };
@@ -72,6 +73,7 @@ public:
     ::IceInternal::ReferencePtr __reference() const;
     void __copyTo(::IceProxy::Ice::Object*) const;
     void __handleException(const ::Ice::LocalException&, int&);
+    void __locationForward(const ::Ice::LocationForward&);
 
 protected:
 

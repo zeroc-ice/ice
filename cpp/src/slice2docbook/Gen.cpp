@@ -412,6 +412,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     {
 	for (OperationList::iterator q = operations.begin(); q != operations.end(); ++q)
 	{
+	    bool nonmutating = (*q)->nonmutating();
 	    TypePtr returnType = (*q)->returnType();
 	    TypeStringList inputParams = (*q)->inputParameters();
 	    TypeStringList outputParams = (*q)->outputParameters();
@@ -420,7 +421,8 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
 	    
 	    O.zeroIndent();
-	    O << nl << "<synopsis>" << (returnType ? toString(returnType, p) : "<type>void</type>")
+	    O << nl << "<synopsis>" << (nonmutating ? "nonmutating " : "")
+	      << (returnType ? toString(returnType, p) : "<type>void</type>")
 	      << " <function>" << (*q)->name() << "</function>(";
 	    O.inc();
 	    TypeStringList::iterator r = inputParams.begin();

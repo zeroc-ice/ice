@@ -139,6 +139,18 @@ public:
     virtual void raise() const;
 };
 
+class ICE_API ReferenceIdentityException : public LocalException
+{
+public:    
+
+    ReferenceIdentityException(const char*, int);
+    ReferenceIdentityException(const ReferenceIdentityException&);
+    ReferenceIdentityException& operator=(const ReferenceIdentityException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
 class ICE_API ObjectNotExistException : public LocalException
 {
 public:    

@@ -24,15 +24,30 @@ class Stream;
 enum DispatchStatus
 {
     DispatchOK,
+    DispatchException,
+    DispatchLocationForward,
     DispatchObjectNotExist,
-    DispatchOperationNotExist,
-    DispatchException
+    DispatchOperationNotExist
 };
 
 }
 
 namespace Ice
 {
+
+class ICE_API LocationForward
+{
+public:
+
+    LocationForward(const LocationForward&);
+    LocationForward(const ObjectPrx&);
+
+protected:
+
+    ObjectPrx _prx;
+    friend class ::IceProxy::Ice::Object;
+    friend class ::IceInternal::Incoming;
+};
 
 class ICE_API ObjectPtrE
 {
@@ -63,8 +78,7 @@ public:
     virtual const std::string* _classIds() = 0;
 
     static std::string __names[];
-    virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&,
-					       const std::string&);
+    virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const std::string&);
 
     virtual void __write(::IceInternal::Stream*) = 0;
     virtual void __read(::IceInternal::Stream*) = 0;

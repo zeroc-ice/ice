@@ -702,6 +702,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "return;";
     }
     C << eb;
+    C << nl << "catch (const ::Ice::LocationForward& __ex)";
+    C << sb;
+    C << nl << "__locationForward(__ex);";
+    C << eb;
     C << nl << "catch (const ::IceInternal::NonRepeatable& __ex)";
     C << sb;
     if (p->nonmutating())

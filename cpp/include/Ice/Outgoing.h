@@ -72,6 +72,7 @@ private:
 	StateInProgress,
 	StateOK,
 	StateException,
+	StateLocationForward,
 	StateLocalException,
     } _state;
 
