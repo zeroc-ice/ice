@@ -276,7 +276,6 @@ public:
     template<class Y>
     static ProxyHandle checkedCast(const ProxyHandle<Y>& r, const ::Ice::Context& ctx)
     {
-	Y* tag = 0;
 	return ::IceInternal::checkedCastHelper<T>(r, ctx);
     }
 
