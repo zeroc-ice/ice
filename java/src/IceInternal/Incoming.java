@@ -101,17 +101,12 @@ public class Incoming
 
         _is.startReadEncaps();
 
-        int statusPos;
         if(response)
         {
-            statusPos = _os.size();
+            assert(_os.size() == Protocol.headerSize + 4); // Dispatch status position.
             _os.writeByte((byte)0);
             _os.startWriteEncaps();
         }
-	else
-	{
-	    statusPos = 0; // Initialize, to keep the compiler happy.
-	}
 
         Ice.Object servant = null;
         Ice.ServantLocator locator = null;
@@ -185,7 +180,7 @@ public class Incoming
             if(response)
             {
                 _os.endWriteEncaps();
-                _os.resize(statusPos, false);
+                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
 		if(ex instanceof Ice.ObjectNotExistException)
 		{
 		    _os.writeByte((byte)DispatchStatus._DispatchObjectNotExist);
@@ -274,7 +269,7 @@ public class Incoming
             if(response)
             {
                 _os.endWriteEncaps();
-                _os.resize(statusPos, false);
+                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
 		_os.writeString(ex.toString());
             }
@@ -304,7 +299,7 @@ public class Incoming
             if(response)
             {
                 _os.endWriteEncaps();
-                _os.resize(statusPos, false);
+                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
 		_os.writeString(ex.toString());
             }
@@ -334,7 +329,7 @@ public class Incoming
 		       status == DispatchStatus.DispatchFacetNotExist ||
 		       status == DispatchStatus.DispatchOperationNotExist);
 		
-		_os.resize(statusPos, false);
+		_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
 		_os.writeByte((byte)status.value());
 		
 		_current.id.__write(_os);
@@ -344,7 +339,7 @@ public class Incoming
 	    else
 	    {
 		int save = _os.pos();
-		_os.pos(statusPos);
+		_os.pos(Protocol.headerSize + 4); // Dispatch status position.
 		_os.writeByte((byte)status.value());
 		_os.pos(save);
 	    }

@@ -49,13 +49,13 @@ public final class DefaultsAndOverrides
 	value = properties.getProperty("Ice.Override.Compress");
 	if(value.length() > 0)
 	{
-	    overrideComppress = true;
-	    overrideComppressValue = properties.getPropertyAsInt("Ice.Override.Compress") != 0;
+	    overrideCompress = true;
+	    overrideCompressValue = properties.getPropertyAsInt("Ice.Override.Compress") != 0;
 	}
 	else
 	{
-	    overrideComppress = false;
-	    overrideComppressValue = false;
+	    overrideCompress = false;
+	    overrideCompressValue = false;
 	}
 
 	defaultLocator = properties.getProperty("Ice.Default.Locator");
@@ -68,6 +68,6 @@ public final class DefaultsAndOverrides
 
     final public boolean overrideTimeout;
     final public int overrideTimeoutValue;
-    final public boolean overrideComppress;
-    final public boolean overrideComppressValue;
+    final public boolean overrideCompress;
+    final public boolean overrideCompressValue;
 }
