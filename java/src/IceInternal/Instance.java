@@ -80,6 +80,20 @@ public class Instance
         return _threadPool;
     }
 
+    public String
+    defaultProtocol()
+    {
+        // No synchronization necessary
+        return _defaultProtocol;
+    }
+
+    public String
+    defaultHost()
+    {
+        // No synchronization necessary
+        return _defaultHost;
+    }
+
     public synchronized BufferManager
     bufferManager()
     {
@@ -107,6 +121,16 @@ public class Instance
             _objectAdapterFactory = new ObjectAdapterFactory(this);
             */
             _threadPool = new ThreadPool(this);
+            _defaultProtocol = _properties.getProperty("Ice.DefaultProtocol");
+            if (_defaultProtocol == null)
+            {
+                _defaultProtocol = "tcp";
+            }
+            _defaultHost = _properties.getProperty("Ice.DefaultHost");
+            if (_defaultHost == null)
+            {
+                _defaultHost = Network.getLocalHost(true);
+            }
             _bufferManager = new BufferManager();
         }
         catch (Ice.LocalException ex)
@@ -235,5 +259,7 @@ public class Instance
     private ObjectAdapterFactory _objectAdapterFactory;
     */
     private ThreadPool _threadPool;
+    private String _defaultProtocol;
+    private String _defaultHost;
     private BufferManager _bufferManager;
 }

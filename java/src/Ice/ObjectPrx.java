@@ -25,9 +25,9 @@ public interface ObjectPrx
     public byte[] ice_invoke(String operation, boolean nonmutating,
                              byte[] inParams, java.util.HashMap __context);
 
-    public String ice_getIdentity();
+    public Identity ice_getIdentity();
 
-    public ObjectPrx ice_newIdentity(String newIdentity);
+    public ObjectPrx ice_newIdentity(Identity newIdentity);
 
     public String ice_getFacet();
 

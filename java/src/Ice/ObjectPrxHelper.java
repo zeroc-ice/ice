@@ -130,14 +130,14 @@ public class ObjectPrxHelper implements ObjectPrx
         }
     }
 
-    public final String
+    public final Identity
     ice_getIdentity()
     {
         return _reference.identity;
     }
 
     public final ObjectPrx
-    ice_newIdentity(String newIdentity)
+    ice_newIdentity(Identity newIdentity)
     {
         if (newIdentity.equals(_reference.identity))
         {

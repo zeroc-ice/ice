@@ -9,6 +9,7 @@
     <property name="lib.dir" value="lib"/>
     <property name="generated.dir" value="generated"/>
     <property name="tags.dir" value="${generated.dir}/.tags"/>
+    <property name="debug" value="on"/>
 
     <target name="init">
         <!-- Create the time stamp -->
@@ -25,6 +26,7 @@
             </includepath>
             <fileset dir="${slice.dir}/Ice">
                 <include name="Communicator.ice" />
+                <include name="Identity.ice" />
                 <include name="LocalException.ice" />
                 <include name="Logger.ice" />
                 <include name="ObjectAdapter.ice" />
@@ -39,7 +41,7 @@
     <target name="compile" depends="generate">
         <mkdir dir="${lib.dir}"/>
         <javac srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}"
-            source="1.4"/>
+            source="1.4" debug="${debug}"/>
     </target>
 
     <target name="all" depends="compile">

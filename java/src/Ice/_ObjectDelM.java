@@ -126,6 +126,11 @@ public class _ObjectDelM implements _ObjectDel
                 }
             }
         }
+        //
+        // We allow secure connections also if they are not explicitly
+        // required.
+        //
+        /*
         else
         {
             java.util.ListIterator i = endpoints.listIterator();
@@ -138,9 +143,10 @@ public class _ObjectDelM implements _ObjectDel
                 }
             }
         }
+        */
 
         final int sz = endpoints.size();
-        if (endpoints.isEmpty())
+        if (sz == 0)
         {
             throw new NoEndpointException();
         }

@@ -56,27 +56,7 @@ public class AllTests
     {
         System.out.print("testing stringToProxy... ");
         System.out.flush();
-        String ref;
-
-        Ice.Properties properties = communicator.getProperties();
-
-        String protocol = properties.getProperty("Ice.Protocol");
-        String secure = "";
-
-        if (protocol == null)
-        {
-            protocol = "tcp";
-        }
-
-        if (protocol.equals("ssl"))
-        {
-            secure = " -s ";
-        }
-
-        String endpts = protocol + " -p 12345 -t 2000";
-
-        ref = "thrower" + secure + ":" + endpts;
-
+        String ref = "thrower:default -p 12345 -t 2000";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         System.out.println("ok");

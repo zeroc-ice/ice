@@ -56,11 +56,10 @@ public final class EmitterFactory
         {
             try
             {
-                Transceiver transceiver =
-                    endpoints[i].clientTransceiver(_instance);
+                Transceiver transceiver = endpoints[i].clientTransceiver();
                 if (transceiver == null)
                 {
-                    Connector connector = endpoints[i].connector(_instance);
+                    Connector connector = endpoints[i].connector();
                     assert(connector != null);
                     transceiver = connector.connect(endpoints[i].timeout());
                     assert(transceiver != null);

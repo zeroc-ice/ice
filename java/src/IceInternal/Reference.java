@@ -20,8 +20,8 @@ public final class Reference
     public final static int ModeBatchLast = ModeBatchDatagram;
 
     public
-    Reference(Instance inst, String ident, String fac, int md, boolean sec,
-              Endpoint[] origEndpts, Endpoint[] endpts)
+    Reference(Instance inst, Ice.Identity ident, String fac, int md,
+              boolean sec, Endpoint[] origEndpts, Endpoint[] endpts)
     {
         instance = inst;
         identity = ident;
@@ -62,7 +62,7 @@ public final class Reference
         }
 
         String[] arr = init.split("[ \t\n\r]+");
-        identity = arr[0];
+        identity = Ice.Util.stringToIdentity(arr[0]);
 
         int i = 1;
         while (i < arr.length)
@@ -197,7 +197,7 @@ public final class Reference
             }
 
             String es = s.substring(beg, end);
-            Endpoint endp = Endpoint.endpointFromString(es);
+            Endpoint endp = Endpoint.endpointFromString(instance, es);
 
             if (orig)
             {
@@ -231,7 +231,7 @@ public final class Reference
     }
 
     public
-    Reference(String ident, BasicStream s)
+    Reference(Ice.Identity ident, BasicStream s)
     {
         instance = s.instance();
         identity = ident;
@@ -289,7 +289,12 @@ public final class Reference
             return true;
         }
 
-        if (!identity.equals(r.identity))
+        if (!identity.category.equals(r.identity.category))
+        {
+            return false;
+        }
+
+        if (!identity.name.equals(r.identity.name))
         {
             return false;
         }
@@ -392,7 +397,7 @@ public final class Reference
     // All members are treated as const, because References are immutable.
     //
     public Instance instance;
-    public String identity;
+    public Ice.Identity identity;
     public String facet;
     public int mode;
     public boolean secure;
@@ -405,7 +410,7 @@ public final class Reference
     // certain values.
     //
     public Reference
-    changeIdentity(String newIdentity)
+    changeIdentity(Ice.Identity newIdentity)
     {
         if (newIdentity.equals(identity))
         {
@@ -505,10 +510,16 @@ public final class Reference
     {
         int h = 0;
 
-        int sz = identity.length();
+        int sz = identity.name.length();
         for (int i = 0; i < sz; i++)
         {   
-            h = 5 * h + (int)identity.charAt(i);
+            h = 5 * h + (int)identity.name.charAt(i);
+        }
+
+        sz = identity.category.length();
+        for (int i = 0; i < sz; i++)
+        {   
+            h = 5 * h + (int)identity.category.charAt(i);
         }
 
         sz = facet.length();

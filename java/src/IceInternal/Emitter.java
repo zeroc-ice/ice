@@ -222,7 +222,7 @@ public final class Emitter extends EventHandler
     public boolean
     server()
     {
-        return true;
+        return false;
     }
 
     public boolean
@@ -247,6 +247,7 @@ public final class Emitter extends EventHandler
 
             if (_state != StateActive)
             {
+                Thread.yield();
                 return;
             }
 
@@ -340,6 +341,7 @@ public final class Emitter extends EventHandler
         _mutex.lock();
         try
         {
+            assert(_state == StateClosed);
             _transceiver.close();
         }
         finally
@@ -415,14 +417,14 @@ public final class Emitter extends EventHandler
         {
             case StateActive:
             {
-                return; // Can't switch back to holding state
+                return;
             }
 
             case StateClosed:
             {
                 if (_threadPool != null)
                 {
-                    _threadPool.unregister(_transceiver.fd());
+                    _threadPool.unregister(_transceiver.fd(), true);
                 }
                 else
                 {

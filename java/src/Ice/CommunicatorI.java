@@ -61,16 +61,25 @@ class CommunicatorI implements Communicator
         return _instance.proxyFactory().proxyToString(proxy);
     }
 
-    public synchronized ObjectAdapter
+    public ObjectAdapter
     createObjectAdapter(String name)
+    {
+        return createObjectAdapterFromProperty(name, "Ice.Adapter." + name +
+                                               ".Endpoints");
+    }
+
+    public synchronized ObjectAdapter
+    createObjectAdapterFromProperty(String name, String property)
     {
         if (_instance == null)
         {
             throw new CommunicatorDestroyedException();
         }
-        String endpts = _instance.properties().getProperty(
-            "Ice.Adapter." + name + ".Endpoints");
+        /* TODO: Server
+        String endpts = _instance.properties().getProperty(property);
         return createObjectAdapterWithEndpoints(name, endpts);
+        */
+        return null;
     }
 
     public synchronized ObjectAdapter

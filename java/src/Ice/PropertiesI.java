@@ -37,6 +37,12 @@ class PropertiesI implements Properties
         return p;
     }
 
+    static void
+    addArgumentPrefix(String prefix)
+    {
+        _argumentPrefixes.add(prefix);
+    }
+
     PropertiesI(String[] args)
     {
         for (int i = 0; i < args.length; i++)
@@ -90,17 +96,34 @@ class PropertiesI implements Properties
         int idx = 0;
         while (idx < args.length)
         {
-            if (args[idx].startsWith("--Ice."))
+            boolean match = false;
+            String arg = args[idx];
+            int beg = arg.indexOf("--");
+            if (beg == 0)
             {
-                String line = args[idx];
-                if (line.indexOf('=') == -1)
+                int end = arg.indexOf('.');
+                if (end != -1)
                 {
-                    line += "=1";
-                }
+                    String prefix = arg.substring(2, end);
+                    if (prefix.equals("Ice") ||
+                        _argumentPrefixes.contains(prefix))
+                    {
+                        match = true;
+                    }
 
-                parseLine(line.substring(2));
+                    if (match)
+                    {
+                        if (arg.indexOf('=') == -1)
+                        {
+                            arg += "=1";
+                        }
+
+                        parseLine(arg.substring(2));
+                    }
+                }
             }
-            else
+
+            if (!match)
             {
                 idx++;
             }
@@ -181,4 +204,6 @@ class PropertiesI implements Properties
     }
 
     private java.util.HashMap _properties = new java.util.HashMap();
+    private static java.util.HashSet _argumentPrefixes =
+        new java.util.HashSet();
 }

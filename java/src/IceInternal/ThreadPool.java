@@ -19,15 +19,21 @@ public final class ThreadPool
         {
             ++_servers;
         }
-        _adds.add(new HandlerInfo(fd, handler));
+        HandlerInfo info = new HandlerInfo(fd, handler);
+        info.next = _adds;
+        _adds = info;
         setInterrupt();
     }
 
     public synchronized void
-    unregister(java.nio.channels.SelectableChannel fd)
+    unregister(java.nio.channels.SelectableChannel fd, boolean callFinished)
     {
         java.nio.channels.SelectionKey key = fd.keyFor(_selector);
-        _removes.add(key);
+        HandlerInfo info = (HandlerInfo)key.attachment();
+        assert(info != null);
+        info.callFinished = callFinished;
+        info.next = _removes;
+        _removes = info;
         setInterrupt();
     }
 
@@ -42,13 +48,13 @@ public final class ThreadPool
     {
         assert(!_shutdown);
         _shutdown = true;
-        setInterrupt();
+        setInterrupt(); // TODO: just use wakeup?
     }
 
     public synchronized void
     waitUntilServerFinished()
     {
-        while (_servers > 0 && _threadNum > 0)
+        while (_servers != 0 && _threadNum != 0)
         {
             try
             {
@@ -59,7 +65,7 @@ public final class ThreadPool
             }
         }
 
-        if (_servers > 0)
+        if (_servers != 0)
         {
             _instance.logger().error("can't wait for graceful server " +
                                      "termination in thread pool\n" +
@@ -70,7 +76,7 @@ public final class ThreadPool
     public synchronized void
     waitUntilFinished()
     {
-        while (_handlers > 0 && _threadNum > 0)
+        while (_handlers != 0 && _threadNum != 0)
         {
             try
             {
@@ -81,7 +87,7 @@ public final class ThreadPool
             }
         }
 
-        if (_handlers > 0)
+        if (_handlers != 0)
         {
             _instance.logger().error("can't wait for graceful application " +
                                      "termination in thread pool\n" +
@@ -142,6 +148,8 @@ public final class ThreadPool
         _destroyed = false;
         _interrupted = false;
         _shutdown = false;
+        _adds = null;
+        _removes = null;
         _handlers = 0;
         _servers = 0;
         _timeout = 0;
@@ -278,9 +286,6 @@ public final class ThreadPool
         {
             _threadMutex.lock();
 
-            EventHandler handler = null;
-            boolean reap = false;
-
         repeatSelect:
 
             while (true)
@@ -318,6 +323,8 @@ public final class ThreadPool
                     continue repeatSelect;
                 }
 
+                EventHandler handler = null;
+
                 synchronized(this)
                 {
                     if (_destroyed)
@@ -330,26 +337,18 @@ public final class ThreadPool
                         return;
                     }
 
-                    boolean interrupt = _interrupted;
-                    if (interrupt)
-                    {
-                        shutdown = clearInterrupt();
-                    }
-
-                    if (!_adds.isEmpty())
+                    if (_adds != null)
                     {
                         //
                         // New handlers have been added.
                         //
-                        java.util.ListIterator p = _adds.listIterator();
-                        while (p.hasNext())
+                        HandlerInfo info = _adds;
+                        while (info != null)
                         {
-                            HandlerInfo info = (HandlerInfo)p.next();
-                            addHandler(info);
                             _handlers++;
                             try
                             {
-                                info.fd.register(
+                                info.key = info.fd.register(
                                     _selector,
                                     java.nio.channels.SelectionKey.OP_READ,
                                     info);
@@ -358,151 +357,105 @@ public final class ThreadPool
                             {
                                 assert(false);
                             }
+                            HandlerInfo next = info.next;
+                            info.next = null;
+                            info = next;
                         }
-                        _adds.clear();
+                        _adds = null;
                     }
 
-                    if (!_removes.isEmpty())
+                    if (_removes != null)
                     {
                         //
                         // Handlers are permanently removed.
                         //
-                        java.util.ListIterator p = _removes.listIterator();
-                        while (p.hasNext())
+                        HandlerInfo info = _removes;
+                        while (info != null)
                         {
-                            java.nio.channels.SelectionKey key =
-                                (java.nio.channels.SelectionKey)p.next();
-                            key.cancel();
-                            HandlerInfo info = (HandlerInfo)key.attachment();
-                            assert(info != null);
-                            info.handler.finished();
+                            info.key.cancel();
+                            if (info.callFinished)
+                            {
+                                info.handler.finished();
+                            }
                             if (info.handler.server())
                             {
                                 --_servers;
                             }
-
                             _handlers--;
-                            removeHandler(info);
+                            info = info.next;
                         }
-                        _removes.clear();
+                        _removes = null;
 
                         if (_handlers == 0 || _servers == 0)
                         {
                             notifyAll(); // For waitUntil...Finished() methods.
                         }
-                    }
 
-                    if (interrupt)
-                    {
+                        //
+                        // Selected filedescriptors may have changed, I
+                        // therefore need to repeat the select().
+                        //
+                        shutdown = clearInterrupt();
                         continue repeatSelect;
                     }
 
-                    //
-                    // Check if there are connections to reap.
-                    //
-                    reap = false;
-                    if (_maxConnections > 0 && _handlers > _maxConnections)
+                    java.util.Set keys = _selector.selectedKeys();
+                    if (keys.size() == 0)
                     {
-                        HandlerInfo info = _reapListEnd;
-                        while (info != null)
+                        shutdown = clearInterrupt();
+                        continue repeatSelect;
+                    }
+
+                    java.util.Iterator i = keys.iterator();
+                    while (i.hasNext())
+                    {
+                        java.nio.channels.SelectionKey key =
+                            (java.nio.channels.SelectionKey)i.next();
+                        //
+                        // Ignore selection keys that have been
+                        // cancelled
+                        //
+                        if (key.isValid())
                         {
-                            if (!info.reaped)
-                            {
-                                info.reaped = true;
-                                handler = info.handler;
-                                reap = true;
-                                break;
-                            }
-                            info = info.prev;
+                            HandlerInfo info =
+                                (HandlerInfo)key.attachment();
+                            assert(info != null);
+                            handler = info.handler;
+                            break;
                         }
                     }
 
-                    if (!reap)
+                    if (handler == null)
                     {
-                        java.util.Set keys = _selector.selectedKeys();
-                        java.util.Iterator i = keys.iterator();
-                        while (i.hasNext())
-                        {
-                            java.nio.channels.SelectionKey key =
-                                (java.nio.channels.SelectionKey)i.next();
-                            //
-                            // Ignore selection keys that have been
-                            // cancelled
-                            //
-                            if (key.isValid())
-                            {
-                                HandlerInfo info =
-                                    (HandlerInfo)key.attachment();
-                                assert(info != null);
-
-                                //
-                                // Make the fd for the handler the most
-                                // recently used one by moving it to the
-                                // beginning of the the reap list.
-                                //
-                                if (info != _reapList)
-                                {
-                                    removeHandler(info);
-                                    addHandler(info);
-                                }
-
-                                handler = info.handler;
-                                break;
-                            }
-                        }
-
-                        if (handler == null)
-                        {
-                            continue repeatSelect;
-                        }
+                        continue repeatSelect;
                     }
                 }
 
-                if (reap)
+                //
+                // If the handler is "readable", try to read a message.
+                //
+                BasicStream stream = new BasicStream(_instance);
+                if (handler.readable())
                 {
-                    //
-                    // Reap the handler.
-                    //
                     try
                     {
-                        if (!handler.tryDestroy())
-                        {
-                            continue repeatSelect;
-                        }
+                        read(handler);
+                    }
+                    catch (Ice.TimeoutException ex) // Expected
+                    {
+                        continue repeatSelect;
                     }
                     catch (Ice.LocalException ex)
                     {
-                        // Ignore exceptions.
-                    }
-                }
-                else
-                {
-                    //
-                    // If the handler is "readable", try to read a message.
-                    //
-                    BasicStream stream = new BasicStream(_instance);
-                    if (handler.readable())
-                    {
-                        try
-                        {
-                            read(handler);
-                        }
-                        catch (Ice.TimeoutException ex) // Expected
-                        {
-                            continue repeatSelect;
-                        }
-                        catch (Ice.LocalException ex)
-                        {
-                            handler.exception(ex);
-                            continue repeatSelect;
-                        }
-
-                        stream.swap(handler._stream);
-                        assert(stream.pos() == stream.size());
+                        handler.exception(ex);
+                        continue repeatSelect;
                     }
 
-                    handler.message(stream);
+                    stream.swap(handler._stream);
+                    assert(stream.pos() == stream.size());
                 }
+
+                handler.message(stream);
 
                 break;
             }
@@ -545,6 +498,10 @@ public final class ThreadPool
             }
             byte messageType = stream.readByte();
             int size = stream.readInt();
+            if (size < Protocol.headerSize)
+            {
+                throw new Ice.IllegalMessageSizeException();
+            }
             if (size > 1024 * 1024) // TODO: Configurable
             {
                 throw new Ice.MemoryLimitException();
@@ -557,42 +514,6 @@ public final class ThreadPool
             stream.pos() != stream.size())
         {
             handler.read(stream);
-        }
-    }
-
-    private void
-    addHandler(HandlerInfo info)
-    {
-        info.next = _reapList;
-        info.prev = null;
-        if (_reapList != null)
-        {
-            _reapList.prev = info;
-        }
-        else
-        {
-            _reapListEnd = info;
-        }
-        _reapList = info;
-    }
-
-    private void
-    removeHandler(HandlerInfo info)
-    {
-        //
-        // Remove from _reapList
-        //
-        if (info.prev == null)
-        {
-            _reapList = info.next;
-        }
-        else
-        {
-            info.prev.next = info.next;
-        }
-        if (info.next == null)
-        {
-            _reapListEnd = info.prev;
         }
     }
 
@@ -646,9 +567,9 @@ public final class ThreadPool
     {
         java.nio.channels.SelectableChannel fd;
         EventHandler handler;
-        HandlerInfo prev;
+        java.nio.channels.SelectionKey key;
         HandlerInfo next;
-        boolean reaped;
+        boolean callFinished;
 
         HandlerInfo(java.nio.channels.SelectableChannel fd,
                     EventHandler handler)
@@ -663,11 +584,9 @@ public final class ThreadPool
     private java.nio.channels.Selector _selector;
     private boolean _interrupted;
     private boolean _shutdown;
-    private java.util.LinkedList _adds = new java.util.LinkedList();
-    private java.util.LinkedList _removes = new java.util.LinkedList();
+    private HandlerInfo _adds;
+    private HandlerInfo _removes;
     private int _handlers;
-    private HandlerInfo _reapList = null;
-    private HandlerInfo _reapListEnd = null;
     private int _servers;
     private int _timeout;
     private RecursiveMutex _threadMutex = new RecursiveMutex();

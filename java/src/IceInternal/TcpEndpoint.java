@@ -13,16 +13,18 @@ package IceInternal;
 public final class TcpEndpoint extends Endpoint
 {
     public
-    TcpEndpoint(String ho, int po, int ti)
+    TcpEndpoint(Instance instance, String ho, int po, int ti)
     {
+        _instance = instance;
         _host = ho;
         _port = po;
         _timeout = ti;
     }
 
     public
-    TcpEndpoint(String str)
+    TcpEndpoint(Instance instance, String str)
     {
+        _instance = instance;
         _host = null;
         _port = 0;
         _timeout = -1;
@@ -104,14 +106,14 @@ public final class TcpEndpoint extends Endpoint
 
         if (_host == null)
         {
-            // TODO: Whether numeric or not should be configurable
-            _host = Network.getLocalHost(true);
+            _host = _instance.defaultHost();
         }
     }
 
     public
     TcpEndpoint(BasicStream s)
     {
+        _instance = s.instance();
         s.startReadEncaps();
         _host = s.readString();
         _port = s.readInt();
@@ -139,22 +141,7 @@ public final class TcpEndpoint extends Endpoint
     public String
     toString()
     {
-        StringBuffer s = new StringBuffer();
-        s.append("tcp");
-        // TODO: Whether numeric or not should be configurable
-        if (!_host.equals(Network.getLocalHost(true)))
-        {
-            s.append(" -h " + _host);
-        }
-        if (_port != 0)
-        {
-            s.append(" -p " + _port);
-        }
-        if (_timeout != -1)
-        {
-            s.append(" -t " + _timeout);
-        }
-        return s.toString();
+        return "tcp -h " + _host + " -p " + _port + " -t " + _timeout;
     }
 
     //
@@ -199,7 +186,7 @@ public final class TcpEndpoint extends Endpoint
         }
         else
         {
-            return new TcpEndpoint(_host, _port, timeout);
+            return new TcpEndpoint(_instance, _host, _port, timeout);
         }
     }
     
@@ -226,7 +213,7 @@ public final class TcpEndpoint extends Endpoint
     // transceiver can only be created by a connector.
     //
     public Transceiver
-    clientTransceiver(Instance instance)
+    clientTransceiver()
     {
         return null;
     }
@@ -239,9 +226,9 @@ public final class TcpEndpoint extends Endpoint
     // for example, if a dynamic port number is assigned.
     //
     public Transceiver
-    serverTransceiver(Instance instance, EndpointHolder endpoint)
+    serverTransceiver(EndpointHolder endpoint)
     {
-        endpoint.value = null;
+        endpoint.value = this;
         return null;
     }
 
@@ -250,9 +237,9 @@ public final class TcpEndpoint extends Endpoint
     // is available.
     //
     public Connector
-    connector(Instance instance)
+    connector()
     {
-        return new TcpConnector(instance, _host, _port);
+        return new TcpConnector(_instance, _host, _port);
     }
 
     //
@@ -263,11 +250,12 @@ public final class TcpEndpoint extends Endpoint
     // assigned.
     //
     public Acceptor
-    acceptor(Instance instance, EndpointHolder endpoint)
+    acceptor(EndpointHolder endpoint)
     {
         /* TODO - implement
-        TcpAcceptor p = new TcpAcceptor(instance, _port);
-        endpoint.value = new TcpEndpoint(_host, p.effectivePort(), _timeout);
+        TcpAcceptor p = new TcpAcceptor(_instance, _port);
+        endpoint.value = new TcpEndpoint(_instance, _host, p.effectivePort(),
+                                         _timeout);
         return p;
         */
         return null;
@@ -355,6 +343,7 @@ public final class TcpEndpoint extends Endpoint
         return true;
     }
 
+    private Instance _instance;
     private String _host;
     private int _port;
     private int _timeout;

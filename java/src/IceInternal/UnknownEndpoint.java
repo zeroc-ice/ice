@@ -15,6 +15,7 @@ public final class UnknownEndpoint extends Endpoint
     public
     UnknownEndpoint(BasicStream s)
     {
+        _instance = s.instance();
         _rawBytes = s.readByteSeq();
     }
 
@@ -99,7 +100,7 @@ public final class UnknownEndpoint extends Endpoint
     // transceiver can only be created by a connector.
     //
     public Transceiver
-    clientTransceiver(Instance instance)
+    clientTransceiver()
     {
         return null;
     }
@@ -112,7 +113,7 @@ public final class UnknownEndpoint extends Endpoint
     // for example, if a dynamic port number is assigned.
     //
     public Transceiver
-    serverTransceiver(Instance instance, EndpointHolder endpoint)
+    serverTransceiver(EndpointHolder endpoint)
     {
         endpoint.value = null;
         return null;
@@ -123,7 +124,7 @@ public final class UnknownEndpoint extends Endpoint
     // is available.
     //
     public Connector
-    connector(Instance instance)
+    connector()
     {
         return null;
     }
@@ -136,7 +137,7 @@ public final class UnknownEndpoint extends Endpoint
     // assigned.
     //
     public Acceptor
-    acceptor(Instance instance, EndpointHolder endpoint)
+    acceptor(EndpointHolder endpoint)
     {
         endpoint.value = null;
         return null;
@@ -188,5 +189,6 @@ public final class UnknownEndpoint extends Endpoint
         return true;
     }
 
+    private Instance _instance;
     private byte[] _rawBytes;
 }

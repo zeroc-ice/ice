@@ -26,7 +26,7 @@ public abstract class Endpoint
     // Create an endpoint from a string
     //
     public static Endpoint
-    endpointFromString(String str)
+    endpointFromString(Instance instance, String str)
     {
         String s = str.trim();
         if (s.length() == 0)
@@ -40,21 +40,27 @@ public abstract class Endpoint
         boolean b = m.find();
         assert(b);
 
-        String type = s.substring(0, m.start());
-        if (type.equals("tcp"))
+        String protocol = s.substring(0, m.start());
+
+        if (protocol.equals("default"))
         {
-            return new TcpEndpoint(s.substring(m.end()));
+            protocol = instance.defaultProtocol();
         }
 
-        if (type.equals("ssl"))
+        if (protocol.equals("tcp"))
+        {
+            return new TcpEndpoint(instance, s.substring(m.end()));
+        }
+
+        if (protocol.equals("ssl"))
         {
             // TODO: SSL
-            //return new SslEndpoint(s.substring(m.end()));
+            //return new SslEndpoint(instance, s.substring(m.end()));
         }
 
-        if (type.equals("udp"))
+        if (protocol.equals("udp"))
         {
-            return new UdpEndpoint(s.substring(m.end()));
+            return new UdpEndpoint(instance, s.substring(m.end()));
         }
 
         throw new Ice.EndpointParseException();
@@ -148,7 +154,7 @@ public abstract class Endpoint
     // Return a client side transceiver for this endpoint, or null if a
     // transceiver can only be created by a connector.
     //
-    public abstract Transceiver clientTransceiver(Instance instance);
+    public abstract Transceiver clientTransceiver();
 
     //
     // Return a server side transceiver for this endpoint, or null if a
@@ -157,14 +163,13 @@ public abstract class Endpoint
     // "effective" endpoint, which might differ from this endpoint,
     // for example, if a dynamic port number is assigned.
     //
-    public abstract Transceiver serverTransceiver(Instance instance,
-                                                  EndpointHolder endpoint);
+    public abstract Transceiver serverTransceiver(EndpointHolder endpoint);
 
     //
     // Return a connector for this endpoint, or null if no connector
     // is available.
     //
-    public abstract Connector connector(Instance instance);
+    public abstract Connector connector();
 
     //
     // Return an acceptor for this endpoint, or null if no acceptors
@@ -173,8 +178,7 @@ public abstract class Endpoint
     // from this endpoint, for example, if a dynamic port number is
     // assigned.
     //
-    public abstract Acceptor acceptor(Instance instance,
-                                      EndpointHolder endpoint);
+    public abstract Acceptor acceptor(EndpointHolder endpoint);
 
     //
     // Check whether the endpoint is equivalent to a specific

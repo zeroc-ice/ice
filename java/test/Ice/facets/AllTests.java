@@ -22,25 +22,9 @@ public class AllTests
     public static GPrx
     allTests(Ice.Communicator communicator)
     {
-        Ice.Properties properties = communicator.getProperties();
-
-        String protocol = properties.getProperty("Ice.Protocol");
-
-        if (protocol == null)
-        {
-            protocol = "tcp";
-        }
-
-        String secure = "";
-
-        if (protocol.equals("ssl"))
-        {
-            secure = " -s ";
-        }
-
         System.out.print("testing stringToProxy... ");
         System.out.flush();
-        String ref = "d" + secure + ":" + protocol + " -p 12345 -t 2000";
+        String ref = "d:default -p 12345 -t 2000";
         Ice.ObjectPrx db = communicator.stringToProxy(ref);
         test(db != null);
         System.out.println("ok");

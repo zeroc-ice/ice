@@ -191,7 +191,7 @@ final class TraceUtil
     {
         try
         {
-            String identity = null;
+            Ice.Identity identity = null;
             String facet = null;
             boolean gotProxy = stream.readBool();
             out.write("\naddressing = " + gotProxy);
@@ -205,10 +205,11 @@ final class TraceUtil
             else
             {
                 out.write(" (identity)");
-                identity = stream.readString();
+                identity = new Ice.Identity();
+                identity.__read(stream);
                 facet = stream.readString();
             }
-            out.write("\nidentity = " + identity);
+            out.write("\nidentity = " + Ice.Util.identityToString(identity));
             out.write("\nfacet = " + facet);
             String operation = stream.readString();
             out.write("\noperation = " + operation);

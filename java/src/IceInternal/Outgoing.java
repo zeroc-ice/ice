@@ -49,7 +49,7 @@ public final class Outgoing
         }
         else
         {
-            _os.writeString(_reference.identity);
+            _reference.identity.__write(_os);
             _os.writeString(_reference.facet);
         }
         _os.writeString(operation);
@@ -123,9 +123,9 @@ public final class Outgoing
                                 wait(timeout);
                                 if (_state == StateInProgress)
                                 {
+                                    timedOut = true;
                                     _state = StateLocalException;
                                     _exception = new Ice.TimeoutException();
-                                    timedOut = true;
                                 }
                             }
                             else
@@ -139,17 +139,17 @@ public final class Outgoing
                     }
                 }
 
+                if (timedOut)
+                {
+                    //
+                    // Must be called outside the synchronization of
+                    // this object
+                    //
+                    _emitter.exception(_exception);
+                }
+
                 if (_exception != null)
                 {
-                    if (timedOut)
-                    {
-                        //
-                        // Must be called outside the synchronization of
-                        // this object
-                        //
-                        _emitter.exception(_exception);
-                    }
-
                     //      
                     // A CloseConnectionException indicates graceful
                     // server shutdown, and is therefore always repeatable
@@ -217,7 +217,6 @@ public final class Outgoing
     public synchronized void
     finished(BasicStream is)
     {
-        assert(_state != StateUnsent);
         if (_state == StateInProgress)
         {
             _is.swap(is);
@@ -310,7 +309,6 @@ public final class Outgoing
     public synchronized void
     finished(Ice.LocalException ex)
     {
-        assert(_state != StateUnsent);
         if (_state == StateInProgress)
         {
             _state = StateLocalException;

@@ -32,12 +32,6 @@ public class BasicStream
     finalize()
         throws Throwable
     {
-        //
-        // No check for exactly one, because an error might have aborted
-        // marshalling/unmarshalling
-        //
-        assert(_encapsStack.size() > 0);
-
         _bufferManager.reclaim(_buf);
 
         super.finalize();

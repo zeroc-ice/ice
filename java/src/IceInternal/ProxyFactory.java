@@ -29,15 +29,16 @@ public final class ProxyFactory
     public Ice.ObjectPrx
     streamToProxy(BasicStream s)
     {
-        String identity = s.readString();
+        Ice.Identity ident = new Ice.Identity();
+        ident.__read(s);
 
-        if (identity.length() == 0)
+        if (ident.name.length() == 0)
         {
             return null;
         }
         else
         {
-            Reference reference = new Reference(identity, s);
+            Reference reference = new Reference(ident, s);
             return referenceToProxy(reference);
         }
     }
@@ -57,12 +58,15 @@ public final class ProxyFactory
         {
             Ice.ObjectPrxHelper h = (Ice.ObjectPrxHelper)proxy;
             Reference ref = h.__reference();
-            s.writeString(ref.identity);
+            ref.identity.__write(s);
             ref.streamWrite(s);
         }
         else
         {
-            s.writeString("");
+            Ice.Identity ident = new Ice.Identity();
+            ident.name = "";
+            ident.category = "";
+            ident.__write(s);
         }
     }
 

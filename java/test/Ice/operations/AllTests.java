@@ -22,30 +22,9 @@ public class AllTests
     public static Test.MyClassPrx
     allTests(Ice.Communicator communicator)
     {
-        Ice.Properties properties = communicator.getProperties();
-
-        String address = properties.getProperty("Ice.Address");
-        String protocol = properties.getProperty("Ice.Protocol");
-        String secure = "";
-
-        if (protocol == null)
-        {
-            protocol = "tcp";
-        }
-
-        if (protocol.equals("ssl"))
-        {
-            secure = " -s ";
-        }
-
-        String ref = "test" + secure + ":" + protocol + " -p 12345 -t 2000";
-        if (address != null)
-        {
-            ref += " -h " + address;
-        }
-
         System.out.print("testing stringToProxy... ");
         System.out.flush();
+        String ref = "test:default -p 12345 -t 2000";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         System.out.println("ok");

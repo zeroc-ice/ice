@@ -13,15 +13,17 @@ package IceInternal;
 public final class UdpEndpoint extends Endpoint
 {
     public
-    UdpEndpoint(String ho, int po)
+    UdpEndpoint(Instance instance, String ho, int po)
     {
+        _instance = instance;
         _host = ho;
         _port = po;
     }
 
     public
-    UdpEndpoint(String str)
+    UdpEndpoint(Instance instance, String str)
     {
+        _instance = instance;
         _host = null;
         _port = 0;
 
@@ -83,14 +85,14 @@ public final class UdpEndpoint extends Endpoint
 
         if (_host == null)
         {
-            // TODO: Whether numeric or not should be configurable
-            _host = Network.getLocalHost(true);
+            _host = instance.defaultHost();
         }
     }
 
     public
     UdpEndpoint(BasicStream s)
     {
+        _instance = s.instance();
         s.startReadEncaps();
         _host = s.readString();
         _port = s.readInt();
@@ -116,18 +118,7 @@ public final class UdpEndpoint extends Endpoint
     public String
     toString()
     {
-        StringBuffer s = new StringBuffer();
-        s.append("udp");
-        // TODO: Whether numeric or not should be configurable
-        if (!_host.equals(Network.getLocalHost(true)))
-        {
-            s.append(" -h " + _host);
-        }
-        if (_port != 0)
-        {
-            s.append(" -p " + _port);
-        }
-        return s.toString();
+        return "udp -h " + _host + " -p " + _port;
     }
 
     //
@@ -192,9 +183,9 @@ public final class UdpEndpoint extends Endpoint
     // transceiver can only be created by a connector.
     //
     public Transceiver
-    clientTransceiver(Instance instance)
+    clientTransceiver()
     {
-        return new UdpTransceiver(instance, _host, _port);
+        return new UdpTransceiver(_instance, _host, _port);
     }
 
     //
@@ -205,11 +196,11 @@ public final class UdpEndpoint extends Endpoint
     // for example, if a dynamic port number is assigned.
     //
     public Transceiver
-    serverTransceiver(Instance instance, EndpointHolder endpoint)
+    serverTransceiver(EndpointHolder endpoint)
     {
         /* TODO: Server
-        UdpTransceiver p = new UdpTransceiver(instance, _port);
-        endpoint.value = new UdpEndpoint(_host, p.effectivePort());
+        UdpTransceiver p = new UdpTransceiver(_instance, _port);
+        endpoint.value = new UdpEndpoint(_instance, _host, p.effectivePort());
         return p;
         */
         return null;
@@ -220,7 +211,7 @@ public final class UdpEndpoint extends Endpoint
     // is available.
     //
     public Connector
-    connector(Instance instance)
+    connector()
     {
         return null;
     }
@@ -233,7 +224,7 @@ public final class UdpEndpoint extends Endpoint
     // assigned.
     //
     public Acceptor
-    acceptor(Instance instance, EndpointHolder endpoint)
+    acceptor(EndpointHolder endpoint)
     {
         endpoint.value = this;
         return null;
@@ -313,6 +304,7 @@ public final class UdpEndpoint extends Endpoint
         return true;
     }
 
+    private Instance _instance;
     private String _host;
     private int _port;
 }

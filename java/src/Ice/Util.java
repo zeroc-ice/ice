@@ -46,5 +46,42 @@ public final class Util
         return new CommunicatorI(properties);
     }
 
+    public static void
+    addArgumentPrefix(String prefix)
+    {
+        PropertiesI.addArgumentPrefix(prefix);
+    }
+
+    public static Identity
+    stringToIdentity(String s)
+    {
+        Identity ident = new Identity();
+        int pos = s.indexOf('#');
+        if (pos != -1)
+        {
+            ident.category = s.substring(0, pos);
+            ident.name = s.substring(pos + 1);
+        }
+        else
+        {
+            ident.category = "";
+            ident.name = s;
+        }
+        return ident;
+    }
+
+    public static String
+    identityToString(Identity ident)
+    {
+        if (ident.category.length() == 0)
+        {
+            return ident.name;
+        }
+        else
+        {
+            return ident.category + '#' + ident.name;
+        }
+    }
+
     private static Properties _defaultProperties = null;
 }

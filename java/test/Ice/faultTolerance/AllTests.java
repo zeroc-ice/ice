@@ -22,28 +22,12 @@ public class AllTests
     public static void
     allTests(Ice.Communicator communicator, int[] ports)
     {
-        Ice.Properties properties = communicator.getProperties();
-
-        String protocol = properties.getProperty("Ice.Protocol");
-
-        if (protocol == null)
-        {
-            protocol = "tcp";
-        }
-
-        String secure = "";
-
-        if (protocol.equals("ssl"))
-        {
-            secure = " -s ";
-        }
-
         System.out.print("testing stringToProxy... ");
         System.out.flush();
-        String ref = "test" + secure;
+        String ref = "test";
         for (int i = 0; i < ports.length; i++)
         {
-            ref += ":" + protocol + " -t 4000 -p " + ports[i];
+            ref += ":default -t 4000 -p " + ports[i];
         }
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
