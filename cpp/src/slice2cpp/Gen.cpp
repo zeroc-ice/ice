@@ -422,7 +422,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	H << sp << nl << "static const ::IceInternal::UserExceptionFactoryPtr& ice_factory();";
 
 	C << sp << nl << "const ::IceInternal::UserExceptionFactoryPtr&";
-	C << nl << scoped << "::ice_factory()";
+	C << nl << scoped.substr(2) << "::ice_factory()";
 	C << sb;
 	C << nl << "return _factory;";
 	C << eb;
