@@ -1012,9 +1012,9 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     assert(_requestHdr.size() == headerSize + 4);
 
     vector<Byte>& requestBatchHdr = const_cast<vector<Byte>&>(_requestBatchHdr);
-    requestBatchHdr = _requestHdr;
+    requestBatchHdr.resize(_requestHdr.size() - 4);
+    copy(_requestHdr.begin(), _requestHdr.end() - 4, requestBatchHdr.begin());
     requestBatchHdr[2] = requestBatchMsg;
-    assert(_requestBatchHdr.size() == headerSize + 4);
 }
 
 IceInternal::Connection::~Connection()
