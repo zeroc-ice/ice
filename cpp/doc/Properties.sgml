@@ -1534,6 +1534,23 @@ properties as the standalone &IcePack; registry.</para></note>
 </section>
 </section>
 
+<section><title>IcePack.Node.PrintServersReady</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Node.PrintServersReady=<replaceable>token</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The &IcePack; node will print "<replaceable>token</replaceable> ready"
+on standard output after all the servers managed by the node are
+ready. This is useful for scripts that wish to wait until all servers
+are ready to be used.
+</para>
+</section>
+</section>
+
 <section><title>IcePack.Node.Trace.Server</title>
 <section><title>Synopsis</title>
 <synopsis>

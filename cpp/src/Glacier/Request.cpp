@@ -135,7 +135,7 @@ Glacier::RequestQueue::addMissive(const RequestPtr& missive)
     
     assert(!_destroy);
 
-    if(_missives.empty() || _requests.empty())
+    if(_missives.empty() && _requests.empty())
     {
         notify();
     }
@@ -211,7 +211,7 @@ Glacier::RequestQueue::run()
 		    break;
 		}
 		
-		timedWait(now - _nextMissiveTime);
+		timedWait(_nextMissiveTime - now);
 	    }
 
             if(_destroy)

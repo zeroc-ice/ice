@@ -47,6 +47,9 @@ Changes since version 1.1.0
   for ::Ice::Byte and char (which can be useful if you use both
   strings and byte sequences).
 
+- Fixed a performance problem in Glacier which would occur when using
+  message batching.
+
 - Portability fix in src/IceSSL/OpenSSLPluginI.cpp.
 
 - config/Make.rules now checks that mkshlib is defined.
