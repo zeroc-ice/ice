@@ -13,4 +13,8 @@
 
 #include <Ice/Config.h>
 
+namespace Ice
+{
+}
+
 #endif
