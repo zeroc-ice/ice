@@ -15,6 +15,7 @@
 #include <map>
 #include <IceUtil/Mutex.h>
 #include <Ice/SslSystemF.h>
+#include <Ice/SslCertificateVerifierF.h>
 
 namespace IceSecurity
 {
@@ -38,7 +39,7 @@ class Factory
 {
 
 public:
-    static SystemPtr getSystem(string&);
+    static SystemPtr getSystem(const string&);
 
     // System Handle related methods
     static void addSystemHandle(void*, const SystemPtr&);
@@ -53,6 +54,17 @@ private:
 
     static void reapSystems();
 };
+
+typedef enum
+{
+    None = 0,
+    Client,
+    Server,
+    ClientServer
+} CertificateVerifierType;
+
+
+void setSystemCertificateVerifier(const string&, CertificateVerifierType, const CertificateVerifierPtr&);
 
 }
 

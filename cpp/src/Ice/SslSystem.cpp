@@ -12,9 +12,62 @@
 #include <Ice/SslSystem.h>
 
 using namespace std;
+using IceSecurity::Ssl::CertificateVerifierPtr;
 
 void ::IceInternal::incRef(::IceSecurity::Ssl::System* p) { p->__incRef(); }
 void ::IceInternal::decRef(::IceSecurity::Ssl::System* p) { p->__decRef(); }
+
+//
+// Public Methods
+//
+
+void
+IceSecurity::Ssl::System::setServerCertificateVerifier(const CertificateVerifierPtr& serverVerifier)
+{
+    _serverVerifier = serverVerifier;
+}
+
+void
+IceSecurity::Ssl::System::setClientCertificateVerifier(const CertificateVerifierPtr& clientVerifier)
+{
+    _clientVerifier = clientVerifier;
+}
+
+void
+IceSecurity::Ssl::System::setTrace(const TraceLevelsPtr& traceLevels)
+{
+    _traceLevels = traceLevels;
+}
+
+bool
+IceSecurity::Ssl::System::isTraceSet() const
+{
+    return _traceLevels;
+}
+
+void
+IceSecurity::Ssl::System::setLogger(const LoggerPtr& traceLevels)
+{
+    _logger = traceLevels;
+}
+
+bool
+IceSecurity::Ssl::System::isLoggerSet() const
+{
+    return _logger;
+}
+
+void
+IceSecurity::Ssl::System::setProperties(const PropertiesPtr& properties)
+{
+    _properties = properties;
+}
+
+bool
+IceSecurity::Ssl::System::isPropertiesSet() const
+{
+    return _properties;
+}
 
 //
 // Protected Methods

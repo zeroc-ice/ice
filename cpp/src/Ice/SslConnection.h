@@ -16,6 +16,7 @@
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/SslConnectionF.h>
+#include <Ice/SslCertificateVerifierF.h>
 
 namespace IceSecurity
 {
@@ -31,16 +32,19 @@ using Ice::LoggerPtr;
 class Connection : public Shared
 {
 public:
-
-    virtual ~Connection() { };
+    Connection(const CertificateVerifierPtr&);
+    virtual ~Connection();
 
     virtual void shutdown() = 0;
 
     virtual int read(Buffer&, int) = 0;
     virtual int write(Buffer&, int) = 0;
 
-    virtual void setTrace(TraceLevelsPtr) = 0;
-    virtual void setLogger(LoggerPtr) = 0;
+    virtual void setTrace(const TraceLevelsPtr&) = 0;
+    virtual void setLogger(const LoggerPtr&) = 0;
+
+protected:
+    CertificateVerifierPtr _certificateVerifier;
 };
 
 }

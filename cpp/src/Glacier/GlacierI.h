@@ -12,6 +12,7 @@
 #define GLACIER_GLACIER_I_H
 
 #include <Ice/Ice.h>
+#include <Ice/SslRSACertificateGen.h>
 #include <Glacier/Glacier.h>
 
 namespace Glacier
@@ -33,6 +34,8 @@ private:
     Ice::LoggerPtr _logger;
     Ice::PropertiesPtr _properties;
     int _traceLevel;
+    RSACertificateGenContext _certContext;
+    RSACertificateGen _certificateGenerator;
 };
 
 }

@@ -30,7 +30,7 @@ class ServerConnection : public Connection
 {
 
 public:
-    ServerConnection(SSL*, const SystemPtr&);
+    ServerConnection(const CertificateVerifierPtr&, SSL*, const SystemPtr&);
     virtual ~ServerConnection();
     virtual void shutdown();
     virtual int init(int timeout = 0);

@@ -16,6 +16,7 @@
 #include <Ice/SslConnectionF.h>
 #include <Ice/Properties.h>
 #include <Ice/SslSystemF.h>
+#include <Ice/SslCertificateVerifierF.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerF.h>
 
@@ -44,14 +45,17 @@ public:
     virtual Connection* createServerConnection(int) = 0;
     virtual Connection* createClientConnection(int) = 0;
 
-    void setTrace(TraceLevelsPtr traceLevels) { _traceLevels = traceLevels; };
-    bool isTraceSet() const { return _traceLevels; };
+    virtual void setServerCertificateVerifier(const CertificateVerifierPtr&);
+    virtual void setClientCertificateVerifier(const CertificateVerifierPtr&);
 
-    void setLogger(LoggerPtr traceLevels) { _logger = traceLevels; };
-    bool isLoggerSet() const { return _logger; };
+    void setTrace(const TraceLevelsPtr&);
+    bool isTraceSet() const;
 
-    void setProperties(PropertiesPtr properties) { _properties = properties; };
-    bool isPropertiesSet() const { return _properties; };
+    void setLogger(const LoggerPtr&);
+    bool isLoggerSet() const;
+
+    void setProperties(const PropertiesPtr&);
+    bool isPropertiesSet() const;
 
 protected:
 
@@ -61,6 +65,8 @@ protected:
     TraceLevelsPtr _traceLevels;
     LoggerPtr _logger;
     PropertiesPtr _properties;
+    CertificateVerifierPtr _clientVerifier;
+    CertificateVerifierPtr _serverVerifier;
     
     friend class Factory;
 };

@@ -11,6 +11,7 @@
 #include <IceUtil/UUID.h>
 #include <Glacier/GlacierI.h>
 #include <fcntl.h>
+#include <Ice/SslRSAKeyPair.h>
 //#include <sys/wait.h>
 
 #ifdef WIN32
@@ -21,12 +22,25 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier;
 
+using IceSecurity::Ssl::OpenSSL::RSAKeyPairPtr;
+
+
 Glacier::StarterI::StarterI(const CommunicatorPtr& communicator) :
     _communicator(communicator),
     _logger(_communicator->getLogger()),
     _properties(_communicator->getProperties())
 {
     _traceLevel = atoi(_properties->getProperty("Glacier.Trace.Starter").c_str());
+
+    // Set up the Certificate Generation context
+    _certContext.setCountry(_properties->getProperty("Glacier.Starter.Certificate.Country"));
+    _certContext.setStateProvince(_properties->getProperty("Glacier.Starter.Certificate.StateProvince"));
+    _certContext.setLocality(_properties->getProperty("Glacier.Starter.Certificate.Locality"));
+    _certContext.setOrganization(_properties->getProperty("Glacier.Starter.Certificate.Organization"));
+    _certContext.setOrgainizationalUnit(_properties->getProperty("Glacier.Starter.Certificate.OranizationalUnit"));
+    _certContext.setCommonName(_properties->getProperty("Glacier.Starter.Certificate.CommonName"));
+    _certContext.setBitStrength(atoi(_properties->getProperty("Glacier.Starter.Certificate.BitStrength").c_str()));
+    _certContext.setSecondsValid(atol(_properties->getProperty("Glacier.Starter.Certificate.SecondsValid").c_str()));
 }
 
 void
@@ -49,6 +63,44 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, con
     //
     // TODO: userId/password check
     //
+
+    //
+    // Create a certificate for the Client and the Router
+    //
+    RSAKeyPairPtr clientKeyPair = _certificateGenerator.generate(_certContext);
+    RSAKeyPairPtr routerKeyPair = _certificateGenerator.generate(_certContext);
+
+    // NOTE: These will probably be returned from this method, I would assume.
+    ByteSeq clientPrivateKey;
+    ByteSeq clientCertificate;
+    ByteSeq routerCertificate;
+
+    clientKeyPair.keyToByteSeq(clientPrivateKey);
+    clientKeyPair.certToByteSeq(clientCertificate);
+    routerKeyPair.certToByteSeq(routerCertificate);
+
+    // routerPrivateKeyBase64 and routerCertificateBase64 are passed to the
+    // router as the values for the properties
+    //  * Ice.Security.Ssl.Overrides.Server.RSA.PrivateKey
+    //  * Ice.Security.Ssl.Overrides.Server.RSA.Certificate
+    // respectively.
+    //
+    // If the router is to act as a client to the Client as well, then
+    // these values should also be passed into the router as the properties
+    //  * Ice.Security.Ssl.Overrides.Client.RSA.PrivateKey
+    //  * Ice.Security.Ssl.Overrides.Client.RSA.Certificate
+    // respectively.
+    //
+    // The value of clientCertificateBase64 should be passed in to the router
+    // in the property
+    //  * Glacier.Router.ClientCertificate
+    string routerPrivateKeyBase64;
+    string routerCertificateBase64;
+    string clientCertificateBase64;
+
+    routerKeyPair.keyToBase64(routerPrivateKeyBase64);
+    routerKeyPair.certToBase64(routerCertificateBase64);
+    clientKeyPair.certToBase64(clientCertificateBase64);
 
     //
     // Start a router

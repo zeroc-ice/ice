@@ -11,10 +11,13 @@
 #ifndef ICE_SSL_CONNECTION_OPENSSL_H
 #define ICE_SSL_CONNECTION_OPENSSL_H
 
+#include <map>
 #include <openssl/ssl.h>
 #include <IceUtil/Mutex.h>
 #include <Ice/SslConnection.h>
 #include <Ice/SslSystemF.h>
+#include <Ice/SslConnectionOpenSSLF.h>
+#include <Ice/SslCertificateVerifierF.h>
 
 namespace IceSecurity
 {
@@ -107,11 +110,18 @@ private:
     SafeFlag& _flag;
 };
 
+// NOTE: This is a mapping from SSL* to Connection*, for use with the verifyCallback.
+//       I have purposely not used ConnectionPtr here, as connections register themselves
+//       with this map on construction and unregister themselves in the destructor.  If
+//       this map used ConnectionPtr, Connection instances would never destruct as there
+//       would always be a reference to them from the map.
+typedef map<SSL*, Connection*> SslConnectionMap;
+
 class Connection : public IceSecurity::Ssl::Connection
 {
 public:
 
-    Connection(SSL*, const SystemPtr&);
+    Connection(const CertificateVerifierPtr&, SSL*, const SystemPtr&);
     virtual ~Connection();
 
     virtual void shutdown();
@@ -121,10 +131,15 @@ public:
 
     virtual int init(int timeout = 0) = 0;
 
-    void setTrace(TraceLevelsPtr traceLevels) { _traceLevels = traceLevels; };
-    void setLogger(LoggerPtr traceLevels) { _logger = traceLevels; };
+    void setTrace(const TraceLevelsPtr& traceLevels);
+    void setLogger(const LoggerPtr& traceLevels);
 
-    void setHandshakeReadTimeout(int timeout) { _handshakeReadTimeout = timeout; };
+    void setHandshakeReadTimeout(int timeout);
+
+    static ConnectionPtr getConnection(SSL*);
+
+    // Callback from OpenSSL for purposes of certificate verification
+    int verifyCertificate(int, X509_STORE_CTX*);
 
 protected:
 
@@ -153,6 +168,9 @@ protected:
     // Retrieves errors from the OpenSSL library.
     string sslGetErrors();
 
+    static void addConnection(SSL*, Connection*);
+    static void removeConnection(SSL*);
+
     virtual void showConnectionInfo() = 0;
 
     void showCertificateChain(BIO*);
@@ -164,6 +182,9 @@ protected:
     void showClientCAList(BIO*, const char*);
 
     void setLastError(int errorCode) { _lastError = errorCode; };
+
+    static SslConnectionMap _connectionMap;
+    static ::IceUtil::Mutex _connectionRepositoryMutex;
 
     // Pointer to the OpenSSL Connection structure.
     SSL* _sslConnection;

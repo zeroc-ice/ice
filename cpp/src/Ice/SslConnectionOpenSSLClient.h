@@ -30,7 +30,7 @@ class ClientConnection : public Connection
 {
 
 public:
-    ClientConnection(SSL*, const SystemPtr&);
+    ClientConnection(const CertificateVerifierPtr&, SSL*, const SystemPtr&);
     virtual ~ClientConnection();
     virtual void shutdown();
     virtual int init(int timeout = 0);

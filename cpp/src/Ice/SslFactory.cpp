@@ -35,17 +35,16 @@ namespace IceSecurity
 namespace Ssl
 {
 
-
-extern "C"
-{
-    void lockingCallback(int, int, const char*, int);
-}
-
 // Static member instantiations.
 IceUtil::Mutex Factory::_systemRepositoryMutex;
 SystemMap Factory::_systemRepository;
 SslHandleSystemMap Factory::_sslHandleSystemRepository;
 int Factory::_evict = 0;
+
+extern "C"
+{
+    void lockingCallback(int, int, const char*, int);
+}
 
 class SslLockKeeper
 {
@@ -83,9 +82,8 @@ void IceSecurity::Ssl::lockingCallback(int mode, int type, const char *file, int
     }
 }
 
-
 IceSecurity::Ssl::SystemPtr
-IceSecurity::Ssl::Factory::getSystem(string& systemIdentifier)
+IceSecurity::Ssl::Factory::getSystem(const string& systemIdentifier)
 {
     IceUtil::Mutex::Lock sync(_systemRepositoryMutex);
 
@@ -145,7 +143,6 @@ IceSecurity::Ssl::Factory::getSystemFromHandle(void* sslHandle)
     return system;
 }
 
-
 void
 IceSecurity::Ssl::Factory::reapSystems()
 {
@@ -191,6 +188,24 @@ IceSecurity::Ssl::Factory::reapSystems()
 	    }
 	}
 */
+    }
+}
+
+void
+IceSecurity::Ssl::setSystemCertificateVerifier(const string& systemIdentifier,
+                                               CertificateVerifierType verifierType,
+                                               const CertificateVerifierPtr& certificateVerifier)
+{
+    SystemPtr sslSystem = Factory::getSystem(systemIdentifier);
+
+    if ((verifierType == Client) || (verifierType == ClientServer))
+    {
+        sslSystem->setClientCertificateVerifier(certificateVerifier);
+    }
+
+    if ((verifierType == Server) || (verifierType == ClientServer))
+    {
+        sslSystem->setServerCertificateVerifier(certificateVerifier);
     }
 }
 

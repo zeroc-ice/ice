@@ -34,6 +34,9 @@
 #include <Ice/SslConnectionOpenSSLClient.h>
 #include <Ice/SslConnectionOpenSSLServer.h>
 #include <Ice/SslConfig.h>
+#include <Ice/SslRSAKeyPair.h>
+#include <Ice/SslJanitors.h>
+#include <Ice/SslCertificateVerifierOpenSSL.h>
 
 #include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
@@ -92,158 +95,6 @@ Ice::LoggerPtr System::_globalLogger = 0;
 using IceSecurity::Ssl::OpenSSL::ContextException;
 using IceSecurity::Ssl::SystemPtr;
 
-//
-// NOTE: The following (mon, getGeneralizedTime, getUTCTime and getASN1time are routines that
-//       have been abducted from the OpenSSL X509 library, and modified to work with the STL
-//       basic_string template.
-
-static const char *mon[12]=
-{
-    "Jan","Feb","Mar","Apr","May","Jun",
-    "Jul","Aug","Sep","Oct","Nov","Dec"
-};
-
-string
-getGeneralizedTime(ASN1_GENERALIZEDTIME *tm)
-{
-    char buf[30];
-    char *v;
-    int gmt=0;
-    int i;
-    int y = 0, M = 0, d = 0, h = 0, m = 0, s = 0;
-
-    i = tm->length;
-    v = (char *) tm->data;
-
-    if (i < 12)
-    {
-        goto err;
-    }
-
-    if (v[i-1] == 'Z')
-    {
-        gmt=1;
-    }
-
-    for (i=0; i<12; i++)
-    {
-        if ((v[i] > '9') || (v[i] < '0'))
-        {
-            goto err;
-        }
-    }
-
-    y = (v[0] - '0') * 1000 + (v[1] - '0') * 100 + (v[2] - '0') * 10 + (v[3] - '0');
-    M = (v[4] - '0') * 10 + (v[5] - '0');
-
-    if ((M > 12) || (M < 1))
-    {
-        goto err;
-    }
-
-    d = (v[6] - '0') * 10 + (v[7] - '0');
-    h = (v[8] - '0') * 10 + (v[9] - '0');
-    m = (v[10] - '0') * 10 + (v[11] - '0');
-
-    if ((v[12] >= '0') && (v[12] <= '9') &&
-        (v[13] >= '0') && (v[13] <= '9'))
-    {
-        s = (v[12] - '0') * 10 + (v[13] - '0');
-    }
-
-    sprintf(buf, "%s %2d %02d:%02d:%02d %d%s", mon[M-1], d, h, m, s, y, (gmt)?" GMT":"");
-    return string(buf);
-
-err:
-    return string("Bad time value");
-}
-
-string
-getUTCTime(ASN1_UTCTIME *tm)
-{
-    char buf[30];
-    char *v;
-    int gmt=0;
-    int i;
-    int y = 0, M = 0, d = 0, h = 0, m = 0, s = 0;
-
-    i = tm->length;
-    v = (char *) tm->data;
-
-    if (i < 10)
-    { 
-        goto err;
-    }
-
-    if (v[i-1] == 'Z')
-    {
-        gmt=1;
-    }
-
-    for (i = 0; i < 10; i++)
-    {
-        if ((v[i] > '9') || (v[i] < '0'))
-        {
-            goto err;
-        }
-    }
-
-    y = (v[0] - '0') * 10 + (v[1] - '0');
-
-    if (y < 50)
-    {
-        y+=100;
-    }
-
-    M = (v[2] - '0') * 10 + (v[3] - '0');
-
-    if ((M > 12) || (M < 1))
-    {
-        goto err;
-    }
-
-    d = (v[4] - '0') * 10 + (v[5] - '0');
-    h = (v[6] - '0') * 10 + (v[7] - '0');
-    m = (v[8] - '0') * 10 + (v[9] - '0');
-
-    if ((v[10] >= '0') && (v[10] <= '9') && (v[11] >= '0') && (v[11] <= '9'))
-    {
-        s = (v[10] - '0') * 10 + (v[11] - '0');
-    }
-
-    sprintf(buf, "%s %2d %02d:%02d:%02d %d%s", mon[M-1], d, h, m, s, y+1900, (gmt)?" GMT":"");
-    return string(buf);
-
-err:
-    return string("Bad time value");
-}
-
-string
-getASN1time(ASN1_TIME *tm)
-{
-    string theTime;
-
-    switch (tm->type)
-    {
-        case V_ASN1_UTCTIME :
-        {
-            theTime = getUTCTime(tm);
-        }
-
-        case V_ASN1_GENERALIZEDTIME :
-        {
-	    theTime = getGeneralizedTime(tm);
-        }
-
-        default :
-        {
-            theTime = "Bad time value";
-        }
-    }
-
-    return theTime;
-}
-
 extern "C"
 {
 
@@ -252,7 +103,8 @@ tmpRSACallback(SSL *s, int isExport, int keyLength)
 {
     IceSecurity::Ssl::SystemPtr sslSystem = IceSecurity::Ssl::Factory::getSystemFromHandle(s);
 
-    IceSecurity::Ssl::OpenSSL::System* openSslSystem = dynamic_cast<IceSecurity::Ssl::OpenSSL::System*>(sslSystem.get());
+    IceSecurity::Ssl::OpenSSL::System* openSslSystem = 0;
+    openSslSystem = dynamic_cast<IceSecurity::Ssl::OpenSSL::System*>(sslSystem.get());
 
     RSA* rsaKey = openSslSystem->getRSAKey(s, isExport, keyLength);
 
@@ -264,7 +116,8 @@ tmpDHCallback(SSL *s, int isExport, int keyLength)
 {
     IceSecurity::Ssl::SystemPtr sslSystem = IceSecurity::Ssl::Factory::getSystemFromHandle(s);
 
-    IceSecurity::Ssl::OpenSSL::System* openSslSystem = dynamic_cast<IceSecurity::Ssl::OpenSSL::System*>(sslSystem.get());
+    IceSecurity::Ssl::OpenSSL::System* openSslSystem = 0;
+    openSslSystem = dynamic_cast<IceSecurity::Ssl::OpenSSL::System*>(sslSystem.get());
 
     DH* dh = openSslSystem->getDHParams(s, isExport, keyLength);
 
@@ -275,71 +128,16 @@ tmpDHCallback(SSL *s, int isExport, int keyLength)
 int
 verifyCallback(int ok, X509_STORE_CTX *ctx)
 {
-    X509* err_cert = X509_STORE_CTX_get_current_cert(ctx);
-    int verifyError = X509_STORE_CTX_get_error(ctx);
-    int depth = X509_STORE_CTX_get_error_depth(ctx);
+    // Tricky method to get access to our connection.  I would use SSL_get_ex_data() to get
+    // the Connection object, if only I had some way to retrieve the index of the object
+    // in this function.  Hence, we have to invent our own reference system here.
+    SSL* ssl = static_cast<SSL*>(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
+    IceSecurity::Ssl::OpenSSL::ConnectionPtr connection = 0;
+    connection = IceSecurity::Ssl::OpenSSL::Connection::getConnection(ssl);
+    assert(connection);
 
-    // If we have no errors so far, and the certificate chain is too long
-    if ((verifyError != X509_V_OK) && (10 < depth))
-    {
-        verifyError = X509_V_ERR_CERT_CHAIN_TOO_LONG;
-    }
-
-    if (verifyError != X509_V_OK)
-    {
-        // If we have ANY errors, we bail out.
-        ok = 0;
-    }
-
-    // Only if ICE_PROTOCOL level logging is on do we worry about this.
-    if (ICE_SECURITY_LEVEL_PROTOCOL_GLOBAL)
-    {
-        char buf[256];
-
-        X509_NAME_oneline(X509_get_subject_name(err_cert), buf, sizeof(buf));
-
-        ostringstream outStringStream;
-
-        outStringStream << "depth = " << depth << ":" << buf << endl;
-
-        if (!ok)
-        {
-            outStringStream << "verify error: num = " << verifyError << " : " 
-			    << X509_verify_cert_error_string(verifyError) << endl;
-
-        }
-
-        switch (verifyError)
-        {
-            case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
-            {
-                X509_NAME_oneline(X509_get_issuer_name(ctx->current_cert), buf, sizeof(buf));
-                outStringStream << "issuer = " << buf << endl;
-                break;
-            }
-
-            case X509_V_ERR_CERT_NOT_YET_VALID:
-            case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
-            {
-                outStringStream << "notBefore =" << getASN1time(X509_get_notBefore(ctx->current_cert)) << endl;
-                break;
-            }
-
-            case X509_V_ERR_CERT_HAS_EXPIRED:
-            case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
-            {
-                outStringStream << "notAfter =" << getASN1time(X509_get_notAfter(ctx->current_cert)) << endl;
-                break;
-            }
-        }
-
-        outStringStream << "verify return = " << ok << endl;
-
-        IceSecurity::Ssl::OpenSSL::System::_globalLogger->trace(
-	    IceSecurity::Ssl::OpenSSL::System::_globalTraceLevels->securityCat, outStringStream.str());
-    }
-
-    return ok;
+    // Call the connection, get it to perform the verification.
+    return connection->verifyCertificate(ok, ctx);
 }
 
 // This code duplicates functionality that existed in the BIO library of
@@ -531,7 +329,7 @@ IceSecurity::Ssl::OpenSSL::System::createServerConnection(int socket)
     // Set the Accept Connection state for this connection.
     SSL_set_accept_state(sslConnection);
 
-    Connection* connection = new ServerConnection(sslConnection, SystemPtr(this));
+    Connection* connection = new ServerConnection(_serverVerifier, sslConnection, SystemPtr(this));
 
     commonConnectionSetup(connection);
 
@@ -562,7 +360,7 @@ IceSecurity::Ssl::OpenSSL::System::createClientConnection(int socket)
     // Set the Connect Connection state for this connection.
     SSL_set_connect_state(sslConnection);
 
-    Connection* connection = new ClientConnection(sslConnection, SystemPtr(this));
+    Connection* connection = new ClientConnection(_clientVerifier, sslConnection, SystemPtr(this));
 
     commonConnectionSetup(connection);
 
@@ -843,6 +641,11 @@ IceSecurity::Ssl::OpenSSL::System::System()
     _sslServerContext = 0;
     _sslClientContext = 0;
 
+    // Here we create a default verifier, which does very little other
+    // than check the verification depth.  This can be overridden.
+    _clientVerifier = new DefaultCertificateVerifier();
+    _serverVerifier = _clientVerifier;
+
     SSL_load_error_strings();
 
     OpenSSL_add_ssl_algorithms();
@@ -912,8 +715,8 @@ IceSecurity::Ssl::OpenSSL::System::initClient(GeneralConfig& general,
         setKeyCert(_sslClientContext, baseCerts.getRSACert(), privateRSAKey, publicRSAKey);
 
         // Process the DSA Certificate
-        string privateDSAKey = _properties->getProperty("Ice.Security.Ssl.Overrides.Client.DSA.PrivateKey");
-        string publicDSAKey = _properties->getProperty("Ice.Security.Ssl.Overrides.Client.DSA.Certificate");
+        string privateDSAKey; // = _properties->getProperty("Ice.Security.Ssl.Overrides.Client.DSA.PrivateKey");
+        string publicDSAKey; // = _properties->getProperty("Ice.Security.Ssl.Overrides.Client.DSA.Certificate");
         setKeyCert(_sslClientContext, baseCerts.getDSACert(), privateDSAKey, publicDSAKey);
 
         // Set the DH key agreement parameters.
@@ -965,8 +768,8 @@ IceSecurity::Ssl::OpenSSL::System::initServer(GeneralConfig& general,
         setKeyCert(_sslServerContext, baseCerts.getRSACert(), privateRSAKey, publicRSAKey);
 
         // Process the DSA Certificate
-        string privateDSAKey = _properties->getProperty("Ice.Security.Ssl.Overrides.Server.DSA.PrivateKey");
-        string publicDSAKey = _properties->getProperty("Ice.Security.Ssl.Overrides.Server.DSA.Certificate");
+        string privateDSAKey; // = _properties->getProperty("Ice.Security.Ssl.Overrides.Server.DSA.PrivateKey");
+        string publicDSAKey; // = _properties->getProperty("Ice.Security.Ssl.Overrides.Server.DSA.Certificate");
         setKeyCert(_sslServerContext, baseCerts.getDSACert(), privateDSAKey, publicDSAKey);
 
         // Set the DH key agreement parameters.
@@ -1145,76 +948,6 @@ IceSecurity::Ssl::OpenSSL::System::addKeyCert(SSL_CTX* sslContext,
     ICE_METHOD_RET("OpenSSL::System::addKeyCert()");
 }
 
-X509*
-IceSecurity::Ssl::OpenSSL::System::byteSeqToX509(ByteSeq& byteSeq)
-{
-    // Create a BIO that reads directly from our ByteSeq!
-    // NOTE: The reinterpret_cast is required, nasty OpenSSL hack!
-    BIO* memoryBio = BIO_new_mem_buf(reinterpret_cast<void *>(byteSeq.begin()), byteSeq.size());
-
-    X509* x509 = PEM_read_bio_X509(memoryBio, 0, 0, 0);
-
-    if (!x509)
-    {
-        SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_FILE, ERR_R_PEM_LIB);
-
-        ContextException contextEx(__FILE__, __LINE__);
-
-        contextEx._message = "Unable to load Public Key from memory buffer.";
-        string sslError = sslGetErrors();
-
-        if (!sslError.empty())
-        {
-            contextEx._message += "\n";
-            contextEx._message += sslError;
-        }
-
-
-        ICE_EXCEPTION(contextEx._message);
-
-        throw contextEx;
-    }
-
-    BIO_free(memoryBio);
-
-    return x509;
-}
-
-RSA*
-IceSecurity::Ssl::OpenSSL::System::byteSeqToKey(ByteSeq& byteSeq)
-{
-    // Create a BIO that reads directly from our ByteSeq!
-    // NOTE: The reinterpret_cast is required, nasty OpenSSL hack!
-    BIO* memoryBio = BIO_new_mem_buf(reinterpret_cast<void *>(byteSeq.begin()), byteSeq.size());
-
-    RSA* rsa = PEM_read_bio_RSAPrivateKey(memoryBio, 0, 0, 0);
-
-    if (!rsa)
-    {
-        SSLerr(SSL_F_SSL_CTX_USE_PRIVATEKEY_FILE, ERR_R_PEM_LIB);
-
-        ContextException contextEx(__FILE__, __LINE__);
-
-        contextEx._message = "Unable to load Private Key from memory buffer.";
-        string sslError = sslGetErrors();
-
-        if (!sslError.empty())
-        {
-            contextEx._message += "\n";
-            contextEx._message += sslError;
-        }
-
-
-        ICE_EXCEPTION(contextEx._message);
-
-        throw contextEx;
-    }
-
-    BIO_free(memoryBio);
-
-    return rsa;
-}
-
 void
 IceSecurity::Ssl::OpenSSL::System::addKeyCert(SSL_CTX* sslContext,
                                               const string& privateKey,
@@ -1231,84 +964,50 @@ IceSecurity::Ssl::OpenSSL::System::addKeyCert(SSL_CTX* sslContext,
         privKey = publicKey;
     }
 
-    //
-    // Convert the strings containing the Key (Private Key) and Certificate (Public Key)
-    // into byte sequences.
-    //
-    ByteSeq publicKeyByteSeq;
-    ByteSeq privateKeyByteSeq;
+    // Make a key pair based on the Base64 encoded strings
+    RSAKeyPair keyPair(privateKey, publicKey);
 
-    publicKeyByteSeq.reserve(privateKey.size());
-    privateKeyByteSeq.reserve(publicKey.size());
+    // Janitors to ensure that everything gets cleaned up properly
+    RSAJanitor rsaJanitor(keyPair.getRSAPrivateKey());
+    X509Janitor x509Janitor(keyPair.getX509PublicKey());
 
-    std::copy(privateKey.begin(), privateKey.end(), back_inserter(privateKeyByteSeq));
-    std::copy(publicKey.begin(), publicKey.end(), back_inserter(publicKeyByteSeq));
-
-    X509* x509 = 0;
-    RSA* rsa = 0;
-
-    try
+    // Set which Public Key file to use.
+    if (SSL_CTX_use_certificate(sslContext, x509Janitor.get()) <= 0)
     {
-        // These methods should throw exceptions if they can't perform the conversion.
-        x509 = byteSeqToX509(publicKeyByteSeq);
-        rsa = byteSeqToKey(privateKeyByteSeq);
+        ContextException contextEx(__FILE__, __LINE__);
 
-        // Set which Public Key file to use.
-        if (SSL_CTX_use_certificate(sslContext, x509) <= 0)
+        contextEx._message = "Unable to set certificate from memory.";
+        string sslError = sslGetErrors();
+
+        if (!sslError.empty())
         {
-            ContextException contextEx(__FILE__, __LINE__);
-
-            contextEx._message = "Unable to set certificate from memory.";
-            string sslError = sslGetErrors();
-
-            if (!sslError.empty())
-            {
-                contextEx._message += "\n";
-                contextEx._message += sslError;
-            }
-
-
-            ICE_EXCEPTION(contextEx._message);
-
-            throw contextEx;
+            contextEx._message += "\n";
+            contextEx._message += sslError;
         }
 
-        // Set which Private Key file to use.
-        if (SSL_CTX_use_RSAPrivateKey(sslContext, rsa) <= 0)
-        {
-            ContextException contextEx(__FILE__, __LINE__);
+        ICE_EXCEPTION(contextEx._message);
 
-            contextEx._message = "Unable to set private key from memory.";
-            string sslError = sslGetErrors();
-
-            if (!sslError.empty())
-            {
-                contextEx._message += "\n";
-                contextEx._message += sslError;
-            }
-
-            ICE_EXCEPTION(contextEx._message);
-
-            throw contextEx;
-        }
-    }
-    catch (...)
-    {
-        if (x509)
-        {
-            X509_free(x509);
-        }
-
-        if (rsa)
-        {
-            RSA_free(rsa);
-        }
-
-        throw;
+        throw contextEx;
     }
 
-    X509_free(x509);
-    RSA_free(rsa);
+    // Set which Private Key file to use.
+    if (SSL_CTX_use_RSAPrivateKey(sslContext, rsaJanitor.get()) <= 0)
+    {
+        ContextException contextEx(__FILE__, __LINE__);
+
+        contextEx._message = "Unable to set private key from memory.";
+        string sslError = sslGetErrors();
+
+        if (!sslError.empty())
+        {
+            contextEx._message += "\n";
+            contextEx._message += sslError;
+        }
+
+        ICE_EXCEPTION(contextEx._message);
+
+        throw contextEx;
+    }
 
     // Check to see if the Private and Public keys that have been
     // set against the SSL context match up.

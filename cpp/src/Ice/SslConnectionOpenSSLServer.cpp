@@ -38,8 +38,10 @@ using std::dec;
 // Public Methods
 //
 
-IceSecurity::Ssl::OpenSSL::ServerConnection::ServerConnection(SSL* connection, const SystemPtr& system) :
-                                            Connection(connection, system)
+IceSecurity::Ssl::OpenSSL::ServerConnection::ServerConnection(const CertificateVerifierPtr& certificateVerifier,
+                                                              SSL* connection,
+                                                              const SystemPtr& system) :
+                                            Connection(certificateVerifier, connection, system)
 {
 }
 

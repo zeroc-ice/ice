@@ -104,6 +104,10 @@ PostBuild_Cmds=copy Debug\iceutil001d.* ..\..\lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\Base64.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Cond.cpp
 # End Source File
 # Begin Source File
@@ -138,6 +142,10 @@ SOURCE=.\UUID.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\Base64.h
+# End Source File
 # Begin Source File
 
 SOURCE=..\..\include\IceUtil\Cond.h

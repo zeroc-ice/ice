@@ -308,6 +308,14 @@ SOURCE=.\SslCertificateDesc.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\SslCertificateVerifier.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslCertificateVerifierOpenSSL.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\SslConfig.cpp
 # End Source File
 # Begin Source File
@@ -341,6 +349,22 @@ SOURCE=.\SslFactory.cpp
 # Begin Source File
 
 SOURCE=.\SslGeneralConfig.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslJanitors.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslOpenSSLUtils.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslRSACertificateGen.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslRSAKeyPair.cpp
 # End Source File
 # Begin Source File
 
@@ -776,6 +800,18 @@ SOURCE=.\SslCertificateDesc.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\SslCertificateVerifier.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslCertificateVerifierF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslCertificateVerifierOpenSSL.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\SslConfig.h
 # End Source File
 # Begin Source File
@@ -796,6 +832,10 @@ SOURCE=.\SslConnectionOpenSSLClient.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\SslConnectionOpenSSLF.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\SslConnectionOpenSSLServer.h
 # End Source File
 # Begin Source File
@@ -809,6 +849,30 @@ SOURCE=.\SslFactory.h
 # Begin Source File
 
 SOURCE=.\SslGeneralConfig.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslJanitors.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslOpenSSLUtils.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\SslRSACertificateGen.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\SslRSACertificateGenF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\SslRSAKeyPair.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\SslRSAKeyPairF.h
 # End Source File
 # Begin Source File
 

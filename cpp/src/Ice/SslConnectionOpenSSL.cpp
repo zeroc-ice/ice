@@ -27,6 +27,8 @@
 #include <Ice/SslConnection.h>
 #include <Ice/SslConnectionOpenSSL.h>
 #include <Ice/SslSystemOpenSSL.h>
+#include <Ice/SslCertificateVerifierOpenSSL.h>
+#include <Ice/SslOpenSSLUtils.h>
 
 #include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
@@ -44,10 +46,22 @@ using IceSecurity::Ssl::SystemPtr;
 ////////////////////////////////
 
 //
+// Static Member Initialization
+//
+IceSecurity::Ssl::OpenSSL::SslConnectionMap IceSecurity::Ssl::OpenSSL::Connection::_connectionMap;
+::IceUtil::Mutex IceSecurity::Ssl::OpenSSL::Connection::_connectionRepositoryMutex;
+
+//
 // Public Methods
 //
 
-IceSecurity::Ssl::OpenSSL::Connection::Connection(SSL* sslConnection, const SystemPtr& system) :
+void ::IceInternal::incRef(::IceSecurity::Ssl::OpenSSL::Connection* p) { p->__incRef(); }
+void ::IceInternal::decRef(::IceSecurity::Ssl::OpenSSL::Connection* p) { p->__decRef(); }
+
+IceSecurity::Ssl::OpenSSL::Connection::Connection(const CertificateVerifierPtr& certificateVerifier,
+                                                  SSL* sslConnection,
+                                                  const SystemPtr& system) :
+                                      IceSecurity::Ssl::Connection(certificateVerifier),
                                       _sslConnection(sslConnection),
                                       _system(system)
 {
@@ -62,6 +76,9 @@ IceSecurity::Ssl::OpenSSL::Connection::Connection(SSL* sslConnection, const Syst
 
     // None configured, default to indicated timeout
     _handshakeReadTimeout = 0;
+
+    // Set up the SSL to be able to refer back to our connection object.
+    addConnection(_sslConnection, this);
 }
 
 IceSecurity::Ssl::OpenSSL::Connection::~Connection()
@@ -70,6 +87,7 @@ IceSecurity::Ssl::OpenSSL::Connection::~Connection()
 
     if (_sslConnection != 0)
     {
+        removeConnection(_sslConnection);
         Factory::removeSystemHandle(_sslConnection);
         SSL_free(_sslConnection);
         _sslConnection = 0;
@@ -106,6 +124,110 @@ IceSecurity::Ssl::OpenSSL::Connection::shutdown()
     }
 
     ICE_METHOD_RET("OpenSSL::Connection::shutdown()");
+}
+
+void
+IceSecurity::Ssl::OpenSSL::Connection::setTrace(const TraceLevelsPtr& traceLevels)
+{
+    _traceLevels = traceLevels;
+}
+
+void
+IceSecurity::Ssl::OpenSSL::Connection::setLogger(const LoggerPtr& traceLevels)
+{
+    _logger = traceLevels;
+}
+
+void
+IceSecurity::Ssl::OpenSSL::Connection::setHandshakeReadTimeout(int timeout)
+{
+    _handshakeReadTimeout = timeout;
+}
+
+IceSecurity::Ssl::OpenSSL::ConnectionPtr
+IceSecurity::Ssl::OpenSSL::Connection::getConnection(SSL* sslPtr)
+{
+    IceUtil::Mutex::Lock sync(_connectionRepositoryMutex);
+
+    assert(sslPtr);
+
+    Connection* connection = _connectionMap[sslPtr];
+
+    assert(connection);
+
+    return ConnectionPtr(connection);
+}
+
+int
+IceSecurity::Ssl::OpenSSL::Connection::verifyCertificate(int preVerifyOkay, X509_STORE_CTX* x509StoreContext)
+{
+    // Get the verifier, make sure it is for OpenSSL connections
+    IceSecurity::Ssl::OpenSSL::CertificateVerifier* verifier;
+    verifier = dynamic_cast<IceSecurity::Ssl::OpenSSL::CertificateVerifier*>(_certificateVerifier.get());
+
+    // Check to make sure we have a proper verifier for the operation.
+    if (!verifier)
+    {
+        // TODO: Throw exception here
+        // throw SslIncorrectVerifierTypeException(__FILE__, __LINE__);
+        return 0;
+    }
+
+    // Use the verifier to verify the certificate
+    preVerifyOkay = verifier->verify(preVerifyOkay, x509StoreContext, _sslConnection);
+
+    // Only if ICE_PROTOCOL level logging is on do we worry about this.
+    if (ICE_SECURITY_LEVEL_PROTOCOL)
+    {
+        char buf[256];
+
+        X509* err_cert = X509_STORE_CTX_get_current_cert(x509StoreContext);
+        int verifyError = X509_STORE_CTX_get_error(x509StoreContext);
+        int depth = X509_STORE_CTX_get_error_depth(x509StoreContext);
+
+        X509_NAME_oneline(X509_get_subject_name(err_cert), buf, sizeof(buf));
+
+        ostringstream outStringStream;
+
+        outStringStream << "depth = " << depth << ":" << buf << endl;
+
+        if (!preVerifyOkay)
+        {
+            outStringStream << "verify error: num = " << verifyError << " : " 
+			    << X509_verify_cert_error_string(verifyError) << endl;
+
+        }
+
+        switch (verifyError)
+        {
+            case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
+            {
+                X509_NAME_oneline(X509_get_issuer_name(err_cert), buf, sizeof(buf));
+                outStringStream << "issuer = " << buf << endl;
+                break;
+            }
+
+            case X509_V_ERR_CERT_NOT_YET_VALID:
+            case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
+            {
+                outStringStream << "notBefore = " << getASN1time(X509_get_notBefore(err_cert)) << endl;
+                break;
+            }
+
+            case X509_V_ERR_CERT_HAS_EXPIRED:
+            case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
+            {
+                outStringStream << "notAfter = " << getASN1time(X509_get_notAfter(err_cert)) << endl;
+                break;
+            }
+        }
+
+        outStringStream << "verify return = " << preVerifyOkay << endl;
+
+        ICE_PROTOCOL(outStringStream.str());
+    }
+
+    return preVerifyOkay;
 }
 
 //
@@ -708,6 +830,22 @@ IceSecurity::Ssl::OpenSSL::Connection::sslGetErrors()
     ICE_METHOD_RET("OpenSSL::Connection::sslGetErrors()");
 
     return errorMessage;
+}
+
+void
+IceSecurity::Ssl::OpenSSL::Connection::addConnection(SSL* sslPtr, Connection* connection)
+{
+    assert(sslPtr);
+    assert(connection);
+    _connectionMap[sslPtr] = connection;
+}
+
+void
+IceSecurity::Ssl::OpenSSL::Connection::removeConnection(SSL* sslPtr)
+{
+    IceUtil::Mutex::Lock sync(_connectionRepositoryMutex);
+    assert(sslPtr);
+    _connectionMap.erase(sslPtr);
 }
 
 void
