@@ -45,7 +45,7 @@ public:
     ::Ice::Object_prx _timeout(int) const;
 
     ::__Ice::Reference_ptr __reference() const;
-    void __copyTo(Object*) const;
+    void __copyTo(::__IceProxy::Ice::Object*) const;
 
 protected:
 

@@ -32,6 +32,8 @@ public:
     
     typedef T element_type;
     
+//    Handle() : ptr_(0) { }
+    
     Handle(T* p = 0)
 	: ptr_(p)
     {
@@ -39,7 +41,20 @@ public:
 	    incRef(ptr_);
     }
     
+    template<typename Y>
+    Handle(const Handle<Y>& r)
+	: ptr_(r.ptr_)
+    {
+	if(ptr_)
+	    incRef(ptr_);
+    }
+
+#ifdef WIN32 // COMPILERBUG: Is VC++ or GNU C++ right here???
+    template<>
+    Handle(const Handle<T>& r)
+#else
     Handle(const Handle& r)
+#endif
 	: ptr_(r.ptr_)
     {
 	if(ptr_)
@@ -56,74 +71,80 @@ public:
     {
 	if(ptr_ != p)
 	{
+	    if(p)
+		incRef(p);
+
 	    if(ptr_)
 		decRef(ptr_);
 	    
 	    ptr_ = p;
-	    
-	    if(ptr_)
-		incRef(ptr_);
 	}
 	return *this;
     }
         
-    Handle& operator=(const Handle& r)
-    {
-	if(ptr_ != r.ptr_)
-	{
-	    if(ptr_)
-		decRef(ptr_);
-	    
-	    ptr_ = r.ptr_;
-	    
-	    if(ptr_)
-		incRef(ptr_);
-	}
-	return *this;
-    }
-        
-//
-// Some compilers (like Visual C++ 6.0) do not support member
-// templates :-( I therefore don't use them, otherwise Ice code could
-// be non-portable.
-//
-/*
-    template<typename Y>
-    Handle(const Handle<Y>& r)
-	: ptr_(r.ptr_)
-    {
-	if(ptr_)
-	    incRef(ptr_);
-    }
-
     template<typename Y>
     Handle& operator=(const Handle<Y>& r)
     {
 	if(ptr_ != r.ptr_)
 	{
+	    if(r.ptr_)
+		incRef(r.ptr_);
+
 	    if(ptr_)
 		decRef(ptr_);
 	    
 	    ptr_ = r.ptr_;
-	    
-	    if(ptr_)
-		incRef(ptr_);
 	}
 	return *this;
     }
 
-    template<typename Y> friend class Handle;
-*/
+#ifdef WIN32 // COMPILERBUG: Is VC++ or GNU C++ right here???
+    template<>
+    Handle& operator=(const Handle<T>& r)
+#else
+    Handle& operator=(const Handle& r)
+#endif
+    {
+	if(ptr_ != r.ptr_)
+	{
+	    if(r.ptr_)
+		incRef(r.ptr_);
+
+	    if(ptr_)
+		decRef(ptr_);
+	    
+	    ptr_ = r.ptr_;
+	}
+	return *this;
+    }
+        
+    template<class Y>
+    static Handle dynamicCast(const Handle<Y>& r)
+    {
+	return Handle(dynamic_cast<T*>(r.ptr_));
+    }
+
+    template<class Y>
+    static Handle dynamicCast(Y* p)
+    {
+	return Handle(dynamic_cast<T*>(p));
+    }
 
     T* get() const { return ptr_; }
 
     T& operator*() const { return *ptr_; }
     T* operator->() const { return ptr_; }
-    operator T*() const { return ptr_; }
+    operator bool() const { return ptr_ ? true : false; }
 
-    void swap(Handle<T>& other) { std::swap(ptr_, other.ptr_); }
+    void swap(Handle& other) { std::swap(ptr_, other.ptr_); }
+
+#ifndef WIN32 // COMPILERBUG: VC++ 6.0 doesn't understand this
+ 
+    template<typename Y> friend class Handle;
 
 protected:
+
+#endif
 
     T* ptr_;
 };

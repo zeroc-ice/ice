@@ -11,7 +11,7 @@
 #ifndef ICE_PROXY_F_H
 #define ICE_PROXY_F_H
 
-#include <Ice/Handle.h>
+#include <Ice/ProxyHandle.h>
 
 namespace __IceProxy { namespace Ice { class Object; } }
 namespace __IceDelegate { namespace Ice { class Object; } }
@@ -29,12 +29,17 @@ void ICE_API decRef(::__IceDelegate::Ice::Object*);
 void ICE_API incRef(::__IceDelegateM::Ice::Object*);
 void ICE_API decRef(::__IceDelegateM::Ice::Object*);
 
+void ICE_API checkedCast(::__IceProxy::Ice::Object*,
+			 ::__IceProxy::Ice::Object*&);
+void ICE_API uncheckedCast(::__IceProxy::Ice::Object*,
+			   ::__IceProxy::Ice::Object*&);
+
 }
 
 namespace Ice
 {
 
-typedef __Ice::Handle< ::__IceProxy::Ice::Object> Object_prx;
+typedef __Ice::ProxyHandle< ::__IceProxy::Ice::Object> Object_prx;
 
 }
 

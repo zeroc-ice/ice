@@ -59,5 +59,13 @@ MTL=midl.exe
 
 # Name "ice - Win32 Release"
 # Name "ice - Win32 Debug"
+# Begin Source File
+
+SOURCE=.\src\library\Endpoint.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\Ice\Handle.h
+# End Source File
 # End Target
 # End Project
