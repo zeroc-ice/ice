@@ -184,7 +184,7 @@ relative path, but not an absolute one.)
 
 The instructions for running the demos assume that you have configured
 your kernel to automatically execute the Mono interpreter. To do this,
-run the following commands as root (replace /opt/mono/bin/mono with
+run the following commands as root (replace /usr/bin/mono with
 the location of your mono interpreter):
 
     if [ ! -e /proc/sys/fs/binfmt_misc/register ]; then
