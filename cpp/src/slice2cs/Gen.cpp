@@ -415,36 +415,36 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp << nl << "#region IComparable members";
 
-    _out << sp << nl << "public int CompareTo(object other)";
+    _out << sp << nl << "public int CompareTo(object __other)";
     _out << sb;
-    _out << nl << "if(other == null)";
+    _out << nl << "if(__other == null)";
     _out << sb;
     _out << nl << "return 1;";
     _out << eb;
-    _out << nl << "if(object.ReferenceEquals(this, other))";
+    _out << nl << "if(object.ReferenceEquals(this, __other))";
     _out << sb;
     _out << nl << "return 0;";
     _out << eb;
-    _out << nl << "if(!(other is " << name << "))";
+    _out << nl << "if(!(__other is " << name << "))";
     _out << sb;
     _out << nl << "throw new System.ArgumentException(\"CompareTo: expected argument of type `" << name
-         << "'\", \"other\");";
+         << "'\", \"__other\");";
     _out << eb;
-    _out << nl << "int limit = System.Math.Min(this.Count, ((" << name << ")other).Count);";
-    _out << nl << "for(int i = 0; i < limit; ++i)";
+    _out << nl << "int __limit = System.Math.Min(this.Count, ((" << name << ")__other).Count);";
+    _out << nl << "for(int __i = 0; __i < __limit; ++__i)";
     _out << sb;
-    _out << nl << "if((object)this[i] == null && (object)((" << name << ")other)[i] != null)";
+    _out << nl << "if((object)this[__i] == null && (object)((" << name << ")__other)[__i] != null)";
     _out << sb;
     _out << nl << "return -1;";
     _out << eb;
-    _out << nl << "int __ret = this[i].CompareTo(((" << name << ")other)[i]);";
+    _out << nl << "int __ret = this[__i].CompareTo(((" << name << ")__other)[__i]);";
     _out << nl << "if(__ret != 0)";
     _out << sb;
     _out << nl << "return __ret;";
     _out << eb;
     _out << eb;
-    _out << nl << "return this.Count < ((" << name << ")other).Count ? -1 : ((this.Count > (("
-         << name << ")other).Count) ? 1 : 0);";
+    _out << nl << "return this.Count < ((" << name << ")__other).Count ? -1 : ((this.Count > (("
+         << name << ")__other).Count) ? 1 : 0);";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // IComparable members
@@ -875,55 +875,55 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     _out << sp << nl << "#region IComparable members";
 
-    _out << sp << nl << "public int CompareTo(object other)";
+    _out << sp << nl << "public int CompareTo(object __other)";
     _out << sb;
-    _out << nl << "if(other == null)";
+    _out << nl << "if(__other == null)";
     _out << sb;
     _out << nl << "return 1;";
     _out << eb;
-    _out << nl << "if(object.ReferenceEquals(this, other))";
+    _out << nl << "if(object.ReferenceEquals(this, __other))";
     _out << sb;
     _out << nl << "return 0;";
     _out << eb;
-    _out << nl << "if(!(other is " << name << "))";
+    _out << nl << "if(!(__other is " << name << "))";
     _out << sb;
     _out << nl << "throw new System.ArgumentException(\"CompareTo: expected argument of type `" << name
-         << "'\", \"other\");";
+         << "'\", \"__other\");";
     _out << eb;
-    _out << nl << ks << "[] k__lhs = new " << ks << "[Count];";
-    _out << nl << "Keys.CopyTo(k__lhs, 0);";
-    _out << nl << "System.Array.Sort(k__lhs);";
-    _out << nl << ks << "[] k__rhs = new " << ks << "[((" << name << ")other).Count];";
-    _out << nl << "((" << name << ")other).Keys.CopyTo(k__rhs, 0);";
-    _out << nl << "System.Array.Sort(k__rhs);";
-    _out << nl << "int limit = System.Math.Min(k__lhs.Length, k__rhs.Length);";
-    _out << nl << "for(int i = 0; i < limit; ++i)";
+    _out << nl << ks << "[] __klhs = new " << ks << "[Count];";
+    _out << nl << "Keys.CopyTo(__klhs, 0);";
+    _out << nl << "System.Array.Sort(__klhs);";
+    _out << nl << ks << "[] __krhs = new " << ks << "[((" << name << ")__other).Count];";
+    _out << nl << "((" << name << ")__other).Keys.CopyTo(__krhs, 0);";
+    _out << nl << "System.Array.Sort(__krhs);";
+    _out << nl << "int __limit = System.Math.Min(__klhs.Length, __krhs.Length);";
+    _out << nl << "for(int i = 0; i < __limit; ++i)";
     _out << sb;
-    _out << nl << "int ret = k__lhs[i].CompareTo(k__rhs[i]);";
+    _out << nl << "int ret = __klhs[i].CompareTo(__krhs[i]);";
     _out << nl << "if(ret != 0)";
     _out << sb;
     _out << nl << "return ret;";
     _out << eb;
     _out << eb;
-    _out << nl << vs << "[] v__lhs = new " << vs << "[Count];";
-    _out << nl << "Values.CopyTo(v__lhs, 0);";
-    _out << nl << "System.Array.Sort(v__lhs);";
-    _out << nl << vs << "[] v__rhs = new " << vs << "[((" << name << ")other).Count];";
-    _out << nl << "((" << name << ")other).Values.CopyTo(v__rhs, 0);";
-    _out << nl << "System.Array.Sort(v__rhs);";
-    _out << nl << "for(int i = 0; i < limit; ++i)";
+    _out << nl << vs << "[] __vlhs = new " << vs << "[Count];";
+    _out << nl << "Values.CopyTo(__vlhs, 0);";
+    _out << nl << "System.Array.Sort(__vlhs);";
+    _out << nl << vs << "[] __vrhs = new " << vs << "[((" << name << ")__other).Count];";
+    _out << nl << "((" << name << ")__other).Values.CopyTo(__vrhs, 0);";
+    _out << nl << "System.Array.Sort(__vrhs);";
+    _out << nl << "for(int i = 0; i < __limit; ++i)";
     _out << sb;
-    _out << nl << "if((object)v__lhs[i] == null && v__rhs[i] != null)";
+    _out << nl << "if((object)__vlhs[i] == null && (object)__vrhs[i] != null)";
     _out << sb;
     _out << nl << "return -1;";
     _out << eb;
-    _out << nl << "int ret = v__lhs[i].CompareTo(v__rhs[i]);";
+    _out << nl << "int ret = __vlhs[i].CompareTo(__vrhs[i]);";
     _out << nl << "if(ret != 0)";
     _out << sb;
     _out << nl << "return ret;";
     _out << eb;
     _out << eb;
-    _out << nl << "return k__lhs.Length < k__rhs.Length ? -1 : (k__lhs.Length > k__rhs.Length ? 1 : 0);";
+    _out << nl << "return __klhs.Length < __krhs.Length ? -1 : (__klhs.Length > __krhs.Length ? 1 : 0);";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // IComparable members
