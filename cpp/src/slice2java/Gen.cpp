@@ -1084,7 +1084,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // ice_copyStateFrom
     //
-    if(_clone && !p->isInterface() && p->hasDataMembers())
+    if(!p->isInterface() && p->hasDataMembers())
     {
         out << sp << nl << "protected void"
             << nl << "ice_copyStateFrom(Ice.Object __obj)";
@@ -1092,18 +1092,25 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "throws java.lang.CloneNotSupportedException";
         out.dec();
         out << sb;
-        out << nl << "super.ice_copyStateFrom(__obj);";
-        out << nl << name << " __v = (" << name << ")__obj;";
-
-        //
-        // Perform a shallow copy.
-        //
-        DataMemberList members = p->dataMembers();
-        DataMemberList::const_iterator d;
-        for(d = members.begin(); d != members.end(); ++d)
+        if(_clone)
         {
-            string memberName = fixKwd((*d)->name());
-            out << nl << "this." << memberName << " = __v." << memberName << ';';
+            out << nl << "super.ice_copyStateFrom(__obj);";
+            out << nl << name << " __v = (" << name << ")__obj;";
+
+            //
+            // Perform a shallow copy.
+            //
+            DataMemberList members = p->dataMembers();
+            DataMemberList::const_iterator d;
+            for(d = members.begin(); d != members.end(); ++d)
+            {
+                string memberName = fixKwd((*d)->name());
+                out << nl << "this." << memberName << " = __v." << memberName << ';';
+            }
+        }
+        else
+        {
+            out << nl << "throw new java.lang.CloneNotSupportedException();";
         }
 
         out << eb;
@@ -3294,6 +3301,18 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "public abstract class _" << name
         << "Disp extends Ice.Object implements " << name;
     out << sb;
+
+    //
+    // ice_copyStateFrom
+    //
+    out << sp << nl << "protected void"
+        << nl << "ice_copyStateFrom(Ice.Object __obj)";
+    out.inc();
+    out << nl << "throws java.lang.CloneNotSupportedException";
+    out.dec();
+    out << sb;
+    out << nl << "throw new java.lang.CloneNotSupportedException();";
+    out << eb;
 
     writeDispatch(out, p);
 

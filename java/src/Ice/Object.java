@@ -58,8 +58,8 @@ public class Object
         return result;
     }
 
-    protected void
-    ice_copyStateFrom(Object obj)
+    protected final void
+    ice_cloneFacets(Object obj)
         throws java.lang.CloneNotSupportedException
     {
         //
@@ -78,6 +78,13 @@ public class Object
                 }
             }
         }
+    }
+
+    protected void
+    ice_copyStateFrom(Object obj)
+        throws java.lang.CloneNotSupportedException
+    {
+        ice_cloneFacets(obj);
     }
 
     public int
