@@ -13,7 +13,7 @@ public class Server
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("HelloAdapter");
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Hello");
         Ice.Object object = new HelloI(communicator);
         adapter.add(object, Ice.Util.stringToIdentity("hello"));
         adapter.activate();

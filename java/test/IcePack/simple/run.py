@@ -46,10 +46,9 @@ if os.path.exists(os.path.join(testdir, "db/registry")):
 icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(ice_home, "12346", testdir)
 
 #
-# Test client/server, collocated w/o automatic activation.
+# Test client/server w/o automatic activation.
 #
 TestUtil.mixedClientServerTestWithOptions(toplevel, name, additionalOptions, additionalOptions)
-TestUtil.collocatedTestWithOptions(toplevel, name, additionalOptions)
 
 #
 # Shutdown the registry.

@@ -18,9 +18,6 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 	_server = server;
         _logger = _server.communicator().getLogger();
         _argv = args;
-
-        Ice.Properties properties = _server.communicator().getProperties();
-        _options = properties.getCommandLineOptions();
     }
 
     public void
@@ -34,28 +31,17 @@ public final class ServiceManagerI extends _ServiceManagerDisp
     {
         try
         {
-	    //
-	    // Prefix the adapter name and object identity with the value
-	    // of the IceBox.Name property.
-	    //
-	    Ice.Properties properties = _server.communicator().getProperties();
-	    String namePrefix = properties.getProperty("IceBox.Name");
-	    if(namePrefix.length() > 0)
-	    {
-		namePrefix += ".";
-	    }
-
             //
             // Create an object adapter. Services probably should NOT share
             // this object adapter, as the endpoint(s) for this object adapter
             // will most likely need to be firewalled for security reasons.
             //
             Ice.ObjectAdapter adapter =
-                _server.communicator().createObjectAdapterFromProperty(namePrefix + "ServiceManagerAdapter",
-                                                              "IceBox.ServiceManager.Endpoints");
+                _server.communicator().createObjectAdapter("IceBox.ServiceManager");
 
-	    String identity = properties.getPropertyWithDefault("IceBox.ServiceManager.Identity", 
-								namePrefix + "ServiceManager");
+	    Ice.Properties properties = _server.communicator().getProperties();
+
+	    String identity = properties.getPropertyWithDefault("IceBox.ServiceManager.Identity", "ServiceManager");
             adapter.add(this, Ice.Util.stringToIdentity(identity));
 
             //
@@ -173,26 +159,14 @@ public final class ServiceManagerI extends _ServiceManagerDisp
     start(String service, String className, String[] args)
         throws FailureException
     {
-        //
-        // We need to create a property set to pass to start()
-        // The property set is populated from a number of sources.
-        // The precedence order (from lowest to highest) is:
-        //
-        // 1. Properties defined in the server property set (e.g.,
-        //    that were defined in the server's configuration file)
-        // 2. Service arguments
-        // 3. Server arguments
-        //
-        // We'll compose an array of arguments in the above order.
-        //
+	//
+	// Create the service property set from the service arguments
+	// and the server arguments. The service property set will be
+	// use to create a new communicator or we be added to the
+	// shared communicator depending on the value of the
+	// IceBox.UseSharedCommunicator property.
+	//
         java.util.ArrayList l = new java.util.ArrayList();
-        for(int j = 0; j < _options.length; j++)
-        {
-            if(_options[j].startsWith("--" + service + "."))
-            {
-                l.add(_options[j]);
-            }
-        }
         for(int j = 0; j < args.length; j++)
         {
             l.add(args[j]);
@@ -205,15 +179,8 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             }
         }
 
-        //
-        // Create the service property set.
-        //
-        Ice.StringSeqHolder serviceArgs = new Ice.StringSeqHolder();
-        serviceArgs.value = new String[l.size()];
-        l.toArray(serviceArgs.value);
-        Ice.Properties serviceProperties = Ice.Util.createProperties(serviceArgs);
-        serviceArgs.value = serviceProperties.parseCommandLineOptions("Ice", serviceArgs.value);
-        serviceArgs.value = serviceProperties.parseCommandLineOptions(service, serviceArgs.value);
+	String[] serviceArgs = new String[l.size()];
+        l.toArray(serviceArgs);
 
         //
         // Instantiate the class.
@@ -261,14 +228,45 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         //
         try
         {
+	    //
+	    // If Ice.UseSharedCommunicator.<name> is defined create a
+	    // communicator for the service. The communicator inherits
+	    // from the shared communicator properties. If it's not
+	    // defined, add the service properties to the shared
+	    // commnunicator property set.
+	    //
+	    Ice.Properties properties = _server.communicator().getProperties();
+	    if(properties.getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
+	    {
+		Ice.Properties fileProperties = Ice.Util.createProperties(serviceArgs);
+		properties.parseCommandLineOptions("", fileProperties.getCommandLineOptions());
+
+		serviceArgs = properties.parseCommandLineOptions("Ice", serviceArgs);
+		serviceArgs = properties.parseCommandLineOptions(service, serviceArgs);
+	    }
+	    else
+	    {
+		Ice.Properties serviceProperties = properties._clone();
+
+		Ice.Properties fileProperties = Ice.Util.createProperties(serviceArgs);
+		serviceProperties.parseCommandLineOptions("", fileProperties.getCommandLineOptions());
+
+		serviceArgs = serviceProperties.parseCommandLineOptions("Ice", serviceArgs);
+		serviceArgs = serviceProperties.parseCommandLineOptions(service, serviceArgs);
+
+		info.communicator = Ice.Util.initializeWithProperties(new String[0], serviceProperties);
+	    }
+	
+	    Ice.Communicator communicator = info.communicator != null ? info.communicator : _server.communicator();
+
 	    try
 	    {
 	        //
 		// IceBox::Service
 		//
 	        Service s = (Service)info.service;
-	        info.dbEnvName = null;
-                s.start(service, _server.communicator(), serviceProperties, serviceArgs.value);
+	        info.dbEnv = null;
+                s.start(service, communicator, serviceArgs);
 	    }
 	    catch(ClassCastException e)
 	    {
@@ -280,24 +278,10 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 		//
 	        FreezeService fs = (FreezeService)info.service;
 
-                Ice.Properties properties = _server.communicator().getProperties();
-		String propName = "IceBox.DBEnvName." + service;
-		info.dbEnvName = properties.getProperty(propName);
-
-		DBEnvironmentInfo dbInfo = (DBEnvironmentInfo)_dbEnvs.get(info.dbEnvName);
-		if(dbInfo == null)
-		{
-		    dbInfo = new DBEnvironmentInfo();
-		    dbInfo.dbEnv = Freeze.Util.initialize(_server.communicator(), info.dbEnvName);
-		    dbInfo.openCount = 1;
-		}
-		else
-		{
-		    ++dbInfo.openCount;
-		}
-		_dbEnvs.put(info.dbEnvName, dbInfo);
+		info.dbEnv = Freeze.Util.initialize(communicator, 
+						    properties.getProperty("IceBox.DBEnvName." + service));
 		
-                fs.start(service, _server.communicator(), serviceProperties, serviceArgs.value, dbInfo.dbEnv);
+                fs.start(service, communicator, serviceArgs, info.dbEnv);
 	    }
             _services.put(service, info);
         }
@@ -331,28 +315,25 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         try
         {
             info.service.stop();
-	    try
+
+	    if(info.dbEnv != null)
 	    {
-	        FreezeService fs = (FreezeService)info.service;
-		
-	        DBEnvironmentInfo dbInfo = (DBEnvironmentInfo)_dbEnvs.get(info.dbEnvName);
-		assert(dbInfo != null);
-		if(--dbInfo.openCount == 0)
-		{
-		    dbInfo.dbEnv.close();
-		    _dbEnvs.remove(info.dbEnvName);
-		}
-		else
-		{
-		    _dbEnvs.put(info.dbEnvName, dbInfo);
-		}
-	    }
-	    catch(ClassCastException e)
-	    {
+		info.dbEnv.close();
 	    }
         }
 	catch(Freeze.DBException ex)
 	{
+	    if(info.communicator != null)
+	    {
+		try
+		{
+		    info.communicator.destroy();
+		}
+		catch(Exception e)
+		{
+		}
+	    }
+
             FailureException e = new FailureException();
             e.reason = "ServiceManager: database exception in stop for service " + service + ": " + ex;
             e.initCause(ex);
@@ -360,11 +341,33 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 	}
         catch(Exception ex)
         {
+	    if(info.communicator != null)
+	    {
+		try
+		{
+		    info.communicator.destroy();
+		}
+		catch(Exception e)
+		{
+		}
+	    }
+
             FailureException e = new FailureException();
             e.reason = "ServiceManager: exception in stop for service " + service + ": " + ex;
             e.initCause(ex);
             throw e;
         }
+
+	if(info.communicator != null)
+	{
+	    try
+	    {
+		info.communicator.destroy();
+	    }
+	    catch(Exception ex)
+	    {
+	    }
+	}
     }
 
     private void
@@ -397,19 +400,13 @@ public final class ServiceManagerI extends _ServiceManagerDisp
     class ServiceInfo
     {
         public ServiceBase service;
-	public String dbEnvName;
-    }
-
-    class DBEnvironmentInfo
-    {
+	public Ice.Communicator communicator = null;
         Freeze.DBEnvironment dbEnv;
-        public int openCount;
     }
 
     private Ice.Application _server;
     private Ice.Logger _logger;
     private String[] _argv; // Filtered server argument vector
-    private String[] _options; // Server property set converted to command-line options
     private java.util.HashMap _services = new java.util.HashMap();
     private java.util.HashMap _dbEnvs = new java.util.HashMap();
 }

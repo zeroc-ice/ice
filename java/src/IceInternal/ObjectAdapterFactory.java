@@ -26,7 +26,7 @@ public final class ObjectAdapterFactory
     }
 
     public synchronized Ice.ObjectAdapter
-    createObjectAdapter(String name, String endpts)
+    createObjectAdapter(String name, String endpts, String id)
     {
         Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)_adapters.get(name);
         if(adapter != null)
@@ -34,7 +34,7 @@ public final class ObjectAdapterFactory
             return adapter;
         }
 
-        adapter = new Ice.ObjectAdapterI(_instance, _communicator, name, endpts);
+        adapter = new Ice.ObjectAdapterI(_instance, _communicator, name, endpts, id);
         _adapters.put(name, adapter);
         return adapter;
     }

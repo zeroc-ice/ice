@@ -14,8 +14,8 @@ public class Server
     run(String[] args, Ice.Communicator communicator)
     {
 	Ice.Properties properties = communicator.getProperties();
-	properties.setProperty("Ice.Adapter.TestAdapter.Endpoints", "default -t 2000");
-	properties.setProperty("Ice.Adapter.TestAdapter.Locator", properties.getProperty("Ice.Default.Locator"));
+	properties.setProperty("TestAdapter.Endpoints", "default -t 2000");
+	properties.setProperty("TestAdapter.AdapterId", "TestAdapter");
 
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new TestI(adapter);

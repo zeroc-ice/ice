@@ -40,7 +40,7 @@ class PhoneBookCollocated extends Freeze.Application
 	// Create an Object Adapter, use the Evictor as Servant
 	// Locator.
 	//
-	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("PhoneBookAdapter");
+	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("PhoneBook");
 	adapter.addServantLocator(evictor, "contact");
     
 	//

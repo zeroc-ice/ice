@@ -14,9 +14,8 @@ class CallbackClient extends Ice.Application
     run(String[] args)
     {
         String ref;
-
-        Ice.ObjectAdapter adapter =
-	    communicator().createObjectAdapterWithEndpoints("CallbackReceiverAdapter", "default");
+	communicator().getProperties().setProperty("CallbackReceiverAdapter.Endpoints", "default");
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("CallbackReceiverAdapter");
         adapter.activate();
 	// Put the print statement after activate(), so that if
 	// Ice.PrintAdapterReady is set, the "ready" is the first output

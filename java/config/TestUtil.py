@@ -106,7 +106,7 @@ def killServers():
                 pass # Ignore errors, such as non-existing processes.
 
     serverPids = []
-
+            
 # Only used for C++ programs
 def getServerPid(serverPipe):
 
@@ -133,8 +133,8 @@ def clientServerTestWithOptions(toplevel, name, additionalServerOptions, additio
     testdir = os.path.join(toplevel, "test", name)
     classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + \
 	os.getenv("CLASSPATH", "")
-    server = "java -ea -classpath \"" + classpath + "\" Server "
-    client = "java -ea -classpath \"" + classpath + "\" Client "
+    server = "java -ea -classpath \"" + classpath + "\" Server --Ice.ProgramName=Server "
+    client = "java -ea -classpath \"" + classpath + "\" Client --Ice.ProgramName=Client "
 
     updatedServerOptions = serverOptions.replace("TOPLEVELDIR", toplevel)
     updatedClientOptions = clientOptions.replace("TOPLEVELDIR", toplevel)
@@ -167,8 +167,8 @@ def mixedClientServerTestWithOptions(toplevel, name, additionalServerOptions, ad
     testdir = os.path.join(toplevel, "test", name)
     classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + \
 	 os.getenv("CLASSPATH", "")
-    server = "java -ea -classpath \"" + classpath + "\" Server "
-    client = "java -ea -classpath \"" + classpath + "\" Client "
+    server = "java -ea -classpath \"" + classpath + "\" Server  --Ice.ProgramName=Server "
+    client = "java -ea -classpath \"" + classpath + "\" Client  --Ice.ProgramName=Client "
 
     updatedServerOptions = clientServerOptions.replace("TOPLEVELDIR", toplevel)
     updatedClientOptions = updatedServerOptions
@@ -201,7 +201,7 @@ def collocatedTestWithOptions(toplevel, name, additionalOptions):
     testdir = os.path.join(toplevel, "test", name)
     classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + \
 	 os.getenv("CLASSPATH", "")
-    collocated = "java -ea -classpath \"" + classpath + "\" Collocated "
+    collocated = "java -ea -classpath \"" + classpath + "\" Collocated --Ice.ProgramName=Collocated "
 
     updatedCollocatedOptions = collocatedOptions.replace("TOPLEVELDIR", toplevel)
 

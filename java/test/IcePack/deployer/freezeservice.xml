@@ -1,7 +1,7 @@
 <service kind="freeze" entry="FreezeService">
 
   <adapters>
-    <adapter name="${name}Adapter" endpoints="default">
+    <adapter name="${name}" endpoints="default" id="${name}Adapter">
       <offer interface="::Test" identity="${name}"/>
     </adapter>
   </adapters>

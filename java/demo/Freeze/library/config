@@ -1,8 +1,8 @@
-Ice.Adapter.LibraryAdapter.Endpoints=default -p 10000
+Library.Endpoints=default -p 10000
 Ice.ConnectionWarnings=1
 #Ice.Trace.Network=3
 #Ice.Trace.Protocol=1
-Library.Library=library:default -p 10000
+Library.Proxy=library:default -p 10000
 Library.EvictorSize=3
 #Library.SaveAfterMutatingOperation=1
 Freeze.Trace.DB=1

@@ -29,7 +29,7 @@ public class Server
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("HelloSessionManagerAdapter");
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("HelloSessionManager");
 
         //
         // Create the SessionManager.

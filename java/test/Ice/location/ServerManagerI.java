@@ -29,7 +29,9 @@ public class ServerManagerI extends _ServerManagerDisp
 	// the adapter id instead of the endpoints.
 	//
 	_serverCommunicator = Ice.Util.initialize(argv);
-	Ice.ObjectAdapter adapter = _serverCommunicator.createObjectAdapterWithEndpoints("TestAdapter", "default");
+	_serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints", "default");
+	_serverCommunicator.getProperties().setProperty("TestAdapter.AdapterId", "TestAdapter");
+	Ice.ObjectAdapter adapter = _serverCommunicator.createObjectAdapter("TestAdapter");
 
 	Ice.ObjectPrx locator = _serverCommunicator.stringToProxy("locator:default -p 12345");
 	adapter.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));

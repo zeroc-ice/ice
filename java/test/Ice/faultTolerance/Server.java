@@ -55,8 +55,8 @@ public class Server
             return 1;
         }
 
-        String endpts = "default -p " + port;
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("TestAdapter", endpts);
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p " + port);
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new TestI(adapter);
         adapter.add(object, Ice.Util.stringToIdentity("test"));
         adapter.activate();

@@ -13,7 +13,7 @@ public class Server
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("LatencyAdapter");
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Latency");
         Ice.Object object = new Ping();
         adapter.add(object, Ice.Util.stringToIdentity("ping"));
         adapter.activate();

@@ -3,7 +3,7 @@
   <classname>Server</classname>
 
   <adapters>
-    <adapter name="TestAdapter"/>
+    <adapter name="TestAdapter" id="TestAdapter" endpoints="default"/>
   </adapters>
 
 </server>

@@ -63,7 +63,7 @@ class RunParser
 	}
 
 	Ice.Properties properties = communicator.getProperties();
-	String refProperty = "Library.Library";
+	String refProperty = "Library.Proxy";
 	String ref = properties.getProperty(refProperty);
 	if(ref.length() == 0)
 	{

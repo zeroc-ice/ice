@@ -32,19 +32,19 @@ public class Client
     run(String[] args, Ice.Communicator communicator)
     {
         Ice.Properties properties = communicator.getProperties();
-        final String refProperty = "Hello.Hello";
-        String ref = properties.getProperty(refProperty);
-        if(ref.length() == 0)
+        final String proxyProperty = "Hello.Proxy";
+        String proxy = properties.getProperty(proxyProperty);
+        if(proxy.length() == 0)
         {
-            System.err.println("property `" + refProperty + "' not set");
+            System.err.println("property `" + proxyProperty + "' not set");
             return 1;
         }
 
-        Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        Ice.ObjectPrx base = communicator.stringToProxy(proxy);
         HelloPrx twoway = HelloPrxHelper.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(false));
         if(twoway == null)
         {
-            System.err.println("invalid object reference");
+            System.err.println("invalid proxy");
             return 1;
         }
         HelloPrx oneway = HelloPrxHelper.uncheckedCast(twoway.ice_oneway());

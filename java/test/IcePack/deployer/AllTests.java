@@ -49,7 +49,7 @@ public class AllTests
     allCommonTests(Ice.Communicator communicator)
     {
 	IcePack.AdminPrx admin = IcePack.AdminPrxHelper.checkedCast(
-	    communicator.stringToProxy("IcePack/Admin@IcePackAdminAdapter"));
+	    communicator.stringToProxy("IcePack/Admin@IcePack.Registry.Admin"));
 	test(admin != null);
 	
 	System.out.print("test server registration...");
@@ -73,7 +73,7 @@ public class AllTests
 	System.out.println("ok");
 
 	Yellow.QueryPrx yellow = Yellow.QueryPrxHelper.checkedCast(
-	    communicator.stringToProxy("Yellow/Query@YellowQueryAdapter"));
+	    communicator.stringToProxy("Yellow/Query@Yellow.Query"));
 	test(yellow != null);
 
 	System.out.print("testing offer registration... ");
@@ -156,7 +156,7 @@ public class AllTests
 	allCommonTests(communicator);
 
 	IcePack.AdminPrx admin = IcePack.AdminPrxHelper.checkedCast(
-	    communicator.stringToProxy("IcePack/Admin@IcePackAdminAdapter"));
+	    communicator.stringToProxy("IcePack/Admin@IcePack.Registry.Admin"));
 	test(admin != null);
 
 	System.out.print("pinging server objects... ");

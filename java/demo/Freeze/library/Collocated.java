@@ -40,7 +40,7 @@ class LibraryCollocated extends Freeze.Application
 	// Create an Object Adapter, use the Evictor as Servant
 	// Locator.
 	//
-	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("LibraryAdapter");
+	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Library");
 	adapter.addServantLocator(evictor, "book");
     
 	//

@@ -39,7 +39,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 
 	if(!_printAdapterReadyDone)
 	{
-	    if(_locatorInfo != null)
+	    if(_locatorInfo != null && _id.length() > 0)
 	    {
 		Identity ident = new Identity();
 		ident.category = "";
@@ -53,7 +53,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 		//
 		try
 		{
-		    _locatorInfo.getLocatorRegistry().setAdapterDirectProxy(_name, newDirectProxy(ident));
+		    _locatorInfo.getLocatorRegistry().setAdapterDirectProxy(_id, newDirectProxy(ident));
 		}
 		catch(Ice.AdapterNotRegistered ex)
 		{
@@ -351,11 +351,6 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
             // callbacks.
             //      
             _instance.outgoingConnectionFactory().setRouter(routerInfo.getRouter());
-
-	    //
-	    // Creates proxies with endpoints instead of the adapter name.
-	    //
-	    _useEndpointsInProxy = true;
         }
     }
 
@@ -368,20 +363,6 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	}
 
 	_locatorInfo = _instance.locatorManager().get(locator);
-	if(_locatorInfo != null)
-	{	
-	    //
-	    // If a locator is set, we create proxies with adapter names in
-	    // the reference instead of endpoints. If it's not set, we create
-	    // proxies with endpoints if there's at least one incoming
-	    // connection factory or router endpoints.
-	    //
-	    _useEndpointsInProxy = false;
-	}
-	else
-	{
-	    _useEndpointsInProxy = _incomingConnectionFactories.size() > 0 || _routerEndpoints.size() > 0;
-	}
     }
 
     public IceInternal.Connection[]
@@ -412,12 +393,13 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     // Only for use by IceInternal.ObjectAdapterFactory
     //
     public
-    ObjectAdapterI(IceInternal.Instance instance, Communicator communicator, String name, String endpts)
+    ObjectAdapterI(IceInternal.Instance instance, Communicator communicator, String name, String endpts, String id)
     {
         _instance = instance;
 	_communicator = communicator;
 	_printAdapterReadyDone = false;
         _name = name;
+	_id = id;
 	
 	String s = endpts.toLowerCase();
 
@@ -463,14 +445,6 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
             throw ex;
         }
 
-	//
-	// Create proxies with the adapter endpoints only if there's
-	// incoming connection factories. If there's no incoming
-	// connection factories we will create proxies with the adapter
-	// name in the reference (to allow collocation to work).
-	//
-	_useEndpointsInProxy = _incomingConnectionFactories.size() > 0;
-
 //
 // Object Adapters without incoming connection factories are
 // permissible, as such Object Adapters can still be used with a
@@ -499,7 +473,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     private ObjectPrx
     newProxy(Identity ident)
     {
-	if(_useEndpointsInProxy)
+	if(_id.length() == 0)
 	{
 	    return newDirectProxy(ident);
 	}
@@ -512,7 +486,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	    IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
 	    IceInternal.Reference reference = _instance.referenceFactory().create(ident, new String[0],
 										  IceInternal.Reference.ModeTwoway,
-										  false, false, _name, 
+										  false, false, _id, 
 										  endpoints, null, null, null);
 	    return _instance.proxyFactory().referenceToProxy(reference);
 	}
@@ -569,7 +543,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	    // Proxy is local if the reference adapter id matches this
 	    // adapter name.
 	    //
-	    return ref.adapterId.equals(_name);
+	    return ref.adapterId.equals(_id);
 	}
 
         //
@@ -622,7 +596,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     private Communicator _communicator;
     private boolean _printAdapterReadyDone;
     private String _name;
-    private boolean _useEndpointsInProxy;
+    private String _id;
     private java.util.HashMap _activeServantMap = new java.util.HashMap();
     private java.util.HashMap _locatorMap = new java.util.HashMap();
     private java.util.ArrayList _incomingConnectionFactories = new java.util.ArrayList();

@@ -1,5 +1,5 @@
 Latency.Ping=ping:default -p 10000
-Ice.Adapter.LatencyAdapter.Endpoints=default -p 10000
+Latency.Endpoints=default -p 10000
 
 Glacier.Router.Endpoints=default -p 10005
 Glacier.Client.Endpoints=default

@@ -18,9 +18,7 @@ final class HelloSessionManagerI extends Glacier._SessionManagerDisp
     public Glacier.SessionPrx
     create(String userId, Ice.Current current)
     {
-        // TODO: Fix this when interfaces extend Ice.Object
-        //Glacier.Session session = new HelloSessionI(userId, this);
-        HelloSessionI session = new HelloSessionI(userId, this);
+        Glacier.Session session = new HelloSessionI(userId, this);
         Ice.Identity ident = new Ice.Identity();
         ident.category = userId;
         ident.name = "session";

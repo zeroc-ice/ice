@@ -16,7 +16,7 @@ public class Server extends Ice.Application
 	Ice.Properties properties = communicator().getProperties();
 	String name = properties.getProperty("Ice.ProgramName");
 
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter(name + "Adapter");
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter(name);
         Ice.Object object = new TestI(adapter, properties);
         adapter.add(object, Ice.Util.stringToIdentity(name));
         adapter.activate();

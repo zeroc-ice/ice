@@ -40,7 +40,7 @@ class PhoneBookServer extends Freeze.Application
 	// Create an Object Adapter, use the Evictor as Servant
 	// Locator.
 	//
-	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("PhoneBookAdapter");
+	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("PhoneBook");
 	adapter.addServantLocator(evictor, "contact");
     
 	//
@@ -62,14 +62,9 @@ class PhoneBookServer extends Freeze.Application
 	//
 	adapter.activate();
 
-	//
-	// TODO:
-	//
-	//shutdownOnInterrupt();
-
+	shutdownOnInterrupt();
 	communicator().waitForShutdown();
-
-	//ignoreInterrupt();
+	ignoreInterrupt();
 
 	return 0;
     }

@@ -32,19 +32,19 @@ class CallbackClient extends Ice.Application
     run(String[] args)
     {
         Ice.Properties properties = communicator().getProperties();
-        final String refProperty = "Callback.Callback";
-        String ref = properties.getProperty(refProperty);
-        if(ref.length() == 0)
+        final String proxyProperty = "Callback.Client.Callback";
+        String proxy = properties.getProperty(proxyProperty);
+        if(proxy.length() == 0)
         {
-            System.err.println("property `" + refProperty + "' not set");
+            System.err.println("property `" + proxyProperty + "' not set");
             return 1;
         }
 
-        Ice.ObjectPrx base = communicator().stringToProxy(ref);
+        Ice.ObjectPrx base = communicator().stringToProxy(proxy);
         CallbackPrx twoway = CallbackPrxHelper.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(false));
         if(twoway == null)
         {
-            System.err.println("invalid object reference");
+            System.err.println("invalid proxy");
             return 1;
         }
         CallbackPrx oneway = CallbackPrxHelper.uncheckedCast(twoway.ice_oneway());
@@ -52,12 +52,12 @@ class CallbackClient extends Ice.Application
         CallbackPrx datagram = CallbackPrxHelper.uncheckedCast(twoway.ice_datagram());
         CallbackPrx batchDatagram = CallbackPrxHelper.uncheckedCast(twoway.ice_batchDatagram());
 
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("CallbackReceiverAdapter");
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Client");
         adapter.add(new CallbackReceiverI(), Ice.Util.stringToIdentity("callbackReceiver"));
         adapter.activate();
 
-        CallbackReceiverPrx twowayR =
-            CallbackReceiverPrxHelper.uncheckedCast(adapter.createProxy(
+        CallbackReceiverPrx twowayR = 
+	    CallbackReceiverPrxHelper.uncheckedCast(adapter.createProxy(
                 Ice.Util.stringToIdentity("callbackReceiver")));
         CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
         //CallbackReceiverPrx batchOnewayR =

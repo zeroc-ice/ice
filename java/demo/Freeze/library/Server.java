@@ -40,7 +40,7 @@ class LibraryServer extends Freeze.Application
 	// Create an Object Adapter, use the Evictor as Servant
 	// Locator.
 	//
-	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("LibraryAdapter");
+	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Library");
 	adapter.addServantLocator(evictor, "book");
     
 	//
@@ -60,14 +60,9 @@ class LibraryServer extends Freeze.Application
 	//
 	adapter.activate();
 
-	//
-	// TODO:
-	//
-	//shutdownOnInterrupt();
-
+	shutdownOnInterrupt();
 	communicator().waitForShutdown();
-
-	//ignoreInterrupt();
+	ignoreInterrupt();
 
 	return 0;
     }

@@ -11,14 +11,13 @@
 public class FreezeService extends Ice.LocalObjectImpl implements IceBox.FreezeService
 {
     public void
-    start(String name, Ice.Communicator communicator, Ice.Properties properties, String[] args, 
-	  Freeze.DBEnvironment dbEnv)
+    start(String name, Ice.Communicator communicator, String[] args, Freeze.DBEnvironment dbEnv)
         throws IceBox.FailureException
     {
 	Freeze.DB db = dbEnv.openDB("testdb", true);
 
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter(name + "Adapter");
-        Ice.Object object = new TestI(adapter, properties);
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter(name);
+        Ice.Object object = new TestI(adapter, communicator.getProperties());
         adapter.add(object, Ice.Util.stringToIdentity(name));
         adapter.activate();
     }

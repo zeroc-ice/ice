@@ -79,57 +79,43 @@ class CommunicatorI extends LocalObjectImpl implements Communicator
             throw new CommunicatorDestroyedException();
         }
 
-        ObjectAdapter adapter = createObjectAdapterFromProperty(name, "Ice.Adapter." + name + ".Endpoints");
+	ObjectAdapter adapter;
 
-        String router = _instance.properties().getProperty("Ice.Adapter." + name + ".Router");
-        if(router.length() > 0)
-        {
-            adapter.addRouter(RouterPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(router)));
-        }
-
-	String locator = _instance.properties().getProperty("Ice.Adapter." + name + ".Locator");
-	if(locator.length() > 0)
+	if(name.length() == 0)
 	{
-	    adapter.setLocator(LocatorPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(locator)));
+	    adapter = _instance.objectAdapterFactory().createObjectAdapter("", "", "");
 	}
+	else
+	{
+	    String id = _instance.properties().getProperty(name + ".AdapterId");
 
-        return adapter;
-    }
+	    String endpts = _instance.properties().getProperty(name + ".Endpoints");
 
-    public synchronized ObjectAdapter
-    createObjectAdapterFromProperty(String name, String property)
-    {
-        if(_destroyed)
-        {
-            throw new CommunicatorDestroyedException();
-        }
+	    adapter = _instance.objectAdapterFactory().createObjectAdapter(name, endpts, id);
 
-        String endpts = _instance.properties().getProperty(property);
+	    String router = _instance.properties().getProperty("Ice.Adapter." + name + ".Router");
+	    if(router.length() > 0)
+	    {
+		adapter.addRouter(RouterPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(router)));
+	    }
 
-        return createObjectAdapterWithEndpoints(name, endpts);
-    }
-
-    public synchronized ObjectAdapter
-    createObjectAdapterWithEndpoints(String name, String endpts)
-    {
-        if(_destroyed)
-        {
-            throw new CommunicatorDestroyedException();
-        }
-
-        ObjectAdapter adapter = _instance.objectAdapterFactory().createObjectAdapter(name, endpts);
-
-	//
-	// Set the adapter locator to this communicator default locator.
-	//
-	adapter.setLocator(_instance.referenceFactory().getDefaultLocator());
+	    String locator = _instance.properties().getProperty("Ice.Adapter." + name + ".Locator");
+	    if(locator.length() > 0)
+	    {
+		adapter.setLocator(LocatorPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(locator)));
+	    }
+	    else
+	    {
+		adapter.setLocator(_instance.referenceFactory().getDefaultLocator());
+	    }
+	}
 
 	if(_serverThreadPool == null) // Lazy initialization of _serverThreadPool.
 	{
 	    _serverThreadPool = _instance.serverThreadPool();
 	}
 
-	return adapter;
+        return adapter;
     }
 
     public synchronized void

@@ -35,6 +35,7 @@ def startIcePackRegistry(toplevel, port, testdir):
           r' --IcePack.Registry.Admin.Endpoints=default' + \
           r' --IcePack.Registry.Data=' + dataDir + \
           r' --IcePack.Registry.DynamicRegistration' + \
+          r' --IcePack.Registry.Trace.AdapterRegistry=0' + \
           r' --Ice.ProgramName=icepackregistry'
 
     icePackPipe = os.popen(command)
