@@ -38,6 +38,7 @@ private:
     std::vector<Ice::Byte> _inParams;
     Ice::Current _current;
     bool _forwardContext;
+    std::string _override;
 };
 
 class MissiveQueue;

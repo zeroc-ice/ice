@@ -21,6 +21,11 @@ Glacier::Missive::Missive(const ObjectPrx& proxy, const vector<Byte>& inParams, 
     _current(current),
     _forwardContext(forwardContext)
 {
+    Context::const_iterator p = current.context.find("_ovwt");
+    if (p != current.context.end())
+    {
+	_override = p->second;
+    }
 }
 
 void
@@ -38,9 +43,14 @@ Glacier::Missive::invoke()
 }
 
 bool
-Glacier::Missive::override(const MissivePtr& missive)
+Glacier::Missive::override(const MissivePtr& other)
 {
-    return false;
+    if (_override.empty() || other->_override.empty())
+    {
+	return false;
+    }
+
+    return _override == other->_override;
 }
 
 const ObjectPrx&

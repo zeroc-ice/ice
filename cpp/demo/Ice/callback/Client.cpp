@@ -40,6 +40,7 @@ menu()
 	"D: send callback as batch datagram\n"
 	"f: flush all batch requests\n"
 	"S: switch secure mode on/off\n"
+	"v: set/reset override context field\n"
 	"s: shutdown server\n"
 	"x: exit\n"
 	"?: help\n";
@@ -82,6 +83,7 @@ CallbackClient::run(int argc, char* argv[])
 
     bool secure = false;
     string secureStr = "";
+    string overwrite;
 
     menu();
 
@@ -102,12 +104,20 @@ CallbackClient::run(int argc, char* argv[])
 	    {
 		Context context;
 		context["_fwd"] = "o" + secureStr;
+		if (!overwrite.empty())
+		{
+		    context["_ovwt"] = overwrite;
+		}
 		oneway->initiateCallback(onewayR, context);
 	    }
 	    else if (c == 'O')
 	    {
 		Context context;
 		context["_fwd"] = "O" + secureStr;
+		if (!overwrite.empty())
+		{
+		    context["_ovwt"] = overwrite;
+		}
 		batchOneway->initiateCallback(onewayR, context);
 	    }
 	    else if (c == 'd')
@@ -120,6 +130,10 @@ CallbackClient::run(int argc, char* argv[])
 	    {
 		Context context;
 		context["_fwd"] = "D" + secureStr;
+		if (!overwrite.empty())
+		{
+		    context["_ovwt"] = overwrite;
+		}
 		batchDatagram->initiateCallback(datagramR, context);
 	    }
 	    else if (c == 'f')
@@ -151,6 +165,19 @@ CallbackClient::run(int argc, char* argv[])
 		else
 		{
 		    cout << "secure mode is now off" << endl;
+		}
+	    }
+	    else if (c == 'v')
+	    {
+		if (overwrite.empty())
+                {
+		    overwrite = "some_value";
+		    cout << "overwrite context field is now `" << overwrite << "'" << endl;
+		}
+		else
+		{
+		    overwrite.clear();
+		    cout << "overwrite context field is empty" << endl;
 		}
 	    }
 	    else if (c == 's')

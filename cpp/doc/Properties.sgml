@@ -1065,6 +1065,23 @@ forwarded. Default is no context forwarding.
 </section>
 </section>
 
+<section><title>Glacier.Router.Client.BatchSleepTime, Glacier.Router.Server.BatchSleepTime</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Router.Client.BatchSleepTime=<replaceable>num</replaceable>
+Glacier.Router.Server.BatchSleepTime=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+<replaceable>num</replaceable> is the sleep time (delay) in
+milliseconds between forwarding client and server message batches. The
+default values are 250ms.
+</para>
+</section>
+</section>
+
 <section><title>Glacier.Router.SessionManager</title>
 <section><title>Synopsis</title>
 <synopsis>
