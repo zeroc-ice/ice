@@ -20,7 +20,7 @@ namespace Glacier2
 class Request;
 typedef IceUtil::Handle<Request> RequestPtr;
 
-class Request : public Ice::AMI_Object_ice_invoke
+class Request : public IceUtil::Shared
 {
 public:
 
@@ -30,12 +30,6 @@ public:
     void invoke();
     bool override(const RequestPtr&) const;
     const Ice::ObjectPrx& getProxy() const;
-
-    //
-    // From AMI_Object_ice_invoke.
-    //
-    virtual void ice_response(bool, const std::vector<Ice::Byte>&);
-    virtual void ice_exception(const Ice::Exception&);
 
 private:
 

@@ -59,8 +59,8 @@ Glacier2.Server.ForwardContext=1
 # queued. These requests are then all sent once the sleep period is
 # over. The unit is milliseconds.
 #
-Glacier2.Client.SleepTime=2000
-Glacier2.Server.SleepTime=2000
+Glacier2.Client.SleepTime=500
+Glacier2.Server.SleepTime=500
 
 #
 # Glacier2 always disables active connection management so there is no

@@ -553,14 +553,6 @@ IceInternal::FixedReference::streamWrite(BasicStream* s) const
     throw ex;
 }
 
-string
-IceInternal::FixedReference::toString() const
-{
-    MarshalException ex(__FILE__, __LINE__);
-    ex.reason = "Cannot stringify a fixed reference";
-    throw ex;
-}
-
 ConnectionIPtr
 IceInternal::FixedReference::getConnection(bool& compress) const
 {
@@ -678,18 +670,6 @@ IceInternal::RoutableReference::changeTimeout(int newTimeout) const
 {
     // TODO: Remove this implementation, it doesn't add anything.
     return RoutableReferencePtr(const_cast<RoutableReference*>(this));
-}
-
-void
-IceInternal::RoutableReference::streamWrite(BasicStream* s) const
-{
-    Reference::streamWrite(s);
-}
-
-string
-IceInternal::RoutableReference::toString() const
-{
-    return Reference::toString();
 }
 
 bool
@@ -1011,10 +991,11 @@ IceInternal::IndirectReference::toString() const
     }
 
     result.append(" @ ");
+
     //
-    // If the encoded adapter id string contains characters which
-    // the reference parser uses as separators, then we enclose
-    // the adapter id string in quotes.
+    // If the encoded adapter id string contains characters which the
+    // reference parser uses as separators, then we enclose the
+    // adapter id string in quotes.
     //
     string a = IceUtil::escapeString(adapterId, "");
     if(a.find_first_of(" \t\n\r") != string::npos)

@@ -41,6 +41,12 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _promote(true),
     _warnUdp(_instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0)
 {
+    //
+    // If we are in thread per connection mode, no thread pool should
+    // ever be created.
+    //
+    assert(!_instance->threadPerConnection());
+
     SOCKET fds[2];
     createPipe(fds);
     _fdIntrRead = fds[0];

@@ -857,7 +857,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 	    // accepts new connections on this endpoint.
 	    //
 	    _threadPerIncomingConnectionFactory = new ThreadPerIncomingConnectionFactory(this);
-	    _threadPerIncomingConnectionFactory->start();
+	    _threadPerIncomingConnectionFactory->start(_instance->threadPerConnectionStackSize());
 	}
     }
 }

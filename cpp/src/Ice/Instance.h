@@ -66,6 +66,7 @@ public:
     ThreadPoolPtr clientThreadPool();
     ThreadPoolPtr serverThreadPool();
     bool threadPerConnection() const;
+    size_t threadPerConnectionStackSize() const;
     EndpointFactoryManagerPtr endpointFactoryManager() const;
     DynamicLibraryListPtr dynamicLibraryList() const;
     Ice::PluginManagerPtr pluginManager() const;
@@ -100,6 +101,7 @@ private:
     ThreadPoolPtr _clientThreadPool;
     ThreadPoolPtr _serverThreadPool;
     const bool _threadPerConnection;
+    const size_t _threadPerConnectionStackSize;
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;
     Ice::PluginManagerPtr _pluginManager;

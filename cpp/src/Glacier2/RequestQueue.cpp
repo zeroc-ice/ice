@@ -92,6 +92,7 @@ Glacier2::Request::getProxy() const
 }
 
 Glacier2::RequestQueue::RequestQueue(const IceUtil::Time& sleepTime) :
+    _sleepTime(sleepTime),
     _destroy(false)
 {
 }

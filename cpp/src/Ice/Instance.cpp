@@ -288,6 +288,13 @@ IceInternal::Instance::threadPerConnection() const
     return _threadPerConnection;
 }
 
+size_t
+IceInternal::Instance::threadPerConnectionStackSize() const
+{
+    // No mutex lock, immutable.
+    return _threadPerConnectionStackSize;
+}
+
 EndpointFactoryManagerPtr
 IceInternal::Instance::endpointFactoryManager() const
 {
@@ -368,7 +375,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     _properties(properties),
     _messageSizeMax(0),
     _connectionIdleTime(0),
-    _threadPerConnection(false)
+    _threadPerConnection(false),
+    _threadPerConnectionStackSize(0)
 {
     
     try
@@ -541,6 +549,15 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	}
 
 	const_cast<bool&>(_threadPerConnection) = _properties->getPropertyAsInt("Ice.ThreadPerConnection") > 0;
+
+	{
+	    Int stackSize = _properties->getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
+	    if(stackSize < 0)
+	    {
+		stackSize = 0;
+	    }
+	    const_cast<size_t&>(_threadPerConnectionStackSize) = static_cast<size_t>(stackSize);
+	}
 
 	_routerManager = new RouterManager;
 

@@ -1367,7 +1367,7 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
 	// for this connection.
 	//
 	_threadPerConnection = new ThreadPerConnection(this);
-	_threadPerConnection->start();
+	_threadPerConnection->start(_instance->threadPerConnectionStackSize());
     }
 
     vector<Byte>& requestHdr = const_cast<vector<Byte>&>(_requestHdr);

@@ -204,6 +204,11 @@ Glacier2::RouterService::initializeCommunicator(int& argc, char* argv[])
     PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
     
     //
+    // Glacier2 always runs in thread-per-connection mode.
+    //
+    defaultProperties->setProperty("Ice.ThreadPerConnection", "1");
+    
+    //
     // Make sure that Glacier2 doesn't use a router.
     //
     defaultProperties->setProperty("Ice.Default.Router", "");

@@ -76,12 +76,12 @@ public:
     //
     // Marshal the reference.
     //
-    virtual void streamWrite(BasicStream*) const = 0;
+    virtual void streamWrite(BasicStream*) const;
 
     //
     // Convert the reference to its string form.
     //
-    virtual std::string toString() const = 0;
+    virtual std::string toString() const;
 
     //
     // Get a suitable connection for this reference.
@@ -133,7 +133,6 @@ public:
     virtual std::vector<EndpointPtr> getEndpoints() const;
 
     virtual void streamWrite(BasicStream*) const;
-    virtual std::string toString() const;
     virtual Ice::ConnectionIPtr getConnection(bool&) const;
 
     virtual bool operator==(const Reference&) const;
@@ -164,8 +163,6 @@ public:
     virtual ReferencePtr changeCompress(bool) const;
     virtual ReferencePtr changeTimeout(int) const;
 
-    virtual void streamWrite(BasicStream*) const = 0;
-    virtual std::string toString() const = 0;
     virtual Ice::ConnectionIPtr getConnection(bool&) const = 0;
 
     virtual bool operator==(const Reference&) const = 0;

@@ -19,8 +19,6 @@ static const string serverUnbuffered = "Glacier2.Server.Unbuffered";
 static const string clientUnbuffered = "Glacier2.Client.Unbuffered";
 static const string serverAlwaysBatch = "Glacier2.Server.AlwaysBatch";
 static const string clientAlwaysBatch = "Glacier2.Client.AlwaysBatch";
-static const string serverThreadStackSize = "Glacier2.Server.ThreadStackSize";
-static const string clientThreadStackSize = "Glacier2.Client.ThreadStackSize";
 static const string serverTraceRequest = "Glacier2.Server.Trace.Request";
 static const string clientTraceRequest = "Glacier2.Client.Trace.Request";
 static const string serverTraceOverride = "Glacier2.Server.Trace.Override";
@@ -51,15 +49,14 @@ Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) 
 {
     if(!_unbuffered)
     {
-	Int threadStackSize = _reverse ?
-	    _properties->getPropertyAsInt(serverThreadStackSize) :
-	    _properties->getPropertyAsInt(clientThreadStackSize);
-	
 	IceUtil::Time sleepTime = _reverse ?
 	    IceUtil::Time::milliSeconds(communicator->getProperties()->getPropertyAsInt(serverSleepTime)) :
 	    IceUtil::Time::milliSeconds(communicator->getProperties()->getPropertyAsInt(clientSleepTime));
 
 	_requestQueue = new RequestQueue(sleepTime);
+
+	Int threadStackSize = _properties->getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
+
 	_requestQueue->start(static_cast<size_t>(threadStackSize));
     }
 }
