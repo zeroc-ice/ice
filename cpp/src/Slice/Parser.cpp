@@ -338,6 +338,9 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
     return def;
 }
 
+// TODO: ML: The order of declaration in the header should match the
+// order of definition in the .cpp file.
+
 //
 // Return true if the class definition cdp is on one of the class lists in gpl, false otherwise.
 //
@@ -346,7 +349,9 @@ Slice::Container::isInList(const GraphPartitionList& gpl, const ClassDefPtr cdp)
 {
     for(GraphPartitionList::const_iterator i = gpl.begin(); i != gpl.end(); ++i)
     {
+	// TODO: ML: Why not just i->begin()? (Here and elsewhere.)
 	if(find((*i).begin(), (*i).end(), cdp) != (*i).end())
+// TODO: ML: Indentation.
 {
 	    return true;
 }
@@ -354,6 +359,7 @@ Slice::Container::isInList(const GraphPartitionList& gpl, const ClassDefPtr cdp)
     return false;
 }
 
+// TODO: ML: Line length must be <= 119 chars.
 void
 Slice::Container::addPartition(GraphPartitionList& gpl, GraphPartitionList::reverse_iterator tail, const ClassDefPtr base) const
 {
