@@ -60,7 +60,7 @@ Slice::Type::Type(const UnitPtr& unit) :
 // Builtin
 // ----------------------------------------------------------------------
 
-Slice::Builtin::Kind
+Builtin::Kind
 Slice::Builtin::kind()
 {
     return _kind;
@@ -484,7 +484,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 }
 
 EnumPtr
-Slice::Container::createEnum(const string& name, const StringList& enumerators)
+Slice::Container::createEnum(const string& name)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -511,7 +511,7 @@ Slice::Container::createEnum(const string& name, const StringList& enumerators)
 	return 0;
     }
 
-    EnumPtr p = new Enum(this, name, enumerators);
+    EnumPtr p = new Enum(this, name);
     _contents.push_back(p);
     return p;
 }
@@ -1071,7 +1071,7 @@ Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
 // Module
 // ----------------------------------------------------------------------
 
-Slice::Contained::ContainedType
+Contained::ContainedType
 Slice::Module::containedType()
 {
     return ContainedTypeModule;
@@ -1132,7 +1132,7 @@ Slice::ClassDecl::isInterface()
     return _interface;
 }
 
-Slice::Contained::ContainedType
+Contained::ContainedType
 Slice::ClassDecl::containedType()
 {
     return ContainedTypeClass;
@@ -1400,7 +1400,7 @@ Slice::ClassDef::hasDataMembers()
     return _hasDataMembers;
 }
 
-Slice::Contained::ContainedType
+Contained::ContainedType
 Slice::ClassDef::containedType()
 {
     return ContainedTypeClass;
@@ -1530,7 +1530,7 @@ Slice::Struct::dataMembers()
     return result;
 }
 
-Slice::Contained::ContainedType
+Contained::ContainedType
 Slice::Struct::containedType()
 {
     return ContainedTypeStruct;
@@ -1594,7 +1594,7 @@ Slice::Operation::nonmutating()
     return _nonmutating;
 }
 
-Slice::Contained::ContainedType
+Contained::ContainedType
 Slice::Operation::containedType()
 {
     return ContainedTypeOperation;
@@ -1629,7 +1629,7 @@ Slice::DataMember::type()
     return _type;
 }
 
-Slice::Contained::ContainedType
+Contained::ContainedType
 Slice::DataMember::containedType()
 {
     return ContainedTypeDataMember;
@@ -1652,7 +1652,7 @@ Slice::DataMember::DataMember(const ContainerPtr& container, const string& name,
 // Native
 // ----------------------------------------------------------------------
 
-Slice::Contained::ContainedType
+Contained::ContainedType
 Slice::Native::containedType()
 {
     return ContainedTypeNative;
@@ -1682,7 +1682,7 @@ Slice::Sequence::type()
     return _type;
 }
 
-Slice::Contained::ContainedType
+Contained::ContainedType
 Slice::Sequence::containedType()
 {
     return ContainedTypeSequence;
@@ -1719,7 +1719,7 @@ Slice::Dictionary::valueType()
     return _valueType;
 }
 
-Slice::Contained::ContainedType
+Contained::ContainedType
 Slice::Dictionary::containedType()
 {
     return ContainedTypeDictionary;
@@ -1746,13 +1746,19 @@ Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name,
 // Enum
 // ----------------------------------------------------------------------
 
-Slice::StringList
-Slice::Enum::enumerators()
+EnumeratorList
+Slice::Enum::getEnumerators()
 {
     return _enumerators;
 }
 
-Slice::Contained::ContainedType
+void
+Slice::Enum::setEnumerators(const EnumeratorList& ens)
+{
+    _enumerators = ens;
+}
+
+Contained::ContainedType
 Slice::Enum::containedType()
 {
     return ContainedTypeEnum;
@@ -1764,12 +1770,11 @@ Slice::Enum::visit(ParserVisitor* visitor)
     visitor->visitEnum(this);
 }
 
-Slice::Enum::Enum(const ContainerPtr& container, const string& name, const StringList& enumerators) :
+Slice::Enum::Enum(const ContainerPtr& container, const string& name) :
     Constructed(container, name),
     Type(container->unit()),
     Contained(container, name),
-    SyntaxTreeBase(container->unit()),
-    _enumerators(enumerators)
+    SyntaxTreeBase(container->unit())
 {
 }
 
@@ -1777,7 +1782,7 @@ Slice::Enum::Enum(const ContainerPtr& container, const string& name, const Strin
 // Enumerator
 // ----------------------------------------------------------------------
 
-Slice::Contained::ContainedType
+Contained::ContainedType
 Slice::Enumerator::containedType()
 {
     return ContainedTypeEnumerator;

@@ -21,26 +21,21 @@ using namespace Slice;
 %option noyywrap
 %option never-interactive
 
-WS	[ \t\v\n\r\f]
-S	[ \t]
-D	[0-9]
-L	[a-zA-Z_]
-
 %%
 
-^"#"{S}*{D}+{S}*$ {
+^"#"[[:blank:]]*[[:digit:]]+[[:blank:]]*$ {
     unit->scanPosition(yytext);
 }
 
-^"#"{S}*{D}+{S}+"\""[^\"]*"\"".*$ {
+^"#"[[:blank:]]*[[:digit:]]+[[:blank:]]+"\""[^\"]*"\"".*$ {
     unit->scanPosition(yytext);
 }
 
-^"#"{S}*"line"{S}+{D}+{S}*$ {
+^"#"[[:blank:]]*"line"[[:blank:]]+[[:digit:]]+[[:blank:]]*$ {
     unit->scanPosition(yytext);
 }
 
-^"#"{S}*"line"{S}+{D}+{S}+"\""[^\"]*"\"".*$ {
+^"#"[[:blank:]]*"line"[[:blank:]]+[[:digit:]]+[[:blank:]]+"\""[^\"]*"\"".*$ {
     unit->scanPosition(yytext);
 }
 
@@ -101,132 +96,218 @@ L	[a-zA-Z_]
     return ICE_MODULE;
 }
 
+"module"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
+}
+
 "class" {
     return ICE_CLASS;
+}
+
+"class"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
 }
 
 "interface" {
     return ICE_INTERFACE;
 }
 
+"interface"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
+}
+
 "struct" {
     return ICE_STRUCT;
+}
+
+"struct"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
 }
 
 "local" {
     return ICE_LOCAL;
 }
 
+"local"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
+}
+
 "extends" {
     return ICE_EXTENDS;
+}
+
+"extends"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
 }
 
 "implements" {
     return ICE_IMPLEMENTS;
 }
 
+"implements"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
+}
+
 "throws" {
     return ICE_THROWS;
+}
+
+"throws"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
 }
 
 "void" {
     return ICE_VOID;
 }
 
+"void"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
+}
+
 "byte" {
     return ICE_BYTE;
+}
+
+"byte"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
 }
 
 "bool" {
     return ICE_BOOL;
 }
 
+"bool"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
+}
+
 "short" {
     return ICE_SHORT;
+}
+
+"short"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
 }
 
 "int" {
     return ICE_INT;
 }
 
+"int"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
+}
+
 "long" {
     return ICE_LONG;
+}
+
+"long"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
 }
 
 "float" {
     return ICE_FLOAT;
 }
 
+"float"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
+}
+
 "double" {
     return ICE_DOUBLE;
+}
+
+"double"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
 }
 
 "string" {
     return ICE_STRING;
 }
 
+"string"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
+}
+
 "wstring" {
     return ICE_WSTRING;
+}
+
+"wstring"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
 }
 
 "Object" {
     return ICE_OBJECT;
 }
 
+"Object"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
+}
+
 "LocalObject" {
     return ICE_LOCAL_OBJECT;
+}
+
+"LocalObject"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
 }
 
 "native" {
     return ICE_NATIVE;
 }
 
+"native"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
+}
+
 "sequence" {
     return ICE_SEQUENCE;
+}
+
+"sequence"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
 }
 
 "dictionary" {
     return ICE_DICTIONARY;
 }
 
+"dictionary"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
+}
+
 "enum" {
     return ICE_ENUM;
+}
+
+"enum"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
 }
 
 "nonmutating" {
     return ICE_NONMUTATING;
 }
 
-"\\"?{L}({L}|{D})* {
-    char* s = yytext;
-    
-    if (s[0] == '\\') // Strip leading backslash
-    {
-	++s;
-    }
-    
+"nonmutating"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
+}
+
+[[:alpha:]_][[:alnum:]_]* {
     StringTokPtr ident = new StringTok;
-    ident->v = s;
+    ident->v = yytext;
     *yylvalp = ident;
     return ICE_IDENTIFIER;
 }
 
-"\\"?{L}({L}|{D})*{WS}*"(" {
-    char* s = yytext;
-    
-    if (s[0] == '\\') // Strip leading backslash
-    {
-	++s;
-    }
-    
+[[:alpha:]_][[:alnum:]_]*[[:space:]]*"(" {
     StringTokPtr ident = new StringTok;
-    ident->v = s;
+    ident->v = yytext;
     ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
     *yylvalp = ident;
     return ICE_OP_IDENTIFIER;
 }
 
-{WS} {
+[[:space:]] {
     // Igore white-space
     
     if (yytext[0] == '\n')

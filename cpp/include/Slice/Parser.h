@@ -112,6 +112,7 @@ typedef std::list<EnumPtr> EnumList;
 typedef std::list<NativePtr> NativeList;
 typedef std::list<OperationPtr> OperationList;
 typedef std::list<DataMemberPtr> DataMemberList;
+typedef std::list<EnumeratorPtr> EnumeratorList;
 
 // ----------------------------------------------------------------------
 // ParserVisitor
@@ -272,7 +273,7 @@ public:
     StructPtr createStruct(const std::string&);
     SequencePtr createSequence(const std::string&, const TypePtr&);
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const TypePtr&);
-    EnumPtr createEnum(const std::string&, const StringList&);
+    EnumPtr createEnum(const std::string&);
     EnumeratorPtr createEnumerator(const std::string&);
     NativePtr createNative(const std::string&);
     TypeList lookupType(const std::string&, bool = true);
@@ -531,16 +532,17 @@ class SLICE_API Enum : virtual public Constructed
 {
 public:
 
-    StringList enumerators();
+    EnumeratorList getEnumerators();
+    void setEnumerators(const EnumeratorList&);
     virtual ContainedType containedType();
     virtual void visit(ParserVisitor*);
 
 protected:
 
-    Enum(const ContainerPtr&, const std::string&, const StringList&);
+    Enum(const ContainerPtr&, const std::string&);
     friend class SLICE_API Container;
     
-    StringList _enumerators;
+    EnumeratorList _enumerators;
 };
 
 // ----------------------------------------------------------------------

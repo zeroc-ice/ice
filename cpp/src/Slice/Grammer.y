@@ -61,6 +61,7 @@ yyerror(const char* s)
 %token ICE_SCOPE_DELIMITOR
 %token ICE_IDENTIFIER
 %token ICE_OP_IDENTIFIER
+%token ICE_OP_KEYWORD
 
 %%
 
@@ -191,6 +192,10 @@ struct_decl
 {
     unit->error("structs can not be forward declared");
 }
+| ICE_STRUCT keyword
+{
+    unit->error("keyword can not be used as struct name");
+}
 ;
 
 // ----------------------------------------------------------------------
@@ -210,6 +215,13 @@ struct_def
 '{' struct_exports '}'
 {
     unit->popContainer();
+}
+| ICE_STRUCT keyword
+{
+    unit->error("keyword can not be used as struct name");
+}
+'{' struct_exports '}'
+{
 }
 ;
 
@@ -286,6 +298,10 @@ class_decl
     ContainerPtr cont = unit->currentContainer();
     ClassDeclPtr cl = cont->createClassDecl(ident->v, local->v, false);
 }
+| local ICE_CLASS keyword
+{
+    unit->error("keyword can not be used as class name");
+}
 ;
 
 // ----------------------------------------------------------------------
@@ -312,6 +328,13 @@ class_def
 '{' class_exports '}'
 {
     unit->popContainer();
+}
+| local ICE_CLASS keyword class_extends implements
+{
+    unit->error("keyword can not be used as class name");
+}
+'{' class_exports '}'
+{
 }
 ;
 
@@ -380,6 +403,10 @@ interface_decl
     ContainerPtr cont = unit->currentContainer();
     ClassDeclPtr cl = cont->createClassDecl(ident->v, local->v, true);
 }
+| local ICE_INTERFACE keyword
+{
+    unit->error("keyword can not be used as interface name");
+}
 ;
 
 // ----------------------------------------------------------------------
@@ -401,6 +428,13 @@ interface_def
 '{' interface_exports '}'
 {
     unit->popContainer();
+}
+| local ICE_INTERFACE keyword interface_extends
+{
+    unit->error("keyword can not be used as interface name");
+}
+'{' interface_exports '}'
+{
 }
 ;
 
@@ -501,7 +535,10 @@ operation
     TypeStringListTokPtr outParms = TypeStringListTokPtr::dynamicCast($4);
     TypeListTokPtr throws = TypeListTokPtr::dynamicCast($6);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    cl->createOperation(name->v, returnType, inParms->v, outParms->v, throws->v, false);
+    if (cl)
+    {
+	cl->createOperation(name->v, returnType, inParms->v, outParms->v, throws->v, false);
+    }
 }
 | ICE_NONMUTATING return_type ICE_OP_IDENTIFIER parameters output_parameters ')' throws
 {
@@ -511,8 +548,20 @@ operation
     TypeStringListTokPtr outParms = TypeStringListTokPtr::dynamicCast($5);
     TypeListTokPtr throws = TypeListTokPtr::dynamicCast($7);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    cl->createOperation(name->v, returnType, inParms->v, outParms->v, throws->v, true);
+    if (cl)
+    {
+	cl->createOperation(name->v, returnType, inParms->v, outParms->v, throws->v, true);
+    }
 }
+| return_type ICE_OP_KEYWORD parameters output_parameters ')' throws
+{
+    unit->error("keyword can not be used as operation name");
+}
+| ICE_NONMUTATING return_type ICE_OP_KEYWORD parameters output_parameters ')' throws
+{
+    unit->error("keyword can not be used as operation name");
+}
+;
  
 // ----------------------------------------------------------------------
 parameters
@@ -594,15 +643,17 @@ data_member
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if (cl)
     {
-	assert(!cl->isInterface());
 	cl->createDataMember(ident->v, type);
     }
-    else
+    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    if (st)
     {
-	StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-	assert(st);
 	st->createDataMember(ident->v, type);
     }
+}
+| type keyword
+{
+    unit->error("keyword can not be used as data member name");
 }
 ;
 
@@ -735,6 +786,10 @@ native_def
     ContainerPtr cont = unit->currentContainer();
     cont->createNative(ident->v);
 }
+| ICE_NATIVE keyword
+{
+    unit->error("keyword can not be used as native name");
+}
 ;
 
 // ----------------------------------------------------------------------
@@ -746,6 +801,10 @@ sequence_def
     TypePtr type = TypePtr::dynamicCast($3);
     ContainerPtr cont = unit->currentContainer();
     cont->createSequence(ident->v, type);
+}
+| ICE_SEQUENCE '<' type '>' keyword
+{
+    unit->error("keyword can not be used as sequence name");
 }
 ;
 
@@ -760,46 +819,72 @@ dictionary_def
     ContainerPtr cont = unit->currentContainer();
     cont->createDictionary(ident->v, keyType, valueType);
 }
+| ICE_DICTIONARY '<' type ',' type '>' keyword
+{
+    unit->error("keyword can not be used as dictionary name");
+}
 ;
 
 // ----------------------------------------------------------------------
 enum_def
 // ----------------------------------------------------------------------
-: ICE_ENUM ICE_IDENTIFIER '{' identifier_list '}'
+: ICE_ENUM ICE_IDENTIFIER
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    StringListTokPtr enumerators = StringListTokPtr::dynamicCast($4);
     ContainerPtr cont = unit->currentContainer();
-    EnumPtr en = cont->createEnum(ident->v, enumerators->v);
+    EnumPtr en = cont->createEnum(ident->v);
+    $$ = en;
+}
+'{' enumerator_list '}'
+{
+    EnumPtr en = EnumPtr::dynamicCast($3);
+    EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
+    en->setEnumerators(enumerators->v);
+}
+| ICE_ENUM keyword
+{
+    unit->error("keyword can not be used as enum name");
+}
+'{' enumerator_list '}'
+{
 }
 ;
 
 // ----------------------------------------------------------------------
-identifier_list
+enumerator_list
 // ----------------------------------------------------------------------
-: ICE_IDENTIFIER ',' identifier_list
+: enumerator ',' enumerator_list
+{
+    EnumeratorListTokPtr ens = EnumeratorListTokPtr::dynamicCast($1);
+    ens->v.splice(ens->v.end(), EnumeratorListTokPtr::dynamicCast($3)->v);
+    $$ = ens;
+}
+| enumerator
+{
+    $$ = $1;
+}
+;
+
+// ----------------------------------------------------------------------
+enumerator
+// ----------------------------------------------------------------------
+: ICE_IDENTIFIER
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
-    StringListTokPtr ens = StringListTokPtr::dynamicCast($3);
+    EnumeratorListTokPtr ens = new EnumeratorListTok;
     $$ = ens;
     ContainerPtr cont = unit->currentContainer();
     EnumeratorPtr en = cont->createEnumerator(ident->v);
     if (en)
     {
-	ens->v.push_front(ident->v);
+	ens->v.push_front(en);
     }
 }
-| ICE_IDENTIFIER
+| keyword
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast($1);
-    StringListTokPtr ens = new StringListTok;
+    unit->error("keyword can not be used as enumerator");
+    EnumeratorListTokPtr ens = new EnumeratorListTok;
     $$ = ens;
-    ContainerPtr cont = unit->currentContainer();
-    EnumeratorPtr en = cont->createEnumerator(ident->v);
-    if (en)
-    {
-	ens->v.push_front(ident->v);
-    }
 }
 ;
 
@@ -904,5 +989,6 @@ keyword
 | ICE_NONMUTATING
 {
 }
+;
 
 %%

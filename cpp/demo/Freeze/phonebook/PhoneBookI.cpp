@@ -82,9 +82,9 @@ ContactI::destroy()
 
 PhoneBookI::PhoneBookI(const ObjectAdapterPtr& adapter, const EvictorPtr& evictor) :
     _adapter(adapter),
-    _evictor(evictor),
-    _nextContactIdentity(0)
+    _evictor(evictor)
 {
+    _nextContactIdentity = 0;
 }
 
 class IdentityToContact
@@ -142,6 +142,14 @@ PhoneBookI::createContact()
     // empty string.
     //
     _nameIdentitiesDict[""].push_back(identity);
+    
+    //
+    // TODO: Of course it's inefficient to always save the whole phone
+    // book. This will be changed in the future when we have a
+    // dictionary type that directly reads from and writes to the
+    // database.
+    //
+    _evictor->getDB()->put("phonebook", this);
 
     //
     // Turn the identity into a Proxy and return the Proxy to the
@@ -217,6 +225,14 @@ PhoneBookI::remove(const string& identity, const string& name)
     assert(p != _nameIdentitiesDict.end());
     p->second.erase(remove_if(p->second.begin(), p->second.end(), bind2nd(equal_to<string>(), identity)),
 		    p->second.end());
+
+    //
+    // TODO: Of course it's inefficient to always save the whole phone
+    // book. This will be changed in the future when we have a
+    // dictionary type that directly reads from and writes to the
+    // database.
+    //
+    _evictor->getDB()->put("phonebook", this);
 }
 
 void
@@ -229,4 +245,12 @@ PhoneBookI::move(const string& identity, const string& oldName, const string& ne
     //
     remove(identity, oldName);
     _nameIdentitiesDict[newName].push_back(identity);
+
+    //
+    // TODO: Of course it's inefficient to always save the whole phone
+    // book. This will be changed in the future when we have a
+    // dictionary type that directly reads from and writes to the
+    // database.
+    //
+    _evictor->getDB()->put("phonebook", this);
 }

@@ -104,12 +104,16 @@ string Ice::Object::__names[] =
     "_ping"
 };
 
+string Ice::Object::__mutating[] =
+{
+};
+
 DispatchStatus
-Ice::Object::__dispatch(Incoming& in, const string& name)
+Ice::Object::__dispatch(Incoming& in, const string& s)
 {
     string* b = __names;
     string* e = __names + sizeof(__names) / sizeof(string);
-    pair<string*, string*> r = equal_range(b, e, name);
+    pair<string*, string*> r = equal_range(b, e, s);
     if (r.first == r.second)
     {
 	return DispatchOperationNotExist;
@@ -132,7 +136,9 @@ Ice::Object::__dispatch(Incoming& in, const string& name)
 }
 
 bool
-Ice::Object::_isMutating(const std::string&)
+Ice::Object::__isMutating(const std::string& s)
 {
-    return false;
+    string* b = __mutating;
+    string* e = __mutating + sizeof(__mutating) / sizeof(string);
+    return ::std::binary_search(b, e, s);
 }

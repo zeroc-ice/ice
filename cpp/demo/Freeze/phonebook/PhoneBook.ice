@@ -53,6 +53,7 @@ class PhoneBook
     //
     nonmutating void shutdown();
 
+    long _nextContactIdentity;
     NameIdentitiesDict _nameIdentitiesDict;
 };
 

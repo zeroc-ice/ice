@@ -158,12 +158,6 @@ run(int argc, char* argv[], const DBEnvPtr& dbenv)
     communicator->waitForShutdown();
     cout << "shutting down..." << endl;
     ignoreInterrupt();
-
-    //
-    // Application has shut down, save the phonebook in the database
-    // and exit.
-    //
-    db->put("phonebook", phoneBook);
     return EXIT_SUCCESS;
 }
 

@@ -322,33 +322,6 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	    end();
 	}
     }
-    
-    {
-	for (EnumList::iterator q = enums.begin(); q != enums.end(); ++q)
-	{
-	    start("section id=" + containedToId(*q), (*q)->name());
-	    
-	    O.zeroIndent();
-	    O << nl << "<synopsis>enum <type>" << (*q)->name() << "</type>";
-	    O << sb;
-	    StringList enumerators = (*q)->enumerators();
-	    StringList::iterator r = enumerators.begin();
-	    while (r != enumerators.end())
-	    {
-		O << nl << "<structfield>" << *r << "</structfield>";
-		if (++r != enumerators.end())
-		{
-		    O << ',';
-		}
-	    }
-	    O << eb << ";</synopsis>";
-	    O.restoreIndent();
-	    
-	    printComment(*q);
-	    
-	    end();
-	}
-    }
 
     {
 	for (NativeList::iterator q = natives.begin(); q != natives.end(); ++q)
@@ -626,6 +599,63 @@ Slice::Gen::visitStructStart(const StructPtr& p)
     end();
 
     return true;
+}
+
+void
+Slice::Gen::visitEnum(const EnumPtr& p)
+{
+    start(_chapter + " id=" + containedToId(p), p->scoped().substr(2));
+
+    start("section", "Overview");
+    O.zeroIndent();
+    O << nl << "<synopsis>";
+    O << "enum <type>" << p->name() << "</type>";
+    O << "</synopsis>";
+    O.restoreIndent();
+
+    printComment(p);
+
+    EnumeratorList enumerators = p->getEnumerators();
+    enumerators.sort();
+    if (!enumerators.empty())
+    {
+	start("section", "Enumerator Index");
+	start("variablelist");
+	
+	for (EnumeratorList::iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+	{
+	    start("varlistentry");
+	    start("term");
+	    O << nl << toString(*q, p->container());
+	    end();
+	    start("listitem");
+	    printSummary(*q);
+	    end();
+	    end();
+	}
+
+	end();
+	end();
+    }
+
+    end();
+
+    {
+	for (EnumeratorList::iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+	{
+	    start("section id=" + containedToId(*q), (*q)->name());
+	    
+	    O.zeroIndent();
+	    O << nl << "<synopsis><constant>" << (*q)->name() << "</constant></synopsis>";
+	    O.restoreIndent();
+	    
+	    printComment(*q);
+	    
+	    end();
+	}
+    }
+	
+    end();
 }
 
 void
@@ -992,6 +1022,14 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
 	linkend = containedToId(st);
 	s = getScopedMinimized(st, container);
 	tag = "structname";
+    }
+
+    EnumeratorPtr en = EnumeratorPtr::dynamicCast(p);
+    if (en)
+    {
+	linkend = containedToId(en);
+	s = getScopedMinimized(en, container);
+	tag = "constant";
     }
 
     if (s.empty())

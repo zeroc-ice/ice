@@ -35,6 +35,7 @@ public:
     virtual void visitContainer(const ContainerPtr&);
     virtual bool visitClassDefStart(const ClassDefPtr&);
     virtual bool visitStructStart(const StructPtr&);
+    virtual void visitEnum(const EnumPtr&);
 
 private:
 

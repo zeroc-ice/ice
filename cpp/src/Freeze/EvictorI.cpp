@@ -33,6 +33,16 @@ Freeze::EvictorI::EvictorI(const DBPtr& db, const CommunicatorPtr& communicator)
     }
 }
 
+DBPtr
+Freeze::EvictorI::getDB()
+{
+    //
+    // No synchronizaton necessary, _db is immutable once the Evictor
+    // has been created
+    //
+    return _db;
+}
+
 void
 Freeze::EvictorI::setSize(Int evictorSize)
 {
@@ -234,7 +244,7 @@ Freeze::EvictorI::finished(const ObjectAdapterPtr&, const string& identity, cons
     //
     if (_persistenceMode == SaveAfterMutatingOperation)
     {
-	if (servant->_isMutating(operation))
+	if (servant->__isMutating(operation))
 	{
 	    _db->put(identity, servant);
 	}

@@ -24,7 +24,9 @@ class EvictorI : public Evictor, public JTCMutex
 public:
 
     EvictorI(const Freeze::DBPtr&, const Ice::CommunicatorPtr&);
-    
+
+    virtual DBPtr getDB();
+
     virtual void setSize(Ice::Int);
     virtual Ice::Int getSize();
     

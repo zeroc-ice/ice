@@ -437,14 +437,14 @@ void
 Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     string name = p->name();
-    StringList enumerators = p->enumerators();
+    EnumeratorList enumerators = p->getEnumerators();
     H << sp;
     H << nl << "enum " << name;
     H << sb;
-    StringList::iterator en = enumerators.begin();
+    EnumeratorList::iterator en = enumerators.begin();
     while (en != enumerators.end())
     {
-	H << nl << *en;
+	H << nl << (*en)->name();
 	if (++en != enumerators.end())
 	{
 	    H << ',';
@@ -1545,9 +1545,9 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    H << nl << exp2 << "static ::std::string __mutating[" << allMutatingOpNames.size() << "];";
 	    H << nl << exp2 << "virtual ::IceInternal::DispatchStatus "
 	      << "__dispatch(::IceInternal::Incoming&, const ::std::string&);";
-	    H << nl << exp2 << "virtual bool _isMutating(const ::std::string&);";
+	    H << nl << exp2 << "virtual bool __isMutating(const ::std::string&);";
 	    C << sp;
-	    C << nl << "::std::string " << scoped.substr(2) << "::__all[" << allOpNames.size() << "] =";
+	    C << nl << "::std::string " << scoped.substr(2) << "::__all[] =";
 	    C << sb;
 	    q = allOpNames.begin();
 	    while (q != allOpNames.end())
@@ -1560,7 +1560,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    }
 	    C << eb << ';';
 	    C << sp;
-	    C << nl << "::std::string " << scoped.substr(2) << "::__mutating[" << allMutatingOpNames.size() << "] =";
+	    C << nl << "::std::string " << scoped.substr(2) << "::__mutating[] =";
 	    C << sb;
 	    q = allMutatingOpNames.begin();
 	    while (q != allMutatingOpNames.end())
@@ -1601,7 +1601,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << eb;
 	    C << sp;
 	    C << nl << "bool" << nl << scoped.substr(2)
-	      << "::_isMutating(const ::std::string& s)";
+	      << "::__isMutating(const ::std::string& s)";
 	    C << sb;
 	    C << nl << "::std::string* b = __mutating;";
 	    C << nl << "::std::string* e = __mutating + " << allMutatingOpNames.size() << ';';

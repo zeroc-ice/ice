@@ -12,6 +12,7 @@
 #define FREEZE_EVICTOR_ICE
 
 #include <Ice/ObjectAdapter.ice>
+#include <Freeze/DBF.ice>
 
 module Freeze
 {
@@ -93,6 +94,18 @@ enum EvictorPersistenceMode
  **/
 local interface Evictor extends Ice::ServantLocator
 {
+    /**
+     *
+     * Get the database that is being used by this Evictor. This is
+     * the database from which this Evictor was created.
+     *
+     * @return The database used by this Evictor.
+     *
+     * @see DB::createEvictor
+     *
+     **/
+    DB getDB();
+
     /**
      *
      * Set the Evictor's Servant queue size. This is the maximum
