@@ -54,7 +54,7 @@ os.system("cvs -z5 -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice
 # Remove files.
 #
 filesToRemove = [ \
-    "makedist.py", \
+    "icej/makedist.py", \
     ]
 for x in filesToRemove:
     rm(x)
