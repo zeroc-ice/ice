@@ -120,7 +120,7 @@ public final class Reference
     }
 
     //
-    // Marshal the reference
+    // Marshal the reference.
     //
     public void
     streamWrite(BasicStream s)
@@ -154,7 +154,7 @@ public final class Reference
     }
 
     //
-    // Convert the reference to its string form
+    // Convert the reference to its string form.
     //
     public String
     toString()
