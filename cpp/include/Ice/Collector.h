@@ -50,6 +50,7 @@ public:
     // Operations from EventHandlerI
     //
     virtual int fd();
+    virtual bool server();
     virtual void receive();
     virtual void finished();
 
@@ -95,6 +96,7 @@ public:
     // Operations from EventHandlerI
     //
     virtual int fd();
+    virtual bool server();
     virtual void receive();
     virtual void finished();
     

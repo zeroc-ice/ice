@@ -21,13 +21,14 @@
 namespace __Ice
 {
 
-class ICE_API ThreadPoolI : public Shared, public JTCMutex
+class ICE_API ThreadPoolI : public Shared, public JTCMonitorT<JTCMutex>
 {
 public:
 
     void _register(const EventHandler&);
     void unregister(int);
     void reregister(int);
+    void waitForServerShutdown();
     void joinWithAllThreads();
     
 private:
@@ -55,6 +56,7 @@ private:
     std::queue<int> removes_;
     std::vector<int> adds_;
     std::list<EventHandler> handlers_;
+    int servers_;
     JTCMutex threadMutex_;
 
     class EventHandlerThread : public JTCThread

@@ -24,7 +24,7 @@ class LocalException;
 namespace __Ice
 {
 
-class ICE_API Outgoing : public JTCMonitor
+class ICE_API Outgoing : public JTCMonitorT< JTCMutex >
 {
 public:
 
