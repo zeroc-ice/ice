@@ -107,6 +107,8 @@ IceSSL::SslTransceiver::read(Buffer& buf, int timeout)
 {
     assert(_fd != INVALID_SOCKET);
 
+    _plugin->registerThread();
+
     int packetSize = buf.b.end() - buf.i;
     int totalBytesRead = 0;
     int bytesRead;
@@ -931,6 +933,7 @@ IceSSL::SslTransceiver::SslTransceiver(const OpenSSLPluginIPtr& plugin,
 		                       const CertificateVerifierPtr& certificateVerifier,
                                        SSL* sslConnection) :
     _sslConnection(sslConnection),
+    _plugin(plugin),
     _traceLevels(plugin->getTraceLevels()),
     _logger(plugin->getLogger()),
     _fd(fd),

@@ -32,6 +32,8 @@ IceSSL::SslClientTransceiver::write(Buffer& buf, int timeout)
 {
     assert(_fd != INVALID_SOCKET);
 
+    _plugin->registerThread();
+
     int totalBytesWritten = 0;
     int bytesWritten = 0;
 

@@ -153,6 +153,9 @@ IceSSL::SslLockKeeper::~SslLockKeeper()
 // PluginI implementation
 //
 
+IceUtil::Mutex IceSSL::OpenSSLPluginI::_threadIdCacheMutex;
+std::vector<unsigned long> IceSSL::OpenSSLPluginI::_threadIdCache;
+
 //
 // Public Methods
 //
@@ -179,6 +182,7 @@ IceSSL::OpenSSLPluginI::OpenSSLPluginI(const ProtocolPluginFacadePtr& protocolPl
 
 IceSSL::OpenSSLPluginI::~OpenSSLPluginI()
 {
+    unregisterThreads();
     ERR_free_strings();
 }
 
@@ -820,3 +824,30 @@ IceSSL::OpenSSLPluginI::loadTempCerts(TempCertificates& tempCerts)
         iDHP++;
     }
 }
+
+//
+// Note: These two methods are used to remember each thread that uses the IceSSL plugin,
+//       and then clean up the thread-specific error queue on plugin shutdown.
+//
+
+void
+IceSSL::OpenSSLPluginI::registerThread()
+{
+    unsigned long threadID = idFunction();
+
+    IceUtil::Mutex::Lock sync(_threadIdCacheMutex);
+
+    if(find(_threadIdCache.begin(), _threadIdCache.end(), threadID) == _threadIdCache.end())
+    {
+        _threadIdCache.push_back(threadID);
+    }
+}
+
+void
+IceSSL::OpenSSLPluginI::unregisterThreads()
+{
+    IceUtil::Mutex::Lock sync(_threadIdCacheMutex);
+
+    for_each(_threadIdCache.begin(), _threadIdCache.end(), ERR_remove_state);
+}
+

@@ -198,6 +198,7 @@ protected:
     SslTransceiver(const OpenSSLPluginIPtr&, SOCKET, const IceSSL::CertificateVerifierPtr&, SSL*);
     virtual ~SslTransceiver();
 
+    OpenSSLPluginIPtr _plugin;
     TraceLevelsPtr _traceLevels;
     Ice::LoggerPtr _logger;
     SOCKET _fd;

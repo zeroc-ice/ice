@@ -120,6 +120,16 @@ private:
 
     // Load the temporary (ephemeral) certificates for Server operations.
     void loadTempCerts(TempCertificates&);
+
+    friend class SslTransceiver;
+    friend class SslClientTransceiver;
+    friend class SslServerTransceiver;
+
+    static IceUtil::Mutex _threadIdCacheMutex;
+    static std::vector<unsigned long> _threadIdCache;
+
+    void registerThread();
+    void unregisterThreads();
 };
 
 }
