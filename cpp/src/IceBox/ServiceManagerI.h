@@ -42,7 +42,7 @@ public:
 
 private:
 
-    void init(const std::string&, const std::string&, const ::Ice::StringSeq&);
+    void start(const std::string&, const std::string&, const ::Ice::StringSeq&);
     void stop(const std::string&);
     void stopAll();
 

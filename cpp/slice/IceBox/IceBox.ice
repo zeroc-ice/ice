@@ -81,16 +81,6 @@ local interface ServiceBase
 {
     /**
      *
-     * Start the service.
-     *
-     * @throws FailureException Raised if [start] failed.
-     *
-     **/
-    void start()
-        throws FailureException;
-
-    /**
-     *
      * Stop the service.
      *
      **/
@@ -143,7 +133,7 @@ local interface Service extends ServiceBase
      * @see start
      *
      **/
-    void init(string name, Ice::Communicator communicator, Ice::Properties properties, Ice::StringSeq args)
+    void start(string name, Ice::Communicator communicator, Ice::Properties properties, Ice::StringSeq args)
         throws FailureException;
 
 };
@@ -190,8 +180,8 @@ local interface FreezeService extends ServiceBase
      * @see ServiceBase
      *
      **/
-    void init(string name, Ice::Communicator communicator, Ice::Properties properties, Ice::StringSeq args,
-     	      Freeze::DBEnvironment dbEnv)
+    void start(string name, Ice::Communicator communicator, Ice::Properties properties, Ice::StringSeq args,
+	       Freeze::DBEnvironment dbEnv)
         throws FailureException;
 };
 

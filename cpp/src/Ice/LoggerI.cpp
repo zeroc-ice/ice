@@ -14,6 +14,19 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+Ice::LoggerI::LoggerI(const string& prefix)
+{
+    if(!prefix.empty())
+    {
+	_prefix = prefix + ": ";
+
+	//
+	// A prefix filled with spaces and as long as the prefix.
+	//
+	_emptyPrefix.append(_prefix.length(), ' ');
+    }
+}
+
 void
 Ice::LoggerI::trace(const string& category, const string& message)
 {
@@ -23,21 +36,22 @@ Ice::LoggerI::trace(const string& category, const string& message)
     while((idx = s.find("\n", idx)) != string::npos)
     {
 	s.insert(idx + 1, "  ");
+	s.insert(idx + 1, _emptyPrefix);
 	++idx;
     }
-    cerr << s << endl;
+    cerr << _prefix << s << endl;
 }
 
 void
 Ice::LoggerI::warning(const string& message)
 {
     IceUtil::Mutex::Lock sync(*this);
-    cerr << "warning: " << message << endl;
+    cerr << _prefix  << "warning: " << message << endl;
 }
 
 void
 Ice::LoggerI::error(const string& message)
 {
     IceUtil::Mutex::Lock sync(*this);
-    cerr << "error: " << message << endl;
+    cerr  << _prefix << "error: " << message << endl;
 }

@@ -81,7 +81,7 @@ IceBox::ServiceManagerI::run()
         adapter->add(obj, stringToIdentity(identity));
 
         //
-        // Load and initialize the services defined in the property set
+        // Load and start the services defined in the property set
         // with the prefix "IceBox.Service.". These properties should
         // have the following format:
         //
@@ -126,29 +126,7 @@ IceBox::ServiceManagerI::run()
                 }
             }
 
-            init(name, entryPoint, args);
-        }
-
-        //
-        // Invoke start() on the services.
-        //
-        map<string,ServiceInfo>::const_iterator r;
-        for(r = _services.begin(); r != _services.end(); ++r)
-        {
-            try
-            {
-                r->second.service->start();
-            }
-            catch(const FailureException&)
-            {
-                throw;
-            }
-            catch(const Exception& ex)
-            {
-                FailureException e;
-                e.reason = "ServiceManager: exception in start for service " + r->first + ": " + ex.ice_name();
-                throw e;
-            }
+            start(name, entryPoint, args);
         }
 
         //
@@ -201,10 +179,10 @@ IceBox::ServiceManagerI::run()
 }
 
 void
-IceBox::ServiceManagerI::init(const string& service, const string& entryPoint, const StringSeq& args)
+IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, const StringSeq& args)
 {
     //
-    // We need to create a property set to pass to init().
+    // We need to create a property set to pass to start().
     // The property set is populated from a number of sources.
     // The precedence order (from lowest to highest) is:
     //
@@ -283,7 +261,7 @@ IceBox::ServiceManagerI::init(const string& service, const string& entryPoint, c
     }
 
     //
-    // Invoke Service::init().
+    // Invoke Service::start().
     //
     try
     {
@@ -293,7 +271,7 @@ IceBox::ServiceManagerI::init(const string& service, const string& entryPoint, c
 	    //
 	    // IceBox::Service
 	    //
-            s->init(service, _server->communicator(), serviceProperties, serviceArgs);
+            s->start(service, _server->communicator(), serviceProperties, serviceArgs);
 	}
 	else
 	{
@@ -323,7 +301,7 @@ IceBox::ServiceManagerI::init(const string& service, const string& entryPoint, c
 	    }
 	    _dbEnvs[info.dbEnvName] = dbInfo;
 
-            fs->init(service, _server->communicator(), serviceProperties, serviceArgs, dbInfo.dbEnv);
+            fs->start(service, _server->communicator(), serviceProperties, serviceArgs, dbInfo.dbEnv);
 	}
         info.library = library;
         _services[service] = info;
@@ -331,7 +309,7 @@ IceBox::ServiceManagerI::init(const string& service, const string& entryPoint, c
     catch(const Freeze::DBException& ex)
     {
         FailureException e;
-        e.reason = "ServiceManager: database exception while initializing service " + service + ": " + ex.ice_name() +
+        e.reason = "ServiceManager: database exception while starting service " + service + ": " + ex.ice_name() +
 		   "\n" + ex.message;
         throw e;
     }
@@ -342,7 +320,7 @@ IceBox::ServiceManagerI::init(const string& service, const string& entryPoint, c
     catch(const Exception& ex)
     {
         FailureException e;
-        e.reason = "ServiceManager: exception while initializing service " + service + ": " + ex.ice_name();
+        e.reason = "ServiceManager: exception while starting service " + service + ": " + ex.ice_name();
         throw e;
     }
 }

@@ -136,7 +136,7 @@ IcePack::ActivatorI::activate(const ServerPrx& server, const ::Ice::Current&)
     if(pid == 0) // Child process.
     {
 	//
-	// Close all filedescriptors, except for standard input,
+	// Close all file descriptors, except for standard input,
 	// standard output, standard error output, and the write side
 	// of the newly created pipe.
 	//
@@ -148,6 +148,34 @@ IcePack::ActivatorI::activate(const ServerPrx& server, const ::Ice::Current&)
 		close(fd);
 	    }
 	}
+
+	//
+	// Redirect the standard error output to the write side of the
+	// pipe.
+	//
+	// TODO: This doesn't work well if the server doesn't control
+	// when and how the output is flushed. This can result for
+	// example in printing on character by line... The standard
+	// Ice logger could be changed to flush the stream and not use
+	// automatic flushing.
+	//
+// 	if(fds[1] != STDERR_FILENO)
+// 	{
+// 	    if(dup2(fds[1], STDERR_FILENO) != STDERR_FILENO)
+// 	    {
+// 		//
+// 		// Send any errors to the parent process, using the write
+// 		// end of the pipe.
+// 		//
+// 		SystemException ex(__FILE__, __LINE__);
+// 		ex.error = getSystemErrno();
+// 		ostringstream s;
+// 		s << "can't redirect stderr to the pipe output";
+// 		write(fds[1], s.str().c_str(), s.str().length());
+// 		close(fds[1]);
+// 		exit(EXIT_FAILURE);
+// 	    }
+// 	}
 
 	//
 	// Change working directory.
@@ -184,7 +212,7 @@ IcePack::ActivatorI::activate(const ServerPrx& server, const ::Ice::Current&)
 	//
 	// Compute arguments.
 	//
-	int argc = desc.args.size() + _defaultArgs.size() + 2;
+	int argc = desc.args.size() + _defaultArgs.size() + 3;
 	char** argv = static_cast<char**>(malloc(argc * sizeof(char*)));
 	argv[0] = strdup(path.c_str());
 	unsigned int i = 0;
@@ -197,6 +225,10 @@ IcePack::ActivatorI::activate(const ServerPrx& server, const ::Ice::Current&)
 	{
 	    argv[i + 1] = strdup(q->c_str());
 	}
+
+	string serverName = "--Ice.ProgramName=" + desc.name;
+	argv[argc - 2] = strdup(serverName.c_str());
+
 	argv[argc - 1] = 0;
 
 	if(execvp(argv[0], argv) == -1)

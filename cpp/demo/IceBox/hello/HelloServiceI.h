@@ -26,12 +26,10 @@ public:
     HelloServiceI();
     virtual ~HelloServiceI();
 
-    virtual void init(const ::std::string&,
-                      const ::Ice::CommunicatorPtr&,
-                      const ::Ice::PropertiesPtr&,
-                      const ::Ice::StringSeq&);
-
-    virtual void start();
+    virtual void start(const ::std::string&,
+		       const ::Ice::CommunicatorPtr&,
+		       const ::Ice::PropertiesPtr&,
+		       const ::Ice::StringSeq&);
 
     virtual void stop();
 

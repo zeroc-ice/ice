@@ -26,13 +26,11 @@ public:
     Service();
     virtual ~Service();
 
-    virtual void init(const ::std::string&,
-                      const ::Ice::CommunicatorPtr&,
-                      const ::Ice::PropertiesPtr&,
-                      const ::Ice::StringSeq&,
-                      const ::Freeze::DBEnvironmentPtr&);
-
-    virtual void start();
+    virtual void start(const ::std::string&,
+		       const ::Ice::CommunicatorPtr&,
+		       const ::Ice::PropertiesPtr&,
+		       const ::Ice::StringSeq&,
+		       const ::Freeze::DBEnvironmentPtr&);
 
     virtual void stop();
 
@@ -67,11 +65,11 @@ IceStorm::Service::~Service()
 }
 
 void
-IceStorm::Service::init(const string& name,
-			const ::Ice::CommunicatorPtr& communicator,
-			const ::Ice::PropertiesPtr& properties,
-			const ::Ice::StringSeq& args,
-			const ::Freeze::DBEnvironmentPtr& dbEnv)
+IceStorm::Service::start(const string& name,
+			 const ::Ice::CommunicatorPtr& communicator,
+			 const ::Ice::PropertiesPtr& properties,
+			 const ::Ice::StringSeq& args,
+			 const ::Freeze::DBEnvironmentPtr& dbEnv)
 {
     Freeze::DBPtr dbTopicManager = dbEnv->openDB("topicmanager", true);
 
@@ -81,11 +79,6 @@ IceStorm::Service::init(const string& name,
     _adapter->add(_manager, stringToIdentity("TopicManager"));
 
     _adapter->activate();
-}
-
-void
-IceStorm::Service::start()
-{
 }
 
 void

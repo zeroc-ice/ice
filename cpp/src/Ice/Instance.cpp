@@ -305,10 +305,10 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 	}
 	else
 	{
-	    _logger = new LoggerI;
+	    _logger = new LoggerI(_properties->getProperty("Ice.ProgramName"));
 	}
 #else
-	_logger = new LoggerI;
+	_logger = new LoggerI(_properties->getProperty("Ice.ProgramName"));
 #endif
 
 	_traceLevels = new TraceLevels(_properties);

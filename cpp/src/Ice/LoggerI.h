@@ -20,10 +20,16 @@ namespace Ice
 class LoggerI : public Logger, public ::IceUtil::Mutex
 {
 public:
+    LoggerI(const std::string&);
 
     virtual void trace(const std::string&, const std::string&);
     virtual void warning(const std::string&);
     virtual void error(const std::string&);
+
+private:
+
+    std::string _prefix;
+    std::string _emptyPrefix;
 };
 
 }

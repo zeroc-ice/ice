@@ -114,7 +114,7 @@ IcePack::AdapterManagerI::AdapterManagerI(const ObjectAdapterPtr& adapter) :
     _adapter(adapter)
 {
     Ice::PropertiesPtr properties = adapter->getCommunicator()->getProperties();
-    _waitTime = properties->getPropertyAsIntWithDefault("IcePack.Activation.WaitTime", 10);
+    _waitTime = properties->getPropertyAsIntWithDefault("IcePack.Activation.WaitTime", 60);
 }
 
 AdapterPrx
