@@ -90,7 +90,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy Debug\icepack001d.* ..\..\lib
+PostBuild_Cmds=copy Debug\icestorm001d.* ..\..\lib
 # End Special Build Tool
 
 !ENDIF 
