@@ -12,6 +12,7 @@
 #define ICE_SERVANT_LOCATOR_ICE
 
 #include <Ice/ObjectAdapterF.ice>
+#include <Ice/Current.ice>
 
 module Ice
 {
@@ -47,11 +48,8 @@ local interface ServantLocator
      * @param adapter The Object Adapter that calls the Servant
      * Locator.
      *
-     * @param identity The identity of the Ice Object to locate a
-     * Servant for.
-     *
-     * @param operation The operation the Object Adapter is about to
-     * call.
+     * @param current Information about the current operation call to
+     * locate a Servant for.
      *
      * @param cookie A "cookie", which will be passed to [finished].
      *
@@ -59,10 +57,11 @@ local interface ServantLocator
      * been found.
      *
      * @see ObjectAdapter
+     * @see Current
      * @see finished
      *
      **/
-    Object locate(ObjectAdapter adapter, string identity, string operation; LocalObject cookie);
+    Object locate(ObjectAdapter adapter, Current current; LocalObject cookie);
 
     /**
      *
@@ -73,20 +72,19 @@ local interface ServantLocator
      *
      * @param adapter The Object Adapter that calls the Servant Locator.
      *
-     * @param identity The identity of the Ice Object for which a
-     * Servant was located by [locate].
-     *
-     * @param operation The operation the Object Adapter just called.
+     * @param current Information about the current operation call for
+     * which a servant was lcoated by [locate].
      *
      * @param servant The Servant that was returned by [locate].
      *
      * @param cookie The cookie that was returned by [locate].
      *
      * @see ObjectAdapter
+     * @see Current
      * @see locate
      *
      **/
-    void finished(ObjectAdapter adapter, string identity, string operation, Object servant, LocalObject cookie);
+    void finished(ObjectAdapter adapter, Current current, Object servant, LocalObject cookie);
 
     /**
      *

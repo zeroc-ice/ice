@@ -48,12 +48,12 @@ IcePack::Forward::~Forward()
 }
 
 ObjectPtr
-IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& ident, const string&, LocalObjectPtr&)
+IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const Current& current, LocalObjectPtr&)
 {
     //
     // Look up the server description
     //
-    ServerDescription desc = _admin->find(ident);
+    ServerDescription desc = _admin->find(current.identity);
 
     //
     // If we didn't find a server description, we return null, meaning
@@ -159,8 +159,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& ident, c
 }
 
 void
-IcePack::Forward::finished(const ObjectAdapterPtr&, const string&, const string&,
-			   const ObjectPtr&, const LocalObjectPtr&)
+IcePack::Forward::finished(const ObjectAdapterPtr&, const Current&, const ObjectPtr&, const LocalObjectPtr&)
 {
     // Nothing to do
 }

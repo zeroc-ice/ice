@@ -29,6 +29,7 @@ SLICEFILES	= ../slice/Ice/Object.ice \
 		  ../slice/Ice/ObjectAdapter.ice \
 		  ../slice/Ice/ServantLocator.ice \
 		  ../slice/Ice/SecurityException.ice \
+		  ../slice/Ice/Current.ice \
 		  ../slice/IcePack/Admin.ice \
 		  ../slice/Freeze/DB.ice \
 		  ../slice/Freeze/DBException.ice \

@@ -1635,8 +1635,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    {
 		H << nl << exp2 << "static const char* __mutating[" << allMutatingOpNames.size() << "];";
 	    }
-	    H << nl << exp2 << "virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, "
-	      << "const ::std::string&, const ::std::string&, const ::std::string&);";
+	    H << nl << exp2
+	      << "virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);";
 	    H << nl << exp2 << "virtual bool __isMutating(const ::std::string&);";
 	    C << sp;
 	    C << nl << "const char* " << scoped.substr(2) << "::__all[] =";
@@ -1668,12 +1668,12 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 		C << eb << ';';
 	    }
 	    C << sp;
-	    C << nl << "::IceInternal::DispatchStatus" << nl << scoped.substr(2) << "::__dispatch("
-	      << "::IceInternal::Incoming& in, const ::std::string&, const ::std::string&, const ::std::string& s)";
+	    C << nl << "::IceInternal::DispatchStatus" << nl << scoped.substr(2)
+	      << "::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)";
 	    C << sb;
 	    C << nl << "const char** b = __all;";
 	    C << nl << "const char** e = __all + " << allOpNames.size() << ';';
-	    C << nl << "::std::pair< const char**, const char**> r = ::std::equal_range(b, e, s);";
+	    C << nl << "::std::pair< const char**, const char**> r = ::std::equal_range(b, e, current.operation);";
 	    C << nl << "if (r.first == r.second)";
 	    C << sb;
 	    C << nl << "return ::IceInternal::DispatchOperationNotExist;";

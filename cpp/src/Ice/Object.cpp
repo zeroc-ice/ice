@@ -10,6 +10,7 @@
 
 #include <Ice/Object.h>
 #include <Ice/Incoming.h>
+#include <Ice/Current.h>
 
 using namespace std;
 using namespace Ice;
@@ -100,11 +101,11 @@ const char* Ice::Object::__all[] =
 };
 
 DispatchStatus
-Ice::Object::__dispatch(Incoming& in, const string&, const string&, const string& s)
+Ice::Object::__dispatch(Incoming& in, const Current& current)
 {
     const char** b = __all;
     const char** e = __all + sizeof(__all) / sizeof(const char*);
-    pair<const char**, const char**> r = equal_range(b, e, s);
+    pair<const char**, const char**> r = equal_range(b, e, current.operation);
     if (r.first == r.second)
     {
 	return DispatchOperationNotExist;
@@ -245,11 +246,11 @@ Ice::Object::ice_findFacet(const string& name)
 }
 
 DispatchStatus
-Ice::Blobject::__dispatch(Incoming& in, const string& ident, const string& facet, const string& operation)
+Ice::Blobject::__dispatch(Incoming& in, const Current& current)
 {
     vector<Byte> blob;
     Int sz = in.is()->getReadEncapsSize();
     in.is()->readBlob(blob, sz);
-    ice_invokeIn(ident, facet, operation, blob);
+    ice_invokeIn(blob, current);
     return ::IceInternal::DispatchOK;
 }

@@ -627,7 +627,11 @@ IceDelegateD::Ice::Object::ice_invokeIn(const string& operation, const vector<By
     }
     try
     {
-	__servant->ice_invokeIn(__reference->identity, __reference->facet, operation, inParams);
+	Current current;
+	current.identity = __reference->identity;
+	current.facet = __reference->facet;
+	current.operation = operation;
+	__servant->ice_invokeIn(inParams, current);
     }
     catch (const ::Ice::LocalException&)
     {

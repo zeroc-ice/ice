@@ -39,6 +39,8 @@ enum DispatchStatus
 namespace Ice
 {
 
+class Current;
+
 class ICE_API LocationForward
 {
 public:
@@ -73,8 +75,7 @@ public:
     ::IceInternal::DispatchStatus ___ice_ping(::IceInternal::Incoming&);
 
     static const char* __all[];
-    virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const std::string&, const std::string&,
-						     const std::string&);
+    virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);
     virtual bool __isMutating(const std::string&);
 
     virtual void __write(::IceInternal::BasicStream*) const;
@@ -96,10 +97,8 @@ class ICE_API Blobject : virtual public Object
 {
 public:
 
-    virtual void ice_invokeIn(const std::string&, const std::string&, const std::string&,
-			      const std::vector< ::Ice::Byte>&) = 0;
-    virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const std::string&, const std::string&,
-						     const std::string&);
+    virtual void ice_invokeIn(const std::vector< ::Ice::Byte>&, const Current&) = 0;
+    virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);
 };
 
 }

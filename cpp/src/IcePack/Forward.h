@@ -26,10 +26,9 @@ public:
     Forward(const Ice::CommunicatorPtr& communicator, const AdminPtr&);
     virtual ~Forward();
     
-    virtual Ice::ObjectPtr locate(const Ice::ObjectAdapterPtr&, const std::string&, const std::string&,
-				  Ice::LocalObjectPtr&);
-    virtual void finished(const Ice::ObjectAdapterPtr&, const std::string&, const std::string&, const Ice::ObjectPtr&,
-			  const Ice::LocalObjectPtr&);
+    virtual Ice::ObjectPtr locate(const Ice::ObjectAdapterPtr&, const Ice::Current&, Ice::LocalObjectPtr&);
+    virtual void finished(const Ice::ObjectAdapterPtr&, const Ice::Current&,
+			  const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
     virtual void deactivate();
 
 private:

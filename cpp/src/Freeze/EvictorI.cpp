@@ -162,8 +162,7 @@ Freeze::EvictorI::installServantInitializer(const ServantInitializerPtr& initial
 }
 
 ObjectPtr
-Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& ident, const string&,
-			 LocalObjectPtr& cookie)
+Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current, LocalObjectPtr& cookie)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -177,13 +176,13 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& ident, c
 
     EvictorElementPtr element;
 
-    map<string, EvictorElementPtr>::iterator p = _evictorMap.find(ident);
+    map<string, EvictorElementPtr>::iterator p = _evictorMap.find(current.identity);
     if (p != _evictorMap.end())
     {
 	if (_trace >= 2)
 	{
 	    ostringstream s;
-	    s << "found \"" << ident << "\" in the queue";
+	    s << "found \"" << current.identity << "\" in the queue";
 	    _db->getCommunicator()->getLogger()->trace("Evictor", s.str());
 	}
 
@@ -193,7 +192,7 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& ident, c
 	//
 	element = p->second;
 	_evictorList.erase(element->position);
-	_evictorList.push_front(ident);
+	_evictorList.push_front(current.identity);
 	element->position = _evictorList.begin();
     }
     else
@@ -201,8 +200,8 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& ident, c
 	if (_trace >= 2)
 	{
 	    ostringstream s;
-	    s << "couldn't find \"" << ident << "\" in the queue\n"
-	      << "loading \"" << ident << "\" from the database";
+	    s << "couldn't find \"" << current.identity << "\" in the queue\n"
+	      << "loading \"" << current.identity << "\" from the database";
 	    _db->getCommunicator()->getLogger()->trace("Evictor", s.str());
 	}
 
@@ -213,7 +212,7 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& ident, c
 	ObjectPtr servant;
 	try
 	{
-	    servant = _db->getServant(ident);
+	    servant = _db->getServant(current.identity);
 	}
 	catch (const DBNotFoundException&)
 	{
@@ -231,14 +230,14 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& ident, c
 	//
 	// Add the new Servant to the evictor queue.
 	//
-	element = add(ident, servant);
+	element = add(current.identity, servant);
 
 	//
 	// If an initializer is installed, call it now.
 	//
 	if (_initializer)
 	{
-	    _initializer->initialize(adapter, ident, servant);
+	    _initializer->initialize(adapter, current.identity, servant);
 	}
     }
 
@@ -260,7 +259,7 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& ident, c
 }
 
 void
-Freeze::EvictorI::finished(const ObjectAdapterPtr&, const string& ident, const string& operation,
+Freeze::EvictorI::finished(const ObjectAdapterPtr&, const Current& current,
 			   const ObjectPtr& servant, const LocalObjectPtr& cookie)
 {
     JTCSyncT<JTCMutex> sync(*this);
@@ -288,9 +287,9 @@ Freeze::EvictorI::finished(const ObjectAdapterPtr&, const string& ident, const s
     //
     if (_persistenceMode == SaveAfterMutatingOperation)
     {
-	if (servant->__isMutating(operation))
+	if (servant->__isMutating(current.operation))
 	{
-	    _db->putServant(ident, servant);
+	    _db->putServant(current.identity, servant);
 	}
     }
 

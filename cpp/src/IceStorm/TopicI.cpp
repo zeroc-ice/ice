@@ -41,8 +41,7 @@ public:
     {
     }
 
-    virtual void ice_invokeIn(const std::string&, const std::string&, const std::string&,
-			      const std::vector< ::Ice::Byte>&);
+    virtual void ice_invokeIn(const vector< Ice::Byte>&, const Ice::Current&);
 
 private:
 
@@ -137,7 +136,7 @@ public:
 
 
     void
-    publish(const string& op, const std::vector< ::Ice::Byte>& blob)
+    publish(const string& op, const vector< Ice::Byte>& blob)
     {
 	JTCSyncT<JTCMutex> sync(*this);
 
@@ -176,10 +175,9 @@ private:
 } // End namespace IceStorm
 
 void
-BlobjectI::ice_invokeIn(const string&, const string&, const string& op,
-			const std::vector< ::Ice::Byte>& blob)
+BlobjectI::ice_invokeIn(const vector< Ice::Byte>& blob, const Ice::Current& current)
 {
-    _subscribers->publish(op, blob);
+    _subscribers->publish(current.operation, blob);
 }
 
 TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& traceLevels, const Ice::LoggerPtr& logger,

@@ -20,23 +20,25 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const ReferencePtr& ref, const char* operation) :
-    _adapter(adapter),
-    _reference(ref),
-    _operation(operation)
+    _adapter(adapter)
 {
+    _current.identity = ref->identity;
+    _current.facet = ref->facet;
+    _current.operation = operation;
+
     try
     {
-	_servant = _adapter->identityToServant(_reference->identity);
+	_servant = _adapter->identityToServant(_current.identity);
     
 	if (!_servant)
 	{
-	    string::size_type pos = _reference->identity.find('#');
+	    string::size_type pos = _current.identity.find('#');
 	    if (pos != string::npos)
 	    {
-		_locator = _adapter->findServantLocator(_reference->identity.substr(0, pos));
+		_locator = _adapter->findServantLocator(_current.identity.substr(0, pos));
 		if (_locator)
 		{
-		    _servant = _locator->locate(_adapter, _reference->identity, _operation, _cookie);
+		    _servant = _locator->locate(_adapter, _current, _cookie);
 		}
 	    }
 	}
@@ -46,7 +48,7 @@ IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const ReferencePtr&
 	    _locator = _adapter->findServantLocator("");
 	    if (_locator)
 	    {
-		_servant = _locator->locate(_adapter, _reference->identity, _operation, _cookie);
+		_servant = _locator->locate(_adapter, _current, _cookie);
 	    }
 	}
 	
@@ -63,7 +65,7 @@ IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const ReferencePtr&
     {
 	if (_locator && _servant)
 	{
-	    _locator->finished(_adapter, _reference->identity, _operation, _servant, _cookie);
+	    _locator->finished(_adapter, _current, _servant, _cookie);
 	}
 	throw;
     }
@@ -78,7 +80,7 @@ IceInternal::Direct::~Direct()
 {
     if (_locator && _servant)
     {
-	_locator->finished(_adapter, _reference->identity, _operation, _servant, _cookie);
+	_locator->finished(_adapter, _current, _servant, _cookie);
     }
 }
 

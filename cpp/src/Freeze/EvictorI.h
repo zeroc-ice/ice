@@ -37,9 +37,8 @@ public:
 
     virtual void installServantInitializer(const ServantInitializerPtr&);
 
-    virtual Ice::ObjectPtr locate(const Ice::ObjectAdapterPtr&, const std::string&, const std::string&,
-				  Ice::LocalObjectPtr&);
-    virtual void finished(const Ice::ObjectAdapterPtr&, const std::string&, const std::string&,
+    virtual Ice::ObjectPtr locate(const Ice::ObjectAdapterPtr&, const Ice::Current&, Ice::LocalObjectPtr&);
+    virtual void finished(const Ice::ObjectAdapterPtr&, const Ice::Current&,
 			  const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
     virtual void deactivate();
 

@@ -28,12 +28,10 @@ IceInternal::Incoming::Incoming(const InstancePtr& instance, const ObjectAdapter
 void
 IceInternal::Incoming::invoke()
 {
-    string identity;
-    _is.read(identity);
-    string facet;
-    _is.read(facet);
-    string operation;
-    _is.read(operation);
+    Current current;
+    _is.read(current.identity);
+    _is.read(current.facet);
+    _is.read(current.operation);
 
     BasicStream::Container::size_type statusPos = _os.b.size();
 
@@ -49,17 +47,17 @@ IceInternal::Incoming::invoke()
 	//
 	_is.startReadEncaps();
 
-	servant = _adapter->identityToServant(identity);
+	servant = _adapter->identityToServant(current.identity);
 
 	if (!servant)
 	{
-	    string::size_type pos = identity.find('#');
+	    string::size_type pos = current.identity.find('#');
 	    if (pos != string::npos)
 	    {
-		locator = _adapter->findServantLocator(identity.substr(0, pos));
+		locator = _adapter->findServantLocator(current.identity.substr(0, pos));
 		if (locator)
 		{
-		    servant = locator->locate(_adapter, identity, operation, cookie);
+		    servant = locator->locate(_adapter, current, cookie);
 		}
 	    }
 	}
@@ -69,7 +67,7 @@ IceInternal::Incoming::invoke()
 	    locator = _adapter->findServantLocator("");
 	    if (locator)
 	    {
-		servant = locator->locate(_adapter, identity, operation, cookie);
+		servant = locator->locate(_adapter, current, cookie);
 	    }
 	}
 
@@ -79,9 +77,9 @@ IceInternal::Incoming::invoke()
 	}
 	else
 	{
-	    if (!facet.empty())
+	    if (!current.facet.empty())
 	    {
-		ObjectPtr facetServant = servant->ice_findFacet(facet);
+		ObjectPtr facetServant = servant->ice_findFacet(current.facet);
 		if (!facetServant)
 		{
 		    _os.write(static_cast<Byte>(DispatchFacetNotExist));
@@ -89,7 +87,7 @@ IceInternal::Incoming::invoke()
 		else
 		{
 		    _os.write(static_cast<Byte>(DispatchOK));
-		    DispatchStatus status = facetServant->__dispatch(*this, identity, facet, operation);
+		    DispatchStatus status = facetServant->__dispatch(*this, current);
 		    _is.checkReadEncaps();
 		    *(_os.b.begin() + statusPos) = static_cast<Byte>(status);
 		}
@@ -97,7 +95,7 @@ IceInternal::Incoming::invoke()
 	    else
 	    {
 		_os.write(static_cast<Byte>(DispatchOK));
-		DispatchStatus status = servant->__dispatch(*this, identity, facet, operation);
+		DispatchStatus status = servant->__dispatch(*this, current);
 		_is.checkReadEncaps();
 		*(_os.b.begin() + statusPos) = static_cast<Byte>(status);
 	    }
@@ -106,7 +104,7 @@ IceInternal::Incoming::invoke()
 	_is.endReadEncaps();
 	if (locator && servant)
 	{
-	    locator->finished(_adapter, identity, operation, servant, cookie);
+	    locator->finished(_adapter, current, servant, cookie);
 	}
     }
     catch (const LocationForward& ex)
@@ -114,7 +112,7 @@ IceInternal::Incoming::invoke()
 	_is.endReadEncaps();
 	if (locator && servant)
 	{
-	    locator->finished(_adapter, identity, operation, servant, cookie);
+	    locator->finished(_adapter, current, servant, cookie);
 	}
 	_os.b.resize(statusPos);
 	_os.write(static_cast<Byte>(DispatchLocationForward));
@@ -126,7 +124,7 @@ IceInternal::Incoming::invoke()
 	_is.endReadEncaps();
 	if (locator && servant)
 	{
-	    locator->finished(_adapter, identity, operation, servant, cookie);
+	    locator->finished(_adapter, current, servant, cookie);
 	}
 	_os.b.resize(statusPos);
 	_os.write(static_cast<Byte>(DispatchUnknownLocalException));
@@ -137,7 +135,7 @@ IceInternal::Incoming::invoke()
 	_is.endReadEncaps();
 	if (locator && servant)
 	{
-	    locator->finished(_adapter, identity, operation, servant, cookie);
+	    locator->finished(_adapter, current, servant, cookie);
 	}
 	_os.b.resize(statusPos);
 	_os.write(static_cast<Byte>(DispatchUnknownUserException));
@@ -148,7 +146,7 @@ IceInternal::Incoming::invoke()
 	_is.endReadEncaps();
 	if (locator && servant)
 	{
-	    locator->finished(_adapter, identity, operation, servant, cookie);
+	    locator->finished(_adapter, current, servant, cookie);
 	}
 	_os.b.resize(statusPos);
 	_os.write(static_cast<Byte>(DispatchUnknownException));

@@ -16,6 +16,7 @@
 #include <Ice/ReferenceF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/LocalObjectF.h>
+#include <Ice/Current.h>
 
 namespace IceInternal
 {
@@ -32,8 +33,7 @@ public:
 private:
 
     const ::Ice::ObjectAdapterPtr& _adapter;
-    const ReferencePtr& _reference;
-    const char* _operation;
+    ::Ice::Current _current;
     ::Ice::ObjectPtr _servant;
     ::Ice::ObjectPtr _facetServant;
     ::Ice::ServantLocatorPtr _locator;

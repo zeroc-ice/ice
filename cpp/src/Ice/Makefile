@@ -44,6 +44,7 @@ OBJS		= Application.o \
 		  UserExceptionFactoryManager.o \
 		  Endpoint.o \
 		  Reference.o \
+		  Current.o \
 		  LocalObject.o \
 		  Object.o \
 		  ProxyFactory.o \
@@ -253,5 +254,10 @@ $(HDIR)/UserExceptionFactoryF.h: $(SDIR)/UserExceptionFactoryF.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/UserExceptionFactoryF.h
+
+$(HDIR)/Current.h Current.cpp: $(SDIR)/Current.ice $(SLICE2CPP)
+	rm -f $(HDIR)/Current.h Current.cpp
+	$(SLICECMD) $(SDIR)/Current.ice
+	mv Current.h $(HDIR)
 
 include .depend
