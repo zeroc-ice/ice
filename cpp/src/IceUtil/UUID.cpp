@@ -134,9 +134,33 @@ IceUtil::generateUUID()
 
     assert(sizeof(UUID) == 16);
 
-    size_t bytesRead = read(fd, &uuid, sizeof(UUID));
+    char* buffer = reinterpret_cast<char*>(&uuid);
+    int reads = 0;
+    size_t index = 0;
+
+    // Limit the number of attempts to 20 reads to avoid
+    // a potential "for ever" loop
+    //
+    while(reads <= 20 && index != sizeof(UUID))
+    {
+	ssize_t bytesRead = read(fd, buffer + index, sizeof(UUID) - index);
+	
+	if(bytesRead == -1 && errno != EINTR)
+	{
+	    int err = errno;
+	    cerr << "Reading /dev/urandom returned " << strerror(err) << endl;
+	    assert(0);
+	    close(fd);
+	    throw UUIDGenerationException(__FILE__, __LINE__);
+	}
+	else
+	{
+	    index += bytesRead;
+	    reads++;
+	}
+    }
     
-    if (bytesRead != sizeof(UUID))
+    if (index != sizeof(UUID))
     {
 	assert(0);
 	close(fd);
