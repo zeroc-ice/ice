@@ -249,9 +249,8 @@ created by the object adapter.</entry>
 <entry>-z</entry>
 <entry>Specifies bzip2 compression.</entry>
 <entry>Determines whether compressed requests are sent.</entry>
-<entry>Determines whether compressed responses are sent, as well as
-whether compression is advertised in proxies created by the
-adapter.</entry>
+<entry>Determines whether compression is advertised in proxies created
+by the adapter.</entry>
 </row>
 </tbody>
 </tgroup>
@@ -420,9 +419,8 @@ created by the object adapter.</entry>
 <entry>-z</entry>
 <entry>Specifies bzip2 compression.</entry>
 <entry>Determines whether compressed requests are sent.</entry>
-<entry>Determines whether compressed responses are sent, as well as
-whether compression is advertised in proxies created by the
-adapter.</entry>
+<entry>Determines whether compression is advertised in proxies created
+by the adapter.</entry>
 </row>
 </tbody>
 </tgroup>
