@@ -22,24 +22,34 @@ void IceInternal::decRef(ObjectAdapterFactory* p) { p->__decRef(); }
 void
 IceInternal::ObjectAdapterFactory::shutdown()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    map<string, ObjectAdapterIPtr> adapters;
 
-    //
-    // Ignore shutdown requests if the object adapter factory has
-    // already been shut down.
-    //
-    if(!_instance)
     {
-	return;
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	
+	//
+	// Ignore shutdown requests if the object adapter factory has
+	// already been shut down.
+	//
+	if(!_instance)
+	{
+	    return;
+	}
+	
+	adapters = _adapters;
+	
+	_instance = 0;
+	_communicator = 0;
+	
+	notifyAll();
     }
     
-    for_each(_adapters.begin(), _adapters.end(),
+    //
+    // Deactivate outside the thread synchronization, to avoid
+    // deadlocks.
+    //
+    for_each(adapters.begin(), adapters.end(),
 	     IceUtil::secondVoidMemFun<const string, ObjectAdapterI>(&ObjectAdapter::deactivate));
-    
-    _instance = 0;
-    _communicator = 0;
-
-    notifyAll();
 }
 
 void
