@@ -33,6 +33,7 @@ usage(const char* n)
         "-d, --debug             Print debug messages.\n"
         "--ice                   Permit `Ice' prefix (for building Ice source code only)\n"
         "--checksum              Generate checksums for Slice definitions.\n"
+        "--stream                Generate marshaling support for public stream API.\n"
         ;
     // Note: --case-sensitive is intentionally not shown here!
 }
@@ -51,6 +52,7 @@ main(int argc, char* argv[])
     bool caseSensitive = false;
     bool depend = false;
     bool checksum = false;
+    bool stream = false;
 
     int idx = 1;
     while(idx < argc)
@@ -186,6 +188,15 @@ main(int argc, char* argv[])
 	    }
 	    --argc;
 	}
+	else if(strcmp(argv[idx], "--stream") == 0)
+	{
+	    stream = true;
+	    for(int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
+	}
         else if(argv[idx][0] == '-')
         {
             cerr << argv[0] << ": unknown option `" << argv[idx] << "'"
@@ -246,7 +257,7 @@ main(int argc, char* argv[])
 	    }
 	    else
 	    {
-		Gen gen(argv[0], icecpp.getBaseName(), includePaths, output, impl, implTie);
+		Gen gen(argv[0], icecpp.getBaseName(), includePaths, output, impl, implTie, stream);
 		if(!gen)
 		{
 		    p->destroy();
