@@ -74,6 +74,7 @@ private:
     
     ObjectPrx newProxy(const Identity&) const;
     ObjectPrx newDirectProxy(const Identity&) const;
+    static void checkIdentity(const Identity&);
     bool isLocal(const ObjectPrx&) const;
 
     ::IceInternal::InstancePtr _instance;

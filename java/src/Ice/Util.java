@@ -109,24 +109,38 @@ public final class Util
         Identity ident = new Identity();
 
         //
-        // Find unescaped separator
+        // Find unescaped separator.
         //
-        int slash = 0;
-        while((slash = s.indexOf('/', slash)) != -1)
+        int slash = -1, pos = 0;
+        while((pos = s.indexOf('/', pos)) != -1)
         {
-            if(slash == 0 || s.charAt(slash - 1) != '\\')
+            if(pos == 0 || s.charAt(pos - 1) != '\\')
             {
-                break;
+                if(slash == -1)
+                {
+                    slash = pos;
+                }
+                else
+                {
+                    //
+                    // Extra unescaped slash found.
+                    //
+                    IdentityParseException ex = new IdentityParseException();
+                    ex.str = s;
+                    throw ex;
+                }
             }
-            slash++;
+            pos++;
         }
 
         if(slash == -1)
         {
             StringHolder token = new StringHolder();
-            if(!IceInternal.StringUtil.decodeString(s, 0, 0, token))
+            if(!IceInternal.StringUtil.decodeString(s, 0, s.length(), token))
             {
-                throw new SyscallException();
+                IdentityParseException ex = new IdentityParseException();
+                ex.str = s;
+                throw ex;
             }
             ident.category = "";
             ident.name = token.value;
@@ -136,14 +150,18 @@ public final class Util
             StringHolder token = new StringHolder();
             if(!IceInternal.StringUtil.decodeString(s, 0, slash, token))
             {
-                throw new SyscallException();
+                IdentityParseException ex = new IdentityParseException();
+                ex.str = s;
+                throw ex;
             }
             ident.category = token.value;
             if(slash + 1 < s.length())
             {
-                if(!IceInternal.StringUtil.decodeString(s, slash + 1, 0, token))
+                if(!IceInternal.StringUtil.decodeString(s, slash + 1, s.length(), token))
                 {
-                    throw new SyscallException();
+                    IdentityParseException ex = new IdentityParseException();
+                    ex.str = s;
+                    throw ex;
                 }
                 ident.name = token.value;
             }

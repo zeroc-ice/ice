@@ -167,10 +167,39 @@ IceInternal::ReferenceFactory::create(const string& str)
 	throw ex;
     }
 
+    //
+    // Parsing the identity may raise IdentityParseException.
+    //
     Identity ident = stringToIdentity(idstr);
-    if(ident.name.empty() && ident.category.empty())
+
+    if(ident.name.empty())
     {
-        return 0;
+        //
+        // An identity with an empty name and a non-empty
+        // category is illegal.
+        //
+        if(!ident.category.empty())
+        {
+            IllegalIdentityException e(__FILE__, __LINE__);
+            e.id = ident;
+            throw e;
+        }
+        //
+        // Treat a stringified proxy containing two double
+        // quotes ("") the same as an empty string, i.e.,
+        // a null proxy, but only if nothing follows the
+        // quotes.
+        //
+        else if(s.find_first_not_of(delim, end) != string::npos)
+        {
+            ProxyParseException ex(__FILE__, __LINE__);
+            ex.str = str;
+            throw ex;
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     vector<string> facet;

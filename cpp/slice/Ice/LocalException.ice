@@ -181,6 +181,22 @@ local exception EndpointParseException
 /**
  *
  * This exception is raised if there was an error while parsing a
+ * stringified identity.
+ *
+ **/
+local exception IdentityParseException
+{
+    /**
+     *
+     * The string which couldn't be parsed.
+     *
+     **/
+    string str;
+};
+
+/**
+ *
+ * This exception is raised if there was an error while parsing a
  * stringified proxy.
  *
  **/
@@ -192,6 +208,21 @@ local exception ProxyParseException
      *
      **/
     string str;
+};
+
+/**
+ *
+ * This exception is raised if an illegal identity is encountered.
+ *
+ **/
+local exception IllegalIdentityException
+{
+    /**
+     *
+     * The illegal identity.
+     *
+     **/
+    Identity id;
 };
 
 /**

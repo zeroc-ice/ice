@@ -128,10 +128,39 @@ public final class ReferenceFactory
 	    throw e;
         }
 
+        //
+        // Parsing the identity may raise IdentityParseException.
+        //
         Ice.Identity ident = Ice.Util.stringToIdentity(idstr);
-        if(ident.name.length() == 0 && ident.category.length() == 0)
+
+        if(ident.name.length() == 0)
         {
-            return null;
+            //
+            // An identity with an empty name and a non-empty
+            // category is illegal.
+            //
+            if(ident.category.length() > 0)
+            {
+                Ice.IllegalIdentityException e = new Ice.IllegalIdentityException();
+                e.id = ident;
+                throw e;
+            }
+            //
+            // Treat a stringified proxy containing two double
+            // quotes ("") the same as an empty string, i.e.,
+            // a null proxy, but only if nothing follows the
+            // quotes.
+            //
+            else if(StringUtil.findFirstNotOf(s, delim, end) != -1)
+            {
+                Ice.ProxyParseException e = new Ice.ProxyParseException();
+                e.str = s;
+                throw e;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         java.util.ArrayList facet = new java.util.ArrayList();

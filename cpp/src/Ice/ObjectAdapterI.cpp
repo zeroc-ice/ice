@@ -180,6 +180,8 @@ Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
 	throw ex;
     }
 
+    checkIdentity(ident);
+
     _activeServantMapHint = _activeServantMap.insert(_activeServantMapHint, make_pair(ident, object));
 
     return newProxy(ident);
@@ -216,6 +218,8 @@ Ice::ObjectAdapterI::remove(const Identity& ident)
 	ex.name = _name;
 	throw ex;
     }
+
+    checkIdentity(ident);
 
     _activeServantMap.erase(ident);
     _activeServantMapHint = _activeServantMap.end();
@@ -320,6 +324,8 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix)
 ObjectPtr
 Ice::ObjectAdapterI::identityToServant(const Identity& ident)
 {
+    checkIdentity(ident);
+
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(_activeServantMapHint != _activeServantMap.end())
@@ -352,6 +358,8 @@ Ice::ObjectAdapterI::proxyToServant(const ObjectPrx& proxy)
 ObjectPrx
 Ice::ObjectAdapterI::createProxy(const Identity& ident)
 {
+    checkIdentity(ident);
+
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
     if(!_instance)
@@ -367,6 +375,8 @@ Ice::ObjectAdapterI::createProxy(const Identity& ident)
 ObjectPrx
 Ice::ObjectAdapterI::createDirectProxy(const Identity& ident)
 {
+    checkIdentity(ident);
+
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
     if(!_instance)
@@ -382,6 +392,8 @@ Ice::ObjectAdapterI::createDirectProxy(const Identity& ident)
 ObjectPrx
 Ice::ObjectAdapterI::createReverseProxy(const Identity& ident)
 {
+    checkIdentity(ident);
+
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
     if(!_instance)
@@ -648,6 +660,17 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident) const
 							     false, false, "", endpoints, 0, 0, 0);
     return _instance->proxyFactory()->referenceToProxy(ref);
 
+}
+
+void
+Ice::ObjectAdapterI::checkIdentity(const Identity& ident)
+{
+    if(ident.name.size() == 0)
+    {
+        IllegalIdentityException e(__FILE__, __LINE__);
+        e.id = ident;
+        throw e;
+    }
 }
 
 bool

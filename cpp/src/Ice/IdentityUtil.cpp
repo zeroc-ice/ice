@@ -28,36 +28,54 @@ Ice::stringToIdentity(const string& s)
     Identity ident;
 
     //
-    // Find unescaped separator
+    // Find unescaped separator.
     //
-    string::size_type slash = 0;
-    while((slash = s.find('/', slash)) != string::npos)
+    string::size_type slash = string::npos, pos = 0;
+    while((pos = s.find('/', pos)) != string::npos)
     {
-        if(slash == 0 || s[slash - 1] != '\\')
+        if(pos == 0 || s[pos - 1] != '\\')
         {
-            break;
+            if(slash == string::npos)
+            {
+                slash = pos;
+            }
+            else
+            {
+                //
+                // Extra unescaped slash found.
+                //
+                IdentityParseException ex(__FILE__, __LINE__);
+                ex.str = s;
+                throw ex;
+            }
         }
-        slash++;
+        pos++;
     }
 
     if(slash == string::npos)
     {
-        if(!decodeString(s, 0, 0, ident.name))
+        if(!decodeString(s, 0, s.size(), ident.name))
         {
-            throw SyscallException(__FILE__, __LINE__);
+            IdentityParseException ex(__FILE__, __LINE__);
+            ex.str = s;
+            throw ex;
         }
     }
     else
     {
         if(!decodeString(s, 0, slash, ident.category))
         {
-            throw SyscallException(__FILE__, __LINE__);
+            IdentityParseException ex(__FILE__, __LINE__);
+            ex.str = s;
+            throw ex;
         }
         if(slash + 1 < s.size())
         {
-            if(!decodeString(s, slash + 1, 0, ident.name))
+            if(!decodeString(s, slash + 1, s.size(), ident.name))
             {
-                throw SyscallException(__FILE__, __LINE__);
+                IdentityParseException ex(__FILE__, __LINE__);
+                ex.str = s;
+                throw ex;
             }
         }
     }

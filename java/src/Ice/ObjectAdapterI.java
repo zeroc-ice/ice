@@ -173,6 +173,8 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	    throw e;
         }
 
+        checkIdentity(ident);
+
         //
         // Create a copy of the Identity argument, in case the caller
         // reuses it
@@ -214,6 +216,8 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	    e.name = _name;
 	    throw e;
         }
+
+        checkIdentity(ident);
 
         _activeServantMap.remove(ident);
     }
@@ -264,6 +268,8 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized Ice.Object
     identityToServant(Identity ident)
     {
+        checkIdentity(ident);
+
         return (Ice.Object)_activeServantMap.get(ident);
     }
 
@@ -284,6 +290,8 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	    throw e;
         }
 
+        checkIdentity(ident);
+
         return newProxy(ident);
     }
 
@@ -297,6 +305,8 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	    throw e;
         }
 
+        checkIdentity(ident);
+
         return newDirectProxy(ident);
     }
 
@@ -309,6 +319,8 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	    e.name = _name;
 	    throw e;
         }
+
+        checkIdentity(ident);
 
         //
         // Create a reference and return a reverse proxy for this reference.
@@ -578,6 +590,29 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 									      false, false, "",
 									      endpoints, null, null, null);
         return _instance.proxyFactory().referenceToProxy(reference);
+    }
+
+    private static void
+    checkIdentity(Identity ident)
+    {
+        if(ident.name == null || ident.name.length() == 0)
+        {
+            IllegalIdentityException e = new IllegalIdentityException();
+            try
+            {
+                e.id = (Identity)ident.clone();
+            }
+            catch(CloneNotSupportedException ex)
+            {
+                assert(false);
+            }
+            throw e;
+        }
+
+        if(ident.category == null)
+        {
+            ident.category = "";
+        }
     }
 
     public boolean

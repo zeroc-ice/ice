@@ -116,10 +116,24 @@ Ice::EndpointParseException::ice_print(ostream& out) const
 }
 
 void
+Ice::IdentityParseException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nerror while parsing identity `" << str << "'";
+}
+
+void
 Ice::ProxyParseException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nerror while parsing proxy `" << str << "'";
+}
+
+void
+Ice::IllegalIdentityException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nillegal identity: `" << id << "'";
 }
 
 void
@@ -132,7 +146,7 @@ Ice::LocationForwardIdentityException::ice_print(ostream& out) const
 static void
 printFailedRequestData(ostream& out, const RequestFailedException& ex)
 {
-    out << "\nidentity: " << identityToString(ex.id);
+    out << "\nidentity: " << ex.id;
     out << "\nfacet: ";
     vector<string>::const_iterator p = ex.facet.begin();
     while(p != ex.facet.end())
