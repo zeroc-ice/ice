@@ -23,7 +23,7 @@ OBJS		= DB.o \
 		  Evictor.o \
 	  	  DBI.o \
 		  EvictorI.o \
-		  StringObjectDict.o \
+		  IdentityObjectDict.o \
 		  Application.o
 
 SRCS		= $(OBJS:.o=.cpp)
@@ -88,11 +88,11 @@ $(HDIR)/EvictorF.h: $(SDIR)/EvictorF.ice $(SLICE2CPP)
 clean::
 	rm -f $(HDIR)/EvictorF.h
 
-StringObjectDict.h StringObjectDict.cpp: $(SLICE2FREEZE)
-	rm -f StringObjectDict.h StringObjectDict.cpp
-	$(SLICE2FREEZECMD) --dict Freeze::StringObjectDict,string,Object StringObjectDict
+IdentityObjectDict.h IdentityObjectDict.cpp: $(SLICE2FREEZE)
+	rm -f IdentityObjectDict.h IdentityObjectDict.cpp
+	$(SLICE2FREEZECMD) --dict Freeze::IdentityObjectDict,string,Object IdentityObjectDict
 
 clean::
-	rm -f StringObjectDict.h StringObjectDict.cpp
+	rm -f IdentityObjectDict.h IdentityObjectDict.cpp
 
 include .depend

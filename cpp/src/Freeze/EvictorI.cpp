@@ -210,7 +210,7 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current
 	// Load the Ice Object from database and create and add a
 	// Servant for it.
 	//
-	StringObjectDict::iterator p = _dict.find(current.identity);
+	IdentityObjectDict::iterator p = _dict.find(current.identity);
 	if (p == _dict.end())
 	{
 	    //
