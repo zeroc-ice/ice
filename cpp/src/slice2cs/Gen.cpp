@@ -2292,10 +2292,27 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << "return false;";
     _out << eb;
     _out << eb;
-    _out << nl << vs << "[] __vlhs = new " << vs << "[Count];";
+    SequencePtr seq = SequencePtr::dynamicCast(p->valueType());
+    bool valueIsArray = seq && !seq->hasMetaData("cs:collection");
+    if(valueIsArray)
+    {
+	_out << nl << vs << "[] __vlhs = new " << toArrayAlloc(vs + "[]", "Count") << ';';
+    }
+    else
+    {
+	_out << nl << vs << "[] __vlhs = new " << vs << "[Count];";
+    }
     _out << nl << "Values.CopyTo(__vlhs, 0);";
     _out << nl << "_System.Array.Sort(__vlhs);";
-    _out << nl << vs << "[] __vrhs = new " << vs << "[((" << name << ")other).Count];";
+    string vrhsCount = "((" + name + ")other).Count";
+    if(valueIsArray)
+    {
+	_out << nl << vs << "[] __vrhs = new " << toArrayAlloc(vs + "[]", vrhsCount) << ';';
+    }
+    else
+    {
+	_out << nl << vs << "[] __vrhs = new " << vs << '[' << vrhsCount << "];";
+    }
     _out << nl << "((" << name << ")other).Values.CopyTo(__vrhs, 0);";
     _out << nl << "_System.Array.Sort(__vrhs);";
     _out << nl << "for(int i = 0; i < Count; ++i)";

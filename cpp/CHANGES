@@ -1,6 +1,10 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Fixed a bug in slice2cs: the generated code was incorrect
+  for dictionaries with sequence value types, if that sequence
+  value type was mapped to an array.
+
 - Fixed bug in IcePack that would prevent dynamically added adapters
   to be used again after the IcePack registry was restarted.
 

@@ -23,6 +23,11 @@ public:
     virtual ~CsGenerator() {};
 
     //
+    // Convert a dimension-less array declaration to one with a dimension.
+    //
+    static std::string toArrayAlloc(const std::string& decl, const std::string& sz);
+
+    //
     // Validate all metadata in the unit with a "cs:" prefix.
     //
     static void validateMetaData(const UnitPtr&);
@@ -31,6 +36,7 @@ protected:
     static std::string fixId(const std::string&, int = 0, bool = false);
     static std::string typeToString(const TypePtr&);
     static bool isValueType(const TypePtr&);
+
     //
     // Generate code to marshal or unmarshal a type
     //
