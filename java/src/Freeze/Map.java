@@ -411,6 +411,7 @@ public abstract class Map extends java.util.AbstractMap
             //
             // Clone the cursor so that error handling is simpler.
             //
+	    assert _cursor != null;
             DBCursor clone = _cursor._clone();
             
             try
@@ -463,6 +464,7 @@ public abstract class Map extends java.util.AbstractMap
         private Entry
         getEntry()
         {
+	    assert _cursor != null;
             _cursor.curr(_keyHolder, _valueHolder);
             return new Entry(Map.this, _cursor, _keyHolder.value, _valueHolder.value);
         }
@@ -470,7 +472,7 @@ public abstract class Map extends java.util.AbstractMap
         private boolean
         getNext()
         {
-            if(_next == null)
+            if(_next == null && _cursor != null)
             {
                 if(_cursor.next())
                 {
