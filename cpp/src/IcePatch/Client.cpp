@@ -39,6 +39,7 @@ private:
     void patch(const DirectoryDescPtr&, const string&) const;
 
     bool _remove;
+    bool _thorough;
 };
 
 };
@@ -219,6 +220,11 @@ IcePatch::Client::run(int argc, char* argv[])
 	    }
 	}	
 
+	//
+	// Check whether we want to do a through check.
+	//
+	_thorough = properties->getPropertyAsInt("IcePatch.Thorough") > 0;
+
         //
         // Create and install the node description factory.
         //
@@ -359,8 +365,6 @@ public:
 void
 IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) const
 {
-    FileDescSeq fileDescSeq = dirDesc->directory->getContents();
-
     StringSeq orphaned;
     if(_remove)
     {
@@ -375,6 +379,8 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
 	}
     }
     
+    FileDescSeq fileDescSeq = dirDesc->directory->getContents();
+
     for(unsigned int i = 0; i < fileDescSeq.size(); ++i)
     {
 	string path;
@@ -415,6 +421,24 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
 		case FileTypeDirectory:
 		{
 		    cout << " ok" << endl;
+
+		    if(!_thorough && !subDirDesc->md5.empty())
+		    {
+			ByteSeq md5;
+			
+			string pathMD5 = path + ".md5";
+			FileInfo infoMD5 = getFileInfo(pathMD5, false);
+			if(infoMD5.type == FileTypeRegular && infoMD5.time >= info.time)
+			{
+			    md5 = getMD5(path);
+			}
+			
+			if(md5 == subDirDesc->md5)
+			{
+			    continue;
+			}
+		    }
+
 		    break;
 		}
 		
@@ -438,6 +462,11 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
 	    }
 
 	    patch(subDirDesc, newIndent);
+
+	    if(!subDirDesc->md5.empty())
+	    {
+		putMD5(path, subDirDesc->md5);
+	    }
 	}
 	else
 	{

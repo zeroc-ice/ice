@@ -46,6 +46,7 @@ ICE_PATCH_API Ice::StringSeq readDirectory(const std::string&);
 ICE_PATCH_API void createDirectory(const std::string&);
 
 ICE_PATCH_API Ice::ByteSeq getMD5(const std::string&);
+ICE_PATCH_API void putMD5(const std::string&, const Ice::ByteSeq&);
 ICE_PATCH_API void createMD5(const std::string&);
 ICE_PATCH_API Ice::ByteSeq calcPartialMD5(const std::string&, Ice::Int);
 

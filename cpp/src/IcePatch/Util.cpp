@@ -322,6 +322,48 @@ IcePatch::getMD5(const string& path)
 }
 
 void
+IcePatch::putMD5(const string& path, const ByteSeq& bytesMD5)
+{
+    assert(bytesMD5.size() == 16);
+    
+    //
+    // Save the MD5 hash value to a temporary MD5 file.
+    //
+    string pathMD5Temp = path + ".md5temp";
+    ofstream fileMD5(pathMD5Temp.c_str(), ios::binary);
+    if(!fileMD5)
+    {
+	FileAccessException ex;
+	ex.reason = "cannot open `" + pathMD5Temp + "' for writing: " + strerror(errno);
+	throw ex;
+    }
+
+    fileMD5.write(&bytesMD5[0], 16);
+    if(!fileMD5)
+    {
+	FileAccessException ex;
+	ex.reason = "cannot write `" + pathMD5Temp + "': " + strerror(errno);
+	throw ex;
+    }
+
+    fileMD5.close();
+    
+    //
+    // Rename the temporary MD5 file to the final MD5 file. This is
+    // done so that there can be no partial MD5 files after an
+    // abortive application termination.
+    //
+    string pathMD5 = path + ".md5";
+    ::remove(pathMD5.c_str());
+    if(::rename(pathMD5Temp.c_str(), pathMD5.c_str()) == -1)
+    {
+	FileAccessException ex;
+	ex.reason = "cannot rename `" + pathMD5Temp + "' to  `" + pathMD5 + "': " + strerror(errno);
+	throw ex;
+    }
+}
+
+void
 IcePatch::createMD5(const string& path)
 {
     //
@@ -399,40 +441,9 @@ IcePatch::createMD5(const string& path)
     }
     
     //
-    // Save the MD5 hash value to a temporary MD5 file.
+    // Save the MD5 hash value.
     //
-    string pathMD5Temp = path + ".md5temp";
-    ofstream fileMD5(pathMD5Temp.c_str(), ios::binary);
-    if(!fileMD5)
-    {
-	FileAccessException ex;
-	ex.reason = "cannot open `" + pathMD5Temp + "' for writing: " + strerror(errno);
-	throw ex;
-    }
-
-    fileMD5.write(&bytesMD5[0], 16);
-    if(!fileMD5)
-    {
-	FileAccessException ex;
-	ex.reason = "cannot write `" + pathMD5Temp + "': " + strerror(errno);
-	throw ex;
-    }
-
-    fileMD5.close();
-    
-    //
-    // Rename the temporary MD5 file to the final MD5 file. This is
-    // done so that there can be no partial MD5 files after an
-    // abortive application termination.
-    //
-    string pathMD5 = path + ".md5";
-    ::remove(pathMD5.c_str());
-    if(::rename(pathMD5Temp.c_str(), pathMD5.c_str()) == -1)
-    {
-	FileAccessException ex;
-	ex.reason = "cannot rename `" + pathMD5Temp + "' to  `" + pathMD5 + "': " + strerror(errno);
-	throw ex;
-    }
+    putMD5(path, bytesMD5);
 }
 
 ByteSeq
