@@ -377,7 +377,9 @@ IceInternal::Instance::flushBatchRequests()
 
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
     _destroyed(false),
-    _properties(properties)
+    _properties(properties),
+    _messageSizeMax(0),
+    _connectionIdleTime(0)
 {
     IceUtil::Mutex::Lock sync(*_globalStateMutex);
     ++_globalStateCounter;
