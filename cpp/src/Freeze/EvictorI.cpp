@@ -15,6 +15,27 @@ using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
+namespace Freeze
+{
+
+class EvictorIteratorI : public EvictorIterator
+{
+public:
+
+    EvictorIteratorI(const IdentityObjectDict::const_iterator&, const IdentityObjectDict::const_iterator&);
+    ~EvictorIteratorI();
+
+    virtual bool hasNext();
+    virtual Ice::Identity next();
+
+private:
+
+    IdentityObjectDict::const_iterator _curr;
+    IdentityObjectDict::const_iterator _end;
+};
+
+} // End namespace Freeze
+
 Freeze::EvictorI::EvictorI(const DBPtr& db, EvictorPersistenceMode persistenceMode) :
     _evictorSize(10),
     _deactivated(false),
@@ -152,6 +173,12 @@ Freeze::EvictorI::installServantInitializer(const ServantInitializerPtr& initial
     }
 
     _initializer = initializer;
+}
+
+EvictorIteratorPtr
+Freeze::EvictorI::getIterator()
+{
+    return new EvictorIteratorI(_dict.begin(), _dict.end());
 }
 
 ObjectPtr
@@ -422,4 +449,29 @@ Freeze::EvictorDeactivatedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nunknown local exception";
+}
+
+Freeze::EvictorIteratorI::EvictorIteratorI(const IdentityObjectDict::const_iterator& begin,
+					   const IdentityObjectDict::const_iterator& end) :
+    _curr(begin),
+    _end(end)
+{
+}
+
+Freeze::EvictorIteratorI::~EvictorIteratorI()
+{
+}
+
+bool
+Freeze::EvictorIteratorI::hasNext()
+{
+    return _curr != _end;
+}
+
+Ice::Identity
+Freeze::EvictorIteratorI::next()
+{
+    Ice::Identity ident = _curr->first;
+    ++_curr;
+    return ident;
 }
