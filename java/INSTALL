@@ -1,0 +1,131 @@
+======================================================================
+Requirements
+======================================================================
+
+
+Operating systems
+-----------------
+
+Ice for Java has been tested under Linux and Windows 2000/XP, but due
+to the portability of Java, it is very likely that it will also work
+on other platforms.
+
+Note, however, that you require the Slice to Java translators (see
+below), which are only available as binaries for Linux and Windows
+2000/XP. For other platforms, you will have to either port Ice for C++
+(which contains the Slice to Java translators), or you will have to
+translate Slice to Java on a Linux or Windows XP/2000 machine, and
+copy the resulting Java files to your target platform.
+
+
+Java version
+------------
+
+Ice for Java requires Java version 1.4.1 or later. Older versions are
+not supported, because Ice makes use of the new java.nio
+packages. (java.nio was already available in version 1.4.0, but was
+broken on Windows.)
+
+You can download the Java 2 Platform, Standard Edition from
+http://java.sun.com/j2se/.
+
+Make sure to add javac and java to your PATH.
+
+
+Ant
+---
+
+Ice for Java uses Ant as build system. You can download Ant from:
+
+http://jakarta.apache.org/ant/
+
+Make sure to add ant to your PATH.
+
+
+Slice to Java translators
+-------------------------
+
+You require the binary packages to translate Slice to Java. You can
+download the binary packages from our FTP server:
+
+Linux:             ftp://ftp.zeroc.com/TBD
+Windows 2000/XP:   ftp://ftp.zeroc.com/TBD
+
+Another option is to translate Ice for C++, which includes the Slice
+to Java translators.
+
+Add the Slice to Java translators to your PATH.
+
+
+Other Ice utilities
+-------------------
+
+Some of the Ice for Java tests and demonstration programs require
+further Ice for C++ utilities, such as IcePack or Glacier. The
+binaries for these utilities are included in the Slice to Java
+translator binary packages above. Or you can build Ice for C++ by
+yourself to get these utilities.
+
+
+Berkeley DB
+-----------
+
+Freeze for Java uses Berkeley DB as its underlying database. Even
+though Berkeley DB is included with many Linux distributions, the Java
+files for Berkeley DB are usually not available. This means that you
+must build Berkeley DB by hand.
+
+You can download Berkeley DB from:
+
+http://www.sleepycat.com/download.html
+
+When you build Berkeley DB, make sure to configure Berkeley DB with
+Java support. For Linux, this is done by specifying --enable-java with
+"configure". For Windows 2000/XP, you must select the "db_java --
+Win32 Release" project. For details, please see:
+
+http://www.sleepycat.com/docs/index.html
+
+Make sure to add db.jar to your CLASSPATH.
+
+
+Python 2
+--------
+
+To run the automated test suite, you require Python 2. Other than for
+running the test scripts, Python is not required. Linux usually
+includes Python already. For Windows 2000/XP, you can download a
+distribution from:
+
+http://www.activestate.com
+
+
+======================================================================
+Compilation and Testing
+======================================================================
+
+Extract the Ice for Java archive in any directory you like (for
+example, in your home directory). Then compile Ice for Java with the
+command "ant". This will build the Ice for Java core library, all
+add-ons, all tests, and all examples. After a successful build, you
+can run the test suite, provided that you installed Python 2:
+
+python allTests.py
+
+Note that on some Linux distributions (like Redhat 7.x), Python 2 is
+available as "python2", in which case you must use:
+
+python2 allTests.py
+
+If everything worked out, you should see lots of "ok". In case of a
+failure, the tests abort with "failed".
+
+If you want to try out any of the demos, make sure to add to add the
+"lib" directory to your CLASSPATH.
+
+
+======================================================================
+Installation
+======================================================================
+
+TBD

@@ -6,9 +6,9 @@ Requirements
 Windows version
 ---------------
 
-Ice has been extensively tested with Windows XP and Windows 2000.
-Ice will most likely also work on Windows NT. Windows 95/98/ME is
-not supported.
+Ice has been extensively tested with Windows XP and Windows 2000. Ice
+will most likely also work Windows NT. Windows 95/98/ME is not
+supported.
 
 
 C++ compiler
