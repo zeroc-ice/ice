@@ -310,20 +310,26 @@ public final class ServiceManagerI extends _ServiceManagerDisp
     private void
     stopAll()
     {
-        java.util.Iterator r = _services.keySet().iterator();
+        java.util.Iterator r = _services.entrySet().iterator();
         while (r.hasNext())
         {
-            String service = (String)r.next();
+            java.util.Map.Entry e = (java.util.Map.Entry)r.next();
+            String name = (String)e.getKey();
+            Service service = (Service)e.getValue();
             try
             {
-                stop(service);
+                service.stop();
             }
-            catch (FailureException ex)
+            catch (Exception ex)
             {
-                _logger.error(ex.reason);
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                ex.printStackTrace(pw);
+                pw.flush();
+                _logger.error("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
             }
         }
-        assert(_services.isEmpty());
+        _services.clear();
     }
 
     private Ice.Communicator _communicator;
