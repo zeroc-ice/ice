@@ -18,10 +18,10 @@
 #
 # export STLPORT_HOME=/usr/local/STLport-4.5
 #
-STLPORT_HOME	?= /home/mark/mr/inst
-DB_HOME		?= /home/mark/mr/inst
-OPENSSL_HOME	?= /home/mark/mr/inst
-XERCESC_HOME    ?= /home/mark/mr/xerces-c-src1_5_2
+STLPORT_HOME	?= /opt/STLport
+DB_HOME		?= /opt/db
+OPENSSL_HOME	?= /opt/openssl
+XERCESC_HOME    ?= /opt/xerces-c
 
 XERCESC_FLAGS	= -I$(XERCESC_HOME)/include/xercesc
 #XERCESC_FLAGS	= -I$(XERCESC_HOME)/include
