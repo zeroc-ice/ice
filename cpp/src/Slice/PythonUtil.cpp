@@ -526,6 +526,10 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         for(oli = ops.begin(); oli != ops.end(); ++oli)
         {
             string fixedOpName = fixIdent((*oli)->name());
+            if(fixedOpName == "checkedCast" || fixedOpName == "uncheckedCast")
+            {
+                fixedOpName.insert(0, "_");
+            }
             TypePtr ret = (*oli)->returnType();
             ParamDeclList paramList = (*oli)->parameters();
             string inParams;
