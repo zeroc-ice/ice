@@ -32,7 +32,6 @@ SUBDIRS		= IceUtil \
 		  IcePack \
 		  Glacier \
 		  Glacier2 \
-		  IcePatch \
 		  IcePatch2
 
 $(EVERYTHING)::

@@ -297,15 +297,6 @@ Package=<4>
     Project_Dep_Name bench
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name icepatch
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icepatchC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icepatchS
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libraryC
     End Project Dependency
     Begin Project Dependency
@@ -547,9 +538,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name icepatch2S
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icepatchcalc
     End Project Dependency
 }}}
 
@@ -2463,9 +2451,6 @@ Package=<4>
     Project_Dep_Name iceutil
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name icepatch
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name icecpp
     End Project Dependency
     Begin Project Dependency
@@ -2476,6 +2461,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name glacier2
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icepatch2
     End Project Dependency
 }}}
 
