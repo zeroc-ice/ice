@@ -21,8 +21,6 @@
 namespace IceInternal
 {
 
-const Ice::Short UnknownEndpointType = 0;
-
 class UnknownEndpoint : public Endpoint
 {
 public:
