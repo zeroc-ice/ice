@@ -173,7 +173,7 @@ public final class TcpEndpoint extends Endpoint
     {
         return _timeout;
     }
-    
+
     //
     // Return a new endpoint with a different timeout value, provided
     // that timeouts are supported by the endpoint. Otherwise the same
@@ -191,7 +191,7 @@ public final class TcpEndpoint extends Endpoint
             return new TcpEndpoint(_instance, _host, _port, timeout);
         }
     }
-    
+
     //
     // Return true if the endpoint is datagram-based.
     //
@@ -200,7 +200,7 @@ public final class TcpEndpoint extends Endpoint
     {
         return false;
     }
-    
+
     //
     // Return true if the endpoint is secure.
     //
@@ -209,7 +209,16 @@ public final class TcpEndpoint extends Endpoint
     {
         return false;
     }
-    
+
+    //
+    // Return true if the endpoint type is unknown.
+    //
+    public boolean
+    unknown()
+    {
+        return false;
+    }
+
     //
     // Return a client side transceiver for this endpoint, or null if a
     // transceiver can only be created by a connector.

@@ -13,10 +13,14 @@ package IceInternal;
 public final class UnknownEndpoint extends Endpoint
 {
     public
-    UnknownEndpoint(BasicStream s)
+    UnknownEndpoint(short type, BasicStream s)
     {
         _instance = s.instance();
-        _rawBytes = s.readByteSeq();
+        _type = type;
+        s.startReadEncaps();
+        int sz = s.getReadEncapsSize();
+        _rawBytes = s.readBlob(sz);
+        s.endReadEncaps();
     }
 
     //
@@ -25,8 +29,10 @@ public final class UnknownEndpoint extends Endpoint
     public void
     streamWrite(BasicStream s)
     {
-        s.writeShort(UnknownEndpointType);
-        s.writeByteSeq(_rawBytes);
+        s.writeShort(_type);
+        s.startWriteEncaps();
+        s.writeBlob(_rawBytes);
+        s.endWriteEncaps();
     }
 
     //
@@ -44,7 +50,7 @@ public final class UnknownEndpoint extends Endpoint
     public short
     type()
     {
-        return UnknownEndpointType;
+        return _type;
     }
 
     //
@@ -84,6 +90,15 @@ public final class UnknownEndpoint extends Endpoint
     secure()
     {
         return false;
+    }
+
+    //
+    // Return true if the endpoint type is unknown.
+    //
+    public boolean
+    unknown()
+    {
+        return true;
     }
     
     //
@@ -178,6 +193,15 @@ public final class UnknownEndpoint extends Endpoint
             return 0;
         }
 
+        if (_type < p._type)
+        {
+            return -1;
+        }
+        else if (p._type < _type)
+        {
+            return 1;
+        }
+
         if (_rawBytes.length < p._rawBytes.length)
         {
             return -1;
@@ -202,5 +226,6 @@ public final class UnknownEndpoint extends Endpoint
     }
 
     private Instance _instance;
+    private short _type;
     private byte[] _rawBytes;
 }

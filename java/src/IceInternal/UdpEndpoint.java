@@ -199,6 +199,15 @@ public final class UdpEndpoint extends Endpoint
     }
 
     //
+    // Return true if the endpoint type is unknown.
+    //
+    public boolean
+    unknown()
+    {
+        return false;
+    }
+
+    //
     // Return a client side transceiver for this endpoint, or null if a
     // transceiver can only be created by a connector.
     //

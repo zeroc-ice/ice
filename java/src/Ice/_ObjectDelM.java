@@ -177,6 +177,18 @@ public class _ObjectDelM implements _ObjectDel
     filterEndpoints(IceInternal.Endpoint[] allEndpoints)
     {
         java.util.ArrayList endpoints = new java.util.ArrayList();
+
+        //
+        // Filter out unknown endpoints.
+        //
+        for (int i = 0; i < allEndpoints.length; i++)
+        {
+            if (!allEndpoints[i].unknown())
+            {
+                endpoints.add(allEndpoints[i]);
+            }
+        }
+
         switch (__reference.mode)
         {
             case IceInternal.Reference.ModeTwoway:
@@ -186,11 +198,13 @@ public class _ObjectDelM implements _ObjectDel
                 //
                 // Filter out datagram endpoints.
                 //
-                for (int i = 0; i < allEndpoints.length; i++)
+                java.util.Iterator i = endpoints.iterator();
+                while (i.hasNext())
                 {
-                    if (!allEndpoints[i].datagram())
+                    IceInternal.Endpoint endpoint = (IceInternal.Endpoint)i.next();
+                    if (endpoint.datagram())
                     {
-                        endpoints.add(allEndpoints[i]);
+                        i.remove();
                     }
                 }
                 break;
@@ -202,11 +216,13 @@ public class _ObjectDelM implements _ObjectDel
                 //
                 // Filter out non-datagram endpoints.
                 //
-                for (int i = 0; i < allEndpoints.length; i++)
+                java.util.Iterator i = endpoints.iterator();
+                while (i.hasNext())
                 {
-                    if (allEndpoints[i].datagram())
+                    IceInternal.Endpoint endpoint = (IceInternal.Endpoint)i.next();
+                    if (!endpoint.datagram())
                     {
-                        endpoints.add(allEndpoints[i]);
+                        i.remove();
                     }
                 }
                 break;
@@ -217,8 +233,6 @@ public class _ObjectDelM implements _ObjectDel
         // Randomize the order of endpoints.
         //
         java.util.Collections.shuffle(endpoints);
-
-        IceInternal.Endpoint[] arr;
 
         //
         // If a secure connection is requested, remove all non-secure
@@ -237,16 +251,14 @@ public class _ObjectDelM implements _ObjectDel
                     i.remove();
                 }
             }
-            arr = new IceInternal.Endpoint[endpoints.size()];
-            endpoints.toArray(arr);
         }
         else
         {
-            arr = new IceInternal.Endpoint[endpoints.size()];
-            endpoints.toArray(arr);
-            java.util.Arrays.sort((java.lang.Object[])arr, __comparator);
+            java.util.Collections.sort(endpoints, __comparator);
         }
 
+        IceInternal.Endpoint[] arr = new IceInternal.Endpoint[endpoints.size()];
+        endpoints.toArray(arr);
         return arr;
     }
 

@@ -99,7 +99,7 @@ public abstract class Endpoint implements java.lang.Comparable
 
             default:
             {
-                v = new UnknownEndpoint(s);
+                v = new UnknownEndpoint(type, s);
                 break;
             }
         }
@@ -127,24 +127,29 @@ public abstract class Endpoint implements java.lang.Comparable
     // non-blocking, -1 means no timeout.
     //
     public abstract int timeout();
-    
+
     //
     // Return a new endpoint with a different timeout value, provided
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
     public abstract Endpoint timeout(int t);
-    
+
     //
     // Return true if the endpoint is datagram-based.
     //
     public abstract boolean datagram();
-    
+
     //
     // Return true if the endpoint is secure.
     //
     public abstract boolean secure();
-    
+
+    //
+    // Return true if the endpoint type is unknown.
+    //
+    public abstract boolean unknown();
+
     //
     // Return a client side transceiver for this endpoint, or null if a
     // transceiver can only be created by a connector.
@@ -181,7 +186,7 @@ public abstract class Endpoint implements java.lang.Comparable
     //
     public abstract boolean equivalent(Transceiver transceiver);
     public abstract boolean equivalent(Acceptor acceptor);
-    
+
     //
     // Compare endpoints for sorting purposes
     //
