@@ -2335,7 +2335,7 @@ Freeze::EvictorIteratorI::nextBatch()
 		//
 		// Move to the first record
 		// 
-		uint32_t flags = DB_NEXT;
+		u_int32_t flags = DB_NEXT;
 		if(_key.size() > 0)
 		{
 		    //
