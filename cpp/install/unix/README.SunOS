@@ -30,6 +30,7 @@ includes the following components:
   you to execute Ice applications.
 - Tools and libraries for developing Ice applications.
 
+
 ======================================================================
 Requirements
 ======================================================================
@@ -39,14 +40,17 @@ version 5.4.
 
 The following Solaris 9 binary packages, available from 
 http://www.sunfreeware.com, are required to use this distribution:
+
 - expat 1.95.5
 - openssl 0.9.7e
 - libgcc 3.3
 
 You also need the bzip2 library version 1.0.2:
+
  - install the SUNWbzip package from the Solaris 9 distribution
    (it may already be installed)
  - apply Sun patch #114586-01 to obtain bzip2 1.0.2. 
+
 
 Java
 ----
@@ -64,13 +68,15 @@ from http://www.sunfreeware.com. If you prefer to use Python 2.4,
 you can download the Ice for Python source code from the ZeroC web
 site at http://www.zeroc.com/download.html.
 
+
 ======================================================================
 Berkeley DB
 ======================================================================
 
 This distribution includes the C++ and Java run time for Berkeley DB
-4.2.52. The C++ runtime was built using Sun CC version 5.4. 
-The Berkeley DB license is provided in the file THIRD_PARTY_LICENSE.
+4.2.52. The C++ runtime was built using Sun CC version 5.4. The
+Berkeley DB license is provided in the file THIRD_PARTY_LICENSE.
+
 
 ======================================================================
 64 bit builds
