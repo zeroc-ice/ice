@@ -94,8 +94,5 @@ PhoneBookCollocated::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& d
     int status = runParser(argc, argv, communicator());
     adapter->deactivate();
 
-    dbPhoneBook->remove();
-    dbContacts->remove();
-
     return status;
 }

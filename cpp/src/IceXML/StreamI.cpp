@@ -192,7 +192,7 @@ IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::ostrea
 }
 
 
-IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::istream& is) :
+IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::istream& is, bool schema) :
     _communicator(communicator),
     _nextId(0)
 {
@@ -235,8 +235,11 @@ IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::istrea
     //
     _input->parser = new DOMParser;
     _input->parser->setValidationScheme(DOMParser::Val_Auto);
-    _input->parser->setDoNamespaces(true);
-    _input->parser->setDoSchema(true);
+    if (schema)
+    {
+	_input->parser->setDoNamespaces(true);
+	_input->parser->setDoSchema(true);
+    }
     //_input->parser->setValidationSchemaFullChecking(true);
 
     _input->errReporter = new DOMTreeErrorReporter(logger);
@@ -1248,7 +1251,12 @@ IceXML::StreamI::startRead(const ::std::string& element)
     }
     
     string nodeName = toString(_input->current.getNodeName());
-    if (element != nodeName)
+    //
+    // TODO: Work around for bug in xerces
+    //
+    static const string facets = "facets";
+    static const string facetsNS = "ice:facets";
+    if ((element != facetsNS || nodeName != facets) && element != nodeName)
     {
 	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
     }

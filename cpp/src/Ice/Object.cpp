@@ -266,7 +266,7 @@ Ice::Object::__unmarshal(const ::Ice::StreamPtr& __is)
 {
     IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
  
-    static const string facetsName = "facets";  // Not ice:facets since xerces eats namespaces
+    static const string facetsName = "ice:facets";
     static const string keyName = "key";
     static const string valueName = "value";
 

@@ -104,8 +104,10 @@ writeCodecC(const TypePtr& type, const string& name, const string& freezeType, O
       << "Freeze::" << freezeType << "& bytes, const ::Ice::CommunicatorPtr& communicator)";
     C << sb;
     C << nl << "::std::ostringstream os;";
+    C << nl << "os << \"<data>\";";
     C << nl << "::Ice::StreamPtr stream = new ::IceXML::StreamI(communicator, os);";
     writeGenericMarshalUnmarshalCode(C, type, "v", true, tagName, "stream", true);
+    C << nl << "os << \"\n</data>\";";
     C << nl << "bytes.resize(os.str().size());";
     C << nl << "memcpy(&bytes[0], os.str().data(), os.str().size());";
     C << eb;
@@ -115,7 +117,7 @@ writeCodecC(const TypePtr& type, const string& name, const string& freezeType, O
     C << sb;
     C << nl << "::std::string data(bytes.begin(), bytes.end());";
     C << nl << "::std::istringstream is(data);";
-    C << nl << "::Ice::StreamPtr stream = new ::IceXML::StreamI(communicator, is);";
+    C << nl << "::Ice::StreamPtr stream = new ::IceXML::StreamI(communicator, is, false);";
     writeGenericMarshalUnmarshalCode(C, type, "v", false, tagName, "stream", true);
     C << eb;
 }

@@ -45,7 +45,7 @@ public:
 
     StreamI(const ::Ice::CommunicatorPtr&, std::ostream&);
 
-    StreamI(const ::Ice::CommunicatorPtr&, std::istream&);
+    StreamI(const ::Ice::CommunicatorPtr&, std::istream&, bool = true);
 
     ~StreamI();
 
