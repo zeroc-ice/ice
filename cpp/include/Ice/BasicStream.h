@@ -20,6 +20,7 @@
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectFactoryF.h>
 #include <Ice/Buffer.h>
+#include <Ice/Logger.h>
 #include <list>
 
 namespace Ice
@@ -207,6 +208,9 @@ private:
 
     void writeInstance(const Ice::ObjectPtr&, Ice::Int);
     void patchPointers(Ice::Int, IndexToPtrMap::const_iterator, PatchMap::iterator);
+
+    int _traceSlicing;
+    const char* _slicingCat;
 };
 
 }

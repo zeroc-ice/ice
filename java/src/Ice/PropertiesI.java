@@ -397,6 +397,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 						    "Trace.Network",
 						    "Trace.Protocol",
 						    "Trace.Retry",
+						    "Trace.Slicing",
 						    "UseSyslog",
 						    "Warn.AMICallback",
 						    "Warn.Connections",

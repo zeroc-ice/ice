@@ -172,8 +172,6 @@ The request retry trace level:
 </section>
 </section>
 
-<!-- 
-
 <section><title>Ice.Trace.Slicing</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -201,8 +199,6 @@ The slicing trace level:
 </para>
 </section>
 </section>
-
--->
 
 </section>
 

@@ -31,9 +31,8 @@ public class BasicStream
         _writeEncapsStack = null;
         _readEncapsCache = null;
         _writeEncapsCache = null;
-
-//	_logger = instance.logger();
-//	_traceLevels = instance.traceLevels();
+	
+	_traceSlicing = -1;
     }
 
 /*
@@ -1137,7 +1136,18 @@ public class BasicStream
                 }
 		if(v == null)
 		{
-//		    TraceUtil.traceSlicing("class", id, _logger, _traceLevels);
+		    //
+		    // Performance sensitive, so we use lazy initialization for tracing.
+		    //
+		    if(_traceSlicing == -1)
+		    {
+		        _traceSlicing = _instance.traceLevels().slicing;
+			_slicingCat = _instance.traceLevels().slicingCat;
+		    }
+		    if(_traceSlicing > 0)
+		    {
+		        TraceUtil.traceSlicing("class", id, _slicingCat, _instance.logger());
+		    }
 		    skipSlice();    // Slice off this derived part -- we don't understand it.
 		    continue;
 		}
@@ -1203,7 +1213,18 @@ public class BasicStream
 	    }
 	    else
 	    {
-//	        TraceUtil.traceSlicing("exception", id, _logger, _traceLevels);
+		//
+		// Performance sensitive, so we use lazy initialization for tracing.
+		//
+		if(_traceSlicing == -1)
+		{
+		    _traceSlicing = _instance.traceLevels().slicing;
+		    _slicingCat = _instance.traceLevels().slicingCat;
+		}
+		if(_traceSlicing > 0)
+		{
+		    TraceUtil.traceSlicing("exception", id, _slicingCat, _instance.logger());
+		}
 	        skipSlice();		// Slice off what we don't understand
 		id = readString();	// Read type id for next slice
 	    }
@@ -1593,6 +1614,6 @@ public class BasicStream
     private int _readSlice;
     private int _writeSlice;
 
-//    private final Ice.Logger _logger;
-//    private final TraceLevels _traceLevels;
+    private int _traceSlicing;
+    private String _slicingCat;
 }

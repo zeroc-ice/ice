@@ -1,6 +1,9 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Added new property: Ice.Trace.Slicing. When set to a value > 0,
+  unknown exception and class types that are sliced emit a warning.
+
 - Added destroyOnInterrupt() to the Application
   class. destroyOnInterrupt() is now the default behavior, because
   shutdownOnInterrupt() only shuts down the server side of an

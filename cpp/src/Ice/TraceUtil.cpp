@@ -380,24 +380,18 @@ IceInternal::traceReply(const char* heading, const BasicStream& str, const Logge
     }
 }
 
-/*
-static IceUtil::StaticMutex slicingMutex;
-static set<string> slicingIds;
+static IceUtil::StaticMutex slicingMutex = ICE_STATIC_MUTEX_INITIALIZER;
 
 void
-IceInternal::traceSlicing(const char* kind, const string& typeId,
-	                  const LoggerPtr& logger, const TraceLevelsPtr& tl)
+IceInternal::traceSlicing(const char* kind, const string& typeId, const char* slicingCat, const LoggerPtr& logger)
 {
-    if(tl->slicing >= 1)
+    IceUtil::StaticMutex::Lock lock(slicingMutex);
+    static set<string> slicingIds;
+    if(slicingIds.insert(typeId).second)
     {
-	IceUtil::StaticMutex::Lock lock(slicingMutex);
-	if(slicingIds.insert(typeId).second)
-	{
-	    string s("unknown ");
-	    s += kind;
-	    s += " type `" + typeId + "'";
-	    logger->trace(tl->slicingCat, s);
-	}
+	string s("unknown ");
+	s += kind;
+	s += " type `" + typeId + "'";
+	logger->trace(slicingCat, s);
     }
 }
-*/

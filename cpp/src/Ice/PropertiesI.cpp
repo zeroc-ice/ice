@@ -131,6 +131,7 @@ static const string iceProps[] =
     "Trace.Network",
     "Trace.Protocol",
     "Trace.Retry",
+    "Trace.Slicing",
     "UseSyslog",
     "Warn.AMICallback",
     "Warn.Connections",

@@ -23,6 +23,7 @@
 #include <Ice/Protocol.h>
 #include <Ice/FactoryTable.h>
 #include <Ice/TraceUtil.h>
+#include <Ice/TraceLevels.h>
 
 template<typename InputIter, typename OutputIter>
 void
@@ -49,7 +50,8 @@ using namespace IceInternal;
 IceInternal::BasicStream::BasicStream(Instance* instance) :
     _instance(instance),
     _currentReadEncaps(0),
-    _currentWriteEncaps(0)
+    _currentWriteEncaps(0),
+    _traceSlicing(-1)
 {
 }
 
@@ -1112,7 +1114,18 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
 	    }
 	    if(!v)
 	    {
-//		traceSlicing("class", id, _instance->logger(), _instance->traceLevels());
+		//
+		// Performance sensitive, so we use lazy initialization for tracing.
+		//
+		if(_traceSlicing == -1)
+		{
+		    _traceSlicing = _instance->traceLevels()->slicing;
+		    _slicingCat = _instance->traceLevels()->slicingCat;
+		}
+		if(_traceSlicing > 0)
+		{
+		    traceSlicing("class", id, _slicingCat, _instance->logger());
+		}
 		skipSlice(); // Slice off this derived part -- we don't understand it.
 		continue;
 	    }
@@ -1181,7 +1194,18 @@ IceInternal::BasicStream::throwException()
 	}
 	else
 	{
-//	    traceSlicing("exception", id, _instance->logger(), _instance->traceLevels());
+	    //
+	    // Performance sensitive, so we use lazy initialization for tracing.
+	    //
+	    if(_traceSlicing == -1)
+	    {
+		_traceSlicing = _instance->traceLevels()->slicing;
+		_slicingCat = _instance->traceLevels()->slicingCat;
+	    }
+	    if(_traceSlicing > 0)
+	    {
+		traceSlicing("exception", id, _slicingCat, _instance->logger());
+	    }
 	    skipSlice(); // Slice off what we don't understand.
 	    read(id);  // Read type id for next slice.
 	}
