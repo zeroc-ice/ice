@@ -226,7 +226,7 @@ fileLists = [
 	        ("file", "share/doc/Ice-%version%/certs/sslconfig.xml")
 		]),
     Subpackage("csharp",
-               "ice mono-core",
+               "ice mono-core >= 1.0.6",
                "Ice runtime for C\# applications",
                "Development/Libraries Development/Tools",
                "",
@@ -234,7 +234,7 @@ fileLists = [
                [("lib", "lib/glacier2cs.dll"), ("lib", "lib/icecs.dll"), ("lib", "lib/icepackcs.dll"),
                 ("lib", "lib/icepatch2cs.dll"), ("lib", "lib/icestormcs.dll")]),
     Subpackage("csharp-devel",
-               "ice-csharp mono-devel",
+               "ice-csharp mono-devel >= 1.0.6",
                "Ice tools for developing Ice applications in C\#",
                "Development/Libraries Development/Tools",
                "",
@@ -265,7 +265,7 @@ fileLists = [
 	        ("file", "share/doc/Ice-%version%/config/common.xml"),
 		("dir", "share/doc/Ice-%version%/demoj")]),
     Subpackage("python",
-               "ice python",
+               "ice python >= 2.3.4",
                "Ice runtime for Python applications",
                "Development/Libraries",
                "",
@@ -283,7 +283,7 @@ fileLists = [
 
 noarchFileList = [
     Package("ice-java",
-	    "ice db4-java >= 4.2",
+	    "ice db4-java >= 4.2.52",
 	    "The Internet Communications Engine (ICE) is a modern alternative to object middleware",
 	    "Development/Libraries",
 	    "",
