@@ -62,15 +62,35 @@ public final class Admin
                 return 0;
             }
 
-            final String managerEndpointsProperty = "IceBox.ServiceManager.Endpoints";
-            String managerEndpoints = properties.getProperty(managerEndpointsProperty);
-            if(managerEndpoints.length() == 0)
-            {
-                System.err.println(appName() + ": property `" + managerEndpointsProperty + "' is not set");
-                return 1;
-            }
+	    String namePrefix = properties.getProperty("IceBox.Name");
+	    if(namePrefix.length() > 0)
+	    {
+		namePrefix += ".";
+	    }
 
-            Ice.ObjectPrx base = communicator().stringToProxy("ServiceManager:" + managerEndpoints);
+	    String managerProxy;
+
+	    String managerEndpoints = properties.getProperty("IceBox.ServiceManager.Endpoints");
+	    if(managerEndpoints.length() == 0)
+	    {
+		if(properties.getProperty("Ice.Default.Locator").length() > 0 && namePrefix.length() > 0)
+		{
+		    managerProxy = namePrefix + "ServiceManager@" + namePrefix + "ServiceManagerAdapter";
+		}
+		else
+		{
+		    System.err.println(appName() + ": property `IceBox.ServiceManager.Endpoints' is not set");
+		    return 1;
+		}
+	    }
+	    else
+	    {
+		String managerIdentity = properties.getPropertyWithDefault("IceBox.ServiceManager.Identity", 
+									   "ServiceManager");
+		managerProxy = namePrefix + managerIdentity + ":" + managerEndpoints;
+	    }
+
+            Ice.ObjectPrx base = communicator().stringToProxy(managerProxy);
             IceBox.ServiceManagerPrx manager = IceBox.ServiceManagerPrxHelper.checkedCast(base);
             if(manager == null)
             {
