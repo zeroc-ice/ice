@@ -187,7 +187,6 @@ Glacier2::RequestQueue::run()
     while(true)
     {
 	vector<RequestPtr> requests;
-	set<ConnectionPtr> flushSet;
 
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
@@ -216,6 +215,8 @@ Glacier2::RequestQueue::run()
 
         try
         {
+	    set<ConnectionPtr> flushSet;
+
 	    for(vector<RequestPtr>::const_iterator p = requests.begin(); p != requests.end(); ++p)
 	    {
 		const ObjectPrx& proxy = (*p)->getProxy();

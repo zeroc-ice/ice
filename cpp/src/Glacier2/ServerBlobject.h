@@ -25,7 +25,8 @@ public:
     ServerBlobject(const Ice::CommunicatorPtr&, const Ice::ConnectionPtr&);
     virtual ~ServerBlobject();
 
-    void destroy();
+    virtual void destroy();
+
     virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&, const std::vector<Ice::Byte>&,
 				  const Ice::Current&);
 

@@ -153,18 +153,20 @@ Glacier2::RouterService::start(int argc, char* argv[])
     }
 
     //
-    // Create a router implementation that can handle sessions, and
-    // add it to the client object adapter.
+    // Create the session router. The session router registers itself
+    // and all required servant locators, so no registration has to be
+    // done here.
     //
     _sessionRouter = new SessionRouterI(clientAdapter, serverAdapter, verifier);
-    const char* routerIdProperty = "Glacier2.RouterIdentity";
-    Identity routerId = stringToIdentity(properties->getPropertyWithDefault(routerIdProperty, "Glacier2/router"));
-    clientAdapter->add(_sessionRouter, routerId);
 
     //
     // Everything ok, let's go.
     //
     clientAdapter->activate();
+    if(serverAdapter)
+    {
+	serverAdapter->activate();
+    }
 
     return true;
 }
@@ -172,12 +174,8 @@ Glacier2::RouterService::start(int argc, char* argv[])
 bool
 Glacier2::RouterService::stop()
 {
-    //
-    // Destroy the session router.
-    //
-    assert(_sessionRouter);
     _sessionRouter->destroy();
-
+    _sessionRouter = 0;
     return true;
 }
 

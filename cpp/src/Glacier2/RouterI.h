@@ -21,11 +21,11 @@ namespace Glacier2
 class RouterI;
 typedef IceUtil::Handle<RouterI> RouterIPtr;
 
-class RouterI : public Router
+class RouterI : public Router, public IceUtil::Mutex
 {
 public:
 
-    RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::ConnectionPtr&);
+    RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::ConnectionPtr&, const std::string&);
     virtual ~RouterI();
     void destroy();
 
@@ -34,8 +34,12 @@ public:
     virtual void addProxy(const Ice::ObjectPrx&, const Ice::Current&);
     virtual void createSession(const std::string&, const std::string&, const Ice::Current&);
 
-    Glacier2::ClientBlobjectPtr getClientBlobject() const;
-    Glacier2::ServerBlobjectPtr getServerBlobject() const;
+    ClientBlobjectPtr getClientBlobject() const;
+    ServerBlobjectPtr getServerBlobject() const;
+
+    IceUtil::Time getTimestamp() const;
+
+    std::string toString() const;
 
 private:
 
@@ -44,8 +48,12 @@ private:
     const int _routingTableTraceLevel;
     const Ice::ObjectPrx _clientProxy;
     const Ice::ObjectPrx _serverProxy;
-    const Glacier2::ClientBlobjectPtr _clientBlobject;
-    const Glacier2::ServerBlobjectPtr _serverBlobject;
+    const ClientBlobjectPtr _clientBlobject;
+    const ServerBlobjectPtr _serverBlobject;
+    const Ice::ConnectionPtr _connection;
+    const std::string _userId;
+    mutable IceUtil::Time _timestamp;
+    bool _destroy;
 };
 
 }

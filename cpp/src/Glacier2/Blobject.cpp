@@ -17,10 +17,11 @@ static const string serverAlwaysBatch = "Glacier2.Server.AlwaysBatch";
 static const string clientAlwaysBatch = "Glacier2.Client.AlwaysBatch";
 
 Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
+    _properties(communicator->getProperties()),
     _logger(communicator->getLogger()),
     _alwaysBatch(reverse ?
-		 communicator->getProperties()->getPropertyAsInt(serverAlwaysBatch) > 0 :
-		 communicator->getProperties()->getPropertyAsInt(clientAlwaysBatch) > 0)
+		 _properties->getPropertyAsInt(serverAlwaysBatch) > 0 :
+		 _properties->getPropertyAsInt(clientAlwaysBatch) > 0)
 {
     _requestQueue = new RequestQueue(communicator, reverse);
     _requestQueue->start();

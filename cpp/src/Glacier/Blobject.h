@@ -47,12 +47,13 @@ public:
     Blobject(const Ice::CommunicatorPtr&, bool);
     virtual ~Blobject();
 
-    void destroy();
+    virtual void destroy();
+
+protected:
+
     void invoke(Ice::ObjectPrx&, const Ice::AMD_Object_ice_invokePtr&, const std::vector<Ice::Byte>&,
 		const Ice::Current&);
     bool modifyProxy(Ice::ObjectPrx&, const Ice::Current&);
-
-protected:
 
     Ice::CommunicatorPtr _communicator;
     const bool _reverse;

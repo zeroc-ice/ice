@@ -1,4 +1,3 @@
-
 // **********************************************************************
 //
 // Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
@@ -21,7 +20,7 @@ Glacier2::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
 					 const string& allow) :
     Glacier2::Blobject(communicator, false),
     _routingTable(routingTable),
-    _rejectTraceLevel(communicator->getProperties()->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
+    _rejectTraceLevel(_properties->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
 {
     vector<string>& allowCategories = const_cast<vector<string>&>(_allowCategories);
 

@@ -39,16 +39,19 @@ public:
     virtual void createSession(const std::string&, const std::string&, const Ice::Current&);
 
     RouterIPtr getRouter(const Ice::ConnectionPtr&) const;    
+    RouterIPtr getRouter(const std::string&) const;    
 
     virtual void run();
 
 private:
 
+    const Ice::PropertiesPtr _properties;
     const Ice::LoggerPtr _logger;
     const int _traceLevel;
     const Ice::ObjectAdapterPtr _clientAdapter;
     const Ice::ObjectAdapterPtr _serverAdapter;
     const PermissionsVerifierPrx _verifier;
+    const IceUtil::Time _sessionTimeout;
 
     //
     // TODO: I can't inherit directly from IceUtil::Thread, because of
@@ -68,10 +71,11 @@ private:
     };
     const IceUtil::Handle<SessionThread> _sessionThread;
 
-    int _serverAdapterCount;
+    std::map<Ice::ConnectionPtr, RouterIPtr> _routersByConnection;
+    mutable std::map<Ice::ConnectionPtr, RouterIPtr>::iterator _routersByConnectionHint;
 
-    std::map<Ice::ConnectionPtr, RouterIPtr> _routers;
-    mutable std::map<Ice::ConnectionPtr, RouterIPtr>::iterator _routersHint;
+    std::map<std::string, RouterIPtr> _routersByCategory;
+    mutable std::map<std::string, RouterIPtr>::iterator _routersByCategoryHint;
 
     bool _destroy;
 };

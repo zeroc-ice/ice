@@ -22,7 +22,8 @@ public:
 
     ClientBlobject(const Ice::CommunicatorPtr&, const IceInternal::RoutingTablePtr&, const std::string&);
 
-    void destroy();
+    virtual void destroy();
+
     virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&, const std::vector<Ice::Byte>&,
 				  const Ice::Current&);
 

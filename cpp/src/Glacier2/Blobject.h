@@ -23,13 +23,14 @@ public:
     Blobject(const Ice::CommunicatorPtr&, bool);
     virtual ~Blobject();
 
-    void destroy();
+    virtual void destroy();
 
 protected:
 
     void invoke(Ice::ObjectPrx&, const Ice::AMD_Object_ice_invokePtr&, const std::vector<Ice::Byte>&,
 		const Ice::Current&);
 
+    const Ice::PropertiesPtr _properties;
     const Ice::LoggerPtr _logger;
 
 private:
