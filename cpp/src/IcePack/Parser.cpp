@@ -324,9 +324,9 @@ IcePack::Parser::usage()
 	"object remove IDENTITY      Remove an object from the object registry.\n"
 	"object find TYPE            Find all objects with the type TYPE.\n"
 	"object describe EXPR        Describe all registered objects whose stringified\n"
-        "                            identity match EXPR.\n"
+        "                            identity match EXPR, e.g.: 'object describe Ice*'.\n"
 	"object list EXPR            List all registered objects whose stringified\n"
-	"                            identity match EXPR.\n"
+	"                            identity match EXPR, e.g.: 'object list Ice*'.\n"
 	"\n"
         "shutdown                    Shut the IcePack registry down.\n"
 #ifdef GPL_BUILD
