@@ -91,11 +91,19 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\Blobject.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ClientBlobject.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\GlacierRouter.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Missive.cpp
 # End Source File
 # Begin Source File
 
@@ -111,7 +119,15 @@ SOURCE=.\ServerBlobject.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\Blobject.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ClientBlobject.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Missive.h
 # End Source File
 # Begin Source File
 

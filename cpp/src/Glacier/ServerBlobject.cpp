@@ -40,7 +40,7 @@ Glacier::ServerBlobject::destroy()
     // object adapters have shut down.
     //
     _clientAdapter = 0;
-    Glacier::Blobject::destroy();
+    Blobject::destroy();
 }
 
 bool

@@ -57,7 +57,7 @@ Glacier::ClientBlobject::destroy()
     // object adapters have shut down.
     //
     _routingTable = 0;
-    Glacier::Blobject::destroy();
+    Blobject::destroy();
 }
 
 bool
