@@ -69,6 +69,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "Slice"=.\src\Slice\Slice.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "all"=.\all.dsp - Package Owner=<4>
 
 Package=<5>
@@ -185,35 +197,11 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name simpleS
     End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "slice2cpp"=.\src\slice2cpp\slice2cpp.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
     Begin Project Dependency
-    Project_Dep_Name Slice
+    Project_Dep_Name asyncFHTC
     End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "slice2docbook"=.\src\slice2docbook\slice2docbook.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
     Begin Project Dependency
-    Project_Dep_Name Slice
+    Project_Dep_Name asyncFHTS
     End Project Dependency
 }}}
 
@@ -486,18 +474,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Slice"=.\src\Slice\Slice.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
 Project: "pickleR"=.\demo\Ice\pickle\pickleR.dsp - Package Owner=<4>
 
 Package=<5>
@@ -601,6 +577,36 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IcePackS
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "slice2cpp"=.\src\slice2cpp\slice2cpp.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Slice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "slice2docbook"=.\src\slice2docbook\slice2docbook.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Slice
     End Project Dependency
 }}}
 

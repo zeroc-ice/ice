@@ -25,6 +25,7 @@ yyerror(const char* s)
 
 %}
 
+%token ICE_PACK_EXIT
 %token ICE_PACK_ADD
 %token ICE_PACK_REMOVE
 %token ICE_PACK_SHUTDOWN
@@ -38,6 +39,10 @@ start
 : commands
 {
 }
+|
+{
+}
+;
 
 // ----------------------------------------------------------------------
 commands
@@ -48,15 +53,16 @@ commands
 | command
 {
 }
-|
-{
-}
 ;
 
 // ----------------------------------------------------------------------
 command
 // ----------------------------------------------------------------------
-: ICE_PACK_ADD references ';'
+: ICE_PACK_EXIT ';'
+{
+    return 0;
+}
+| ICE_PACK_ADD references ';'
 {
     parser->add($2);
 }

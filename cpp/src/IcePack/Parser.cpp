@@ -11,6 +11,12 @@
 #include <Ice/Ice.h>
 #include <IcePack/Parser.h>
 
+#ifdef WIN32
+#   include <io.h>
+#   define isatty _isatty
+#   define fileno _fileno
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IcePack;
@@ -101,6 +107,8 @@ IcePack::Parser::continueLine()
 char*
 IcePack::Parser::getPrompt()
 {
+    assert(!yycommands && isatty(fileno(yyin)));
+
     if (_continue)
     {
 	_continue = false;
@@ -198,13 +206,14 @@ IcePack::Parser::parse(FILE* file, bool debug)
     assert(!parser);
     parser = this;
 
+    yyin = file;
+    yycommands = 0;
+
     _currentFile = "<standard input>";
     _currentLine = 0;
     _continue = false;
     nextLine();
 
-    yyin = file;
-    yycommands = 0;
     int status = yyparse();
 
     parser = 0;
@@ -220,13 +229,14 @@ IcePack::Parser::parse(const std::string& commands, bool debug)
     assert(!parser);
     parser = this;
 
+    yyin = 0;
+    yycommands = commands.c_str();
+
     _currentFile = "<command line>";
     _currentLine = 0;
     _continue = false;
     nextLine();
 
-    yyin = 0;
-    yycommands = commands.c_str();
     int status = yyparse();
 
     parser = 0;

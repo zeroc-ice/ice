@@ -14,6 +14,14 @@
 #include <IcePack/Parser.h>
 #include <IcePack/Grammer.h>
 
+#ifdef WIN32
+#   include <io.h>
+#   define isatty _isatty
+#   define fileno _fileno
+//  '_isatty' : inconsistent dll linkage.  dllexport assumed.
+#   pragma warning( disable : 4273 )
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IcePack;
@@ -111,6 +119,10 @@ if (yycommands) \
 } \
 else if (yy_current_buffer->yy_is_interactive) \
 { \
+    if (isatty(fileno(yyin))) \
+    { \
+	cout << parser->getPrompt() << flush; \
+    } \
     int c = '*', n; \
     for (n = 0; n < maxSize && (c = getc(yyin)) != EOF && c != '\n'; ++n ) \
     { \
@@ -208,6 +220,10 @@ L	[a-zA-Z_]
     }
 }
 
+"quit"|"exit" {
+    return ICE_PACK_EXIT;
+}
+
 "add" {
     return ICE_PACK_ADD;
 }
@@ -220,7 +236,7 @@ L	[a-zA-Z_]
     return ICE_PACK_SHUTDOWN;
 }
 
-\"[^\"\n]+(:[^\"\n]+)+\" {
+\[[^\[\]{NL}]+(:[^\[\]{NL}]+)+\] {
     yylval.empty();
     yylval.push_back(yytext);
     return ICE_PACK_REFERENCE;
