@@ -16,8 +16,7 @@ package Ice;
 
 public abstract class BlobjectAsync extends Ice.ObjectImpl
 {
-    // Returns true if ok, false if user exception.
-    public abstract boolean
+    public abstract void
     ice_invoke_async(AMD_Object_ice_invoke cb, byte[] inParams, Current current);
 
     public IceInternal.DispatchStatus

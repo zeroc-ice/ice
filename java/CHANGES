@@ -1,6 +1,9 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Changed the return type of the ice_invoke_async method in
+  Ice.BlobjectAsync to void instead of boolean.
+
 - Added new property: Ice.Trace.Slicing. When set to a value > 0,
   unknown exception and class types that are sliced emit a warning.
 
