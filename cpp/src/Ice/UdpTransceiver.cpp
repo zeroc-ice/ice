@@ -106,6 +106,13 @@ repeat:
 	{
 	    doConnect(_fd, peerAddr, -1);
 	    _connect = false; // We're connected now
+
+	    if (_traceLevels->network >= 1)
+	    {
+		ostringstream s;
+		s << "connected udp socket\n" << toString();
+		_logger->trace(_traceLevels->networkCat, s.str());
+	    }
 	}
     }
     else
