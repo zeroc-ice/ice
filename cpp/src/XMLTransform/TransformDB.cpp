@@ -27,8 +27,8 @@ usage(const string& appName)
     cerr <<        
         "Options:\n"
         "-e,--evictor         Use the Freeze Evictor schema.\n"
-        "--load-old DIR       Load all old schema files in directory DIR.\n"
-        "--load-new DIR       Load all new schema files in directory DIR.\n"
+        "--load-old PATH      Load old schema from the given file or directory.\n"
+        "--load-new PATH      Load new schema from the given file or directory.\n"
         "--path-old DIR       Add directory DIR to the old schema import search path.\n"
         "--path-new DIR       Add directory DIR to the new schema import search path.\n"
         "-h, --help           Show this message.\n"
