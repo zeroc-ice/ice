@@ -2,6 +2,10 @@ import sys, os
 
 from distutils.core import setup, Extension
 
+if not os.environ.has_key('ICE_HOME'):
+    print "ICE_HOME is not defined"
+    sys.exit(1)
+
 libs = ['Slice', 'Ice', 'IceUtil']
 
 if sys.platform == 'sunos5':
