@@ -42,7 +42,7 @@ public final class RemoteEvictorFactoryI extends Test._RemoteEvictorFactoryDisp
     public Test.RemoteEvictorPrx
     createEvictor(String name, Ice.Current current)
     {
-        Freeze.Evictor evictor = Freeze.Util.createEvictor(_adapter.getCommunicator(), _envName, name, true);
+        Freeze.Evictor evictor = Freeze.Util.createEvictor(_adapter.getCommunicator(), _envName, name, null, true);
 
         RemoteEvictorI remoteEvictor = new RemoteEvictorI(_adapter, name, evictor);
         evictor.installServantInitializer(new Initializer(remoteEvictor, evictor));

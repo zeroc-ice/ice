@@ -41,7 +41,6 @@ class Contact
 };
 
 sequence<Contact*> Contacts;
-sequence<Ice::Identity> Identities; // Needed for slice2freeze
 
 interface PhoneBook
 {

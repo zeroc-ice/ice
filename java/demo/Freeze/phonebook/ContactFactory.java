@@ -12,13 +12,13 @@
 //
 // **********************************************************************
 
-class ContactFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory, Freeze.ServantInitializer
+class ContactFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
 {
     public Ice.Object
     create(String type)
     {
 	assert(type.equals("::Contact"));
-	return new ContactI(_phoneBook, _evictor);
+	return new ContactI(_evictor);
     }
 
     public void
@@ -26,19 +26,10 @@ class ContactFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory, F
     {
     }
 
-    public void
-    initialize(Ice.ObjectAdapter adapter, Ice.Identity ident, Ice.Object servant)
+    ContactFactory(Freeze.Evictor evictor)
     {
-	ContactI contact = (ContactI)servant;
-	contact.setIdentity(ident);
-    }
-
-    ContactFactory(PhoneBookI phoneBook, Freeze.Evictor evictor)
-    {
-	_phoneBook = phoneBook;
 	_evictor = evictor;
     }
 
-    private PhoneBookI _phoneBook;
     private Freeze.Evictor _evictor;
 }

@@ -303,7 +303,20 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 	_autoDelete = (properties.getPropertyAsIntWithDefault
 		       (propertyPrefix + ".OldLogsAutoDelete", 1) != 0);
 	
-	_thread = new Thread(this);
+
+	String threadName;
+	String programName = properties.getProperty("Ice.ProgramName");
+        if(programName.length() > 0)
+        {
+            threadName = programName + "-";
+        }
+	else
+	{
+	    threadName = "";
+	}
+	threadName += "FreezeCheckpointThread(" + _key.envName + ")";
+
+	_thread = new Thread(this, threadName);
 	_thread.start();
 
 	_refCount = 1;

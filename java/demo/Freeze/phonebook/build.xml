@@ -55,6 +55,7 @@ the Free Software Foundation.
             </includepath>
             <fileset dir="." includes="PhoneBook.ice"/>
         </slice2java>
+	<!--
         <slice2freezej outputdir="${generated.dir}">
             <includepath>
                 <pathelement path="${slice.dir}" />
@@ -62,6 +63,7 @@ the Free Software Foundation.
             <fileset dir="." includes="PhoneBook.ice"/>
 	    <dict name="NameIdentitiesDict" key="string" value="Identities"/>
         </slice2freezej>
+	-->
     </target>
 
     <target name="compile" depends="generate">
@@ -79,7 +81,7 @@ the Free Software Foundation.
         <delete dir="${class.dir}"/>
         <delete>
 	    <fileset dir="db" includes="log.*"/>
-            <fileset dir="db" includes="contacts,phonebook"/>
+            <fileset dir="db" includes="contacts,contacts.*"/>
         </delete>
     </target>
 

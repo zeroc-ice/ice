@@ -18,11 +18,18 @@ class PhoneBookServer extends Ice.Application
     run(String[] args)
     {
 	Ice.Properties properties = communicator().getProperties();
-    
+
+	//
+	// Create the Name index
+	//
+	NameIndex index = new NameIndex("name");
+	Freeze.Index[] indices = new Freeze.Index[1];
+	indices[0] = index;
+
 	//
 	// Create an Evictor for contacts.
 	//
-	Freeze.Evictor evictor = Freeze.Util.createEvictor(communicator(), _envName, "contacts", true);
+	Freeze.Evictor evictor = Freeze.Util.createEvictor(communicator(), _envName, "contacts", indices, true);
 	int evictorSize = properties.getPropertyAsInt("PhoneBook.EvictorSize");
 	if(evictorSize > 0)
 	{
@@ -39,16 +46,14 @@ class PhoneBookServer extends Ice.Application
 	//
 	// Create the phonebook, and add it to the Object Adapter.
 	//
-	PhoneBookI phoneBook = new PhoneBookI(communicator(), _envName, "phonebook", evictor);
+	PhoneBookI phoneBook = new PhoneBookI(evictor, index);
 	adapter.add(phoneBook, Ice.Util.stringToIdentity("phonebook"));
     
 	//
 	// Create and install a factory and initializer for contacts.
 	//
-	Ice.ObjectFactory contactFactory = new ContactFactory(phoneBook, evictor);
-	Freeze.ServantInitializer contactInitializer = (Freeze.ServantInitializer)contactFactory;
+	Ice.ObjectFactory contactFactory = new ContactFactory(evictor);
 	communicator().addObjectFactory(contactFactory, "::Contact");
-	evictor.installServantInitializer(contactInitializer);
     
 	//
 	// Everything ok, let's go.
@@ -58,8 +63,6 @@ class PhoneBookServer extends Ice.Application
 	shutdownOnInterrupt();
 	communicator().waitForShutdown();
 	defaultInterrupt();
-	
-	phoneBook.close();
 	return 0;
     }
 

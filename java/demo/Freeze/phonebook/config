@@ -2,9 +2,9 @@ Ice.Warn.Connections=1
 #Ice.Trace.Network=3
 #Ice.Trace.Protocol=1
 
-Freeze.Trace.Map=1
-Freeze.Trace.Evictor=2
+#Freeze.Trace.Evictor=1
 Freeze.Trace.DbEnv=1
+Freeze.Evictor.db.contacts.SavePeriod=10000
 
 PhoneBook.Endpoints=default -p 10000
 PhoneBook.Proxy=phonebook:default -p 10000

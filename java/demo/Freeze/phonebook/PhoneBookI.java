@@ -14,87 +14,45 @@
 
 class PhoneBookI extends _PhoneBookDisp
 {
-    public synchronized ContactPrx
+    public ContactPrx
     createContact(Ice.Current current)
 	throws DatabaseException
     {
 	//
-	// Get a new unique identity.
+	// Generate a new unique identity.
 	//
-	Ice.Identity ident = getNewIdentity();
+	Ice.Identity ident = new Ice.Identity();
+	ident.name = Ice.Util.generateUUID();
+	ident.category = "contact";
 
 	//
 	// Create a new Contact Servant.
 	//
-	ContactI contact = new ContactI(this, _evictor);
-	contact.setIdentity(ident);
+	ContactI contact = new ContactI(_evictor);
     
 	//
 	// Create a new Ice Object in the evictor, using the new
 	// identity and the new Servant.
 	//
-	// This can throw EvictorDeactivatedException (which indicates
-	// an internal error). The exception is currently ignored.
-	//
 	_evictor.createObject(ident, contact);
 
-	//
-	// Add the identity to our name/identities map. The initial
-	// name is the empty string. See the comment in getNewIdentity
-	// why the prefix "N" is needed.
-	//
-	try
-	{
-	    Ice.Identity[] identities = (Ice.Identity[])_nameIdentitiesDict.get("N");
-	    int length = (identities == null) ? 0 : identities.length;
-	    Ice.Identity[] newIdents = new Ice.Identity[length+1];
-
-	    if(identities != null)
-	    {
-		System.arraycopy(identities, 0, newIdents, 0, length);
-	    }
-	    newIdents[length] = ident;
-
-	    _nameIdentitiesDict.fastPut("N", newIdents);
-	
-	    //
-	    // Turn the identity into a Proxy and return the Proxy to
-	    // the caller.
-	    //
-	    return ContactPrxHelper.uncheckedCast(current.adapter.createProxy(ident));
-	}
-	catch(Freeze.DatabaseException ex)
-	{
-	    DatabaseException e = new DatabaseException();
-	    e.message = ex.message;
-	    throw e;
-	}
+	return ContactPrxHelper.uncheckedCast(current.adapter.createProxy(ident));
     }
 
-    public synchronized ContactPrx[]
+    public ContactPrx[]
     findContacts(String name, Ice.Current current)
 	throws DatabaseException
     {
 	try
 	{
-	    //
-	    // Lookup all phone book contacts that match a name, and
-	    // return them to the caller. See the comment in
-	    // getNewIdentity why the prefix "N" is needed.
-	    //
-	    Ice.Identity[] identities = (Ice.Identity[])_nameIdentitiesDict.get("N" + name);
+	    Ice.Identity[] identities = _index.find(name);
 
-	    int length = (identities == null) ? 0 : identities.length;
-	    ContactPrx[] contacts = new ContactPrx[length];
-
-	    if(identities != null)
+	    ContactPrx[] contacts = new ContactPrx[identities.length];
+	    for(int i = 0; i < identities.length; ++i)
 	    {
-		for(int i = 0; i < length; ++i)
-		{
-		    contacts[i] = ContactPrxHelper.uncheckedCast(current.adapter.createProxy(identities[i]));
-		}
+		contacts[i] = ContactPrxHelper.uncheckedCast
+		    (current.adapter.createProxy(identities[i]));
 	    }
-
 	    return contacts;
 	}
 	catch(Freeze.DatabaseException ex)
@@ -121,192 +79,12 @@ class PhoneBookI extends _PhoneBookDisp
 	current.adapter.getCommunicator().shutdown();
     }
 
-    protected synchronized void
-    remove(Ice.Identity ident, String name)
-	throws DatabaseException
-    {
-	try
-	{
-	    removeI(ident, name);
-	}
-	catch(Freeze.DatabaseException ex)
-	{
-	    DatabaseException e = new DatabaseException();
-	    e.message = ex.message;
-	    throw e;
-	}
-    }
-
-    protected synchronized void
-    move(Ice.Identity ident, String oldName, String newName)
-	throws DatabaseException
-    {
-	try
-	{
-	    //
-	    // Called by ContactI in case the name has been
-	    // changed. See the comment in getNewIdentity why the
-	    // prefix "N" is needed.
-	    //
-	    removeI(ident, oldName);
-
-	    Ice.Identity[] identities = (Ice.Identity[])_nameIdentitiesDict.get("N" + newName);
-	    int length = (identities == null) ? 0 : identities.length;
-	    Ice.Identity[] newIdents = new Ice.Identity[length+1];
-
-	    if(identities != null)
-	    {
-		System.arraycopy(identities, 0, newIdents, 0, length);
-	    }
-	    newIdents[length] = ident;
-	
-	    _nameIdentitiesDict.fastPut("N" + newName, newIdents);
-	}
-	catch(Freeze.NotFoundException ex)
-	{
-	    //
-	    // Raised by remove. This should only happen under very
-	    // rare circumstances if destroy() had gotten to the
-	    // object prior to the setName() operation being
-	    // dispatched. Ignore the exception.
-	    //
-	}
-	catch(Freeze.DatabaseException ex)
-	{
-	    DatabaseException e = new DatabaseException();
-	    e.message = ex.message;
-	    throw e;
-	}
-    }
-
-    protected synchronized Ice.Identity
-    getNewIdentity()
-	throws DatabaseException
-    {
-	try
-	{
-	    //
-	    // This code is a bit of a hack. It stores the last
-	    // identity that has been used (or the name component
-	    // thereof, to be more precise) in the
-	    // _nameIdentitiesDict, with the special prefix
-	    // "ID". Because of this, all "real" names need to be
-	    // prefixed with "N", so that there is no potential for a
-	    // name clash.
-	    //
-
-	    long n = 0;
-	    Ice.Identity[] ids = (Ice.Identity[])_nameIdentitiesDict.get("ID");
-	    if(ids != null)
-	    {
-		assert(ids.length == 1);
-		try
-		{
-		    n = Long.parseLong(ids[0].name) + 1;
-		}
-		catch(NumberFormatException ex)
-		{
-		    // TODO: Do anything?
-		}
-	    }
-	    else
-	    {
-		ids = new Ice.Identity[1];
-		ids[0] = new Ice.Identity();
-		ids[0].category = new String();
-	    }
-
-	    String s = new Long(n).toString();
-
-	    ids[0].name = s;
-    
-	    _nameIdentitiesDict.fastPut("ID", ids);
-
-	    Ice.Identity id = new Ice.Identity();
-	    id.name = s;
-	    id.category = "contact";
-	    return id;
-	}
-	catch(Freeze.DatabaseException ex)
-	{
-	    DatabaseException e = new DatabaseException();
-	    e.message = ex.message;
-	    throw e;
-	}
-    }
-
-    PhoneBookI(Ice.Communicator communicator, String envName, String dbName, Freeze.Evictor evictor)
+    PhoneBookI(Freeze.Evictor evictor, NameIndex index)
     {
 	_evictor = evictor;
-	_connection = Freeze.Util.createConnection(communicator, envName);
-	_nameIdentitiesDict = new NameIdentitiesDict(_connection, dbName, true);
-    }
-
-    void
-    close()
-    {
-	_nameIdentitiesDict.close();
-	_connection.close();
+	_index = index;
     }
     
-    //
-    // It's not strictly necessary in the Java implementation to have
-    // a private removeI implementation since there is no problem with
-    // self-deadlocks (as with the C++ implementation caused by the
-    // use of read-write mutexes). However, to keep the C++/Java
-    // implementations as close-as-possible the method is retained.
-    //
-    private void
-    removeI(Ice.Identity ident, String name)
-    {
-	//
-	// See the comment in getNewIdentity why the prefix "N" is
-	// needed.
-	//
-	String key = "N" + name;
-	Ice.Identity[] identities = (Ice.Identity[])_nameIdentitiesDict.get(key);
-
-	//
-	// If the name isn't found then raise a record not found
-	// exception.
-	//
-	if(identities == null)
-	{
-	    throw new Freeze.NotFoundException();
-	}
-
-	int i;
-	for(i = 0; i < identities.length; ++i)
-	{
-	    if(identities[i].equals(ident))
-	    {
-		break;
-	    }
-	}
-
-	if(i >= identities.length)
-	{
-	    throw new Freeze.NotFoundException();
-	}
-
-	if(identities.length == 1)
-	{
-	    _nameIdentitiesDict.fastRemove(key);
-	}
-	else
-	{
-	    Ice.Identity[] newIdents = new Ice.Identity[identities.length-1];
-	    System.arraycopy(identities, 0, newIdents, 0, i);
-	    if(i < identities.length - 1)
-	    {
-		System.arraycopy(identities, i+1, newIdents, i, identities.length - i - 1);
-	    }
-	    
-	    _nameIdentitiesDict.fastPut(key, newIdents);
-	}
-    }
-
     private Freeze.Evictor _evictor;
-    private Freeze.Connection _connection;
-    private NameIdentitiesDict _nameIdentitiesDict;
+    private NameIndex _index;
 }

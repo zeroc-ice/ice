@@ -17,24 +17,30 @@ package Freeze;
 class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 {
     public
-    EvictorI(Ice.Communicator communicator, String envName, String dbName, boolean createDb)
+    EvictorI(Ice.Communicator communicator, String envName, String dbName, 
+	     Index[] indices, boolean createDb)
     {
 	_communicator = communicator;
 	_dbEnvHolder = SharedDbEnv.get(communicator, envName);
 	_dbEnv = _dbEnvHolder;
+	_dbName = dbName;
+	_indices = indices;
 
-	init(envName, dbName, createDb);
+	init(envName, createDb);
     }
 
     public
-    EvictorI(Ice.Communicator communicator, String envName, com.sleepycat.db.DbEnv dbEnv, 
-	     String dbName, boolean createDb)
+    EvictorI(Ice.Communicator communicator, String envName, 
+	     com.sleepycat.db.DbEnv dbEnv, String dbName, 
+	     Index[] indices, boolean createDb)
     {
 	_communicator = communicator;
 	_dbEnvHolder = null;
 	_dbEnv = dbEnv;
-
-	init(envName, dbName, createDb);
+	_dbName = dbName;
+	_indices = indices;
+	
+	init(envName, createDb);
     }
    
     protected void
@@ -905,6 +911,14 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    try
 	    {
 		_db.close(0);
+		if(_indices != null)
+		{
+		    for(int i = 0; i < _indices.length; ++i)
+		    {
+			_indices[i].close();
+		    }
+		    _indices = null;
+		}
 	    }
 	    catch(com.sleepycat.db.DbException dx)
 	    {
@@ -1127,9 +1141,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 				    {
 					com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(obj.key);
 					com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt(obj.value);
-					
 					int flags = (obj.status == created) ? com.sleepycat.db.Db.DB_NOOVERWRITE : 0;
-
 					int err = _db.put(tx, dbKey, dbValue, flags);
 					if(err != 0)
 					{
@@ -1140,7 +1152,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 				    case destroyed:
 				    {
 					com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(obj.key);
-					
 					int err = _db.del(tx, dbKey, 0);
 					if(err != 0)
 					{
@@ -1222,25 +1233,37 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	}
     }
 
-    Ice.Communicator
+    final Ice.Communicator
     communicator()
     {
 	return _communicator;
     }
 
-    com.sleepycat.db.Db
+    final com.sleepycat.db.DbEnv
+    dbEnv()
+    {
+	return _dbEnv;
+    }
+
+    final com.sleepycat.db.Db
     db()
     {
 	return _db;
     }
 
-    synchronized int
+    final String
+    dbName()
+    {
+	return _dbName;
+    }
+
+    final synchronized int
     currentGeneration()
     {
 	return _generation;
     }
 
-    String
+    final String
     errorPrefix()
     {
 	return _errorPrefix;
@@ -1299,7 +1322,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	int rs = 0;
 	do
 	{ 
-	   
 	    rs = dbc.get(key, value, com.sleepycat.db.Db.DB_NEXT);
 	}
 	while(rs == 0 && startWith(key.get_data(), root));
@@ -1431,10 +1453,10 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
             buf.position(0);
             buf.put(b);
             buf.position(0);
-            ObjectRecord key = new ObjectRecord();
-            key.__read(is);
+            ObjectRecord rec= new ObjectRecord();
+            rec.__read(is);
             is.readPendingObjects();
-            return key;
+            return rec;
         }
         finally
         {
@@ -1443,50 +1465,65 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     }
 
     private void
-    init(String envName, String dbName, boolean createDb)
+    init(String envName, boolean createDb)
     {
 	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Evictor");
 
-	_errorPrefix = "Freeze Evictor DbEnv(\"" + envName + "\") Db(\"" + dbName + "\"): ";
+	_errorPrefix = "Freeze Evictor DbEnv(\"" + envName + "\") Db(\"" + _dbName + "\"): ";
 
-	String propertyPrefix = "Freeze.Evictor." + envName + '.' + dbName; 
+	String propertyPrefix = "Freeze.Evictor." + envName + '.' + _dbName; 
 	
 	// 
 	// By default, we save every minute or when the size of the modified 
 	// queue reaches 10.
 	//
 
-	_saveSizeTrigger = _communicator.getProperties().getPropertyAsIntWithDefault(
-	    propertyPrefix + ".SaveSizeTrigger", 10);
+	_saveSizeTrigger = _communicator.getProperties().getPropertyAsIntWithDefault
+	    (propertyPrefix + ".SaveSizeTrigger", 10);
 
-	_savePeriod = _communicator.getProperties().getPropertyAsIntWithDefault(
-	    propertyPrefix + ".SavePeriod", 60 * 1000);
+	_savePeriod = _communicator.getProperties().getPropertyAsIntWithDefault
+	    (propertyPrefix + ".SavePeriod", 60 * 1000);
 
 	//
 	// By default, we save at most 10 * SaveSizeTrigger objects per transaction
 	//
-	_maxTxSize = _communicator.getProperties().getPropertyAsIntWithDefault(
-	    propertyPrefix + ".MaxTxSize", 10 * _saveSizeTrigger);
+	_maxTxSize = _communicator.getProperties().getPropertyAsIntWithDefault
+	    (propertyPrefix + ".MaxTxSize", 10 * _saveSizeTrigger);
 
 	if(_maxTxSize <= 0)
 	{
 	    _maxTxSize = 100;
 	}
 	
+	boolean populateEmptyIndices = (_communicator.getProperties().getPropertyAsIntWithDefault
+					(propertyPrefix + ".PopulateEmptyIndices", 0) != 0);
+	
 	try
 	{
-	    int flags = com.sleepycat.db.Db.DB_AUTO_COMMIT;
-	    if(createDb)
-	    {
-		flags |= com.sleepycat.db.Db.DB_CREATE;
-	    }
 	    
 	    _db = new com.sleepycat.db.Db(_dbEnv, 0);
-	    _db.open(null, dbName, null, com.sleepycat.db.Db.DB_BTREE, flags, 0);
+	    
+	    com.sleepycat.db.DbTxn txn = _dbEnv.txn_begin(null, 0);
 
 	    //
 	    // TODO: FREEZE_DB_MODE
 	    //
+	    int flags = 0;
+	    if(createDb)
+	    {
+		flags |= com.sleepycat.db.Db.DB_CREATE;
+	    }
+	    _db.open(txn, _dbName, null, com.sleepycat.db.Db.DB_BTREE, flags, 0);
+
+	    if(_indices != null)
+	    {
+		for(int i = 0; i < _indices.length; ++i)
+		{
+		    _indices[i].associate(this, txn, createDb, populateEmptyIndices);
+		}
+	    }
+
+	    txn.commit(0);
 	}
 	catch(java.io.FileNotFoundException dx)
 	{
@@ -1508,7 +1545,18 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	//
 	// Start saving thread
 	//
-	_thread = new Thread(this);
+	String threadName;
+	String programName = _communicator.getProperties().getProperty("Ice.ProgramName");
+        if(programName.length() > 0)
+        {
+            threadName = programName + "-";
+        }
+	else
+	{
+	    threadName = "";
+	}
+	threadName += "FreezeEvictorThread(" + envName + '.' + _dbName + ")";
+	_thread = new Thread(this, threadName);
 	_thread.start();
     }
 
@@ -2181,6 +2229,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     private SharedDbEnv      _dbEnvHolder;
     private com.sleepycat.db.DbEnv _dbEnv;
     private com.sleepycat.db.Db _db;
+    private String _dbName;
+    private Index[] _indices;
     private ServantInitializer _initializer;
     private int _trace = 0;
     
