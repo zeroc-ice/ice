@@ -772,7 +772,7 @@ IceInternal::Connection::sendResponse(BasicStream* os, Byte compressFlag)
     {
 	{
 	    // See _queryMutex comment in header file.
-	    IceUtil::Mutex::Lock sync(_queryMutex);
+	    IceUtil::Mutex::Lock s(_queryMutex);
 	    --_dispatchCount;
 	}
 
@@ -863,7 +863,7 @@ IceInternal::Connection::sendNoResponse()
     {
 	{
 	    // See _queryMutex comment in header file.
-	    IceUtil::Mutex::Lock sync(_queryMutex);
+	    IceUtil::Mutex::Lock s(_queryMutex);
 	    --_dispatchCount;
 	}
 
@@ -1070,7 +1070,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 			invoke = 1;
 			{
 			    // See _queryMutex comment in header file.
-			    IceUtil::Mutex::Lock sync(_queryMutex);
+			    IceUtil::Mutex::Lock s(_queryMutex);
 			    ++_dispatchCount;
 			}
 		    }
@@ -1095,7 +1095,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 			}
 			{
 			    // See _queryMutex comment in header file.
-			    IceUtil::Mutex::Lock sync(_queryMutex);
+			    IceUtil::Mutex::Lock s(_queryMutex);
 			    _dispatchCount += invoke;
 			}
 		    }
@@ -1307,7 +1307,7 @@ IceInternal::Connection::finished(const ThreadPoolPtr& threadPool)
 	_transceiver->close();
 	{
 	    // See _queryMutex comment in header file.
-	    IceUtil::Mutex::Lock sync(_queryMutex);
+	    IceUtil::Mutex::Lock s(_queryMutex);
 	    _transceiver = 0;
 	}
 	_threadPool = 0; // We don't need the thread pool anymore.

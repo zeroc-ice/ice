@@ -1447,9 +1447,9 @@ IceInternal::BasicStream::readPendingObjects()
 }
 
 void
-IceInternal::BasicStream::marshalFacets(bool b)
+IceInternal::BasicStream::marshalFacets(bool doMarshal)
 {
-    _marshalFacets = b;
+    _marshalFacets = doMarshal;
 }
 
 void
