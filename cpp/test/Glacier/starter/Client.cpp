@@ -68,7 +68,6 @@ CallbackClient::run(int argc, char* argv[])
     try
     {
 	router = starter->startRouter("", "", privateKey, publicKey, routerCert);
-        cerr << "Got a router!" << endl;
     }
     catch (const Glacier::CannotStartRouterException& ex)
     {
@@ -90,12 +89,8 @@ CallbackClient::run(int argc, char* argv[])
     IceSSL::SystemPtr sslSystem = communicator()->getSslSystem();
     IceSSL::SslExtensionPtr sslExtension = communicator()->getSslExtension();
 
-    cerr << "about to configure." << endl;
-
     // Configure Server, client is already configured
     sslSystem->configure(IceSSL::Server);
-
-    cerr << "configured." << endl;
 
     sslSystem->setCertificateVerifier(IceSSL::ClientServer, sslExtension->getSingleCertVerifier(routerCert));
 
