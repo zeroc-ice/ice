@@ -352,7 +352,7 @@ USERDEP__DUMMY="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"
 InputPath=.\dummy1.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice -I.. -I../../slice --include-dir IcePack  --dict IcePack::IdentityObjectDescDict,Ice::Identity,IcePack::ObjectDescription IdentityObjectDescDict ../../slice/Ice/Identity.ice ../IcePack/Internal.ice
+	..\..\bin\slice2freeze.exe --ice -I.. -I../../slice --include-dir IcePack  --dict IcePack::IdentityObjectDescDict,Ice::Identity,IcePack::ObjectDescriptor IdentityObjectDescDict ../../slice/Ice/Identity.ice ../IcePack/Internal.ice
 
 "IdentityObjectDescDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
