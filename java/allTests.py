@@ -26,7 +26,7 @@ tests = [ \
     "Ice/exceptions", \
     "Ice/inheritance", \
     "Ice/facets", \
-#    "Ice/objects", \
+    "Ice/objects", \
     "Ice/faultTolerance", \
     "Ice/locationForward", \
     "IceXML/encoding", \
