@@ -213,7 +213,7 @@ const Int64 Int64Max = INT64_MAX;
 //
 // The Ice version.
 //
-#define ICE_STRING_VERSION "1.5.1" // "A.B.C", with A=major, B=minor, C=patch
-#define ICE_INT_VERSION 10501      // AABBCC, with AA=major, BB=minor, CC=patch
+#define ICE_STRING_VERSION "1.6.0" // "A.B.C", with A=major, B=minor, C=patch
+#define ICE_INT_VERSION 10600      // AABBCC, with AA=major, BB=minor, CC=patch
 
 #endif
