@@ -152,17 +152,6 @@ public class Instance
         return _servantFactoryManager;
     }
 
-    public synchronized UserExceptionFactoryManager
-    userExceptionFactoryManager()
-    {
-	if(_destroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
-
-        return _userExceptionFactoryManager;
-    }
-
     public synchronized ObjectAdapterFactory
     objectAdapterFactory()
     {
@@ -348,8 +337,6 @@ public class Instance
 
             _servantFactoryManager = new ObjectFactoryManager();
 
-            _userExceptionFactoryManager = new UserExceptionFactoryManager();
-
             _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
             _bufferManager = new BufferManager(); // Must be created before the ThreadPool
@@ -371,7 +358,6 @@ public class Instance
         assert(_outgoingConnectionFactory == null);
 	assert(_connectionMonitor == null);
         assert(_servantFactoryManager == null);
-        assert(_userExceptionFactoryManager == null);
         assert(_objectAdapterFactory == null);
         assert(_clientThreadPool == null);
         assert(_serverThreadPool == null);
@@ -487,12 +473,6 @@ public class Instance
                 _servantFactoryManager = null;
             }
 
-            if(_userExceptionFactoryManager != null)
-            {
-                _userExceptionFactoryManager.destroy();
-                _userExceptionFactoryManager = null;
-            }
-
             if(_referenceFactory != null)
             {
                 _referenceFactory.destroy();
@@ -559,7 +539,6 @@ public class Instance
     private OutgoingConnectionFactory _outgoingConnectionFactory;
     private ConnectionMonitor _connectionMonitor;
     private ObjectFactoryManager _servantFactoryManager;
-    private UserExceptionFactoryManager _userExceptionFactoryManager;
     private ObjectAdapterFactory _objectAdapterFactory;
     private ThreadPool _clientThreadPool;
     private ThreadPool _serverThreadPool;

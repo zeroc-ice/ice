@@ -106,7 +106,7 @@
         <mkdir dir="${cache.dir}"/>
         <depend srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}" cache="${cache.dir}"/>
         <javac srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}"
-            source="1.4" debug="${debug}" optimize="${optimize}"/>
+            source="1.4" debug="${debug}" optimize="${optimize}" deprecation="on"/>
     </target>
 
     <target name="jar" depends="compile">

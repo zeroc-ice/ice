@@ -1792,7 +1792,12 @@ public class BasicStream
     private UserExceptionFactory
     getUserExceptionFactory(String id)
     {
-        UserExceptionFactory factory = _instance.userExceptionFactoryManager().find(id);
+        UserExceptionFactory factory = null;
+
+	synchronized(_factoryMutex)
+	{
+	    factory = (UserExceptionFactory)_exceptionFactories.get(id);
+	}
 
         if(factory == null)
         {
@@ -1826,16 +1831,7 @@ public class BasicStream
                 int modifiers = c.getModifiers();
                 if((modifiers & 0x200) == 0 && (modifiers & 0x400) == 0)
                 {
-                    DynamicUserExceptionFactory f = new DynamicUserExceptionFactory(c);
-                    try
-                    {
-                        _instance.userExceptionFactoryManager().add(f, id);
-                        factory = f;
-                    }
-                    catch(Ice.AlreadyRegisteredException ex)
-                    {
-                        factory = _instance.userExceptionFactoryManager().find(id);
-                    }
+                    factory = new DynamicUserExceptionFactory(c);
                 }
                 else
                 {
@@ -1843,6 +1839,11 @@ public class BasicStream
                 }
             }
         }
+
+	synchronized(_factoryMutex)
+	{
+	    _exceptionFactories.put(id, factory);
+	}
 
         return factory;
     }
@@ -1922,4 +1923,7 @@ public class BasicStream
     SeqData _seqDataStack;
 
     private java.util.ArrayList _objectList;
+
+    private static java.util.HashMap _exceptionFactories = new java.util.HashMap();
+    private static java.lang.Object _factoryMutex = new java.lang.Object(); // Protects _exceptionFactories.
 }

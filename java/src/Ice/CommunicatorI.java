@@ -151,36 +151,6 @@ final class CommunicatorI extends LocalObjectImpl implements Communicator
         return _instance.servantFactoryManager().find(id);
     }
 
-    public synchronized void
-    addUserExceptionFactory(IceInternal.UserExceptionFactory factory, String id)
-    {
-        if(_destroyed)
-        {
-            throw new CommunicatorDestroyedException();
-        }
-        _instance.userExceptionFactoryManager().add(factory, id);
-    }
-
-    public synchronized void
-    removeUserExceptionFactory(String id)
-    {
-        if(_destroyed)
-        {
-            throw new CommunicatorDestroyedException();
-        }
-        _instance.userExceptionFactoryManager().remove(id);
-    }
-
-    public synchronized IceInternal.UserExceptionFactory
-    findUserExceptionFactory(String id)
-    {
-        if(_destroyed)
-        {
-            throw new CommunicatorDestroyedException();
-        }
-        return _instance.userExceptionFactoryManager().find(id);
-    }
-
     public synchronized Properties
     getProperties()
     {
