@@ -1,9 +1,13 @@
 Changes since version 1.5.1
 ---------------------------
 
-- Added the object adapter property <name>.PublishedEndpoints,
-  which specifies endpoints to advertise in proxies created
-  by the adapter.
+- The proxy returned by the object adapter operations addFacet and
+  addFacetWithUUID did not contain the facet. This required the
+  application to make an extra call to ice_newFacet in order to
+  obtain the correct proxy. This has been fixed.
+
+- Added the object adapter property <name>.PublishedEndpoints, which
+  specifies endpoints to advertise in proxies created by the adapter.
 
 - Fixed a bug with AMD exception handling, where it was possible that
   certain exceptions propagate out of ice_response() or
@@ -14,7 +18,7 @@ Changes since version 1.5.1
   in a connection deadlock. This has been fixed.
 
 - Fixed a bug in slice2cs: the generated code was incorrect for
-  dictionaries and structures containing a sequenc, if that sequence
+  dictionaries and structures containing a sequence, if that sequence
   was mapped to an array.
 
 - Fixed tracing of operation mode.
@@ -24,9 +28,9 @@ Changes since version 1.5.1
   example, Slice "Add" now maps to C# "_Ice_Add" instead of "_cs_Add".
 
   In addition, the prefix is now case-insensitive, so Slice "add" now
-  maps to C# "_Ice_add" whereas, previously, it mapped to C#
-  "add". (These changes were necessary to preserve binary
-  compatibility of slice2cs and slice2vb generated code.)
+  maps to C# "_Ice_add" whereas, previously, it mapped to C# "add".
+  (These changes were necessary to preserve binary compatibility of
+  slice2cs and slice2vb generated code.)
 
 - The documentation has always stated that same-named constructs
   cannot be directly nested inside each other. (For example, a module

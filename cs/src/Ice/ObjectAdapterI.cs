@@ -94,7 +94,7 @@ namespace Ice
 		     Identity ident = new Identity();
 		     ident.category = "";
 		     ident.name = "dummy";
-		     locatorRegistry.setAdapterDirectProxy(_id, newDirectProxy(ident));
+		     locatorRegistry.setAdapterDirectProxy(_id, newDirectProxy(ident, ""));
 		}
 		catch(Ice.AdapterNotFoundException)
 		{
@@ -298,7 +298,7 @@ namespace Ice
 
 		_servantManager.addServant(obj, id, facet);
 
-		return newProxy(id);
+		return newProxy(id, facet);
 	    }
 	}
 	
@@ -408,7 +408,7 @@ namespace Ice
 		checkForDeactivation();
 		checkIdentity(ident);
 		
-		return newProxy(ident);
+		return newProxy(ident, "");
 	    }
 	}
 	
@@ -419,7 +419,7 @@ namespace Ice
 		checkForDeactivation();
 		checkIdentity(ident);
 		
-		return newDirectProxy(ident);
+		return newDirectProxy(ident, "");
 	    }
 	}
 	
@@ -763,11 +763,11 @@ namespace Ice
 	    }
 	}
 	
-	private ObjectPrx newProxy(Identity ident)
+	private ObjectPrx newProxy(Identity ident, string facet)
 	{
 	    if(_id.Length == 0)
 	    {
-		return newDirectProxy(ident);
+		return newDirectProxy(ident, facet);
 	    }
 	    else
 	    {
@@ -778,13 +778,13 @@ namespace Ice
 		IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
 		ConnectionI[] connections = new ConnectionI[0];
 		IceInternal.Reference reference =
-		    _instance.referenceFactory().create(ident, new Context(), "", IceInternal.Reference.ModeTwoway,
+		    _instance.referenceFactory().create(ident, new Context(), facet, IceInternal.Reference.ModeTwoway,
 							false, _id, endpoints, null, _locatorInfo, connections, true);
 		return _instance.proxyFactory().referenceToProxy(reference);
 	    }
 	}
 	
-	private ObjectPrx newDirectProxy(Identity ident)
+	private ObjectPrx newDirectProxy(Identity ident, string facet)
 	{
 	    IceInternal.Endpoint[] endpoints;
 
@@ -828,8 +828,8 @@ namespace Ice
 	    //
 	    ConnectionI[] connections = new ConnectionI[0];
 	    IceInternal.Reference reference =
-		_instance.referenceFactory().create(ident, new Context(), "", IceInternal.Reference.ModeTwoway, false,
-						    "", endpoints, null, _locatorInfo, connections, true);
+		_instance.referenceFactory().create(ident, new Context(), facet, IceInternal.Reference.ModeTwoway,
+                                                    false, "", endpoints, null, _locatorInfo, connections, true);
 	    return _instance.proxyFactory().referenceToProxy(reference);
 	}
 	
