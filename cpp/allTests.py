@@ -42,7 +42,7 @@ tests = [ \
     "IceStorm/federation2", \
     ]
 
-if sys.platform != "win32":
+if sys.platform != "win32" and sys.platform != "cygwin":
     tests += [ \
         "Glacier/starter", \
         ]
