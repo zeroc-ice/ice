@@ -1,5 +1,6 @@
 Ice.Adapter.PhoneBookAdapter.Endpoints=tcp -p 10000
 PhoneBook.PhoneBook=phonebook:tcp -p 10000
 PhoneBook.EvictorSize=3
-#Freeze.Trace.DB=2
+PhoneBook.SaveAfterMutatingOperation=1
+Freeze.Trace.DB=1
 Freeze.Trace.Evictor=2

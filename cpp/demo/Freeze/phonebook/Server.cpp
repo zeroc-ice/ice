@@ -103,6 +103,15 @@ run(int argc, char* argv[], const DBEnvPtr& dbenv)
     {
 	evictor->setSize(atoi(value.c_str()));
     }
+    value = properties->getProperty("PhoneBook.SaveAfterMutatingOperation");
+    if(!value.empty() && atoi(value.c_str()) > 0)
+    {
+	evictor->setPersistenceMode(SaveAfterMutatingOperation);
+    }
+    else
+    {
+	evictor->setPersistenceMode(SaveUponEviction);
+    }
 
     //
     // Create an Object Adapter, use the Evictor as Servant Locator.

@@ -25,18 +25,21 @@ yyerror(const char* s)
 
 %pure_parser
 
-%token ICE_SCOPE_DELIMITOR
+//
+// All keyword tokens. Make sure to modify the "keyword" rule in this
+// file if the list of keywords is changed.
+//
 %token ICE_MODULE
-%token ICE_LOCAL
 %token ICE_CLASS
 %token ICE_INTERFACE
 %token ICE_STRUCT
+%token ICE_LOCAL
 %token ICE_EXTENDS
 %token ICE_IMPLEMENTS
 %token ICE_THROWS
 %token ICE_VOID
-%token ICE_BOOL
 %token ICE_BYTE
+%token ICE_BOOL
 %token ICE_SHORT
 %token ICE_INT
 %token ICE_LONG
@@ -51,6 +54,11 @@ yyerror(const char* s)
 %token ICE_DICTIONARY
 %token ICE_ENUM
 %token ICE_NONMUTATING
+
+//
+// Other tokens.
+//
+%token ICE_SCOPE_DELIMITOR
 %token ICE_IDENTIFIER
 %token ICE_OP_IDENTIFIER
 
@@ -535,6 +543,16 @@ parameters
     unit->error("missing declarator");
     $$ = new TypeStringListTok;
 }
+| type keyword ',' parameters
+{
+    unit->error("keyword can not be used as declarator");
+    $$ = $4
+}
+| type keyword
+{
+    unit->error("keyword can not be used as declarator");
+    $$ = new TypeStringListTok;
+}
 |
 {
     $$ = new TypeStringListTok;
@@ -807,5 +825,84 @@ scoped_name
     $$ = scoped;
 }
 ;
+
+// ----------------------------------------------------------------------
+keyword
+// ----------------------------------------------------------------------
+: ICE_MODULE
+{
+}
+| ICE_CLASS
+{
+}
+| ICE_INTERFACE
+{
+}
+| ICE_STRUCT
+{
+}
+| ICE_LOCAL
+{
+}
+| ICE_EXTENDS
+{
+}
+| ICE_IMPLEMENTS
+{
+}
+| ICE_THROWS
+{
+}
+| ICE_VOID
+{
+}
+| ICE_BYTE
+{
+}
+| ICE_BOOL
+{
+}
+| ICE_SHORT
+{
+}
+| ICE_INT
+{
+}
+| ICE_LONG
+{
+}
+| ICE_FLOAT
+{
+}
+| ICE_DOUBLE
+{
+}
+| ICE_STRING
+{
+}
+| ICE_WSTRING
+{
+}
+| ICE_OBJECT
+{
+}
+| ICE_LOCAL_OBJECT
+{
+}
+| ICE_NATIVE
+{
+}
+| ICE_SEQUENCE
+{
+}
+| ICE_DICTIONARY
+{
+}
+| ICE_ENUM
+{
+}
+| ICE_NONMUTATING
+{
+}
 
 %%

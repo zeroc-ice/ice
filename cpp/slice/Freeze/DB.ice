@@ -31,6 +31,11 @@ local interface DBEnv;
  **/
 struct DBException
 {
+    /**
+     *
+     * A message describing the exception.
+     *
+     **/
     string message;
 };
 

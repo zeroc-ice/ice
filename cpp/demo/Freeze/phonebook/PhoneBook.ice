@@ -22,7 +22,12 @@ class Contact
     nonmutating string getPhone();
     void setPhone(string phone);
 
-    void destroy();
+    //
+    // Yes, destroy() is nonmutating. It doesn't change the state of
+    // the Contact. It removes the Contact completely, but doesn't
+    // touch state.
+    //
+    nonmutating void destroy();
 
     string _name;
     string _address;
@@ -37,9 +42,16 @@ sequence<string> Names;
 class PhoneBook
 {
     Contact* createContact();
+
     nonmutating Contacts findContacts(string name);
+
     nonmutating Names getAllNames();
-    void shutdown();
+
+    //
+    // shutdown() is nonmutating. It doesn't change any state, it only
+    // shuts down the application.
+    //
+    nonmutating void shutdown();
 
     NameIdentitiesDict _nameIdentitiesDict;
 };

@@ -48,6 +48,38 @@ local interface ServantInitializer
 
 /**
  *
+ * The Evictor persistence mode.
+ *
+ * @see Evictor
+ * @see Evictor::setPersistenceMode
+ * @see Evictor::getPersistenceMode
+ *
+ **/
+enum EvictorPersistenceMode
+{
+    /**
+     *
+     * This mode instructs the Evictor to save a Servant to persistent
+     * store when it is evicted, or when the Evictor is deactivated.
+     *
+     * @see Ice::ServantLocator::deactivate
+     *
+     **/
+    SaveUponEviction,
+
+    /**
+     *
+     * This mode instructs the Evictor to save a Servant after each
+     * mutating operation call. A mutating operation call is a call to
+     * any operation that has not been declared as
+     * <literal>nonmutating</literal>.
+     *
+     **/
+    SaveAfterMutatingOperation
+};
+
+/**
+ *
  * A semi-automatic Ice Object persistence manager, based on the
  * evictor pattern. The Evictor is an extended Servant Locator, with
  * an implementation in the Freeze module. Instances of this
@@ -63,12 +95,12 @@ local interface Evictor extends Ice::ServantLocator
 {
     /**
      *
-     * Set the Evictor Servant queue size. This is the number of
-     * Servants the Evictor will hold in memory. Requests to set the
-     * queue size to a value smaller or equal to zero is not
-     * permissible and is ignored.
+     * Set the Evictor's Servant queue size. This is the maximum
+     * number of Servants the Evictor will hold in memory. Requests to
+     * set the queue size to a value smaller or equal to zero are
+     * ignored.
      *
-     * @param sz The Evictor Servant queue size. If the Evictor
+     * @param sz The Evictor's Servant queue size. If the Evictor
      * currently holds more Servants in its queue, Servants will be
      * evicted until the number of Servants match the new size.
      *
@@ -79,14 +111,42 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      *
-     * Get the Evictor Servant queue size.
+     * Get the Evictor's Servant queue size.
      *
-     * @return The Evictor Servant queue size.
+     * @return The Evictor's Servant queue size.
      *
      * @see setSize
      *
      **/
     int getSize();
+
+    /**
+     *
+     * Set the Evictor's persistence mode. If the mode is change to
+     * <literal>SaveAfterMutatingOperation</literal>, all Servants
+     * that are currently in the Evictor's Servant queue are saved to
+     * persistent store, so that it can safely be assumed that no data
+     * can get lost after the mode has been changed.
+     *
+     * @param mode The Evictor's persistence mode.
+     *
+     * @see EvictorPersistenceMode
+     * @see getPersistenceMode
+     *
+     **/
+    void setPersistenceMode(EvictorPersistenceMode mode);
+
+    /**
+     *
+     * Get the Evictor's perstence mode.
+     *
+     * @return The Evictor's persistence mode.
+     *
+     * @see EvictorPersistenceMode
+     * @see setPersistenceMode
+     *
+     **/
+    EvictorPersistenceMode getPersistenceMode();
 
     /**
      *

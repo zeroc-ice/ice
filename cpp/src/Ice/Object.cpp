@@ -130,3 +130,9 @@ Ice::Object::__dispatch(Incoming& in, const string& name)
     assert(false);
     return DispatchOperationNotExist;
 }
+
+bool
+Ice::Object::_isMutating(const std::string&)
+{
+    return false;
+}

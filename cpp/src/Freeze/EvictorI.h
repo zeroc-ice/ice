@@ -28,13 +28,17 @@ public:
     virtual void setSize(Ice::Int);
     virtual Ice::Int getSize();
     
+    virtual void setPersistenceMode(EvictorPersistenceMode);
+    virtual EvictorPersistenceMode getPersistenceMode();
+
     virtual void createObject(const std::string&, const Ice::ObjectPtr&);
     virtual void destroyObject(const std::string&);
 
     virtual void installServantInitializer(const ServantInitializerPtr&);
 
-    virtual Ice::ObjectPtr locate(const Ice::ObjectAdapterPtr&, const std::string&, Ice::ObjectPtr&);
-    virtual void finished(const Ice::ObjectAdapterPtr&, const std::string&, const Ice::ObjectPtr&,
+    virtual Ice::ObjectPtr locate(const Ice::ObjectAdapterPtr&, const std::string&, const std::string&,
+				  Ice::ObjectPtr&);
+    virtual void finished(const Ice::ObjectAdapterPtr&, const std::string&, const Ice::ObjectPtr&, const std::string&,
 			  const Ice::ObjectPtr&);
     virtual void deactivate();
 
@@ -54,6 +58,8 @@ private:
     std::map<std::string, EvictorElement> _evictorMap;
     std::list<std::string> _evictorList;
     std::map<std::string, EvictorElement>::size_type _evictorSize;
+
+    EvictorPersistenceMode _persistenceMode;
 
     ServantInitializerPtr _initializer;
 

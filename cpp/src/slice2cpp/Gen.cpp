@@ -1443,15 +1443,15 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	StringList::iterator q;
 
 	H << sp;
-	H << nl << exp2 << "static std::string __ids[" << ids.size() << "];";
+	H << nl << exp2 << "static ::std::string __ids[" << ids.size() << "];";
 	H << sp;
-	H << nl << exp2 << "static std::string __classIds[" << classIds.size() << "];";
+	H << nl << exp2 << "static ::std::string __classIds[" << classIds.size() << "];";
 	H << sp;
-	H << nl << exp2 << "virtual bool _isA(const std::string&);";
+	H << nl << exp2 << "virtual bool _isA(const ::std::string&);";
 	H << sp;
-	H << nl << exp2 << "virtual const std::string* _classIds();";
+	H << nl << exp2 << "virtual const ::std::string* _classIds();";
 	C << sp;
-	C << nl << "std::string " << scoped.substr(2) << "::__ids[" << ids.size() << "] =";
+	C << nl << "::std::string " << scoped.substr(2) << "::__ids[" << ids.size() << "] =";
 	C << sb;
 	q = ids.begin();
 	while (q != ids.end())
@@ -1464,7 +1464,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	C << eb << ';';
 	C << sp;
-	C << nl << "std::string " << scoped.substr(2) << "::__classIds[" << classIds.size() << "] =";
+	C << nl << "::std::string " << scoped.substr(2) << "::__classIds[" << classIds.size() << "] =";
 	C << sb;
 	q = classIds.begin();
 	while (q != classIds.end())
@@ -1477,15 +1477,15 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	C << eb << ';';
 	C << sp;
-	C << nl << "bool" << nl << scoped.substr(2) << "::_isA(const std::string& s)";
+	C << nl << "bool" << nl << scoped.substr(2) << "::_isA(const ::std::string& s)";
 	C << sb;
-	C << nl << "std::string* b = __ids;";
-	C << nl << "std::string* e = __ids + " << ids.size() << ';';
-	C << nl << "std::pair<std::string*, std::string*> r = std::equal_range(b, e, s);";
+	C << nl << "::std::string* b = __ids;";
+	C << nl << "::std::string* e = __ids + " << ids.size() << ';';
+	C << nl << "::std::pair< ::std::string*, ::std::string*> r = ::std::equal_range(b, e, s);";
 	C << nl << "return r.first != r.second;";
 	C << eb;
 	C << sp;
-	C << nl << "const std::string*" << nl << scoped.substr(2) << "::_classIds()";
+	C << nl << "const ::std::string*" << nl << scoped.substr(2) << "::_classIds()";
 	C << sb;
 	C << nl << "return __classIds;";
 	C << eb;
@@ -1518,25 +1518,36 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    }
 	}
 
-	OperationList allOperations = p->allOperations();
-	if (!p->allOperations().empty())
+	OperationList allOps = p->allOperations();
+	if (!allOps.empty())
 	{
 	    StringList allOpNames;
-	    transform(allOperations.begin(), allOperations.end(), back_inserter(allOpNames),
-		      ::IceUtil::memFun(&Operation::name));
+	    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::memFun(&Operation::name));
 	    allOpNames.push_back("_isA");
 	    allOpNames.push_back("_ping");
 	    allOpNames.sort();
 	    allOpNames.unique();
+
+	    OperationList allMutatingOps;
+	    remove_copy_if(allOps.begin(), allOps.end(), back_inserter(allMutatingOps), 
+			   ::IceUtil::memFun(&Operation::nonmutating));
+	    StringList allMutatingOpNames;
+	    transform(allMutatingOps.begin(), allMutatingOps.end(), back_inserter(allMutatingOpNames),
+		      ::IceUtil::memFun(&Operation::name));
+	    // Don't add _isA and _ping. These operations are non-mutating.
+	    allMutatingOpNames.sort();
+	    allMutatingOpNames.unique();
 	    
 	    StringList::iterator q;
 	    
 	    H << sp;
-	    H << nl << exp2 << "static std::string __names[" << allOpNames.size() << "];";
+	    H << nl << exp2 << "static ::std::string __all[" << allOpNames.size() << "];";
+	    H << nl << exp2 << "static ::std::string __mutating[" << allMutatingOpNames.size() << "];";
 	    H << nl << exp2 << "virtual ::IceInternal::DispatchStatus "
-	      << "__dispatch(::IceInternal::Incoming&, const std::string&);";
+	      << "__dispatch(::IceInternal::Incoming&, const ::std::string&);";
+	    H << nl << exp2 << "virtual bool _isMutating(const ::std::string&);";
 	    C << sp;
-	    C << nl << "std::string " << scoped.substr(2) << "::__names[" << allOpNames.size() << "] =";
+	    C << nl << "::std::string " << scoped.substr(2) << "::__all[" << allOpNames.size() << "] =";
 	    C << sb;
 	    q = allOpNames.begin();
 	    while (q != allOpNames.end())
@@ -1549,18 +1560,31 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    }
 	    C << eb << ';';
 	    C << sp;
-	    C << nl << "::IceInternal::DispatchStatus" << nl << scoped.substr(2)
-	      << "::__dispatch(::IceInternal::Incoming& in, const std::string& s)";
+	    C << nl << "::std::string " << scoped.substr(2) << "::__mutating[" << allMutatingOpNames.size() << "] =";
 	    C << sb;
-	    C << nl << "std::string* b = __names;";
-	    C << nl << "std::string* e = __names + " << allOpNames.size() << ';';
-	    C << nl << "std::pair<std::string*, std::string*> r = std::equal_range(b, e, s);";
+	    q = allMutatingOpNames.begin();
+	    while (q != allMutatingOpNames.end())
+	    {
+		C << nl << '"' << *q << '"';
+		if (++q != allMutatingOpNames.end())
+		{
+		    C << ',';
+		}
+	    }
+	    C << eb << ';';
+	    C << sp;
+	    C << nl << "::IceInternal::DispatchStatus" << nl << scoped.substr(2)
+	      << "::__dispatch(::IceInternal::Incoming& in, const ::std::string& s)";
+	    C << sb;
+	    C << nl << "::std::string* b = __all;";
+	    C << nl << "::std::string* e = __all + " << allOpNames.size() << ';';
+	    C << nl << "::std::pair< ::std::string*, ::std::string*> r = ::std::equal_range(b, e, s);";
 	    C << nl << "if (r.first == r.second)";
 	    C << sb;
 	    C << nl << "return ::IceInternal::DispatchOperationNotExist;";
 	    C << eb;
 	    C << sp;
-	    C << nl << "switch (r.first - __names)";
+	    C << nl << "switch (r.first - __all)";
 	    C << sb;
 	    int i = 0;
 	    for (q = allOpNames.begin(); q != allOpNames.end(); ++q)
@@ -1574,6 +1598,14 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << sp;
 	    C << nl << "assert(false);";
 	    C << nl << "return ::IceInternal::DispatchOperationNotExist;";
+	    C << eb;
+	    C << sp;
+	    C << nl << "bool" << nl << scoped.substr(2)
+	      << "::_isMutating(const ::std::string& s)";
+	    C << sb;
+	    C << nl << "::std::string* b = __mutating;";
+	    C << nl << "::std::string* e = __mutating + " << allMutatingOpNames.size() << ';';
+	    C << nl << "return ::std::binary_search(b, e, s);";
 	    C << eb;
 	}
 	H << sp;
@@ -1835,10 +1867,17 @@ Slice::Gen::IceVisitor::visitClassDefStart(const ClassDefPtr& p)
     if (!p->isLocal())
     {
 	C << sp;
-	C << nl << "void IceInternal::incRef(::IceProxy" << scoped << "* p) { p->__incRef(); }";
-	C << nl << "void IceInternal::decRef(::IceProxy" << scoped << "* p) { p->__decRef(); }";
+	C << nl << "void" << nl << "IceInternal::incRef(::IceProxy" << scoped << "* p)";
+	C << sb;
+	C << "p->__incRef();";
+	C << eb;
+	C << nl << "void" << nl << "IceInternal::decRef(::IceProxy" << scoped << "* p)";
+	C << sb;
+	C << "p->__decRef();";
+	C << eb;
 	C << sp;
-	C << nl << "void IceInternal::checkedCast(::IceProxy::Ice::Object* b, ::IceProxy" << scoped << "*& d)";
+	C << nl << "void" << nl << "IceInternal::checkedCast(::IceProxy::Ice::Object* b, ::IceProxy" << scoped
+	  << "*& d)";
 	C << sb;
 	C << nl << "d = dynamic_cast< ::IceProxy" << scoped << "*>(b);";
 	C << nl << "if (!d && b->_isA(\"" << scoped << "\"))";
@@ -1848,7 +1887,8 @@ Slice::Gen::IceVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << eb;
 	C << eb;
 	C << sp;
-	C << nl << "void IceInternal::uncheckedCast(::IceProxy::Ice::Object* b, ::IceProxy" << scoped << "*& d)";
+	C << nl << "void" << nl << "IceInternal::uncheckedCast(::IceProxy::Ice::Object* b, ::IceProxy" << scoped
+	  << "*& d)";
 	C << sb;
 	C << nl << "d = dynamic_cast< ::IceProxy" << scoped << "*>(b);";
 	C << nl << "if (!d)";

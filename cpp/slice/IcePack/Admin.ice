@@ -40,9 +40,9 @@ struct ServerDescription
      * &IcePack; request that matches the identity of
      * <literal>object</literal> will be forwarded to
      * <literal>object</literal>. If <literal>regex</literal> is set
-     * to <literal>true</literal>, <literal>object</literal>'s
-     * identity is interpreted as a regular expression, and each
-     * request that matches this expression will be forwarded.
+     * to true, <literal>object</literal>'s identity is interpreted as
+     * a regular expression, and each request that matches this
+     * expression will be forwarded.
      *
      * @see regex
      *

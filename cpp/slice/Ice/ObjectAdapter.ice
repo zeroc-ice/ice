@@ -235,16 +235,21 @@ local interface ServantLocator
 {
     /**
      *
-     * Called by the Object Adapter before a request, in case a
-     * Servant cannot be found in the Object Adapter's Active Servant
-     * Map. Note that the Object Adapter does not automatically insert
-     * the returned Servant into it's Active Servant Map. This must be
-     * done by the Servant Locator's implementation, if desired.
+     * Called by the Object Adapter before a request is made, in case
+     * a Servant cannot be found in the Object Adapter's Active
+     * Servant Map. Note that the Object Adapter does not
+     * automatically insert the returned Servant into it's Active
+     * Servant Map. This must be done by the Servant Locator's
+     * implementation, if this is desired.
      *
-     * @param adapter The Object Adapter that calls the Servant Locator.
+     * @param adapter The Object Adapter that calls the Servant
+     * Locator.
      *
      * @param identity The identity of the Ice Object to locate a
      * Servant for.
+     *
+     * @param operation The operation the Object Adapter is about to
+     * call.
      *
      * @param cookie A "cookie", which is returned to
      * <literal>finished</literal>.
@@ -256,15 +261,15 @@ local interface ServantLocator
      * @see finished
      *
      **/
-    Object locate(ObjectAdapter adapter, string identity; Object cookie);
+    Object locate(ObjectAdapter adapter, string identity, string operation; Object cookie);
 
     /**
      *
-     * Called by the Object Adapter after a request. This operation is
-     * only called if <literal>locate</literal> did not return null,
-     * or if <literal>locate</literal> threw a
-     * <literal>LocationForward</literal> exception. This operation
-     * can be used for cleanup after a request.
+     * Called by the Object Adapter after a request has been
+     * made. This operation is only called if
+     * <literal>locate</literal> was called prior to the request and
+     * returned a non-null servant. This operation can be used for
+     * cleanup purposes after a request.
      *
      * @param adapter The Object Adapter that calls the Servant Locator.
      *
@@ -274,6 +279,8 @@ local interface ServantLocator
      * @param servant The Servant that was returned by
      * <literal>locate</literal>.
      *
+     * @param operation The operation the Object Adapter just called.
+     *
      * @param cookie The cookie that was returned by
      * <literal>locate</literal>.
      *
@@ -281,7 +288,7 @@ local interface ServantLocator
      * @see locate
      *
      **/
-    void finished(ObjectAdapter adapter, string identity, Object servant, Object cookie);
+    void finished(ObjectAdapter adapter, string identity, Object servant, string operation, Object cookie);
 
     /**
      *

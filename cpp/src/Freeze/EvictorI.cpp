@@ -8,6 +8,7 @@
 //
 // **********************************************************************
 
+#include <Ice/Object.h> // Not included in Ice/Ice.h
 #include <Freeze/EvictorI.h>
 #include <sstream>
 
@@ -18,6 +19,7 @@ using namespace Freeze;
 Freeze::EvictorI::EvictorI(const DBPtr& db, const CommunicatorPtr& communicator) :
     _db(db),
     _evictorSize(static_cast<map<string, EvictorElement>::size_type>(10)),
+    _persistenceMode(SaveUponEviction),
     _logger(communicator->getLogger()),
     _trace(0)
 {
@@ -25,7 +27,7 @@ Freeze::EvictorI::EvictorI(const DBPtr& db, const CommunicatorPtr& communicator)
     string value;
 
     value = properties->getProperty("Freeze.Trace.Evictor");
-    if(!value.empty())
+    if (!value.empty())
     {
 	_trace = atoi(value.c_str());
     }
@@ -62,6 +64,46 @@ Freeze::EvictorI::getSize()
     JTCSyncT<JTCMutex> sync(*this);
 
     return static_cast<Int>(_evictorSize);
+}
+
+void
+Freeze::EvictorI::setPersistenceMode(EvictorPersistenceMode persistenceMode)
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (_persistenceMode != persistenceMode)
+    {
+	_persistenceMode = persistenceMode;
+
+	//
+	// If we switch to SaveAfterMutatingOperation, we save all
+	// Servants now, so that it can safely be assumed that no data
+	// can get lost after the mode has been changed.
+	//
+	if (_persistenceMode == SaveAfterMutatingOperation && !_evictorMap.empty())
+	{
+	    if (_trace >= 1)
+	    {
+		ostringstream s;
+		s << "switching to SaveUponEviction\n"
+		  << "saving all Ice Objects in the queue to the database";
+		_logger->trace("Evictor", s.str());
+	    }
+
+	    for (map<string, EvictorElement>::iterator p = _evictorMap.begin(); p != _evictorMap.end(); ++p)
+	    {
+		_db->put(*(p->second.position), p->second.servant);
+	    }
+	}
+    }
+}
+
+EvictorPersistenceMode
+Freeze::EvictorI::getPersistenceMode()
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    return _persistenceMode;
 }
 
 void
@@ -111,7 +153,7 @@ Freeze::EvictorI::installServantInitializer(const ServantInitializerPtr& initial
 }
 
 ObjectPtr
-Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& identity, ObjectPtr&)
+Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& identity, const string&, ObjectPtr&)
 {
     JTCSyncT<JTCMutex> sync(*this);
     
@@ -121,7 +163,7 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& identity
 	if (_trace >= 2)
 	{
 	    ostringstream s;
-	    s << "found \"" << identity << "\" in queue";
+	    s << "found \"" << identity << "\" in the queue";
 	    _logger->trace("Evictor", s.str());
 	}
 
@@ -143,8 +185,8 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& identity
 	if (_trace >= 2)
 	{
 	    ostringstream s;
-	    s << "couldn't find \"" << identity << "\" in queue\n"
-	      << "loading \"" << identity << "\" from database";
+	    s << "couldn't find \"" << identity << "\" in the queue\n"
+	      << "loading \"" << identity << "\" from the database";
 	    _logger->trace("Evictor", s.str());
 	}
 
@@ -179,9 +221,24 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& identity
 }
 
 void
-Freeze::EvictorI::finished(const ObjectAdapterPtr&, const string&, const ObjectPtr&, const ObjectPtr&)
+Freeze::EvictorI::finished(const ObjectAdapterPtr&, const string& identity, const ObjectPtr& servant,
+			   const string& operation, const ObjectPtr&)
 {
-    //JTCSyncT<JTCMutex> sync(*this);
+    JTCSyncT<JTCMutex> sync(*this);
+
+    assert(servant);
+
+    //
+    // If we are in SaveAfterMutatingOperation mode, we must save the
+    // Ice Object if this was a mutating call.
+    //
+    if (_persistenceMode == SaveAfterMutatingOperation)
+    {
+	if (servant->_isMutating(operation))
+	{
+	    _db->put(identity, servant);
+	}
+    }
 }
 
 void
@@ -192,18 +249,25 @@ Freeze::EvictorI::deactivate()
     if (_trace >= 1)
     {
 	ostringstream s;
-	s << "deactivating, saving all Ice Objects in queue in database";
+	s << "deactivating, saving all Ice Objects in the queue to the database";
 	_logger->trace("Evictor", s.str());
     }
 
     //
-    // Save all Ice Objects in the database upon deactivation, and
-    // clear the evictor map and list.
+    // If we are not in SaveAfterMutatingOperation mode, we must save
+    // all Ice Objects in the database upon deactivation.
     //
-    for (map<string, EvictorElement>::iterator p = _evictorMap.begin(); p != _evictorMap.end(); ++p)
+    if (_persistenceMode != SaveAfterMutatingOperation)
     {
-	_db->put(*(p->second.position), p->second.servant);
+	for (map<string, EvictorElement>::iterator p = _evictorMap.begin(); p != _evictorMap.end(); ++p)
+	{
+	    _db->put(*(p->second.position), p->second.servant);
+	}
     }
+
+    //
+    // We must clear the evictor map and list up deactivation.
+    //
     _evictorMap.clear();
     _evictorList.clear();
 }
@@ -234,15 +298,19 @@ Freeze::EvictorI::evict()
 	assert(_evictorMap.size() == _evictorSize);
 
 	//
-	// Save the evicted Ice Object to the database.
+	// If we are in SaveUponEviction mode, we must save the
+	// evicted Ice Object to the database.
 	//
-	_db->put(identity, servant);
+	if (_persistenceMode == SaveUponEviction)
+	{
+	    _db->put(identity, servant);
+	}
 
 	if (_trace >= 2)
 	{
 	    ostringstream s;
-	    s << "evicted \"" << identity << "\" from queue\n"
-	      << "number of elements in queue: " << _evictorMap.size();
+	    s << "evicted \"" << identity << "\" from the queue\n"
+	      << "number of elements in the queue: " << _evictorMap.size();
 	    _logger->trace("Evictor", s.str());
 	}
     }
@@ -254,7 +322,7 @@ Freeze::EvictorI::add(const string& identity, const ObjectPtr& servant)
     //
     // Ignore the request if the Ice Object is already in the queue.
     //
-    if(_evictorMap.find(identity) != _evictorMap.end())
+    if (_evictorMap.find(identity) != _evictorMap.end())
     {
 	return;
     }    

@@ -81,6 +81,7 @@ public:
 
     static std::string __names[];
     virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const std::string&);
+    virtual bool _isMutating(const std::string&);
 
     virtual void __write(::IceInternal::Stream*) = 0;
     virtual void __read(::IceInternal::Stream*) = 0;

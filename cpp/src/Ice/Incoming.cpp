@@ -51,33 +51,42 @@ IceInternal::Incoming::invoke(Stream& is)
 	    locator = _adapter->getServantLocator();
 	    if (locator)
 	    {
-		servant = locator->locate(_adapter, identity, cookie);
+		servant = locator->locate(_adapter, identity, operation, cookie);
 	    }
 	}
 	
 	if(!servant)
 	{
 	    *(_os.b.begin() + statusPos) = static_cast<Byte>(DispatchObjectNotExist);
-	    return;
 	}
-	
-	DispatchStatus status = servant->__dispatch(*this, operation);
-	if (status != DispatchOK && status != DispatchException && status != DispatchOperationNotExist)
+	else
 	{
-	    throw UnknownReplyStatusException(__FILE__, __LINE__);
+	    DispatchStatus status = servant->__dispatch(*this, operation);
+	    if (status != DispatchOK && status != DispatchException && status != DispatchOperationNotExist)
+	    {
+		throw UnknownReplyStatusException(__FILE__, __LINE__);
+	    }
+	    
+	    *(_os.b.begin() + statusPos) = static_cast<Byte>(status);
 	}
-	
-	*(_os.b.begin() + statusPos) = static_cast<Byte>(status);
     }
     catch(const LocationForward& p)
     {
 	*(_os.b.begin() + statusPos) = static_cast<Byte>(DispatchLocationForward);
 	_os.write(p._prx);
     }
-
-    if (locator)
+    catch(...)
     {
-	locator->finished(_adapter, identity, servant, cookie);
+	if (locator && servant)
+	{
+	    locator->finished(_adapter, identity, servant, operation, cookie);
+	}
+	throw;
+    }
+
+    if (locator && servant)
+    {
+	locator->finished(_adapter, identity, servant, operation, cookie);
     }
 }
 
