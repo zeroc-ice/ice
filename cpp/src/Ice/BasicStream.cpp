@@ -986,15 +986,15 @@ IceInternal::BasicStream::read(ObjectPrx& v)
 void
 IceInternal::BasicStream::write(const ObjectPtr& v)
 {
-    if(!_currentWriteEncaps) 			// Lazy initialization
+    if(!_currentWriteEncaps) // Lazy initialization.
     {
-	_writeEncapsStack.push_back();
+	_writeEncapsStack.push_back(WriteEncaps());
 	_currentWriteEncaps = &_writeEncapsStack.back();
 	_currentWriteEncaps->start = b.size();
 	_currentWriteEncaps->toBeMarshaledMap = 0;
     }
 
-    if(!_currentWriteEncaps->toBeMarshaledMap)	// Lazy initialization
+    if(!_currentWriteEncaps->toBeMarshaledMap) // Lazy initialization.
     {
 	_currentWriteEncaps->toBeMarshaledMap = new PtrToIndexMap;
 	_currentWriteEncaps->marshaledMap = new PtrToIndexMap;
@@ -1032,20 +1032,20 @@ IceInternal::BasicStream::write(const ObjectPtr& v)
     }
     else
     {
-	write(0);	// Write null pointer
+	write(0); // Write null pointer.
     }
 }
 
 void
 IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
 {
-    if(!_currentReadEncaps) 		// Lazy initialization
+    if(!_currentReadEncaps) // Lazy initialization.
     {
-	_readEncapsStack.push_back();
+	_readEncapsStack.push_back(ReadEncaps());
 	_currentReadEncaps = &_readEncapsStack.back();
     }
 
-    if(!_currentReadEncaps->patchMap)	// Lazy initialization
+    if(!_currentReadEncaps->patchMap) // Lazy initialization.
     {
 	_currentReadEncaps->patchMap = new PatchMap;
 	_currentReadEncaps->unmarshaledMap = new IndexToPtrMap;
@@ -1059,7 +1059,7 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
 
     if(index == 0)
     {
-	patchFunc(patchAddr, v);	// Null Ptr
+	patchFunc(patchAddr, v); // Null Ptr.
 	return;
     }
 
@@ -1069,8 +1069,8 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
 	if(p == _currentReadEncaps->patchMap->end())
 	{
 	    //
-	    // We have no outstanding instances to be patched for this index, so make a new entry
-	    // in the patch map.
+	    // We have no outstanding instances to be patched for this
+	    // index, so make a new entry in the patch map.
 	    //
 	    p = _currentReadEncaps->patchMap->insert(make_pair(-index, PatchList())).first;
 	}
@@ -1113,7 +1113,7 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
 	    if(!v)
 	    {
 //		traceSlicing("class", id, _instance->logger(), _instance->traceLevels());
-		skipSlice();	// Slice off this derived part -- we don't understand it.
+		skipSlice(); // Slice off this derived part -- we don't understand it.
 		continue;
 	    }
 	}
@@ -1161,8 +1161,9 @@ IceInternal::BasicStream::throwException()
 	if(factory)
 	{
 	    //
-	    // Got factory -- get the factory to instantiate the exception, initialize the
-	    // exception members, and throw the exception.
+	    // Got factory -- get the factory to instantiate the
+	    // exception, initialize the exception members, and throw
+	    // the exception.
 	    //
 	    try
 	    {
@@ -1181,13 +1182,14 @@ IceInternal::BasicStream::throwException()
 	else
 	{
 //	    traceSlicing("exception", id, _instance->logger(), _instance->traceLevels());
-	    skipSlice();	// Slice off what we don't understand
-	    read(id);		// Read type id for next slice
+	    skipSlice(); // Slice off what we don't understand.
+	    read(id);  // Read type id for next slice.
 	}
     }
     //
-    // Getting here should be impossible: we can get here only if the sender has marshaled a sequence
-    // of type IDs, none of which we have factory for. This means that sender and receiver disagree
+    // Getting here should be impossible: we can get here only if the
+    // sender has marshaled a sequence of type IDs, none of which we
+    // have factory for. This means that sender and receiver disagree
     // about the Slice definitions they use.
     //
     throw UnknownUserException(__FILE__, __LINE__);
@@ -1205,17 +1207,20 @@ BasicStream::writePendingObjects()
 	    for(PtrToIndexMap::iterator p = savedMap.begin(); p != savedMap.end(); ++p)
 	    {
 		//
-		// Add an instance from the old to-be-marshaled map to the marshaled map and then
-		// ask the instance to marshal itself. Any new class instances that are triggered
-		// by the classes marshaled are added to toBeMarshaledMap.
+		// Add an instance from the old to-be-marshaled map to
+		// the marshaled map and then ask the instance to
+		// marshal itself. Any new class instances that are
+		// triggered by the classes marshaled are added to
+		// toBeMarshaledMap.
 		//
 		_currentWriteEncaps->marshaledMap->insert(*p);
 		writeInstance(p->first, p->second);
 	    }
 
 	    //
-	    // We have marshaled all the instances for this pass, substract what we have
-	    // marshaled from the toBeMarshaledMap.
+	    // We have marshaled all the instances for this pass,
+	    // substract what we have marshaled from the
+	    // toBeMarshaledMap.
 	    //
 	    PtrToIndexMap newMap;
 	    set_difference(_currentWriteEncaps->toBeMarshaledMap->begin(), _currentWriteEncaps->toBeMarshaledMap->end(),
@@ -1224,7 +1229,7 @@ BasicStream::writePendingObjects()
 	    *_currentWriteEncaps->toBeMarshaledMap = newMap;
 	}
     }
-    writeSize(0);	// Zero marker indicates end of sequence of sequences of instances.
+    writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
 }
 
 void
@@ -1253,10 +1258,12 @@ void
 BasicStream::patchPointers(Int index, IndexToPtrMap::const_iterator unmarshaledPos, PatchMap::iterator patchPos)
 {
     //
-    // Called whenever we have unmarshaled a new instance. The index is the index of the instance.
-    // UnmarshaledPos denotes the instance just unmarshaled and patchPost denotes the patch map entry for
-    // the index just unmarshaled. (Exactly one of these two iterators must be end().)
-    // Patch any pointers in the patch map with the new address.
+    // Called whenever we have unmarshaled a new instance. The index
+    // is the index of the instance.  UnmarshaledPos denotes the
+    // instance just unmarshaled and patchPost denotes the patch map
+    // entry for the index just unmarshaled. (Exactly one of these two
+    // iterators must be end().)  Patch any pointers in the patch map
+    // with the new address.
     //
     assert(   (unmarshaledPos != _currentReadEncaps->unmarshaledMap->end()
 	       && patchPos == _currentReadEncaps->patchMap->end())
@@ -1267,23 +1274,25 @@ BasicStream::patchPointers(Int index, IndexToPtrMap::const_iterator unmarshaledP
     if(unmarshaledPos != _currentReadEncaps->unmarshaledMap->end())
     {
 	//
-	// We have just unmarshaled an instance -- check if something needs patching for that instance.
+	// We have just unmarshaled an instance -- check if something
+	// needs patching for that instance.
 	//
 	patchPos = _currentReadEncaps->patchMap->find(index);
 	if(patchPos == _currentReadEncaps->patchMap->end())
 	{
-	    return;	// We don't have anything to patch for the instance just unmarshaled
+	    return; // We don't have anything to patch for the instance just unmarshaled.
 	}
     }
     else
     {
 	//
-	// We have just unmarshaled an index -- check if we have unmarshaled the instance for that index yet.
+	// We have just unmarshaled an index -- check if we have
+	// unmarshaled the instance for that index yet.
 	//
 	unmarshaledPos = _currentReadEncaps->unmarshaledMap->find(index);
 	if(unmarshaledPos == _currentReadEncaps->unmarshaledMap->end())
 	{
-	    return;	// We haven't unmarshaled the instance yet
+	    return; // We haven't unmarshaled the instance yet.
 	}
     }
     assert(patchPos->second.size() > 0);
@@ -1300,8 +1309,8 @@ BasicStream::patchPointers(Int index, IndexToPtrMap::const_iterator unmarshaledP
     }
 
     //
-    // Clear out the patch map for that index -- there is nothing left to patch for that
-    // index for the time being.
+    // Clear out the patch map for that index -- there is nothing left
+    // to patch for that index for the time being.
     //
     _currentReadEncaps->patchMap->erase(patchPos);
 }
