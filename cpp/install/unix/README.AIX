@@ -21,7 +21,7 @@ contact sales@zeroc.com for more information about licensing Ice.
 About this distribution
 ======================================================================
 
-This distribution is a binary release of Ice 2.1.0 for AIX 5.2, and
+This distribution is a binary release of Ice @ver@ for AIX 5.2, and
 includes the following components:
 
 - The Ice runtime, including executables for the Ice services, HTML
@@ -123,7 +123,7 @@ $ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$ICE_HOME/lib/db.jar:$CLASSPATH
 Demos and documentation
 ======================================================================
 
-Sample programs are provided in the Ice-2.1.0-demos.tar.gz package,
+Sample programs are provided in the Ice-@ver@-demos.tar.gz package,
 which can be downloaded from the ZeroC web site at
 
 http://www.zeroc.com/download.html

@@ -21,7 +21,7 @@ contact sales@zeroc.com for more information about licensing Ice.
 About this distribution
 ======================================================================
 
-This distribution is an RPM release of the Ice 2.1.0 runtime for
+This distribution is an RPM release of the Ice @ver@ runtime for
 Linux and includes executables for the Ice services, HTML
 documentation, Slice files, and the C++ runtime libraries.
 
@@ -69,7 +69,7 @@ Java
 To use Ice for Java, you must add Ice.jar to your CLASSPATH, as shown
 in the following bash command:
 
-$ export CLASSPATH=/usr/lib/Ice-2.1.0/Ice.jar:$CLASSPATH
+$ export CLASSPATH=/usr/lib/Ice-@ver@/Ice.jar:$CLASSPATH
 
 Note that the Freeze component of Ice for Java requires Berkeley DB.
 In order to use Freeze, you must add db.jar to your CLASSPATH. In
@@ -88,7 +88,7 @@ To use Ice for Python, the PYTHONPATH environment variable must be
 updated so that the interpreter can load the Ice extension and
 supporting Python files:
 
-$ export PYTHONPATH=/usr/lib/Ice-2.1.0/python:$PYTHONPATH
+$ export PYTHONPATH=/usr/lib/Ice-@ver@/python:$PYTHONPATH
 
 
 Mono
