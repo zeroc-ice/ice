@@ -72,9 +72,11 @@ void
 LinkSubscriber::publish(const Event& event)
 {
     //
-    // Don't forward forwarded, or more costly events.
+    // Don't propagate a message that has already been forwarded.
+    // Also, if this link has a non-zero cost, then don't propagate
+    // a message whose cost exceeds the link cost.
     //
-    if(event.forwarded || event.cost > _cost)
+    if(event.forwarded || (_cost > 0 && event.cost > _cost))
     {
 	return;
     }
