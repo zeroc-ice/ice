@@ -33,6 +33,7 @@ public:
 	    return new D;
 	}
 	assert(false); // Should never be reached
+	return 0;
     }
 
     virtual void destroy()

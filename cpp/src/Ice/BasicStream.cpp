@@ -899,7 +899,7 @@ IceInternal::BasicStream::throwException(const char** throwsBegin, const char** 
 	{
 	    for (const char** p = ex.__getExceptionIds(); strcmp(*p, "::Ice::UserException") != 0; ++p)
 	    {
-		if (binary_search(throwsBegin, throwsEnd, *p))
+		if (binary_search(throwsBegin, throwsEnd, string(*p)))
 		{
 		    ex.__read(this);
 		    ex._throw();

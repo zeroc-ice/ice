@@ -189,5 +189,31 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(fd->c == 0);
     cout << "ok" << endl;
 
+    //
+    // Break cyclic dependencies
+    //
+    b1->a = 0;
+    b1->b = 0;
+    b1->c = 0;
+    b1->_removeAllFacets();
+    b1 = 0;
+    fb1 = 0;
+    b2->a = 0;
+    b2->b = 0;
+    b2->c = 0;
+    b2->_removeAllFacets();
+    b2 = 0;
+    fb2 = 0;
+    c->b = 0;
+    c->_removeAllFacets();
+    c = 0;
+    fc = 0;
+    d->a = 0;
+    d->b = 0;
+    d->c = 0;
+    d->_removeAllFacets();
+    d = 0;
+    fd = 0;
+
     return initial;
 }
