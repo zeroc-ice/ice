@@ -44,6 +44,16 @@ public:
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
+
+class ICE_UTIL_API ThreadStartedException : public Exception
+{
+public:
+
+    ThreadStartedException(const char*, int);
+    virtual std::string ice_name() const;
+    virtual Exception* ice_clone() const;
+    virtual void ice_throw() const;
+};
     
 }
 

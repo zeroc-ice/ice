@@ -90,9 +90,9 @@ public:
 private:
 
 #ifdef _WIN32
+    bool _detached;
     HandleWrapperPtr _handle;
     unsigned _id;
-    bool _detached;
 #else
     pthread_t _id;
 #endif
@@ -124,6 +124,7 @@ public:
 
 private:
 
+    bool _started;
 #ifdef _WIN32
     unsigned _id;
     HandleWrapperPtr _handle;

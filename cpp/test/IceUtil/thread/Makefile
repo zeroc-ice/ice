@@ -21,6 +21,7 @@ TARGETS		= $(CLIENT)
 OBJS		= TestBase.o \
 		  CreateTest.o \
 		  DetachTest.o \
+		  StartTest.o \
 		  RWRecMutexTest.o \
 		  RecMutexTest.o \
 		  MutexTest.o \

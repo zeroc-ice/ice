@@ -22,6 +22,7 @@ using namespace std;
 
 IceUtil::ThreadControl::ThreadControl() :
     _handle(new HandleWrapper(0)),
+    _detached(false),
     _id(GetCurrentThreadId())
 {
     HANDLE proc = GetCurrentProcess();
@@ -35,8 +36,8 @@ IceUtil::ThreadControl::ThreadControl() :
 
 IceUtil::ThreadControl::ThreadControl(const HandleWrapperPtr& handle, unsigned id) :
     _handle(handle),
-    _id(id),
-    _detached(false)
+    _detached(false),
+    _id(id)
 {
 }
 
@@ -109,6 +110,7 @@ IceUtil::ThreadControl::yield()
 }
 
 IceUtil::Thread::Thread() :
+    _started(false),
     _id(0),
     _handle(new HandleWrapper(0))
 {
@@ -156,6 +158,12 @@ startHook(void* arg)
 IceUtil::ThreadControl
 IceUtil::Thread::start()
 {
+    if(_started)
+    {
+	throw ThreadStartedException(__FILE__, __LINE__);
+    }
+    _started = true;
+
     //
     // It's necessary to increment the reference count since
     // pthread_create won't necessarily call the thread function until
@@ -275,7 +283,9 @@ IceUtil::ThreadControl::yield()
     sched_yield();
 }
 
-IceUtil::Thread::Thread()
+IceUtil::Thread::Thread() :
+    _started(false),
+    _id(0)
 {
 }
 
@@ -321,6 +331,12 @@ startHook(void* arg)
 IceUtil::ThreadControl
 IceUtil::Thread::start()
 {
+    if(_started)
+    {
+	throw ThreadStartedException(__FILE__, __LINE__);
+    }
+    _started = true;
+
     //
     // It's necessary to increment the reference count since
     // pthread_create won't necessarily call the thread function until
