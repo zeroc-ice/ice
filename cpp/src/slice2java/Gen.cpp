@@ -354,7 +354,7 @@ Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type, const string
 		<< "++)";
             out << sb;
             ostringstream elem;
-            elem << name << "[__i" << iter << ']' << ends;
+            elem << name << "[__i" << iter << ']';
             iter++;
             writeHashCode(out, seq->type(), elem.str(), iter);
             out << eb;
@@ -1323,7 +1323,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	DataMemberList allClassMembers = p->allClassDataMembers();
 	if(allClassMembers.size() != 0)
 	{
-	    out << sp << nl << "private class Patcher implements Ice.Patcher";
+	    out << sp << nl << "private class Patcher implements IceInternal.Patcher";
 	    out << sb;
 	    if(allClassMembers.size() > 1)
 	    {
@@ -1393,7 +1393,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 		    patchParams << classMemberCount++;
 		}
 	    }
-	    patchParams << ends;
             writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData,
 		                      patchParams.str());
         }
@@ -1526,7 +1525,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	DataMemberList allClassMembers = p->allClassDataMembers();
 	if(allClassMembers.size() != 0)
 	{
-	    out << sp << nl << "private class Patcher implements Ice.Patcher";
+	    out << sp << nl << "private class Patcher implements IceInternal.Patcher";
 	    out << sb;
 	    if(allClassMembers.size() > 1)
 	    {
@@ -1594,7 +1593,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 		    patchParams << classMemberCount++;
 		}
 	    }
-	    patchParams << ends;
             list<string> metaData = (*d)->getMetaData();
             writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData,
 		    		      patchParams.str());
@@ -1828,7 +1826,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
 	if(classMembers.size() != 0)
 	{
-	    out << sp << nl << "private class Patcher implements Ice.Patcher";
+	    out << sp << nl << "private class Patcher implements IceInternal.Patcher";
 	    out << sb;
 	    if(classMembers.size() > 1)
 	    {
@@ -1891,7 +1889,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 		    patchParams << classMemberCount++;
 		}
 	    }
-	    patchParams << ends;
             list<string> metaData = (*d)->getMetaData();
             writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData,
 		    		      patchParams.str());
@@ -2261,7 +2258,7 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
 	BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
 	if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(p))
 	{
-	    out << sp << nl << "public class Patcher implements Ice.Patcher";
+	    out << sp << nl << "public class Patcher implements IceInternal.Patcher";
 	    out << sb;
 	    out << nl << "public void";
 	    out << nl << "patch(Ice.Object v)";
@@ -2604,7 +2601,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 	    //
 	    // The sequence has class elements.
 	    //
-	    out << sp << nl << "private static class Patcher implements Ice.Patcher";
+	    out << sp << nl << "private static class Patcher implements IceInternal.Patcher";
 	    out << sb;
 	    out << sp << nl << "Patcher(" << typeS << " values, int index)";
 	    out << sb;
@@ -2780,9 +2777,56 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 	    //
 	    // The dictionary uses class values.
 	    //
-	    out << sp << nl << "private static class Patcher implements Ice.Patcher";
+	    out << sp << nl << "private static class Patcher implements IceInternal.Patcher";
 	    out << sb;
-	    out << sp << nl << "Patcher(java.util.Map m, " << keyS << " key)";
+	    string keyTypeS = keyS;
+            BuiltinPtr b = BuiltinPtr::dynamicCast(key);
+	    if(b)
+	    {
+		switch(b->kind())
+		{
+                    case Builtin::KindByte:
+                    {
+                        keyTypeS = "java.lang.Byte";
+                        break;
+                    }
+                    case Builtin::KindBool:
+                    {
+                        keyTypeS = "java.lang.Boolean";
+                        break;
+                    }
+                    case Builtin::KindShort:
+                    {
+                        keyTypeS = "java.lang.Short";
+                        break;
+                    }
+                    case Builtin::KindInt:
+                    {
+                        keyTypeS = "java.lang.Integer";
+                        break;
+                    }
+                    case Builtin::KindLong:
+                    {
+                        keyTypeS = "java.lang.Long";
+                        break;
+                    }
+                    case Builtin::KindFloat:
+                    {
+                        keyTypeS = "java.lang.Float";
+                        break;
+                    }
+                    case Builtin::KindDouble:
+                    {
+                        keyTypeS = "java.lang.Double";
+                        break;
+                    }
+		    default:
+		    {
+			break;	// Do nothing
+		    }
+		}
+	    }
+	    out << sp << nl << "Patcher(java.util.Map m, " << keyTypeS << " key)";
 	    out << sb;
 	    out << nl << "__m = m;";
 	    out << nl << "__key = key;";
@@ -2794,7 +2838,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 	    out << eb;
 
 	    out << sp << nl << "private java.util.Map __m;";
-	    out << nl << "private " << keyS << " __key;";
+	    out << nl << "private " << keyTypeS << " __key;";
 	    out << eb;
 	}
 

@@ -19,14 +19,14 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-COBJS		= ClientTest.o \
+COBJS		= Test.o \
 		  ClientPrivate.o \
 		  Client.o \
 		  AllTests.o \
 		  Forward.o
 
-SOBJS		= ClientTest.o \
-    		  ServerTest.o \
+SOBJS		= Test.o \
+    		  ServerPrivate.o \
 		  TestI.o \
 		  Server.o \
 		  Forward.o
@@ -34,7 +34,7 @@ SOBJS		= ClientTest.o \
 SRCS		= $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
-SLICE_SRCS	= ClientTest.ice ClientPrivate.ice ServerTest.ice Forward.ice
+SLICE_SRCS	= Test.ice ClientPrivate.ice ServerPrivate.ice Forward.ice
 
 include $(top_srcdir)/config/Make.rules
 

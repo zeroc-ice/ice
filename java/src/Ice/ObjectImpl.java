@@ -215,7 +215,7 @@ public class ObjectImpl implements Object, java.lang.Cloneable
         }
     }
 
-    private class Patcher implements Ice.Patcher
+    private class Patcher implements IceInternal.Patcher
     {
 	Patcher(String key)
 	{

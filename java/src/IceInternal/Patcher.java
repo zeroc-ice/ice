@@ -12,15 +12,9 @@
 //
 // **********************************************************************
 
-#ifndef CLIENTPRIVATE_ICE
-#define CLIENTPRIVATE_ICE
+package IceInternal;
 
-#include <ClientTest.ice>
-
-class D3 extends B
+public interface Patcher
 {
-    string sd3;
-    B pd3;
+    void patch(Ice.Object v);
 };
-
-#endif

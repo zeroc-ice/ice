@@ -75,7 +75,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    {
 		string name;
 
-		cout << "name: " << ends;
+		cout << "name: ";
 		cin >> name;
 		
 		if(!name.empty())
@@ -116,7 +116,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    {
 		string name;
 
-		cout << "name: " << ends;
+		cout << "name: ";
 		cin >> name;
 		
 		try

@@ -12,8 +12,8 @@
 //
 // **********************************************************************
 
-#ifndef CLIENTTEST_ICE
-#define CLIENTTEST_ICE
+#ifndef TEST_ICE
+#define TEST_ICE
 
 class SBase
 {
@@ -54,6 +54,8 @@ struct SS
     SS1 c1;
     SS2 c2;
 };
+
+dictionary<int, B> BDict;
 
 exception BaseException
 {
@@ -96,6 +98,8 @@ interface Test
     B returnTest3(B p1, B p2);
 
     SS sequenceTest(SS1 p1, SS2 p2);
+
+    BDict dictionaryTest(BDict bin, out BDict bout);
 
     void throwBaseAsBase() throws BaseException;
     void throwDerivedAsBase() throws BaseException;

@@ -14,7 +14,7 @@
 
 #include <Ice/Ice.h>
 #include <TestCommon.h>
-#include <ClientTest.h>
+#include <Test.h>
 
 using namespace std;
 

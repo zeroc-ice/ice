@@ -45,14 +45,21 @@ the Free Software Foundation.
 	    <includepath>
 		<pathelement path="."/>
 	    </includepath>
-            <fileset dir="." includes="ClientTest.ice"/>
+            <fileset dir="." includes="Test.ice"/>
         </slice2java>
         <mkdir dir="${sgen.dir}"/>
         <slice2java outputdir="${sgen.dir}">
 	    <includepath>
 		<pathelement path="."/>
 	    </includepath>
-            <fileset dir="." includes="ClientTest.ice ServerTest.ice"/>
+            <fileset dir="." includes="Test.ice"/>
+        </slice2java>
+        <mkdir dir="${sgen.dir}"/>
+        <slice2java outputdir="${sgen.dir}">
+	    <includepath>
+		<pathelement path="."/>
+	    </includepath>
+            <fileset dir="${ssrc.dir}" includes="ServerPrivate.ice"/>
         </slice2java>
     </target>
 

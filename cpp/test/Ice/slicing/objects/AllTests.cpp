@@ -15,6 +15,7 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <ClientPrivate.h>
+#include <sstream>
 
 using namespace std;
 
@@ -625,6 +626,63 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(ss2b->ice_id() == "::B");
 	    test(ss2d1->ice_id() == "::D1");
 	    test(ss2d3->ice_id() == "::B");
+	}
+	catch(const ::Ice::Exception&)
+	{
+	    test(0);
+	}
+    }
+    cout << "ok" << endl;
+
+    cout << "testing dictionary slicing... " << flush;
+    {
+	try
+	{
+	    BDict bin;
+	    BDict bout;
+	    BDict r;
+	    int i;
+	    for(i = 0; i < 10; ++i)
+	    {
+		ostringstream s;
+		s << "D1." << i;
+		D1Ptr d1 = new D1;
+		d1->sb = s.str();
+		d1->pb = d1;
+		d1->sd1 = s.str();
+		bin[i] = d1;
+	    }
+
+	    r = test->dictionaryTest(bin, bout);
+
+	    test(bout.size() == 10);
+	    for(i = 0; i < 10; ++i)
+	    {
+		BPtr b = bout.find(i * 10)->second;
+		test(b);
+		std::ostringstream s;
+		s << "D1." << i;
+		test(b->sb == s.str());
+		test(b->pb);
+		test(b->pb != b);
+		test(b->pb->sb == s.str());
+		test(b->pb->pb == b->pb);
+	    }
+
+	    test(r.size() == 10);
+	    for(i = 0; i < 10; ++i)
+	    {
+		BPtr b = r.find(i * 20)->second;
+		test(b);
+		std::ostringstream s;
+		s << "D1." << i * 20;
+		test(b->sb == s.str());
+		test(b->pb == (i == 0 ? BPtr(0) : r.find((i - 1) * 20)->second));
+		D1Ptr d1 = D1Ptr::dynamicCast(b);
+		test(d1);
+		test(d1->sd1 == s.str());
+		test(d1->pd1 == d1);
+	    }
 	}
 	catch(const ::Ice::Exception&)
 	{

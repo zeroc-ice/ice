@@ -12,10 +12,10 @@
 //
 // **********************************************************************
 
-#ifndef SERVERTEST_ICE
-#define SERVERTEST_ICE
+#ifndef SERVERPRIVATE_ICE
+#define SERVERPRIVATE_ICE
 
-#include <ClientTest.ice>
+#include <Test.ice>
 
 class SBSUnknownDerived extends SBase
 {

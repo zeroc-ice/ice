@@ -12,37 +12,29 @@
 //
 // **********************************************************************
 
-#ifndef SERVERTEST_ICE
-#define SERVERTEST_ICE
+#ifndef SERVERPRIVATE_ICE
+#define SERVERPRIVATE_ICE
 
-#include <ClientTest.ice>
+#include <Test.ice>
 
-class SBSUnknownDerived extends SBase
+exception UnknownDerived extends Base
 {
-    string sbsud;
+    string ud;
 };
 
-class SUnknown
+exception UnknownIntermediate extends Base
 {
-    string su;
+   string ui;
 };
 
-class D2 extends B
+exception UnknownMostDerived1 extends KnownIntermediate
 {
-    string sd2;
-    B pd2;
+   string umd1;
 };
 
-class D4 extends B
+exception UnknownMostDerived2 extends UnknownIntermediate
 {
-    B p1;
-    B p2;
-};
-
-exception UnknownDerivedException extends BaseException
-{
-    string sude;
-    D2 pd2;
+   string umd2;
 };
 
 #endif

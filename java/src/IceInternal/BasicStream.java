@@ -1059,7 +1059,7 @@ public class BasicStream
     }
 
     public void
-    readObject(Ice.Patcher patcher)
+    readObject(IceInternal.Patcher patcher)
     {
         Ice.Object v = null;
 
@@ -1310,9 +1310,9 @@ public class BasicStream
 
 	for(java.util.Iterator i = patchlist.iterator(); i.hasNext(); )
 	{
-	    Ice.Patcher p = (Ice.Patcher)i.next();
+	    IceInternal.Patcher p = (IceInternal.Patcher)i.next();
 	    try
-            {
+	    {
 		p.patch(v);
 	    }
 	    catch(ClassCastException ex)

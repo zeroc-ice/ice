@@ -228,7 +228,7 @@ public:
 	catch(const ObjectExistsException& lex)
 	{
 	    ostringstream os;
-	    os << "couldn't add the object:\n" << lex << ends;
+	    os << "couldn't add the object:\n" << lex;
 
 	    ObjectDeploymentException ex;
 	    ex.reason = os.str();
@@ -238,7 +238,7 @@ public:
 	catch(const Ice::LocalException& lex)
 	{
 	    ostringstream os;
-	    os << "couldn't contact the object registry:\n" << lex << ends;
+	    os << "couldn't contact the object registry:\n" << lex;
 
 	    ObjectDeploymentException ex;
 	    ex.reason = os.str();
@@ -257,7 +257,7 @@ public:
 	catch(const ObjectNotExistException& ex)
 	{
 	    ostringstream os;
-	    os << "couldn't remove the object:\n" << ex << ends;
+	    os << "couldn't remove the object:\n" << ex;
 
 	    ObjectDeploymentException ode;
 	    ode.reason = os.str();
@@ -267,7 +267,7 @@ public:
 	catch(const Ice::LocalException& lex)
 	{
 	    ostringstream os;
-	    os << "couldn't contact the object registry:\n" << lex << ends;
+	    os << "couldn't contact the object registry:\n" << lex;
 	    
 	    ObjectDeploymentException ex;
 	    ex.reason = os.str();

@@ -246,6 +246,35 @@ public final class TestI extends _TestDisp
 	return ss;
     }
 
+    public java.util.Map
+    dictionaryTest(java.util.Map bin, BDictHolder bout, Ice.Current current)
+    {
+	bout.value = new java.util.HashMap();
+	int i;
+	for(i = 0; i < 10; ++i)
+	{
+	    B b = (B)bin.get(new Integer(i));
+	    D2 d2 = new D2();
+	    d2.sb = b.sb;
+	    d2.pb = b.pb;
+	    d2.sd2 = "D2";
+	    d2.pd2 = d2;
+	    bout.value.put(new Integer(i * 10), d2);
+	}
+	java.util.Map r = new java.util.HashMap();
+	for(i = 0; i < 10; ++i)
+	{
+	    String s = "D1." + new Integer(i * 20).toString();
+	    D1 d1 = new D1();
+	    d1.sb = s;
+	    d1.pb = (i == 0 ? (B)null : (B)r.get(new Integer((i - 1) * 20)));
+	    d1.sd1 = s;
+	    d1.pd1 = d1;
+	    r.put(new Integer(i * 20), d1);
+	}
+	return r;
+    }
+
     public void
     throwBaseAsBase(Ice.Current current)
         throws BaseException

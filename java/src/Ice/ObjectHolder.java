@@ -27,7 +27,7 @@ public final class ObjectHolder
         this.value = value;
     }
 
-    public class Patcher implements Ice.Patcher
+    public class Patcher implements IceInternal.Patcher
     {
 	public void
 	patch(Ice.Object v)

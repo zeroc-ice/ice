@@ -12,15 +12,29 @@
 //
 // **********************************************************************
 
-#ifndef CLIENTPRIVATE_ICE
-#define CLIENTPRIVATE_ICE
+#ifndef SERVERPRIVATE_ICE
+#define SERVERPRIVATE_ICE
 
 #include <Test.ice>
 
-class D3 extends B
+exception UnknownDerived extends Base
 {
-    string sd3;
-    B pd3;
+    string ud;
+};
+
+exception UnknownIntermediate extends Base
+{
+   string ui;
+};
+
+exception UnknownMostDerived1 extends KnownIntermediate
+{
+   string umd1;
+};
+
+exception UnknownMostDerived2 extends UnknownIntermediate
+{
+   string umd2;
 };
 
 #endif

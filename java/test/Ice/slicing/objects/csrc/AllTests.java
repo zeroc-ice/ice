@@ -693,6 +693,61 @@ public class AllTests
 	}
 	System.out.println("ok");
 
+	System.out.print("testing dictionary slicing... ");
+	System.out.flush();
+	{
+	    try
+	    {
+		java.util.IdentityHashMap bin = new java.util.IdentityHashMap();
+		BDictHolder bout = new BDictHolder();
+		java.util.Map r;
+		int i;
+		for(i = 0; i < 10; ++i)
+		{
+		    String s = "D1." + new Integer(i).toString();
+		    D1 d1 = new D1();
+		    d1.sb = s;
+		    d1.pb = d1;
+		    d1.sd1 = s;
+		    bin.put(new Integer(i), d1);
+		}
+
+		r = test.dictionaryTest(bin, bout);
+
+		test(bout.value.size() == 10);
+		for(i = 0; i < 10; ++i)
+		{
+		    B b = (B)bout.value.get(new Integer(i * 10));
+		    test(b != null);
+		    String s = "D1." + new Integer(i).toString();
+		    test(b.sb.equals(s));
+		    test(b.pb != null);
+		    test(b.pb != b);
+		    test(b.pb.sb.equals(s));
+		    test(b.pb.pb == b.pb);
+		}
+
+		test(r.size() == 10);
+		for(i = 0; i < 10; ++i)
+		{
+		    B b = (B)r.get(new Integer(i * 20));
+		    test(b != null);
+		    String s = "D1." + new Integer(i * 20).toString();
+		    test(b.sb.equals(s));
+		    test(b.pb == (i == 0 ? (B)null : (B)r.get(new Integer((i - 1) * 20))));
+		    D1 d1 = (D1)b;
+		    test(d1 != null);
+		    test(d1.sd1.equals(s));
+		    test(d1.pd1 == d1);
+		}
+	    }
+	    catch(Exception ex)
+	    {
+		test(false);
+	    }
+	}
+	System.out.println("ok");
+
 	System.out.print("testing base exception thrown as base exception... ");
 	System.out.flush();
 	{

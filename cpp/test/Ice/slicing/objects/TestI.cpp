@@ -14,6 +14,7 @@
 
 #include <TestI.h>
 #include <Ice/Ice.h>
+#include <sstream>
 
 TestI::TestI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter)
@@ -239,6 +240,35 @@ TestI::sequenceTest(const SS1Ptr& p1, const SS2Ptr& p2, const ::Ice::Current&)
     ss.c1 = p1;
     ss.c2 = p2;
     return ss;
+}
+
+::BDict
+TestI::dictionaryTest(const ::BDict& bin, ::BDict& bout, const ::Ice::Current&)
+{
+    int i;
+    for(i = 0; i < 10; ++i)
+    {
+	BPtr b = bin.find(i)->second;
+	D2Ptr d2 = new D2;
+	d2->sb = b->sb;
+	d2->pb = b->pb;
+	d2->sd2 = "D2";
+	d2->pd2 = d2;
+	bout[i * 10] = d2;
+    }
+    BDict r;
+    for(i = 0; i < 10; ++i)
+    {
+	std::ostringstream s;
+	s << "D1." << i * 20;
+	D1Ptr d1 = new D1;
+	d1->sb = s.str();
+	d1->pb = (i == 0 ? BPtr(0) : r.find((i - 1) * 20)->second);
+	d1->sd1 = s.str();
+	d1->pd1 = d1;
+	r[i * 20] = d1;
+    }
+    return r;
 }
 
 void

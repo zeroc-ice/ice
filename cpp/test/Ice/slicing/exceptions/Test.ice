@@ -12,8 +12,8 @@
 //
 // **********************************************************************
 
-#ifndef CLIENTTEST_ICE
-#define CLIENTTEST_ICE
+#ifndef TEST_ICE
+#define TEST_ICE
 
 exception Base
 {

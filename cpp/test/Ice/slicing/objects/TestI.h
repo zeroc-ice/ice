@@ -15,7 +15,7 @@
 #ifndef TESTI_H
 #define TESTI_H
 
-#include <ServerTest.h>
+#include <ServerPrivate.h>
 #include <Forward.h>
 
 class TestI : virtual public Test
@@ -50,6 +50,8 @@ public:
     virtual BPtr returnTest3(const BPtr&, const BPtr&, const ::Ice::Current&);
 
     virtual SS sequenceTest(const SS1Ptr&, const SS2Ptr&, const ::Ice::Current&);
+
+    virtual ::BDict dictionaryTest(const ::BDict&, ::BDict&, const ::Ice::Current&);
 
     virtual void throwBaseAsBase(const ::Ice::Current&);
     virtual void throwDerivedAsBase(const ::Ice::Current&);

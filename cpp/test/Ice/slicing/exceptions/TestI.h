@@ -15,7 +15,7 @@
 #ifndef TESTI_H
 #define TESTI_H
 
-#include <ServerTest.h>
+#include <ServerPrivate.h>
 
 class TestI : virtual public Test
 {
