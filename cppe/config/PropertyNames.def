@@ -111,7 +111,6 @@ Ice:
     Default.Package
     Default.Protocol
     Default.Router
-    GC.Interval
     Logger.Timestamp
     MessageSizeMax
     MonitorConnections
@@ -121,7 +120,6 @@ Ice:
     Override.ConnectTimeout
     Override.Timeout
     Package.<any>
-    Plugin.<any>
     PrintAdapterReady
     PrintProcessId
     ProgramName

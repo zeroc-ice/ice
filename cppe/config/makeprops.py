@@ -19,7 +19,7 @@ outputFiles = []
 
 def usage():
     global progname
-    print >> sys.stderr, "Usage: " + progname + " [--{cpp|java|cs} file]"
+    print >> sys.stderr, "Usage: " + progname + " [--{cpp|java} file]"
 
 def fileError(msg):
     global progname, infile, lineNum, errors
@@ -83,13 +83,6 @@ def writePreamble(lang):
 	    file.write("public final class " + classname + '\n');
 	    file.write("{\n")
 	    continue
-	if lang == "cs":
-	    file.write("\n");
-	    file.write("namespace IceInternal\n")
-	    file.write("{\n")
-	    file.write("    public sealed class " + classname + '\n')
-	    file.write("    {\n");
-	    continue
 	progError("Internal error: impossible language: `" + lang + "'")
 	sys.exit(1)
 
@@ -140,16 +133,6 @@ def writePostamble(lang, labels):
 	file.write("    };\n");
         file.write("}\n");
         return
-    if lang == "cs":
-        file.write("        public static string[][] validProps =\n")
-	file.write("        {\n")
-	for label, line in labels.iteritems():
-	    file.write("            " + label + "Props,\n")
-	file.write("            null\n")
-	file.write("        };\n");
-        file.write("    }\n");
-        file.write("}\n");
-        return
 
 def startSection(lang, label):
     if lang == "cpp":
@@ -166,10 +149,6 @@ def startSection(lang, label):
         file.write("    public static final String " + label + "Props[] =\n");
 	file.write("    {\n")
 	return
-    if lang == "cs":
-        file.write("        public static string[] " + label + "Props =\n");
-	file.write("        {\n")
-        return
 
 def endSection(lang):
     file = outputFiles[0][1]
@@ -180,11 +159,6 @@ def endSection(lang):
     if lang == "java":
 	file.write("        null\n");
 	file.write("    };\n");
-        file.write("\n")
-	return
-    if lang == "cs":
-	file.write("            null\n");
-	file.write("        };\n");
         file.write("\n")
 	return
 
@@ -198,10 +172,6 @@ def writeEntry(lang, label, entry):
 	pattern = string.replace(entry, ".", "\\\\.")
 	pattern = string.replace(pattern, "<any>", "[^\\\\s.]+")
 	file.write("        " + "\"^" + label + "\\\\." + pattern + "$\",\n")
-    elif lang == "cs":
-	pattern = string.replace(entry, ".", "\\.")
-	pattern = string.replace(pattern, "<any>", "[^\\s.]+")
-	file.write("            " + "@\"^" + label + "\\." + pattern + "$\",\n")
 
 def processFile(lang):
 
@@ -352,8 +322,6 @@ else:
 	lang = "cpp"
     elif option == "--java":
 	lang = "java"
-    elif option == "--cs":
-	lang = "cs"
     elif option == "-h" or option == "--help" or option == "-?":
 	usage()
 	sys.exit(0)
@@ -367,11 +335,8 @@ if lang == "all":
     shutil.move("PropertyNames.cpp", os.path.join(toplevel, "src", "Ice"))
     shutil.move("PropertyNames.h", os.path.join(toplevel, "src", "Ice"))
     processFile("java")
-    if os.path.exists(os.path.join(toplevel, "..", "icej")):
-        shutil.move("PropertyNames.java", os.path.join(toplevel, "..", "icej", "src", "IceInternal"));
-    processFile("cs")
-    if os.path.exists(os.path.join(toplevel, "..", "icecs")):
-        shutil.move("PropertyNames.cs", os.path.join(toplevel, "..", "icecs", "src", "Ice"));
+    if os.path.exists(os.path.join(toplevel, "..", "iceje")):
+        shutil.move("PropertyNames.java", os.path.join(toplevel, "..", "iceje", "src", "IceInternal"));
 else:
     processFile(lang)
 
