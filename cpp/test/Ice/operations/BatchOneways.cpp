@@ -25,7 +25,7 @@ batchOneways(const Test::MyClassPrx& p)
 	p->opByteSOneway(bs1);
 	test(true);
     }
-    catch(const Ice::MemoryLimitException& ex)
+    catch(const Ice::MemoryLimitException&)
     {
 	test(false);
     }
@@ -35,7 +35,7 @@ batchOneways(const Test::MyClassPrx& p)
 	p->opByteSOneway(bs2);
 	test(true);
     }
-    catch(const Ice::MemoryLimitException& ex)
+    catch(const Ice::MemoryLimitException&)
     {
 	test(false);
     }
@@ -45,21 +45,23 @@ batchOneways(const Test::MyClassPrx& p)
 	p->opByteSOneway(bs3);
 	test(false);
     }
-    catch(const Ice::MemoryLimitException& ex)
+    catch(const Ice::MemoryLimitException&)
     {
 	test(true);
     }
     
     Test::MyClassPrx batch = Test::MyClassPrx::uncheckedCast(p->ice_batchOneway());
     
-    for(int i = 0 ; i < 9 ; ++i)
+    int i;
+
+    for(i = 0 ; i < 9 ; ++i)
     {
 	try
 	{
 	    batch->opByteSOneway(bs1);
 	    test(true);
 	}
-	catch(const Ice::MemoryLimitException& ex)
+	catch(const Ice::MemoryLimitException&)
 	{
 	    test(false);
 	}
@@ -67,27 +69,27 @@ batchOneways(const Test::MyClassPrx& p)
 	batch->ice_connection()->flushBatchRequests();
     }
     
-    for(int i = 0 ; i < 10 ; ++i)
+    for(i = 0 ; i < 10 ; ++i)
     {
 	try
 	{
 	    batch->opByteSOneway(bs1);
 	    test(i < 9);
 	}
-	catch(const Ice::MemoryLimitException& ex)
+	catch(const Ice::MemoryLimitException&)
 	{
 	    test(i == 9);
 	}
     }
     
-    for(int i = 0 ; i < 9 ; ++i)
+    for(i = 0 ; i < 9 ; ++i)
     {
 	try
 	{
 	    batch->opByteSOneway(bs1);
 	    test(true);
 	}
-	catch(const Ice::MemoryLimitException& ex)
+	catch(const Ice::MemoryLimitException&)
 	{
 	    test(false);
 	}

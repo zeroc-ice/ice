@@ -95,6 +95,10 @@ SOURCE=.\AllTests.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\BatchOneways.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Collocated.cpp
 # End Source File
 # Begin Source File

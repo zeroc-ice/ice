@@ -128,7 +128,7 @@ USERDEP__TESTA="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"
 InputPath=.\TestAMD.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe TestAMD.ice
+	..\..\..\bin\slice2cpp.exe -I. -I../../../slice TestAMD.ice
 
 "TestAMD.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -144,7 +144,7 @@ USERDEP__TESTA="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"
 InputPath=.\TestAMD.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe TestAMD.ice
+	..\..\..\bin\slice2cpp.exe -I. -I../../../slice TestAMD.ice
 
 "TestAMD.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
