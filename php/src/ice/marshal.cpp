@@ -678,7 +678,7 @@ IcePHP::SequenceMarshaler::SequenceMarshaler(const Slice::SequencePtr& type TSRM
 }
 
 bool
-IcePHP::SequenceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap& map TSRMLS_DC)
+IcePHP::SequenceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap& m TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_ARRAY)
     {
@@ -697,7 +697,7 @@ IcePHP::SequenceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Obj
     zend_hash_internal_pointer_reset_ex(arr, &pos);
     while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
     {
-        if(!_elementMarshaler->marshal(*val, os, map TSRMLS_CC))
+        if(!_elementMarshaler->marshal(*val, os, m TSRMLS_CC))
         {
             return false;
         }
@@ -835,7 +835,7 @@ IcePHP::MemberMarshaler::MemberMarshaler(const string& name, const MarshalerPtr&
 }
 
 bool
-IcePHP::MemberMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap& map TSRMLS_DC)
+IcePHP::MemberMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap& m TSRMLS_DC)
 {
     zval** val;
     if(zend_hash_find(Z_OBJPROP_P(zv), const_cast<char*>(_name.c_str()), _name.length() + 1, (void**)&val) == FAILURE)
@@ -844,7 +844,7 @@ IcePHP::MemberMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Objec
         return false;
     }
 
-    return _marshaler->marshal(*val, os, map TSRMLS_CC);;
+    return _marshaler->marshal(*val, os, m TSRMLS_CC);;
 }
 
 bool
@@ -894,7 +894,7 @@ IcePHP::StructMarshaler::StructMarshaler(const Slice::StructPtr& type TSRMLS_DC)
 }
 
 bool
-IcePHP::StructMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap& map TSRMLS_DC)
+IcePHP::StructMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap& m TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_OBJECT)
     {
@@ -917,7 +917,7 @@ IcePHP::StructMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Objec
 
     for(vector<MarshalerPtr>::iterator p = _members.begin(); p != _members.end(); ++p)
     {
-        if(!(*p)->marshal(zv, os, map TSRMLS_CC))
+        if(!(*p)->marshal(zv, os, m TSRMLS_CC))
         {
             return false;
         }
@@ -1046,7 +1046,7 @@ IcePHP::NativeDictionaryMarshaler::NativeDictionaryMarshaler(const Slice::TypePt
 }
 
 bool
-IcePHP::NativeDictionaryMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap& map TSRMLS_DC)
+IcePHP::NativeDictionaryMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap& m TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_ARRAY)
     {
@@ -1128,7 +1128,7 @@ IcePHP::NativeDictionaryMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr&
         //
         // Marshal the key.
         //
-        if(!_keyMarshaler->marshal(&zkey, os, map TSRMLS_CC))
+        if(!_keyMarshaler->marshal(&zkey, os, m TSRMLS_CC))
         {
             zval_dtor(&zkey);
             return false;
@@ -1139,7 +1139,7 @@ IcePHP::NativeDictionaryMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr&
         //
         // Marshal the value.
         //
-        if(!_valueMarshaler->marshal(*val, os, map TSRMLS_CC))
+        if(!_valueMarshaler->marshal(*val, os, m TSRMLS_CC))
         {
             return false;
         }
@@ -1330,7 +1330,7 @@ IcePHP::ObjectSliceMarshaler::ObjectSliceMarshaler(const string& scoped,
 }
 
 bool
-IcePHP::ObjectSliceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap& map TSRMLS_DC)
+IcePHP::ObjectSliceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap& m TSRMLS_DC)
 {
     assert(Z_TYPE_P(zv) == IS_OBJECT);
 
@@ -1338,7 +1338,7 @@ IcePHP::ObjectSliceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, 
     os->startSlice();
     for(vector<MarshalerPtr>::iterator p = _members.begin(); p != _members.end(); ++p)
     {
-        if(!(*p)->marshal(zv, os, map TSRMLS_CC))
+        if(!(*p)->marshal(zv, os, m TSRMLS_CC))
         {
             return false;
         }
@@ -1385,8 +1385,8 @@ IcePHP::ObjectSliceMarshaler::destroy()
 //
 // ObjectWriter implementation.
 //
-IcePHP::ObjectWriter::ObjectWriter(zval* value, const Slice::SyntaxTreeBasePtr& type, ObjectMap& map TSRMLS_DC) :
-    _value(value), _map(map)
+IcePHP::ObjectWriter::ObjectWriter(zval* value, const Slice::SyntaxTreeBasePtr& type, ObjectMap& m TSRMLS_DC) :
+    _value(value), _map(m)
 {
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x530)
 // Strange Sun C++ 5.3 bug.
@@ -1643,7 +1643,7 @@ IcePHP::ObjectMarshaler::ObjectMarshaler(const Slice::ClassDefPtr& def TSRMLS_DC
 }
 
 bool
-IcePHP::ObjectMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap& map TSRMLS_DC)
+IcePHP::ObjectMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap& m TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) == IS_NULL)
     {
@@ -1703,11 +1703,11 @@ IcePHP::ObjectMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Objec
         def = p->second;
     }
 
-    ObjectMap::iterator q = map.find(Z_OBJ_HANDLE_P(zv));
-    if(q == map.end())
+    ObjectMap::iterator q = m.find(Z_OBJ_HANDLE_P(zv));
+    if(q == m.end())
     {
-        writer = new ObjectWriter(zv, def, map TSRMLS_CC);
-        map.insert(pair<unsigned int, Ice::ObjectPtr>(Z_OBJ_HANDLE_P(zv), writer));
+        writer = new ObjectWriter(zv, def, m TSRMLS_CC);
+        m.insert(pair<unsigned int, Ice::ObjectPtr>(Z_OBJ_HANDLE_P(zv), writer));
     }
     else
     {
