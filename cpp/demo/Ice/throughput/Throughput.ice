@@ -22,6 +22,7 @@ interface Throughput
     void sendByteSeq(ByteSeq seq);
     ByteSeq recvByteSeq();
     ByteSeq echoByteSeq(ByteSeq seq);
+    idempotent void shutdown();
 };
 
 };

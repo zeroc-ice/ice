@@ -18,10 +18,11 @@ menu()
 {
     cout <<
 	"usage:\n"
-	"s: send byte sequence\n"
+	"t: send byte sequence as twoway\n"
 	"o: send byte sequence as oneway\n"
 	"r: receive byte sequence\n"
 	"e: echo (send and receive) byte sequence\n"
+	"s: shutdown server\n"
 	"x: exit\n"
 	"?: help\n";
 }
@@ -51,6 +52,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     menu();
 
+    throughput->ice_ping(); // Initial ping to setup the connection.
+
     char c;
     do
     {
@@ -59,16 +62,14 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    cout << "==> ";
 	    cin >> c;
 
-	    throughput->ice_ping(); // Initial ping to setup the connection.
-
 	    IceUtil::Time tm = IceUtil::Time::now();
 	    const int repetitions = 1000;
 
-	    if(c == 's' || c == 'o' || c == 'r' || c == 'e')
+	    if(c == 't' || c == 'o' || c == 'r' || c == 'e')
 	    {
 		switch(c)
 		{
-		    case 's':
+		    case 't':
 		    case 'o':
 		    {
 			cout << "sending";
@@ -101,7 +102,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		{
 		    switch(c)
 		    {
-			case 's':
+			case 't':
 			{
 			    throughput->sendByteSeq(seq);
 			    break;
@@ -136,6 +137,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		    mbit *= 2;
 		}
 		cout << "throughput: " << mbit << " MBit/s" << endl;
+	    }
+	    else if(c == 's')
+	    {
+		throughput->shutdown();
 	    }
 	    else if(c == 'x')
 	    {
