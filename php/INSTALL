@@ -151,6 +151,30 @@ from a script.
 Note that if you want to use IceSSL from the Ice extension, then PHP will
 also need access to the shared libraries for IceSSL and Xerces.
 
+Finally, the Ice extension will need to execute the Ice preprocessor
+(icecpp), therefore this binary must reside in an accessible directory.
+
+=========================================================================
+Running the Tests
+=========================================================================
+
+The test subdirectory contains PHP implementations of the core Ice test
+suite. In order to run these tests, you must have Python 2.2 or later,
+and the Ice for C++ tests must be built in the directory specified by
+the ICE_HOME environment variable.
+
+The test scripts require that the CLI version of the PHP interpreter
+be available in your PATH.
+
+To run all of the tests, do the following:
+
+$ python allTests.py
+
+You can also run tests individually by changing to the test directory
+and running this command:
+
+$ python run.py
+
 =========================================================================
 Linux Issues
 =========================================================================
