@@ -134,6 +134,21 @@ public final class Network
     }
 
     public static void
+    closeSocket(java.nio.channels.SelectableChannel fd)
+    {
+	try
+	{
+	    fd.close();
+	}
+	catch(java.io.IOException ex)
+	{
+	    Ice.SocketException se = new Ice.SocketException();
+	    se.initCause(ex);
+	    throw se;
+	}
+    }
+
+    public static void
     setBlock(java.nio.channels.SelectableChannel fd, boolean block)
     {
         try

@@ -196,6 +196,18 @@ public class Instance
         return _serverThreadPool;
     }
 
+    public boolean
+    threadPerConnection()
+    {
+	return _threadPerConnection;
+    }
+
+    public int
+    threadPerConnectionStackSize()
+    {
+	return _threadPerConnectionStackSize;
+    }
+
     public synchronized EndpointFactoryManager
     endpointFactoryManager()
     {
@@ -355,7 +367,7 @@ public class Instance
 		    _messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
 		}
 	    }
-	    
+
 	    {
 		int num = _properties.getPropertyAsIntWithDefault("Ice.ConnectionIdleTime", 60);
 		if(num < 0)
@@ -367,7 +379,18 @@ public class Instance
 		    _connectionIdleTime = num;
 		}
 	    }
-	    
+
+	    _threadPerConnection = _properties.getPropertyAsInt("Ice.ThreadPerConnection") > 0;
+
+	    {
+		int stackSize = _properties.getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
+		if(stackSize < 0)
+		{
+		    stackSize = 0;
+		}
+		_threadPerConnectionStackSize = stackSize;
+	    }
+
             _routerManager = new RouterManager();
 
             _locatorManager = new LocatorManager();
@@ -621,6 +644,8 @@ public class Instance
     private ObjectAdapterFactory _objectAdapterFactory;
     private ThreadPool _clientThreadPool;
     private ThreadPool _serverThreadPool;
+    private final boolean _threadPerConnection;
+    private final int _threadPerConnectionStackSize;
     private EndpointFactoryManager _endpointFactoryManager;
     private Ice.PluginManager _pluginManager;
     private final BufferManager _bufferManager; // Immutable, not reset by destroy().

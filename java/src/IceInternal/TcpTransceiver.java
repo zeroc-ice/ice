@@ -43,11 +43,11 @@ final class TcpTransceiver implements Transceiver
     }
 
     public void
-    shutdown()
+    shutdownWrite()
     {
         if(_traceLevels.network >= 2)
         {
-            String s = "shutting down tcp connection\n" + toString();
+            String s = "shutting down tcp connection for writing\n" + toString();
             _logger.trace(_traceLevels.networkCat, s);
         }
 
@@ -56,6 +56,38 @@ final class TcpTransceiver implements Transceiver
         try
         {
             socket.shutdownOutput(); // Shutdown socket for writing
+        }
+        catch(java.io.IOException ex)
+        {
+	    Ice.SocketException se = new Ice.SocketException();
+	    se.initCause(ex);
+	    throw se;
+        }
+    }
+
+    public void
+    shutdownReadWrite()
+    {
+        if(_traceLevels.network >= 2)
+        {
+            String s = "shutting down tcp connection for reading and writing\n" + toString();
+            _logger.trace(_traceLevels.networkCat, s);
+        }
+
+        assert(_fd != null);
+        java.net.Socket socket = _fd.socket();
+        try
+        {
+	    //
+	    // TODO: Java does not support SHUT_RDWR. Calling both
+	    // shutdownInput and shutdownOutput results in an exception.
+	    //
+	    socket.shutdownInput(); // Shutdown socket for reading
+	    //socket.shutdownOutput(); // Shutdown socket for writing
+        }
+        catch(java.net.SocketException ex)
+        {
+	    // Ignore.
         }
         catch(java.io.IOException ex)
         {

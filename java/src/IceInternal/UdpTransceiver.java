@@ -39,7 +39,12 @@ final class UdpTransceiver implements Transceiver
     }
 
     public void
-    shutdown()
+    shutdownWrite()
+    {
+    }
+
+    public void
+    shutdownReadWrite()
     {
     }
 
@@ -95,12 +100,11 @@ final class UdpTransceiver implements Transceiver
     }
 
     public void
-    read(BasicStream stream, int timeout)
+    read(BasicStream stream, int timeout) // NOTE: timeout is ignored
     {
-	// TODO: Timeouts are ignored!!
+	assert(stream.pos() == 0);
 
-        assert(stream.pos() == 0);
-        final int packetSize = java.lang.Math.min(_maxPacketSize, _rcvSize - _udpOverhead);
+	final int packetSize = java.lang.Math.min(_maxPacketSize, _rcvSize - _udpOverhead);
 	if(packetSize < stream.size())
 	{
 	    //
@@ -153,11 +157,15 @@ final class UdpTransceiver implements Transceiver
             }
             else
             {
+		assert(_fd != null);
                 try
                 {
-                    assert(_fd != null);
                     _fd.receive(buf);
                     ret = buf.position();
+		    if(ret == 0)
+		    {
+			continue;
+		    }
                 }
                 catch(java.io.InterruptedIOException ex)
                 {

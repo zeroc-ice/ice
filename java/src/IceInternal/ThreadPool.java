@@ -33,6 +33,12 @@ public final class ThreadPool
 	_promote = true;
 	_warnUdp = _instance.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
+	//
+	// If we are in thread per connection mode, no thread pool should
+	// ever be created.
+	//
+	assert(!_instance.threadPerConnection());
+
 	String programName = _instance.properties().getProperty("Ice.ProgramName");
         if(programName.length() > 0)
         {

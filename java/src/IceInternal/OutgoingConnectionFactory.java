@@ -490,16 +490,13 @@ public class OutgoingConnectionFactory
 	while(p.hasNext())
 	{
 	    Ice.ConnectionI conn = (Ice.ConnectionI)p.next();
-	    if(conn.isValidated())
+	    try
 	    {
-		try
-		{
-		    conn.flushBatchRequests();
-		}
-		catch(Ice.LocalException ex)
-		{
-		    // Ignore.
-		}
+		conn.flushBatchRequests();
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		// Ignore.
 	    }
 	}
     }

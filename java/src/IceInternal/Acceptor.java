@@ -15,5 +15,6 @@ public interface Acceptor
     void close();
     void listen();
     Transceiver accept(int timeout);
+    void connectToSelf();
     String toString();
 }

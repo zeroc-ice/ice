@@ -68,6 +68,15 @@ class TcpAcceptor implements Acceptor
         return new TcpTransceiver(_instance, fd);
     }
 
+    public void
+    connectToSelf()
+    {
+	java.nio.channels.SocketChannel fd = Network.createTcpSocket();
+	Network.setBlock(fd, false);
+	Network.doConnect(fd, _addr, -1);
+	Network.closeSocket(fd);
+    }
+
     public String
     toString()
     {

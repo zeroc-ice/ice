@@ -13,7 +13,8 @@ public interface Transceiver
 {
     java.nio.channels.SelectableChannel fd();
     void close();
-    void shutdown();
+    void shutdownWrite();
+    void shutdownReadWrite();
     void write(BasicStream stream, int timeout);
     void read(BasicStream stream, int timeout);
     String type();
