@@ -21,7 +21,6 @@ class ICE_API EventHandlerI : public Shared
 {
 public:
     
-    virtual int fd() = 0; // Filedescriptor
     virtual bool server() = 0; // True if server-side event handler
     virtual void receive() = 0; // Read to receive data
     virtual void finished() = 0; // Event handler now unregistered

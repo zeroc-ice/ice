@@ -44,7 +44,6 @@ public:
     //
     // Operations from EventHandlerI
     //
-    virtual int fd();
     virtual bool server();
     virtual void receive();
     virtual void finished();
@@ -71,7 +70,6 @@ private:
     Instance instance_;
     ThreadPool threadPool_;
     Transceiver transceiver_;
-    int fd_;
     ::Ice::Int nextRequestId_;
     std::map< ::Ice::Int, Outgoing*> requests_;
     std::auto_ptr< ::Ice::LocalException> exception_;

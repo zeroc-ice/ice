@@ -49,7 +49,6 @@ public:
     //
     // Operations from EventHandlerI
     //
-    virtual int fd();
     virtual bool server();
     virtual void receive();
     virtual void finished();
@@ -75,10 +74,10 @@ private:
     void closeConnection();
     void warning(const ::Ice::LocalException&) const;
 
+    Instance instance_;
     ::Ice::ObjectAdapter adapter_;
     ThreadPool threadPool_;
     Transceiver transceiver_;
-    int fd_;
     int responseCount_;
     State state_;
 };
@@ -87,7 +86,6 @@ class ICE_API CollectorFactoryI : public EventHandlerI, public JTCMutex
 {
 public:
 
-    Instance instance() const;
     void destroy();
     void hold();
     void activate();
@@ -95,7 +93,6 @@ public:
     //
     // Operations from EventHandlerI
     //
-    virtual int fd();
     virtual bool server();
     virtual void receive();
     virtual void finished();
@@ -124,7 +121,6 @@ private:
     ::Ice::ObjectAdapter adapter_;
     ThreadPool threadPool_;
     Acceptor acceptor_;
-    int fd_;
     std::list<Collector> collectors_;
     State state_;
 };

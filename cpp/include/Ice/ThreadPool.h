@@ -15,8 +15,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/EventHandlerF.h>
 #include <Ice/Shared.h>
-#include <queue>
-#include <list>
+#include <map>
 
 namespace __Ice
 {
@@ -25,7 +24,7 @@ class ICE_API ThreadPoolI : public Shared, public JTCMonitorT<JTCMutex>
 {
 public:
 
-    void _register(const EventHandler&);
+    void _register(int, const EventHandler&);
     void unregister(int);
     void reregister(int);
     void waitForServerShutdown();
@@ -52,10 +51,10 @@ private:
     int fdIntrRead_;
     int fdIntrWrite_;
     fd_set fdSet_;
-    std::list<EventHandler> newHandlers_;
-    std::queue<int> removes_;
+    std::vector<std::pair<int, EventHandler> > newHandlers_;
+    std::vector<int> removes_;
     std::vector<int> adds_;
-    std::list<EventHandler> handlers_;
+    std::map<int, EventHandler> handlers_;
     int servers_;
     JTCMutex threadMutex_;
 
@@ -71,7 +70,7 @@ private:
 	ThreadPool pool_;
     };
     friend class EventHandlerThread;
-    std::list<JTCThreadHandle> threads_;
+    std::vector<JTCThreadHandle> threads_;
 };
 
 }
