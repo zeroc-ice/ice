@@ -34,7 +34,8 @@ if ! [ -f $CA_HOME/cakey.pem ]; then
     SERIAL=`cat $CA_HOME/serial`
     KEY_NAME=`echo $SERIAL`_key.pem
     CERT_NAME=`echo $SERIAL`_cert.pem
-    openssl req -config $ICE_HOME/config/server.cnf -newkey rsa $PASSPHRASE -keyout $CA_HOME/$KEY_NAME -keyform PEM -out $CA_HOME/req.pem
+    openssl req -config $ICE_HOME/config/server.cnf -newkey rsa $PASSPHRASE -keyout $CA_HOME/$KEY_NAME \
+        -keyform PEM -out $CA_HOME/req.pem
     echo "You will be prompted for a passphrase - this is so we can sign the new Server Certificate."
     echo "Enter the passphrase for the CA signing authority."
     openssl ca -config $ICE_HOME/config/server.cnf -batch -in $CA_HOME/req.pem
@@ -49,7 +50,8 @@ if ! [ -f $CA_HOME/cakey.pem ]; then
     SERIAL=`cat $CA_HOME/serial`
     KEY_NAME=`echo $SERIAL`_key.pem
     CERT_NAME=`echo $SERIAL`_cert.pem
-    openssl req -config $ICE_HOME/config/client.cnf -newkey rsa $PASSPHRASE -keyout $CA_HOME/$KEY_NAME -keyform PEM -out $CA_HOME/req.pem
+    openssl req -config $ICE_HOME/config/client.cnf -newkey rsa $PASSPHRASE -keyout $CA_HOME/$KEY_NAME \
+        -keyform PEM -out $CA_HOME/req.pem
     echo "You will be prompted for a passphrase - this is so we can sign the new Client Certificate."
     echo "Enter the passphrase for the CA signing authority."
     openssl ca -config $ICE_HOME/config/client.cnf -batch -in $CA_HOME/req.pem
@@ -57,6 +59,15 @@ if ! [ -f $CA_HOME/cakey.pem ]; then
     cp $CA_HOME/$KEY_NAME  $ICE_HOME/certs/c_rsa1024_priv.pem
     cp $CA_HOME/$CERT_NAME $ICE_HOME/certs/c_rsa1024_pub.pem
     rm $CA_HOME/req.pem
+
+    #
+    # Copy pertinent certificates to test directory.
+    #
+    cp $ICE_HOME/certs/cacert.pem         $ICE_HOME/test/IceSSL/certs
+    cp $ICE_HOME/certs/c_rsa1024_priv.pem $ICE_HOME/test/IceSSL/certs/goodKey_1.pem
+    cp $ICE_HOME/certs/c_rsa1024_pub.pem  $ICE_HOME/test/IceSSL/certs/goodCert_1.pem
+    cp $ICE_HOME/certs/s_rsa1024_priv.pem $ICE_HOME/test/IceSSL/certs/goodKey_2.pem
+    cp $ICE_HOME/certs/s_rsa1024_pub.pem  $ICE_HOME/test/IceSSL/certs/goodCert_2.pem
 else
     #
     # Create a new certificate and key.
@@ -65,7 +76,8 @@ else
     SERIAL=`cat $CA_HOME/serial`
     KEY_NAME=`echo $SERIAL`_key.pem
     CERT_NAME=`echo $SERIAL`_cert.pem
-    openssl req -config $ICE_HOME/config/generic.cnf -newkey rsa $PASSPHRASE -keyout $CA_HOME/$KEY_NAME -keyform PEM -out $CA_HOME/req.pem
+    openssl req -config $ICE_HOME/config/generic.cnf -newkey rsa $PASSPHRASE -keyout $CA_HOME/$KEY_NAME \
+        -keyform PEM -out $CA_HOME/req.pem
     echo "You will be prompted for a passphrase - this is so we can sign the new certificate."
     echo "Enter the passphrase for the CA signing authority."
     openssl ca -config $ICE_HOME/config/generic.cnf -in $CA_HOME/req.pem
