@@ -117,7 +117,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     string scopeId = containedToId(p);
 
     //
-    // Emit exception-name-data
+    // Emit class-name-data
     //
     string startString = "xs:group";
     startString += " name=\"";
@@ -149,12 +149,15 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     O << sp;
 
     //
-    // Emit exception-name-type
+    // Emit class-name-type
     //
     startString = "xs:complexType";
     startString += " name=\"";
     startString += internalId + scopeId + p->name();
     startString += "Type\"";
+    startString += " id=\"";
+    startString += p->scoped();
+    startString += "\"";
     start(startString);
     start("xs:complexContent");
 
@@ -239,6 +242,9 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     startString += " name=\"";
     startString += internalId + scopeId + p->name();
     startString += "Type\"";
+    startString += " id=\"";
+    startString += p->scoped();
+    startString += "\"";
     start(startString);
 
     start("xs:annotation");
@@ -282,6 +288,9 @@ Slice::Gen::visitStructStart(const StructPtr& p)
     startString += " name=\"";
     startString += internalId + scopeId + p->name();
     startString += "Type\"";
+    startString += " id=\"";
+    startString += p->scoped();
+    startString += "\"";
     start(startString);
 
     // TODO: refactor into method
@@ -329,6 +338,9 @@ Slice::Gen::visitEnum(const EnumPtr& p)
     startString += " name=\"";
     startString += internalId + scopeId + p->name();
     startString += "Type\"";
+    startString += " id=\"";
+    startString += p->scoped();
+    startString += "\"";
     start(startString);
 
     start("xs:annotation");
@@ -367,6 +379,9 @@ Slice::Gen::visitSequence(const SequencePtr& p)
     startString += " name=\"";
     startString += internalId + scopeId + p->name();
     startString += "Type\"";
+    startString += " id=\"";
+    startString += p->scoped();
+    startString += "\"";
     start(startString);
     start("xs:sequence");
 
@@ -422,6 +437,9 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     startString += " name=\"";
     startString += internalId + scopeId + p->name();
     startString += "Type\"";
+    startString += " id=\"";
+    startString += p->scoped();
+    startString += "\"";
     start(startString);
     start("xs:sequence");
 
