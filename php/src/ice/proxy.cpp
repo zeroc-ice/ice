@@ -120,6 +120,8 @@ public:
 
     OperationPtr getOperation(const string&);
 
+    string toString() const;
+
 private:
     Ice::ObjectPrx _proxy;
     Slice::ClassDefPtr _class;
@@ -140,6 +142,7 @@ private:
 static function_entry _methods[] =
 {
     {"__construct",         PHP_FN(Ice_ObjectPrx___construct),         NULL},
+    {"__tostring",          PHP_FN(Ice_ObjectPrx___tostring),          NULL},
     {"ice_isA",             PHP_FN(Ice_ObjectPrx_ice_isA),             NULL},
     {"ice_ping",            PHP_FN(Ice_ObjectPrx_ice_ping),            NULL},
     {"ice_id",              PHP_FN(Ice_ObjectPrx_ice_id),              NULL},
@@ -198,7 +201,7 @@ IcePHP::createProxy(zval* zv, const Ice::ObjectPrx& p, const Slice::ClassDefPtr&
 {
     if(object_init_ex(zv, proxyClassEntry) != SUCCESS)
     {
-        zend_error(E_ERROR, "unable to initialize proxy");
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to initialize proxy");
         return false;
     }
 
@@ -217,12 +220,12 @@ IcePHP::fetchProxy(zval* zv, Ice::ObjectPrx& prx, Slice::ClassDefPtr& def TSRMLS
         void* p = zend_object_store_get_object(zv TSRMLS_CC);
         if(!p)
         {
-            zend_error(E_ERROR, "unable to retrieve proxy object from object store");
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to retrieve proxy object from object store");
             return false;
         }
         if(Z_OBJCE_P(zv) != proxyClassEntry)
         {
-            zend_error(E_ERROR, "%s(): value is not a proxy", get_active_function_name(TSRMLS_C));
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): value is not a proxy", get_active_function_name(TSRMLS_C));
             return false;
         }
         ice_object* obj = static_cast<ice_object*>(p);
@@ -236,7 +239,30 @@ IcePHP::fetchProxy(zval* zv, Ice::ObjectPrx& prx, Slice::ClassDefPtr& def TSRMLS
 
 ZEND_FUNCTION(Ice_ObjectPrx___construct)
 {
-    zend_error(E_ERROR, "Ice_ObjectPrx cannot be instantiated, use $ICE->stringToProxy()");
+    php_error_docref(NULL TSRMLS_CC, E_ERROR, "Ice_ObjectPrx cannot be instantiated, use $ICE->stringToProxy()");
+}
+
+ZEND_FUNCTION(Ice_ObjectPrx___tostring)
+{
+    if(ZEND_NUM_ARGS() > 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    try
+    {
+	string str = _this->toString();
+	RETURN_STRINGL(const_cast<char*>(str.c_str()), str.length(), 1);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
 }
 
 ZEND_FUNCTION(Ice_ObjectPrx_ice_isA)
@@ -1005,7 +1031,8 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 
         if(l.empty())
         {
-            zend_error(E_ERROR, "%s(): no Slice definition found for type %s", get_active_function_name(TSRMLS_C), id);
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): no Slice definition found for type %s",
+			     get_active_function_name(TSRMLS_C), id);
             RETURN_NULL();
         }
 
@@ -1028,22 +1055,23 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 
         if(!decl)
         {
-            zend_error(E_ERROR, "%s(): type %s is not a class or interface", get_active_function_name(TSRMLS_C),
-                       scoped.c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): type %s is not a class or interface",
+			     get_active_function_name(TSRMLS_C), scoped.c_str());
             RETURN_NULL();
         }
 
         if(decl->isLocal())
         {
-            zend_error(E_ERROR, "%s(): %s is a local type", get_active_function_name(TSRMLS_C), scoped.c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): %s is a local type", get_active_function_name(TSRMLS_C),
+			     scoped.c_str());
             RETURN_NULL();
         }
 
         Slice::ClassDefPtr def = decl->definition();
         if(!def)
         {
-            zend_error(E_ERROR, "%s(): %s is declared but not defined", get_active_function_name(TSRMLS_C),
-                       scoped.c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): %s is declared but not defined",
+			     get_active_function_name(TSRMLS_C), scoped.c_str());
             RETURN_NULL();
         }
 
@@ -1052,8 +1080,8 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
         //
         if(findClassScoped(scoped TSRMLS_CC) == 0)
         {
-            zend_error(E_ERROR, "%s(): the Slice definition for type %s has not been compiled",
-                       get_active_function_name(TSRMLS_C), scoped.c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): the Slice definition for type %s has not been compiled",
+			     get_active_function_name(TSRMLS_C), scoped.c_str());
             RETURN_NULL();
         }
 
@@ -1189,8 +1217,8 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     int numParams = static_cast<int>(_inParams.size() + _outParams.size());
     if(ZEND_NUM_ARGS() != numParams && ZEND_NUM_ARGS() != numParams + 1)
     {
-        zend_error(E_ERROR, "%s(): incorrect number of parameters (%d)", get_active_function_name(TSRMLS_C),
-                   numParams);
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): incorrect number of parameters (%d)",
+			 get_active_function_name(TSRMLS_C), numParams);
         return;
     }
 
@@ -1201,7 +1229,7 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     AutoEfree autoArgs(args); // Call efree on return
     if(zend_get_parameters_array_ex(ZEND_NUM_ARGS(), args) == FAILURE)
     {
-        zend_error(E_ERROR, "unable to get arguments");
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to get arguments");
         return;
     }
 
@@ -1212,8 +1240,8 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     {
         if(!PZVAL_IS_REF(*args[i]))
         {
-            zend_error(E_ERROR, "%s(): argument for out parameter %s must be passed by reference",
-                       get_active_function_name(TSRMLS_C), _paramNames[i].c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): argument for out parameter %s must be passed by reference",
+			     get_active_function_name(TSRMLS_C), _paramNames[i].c_str());
             return;
         }
     }
@@ -1344,8 +1372,8 @@ IcePHP::Operation::throwUserException(Ice::InputStreamPtr& is TSRMLS_DC)
         {
             if(ex->isLocal())
             {
-                zend_error(E_ERROR, "%s(): cannot unmarshal local exception %s", get_active_function_name(TSRMLS_C),
-                           id.c_str());
+                php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): cannot unmarshal local exception %s",
+				 get_active_function_name(TSRMLS_C), id.c_str());
                 return;
             }
 
@@ -1464,6 +1492,12 @@ IcePHP::Proxy::getOperation(const string& name)
     return result;
 }
 
+string
+IcePHP::Proxy::toString() const
+{
+    return _communicator->proxyToString(_proxy);
+}
+
 #ifdef WIN32
 extern "C"
 #endif
@@ -1516,7 +1550,7 @@ handleClone(zval* zv TSRMLS_DC)
     MAKE_STD_ZVAL(clone);
     if(object_init_ex(clone, IcePHP::proxyClassEntry) != SUCCESS)
     {
-        zend_error(E_ERROR, "unable to initialize proxy");
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to initialize proxy");
         return result;
     }
 
@@ -1557,16 +1591,20 @@ handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
         assert(obj->ptr);
         Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
-        if(!_this->getClass())
+	Slice::ClassDefPtr def = _this->getClass();
+        if(!def)
         {
-            zend_error(E_ERROR, "%s(): proxy has not been narrowed", get_active_function_name(TSRMLS_C));
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): unknown method %s invoked on untyped proxy",
+			     get_active_function_name(TSRMLS_C), method);
             return NULL;
         }
 
         OperationPtr op = _this->getOperation(method);
         if(!op)
         {
-            zend_error(E_ERROR, "%s(): unknown operation", get_active_function_name(TSRMLS_C));
+	    string scoped = def->scoped();
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): unknown operation %s invoked on proxy of type %s",
+			     get_active_function_name(TSRMLS_C), method, scoped.c_str());
             return NULL;
         }
 
