@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import sys, Ice
+import sys, traceback, Ice
 
 Ice.loadSlice('Callback.ice')
 import Demo
@@ -17,15 +17,15 @@ class CallbackI(Demo.Callback):
         print "initiating callback"
         try:
             proxy.callback(current.ctx)
-        except Ice.Exception, ex:
-            print ex
+        except:
+            traceback.print_exc()
 
     def shutdown(self, current=None):
         print "Shutting down..."
         try:
             current.adapter.getCommunicator().shutdown()
-        except Ice.Exception, ex:
-            print ex
+        except:
+            traceback.print_exc()
 
 class CallbackServer(Ice.Application):
     def run(self, args):

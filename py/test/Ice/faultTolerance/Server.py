@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import sys, os, Ice
+import sys, os, traceback, Ice
 
 Ice.loadSlice('Test.ice')
 import Test
@@ -74,15 +74,15 @@ try:
 
     communicator = Ice.initialize(sys.argv)
     status = run(sys.argv, communicator)
-except Ice.Exception, ex:
-    print ex
+except:
+    traceback.print_exc()
     status = False
 
 if communicator:
     try:
         communicator.destroy()
-    except Ice.Exception, ex:
-        print ex
+    except:
+        traceback.print_exc()
         status = False
 
 sys.exit(not status)

@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import sys, Ice, AllTests
+import sys, traceback, Ice, AllTests
 
 def test(b):
     if not b:
@@ -33,8 +33,8 @@ def run(args, communicator):
 
     try:
         AllTests.allTests(communicator, ports)
-    except Ice.Exception, ex:
-        print ex
+    except:
+        traceback.print_exc()
         test(False)
 
     return True
@@ -49,15 +49,15 @@ try:
 
     communicator = Ice.initialize(sys.argv)
     status = run(sys.argv, communicator)
-except Ice.Exception, ex:
-    print ex
+except:
+    traceback.print_exc()
     status = False
 
 if communicator:
     try:
         communicator.destroy()
-    except Ice.Exception, ex:
-        print ex
+    except:
+        traceback.print_exc()
         status = False
 
 sys.exit(not status)

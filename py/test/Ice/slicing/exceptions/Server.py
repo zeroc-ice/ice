@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import Ice, sys
+import sys, traceback, Ice
 
 Ice.loadSlice('-I. --all ServerPrivate.ice')
 import Test
@@ -116,15 +116,15 @@ def run(args, communicator):
 try:
     communicator = Ice.initialize(sys.argv)
     status = run(sys.argv, communicator)
-except Ice.Exception, ex:
-    print ex
+except:
+    traceback.print_exc()
     status = False
 
 if communicator:
     try:
         communicator.destroy()
-    except Ice.Exception, ex:
-        print ex
+    except:
+        traceback.print_exc()
         status = False
 
 sys.exit(not status)

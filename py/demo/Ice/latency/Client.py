@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import sys, time, Ice
+import sys, time, traceback, Ice
 
 Ice.loadSlice('Latency.ice')
 import Demo
@@ -51,15 +51,15 @@ try:
     properties.load("config")
     communicator = Ice.initializeWithProperties(sys.argv, properties)
     status = run(sys.argv, communicator)
-except Ice.Exception, ex:
-    print ex
+except:
+    traceback.print_exc()
     status = False
 
 if communicator:
     try:
         communicator.destroy()
-    except Ice.Exception, ex:
-        print ex
+    except:
+        traceback.print_exc()
         status = False
 
 if status:

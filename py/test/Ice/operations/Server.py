@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import Ice, os, sys
+import sys, os, traceback, Ice
 
 if not os.environ.has_key('ICE_HOME'):
     print sys.argv[0] + ': ICE_HOME is not defined'
@@ -189,15 +189,15 @@ def run(args, communicator):
 try:
     communicator = Ice.initialize(sys.argv)
     status = run(sys.argv, communicator)
-except Ice.Exception, ex:
-    print ex
+except:
+    traceback.print_exc()
     status = False
 
 if communicator:
     try:
         communicator.destroy()
-    except Ice.Exception, ex:
-        print ex
+    except:
+        traceback.print_exc()
         status = False
 
 sys.exit(not status)

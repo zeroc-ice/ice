@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import sys, Ice
+import sys, traceback, Ice
 
 Ice.loadSlice('Hello.ice')
 import Demo
@@ -121,15 +121,15 @@ try:
     properties.load("config")
     communicator = Ice.initializeWithProperties(sys.argv, properties)
     status = run(sys.argv, communicator)
-except Ice.Exception, ex:
-    print ex
+except:
+    traceback.print_exc()
     status = False
 
 if communicator:
     try:
         communicator.destroy()
-    except Ice.Exception, ex:
-        print ex
+    except:
+        traceback.print_exc()
         status = False
 
 sys.exit(not status)
