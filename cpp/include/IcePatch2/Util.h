@@ -7,13 +7,11 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PATCH2_UPDATE_H
-#define ICE_PATCH2_UPDATE_H
+#ifndef ICE_PATCH2_UTIL_H
+#define ICE_PATCH2_UTIL_H
 
 #include <Ice/Ice.h>
-#include <IceUtil/Thread.h>
 #include <IcePatch2/FileInfo.h>
-#include <list>
 
 namespace IcePatch2
 {
@@ -99,28 +97,6 @@ struct FileTree0
 
 ICE_PATCH2_API void getFileTree1(const FileInfoSeq&, FileTree1&);
 ICE_PATCH2_API void getFileTree0(const FileInfoSeq&, FileTree0&);
-
-class ICE_PATCH2_API Decompressor : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    Decompressor();
-    virtual ~Decompressor();
-
-    void destroy();
-    void add(const std::string&);
-    void checkForException() const;
-
-    virtual void run();
-
-private:
-
-    bool _destroy;
-    std::string _exception;
-    std::list<std::string> _files;
-};
-
-typedef IceUtil::Handle<Decompressor> DecompressorPtr;
 
 }
 
