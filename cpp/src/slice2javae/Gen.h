@@ -196,24 +196,6 @@ private:
         virtual bool visitClassDefStart(const ClassDefPtr&);
     };
 
-    class DelegateMVisitor : public JavaVisitor
-    {
-    public:
-
-        DelegateMVisitor(const std::string&);
-
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-    };
-
-    class DelegateDVisitor : public JavaVisitor
-    {
-    public:
-
-        DelegateDVisitor(const std::string&);
-
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-    };
-
     class DispatcherVisitor : public JavaVisitor
     {
     public:

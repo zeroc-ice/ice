@@ -281,12 +281,6 @@ Slice::Gen::generate(const UnitPtr& p)
     DelegateVisitor delegateVisitor(H, C, _dllExport);
     p->visit(&delegateVisitor, false);
 
-    DelegateMVisitor delegateMVisitor(H, C, _dllExport);
-    p->visit(&delegateMVisitor, false);
-
-    DelegateDVisitor delegateDVisitor(H, C, _dllExport);
-    p->visit(&delegateDVisitor, false);
-
     ObjectVisitor objectVisitor(H, C, _dllExport, _stream);
     p->visit(&objectVisitor, false);
 
@@ -1341,8 +1335,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H.dec();
     H << sp << nl << "private: ";
     H.inc();
-    H << sp << nl << "virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();";
-    H << nl << "virtual ::IceInternal::Handle< ::IceDelegateD::Ice::Object> __createDelegateD();";
+    H << sp << nl << "virtual ::IceInternal::Handle< ::IceDelegate::Ice::Object> __createDelegate();";
     H << eb << ';';
 
     C << sp;
@@ -1351,15 +1344,10 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "return "<< scoped << "::ice_staticId();";
     C << eb;
 
-    C << sp << nl << "::IceInternal::Handle< ::IceDelegateM::Ice::Object>";
-    C << nl << "IceProxy" << scoped << "::__createDelegateM()";
+    C << sp << nl << "::IceInternal::Handle< ::IceDelegate::Ice::Object>";
+    C << nl << "IceProxy" << scoped << "::__createDelegate()";
     C << sb;
-    C << nl << "return ::IceInternal::Handle< ::IceDelegateM::Ice::Object>(new ::IceDelegateM" << scoped << ");";
-    C << eb;
-    C << sp << nl << "::IceInternal::Handle< ::IceDelegateD::Ice::Object>";
-    C << nl << "IceProxy" << scoped << "::__createDelegateD()";
-    C << sb;
-    C << nl << "return ::IceInternal::Handle< ::IceDelegateD::Ice::Object>(new ::IceDelegateD" << scoped << ");";
+    C << nl << "return ::IceInternal::Handle< ::IceDelegate::Ice::Object>(new ::IceDelegate" << scoped << ");";
     C << eb;
 
     C << sp;
@@ -1621,135 +1609,6 @@ void
 Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 {
     string name = fixKwd(p->name());
-
-    TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret);
-
-    vector<string> params;
-
-    ParamDeclList paramList = p->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
-	//
-	// Work around for Sun CC 5.5 bug #4853566
-	//
-	string typeString;
-	if((*q)->isOutParam())
-	{
-	    typeString = outputTypeToString((*q)->type());
-	}
-	else
-	{
-	    typeString = inputTypeToString((*q)->type());
-	}
-#else
-	string typeString = (*q)->isOutParam() ? outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
-#endif
-
-	params.push_back(typeString);
-    }
-
-    params.push_back("const ::Ice::Context&");
-
-    H << sp << nl << "virtual " << retS << ' ' << name << spar << params << epar << " = 0;";
-}
-
-Slice::Gen::DelegateMVisitor::DelegateMVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport)
-{
-}
-
-bool
-Slice::Gen::DelegateMVisitor::visitUnitStart(const UnitPtr& p)
-{
-    if(!p->hasNonLocalClassDecls())
-    {
-	return false;
-    }
-
-    H << sp << nl << "namespace IceDelegateM" << nl << '{';
-
-    return true;
-}
-
-void
-Slice::Gen::DelegateMVisitor::visitUnitEnd(const UnitPtr& p)
-{
-    H << sp << nl << '}';
-}
-    
-bool
-Slice::Gen::DelegateMVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if(!p->hasNonLocalClassDecls())
-    {
-	return false;
-    }
-
-    string name = fixKwd(p->name());
-    
-    H << sp << nl << "namespace " << name << nl << '{';
-
-    return true;
-}
-
-void
-Slice::Gen::DelegateMVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    H << sp << nl << '}';
-}
-
-bool
-Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(p->isLocal())
-    {
-	return false;
-    }
-
-    string name = fixKwd(p->name());
-    string scoped = fixKwd(p->scoped());
-    ClassList bases = p->bases();
-
-    H << sp << nl << "class " << _dllExport << name << " : ";
-    H.useCurrentPosAsIndent();
-    H << "virtual public ::IceDelegate" << scoped << ',';
-    if(bases.empty())
-    {
-	H << nl << "virtual public ::IceDelegateM::Ice::Object";
-    }
-    else
-    {
-	ClassList::const_iterator q = bases.begin();
-	while(q != bases.end())
-	{
-	    H << nl << "virtual public ::IceDelegateM" << fixKwd((*q)->scoped());
-	    if(++q != bases.end())
-	    {
-		H << ',';
-	    }
-	}
-    }
-    H.restoreIndent();
-    H << sb;
-    H.dec();
-    H << nl << "public:";
-    H.inc();
-
-    return true;
-}
-
-void
-Slice::Gen::DelegateMVisitor::visitClassDefEnd(const ClassDefPtr& p)
-{
-    H << eb << ';';
-}
-
-void
-Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
-{
-    string name = fixKwd(p->name());
     string scoped = fixKwd(p->scoped());
 
     TypePtr ret = p->returnType();
@@ -1786,7 +1645,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     paramsDecl.push_back("const ::Ice::Context& __context");
 
     H << sp << nl << "virtual " << retS << ' ' << name << spar << params << epar << ';';
-    C << sp << nl << retS << nl << "IceDelegateM" << scoped << spar << paramsDecl << epar;
+    C << sp << nl << retS << nl << "IceDelegate" << scoped << spar << paramsDecl << epar;
     C << sb;
     C << nl << "static const ::std::string __operation(\"" << p->name() << "\");";
     C << nl << "::IceInternal::Outgoing __out(__connection.get(), __reference.get(), __operation, "
@@ -1867,197 +1726,6 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << nl << "throw ::IceInternal::NonRepeatable(__ex);";
     C << eb;
     C << eb;
-}
-
-Slice::Gen::DelegateDVisitor::DelegateDVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport)
-{
-}
-
-bool
-Slice::Gen::DelegateDVisitor::visitUnitStart(const UnitPtr& p)
-{
-    if(!p->hasNonLocalClassDecls())
-    {
-	return false;
-    }
-
-    H << sp << nl << "namespace IceDelegateD" << nl << '{';
-
-    return true;
-}
-
-void
-Slice::Gen::DelegateDVisitor::visitUnitEnd(const UnitPtr& p)
-{
-    H << sp << nl << '}';
-}
-    
-bool
-Slice::Gen::DelegateDVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if(!p->hasNonLocalClassDecls())
-    {
-	return false;
-    }
-
-    string name = fixKwd(p->name());
-    
-    H << sp << nl << "namespace " << name << nl << '{';
-
-    return true;
-}
-
-void
-Slice::Gen::DelegateDVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    H << sp << nl << '}';
-}
-
-bool
-Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(p->isLocal())
-    {
-	return false;
-    }
-
-    string name = fixKwd(p->name());
-    string scoped = fixKwd(p->scoped());
-    ClassList bases = p->bases();
-
-    H << sp << nl << "class " << _dllExport << name << " : ";
-    H.useCurrentPosAsIndent();
-    H << "virtual public ::IceDelegate" << scoped << ',';
-    if(bases.empty())
-    {
-	H << nl << "virtual public ::IceDelegateD::Ice::Object";
-    }
-    else
-    {
-	ClassList::const_iterator q = bases.begin();
-	while(q != bases.end())
-	{
-	    H << nl << "virtual public ::IceDelegateD" << fixKwd((*q)->scoped());
-	    if(++q != bases.end())
-	    {
-		H << ',';
-	    }
-	}
-    }
-    H.restoreIndent();
-    H << sb;
-    H.dec();
-    H << nl << "public:";
-    H.inc();
-
-    return true;
-}
-
-void
-Slice::Gen::DelegateDVisitor::visitClassDefEnd(const ClassDefPtr& p)
-{
-    H << eb << ';';
-}
-
-void
-Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
-{
-    string name = fixKwd(p->name());
-    string scoped = fixKwd(p->scoped());
-
-    TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret);
-
-    vector<string> params;
-    vector<string> paramsDecl;
-    vector<string> args;
-
-    ParamDeclList paramList = p->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-	string paramName = fixKwd((*q)->name());
-
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
-	//
-	// Work around for Sun CC 5.5 bug #4853566
-	//
-	string typeString;
-	if((*q)->isOutParam())
-	{
-	    typeString = outputTypeToString((*q)->type());
-	}
-	else
-	{
-	    typeString = inputTypeToString((*q)->type());
-	}
-#else
-	string typeString = (*q)->isOutParam() ? outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
-#endif
-
-	params.push_back(typeString);
-	paramsDecl.push_back(typeString + ' ' + paramName);
-	args.push_back(paramName);
-    }
-    
-    params.push_back("const ::Ice::Context&");
-    paramsDecl.push_back("const ::Ice::Context& __context");
-    args.push_back("__current");
-    
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string thisPointer = fixKwd(cl->scoped()) + "*";
-
-    H << sp;
-
-    H << nl << "virtual " << retS << ' ' << name << spar << params << epar << ';';
-    bool amd = !cl->isLocal() && (cl->hasMetaData("amd") || p->hasMetaData("amd"));
-    if(amd)
-    {
-	C << sp << nl << retS << nl << "IceDelegateD" << scoped << spar << params << epar;
-	C << sb;
-	C << nl << "throw ::Ice::CollocationOptimizationException(__FILE__, __LINE__);";
-	C << eb;
-    }
-    else
-    {
-	C << sp << nl << retS << nl << "IceDelegateD" << scoped << spar << paramsDecl << epar;
-	C << sb;
-	C << nl << "::Ice::Current __current;";
-	C << nl << "__initCurrent(__current, \"" << p->name()
-	  << "\", static_cast< ::Ice::OperationMode>(" << p->mode() << "), __context);";
-	C << nl << "while(true)";
-	C << sb;
-	C << nl << "::IceInternal::Direct __direct(__current);";
-	C << nl << thisPointer << " __servant = dynamic_cast< " << thisPointer << ">(__direct.servant().get());";
-	C << nl << "if(!__servant)";
-	C << sb;
-	C << nl << "::Ice::OperationNotExistException __opEx(__FILE__, __LINE__);";
-	C << nl << "__opEx.id = __current.id;";
-	C << nl << "__opEx.facet = __current.facet;";
-	C << nl << "__opEx.operation = __current.operation;";
-	C << nl << "throw __opEx;";
-	C << eb;
-        C << nl << "try";
-        C << sb;
-	C << nl;
-	if(ret)
-	{
-	    C << "return ";
-	}
-	C << "__servant->" << name << spar << args << epar << ';';
-	if(!ret)
-	{
-	    C << nl << "return;";
-	}
-	C << eb;
-        C << nl << "catch(const ::Ice::LocalException& __ex)";
-        C << sb;
-        C << nl << "throw ::IceInternal::NonRepeatable(__ex);";
-	C << eb;
-	C << eb;
-	C << eb;
-    }
 }
 
 Slice::Gen::ObjectDeclVisitor::ObjectDeclVisitor(Output& h, Output& c, const string& dllExport) :

@@ -932,12 +932,6 @@ Slice::Gen::generate(const UnitPtr& p, bool stream)
     DelegateVisitor delegateVisitor(_dir);
     p->visit(&delegateVisitor, false);
 
-    DelegateMVisitor delegateMVisitor(_dir);
-    p->visit(&delegateMVisitor, false);
-
-    DelegateDVisitor delegateDVisitor(_dir);
-    p->visit(&delegateDVisitor, false);
-
     DispatcherVisitor dispatcherVisitor(_dir);
     p->visit(&dispatcherVisitor, false);
 
@@ -2987,14 +2981,9 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "return d;";
     out << eb;
 
-    out << sp << nl << "protected Ice._ObjectDelM" << nl << "__createDelegateM()";
+    out << sp << nl << "protected Ice._ObjectDel" << nl << "__createDelegate()";
     out << sb;
-    out << nl << "return new _" << name << "DelM();";
-    out << eb;
-
-    out << sp << nl << "protected Ice._ObjectDelD" << nl << "__createDelegateD()";
-    out << sb;
-    out << nl << "return new _" << name << "DelD();";
+    out << nl << "return new _" << name << "Del();";
     out << eb;
 
     out << sp << nl << "public static void" << nl << "__write(IceInternal.BasicStream __os, " << name << "Prx v)";
@@ -3867,82 +3856,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     Output& out = output();
 
-    out << sp << nl << "public interface _" << name << "Del extends ";
-    if(bases.empty())
-    {
-        out << "Ice._ObjectDel";
-    }
-    else
-    {
-        out.useCurrentPosAsIndent();
-        ClassList::const_iterator q = bases.begin();
-        while(q != bases.end())
-        {
-            out << getAbsolute(*q, package, "_", "Del");
-            if(++q != bases.end())
-            {
-                out << ',' << nl;
-            }
-        }
-        out.restoreIndent();
-    }
-
-    out << sb;
-
-    OperationList ops = p->operations();
-
-    OperationList::const_iterator r;
-    for(r = ops.begin(); r != ops.end(); ++r)
-    {
-        OperationPtr op = *r;
-        string opName = fixKwd(op->name());
-        TypePtr ret = op->returnType();
-        string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData());
-
-        vector<string> params = getParams(op, package);
-
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-
-        out << sp;
-        out << nl << retS << ' ' << opName << spar << params << "java.util.Map __ctx" << epar;
-        writeDelegateThrowsClause(package, throws);
-        out << ';';
-    }
-
-    out << eb;
-    close();
-
-    return false;
-}
-
-Slice::Gen::DelegateMVisitor::DelegateMVisitor(const string& dir) :
-    JavaVisitor(dir)
-{
-}
-
-bool
-Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(p->isLocal())
-    {
-        return false;
-    }
-
-    string name = p->name();
-    ClassList bases = p->bases();
-    string package = getPackage(p);
-    string absolute = getAbsolute(p, "", "_", "DelM");
-
-    if(!open(absolute))
-    {
-        return false;
-    }
-
-    Output& out = output();
-
-    out << sp << nl << "public final class _" << name << "DelM extends Ice._ObjectDelM implements _" << name << "Del";
+    out << sp << nl << "public final class _" << name << "Del extends Ice._ObjectDel";
     out << sb;
 
     OperationList ops = p->allOperations();
@@ -4088,118 +4002,6 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
         out << nl << "reclaimOutgoing(__out);";
         out << eb;
-        out << eb;
-    }
-
-    out << eb;
-    close();
-
-    return false;
-}
-
-Slice::Gen::DelegateDVisitor::DelegateDVisitor(const string& dir) :
-    JavaVisitor(dir)
-{
-}
-
-bool
-Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(p->isLocal())
-    {
-        return false;
-    }
-
-    string name = p->name();
-    ClassList bases = p->bases();
-    string package = getPackage(p);
-    string absolute = getAbsolute(p, "", "_", "DelD");
-
-    if(!open(absolute))
-    {
-        return false;
-    }
-
-    Output& out = output();
-
-    out << sp << nl << "public final class _" << name << "DelD extends Ice._ObjectDelD implements _" << name << "Del";
-    out << sb;
-
-    OperationList ops = p->allOperations();
-
-    OperationList::const_iterator r;
-    for(r = ops.begin(); r != ops.end(); ++r)
-    {
-        OperationPtr op = *r;
-	ContainerPtr container = op->container();
-	ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-        string opName = fixKwd(op->name());
-        TypePtr ret = op->returnType();
-        string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData());
-
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-
-        vector<string> params = getParams(op, package);
-        vector<string> args = getArgs(op);
-
-	out << sp;
-        out << nl << "public " << retS << nl << opName << spar << params << "java.util.Map __ctx" << epar;
-        writeDelegateThrowsClause(package, throws);
-        out << sb;
-	if(cl->hasMetaData("amd") || op->hasMetaData("amd"))
-	{
-	    out << nl << "throw new Ice.CollocationOptimizationException();";
-	}
-	else
-	{
-	    StringList metaData = op->getMetaData();
-	    out << nl << "Ice.Current __current = new Ice.Current();";
-	    out << nl << "__initCurrent(__current, \"" << op->name() << "\", " << sliceModeToIceMode(op)
-		<< ", __ctx);";
-	    out << nl << "while(true)";
-	    out << sb;
-	    out << nl << "IceInternal.Direct __direct = new IceInternal.Direct(__current);";
-	    out << nl << "try";
-	    out << sb;
-	    out << nl << fixKwd(name) << " __servant = null;";
-	    out << nl << "try";
-	    out << sb;
-	    out << nl << "__servant = (" << fixKwd(name) << ")__direct.servant();";
-	    out << eb;
-	    out << nl << "catch(ClassCastException __ex)";
-	    out << sb;
-	    out << nl << "Ice.OperationNotExistException __opEx = new Ice.OperationNotExistException();";
-	    out << nl << "__opEx.id = __current.id;";
-	    out << nl << "__opEx.facet = __current.facet;";
-	    out << nl << "__opEx.operation = __current.operation;";
-	    out << nl << "throw __opEx;";
-	    out << eb;
-            out << nl << "try";
-            out << sb;
-	    out << nl;
-	    if(ret)
-	    {
-		out << "return ";
-	    }
-	    out << "__servant." << opName << spar << args << "__current" << epar << ';';
-	    if(!ret)
-	    {
-		out << nl << "return;";
-	    }
-            out << eb;
-            out << nl << "catch(Ice.LocalException __ex)";
-            out << sb;
-            out << nl << "throw new IceInternal.NonRepeatable(__ex);";
-	    out << eb;
-	    out << eb;
-	    out << nl << "finally";
-	    out << sb;
-	    out << nl << "__direct.destroy();";
-	    out << eb;
-	    out << eb;
-	}
         out << eb;
     }
 

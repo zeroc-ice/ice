@@ -756,7 +756,6 @@ local exception PluginInitializationException
      **/
     string reason;
 };
-#endif
 
 /**
  *
@@ -767,6 +766,7 @@ local exception PluginInitializationException
 local exception CollocationOptimizationException
 {
 };
+#endif
 
 /**
  *
