@@ -54,6 +54,7 @@ Ice_LocalException_init(TSRMLS_DC)
     ce_LocalException.create_object = Ice_LocalException_alloc;
     Ice_LocalException_entry_ptr = zend_register_internal_class(&ce_LocalException TSRMLS_CC);
     memcpy(&Ice_LocalException_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    return true;
 }
 
 void
