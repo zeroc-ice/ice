@@ -420,6 +420,14 @@ SOURCE=..\..\include\Ice\Config.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Connection.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\ConnectionF.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Ice\Connector.h
 # End Source File
 # Begin Source File

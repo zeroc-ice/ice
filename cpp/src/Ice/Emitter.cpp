@@ -161,9 +161,10 @@ IceInternal::EmitterFactory::destroy()
 	return;
     }
 
+    // voidbind2nd is an STLport extension for broken compilers in IceUtil/Functional.h
     for_each(_connections.begin(), _connections.end(),
-	     bind2nd(Ice::secondVoidMemFun1<EndpointPtr, Connection, Connection::DestructionReason>
-		     (&Connection::destroy), Connection::CommunicatorDestroyed));
+	     voidbind2nd(Ice::secondVoidMemFun1<EndpointPtr, Connection, Connection::DestructionReason>
+			 (&Connection::destroy), Connection::CommunicatorDestroyed));
     _connections.clear();
     _instance = 0;
 }

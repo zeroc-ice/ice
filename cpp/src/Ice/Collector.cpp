@@ -261,8 +261,9 @@ IceInternal::CollectorFactory::setState(State state)
 		}
 		_threadPool->unregister(_acceptor->fd(), true);
 	    }
+	    // voidbind2nd is an STLport extension for broken compilers in IceUtil/Functional.h
 	    for_each(_connections.begin(), _connections.end(),
-		     bind2nd(Ice::voidMemFun1(&Connection::destroy), Connection::ObjectAdapterDeactivated));
+		     voidbind2nd(Ice::voidMemFun1(&Connection::destroy), Connection::ObjectAdapterDeactivated));
 	    _connections.clear();
 	    break;
 	}
