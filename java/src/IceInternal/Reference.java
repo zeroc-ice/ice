@@ -426,8 +426,11 @@ public final class Reference
     public Reference
     changeDefault()
     {
+        RouterInfo routerInfo = instance.routerManager().get(instance.referenceFactory().getDefaultRouter());
+        LocatorInfo locatorInfo = instance.locatorManager().get(instance.referenceFactory().getDefaultLocator());
+
         return instance.referenceFactory().create(identity, "", ModeTwoway, false, false, adapterId, endpoints,
-                                                  null, null, null);
+                                                  routerInfo, locatorInfo, null);
     }
 
     //
