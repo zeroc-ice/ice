@@ -19,7 +19,7 @@ using namespace IcePack;
 void
 usage(const char* n)
 {
-    cerr << "Usage: " << n << " [options] add|remove reference...\n";
+    cerr << "Usage: " << n << " [options] add reference...|remove reference...|shutdown\n";
     cerr <<	
 	"Options:\n"
 	"-h, --help           Show this message.\n"
@@ -50,13 +50,6 @@ run(int argc, char* argv[], CommunicatorPtr communicator)
 
     string cmd = argv[1];
 
-    if (argc < 3)
-    {
-	cerr << argv[0] << ": no reference" << endl;
-	usage(argv[0]);
-	return EXIT_FAILURE;
-    }
-
     Ice::ObjectPrx adminBase = communicator->stringToProxy("admin:" + adminEndpoints);
     AdminPrx admin = AdminPrx::checkedCast(adminBase);
     if (!admin)
@@ -67,6 +60,13 @@ run(int argc, char* argv[], CommunicatorPtr communicator)
 
     if (cmd == "add")
     {
+	if (argc < 3)
+	{
+	    cerr << argv[0] << ": no reference" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+
 	for (int i = 2; i < argc; ++i)
 	{
 	    ServerDescriptionPtr desc = new ServerDescription;
@@ -76,10 +76,27 @@ run(int argc, char* argv[], CommunicatorPtr communicator)
     }
     else if (cmd == "remove")
     {
+	if (argc < 3)
+	{
+	    cerr << argv[0] << ": no reference" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+
 	for (int i = 2; i < argc; ++i)
 	{
 	    admin->remove(communicator->stringToProxy(argv[i]));
 	}
+    }
+    else if (cmd == "shutdown")
+    {
+	if (argc > 2)
+	{
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+
+	admin->shutdown();
     }
     else
     {

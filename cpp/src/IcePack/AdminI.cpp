@@ -15,7 +15,8 @@ using namespace std;
 using namespace Ice;
 using namespace IcePack;
 
-AdminI::AdminI()
+AdminI::AdminI(const CommunicatorPtr& communicator) :
+    _communicator(communicator)
 {
 }
 
@@ -48,10 +49,24 @@ AdminI::find(const ObjectPrx& p)
 
     if (p)
     {
-	return _map.find(p)->second;
+	map<ObjectPrx, ServerDescriptionPtr>::iterator q = _map.find(p);
+	if (q != _map.end())
+	{
+	    return q->second;
+	}
+	else
+	{
+	    return 0;
+	}
     }
     else
     {
 	return 0;
     }
+}
+
+void
+AdminI::shutdown()
+{
+    _communicator->shutdown();
 }

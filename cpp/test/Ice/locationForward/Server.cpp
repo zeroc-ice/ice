@@ -69,7 +69,7 @@ run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
 
     ostringstream endpts;
     endpts << "tcp -p " << port;
-    Ice::ObjectAdapterPtr adapter = communicator -> createObjectAdapterWithEndpoints("testadapter", endpts.str());
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter", endpts.str());
     Ice::ObjectPtr object = new TestI(adapter, fwd);
     adapter->add(object, "test");
     adapter->activate();

@@ -26,16 +26,18 @@ usage(const char* n)
 	"-v, --version        Display the Ice version.\n"
 	"--forward ENDPOINTS  Use ENDPOINTS as endpoints for the forwarder.\n"
 	"--admin ENDPOINTS    Enable administrative endpoints and set them to ENDPOINTS.\n"
+	"--nowarn             Don't print any security warnings.\n"
+	"--pid                Print the process id on standard output upon startup.\n"
 	;
 }
 
 int
-run(int argc, char* argv[], CommunicatorPtr communicator)
+run(int argc, char* argv[], CommunicatorPtr communicator, bool pid, bool nowarn)
 {
     PropertiesPtr properties = communicator->getProperties();
 
     string adminEndpoints = properties->getProperty("Ice.Adapter.Admin.Endpoints");
-    if(adminEndpoints.length() != 0)
+    if(adminEndpoints.length() != 0 && !nowarn)
     {
 	cerr << argv[0] << ": warning: administrative endpoints `Ice.Adapter.Admin.Endpoints' enabled" << endl;
     }
@@ -47,7 +49,7 @@ run(int argc, char* argv[], CommunicatorPtr communicator)
 	return EXIT_FAILURE;
     }
 
-    AdminPtr admin = new AdminI;
+    AdminPtr admin = new AdminI(communicator);
     ObjectLocatorPtr forward = new Forward(admin);
 
     if (adminEndpoints.length() != 0)
@@ -61,6 +63,11 @@ run(int argc, char* argv[], CommunicatorPtr communicator)
     forwardAdapter->setObjectLocator(forward);
     forwardAdapter->activate();
 
+    if (pid)
+    {
+	cout << getpid() << endl;
+    }
+
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
 }
@@ -70,6 +77,8 @@ main(int argc, char* argv[])
 {
     PropertiesPtr properties = getDefaultProperties();
 
+    bool nowarn = false;
+    bool pid = false;
     for (int i = 1; i < argc; ++i)
     {
 	if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
@@ -81,6 +90,14 @@ main(int argc, char* argv[])
 	{
 	    cout << ICE_STRING_VERSION << endl;
 	    return EXIT_SUCCESS;
+	}
+	else if(strcmp(argv[i], "--nowarn") == 0)
+	{
+	    nowarn = true;
+	}
+	else if(strcmp(argv[i], "--pid") == 0)
+	{
+	    pid = true;
 	}
 	else if (strcmp(argv[i], "--forward") == 0)
 	{
@@ -118,7 +135,7 @@ main(int argc, char* argv[])
     try
     {
 	communicator = initializeWithProperties(argc, argv, properties);
-	status = run(argc, argv, communicator);
+	status = run(argc, argv, communicator, pid, nowarn);
     }
     catch(const LocalException& ex)
     {

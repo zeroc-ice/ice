@@ -27,10 +27,6 @@ run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
 	myClass->opVoid();
 	test(false);
     }
-    catch(const Ice::CloseConnectionException&) // TODO: Should not be thrown
-    {                                           // if retry is implemented
-	cout << "ok" << endl;
-    }
     catch(const Ice::ConnectFailedException&)
     {
 	cout << "ok" << endl;

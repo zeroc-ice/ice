@@ -17,12 +17,16 @@ for toplevel in ["", "..", os.path.join("..", ".."), os.path.join("..", "..", ".
 else:
     raise "can't find toplevel directory!"
 
-for i in [ ("Slice", "errorDetection"), \
-           ("Ice", "operations"), \
-           ("Ice", "exceptions"), \
-           ("Ice", "inheritance"), \
-           ("Ice", "faultTolerance"), \
-           ("Ice", "locationForward")]:
+for i in \
+    [ \
+    ("Slice", "errorDetection"), \
+    ("Ice", "operations"), \
+    ("Ice", "exceptions"), \
+    ("Ice", "inheritance"), \
+    ("Ice", "faultTolerance"), \
+    ("Ice", "locationForward"), \
+    ("IcePack", "simple"), \
+    ]:
 
     dir = os.path.join(toplevel, "test", *i)
     

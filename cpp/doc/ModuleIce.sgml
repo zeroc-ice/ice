@@ -83,6 +83,8 @@ objects, which it doesn't find in its Active Object Map.
 		    </term>
 		    <listitem>
 			<para>
+A property set to configure Ice and applications based on
+Ice.
 			</para>
 		    </listitem>
 		</varlistentry>
@@ -1626,8 +1628,7 @@ locator must be set with the Object Adapter's
 		    </term>
 		    <listitem>
 			<para>
-Called by the Object Adapter after a request, provided that
-<literal>locate</literal> did not return null.
+Called by the Object Adapter after a request.
 			</para>
 		    </listitem>
 		</varlistentry>
@@ -1655,8 +1656,10 @@ cannot be found in the Object Adapter's Active Object Map.
     <type>Object</type> <parameter>object</parameter>,
     <type>Object</type> <parameter>cookie</parameter>);</synopsis>
 	<para>
-Called by the Object Adapter after a request, provided that
-<literal>locate</literal> did not return null. This operation
+Called by the Object Adapter after a request. This operation is
+only called if <literal>locate</literal> did not return null,
+or if <literal>locate</literal> threw a
+<literal>LocationForward</literal> exception. This operation
 can be used for cleanup after a request.
 	</para>
 	<section>
@@ -1885,6 +1888,10 @@ found.
 	</title>
 <synopsis>local class <classname>Properties</classname></synopsis>
 	<para>
+A property set to configure Ice and applications based on
+Ice. Properties are key/value pairs, with both keys and values
+being strings. By conventions, property keys should have the form
+<replaceable>application-name</replaceable>[[.<replaceable>category</replaceable>].<replaceable>sub-category</replaceable>].<replaceable>name</replaceable>.
 	</para>
 	<section>
 	    <title>
@@ -1893,19 +1900,31 @@ found.
 	    <variablelist>
 		<varlistentry>
 		    <term>
-			<link linkend="ModuleIce.sgml.45"><type>getProperty</type></link>
+			<link linkend="ModuleIce.sgml.45"><type>clone</type></link>
 		    </term>
 		    <listitem>
 			<para>
+Create a copy of this property set.
 			</para>
 		    </listitem>
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="ModuleIce.sgml.46"><type>setProperty</type></link>
+			<link linkend="ModuleIce.sgml.46"><type>getProperty</type></link>
 		    </term>
 		    <listitem>
 			<para>
+Get a property by key.
+			</para>
+		    </listitem>
+		</varlistentry>
+		<varlistentry>
+		    <term>
+			<link linkend="ModuleIce.sgml.47"><type>setProperty</type></link>
+		    </term>
+		    <listitem>
+			<para>
+Set a property.
 			</para>
 		    </listitem>
 		</varlistentry>
@@ -1914,14 +1933,72 @@ found.
     </section>
     <section id="ModuleIce.sgml.45">
 	<title>
+	    clone
+	</title>
+<synopsis><link linkend="ModuleIce.sgml.7"><classname>Properties</classname></link> <function>clone</function>();</synopsis>
+	<para>
+Create a copy of this property set.
+	</para>
+	<section>
+	    <title>
+		Return Value
+	    </title>
+	    <para>
+		A copy of this property set.
+	    </para>
+	</section>
+    </section>
+    <section id="ModuleIce.sgml.46">
+	<title>
 	    getProperty
 	</title>
 <synopsis><type>string</type> <function>getProperty</function>(
     <type>string</type> <parameter>key</parameter>);</synopsis>
 	<para>
+Get a property by key. If the property does not exist, an empty
+string is returned.
 	</para>
+	<section>
+	    <title>
+		Parameters
+	    </title>
+	    <variablelist>
+		<varlistentry>
+		    <term>
+			<parameter>
+			    key
+			</parameter>
+		    </term>
+		    <listitem>
+			<para>
+			    The property key.
+			</para>
+		    </listitem>
+		</varlistentry>
+	    </variablelist>
+	</section>
+	<section>
+	    <title>
+		Return Value
+	    </title>
+	    <para>
+		The property value.
+	    </para>
+	</section>
+	<section>
+	    <title>
+		See Also
+	    </title>
+	    <para>
+		<simplelist type="inline">
+		    <member>
+			<link linkend="ModuleIce.sgml.47"><type>setProperty</type></link>
+		    </member>
+		</simplelist>
+	    </para>
+	</section>
     </section>
-    <section id="ModuleIce.sgml.46">
+    <section id="ModuleIce.sgml.47">
 	<title>
 	    setProperty
 	</title>
@@ -1929,7 +2006,51 @@ found.
     <type>string</type> <parameter>key</parameter>,
     <type>string</type> <parameter>value</parameter>);</synopsis>
 	<para>
+Set a property.
 	</para>
+	<section>
+	    <title>
+		Parameters
+	    </title>
+	    <variablelist>
+		<varlistentry>
+		    <term>
+			<parameter>
+			    key
+			</parameter>
+		    </term>
+		    <listitem>
+			<para>
+			    The property key.
+			</para>
+		    </listitem>
+		</varlistentry>
+		<varlistentry>
+		    <term>
+			<parameter>
+			    value
+			</parameter>
+		    </term>
+		    <listitem>
+			<para>
+			    The property value.
+			</para>
+		    </listitem>
+		</varlistentry>
+	    </variablelist>
+	</section>
+	<section>
+	    <title>
+		See Also
+	    </title>
+	    <para>
+		<simplelist type="inline">
+		    <member>
+			<link linkend="ModuleIce.sgml.46"><type>getProperty</type></link>
+		    </member>
+		</simplelist>
+	    </para>
+	</section>
     </section>
 </section>
 <section id="ModuleIce.sgml.8">
@@ -1950,7 +2071,7 @@ found.
 	    <variablelist>
 		<varlistentry>
 		    <term>
-			<link linkend="ModuleIce.sgml.47"><type>create</type></link>
+			<link linkend="ModuleIce.sgml.48"><type>create</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -1960,7 +2081,7 @@ found.
 	    </variablelist>
 	</section>
     </section>
-    <section id="ModuleIce.sgml.47">
+    <section id="ModuleIce.sgml.48">
 	<title>
 	    create
 	</title>

@@ -9,21 +9,17 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestI.h>
+#include <TestCommon.h>
+#include <Test.h>
 
 using namespace std;
 
 int
 run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
 {
-    string endpts("tcp -p 12345 -t 2000");
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter", endpts);
-    Ice::ObjectPtr object = new MyDerivedClassI(adapter);
-    adapter->add(object, "test");
-
-    Test::MyClassPrx allTests(Ice::CommunicatorPtr);
-    allTests(communicator);
-
+    TestPrx allTests(Ice::CommunicatorPtr);
+    TestPrx test = allTests(communicator);
+    test->shutdown();
     return EXIT_SUCCESS;
 }
 

@@ -41,26 +41,26 @@ IceInternal::Incoming::invoke(Stream& is)
     _os.write(Byte(0));
 
     ObjectPtr object = _adapter->identityToObject(identity);
-
     ObjectLocatorPtr locator;
     ObjectPtr cookie;
-    if (object)
-    {
-	locator = _adapter->getObjectLocator();
-	if (locator)
-	{
-	    object = locator->locate(_adapter, identity, cookie);
-	}
-    }
-
-    if(!object)
-    {
-	*(_os.b.begin() + statusPos) = static_cast<Byte>(DispatchObjectNotExist);
-	return;
-    }
 
     try
     {
+	if (!object)
+	{
+	    locator = _adapter->getObjectLocator();
+	    if (locator)
+	    {
+		object = locator->locate(_adapter, identity, cookie);
+	    }
+	}
+	
+	if(!object)
+	{
+	    *(_os.b.begin() + statusPos) = static_cast<Byte>(DispatchObjectNotExist);
+	    return;
+	}
+	
 	DispatchStatus status = object->__dispatch(*this, operation);
 	if (status != DispatchOK && status != DispatchException && status != DispatchOperationNotExist)
 	{

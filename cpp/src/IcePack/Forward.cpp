@@ -28,7 +28,7 @@ Forward::locate(const ObjectAdapterPtr& adapter, const string& identity, ObjectP
     if (desc)
     {
 	assert(desc->object);
-	throw LocationForward(proxy);
+	throw LocationForward(desc->object);
     }
     return 0;
 }

@@ -17,7 +17,7 @@ for toplevel in ["", "..", os.path.join("..", ".."), os.path.join("..", "..", ".
 else:
     raise "can't find toplevel directory!"
 
-directory = os.path.join(toplevel, "test", "Slice", "parser")
+directory = os.path.join(toplevel, "test", "Slice", "errorDetection")
 slice2cpp = os.path.join(toplevel, "bin", "slice2cpp")
 
 regex1 = re.compile(r".ice$", re.IGNORECASE)

@@ -119,6 +119,13 @@ class Admin
      *
      **/
     ServerDescription find(Object* object);
+
+    /**
+     *
+     * Shut down IcePack.
+     *
+     **/
+    void shutdown();
 };
 
 };
