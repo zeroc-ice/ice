@@ -44,7 +44,9 @@ TopicManagerI::create(const string& name)
 
     if (_topicIMap.find(name) != _topicIMap.end())
     {
-	throw TopicExists();
+        TopicExists ex;
+	ex.name = name;
+        throw ex;
     }
 
     if (_traceLevels->topicMgr > 0)
@@ -73,7 +75,9 @@ TopicManagerI::retrieve(const string& name)
 
     if (_topicIMap.find(name) != _topicIMap.end())
 	return TopicPrx::uncheckedCast(_adapter->createProxy(name));
-    throw NoSuchTopic();
+    NoSuchTopic ex;
+    ex.name = name;
+    throw ex;
 }
 
 //
@@ -132,7 +136,28 @@ TopicManagerI::subscribe(const string& id, const QoS& qos, const StringSeq& topi
 	_communicator->getLogger()->trace(_traceLevels->topicMgrCat, s.str());
     }
 
-    for (StringSeq::const_iterator i = topics.begin() ; i != topics.end() ; ++i)
+    //
+    // First scan the set of topics to ensure that each exists.
+    //
+    // TODO: This could be slightly optimized by remembering the
+    // TopicIPtr's so that the list doesn't need to scanned again.
+    //
+    StringSeq::const_iterator i;
+    for (i = topics.begin() ; i != topics.end() ; ++i)
+    {
+	TopicIMap::iterator elem = _topicIMap.find(*i);
+	if (elem == _topicIMap.end())
+	{
+	    NoSuchTopic ex;
+	    ex.name = *i;
+	    throw ex;
+	}
+    }
+
+    //
+    // Now subscribe to each Topic.
+    //
+    for (i = topics.begin() ; i != topics.end() ; ++i)
     {
 	TopicIMap::iterator elem = _topicIMap.find(*i);
 	if (elem != _topicIMap.end())

@@ -29,7 +29,8 @@ public:
 
     FlusherThread(const Ice::CommunicatorPtr& communicator, const TraceLevelsPtr& traceLevels) :
 	_traceLevels(traceLevels),
-	_logger(communicator->getLogger())
+	_logger(communicator->getLogger()),
+        _destroy(false)
     {
 	Ice::PropertiesPtr properties = communicator->getProperties();
 	string value;

@@ -245,11 +245,11 @@ Ice::Object::ice_findFacet(const string& name)
 }
 
 DispatchStatus
-Ice::Blobject::__dispatch(Incoming& in, const string& identity, const string& facet, const string& operation)
+Ice::Blobject::__dispatch(Incoming& in, const string& id, const string& facet, const string& operation)
 {
     vector<Byte> blob;
     Int sz = in.is()->getReadEncapsSize();
     in.is()->readBlob(blob, sz);
-    ice_invokeIn(identity, facet, operation, blob);
+    ice_invokeIn(id, facet, operation, blob);
     return ::IceInternal::DispatchOK;
 }

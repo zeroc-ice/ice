@@ -78,6 +78,12 @@ dictionary<string, Topic*> TopicDict;
  **/
 exception TopicExists
 {
+    /**
+     *
+     * The name of the Topic that already exists.
+     *
+     */
+    string name;
 };
 
 /**
@@ -88,6 +94,12 @@ exception TopicExists
  **/
 exception NoSuchTopic
 {
+    /**
+     *
+     * The name of the Topic that doesn't exist.
+     *
+     */
+    string name;
 };
 
 /**
@@ -172,7 +184,7 @@ interface TopicManager
      * @see unsubscribe
      *
      **/
-    void subscribe(string id, QoS qos, StringSeq topics, Object* tmpl);
+    void subscribe(string id, QoS qos, StringSeq topics, Object* tmpl) throws NoSuchTopic;
 
     /**
      *
