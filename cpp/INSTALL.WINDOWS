@@ -69,10 +69,10 @@ library to "libbz2d.lib". This is also what the Ice project files
 expect if you build a debug version of Ice.
 
 
-Python 2
---------
+Python 2.2
+----------
 
-To run the automated test suite, you will need Python 2. If you have
+To run the automated test suite, you will need Python 2.2. If you have
 no interest in running the test scripts, Python is not required. You
 can download a Python distribution for Windows from:
 

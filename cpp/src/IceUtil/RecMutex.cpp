@@ -88,6 +88,26 @@ IceUtil::RecMutex::lock(LockState& state) const
 IceUtil::RecMutex::RecMutex() :
     _count(0)
 {
+    pthread_mutexattr_t attr;
+    int rc = pthread_mutexattr_init(&attr);
+    if(rc != 0)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__);
+    }
+    
+    rc = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+    if(rc != 0)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__);
+    }
+    
+    rc = pthread_mutex_init(&_mutex, &attr);
+    if(rc != 0)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__);
+    }
+
+/*
 #ifdef __linux__ 
     const pthread_mutexattr_t attr = { PTHREAD_MUTEX_RECURSIVE_NP };
 #else
@@ -99,6 +119,7 @@ IceUtil::RecMutex::RecMutex() :
     {
 	throw ThreadSyscallException(__FILE__, __LINE__);
     }
+*/
 }
 
 IceUtil::RecMutex::~RecMutex()

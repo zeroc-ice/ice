@@ -67,10 +67,10 @@ the UUID routines included in this RPM). But to our knowledge, every
 Linux distribution includes this, so there should be no problem.
 
 
-Python 2
---------
+Python 2.2
+----------
 
-To run the automated test suite, you will need Python 2. If you have
+To run the automated test suite, you will need Python 2.2. If you have
 no interest in running the test scripts, Python is not required.
 
 
