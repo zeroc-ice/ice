@@ -14,13 +14,13 @@
 #include <Ice/Handle.h>
 
 #ifdef _WIN32
-#   ifdef ICE_API_EXPORTS
-#       define ICE_API __declspec(dllexport)
+#   ifdef ICE_SSL_API_EXPORTS
+#       define ICE_SSL_API __declspec(dllexport)
 #   else
-#       define ICE_API __declspec(dllimport)
+#       define ICE_SSL_API __declspec(dllimport)
 #   endif
 #else
-#   define ICE_API /**/
+#   define ICE_SSL_API /**/
 #endif
 
 namespace IceSSL
@@ -39,8 +39,8 @@ typedef IceInternal::Handle<RSAKeyPair> RSAKeyPairPtr;
 namespace IceInternal
 {
 
-void ICE_API incRef(::IceSSL::OpenSSL::RSAKeyPair*);
-void ICE_API decRef(::IceSSL::OpenSSL::RSAKeyPair*);
+void ICE_SSL_API incRef(::IceSSL::OpenSSL::RSAKeyPair*);
+void ICE_SSL_API decRef(::IceSSL::OpenSSL::RSAKeyPair*);
 
 }
 

@@ -20,13 +20,13 @@
 #include <openssl/ssl.h>
 
 #ifdef _WIN32
-#   ifdef ICE_API_EXPORTS
-#       define ICE_API __declspec(dllexport)
+#   ifdef ICE_SSL_API_EXPORTS
+#       define ICE_SSL_API __declspec(dllexport)
 #   else
-#       define ICE_API __declspec(dllimport)
+#       define ICE_SSL_API __declspec(dllimport)
 #   endif
 #else
-#   define ICE_API /**/
+#   define ICE_SSL_API /**/
 #endif
 
 namespace IceSSL
@@ -35,7 +35,7 @@ namespace IceSSL
 namespace OpenSSL
 {
 
-class ICE_API RSAPrivateKey : public IceUtil::Shared
+class ICE_SSL_API RSAPrivateKey : public IceUtil::Shared
 {
 public:
 

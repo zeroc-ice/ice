@@ -14,13 +14,13 @@
 #include <IceSSL/RSAKeyPairF.h>
 
 #ifdef _WIN32
-#   ifdef ICE_API_EXPORTS
-#       define ICE_API __declspec(dllexport)
+#   ifdef ICE_SSL_API_EXPORTS
+#       define ICE_SSL_API __declspec(dllexport)
 #   else
-#       define ICE_API __declspec(dllimport)
+#       define ICE_SSL_API __declspec(dllimport)
 #   endif
 #else
-#   define ICE_API /**/
+#   define ICE_SSL_API /**/
 #endif
 
 namespace IceSSL
@@ -31,7 +31,7 @@ namespace OpenSSL
 
 using namespace std;
 
-class ICE_API RSACertificateGenContext
+class ICE_SSL_API RSACertificateGenContext
 {
 public:
 
@@ -87,7 +87,7 @@ private:
     long _secondsValid;
 };
 
-class ICE_API RSACertificateGen
+class ICE_SSL_API RSACertificateGen
 {
 public:
 
