@@ -9,9 +9,6 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
-#ifndef _WIN32
-#   include <csignal>
-#endif
 
 using namespace std;
 using namespace Ice;
@@ -21,6 +18,11 @@ CommunicatorPtr Application::_communicator;
 
 Ice::Application::Application()
 {
+    sigemptyset(&signalSet);
+    for (unsigned i = 0; i < sizeof(signals) / sizeof(*signals); ++i)
+    {
+	sigaddset(&signalSet, signals[i]);
+    }
 }
 
 Ice::Application::~Application()
@@ -231,14 +233,12 @@ Ice::Application::shutdownOnInterrupt()
     struct sigaction action;
     memset(&action, 0, sizeof(action));
     action.sa_handler = interruptHandler;
-    sigemptyset(&action.sa_mask);
-    sigaddset(&action.sa_mask, SIGHUP);
-    sigaddset(&action.sa_mask, SIGINT);
-    sigaddset(&action.sa_mask, SIGTERM);
+    action.sa_mask = signalSet;
     action.sa_flags = SA_RESTART;
-    sigaction(SIGHUP, &action, 0);
-    sigaction(SIGINT, &action, 0);
-    sigaction(SIGTERM, &action, 0);
+    for (unsigned i = 0; i < sizeof(signals) / sizeof(*signals); ++i)
+    {
+	sigaction(signals[i], &action, 0);
+    }
 }
 
 void
@@ -247,11 +247,12 @@ Ice::Application::ignoreInterrupt()
     struct sigaction action;
     memset(&action, 0, sizeof(action));
     action.sa_handler = SIG_IGN;
-    sigemptyset(&action.sa_mask);
+    action.sa_mask = signalSet;
     action.sa_flags = SA_RESTART;
-    sigaction(SIGHUP, &action, 0);
-    sigaction(SIGINT, &action, 0);
-    sigaction(SIGTERM, &action, 0);
+    for (unsigned i = 0; i < sizeof(signals) / sizeof(*signals); ++i)
+    {
+	sigaction(signals[i], &action, 0);
+    }
 }
 
 void
@@ -260,33 +261,24 @@ Ice::Application::defaultInterrupt()
     struct sigaction action;
     memset(&action, 0, sizeof(action));
     action.sa_handler = SIG_DFL;
-    sigemptyset(&action.sa_mask);
+    action.sa_mask = signalSet;
     action.sa_flags = SA_RESTART;
-    sigaction(SIGHUP, &action, 0);
-    sigaction(SIGINT, &action, 0);
-    sigaction(SIGTERM, &action, 0);
+    for (unsigned i = 0; i < sizeof(signals) / sizeof(*signals); ++i)
+    {
+	sigaction(signals[i], &action, 0);
+    }
 }
 
 void
 Ice::Application::holdInterrupt()
 {
-    sigset_t sigset;
-    sigprocmask(0, 0, &sigset);
-    sigaddset(&sigset, SIGHUP);
-    sigaddset(&sigset, SIGINT);
-    sigaddset(&sigset, SIGTERM);
-    sigprocmask(SIG_BLOCK, &sigset, 0);
+    sigprocmask(SIG_BLOCK, &signalSet, 0);
 }
 
 void
 Ice::Application::releaseInterrupt()
 {
-    sigset_t sigset;
-    sigprocmask(0, 0, &sigset);
-    sigdelset(&sigset, SIGHUP);
-    sigdelset(&sigset, SIGINT);
-    sigdelset(&sigset, SIGTERM);
-    sigprocmask(SIG_BLOCK, &sigset, 0);
+    sigprocmask(SIG_UNBLOCK, &signalSet, 0);
 }
 
 #endif

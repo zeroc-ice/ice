@@ -12,6 +12,9 @@
 #define ICE_APPLICATION_H
 
 #include <Ice/Ice.h>
+#ifndef _WIN32
+#include <csignal>
+#endif
 
 namespace Ice
 {
@@ -85,6 +88,8 @@ private:
     friend BOOL WINAPI interruptHandler(DWORD);
 #else
     friend void interruptHandler(int);
+    static const int signals[] = { SIGHUP, SIGINT, SIGTERM };
+    static sigset_t signalSet;
 #endif
 };
 
