@@ -1303,15 +1303,10 @@ Slice::JavaGenerator::printHeader()
     static const char* header =
 "// **********************************************************************\n"
 "//\n"
-"// Copyright (c) 2003\n"
-"// ZeroC, Inc.\n"
-"// Billerica, MA, USA\n"
+"// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.\n"
 "//\n"
-"// All Rights Reserved.\n"
-"//\n"
-"// Ice is free software; you can redistribute it and/or modify it under\n"
-"// the terms of the GNU General Public License version 2 as published by\n"
-"// the Free Software Foundation.\n"
+"// This copy of Ice is licensed to you under the terms described in the\n"
+"// ICE_LICENSE file included in this distribution.\n"
 "//\n"
 "// **********************************************************************\n"
         ;

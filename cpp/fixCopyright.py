@@ -17,22 +17,14 @@ def usage():
 #
 def copyright(commentMark):
     result = [ ]
-    result.append(commentMark)
-    result.append(" **********************************************************************\n")
-    result.append(commentMark)
-    result.append("\n")
-    result.append(commentMark)
-    result.append(" Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.\n")
-    result.append(commentMark)
-    result.append("\n")
-    result.append(commentMark)
-    result.append(" This copy of Ice is licensed to you under the terms described in the\n")
-    result.append(commentMark)
-    result.append(" ICE_LICENSE file included in this distribution.\n")
-    result.append(commentMark)
-    result.append("\n")
-    result.append(commentMark)
-    result.append(" **********************************************************************\n")
+    result.append(commentMark + " **********************************************************************\n")
+    result.append(commentMark + "\n")
+    result.append(commentMark + " Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.\n")
+    result.append(commentMark + "\n")
+    result.append(commentMark + " This copy of Ice is licensed to you under the terms described in the\n")
+    result.append(commentMark + " ICE_LICENSE file included in this distribution.\n")
+    result.append(commentMark + "\n")
+    result.append(commentMark + " **********************************************************************\n")
     return result
 
 
@@ -48,6 +40,7 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
     copyrightFound = 0
 
     beforeCopyrightLines = []
+    oldCopyrightLines = []
     newLines = []
 
     justDone = 0
@@ -60,7 +53,8 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
                 commentFound = 1
                 if not copyrightFound and x.lower().find("copyright") != -1:
                     copyrightFound = 1
-                # skip this comment line                  
+                # skip this comment line 
+                oldCopyrightLines.append(x)            
             else:
                 if not done:
                     done = 1
@@ -79,7 +73,6 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
                     justDone = 0                    
                 else:
                     newLines.append(x)
-
     else:
          for x in oldLines:
             if not done:
@@ -113,7 +106,8 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
 
     oldFile.close()
 
-    if copyrightFound:
+    if copyrightFound and newCopyrightLines != oldCopyrightLines:
+
         origFile = file + ".orig"
         shutil.copy2(file, origFile)
 
@@ -133,6 +127,7 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
 
         newFile.writelines(newLines)
         newFile.close()        
+        print "------ Replaced copyright in " + file + " -------"
 
     return copyrightFound
 
@@ -191,9 +186,7 @@ def replaceAllCopyrights(path):
                 skip = 1
 
             if not skip:
-                if replaceCopyright(fullpath, commentMark, commentBegin, commentEnd, copyrightLines):
-                    print "Replaced copyright in " + fullpath
-                else:
+                if replaceCopyright(fullpath, commentMark, commentBegin, commentEnd, copyrightLines) == 0:
                     print "***** WARNING: Did not find copyright in " + fullpath                   
 
 #
