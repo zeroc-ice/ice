@@ -32,11 +32,12 @@ public:
     int getCount() const;
    
 private:
-    int _count;
    
 #ifdef _WIN32
+    mutable LONG _count;
     HANDLE _event;
 #else
+    int _count;
     mutable pthread_mutex_t _mutex;
     mutable pthread_cond_t _cond;
 

@@ -49,8 +49,7 @@ void
 IceUtil::CountDownLatch::await() const
 {
 #ifdef _WIN32
-    int* countPtr = const_cast<int*>(&_count);
-    while(InterlockedCompareExchange(countPtr, 0, 0) > 0)
+    while(InterlockedExchangeAdd(&_count, 0) > 0)
     {
 	DWORD rc = WaitForSingleObject(_event, INFINITE);
 	assert(rc == WAIT_OBJECT_0 || rc == WAIT_FAILED);
@@ -113,8 +112,7 @@ int
 IceUtil::CountDownLatch::getCount() const
 {
 #ifdef _WIN32
-    int* countPtr = const_cast<int*>(&_count);
-    int count = InterlockedCompareExchange(countPtr, 0, 0);
+    int count = InterlockedExchangeAdd(&_count, 0);
     return count > 0 ? count : 0;
 #else
     lock();

@@ -50,7 +50,7 @@ public:
 
     struct CacheValue
     {
-	CacheValue(const Handle<Value>& o = 0) :
+	CacheValue(const Handle<Value>& o) :
 	    obj(o),
 	    latch(0)
 	{
@@ -199,7 +199,7 @@ Cache<Key, Value>::pinImpl(const Key& key, const Handle<Value>& newObj)
 #else
 	    std::pair<typename CacheMap::iterator, bool> ir =
 #endif 
-		_map.insert(CacheMap::value_type(key, CacheValue()));
+		_map.insert(CacheMap::value_type(key, CacheValue(0)));
 	    
 	    if(ir.second == false)
 	    {
