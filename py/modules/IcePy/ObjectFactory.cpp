@@ -60,9 +60,9 @@ IcePy::ObjectFactory::create(const string& id)
     }
 
     //
-    // Check if the requested type is a concrete class. If so, we can instantiate it directly.
+    // If the requested type is an abstract class, then we give up.
     //
-    if(info->isInterface || (info->id != Ice::Object::ice_staticId() && info->hasOperations()))
+    if(info->isAbstract)
     {
         return 0;
     }
