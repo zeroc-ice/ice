@@ -9,11 +9,11 @@
 // **********************************************************************
 
 #include <PhoneBookI.h>
-#include <Evictor.h>
 #include <sstream>
 
 using namespace std;
 using namespace Ice;
+using namespace Freeze;
 
 ContactI::ContactI(const PhoneBookIPtr& phoneBook, const EvictorPtr& evictor) :
     _phoneBook(phoneBook),

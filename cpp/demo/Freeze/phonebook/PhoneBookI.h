@@ -15,7 +15,6 @@
 #include <IceUtil/IceUtil.h>
 #include <Freeze/Freeze.h>
 #include <PhoneBook.h>
-#include <Evictor.h>
 
 class PhoneBookI;
 typedef IceUtil::Handle<PhoneBookI> PhoneBookIPtr;
@@ -27,7 +26,7 @@ class ContactI : public Contact, public JTCMutex
 {
 public:
 
-    ContactI(const PhoneBookIPtr&, const EvictorPtr&);
+    ContactI(const PhoneBookIPtr&, const Freeze::EvictorPtr&);
 
     void setIdentity(const std::string&);
 
@@ -45,7 +44,7 @@ public:
 private:
 
     PhoneBookIPtr _phoneBook;
-    EvictorPtr _evictor;
+    Freeze::EvictorPtr _evictor;
     std::string _identity;
 };
 
@@ -53,7 +52,7 @@ class PhoneBookI : public PhoneBook, public JTCRecursiveMutex
 {
 public: 
 
-    PhoneBookI(const Ice::ObjectAdapterPtr&, const EvictorPtr&);
+    PhoneBookI(const Ice::ObjectAdapterPtr&, const Freeze::EvictorPtr&);
 
     virtual ContactPrx createContact();
     virtual Contacts findContacts(const std::string&);
@@ -66,7 +65,7 @@ public:
 private:
 
     Ice::ObjectAdapterPtr _adapter;
-    EvictorPtr _evictor;
+    Freeze::EvictorPtr _evictor;
     Ice::Long _nextContactIdentity;
 };
 

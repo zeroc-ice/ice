@@ -17,7 +17,7 @@ class PhoneBookFactory : public Ice::ServantFactory
 {
 public:
 
-    PhoneBookFactory(const Ice::ObjectAdapterPtr&, const EvictorPtr&);
+    PhoneBookFactory(const Ice::ObjectAdapterPtr&, const Freeze::EvictorPtr&);
 
     virtual Ice::ObjectPtr create(const std::string&);
     virtual void destroy();
@@ -25,14 +25,14 @@ public:
 private:
 
     Ice::ObjectAdapterPtr _adapter;
-    EvictorPtr _evictor;
+    Freeze::EvictorPtr _evictor;
 };
 
 class ContactFactory : public Ice::ServantFactory
 {
 public:
 
-    ContactFactory(const PhoneBookIPtr&, const EvictorPtr&);
+    ContactFactory(const PhoneBookIPtr&, const Freeze::EvictorPtr&);
 
     virtual Ice::ObjectPtr create(const std::string&);
     virtual void destroy();
@@ -40,7 +40,7 @@ public:
 private:
 
     PhoneBookIPtr _phoneBook;
-    EvictorPtr _evictor;
+    Freeze::EvictorPtr _evictor;
 };
 
 #endif

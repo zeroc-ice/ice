@@ -18,6 +18,36 @@ module Freeze
 
 /**
  *
+ * Servant Initializers for Evictors. Servant Initializers are
+ * installed with Evictors and provide a callback to application code
+ * for custom Servant initialization.
+ *
+ * @see Evictor
+ * @see Evictor::installServantInitializer
+ *
+ **/
+local interface ServantInitializer
+{
+    /**
+     *
+     * Called whenever the Evictor creates a new Servant. This
+     * operation allows application code to perform custom Servant
+     * initialization after the Servant has been created by the
+     * Evictor and it has been loaded from persistent store.
+     *
+     * @param adapter The ObjectAdapter the Evictor is installed with.
+     *
+     * @param identity The identity of the Ice Object for which the
+     * Servant was created.
+     *
+     * @param servant The Servant to set up.
+     *
+     **/
+    void initialize(Ice::ObjectAdapter adapter, string identity, Object servant);
+};
+
+/**
+ *
  * A semi-automatic Ice Object persistence manager, based on the
  * evictor pattern. The Evictor is an extended Servant Locator, with
  * an implementation in the Freeze module. Instances of this
@@ -31,6 +61,32 @@ module Freeze
  **/
 local interface Evictor extends Ice::ServantLocator
 {
+    /**
+     *
+     * Set the Evictor Servant queue size. This is the number of
+     * Servants the Evictor will hold in memory. Queue sizes smaller
+     * than one are illegal and result in undefined behavior.
+     *
+     * @param sz The Evictor Servant queue size. If the Evictor
+     * currently holds more Servants in its queue, Servants will be
+     * evicted until the number of Servants match the new size.
+     *
+     * @see getSize
+     *
+     **/
+    void setSize(int sz);
+
+    /**
+     *
+     * Get the Evictor Servant queue size.
+     *
+     * @return The Evictor Servant queue size.
+     *
+     * @see setSize
+     *
+     **/
+    int getSize();
+
     /**
      *
      * Create a new Ice Object for this Evictor. The state of the
@@ -62,6 +118,20 @@ local interface Evictor extends Ice::ServantLocator
      *
      **/
     void destroyObject(string identity);
+
+    /**
+     *
+     * Install a Servant Initializer with this Evictor.
+     *
+     * @param initializer The Servant Initializer to install with this
+     * Evictor. Subsequent calls overwrite any perviously set
+     * value. Null can be used as argument to reset the Evictor's
+     * Servant Initializer.
+     *
+     * @see ServantInitializer
+     *
+     **/
+    void installServantInitializer(ServantInitializer initializer);
 };
 
 };

@@ -29,8 +29,13 @@ public:
 
     EvictorI(const Freeze::DBPtr&);
     
+    virtual void setSize(Ice::Int);
+    virtual Ice::Int getSize();
+    
     virtual void createObject(const std::string&, const Ice::ObjectPtr&);
     virtual void destroyObject(const std::string&);
+
+    virtual void installServantInitializer(const ServantInitializerPtr&);
 
     virtual Ice::ObjectPtr locate(const Ice::ObjectAdapterPtr&, const std::string&, Ice::ObjectPtr&);
     virtual void finished(const Ice::ObjectAdapterPtr&, const std::string&, const Ice::ObjectPtr&,
@@ -52,6 +57,8 @@ private:
     std::map<std::string, EvictorElement> _evictorMap;
     std::list<std::string> _evictorList;
     std::map<std::string, EvictorElement>::size_type _evictorSize;
+
+    ServantInitializerPtr _initializer;
 };
 
 }

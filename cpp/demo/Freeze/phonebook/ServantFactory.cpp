@@ -11,14 +11,16 @@
 #include <ServantFactory.h>
 
 using namespace std;
+using namespace Ice;
+using namespace Freeze;
 
-PhoneBookFactory::PhoneBookFactory(const Ice::ObjectAdapterPtr& adapter, const EvictorPtr& evictor) :
+PhoneBookFactory::PhoneBookFactory(const ObjectAdapterPtr& adapter, const EvictorPtr& evictor) :
     _adapter(adapter),
     _evictor(evictor)
 {
 }
 
-Ice::ObjectPtr
+ObjectPtr
 PhoneBookFactory::create(const string& type)
 {
     assert(type == "::PhoneBook");
@@ -37,7 +39,7 @@ ContactFactory::ContactFactory(const PhoneBookIPtr& phoneBook, const EvictorPtr&
 {
 }
 
-Ice::ObjectPtr
+ObjectPtr
 ContactFactory::create(const string& type)
 {
     assert(type == "::Contact");

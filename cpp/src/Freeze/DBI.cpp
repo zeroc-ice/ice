@@ -258,6 +258,38 @@ Freeze::DBI::del(const string& key)
 	ex.message = s.str();
 	throw ex;
     }
+
+    //
+    // TODO: Do I need transactions for del()?
+    //
+    DBT dbKey;
+    int ret;
+
+    memset(&dbKey, 0, sizeof(dbKey));
+    dbKey.data = const_cast<void*>(static_cast<const void*>(key.c_str()));
+    dbKey.size = key.size();
+
+    ret = _db->del(_db, 0, &dbKey, 0);
+    switch (ret)
+    {
+	case 0:
+	{
+	    //
+	    // Everything ok
+	    //
+	    break;
+	}
+
+	default:
+	{
+	    ostringstream s;
+	    s << "Freeze::DB(\"" << _name << "\"): ";
+	    s << "DB->del: " << db_strerror(ret);
+	    DBException ex;
+	    ex.message = s.str();
+	    throw ex;
+	}
+    }
 }
 
 void

@@ -22,8 +22,41 @@ Freeze::EvictorI::EvictorI(const DBPtr& db) :
 }
 
 void
+Freeze::EvictorI::setSize(Int evictorSize)
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    //
+    // The minimum size is one.
+    //
+    if (evictorSize < 1)
+    {
+	evictorSize = 1;
+    }
+    _evictorSize = static_cast<map<string, EvictorElement>::size_type>(evictorSize);
+
+    //
+    // Evict elements if necessary
+    //
+    if (_evictorMap.size() > _evictorSize)
+    {
+	evict();
+    }
+}
+
+Int
+Freeze::EvictorI::getSize()
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    return static_cast<Int>(_evictorSize);
+}
+
+void
 Freeze::EvictorI::createObject(const string& identity, const ObjectPtr& servant)
 {
+    JTCSyncT<JTCMutex> sync(*this);
+
     //
     // Save the new Ice Object to the database.
     //
@@ -40,6 +73,8 @@ Freeze::EvictorI::createObject(const string& identity, const ObjectPtr& servant)
 void
 Freeze::EvictorI::destroyObject(const string& identity)
 {
+    JTCSyncT<JTCMutex> sync(*this);
+
     //
     // Delete the Ice Object from the database.
     //
@@ -56,8 +91,16 @@ Freeze::EvictorI::destroyObject(const string& identity)
     }
 }
 
+void
+Freeze::EvictorI::installServantInitializer(const ServantInitializerPtr& initializer)
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    _initializer = initializer;
+}
+
 ObjectPtr
-Freeze::EvictorI::locate(const ObjectAdapterPtr&, const string& identity, ObjectPtr&)
+Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& identity, ObjectPtr&)
 {
     JTCSyncT<JTCMutex> sync(*this);
     
@@ -99,14 +142,13 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr&, const string& identity, Object
 	    return 0;
 	}
 
-/*
 	//
-	// TODO: That's the only PhoneBook specific stuff!
+	// If an initializer is installed, call it now.
 	//
-	ContactIPtr entry = ContactIPtr::dynamicCast(servant);
-	assert(entry);
-	entry->setIdentity(identity);
-*/
+	if (_initializer)
+	{
+	    _initializer->initialize(adapter, identity, servant);
+	}
 
 	//
 	// Add the new Ice Object and its Servant

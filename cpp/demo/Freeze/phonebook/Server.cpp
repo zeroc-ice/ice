@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#include <Evictor.h>
 #include <ServantFactory.h>
+#include <ServantInitializer.h>
 
 static Ice::CommunicatorPtr communicator;
 
@@ -87,11 +87,14 @@ run(int argc, char* argv[], const DBEnvPtr& dbenv)
     cout << "starting up..." << endl;
     ignoreInterrupt();
 
-    ObjectAdapterPtr adapter = communicator->createObjectAdapter("PhoneBookAdapter");
     DBPtr db = dbenv->open("phonebook");
-    EvictorPtr evictor = new Evictor(db, 3); // TODO: Evictor size must be configurable
-    adapter->setServantLocator(evictor);
 
+    EvictorPtr evictor = db->createEvictor();
+    evictor->setSize(3);
+    
+    ObjectAdapterPtr adapter = communicator->createObjectAdapter("PhoneBookAdapter");
+    adapter->setServantLocator(evictor);
+    
     ServantFactoryPtr phoneBookFactory = new PhoneBookFactory(adapter, evictor);
     communicator->installServantFactory(phoneBookFactory, "::PhoneBook");
 
@@ -110,6 +113,9 @@ run(int argc, char* argv[], const DBEnvPtr& dbenv)
 
     ServantFactoryPtr contactFactory = new ContactFactory(phoneBook, evictor);
     communicator->installServantFactory(contactFactory, "::Contact");
+
+    ServantInitializerPtr contactInitializer = new ContactInitializer(phoneBook);
+    evictor->installServantInitializer(contactInitializer);
 
     adapter->activate();
 
