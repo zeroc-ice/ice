@@ -64,15 +64,17 @@ public:
     typedef value_type& reference;
 
     DBIterator(const DBPtr& db, const DBCursorPtr& cursor)
-	: _db(db), _cursor(cursor)
+	: _db(db), _cursor(cursor), _refValid(false)
     {
     }
 
     DBIterator()
+        : _refValid(false)
     {
     }
 
     DBIterator(const DBIterator& rhs)
+        : _refValid(false)
     {
 	if(rhs._cursor)
 	{
@@ -95,6 +97,7 @@ public:
 	}
 
 	_db = rhs._db;
+        _refValid = false;
 
 	return *this;
     }
@@ -159,19 +162,24 @@ public:
     //
     value_type& operator*() const
     {
-	key_type key;
-	mapped_type value;
+        if(!_refValid)
+        {
+            key_type key;
+            mapped_type value;
 
-	getCurrentValue(key, value);
+            getCurrentValue(key, value);
 
-	//
-	// !IMPORTANT!
-	//
-	// This method has to cache the returned value to implement
-	// operator->().
-	//
-	const_cast<key_type&>(_ref.first) = key;
-	const_cast<mapped_type&>(_ref.second) = value;
+            //
+            // !IMPORTANT!
+            //
+            // This method has to cache the returned value to implement
+            // operator->().
+            //
+            const_cast<key_type&>(_ref.first) = key;
+            const_cast<mapped_type&>(_ref.second) = value;
+            _refValid = true;
+        }
+
 	return _ref;
     }
 
@@ -185,6 +193,7 @@ public:
 	Freeze::Value v;
 	ValueCodec::write(value, v, _db->getCommunicator());
 	_cursor->set(v);
+        _refValid = false;
     }
 
 private:
@@ -202,6 +211,7 @@ private:
 	    _cursor = 0;
 	    _db = 0;
 	}
+        _refValid = false;
     }
 
     void getCurrentValue(key_type& key, mapped_type& value) const
@@ -224,9 +234,17 @@ private:
 
     //
     // Cached last return value. This is so that operator->() can
-    // actually return a pointer.
+    // actually return a pointer. The cached value is reused across
+    // multiple calls to operator->() if _refValid is true, which
+    // avoids problems in certain situations. For example, if
+    // _ref.second is an STL container and you use an STL algorithm
+    // such as transform, STLport (debug build) asserts that the
+    // addresses of the containers are the same. This would fail
+    // if the same value was not returned on subsequent calls
+    // to operator->().
     //
     mutable value_type _ref;
+    mutable bool _refValid;
 };
 
 //
@@ -246,12 +264,16 @@ public:
     typedef value_type& reference;
 
     ConstDBIterator(const DBPtr& db, const DBCursorPtr& cursor)
-	: _db(db), _cursor(cursor)
+	: _db(db), _cursor(cursor), _refValid(false)
     {
     }
-    ConstDBIterator() { }
+    ConstDBIterator()
+        : _refValid(false)
+    {
+    }
 
     ConstDBIterator(const ConstDBIterator& rhs)
+        : _refValid(false)
     {
 	if(rhs._cursor)
 	{
@@ -266,6 +288,7 @@ public:
     // vice versa) - same for operator=.
     //
     ConstDBIterator(const DBIterator<key_type, mapped_type, KeyCodec, ValueCodec>& rhs)
+        : _refValid(false)
     {
 	if(rhs._cursor)
 	{
@@ -288,6 +311,7 @@ public:
 	}
 
 	_db = rhs._db;
+        _refValid = false;
 
 	return *this;
     }
@@ -308,6 +332,7 @@ public:
 	}
 
 	_db = rhs._db;
+        _refValid = false;
 
 	return *this;
     }
@@ -372,19 +397,24 @@ public:
     //
     value_type& operator*() const
     {
-	key_type key;
-	mapped_type value;
-	
-	getCurrentValue(key, value);
+        if(!_refValid)
+        {
+            key_type key;
+            mapped_type value;
+            
+            getCurrentValue(key, value);
 
-	//
-	// !IMPORTANT!
-	//
-	// This method has to cache the returned value to implement
-	// operator->().
-	//
-	const_cast<key_type&>(_ref.first) = key;
-	const_cast<mapped_type&>(_ref.second) = value;
+            //
+            // !IMPORTANT!
+            //
+            // This method has to cache the returned value to implement
+            // operator->().
+            //
+            const_cast<key_type&>(_ref.first) = key;
+            const_cast<mapped_type&>(_ref.second) = value;
+            _refValid = true;
+        }
+
 	return _ref;
     }
 
@@ -405,6 +435,7 @@ private:
 	    _cursor = 0;
 	    _db = 0;
 	}
+        _refValid = false;
     }
 
     void getCurrentValue(key_type& key, mapped_type& value) const
@@ -426,9 +457,17 @@ private:
 
     //
     // Cached last return value. This is so that operator->() can
-    // actually return a pointer.
+    // actually return a pointer. The cached value is reused across
+    // multiple calls to operator->() if _refValid is true, which
+    // avoids problems in certain situations. For example, if
+    // _ref.second is an STL container and you use an STL algorithm
+    // such as transform, STLport (debug build) asserts that the
+    // addresses of the containers are the same. This would fail
+    // if the same value was not returned on subsequent calls
+    // to operator->().
     //
     mutable value_type _ref;
+    mutable bool _refValid;
 };
 
 //
