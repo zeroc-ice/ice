@@ -795,7 +795,7 @@ Slice::ClassDef::allOperations()
 	p != all.end();
 	++p)
     {
-	OperationList li = (*p) -> operations();
+	OperationList li = (*p) -> allOperations();
 	result.merge(li);
 	result.unique();
     }
