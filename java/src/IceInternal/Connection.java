@@ -611,7 +611,10 @@ public final class Connection extends EventHandler
         _mutex.lock();
         try
         {
+            _threadPool.promoteFollower();
+
             assert(_state == StateClosed);
+
             _transceiver.close();
         }
         finally

@@ -449,10 +449,10 @@ catch (RuntimeException ex)
 
                     nextTimeout = 0;
                 }
-                else
-                {
+//else
+//{
 //System.out.println("ThreadPool - still have keys");
-                }
+//}
 
                 if (_keysIter == null)
                 {
@@ -461,8 +461,9 @@ catch (RuntimeException ex)
                 }
 
                 EventHandler handler = null;
+                RemoveInfo remove = null;
 
-                synchronized(this)
+                synchronized (this)
                 {
                     if (_destroyed)
                     {
@@ -482,6 +483,7 @@ catch (RuntimeException ex)
                         HandlerInfo info = _adds;
                         while (info != null)
                         {
+//System.out.println("ThreadPool - adding fd " + info.fd);
                             int op;
                             if ((info.fd.validOps() & java.nio.channels.SelectionKey.OP_READ) > 0)
                             {
@@ -513,122 +515,132 @@ catch (RuntimeException ex)
                         //
                         // Handlers are permanently removed.
                         //
-                        RemoveInfo info = _removes;
-                        while (info != null)
-                        {
-                            java.nio.channels.SelectionKey key = info.fd.keyFor(_selector);
-                            assert(key != null);
-                            HandlerInfo hinfo = (HandlerInfo)key.attachment();
-                            key.cancel();
-                            if (info.callFinished) // Call finished() on the handler?
-                            {
-                                hinfo.handler.finished();
-                                hinfo.handler._stream.destroy();
-                            }
-                            if (hinfo.handler.server())
-                            {
-                                --_servers;
-                            }
-                            _handlers--;
-                            info = info.next;
-//System.out.println("ThreadPool - _handlers = " + _handlers + ", _servers = " + _servers);
-                        }
-                        _removes = null;
+                        remove = _removes;
+                        _removes = _removes.next;
+                        java.nio.channels.SelectionKey key = remove.fd.keyFor(_selector);
+                        assert(key != null);
+                        HandlerInfo hinfo = (HandlerInfo)key.attachment();
+                        key.cancel();
+                        handler = hinfo.handler;
+//System.out.println("ThreadPool - remove fd = " + remove.fd);
+//if (_removes != null)
+//    System.out.println("ThreadPool - more fds to be removed");
+                    }
 
+                    if (handler == null)
+                    {
+                        java.nio.channels.SelectionKey key = null;
+                        while (_keysIter.hasNext())
+                        {
+                            //
+                            // Ignore selection keys that have been cancelled
+                            //
+                            java.nio.channels.SelectionKey k = (java.nio.channels.SelectionKey)_keysIter.next();
+                            _keysIter.remove();
+                            if (k.isValid())
+                            {
+//System.out.println("ThreadPool - found a key");
+                                key = k;
+                                break;
+                            }
+                        }
+
+                        if (!_keysIter.hasNext())
+                        {
+                            _keysIter = null;
+//System.out.println("ThreadPool - reset iterator");
+                        }
+
+                        if (key == null)
+                        {
+//System.out.println("ThreadPool - didn't find a valid key");
+                            continue repeatSelect;
+                        }
+
+                        if (key.channel() == _fdIntrRead)
+                        {
+//System.out.println("ThreadPool - input ready on the interrupt pipe");
+                            shutdown = clearInterrupt();
+                            continue repeatSelect;
+                        }
+
+                        HandlerInfo info = (HandlerInfo)key.attachment();
+                        assert(info != null);
+                        handler = info.handler;
+                    }
+                }
+
+                assert(handler != null);
+
+                if (remove != null)
+                {
+                    //
+                    // Call finished() on the handler if necessary.
+                    //
+                    if (remove.callFinished)
+                    {
+                        handler.finished();
+                        handler._stream.destroy();
+                    }
+
+                    synchronized (this)
+                    {
+                        _handlers--;
+                        if (handler.server())
+                        {
+                            --_servers;
+                        }
+//System.out.println("ThreadPool - _handlers = " + _handlers + ", _servers = " + _servers);
                         if (_handlers == 0 || _servers == 0)
                         {
                             notifyAll(); // For waitUntil...Finished() methods.
                         }
-
-                        //
-                        // Selected filedescriptors may have changed, I
-                        // therefore need to repeat the select().
-                        //
-                        shutdown = clearInterrupt();
-                        continue repeatSelect;
                     }
-
-                    java.nio.channels.SelectionKey key = null;
-                    while (_keysIter.hasNext())
-                    {
-                        //
-                        // Ignore selection keys that have been cancelled
-                        //
-                        java.nio.channels.SelectionKey k = (java.nio.channels.SelectionKey)_keysIter.next();
-                        _keysIter.remove();
-                        if (k.isValid())
-                        {
-//System.out.println("ThreadPool - found a key");
-                            key = k;
-                            break;
-                        }
-                    }
-
-                    if (!_keysIter.hasNext())
-                    {
-                        _keysIter = null;
-//System.out.println("ThreadPool - reset iterator");
-                    }
-
-                    if (key == null)
-                    {
-//System.out.println("ThreadPool - didn't find a valid key");
-                        continue repeatSelect;
-                    }
-
-                    if (key.channel() == _fdIntrRead)
-                    {
-//System.out.println("ThreadPool - input ready on the interrupt pipe");
-                        shutdown = clearInterrupt();
-                        continue repeatSelect;
-                    }
-
-                    HandlerInfo info = (HandlerInfo)key.attachment();
-                    assert(info != null);
-                    handler = info.handler;
                 }
-
-                //
-                // If the handler is "readable", try to read a message.
-                //
-                // NOTE: On Win32 platforms, select may report a channel
-                // as readable although nothing can be read.  We want to
-                // ignore the event in this case.
-                //
-                try
+                else
                 {
-                    if (handler.readable())
+                    //
+                    // If the handler is "readable", try to read a message.
+                    //
+                    // NOTE: On Win32 platforms, select may report a channel
+                    // as readable although nothing can be read.  We want to
+                    // ignore the event in this case.
+                    //
+                    try
                     {
-                        try
+                        if (handler.readable())
                         {
-                            if (!read(handler)) // No data available.
+                            try
                             {
+                                if (!read(handler)) // No data available.
+                                {
 //System.out.println("ThreadPool - no input");
+                                    continue repeatSelect;
+                                }
+                            }
+                            catch (Ice.TimeoutException ex) // Expected
+                            {
                                 continue repeatSelect;
                             }
-                        }
-                        catch (Ice.TimeoutException ex) // Expected
-                        {
-                            continue repeatSelect;
-                        }
-                        catch (Ice.LocalException ex)
-                        {
-                            handler.exception(ex);
-                            continue repeatSelect;
+                            catch (Ice.LocalException ex)
+                            {
+                                handler.exception(ex);
+                                continue repeatSelect;
+                            }
+
+                            stream.swap(handler._stream);
+                            assert(stream.pos() == stream.size());
                         }
 
-                        stream.swap(handler._stream);
-                        assert(stream.pos() == stream.size());
+                        handler.message(stream);
                     }
-
-                    handler.message(stream);
-                }
-                finally
-                {
-                    stream.reset();
+                    finally
+                    {
+                        stream.reset();
+                    }
                 }
 
-                break;
+                break; // inner while loop
             }
         }
     }

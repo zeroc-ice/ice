@@ -95,9 +95,10 @@ public class IncomingConnectionFactory extends EventHandler
     public synchronized void
     message(BasicStream unused)
     {
+        _threadPool.promoteFollower();
+
         if (_state != StateActive)
         {
-            _threadPool.promoteFollower();
             Thread.yield();
             return;
         }
@@ -149,39 +150,41 @@ public class IncomingConnectionFactory extends EventHandler
             }
             setState(StateClosed);
         }
-
-        _threadPool.promoteFollower();
     }
 
     public synchronized void
     finished()
     {
+        _threadPool.promoteFollower();
+
         assert(_state == StateClosed);
+        assert(_connections.isEmpty());
 
-	java.util.ListIterator iter = _connections.listIterator();
-	while (iter.hasNext())
-	{
-	    Connection connection = (Connection)iter.next();
-	    connection.destroy(Connection.ObjectAdapterDeactivated);
-	}
-	_connections.clear();
-
-        //
-        // Clear listen() backlog properly by accepting all queued
-        // connections, and then shutting them down.
-        //
-        while (true)
+        try
         {
-            try
+            //
+            // Clear listen() backlog properly by accepting all queued
+            // connections, and then shutting them down.
+            //
+            while (true)
             {
-                Transceiver transceiver = _acceptor.accept(0);
-                Connection connection = new Connection(_instance, transceiver, _endpoint, _adapter);
-                connection.exception(
-                    new Ice.ObjectAdapterDeactivatedException());
+                try
+                {
+                    Transceiver transceiver = _acceptor.accept(0);
+                    Connection connection = new Connection(_instance, transceiver, _endpoint, _adapter);
+                    connection.exception(new Ice.ObjectAdapterDeactivatedException());
+                }
+                catch (Ice.TimeoutException ex)
+                {
+                    break; // Exit loop on timeout.
+                }
             }
-            catch (Exception ex)
+        }
+        catch (Ice.LocalException ex)
+        {
+            if (_warn)
             {
-                break;
+                warning(ex);
             }
         }
 
@@ -337,6 +340,15 @@ public class IncomingConnectionFactory extends EventHandler
                     }
                     _threadPool.unregister(_acceptor.fd(), true);
                 }
+
+                java.util.ListIterator iter = _connections.listIterator();
+                while (iter.hasNext())
+                {   
+                    Connection connection = (Connection)iter.next();
+                    connection.destroy(Connection.ObjectAdapterDeactivated);
+                }
+                _connections.clear();
+
                 break;
             }
         }
