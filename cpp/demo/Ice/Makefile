@@ -14,6 +14,7 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= hello \
 		  value \
+		  nested \
 		  latency \
 		  pickle
 
