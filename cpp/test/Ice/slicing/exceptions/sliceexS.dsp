@@ -145,7 +145,7 @@ SOURCE=.\ServerPrivate.ice
 
 !IF  "$(CFG)" == "sliceexS - Win32 Release"
 
-USERDEP__SERVE="../../../../bin/slice2cpp.exe"	
+USERDEP__SERVE="../../../../bin/slice2cpp.exe"	"Test.ice"	
 # Begin Custom Build
 InputPath=.\ServerPrivate.ice
 
@@ -160,6 +160,20 @@ BuildCmds= \
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "sliceexS - Win32 Debug"
+
+USERDEP__SERVE="..\..\..\..\bin\slice2cpp.exe"	"Test.ice"	
+# Begin Custom Build
+InputPath=.\ServerPrivate.ice
+
+BuildCmds= \
+	..\..\..\..\bin\slice2cpp.exe -I. ServerPrivate.ice
+
+"ServerPrivate.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ServerPrivate.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
 
 !ENDIF 
 
@@ -185,6 +199,20 @@ BuildCmds= \
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "sliceexS - Win32 Debug"
+
+USERDEP__TEST_="..\..\..\..\bin\slice2cpp.exe"	
+# Begin Custom Build
+InputPath=.\Test.ice
+
+BuildCmds= \
+	..\..\..\..\bin\slice2cpp.exe Test.ice
+
+"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
 
 !ENDIF 
 

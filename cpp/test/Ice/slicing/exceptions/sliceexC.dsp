@@ -131,6 +131,20 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "sliceexC - Win32 Debug"
 
+USERDEP__TEST_="../../../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=.\Test.ice
+
+BuildCmds= \
+	..\..\..\..\bin\slice2cpp.exe Test.ice
+
+"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
 !ENDIF 
 
 # End Source File

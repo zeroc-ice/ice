@@ -131,7 +131,7 @@ SOURCE=.\ClientPrivate.ice
 
 !IF  "$(CFG)" == "sliceobC - Win32 Release"
 
-USERDEP__CLIEN="..\..\..\..\bin\slice2cpp.exe"	
+USERDEP__CLIEN="..\..\..\..\bin\slice2cpp.exe"	"Test.ice"	
 # Begin Custom Build
 InputPath=.\ClientPrivate.ice
 
@@ -147,7 +147,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "sliceobC - Win32 Debug"
 
-USERDEP__CLIEN="..\..\..\..\bin\slice2cpp.exe"	"ClientTest.ice"	
+USERDEP__CLIEN="..\..\..\..\bin\slice2cpp.exe"	"Test.ice"	
 # Begin Custom Build
 InputPath=.\ClientPrivate.ice
 
@@ -186,6 +186,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "sliceobC - Win32 Debug"
 
+USERDEP__FORWA="..\..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Forward.ice
 
@@ -223,6 +224,20 @@ BuildCmds= \
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "sliceobC - Win32 Debug"
+
+USERDEP__TEST_="..\..\..\..\bin\slice2cpp.exe"	
+# Begin Custom Build
+InputPath=.\Test.ice
+
+BuildCmds= \
+	..\..\..\..\bin\slice2cpp.exe Test.ice
+
+"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
 
 !ENDIF 
 
