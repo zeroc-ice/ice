@@ -53,7 +53,14 @@ Glacier::RouterI::destroy()
     _routingTable = 0;
     for (vector<SessionPrx>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
     {
-	(*p)->destroy();
+	try
+	{
+	    (*p)->destroy();
+	}
+	catch (...)
+	{
+	    // Ignore all exceptions.
+	}
     }
     _sessions.clear();
 }
@@ -98,6 +105,8 @@ Glacier::RouterI::addProxy(const ObjectPrx& proxy, const Current&)
 void
 Glacier::RouterI::shutdown(const Current&)
 {
+    assert(_clientAdapter); // Destroyed?
+
     assert(_routingTable);
     _clientAdapter->getCommunicator()->shutdown();
 }
@@ -105,6 +114,8 @@ Glacier::RouterI::shutdown(const Current&)
 SessionPrx
 Glacier::RouterI::createSession(const Current&)
 {
+    assert(_clientAdapter); // Destroyed?
+
     IceUtil::Mutex::Lock lock(_sessionMutex);
     if (!_sessionManager)
     {
