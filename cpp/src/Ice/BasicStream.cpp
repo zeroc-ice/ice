@@ -125,7 +125,7 @@ void
 IceInternal::BasicStream::startWriteEncaps()
 {
     {
-	_writeEncapsStack.push_back();
+	_writeEncapsStack.push_back(WriteEncaps());
 	_currentWriteEncaps = &_writeEncapsStack.back();
     }
 	
@@ -181,7 +181,7 @@ void
 IceInternal::BasicStream::startReadEncaps()
 {
     {
-	_readEncapsStack.push_back();
+	_readEncapsStack.push_back(ReadEncaps());
 	_currentReadEncaps = &_readEncapsStack.back();
     }
 

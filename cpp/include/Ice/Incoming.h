@@ -44,7 +44,6 @@ protected:
     bool _response;
     Ice::Byte _compress;
 
-    BasicStream _is;
     BasicStream _os;
 
 //
@@ -71,6 +70,10 @@ public:
     // Inlined for speed optimization.
     BasicStream* is() { return &_is; }
     BasicStream* os() { return &_os; }
+
+private:
+
+    BasicStream _is;
 };
 
 }

@@ -39,7 +39,6 @@ protected:
     void __exception();
 
     // Inlined for speed optimization.
-    BasicStream* __is() { return &_is; }
     BasicStream* __os() { return &_os; }
 
 protected:

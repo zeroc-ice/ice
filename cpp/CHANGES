@@ -27,10 +27,6 @@ Changes since version 1.0.1
   the receiver understands, the exception or class is automatically
   sliced. (Previously, this situation resulted in an exception.)
 
-- A new property, Ice.Trace.Slicing, controls whether slicing of
-  exceptions and classes is traced: a value of 1 or greater prints
-  a trace message for each unknown type that is received and sliced.
-
 - Class factories are no longer necessary for non-abstract classes
   (that is, for classes that do not have operations). For non-abstract
   classes, the necessary factories are automatically installed by the

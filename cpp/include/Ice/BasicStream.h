@@ -206,7 +206,7 @@ private:
     Container::size_type _writeSlice;
 
     void writeInstance(const Ice::ObjectPtr&, Ice::Int);
-    void patchPointers(::Ice::Int, IndexToPtrMap::const_iterator, PatchMap::iterator);
+    void patchPointers(Ice::Int, IndexToPtrMap::const_iterator, PatchMap::iterator);
 };
 
 }

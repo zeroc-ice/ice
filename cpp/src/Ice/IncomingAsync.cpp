@@ -32,7 +32,7 @@ void IceInternal::decRef(AMD_Object_ice_invoke* p) { p->__decRef(); }
 IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
     IncomingBase(in),
     _finished(false),
-    _instanceCopy(_is.instance()),
+    _instanceCopy(_os.instance()),
     _connectionCopy(_connection)
 {
 }
