@@ -1452,7 +1452,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp << nl << "Public Function ToArray() As " << s << "()";
     _out.inc();
-    _out << nl << "Dim __a() As " << s << " = New " << s << "(InnerList.Count - 1) {}";
+    _out << nl << "Dim __a As " << s << "() = New " << toArrayAlloc(s + "()", "InnerList.Count - 1") << " {}";
     _out << nl << "InnerList.CopyTo(__a)";
     _out << nl << "Return __a";
     _out.dec();
@@ -2594,14 +2594,14 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out.dec();
     _out << nl << "Next";
     SequencePtr seq = SequencePtr::dynamicCast(p->valueType());
-    bool valueIsArray = seq && !seq->hasMetaData("cs:collection");
+    bool valueIsArray = seq && !seq->hasMetaData("vb:collection");
     if(valueIsArray)
     {
 	_out << nl << "Dim __vlhs As " << vs << "() = New " << toArrayAlloc(vs + "()", "Count - 1") << " {}";
     }
     else
     {
-	_out << nl << "Dim __vlhs As " << vs << " = New " << toArrayAlloc(vs, "Count - 1") << " {}";
+	_out << nl << "Dim __vlhs As " << vs << "() = New " << vs << "(Count - 1) {}";
     }
     _out << nl << "Values.CopyTo(__vlhs, 0)";
     _out << nl << "_System.Array.Sort(__vlhs)";
@@ -2612,7 +2612,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     }
     else
     {
-	_out << nl << "Dim __vrhs As " << vs << " = New " << toArrayAlloc(vs, vrhsCount) << " {}";
+	_out << nl << "Dim __vrhs As " << vs << "() = New " << vs << '(' << vrhsCount << ") {}";
     }
     _out << nl << "CType(other, " << name << ").Values.CopyTo(__vrhs, 0)";
     _out << nl << "_System.Array.Sort(__vrhs)";
@@ -2819,7 +2819,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     bool isClass = false;
     ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
     assert(cont);
-    if(StructPtr::dynamicCast(cont) && cont->hasMetaData("cs:class"))
+    if(StructPtr::dynamicCast(cont) && cont->hasMetaData("vb:class"))
     {
         baseTypes = DotNet::ICloneable;
     }
