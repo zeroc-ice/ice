@@ -776,7 +776,11 @@ Glacier::CryptPasswordVerifierI::checkPermissions(
 
     char buff[14];
     string salt = p->second.substr(0, 2);
+#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
     DES_fcrypt(password.c_str(), salt.c_str(), buff);
+#else
+    des_fcrypt(password.c_str(), salt.c_str(), buff);
+#endif
     return p->second == buff;
 }
 
