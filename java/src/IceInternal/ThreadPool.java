@@ -462,7 +462,7 @@ public final class ThreadPool
                     //
                     // If the handler is "readable", try to read a message.
                     //
-                    Ice.Stream stream = ...; // TODO
+                    BasicStream stream = new BasicStream(_instance);
                     if (handler.readable())
                     {
                         try
