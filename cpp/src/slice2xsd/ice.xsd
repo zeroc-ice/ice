@@ -10,8 +10,8 @@ All Rights Reserved
 -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            elementFormDefault="qualified"
-	   xmlns:tns="http://www.mutablerealms.com"
-	   targetNamespace="http://www.mutablerealms.com">
+	   xmlns:tns="http://www.mutablerealms.com/schemas"
+	   targetNamespace="http://www.mutablerealms.com/schemas">
 
   <xs:simpleType name="_internal.proxyType">
     <xs:annotation>

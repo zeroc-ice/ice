@@ -72,12 +72,6 @@ Slice::Gen::generate(const UnitPtr& unit)
     unit->mergeModules();
 
     //
-    // I don't want the top-level module to be sorted, therefore no
-    // unit->sort() before or after the unit->sortContents().
-    //
-    //unit->sortContents();
-
-    //
     // TODO: It would be better if start() aligned the attributes
     // correctly.
     //
@@ -85,17 +79,13 @@ Slice::Gen::generate(const UnitPtr& unit)
     os << "xs:schema"
        << " xmlns:xs=\"http://www.w3.org/2001/XMLSchema\""
        << "\n           elementFormDefault=\"qualified\""
-       << "\n           xmlns:ice=\"http://www.mutablerealms.com\""
-       << "\n           xmlns:tns=\""
-       << _orgName
-       << "\""
-       << "\n           targetNamespace=\""
-       << _orgName
-       << "\"";
+       << "\n           xmlns:ice=\"http://www.mutablerealms.com/schemas\""
+       << "\n           xmlns:tns=\"" << _orgName << "/schemas\""
+       << "\n           targetNamespace=\"" << _orgName << "/schemas\"";
 
     start(os.str());
     // TODO: schemaLocation?
-    O << nl << "<xs:import namespace=\"http://www.mutablerealms.com\" schemaLocation=\"ice.xsd\"/>";
+    O << nl << "<xs:import namespace=\"http://www.mutablerealms.com/schemas\" schemaLocation=\"ice.xsd\"/>";
 
     StringList includes = unit->includeFiles();
     for (StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
@@ -492,8 +482,6 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     O << nl << "<xs:element name=\"" << scopeId << p->name() << "\" type=\"tns:"
       << internalId << scopeId << p->name() << "Type\"/>";
 }
-
-/* sequence, dictionary */
 
 void
 Slice::Gen::printHeader()

@@ -17,7 +17,7 @@ using namespace Slice;
 void
 usage(const char* n)
 {
-    cerr << "Usage: " << n << " [options] slice-files...\n";
+    cerr << "Usage: " << n << " [options] slice-file type-id\n";
     cerr <<
 	"Options:\n"
 	"-h, --help	      Show this message.\n"
@@ -133,70 +133,80 @@ main(int argc, char* argv[])
 	}
     }
 
-    if (argc < 2)
+    if (argc != 3)
     {
-	cerr << argv[0] << ": no input file" << endl;
 	usage(argv[0]);
 	return EXIT_FAILURE;
     }
 
+    string sourceFile = argv[1];
+    string typeId = argv[2];
+
     int status = EXIT_SUCCESS;
 
-    for (idx = 1 ; idx < argc ; ++idx)
+    string base(sourceFile);
+    string suffix;
+    string::size_type pos = base.rfind('.');
+    if (pos != string::npos)
     {
-	string base(argv[idx]);
-	string suffix;
-	string::size_type pos = base.rfind('.');
-	if (pos != string::npos)
-	{
-	    suffix = base.substr(pos);
-	    transform(suffix.begin(), suffix.end(), suffix.begin(), tolower);
-	}
-	if (suffix != ".ice")
-	{
-	    cerr << argv[0] << ": input files must end with `.ice'" << endl;
-	    unit->destroy();
-	    return EXIT_FAILURE;
-	}
-	base.erase(pos);
+	suffix = base.substr(pos);
+	transform(suffix.begin(), suffix.end(), suffix.begin(), tolower);
+    }
+    if (suffix != ".ice")
+    {
+	cerr << argv[0] << ": input files must end with `.ice'" << endl;
+	unit->destroy();
+	return EXIT_FAILURE;
+    }
+    base.erase(pos);
 
-	ifstream test(argv[idx]);
-	if (!test)
-	{
-	    cerr << argv[0] << ": can't open `" << argv[idx] << "' for reading: " << strerror(errno) << endl;
-	    return EXIT_FAILURE;
-	}
-	test.close();
+    ifstream test(sourceFile.c_str());
+    if (!test)
+    {
+	cerr << argv[0] << ": can't open `" << sourceFile << "' for reading: " << strerror(errno) << endl;
+	return EXIT_FAILURE;
+    }
+    test.close();
 
-	string cmd = cpp + " " + argv[idx];
+    string cmd = cpp + " " + sourceFile;
 #ifdef WIN32
-	FILE* cppHandle = _popen(cmd.c_str(), "r");
+    FILE* cppHandle = _popen(cmd.c_str(), "r");
 #else
-	FILE* cppHandle = popen(cmd.c_str(), "r");
+    FILE* cppHandle = popen(cmd.c_str(), "r");
 #endif
-	if (cppHandle == 0)
-	{
-	    cerr << argv[0] << ": can't run C++ preprocessor: " << strerror(errno) << endl;
-	    unit->destroy();
-	    return EXIT_FAILURE;
-	}
-
-	UnitPtr unit = Unit::createUnit(false, false);
-	int parseStatus = unit->parse(cppHandle, debug);
-	
+    if (cppHandle == 0)
+    {
+	cerr << argv[0] << ": can't run C++ preprocessor: " << strerror(errno) << endl;
+	unit->destroy();
+	return EXIT_FAILURE;
+    }
+    
+    UnitPtr unit = Unit::createUnit(false, false);
+    int parseStatus = unit->parse(cppHandle, debug);
+    
 #ifdef WIN32
-	_pclose(cppHandle);
+    _pclose(cppHandle);
 #else
-	pclose(cppHandle);
+    pclose(cppHandle);
 #endif
-
-	if (parseStatus == EXIT_FAILURE)
+    
+    if (parseStatus == EXIT_FAILURE)
+    {
+	status = EXIT_FAILURE;
+    }
+    else
+    {
+	ContainedList contained = unit->findContents(typeId);
+	if (contained.empty() || contained.front()->containedType() != Contained::ContainedTypeClass)
 	{
+	    cerr << argv[0] << ": invalid type: " << typeId << endl;
 	    status = EXIT_FAILURE;
 	}
 	else
 	{
-	    Gen gen(argv[0], base, include, includePaths, output);
+	    ClassDefPtr p = ClassDefPtr::dynamicCast(contained.front());
+	    assert(p);
+	    Gen gen(argv[0], base, include, includePaths, output, p);
 	    if (!gen)
 	    {
 		unit->destroy();
@@ -204,9 +214,9 @@ main(int argc, char* argv[])
 	    }
 	    gen.generate(unit);
 	}
-
-	unit->destroy();
     }
+    
+    unit->destroy();
 
     return status;
 }
