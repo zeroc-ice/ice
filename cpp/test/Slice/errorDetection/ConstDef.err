@@ -1,6 +1,6 @@
 ConstDef.ice:37: `XXX' is not defined
 ConstDef.ice:38: redefinition of constant `f11' as constant
-ConstDef.ice:39: warning: constant `F10' differs only in capitalization from constant `f10'
+ConstDef.ice:39: constant `F10' differs only in capitalization from constant `f10'
 ConstDef.ice:42: constant `ic2' has illegal type
 ConstDef.ice:43: constant `ic3' has illegal type: `Object'
 ConstDef.ice:45: initializer of type `long' is incompatible with the type `bool' of constant `ic4'

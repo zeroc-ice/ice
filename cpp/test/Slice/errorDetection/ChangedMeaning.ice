@@ -111,5 +111,5 @@ interface ParamTest
     void op2(counter param);
     void param(counter counter);	// Changed meaning
     void op3(long counter, counter x);	// Second "counter" is not a type
-    // void op4(long param, long param);// TODO: this causes an assertion failure
+    void op4(long param, long param);
 };
