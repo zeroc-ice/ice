@@ -155,7 +155,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	}
 	catch(const Ice::Exception& ex)
 	{
-	    cerr << "HelloClient:" << ex << endl;
+	    cerr << ex << endl;
 	}
     }
     while (cin.good() && c != 'x');
