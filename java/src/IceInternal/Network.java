@@ -380,6 +380,70 @@ public final class Network
         return host;
     }
 
+    public static class SocketPair
+    {
+        public java.nio.channels.spi.AbstractSelectableChannel source;
+        public java.nio.channels.WritableByteChannel sink;
+    }
+
+    public static SocketPair
+    createPipe()
+    {
+        SocketPair fds = new SocketPair();
+
+        //
+        // TODO: This method should really be very simple. Unfortunately,
+        // there's a bug in the Win32 JDK (#4494292) which prevents the
+        // Selector from properly detecting input on a Pipe's source
+        // channel, so we resort to creating a socket pair. This bug has
+        // supposedly been fixed for JDK 1.4.1.
+        //
+        //java.nio.channels.Pipe pipe = java.nio.channels.Pipe.open();
+        //fds.sink = pipe.sink();
+        //fds.source = pipe.source();
+        //
+
+        java.nio.channels.ServerSocketChannel fd = createTcpServerSocket();
+
+        java.net.InetSocketAddress addr = new java.net.InetSocketAddress("127.0.0.1", 0);
+
+        addr = doBind(fd, addr);
+
+        try
+        {
+            java.nio.channels.SocketChannel sink = createTcpSocket();
+            fds.sink = sink;
+            try
+            {
+                doConnect(sink, addr, -1);
+                fds.source = doAccept(fd, -1);
+            }
+            catch (Ice.LocalException ex)
+            {
+                try
+                {
+                    fds.sink.close();
+                }
+                catch (java.io.IOException e)
+                {
+                }
+                throw ex;
+            }
+        }
+        finally
+        {
+            try
+            {
+                fd.close();
+            }
+            catch (java.io.IOException ex)
+            {
+            }
+        }
+
+        return fds;
+    }
+
     public static String
     fdToString(java.nio.channels.SelectableChannel fd)
     {
