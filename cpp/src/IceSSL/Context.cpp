@@ -242,7 +242,7 @@ IceSSL::Context::loadCertificateAuthority(const CertificateAuthority& certAuth)
         caFile = fileName.c_str();
     }
 
-    if(!certPath.length())
+    if(!certPath.empty())
     {
         caPath = certPath.c_str();
     }
