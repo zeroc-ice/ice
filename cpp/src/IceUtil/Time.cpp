@@ -63,11 +63,6 @@ IceUtil::Time::operator timeval() const
     return tv;
 }
 
-IceUtil::Time::operator double() const
-{
-    return _usec / 1000000.0L;
-}
-
 Int64
 IceUtil::Time::toSeconds() const
 {

@@ -64,7 +64,9 @@ Glacier2::RouterI::destroy()
     
     if(_serverBlobject)
     {
+	cout << "xxxxx" << endl;
 	_serverBlobject->destroy();
+	cout << "yyyyy" << endl;
     }
 
     if(_session)
@@ -150,7 +152,10 @@ Glacier2::RouterI::getServerBlobject() const
 	throw ObjectNotExistException(__FILE__, __LINE__);
     }
 
-    _timestamp = IceUtil::Time::now();
+    //
+    // We do not update the timestamp for callbacks from the
+    // server. We only update the timestamp for client activity.
+    //
 
     return _serverBlobject;
 }

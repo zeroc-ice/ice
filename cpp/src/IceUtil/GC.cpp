@@ -240,7 +240,7 @@ IceUtil::GC::collectGarbage()
 
     if(_statsCallback)
     {
-	stats.msec = (Time::now() - t) * 1000.0L;
+	stats.time = Time::now() - t;
 	stats.collected = counts.size();
 	_statsCallback(stats);
     }

@@ -146,13 +146,17 @@ Glacier2::RequestQueue::~RequestQueue()
 void 
 Glacier2::RequestQueue::destroy()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+	
+	assert(!_destroy);
+	_destroy = true;
+	notify();
+	
+	_requests.clear();
+    }
 
-    assert(!_destroy);
-    _destroy = true;
-    notify();
-
-    _requests.clear();
+    getThreadControl().join();
 }
 
 void 

@@ -37,7 +37,6 @@ Glacier2::Blobject::destroy()
 {
     assert(_requestQueue); // Destroyed?
     _requestQueue->destroy();
-    _requestQueue->getThreadControl().join();
     _requestQueue = 0;
 }
 

@@ -31,7 +31,6 @@ public:
     static Time microSeconds(Int64);
     
     operator timeval() const;
-    operator double() const;
 
     Int64 toSeconds() const;
     Int64 toMilliSeconds() const;
@@ -96,12 +95,44 @@ public:
 	return _usec != rhs._usec;
     }
 
+    template<typename T>
+    Time& operator*=(T rhs)
+    {
+	_usec *= rhs;
+	return *this;
+    }
+
+    template<typename T>
+    Time& operator/=(T rhs)
+    {
+	_usec /= rhs;
+	return *this;
+    }
+
 private:
 
     Time(Int64);
 
     Int64 _usec;
 };
+
+template<typename T>
+Time operator*(const Time& lhs, T rhs)
+{
+    return Time::microSeconds(static_cast<Int64>(lhs.toMicroSeconds() * rhs));
+}
+
+template<typename T>
+Time operator*(T rhs, const Time& lhs)
+{
+    return Time::microSeconds(static_cast<Int64>(lhs * rhs.toMicroSeconds()));
+}
+
+template<typename T>
+Time operator/(const Time& lhs, T rhs)
+{
+    return Time::microSeconds(static_cast<Int64>(lhs.toMicroSeconds() / rhs));
+}
 
 } // End namespace IceUtil
 

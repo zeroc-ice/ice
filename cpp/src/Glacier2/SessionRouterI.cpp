@@ -439,7 +439,7 @@ Glacier2::SessionRouterI::run()
 	    }
 
 	    assert(_sessionTimeout > IceUtil::Time());
-	    timedWait(_sessionTimeout);
+	    timedWait(_sessionTimeout / 4);
 
 	    if(_destroy)
 	    {
@@ -452,7 +452,7 @@ Glacier2::SessionRouterI::run()
 	    
 	    while(p != _routersByConnection.end())
 	    {
-		if(minTimestamp < p->second->getTimestamp())
+		if(p->second->getTimestamp() < minTimestamp)
 		{
 		    RouterIPtr router = p->second;
 		    routers.push_back(router);

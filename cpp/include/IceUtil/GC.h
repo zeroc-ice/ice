@@ -22,7 +22,7 @@ struct ICE_UTIL_API GCStats
 {
     int examined;
     int collected;
-    double msec;
+    Time time;
 };
 
 class GC : public ::IceUtil::Thread, public ::IceUtil::Monitor< ::IceUtil::Mutex>

@@ -34,13 +34,13 @@ IceUtil::Handle<IceUtil::GC> theCollector = 0;
 struct GarbageCollectorStats
 {
     GarbageCollectorStats() :
-	runs(0), examined(0), collected(0), msec(0.0)
+	runs(0), examined(0), collected(0)
     {
     }
     int runs;
     int examined;
     int collected;
-    double msec;
+    IceUtil::Time time;
 };
 
 static int communicatorCount = 0;
@@ -52,19 +52,19 @@ static LoggerPtr gcLogger;
 static int gcInterval;
 
 static void
-printGCStats(const ::IceUtil::GCStats& stats)
+printGCStats(const IceUtil::GCStats& stats)
 {
     if(gcTraceLevel)
     {
 	if(gcTraceLevel > 1)
 	{
 	    Trace out(gcLogger, gcTraceCat);
-	    out << stats.collected << "/" << stats.examined << ", " << stats.msec << "ms";
+	    out << stats.collected << "/" << stats.examined << ", " << stats.time.toMilliSeconds() << "ms";
 	}
 	++gcStats.runs;
 	gcStats.examined += stats.examined;
 	gcStats.collected += stats.collected;
-	gcStats.msec += stats.msec;
+	gcStats.time += stats.time;
     }
 }
 
@@ -108,7 +108,7 @@ Ice::CommunicatorI::destroy()
 	    {
 		Trace out(gcLogger, gcTraceCat);
 		out << "totals: " << gcStats.collected << "/" << gcStats.examined << ", "
-		    << gcStats.msec << "ms" << ", " << gcStats.runs << " run";
+		    << gcStats.time.toMilliSeconds() << "ms" << ", " << gcStats.runs << " run";
 		if(gcStats.runs != 1)
 		{
 		    out << "s";

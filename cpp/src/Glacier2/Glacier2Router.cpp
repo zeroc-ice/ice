@@ -224,6 +224,18 @@ Glacier2::RouterService::initializeCommunicator(int& argc, char* argv[])
     {
 	defaultProperties->setProperty("Ice.MonitorConnections", "60");
     }
+
+    //
+    // If we have a session timeout, then we must use the same value
+    // also for request timeouts, otherwise sessions might expire, but
+    // sending of requests that are already queued for this session
+    // block indefinitely.
+    //
+    if(!defaultProperties->getProperty("Glacier2.SessionTimeout").empty())
+    {
+	defaultProperties->setProperty("Ice.Override.Timeout",
+				       defaultProperties->getProperty("Glacier2.SessionTimeout"));
+    }
     
     //
     // We do not need to set Ice.RetryIntervals to -1, i.e., we do
