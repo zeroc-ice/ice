@@ -1157,6 +1157,9 @@ IceSecurity::Ssl::OpenSSL::System::createContext(SslProtocol sslProtocol)
         throw contextEx;
     }
 
+    // Turn off session caching, supposedly fixes a problem with multithreading.
+    SSL_CTX_set_session_cache_mode(context, SSL_SESS_CACHE_OFF);
+
     ICE_METHOD_RET("OpenSSL::System::createContext()");
 
     return context;
