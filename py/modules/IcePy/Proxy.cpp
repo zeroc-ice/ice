@@ -124,19 +124,25 @@ proxyIceIsA(ProxyObject* self, PyObject* args)
         return NULL;
     }
 
-    Ice::Context context;
-    if(ctx && !dictionaryToContext(ctx, context))
-    {
-        return NULL;
-    }
-
     assert(self->proxy);
 
     bool b;
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-        b = (*self->proxy)->ice_isA(type, context);
+	if(ctx)
+	{
+	    Ice::Context context;
+	    if(!dictionaryToContext(ctx, context))
+	    {
+		return NULL;
+	    }
+	    b = (*self->proxy)->ice_isA(type, context);
+	}
+	else
+	{
+	    b = (*self->proxy)->ice_isA(type);
+	}
     }
     catch(const Ice::Exception& ex)
     {
@@ -161,18 +167,24 @@ proxyIcePing(ProxyObject* self, PyObject* args)
         return NULL;
     }
 
-    Ice::Context context;
-    if(ctx && !dictionaryToContext(ctx, context))
-    {
-        return NULL;
-    }
-
     assert(self->proxy);
 
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-        (*self->proxy)->ice_ping(context);
+	if(ctx)
+	{
+	    Ice::Context context;
+	    if(!dictionaryToContext(ctx, context))
+	    {
+		return NULL;
+	    }
+	    (*self->proxy)->ice_ping(context);
+	}
+	else
+	{
+	    (*self->proxy)->ice_ping();
+	}
     }
     catch(const Ice::Exception& ex)
     {
@@ -196,19 +208,25 @@ proxyIceIds(ProxyObject* self, PyObject* args)
         return NULL;
     }
 
-    Ice::Context context;
-    if(ctx && !dictionaryToContext(ctx, context))
-    {
-        return NULL;
-    }
-
     assert(self->proxy);
 
     Ice::StringSeq ids;
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-        ids = (*self->proxy)->ice_ids(context);
+	if(ctx)
+	{
+	    Ice::Context context;
+	    if(!dictionaryToContext(ctx, context))
+	    {
+		return NULL;
+	    }
+	    ids = (*self->proxy)->ice_ids(context);
+	}
+	else
+	{
+	    ids = (*self->proxy)->ice_ids();
+	}
     }
     catch(const Ice::Exception& ex)
     {
@@ -237,19 +255,25 @@ proxyIceId(ProxyObject* self, PyObject* args)
         return NULL;
     }
 
-    Ice::Context context;
-    if(ctx && !dictionaryToContext(ctx, context))
-    {
-        return NULL;
-    }
-
     assert(self->proxy);
 
     string id;
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-        id = (*self->proxy)->ice_id(context);
+	if(ctx)
+	{
+	    Ice::Context context;
+	    if(!dictionaryToContext(ctx, context))
+	    {
+		return NULL;
+	    }
+	    id = (*self->proxy)->ice_id(context);
+	}
+	else
+	{
+	    id = (*self->proxy)->ice_id();
+	}
     }
     catch(const Ice::Exception& ex)
     {
@@ -942,6 +966,40 @@ checkedCastImpl(ProxyObject* p, const string& id, const string& facet, PyObject*
     return Py_None;
 }
 
+static PyObject*
+checkedCastImpl(ProxyObject* p, const string& id, const string& facet, const Ice::Context& ctx, PyObject* type)
+{
+    Ice::ObjectPrx target;
+    if(facet.empty())
+    {
+        target = *p->proxy;
+    }
+    else
+    {
+        target = (*p->proxy)->ice_newFacet(facet);
+    }
+
+    bool b;
+    try
+    {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
+        b = target->ice_isA(id, ctx);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    if(b)
+    {
+        return createProxy(target, *p->communicator, type);
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 #ifdef WIN32
 extern "C"
 #endif
@@ -951,7 +1009,8 @@ proxyIceCheckedCast(PyObject* type, PyObject* args)
     PyObject* obj;
     char* id;
     char* facet;
-    if(!PyArg_ParseTuple(args, "Oss", &obj, &id, &facet))
+    PyObject* ctx = 0;
+    if(!PyArg_ParseTuple(args, "OssO", &obj, &id, &facet, &ctx))
     {
         return NULL;
     }
@@ -968,7 +1027,26 @@ proxyIceCheckedCast(PyObject* type, PyObject* args)
         return NULL;
     }
 
-    return checkedCastImpl((ProxyObject*)obj, id, facet, type);
+    if(ctx == 0 || ctx == Py_None)
+    {
+	return checkedCastImpl((ProxyObject*)obj, id, facet, type);
+    }
+    else
+    {
+	if(!PyDict_Check(ctx))
+	{
+	    PyErr_Format(PyExc_ValueError, "context argument must be a dictionary");
+	    return NULL;
+	}
+
+	Ice::Context c;
+	if(!dictionaryToContext(ctx, c))
+	{
+	    return NULL;
+	}
+
+	return checkedCastImpl((ProxyObject*)obj, id, facet, c, type);
+    }
 }
 
 #ifdef WIN32
@@ -1016,7 +1094,8 @@ proxyCheckedCast(PyObject* /*self*/, PyObject* args)
 {
     PyObject* obj;
     char* facet = "";
-    if(!PyArg_ParseTuple(args, "O|s", &obj, &facet))
+    PyObject* ctx = 0;
+    if(!PyArg_ParseTuple(args, "O|sO", &obj, &facet, &ctx))
     {
         return NULL;
     }
@@ -1033,7 +1112,26 @@ proxyCheckedCast(PyObject* /*self*/, PyObject* args)
         return NULL;
     }
 
-    return checkedCastImpl((ProxyObject*)obj, "::Ice::Object", facet, NULL);
+    if(ctx == 0 || ctx == Py_None)
+    {
+	return checkedCastImpl((ProxyObject*)obj, "::Ice::Object", facet, NULL);
+    }
+    else
+    {
+	if(!PyDict_Check(ctx))
+	{
+	    PyErr_Format(PyExc_ValueError, "context argument must be a dictionary");
+	    return NULL;
+	}
+
+	Ice::Context c;
+	if(!dictionaryToContext(ctx, c))
+	{
+	    return NULL;
+	}
+
+	return checkedCastImpl((ProxyObject*)obj, "::Ice::Object", facet, c, NULL);
+    }
 }
 
 #ifdef WIN32
