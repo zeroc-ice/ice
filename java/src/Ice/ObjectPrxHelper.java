@@ -540,43 +540,50 @@ public class ObjectPrxHelper implements ObjectPrx
 
         IceInternal.TraceLevels traceLevels = _reference.instance.traceLevels();
         Logger logger = _reference.instance.logger();
+        IceInternal.ProxyFactory proxyFactory = _reference.instance.proxyFactory();
 
-	int[] retryIntervals = _reference.instance.proxyFactory().getRetryIntervals();
-
-        if(cnt > retryIntervals.length)
+        //
+        // Instance components may be null if Communicator has been destroyed.
+        //
+        if(traceLevels != null && logger != null && proxyFactory != null)
         {
+            int[] retryIntervals = proxyFactory.getRetryIntervals();
+
+            if(cnt > retryIntervals.length)
+            {
+                if(traceLevels.retry >= 1)
+                {
+                    String s = "cannot retry operation call because retry limit has been exceeded\n" + ex.toString();
+                    logger.trace(traceLevels.retryCat, s);
+                }
+                throw ex;
+            }
+
             if(traceLevels.retry >= 1)
             {
-                String s = "cannot retry operation call because retry limit has been exceeded\n" + ex.toString();
+                String s = "re-trying operation call";
+                if(cnt > 0 && retryIntervals[cnt - 1] > 0)
+                {
+                    s += " in " + retryIntervals[cnt - 1] + "ms";
+                }
+                s += " because of exception\n" + ex;
                 logger.trace(traceLevels.retryCat, s);
             }
-            throw ex;
-        }
 
-        if(traceLevels.retry >= 1)
-        {
-            String s = "re-trying operation call";
-	    if(cnt > 0 && retryIntervals[cnt - 1] > 0)
-	    {
-		s += " in " + retryIntervals[cnt - 1] + "ms";
-	    }
-	    s += " because of exception\n" + ex;
-            logger.trace(traceLevels.retryCat, s);
+            if(cnt > 0)
+            {
+                //
+                // Sleep before retrying.
+                //
+                try
+                {
+                    Thread.currentThread().sleep(retryIntervals[cnt - 1]);
+                }
+                catch(InterruptedException ex1)
+                {
+                }
+            }
         }
-
-	if(cnt > 0)
-	{
-	    //
-	    // Sleep before retrying.
-	    //
-	    try
-	    {
-		Thread.currentThread().sleep(retryIntervals[cnt - 1]);
-	    }
-	    catch(InterruptedException ex1)
-	    {
-	    }
-	}
 
 	return cnt;
     }
@@ -626,7 +633,17 @@ public class ObjectPrxHelper implements ObjectPrx
     {
         if(_delegate == null)
         {
-            ObjectAdapter adapter = _reference.instance.objectAdapterFactory().findObjectAdapter(this);
+            IceInternal.ObjectAdapterFactory objectAdapterFactory = _reference.instance.objectAdapterFactory();
+
+            //
+            // Instance components may be null if Communicator has been destroyed.
+            //
+            if(objectAdapterFactory == null)
+            {
+                throw new CommunicatorDestroyedException();
+            }
+
+            ObjectAdapter adapter = objectAdapterFactory.findObjectAdapter(this);
             if(adapter != null)
             {
                 _ObjectDelD delegate = __createDelegateD();

@@ -597,36 +597,43 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
     
     TraceLevelsPtr traceLevels = _reference->instance->traceLevels();
     LoggerPtr logger = _reference->instance->logger();
+    ProxyFactoryPtr proxyFactory = _reference->instance->proxyFactory();
     
-    const std::vector<int>& retryIntervals = _reference->instance->proxyFactory()->getRetryIntervals();
-    
-    if(cnt > static_cast<int>(retryIntervals.size()))
+    //
+    // Instance components may be null if Communicator has been destroyed.
+    //
+    if(traceLevels && logger && proxyFactory)
     {
-	if(traceLevels->retry >= 1)
-	{
-	    Trace out(logger, traceLevels->retryCat);
-	    out << "cannot retry operation call because retry limit has been exceeded\n" << ex;
-	}
-	ex.ice_throw();
-    }
+        const std::vector<int>& retryIntervals = proxyFactory->getRetryIntervals();
+        
+        if(cnt > static_cast<int>(retryIntervals.size()))
+        {
+            if(traceLevels->retry >= 1)
+            {
+                Trace out(logger, traceLevels->retryCat);
+                out << "cannot retry operation call because retry limit has been exceeded\n" << ex;
+            }
+            ex.ice_throw();
+        }
 
-    if(traceLevels->retry >= 1)
-    {
-	Trace out(logger, traceLevels->retryCat);
-	out << "re-trying operation call";
-	if(cnt > 0 && retryIntervals[cnt - 1] > 0)
-	{
-	    out << " in " << retryIntervals[cnt - 1] << "ms";
-	}
-	out << " because of exception\n" << ex;
-    }
+        if(traceLevels->retry >= 1)
+        {
+            Trace out(logger, traceLevels->retryCat);
+            out << "re-trying operation call";
+            if(cnt > 0 && retryIntervals[cnt - 1] > 0)
+            {
+                out << " in " << retryIntervals[cnt - 1] << "ms";
+            }
+            out << " because of exception\n" << ex;
+        }
 
-    if(cnt > 0)
-    {
-	//
-	// Sleep before retrying.
-	//
-	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(retryIntervals[cnt - 1]));
+        if(cnt > 0)
+        {
+            //
+            // Sleep before retrying.
+            //
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(retryIntervals[cnt - 1]));
+        }
     }
 }
 
@@ -679,7 +686,17 @@ IceProxy::Ice::Object::__getDelegate()
 
     if(!_delegate)
     {
-	ObjectAdapterPtr adapter = _reference->instance->objectAdapterFactory()->findObjectAdapter(this);
+        ObjectAdapterFactoryPtr objectAdapterFactory = _reference->instance->objectAdapterFactory();
+
+        //
+        // Instance components may be null if Communicator has been destroyed.
+        //
+        if(!objectAdapterFactory)
+        {
+            throw CommunicatorDestroyedException(__FILE__, __LINE__);
+        }
+
+	ObjectAdapterPtr adapter = objectAdapterFactory->findObjectAdapter(this);
 	if(adapter)
 	{
 	    Handle< ::IceDelegateD::Ice::Object> delegate = __createDelegateD();
