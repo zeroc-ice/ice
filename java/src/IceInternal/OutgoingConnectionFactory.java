@@ -47,7 +47,7 @@ public class OutgoingConnectionFactory
 		endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
 	    }
 
-            Connection connection = (Connection)_connections.get(endpoints);
+            Connection connection = (Connection)_connections.get(endpoint);
             if (connection != null)
             {
                 return connection;
@@ -89,12 +89,6 @@ public class OutgoingConnectionFactory
             {
                 exception = ex;
             }
-            /* TODO: SSL
-            catch (IceSecurity.SecurityException ex)
-            {
-                exception = ex;
-            }
-            */
             catch (Ice.DNSException ex)
             {
                 exception = ex;
