@@ -32,7 +32,7 @@ usage(const char* n)
         "-DNAME=DEF           Define NAME as DEF.\n"
         "-UNAME               Remove any definition for NAME.\n"
         "-IDIR                Put DIR in the include file search path.\n"
-        "--include-dir DIR    Use DIR as the header include directory.\n"
+        "--include-dir DIR    Use DIR as the header include directory in source files.\n"
         "--output-dir DIR     Create files in the directory DIR.\n"
         "--dll-export SYMBOL  Use SYMBOL for DLL exports.\n"
         "--impl               Generate sample implementations.\n"
