@@ -669,7 +669,7 @@ def main():
 	#
 	dbLocation = buildEnvironment['DB_HOME']
 	dbFiles = getDBfiles(dbLocation)
-	for f in dbFiles:
+	for f in dbFiles.strip():
 	    shutil.copy(dbLocation + '/' + f, 'Ice-' + version + '/' + f)
 	
 
