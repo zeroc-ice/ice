@@ -792,7 +792,14 @@ IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
     }
     bool __ret;
-    __is->read(__ret);
+    try
+    {
+        __is->read(__ret);
+    }
+    catch(const ::Ice::LocalException& __ex)
+    {
+        throw ::IceInternal::NonRepeatable(__ex);
+    }
     return __ret;
 }
 
@@ -818,7 +825,14 @@ IceDelegateM::Ice::Object::ice_ids(const Context& __context)
 	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
     }
     vector<string> __ret;
-    __is->read(__ret);
+    try
+    {
+        __is->read(__ret);
+    }
+    catch(const ::Ice::LocalException& __ex)
+    {
+        throw ::IceInternal::NonRepeatable(__ex);
+    }
     return __ret;
 }
 
@@ -833,7 +847,14 @@ IceDelegateM::Ice::Object::ice_id(const Context& __context)
 	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
     }
     string __ret;
-    __is->read(__ret);
+    try
+    {
+        __is->read(__ret);
+    }
+    catch(const ::Ice::LocalException& __ex)
+    {
+        throw ::IceInternal::NonRepeatable(__ex);
+    }
     return __ret;
 }
 
@@ -848,7 +869,14 @@ IceDelegateM::Ice::Object::ice_facets(const Context& __context)
 	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
     }
     FacetPath __ret;
-    __is->read(__ret);
+    try
+    {
+        __is->read(__ret);
+    }
+    catch(const ::Ice::LocalException& __ex)
+    {
+        throw ::IceInternal::NonRepeatable(__ex);
+    }
     return __ret;
 }
 
@@ -865,9 +893,16 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
     bool ok = __out.invoke();
     if(__reference->mode == Reference::ModeTwoway)
     {
-	BasicStream* __is = __out.is();
-	Int sz = __is->getReadEncapsSize();
-	__is->readBlob(outParams, sz);
+        try
+        {
+            BasicStream* __is = __out.is();
+            Int sz = __is->getReadEncapsSize();
+            __is->readBlob(outParams, sz);
+        }
+        catch(const ::Ice::LocalException& __ex)
+        {
+            throw ::IceInternal::NonRepeatable(__ex);
+        }
     }
     return ok;
 }

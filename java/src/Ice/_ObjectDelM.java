@@ -30,7 +30,14 @@ public class _ObjectDelM implements _ObjectDel
             {
                 throw new UnknownUserException();
             }
-            return __is.readBool();
+            try
+            {
+                return __is.readBool();
+            }
+            catch(LocalException __ex)
+            {
+                throw new IceInternal.NonRepeatable(__ex);
+            }
         }
         finally
         {
@@ -68,7 +75,14 @@ public class _ObjectDelM implements _ObjectDel
             {
                 throw new UnknownUserException();
             }
-            return __is.readStringSeq();
+            try
+            {
+                return __is.readStringSeq();
+            }
+            catch(LocalException __ex)
+            {
+                throw new IceInternal.NonRepeatable(__ex);
+            }
         }
         finally
         {
@@ -88,7 +102,14 @@ public class _ObjectDelM implements _ObjectDel
             {
                 throw new UnknownUserException();
             }
-            return __is.readString();
+            try
+            {
+                return __is.readString();
+            }
+            catch(LocalException __ex)
+            {
+                throw new IceInternal.NonRepeatable(__ex);
+            }
         }
         finally
         {
@@ -108,7 +129,14 @@ public class _ObjectDelM implements _ObjectDel
             {
                 throw new UnknownUserException();
             }
-            return __is.readStringSeq();
+            try
+            {
+                return __is.readStringSeq();
+            }
+            catch(LocalException __ex)
+            {
+                throw new IceInternal.NonRepeatable(__ex);
+            }
         }
         finally
         {
@@ -128,9 +156,16 @@ public class _ObjectDelM implements _ObjectDel
             boolean ok = __out.invoke();
             if(__reference.mode == IceInternal.Reference.ModeTwoway)
             {
-                IceInternal.BasicStream __is = __out.is();
-                int sz = __is.getReadEncapsSize();
-                outParams.value = __is.readBlob(sz);
+                try
+                {
+                    IceInternal.BasicStream __is = __out.is();
+                    int sz = __is.getReadEncapsSize();
+                    outParams.value = __is.readBlob(sz);
+                }
+                catch(LocalException __ex)
+                {
+                    throw new IceInternal.NonRepeatable(__ex);
+                }
             }
             return ok;
         }
