@@ -16,7 +16,6 @@
 #include <Ice/Application.h>
 #include <IcePatch/FileLocator.h>
 #include <IcePatch/IcePatchI.h>
-#include <IcePatch/Util.h>
 #ifdef _WIN32
 #   include <direct.h>
 #endif
@@ -106,24 +105,6 @@ IcePatch::Server::run(int argc, char* argv[])
     }
     
     //
-    // Get the working directory and change to this directory.
-    //
-    const char* directoryProperty = "IcePatch.Directory";
-    string directory = properties->getProperty(directoryProperty);
-    if(!directory.empty())
-    {
-#ifdef _WIN32
-	if(_chdir(directory.c_str()) == -1)
-#else
-	if(chdir(directory.c_str()) == -1)
-#endif
-	{
-	    cerr << appName() << ": cannot change to directory `" << directory << "': " << strerror(errno) << endl;
-            return EXIT_FAILURE;
-	}
-    }
-    
-    //
     // Create and initialize the object adapter and the file locator.
     //
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IcePatch");
@@ -183,8 +164,10 @@ IcePatch::Updater::run()
     {
 	try
 	{
-	    Identity identity = pathToIdentity(".");
-	    ObjectPrx topObj = _adapter->createProxy(identity);
+	    Identity ident;
+	    ident.category = "IcePatch";
+	    ident.name = ".";
+	    ObjectPrx topObj = _adapter->createProxy(ident);
 	    FilePrx top = FilePrx::checkedCast(topObj);
 	    assert(top);
 	    DirectoryDescPtr topDesc = DirectoryDescPtr::dynamicCast(top->describe());
