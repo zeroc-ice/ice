@@ -41,9 +41,6 @@ Ice::ByteSeq getMD5(const std::string&);
 void createMD5(const std::string&);
 void createMD5Recursive(const std::string&);
 
-void writeBZ2(const std::string&, const Ice::ByteSeq&);
-Ice::ByteSeq readBZ2(const std::string&);
-
 Ice::Int getSizeBZ2(const std::string&);
 Ice::ByteSeq getBytesBZ2(const std::string&, Ice::Int, Ice::Int);
 void createBZ2(const std::string&);

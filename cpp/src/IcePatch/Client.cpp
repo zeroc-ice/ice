@@ -182,7 +182,7 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 	    {
 		newIndent = indent + "| ";
 	    }
-	    cout << indent << "+-" << pathToName(path) << "... " << flush;
+	    cout << indent << "+-" << pathToName(path) << ": " << flush;
 
 	    FileInfo info = getFileInfo(path);
 	    switch (info)
@@ -201,7 +201,7 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 
 		case FileInfoRegular:
 		{
-		    cout << "removing regular file... " << flush;
+		    cout << "removing file... " << flush;
 		    removeRecursive(path);
 		    cout << "creating directory... " << flush;
 		    createDirectory(path);
@@ -226,7 +226,7 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 	else
 	{
 	    assert(fileDesc);
-	    cout << indent << "+-" << pathToName(path) << "... " << flush;
+	    cout << indent << "+-" << pathToName(path) << ": " << flush;
 
 	    MyProgressCB progressCB;
 
@@ -251,7 +251,12 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 
 		case FileInfoRegular:
 		{
-		    ByteSeq md5 = getMD5(path);
+		    ByteSeq md5;
+		    FileInfo infoMD5 = getFileInfo(path + ".md5");
+		    if (infoMD5 == FileInfoRegular)
+		    {
+			md5 = getMD5(path);
+		    }
 		    if (md5 != fileDesc->md5)
 		    {
 			cout << "removing file... " << flush;
