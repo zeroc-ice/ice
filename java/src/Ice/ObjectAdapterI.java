@@ -526,11 +526,17 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	}
     }
 
-    public synchronized IceInternal.ServantManager
+    public IceInternal.ServantManager
     getServantManager()
-    {
-	checkForDeactivation();
+    {	
+	// No mutex lock necessary, _threadPool and _instance are
+	// immutable after creation until they are removed in
+	// waitForDeactivate().
 	
+	// Not check for deactivation here!
+	
+	assert(_instance != null); // Must not be called after waitForDeactivate().
+
 	return _servantManager;
     }
 
