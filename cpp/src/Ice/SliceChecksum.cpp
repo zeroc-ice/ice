@@ -12,7 +12,10 @@
 using namespace std;
 using namespace Ice;
 
-const SliceChecksumDict Ice::sliceChecksums;
+namespace Ice
+{
+const SliceChecksumDict sliceChecksums;
+}
 
 IceInternal::SliceChecksumInit::SliceChecksumInit(const char* checksums[])
 {
