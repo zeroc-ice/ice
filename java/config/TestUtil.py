@@ -114,7 +114,8 @@ def getAdapterReady(serverPipe):
 def clientServerTest(toplevel, name):
 
     testdir = os.path.join(toplevel, "test", name)
-    classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + os.environ['CLASSPATH']
+    classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + \
+	os.getenv("CLASSPATH", "")
     server = "java -ea -classpath \"" + classpath + "\" Server "
     client = "java -ea -classpath \"" + classpath + "\" Client "
 
@@ -143,7 +144,8 @@ def clientServerTest(toplevel, name):
 def mixedClientServerTest(toplevel, name):
 
     testdir = os.path.join(toplevel, "test", name)
-    classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + os.environ['CLASSPATH']
+    classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + \
+	 os.getenv("CLASSPATH", "")
     server = "java -ea -classpath \"" + classpath + "\" Server "
     client = "java -ea -classpath \"" + classpath + "\" Client "
 
@@ -172,7 +174,8 @@ def mixedClientServerTest(toplevel, name):
 def collocatedTest(toplevel, name):
 
     testdir = os.path.join(toplevel, "test", name)
-    classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + os.environ['CLASSPATH']
+    classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + \
+	 os.getenv("CLASSPATH", "")
     collocated = "java -ea -classpath \"" + classpath + "\" Collocated "
 
     updatedCollocatedOptions = collocatedOptions.replace("TOPLEVELDIR", toplevel)

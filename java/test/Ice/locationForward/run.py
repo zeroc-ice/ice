@@ -23,7 +23,7 @@ import TestUtil
 
 testdir = os.path.join(toplevel, "test", "Ice", "locationForward")
 classpath = os.path.join(toplevel, "lib") + TestUtil.sep + os.path.join(testdir, "classes") + \
-    TestUtil.sep + os.environ['CLASSPATH']
+    TestUtil.sep + os.getenv("CLASSPATH", "")
 server = "java -classpath \"" + classpath + "\" Server"
 client = "java -classpath \"" + classpath + "\" Client"
 

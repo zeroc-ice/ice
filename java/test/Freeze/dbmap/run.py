@@ -27,7 +27,7 @@ dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
 
 classpath = os.path.join(toplevel, "lib") + TestUtil.sep + os.path.join(testdir, "classes") + \
-    TestUtil.sep + os.environ['CLASSPATH']
+    TestUtil.sep + os.getenv("CLASSPATH", "")
 client = "java -classpath \"" + classpath + "\" Client " + testdir
 
 print "starting client...",

@@ -23,7 +23,7 @@ import TestUtil
 
 testdir = os.path.join(toplevel,"test", "IceXML", "encoding")
 classpath = os.path.join(toplevel, "lib") + TestUtil.sep + os.path.join(testdir, "classes") + \
-    TestUtil.sep + os.environ['CLASSPATH']
+    TestUtil.sep + os.getenv("CLASSPATH", "")
 client = "java -classpath \"" + classpath + "\" Client"
 
 print "starting client...",
