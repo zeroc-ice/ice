@@ -275,7 +275,7 @@ ifeq ($(mklibname),)
     mklibname           = lib$(1).so
 endif
 
-ifeq ($(mklibtargets),)
+ifndef mklibtargets
     mklibtargets        = $(1) $(2) $(3)
 endif
 
