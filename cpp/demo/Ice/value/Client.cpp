@@ -59,7 +59,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     cout << '\n'
 	 << "Yes, this worked. Now let's try to transfer an object for a class\n"
-	 << "with operations as type ::Printer, without installing a factory first.\n"
+	 << "with operations as type ::Demo::Printer, without installing a factory first.\n"
 	 << "This should give us a `no factory' exception.\n"
 	 << "[press enter]\n";
     cin.getline(c, 2);
@@ -86,7 +86,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     cin.getline(c, 2);
 
     Ice::ObjectFactoryPtr factory = new ObjectFactory;
-    communicator->addObjectFactory(factory, "::Printer");
+    communicator->addObjectFactory(factory, "::Demo::Printer");
 
     initial->getPrinter(printer, printerProxy);
     cout << "==> " << printer->message << endl;
@@ -111,15 +111,15 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     cout << '\n'
 	 << "Next, we transfer a derived object from the server as a base\n"
 	 << "object. Since we haven't yet installed a factory for the derived\n"
-	 << "class, the derived class (::DerivedPrinter) is sliced\n"
-	 << "to its base class (::Printer).\n"
+	 << "class, the derived class (::Demo::DerivedPrinter) is sliced\n"
+	 << "to its base class (::Demo::Printer).\n"
 	 << "[press enter]\n";
     cin.getline(c, 2);
 
     PrinterPtr derivedAsBase;
     derivedAsBase = initial->getDerivedPrinter();
     cout << "==> The type ID of the received object is \"" << derivedAsBase->ice_id() << "\"" << endl;
-    assert(derivedAsBase->ice_id() == "::Printer");
+    assert(derivedAsBase->ice_id() == "::Demo::Printer");
     
     cout << '\n'
 	 << "Now we install a factory for the derived class, and try again.\n"
@@ -128,7 +128,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "[press enter]\n";
     cin.getline(c, 2);
     
-    communicator->addObjectFactory(factory, "::DerivedPrinter");
+    communicator->addObjectFactory(factory, "::Demo::DerivedPrinter");
     
     derivedAsBase = initial->getDerivedPrinter();
     DerivedPrinterPtr derived = DerivedPrinterPtr::dynamicCast(derivedAsBase);

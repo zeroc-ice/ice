@@ -16,12 +16,12 @@ using namespace std;
 Ice::ObjectPtr
 ObjectFactory::create(const string& type)
 {
-    if(type == "::Printer")
+    if(type == "::Demo::Printer")
     {
 	return new PrinterI;
     }
 
-    if(type == "::DerivedPrinter")
+    if(type == "::Demo::DerivedPrinter")
     {
 	return new DerivedPrinterI;
     }
