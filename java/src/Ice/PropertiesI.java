@@ -120,8 +120,7 @@ class PropertiesI implements Properties
                 if (end != -1)
                 {
                     String prefix = arg.substring(2, end);
-                    if (prefix.equals("Ice") ||
-                        _argumentPrefixes.contains(prefix))
+                    if (prefix.equals("Ice") || _argumentPrefixes.contains(prefix))
                     {
                         match = true;
                     }
@@ -138,10 +137,7 @@ class PropertiesI implements Properties
                 }
             }
 
-            if (!match)
-            {
-                idx++;
-            }
+            idx++;
         }
     }
 
