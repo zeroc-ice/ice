@@ -19,7 +19,7 @@ namespace Ice
 
 template<class R, class T>
 class memFunT
-    : public std::unary_function<const __Ice::Handle<T>&, R>
+    : public std::unary_function<__Ice::Handle<T>, R>
 {
     typedef R (T::*funT)(void);
     funT mfn;
@@ -42,7 +42,7 @@ memFun(R (T::*p)(void))
 
 template<class R, class T, class A>
 class memFun1T
-    : public std::binary_function<const __Ice::Handle<T>&, A, R>
+    : public std::binary_function<__Ice::Handle<T>, A, R>
 {
     typedef R (T::*funT)(A);
     funT mfn;
@@ -65,7 +65,7 @@ memFun1(R (T::*p)(A))
 
 template<class T>
 class voidMemFunT
-    : public std::unary_function<const __Ice::Handle<T>&, void>
+    : public std::unary_function<__Ice::Handle<T>, void>
 {
     typedef void (T::*funT)(void);
     funT mfn;
@@ -88,7 +88,7 @@ voidMemFun(void (T::*p)(void))
 
 template<class T, class A>
 class voidMemFun1T
-    : public std::binary_function<const __Ice::Handle<T>&, A, void>
+    : public std::binary_function<__Ice::Handle<T>, A, void>
 {
     typedef void (T::*funT)(A);
     funT mfn;
@@ -111,7 +111,7 @@ voidMemFun1(void (T::*p)(A))
 
 template<class R, class K, class T>
 class secondMemFunT
-    : public std::unary_function<std::pair<K, const __Ice::Handle<T>&>, R>
+    : public std::unary_function<std::pair<K, __Ice::Handle<T> >, R>
 {
     typedef R (T::*funT)(void);
     funT mfn;
@@ -157,7 +157,7 @@ secondMemFun1(R (T::*p)(A))
 
 template<class K, class T>
 class secondVoidMemFunT
-    : public std::unary_function<std::pair<K, const __Ice::Handle<T>&>, void>
+    : public std::unary_function<std::pair<K, __Ice::Handle<T> >, void>
 {
     typedef void (T::*funT)(void);
     funT mfn;
@@ -203,7 +203,7 @@ secondVoidMemFun1(void (T::*p)(A))
 
 template<class R, class T>
 class constMemFunT
-    : public std::unary_function<const __Ice::Handle<T>&, R>
+    : public std::unary_function<__Ice::Handle<T>, R>
 {
     typedef R (T::*funT)(void) const;
     funT mfn;
@@ -226,7 +226,7 @@ constMemFun(R (T::*p)(void) const)
 
 template<class R, class T, class A>
 class constMemFun1T
-    : public std::binary_function<const __Ice::Handle<T>&, A, R>
+    : public std::binary_function<__Ice::Handle<T>, A, R>
 {
     typedef R (T::*funT)(A);
     funT mfn;
@@ -249,7 +249,7 @@ constMemFun1(R (T::*p)(A))
 
 template<class T>
 class constVoidMemFunT
-    : public std::unary_function<const __Ice::Handle<T>&, void>
+    : public std::unary_function<__Ice::Handle<T>, void>
 {
     typedef void (T::*funT)(void) const;
     funT mfn;
@@ -272,7 +272,7 @@ constVoidMemFun(void (T::*p)(void) const)
 
 template<class T, class A>
 class constVoidMemFun1T
-    : public std::binary_function<const __Ice::Handle<T>&, A, void>
+    : public std::binary_function<__Ice::Handle<T>, A, void>
 {
     typedef void (T::*funT)(A);
     funT mfn;
@@ -295,7 +295,7 @@ constVoidMemFun1(void (T::*p)(A))
 
 template<class R, class K, class T>
 class secondConstMemFunT
-    : public std::unary_function<std::pair<K, const __Ice::Handle<T>&>, R>
+    : public std::unary_function<std::pair<K, __Ice::Handle<T> >, R>
 {
     typedef R (T::*funT)(void) const;
     funT mfn;
@@ -341,7 +341,7 @@ secondConstMemFun1(R (T::*p)(A))
 
 template<class K, class T>
 class secondConstVoidMemFunT
-    : public std::unary_function<std::pair<K, const __Ice::Handle<T>&>, void>
+    : public std::unary_function<std::pair<K, __Ice::Handle<T> >, void>
 {
     typedef void (T::*funT)(void) const;
     funT mfn;

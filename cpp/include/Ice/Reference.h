@@ -37,7 +37,6 @@ public:
     {
 	ModeTwoway,
 	ModeOneway,
-	ModeSecure,
 	ModeDatagram
     };
     const Mode mode;

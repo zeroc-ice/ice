@@ -67,6 +67,18 @@ public:
     virtual void raise() const;
 };
 
+class ICE_API NoEndpointException : public LocalException
+{
+public:    
+
+    NoEndpointException(const char*, int);
+    NoEndpointException(const NoEndpointException&);
+    NoEndpointException& operator=(const NoEndpointException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
 class ICE_API SystemException : public LocalException
 {
 public:    
