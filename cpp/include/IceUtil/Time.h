@@ -34,7 +34,7 @@ public:
     static Time seconds(Int64);
     static Time milliSeconds(Int64);
     static Time microSeconds(Int64);
-
+    
     Time operator-() const;
     Time operator-(const Time&) const;
     Time operator+(const Time&) const;
@@ -50,6 +50,8 @@ public:
 
     operator timeval() const;
     operator double() const;
+
+    std::string toString() const;
 
 private:
 

@@ -16,6 +16,7 @@
 
 #ifdef _WIN32
 #   include <sys/timeb.h>
+#   include <time.h>
 #else
 #   include <sys/time.h>
 #endif
@@ -138,6 +139,31 @@ IceUtil::Time::operator timeval() const
 IceUtil::Time::operator double() const
 {
     return _usec / 1000000.0L;
+}
+
+std::string
+IceUtil::Time::toString() const
+{
+    time_t time = static_cast<long>(_usec / 1000000);
+
+    struct tm* t;
+#ifdef _WIN32
+    t = localtime(&time);
+#else
+    struct tm tr;
+    localtime_r(&time, &tr);
+    t = &tr;
+#endif
+
+    char buf[32];
+    strftime(buf, sizeof(buf), "%x %H:%M:%S", t);
+
+    std::ostringstream os;
+    os << buf << ":";
+    os.fill('0');
+    os.width(3);
+    os << static_cast<long>(_usec % 1000000 / 1000);
+    return os.str();
 }
 
 Time::Time(Int64 usec) :

@@ -682,6 +682,21 @@ value of <literal>Ice.ProgramName</literal>. (Unix only.)
 </section>
 </section>
 
+<section><title>Ice.Logger.Timestamp</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Logger.Timestamp=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the output of the default logger will include timestamps.
+</para>
+</section>
+</section>
+
 <section><title>Ice.NullHandleAbort</title>
 <section><title>Synopsis</title>
 <synopsis>

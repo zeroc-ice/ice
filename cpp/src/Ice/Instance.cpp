@@ -344,10 +344,12 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 	}
 	else
 	{
-	    _logger = new LoggerI(_properties->getProperty("Ice.ProgramName"));
+	    _logger = new LoggerI(_properties->getProperty("Ice.ProgramName"), 
+				  _properties->getPropertyAsInt("Ice.Logger.Timestamp") > 0);
 	}
 #else
-	_logger = new LoggerI(_properties->getProperty("Ice.ProgramName"));
+	_logger = new LoggerI(_properties->getProperty("Ice.ProgramName"), 
+			      _properties->getPropertyAsInt("Ice.Logger.Timestamp") > 0);
 #endif
 
 	_stats = 0; // There is no default statistics callback object.

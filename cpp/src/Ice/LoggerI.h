@@ -24,7 +24,7 @@ namespace Ice
 class LoggerI : public Logger
 {
 public:
-    LoggerI(const std::string&);
+    LoggerI(const std::string&, bool);
 
     virtual void trace(const std::string&, const std::string&);
     virtual void warning(const std::string&);
@@ -34,6 +34,7 @@ private:
 
     std::string _prefix;
     std::string _emptyPrefix;
+    bool _timestamp;
 
     //
     // A global mutex is used to avoid garbled output with multiple
