@@ -124,7 +124,7 @@ main(int argc, char* argv[])
 	{
 	    char cwd[_MAX_PATH];
 	    if(_getcwd(cwd, _MAX_PATH) == NULL)
-y	    {
+	    {
 		throw "cannot get the current directory:\n" + lastError();
 	    }
 	    
