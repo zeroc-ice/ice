@@ -28,11 +28,6 @@ tests = [ \
     "IceUtil/thread", \
     "IceUtil/unicode", \
     "Slice/errorDetection", \
-    "IceSSL/configuration", \
-    "IceSSL/loadPEM", \
-    "IceSSL/certificateAndKeyParsing", \
-    "IceSSL/certificateVerifier", \
-    "IceSSL/certificateVerification", \
     "Ice/operations", \
     "Ice/exceptions", \
     "Ice/inheritance", \
@@ -40,6 +35,11 @@ tests = [ \
     "Ice/objects", \
     "Ice/faultTolerance", \
     "Ice/locationForward", \
+    "IceSSL/configuration", \
+    "IceSSL/loadPEM", \
+    "IceSSL/certificateAndKeyParsing", \
+    "IceSSL/certificateVerifier", \
+    "IceSSL/certificateVerification", \
     "IceXML/encoding", \
     "IcePack/simple", \
     "Freeze/cursor", \

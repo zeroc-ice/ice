@@ -157,7 +157,7 @@ public class IncomingConnectionFactory extends EventHandler
                     {
                         Transceiver transceiver = _acceptor.accept(0);
                         Connection connection = new Connection(_instance, transceiver, _endpoint, _adapter);
-                        connection.exception(new Ice.ObjectAdapterDeactivatedException());
+                        connection.destroy(Connection.ObjectAdapterDeactivated);
                     }
                     catch (Ice.TimeoutException ex)
                     {

@@ -383,7 +383,7 @@ IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool
 		{
 		    TransceiverPtr transceiver = _acceptor->accept(0);
 		    ConnectionPtr connection = new Connection(_instance, transceiver, _endpoint, _adapter);
-		    connection->exception(ObjectAdapterDeactivatedException(__FILE__, __LINE__));
+		    connection->destroy(Connection::ObjectAdapterDeactivated);
 		}
 		catch (const TimeoutException&)
 		{
