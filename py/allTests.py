@@ -54,6 +54,7 @@ tests = [ \
     "Ice/facets", \
     "Ice/faultTolerance", \
     "Ice/inheritance", \
+    "Ice/location", \
     "Ice/objects", \
     "Ice/operations", \
     "Ice/slicing/exceptions", \
