@@ -7,14 +7,13 @@
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
-import os, sys, shutil, re, string, getopt, glob, logging
+import os, sys, shutil, re, string, getopt, glob, logging, fileinput
 
 #
 # TODO:
 #
 #  * Tidying and tracing.
 #  * Testing on platforms besides Linux.
-#  * Make it work out of CVS builds.
 #  * Have the verbose flag turn on the logging.
 #
 # NOTES:
@@ -182,7 +181,6 @@ fileLists = [
              ("dir", "share/doc/Ice-%version%/images"),
              ("dir", "share/doc/Ice-%version%/manual"),
 	     ("xdir", "share/doc/Ice-%version%/config"),
-	     ("file", "share/doc/Ice-%version%/config/Make.rules"),
 	     ("xdir", "share/doc/Ice-%version%/certs")]),
     Subpackage("c++-devel",
                "",
@@ -206,7 +204,7 @@ fileLists = [
 		("lib", "lib/libIceXML.so"),
 		("lib", "lib/libSlice.so"),
 		("dir", "share/doc/Ice-%version%/demo"),
-		("file", "share/doc/Ice-%version%/config/Make.cxx.rules"),
+		("file", "share/doc/Ice-%version%/config/Make.rules"),
 		("file", "share/doc/Ice-%version%/config/makedepend.py"),
 		("file", "share/doc/Ice-%version%/config/makecerts"),
 		("file", "share/doc/Ice-%version%/config/makeprops.py"),
@@ -242,7 +240,7 @@ fileLists = [
                "",
 	       "",
                [("exe", "bin/slice2cs"),
-		("file", "share/doc/Ice-%version%/config/Make.cs.rules"),
+		("file", "share/doc/Ice-%version%/config/Make.rules.cs"),
 	        ("dir", "share/doc/Ice-%version%/democs")]),
     Subpackage("java-devel",
                "ice-java = %version%",
@@ -380,87 +378,90 @@ def extractDemos(buildDir, version, distro, demoDir):
     shutil.move(distro + "/demo", buildDir + "/Ice-" + version + "-demos/demo" + demoDir)
 
     #
-    # 'System' copying of files here because its just easier!
+    # 'System' copying of files here because its just easier!  We don't
+    # need any configuration out of the Python tree.
     # 
-    os.system("cp " + distro + "/config/* " + buildDir + "/Ice-" + version + "-demos/config")
+    if not demoDir == "py":
+	os.system("cp " + distro + "/config/* " + buildDir + "/Ice-" + version + "-demos/config")
+
     if not os.path.exists(buildDir + "/Ice-" + version + "-demos/certs"):
 	os.mkdir(buildDir + "/Ice-" + version + "-demos/certs")
 
     os.system("cp -pR " + distro + "/certs/* " + buildDir + "/Ice-" + version + "-demos/certs")
 
     #
-    # The following hunks spawn a perl process to do an in-place edit
-    # of the root Make.rules file.  The changes remove the reliance on
-    # top_srcdir for the location of files that are not in the demo
-    # package.  The '\\x24' string is the $ metacharacter.  For some
-    # reason the perl interpreter is treating the $ metacharacter
-    # differently in the replacement text if grouping and capturing is
-    # used.  Some of the regular expressions could probably be written
-    # a bit better.
-    #
-
-    #
     # C++ specific build modifications.
     #
-    if demoDir == "":
+    if demoDir == "" or demoDir == "cs":
         tcwd = os.getcwd()
         os.chdir(buildDir + "/Ice-" + version + "-demos/config")
-	shutil.move(os.getcwd() + "/Make.rules", os.getcwd() + "/Make.cxx.rules")
-        script = "perl -pi -e 's/^prefix.*$/ifeq (\$(ICE_HOME),)\n   ICE_DIR  \= \/usr\nelse\n"
-        script = script + "   ICE_DIR \= \$(ICE_HOME)\n"
-        script = script + "endif\n/' Make.cxx.rules"
-        os.system(script)
 
-        script = "perl -pi -e 's/^([a-z]*dir.*=)\s*\$\(top_srcdir\)\/([A-Za-z]*)$/$1 \\x24\(ICE_DIR\)\/$2/'" + \
-	         " Make.cxx.rules"
-        os.system(script)
+	state = 'header'
+	reIceLocation = re.compile('^[a-z]*dir.*=\s*\$\(top_srcdir\)')
+	filename = 'Make.rules'
+	if demoDir == 'cs':
+	    filename = filename + '.cs'
+	for line in fileinput.input(filename, True, ".bak"):
+	    if state == 'done':
+		if line.startswith('slicedir'):
+		    state = 'untilblank'
+		    print """
+ifeq ($(ICE_DIR),/usr)
+    slicedir = $(ICE_DIR)/share/slice
+else
+    slicedir = $(ICE_DIR)/slice
+endif
+"""
+		elif reIceLocation.search(line) <> None:
+		    print line.rstrip('\n').replace('top_srcdir', 'ICE_DIR', 10)
+		elif line.startswith('install_'):
+		    #
+		    # Do nothing.
+		    #
+		    i = 1
+		else:
+		    print line.rstrip('\n')
+	    elif state == 'untilblank':
+		if line.isspace():
+		    state = 'done'
+	    elif state == 'header':
+		#
+		# Reading header.
+		#
+		print line.rstrip('\n')
+		if line.strip() == "":
+		    state = 'untilprefix'
+		    print """
+#
+# Checks for ICE_HOME environment variable.  If it isn't present it will
+# attempt to find an Ice installation in /usr.
+#
 
-        script = "perl -pi -e 's/^slicedir.*$/ifeq (\$(ICE_DIR),\/usr)\n    slicedir \= \$(ICE_DIR)\/share\/slice\n"
-        script = script + "else\n    slicedir \= \$(ICE_DIR)\/slice\nendif\n/' Make.cxx.rules"
-        os.system(script)
-        
+ifeq ($(ICE_HOME),)
+    ICE_DIR = /usr
+else
+    ICE_DIR = $(ICE_HOME)
+endif
+
+ifneq ($(shell test -d $(ICE_DIR)/include/Ice && echo 0),0)
+    $(error Ice distribution not found, please set ICE_HOME!)
+endif
+"""
+	    elif state == 'untilprefix':
+		if line.startswith('prefix'):
+		    state = 'done'
+
         # Dependency files are all going to be bogus.  The makedepend
         # script doesn't seem to work properly for the slice files.
         os.chdir("..")
         os.system("sh -c 'for f in `find . -name .depend` ; do echo \"\" > $f ; done'")
         
-        os.chdir(tcwd)
-    #
-    # C# specific build modifications
-    #
-    elif demoDir == "cs":
-        tcwd = os.getcwd()
-        os.chdir(buildDir + "/Ice-" + version + "-demos/config")
-	shutil.move(os.getcwd() + "/Make.rules", os.getcwd() + "/Make.cs.rules")
-        script = "perl -pi -e 's/^slice_home.*$/ifeq (\$(ICE_HOME),)\n   ICE_DIR  \= \/usr\nelse\n"
-        script = script + "   ICE_DIR \= \$(ICE_HOME)\n"
-        script = script + "endif\n/' Make.cs.rules"
-        os.system(script)
-
-        script = "perl -pi -e 's/^((?:lib|bin)dir.*=)\s*\$\(top_srcdir\)\/([A-Za-z]*).*$/$1 \\x24\(ICE_DIR\)\/$2/' "
-        script = script + "Make.cs.rules"
-        os.system(script)
-
-        
-        script = "perl -pi -e 's/^slicedir.*slice_home.*$/ifeq (\$(ICE_DIR),\/usr)\n"
-        script = script + "   slicedir \:= \\x24\(ICE_DIR\)\/share\/slice\nelse\n"
-        script = script + "   slicedir \:= \\x24\(ICE_DIR\)\/slice\nendif\n/' Make.cs.rules"
-        os.system(script)
-
-        # Dependency files are all going to be bogus.  The makedepend
-        # script doesn't seem to work properly for the slice files.
-        os.chdir("..")
-        os.system("sh -c 'for f in `find . -name .depend` ; do echo \"\" > $f ; done'")
-
         os.chdir(tcwd)
     elif demoDir == "j":
         tcwd = os.getcwd()
         os.chdir(buildDir + "/Ice-" + version + "-demos/config")
-	#
-	# The RPM configuration is the only one that cares about Ice
-	# version numbers.
-	#
-	os.system("perl -pi -e 's/ICE_VERSION/" + version + "/' common.xml")
+	for line in fileinput.input('common.xml', True, ".bak"):
+	    print line.rstrip('\n').replace('ICE_VERSION', version)
         os.chdir(tcwd)
         
     shutil.rmtree(buildDir + "/demotree/" + distro, True)
@@ -469,29 +470,6 @@ def extractDemos(buildDir, version, distro, demoDir):
 def archiveDemoTree(buildDir, version):
     cwd = os.getcwd()
     os.chdir(buildDir)
-    ofile = open("Ice-" + version + "-demos/config/Make.rules", "w+")
-
-    #
-    # Strictly speaking I dislike this method of writing strings, but in
-    # a way its more readable for this kind of output.
-    #
-    ofile.write("""
-# **********************************************************************
-#
-# Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
-#
-# **********************************************************************
-
-ifeq ($(findstring democs, $(CURDIR)), democs)
-   include $(top_srcdir)/config/Make.cs.rules
-else
-   include $(top_srcdir)/config/Make.cxx.rules
-endif
-""")
-    ofile.close()
     
     #
     # Remove unnecessary files from demos here.
@@ -676,7 +654,8 @@ def usage():
     print "                       anything new."
     print "--specfile             Just print the RPM spec file and exit."
     print "--usecvs		  Use contents of existing CVS directories"
-    print "                       to create binary package (in progress)"
+    print "                       to create binary package (This option cannot"
+    print "                       be used to create RPMS)"
     print 
     print "The following options set the locations for third party libraries"
     print "that may be required on your platform.  Alternatively, you can"
