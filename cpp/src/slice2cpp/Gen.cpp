@@ -803,6 +803,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
+	C << nl << "_delegate = 0;";
 	C << nl << "__ex.raise();";
     }
     C << eb;

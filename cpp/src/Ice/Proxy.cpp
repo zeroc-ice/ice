@@ -303,6 +303,7 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
     JTCSyncT<JTCMutex> sync(*this);
 
     _delegate = 0;
+
     static const int max = 1; // TODO: Make number of retries configurable
 
     try
@@ -364,12 +365,13 @@ IceProxy::Ice::Object::__locationForward(const LocationForward& ex)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
+    _delegate = 0;
+
     if (_reference->identity != ex._prx->_reference->identity)
     {
 	throw ReferenceIdentityException(__FILE__, __LINE__);
     }
 
-    _delegate = 0;
     _reference = _reference->changeEndpoints(ex._prx->_reference->endpoints);
 
 /*
