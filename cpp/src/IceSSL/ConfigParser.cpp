@@ -57,6 +57,7 @@ IceSSL::ConfigParser::ConfigParser(const string& configFile, const string& confi
 
 IceSSL::ConfigParser::~ConfigParser()
 {
+    XMLPlatformUtils::Terminate();
 }
 
 void
