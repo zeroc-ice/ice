@@ -84,7 +84,7 @@ IcePack::ActivatorI::destroy()
     setInterrupt();
 }
 
-bool
+Ice::Int
 IcePack::ActivatorI::activate(const ServerPrx& server, const ::Ice::Current&)
 {
     IceUtil::Mutex::Lock sync(*this);
@@ -258,7 +258,7 @@ IcePack::ActivatorI::activate(const ServerPrx& server, const ::Ice::Current&)
 	setInterrupt();
     }
 
-    return true;
+    return pid;
 }
 
 void

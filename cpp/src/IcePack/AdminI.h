@@ -31,6 +31,7 @@ public:
 			   const Targets&, const Ice::Current& = Ice::Current());
     virtual ServerDescription getServerDescription(const ::std::string&, const Ice::Current&);
     virtual ServerState getServerState(const ::std::string&, const Ice::Current& = Ice::Current());
+    virtual Ice::Int getServerPid(const ::std::string&, const Ice::Current&);
     virtual bool startServer(const ::std::string&, const Ice::Current&);
     virtual void removeServer(const ::std::string&, const Ice::Current&);
     virtual ServerNames getAllServerNames(const Ice::Current&);

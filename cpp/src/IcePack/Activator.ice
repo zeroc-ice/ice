@@ -20,12 +20,13 @@ interface Activator
 {
     /**
      *
-     * Activate a server.
+     * Activate a server and returns the pid of the server or 0 if the
+     * server couldn't be activated.
      *
      * @param server The server to activate.
      *
      **/
-    bool activate(Server* server);
+    int activate(Server* server);
 };
 
 };

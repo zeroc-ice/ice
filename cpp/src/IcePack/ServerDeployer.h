@@ -52,6 +52,7 @@ public:
     void addOption(const std::string&);
     void addJavaOption(const std::string&);
     void setKind(ServerKind);
+    void setAutomaticActivation(bool);
 
 private:
 
@@ -63,6 +64,7 @@ private:
     std::string _className;
     std::string _libraryPath;
     std::vector<std::string> _javaOptions;
+    bool _automaticActivation;
 };
 
 }

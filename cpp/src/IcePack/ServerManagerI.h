@@ -23,7 +23,8 @@ namespace IcePack
 
 class ServerI : public Server, public ::IceUtil::Monitor< ::IceUtil::Mutex>
 {
-public: // TODO: ML: Empty line missing.
+public:
+
     ServerI(const ::Ice::ObjectAdapterPtr&, const ActivatorPrx&);
     virtual ~ServerI();
     
@@ -31,7 +32,10 @@ public: // TODO: ML: Empty line missing.
     virtual bool start(const ::Ice::Current& = ::Ice::Current());
     virtual void terminationCallback(const ::Ice::Current& = ::Ice::Current());
     virtual ServerState getState(const ::Ice::Current& = ::Ice::Current());
-    virtual void setState(ServerState, const ::Ice::Current& = ::Ice::Current());
+    virtual Ice::Int getPid(const ::Ice::Current& = ::Ice::Current());
+
+    virtual void setState(ServerState);
+    virtual void setPid(int pid);
 
 private:
 
@@ -39,6 +43,7 @@ private:
     ActivatorPrx _activator;
 
     ServerState _state;
+    int _pid;
 };
 
 

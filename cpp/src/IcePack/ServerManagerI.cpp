@@ -83,7 +83,8 @@ private:
 IcePack::ServerI::ServerI(const ObjectAdapterPtr& adapter, const ActivatorPrx& activator) :
     _adapter(adapter), 
     _activator(activator),
-    _state(Inactive)
+    _state(Inactive),
+    _pid(0)
 {
 }
 
@@ -103,37 +104,46 @@ IcePack::ServerI::start(const Current&)
     while(true)
     {
 	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
-	if(!_activator) // TODO: ML: { } missing, here and in several places below.
+	if(!_activator)
+	{
 	    return false;
+	}
 
 	switch(_state)
 	{
 	case Inactive:
+	{
 	    _state = Activating;
 	    break;
-
+	}
 	case Activating:
+	{
 	    wait(); // TODO: Timeout?
 	    continue;
-
+	}
  	case Active:
+	{
 	    return true; // Raise an exception instead?
-
+	}
 	case Deactivating:
+	{
 	    wait();
 	    continue;
-
+	}
 	case Destroyed:
+	{
 	    throw ObjectNotExistException(__FILE__,__LINE__);
+	}
 	}
 	break;
     }
 
     try
     {
-	bool activated = _activator->activate(ServerNameToServer(_adapter)(description.name));
-	setState(activated ? Active : Inactive);
-	return activated;
+	int pid  = _activator->activate(ServerNameToServer(_adapter)(description.name));
+	setState((pid != 0) ? Active : Inactive);
+	setPid(pid);
+	return pid != 0;
     }
     catch (const SystemException& ex)
     {
@@ -175,17 +185,33 @@ IcePack::ServerI::getState(const Current&)
     return _state;
 }
 
+Ice::Int
+IcePack::ServerI::getPid(const Current&)
+{
+    IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    return _pid;
+}
+
 void
-IcePack::ServerI::setState(ServerState state, const Current&)
+IcePack::ServerI::setState(ServerState state)
 {
     IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
 
     if(state == Destroyed && (_state == Active || _state == Deactivating))
+    {
 	throw ServerNotInactiveException();
+    }
 
     _state = state;
 
     notifyAll();
+}
+
+void
+IcePack::ServerI::setPid(int pid)
+{
+    IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    _pid = pid;
 }
 
 IcePack::ServerManagerI::ServerManagerI(const ObjectAdapterPtr& adapter,

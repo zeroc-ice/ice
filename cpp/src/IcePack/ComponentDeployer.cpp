@@ -393,6 +393,31 @@ IcePack::ComponentDeployHandler::endElement(const XMLCh *const name)
 }
 
 void 
+IcePack::ComponentDeployHandler::ignorableWhitespace(const XMLCh*const, const unsigned int)
+{
+}
+
+void 
+IcePack::ComponentDeployHandler::processingInstruction(const XMLCh*const, const XMLCh*const)
+{
+}
+
+void 
+IcePack::ComponentDeployHandler::resetDocument()
+{
+}
+
+void 
+IcePack::ComponentDeployHandler::startDocument()
+{
+}
+
+void 
+IcePack::ComponentDeployHandler::endDocument()
+{
+}
+
+void 
 IcePack::ComponentDeployHandler::setDocumentLocator(const Locator *const locator)
 {
     _deployer.setDocumentLocator(locator);

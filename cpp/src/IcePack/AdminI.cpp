@@ -40,7 +40,7 @@ IcePack::AdminI::removeApplication(const string& descriptor, const Current&)
 {
     ApplicationDeployer deployer(_communicator, this, Targets());
     deployer.parse(descriptor);
-    deployer.deploy();
+    deployer.undeploy();
 }
 
 void
@@ -88,6 +88,23 @@ IcePack::AdminI::getServerState(const string& name, const Current&)
     throw ServerNotExistException();
 }
 
+Ice::Int
+IcePack::AdminI::getServerPid(const string& name, const Current&)
+{
+    ServerPrx server = _serverManager->findByName(name);
+    if(server)
+    {
+	try
+	{
+	    return server->getPid();
+	}
+	catch(const ObjectNotExistException&)
+	{
+	}
+    }
+    throw ServerNotExistException();
+}
+
 bool
 IcePack::AdminI::startServer(const string& name, const Current&)
 {
@@ -114,7 +131,6 @@ IcePack::AdminI::removeServer(const string& name, const Current&)
 	throw ServerNotExistException();
     }
 
-    server->setState(Destroyed);
     ServerDescription desc = server->getServerDescription();
     
     ServerDeployer deployer(_communicator, desc.name, desc.path, "", desc.targets);

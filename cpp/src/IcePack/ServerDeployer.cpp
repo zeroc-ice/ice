@@ -160,6 +160,22 @@ IcePack::ServerDeployHandler::startElement(const XMLCh *const name, AttributeLis
     {
 	_deployer.addAdapter(getAttributeValue(attrs, "name"), getAttributeValueWithDefault(attrs, "endpoints", ""));
     }
+    else if(str == "activation")
+    {
+	string mode = getAttributeValue(attrs, "mode");
+	if(mode == "manual")
+	{
+	    _deployer.setAutomaticActivation(false);
+	}
+	else if(mode == "automatic")
+	{
+	    _deployer.setAutomaticActivation(true);
+	}
+	else
+	{
+	    throw DeploySAXParseException("unkown value for attribute mode", _locator);
+	}
+    }
 }
 
 void
@@ -188,7 +204,8 @@ IcePack::ServerDeployer::ServerDeployer(const Ice::CommunicatorPtr& communicator
 					const string& libraryPath,
 					const vector<string>& targets) :
     ComponentDeployer(communicator, name, targets),
-    _libraryPath(libraryPath)
+    _libraryPath(libraryPath),
+    _automaticActivation(true)
 {
     _variables["name"] = name;
     _variables["datadir"] += "/" + _variables["name"];
@@ -342,12 +359,16 @@ IcePack::ServerDeployer::addAdapter(const string& name, const string& endpoints)
 
     AdapterDescription desc;
     desc.name = name;
-    desc.server = ServerPrx::uncheckedCast(
-	_communicator->stringToProxy("server/" + _description.name + "@IcePack.Internal"));
+
+    if(_automaticActivation)
+    {
+	desc.server = ServerPrx::uncheckedCast(
+	    _communicator->stringToProxy("server/" + _description.name + "@IcePack.Internal"));
+
+	_description.adapters.push_back(desc.name);
+    }
 
     _tasks.push_back(new AddAdapterTask(_adapterManager, desc));
-
-    _description.adapters.push_back(desc.name);
     
     if(!endpoints.empty())
     {
@@ -447,4 +468,10 @@ IcePack::ServerDeployer::setKind(ServerDeployer::ServerKind kind)
     }
     
     _kind = kind;
+}
+
+void
+IcePack::ServerDeployer::setAutomaticActivation(bool enabled)
+{
+    _automaticActivation = enabled;
 }

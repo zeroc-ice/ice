@@ -55,12 +55,11 @@ class Server
 
     /**
      *
-     * Set the server state.
+     * Set the server pid.
      *
      **/
-    void setState(ServerState state)
-	throws ServerNotInactiveException;
-
+    int getPid();
+    
     /**
      * 
      * The description of this server.

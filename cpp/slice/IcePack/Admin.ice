@@ -149,7 +149,7 @@ struct ServerDescription
 
     /**
      *
-     * Targets used to deployed the server.
+     * Targets used to deploy the server.
      *
      **/
     Targets targets;
@@ -176,16 +176,6 @@ struct ServerDescription
      *
      **/
     string path;
-
-    /**
-     *
-     * The server library path.
-     *
-     * @see args
-     * @see pwd
-     *
-     **/
-    string libraryPath;
 
     /**
      *
@@ -306,6 +296,7 @@ class Admin
      * found.
      *
      * @see getServerState
+     * @see getServerPid
      * @see getAllServerNames
      *
      **/
@@ -324,10 +315,32 @@ class Admin
      * found.
      *
      * @see getServerDescription
+     * @see getServerPid
      * @see getAllServerNames
      *
      **/
     ["nonmutating"] ServerState getServerState(string name)
+	throws ServerNotExistException;
+    
+    /**
+     *
+     * Get a server system process id. The process id is system
+     * dependent and might mean different things depending on the
+     * operating system the server is running.
+     *
+     * @param name Must match the name of [ServerDescription::name].
+     *
+     * @return The server process id.
+     * 
+     * @throws ServerNotExistException Raised if the server is not
+     * found.
+     *
+     * @see getServerDescription
+     * @see getServerState
+     * @see getAllServerNames
+     *
+     **/
+    ["nonmutating"] int getServerPid(string name)
 	throws ServerNotExistException;
     
     /**

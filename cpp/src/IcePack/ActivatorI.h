@@ -28,7 +28,7 @@ public:
     virtual void run();
     void destroy();
 
-    virtual bool activate(const ::IcePack::ServerPrx&, const ::Ice::Current&);
+    virtual Ice::Int activate(const ::IcePack::ServerPrx&, const ::Ice::Current&);
 
 private:
 

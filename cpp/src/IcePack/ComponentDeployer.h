@@ -83,14 +83,13 @@ public:
     virtual void characters(const XMLCh*const, const unsigned int);
     virtual void startElement(const XMLCh*const, AttributeList&); 
     virtual void endElement(const XMLCh*const);
-
-    // TODO: ML: No reason to make inline, see style guide.
-    virtual void ignorableWhitespace(const XMLCh*const, const unsigned int) { }
-    virtual void processingInstruction(const XMLCh*const, const XMLCh*const) { }
-    virtual void resetDocument() { }
     virtual void setDocumentLocator(const Locator *const);
-    virtual void startDocument() { }
-    virtual void endDocument() { }
+
+    virtual void ignorableWhitespace(const XMLCh*const, const unsigned int);
+    virtual void processingInstruction(const XMLCh*const, const XMLCh*const);
+    virtual void resetDocument();
+    virtual void startDocument();
+    virtual void endDocument();
 
 protected:
 
@@ -100,8 +99,6 @@ protected:
     std::string toString(const XMLCh*const) const;
     std::string elementValue() const;
     bool isCurrentTargetDeployable() const;
-
-private:
 
     ComponentDeployer& _deployer;
     std::stack<std::string> _elements;

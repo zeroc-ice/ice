@@ -269,7 +269,8 @@ IcePack::Parser::stateServer(const list<string>& args)
 	}
 	case Active:
 	{
-	    cout << "active" << endl;
+	    int pid = _admin->getServerPid(args.front());
+	    cout << "active (pid = " << pid << ")" << endl;
 	    break;
 	}
 	case Deactivating:
