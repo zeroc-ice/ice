@@ -224,11 +224,11 @@ public class _ObjectDelM implements _ObjectDel
 		    // proxy endpoints.
 		    //
 		    ObjectPrx proxy = __reference.routerInfo.getClientProxy();
-		    endpoints = filterEndpoints(((ObjectPrxHelper)proxy).__reference().endpoints);
+		    endpoints = ((ObjectPrxHelper)proxy).__reference().endpoints;
 		}
 		else if(__reference.endpoints.length > 0)
 		{
-		    endpoints = filterEndpoints(__reference.endpoints);
+		    endpoints = __reference.endpoints;
 		}
 		else if(__reference.locatorInfo != null)
 		{

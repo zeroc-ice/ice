@@ -116,11 +116,10 @@ class CommunicatorI implements Communicator
 
         ObjectAdapter adapter = _instance.objectAdapterFactory().createObjectAdapter(name, endpts);
 
-	String locator = _instance.defaultsAndOverrides().defaultLocator;
-	if(locator.length() > 0)
-	{
-	    adapter.setLocator(LocatorPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(locator)));
-	}
+	//
+	// Set the adapter locator to this communicator default locator.
+	//
+	adapter.setLocator(_instance.referenceFactory().getDefaultLocator());
 
 	if(_serverThreadPool == null) // Lazy initialization of _serverThreadPool.
 	{
@@ -224,6 +223,12 @@ class CommunicatorI implements Communicator
     setDefaultRouter(RouterPrx router)
     {
         _instance.referenceFactory().setDefaultRouter(router);
+    }
+
+    public void
+    setDefaultLocator(LocatorPrx locator)
+    {
+        _instance.referenceFactory().setDefaultLocator(locator);
     }
 
     public PluginManager
