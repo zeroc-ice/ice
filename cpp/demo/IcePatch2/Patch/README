@@ -7,14 +7,5 @@ ICE_LICENSE file included in this distribution.
 
 **********************************************************************
 
-Demos in this directory:
-
-- MFC
-
-  Contains a simple IcePatch2 client built using Microsoft Foundation
-  Classes (MFC).
-
-- Patch
-  
-  This directory is empty and is used by the MFC IcePatch2 demo, see the 
-  README file in the MFC demo for more information.
+This directory is intentionaly empty, see ../MFC/README for more
+information!
