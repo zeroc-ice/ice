@@ -29,6 +29,7 @@ void
 IceInternal::Incoming::invoke(bool response)
 {
     Current current;
+    current.adapter = _adapter;
     current.id.__read(&_is);
     _is.read(current.facet);
     _is.read(current.operation);
@@ -78,7 +79,7 @@ IceInternal::Incoming::invoke(bool response)
 		locator = _adapter->findServantLocator(current.id.category);
 		if(locator)
 		{
-		    servant = locator->locate(_adapter, current, cookie);
+		    servant = locator->locate(current, cookie);
 		}
 	    }
 	    
@@ -87,7 +88,7 @@ IceInternal::Incoming::invoke(bool response)
 		locator = _adapter->findServantLocator("");
 		if(locator)
 		{
-		    servant = locator->locate(_adapter, current, cookie);
+		    servant = locator->locate(current, cookie);
 		}
 	    }
 	}
@@ -121,7 +122,7 @@ IceInternal::Incoming::invoke(bool response)
 	if(locator && servant)
 	{
 	    assert(_adapter);
-	    locator->finished(_adapter, current, servant, cookie);
+	    locator->finished(current, servant, cookie);
 	}
 	
 	_is.endReadEncaps();
@@ -158,7 +159,7 @@ IceInternal::Incoming::invoke(bool response)
 	if(locator && servant)
 	{
 	    assert(_adapter);
-	    locator->finished(_adapter, current, servant, cookie);
+	    locator->finished(current, servant, cookie);
 	}
 
 	_is.endReadEncaps();
@@ -175,7 +176,7 @@ IceInternal::Incoming::invoke(bool response)
 	if(locator && servant)
 	{
 	    assert(_adapter);
-	    locator->finished(_adapter, current, servant, cookie);
+	    locator->finished(current, servant, cookie);
 	}
 
 	_is.endReadEncaps();
@@ -197,7 +198,7 @@ IceInternal::Incoming::invoke(bool response)
 	if(locator && servant)
 	{
 	    assert(_adapter);
-	    locator->finished(_adapter, current, servant, cookie);
+	    locator->finished(current, servant, cookie);
 	}
 
 	_is.endReadEncaps();
@@ -219,7 +220,7 @@ IceInternal::Incoming::invoke(bool response)
 	if(locator && servant)
 	{
 	    assert(_adapter);
-	    locator->finished(_adapter, current, servant, cookie);
+	    locator->finished(current, servant, cookie);
 	}
 
 	_is.endReadEncaps();
@@ -241,7 +242,7 @@ IceInternal::Incoming::invoke(bool response)
 	if(locator && servant)
 	{
 	    assert(_adapter);
-	    locator->finished(_adapter, current, servant, cookie);
+	    locator->finished(current, servant, cookie);
 	}
 
 	_is.endReadEncaps();
@@ -260,7 +261,7 @@ IceInternal::Incoming::invoke(bool response)
 	if(locator && servant)
 	{
 	    assert(_adapter);
-	    locator->finished(_adapter, current, servant, cookie);
+	    locator->finished(current, servant, cookie);
 	}
 
 	_is.endReadEncaps();
@@ -279,7 +280,7 @@ IceInternal::Incoming::invoke(bool response)
 	if(locator && servant)
 	{
 	    assert(_adapter);
-	    locator->finished(_adapter, current, servant, cookie);
+	    locator->finished(current, servant, cookie);
 	}
 
 	_is.endReadEncaps();

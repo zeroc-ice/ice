@@ -3146,7 +3146,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    << sliceModeToIceMode(op) << ", __context);";
         out << nl << "while(true)";
         out << sb;
-        out << nl << "IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);";
+        out << nl << "IceInternal.Direct __direct = new IceInternal.Direct(__current);";
         out << nl << "try";
         out << sb;
         out << nl << name << " __servant = null;";

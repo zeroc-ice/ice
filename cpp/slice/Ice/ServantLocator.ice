@@ -46,9 +46,6 @@ local interface ServantLocator
      * Servant Locators such as the
      * [Freeze::Evictor].</para></important>
      *
-     * @param adapter The object adapter that calls the Servant
-     * Locator.
-     *
      * @param curr Information about the current operation call to
      * locate a Servant for.
      *
@@ -62,7 +59,7 @@ local interface ServantLocator
      * @see finished
      *
      **/
-    Object locate(ObjectAdapter adapter, Current curr, out LocalObject cookie);
+    Object locate(Current curr, out LocalObject cookie);
 
     /**
      *
@@ -70,8 +67,6 @@ local interface ServantLocator
      * made. This operation is only called if [locate] was called
      * prior to the request and returned a non-null servant. This
      * operation can be used for cleanup purposes after a request.
-     *
-     * @param adapter The object adapter that calls the Servant Locator.
      *
      * @param curr Information about the current operation call for
      * which a servant was lcoated by [locate].
@@ -85,7 +80,7 @@ local interface ServantLocator
      * @see locate
      *
      **/
-    void finished(ObjectAdapter adapter, Current curr, Object servant, LocalObject cookie);
+    void finished(Current curr, Object servant, LocalObject cookie);
 
     /**
      *

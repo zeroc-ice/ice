@@ -17,6 +17,8 @@
 module Ice
 {
 
+local interface ObjectAdapter;
+
 /**
  *
  * A request context. [Context] is used to transmit metadata about a
@@ -93,6 +95,13 @@ enum OperationMode
  **/
 local struct Current
 {
+    /**
+     *
+     * The object adapter.
+     *
+     **/
+    ObjectAdapter adapter;
+
     /**
      *
      * The &Ice; object identity.

@@ -75,7 +75,7 @@ public class Incoming
                     locator = _adapter.findServantLocator(_current.id.category);
                     if(locator != null)
                     {
-                        servant = locator.locate(_adapter, _current, _cookie);
+                        servant = locator.locate(_current, _cookie);
                     }
                 }
 
@@ -84,7 +84,7 @@ public class Incoming
                     locator = _adapter.findServantLocator("");
                     if(locator != null)
                     {
-                        servant = locator.locate(_adapter, _current, _cookie);
+                        servant = locator.locate(_current, _cookie);
                     }
                 }
             }
@@ -118,7 +118,7 @@ public class Incoming
             if(locator != null && servant != null)
             {
                 assert(_adapter != null);
-                locator.finished(_adapter, _current, servant, _cookie.value);
+                locator.finished(_current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
@@ -158,7 +158,7 @@ public class Incoming
             if(locator != null && servant != null)
             {
                 assert(_adapter != null);
-                locator.finished(_adapter, _current, servant, _cookie.value);
+                locator.finished(_current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
@@ -175,7 +175,7 @@ public class Incoming
             if(locator != null && servant != null)
             {
                 assert(_adapter != null);
-                locator.finished(_adapter, _current, servant, _cookie.value);
+                locator.finished(_current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
@@ -197,7 +197,7 @@ public class Incoming
             if(locator != null && servant != null)
             {
                 assert(_adapter != null);
-                locator.finished(_adapter, _current, servant, _cookie.value);
+                locator.finished(_current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
@@ -219,7 +219,7 @@ public class Incoming
             if(locator != null && servant != null)
             {
                 assert(_adapter != null);
-                locator.finished(_adapter, _current, servant, _cookie.value);
+                locator.finished(_current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
@@ -241,7 +241,7 @@ public class Incoming
             if(locator != null && servant != null)
             {
                 assert(_adapter != null);
-                locator.finished(_adapter, _current, servant, _cookie.value);
+                locator.finished(_current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
@@ -262,7 +262,7 @@ public class Incoming
             if(locator != null && servant != null)
             {
                 assert(_adapter != null);
-                locator.finished(_adapter, _current, servant, _cookie.value);
+                locator.finished(_current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
@@ -282,7 +282,7 @@ public class Incoming
             if(locator != null && servant != null)
             {
                 assert(_adapter != null);
-                locator.finished(_adapter, _current, servant, _cookie.value);
+                locator.finished(_current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();

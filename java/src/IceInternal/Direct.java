@@ -13,32 +13,31 @@ package IceInternal;
 public final class Direct
 {
     public
-    Direct(Ice.ObjectAdapter adapter, Ice.Current current)
+    Direct(Ice.Current current)
     {
-        _adapter = adapter;
         _current = current;
 
         try
         {
-            _servant = _adapter.identityToServant(_current.id);
+            _servant = _current.adapter.identityToServant(_current.id);
 
             if(_servant == null && _current.id.category.length() > 0)
             {
-                _locator = _adapter.findServantLocator(_current.id.category);
+                _locator = _current.adapter.findServantLocator(_current.id.category);
                 if(_locator != null)
                 {
                     _cookie = new Ice.LocalObjectHolder(); // Lazy creation
-                    _servant = _locator.locate(_adapter, _current, _cookie);
+                    _servant = _locator.locate(_current, _cookie);
                 }
             }
 
             if(_servant == null)
             {
-                _locator = _adapter.findServantLocator("");
+                _locator = _current.adapter.findServantLocator("");
                 if(_locator != null)
                 {
                     _cookie = new Ice.LocalObjectHolder(); // Lazy creation
-                    _servant = _locator.locate(_adapter, _current, _cookie);
+                    _servant = _locator.locate(_current, _cookie);
                 }
             }
 
@@ -57,7 +56,7 @@ public final class Direct
         {
             if(_locator != null && _servant != null)
             {
-                _locator.finished(_adapter, _current, _servant, _cookie.value);
+                _locator.finished(_current, _servant, _cookie.value);
             }
             throw ex;
         }
@@ -75,7 +74,7 @@ public final class Direct
     {
         if(_locator != null && _servant != null)
         {
-            _locator.finished(_adapter, _current, _servant, _cookie.value);
+            _locator.finished(_current, _servant, _cookie.value);
         }
     }
 
@@ -92,7 +91,6 @@ public final class Direct
         }
     }
 
-    private Ice.ObjectAdapter _adapter;
     private Ice.Current _current;
     private Ice.Object _servant;
     private Ice.Object _facetServant;

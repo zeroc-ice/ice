@@ -1052,7 +1052,7 @@ IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context& __context)
     __initCurrent(__current, "ice_isA", ::Ice::Nonmutating, __context);
     while(true)
     {
-	Direct __direct(__adapter, __current);
+	Direct __direct(__current);
 	try
 	{
 	    return __direct.facetServant()->ice_isA(__id, __current);
@@ -1080,7 +1080,7 @@ IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context& __context)
     __initCurrent(__current, "ice_ping", ::Ice::Nonmutating, __context);
     while(true)
     {
-	Direct __direct(__adapter, __current);
+	Direct __direct(__current);
 	try
 	{
 	    __direct.facetServant()->ice_ping(__current);
@@ -1108,7 +1108,7 @@ IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context& __context)
     __initCurrent(__current, "ice_ids", ::Ice::Nonmutating, __context);
     while(true)
     {
-	Direct __direct(__adapter, __current);
+	Direct __direct(__current);
 	try
 	{
 	    return __direct.facetServant()->ice_ids(__current);
@@ -1136,7 +1136,7 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context& __context)
     __initCurrent(__current, "ice_id", ::Ice::Nonmutating, __context);
     while(true)
     {
-	Direct __direct(__adapter, __current);
+	Direct __direct(__current);
 	try
 	{
 	    return __direct.facetServant()->ice_id(__current);
@@ -1164,7 +1164,7 @@ IceDelegateD::Ice::Object::ice_facets(const ::Ice::Context& __context)
     __initCurrent(__current, "ice_facets", ::Ice::Nonmutating, __context);
     while(true)
     {
-	Direct __direct(__adapter, __current);
+	Direct __direct(__current);
 	try
 	{
 	    return __direct.facetServant()->ice_facets(__current);
@@ -1196,7 +1196,7 @@ IceDelegateD::Ice::Object::ice_invoke(const string& operation,
     __initCurrent(current, operation, mode, context);
     while(true)
     {
-	Direct __direct(__adapter, current);
+	Direct __direct(current);
 	Blobject* __servant = dynamic_cast<Blobject*>(__direct.facetServant().get());
 	if(!__servant)
 	{
@@ -1251,6 +1251,7 @@ void
 IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, OperationMode mode,
 					 const Context& context)
 {
+    current.adapter = __adapter;
     current.id = __reference->identity;
     current.facet = __reference->facet;
     current.operation = op;

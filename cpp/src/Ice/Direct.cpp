@@ -19,29 +19,28 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const Current& current) :
-    _adapter(adapter),
+IceInternal::Direct::Direct(const Current& current) :
     _current(current)
 {
     try
     {
-	_servant = _adapter->identityToServant(_current.id);
+	_servant = current.adapter->identityToServant(_current.id);
     
 	if(!_servant && !_current.id.category.empty())
 	{
-	    _locator = _adapter->findServantLocator(_current.id.category);
+	    _locator = current.adapter->findServantLocator(_current.id.category);
 	    if(_locator)
 	    {
-		_servant = _locator->locate(_adapter, _current, _cookie);
+		_servant = _locator->locate(_current, _cookie);
 	    }
 	}
 
 	if(!_servant)
 	{
-	    _locator = _adapter->findServantLocator("");
+	    _locator = current.adapter->findServantLocator("");
 	    if(_locator)
 	    {
-		_servant = _locator->locate(_adapter, _current, _cookie);
+		_servant = _locator->locate(_current, _cookie);
 	    }
 	}
 	
@@ -60,7 +59,7 @@ IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const Current& curr
     {
 	if(_locator && _servant)
 	{
-	    _locator->finished(_adapter, _current, _servant, _cookie);
+	    _locator->finished(_current, _servant, _cookie);
 	}
 	throw;
     }
@@ -77,7 +76,7 @@ IceInternal::Direct::~Direct()
 {
     if(_locator && _servant)
     {
-	_locator->finished(_adapter, _current, _servant, _cookie);
+	_locator->finished(_current, _servant, _cookie);
     }
 }
 

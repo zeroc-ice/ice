@@ -23,7 +23,7 @@ IcePatch::FileLocator::FileLocator(const Ice::ObjectAdapterPtr& adapter) :
 }
 
 ObjectPtr
-IcePatch::FileLocator::locate(const ObjectAdapterPtr& adapter, const Current& current, LocalObjectPtr&)
+IcePatch::FileLocator::locate(const Current& current, LocalObjectPtr&)
 {
     //
     // Check whether the path is valid.
@@ -67,7 +67,7 @@ IcePatch::FileLocator::locate(const ObjectAdapterPtr& adapter, const Current& cu
     }
     catch(const FileAccessException& ex)
     {
-	Warning out(adapter->getCommunicator()->getLogger());
+	Warning out(current.adapter->getCommunicator()->getLogger());
 	out << ex << ":\n" << ex.reason;
 	return 0;
     }
@@ -92,7 +92,7 @@ IcePatch::FileLocator::locate(const ObjectAdapterPtr& adapter, const Current& cu
 }
 
 void
-IcePatch::FileLocator::finished(const ObjectAdapterPtr&, const Current& current, const ObjectPtr&,
+IcePatch::FileLocator::finished(const Current& current, const ObjectPtr&,
 				const LocalObjectPtr&)
 {
     // Nothing to do.

@@ -25,14 +25,13 @@ class ICE_API Direct : public ::IceUtil::noncopyable
 {
 public:
 
-    Direct(const ::Ice::ObjectAdapterPtr&, const ::Ice::Current&);
+    Direct(const ::Ice::Current&);
     ~Direct();
 
     const ::Ice::ObjectPtr& facetServant();    
 
 private:
 
-    const ::Ice::ObjectAdapterPtr& _adapter;
     ::Ice::Current _current;
     ::Ice::ObjectPtr _servant;
     ::Ice::ObjectPtr _facetServant;

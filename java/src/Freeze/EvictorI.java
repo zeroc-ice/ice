@@ -148,7 +148,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor
     }
 
     synchronized public Ice.Object
-    locate(Ice.ObjectAdapter adapter, Ice.Current current, Ice.LocalObjectHolder cookie)
+    locate(Ice.Current current, Ice.LocalObjectHolder cookie)
     {
 	assert(_db != null);
 	
@@ -225,7 +225,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor
 	    //
 	    if(_initializer != null)
 	    {
-		_initializer.initialize(adapter, ident, servant);
+		_initializer.initialize(current.adapter, ident, servant);
 	    }
 	}
 	
@@ -247,7 +247,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor
     }
 
     synchronized public void
-    finished(Ice.ObjectAdapter adapter, Ice.Current current, Ice.Object servant, Ice.LocalObject cookie)
+    finished(Ice.Current current, Ice.Object servant, Ice.LocalObject cookie)
     {
 	assert(_db != null);
 	assert(servant != null);

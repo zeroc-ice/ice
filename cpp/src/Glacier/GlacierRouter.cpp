@@ -31,9 +31,8 @@ public:
 
     ServantLocator(const ::Ice::ObjectPtr&);
     
-    virtual Ice::ObjectPtr locate(const Ice::ObjectAdapterPtr&, const Ice::Current&, Ice::LocalObjectPtr&);
-    virtual void finished(const Ice::ObjectAdapterPtr&, const Ice::Current&,
-			  const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
+    virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
+    virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
     virtual void deactivate();
 
 private:
@@ -57,13 +56,13 @@ Glacier::ServantLocator::ServantLocator(const ObjectPtr& blobject) :
 }
 
 ObjectPtr
-Glacier::ServantLocator::locate(const ObjectAdapterPtr&, const Current&, LocalObjectPtr&)
+Glacier::ServantLocator::locate(const Current&, LocalObjectPtr&)
 {
     return _blobject;
 }
 
 void
-Glacier::ServantLocator::finished(const ObjectAdapterPtr&, const Current&, const ObjectPtr&, const LocalObjectPtr&)
+Glacier::ServantLocator::finished(const Current&, const ObjectPtr&, const LocalObjectPtr&)
 {
     // Nothing to do
 }

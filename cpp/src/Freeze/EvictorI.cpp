@@ -203,7 +203,7 @@ Freeze::EvictorI::hasObject(const Ice::Identity& ident)
 }
 
 ObjectPtr
-Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current, LocalObjectPtr& cookie)
+Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -269,7 +269,7 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current
 	//
 	if(_initializer)
 	{
-	    _initializer->initialize(adapter, current.id, servant);
+	    _initializer->initialize(current.adapter, current.id, servant);
 	}
     }
 
@@ -291,8 +291,7 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current
 }
 
 void
-Freeze::EvictorI::finished(const ObjectAdapterPtr&, const Current& current,
-			   const ObjectPtr& servant, const LocalObjectPtr& cookie)
+Freeze::EvictorI::finished(const Current& current, const ObjectPtr& servant, const LocalObjectPtr& cookie)
 {
     IceUtil::Mutex::Lock sync(*this);
 

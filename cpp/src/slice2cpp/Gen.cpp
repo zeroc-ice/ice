@@ -1735,7 +1735,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
       << "\", static_cast< ::Ice::OperationMode>(" << p->mode() << "), __context);";
     C << nl << "while(true)";
     C << sb;
-    C << nl << "::IceInternal::Direct __direct(__adapter, __current);";
+    C << nl << "::IceInternal::Direct __direct(__current);";
     string thisPointer = fixKwd(cl->scoped()) + "*";
     C << nl << thisPointer << " __servant = dynamic_cast< "
       << thisPointer << ">(__direct.facetServant().get());";

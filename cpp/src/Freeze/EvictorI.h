@@ -40,9 +40,8 @@ public:
     virtual EvictorIteratorPtr getIterator();
     virtual bool hasObject(const Ice::Identity&);
 
-    virtual Ice::ObjectPtr locate(const Ice::ObjectAdapterPtr&, const Ice::Current&, Ice::LocalObjectPtr&);
-    virtual void finished(const Ice::ObjectAdapterPtr&, const Ice::Current&,
-			  const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
+    virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
+    virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
     virtual void deactivate();
 
 private:

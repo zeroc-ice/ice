@@ -20,7 +20,7 @@ public class _ObjectDelD implements _ObjectDel
         __initCurrent(__current, "ice_isA", OperationMode.Nonmutating, __context);
         while(true)
         {
-            IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);
+            IceInternal.Direct __direct = new IceInternal.Direct(__current);
             try
             {
                 try
@@ -55,7 +55,7 @@ public class _ObjectDelD implements _ObjectDel
         __initCurrent(__current, "ice_ping", OperationMode.Nonmutating, __context);
         while(true)
         {
-            IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);
+            IceInternal.Direct __direct = new IceInternal.Direct(__current);
             try
             {
                 try
@@ -91,7 +91,7 @@ public class _ObjectDelD implements _ObjectDel
         __initCurrent(__current, "ice_ids", OperationMode.Nonmutating, __context);
         while(true)
         {
-            IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);
+            IceInternal.Direct __direct = new IceInternal.Direct(__current);
             try
             {
                 try
@@ -126,7 +126,7 @@ public class _ObjectDelD implements _ObjectDel
         __initCurrent(__current, "ice_id", OperationMode.Nonmutating, __context);
         while(true)
         {
-            IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);
+            IceInternal.Direct __direct = new IceInternal.Direct(__current);
             try
             {
                 try
@@ -161,7 +161,7 @@ public class _ObjectDelD implements _ObjectDel
         __initCurrent(__current, "ice_facets", OperationMode.Nonmutating, __context);
         while(true)
         {
-            IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);
+            IceInternal.Direct __direct = new IceInternal.Direct(__current);
             try
             {
                 try
@@ -197,7 +197,7 @@ public class _ObjectDelD implements _ObjectDel
         __initCurrent(current, operation, mode, context);
         while(true)
         {
-            IceInternal.Direct __direct = new IceInternal.Direct(__adapter, current);
+            IceInternal.Direct __direct = new IceInternal.Direct(current);
             try
             {
                 Blobject __servant = null;
@@ -267,6 +267,7 @@ public class _ObjectDelD implements _ObjectDel
     protected final void
     __initCurrent(Current current, String op, Ice.OperationMode mode, java.util.Map context)
     {
+        current.adapter = __adapter;
         current.id = __reference.identity;
         current.facet = __reference.facet;
         current.operation = op;
