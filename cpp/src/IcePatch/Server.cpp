@@ -128,12 +128,6 @@ IcePatch::Server::run(int argc, char* argv[])
     adapter->addServantLocator(fileLocator, "IcePatch");
 
     //
-    // Create the "info" Ice Object.
-    //
-    InfoPtr info = new InfoI(adapter);
-    adapter->add(info, pathToIdentity(".icepatch")); // .icepatch is reserved, so lets use this for info identity.
-    
-    //
     // Start the updater if an update period is set.
     //
     UpdaterPtr updater;
@@ -255,6 +249,13 @@ IcePatch::Updater::cleanup(const FileDescSeq& fileDescSeq)
 	    // removed.
 	    //
 	    cleanup(directoryDesc->directory->getContents());
+
+	    //
+	    // Call describe(), because MD5 files in subdirectories
+	    // might have changed, resulting in a different summary
+	    // MD5 for this directory.
+	    //
+	    directoryDesc->directory->describe();
 	}
 	else
 	{
@@ -262,7 +263,7 @@ IcePatch::Updater::cleanup(const FileDescSeq& fileDescSeq)
 	    assert(regularDesc);
 
 	    //
-	    // Force BZ2 files to be created.
+	    // Force BZ2 files to be created for all regular files.
 	    //
 	    regularDesc->regular->getBZ2Size();
 	}

@@ -324,45 +324,65 @@ IcePatch::getMD5(const string& path)
 void
 IcePatch::createMD5(const string& path)
 {
+    //
+    // The current directory is not permissible for MD5 value
+    // creation.
+    //
+    assert(path != ".");
+
+    ByteSeq bytes;
+
     FileInfo info = getFileInfo(path, true);
     if(info.type == FileTypeDirectory)
     {
-	FileAccessException ex;
-	ex.reason = "cannot create MD5 file for `" + path + "' because this is a directory";
-	throw ex;
+	//
+	// Create a summary of all MD5 files.
+	//
+	StringSeq paths = readDirectory(path);
+	for(StringSeq::const_iterator p = paths.begin(); p < paths.end(); ++p)
+	{
+	    if(getSuffix(*p) == "md5")
+	    {
+		ByteSeq subBytesMD5 = getMD5(removeSuffix(*p));
+		copy(subBytesMD5.begin(), subBytesMD5.end(), back_inserter(bytes));
+	    }
+	}	
     }
+    else
+    {
+	assert(info.type == FileTypeRegular);
 
-    //
-    // Read the original file.
-    //
-    ifstream file(path.c_str(), ios::binary);
-    if(!file)
-    {
-	FileAccessException ex;
-	ex.reason = "cannot open `" + path + "' for reading: " + strerror(errno);
-	throw ex;
-    }
-    
-    ByteSeq bytes;
-    bytes.resize(info.size);
-    if(bytes.size() > 0)
-    {
-	file.read(&bytes[0], bytes.size());
+	//
+	// Read the original file.
+	//
+	ifstream file(path.c_str(), ios::binary);
 	if(!file)
 	{
 	    FileAccessException ex;
-	    ex.reason = "cannot read `" + path + "': " + strerror(errno);
+	    ex.reason = "cannot open `" + path + "' for reading: " + strerror(errno);
 	    throw ex;
 	}
-	if(file.gcount() < static_cast<int>(bytes.size()))
+	
+	bytes.resize(info.size);
+	if(bytes.size() > 0)
 	{
-	    FileAccessException ex;
-	    ex.reason = "could not read all bytes from `" + path + "'";
-	    throw ex;
+	    file.read(&bytes[0], bytes.size());
+	    if(!file)
+	    {
+		FileAccessException ex;
+		ex.reason = "cannot read `" + path + "': " + strerror(errno);
+		throw ex;
+	    }
+	    if(file.gcount() < static_cast<int>(bytes.size()))
+	    {
+		FileAccessException ex;
+		ex.reason = "could not read all bytes from `" + path + "'";
+		throw ex;
+	    }
 	}
+
+	file.close();
     }
-    
-    file.close();
     
     //
     // Create the MD5 hash value.
@@ -650,87 +670,5 @@ IcePatch::createBZ2(const string& path)
 	FileAccessException ex;
 	ex.reason = "cannot rename `" + pathBZ2Temp + "' to  `" + pathBZ2 + "': " + strerror(errno);
 	throw ex;
-    }
-}
-
-Long
-IcePatch::readStamp()
-{
-    ifstream fileStamp(".icepatch/stamp");
-    if(!fileStamp) // Ignore any errors if the file cannot be read.
-    {
-	return -1;
-    }
-
-    string s;
-    fileStamp >> s;
-    fileStamp.close();
-
-    Long stamp;
-    string::size_type dummy;
-    if(!IceUtil::stringToInt64(s, stamp, dummy)) // Ignore errors during conversion.
-    {
-	return -1;
-    }
-
-    return stamp;
-}
-
-void
-IcePatch::writeStamp(Long stamp)
-{
-    ofstream fileStamp(".icepatch/stamp");
-    if(!fileStamp)
-    {
-	//
-	// Prepare an exception, but don't throw yet.
-	//
-	FileAccessException ex;
-	ex.reason = string("cannot open `.icepatch/stamp' for writing: ") + strerror(errno);
-	
-	//
-	// Check if the directory exists, and only throw the exception
-	// if it does exist. Otherwise create the directory, and try
-	// again.
-	//
-	FileInfo info = getFileInfo(".icepatch", false);
-	if(info.type == FileTypeDirectory)
-	{
-	    //
-	    // If the directory exists, throw the exception.
-	    //
-	    throw ex;
-	}
-	else
-	{
-	    //
-	    // If the directory does not exist, create it, and try
-	    // again.
-	    //
-	    if(info.type != FileTypeNotExist)
-	    {
-		removeRecursive(".icepatch");
-	    }
-	    
-	    createDirectory(".icepatch");
-
-	    ofstream fileStamp(".icepatch/stamp");
-	    if(!fileStamp)
-	    {
-		FileAccessException ex;
-		ex.reason = string("cannot open `.icepatch/stamp' for writing: ") + strerror(errno);
-		throw ex;
-	    }
-	    else
-	    {
-		fileStamp << stamp << endl;
-		fileStamp.close();
-	    }
-	}
-    }
-    else
-    {
-	fileStamp << stamp << endl;
-	fileStamp.close();
     }
 }

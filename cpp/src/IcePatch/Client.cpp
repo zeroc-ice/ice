@@ -196,26 +196,6 @@ IcePatch::Client::run(int argc, char* argv[])
         }
         
 	//
-	// Check whether we have to patch at all.
-	//
-	Identity infoIdentity = pathToIdentity(".icepatch");
-	ObjectPrx infoObj = communicator()->stringToProxy(identityToString(infoIdentity) + ':' + endpoints);
-	InfoPrx info = InfoPrx::checkedCast(infoObj);
-	assert(info);
-	Long remoteStamp = info->getStamp();
-	Long localStamp = readStamp();
-	if(remoteStamp != localStamp)
-	{
-	    localStamp = remoteStamp;
-	    writeStamp(localStamp);
-	}
-	else if(!(properties->getPropertyAsInt("IcePatch.PatchAlways") > 0))
-	{
-	    cout << "You are up-to-date. No patching is necessary." << endl;
-	    return EXIT_SUCCESS;
-	}
-
-	//
 	// Check whether we want to remove orphaned files.
 	//
 	_remove = properties->getPropertyAsInt("IcePatch.RemoveOrphaned") > 0;
@@ -388,7 +368,7 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
 	orphaned.reserve(fullDirectoryListing.size());
 	for(StringSeq::const_iterator p = fullDirectoryListing.begin(); p != fullDirectoryListing.end(); ++p)
 	{
-	    if(*p != ".icepatch" && getSuffix(*p) != "md5")
+	    if(getSuffix(*p) != "md5")
 	    {
 		orphaned.push_back(*p);
 	    }

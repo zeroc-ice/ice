@@ -18,20 +18,6 @@
 namespace IcePatch
 {
 
-class InfoI : public Info
-{
-public:
-
-    InfoI(const Ice::ObjectAdapterPtr&);
-
-    Ice::Long getStamp(const Ice::Current&) const;
-
-private:
-
-    const Ice::ObjectAdapterPtr _adapter;
-    const IceUtil::Time _busyTimeout;
-};
-
 class FileI : virtual public File
 {
 public:
@@ -39,6 +25,8 @@ public:
     FileI(const Ice::ObjectAdapterPtr&);
 
 protected:
+
+    Ice::ByteSeq readMD5(const Ice::Current&) const;
 
     const Ice::ObjectAdapterPtr _adapter;
     const Ice::LoggerPtr _logger;
