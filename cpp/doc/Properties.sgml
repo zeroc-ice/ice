@@ -3950,3 +3950,158 @@ close a map iterator. The default value is 1. (Java only)
 
 
 </section>
+
+<!-- ********************************************************************** -->
+<section><title>&IcePatch2; Properties</title>
+<!-- ********************************************************************** -->
+
+<section><title>IcePatch2.Endpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch2.Endpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the endpoints of the &IcePatch2; server. This property is required
+by both the IcePatch2 server and client.
+</para>
+</section>
+</section>
+
+<section><title>IcePatch2.Admin.Endpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch2.Admin.Endpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If this property is set, the &IcePatch2; server creates
+an additional object of type <literal>IcePatch2::Admin</literal>.
+The <literal>shutdown</literal> operation on this interface can be used
+to remotely shut down the server. The endpoints specified by this
+property should be secured against access from potentially
+hostile clients.
+</para>
+</section>
+</section>
+
+<section><title>IcePatch2.Identity</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch2.Identity=<replaceable>identity</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+This property determines the object ID of the <literal>IcePatch2::FileServer</literal>
+singleton object offered by the &IcePatch2; server. The default
+value is <literal>IcePatch2/server</literal>.
+</para>
+</section>
+</section>
+
+<section><title>IcePatch2.AdminIdentity</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch2.AdminIdentity=<replaceable>identity</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+This property determines the object ID of the <literal>IcePatch2::Admin</literal>
+singleton object offered by the &IcePatch2; server. The default
+value is <literal>IcePatch2/admin</literal>.
+</para>
+</section>
+</section>
+
+<section><title>IcePatch2.Directory</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch2.Directory=<replaceable>dir</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The &IcePatch2; server uses this property to determine the data
+directory if no data directory is specified on the command line.
+</para>
+<para>
+This property is also read by the <literal>IcePatch2::Patcher</literal>
+utility class to determine the data directory. The property
+must be set before the class is instantiated.
+</para>
+</section>
+</section>
+
+<section><title>IcePatch2.ChunkSize</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch2.ChunkSize=<replaceable>kilobytes</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The &IcePatch2; client uses this property to determine
+how many kilobytes are retrieved with each call to
+<literal>getFileCompressed</literal>.
+</para>
+<para>
+The default value is <literal>100</literal>.
+</para>
+</section>
+</section>
+
+<section><title>IcePatch2.Remove</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch2.Remove=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+This property determines whether the &IcePatch2; client deletes
+files that exist locally, but not on the server. A negative or
+zero value prevents removal of files. A value of <literal>1</literal>
+enables removal and causes the client to halt with an error if
+removal of a file fails. A value of <literal>2</literal> or greater
+also enables removal, but causes the client to silently ignore errors
+during removal.
+</para>
+<para>
+This property is also read by the <literal>IcePatch2::Patcher</literal>
+utility class. The property must be set before the class is instantiated.
+</para>
+<para>
+The default value is <literal>1</literal>.
+</para>
+</section>
+</section>
+
+<section><title>IcePatch2.Thorough</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch2.Thorough=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+This property determines whether <literal>IcePatch2::Patcher</literal>
+utility class recomputes checksums. Any value greater than zero is interpreted as true.
+The property must be set before the class is instantiated.
+The default value is <literal>0</literal> (false).
+</para>
+</section>
+</section>
+
+</section>
