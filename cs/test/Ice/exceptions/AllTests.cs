@@ -67,7 +67,6 @@ public class AllTests
 	private bool _called;
     }
     
-/*
     private class AMI_Thrower_throwAasAI:AMI_Thrower_throwAasA
     {
 	public AMI_Thrower_throwAasAI()
@@ -83,12 +82,7 @@ public class AllTests
 	    AllTests.test(false);
 	}
 	
-	public virtual void ice_exception(Ice.LocalException exc)
-	{
-	    AllTests.test(false);
-	}
-	
-	public virtual void ice_exception(Ice.UserException exc)
+	public override void ice_exception(Ice.Exception exc)
 	{
 	    try
 	    {
@@ -98,7 +92,7 @@ public class AllTests
 	    {
 		AllTests.test(ex.aMem == 1);
 	    }
-	    catch(Exception ex)
+	    catch(Exception)
 	    {
 		AllTests.test(false);
 	    }
@@ -128,7 +122,7 @@ public class AllTests
 	    AllTests.test(false);
 	}
 	
-	public virtual void ice_exception(Ice.LocalException exc)
+	public override void ice_exception(Ice.Exception exc)
 	{
 	    try
 	    {
@@ -139,16 +133,11 @@ public class AllTests
 		Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
 		AllTests.test(ex.id.Equals(id));
 	    }
-	    catch(Exception ex)
+	    catch(Exception)
 	    {
 		AllTests.test(false);
 	    }
 	    callback.called();
-	}
-	
-	public virtual void ice_exception(Ice.UserException exc)
-	{
-	    AllTests.test(false);
 	}
 	
 	public virtual bool check()
@@ -166,7 +155,7 @@ public class AllTests
 	    AllTests.test(false);
 	}
 	
-	public virtual void ice_exception(Ice.LocalException exc)
+	public override void ice_exception(Ice.Exception exc)
 	{
 	    try
 	    {
@@ -176,16 +165,11 @@ public class AllTests
 	    {
 		AllTests.test(ex.facet.Equals("no such facet"));
 	    }
-	    catch(Exception ex)
+	    catch(Exception)
 	    {
 		AllTests.test(false);
 	    }
 	    callback.called();
-	}
-	
-	public virtual void ice_exception(Ice.UserException exc)
-	{
-	    AllTests.test(false);
 	}
 	
 	public virtual bool check()
@@ -193,7 +177,7 @@ public class AllTests
 	    return callback.check();
 	}
 	
-	private Callback callback new Callback();;
+	private Callback callback = new Callback();
     }
     
     private class AMI_Thrower_throwAorDasAorDI:AMI_Thrower_throwAorDasAorD
@@ -211,12 +195,7 @@ public class AllTests
             AllTests.test(false);
         }
         
-        public virtual void ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -230,7 +209,7 @@ public class AllTests
             {
                 AllTests.test(ex.dMem == - 1);
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -260,12 +239,7 @@ public class AllTests
             AllTests.test(false);
         }
         
-        public virtual void ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -276,7 +250,7 @@ public class AllTests
                 AllTests.test(ex.aMem == 1);
                 AllTests.test(ex.bMem == 2);
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -306,12 +280,7 @@ public class AllTests
             AllTests.test(false);
         }
         
-        public virtual void ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -323,7 +292,7 @@ public class AllTests
                 AllTests.test(ex.bMem == 2);
                 AllTests.test(ex.cMem == 3);
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -353,12 +322,7 @@ public class AllTests
             AllTests.test(false);
         }
         
-        public virtual void ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -369,7 +333,7 @@ public class AllTests
                 AllTests.test(ex.aMem == 1);
                 AllTests.test(ex.bMem == 2);
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -399,12 +363,7 @@ public class AllTests
             AllTests.test(false);
         }
         
-        public virtual void ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -416,7 +375,7 @@ public class AllTests
                 AllTests.test(ex.bMem == 2);
                 AllTests.test(ex.cMem == 3);
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -446,12 +405,7 @@ public class AllTests
             AllTests.test(false);
         }
         
-        public virtual void ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -463,7 +417,7 @@ public class AllTests
                 AllTests.test(ex.bMem == 2);
                 AllTests.test(ex.cMem == 3);
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -493,16 +447,16 @@ public class AllTests
             AllTests.test(false);
         }
         
-        public virtual void ice_exception(Ice.LocalException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
                 throw exc;
             }
-            catch(Ice.UnknownUserException ex)
+            catch(Ice.UnknownUserException)
             {
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -532,16 +486,16 @@ public class AllTests
             AllTests.test(false);
         }
         
-        public virtual void ice_exception(Ice.LocalException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
                 throw exc;
             }
-            catch(Ice.UnknownUserException ex)
+            catch(Ice.UnknownUserException)
             {
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -571,16 +525,16 @@ public class AllTests
             AllTests.test(false);
         }
         
-        public virtual void ice_exception(Ice.LocalException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
                 throw exc;
             }
-            catch(Ice.UnknownUserException ex)
+            catch(Ice.UnknownUserException)
             {
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -610,16 +564,16 @@ public class AllTests
             AllTests.test(false);
         }
         
-        public virtual void ice_exception(Ice.LocalException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
                 throw exc;
             }
-            catch(Ice.UnknownLocalException ex)
+            catch(Ice.UnknownLocalException)
             {
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -649,16 +603,16 @@ public class AllTests
             AllTests.test(false);
         }
         
-        public virtual void ice_exception(Ice.LocalException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
                 throw exc;
             }
-            catch(Ice.UnknownException ex)
+            catch(Ice.UnknownException)
             {
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -688,7 +642,7 @@ public class AllTests
             AllTests.test(false);
         }
         
-        public virtual void ice_exception(Ice.LocalException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -698,7 +652,7 @@ public class AllTests
             {
                 AllTests.test(ex.operation.Equals("noSuchOperation"));
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -712,7 +666,6 @@ public class AllTests
         
         private Callback callback;
     }
-*/
     
     public static ThrowerPrx allTests(Ice.Communicator communicator, bool collocated)
     {
@@ -1190,7 +1143,6 @@ public class AllTests
         
         Console.WriteLine("ok");
         
-/*
         if(!collocated)
         {
             Console.Write("catching exact types with AMI... ");
@@ -1301,15 +1253,8 @@ public class AllTests
                     thrower2.throwAasA_async(cb, 1);
                     test(cb.check());
                 }
-                
-                ThrowerPrx thrower3 = ThrowerPrxHelper.uncheckedCast(thrower2, "no such facet either");
-                {
-                    AMI_Thrower_throwAasAFacetNotExist2I cb = new AMI_Thrower_throwAasAFacetNotExist2I();
-                    thrower3.throwAasA_async(cb, 1);
-                    test(cb.check());
-                }
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 test(false);
             }
@@ -1348,7 +1293,6 @@ public class AllTests
             
             Console.WriteLine("ok");
         }
-*/
         
         return thrower;
     }
