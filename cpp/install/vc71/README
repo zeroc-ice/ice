@@ -28,7 +28,7 @@ to convert it to the 2003 format.
 ".NET 2003", either using Visual Studio or by opening the 
 corresponding .vdproj files with a text editor.
 
-(6) (Optional) Add the IceCS project utput to the Ice project to
+(6) (Optional) Add the IceCS project output to the Ice project to
 include Ice for C# and Ice for Visual Basic in the installer.
 
 Then refer to the vc70\README for further information on
