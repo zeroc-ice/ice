@@ -48,14 +48,24 @@ public:
 	ACE_THROW_SPEC ((CORBA::SystemException));
     // The skeleton methods.
 
+private:
+    
+    void started();
+    bool stopped();
+    void add(long long);
     void calc();
 
-private:
     CORBA::ULong event_count_;
     // Keep track of the number of events received.
 
     CORBA::ULong _nExpectedTicks;
     std::vector<int> _results;
+    bool _payload;
+    long long _startTime;
+    long long _stopTime;
+    int _nPublishers;
+    int _nStartedPublishers;
+    int _nStoppedPublishers;
 
     CORBA::ORB_ptr orb_;
     // The orb, just a pointer because the ORB does not outlive the

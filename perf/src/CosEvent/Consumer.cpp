@@ -19,8 +19,13 @@ main (int argc, char* argv[])
 
 // ****************************************************************
 
-Consumer::Consumer (void)
-  : event_count_ (0)
+Consumer::Consumer (void) :
+    _payload(false),
+    _startTime(0),
+    _stopTime(0),
+    _nPublishers(0),
+    _nStartedPublishers(0),
+    _nStoppedPublishers(0)
 {
 }
 
@@ -28,25 +33,28 @@ int
 Consumer::run (int argc, char* argv[])
 {
     int repetitions = 10000;
-    bool buffered = false;
     char* ior = 0;
+    _payload = false;
+    _nPublishers = 1;
     for(int i = 1; i < argc; i++)
     {
 	if(strcmp(argv[i], "-r") == 0)
 	{
 	    repetitions = atoi(argv[++i]);
 	}
-	else if(strcmp(argv[i], "-b") == 0)
+	else if(strcmp(argv[i], "-w") == 0)
 	{
-	    buffered = true;
+	    _payload = true;
+	}
+	if(strcmp(argv[i], "-c") == 0)
+	{
+	    _nPublishers = atoi(argv[++i]);
 	}
 	else if(strlen(argv[i]) > 3 && argv[i][0] == 'I' && argv[i][1] == 'O' && argv[i][2] == 'R')
 	{
 	    ior = strdup(argv[i]);
 	}
     }
-
-    _nExpectedTicks = repetitions;
 
     ACE_DECLARE_NEW_CORBA_ENV;
     ACE_TRY
@@ -92,6 +100,8 @@ Consumer::run (int argc, char* argv[])
 	supplier->connect_push_consumer (consumer.in () ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 
+	cout << "Consumer ready" << endl;
+
 	orb->run ();
     }
     ACE_CATCHANY
@@ -107,44 +117,84 @@ void
 Consumer::push(const CORBA::Any& any ACE_ENV_ARG_DECL_NOT_USED)
     ACE_THROW_SPEC ((CORBA::SystemException))
 {
-    this->event_count_ ++;
-    if (this->event_count_ <= _nExpectedTicks)
+    long long time = 0;
+    if(!_payload)
     {
-	long long etime = 0;
-	any >>= etime;
-	timeval tv;
-	gettimeofday(&tv, 0);
-	long long time = tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec - etime;
-	_results.push_back(time);
-	if (this->event_count_ == _nExpectedTicks)
-	{
-	    calc();
-	    _results.clear();
-	}
+	any >>= time;
     }
-    else 
+    else
     {
 	const Perf::Event* e;
 	any >>= e;
-	long long time = e->time;
-	timeval tv;
-	gettimeofday(&tv, 0);
-	time = tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec - time;
-	_results.push_back(time);
+	time = e->time;
+    }
 
-	if (this->event_count_ == _nExpectedTicks * 2)
+    if(time > 0 && _nStartedPublishers == _nPublishers)
+    {
+	add(time);
+    }
+    else if(time == 0)
+    {
+	started();
+    }
+    else if(time < 0)
+    {
+	if(stopped())
 	{
-	    calc();
 	    this->orb_->shutdown (0 ACE_ENV_ARG_PARAMETER);
 	}
     }
 }
 
 void
+Consumer::started()
+{
+    if(++_nStartedPublishers == _nPublishers)
+    {
+	timeval tv;
+	gettimeofday(&tv, 0);
+	_startTime = tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec;
+    }
+}
+
+bool
+Consumer::stopped()
+{
+    if(_nStoppedPublishers == 0)
+    {
+	if(_nStartedPublishers < _nPublishers)
+	{
+	    cerr << "Some publishers are already finished while others aren't even started" << endl;
+	}
+
+	timeval tv;
+	gettimeofday(&tv, 0);
+	_stopTime = tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec;
+    }
+
+    if(++_nStoppedPublishers == _nPublishers)
+    {
+	calc();
+	return true;
+    }
+    else
+    {
+	return false;
+    }
+}
+
+void
+Consumer::add(long long time)
+{
+    timeval tv;
+    gettimeofday(&tv, 0);
+    _results.push_back(tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec - time);
+}
+
+void
 Consumer::disconnect_push_consumer(ACE_ENV_SINGLE_ARG_DECL)
     ACE_THROW_SPEC ((CORBA::SystemException))
 {
-    this->orb_->shutdown (0 ACE_ENV_ARG_PARAMETER);
 }
 
 void
@@ -165,9 +215,13 @@ Consumer::calc()
     }
     deviation = sqrt(total / (_results.size() - 1));
     
-    _results.clear();
-    
-    cout << mean << " " << deviation << " " << flush;
+    cout << mean << " " << deviation << " " 
+	 << static_cast<double>(_results.size()) / (_stopTime - _startTime) * 1000000.0 
+	 << " " << flush;
+
+    _results.clear();    
+    _nStartedPublishers = 0;
+    _nStoppedPublishers = 0;
 }
 
 // ****************************************************************

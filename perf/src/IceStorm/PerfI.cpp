@@ -56,7 +56,10 @@ PingI::tickVoid(long long time, const Ice::Current& current)
     }
     else if(time < 0)
     {
-	stopped();
+	if(stopped())
+	{
+	    current.adapter->getCommunicator()->shutdown();
+	}
     }
 }
 

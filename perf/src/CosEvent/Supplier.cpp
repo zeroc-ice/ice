@@ -43,7 +43,7 @@ Supplier::run (int argc, char* argv[])
 {
     int period = 0;
     int repetitions = 10000;
-    bool twoway = false;
+    bool payload = false;
     char* ior = 0;
     for(int i = 1; i < argc; i++)
     {
@@ -55,9 +55,9 @@ Supplier::run (int argc, char* argv[])
 	{
 	    repetitions = atoi(argv[++i]);
 	}
-	else if(strcmp(argv[i], "-t") == 0)
+	else if(strcmp(argv[i], "-w") == 0)
 	{
-	    twoway = true;
+	    payload = true;
 	}
 	else if(strlen(argv[i]) > 3 && argv[i][0] == 'I' && argv[i][1] == 'O' && argv[i][2] == 'R')
 	{
@@ -127,33 +127,68 @@ Supplier::run (int argc, char* argv[])
 	ACE_Time_Value sleep_time(0, period * 1000); // 10 milliseconds
 
 	timeval tv;
-	
-	for (int i = 0; i < repetitions; ++i)
+
+	if(!payload)
 	{
-	    CORBA::Any event;
-	    gettimeofday(&tv, 0);
-	    event <<= CORBA::LongLong(tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec);
-	
-	    consumer->push (event ACE_ENV_ARG_PARAMETER);
-	    ACE_TRY_CHECK;
-	    ACE_OS::sleep (sleep_time);
+	    {
+		CORBA::Any event;
+		event <<= CORBA::LongLong(0);
+		consumer->push (event ACE_ENV_ARG_PARAMETER);
+	    }
+	    for (int i = 0; i < repetitions; ++i)
+	    {
+		CORBA::Any event;
+		gettimeofday(&tv, 0);
+		event <<= CORBA::LongLong(tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec);
+		
+		consumer->push (event ACE_ENV_ARG_PARAMETER);
+		ACE_TRY_CHECK;
+		if(period > 0)
+		{
+		    ACE_OS::sleep (sleep_time);
+		}
+	    }
+	    {
+		CORBA::Any event;
+		event <<= CORBA::LongLong(-1);
+		consumer->push (event ACE_ENV_ARG_PARAMETER);
+	    }
 	}
-
-	for (int i = 0; i < repetitions; ++i)
+	else
 	{
-	    Perf::Event e;
-	    e.e = Perf::A;
-	    e.i = 10;
-	    e.s.s = "TEST";
-	    e.ref = intf;
-	    gettimeofday(&tv, 0);
-	    e.time = tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec;
-
-	    CORBA::Any event;
-	    event <<= e;	
-	    consumer->push (event ACE_ENV_ARG_PARAMETER);
-	    ACE_TRY_CHECK;
-	    ACE_OS::sleep (sleep_time);
+	    {
+		CORBA::Any event;
+		Perf::Event e;
+		e.time = 0;
+		event <<= e;
+		consumer->push (event ACE_ENV_ARG_PARAMETER);
+	    }
+	    for (int i = 0; i < repetitions; ++i)
+	    {
+		Perf::Event e;
+		e.e = Perf::A;
+		e.i = 10;
+		e.s.s = "TEST";
+		e.ref = intf;
+		gettimeofday(&tv, 0);
+		e.time = tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec;
+		
+		CORBA::Any event;
+		event <<= e;	
+		consumer->push (event ACE_ENV_ARG_PARAMETER);
+		ACE_TRY_CHECK;
+		if(period > 0)
+		{
+		    ACE_OS::sleep (sleep_time);
+		}
+	    }
+	    {
+		CORBA::Any event;
+		Perf::Event e;
+		e.time = -1;
+		event <<= e;
+		consumer->push (event ACE_ENV_ARG_PARAMETER);
+	    }
 	}
 	
 	// Disconnect from the EC

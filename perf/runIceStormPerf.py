@@ -24,62 +24,82 @@ latencyRepetitions = 10000
 throughputRepetitions = 50000
 period = 2 # (ms)
 
-# def calcResults(subscribers):
+class Test(TestUtil.Test) :
 
-#     mean1 = 0.0
-#     mean2 = 0.0
-#     maxV = 0.0
-#     for [l1,v1,t1,l2,v2,t2] in subscribers:
-#         mean1 += l1
-#         mean2 += l2
-
-#         if v1 > maxV:
-#             maxV = v1
-#         if v2 > maxV:
-#             maxV = v2
-    
-#     return [mean1 / len(subscribers), mean2 / len(subscribers), maxV]
-
-# def printAllResults():
-
-#     print "\n"
-#     print "Final results"
-    
-#     for (k, v) in results.iteritems():
-#         mean1 = 0.0
-#         mean2 = 0.0
-#         mean3 = 0.0
-#         bestl1 = max
-#         bestl2 = max
-#         bestv = max
-#         for [l1,l2,var] in v:
-#             mean1 += l1
-#             mean2 += l2
-#             mean3 += var
-#             if l2 < bestl2:
-#                 bestl1 = l1
-#                 bestl2 = l2
-#                 bestv = var
-#         mean1 /= len(v)
-#         mean2 /= len(v)
-#         mean3 /= len(v)
-        
-#         print "%-36s %04.2f %04.2f %01.3f %04.2f %04.2f %01.3f " % (k, mean1, mean2, mean3, bestl1, bestl2, bestv)
-
-class IceStormTest(TestUtil.Test) :
-
-    def __init__(self, expr, results, i, product, latency, nPublishers, nSubscribers):
+    def __init__(self, expr, results, i, product, wPayload, latency, nPublishers, nSubscribers):
 
         if latency:
             test = "latency " + str(nPublishers) + "-" + str(nSubscribers)
         else:
             test = "throughput " + str(nPublishers) + "-" + str(nSubscribers)
-            
-        TestUtil.Test.__init__(self, expr, results, i, product, test)
 
+        if wPayload:
+            TestUtil.Test.__init__(self, expr, results, i, product, test)
+        else:
+            TestUtil.Test.__init__(self, expr, results, i, product + " w/o payload", test)
+
+        self.payload = wPayload
         self.latency = latency
         self.nSubscribers = nSubscribers
         self.nPublishers = nPublishers
+
+    def startPublishers(self, name, options):
+
+        options = " " + options["publisher"]        
+        if self.latency:
+            options += " -p " + str(period) + " -r " + str(latencyRepetitions)
+        else:
+            options += " -r " + str(throughputRepetitions)
+        if self.payload:
+            options += " -w"
+        return [os.popen(os.path.join(".", name) + options) for i in range(0, self.nPublishers)]
+
+    def startSubscribers(self, name, options):
+
+        options = " " + options["subscriber"]
+        options += " -c " + str(self.nPublishers)
+        if self.latency:
+            options += " -p " + str(period) + " -r " + str(latencyRepetitions)
+        else:
+            options += " -r " + str(throughputRepetitions)
+        if self.payload:
+            options += " -w"
+        subscribersPipe = [os.popen(os.path.join(".", name) + options) for i in range(0, self.nSubscribers)]
+        for i in subscribersPipe:
+            TestUtil.getAdapterReady(i)
+        return subscribersPipe
+
+    def waitForResults(self, subscribers, publishers):
+        
+        # Wait for the publishers to complete
+        for i in range(0, self.nPublishers):
+            TestUtil.printOutputFromPipe(publishers[i])
+            publishers[i].close()
+
+        # Gather results from each subscribers
+        results = [ ]
+        for i in range(0, self.nSubscribers):
+            out = subscribers[i].read()
+            try:
+                r = [float(x) for x in out.split()]
+                if self.latency:
+                    results.append(r[0]) # Latency
+                    if r[1] > 3:
+                        print "high deviation: " + str(r[1]) + " ", # Standard deviation
+                else:
+                    results.append(r[2]) # Throughput
+            except KeyboardInterrupt:
+                print " invalid output: " + out,
+                pass
+            subscribers[i].close()
+
+        mean = 0.0
+        for r in results:
+            mean += r
+        mean /= len(results)
+        return mean
+
+class IceStormTest(Test):
 
     def run(self, name, subscriberOpts, publisherOpts):
 
@@ -88,7 +108,7 @@ class IceStormTest(TestUtil.Test) :
     def execute(self, options):
         
         cwd = os.getcwd()
-        os.chdir(os.path.join(toplevel, "src", self.product))
+        os.chdir(os.path.join(toplevel, "src", "IceStorm"))
 
         # Start IceStorm
         servicePipe = os.popen(os.path.join(os.environ['ICE_HOME'], "bin", "icebox") + " --Ice.Config=config")
@@ -96,134 +116,83 @@ class IceStormTest(TestUtil.Test) :
         TestUtil.getAdapterReady(servicePipe)
         TestUtil.getAdapterReady(servicePipe)
 
-        # Start the subscribers
-        subscribersPipe = [ ]
-        if self.latency:
-            options["publisher"] += " -r " + str(latencyRepetitions)
-        else:
-            options["publisher"] += " -r " + str(throughputRepetitions)
-        for i in range(0, self.nSubscribers):
-            subscribersPipe.append(os.popen("./subscriber -c " + str(self.nPublishers) + " " + options["subscriber"]))
-            TestUtil.getAdapterReady(subscribersPipe[i])
-
-        # Start the publishers
-        publishersPipe = [ ]
-        if self.latency:
-            options["publisher"] += " -p " + str(period) + " -r " + str(latencyRepetitions)
-        else:
-            options["publisher"] += " -r " + str(throughputRepetitions)
-            
-        for i in range(0, self.nPublishers):
-            publishersPipe.append(os.popen("./publisher " + options["publisher"]))
-
-        # Wait for the publishers to complete
-        for i in range(0, self.nPublishers):
-            TestUtil.printOutputFromPipe(publishersPipe[i])
-            publishersPipe[i].close()
-
-        # Gather results from each subscribers
-        results = [ ]
-        for i in range(0, self.nSubscribers):
-            out = subscribersPipe[i].read()
-            try:
-                r = [float(x) for x in out.split()]
-                if self.latency:
-                    results.append((r[0], r[3])) # Latency w/o payload & w/ payload
-                    if r[1] > 3:
-                        print "high deviation: " + r[1] + " ",
-                    if r[4] > 3:
-                        print "high deviation: " + r[4] + " ",
-                else:
-                    results.append((r[2], r[5])) # Throughput w/o payload & w/ payload
-            except KeyboardInterrupt:
-                print " invalid output: " + out,
-                pass
-            subscribersPipe[i].close()
+        # Start subscribers and publishers
+        subscribersPipe = self.startSubscribers("subscriber", options)
+        publishersPipe = self.startPublishers("publisher", options)
+        result = self.waitForResults(subscribersPipe, publishersPipe)
 
         # Shutdown IceStorm
         os.system(os.path.join(os.environ['ICE_HOME'], "bin", "iceboxadmin") + " --Ice.Config=config shutdown")
         servicePipe.close();
 
         os.chdir(cwd)
+        return result
 
-        return results
-    
-             
-# def runPerfCosEvent(iter, name, nSubscriber, mode):
+class CosEventTest(Test):
 
-#     print str(iter) + ": " + name + "...",
-#     sys.stdout.flush()
+    def run(self, name, serviceOpts):
 
-#     os.chdir("./src/CosEvent")
+        TestUtil.Test.run(self, name, { "service" : serviceOpts })
 
-#     options = ""
+    def execute(self, options):
+        
+        cwd = os.getcwd()
+        os.chdir(os.path.join(toplevel, "src", "CosEvent"))
 
-#     # Publisher options
-#     pOpts = ""
-#     if mode == blocking:
-#         pOpts = " -ORBSvcConf svc.blocking.conf"
+        # Start the CosEvent service
+        servicePipe = os.popen(os.path.join(".", "Service") + " " + options["service"] + " 2>&1")
+        ior = servicePipe.readline().strip()
+        ior = ior[14:len(ior) - 1]
+        options["publisher"] = ior
+        options["subscriber"] = ior
 
-#     # Service options
-#     svcOpts = ""
-#     if mode == blocking:        
-#         svcOpts = " -ORBSvcConf svc.event.blocking.conf"
-#     elif mode == reactive:
-#         svcOpts = " -ORBSvcConf svc.event.reactive.conf"
-#     else:
-#         svcOpts = " -ORBSvcConf svc.event.mt.conf"
- 
-#     servicePipe = os.popen("./Service " + svcOpts + " 2>&1")
-#     ior = servicePipe.readline().strip()
-#     ior = ior[14:len(ior) - 1]
-#     subscriberPipe = [ ]
+        # Start subscribers and publishers
+        subscribersPipe = self.startSubscribers("Consumer", options)
+        publishersPipe = self.startPublishers("Supplier", options)
+        result = self.waitForResults(subscribersPipe, publishersPipe)
 
-#     for i in range(0, nSubscriber):
-#         subscriberPipe.append(os.popen("./Consumer -r " + str(repetitions) + " " + options + " " + ior))
-
-#     publisherPipe = os.popen("./Supplier -r " + str(repetitions) + " -p " + str(period) + " " + pOpts + " " + ior)
-#     publisherPipe.close()
-    
-#     subscribers = [ ]
-#     for i in range(0, nSubscriber):
-#         subscribers.append([float(x) for x in subscriberPipe[i].read().split()])
-#         subscriberPipe[i].close()
-
-#     os.chdir("../..")
-
-#     r = calcResults(subscribers)
-#     addResults(name, r)
-#     printResults(r)
+        os.chdir(cwd)
+        return result
 
 def runIceStormPerfs(expr, results, i):
 
-    test = IceStormTest(expr, results, i, "IceStorm", True, 1, 1)
+    test = IceStormTest(expr, results, i, "IceStorm", False, True, 1, 1) # w/o payload, latency, 1-1
     test.run("oneway", "", "-t")
-    test.run("twoway", "-t", "-t")
-    test.run("twoway ordered", "-o", "-t")
+    test.run("twoway", "-o", "-t")
 
-    test = IceStormTest(expr, results, i, "IceStorm", False, 1, 1)
+    test = IceStormTest(expr, results, i, "IceStorm", True, True, 1, 1) # w/ payload, latency, 1-1
     test.run("oneway", "", "-t")
-    test.run("twoway", "-t", "-t")
-    test.run("twoway ordered", "-o", "-t")
+    test.run("twoway", "-o", "-t")
 
-    test = IceStormTest(expr, results, i, "IceStorm", True, 1, 25)
+    test = IceStormTest(expr, results, i, "IceStorm", True, False, 1, 1) # w/ payload, throughput 1-1
     test.run("oneway", "", "-t")
-    test.run("twoway", "-t", "-t")
-    test.run("twoway ordered", "-o", "-t")
+    test.run("twoway", "-o", "-t")
 
-    test = IceStormTest(expr, results, i, "IceStorm", False, 1, 25)
-    test.run("oneway", "", "-t")
-    test.run("twoway", "-t", "-t")
-    test.run("twoway ordered", "-o", "-t")
+#     test = IceStormTest(expr, results, i, "IceStorm", True, True, 1, 10)
+#     test.run("oneway", "", "-t")
+#     test.run("twoway", "-o", "-t")
+
+#     test = IceStormTest(expr, results, i, "IceStorm", True, False, 1, 10)
+#     test.run("oneway", "", "-t")
+#     test.run("twoway", "-o", "-t")
 
 
 def runCosEventPerfs(expr, results, i):
-    return
-#     test = CosEventTest(expr, results, i, "CosEvent", "latency 1-1")
-#     test.run("twoway", );
-#     test.run("twoway buffered", );
-#        runPerfCosEvent(iter, "CosEvent twoway -> twoway", nconsumers, reactive)
-#        runPerfCosEvent(iter, "CosEvent twoway -> twoway (buffered)", nconsumers, mt)
+
+    reactiveService = " -ORBSvcConf svc.event.reactive.conf"
+    bufferedService = " -ORBSvcConf svc.event.mt.conf"
+
+    test = CosEventTest(expr, results, i, "CosEvent", False, True, 1, 1)  # w/o payload, latency, 1-1
+    test.run("twoway", reactiveService);
+    test.run("twoway buffered", bufferedService)
+
+    test = CosEventTest(expr, results, i, "CosEvent", True, True, 1, 1)  # w/ payload, latency, 1-1
+    test.run("twoway", reactiveService);
+    test.run("twoway buffered", bufferedService)
+
+    test = CosEventTest(expr, results, i, "CosEvent", True, False, 1, 1)  # w/ payload, throughput, 1-1
+    test.run("twoway", reactiveService);
+    test.run("twoway buffered", bufferedService)
 
 try:
     opts, pargs = getopt.getopt(sys.argv[1:], 'hi:o:n:', ['help', 'iter=', 'output=', 'hostname=']);

@@ -55,7 +55,6 @@ class ValuesMeanAndBest :
             
         return (mean, best)
             
-
 class TestResults :
 
     def __init__(self, test):
@@ -322,9 +321,7 @@ class Test :
         sys.stdout.flush()
 
         result = self.execute(options)
-        
         self.results.add(self.product, self.test, name, result)
-    
         print result
     
     def execute(self, options):

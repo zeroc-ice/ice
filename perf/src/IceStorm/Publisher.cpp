@@ -36,6 +36,7 @@ Publisher::run(int argc, char* argv[])
     int period = 0;
     int repetitions = 10000;
     bool twoway = false;
+    bool payload = false;
     for(int i = 0; i < argc; i++)
     {
 	if(strcmp(argv[i], "-p") == 0)
@@ -49,6 +50,10 @@ Publisher::run(int argc, char* argv[])
 	if(strcmp(argv[i], "-t") == 0)
 	{
 	    twoway = true;
+	}
+	if(strcmp(argv[i], "-w") == 0)
+	{
+	    payload = true;
 	}
     }
 
@@ -102,29 +107,34 @@ Publisher::run(int argc, char* argv[])
     }
     ping->ice_ping();
 
-    ping->tickVoid(0);
-    for(int i = 0; i < repetitions; ++i)
+    if(!payload)
     {
-	ping->tickVoid(IceUtil::Time::now().toMicroSeconds());
-	if(period > 0)
+	ping->tickVoid(0);
+	for(int i = 0; i < repetitions; ++i)
 	{
-	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(period));
+	    ping->tickVoid(IceUtil::Time::now().toMicroSeconds());
+	    if(period > 0)
+	    {
+		IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(period));
+	    }
 	}
+	ping->tickVoid(-1);
     }
-    ping->tickVoid(-1);
-
-    ping->tick(0, A, 10, AStruct(), 0);
-    for(int i = 0; i < repetitions; ++i)
+    else
     {
-	AStruct s;
-	s.s = "TEST";
-	ping->tick(IceUtil::Time::now().toMicroSeconds(), A, 10, s, 0);
-	if(period > 0)
+	ping->tick(0, A, 10, AStruct(), 0);
+	for(int i = 0; i < repetitions; ++i)
 	{
-	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(period));
+	    AStruct s;
+	    s.s = "TEST";
+	    ping->tick(IceUtil::Time::now().toMicroSeconds(), A, 10, s, 0);
+	    if(period > 0)
+	    {
+		IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(period));
+	    }
 	}
+	ping->tick(-1, A, 10, AStruct(), 0);
     }
-    ping->tick(-1, A, 10, AStruct(), 0);
 
     return EXIT_SUCCESS;
 }
