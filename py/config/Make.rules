@@ -82,6 +82,7 @@ else
 endif
 
 install_slicedir	= $(prefix)/slice
+install_pythondir	= $(prefix)/python
 
 INSTALL			= cp -fp
 INSTALL_PROGRAM		= ${INSTALL}
