@@ -16,32 +16,32 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 
-static string					// Should be an anonymous namespace, but VC6 can't handle that.
+static string					// Should be an anonymous namespace, but VC++ 6 can't handle that.
 sliceModeToIceMode(const OperationPtr& op)
 {
     string mode;
     switch(op->mode())
     {
 	case Operation::Normal:
-	    {
-		mode = "Ice.OperationMode.Normal";
-		break;
-	    }
+	{
+	    mode = "Ice.OperationMode.Normal";
+	    break;
+	}
 	case Operation::Nonmutating:
-	    {
-		mode = "Ice.OperationMode.Nonmutating";
-		break;
-	    }
+	{
+	    mode = "Ice.OperationMode.Nonmutating";
+	    break;
+	}
 	case Operation::Idempotent:
-	    {
-		mode = "Ice.OperationMode.Idempotent";
-		break;
-	    }
+	{
+	    mode = "Ice.OperationMode.Idempotent";
+	    break;
+	}
 	default:
-	    {
-		assert("Impossible operation mode!");
-		break;
-	    }
+	{
+	    assert(false);
+	    break;
+	}
     }
     return mode;
 }
