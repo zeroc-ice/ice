@@ -15,6 +15,7 @@
 #ifndef ICE_OUTGOING_ASYNC_H
 #define ICE_OUTGOING_ASYNC_H
 
+#include <IceUtil/Time.h>
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/ConnectionF.h>
 #include <Ice/ReferenceF.h>
@@ -42,6 +43,8 @@ public:
     void __finished(BasicStream&);
     void __finished(const ::Ice::LocalException&);
 
+    bool __timedOut() const;
+
     BasicStream* __is();
     BasicStream* __os();
 
@@ -63,6 +66,8 @@ private:
     // Instance* for optimization.
     //
     InstancePtr _instance;
+
+    IceUtil::Time _absoluteTimeout;
 
     BasicStream* _is;
     BasicStream* _os;

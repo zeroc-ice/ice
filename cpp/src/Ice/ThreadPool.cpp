@@ -249,7 +249,7 @@ IceInternal::ThreadPool::run()
 	fd_set fdSet;
 	memcpy(&fdSet, &_fdSet, sizeof(fd_set));
 	int ret;
-	if(_timeout)
+	if(_timeout > 0)
 	{
 	    struct timeval tv;
 	    tv.tv_sec = _timeout;
@@ -263,7 +263,7 @@ IceInternal::ThreadPool::run()
 	
 	if(ret == 0) // We initiate a shutdown if there is a thread pool timeout.
 	{
-	    assert(_timeout);
+	    assert(_timeout > 0);
 	    _timeout = 0;
 	    initiateShutdown();
 	    goto repeatSelect;

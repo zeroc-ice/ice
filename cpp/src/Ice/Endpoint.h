@@ -32,17 +32,17 @@ class ICE_PROTOCOL_API Endpoint : public ::IceUtil::Shared
 public:
 
     //
-    // Marshal the endpoint
+    // Marshal the endpoint.
     //
     virtual void streamWrite(BasicStream*) const = 0;
 
     //
-    // Convert the endpoint to its string form
+    // Convert the endpoint to its string form.
     //
     virtual std::string toString() const = 0;
 
     //
-    // Return the endpoint type
+    // Return the endpoint type.
     //
     virtual ::Ice::Short type() const = 0;
     
@@ -106,13 +106,13 @@ public:
 
     //
     // Check whether the endpoint is equivalent to a specific
-    // Transceiver or Acceptor
+    // Transceiver or Acceptor.
     //
     virtual bool equivalent(const TransceiverPtr&) const = 0;
     virtual bool equivalent(const AcceptorPtr&) const = 0;
 
     //
-    // Compare endpoints for sorting purposes
+    // Compare endpoints for sorting purposes.
     //
     virtual bool operator==(const Endpoint&) const = 0;
     virtual bool operator!=(const Endpoint&) const = 0;

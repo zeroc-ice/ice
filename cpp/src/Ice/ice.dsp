@@ -138,6 +138,10 @@ SOURCE=.\ConnectionFactory.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ConnectionMonitor.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Connector.cpp
 # End Source File
 # Begin Source File
@@ -439,6 +443,14 @@ SOURCE=.\ConnectionFactory.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\ConnectionFactoryF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ConnectionMonitor.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\ConnectionMonitorF.h
 # End Source File
 # Begin Source File
 

@@ -63,6 +63,7 @@ OBJS		= Initialize.o \
 		  RoutingTable.o \
 		  Connection.o \
 		  ConnectionFactory.o \
+		  ConnectionMonitor.o \
 		  LocalObject.o \
 		  Object.o \
 		  ProxyFactory.o \

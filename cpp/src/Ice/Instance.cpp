@@ -21,6 +21,7 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ConnectionFactory.h>
+#include <Ice/ConnectionMonitor.h>
 #include <Ice/ObjectFactoryManager.h>
 #include <Ice/UserExceptionFactoryManager.h>
 #include <Ice/LocalException.h>
@@ -153,6 +154,13 @@ IceInternal::Instance::outgoingConnectionFactory()
 {
     IceUtil::RecMutex::Lock sync(*this);
     return _outgoingConnectionFactory;
+}
+
+ConnectionMonitorPtr
+IceInternal::Instance::connectionMonitor()
+{
+    IceUtil::RecMutex::Lock sync(*this);
+    return _connectionMonitor;
 }
 
 ObjectFactoryManagerPtr
@@ -351,6 +359,13 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 
 	_outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
+	int acmTimeout = _properties->getPropertyAsInt("Ice.ConnectionIdleTime");
+	int interval = _properties->getPropertyAsIntWithDefault("Ice.MonitorConnections", acmTimeout);
+	if(interval > 0)
+	{
+	    _connectionMonitor = new ConnectionMonitor(this, interval);
+	}
+
 	_servantFactoryManager = new ObjectFactoryManager();
 
 	_userExceptionFactoryManager = new UserExceptionFactoryManager();
@@ -374,6 +389,7 @@ IceInternal::Instance::~Instance()
     assert(!_referenceFactory);
     assert(!_proxyFactory);
     assert(!_outgoingConnectionFactory);
+    assert(!_connectionMonitor);
     assert(!_servantFactoryManager);
     assert(!_userExceptionFactoryManager);
     assert(!_objectAdapterFactory);
@@ -515,6 +531,12 @@ IceInternal::Instance::destroy()
 
 	_objectAdapterFactory = 0;
 	_outgoingConnectionFactory = 0;
+
+	if(_connectionMonitor)
+	{
+	    _connectionMonitor->destroy();
+	    _connectionMonitor = 0;
+	}
 
 	if(_serverThreadPool)
 	{

@@ -81,6 +81,10 @@ void
 IceInternal::OutgoingAsync::__invoke()
 {
     _connection->sendAsyncRequest(this, _compress);
+    if(_connection->timeout() >= 0)
+    {
+	_absoluteTimeout = IceUtil::Time::now() + IceUtil::Time::milliSeconds(_connection->timeout());
+    }
 }
 
 void
@@ -211,6 +215,19 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
     catch(...)
     {
 	warning();
+    }
+}
+
+bool
+IceInternal::OutgoingAsync::__timedOut() const
+{
+    if(_connection->timeout() >= 0)
+    {
+	return IceUtil::Time::now() >= _absoluteTimeout;
+    }
+    else
+    {
+	return false;
     }
 }
 

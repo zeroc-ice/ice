@@ -243,6 +243,13 @@ Ice::ConnectTimeoutException::ice_print(ostream& out) const
 }
 
 void
+Ice::ConnectionTimeoutException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nconnection has timed out";
+}
+
+void
 Ice::ProtocolException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

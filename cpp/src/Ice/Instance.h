@@ -30,6 +30,7 @@
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/ConnectionFactoryF.h>
+#include <Ice/ConnectionMonitorF.h>
 #include <Ice/ObjectFactoryManagerF.h>
 #include <Ice/UserExceptionFactoryManagerF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
@@ -62,6 +63,7 @@ public:
     ReferenceFactoryPtr referenceFactory();
     ProxyFactoryPtr proxyFactory();
     OutgoingConnectionFactoryPtr outgoingConnectionFactory();
+    ConnectionMonitorPtr connectionMonitor();
     ObjectFactoryManagerPtr servantFactoryManager();
     UserExceptionFactoryManagerPtr userExceptionFactoryManager();
     ObjectAdapterFactoryPtr objectAdapterFactory();
@@ -89,6 +91,7 @@ private:
     ReferenceFactoryPtr _referenceFactory;
     ProxyFactoryPtr _proxyFactory;
     OutgoingConnectionFactoryPtr _outgoingConnectionFactory;
+    ConnectionMonitorPtr _connectionMonitor;
     ObjectFactoryManagerPtr _servantFactoryManager;
     UserExceptionFactoryManagerPtr _userExceptionFactoryManager;
     ObjectAdapterFactoryPtr _objectAdapterFactory;

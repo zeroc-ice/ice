@@ -17,6 +17,7 @@
 
 #include <IceUtil/RecMutex.h>
 #include <IceUtil/Monitor.h>
+#include <IceUtil/Time.h>
 #include <Ice/ConnectionF.h>
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/InstanceF.h>
@@ -61,6 +62,8 @@ public:
     void waitUntilHolding() const;
     void waitUntilFinished() const;
 
+    void monitor();
+
     void validate();
 
     void incProxyCount();
@@ -93,6 +96,13 @@ public:
     virtual void finished(const ThreadPoolPtr&);
     virtual void exception(const ::Ice::LocalException&);
     virtual std::string toString() const;
+
+    //
+    // Compare endpoints for sorting purposes.
+    //
+    virtual bool operator==(const Connection&) const;
+    virtual bool operator!=(const Connection&) const;
+    virtual bool operator<(const Connection&) const;
 
 private:
 
@@ -134,6 +144,9 @@ private:
     bool _registeredWithPool;
 
     bool _warn;
+
+    int _acmTimeout;
+    IceUtil::Time _acmAbsoluteTimeout;
 
     const std::vector< ::Ice::Byte> _requestHdr;
     const std::vector< ::Ice::Byte> _requestBatchHdr;
