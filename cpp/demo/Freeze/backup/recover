@@ -2,6 +2,12 @@
 
 case $1 in
   "full" | "incremental") echo "Performing $1 recovery"
+          
+          if [ ! -d $1 ]
+          then
+             mkdir $1
+          fi
+
           echo "====== Save current logs ======"
           if [ ! -d db/logs/save ] ; then mkdir db/logs/save; fi
           \cp db/logs/log.* db/logs/save

@@ -408,7 +408,7 @@ Glacier2:
     Trace.Session
 
 Freeze:
-    DbEnv.<any>.DbCheckpointPeriod
+    DbEnv.<any>.CheckpointPeriod
     DbEnv.<any>.DbHome
     DbEnv.<any>.DbPrivate
     DbEnv.<any>.DbRecoverFatal

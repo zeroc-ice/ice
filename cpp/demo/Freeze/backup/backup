@@ -12,6 +12,10 @@ case $1 in
           db_checkpoint -1 -h db
           echo "====== Retrieve list of old logs ======"
           oldLogs=`db_archive -h db`
+          if [ ! -d $1 ]
+          then
+             mkdir $1
+          fi
           if [ $1 = "full" ]
           then
              echo "====== Data backup ======"
