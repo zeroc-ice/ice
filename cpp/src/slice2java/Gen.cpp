@@ -3336,6 +3336,78 @@ Slice::Gen::BaseImplVisitor::BaseImplVisitor(const string& dir, const string& pa
 }
 
 void
+Slice::Gen::BaseImplVisitor::writeDecl(Output& out, const string& scope, const string& name, const TypePtr& type)
+{
+    out << nl << typeToString(type, TypeModeIn, scope) << ' ' << name;
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if(builtin)
+    {
+        switch(builtin->kind())
+        {
+            case Builtin::KindBool:
+            {
+                out << " = false";
+                break;
+            }
+            case Builtin::KindByte:
+            {
+                out << " = (byte)0";
+                break;
+            }
+            case Builtin::KindShort:
+            {
+                out << " = (short)0";
+                break;
+            }
+            case Builtin::KindInt:
+            case Builtin::KindLong:
+            {
+                out << " = 0";
+                break;
+            }
+            case Builtin::KindFloat:
+            {
+                out << " = (float)0.0";
+                break;
+            }
+            case Builtin::KindDouble:
+            {
+                out << " = 0.0";
+                break;
+            }
+            case Builtin::KindString:
+            {
+                out << " = \"\"";
+                break;
+            }
+            case Builtin::KindObject:
+            case Builtin::KindObjectProxy:
+            case Builtin::KindLocalObject:
+            {
+                out << " = null";
+                break;
+            }
+        }
+    }
+    else
+    {
+        EnumPtr en = EnumPtr::dynamicCast(type);
+        if(en)
+        {
+            EnumeratorList enumerators = en->getEnumerators();
+            out << " = " << getAbsolute(en->scoped()) << '.' << fixKwd(enumerators.front()->name());
+        }
+        else
+        {
+            out << " = null";
+        }
+    }
+
+    out << ';';
+}
+
+void
 Slice::Gen::BaseImplVisitor::writeReturn(Output& out, const TypePtr& type)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -3398,33 +3470,89 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& scope, co
     string retS = typeToString(ret, TypeModeReturn, scope);
     string params = getParams(op, scope);
 
-    out << sp << nl << "public " << retS << nl << opName << '(' << params;
-    if(!local)
+    ContainerPtr container = op->container();
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+
+    if(!local && (cl->hasMetaData("amd") || op->hasMetaData("amd")))
     {
-        if(!params.empty())
+        ParamDeclList paramList = op->parameters();
+        ParamDeclList::const_iterator q;
+
+        out << sp << nl << "public void" << nl << opName << "_async(" << getParamsAsync(op, scope, true)
+            << ", Ice.Current current)";
+        out << sb;
+
+        string result = "r";
+        for(q = paramList.begin(); q != paramList.end(); ++q)
         {
-            out << ", ";
+            if((*q)->name() == result)
+            {
+                result = "_" + result;
+                break;
+            }
         }
-        out << "Ice.Current current";
+        if(ret)
+        {
+            writeDecl(out, scope, result, ret);
+        }
+        for(q = paramList.begin(); q != paramList.end(); ++q)
+        {
+            if((*q)->isOutParam())
+            {
+                writeDecl(out, scope, fixKwd((*q)->name()), (*q)->type());
+            }
+        }
+
+        out << nl << "__cb.ice_response(";
+        if(ret)
+        {
+            out << result;
+        }
+        for(q = paramList.begin(); q != paramList.end(); ++q)
+        {
+            if((*q)->isOutParam())
+            {
+                if(ret || q != paramList.begin())
+                {
+                    out << ", ";
+                }
+                out << fixKwd((*q)->name());
+            }
+        }
+        out << ");";
+
+        out << eb;
     }
-    out << ')';
-
-    ExceptionList throws = op->throws();
-    throws.sort();
-    throws.unique();
-    writeThrowsClause(scope, throws);
-
-    out << sb;
-
-    //
-    // Return value
-    //
-    if(ret)
+    else
     {
-        writeReturn(out, ret);
-    }
+        out << sp << nl << "public " << retS << nl << opName << '(' << params;
+        if(!local)
+        {
+            if(!params.empty())
+            {
+                out << ", ";
+            }
+            out << "Ice.Current current";
+        }
+        out << ')';
 
-    out << eb;
+        ExceptionList throws = op->throws();
+        throws.sort();
+        throws.unique();
+        writeThrowsClause(scope, throws);
+
+        out << sb;
+
+        //
+        // Return value
+        //
+        if(ret)
+        {
+            writeReturn(out, ret);
+        }
+
+        out << eb;
+    }
 }
 
 Slice::Gen::ImplVisitor::ImplVisitor(const string& dir, const string& package) :
