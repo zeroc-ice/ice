@@ -66,7 +66,7 @@ private:
     static int _initCount;
 };
 
-extern FactoryTableWrapper factoryTableWrapper;
+extern ICE_API FactoryTableWrapper factoryTableWrapper;
 
 }
 
