@@ -79,7 +79,7 @@ class Book
      * @return The book description.
      *
      **/
-    ["nonmutating"] BookDescription getBookDescription();
+    nonmutating BookDescription getBookDescription();
 
     /**
      *
@@ -91,7 +91,7 @@ class Book
      * database system.
      *
      **/
-    ["nonmutating"] void destroy()
+    nonmutating void destroy()
 	throws DatabaseException;
 
     /**
@@ -117,7 +117,7 @@ class Book
      * currently rented.
      *
      **/
-    ["nonmutating"] string getRenterName()
+    nonmutating string getRenterName()
 	throws BookNotRentedException;
 
     /**
@@ -191,7 +191,7 @@ interface Library
      * @throws DatabaseException Raised if there is a problem with the database.
      *
      **/
-    ["nonmutating"] Book* findByIsbn(string isbn)
+    nonmutating Book* findByIsbn(string isbn)
 	throws DatabaseException;
 
     /**
@@ -206,7 +206,7 @@ interface Library
      * @throws DatabaseException Raised if there is a problem with the database.
      *
      **/
-    ["nonmutating"] BookPrxSeq findByAuthors(string authors)
+    nonmutating BookPrxSeq findByAuthors(string authors)
 	throws DatabaseException;
 
     /**
@@ -219,7 +219,7 @@ interface Library
      * database.
      *
      **/
-    ["nonmutating"] void setEvictorSize(int size)
+    nonmutating void setEvictorSize(int size)
 	throws DatabaseException;
 
     /**
@@ -227,7 +227,7 @@ interface Library
      * Shutdown the server.
      *
      **/
-    ["nonmutating"] void shutdown();
+    nonmutating void shutdown();
 };
 
 #endif

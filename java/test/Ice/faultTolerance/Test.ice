@@ -15,7 +15,7 @@ interface Test
 {
     void shutdown();
     void abort();
-    ["nonmutating"] void nonmutatingAbort();
+    nonmutating void nonmutatingAbort();
     int pid();
 };
 
