@@ -32,7 +32,4 @@ client.exe: $(C_SRCS) $(GEN_SRCS)
 server.exe: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:$(libdir)/icecs.dll -r:$(libdir)/icepackcs.dll $^
 
-install:: all
-	$(INSTALL) $(libdir)/$(LIBNAME) $(install_libdir)
-
 include .depend

@@ -41,7 +41,4 @@ collocated.exe: $(COL_SRCS) $(GEN_SRCS)
 serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:$(libdir)/icecs.dll $^
 
-install:: all
-	$(INSTALL) $(libdir)/$(LIBNAME) $(install_libdir)
-
 include .depend
