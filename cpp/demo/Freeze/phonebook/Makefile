@@ -33,7 +33,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS) -I$(DB)/include
-LDLAGS		:= $(LDFLAGS) -I$(DB)/lib
+LDFLAGS		:= $(LDFLAGS) -L$(DB)/lib
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
@@ -64,9 +64,9 @@ clean::
 	rm -f PhoneBook.h PhoneBook.cpp
 
 db:
-	mkdir db;
+	mkdir db
 
 clean::
-	rm -rf db;
+	rm -rf db
 
 include .depend

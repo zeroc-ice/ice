@@ -13,6 +13,7 @@
 
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
+#include <Freeze/Freeze.h>
 #include <PhoneBook.h>
 
 class PhoneBookI;

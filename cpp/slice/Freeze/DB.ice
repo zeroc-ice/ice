@@ -20,7 +20,7 @@ module Freeze
 {
 
 local class DB;
-local class DBFactory;
+local class DBEnv;
 
 /**
  *
@@ -37,62 +37,55 @@ struct DBException
  * An object representing a database.
  *
  * @see DBException
- * @see DBFactory
+ * @see DBEnv
  *
  **/
 local class DB
 {
     /**
      *
-     * Open the database.
+     * Close the database and destroy this database object. Subsequent
+     * calls to <literal>close</literal> have no effect.
      *
      **/
-    void open(string name) throws DBException;
-
-    /**
-     *
-     * Close the database.
-     *
-     **/
-    void close() throws DBException;
-
-    /**
-     *
-     * Destroy this database object. If the database has not been
-     * closed before, <literal>destroy</literal> also closes the
-     * database.
-     *
-     **/
-    void destroy();
+    void close();
 };
 
 /**
  *
- * A factory for database objects.
+ * An object representing a database environment.
  *
  * @see DBException
  * @see DB
  *
  **/
-local class DBFactory
+local class DBEnv
 {
     /**
      *
-     * Create a new database object.
+     * Open a database and return a database object for this
+     * database. If the database has been opened before, the
+     * previously returned database object is returned again.
      *
-     * @return The new database object.
+     * @param name The database name.
+     *
+     * @return The database object.
      *
      * @see DB
      *
      **/
-    DB createDB() throws DBException;
+    DB open(string name) throws DBException;
 
     /**
      *
-     * Destroy this factory and all database objects that have been created by this factory.
+     * Close the database environment and destroy this database
+     * environment object. This operation also calls
+     * <literal>close</literal> on all databases that have been opened
+     * with this database environment object. Subsequent
+     * calls to <literal>close</literal> have no effect.
      *
      **/
-    void destroy() throws DBException;
+    void close() throws DBException;
 };
 
 };

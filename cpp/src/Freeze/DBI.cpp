@@ -19,115 +19,184 @@ using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
-DBPtr
-Freeze::DBFactoryI::createDB()
+Freeze::DBI::DBI(const CommunicatorPtr& communicator, const PropertiesPtr& properties, const DBEnvIPtr& dbenv,
+		 ::DB* db, const string& name) :
+    _communicator(communicator),
+    _properties(properties),
+    _dbenv(dbenv),
+    _db(db),
+    _name(name)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+}
 
-    if (_destroy)
+Freeze::DBI::~DBI()
+{
+    if (!_closed)
     {
-	throw ObjectNotExistException(__FILE__, __LINE__);
+	_communicator->getLogger()->warning("database has not been closed");
     }
-
-    return 0;
 }
 
 void
-Freeze::DBFactoryI::destroy()
+Freeze::DBI::close()
 {
     JTCSyncT<JTCMutex> sync(*this);
 
-    if (_destroy)
+    if (!_dbenv)
     {
-	throw ObjectNotExistException(__FILE__, __LINE__);
+	return;
     }
 
-    _destroy = true;
+    int ret = _db->close(_db, 0);
+    
+    if(ret != 0)
+    {
+	DBException ex;
+	ex.message = "DB->close: ";
+	ex.message += db_strerror(ret);
+	throw ex;
+    }
+
+    _dbenv->remove(_name);
+    _dbenv = 0;
 }
 
-Freeze::DBFactoryI::DBFactoryI(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
+Freeze::DBEnvI::DBEnvI(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
+    _closed(false),
     _communicator(communicator),
-    _properties(properties),
-    _destroy(false)
+    _properties(properties)
 {
-    string directory = _properties->getProperty("Freeze.Directory");
+    int ret;
 
-//
-// TODO: Should we really try to create the directory? Perhaps we
-// better leave this task to the administrator, and simply let DB fail
-// in case the directory does not exist.
-//
-/*
-    if(!directory.empty())
+    ret = db_env_create(&_dbenv, 0);
+
+    if (ret != 0)
     {
-	//
-	// Check whether the directory exists. If yes, we don't need
-	// to create it. Note that we don't further check the type of
-	// the file, DB will fail appropriately if it's the wrong
-	// time.
-	//
-	struct stat sb;
-	if (stat(directory.c_str(), &sb) == 0)
-	{
-	    //
-	    // Directory does not exist, create it.
-	    //
-	    if (mkdir(directory.c_str(), S_IRWXU) != 0)
-	    {
-		throw SystemException(__FILE__, __LINE__);
-	    }
-	}
+	DBException ex;
+	ex.message = "db_env_create: ";
+	ex.message += db_strerror(ret);
+	throw ex;
     }
-*/
+
+    _directory = _properties->getProperty("Freeze.Directory");
+
+    const char* dir = 0;
+    if (!_directory.empty())
+    {
+	dir = _directory.c_str();
+    }
+
+    ret = _dbenv->open(_dbenv, dir,
+		       DB_CREATE |
+		       DB_INIT_LOCK |
+		       DB_INIT_LOG |
+		       DB_INIT_MPOOL |
+		       DB_INIT_TXN |
+		       DB_RECOVER |
+		       DB_THREAD,
+		       S_IRUSR | S_IWUSR);
+
+    if (ret != 0)
+    {
+	DBException ex;
+	ex.message = "DB_ENV->open: ";
+	ex.message += db_strerror(ret);
+	throw ex;
+    }
+}
+
+Freeze::DBEnvI::~DBEnvI()
+{
+    if (!_closed)
+    {
+	_communicator->getLogger()->warning("database environment object has not been closed");
+    }
+}
+
+DBPtr
+Freeze::DBEnvI::open(const string& name)
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    map<string, DBPtr>::iterator p = _dbmap.find(name);
+    if (p != _dbmap.end())
+    {
+	return p->second;
+    }
 
     int ret;
 
-    if ((ret = db_env_create(&_dbenv, 0)) != 0)
+    ::DB* db;
+    ret = db_create(&db, _dbenv, 0);
+    
+    if(ret != 0)
     {
 	DBException ex;
-	ex.message = db_strerror(ret);
+	ex.message = "db_create: ";
+	ex.message += db_strerror(ret);
 	throw ex;
     }
 
-    const char* dir = 0;
-    if (!directory.empty())
-    {
-	dir = directory.c_str();
-    }
+    ret = db->open(db, name.c_str(), 0, DB_BTREE, DB_CREATE | DB_THREAD, S_IRUSR | S_IWUSR);
 
-    if ((ret = _dbenv->open(_dbenv, dir,
-			    DB_CREATE |
-			    DB_INIT_LOCK |
-			    DB_INIT_LOG |
-			    DB_INIT_MPOOL |
-			    DB_INIT_TXN |
-			    DB_RECOVER |
-			    DB_THREAD,
-			    S_IRUSR | S_IWUSR)) != 0)
+    if(ret != 0)
     {
 	DBException ex;
-	ex.message = db_strerror(ret);
+	ex.message = "DB->open: ";
+	ex.message += db_strerror(ret);
 	throw ex;
     }
+
+    DBPtr dbp = new DBI(_communicator, _properties, this, db, name);
+    _dbmap[name] = dbp;
+    return dbp;
 }
 
-Freeze::DBFactoryI::~DBFactoryI()
+void
+Freeze::DBEnvI::close()
 {
-    if (!_destroy)
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (_closed)
     {
-	_communicator->getLogger()->warning("database factory object has not been destroyed");
+	return;
     }
+
+    for (map<string, DBPtr>::iterator p = _dbmap.begin(); p != _dbmap.end(); ++p)
+    {
+	p->second->close();
+    }
+    _dbmap.clear();
+
+    int ret = _dbenv->close(_dbenv, 0);
+
+    if(ret != 0)
+    {
+	DBException ex;
+	ex.message = "DB_ENV->close: ";
+	ex.message += db_strerror(ret);
+	throw ex;
+    }
+
+    _closed = true;
 }
 
-DBFactoryPtr
+void
+Freeze::DBEnvI::remove(const string& name)
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    _dbmap.erase(name);
+}
+
+DBEnvPtr
 Freeze::initialize(const CommunicatorPtr& communicator)
 {
-    return new DBFactoryI(communicator, communicator->getProperties());
+    return new DBEnvI(communicator, communicator->getProperties());
 }
 
-DBFactoryPtr
+DBEnvPtr
 Freeze::initializeWithProperties(const CommunicatorPtr& communicator, const PropertiesPtr& properties)
 {
-    return new DBFactoryI(communicator, properties);
+    return new DBEnvI(communicator, properties);
 }
-

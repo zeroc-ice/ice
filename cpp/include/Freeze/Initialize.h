@@ -28,8 +28,8 @@
 namespace Freeze
 {
 
-FREEZE_API DBFactoryPtr initialize(const ::Ice::CommunicatorPtr&);
-FREEZE_API DBFactoryPtr initializeWithProperties(const ::Ice::CommunicatorPtr&, const ::Ice::PropertiesPtr&);
+FREEZE_API DBEnvPtr initialize(const ::Ice::CommunicatorPtr&);
+FREEZE_API DBEnvPtr initializeWithProperties(const ::Ice::CommunicatorPtr&, const ::Ice::PropertiesPtr&);
 
 }
 
