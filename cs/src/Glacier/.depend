@@ -1,6 +1,0 @@
-Router.cs: ../../../ice/slice/Glacier/Router.ice ../../../ice/slice/Ice/Router.ice ../../../ice/slice/Glacier/SessionF.ice
-Session.cs: ../../../ice/slice/Glacier/Session.ice
-SessionF.cs: ../../../ice/slice/Glacier/SessionF.ice
-SessionManager.cs: ../../../ice/slice/Glacier/SessionManager.ice ../../../ice/slice/Glacier/SessionF.ice
-SessionManagerF.cs: ../../../ice/slice/Glacier/SessionManagerF.ice
-Starter.cs: ../../../ice/slice/Glacier/Starter.ice ../../../ice/slice/Glacier/Router.ice ../../../ice/slice/Ice/Router.ice ../../../ice/slice/Glacier/SessionF.ice ../../../ice/slice/Ice/BuiltinSequences.ice ../../../ice/slice/Ice/SliceChecksumDict.ice

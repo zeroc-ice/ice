@@ -103,7 +103,7 @@ slicedirs = [\
     "Ice",\
     "IceBox",\
     "IcePack",\
-    "IcePatch",\
+    "IcePatch2",\
     "IceStorm",\
 ]
 os.mkdir(os.path.join("icecs", "slice"))
