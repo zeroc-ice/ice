@@ -37,8 +37,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     char c;
 
     cout << '\n'
-	 << "Let's first transfer a simple value, for a class without\n"
-	 << "operations. No factory is required for this.\n"
+	 << "Let's first transfer a simple object, for a class without\n"
+	 << "operations, and print it's contents. No factory is required\n"
+	 << "for this.\n"
 	 << "[press enter]\n";
     cin.getline(&c, 1);
 
@@ -46,9 +47,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     cout << "==> " << simple->_message << endl;
 
     cout << '\n'
-	 << "Ok, this worked. Now let's try to transfer a value for a class\n"
-	 << "with operations, without first installing a factory. This\n"
-	 << "should give us a `no factory' exception.\n"
+	 << "Ok, this worked. Now let's try to transfer an object for a class\n"
+	 << "with operations, without installing a factory first. This should\n"
+	 << "give us a `no factory' exception.\n"
 	 << "[press enter]\n";
     cin.getline(&c, 1);
 
@@ -65,7 +66,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     cout << '\n'
 	 << "Yep, that's what we expected. Now let's try again, but with\n"
-	 << "installing an appropriate factory first.\n"
+	 << "installing an appropriate factory first. If successful, we print\n"
+	 << "the object's content.\n"
 	 << "[press enter]\n";
     cin.getline(&c, 1);
 
@@ -77,7 +79,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     cout << '\n'
 	 << "Cool, it worked! Let's try calling the printBackwards() method\n"
-	 << "locally.\n"
+	 << "on the object we just received locally.\n"
 	 << "[press enter]\n";
     cin.getline(&c, 1);
 
@@ -85,7 +87,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     printer->printBackwards();
 
     cout << '\n'
-	 << "Now we call the same method on the remote object. Watch the\n"
+	 << "Now we call the same method, but on the remote object. Watch the\n"
 	 << "server's output.\n"
 	 << "[press enter]\n";
     cin.getline(&c, 1);
@@ -95,32 +97,31 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     cout << '\n'
 	 << "Next, we transfer a derived object from the server as base\n"
 	 << "object. Since we didn't install a factory for the derived\n"
-	 << "class, our object will be truncated, and a dynamic_cast<> to\n"
-	 << "get the derived object from the base object will fail.\n"
+	 << "class yet, we will get another `no factory' exception.\n"
 	 << "[press enter]\n";
     cin.getline(&c, 1);
 
-    PrinterPtr derivedAsBase = initial->derivedPrinter();
-    assert(!DerivedPrinterPtr::dynamicCast(derivedAsBase));
-    cout << "==> dynamic_cast<> to derived object failed" << endl;
-
+    PrinterPtr derivedAsBase;
+    try
+    {
+	derivedAsBase = initial->derivedPrinter();
+	assert(false);
+    }
+    catch(const Ice::NoObjectFactoryException& ex)
+    {
+	cout << "==> " << ex << endl;
+    }
+    
     cout << '\n'
-	 << "We can of course still use the derived object as base object.\n"
+	 << "Now we install a factory for the derived class, and try again.\n"
+	 << "We won't get a `no factory' exception anymore, but since we\n"
+	 << "receive the derived object as base object, we need to do a\n"
+	 << "dynamic_cast<> to get from the base to the derived object.\n"
 	 << "[press enter]\n";
     cin.getline(&c, 1);
-
-    cout << "==> " << derivedAsBase->_message << endl;
-    cout << "==> ";
-    derivedAsBase->printBackwards();
-
-    cout << '\n'
-	 << "Now we install the factory for the derived object, and try\n"
-	 << "again.\n"
-	 << "[press enter]\n";
-    cin.getline(&c, 1);
-
+    
     communicator->addObjectFactory(factory, "::DerivedPrinter");
-
+    
     derivedAsBase = initial->derivedPrinter();
     DerivedPrinterPtr derived = DerivedPrinterPtr::dynamicCast(derivedAsBase);
     assert(derived);
