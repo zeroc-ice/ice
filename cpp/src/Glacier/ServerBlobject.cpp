@@ -16,16 +16,11 @@ using namespace Ice;
 using namespace Glacier;
 
 Glacier::ServerBlobject::ServerBlobject(const ObjectAdapterPtr& clientAdapter) :
-    _clientAdapter(clientAdapter),
-    _logger(_clientAdapter->getCommunicator()->getLogger())
+    Glacier::Blobject(_clientAdapter->getCommunicator()),
+    _clientAdapter(clientAdapter)
 {
-    PropertiesPtr properties = _clientAdapter->getCommunicator()->getProperties();
+    PropertiesPtr properties = _communicator->getProperties();
     _traceLevel = properties->getPropertyAsInt("Glacier.Router.Trace.Server");
-}
-
-Glacier::ServerBlobject::~ServerBlobject()
-{
-    assert(!_clientAdapter);
 }
 
 void
@@ -36,12 +31,11 @@ Glacier::ServerBlobject::destroy()
     // object adapters have shut down.
     //
     _clientAdapter = 0;
-    _logger = 0;
+    Glacier::Blobject::destroy();
 }
 
 bool
-Glacier::ServerBlobject::ice_invoke(const std::vector<Byte>& inParams, std::vector<Byte>& outParams,
-				    const Current& current)
+Glacier::ServerBlobject::ice_invoke(const vector<Byte>& inParams, vector<Byte>& outParams, const Current& current)
 {
     assert(_clientAdapter); // Destroyed?
 
@@ -50,67 +44,24 @@ Glacier::ServerBlobject::ice_invoke(const std::vector<Byte>& inParams, std::vect
 	ObjectPrx proxy = _clientAdapter->createReverseProxy(current.identity);
 	assert(proxy);
 
-	if (!current.facet.empty())
-	{
-	    proxy = proxy->ice_newFacet(current.facet);
-	}
-
-	Context::const_iterator p = current.context.find("_fwd");
-	if (p != current.context.end())
-	{
-	    for (unsigned int i = 0; i < p->second.length(); ++i)
-	    {
-		char option = p->second[i];
-		switch (option)
-		{
-		    case 't':
-		    {
-			proxy = proxy->ice_twoway();
-			break;
-		    }
-		    
-		    case 'o':
-		    {
-			proxy = proxy->ice_oneway();
-			break;
-		    }
-		    
-		    case 'd':
-		    {
-			proxy = proxy->ice_datagram();
-			break;
-		    }
-		    
-		    case 's':
-		    {
-			proxy = proxy->ice_secure(true);
-			break;
-		    }
-		    
-		    default:
-		    {
-			Warning out(_logger);
-			out << "unknown forward option `" << option << "'";
-			break;
-		    }
-		}
-	    }
-	}
+	MissiveQueuePtr missiveQueue = modifyProxy(proxy, current);
+	assert(!missiveQueue);
 	
 	if (_traceLevel >= 2)
 	{
 	    Trace out(_logger, "Glacier");
 	    out << "reverse routing to:\n"
-		<< "proxy = " << _clientAdapter->getCommunicator()->proxyToString(proxy) << '\n'
+		<< "proxy = " << _communicator->proxyToString(proxy) << '\n'
 		<< "operation = " << current.operation << '\n'
 		<< "nonmutating = " << (current.nonmutating ? "true" : "false");
 	}
 
+	// TODO: Should we forward the context? Perhaps a config parameter?
 	return proxy->ice_invoke(current.operation, current.nonmutating, inParams, outParams, current.context);
     }
     catch (const Exception& ex)
     {
-	if (_traceLevel)
+	if (_traceLevel >= 1)
 	{
 	    Trace out(_logger, "Glacier");
 	    out << "reverse routing exception:\n" << ex;

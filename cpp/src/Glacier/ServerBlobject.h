@@ -11,18 +11,16 @@
 #ifndef SERVER_BLOBJECT_H
 #define SERVER_BLOBJECT_H
 
-#include <Ice/RoutingTableF.h>
-#include <Ice/Ice.h>
+#include <Glacier/Blobject.h>
 
 namespace Glacier
 {
 
-class ServerBlobject : public Ice::Blobject
+class ServerBlobject : public Glacier::Blobject
 {
 public:
 
     ServerBlobject(const Ice::ObjectAdapterPtr&);
-    virtual ~ServerBlobject();
 
     void destroy();
     virtual bool ice_invoke(const std::vector<Ice::Byte>&, std::vector<Ice::Byte>&, const Ice::Current&);
@@ -30,7 +28,6 @@ public:
 private:
 
     Ice::ObjectAdapterPtr _clientAdapter;
-    Ice::LoggerPtr _logger;
     int _traceLevel;
 };
 

@@ -20,8 +20,7 @@ using namespace Glacier;
 Glacier::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
 					const IceInternal::RoutingTablePtr& routingTable,
 					const string& allowCategories) :
-    _communicator(communicator),
-    _logger(_communicator->getLogger()),
+    Glacier::Blobject(communicator),
     _routingTable(routingTable)
 {
     PropertiesPtr properties = _communicator->getProperties();
@@ -41,11 +40,6 @@ Glacier::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
     _allowCategories.erase(unique(_allowCategories.begin(), _allowCategories.end()), _allowCategories.end());
 }
 
-Glacier::ClientBlobject::~ClientBlobject()
-{
-    assert(!_communicator);
-}
-
 void
 Glacier::ClientBlobject::destroy()
 {
@@ -53,14 +47,12 @@ Glacier::ClientBlobject::destroy()
     // No mutex protection necessary, destroy is only called after all
     // object adapters have shut down.
     //
-    _communicator = 0;
-    _logger = 0;
     _routingTable = 0;
+    Glacier::Blobject::destroy();
 }
 
 bool
-Glacier::ClientBlobject::ice_invoke(const std::vector<Byte>& inParams, std::vector<Byte>& outParams,
-				    const Current& current)
+Glacier::ClientBlobject::ice_invoke(const vector<Byte>& inParams, vector<Byte>& outParams, const Current& current)
 {
     assert(_communicator); // Destroyed?
 
@@ -71,7 +63,7 @@ Glacier::ClientBlobject::ice_invoke(const std::vector<Byte>& inParams, std::vect
     {
 	if (!binary_search(_allowCategories.begin(), _allowCategories.end(), current.identity.category))
 	{
-	    if (_traceLevel > 0)
+	    if (_traceLevel >= 1)
 	    {
 		Trace out(_logger, "Glacier");
 		out << "rejecting request\n";
@@ -93,53 +85,9 @@ Glacier::ClientBlobject::ice_invoke(const std::vector<Byte>& inParams, std::vect
 	    ex.identity = current.identity;
 	    throw ex;
 	}
-	
-	if (!current.facet.empty())
-	{
-	    proxy = proxy->ice_newFacet(current.facet);
-	}
 
-	Context::const_iterator p = current.context.find("_fwd");
-	if (p != current.context.end())
-	{
-	    for (unsigned int i = 0; i < p->second.length(); ++i)
-	    {
-		char option = p->second[i];
-		switch (option)
-		{
-		    case 't':
-		    {
-			proxy = proxy->ice_twoway();
-			break;
-		    }
-		    
-		    case 'o':
-		    {
-			proxy = proxy->ice_oneway();
-			break;
-		    }
-		    
-		    case 'd':
-		    {
-			proxy = proxy->ice_datagram();
-			break;
-		    }
-		    
-		    case 's':
-		    {
-			proxy = proxy->ice_secure(true);
-			break;
-		    }
-		    
-		    default:
-		    {
-			Warning out(_logger);
-			out << "unknown forward option `" << option << "'";
-			break;
-		    }
-		}
-	    }
-	}
+	MissiveQueuePtr missiveQueue = modifyProxy(proxy, current);
+	assert(!missiveQueue);
 	
 	if (_traceLevel >= 2)
 	{
@@ -150,11 +98,12 @@ Glacier::ClientBlobject::ice_invoke(const std::vector<Byte>& inParams, std::vect
 		<< "nonmutating = " << (current.nonmutating ? "true" : "false");
 	}
 
+	// TODO: Should we forward the context? Perhaps a config parameter?
 	return proxy->ice_invoke(current.operation, current.nonmutating, inParams, outParams, current.context);
     }
     catch (const Exception& ex)
     {
-	if (_traceLevel)
+	if (_traceLevel >= 1)
 	{
 	    Trace out(_logger, "Glacier");
 	    out << "routing exception:\n" << ex;

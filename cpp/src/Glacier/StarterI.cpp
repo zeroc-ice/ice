@@ -97,7 +97,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
     //
     // The value of clientCertificateBase64 should be passed in to the router
     // in the property
-    //  * Glacier.Router.ClientCertificate
+    //  * Glacier.Router.AcceptCert
     //
     string routerPrivateKeyBase64;
     string routerCertificateBase64;

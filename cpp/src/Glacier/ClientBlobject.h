@@ -12,27 +12,22 @@
 #define CLIENT_BLOBJECT_H
 
 #include <Ice/RoutingTableF.h>
-#include <Ice/Ice.h>
-
-#include <set>
+#include <Glacier/Blobject.h>
 
 namespace Glacier
 {
 
-class ClientBlobject : public Ice::Blobject
+class ClientBlobject : public Glacier::Blobject
 {
 public:
 
     ClientBlobject(const Ice::CommunicatorPtr&, const IceInternal::RoutingTablePtr&, const std::string&);
-    virtual ~ClientBlobject();
 
     void destroy();
     virtual bool ice_invoke(const std::vector<Ice::Byte>&, std::vector<Ice::Byte>&, const Ice::Current&);
 
 private:
 
-    Ice::CommunicatorPtr _communicator;
-    Ice::LoggerPtr _logger;
     int _traceLevel;
     IceInternal::RoutingTablePtr _routingTable;
     std::vector<std::string> _allowCategories;

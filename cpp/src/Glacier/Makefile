@@ -28,8 +28,10 @@ OBJS		= Starter.o \
 
 ROBJS		= GlacierRouter.o \
 		  RouterI.o \
+		  Blobject.o \
 		  ClientBlobject.o \
-		  ServerBlobject.o
+		  ServerBlobject.o \
+		  Missive.o
 
 SOBJS		= GlacierStarter.o \
 		  StarterI.o
