@@ -149,7 +149,7 @@ template<typename T, typename U>
 inline bool operator==(const ProxyHandle<T>& a, const ProxyHandle<U>& b)
 {
     T* ap = a.get();
-    T* bp = b.get();
+    U* bp = b.get();
     if (ap == bp)
     {
 	return true;
@@ -169,7 +169,7 @@ template<typename T, typename U>
 inline bool operator<(const ProxyHandle<T>& a, const ProxyHandle<U>& b)
 {
     T* ap = a.get();
-    T* bp = b.get();
+    U* bp = b.get();
     if (!ap || !bp)
     {
 	if (!ap && bp)

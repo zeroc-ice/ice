@@ -34,6 +34,9 @@ allTests(Ice::CommunicatorPtr communicator)
     M_B::C_BPrx cb = initial->c_b();
     M_A::C_CPrx cc = initial->c_c();
     M_A::C_DPrx cd = initial->c_d();
+    cout << ca->_getIdentity() << ", " << cb->_getIdentity() << endl;
+    cout << ca->_getIdentity() << ", " << cc->_getIdentity() << endl;
+    cout << ca->_getIdentity() << ", " << cd->_getIdentity() << endl;
     test(ca != cb);
     test(ca != cc);
     test(ca != cd);
