@@ -1,4 +1,3 @@
-
 // **********************************************************************
 //
 // Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
@@ -183,7 +182,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    }
 	    else
 	    {
-		_variables.back()[p->first] = p->second;
+		_variables.back()[p->first] = substitute(p->second);
 	    }
 	}
 
