@@ -70,8 +70,12 @@ inline
 GCShared::~GCShared()
 {
     gcRecMutex._m->lock();
+#ifdef NDEBUG // To avoid annoying warnings about variables that are not used...
+    gcObjects.erase(this);
+#else
     GCObjectSet::size_type num = gcObjects.erase(this);
     assert(num == 1);
+#endif
     gcRecMutex._m->unlock();
 }
 
@@ -83,8 +87,12 @@ GCShared::__incRef()
     if(!_adopted && _ref == 0)
     {
         _adopted = true;
+#ifdef NDEBUG // To avoid annoying warnings about variables that are not used...
+	gcObjects.insert(this);
+#else
 	std::pair<GCObjectSet::iterator, bool> rc = gcObjects.insert(this);
 	assert(rc.second);
+#endif
     }
     ++_ref;
     gcRecMutex._m->unlock();
