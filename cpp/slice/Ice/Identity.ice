@@ -56,7 +56,7 @@ local dictionary<Identity, Object> ObjectDict;
  * A sequence of identities.
  *
  **/
-local sequence<Identity> IdentitySeq;
+sequence<Identity> IdentitySeq;
 
 };
 
