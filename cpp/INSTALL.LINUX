@@ -4,7 +4,15 @@ Requirements
 
 OS
 --
+
 A recent Linux distribution for Intel x86 or AMD Opteron (x86-64).
+
+Note that Ice is not currently compatible with the "NPTL" threading
+model used by default on RedHat 9. You will need to set the following
+environment variable to use Ice successfully on this platform:
+
+export LD_ASSUME_KERNEL=2.4.1
+
 
 C++ compiler
 ------------
@@ -47,7 +55,7 @@ http://xml.apache.org/xerces-c
 Berkeley DB, OpenSSL, bzip2, readline and ncurses are usually 
 available with your Linux distribution. 
 
-The RPMs for Redhat 8.0 are:
+The RPMs for RedHat 8.0 are:
 db4-devel-4.0.14-14
 openssl-devel-0.9.6b-29
 bzip2-devel-1.0.2-5
@@ -108,7 +116,7 @@ This is equivalent to:
 
 $ python allTests.py
 
-Note that on some Linux distributions (like Redhat 7.x), Python 2.2 is
+Note that on some Linux distributions (like RedHat 7.x), Python 2.2 is
 available as "python2", in which case you must use:
 
 $ python2 allTests.py
