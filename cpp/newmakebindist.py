@@ -484,7 +484,7 @@ def makeInstall(buildDir, installDir, distro, clean):
             
         os.system("perl -pi -e 's/^PYTHON.HOME.*$/PYTHON\_HOME \?= "+ pyHome.replace("/", "\/") + \
 		"/' config/Make.rules")
-    os.system("gmake RPM_BUILD_ROOT=" + installDir + " install")
+    os.system("gmake OPTIMIZE=yes RPM_BUILD_ROOT=" + installDir + " install")
     os.chdir(cwd)
     
 def shlibExtensions(versionString, versionInt):
