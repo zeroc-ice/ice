@@ -773,6 +773,12 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         {
             if(marshal)
             {
+                out << nl << "if(" << v << " == null)";
+                out << sb;
+                out << nl << stream << ".writeSize(0);";
+                out << eb;
+                out << nl << "else";
+                out << sb;
                 out << nl << stream << ".writeSize(" << v << ".size());";
                 ostringstream o;
                 o << "__i" << iter;
@@ -841,6 +847,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     }
                 }
                 out << eb; // while
+                out << eb;
             }
             else
             {
@@ -1101,6 +1108,12 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         {
             if(marshal)
             {
+                out << nl << "if(" << v << " == null)";
+                out << sb;
+                out << nl << stream << ".writeSize(0);";
+                out << eb;
+                out << nl << "else";
+                out << sb;
                 out << nl << stream << ".writeSize(" << v << ".length);";
                 out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < " << v << ".length; __i" << iter
                     << "++)";
@@ -1109,6 +1122,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 o << v << "[__i" << iter << "]";
                 iter++;
                 writeMarshalUnmarshalCode(out, scope, seq->type(), o.str(), true, iter, false);
+                out << eb;
                 out << eb;
             }
             else
@@ -1472,6 +1486,13 @@ Slice::JavaGenerator::writeGenericSequenceMarshalUnmarshalCode(Output& out,
         {
             if(marshal)
             {
+                out << nl << "if(" << v << " == null)";
+                out << sb;
+                out << nl << stream << ".startWriteSequence(" << name << ", 0);";
+                out << nl << stream << ".endWriteSequence();";
+                out << eb;
+                out << nl << "else";
+                out << sb;
                 out << nl << stream << ".startWriteSequence(" << name << ", " << v << ".size());";
                 ostringstream o;
                 o << "__i" << iter;
@@ -1541,6 +1562,7 @@ Slice::JavaGenerator::writeGenericSequenceMarshalUnmarshalCode(Output& out,
                 }
                 out << eb; // while
                 out << nl << stream << ".endWriteSequence();";
+                out << eb;
             }
             else
             {
@@ -1806,6 +1828,13 @@ Slice::JavaGenerator::writeGenericSequenceMarshalUnmarshalCode(Output& out,
             string typeS = getAbsolute(seq->scoped(), scope);
             if(marshal)
             {
+                out << nl << "if(" << v << " == null)";
+                out << sb;
+                out << nl << stream << ".startWriteSequence(" << name << ", 0);";
+                out << nl << stream << ".endWriteSequence();";
+                out << eb;
+                out << nl << "else";
+                out << sb;
                 out << nl << stream << ".startWriteSequence(" << name << ", " << v << ".length);";
                 out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < " << v << ".length; __i" << iter
                     << "++)";
@@ -1816,6 +1845,7 @@ Slice::JavaGenerator::writeGenericSequenceMarshalUnmarshalCode(Output& out,
                 writeGenericMarshalUnmarshalCode(out, scope, seq->type(), "\"e\"", o.str(), true, iter, false);
                 out << eb;
                 out << nl << stream << ".endWriteSequence();";
+                out << eb;
             }
             else
             {
