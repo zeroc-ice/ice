@@ -28,6 +28,12 @@ public final class ThrowerI extends _ThrowerDisp
         _adapter.getCommunicator().shutdown();
     }
 
+    public boolean
+    supportsUndeclaredExceptions(Ice.Current current)
+    {
+        return false;
+    }
+
     public void
     throwAasA(int a, Ice.Current current)
         throws A
@@ -108,12 +114,6 @@ public final class ThrowerI extends _ThrowerDisp
     throwNonIceException(Ice.Current current)
     {
         throw new RuntimeException();
-    }
-
-    public boolean
-    supportsUndeclaredExceptions(Ice.Current current)
-    {
-        return false;
     }
 
     public void
