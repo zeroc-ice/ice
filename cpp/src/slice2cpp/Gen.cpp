@@ -2252,6 +2252,15 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	C << eb;
 
 	C << sp;
+	C << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " 
+	  << "const ::std::string& __st, const ::Ice::ObjectFactoryPtr& __f, " << scoped << "Ptr& v)";
+	C << sb;
+	C << nl << "::Ice::ObjectPtr __obj;";
+	C << nl << "__is->read(__st, __f, __obj);";
+	C << nl << "v = " << scoped << "Ptr::dynamicCast(__obj);";
+	C << eb;
+
+	C << sp;
 	C << nl << "void" << nl << scoped.substr(2)
           << "::__marshal(const ::Ice::StreamPtr& __os) const";
 	C << sb;
@@ -2264,6 +2273,16 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	C << sb;
 	emitClassBase(base, "__unmarshal(__is)"); // Base must come first (due to schema rules).
 	writeGenericUnmarshalCode(C, memberList, 0);
+	C << eb;
+
+	C << sp;
+	C << nl << "void" << nl << scope.substr(2) << "__readObject(const ::Ice::StreamPtr& __is, "
+	  << "const ::std::string& __n, const ::std::string& __st, const ::Ice::ObjectFactoryPtr& __f, "
+	  << scoped << "Ptr& v)";
+	C << sb;
+	C << nl << "::Ice::ObjectPtr __obj;";
+	C << nl << "__obj = __is->readObject(__n, __st, __f);";
+	C << nl << "v = " << scoped << "Ptr::dynamicCast(__obj);";
 	C << eb;
 
 	C << sp;
@@ -2804,8 +2823,12 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
 	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "Prx&);";
 	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "Prx&);";
 	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "Ptr&);";
+	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, const ::std::string&, "
+	  << "const ::Ice::ObjectFactoryPtr&, " << name << "Ptr&);";
 	H << nl << _dllExport << "void __writeObject(const ::Ice::StreamPtr&, const ::std::string&, const "
 	  << name << "Ptr&);";
+	H << nl << _dllExport << "void __readObject(const ::Ice::StreamPtr&, const ::std::string&, "
+	  << "const ::std::string&, const ::Ice::ObjectFactoryPtr&, " << name << "Ptr&);";
 
 	H << sp;
 	H << nl << _dllExport << "void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&, const "

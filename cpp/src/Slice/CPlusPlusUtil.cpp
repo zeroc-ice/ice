@@ -422,14 +422,13 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     if(cl)
     {
 	out << sb;
+	string scope = fixKwd(cl->scope());
 	if(marshal)
 	{
-	    string scope = fixKwd(cl->scope());
 	    out << nl << scope << "__write(" << stream << ", " << fixedParam << ");";
 	}
 	else
 	{
-	    out << nl << "::Ice::ObjectPtr " << obj << ';';
 	    ClassDefPtr def = cl->definition();
 	    string factory;
 	    string type;
@@ -445,8 +444,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		factory = "0";
 		type = "\"\"";
 	    }
-	    out << nl << stream << deref << func << type << ", " << factory << ", " << obj << ");";
-	    out << nl << fixedParam << " = " << fixKwd(cl->scoped()) << "Ptr::dynamicCast(" << obj << ");";
+	    out << nl << scope << "__read(" << stream << ", " << type << ", " << factory << ", " << fixedParam << ");";
 	}
 	out << eb;
 
@@ -640,16 +638,15 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
+	string scope = fixKwd(cl->scope());
 	out << sb;
 	if(marshal)
 	{
-	    string scope = fixKwd(cl->scope());
 	    out << nl << scope << "__" << streamFunc << "Object(" << stream << ", " << tagName << ", "
 		<< fixedParam << ");";
 	}
 	else
 	{
-	    out << nl << "::Ice::ObjectPtr " << obj << ';';
 	    ClassDefPtr def = cl->definition();
 	    string factory;
 	    string type;
@@ -665,9 +662,8 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
 		factory = "0";
 		type = "\"\"";
 	    }
-	    out << nl << obj << " = " << stream << deref << streamFunc << "Object(" << tagName << ", "
-		<< type << ", " << factory << ");";
-	    out << nl << fixedParam << " = " << fixKwd(cl->scoped()) << "Ptr::dynamicCast(" << obj << ");";
+	    out << nl << scope << "__" << streamFunc << "Object(" << stream << ", " << tagName << ", "
+		<< type << ", " << factory << ", " << fixedParam << ");";
 	}
 	out << eb;
 
