@@ -17,7 +17,9 @@
 #endif
 
 #include "objectprx.h"
+#include "communicator.h"
 #include "exception.h"
+#include "marshal.h"
 #include "slice.h"
 #include "util.h"
 
@@ -34,7 +36,7 @@ zend_class_entry* Ice_ObjectPrx_entry_ptr;
 class Operation : public IceUtil::SimpleShared
 {
 public:
-    Operation(const Ice::ObjectPrx&, const Slice::OperationPtr&);
+    Operation(const Ice::ObjectPrx&, const Slice::OperationPtr&, const IceInternal::InstancePtr&);
     virtual ~Operation();
 
     void invoke(INTERNAL_FUNCTION_PARAMETERS);
@@ -42,6 +44,12 @@ public:
 private:
     Ice::ObjectPrx _proxy;
     Slice::OperationPtr _op;
+    IceInternal::InstancePtr _instance;
+    string _name;
+    vector<string> _paramNames;
+    MarshalerPtr _result;
+    vector<MarshalerPtr> _inParams;
+    vector<MarshalerPtr> _outParams;
 };
 typedef IceUtil::Handle<Operation> OperationPtr;
 
@@ -51,8 +59,7 @@ typedef IceUtil::Handle<Operation> OperationPtr;
 class Proxy
 {
 public:
-    Proxy(const Ice::ObjectPrx&);
-    Proxy(const Ice::ObjectPrx&, const Slice::ClassDefPtr&);
+    Proxy(const Ice::ObjectPrx&, const Slice::ClassDefPtr& = Slice::ClassDefPtr());
 
     const Ice::ObjectPrx& getProxy() const;
     const Slice::ClassDefPtr& getClass() const;
@@ -62,6 +69,7 @@ public:
 private:
     Ice::ObjectPrx _proxy;
     Slice::ClassDefPtr _class;
+    IceInternal::InstancePtr _instance;
     Slice::OperationList _classOps;
     map<string, OperationPtr> _ops;
 };
@@ -106,6 +114,7 @@ static function_entry Ice_ObjectPrx_methods[] =
     {"ice_default",         PHP_FN(Ice_ObjectPrx_ice_default),         NULL},
     {"ice_flush",           PHP_FN(Ice_ObjectPrx_ice_flush),           NULL},
     {"ice_uncheckedCast",   PHP_FN(Ice_ObjectPrx_ice_uncheckedCast),   NULL},
+    {"ice_checkedCast",     PHP_FN(Ice_ObjectPrx_ice_checkedCast),     NULL},
     {NULL, NULL, NULL}
 };
 
@@ -808,7 +817,8 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_flush)
     }
 }
 
-ZEND_FUNCTION(Ice_ObjectPrx_ice_uncheckedCast)
+static void
+do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 {
     if(ZEND_NUM_ARGS() != 1)
     {
@@ -857,14 +867,15 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_uncheckedCast)
             // Allow the use of "::Type" (ClassDecl) or "::Type*" (Proxy).
             //
             Slice::ClassDeclPtr decl;
-            Slice::ProxyPtr proxy = Slice::ProxyPtr::dynamicCast(l.front());
+            Slice::TypePtr type = l.front();
+            Slice::ProxyPtr proxy = Slice::ProxyPtr::dynamicCast(type);
             if(proxy)
             {
                 decl = proxy->_class();
             }
             else
             {
-                decl = Slice::ClassDeclPtr::dynamicCast(l.front());
+                decl = Slice::ClassDeclPtr::dynamicCast(type);
             }
 
             if(!decl)
@@ -881,6 +892,20 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_uncheckedCast)
                 RETURN_NULL();
             }
 
+            if(decl->isLocal())
+            {
+                php_error(E_ERROR, "%s(): cannot use local type %s", get_active_function_name(TSRMLS_C), id);
+                RETURN_NULL();
+            }
+
+            if(check)
+            {
+                if(!_this->getProxy()->ice_isA(id))
+                {
+                    RETURN_NULL();
+                }
+            }
+
             if(!Ice_ObjectPrx_create(return_value, _this->getProxy(), def TSRMLS_CC))
             {
                 RETURN_NULL();
@@ -894,9 +919,51 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_uncheckedCast)
     }
 }
 
-Operation::Operation(const Ice::ObjectPrx& proxy, const Slice::OperationPtr& op) :
-    _proxy(proxy), _op(op)
+ZEND_FUNCTION(Ice_ObjectPrx_ice_uncheckedCast)
 {
+    do_cast(INTERNAL_FUNCTION_PARAM_PASSTHRU, false);
+}
+
+ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast)
+{
+    do_cast(INTERNAL_FUNCTION_PARAM_PASSTHRU, true);
+}
+
+Operation::Operation(const Ice::ObjectPrx& proxy, const Slice::OperationPtr& op,
+                     const IceInternal::InstancePtr& instance) :
+    _proxy(proxy), _op(op), _instance(instance), _name(op->name())
+{
+    //
+    // Create Marshaler objects for return type and parameters.
+    //
+    Slice::TypePtr ret = op->returnType();
+    if(ret)
+    {
+        _result = Marshaler::createMarshaler(ret);
+        if(!_result)
+        {
+            return;
+        }
+    }
+
+    Slice::ParamDeclList params = op->parameters();
+    for(Slice::ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+    {
+        MarshalerPtr m = Marshaler::createMarshaler((*p)->type());
+        if(!m)
+        {
+            break;
+        }
+        _paramNames.push_back((*p)->name());
+        if((*p)->isOutParam())
+        {
+            _outParams.push_back(m);
+        }
+        else
+        {
+            _inParams.push_back(m);
+        }
+    }
 }
 
 Operation::~Operation()
@@ -906,16 +973,90 @@ Operation::~Operation()
 void
 Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
 {
-    Ice::ByteSeq params, results;
     Ice::OperationMode mode = (Ice::OperationMode)_op->mode();
+    int i;
+
+    //
+    // Verify that the expected number of arguments are supplied.
+    //
+    vector<MarshalerPtr>::size_type numParams = _inParams.size() + _outParams.size();
+    if(ZEND_NUM_ARGS() != numParams)
+    {
+        php_error(E_ERROR, "operation %s expects %d parameter%s", _name.c_str(), numParams, numParams == 1 ? "" : "s");
+        return;
+    }
+
+    //
+    // Retrieve the arguments.
+    //
+    zval** args[ZEND_NUM_ARGS()];
+    if(zend_get_parameters_array_ex(ZEND_NUM_ARGS(), args) == FAILURE)
+    {
+        php_error(E_ERROR, "unable to get arguments");
+        return;
+    }
+
+    //
+    // Verify that the zvals for out parameters are passed by reference.
+    //
+    for(i = static_cast<int>(_inParams.size()); i < ZEND_NUM_ARGS(); ++i)
+    {
+        if(!PZVAL_IS_REF(*args[i]))
+        {
+            php_error(E_ERROR, "argument for out parameter %s must be passed by reference", _paramNames[i].c_str());
+            return;
+        }
+    }
 
     try
     {
-        if(!_proxy->ice_invoke(_op->name(), mode, params, results))
+        //
+        // Marshal the arguments.
+        //
+        // TODO: Check for class usage.
+        //
+        IceInternal::BasicStream os(_instance.get());
+        vector<MarshalerPtr>::iterator p;
+        for(i = 0, p = _inParams.begin(); p != _inParams.end(); ++i, ++p)
+        {
+            if(!(*p)->marshal(*args[i], os))
+            {
+                return;
+            }
+        }
+
+        //
+        // Invoke the operation.
+        //
+        IceInternal::BasicStream is(_instance.get());
+        if(!_proxy->ice_invoke(_name, mode, os.b, is.b))
         {
             // TODO
             php_error(E_ERROR, "user exception occurred");
             return;
+        }
+
+        //
+        // Unmarshal the results.
+        //
+        // TODO: Check for oneway/datagram errors
+        //
+        // TODO: Check for class usage.
+        //
+        is.i = is.b.begin();
+        for(i = _inParams.size(), p = _outParams.begin(); p != _outParams.end(); ++i, ++p)
+        {
+            if(!(*p)->unmarshal(*args[i], is))
+            {
+                return;
+            }
+        }
+        if(_result)
+        {
+            if(!_result->unmarshal(return_value, is))
+            {
+                return;
+            }
         }
     }
     catch(const IceUtil::Exception& ex)
@@ -924,14 +1065,21 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     }
 }
 
+#if 0
 Proxy::Proxy(const Ice::ObjectPrx& proxy) :
     _proxy(proxy)
 {
+    Ice::CommunicatorPtr communicator = Ice_Communicator_instance();
+    _instance = IceInternal::getInstance(communicator);
 }
+#endif
 
 Proxy::Proxy(const Ice::ObjectPrx& proxy, const Slice::ClassDefPtr& cls) :
     _proxy(proxy), _class(cls)
 {
+    Ice::CommunicatorPtr communicator = Ice_Communicator_instance();
+    _instance = IceInternal::getInstance(communicator);
+
     if(cls)
     {
         _classOps = _class->allOperations();
@@ -963,7 +1111,7 @@ Proxy::getOperation(const string& name)
         {
             if(n == ice_lowercase((*q)->name()))
             {
-                result = new Operation(_proxy, *q);
+                result = new Operation(_proxy, *q, _instance);
                 _ops[n] = result;
                 break;
             }

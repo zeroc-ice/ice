@@ -26,6 +26,7 @@ extern "C"
 
 bool Ice_Communicator_init(TSRMLS_DC);
 bool Ice_Communicator_create(zval* TSRMLS_DC);
+Ice::CommunicatorPtr Ice_Communicator_instance();
 bool Ice_Communicator_shutdown(TSRMLS_DC);
 
 //

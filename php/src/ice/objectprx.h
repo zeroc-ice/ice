@@ -66,6 +66,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_timeout);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_default);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_flush);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_uncheckedCast);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast);
 
 #define ICE_PHP_OBJECT_PRX_FUNCTIONS \
     ZEND_FE(Ice_ObjectPrx___construct,           NULL) \
@@ -92,6 +93,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_uncheckedCast);
     ZEND_FE(Ice_ObjectPrx_ice_timeout,           NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_default,           NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_flush,             NULL) \
-    ZEND_FE(Ice_ObjectPrx_ice_uncheckedCast,     NULL)
+    ZEND_FE(Ice_ObjectPrx_ice_uncheckedCast,     NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_checkedCast,       NULL)
 
 #endif

@@ -114,6 +114,12 @@ Ice_Communicator_create(zval* zv TSRMLS_DC)
     return true;
 }
 
+Ice::CommunicatorPtr
+Ice_Communicator_instance()
+{
+    return _communicator;
+}
+
 bool
 Ice_Communicator_shutdown(TSRMLS_DC)
 {
