@@ -12,9 +12,8 @@
 #include <IceStorm/IceStorm.h>
 #include <ClockI.h>
 
-using namespace Ice;
-using namespace IceStorm;
 using namespace std;
+using namespace Ice;
 
 class Subscriber : public Application
 {
@@ -33,7 +32,7 @@ main(int argc, char* argv[])
 int
 Subscriber::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator()->getProperties();
+    PropertiesPtr properties = communicator()->getProperties();
     const char* endpointsProperty = "IceStorm.TopicManager.Endpoints";
     std::string endpoints = properties->getProperty(endpointsProperty);
     if (endpoints.empty())
@@ -50,9 +49,9 @@ Subscriber::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("ClockAdapter", "tcp");
-    Ice::ObjectPtr clock = new ClockI();
-    Ice::ObjectPrx object = adapter->add(clock, Ice::stringToIdentity("events#time"));
+    ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("ClockAdapter", "tcp");
+    ObjectPtr clock = new ClockI();
+    ObjectPrx object = adapter->add(clock, stringToIdentity("events#time"));
 
     //
     // The set of topics to which to subscribe

@@ -12,9 +12,8 @@
 #include <IceStorm/IceStorm.h>
 #include <Clock.h>
 
-using namespace Ice;
-using namespace IceStorm;
 using namespace std;
+using namespace Ice;
 
 class Publisher : public Application
 {
@@ -43,23 +42,22 @@ Publisher::run(int argc, char* argv[])
     }
 
     ObjectPrx base = communicator()->stringToProxy("TopicManager:" + endpoints);
-    TopicManagerPrx manager = TopicManagerPrx::checkedCast(base);
+    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
     if (!manager)
     {
 	cerr << appName() << ": invalid object reference" << endl;
 	return EXIT_FAILURE;
     }
 
-    TopicPrx topic;
+    IceStorm::TopicPrx topic;
     try
     {
 	topic = manager->retrieve("time");
     }
-    catch(const NoSuchTopic& e)
+    catch(const IceStorm::NoSuchTopic& e)
     {
 	cerr << appName() << ": NoSuchTopic: " << e.name << endl;
 	return EXIT_FAILURE;
-	
     }
     assert(topic);
 
@@ -73,7 +71,9 @@ Publisher::run(int argc, char* argv[])
 
     cout << "publishing 10 tick events" << endl;
     for (int i = 0; i < 10; ++i)
+    {
 	clock->tick();
+    }
 
     return EXIT_SUCCESS;
 }

@@ -30,30 +30,19 @@ updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
 updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
 updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
 
-#
-# Clean the contents of the database directory.
-#
-dbdir = os.path.join(testdir, "db")
-TestUtil.cleanDbDir(dbdir)
-
 iceStormEndpoint=' --IceStorm.TopicManager.Endpoints="default -p 12345"'
 
-#
-# TODO: --dbdir is a hack
-#
-command = iceStorm + updatedClientServerOptions + iceStormEndpoint + \
-          r' --dbdir ' + os.path.join(testdir, "db")
-
 print "starting icestorm...",
+dbEnvName = os.path.join(testdir, "db")
+TestUtil.cleanDbDir(dbEnvName)
+command = iceStorm + updatedClientServerOptions + iceStormEndpoint + " --IceStorm.DBEnvName=" + dbEnvName
 iceStormPipe = os.popen(command)
 TestUtil.getServerPid(iceStormPipe)
 TestUtil.getAdapterReady(iceStormPipe)
 print "ok"
 
-command = iceStormAdmin + updatedClientOptions + \
-          iceStormEndpoint + \
-          r' -e "create single"'
 print "creating topic...",
+command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "create single"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminPipe.close()
 print "ok"
@@ -71,10 +60,8 @@ try:
 except OSError:
     1 # Ignore
 
-command = subscriber + updatedClientServerOptions + iceStormEndpoint + \
-          r' ' + subscriberLockFile
-
 print "starting subscriber...",
+command = subscriber + updatedClientServerOptions + iceStormEndpoint + r' ' + subscriberLockFile
 subscriberPipe = os.popen(command)
 TestUtil.getServerPid(subscriberPipe)
 TestUtil.getAdapterReady(subscriberPipe)
@@ -89,8 +76,8 @@ if not os.path.isfile(subscriberLockFile):
 # Start the publisher. This should publish 10 events which eventually
 # causes subscriber to terminate.
 #
-command = publisher + updatedClientOptions + iceStormEndpoint
 print "starting publisher...",
+command = publisher + updatedClientOptions + iceStormEndpoint
 publisherPipe = os.popen(command)
 output = publisherPipe.readline()
 if not output:
@@ -118,10 +105,8 @@ while os.path.isfile(subscriberLockFile):
 #
 # Destroy the topic.
 #
-command = iceStormAdmin + updatedClientOptions + \
-          iceStormEndpoint + \
-          r' -e "destroy single"'
 print "destroying topic...",
+command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "destroy single"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminPipe.close()
 print "ok"
@@ -129,10 +114,8 @@ print "ok"
 #
 # Shutdown icestorm.
 #
-command = iceStormAdmin + updatedClientOptions + \
-          iceStormEndpoint + \
-          r' -e "shutdown"'
 print "shutting down icestorm...",
+command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "shutdown"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminPipe.close()
 print "ok"
