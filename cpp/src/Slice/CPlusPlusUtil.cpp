@@ -428,7 +428,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    if(def && !def->isAbstract())
 	    {
 		factory = fixKwd(cl->scoped());
-		factory += "::_factory";
+		factory += "::ice_factory()";
 		type = fixKwd(cl->scoped());
 		type += "::ice_staticId()";
 	    }
@@ -647,7 +647,7 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
 	    if(def && !def->isAbstract())
 	    {
 		factory = fixKwd(cl->scoped());
-		factory += "::_factory";
+		factory += "::ice_factory()";
 		type = fixKwd(cl->scoped());
 		type += "::ice_staticId()";
 	    }

@@ -1905,8 +1905,14 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 	if(!p->isAbstract())
 	{
+	    H.dec();
+	    H << sp << nl << "private:";
+	    H.inc();
 	    H << sp << nl << exp2 << "static ::Ice::ObjectFactoryPtr _factory;";
-	    H << nl << exp2 << "static const ::Ice::ObjectFactoryPtr& ice_factory();";
+	    H.dec();
+	    H << sp << nl << "public:";
+	    H.inc();
+	    H << sp << nl << exp2 << "static const ::Ice::ObjectFactoryPtr& ice_factory();";
 	}
 	C << sp;
 	C << nl << "const ::std::string " << scoped.substr(2) << "::__ids[" << ids.size() << "] =";
