@@ -221,7 +221,7 @@ private:
 	
 	_cursor->curr(k, v);
 
-	::Ice::CommunicatorPtr communicator = _db->getCommunicator();
+	Ice::CommunicatorPtr communicator = _db->getCommunicator();
 	KeyCodec::read(key, k, communicator);
 	ValueCodec::read(value, v, communicator);
     }
@@ -445,7 +445,7 @@ private:
 	
 	_cursor->curr(k, v);
 
-	::Ice::CommunicatorPtr communicator = _db->getCommunicator();
+	Ice::CommunicatorPtr communicator = _db->getCommunicator();
 	KeyCodec::read(key, k, communicator);
 	ValueCodec::read(value, v, communicator);
     }
@@ -462,9 +462,9 @@ private:
     // avoids problems in certain situations. For example, if
     // _ref.second is an STL container and you use an STL algorithm
     // such as transform, STLport (debug build) asserts that the
-    // addresses of the containers are the same. This would fail
-    // if the same value was not returned on subsequent calls
-    // to operator->().
+    // addresses of the containers are the same. This would fail if
+    // the same value was not returned on subsequent calls to
+    // operator->().
     //
     mutable value_type _ref;
     mutable bool _refValid;
@@ -519,6 +519,7 @@ public:
     }
 
 #ifdef __STL_MEMBER_TEMPLATES
+
     template <class _InputIterator>
     DBMap(const DBPtr& db, _InputIterator first, _InputIterator last) :
 	_db(db)
@@ -529,7 +530,9 @@ public:
 	    ++first;
 	}
     }
+
 #else
+
     DBMap(const DBPtr& db, const value_type* first, const value_type* last) :
 	_db(db)
     {
@@ -548,6 +551,7 @@ public:
 	    ++first;
 	}
     }
+
 #endif /*__STL_MEMBER_TEMPLATES */
 
     ~DBMap()
@@ -672,7 +676,7 @@ public:
 	//
 	// position is ignored.
 	//
-	::Ice::CommunicatorPtr communicator = _db->getCommunicator();
+	Ice::CommunicatorPtr communicator = _db->getCommunicator();
 
 	Freeze::Key k;
 	Freeze::Value v;
@@ -687,7 +691,7 @@ public:
 
     std::pair<iterator, bool> insert(const value_type& key)
     {
-	::Ice::CommunicatorPtr communicator = _db->getCommunicator();
+	Ice::CommunicatorPtr communicator = _db->getCommunicator();
 
 	Freeze::Key k;
 	Freeze::Value v;
@@ -824,8 +828,13 @@ public:
     size_type count(const key_type& key) const
     {
 	if(find(key) != end())
+	{
 	    return 1;
-	return 0;
+	}
+	else
+	{
+	    return 0;
+	}
     }
 
     std::pair<iterator, iterator> equal_range(const key_type& key)
@@ -849,9 +858,10 @@ public:
     class ElementRef
     {
     public:
+
         void operator=(const mapped_type& value)
         {
-            ::Ice::CommunicatorPtr communicator = _db->getCommunicator();
+            Ice::CommunicatorPtr communicator = _db->getCommunicator();
 
             Freeze::Key k;
             Freeze::Value v;
@@ -863,7 +873,7 @@ public:
 
         operator mapped_type()
         {
-            ::Ice::CommunicatorPtr communicator = _db->getCommunicator();
+            Ice::CommunicatorPtr communicator = _db->getCommunicator();
 
             Freeze::Key k;
             KeyCodec::write(_key, k, communicator);
@@ -876,6 +886,7 @@ public:
         }
 
     private:
+
         ElementRef(const DBPtr& db, const key_type& key) :
             _db(db), _key(key)
         {
@@ -913,7 +924,7 @@ private:
     DBPtr _db;
 };
 
-} // End namespace Freeze
+}
 
 //
 // This is for MSVC.
@@ -922,7 +933,7 @@ private:
 namespace std
 {
 
-//XXX update
+// TODO: update.
 template <class key_type, class mapped_type, class KeyCodec, class ValueCodec>
 inline pair<const key_type, const mapped_type>*
 value_type(const Freeze::DBIterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
@@ -944,8 +955,8 @@ inline forward_iterator_tag iterator_category(const Freeze::DBIteratorBase&)
 
 inline ptrdiff_t* distance_type(const Freeze::DBIteratorBase&) { return (ptrdiff_t*) 0; }
 
-} // End namespace std
+}
 
-#endif /* _STLP_CLASS_PARTIAL_SPECIALIZATION */
+#endif
 
 #endif
