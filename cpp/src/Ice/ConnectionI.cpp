@@ -39,45 +39,46 @@ Ice::ConnectionI::validate()
 {
     bool active;
 
-    {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	
-	if(_instance->threadPerConnection() && _threadPerConnection->getThreadControl() != IceUtil::ThreadControl())
-	{
-	    //
-	    // In thread per connection mode, this connection's thread
-	    // will take care of connection validation. Therefore all we
-	    // have to do here is to wait until this thread has completed
-	    // validation.
-	    //
-	    while(_state == StateNotValidated)
-	    {
-		wait();
-	    }
-	    
-	    if(_state >= StateClosing)
-	    {
-		assert(_exception.get());
-		_exception->ice_throw();
-	    }
-	    
-	    return;
-	}
-
-	assert(_state == StateNotValidated);
-
-	if(_adapter)
-	{
-	    active = true; // The server side has the active role for connection validation.
-	}
-	else
-	{
-	    active = false; // The client side has the passive role for connection validation.
-	}	    
-    }
-    
     if(!_endpoint->datagram()) // Datagram connections are always implicitly validated.
     {
+	{
+	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	    
+	    if(_instance->threadPerConnection() &&
+	       _threadPerConnection->getThreadControl() != IceUtil::ThreadControl())
+	    {
+		//
+		// In thread per connection mode, this connection's thread
+		// will take care of connection validation. Therefore all we
+		// have to do here is to wait until this thread has completed
+		// validation.
+		//
+		while(_state == StateNotValidated)
+		{
+		    wait();
+		}
+		
+		if(_state >= StateClosing)
+		{
+		    assert(_exception.get());
+		    _exception->ice_throw();
+		}
+		
+		return;
+	    }
+	    
+	    assert(_state == StateNotValidated);
+	    
+	    if(_adapter)
+	    {
+		active = true; // The server side has the active role for connection validation.
+	    }
+	    else
+	    {
+		active = false; // The client side has the passive role for connection validation.
+	    }
+	}
+
 	try
 	{
 	    Int timeout;
