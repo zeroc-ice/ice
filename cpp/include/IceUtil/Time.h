@@ -36,6 +36,10 @@ public:
     Int64 toMilliSeconds() const;
     Int64 toMicroSeconds() const;
 
+    double toSecondsDouble() const;
+    double toMilliSecondsDouble() const;
+    double toMicroSecondsDouble() const;
+
     std::string toString() const;
 
     Time operator-() const // Inlined for performance reasons.
@@ -95,18 +99,56 @@ public:
 	return _usec != rhs._usec;
     }
 
-    template<typename T>
-    Time& operator*=(T rhs)
+    template<typename T> Time& operator*=(T rhs)
     {
 	_usec *= rhs;
 	return *this;
     }
 
-    template<typename T>
-    Time& operator/=(T rhs)
+    Time& operator*=(const Time& rhs)
+    {
+	_usec *= rhs._usec;
+	return *this;
+    }
+
+    template<typename T> Time operator*(T rhs) const
+    {
+	Time t;
+	t._usec = _usec * rhs;
+	return t;
+    }
+
+    Time operator*(const Time& rhs) const
+    {
+	Time t;
+	t._usec = _usec * rhs._usec;
+	return t;
+    }
+
+    template<typename T> Time& operator/=(T rhs)
     {
 	_usec /= rhs;
 	return *this;
+    }
+
+    Time& operator/=(const Time& rhs)
+    {
+	_usec /= rhs._usec;
+	return *this;
+    }
+
+    template<typename T> Time operator/(T rhs) const
+    {
+	Time t;
+	t._usec = _usec / rhs;
+	return t;
+    }
+
+    Time operator/(const Time& rhs) const
+    {
+	Time t;
+	t._usec = _usec / rhs._usec;
+	return t;
     }
 
 private:
@@ -115,30 +157,6 @@ private:
 
     Int64 _usec;
 };
-
-template<typename T>
-Time operator*(const Time& lhs, T rhs)
-{
-    return Time::microSeconds(static_cast<Int64>(lhs.toMicroSeconds() * rhs));
-}
-
-template<typename T>
-Time operator*(T rhs, const Time& lhs)
-{
-    return Time::microSeconds(static_cast<Int64>(lhs * rhs.toMicroSeconds()));
-}
-
-template<typename T>
-Time operator/(const Time& lhs, T rhs)
-{
-    return Time::microSeconds(static_cast<Int64>(lhs.toMicroSeconds() / rhs));
-}
-
-template<typename T>
-T operator/(T lhs, const Time& rhs)
-{
-    return lhs * 1000000 / static_cast<T>(rhs.toMicroSeconds());
-}
 
 ICE_UTIL_API std::ostream& operator<<(std::ostream&, const Time&);
 
