@@ -1758,27 +1758,29 @@ XMLTransform::TransformFactory::import(DocumentMap& documents, set<string>& impo
     //
     string file = findFile(loc, paths);
 
-    ArrayJanitor<XMLCh> s(XMLString::transcode(file.c_str()));
-    LocalFileInputSource source(s.get());
-
-    string systemId = toString(source.getSystemId());
-
-    if(importedFiles.find(systemId) != importedFiles.end())
-    {
-	//
-	// Already imported, nothing to do.
-	//
-	return;
-    }
-
     DOMTreeErrorReporter errorReporter;
     XercesDOMParser parser;
     parser.setValidationScheme(AbstractDOMParser::Val_Never);
     parser.setDoNamespaces(true);
     parser.setErrorHandler(&errorReporter);
 
+    string systemId;
+
     try
     {
+	ArrayJanitor<XMLCh> s(XMLString::transcode(file.c_str()));
+	LocalFileInputSource source(s.get());
+
+	systemId = toString(source.getSystemId());
+
+	if(importedFiles.find(systemId) != importedFiles.end())
+	{
+	    //
+	    // Already imported, nothing to do.
+	    //
+	    return;
+	}
+
         parser.parse(source);
     }
     catch(const XMLException& ex)
