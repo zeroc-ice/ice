@@ -229,7 +229,7 @@ SOURCE=.\Util.h
 
 SOURCE=.\Grammar.y
 
-!IF  "$(CFG)" == "Transform - Win32 Release"
+!IF  "$(CFG)" == "TransformDB - Win32 Release"
 
 # Begin Custom Build
 InputPath=.\Grammar.y
@@ -247,7 +247,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "Transform - Win32 Debug"
+!ELSEIF  "$(CFG)" == "TransformDB - Win32 Debug"
 
 # Begin Custom Build
 InputPath=.\Grammar.y
@@ -272,7 +272,7 @@ BuildCmds= \
 
 SOURCE=.\Scanner.l
 
-!IF  "$(CFG)" == "Transform - Win32 Release"
+!IF  "$(CFG)" == "TransformDB - Win32 Release"
 
 # Begin Custom Build
 InputPath=.\Scanner.l
@@ -284,7 +284,7 @@ InputPath=.\Scanner.l
 	
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "Transform - Win32 Debug"
+!ELSEIF  "$(CFG)" == "TransformDB - Win32 Debug"
 
 # Begin Custom Build
 InputPath=.\Scanner.l
