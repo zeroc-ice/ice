@@ -923,6 +923,16 @@ public:
             return;
         }
 
+	//
+	// If the object is null simply emit the node as-is.
+	//
+	string nil = getAttributeByName(node, "xsi:nil");
+        if(!nil.empty() && nil == "true")
+        {
+            os << node;
+            return;
+        }
+
         //
         // Otherwise, xsi:type must be present.
         //
@@ -1097,6 +1107,7 @@ private:
 
     enum Type
     {
+	TypeBoolean,
 	TypeInteger, // byte, short, int, long
 	TypeFloat, // float, double
 	TypeString,
@@ -1249,6 +1260,7 @@ const TransformFactory::StringTypeTable* TransformFactory::itemsEnd = &items[siz
 
 const TransformFactory::StringTypeTable TransformFactory::itemsByName[] =
 {
+    { "xs:boolean", TransformFactory::TypeBoolean },
     { "xs:byte", TransformFactory::TypeInteger },
     { "xs:short", TransformFactory::TypeInteger },
     { "xs:int", TransformFactory::TypeInteger },
@@ -1474,13 +1486,13 @@ XMLTransform::TransformFactory::import(DocumentMap& documents, const string& ns,
     catch(const XMLException& ex)
     {
 	InvalidSchema e(__FILE__, __LINE__);
-        e.reason = "XML exception while importing " + loc + ": " + toString(ex.getMessage());
+        e.reason = "XML exception while importing " + loc + ":\n" + toString(ex.getMessage());
 	throw e;
     }
     catch(const SAXParseException& ex)
     {
 	InvalidSchema e(__FILE__, __LINE__);
-        e.reason = "SAX exception while importing " + loc + ": " + toString(ex.getMessage());
+        e.reason = "SAX exception while importing " + loc + ":\n" + toString(ex.getMessage());
 	throw e;
     }
     catch(...)
@@ -1493,7 +1505,7 @@ XMLTransform::TransformFactory::import(DocumentMap& documents, const string& ns,
     if(errorReporter.getSawErrors())
     {
 	InvalidSchema ex(__FILE__, __LINE__);
-	ex.reason = errorReporter.getErrors();
+	ex.reason = "errors while importing " + loc + ":\n" + errorReporter.getErrors();
 	throw ex;
     }
 
@@ -1797,6 +1809,14 @@ XMLTransform::TransformFactory::createTransform(const DocumentInfoPtr& fromTypeI
     {
 	switch(fromType)
 	{
+	case TypeBoolean:
+	{
+	    //
+	    // Don't cache this transform.
+	    //
+	    return new NilTransform();
+	}
+
 	case TypeInteger:
 	{
             //
@@ -1988,10 +2008,21 @@ XMLTransform::TransformFactory::createTransform(const DocumentInfoPtr& fromTypeI
 	}
 
 	case TypeException:
+	{
+	    //
+	    // TODO: BENOIT: Is this correct? We can't throw an IllegalTransform here because it's possible 
+	    // that the schema have exception elements, even if these elements don't take part in any 
+	    // transformations. Maybe we could return a null transformation here since this transformation 
+	    // will never be used anyway.
+	    //
+	    transform = new NilTransform();
+	    break;
+	}
+
 	default:
         {
 	    IllegalTransform ex(__FILE__, __LINE__);
-            ex.reason = "invalid type";
+	    ex.reason = "invalid type";
 	    throw ex;
         }
 	}
@@ -2274,6 +2305,10 @@ XMLTransform::TransformFactory::createDefaultInitializedTransform(const Document
     TransformPtr transform = 0;
     switch(type)
     {
+    case TypeBoolean:
+	transform = new EmitStringTransform("false");
+	break;
+
     case TypeInteger:
 	transform = new EmitStringTransform("0");
 	break;
