@@ -8,6 +8,14 @@
 # **********************************************************************
 import os, sys, shutil, string, logging
 
+iceDescription = """Ice is a modern alternative to object middleware such as CORBA or COM/DCOM/COM+.
+It is easy to learn, yet provides a powerful network infrastructure for
+demanding technical applications. It features an object-oriented specification
+language, easy to use C++, Java, Python, PHP, C#, and Visual Basic mappings, a
+highly efficient protocol, asynchronous method invocation and dispatch, dynamic
+transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
+solution, and much more."""
+
 #
 # Represents the 'main' package of an RPM spec file.
 # TODO: The package should really write the RPM header has well.
@@ -211,13 +219,7 @@ fileLists = [
             "",
 	    "The Internet Communications Engine (Ice) runtime and services",
             "System Environment/Libraries",
-            """Ice is a modern alternative to object middleware such as CORBA or COM/DCOM/COM+.
-It is easy to learn, yet provides a powerful network infrastructure for
-demanding technical applications. It features an object-oriented specification
-language, easy to use C++, Java, Python, PHP, C#, and Visual Basic mappings, a
-highly efficient protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.""",
+	    iceDescription,
 	    "",
             [("xdir", "share/doc/Ice-%version%"),
              ("doc", "share/doc/Ice-%version%/ICE_LICENSE"),
@@ -269,13 +271,7 @@ solution, and much more.""",
                "",
                "Tools, files and libraries for developing Ice applications in C++",
                "Development/Tools",
-	       """Ice is a modern alternative to object middleware such as CORBA or COM/DCOM/COM+.
-It is easy to learn, yet provides a powerful network infrastructure for
-demanding technical applications. It features an object-oriented specification
-language, easy to use C++, Java, Python, PHP, C#, and Visual Basic mappings, a
-highly efficient protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.""",
+	       iceDescription,
 	       "",
                [("exe", "bin/slice2cpp"),
                 ("exe", "bin/slice2freeze"),
@@ -304,13 +300,7 @@ solution, and much more.""",
                "ice = %version%, mono-core >= 1.0.6, mono-core < 1.1",
                "Ice runtime for C# applications",
                "System Environment/Libraries",
-	       """Ice is a modern alternative to object middleware such as CORBA or COM/DCOM/COM+.
-It is easy to learn, yet provides a powerful network infrastructure for
-demanding technical applications. It features an object-oriented specification
-language, easy to use C++, Java, Python, PHP, C#, and Visual Basic mappings, a
-highly efficient protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.""",
+	       iceDescription,
 	       "",
                [("dll", "bin/glacier2cs.dll"), 
 	        ("dll", "bin/icecs.dll"), 
@@ -321,13 +311,7 @@ solution, and much more.""",
                "ice-dotnet = %version%",
                "Tools for developing Ice applications in C#",
                "Development/Tools",
-	       """Ice is a modern alternative to object middleware such as CORBA or COM/DCOM/COM+.
-It is easy to learn, yet provides a powerful network infrastructure for
-demanding technical applications. It features an object-oriented specification
-language, easy to use C++, Java, Python, PHP, C#, and Visual Basic mappings, a
-highly efficient protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.""",
+	       iceDescription,
 	       "",
                [("exe", "bin/slice2cs"),
 		("xdir", "share/doc/Ice-%version%"),
@@ -338,13 +322,7 @@ solution, and much more.""",
                "ice-java = %version%",
                "Tools developing Ice applications in Java",
                "Development/Tools",
-	       """Ice is a modern alternative to object middleware such as CORBA or COM/DCOM/COM+.
-It is easy to learn, yet provides a powerful network infrastructure for
-demanding technical applications. It features an object-oriented specification
-language, easy to use C++, Java, Python, PHP, C#, and Visual Basic mappings, a
-highly efficient protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.""",
+	       iceDescription,
 	       "",
                [("exe", "bin/slice2java"),
                 ("exe", "bin/slice2freezej"),
@@ -363,26 +341,14 @@ solution, and much more.""",
                "ice = %version%, python >= 2.3.4",
                "Ice runtime for Python applications",
                "System Environment/Libraries",
-	       """Ice is a modern alternative to object middleware such as CORBA or COM/DCOM/COM+.
-It is easy to learn, yet provides a powerful network infrastructure for
-demanding technical applications. It features an object-oriented specification
-language, easy to use C++, Java, Python, PHP, C#, and Visual Basic mappings, a
-highly efficient protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.""",
+	       iceDescription,
 	       "",
                [("lib", "lib/IcePy.so.VERSION"), ("lib", "lib/IcePy.so"), ("dir", "lib/Ice-%version%/python")]),
     Subpackage("python-devel",
                "ice-python = %version%",
                "Tools for developing Ice applications in Python",
                "Development/Tools",
-	       """Ice is a modern alternative to object middleware such as CORBA or COM/DCOM/COM+.
-It is easy to learn, yet provides a powerful network infrastructure for
-demanding technical applications. It features an object-oriented specification
-language, easy to use C++, Java, Python, PHP, C#, and Visual Basic mappings, a
-highly efficient protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.""",
+	       iceDescription,
 	       "",
                [("exe", "bin/slice2py"),
 		("xdir", "share/doc/Ice-%version%"),
@@ -394,13 +360,7 @@ noarchFileList = [
 	    "ice = %version%, db4-java = 4.2.52",
 	    "The Internet Communications Engine (ICE) runtime for Java",
 	    "System Environment/Libraries",
-            """Ice is a modern alternative to object middleware such as CORBA or COM/DCOM/COM+.
-It is easy to learn, yet provides a powerful network infrastructure for
-demanding technical applications. It features an object-oriented specification
-language, easy to use C++, Java, Python, PHP, C#, and Visual Basic mappings, a
-highly efficient protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.""",
+	    iceDescription,
 	    "BuildArch: noarch",
 	    [ ("xdir", "lib/Ice-%version%"),
               ("dir", "lib/Ice-%version%/Ice.jar")
