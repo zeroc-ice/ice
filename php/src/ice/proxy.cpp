@@ -95,7 +95,7 @@ typedef IceUtil::Handle<Operation> OperationPtr;
 class Proxy
 {
 public:
-    Proxy(const Ice::ObjectPrx& TSRMLS_DC, const Slice::ClassDefPtr& = Slice::ClassDefPtr());
+    Proxy(const Ice::ObjectPrx&, const Slice::ClassDefPtr& TSRMLS_DC);
     ~Proxy();
 
     const Ice::ObjectPrx& getProxy() const;
@@ -109,6 +109,7 @@ private:
 #ifdef ZTS
     TSRMLS_D;
 #endif
+    zval _communicator;
     IceInternal::InstancePtr _instance;
     Slice::OperationList _classOps;
     map<string, OperationPtr> _ops;
@@ -213,7 +214,8 @@ Ice_ObjectPrx_create(zval* zv, const Ice::ObjectPrx& p, const Slice::ClassDeclPt
 
     ice_object* zprx = static_cast<ice_object*>(zend_object_store_get_object(zv TSRMLS_CC));
     assert(!zprx->ptr);
-    zprx->ptr = new Proxy(p TSRMLS_CC, def);
+    zprx->ptr = new Proxy(p, def TSRMLS_CC);
+
     return true;
 }
 
@@ -1129,9 +1131,10 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     //
     // Retrieve the arguments.
     //
-    zval** args[ZEND_NUM_ARGS()];
+    zval*** args = static_cast<zval***>(emalloc(ZEND_NUM_ARGS() * sizeof(zval**)));
     if(zend_get_parameters_array_ex(ZEND_NUM_ARGS(), args) == FAILURE)
     {
+        efree(args);
         zend_error(E_ERROR, "unable to get arguments");
         return;
     }
@@ -1143,6 +1146,7 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     {
         if(!PZVAL_IS_REF(*args[i]))
         {
+            efree(args);
             zend_error(E_ERROR, "argument for out parameter %s must be passed by reference", _paramNames[i].c_str());
             return;
         }
@@ -1150,7 +1154,7 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
 
     try
     {
-        Marshal_initObjectMap(TSRMLS_C);
+        Marshal_preOperation(TSRMLS_C);
 
         //
         // Marshal the arguments.
@@ -1161,6 +1165,7 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         {
             if(!(*p)->marshal(*args[i], os TSRMLS_CC))
             {
+                efree(args);
                 return;
             }
         }
@@ -1174,50 +1179,60 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         // Invoke the operation. Don't use _name here.
         //
         IceInternal::BasicStream is(_instance.get());
-        if(!_proxy->ice_invoke(_op->name(), mode, os.b, is.b))
-        {
-            is.i = is.b.begin();
-            throwException(is TSRMLS_CC);
-            return;
-        }
-
-        Marshal_destroyObjectMap(TSRMLS_C);
+        bool status = _proxy->ice_invoke(_op->name(), mode, os.b, is.b);
 
         //
-        // Unmarshal the results.
-        //
-        // TODO: Check for oneway/datagram errors
-        //
-        // TODO: Check for class usage.
+        // Reset the input stream's iterator.
         //
         is.i = is.b.begin();
-        for(i = _inParams.size(), p = _outParams.begin(); p != _outParams.end(); ++i, ++p)
+
+        if(status)
         {
             //
-            // We must explicitly destroy the contents of all zvals passed
-            // as out parameters, otherwise leaks occur.
+            // Unmarshal the results.
             //
-            zval_dtor(*args[i]);
-            if(!(*p)->unmarshal(*args[i], is TSRMLS_CC))
+            // TODO: Check for oneway/datagram errors
+            //
+            for(i = _inParams.size(), p = _outParams.begin(); p != _outParams.end(); ++i, ++p)
             {
-                return;
+                //
+                // We must explicitly destroy the existing contents of all zvals passed
+                // as out parameters, otherwise leaks occur.
+                //
+                zval_dtor(*args[i]);
+                if(!(*p)->unmarshal(*args[i], is TSRMLS_CC))
+                {
+                    efree(args);
+                    return;
+                }
+            }
+            if(_result)
+            {
+                if(!_result->unmarshal(return_value, is TSRMLS_CC))
+                {
+                    efree(args);
+                    return;
+                }
+            }
+            if(_op->returnsClasses())
+            {
+                is.readPendingObjects();
             }
         }
-        if(_result)
+        else
         {
-            if(!_result->unmarshal(return_value, is TSRMLS_CC))
-            {
-                return;
-            }
+            //
+            // Unmarshal and "throw" a user exception.
+            //
+            throwException(is TSRMLS_CC);
         }
-        if(_op->returnsClasses())
-        {
-            is.readPendingObjects();
-        }
+
+        Marshal_postOperation(TSRMLS_C);
+        efree(args);
     }
     catch(const IceUtil::Exception& ex)
     {
-        Marshal_destroyObjectMap(TSRMLS_C);
+        Marshal_postOperation(TSRMLS_C);
         ice_throw_exception(ex TSRMLS_CC);
     }
 }
@@ -1281,20 +1296,26 @@ Operation::throwException(IceInternal::BasicStream& is TSRMLS_DC)
     throw Ice::UnknownUserException(__FILE__, __LINE__);
 }
 
-Proxy::Proxy(const Ice::ObjectPrx& proxy TSRMLS_DC, const Slice::ClassDefPtr& cls) :
+Proxy::Proxy(const Ice::ObjectPrx& proxy, const Slice::ClassDefPtr& cls TSRMLS_DC) :
     _proxy(proxy), _class(cls)
 {
 #ifdef ZTS
     this->TSRMLS_C = TSRMLS_C;
 #endif
-    Ice::CommunicatorPtr communicator = Ice_Communicator_instance(TSRMLS_C);
-    _instance = IceInternal::getInstance(communicator);
 
     //
     // We want to ensure that the PHP object corresponding to the communicator is
-    // not destroyed until after this proxy is destroyed.
+    // not destroyed until after this proxy is destroyed. We keep a copy of the
+    // communicator's zval because the symbol table holding the communicator's zval
+    // may be destroyed before this proxy, therefore our destructor cannot rely on
+    // symbol table lookup when it needs to decrement the reference count.
     //
-    Ice_Communicator_addRef(TSRMLS_C);
+    zval* zc = Ice_Communicator_getZval(TSRMLS_C);
+    _communicator = *zc; // This is legal - it simply copies the object's handle
+    Z_OBJ_HT(_communicator)->add_ref(&_communicator TSRMLS_CC);
+
+    Ice::CommunicatorPtr communicator = Ice_Communicator_getInstance(TSRMLS_C);
+    _instance = IceInternal::getInstance(communicator);
 
     if(cls)
     {
@@ -1307,12 +1328,13 @@ Proxy::~Proxy()
     //
     // In order to avoid the communicator's "leak warning", we have to ensure that we
     // remove any references to the communicator or its supporting objects. This must
-    // be done prior to invoking Ice_Communicator_decRef().
+    // be done prior to invoking del_ref(), because the C++ communicator object may
+    // be destroyed during this call.
     // 
     _instance = 0;
     _ops.clear();
     _proxy = 0;
-    Ice_Communicator_decRef(TSRMLS_C);
+    Z_OBJ_HT(_communicator)->del_ref(&_communicator TSRMLS_CC);
 }
 
 const Ice::ObjectPrx&
