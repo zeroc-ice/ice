@@ -63,18 +63,18 @@ public:
 
     typedef value_type& reference;
 
-    DBIterator(const DBPtr& db, const DBCursorPtr& cursor)
-	: _db(db), _cursor(cursor), _refValid(false)
+    DBIterator(const DBPtr& db, const DBCursorPtr& cursor) :
+	_db(db), _cursor(cursor), _refValid(false)
     {
     }
 
-    DBIterator()
-        : _refValid(false)
+    DBIterator() :
+        _refValid(false)
     {
     }
 
-    DBIterator(const DBIterator& rhs)
-        : _refValid(false)
+    DBIterator(const DBIterator& rhs) :
+        _refValid(false)
     {
 	if(rhs._cursor)
 	{
@@ -263,17 +263,17 @@ public:
 
     typedef value_type& reference;
 
-    ConstDBIterator(const DBPtr& db, const DBCursorPtr& cursor)
-	: _db(db), _cursor(cursor), _refValid(false)
+    ConstDBIterator(const DBPtr& db, const DBCursorPtr& cursor) :
+	_db(db), _cursor(cursor), _refValid(false)
     {
     }
-    ConstDBIterator()
-        : _refValid(false)
+    ConstDBIterator() :
+        _refValid(false)
     {
     }
 
-    ConstDBIterator(const ConstDBIterator& rhs)
-        : _refValid(false)
+    ConstDBIterator(const ConstDBIterator& rhs) :
+        _refValid(false)
     {
 	if(rhs._cursor)
 	{
@@ -287,8 +287,8 @@ public:
     // A DBIterator can be converted to a ConstDBIterator (but not
     // vice versa) - same for operator=.
     //
-    ConstDBIterator(const DBIterator<key_type, mapped_type, KeyCodec, ValueCodec>& rhs)
-        : _refValid(false)
+    ConstDBIterator(const DBIterator<key_type, mapped_type, KeyCodec, ValueCodec>& rhs) :
+        _refValid(false)
     {
 	if(rhs._cursor)
 	{
