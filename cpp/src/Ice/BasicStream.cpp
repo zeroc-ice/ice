@@ -380,7 +380,7 @@ IceInternal::BasicStream::write(const vector<Int>& v)
     p = reinterpret_cast<const Byte*>(v.begin());
     for (int j = 0 ; j < sz ; ++j)
     {
-	reverse_copy(p, p + sizeof(Short), b.begin() + pos);
+	reverse_copy(p, p + sizeof(Int), b.begin() + pos);
 	p += sizeof(Int);
 	pos += sizeof(Int);
     }

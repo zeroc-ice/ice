@@ -973,7 +973,7 @@ string
 IceInternal::UdpEndpoint::toString() const
 {
     ostringstream s;
-    s << "tcp";
+    s << "udp";
     if (_host != getLocalHost(true)) // TODO: Whether numeric or not should be configurable
     {
 	s << " -h " << _host;
