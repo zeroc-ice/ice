@@ -1,3 +1,2 @@
 PhoneBook.PhoneBook=phonebook:tcp -p 10000
 Ice.Adapter.PhoneBookAdapter.Endpoints=tcp -p 10000
-Freeze.Directory=db

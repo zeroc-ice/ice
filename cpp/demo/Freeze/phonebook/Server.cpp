@@ -133,7 +133,7 @@ main(int argc, char* argv[])
     {
 	PropertiesPtr properties = createPropertiesFromFile(argc, argv, "config");
 	communicator = Ice::initializeWithProperties(properties);
-	dbenv = Freeze::initializeWithProperties(communicator, properties);
+	dbenv = Freeze::initialize(communicator, "db");
 	status = run(argc, argv, dbenv);
     }
     catch(const LocalException& ex)

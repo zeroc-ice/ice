@@ -23,14 +23,13 @@ using namespace Freeze;
 #   define FREEZE_DB_MODE (S_IRUSR | S_IWUSR)
 #endif
 
-Freeze::DBI::DBI(const CommunicatorPtr& communicator, const PropertiesPtr& properties, const DBEnvIPtr& dbenvObj,
-		 ::DB_ENV* dbenv, ::DB* db, const string& name) :
+Freeze::DBI::DBI(const CommunicatorPtr& communicator, const string& name, const DBEnvIPtr& dbenvObj, ::DB_ENV* dbenv,
+		 ::DB* db) :
     _communicator(communicator),
-    _properties(properties),
+    _name(name),
     _dbenvObj(dbenvObj),
     _dbenv(dbenv),
-    _db(db),
-    _name(name)
+    _db(db)
 {
 }
 
@@ -46,7 +45,7 @@ Freeze::DBI::~DBI()
 }
 
 void
-Freeze::DBI::put(const std::string& key, const ::Ice::ObjectPtr& servant)
+Freeze::DBI::put(const string& key, const ObjectPtr& servant)
 {
     //
     // TODO: Is synchronization necessary here? I really don't
@@ -153,8 +152,8 @@ Freeze::DBI::put(const std::string& key, const ::Ice::ObjectPtr& servant)
     }
 }
 
-::Ice::ObjectPtr
-Freeze::DBI::get(const std::string& key)
+ObjectPtr
+Freeze::DBI::get(const string& key)
 {
     //
     // TODO: Is synchronization necessary here? I really don't
@@ -239,7 +238,7 @@ Freeze::DBI::get(const std::string& key)
 }
 
 void
-Freeze::DBI::del(const std::string& key)
+Freeze::DBI::del(const string& key)
 {
     //
     // TODO: Is synchronization necessary here? I really don't
@@ -286,17 +285,11 @@ Freeze::DBI::close()
     _db = 0;
 }
 
-Freeze::DBEnvI::DBEnvI(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
+Freeze::DBEnvI::DBEnvI(const CommunicatorPtr& communicator, const string& directory) :
     _communicator(communicator),
-    _properties(properties),
+    _directory(directory),
     _dbenv(0)
 {
-    _directory = _properties->getProperty("Freeze.Directory");
-    if (_directory.empty())
-    {
-	_directory = ".";
-    }
-
     int ret;
 
     ret = db_env_create(&_dbenv, 0);
@@ -387,7 +380,7 @@ Freeze::DBEnvI::open(const string& name)
 	throw ex;
     }
 
-    DBPtr dbp = new DBI(_communicator, _properties, this, _dbenv, db, name);
+    DBPtr dbp = new DBI(_communicator, name, this, _dbenv, db);
     _dbmap[name] = dbp;
     return dbp;
 }
@@ -430,13 +423,7 @@ Freeze::DBEnvI::remove(const string& name)
 }
 
 DBEnvPtr
-Freeze::initialize(const CommunicatorPtr& communicator)
+Freeze::initialize(const CommunicatorPtr& communicator, const string& directory)
 {
-    return new DBEnvI(communicator, communicator->getProperties());
-}
-
-DBEnvPtr
-Freeze::initializeWithProperties(const CommunicatorPtr& communicator, const PropertiesPtr& properties)
-{
-    return new DBEnvI(communicator, properties);
+    return new DBEnvI(communicator, directory);
 }

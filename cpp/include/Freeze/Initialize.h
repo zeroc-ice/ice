@@ -12,7 +12,6 @@
 #define FREEZE_INITIALIZE_H
 
 #include <Ice/CommunicatorF.h>
-#include <Ice/PropertiesF.h>
 #include <Freeze/DBF.h>
 
 #ifdef WIN32
@@ -28,8 +27,7 @@
 namespace Freeze
 {
 
-FREEZE_API DBEnvPtr initialize(const ::Ice::CommunicatorPtr&);
-FREEZE_API DBEnvPtr initializeWithProperties(const ::Ice::CommunicatorPtr&, const ::Ice::PropertiesPtr&);
+FREEZE_API DBEnvPtr initialize(const ::Ice::CommunicatorPtr&, const std::string&);
 
 }
 

@@ -27,8 +27,7 @@ class DBI : public DB, public JTCMutex
 {
 public:
     
-    DBI(const ::Ice::CommunicatorPtr&, const ::Ice::PropertiesPtr&, const DBEnvIPtr&, ::DB_ENV*, ::DB*,
-	const std::string&);
+    DBI(const ::Ice::CommunicatorPtr&, const std::string&, const DBEnvIPtr&, ::DB_ENV*, ::DB*);
     virtual ~DBI();
 
     virtual void put(const std::string&, const ::Ice::ObjectPtr&);
@@ -39,18 +38,17 @@ public:
 private:
 
     ::Ice::CommunicatorPtr _communicator;
-    ::Ice::PropertiesPtr _properties;
+    std::string _name;
     DBEnvIPtr _dbenvObj;
     ::DB_ENV* _dbenv;
     ::DB* _db;
-    std::string _name;
 };
 
 class DBEnvI : public DBEnv, public JTCRecursiveMutex
 {
 public:
 
-    DBEnvI(const ::Ice::CommunicatorPtr&, const ::Ice::PropertiesPtr&);
+    DBEnvI(const ::Ice::CommunicatorPtr&, const std::string&);
     virtual ~DBEnvI();
 
     virtual DBPtr open(const std::string&);
@@ -61,9 +59,8 @@ public:
 private:
 
     ::Ice::CommunicatorPtr _communicator;
-    ::Ice::PropertiesPtr _properties;
-    ::DB_ENV* _dbenv;
     std::string _directory;
+    ::DB_ENV* _dbenv;
     std::map<std::string, DBPtr> _dbmap;
 };
 
