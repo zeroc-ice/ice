@@ -63,7 +63,7 @@ public:
 #elif defined(ICE_HAS_ATOMIC_FUNCTIONS)
 	ice_atomic_dec_and_test(&_ref);
 #else
-	--ref;
+	--_ref;
 #endif
     }
 

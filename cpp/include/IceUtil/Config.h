@@ -32,7 +32,10 @@
 // We are a linux sparc, which forces 32 bit usr land, no matter the architecture
 //
 #   define  ICE_32
-#elif (defined(__sun) && defined(__sparcv9)) || (defined(__linux) && defined(__x86_64)) || (defined(__hppa) && defined(__LP64__)) || (defined(_ARCH_COM) && defined(__64BIT__))
+#elif defined(__sun) && defined(__sparcv9) || \
+      defined(__linux) && defined(__x86_64) || \
+      defined(__hppa) && defined(__LP64__) || \
+      defined(_ARCH_COM) && defined(__64BIT__)
 #   define ICE_64
 #else
 #   define ICE_32

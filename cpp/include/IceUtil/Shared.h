@@ -31,7 +31,7 @@ int __atomic_exchange_and_add(atomic_t *v, int i);
 #elif defined(ICE_USE_MUTEX_SHARED)
 #   include <IceUtil/Mutex.h>
 
-#elif (defined(__linux) || defined(__FreeBSD__)) && defined(__i386) && !defined(__ICC)
+#elif (defined(__linux) || defined(__FreeBSD__)) && (defined(__i386) || defined(__x86_64)) && !defined(__ICC)
 #   define ICE_HAS_ATOMIC_FUNCTIONS
 
 // __ICC: The inline assembler causes problems with shared libraries.

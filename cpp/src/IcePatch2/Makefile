@@ -21,6 +21,7 @@ LIBTARGETS      = $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAM
 TARGETS         = $(LIBTARGETS) $(SERVER) $(CLIENT) $(CALC)
 
 OBJS		= Util.o \
+		  ClientUtil.o \
 		  FileInfo.o \
 		  FileServer.o
 
@@ -44,8 +45,8 @@ SDIR		= $(slicedir)/IcePatch2
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DICEPATCH2_API_EXPORTS $(OPENSSL_FLAGS)
-SLICE2CPPFLAGS	:= --ice --include-dir IcePatch2 --dll-export ICEPATCH2_API $(SLICE2CPPFLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_PATCH2_API_EXPORTS $(OPENSSL_FLAGS)
+SLICE2CPPFLAGS	:= --ice --include-dir IcePatch2 --dll-export ICE_PATCH2_API $(SLICE2CPPFLAGS)
 LINKWITH	:= -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
