@@ -11,7 +11,7 @@
 
 <icepack>
 
-  <server name="${name}" kind="cpp" exe="${ice.dir}/demo/IcePack/hello/server" activation="on-demand">
+  <server name="${name}" kind="cpp" exe="./server.exe" activation="on-demand">
   
     <!-- ============================================================= -->
     <!-- Register the server adapter named Hello and the HelloFactory  -->
