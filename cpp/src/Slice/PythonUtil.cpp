@@ -85,6 +85,11 @@ private:
     //
     void writeDefaultValue(const TypePtr&);
 
+    //
+    // Add a value to a hash code.
+    //
+    void writeHash(const string&, const TypePtr&, int&);
+
     struct MemberInfo
     {
         string fixedName;
@@ -955,25 +960,59 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     string scoped = p->scoped();
     string abs = getAbsolute(p);
     string name = fixIdent(p->name());
-    DataMemberList members = p->dataMembers();
-    DataMemberList::iterator q;
+    MemberInfoList memberList;
+    MemberInfoList::iterator r;
+
+    {
+        DataMemberList members = p->dataMembers();
+        for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        {
+            memberList.push_back(MemberInfo());
+            memberList.back().fixedName = fixIdent((*q)->name());
+            memberList.back().type = (*q)->type();
+        }
+    }
+
 
     _out << sp << nl << "_M_" << abs << " = Ice.createTempClass()";
     _out << nl << "class " << name << "(object):";
     _out.inc();
     _out << nl << "def __init__(self";
-    for(q = members.begin(); q != members.end(); ++q)
+    for(r = memberList.begin(); r != memberList.end(); ++r)
     {
-        _out << ", " << fixIdent((*q)->name()) << '=';
-        writeDefaultValue((*q)->type());
+        _out << ", " << r->fixedName << '=';
+        writeDefaultValue(r->type);
     }
     _out << "):";
     _out.inc();
-    for(q = members.begin(); q != members.end(); ++q)
+    for(r = memberList.begin(); r != memberList.end(); ++r)
     {
-        string s = fixIdent((*q)->name());
-        _out << nl << "self." << s << " = " << s;
+        _out << nl << "self." << r->fixedName << " = " << r->fixedName;
     }
+    _out.dec();
+
+    _out << sp << nl << "def __hash__(self):";
+    _out.inc();
+    _out << nl << "_h = 0";
+    int iter = 0;
+    for(r = memberList.begin(); r != memberList.end(); ++r)
+    {
+        string s = "self." + r->fixedName;
+        writeHash(s, r->type, iter);
+    }
+    _out << nl << "return _h % 0x7fffffff";
+    _out.dec();
+
+    _out << sp << nl << "def __eq__(self, other):";
+    _out.inc();
+    for(r = memberList.begin(); r != memberList.end(); ++r)
+    {
+        _out << nl << "if not self." << r->fixedName << " == other." << r->fixedName << ':';
+        _out.inc();
+        _out << nl << "return False";
+        _out.dec();
+    }
+    _out << nl << "return True";
     _out.dec();
 
     _out.dec();
@@ -992,26 +1031,26 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         //
         // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
         //
-        if(members.size() > 1)
+        if(memberList.size() > 1)
         {
             _out.inc();
             _out << nl;
         }
-        for(q = members.begin(); q != members.end(); ++q)
+        for(r = memberList.begin(); r != memberList.end(); ++r)
         {
-            if(q != members.begin())
+            if(r != memberList.begin())
             {
                 _out << ',' << nl;
             }
-            _out << "(\"" << fixIdent((*q)->name()) << "\", ";
-            writeType((*q)->type());
+            _out << "(\"" << r->fixedName << "\", ";
+            writeType(r->type);
             _out << ')';
         }
-        if(members.size() == 1)
+        if(memberList.size() == 1)
         {
             _out << ',';
         }
-        else if(members.size() > 1)
+        else if(memberList.size() > 1)
         {
             _out.dec();
             _out << nl;
@@ -1462,6 +1501,47 @@ Slice::Python::CodeVisitor::writeDefaultValue(const TypePtr& p)
     }
 
     _out << "None";
+}
+
+void
+Slice::Python::CodeVisitor::writeHash(const string& name, const TypePtr& p, int& iter)
+{
+    SequencePtr seq = SequencePtr::dynamicCast(p);
+    if(seq)
+    {
+        _out << nl << "if " << name << ':';
+        _out.inc();
+        _out << nl << "for _i" << iter << " in " << name << ':';
+        _out.inc();
+        ostringstream elem;
+        elem << "_i" << iter;
+        iter++;
+        writeHash(elem.str(), seq->type(), iter);
+        _out.dec();
+        _out.dec();
+        return;
+    }
+
+    DictionaryPtr dict = DictionaryPtr::dynamicCast(p);
+    if(dict)
+    {
+        _out << nl << "if " << name << ':';
+        _out.inc();
+        _out << nl << "for _i" << iter << " in " << name << ':';
+        _out.inc();
+        ostringstream key;
+        key << "_i" << iter;
+        ostringstream value;
+        value << name << '[' << key.str() << ']';
+        iter++;
+        writeHash(key.str(), dict->keyType(), iter);
+        writeHash(value.str(), dict->valueType(), iter);
+        _out.dec();
+        _out.dec();
+        return;
+    }
+
+    _out << nl << "_h = 5 * _h + __builtin__.hash(" << name << ")";
 }
 
 void
