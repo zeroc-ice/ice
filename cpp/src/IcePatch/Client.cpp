@@ -26,7 +26,7 @@ public:
 
     void usage();
     virtual int run(int, char*[]);
-    void printNodeDescSeq(const NodeDescSeq&, const string&);
+    void patch(const NodeDescSeq&, const string&);
 };
 
 };
@@ -98,7 +98,12 @@ IcePatch::Client::run(int argc, char* argv[])
         communicator()->addObjectFactory(factory, "::IcePatch::FileDesc");
         
 	//
-	// Display node structure.
+	// Remove orphaned MD5 and BZ2 files.
+	//
+	removeOrphanedRecursive(".");
+        
+	//
+	// Patch all nodes.
 	//
 	Identity identity = pathToIdentity(".");
 	ObjectPrx topObj = communicator()->stringToProxy(identityToString(identity) + ':' + endpoints);
@@ -109,7 +114,7 @@ IcePatch::Client::run(int argc, char* argv[])
 	string path = identityToPath(topDesc->directory->ice_getIdentity());
 	cout << pathToName(path) << endl;
 	cout << "|" << endl;
-	printNodeDescSeq(topDesc->directory->getContents(), "");
+	patch(topDesc->directory->getContents(), "");
     }
     catch (const NodeAccessException& ex)
     {
@@ -142,7 +147,7 @@ public:
 };
 
 void
-IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string& indent)
+IcePatch::Client::patch(const NodeDescSeq& nodeDescSeq, const string& indent)
 {
     if (nodeDescSeq.empty())
     {
@@ -217,7 +222,7 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 	    cout << "ok" << endl;
 
 	    cout << newIndent << "|" << endl;
-	    printNodeDescSeq(directoryDesc->directory->getContents(), newIndent);
+	    patch(directoryDesc->directory->getContents(), newIndent);
 	}
 	else
 	{

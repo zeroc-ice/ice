@@ -106,6 +106,20 @@ IcePatch::getSuffix(const string& path)
     }
 }
 
+string
+IcePatch::removeSuffix(const string& path)
+{
+    string::size_type pos = path.rfind('.');
+    if (pos == string::npos)
+    {
+	return path;
+    }
+    else
+    {
+	return path.substr(0, pos);
+    }
+}
+
 FileInfo
 IcePatch::getFileInfo(const string& path)
 {
@@ -694,6 +708,40 @@ IcePatch::createBZ2Recursive(const string& path)
     else if (info == FileInfoRegular)
     {
 	createBZ2(path);
+    }
+}
+
+void
+IcePatch::removeOrphanedRecursive(const string& path)
+{
+    assert(getFileInfo(path) == FileInfoDirectory);
+    
+    StringSeq paths = readDirectory(path);
+    StringSeq::const_iterator p;
+    for (p = paths.begin(); p != paths.end(); ++p)
+    {
+	string suffix = getSuffix(*p);
+	if (suffix == ".md5" || suffix == ".bz2")
+	{
+	    pair<StringSeq::const_iterator, StringSeq::const_iterator> r =
+		equal_range(paths.begin(), paths.end(), removeSuffix(*p));
+	    if (r.first == r.second)
+	    {
+		removeRecursive(*p);
+	    }
+	}
+	else
+	{
+	    if (getFileInfo(*p) == FileInfoDirectory)
+	    {
+		removeOrphanedRecursive(*p);
+	    }
+	}
+    }
+
+    if (readDirectory(path).empty())
+    {
+	removeRecursive(path);
     }
 }
 
