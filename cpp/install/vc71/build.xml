@@ -270,11 +270,11 @@
     </target>
 
     <!-- Ice for C# Assemblies -->
-    <target name="ice-csharp-gac" depends="setup">
+    <target name="ice-csharp-runtime" depends="setup">
 
 	<!-- Binaries -->
-	<mkdir dir="${install.dir}/ice-csharp/gac"/>
-	<copy todir="${install.dir}/ice-csharp/gac">
+	<mkdir dir="${install.dir}/ice-csharp/runtime/bin"/>
+	<copy todir="${install.dir}/ice-csharp/runtime/bin">
 	    <fileset dir="${icecs.dir}/bin">
 		<include name="*.dll"/>
 	    </fileset>
@@ -693,7 +693,7 @@
 		     ice-cpp-runtime,
 		     ice-cpp-dev,
 		     ice-cpp-demo,
-		     ice-csharp-gac,
+		     ice-csharp-runtime,
 		     ice-csharp-dev,
 		     ice-csharp-demo,
 		     ice-java-runtime,
