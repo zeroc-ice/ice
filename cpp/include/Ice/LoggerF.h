@@ -13,7 +13,7 @@
 
 #include <Ice/Handle.h>
 
-namespace IceLocal
+namespace Ice
 {
     class LoggerI;
     class StderrLoggerI;
@@ -22,15 +22,15 @@ namespace IceLocal
 namespace _Ice
 {
 
-void ICE_API _incRef(::IceLocal::LoggerI*);
-void ICE_API _decRef(::IceLocal::LoggerI*);
+void ICE_API _incRef(::Ice::LoggerI*);
+void ICE_API _decRef(::Ice::LoggerI*);
 
-void ICE_API _incRef(::IceLocal::StderrLoggerI*);
-void ICE_API _decRef(::IceLocal::StderrLoggerI*);
+void ICE_API _incRef(::Ice::StderrLoggerI*);
+void ICE_API _decRef(::Ice::StderrLoggerI*);
 
 }
 
-namespace IceLocal
+namespace Ice
 {
 
 typedef _Ice::Handle<LoggerI> Logger;

@@ -26,8 +26,8 @@ public:
 
     void invoke();
 
-    Stream* os();
     Stream* is();
+    Stream* os();
 
 private:
 

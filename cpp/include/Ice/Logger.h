@@ -15,7 +15,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/Shared.h>
 
-namespace IceLocal
+namespace Ice
 {
 
 class ICE_API LoggerI : public ::_Ice::Shared

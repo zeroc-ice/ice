@@ -28,8 +28,8 @@ public:
 
     void invoke();
 
-    Stream* os();
     Stream* is();
+    Stream* os();
 
 private:
 
@@ -39,8 +39,8 @@ private:
     Collector collector_;
     Ice::Int requestId_;
 
-    Stream os_;
     Stream is_;
+    Stream os_;
 };
 
 }

@@ -26,15 +26,16 @@ class ICE_API CommunicatorI : public ::_Ice::Shared, public JTCMutex
 public:
     
     void destroy();
-    void run();
+
+    void waitForShutdown();
 
     Object referenceFromString(const std::string&);
     std::string referenceToString(const Object&);
 
     Endpoint createEndpoint(); // TODO: arguments
 
-    ::IceLocal::Logger logger();
-    void logger(const ::IceLocal::Logger&);
+    Logger logger();
+    void logger(const Logger&);
 
 private:
 

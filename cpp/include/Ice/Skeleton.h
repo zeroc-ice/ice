@@ -14,7 +14,7 @@
 #include <Ice/SkeletonF.h>
 #include <Ice/Shared.h>
 
-namespace IceServant
+namespace IceServant { namespace Ice
 {
 
 class ICE_API ObjectS : virtual public ::_Ice::Shared
@@ -32,6 +32,6 @@ private:
     void operator=(const ObjectS&);
 };
 
-}
+} }
 
 #endif

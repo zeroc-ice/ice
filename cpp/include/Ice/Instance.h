@@ -28,8 +28,8 @@ class ICE_API InstanceI : public Shared, public JTCMutex
 {
 public:
 
-    ::IceLocal::Logger logger();
-    void logger(const ::IceLocal::Logger&);
+    ::Ice::Logger logger();
+    void logger(const ::Ice::Logger&);
     TraceLevels traceLevels();
     ObjectFactory objectFactory();
     ThreadPool threadPool();
@@ -46,7 +46,7 @@ private:
     void destroy();
     friend class ::Ice::CommunicatorI; // May create and destroy InstanceIs
 
-    ::IceLocal::Logger logger_;
+    ::Ice::Logger logger_;
     TraceLevels traceLevels_;
     ObjectFactory objectFactory_;
     ThreadPool threadPool_;

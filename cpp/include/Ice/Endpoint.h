@@ -15,6 +15,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/EndpointDataF.h>
 #include <Ice/CollectorF.h>
+#include <Ice/SkeletonF.h>
 #include <Ice/LocalException.h>
 #include <Ice/Shared.h>
 
@@ -36,9 +37,11 @@ public:
     EndpointI(const ::_Ice::Instance&, const _Ice::EndpointData&);
     virtual ~EndpointI();
 
-    void run();
+    void activate();
     void hold();
     void close();
+
+    void _register(const ::IceServant::Ice::Object&, const std::string&);
 
 private:
 
