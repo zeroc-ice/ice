@@ -348,12 +348,6 @@ Ice::Service::main(int& argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    if(!changeDirectory && !daemonize)
-    {
-        cerr << argv[0] << ": --nochdir must be used with --daemon" << endl;
-        return EXIT_FAILURE;
-    }
-
     if(daemonize)
     {
         configureDaemon(changeDirectory, closeFiles);

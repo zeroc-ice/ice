@@ -15,6 +15,13 @@ using namespace Ice;
 using namespace IceInternal;
 
 void
+Ice::SysLoggerI::print(const string& message)
+{
+    IceUtil::Mutex::Lock sync(*this);
+    syslog(LOG_INFO, "%s", message.c_str());
+}
+
+void
 Ice::SysLoggerI::trace(const string& category, const string& message)
 {
     IceUtil::Mutex::Lock sync(*this);

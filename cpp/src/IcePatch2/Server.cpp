@@ -238,7 +238,7 @@ IcePatch2::PatcherService::usage(const string& appName)
         "\n"
         "\n"
         "--daemon             Run as a daemon.\n"
-        "--noclose            Do not close open file descriptors.\n"
+        "--noclose            Do not close open file descriptors."
 
 	// --nochdir is intentionally not shown here. (See the comment in main().)
     );
@@ -283,8 +283,9 @@ main(int argc, char* argv[])
 
     try
     {
-        status = svc.main(argc + 1, v);
-    u
+	int ac = argc + 1;
+        status = svc.main(ac, v);
+    }
     catch(...)
     {
         // Ignore exceptions -- the only thing left to do is to free memory.
