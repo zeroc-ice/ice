@@ -257,10 +257,10 @@ public class BasicStream
     public void
     writeSize(int v)
     {
-	if (v > 0x7f)
+	if (v > 127)
 	{
 	    expand(5);
-	    _buf.put((byte)-0x80);
+	    _buf.put((byte)-1);
 	    _buf.putInt(v);
 	}
 	else
