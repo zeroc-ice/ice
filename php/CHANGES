@@ -1,5 +1,7 @@
-Changes since version 1.1.1
+Changes since version 1.1.2
 ---------------------------
+
+- Fixed a bug that prevented Apache 1.x from starting.
 
 - The documentation has always stated that same-named constructs
   cannot be directly nested inside each other. (For example, a
@@ -16,6 +18,9 @@ Changes since version 1.1.1
   For the time being, the compiler issues a warning for each global
   definition but continues to compile the code. Global non-module
   definitions will elicit a hard error two releases from now.
+
+Changes since version 1.1.1
+---------------------------
 
 - Fixed a compilation error for Visual C++.
 

@@ -593,6 +593,8 @@ IcePHP::profileShutdown(TSRMLS_D)
         delete p->second;
     }
 
+    _profiles.clear();
+
     return true;
 }
 
