@@ -290,8 +290,8 @@ public final class Connection extends EventHandler
 	}
 	
 	//
-	// Now we must wait for connection closure. If there is a
-	// timeout, we force the connection closure.
+	// Now we must wait until close() has been called on the
+	// transceiver.
 	//
 	while(_transceiver != null)
 	{
@@ -324,8 +324,8 @@ public final class Connection extends EventHandler
 		    }
 
 		    //
-		    // No return here, we must still wait until _transceiver
-		    // becomes null.
+		    // No return here, we must still wait until
+		    // close() is called on the _transceiver.
 		    //
 		}
 		else
@@ -825,10 +825,7 @@ public final class Connection extends EventHandler
     public void
     read(BasicStream stream)
     {
-	if(_transceiver != null)
-	{
-	    _transceiver.read(stream, 0);
-	}
+	_transceiver.read(stream, 0);
 
 	//
 	// Updating _acmAbsoluteTimeoutMillis is to expensive here,
@@ -1195,7 +1192,7 @@ public final class Connection extends EventHandler
 	    {
 		IntMap.Entry e = (IntMap.Entry)i.next();
 		Outgoing out = (Outgoing)e.getValue();
-		out.finished(_exception); // Exception is immutable at this point.
+		out.finished(_exception); // The exception is immutable at this point.
 	    }
 	}
 	
@@ -1206,7 +1203,7 @@ public final class Connection extends EventHandler
 	    {
 		IntMap.Entry e = (IntMap.Entry)i.next();
 		OutgoingAsync out = (OutgoingAsync)e.getValue();
-		out.__finished(_exception); // Exception is immutable at this point.
+		out.__finished(_exception); // The exception is immutable at this point.
 	    }
 	}
 
@@ -1323,38 +1320,6 @@ public final class Connection extends EventHandler
 	// connection that is not yet marked as closed or closing.
 	//
         setState(state);
-
-	//
-	// We can't call __finished() on async requests here, because
-	// it's possible that the callback will trigger another call,
-	// which then might block on this connection. Calling
-	// finished() at this place works for non-async calls, but in
-	// order to keep the logic of sending exceptions to requests
-	// in one place, we don't do this here either. Instead, we
-	// move all the code into the finished() operation.
-	/*
-	{
-	    java.util.Iterator i = _requests.entryIterator();
-	    while(i.hasNext())
-	    {
-		IntMap.Entry e = (IntMap.Entry)i.next();
-		Outgoing out = (Outgoing)e.getValue();
-		out.finished(_exception);
-	    }
-	    _requests.clear();
-	}
-
-	{
-	    java.util.Iterator i = _asyncRequests.entryIterator();
-	    while(i.hasNext())
-	    {
-		IntMap.Entry e = (IntMap.Entry)i.next();
-		OutgoingAsync out = (OutgoingAsync)e.getValue();
-		out.__finished(_exception);
-	    }
-	    _asyncRequests.clear();
-	}
-	*/
     }
 
     private void

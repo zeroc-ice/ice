@@ -134,7 +134,7 @@ private:
     bool closingOK() const;
 
     TransceiverPtr _transceiver;
-    const std::string _transceiverToString;
+    const std::string _desc;
     const EndpointPtr _endpoint;
 
     Ice::ObjectAdapterPtr _adapter;
@@ -144,7 +144,7 @@ private:
     const TraceLevelsPtr _traceLevels;
 
     bool _registeredWithPool;
-    ThreadPoolPtr _threadPool;
+    const ThreadPoolPtr _threadPool;
 
     bool _warn;
 
