@@ -326,6 +326,10 @@ SOURCE=.\ServantLocator.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ServantManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Stream.cpp
 # End Source File
 # Begin Source File
@@ -779,6 +783,14 @@ SOURCE=..\..\include\Ice\ServantLocator.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\ServantLocatorF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServantManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\ServantManagerF.h
 # End Source File
 # Begin Source File
 
