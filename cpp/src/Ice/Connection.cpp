@@ -414,6 +414,25 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    assert(stream.i == stream.b.end());
 	    stream.i = stream.b.begin() + 2;
 	    stream.read(messageType);
+
+	    //
+	    // Check whether the connection is validated.
+	    //
+	    if(!_connectionValidated && messageType != validateConnectionMsg)
+	    {
+		//
+                // Yes, we must set _connectionValidated to true
+                // here. The connection gets implicitly validated by
+                // any kind of message. However, it's still a protocol
+                // error like any other if no explicit connection
+                // validation message was sent first. Also, if I
+                // wouldn't set _connecitonValidated to true here,
+                // then the ConnectionValidatedException would be
+                // translated int a CloseConnectionException.
+		//
+		_connectionValidated = true;
+		throw ConnectionNotValidatedException(__FILE__, __LINE__);
+	    }
 	    
 	    //
 	    // Uncompress if necessary.
@@ -545,6 +564,25 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 			_requests.erase(p);
 		    }
 
+		    break;
+		}
+		
+		case validateConnectionMsg:
+		{
+		    traceHeader("received validate connection", stream, _logger, _traceLevels);
+		    if(_endpoint->datagram())
+		    {
+			if(_warn)
+			{
+			    Warning out(_logger);
+			    out << "ignoring validate connection message for datagram connection:\n"
+				<< _transceiver->toString();
+			}
+		    }
+		    else
+		    {
+			_connectionValidated = true;
+		    }
 		    break;
 		}
 		
@@ -782,22 +820,33 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
 {
     _warn = _instance->properties()->getPropertyAsInt("Ice.ConnectionWarnings") > 0;
 
-    if(_adapter)
+    if(_endpoint->datagram())
     {
 	//
-	// Incoming connections are always implicitly validated.
+	// Datagram connections are always implicitly validated.
 	//
 	_connectionValidated = true;
     }
     else
     {
-	//
-	// Outoging datagram connections are always validated
-	// implicitly. Outgoing non-datagram connections must receive a
-	// message from the server for connection validation.
-	//
-	//_connectionValidated = _endpoint->datagram();
-	_connectionValidated = true; // TODO: Not finished yet.
+	if(_adapter)
+	{
+	    //
+	    // Incoming connections play the active role with respect
+	    // to connection validation.
+	    //
+	    _connectionValidated = true;
+	    validateConnection();
+	}
+	else
+	{
+	    //
+	    // Outgoing connections are passive with respect to
+	    // validation, i.e., they wait until they get a validate
+	    // connection message from the server.
+	    //
+	    _connectionValidated = false;
+	}
     }
 }
 
@@ -959,6 +1008,19 @@ IceInternal::Connection::setState(State state)
 }
 
 void
+IceInternal::Connection::validateConnection()
+{
+    BasicStream os(_instance);
+    os.write(protocolVersion);
+    os.write(encodingVersion);
+    os.write(validateConnectionMsg);
+    os.write(headerSize); // Message size.
+    os.i = os.b.begin();
+    traceHeader("sending validate connection", os, _logger, _traceLevels);
+    _transceiver->write(os, _endpoint->timeout());
+}
+
+void
 IceInternal::Connection::closeConnection()
 {
     BasicStream os(_instance);
@@ -969,6 +1031,10 @@ IceInternal::Connection::closeConnection()
     os.i = os.b.begin();
     traceHeader("sending close connection", os, _logger, _traceLevels);
     _transceiver->write(os, _endpoint->timeout());
+
+    //
+    // A close connection is always followed by a connection shutdown.
+    //
     _transceiver->shutdown();
 }
 

@@ -90,6 +90,7 @@ private:
 
     void setState(State, const ::Ice::LocalException&);
     void setState(State);
+    void validateConnection();
     void closeConnection();
     void registerWithPool();
     void unregisterWithPool();

@@ -34,8 +34,9 @@ final class Protocol
     final static byte requestMsg = 0;
     final static byte requestBatchMsg = 1;
     final static byte replyMsg = 2;
-    final static byte closeConnectionMsg = 3;
-    final static byte compressedRequestMsg = 4;
-    final static byte compressedRequestBatchMsg = 5;
-    final static byte compressedReplyMsg = 6;
+    final static byte validateConnectionMsg = 3;
+    final static byte closeConnectionMsg = 4;
+    final static byte compressedRequestMsg = 5;
+    final static byte compressedRequestBatchMsg = 6;
+    final static byte compressedReplyMsg = 7;
 }

@@ -212,6 +212,13 @@ Ice::UnknownMessageException::ice_print(ostream& out) const
 }
 
 void
+Ice::ConnectionNotValidatedException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: received message over unvalidated connection";
+}
+
+void
 Ice::UnknownRequestIdException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

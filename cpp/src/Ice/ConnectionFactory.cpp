@@ -334,9 +334,18 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
     try
     {
 	TransceiverPtr transceiver = _acceptor->accept(0);
-	ConnectionPtr connection = new Connection(_instance, transceiver, _endpoint, _adapter);
-	connection->activate();
-	_connections.push_back(connection);
+	// Test code: We drop every 2nd connection we accept.
+/*
+	if(++_testCount % 2)
+	{
+	    transceiver->close();
+	}
+	else
+*/	{
+	    ConnectionPtr connection = new Connection(_instance, transceiver, _endpoint, _adapter);
+	    connection->activate();
+	    _connections.push_back(connection);
+	}
     }
     catch(const SocketException&)
     {
@@ -371,6 +380,11 @@ IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool
     }
     else if(_state == StateClosed)
     {
+//
+// With the new connection validation, this code is not needed
+// anymore.
+//
+/*
 	try
 	{
 	    //
@@ -399,6 +413,7 @@ IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool
 		out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
 	    }
 	}
+*/
 	
 	_acceptor->close();
 

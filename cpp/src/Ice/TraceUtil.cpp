@@ -71,6 +71,11 @@ printHeader(ostream& s, BasicStream& stream)
 	    s << "(close connection)";
 	    break;
 	}
+	case validateConnectionMsg:
+	{
+	    s << "(validate connection)";
+	    break;
+	}
 	default:
 	{
 	    s << "(unknown)";

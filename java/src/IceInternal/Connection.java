@@ -387,6 +387,26 @@ public final class Connection extends EventHandler
                 byte messageType = stream.readByte();
                 stream.pos(Protocol.headerSize);
 
+		//
+		// Check whether the connection is validated.
+		//
+		if(!_connectionValidated && messageType != Protocol.validateConnectionMsg)
+		{
+		    //
+		    // Yes, we must set _connectionValidated to true
+		    // here. The connection gets implicitly validated
+		    // by any kind of message. However, it's still a
+		    // protocol error like any other if no explicit
+		    // connection validation message was sent
+		    // first. Also, if I wouldn't set
+		    // _connecitonValidated to true here, then the
+		    // ConnectionValidatedException would be
+		    // translated int a CloseConnectionException.
+		    //
+		    _connectionValidated = true;
+		    throw new Ice.ConnectionNotValidatedException();
+		}
+	    
                 switch(messageType)
                 {
 		    case Protocol.compressedRequestMsg:
@@ -439,6 +459,24 @@ public final class Connection extends EventHandler
                             throw new Ice.UnknownRequestIdException();
                         }
                         out.finished(stream);
+                        break;
+                    }
+
+                    case Protocol.validateConnectionMsg:
+                    {
+                        TraceUtil.traceHeader("received validate connection", stream, _logger, _traceLevels);
+                        if(_endpoint.datagram())
+                        {
+                            if(_warn)
+                            {
+                                _logger.warning("ignoring validate connection message for datagram connection:\n" +
+                                                _transceiver.toString());
+                            }
+                        }
+                        else
+                        {
+			    _connectionValidated = true;
+                        }
                         break;
                     }
 
@@ -702,24 +740,34 @@ public final class Connection extends EventHandler
 	_warn = _instance.properties().getPropertyAsInt("Ice.ConnectionWarnings") > 0 ? true : false;
 	_registeredWithPool = false;
 
-	if(_adapter != null)
+	if(_endpoint.datagram())
 	{
 	    //
-	    // Incoming connections are always implicitly validated.
+	    // Datagram connections are always implicitly validated.
 	    //
 	    _connectionValidated = true;
 	}
 	else
 	{
-	    //
-	    // Outoging datagram connections are always validated
-	    // implicitly. Outgoing non-datagram connections must receive a
-	    // message from the server for connection validation.
-	    //
-	    //_connectionValidated = _endpoint.datagram();
-	    _connectionValidated = true; // TODO: Not finished yet.
+	    if(_adapter != null)
+	    {
+		//
+		// Incoming connections play the active role with
+		// respect to connection validation.
+		//
+		_connectionValidated = true;
+		validateConnection();
+	    }
+	    else
+	    {
+		//
+		// Outgoing connections are passive with respect to
+		// validation, i.e., they wait until they get a
+		// validate connection message from the server.
+		//
+		_connectionValidated = false;
+	    }
 	}
-
     }
 
     protected void
@@ -908,6 +956,17 @@ public final class Connection extends EventHandler
     }
 
     private void
+    validateConnection()
+    {
+        BasicStream os = new BasicStream(_instance);
+        os.writeByte(Protocol.protocolVersion);
+        os.writeByte(Protocol.encodingVersion);
+        os.writeByte(Protocol.validateConnectionMsg);
+        os.writeInt(Protocol.headerSize); // Message size.
+        _transceiver.write(os, _endpoint.timeout());
+    }
+
+    private void
     closeConnection()
     {
         BasicStream os = new BasicStream(_instance);
@@ -916,6 +975,11 @@ public final class Connection extends EventHandler
         os.writeByte(Protocol.closeConnectionMsg);
         os.writeInt(Protocol.headerSize); // Message size.
         _transceiver.write(os, _endpoint.timeout());
+
+	//
+	// A close connection is always followed by a connection
+	// shutdown.
+	//
         _transceiver.shutdown();
     }
 

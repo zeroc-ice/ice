@@ -236,6 +236,11 @@ final class TraceUtil
                     out.write("(close connection)");
                     break;
                 }
+                case Protocol.validateConnectionMsg:
+                {
+                    out.write("(validate connection)");
+                    break;
+                }
                 default:
                 {
                     out.write("(unknown)");

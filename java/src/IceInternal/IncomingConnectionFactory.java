@@ -145,6 +145,11 @@ public class IncomingConnectionFactory extends EventHandler
         }
         else if(_state == StateClosed)
         {
+//
+// With the new connection validation, this code is not needed
+// anymore.
+//
+/*
             try
             {
                 //
@@ -172,6 +177,7 @@ public class IncomingConnectionFactory extends EventHandler
                     warning(ex);
                 }
             }
+*/
 
             _acceptor.close();
 

@@ -305,6 +305,17 @@ local exception UnknownMessageException extends ProtocolException
 
 /**
  *
+ * This exception is a specialization of [ProtocolException], that is
+ * raised if a message is received over a connection that is not yet
+ * validated.
+ *
+ **/
+local exception ConnectionNotValidatedException extends ProtocolException
+{
+};
+
+/**
+ *
  * This exception is a specialization of [ProtocolException],
  * indicating that a response for an unknown request id has been
  * received.
