@@ -63,7 +63,7 @@ IcePack::ServiceDeployHandler::startElement(const XMLCh *const name, AttributeLi
 	else if(kind == "freeze")
 	{
 	    _deployer.setKind(ServiceDeployer::ServiceKindFreeze);
-	    _deployer.setDBEnv(getAttributeValueWithDefault(attrs, "dbenv", "${name}"));
+	    _deployer.setDBEnv(getAttributeValueWithDefault(attrs, "dbenv", ""));
 	}
 
 	_deployer.createConfigFile("/config/config_" + _deployer.substitute("${name}"));
@@ -123,8 +123,6 @@ IcePack::ServiceDeployer::setEntryPoint(const string& entry)
 void
 IcePack::ServiceDeployer::setDBEnv(const string& dir)
 {
-    assert(!dir.empty());
-
     if(_kind != ServiceKindFreeze)
     {
 	cerr << "Database environment is only allowed for Freeze services." << endl;
@@ -132,8 +130,24 @@ IcePack::ServiceDeployer::setDBEnv(const string& dir)
 	return;
     }
 
-    createDirectory("/dbs" + (dir[0] == '/' ? dir : "/" + dir));
-    addProperty("IceBox.DBEnvName." + _variables["name"], 
-		_variables["datadir"] + "/dbs" + (dir[0] == '/' ? dir : "/" + dir));
+    string path;
+
+    if(dir.empty())
+    {
+	//
+	// Provides database environment directory only if the
+	// database environment attribute is not specified. If it's
+	// specified, it's most likely because we share database
+	// environments and then it's the responsabilility of the user
+	// to manage the database environment directory.
+	//
+	createDirectory("/dbs/" + _variables["name"], true);
+	path = _variables["datadir"] + "/dbs/" + _variables["name"];
+    }
+    else
+    {
+	path = dir[0] == '/' ? dir : _variables["basedir"] + "/" + dir;
+    }
+    _serverDeployer.addProperty("IceBox.DBEnvName." + _variables["name"], path);
 }
 

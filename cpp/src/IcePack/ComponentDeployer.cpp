@@ -22,6 +22,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <dirent.h>
 
 #include <stack>
 #include <iterator>
@@ -48,12 +49,17 @@ toString(const XMLCh* ch)
 //
 // Create a directory. 
 //
+// TODO: IcePatch implements portable version of filesystem primitives
+// in the Util.cpp file. We should move these primitives in IceUtil
+// and use them here.
+//
 class CreateDirectory : public Task
 {
 public:
 
-    CreateDirectory(const string& name)
-	: _name(name)
+    CreateDirectory(const string& name, bool force) :
+	_name(name), 
+	_force(force)
     {
     }
 
@@ -73,6 +79,58 @@ public:
     virtual void
     undeploy()
     {
+	if(_force)
+	{
+	    //
+	    // Only remove files inside the directory, don't remove
+	    // directories (deployed directory should only be created
+	    // through this task so other directories should be
+	    // removed by another task).
+	    //
+	    struct dirent **namelist;
+	    int n = ::scandir(_name.c_str(), &namelist, 0, alphasort);
+	    if(n < 0)
+	    {
+		Ice::SystemException ex(__FILE__, __LINE__);
+		ex.error = getSystemErrno();
+		throw ex;
+	    }
+
+	    Ice::StringSeq entries;
+	    entries.reserve(n);
+	    for(int i = 0; i < n; ++i)
+	    {
+		string name = namelist[i]->d_name;
+		free(namelist[i]);
+		entries.push_back(_name + "/" + name);
+	    }
+	    free(namelist);
+	    
+	    for(Ice::StringSeq::iterator p = entries.begin(); p != entries.end(); ++p)
+	    {
+		struct stat buf;
+
+		if(::stat(p->c_str(), &buf) != 0)
+		{
+		    if(errno != ENOENT)
+		    {
+			Ice::SystemException ex(__FILE__, __LINE__);
+			ex.error = getSystemErrno();
+			throw ex;
+		    }
+		}
+		else if(S_ISREG(buf.st_mode))
+		{
+		    if(unlink(p->c_str()) != 0)
+		    {
+			Ice::SystemException ex(__FILE__, __LINE__);
+			ex.error = getSystemErrno();
+			throw ex;
+		    }
+		}
+	    }
+	}
+
 	if(rmdir(_name.c_str()) != 0)
 	{
 	    cerr << "Can't remove directory: " << _name << endl;
@@ -86,6 +144,7 @@ public:
 private:
 
     string _name;
+    bool _force;
 };
 
 //
@@ -429,10 +488,10 @@ IcePack::ComponentDeployer::undeploy()
 }
 
 void
-IcePack::ComponentDeployer::createDirectory(const string& name)
+IcePack::ComponentDeployer::createDirectory(const string& name, bool force)
 {
     string path = _variables["datadir"] + (name.empty() || name[0] == '/' ? name : "/" + name);
-    _tasks.push_back(new CreateDirectory(path));
+    _tasks.push_back(new CreateDirectory(path, force));
 }
 
 void

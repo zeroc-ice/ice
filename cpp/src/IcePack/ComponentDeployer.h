@@ -98,7 +98,7 @@ public:
     void parse(const std::string&, ComponentDeployHandler&);
     std::string substitute(const std::string&) const;
 
-    void createDirectory(const std::string&);
+    void createDirectory(const std::string&, bool = false);
     void createConfigFile(const std::string&);
     void addProperty(const std::string&, const std::string&);
     void addOffer(const std::string&, const std::string&, const std::string&);
