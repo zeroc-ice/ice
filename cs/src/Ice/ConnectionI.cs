@@ -1533,7 +1533,7 @@ namespace Ice
 		}
 		_transceiver = null;
 
-		throw ex;
+		throw new Ice.SyscallException(ex);
 	    }
 
 	    _overrideCompress = _instance.defaultsAndOverrides().overrideCompress;

@@ -1485,7 +1485,7 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
 	_threadPerConnection = 0;
 	
 	__setNoDelete(false);
-	throw;
+	ex.ice_throw();
     }
     __setNoDelete(false);
 }

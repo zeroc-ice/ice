@@ -1361,7 +1361,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		_threadPerConnection.start();
 	    }
 	}
-	catch(RuntimeException ex)
+	catch(java.lang.Exception ex)
 	{
 	    java.io.StringWriter sw = new java.io.StringWriter();
 	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -1391,7 +1391,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    _transceiver = null;
 	    _threadPerConnection = null;
 	    
-	    throw ex;
+	    Ice.SyscallException e = new Ice.SyscallException();
+	    e.initCause(ex);
+	    throw e;
 	}
 
 	_overrideCompress = _instance.defaultsAndOverrides().overrideCompress;
