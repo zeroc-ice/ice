@@ -52,12 +52,16 @@ Building the Ice extension for Python (Windows)
 
 The Python interpreter is readily available on Windows platforms. You
 can build it yourself using Microsoft Visual C++, or obtain a binary
-distribution such as ActivePython (http://www.activestate.com).
+distribution from the Python web site (http://www.python.org).
 
 Follow these steps to build the Ice extension for Python:
 
-1) Configure Visual C++ so that it can find the Python include files
-   and libraries.
+1) Configure Visual C++ so that it can find the Ice and Python include
+   files and libraries.
+
+   If Python is installed in C:\Python23, then you need to add
+   C:\Python23\include as the include directory and C:\Python23\libs
+   as the library directory.
 
 2) Open the "all.dsw" workspace. If you are using Visual C++ .NET,
    the project files will first need to be converted from the Visual
@@ -65,7 +69,8 @@ Follow these steps to build the Ice extension for Python:
 
 3) Set your active project to "IcePy". Note that the default
    configuration is a Debug build, which requires that the debug
-   libraries be available for Python and Ice.
+   libraries be available for Python and Ice. (The debug library
+   is not included in the binary distribution from python.org.)
 
 4) Build the "IcePy" project.
 
