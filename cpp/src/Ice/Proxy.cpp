@@ -356,6 +356,12 @@ IceProxy::Ice::Object::ice_twoway() const
     }
 }
 
+bool
+IceProxy::Ice::Object::ice_isTwoway() const
+{
+    return _reference->mode == Reference::ModeTwoway;
+}
+
 ObjectPrx
 IceProxy::Ice::Object::ice_oneway() const
 {
@@ -370,6 +376,12 @@ IceProxy::Ice::Object::ice_oneway() const
 	proxy->setup(ref);
 	return proxy;
     }
+}
+
+bool
+IceProxy::Ice::Object::ice_isOneway() const
+{
+    return _reference->mode == Reference::ModeOneway;
 }
 
 ObjectPrx
@@ -388,6 +400,12 @@ IceProxy::Ice::Object::ice_batchOneway() const
     }
 }
 
+bool
+IceProxy::Ice::Object::ice_isBatchOneway() const
+{
+    return _reference->mode == Reference::ModeBatchOneway;
+}
+
 ObjectPrx
 IceProxy::Ice::Object::ice_datagram() const
 {
@@ -404,6 +422,12 @@ IceProxy::Ice::Object::ice_datagram() const
     }
 }
 
+bool
+IceProxy::Ice::Object::ice_isDatagram() const
+{
+    return _reference->mode == Reference::ModeDatagram;
+}
+
 ObjectPrx
 IceProxy::Ice::Object::ice_batchDatagram() const
 {
@@ -418,6 +442,12 @@ IceProxy::Ice::Object::ice_batchDatagram() const
 	proxy->setup(ref);
 	return proxy;
     }
+}
+
+bool
+IceProxy::Ice::Object::ice_isBatchDatagram() const
+{
+    return _reference->mode == Reference::ModeBatchDatagram;
 }
 
 ObjectPrx

@@ -105,10 +105,16 @@ public:
     ::Ice::ObjectPrx ice_appendFacet(const ::std::string&) const;
 
     ::Ice::ObjectPrx ice_twoway() const;
+    bool ice_isTwoway() const;
     ::Ice::ObjectPrx ice_oneway() const;
+    bool ice_isOneway() const;
     ::Ice::ObjectPrx ice_batchOneway() const;
+    bool ice_isBatchOneway() const;
     ::Ice::ObjectPrx ice_datagram() const;
+    bool ice_isDatagram() const;
     ::Ice::ObjectPrx ice_batchDatagram() const;
+    bool ice_isBatchDatagram() const;
+
     ::Ice::ObjectPrx ice_secure(bool) const;
     ::Ice::ObjectPrx ice_compress(bool) const;
     ::Ice::ObjectPrx ice_timeout(int) const;

@@ -88,8 +88,10 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdC
 
 	if(missiveQueue) // Batch routing?
 	{
+	    vector<Byte> dummy;
+	    amdCB->ice_response(true, dummy);
+
 	    missiveQueue->add(new Missive(proxy, inParams, current, _forwardContext));
-	    return;
 	}
 	else // Regular routing.
 	{
@@ -105,16 +107,33 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdC
 		    << "operation = " << current.operation << '\n'
 		    << "mode = " << current.mode;
 	    }
-	    
-	    AMI_Object_ice_invokePtr amiCB = new GlacierCB(amdCB);
 
-	    if(_forwardContext)
+	    if(proxy->ice_isOneway() || proxy->ice_isDatagram())
 	    {
-		proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams, current.ctx);
+		vector<Byte> dummy;
+		amdCB->ice_response(true, dummy);
+
+		if(_forwardContext)
+		{
+		    proxy->ice_invoke(current.operation, current.mode, inParams, dummy, current.ctx);
+		}
+		else
+		{
+		    proxy->ice_invoke(current.operation, current.mode, inParams, dummy);
+		}
 	    }
 	    else
 	    {
-		proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams);
+		AMI_Object_ice_invokePtr amiCB = new GlacierCB(amdCB);
+
+		if(_forwardContext)
+		{
+		    proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams, current.ctx);
+		}
+		else
+		{
+		    proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams);
+		}
 	    }
 	}
     }

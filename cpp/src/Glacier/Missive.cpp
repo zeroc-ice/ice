@@ -35,7 +35,7 @@ Glacier::Missive::Missive(const ObjectPrx& proxy, const vector<Byte>& inParams, 
 void
 Glacier::Missive::invoke()
 {
-    std::vector<Byte> dummy;
+    vector<Byte> dummy;
     if(_forwardContext)
     {
 	_proxy->ice_invoke(_current.operation, _current.mode, _inParams, dummy, _current.ctx);
@@ -114,7 +114,7 @@ Glacier::MissiveQueue::add(const MissivePtr& missive)
         notify();
     }
     
-    for(std::vector<MissivePtr>::iterator p = _missives.begin(); p != _missives.end(); ++p)
+    for(vector<MissivePtr>::iterator p = _missives.begin(); p != _missives.end(); ++p)
     {
         if(missive->override(*p))
         {
