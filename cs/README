@@ -1,4 +1,4 @@
-This is the Alpha 1 release of Icicle (Ice for C#).
+This is the Alpha 2 release of Icicle (Ice for C#).
 
 This is a release with limited functionality. In particular,
 the following features of Ice for C++ are currently not
@@ -32,10 +32,10 @@ the "All" solution (both debug and release builds are supported).
 
 Note: The first time you build, you will most likely find that you get
 errors for the "adapterDeactivationCOL" and "adapterDeactivationS"
-projects. The work-around is to rebuild (not build) each project once
-you have seen the errors. Thereafter, building the projects seems to
-work fine. (If someone can work out why this is happening, please let
-us know!)
+projects. The work-around is to rebuild (not build) each of these
+projects once you have seen the errors. Thereafter, building the
+projects seems to work fine. (If someone can work out why this is
+happening, please let us know!)
 
 
 Installation
@@ -60,10 +60,6 @@ You can also run individual tests in the various test directories with
 
 Known issues
 ------------
-
-- Performance is atrocious right now. (If you want to convince yourself
-  of that, run the throughput demo :-)  We know about this and will fix
-  it for the next release.
 
 - There is no documentation right now. To find out how the C# language
   mapping works, have a look at the tests and demos, or look at the code

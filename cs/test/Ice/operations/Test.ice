@@ -63,6 +63,8 @@ sequence<StringS> StringSS;
 sequence<MyEnumS> MyEnumSS;
 sequence<MyClassS> MyClassSS;
 
+["cs:array"] sequence<StringSS> StringSSS;
+
 dictionary<byte, bool> ByteBoolD;
 dictionary<short, int> ShortIntD;
 dictionary<long, float> LongFloatD;
@@ -128,6 +130,9 @@ dictionary<string, MyEnum> StringMyEnumD;
     StringSS opStringSS(StringSS p1, StringSS p2,
 			out StringSS p3);
 
+    StringSSS opStringSSS(StringSSS p1, StringSSS p2,
+    			  out StringSSS p3);
+
     ByteBoolD opByteBoolD(ByteBoolD p1, ByteBoolD p2,
 			  out ByteBoolD p3);
 
@@ -138,7 +143,7 @@ dictionary<string, MyEnum> StringMyEnumD;
 			    out LongFloatD p3);
 
     StringStringD opStringStringD(StringStringD p1, StringStringD p2,
-				 out StringStringD p3);
+				  out StringStringD p3);
 
     StringMyEnumD opStringMyEnumD(StringMyEnumD p1, StringMyEnumD p2,
 				  out StringMyEnumD p3);

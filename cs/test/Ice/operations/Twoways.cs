@@ -407,6 +407,81 @@ class Twoways
 	}
 	
 	{
+	    String[][][] sssi1 =
+	    {
+		{
+		    {
+			"abc", "de"
+		    },
+		    {
+			"xyz"
+		    }
+		},
+		{
+		    {
+			"hello"
+		    }
+		}
+	    };
+
+	    String[][][] sssi2 =
+	    {
+		{
+		    {
+			"", ""
+		    },
+		    {
+			"abcd"
+		    }
+		},
+		{
+		    {
+			""
+		    }
+		},
+		{
+		}
+	    };
+
+	    String ssso[][][];
+	    String rsso[][][];
+
+	    rsso = p.opStringSSS(sssi1, sssi2, ssso);
+	    test(ssso.length == 5);
+	    test(ssso[0].length == 2);
+	    test(ssso[0][0].length == 2);
+	    test(ssso[0][1].length == 1);
+	    test(ssso[1].length == 1);
+	    test(ssso[1][0].length == 1);
+	    test(ssso[2].length == 2);
+	    test(ssso[2][0].length == 2);
+	    test(ssso[2][1].length == 1);
+	    test(ssso[3].length == 1);
+	    test(ssso[3][0].length == 1);
+	    test(ssso[4].length == 0);
+	    test(ssso[0][0][0].Equals("abc"));
+	    test(ssso[0][0][1].Equals("de"));
+	    test(ssso[0][1][0].Equals("xyz"));
+	    test(ssso[1][0][0].Equals("hello"));
+	    test(ssso[2][0][0].Equals(""));
+	    test(ssso[2][0][1].Equals(""));
+	    test(ssso[2][1][0].Equals("abcd"));
+	    test(ssso[3][0][0].Equals(""));
+
+	    test(rsso.length == 3);
+	    test(rsso[0].length == 0);
+	    test(rsso[1].length == 1);
+	    test(rsso[1][0].length == 1);
+	    test(rsso[2].length == 2);
+	    test(rsso[2][0].length == 2);
+	    test(rsso[2][1].length == 1);
+	    test(rsso[1][0][0].Equals(""));
+	    test(rsso[2][0][0].Equals(""));
+	    test(rsso[2][0][1].Equals(""));
+	    test(rsso[2][1][0].Equals("abcd"));
+	}
+
+	{
 	    Test.ByteBoolD di1 = new Test.ByteBoolD();
 	    di1[10] = true;
 	    di1[100] = false;

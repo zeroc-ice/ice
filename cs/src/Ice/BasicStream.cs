@@ -179,6 +179,137 @@ namespace IceInternal
 	    return _buf;
 	}
 	
+	//
+	// startSeq() and endSeq() sanity-check sequence sizes during
+	// unmarshaling and prevent malicious messages with incorrect
+	// sequence sizes from causing the receiver to use up all
+	// available memory by allocating sequences with an impossibly
+	// large number of elements.
+	//
+	// The code generator inserts calls to startSeq() and endSeq()
+	// around the code to unmarshal a sequence. startSeq() is called
+	// immediately after reading the sequence size, and endSeq() is
+	// called after reading the final element of a sequence.
+	//
+	// For sequences that contain constructed types that, in turn,
+	// contain sequences, the code generator also inserts a call
+	// to endElement() after unmarshaling each element.
+	//
+	// startSeq() is passed the unmarshaled element count, plus
+	// the minimum size (in bytes) occupied by the sequence's
+	// element type. numElements * minSize is the smallest
+	// possible number of bytes that the sequence will occupy
+	// on the wire.
+	//
+	// Every time startSeq() is called, it pushes the element
+	// count and the minimum size on a stack. Every time endSeq()
+	// is called, it pops the stack.
+	//
+	// For an ordinary sequence (one that does not (recursively)
+	// contain nested sequences), numElements * minSize must be
+	// less than the number of bytes remaining in the stream.
+	//
+	// For a sequence that is nested within some other sequence,
+	// there must be enough bytes remaining in the stream for
+	// this sequence (numElements + minSize), plus the sum of
+	// the bytes required by the remaining elements of all
+	// the enclosing sequences.
+	//
+	// For the enclosing sequences, numElements - 1 is the
+	// number of elements for which unmarshaling has not started
+	// yet. (The call to endElement() in the generated code
+	// decrements that number whenever a sequence element is
+	// unmarshaled.)
+	//
+	// For sequence that variable-length elements, checkSeq() is called
+	// whenever an element is unmarshaled. checkSeq() also checks
+	// whether the stream has a sufficient number of bytes remaining.
+	// This means that, for messages with bogus sequence sizes,
+	// unmarshaling is aborted at the earliest possible point.
+	//
+
+	public void startSeq(int numElements, int minSize)
+	{
+	    if(numElements == 0) // Optimization to avoid pushing a useless stack frame.
+	    {
+		return;
+	    }
+
+	    //
+	    // Push the current sequence details on the stack.
+	    //
+	    SeqData sd = new SeqData(numElements, minSize);
+	    sd.previous = _seqDataStack;
+	    _seqDataStack = sd;
+
+	    int bytesLeft = _buf.remaining();
+	    if(_seqDataStack == null) // Outermost sequence
+	    {
+		//
+		// The sequence must fit within the message.
+		//
+		if(numElements * minSize > bytesLeft) 
+		{
+		    throw new Ice.UnmarshalOutOfBoundsException();
+		}
+	    }
+	    else // Nested sequence
+	    {
+		checkSeq(bytesLeft);
+	    }
+	}
+
+	//
+	// Check, given the number of elements requested for this sequence,
+	// that this sequence, plus the sum of the sizes of the remaining
+	// number of elements of all enclosing sequences, would still fit within the message.
+	//
+	public void
+	checkSeq()
+	{
+	    checkSeq(_buf.remaining());
+	}
+
+	public void
+	checkSeq(int bytesLeft)
+	{
+	    int size = 0;
+	    SeqData sd = _seqDataStack;
+	    do
+	    {
+		size += (sd.numElements - 1) * sd.minSize;
+		sd = sd.previous;
+	    }
+	    while(sd != null);
+
+	    if(size > bytesLeft)
+	    {
+		throw new Ice.UnmarshalOutOfBoundsException();
+	    }
+	}
+
+	public void
+	endSeq(int sz)
+	{
+	    if(sz == 0) // Pop only if something was pushed previously.
+	    {
+		return;
+	    }
+
+	    //
+	    // Pop the sequence stack.
+	    //
+	    SeqData oldSeqData = _seqDataStack;
+	    Debug.Assert(oldSeqData != null);
+	    _seqDataStack = oldSeqData.previous;
+	}
+
+	public void endElement()
+	{
+	    Debug.Assert(_seqDataStack != null);
+	    --_seqDataStack.numElements;
+	}
+
 	public virtual void startWriteEncaps()
 	{
 	    {
@@ -1698,6 +1829,20 @@ namespace IceInternal
 	private bool _sliceObjects;
 	
 	private int _messageSizeMax;
+
+	private sealed class SeqData
+	{
+	    public SeqData(int numElements, int minSize)
+	    {
+		this.numElements = numElements;
+		this.minSize = minSize;
+	    }
+
+	    public int numElements;
+	    public int minSize;
+	    public SeqData previous;
+	}
+	SeqData _seqDataStack;
 
 	private ArrayList _objectList;
 

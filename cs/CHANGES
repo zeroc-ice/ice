@@ -1,0 +1,11 @@
+Changes since Alpha 1
+---------------------
+
+- Changed the generate.cs code to look for slice2cs
+  in ${SolutionDir}/bin.
+
+- Added "cs:array" metadata directive for sequences.
+  Sequences with this directive are mapped to arrays
+  instead of being derived from Collections.CollectionBase.
+
+- Improved marshaling speed.
