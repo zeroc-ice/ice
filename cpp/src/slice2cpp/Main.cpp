@@ -21,6 +21,7 @@ usage(const char* n)
     cerr <<	
 "Options:\n"
 "-h, --help           Show this message.\n"
+"-v, --version        Display the Ice version.\n"
 "-DNAME               Define NAME as 1.\n"
 "-DNAME=DEF           Define NAME as DEF.\n"
 "-UNAME               Remove any definition for NAME.\n"
@@ -70,6 +71,12 @@ main(int argc, char* argv[])
 		strcmp(argv[idx], "--help") == 0)
 	{
 	    usage(argv[0]);
+	    return EXIT_SUCCESS;
+	}
+	else if(strcmp(argv[idx], "-v") == 0 ||
+		strcmp(argv[idx], "--version") == 0)
+	{
+	    cout << ICE_STRING_VERSION << endl;
 	    return EXIT_SUCCESS;
 	}
 	else if(strcmp(argv[idx], "-d") == 0 ||

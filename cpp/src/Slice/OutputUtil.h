@@ -75,6 +75,15 @@ Output& operator<<(Output& out, const T& val)
     return out;
 }
 
+template<typename T>
+Output& operator<<(Output& out, T val)
+{
+    std::ostringstream s;
+    s << val;
+    out.print(s.str().c_str());
+    return out;
+}
+
 ICE_API Output& operator<<(Output&, const NextLine&);
 ICE_API Output& operator<<(Output&, const StartBlock&);
 ICE_API Output& operator<<(Output&, const EndBlock&);

@@ -124,4 +124,10 @@ private:
 
 }
 
+//
+// The Ice version
+//
+#define ICE_STRING_VERSION "0.0.1"
+#define ICE_INT_VERSION 0x00000001
+
 #endif

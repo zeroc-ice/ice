@@ -136,6 +136,24 @@ Slice::Gen::generate(const Unit_ptr& unit)
 	H << "\n#include <" << changeInclude(*q) << ".h>";
     }
 
+    H << sp;
+    H.zeroIndent();
+    H << "\n#ifndef ICE_IGNORE_VERSION";
+    H << "\n#   if ICE_INT_VERSION != 0x" << hex << ICE_INT_VERSION;
+    H << "\n#       error Ice version mismatch!";
+    H << "\n#   endif";
+    H << "\n#endif";
+    H.restoreIndent();
+
+    C << sp;
+    C.zeroIndent();
+    C << "\n#ifndef ICE_IGNORE_VERSION";
+    C << "\n#   if ICE_INT_VERSION != 0x" << hex << ICE_INT_VERSION;
+    C << "\n#       error Ice version mismatch!";
+    C << "\n#   endif";
+    C << "\n#endif";
+    C.restoreIndent();
+
     ProxyDeclVisitor proxyDeclVisitor(H, C, dllExport_);
     unit -> visit(&proxyDeclVisitor);
 
@@ -204,6 +222,7 @@ Slice::Gen::printHeader(Output& out)
 
     out << header;
     out << "\n// Generated from file `" << changeInclude(base_) << ".ice'";
+    out << "\n// Ice version " << ICE_STRING_VERSION;
     out << '\n';
 }
 

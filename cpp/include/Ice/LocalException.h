@@ -52,6 +52,18 @@ public:
     virtual void raise() const;
 };
 
+class ICE_API VersionMismatchException : public LocalException
+{
+public:    
+
+    VersionMismatchException(const char*, int);
+    VersionMismatchException(const VersionMismatchException&);
+    VersionMismatchException& operator=(const VersionMismatchException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
 class ICE_API CommunicatorDestroyedException : public LocalException
 {
 public:    

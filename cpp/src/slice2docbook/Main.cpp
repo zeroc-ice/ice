@@ -20,13 +20,14 @@ usage(const char* n)
     cerr << "Usage: " << n << " [options] docbook-file slice-files ...\n";
     cerr <<	
 "Options:\n"
-"-s, --stand-alone    Create stand-alone docbook file.\n"
-"--no-globals         Don't document the global module.\n"
 "-h, --help           Show this message.\n"
+"-v, --version        Display the Ice version.\n"
 "-DNAME               Define NAME as 1.\n"
 "-DNAME=DEF           Define NAME as DEF.\n"
 "-UNAME               Remove any definition for NAME.\n"
 "-IDIR                Put DIR in the include file search path.\n"
+"-s, --stand-alone    Create stand-alone docbook file.\n"
+"--no-globals         Don't document the global module.\n"
 "-d, --debug          Print debug messages.\n"
 	;
 }
@@ -85,6 +86,12 @@ main(int argc, char* argv[])
 		strcmp(argv[idx], "--help") == 0)
 	{
 	    usage(argv[0]);
+	    return EXIT_SUCCESS;
+	}
+	else if(strcmp(argv[idx], "-v") == 0 ||
+		strcmp(argv[idx], "--version") == 0)
+	{
+	    cout << ICE_STRING_VERSION << endl;
 	    return EXIT_SUCCESS;
 	}
 	else if(strcmp(argv[idx], "-d") == 0 ||

@@ -14,9 +14,10 @@
 namespace Ice
 {
 
-ICE_API Communicator_ptr initialize(int&, char*[]);
+ICE_API Communicator_ptr initialize(int&, char*[], Int = ICE_INT_VERSION);
 ICE_API Communicator_ptr initializeWithProperties(int&, char*[],
-						  const Properties_ptr&);
+						  const Properties_ptr&,
+						  Int = ICE_INT_VERSION);
 
 ICE_API Properties_ptr createProperties();
 ICE_API Properties_ptr loadProperties(const std::string&);

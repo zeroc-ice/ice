@@ -516,6 +516,7 @@ Slice::Gen::printHeader()
     
     O.zeroIndent();
     O << header;
+    O << "\n<!-- Ice version " << ICE_STRING_VERSION << " -->";
     O.restoreIndent();
 }
 
