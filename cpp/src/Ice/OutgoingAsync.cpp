@@ -399,20 +399,26 @@ IceInternal::OutgoingAsync::__send()
 void
 IceInternal::OutgoingAsync::warning(const Exception& ex) const
 {
-    if(_reference->instance->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+    if(_reference) // Don't print anything if cleanup() was already called.
     {
-	Warning out(_reference->instance->logger());
-	out << "Ice::Exception raised by AMI callback:\n" << ex;
+	if(_reference->instance->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+	{
+	    Warning out(_reference->instance->logger());
+	    out << "Ice::Exception raised by AMI callback:\n" << ex;
+	}
     }
 }
 
 void
 IceInternal::OutgoingAsync::warning(const std::exception& ex) const
 {
-    if(_reference->instance->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+    if(_reference) // Don't print anything if cleanup() was already called.
     {
-	Warning out(_reference->instance->logger());
-	out << "std::exception raised by AMI callback:\n" << ex.what();
+	if(_reference->instance->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+	{
+	    Warning out(_reference->instance->logger());
+	    out << "std::exception raised by AMI callback:\n" << ex.what();
+	}
     }
 }
 

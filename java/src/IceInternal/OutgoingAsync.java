@@ -415,38 +415,32 @@ public abstract class OutgoingAsync
     private final void
     warning(Exception ex)
     {
-	if(__os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+	if(_reference != null) // Don't print anything if cleanup() was already called.
 	{
-	    java.io.StringWriter sw = new java.io.StringWriter();
-	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	    IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
-	    out.setUseTab(false);
-	    out.print("exception raised by AMI callback:\n");
-	    ex.printStackTrace(pw);
-	    pw.flush();
-	    __os.instance().logger().warning(sw.toString());
+	    if(_reference.instance.properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+	    {
+		java.io.StringWriter sw = new java.io.StringWriter();
+		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
+		out.setUseTab(false);
+		out.print("exception raised by AMI callback:\n");
+		ex.printStackTrace(pw);
+		pw.flush();
+		_reference.instance.logger().warning(sw.toString());
+	    }
 	}
     }
 
     private final void
     cleanup()
     {
-	if(_reference != null)
-	{
-	    _reference = null;
-	}
-	
-	if(_connection != null)
-	{
-	    _connection = null;
-	}
-	
+	_reference = null;
+	_connection = null;
 	if(__is != null)
 	{
 	    __is.destroy();
 	    __is = null;
 	}
-	
 	if(__os != null)
 	{
 	    __os.destroy();

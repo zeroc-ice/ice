@@ -398,7 +398,7 @@ namespace IceInternal
 	
         private void warning(System.Exception ex)
         {
-	    if(_reference) // Don't print anything if cleanup() was already called.
+	    if(_reference != null) // Don't print anything if cleanup() was already called.
 	    {
 		if(_reference.instance..properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
 		{
