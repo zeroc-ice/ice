@@ -2,18 +2,19 @@ Creating RPM packages for Ice
 =============================
 
 As well as being able to download prebuilt RPM packages, Ice now
-includes a sample RPM specification file that can be used to create your
-own RPMs.  Using this specification file and the Ice source and demo
-distributions, you can create specialized RPMs with compiler settings,
-remove or add components or even change the installation directory
-structure to suit your needs.  You can also use the specification file
-to create your own source RPM package.
+includes a sample RPM specification file that can be used to create
+your own RPMs. Using this specification file and the Ice source and
+demo distributions, you can create specialized RPMs with different
+compiler settings, custom component configurations or even a
+reorganized installation directory structure to suit your needs. You
+can also use the specification file to create your own source RPM
+package.
 
-The sample specification file is for a complete set of Ice RPMs.  In
-order to properly build all of these packages, you need the full set of
-system requirements for all of the packages.  See each Ice distribution for
-specific package and version requirements for this version of Ice.  In
-general you need:
+The sample specification file is for a complete set of Ice RPMs. In
+order to properly build all of these packages, you need the full set
+of system requirements for all of the packages. See each Ice
+distribution for specific package and version requirements for this
+version of Ice. In general you need:
 
  * bzip2
  * openssl
@@ -24,8 +25,8 @@ general you need:
  * Python
  * Java Development Kit
 
-In order to build the RPMs, you need to download each source distributon
-and copy or move them to your system's RPM sources directory.  For
-example, /usr/src/redhat/SOURCES.
+In order to build the RPMs, you need to download each source
+distribution and copy or move them to your system's RPM sources
+directory. For example, /usr/src/redhat/SOURCES.
 
 This RPM specification file was tested with RPM version 4.3.2. 
