@@ -232,7 +232,7 @@ SOURCE=.\SslTransceiver.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Stream.cpp
+SOURCE=.\IntStream.cpp
 # End Source File
 # Begin Source File
 
@@ -512,7 +512,7 @@ SOURCE=.\Ice\SslTransceiver.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\Stream.h
+SOURCE=..\..\include\Ice\IntStream.h
 # End Source File
 # Begin Source File
 

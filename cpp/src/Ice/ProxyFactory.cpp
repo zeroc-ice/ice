@@ -13,7 +13,7 @@
 #include <Ice/Proxy.h>
 #include <Ice/Reference.h>
 #include <Ice/Endpoint.h>
-#include <Ice/Stream.h>
+#include <Ice/IntStream.h>
 
 using namespace std;
 using namespace Ice;
@@ -36,7 +36,7 @@ IceInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy)
 }
 
 ObjectPrx
-IceInternal::ProxyFactory::streamToProxy(Stream* s)
+IceInternal::ProxyFactory::streamToProxy(IntStream* s)
 {
     string identity;
     s->read(identity);
@@ -60,7 +60,7 @@ IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& reference)
 }
 
 void
-IceInternal::ProxyFactory::proxyToStream(const ObjectPrx& proxy, Stream* s)
+IceInternal::ProxyFactory::proxyToStream(const ObjectPrx& proxy, IntStream* s)
 {
     if (proxy)
     {

@@ -19,7 +19,7 @@
 #include <Ice/Logger.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/Emitter.h>
-#include <Ice/Stream.h>
+#include <Ice/IntStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/Functional.h>
 
@@ -460,8 +460,8 @@ bool
 IceDelegateM::Ice::Object::_isA(const string& s)
 {
     Outgoing __out(__emitter, __reference);
-    Stream* __is = __out.is();
-    Stream* __os = __out.os();
+    IntStream* __is = __out.is();
+    IntStream* __os = __out.os();
     __os->write("_isA");
     __os->write(s);
     if (!__out.invoke())
@@ -477,7 +477,7 @@ void
 IceDelegateM::Ice::Object::_ping()
 {
     Outgoing __out(__emitter, __reference);
-    Stream* __os = __out.os();
+    IntStream* __os = __out.os();
     __os->write("_ping");
     if (!__out.invoke())
     {

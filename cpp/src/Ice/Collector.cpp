@@ -73,16 +73,16 @@ IceInternal::Collector::readable() const
 }
 
 void
-IceInternal::Collector::read(Stream& stream)
+IceInternal::Collector::read(IntStream& stream)
 {
     _transceiver->read(stream, 0);
 }
 
 void
-IceInternal::Collector::message(Stream& stream)
+IceInternal::Collector::message(IntStream& stream)
 {
     Incoming in(_instance, _adapter);
-    Stream* os = in.os();
+    IntStream* os = in.os();
     bool invoke = false;
     bool batch = false;
     bool response = false;
@@ -442,7 +442,7 @@ IceInternal::Collector::setState(State state)
 void
 IceInternal::Collector::closeConnection()
 {
-    Stream os(_instance);
+    IntStream os(_instance);
     os.write(protocolVersion);
     os.write(encodingVersion);
     os.write(closeConnectionMsg);
@@ -518,13 +518,13 @@ IceInternal::CollectorFactory::readable() const
 }
 
 void
-IceInternal::CollectorFactory::read(Stream&)
+IceInternal::CollectorFactory::read(IntStream&)
 {
     assert(false); // Must not be called
 }
 
 void
-IceInternal::CollectorFactory::message(Stream&)
+IceInternal::CollectorFactory::message(IntStream&)
 {
     JTCSyncT<JTCMutex> sync(*this);
 

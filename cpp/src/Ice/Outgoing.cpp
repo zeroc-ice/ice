@@ -182,7 +182,7 @@ IceInternal::Outgoing::invoke()
 }
 
 void
-IceInternal::Outgoing::finished(Stream& is)
+IceInternal::Outgoing::finished(IntStream& is)
 {
     JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
     assert(_state != StateUnsent);
@@ -263,13 +263,13 @@ IceInternal::Outgoing::finished(const LocalException& ex)
     }
 }
 
-Stream*
+IntStream*
 IceInternal::Outgoing::is()
 {
     return &_is;
 }
 
-Stream*
+IntStream*
 IceInternal::Outgoing::os()
 {
     return &_os;

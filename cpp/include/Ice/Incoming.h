@@ -13,7 +13,7 @@
 
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/Stream.h>
+#include <Ice/IntStream.h>
 
 namespace IceInternal
 {
@@ -25,17 +25,17 @@ public:
     Incoming(const InstancePtr&, const ::Ice::ObjectAdapterPtr&);
     ~Incoming();
 
-    void invoke(Stream&);
+    void invoke(IntStream&);
 
-    Stream* is();
-    Stream* os();
+    IntStream* is();
+    IntStream* os();
 
 private:
 
     ::Ice::ObjectAdapterPtr _adapter;
 
-    Stream _is;
-    Stream _os;
+    IntStream _is;
+    IntStream _os;
 };
 
 }

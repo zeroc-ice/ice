@@ -17,12 +17,12 @@
 namespace IceInternal
 {
 
-class Stream;
+class IntStream;
 
-void traceHeader(const char*, const Stream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
-void traceRequest(const char*, const Stream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
-void traceBatchRequest(const char*, const Stream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
-void traceReply(const char*, const Stream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
+void traceHeader(const char*, const IntStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
+void traceRequest(const char*, const IntStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
+void traceBatchRequest(const char*, const IntStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
+void traceReply(const char*, const IntStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
 
 }
 

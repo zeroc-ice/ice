@@ -21,7 +21,7 @@
 namespace IceInternal
 {
 
-class Stream;
+class IntStream;
 
 const ::Ice::Short UnknownEndpointType = 0;
 const ::Ice::Short TcpEndpointType = 1;
@@ -42,12 +42,12 @@ public:
     //
     // Unmarshal an endpoint
     //
-    static void streamRead(Stream*, EndpointPtr&);
+    static void streamRead(IntStream*, EndpointPtr&);
     
     //
     // Marshal the endpoint
     //
-    virtual void streamWrite(Stream*) const = 0;
+    virtual void streamWrite(IntStream*) const = 0;
 
     //
     // Convert the endpoint to its string form
@@ -135,9 +135,9 @@ class UnknownEndpoint : public Endpoint
 {
 public:
 
-    UnknownEndpoint(Stream*);
+    UnknownEndpoint(IntStream*);
 
-    virtual void streamWrite(Stream*) const;
+    virtual void streamWrite(IntStream*) const;
     virtual std::string toString() const;
     virtual ::Ice::Short type() const;
     virtual bool oneway() const;
@@ -169,9 +169,9 @@ public:
 
     TcpEndpoint(const std::string&, ::Ice::Int, ::Ice::Int);
     TcpEndpoint(const std::string&);
-    TcpEndpoint(Stream*);
+    TcpEndpoint(IntStream*);
 
-    virtual void streamWrite(Stream*) const;
+    virtual void streamWrite(IntStream*) const;
     virtual std::string toString() const;
     virtual ::Ice::Short type() const;
     virtual bool oneway() const;
@@ -205,9 +205,9 @@ public:
 
     SslEndpoint(const std::string&, ::Ice::Int, ::Ice::Int);
     SslEndpoint(const std::string&);
-    SslEndpoint(Stream*);
+    SslEndpoint(IntStream*);
 
-    virtual void streamWrite(Stream*) const;
+    virtual void streamWrite(IntStream*) const;
     virtual std::string toString() const;
     virtual ::Ice::Short type() const;
     virtual bool oneway() const;
@@ -241,9 +241,9 @@ public:
 
     UdpEndpoint(const std::string&, ::Ice::Int);
     UdpEndpoint(const std::string&);
-    UdpEndpoint(Stream*);
+    UdpEndpoint(IntStream*);
 
-    virtual void streamWrite(Stream*) const;
+    virtual void streamWrite(IntStream*) const;
     virtual std::string toString() const;
     virtual ::Ice::Short type() const;
     virtual bool oneway() const;

@@ -19,7 +19,7 @@ namespace IceInternal
 {
 
 class Incoming;
-class Stream;
+class IntStream;
 
 enum DispatchStatus
 {
@@ -85,8 +85,8 @@ public:
     virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const std::string&);
     virtual bool __isMutating(const std::string&);
 
-    virtual void __write(::IceInternal::Stream*) = 0;
-    virtual void __read(::IceInternal::Stream*) = 0;
+    virtual void __write(::IceInternal::IntStream*) = 0;
+    virtual void __read(::IceInternal::IntStream*) = 0;
 };
 
 }

@@ -20,7 +20,7 @@
 namespace IceInternal
 {
 
-class Stream;
+class IntStream;
 
 class ProxyFactory : public ::IceUtil::Shared
 {
@@ -29,9 +29,9 @@ public:
     ::Ice::ObjectPrx stringToProxy(const std::string&);
     std::string proxyToString(const ::Ice::ObjectPrx&);
 
-    ::Ice::ObjectPrx streamToProxy(Stream*);
+    ::Ice::ObjectPrx streamToProxy(IntStream*);
     ::Ice::ObjectPrx referenceToProxy(const ReferencePtr&);
-    void proxyToStream(const ::Ice::ObjectPrx&, Stream*);
+    void proxyToStream(const ::Ice::ObjectPrx&, IntStream*);
 
 private:
 

@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Stream.h>
+#include <Ice/IntStream.h>
 #include <Ice/Instance.h>
 #include <Ice/Object.h>
 #include <Ice/Proxy.h>
@@ -21,7 +21,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::Stream::Stream(const InstancePtr& instance) :
+IceInternal::IntStream::IntStream(const InstancePtr& instance) :
     _instance(instance),
     _encapsStack(1)
 {
@@ -30,7 +30,7 @@ IceInternal::Stream::Stream(const InstancePtr& instance) :
     _encapsStack.back().encoding = 0;
 }
 
-IceInternal::Stream::~Stream()
+IceInternal::IntStream::~IntStream()
 {
     //
     // No check for exactly one, because an error might have aborted
@@ -40,13 +40,13 @@ IceInternal::Stream::~Stream()
 }
 
 InstancePtr
-IceInternal::Stream::instance() const
+IceInternal::IntStream::instance() const
 {
     return _instance;
 }
 
 void
-IceInternal::Stream::swap(Stream& other)
+IceInternal::IntStream::swap(IntStream& other)
 {
     assert(_instance.get() == other._instance.get());
 
@@ -56,7 +56,7 @@ IceInternal::Stream::swap(Stream& other)
 }
 
 void
-IceInternal::Stream::resize(int total)
+IceInternal::IntStream::resize(int total)
 {
     if (total > 1024 * 1024) // TODO: configurable
     {
@@ -66,7 +66,7 @@ IceInternal::Stream::resize(int total)
 }
 
 void
-IceInternal::Stream::reserve(int total)
+IceInternal::IntStream::reserve(int total)
 {
     if (total > 1024 * 1024) // TODO: configurable
     {
@@ -76,7 +76,7 @@ IceInternal::Stream::reserve(int total)
 }
 
 void
-IceInternal::Stream::startWriteEncaps()
+IceInternal::IntStream::startWriteEncaps()
 {
     write(Int(0)); // Placeholder for the encapsulation length
     _encapsStack.resize(_encapsStack.size() + 1);
@@ -86,7 +86,7 @@ IceInternal::Stream::startWriteEncaps()
 }
 
 void
-IceInternal::Stream::endWriteEncaps()
+IceInternal::IntStream::endWriteEncaps()
 {
     int start = _encapsStack.back().start;
     _encapsStack.pop_back();
@@ -100,7 +100,7 @@ IceInternal::Stream::endWriteEncaps()
 }
 
 void
-IceInternal::Stream::startReadEncaps()
+IceInternal::IntStream::startReadEncaps()
 {
     Int sz;
     read(sz);
@@ -114,7 +114,7 @@ IceInternal::Stream::startReadEncaps()
 }
 
 void
-IceInternal::Stream::endReadEncaps()
+IceInternal::IntStream::endReadEncaps()
 {
     int start = _encapsStack.back().start;
     _encapsStack.pop_back();
@@ -130,7 +130,7 @@ IceInternal::Stream::endReadEncaps()
 }
 
 void
-IceInternal::Stream::skipEncaps()
+IceInternal::IntStream::skipEncaps()
 {
     Int sz;
     read(sz);
@@ -142,7 +142,7 @@ IceInternal::Stream::skipEncaps()
 }
 
 void
-IceInternal::Stream::write(const vector<Byte>& v)
+IceInternal::IntStream::write(const vector<Byte>& v)
 {
     int pos = b.size();
     Int sz = v.size();
@@ -157,7 +157,7 @@ IceInternal::Stream::write(const vector<Byte>& v)
 }
 
 void
-IceInternal::Stream::read(Byte& v)
+IceInternal::IntStream::read(Byte& v)
 {
     if (i >= b.end())
     {
@@ -167,7 +167,7 @@ IceInternal::Stream::read(Byte& v)
 }
 
 void
-IceInternal::Stream::read(vector<Byte>& v)
+IceInternal::IntStream::read(vector<Byte>& v)
 {
     Int sz;
     read(sz);
@@ -182,7 +182,7 @@ IceInternal::Stream::read(vector<Byte>& v)
 }
 
 void
-IceInternal::Stream::write(const vector<bool>& v)
+IceInternal::IntStream::write(const vector<bool>& v)
 {
     int pos = b.size();
     Int sz = v.size();
@@ -197,7 +197,7 @@ IceInternal::Stream::write(const vector<bool>& v)
 }
 
 void
-IceInternal::Stream::read(bool& v)
+IceInternal::IntStream::read(bool& v)
 {
     if (i >= b.end())
     {
@@ -207,7 +207,7 @@ IceInternal::Stream::read(bool& v)
 }
 
 void
-IceInternal::Stream::read(vector<bool>& v)
+IceInternal::IntStream::read(vector<bool>& v)
 {
     Int sz;
     read(sz);
@@ -222,7 +222,7 @@ IceInternal::Stream::read(vector<bool>& v)
 }
 
 void
-IceInternal::Stream::write(Short v)
+IceInternal::IntStream::write(Short v)
 {
     int pos = b.size();
     resize(pos + sizeof(Short));
@@ -235,7 +235,7 @@ IceInternal::Stream::write(Short v)
 }
 
 void
-IceInternal::Stream::write(const vector<Short>& v)
+IceInternal::IntStream::write(const vector<Short>& v)
 {
     int pos = b.size();
     Int sz = v.size();
@@ -259,7 +259,7 @@ IceInternal::Stream::write(const vector<Short>& v)
 }
 
 void
-IceInternal::Stream::read(Short& v)
+IceInternal::IntStream::read(Short& v)
 {
     Container::iterator begin = i;
     i += sizeof(Short);
@@ -275,7 +275,7 @@ IceInternal::Stream::read(Short& v)
 }
 
 void
-IceInternal::Stream::read(vector<Short>& v)
+IceInternal::IntStream::read(vector<Short>& v)
 {
     Int sz;
     read(sz);
@@ -298,7 +298,7 @@ IceInternal::Stream::read(vector<Short>& v)
 }
 
 void
-IceInternal::Stream::write(Int v)
+IceInternal::IntStream::write(Int v)
 {
     int pos = b.size();
     resize(pos + sizeof(Int));
@@ -311,7 +311,7 @@ IceInternal::Stream::write(Int v)
 }
 
 void
-IceInternal::Stream::write(const vector<Int>& v)
+IceInternal::IntStream::write(const vector<Int>& v)
 {
     int pos = b.size();
     Int sz = v.size();
@@ -335,7 +335,7 @@ IceInternal::Stream::write(const vector<Int>& v)
 }
 
 void
-IceInternal::Stream::read(Int& v)
+IceInternal::IntStream::read(Int& v)
 {
     Container::iterator begin = i;
     i += sizeof(Int);
@@ -351,7 +351,7 @@ IceInternal::Stream::read(Int& v)
 }
 
 void
-IceInternal::Stream::read(vector<Int>& v)
+IceInternal::IntStream::read(vector<Int>& v)
 {
     Int sz;
     read(sz);
@@ -374,7 +374,7 @@ IceInternal::Stream::read(vector<Int>& v)
 }
 
 void
-IceInternal::Stream::write(Long v)
+IceInternal::IntStream::write(Long v)
 {
     int pos = b.size();
     resize(pos + sizeof(Long));
@@ -387,7 +387,7 @@ IceInternal::Stream::write(Long v)
 }
 
 void
-IceInternal::Stream::write(const vector<Long>& v)
+IceInternal::IntStream::write(const vector<Long>& v)
 {
     int pos = b.size();
     Int sz = v.size();
@@ -411,7 +411,7 @@ IceInternal::Stream::write(const vector<Long>& v)
 }
 
 void
-IceInternal::Stream::read(Long& v)
+IceInternal::IntStream::read(Long& v)
 {
     Container::iterator begin = i;
     i += sizeof(Long);
@@ -427,7 +427,7 @@ IceInternal::Stream::read(Long& v)
 }
 
 void
-IceInternal::Stream::read(vector<Long>& v)
+IceInternal::IntStream::read(vector<Long>& v)
 {
     Int sz;
     read(sz);
@@ -450,7 +450,7 @@ IceInternal::Stream::read(vector<Long>& v)
 }
 
 void
-IceInternal::Stream::write(Float v)
+IceInternal::IntStream::write(Float v)
 {
     int pos = b.size();
     resize(pos + sizeof(Float));
@@ -463,7 +463,7 @@ IceInternal::Stream::write(Float v)
 }
 
 void
-IceInternal::Stream::write(const vector<Float>& v)
+IceInternal::IntStream::write(const vector<Float>& v)
 {
     int pos = b.size();
     Int sz = v.size();
@@ -487,7 +487,7 @@ IceInternal::Stream::write(const vector<Float>& v)
 }
 
 void
-IceInternal::Stream::read(Float& v)
+IceInternal::IntStream::read(Float& v)
 {
     Container::iterator begin = i;
     i += sizeof(Float);
@@ -503,7 +503,7 @@ IceInternal::Stream::read(Float& v)
 }
 
 void
-IceInternal::Stream::read(vector<Float>& v)
+IceInternal::IntStream::read(vector<Float>& v)
 {
     Int sz;
     read(sz);
@@ -526,7 +526,7 @@ IceInternal::Stream::read(vector<Float>& v)
 }
 
 void
-IceInternal::Stream::write(Double v)
+IceInternal::IntStream::write(Double v)
 {
     int pos = b.size();
     resize(pos + sizeof(Double));
@@ -539,7 +539,7 @@ IceInternal::Stream::write(Double v)
 }
 
 void
-IceInternal::Stream::write(const vector<Double>& v)
+IceInternal::IntStream::write(const vector<Double>& v)
 {
     int pos = b.size();
     Int sz = v.size();
@@ -563,7 +563,7 @@ IceInternal::Stream::write(const vector<Double>& v)
 }
 
 void
-IceInternal::Stream::read(Double& v)
+IceInternal::IntStream::read(Double& v)
 {
     Container::iterator begin = i;
     i += sizeof(Double);
@@ -579,7 +579,7 @@ IceInternal::Stream::read(Double& v)
 }
 
 void
-IceInternal::Stream::read(vector<Double>& v)
+IceInternal::IntStream::read(vector<Double>& v)
 {
     Int sz;
     read(sz);
@@ -602,7 +602,7 @@ IceInternal::Stream::read(vector<Double>& v)
 }
 
 void
-IceInternal::Stream::write(const string& v)
+IceInternal::IntStream::write(const string& v)
 {
     map<string, Int>::const_iterator p = _encapsStack.back().stringsWritten.find(v);
     if (p != _encapsStack.back().stringsWritten.end())
@@ -622,13 +622,13 @@ IceInternal::Stream::write(const string& v)
 }
 
 void
-IceInternal::Stream::write(const char* v)
+IceInternal::IntStream::write(const char* v)
 {
     write(string(v));
 }
 
 void
-IceInternal::Stream::write(const vector<string>& v)
+IceInternal::IntStream::write(const vector<string>& v)
 {
     write(Int(v.size()));
     vector<string>::const_iterator p;
@@ -639,7 +639,7 @@ IceInternal::Stream::write(const vector<string>& v)
 }
 
 void
-IceInternal::Stream::read(string& v)
+IceInternal::IntStream::read(string& v)
 {
     Int idx;
     read(idx);
@@ -673,7 +673,7 @@ IceInternal::Stream::read(string& v)
 }
 
 void
-IceInternal::Stream::read(vector<string>& v)
+IceInternal::IntStream::read(vector<string>& v)
 {
     Int sz;
     read(sz);
@@ -691,7 +691,7 @@ IceInternal::Stream::read(vector<string>& v)
 }
 
 void
-IceInternal::Stream::write(const wstring& v)
+IceInternal::IntStream::write(const wstring& v)
 {
     map<wstring, Int>::const_iterator p = _encapsStack.back().wstringsWritten.find(v);
     if (p != _encapsStack.back().wstringsWritten.end())
@@ -713,7 +713,7 @@ IceInternal::Stream::write(const wstring& v)
 }
 
 void
-IceInternal::Stream::write(const vector<wstring>& v)
+IceInternal::IntStream::write(const vector<wstring>& v)
 {
     write(Int(v.size()));
     vector<wstring>::const_iterator p;
@@ -724,7 +724,7 @@ IceInternal::Stream::write(const vector<wstring>& v)
 }
 
 void
-IceInternal::Stream::read(wstring& v)
+IceInternal::IntStream::read(wstring& v)
 {
     Int idx;
     read(idx);
@@ -759,13 +759,13 @@ IceInternal::Stream::read(wstring& v)
 }
 
 void
-IceInternal::Stream::write(const wchar_t* v)
+IceInternal::IntStream::write(const wchar_t* v)
 {
     write(wstring(v));
 }
 
 void
-IceInternal::Stream::read(vector<wstring>& v)
+IceInternal::IntStream::read(vector<wstring>& v)
 {
     Int sz;
     read(sz);
@@ -783,19 +783,19 @@ IceInternal::Stream::read(vector<wstring>& v)
 }
 
 void
-IceInternal::Stream::write(const ObjectPrx& v)
+IceInternal::IntStream::write(const ObjectPrx& v)
 {
     _instance->proxyFactory()->proxyToStream(v, this);
 }
 
 void
-IceInternal::Stream::read(ObjectPrx& v)
+IceInternal::IntStream::read(ObjectPrx& v)
 {
     v = _instance->proxyFactory()->streamToProxy(this);
 }
 
 void
-IceInternal::Stream::write(const ObjectPtr& v)
+IceInternal::IntStream::write(const ObjectPtr& v)
 {
     const string* classIds = v->_classIds();
     Int sz = 0;
@@ -812,7 +812,7 @@ IceInternal::Stream::write(const ObjectPtr& v)
 }
 
 void
-IceInternal::Stream::read(ObjectPtr& v, const string& type)
+IceInternal::IntStream::read(ObjectPtr& v, const string& type)
 {
     vector<string> classIds;
     read(classIds);

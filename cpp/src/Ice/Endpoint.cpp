@@ -17,7 +17,7 @@
 #include <Ice/SslConnector.h>
 #include <Ice/SslTransceiver.h>
 #include <Ice/UdpTransceiver.h>
-#include <Ice/Stream.h>
+#include <Ice/IntStream.h>
 #include <Ice/LocalException.h>
 
 using namespace std;
@@ -66,7 +66,7 @@ IceInternal::Endpoint::endpointFromString(const string& str)
 }
 
 void
-IceInternal::Endpoint::streamRead(Stream* s, EndpointPtr& v)
+IceInternal::Endpoint::streamRead(IntStream* s, EndpointPtr& v)
 {
     Short type;
     s->read(type);
@@ -99,13 +99,13 @@ IceInternal::Endpoint::streamRead(Stream* s, EndpointPtr& v)
     }
 }
 
-IceInternal::UnknownEndpoint::UnknownEndpoint(Stream* s)
+IceInternal::UnknownEndpoint::UnknownEndpoint(IntStream* s)
 {
     s->read(const_cast<vector<Byte>&>(_rawBytes));
 }
 
 void
-IceInternal::UnknownEndpoint::streamWrite(Stream* s) const
+IceInternal::UnknownEndpoint::streamWrite(IntStream* s) const
 {
     s->write(UnknownEndpointType);
     s->write(_rawBytes);
@@ -326,7 +326,7 @@ IceInternal::TcpEndpoint::TcpEndpoint(const string& str) :
     }
 }
 
-IceInternal::TcpEndpoint::TcpEndpoint(Stream* s) :
+IceInternal::TcpEndpoint::TcpEndpoint(IntStream* s) :
     _port(0),
     _timeout(-1)
 {
@@ -338,7 +338,7 @@ IceInternal::TcpEndpoint::TcpEndpoint(Stream* s) :
 }
 
 void
-IceInternal::TcpEndpoint::streamWrite(Stream* s) const
+IceInternal::TcpEndpoint::streamWrite(IntStream* s) const
 {
     s->write(TcpEndpointType);
     s->startWriteEncaps();
@@ -641,7 +641,7 @@ IceInternal::SslEndpoint::SslEndpoint(const string& str) :
     }
 }
 
-IceInternal::SslEndpoint::SslEndpoint(Stream* s) :
+IceInternal::SslEndpoint::SslEndpoint(IntStream* s) :
     _port(0),
     _timeout(-1)
 {
@@ -653,7 +653,7 @@ IceInternal::SslEndpoint::SslEndpoint(Stream* s) :
 }
 
 void
-IceInternal::SslEndpoint::streamWrite(Stream* s) const
+IceInternal::SslEndpoint::streamWrite(IntStream* s) const
 {
     s->write(SslEndpointType);
     s->startWriteEncaps();
@@ -948,7 +948,7 @@ IceInternal::UdpEndpoint::UdpEndpoint(const string& str) :
     }
 }
 
-IceInternal::UdpEndpoint::UdpEndpoint(Stream* s) :
+IceInternal::UdpEndpoint::UdpEndpoint(IntStream* s) :
     _port(0)
 {
     s->startReadEncaps();
@@ -958,7 +958,7 @@ IceInternal::UdpEndpoint::UdpEndpoint(Stream* s) :
 }
 
 void
-IceInternal::UdpEndpoint::streamWrite(Stream* s) const
+IceInternal::UdpEndpoint::streamWrite(IntStream* s) const
 {
     s->write(UdpEndpointType);
     s->startWriteEncaps();

@@ -15,7 +15,7 @@
 #include <Ice/EventHandlerF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ThreadPoolF.h>
-#include <Ice/Stream.h>
+#include <Ice/IntStream.h>
 
 namespace IceUtil
 {
@@ -53,12 +53,12 @@ public:
     // Read data via the event handler. May only be called if
     // readable() returns true.
     //
-    virtual void read(Stream&) = 0;
+    virtual void read(IntStream&) = 0;
 
     //
     // A complete message has been received.
     //
-    virtual void message(Stream&) = 0;
+    virtual void message(IntStream&) = 0;
 
     //
     // Signal exception during reading or unmarshaling.
@@ -91,7 +91,7 @@ private:
     //
     // The _stream data member is for use by ThreadPool only
     //
-    Stream _stream;
+    IntStream _stream;
     friend ThreadPool;
 };
 

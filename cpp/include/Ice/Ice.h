@@ -17,7 +17,6 @@
 #include <Ice/Properties.h>
 #include <Ice/Logger.h>
 #include <Ice/ServantFactory.h>
-#include <Ice/Pickler.h>
 #include <Ice/Initialize.h>
 
 #endif

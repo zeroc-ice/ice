@@ -13,7 +13,7 @@
 #include <Ice/Object.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
-#include <Ice/Stream.h>
+#include <Ice/IntStream.h>
 #include <Ice/Protocol.h>
 
 using namespace std;
@@ -21,7 +21,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 static void
-printHeader(ostream& s, Stream& stream)
+printHeader(ostream& s, IntStream& stream)
 {
     Byte protVer;
     stream.read(protVer);
@@ -66,13 +66,13 @@ printHeader(ostream& s, Stream& stream)
 }
 
 void
-IceInternal::traceHeader(const char* heading, const Stream& str, const ::Ice::LoggerPtr& logger,
+IceInternal::traceHeader(const char* heading, const IntStream& str, const ::Ice::LoggerPtr& logger,
 			 const TraceLevelsPtr& tl)
 {
     if (tl->protocol >= 1)
     {
-	Stream& stream = const_cast<Stream&>(str);
-	Stream::Container::iterator p = stream.i;
+	IntStream& stream = const_cast<IntStream&>(str);
+	IntStream::Container::iterator p = stream.i;
 	stream.i = stream.b.begin();
 	ostringstream s;
 	s << heading;
@@ -83,13 +83,13 @@ IceInternal::traceHeader(const char* heading, const Stream& str, const ::Ice::Lo
 }
 
 void
-IceInternal::traceRequest(const char* heading, const Stream& str, const ::Ice::LoggerPtr& logger,
+IceInternal::traceRequest(const char* heading, const IntStream& str, const ::Ice::LoggerPtr& logger,
 			  const TraceLevelsPtr& tl)
 {
     if (tl->protocol >= 1)
     {
-	Stream& stream = const_cast<Stream&>(str);
-	Stream::Container::iterator p = stream.i;
+	IntStream& stream = const_cast<IntStream&>(str);
+	IntStream::Container::iterator p = stream.i;
 	stream.i = stream.b.begin();
 	ostringstream s;
 	s << heading;
@@ -113,13 +113,13 @@ IceInternal::traceRequest(const char* heading, const Stream& str, const ::Ice::L
 }
 
 void
-IceInternal::traceBatchRequest(const char* heading, const Stream& str, const ::Ice::LoggerPtr& logger,
+IceInternal::traceBatchRequest(const char* heading, const IntStream& str, const ::Ice::LoggerPtr& logger,
 			       const TraceLevelsPtr& tl)
 {
     if (tl->protocol >= 1)
     {
-	Stream& stream = const_cast<Stream&>(str);
-	Stream::Container::iterator p = stream.i;
+	IntStream& stream = const_cast<IntStream&>(str);
+	IntStream::Container::iterator p = stream.i;
 	stream.i = stream.b.begin();
 	ostringstream s;
 	s << heading;
@@ -129,13 +129,13 @@ IceInternal::traceBatchRequest(const char* heading, const Stream& str, const ::I
 }
 
 void
-IceInternal::traceReply(const char* heading, const Stream& str, const ::Ice::LoggerPtr& logger,
+IceInternal::traceReply(const char* heading, const IntStream& str, const ::Ice::LoggerPtr& logger,
 			const TraceLevelsPtr& tl)
 {
     if (tl->protocol >= 1)
     {
-	Stream& stream = const_cast<Stream&>(str);
-	Stream::Container::iterator p = stream.i;
+	IntStream& stream = const_cast<IntStream&>(str);
+	IntStream::Container::iterator p = stream.i;
 	stream.i = stream.b.begin();
 	ostringstream s;
 	s << heading;

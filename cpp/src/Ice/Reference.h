@@ -19,7 +19,7 @@
 namespace IceInternal
 {
 
-class Stream;
+class IntStream;
 
 class Reference : public ::IceUtil::Shared
 {
@@ -37,12 +37,12 @@ public:
     Reference(const InstancePtr&, const std::string&, Mode, bool,
 	      const std::vector<EndpointPtr>&, const std::vector<EndpointPtr>&);
     Reference(const InstancePtr&, const std::string&);
-    Reference(const std::string&, Stream*);
+    Reference(const std::string&, IntStream*);
 
     //
     // Marshal the reference
     //
-    void streamWrite(Stream*) const;
+    void streamWrite(IntStream*) const;
 
     //
     // Convert the reference to its string form
