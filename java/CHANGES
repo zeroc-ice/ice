@@ -1,6 +1,11 @@
 Changes since version 1.4.0
 ---------------------------
 
+- Changed the mapping for tie classes, which now implement the
+  interface Ice.TieBase. This interface defines the ice_delegate
+  methods and changes the delegate type from _FooOperations to
+  java.lang.Object.
+
 - Changed the --depend option of slice2java. If you get dependencies
   for a file x.ice that includes y.ice, the dependency line that is
   written now is "x.ice: y.ice". (Previously, it was
