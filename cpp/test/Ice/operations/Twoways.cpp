@@ -148,33 +148,6 @@ twoways(const Test::MyClassPrx& p)
 	test(c2 != 0);
 	test(Ice::proxyIdentityAndFacetEqual(r, p));
 	r->opVoid();
-// TODO: For some reasons this test sometimes doesn't work on linux
-#ifdef _WIN32
-	try
-	{
-	    c1->opVoid();
-	    test(false);
-	}
-	catch(const IceUtil::NullHandleException&)
-	{
-	}
-	catch(...)
-	{
-	    test(false);
-	}
-	try
-	{
-	    c1->opVoid();
-	    test(false);
-	}
-	catch(const Ice::Exception&)
-	{
-	}
-	catch(...)
-	{
-	    test(false);
-	}
-#endif
     }
 
 

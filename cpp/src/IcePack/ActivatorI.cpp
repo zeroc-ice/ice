@@ -66,8 +66,8 @@ void
 reportChildError(int err, int fd, const char* cannot, const char* name)
 {
     //
-    // Send any errors to the parent process, using the write
-    // end of the pipe.
+    // Send any errors to the parent process, using the write end of
+    // the pipe.
     //
     char msg[500];
     strcpy(msg, cannot);
@@ -77,6 +77,11 @@ reportChildError(int err, int fd, const char* cannot, const char* name)
     strcat(msg, strerror(err));
     write(fd, msg, strlen(msg));
     close(fd);
+
+    //
+    // _exit instead of exit to avoid interferences with the parent
+    // process.
+    //
     _exit(EXIT_FAILURE);
 }
 

@@ -29,19 +29,20 @@ TestI::shutdown(const Ice::Current&)
 void
 TestI::abort(const Ice::Current&)
 {
-    exit(0);
+    _exit(0); // We want an *immediate* abort, without doing _onexit or atexit stuff.
+
 }
 
 void
 TestI::idempotentAbort(const Ice::Current&)
 {
-    exit(0);
+    _exit(0); // We want an *immediate* abort, without doing _onexit or atexit stuff.
 }
 
 void
 TestI::nonmutatingAbort(const Ice::Current&) const
 {
-    exit(0);
+    _exit(0); // We want an *immediate* abort, without doing _onexit or atexit stuff.
 }
 
 Ice::Int

@@ -615,7 +615,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 
 	    //
 	    // _exit instead of exit to avoid interferences with
-	    // the parent process
+	    // the parent process.
 	    //
 	    _exit(EXIT_FAILURE);
 	}

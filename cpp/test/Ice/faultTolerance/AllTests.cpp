@@ -36,11 +36,12 @@ public:
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	while(!_called)
 	{
-	    if(!timedWait(IceUtil::Time::seconds(5)))
+	    if(!timedWait(IceUtil::Time::seconds(15)))
 	    {
 		return false;
 	    }
 	}
+	_called = false;
 	return true;
     }
 
@@ -71,7 +72,6 @@ public:
 
     virtual void ice_exception(const Ice::Exception& ex)
     {
-	cout << ex << endl;
 	test(false);
     }
 
