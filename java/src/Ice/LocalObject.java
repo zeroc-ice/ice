@@ -26,6 +26,39 @@ public abstract class LocalObject
         return false;
     }
 
+    public java.lang.Object
+    clone()
+        throws java.lang.CloneNotSupportedException
+    {
+        LocalObject result = null;
+
+        try
+        {
+            result = (LocalObject)getClass().newInstance();
+            result.ice_copyStateFrom(this);
+        }
+        catch(InstantiationException ex)
+        {
+            CloneNotSupportedException e = new CloneNotSupportedException();
+            e.initCause(ex);
+            throw e;
+        }
+        catch(IllegalAccessException ex)
+        {
+            CloneNotSupportedException e = new CloneNotSupportedException();
+            e.initCause(ex);
+            throw e;
+        }
+
+        return result;
+    }
+
+    protected void
+    ice_copyStateFrom(LocalObject obj)
+        throws java.lang.CloneNotSupportedException
+    {
+    }
+
     public int
     ice_hash()
     {
