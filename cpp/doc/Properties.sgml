@@ -885,9 +885,10 @@ Ice.ProgramName=<replaceable>name</replaceable>
 <title>Description</title>
 <para>
 <replaceable>name</replaceable> is the program name, which is set
-automatically from <literal>argv[0]</literal> during
-initialization. However, a different name can be used by setting
-this property.
+automatically from <literal>argv[0]</literal> (C++) and from
+<literal>AppDomain.CurrentDomain.FriendlyName</literal> (C#) during
+initialization. (For Java, <literal>Ice.ProgramName</literal> is initialized to the empty string.)
+For all languages, the default name can be overridden by setting this property.
 </para>
 </section>
 </section>

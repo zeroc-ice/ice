@@ -488,6 +488,10 @@ Ice::PropertiesI::PropertiesI()
 Ice::PropertiesI::PropertiesI(StringSeq& args)
 {
     StringSeq::iterator q = args.begin();
+    if(q != args.end())
+    {
+	setProperty("Ice.ProgramName", *q);
+    }
     while(q != args.end())
     {
         string s = *q;
