@@ -24,14 +24,14 @@
 namespace IceSSL
 {
 
-class Parser
+class ConfigParser
 {
 
 public:
     // Constructor, based on the indicated file.
-    Parser(const std::string&);
-    Parser(const std::string&, const std::string&);
-    ~Parser();
+    ConfigParser(const std::string&);
+    ConfigParser(const std::string&, const std::string&);
+    ~ConfigParser();
 
     // Performs a complete parsing of the file.
     void process();

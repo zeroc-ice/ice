@@ -22,19 +22,14 @@
 namespace IceSSL
 {
 
-class ErrorReporter : public ErrorHandler, public IceUtil::Shared
+class ConfigParserErrorReporter : public ErrorHandler, public IceUtil::Shared
 {
 
 public:
 
-     ErrorReporter(IceInternal::TraceLevelsPtr traceLevels, Ice::LoggerPtr logger) :
-            _sawErrors(false),
-            _traceLevels(traceLevels),
-            _logger(logger)
-    {
-    }
+     ConfigParserErrorReporter(const IceInternal::TraceLevelsPtr&, const Ice::LoggerPtr&);
 
-    ~ErrorReporter() { }
+    ~ConfigParserErrorReporter();
 
     //  Implementation of the error handler interface.
     void warning(const SAXParseException& toCatch);
@@ -53,7 +48,7 @@ private:
     Ice::LoggerPtr _logger;
 };
 
-typedef IceInternal::Handle<ErrorReporter> ErrorReporterPtr;
+typedef IceInternal::Handle<ConfigParserErrorReporter> ConfigParserErrorReporterPtr;
 
 std::ostream& operator << (std::ostream& target, const DOMString& s);
 
@@ -62,8 +57,8 @@ std::ostream& operator << (std::ostream& target, const DOMString& s);
 namespace IceInternal
 {
 
-void incRef(::IceSSL::ErrorReporter*);
-void decRef(::IceSSL::ErrorReporter*);
+void incRef(::IceSSL::ConfigParserErrorReporter*);
+void decRef(::IceSSL::ConfigParserErrorReporter*);
 
 }
 

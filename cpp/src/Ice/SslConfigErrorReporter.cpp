@@ -21,11 +21,23 @@
 
 using namespace std;
 
-void ::IceInternal::incRef(::IceSSL::ErrorReporter* p) { p->__incRef(); }
-void ::IceInternal::decRef(::IceSSL::ErrorReporter* p) { p->__decRef(); }
+void ::IceInternal::incRef(::IceSSL::ConfigParserErrorReporter* p) { p->__incRef(); }
+void ::IceInternal::decRef(::IceSSL::ConfigParserErrorReporter* p) { p->__decRef(); }
+
+IceSSL::ConfigParserErrorReporter::ConfigParserErrorReporter(const IceInternal::TraceLevelsPtr& traceLevels,
+                                                             const Ice::LoggerPtr& logger) :
+                                  _sawErrors(false),
+                                  _traceLevels(traceLevels),
+                                  _logger(logger)
+{
+}
+
+IceSSL::ConfigParserErrorReporter::~ConfigParserErrorReporter()
+{
+}
 
 void
-IceSSL::ErrorReporter::warning(const SAXParseException& toCatch)
+IceSSL::ConfigParserErrorReporter::warning(const SAXParseException& toCatch)
 {
     if (_traceLevels->security >= IceSSL::SECURITY_PARSE_WARNINGS)
     {
@@ -43,7 +55,7 @@ IceSSL::ErrorReporter::warning(const SAXParseException& toCatch)
 }
 
 void
-IceSSL::ErrorReporter::error(const SAXParseException& toCatch)
+IceSSL::ConfigParserErrorReporter::error(const SAXParseException& toCatch)
 {
     _sawErrors = true;
 
@@ -63,7 +75,7 @@ IceSSL::ErrorReporter::error(const SAXParseException& toCatch)
 }
 
 void
-IceSSL::ErrorReporter::fatalError(const SAXParseException& toCatch)
+IceSSL::ConfigParserErrorReporter::fatalError(const SAXParseException& toCatch)
 {
     _sawErrors = true;
 
@@ -83,13 +95,13 @@ IceSSL::ErrorReporter::fatalError(const SAXParseException& toCatch)
 }
 
 void
-IceSSL::ErrorReporter::resetErrors()
+IceSSL::ConfigParserErrorReporter::resetErrors()
 {
     // No-op in this case
 }
 
 bool
-IceSSL::ErrorReporter::getSawErrors() const
+IceSSL::ConfigParserErrorReporter::getSawErrors() const
 {
     return _sawErrors;
 }

@@ -211,7 +211,7 @@ IceSSL::OpenSSL::System::loadConfig(ContextType contextType,
         throw configEx;
     }
 
-    Parser sslConfig(configFile, certPath);
+    ConfigParser sslConfig(configFile, certPath);
 
     sslConfig.setTrace(_traceLevels);
     sslConfig.setLogger(_logger);
