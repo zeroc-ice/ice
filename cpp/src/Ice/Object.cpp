@@ -42,9 +42,16 @@ Ice::Object::_isA(const string& s)
     return s == "::Ice::Object";
 }
 
+bool
+Ice::Object::_hasFacet(const string& s)
+{
+    return false; // TODO
+}
+
 void
 Ice::Object::_ping()
 {
+    // Nothing to do.
 }
 
 DispatchStatus
@@ -60,6 +67,18 @@ Ice::Object::____isA(Incoming& __in)
 }
 
 DispatchStatus
+Ice::Object::____hasFacet(Incoming& __in)
+{
+    BasicStream* __is = __in.is();
+    BasicStream* __os = __in.os();
+    string s;
+    __is->read(s);
+    bool __ret = _hasFacet(s);
+    __os->write(__ret);
+    return DispatchOK;
+}
+
+DispatchStatus
 Ice::Object::____ping(Incoming&)
 {
     _ping();
@@ -68,6 +87,7 @@ Ice::Object::____ping(Incoming&)
 
 const char* Ice::Object::__all[] =
 {
+    "_hasFacet"
     "_isA"
     "_ping"
 };
@@ -87,9 +107,13 @@ Ice::Object::__dispatch(Incoming& in, const string& s)
     {
 	case 0:
 	{
-	    return ____isA(in);
+	    return ____hasFacet(in);
 	}
 	case 1:
+	{
+	    return ____isA(in);
+	}
+	case 2:
 	{
 	    return ____ping(in);
 	}
@@ -102,5 +126,9 @@ Ice::Object::__dispatch(Incoming& in, const string& s)
 bool
 Ice::Object::__isMutating(const std::string& s)
 {
+    //
+    // None of the Ice::Object operations accessible via __dispatch()
+    // is mutating.
+    //
     return false;
 }

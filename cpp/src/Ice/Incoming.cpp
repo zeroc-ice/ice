@@ -35,6 +35,8 @@ IceInternal::Incoming::invoke(BasicStream& is)
     _is.swap(is);
     string identity;
     _is.read(identity);
+    string facet;
+    _is.read(facet);
     string operation;
     _is.read(operation);
 
@@ -76,9 +78,17 @@ IceInternal::Incoming::invoke(BasicStream& is)
 	}
 	else
 	{
-	    _os.write(static_cast<Byte>(DispatchOK));
-	    DispatchStatus status = servant->__dispatch(*this, operation);
-	    *(_os.b.begin() + statusPos) = static_cast<Byte>(status);
+	    if(!facet.empty())
+	    {
+		// Not implemented yet
+		_os.write(static_cast<Byte>(DispatchFacetNotExist));
+	    }
+	    else
+	    {
+		_os.write(static_cast<Byte>(DispatchOK));
+		DispatchStatus status = servant->__dispatch(*this, operation);
+		*(_os.b.begin() + statusPos) = static_cast<Byte>(status);
+	    }
 	}
 
 	if (locator && servant)

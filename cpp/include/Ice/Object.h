@@ -27,6 +27,7 @@ enum DispatchStatus
     DispatchUserException,
     DispatchLocationForward,
     DispatchObjectNotExist,
+    DispatchFacetNotExist,
     DispatchOperationNotExist,
     DispatchUnknownLocalException,
     DispatchUnknownUserException,
@@ -60,8 +61,10 @@ public:
     virtual ~Object();
 
     virtual bool _isA(const std::string&);
+    virtual bool _hasFacet(const std::string&);
     virtual void _ping();
     ::IceInternal::DispatchStatus ____isA(::IceInternal::Incoming&);
+    ::IceInternal::DispatchStatus ____hasFacet(::IceInternal::Incoming&);
     ::IceInternal::DispatchStatus ____ping(::IceInternal::Incoming&);
     virtual const char** __getClassIds() = 0;
 

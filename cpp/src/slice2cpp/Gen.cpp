@@ -1617,6 +1617,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    StringList allOpNames;
 	    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::memFun(&Operation::name));
 	    allOpNames.push_back("_isA");
+	    allOpNames.push_back("_hasFacet");
 	    allOpNames.push_back("_ping");
 	    allOpNames.sort();
 	    allOpNames.unique();
@@ -1627,7 +1628,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    StringList allMutatingOpNames;
 	    transform(allMutatingOps.begin(), allMutatingOps.end(), back_inserter(allMutatingOpNames),
 		      ::IceUtil::memFun(&Operation::name));
-	    // Don't add _isA and _ping. These operations are non-mutating.
+	    // Don't add _isA, _hasFacet, and _ping. These operations are non-mutating.
 	    allMutatingOpNames.sort();
 	    allMutatingOpNames.unique();
 	    

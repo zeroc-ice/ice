@@ -145,6 +145,16 @@ local exception ObjectNotExistException
 
 /**
  *
+ * This exception is raised if an object does not implement a given
+ * facet.
+ *
+ **/
+local exception FacetNotExistException
+{
+};
+
+/**
+ *
  * This exception is raised if an operation for a given object does
  * not exist on the server. Typically this is caused by either the
  * client or the server using an outdated Slice specification.

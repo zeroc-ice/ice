@@ -217,7 +217,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
 	string es = s.substr(beg, end - beg);
 	EndpointPtr endp = Endpoint::endpointFromString(es);
 
-	if(orig)
+	if (orig)
 	{
 	    const_cast<vector<EndpointPtr>&>(origEndpoints).push_back(endp);
 	}
@@ -300,7 +300,7 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
 	(*p)->streamWrite(s);
     }
 
-    if(endpoints == origEndpoints)
+    if (endpoints == origEndpoints)
     {
 	s->write(true);
     }
@@ -327,7 +327,7 @@ IceInternal::Reference::toString() const
 	s << ':' << (*p)->toString();
     }
     
-    if(endpoints != origEndpoints)
+    if (endpoints != origEndpoints)
     {
 	s << ':';
 	for (p = endpoints.begin(); p != endpoints.end(); ++p)

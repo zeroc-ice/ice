@@ -482,7 +482,7 @@ IceInternal::TcpEndpoint::operator==(const Endpoint& r) const
 	return false;
     }
 
-    if(_timeout != p->_timeout)
+    if (_timeout != p->_timeout)
     {
 	return false;
     }
@@ -794,7 +794,7 @@ IceInternal::SslEndpoint::operator==(const Endpoint& r) const
 	return false;
     }
 
-    if(_timeout != p->_timeout)
+    if (_timeout != p->_timeout)
     {
 	return false;
     }

@@ -61,6 +61,7 @@ IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& r
     }
 
     _os.write(_reference->identity);
+    _os.write(_reference->facet);
 }
 
 IceInternal::Outgoing::~Outgoing()
@@ -215,6 +216,13 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    {
 		_state = StateLocalException;
 		_exception = auto_ptr<LocalException>(new ObjectNotExistException(__FILE__, __LINE__));
+		break;
+	    }
+	    
+	    case DispatchFacetNotExist:
+	    {
+		_state = StateLocalException;
+		_exception = auto_ptr<LocalException>(new FacetNotExistException(__FILE__, __LINE__));
 		break;
 	    }
 	    

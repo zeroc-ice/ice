@@ -63,6 +63,12 @@ IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const ReferencePtr&
     {
 	throw ObjectNotExistException(__FILE__, __LINE__);
     }
+
+    if(!ref->facet.empty())
+    {
+	// Not implemented yet
+	throw FacetNotExistException(__FILE__, __LINE__);
+    }
 }
 
 IceInternal::Direct::~Direct()
