@@ -53,18 +53,18 @@ Glacier2::RouterService::start(int argc, char* argv[])
 	if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
 	{
 	    usage(argv[0]);
-	    return EXIT_SUCCESS;
+	    return false;
 	}
 	else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
 	{
 	    cout << ICE_STRING_VERSION << endl;
-	    return EXIT_SUCCESS;
+	    return false;
 	}
 	else
 	{
 	    cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
 	    usage(argv[0]);
-	    return EXIT_FAILURE;
+	    return false;
 	}
     }
 
@@ -77,7 +77,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
     if(properties->getProperty(clientEndpointsProperty).empty())
     {
 	cerr << argv[0] << ": property `" << clientEndpointsProperty << "' is not set" << endl;
-	return EXIT_FAILURE;
+	return false;
     }
     ObjectAdapterPtr clientAdapter = communicator()->createObjectAdapter("Glacier2.Client");
 
@@ -201,45 +201,37 @@ Glacier2::RouterService::stop()
 CommunicatorPtr
 Glacier2::RouterService::initializeCommunicator(int& argc, char* argv[])
 {
-    try
+    PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
+    
+    //
+    // Make sure that Glacier2 doesn't use a router.
+    //
+    defaultProperties->setProperty("Ice.Default.Router", "");
+    
+    //
+    // No active connection management is permitted with
+    // Glacier2. Connections must remain established.
+    //
+    defaultProperties->setProperty("Ice.ConnectionIdleTime", "0");
+    
+    //
+    // Ice.MonitorConnections defaults to Ice.ConnectionIdleTime,
+    // which we set to 0 above. However, we still want the
+    // connection monitor thread for AMI timeouts. We only set
+    // this value if it hasn't been set explicitly already.
+    //
+    if(defaultProperties->getProperty("Ice.MonitorConnections").empty())
     {
-	PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
-
-	//
-	// Make sure that Glacier2 doesn't use a router.
-	//
-	defaultProperties->setProperty("Ice.Default.Router", "");
-
-	//
-	// No active connection management is permitted with
-	// Glacier2. Connections must remain established.
-	//
-	defaultProperties->setProperty("Ice.ConnectionIdleTime", "0");
-
-	//
-	// Ice.MonitorConnections defaults to Ice.ConnectionIdleTime,
-	// which we set to 0 above. However, we still want the
-	// connection monitor thread for AMI timeouts. We only set
-	// this value if it hasn't been set explicitly already.
-	//
-	if(defaultProperties->getProperty("Ice.MonitorConnections").empty())
-	{
-	    defaultProperties->setProperty("Ice.MonitorConnections", "60");
-	}
-
-	//
-	// We do not need to set Ice.RetryIntervals to -1, i.e., we do
-	// not have to disable connection retry. It is safe for
-	// Glacier2 to retry outgoing connections to servers. Retry
-	// for incoming connections from clients must be disabled in
-	// the clients.
-	//
+	defaultProperties->setProperty("Ice.MonitorConnections", "60");
     }
-    catch(const Exception& e)
-    {
-	cerr << e << endl;
-	exit(EXIT_FAILURE);
-    }
+    
+    //
+    // We do not need to set Ice.RetryIntervals to -1, i.e., we do
+    // not have to disable connection retry. It is safe for
+    // Glacier2 to retry outgoing connections to servers. Retry
+    // for incoming connections from clients must be disabled in
+    // the clients.
+    //
 
     return Service::initializeCommunicator(argc, argv);
 }

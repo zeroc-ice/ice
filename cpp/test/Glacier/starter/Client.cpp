@@ -179,8 +179,8 @@ CallbackClient::run(int argc, char* argv[])
 
     cout << "testing server shutdown... " << flush;
     twoway->shutdown();
-    // No ping, otherwise the glacier router prints a warning
-    // message if it's started with --Ice.Warn.Connections.
+    // No ping, otherwise the glacier router prints a warning message
+    // if it's started with --Ice.Warn.Connections.
     cout << "ok" << endl;
     /*
     try

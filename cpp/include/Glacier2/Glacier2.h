@@ -7,12 +7,11 @@
 //
 // **********************************************************************
 
-#ifndef GLACIER_H
-#define GLACIER_H
+#ifndef GLACIER2_H
+#define GLACIER2_H
 
 #include <Glacier/Router.h>
-#include <Glacier/Starter.h>
 #include <Glacier/Session.h>
-#include <Glacier/SessionManager.h>
+#include <Glacier/PermissionVerifier.h>
 
 #endif

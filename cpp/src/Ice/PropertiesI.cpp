@@ -321,6 +321,28 @@ static const string glacierProps[] =
     "Starter.Trace"
 };
 
+static const string glacier2Props[] =
+{
+    "Client.Endpoints",
+    "Client.ForwardContext",
+    "Client.SleepTime",
+    "Client.Trace.Override",
+    "Client.Trace.Reject",
+    "Client.Trace.Request",
+    "CryptPasswords",
+    "PermissionsVerifier",
+    "RouterIdentity",
+    "Server.Endpoints",
+    "Server.ForwardContext",
+    "Server.SleepTime",
+    "Server.Trace.Override",
+    "Server.Trace.Request",
+    "SessionManager",
+    "SessionTimeout",
+    "Trace.RoutingTable",
+    "Trace.Session"
+};
+
 static const string freezeProps[] =
 {
     "DbEnv.*",
@@ -351,6 +373,7 @@ static const PropertyValues validProps[] =
 {
     PropertyValues("Freeze", freezeProps, sizeof(freezeProps) / sizeof(freezeProps[0])),
     PropertyValues("Glacier", glacierProps, sizeof(glacierProps) / sizeof(glacierProps[0])),
+    PropertyValues("Glacier2", glacier2Props, sizeof(glacier2Props) / sizeof(glacier2Props[0])),
     PropertyValues("IceBox", iceBoxProps, sizeof(iceBoxProps) / sizeof(iceBoxProps[0])),
     PropertyValues("Ice", iceProps, sizeof(iceProps) / sizeof(iceProps[0])),
     PropertyValues("IcePack", icePackProps, sizeof(icePackProps) / sizeof(icePackProps[0])),
@@ -471,6 +494,7 @@ Ice::PropertiesI::parseIceCommandLineOptions(const StringSeq& options)
     args = parseCommandLineOptions("Ice", options);
     args = parseCommandLineOptions("Freeze", args);
     args = parseCommandLineOptions("Glacier", args);
+    args = parseCommandLineOptions("Glacier2", args);
     args = parseCommandLineOptions("IceBox", args);
     args = parseCommandLineOptions("IcePack", args);
     args = parseCommandLineOptions("IcePatch", args);
