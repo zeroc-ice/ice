@@ -37,12 +37,54 @@
     <!-- Clean up everything -->
     <target name="clean" depends="init">
 	<delete dir="${install.dir}"/>
-	<delete dir="${install.dir}-packages"/>
+	<delete dir="BZip2DevKit"/>
+	<delete dir="BerkeleyDBDevKit"/>
+	<delete dir="BerkeleyDBRuntime"/>
+	<delete dir="ExpatDevKit"/>
+	<delete dir="ExpatRuntime"/>
+	<delete dir="OpenSSLDevKit"/>
+	<delete dir="OpenSSLRuntime"/>
+	<delete dir="Ice"/>
+	<delete dir="ThirdParty"/>
     </target>
 
     <!-- Prepare the install -->
     <target name="setup" depends="init">
 	<mkdir dir="${install.dir}"/>
+    </target>
+
+    <!-- Ice Common -->
+    <target name="ice-common" depends="setup">
+
+	<!-- Installer images -->
+	<mkdir dir="${install.dir}/ice-common/images"/>
+	<copy todir="${install.dir}/ice-common/images">
+	    <fileset dir="${common.dir}">
+		<include name="installer-*.bmp"/>
+	    </fileset>
+	</copy>
+
+	<!-- HTML documentation -->
+	<mkdir dir="${install.dir}/ice-common/html/doc"/>
+	<copy todir="${install.dir}/ice-common/html/doc">
+	    <fileset dir="${ice.dir}/doc">
+		<include name="README.html"/>
+		<include name="reference/**"/>
+	    </fileset>
+	</copy>
+    </target>
+
+    <!-- Packages Common -->
+    <target name="packages-common" depends="setup">
+
+	<!-- Installer images -->
+	<mkdir dir="${install.dir}/packages-common/images"/>
+	<copy todir="${install.dir}/packages-common/images">
+	    <fileset dir="${common.dir}">
+		<include name="installer-*.bmp"/>
+	    </fileset>
+	</copy>
+
     </target>
 
     <!-- Ice for C++ Runtime-->
@@ -82,72 +124,9 @@
 	    </fileset>
 	</copy>
 
-    </target>
-
-    <!-- Ice for Java Runtime-->
-    <target name="ice-java-runtime" depends="setup">
-
-	<!-- Jars -->
-	<mkdir dir="${install.dir}/ice-java/runtime/lib"/>
-	<copy file="${icej.dir}/lib/Ice.jar" todir="${install.dir}/ice-java/runtime/lib"/>
-
-    </target>
-
-    <!-- Ice Common -->
-    <target name="ice-common" depends="setup">
-
-	<!-- Readme, license, etc. -->
-	<mkdir dir="${install.dir}/ice-common/docs"/>
-	<copy todir="${install.dir}/ice-common/docs">
-	    <fileset dir="${common.dir}">
-		<include name="Ice*"/>
-	    </fileset>
-	</copy>
-
-	<!-- Installer images -->
-	<mkdir dir="${install.dir}/ice-common/images"/>
-	<copy todir="${install.dir}/ice-common/images">
-	    <fileset dir="${common.dir}">
-		<include name="installer-*.bmp"/>
-	    </fileset>
-	</copy>
-
-	<!-- HTML manual -->
-	<mkdir dir="${install.dir}/ice-common/html/doc"/>
-	<copy todir="${install.dir}/ice-common/html/doc">
-	    <fileset dir="${ice.dir}/doc/manual">
-		<include name="**"/>
-	    </fileset>
-	</copy>
-    </target>
-
-    <!-- Packages Common -->
-    <target name="packages-common" depends="setup">
-
-	<!-- Readme, license, etc. -->
-	<mkdir dir="${install.dir}/packages-common/docs"/>
-	<copy todir="${install.dir}/packages-common/docs">
-	    <fileset dir="${common.dir}">
-		<include name="ThirdParty*"/>
-	    </fileset>
-	</copy>
-
-	<!-- Installer images -->
-	<mkdir dir="${install.dir}/packages-common/images"/>
-	<copy todir="${install.dir}/packages-common/images">
-	    <fileset dir="${common.dir}">
-		<include name="installer-*.bmp"/>
-	    </fileset>
-	</copy>
-
-    </target>
-
-    <!-- Ice Support -->
-    <target name="ice-support" depends="setup">
-
 	<!-- Certificates -->
-	<mkdir dir="${install.dir}/ice-support/certs"/>
-	<copy todir="${install.dir}/ice-support/certs">
+	<mkdir dir="${install.dir}/ice-cpp/runtime/certs"/>
+	<copy todir="${install.dir}/ice-cpp/runtime/certs">
 	    <fileset dir="${ice.dir}/certs">
 		<include name="**/*.dtd"/>
 		<include name="**/*.pem"/>
@@ -156,8 +135,8 @@
 	</copy>
 
 	<!-- Configuration -->
-	<mkdir dir="${install.dir}/ice-support/config"/>
-	<copy todir="${install.dir}/ice-support/config">
+	<mkdir dir="${install.dir}/ice-cpp/runtime/config"/>
+	<copy todir="${install.dir}/ice-cpp/runtime/config">
 	    <fileset dir="${ice.dir}/config">
 		<include name="*.cnf"/>
 		<include name="makecerts"/>
@@ -165,8 +144,8 @@
 	</copy>
 	
 	<!-- Slice -->
-	<mkdir dir="${install.dir}/ice-support/slice"/>
-	<copy todir="${install.dir}/ice-support/slice">
+	<mkdir dir="${install.dir}/ice-cpp/runtime/slice"/>
+	<copy todir="${install.dir}/ice-cpp/runtime/slice">
 	    <fileset dir="${ice.dir}/slice">
 		<include name="Freeze/*.ice"/>
 		<include name="Glacier2/*.ice"/>
@@ -274,12 +253,12 @@
 
     </target>
 
-    <!-- Ice for C# Runtime -->
-    <target name="ice-csharp-runtime" depends="setup">
+    <!-- Ice for C# Assemblies -->
+    <target name="ice-csharp-gac" depends="setup">
 
 	<!-- Binaries -->
-	<mkdir dir="${install.dir}/ice-csharp/runtime/bin"/>
-	<copy todir="${install.dir}/ice-csharp/runtime/bin">
+	<mkdir dir="${install.dir}/ice-csharp/gac"/>
+	<copy todir="${install.dir}/ice-csharp/gac">
 	    <fileset dir="${icecs.dir}/bin">
 		<include name="*.dll"/>
 	    </fileset>
@@ -327,6 +306,15 @@
 
     </target>
 
+    <!-- Ice for Java Runtime-->
+    <target name="ice-java-runtime" depends="setup">
+
+	<!-- Jars -->
+	<mkdir dir="${install.dir}/ice-java/runtime/lib"/>
+	<copy file="${icej.dir}/lib/Ice.jar" todir="${install.dir}/ice-java/runtime/lib"/>
+
+    </target>
+
     <!-- Ice for Java -->
     <target name="ice-java-dev" depends="setup">
 
@@ -349,6 +337,7 @@
 	<!-- Configuration -->
 	<mkdir dir="${install.dir}/ice-java/dev/config"/>
 	<copy file="${icej.dir}/config/build.properties" todir="${install.dir}/ice-java/dev/config"/>
+	<copy file="${icej.dir}/config/common.xml" todir="${install.dir}/ice-java/dev/config"/>
 
     </target>
 
@@ -361,6 +350,13 @@
 		<exclude name="**/.dummy"/>
 		<exclude name="**/classes/**"/>
 		<exclude name="**/generated/**"/>
+	    </fileset>
+	</copy>
+
+	<mkdir dir="${install.dir}/ice-java/demo/certs"/>
+	<copy todir="${install.dir}/ice-java/demo/certs">
+	    <fileset dir="${icej.dir}/certs">
+		<include name="**"/>
 	    </fileset>
 	</copy>
 
@@ -661,7 +657,7 @@
 
     </target>
 
-    <target name="vc71-packages" 
+    <target name="packages" 
             depends="packages-common,
 		     berkeley-dev,
 		     berkeley-runtime,
@@ -675,14 +671,13 @@
 	<copy file="${runtime.dir}/msvcp71.dll" todir="${install.dir}/microsoft/runtime/bin"/>
      </target>
 
-    <target name="vc71" 
-            depends="vc71-packages,
+    <target name="ice" 
+            depends="packages,
 	             ice-common,
-	             ice-support,
 		     ice-cpp-runtime,
 		     ice-cpp-dev,
 		     ice-cpp-demo,
-		     ice-csharp-runtime,
+		     ice-csharp-gac,
 		     ice-csharp-dev,
 		     ice-csharp-demo,
 		     ice-java-runtime,
@@ -696,7 +691,8 @@
 		     ice-vbasic-dev,
 		     ice-vbasic-demo"/>
 
-    <target name="merge-modules" depends="vc71-packages">
+    <target name="merge-modules" depends="packages">
+
 	<exec dir="." executable="ISCmdBld.exe">
 	    <arg line="-p BerkeleyDBDevKit.ism -c COMP -a ZEROC -R BERKELEYDB_DEV_KIT"/>
 	</exec>
@@ -718,9 +714,7 @@
 	<exec dir="." executable="ISCmdBld.exe">
 	    <arg line="-p OpenSSLRuntime.ism -c COMP -a ZEROC -R OPENSSL_RUNTIME"/>
 	</exec>
-    </target>
 
-    <target name="vc71-merge-modules" depends="merge-modules">
 	<zip destfile="${install.dir}/ThirdPartyMergeModules-2.1.0-VC71.zip">
 	    <zipfileset dir="BerkeleyDBDevKit/ZEROC/BERKELEYDB_DEV_KIT/DiskImages/DISK1" includes="*.msm"/>
 	    <zipfileset dir="BerkeleyDBRuntime/ZEROC/BERKELEYDB_RUNTIME/DiskImages/DISK1" includes="*.msm"/>
@@ -730,21 +724,21 @@
 	    <zipfileset dir="OpenSSLDevKit/ZEROC/OPENSSL_DEV_KIT/DiskImages/DISK1" includes="*.msm"/>
 	    <zipfileset dir="OpenSSLRuntime/ZEROC/OPENSSL_RUNTIME/DiskImages/DISK1" includes="*.msm"/>
 	</zip>
+
     </target>
 
-    <target name="vc71-installer" depends="vc71">
+    <target name="ice-installer" depends="ice">
 	<exec dir="." executable="ISCmdBld.exe">
-	    <arg line="-p Ice-2.1.0-VC71.ism -r ICE_MSI -c COMP -a ZEROC"/>
+	    <arg line="-p Ice.ism -r ICE_MSI -c COMP -a ZEROC"/>
 	</exec>
     </target>
 
-    <target name="vc71-packages-installer" depends="vc71-packages">
+    <target name="packages-installer" depends="packages">
 	<exec dir="." executable="ISCmdBld.exe">
-	    <arg line="-p ThirdParty-2.1.0-VC71.ism -r THIRD_PARTY_MSI -c COMP -a ZEROC"/>
+	    <arg line="-p ThirdParty.ism -r THIRD_PARTY_MSI -c COMP -a ZEROC"/>
 	</exec>
     </target>
 
-    <target name="all" depends="vc71-merge-modules,vc71-packages-installer,vc71-installer"/>
-    <!--<target name="all" depends="vc71"/>-->
+    <target name="all" depends="merge-modules,packages-installer,ice-installer"/>
 
 </project>
