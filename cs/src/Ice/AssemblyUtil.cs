@@ -131,6 +131,27 @@ namespace IceInternal
 	    }
 	}
 
+	public static object createInstance(Type t)
+	{
+	    ConstructorInfo[] constructors = t.GetConstructors();
+
+	    if(constructors.Length == 0)
+	    {
+	        return null;
+	    }
+
+	    ParameterInfo[] firstConstructor = constructors[0].GetParameters();
+
+	    int paramCount = firstConstructor.Length;
+	    Type[] constructor = new Type[paramCount];
+	    for(int i = 0; i < paramCount; i++)
+	    {
+	        constructor[i] = firstConstructor[i].ParameterType;
+	    }
+
+	    return t.GetConstructor(constructor).Invoke(new object[]{});
+	}
+
 	private static volatile bool _assembliesLoaded = false;
 	private static Hashtable _loadedAssemblies = new Hashtable(); // <string, Assembly> pairs.
 	private static Hashtable _typeTable = new Hashtable(); // <type name, Type> pairs.

@@ -309,11 +309,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "SupportClass.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "SysLoggerI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

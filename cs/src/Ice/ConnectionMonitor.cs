@@ -12,9 +12,10 @@ namespace IceInternal
 {
 
     using System.Diagnostics;
+    using System.Threading;
     using IceUtil;
 
-    public sealed class ConnectionMonitor : SupportClass.ThreadClass
+    public sealed class ConnectionMonitor
     {
 	public void destroy()
 	{
@@ -30,7 +31,7 @@ namespace IceInternal
 	    
 	    while(true)
 	    {
-		Join();
+		_thread.Join();
 		break;
 	    }
 	}
@@ -67,10 +68,12 @@ namespace IceInternal
 	    {
 		    threadName += "-";
 	    }
-	    Name = threadName + "Ice.ConnectionMonitor";
 	    
 	    Debug.Assert(_interval > 0);
-	    Start();
+
+	    _thread = new Thread(new ThreadStart(Run));
+	    _thread.Name = threadName + "Ice.ConnectionMonitor";
+	    _thread.Start();
 	}
 	
 	~ConnectionMonitor()
@@ -79,7 +82,7 @@ namespace IceInternal
 	    Debug.Assert(_connections.Count == 0);
 	}
 	
-	public override void Run()
+	public void Run()
 	{
 	    Set connections = new Set();
 	    
@@ -121,14 +124,14 @@ namespace IceInternal
 		    {
 			lock(this)
 			{
-			    _instance.logger().error("exception in connection monitor thread " + Name + "::\n" + ex);
+			    _instance.logger().error("exception in connection monitor thread " + _thread.Name + "::\n" + ex);
 			}
 		    }
 		    catch(System.Exception ex)
 		    {
 			lock(this)
 			{
-			    _instance.logger().error("unknown exception in connection monitor thread " + Name + ":\n" + ex);
+			    _instance.logger().error("unknown exception in connection monitor thread " + _thread.Name + ":\n" + ex);
 			}
 		    }
 		}
@@ -138,6 +141,7 @@ namespace IceInternal
 	private Instance _instance;
 	private readonly int _interval;
 	private Set _connections;
+	private Thread _thread;
     }
 
 }

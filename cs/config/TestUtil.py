@@ -127,7 +127,7 @@ def printOutputFromPipe(pipe):
 
         c = pipe.read(1)
 
-        if c == ""
+        if c == "":
             break
 
         os.write(1, c)

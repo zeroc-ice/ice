@@ -89,7 +89,7 @@ public class AllTests
         hello.sayHello();
         Console.Out.WriteLine("ok");
         
-        Console.Out.Write("testing reference with unknown identity...");
+        Console.Out.Write("testing reference with unknown identity... ");
         Console.Out.Flush();
         try
         {
@@ -104,7 +104,7 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-        Console.Out.Write("testing reference with unknown adapter...");
+        Console.Out.Write("testing reference with unknown adapter... ");
         Console.Out.Flush();
         try
         {
@@ -136,7 +136,7 @@ public class AllTests
             Console.Out.WriteLine("ok");
         }
         
-        Console.Out.Write("shutdown server manager...");
+        Console.Out.Write("shutdown server manager... ");
         Console.Out.Flush();
         manager.shutdown();
         Console.Out.WriteLine("ok");

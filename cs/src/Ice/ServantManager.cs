@@ -13,7 +13,7 @@ namespace IceInternal
 using System.Collections;
 using System.Diagnostics;
 
-public sealed class ServantManager : SupportClass.ThreadClass
+public sealed class ServantManager
 {
     public void addServant(Ice.Object servant, Ice.Identity ident, string facet)
     {

@@ -59,7 +59,6 @@ SRCS		= Acceptor.cs \
 		  Set.cs \
 		  SliceChecksums.cs \
 		  StringUtil.cs \
-		  SupportClass.cs \
 		  SysLoggerI.cs \
 		  TcpAcceptor.cs \
 		  TcpConnector.cs \

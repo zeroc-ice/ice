@@ -153,7 +153,7 @@ namespace Ice
 	    try
 	    {
 		System.Type c = System.Type.GetType(className);
-		System.Object obj = SupportClass.CreateNewInstance(c);
+		System.Object obj = IceInternal.AssemblyUtil.createInstance(c);
 		try
 		{
 		    factory = (PluginFactory) obj;

@@ -27,7 +27,7 @@ public class Client
             }
             catch(System.FormatException ex)
             {
-                SupportClass.WriteStackTrace(ex, System.Console.Error);
+                System.Console.Error.WriteLine(ex);
                 return 1;
             }
             ports.Add(port);

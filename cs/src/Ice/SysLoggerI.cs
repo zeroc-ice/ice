@@ -7,9 +7,11 @@
 //
 // **********************************************************************
 
+using System.Net.Sockets;
+
 namespace Ice
 {
-	
+
     public sealed class SysLoggerI : LocalObjectImpl, Logger
     {
 	public SysLoggerI(string ident)
@@ -23,7 +25,7 @@ namespace Ice
 	    try
 	    {
 		_host = System.Net.Dns.GetHostByName(System.Net.Dns.GetHostName()).AddressList[0];
-		_socket = new SupportClass.UdpClientSupport();
+		_socket = new UdpClient();
 		_socket.Connect(_host, _port);
 	    }
 	    catch(System.Exception ex)
@@ -61,11 +63,14 @@ namespace Ice
 		
 		int priority = (LOG_USER << 3) | severity;
 		
-		string msg = '<' + System.Convert.ToString(priority) + '>' + _ident + ": " + message;
+		string msg = '<' + priority + '>' + _ident + ": " + message;
 		
-		byte[] buf = SupportClass.ToByteArray(msg);
-		SupportClass.PacketSupport p = new SupportClass.PacketSupport(buf, buf.Length, new System.Net.IPEndPoint(_host, _port));
-		SupportClass.UdpClientSupport.Send(_socket, p);
+		byte[] buf = new byte[msg.Length];
+		for(int i = 0; i < msg.Length; i++)
+		{
+		    buf[i] = (byte)msg[i];
+		}
+		_socket.Send(buf, buf.Length);
 	    }
 	    catch(System.IO.IOException ex)
 	    {
@@ -75,7 +80,7 @@ namespace Ice
 	}
 	
 	private string _ident;
-	private SupportClass.UdpClientSupport _socket;
+	private UdpClient _socket;
 	private System.Net.IPAddress _host;
 	private static int _port = 514;
 	

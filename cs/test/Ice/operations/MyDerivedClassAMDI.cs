@@ -8,23 +8,35 @@
 // **********************************************************************
 
 using System;
+using System.Threading;
 
 public sealed class MyDerivedClassI : Test.MyDerivedClass
 {
-    internal class Thread_opVoid : SupportClass.ThreadClass
+    internal class Thread_opVoid
     {
         public Thread_opVoid(Test.AMD_MyClass_opVoid cb)
         {
             _cb = cb;
         }
         
-        //UPGRADE_TODO: The equivalent of method 'java.lang.Thread.run' is not an override method. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1143"'
-        override public void Run()
+	public void Start()
+	{
+	    _thread = new Thread(new ThreadStart(Run));
+            _thread.Start();
+	}
+
+        public void Run()
         {
             _cb.ice_response();
         }
+
+	public void Join()
+	{
+	    _thread.Join();
+	}
         
         private Test.AMD_MyClass_opVoid _cb;
+	private Thread _thread;
     }
     
     public MyDerivedClassI(Ice.ObjectAdapter adapter, Ice.Identity identity)
@@ -329,5 +341,5 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
     
     private Ice.ObjectAdapter _adapter;
     private Ice.Identity _identity;
-    private SupportClass.ThreadClass _opVoidThread;
+    private Thread_opVoid _opVoidThread;
 }

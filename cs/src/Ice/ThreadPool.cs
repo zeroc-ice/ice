@@ -26,6 +26,7 @@ namespace IceInternal
     using System.Collections;
     using System.Diagnostics;
     using System.Net.Sockets;
+    using System.Threading;
     using IceUtil;
 
     public sealed class ThreadPool
@@ -253,7 +254,7 @@ namespace IceInternal
 		    }
 		    catch(System.Exception ex)
 		    {
-			SupportClass.WriteStackTrace(ex, Console.Error);
+			Console.Error.WriteLine(ex);
 		    }
 		#endif
 	    #endif
@@ -606,7 +607,7 @@ namespace IceInternal
 				ArrayList liveThreads = new ArrayList();
 				foreach(EventHandlerThread thread in _threads)
 				{
-				    if(!thread.IsAlive)
+				    if(!thread.IsAlive())
 				    {
 					thread.Join();
 				    }
@@ -813,7 +814,7 @@ namespace IceInternal
 	
 	private int _timeout;
 	
-	private sealed class EventHandlerThread : SupportClass.ThreadClass
+	private sealed class EventHandlerThread
 	{
 	    private ThreadPool _threadPool;
 
@@ -821,10 +822,27 @@ namespace IceInternal
 		: base()
 	    {
 		_threadPool = threadPool;
-		Name = name;
+                _name = name;
 	    }
 
-	    override public void Run()
+            public bool IsAlive()
+            {
+                return _thread.IsAlive;
+            }
+
+            public void Join()
+            {
+                _thread.Join();
+            }
+
+            public void Start()
+            {
+                _thread = new Thread(new ThreadStart(Run));
+                _thread.Name = _name;
+                _thread.Start();
+            }
+
+	    public void Run()
 	    {
 		BasicStream stream = new BasicStream(_threadPool._instance);
 		
@@ -836,13 +854,13 @@ namespace IceInternal
 		}
 		catch(Ice.LocalException ex)
 		{
-		    string s = "exception in `" + _threadPool._prefix + "' thread " + Name + ":\n" + ex;
+		    string s = "exception in `" + _threadPool._prefix + "' thread " + _thread.Name + ":\n" + ex;
 		    _threadPool._instance.logger().error(s);
 		    promote = true;
 		}
 		catch(System.Exception ex)
 		{
-		    string s = "unknown exception in `" + _threadPool._prefix + "' thread " + Name + ":\n" + ex;
+		    string s = "unknown exception in `" + _threadPool._prefix + "' thread " + _thread.Name + ":\n" + ex;
 		    _threadPool._instance.logger().error(s);
 		    promote = true;
 		}
@@ -867,6 +885,9 @@ namespace IceInternal
 		    _threadPool.trace("run() terminated");
 		#endif
 	    }
+
+            private string _name;
+            private Thread _thread;
 	}
 	
 	private readonly int _size; // Number of threads that are pre-created.

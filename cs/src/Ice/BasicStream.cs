@@ -13,6 +13,7 @@ namespace IceInternal
     using System;
     using System.Collections;
     using System.Diagnostics;
+    using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Threading;
 
@@ -1755,7 +1756,7 @@ namespace IceInternal
 	    {
 		try
 		{
-		    return (Ice.Object)SupportClass.CreateNewInstance(_class);
+		    return (Ice.Object)AssemblyUtil.createInstance(_class);
 		}
 		catch(Exception ex)
 		{
@@ -1840,7 +1841,7 @@ namespace IceInternal
 	    {
 		try
 		{
-		    throw (Ice.UserException)SupportClass.CreateNewInstance(_class);
+		    throw (Ice.UserException)AssemblyUtil.createInstance(_class);
 		}
 		catch(Ice.UserException ex)
 		{
