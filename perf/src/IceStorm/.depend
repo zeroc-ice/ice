@@ -1,0 +1,5 @@
+Perf.o: Perf.cpp Perf.h
+Publisher.o: Publisher.cpp Perf.h
+Subscriber.o: Subscriber.cpp PerfI.h Perf.h
+PerfI.o: PerfI.cpp PerfI.h Perf.h
+Perf.cpp: Perf.ice

@@ -67,4 +67,4 @@ else:
     all.add(pickle.load(f));
     f.close()
             
-all.printAll(csv)
+all.printAll(TestUtil.ValuesMeanAndBest(), csv)

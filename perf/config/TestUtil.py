@@ -36,6 +36,26 @@ def printOutputFromPipe(pipe):
 
         os.write(1, c)
 
+class ValuesMeanAndBest :
+
+    def calcMeanAndBest(self, values):
+
+        if len(values) == 0:
+            return (0, 0)
+
+        values.sort()
+        values = values[0:len(values) / 2 + 1]
+        best = values[0]
+        
+        mean = 0.0
+        for r in values:
+            mean += r
+            
+        mean /= len(values)
+            
+        return (mean, best)
+            
+
 class TestResults :
 
     def __init__(self, test):
@@ -80,7 +100,7 @@ class TestResults :
                             self.results.pop(n)
                         print "removed " + p + " " + self.test + " " + n
 
-    def addToResults(self, results, tests, names, products, id):
+    def addToResults(self, results, tests, names, products, id, function):
 
         if len(self.results) == 0:
             return
@@ -112,30 +132,13 @@ class TestResults :
                         if not p in products:
                             products.append(p)
 
-                        (mean, best) = self.calcMeanAndBest(self.results[n][p])
+                        (mean, best) = function.calcMeanAndBest(self.results[n][p])
 
                         if refmean < 0.0:
                             refmean = mean
 
                         results[self.test][n][p][id] = (mean, mean / refmean)
 
-    def calcMeanAndBest(self, values):
-
-        if len(values) == 0:
-            return (0, 0)
-
-        values.sort()
-        values = values[0:len(values) / 2 + 1]
-        best = values[0]
-        
-        mean = 0.0
-        for r in values:
-            mean += r
-            
-        mean /= len(values)
-            
-        return (mean, best)
-        
 class HostResults :
 
     def __init__(self, hostname, outputFile):
@@ -185,13 +188,13 @@ class HostResults :
         pickle.dump(self, f);
         f.close()        
 
-    def addToResults(self, results, tests, names, products, hosts):
+    def addToResults(self, results, tests, names, products, hosts, function):
 
         if not self.id in hosts:
             hosts.append(self.id)
 
         for t in self.tests:
-            self.results[t].addToResults(results, tests, names, products, self.id)
+            self.results[t].addToResults(results, tests, names, products, self.id, function)
         
 class AllResults :
 
@@ -219,7 +222,7 @@ class AllResults :
         for result in self.results.itervalues():
             result.save(outputFile)
     
-    def printAll(self, csv):
+    def printAll(self, function, csv):
 
         results = { }
         tests = [ ]
@@ -227,7 +230,7 @@ class AllResults :
         hosts = [ ]
         products = [ ]
         for r in self.results.itervalues():
-            r.addToResults(results, tests, names, products, hosts)
+            r.addToResults(results, tests, names, products, hosts, function)
 
         if csv:
             self.printAllAsCsv(results, tests, names, hosts, products)

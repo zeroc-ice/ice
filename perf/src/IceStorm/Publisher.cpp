@@ -1,0 +1,124 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#include <IceUtil/Thread.h>
+#include <Ice/Application.h>
+#include <IceStorm/IceStorm.h>
+
+#include <Perf.h>
+
+using namespace std;
+using namespace Perf;
+
+class Publisher : public Ice::Application
+{
+public:
+
+    virtual int run(int, char*[]);
+};
+
+int
+main(int argc, char* argv[])
+{
+    Publisher app;
+    return app.main(argc, argv, "config");
+}
+
+int
+Publisher::run(int argc, char* argv[])
+{
+    int period = 0;
+    int repetitions = 10000;
+    bool twoway = false;
+    for(int i = 0; i < argc; i++)
+    {
+	if(strcmp(argv[i], "-p") == 0)
+	{
+	    period = atoi(argv[++i]);
+	}
+	else if(strcmp(argv[i], "-r") == 0)
+	{
+	    repetitions = atoi(argv[++i]);
+	}
+	if(strcmp(argv[i], "-t") == 0)
+	{
+	    twoway = true;
+	}
+    }
+
+    Ice::PropertiesPtr properties = communicator()->getProperties();
+
+    const string proxyProperty = "IceStorm.TopicManager.Proxy";
+    string proxy = properties->getProperty(proxyProperty);
+    if(proxy.empty())
+    {
+	cerr << appName() << ": property `" << proxyProperty << "' not set" << endl;
+	return EXIT_FAILURE;
+    }
+
+    Ice::ObjectPrx base = communicator()->stringToProxy(proxy);
+    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
+    if(!manager)
+    {
+	cerr << appName() << ": invalid proxy" << endl;
+	return EXIT_FAILURE;
+    }
+
+    //
+    // Retrieve the topic named "time".
+    //
+    IceStorm::TopicPrx topic;
+    try
+    {
+	topic = manager->retrieve("time");
+    }
+    catch(const IceStorm::NoSuchTopic& e)
+    {
+	cerr << appName() << ": " << e << " name: " << e.name << endl;
+	return EXIT_FAILURE;
+    }
+    assert(topic);
+
+    //
+    // Create a proxy for an intf object.
+    //
+    //Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("intf", "tcp");
+    //IntfPrx intf = IntfPrx::uncheckedCast(adapter->createProxy(Ice::stringToIdentity("intf")));
+
+    PingPrx ping;
+    if(twoway)
+    {
+	ping = PingPrx::uncheckedCast(topic->getPublisher()->ice_twoway());
+    }
+    else
+    {
+	ping = PingPrx::uncheckedCast(topic->getPublisher()->ice_oneway());
+    }
+    ping->ice_ping();
+
+    ping->tickVoid(0);
+    for(int i = 0; i < repetitions; ++i)
+    {
+	ping->tickVoid(IceUtil::Time::now().toMicroSeconds());
+	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(period));
+    }
+    ping->tickVoid(-1);
+
+    ping->tick(0, A, 10, AStruct(), 0);
+    for(int i = 0; i < repetitions; ++i)
+    {
+	AStruct s;
+	s.s = "TEST";
+	ping->tick(IceUtil::Time::now().toMicroSeconds(), A, 10, s, 0);
+	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(period));
+    }
+    ping->tick(-1, A, 10, AStruct(), 0);
+
+    return EXIT_SUCCESS;
+}

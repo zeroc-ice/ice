@@ -11,7 +11,12 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= Ice TAO
+SUBDIRS		= Ice IceStorm 
+ifdef TAO_HOME
+    SUBDIRS := TAO CosEvent $(SUBDIRS)
+    export ACE_ROOT := $(TAO_HOME)/..
+    export TAO_ROOT := $(TAO_HOME)
+endif
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

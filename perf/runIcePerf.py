@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, time, getopt, re
+import os, sys, getopt, re
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)

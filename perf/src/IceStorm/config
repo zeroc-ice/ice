@@ -1,0 +1,12 @@
+IceBox.ServiceManager.Endpoints=tcp -p 9998
+IceBox.Service.IceStorm=IceStormService,21:create
+Freeze.DbEnv.IceStorm.DbHome=db
+
+IceStorm.TopicManager.Proxy=IceStorm/TopicManager:default -p 10000
+IceStorm.TopicManager.Endpoints=default -p 10000
+IceStorm.Publish.Endpoints=default
+IceStorm.Flush.Timeout=100
+
+Ping.Subscriber.Endpoints=tcp
+
+Ice.PrintAdapterReady=1

@@ -15,7 +15,7 @@
 
 #
 # If you want to compile Ice performance tests, set ICE_HOME to the
-# Ice source distribution directory.
+# Ice source distribution directory
 #
 #ICE_HOME	?= 
 
@@ -32,6 +32,12 @@ ifeq ($(ICE_HOME),)
     ifeq ($(shell test -d $(top_srcdir)/../ice/slice && echo 0),0)
 	ICE_HOME=$(top_srcdir)/../ice
     endif
+endif
+
+ifeq ($(ICE_HOME),)
+  ifeq ($(TAO_HOME),)
+    $(error Please define ICE_HOME or TAO_HOME! See config/Make.rules)
+  endif
 endif
 
 OPTIMIZE		= yes
