@@ -122,7 +122,7 @@ public class Instance
 	
 	if(_clientThreadPool == null) // Lazy initialization.
 	{
-	    int threadNum = _properties.getPropertyAsIntWithDefault("Ice.ThreadPool.Client.Size", 10);
+	    int threadNum = _properties.getPropertyAsIntWithDefault("Ice.ThreadPool.Client.Size", 1);
 	    _clientThreadPool = new ThreadPool(this, threadNum, 0, "Ice.ThreadPool.Client");
         }
 
