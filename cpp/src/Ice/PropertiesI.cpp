@@ -261,20 +261,21 @@ struct PropertyValues {
     string prefix;
     const string* props;
     size_t propsSize;
+    PropertyValues(string pf, const string* p, size_t s) : prefix(pf), props(p), propsSize(s) {}
 };
 
 //
 // Array of valid properties for each application.
 //
 static const PropertyValues validProps[] = {
-				{ "Freeze", freezeProps, sizeof(freezeProps) / sizeof(freezeProps[0]) },
-				{ "Glacier", glacierProps, sizeof(glacierProps) / sizeof(glacierProps[0]) },
-				{ "IceBox", iceBoxProps, sizeof(iceBoxProps) / sizeof(iceBoxProps[0]) },
-				{ "Ice", iceProps, sizeof(iceProps) / sizeof(iceProps[0]) },
-				{ "IcePack", icePackProps, sizeof(icePackProps) / sizeof(icePackProps[0]) },
-				{ "IcePatch", icePatchProps, sizeof(icePatchProps) / sizeof(icePatchProps[0]) },
-				{ "IceSSL", iceSSLProps, sizeof(iceSSLProps) / sizeof(iceSSLProps[0]) },
-				{ "IceStorm", iceStormProps, sizeof(iceStormProps) / sizeof(iceStormProps[0]) }
+			    PropertyValues("Freeze", freezeProps, sizeof(freezeProps) / sizeof(freezeProps[0])),
+			    PropertyValues("Glacier", glacierProps, sizeof(glacierProps) / sizeof(glacierProps[0])),
+			    PropertyValues("IceBox", iceBoxProps, sizeof(iceBoxProps) / sizeof(iceBoxProps[0])),
+			    PropertyValues("Ice", iceProps, sizeof(iceProps) / sizeof(iceProps[0])),
+			    PropertyValues("IcePack", icePackProps, sizeof(icePackProps) / sizeof(icePackProps[0])),
+			    PropertyValues("IcePatch", icePatchProps, sizeof(icePatchProps) / sizeof(icePatchProps[0])),
+			    PropertyValues("IceSSL", iceSSLProps, sizeof(iceSSLProps) / sizeof(iceSSLProps[0])),
+			    PropertyValues("IceStorm", iceStormProps, sizeof(iceStormProps) / sizeof(iceStormProps[0]))
 					   };
 
 static const size_t validPropsSize = sizeof(validProps) / sizeof(validProps[0]);
