@@ -144,23 +144,14 @@ IceStorm::OrderedTwowayProxy::publish(const EventPtr& event)
 	_busy = true;
     }
 
-    assert(e);
-    send(e);
-}
-
-void
-IceStorm::OrderedTwowayProxy::send(const EventPtr& e)
-{
     try
     {
+	assert(e);
 	deliver(e);
     }
     catch(const Ice::LocalException& ex)
     {
-	IceUtil::Mutex::Lock sync(_mutex);
-        _busy = false;
-        _exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
-        throw;
+	exception(ex);
     }
 }
 
@@ -192,8 +183,15 @@ IceStorm::OrderedTwowayProxy::response()
 	_events.erase(_events.begin());
     }
 
-    assert(event);
-    send(event);
+    try
+    {
+	assert(event);
+	deliver(event);
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	exception(ex);
+    }
 }
 
 void

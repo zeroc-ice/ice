@@ -48,7 +48,6 @@ public:
 protected:
 
     virtual void deliver(const EventPtr&);
-    void send(const EventPtr&);
 
 };
 
