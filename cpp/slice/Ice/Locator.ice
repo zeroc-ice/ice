@@ -128,17 +128,15 @@ interface LocatorRegistry
      * by the adapter). The direct proxy contains the adapter
      * endpoints.
      *
-     * @throws AdapterNotFound Raised if the locator only allows
-     * registered adapters to set their active proxy and if the
+     * @throws AdapterNotFoundException Raised if the adapter cannot
+     * be found, or if the locator only allows
+     * registered adapters to set their active proxy and the
      * adapter is not registered with the locator.
      *
      * @throws AdapterAlreadyActive Raised if an adapter with the same
      * id is already active.
      *
-     * @throws AdapterNotFoundException Raised if the adapter cannot be
-     * found.
-     *
-     */
+     **/
     idempotent void setAdapterDirectProxy(string id, Object* proxy)
 	throws AdapterNotFoundException, AdapterAlreadyActiveException;
 };

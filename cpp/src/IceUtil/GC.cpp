@@ -46,13 +46,13 @@ int IceUtil::GC::_numCollectors = 0;
 
 IceUtil::GC::GC(int interval, StatsCallback cb)
 {
+    Monitor<Mutex>::Lock sync(*this);
+
     if(_numCollectors++ > 0)
     {
 	abort(); // Enforce singleton.
     }
-
-    Monitor<Mutex>::Lock sync(*this);
-    _running = false;
+    _state = NotStarted;
     _collecting = false;
     _interval = interval;
     _statsCallback = cb;
@@ -68,23 +68,25 @@ IceUtil::GC::~GC()
 void
 IceUtil::GC::run()
 {
+    assert(_interval > 0);
+
     {
 	Monitor<Mutex>::Lock sync(*this);
-	if(_interval == 0)
-	{
-	    return;
-	}
-	_running = true;
+
+	_state = Started;
+	notify();
     }
 
+    Time waitTime = Time::seconds(_interval);
     while(true)
     {
 	bool collect = false;
 	{
-	    Time waitTime = Time::seconds(_interval);
 	    Monitor<Mutex>::Lock sync(*this);
-	    if(!_running)
+
+	    if(_state == Stopping)
 	    {
+		_state = Stopped;
 		return;
 	    }
 	    if(!timedWait(waitTime))
@@ -104,17 +106,35 @@ IceUtil::GC::stop()
 {
     {
 	Monitor<Mutex>::Lock sync(*this);
-	if(!_running)
+
+	if(_state >= Stopping)
 	{
-	    return;
+	    return; // Don't attempt to stop the thread twice.
+	}
+
+	//
+	// Wait until the thread is actually started. (If we don't do this, we
+	// can get a problem if a call to stop() immediately follows a call to start():
+	// the call to stop() may happen before pthread_create() has scheduled the thread's run()
+	// function, and then the notify() that is used to tell the thread to stop can be lost.
+	//
+	while(_state < Started)
+	{
+	    wait();
 	}
     }
+
+    //
+    // Tell the thread to stop.
+    //
     {
 	Monitor<Mutex>::Lock sync(*this);
-	_running = false;
+	_state = Stopping;
 	notify();
     }
+
     getThreadControl().join();
+    assert(_state == Stopped);
 }
 
 void

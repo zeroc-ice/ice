@@ -44,7 +44,8 @@ public:
 
 private:
 
-    bool _running;
+    enum State { NotStarted, Started, Stopping, Stopped };
+    State _state;
     bool _collecting;
     int _interval;
     StatsCallback _statsCallback;

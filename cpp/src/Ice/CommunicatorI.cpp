@@ -54,12 +54,11 @@ static GarbageCollectorStats gcStats;
 static int gcTraceLevel;
 static string gcTraceCat;
 static LoggerPtr gcLogger;
+static int gcInterval;
 
 static void
 printGCStats(const ::IceUtil::GCStats& stats)
 {
-    IceUtil::StaticMutex::Lock l(gcMutex);
-
     if(gcTraceLevel)
     {
 	if(gcTraceLevel > 1)
@@ -89,39 +88,33 @@ Ice::CommunicatorI::destroy()
 	}
     }
 
-    bool last;
     {
 	IceUtil::StaticMutex::Lock sync(gcMutex);
-        last = (--communicatorCount == 0);
-    }
 
-    if(last)
-    {
 	//
 	// Wait for the collector thread to stop if this is the last communicator
 	// to be destroyed.
 	//
-	theCollector->stop();
-    }
-
-    theCollector->collectGarbage(); // Collect whenever a communicator is destroyed.
-
-    if(last)
-    {
-	IceUtil::StaticMutex::Lock l(gcMutex);
-
-	if(gcTraceLevel)
+	bool last = (--communicatorCount == 0);
+	if(last && gcInterval > 0)
 	{
-	    Trace out(gcLogger, gcTraceCat);
-	    out << "totals: " << gcStats.collected << "/" << gcStats.examined << ", "
-		<< gcStats.msec << "ms" << ", " << gcStats.runs << " run";
-	    if(gcStats.runs != 1)
-	    {
-		out << "s";
-	    }
+	    theCollector->stop();
 	}
-	gcTraceLevel = 0;
-	gcLogger = 0;
+	theCollector->collectGarbage(); // Collect whenever a communicator is destroyed.
+	if(last)
+	{
+	    if(gcTraceLevel)
+	    {
+		Trace out(gcLogger, gcTraceCat);
+		out << "totals: " << gcStats.collected << "/" << gcStats.examined << ", "
+		    << gcStats.msec << "ms" << ", " << gcStats.runs << " run";
+		if(gcStats.runs != 1)
+		{
+		    out << "s";
+		}
+	    }
+	    theCollector = 0; // Force destruction of the collector.
+	}
     }
 
     if(instance)
@@ -376,13 +369,22 @@ Ice::CommunicatorI::CommunicatorI(int& argc, char* argv[], const PropertiesPtr& 
 	// is created isn't the last communicator to be destroyed.
 	//
 	IceUtil::StaticMutex::Lock sync(gcMutex);
-	if(++communicatorCount == 1)
+	static bool gcOnce = true;
+	if(gcOnce)
 	{
 	    gcTraceLevel = _instance->traceLevels()->gc;
 	    gcTraceCat = _instance->traceLevels()->gcCat;
 	    gcLogger = _instance->logger();
-	    theCollector = new IceUtil::GC(properties->getPropertyAsInt("Ice.GC.Interval"), printGCStats);
-	    theCollector->start();
+	    gcInterval = properties->getPropertyAsInt("Ice.GC.Interval");
+	    gcOnce = false;
+	}
+	if(++communicatorCount == 1)
+	{
+	    theCollector = new IceUtil::GC(gcInterval, printGCStats);
+	    if(gcInterval > 0)
+	    {
+		theCollector->start();
+	    }
 	}
     }
 }

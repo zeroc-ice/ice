@@ -1,6 +1,9 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Fixed a bug that could cause an abort if communicators were
+  created and destroyed in rapid succession.
+
 - Fixed transformdb to take separate arguments for specifying
   include paths. The option -I has been replaced with the options
   --include-old and --include-new.
