@@ -9,24 +9,24 @@
 #
 # **********************************************************************
 
-import sys, os
-
 #
-# Set protocol to "ssl" in case you want to run the tests with the SSL protocol. Otherwise TCP is used.
+# Set protocol to "ssl" in case you want to run the tests with the SSL
+# protocol. Otherwise TCP is used.
 #
 
 protocol = "ssl"
 #protocol = ""
 
 #
-# Set the host to the hostname the server is running. If not set, "localhost" is used.
+# Set the host to the host name the test servers are running on. If not
+# set, the local host is used.
 #
 
 #host = "someotherhost"
 host = ""
 
 #
-# Don't change anything below this line
+# Don't change anything below this line!
 #
 
 if protocol == "ssl":
@@ -54,6 +54,8 @@ clientOptions = clientProtocol + defaultHost
 clientServerOptions = commonServerOptions + clientServerProtocol + defaultHost
 collocatedOptions = clientServerProtocol
 
+import sys, os
+
 serverPids = []
 
 def killServers():
@@ -64,11 +66,10 @@ def killServers():
         if sys.platform == "cygwin":
 	    print "killServers(): not implemented for cygwin python"
 	    sys.exit(1)
-
         if sys.platform == "win32":
             import win32api
             handle = win32api.OpenProcess(1, 0, pid)
-            return (0 != win32api.TerminateProcess(handle, 0))
+            win32api.TerminateProcess(handle, 0)
         else:
             os.kill(pid, 9)
 
