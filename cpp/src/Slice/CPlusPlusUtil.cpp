@@ -128,13 +128,13 @@ Slice::typeToString(const TypePtr& type)
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-	return fixKwd(cl->scoped()) + "Ptr";
+	return fixKwd(cl->scoped() + "Ptr");
     }
 	    
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-	return fixKwd(proxy->_class()->scoped()) + "Prx";
+	return fixKwd(proxy->_class()->scoped() + "Prx");
     }
 	    
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
@@ -190,13 +190,13 @@ Slice::inputTypeToString(const TypePtr& type)
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-	return "const " + fixKwd(cl->scoped()) + "Ptr&";
+	return "const " + fixKwd(cl->scoped() + "Ptr") + "&";
     }
 	    
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-	return "const " + fixKwd(proxy->_class()->scoped()) + "Prx&";
+	return "const " + fixKwd(proxy->_class()->scoped() + "Prx") + "&";
     }
 	    
     EnumPtr en = EnumPtr::dynamicCast(type);
@@ -241,13 +241,13 @@ Slice::outputTypeToString(const TypePtr& type)
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-	return fixKwd(cl->scoped()) + "Ptr&";
+	return fixKwd(cl->scoped() + "Ptr") + "&";
     }
 	    
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-	return fixKwd(proxy->_class()->scoped()) + "Prx&";
+	return fixKwd(proxy->_class()->scoped() + "Prx") + "&";
     }
 	    
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
@@ -407,7 +407,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	else
 	{
 	    out << nl << stream << deref << "read("
-		<< scope << "__patch__" << fixKwd(cl->name()) << "Ptr, &" << fixedParam << ");";
+		<< scope << "__patch__" << cl->name() << "Ptr, &" << fixedParam << ");";
 	}
 
 	return;
