@@ -42,7 +42,7 @@ public interface Object
 
     void ice_addFacet(Object facet, String name);
 
-    void ice_removeFacet(String name);
+    Object ice_removeFacet(String name);
 
     void ice_removeAllFacets();
 

@@ -337,12 +337,12 @@ public class ObjectImpl implements Object
         }
     }
 
-    public final void
+    public final Object
     ice_removeFacet(String name)
     {
         synchronized(_activeFacetMap)
         {
-            _activeFacetMap.remove(name);
+            return (Object)_activeFacetMap.remove(name);
         }
     }
 
