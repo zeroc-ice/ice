@@ -15,15 +15,21 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_04EAEAC45DC845C9BEF910C4F480D819"
+        "OwnerKey" = "8:_33F7B25DDFFD4A51AF764E4029D38D94"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\BerkeleyDBRuntimeDebug.msm"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_0BF341EFC99B46CB88ACC9B800DCCF8D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\OpenSSLDevKit\\Debug\\OpenSSLDevKit.msm"
         }
         "Entry"
         {
-        "MsmKey" = "8:_291C8CF84BC049D8AC696D493C29AB17"
-        "OwnerKey" = "8:_92A7A26BBF154C7B881F6584CC7E93EE"
-        "MsmSig" = "8:MergeModule.1F6ED23CA1134399AF5199CCC77B668A"
+        "MsmKey" = "8:_27DF8B6F67D84FEEA75F2321DAB36831"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\INSTALL\\ZEROC.JPG"
         }
         "Entry"
         {
@@ -33,32 +39,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_4363644DBED648B995C67E0420EBEF4B"
-        "OwnerKey" = "8:_33F7B25DDFFD4A51AF764E4029D38D94"
-        "MsmSig" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_5906FA63113944F6ABDC238D3161A5D5"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_5906FA63113944F6ABDC238D3161A5D5"
-        "OwnerKey" = "8:_291C8CF84BC049D8AC696D493C29AB17"
-        "MsmSig" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_5906FA63113944F6ABDC238D3161A5D5"
-        "OwnerKey" = "8:_4363644DBED648B995C67E0420EBEF4B"
-        "MsmSig" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_5906FA63113944F6ABDC238D3161A5D5"
-        "OwnerKey" = "8:_B2A4C390A5E748529E053BA68FAC08B7"
         "MsmSig" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
         }
         "Entry"
@@ -75,9 +57,9 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_5BDBEAA612AD403B88A54277035663F9"
-        "OwnerKey" = "8:_291C8CF84BC049D8AC696D493C29AB17"
-        "MsmSig" = "8:VC_User_CRT_IO.BA9B7684_0DE0_11D5_A548_0090278A1BB8"
+        "MsmKey" = "8:_5F39F3397D794407AB359662F1AED2F3"
+        "OwnerKey" = "8:_92A7A26BBF154C7B881F6584CC7E93EE"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\XercesCRuntime.msm"
         }
         "Entry"
         {
@@ -87,33 +69,27 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_9AAFC97CBB204FC493050C022991865D"
+        "OwnerKey" = "8:_33F7B25DDFFD4A51AF764E4029D38D94"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\BerkeleyDBRuntime.msm"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_B1189C98629A4A3C8D9FBBFC0B5F595D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:VC_User_STL.BA9B76E9_0DE0_11D5_A548_0090278A1BB8"
         }
         "Entry"
         {
-        "MsmKey" = "8:_B1189C98629A4A3C8D9FBBFC0B5F595D"
-        "OwnerKey" = "8:_4363644DBED648B995C67E0420EBEF4B"
-        "MsmSig" = "8:VC_User_STL.BA9B76E9_0DE0_11D5_A548_0090278A1BB8"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B2A4C390A5E748529E053BA68FAC08B7"
-        "OwnerKey" = "8:_0BF341EFC99B46CB88ACC9B800DCCF8D"
-        "MsmSig" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_CE60D938B57345C9B83462A8D0D9089C"
-        "OwnerKey" = "8:_33F7B25DDFFD4A51AF764E4029D38D94"
-        "MsmSig" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_FE91BBF8C58A45C580C8A60E3DF575ED"
+        "MsmKey" = "8:_C51DC62D705D42CB9B370F211F84DE8E"
         "OwnerKey" = "8:_92A7A26BBF154C7B881F6584CC7E93EE"
-        "MsmSig" = "8:MergeModule.5641B9C09E8843AB9441FB5C73DD199F"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\XercesCRuntimeDebug.msm"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D8FFC40480C9474D96B257F99899E742"
+        "OwnerKey" = "8:_0BF341EFC99B46CB88ACC9B800DCCF8D"
+        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\OpenSSLRuntime.msm"
         }
     }
     "Configurations"
@@ -167,6 +143,26 @@
         }
         "File"
         {
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_27DF8B6F67D84FEEA75F2321DAB36831"
+            {
+            "SourcePath" = "8:..\\..\\zeroc.jpg"
+            "TargetName" = "8:zeroc.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_9E87377E45304C3D9A84979E1AC66888"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
         }
         "FileType"
         {
@@ -175,7 +171,7 @@
         {
             "{EE62640D-12F2-11D3-8D6C-00A0C9CFCEE6}:_9E87377E45304C3D9A84979E1AC66888"
             {
-            "DefaultLocation" = "8:[ProgramFilesFolder]\\[ProductName]"
+            "DefaultLocation" = "8:C:\\Ice-[ProductVersion]-ThirdParty"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -625,85 +621,11 @@
         }
         "MergeModule"
         {
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_291C8CF84BC049D8AC696D493C29AB17"
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_04EAEAC45DC845C9BEF910C4F480D819"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:XercesCRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.1F6ED23CA1134399AF5199CCC77B668A"
-                "Properties"
-                {
-                    "_4C2A4C6885DB40408EC00BACDE6C8F47.1F6ED23CA1134399AF5199CCC77B668A"
-                    {
-                    "Name" = "8:_4C2A4C6885DB40408EC00BACDE6C8F47.1F6ED23CA1134399AF5199CCC77B668A"
-                    "DisplayName" = "8:bin"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                    "_DED30272A8164F3A884F0AB24471F8CA.1F6ED23CA1134399AF5199CCC77B668A"
-                    {
-                    "Name" = "8:_DED30272A8164F3A884F0AB24471F8CA.1F6ED23CA1134399AF5199CCC77B668A"
-                    "DisplayName" = "8:license"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_4363644DBED648B995C67E0420EBEF4B"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:BerkeleyDBRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
-                "Properties"
-                {
-                    "_AC614D1D08934A83B7C1DA0D57E41380.F9B82A94BAF2496A9CF7665CDE828FEC"
-                    {
-                    "Name" = "8:_AC614D1D08934A83B7C1DA0D57E41380.F9B82A94BAF2496A9CF7665CDE828FEC"
-                    "DisplayName" = "8:lib"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                    "_C6D4C3B258CD4347A6B440D6E4E33992.F9B82A94BAF2496A9CF7665CDE828FEC"
-                    {
-                    "Name" = "8:_C6D4C3B258CD4347A6B440D6E4E33992.F9B82A94BAF2496A9CF7665CDE828FEC"
-                    "DisplayName" = "8:bin"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                    "_F2566DA412B147F187AB2C1F523C386F.F9B82A94BAF2496A9CF7665CDE828FEC"
-                    {
-                    "Name" = "8:_F2566DA412B147F187AB2C1F523C386F.F9B82A94BAF2496A9CF7665CDE828FEC"
-                    "DisplayName" = "8:license"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                }
+            "SourcePath" = "8:BerkeleyDBRuntimeDebug.msm"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
@@ -764,6 +686,28 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_5F39F3397D794407AB359662F1AED2F3"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:XercesCRuntime.msm"
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_9AAFC97CBB204FC493050C022991865D"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:BerkeleyDBRuntime.msm"
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
             "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_B1189C98629A4A3C8D9FBBFC0B5F595D"
             {
             "UseDynamicProperties" = "11:TRUE"
@@ -791,89 +735,22 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_B2A4C390A5E748529E053BA68FAC08B7"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:OpenSSLRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-                "Properties"
-                {
-                    "_3933AC32F5F14A6DA10846660573D088.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-                    {
-                    "Name" = "8:_3933AC32F5F14A6DA10846660573D088.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-                    "DisplayName" = "8:bin"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                    "_E82B9365C2D140E1B342BFF669EC736B.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-                    {
-                    "Name" = "8:_E82B9365C2D140E1B342BFF669EC736B.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-                    "DisplayName" = "8:license"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_CE60D938B57345C9B83462A8D0D9089C"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:BerkeleyDBRuntimeDebug.msm"
-            "ModuleSignature" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
-                "Properties"
-                {
-                    "_F2C4E5014B5B43DAA8116A81DD775EA7.322C5D4010C3431087389006EF9BC602"
-                    {
-                    "Name" = "8:_F2C4E5014B5B43DAA8116A81DD775EA7.322C5D4010C3431087389006EF9BC602"
-                    "DisplayName" = "8:bin"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_FE91BBF8C58A45C580C8A60E3DF575ED"
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_C51DC62D705D42CB9B370F211F84DE8E"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "SourcePath" = "8:XercesCRuntimeDebug.msm"
-            "ModuleSignature" = "8:MergeModule.5641B9C09E8843AB9441FB5C73DD199F"
-                "Properties"
-                {
-                    "_347ECEC4B0704752B144FA29181B114A.5641B9C09E8843AB9441FB5C73DD199F"
-                    {
-                    "Name" = "8:_347ECEC4B0704752B144FA29181B114A.5641B9C09E8843AB9441FB5C73DD199F"
-                    "DisplayName" = "8:bin"
-                    "Description" = "8:"
-                    "Type" = "3:32769"
-                    "ContextData" = "8:_RetargetableFolder"
-                    "Attributes" = "3:6"
-                    "Setting" = "3:1"
-                    "UsePlugInResources" = "11:FALSE"
-                    }
-                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_D8FFC40480C9474D96B257F99899E742"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:OpenSSLRuntime.msm"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
@@ -908,7 +785,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_27DF8B6F67D84FEEA75F2321DAB36831"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -940,7 +818,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_27DF8B6F67D84FEEA75F2321DAB36831"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -979,7 +858,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_27DF8B6F67D84FEEA75F2321DAB36831"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -1002,7 +882,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_27DF8B6F67D84FEEA75F2321DAB36831"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -1025,7 +906,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_27DF8B6F67D84FEEA75F2321DAB36831"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "CopyrightWarning"
@@ -1083,7 +965,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_27DF8B6F67D84FEEA75F2321DAB36831"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "ShowProgress"
@@ -1128,7 +1011,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_27DF8B6F67D84FEEA75F2321DAB36831"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "ShowProgress"
@@ -1180,7 +1064,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_27DF8B6F67D84FEEA75F2321DAB36831"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -1203,7 +1088,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_27DF8B6F67D84FEEA75F2321DAB36831"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "CopyrightWarning"
@@ -1252,7 +1138,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_27DF8B6F67D84FEEA75F2321DAB36831"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
