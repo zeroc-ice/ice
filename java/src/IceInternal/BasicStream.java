@@ -35,6 +35,7 @@ public class BasicStream
 	_traceSlicing = -1;
 
         _marshalFacets = true;
+        _sliceObjects = true;
 
 	_messageSizeMax = _instance.messageSizeMax(); // Cached for efficiency.
     }
@@ -1164,20 +1165,29 @@ public class BasicStream
 
             if(v == null)
             {
-                //
-                // Performance sensitive, so we use lazy initialization for tracing.
-                //
-                if(_traceSlicing == -1)
+                if(_sliceObjects)
                 {
-                    _traceSlicing = _instance.traceLevels().slicing;
-                    _slicingCat = _instance.traceLevels().slicingCat;
+                    //
+                    // Performance sensitive, so we use lazy initialization for tracing.
+                    //
+                    if(_traceSlicing == -1)
+                    {
+                        _traceSlicing = _instance.traceLevels().slicing;
+                        _slicingCat = _instance.traceLevels().slicingCat;
+                    }
+                    if(_traceSlicing > 0)
+                    {
+                        TraceUtil.traceSlicing("class", id, _slicingCat, _instance.logger());
+                    }
+                    skipSlice();    // Slice off this derived part -- we don't understand it.
+                    continue;
                 }
-                if(_traceSlicing > 0)
+                else
                 {
-                    TraceUtil.traceSlicing("class", id, _slicingCat, _instance.logger());
+                    Ice.NoObjectFactoryException ex = new Ice.NoObjectFactoryException();
+                    ex.type = id;
+                    throw ex;
                 }
-                skipSlice();    // Slice off this derived part -- we don't understand it.
-                continue;
             }
 
 	    Integer i = new Integer(index);
@@ -1317,6 +1327,12 @@ public class BasicStream
     marshalFacets(boolean b)
     {
         _marshalFacets = b;
+    }
+
+    public void
+    sliceObjects(boolean b)
+    {
+        _sliceObjects = b;
     }
 
     void
@@ -1654,6 +1670,7 @@ public class BasicStream
     private String _slicingCat;
 
     private boolean _marshalFacets;
+    private boolean _sliceObjects;
 
     private int _messageSizeMax;
 }
