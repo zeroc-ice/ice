@@ -214,169 +214,6 @@ The number of threads in the thread pool. Default is 10.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>&Ice; Security Properties</title>
-<!-- ********************************************************************** -->
-
-<!--
--->
-
-<section><title>Ice.SSL.Client.CertPath, Ice.SSL.Server.CertPath</title>
-<section><title>Synopsis</title>
-<synopsis>
-Ice.SSL.Client.CertPath=<replaceable>path</replaceable>
-Ice.SSL.Server.CertPath=<replaceable>path</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Defines the path (relative or absolute) where the SSL Extension can
-find PEM format certificate files (RSA and DSA) and Diffie-Hellman group
-parameter files.
-</para>
-<para>
-In the case that the <literal>Ice.SSL.Client.Config</literal> or
-<literal>Ice.SSL.Server.Config</literal> is a relative path, it
-will be relative to the value of <literal>Ice.SSL.Client.CertPath</literal>
-or <literal>Ice.SSL.Server.CertPath</literal>.
-</para>
-</section>
-</section>
-
-<section><title>Ice.SSL.Client.Config, Ice.SSL.Server.Config</title>
-<section><title>Synopsis</title>
-<synopsis>
-Ice.SSL.Client.Config=<replaceable>config_file</replaceable>
-Ice.SSL.Server.Config=<replaceable>config_file</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Defines the XML-based configuration file that the SSL Extension will
-use to load initialization information and certificates from. If one of these
-properties contains a relative path, the path will be interpreted in terms of
-the matching <literal>Ice.SSL.Client.CertPath</literal> or
-<literal>Ice.SSL.Server.CertPath</literal>.
-</para>
-<para>
-Xerces-c, the XML parser used to read this file, will look for the DTD file in
-the same directory that it finds the XML configuration file.
-</para>
-</section>
-</section>
-
-<section><title>Ice.SSL.Client.Handshake.ReadTimeout, Ice.SSL.Server.Handshake.ReadTimeout</title>
-<section><title>Synopsis</title>
-<synopsis>
-Ice.SSL.Client.Handshake.ReadTimeout=<replaceable>ms</replaceable>
-Ice.SSL.Server.Handshake.ReadTimeout=<replaceable>ms</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-In order to tweak the behavior of SSL with regards to handshake, this timeout
-value, expressed in milliseconds, will be used for the first read directly
-after the SSL handshake is completed.  This gives the other party time to send
-application data before the connection times-out and resets.
-</para>
-</section>
-</section>
-
-<section><title>Ice.SSL.Server.Overrides.RSA.PrivateKey, Ice.SSL.Server.Overrides.RSA.Certificate</title>
-<section><title>Synopsis</title>
-<synopsis>
-Ice.SSL.Server.Overrides.RSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
-Ice.SSL.Server.Overrides.RSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-These properties provides a method by which the RSA private key and public key (certificate)
-used by the Server context may be overridden from those specified in the config file
-(specified in <literal>Ice.SSL.Server.Config</literal>).  The value must be
-the DER representation of the private and public keys, base64 encoded.
-</para>
-</section>
-</section>
-
-<section><title>Ice.SSL.Server.Overrides.DSA.PrivateKey, Ice.SSL.Server.Overrides.DSA.Certificate</title>
-<section><title>Synopsis</title>
-<synopsis>
-Ice.SSL.Server.Overrides.DSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
-Ice.SSL.Server.Overrides.DSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-These properties provides a method by which the DSA private key and public key (certificate)
-used by the Server context may be overridden from those specified in the config file
-(specified in <literal>Ice.SSL.Server.Config</literal>).  The value must be
-the DER representation of the private and public keys, base64 encoded.
-</para>
-</section>
-</section>
-
-<section><title>Ice.SSL.Client.Overrides.RSA.PrivateKey, Ice.SSL.Client.Overrides.RSA.Certificate</title>
-<section><title>Synopsis</title>
-<synopsis>
-Ice.SSL.Client.Overrides.RSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
-Ice.SSL.Client.Overrides.RSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-These properties provides a method by which the RSA private key and public key (certificate)
-used by the Client context may be overridden from those specified in the config file
-(specified in <literal>Ice.SSL.Client.Config</literal>).  The value must be
-the DER representation of the private and public keys, base64 encoded.
-</para>
-</section>
-</section>
-
-<section><title>Ice.SSL.Client.Overrides.DSA.PrivateKey, Ice.SSL.Client.Overrides.DSA.Certificate</title>
-<section><title>Synopsis</title>
-<synopsis>
-Ice.SSL.Client.Overrides.DSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
-Ice.SSL.Client.Overrides.DSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-These properties provides a method by which the DSA private key and public key (certificate)
-used by the Client context may be overridden from those specified in the config file
-(specified in <literal>Ice.SSL.Client.Config</literal>).  The value must be
-the DER representation of the private and public keys, base64 encoded.
-</para>
-</section>
-</section>
-
-<section><title>Ice.SSL.Client.Overrides.CACertificate, Ice.SSL.Server.Overrides.CACertificate</title>
-<section><title>Synopsis</title>
-<synopsis>
-Ice.SSL.Client.Overrides.CACertificate=<replaceable>Base64 encoded DER string</replaceable>
-Ice.SSL.Server.Overrides.CACertificate=<replaceable>Base64 encoded DER string</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-These properties provide a method by which one may override any trusted Certificate
-Authority (CA) certificates specified in <literal>Ice.SSL.Server.Config</literal> or
-<literal>Ice.SSL.Client.Config</literal>.  The new certificate in question is represented
-as the base64 encoding of the DER binary representation of the certificate.
-</para>
-</section>
-</section>
-
-</section>
-
-<!-- ********************************************************************** -->
 <section><title>&Ice; Protocol Properties</title>
 <!-- ********************************************************************** -->
 
@@ -588,6 +425,166 @@ Ice.ConnectionWarnings=<replaceable>num</replaceable>
 If <replaceable>num</replaceable> is set to a value larger than zero,
 Ice applications will print warning messages for certain exceptional
 conditions in connections.
+</para>
+</section>
+</section>
+
+</section>
+
+<!-- ********************************************************************** -->
+<section><title>&Ice; SSL Properties</title>
+<!-- ********************************************************************** -->
+
+<section><title>Ice.SSL.Client.CertPath, Ice.SSL.Server.CertPath</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.SSL.Client.CertPath=<replaceable>path</replaceable>
+Ice.SSL.Server.CertPath=<replaceable>path</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the path (relative or absolute) where the SSL Extension can
+find PEM format certificate files (RSA and DSA) and Diffie-Hellman group
+parameter files.
+</para>
+<para>
+In the case that the <literal>Ice.SSL.Client.Config</literal> or
+<literal>Ice.SSL.Server.Config</literal> is a relative path, it
+will be relative to the value of <literal>Ice.SSL.Client.CertPath</literal>
+or <literal>Ice.SSL.Server.CertPath</literal>.
+</para>
+</section>
+</section>
+
+<section><title>Ice.SSL.Client.Config, Ice.SSL.Server.Config</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.SSL.Client.Config=<replaceable>config_file</replaceable>
+Ice.SSL.Server.Config=<replaceable>config_file</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the XML-based configuration file that the SSL Extension will
+use to load initialization information and certificates from. If one of these
+properties contains a relative path, the path will be interpreted in terms of
+the matching <literal>Ice.SSL.Client.CertPath</literal> or
+<literal>Ice.SSL.Server.CertPath</literal>.
+</para>
+<para>
+Xerces-c, the XML parser used to read this file, will look for the DTD file in
+the same directory that it finds the XML configuration file.
+</para>
+</section>
+</section>
+
+<section><title>Ice.SSL.Client.Handshake.ReadTimeout, Ice.SSL.Server.Handshake.ReadTimeout</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.SSL.Client.Handshake.ReadTimeout=<replaceable>ms</replaceable>
+Ice.SSL.Server.Handshake.ReadTimeout=<replaceable>ms</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+In order to tweak the behavior of SSL with regards to handshake, this timeout
+value, expressed in milliseconds, will be used for the first read directly
+after the SSL handshake is completed.  This gives the other party time to send
+application data before the connection times-out and resets.
+</para>
+</section>
+</section>
+
+<section><title>Ice.SSL.Server.Overrides.RSA.PrivateKey, Ice.SSL.Server.Overrides.RSA.Certificate</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.SSL.Server.Overrides.RSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
+Ice.SSL.Server.Overrides.RSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+These properties provides a method by which the RSA private key and public key (certificate)
+used by the Server context may be overridden from those specified in the config file
+(specified in <literal>Ice.SSL.Server.Config</literal>).  The value must be
+the DER representation of the private and public keys, base64 encoded.
+</para>
+</section>
+</section>
+
+<section><title>Ice.SSL.Server.Overrides.DSA.PrivateKey, Ice.SSL.Server.Overrides.DSA.Certificate</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.SSL.Server.Overrides.DSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
+Ice.SSL.Server.Overrides.DSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+These properties provides a method by which the DSA private key and public key (certificate)
+used by the Server context may be overridden from those specified in the config file
+(specified in <literal>Ice.SSL.Server.Config</literal>).  The value must be
+the DER representation of the private and public keys, base64 encoded.
+</para>
+</section>
+</section>
+
+<section><title>Ice.SSL.Client.Overrides.RSA.PrivateKey, Ice.SSL.Client.Overrides.RSA.Certificate</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.SSL.Client.Overrides.RSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
+Ice.SSL.Client.Overrides.RSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+These properties provides a method by which the RSA private key and public key (certificate)
+used by the Client context may be overridden from those specified in the config file
+(specified in <literal>Ice.SSL.Client.Config</literal>).  The value must be
+the DER representation of the private and public keys, base64 encoded.
+</para>
+</section>
+</section>
+
+<section><title>Ice.SSL.Client.Overrides.DSA.PrivateKey, Ice.SSL.Client.Overrides.DSA.Certificate</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.SSL.Client.Overrides.DSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
+Ice.SSL.Client.Overrides.DSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+These properties provides a method by which the DSA private key and public key (certificate)
+used by the Client context may be overridden from those specified in the config file
+(specified in <literal>Ice.SSL.Client.Config</literal>).  The value must be
+the DER representation of the private and public keys, base64 encoded.
+</para>
+</section>
+</section>
+
+<section><title>Ice.SSL.Client.Overrides.CACertificate, Ice.SSL.Server.Overrides.CACertificate</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.SSL.Client.Overrides.CACertificate=<replaceable>Base64 encoded DER string</replaceable>
+Ice.SSL.Server.Overrides.CACertificate=<replaceable>Base64 encoded DER string</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+These properties provide a method by which one may override any trusted Certificate
+Authority (CA) certificates specified in <literal>Ice.SSL.Server.Config</literal> or
+<literal>Ice.SSL.Client.Config</literal>.  The new certificate in question is represented
+as the base64 encoding of the DER binary representation of the certificate.
 </para>
 </section>
 </section>
