@@ -15,7 +15,7 @@ public class HelloServiceI extends Ice.LocalObjectImpl implements IceBox.Service
     {
 	String id = communicator.getProperties().getProperty("Identity");
 
-        _adapter = communicator.createObjectAdapter(name);
+        _adapter = communicator.createObjectAdapter("Hello");
         Ice.Object object = new HelloI();
         _adapter.add(object, Ice.Util.stringToIdentity(id));
         _adapter.activate();
