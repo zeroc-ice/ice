@@ -47,7 +47,12 @@
             source="1.4" debug="${debug}"/>
     </target>
 
-    <target name="all" depends="compile">
+    <target name="jar" depends="compile">
+        <jar jarfile="${lib.dir}/Ice.jar" basedir="${lib.dir}"
+            excludes="Ice.jar"/>
+    </target>
+
+    <target name="all" depends="jar">
         <ant inheritAll="false" dir="demo"/>
         <ant inheritAll="false" dir="test"/>
     </target>
