@@ -35,6 +35,17 @@ CallbackClient::run(int argc, char* argv[])
 {
     string ref;
 
+    cout << "creating and activating callback receiver adapter... " << flush;
+    ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("CallbackReceiverAdapter", "default");
+    adapter->activate();
+    cout << "ok" << endl;
+
+    cout << "creating and adding callback receiver object... " << flush;
+    CallbackReceiverI* callbackReceiverImpl = new CallbackReceiverI;
+    ObjectPtr callbackReceiver = callbackReceiverImpl;
+    adapter->add(callbackReceiver, stringToIdentity("callbackReceiver"));
+    cout << "ok" << endl;
+
     cout << "testing stringToProxy for router starter... " << flush;
     ref = "Glacier#starter:default -p 12346 -t 2000";
     ObjectPrx starterBase = communicator()->stringToProxy(ref);
@@ -45,10 +56,32 @@ CallbackClient::run(int argc, char* argv[])
     test(starter);
     cout << "ok" << endl;
 
-    cout << "testing router startup... " << flush;
-    RouterPrx router = starter->startRouter("", "");
+    cout << "starting up router... " << flush;
+    RouterPrx router;
+    try
+    {
+	router = starter->startRouter("", "");
+    }
+    catch (const Glacier::CannotStartRouterException& ex)
+    {
+	cerr << appName() << ": " << ex << ":\n" << ex.reason << endl;
+	return EXIT_FAILURE;
+    }
+    catch (const Glacier::InvalidPasswordException& ex)
+    {
+	cerr << appName() << ": " << ex << endl;
+	return EXIT_FAILURE;
+    }
     test(router);
+    cout << "ok" << endl;
+
+    cout << "pinging router... " << flush;
     router->ice_ping();
+    cout << "ok" << endl;
+
+    cout << "installing router... " << flush;
+    communicator()->setDefaultRouter(router);
+    adapter->addRouter(router);
     cout << "ok" << endl;
 
     cout << "testing stringToProxy... " << flush;
@@ -61,16 +94,9 @@ CallbackClient::run(int argc, char* argv[])
     test(twoway);
     cout << "ok" << endl;
 
-    CallbackReceiverI* callbackReceiverImpl = new CallbackReceiverI;
-    ObjectPtr callbackReceiver = callbackReceiverImpl;
-
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("CallbackReceiverAdapter", "default");
-    adapter->add(callbackReceiver, stringToIdentity("callbackReceiver"));
-    adapter->activate();
-
     CallbackReceiverPrx twowayR = CallbackReceiverPrx::uncheckedCast(
 	adapter->createProxy(stringToIdentity("callbackReceiver")));
-    
+	
     {
 	cout << "testing callback... " << flush;
 	Context context;
@@ -87,7 +113,8 @@ CallbackClient::run(int argc, char* argv[])
 	twoway->ice_ping();
 	test(false);
     }
-    catch(const ConnectFailedException&)
+    //catch(const ConnectFailedException&) // If we use the router, the exact exception reason gets lost.
+    catch(const UnknownLocalException&)
     {
 	cout << "ok" << endl;
     }

@@ -32,6 +32,16 @@ exception InvalidPasswordException
 
 /**
  *
+ * This exception is raised if the router cannot be started.
+ *
+ **/
+exception CannotStartRouterException
+{
+    string reason;
+};
+
+/**
+ *
  * The &Glacier; router starter.
  *
  **/
@@ -54,7 +64,7 @@ interface Starter
      *
      **/
     Ice::Router* startRouter(string userId, string password)
-	throws InvalidPasswordException;
+	throws InvalidPasswordException, CannotStartRouterException;
 };
 
 };
