@@ -88,7 +88,7 @@ private:
     friend BOOL WINAPI interruptHandler(DWORD);
 #else
     friend void interruptHandler(int);
-    static const int signals[] = { SIGHUP, SIGINT, SIGTERM };
+    static const int signals[];
     static sigset_t signalSet;
 #endif
 };

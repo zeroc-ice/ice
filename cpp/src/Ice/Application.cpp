@@ -16,6 +16,11 @@ using namespace Ice;
 const char* Application::_appName = 0;
 CommunicatorPtr Application::_communicator;
 
+#ifndef _WIN32
+const int Application::signals[] = { SIGHUP, SIGINT, SIGTERM };
+sigset_t Application::signalSet;
+#endif
+
 Ice::Application::Application()
 {
 #ifndef _WIN32
