@@ -8,12 +8,12 @@ CFG=icestormS - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "icestormS.mak".
+!MESSAGE NMAKE /f "iceStormS.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "icestormS.mak" CFG="IceStormS - Win32 Debug"
+!MESSAGE NMAKE /f "iceStormS.mak" CFG="icestormS - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
@@ -114,15 +114,11 @@ SOURCE=.\IceStormInternal.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\PersistentTopicMap.cpp
+SOURCE=.\LinkProxy.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\LinkRecord.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\LinkProxy.cpp
 # End Source File
 # Begin Source File
 
@@ -139,6 +135,10 @@ SOURCE=.\OnewayProxy.cpp
 # Begin Source File
 
 SOURCE=.\OnewaySubscriber.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\PersistentTopicMap.cpp
 # End Source File
 # Begin Source File
 
@@ -168,6 +168,10 @@ SOURCE=.\TopicManagerI.cpp
 
 SOURCE=.\TraceLevels.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\TwowayProxy.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -194,10 +198,6 @@ SOURCE=.\IceStormInternalI.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\PersistentTopicMap.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\LinkInfo.h
 # End Source File
 # Begin Source File
@@ -211,6 +211,10 @@ SOURCE=.\OnewayBatchSubscriber.h
 # Begin Source File
 
 SOURCE=.\OnewaySubscriber.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\PersistentTopicMap.h
 # End Source File
 # Begin Source File
 
@@ -236,7 +240,6 @@ SOURCE=.\TraceLevels.h
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
-
 # Begin Source File
 
 SOURCE=.\IceStormInternal.ice
@@ -282,13 +285,13 @@ SOURCE=.\LinkRecord.ice
 
 !IF  "$(CFG)" == "icestormS - Win32 Release"
 
-USERDEP__LINKD="..\..\bin\slice2freeze.exe"	"..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+USERDEP__LINKR="..\..\bin\slice2freeze.exe"	"..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\LinkRecord.ice
 
 BuildCmds= \
 	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice -I.. LinkRecord.ice \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecordDict PersistentTopicMap ../IceStorm/LinkRecord.ice  \
+	..\..\bin\slice2freeze.exe --ice --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecordDict PersistentTopicMap ../IceStorm/LinkRecord.ice \
 	
 
 "LinkRecord.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -306,13 +309,13 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "icestormS - Win32 Debug"
 
-USERDEP__LINKD="..\..\bin\slice2freeze.exe"	"..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+USERDEP__LINKR="..\..\bin\slice2freeze.exe"	"..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\LinkRecord.ice
 
 BuildCmds= \
 	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice -I.. LinkRecord.ice \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecordDict PersistentTopicMap ../IceStorm/LinkRecord.ice  \
+	..\..\bin\slice2freeze.exe --ice --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecordDict PersistentTopicMap ../IceStorm/LinkRecord.ice \
 	
 
 "LinkRecord.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
