@@ -25,13 +25,10 @@ This distribution is a binary release of Ice 2.1.0 for Linux and
 includes the following components:
 
 - The Ice run time, including executables for the Ice services, HTML
-  documentation, Slice files, and the C++ run time libraries.
-- Run time libraries for Java, Python, and C# (Mono). These libraries
-  enable you to execute Ice applications.
-- Development kits for C++, Java, Python and C# (Mono). A development
-  kit is required for building Ice applications using a supported
-  language mapping. The development kits include examples that
-  demonstrate various Ice features.
+  documentation and Slice files.
+- Run time libraries for C++, Java, Python, and C# (Mono). These
+  libraries enable you to execute Ice applications.
+- Tools and libraries for developing Ice applications.
 
 
 ======================================================================
@@ -49,6 +46,8 @@ This distribution depends on a number of third-party libraries:
 - bzip2 1.0.2
 - readline 4.3
 - ncurses 5.4
+- libgcc 3.4.2
+- libstdc++ 3.4.2
 
 All of these libraries are included with your FC3 distribution in the
 following RPMs:
@@ -59,6 +58,8 @@ OpenSSL	       openssl, openssl-devel
 bzip2          bzip2-libs
 readline       readline
 ncurses        ncurses
+libgcc         libgcc
+libstdc++      libstdc++
 
 If you prefer to install the third-party libraries yourself, be
 aware that Berkeley DB must be configured with --enable-cxx and
@@ -84,14 +85,12 @@ code from the ZeroC web site at http://www.zeroc.com/download.html.
 C#
 --
 
-Ice for C# requires Mono 1.0.6. Two RPMs comprise the Mono core
-and development packages, respectively:
+Ice for C# requires Mono 1.0.6. The following RPM can be downloaded
+at http://www.mono-project.com/Downloads:
 
 mono-core-1.0.6-1.novell.9.1.i386.rpm
-mono-devel-1.0.6-1.novell.9.1.i386.rpm
 
-Both can be obtained from http://www.mono-project.com/Downloads
-Note that the core RPM depends on libicu-2.6.2-1.1.fc3.rf.i386.rpm
+Note that this RPM depends on libicu-2.6.2-1.1.fc3.rf.i386.rpm
 available at http://dag.wieers.com/packages/icu/.
 
 
@@ -113,19 +112,12 @@ Setting up your environment to use Ice
 General
 -------
 
-It is possible to install this Ice distribution using RPMs or a
-simple archive. The installation method you choose determines the
-extent of the environmental changes you must make. In general,
-the RPM installation requires fewer changes because files such
-as executables and libraries are placed in standard directories.
-In the sample bash commands below, the non-RPM installation is
-assumed to reside in /opt/Ice-2.1.0. Your installation directory
-may be different, in which case the commands should be adjusted
-as necessary.
+The discussion below assumes you have defined the ICE_HOME variable
+with the directory of your Ice installation.
 
-If you did not install using RPMs, you need to add the Ice bin
-directory to your PATH and the lib directory to your LD_LIBRARY_PATH,
-as demonstrated by the following bash commands:
+In order to use Ice services and tools such as Slice translators,
+you need to add $ICE_HOME/bin to your PATH and $ICE_HOME/lib to your
+LD_LIBRARY_PATH, as shown in the bash commands below:
 
 $ export PATH=/opt/Ice-2.1.0/bin:$PATH
 $ export LD_LIBRARY_PATH=/opt/Ice-2.1.0/lib:$LD_LIBRARY_PATH
@@ -134,18 +126,24 @@ $ export LD_LIBRARY_PATH=/opt/Ice-2.1.0/lib:$LD_LIBRARY_PATH
 C++
 ---
 
-When compiling Ice for C++ programs, you must pass the location of the
-Ice include directory to the compiler with the -I option, and the
-location of the Ice lib directory with the -L option.
+When compiling Ice for C++ programs, you must pass $ICE_HOME/include
+to the compiler with the -I option, and $ICE_HOME/lib with the -L
+option. Furthermore, a C++ program needs to link with at least libIce
+and libIceUtil, so a typical link command would look like this:
+
+$ c++ -o myprogram myprogram.o -L$ICE_HOME/lib -lIce -lIceUtil
+
+Additional libraries are necessary if you are using an Ice service
+such as IcePack or Glacier2.
 
 
 Java
 ----
 
-To use Ice for Java, you must add Ice.jar to your CLASSPATH. If you
-installed the RPMs, the bash command would look like this:
+To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar to your
+CLASSPATH, as shown below:
 
-$ export CLASSPATH=/usr/lib/Ice-2.1.0/Ice.jar:$CLASSPATH
+$ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$CLASSPATH
 
 Note that the Freeze component of Ice for Java requires Berkeley DB.
 In order to use Freeze, you must add db.jar to your CLASSPATH. In
@@ -160,45 +158,36 @@ Python
 
 To use Ice for Python, the PYTHONPATH environment variable must
 be updated so that the interpreter can load the Ice extension and
-supporting Python files.
+supporting Python files:
 
-For an RPM installation, the following bash command is sufficient:
-
-$ export PYTHONPATH=/usr/lib/Ice-2.1.0/python
-
-Otherwise, PYTHONPATH should contain the python and lib directories
-from your Ice installation:
-
-$ export PYTHONPATH=/opt/Ice-2.1.0/python:/opt/Ice-2.1.0/lib:$PYTHONPATH
+$ export PYTHONPATH=$ICE_HOME/python:$ICE_HOME/lib:$PYTHONPATH
 
 
 Mono
 ----
 
-The RPM installation adds the C# run time libraries to the global
-assembly cache (GAC), so that no changes to your environment are
-necessary to locate the assemblies.
+You can update MONO_PATH with the directory containing the Ice for C#
+run time libraries, as the following bash command shows:
 
-Otherwise, you can update MONO_PATH with the directory containing
-the C# run time libraries, as the following bash command shows:
+$ export MONO_PATH=$ICE_HOME/bin:$MONO_PATH
 
-$ export MONO_PATH=/opt/Ice-2.1.0/bin:$MONO_PATH
+Alternatively, you can add the libraries to the GAC yourself using a
+command like this:
 
-Alternatively, you can add the libraries to the GAC yourself
-using a command like this:
-
-$ gacutil -i /opt/Ice-2.1.0/bin/icecs.dll
+$ gacutil -i $ICE_HOME/bin/icecs.dll
 
 
 ======================================================================
 Demos and documentation
 ======================================================================
 
-If you installed Ice from RPMs, see README.DEMOS for instructions on
-building and running the demos. Otherwise, you need to download the
-Ice-2.1.0-demos.tar.gz package from the ZeroC web site at
-http://www.zeroc.com/download.html and see the README.DEMOS file
-included in that package.
+Sample programs are provided in the Ice-2.1.0-demos.tar.gz package,
+which can be downloaded from the ZeroC web site at
+
+http://www.zeroc.com/download.html
+
+Please refer to the README.DEMOS file included in that package for
+more information.
 
 See doc/README.html for information on the documentation included with
 this distribution.
