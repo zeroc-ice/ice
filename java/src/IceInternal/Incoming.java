@@ -16,12 +16,12 @@ public final class Incoming
     Incoming(Instance instance, Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
-        _is = new StreamI(instance);
-        _os = new StreamI(instance);
+        _is = new BasicStream(instance);
+        _os = new BasicStream(instance);
     }
 
     public void
-    invoke(Stream is)
+    invoke(BasicStream is)
     {
         _is.swap(is);
         String identity = _is.readString();
@@ -147,13 +147,13 @@ public final class Incoming
         }
     }
 
-    public Stream
+    public BasicStream
     is()
     {
         return _is;
     }
 
-    public Stream
+    public BasicStream
     os()
     {
         return _os;
@@ -161,6 +161,6 @@ public final class Incoming
 
     private Ice.ObjectAdapter _adapter;
 
-    private Stream _is;
-    private Stream _os;
+    private BasicStream _is;
+    private BasicStream _os;
 }

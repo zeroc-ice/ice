@@ -19,8 +19,8 @@ public abstract class UserException extends Exception
     __getExceptionIds();
 
     public abstract void
-    __write(Stream out);
+    __write(IceInternal.BasicStream out);
 
     public abstract void
-    __read(Stream out);
+    __read(IceInternal.BasicStream out);
 }

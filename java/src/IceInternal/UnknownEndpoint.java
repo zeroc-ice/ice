@@ -13,7 +13,7 @@ package IceInternal;
 public final class UnknownEndpoint extends Endpoint
 {
     public
-    UnknownEndpoint(Ice.Stream s)
+    UnknownEndpoint(BasicStream s)
     {
         _rawBytes = s.readByteSeq();
     }
@@ -22,7 +22,7 @@ public final class UnknownEndpoint extends Endpoint
     // Marshal the endpoint
     //
     public void
-    streamWrite(Ice.Stream s)
+    streamWrite(BasicStream s)
     {
         s.writeShort(UnknownEndpointType);
         s.writeByteSeq(_rawBytes);

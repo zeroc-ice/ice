@@ -27,12 +27,12 @@ abstract class EventHandler
     // Read data via the event handler. May only be called if
     // readable() returns true.
     //
-    abstract void read(Ice.Stream is);
+    abstract void read(BasicStream is);
 
     //
     // A complete message has been received.
     //
-    abstract void message(Ice.Stream stream);
+    abstract void message(BasicStream stream);
 
     //
     // Signal exception during reading or unmarshaling.
@@ -57,7 +57,7 @@ abstract class EventHandler
     EventHandler(Instance instance)
     {
         _instance = instance;
-        _stream = new StreamI(instance);
+        _stream = new BasicStream(instance);
     }
 
     protected Instance _instance;
@@ -65,5 +65,5 @@ abstract class EventHandler
     //
     // The _stream data member is for use by ThreadPool only
     //
-    Ice.Stream _stream;
+    BasicStream _stream;
 }

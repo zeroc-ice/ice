@@ -64,13 +64,13 @@ public class CollectorFactory extends EventHandler
     }
 
     public void
-    read(Ice.Stream is)
+    read(BasicStream is)
     {
         assert(false); // Must not be called
     }
 
     public synchronized void
-    message(Ice.Stream stream)
+    message(BasicStream stream)
     {
         _threadPool.promoteFollower();
 

@@ -64,7 +64,7 @@ public abstract class Endpoint
     // Unmarshal an endpoint
     //
     public static Endpoint
-    streamRead(Ice.Stream s)
+    streamRead(BasicStream s)
     {
         Endpoint v;
         short type = s.readShort();
@@ -104,7 +104,7 @@ public abstract class Endpoint
     //
     // Marshal the endpoint
     //
-    public abstract void streamWrite(Ice.Stream s);
+    public abstract void streamWrite(BasicStream s);
 
     //
     // Convert the endpoint to its string form

@@ -84,16 +84,16 @@ public class Collector extends EventHandler
     }
 
     public void
-    read(Ice.Stream is)
+    read(BasicStream is)
     {
         _transceiver.read(is, 0);
     }
 
     public void
-    message(Ice.Stream stream)
+    message(BasicStream stream)
     {
         Incoming in = new Incoming(_instance, _adapter);
-        Stream os = in.os();
+        BasicStream os = in.os();
         boolean invoke = false;
         boolean batch = false;
         boolean response = false;
@@ -110,11 +110,10 @@ public class Collector extends EventHandler
 
             try
             {
-                // assert(stream.i == stream.b.end()); TODO
-                // stream.i = stream.b.begin() + 2;
-                // Byte messageType;
-                // stream.read(messageType);
-                // stream.i = stream.b.begin() + headerSize;
+                assert(stream.pos() == stream.size());
+                stream.pos(2);
+                byte messageType = stream.readByte();
+                stream.pos(Protocol.headerSize);
 
                 //
                 // Write partial message header
@@ -268,19 +267,13 @@ public class Collector extends EventHandler
 
                 try
                 {
-                    // TODO
-/*
-                    os.i = os.b.begin();
+                    os.pos(3);
              
                     //
                     // Fill in the message size
                     //
-                    const Byte* p;
-                    Int sz = os.b.size();
-                    p = reinterpret_cast<Byte*>(&sz);
-                    copy(p, p + sizeof(Int), os->i + 3);
-*/
-                    
+                    os.writeInt(os.size());
+
                     TraceUtil.traceReply("sending reply", os, _logger,
                                          _traceLevels);
                     _transceiver.write(os, _endpoint.timeout());
@@ -521,12 +514,12 @@ public class Collector extends EventHandler
     private void
     closeConection()
     {
-        Stream os = new StreamI(_instance);
+        BasicStream os = new BasicStream(_instance);
         os.writeByte(Protocol.protocolVersion);
         os.writeByte(Protocol.encodingVersion);
         os.writeByte(Protocol.closeConnectionMsg);
         os.writeByte(Protocol.headerSize); // Message size
-        //os.i = os.b.begin(); // TODO
+        os.pos(0);
         TraceUtil.traceHeader("sending close connection", os, _logger,
                               _traceLevels);
         _transceiver.write(os, _endpoint.timeout());

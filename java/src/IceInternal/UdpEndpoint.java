@@ -89,7 +89,7 @@ public final class UdpEndpoint extends Endpoint
     }
 
     public
-    UdpEndpoint(Ice.Stream s)
+    UdpEndpoint(BasicStream s)
     {
         s.startReadEncaps();
         _host = s.readString();
@@ -101,7 +101,7 @@ public final class UdpEndpoint extends Endpoint
     // Marshal the endpoint
     //
     public void
-    streamWrite(Ice.Stream s)
+    streamWrite(BasicStream s)
     {
         s.writeShort(UdpEndpointType);
         s.startWriteEncaps();

@@ -230,7 +230,7 @@ public final class Reference
     }
 
     public
-    Reference(String ident, Ice.Stream s)
+    Reference(String ident, BasicStream s)
     {
         instance = s.instance();
         identity = ident;
@@ -325,7 +325,7 @@ public final class Reference
     // Marshal the reference
     //
     public void
-    streamWrite(Ice.Stream s)
+    streamWrite(BasicStream s)
     {
         //
         // Don't write the identity here. Operations calling streamWrite

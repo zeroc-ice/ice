@@ -174,6 +174,7 @@ class CommunicatorI implements Communicator
         _instance.logger(logger);
     }
 
+    /*
     public Stream
     createStream()
     {
@@ -182,8 +183,10 @@ class CommunicatorI implements Communicator
             throw new CommunicatorDestroyedException();
         }
 
-        return new StreamI(_instance);
+        // TODO
+        return null;
     }
+    */
 
     CommunicatorI(Properties propertites)
     {

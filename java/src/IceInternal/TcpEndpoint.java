@@ -110,7 +110,7 @@ public final class TcpEndpoint extends Endpoint
     }
 
     public
-    TcpEndpoint(Ice.Stream s)
+    TcpEndpoint(BasicStream s)
     {
         s.startReadEncaps();
         _host = s.readString();
@@ -123,7 +123,7 @@ public final class TcpEndpoint extends Endpoint
     // Marshal the endpoint
     //
     public void
-    streamWrite(Ice.Stream s)
+    streamWrite(BasicStream s)
     {
         s.writeShort(TcpEndpointType);
         s.startWriteEncaps();

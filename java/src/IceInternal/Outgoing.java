@@ -18,8 +18,8 @@ public final class Outgoing
         _emitter = emitter;
         _reference = ref;
         _state = StateUnsent;
-        _is = new StreamI(ref.instance);
-        _os = new StreamI(ref.instance);
+        _is = new BasicStream(ref.instance);
+        _os = new BasicStream(ref.instance);
 
         switch (_reference.mode)
         {
@@ -166,7 +166,7 @@ public final class Outgoing
     }
 
     public synchronized void
-    finished(Ice.Stream is)
+    finished(BasicStream is)
     {
         assert(_state != StateUnsent);
         if (_state == StateInProgress)
@@ -258,13 +258,13 @@ public final class Outgoing
         }
     }
 
-    public Ice.Stream
+    public BasicStream
     is()
     {
         return _is;
     }
 
-    public Ice.Stream
+    public BasicStream
     os()
     {
         return _os;
@@ -282,6 +282,6 @@ public final class Outgoing
     private static final int StateLocalException = 5;
     private int _state;
 
-    private Ice.Stream _is;
-    private Ice.Stream _os;
+    private BasicStream _is;
+    private BasicStream _os;
 }

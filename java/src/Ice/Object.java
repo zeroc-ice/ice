@@ -39,8 +39,8 @@ public abstract class Object
     public final IceInternal.DispatchStatus
     ___ice_isA(IceInternal.Incoming __in)
     {
-        Stream __is = __in.is();
-        Stream __os = __in.os();
+        IceInternal.BasicStream __is = __in.is();
+        IceInternal.BasicStream __os = __in.os();
         String s = __is.readString();
         boolean __ret = ice_isA(s);
         __os.writeBool(__ret);
@@ -99,7 +99,7 @@ public abstract class Object
     }
 
     public void
-    __write(Stream __os)
+    __write(IceInternal.BasicStream __os)
     {
         synchronized(_activeFacetMapMutex)
         {
@@ -118,7 +118,7 @@ public abstract class Object
     }
 
     public void
-    __read(Stream __is)
+    __read(IceInternal.BasicStream __is)
     {
         synchronized(_activeFacetMapMutex)
         {

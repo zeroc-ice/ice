@@ -13,7 +13,7 @@ package IceInternal;
 final class TraceUtil
 {
     static void
-    traceHeader(String heading, Ice.Stream stream, Ice.Logger logger,
+    traceHeader(String heading, BasicStream stream, Ice.Logger logger,
                 TraceLevels tl)
     {
         if (tl.protocol >= 1)
@@ -27,7 +27,7 @@ final class TraceUtil
     }
 
     static void
-    traceRequest(String heading, Ice.Stream stream, Ice.Logger logger,
+    traceRequest(String heading, BasicStream stream, Ice.Logger logger,
                  TraceLevels tl)
     {
         if (tl.protocol >= 1)
@@ -53,7 +53,7 @@ final class TraceUtil
     }
 
     static void
-    traceBatchRequest(String heading, Ice.Stream stream, Ice.Logger logger,
+    traceBatchRequest(String heading, BasicStream stream, Ice.Logger logger,
                       TraceLevels tl)
     {
         if (tl.protocol >= 1)
@@ -83,7 +83,7 @@ final class TraceUtil
     }
 
     static void
-    traceReply(String heading, Ice.Stream stream, Ice.Logger logger,
+    traceReply(String heading, BasicStream stream, Ice.Logger logger,
                TraceLevels tl)
     {
         if (tl.protocol >= 1)
@@ -144,7 +144,7 @@ final class TraceUtil
     }
 
     private static void
-    printHeader(java.io.Writer out, Ice.Stream stream)
+    printHeader(java.io.Writer out, BasicStream stream)
     {
         byte protVer = stream.readByte();
         out.write("\nprotocol version = " + (int)protVer);
