@@ -17,8 +17,10 @@
 #   pragma warning( disable : 4786 )
 // 'this' : used in base member initializer list
 #   pragma warning( disable : 4355 )
-// class '...' needs to have dll-interface to be used by clients of class ...
+// class ... needs to have dll-interface to be used by clients of class ...
 #   pragma warning( disable : 4251 )
+// ... : inherits ... via dominance
+#   pragma warning( disable : 4250 )
 
 #ifdef ICE_EXPORTS
 #   define ICE_API __declspec(dllexport)
