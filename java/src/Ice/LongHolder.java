@@ -16,5 +16,16 @@ package Ice;
 
 public final class LongHolder
 {
+    public
+    LongHolder()
+    {
+    }
+
+    public
+    LongHolder(long value)
+    {
+        this.value = value;
+    }
+
     public long value;
 }

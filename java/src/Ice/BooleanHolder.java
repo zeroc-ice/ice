@@ -16,5 +16,16 @@ package Ice;
 
 public final class BooleanHolder
 {
+    public
+    BooleanHolder()
+    {
+    }
+
+    public
+    BooleanHolder(boolean value)
+    {
+        this.value = value;
+    }
+
     public boolean value;
 }

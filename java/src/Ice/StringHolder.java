@@ -16,5 +16,16 @@ package Ice;
 
 public final class StringHolder
 {
+    public
+    StringHolder()
+    {
+    }
+
+    public
+    StringHolder(String value)
+    {
+        this.value = value;
+    }
+
     public String value;
 }

@@ -16,5 +16,16 @@ package Ice;
 
 public final class ShortHolder
 {
+    public
+    ShortHolder()
+    {
+    }
+
+    public
+    ShortHolder(short value)
+    {
+        this.value = value;
+    }
+
     public short value;
 }

@@ -16,5 +16,16 @@ package Ice;
 
 public final class ObjectPrxHolder
 {
+    public
+    ObjectPrxHolder()
+    {
+    }
+
+    public
+    ObjectPrxHolder(ObjectPrx value)
+    {
+        this.value = value;
+    }
+
     public ObjectPrx value;
 }

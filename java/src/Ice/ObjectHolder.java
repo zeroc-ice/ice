@@ -16,5 +16,16 @@ package Ice;
 
 public final class ObjectHolder
 {
+    public
+    ObjectHolder()
+    {
+    }
+
+    public
+    ObjectHolder(Ice.Object value)
+    {
+        this.value = value;
+    }
+
     public Ice.Object value;
 }

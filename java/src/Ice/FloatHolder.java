@@ -16,5 +16,16 @@ package Ice;
 
 public final class FloatHolder
 {
+    public
+    FloatHolder()
+    {
+    }
+
+    public
+    FloatHolder(float value)
+    {
+        this.value = value;
+    }
+
     public float value;
 }

@@ -16,5 +16,16 @@ package Ice;
 
 public final class DoubleHolder
 {
+    public
+    DoubleHolder()
+    {
+    }
+
+    public
+    DoubleHolder(double value)
+    {
+        this.value = value;
+    }
+
     public double value;
 }

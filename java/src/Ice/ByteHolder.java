@@ -16,5 +16,16 @@ package Ice;
 
 public final class ByteHolder
 {
+    public
+    ByteHolder()
+    {
+    }
+
+    public
+    ByteHolder(byte value)
+    {
+        this.value = value;
+    }
+
     public byte value;
 }

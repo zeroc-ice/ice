@@ -16,5 +16,16 @@ package Ice;
 
 public final class IntHolder
 {
+    public
+    IntHolder()
+    {
+    }
+
+    public
+    IntHolder(int value)
+    {
+        this.value = value;
+    }
+
     public int value;
 }

@@ -16,5 +16,16 @@ package Ice;
 
 public final class LocalObjectHolder
 {
+    public
+    LocalObjectHolder()
+    {
+    }
+
+    public
+    LocalObjectHolder(LocalObject value)
+    {
+        this.value = value;
+    }
+
     public LocalObject value;
 }
