@@ -78,7 +78,7 @@ $(ROUTER): $(ROBJS) $(libdir)/$(LIBNAME)
 
 $(STARTER): $(SOBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lGlacier -lIceSSL -lcrypt $(OPENSSL_LIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lGlacier -lIceSSL $(OPENSSL_LIBS) $(LIBS)
 
 install:: all
 	$(INSTALL_LIBRARY) $(libdir)/$(LIBFILENAME) $(install_libdir)
