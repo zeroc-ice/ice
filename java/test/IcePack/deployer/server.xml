@@ -8,7 +8,7 @@
   </target>
 
   <adapters>
-    <adapter name="${name}" endpoints="default" id="${name}Adapter">
+    <adapter name="Server" endpoints="default">
       <offer interface="::Test" identity="${name}"/>
     </adapter>
   </adapters>

@@ -14,9 +14,11 @@ public class Service extends Ice.LocalObjectImpl implements IceBox.Service
     start(String name, Ice.Communicator communicator, String[] args)
         throws IceBox.FailureException
     {
+	Ice.Properties properties = communicator.getProperties();
+
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter(name);
         Ice.Object object = new TestI(adapter, communicator.getProperties());
-        adapter.add(object, Ice.Util.stringToIdentity(name));
+        adapter.add(object, Ice.Util.stringToIdentity(properties.getProperty(name + ".Identity")));
         adapter.activate();
     }
 

@@ -91,9 +91,18 @@ public final class LocatorInfo
 		catch(Ice.LocalException ex)
 		{
 		    //
-		    // Ignore. The proxy will most likely get empty
-		    // endpoints and raise a NoEndpointException().
+		    // Just trace the failure. The proxy will most
+		    // likely get empty endpoints and raise a
+		    // NoEndpointException().
 		    //
+		    if(ref.instance.traceLevels().location >= 1)
+		    {
+			StringBuffer s = new StringBuffer();
+			s.append("couldn't contact the locator to retrieve adapter endpoints\n");
+			s.append("adapter = " + ref.adapterId + "\n");
+			s.append("reason = " + ex);
+			ref.instance.logger().trace(ref.instance.traceLevels().locationCat, s.toString());
+		    }
 		}
 		
 		if(endpoints != null && endpoints.length > 0)

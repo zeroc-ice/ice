@@ -1,12 +1,15 @@
 <service kind="freeze" entry="FreezeService">
 
   <adapters>
-    <adapter name="${name}" endpoints="default" id="${name}Adapter">
-      <offer interface="::Test" identity="${name}"/>
+    <adapter name="${name}" endpoints="default"  id="${parent}${name}Adapter">
+      <!-- The identity needs to be unique, here we concatenate the
+      server name (${parent}) with the service name. -->
+      <offer interface="::Test" identity="${parent}-${name}"/>
     </adapter>
   </adapters>
 
   <properties>
+    <property name="${name}.Identity" value="${parent}-${name}"/>
     <property name="${name}.Type" value="freeze"/>
     <property name="${name}.ServiceName" value="${name}"/>
   </properties>

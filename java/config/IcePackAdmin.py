@@ -67,7 +67,7 @@ def startIcePackNode(toplevel, testdir):
               r' --IcePack.Node.Trace.Activator=0' + \
               r' --IcePack.Node.Trace.Adapter=0' + \
               r' --IcePack.Node.Trace.Server=0'
-
+    
     icePackPipe = os.popen(command)
     TestUtil.getAdapterReady(icePackPipe)
     print "ok"
