@@ -590,12 +590,12 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		    {
                         if(builtin->isVariableLength())
                         {
-                            out << nl << stream << ".startSeq(__len, " << static_cast<unsigned>(builtin->minWireSize())
+                            out << nl << stream << ".startSeq(__lenx, " << static_cast<unsigned>(builtin->minWireSize())
                                 << ")";
                         }
                         else
                         {
-                            out << nl << stream << ".checkFixedSeq(__len, "
+                            out << nl << stream << ".checkFixedSeq(__lenx, "
                                 << static_cast<unsigned>(builtin->minWireSize()) << ")";
                         }
 		    }
@@ -637,7 +637,16 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 			}
 			out << nl << "For __ix As Integer = 0 To __lenx - 1";
 			out.inc();
-			out << nl << param << "(__ix) = " << stream << ".readProxy()";
+			if(isArray)
+			{
+			    out << nl << param << "(__ix) = " << stream << ".readProxy()";
+			}
+			else
+			{
+			    out << nl << "Dim __val As Ice.ObjectPrx = New Ice.ObjectPrxHelperBase";
+			    out << nl << "__val = " << stream << ".readProxy()";
+			    out << nl << param << ".Add(__val)";
+			}
 			out.dec();
 			out << nl << "Next";
 		    }
@@ -802,9 +811,18 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    {
 	        out << fixId(seq->scoped()) << "(szx)";
 	    }
-	    out << nl << "For __ix As Integer = 0 To " << param << '.' << limitID << " - 1";
+	    out << nl << "For __ix As Integer = 0 To szx - 1";
 	    out.inc();
-	    out << nl << param << "(__ix).__read(" << stream << ")";
+	    if(isArray)
+	    {
+		out << nl << param << "(__ix).__read(" << stream << ")";
+	    }
+	    else
+	    {
+	        out << nl << "Dim __val As " << typeS << " = New " << typeS;
+		out << nl << "__val.__read(" << stream << ')';
+		out << nl << param << ".Add(__val)";
+	    }
 	    if(!streamingAPI && type->isVariableLength())
 	    {
 		out << nl << stream << ".checkSeq()";

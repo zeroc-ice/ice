@@ -608,7 +608,16 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 			}
 			out << nl << "for(int __ix = 0; __ix < __lenx; ++__ix)";
 			out << sb;
-			out << nl << param << "[__ix] = " << stream << ".readProxy();";
+			if(isArray)
+			{
+			    out << nl << param << "[__ix] = " << stream << ".readProxy();";
+			}
+			else
+			{
+			    out << nl << "Ice.ObjectPrx __val = new Ice.ObjectPrxHelperBase();";
+			    out << nl << "__val = " << stream << ".readProxy();";
+			    out << nl << param << ".Add(__val);";
+			}
 		    }
 		    if(!streamingAPI && builtin->isVariableLength())
 		    {
@@ -764,9 +773,18 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		out << fixId(seq->scoped()) << "(szx)";
 	    }
 	    out << ';';
-	    out << nl << "for(int __ix = 0; __ix < " << param << '.' << limitID << "; ++__ix)";
+	    out << nl << "for(int __ix = 0; __ix < szx; ++__ix)";
 	    out << sb;
-	    out << nl << param << "[__ix].__read(" << stream << ");";
+	    if(isArray)
+	    {
+		out << nl << param << "[__ix].__read(" << stream << ");";
+	    }
+	    else
+	    {
+		out << nl << typeS << " __val = new " << typeS << "();";
+		out << nl << "__val.__read(" << stream << ");";
+	        out << nl << param << ".Add(__val);";
+	    }
 	    if(!streamingAPI && type->isVariableLength())
 	    {
 		out << nl << stream << ".checkSeq();";
