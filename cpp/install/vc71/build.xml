@@ -70,6 +70,7 @@
 	<copy todir="${install.dir}/ice-common/doc">
 	    <fileset dir="${doc.dir}">
 		<exclude name="THIRD_PARTY_LICENSE.rtf"/>
+		<exclude name="THIRD_PARTY_SOURCES"/>
 	    </fileset>
 	</copy>
 
@@ -136,37 +137,27 @@
 	    </fileset>
 	</copy>
 
+	<mkdir dir="${install.dir}/ice-cpp/runtime/bin/debug"/>
+	<copy todir="${install.dir}/ice-cpp/runtime/bin/debug">
+	    <fileset dir="${ice.dir}/src/IceBox/Debug">
+		<include name="icebox.exe"/>
+	    </fileset>
+	</copy>
+
 	<!-- Certificates -->
 	<mkdir dir="${install.dir}/ice-cpp/runtime/certs"/>
 	<copy todir="${install.dir}/ice-cpp/runtime/certs">
 	    <fileset dir="${ice.dir}/certs">
-		<include name="**/*.dtd"/>
-		<include name="**/*.pem"/>
-		<include name="**/*.xml"/>
+		<exclude name="openssl/**"/>
+		<exclude name="makecerts"/>
 	    </fileset>
 	</copy>
 
-	<!-- Configuration -->
-	<mkdir dir="${install.dir}/ice-cpp/runtime/config"/>
-	<copy todir="${install.dir}/ice-cpp/runtime/config">
-	    <fileset dir="${ice.dir}/config">
-		<include name="*.cnf"/>
-		<include name="makecerts"/>
-	    </fileset>
-	</copy>
-	
 	<!-- Slice -->
 	<mkdir dir="${install.dir}/ice-cpp/runtime/slice"/>
 	<copy todir="${install.dir}/ice-cpp/runtime/slice">
 	    <fileset dir="${ice.dir}/slice">
-		<include name="Freeze/*.ice"/>
-		<include name="Glacier2/*.ice"/>
-		<include name="Ice/*.ice"/>
-		<include name="IceBox/*.ice"/>
-		<include name="IcePack/*.ice"/>
-		<include name="IcePatch2/*.ice"/>
-		<include name="IceSSL/*.ice"/>
-		<include name="IceStorm/*.ice"/>
+		<include name="**/*.ice"/>
 	    </fileset>
 	</copy>
 
@@ -230,17 +221,7 @@
 	<mkdir dir="${install.dir}/ice-cpp/dev/include"/>
 	<copy todir="${install.dir}/ice-cpp/dev/include">
 	    <fileset dir="${ice.dir}/include">
-		<include name="Freeze/*.h"/>
-		<include name="Glacier2/*.h"/>
-		<include name="Ice/*.h"/>
-		<include name="IceBox/*.h"/>
-		<include name="IcePack/*.h"/>
-		<include name="IcePatch2/*.h"/>
-		<include name="IceSSL/*.h"/>
-		<include name="IceStorm/*.h"/>
-		<include name="IceUtil/*.h"/>
-		<include name="IceXML/*.h"/>
-		<include name="Slice/*.h"/>
+		<include name="**/*.h"/>
 	    </fileset>
 	</copy>
 
@@ -372,7 +353,8 @@
 	<mkdir dir="${install.dir}/ice-java/demo/certs"/>
 	<copy todir="${install.dir}/ice-java/demo/certs">
 	    <fileset dir="${icej.dir}/certs">
-		<include name="**"/>
+		<exclude name="openssl/**"/>
+		<exclude name="makecerts"/>
 	    </fileset>
 	</copy>
 
@@ -688,8 +670,7 @@
      </target>
 
     <target name="ice" 
-            depends="packages,
-	             ice-common,
+            depends="ice-common,
 		     ice-cpp-runtime,
 		     ice-cpp-dev,
 		     ice-cpp-demo,
