@@ -73,10 +73,7 @@ IceSSL::SslTransceiver::close()
     }
     catch(...)
     {
- 	assert(_fd != INVALID_SOCKET);
-	closeSocket(_fd);
-	_fd = INVALID_SOCKET;
-	throw;
+        // Ignore, close() should not throw exceptions.
     }
 
     assert(_fd != INVALID_SOCKET);
