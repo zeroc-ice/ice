@@ -7,33 +7,23 @@
 // All Rights Reserved
 //
 // **********************************************************************
+#ifndef ICE_OPENSSL_H
+#define ICE_OPENSSL_H
 
-#ifndef ICE_SSL_CERTIFICATE_VERIFIER_H
-#define ICE_SSL_CERTIFICATE_VERIFIER_H
-
-#include <IceUtil/Shared.h>
-#include <Ice/SslCertificateVerifierF.h>
+#include <openssl/ssl.h>
 
 namespace IceSecurity
 {
 
-namespace Ssl
+typedef enum
 {
-
-using IceUtil::Shared;
-
-class CertificateVerifier : public Shared
-{
-
-public:
-    virtual ~CertificateVerifier();
-
-};
-
-}
+    NO_SECURITY_TRACE = 0,
+    SECURITY_WARNINGS,
+    SECURITY_PARSE_WARNINGS,
+    SECURITY_PROTOCOL,
+    SECURITY_PROTOCOL_DEBUG
+} SecurityTraceLevel;
 
 }
 
 #endif
-
-

@@ -11,7 +11,7 @@
 #include <string>
 #include <sstream>
 #include <Ice/Network.h>
-#include <Ice/Security.h>
+#include <Ice/OpenSSL.h>
 #include <Ice/SecurityException.h>
 #include <Ice/SslConnectionOpenSSLServer.h>
 
@@ -47,26 +47,17 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::ServerConnection(const CertificateV
 
 IceSecurity::Ssl::OpenSSL::ServerConnection::~ServerConnection()
 {
-    ICE_METHOD_INV("OpenSSL::ServerConnection::~ServerConnection()");
-
-    ICE_METHOD_RET("OpenSSL::ServerConnection::~ServerConnection()");
 }
 
 void
 IceSecurity::Ssl::OpenSSL::ServerConnection::shutdown()
 {
-    ICE_METHOD_INV("OpenSSL::ServerConnection::shutdown()");
-
     Connection::shutdown();
-
-    ICE_METHOD_RET("OpenSSL::ServerConnection::shutdown()");
 }
 
 int
 IceSecurity::Ssl::OpenSSL::ServerConnection::init(int timeout)
 {
-    ICE_METHOD_INV("OpenSSL::ServerConnection::init()");
-
     int retCode = SSL_is_init_finished(_sslConnection);
     
     while (!retCode)
@@ -114,18 +105,14 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::init(int timeout)
 
                 certEx._message = "SSL certificate verification error.";
 
-                ICE_EXCEPTION(certEx._message);
-
                 throw certEx;
             }
             else
             {
                 ProtocolException protocolEx(__FILE__, __LINE__);
 
-                protocolEx._message = "Encountered an SSL Protocol violation during handshake.";
-
-                ICE_SSLERRORS(protocolEx._message);
-                ICE_EXCEPTION(protocolEx._message);
+                protocolEx._message = "Encountered an SSL Protocol violation during handshake.\n";
+                protocolEx._message += sslGetErrors();
 
                 throw protocolEx;
             }
@@ -174,14 +161,12 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::init(int timeout)
 
                     if (connectionLost())
                     {
-                        ICE_DEV_DEBUG("ServerConnection::init(): Throwing ConnectionLostException... SslConnectionOpenSSLServer.cpp, 207");
                         ConnectionLostException ex(__FILE__, __LINE__);
                         ex.error = getSocketErrno();
                         throw ex;
                     }
                     else
                     {
-                        ICE_DEV_DEBUG("ServerConnection::init(): Throwing SocketException... SslConnectionOpenSSLServer.cpp, 214");
                         SocketException ex(__FILE__, __LINE__);
                         ex.error = getSocketErrno();
                         throw ex;
@@ -192,10 +177,8 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::init(int timeout)
                     ProtocolException protocolEx(__FILE__, __LINE__);
 
                     // Protocol Error: Unexpected EOF
-                    protocolEx._message = "Encountered an EOF during handshake that violates the SSL Protocol.";
-
-                    ICE_SSLERRORS(protocolEx._message);
-                    ICE_EXCEPTION(protocolEx._message);
+                    protocolEx._message = "Encountered an EOF during handshake that violates the SSL Protocol.\n";
+                    protocolEx._message += sslGetErrors();
 
                     throw protocolEx;
                 }
@@ -205,10 +188,8 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::init(int timeout)
             {
                 ProtocolException protocolEx(__FILE__, __LINE__);
 
-                protocolEx._message = "Encountered a violation of the SSL Protocol during handshake.";
-
-                ICE_SSLERRORS(protocolEx._message);
-                ICE_EXCEPTION(protocolEx._message);
+                protocolEx._message = "Encountered a violation of the SSL Protocol during handshake.\n";
+                protocolEx._message += sslGetErrors();
 
                 throw protocolEx;
             }
@@ -223,16 +204,12 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::init(int timeout)
         }
     }
 
-    ICE_METHOD_RET("OpenSSL::ServerConnection::init()");
-
     return retCode;
 }
 
 int
 IceSecurity::Ssl::OpenSSL::ServerConnection::read(Buffer& buf, int timeout)
 {
-    ICE_METHOD_INV("OpenSSL::ServerConnection::read(Buffer&, int)");
-
     int bytesRead = 1;
     int totalBytesRead = 0;
 
@@ -253,16 +230,12 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::read(Buffer& buf, int timeout)
         totalBytesRead += bytesRead;
     }
 
-    ICE_METHOD_RET("OpenSSL::ServerConnection::read(Buffer&, int)");
-
     return totalBytesRead;
 }
 
 int
 IceSecurity::Ssl::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
 {
-    ICE_METHOD_INV("OpenSSL::ServerConnection::write(Buffer&, int)");
-
     int totalBytesWritten = 0;
     int bytesWritten = 0;
 
@@ -327,23 +300,9 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
             }
 
             case SSL_ERROR_WANT_WRITE:  // Retry...
-            {
-                ICE_PROTOCOL("Error SSL_ERROR_WANT_WRITE: Repeating as per protocol.");
-
-                continue;
-            }
-
             case SSL_ERROR_WANT_READ:   // The demo server ignores this error.
-            {
-                ICE_PROTOCOL("Error SSL_ERROR_WANT_READ: Ignoring as per protocol.");
-
-                continue;
-            }
-
             case SSL_ERROR_WANT_X509_LOOKUP:    // The demo server ignores this error.
             {
-                ICE_PROTOCOL("Error SSL_ERROR_WANT_X509_LOOKUP: Repeating as per protocol.");
-
                 continue;
             }
 
@@ -365,14 +324,12 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
 
                     if (connectionLost())
 	            {
-                        ICE_DEV_DEBUG("ServerConnection::write(): Throwing ConnectionLostException... SslConnectionOpenSSLServer.cpp, 388");
 	                ConnectionLostException ex(__FILE__, __LINE__);
                         ex.error = getSocketErrno();
                         throw ex;
 	            }
 	            else
 	            {
-                        ICE_DEV_DEBUG("ServerConnection::write(): Throwing SocketException... SslConnectionOpenSSLServer.cpp, 395");
 		        SocketException ex(__FILE__, __LINE__);
 		        ex.error = getSocketErrno();
 		        throw ex;
@@ -383,10 +340,8 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
                     ProtocolException protocolEx(__FILE__, __LINE__);
 
                     // Protocol Error: Unexpected EOF
-                    protocolEx._message = "Encountered an EOF that violates the SSL Protocol.";
-
-                    ICE_SSLERRORS(protocolEx._message);
-                    ICE_EXCEPTION(protocolEx._message);
+                    protocolEx._message = "Encountered an EOF that violates the SSL Protocol.\n";
+                    protocolEx._message += sslGetErrors();
 
                     throw protocolEx;
                 }
@@ -396,27 +351,20 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
             {
                 ProtocolException protocolEx(__FILE__, __LINE__);
 
-                protocolEx._message = "Encountered a violation of the SSL Protocol.";
-
-                ICE_SSLERRORS(protocolEx._message);
-                ICE_EXCEPTION(protocolEx._message);
+                protocolEx._message = "Encountered a violation of the SSL Protocol.\n";
+                protocolEx._message += sslGetErrors();
 
                 throw protocolEx;
             }
 
             case SSL_ERROR_ZERO_RETURN:
             {
-                ICE_EXCEPTION("SSL_ERROR_ZERO_RETURN");
-                ICE_DEV_DEBUG("ServerConnection::write(): Throwing ConnectionLostException... SslConnectionOpenSSLServer.cpp, 430");
-
                 ConnectionLostException ex(__FILE__, __LINE__);
                 ex.error = getSocketErrno();
                 throw ex;
             }
         }
     }
-
-    ICE_METHOD_RET("OpenSSL::ServerConnection::write(Buffer&, int)");
 
     return totalBytesWritten;
 }
@@ -428,13 +376,9 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
 void
 IceSecurity::Ssl::OpenSSL::ServerConnection::showConnectionInfo()
 {
-    ICE_METHOD_INV("OpenSSL::ServerConnection::showConnectionInfo()");
-
     // Only in extreme cases do we enable this, partially because it doesn't use the Logger.
-    if (ICE_SECURITY_LEVEL_PROTOCOL_DEBUG)
+    if ((_traceLevels->security >= IceSecurity::SECURITY_PROTOCOL_DEBUG) && 0)
     {
-        ICE_PROTOCOL_DEBUG("Begin Connection Information");
-
         BIO* bio = BIO_new_fp(stdout, BIO_NOCLOSE);
 
         showCertificateChain(bio);
@@ -449,14 +393,10 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::showConnectionInfo()
 
         showSessionInfo(bio);
 
-        ICE_PROTOCOL_DEBUG("End of Connection Information");
-
         if (bio != 0)
         {
             BIO_free(bio);
             bio = 0;
         }
     }
-
-    ICE_METHOD_RET("OpenSSL::ServerConnection::showConnectionInfo()");
 }

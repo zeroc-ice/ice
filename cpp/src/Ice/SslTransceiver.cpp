@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Security.h>
+#include <Ice/OpenSSL.h>
 #include <Ice/SslConnection.h>
 #include <Ice/SslTransceiver.h>
 #include <Ice/Instance.h>
@@ -33,8 +33,6 @@ IceInternal::SslTransceiver::fd()
 void
 IceInternal::SslTransceiver::close()
 {
-    ICE_METHOD_INV("SslTransceiver::close()");
-
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
@@ -47,15 +45,11 @@ IceInternal::SslTransceiver::close()
     _sslConnection->shutdown();
     ::shutdown(fd, SHUT_RDWR); // helps to unblock threads in recv()
     closeSocket(fd);
-
-    ICE_METHOD_RET("SslTransceiver::close()");
 }
 
 void
 IceInternal::SslTransceiver::shutdown()
 {
-    ICE_METHOD_INV("SslTransceiver::shutdown()");
-
     if (_traceLevels->network >= 2)
     {
 	ostringstream s;
@@ -65,26 +59,23 @@ IceInternal::SslTransceiver::shutdown()
 
     _sslConnection->shutdown();
     ::shutdown(_fd, SHUT_WR); // Shutdown socket for writing
-
-    ICE_METHOD_RET("SslTransceiver::shutdown()");
 }
 
 void
 IceInternal::SslTransceiver::write(Buffer& buf, int timeout)
 {
-    ICE_METHOD_INV("SslTransceiver::write()")
     _sslConnection->write(buf, timeout);
-    ICE_METHOD_RET("SslTransceiver::write()");
 }
 
 void
 IceInternal::SslTransceiver::read(Buffer& buf, int timeout)
 {
-    ICE_METHOD_INV("SslTransceiver::read()");
-
     if (!_sslConnection->read(buf, timeout))
     {
-        ICE_WARNING("Connection::read() returning no bytes read.");
+        if (_traceLevels->security >= IceSecurity::SECURITY_WARNINGS)
+        { 
+            _logger->trace(_traceLevels->securityCat, "WRN Connection::read() returning no bytes read.");
+        }
 
         // TODO: Perhaps this should be a NoApplicationDataException ???
         // ICE_WARNING("Throwing ConnectionLostException.");
@@ -92,8 +83,6 @@ IceInternal::SslTransceiver::read(Buffer& buf, int timeout)
         // clEx.error = 0;
         // throw clEx;
     }
-
-    ICE_METHOD_RET("SslTransceiver::read()");
 }
 
 string

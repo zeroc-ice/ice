@@ -48,10 +48,10 @@ public:
     virtual void setServerCertificateVerifier(const CertificateVerifierPtr&);
     virtual void setClientCertificateVerifier(const CertificateVerifierPtr&);
 
-    void setTrace(const TraceLevelsPtr&);
+    virtual void setTrace(const TraceLevelsPtr&);
     bool isTraceSet() const;
 
-    void setLogger(const LoggerPtr&);
+    virtual void setLogger(const LoggerPtr&);
     bool isLoggerSet() const;
 
     void setProperties(const PropertiesPtr&);

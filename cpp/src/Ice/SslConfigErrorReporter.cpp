@@ -17,14 +17,14 @@
 #include <string.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
-#include <Ice/Security.h>
+#include <Ice/OpenSSL.h>
 
 using namespace std;
 
 void
 IceSecurity::Ssl::ErrorReporter::warning(const SAXParseException& toCatch)
 {
-    if (ICE_SECURITY_LEVEL_PARSEWARNINGS)
+    if (_traceLevels->security >= IceSecurity::SECURITY_PARSE_WARNINGS)
     {
 	ostringstream s;
 
@@ -35,7 +35,7 @@ IceSecurity::Ssl::ErrorReporter::warning(const SAXParseException& toCatch)
         s << ", column " << toCatch.getColumnNumber() << flush;
         s << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
 
-        ICE_PARSE_WARNING(s.str());
+        _logger->trace(_traceLevels->securityCat, "PWN " + s.str());
     }
 }
 
@@ -44,7 +44,7 @@ IceSecurity::Ssl::ErrorReporter::error(const SAXParseException& toCatch)
 {
     _sawErrors = true;
 
-    if (ICE_SECURITY_LEVEL_PARSEWARNINGS)
+    if (_traceLevels->security >= IceSecurity::SECURITY_PARSE_WARNINGS)
     {
 	ostringstream s;
 
@@ -55,7 +55,7 @@ IceSecurity::Ssl::ErrorReporter::error(const SAXParseException& toCatch)
         s << ", column " << toCatch.getColumnNumber() << flush;
         s << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
 
-        ICE_PARSE_WARNING(s.str());
+        _logger->trace(_traceLevels->securityCat, "PWN " + s.str());
     }
 }
 
@@ -64,7 +64,7 @@ IceSecurity::Ssl::ErrorReporter::fatalError(const SAXParseException& toCatch)
 {
     _sawErrors = true;
 
-    if (ICE_SECURITY_LEVEL_PARSEWARNINGS)
+    if (_traceLevels->security >= IceSecurity::SECURITY_PARSE_WARNINGS)
     {
 	ostringstream s;
 
@@ -75,7 +75,7 @@ IceSecurity::Ssl::ErrorReporter::fatalError(const SAXParseException& toCatch)
         s << ", column " << toCatch.getColumnNumber() << flush;
         s << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
 
-        ICE_PARSE_WARNING(s.str());
+        _logger->trace(_traceLevels->securityCat, "PWN " + s.str());
     }
 }
 

@@ -17,6 +17,16 @@
 #include <Ice/SslSystemF.h>
 #include <Ice/SslCertificateVerifierF.h>
 
+#ifdef WIN32
+#   ifdef ICE_API_EXPORTS
+#       define ICE_API __declspec(dllexport)
+#   else
+#       define ICE_API __declspec(dllimport)
+#   endif
+#else
+#   define ICE_API /**/
+#endif
+
 namespace IceSecurity
 {
 
@@ -55,16 +65,19 @@ private:
     static void reapSystems();
 };
 
+// TODO: This is NOT how this should be done, but to get us over the hump for the
+//       time being, we'll take this shortcut.
+
 typedef enum
 {
     None = 0,
     Client,
     Server,
     ClientServer
-} CertificateVerifierType;
+} ICE_API CertificateVerifierType;
 
 
-void setSystemCertificateVerifier(const string&, CertificateVerifierType, const CertificateVerifierPtr&);
+void ICE_API setSystemCertificateVerifier(const string&, CertificateVerifierType, const CertificateVerifierPtr&);
 
 }
 

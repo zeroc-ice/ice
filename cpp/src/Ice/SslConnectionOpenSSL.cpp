@@ -21,7 +21,7 @@
 #include <string>
 #include <sstream>
 #include <Ice/Network.h>
-#include <Ice/Security.h>
+#include <Ice/OpenSSL.h>
 #include <Ice/SecurityException.h>
 #include <Ice/SslFactory.h>
 #include <Ice/SslConnection.h>
@@ -40,6 +40,104 @@ using std::endl;
 
 using IceSecurity::Ssl::Factory;
 using IceSecurity::Ssl::SystemPtr;
+
+////////////////////////////////////////////////
+////////// DefaultCertificateVerifier //////////
+////////////////////////////////////////////////
+
+IceSecurity::Ssl::OpenSSL::DefaultCertificateVerifier::DefaultCertificateVerifier()
+{
+}
+
+void
+IceSecurity::Ssl::OpenSSL::DefaultCertificateVerifier::setTraceLevels(const TraceLevelsPtr& traceLevels)
+{
+    _traceLevels = traceLevels;
+}
+
+void
+IceSecurity::Ssl::OpenSSL::DefaultCertificateVerifier::setLogger(const LoggerPtr& logger)
+{
+    _logger = logger;
+}
+
+int
+IceSecurity::Ssl::OpenSSL::DefaultCertificateVerifier::verify(int preVerifyOkay,
+                                                              X509_STORE_CTX* x509StoreContext,
+                                                              SSL* sslConnection)
+{
+    //
+    // Default verification steps.
+    //
+
+    int verifyError = X509_STORE_CTX_get_error(x509StoreContext);
+    int errorDepth = X509_STORE_CTX_get_error_depth(x509StoreContext);
+    int verifyDepth = SSL_get_verify_depth(sslConnection);
+
+    // Verify Depth was set
+    if (verifyError != X509_V_OK)
+    {
+        // If we have no errors so far, and the certificate chain is too long
+        if ((verifyDepth != -1) && (verifyDepth < errorDepth))
+        {
+            verifyError = X509_V_ERR_CERT_CHAIN_TOO_LONG;
+        }
+
+        // If we have ANY errors, we bail out.
+        preVerifyOkay = 0;
+    }
+
+    // Only if ICE_PROTOCOL level logging is on do we worry about this.
+    if (_traceLevels->security >= IceSecurity::SECURITY_PROTOCOL)
+    {
+        char buf[256];
+
+        X509* err_cert = X509_STORE_CTX_get_current_cert(x509StoreContext);
+
+        X509_NAME_oneline(X509_get_subject_name(err_cert), buf, sizeof(buf));
+
+        ostringstream outStringStream;
+
+        outStringStream << "depth = " << errorDepth << ":" << buf << endl;
+
+        if (!preVerifyOkay)
+        {
+            outStringStream << "verify error: num = " << verifyError << " : " 
+			    << X509_verify_cert_error_string(verifyError) << endl;
+
+        }
+
+        switch (verifyError)
+        {
+            case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
+            {
+                X509_NAME_oneline(X509_get_issuer_name(err_cert), buf, sizeof(buf));
+                outStringStream << "issuer = " << buf << endl;
+                break;
+            }
+
+            case X509_V_ERR_CERT_NOT_YET_VALID:
+            case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
+            {
+                outStringStream << "notBefore = " << getASN1time(X509_get_notBefore(err_cert)) << endl;
+                break;
+            }
+
+            case X509_V_ERR_CERT_HAS_EXPIRED:
+            case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
+            {
+                outStringStream << "notAfter = " << getASN1time(X509_get_notAfter(err_cert)) << endl;
+                break;
+            }
+        }
+
+        outStringStream << "verify return = " << preVerifyOkay << endl;
+
+        _logger->trace(_traceLevels->securityCat, outStringStream.str());
+    }
+
+    return preVerifyOkay;
+}
 
 ////////////////////////////////
 ////////// Connection //////////
@@ -83,8 +181,6 @@ IceSecurity::Ssl::OpenSSL::Connection::Connection(const CertificateVerifierPtr& 
 
 IceSecurity::Ssl::OpenSSL::Connection::~Connection()
 {
-    ICE_METHOD_INV("OpenSSL::Connection::~Connection()");
-
     if (_sslConnection != 0)
     {
         removeConnection(_sslConnection);
@@ -92,18 +188,20 @@ IceSecurity::Ssl::OpenSSL::Connection::~Connection()
         SSL_free(_sslConnection);
         _sslConnection = 0;
     }
-
-    ICE_METHOD_RET("OpenSSL::Connection::~Connection()");
 }
 
 void
 IceSecurity::Ssl::OpenSSL::Connection::shutdown()
 {
-    ICE_METHOD_INV("OpenSSL::Connection::shutdown()");
-
     if (_sslConnection != 0)
     {
-        ICE_WARNING(string("shutting down SSL connection\n") + fdToString(SSL_get_fd(_sslConnection)));
+        if (_traceLevels->security >= IceSecurity::SECURITY_WARNINGS)
+        { 
+            _logger->trace(_traceLevels->securityCat, "WRN " +
+                           string("shutting down SSL connection\n") +
+                           fdToString(SSL_get_fd(_sslConnection)));
+        }
+
         int shutdown = 0;
         int retries = 100;
 
@@ -114,16 +212,14 @@ IceSecurity::Ssl::OpenSSL::Connection::shutdown()
         }
         while ((shutdown == 0) && (retries > 0));
 
-        if (shutdown <= 0)
+        if ((_traceLevels->security >= IceSecurity::SECURITY_PROTOCOL) && (shutdown <= 0))
         {
             ostringstream s;
             s << "SSL shutdown failure encountered: code[" << shutdown << "] retries[";
             s << retries << "]\n" << fdToString(SSL_get_fd(_sslConnection));
-            ICE_PROTOCOL_DEBUG(s.str());
+            _logger->trace(_traceLevels->securityCat, s.str());
         }
     }
-
-    ICE_METHOD_RET("OpenSSL::Connection::shutdown()");
 }
 
 void
@@ -176,57 +272,6 @@ IceSecurity::Ssl::OpenSSL::Connection::verifyCertificate(int preVerifyOkay, X509
     // Use the verifier to verify the certificate
     preVerifyOkay = verifier->verify(preVerifyOkay, x509StoreContext, _sslConnection);
 
-    // Only if ICE_PROTOCOL level logging is on do we worry about this.
-    if (ICE_SECURITY_LEVEL_PROTOCOL)
-    {
-        char buf[256];
-
-        X509* err_cert = X509_STORE_CTX_get_current_cert(x509StoreContext);
-        int verifyError = X509_STORE_CTX_get_error(x509StoreContext);
-        int depth = X509_STORE_CTX_get_error_depth(x509StoreContext);
-
-        X509_NAME_oneline(X509_get_subject_name(err_cert), buf, sizeof(buf));
-
-        ostringstream outStringStream;
-
-        outStringStream << "depth = " << depth << ":" << buf << endl;
-
-        if (!preVerifyOkay)
-        {
-            outStringStream << "verify error: num = " << verifyError << " : " 
-			    << X509_verify_cert_error_string(verifyError) << endl;
-
-        }
-
-        switch (verifyError)
-        {
-            case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
-            {
-                X509_NAME_oneline(X509_get_issuer_name(err_cert), buf, sizeof(buf));
-                outStringStream << "issuer = " << buf << endl;
-                break;
-            }
-
-            case X509_V_ERR_CERT_NOT_YET_VALID:
-            case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
-            {
-                outStringStream << "notBefore = " << getASN1time(X509_get_notBefore(err_cert)) << endl;
-                break;
-            }
-
-            case X509_V_ERR_CERT_HAS_EXPIRED:
-            case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
-            {
-                outStringStream << "notAfter = " << getASN1time(X509_get_notAfter(err_cert)) << endl;
-                break;
-            }
-        }
-
-        outStringStream << "verify return = " << preVerifyOkay << endl;
-
-        ICE_PROTOCOL(outStringStream.str());
-    }
-
     return preVerifyOkay;
 }
 
@@ -237,13 +282,9 @@ IceSecurity::Ssl::OpenSSL::Connection::verifyCertificate(int preVerifyOkay, X509
 int
 IceSecurity::Ssl::OpenSSL::Connection::connect()
 {
-    ICE_METHOD_INV("OpenSSL::Connection::connect()");
-
     int result = SSL_connect(_sslConnection);
 
     setLastError(result);
-
-    ICE_METHOD_RET("OpenSSL::Connection::connect()");
 
     return result;
 }
@@ -251,13 +292,9 @@ IceSecurity::Ssl::OpenSSL::Connection::connect()
 int
 IceSecurity::Ssl::OpenSSL::Connection::accept()
 {
-    ICE_METHOD_INV("OpenSSL::Connection::accept()");
-
     int result = SSL_accept(_sslConnection);
 
     setLastError(result);
-
-    ICE_METHOD_RET("OpenSSL::Connection::accept()");
 
     return result;
 }
@@ -265,16 +302,12 @@ IceSecurity::Ssl::OpenSSL::Connection::accept()
 int
 IceSecurity::Ssl::OpenSSL::Connection::renegotiate()
 {
-    ICE_METHOD_INS("OpenSSL::Connection::renegotiate()");
-
     return SSL_renegotiate(_sslConnection);
 }
 
 int
 IceSecurity::Ssl::OpenSSL::Connection::initialize(int timeout)
 {
-    ICE_METHOD_INV("OpenSSL::Connection::initialize()");
-
     int retCode = 0;
  
     while (true)
@@ -313,21 +346,15 @@ IceSecurity::Ssl::OpenSSL::Connection::initialize(int timeout)
         }
     }
 
-    ICE_METHOD_RET("OpenSSL::Connection::initialize()");
-
     return retCode;
 }
 
 int
 IceSecurity::Ssl::OpenSSL::Connection::sslRead(char* buffer, int bufferSize)
 {
-    ICE_METHOD_INV("OpenSSL::Connection::sslRead()");
-
     int bytesRead = SSL_read(_sslConnection, buffer, bufferSize);
 
     setLastError(bytesRead);
-
-    ICE_METHOD_RET("OpenSSL::Connection::sslRead()");
 
     return bytesRead;
 }
@@ -335,81 +362,11 @@ IceSecurity::Ssl::OpenSSL::Connection::sslRead(char* buffer, int bufferSize)
 int
 IceSecurity::Ssl::OpenSSL::Connection::sslWrite(char* buffer, int bufferSize)
 {
-    ICE_METHOD_INV("OpenSSL::Connection::sslWrite()");
-
     int bytesWritten = SSL_write(_sslConnection, buffer, bufferSize);
 
     setLastError(bytesWritten);
 
-    ICE_METHOD_RET("OpenSSL::Connection::sslWrite()");
-
     return bytesWritten;
-}
-
-
-void
-IceSecurity::Ssl::OpenSSL::Connection::printGetError(int errCode)
-{
-    if (ICE_SECURITY_LEVEL_PROTOCOL_DEBUG)
-    {
-        string errorString;
-
-        switch (errCode)
-        {
-            case SSL_ERROR_NONE :
-            {
-                errorString = "SSL_ERROR_NONE";
-                break;
-            }
-
-            case SSL_ERROR_ZERO_RETURN :
-            {
-                errorString = "SSL_ERROR_ZERO_RETURN";
-                break;
-            }
-
-            case SSL_ERROR_WANT_READ :
-            {
-                errorString = "SSL_ERROR_WANT_READ";
-                break;
-            }
-
-            case SSL_ERROR_WANT_WRITE :
-            {
-                errorString = "SSL_ERROR_WANT_WRITE";
-                break;
-            }
-
-            case SSL_ERROR_WANT_CONNECT :
-            {
-                errorString = "SSL_ERROR_WANT_CONNECT";
-                break;
-            }
-
-            case SSL_ERROR_WANT_X509_LOOKUP :
-            {
-                errorString = "SSL_ERROR_WANT_X509_LOOKUP";
-                break;
-            }
-
-            case SSL_ERROR_SYSCALL :
-            {
-                errorString = "SSL_ERROR_SYSCALL";
-                break;
-            }
-
-            case SSL_ERROR_SSL :
-            {
-                errorString = "SSL_ERROR_SSL";
-                break;
-            }
-        }
-
-        if (!errorString.empty())
-        {
-            ICE_SECURITY_LOGGER(string("Encountered: ") + errorString)
-        }
-    }
 }
 
 // protocolWrite()
@@ -424,8 +381,6 @@ IceSecurity::Ssl::OpenSSL::Connection::printGetError(int errCode)
 void
 IceSecurity::Ssl::OpenSSL::Connection::protocolWrite()
 {
-    ICE_METHOD_INV("OpenSSL::Connection::protocolWrite()");
-
     static char buffer[10];
 
     memset(buffer, 0, sizeof(buffer));
@@ -434,16 +389,12 @@ IceSecurity::Ssl::OpenSSL::Connection::protocolWrite()
     //       not the write(Buffer&,int) method.  If things start acting
     //       strangely, check this!
     sslWrite(buffer,0);
-
-    ICE_METHOD_RET("OpenSSL::Connection::protocolWrite()");
 }
 
 int
 IceSecurity::Ssl::OpenSSL::Connection::readInBuffer(Buffer& buf)
 {
     IceUtil::Mutex::Lock sync(_inBufferMutex);
-
-    ICE_METHOD_INV("OpenSSL::Connection::readInBuffer()");
 
     int bytesRead = 0;
 
@@ -468,18 +419,16 @@ IceSecurity::Ssl::OpenSSL::Connection::readInBuffer(Buffer& buf)
         // Erase the data that we've copied out of the _inBuffer.
         _inBuffer.b.erase(inBufferBegin, inBufferEndAt);
 
-        if (ICE_SECURITY_LEVEL_PROTOCOL)
+        if (_traceLevels->security >= IceSecurity::SECURITY_PROTOCOL)
         {
             string protocolString = "Copied ";
             protocolString += Int(bytesRead);
             protocolString += string(" bytes from SSL buffer\n");
             protocolString += fdToString(SSL_get_fd(_sslConnection));
 
-            ICE_PROTOCOL(protocolString);
+            _logger->trace(_traceLevels->securityCat, protocolString);
         }
     }
-
-    ICE_METHOD_RET("OpenSSL::Connection::readInBuffer()");
 
     return bytesRead;
 }
@@ -487,8 +436,6 @@ IceSecurity::Ssl::OpenSSL::Connection::readInBuffer(Buffer& buf)
 int
 IceSecurity::Ssl::OpenSSL::Connection::readSelect(int timeout)
 {
-    ICE_METHOD_INV("OpenSSL::Connection::readSelect()");
-
     int ret;
     SOCKET fd = SSL_get_fd(_sslConnection);
     fd_set rFdSet;
@@ -519,7 +466,6 @@ IceSecurity::Ssl::OpenSSL::Connection::readSelect(int timeout)
 
     if (ret == SOCKET_ERROR)
     {
-        ICE_DEV_DEBUG("Connection::readSelect(): Throwing SocketException... SslConnectionOpenSSL.cpp, 325");
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
 	throw ex;
@@ -527,11 +473,8 @@ IceSecurity::Ssl::OpenSSL::Connection::readSelect(int timeout)
 
     if (ret == 0)
     {
-        ICE_DEV_DEBUG("Connection::readSelect(): Throwing TimeoutException... SslConnectionOpenSSL.cpp, 333");
         throw TimeoutException(__FILE__, __LINE__);
     }
-
-    ICE_METHOD_RET("OpenSSL::Connection::readSelect()");
 
     return FD_ISSET(fd, &rFdSet);
 }
@@ -539,8 +482,6 @@ IceSecurity::Ssl::OpenSSL::Connection::readSelect(int timeout)
 int
 IceSecurity::Ssl::OpenSSL::Connection::writeSelect(int timeout)
 {
-    ICE_METHOD_INV("OpenSSL::Connection::writeSelect()");
-
     int ret;
     SOCKET fd = SSL_get_fd(_sslConnection);
     fd_set wFdSet;
@@ -571,7 +512,6 @@ IceSecurity::Ssl::OpenSSL::Connection::writeSelect(int timeout)
 
     if (ret == SOCKET_ERROR)
     {
-        ICE_DEV_DEBUG("Connection::writeSelect(): Throwing SocketException... SslConnectionOpenSSL.cpp, 378");
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
 	throw ex;
@@ -579,20 +519,15 @@ IceSecurity::Ssl::OpenSSL::Connection::writeSelect(int timeout)
 
     if (ret == 0)
     {
-        ICE_DEV_DEBUG("Connection::writeSelect(): Throwing TimeoutException... SslConnectionOpenSSL.cpp, 386");
         throw TimeoutException(__FILE__, __LINE__);
     }
 
-    ICE_METHOD_RET("OpenSSL::Connection::writeSelect()");
-    
     return FD_ISSET(fd, &wFdSet);
 }
 
 int
 IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
 {
-    ICE_METHOD_INV("OpenSSL::Connection::readSSL()");
-
     int packetSize = buf.b.end() - buf.i;
     int totalBytesRead = 0;
     int bytesPending;
@@ -631,7 +566,10 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
 
         if (!bytesPending)
         {
-            ICE_PROTOCOL("No pending application-level bytes.");
+            if (_traceLevels->security >= IceSecurity::SECURITY_PROTOCOL)
+            {
+                _logger->trace(_traceLevels->securityCat, "No pending application-level bytes.");
+            }
 
             // We're done here.
             break;
@@ -662,15 +600,6 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
                         packetSize = buf.b.end() - buf.i;
                     }
                 }
-                else
-                {
-                    // TODO: The client application performs a cleanup at this point,
-                    //       not even shutting down SSL - it just frees the SSL
-                    //       structure. The server does nothing.  I'm ignoring this,
-                    //       at the moment, I'm sure it will come back at me.
-
-                    ICE_PROTOCOL("Error SSL_ERROR_NONE: Repeating as per protocol.");
-                }
                 continue;
             }
 
@@ -681,11 +610,7 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
                 // write with an empty buffer.  I've seen this done in the demo
                 // programs, so this should be valid.  No actual application data
                 // will be sent, just protocol packets.
-
-                ICE_PROTOCOL("Error SSL_ERROR_WANT_WRITE.");
-
                 protocolWrite();
-
                 continue;
             }
 
@@ -694,18 +619,12 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
                 // Repeat with the same arguments! (as in the OpenSSL documentation)
                 // Whatever happened, the last read didn't actually read anything for
                 // us.  This is effectively a retry.
-
-                ICE_PROTOCOL("Error SSL_ERROR_WANT_READ: Repeating as per protocol.");
-
                 continue;
             }
 
             case SSL_ERROR_WANT_X509_LOOKUP:
             {
                 // Perform another read.  The read should take care of this.
-
-                ICE_PROTOCOL("Error SSL_ERROR_WANT_X509_LOOKUP: Repeating as per protocol.");
-
                 continue;
             }
 
@@ -727,14 +646,12 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
 
                     if (connectionLost())
                     {
-                        ICE_DEV_DEBUG("Connection::readSSL(): Throwing ConnectionLostException... SslConnectionOpenSSL.cpp, 518");
                         ConnectionLostException ex(__FILE__, __LINE__);
                         ex.error = getSocketErrno();
                         throw ex;
                     }
                     else
                     {
-                        ICE_DEV_DEBUG("Connection::readSSL(): Throwing SocketException...SslConnectionOpenSSL.cpp, 525");
                         SocketException ex(__FILE__, __LINE__);
                         ex.error = getSocketErrno();
                         throw ex;
@@ -745,10 +662,8 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
                     ProtocolException protocolEx(__FILE__, __LINE__);
 
                     // Protocol Error: Unexpected EOF
-                    protocolEx._message = "Encountered an EOF that violates the SSL Protocol.";
-
-                    ICE_SSLERRORS(protocolEx._message);
-                    ICE_EXCEPTION(protocolEx._message);
+                    protocolEx._message = "Encountered an EOF that violates the SSL Protocol.\n";
+                    protocolEx._message += sslGetErrors();
 
                     throw protocolEx;
                 }
@@ -758,10 +673,8 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
             {
                 ProtocolException protocolEx(__FILE__, __LINE__);
 
-                protocolEx._message = "Encountered a violation of the SSL Protocol.";
-
-                ICE_SSLERRORS(protocolEx._message);
-                ICE_EXCEPTION(protocolEx._message);
+                protocolEx._message = "Encountered a violation of the SSL Protocol.\n";
+                protocolEx._message += sslGetErrors();
 
                 throw protocolEx;
             }
@@ -772,7 +685,6 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
                 // But does not necessarily indicate that the underlying transport
                 // has been closed (in the case of Ice, it definitely hasn't yet).
 
-                ICE_DEV_DEBUG("Connection::readSSL(): Throwing ConnectionLostException... SslConnectionOpenSSL.cpp, 559");
                 ConnectionLostException ex(__FILE__, __LINE__);
                 ex.error = getSocketErrno();
                 throw ex;
@@ -780,16 +692,12 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
         }
     }
 
-    ICE_METHOD_RET("OpenSSL::Connection::readSSL()");
-
     return totalBytesRead;
 }
 
 string
 IceSecurity::Ssl::OpenSSL::Connection::sslGetErrors()
 {
-    ICE_METHOD_INV("OpenSSL::Connection::sslGetErrors()");
-
     string errorMessage;
     char buf[200];
     char bigBuffer[1024];
@@ -826,8 +734,6 @@ IceSecurity::Ssl::OpenSSL::Connection::sslGetErrors()
 
         errorNum++;
     }
-
-    ICE_METHOD_RET("OpenSSL::Connection::sslGetErrors()");
 
     return errorMessage;
 }

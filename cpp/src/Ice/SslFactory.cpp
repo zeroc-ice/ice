@@ -19,7 +19,7 @@
 
 #include <Ice/SslFactory.h>
 #include <Ice/SslSystemOpenSSL.h>
-#include <Ice/Security.h>
+#include <Ice/OpenSSL.h>
 
 #define OPENSSL_THREAD_DEFINES
 #include <openssl/opensslconf.h>

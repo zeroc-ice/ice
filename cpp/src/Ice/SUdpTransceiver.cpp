@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Security.h>
+#include <Ice/OpenSSL.h>
 #include <Ice/SUdpTransceiver.h>
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
@@ -36,41 +36,25 @@ IceInternal::SUdpTransceiver::fd()
 void
 IceInternal::SUdpTransceiver::close()
 {
-    ICE_METHOD_INV("SUdpTransceiver::close()");
-
     _udpTransceiver.close();
-
-    ICE_METHOD_RET("SUdpTransceiver::close()");
 }
 
 void
 IceInternal::SUdpTransceiver::shutdown()
 {
-    ICE_METHOD_INV("SUdpTransceiver::shutdown()");
-
     _udpTransceiver.shutdown();
-
-    ICE_METHOD_RET("SUdpTransceiver::shutdown()");
 }
 
 void
 IceInternal::SUdpTransceiver::write(Buffer& buf, int)
 {
-    ICE_METHOD_INV("SUdpTransceiver::write()");
-
     _udpTransceiver.write(buf,0);
-
-    ICE_METHOD_RET("SUdpTransceiver::write()");
 }
 
 void
 IceInternal::SUdpTransceiver::read(Buffer& buf, int)
 {
-    ICE_METHOD_INV("SUdpTransceiver::read()");
-
     _udpTransceiver.read(buf,0);
-
-    ICE_METHOD_RET("SUdpTransceiver::read()");
 }
 
 string
@@ -97,12 +81,8 @@ IceInternal::SUdpTransceiver::SUdpTransceiver(const InstancePtr& instance, const
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger())
 {
-    ICE_METHOD_INV("SUdpTransceiver::SUdpTransceiver()");
-
     // Perform our handshake with the server
     connectControlChannel(host, port);
-
-    ICE_METHOD_RET("SUdpTransceiver::SUdpTransceiver()");
 }
 
 IceInternal::SUdpTransceiver::SUdpTransceiver(const InstancePtr& instance, int port, bool connect) :
@@ -111,42 +91,26 @@ IceInternal::SUdpTransceiver::SUdpTransceiver(const InstancePtr& instance, int p
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger())
 {
-    ICE_METHOD_INV("SUdpTransceiver::SUdpTransceiver()");
-
     // Build our control channel
     createControlChannel(port);
-
-    ICE_METHOD_RET("SUdpTransceiver::SUdpTransceiver()");
 }
 
 IceInternal::SUdpTransceiver::~SUdpTransceiver()
 {
-    ICE_METHOD_INV("SUdpTransceiver::~SUdpTransceiver()");
-
     _controlChannel->unsetTransceiver();
-
-    ICE_METHOD_RET("SUdpTransceiver::~SUdpTransceiver()");
 }
 
 void
 IceInternal::SUdpTransceiver::connectControlChannel(const string& host, int port)
 {
-    ICE_METHOD_INV("SUdpTransceiver::connectControlChannel()");
-
     // Create a control channel, one for this Client SUdp connection
     _controlChannel = new ClientControlChannel(this, _instance, host, port);
-
-    ICE_METHOD_RET("SUdpTransceiver::connectControlChannel()");
 }
 
 void
 IceInternal::SUdpTransceiver::createControlChannel(int port)
 {
-    ICE_METHOD_INV("SUdpTransceiver::createControlChannel()");
-
     // Create a control channel, one for this Server SUdp connection
     _controlChannel = new ServerControlChannel(this, _instance, port);
-
-    ICE_METHOD_RET("SUdpTransceiver::createControlChannel()");
 }
 

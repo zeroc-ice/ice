@@ -25,7 +25,7 @@
 #include <framework/LocalFileInputSource.hpp>
 #include <util/Janitor.hpp>
 
-#include <Ice/Security.h>
+#include <Ice/OpenSSL.h>
 #include <Ice/SecurityException.h>
 #include <Ice/SslConfigErrorReporter.h>
 #include <Ice/SslConfig.h>

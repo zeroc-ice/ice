@@ -14,6 +14,16 @@
 #include <Ice/SslCertificateVerifier.h>
 #include <openssl/ssl.h>
 
+#ifdef WIN32
+#   ifdef ICE_API_EXPORTS
+#       define ICE_API __declspec(dllexport)
+#   else
+#       define ICE_API __declspec(dllimport)
+#   endif
+#else
+#   define ICE_API /**/
+#endif
+
 namespace IceSecurity
 {
 
@@ -23,20 +33,13 @@ namespace Ssl
 namespace OpenSSL
 {
 
-class CertificateVerifier : public IceSecurity::Ssl::CertificateVerifier
+class ICE_API CertificateVerifier : public IceSecurity::Ssl::CertificateVerifier
 {
 
 public:
     virtual ~CertificateVerifier();
 
     virtual int verify(int, X509_STORE_CTX*, SSL*) = 0;
-};
-
-class DefaultCertificateVerifier : public CertificateVerifier
-{
-
-public:
-    virtual int verify(int, X509_STORE_CTX*, SSL*);
 };
 
 }

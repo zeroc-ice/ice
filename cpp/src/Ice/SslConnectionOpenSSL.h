@@ -17,7 +17,7 @@
 #include <Ice/SslConnection.h>
 #include <Ice/SslSystemF.h>
 #include <Ice/SslConnectionOpenSSLF.h>
-#include <Ice/SslCertificateVerifierF.h>
+#include <Ice/SslCertificateVerifier.h>
 
 namespace IceSecurity
 {
@@ -110,6 +110,22 @@ private:
     SafeFlag& _flag;
 };
 
+class DefaultCertificateVerifier : public CertificateVerifier
+{
+
+public:
+    DefaultCertificateVerifier();
+
+    void setTraceLevels(const TraceLevelsPtr&);
+    void setLogger(const LoggerPtr&);
+
+    virtual int verify(int, X509_STORE_CTX*, SSL*);
+
+private:
+    TraceLevelsPtr _traceLevels;
+    LoggerPtr _logger;
+};
+
 // NOTE: This is a mapping from SSL* to Connection*, for use with the verifyCallback.
 //       I have purposely not used ConnectionPtr here, as connections register themselves
 //       with this map on construction and unregister themselves in the destructor.  If
@@ -153,8 +169,6 @@ protected:
 
     int sslRead(char*, int);
     int sslWrite(char*, int);
-
-    void printGetError(int);
 
     void protocolWrite();
 

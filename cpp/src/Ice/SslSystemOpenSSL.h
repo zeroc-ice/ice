@@ -77,8 +77,6 @@ class System : public IceSecurity::Ssl::System
 {
 public:
 
-    void printContextInfo(SSL_CTX*);
-
     // This is how we create a Server connection.
     virtual IceSecurity::Ssl::Connection* createServerConnection(int);
 
@@ -87,6 +85,9 @@ public:
 
     // Shuts down the SSL System.
     virtual void shutdown();
+
+    virtual void setTrace(const TraceLevelsPtr&);
+    virtual void setLogger(const LoggerPtr&);
 
     virtual bool isConfigLoaded();
     virtual void loadConfig();

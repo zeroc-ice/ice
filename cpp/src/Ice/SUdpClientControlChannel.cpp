@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Security.h>
+#include <Ice/OpenSSL.h>
 #include <Ice/Stream.h>
 #include <Ice/SUdpClientControlChannel.h>
 #include <Ice/Instance.h>
@@ -37,16 +37,12 @@ IceSecurity::SecureUdp::ClientControlChannel::serverHello(Long clientID, const B
 {
     IceUtil::Mutex::Lock sync(_mutex);
 
-    ICE_METHOD_INV("ClientControlChannel::serverHello()");
-
     _clientID = clientID;
 
     // TODO: There is a wierd segmentation fault happening here if I uncomment
     //       the call to serverKeyChangeMessage().  Dunno why.
     // ICE_DEV_DEBUG("About to call serverKeyChangeMessage()");
     // serverKeyChangeMessage(key);
-
-    ICE_METHOD_RET("ClientControlChannel::serverHello()");
 }
 
 void
@@ -54,11 +50,7 @@ IceSecurity::SecureUdp::ClientControlChannel::serverKeyChange(const ByteSeq& key
 {
     IceUtil::Mutex::Lock sync(_mutex);
 
-    ICE_METHOD_INV("ClientControlChannel::serverKeyChange()");
-
     serverKeyChangeMessage(key);
-
-    ICE_METHOD_RET("ClientControlChannel::serverKeyChange()");
 }
 
 void
@@ -66,11 +58,7 @@ IceSecurity::SecureUdp::ClientControlChannel::serverGoodbye(const Current&)
 {
     IceUtil::Mutex::Lock sync(_mutex);
 
-    ICE_METHOD_INV("ClientControlChannel::serverGoodbye()");
-
     // TODO: Should find some way to shut down the Transceiver here.
-
-    ICE_METHOD_RET("ClientControlChannel::serverGoodbye()");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,8 +72,6 @@ IceSecurity::SecureUdp::ClientControlChannel::ClientControlChannel(SUdpTransceiv
                                                                    int port) :
                                              ControlChannel(transceiver, instance)
 {
-    ICE_METHOD_INV("ClientControlChannel::ClientControlChannel()");
-
     // Create the Client Channel's name
     ostringstream objectName;
     objectName << "sudpClient" << hex << (void *) this;
@@ -131,7 +117,6 @@ IceSecurity::SecureUdp::ClientControlChannel::ClientControlChannel(SUdpTransceiv
         ostringstream exptString;
 
         exptString << "Exception: " << expt;
-        ICE_DEV_DEBUG(exptString.str());
 
         throw;
     }
@@ -149,8 +134,6 @@ IceSecurity::SecureUdp::ClientControlChannel::ClientControlChannel(SUdpTransceiv
     _msgID = 0L;
 
     clientHello();
-
-    ICE_METHOD_RET("ClientControlChannel::ClientControlChannel()");
 }
 
 IceSecurity::SecureUdp::ClientControlChannel::~ClientControlChannel()
@@ -163,8 +146,6 @@ IceSecurity::SecureUdp::ClientControlChannel::~ClientControlChannel()
 void
 IceSecurity::SecureUdp::ClientControlChannel::serverKeyChangeMessage(const ByteSeq& key)
 {
-    ICE_METHOD_INV("ClientControlChannel::serverKeyChangeMessage()");
-
     Long msgID = _msgID + 1;
 
     assert(_cryptor);
@@ -175,8 +156,6 @@ IceSecurity::SecureUdp::ClientControlChannel::serverKeyChangeMessage(const ByteS
     assert(_serverChannel);
 
     _serverChannel->clientKeyAcknowledge(_clientID, msgID, _encryptionKey->toByteSeq());
-
-    ICE_METHOD_RET("ClientControlChannel::serverKeyChangeMessage()");
 }
 
 void
