@@ -241,6 +241,12 @@ public final class Connection extends EventHandler
 	// volatile. Synchronization is not possible here anyway,
 	// because this function must not block.
 	//
+
+	//
+	// If _transceiver is null, then _dispatchCount must also be 0;
+	//
+	assert(!(_transceiver == null && _dispatchCount != 0));
+
 	return _transceiver == null;
     }
 

@@ -15,6 +15,7 @@
 #ifndef ICE_CONNECTION_H
 #define ICE_CONNECTION_H
 
+#include <IceUtil/Mutex.h>
 #include <IceUtil/RecMutex.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Time.h>
@@ -46,15 +47,17 @@ class Connection : public EventHandler, public IceUtil::Monitor<IceUtil::RecMute
 {
 public:
 
-    void activate();
-    void hold();
+    void validate();
     enum DestructionReason
     {
 	ObjectAdapterDeactivated,
 	CommunicatorDestroyed
     };
+    void activate();
+    void hold();
     void destroy(DestructionReason);
 
+    bool isValidated() const;
     bool isDestroyed() const;
     bool isFinished() const;
 
@@ -62,9 +65,6 @@ public:
     void waitUntilFinished(); // Not const, as this might close the connection upon timeout.
 
     void monitor();
-
-    void validate();
-    bool isValidated() const;
 
     void incProxyCount();
     void decProxyCount();
@@ -132,7 +132,7 @@ private:
     static void doCompress(BasicStream&, BasicStream&);
     static void doUncompress(BasicStream&, BasicStream&);
 
-    bool closeOK() const;
+    bool closingOK() const;
 
     TransceiverPtr _transceiver;
     const EndpointPtr _endpoint;
@@ -170,6 +170,14 @@ private:
     int _proxyCount; // The number of proxies using this connection.
 
     State _state;
+
+    //
+    // We need a special mutex for the isDestroyed() and isFinished()
+    // functions, because these functions must not block. Using the
+    // default mutex is therefore not possible, as the default mutex
+    // might be locked for a longer period of time.
+    //
+    IceUtil::Mutex _queryMutex;
 };
 
 }
