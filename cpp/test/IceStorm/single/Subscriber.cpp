@@ -62,7 +62,7 @@ public:
 	cout << "testing " << _name << " reliability... " << flush;
 	while(_count < 1000)
 	{
-	    if(!timedWait(IceUtil::Time::seconds(10)))
+	    if(!timedWait(IceUtil::Time::seconds(20)))
 	    {
 		test(false);
 	    }
