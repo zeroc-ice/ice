@@ -45,20 +45,28 @@ private:
 };
 
 Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter,
-				       const ObjectAdapterPtr& serverAdapter,
-				       const TransportInfoPtr& transport) :
+			   const ObjectAdapterPtr& serverAdapter,
+			   const TransportInfoPtr& transport) :
     _communicator(clientAdapter->getCommunicator()),
     _routingTable(new IceInternal::RoutingTable),
     _routingTableTraceLevel(_communicator->getProperties()->getPropertyAsInt("Glacier2.Trace.RoutingTable")),
     _clientProxy(clientAdapter->createProxy(stringToIdentity("dummy"))),
-    _serverProxy(serverAdapter ? serverAdapter->createProxy(stringToIdentity("dummy")) : ObjectPrx()),
-    _clientBlobject(new ClientBlobject(_communicator, _routingTable, "")),
-    _serverBlobject(serverAdapter ? new ServerBlobject(_communicator, transport) : 0)
+    _clientBlobject(new ClientBlobject(_communicator, _routingTable, ""))
 {
     if(serverAdapter)
     {
-	assert(_serverBlobject);
-	serverAdapter->addServantLocator(new RouterLocator(_serverBlobject), "");
+	ObjectPrx& serverProxy = const_cast<ObjectPrx&>(_serverProxy);
+	Identity ident;
+	ident.category.resize(20);
+	for(string::iterator p = ident.category.begin(); p != ident.category.end(); ++p)
+	{
+	    *p = static_cast<char>(33 + rand() % (127-33)); // We use ASCII 33-126 (from ! to ~, w/o space).
+	}
+	serverProxy = serverAdapter->createProxy(ident);
+
+	ServerBlobjectPtr& serverBlobject = const_cast<ServerBlobjectPtr&>(_serverBlobject);
+	serverBlobject = new ServerBlobject(_communicator, transport);
+	serverAdapter->addServantLocator(new RouterLocator(serverBlobject), ident.category);
 	serverAdapter->activate();
     }
 }
@@ -93,7 +101,6 @@ Glacier2::RouterI::getServerProxy(const Current&) const
 void
 Glacier2::RouterI::addProxy(const ObjectPrx& proxy, const Current&)
 {
-
     if(_routingTableTraceLevel)
     {
 	Trace out(_communicator->getLogger(), "Glacier2");

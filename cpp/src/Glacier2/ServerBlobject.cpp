@@ -35,7 +35,7 @@ Glacier2::ServerBlobject::destroy()
 
 void
 Glacier2::ServerBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
-					  const Current& current)
+					   const Current& current)
 {
     assert(_transport); // Destroyed?
 

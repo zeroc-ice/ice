@@ -28,7 +28,7 @@ class SessionRouterI : public Router, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    SessionRouterI(const Ice::ObjectAdapterPtr&);
+    SessionRouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&);
     virtual ~SessionRouterI();
     void destroy();
 
@@ -45,6 +45,7 @@ private:
 
     const Ice::LoggerPtr _logger;
     const Ice::ObjectAdapterPtr _clientAdapter;
+    const Ice::ObjectAdapterPtr _serverAdapter;
     const int _traceLevel;
 
     //

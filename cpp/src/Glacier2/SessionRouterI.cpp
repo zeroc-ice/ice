@@ -45,12 +45,13 @@ private:
     const SessionRouterIPtr _sessionRouter;
 };
 
-Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter) :
+Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
+					 const ObjectAdapterPtr& serverAdapter) :
     _logger(clientAdapter->getCommunicator()->getLogger()),
     _clientAdapter(clientAdapter),
+    _serverAdapter(serverAdapter),
     _traceLevel(clientAdapter->getCommunicator()->getProperties()->getPropertyAsInt("Glacier2.Trace.Session")),
     _sessionThread(new SessionThread(this)),
-    _serverAdapterCount(0),
     _routersHint(_routers.end()),
     _destroy(false)
 {
@@ -110,25 +111,9 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
     assert(!_destroy);
 
     //
-    // Create a server object adapter only if server endpoints are
-    // defined.
+    // Add a new per-client router.
     //
-    CommunicatorPtr communicator = _clientAdapter->getCommunicator();
-    PropertiesPtr properties = communicator->getProperties();
-    string endpoints = properties->getProperty("Glacier2.Server.Endpoints");
-
-    ObjectAdapterPtr serverAdapter;
-    if(!endpoints.empty())
-    {
-	ostringstream name;
-	name << "Glacier2.Server." << _serverAdapterCount++;
-	serverAdapter = communicator->createObjectAdapterWithEndpoints(name.str(), endpoints);
-    }
-    
-    //
-    // Add a new client router.
-    //
-    RouterIPtr router = new RouterI(_clientAdapter, serverAdapter, current.transport);
+    RouterIPtr router = new RouterI(_clientAdapter, _serverAdapter, current.transport);
     _routersHint = _routers.insert(_routersHint, pair<const TransportInfoPtr, RouterIPtr>(current.transport, router));
     
     if(_traceLevel >= 1)
@@ -136,14 +121,6 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 	Trace out(_logger, "Glacier2");
 	out << "added session for:\n";
 	out << current.transport->toString();
-	if(serverAdapter)
-	{
-	    Identity ident;
-	    ident.name = "dummy";
-	    string endpts = _clientAdapter->getCommunicator()->proxyToString(serverAdapter->createProxy(ident));
-	    endpts.erase(0, endpts.find(':') + 1);
-	    out << "\nserver adapter endpoints: " << endpts;
-	}
     }
 }
 

@@ -114,8 +114,8 @@ Glacier::StarterService::start(int argc, char* argv[])
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Glacier.Starter");
 
     //
-    // Get the permissions verifier, or create one if no verifier is
-    // specified.
+    // Get the permissions verifier, or create a default one if no
+    // verifier is specified.
     //
     string verifierProperty = properties->getProperty("Glacier.Starter.PermissionsVerifier");
     PermissionsVerifierPrx verifier;
@@ -187,7 +187,7 @@ Glacier::StarterService::stop()
     //
     // Destroy the starter.
     //
-    assert(_starter);
+    assert(_starterv);
     _starter->destroy();
 
     return true;
