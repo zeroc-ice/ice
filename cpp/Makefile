@@ -16,7 +16,7 @@ top_srcdir	= .
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= src include test demo slice schema
+SUBDIRS		= src include schema test demo slice
 
 install::
 	@if test ! -d $(prefix) ; \
