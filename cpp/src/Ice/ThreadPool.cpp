@@ -752,12 +752,17 @@ IceInternal::ThreadPool::EventHandlerThread::run()
 	out << "exception in `" << _pool->_prefix << "':\n" << ex; 
 	promote = true;
     }
+    catch(const std::exception& ex)
+    {
+	Error out(_pool->_instance->logger());
+	out << "std::exception in `" << _pool->_prefix << "':\n" << ex.what();
+    }
     catch(...)
     {
 	Error out(_pool->_instance->logger());
 	out << "unknown exception in `" << _pool->_prefix << "'"; 
 	promote = true;
-   }
+    }
 
     if(promote && _pool->_sizeMax > 1)
     {
