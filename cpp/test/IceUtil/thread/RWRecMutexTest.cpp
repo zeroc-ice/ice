@@ -306,6 +306,16 @@ RWRecMutexTest::run()
 	{
 	    // Expected
 	}
+
+	try
+	{
+	    RWRecMutex::TryWLock wlock(mutex, 10);
+	    test(false);
+	}
+	catch(const LockedException&)
+	{
+	    // Expected
+	}
     }
 
     // TEST: TryLock (write)
@@ -324,7 +334,25 @@ RWRecMutexTest::run()
 	}
 	try
 	{
+	    RWRecMutex::TryRLock rlock(mutex, 10);
+	    test(false);
+	}
+	catch(const LockedException&)
+	{
+	    // Expected
+	}
+	try
+	{
 	    RWRecMutex::TryWLock wlock(mutex);
+	    // Expected
+	}
+	catch(const LockedException&)
+	{
+	    test(false);
+	}
+	try
+	{
+	    RWRecMutex::TryWLock wlock(mutex, 10);
 	    // Expected
 	}
 	catch(const LockedException&)
