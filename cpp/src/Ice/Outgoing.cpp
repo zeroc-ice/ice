@@ -179,8 +179,6 @@ IceInternal::Outgoing::invoke()
 		    {
 			wait();
 		    }
-
-		    assert(_exception.get());
 		}
 	    }
 

@@ -155,8 +155,6 @@ public final class Outgoing
 			    {
 			    }
 			}
-			
-			assert(_exception != null);
 		    }
                 }
 

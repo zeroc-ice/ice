@@ -1,6 +1,9 @@
 Changes since version 1.3.0
 ---------------------------
 
+- Removed a bogus assert that could happen under certain race
+  conditions when a connection timeout occurs.
+
 - Facets have been significantly redesigned.
 
   * Facets are no longer hierarchical. As a result, FacetPath (which

@@ -1,6 +1,9 @@
 Changes since version 1.3.0
 ---------------------------
 
+- Removed a bogus assert that could happen under certain race
+  conditions when a connection timeout occurs.
+
 - Added checkedCast and uncheckedCast operations to ObjectPrxHelper.
 
 - Assertions in servant methods are now correctly caught and an error
