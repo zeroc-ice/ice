@@ -163,7 +163,7 @@ Test::RemoteEvictorI::RemoteEvictorI(const ObjectAdapterPtr& adapter, const stri
     _category(category)
 {
     CommunicatorPtr communicator = adapter->getCommunicator();
-    _evictorAdapter = communicator->createObjectAdapterWithEndpoints(IceUtil::generateUUID(), "default -p 9999");
+    _evictorAdapter = communicator->createObjectAdapterWithEndpoints(IceUtil::generateUUID(), "default");
  
     Initializer* initializer = new Initializer;
     

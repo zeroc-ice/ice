@@ -229,7 +229,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	servants.push_back(evictor->createServant(i, i));
     }
     
-    /*
     //
     // Deactivate and recreate evictor, to ensure that servants
     // are restored properly after database close and reopen.
@@ -237,7 +236,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     evictor->deactivate();
     
     evictor = factory->createEvictor("Test");
-    */
 
     evictor->setSize(size);
     for(i = 0; i < size; i++)

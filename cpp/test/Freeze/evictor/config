@@ -1,7 +1,8 @@
 Freeze.Evictor.db.Test.SaveSizeTrigger=6
 Freeze.Evictor.db.Test.SavePeriod=2
 
-Freeze.Trace.Evictor=3
-Freeze.Trace.DbEnv=3
+#Freeze.Trace.Evictor=3
+#Freeze.Trace.DbEnv=3
 
-
+Ice.ThreadPool.Server.SizeMax=2
+Ice.ThreadPool.Server.SizeWarn=0
