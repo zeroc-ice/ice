@@ -407,19 +407,19 @@ final class TraceUtil
             {
                 case (byte)0:
                 {
-                    out.write("(no support for compression)");
+                    out.write("(compression not supported)");
                     break;
                 }
 
                 case (byte)1:
                 {
-                    out.write("(compression supported but not used)");
+                    out.write("(not compressed)");
                     break;
                 }
 
                 case (byte)2:
                 {
-                    out.write("(compression used)");
+                    out.write("(compressed)");
                     break;
                 }
 

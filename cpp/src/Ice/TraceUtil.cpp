@@ -155,19 +155,19 @@ printHeader(ostream& s, BasicStream& stream)
     {
 	case 0:
 	{
-	    s << "(no support for compression)";
+	    s << "(compression not supported)";
 	    break;
 	}
 
 	case 1:
 	{
-	    s << "(compression supported but not used)";
+	    s << "(not compressed)";
 	    break;
 	}
 
 	case 2:
 	{
-	    s << "(compression used)";
+	    s << "(compressed)";
 	    break;
 	}
 
