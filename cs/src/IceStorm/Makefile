@@ -23,7 +23,7 @@ include $(top_srcdir)/config/Make.rules
 
 MCSFLAGS	:= $(MCSFLAGS) -target:library -out:$(TARGETS) -unsafe
 
-SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I$(slicedir)
+SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I$(slicedir) --ice
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -r:$(libdir)/icecs.dll $^
