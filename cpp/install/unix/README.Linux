@@ -1,0 +1,81 @@
+======================================================================
+Requirements
+======================================================================
+
+
+Operating System
+----------------
+
+Ice RPMs and binaries from the Ice-<version>-bin-linux.tar.gz package
+require Redhat Fedora Core 3.
+
+
+C++ compiler
+------------
+
+- GCC installed with Redhat Fedora Core 3.
+
+
+Third-party libraries
+---------------------
+
+If you have installed Ice from RPMs, you already have the required
+third-party libraries!
+
+Otherwise, Ice has dependencies on a number of third-party libraries
+that you will need to install:
+
+- Berkeley DB 4.2.52 or 4.3.27 configured with --enable-cxx.
+
+  Note that Ice for Java is not compatible with version 4.3,
+  therefore if you intend to use Ice for Java with Berkeley DB,
+  you must use version 4.2.52 and the option --enable-java.
+
+- expat 1.9x
+
+- OpenSSL 0.96 or 0.97
+
+- bzip2 1.0
+
+- readline and ncurses (optional, but used unless you set USE_READLINE
+  to no in config/Make.rules)
+
+BerkeleyDB, expat, OpenSSL, bzip2, readline and ncurses are included
+with your Fedora Core 3 distribution in the following RPMs:
+
+BerkeleyDB     db4, db4-utils, db4-devel, db4-java
+expat 	       expat, expat-devel
+OpenSSL	       openssl, openssl-devel
+bzip2          bzip2-libs, bzip2-devel
+readline       readline, readline-devel
+ncurses        ncurses, ncurses-devel
+
+Or you can download them from the following locations:
+
+BerkeleyDB     http://www.sleepycat.com/download
+expat          http://sourceforge.net/projects/expat/
+OpenSSL        http://www.openssl.org
+bzip2          http://sources.redhat.com/bzip2
+readline       http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
+ncurses        http://www.gnu.org/software/ncurses/ncurses.html
+
+======================================================================
+64 bit builds on AMD64
+======================================================================
+
+This distribution only contains 32 bits binaries. If you need a 64
+bits build, you can download Ice sources from
+http://www.zeroc.com/download.html and build Ice in 64 bits mode. See
+the INSTALL.LINUX file of the source distribution for more
+information.
+
+======================================================================
+Setting up your environment to use Ice
+======================================================================
+
+You need to add the Ice bin directory to your PATH and the lib
+directory to your LD_LIBRARY_PATH.
+
+When compiling Ice programs, you must also make sure to pass the
+location of the Ice include directory to the compiler with the -I
+option, and the location of the Ice lib directory with the -L option.
