@@ -168,6 +168,33 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string& fa
     }
 }
 
+FacetMap
+IceInternal::ServantManager::findAllFacets(const Identity& ident) const
+{
+    IceUtil::Mutex::Lock sync(*this);
+    
+    assert(_instance); // Must not be called after destruction.
+
+    ServantMapMap::iterator p = _servantMapMapHint;
+    
+    ServantMapMap& servantMapMap = const_cast<ServantMapMap&>(_servantMapMap);
+
+    if(p == servantMapMap.end() || p->first != ident)
+    {
+	p = servantMapMap.find(ident);
+    }
+    
+    if(p == servantMapMap.end())
+    {
+	return FacetMap();
+    }
+    else
+    {
+	_servantMapMapHint = p;
+	return p->second;
+    }
+}
+
 bool
 IceInternal::ServantManager::hasServant(const Identity& ident) const
 {

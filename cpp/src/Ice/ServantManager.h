@@ -36,6 +36,7 @@ public:
     void removeServant(const Ice::Identity&, const std::string&);
     Ice::FacetMap removeAllFacets(const Ice::Identity&);
     Ice::ObjectPtr findServant(const Ice::Identity&, const std::string&) const;
+    Ice::FacetMap findAllFacets(const Ice::Identity&) const;
     bool hasServant(const Ice::Identity&) const;
 
     void addServantLocator(const Ice::ServantLocatorPtr& locator, const std::string&);

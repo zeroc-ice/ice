@@ -378,6 +378,17 @@ Ice::ObjectAdapterI::findFacet(const Identity& ident, const string& facet)
     return _servantManager->findServant(ident, facet);
 }
 
+FacetMap
+Ice::ObjectAdapterI::findAllFacets(const Identity& ident)
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+    checkForDeactivation();
+    checkIdentity(ident);
+
+    return _servantManager->findAllFacets(ident);
+}
+
 ObjectPtr
 Ice::ObjectAdapterI::findByProxy(const ObjectPrx& proxy)
 {

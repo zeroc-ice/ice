@@ -14,9 +14,9 @@ module Ice
 {
 
 /**
+ *
  * A mapping from facet name to servant.
  *
- * @see [ObjectAdapter::removeAllFacets]
  **/
 local dictionary<string, Object> FacetMap;
 

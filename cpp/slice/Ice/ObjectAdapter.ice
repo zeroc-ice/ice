@@ -268,19 +268,20 @@ local interface ObjectAdapter
     void removeFacet(Identity id, string facet);
 
     /**
+     *
      * Remove all facets with the given identity from the Active
-     * Servant Map (that is, completely remove the &Ice object,
+     * Servant Map (that is, completely remove the &Ice; object,
      * including it's default facet). Removing an identity that
      * is not in the map throws [NotRegisteredException].
      *
-     * @param id The identity of the &Ice object to be removed.
+     * @param id The identity of the &Ice; object to be removed.
      *
      * @return A collection containing all the facet names and
-     * servants of the removed &Ice object.
+     * servants of the removed &Ice; object.
      *
-     * @see FacetMap
      * @see remove
      * @see removeFacet
+     *
      **/
     FacetMap removeAllFacets(Identity id);
 
@@ -328,6 +329,24 @@ local interface ObjectAdapter
      *
      **/
     Object findFacet(Identity id, string facet);
+
+    /**
+     *
+     * Find all facets with the given identity in the Active Servant
+     * Map.
+     *
+     * @param id The identity of the &Ice; object for which the facets
+     * should be returned.
+     *
+     * @return A collection containing all the facet names and
+     * servants which have been found, or an empty map if there is no
+     * facet for the given identity.
+     *
+     * @see find
+     * @see findFacet
+     *
+     **/
+    FacetMap findAllFacets(Identity id);
 
     /**
      *

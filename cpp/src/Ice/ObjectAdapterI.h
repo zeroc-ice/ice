@@ -57,6 +57,7 @@ public:
     virtual FacetMap removeAllFacets(const Identity&);
     virtual ObjectPtr find(const Identity&);
     virtual ObjectPtr findFacet(const Identity&, const std::string&);
+    virtual FacetMap findAllFacets(const Identity&);
     virtual ObjectPtr findByProxy(const ObjectPrx&);
 
     virtual void addServantLocator(const ServantLocatorPtr&, const std::string&);
