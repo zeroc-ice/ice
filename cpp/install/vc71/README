@@ -24,13 +24,12 @@ These DLLs can be found in various directories, for example:
 (4) Open (and save) demo\demo.sln with Visual Studio .NET 2003 
 to convert it to the 2003 format.
 
-(5) In the Ice, IcePDB, ThirdParty and ThirdPartyPDB projects,
-replace ".NET 2002" by ".NET 2003", either using Visual
-Studio or by opening the corresponding .vdproj files with a 
-text editor.
+(5) In the Ice and ThirdParty projects, replace ".NET 2002" by 
+".NET 2003", either using Visual Studio or by opening the 
+corresponding .vdproj files with a text editor.
 
 (6) (Optional) Add the IceCS project utput to the Ice project to
-include Ice for C# in the installer.
+include Ice for C# and Ice for Visual Basic in the installer.
 
 Then refer to the vc70\README for further information on
 these installer projects.
