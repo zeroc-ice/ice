@@ -552,7 +552,7 @@
 
     <target name="vc60-packages-installer" depends="vc60-packages">
 	<exec dir="." executable="ISCmdBld.exe">
-	    <arg line="-p ThirdParty-2.1.0-VC60.ism -r ICE_THIRD_PARTY -c COMP -a ZEROC"/>
+	    <arg line="-p ThirdParty-2.1.0-VC60.ism -r THIRD_PARTY_MSI -c COMP -a ZEROC"/>
 	</exec>
     </target>
 

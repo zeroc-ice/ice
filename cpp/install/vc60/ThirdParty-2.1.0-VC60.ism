@@ -1740,6 +1740,7 @@
 		<col def="S50">JSharpCmdLine</col>
 		<col def="I4">Attributes</col>
 		<col def="I4">JSharpRedistLocation</col>
+		<row><td>ICE_THIRD_PARTY</td><td>ZEROC</td><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/></row>
 		<row><td>SINGLE_EXE_IMAGE</td><td>ZEROC</td><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/></row>
 		<row><td>THIRD_PARTY_MSI</td><td>ZEROC</td><td>0</td><td>http://</td><td>0</td><td>install</td><td>install</td><td>[WindowsFolder]Downloaded Installations</td><td>0</td><td>http://www.installengine.com/Msiengine20</td><td>http://www.installengine.com/Msiengine20</td><td>0</td><td>http://www.installengine.com/cert03/isengine</td><td/><td/><td/><td/><td>3</td><td>http://www.installengine.com/cert03/dotnetfx</td><td>0</td><td>1033</td><td/><td/><td/><td/><td/><td>3</td></row>
 	</table>
