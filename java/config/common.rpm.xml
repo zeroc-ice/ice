@@ -16,7 +16,7 @@
     <property name="lib.dir" value="/usr/lib/Ice-ICE_VERSION" />
     <property name="slice.dir" value="/usr/share/slice"/>
     <taskdef name="slice2java" classpath="${lib.dir}/ant" classname="Slice2JavaTask"/>
-    <taskdef name="slice2freezj" classpath="${lib.dir}/ant" classname="Slice2FreezeTask"/>
+    <taskdef name="slice2freezej" classpath="${lib.dir}/ant" classname="Slice2FreezeTask"/>
     
     <!-- Ice classpath -->
     <path id="ice.classpath">

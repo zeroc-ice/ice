@@ -16,7 +16,7 @@
     <property name="lib.dir" value="${common_src.basedir}/../lib" />
     <property name="slice.dir" value="${common_src.basedir}/../slice"/>
     <taskdef name="slice2java" classpath="${common_src.basedir}/../ant" classname="Slice2JavaTask"/>
-    <taskdef name="slice2freezj" classpath="${common_src.basedir}/../ant" classname="Slice2FreezeTask"/>
+    <taskdef name="slice2freezej" classpath="${common_src.basedir}/../ant" classname="Slice2FreezeTask"/>
     
     <!-- Ice classpath -->
     <path id="ice.classpath">
