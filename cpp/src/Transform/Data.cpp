@@ -1851,7 +1851,7 @@ Transform::ProxyData::getValue() const
 void
 Transform::ProxyData::printI(IceUtil::Output& out, ObjectDataHistory&) const
 {
-    out << typeName(_type) << "*(" << toString() << ")";
+    out << typeName(_type) << "(" << toString() << ")";
 }
 
 void
