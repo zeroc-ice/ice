@@ -35,7 +35,11 @@ FreezeScript::Exception::ice_name() const
 void
 FreezeScript::Exception::ice_print(ostream& out) const
 {
-	::IceUtil::Exception::ice_print(out);
+#ifdef _WIN32
+    Exception::ice_print(out);
+#else
+    ::IceUtil::Exception::ice_print(out);
+#endif
     out << ":\nerror occurred during transformation"; // TODO
     if(!_reason.empty())
     {
