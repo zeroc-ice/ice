@@ -19,8 +19,8 @@ endif
 prefix			= /opt/IcePy-$(VERSION)
 
 #
-# Define OPTIMIZE as yes if you want to build with
-# optimization. Otherwise Ice is build with debug information.
+# Define OPTIMIZE as yes if you want to build with optimization.
+# Otherwise the Ice extension is built with debug information.
 #
 
 #OPTIMIZE		= yes
@@ -37,22 +37,36 @@ prefix			= /opt/IcePy-$(VERSION)
 #
 
 #
-# If you've built Python yourself then modify PYTHON_HOME to contain
+# If you've built Python yourself then set PYTHON_HOME to contain
 # the installation directory; the rest of the Python-related settings
 # should be correct.
 #
-# If you've installed a distribution, or Python 2.3 was included in
-# your system, then you likely need to enable the alternate settings
-# for PYTHON_INCLUDE_DIR and PYTHON_LIB_DIR.
+# If you've installed a distribution, or Python was included with
+# your system, then you likely need to review the values of
+# PYTHON_INCLUDE_DIR and PYTHON_LIB_DIR.
 #
 
-PYTHON_VERSION		?= python2.3
-PYTHON_HOME		?= /opt/python-2.3.4
-#PYTHON_INCLUDE_DIR	?= $(PYTHON_HOME)/include/$(PYTHON_VERSION)
-PYTHON_INCLUDE_DIR	?= /usr/include/$(PYTHON_VERSION)
-#PYTHON_LIB_DIR		?= $(PYTHON_HOME)/lib/$(PYTHON_VERSION)/config
-PYTHON_LIB_DIR		?= /usr/lib/$(PYTHON_VERSION)
-#PYTHON_LIB_DIR		?= $(PYTHON_HOME)/lib  # HP-UX
+ifneq ($(PYTHON_HOME),)
+    PYTHON_VERSION	= $(notdir $(wildcard $(PYTHON_HOME)/include/*))
+    PYTHON_INCLUDE_DIR	= $(PYTHON_HOME)/include/$(PYTHON_VERSION)
+    #
+    # The Python shared library is installed in $(PYTHON_HOME)/lib on HP-UX
+    # rather than $(PYTHON_HOME)/lib/$(PYTHON_VERSION)/config.
+    #
+    ifeq ($(shell test -f $(PYTHON_HOME)/lib/lib$(PYTHON_VERSION).sl && echo 0),0)
+	PYTHON_LIB_DIR	= $(PYTHON_HOME)/lib
+    else
+	PYTHON_LIB_DIR	= $(PYTHON_HOME)/lib/$(PYTHON_VERSION)/config
+    endif
+else
+    PYTHON_VERSION	= $(word 1,$(notdir $(wildcard /usr/include/python2.[34]*)))
+    PYTHON_INCLUDE_DIR	= /usr/include/$(PYTHON_VERSION)
+    PYTHON_LIB_DIR	= /usr/lib/$(PYTHON_VERSION)/config
+endif
+
+ifeq ($(PYTHON_VERSION),)
+    $(error Unable to find Python 2.3 or 2.4. See config/Make.rules)
+endif
 
 PYTHON_FLAGS		?= -I$(PYTHON_INCLUDE_DIR)
 PYTHON_LIBS		?= -L$(PYTHON_LIB_DIR) -l$(PYTHON_VERSION)
