@@ -246,6 +246,7 @@
 		<exclude name="**/Makefile"/>
 		<exclude name="**/Debug/**"/>
 		<exclude name="**/Release/**"/>
+		<exclude name="Freeze/backup/**"/>
 	    </fileset>
 	</copy>
 
@@ -272,6 +273,8 @@
 	<copy todir="${install.dir}/ice-csharp/dev/bin">
 	    <fileset dir="${icecs.dir}/bin">
 		<include name="generatecs.exe"/>
+		<include name="*.pdb"/>
+		<exclude name="generatecs.pdb"/>
 	    </fileset>
 	    <fileset dir="${ice.dir}/bin">
 		<include name="slice2cs.exe"/>
@@ -338,6 +341,14 @@
 	<copy file="${icej.dir}/config/build.properties" todir="${install.dir}/ice-java/dev/config"/>
 	<copy file="${icej.dir}/config/common.xml" todir="${install.dir}/ice-java/dev/config"/>
 
+	<mkdir dir="${install.dir}/ice-java/dev/certs"/>
+	<copy todir="${install.dir}/ice-java/dev/certs">
+	    <fileset dir="${icej.dir}/certs">
+	        <!-- Only need these because the core ice runtime will install the rest -->
+		<include name="*.jks"/>
+	    </fileset>
+	</copy>
+
     </target>
 
     <!-- Ice for Java Demo -->
@@ -349,14 +360,6 @@
 		<exclude name="**/.dummy"/>
 		<exclude name="**/classes/**"/>
 		<exclude name="**/generated/**"/>
-	    </fileset>
-	</copy>
-
-	<mkdir dir="${install.dir}/ice-java/demo/certs"/>
-	<copy todir="${install.dir}/ice-java/demo/certs">
-	    <fileset dir="${icej.dir}/certs">
-		<exclude name="openssl/**"/>
-		<exclude name="makecerts"/>
 	    </fileset>
 	</copy>
 
@@ -452,6 +455,7 @@
 	    <fileset dir="${icevb.dir}/demo">
 		<exclude name="**/*.vbproj*"/>
 		<exclude name="**/*.exe"/>
+		<exclude name="**/*.pdb"/>
 		<exclude name="**/*.dll"/>
 		<exclude name="**/*.bat"/>
 		<exclude name="**/.depend"/>

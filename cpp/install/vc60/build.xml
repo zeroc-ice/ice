@@ -243,6 +243,7 @@
 		<exclude name="**/Makefile"/>
 		<exclude name="**/Debug/**"/>
 		<exclude name="**/Release/**"/>
+		<exclude name="Freeze/backup/**"/>
 	    </fileset>
 	</copy>
 
