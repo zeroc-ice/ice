@@ -78,8 +78,8 @@ Building and running the Java demos
 
 The Java demos are in the demoj directory.
 
-To build the Java demos, you need the Java SDK 1.4.2 or later,
-and Ant 1.5. They can be downloaded from:
+To build the Java demos, you need the Java SDK 1.4.2 or later, and Ant
+1.6.2. They can be downloaded from:
 
 http://java.sun.com/j2se/index.jsp
 http://ant.apache.org/bindownload.cgi
@@ -88,13 +88,16 @@ The ant bin directory must be added to your PATH, and the following
 environment variables need to be defined:
 
 set JAVA_HOME=<Java SDK installation root directory>
-set ICE_HOME=<Ice installation root directory>
 set PATH=%ICE_HOME%\bin;%PATH%
-set CLASSPATH=%ICE_HOME%\lib\Ice.jar;%ICE_HOME%\lib\db.jar;classes;%CLASSPATH%
 
 You can build all of the demos by running 'ant' in the demoj
 directory, or you can build individual demos by changing to the
 desired subdirectory and then running 'ant'.
+
+Before running the demos you must modify your CLASSPATH as follows:
+
+set ICE_HOME=<Ice installation root directory>
+set CLASSPATH=%ICE_HOME%\lib\Ice.jar;%ICE_HOME%\lib\db.jar;classes;%CLASSPATH%
 
 To run a demo, open a Command Prompt, change to the desired demo
 directory, and enter the following command to run the server:
