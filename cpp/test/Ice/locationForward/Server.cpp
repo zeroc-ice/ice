@@ -74,7 +74,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     endpts << protocol << " -p " << port;
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter", endpts.str());
     Ice::ObjectPtr object = new TestI(adapter, fwd);
-    adapter->add(object, "test");
+    adapter->add(object, Ice::stringToIdentity("test"));
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;

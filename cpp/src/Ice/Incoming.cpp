@@ -40,7 +40,7 @@ IceInternal::Incoming::invoke()
     }
     else
     {
-	_is.read(current.identity);
+	current.identity.__read(&_is);
 	_is.read(current.facet);
     }
     _is.read(current.operation);
@@ -75,16 +75,12 @@ IceInternal::Incoming::invoke()
 	servant = _adapter->identityToServant(current.identity);
 	DispatchStatus status;
 
-	if (!servant)
+	if (!servant && !current.identity.category.empty())
 	{
-	    string::size_type pos = current.identity.find('#');
-	    if (pos != string::npos)
+	    locator = _adapter->findServantLocator(current.identity.category);
+	    if (locator)
 	    {
-		locator = _adapter->findServantLocator(current.identity.substr(0, pos));
-		if (locator)
-		{
-		    servant = locator->locate(_adapter, current, cookie);
-		}
+		servant = locator->locate(_adapter, current, cookie);
 	    }
 	}
 

@@ -14,13 +14,37 @@
 module Ice
 {
 
+/**
+ *
+ * The identity of an Ice Object. An empty [name] denotes a null
+ * object.
+ *
+ **/
 struct Identity
 {
+    /**
+     *
+     * The name of the Ice Object.
+     *
+     **/
     string name;
-    int group;
+
+    /**
+     *
+     * The Ice Object category.
+     *
+     * @see ServantLocator
+     * @see ObjectAdapter::addServantLocator
+     *
+     **/
     string category;
 };
 
+/**
+ *
+ * A mapping between identities and Ice Objects.
+ *
+ **/
 dictionary<Identity, Object> ObjectDict;
 
 };

@@ -36,7 +36,7 @@ TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice
     for (StringBoolDict::const_iterator p = _topics.begin(); p != _topics.end(); ++p)
     {
 	assert(_topicIMap.find(p->first) == _topicIMap.end());
-	installTopic("Recreate", p->first);
+	installTopic("recreate", p->first);
     }
 }
 
@@ -59,10 +59,12 @@ TopicManagerI::create(const string& name, const Ice::Current&)
         throw ex;
     }
 
-    installTopic("Create", name);
+    installTopic("create", name);
     _topics[name] = true;
 
-    return TopicPrx::uncheckedCast(_adapter->createProxy(name));
+    Ice::Identity id;
+    id.name = name;
+    return TopicPrx::uncheckedCast(_adapter->createProxy(id));
 }
 
 TopicPrx
@@ -74,7 +76,9 @@ TopicManagerI::retrieve(const string& name, const Ice::Current&)
 
     if (_topicIMap.find(name) != _topicIMap.end())
     {
-	return TopicPrx::uncheckedCast(_adapter->createProxy(name));
+	Ice::Identity id;
+	id.name = name;
+	return TopicPrx::uncheckedCast(_adapter->createProxy(id));
     }
 
     NoSuchTopic ex;
@@ -88,7 +92,9 @@ TopicManagerI::retrieve(const string& name, const Ice::Current&)
 static TopicDict::value_type
 transformToTopicDict(TopicIMap::value_type p, Ice::ObjectAdapterPtr adapter)
 {
-    return TopicDict::value_type(p.first, TopicPrx::uncheckedCast(adapter->createProxy(p.first)));
+    Ice::Identity id;
+    id.name = p.first;
+    return TopicDict::value_type(p.first, TopicPrx::uncheckedCast(adapter->createProxy(id)));
 }
 
 TopicDict
@@ -257,6 +263,8 @@ TopicManagerI::installTopic(const std::string& message, const std::string& name)
     // Create topic implementation
     //
     TopicIPtr topicI = new TopicI(_adapter, _traceLevels, _communicator->getLogger(), name, _flusher);
-    _adapter->add(topicI, name);
+    Ice::Identity id;
+    id.name = name;
+    _adapter->add(topicI, id);
     _topicIMap.insert(TopicIMap::value_type(name, topicI));
 }

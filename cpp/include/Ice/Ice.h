@@ -23,5 +23,6 @@
 #include <Ice/ServantLocator.h>
 #include <Ice/Proxy.h>
 #include <Ice/Object.h>
+#include <Ice/IdentityUtil.h>
 
 #endif

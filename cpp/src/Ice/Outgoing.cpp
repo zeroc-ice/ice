@@ -72,7 +72,7 @@ IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& r
     }
     else
     {
-	_os.write(_reference->identity);
+	_reference->identity.__write(&_os);
 	_os.write(_reference->facet);
     }
     _os.write(operation);

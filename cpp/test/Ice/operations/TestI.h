@@ -17,7 +17,7 @@ class MyDerivedClassI : public Test::MyDerivedClass
 {
 public:
 
-    MyDerivedClassI(const Ice::ObjectAdapterPtr&, const std::string&);
+    MyDerivedClassI(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
 
     virtual void shutdown(const Ice::Current&);
 
@@ -170,7 +170,7 @@ public:
 private:
 
     Ice::ObjectAdapterPtr _adapter;
-    std::string _identity;
+    Ice::Identity _identity;
 };
 
 #endif

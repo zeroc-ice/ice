@@ -52,10 +52,7 @@ Subscriber::run(int argc, char* argv[])
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("ClockAdapter", "tcp");
     Ice::ObjectPtr clock = new ClockI();
-    const char* id = "events#time";
-    adapter->add(clock, id);
-
-    Ice::ObjectPrx object = adapter->createProxy(id);
+    Ice::ObjectPrx object = adapter->add(clock, Ice::stringToIdentity("events#time"));
 
     //
     // The set of topics to which to subscribe

@@ -151,7 +151,7 @@ Subscriber::publish(const string& op, bool nonmutating, const std::vector< ::Ice
 
 }
 
-std::string
+Ice::Identity
 Subscriber::id() const
 {
     return _obj->ice_getIdentity();

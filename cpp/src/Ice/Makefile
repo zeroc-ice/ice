@@ -45,6 +45,7 @@ OBJS		= Application.o \
 		  Endpoint.o \
 		  Reference.o \
 		  Identity.o \
+		  IdentityUtil.o \
 		  Current.o \
 		  LocalObject.o \
 		  Object.o \

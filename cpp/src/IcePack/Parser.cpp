@@ -62,7 +62,6 @@ IcePack::Parser::add(const list<string>& args)
 	ServerDescription desc;
 	list<string>::const_iterator p = args.begin();
 	desc.object = _communicator->stringToProxy(*p);
-	desc.regex = false;
 	if (++p != args.end())
 	{
 	    desc.path = *p;
@@ -93,7 +92,7 @@ IcePack::Parser::remove(const list<string>& args)
 
     try
     {
-	_admin->remove(args.front());
+	_admin->remove(stringToIdentity(args.front()));
     }
     catch(const Exception& ex)
     {
@@ -114,7 +113,6 @@ IcePack::Parser::listAll()
 	{
 	    cout << "identity = " << p->first << endl;
 	    cout << "object = " << _communicator->proxyToString(p->second.object) << endl;
-	    cout << "regex = " << boolalpha << p->second.regex << endl;
 	    cout << "host = " << p->second.host << endl;
 	    cout << "path = " << p->second.path << endl;
 	    cout << "args =";

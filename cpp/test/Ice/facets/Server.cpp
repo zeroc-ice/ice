@@ -28,7 +28,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     string endpts = protocol + " -p 12345 -t 2000";
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter", endpts);
     Ice::ObjectPtr d = new DI;
-    adapter->add(d, "d");
+    adapter->add(d, Ice::stringToIdentity("d"));
     d->ice_addFacet(d, "facetABCD");
     d->ice_addFacet(new FI, "facetEF");
     d->ice_addFacet(new GI(communicator), "facetG");

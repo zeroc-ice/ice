@@ -12,6 +12,7 @@
 #include <Ice/Endpoint.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Exception.h>
+#include <Ice/IdentityUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -20,7 +21,7 @@ using namespace IceInternal;
 void IceInternal::incRef(::IceInternal::Reference* p) { p->__incRef(); }
 void IceInternal::decRef(::IceInternal::Reference* p) { p->__decRef(); }
 
-IceInternal::Reference::Reference(const InstancePtr& inst, const string& ident, const string& fac, Mode md, bool sec,
+IceInternal::Reference::Reference(const InstancePtr& inst, const Identity& ident, const string& fac, Mode md, bool sec,
 				  const vector<EndpointPtr>& origEndpts, const vector<EndpointPtr>& endpts) :
     instance(inst),
     identity(ident),
@@ -63,7 +64,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
 	throw ReferenceParseException(__FILE__, __LINE__);
     }
 
-    const_cast<string&>(identity) = s.substr(beg, end - beg);    
+    const_cast<Identity&>(identity) = stringToIdentity(s.substr(beg, end - beg));
 
     while (true)
     {
@@ -247,7 +248,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
     calcHashValue();
 }
 
-IceInternal::Reference::Reference(const string& ident, BasicStream* s) :
+IceInternal::Reference::Reference(const Identity& ident, BasicStream* s) :
     instance(s->instance()),
     identity(ident),
     mode(ModeTwoway),
@@ -473,7 +474,7 @@ IceInternal::Reference::toString() const
 }
 
 ReferencePtr
-IceInternal::Reference::changeIdentity(const string& newIdentity) const
+IceInternal::Reference::changeIdentity(const Identity& newIdentity) const
 {
     if (newIdentity == identity)
     {
@@ -571,7 +572,12 @@ IceInternal::Reference::calcHashValue()
 
     string::const_iterator p;
 
-    for (p = identity.begin(); p != identity.end(); ++p)
+    for (p = identity.name.begin(); p != identity.name.end(); ++p)
+    {
+	h = 5 * h + *p;
+    }
+
+    for (p = identity.category.begin(); p != identity.category.end(); ++p)
     {
 	h = 5 * h + *p;
     }

@@ -85,7 +85,7 @@ IceStorm::Server::runFreeze(int argc, char* argv[], const Freeze::DBEnvironmentP
     TraceLevelsPtr traceLevels = new TraceLevels(communicator()->getProperties());
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TopicManager");
     ObjectPtr object = new TopicManagerI(communicator(), adapter, traceLevels, dbTopicManager);
-    adapter->add(object, "TopicManager");
+    adapter->add(object, stringToIdentity("TopicManager"));
     adapter->activate();
 
     shutdownOnInterrupt();

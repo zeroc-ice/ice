@@ -39,18 +39,18 @@ public:
     virtual void hold();
     virtual void deactivate();
 
-    virtual ObjectPrx add(const ObjectPtr&, const std::string&);
+    virtual ObjectPrx add(const ObjectPtr&, const Identity&);
     virtual ObjectPrx addTemporary(const ObjectPtr&);
-    virtual void remove(const std::string&);
+    virtual void remove(const Identity&);
 
     virtual void addServantLocator(const ServantLocatorPtr&, const std::string&);
     virtual void removeServantLocator(const std::string&);
     virtual ServantLocatorPtr findServantLocator(const std::string&);
 
-    virtual ObjectPtr identityToServant(const ::std::string&);
+    virtual ObjectPtr identityToServant(const Identity&);
     virtual ObjectPtr proxyToServant(const ObjectPrx&);
 
-    virtual ObjectPrx createProxy(const ::std::string&);
+    virtual ObjectPrx createProxy(const Identity&);
 
 private:
 
@@ -58,14 +58,14 @@ private:
     virtual ~ObjectAdapterI();
     friend ::IceInternal::ObjectAdapterFactory;
     
-    ObjectPrx newProxy(const ::std::string&);
+    ObjectPrx newProxy(const Identity&);
     bool isLocal(const ObjectPrx&);
 
     ::IceInternal::InstancePtr _instance;
     std::string _name;
     std::vector< IceInternal::CollectorFactoryPtr> _collectorFactories;
-    std::map<std::string, ObjectPtr> _activeServantMap;
-    std::map<std::string, ObjectPtr>::iterator _activeServantMapHint;
+    ObjectDict _activeServantMap;
+    ObjectDict::iterator _activeServantMapHint;
     std::map<std::string, ServantLocatorPtr> _locatorMap;
     std::map<std::string, ServantLocatorPtr>::iterator _locatorMapHint;
 };

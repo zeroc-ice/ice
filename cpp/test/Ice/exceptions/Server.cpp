@@ -29,7 +29,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     string endpts = protocol + " -p 12345 -t 2000";
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter", endpts);
     Ice::ObjectPtr object = new ThrowerI(adapter);
-    adapter->add(object, "thrower");
+    adapter->add(object, Ice::stringToIdentity("thrower"));
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;

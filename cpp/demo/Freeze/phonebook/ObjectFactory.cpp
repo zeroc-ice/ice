@@ -38,7 +38,7 @@ ContactFactory::destroy()
 }
 
 void
-ContactFactory::initialize(const ObjectAdapterPtr&, const string& ident, const ObjectPtr& servant)
+ContactFactory::initialize(const ObjectAdapterPtr&, const Identity& ident, const ObjectPtr& servant)
 {
     ContactIPtr contact = ContactIPtr::dynamicCast(servant);
     assert(contact);

@@ -44,8 +44,10 @@ local interface ServantInitializer
      *
      * @param servant The Servant to set up.
      *
+     * @see Ice::Identity
+     *
      **/
-    void initialize(Ice::ObjectAdapter adapter, string identity, Object servant);
+    void initialize(Ice::ObjectAdapter adapter, Ice::Identity identity, Object servant);
 };
 
 /**
@@ -143,10 +145,11 @@ local interface Evictor extends Ice::ServantLocator
      * @throws EvictorDeactivatedException Raised if a the evictor has
      * been deactivated.
      *
+     * @see Ice::Identity
      * @see destroyObject
      *
      **/
-    void createObject(string identity, Object servant) throws DBException, EvictorDeactivatedException;
+    void createObject(Ice::Identity identity, Object servant) throws DBException, EvictorDeactivatedException;
 
     /**
      *
@@ -162,10 +165,11 @@ local interface Evictor extends Ice::ServantLocator
      * @throws EvictorDeactivatedException Raised if a the evictor has
      * been deactivated.
      *
+     * @see Ice::Identity
      * @see createObject
      *
      **/
-    void destroyObject(string identity) throws DBException, EvictorDeactivatedException;
+    void destroyObject(Ice::Identity identity) throws DBException, EvictorDeactivatedException;
 
     /**
      *

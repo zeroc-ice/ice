@@ -16,6 +16,7 @@
 #include <Ice/Logger.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Protocol.h>
+#include <Ice/IdentityUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -69,7 +70,7 @@ printHeader(ostream& s, BasicStream& stream)
 static void
 printRequestHeader(ostream& s, BasicStream& stream)
 {
-    string identity;
+    Identity identity;
     string facet;
     bool gotProxy;
     stream.read(gotProxy);
@@ -85,7 +86,7 @@ printRequestHeader(ostream& s, BasicStream& stream)
     else
     {
 	s << " (identity)";
-	stream.read(identity);
+	identity.__read(&stream);
 	stream.read(facet);
     }
     s << "\nidentity = " << identity;

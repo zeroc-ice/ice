@@ -70,18 +70,14 @@ public:
     }
 
     void
-    add(const Ice::ObjectPrx& s, const string& idPrefix, const QoS& qos)
+    add(const Ice::ObjectPrx& s, const string& category, const QoS& qos)
     {
-	//
-	// Create the full topic subscriber id (<prefix>#<topic>)
-	//
-	string id = idPrefix;
-	id += '#';
-	id += _topic;
-
 	//
 	// Change the identity of the proxy
 	//
+	Ice::Identity id;
+	id.category = category;
+	id.name = _topic;
 	Ice::ObjectPrx obj = s->ice_newIdentity(id);
 
 	SubscriberPtr subscriber = new Subscriber(_logger, _traceLevels, _flusher, qos, obj);
@@ -95,16 +91,13 @@ public:
     }
     
     void
-    remove(const string& idPrefix)
+    remove(const string& category)
     {
 	JTCSyncT<JTCMutex> sync(*this);
 
-	//
-	// Create the full topic subscriber id (<prefix>#<topic>)
-	//
-	string id = idPrefix;
-	id += '#';
-	id += _topic;
+	Ice::Identity id;
+	id.category = category;
+	id.name = _topic;
 
 	SubscriberList::iterator i;
 	for (i = _subscribers.begin() ; i != _subscribers.end(); ++i)
@@ -197,13 +190,11 @@ TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& trace
     // reference to give to publishers.
     //
     _publisher = new BlobjectI(_subscribers);
-
-    string id = name;
-    id += '#';
-    id += "publish";
-
-    _adapter->add(_publisher, id);
-    _obj = adapter->createProxy(id);
+    
+    Ice::Identity id;
+    id.category = _name;
+    id.name = "publish";
+    _obj = _adapter->add(_publisher, id);
 }
 
 TopicI::~TopicI()
@@ -226,14 +217,19 @@ void
 TopicI::destroy(const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(_destroyedMutex);
+
+    Ice::Identity id;
+    id.category = _name;
+    id.name = "publish";
+
     if (_traceLevels->topic > 0)
     {
 	ostringstream s;
-	s << "Destroy " << _name;
+	s << "destroying" << id;
 	_logger->trace(_traceLevels->topicCat, s.str());
     }
 
-    _adapter->remove(_name);
+    _adapter->remove(id);
     _destroyed = true;
 }
 

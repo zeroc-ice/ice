@@ -95,7 +95,7 @@ Server::run(int argc, char* argv[])
     if (adminEndpoints.length() != 0)
     {
 	ObjectAdapterPtr adminAdapter = communicator()->createObjectAdapter("Admin");
-	adminAdapter->add(admin, "admin");
+	adminAdapter->add(admin, stringToIdentity("admin"));
 	adminAdapter->activate();
     }
 

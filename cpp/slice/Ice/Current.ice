@@ -11,6 +11,8 @@
 #ifndef ICE_CURRENT_ICE
 #define ICE_CURRENT_ICE
 
+#include <Ice/Identity.ice>
+
 module Ice
 {
 
@@ -39,10 +41,10 @@ module Ice
 {
     /**
      *
-     * The object identity.
+     * The Ice Object identity.
      *
      **/
-    string identity;
+    Identity identity;
 
     /**
      *

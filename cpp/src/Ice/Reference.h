@@ -15,6 +15,7 @@
 #include <Ice/ReferenceF.h>
 #include <Ice/EndpointF.h>
 #include <Ice/InstanceF.h>
+#include <Ice/Identity.h>
 
 namespace IceInternal
 {
@@ -35,10 +36,10 @@ public:
 	ModeBatchLast = ModeBatchDatagram
     };
 
-    Reference(const InstancePtr&, const std::string&, const std::string&, Mode, bool,
+    Reference(const InstancePtr&, const Ice::Identity&, const std::string&, Mode, bool,
 	      const std::vector<EndpointPtr>&, const std::vector<EndpointPtr>&);
     Reference(const InstancePtr&, const std::string&);
-    Reference(const std::string&, BasicStream*);
+    Reference(const Ice::Identity&, BasicStream*);
 
     bool operator==(const Reference&) const;
     bool operator<(const Reference&) const;
@@ -57,7 +58,7 @@ public:
     // All  members are const, because References are immutable.
     //
     const InstancePtr instance;
-    const std::string identity;
+    const Ice::Identity identity;
     const std::string facet;
     const Mode mode;
     const bool secure;
@@ -69,7 +70,7 @@ public:
     // Get a new reference, based on the existing one, overwriting
     // certain values.
     //
-    ReferencePtr changeIdentity(const std::string&) const;
+    ReferencePtr changeIdentity(const Ice::Identity&) const;
     ReferencePtr changeFacet(const std::string&) const;
     ReferencePtr changeTimeout(int) const;
     ReferencePtr changeMode(Mode) const;

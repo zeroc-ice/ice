@@ -28,7 +28,7 @@ public:
     //
     // Operations from ServantInitializer
     //
-    virtual void initialize(const Ice::ObjectAdapterPtr&, const std::string&, const Ice::ObjectPtr&);
+    virtual void initialize(const Ice::ObjectAdapterPtr&, const Ice::Identity&, const Ice::ObjectPtr&);
 
 private:
 

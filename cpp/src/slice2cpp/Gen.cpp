@@ -380,6 +380,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     H << sp << nl << _dllExport << "void __write(::IceInternal::BasicStream*) const;"; // NOT virtual!
     H << nl << _dllExport << "void __read(::IceInternal::BasicStream*);"; // NOT virtual!
+    H << nl << _dllExport << "bool operator==(const " << name << "&) const;";
+    H << nl << _dllExport << "bool operator!=(const " << name << "&) const;";
     H << nl << _dllExport << "bool operator<(const " << name << "&) const;";
     H << eb << ';';
     
@@ -397,6 +399,25 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
     C << sb;
     writeUnmarshalCode(C, memberList, 0);
+    C << eb;
+    C << sp << nl << "bool" << nl << scoped.substr(2) << "::operator==(const " << name << "& __rhs) const";
+    C << sb;
+    C << nl << "return !operator!=(__rhs);";
+    C << eb;
+    C << sp << nl << "bool" << nl << scoped.substr(2) << "::operator!=(const " << name << "& __rhs) const";
+    C << sb;
+    C << nl << "if (this == &__rhs)";
+    C << sb;
+    C << nl << "return false;";
+    C << eb;
+    for (q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+	C << nl << "if (" << (*q)->name() << " != __rhs." << (*q)->name() << ')';
+	C << sb;
+	C << nl << "return true;";
+	C << eb;
+    }
+    C << nl << "return false;";
     C << eb;
     C << sp << nl << "bool" << nl << scoped.substr(2) << "::operator<(const " << name << "& __rhs) const";
     C << sb;
@@ -456,7 +477,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	C << nl << scoped << "::const_iterator p;";
 	C << nl << "for (p = v.begin(); p != v.end(); ++p)";
 	C << sb;
-	writeMarshalUnmarshalCode(C, type, "*p", true);
+	writeMarshalUnmarshalCode(C, type, "(*p)", true);
 	C << eb;
 	C << eb;
 	C << sp << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " << scoped

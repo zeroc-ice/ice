@@ -13,6 +13,7 @@
 
 #include <Ice/CommunicatorF.ice>
 #include <Ice/ServantLocatorF.ice>
+#include <Ice/Identity.ice>
 
 module Ice
 {
@@ -108,11 +109,12 @@ local interface ObjectAdapter
      * @return A Proxy that matches the given identity and this Object
      * Adapter.
      *
+     * @see Identity
      * @see addTemporary
      * @see remove
      *
      **/
-    Object* add(Object servant, string identity);
+    Object* add(Object servant, Identity identity);
 
     /**
      *
@@ -128,6 +130,7 @@ local interface ObjectAdapter
      * @return A Proxy that matches the temporary identity and this
      * Object Adapter.
      *
+     * @see Identity
      * @see add
      * @see remove
      *
@@ -143,17 +146,18 @@ local interface ObjectAdapter
      * Ice Objects, [remove] has to be called for all such Ice
      * Objects.
      *
+     * @see Identity
      * @see add
      * @see addTemporary
      *
      **/
-    void remove(string identity);
+    void remove(Identity identity);
 
     /**
      *
      * Add a Servant Locator to this Object Adapter. If a locator has
-     * already been installed for the given prefix, the current
-     * locator for this prefix is replaced by the new one. To dispatch
+     * already been installed for the given category, the current
+     * locator for this category is replaced by the new one. To dispatch
      * operation calls on Servants, the Object Adapter tries to find a
      * Servant for a given Ice Object identity in the following order:
      *
@@ -163,19 +167,16 @@ local interface ObjectAdapter
      * the identity in the Active Servant Map.</para></listitem>
      *
      * <listitem><para>If no Servant has been found in the Active
-     * Servant Map, and the identity has the format
-     * "<replaceable>prefix</replaceable><literal>#</literal>", the
-     * Object Adapter tries to find a locator for this prefix. If a
-     * locator is found, the Object Adapter tries to find a Servant
-     * using this locator.</para></listitem>
+     * Servant Map, the Object Adapter tries to find a locator for the
+     * category component of the identity. If a locator is found, the
+     * Object Adapter tries to find a Servant using this
+     * locator.</para></listitem>
      *
      * <listitem><para>If no Servant has been found by any of the
-     * preceding steps, the Object Adapter tries to find a locator
-     * with an empty prefix, regardless of the format of the identity,
-     * i.e., even if the identity contains a
-     * '<literal>#</literal>'. If a locator is found, the Object
-     * Adapter tries to find a Servant using this
-     * locator</para></listitem>
+     * preceding steps, the Object Adapter tries to find a locator for
+     * an empty category, regardless of the category contained in the
+     * identity. If a locator is found, the Object Adapter tries to
+     * find a Servant using this locator.</para></listitem>
      *
      * <listitem><para>If no Servant has been found with any of the
      * preceding steps, the Object Adapter gives up and the caller
@@ -183,53 +184,59 @@ local interface ObjectAdapter
      *
      * </orderedlist>
      *
-     * <note><para>Only one locator for an empty prefix can be
+     * <note><para>Only one locator for an empty category can be
      * installed.</para></note>
      *
      * @param locator The locator to add.
      *
-     * @param prefix The Ice Object identity prefix for which the
-     * Servant Locator can locate Servants.
+     * @param category The category for which the Servant Locator can
+     * locate Servants, or an empty string if the Servant Locator does
+     * not belong to any category.
      *
+     * @see Identity
      * @see removeServantLocator
      * @see findServantLocator
      * @see ServantLocator
      *
      **/
-    void addServantLocator(ServantLocator locator, string prefix);
+    void addServantLocator(ServantLocator locator, string category);
 
     /**
      *
      * Remove a Servant locator from this Object Adapter. This
-     * operation does nothing if no locator for the given prefix has
+     * operation does nothing if no locator for the given category has
      * been installed.
      *
-     * @param prefix The Ice Object identity prefix for which the
-     * Servant Locator can locate Servants.
+     * @param category The category for which the Servant Locator can
+     * locate Servants, or an empty string if the Servant Locator does
+     * not belong to any category.
      *
+     * @see Identity
      * @see addServantLocator
      * @see findServantLocator
      * @see ServantLocator
      *
      **/
-    void removeServantLocator(string prefix);
+    void removeServantLocator(string category);
 
     /**
      *
      * Find a Servant Locator installed with this Object Adapter.
      *
-     * @param prefix The Ice Object identity prefix for which the
-     * Servant Locator can locate Servants.
+     * @param category The category for which the Servant Locator can
+     * locate Servants, or an empty string if the Servant Locator does
+     * not belong to any category.
      *
      * @return The Servant Locator, or null if no Servant Locator was
-     * found for the given prefix.
+     * found for the given category.
      *
+     * @see Identity
      * @see addServantLocator
      * @see removeServantLocator
      * @see ServantLocator
      *
      **/
-    ServantLocator findServantLocator(string prefix);
+    ServantLocator findServantLocator(string category);
 
     /**
      *
@@ -246,10 +253,11 @@ local interface ObjectAdapter
      * @return The Servant that implements the Ice Object with the
      * given identity, or null if no such Servant has been found.
      *
-     * see proxyToServant
+     * @see Identity
+     * @see proxyToServant
      *
      **/
-    Object identityToServant(string identity);
+    Object identityToServant(Identity identity);
 
     /**
      *
@@ -280,8 +288,10 @@ local interface ObjectAdapter
      * @return A Proxy that matches the given identity and this Object
      * Adapter.
      *
+     * @see Identity
+     *
      **/
-    Object* createProxy(string identity);
+    Object* createProxy(Identity identity);
 };
 
 };

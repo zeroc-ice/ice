@@ -11,6 +11,7 @@
 #ifndef PHONE_BOOK_ICE
 #define PHONE_BOOK_ICE
 
+#include <Ice/Identity.ice>
 #include <Freeze/DBException.ice>
 
 class Contact
@@ -37,7 +38,7 @@ class Contact
 };
 
 sequence<Contact*> Contacts;
-sequence<string> Identities; // Needed for slice2freeze
+sequence<Ice::Identity> Identities; // Needed for slice2freeze
 
 interface PhoneBook
 {

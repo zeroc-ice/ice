@@ -26,7 +26,7 @@ namespace Ice
 class LocalException;
 class LocationForward;
 
-};
+}
 
 namespace IceProxy { namespace Ice
 {
@@ -44,8 +44,8 @@ public:
     void ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
 		    const ::Ice::Context& = ::Ice::Context());
 
-    std::string ice_getIdentity() const;
-    ::Ice::ObjectPrx ice_newIdentity(const std::string&) const;
+    ::Ice::Identity ice_getIdentity() const;
+    ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity&) const;
 
     std::string ice_getFacet() const;
     ::Ice::ObjectPrx ice_newFacet(const std::string&) const;

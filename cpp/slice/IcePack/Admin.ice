@@ -11,6 +11,8 @@
 #ifndef ICE_PACK_ADMIN_ICE
 #define ICE_PACK_ADMIN_ICE
 
+#include <Ice/Identity.ice>
+
 /**
  *
  * The Ice module for object location and activation.
@@ -38,25 +40,11 @@ struct ServerDescription
      *
      * The server object or object template. Any non-administrative
      * &IcePack; request that matches the identity of [object] will be
-     * forwarded to [object]. If [regex] is set to true, [object]'s
-     * identity is interpreted as a regular expression, and each
-     * request that matches this expression will be forwarded.
-     *
-     * @see regex
+     * forwarded to [object].
      *
      **/
     Object* object;
 
-    /**
-     *
-     * If set to true, the identity contained in [object] will be
-     * interpreted as regular expression.
-     *
-     * @see object
-     *
-     **/
-    bool regex;
-    
     /**
      *
      * The optional server host name. If none is given, no automatic
@@ -90,12 +78,12 @@ struct ServerDescription
 
 /**
  *
- * A dictionary of server descriptions. A dictionary key is an object
- * identity (which might be a regular expression), and the values is
- * the corresponding server description.
+ * A dictionary of server descriptions. The dictionary key is the Ice
+ * Object identity, and the value is the corresponding server
+ * description.
  *
  **/
-dictionary<string, ServerDescription> ServerDescriptions;
+dictionary<Ice::Identity, ServerDescription> ServerDescriptions;
 
 /**
  *
@@ -134,7 +122,7 @@ class Admin
      * @see add
      *
      **/
-    void remove(string identity);
+    void remove(Ice::Identity identity);
 
     /**
      *
@@ -148,7 +136,7 @@ class Admin
      * @see add
      *
      **/
-    ServerDescription find(string identity);
+    ServerDescription find(Ice::Identity identity);
 
     /**
      *

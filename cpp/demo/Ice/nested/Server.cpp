@@ -32,8 +32,8 @@ int
 NestedServer::run(int argc, char* argv[])
 {
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("NestedServerAdapter");
-    NestedPrx self = NestedPrx::uncheckedCast(adapter->createProxy("nestedServer"));
-    adapter->add(new NestedI(self), "nestedServer");
+    NestedPrx self = NestedPrx::uncheckedCast(adapter->createProxy(Ice::stringToIdentity("nestedServer")));
+    adapter->add(new NestedI(self), Ice::stringToIdentity("nestedServer"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

@@ -29,7 +29,7 @@ public:
 
     ContactI(const PhoneBookIPtr&, const Freeze::EvictorPtr&);
 
-    void setIdentity(const std::string&);
+    void setIdentity(const Ice::Identity&);
 
     virtual std::string getName(const Ice::Current&);
     virtual void setName(const std::string&, const Ice::Current&);
@@ -46,7 +46,7 @@ private:
 
     PhoneBookIPtr _phoneBook;
     Freeze::EvictorPtr _evictor;
-    std::string _identity;
+    Ice::Identity _identity;
 };
 
 class PhoneBookI : public PhoneBook, public JTCRecursiveMutex
@@ -60,9 +60,9 @@ public:
     virtual void setEvictorSize(Ice::Int, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
     
-    void remove(const std::string&, const std::string&);
-    void move(const std::string&, const std::string&, const std::string&);
-    std::string getNewIdentity();
+    void remove(const Ice::Identity&, const std::string&);
+    void move(const Ice::Identity&, const std::string&, const std::string&);
+    Ice::Identity getNewIdentity();
 
 private:
 

@@ -95,7 +95,7 @@ Ice::ObjectAdapterI::deactivate()
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::add(const ObjectPtr& object, const string& ident)
+Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -131,13 +131,16 @@ Ice::ObjectAdapterI::addTemporary(const ObjectPtr& object)
     s << hex << '.' << tv.tv_sec << '.' << tv.tv_usec / 1000 << '.' << rand();
 #endif
 
-    _activeServantMapHint = _activeServantMap.insert(_activeServantMapHint, make_pair(s.str(), object));
+    Identity ident;
+    ident.name = s.str();
 
-    return newProxy(s.str());
+    _activeServantMapHint = _activeServantMap.insert(_activeServantMapHint, make_pair(ident, object));
+
+    return newProxy(ident);
 }
 
 void
-Ice::ObjectAdapterI::remove(const string& ident)
+Ice::ObjectAdapterI::remove(const Identity& ident)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -233,7 +236,7 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix)
 }
 
 ObjectPtr
-Ice::ObjectAdapterI::identityToServant(const string& ident)
+Ice::ObjectAdapterI::identityToServant(const Identity& ident)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -245,7 +248,7 @@ Ice::ObjectAdapterI::identityToServant(const string& ident)
 	}
     }
     
-    map<string, ObjectPtr>::iterator p = _activeServantMap.find(ident);
+    ObjectDict::iterator p = _activeServantMap.find(ident);
     if (p != _activeServantMap.end())
     {
 	_activeServantMapHint = p;
@@ -265,7 +268,7 @@ Ice::ObjectAdapterI::proxyToServant(const ObjectPrx& proxy)
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::createProxy(const string& ident)
+Ice::ObjectAdapterI::createProxy(const Identity& ident)
 {
     JTCSyncT<JTCMutex> sync(*this);
     
@@ -355,7 +358,7 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::newProxy(const string& ident)
+Ice::ObjectAdapterI::newProxy(const Identity& ident)
 {
     vector<EndpointPtr> endpoints;
     transform(_collectorFactories.begin(), _collectorFactories.end(), back_inserter(endpoints),

@@ -21,7 +21,7 @@ ContactI::ContactI(const PhoneBookIPtr& phoneBook, const EvictorPtr& evictor) :
 }
 
 void
-ContactI::setIdentity(const string& ident)
+ContactI::setIdentity(const Identity& ident)
 {
     _identity = ident;
 }
@@ -37,7 +37,7 @@ void
 ContactI::setName(const string& name, const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
-    assert(!_identity.empty());
+    assert(!_identity.name.empty());
     _phoneBook->move(_identity, _name, name);
     _name = name;
 }
@@ -74,7 +74,7 @@ void
 ContactI::destroy(const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
-    assert(!_identity.empty());
+    assert(!_identity.name.empty());
     _phoneBook->remove(_identity, _name);
     _evictor->destroyObject(_identity);
 }
@@ -96,7 +96,7 @@ public:
     {
     }
 
-    ContactPrx operator()(const string& ident)
+    ContactPrx operator()(const Identity& ident)
     {
 	return ContactPrx::uncheckedCast(_adapter->createProxy(ident));
     }
@@ -114,7 +114,7 @@ PhoneBookI::createContact(const Ice::Current&)
     //
     // Get a new unique identity.
     //
-    string ident = getNewIdentity();
+    Identity ident = getNewIdentity();
 
     //
     // Create a new Contact Servant.
@@ -130,7 +130,8 @@ PhoneBookI::createContact(const Ice::Current&)
 
     //
     // Add the identity to our name/identities map. The initial name
-    // is the empty string.
+    // is the empty string. See the comment in getNewIdentity why the
+    // prefix "N" is needed.
     //
     Identities identities;
     identities = _nameIdentitiesDict["N"];
@@ -151,7 +152,8 @@ PhoneBookI::findContacts(const string& name, const Ice::Current&)
     
     //
     // Lookup all phone book contacts that match a name, and return
-    // them to the caller.
+    // them to the caller. See the comment in getNewIdentity why the
+    // prefix "N" is needed.
     //
     Identities identities = _nameIdentitiesDict["N" + name];
 
@@ -182,10 +184,13 @@ PhoneBookI::shutdown(const Ice::Current&)
 }
 
 void
-PhoneBookI::remove(const string& ident, const string& name)
+PhoneBookI::remove(const Identity& ident, const string& name)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
+    //
+    // See the comment in getNewIdentity why the prefix "N" is needed.
+    //
     NameIdentitiesDict::iterator p = _nameIdentitiesDict.find("N" + name);
 
     //
@@ -207,17 +212,22 @@ PhoneBookI::remove(const string& ident, const string& name)
     }
     else
     {
+	//
+	// See the comment in getNewIdentity why the prefix "N" is
+	// needed.
+	//
 	_nameIdentitiesDict["N" + name] = identities;
     }
 }
 
 void
-PhoneBookI::move(const string& ident, const string& oldName, const string& newName)
+PhoneBookI::move(const Identity& ident, const string& oldName, const string& newName)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
     //
-    // Called by ContactI in case the name has been changed.
+    // Called by ContactI in case the name has been changed. See the
+    // comment in getNewIdentity why the prefix "N" is needed.
     //
     remove(ident, oldName);
     Identities identities = _nameIdentitiesDict["N" + newName];
@@ -225,37 +235,50 @@ PhoneBookI::move(const string& ident, const string& oldName, const string& newNa
     _nameIdentitiesDict["N" + newName] = identities;
 }
 
-string
+Identity
 PhoneBookI::getNewIdentity()
 {
-    Ice::Long id;
+    //
+    // This code is a bit of a hack. It stores the last identity that
+    // has been used (or the name component thereof, to be more
+    // precise) in the _nameIdentitiesDict, with the special prefix
+    // "ID". Because of this, all "real" names need to be prefixed
+    // with "N", so that there is no potential for a name clash.
+    //
+
+    Ice::Long n;
     Identities ids;
     NameIdentitiesDict::iterator p = _nameIdentitiesDict.find("ID");
     if (p == _nameIdentitiesDict.end())
     {
-	id = 0;
+	n = 0;
     }
     else
     {
-	ids = p->second;
+	ids = p->second.name;
 	assert(ids.size() == 1);
 #ifdef WIN32
-	id = _atoi64(ids.front().c_str()) + 1;
+	n = _atoi64(ids.front().name.c_str()) + 1;
 #else
-	id = atoll(ids.front().c_str()) + 1;
+	n = atoll(ids.front().name.c_str()) + 1;
 #endif
     }
 
     char s[20];
 #ifdef WIN32
-    sprintf(s, "%I64d", id);
+    sprintf(s, "%I64d", n);
 #else
-    sprintf(s, "%lld", id);
+    sprintf(s, "%lld", n);
 #endif
     
-    ids.clear();
-    ids.push_back(s);
-    _nameIdentitiesDict["ID"] = ids;
+    Identity id;
 
-    return string("contact#") + s;
+    id.name = s;
+    ids.clear();
+    ids.push_back(id);
+    _nameIdentitiesDict["ID"].name = ids;
+
+    id.name = s;
+    id.category = "contact";
+    return id;
 }

@@ -37,7 +37,7 @@ public:
     void flush();
     void publish(const std::string&, bool, const std::vector< ::Ice::Byte>&);
 
-    std::string id() const;
+    Ice::Identity id() const;
 
     // TODO: should there be a global operator==?
     bool operator==(const Subscriber&) const;

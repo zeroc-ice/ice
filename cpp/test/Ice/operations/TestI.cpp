@@ -11,7 +11,7 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
-MyDerivedClassI::MyDerivedClassI(const Ice::ObjectAdapterPtr& adapter, const std::string& identity) :
+MyDerivedClassI::MyDerivedClassI(const Ice::ObjectAdapterPtr& adapter, const Ice::Identity& identity) :
     _adapter(adapter),
     _identity(identity)
 {
@@ -112,7 +112,7 @@ MyDerivedClassI::opMyClass(const Test::MyClassPrx& p1,
 			   const Ice::Current&)
 {
     p2 = p1;
-    p3 = Test::MyClassPrx::uncheckedCast(_adapter->createProxy("noSuchIdentity"));
+    p3 = Test::MyClassPrx::uncheckedCast(_adapter->createProxy(Ice::stringToIdentity("noSuchIdentity")));
     return Test::MyClassPrx::uncheckedCast(_adapter->createProxy(_identity));
 }
 

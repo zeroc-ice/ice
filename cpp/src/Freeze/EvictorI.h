@@ -33,8 +33,8 @@ public:
     virtual void setSize(Ice::Int);
     virtual Ice::Int getSize();
     
-    virtual void createObject(const std::string&, const Ice::ObjectPtr&);
-    virtual void destroyObject(const std::string&);
+    virtual void createObject(const Ice::Identity&, const Ice::ObjectPtr&);
+    virtual void destroyObject(const Ice::Identity&);
 
     virtual void installServantInitializer(const ServantInitializerPtr&);
 
@@ -48,18 +48,18 @@ private:
     struct EvictorElement : public Ice::LocalObject
     {
 	Ice::ObjectPtr servant;
-	std::list<std::string>::iterator position;
+	std::list<Ice::Identity>::iterator position;
 	int usageCount;
     };
     typedef IceUtil::Handle<EvictorElement> EvictorElementPtr;
 
     void evict();
-    EvictorElementPtr add(const std::string&, const Ice::ObjectPtr&);
-    void remove(const std::string&);
+    EvictorElementPtr add(const Ice::Identity&, const Ice::ObjectPtr&);
+    void remove(const Ice::Identity&);
     
-    std::map<std::string, EvictorElementPtr> _evictorMap;
-    std::list<std::string> _evictorList;
-    std::map<std::string, EvictorElementPtr>::size_type _evictorSize;
+    std::map<Ice::Identity, EvictorElementPtr> _evictorMap;
+    std::list<Ice::Identity> _evictorList;
+    std::map<Ice::Identity, EvictorElementPtr>::size_type _evictorSize;
 
     bool _deactivated;
     IdentityObjectDict _dict;

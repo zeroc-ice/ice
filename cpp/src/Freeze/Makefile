@@ -90,7 +90,8 @@ clean::
 
 IdentityObjectDict.h IdentityObjectDict.cpp: $(SLICE2FREEZE)
 	rm -f IdentityObjectDict.h IdentityObjectDict.cpp
-	$(SLICE2FREEZECMD) --dict Freeze::IdentityObjectDict,string,Object IdentityObjectDict
+	$(SLICE2FREEZECMD) --dict Freeze::IdentityObjectDict,Ice::Identity,Object IdentityObjectDict \
+	$(slicedir)/Ice/Identity.ice
 
 clean::
 	rm -f IdentityObjectDict.h IdentityObjectDict.cpp

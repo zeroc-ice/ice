@@ -75,7 +75,7 @@ Freeze::EvictorI::setSize(Int evictorSize)
     //
     // Update the evictor size.
     //
-    _evictorSize = static_cast<map<string, EvictorElementPtr>::size_type>(evictorSize);
+    _evictorSize = static_cast<map<Identity, EvictorElementPtr>::size_type>(evictorSize);
 
     //
     // Evict as many elements as necessary.
@@ -97,7 +97,7 @@ Freeze::EvictorI::getSize()
 }
 
 void
-Freeze::EvictorI::createObject(const string& ident, const ObjectPtr& servant)
+Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -126,7 +126,7 @@ Freeze::EvictorI::createObject(const string& ident, const ObjectPtr& servant)
 }
 
 void
-Freeze::EvictorI::destroyObject(const string& ident)
+Freeze::EvictorI::destroyObject(const Identity& ident)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -177,7 +177,7 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current
 
     EvictorElementPtr element;
 
-    map<string, EvictorElementPtr>::iterator p = _evictorMap.find(current.identity);
+    map<Identity, EvictorElementPtr>::iterator p = _evictorMap.find(current.identity);
     if (p != _evictorMap.end())
     {
 	if (_trace >= 2)
@@ -326,7 +326,7 @@ Freeze::EvictorI::deactivate()
 void
 Freeze::EvictorI::evict()
 {
-    list<string>::reverse_iterator p = _evictorList.rbegin();
+    list<Identity>::reverse_iterator p = _evictorList.rbegin();
 
     //
     // With most STL implementations, _evictorMap.size() is faster
@@ -337,7 +337,7 @@ Freeze::EvictorI::evict()
 	//
 	// Get the last unused element from the evictor queue.
 	//
-	map<string, EvictorElementPtr>::iterator q;
+	map<Identity, EvictorElementPtr>::iterator q;
 	while(p != _evictorList.rend())
 	{
 	    q = _evictorMap.find(*p);
@@ -355,7 +355,7 @@ Freeze::EvictorI::evict()
 	    //
 	    break;
 	}
-	string ident = *p;
+	Identity ident = *p;
 	EvictorElementPtr element = q->second;
 
 	//
@@ -397,12 +397,12 @@ Freeze::EvictorI::evict()
 }
 
 Freeze::EvictorI::EvictorElementPtr
-Freeze::EvictorI::add(const string& ident, const ObjectPtr& servant)
+Freeze::EvictorI::add(const Identity& ident, const ObjectPtr& servant)
 {
     //
     // Ignore the request if the Ice Object is already in the queue.
     //
-    map<string, EvictorElementPtr>::const_iterator p = _evictorMap.find(ident);
+    map<Identity, EvictorElementPtr>::const_iterator p = _evictorMap.find(ident);
     if (p != _evictorMap.end())
     {
 	return p->second;
@@ -421,12 +421,12 @@ Freeze::EvictorI::add(const string& ident, const ObjectPtr& servant)
 }
 
 void
-Freeze::EvictorI::remove(const string& ident)
+Freeze::EvictorI::remove(const Identity& ident)
 {
     //
     // If the Ice Object is currently in the evictor, remove it.
     //
-    map<string, EvictorElementPtr>::iterator p = _evictorMap.find(ident);
+    map<Identity, EvictorElementPtr>::iterator p = _evictorMap.find(ident);
     if (p != _evictorMap.end())
     {
 	_evictorList.erase(p->second->position);

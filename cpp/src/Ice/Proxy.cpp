@@ -189,14 +189,14 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
     }
 }
 
-std::string
+Identity
 IceProxy::Ice::Object::ice_getIdentity() const
 {
     return _reference->identity;
 }
 
 ObjectPrx
-IceProxy::Ice::Object::ice_newIdentity(const std::string& newIdentity) const
+IceProxy::Ice::Object::ice_newIdentity(const Identity& newIdentity) const
 {
     if (newIdentity == _reference->identity)
     {
@@ -210,14 +210,14 @@ IceProxy::Ice::Object::ice_newIdentity(const std::string& newIdentity) const
     }
 }
 
-std::string
+string
 IceProxy::Ice::Object::ice_getFacet() const
 {
     return _reference->facet;
 }
 
 ObjectPrx
-IceProxy::Ice::Object::ice_newFacet(const std::string& newFacet) const
+IceProxy::Ice::Object::ice_newFacet(const string& newFacet) const
 {
     if (newFacet == _reference->facet)
     {
