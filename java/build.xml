@@ -95,19 +95,6 @@
 
         <!-- Generate Slice checksums for the Ice services. -->
 
-        <slice2java ice="on" outputdir="${generated.dir}" checksum="Glacier.SliceChecksums"
-            dependencyfile="${generated.dir}/.depend.Glacier">
-            <includepath>
-                <pathelement path="${slice.dir}" />
-            </includepath>
-            <fileset dir="${slice.dir}/Glacier">
-                <include name="Router.ice" />
-                <include name="Starter.ice" />
-                <include name="Session.ice" />
-                <include name="SessionManager.ice" />
-            </fileset>
-        </slice2java>
-
         <slice2java ice="on" outputdir="${generated.dir}" checksum="Glacier2.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.Glacier2">
             <includepath>
