@@ -3,6 +3,30 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
+Project: "Thread_PerConnectionTAOC"=.\src\TAO\Thread_Per_Connection\Thread_Per_ConnectionTAOC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "Thread_Per_ConnectionTAOS"=.\src\TAO\Thread_Per_Connection\Thread_Per_ConnectionTAOS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "Thread_PoolTAOC"=.\src\TAO\Thread_Pool\Thread_PoolTAOC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -46,6 +70,18 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name throughputIceS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Thread_Per_ConnectionTAOS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Thread_PerConnectionTAOC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Thread_PoolTAOC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Thread_PoolTAOS
     End Project Dependency
 }}}
 

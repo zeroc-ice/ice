@@ -1,5 +1,6 @@
 // client.cpp,v 1.6 2003/11/02 23:27:22 dhinton Exp
 
+#include "Roundtrip.h"
 #include "ace/Get_Opt.h"
 #include "ace/High_Res_Timer.h"
 #include "ace/Sched_Params.h"
