@@ -63,7 +63,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     adapter->addFacet(obj2, Ice::stringToIdentity("id2"), "f2");
     adapter->addFacet(obj3, Ice::stringToIdentity("id2"), "");
     Ice::FacetMap fm = adapter->removeAllFacets(Ice::stringToIdentity("id1"));
-    cerr << "fm.size() = " << fm.size() << endl;
     test(fm.size() == 2);
     test(fm["f1"] == obj1);
     test(fm["f2"] == obj2);

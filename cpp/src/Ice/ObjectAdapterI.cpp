@@ -363,7 +363,7 @@ Ice::ObjectAdapterI::removeAllFacets(const Identity& ident)
     checkForDeactivation();
     checkIdentity(ident);
 
-    FacetMap fm = _servantManager->removeAllFacets(ident);
+    return _servantManager->removeAllFacets(ident);
 }
 
 ObjectPtr

@@ -130,13 +130,7 @@ IceInternal::ServantManager::removeAllFacets(const Identity& ident)
 	throw ex;
     }
 
-    cerr << "p->second.size() = " << p->second.size() << endl;
-    //FacetMap result = p->second;
-    FacetMap result;
-    for(FacetMap::const_iterator i = p->second.begin(); i != p->second.end(); ++i)
-    {
-	result.insert(*i);
-    }
+    FacetMap result = p->second;
 
     if(p == _servantMapMapHint)
     {
@@ -146,11 +140,6 @@ IceInternal::ServantManager::removeAllFacets(const Identity& ident)
     else
     {
 	_servantMapMap.erase(p);
-    }
-    cerr << "result.size() = " << result.size() << endl;
-    for(FacetMap::const_iterator i = result.begin(); i != result.end(); ++i)
-    {
-	cerr << i->first << endl;
     }
 
     return result;
