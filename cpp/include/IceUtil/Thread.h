@@ -70,14 +70,17 @@ public:
     // At most one thread can wait for the termination of a given
     // thread.C alling join on a thread on which another thread is
     // already waiting for termination results in undefined behaviour.
+    // Joining with a thread after having joined with it previously,
+    // or joining with a detached thread raises ThreadSyscallException.
     //
     void join();
 
     //
     // Detach a thread. Once a thread is detached, it cannot be detached
     // again, nor can it be joined with. Every thread must either be
-    // joined with or detached exactly once. Failing to do so results
-    // in resource leaks.
+    // joined with or detached exactly once. Detaching a thread a second
+    // time, or detaching a thread that was previously joined with raises
+    // ThreadSyscallException.
     //
     void detach();
 
