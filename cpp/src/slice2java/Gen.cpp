@@ -2238,7 +2238,12 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 	    }
 	    case Builtin::KindByte:
 	    {
-		out << p->value() << " -128"; // Slice byte runs from 0-255, Java byte runs from -128 - 127.
+		int i = atoi(p->value().c_str());
+		if(i > 127)
+		{
+		    i -= 256;
+		}
+		out << i; // Slice byte runs from 0-255, Java byte runs from -128 - 127.
 		break;
 	    }
 	    case Builtin::KindLong:
