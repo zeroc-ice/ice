@@ -140,7 +140,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Free
 
 	    descriptor = argv[++i];
 	    
-	    while(argv[++i][0] != '-' && i < argc)
+	    while(i + 1 < argc && argv[++i][0] != '-')
 	    {
 		targets.push_back(argv[i]);
 	    }
