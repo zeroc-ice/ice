@@ -43,7 +43,7 @@
 
 #define OPENSSL_THREAD_DEFINES
 #include <openssl/opensslconf.h>
-#if OPENSSL_VERSION_NUMBER < 0x0090700fL
+#if OPENSSL_VERSION_NUMBER < 0x0090700fL || defined(__FreeBSD__)
 #   if !defined(THREADS)
 #      error "Thread support not enabled"
 #   endif

@@ -221,7 +221,7 @@ strings
 }
 | ICE_PACK_STRING
 {
-    $$ = $1
+    $$ = $1;
 }
 ;
 
