@@ -231,9 +231,14 @@ IceInternal::shutdownSocketWrite(SOCKET fd)
 	//
 	// Ignore errors indicating that we are shutdown already.
 	//
-#ifdef _WIN32
+#if defined(_WIN32)
 	int error = WSAGetLastError();
 	if(error == WSAENOTCONN)
+	{
+	    return;
+	}
+#elif defined(__APPLE__)
+	if(errno == ENOTCONN || errno == EINVAL)
 	{
 	    return;
 	}
@@ -243,7 +248,6 @@ IceInternal::shutdownSocketWrite(SOCKET fd)
 	    return;
 	}
 #endif
-
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
 	throw ex;
@@ -258,9 +262,14 @@ IceInternal::shutdownSocketReadWrite(SOCKET fd)
 	//
 	// Ignore errors indicating that we are shutdown already.
 	//
-#ifdef _WIN32
+#if defined(_WIN32)
 	int error = WSAGetLastError();
 	if(error == WSAENOTCONN)
+	{
+	    return;
+	}
+#elif defined(__APPLE__)
+	if(errno == ENOTCONN || errno == EINVAL)
 	{
 	    return;
 	}
