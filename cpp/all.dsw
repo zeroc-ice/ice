@@ -680,6 +680,30 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name inpututil
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name helloIceBoxC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name helloIceBoxS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceBox
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceBoxC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceBoxS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceSSL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sessionC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sessionS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1792,6 +1816,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceSSL
     End Project Dependency
 }}}
 

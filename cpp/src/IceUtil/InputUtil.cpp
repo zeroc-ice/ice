@@ -94,7 +94,7 @@ strToInt64(const char* s, char** endptr, int base)
     //
     // Table to convert ASCII digits/letters into their value (100 for unused slots)
     //
-static const char digitVal[] =
+    static const char digitVal[] =
     {
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9,			// '0' - '9'
 	100, 100, 100, 100, 100, 100, 100,		// punctuation

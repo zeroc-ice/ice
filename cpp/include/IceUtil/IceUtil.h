@@ -26,5 +26,7 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Base64.h>
 #include <IceUtil/Time.h>
+#include <IceUtil/InputUtil.h>
+#include <IceUtil/OutputUtil.h>
 
 #endif
