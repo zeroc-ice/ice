@@ -175,7 +175,13 @@ public class IncomingConnectionFactory extends EventHandler
 
             _acceptor.close();
 
-	    _finished = true;
+	    //
+	    // Break cyclic object dependency. This is necessary,
+	    // because the object adapter never clears the list of
+	    // incoming connections it keeps.
+	    //
+	    _adapter = null;
+
 	    notifyAll(); // For waitUntilFinished().
         }
     }
@@ -211,7 +217,6 @@ public class IncomingConnectionFactory extends EventHandler
         _adapter = adapter;
         _state = StateHolding;
 	_warn = _instance.properties().getPropertyAsInt("Ice.ConnectionWarnings") > 0 ? true : false;
-	_finished = false;
 	_registeredWithPool = false;
 
         try
@@ -246,7 +251,7 @@ public class IncomingConnectionFactory extends EventHandler
         throws Throwable
     {
         assert(_state == StateClosed);
-	assert(_finished);
+	assert(_adapter == null);
 
         //
         // Destroy the EventHandler's stream, so that its buffer
@@ -266,7 +271,7 @@ public class IncomingConnectionFactory extends EventHandler
     public synchronized void
     waitUntilFinished()
     {
-	while (!_finished)
+	while (_adapter != null)
 	{
 	    try
 	    {
@@ -404,6 +409,5 @@ public class IncomingConnectionFactory extends EventHandler
     private java.util.LinkedList _connections = new java.util.LinkedList();
     private int _state;
     private boolean _warn;
-    private boolean _finished;
     private boolean _registeredWithPool;
 }

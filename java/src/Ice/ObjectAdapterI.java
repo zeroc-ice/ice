@@ -27,7 +27,7 @@ public class ObjectAdapterI implements ObjectAdapter
     public synchronized void
     activate()
     {
-        if (_deactivated)
+        if (_instance == null)
         {
             throw new ObjectAdapterDeactivatedException();
         }
@@ -54,7 +54,7 @@ public class ObjectAdapterI implements ObjectAdapter
     public synchronized void
     hold()
     {
-        if (_deactivated)
+        if (_instance == null)
         {
             throw new ObjectAdapterDeactivatedException();
         }
@@ -71,7 +71,7 @@ public class ObjectAdapterI implements ObjectAdapter
     public synchronized void
     deactivate()
     {
-        if (_deactivated)
+        if (_instance == null)
         {
             //
             // Ignore deactivation requests if the Object Adapter has
@@ -100,7 +100,7 @@ public class ObjectAdapterI implements ObjectAdapter
         }
         _locatorMap.clear();
 
-        _deactivated = true;
+        _instance = null;
     }
 
     public void
@@ -123,7 +123,7 @@ public class ObjectAdapterI implements ObjectAdapter
     public synchronized ObjectPrx
     add(Ice.Object servant, Identity ident)
     {
-        if (_deactivated)
+        if (_instance == null)
         {
             throw new ObjectAdapterDeactivatedException();
         }
@@ -143,7 +143,7 @@ public class ObjectAdapterI implements ObjectAdapter
     public synchronized ObjectPrx
     addWithUUID(Ice.Object servant)
     {
-        if (_deactivated)
+        if (_instance == null)
         {
             throw new ObjectAdapterDeactivatedException();
         }
@@ -161,7 +161,7 @@ public class ObjectAdapterI implements ObjectAdapter
     public synchronized void
     remove(Identity ident)
     {
-        if (_deactivated)
+        if (_instance == null)
         {
             throw new ObjectAdapterDeactivatedException();
         }
@@ -172,7 +172,7 @@ public class ObjectAdapterI implements ObjectAdapter
     public synchronized void
     addServantLocator(ServantLocator locator, String prefix)
     {
-        if (_deactivated)
+        if (_instance == null)
         {
             throw new ObjectAdapterDeactivatedException();
         }
@@ -183,7 +183,7 @@ public class ObjectAdapterI implements ObjectAdapter
     public synchronized void
     removeServantLocator(String prefix)
     {
-        if (_deactivated)
+        if (_instance == null)
         {
             throw new ObjectAdapterDeactivatedException();
         }
@@ -198,7 +198,7 @@ public class ObjectAdapterI implements ObjectAdapter
     public synchronized ServantLocator
     findServantLocator(String prefix)
     {
-        if (_deactivated)
+        if (_instance == null)
         {
             throw new ObjectAdapterDeactivatedException();
         }
@@ -222,7 +222,7 @@ public class ObjectAdapterI implements ObjectAdapter
     public synchronized ObjectPrx
     createProxy(Identity ident)
     {
-        if (_deactivated)
+        if (_instance == null)
         {
             throw new ObjectAdapterDeactivatedException();
         }
@@ -233,7 +233,7 @@ public class ObjectAdapterI implements ObjectAdapter
     public synchronized ObjectPrx
     createReverseProxy(Identity ident)
     {
-        if (_deactivated)
+        if (_instance == null)
         {
             throw new ObjectAdapterDeactivatedException();
         }
@@ -252,7 +252,7 @@ public class ObjectAdapterI implements ObjectAdapter
     public synchronized void
     addRouter(RouterPrx router)
     {
-        if (_deactivated)
+        if (_instance == null)
         {
             throw new ObjectAdapterDeactivatedException();
         }
@@ -328,7 +328,6 @@ public class ObjectAdapterI implements ObjectAdapter
     ObjectAdapterI(IceInternal.Instance instance, String name, String endpts)
     {
         _instance = instance;
-        _deactivated = false;
 	_printAdapterReadyDone = false;
         _name = name;
 
@@ -372,10 +371,7 @@ public class ObjectAdapterI implements ObjectAdapter
         }
         catch (LocalException ex)
         {
-            if (!_deactivated)
-            {
-                deactivate();
-            }
+	    deactivate();
             throw ex;
         }
 
@@ -396,9 +392,9 @@ public class ObjectAdapterI implements ObjectAdapter
     finalize()
         throws Throwable
     {
-        if (!_deactivated)
+        if (_instance != null)
         {
-            deactivate();
+            _instance.logger().warning("object adapter has not been deactivated");
         }
 
         super.finalize();
@@ -496,7 +492,6 @@ public class ObjectAdapterI implements ObjectAdapter
     }
 
     private IceInternal.Instance _instance;
-    private boolean _deactivated;
     private boolean _printAdapterReadyDone;
     private String _name;
     private java.util.HashMap _activeServantMap = new java.util.HashMap();
