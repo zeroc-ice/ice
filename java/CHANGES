@@ -15,10 +15,9 @@ Changes since version 1.4.0
 
 - Changed the --depend option of slice2java. If you get dependencies
   for a file x.ice that includes y.ice, the dependency line that is
-  written now is "x.ice: y.ice". (Previously, it was "x.cpp: x.ice
-  y.ice".) If a Slice file does not include any other Slice file, no
-  dependency is printed. With some post-processing, this is sufficient
-  to generate dependencies for tools such as ant and make.
+  written now is "x.ice: /path/x.ice /path/y.ice". (Previously, it was
+  "x.cpp: /path/x.ice /path/y.ice".) With some post-processing, this is
+  sufficient to generate dependencies for tools such as ant and make.
 
 Changes since version 1.3.0
 ---------------------------
