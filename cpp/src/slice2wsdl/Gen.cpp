@@ -105,9 +105,9 @@ Slice::Gen::generate(const UnitPtr& unit)
     os << "wsdl:portType name=\"" << scopeId << "PortType\"";
     start(os.str());
 
-    for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+    for (OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
     {
-	emitOperation(*q);
+	emitOperation(*r);
     }
 
     end(); // PortType
