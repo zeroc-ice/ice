@@ -90,6 +90,8 @@ if sys.platform.startswith("win") or sys.platform.startswith("cygwin"):
     platform = "win32"
 elif sys.platform.startswith("linux"):
     platform = "linux"
+elif sys.platform.startswith("sunos"):
+    platform = "solaris"
 else:
     print "unknown platform (" + sys.platform + ")!"
     sys.exit(1)
