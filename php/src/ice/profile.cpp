@@ -175,6 +175,14 @@ static const char* _coreTypes =
     "    {\n"
     "        Ice_LocalException::__construct($message);\n"
     "    }\n"
+    "\n"
+    "    function __toString()\n"
+    "    {\n"
+    "        return get_class($this) . \"\\n\" .\n"
+    "               \"  reason: \" . $this->reason;\n"
+    "    }\n"
+    "\n"
+    "    var $reason;\n"
     "}\n"
     "\n"
     "class Ice_MarshalException extends Ice_ProtocolException\n"
@@ -194,7 +202,9 @@ static const char* _coreTypes =
     "\n"
     "    function __toString()\n"
     "    {\n"
-    "        return \"Ice_NoObjectFactoryException (type = `\" . $this->type . \"')\";\n"
+    "        return get_class($this) . \"\\n\" .\n"
+    "               \"  reason: \" . $this->reason . \"\\n\" .\n"
+    "               \"    type: \" . $this->type;\n"
     "    }\n"
     "\n"
     "    var $type;\n"
@@ -419,7 +429,7 @@ createProfile(const string& name, const string& config, const string& options, c
     ostringstream out;
     Profile::ClassMap classes;
     CodeVisitor visitor(out, classes);
-    unit->visit(&visitor);
+    unit->visit(&visitor, false);
 
     Profile* profile = new Profile;
     profile->name = name;
