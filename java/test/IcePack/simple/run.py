@@ -9,7 +9,7 @@
 #
 # **********************************************************************
 
-import os, sys
+import os, sys, time
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -118,6 +118,8 @@ if TestUtil.isWin32() == 0:
     if clientStatus:
 	TestUtil.killServers()
 	sys.exit(1)
+
+    time.sleep(1)
 
     print "unregister server with icepack...",
     IcePackAdmin.removeServer(ice_home, "server");
