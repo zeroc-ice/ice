@@ -653,9 +653,13 @@ Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvironmentIPtr& d
     }
     
     u_int32_t flags = (create) ? DB_CREATE : 0;
-    checkBerkeleyDBReturn(_db->open(_db, _name.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE), _errorPrefix,
-			  "DB->open");
-
+#if DB_VERSION_MAJOR > 4 || (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 1)
+    checkBerkeleyDBReturn(_db->open(_db, 0, _name.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE),
+			  _errorPrefix, "DB->open");
+#else
+    checkBerkeleyDBReturn(_db->open(_db, _name.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE),
+			  _errorPrefix, "DB->open");
+#endif
     _dbEnvObj->add(_name, this);
 }
 
