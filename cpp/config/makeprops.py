@@ -214,8 +214,8 @@ if(lang == "cpp"):
     openOutputFile(classname + ".h")
 
 labels = {}		# Records the line number on which each label is defined
-sectionStart = 0	# True for the line on which a label is defined
-inSection = 0		# Set to true (and the remains as true) once the first labels is defined
+atSectionStart = 0	# True for the line on which a label is defined
+seenSection = 0		# Set to true (and the remains as true) once the first label is defined
 numEntries = 0		# Number of entries within a section
 errors = 0		# Number of syntax errors in the input file
 
@@ -231,34 +231,40 @@ lines = f.readlines()
 for l in lines:
     lineNum += 1
 
+    #
+    # Ignore empty lines and comments.
+    #
     if ignore.match(l) != None:
         continue
 
+    #
+    # Start of section.
+    #
     labelMatch = section.match(l)
     if labelMatch != None:
-        if sectionStart:
+        if atSectionStart:
 	    fileError("section `" + label + "' must have at least one entry")
         label = labelMatch.group(1)
 	try:
 	    badLine = labels[label]
-	    fileError("duplicate section heading: `" + label + "'")
+	    fileError("duplicate section heading: `" + label + "': previously defined on line " + badLine)
 	except KeyError:
 	    pass
 	if label == "validProps":
 	   fileError("`validProps' is reserved and cannot be used as a section heading")
 	labels[label] = lineNum
-	if inSection:
+	if seenSection:
 	    endSection(lang)
 	numEntries = 0
 	startSection(lang, label)
-	inSection = 1
-	sectionStart = 1
+	seenSection = 1
+	atSectionStart = 1
 	continue
 
     entryMatch = entry.match(l)
     if entryMatch != None:
 	writeEntry(label, entryMatch.group(1))
-	sectionStart = 0
+	atSectionStart = 0
 	numEntries += 1
 	continue
 
