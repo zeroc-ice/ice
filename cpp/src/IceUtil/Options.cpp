@@ -444,7 +444,8 @@ IceUtil::Options::parse(const string& line)
     //
     int argc = vec.size();
     char **argv = new char*[argc + 1]; // + 1 for terminating null pointer.
-    for(int j = 0; j < argc; ++j)
+    int j;
+    for(j = 0; j < argc; ++j)
     {
 	argv[j] = strdup(vec[j].c_str());
     }
