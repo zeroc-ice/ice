@@ -9,7 +9,6 @@
 
 #include <Proxy.h>
 #include <structmember.h>
-#include <Exception.h>
 #include <Identity.h>
 #include <Marshal.h>
 #include <Types.h>

@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <Identity.h>
-#include <Exception.h>
 #include <Util.h>
 #include <Ice/IdentityUtil.h>
 

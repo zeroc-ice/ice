@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <Marshal.h>
-#include <Exception.h>
 #include <Proxy.h>
 #include <Types.h>
 #include <Util.h>

@@ -7,7 +7,6 @@ IcePy = Extension(
                 sources = [
                     'Communicator.cpp',
                     'Current.cpp',
-                    'Exception.cpp',
                     'Identity.cpp',
                     'Init.cpp',
                     'Marshal.cpp',

@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <Properties.h>
-#include <Exception.h>
 #include <Util.h>
 #include <Ice/Initialize.h>
 #include <Ice/Properties.h>

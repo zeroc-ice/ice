@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <Exception.h>
 #include <Communicator.h>
 #include <Current.h>
 #include <Identity.h>

@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <Communicator.h>
-#include <Exception.h>
 #include <Properties.h>
 #include <Marshal.h>
 #include <ObjectAdapter.h>

@@ -9,7 +9,6 @@
 
 #include <Current.h>
 #include <structmember.h>
-#include <Exception.h>
 #include <Identity.h>
 #include <ObjectAdapter.h>
 #include <Util.h>
