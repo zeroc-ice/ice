@@ -105,9 +105,15 @@ PhoneBookI::createEntry()
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
     
+#ifdef WIN32 // COMPILERBUG
+    char s[20];
+    sprintf(s, "%I64d", _nextEntryIdentity++);
+    string identity = s;
+#else
     ostringstream s;
     s << _nextEntryIdentity++;
     string identity = s.str();
+#endif
     
     add(identity, L"");
 

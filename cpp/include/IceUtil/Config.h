@@ -27,7 +27,8 @@
 #   pragma warning( disable : 4250 )
 // non dll-interface class ... used as base for dll-interface class ...
 #   pragma warning( disable : 4275 )
-
+//  ...: decorated name length exceeded, name was truncated
+#   pragma warning( disable : 4503 )  
 
 #elif defined(__linux__) && defined(i386)
 
