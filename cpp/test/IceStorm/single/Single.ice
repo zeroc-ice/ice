@@ -8,12 +8,12 @@
 //
 // **********************************************************************
 
-#ifndef CLOCK_ICE
-#define CLOCK_ICE
+#ifndef SINGLE_ICE
+#define SINGLE_ICE
 
-interface Clock
+interface Single
 {
-	void tick();
+    void event();
 };
 
 #endif

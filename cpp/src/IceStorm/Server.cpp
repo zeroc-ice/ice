@@ -34,25 +34,67 @@ public:
 
 } // End namespace IceStorm
 
+//
+// TODO: get rid of this when the prescanning of the argument list is
+// not needed.
+//
+static void
+usage(const char* appName)
+{
+    cerr << "Usage: " << appName << " [options]\n";
+    cerr <<	
+	"Options:\n"
+	"-h, --help           Show this message.\n"
+	"-v, --version        Display the Ice version.\n"
+        "--dbdir directory    Set the database location.\n"
+	;
+}
+
 int
 main(int argc, char* argv[])
 {
     //
-    // TODO: Hardcoded directory must be removed.
+    // TODO: This is a hack.
     //
-    Server app("db");
+    // Prescan the argument list for --dbdir. Process & consume if
+    // found.
+    //
+    string dbdir = "db";
+    for (int i = 1; i < argc; ++i)
+    {
+	if (strcmp(argv[i], "--dbdir") == 0)
+	{
+	    if (i +1 >= argc)
+	    {
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	    }
+	    dbdir = argv[i+1];
+	    //
+	    // Consume arguments
+	    //
+	    while (i < argc - 2)
+	    {
+		argv[i] = argv[i+2];
+		++i;
+	    }
+	    argc -= 2;
+	    break;
+	}
+    }
+    
+    Server app(dbdir);
     return app.main(argc, argv);
 }
 
 void
 IceStorm::Server::usage()
 {
-    cerr << "Usage: " << appName() << " [options]\n";
-    cerr <<	
-	"Options:\n"
-	"-h, --help           Show this message.\n"
-	"-v, --version        Display the Ice version.\n"
-	;
+    //
+    // TODO: This is only needed because of the forced prescan of the
+    // arguments.
+    //
+    ::usage(appName());
 }
 
 int

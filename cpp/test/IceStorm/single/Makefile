@@ -15,12 +15,11 @@ SUBSCRIBER	= subscriber
 
 TARGETS		= $(PUBLISHER) $(SUBSCRIBER)
 
-OBJS		= Clock.o
+OBJS		= Single.o
 
 POBJS		= Publisher.o
 
-SOBJS		= Subscriber.o \
-		  ClockI.o
+SOBJS		= Subscriber.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(POBJS:.o=.cpp) \
@@ -39,11 +38,11 @@ $(SUBSCRIBER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
-Clock.h Clock.cpp: Clock.ice $(SLICE2CPP)
-	rm -f Clock.h Clock.cpp
-	$(SLICE2CPP) Clock.ice
+Single.h Single.cpp: Single.ice $(SLICE2CPP)
+	rm -f Single.h Single.cpp
+	$(SLICE2CPP) Single.ice
 
 clean::
-	rm -f Clock.h Clock.cpp
+	rm -f Single.h Single.cpp
 
 include .depend

@@ -49,7 +49,7 @@ icePackAdminPipe = os.popen(command)
 icePackAdminPipe.close()
 print "ok"
 
-name = "IcePack/simple"
+name = os.path.join("IcePack", "simple")
 TestUtil.clientServerTest(toplevel, name)
 TestUtil.collocatedTest(toplevel, name)
 
