@@ -26,32 +26,24 @@ namespace IceSecurity
 namespace SecureUdp
 {
 
-// using IceInternal::SUdpTransceiverPtr;
-using IceInternal::SUdpTransceiver;
-using IceInternal::InstancePtr;
-using IceUtil::Shared;
-using IceUtil::Mutex;
-using IceInternal::TraceLevelsPtr;
-using Ice::LoggerPtr;
-
-class ControlChannel : public virtual Shared
+class ControlChannel : public virtual IceUtil::Shared
 {
 
 protected:
-    // ControlChannel(const SUdpTransceiverPtr&, const InstancePtr&);
-    ControlChannel(SUdpTransceiver*, const InstancePtr&);
+    // ControlChannel(const IceInternal::SUdpTransceiverPtr&, const IceInternal::InstancePtr&);
+    ControlChannel(IceInternal::SUdpTransceiver*, const IceInternal::InstancePtr&);
     virtual ~ControlChannel();
 
     virtual void unsetTransceiver();
 
     friend IceInternal::SUdpTransceiver;
 
-    // SUdpTransceiverPtr _transceiver;
-    SUdpTransceiver* _transceiver;
-    InstancePtr _instance;
-    TraceLevelsPtr _traceLevels;
-    LoggerPtr _logger;
-    Mutex _mutex;
+    // IceInternal::SUdpTransceiverPtr _transceiver;
+    IceInternal::SUdpTransceiver* _transceiver;
+    IceInternal::InstancePtr _instance;
+    IceInternal::TraceLevelsPtr _traceLevels;
+    Ice::LoggerPtr _logger;
+    IceUtil::Mutex _mutex;
     CryptorPtr _cryptor;
 };
 

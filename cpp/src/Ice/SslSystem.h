@@ -26,15 +26,9 @@ namespace IceSecurity
 namespace Ssl
 {
 
-using std::string;
-using Ice::LoggerPtr;
-using IceInternal::TraceLevelsPtr;
-using Ice::PropertiesPtr;
-using IceUtil::Shared;
-
 class Factory;
 
-class System : public Shared
+class System : public IceUtil::Shared
 {
 public:
 
@@ -45,16 +39,22 @@ public:
     virtual Connection* createServerConnection(int) = 0;
     virtual Connection* createClientConnection(int) = 0;
 
-    virtual void setServerCertificateVerifier(const CertificateVerifierPtr&);
-    virtual void setClientCertificateVerifier(const CertificateVerifierPtr&);
+    virtual void setServerCertificateVerifier(const CertificateVerifierPtr&) = 0;
+    virtual void setClientCertificateVerifier(const CertificateVerifierPtr&) = 0;
 
-    virtual void setTrace(const TraceLevelsPtr&);
+    virtual void setServerCertAuthorityCertificate(const std::string&) = 0;
+    virtual void setClientCertAuthorityCertificate(const std::string&) = 0;
+
+    virtual void setServerRSAKeysBase64(const std::string&, const std::string&) = 0;
+    virtual void setClientRSAKeysBase64(const std::string&, const std::string&) = 0;
+
+    virtual void setTrace(const IceInternal::TraceLevelsPtr&);
     bool isTraceSet() const;
 
-    virtual void setLogger(const LoggerPtr&);
+    virtual void setLogger(const Ice::LoggerPtr&);
     bool isLoggerSet() const;
 
-    void setProperties(const PropertiesPtr&);
+    void setProperties(const Ice::PropertiesPtr&);
     bool isPropertiesSet() const;
 
 protected:
@@ -62,11 +62,9 @@ protected:
     System();
     virtual ~System();
 
-    TraceLevelsPtr _traceLevels;
-    LoggerPtr _logger;
-    PropertiesPtr _properties;
-    CertificateVerifierPtr _clientVerifier;
-    CertificateVerifierPtr _serverVerifier;
+    IceInternal::TraceLevelsPtr _traceLevels;
+    Ice::LoggerPtr _logger;
+    Ice::PropertiesPtr _properties;
     
     friend class Factory;
 };

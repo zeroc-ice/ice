@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_RSA_KEY_PAIR_H
-#define ICE_RSA_KEY_PAIR_H
+#ifndef ICE_RSA_PUBLIC_KEY_H
+#define ICE_RSA_PUBLIC_KEY_H
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Shared.h>
@@ -17,9 +17,6 @@
 #include <vector>
 #include <openssl/ssl.h>
 #include <Ice/BuiltinSequences.h>
-#include <Ice/SslRSAKeyPairF.h>
-#include <Ice/SslRSACertificateGenF.h>
-#include <Ice/SslRSAPrivateKeyF.h>
 #include <Ice/SslRSAPublicKeyF.h>
 
 #ifdef WIN32
@@ -44,46 +41,37 @@ namespace OpenSSL
 using namespace std;
 using IceUtil::Shared;
 
-class RSAKeyPair : public Shared
+using std::string;
+using Ice::ByteSeq;
+
+class RSAPublicKey : public Shared
 {
 
 public:
     // Construction from Base64 encodings
-    RSAKeyPair(const std::string&, const std::string&);
+    RSAPublicKey(const string&);
 
     // Construction from ByteSeq
-    RSAKeyPair(const Ice::ByteSeq&, const Ice::ByteSeq&);
+    RSAPublicKey(const ByteSeq&);
 
-    ~RSAKeyPair();
+    RSAPublicKey(X509*);
+
+    ~RSAPublicKey();
 
     // Conversions to Base64 encodings
-    void keyToBase64(std::string&);
-    void certToBase64(std::string&);
+    void certToBase64(string&);
 
     // Conversions to ByteSequences
-    void keyToByteSeq(Ice::ByteSeq&);
-    void certToByteSeq(Ice::ByteSeq&);
+    void certToByteSeq(ByteSeq&);
 
     // Get the key structures
-    RSA* getRSAPrivateKey() const;
     X509* getX509PublicKey() const;
 
 private:
-    // RSAKeyPair(RSA*, X509*);
-    RSAKeyPair(const RSAPrivateKeyPtr&, const RSAPublicKeyPtr&);
 
-    friend class RSACertificateGen;
+    void byteSeqToCert(const ByteSeq&);
 
-    // void byteSeqToKey(const Ice::ByteSeq&);
-    // void byteSeqToCert(const Ice::ByteSeq&);
-    // void ucharToByteSeq(unsigned char*, int, Ice::ByteSeq&);
-    // unsigned char* byteSeqToUChar(const Ice::ByteSeq&);
-
-    // RSA* _privateKey;
-    // X509* _publicKey;
-
-    RSAPrivateKeyPtr _privateKey;
-    RSAPublicKeyPtr _publicKey;
+    X509* _publicKey;
 
 };
 

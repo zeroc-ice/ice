@@ -22,6 +22,9 @@ using IceSecurity::Ssl::CertificateException;
 using IceSecurity::Ssl::ProtocolException;
 using IceSecurity::Ssl::SystemPtr;
 
+using Ice::ConnectionLostException;
+using Ice::SocketException;
+
 using namespace IceInternal;
 using namespace std;
 

@@ -29,6 +29,8 @@ using namespace Ice;
 using namespace IceSecurity::SecureUdp;
 using IceInternal::Buffer;
 using IceInternal::BasicStream;
+using IceInternal::InstancePtr;
+using IceInternal::SUdpTransceiver;
 
 void
 IceSecurity::SecureUdp::ServerControlChannel::clientHello(const ClientChannelPrx& client,

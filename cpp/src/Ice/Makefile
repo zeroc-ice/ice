@@ -94,6 +94,9 @@ OBJS		= Initialize.o \
                   SslCertificateVerifierOpenSSL.o \
                   SslJanitors.o \
                   SslRSACertificateGen.o \
+                  SslIceUtils.o \
+                  SslRSAPrivateKey.o \
+                  SslRSAPublicKey.o \
                   SslRSAKeyPair.o \
                   SslOpenSSLUtils.o \
 		  UdpTransceiver.o \
@@ -233,6 +236,23 @@ $(HDIR)/SecureUdpF.h: $(SDIR)/SecureUdpF.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/SecureUdpF.h
+
+$(HDIR)/SslCertificateVerifier.h SslCertificateVerifier.cpp: $(SDIR)/SslCertificateVerifier.ice $(SLICE2CPP)
+	rm -f $(HDIR)/SslCertificateVerifier.h SslCertificateVerifier.cpp
+	$(SLICECMD) $(SDIR)/SslCertificateVerifier.ice
+	mv SslCertificateVerifier.h $(HDIR)
+
+clean::
+	rm -f $(HDIR)/SslCertificateVerifier.h SslCertificateVerifier.cpp
+
+$(HDIR)/SslCertificateVerifierF.h: $(SDIR)/SslCertificateVerifierF.ice $(SLICE2CPP)
+	rm -f $(HDIR)/SslCertificateVerifierF.h SslCertificateVerifierF.cpp
+	$(SLICECMD) $(SDIR)/SslCertificateVerifierF.ice
+	mv SslCertificateVerifierF.h $(HDIR)
+	rm -f SslCertificateVerifierF.cpp
+
+clean::
+	rm -f $(HDIR)/SslCertificateVerifierF.h
 
 $(HDIR)/ServantLocator.h ServantLocator.cpp: $(SDIR)/ServantLocator.ice $(SLICE2CPP)
 	rm -f $(HDIR)/ServantLocator.h ServantLocator.cpp

@@ -23,12 +23,9 @@ namespace IceSecurity
 namespace SecureUdp
 {
 
-using IceUtil::Shared;
-using Ice::ByteSeq;
-
 typedef std::vector<CryptKeyPtr> CryptKeys;
 
-class Cryptor : public Shared
+class Cryptor : public IceUtil::Shared
 {
 
 public:
@@ -37,13 +34,13 @@ public:
 
     virtual const CryptKeyPtr getNewKey();
 
-    virtual const CryptKeyPtr getKey(const ByteSeq&);
+    virtual const CryptKeyPtr getKey(const Ice::ByteSeq&);
 
-    virtual const CryptKeyPtr getOrCreateKey(const ByteSeq&);
+    virtual const CryptKeyPtr getOrCreateKey(const Ice::ByteSeq&);
 
-    virtual void encrypt(const CryptKeyPtr&, const ByteSeq&, ByteSeq&);
+    virtual void encrypt(const CryptKeyPtr&, const Ice::ByteSeq&, Ice::ByteSeq&);
 
-    virtual void decrypt(const CryptKeyPtr&, const ByteSeq&, ByteSeq&);
+    virtual void decrypt(const CryptKeyPtr&, const Ice::ByteSeq&, Ice::ByteSeq&);
 
 protected:
     CryptKeys _cryptKeys;

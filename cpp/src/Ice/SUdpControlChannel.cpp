@@ -20,9 +20,8 @@ using namespace Ice;
 void ::IceInternal::incRef(::IceSecurity::SecureUdp::ControlChannel* p) { p->__incRef(); }
 void ::IceInternal::decRef(::IceSecurity::SecureUdp::ControlChannel* p) { p->__decRef(); }
 
-// IceSecurity::SecureUdp::ControlChannel::ControlChannel(const SUdpTransceiverPtr& transceiver,
-IceSecurity::SecureUdp::ControlChannel::ControlChannel(SUdpTransceiver* transceiver,
-                                                       const InstancePtr& instance) :
+IceSecurity::SecureUdp::ControlChannel::ControlChannel(IceInternal::SUdpTransceiver* transceiver,
+                                                       const IceInternal::InstancePtr& instance) :
                                        _transceiver(transceiver),
                                        _instance(instance),
                                        _traceLevels(instance->traceLevels()),

@@ -193,19 +193,56 @@ IceSecurity::Ssl::Factory::reapSystems()
 
 void
 IceSecurity::Ssl::setSystemCertificateVerifier(const string& systemIdentifier,
-                                               CertificateVerifierType verifierType,
+                                               SslContextType contextType,
                                                const CertificateVerifierPtr& certificateVerifier)
 {
     SystemPtr sslSystem = Factory::getSystem(systemIdentifier);
 
-    if ((verifierType == Client) || (verifierType == ClientServer))
+    if ((contextType == Client) || (contextType == ClientServer))
     {
         sslSystem->setClientCertificateVerifier(certificateVerifier);
     }
 
-    if ((verifierType == Server) || (verifierType == ClientServer))
+    if ((contextType == Server) || (contextType == ClientServer))
     {
         sslSystem->setServerCertificateVerifier(certificateVerifier);
+    }
+}
+
+void
+IceSecurity::Ssl::setSystemCertAuthCertificate(const string& systemIdentifier,
+                                               SslContextType contextType,
+                                               const string& caCertString)
+{
+    SystemPtr sslSystem = Factory::getSystem(systemIdentifier);
+
+    if ((contextType == Client) || (contextType == ClientServer))
+    {
+        sslSystem->setClientCertAuthorityCertificate(caCertString);
+    }
+
+    if ((contextType == Server) || (contextType == ClientServer))
+    {
+        sslSystem->setServerCertAuthorityCertificate(caCertString);
+    }
+}
+
+void
+IceSecurity::Ssl::setSystemRSAKeysBase64(const string& systemIdentifier,
+                                         SslContextType contextType,
+                                         const string& privateKey,
+                                         const string& publicKey)
+{
+    SystemPtr sslSystem = Factory::getSystem(systemIdentifier);
+
+    if ((contextType == Client) || (contextType == ClientServer))
+    {
+        sslSystem->setClientRSAKeysBase64(privateKey, publicKey);
+    }
+
+    if ((contextType == Server) || (contextType == ClientServer))
+    {
+        sslSystem->setServerRSAKeysBase64(privateKey, publicKey);
     }
 }
 

@@ -18,7 +18,9 @@ void
 Ice::LoggerI::trace(const string& category, const string& message)
 {
     IceUtil::Mutex::Lock sync(*this);
-    string s = "[ " + category + ": " + message + " ]";
+    ostringstream thread;
+    thread << dec << getpid();
+    string s = "[ " + category + ": Thread(" + thread.str() + ") "+ message + " ]";
     string::size_type idx = 0;
     while ((idx = s.find("\n", idx)) != string::npos)
     {

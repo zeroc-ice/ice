@@ -20,9 +20,6 @@ namespace IceSecurity
 namespace Ssl
 {
 
-using std::string;
-using std::ostream;
-
 class GeneralConfig
 {
 
@@ -33,12 +30,12 @@ public:
     inline int getVerifyMode() const { return _verifyMode; };
     inline int getVerifyDepth() const { return _verifyDepth; };
 
-    inline string getContext() const { return _context; };
-    inline string getCipherList() const { return _cipherList; };
-    inline string getRandomBytesFiles() const { return _randomBytesFiles; };
+    inline std::string getContext() const { return _context; };
+    inline std::string getCipherList() const { return _cipherList; };
+    inline std::string getRandomBytesFiles() const { return _randomBytesFiles; };
 
     // General method - it will figure out how to properly parse the data.
-    void set(string&, string&);
+    void set(std::string&, std::string&);
 
 protected:
 
@@ -47,23 +44,23 @@ protected:
     int _verifyMode;
     int _verifyDepth;
 
-    string _context;
-    string _cipherList;
-    string _randomBytesFiles;
+    std::string _context;
+    std::string _cipherList;
+    std::string _randomBytesFiles;
 
-    void parseVersion(string&);
-    void parseVerifyMode(string&);
+    void parseVersion(std::string&);
+    void parseVerifyMode(std::string&);
 };
 
 template<class Stream> inline
 Stream& operator << (Stream& target, const GeneralConfig& generalConfig)
 {
-    target << "Protocol:     " << generalConfig.getProtocol() << endl;
-    target << "Verify Mode:  " << generalConfig.getVerifyMode() << endl;
-    target << "Verify Depth: " << generalConfig.getVerifyDepth() << endl;
-    target << "Context:      " << generalConfig.getContext() << endl;
-    target << "Cipher List:  " << generalConfig.getCipherList() << endl;
-    target << "Random Bytes: " << generalConfig.getRandomBytesFiles() << endl;
+    target << "Protocol:     " << generalConfig.getProtocol() << std::endl;
+    target << "Verify Mode:  " << generalConfig.getVerifyMode() << std::endl;
+    target << "Verify Depth: " << generalConfig.getVerifyDepth() << std::endl;
+    target << "Context:      " << generalConfig.getContext() << std::endl;
+    target << "Cipher List:  " << generalConfig.getCipherList() << std::endl;
+    target << "Random Bytes: " << generalConfig.getRandomBytesFiles() << std::endl;
 
     return target;
 }

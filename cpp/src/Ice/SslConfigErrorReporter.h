@@ -24,15 +24,12 @@ namespace IceSecurity
 namespace Ssl
 {
 
-using IceInternal::TraceLevelsPtr;
-using Ice::LoggerPtr;
-
 class ErrorReporter : public ErrorHandler
 {
 
 public:
 
-     ErrorReporter(TraceLevelsPtr traceLevels, LoggerPtr logger) :
+     ErrorReporter(IceInternal::TraceLevelsPtr traceLevels, Ice::LoggerPtr logger) :
             _sawErrors(false),
             _traceLevels(traceLevels),
             _logger(logger)
@@ -54,14 +51,12 @@ private:
     // It's used by the main code to suppress output if there are errors.
     bool _sawErrors;
 
-    TraceLevelsPtr _traceLevels;
-    LoggerPtr _logger;
+    IceInternal::TraceLevelsPtr _traceLevels;
+    Ice::LoggerPtr _logger;
 };
 
-using std::ostream;
-
-inline ostream&
-operator << (ostream& target, const DOMString& s)
+inline std::ostream&
+operator << (std::ostream& target, const DOMString& s)
 {
     char *p = s.transcode();
     target << p;

@@ -83,6 +83,17 @@ local exception CertificateException extends ShutdownException
 {
 };
 
+/**
+ *
+ * This exception indicates that the provided CertificateVerifier was
+ * not derived from the proper base class, and thus, does not provide
+ * the appropriate interface.
+ *
+ */
+local exception CertificateVerifierTypeException extends SecurityException
+{
+};
+
 module OpenSSL
 {
 

@@ -8,8 +8,10 @@
 //
 // **********************************************************************
 
-#include <openssl/ssl.h>
-#include <string>
+#ifndef ICE_RSA_PRIVATE_KEY_F_H
+#define ICE_RSA_PRIVATE_KEY_F_H
+
+#include <Ice/Handle.h>
 
 namespace IceSecurity
 {
@@ -20,14 +22,21 @@ namespace Ssl
 namespace OpenSSL
 {
 
-std::string getGeneralizedTime(ASN1_GENERALIZEDTIME *tm);
-
-std::string getUTCTime(ASN1_UTCTIME *tm);
-
-std::string getASN1time(ASN1_TIME *tm);
+class RSAPrivateKey;
+typedef IceInternal::Handle<RSAPrivateKey> RSAPrivateKeyPtr;
 
 }
 
 }
 
 }
+
+namespace IceInternal
+{
+
+void incRef(::IceSecurity::Ssl::OpenSSL::RSAPrivateKey*);
+void decRef(::IceSecurity::Ssl::OpenSSL::RSAPrivateKey*);
+
+}
+
+#endif

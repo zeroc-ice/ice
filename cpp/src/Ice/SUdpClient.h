@@ -24,15 +24,11 @@ namespace IceSecurity
 namespace SecureUdp
 {
 
-using Ice::Long;
-using Ice::ByteSeq;
-using IceUtil::Shared;
-
-class SUdpClient : public Shared
+class SUdpClient : public IceUtil::Shared
 {
 
 public:
-    SUdpClient(Long, const ClientChannelPrx&, const MessageAuthenticatorPtr&);
+    SUdpClient(Ice::Long, const ClientChannelPrx&, const MessageAuthenticatorPtr&);
     virtual ~SUdpClient();
 
     void serverHello(const CryptKeyPtr&);
@@ -41,17 +37,17 @@ public:
 
     void serverGoodbye();
 
-    void setNewCryptKey(Long, const CryptKeyPtr&);
+    void setNewCryptKey(Ice::Long, const CryptKeyPtr&);
 
-    Long getClientID() const;
+    Ice::Long getClientID() const;
 
     const CryptKeyPtr& getCryptKey() const;
-    const CryptKeyPtr& getCryptKey(Long) const;
+    const CryptKeyPtr& getCryptKey(Ice::Long) const;
 
     const MessageAuthenticatorPtr& getMessageAuthenticator() const;
 
 protected:
-    Long _clientID;
+    Ice::Long _clientID;
     ClientChannelPrx _clientChannel;
     MessageAuthenticatorPtr _messageAuthenticator;
     CryptKeyPtr _cryptKey;

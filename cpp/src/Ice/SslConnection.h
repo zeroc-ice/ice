@@ -24,12 +24,7 @@ namespace IceSecurity
 namespace Ssl
 {
 
-using IceUtil::Shared;
-using IceInternal::Buffer;
-using IceInternal::TraceLevelsPtr;
-using Ice::LoggerPtr;
-
-class Connection : public Shared
+class Connection : public IceUtil::Shared
 {
 public:
     Connection(const CertificateVerifierPtr&);
@@ -37,11 +32,11 @@ public:
 
     virtual void shutdown() = 0;
 
-    virtual int read(Buffer&, int) = 0;
-    virtual int write(Buffer&, int) = 0;
+    virtual int read(IceInternal::Buffer&, int) = 0;
+    virtual int write(IceInternal::Buffer&, int) = 0;
 
-    virtual void setTrace(const TraceLevelsPtr&) = 0;
-    virtual void setLogger(const LoggerPtr&) = 0;
+    virtual void setTrace(const IceInternal::TraceLevelsPtr&) = 0;
+    virtual void setLogger(const Ice::LoggerPtr&) = 0;
 
 protected:
     CertificateVerifierPtr _certificateVerifier;

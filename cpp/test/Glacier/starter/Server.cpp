@@ -31,7 +31,7 @@ main(int argc, char* argv[])
 int
 CallbackServer::run(int argc, char* argv[])
 {
-    string endpts = "default -p 12345 -t 2000";
+    string endpts = "tcp -p 12345 -t 2000";
     ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("CallbackAdapter", endpts);
     CallbackPrx self = CallbackPrx::uncheckedCast(adapter->createProxy(Ice::stringToIdentity("callback")));
     adapter->add(new CallbackI(communicator()), Ice::stringToIdentity("callback"));

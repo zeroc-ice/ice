@@ -41,8 +41,6 @@ protected:
     DHVector _dhParams;
 };
 
-using std::endl;
-
 template<class Stream>
 inline Stream& operator << (Stream& target, TempCertificates& tmpCerts)
 {
@@ -51,9 +49,9 @@ inline Stream& operator << (Stream& target, TempCertificates& tmpCerts)
 
     while (iRSA != eRSA)
     {
-        target << "RSA" << endl << "{" << endl;
+        target << "RSA" << std::endl << "{" << std::endl;
         target << *iRSA;
-        target << "}" << endl << endl;
+        target << "}" << std::endl << std::endl;
         iRSA++;
     }
 
@@ -62,9 +60,9 @@ inline Stream& operator << (Stream& target, TempCertificates& tmpCerts)
 
     while (iDSA != eDSA)
     {
-        target << "DSA" << endl << "{" << endl;
+        target << "DSA" << std::endl << "{" << std::endl;
         target << *iDSA;
-        target << "}" << endl << endl;
+        target << "}" << std::endl << std::endl;
         iDSA++;
     }
 
@@ -73,9 +71,9 @@ inline Stream& operator << (Stream& target, TempCertificates& tmpCerts)
 
     while (iDHP != eDHP)
     {
-        target << "DH" << endl << "{" << endl;
+        target << "DH" << std::endl << "{" << std::endl;
         target << *iDHP;
-        target << "}" << endl << endl;
+        target << "}" << std::endl << std::endl;
         iDHP++;
     }
     

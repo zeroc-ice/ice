@@ -19,25 +19,23 @@ namespace IceSecurity
 namespace Ssl
 {
 
-using namespace std;
-
 class CertificateAuthority
 {
 
 public:
     CertificateAuthority();
-    CertificateAuthority(string&, string&);
+    CertificateAuthority(std::string&, std::string&);
     CertificateAuthority(CertificateAuthority&);
 
-    void setCAFileName(string&);
-    void setCAPath(string&);
+    void setCAFileName(std::string&);
+    void setCAPath(std::string&);
 
-    inline const string& getCAFileName() const { return _fileName; };
-    inline const string& getCAPath() const { return _path; };
+    inline const std::string& getCAFileName() const { return _fileName; };
+    inline const std::string& getCAPath() const { return _path; };
 
 private:
-    string _fileName;
-    string _path;
+    std::string _fileName;
+    std::string _path;
 };
 
 }

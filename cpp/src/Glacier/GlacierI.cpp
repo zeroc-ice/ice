@@ -56,7 +56,7 @@ Glacier::StarterI::destroy()
 }
 
 RouterPrx
-Glacier::StarterI::startRouter(const string& userId, const string& password, ByteSeq& privateKey, ByteSeq& publicKey, const Current&)
+Glacier::StarterI::startRouter(const string& userId, const string& password, ByteSeq& privateKey, ByteSeq& publicKey, ByteSeq& routerCert, const Current&)
 {
     assert(_communicator); // Destroyed?
 
@@ -70,14 +70,9 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
     RSAKeyPairPtr clientKeyPair = _certificateGenerator.generate(_certContext);
     RSAKeyPairPtr routerKeyPair = _certificateGenerator.generate(_certContext);
 
-    // NOTE: These will probably be returned from this method, I would assume.
-    ByteSeq clientPrivateKey;
-    ByteSeq clientCertificate;
-    ByteSeq routerCertificate;
-
     clientKeyPair->keyToByteSeq(privateKey);
     clientKeyPair->certToByteSeq(publicKey);
-    routerKeyPair->certToByteSeq(routerCertificate);
+    routerKeyPair->certToByteSeq(routerCert);
 
     // routerPrivateKeyBase64 and routerCertificateBase64 are passed to the
     // router as the values for the properties
@@ -154,6 +149,11 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	//
 	StringSeq args = _properties->getCommandLineOptions();
 	args.push_back("--Glacier.Router.Identity=" + uuid);
+        args.push_back("--Ice.Security.Ssl.Overrides.Server.RSA.PrivateKey=" + routerPrivateKeyBase64);
+        args.push_back("--Ice.Security.Ssl.Overrides.Server.RSA.Certificate=" + routerCertificateBase64);
+        args.push_back("--Ice.Security.Ssl.Overrides.Client.RSA.PrivateKey=" + routerPrivateKeyBase64);
+        args.push_back("--Ice.Security.Ssl.Overrides.Client.RSA.Certificate=" + routerCertificateBase64);
+        args.push_back("--Glacier.Router.AcceptCert=" + clientCertificateBase64);
 	ostringstream s;
 	s << "--Glacier.Router.PrintProxyOnFd=" << fds[1];
 	args.push_back(s.str());
@@ -188,6 +188,15 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 		args.push_back(arg);
 	    }
 	}
+
+/*
+        StringSeq::iterator seqElem = args.begin();
+        while (seqElem != args.end())
+        {
+            cout << *seqElem << endl;
+            seqElem++;
+        }
+*/
 	
 	//
 	// Convert to standard argc/argv.
@@ -204,7 +213,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	assert(i == argc);
 	argv[0] = strdup(path.c_str());
 	argv[argc] = 0;
-	
+
 	//
 	// Try to start the router.
 	//

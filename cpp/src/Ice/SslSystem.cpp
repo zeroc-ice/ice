@@ -13,6 +13,9 @@
 
 using namespace std;
 using IceSecurity::Ssl::CertificateVerifierPtr;
+using Ice::LoggerPtr;
+using Ice::PropertiesPtr;
+using IceInternal::TraceLevelsPtr;
 
 void ::IceInternal::incRef(::IceSecurity::Ssl::System* p) { p->__incRef(); }
 void ::IceInternal::decRef(::IceSecurity::Ssl::System* p) { p->__decRef(); }
@@ -20,18 +23,6 @@ void ::IceInternal::decRef(::IceSecurity::Ssl::System* p) { p->__decRef(); }
 //
 // Public Methods
 //
-
-void
-IceSecurity::Ssl::System::setServerCertificateVerifier(const CertificateVerifierPtr& serverVerifier)
-{
-    _serverVerifier = serverVerifier;
-}
-
-void
-IceSecurity::Ssl::System::setClientCertificateVerifier(const CertificateVerifierPtr& clientVerifier)
-{
-    _clientVerifier = clientVerifier;
-}
 
 void
 IceSecurity::Ssl::System::setTrace(const TraceLevelsPtr& traceLevels)

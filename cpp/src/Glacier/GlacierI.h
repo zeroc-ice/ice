@@ -33,6 +33,7 @@ public:
                                const std::string&,
                                Ice::ByteSeq&,
                                Ice::ByteSeq&,
+                               Ice::ByteSeq&,
                                const Ice::Current&);
 
 private:

@@ -21,17 +21,14 @@ namespace IceSecurity
 namespace SecureUdp
 {
 
-using IceUtil::Shared;
-using Ice::ByteSeq;
-
-class CryptKey : public Shared
+class CryptKey : public IceUtil::Shared
 {
 
 public:
-    CryptKey(const ByteSeq&);
+    CryptKey(const Ice::ByteSeq&);
     virtual ~CryptKey();
 
-    virtual const ByteSeq& toByteSeq() const;
+    virtual const Ice::ByteSeq& toByteSeq() const;
 
     //
     // Compare CryptKeys for sorting purposes
@@ -41,7 +38,7 @@ public:
     virtual bool operator<(const CryptKey&) const;
 
 protected:
-    ByteSeq _keyBytes;
+    Ice::ByteSeq _keyBytes;
 
 };
 

@@ -12,6 +12,8 @@
 #include <Ice/SslRSACertificateGen.h>
 #include <Ice/SslJanitors.h>
 #include <Ice/SslRSAKeyPair.h>
+#include <Ice/SslRSAPrivateKey.h>
+#include <Ice/SslRSAPublicKey.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
@@ -239,7 +241,9 @@ IceSecurity::Ssl::OpenSSL::RSACertificateGen::generate(const RSACertificateGenCo
     pkey->pkey.ptr = 0;
 
     // Constructing our object.
-    RSAKeyPair* keyPairPtr = new RSAKeyPair(rsaKeyPair, x509SelfSigned);
+    RSAPrivateKeyPtr privKeyPtr = new RSAPrivateKey(rsaKeyPair);
+    RSAPublicKeyPtr pubKeyPtr = new RSAPublicKey(x509SelfSigned);
+    RSAKeyPair* keyPairPtr = new RSAKeyPair(privKeyPtr, pubKeyPtr);
 
     // Don't let them clean up, we're keeping those around.
     rsaJanitor.clear();

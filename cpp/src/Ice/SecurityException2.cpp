@@ -59,6 +59,12 @@ IceSecurity::Ssl::CertificateException::ice_print(ostream& out) const
 }
 
 void
+IceSecurity::Ssl::CertificateVerifierTypeException::ice_print(ostream& out) const
+{
+    SecurityException::ice_print(out);
+}
+
+void
 IceSecurity::Ssl::OpenSSL::ContextException::ice_print(ostream& out) const
 {
     SecurityException::ice_print(out);

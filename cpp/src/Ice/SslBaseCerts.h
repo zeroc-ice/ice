@@ -39,30 +39,28 @@ protected:
     DiffieHellmanParamsFile _dhParams;
 };
 
-using std::endl;
-
 template<class Stream>
 inline Stream& operator << (Stream& target, const BaseCertificates& baseCerts)
 {
     if (baseCerts.getRSACert().getKeySize() != 0)
     {
-        target << "RSA\n{" << endl;
+        target << "RSA\n{" << std::endl;
         target << baseCerts.getRSACert();
-        target << "}\n" << endl;
+        target << "}\n" << std::endl;
     }
 
     if (baseCerts.getDSACert().getKeySize() != 0)
     {
-        target << "DSA\n{" << endl;
+        target << "DSA\n{" << std::endl;
         target << baseCerts.getDSACert();
-        target << "}\n" << endl;
+        target << "}\n" << std::endl;
     }
 
     if (baseCerts.getDHParams().getKeySize() != 0)
     {
-        target << "DH\n{" << endl;
+        target << "DH\n{" << std::endl;
         target << baseCerts.getDHParams();
-        target << "}\n" << endl;
+        target << "}\n" << std::endl;
     }
 
     return target;

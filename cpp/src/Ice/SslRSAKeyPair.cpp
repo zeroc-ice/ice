@@ -11,6 +11,8 @@
 #include <IceUtil/Config.h>
 #include <IceUtil/Base64.h>
 #include <Ice/SslRSAKeyPair.h>
+#include <Ice/SslRSAPrivateKey.h>
+#include <Ice/SslRSAPublicKey.h>
 #include <assert.h>
 
 void ::IceInternal::incRef(::IceSecurity::Ssl::OpenSSL::RSAKeyPair* p) { p->__incRef(); }
@@ -20,8 +22,11 @@ using std::back_inserter;
 using std::string;
 using IceUtil::Base64;
 
-IceSecurity::Ssl::OpenSSL::RSAKeyPair::RSAKeyPair(const string& key, const string& cert)
+IceSecurity::Ssl::OpenSSL::RSAKeyPair::RSAKeyPair(const string& key, const string& cert) :
+                                      _privateKey(new RSAPrivateKey(key)),
+                                      _publicKey(new RSAPublicKey(cert))
 {
+/*
     _privateKey = 0;
     _publicKey = 0;
 
@@ -30,41 +35,57 @@ IceSecurity::Ssl::OpenSSL::RSAKeyPair::RSAKeyPair(const string& key, const strin
 
     byteSeqToKey(keySeq);
     byteSeqToCert(certSeq);
+*/
 }
 
-IceSecurity::Ssl::OpenSSL::RSAKeyPair::RSAKeyPair(const ByteSeq& keySeq, const ByteSeq& certSeq)
+IceSecurity::Ssl::OpenSSL::RSAKeyPair::RSAKeyPair(const ByteSeq& keySeq, const ByteSeq& certSeq) :
+                                      _privateKey(new RSAPrivateKey(keySeq)),
+                                      _publicKey(new RSAPublicKey(certSeq))
 {
+/*
     _privateKey = 0;
     _publicKey = 0;
     byteSeqToKey(keySeq);
     byteSeqToCert(certSeq);
+*/
 }
 
 IceSecurity::Ssl::OpenSSL::RSAKeyPair::~RSAKeyPair()
 {
+/*
     RSA_free(_privateKey);
     X509_free(_publicKey);
+*/
 }
 
 void
 IceSecurity::Ssl::OpenSSL::RSAKeyPair::keyToBase64(string& b64Key)
 {
+    _privateKey->keyToBase64(b64Key);
+
+/*
     ByteSeq keySeq;
     keyToByteSeq(keySeq);
     b64Key = Base64::encode(keySeq);
+*/
 }
 
 void
 IceSecurity::Ssl::OpenSSL::RSAKeyPair::certToBase64(string& b64Cert)
 {
+    _publicKey->certToBase64(b64Cert);
+/*
     ByteSeq certSeq;
     certToByteSeq(certSeq);
     b64Cert = Base64::encode(certSeq);
+*/
 }
 
 void
 IceSecurity::Ssl::OpenSSL::RSAKeyPair::keyToByteSeq(ByteSeq& keySeq)
 {
+    _privateKey->keyToByteSeq(keySeq);
+/*
     assert(_privateKey);
 
     // Output the Private Key to a char buffer
@@ -81,11 +102,15 @@ IceSecurity::Ssl::OpenSSL::RSAKeyPair::keyToByteSeq(ByteSeq& keySeq)
     ucharToByteSeq(privateKeyBuffer, privKeySize, keySeq);
 
     delete []privateKeyBuffer;
+*/
 }
 
 void
 IceSecurity::Ssl::OpenSSL::RSAKeyPair::certToByteSeq(ByteSeq& certSeq)
 {
+    _publicKey->certToByteSeq(certSeq);
+
+/*
     assert(_publicKey);
 
     // Output the Public Key to a char buffer
@@ -102,26 +127,30 @@ IceSecurity::Ssl::OpenSSL::RSAKeyPair::certToByteSeq(ByteSeq& certSeq)
     ucharToByteSeq(publicKeyBuffer, pubKeySize, certSeq);
 
     delete []publicKeyBuffer;
+*/
 }
 
 RSA*
 IceSecurity::Ssl::OpenSSL::RSAKeyPair::getRSAPrivateKey() const
 {
-    return _privateKey;
+    return _privateKey->getRSAPrivateKey();
 }
 
 X509*
 IceSecurity::Ssl::OpenSSL::RSAKeyPair::getX509PublicKey() const
 {
-    return _publicKey;
+    return _publicKey->getX509PublicKey();
 }
 
-IceSecurity::Ssl::OpenSSL::RSAKeyPair::RSAKeyPair(RSA* rsa, X509* x509) :
+// IceSecurity::Ssl::OpenSSL::RSAKeyPair::RSAKeyPair(RSA* rsa, X509* x509) :
+
+IceSecurity::Ssl::OpenSSL::RSAKeyPair::RSAKeyPair(const RSAPrivateKeyPtr& rsa, const RSAPublicKeyPtr& x509) :
                                       _privateKey(rsa),
                                       _publicKey(x509)
 {
 }
 
+/*
 void
 IceSecurity::Ssl::OpenSSL::RSAKeyPair::byteSeqToKey(const ByteSeq& keySeq)
 {
@@ -178,4 +207,5 @@ IceSecurity::Ssl::OpenSSL::RSAKeyPair::byteSeqToUChar(const ByteSeq& sequence)
 
     return ucharSeq;
 }
+*/
 

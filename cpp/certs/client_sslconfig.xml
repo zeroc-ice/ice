@@ -2,7 +2,7 @@
 <!DOCTYPE SSLConfig SYSTEM "sslconfig.dtd"> 
 <SSLConfig> 
     <client> 
-        <general version="SSLv23" cipherlist="RC4-MD5" verifymode="none" verifydepth="10" /> 
+        <general version="SSLv23" cipherlist="RC4-MD5" verifymode="peer" verifydepth="10" /> 
         <certauthority file="cacert.pem" />
         <basecerts> 
             <rsacert keysize="1024"> 

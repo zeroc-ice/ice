@@ -17,7 +17,7 @@
 #include <Ice/SslConnection.h>
 #include <Ice/SslSystemF.h>
 #include <Ice/SslConnectionOpenSSLF.h>
-#include <Ice/SslCertificateVerifier.h>
+#include <Ice/SslCertificateVerifierOpenSSL.h>
 
 namespace IceSecurity
 {
@@ -27,9 +27,6 @@ namespace Ssl
 
 namespace OpenSSL
 {
-
-using namespace Ice;
-using namespace std;
 
 class SafeFlag
 {
@@ -110,20 +107,20 @@ private:
     SafeFlag& _flag;
 };
 
-class DefaultCertificateVerifier : public CertificateVerifier
+class DefaultCertificateVerifier : public IceSecurity::Ssl::OpenSSL::CertificateVerifier
 {
 
 public:
     DefaultCertificateVerifier();
 
-    void setTraceLevels(const TraceLevelsPtr&);
-    void setLogger(const LoggerPtr&);
+    void setTraceLevels(const IceInternal::TraceLevelsPtr&);
+    void setLogger(const Ice::LoggerPtr&);
 
     virtual int verify(int, X509_STORE_CTX*, SSL*);
 
 private:
-    TraceLevelsPtr _traceLevels;
-    LoggerPtr _logger;
+    IceInternal::TraceLevelsPtr _traceLevels;
+    Ice::LoggerPtr _logger;
 };
 
 // NOTE: This is a mapping from SSL* to Connection*, for use with the verifyCallback.
@@ -131,7 +128,7 @@ private:
 //       with this map on construction and unregister themselves in the destructor.  If
 //       this map used ConnectionPtr, Connection instances would never destruct as there
 //       would always be a reference to them from the map.
-typedef map<SSL*, Connection*> SslConnectionMap;
+typedef std::map<SSL*, Connection*> SslConnectionMap;
 
 class Connection : public IceSecurity::Ssl::Connection
 {
@@ -142,13 +139,13 @@ public:
 
     virtual void shutdown();
 
-    virtual int read(Buffer&, int) = 0;
-    virtual int write(Buffer&, int) = 0;
+    virtual int read(IceInternal::Buffer&, int) = 0;
+    virtual int write(IceInternal::Buffer&, int) = 0;
 
     virtual int init(int timeout = 0) = 0;
 
-    void setTrace(const TraceLevelsPtr& traceLevels);
-    void setLogger(const LoggerPtr& traceLevels);
+    void setTrace(const IceInternal::TraceLevelsPtr& traceLevels);
+    void setLogger(const Ice::LoggerPtr& traceLevels);
 
     void setHandshakeReadTimeout(int timeout);
 
@@ -172,15 +169,15 @@ protected:
 
     void protocolWrite();
 
-    int readInBuffer(Buffer&);
+    int readInBuffer(IceInternal::Buffer&);
 
     int readSelect(int);
     int writeSelect(int);
 
-    int readSSL(Buffer&, int);
+    int readSSL(IceInternal::Buffer&, int);
 
     // Retrieves errors from the OpenSSL library.
-    string sslGetErrors();
+    std::string sslGetErrors();
 
     static void addConnection(SSL*, Connection*);
     static void removeConnection(SSL*);
@@ -209,13 +206,13 @@ protected:
     // TODO: Review this after a healthy stint of testing
     // Buffer for application data that may be returned during handshake
     // (probably won't contain anything, may be removed later).
-    Buffer _inBuffer;
+    ::IceInternal::Buffer _inBuffer;
     ::IceUtil::Mutex _inBufferMutex;
 
     ::IceUtil::Mutex _handshakeWaitMutex;
 
-    TraceLevelsPtr _traceLevels;
-    LoggerPtr _logger;
+    IceInternal::TraceLevelsPtr _traceLevels;
+    Ice::LoggerPtr _logger;
 
     SafeFlag _handshakeFlag;
     int _initWantRead;

@@ -22,21 +22,17 @@ namespace Ssl
 namespace OpenSSL
 {
 
-using namespace Ice;
-
-using IceSecurity::Ssl::SystemPtr;
-
 class ClientConnection : public Connection
 {
 
 public:
-    ClientConnection(const CertificateVerifierPtr&, SSL*, const SystemPtr&);
+    ClientConnection(const CertificateVerifierPtr&, SSL*, const IceSecurity::Ssl::SystemPtr&);
     virtual ~ClientConnection();
     virtual void shutdown();
     virtual int init(int timeout = 0);
 
-    virtual int read(Buffer&, int);
-    virtual int write(Buffer&, int);
+    virtual int read(IceInternal::Buffer&, int);
+    virtual int write(IceInternal::Buffer&, int);
 
 protected:
 

@@ -24,23 +24,19 @@ namespace IceSecurity
 namespace Ssl
 {
 
-using std::string;
-using std::ostream;
-using std::vector;
-
 class CertificateFile
 {
 
 public:
     CertificateFile();
-    CertificateFile(const string&, const int);
+    CertificateFile(const std::string&, const int);
     CertificateFile(const CertificateFile&);
 
-    inline string getFileName() const { return _fileName; };
+    inline std::string getFileName() const { return _fileName; };
     inline int getEncoding() const { return _encoding; };
 
 protected:
-    string _fileName;
+    std::string _fileName;
     int _encoding;
 };
 
@@ -49,7 +45,7 @@ class DiffieHellmanParamsFile : public CertificateFile
 
 public:
     DiffieHellmanParamsFile();
-    DiffieHellmanParamsFile(const int, const string&, const int);
+    DiffieHellmanParamsFile(const int, const std::string&, const int);
     DiffieHellmanParamsFile(const DiffieHellmanParamsFile&);
 
     inline int getKeySize() const { return _keySize; };
@@ -77,9 +73,9 @@ protected:
     CertificateFile _private;
 };
 
-typedef vector<CertificateDesc> RSAVector;
-typedef vector<CertificateDesc> DSAVector;
-typedef vector<DiffieHellmanParamsFile> DHVector;
+typedef std::vector<CertificateDesc> RSAVector;
+typedef std::vector<CertificateDesc> DSAVector;
+typedef std::vector<DiffieHellmanParamsFile> DHVector;
 
 template<class Stream>
 inline Stream& operator << (Stream& target, const CertificateFile& certFile)
@@ -101,8 +97,8 @@ inline Stream& operator << (Stream& target, const DiffieHellmanParamsFile& dhPar
 {
     if (dhParams.getKeySize() != 0)
     {
-        target << "Keysize: " << dhParams.getKeySize() << endl;
-        target << "File:    " << ((CertificateFile&)dhParams) << endl;
+        target << "Keysize: " << dhParams.getKeySize() << std::endl;
+        target << "File:    " << ((CertificateFile&)dhParams) << std::endl;
     }
 
     return target;
@@ -113,9 +109,9 @@ inline Stream& operator << (Stream& target, const CertificateDesc& certDesc)
 {
     if (certDesc.getKeySize() != 0)
     {
-        target << "Keysize: " << certDesc.getKeySize() << endl;
-        target << "Public:  " << certDesc.getPublic()  << endl;
-        target << "Private: " << certDesc.getPrivate() << endl;
+        target << "Keysize: " << certDesc.getKeySize() << std::endl;
+        target << "Public:  " << certDesc.getPublic()  << std::endl;
+        target << "Private: " << certDesc.getPrivate() << std::endl;
     }
 
     return target;

@@ -35,6 +35,7 @@
 #include <Ice/SslConnectionOpenSSLServer.h>
 #include <Ice/SslConfig.h>
 #include <Ice/SslRSAKeyPair.h>
+#include <Ice/SslRSAPublicKey.h>
 #include <Ice/SslJanitors.h>
 #include <Ice/SslCertificateVerifierOpenSSL.h>
 
@@ -42,6 +43,8 @@
 #include <Ice/Logger.h>
 
 using namespace std;
+using IceInternal::TraceLevelsPtr;
+using Ice::LoggerPtr;
 
 namespace IceSecurity
 {
@@ -84,7 +87,7 @@ unsigned char System::_tempDiffieHellman512g[] =
 // will initialize these.  NOTE: If we SHOULD have multiple loggers
 // going on simultaneously, this will definitely cause a problem.
 TraceLevelsPtr System::_globalTraceLevels = 0;
-Ice::LoggerPtr System::_globalLogger = 0;
+LoggerPtr System::_globalLogger = 0;
 
 }
 
@@ -138,6 +141,18 @@ verifyCallback(int ok, X509_STORE_CTX *ctx)
 
     // Call the connection, get it to perform the verification.
     return connection->verifyCertificate(ok, ctx);
+}
+
+// TODO: This is a complete hack to get this working again with the CA certificate.
+//       Of course, this will have to be rewritten to handle this in the same manner
+//       as the verifyCallback does.
+//       -ASN
+int
+passwordCallback(char* buffer, int bufferSize, int rwFlag, void* userData)
+{
+    strncpy(buffer, "demo", bufferSize);
+    buffer[bufferSize - 1] = '\0';
+    return strlen(buffer);
 }
 
 // This code duplicates functionality that existed in the BIO library of
@@ -236,21 +251,21 @@ bio_dump_cb(BIO *bio, int cmd, const char *argp, int argi, long argl, long ret)
     {
         ostringstream outStringStream;
 
+        outStringStream << "PTC ";
+
         if (cmd == (BIO_CB_READ|BIO_CB_RETURN))
         {
-            outStringStream << "PTC ";
             outStringStream << "read from " << hex << (void *)bio << " [" << hex << (void *)argp;
             outStringStream << "] (" << dec << argi << " bytes => " << ret << " (0x";
             outStringStream << hex << ret << "))";
-            dump(outStringStream, argp,(int)ret);
+//            dump(outStringStream, argp,(int)ret);
         }
         else if (cmd == (BIO_CB_WRITE|BIO_CB_RETURN))
         {
-            outStringStream << "PTC ";
             outStringStream << "write to " << hex << (void *)bio << " [" << hex << (void *)argp;
             outStringStream << "] (" << dec << argi << " bytes => " << ret << " (0x";
             outStringStream << hex << ret << "))";
-            dump(outStringStream, argp,(int)ret);
+ //           dump(outStringStream, argp,(int)ret);
         }
 
         if (cmd == (BIO_CB_READ|BIO_CB_RETURN) || cmd == (BIO_CB_WRITE|BIO_CB_RETURN))
@@ -358,6 +373,7 @@ IceSecurity::Ssl::OpenSSL::System::setTrace(const TraceLevelsPtr& traceLevels)
 {
     // Note: Due to a known bug with VC++, I cannot simply call the base-class 
     // implementation here, I get a C2352 error about calling a static function.
+    // Bug# Q153801
     _traceLevels = traceLevels;
 
     DefaultCertificateVerifier* clientVerifier = dynamic_cast<DefaultCertificateVerifier*>(_clientVerifier.get());
@@ -379,6 +395,7 @@ IceSecurity::Ssl::OpenSSL::System::setLogger(const LoggerPtr& logger)
 {
     // Note: Due to a known bug with VC++, I cannot simply call the base-class 
     // implementation here, I get a C2352 error about calling a static function.
+    // Bug# Q153801
     _logger = logger;
 
     DefaultCertificateVerifier* clientVerifier = dynamic_cast<DefaultCertificateVerifier*>(_clientVerifier.get());
@@ -438,6 +455,9 @@ IceSecurity::Ssl::OpenSSL::System::loadConfig()
             s << "------------------------------" << endl;
             s << clientGeneral << endl << endl;
 
+            s << "CA File: " << clientCertAuth.getCAFileName() << endl;
+            s << "CA Path: " << clientCertAuth.getCAPath() << endl;
+
             s << "Base Certificates - Client" << endl;
             s << "--------------------------" << endl;
             s << clientBaseCerts << endl;
@@ -465,6 +485,9 @@ IceSecurity::Ssl::OpenSSL::System::loadConfig()
             s << "------------------------------" << endl;
             s << serverGeneral   << endl << endl;
 
+            s << "CA File: " << serverCertAuth.getCAFileName() << endl;
+            s << "CA Path: " << serverCertAuth.getCAPath() << endl;
+
             s << "Base Certificates - Server" << endl;
             s << "--------------------------" << endl;
             s << serverBaseCerts << endl << endl;
@@ -478,6 +501,8 @@ IceSecurity::Ssl::OpenSSL::System::loadConfig()
 
         initServer(serverGeneral, serverCertAuth, serverBaseCerts, serverTempCerts);
     }
+
+    _configLoaded = true;
 }
 
 RSA*
@@ -597,6 +622,99 @@ IceSecurity::Ssl::OpenSSL::System::getDHParams(SSL *s, int isExport, int keyLeng
     return dh_tmp;
 }
 
+IceSecurity::Ssl::OpenSSL::CertificateVerifierPtr
+IceSecurity::Ssl::OpenSSL::System::certificateVerifierTypeCheck(const IceSecurity::Ssl::CertificateVerifierPtr& verifier)
+{
+    // IceSecurity::Ssl::CertificateVerifier* passedVerifier = verifier.get();
+    // IceSecurity::Ssl::OpenSSL::CertificateVerifier* castVerifier;
+    // castVerifier = dynamic_cast<IceSecurity::Ssl::OpenSSL::CertificateVerifier*>(passedVerifier);
+
+    IceSecurity::Ssl::OpenSSL::CertificateVerifierPtr castVerifier;
+    castVerifier = IceSecurity::Ssl::OpenSSL::CertificateVerifierPtr::dynamicCast(verifier);
+
+    if (!castVerifier.get())
+    {
+        IceSecurity::Ssl::CertificateVerifierTypeException cvtEx(__FILE__, __LINE__);
+        throw cvtEx;
+    }
+
+    return castVerifier;
+}
+
+void
+IceSecurity::Ssl::OpenSSL::System::setServerCertificateVerifier(const IceSecurity::Ssl::CertificateVerifierPtr& serverVerifier)
+{
+    _serverVerifier = certificateVerifierTypeCheck(serverVerifier);
+}
+
+void
+IceSecurity::Ssl::OpenSSL::System::setClientCertificateVerifier(const IceSecurity::Ssl::CertificateVerifierPtr& clientVerifier)
+{
+    _clientVerifier = certificateVerifierTypeCheck(clientVerifier);
+}
+
+void
+IceSecurity::Ssl::OpenSSL::System::setServerCertAuthorityCertificate(const string& caCertString)
+{
+    if (_sslServerContext == 0)
+    {
+        ContextException contextEx(__FILE__, __LINE__);
+
+        contextEx._message = "Server context has not been set up - ";
+        contextEx._message += "please specify an SSL server configuration file.";
+
+	throw contextEx;
+    }
+
+    assert(_sslClientContext);
+
+    RSAPublicKey pubKey(caCertString);
+
+    X509_STORE* certStore = SSL_CTX_get_cert_store(_sslServerContext);
+
+    int addedCertAuthorityCert = X509_STORE_add_cert(certStore, pubKey.getX509PublicKey());
+
+    assert(addedCertAuthorityCert != 0);
+}
+
+void
+IceSecurity::Ssl::OpenSSL::System::setClientCertAuthorityCertificate(const string& caCertString)
+{
+    if (_sslClientContext == 0)
+    {
+        ContextException contextEx(__FILE__, __LINE__);
+
+        contextEx._message = "Client context has not been set up - ";
+        contextEx._message += "please specify an SSL client configuration file.";
+
+	throw contextEx;
+    }
+
+    assert(_sslClientContext);
+
+    RSAPublicKey pubKey(caCertString);
+
+    X509_STORE* certStore = SSL_CTX_get_cert_store(_sslClientContext);
+
+    int addedCertAuthorityCert = X509_STORE_add_cert(certStore, pubKey.getX509PublicKey());
+
+    assert(addedCertAuthorityCert != 0);
+}
+
+void
+IceSecurity::Ssl::OpenSSL::System::setServerRSAKeysBase64(const std::string& privateKey, const std::string& publicKey)
+{
+    assert(_sslServerContext);
+    addKeyCert(_sslServerContext, privateKey, publicKey);
+}
+
+void
+IceSecurity::Ssl::OpenSSL::System::setClientRSAKeysBase64(const std::string& privateKey, const std::string& publicKey)
+{
+    assert(_sslClientContext);
+    addKeyCert(_sslClientContext, privateKey, publicKey);
+}
+
 //
 // Protected
 //
@@ -666,7 +784,7 @@ IceSecurity::Ssl::OpenSSL::System::initClient(GeneralConfig& general,
         // Set the certificate verification mode.
         SSL_CTX_set_verify(_sslClientContext, general.getVerifyMode(), verifyCallback);
 
-        // Set the certificate verify depth to 10 deep.
+        // Set the certificate verify depth
         SSL_CTX_set_verify_depth(_sslClientContext, general.getVerifyDepth());
 
         // Process the RSA Certificate
@@ -928,6 +1046,8 @@ IceSecurity::Ssl::OpenSSL::System::addKeyCert(SSL_CTX* sslContext,
         throw contextEx;
     }
 
+    x509Janitor.clear();
+
     // Set which Private Key file to use.
     if (SSL_CTX_use_RSAPrivateKey(sslContext, rsaJanitor.get()) <= 0)
     {
@@ -944,6 +1064,8 @@ IceSecurity::Ssl::OpenSSL::System::addKeyCert(SSL_CTX* sslContext,
 
         throw contextEx;
     }
+
+    rsaJanitor.clear();
 
     // Check to see if the Private and Public keys that have been
     // set against the SSL context match up.
@@ -1032,7 +1154,7 @@ IceSecurity::Ssl::OpenSSL::System::sslGetErrors()
 }
 
 void
-IceSecurity::Ssl::OpenSSL::System::commonConnectionSetup(Connection* connection)
+IceSecurity::Ssl::OpenSSL::System::commonConnectionSetup(IceSecurity::Ssl::OpenSSL::Connection* connection)
 {
     connection->setTrace(_traceLevels);
     connection->setLogger(_logger);
@@ -1044,7 +1166,6 @@ IceSecurity::Ssl::OpenSSL::System::commonConnectionSetup(Connection* connection)
 
     if (!value.empty())
     {
-	// const_cast<int&>(handshakeReadTimeout) = atoi(value.c_str());
 	handshakeReadTimeout = atoi(value.c_str());
     }
     else
@@ -1072,12 +1193,6 @@ IceSecurity::Ssl::OpenSSL::System::createConnection(SSL_CTX* sslContext, int soc
         BIO_set_callback(SSL_get_wbio(sslConnection), bio_dump_cb);
         BIO_set_callback_arg(SSL_get_rbio(sslConnection), 0);
     }
-
-    // TODO: Remove?
-    // Map the SSL Connection to this SslSystem
-    // This is required for the OpenSSL callbacks
-    // to work properly.
-    // Factory::addSystemHandle(sslConnection, this);
 
     return sslConnection;
 }
@@ -1110,14 +1225,26 @@ IceSecurity::Ssl::OpenSSL::System::loadCAFiles(SSL_CTX* sslContext, const char* 
         caPath = 0;
     }
 
+    // SSL_CTX_set_default_passwd_cb(sslContext, passwordCallback);
+
     // Check the Certificate Authority file(s).
-    if ((!SSL_CTX_load_verify_locations(sslContext, caFile, caPath)) ||
-        (!SSL_CTX_set_default_verify_paths(sslContext)))
-    {
-        // Non Fatal.
+    int loadVerifyRet = SSL_CTX_load_verify_locations(sslContext, caFile, caPath);
+
+    if (!loadVerifyRet)
+    { 
         if (_traceLevels->security >= IceSecurity::SECURITY_WARNINGS)
+        {
+            _logger->trace(_traceLevels->securityCat, "WRN Unable to load Certificate Authorities.");
+        }
+    }
+    else
+    {
+        int setDefaultVerifyPathsRet = SSL_CTX_set_default_verify_paths(sslContext);
+
+
+        if (!setDefaultVerifyPathsRet && (_traceLevels->security >= IceSecurity::SECURITY_WARNINGS))
         { 
-            _logger->trace(_traceLevels->securityCat, "WRN Unable to load/verify Certificate Authorities.");
+            _logger->trace(_traceLevels->securityCat, "WRN Unable to verify Certificate Authorities.");
         }
     }
 }
@@ -1133,15 +1260,26 @@ IceSecurity::Ssl::OpenSSL::System::loadAndCheckCAFiles(SSL_CTX* sslContext, Cert
     // Check the Certificate Authority file(s).
     loadCAFiles(sslContext, caFile.c_str(), caPath.c_str());
 
-    if (!caPath.empty())
+    // NOTE: This might require some cleaning up.
+    string caCertBase64 = _properties->getProperty("Ice.Security.Ssl.Overrides.Server.CACertificate");
+    if (!caCertBase64.empty())
+    {
+        setServerCertAuthorityCertificate(caCertBase64);
+    }
+
+    // TODO: Check this if things stop working
+    if (!caFile.empty())
     {
         STACK_OF(X509_NAME)* certNames = SSL_load_client_CA_file(caFile.c_str());
 
-        if ((certNames == 0) && (_traceLevels->security >= IceSecurity::SECURITY_WARNINGS))
+        if (certNames == 0)
         {
-            string errorString = "Unable to load Certificate Authorities certificate names from " + caFile + ".\n";
-            errorString += sslGetErrors();
-            _logger->trace(_traceLevels->securityCat, "WRN " + errorString);
+            if (_traceLevels->security >= IceSecurity::SECURITY_WARNINGS)
+            {
+                string errorString = "Unable to load Certificate Authorities certificate names from " + caFile + ".\n";
+                errorString += sslGetErrors();
+                _logger->trace(_traceLevels->securityCat, "WRN " + errorString);
+            }
         }
         else
         {
@@ -1206,6 +1344,8 @@ IceSecurity::Ssl::OpenSSL::System::setDHParams(SSL_CTX* sslContext, BaseCertific
 {
     string dhFile;
     int encoding = 0;
+
+    // TODO: This just looks plain wrong.  RSA instead of DH params??? -ASN
 
     if (baseCerts.getDHParams().getKeySize() != 0)
     {

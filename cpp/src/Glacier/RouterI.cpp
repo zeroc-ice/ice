@@ -10,6 +10,7 @@
 
 #include <Ice/RoutingTable.h>
 #include <Glacier/RouterI.h>
+#include <iostream>
 
 using namespace std;
 using namespace Ice;

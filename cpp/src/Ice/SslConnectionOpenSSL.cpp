@@ -36,6 +36,12 @@
 using namespace std;
 using namespace IceInternal;
 
+using Ice::SocketException;
+using Ice::TimeoutException;
+using Ice::ConnectionLostException;
+using Ice::LoggerPtr;
+using Ice::Int;
+
 using std::endl;
 
 using IceSecurity::Ssl::Factory;
@@ -81,6 +87,7 @@ IceSecurity::Ssl::OpenSSL::DefaultCertificateVerifier::verify(int preVerifyOkay,
         if ((verifyDepth != -1) && (verifyDepth < errorDepth))
         {
             verifyError = X509_V_ERR_CERT_CHAIN_TOO_LONG;
+            X509_STORE_CTX_set_error(x509StoreContext, verifyError);
         }
 
         // If we have ANY errors, we bail out.
@@ -257,20 +264,41 @@ IceSecurity::Ssl::OpenSSL::Connection::getConnection(SSL* sslPtr)
 int
 IceSecurity::Ssl::OpenSSL::Connection::verifyCertificate(int preVerifyOkay, X509_STORE_CTX* x509StoreContext)
 {
+    // Should NEVER be able to happen.
+    assert(_certificateVerifier.get() != 0);
+
     // Get the verifier, make sure it is for OpenSSL connections
     IceSecurity::Ssl::OpenSSL::CertificateVerifier* verifier;
     verifier = dynamic_cast<IceSecurity::Ssl::OpenSSL::CertificateVerifier*>(_certificateVerifier.get());
 
     // Check to make sure we have a proper verifier for the operation.
-    if (!verifier)
+    if (verifier)
     {
-        // TODO: Throw exception here
-        // throw SslIncorrectVerifierTypeException(__FILE__, __LINE__);
-        return 0;
+        // Use the verifier to verify the certificate
+        preVerifyOkay = verifier->verify(preVerifyOkay, x509StoreContext, _sslConnection);
     }
+    else
+    {
+        // Note: This code should NEVER be able to be reached, as we check each
+        //       CertificateVerifier as it is added to the System.
 
-    // Use the verifier to verify the certificate
-    preVerifyOkay = verifier->verify(preVerifyOkay, x509StoreContext, _sslConnection);
+        if (_traceLevels->security >= IceSecurity::SECURITY_WARNINGS)
+        {
+            string errorString;
+
+            if (_certificateVerifier.get())
+            {
+                errorString = "WRN Improper CertificateVerifier type.";
+            }
+            else
+            {
+                // NOTE: This should NEVER be able to happen, but just in case.
+                errorString = "WRN CertificateVerifier not set.";
+            }
+
+            _logger->trace(_traceLevels->securityCat, errorString);
+        }
+    }
 
     return preVerifyOkay;
 }
@@ -309,7 +337,7 @@ int
 IceSecurity::Ssl::OpenSSL::Connection::initialize(int timeout)
 {
     int retCode = 0;
- 
+
     while (true)
     {
         // One lucky thread will get the honor of carrying out the hanshake,
@@ -421,12 +449,11 @@ IceSecurity::Ssl::OpenSSL::Connection::readInBuffer(Buffer& buf)
 
         if (_traceLevels->security >= IceSecurity::SECURITY_PROTOCOL)
         {
-            string protocolString = "Copied ";
-            protocolString += Int(bytesRead);
-            protocolString += string(" bytes from SSL buffer\n");
-            protocolString += fdToString(SSL_get_fd(_sslConnection));
+            ostringstream protocolMsg;
+            protocolMsg << "Copied " << dec << bytesRead << " bytes from SSL buffer\n";
+            protocolMsg << fdToString(SSL_get_fd(_sslConnection));
 
-            _logger->trace(_traceLevels->securityCat, protocolString);
+            _logger->trace(_traceLevels->securityCat, protocolMsg.str());
         }
     }
 
@@ -544,6 +571,7 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
         if (initReturn == -1)
         {
             // Handshake underway, timeout immediately, easy way to deal with this.
+            // _logger->trace(_traceLevels->securityCat, "Throwing TimeoutException, Line 566");
             throw TimeoutException(__FILE__, __LINE__);
         }
 
@@ -743,14 +771,15 @@ IceSecurity::Ssl::OpenSSL::Connection::addConnection(SSL* sslPtr, Connection* co
 {
     assert(sslPtr);
     assert(connection);
+    IceUtil::Mutex::Lock sync(_connectionRepositoryMutex);
     _connectionMap[sslPtr] = connection;
 }
 
 void
 IceSecurity::Ssl::OpenSSL::Connection::removeConnection(SSL* sslPtr)
 {
-    IceUtil::Mutex::Lock sync(_connectionRepositoryMutex);
     assert(sslPtr);
+    IceUtil::Mutex::Lock sync(_connectionRepositoryMutex);
     _connectionMap.erase(sslPtr);
 }
 

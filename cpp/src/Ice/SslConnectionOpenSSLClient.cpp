@@ -20,6 +20,8 @@
 
 using IceSecurity::Ssl::ShutdownException;
 using IceSecurity::Ssl::SystemPtr;
+using Ice::ConnectionLostException;
+using Ice::SocketException;
 
 using namespace IceInternal;
 using namespace std;

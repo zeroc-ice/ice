@@ -64,7 +64,7 @@ IceInternal::SslConnector::connect(int timeout)
 
     // This is the Ice SSL Configuration File on which we will base
     // all connections in this communicator.
-    string configFile = properties->getProperty("Ice.Ssl.Config");
+    string configFile = properties->getProperty("Ice.Security.Ssl.Config");
 
     // Get an instance of the SslOpenSSL singleton.
     SystemPtr sslSystem = Factory::getSystem(configFile);

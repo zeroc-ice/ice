@@ -21,25 +21,22 @@ namespace IceSecurity
 namespace SecureUdp
 {
 
-using IceUtil::Shared;
-using Ice::ByteSeq;
-
-class MessageAuthenticator : public Shared
+class MessageAuthenticator : public IceUtil::Shared
 {
 
 public:
     MessageAuthenticator();
-    MessageAuthenticator(const ByteSeq&);
+    MessageAuthenticator(const Ice::ByteSeq&);
     virtual ~MessageAuthenticator();
 
-    virtual ByteSeq computeMAC(const ByteSeq&) const;
+    virtual Ice::ByteSeq computeMAC(const Ice::ByteSeq&) const;
 
-    virtual bool authenticate(const ByteSeq&, const ByteSeq&);
+    virtual bool authenticate(const Ice::ByteSeq&, const Ice::ByteSeq&);
 
-    virtual const ByteSeq& getMACKey() const;
+    virtual const Ice::ByteSeq& getMACKey() const;
 
 protected:
-    ByteSeq _macKeyBytes;
+    Ice::ByteSeq _macKeyBytes;
 
 };
 

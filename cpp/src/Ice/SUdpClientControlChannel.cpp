@@ -27,6 +27,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceSecurity::SecureUdp;
 using IceInternal::BasicStream;
+using IceInternal::InstancePtr;
+using IceInternal::SUdpTransceiver;
+using IceInternal::Buffer;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Public Incoming Methods (from Ice Client Control Channel)
@@ -41,7 +44,6 @@ IceSecurity::SecureUdp::ClientControlChannel::serverHello(Long clientID, const B
 
     // TODO: There is a wierd segmentation fault happening here if I uncomment
     //       the call to serverKeyChangeMessage().  Dunno why.
-    // ICE_DEV_DEBUG("About to call serverKeyChangeMessage()");
     // serverKeyChangeMessage(key);
 }
 
@@ -65,7 +67,6 @@ IceSecurity::SecureUdp::ClientControlChannel::serverGoodbye(const Current&)
 // Protected Methods
 ////////////////////////////////////////////////////////////////////////////////
 
-// IceSecurity::SecureUdp::ClientControlChannel::ClientControlChannel(const SUdpTransceiverPtr& transceiver,
 IceSecurity::SecureUdp::ClientControlChannel::ClientControlChannel(SUdpTransceiver* transceiver,
                                                                    const InstancePtr& instance,
                                                                    const std::string& host,

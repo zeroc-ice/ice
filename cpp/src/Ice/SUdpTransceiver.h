@@ -28,11 +28,6 @@
 namespace IceInternal
 {
 
-using Ice::ByteSeq;
-using Ice::Long;
-using IceSecurity::SecureUdp::ClientChannelPtr;
-using IceSecurity::SecureUdp::ControlChannelPtr;
-
 class SUdpEndpoint;
 
 class SUdpTransceiver : public Transceiver
@@ -51,14 +46,14 @@ public:
     int effectivePort();
 
     // Server Channel Implementation methods
-    void clientHello(const ClientChannelPtr&, const ByteSeq&);
-    void clientKeyAcknowledge(Long, Long, const ByteSeq&);
-    void clientKeyRequest(Long);
-    void clientGoodbye(Long);
+    void clientHello(const IceSecurity::SecureUdp::ClientChannelPtr&, const Ice::ByteSeq&);
+    void clientKeyAcknowledge(Ice::Long, Ice::Long, const Ice::ByteSeq&);
+    void clientKeyRequest(Ice::Long);
+    void clientGoodbye(Ice::Long);
 
     // Client Channel Implementation methods
-    void serverHello(Long, const ByteSeq&);
-    void serverKeyChange(const ByteSeq&);
+    void serverHello(Ice::Long, const Ice::ByteSeq&);
+    void serverKeyChange(const Ice::ByteSeq&);
     void serverGoodbye();
 
 private:
@@ -73,7 +68,7 @@ private:
     void createControlChannel(int);
 
     UdpTransceiver _udpTransceiver;
-    ControlChannelPtr _controlChannel;
+    IceSecurity::SecureUdp::ControlChannelPtr _controlChannel;
 
     InstancePtr _instance;
     TraceLevelsPtr _traceLevels;

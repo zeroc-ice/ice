@@ -12,6 +12,9 @@
 #include <Glacier/Glacier.h>
 #include <TestCommon.h>
 #include <CallbackI.h>
+#include <Ice/Security.h>
+#include <IceUtil/Base64.h>
+#include <CertVerifier.h>
 
 using namespace std;
 using namespace Ice;
@@ -58,12 +61,13 @@ CallbackClient::run(int argc, char* argv[])
 
     ByteSeq privateKey;
     ByteSeq publicKey;
+    ByteSeq routerCert;
 
     cout << "starting up glacier router... " << flush;
     RouterPrx router;
     try
     {
-	router = starter->startRouter("", "", privateKey, publicKey);
+	router = starter->startRouter("", "", privateKey, publicKey, routerCert);
     }
     catch (const Glacier::CannotStartRouterException& ex)
     {
@@ -75,6 +79,23 @@ CallbackClient::run(int argc, char* argv[])
 	cerr << appName() << ": " << ex << endl;
 	return EXIT_FAILURE;
     }
+
+    PropertiesPtr properties = communicator()->getProperties();
+
+    string privateKeyBase64 = IceUtil::Base64::encode(privateKey);
+    string publicKeyBase64  = IceUtil::Base64::encode(publicKey);
+    string routerCertString = IceUtil::Base64::encode(routerCert);
+
+    string sysIdentifier = properties->getProperty("Ice.Security.Ssl.Config");
+    IceSecurity::Ssl::SslContextType contextType = IceSecurity::Ssl::ClientServer;
+    IceSecurity::Ssl::CertificateVerifierPtr certVerifier = new CertVerifier(routerCert);
+    IceSecurity::Ssl::setSystemCertificateVerifier(sysIdentifier, contextType, certVerifier);
+    IceSecurity::Ssl::setSystemCertAuthCertificate(sysIdentifier, IceSecurity::Ssl::Client, routerCertString);
+    IceSecurity::Ssl::setSystemRSAKeysBase64(sysIdentifier, IceSecurity::Ssl::Client, privateKeyBase64, publicKeyBase64);
+
+    // Set the keys overrides for the server.
+    properties->setProperty("Ice.Security.Ssl.Overrides.Server.RSA.PrivateKey", privateKeyBase64);
+    properties->setProperty("Ice.Security.Ssl.Overrides.Server.RSA.Certificate", publicKeyBase64);
 
     test(router);
     cout << "ok" << endl;
@@ -89,7 +110,7 @@ CallbackClient::run(int argc, char* argv[])
     cout << "ok" << endl;
 
     cout << "testing stringToProxy... " << flush;
-    ref = "callback:default -p 12345 -t 5000";
+    ref = "callback:tcp -p 12345 -t 5000";
     ObjectPrx base = communicator()->stringToProxy(ref);
     cout << "ok" << endl;
 

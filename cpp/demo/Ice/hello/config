@@ -41,7 +41,7 @@ Ice.ConnectionWarnings=1
 # 1 = trace warning messages
 # 2 = config file parsing warnings
 #
-#Ice.Trace.Security=2
+#Ice.Trace.Security=4
 
 #
 # SSL Configuration File

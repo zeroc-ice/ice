@@ -42,6 +42,7 @@ enum SslProtocol
 #include <Ice/SslCertificateAuthority.h>
 #include <Ice/SslBaseCerts.h>
 #include <Ice/SslTempCerts.h>
+#include <Ice/SslConnectionOpenSSL.h>
 
 extern "C"
 {
@@ -60,18 +61,12 @@ class GeneralConfig;
 namespace OpenSSL
 {
 
-using namespace Ice;
-using namespace IceSecurity::Ssl;
+typedef std::map<int,RSA*> RSAMap;
+typedef std::map<int,DH*>  DHMap;
 
-using std::map;
-using std::string;
-
-typedef map<int,RSA*> RSAMap;
-typedef map<int,DH*>  DHMap;
-
-typedef map<int,CertificateDesc> RSACertMap;
-typedef map<int,CertificateDesc> DSACertMap;
-typedef map<int,DiffieHellmanParamsFile> DHParamsMap;
+typedef std::map<int,CertificateDesc> RSACertMap;
+typedef std::map<int,CertificateDesc> DSACertMap;
+typedef std::map<int,DiffieHellmanParamsFile> DHParamsMap;
 
 class System : public IceSecurity::Ssl::System
 {
@@ -86,8 +81,8 @@ public:
     // Shuts down the SSL System.
     virtual void shutdown();
 
-    virtual void setTrace(const TraceLevelsPtr&);
-    virtual void setLogger(const LoggerPtr&);
+    virtual void setTrace(const IceInternal::TraceLevelsPtr&);
+    virtual void setLogger(const Ice::LoggerPtr&);
 
     virtual bool isConfigLoaded();
     virtual void loadConfig();
@@ -103,7 +98,17 @@ public:
     // This is public because the tmpDHCallback must be able to access it.
     DH* getDHParams(SSL*, int, int);
 
-    static TraceLevelsPtr _globalTraceLevels;
+    CertificateVerifierPtr certificateVerifierTypeCheck(const IceSecurity::Ssl::CertificateVerifierPtr&);
+    virtual void setServerCertificateVerifier(const IceSecurity::Ssl::CertificateVerifierPtr&);
+    virtual void setClientCertificateVerifier(const IceSecurity::Ssl::CertificateVerifierPtr&);
+
+    virtual void setServerCertAuthorityCertificate(const std::string&);
+    virtual void setClientCertAuthorityCertificate(const std::string&);
+
+    virtual void setServerRSAKeysBase64(const std::string&, const std::string&);
+    virtual void setClientRSAKeysBase64(const std::string&, const std::string&);
+
+    static IceInternal::TraceLevelsPtr _globalTraceLevels;
     static Ice::LoggerPtr _globalLogger;
 
 protected:
@@ -113,6 +118,9 @@ protected:
     
 private:
     
+    CertificateVerifierPtr _clientVerifier;
+    CertificateVerifierPtr _serverVerifier;
+
     // Base Diffie-Hellman 512bit key (only to be used for key exchange).
     static unsigned char _tempDiffieHellman512p[];
     static unsigned char _tempDiffieHellman512g[];
@@ -137,53 +145,57 @@ private:
     DHParamsMap _tempDHParamsFileMap;
 
     // The Session ID Context (Server Only).
-    string _sessionContext;
+    std::string _sessionContext;
 
     // Flag as to whether the Random Number system has been seeded.
     int _randSeeded;
 
     bool _configLoaded;
 
-    void setKeyCert(SSL_CTX*, const CertificateDesc&, const string&, const string&);
+    void setKeyCert(SSL_CTX*, const IceSecurity::Ssl::CertificateDesc&,
+                              const std::string&, const std::string&);
 
     // Call to initialize the SSL system.
-    void initClient(GeneralConfig&, CertificateAuthority&, BaseCertificates&);
-    void initServer(GeneralConfig&, CertificateAuthority&, BaseCertificates&, TempCertificates&);
+    void initClient(IceSecurity::Ssl::GeneralConfig&, IceSecurity::Ssl::CertificateAuthority&,
+                    IceSecurity::Ssl::BaseCertificates&);
+    void initServer(IceSecurity::Ssl::GeneralConfig&, IceSecurity::Ssl::CertificateAuthority&,
+                    IceSecurity::Ssl::BaseCertificates&, IceSecurity::Ssl::TempCertificates&);
 
     SSL_METHOD* getSslMethod(SslProtocol);
 
-    void processCertificate(SSL_CTX*, const CertificateDesc&);
-    void addKeyCert(SSL_CTX*, const CertificateFile&, const CertificateFile&);
-    void addKeyCert(SSL_CTX*, const string&, const string&);
+    void processCertificate(SSL_CTX*, const IceSecurity::Ssl::CertificateDesc&);
+    void addKeyCert(SSL_CTX*, const IceSecurity::Ssl::CertificateFile&,
+                              const IceSecurity::Ssl::CertificateFile&);
+    void addKeyCert(SSL_CTX*, const std::string&, const std::string&);
 
-    SSL_CTX* createContext(SslProtocol);
+    SSL_CTX* createContext(IceSecurity::Ssl::SslProtocol);
 
     // Retrieves errors from the OpenSSL library.
-    string sslGetErrors();
+    std::string sslGetErrors();
 
-    void commonConnectionSetup(Connection*);
+    void commonConnectionSetup(IceSecurity::Ssl::OpenSSL::Connection*);
 
     // Create a connection.
     SSL* createConnection(SSL_CTX*, int);
 
     // Methods for loading CAFiles into a Context.
-    void loadCAFiles(SSL_CTX*, CertificateAuthority&);
+    void loadCAFiles(SSL_CTX*, IceSecurity::Ssl::CertificateAuthority&);
     void loadCAFiles(SSL_CTX*, const char*, const char*);
-    void loadAndCheckCAFiles(SSL_CTX*, CertificateAuthority&);
+    void loadAndCheckCAFiles(SSL_CTX*, IceSecurity::Ssl::CertificateAuthority&);
 
     DH* loadDHParam(const char *);
     DH* getTempDH(unsigned char*, int, unsigned char*, int);
     DH* getTempDH512();
-    void setDHParams(SSL_CTX*, BaseCertificates&);
+    void setDHParams(SSL_CTX*, IceSecurity::Ssl::BaseCertificates&);
 
-    void setCipherList(SSL_CTX*, const string&);
+    void setCipherList(SSL_CTX*, const std::string&);
 
     // Cryptographic Random Number System related routines.
     int seedRand();
-    long loadRandFiles(const string&);
-    void initRandSystem(const string&);
+    long loadRandFiles(const std::string&);
+    void initRandSystem(const std::string&);
 
-    void loadTempCerts(TempCertificates&);
+    void loadTempCerts(IceSecurity::Ssl::TempCertificates&);
 
     friend class IceSecurity::Ssl::Factory;
     friend class Connection;

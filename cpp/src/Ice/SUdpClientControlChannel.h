@@ -23,48 +23,40 @@ namespace IceSecurity
 namespace SecureUdp
 {
 
-using IceInternal::SUdpTransceiver;
-using IceInternal::Buffer;
-using Ice::Long;
-using Ice::ByteSeq;
-using Ice::Current;
-
-
 class ClientControlChannel : public ControlChannel, public ClientChannel
 {
 
 public:
 
     // Messages received from the Server
-    virtual void serverHello(Long, const ByteSeq&, const Current&);
-    virtual void serverKeyChange(const ByteSeq&, const Current&);
-    virtual void serverGoodbye(const Current&);
+    virtual void serverHello(Ice::Long, const Ice::ByteSeq&, const Ice::Current&);
+    virtual void serverKeyChange(const Ice::ByteSeq&, const Ice::Current&);
+    virtual void serverGoodbye(const Ice::Current&);
 
 
 protected:
 
-    // ClientControlChannel(const SUdpTransceiverPtr&, const InstancePtr&, const std::string&, int);
-    ClientControlChannel(SUdpTransceiver*, const InstancePtr&, const std::string&, int);
+    // ClientControlChannel(const IceInternal::SUdpTransceiverPtr&, const Ice::InstancePtr&, const std::string&, int);
+    ClientControlChannel(IceInternal::SUdpTransceiver*, const IceInternal::InstancePtr&, const std::string&, int);
 
     virtual ~ClientControlChannel();
 
-    void serverKeyChangeMessage(const ByteSeq&);
+    void serverKeyChangeMessage(const Ice::ByteSeq&);
     void clientHello();
 
 
     friend IceInternal::SUdpTransceiver;
 
-    // Called from the SUdpTransceiver
-    void encryptPacket(Buffer&, Buffer&);
+    // Called from the IceInternal::SUdpTransceiver
+    void encryptPacket(IceInternal::Buffer&, IceInternal::Buffer&);
     void clientKeyRequest();
-
 
     Ice::ObjectAdapterPtr _adapter;
     ClientChannelPrx _clientProxy;
     ServerChannelPrx _serverChannel;
 
-    Long _msgID;
-    Long _clientID;
+    Ice::Long _msgID;
+    Ice::Long _clientID;
     CryptKeyPtr _encryptionKey;
 
     MessageAuthenticatorPtr _messageAuthenticator;

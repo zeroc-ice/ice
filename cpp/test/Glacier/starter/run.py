@@ -34,7 +34,8 @@ command = starter + updatedClientServerOptions + \
           r' --Glacier.Starter.Endpoints="default -p 12346 -t 5000"' + \
           r' --Glacier.Router.Endpoints="default"' + \
           r' --Glacier.Client.Endpoints="default"' + \
-          r' --Glacier.Server.Endpoints="default"' + \
+          r' --Glacier.Server.Endpoints="tcp"' + \
+          r' --Glacier.Starter.PropertiesOverwrite="Ice.Security.Ssl.CertPath=./"' + \
           r' --Glacier.Starter.Certificate.Country=US' + \
           r' --Glacier.Starter.Certificate.StateProvince=Alabama' + \
           r' --Glacier.Starter.Certificate.Locality=Huntsville' + \
@@ -52,8 +53,8 @@ print "ok"
 name = os.path.join("Glacier", "starter")
 TestUtil.clientServerTest(toplevel, name)
 
-print "shutting down glacier starter...",
-TestUtil.killServers() # TODO: Graceful shutdown
-print "ok"
+# print "shutting down glacier starter...",
+# TestUtil.killServers() # TODO: Graceful shutdown
+# print "ok"
 
 sys.exit(0)
