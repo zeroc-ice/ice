@@ -139,6 +139,21 @@ public:
     void writePendingObjects();
     void readPendingObjects();
 
+
+    struct PatchEntry 
+    {
+	PatchFunc patchFunc;
+	void* patchAddr;
+    };
+
+    typedef std::vector<PatchEntry> PatchList;
+    typedef std::map<Ice::Int, PatchList> PatchMap;
+    typedef std::map<Ice::Int, Ice::ObjectPtr> IndexToPtrMap;
+    typedef std::map<Ice::Int, std::string> TypeIdReadMap;
+
+    typedef std::map<Ice::ObjectPtr, Ice::Int> PtrToIndexMap;
+    typedef std::map<std::string, Ice::Int> TypeIdWriteMap;
+
 private:
 
     //
@@ -147,15 +162,6 @@ private:
     //
     Instance* _instance;
 
-    struct PatchEntry {
-	PatchFunc patchFunc;
-	void* patchAddr;
-    };
-    typedef std::vector<PatchEntry> PatchList;
-    typedef std::map<Ice::Int, PatchList> PatchMap;
-    typedef std::map<Ice::Int, Ice::ObjectPtr> IndexToPtrMap;
-    typedef std::map<Ice::Int, std::string> TypeIdReadMap;
-    
     class ICE_API ReadEncaps
     {
     public:
@@ -171,9 +177,6 @@ private:
 	Ice::Int typeIdIndex;
 	TypeIdReadMap* typeIdMap;
     };
-
-    typedef std::map<Ice::ObjectPtr, Ice::Int> PtrToIndexMap;
-    typedef std::map<std::string, Ice::Int> TypeIdWriteMap;
 
     class ICE_API WriteEncaps
     {

@@ -1311,7 +1311,23 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     ParamDeclList paramList = p->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
+	//
+	// Work around for Sun CC 5.5 bug #4853566
+	//
+	string typeString;
+	if((*q)->isOutParam())
+	{
+	    typeString = outputTypeToString((*q)->type());
+	}
+	else
+	{
+	    typeString = inputTypeToString((*q)->type());
+	}
+#else
 	string typeString = (*q)->isOutParam() ? outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
+#endif
+
 	string paramName = fixKwd((*q)->name());
 
 	params += typeString;
@@ -1524,8 +1540,22 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
     ParamDeclList paramList = p->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
+	//
+	// Work around for Sun CC 5.5 bug #4853566
+	//
+	string typeString;
+	if((*q)->isOutParam())
+	{
+	    typeString = outputTypeToString((*q)->type());
+	}
+	else
+	{
+	    typeString = inputTypeToString((*q)->type());
+	}
+#else
 	string typeString = (*q)->isOutParam() ? outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
-
+#endif
 	params += typeString;
 	params += ", ";
 
@@ -1896,7 +1926,22 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     ParamDeclList paramList = p->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
+	//
+	// Work around for Sun CC 5.5 bug #4853566
+	//
+	string typeString;
+	if((*q)->isOutParam())
+	{
+	    typeString = outputTypeToString((*q)->type());
+	}
+	else
+	{
+	    typeString = inputTypeToString((*q)->type());
+	}
+#else
 	string typeString = (*q)->isOutParam() ? outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
+#endif
 	string paramName = fixKwd((*q)->name());
 
 	params += typeString;
@@ -3323,8 +3368,23 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     H << ',' << nl;
                 }
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
+		//
+		// Work around for Sun CC 5.5 bug #4853566
+		//
+		string typeString;
+		if((*q)->isOutParam())
+		{
+		    typeString = outputTypeToString((*q)->type());
+		}
+		else
+		{
+		    typeString = inputTypeToString((*q)->type());
+		}
+#else
                 string typeString = (*q)->isOutParam() ?
                     outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
+#endif
                 H << typeString;
             }
             if(!p->isLocal())
@@ -3349,8 +3409,23 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     C << ',' << nl;
                 }
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
+		//
+		// Work around for Sun CC 5.5 bug #4853566
+		//
+		string typeString;
+		if((*q)->isOutParam())
+		{
+		    typeString = outputTypeToString((*q)->type());
+		}
+		else
+		{
+		    typeString = inputTypeToString((*q)->type());
+		}
+#else
                 string typeString = (*q)->isOutParam() ?
                     outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
+#endif
                 C << typeString << ' ' << fixKwd((*q)->name());
             }
             if(!p->isLocal())
