@@ -31,7 +31,7 @@ public:
     {
     }
 
-    void wait()
+    void waitForSignal()
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 	while (!_done)
@@ -64,7 +64,7 @@ public:
 	try
 	{
 	   _childCreated.signal();
-	   _parentReady.wait();
+	   _parentReady.waitForSignal();
 	}
 	catch(IceUtil::ThreadLockedException &)
 	{
@@ -94,7 +94,7 @@ AliveTest::run()
     CondVar parentReady;
     AliveTestThreadPtr t = new AliveTestThread(childCreated, parentReady);
     IceUtil::ThreadControl c = t->start();
-    childCreated.wait();
+    childCreated.waitForSignal();
     test(c.isAlive());
     parentReady.signal();
     c.join();
