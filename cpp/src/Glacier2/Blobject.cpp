@@ -15,6 +15,8 @@ using namespace Glacier2;
 
 static const string serverAlwaysBatch = "Glacier2.Server.AlwaysBatch";
 static const string clientAlwaysBatch = "Glacier2.Client.AlwaysBatch";
+static const string serverThreadStackSize = "Glacier2.Server.ThreadStackSize";
+static const string clientThreadStackSize = "Glacier2.Client.ThreadStackSize";
 
 Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
     _properties(communicator->getProperties()),
@@ -23,8 +25,12 @@ Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) 
 		 _properties->getPropertyAsInt(serverAlwaysBatch) > 0 :
 		 _properties->getPropertyAsInt(clientAlwaysBatch) > 0)
 {
+    Int threadStackSize = reverse ?
+	_properties->getPropertyAsInt(serverThreadStackSize) :
+	_properties->getPropertyAsInt(clientThreadStackSize);
+
     _requestQueue = new RequestQueue(communicator, reverse);
-    _requestQueue->start();
+    _requestQueue->start(static_cast<size_t>(threadStackSize));
 }
 
 Glacier2::Blobject::~Blobject()
