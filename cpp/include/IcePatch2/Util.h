@@ -26,6 +26,8 @@ ICE_PATCH2_API Ice::ByteSeq stringToBytes(const std::string&);
 
 ICE_PATCH2_API std::string simplify(const std::string&);
 
+ICE_PATCH2_API bool isAbsolute(const std::string&);
+
 ICE_PATCH2_API std::string getSuffix(const std::string&);
 ICE_PATCH2_API std::string getWithoutSuffix(const std::string&);
 ICE_PATCH2_API bool ignoreSuffix(const std::string&);
