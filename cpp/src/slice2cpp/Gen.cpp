@@ -2625,7 +2625,7 @@ Slice::Gen::ImplVisitor::ImplVisitor(Output& h, Output& c,
 }
 
 void
-Slice::Gen::ImplVisitor::writeAssign(Output& out, const TypePtr& type, const string& name, int& iter)
+Slice::Gen::ImplVisitor::writeReturn(Output& out, const TypePtr& type)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if (builtin)
@@ -2634,27 +2634,33 @@ Slice::Gen::ImplVisitor::writeAssign(Output& out, const TypePtr& type, const str
         {
             case Builtin::KindBool:
             {
-                out << nl << name << " = false;";
+                out << nl << "return false;";
                 break;
             }
             case Builtin::KindByte:
             case Builtin::KindShort:
             case Builtin::KindInt:
             case Builtin::KindLong:
+            {
+                out << nl << "return 0;";
+                break;
+            }
             case Builtin::KindFloat:
             case Builtin::KindDouble:
             {
-                out << nl << name << " = 0;";
+                out << nl << "return 0.0;";
                 break;
             }
             case Builtin::KindString:
+            {
+                out << nl << "return ::std::string();";
+                break;
+            }
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             case Builtin::KindLocalObject:
             {
-                //
-                // No initialization needed
-                //
+                out << nl << "return 0;";
                 break;
             }
         }
@@ -2664,31 +2670,21 @@ Slice::Gen::ImplVisitor::writeAssign(Output& out, const TypePtr& type, const str
     ProxyPtr prx = ProxyPtr::dynamicCast(type);
     if (prx)
     {
-        //
-        // No initialization needed
-        //
+        out << nl << "return 0;";
         return;
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if (cl)
     {
-        //
-        // No initialization needed
-        //
+        out << nl << "return 0;";
         return;
     }
 
     StructPtr st = StructPtr::dynamicCast(type);
     if (st)
     {
-        DataMemberList members = st->dataMembers();
-        DataMemberList::const_iterator d;
-        for (d = members.begin(); d != members.end(); ++d)
-        {
-            string memberName = name + "." + (*d)->name();
-            writeAssign(out, (*d)->type(), memberName, iter);
-        }
+        out << nl << "return " << st->scoped() << "();";
         return;
     }
 
@@ -2696,29 +2692,20 @@ Slice::Gen::ImplVisitor::writeAssign(Output& out, const TypePtr& type, const str
     if (en)
     {
         EnumeratorList enumerators = en->getEnumerators();
-        out << nl << name << " = " << en->scope() << enumerators.front()->name() << ';';
+        out << nl << "return " << en->scope() << enumerators.front()->name() << ';';
         return;
     }
 
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if (seq)
     {
-        out << nl << name << ".resize(5);";
-        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < " << name << ".size(); __i" << iter << "++)";
-        out << sb;
-        ostringstream elem;
-        elem << name << "[__i" << iter << ']';
-        iter++;
-        writeAssign(out, seq->type(), elem.str(), iter);
-        out << eb;
+        out << nl << "return " << seq->scoped() << "();";
         return;
     }
 
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     assert(dict);
-    //
-    // No initialization needed
-    //
+    out << nl << "return " << dict->scoped() << "();";
 }
 
 bool
@@ -2764,24 +2751,22 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     H << sp;
-    H << nl << "class " << name << "I : public " << name;
+    H << nl << "class " << name << "I : ";
+    H.useCurrentPosAsIndent();
+    H << "virtual public " << name;
+    ClassList::const_iterator q;
+    for (q = bases.begin(); q != bases.end(); ++q)
+    {
+        H << ',' << nl << "virtual public " << (*q)->scoped() << "I";
+    }
+    H.restoreIndent();
+
     H << sb;
     H.dec();
     H << nl << "public:";
     H.inc();
 
-    H << sp << nl << name << "I();";
-    H << nl << "virtual ~" << name << "I();";
-
-    C << sp << nl << cls << "::" << name << "I()";
-    C << sb;
-    C << eb;
-
-    C << sp << nl << cls << "::~" << name << "I()";
-    C << sb;
-    C << eb;
-
-    OperationList ops = p->allOperations();
+    OperationList ops = p->operations();
     OperationList::const_iterator r;
 
     //
@@ -2830,8 +2815,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         H.restoreIndent();
         H << ");";
 
-        C << sp << nl << retS << nl << scoped.substr(2) << "I::" << opName
-          << '(';
+        C << sp << nl << retS << nl << scoped.substr(2) << "I::" << opName << '(';
         C.useCurrentPosAsIndent();
         for (q = inParams.begin(); q != inParams.end(); ++q)
         {
@@ -2863,24 +2847,12 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         C << ")";
         C << sb;
 
-        int iter = 0;
-
-        //
-        // Assign values to 'out' params
-        //
-        for (q = outParams.begin(); q != outParams.end(); ++q)
-        {
-            writeAssign(C, q->first, q->second, iter);
-        }
-
         //
         // Return value
         //
         if (ret)
         {
-            C << sp << nl << retS << " __r;";
-            writeAssign(C, ret, "__r", iter);
-            C << nl << "return __r;";
+            writeReturn(C, ret);
         }
 
         C << eb;

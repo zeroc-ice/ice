@@ -283,9 +283,9 @@ private:
 	std::string _dllExport;
 
         //
-        // Generate code to assign a value
+        // Generate code to return a dummy value
         //
-        void writeAssign(::IceUtil::Output&, const TypePtr&, const std::string&, int&);
+        void writeReturn(::IceUtil::Output&, const TypePtr&);
     };
 };
 
