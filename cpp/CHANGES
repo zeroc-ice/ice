@@ -1,20 +1,20 @@
 Changes since version 1.5.1
 ---------------------------
 
-- Fixed a bug in the garbage collector that caused a crash
-  in rare circumstances.
+- Fixed a bug in the garbage collector that caused a crash in rare
+  circumstances.
 
-- Freeze dictionaries now support indices. You can index on the
-  full value of the dictionary, or on a member (when the value
-  is a struct or a class). When you index on a member, you 
-  can define several indices (for different members).
-  See the Freeze bench demo and the Freeze dbmap test for examples.
+- Freeze dictionaries now support indices. You can index on the full
+  value of the dictionary, or on a member (when the value is a struct
+  or a class). When you index on a member, you can define several
+  indices (for different members).  See the Freeze bench demo and the
+  Freeze dbmap test for examples.
 
 - The Ice::Service class no longer resets the umask to 0, but rather
   uses the inherited umask.
 
-- Fixed a code generation problem in slice2cpp. This problem showed
-  up only for the --impl option.
+- Fixed a code generation problem in slice2cpp. This problem showed up
+  only for the --impl option.
 
 - Changed the way C++ keywords are escaped. Previously, a Slice
   identifier that is a C++ keyword was escaped everywhere. For
@@ -25,39 +25,38 @@ Changes since version 1.5.1
 - Fixed the slice2java and slice2cs compilers for operations with
   multiple exceptions in an exception specification: if an exception
   was a base of one or more other exceptions in the same exception
-  specification, the code generator sometimes emitted the catch
-  blocks in the marshaling and dispatch code in the wrong order.
-  (This applied only to interfaces with an ["amd"] metadata
-  directive.)
+  specification, the code generator sometimes emitted the catch blocks
+  in the marshaling and dispatch code in the wrong order. (This
+  applied only to interfaces with an ["amd"] metadata directive.)
 
 - Fixed a bug in the slice2cs code generator:
   
   ["cs:collection"] sequence<Object> S1;
   ["cs:collection"] sequence<Object*> S2;
 
-  Sequences of Object or Object* caused incorrect code to be
-  generated if they were marked as "cs:collection".
+  Sequences of Object or Object* caused incorrect code to be generated
+  if they were marked as "cs:collection".
 
 - Fixed a bug in the slice2cs code generator: for nested sequences,
-  incorrect code was generated if both the inner and the outer sequence
-  were mapped as arrays.
+  incorrect code was generated if both the inner and the outer
+  sequence were mapped as arrays.
 
-- Fixed a number of bugs in slice2cs that caused incorrect code to
-  be generated if C# keywords were used as Slice identifiers.
+- Fixed a number of bugs in slice2cs that caused incorrect code to be
+  generated if C# keywords were used as Slice identifiers.
 
-- Fixed a bug in slice2cpp that permitted impossible exceptions
-  to be received by a client if client and server used Slice
-  definitions with mismatched exception specifications. The
-  client now correctly receives UnknownUserException if the
-  server throws an exception that, according to the client's
-  view of the operation, is impossible.
+- Fixed a bug in slice2cpp that permitted impossible exceptions to be
+  received by a client if client and server used Slice definitions
+  with mismatched exception specifications. The client now correctly
+  receives UnknownUserException if the server throws an exception
+  that, according to the client's view of the operation, is
+  impossible.
 
 - The documentation has always stated that same-named constructs
-  cannot be directly nested inside each other. (For example, a
-  module `M' cannot contain a constant named `M'.) The Slice
-  compilers did not enforce this correctly up to now for modules
-  containing constructs with the same name as the enclosing module.
-  This has been fixed and now results in a diagnostic.
+  cannot be directly nested inside each other. (For example, a module
+  `M' cannot contain a constant named `M'.) The Slice compilers did
+  not enforce this correctly up to now for modules containing
+  constructs with the same name as the enclosing module.  This has
+  been fixed and now results in a diagnostic.
 
 - The slice2cpp compiler now deprecates Slice definitions at global
   scope: only modules can be defined at global scope. Everything else
@@ -71,9 +70,8 @@ Changes since version 1.5.1
 - Several demos used Slice classes where interfaces were more
   appropriate. This has been fixed.
 
-- Fixed a bug in the Windows IcePack registry project that would 
-  cause a compilation error if the registry was compiled before the
-  node.
+- Fixed a bug in the Windows IcePack registry project that would cause
+  a compilation error if the registry was compiled before the node.
 
 - Fixed a hang in the IcePack registry that would occur if multiple
   nodes were started simultaneously.
