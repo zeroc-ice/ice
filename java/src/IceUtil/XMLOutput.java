@@ -143,7 +143,7 @@ public class XMLOutput extends OutputBase
             //
             if(_sgml)
             {
-                _out.print("><");
+                _out.print("></");
                 _out.print(element);
                 _out.print(">");
             }

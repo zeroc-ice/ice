@@ -416,7 +416,7 @@ IceUtil::XMLOutput::ee()
 	//
 	if(_sgml)
 	{
-	    _out << "><" << element << '>';
+	    _out << "></" << element << '>';
 	}
 	else
 	{
