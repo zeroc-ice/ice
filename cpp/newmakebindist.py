@@ -253,7 +253,10 @@ def makeInstall(buildDir, installDir, distro, clean):
         os.chdir(cwd)
         return
 
-    os.system("perl -pi -e 's/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/' config/Make.rules")
+    if distro.startswith("IceCS"):
+	os.system("perl -pi -e 's/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/' config/Make.rules.cs")
+    else:
+	os.system("perl -pi -e 's/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/' config/Make.rules")
 
     if distro.startswith("IcePy"):
         try:
