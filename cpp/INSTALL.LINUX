@@ -6,7 +6,7 @@ Requirements
 Operating System
 ----------------
 
-A recent Linux distribution for Intel x86 or AMD Opteron (x86-64).
+A recent Linux distribution for x86 or x86-64.
 
 
 C++ compiler
@@ -111,7 +111,7 @@ $ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
 
 
 ======================================================================
-64 bit builds on AMD64
+64 bit builds on x86-64
 ======================================================================
 
 To build Ice in 64 bit mode, you need to do the following:
