@@ -29,6 +29,7 @@ public:
     virtual bool persistent() const;
     virtual bool inactive() const;
     virtual void unsubscribe();
+    virtual void replace();
     virtual void publish(const Event&);
 
     virtual void flush();

@@ -54,6 +54,19 @@ LinkSubscriber::unsubscribe()
 }
 
 void
+LinkSubscriber::replace()
+{
+    IceUtil::Mutex::Lock sync(_stateMutex);
+    _state = StateReplaced;
+
+    if (_traceLevels->subscriber > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
+	out << "Replace " << _obj->ice_getIdentity();
+    }
+}
+
+void
 LinkSubscriber::publish(const Event& event)
 {
     //

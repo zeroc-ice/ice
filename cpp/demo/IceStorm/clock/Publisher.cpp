@@ -10,12 +10,12 @@
 
 #include <Ice/Application.h>
 #include <IceStorm/IceStorm.h>
+
 #include <Clock.h>
 
 using namespace std;
-using namespace Ice;
 
-class Publisher : public Application
+class Publisher : public Ice::Application
 {
 public:
 
@@ -32,16 +32,17 @@ main(int argc, char* argv[])
 int
 Publisher::run(int argc, char* argv[])
 {
-    PropertiesPtr properties = communicator()->getProperties();
-    const char* endpointsProperty = "IceStorm.TopicManager.Endpoints";
-    std::string endpoints = properties->getProperty(endpointsProperty);
+    Ice::PropertiesPtr properties = communicator()->getProperties();
+
+    static const string endpointsProperty = "IceStorm.TopicManager.Endpoints";
+    string endpoints = properties->getProperty(endpointsProperty);
     if (endpoints.empty())
     {
 	cerr << appName() << ": property `" << endpointsProperty << "' not set" << endl;
 	return EXIT_FAILURE;
     }
 
-    ObjectPrx base = communicator()->stringToProxy("TopicManager:" + endpoints);
+    Ice::ObjectPrx base = communicator()->stringToProxy("TopicManager:" + endpoints);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
     if (!manager)
     {
@@ -49,6 +50,9 @@ Publisher::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
+    //
+    // Retrieve the topic named "time".
+    //
     IceStorm::TopicPrx topic;
     try
     {
@@ -56,16 +60,17 @@ Publisher::run(int argc, char* argv[])
     }
     catch(const IceStorm::NoSuchTopic& e)
     {
-	cerr << appName() << ": NoSuchTopic: " << e.name << endl;
+	cerr << appName() << ": " << e << " name: " << e.name << endl;
 	return EXIT_FAILURE;
     }
     assert(topic);
 
     //
-    // Get a publisher object, create a oneway proxy and then cast to
-    // a Clock object
+    // Get a publisher object, create a oneway proxy (for efficiency
+    // reasons) and then cast to a Clock object. Note that the cast
+    // must be unchecked.
     //
-    ObjectPrx obj = topic->getPublisher();
+    Ice::ObjectPrx obj = topic->getPublisher();
     obj = obj->ice_oneway();
     ClockPrx clock = ClockPrx::uncheckedCast(obj);
 

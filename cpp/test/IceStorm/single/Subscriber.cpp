@@ -92,19 +92,13 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default");
     ObjectPtr single = new SingleI(communicator);
-    ObjectPrx object = adapter->add(single, stringToIdentity("events#single"));
-
-    //
-    // The set of topics to which to subscribe
-    //
-    IceStorm::StringSeq topics;
-    topics.push_back("single");
+    ObjectPrx object = adapter->add(single, stringToIdentity("single#events"));
 
     IceStorm::QoS qos;
     //TODO: qos["reliability"] = "batch";
     try
     {
-	manager->subscribe("events", qos, topics, object);
+	manager->subscribe(qos, object);
     }
     catch(const IceStorm::NoSuchTopic& e)
     {

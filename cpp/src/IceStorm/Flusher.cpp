@@ -120,12 +120,6 @@ private:
 	//IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
 	//
-	// Using standard algorithms I don't think there is a way to
-	// do this in one pass. For instance, I thought about using
-	// remove_if - but the predicate needs to be a pure function
-	// (see Meyers for details). If this is fixed then fix TopicI
-	// also.
-	//
         // remove_if doesn't work with handle types. remove_if also
         // isn't present in the STLport implementation
         //

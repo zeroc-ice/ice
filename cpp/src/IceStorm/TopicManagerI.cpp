@@ -51,9 +51,8 @@ TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice
 	{
 	    if (_traceLevels->topicMgr > 0)
 	    {
-		ostringstream s;
-		s << ex;
-		_communicator->getLogger()->trace(_traceLevels->topicMgrCat, s.str());
+		Ice::Trace out(_traceLevels->logger, _traceLevels->topicMgrCat);
+		out << ex;
 	    }
 	    StringBoolDict::iterator tmp = p;
 	    ++p;
@@ -137,104 +136,66 @@ TopicManagerI::retrieveAll(const Ice::Current&)
 }
 
 void
-TopicManagerI::subscribe(const string& id, const QoS& qos, const StringSeq& topics, const Ice::ObjectPrx& tmpl,
-			 const Ice::Current&)
+TopicManagerI::subscribe(const QoS& qos, const Ice::ObjectPrx& subscriber, const Ice::Current&)
 {
     IceUtil::Mutex::Lock sync(*this);
 
+    Ice::Identity ident = subscriber->ice_getIdentity();
     if (_traceLevels->topicMgr > 0)
     {
-	ostringstream s;
-	s << "Subscribe: " << id;
+	Ice::Trace out(_traceLevels->logger, _traceLevels->topicMgrCat);
+	out << "Subscribe: " << Ice::identityToString(ident);
 	if (_traceLevels->topicMgr > 1)
 	{
-	    s << " QoS: ";
+	    out << " QoS: ";
 	    for (QoS::const_iterator qi = qos.begin(); qi != qos.end() ; ++qi)
 	    {
 		if (qi != qos.begin())
 		{
-		    s << ',';
+		    out << ',';
 		}
-		s << '[' << qi->first << "," << qi->second << ']';
+		out << '[' << qi->first << "," << qi->second << ']';
 	    }
-	    s << " Topics: ";
-	    for (StringSeq::const_iterator ti = topics.begin(); ti != topics.end() ; ++ti)
-	    {
-		if (ti != topics.begin())
-		{
-		    s << ",";
-		}
-		s << *ti;
-	    }
-	}
-	_communicator->getLogger()->trace(_traceLevels->topicMgrCat, s.str());
-    }
-
-    //
-    // First scan the set of topics to ensure that each exists.
-    //
-    // TODO: This could be slightly optimized by remembering the
-    // TopicIPtr's so that the list doesn't need to scanned again.
-    //
-    StringSeq::const_iterator i;
-    for (i = topics.begin() ; i != topics.end() ; ++i)
-    {
-	TopicIMap::iterator elem = _topicIMap.find(*i);
-	if (elem == _topicIMap.end())
-	{
-	    NoSuchTopic ex;
-	    ex.name = *i;
-	    throw ex;
 	}
     }
 
     //
-    // Subscribe to each Topic.
+    // Ensure that the identities category refers to an existing
+    // channel.
     //
-    for (i = topics.begin() ; i != topics.end() ; ++i)
+    TopicIMap::iterator elem = _topicIMap.find(ident.category);
+    if (elem == _topicIMap.end())
     {
-	TopicIMap::iterator elem = _topicIMap.find(*i);
-	if (elem != _topicIMap.end())
-	{
-	    elem->second->subscribe(tmpl, id, qos);
-	}
+	NoSuchTopic ex;
+	ex.name = ident.category;
+	throw ex;
     }
+
+    //
+    // Subscribe to the topic.
+    //
+    elem->second->subscribe(subscriber, qos);
 }
 
 void
-TopicManagerI::unsubscribe(const string& id, const StringSeq& topics, const Ice::Current&)
+TopicManagerI::unsubscribe(const Ice::ObjectPrx& subscriber, const Ice::Current&)
 {
     IceUtil::Mutex::Lock sync(*this);
 
+    Ice::Identity ident = subscriber->ice_getIdentity();
+
     if (_traceLevels->topicMgr > 0)
     {
-	ostringstream s;
-	s << "Unsubscribe: " << id;
-	if (_traceLevels->topicMgr > 1)
-	{
-	    s << " Topics: ";
-	    for (StringSeq::const_iterator ti = topics.begin(); ti != topics.end() ; ++ti)
-	    {
-		if (ti != topics.begin())
-		{
-		    s << ",";
-		}
-		s << *ti;
-	    }
-	}
-	_communicator->getLogger()->trace(_traceLevels->topicMgrCat, s.str());
+	Ice::Trace out(_traceLevels->logger, _traceLevels->topicMgrCat);
+
+	out << "Unsubscribe: " << Ice::identityToString(ident);
     }
 
-    //
-    // Unsubscribe to each Topic.
-    //
-    for (StringSeq::const_iterator i = topics.begin() ; i != topics.end() ; ++i)
+
+    TopicIMap::iterator elem = _topicIMap.find(ident.category);
+    if (elem != _topicIMap.end())
     {
-	TopicIMap::iterator elem = _topicIMap.find(*i);
-	if (elem != _topicIMap.end())
-	{
-	    elem->second->unsubscribe(id);
-	}
+	elem->second->unsubscribe(subscriber);
     }
 }
 
@@ -260,9 +221,8 @@ TopicManagerI::reap()
 	{
 	    if (_traceLevels->topicMgr > 0)
 	    {
-		ostringstream s;
-		s << "Reaping " << i->first;
-		_communicator->getLogger()->trace(_traceLevels->topicMgrCat, s.str());
+		Ice::Trace out(_traceLevels->logger, _traceLevels->topicMgrCat);
+		out << "Reaping " << i->first;
 	    }
 	    _topics.erase(i->first);
 	    _topicIMap.erase(i++);
@@ -279,9 +239,8 @@ TopicManagerI::installTopic(const std::string& message, const std::string& name,
 {
     if (_traceLevels->topicMgr > 0)
     {
-	ostringstream s;
-	s << message << ' ' << name;
-	_communicator->getLogger()->trace(_traceLevels->topicMgrCat, s.str());
+	Ice::Trace out(_traceLevels->logger, _traceLevels->topicMgrCat);
+	out << message << ' ' << name;
     }
 
     // TODO: instance

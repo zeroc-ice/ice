@@ -51,9 +51,8 @@ public:
     virtual TopicPrx create(const std::string&, const Ice::Current&);
     virtual TopicPrx retrieve(const std::string&, const Ice::Current&);
     virtual TopicDict retrieveAll(const Ice::Current&);
-    virtual void subscribe(const std::string&, const QoS&, const StringSeq&, const Ice::ObjectPrx&,
-			   const Ice::Current&);
-    virtual void unsubscribe(const std::string&, const StringSeq&, const Ice::Current&);
+    virtual void subscribe(const QoS&, const Ice::ObjectPrx&, const Ice::Current&);
+    virtual void unsubscribe(const Ice::ObjectPrx&, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
     void reap();

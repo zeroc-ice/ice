@@ -101,26 +101,21 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     EventIPtr eventFed1 = new EventI(communicator);
     EventIPtr eventFed2 = new EventI(communicator);
     EventIPtr eventFed3 = new EventI(communicator);
-    //
-    // Any of the objects will do as long as they are all activated
-    //
-    ObjectPrx object = adapter->add(eventFed1, stringToIdentity("events#fed1"));
-    adapter->add(eventFed2, stringToIdentity("events#fed2"));
-    adapter->add(eventFed3, stringToIdentity("events#fed3"));
 
     //
-    // The set of topics to which to subscribe
+    // Activate the servants.
     //
-    IceStorm::StringSeq topics;
-    topics.push_back("fed1");
-    topics.push_back("fed2");
-    topics.push_back("fed3");
+    ObjectPrx objFed1 = adapter->add(eventFed1, stringToIdentity("fed1#events"));
+    ObjectPrx objFed2 = adapter->add(eventFed2, stringToIdentity("fed2#events"));
+    ObjectPrx objFed3 = adapter->add(eventFed3, stringToIdentity("fed3#events"));
 
     IceStorm::QoS qos;
     //TODO: qos["reliability"] = "batch";
     try
     {
-	manager->subscribe("events", qos, topics, object);
+	manager->subscribe(qos, objFed1);
+	manager->subscribe(qos, objFed2);
+	manager->subscribe(qos, objFed3);
     }
     catch(const IceStorm::NoSuchTopic& e)
     {

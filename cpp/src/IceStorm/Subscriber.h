@@ -56,35 +56,15 @@ public:
     virtual bool persistent() const = 0;
 
     //
-    // Subscriber state.
-    //
-    enum State
-    {
-	//
-	// The Subscriber is active
-	//
-	StateActive,
-	//
-	// The Subscriber encountered an error during event
-	// transmission
-	//
-	StateError,
-	//
-	// The Subscriber has been unsubscribed
-	//
-	StateUnsubscribed
-    };
-
-    //
-    // This method is for ease of use with STL algorithms.
-    // Return _state != StateActive
+    // Return true if the Subscriber is not active, false otherwise.
     //
     bool inactive() const;
 
     //
-    // Retrieve the state of the Subscriber.
+    // Retrieve true if the Subscriber is in the error state, false
+    // otherwise.
     //
-    State state() const;
+    bool error() const;
 
     //
     // Retrieve the identity of the Subscriber.
@@ -97,8 +77,13 @@ public:
     virtual void unsubscribe() = 0;
 
     //
-    // Publish the given event. Mark the state as Error in the event
-    // of a problem.
+    // Unsubscribe. Mark the state as Replaced.
+    //
+    virtual void replace() = 0;
+
+    //
+    // Publish the given event. Mark the state as Error in the event of
+    // a problem.
     //
     virtual void publish(const Event&) = 0;
 
@@ -107,16 +92,40 @@ protected:
     // Immutable
     TraceLevelsPtr _traceLevels; 
 
+    //
+    // Subscriber state.
+    //
+    enum State
+    {
+	//
+	// The Subscriber is active.
+	//
+	StateActive,
+	//
+	// The Subscriber encountered an error during event
+	// transmission.
+	//
+	StateError,
+	//
+	// The Subscriber has been unsubscribed.
+	//
+	StateUnsubscribed,
+	//
+	// The Subscriber has been replaced.
+	//
+	StateReplaced
+    };
+
     IceUtil::Mutex _stateMutex;
     State _state;
 
 private:
 
     //
-    // This id is the full id of the subscriber for a particular topic
-    // (that is <prefix>#<topicname>
+    // This id is the full id of the subscriber for a particular topic.
     //
-    // Immutable
+    // Immutable.
+    //
     Ice::Identity _id;
 };
 

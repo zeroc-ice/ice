@@ -105,7 +105,31 @@ public:
     void
     add(const SubscriberPtr& subscriber)
     {
+	Ice::Identity id = subscriber->id();
+	
 	IceUtil::Mutex::Lock sync(_subscribersMutex);
+	
+	//
+	// If a subscriber with this identity is already subscribed
+	// then mark the subscriber as replaced.
+	//
+	// Note that this doesn't actually remove the Subscribe from
+	// the list of subscribers - it marks the Subscriber as
+	// replaced, and it's removed on the next event publish.
+	//
+	for (SubscriberList::iterator i = _subscribers.begin() ; i != _subscribers.end(); ++i)
+	{
+	    if ((*i)->id() == id)
+	    {
+		//
+		// This marks the subscriber as invalid. It will be
+		// removed on the next event publish.
+		//
+		(*i)->replace();
+		break;
+	    }
+	}
+
 
 	//
 	// Add to the set of subscribers
@@ -116,16 +140,17 @@ public:
     //
     // Unsubscribe the Subscriber with the given identity. Note that
     // this doesn't remove the Subscriber from the list of subscribers
-    // - it marks the Subscriber as Unsubscribed, and it's removed on
+    // - it marks the Subscriber as unsubscribed, and it's removed on
     // the next event publish.
     //
     void
-    unsubscribe(const Ice::Identity& id)
+    remove(const Ice::ObjectPrx& obj)
     {
+	Ice::Identity id = obj->ice_getIdentity();
+
 	IceUtil::Mutex::Lock sync(_subscribersMutex);
 
-	SubscriberList::iterator i;
-	for (i = _subscribers.begin() ; i != _subscribers.end(); ++i)
+	for (SubscriberList::iterator i = _subscribers.begin() ; i != _subscribers.end(); ++i)
 	{
 	    if ((*i)->id() == id)
 	    {
@@ -134,20 +159,17 @@ public:
 		// removed on the next event publish.
 		//
 		(*i)->unsubscribe();
-		break;
+		return;
 	    }
 	}
 
 	//
 	// If the subscriber was not found then display a diagnostic
 	//
-	if (i == _subscribers.end())
+	if (_traceLevels->topic > 0)
 	{
-	    if (_traceLevels->topic > 0)
-	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
-		out << id << ": not subscribed.";
-	    }
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
+	    out << id << ": not subscribed.";
 	}
     }
 
@@ -161,55 +183,61 @@ public:
     // advantage that publishes can occur in parallel and less
     // subscriber list iterations.
     //
-
     void
     publish(const Event& event)
     {
-	IceUtil::Mutex::Lock sync(_subscribersMutex);
+	//
+	// Copy of the subscriber list so that event publishing can
+	// occur in parallel.
+	//
+	// TODO: Find out whether this is a false optimization - how
+	// expensive is the cost of copying vs. lack of parallelism?
+	//
+	SubscriberList copy;
 
-	//
-	// Using standard algorithms I don't think there is a way to
-	// do this in one pass. For instance, I thought about using
-	// remove_if - but the predicate needs to be a pure function
-	// (see Meyers for details). If this is fixed then fix Flusher
-	// also.
-	//
-	// remove_if doesn't work with handle types. remove_if also
-	// isn't present in the STLport implementation
-	//
-        // _subscribers.remove_if(IceUtil::constMemFun(&Subscriber::inactive));
-        //
-
-	//
-	// Erase the inactive subscribers from the _subscribers
-	// list. Copy the subscribers in error to the error list.
-	//
-	SubscriberList::iterator p = remove_if(_subscribers.begin(), _subscribers.end(),
-					       IceUtil::constMemFun(&Subscriber::inactive));
-
-	if (p != _subscribers.end())
 	{
-	    IceUtil::Mutex::Lock errorSync(_errorMutex);
+	    IceUtil::Mutex::Lock sync(_subscribersMutex);
+
 	    //
-	    // Copy each of the invalid subscribers that was not
-	    // unsubscribed. Note that there is no copy_if algorithm.
+	    // Copy of the subscribers that are in error.
 	    //
-	    // Note that this could also be written in terms of splice
-	    // & remove_if.
+	    SubscriberList e;
+
 	    //
+	    // Erase the inactive subscribers from the _subscribers
+	    // list. Copy the subscribers in error to the error list.
+	    //
+	    SubscriberList::iterator p = _subscribers.begin();
 	    while (p != _subscribers.end())
 	    {
-		if ((*p)->state() == Subscriber::StateError)
+		if ((*p)->inactive())
 		{
-		    _error.push_front(*p);
+		    if ((*p)->error())
+		    {
+			e.push_back(*p);
+		    }
+
+		    SubscriberList::iterator tmp = p;
+		    ++p;
+		    _subscribers.erase(tmp);
 		}
-		_subscribers.erase(p++);
+		else
+		{
+		    copy.push_back(*p);
+		    ++p;
+		}
+	    }
+
+	    if (!e.empty())
+	    {
+		IceUtil::Mutex::Lock errorSync(_errorMutex);
+		_error.splice(_error.begin(), e);
 	    }
 	}
 
-	for (SubscriberList::iterator i = _subscribers.begin(); i != _subscribers.end(); ++i)
+	for (SubscriberList::iterator p = copy.begin(); p != copy.end(); ++p)
 	{
-	    (*i)->publish(event);
+	    (*p)->publish(event);
 	}
     }
 
@@ -217,7 +245,7 @@ public:
     // Clear & return the set of subscribers that are in error.
     //
     SubscriberList
-    clearErrorList() const
+    clearErrorList()
     {
 	//
 	// Uses splice for efficiency
@@ -229,17 +257,20 @@ public:
     }
 
 private:
-    
+	
     TraceLevelsPtr _traceLevels;
 
+    //
+    // TODO: Should there be a map from identity to subscriber?
+    //
     IceUtil::Mutex  _subscribersMutex;
     SubscriberList _subscribers;
 
     //
-    // Set of subscribers that encountered an error.
+    // Set of subscribers that have encountered an error.
     //
     IceUtil::Mutex _errorMutex;
-    mutable SubscriberList _error;
+    SubscriberList _error;
 };
 
 } // End namespace IceStorm
@@ -319,7 +350,7 @@ TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& trace
     //
     // Create a servant per Topic to receive linked event data. The
     // servants Identity is category=<topicname>, name=link. Activate
-    // the object and save a reference to give to linked topics..
+    // the object and save a reference to give to linked topics.
     //
     _link = new TopicLinkI(_subscribers);
 
@@ -327,16 +358,20 @@ TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& trace
     _linkPrx = TopicLinkPrx::uncheckedCast(_adapter->add(_link, id));
 
     //
-    // Run through link database - re-establishing linked subscribers
+    // Run through link database re-establishing linked subscribers.
     //
     for (IdentityLinkDict::const_iterator p = _links.begin(); p != _links.end(); ++p)
     {
 	if (_traceLevels->topic > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
-	    out << _name << " relink " << p->second.obj->ice_getIdentity();
+	    out << _name << " relink " << p->first;
 	}
 	
+	//
+	// Create the Subscriber object and add to the set of
+	// Subscribers.
+	//
 	SubscriberPtr subscriber = _factory->createLinkSubscriber(p->second.obj, p->second.info.cost);
 	_subscribers->add(subscriber);
     }
@@ -411,12 +446,15 @@ TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
     }
 
     //
-    // Retrieve the TopicLink
+    // Retrieve the TopicLink.
     //
     TopicInternalPrx internal = TopicInternalPrx::checkedCast(topic);
     TopicLinkPrx link = internal->getLinkProxy();
     Ice::Identity ident = link->ice_getIdentity();
 
+    //
+    // Create the LinkDB record.
+    //
     LinkDB dbInfo;
     dbInfo.obj = link;
     dbInfo.info.topic = topic;
@@ -424,20 +462,9 @@ TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
     dbInfo.info.cost = cost;
 
     //
-    // If the link already exists then remove the original subscriber.
+    // Create the Subscriber object and add to the setup of
+    // subscribers.
     //
-    // Note: If events arrive before the new subscriber is added then
-    // they will be lost. An alternative to this strategy would be to
-    // update the subscriber information.
-    //
-    IdentityLinkDict::iterator p = _links.find(ident);
-    if (p != _links.end())
-    {
-	_subscribers->unsubscribe(ident);
-    }
-
-    _links.insert(make_pair(ident, dbInfo));
-
     SubscriberPtr subscriber = _factory->createLinkSubscriber(dbInfo.obj, dbInfo.info.cost);
     _subscribers->add(subscriber);
 }
@@ -464,7 +491,7 @@ TopicI::unlink(const TopicPrx& topic, const Ice::Current&)
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
 	    out << _name << " unlink " << topic->getName();
 	}
-	_subscribers->unsubscribe(link->ice_getIdentity());
+	_subscribers->remove(link);
     }
     else
     {
@@ -514,7 +541,7 @@ TopicI::destroyed() const
 }
 
 void
-TopicI::subscribe(const Ice::ObjectPrx& tmpl, const string& id, const QoS& qos)
+TopicI::subscribe(const Ice::ObjectPrx& obj, const QoS& qos)
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -526,23 +553,14 @@ TopicI::subscribe(const Ice::ObjectPrx& tmpl, const string& id, const QoS& qos)
     reap();
 
     //
-    // Create the identity category=id, name=<topicname>.
-    //
-    Ice::Identity ident;
-    ident.category = id;
-    ident.name = _name;
-    Ice::ObjectPrx obj = tmpl->ice_newIdentity(ident);
-    
-    //
-    // Create the subscriber with this id and add to the set of
-    // subscribers.
+    // Add this subscriber to the set of subscribers.
     //
     SubscriberPtr subscriber = _factory->createSubscriber(qos, obj);
     _subscribers->add(subscriber);
 }
 
 void
-TopicI::unsubscribe(const string& id)
+TopicI::unsubscribe(const Ice::ObjectPrx& obj)
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -554,16 +572,9 @@ TopicI::unsubscribe(const string& id)
     reap();
 
     //
-    // Create the identity category=id, name=<topicname>.
-    //
-    Ice::Identity ident;
-    ident.category = id;
-    ident.name = _name;
-
-    //
     // Unsubscribe the subscriber with this identity.
     //
-    _subscribers->unsubscribe(ident);
+    _subscribers->remove(obj);
 }
 
 void
@@ -584,7 +595,7 @@ TopicI::reap()
     for (SubscriberList::iterator p = error.begin(); p != error.end(); ++p)
     {
 	SubscriberPtr subscriber = *p;
-	assert(subscriber->state() == Subscriber::StateError);
+	assert(subscriber->error());
 	if (subscriber->persistent())
 	{
 	    if (_links.erase(subscriber->id()) > 0)

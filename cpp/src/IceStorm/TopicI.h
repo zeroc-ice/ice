@@ -55,8 +55,8 @@ public:
 
     // Internal methods
     bool destroyed() const;
-    void subscribe(const Ice::ObjectPrx&, const std::string&, const QoS&);
-    void unsubscribe(const std::string&);
+    void subscribe(const Ice::ObjectPrx&, const QoS&);
+    void unsubscribe(const Ice::ObjectPrx&);
 
     void reap();
 

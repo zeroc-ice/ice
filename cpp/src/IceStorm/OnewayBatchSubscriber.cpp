@@ -48,6 +48,25 @@ OnewayBatchSubscriber::unsubscribe()
     _flusher->remove(this);
 }
 
+void
+OnewayBatchSubscriber::replace()
+{
+    IceUtil::Mutex::Lock sync(_stateMutex);
+    _state = StateReplaced;
+
+    if (_traceLevels->subscriber > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
+	out << "Replace " << _obj->ice_getIdentity();
+    }
+
+    //
+    // If this subscriber has been registered with the flusher then
+    // remove it.
+    //
+    _flusher->remove(this);
+}
+
 bool
 OnewayBatchSubscriber::inactive() const
 {

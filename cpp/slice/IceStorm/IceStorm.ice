@@ -173,14 +173,6 @@ exception NoSuchTopic
 
 /**
  *
- * A sequence of strings. TODO: This should be moved to the Ice core
- * (Ice/Types.ice).
- *
- **/
-sequence<string> StringSeq;
-
-/**
- *
  * This dictionary represents Quality of service parameters.
  *
  * @see TopicManager::subscribe
@@ -234,30 +226,25 @@ interface TopicManager
 
     /**
      *
-     * Subscribe the given subscriber to a set of topics.
-     *
-     * @param id The identity of the subscriber. Each unique
-     * subscriber must use a unique identity string. To receive events
-     * the subscriber must register a servant with the identity
-     * category=id name=topic.
+     * Subscribe with the given [qos] to the topic identified in the
+     * [subscribers] identity category. If a subscriber already exists
+     * with the given identity, then it will be replaced by this
+     * subscriber.
      *
      * @param qos The quality of service parameters for this
      * subscription. The only currently supported QoS is
      * "reliability", which can be either "oneway" or "batch".
      *
-     * @param topics The topics to which to subscribe.
-     *
-     * @param tmpl An object template which is used to send events to
-     * the subscriber.
+     * @param tmpl The proxy to which to send events.
      *
      * @see unsubscribe
      *
      **/
-    void subscribe(string id, QoS qos, StringSeq topics, Object* tmpl) throws NoSuchTopic;
+    void subscribe(QoS qos, Object* subscriber) throws NoSuchTopic;
 
     /**
      *
-     * Unsubscribe the given subscriber from a set of topics.
+     * Unsubscribe the given [subscriber].
      *
      * @param id The identity of the given subscriber.
      *
@@ -266,7 +253,7 @@ interface TopicManager
      * @see subscribe
      *
      **/
-    void unsubscribe(string id, StringSeq topics);
+    void unsubscribe(Object* subscriber);
 
     /**
      *

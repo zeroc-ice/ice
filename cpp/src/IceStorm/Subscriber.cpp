@@ -32,11 +32,11 @@ Subscriber::inactive() const
     return _state != StateActive;;
 }
 
-Subscriber::State
-Subscriber::state() const
+bool
+Subscriber::error() const
 {
     IceUtil::Mutex::Lock sync(_stateMutex);
-    return _state;
+    return _state == StateError;
 }
 
 

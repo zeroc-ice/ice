@@ -27,10 +27,11 @@ class OnewayBatchSubscriber : public OnewaySubscriber, public Flushable
 {
 public:
 
-    OnewayBatchSubscriber(const TraceLevelsPtr& traceLevels, const FlusherPtr&, const Ice::ObjectPrx&);
+    OnewayBatchSubscriber(const TraceLevelsPtr&, const FlusherPtr&, const Ice::ObjectPrx&);
     ~OnewayBatchSubscriber();
 
     virtual void unsubscribe();
+    virtual void replace();
     virtual bool inactive() const;
 
     virtual void flush();
