@@ -321,9 +321,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	}
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
 	C << sb;
-	C << nl << "__os->startWriteEncaps();";
+//	C << nl << "__os->startWriteEncaps();";
 	writeMarshalCode(C, memberList, 0);
-	C << nl << "__os->endWriteEncaps();";
+//	C << nl << "__os->endWriteEncaps();";
 	if (base)
 	{
 	    C.zeroIndent();
@@ -341,9 +341,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	C << eb;
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
 	C << sb;
-	C << nl << "__is->startReadEncaps();";
+//	C << nl << "__is->startReadEncaps();";
 	writeUnmarshalCode(C, memberList, 0);
-	C << nl << "__is->endReadEncaps();";
+//	C << nl << "__is->endReadEncaps();";
 	if (base)
 	{
 	    C.zeroIndent();
@@ -1155,8 +1155,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	    }
 	}
 	C << eb << ';';
-	C << nl << "::Ice::Int __throwsIdx = __is->throwException(__throws, __throws + " << throws.size() << ");";
-	C << nl << "switch (__throwsIdx)";
+	C << nl << "switch (__is->throwException(__throws, __throws + " << throws.size() << "))";
 	C << sb;
 	int cnt = 0;
 	for (r = throws.begin(); r != throws.end(); ++r)
@@ -1574,8 +1573,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << sb;
 	C << nl << "const char** b = __ids;";
 	C << nl << "const char** e = __ids + " << ids.size() << ';';
-	C << nl << "::std::pair< const char**, const char**> r = ::std::equal_range(b, e, s);";
-	C << nl << "return r.first != r.second;";
+	C << nl << "return ::std::binary_search(b, e, s);";
 	C << eb;
 	C << sp;
 	C << nl << "const char**" << nl << scoped.substr(2) << "::__getClassIds()";
@@ -1726,9 +1724,9 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	C << sp;
 	C << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
 	C << sb;
-	C << nl << "__os->startWriteEncaps();";
+//	C << nl << "__os->startWriteEncaps();";
 	writeMarshalCode(C, memberList, 0);
-	C << nl << "__os->endWriteEncaps();";
+//	C << nl << "__os->endWriteEncaps();";
 	if (base)
 	{
 	    C.zeroIndent();
@@ -1747,9 +1745,9 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	C << sp;
 	C << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
 	C << sb;
-	C << nl << "__is->startReadEncaps();";
+//	C << nl << "__is->startReadEncaps();";
 	writeUnmarshalCode(C, memberList, 0);
-	C << nl << "__is->endReadEncaps();";
+//	C << nl << "__is->endReadEncaps();";
 	if (base)
 	{
 	    C.zeroIndent();

@@ -186,21 +186,14 @@ void
 Ice::NoObjectFactoryException::_print(ostream& out) const
 {
     Exception::_print(out);
-    out << ":\nprotocol error: no object factory found for servant with operations";
+    out << ":\nprotocol error: no suitable object factory found";
 }
 
 void
-Ice::ServantUnmarshalException::_print(ostream& out) const
+Ice::NoUserExceptionFactoryException::_print(ostream& out) const
 {
     Exception::_print(out);
-    out << ":\nprotocol error: servant type unknown or doesn't match signature";
-}
-
-void
-Ice::UserExceptionUnmarshalException::_print(ostream& out) const
-{
-    Exception::_print(out);
-    out << ":\nprotocol error: exception type unknown or doesn't match signature";
+    out << ":\nprotocol error: no suitable user exception factory found";
 }
 
 void
@@ -211,17 +204,10 @@ Ice::ProxyUnmarshalException::_print(ostream& out) const
 }
 
 void
-Ice::StringEncodingException::_print(ostream& out) const
+Ice::IllegalIndirectionException::_print(ostream& out) const
 {
     Exception::_print(out);
-    out << ":\nprotocol error: string or wide string encoding error";
-}
-
-void
-Ice::ObjectEncodingException::_print(ostream& out) const
-{
-    Exception::_print(out);
-    out << ":\nprotocol error: object encoding error";
+    out << ":\nprotocol error: encountered illegal protocol indirection";
 }
 
 void

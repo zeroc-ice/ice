@@ -21,8 +21,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::ObjectPtr object = new ThrowerI(adapter);
     adapter->add(object, "thrower");
 
-    ThrowerPrx allTests(const Ice::CommunicatorPtr&);
-    allTests(communicator);
+    ThrowerPrx allTests(const Ice::CommunicatorPtr&, bool);
+    allTests(communicator, true);
 
     return EXIT_SUCCESS;
 }

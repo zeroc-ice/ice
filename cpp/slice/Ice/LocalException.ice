@@ -267,8 +267,8 @@ local exception ProtocolException
 /**
  *
  * This exception is a specialization of [ProtocolException], which is
- * raised if no suitable object factory was found during unmarshaling
- * of a Servant type with operations.
+ * raised if no suitable object factory was found during object
+ * unmarshaling.
  *
  * @see ObjectFactory
  * @see Communicator::addObjectFactory
@@ -283,22 +283,16 @@ local exception NoObjectFactoryException extends ProtocolException
 /**
  *
  * This exception is a specialization of [ProtocolException], which is
- * raised if a servant type is encountered that is either unknown or
- * doesn't match the operation signature.
+ * raised if no suitable user exception factory was found during user
+ * exception unmarshaling.
+ *
+ * @see UserExceptionFactory
+ * @see Communicator::addUserExceptionFactory
+ * @see Communicator::removeUserExceptionFactory
+ * @see Communicator::findUserExceptionFactory
  *
  **/
-local exception ServantUnmarshalException extends ProtocolException
-{
-};
-
-/**
- *
- * This exception is a specialization of [ProtocolException], which is
- * raised if a user exception is encountered that is either unknown or
- * doesn't match the operation signature.
- *
- **/
-local exception UserExceptionUnmarshalException extends ProtocolException
+local exception NoUserExceptionFactoryException extends ProtocolException
 {
 };
 
@@ -325,20 +319,10 @@ local exception UnmarshalOutOfBoundsException extends ProtocolException
 /**
  *
  * This exception is a specialization of [ProtocolException],
- * indicating a malformed string or wide string encoding.
+ * indicating an illegal protocol indirection.
  *
  **/
-local exception StringEncodingException extends ProtocolException
-{
-};
-
-/**
- *
- * This exception is a specialization of [ProtocolException],
- * indicating a malformed object encoding.
- *
- **/
-local exception ObjectEncodingException extends ProtocolException
+local exception IllegalIndirectionException extends ProtocolException
 {
 };
 

@@ -17,8 +17,8 @@ using namespace std;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    ThrowerPrx allTests(const Ice::CommunicatorPtr&);
-    ThrowerPrx thrower = allTests(communicator);
+    ThrowerPrx allTests(const Ice::CommunicatorPtr&, bool);
+    ThrowerPrx thrower = allTests(communicator, false);
     thrower->shutdown();
     return EXIT_SUCCESS;
 }

@@ -68,19 +68,19 @@ local interface Stream
      **/
     void reserve(int len);
 
-    /** Start writing an encapsulation. **/
+    /** Start writing an encapsulation. */
     void startWriteEncaps();
-
-    /** End writing an encapsulation. **/
+    
+    /** End writing an encapsulation. */
     void endWriteEncaps();
-
-    /** Start reading an encapsulation. **/
+    
+    /** Start reading an encapsulation. */
     void startReadEncaps();
-
-    /** End reading an encapsulation. **/
+    
+    /** End reading an encapsulation. */
     void endReadEncaps();
-
-    /** Skip an encapsulation. **/
+    
+    /** Skip an encapsulation. */
     void skipEncaps();
 
     /**
@@ -427,25 +427,25 @@ local interface Stream
 
     /**
      *
-     * Write a single Servant.
+     * Write a single object.
      *
-     * @param value The Servant to write.
+     * @param value The object to write.
      *
      **/
     void writeObject(Object value);
 
     /**
      *
-     * Read a single Servant.
+     * Read a single object. This operation raises
+     * [NoObjectFactoryException] if no suitable factory for the
+     * object to be read can be found.
      *
-     * @param type The minimum type the Servant must have. If the type
-     * is available, a [ServantUnmarshalException] is raised. Use
-     * [::Ice::Object] as [type] to match all types.
+     * @param value The object that has been read.
      *
-     * @param value The servant that has been read.
+     * @see ObjectFactory
      *
      **/
-    void readObject(string type; Object value);
+    void readObject(; Object value);
 };
 
 };

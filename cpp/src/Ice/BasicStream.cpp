@@ -653,7 +653,7 @@ IceInternal::BasicStream::read(string& v)
     {
 	if (static_cast<vector<string>::size_type>(-(len + 1)) >= _encapsStack.back().stringsRead.size())
 	{
-	    throw StringEncodingException(__FILE__, __LINE__);
+	    throw IllegalIndirectionException(__FILE__, __LINE__);
 	}
 	v = _encapsStack.back().stringsRead[-(len + 1)];
     }
@@ -742,7 +742,7 @@ IceInternal::BasicStream::read(wstring& v)
     {
 	if (static_cast<vector<wstring>::size_type>(-(len + 1)) >= _encapsStack.back().wstringsRead.size())
 	{
-	    throw StringEncodingException(__FILE__, __LINE__);
+	    throw IllegalIndirectionException(__FILE__, __LINE__);
 	}
 	v = _encapsStack.back().wstringsRead[-(len + 1)];
     }
@@ -809,138 +809,93 @@ IceInternal::BasicStream::write(const ObjectPtr& v)
     else
     {
 	write(Int(-1));
-	const char** classIds = v->__getClassIds();
-	Int sz = 0;
-	while (strcmp(classIds[sz], "::Ice::Object") != 0)
-	{
-	    ++sz;
-	}
-	write(sz);
-	for (int i = 0; i < sz; i++)
-	{
-	    write(string(classIds[i]));
-	}
+	write(v->__getClassIds()[0]);
 	v->__write(this);
 	Int num = _encapsStack.back().objectsWritten.size();
 	_encapsStack.back().objectsWritten[v] = num;
     }
 }
 
-void
-IceInternal::BasicStream::read(ObjectPtr& v, const char* type)
+bool
+IceInternal::BasicStream::read(const char* signatureType, ObjectPtr& v)
 {
     Int pos;
     read(pos);
-
+    
     if (pos >= 0)
     {
 	if (static_cast<vector<ObjectPtr>::size_type>(pos) >= _encapsStack.back().objectsRead.size())
 	{
-	    throw ObjectEncodingException(__FILE__, __LINE__);
+	    throw IllegalIndirectionException(__FILE__, __LINE__);
 	}
 	v = _encapsStack.back().objectsRead[pos];
+	return true;
     }
     else
     {
-	vector<string> classIds;
-	read(classIds);
-	classIds.push_back("::Ice::Object");
-	for (vector<string>::const_iterator p = classIds.begin(); p != classIds.end(); ++p)
+	string id;
+	read(id);
+	ObjectFactoryPtr factory = _instance->servantFactoryManager()->find(id);
+	
+	if (factory)
 	{
-	    ObjectFactoryPtr factory = _instance->servantFactoryManager()->find(*p);
-	    
-	    if (factory)
+	    v = factory->create(id);
+	    if (v)
 	    {
-		v = factory->create(*p);
 		v->__read(this);
-		
-		for (; p != classIds.end(); ++p)
-		{
-		    if (*p == type)
-		    {
-			_encapsStack.back().objectsRead.push_back(v);
-			return;
-		    }
-		}
-		
-		throw ServantUnmarshalException(__FILE__, __LINE__);
+		return true;
 	    }
-	    
-	    if (*p == type)
-	    {
-		if (!v)
-		{
-		    throw NoObjectFactoryException(__FILE__, __LINE__);
-		}
-		v->__read(this);
-		_encapsStack.back().objectsRead.push_back(v);
-		return;
-	    }
-	    
-	    skipEncaps();
 	}
-    
-	throw ServantUnmarshalException(__FILE__, __LINE__);
+	
+	if (id == signatureType)
+	{
+	    return false;
+	}
+
+	throw NoObjectFactoryException(__FILE__, __LINE__);
     }
 }
 
 void
 IceInternal::BasicStream::write(const UserException& v)
 {
-    const char** exceptionIds = v.__getExceptionIds();
-    Int sz = 0;
-    while (strcmp(exceptionIds[sz], "::Ice::UserException") != 0)
-    {
-	++sz;
-    }
-    write(sz);
-    for (int i = 0; i < sz; i++)
-    {
-	write(string(exceptionIds[i]));
-    }
+    write(v.__getExceptionIds()[0]);
     v.__write(this);
 }
 
 Int
-IceInternal::BasicStream::throwException(const char** typesBegin, const char** typesEnd)
+IceInternal::BasicStream::throwException(const char** throwsBegin, const char** throwsEnd)
 {
-    vector<string> exceptionIds;
-    read(exceptionIds);
-    exceptionIds.push_back("::Ice::UserException");
-    for (vector<string>::const_iterator p = exceptionIds.begin(); p != exceptionIds.end(); ++p)
-    {
-	UserExceptionFactoryPtr factory = _instance->userExceptionFactoryManager()->find(*p);
+    string id;
+    read(id);
+    UserExceptionFactoryPtr factory = _instance->userExceptionFactoryManager()->find(id);
 	
-	if (factory)
+    if (factory)
+    {
+	try
 	{
-	    try
+	    factory->createAndThrow(id);
+	}
+	catch (UserException& ex)
+	{
+	    for (const char** p = ex.__getExceptionIds(); strcmp(*p, "::Ice::UserException") != 0; ++p)
 	    {
-		factory->createAndThrow(*p);
-	    }
-	    catch (UserException& ex)
-	    {
-		ex.__read(this);
-		for (; p != exceptionIds.end(); ++p)
+		if (binary_search(throwsBegin, throwsEnd, *p))
 		{
-		    pair<const char**, const char**> q = equal_range(typesBegin, typesEnd, *p);
-		    if (q.first != q.second)
-		    {
-			ex._throw();
-		    }
+		    ex.__read(this);
+		    ex._throw();
 		}
 	    }
-	    
-	    throw UserExceptionUnmarshalException(__FILE__, __LINE__);
-	}
-
-	pair<const char**, const char**> q = equal_range(typesBegin, typesEnd, *p);
-	if (q.first != q.second)
-	{
-	    return q.first - typesBegin;
-	}
 	
-	skipEncaps();
+	    throw UnknownUserException(__FILE__, __LINE__);
+	}
     }
 
-    throw UserExceptionUnmarshalException(__FILE__, __LINE__);
+    pair<const char**, const char**> p = equal_range(throwsBegin, throwsEnd, id);
+    if (p.first != p.second)
+    {
+	return p.first - throwsBegin;
+    }
+    
+    throw NoUserExceptionFactoryException(__FILE__, __LINE__);
 }

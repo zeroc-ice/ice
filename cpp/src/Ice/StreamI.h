@@ -69,7 +69,7 @@ public:
     virtual void writeProxy(const ObjectPrx&);
     virtual void readProxy(ObjectPrx&);
     virtual void writeObject(const ObjectPtr&);
-    virtual void readObject(const ::std::string&, ObjectPtr&);
+    virtual void readObject(ObjectPtr&);
 
 private:
 

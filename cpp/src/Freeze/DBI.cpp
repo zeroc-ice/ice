@@ -520,7 +520,7 @@ Freeze::DBI::getServant(const string& ident)
     stream.i = stream.b.begin();
     
     ObjectPtr servant;
-    stream.read(servant, "::Ice::Object");
+    stream.read("", servant);
     
     if (!servant)
     {

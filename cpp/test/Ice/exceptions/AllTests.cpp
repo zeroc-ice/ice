@@ -46,7 +46,7 @@ public:
 };
 
 ThrowerPrx
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 {
     cout << "testing stringToProxy... " << flush;
     string ref("thrower:tcp -p 12345 -t 2000");
@@ -170,61 +170,64 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "ok" << endl;
 
-    cout << "catching derived types w/o exception factories... " << flush;
-
-    try
+    if (!collocated) // If the server is collocated, exception factories are not needed.
     {
-	thrower->throwBasA(1, 2);
-	test(false);
+	cout << "catching derived types w/o exception factories... " << flush;
+	
+	try
+	{
+	    thrower->throwBasA(1, 2);
+	    test(false);
+	}
+	catch (const Ice::NoUserExceptionFactoryException&)
+	{
+	}
+	catch (...)
+	{
+	    test(false);
+	}
+	
+	try
+	{
+	    thrower->throwCasA(1, 2, 3);
+	    test(false);
+	}
+	catch (const Ice::NoUserExceptionFactoryException&)
+	{
+	}
+	catch (...)
+	{
+	    test(false);
+	}
+	
+	try
+	{
+	    thrower->throwCasB(1, 2, 3);
+	    test(false);
+	}
+	catch (const Ice::NoUserExceptionFactoryException&)
+	{
+	}
+	catch (...)
+	{
+	    test(false);
+	}
+	
+	cout << "ok" << endl;
+	
+	cout << "catching derived types w/ exception factories... " << flush;
+	
+	Ice::UserExceptionFactoryPtr factory = new MyExceptionFactory;
+	communicator->addUserExceptionFactory(factory, "::A");
+	communicator->addUserExceptionFactory(factory, "::B");
+	communicator->addUserExceptionFactory(factory, "::C");
+	communicator->addUserExceptionFactory(factory, "::D");
     }
-    catch (const A& ex)
+    else
     {
-	test(ex.a == 1);
+	cout << "catching derived types... " << flush;
     }
-    catch (...)
-    {
-	test(false);
-    }
-
-    try
-    {
-	thrower->throwCasA(1, 2, 3);
-	test(false);
-    }
-    catch (const A& ex)
-    {
-	test(ex.a == 1);
-    }
-    catch (...)
-    {
-	test(false);
-    }
-
-    try
-    {
-	thrower->throwCasB(1, 2, 3);
-	test(false);
-    }
-    catch (const B& ex)
-    {
-	test(ex.a == 1);
-	test(ex.b == 2);
-    }
-    catch (...)
-    {
-	test(false);
-    }
-
-    cout << "ok" << endl;
-
-    cout << "catching derived types w/ exception factories... " << flush;
-
-    Ice::UserExceptionFactoryPtr factory = new MyExceptionFactory;
-    communicator->addUserExceptionFactory(factory, "::A");
-    communicator->addUserExceptionFactory(factory, "::B");
-    communicator->addUserExceptionFactory(factory, "::C");
-    communicator->addUserExceptionFactory(factory, "::D");
-
+	
     try
     {
 	thrower->throwBasA(1, 2);

@@ -304,25 +304,29 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	if (marshal)
 	{
 	    out << nl << "::Ice::ObjectPtr " << obj << " = " << param << ';';
-	    out << nl << stream << deref << "write(" << obj << ");";
+	    out << nl << stream << deref << func << obj << ");";
 	}
 	else
 	{
+	    out << nl << "::Ice::ObjectPtr " << obj << ';';
 	    ClassDefPtr def = cl->definition();
 	    if (def && !def->isAbstract())
 	    {
-		out << nl << "::Ice::ObjectPtr " << obj << " = new " << cl->scoped() << ';';
+		out << nl << "if (" << stream << deref << func << cl->scoped() << "::__classIds[0], " << obj << "))";
+		out << sb;
+		out << nl << param << " = " << cl->scoped() << "Ptr::dynamicCast(" << obj << ");";
+		out << eb;
+		out << nl << "else";
+		out << sb;
+		out << nl << param << " = new " << cl->scoped() << ';';
+		out << nl << param << "->__" << func << stream << ");";
+		out << eb;
 	    }
 	    else
 	    {
-		out << nl << "::Ice::ObjectPtr " << obj << ';';
+		out << nl << stream << deref << func << "\"\"," << obj << ");";
+		out << nl << param << " = " << cl->scoped() << "Ptr::dynamicCast(" << obj << ");";
 	    }
-	    out << nl << stream << deref << "read(" << obj << ", " << cl->scoped() << "::__classIds[0]);";
-	    out << nl << param << " = " << cl->scoped() << "Ptr::dynamicCast(" << obj << ");";
-	    out << nl << "if (!" << param << ')';
-	    out << sb;
-	    out << nl << "throw ::Ice::ServantUnmarshalException(__FILE__, __LINE__);";
-	    out << eb;
 	}
 	out << eb;
 
