@@ -140,7 +140,6 @@ IceInternal::encodeString(const string& s, const string& special)
 bool
 IceInternal::decodeString(const string& s, string::size_type start, string::size_type end, string& result)
 {
-    assert(start >= 0);
     assert(end <= s.size());
     assert(start <= end);
 

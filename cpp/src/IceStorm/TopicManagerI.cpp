@@ -84,7 +84,7 @@ TopicManagerI::retrieve(const string& name, const Ice::Current&) const
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    TopicManagerI* const This = const_cast<TopicManagerI* const>(this);
+    TopicManagerI* This = const_cast<TopicManagerI*>(this);
     This->reap();
 
     if(_topicIMap.find(name) != _topicIMap.end())
@@ -125,7 +125,7 @@ TopicManagerI::retrieveAll(const Ice::Current&) const
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    TopicManagerI* const This = const_cast<TopicManagerI* const>(this);
+    TopicManagerI* This = const_cast<TopicManagerI*>(this);
     This->reap();
 
     TopicDict all;

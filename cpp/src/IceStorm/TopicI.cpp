@@ -581,7 +581,7 @@ TopicI::getLinkInfoSeq(const Ice::Current&) const
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
-    TopicI* const This = const_cast<TopicI* const>(this);
+    TopicI* This = const_cast<TopicI*>(this);
     This->reap();
 
     LinkInfoSeq seq;
