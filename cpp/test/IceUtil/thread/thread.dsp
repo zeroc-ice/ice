@@ -103,10 +103,6 @@ SOURCE=.\CreateTest.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\DetachTest.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\MonitorMutexTest.cpp
 # End Source File
 # Begin Source File
@@ -148,10 +144,6 @@ SOURCE=.\AliveTest.h
 # Begin Source File
 
 SOURCE=.\CreateTest.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\DetachTest.h
 # End Source File
 # Begin Source File
 
