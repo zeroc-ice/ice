@@ -1,6 +1,13 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Replaced interface Glacier::PasswordVerifier with
+  Glacier::PermissionsVerifier, property
+  Glacier.Starter.PasswordVerifier with
+  Glacier.Starter.PermissionsVerifier, and changed
+  Glacier::Starter::startRouter() to throw PermissionDeniedException
+  instead of InvalidPasswordException.
+
 - Fixed a problem with the random selection of SSL endpoints.
 
 - Ice is now supported on Windows 98 SE. See INSTALL.WINDOWS.
