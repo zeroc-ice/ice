@@ -278,13 +278,6 @@ struct ServerDescription
 
     /**
      *
-     * The server activation mode.
-     *
-     **/
-    ServerActivation activation;
-
-    /**
-     *
      * The server path.
      *
      * @see args
@@ -478,7 +471,45 @@ class Admin
      **/
     nonmutating int getServerPid(string name)
 	throws ServerNotExistException;
-    
+
+    /**
+     *
+     * Get the server activation mode.
+     *
+     * @param name Must match the name of [ServerDescription::name].
+     *
+     * @return The server activation mode.
+     * 
+     * @throws ServerNotExistException Raised if the server is not
+     * found.
+     *
+     * @see getServerDescription
+     * @see getServerState
+     * @see getAllServerNames
+     *
+     **/
+    nonmutating ServerActivation getServerActivation(string name)
+	throws ServerNotExistException;
+
+    /**
+     *
+     * Set the server activation mode.
+     *
+     * @param name Must match the name of [ServerDescription::name].
+     *
+     * @return The server activation mode.
+     * 
+     * @throws ServerNotExistException Raised if the server is not
+     * found.
+     *
+     * @see getServerDescription
+     * @see getServerState
+     * @see getAllServerNames
+     *
+     **/
+    void setServerActivation(string name, ServerActivation mode)
+	throws ServerNotExistException;
+
     /**
      *
      * Start a server.
