@@ -440,14 +440,41 @@ public sealed class Network
 	return ret;
     }
     
+    private static ArrayList
+    copyList(IList list)
+    {
+        if(list == null)
+	{
+	    return null;
+	}
+	ArrayList copy = new ArrayList();
+	copy.AddRange(list);
+        return copy;
+    }
+
+    private static void
+    overwriteList(ArrayList from, IList to)
+    {
+	if(from != null && to != null)
+	{
+	    to.Clear();
+	    foreach(object o in from)
+	    {
+		to.Add(o);
+	    }
+	}
+    }
+
     public static void
     doSelect(IList checkRead, IList checkWrite, IList checkError, int milliSeconds)
     {
-	ArrayList cr;
-	ArrayList cw;
-	ArrayList ce;
+	Debug.Assert(!(checkRead == null && checkWrite == null && checkError == null));
 
-        if(milliSeconds < 0)
+	ArrayList cr = null;
+	ArrayList cw = null;
+	ArrayList ce = null;
+
+	if(milliSeconds < 0)
 	{
 	    //
 	    // Socket.Select() returns immediately if the timeout is < 0 (instead
@@ -455,34 +482,9 @@ public sealed class Network
 	    // (Just using Int32.MaxValue isn't good enough because that's only about 35 minutes.)
 	    //
 	    do {
-	    repeatSelect:
-		if(checkRead != null)
-		{
-		    cr = new ArrayList();
-		    cr.AddRange(checkRead);
-		}
-		else
-		{
-		    cr = null;
-		}
-		if(checkWrite != null)
-		{
-		    cw = new ArrayList();
-		    cw.AddRange(checkWrite);
-		}
-		else
-		{
-		    cw = null;
-		}
-		if(checkError != null)
-		{
-		    ce = new ArrayList();
-		    ce.AddRange(checkError);
-		}
-		else
-		{
-		    ce = null;
-		}
+	        cr = copyList(checkRead);
+		cw = copyList(checkWrite);
+		ce = copyList(checkError);
 		try
 		{
 		    Socket.Select(cr, cw, ce, System.Int32.MaxValue);
@@ -491,7 +493,7 @@ public sealed class Network
 		{
 		    if(interrupted(e))
 		    {
-			goto repeatSelect;
+			    continue;
 		    }
 		    throw new Ice.SocketException(e);
 		}
@@ -499,42 +501,23 @@ public sealed class Network
 	    while((cr == null || cr.Count == 0) &&
 	          (cw == null || cw.Count == 0) &&
 		  (ce == null || ce.Count == 0));
+	    overwriteList(cr, checkRead);
+	    overwriteList(cw, checkWrite);
+	    overwriteList(ce, checkError);
 	}
 	else
 	{
 	    //
 	    // Select() wants microseconds, so we need to deal with overflow.
 	    //
-	    while(milliSeconds > System.Int32.MaxValue / 1000)
+	    while((milliSeconds > System.Int32.MaxValue / 1000) &&
+		  ((cr == null) || cr.Count == 0) &&
+	          ((cw == null) || cw.Count == 0) &&
+	          ((ce == null) || ce.Count == 0))
 	    {
-	    repeatSelect:
-		if(checkRead != null)
-		{
-		    cr = new ArrayList();
-		    cr.AddRange(checkRead); 
-		}
-		else
-		{
-		    cr = null;
-		}
-		if(checkWrite != null)
-		{
-		    cw = new ArrayList();
-		    cw.AddRange(checkWrite);
-		}
-		else
-		{
-		    cw = null;
-		}
-		if(checkError != null)
-		{
-		    ce = new ArrayList();
-		    ce.AddRange(checkError);
-		}
-		else
-		{
-		    ce = null;
-		}
+	        cr = copyList(checkError);
+		cw = copyList(checkWrite);
+		ce = copyList(checkError);
 		try
 		{
 		    Socket.Select(cr, cw, ce, (System.Int32.MaxValue / 1000) * 1000);
@@ -543,14 +526,19 @@ public sealed class Network
 		{
 		    if(interrupted(e))
 		    {
-		        goto repeatSelect;
+			continue;
 		    }
 		    throw new Ice.SocketException(e);
 		}
 		milliSeconds -= System.Int32.MaxValue / 1000;
 	    }
-
-	    Socket.Select(checkRead, checkWrite, checkError, milliSeconds * 1000);
+	    if(cr == null && cw == null && ce == null)
+	    {
+		Socket.Select(checkRead, checkWrite, checkError, milliSeconds * 1000);
+	    }
+	    overwriteList(cr, checkRead);
+	    overwriteList(cw, checkWrite);
+	    overwriteList(ce, checkError);
 	}
     }
 

@@ -272,11 +272,21 @@ public sealed class ThreadPool
 	    #endif
 	#endif
 	
-	ArrayList readList = new ArrayList();
-	readList.Add(_fdIntrRead);
-	Network.doSelect(readList, null, null, -1);
 	byte[] buf = new byte[1];
-	_fdIntrRead.Receive(buf);
+
+    repeat:
+	try
+	{
+	    _fdIntrRead.Receive(buf);
+	}
+	catch(SocketException ex)
+	{
+	    if(Network.interrupted(ex))
+	    {
+	        goto repeat;
+	    }
+	    throw new Ice.SocketException("Could not read from interrupt socket", ex);
+	}
 	return buf[0] == 1;
     }
     
@@ -382,24 +392,18 @@ public sealed class ThreadPool
 	    {
 		#if TRACE_SELECT || TRACE_INTERRUPT
 		    System.Text.StringBuilder sb = new System.Text.StringBuilder();
+		    sb.Append("readable sockets:");
 		    foreach(Socket s in selectList)
 		    {
 		        sb.Append(" " + s.Handle);
+			    if(_handlerMap[s] != null)
+			    {
+			        sb.Append(" (" + _handlerMap[s].GetType().FullName + ") ");
+			    }
 		    }
 		    trace("readable sockets: " + sb.ToString());
 		#endif
 
-		//
-		// Socket.Select() bug: if Select() is entered by a thread at a time
-		// when _fdIntrRead is readable, and another thread reads the data
-		// on that socket, so _fdIntrRead is no longer readable, Select()
-		// still reports _fdIntrRead as readable, even though it no longer
-		// has data available.
-		//
-		if(selectList.Contains(_fdIntrRead) && _fdIntrRead.Available == 0)
-		{
-		    selectList.Remove(_fdIntrRead);
-		}
 		if(selectList.Contains(_fdIntrRead))
 		{
 		    #if TRACE_SELECT || TRACE_INTERRUPT
@@ -445,32 +449,32 @@ public sealed class ThreadPool
 			first.MoveNext();
 			FdHandlerPair change = (FdHandlerPair)first.Current;
 			first.Remove();
-			if(change.handler != null)
-			{
-			    _handlerMap[change.fd] = change.handler;
+				if(change.handler != null)
+				{
+					_handlerMap[change.fd] = change.handler;
 			    
-			    #if TRACE_REGISTRATION
-				trace("added handler (" + change.handler.GetType().FullName + ") for fd "
-				      + change.fd.Handle);
-			    #endif
+#if TRACE_REGISTRATION
+					trace("added handler (" + change.handler.GetType().FullName + ") for fd "
+						+ change.fd.Handle);
+#endif
 			    
-			    continue;
-			}
-			else // Removal if handler is not set.
-			{
-			    handler = (EventHandler)_handlerMap[change.fd];
-			    _handlerMap.Remove(change.fd);
-			    finished = true;
+					continue;
+				}
+				else // Removal if handler is not set.
+				{
+					handler = (EventHandler)_handlerMap[change.fd];
+					_handlerMap.Remove(change.fd);
+					finished = true;
 			    
-			    #if TRACE_REGISTRATION
-				trace("removed handler (" + handler.GetType().FullName + ") for fd "
-				      + change.fd.Handle);
-			    #endif
+#if TRACE_REGISTRATION
+					trace("removed handler (" + handler.GetType().FullName + ") for fd "
+						+ change.fd.Handle);
+#endif
 			    
-			    // Don't continue; we have to call
-			    // finished() on the event handler below,
-			    // outside the thread synchronization.
-			}
+					// Don't continue; we have to call
+					// finished() on the event handler below,
+					// outside the thread synchronization.
+				}
 		    }
 		}
 		else
