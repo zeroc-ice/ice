@@ -25,9 +25,10 @@ class ICE_API ObjectFactoryI : public Shared
 {
 public:
     
-    Ice::Object referenceFromString(const std::string&);
-    Ice::Object referenceFromStream(Stream*);
-    std::string referenceToString(const Ice::Object&);
+    ::Ice::Object referenceFromString(const std::string&);
+    ::Ice::Object referenceFromStream(Stream*);
+    void referenceToString(const ::Ice::Object&, std::string&);
+    void referenceToStream(const ::Ice::Object&, Stream*);
 
 private:
 
@@ -40,18 +41,6 @@ private:
 
     Instance instance_;
 };
-
-template<typename T>
-void streamWrite(Stream*, const T&);
-
-template<typename T>
-void streamRead(Stream*, T&);
-
-template<>
-void streamWrite< ::Ice::Object>(Stream*, const ::Ice::Object&);
-
-template<>
-void streamRead< ::Ice::Object>(Stream*, ::Ice::Object&);
 
 }
 

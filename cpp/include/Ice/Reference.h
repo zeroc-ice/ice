@@ -64,18 +64,6 @@ private:
     void operator=(const ReferenceI&);
 };
 
-template<typename T>
-void streamWrite(Stream*, const T&);
-
-template<typename T>
-void streamRead(Stream*, T&);
-
-template<>
-void streamWrite<Reference>(Stream*, const Reference&);
-
-template<>
-void streamRead<Reference>(Stream*, Reference& v);
-
 }
 
 #endif

@@ -208,18 +208,6 @@ private:
     const ::Ice::Int port_;
 };
 
-template<typename T>
-void streamWrite(Stream*, const T&);
-
-template<typename T>
-void streamRead(Stream*, T&);
-
-template<>
-void streamWrite<Endpoint>(Stream*, const Endpoint&);
-
-template<>
-void streamRead<Endpoint>(Stream*, Endpoint& v);
-
 }
 
 #endif

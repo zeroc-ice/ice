@@ -17,67 +17,67 @@
 #include <Ice/ReferenceF.h>
 #include <Ice/Shared.h>
 
-namespace Ice
+namespace __IceIntf { namespace Ice
 {
 
-class ICE_API ObjectI : virtual public ::__Ice::Shared, JTCMutex
+class ICE_API Object : virtual public ::__Ice::Shared, JTCMutex
 {
 public:
 
-    bool operator==(const ObjectI&) const;
-    bool operator!=(const ObjectI&) const;
+    bool operator==(const Object&) const;
+    bool operator!=(const Object&) const;
 
-    Object _twoway() const;
-    Object _oneway() const;
-    Object _datagram() const;
-    Object _timeout(int) const;
+    ::Ice::Object _twoway() const;
+    ::Ice::Object _oneway() const;
+    ::Ice::Object _datagram() const;
+    ::Ice::Object _timeout(int) const;
 
     ::__Ice::Reference __reference() const;
-    void __copyTo(ObjectI*) const;
+    void __copyTo(Object*) const;
 
 protected:
 
-    ObjectI();
-    virtual ~ObjectI();
+    Object();
+    virtual ~Object();
 
-    ::__IceStub::Ice::Object __getStub();
-    virtual ::__IceStubM::Ice::Object __createStubM();
+    ::__Ice::Handle< ::__IceStub::Ice::Object> __getStub();
+    virtual ::__Ice::Handle< ::__IceStubM::Ice::Object> __createStubM();
 
 private:
 
-    ObjectI(const ObjectI&);
-    void operator=(const ObjectI&);
+    Object(const Object&);
+    void operator=(const Object&);
 
     void setup(const ::__Ice::Reference&);
 
     ::__Ice::Reference reference_;
-    ::__IceStub::Ice::Object stub_;
+    ::__Ice::Handle< ::__IceStub::Ice::Object> stub_;
 
-    friend class ::__Ice::ObjectFactoryI; // May create and setup ObjectIs
+    friend class ::__Ice::ObjectFactoryI; // May create and setup Objects
 };
 
-}
+} }
 
 namespace __IceStub { namespace Ice
 {
 
-class ICE_API ObjectI : virtual public ::__Ice::Shared, JTCMutex
+class ICE_API Object : virtual public ::__Ice::Shared, JTCMutex
 {
 public:
 
 protected:
 
-    ObjectI();
-    virtual ~ObjectI();
+    Object();
+    virtual ~Object();
 
 private:
 
-    ObjectI(const ObjectI&);
-    void operator=(const ObjectI&);
+    Object(const Object&);
+    void operator=(const Object&);
 
     virtual void setup(const ::__Ice::Reference&) = 0;
 
-    friend class ::Ice::ObjectI; // May create and setup ObjectIs
+    friend class ::__IceIntf::Ice::Object; // May create and setup Objects
 };
 
 } }
@@ -85,14 +85,14 @@ private:
 namespace __IceStubM { namespace Ice
 {
 
-class ICE_API ObjectI : virtual public ::__IceStub::Ice::ObjectI
+class ICE_API Object : virtual public ::__IceStub::Ice::Object
 {
 public:
 
 protected:
 
-    ObjectI();
-    virtual ~ObjectI();
+    Object();
+    virtual ~Object();
 
     
     const ::__Ice::Emitter& __emitter(); // const...& for performance
@@ -103,12 +103,12 @@ private:
     ::__Ice::Emitter emitter_;
     ::__Ice::Reference reference_;
 
-    ObjectI(const ObjectI&);
-    void operator=(const ObjectI&);
+    Object(const Object&);
+    void operator=(const Object&);
 
-    void setup(const ::__Ice::Reference&);
+    virtual void setup(const ::__Ice::Reference&);
 
-    friend class ::Ice::ObjectI; // May create and setup ObjectIs
+    friend class ::__IceIntf::Ice::Object; // May create and setup Objects
 };
 
 } }
