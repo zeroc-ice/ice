@@ -19,6 +19,7 @@ namespace Ice
 class LoggerI : public Logger
 {
 public:
+
     LoggerI(const std::string&, bool);
 
     virtual void trace(const std::string&, const std::string&);

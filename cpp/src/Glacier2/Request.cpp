@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Glacier2/Request.h>
+#include <set>
 
 using namespace std;
 using namespace Ice;
@@ -167,6 +168,7 @@ Glacier::RequestQueue::run()
     {
 	CommunicatorPtr communicator;
 	vector<RequestPtr> requests;
+	set<TransportInfoPtr> flushSet;
 
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
@@ -198,9 +200,15 @@ Glacier::RequestQueue::run()
         {
 	    for(vector<RequestPtr>::const_iterator p = requests.begin(); p != requests.end(); ++p)
 	    {
+		const ObjectPrx& proxy = (*p)->getProxy();
+
+		if(proxy->ice_batchOneway() || proxy->ice_batchDatagram())
+		{
+		    flushSet.insert(proxy->ice_getTransportInfo());
+		}
+
 		if(_traceLevel >= 2)
 		{
-		    const ObjectPrx& proxy = (*p)->getProxy();
 		    const Current& current = (*p)->getCurrent();
 		    
 		    Trace out(_logger, "Glacier");
@@ -216,6 +224,8 @@ Glacier::RequestQueue::run()
 
 		(*p)->invoke();
 	    }
+
+	    for_each(flushSet.begin(), flushSet.end(), Ice::voidMemFun(TransportInfo::flushBatchRequests));
 	}
         catch(const Ice::Exception& ex)
         {
@@ -231,28 +241,6 @@ Glacier::RequestQueue::run()
 		out << "routing exception:\n" << ex;
 	    }
         }
-
-	try
-	{
-	    //
-	    // This sends all batched requests.
-	    //
-	    communicator->flushBatchRequests();
-	}
-	catch(const Ice::Exception& ex)
-	{
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-
-	    if(_traceLevel >= 1)
-	    {
-		Trace out(_logger, "Glacier");
-		if(_reverse)
-		{
-		    out << "reverse ";
-		}
-		out << "batch routing exception:\n" << ex;
-	    }
-	}
 	
 	//
 	// In order to avoid flooding, we add a delay, if so

@@ -27,7 +27,7 @@ local interface TransportInfo
      * this connection to be sent to the server.
      *
      **/
-//    void flushBatchRequests();
+    void flushBatchRequests();
 
     /**
      *

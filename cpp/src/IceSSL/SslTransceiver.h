@@ -13,7 +13,7 @@
 #include <Ice/LoggerF.h>
 #include <Ice/StatsF.h>
 #include <Ice/Transceiver.h>
-#include <Ice/TransportInfo.h>
+#include <Ice/TransportInfoI.h>
 #include <Ice/Buffer.h>
 #include <IceUtil/Mutex.h>
 #include <IceSSL/SslTransceiverF.h>
@@ -220,7 +220,7 @@ protected:
 namespace IceSSL
 {
 
-class SslTransportInfoI : public Ice::TransportInfo
+class SslTransportInfoI : public Ice::TransportInfoI
 {
 public:
 

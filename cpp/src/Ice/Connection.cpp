@@ -13,7 +13,7 @@
 #include <Ice/Properties.h>
 #include <Ice/TraceUtil.h>
 #include <Ice/Transceiver.h>
-#include <Ice/TransportInfo.h>
+#include <Ice/TransportInfoI.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ConnectionMonitor.h>
 #include <Ice/ObjectAdapterI.h> // For getThreadPool() and getServantManager().
@@ -175,6 +175,12 @@ IceInternal::Connection::validate()
     // We start out in holding state.
     //
     setState(StateHolding);
+
+    //
+    // The TransportInfo object needs this connection for flushing
+    // batch requests.
+    //
+    dynamic_cast<TransportInfoI*>(_info.get())->setConnection(this);
 }
 
 void
@@ -1424,6 +1430,7 @@ IceInternal::Connection::finished(const ThreadPoolPtr& threadPool)
 
 	    assert(_transceiver);
 	    _transceiver = 0;
+	    dynamic_cast<TransportInfoI*>(_info.get())->setConnection(0); // Break cyclic dependency.
 	    notifyAll();
 	}
 
@@ -1715,6 +1722,7 @@ IceInternal::Connection::setState(State state)
 		}
 
 		_transceiver = 0;
+		dynamic_cast<TransportInfoI*>(_info.get())->setConnection(0); // Break cyclic dependency.
 		//notifyAll(); // We notify already below.
 	    }
 	    else
@@ -1953,38 +1961,3 @@ IceInternal::Connection::doUncompress(BasicStream& compressed, BasicStream& unco
 
     copy(compressed.b.begin(), compressed.b.begin() + headerSize, uncompressed.b.begin());
 }
-
-/*
-void
-Ice::ConnectionHandleI::flushBatchRequests()
-{
-    IceUtil::Mutex::Lock sync(*this);
-    if(_connection)
-    {
-	_connection->flushBatchRequest();
-    }
-}
-
-TransportInfoPtr
-Ice::ConnectionHandleI::getTransportInfo() const
-{
-    //
-    // No mutex lock necessary, _info is immutable;
-    //
-    return _info;
-}
-
-Ice::ConnectionHandleI::ConnectionHandleI(const ConnectionPtr& connection, const TransportInfoPtr& info) :
-    _connection(connection),
-    _info(info)
-{
-}
-
-void
-Ice::ConnectionHandleI::destroy()
-{
-    IceUtil::Mutex::Lock sync(*this);
-    assert(_connection);
-    _connection = 0;
-}
-*/

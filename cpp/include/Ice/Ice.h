@@ -28,5 +28,6 @@
 #include <Ice/Process.h>
 #include <Ice/Application.h>
 #include <Ice/TransportInfo.h>
+#include <Ice/Functional.h>
 
 #endif

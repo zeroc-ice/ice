@@ -75,7 +75,7 @@ private:
 namespace Ice
 {
 
-class UdpTransportInfoI : public TransportInfo
+class UdpTransportInfoI : public TransportInfoI
 {
 public:
 

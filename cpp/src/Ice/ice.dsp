@@ -358,19 +358,15 @@ SOURCE=.\Service.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SliceChecksums.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\SliceChecksumDict.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Stats.cpp
+SOURCE=.\SliceChecksums.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\TransportInfo.cpp
+SOURCE=.\Stats.cpp
 # End Source File
 # Begin Source File
 
@@ -403,6 +399,14 @@ SOURCE=.\TraceUtil.cpp
 # Begin Source File
 
 SOURCE=.\Transceiver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TransportInfo.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TransportInfoI.cpp
 # End Source File
 # Begin Source File
 
@@ -846,11 +850,11 @@ SOURCE=..\..\include\Ice\Service.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\SliceChecksums.h
+SOURCE=..\..\include\Ice\SliceChecksumDict.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\SliceChecksumDict.h
+SOURCE=..\..\include\Ice\SliceChecksums.h
 # End Source File
 # Begin Source File
 
@@ -859,14 +863,6 @@ SOURCE=..\..\include\Ice\Stats.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\StatsF.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\TransportInfo.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\TransportInfoF.h
 # End Source File
 # Begin Source File
 
@@ -915,6 +911,18 @@ SOURCE=.\Transceiver.h
 # Begin Source File
 
 SOURCE=.\TransceiverF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\TransportInfo.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\TransportInfoF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TransportInfoI.h
 # End Source File
 # Begin Source File
 
@@ -1147,6 +1155,49 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\slice\Ice\FacetMap.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__FACET="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\FacetMap.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/FacetMap.ice \
+	move FacetMap.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\FacetMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"FacetMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__FACET="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\FacetMap.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/FacetMap.ice \
+	move FacetMap.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\FacetMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"FacetMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\slice\Ice\Identity.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
@@ -1182,49 +1233,6 @@ BuildCmds= \
    $(BuildCmds)
 
 "Identity.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\FacetMap.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-USERDEP__IDENT="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\FacetMap.ice
-
-BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/FacetMap.ice \
-	move FacetMap.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\FacetMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"FacetMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-USERDEP__IDENT="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\FacetMap.ice
-
-BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/FacetMap.ice \
-	move FacetMap.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\FacetMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"FacetMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -1658,7 +1666,7 @@ SOURCE=..\..\slice\Ice\Process.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
-USERDEP__PLUGI="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+USERDEP__PROCE="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\Process.ice
 
@@ -1676,7 +1684,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
-USERDEP__PLUGI="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+USERDEP__PROCE="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\Process.ice
 
@@ -1701,7 +1709,7 @@ SOURCE=..\..\slice\Ice\ProcessF.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
-USERDEP__PLUGIN="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+USERDEP__PROCES="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\ProcessF.ice
 
@@ -1714,7 +1722,7 @@ InputPath=..\..\slice\Ice\ProcessF.ice
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
-USERDEP__PLUGIN="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+USERDEP__PROCES="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\ProcessF.ice
 
@@ -1962,7 +1970,7 @@ SOURCE=..\..\slice\Ice\SliceChecksumDict.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
-USERDEP__IDENT="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+USERDEP__SLICE="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\SliceChecksumDict.ice
 
@@ -1980,7 +1988,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
-USERDEP__IDENT="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+USERDEP__SLICE="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\SliceChecksumDict.ice
 
@@ -2080,7 +2088,7 @@ SOURCE=..\..\slice\Ice\TransportInfo.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
-USERDEP__COMMU="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+USERDEP__TRANS="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\TransportInfo.ice
 
@@ -2098,7 +2106,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
-USERDEP__COMMU="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+USERDEP__TRANS="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\TransportInfo.ice
 
@@ -2123,7 +2131,7 @@ SOURCE=..\..\slice\Ice\TransportInfoF.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
-USERDEP__COMMUN="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+USERDEP__TRANSP="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\TransportInfoF.ice
 
@@ -2136,7 +2144,7 @@ InputPath=..\..\slice\Ice\TransportInfoF.ice
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
-USERDEP__COMMUN="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+USERDEP__TRANSP="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\TransportInfoF.ice
 

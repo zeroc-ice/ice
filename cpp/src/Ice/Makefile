@@ -78,6 +78,7 @@ OBJS		= Initialize.o \
 		  TcpTransceiver.o \
 		  UdpTransceiver.o \
 		  TransportInfo.o \
+		  TransportInfoI.o \
 		  DynamicLibrary.o \
 		  Plugin.o \
 		  PluginManagerI.o \

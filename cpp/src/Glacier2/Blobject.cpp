@@ -160,7 +160,6 @@ Glacier::Blobject::modifyProxy(ObjectPrx& proxy, const Current& current) const
 	proxy = proxy->ice_newFacet(current.facet);
     }
 
-    bool batch = false;
 
     Context::const_iterator p = current.ctx.find("_fwd");
     if(p != current.ctx.end())
@@ -173,35 +172,30 @@ Glacier::Blobject::modifyProxy(ObjectPrx& proxy, const Current& current) const
 		case 't':
 		{
 		    proxy = proxy->ice_twoway();
-		    batch = false;
 		    break;
 		}
 		
 		case 'o':
 		{
 		    proxy = proxy->ice_oneway();
-		    batch = false;
 		    break;
 		}
 		
 		case 'd':
 		{
 		    proxy = proxy->ice_datagram();
-		    batch = false;
 		    break;
 		}
 		
 		case 'O':
 		{
 		    proxy = proxy->ice_batchOneway();
-		    batch = true;
 		    break;
 		}
 		
 		case 'D':
 		{
 		    proxy = proxy->ice_batchDatagram();
-		    batch = true;
 		    break;
 		}
 		

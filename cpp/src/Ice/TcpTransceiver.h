@@ -15,7 +15,7 @@
 #include <Ice/LoggerF.h>
 #include <Ice/StatsF.h>
 #include <Ice/Transceiver.h>
-#include <Ice/TransportInfo.h>
+#include <Ice/TransportInfoI.h>
 
 namespace IceInternal
 {
@@ -56,7 +56,7 @@ private:
 namespace Ice
 {
 
-class TcpTransportInfoI : public TransportInfo
+class TcpTransportInfoI : public TransportInfoI
 {
 public:
 
