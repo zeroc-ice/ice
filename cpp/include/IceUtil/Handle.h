@@ -47,17 +47,7 @@ public:
 	return _ptr;
     }
 
-    T& operator*()
-    {
-	if(!_ptr)
-	{
-	    throw NullHandleException(__FILE__, __LINE__);	    
-	}
-
-	return *_ptr;
-    }
-
-    const T& operator*() const
+    T& operator*() const
     {
 	if(!_ptr)
 	{
