@@ -1,6 +1,9 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Added demo/Ice/throughput, which can be used to measure the transfer
+  time of large sequences.
+
 - Fixed a bug in the slice2cpp code generator: if a class was forward
   declared and used as a class member, but the definition of the class
   was not supplied in the same Slice compilation unit, invalid code

@@ -18,6 +18,7 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= hello \
 		  latency \
+		  throughput \
 		  value \
 		  callback \
 		  nested
