@@ -26,8 +26,8 @@ class ICE_UTIL_API Base64
 {
 public:
 
-    static std::string encode(const std::vector<char>&);
-    static std::vector<char> decode(const std::string&);
+    static std::string encode(const std::vector<unsigned char>&);
+    static std::vector<unsigned char> decode(const std::string&);
 
 
 private:

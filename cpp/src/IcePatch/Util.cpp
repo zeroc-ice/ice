@@ -441,7 +441,7 @@ IcePatch::getMD5(const string& path)
 
     ByteSeq bytesMD5;
     bytesMD5.resize(16);
-    fileMD5.read(&bytesMD5[0], 16);
+    fileMD5.read(reinterpret_cast<char*>(&bytesMD5[0]), 16);
     if(!fileMD5)
     {
 	FileAccessException ex;
@@ -477,7 +477,7 @@ IcePatch::putMD5(const string& path, const ByteSeq& bytesMD5)
 	throw ex;
     }
 
-    fileMD5.write(&bytesMD5[0], 16);
+    fileMD5.write(reinterpret_cast<const char*>(&bytesMD5[0]), 16);
     if(!fileMD5)
     {
 	FileAccessException ex;
@@ -555,7 +555,7 @@ IcePatch::createMD5(const string& path, const LoggerPtr& logger)
 	bytes.resize(info.size);
 	if(bytes.size() > 0)
 	{
-	    file.read(&bytes[0], bytes.size());
+	    file.read(reinterpret_cast<char*>(&bytes[0]), bytes.size());
 	    if(!file)
 	    {
 		FileAccessException ex;
@@ -633,7 +633,7 @@ IcePatch::calcPartialMD5(const string& path, Int size, const LoggerPtr& logger)
     bytes.resize(size);
     if(bytes.size() > 0)
     {
-	file.read(&bytes[0], bytes.size());
+	file.read(reinterpret_cast<char*>(&bytes[0]), bytes.size());
 	if(!file)
 	{
 	    FileAccessException ex;
@@ -712,7 +712,7 @@ IcePatch::getBZ2(const string& path, Int pos, Int num)
 
     ByteSeq bytesBZ2;
     bytesBZ2.resize(num);
-    fileBZ2.read(&bytesBZ2[0], bytesBZ2.size());
+    fileBZ2.read(reinterpret_cast<char*>(&bytesBZ2[0]), bytesBZ2.size());
     if(!fileBZ2 && !fileBZ2.eof())
     {
 	FileAccessException ex;
@@ -778,7 +778,7 @@ IcePatch::createBZ2(const string& path, const Ice::LoggerPtr& logger)
     
     while(!file.eof())
     {
-	file.read(bytes, num);
+	file.read(reinterpret_cast<char*>(&bytes[0]), num);
 	if(!file && !file.eof())
 	{
 	    FileAccessException ex;

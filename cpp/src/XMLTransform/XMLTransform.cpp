@@ -2969,7 +2969,7 @@ XMLTransform::DBTransformer::transform(ICE_XERCES_NS DOMDocument* oldSchema, ICE
                 //
                 string fullKey;
                 fullKey.append(header);
-                fullKey.append(&k[0], k.size());
+                fullKey.append(reinterpret_cast<const char*>(&k[0]), k.size());
                 fullKey.append(footer);
                 ICE_XERCES_NS MemBufInputSource keySource((const XMLByte*)fullKey.data(), static_cast<unsigned int>(fullKey.size()), "key");
                 parser.parse(keySource);
@@ -2990,7 +2990,7 @@ XMLTransform::DBTransformer::transform(ICE_XERCES_NS DOMDocument* oldSchema, ICE
                 Value value = _db->getWithTxn(txn, k);
                 string fullValue;
                 fullValue.append(header);
-                fullValue.append(&value[0], value.size());
+                fullValue.append(reinterpret_cast<const char*>(&value[0]), value.size());
                 fullValue.append(footer);
                 ICE_XERCES_NS MemBufInputSource valueSource((const XMLByte*)fullValue.data(), 
 							    static_cast<unsigned int>(fullValue.size()),

@@ -86,7 +86,7 @@ public:
 	    typename MAP::iterator p = _map.begin();
 	    assert(p != _map.end());
 	    Byte b = p->second;
-	    test(b >= 0);
+	    test(b < 128);
 	}
     }
 

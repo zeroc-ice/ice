@@ -151,7 +151,7 @@ writeCodecC(const TypePtr& type, const string& name, const string& freezeType, O
         //
         C << nl << "std::string str;";
         C << nl << "str.append(\"<data>\");";
-        C << nl << "str.append(&bytes[0], bytes.size());";
+        C << nl << "str.append(reinterpret_cast<const char*>(&bytes[0]), bytes.size());";
         C << nl << "str.append(\"</data>\");";
         C << nl << "std::istringstream istr(str);";
         C << nl << "Ice::StreamPtr stream = new IceXML::StreamI(communicator, istr, false);";

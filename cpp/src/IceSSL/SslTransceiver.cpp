@@ -152,7 +152,7 @@ IceSSL::SslTransceiver::read(Buffer& buf, int timeout)
 
         _readTimeout = timeout;
 
-        bytesRead = sslRead(static_cast<char*>(&*buf.i), static_cast<Int>(packetSize));
+        bytesRead = sslRead(&*buf.i, static_cast<Int>(packetSize));
 
         switch(getLastError())
         {
@@ -680,7 +680,7 @@ IceSSL::SslTransceiver::getLastError() const
 }
 
 int
-IceSSL::SslTransceiver::sslRead(char* buffer, int bufferSize)
+IceSSL::SslTransceiver::sslRead(unsigned char* buffer, int bufferSize)
 {
     assert(_sslConnection != 0);
 
@@ -693,7 +693,7 @@ IceSSL::SslTransceiver::sslRead(char* buffer, int bufferSize)
 }
 
 int
-IceSSL::SslTransceiver::sslWrite(char* buffer, int bufferSize)
+IceSSL::SslTransceiver::sslWrite(unsigned char* buffer, int bufferSize)
 {
     assert(_sslConnection != 0);
 

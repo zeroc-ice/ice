@@ -29,7 +29,7 @@ public:
     typedef char value_type;
 
     static Freeze::Key
-    write(const char& key, const IceInternal::InstancePtr& instance)
+    write(const unsigned char& key, const IceInternal::InstancePtr& instance)
     {
 	IceInternal::BasicStream keyStream(instance.get());
 	keyStream.write(key);
@@ -37,7 +37,7 @@ public:
     }
 
     static void
-    read(char& key, const Freeze::Key& bytes, const IceInternal::InstancePtr& instance)
+    read(unsigned char& key, const Freeze::Key& bytes, const IceInternal::InstancePtr& instance)
     {
 	IceInternal::BasicStream valueStream(instance.get());
 	valueStream.b = bytes;
@@ -97,7 +97,7 @@ populateDB(const DBPtr& db)
 }
 
 static void
-readValue(const DBPtr& db, const Freeze::Key& k, const Freeze::Value& v, char& key, int& value)
+readValue(const DBPtr& db, const Freeze::Key& k, const Freeze::Value& v, unsigned char& key, int& value)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(db->getCommunicator());
 
@@ -119,7 +119,7 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     Freeze::Key k;
     Freeze::Value v;
 
-    char key;
+    unsigned char key;
     int value;
 
     DBCursorPtr cursor, clone;

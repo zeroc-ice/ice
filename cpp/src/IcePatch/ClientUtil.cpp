@@ -83,7 +83,7 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 	
 	posBZ2 += static_cast<Int>(bytesBZ2.size());
 	
-	fileBZ2.write(&bytesBZ2[0], bytesBZ2.size());
+	fileBZ2.write(reinterpret_cast<const char*>(&bytesBZ2[0]), bytesBZ2.size());
 	if(!fileBZ2)
 	{
 	    FileAccessException ex;
@@ -169,7 +169,7 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 
 	        progressCB.updateUncompress(totalBZ2, static_cast<Int>(pos));
 	        
-	        file.write(bytesBZ2, sz);
+	        file.write(reinterpret_cast<const char*>(bytesBZ2), sz);
 	        if(!file)
 	        {
 		    FileAccessException ex;

@@ -74,7 +74,7 @@ IceSSL::SslClientTransceiver::write(Buffer& buf, int timeout)
             break;
         }
 
-        bytesWritten = sslWrite(static_cast<char*>(&*buf.i), static_cast<Int>(packetSize));
+        bytesWritten = sslWrite(&*buf.i, static_cast<Int>(packetSize));
 
         switch(getLastError())
         {

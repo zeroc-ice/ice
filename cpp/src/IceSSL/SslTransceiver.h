@@ -160,8 +160,8 @@ protected:
     int pending();
     int getLastError() const;
 
-    int sslRead(char*, int);
-    int sslWrite(char*, int);
+    int sslRead(unsigned char*, int);
+    int sslWrite(unsigned char*, int);
 
     int select(int, bool);
     int readSelect(int);
