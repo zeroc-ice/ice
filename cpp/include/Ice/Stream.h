@@ -15,7 +15,7 @@
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/Buffer.h>
-#include <set>
+#include <map>
 
 namespace IceInternal
 {
@@ -25,6 +25,7 @@ class ICE_API Stream : public Buffer
 public:
 
     Stream(const InstancePtr&);
+    ~Stream();
 
     InstancePtr instance() const;
 
@@ -75,12 +76,13 @@ public:
     void read(std::vector<Ice::Double>&);
 
     void write(const std::string&);
-    void write(const char*); // Optimization
+    void write(const char*);
     void write(const std::vector<std::string>&);
     void read(std::string&);
     void read(std::vector<std::string>&);
 
     void write(const std::wstring&);
+    void write(const wchar_t*);
     void write(const std::vector<std::wstring>&);
     void read(std::wstring&);
     void read(std::vector<std::wstring>&);
@@ -94,34 +96,18 @@ public:
 private:
 
     InstancePtr _instance;
-    std::vector<int> _encapsStartStack;
 
-    class CmpPosPos
+    struct Encaps
     {
-    public:
-	CmpPosPos(const Container&);
-	CmpPosPos(const CmpPosPos&);
-	CmpPosPos& operator=(const CmpPosPos&);
-	bool operator()(int, int) const;
-    private:
-	CmpPosPos();
-	const Container& _cont;
+	Container::size_type start;
+	Ice::Byte encoding;
+	std::vector<std::string> stringsRead;
+	std::map<std::string, ::Ice::Int> stringsWritten;
+	std::vector<std::wstring> wstringsRead;
+	std::map<std::wstring, ::Ice::Int> wstringsWritten;
     };
 
-    class CmpPosString
-    {
-    public:
-	CmpPosString(const Container&);
-	CmpPosString(const CmpPosString&);
-	CmpPosString& operator=(const CmpPosString&);
-	bool operator()(int, const std::string&) const;
-	bool operator()(const std::string&, int) const;
-    private:
-	CmpPosString();
-	const Container& _cont;
-    };
-
-    std::multiset<int, CmpPosPos> _stringSet;
+    std::vector<Encaps> _encapsStack;
 };
 
 }

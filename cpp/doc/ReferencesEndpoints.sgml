@@ -15,7 +15,13 @@ All Rights Reserved
 <section><title>Synopsis</title>
 <cmdsynopsis>
 <arg choice=plain><replaceable>identity</replaceable></arg>
-<arg>-t|-o|-O|-d|-D</arg> <!-- revisit choice -->
+<group>
+<arg>-t</arg>
+<arg>-o</arg>
+<arg>-O</arg>
+<arg>-d</arg>
+<arg>-D</arg>
+</group>
 <arg>-s</arg>
 <arg choice=plain> : <replaceable>endpoints</replaceable></arg>
 </cmdsynopsis>

@@ -21,13 +21,22 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-static const Byte stringEncodingNormal = 0;
-static const Byte stringEncodingRedirect = 1;
-
 IceInternal::Stream::Stream(const InstancePtr& instance) :
     _instance(instance),
-    _stringSet(CmpPosPos(b))
+    _encapsStack(1)
 {
+    _encapsStack.resize(1);
+    _encapsStack.back().start = 0;
+    _encapsStack.back().encoding = 0;
+}
+
+IceInternal::Stream::~Stream()
+{
+    //
+    // No check for exactly one, because an error might have aborted
+    // marshalling/unmarshalling
+    //
+    assert(_encapsStack.size() > 0);
 }
 
 InstancePtr
@@ -43,8 +52,7 @@ IceInternal::Stream::swap(Stream& other)
 
     b.swap(other.b);
     std::swap(i, other.i);
-    _encapsStartStack.swap(other._encapsStartStack);
-    _stringSet.swap(other._stringSet);
+    _encapsStack.swap(other._encapsStack);
 }
 
 void
@@ -52,7 +60,7 @@ IceInternal::Stream::resize(int total)
 {
     if (total > 1024 * 1024) // TODO: configurable
     {
-	throw ::Ice::MemoryLimitException(__FILE__, __LINE__);
+	throw MemoryLimitException(__FILE__, __LINE__);
     }
     b.resize(total);
 }
@@ -62,7 +70,7 @@ IceInternal::Stream::reserve(int total)
 {
     if (total > 1024 * 1024) // TODO: configurable
     {
-	throw ::Ice::MemoryLimitException(__FILE__, __LINE__);
+	throw MemoryLimitException(__FILE__, __LINE__);
     }
     b.reserve(total);
 }
@@ -70,16 +78,18 @@ IceInternal::Stream::reserve(int total)
 void
 IceInternal::Stream::startWriteEncaps()
 {
-    write(Byte(0)); // Encoding version
     write(Int(0)); // Placeholder for the encapsulation length
-    _encapsStartStack.push_back(b.size());
+    _encapsStack.resize(_encapsStack.size() + 1);
+    _encapsStack.back().start = b.size();
+    _encapsStack.back().encoding = 0;
+    write(_encapsStack.back().encoding);
 }
 
 void
 IceInternal::Stream::endWriteEncaps()
 {
-    int start = _encapsStartStack.back();
-    _encapsStartStack.pop_back();
+    int start = _encapsStack.back().start;
+    _encapsStack.pop_back();
     Int sz = b.size() - start;
     const Byte* p = reinterpret_cast<const Byte*>(&sz);
 #ifdef ICE_BIGENDIAN
@@ -92,26 +102,22 @@ IceInternal::Stream::endWriteEncaps()
 void
 IceInternal::Stream::startReadEncaps()
 {
-    //
-    // If in the future several encoding versions are supported, we
-    // need a pushEncoding() and popEncoding() operation.
-    //
-    Byte encVer;
-    read(encVer);
-    if (encVer != 0)
+    Int sz;
+    read(sz);
+    _encapsStack.resize(_encapsStack.size() + 1);
+    _encapsStack.back().start = i - b.begin();
+    read(_encapsStack.back().encoding);
+    if (_encapsStack.back().encoding != 0)
     {
 	throw UnsupportedEncodingException(__FILE__, __LINE__);
     }
-    Int sz;
-    read(sz);
-    _encapsStartStack.push_back(i - b.begin());
 }
 
 void
 IceInternal::Stream::endReadEncaps()
 {
-    int start = _encapsStartStack.back();
-    _encapsStartStack.pop_back();
+    int start = _encapsStack.back().start;
+    _encapsStack.pop_back();
     Container::iterator save = i;
     i = b.begin() + start - sizeof(Int);
     Int sz;
@@ -126,8 +132,6 @@ IceInternal::Stream::endReadEncaps()
 void
 IceInternal::Stream::skipEncaps()
 {
-    Byte encVer;
-    read(encVer);
     Int sz;
     read(sz);
     i += sz;
@@ -600,40 +604,33 @@ IceInternal::Stream::read(vector<Double>& v)
 void
 IceInternal::Stream::write(const string& v)
 {
-    pair<multiset<int, CmpPosPos>::const_iterator, multiset<int, CmpPosPos>::const_iterator> p =
-	equal_range(_stringSet.begin(), _stringSet.end(), v, CmpPosString(b));
-    if (p.first != p.second)
+    map<string, Int>::const_iterator p = _encapsStack.back().stringsWritten.find(v);
+    if (p != _encapsStack.back().stringsWritten.end())
     {
-	write(stringEncodingRedirect);
-	Int diff = b.size() - *p.first;
-	write(diff);
+	write(p->second);
     }
     else
     {
-	write(stringEncodingNormal);
+	write(Int(-1));
 	int pos = b.size();
 	resize(pos + v.size() + 1);
 	copy(v.begin(), v.end(), b.begin() + pos);
 	b.back() = 0;
-	_stringSet.insert(pos);
+	Int sz = _encapsStack.back().stringsWritten.size();
+	_encapsStack.back().stringsWritten[v] = sz;
     }
 }
 
 void
 IceInternal::Stream::write(const char* v)
 {
-    write(stringEncodingNormal);
-    int pos = b.size();
-    int len = strlen(v);
-    resize(pos + len + 1);
-    copy(v, v + len + 1, b.begin() + pos);
-    _stringSet.insert(pos);
+    write(string(v));
 }
 
 void
 IceInternal::Stream::write(const vector<string>& v)
 {
-    write(Ice::Int(v.size()));
+    write(Int(v.size()));
     vector<string>::const_iterator p;
     for (p = v.begin(); p != v.end(); ++p)
     {
@@ -644,61 +641,41 @@ IceInternal::Stream::write(const vector<string>& v)
 void
 IceInternal::Stream::read(string& v)
 {
-    Byte stringEnc;
-    read(stringEnc);
-    
-    switch (stringEnc)
+    Int idx;
+    read(idx);
+
+    if (idx >= 0)
     {
-	case stringEncodingNormal:
-	{
-	    Container::iterator begin = i;
-	    do
-	    {
-		if (i >= b.end())
-		{
-		    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-		}
-	    }
-	    while (*i++);
-	    v = begin;
-	    _stringSet.insert(begin - b.begin());
-	    break;
-	}
-	
-	case stringEncodingRedirect:
-	{
-	    Int diff;
-	    read(diff);
-	    Container::iterator j = i - 4 - diff;
-	    Container::iterator begin = j;
-	    if (j < b.begin())
-	    {
-		throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-	    }
-	    
-	    do
-	    {
-		if (j >= b.end())
-		{
-		    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-		}
-	    }
-	    while (*j++);
-	    v = begin;
-	    break;
-	}
-	
-	default:
+	if (static_cast<vector<string>::size_type>(idx) >= _encapsStack.back().stringsRead.size())
 	{
 	    throw StringEncodingException(__FILE__, __LINE__);
 	}
+	v = _encapsStack.back().stringsRead[idx];
+    }
+    else if(idx == -1)
+    {
+	Container::iterator begin = i;
+	do
+	{
+	    if (i >= b.end())
+	    {
+		throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	    }
+	}
+	while (*i++);
+	v = begin;
+	_encapsStack.back().stringsRead.push_back(v);
+    }
+    else
+    {
+	throw StringEncodingException(__FILE__, __LINE__);
     }
 }
 
 void
 IceInternal::Stream::read(vector<string>& v)
 {
-    Ice::Int sz;
+    Int sz;
     read(sz);
     // Don't use v.resize(sz) or v.reserve(sz) here, as it cannot be
     // checked whether sz is a reasonable value
@@ -716,19 +693,29 @@ IceInternal::Stream::read(vector<string>& v)
 void
 IceInternal::Stream::write(const wstring& v)
 {
-    write(stringEncodingNormal);
-    wstring::const_iterator p;
-    for (p = v.begin(); p != v.end(); ++p)
+    map<wstring, Int>::const_iterator p = _encapsStack.back().wstringsWritten.find(v);
+    if (p != _encapsStack.back().wstringsWritten.end())
     {
-	write(static_cast<Short>(*p));
+	write(p->second);
     }
-    write(Short(0));
+    else
+    {
+	write(Int(-1));
+	wstring::const_iterator p;
+	for (p = v.begin(); p != v.end(); ++p)
+	{
+	    write(static_cast<Short>(*p));
+	}
+	write(Short(0));
+	Int sz = _encapsStack.back().wstringsWritten.size();
+	_encapsStack.back().wstringsWritten[v] = sz;
+    }
 }
 
 void
 IceInternal::Stream::write(const vector<wstring>& v)
 {
-    write(Ice::Int(v.size()));
+    write(Int(v.size()));
     vector<wstring>::const_iterator p;
     for (p = v.begin(); p != v.end(); ++p)
     {
@@ -739,27 +726,48 @@ IceInternal::Stream::write(const vector<wstring>& v)
 void
 IceInternal::Stream::read(wstring& v)
 {
-    Byte stringEnc;
-    read(stringEnc);
-    if (stringEnc != stringEncodingNormal)
+    Int idx;
+    read(idx);
+
+    if (idx >= 0)
+    {
+	if (static_cast<vector<string>::size_type>(idx) >= _encapsStack.back().wstringsRead.size())
+	{
+	    throw StringEncodingException(__FILE__, __LINE__);
+	}
+	v = _encapsStack.back().wstringsRead[idx];
+    }
+    else if(idx == -1)
+    {
+	v.erase();
+	while (true)
+	{
+	    Short s;
+	    read(s);
+	    if (!s)
+	    {
+		break;
+	    }
+	    v += static_cast<wchar_t>(s);
+	}
+	_encapsStack.back().wstringsRead.push_back(v);
+    }
+    else
     {
 	throw StringEncodingException(__FILE__, __LINE__);
     }
-    // TODO: This can be optimized
-    while (true)
-    {
-	Short s;
-	read(s);
-	if (!s)
-	    break;
-	v += static_cast<wchar_t>(s);
-    }
+}
+
+void
+IceInternal::Stream::write(const wchar_t* v)
+{
+    write(wstring(v));
 }
 
 void
 IceInternal::Stream::read(vector<wstring>& v)
 {
-    Ice::Int sz;
+    Int sz;
     read(sz);
     // Don't use v.resize(sz) or v.reserve(sz) here, as it cannot be
     // checked whether sz is a reasonable value
@@ -775,13 +783,13 @@ IceInternal::Stream::read(vector<wstring>& v)
 }
 
 void
-IceInternal::Stream::write(const ::Ice::ObjectPrx& v)
+IceInternal::Stream::write(const ObjectPrx& v)
 {
     _instance->proxyFactory()->proxyToStream(v, this);
 }
 
 void
-IceInternal::Stream::read(::Ice::ObjectPrx& v)
+IceInternal::Stream::read(ObjectPrx& v)
 {
     v = _instance->proxyFactory()->streamToProxy(this);
 }
@@ -790,7 +798,7 @@ void
 IceInternal::Stream::write(const ObjectPtr& v)
 {
     const string* classIds = v->_classIds();
-    Ice::Int sz = 0;
+    Int sz = 0;
     while (classIds[sz] != "::Ice::Object")
     {
 	++sz;
@@ -839,59 +847,4 @@ IceInternal::Stream::read(ObjectPtr& v, const string& signatureType)
     }
     
     throw ValueUnmarshalException(__FILE__, __LINE__);
-}
-
-IceInternal::Stream::CmpPosPos::CmpPosPos(const Container& cont) :
-    _cont(cont)
-{
-}
-
-IceInternal::Stream::CmpPosPos::CmpPosPos(const CmpPosPos& cmp) :
-    _cont(cmp._cont)
-{
-}
-
-IceInternal::Stream::CmpPosPos&
-IceInternal::Stream::CmpPosPos::operator=(const CmpPosPos&)
-{
-    // Do *not* assign anything! I want CmpPosPos to ignore std::swap().
-    return *this;
-}
-
-bool
-IceInternal::Stream::CmpPosPos::operator()(int p, int q) const
-{
-    assert(!_cont.empty());
-    return strcmp(_cont.begin() + p, _cont.begin() + q) < 0;
-}
-
-IceInternal::Stream::CmpPosString::CmpPosString(const Container& cont) :
-    _cont(cont)
-{
-}
-
-IceInternal::Stream::CmpPosString::CmpPosString(const CmpPosString& cmp) :
-    _cont(cmp._cont)
-{
-}
-
-IceInternal::Stream::CmpPosString&
-IceInternal::Stream::CmpPosString::operator=(const CmpPosString&)
-{
-    // Do *not* assign anything! I want CmpPosString to ignore std::swap().
-    return *this;
-}
-
-bool
-IceInternal::Stream::CmpPosString::operator()(int i, const string& s) const
-{
-    assert(!_cont.empty());
-    return _cont.begin() + i < s;
-}
-
-bool
-IceInternal::Stream::CmpPosString::operator()(const string& s, int i) const
-{
-    assert(!_cont.empty());
-    return s < _cont.begin() + i;
 }
