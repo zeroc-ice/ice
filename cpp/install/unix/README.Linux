@@ -24,7 +24,7 @@ About this distribution
 This distribution is a binary release of Ice 2.1.0 for Linux and
 includes the following components:
 
-- The Ice run time, including executables for the Ice services, HTML
+- The Ice runtime, including executables for the Ice services, HTML
   documentation, and Slice files.
 
 - Run time libraries for C++, Java, Python, and C# (Mono). These
@@ -79,7 +79,7 @@ Python
 ------
 
 The Ice extension for Python included in this distribution requires
-Python 2.3.4. The Python run time RPM is python-2.3.4-11. If you
+Python 2.3.4. The Python runtime RPM is python-2.3.4-11. If you
 prefer to use Python 2.4, you can download the Ice for Python source
 code from the ZeroC web site at http://www.zeroc.com/download.html.
 
@@ -170,7 +170,7 @@ Mono
 ----
 
 You can update MONO_PATH with the directory containing the Ice for C#
-run time libraries, as the following bash command shows:
+runtime libraries, as the following bash command shows:
 
 $ export MONO_PATH=$ICE_HOME/bin:$MONO_PATH
 

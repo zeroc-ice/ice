@@ -21,9 +21,9 @@ contact sales@zeroc.com for more information about licensing Ice.
 About this distribution
 ======================================================================
 
-This distribution is an RPM release of the Ice 2.1.0 run time for
+This distribution is an RPM release of the Ice 2.1.0 runtime for
 Linux and includes executables for the Ice services, HTML
-documentation, Slice files, and the C++ run time libraries.
+documentation, Slice files, and the C++ runtime libraries.
 
 Additional Ice components are provided in separate RPM packages:
 
@@ -94,7 +94,7 @@ $ export PYTHONPATH=/usr/lib/Ice-2.1.0/python:$PYTHONPATH
 Mono
 ----
 
-The RPM installation adds the C# run time libraries to the global
+The RPM installation adds the C# runtime libraries to the global
 assembly cache (GAC), so that no changes to your environment are
 necessary to locate the assemblies.
 

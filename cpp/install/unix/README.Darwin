@@ -24,7 +24,7 @@ About this distribution
 This distribution is a binary release of Ice 2.1.0 for Mac OS X and
 includes the following components:
 
-- The Ice run time, including executables for the Ice services, HTML
+- The Ice runtime, including executables for the Ice services, HTML
   documentation and Slice files.
 
 - Run time libraries for C++, Java, and Python. These libraries enable
@@ -61,7 +61,7 @@ web site at http://www.zeroc.com/download.html.
 Berkeley DB and Expat
 ======================================================================
 
-This distribution includes the C++ and Java run time for Berkeley DB
+This distribution includes the C++ and Java runtime for Berkeley DB
 4.2.52 and the Expat 1.95.8 library. The Berkeley DB C++ runtime was
 built using GCC 3.3. The Berkeley DB and Expat licenses are provided
 in the file THIRD_PARTY_LICENSE.

@@ -71,8 +71,8 @@ Running the C# demos
 ====================
 
 The C# demos are only officially supported under Linux or Windows,
-therefore the Ice for C# run time is only included the Linux and
-Windows distributions. The adventurous may download the run time
+therefore the Ice for C# runtime is only included the Linux and
+Windows distributions. The adventurous may download the runtime
 source from the ZeroC website.
 
 To run a demo, open a terminal window, change to the desired demo

@@ -24,7 +24,7 @@ About this distribution
 This distribution is a binary release of Ice 2.1.0 for Solaris 9 on
 SPARC and includes the following components:
 
-- The Ice run time, including executables for the Ice services, HTML
+- The Ice runtime, including executables for the Ice services, HTML
   documentation and Slice files.
 
 - Run time libraries for C++, Java, and Python. These libraries enable
@@ -75,7 +75,7 @@ http://www.zeroc.com/download.html.
 Berkeley DB
 ======================================================================
 
-This distribution includes the C++ and Java run time for Berkeley DB
+This distribution includes the C++ and Java runtime for Berkeley DB
 4.2.52. The C++ runtime was built using Sun CC version 5.4. The
 Berkeley DB license is provided in the file THIRD_PARTY_LICENSE.
 
