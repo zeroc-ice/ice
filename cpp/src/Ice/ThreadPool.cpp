@@ -129,9 +129,9 @@ void
 IceInternal::ThreadPool::setMaxConnections(int maxConnections)
 {
     JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
-    if (maxConnections < _threadNum && maxConnections != 0)
+    if (maxConnections < _threadNum + 1 && maxConnections != 0)
     {
-	_maxConnections = _threadNum;
+	_maxConnections = _threadNum + 1;
     }
     else
     {
@@ -376,18 +376,27 @@ IceInternal::ThreadPool::run()
 	    //
 	    // Check if there are connections to reap.
 	    //
+	    reap = false;
             // _handlerMap.size() is faster than _reapList() with most STLs.
 	    if (_maxConnections > 0 && _handlerMap.size() > static_cast<list<int>::size_type>(_maxConnections))
 	    {
-		int fd = _reapList.back();
-		_reapList.pop_back();
-		_reapList.push_front(fd);
-		map<int, pair<EventHandlerPtr, list<int>::iterator> >::iterator p = _handlerMap.find(fd);
-		p->second.second = _reapList.begin();
-		handler = p->second.first;
-		reap = true;
+		for (list<int>::reverse_iterator p = _reapList.rbegin(); p != _reapList.rend(); ++p)
+		{
+		    int fd = *p;
+		    if (fd != -1)
+		    {
+			_reapList.pop_back();
+			_reapList.push_front(-1);
+			map<int, pair<EventHandlerPtr, list<int>::iterator> >::iterator q = _handlerMap.find(fd);
+			q->second.second = _reapList.begin();
+			handler = q->second.first;
+			reap = true;
+			break;
+		    }
+		}
 	    }
-	    else
+
+	    if (!reap)
 	    {
 		//
 		// Round robin for the filedescriptors.
@@ -437,7 +446,6 @@ IceInternal::ThreadPool::run()
 		}
 		
 		handler = p->second.first;
-		reap = false;
 	    }
 	}
 

@@ -219,8 +219,8 @@ Ice.ThreadPool.MaxConnections=<replaceable>num</replaceable>
 <para>
 The maximum number of connections the thread pool will use. Default is
 zero, meaning no limit. If <replaceable>num</replaceable> is not set
-to zero, it must be equal to or larger than the number of threads in
-the thread pool.
+to zero, it must be set to a value larger than the number of threads
+in the thread pool.
 </para>
 </section>
 </section>
