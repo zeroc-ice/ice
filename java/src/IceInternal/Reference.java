@@ -23,23 +23,11 @@ public abstract class Reference implements Cloneable
     {
         return _mode;
     }
+
     public final Ice.Identity
     getIdentity()
     {
         return _identity;
-    }
-
-    public final java.util.Map
-    getContext()
-    {
-	if(_hasContext)
-	{
-	    return _context == null ? _emptyContext : _context;
-	}
-	else
-	{
-	    return _instance.getDefaultContext();
-	}
     }
 
     public final String
@@ -48,16 +36,63 @@ public abstract class Reference implements Cloneable
         return _facet;
     }
 
-    public final boolean
-    getSecure()
-    {
-        return _secure;
-    }
-
     public final Instance
     getInstance()
     {
         return _instance;
+    }
+
+    public final java.util.Map
+    getContext()
+    {
+	return _hasContext ? _context : _instance.getDefaultContext();
+    }
+
+    public final Reference
+    defaultContext()
+    {
+        if(!_hasContext)
+	{
+	    return this;
+	}
+	Reference r = _instance.referenceFactory().copy(this);
+	r._hasContext = false;
+	r._context = _emptyContext;
+	return r;
+
+    }
+
+    public abstract boolean getSecure();
+    public abstract Endpoint[] getEndpoints();
+    public abstract boolean getCollocationOptimization();
+
+    //
+    // The change* methods (here and in derived classes) create
+    // a new reference based on the existing one, with the
+    // corresponding value changed.
+    //
+    public final Reference
+    changeContext(java.util.Map newContext)
+    {
+	if(newContext == null)
+	{
+	    newContext = _emptyContext;
+	}
+        if(_hasContext && newContext.equals(_context))
+	{
+	    return this;
+	}
+	Reference r = _instance.referenceFactory().copy(this);
+	r._hasContext = true;
+	if(newContext.isEmpty())
+	{
+	    r._context = _emptyContext;
+	}
+	else
+	{
+	    r._context = new java.util.HashMap(newContext);
+	}
+	return r;
     }
 
     public final Reference
@@ -80,42 +115,15 @@ public abstract class Reference implements Cloneable
 	    return this;
 	}
 	Reference r = _instance.referenceFactory().copy(this);
-	r._identity = newIdentity;
-	return r;
-    }
-
-    public final Reference
-    changeContext(java.util.Map newContext)
-    {
-        if(_hasContext && newContext.equals(_context))
+	try
 	{
-	    return this;
+	    r._identity = (Ice.Identity)newIdentity.clone();
 	}
-	Reference r = _instance.referenceFactory().copy(this);
-	r._hasContext = true;
-	if(newContext.isEmpty())
+	catch(CloneNotSupportedException ex)
 	{
-	    r._context = _emptyContext;
-	}
-	else
-	{
-	    r._context = new java.util.HashMap(newContext);
+	    assert(false);
 	}
 	return r;
-    }
-
-    public final Reference
-    defaultContext()
-    {
-        if(!_hasContext)
-	{
-	    return this;
-	}
-	Reference r = _instance.referenceFactory().copy(this);
-	r._hasContext = false;
-	r._context = _emptyContext;
-	return r;
-
     }
 
     public final boolean
@@ -136,17 +144,26 @@ public abstract class Reference implements Cloneable
 	return r;
     }
 
-    public final Reference
-    changeSecure(boolean newSecure)
+    //
+    // Return a reference in the default configuration.
+    //
+    public Reference
+    changeDefault()
     {
-        if(newSecure == _secure)
-	{
-	    return this;
-	}
 	Reference r = _instance.referenceFactory().copy(this);
-	r._secure = newSecure;
+	r._mode = ModeTwoway;
+	r._hasContext = false;
+	r._context = _emptyContext;
+	r._facet = "";
 	return r;
     }
+
+    public abstract Reference changeSecure(boolean newSecure);
+    public abstract Reference changeRouter(Ice.RouterPrx newRouter);
+    public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
+    public abstract Reference changeCompress(boolean newCompress);
+    public abstract Reference changeTimeout(int newTimeout);
+    public abstract Reference changeCollocationOptimization(boolean newCollocationOptimization);
 
     public final synchronized int
     hashCode()
@@ -181,54 +198,12 @@ public abstract class Reference implements Cloneable
             h = 5 * h + (int)_facet.charAt(i);
         }
 
-        h = 5 * h + (_secure ? 1 : 0);
+        h = 5 * h + (getSecure() ? 1 : 0);
 
 	_hashValue = h;
 	_hashInitialized = true;
 
         return h;
-    }
-
-    public boolean
-    equals(java.lang.Object obj)
-    {
-	//
-	// Note: if(this == obj) and type test are performed by each non-abstract derived class.
-	//
-
-        Reference r = (Reference)obj; // Guaranteed to succeed.
-
-        if(_mode != r._mode)
-        {
-            return false;
-        }
-
-        if(!_identity.equals(r._identity))
-        {
-            return false;
-        }
-
-	if(!_hasContext == r._hasContext)
-	{
-	    return false;
-	}
-
-	if(!_context.equals(r._context))
-	{
-	    return false;
-	}
-
-        if(!_facet.equals(r._facet))
-        {
-            return false;
-        }
-
-        if(_secure != r._secure)
-        {
-            return false;
-        }
-
-        return true;
     }
 
     //
@@ -257,7 +232,7 @@ public abstract class Reference implements Cloneable
 
         s.writeByte((byte)_mode);
 
-        s.writeBool(_secure);
+        s.writeBool(getSecure());
 
 	// Derived class writes the remainder of the reference.
     }
@@ -341,7 +316,7 @@ public abstract class Reference implements Cloneable
             }
         }
 
-        if(_secure)
+        if(getSecure())
         {
             s.append(" -s");
         }
@@ -351,8 +326,50 @@ public abstract class Reference implements Cloneable
 	// Derived class writes the remainder of the string.
     }
 
+    public abstract Ice.ConnectionI getConnection(Ice.BooleanHolder comp);
+
+    public boolean
+    equals(java.lang.Object obj)
+    {
+	//
+	// Note: if(this == obj) and type test are performed by each non-abstract derived class.
+	//
+
+        Reference r = (Reference)obj; // Guaranteed to succeed.
+
+        if(_mode != r._mode)
+        {
+            return false;
+        }
+
+        if(!_identity.equals(r._identity))
+        {
+            return false;
+        }
+
+	if(_hasContext != r._hasContext)
+	{
+	    return false;
+	}
+
+	if(!_context.equals(r._context))
+	{
+	    return false;
+	}
+
+        if(!_facet.equals(r._facet))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     public Object clone()
     {
+	//
+	// A member-wise copy is safe because the members are immutable.
+	//
 	Object o = null;
 	try
 	{
@@ -372,7 +389,6 @@ public abstract class Reference implements Cloneable
     private java.util.Map _context;
     private static java.util.HashMap _emptyContext = new java.util.HashMap();
     private String _facet;
-    private boolean _secure;
 
     private int _hashValue;
     private boolean _hashInitialized;
@@ -382,8 +398,7 @@ public abstract class Reference implements Cloneable
               Ice.Identity ident,
 	      java.util.Map ctx,
               String fac,
-              int md,
-              boolean sec)
+              int md)
     {
         //
         // Validate string arguments.
@@ -395,10 +410,9 @@ public abstract class Reference implements Cloneable
         _instance = inst;
         _mode = md;
         _identity = ident;
-	_hasContext = false;
-	_context = ctx;
+	_hasContext = ctx != null && !ctx.isEmpty();
+	_context = ctx == null ? _emptyContext : ctx;
         _facet = fac;
-        _secure = sec;
 	_hashInitialized = false;
     }
 
@@ -472,7 +486,7 @@ public abstract class Reference implements Cloneable
         // secure endpoints by partitioning the endpoint vector, so that
         // non-secure endpoints come first.
         //
-        if(_secure)
+        if(getSecure())
         {
             java.util.Iterator i = endpoints.iterator();
             while(i.hasNext())
@@ -601,7 +615,7 @@ public abstract class Reference implements Cloneable
         // secure endpoints by partitioning the endpoint vector, so that
         // non-secure endpoints come first.
         //
-        if(_secure)
+        if(getSecure())
         {
             java.util.Iterator i = connections.iterator();
             while(i.hasNext())
@@ -648,14 +662,4 @@ public abstract class Reference implements Cloneable
     }
     
     private static ConnectionComparator _connectionComparator = new ConnectionComparator();
-
-    public abstract Endpoint[] getEndpoints();
-    public abstract boolean getCollocationOptimization();
-    public abstract Reference changeRouter(Ice.RouterPrx newRouter);
-    public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
-    public abstract Reference changeDefault();
-    public abstract Reference changeCompress(boolean newCompress);
-    public abstract Reference changeTimeout(int newTimeout);
-    public abstract Reference changeCollocationOptimization(boolean newCollocationOptimization);
-    public abstract Ice.ConnectionI getConnection(Ice.BooleanHolder comp);
 }

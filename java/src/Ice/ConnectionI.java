@@ -1072,8 +1072,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         ConnectionI[] connections = new ConnectionI[1];
         connections[0] = this;
         IceInternal.Reference ref = _instance.referenceFactory().create(ident, new java.util.HashMap(), "",
-                                                                        IceInternal.Reference.ModeTwoway, false,
-                                                                        true, connections);
+                                                                        IceInternal.Reference.ModeTwoway, connections);
         return _instance.proxyFactory().referenceToProxy(ref);
     }
 

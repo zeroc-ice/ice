@@ -101,14 +101,13 @@ IceInternal::Reference::changeFacet(const string& newFacet) const
 }
 
 ReferencePtr
-IceInternal::Reference::changeSecure(bool newSecure) const
+IceInternal::Reference::changeDefault() const
 {
-    if(newSecure == _secure)
-    {
-	return ReferencePtr(const_cast<Reference*>(this));
-    }
     ReferencePtr r = _instance->referenceFactory()->copy(this);
-    r->_secure = newSecure;
+    r->_mode = ModeTwoway;
+    r->_hasContext = false;
+    r->_context.clear();
+    r->_facet = "";
     return r;
 }
 
@@ -157,7 +156,7 @@ Reference::hash() const
 	h = 5 * h + *p;
     }
 
-    h = 5 * h + static_cast<Int>(_secure);
+    h = 5 * h + static_cast<Int>(getSecure());
 
     _hashValue = h;
     _hashInitialized = true;
@@ -189,7 +188,7 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
     
     s->write(static_cast<Byte>(_mode));
     
-    s->write(_secure);
+    s->write(getSecure());
 
     // Derived class writes the remainder of the reference.
 }
@@ -267,7 +266,7 @@ IceInternal::Reference::toString() const
 	}
     }
 
-    if(_secure)
+    if(getSecure())
     {
 	s << " -s";
     }
@@ -305,11 +304,6 @@ IceInternal::Reference::operator==(const Reference& r) const
     }
 
     if(_facet != r._facet)
-    {
-	return false;
-    }
-
-    if(_secure != r._secure)
     {
 	return false;
     }
@@ -375,15 +369,6 @@ IceInternal::Reference::operator<(const Reference& r) const
 	return false;
     }
 
-    if(!_secure && r._secure)
-    {
-	return true;
-    }
-    else if(r._secure < _secure)
-    {
-	return false;
-    }
-    
     return false;
 }
 
@@ -410,14 +395,13 @@ public:
 };
 
 IceInternal::Reference::Reference(const InstancePtr& inst, const Identity& ident, const Context& ctx,
-                                  const string& fs, Mode md, bool sec)
+                                  const string& fs, Mode md)
     : _instance(inst),
       _mode(md),
       _identity(ident),
       _hasContext(!ctx.empty()),
       _context(ctx),
       _facet(fs),
-      _secure(sec),
       _hashInitialized(false)
 {
 }
@@ -429,7 +413,6 @@ IceInternal::Reference::Reference(const Reference& r)
       _hasContext(r._hasContext),
       _context(r._context),
       _facet(r._facet),
-      _secure(r._secure),
       _hashInitialized(false)
 {
 }
@@ -438,11 +421,23 @@ void IceInternal::incRef(IceInternal::FixedReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::FixedReference* p) { p->__decRef(); }
 
 IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const Identity& ident,
-						  const Context& ctx, const string& fs, Mode md,
-						  bool sec, const vector<ConnectionIPtr>& fixedConns)
-    : Reference(inst, ident, ctx, fs, md, sec),
+					    const Context& ctx, const string& fs, Mode md,
+					    const vector<ConnectionIPtr>& fixedConns)
+    : Reference(inst, ident, ctx, fs, md),
       _fixedConnections(fixedConns)
 {
+}
+
+const vector<ConnectionIPtr>&
+IceInternal::FixedReference::getFixedConnections() const
+{
+    return _fixedConnections;
+}
+
+bool
+IceInternal::FixedReference::getSecure() const
+{
+    return false;
 }
 
 vector<EndpointPtr>
@@ -455,6 +450,46 @@ bool
 IceInternal::FixedReference::getCollocationOptimization() const
 {
     return false;
+}
+
+ReferencePtr
+IceInternal::FixedReference::changeSecure(bool) const
+{
+    return FixedReferencePtr(const_cast<FixedReference*>(this));
+}
+
+ReferencePtr
+IceInternal::FixedReference::changeRouter(const RouterPrx&) const
+{
+    return FixedReferencePtr(const_cast<FixedReference*>(this));
+}
+
+ReferencePtr
+IceInternal::FixedReference::changeLocator(const LocatorPrx&) const
+{
+    return FixedReferencePtr(const_cast<FixedReference*>(this));
+}
+
+ReferencePtr
+IceInternal::FixedReference::changeCollocationOptimization(bool) const
+{
+    return FixedReferencePtr(const_cast<FixedReference*>(this));
+}
+
+ReferencePtr
+IceInternal::FixedReference::changeCompress(bool) const
+{
+    // TODO: FixedReferences should probably have a _compress flag,
+    // that gets its default from the fixed connection this reference
+    // refers to. This should be changable with changeCompress(), and
+    // reset in changeDefault().
+    return FixedReferencePtr(const_cast<FixedReference*>(this));
+}
+
+ReferencePtr
+IceInternal::FixedReference::changeTimeout(int) const
+{
+    return FixedReferencePtr(const_cast<FixedReference*>(this));
 }
 
 void
@@ -481,47 +516,6 @@ IceInternal::FixedReference::getConnection(bool& compress) const
     compress = connection->endpoint()->compress();
 
     return connection;
-}
-
-ReferencePtr
-IceInternal::FixedReference::changeRouter(const RouterPrx&) const
-{
-    return FixedReferencePtr(const_cast<FixedReference*>(this));
-}
-
-ReferencePtr
-IceInternal::FixedReference::changeLocator(const LocatorPrx&) const
-{
-    return FixedReferencePtr(const_cast<FixedReference*>(this));
-}
-
-ReferencePtr
-IceInternal::FixedReference::changeDefault() const
-{
-    // TODO: Broken: Does not reset context, mode, and facet.
-    return FixedReferencePtr(const_cast<FixedReference*>(this));
-}
-
-ReferencePtr
-IceInternal::FixedReference::changeCollocationOptimization(bool) const
-{
-    return FixedReferencePtr(const_cast<FixedReference*>(this));
-}
-
-ReferencePtr
-IceInternal::FixedReference::changeCompress(bool) const
-{
-    // TODO: FixedReferences should probably have a _compress flag,
-    // that gets its default from the fixed connection this reference
-    // refers to. This should be changable with changeCompress(), and
-    // reset in changeDefault().
-    return FixedReferencePtr(const_cast<FixedReference*>(this));
-}
-
-ReferencePtr
-IceInternal::FixedReference::changeTimeout(int) const
-{
-    return FixedReferencePtr(const_cast<FixedReference*>(this));
 }
 
 bool
@@ -598,9 +592,37 @@ IceInternal::RoutableReference::getRoutedEndpoints() const
 }
 
 bool
+IceInternal::RoutableReference::getSecure() const
+{
+    return _secure;
+}
+
+bool
 IceInternal::RoutableReference::getCollocationOptimization() const
 {
     return _collocationOptimization;
+}
+
+ReferencePtr
+IceInternal::RoutableReference::changeDefault() const
+{
+    RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(Reference::changeDefault());
+    r->_secure = false;
+    r->_routerInfo = getInstance()->routerManager()->get(getInstance()->referenceFactory()->getDefaultRouter());
+    r->_collocationOptimization = false;
+    return r;
+}
+
+ReferencePtr
+IceInternal::RoutableReference::changeSecure(bool newSecure) const
+{
+    if(newSecure == _secure)
+    {
+	return RoutableReferencePtr(const_cast<RoutableReference*>(this));
+    }
+    RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    r->_secure = newSecure;
+    return r;
 }
 
 ReferencePtr
@@ -613,15 +635,6 @@ IceInternal::RoutableReference::changeRouter(const RouterPrx& newRouter) const
     }
     RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
     r->_routerInfo = newRouterInfo;
-    return r;
-}
-
-ReferencePtr
-IceInternal::RoutableReference::changeDefault() const
-{
-    // TODO: Broken: Does not reset context, mode, facet, secure, and collocationOptimization.
-    RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
-    r->_routerInfo = getInstance()->routerManager()->get(getInstance()->referenceFactory()->getDefaultRouter());
     return r;
 }
 
@@ -648,6 +661,10 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
     if(!rhs || !Reference::operator==(r))
     {
         return false;
+    }
+    if(_secure != rhs->_secure)
+    {
+	return false;
     }
     if(_collocationOptimization != rhs->_collocationOptimization)
     {
@@ -678,6 +695,14 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
         const RoutableReference* rhs = dynamic_cast<const RoutableReference*>(&r);
         if(rhs)
         {
+	    if(!_secure && rhs->_secure)
+	    {
+		return true;
+	    }
+	    else if(rhs->_secure < _secure)
+	    {
+		return false;
+	    }
 	    if(!_collocationOptimization && rhs->_collocationOptimization)
 	    {
 		return true;
@@ -695,7 +720,8 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const Identity& ident,
 						  const Context& ctx, const string& fs, Mode md,
 						  bool sec, const RouterInfoPtr& rtrInfo, bool collocationOpt)
-    : Reference(inst, ident, ctx, fs, md, sec),
+    : Reference(inst, ident, ctx, fs, md),
+      _secure(sec),
       _routerInfo(rtrInfo),
       _collocationOptimization(collocationOpt)
 {
@@ -703,6 +729,7 @@ IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const
 
 IceInternal::RoutableReference::RoutableReference(const RoutableReference& r)
     : Reference(r),
+      _secure(r._secure),
       _routerInfo(r._routerInfo),
       _collocationOptimization(r._collocationOptimization)
 {
@@ -739,19 +766,38 @@ IceInternal::DirectReference::changeEndpoints(const vector<EndpointPtr>& newEndp
 }
 
 ReferencePtr
-IceInternal::DirectReference::changeLocator(const LocatorPrx&) const
+IceInternal::DirectReference::changeDefault() const
 {
-    // TODO: Broken: Does not return an IndirectReference if a non-null locator is passed.
-    return DirectReferencePtr(const_cast<DirectReference*>(this));
+    //
+    // Return an indirect reference if a default locator is set.
+    //
+    LocatorPrx loc = getInstance()->referenceFactory()->getDefaultLocator();
+    if(loc)
+    {
+	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(loc);
+	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway,
+							 false, "", 0, newLocatorInfo, false);
+    }
+    else
+    {
+	return RoutableReference::changeDefault();
+    }
 }
 
 ReferencePtr
-IceInternal::DirectReference::changeDefault() const
+IceInternal::DirectReference::changeLocator(const LocatorPrx& newLocator) const
 {
-    // TODO: Broken: Does not return an IndirectReference if a default
-    // locator is set. Does not call
-    // RoutableReference::changeDefault() to change other defaults.
-    return DirectReferencePtr(const_cast<DirectReference*>(this));
+    if(newLocator)
+    {
+	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
+	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
+							 getSecure(), "", 0, newLocatorInfo,
+							 getCollocationOptimization());
+    }
+    else
+    {
+	return DirectReferencePtr(const_cast<DirectReference*>(this));
+    }
 }
 
 ReferencePtr
@@ -930,29 +976,48 @@ IceInternal::IndirectReference::getEndpoints() const
 }
 
 ReferencePtr
-IceInternal::IndirectReference::changeLocator(const LocatorPrx& newLocator) const
+IceInternal::IndirectReference::changeDefault() const
 {
-    // TODO: Broken: Does not return a DirectReference (with empty
-    // endpoints) if a null locator is passed.
-    LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
-    if(newLocatorInfo == _locatorInfo)
+    //
+    // Return a direct reference if no default locator is defined.
+    //
+    LocatorPrx loc = getInstance()->referenceFactory()->getDefaultLocator();
+    if(!loc)
     {
-	return IndirectReferencePtr(const_cast<IndirectReference*>(this));
+	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway, false,
+							 vector<EndpointPtr>(), getRouterInfo(), false);
     }
-    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
-    r->_locatorInfo = newLocatorInfo;
-    return r;
+    else
+    {
+	IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(RoutableReference::changeDefault());
+	r->_locatorInfo = getInstance()->locatorManager()->get(loc);
+	return r;
+    }
 }
 
 ReferencePtr
-IceInternal::IndirectReference::changeDefault() const
+IceInternal::IndirectReference::changeLocator(const LocatorPrx& newLocator) const
 {
-    // TODO: Broken: Does not return an DirectReference if no default
-    // locator is set (with empty endpoints). Does not call
-    // RoutableReference::changeDefault() to change other defaults.
-    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(RoutableReference::changeDefault());
-    r->_locatorInfo = getInstance()->locatorManager()->get(getInstance()->referenceFactory()->getDefaultLocator());
-    return r;
+    //
+    // Return a direct reference if a null locator is given.
+    //
+    if(!newLocator)
+    {
+	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
+							 getSecure(), vector<EndpointPtr>(), getRouterInfo(),
+							 getCollocationOptimization());
+    }
+    else
+    {
+	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
+	if(newLocatorInfo == _locatorInfo)
+	{
+	    return IndirectReferencePtr(const_cast<IndirectReference*>(this));
+	}
+	IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+	r->_locatorInfo = newLocatorInfo;
+	return r;
+    }
 }
 
 ReferencePtr

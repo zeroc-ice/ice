@@ -109,8 +109,6 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const Context& context,
 				      const string& facet,
 				      Reference::Mode mode,
-				      bool secure,
-				      bool collocationOptimization,
 				      const vector<Ice::ConnectionIPtr>& fixedConnections)
 {
     Mutex::Lock sync(*this);
@@ -128,7 +126,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // Create new reference
     //
-    return new FixedReference(_instance, ident, context, facet, mode, secure, fixedConnections);
+    return new FixedReference(_instance, ident, context, facet, mode, fixedConnections);
 }
 
 ReferencePtr

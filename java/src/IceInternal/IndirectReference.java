@@ -47,26 +47,49 @@ public class IndirectReference extends RoutableReference
     }
 
     public Reference
-    changeLocator(Ice.LocatorPrx newLocator)
+    changeDefault()
     {
-        LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
-
-        if((newLocatorInfo == _locatorInfo) ||
-            (_locatorInfo != null && newLocatorInfo != null && newLocatorInfo.equals(_locatorInfo)))
-        {
-            return this;
-        }
-        IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
-	r._locatorInfo = newLocatorInfo;
-        return this;
+	//
+	// Return a direct reference if no default locator is defined.
+	//
+	Ice.LocatorPrx loc = getInstance().referenceFactory().getDefaultLocator();
+	if(loc == null)
+	{
+	    return getInstance().referenceFactory().create(getIdentity(), null, "", ModeTwoway, false,
+							   new Endpoint[0], getRouterInfo(), false);
+	}
+	else
+	{
+	    IndirectReference r = (IndirectReference)super.changeDefault();
+	    r._locatorInfo = getInstance().locatorManager().get(loc);
+	    return r;
+	}
     }
 
     public Reference
-    changeDefault()
+    changeLocator(Ice.LocatorPrx newLocator)
     {
-        IndirectReference r = (IndirectReference)super.changeDefault();
-	r._locatorInfo = getInstance().locatorManager().get(getInstance().referenceFactory().getDefaultLocator());
-	return r;
+	//
+	// Return a direct reference if a null locator is given.
+	//
+	if(newLocator == null)
+	{
+	    return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
+							   getSecure(), new Endpoint[0], getRouterInfo(),
+							   getCollocationOptimization());
+	}
+	else
+	{
+	    LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
+	    if((newLocatorInfo == _locatorInfo) ||
+		(_locatorInfo != null && newLocatorInfo != null && newLocatorInfo.equals(_locatorInfo)))
+	    {
+		return this;
+	    }
+	    IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
+	    r._locatorInfo = newLocatorInfo;
+	    return this;
+	}
     }
 
     public Reference
@@ -146,8 +169,7 @@ public class IndirectReference extends RoutableReference
 	while(true)
 	{
 	    Endpoint[] endpts = super.getRoutedEndpoints();
-	    Ice.BooleanHolder cached = new Ice.BooleanHolder();
-	    cached.value = false;
+	    Ice.BooleanHolder cached = new Ice.BooleanHolder(false);
 	    if(endpts.length == 0 && _locatorInfo != null)
 	    {
 	        endpts = _locatorInfo.getEndpoints(this, cached);
@@ -225,7 +247,12 @@ public class IndirectReference extends RoutableReference
         {
             return false;
         }
-	return _adapterId.equals(rhs._adapterId) && _locatorInfo.equals(rhs._locatorInfo);
+	if(!_adapterId.equals(rhs._adapterId))
+	{
+	   return false;
+	}
+	return (_locatorInfo == rhs._locatorInfo) ||
+	    (_locatorInfo != null && rhs._locatorInfo != null && rhs._locatorInfo.equals(_locatorInfo));
     }
 
     private String _adapterId;

@@ -33,29 +33,50 @@ public abstract class RoutableReference extends Reference
     }
 
     public final boolean
+    getSecure()
+    {
+	return _secure;
+    }
+
+    public final boolean
     getCollocationOptimization()
     {
         return _collocationOptimization;
     }
 
     public Reference
+    changeDefault()
+    {
+	RoutableReference r = (RoutableReference)super.changeDefault();
+	r._secure = false;
+	r._routerInfo = getInstance().routerManager().get(getInstance().referenceFactory().getDefaultRouter());
+	r._collocationOptimization = false;
+	return r;
+    }
+
+    public Reference
+    changeSecure(boolean newSecure)
+    {
+	if(newSecure == _secure)
+	{
+	    return this;
+	}
+	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+	r._secure = newSecure;
+	return r;
+    }
+
+    public Reference
     changeRouter(Ice.RouterPrx newRouter)
     {
         RouterInfo newRouterInfo = getInstance().routerManager().get(newRouter);
-	if(newRouterInfo == _routerInfo)
+	if((newRouterInfo == _routerInfo) ||
+		(newRouterInfo != null && _routerInfo != null && newRouterInfo.equals(_routerInfo)))
 	{
 	    return this;
 	}
 	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
 	r._routerInfo = newRouterInfo;
-	return r;
-    }
-
-    public Reference
-    changeDefault()
-    {
-	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-	r._routerInfo = getInstance().routerManager().get(getInstance().referenceFactory().getDefaultRouter());
 	return r;
     }
 
@@ -83,6 +104,10 @@ public abstract class RoutableReference extends Reference
             return false;
         }
         RoutableReference rhs = (RoutableReference)obj; // Guaranteed to succeed.
+	if(_secure != rhs._secure)
+	{
+	    return false;
+	}
 	if(_collocationOptimization != rhs._collocationOptimization)
 	{
 	    return false;
@@ -100,11 +125,13 @@ public abstract class RoutableReference extends Reference
 		      RouterInfo rtrInfo,
 		      boolean collocationOpt)
     {
-        super(inst, ident, ctx, fac, md, sec);
+        super(inst, ident, ctx, fac, md);
+	_secure = sec;
 	_routerInfo = rtrInfo;
 	_collocationOptimization = collocationOpt;
     }
 
+    private boolean _secure;
     private RouterInfo _routerInfo; // Null if no router is used.
     private boolean _collocationOptimization;
 }

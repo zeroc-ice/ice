@@ -44,7 +44,7 @@ public:
     // Create a fixed reference.
     //
     ReferencePtr create(const ::Ice::Identity&, const ::Ice::Context&, const ::std::string&,
-	                Reference::Mode, bool, bool, const ::std::vector< ::Ice::ConnectionIPtr>&);
+	                Reference::Mode, const ::std::vector< ::Ice::ConnectionIPtr>&);
 
     //
     // Create a reference from a string.

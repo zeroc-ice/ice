@@ -64,7 +64,7 @@ public final class ReferenceFactory
         // Create new reference
         //
         IndirectReference ref = new IndirectReference(_instance, ident, context, facet, mode, secure,
-						    adapterId, routerInfo, locatorInfo, collocationOptimization);
+						      adapterId, routerInfo, locatorInfo, collocationOptimization);
 	return updateCache(ref);
     }
 
@@ -73,8 +73,6 @@ public final class ReferenceFactory
            java.util.Map context,
            String facet,
            int mode,
-           boolean secure,
-	   boolean collocationOptimization,
 	   Ice.ConnectionI[] fixedConnections)
     {
         if(_instance == null)
@@ -90,7 +88,7 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        FixedReference ref = new FixedReference(_instance, ident, context, facet, mode, secure, fixedConnections);
+        FixedReference ref = new FixedReference(_instance, ident, context, facet, mode, fixedConnections);
 	return updateCache(ref);
     }
 

@@ -17,10 +17,9 @@ public class FixedReference extends Reference
 		   java.util.Map ctx,
 		   String fs,
 		   int md,
-		   boolean sec,
 		   Ice.ConnectionI[] fixedConns)
     {
-    	super(inst, ident, ctx, fs, md, sec);
+    	super(inst, ident, ctx, fs, md);
         _fixedConnections = fixedConns;
     }
 
@@ -28,6 +27,12 @@ public class FixedReference extends Reference
     getFixedConnections()
     {
         return _fixedConnections;
+    }
+
+    public boolean
+    getSecure()
+    {
+	return false;
     }
 
     public Endpoint[]
@@ -40,6 +45,46 @@ public class FixedReference extends Reference
     getCollocationOptimization()
     {
         return false;
+    }
+
+    public Reference
+    changeSecure(boolean sec)
+    {
+	return this;
+    }
+
+    public Reference
+    changeRouter(Ice.RouterPrx newRouter)
+    {
+        return this;
+    }
+
+    public Reference
+    changeLocator(Ice.LocatorPrx newLocator)
+    {
+        return this;
+    }
+
+    public Reference
+    changeCollocationOptimization(boolean newCollocationOptimization)
+    {
+        return this;
+    }
+
+    public Reference
+    changeCompress(boolean newCompress)
+    {
+	// TODO: FixedReferences should probably have a _compress flag,
+	// that gets its default from the fixed connection this reference
+	// refers to. This should be changable with changeCompress(), and
+	// reset in changeDefault().
+        return this;
+    }
+
+    public Reference
+    changeTimeout(int newTimeout)
+    {
+	return this;
     }
 
     public void
@@ -67,42 +112,6 @@ public class FixedReference extends Reference
 	compress.value = connection.endpoint().compress();
 
 	return connection;
-    }
-
-    public Reference
-    changeRouter(Ice.RouterPrx newRouter)
-    {
-        return this;
-    }
-
-    public Reference
-    changeLocator(Ice.LocatorPrx newLocator)
-    {
-        return this;
-    }
-
-    public Reference
-    changeDefault()
-    {
-        return this;
-    }
-
-    public Reference
-    changeCollocationOptimization(boolean newCollocationOptimization)
-    {
-        return this;
-    }
-
-    public Reference
-    changeCompress(boolean newCompress)
-    {
-        return this;
-    }
-
-    public Reference
-    changeTimeout(int newTimeout)
-    {
-	return this;
     }
 
     public boolean
