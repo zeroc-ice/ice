@@ -14,7 +14,6 @@
 
 #include <IceUtil/UUID.h>
 #include <Ice/ObjectAdapterI.h>
-#include <Ice/ServantLocator.h>
 #include <Ice/Instance.h>
 #include <Ice/Proxy.h>
 #include <Ice/ProxyFactory.h>
@@ -22,6 +21,7 @@
 #include <Ice/Endpoint.h>
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/ConnectionFactory.h>
+#include <Ice/ServantManager.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
@@ -29,7 +29,6 @@
 #include <Ice/LocatorInfo.h>
 #include <Ice/Locator.h>
 #include <Ice/LoggerUtil.h>
-#include <Ice/IdentityUtil.h>
 
 #ifdef _WIN32
 #   include <sys/timeb.h>
@@ -53,7 +52,7 @@ Ice::ObjectAdapterI::getName()
 CommunicatorPtr
 Ice::ObjectAdapterI::getCommunicator()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
 
@@ -63,7 +62,7 @@ Ice::ObjectAdapterI::getCommunicator()
 void
 Ice::ObjectAdapterI::activate()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
     
@@ -117,7 +116,7 @@ Ice::ObjectAdapterI::activate()
 void
 Ice::ObjectAdapterI::hold()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
 	
@@ -128,7 +127,7 @@ Ice::ObjectAdapterI::hold()
 void
 Ice::ObjectAdapterI::waitForHold()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
 
@@ -139,13 +138,13 @@ Ice::ObjectAdapterI::waitForHold()
 void
 Ice::ObjectAdapterI::deactivate()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     
     //
     // Ignore deactivation requests if the object adapter has already
     // been deactivated.
     //
-    if(!_instance)
+    if(_deactivated)
     {
 	return;
     }
@@ -154,10 +153,9 @@ Ice::ObjectAdapterI::deactivate()
 	     Ice::voidMemFun(&IncomingConnectionFactory::destroy));
     
     _instance->outgoingConnectionFactory()->removeAdapter(this);
-    
-    _instance = 0;
-    _communicator = 0;
 
+    _deactivated = true;
+    
     notifyAll();
 }
 
@@ -165,13 +163,13 @@ void
 Ice::ObjectAdapterI::waitForDeactivate()
 {
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
 	//
 	// First we wait for deactivation of the adapter itself, and for
 	// the return of all direct method calls using this adapter.
 	//
-	while(_instance || _directCount > 0)
+	while(!_deactivated || _directCount > 0)
 	{
 	    wait();
 	}
@@ -188,82 +186,55 @@ Ice::ObjectAdapterI::waitForDeactivate()
     }
 
     //
-    // Now we wait for until all incoming connection factories are
+    // Now we wait until all incoming connection factories are
     // finished.
     //
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
 	     Ice::voidMemFun(&IncomingConnectionFactory::waitUntilFinished));
     
     //
-    // We're done, now we can throw away all incoming connection
-    // factories.
+    // Now it's also time to clean up our servants and servant
+    // locators.
     //
-    _incomingConnectionFactories.clear();
-
-    //
-    // Now it's also time to clean up the active servant map.
-    //
-    _activeServantMap.clear();
-    _activeServantMapHint = _activeServantMap.end();
-
-    //
-    // And the servant locators, too.
-    //
-    for(map<string, ServantLocatorPtr>::iterator p = _locatorMap.begin(); p != _locatorMap.end(); ++p)
+    if(_servantManager)
     {
-	try
-	{
-	    p->second->deactivate();
-	}
-	catch(const Exception& ex)
-	{
-	    Error out(_logger);
-	    out << "exception during locator deactivation:\n"
-		<< "object adapter: `" << _name << "'\n"
-		<< "locator prefix: `" << p->first << "'\n"
-		<< ex;
-	}
-	catch(...)
-	{
-	    Error out(_logger);
-	    out << "unknown exception during locator deactivation:\n"
-		<< "object adapter: `" << _name << "'\n"
-		<< "locator prefix: `" << p->first << "'";
-	}
+	_servantManager->destroy();
     }
 
-    _locatorMap.clear();
-    _locatorMapHint = _locatorMap.end();
-
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
 	//
 	// Signal that waiting is complete.
 	//
 	_waitForDeactivate = false;
 	notifyAll();
+
+	//
+	// We're done, now we can throw away all incoming connection
+	// factories.
+	//
+	_incomingConnectionFactories.clear();
+
+	//
+	// Remove object references (some of them cyclic).
+	//
+	_instance = 0;
+	_threadPool = 0;
+	_servantManager = 0;
+	_communicator = 0;
     }
 }
 
 ObjectPrx
 Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
     checkIdentity(ident);
 
-    if((_activeServantMapHint != _activeServantMap.end() && _activeServantMapHint->first == ident)
-       || _activeServantMap.find(ident) != _activeServantMap.end())
-    {
-	AlreadyRegisteredException ex(__FILE__, __LINE__);
-	ex.kindOfObject = "servant";
-	ex.id = identityToString(ident);
-	throw ex;
-    }
-
-    _activeServantMapHint = _activeServantMap.insert(_activeServantMapHint, make_pair(ident, object));
+    _servantManager->addServant(object, ident);
 
     return newProxy(ident);
 }
@@ -271,182 +242,61 @@ Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
 ObjectPrx
 Ice::ObjectAdapterI::addWithUUID(const ObjectPtr& object)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-    checkForDeactivation();
-
     Identity ident;
     ident.name = IceUtil::generateUUID();
-
-    _activeServantMapHint = _activeServantMap.insert(_activeServantMapHint, make_pair(ident, object));
-
-    return newProxy(ident);
+    return add(object, ident);
 }
 
 void
 Ice::ObjectAdapterI::remove(const Identity& ident)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
     checkIdentity(ident);
 
-    ObjectDict::iterator p = _activeServantMap.find(ident);
-    if(p == _activeServantMap.end())
-    {
-	NotRegisteredException ex(__FILE__, __LINE__);
-	ex.kindOfObject = "servant";
-	ex.id = identityToString(ident);
-	throw ex;
-    }
-
-    _activeServantMap.erase(p);
-    _activeServantMapHint = _activeServantMap.end();
+    _servantManager->removeServant(ident);
 }
 
 void
 Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const string& prefix)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
 
-    if((_locatorMapHint != _locatorMap.end() && _locatorMapHint->first == prefix)
-       || _locatorMap.find(prefix) != _locatorMap.end())
-    {
-	AlreadyRegisteredException ex(__FILE__, __LINE__);
-	ex.kindOfObject = "servant locator";
-	ex.id = prefix;
-	throw ex;
-    }
-
-    _locatorMapHint = _locatorMap.insert(_locatorMapHint, make_pair(prefix, locator));
+    _servantManager->addServantLocator(locator, prefix);
 }
 
 void
 Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
 {
-    ServantLocatorPtr locator;
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
-    {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    checkForDeactivation();
 
-	checkForDeactivation();
-
-	map<string, ServantLocatorPtr>::iterator p = _locatorMap.end();
-    
-	if(_locatorMapHint != _locatorMap.end())
-	{
-	    if(_locatorMapHint->first == prefix)
-	    {
-		p = _locatorMapHint;
-	    }
-	}
-    
-	if(p == _locatorMap.end())
-	{
-	    p = _locatorMap.find(prefix);
-	    if (p == _locatorMap.end())
-	    {
-		NotRegisteredException ex(__FILE__, __LINE__);
-		ex.kindOfObject = "servant locator";
-		ex.id = prefix;
-		throw ex;
-	    }
-	}
-	assert(p != _locatorMap.end());
-    
-	locator = p->second;
-
-	if(p == _locatorMapHint)
-	{
-	    _locatorMap.erase(p++);
-	    _locatorMapHint = p;
-	}
-	else
-	{
-	    _locatorMap.erase(p);
-	}
-    }
-
-    locator->deactivate();
+    _servantManager->removeServantLocator(prefix);
 }
 
 ServantLocatorPtr
 Ice::ObjectAdapterI::findServantLocator(const string& prefix)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    
-    //
-    // We cannot check for deactivation here, because after
-    // deactivation, there might still be some Incoming objects.
-    //
-    //checkForDeactivation();
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
-    map<string, ServantLocatorPtr>::iterator p = _locatorMap.end();
-    
-    if(_locatorMapHint != _locatorMap.end())
-    {
-	if(_locatorMapHint->first == prefix)
-	{
-	    p = _locatorMapHint;
-	}
-    }
-    
-    if(p == _locatorMap.end())
-    {
-	p = _locatorMap.find(prefix);
-    }
-    
-    if(p != _locatorMap.end())
-    {
-	_locatorMapHint = p;
-	return p->second;
-    }
-    else
-    {
-	return 0;
-    }
+    checkForDeactivation();
+
+    return _servantManager->findServantLocator(prefix);
 }
 
 ObjectPtr
 Ice::ObjectAdapterI::identityToServant(const Identity& ident)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
-    //
-    // We cannot check for deactivation here, because after
-    // deactivation, there might still be some Incoming objects.
-    //
-    //checkForDeactivation();
-    
-    //
-    // Don't call checkIdentity. We simply want null to be returned
-    // (e.g., for Direct, Incoming) in case the identity is incorrect
-    // and therefore no servant can be found.
-    //
-    /*
+    checkForDeactivation();
     checkIdentity(ident);
-    */
 
-    if(_activeServantMapHint != _activeServantMap.end())
-    {
-	if(_activeServantMapHint->first == ident)
-	{
-	    return _activeServantMapHint->second;
-	}
-    }
-    
-    ObjectDict::iterator p = _activeServantMap.find(ident);
-    if(p != _activeServantMap.end())
-    {
-	_activeServantMapHint = p;
-	return p->second;
-    }
-    else
-    {
-	return 0;
-    }
+    return _servantManager->findServant(ident);
 }
 
 ObjectPtr
@@ -459,7 +309,7 @@ Ice::ObjectAdapterI::proxyToServant(const ObjectPrx& proxy)
 ObjectPrx
 Ice::ObjectAdapterI::createProxy(const Identity& ident)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
     checkIdentity(ident);
@@ -470,7 +320,7 @@ Ice::ObjectAdapterI::createProxy(const Identity& ident)
 ObjectPrx
 Ice::ObjectAdapterI::createDirectProxy(const Identity& ident)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     
     checkForDeactivation();
     checkIdentity(ident);
@@ -481,13 +331,14 @@ Ice::ObjectAdapterI::createDirectProxy(const Identity& ident)
 ObjectPrx
 Ice::ObjectAdapterI::createReverseProxy(const Identity& ident)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     
     checkForDeactivation();
     checkIdentity(ident);
 
     //
-    // Create a reference and return a reverse proxy for this reference.
+    // Create a reference and return a reverse proxy for this
+    // reference.
     //
     vector<EndpointPtr> endpoints;
     ReferencePtr ref = _instance->referenceFactory()->create(ident, vector<string>(), Reference::ModeTwoway,
@@ -498,7 +349,7 @@ Ice::ObjectAdapterI::createReverseProxy(const Identity& ident)
 void
 Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     
     checkForDeactivation();
 
@@ -510,14 +361,10 @@ Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
 	// adapter.
 	//
 	ObjectPrx proxy = routerInfo->getServerProxy();
-
-	{
-	    IceUtil::Mutex::Lock routerEndpointsSync(_routerEndpointsMutex);
-	    copy(proxy->__reference()->endpoints.begin(), proxy->__reference()->endpoints.end(),
-		 back_inserter(_routerEndpoints));
-	    sort(_routerEndpoints.begin(), _routerEndpoints.end()); // Must be sorted.
-	    _routerEndpoints.erase(unique(_routerEndpoints.begin(), _routerEndpoints.end()), _routerEndpoints.end());
-	}
+	copy(proxy->__reference()->endpoints.begin(), proxy->__reference()->endpoints.end(),
+	     back_inserter(_routerEndpoints));
+	sort(_routerEndpoints.begin(), _routerEndpoints.end()); // Must be sorted.
+	_routerEndpoints.erase(unique(_routerEndpoints.begin(), _routerEndpoints.end()), _routerEndpoints.end());
 
 	//
 	// Associate this object adapter with the router. This way,
@@ -538,17 +385,69 @@ Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
 void
 Ice::ObjectAdapterI::setLocator(const LocatorPrx& locator)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     
     checkForDeactivation();
 
     _locatorInfo = _instance->locatorManager()->get(locator);
 }
 
+bool
+Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+    checkForDeactivation();
+
+    ReferencePtr ref = proxy->__reference();
+    vector<EndpointPtr>::const_iterator p;
+
+    if(!ref->adapterId.empty())
+    {
+	//
+	// Proxy is local if the reference adapter id matches this
+	// adapter id.
+	//
+	return ref->adapterId == _id;
+    }
+
+    //
+    // Proxies which have at least one endpoint in common with the
+    // endpoints used by this object adapter's incoming connection
+    // factories are considered local.
+    //
+    for(p = ref->endpoints.begin(); p != ref->endpoints.end(); ++p)
+    {
+	vector<IncomingConnectionFactoryPtr>::const_iterator q;
+	for(q = _incomingConnectionFactories.begin(); q != _incomingConnectionFactories.end(); ++q)
+	{
+	    if((*q)->equivalent(*p))
+	    {
+		return true;
+	    }
+	}
+    }
+
+    //
+    // Proxies which have at least one endpoint in common with the
+    // router's server proxy endpoints (if any), are also considered
+    // local.
+    //
+    for(p = ref->endpoints.begin(); p != ref->endpoints.end(); ++p)
+    {
+	if(binary_search(_routerEndpoints.begin(), _routerEndpoints.end(), *p)) // _routerEndpoints is sorted.
+	{
+	    return true;
+	}
+    }
+	
+    return false;
+}
+
 list<ConnectionPtr>
 Ice::ObjectAdapterI::getIncomingConnections() const
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
 
@@ -565,7 +464,7 @@ Ice::ObjectAdapterI::getIncomingConnections() const
 void
 Ice::ObjectAdapterI::incDirectCount()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
  
     checkForDeactivation();
 
@@ -576,13 +475,11 @@ Ice::ObjectAdapterI::incDirectCount()
 void
 Ice::ObjectAdapterI::decDirectCount()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
-    //
-    // The object adapter may already have been deactivated when the
-    // direct count is decremented, thus there is no check for prior
-    // deactivation.
-    //
+    // Not check for deactivation here!
+
+    assert(_instance); // Must not be called after waitForDeactivate().
 
     assert(_directCount > 0);
     if(--_directCount == 0)
@@ -591,16 +488,37 @@ Ice::ObjectAdapterI::decDirectCount()
     }    
 }
 
+ThreadPoolPtr
+Ice::ObjectAdapterI::getThreadPool() const
+{
+    // No mutex lock necessary, _threadPool is immutable after
+    // creation until it is removed in waitForDeactivate().
+
+    // Not check for deactivation here!
+
+    assert(_threadPool); // Must not be called after waitForDeactivate().
+    return _threadPool;
+}
+
+ServantManagerPtr
+Ice::ObjectAdapterI::getServantManager() const
+{
+    // No mutex lock necessary, _servantManager is immutable after
+    // creation until it is removed in waitForDeactivate().
+
+    // Not check for deactivation here!
+
+    assert(_servantManager); // Must not be called after waitForDeactivate().
+    return _servantManager;
+}
+
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const CommunicatorPtr& communicator,
 				    const string& name, const string& endpts, const string& id) :
+    _deactivated(false),
     _instance(instance),
-    _communicator(communicator),
     _printAdapterReadyDone(false),
     _name(name),
     _id(id),
-    _logger(instance->logger()),
-    _activeServantMapHint(_activeServantMap.end()),
-    _locatorMapHint(_locatorMap.end()),
     _directCount(0),
     _waitForDeactivate(false)
 {
@@ -650,25 +568,35 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     catch(...)
     {
 	deactivate();
+	waitForDeactivate();
 	__setNoDelete(false);
 	throw;
     }
     __setNoDelete(false);  
+
+    _threadPool = _instance->serverThreadPool();
+    _servantManager = new ServantManager(_instance, _name);
+    _communicator = communicator;
 }
 
 Ice::ObjectAdapterI::~ObjectAdapterI()
 {
-    if(_instance)
+    if(!_deactivated)
     {
 	Warning out(_instance->logger());
 	out << "object adapter `" << _name << "' has not been deactivated";
     }
+    else if(_instance)
+    {
+	Warning out(_instance->logger());
+	out << "object adapter `" << _name << "' deactivation had not been waited for";
+    }
     else
     {
+	assert(!_threadPool);
+	assert(!_servantManager);
 	assert(!_communicator);
 	assert(_incomingConnectionFactories.empty());
-	assert(_activeServantMap.empty());
-	assert(_locatorMap.empty());
 	assert(_directCount == 0);
 	assert(!_waitForDeactivate);
     }
@@ -677,8 +605,6 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
 ObjectPrx
 Ice::ObjectAdapterI::newProxy(const Identity& ident) const
 {
-    checkForDeactivation();
-
     if(_id.empty())
     {
 	return newDirectProxy(ident);
@@ -702,8 +628,6 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident) const
 ObjectPrx
 Ice::ObjectAdapterI::newDirectProxy(const Identity& ident) const
 {
-    checkForDeactivation();
-
     vector<EndpointPtr> endpoints;
 
     // 
@@ -718,10 +642,7 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident) const
     // any. This way, object references created by this object adapter
     // will also point to the router's server proxy endpoints.
     //
-    {
-	IceUtil::Mutex::Lock routerEndpointsSync(_routerEndpointsMutex);
-	copy(_routerEndpoints.begin(), _routerEndpoints.end(), back_inserter(endpoints));
-    }
+    copy(_routerEndpoints.begin(), _routerEndpoints.end(), back_inserter(endpoints));
     
     //
     // Create a reference and return a proxy for this reference.
@@ -732,64 +653,10 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident) const
 
 }
 
-bool
-Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
-{
-    checkForDeactivation();
-
-    ReferencePtr ref = proxy->__reference();
-    vector<EndpointPtr>::const_iterator p;
-
-    if(!ref->adapterId.empty())
-    {
-	//
-	// Proxy is local if the reference adapter id matches this
-	// adapter id.
-	//
-	return ref->adapterId == _id;
-    }
-
-    //
-    // Proxies which have at least one endpoint in common with the
-    // endpoints used by this object adapter's incoming connection
-    // factories are considered local.
-    //
-    for(p = ref->endpoints.begin(); p != ref->endpoints.end(); ++p)
-    {
-	vector<IncomingConnectionFactoryPtr>::const_iterator q;
-	for(q = _incomingConnectionFactories.begin(); q != _incomingConnectionFactories.end(); ++q)
-	{
-	    if((*q)->equivalent(*p))
-	    {
-		return true;
-	    }
-	}
-    }
-
-    {
-	IceUtil::Mutex::Lock routerEndpointsSync(_routerEndpointsMutex);
-	
-	//
-	// Proxies which have at least one endpoint in common with the
-	// router's server proxy endpoints (if any), are also considered
-	// local.
-	//
-	for(p = ref->endpoints.begin(); p != ref->endpoints.end(); ++p)
-	{
-	    if(binary_search(_routerEndpoints.begin(), _routerEndpoints.end(), *p)) // _routerEndpoints is sorted.
-	    {
-		return true;
-	    }
-	}
-    }
-	
-    return false;
-}
-
 void
 Ice::ObjectAdapterI::checkForDeactivation() const
 {
-    if(!_instance)
+    if(_deactivated)
     {
 	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
 	ex.name = _name;

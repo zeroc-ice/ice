@@ -24,18 +24,15 @@ using namespace IceInternal;
 void IceInternal::incRef(UserExceptionFactoryManager* p) { p->__incRef(); }
 void IceInternal::decRef(UserExceptionFactoryManager* p) { p->__decRef(); }
 
-const char * const UserExceptionFactoryManager::_kindOfObject = "user exception factory";
-
 void
 IceInternal::UserExceptionFactoryManager::add(const UserExceptionFactoryPtr& factory, const string& id)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if(   (_factoryMapHint != _factoryMap.end() && _factoryMapHint->first == id)
-       || _factoryMap.find(id) != _factoryMap.end())
+    if(_factoryMap.find(id) != _factoryMap.end())
     {
 	AlreadyRegisteredException ex(__FILE__, __LINE__);
-	ex.kindOfObject = _kindOfObject;
+	ex.kindOfObject = "user exception factory";
 	ex.id = id;
 	throw ex;
     }
@@ -46,42 +43,27 @@ IceInternal::UserExceptionFactoryManager::add(const UserExceptionFactoryPtr& fac
 void
 IceInternal::UserExceptionFactoryManager::remove(const string& id)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    UserExceptionFactoryPtr factory;
 
-    map<string, ::Ice::UserExceptionFactoryPtr>::iterator p = _factoryMap.end();
-    
-    if(_factoryMapHint != _factoryMap.end())
     {
-	if(_factoryMapHint->first == id)
-	{
-	    p = _factoryMapHint;
-	}
-    }
-    
-    if(p == _factoryMap.end())
-    {
-	p = _factoryMap.find(id);
+	IceUtil::Mutex::Lock sync(*this);
+	
+	map<string, UserExceptionFactoryPtr>::iterator p = _factoryMap.find(id);
 	if(p == _factoryMap.end())
 	{
 	    NotRegisteredException ex(__FILE__, __LINE__);
-	    ex.kindOfObject = _kindOfObject;
+	    ex.kindOfObject = "user exception factory";
 	    ex.id = id;
 	    throw ex;
 	}
-    }
-    assert(p != _factoryMap.end());
-    
-    p->second->destroy();
+	
+	factory = p->second;
 
-    if(p == _factoryMapHint)
-    {
-	_factoryMap.erase(p++);
-	_factoryMapHint = p;
-    }
-    else
-    {
 	_factoryMap.erase(p);
+	_factoryMapHint = _factoryMap.end();
     }
+    
+    factory->destroy();
 }
 
 UserExceptionFactoryPtr
@@ -89,21 +71,15 @@ IceInternal::UserExceptionFactoryManager::find(const string& id)
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    map<string, ::Ice::UserExceptionFactoryPtr>::iterator p = _factoryMap.end();
-    
     if(_factoryMapHint != _factoryMap.end())
     {
 	if(_factoryMapHint->first == id)
 	{
-	    p = _factoryMapHint;
+	    return _factoryMapHint->second;
 	}
     }
     
-    if(p == _factoryMap.end())
-    {
-	p = _factoryMap.find(id);
-    }
-    
+    map<string, UserExceptionFactoryPtr>::iterator p = _factoryMap.find(id);
     if(p != _factoryMap.end())
     {
 	_factoryMapHint = p;

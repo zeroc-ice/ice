@@ -24,14 +24,14 @@
 namespace IceInternal
 {
 
-class ICE_API Direct : public ::IceUtil::noncopyable
+class ICE_API Direct : public IceUtil::noncopyable
 {
 public:
 
-    Direct(const ::Ice::Current&);
+    Direct(const Ice::Current&);
     ~Direct();
 
-    const ::Ice::ObjectPtr& facetServant();    
+    const Ice::ObjectPtr& facetServant();    
 
 private:
 
@@ -39,12 +39,12 @@ private:
     // Optimization. The current may not be deleted while a
     // stack-allocated Direct still holds it.
     //
-    const ::Ice::Current& _current;
+    const Ice::Current& _current;
 
-    ::Ice::ObjectPtr _servant;
-    ::Ice::ObjectPtr _facetServant;
-    ::Ice::ServantLocatorPtr _locator;
-    ::Ice::LocalObjectPtr _cookie;
+    Ice::ObjectPtr _servant;
+    Ice::ObjectPtr _facetServant;
+    Ice::ServantLocatorPtr _locator;
+    Ice::LocalObjectPtr _cookie;
 };
 
 }

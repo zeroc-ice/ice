@@ -18,21 +18,22 @@
 #include <Ice/InstanceF.h>
 #include <Ice/ConnectionF.h>
 #include <Ice/ServantLocatorF.h>
+#include <Ice/ServantManagerF.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Current.h>
 
 namespace IceInternal
 {
 
-class ICE_API IncomingBase : public ::IceUtil::noncopyable
+class ICE_API IncomingBase : public IceUtil::noncopyable
 {
 protected:
 
-    IncomingBase(Instance*, Connection*, const ::Ice::ObjectAdapterPtr&, bool, bool);
+    IncomingBase(Instance*, Connection*, const Ice::ObjectAdapterPtr&, bool, bool);
     IncomingBase(IncomingBase& in); // Adopts the argument. It must not be used afterwards.
     
     void __finishInvoke();
-    void __warning(const ::Ice::Exception&) const;
+    void __warning(const Ice::Exception&) const;
     void __warning(const std::string&) const;
 
     Ice::Current _current;
@@ -57,9 +58,9 @@ class ICE_API Incoming : public IncomingBase
 {
 public:
 
-    Incoming(Instance*, Connection*, const ::Ice::ObjectAdapterPtr&, bool, bool);
+    Incoming(Instance*, Connection*, const Ice::ObjectAdapterPtr&, bool, bool);
 
-    void invoke();
+    void invoke(const ServantManagerPtr&);
 
     // Inlined for speed optimization.
     BasicStream* is() { return &_is; }

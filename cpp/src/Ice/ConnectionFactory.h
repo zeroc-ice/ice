@@ -112,7 +112,6 @@ private:
 
     const ::Ice::ObjectAdapterPtr _adapter;
 
-    const ThreadPoolPtr _serverThreadPool;
     bool _registeredWithPool;
 
     const bool _warn;

@@ -21,7 +21,7 @@
 #include <Ice/Transceiver.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ConnectionMonitor.h>
-#include <Ice/ObjectAdapter.h>
+#include <Ice/ObjectAdapterI.h> // For getThreadPool() and getServantManager().
 #include <Ice/Endpoint.h>
 #include <Ice/Outgoing.h>
 #include <Ice/OutgoingAsync.h>
@@ -809,6 +809,14 @@ IceInternal::Connection::setAdapter(const ObjectAdapterPtr& adapter)
     }
 
     _adapter = adapter;
+    if(_adapter)
+    {
+	_servantManager = dynamic_cast<ObjectAdapterI*>(_adapter.get())->getServantManager();
+    }
+    else
+    {
+	_servantManager = 0;
+    }
 }
 
 ObjectAdapterPtr
@@ -1155,7 +1163,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    //
 	    while(invoke-- > 0)
 	    {
-		in.invoke();
+		in.invoke(_servantManager);
 	    }
 	}
 	catch(const LocalException& ex)
@@ -1226,9 +1234,9 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _transceiver(transceiver),
     _endpoint(endpoint),
     _adapter(adapter),
-    _logger(_instance->logger()),
-    _traceLevels(_instance->traceLevels()),
-    _defaultsAndOverrides(_instance->defaultsAndOverrides()),
+    _logger(_instance->logger()), // Chached for better performance.
+    _traceLevels(_instance->traceLevels()), // Chached for better performance.
+    _defaultsAndOverrides(_instance->defaultsAndOverrides()), // Chached for better performance.
     _registeredWithPool(false),
     _warn(false),
     _acmTimeout(0),
@@ -1244,6 +1252,15 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _proxyCount(0),
     _state(StateNotValidated)
 {
+    if(_adapter)
+    {
+	_servantManager = dynamic_cast<ObjectAdapterI*>(_adapter.get())->getServantManager();
+    }
+    else
+    {
+	_servantManager = 0;
+    }
+
     vector<Byte>& requestHdr = const_cast<vector<Byte>&>(_requestHdr);
     requestHdr[0] = protocolVersion;
     requestHdr[1] = encodingVersion;
@@ -1449,21 +1466,11 @@ IceInternal::Connection::registerWithPool()
     {
 	if(_adapter)
 	{
-	    if(!_serverThreadPool) // Lazy initialization.
-	    {
-		const_cast<ThreadPoolPtr&>(_serverThreadPool) = _instance->serverThreadPool();
-		assert(_serverThreadPool);
-	    }
-	    _serverThreadPool->_register(_transceiver->fd(), this);
+	    dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->_register(_transceiver->fd(), this);
 	}
 	else
 	{
-	    if(!_clientThreadPool) // Lazy initialization.
-	    {
-		const_cast<ThreadPoolPtr&>(_clientThreadPool) = _instance->clientThreadPool();
-		assert(_clientThreadPool);
-	    }
-	    _clientThreadPool->_register(_transceiver->fd(), this);
+	    _instance->clientThreadPool()->_register(_transceiver->fd(), this);
 	}
 
 	_registeredWithPool = true;
@@ -1483,13 +1490,11 @@ IceInternal::Connection::unregisterWithPool()
     {
 	if(_adapter)
 	{
-	    assert(_serverThreadPool);
-	    _serverThreadPool->unregister(_transceiver->fd());
+	    dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->unregister(_transceiver->fd());
 	}
 	else
 	{
-	    assert(_clientThreadPool);
-	    _clientThreadPool->unregister(_transceiver->fd());
+	    _instance->clientThreadPool()->unregister(_transceiver->fd());
 	}
 
 	_registeredWithPool = false;

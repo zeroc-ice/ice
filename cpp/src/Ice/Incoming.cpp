@@ -15,6 +15,7 @@
 #include <Ice/Incoming.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/ServantLocator.h>
+#include <Ice/ServantManager.h>
 #include <Ice/Object.h>
 #include <Ice/Connection.h>
 #include <Ice/LocalException.h>
@@ -29,7 +30,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::IncomingBase::IncomingBase(Instance* instance, Connection* connection, const ObjectAdapterPtr& adapter,
+IceInternal::IncomingBase::IncomingBase(Instance* instance, Connection* connection, 
+					const ObjectAdapterPtr& adapter,
 					bool response, bool compress) :
     _connection(connection),
     _response(response),
@@ -111,14 +113,15 @@ IceInternal::IncomingBase::__warning(const string& msg) const
     }
 }
 
-IceInternal::Incoming::Incoming(Instance* instance, Connection* connection, const ObjectAdapterPtr& adapter,
+IceInternal::Incoming::Incoming(Instance* instance, Connection* connection, 
+				const ObjectAdapterPtr& adapter,
 				bool response, bool compress) :
     IncomingBase(instance, connection, adapter, response, compress)
 {
 }
 
 void
-IceInternal::Incoming::invoke()
+IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 {
     //
     // Read the current.
@@ -158,13 +161,13 @@ IceInternal::Incoming::invoke()
 
     try
     {
-	if(_current.adapter)
+	if(servantManager)
 	{
-	    _servant = _current.adapter->identityToServant(_current.id);
+	    _servant = servantManager->findServant(_current.id);
 	    
 	    if(!_servant && !_current.id.category.empty())
 	    {
-		_locator = _current.adapter->findServantLocator(_current.id.category);
+		_locator = servantManager->findServantLocator(_current.id.category);
 		if(_locator)
 		{
 		    _servant = _locator->locate(_current, _cookie);
@@ -173,7 +176,7 @@ IceInternal::Incoming::invoke()
 	    
 	    if(!_servant)
 	    {
-		_locator = _current.adapter->findServantLocator("");
+		_locator = servantManager->findServantLocator("");
 		if(_locator)
 		{
 		    _servant = _locator->locate(_current, _cookie);

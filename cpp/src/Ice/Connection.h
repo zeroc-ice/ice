@@ -23,8 +23,8 @@
 #include <Ice/InstanceF.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/ObjectAdapterF.h>
+#include <Ice/ServantManagerF.h>
 #include <Ice/EndpointF.h>
-#include <Ice/ThreadPoolF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/OutgoingAsyncF.h>
@@ -43,7 +43,7 @@ namespace IceInternal
 
 class Outgoing;
 
-class Connection : public EventHandler, public ::IceUtil::Monitor< ::IceUtil::RecMutex>
+class Connection : public EventHandler, public IceUtil::Monitor<IceUtil::RecMutex>
 {
 public:
 
@@ -84,8 +84,8 @@ public:
     int timeout() const;
     EndpointPtr endpoint() const;
 
-    void setAdapter(const ::Ice::ObjectAdapterPtr&);
-    ::Ice::ObjectAdapterPtr getAdapter() const;
+    void setAdapter(const Ice::ObjectAdapterPtr&);
+    Ice::ObjectAdapterPtr getAdapter() const;
 
     //
     // Operations from EventHandler
@@ -94,7 +94,7 @@ public:
     virtual void read(BasicStream&);
     virtual void message(BasicStream&, const ThreadPoolPtr&);
     virtual void finished(const ThreadPoolPtr&);
-    virtual void exception(const ::Ice::LocalException&);
+    virtual void exception(const Ice::LocalException&);
     virtual std::string toString() const;
 
     //
@@ -106,7 +106,7 @@ public:
 
 private:
 
-    Connection(const InstancePtr&, const TransceiverPtr&, const EndpointPtr&, const ::Ice::ObjectAdapterPtr&);
+    Connection(const InstancePtr&, const TransceiverPtr&, const EndpointPtr&, const Ice::ObjectAdapterPtr&);
     virtual ~Connection();
     friend class IncomingConnectionFactory;
     friend class OutgoingConnectionFactory;
@@ -120,7 +120,7 @@ private:
 	StateClosed
     };
 
-    void setState(State, const ::Ice::LocalException&);
+    void setState(State, const Ice::LocalException&);
     void setState(State);
 
     void initiateShutdown() const;
@@ -134,14 +134,13 @@ private:
     TransceiverPtr _transceiver;
     const EndpointPtr _endpoint;
 
-    ::Ice::ObjectAdapterPtr _adapter;
+    Ice::ObjectAdapterPtr _adapter;
+    ServantManagerPtr _servantManager;
 
-    const ::Ice::LoggerPtr _logger;
+    const Ice::LoggerPtr _logger;
     const TraceLevelsPtr _traceLevels;
     const DefaultsAndOverridesPtr _defaultsAndOverrides;
 
-    const ThreadPoolPtr _clientThreadPool;
-    const ThreadPoolPtr _serverThreadPool;
     bool _registeredWithPool;
 
     bool _warn;
@@ -149,17 +148,17 @@ private:
     int _acmTimeout;
     IceUtil::Time _acmAbsoluteTimeout;
 
-    const std::vector< ::Ice::Byte> _requestHdr;
-    const std::vector< ::Ice::Byte> _requestBatchHdr;
-    const std::vector< ::Ice::Byte> _replyHdr;
+    const std::vector<Ice::Byte> _requestHdr;
+    const std::vector<Ice::Byte> _requestBatchHdr;
+    const std::vector<Ice::Byte> _replyHdr;
 
-    ::Ice::Int _nextRequestId;
-    std::map< ::Ice::Int, Outgoing*> _requests;
-    std::map< ::Ice::Int, Outgoing*>::iterator _requestsHint;
-    std::map< ::Ice::Int, OutgoingAsyncPtr> _asyncRequests;
-    std::map< ::Ice::Int, OutgoingAsyncPtr>::iterator _asyncRequestsHint;
+    Ice::Int _nextRequestId;
+    std::map<Ice::Int, Outgoing*> _requests;
+    std::map<Ice::Int, Outgoing*>::iterator _requestsHint;
+    std::map<Ice::Int, OutgoingAsyncPtr> _asyncRequests;
+    std::map<Ice::Int, OutgoingAsyncPtr>::iterator _asyncRequestsHint;
 
-    std::auto_ptr< ::Ice::LocalException> _exception;
+    std::auto_ptr<Ice::LocalException> _exception;
 
     BasicStream _batchStream;
     int _batchRequestNum;

@@ -18,7 +18,7 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/Object.h>
 #include <Ice/ObjectAdapterFactory.h>
-#include <Ice/ObjectAdapterI.h>
+#include <Ice/ObjectAdapterI.h> // For getIncomingConnections().
 #include <Ice/Outgoing.h>
 #include <Ice/OutgoingAsync.h>
 #include <Ice/Direct.h>

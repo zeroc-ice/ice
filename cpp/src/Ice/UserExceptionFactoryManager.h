@@ -23,13 +23,13 @@
 namespace IceInternal
 {
 
-class UserExceptionFactoryManager : public ::IceUtil::Shared, public ::IceUtil::Mutex
+class UserExceptionFactoryManager : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
-    void add(const ::Ice::UserExceptionFactoryPtr&, const std::string&);
+    void add(const Ice::UserExceptionFactoryPtr&, const std::string&);
     void remove(const std::string&);
-    ::Ice::UserExceptionFactoryPtr find(const std::string&);
+    Ice::UserExceptionFactoryPtr find(const std::string&);
 
 private:
 
@@ -37,9 +37,8 @@ private:
     void destroy();
     friend class Instance;
 
-    std::map<std::string, ::Ice::UserExceptionFactoryPtr> _factoryMap;
-    std::map<std::string, ::Ice::UserExceptionFactoryPtr>::iterator _factoryMapHint;
-    static const char * const _kindOfObject;
+    std::map<std::string, Ice::UserExceptionFactoryPtr> _factoryMap;
+    std::map<std::string, Ice::UserExceptionFactoryPtr>::iterator _factoryMapHint;
 };
 
 }

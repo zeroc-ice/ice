@@ -43,6 +43,7 @@ OBJS		= Initialize.o \
 		  ObjectAdapter.o \
 		  ObjectAdapterI.o \
 		  ObjectAdapterFactory.o \
+		  ServantManager.o \
 		  ServantLocator.o \
 		  UserExceptionFactory.o \
 		  UserExceptionFactoryManager.o \

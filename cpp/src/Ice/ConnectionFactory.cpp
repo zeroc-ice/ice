@@ -23,7 +23,7 @@
 #include <Ice/Connector.h>
 #include <Ice/Acceptor.h>
 #include <Ice/ThreadPool.h>
-#include <Ice/ObjectAdapter.h>
+#include <Ice/ObjectAdapterI.h> // For getThreadPool().
 #include <Ice/Reference.h>
 #include <Ice/Endpoint.h>
 #include <Ice/RouterInfo.h>
@@ -719,31 +719,19 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 void
 IceInternal::IncomingConnectionFactory::registerWithPool()
 {
-    if(_acceptor)
+    if(_acceptor && !_registeredWithPool)
     {
-	if(!_registeredWithPool)
-	{
-	    if(!_serverThreadPool) // Lazy initialization.
-	    {
-		const_cast<ThreadPoolPtr&>(_serverThreadPool) = _instance->serverThreadPool();
-		assert(_serverThreadPool);
-	    }
-	    _serverThreadPool->_register(_acceptor->fd(), this);
-	    _registeredWithPool = true;
-	}
+	dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->_register(_acceptor->fd(), this);
+	_registeredWithPool = true;
     }
 }
 
 void
 IceInternal::IncomingConnectionFactory::unregisterWithPool()
 {
-    if(_acceptor)
+    if(_acceptor && _registeredWithPool)
     {
-	if(_registeredWithPool)
-	{
-	    assert(_serverThreadPool);
-	    _serverThreadPool->unregister(_acceptor->fd());
-	    _registeredWithPool = false;
-	}
+	dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->unregister(_acceptor->fd());
+	_registeredWithPool = false;
     }
 }

@@ -16,19 +16,20 @@
 #define ICE_OBJECT_ADAPTER_I_H
 
 #include <IceUtil/Shared.h>
-#include <IceUtil/Mutex.h>
+#include <IceUtil/RecMutex.h>
 #include <IceUtil/Monitor.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
 #include <Ice/CommunicatorF.h>
-#include <Ice/LoggerF.h>
 #include <Ice/ConnectionFactoryF.h>
+#include <Ice/ServantManagerF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/Exception.h>
 #include <Ice/EndpointF.h>
 #include <Ice/LocatorInfoF.h>
+#include <Ice/ThreadPoolF.h>
 #include <list>
 
 namespace Ice
@@ -37,7 +38,7 @@ namespace Ice
 class ObjectAdapterI;
 typedef IceUtil::Handle<ObjectAdapterI> ObjectAdapterIPtr;
 
-class ObjectAdapterI : public ObjectAdapter, public ::IceUtil::Monitor< ::IceUtil::Mutex>
+class ObjectAdapterI : public ObjectAdapter, public IceUtil::Monitor<IceUtil::RecMutex>
 {
 public:
 
@@ -70,37 +71,39 @@ public:
 
     virtual void setLocator(const LocatorPrx&);
     
-    std::list< ::IceInternal::ConnectionPtr> getIncomingConnections() const;
+    bool isLocal(const ObjectPrx&) const;
+
+    std::list<IceInternal::ConnectionPtr> getIncomingConnections() const;
+
     void incDirectCount();
     void decDirectCount();
 
+    IceInternal::ThreadPoolPtr getThreadPool() const;
+    IceInternal::ServantManagerPtr getServantManager() const;
+
 private:
 
-    ObjectAdapterI(const ::IceInternal::InstancePtr&, const CommunicatorPtr&, const std::string&, const std::string&,
+    ObjectAdapterI(const IceInternal::InstancePtr&, const CommunicatorPtr&, const std::string&, const std::string&,
 		   const std::string&);
     virtual ~ObjectAdapterI();
-    friend class ::IceInternal::ObjectAdapterFactory;
+    friend class IceInternal::ObjectAdapterFactory;
     
     ObjectPrx newProxy(const Identity&) const;
     ObjectPrx newDirectProxy(const Identity&) const;
-    bool isLocal(const ObjectPrx&) const;
     void checkForDeactivation() const;
     static void checkIdentity(const Identity&);
 
-    ::IceInternal::InstancePtr _instance;
+    bool _deactivated;
+    IceInternal::InstancePtr _instance;
+    IceInternal::ThreadPoolPtr _threadPool;
+    IceInternal::ServantManagerPtr _servantManager;
     CommunicatorPtr _communicator;
     bool _printAdapterReadyDone;
     const std::string _name;
     const std::string _id;
-    const LoggerPtr _logger;
-    ObjectDict _activeServantMap;
-    ObjectDict::iterator _activeServantMapHint;
-    std::map<std::string, ServantLocatorPtr> _locatorMap;
-    std::map<std::string, ServantLocatorPtr>::iterator _locatorMapHint;
-    std::vector< ::IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
-    std::vector< ::IceInternal::EndpointPtr> _routerEndpoints;
-    IceUtil::Mutex _routerEndpointsMutex;
-    ::IceInternal::LocatorInfoPtr _locatorInfo;
+    std::vector<IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
+    std::vector<IceInternal::EndpointPtr> _routerEndpoints;
+    IceInternal::LocatorInfoPtr _locatorInfo;
     int _directCount; // The number of direct proxies dispatching on this object adapter.
     bool _waitForDeactivate;
 };

@@ -13,7 +13,8 @@
 // **********************************************************************
 
 #include <Ice/Direct.h>
-#include <Ice/ObjectAdapterI.h> // We need ObjectAdapterI, not ObjectAdapter, because of inc/decDirectCount().
+#include <Ice/ObjectAdapterI.h> // For inc/decDirectCount().
+#include <Ice/ServantManager.h>
 #include <Ice/ServantLocator.h>
 #include <Ice/Reference.h>
 #include <Ice/Object.h>
@@ -26,15 +27,20 @@ using namespace IceInternal;
 IceInternal::Direct::Direct(const Current& current) :
     _current(current)
 {
-    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->incDirectCount();
+    ObjectAdapterI* adapter = dynamic_cast<ObjectAdapterI*>(_current.adapter.get());
+    assert(adapter);
 
+    ServantManagerPtr servantManager = adapter->getServantManager();
+    assert(servantManager);
+
+    adapter->incDirectCount();
     try
     {
-	_servant = _current.adapter->identityToServant(_current.id);
+	_servant = servantManager->findServant(_current.id);
 	
 	if(!_servant && !_current.id.category.empty())
 	{
-	    _locator = _current.adapter->findServantLocator(_current.id.category);
+	    _locator = servantManager->findServantLocator(_current.id.category);
 	    if(_locator)
 	    {
 		_servant = _locator->locate(_current, _cookie);
@@ -43,7 +49,7 @@ IceInternal::Direct::Direct(const Current& current) :
 	
 	if(!_servant)
 	{
-	    _locator = _current.adapter->findServantLocator("");
+	    _locator = servantManager->findServantLocator("");
 	    if(_locator)
 	    {
 		_servant = _locator->locate(_current, _cookie);
@@ -82,18 +88,21 @@ IceInternal::Direct::Direct(const Current& current) :
 	    }
 	    catch(...)
 	    {
-		dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decDirectCount();
+		adapter->decDirectCount();
 		throw;
 	    }
 	}
 
-	dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decDirectCount();
+	adapter->decDirectCount();
 	throw;
     }
 }
 
 IceInternal::Direct::~Direct()
 {
+    ObjectAdapterI* adapter = dynamic_cast<ObjectAdapterI*>(_current.adapter.get());
+    assert(adapter);
+
     if(_locator && _servant)
     {
 	try
@@ -102,12 +111,12 @@ IceInternal::Direct::~Direct()
 	}
 	catch(...)
 	{
-	    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decDirectCount();
+	    adapter->decDirectCount();
 	    throw;
 	}
     }
 
-    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decDirectCount();
+    adapter->decDirectCount();
 }
 
 const ObjectPtr&
