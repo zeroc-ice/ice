@@ -91,6 +91,55 @@ Ice::PropertiesI::getPropertiesForPrefix(const string& prefix)
     return result;
 }
 
+//
+// Match `s' against the pattern `pat'. A * in the pattern acts
+// as a wildcard: it matches any non-empty sequence of characters
+// other than a period (`.'). We match by hand here because
+// it's portable across platforms (whereas regex() isn't).
+//
+
+bool
+Ice::PropertiesI::match(const string& s, const string& pat)
+{
+    assert(!s.empty());
+    assert(!pat.empty());
+
+    if(pat.find('*') == string::npos)
+    {
+        return s == pat;
+    }
+
+    string::size_type sIndex = 0;
+    string::size_type patIndex = 0;
+    do
+    {
+        if(pat[patIndex] == '*')
+	{
+	    if(s[sIndex] == '.') // Don't allow matching x..y against x.*.y -- star matches non-empty sequence only.
+	    {
+		return false;
+	    }
+	    while(sIndex < s.size() && s[sIndex] != '.')
+	    {
+	        ++sIndex;
+	    }
+	    patIndex++;
+	}
+	else
+	{
+	    if(pat[patIndex] != s[sIndex])
+	    {
+		return false;
+	    }
+	    ++sIndex;
+	    ++patIndex;
+	}
+    }
+    while(sIndex < s.size() && patIndex < pat.size());
+
+    return sIndex == s.size() && patIndex == pat.size();
+}
+
 void
 Ice::PropertiesI::setProperty(const string& key, const string& value)
 {
@@ -110,10 +159,10 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
 	string prefix = key.substr(0, dotPos);
 	for(const char* const** i = IceInternal::PropertyNames::validProps; *i != 0; ++i)
 	{
-	    string property(*i[0]);
-	    dotPos = property.find('.');
+	    string pattern(*i[0]);
+	    dotPos = pattern.find('.');
 	    assert(dotPos != string::npos);
-	    string propPrefix = property.substr(0, dotPos);
+	    string propPrefix = pattern.substr(0, dotPos);
 	    if(propPrefix != prefix)
 	    {
 		continue;
@@ -122,16 +171,7 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
 	    bool found = false;
 	    for(const char* const* j = *i; *j != 0 && !found; ++j)
 	    {
-		property = *j;
-		string::size_type starPos = property.find('*');
-		if(starPos == string::npos)
-		{
-		    found = property == key;
-		}
-		else
-		{
-		    found = property.compare(0, starPos, key.substr(0, starPos)) == 0;
-		}
+		found = match(key, *j);
 	    }
 	    if(!found)
 	    {

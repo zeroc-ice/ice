@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, shutil, re, signal, time
+import os, sys, shutil, re, signal, time, string
 
 progname = os.path.basename(sys.argv[0])
 infile = ""
@@ -188,15 +188,20 @@ def endSection(lang):
         file.write("\n")
 	return
 
+wildcard = re.compile(".*<any>.*")
+
 def writeEntry(lang, label, entry):
     file = outputFiles[0][1]
     if lang == "cpp":
-	file.write("    ")
+	file.write("    \"" + label + '.' + string.replace(entry, "<any>", "*") + "\",\n")
     elif lang == "java":
-	file.write("        ")
+	pattern = string.replace(entry, ".", "\\\\.")
+	pattern = string.replace(pattern, "<any>", "[^\\\\s.]+")
+	file.write("        " + "\"^" + label + "\\\\." + pattern + "$\",\n")
     elif lang == "cs":
-	file.write("            ")
-    file.write("\"" + label + '.' + entry + "\",\n")
+	pattern = string.replace(entry, ".", "\\.")
+	pattern = string.replace(pattern, "<any>", "[^\\s.]+")
+	file.write("            " + "@\"^" + label + "\\." + pattern + "$\",\n")
 
 def processFile(lang):
 
@@ -213,7 +218,7 @@ def processFile(lang):
     #
     # Set up regular expressions for empty and comment lines, section headings, and entry lines.
     #
-    ignore = re.compile("^\s*(?:#.*)?$") 				# Empty line or comment line
+    ignore = re.compile("^\s*(?:#.*)?$") 			# Empty line or comment line
     section = re.compile("^\s*([a-zA-z_]\w*)\s*:\s*$")		# Section heading
     entry = re.compile("^\s*([^ \t\n\r\f\v#]+)(?:\s*#.*)?$")	# Any non-whitespace character sequence, except for #
 
@@ -235,8 +240,8 @@ def processFile(lang):
 
     labels = {}		# Records the line number on which each label is defined
     atSectionStart = 0	# True for the line on which a label is defined
-    seenSection = 0		# Set to true (and the remains as true) once the first label is defined
-    numEntries = 0		# Number of entries within a section
+    seenSection = 0	# Set to true (and the remains as true) once the first label is defined
+    numEntries = 0	# Number of entries within a section
     errors = 0		# Number of syntax errors in the input file
 
     #

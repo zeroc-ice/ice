@@ -34,22 +34,22 @@
 # trailing comment.
 #
 
-# A '*' character in a property is a wildcard. If used, it must appear
-# at the end of the property.
+# The token "<any>" is a wildcard and matches any non-empty sequence
+# of non-whitespace characters, excluding '.'.
 #
 # Examples:
 #
-# "Ice.Foo.*" allows all properties with that prefix, such as
+# "Ice.Foo.<any>" allows all properties with that prefix, such as
 # "Ice.Foo.Bar".
 # 
-# "Ice.Foo*" allows properties such as "Ice.Foo.Bar" and "Ice.FooBar".
+# "Ice.Foo<any>" allows properties such as "Ice.Foo.Bar" and "Ice.FooBar".
 #
 # Property definitions are translated into each language by
 # makeprops.py.  For example, consider the following definitions:
 #
 # Ice:
 #	ChangeUser
-#	Package.*
+#	Package.<any>
 #
 # IceBox:
 #	LoadOrder
@@ -119,8 +119,8 @@ Ice:
     Override.Compress
     Override.ConnectTimeout
     Override.Timeout
-    Package.*
-    Plugin.*
+    Package.<any>
+    Plugin.<any>
     PrintAdapterReady
     PrintProcessId
     ProgramName
@@ -158,7 +158,7 @@ Ice:
 IceBox:
     LoadOrder
     PrintServicesReady
-    Service.*
+    Service.<any>
     ServiceManager.AdapterId
     ServiceManager.Endpoints
     ServiceManager.Identity
@@ -168,7 +168,7 @@ IceBox:
     ServiceManager.ThreadPool.SizeMax
     ServiceManager.ThreadPool.SizeWarn
     ServiceManager.ThreadPool.StackSize
-    UseSharedCommunicator.*
+    UseSharedCommunicator.<any>
 
 IcePack:
     Node.AdapterId
@@ -256,7 +256,7 @@ IcePatch2:
     ThreadPool.StackSize
 
 IceSSL:
-    Client.CertPath*
+    Client.CertPath
     Client.Config
     Client.Handshake.Retries
     Client.IgnoreValidPeriod
@@ -266,7 +266,7 @@ IceSSL:
     Client.Overrides.RSA.Certificate
     Client.Overrides.RSA.PrivateKey
     Client.Passphrase.Retries
-    Server.CertPath*
+    Server.CertPath
     Server.Config
     Server.IgnoreValidPeriod
     Server.Overrides.CACertificate
@@ -395,8 +395,16 @@ Glacier2:
     Trace.Session
 
 Freeze:
-    DbEnv.*
-    Evictor.*
+    DbEnv.<any>.DbCheckpointPeriod
+    DbEnv.<any>.DbHome
+    DbEnv.<any>.DbPrivate
+    DbEnv.<any>.DbRecoverFatal
+    DbEnv.<any>.OldLogsAutoDelete
+    DbEnv.<any>.PeriodicCheckpointMinSize
+    Evictor.<any>.<any>.MaxTxSize
+    Evictor.<any>.<any>.SavePeriod
+    Evictor.<any>.<any>.SaveSizeTrigger
+    Evictor.<any>.<any>.StreamTimeout
     Trace.DbEnv
     Trace.Evictor
     Trace.Map

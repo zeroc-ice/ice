@@ -9,6 +9,7 @@
 
 using System.Collections;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace Ice
 {
@@ -97,13 +98,13 @@ namespace Ice
 	    int dotPos = key.IndexOf('.');
 	    if(dotPos != -1)
 	    {
-		string prefix = key.Substring(0, dotPos - 1);
+		string prefix = key.Substring(0, dotPos);
 		for(int i = 0; IceInternal.PropertyNames.validProps[i] != null; ++i)
 		{
-		    string property = IceInternal.PropertyNames.validProps[i][0];
-		    dotPos = property.IndexOf('.');
+		    string pattern = IceInternal.PropertyNames.validProps[i][0];
+		    dotPos = pattern.IndexOf('.');
 		    Debug.Assert(dotPos != -1);
-		    string propPrefix = property.Substring(0, dotPos - 1);
+		    string propPrefix = pattern.Substring(1, dotPos - 2);
 		    if(!propPrefix.Equals(prefix))
 		    {
 			continue;
@@ -112,22 +113,9 @@ namespace Ice
 		    bool found = false;
 		    for(int j = 0; IceInternal.PropertyNames.validProps[i][j] != null && !found; ++j)
 		    {
-			property = IceInternal.PropertyNames.validProps[i][j];
-			int starPos = property.IndexOf('*');
-			if(starPos == -1)
-			{
-			    found = property.Equals(key);
-			}
-			else
-			{
-			    if(key.Length < starPos)
-			    {
-				continue;
-			    }
-			    string s1 = property.Substring(0, starPos - 1);
-			    string s2 = key.Substring(0, starPos - 1);
-			    found = s1.Equals(s2);
-			}
+			Regex r = new Regex(IceInternal.PropertyNames.validProps[i][j]);
+			Match m = r.Match(key);
+			found = m.Success;
 		    }
 		    if(!found)
 		    {

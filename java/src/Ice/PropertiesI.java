@@ -104,13 +104,13 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
         int dotPos = key.indexOf('.');
 	if(dotPos != -1)
 	{
-	    String prefix = key.substring(0, dotPos - 1);
+	    String prefix = key.substring(0, dotPos);
 	    for(int i = 0; IceInternal.PropertyNames.validProps[i] != null; ++i)
 	    {
-	        String property = IceInternal.PropertyNames.validProps[i][0];
-		dotPos = property.indexOf('.');
+	        String pattern = IceInternal.PropertyNames.validProps[i][0];
+		dotPos = pattern.indexOf('.');
 		assert(dotPos != -1);
-		String propPrefix = property.substring(0, dotPos - 1);
+		String propPrefix = pattern.substring(1, dotPos - 1);
 		if(!propPrefix.equals(prefix))
 		{
 		    continue;
@@ -119,22 +119,10 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 		boolean found = false;
 		for(int j = 0; IceInternal.PropertyNames.validProps[i][j] != null && !found; ++j)
 		{
-		    property = IceInternal.PropertyNames.validProps[i][j];
-		    int starPos = property.indexOf('*');
-		    if(starPos == -1)
-		    {
-		        found = property.equals(key);
-		    }
-		    else
-		    {
-			if(key.length() < starPos)
-			{
-			    continue;
-			}
-			String s1 = property.substring(0, starPos);
-			String s2 = key.substring(0, starPos);
-			found = s1.equals(s2);
-		    }
+		    pattern = IceInternal.PropertyNames.validProps[i][j];
+		    java.util.regex.Pattern pComp = java.util.regex.Pattern.compile(pattern);
+		    java.util.regex.Matcher m = pComp.matcher(key);
+		    found = m.matches();
 		}
 		if(!found)
 		{
