@@ -8,12 +8,12 @@
      <!-- Deploy two servers, the first one is defined in the         --> 
      <!-- server.xml file and is a regular C++ server, the second one -->
      <!-- is defined in the icebox.xml file and is a C++ IceBox       -->
-     <!-- server. The servers are deployed on the node named 'node'   -->
+     <!-- server. The servers are deployed on the node named 'node'.  -->
      <!-- =========================================================== -->
 
      <node name="node">
-       <include descriptor="icebox.xml" name="IceBox1"/>
        <include descriptor="server.xml" name="Server1"/>
+       <include descriptor="icebox.xml" name="IceBox1"/>
      </node>
 
   </application>
