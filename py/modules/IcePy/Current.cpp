@@ -149,7 +149,28 @@ currentGetter(CurrentObject* self, void* closure)
     }
     case CURRENT_MODE:
     {
-        // TODO: OperationMode
+        if(self->mode == NULL)
+        {
+            PyObject* type = lookupType("Ice.OperationMode");
+            assert(type != NULL);
+            char* enumerator;
+            switch(self->current->mode)
+            {
+            case Ice::Normal:
+                enumerator = "Normal";
+                break;
+            case Ice::Nonmutating:
+                enumerator = "Nonmutating";
+                break;
+            case Ice::Idempotent:
+                enumerator = "Idempotent";
+                break;
+            }
+            self->mode = PyObject_GetAttrString(type, enumerator);
+            assert(self->mode != NULL);
+        }
+        Py_INCREF(self->mode);
+        result = self->mode;
         break;
     }
     case CURRENT_CTX:
@@ -249,12 +270,16 @@ IcePy::initCurrent(PyObject* module)
     {
         return false;
     }
+
     return true;
 }
 
 PyObject*
 IcePy::createCurrent(const Ice::Current& current)
 {
+    //
+    // Return an instance of IcePy.Current to hold the current information.
+    //
     CurrentObject* obj = currentNew(NULL);
     if(obj != NULL)
     {
