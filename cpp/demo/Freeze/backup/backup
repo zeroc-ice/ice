@@ -6,7 +6,7 @@ case $1 in
           db_checkpoint -1 -h db
           echo "====== Retrieve list of old logs ======"
           oldLogs=`db_archive -h db`
-          if [ $1 == "full" ]
+          if [ $1 = "full" ]
           then
              echo "====== Data backup ======"
              tar zcvf $1/data.tar.gz db/data/IntLongMap
