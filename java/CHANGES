@@ -1,6 +1,11 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Changed code generation in slice2java: for local interfaces,
+  only an OperationsNC (but no Operations) interface is generated
+  now. (Previously, both interfaces were generated, with one of
+  them being empty.)
+
 - Freeze dictionaries now support indices. You can index on the full
   value of the dictionary, or on a member (when the value is a struct
   or a class). When you index on a member, you can define several

@@ -1052,12 +1052,12 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
     string name = p->name();
     ClassList bases = p->bases();
     string package = getPackage(p);
-    string operationsInterfaceName = "Operations";
-    if(noCurrent)
+    string opIntfName = "Operations";
+    if(noCurrent || p->isLocal())
     {
-	operationsInterfaceName += "NC";
+	opIntfName += "NC";
     }
-    string absolute = getAbsolute(p, "", "_", operationsInterfaceName);
+    string absolute = getAbsolute(p, "", "_", opIntfName);
 
     if(!open(absolute))
     {
@@ -1069,11 +1069,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
     //
     // Generate the operations interface
     //
-    out << sp << nl << "public interface " << '_' << name << "Operations";
-    if(noCurrent)
-    {
-	out << "NC";
-    }
+    out << sp << nl << "public interface " << '_' << name << opIntfName;
     if((bases.size() == 1 && bases.front()->isAbstract()) || bases.size() > 1)
     {
         out << " extends ";
@@ -1092,11 +1088,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
                 {
                     first = false;
                 }
-                out << getAbsolute(*q, package, "_", "Operations");
-		if(noCurrent)
-		{
-		    out << "NC";
-		}
+                out << getAbsolute(*q, package, "_", opIntfName);
             }
             ++q;
         }
@@ -1133,26 +1125,14 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 	ExceptionList throws = op->throws();
 	throws.sort();
 	throws.unique();
-	if(!noCurrent)
+	out << sp << nl << retS << ' ' << (amd ? name + "_async" : fixKwd(name)) << spar << params;
+	if(!noCurrent && !p->isLocal())
 	{
-	    out << sp << nl << retS << ' ' << (amd ? name + "_async" : fixKwd(name)) << spar << params;
-	    if(!p->isLocal())
-	    {
-		out << "Ice.Current __current";
-	    }
-	    out << epar;
-	    writeThrowsClause(package, throws);
-	    out << ';';
+	    out << "Ice.Current __current";
 	}
-	else
-	{
-	    if(!p->isLocal())
-	    {
-		out << sp << nl << retS << ' ' << (amd ? name + "_async" : fixKwd(name)) << spar << params << epar;
-		writeThrowsClause(package, throws);
-		out << ';';
-	    }
-	}
+	out << epar;
+	writeThrowsClause(package, throws);
+	out << ';';
     }
 
     out << eb;
@@ -1172,6 +1152,11 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassList bases = p->bases();
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "_", "Tie");
+    string opIntfName = "Operations";
+    if(p->isLocal())
+    {
+        opIntfName += "NC";
+    }
 
     //
     // Don't generate a TIE class for a non-abstract class
@@ -1214,7 +1199,8 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sb;
     out << eb;
 
-    out << sp << nl << "public" << nl << '_' << name << "Tie(" << '_' << name << "Operations delegate)";
+    out << sp << nl << "public" << nl << '_' << name << "Tie(" << '_' << name << opIntfName
+        << " delegate)";
     out << sb;
     out << nl << "_ice_delegate = delegate;";
     out << eb;
@@ -1226,7 +1212,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sp << nl << "public void" << nl << "ice_delegate(java.lang.Object delegate)";
     out << sb;
-    out << nl << "_ice_delegate = (_" << name << "Operations)delegate;";
+    out << nl << "_ice_delegate = (_" << name << opIntfName << ")delegate;";
     out << eb;
 
     out << sp << nl << "public boolean" << nl << "equals(java.lang.Object rhs)";
@@ -1298,7 +1284,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
     }
 
-    out << sp << nl << "private " << '_' << name << "Operations _ice_delegate;";
+    out << sp << nl << "private " << '_' << name << opIntfName << " _ice_delegate;";
     out << eb;
     close();
 
@@ -1340,7 +1326,15 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << "Ice.Object";
         }
-	out << "," << nl << '_' << name << "Operations, _" << name << "OperationsNC";
+	out << "," << nl << '_' << name;
+	if(!p->isLocal())
+	{
+	    out << "Operations, _" << name << "OperationsNC";
+	}
+	else
+	{
+	    out << "OperationsNC";
+	}
         if(!bases.empty())
         {
             ClassList::const_iterator q = bases.begin();
@@ -1386,7 +1380,10 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         StringList implements;
         if(p->isAbstract())
         {
-            implements.push_back("_" + name + "Operations");
+	    if(!p->isLocal())
+	    {
+		implements.push_back("_" + name + "Operations");
+	    }
             implements.push_back("_" + name + "OperationsNC");
         }
         if(!bases.empty())
@@ -3854,6 +3851,10 @@ Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
     }
     out << " implements " << '_' << name << "Operations";
+    if(p->isLocal())
+    {
+        out << "NC";
+    }
     out << sb;
 
     out << nl << "public" << nl << name << "I()";

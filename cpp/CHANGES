@@ -1,6 +1,11 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Changed code generation in slice2java: for local interfaces,
+  only an OperationsNC (but no Operations) interface is generated
+  now. (Previously, both interfaces were generated, with one of
+  them being empty.)
+
 - The IceSSL plug-in was using regular mutexes in some places where
   static mutexes are necessary. This has been fixed.
 
