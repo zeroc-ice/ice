@@ -315,12 +315,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_16626BED7F9D4658876E9E474CBF0C23"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\SLICE2CS.EXE"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_16D55F5816F645BF899BA974305D55AE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICE\\NESTED\\SERVER.JAVA"
@@ -525,6 +519,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_25E556CA399E44618DAB4624BE6D579E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\SLICE2FREEZEJ\\RELEASE\\SLICE2FREEZEJ.EXE"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_266F3B07A55B48D88BDA86BF8D8FBD3E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\ICE\\ROUTINGTABLE.H"
@@ -618,12 +618,6 @@
         "MsmKey" = "8:_2FC188CE55174C8287605ACB954E9C38"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\ICEPACK\\SIMPLE\\ICEBOX.XML"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_32E4118BD1894475B7F934E319D6078E"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\SLICE2FREEZEJ.EXE"
         }
         "Entry"
         {
@@ -1431,12 +1425,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_6B7B3E16B7284CF4837459CC07F27577"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\SLICE2CPP.EXE"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_6BCB069321B64BDA84A62D5C416B3878"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\ICE\\NESTED\\CONFIG.SERVER"
@@ -1737,6 +1725,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_83F1B4442BD74BB2B592EBA53700CCE8"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\SLICE2JAVA\\RELEASE\\SLICE2JAVA.EXE"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_840B63869BDE4C72857EAF2272FB6105"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\FREEZE\\LIBRARY\\SERVER.JAVA"
@@ -1839,6 +1833,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_8A24F3E855D241A19947C2E402341A7F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICEBOX\\DEBUG\\ICEBOX.EXE"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_8A71165CFC5C4941B832971E0C2CCEDD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\GLACIER.LIB"
@@ -1860,6 +1860,12 @@
         "MsmKey" = "8:_8B9A7B58031949B1AB249182D0C4A0F3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\FREEZE\\PHONEBOOK\\BUILD.XML"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8B9DC3391500443EA8A4DA9B61E00FE4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\SLICE2CPP\\RELEASE\\SLICE2CPP.EXE"
         }
         "Entry"
         {
@@ -2775,12 +2781,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_D373A8B57AB44A5DA750A7720187BE81"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\SLICE2JAVA.EXE"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_D42A7756B31A42A48047DF769A9AD6C4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\FREEZE\\PHONEBOOK\\SCANNER.CPP"
@@ -2871,6 +2871,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_DADC042B83CD4640A80E32A4904B79CC"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\SLICE2FREEZE\\RELEASE\\SLICE2FREEZE.EXE"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_DAE5ECCD6FE94613B4A80B5263C2A9C6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\ICESSL\\RSAKEYPAIRF.H"
@@ -2892,6 +2898,12 @@
         "MsmKey" = "8:_DB0317F608F54795AAB91A6A799524CD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\FREEZE\\BENCH\\TEST.ICE"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DB0D6515D94B4158A6F610869D609A07"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\SLICE2CS\\RELEASE\\SLICE2CS.EXE"
         }
         "Entry"
         {
@@ -2970,12 +2982,6 @@
         "MsmKey" = "8:_E05531571C9245869B9861775880C118"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\ICE\\INSTANCEF.H"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E090B1203CD64D9DA02A32ECB05C1B87"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\SLICE2FREEZE.EXE"
         }
         "Entry"
         {
@@ -4544,26 +4550,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_16626BED7F9D4658876E9E474CBF0C23"
-            {
-            "SourcePath" = "8:..\\..\\..\\bin\\slice2cs.exe"
-            "TargetName" = "8:slice2cs.exe"
-            "Tag" = "8:"
-            "Folder" = "8:_59077D9FF10F43F49AA2AC4A5FE778DF"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_16D55F5816F645BF899BA974305D55AE"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\nested\\Server.java"
@@ -5244,6 +5230,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_25E556CA399E44618DAB4624BE6D579E"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\slice2freezej\\Release\\slice2freezej.exe"
+            "TargetName" = "8:slice2freezej.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_59077D9FF10F43F49AA2AC4A5FE778DF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_266F3B07A55B48D88BDA86BF8D8FBD3E"
             {
             "SourcePath" = "8:..\\..\\..\\include\\Ice\\RoutingTable.h"
@@ -5550,26 +5556,6 @@
             "TargetName" = "8:icebox.xml"
             "Tag" = "8:"
             "Folder" = "8:_EF2CC653E32B43049A12DE0BE9C0C94A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_32E4118BD1894475B7F934E319D6078E"
-            {
-            "SourcePath" = "8:..\\..\\..\\bin\\slice2freezej.exe"
-            "TargetName" = "8:slice2freezej.exe"
-            "Tag" = "8:"
-            "Folder" = "8:_59077D9FF10F43F49AA2AC4A5FE778DF"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -8244,26 +8230,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6B7B3E16B7284CF4837459CC07F27577"
-            {
-            "SourcePath" = "8:..\\..\\..\\bin\\slice2cpp.exe"
-            "TargetName" = "8:slice2cpp.exe"
-            "Tag" = "8:"
-            "Folder" = "8:_59077D9FF10F43F49AA2AC4A5FE778DF"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6BCB069321B64BDA84A62D5C416B3878"
             {
             "SourcePath" = "8:..\\..\\..\\demo\\Ice\\nested\\config.server"
@@ -9244,6 +9210,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_83F1B4442BD74BB2B592EBA53700CCE8"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\slice2java\\Release\\slice2java.exe"
+            "TargetName" = "8:slice2java.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_59077D9FF10F43F49AA2AC4A5FE778DF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_840B63869BDE4C72857EAF2272FB6105"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\library\\Server.java"
@@ -9584,6 +9570,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8A24F3E855D241A19947C2E402341A7F"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\IceBox\\Debug\\icebox.exe"
+            "TargetName" = "8:icebox.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_0ED4A1F000E440B18B5C6D57F70EB31A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8A71165CFC5C4941B832971E0C2CCEDD"
             {
             "SourcePath" = "8:..\\..\\..\\lib\\glacier.lib"
@@ -9650,6 +9656,26 @@
             "TargetName" = "8:build.xml"
             "Tag" = "8:"
             "Folder" = "8:_57EFC5B32A4B472F842CFF1522F97BB4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8B9DC3391500443EA8A4DA9B61E00FE4"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\slice2cpp\\Release\\slice2cpp.exe"
+            "TargetName" = "8:slice2cpp.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_59077D9FF10F43F49AA2AC4A5FE778DF"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -12624,26 +12650,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_D373A8B57AB44A5DA750A7720187BE81"
-            {
-            "SourcePath" = "8:..\\..\\..\\bin\\slice2java.exe"
-            "TargetName" = "8:slice2java.exe"
-            "Tag" = "8:"
-            "Folder" = "8:_59077D9FF10F43F49AA2AC4A5FE778DF"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_D42A7756B31A42A48047DF769A9AD6C4"
             {
             "SourcePath" = "8:..\\..\\..\\demo\\Freeze\\phonebook\\Scanner.cpp"
@@ -12944,6 +12950,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_DADC042B83CD4640A80E32A4904B79CC"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\slice2freeze\\Release\\slice2freeze.exe"
+            "TargetName" = "8:slice2freeze.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_59077D9FF10F43F49AA2AC4A5FE778DF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_DAE5ECCD6FE94613B4A80B5263C2A9C6"
             {
             "SourcePath" = "8:..\\..\\..\\include\\IceSSL\\RSAKeyPairF.h"
@@ -13010,6 +13036,26 @@
             "TargetName" = "8:Test.ice"
             "Tag" = "8:"
             "Folder" = "8:_0F5E2118720344B39242533A1BE76F97"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_DB0D6515D94B4158A6F610869D609A07"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\slice2cs\\Release\\slice2cs.exe"
+            "TargetName" = "8:slice2cs.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_59077D9FF10F43F49AA2AC4A5FE778DF"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -13270,26 +13316,6 @@
             "TargetName" = "8:InstanceF.h"
             "Tag" = "8:"
             "Folder" = "8:_A42D74C86BA04AF4A760DBEC329FD88D"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E090B1203CD64D9DA02A32ECB05C1B87"
-            {
-            "SourcePath" = "8:..\\..\\..\\bin\\slice2freeze.exe"
-            "TargetName" = "8:slice2freeze.exe"
-            "Tag" = "8:"
-            "Folder" = "8:_59077D9FF10F43F49AA2AC4A5FE778DF"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -15674,6 +15700,17 @@
                     "Property" = "8:_223ED6C198F54B36AF98496B9F1D2E69"
                         "Folders"
                         {
+                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_0ED4A1F000E440B18B5C6D57F70EB31A"
+                            {
+                            "Name" = "8:debug"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_34CDB51852E04CCFA4A33664A7225349"
+                                "Folders"
+                                {
+                                }
+                            }
                         }
                     }
                     "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_82F317ACE3164062AFE4EDE50424E3DA"
@@ -16332,7 +16369,6 @@
             "UseDynamicProperties" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "SourcePath" = "8:..\\MergeModules\\BerkeleyDBRuntimeDebug.msm"
-            "ModuleSignature" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
@@ -16344,7 +16380,6 @@
             "UseDynamicProperties" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "SourcePath" = "8:..\\MergeModules\\ExpatRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.A32ACFF5E2BA440F958DA46F03D38012"
             "LanguageId" = "3:1033"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
@@ -16356,7 +16391,6 @@
             "UseDynamicProperties" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "SourcePath" = "8:..\\MergeModules\\BerkeleyDBRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
@@ -16368,7 +16402,6 @@
             "UseDynamicProperties" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "SourcePath" = "8:..\\MergeModules\\OpenSSLRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
@@ -16380,7 +16413,6 @@
             "UseDynamicProperties" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "SourcePath" = "8:..\\MergeModules\\OpenSSLDevKit.msm"
-            "ModuleSignature" = "8:MergeModule.4E1047477590477A8EEC6153FAAF5A8A"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
