@@ -272,10 +272,10 @@ class Test :
         print str(self.iteration) + ": " + self.product + " " + self.test + " " + name + "...",
         sys.stdout.flush()
     
-        serverPipe = os.popen(os.path.join(".", "server") + " " + serverOpts + " 2> /dev/null")
+        serverPipe = os.popen(os.path.join(".", "server") + " " + serverOpts)
         getAdapterReady(serverPipe)
 
-        clientPipe = os.popen(os.path.join(".", "client") + " " + clientOpts + " 2> /dev/null")
+        clientPipe = os.popen(os.path.join(".", "client") + " " + clientOpts)
         result = float(clientPipe.read())
         clientPipe.close()
         
