@@ -27,7 +27,6 @@ public:
     
     ::Ice::Object referenceFromString(const std::string&);
     ::Ice::Object referenceFromStream(Stream*);
-    void referenceToString(const ::Ice::Object&, std::string&);
     void referenceToStream(const ::Ice::Object&, Stream*);
 
 private:

@@ -27,6 +27,7 @@ public:
 
     ReferenceI(const Instance&, const std::string&,
 	       const std::vector<Endpoint>&);
+    ReferenceI(const Instance&, const std::string&);
     ReferenceI(Stream*);
 
     void streamWrite(Stream*) const;

@@ -34,6 +34,11 @@ public:
     EndpointI() { }
 
     //
+    // Create an endpoint from a string
+    //
+    static Endpoint endpointFromString(const std::string&);
+    
+    //
     // Unmarshal an endpoint
     //
     static void streamRead(Stream*, Endpoint&);
@@ -142,6 +147,7 @@ class ICE_API TcpEndpointI : public EndpointI
 public:
 
     TcpEndpointI(const std::string&, ::Ice::Int, ::Ice::Int);
+    TcpEndpointI(const std::string&);
     TcpEndpointI(Stream*);
 
     virtual void streamWrite(Stream*) const;
@@ -178,6 +184,7 @@ class ICE_API UdpEndpointI : public EndpointI
 public:
 
     UdpEndpointI(const std::string&, ::Ice::Int);
+    UdpEndpointI(const std::string&);
     UdpEndpointI(Stream*);
 
     virtual void streamWrite(Stream*) const;

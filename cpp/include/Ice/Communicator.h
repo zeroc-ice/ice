@@ -30,9 +30,8 @@ public:
     void waitForShutdown();
 
     Object referenceFromString(const std::string&);
-    std::string referenceToString(const Object&);
 
-    ObjectAdapter createObjectAdapter(); // TODO: arguments
+    ObjectAdapter createObjectAdapter(const std::string&);
 
     Logger logger();
     void logger(const Logger&);

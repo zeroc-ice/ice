@@ -79,6 +79,30 @@ public:
     virtual void raise() const;
 };
 
+class ICE_API EndpointParseException : public LocalException
+{
+public:    
+
+    EndpointParseException(const char*, int);
+    EndpointParseException(const EndpointParseException&);
+    EndpointParseException& operator=(const EndpointParseException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
+class ICE_API ReferenceParseException : public LocalException
+{
+public:    
+
+    ReferenceParseException(const char*, int);
+    ReferenceParseException(const ReferenceParseException&);
+    ReferenceParseException& operator=(const ReferenceParseException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
 class ICE_API SystemException : public LocalException
 {
 public:    

@@ -40,7 +40,7 @@ public:
 
 private:
 
-    ObjectAdapterI(const ::__Ice::Instance&);
+    ObjectAdapterI(const ::__Ice::Instance&, const std::string&);
     virtual ~ObjectAdapterI();
     friend CommunicatorI; // May create ObjectAdapterIs
 
