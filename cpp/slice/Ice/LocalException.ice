@@ -117,6 +117,23 @@ local exception ObjectAdapterDeactivatedException
 
 /**
  *
+ * This exception is raised an [ObjectAdapter] can't be activated
+ * because the [Locator] detected another active [ObjectAdapter] with
+ * the same id.
+ *
+ **/
+local exception ObjectAdapterIdInUseException
+{
+    /**
+     *
+     * Adapter id.
+     *
+     **/
+    string id;
+};
+
+/**
+ *
  * This exception is raised if no suitable endpoint is available.
  *
  **/
@@ -627,17 +644,19 @@ local exception CollocationOptimizationException
 
 /**
  *
- * This exception is raised if an attempt is made to register
- * a servant, servant locator, facet, object factory, plug-in, object
- * adapter, or user exception factory more than once for the same ID.
+ * This exception is raised if an attempt is made to register a
+ * servant, servant locator, facet, object factory, plug-in, object
+ * adapter, object, or user exception factory more than once for the
+ * same ID.
+ *
  **/
 local exception AlreadyRegisteredException
 {
     /**
      *
      * The kind of object that is registered already: "servant",
-     * "servant locator", "facet", "object factory", "plug-in", "object
-     * adapter", or "user exception factory".
+     * "servant locator", "facet", "object factory", "plug-in",
+     * "object adapter", "object", or "user exception factory".
      *
      **/
     string kindOfObject;
@@ -652,17 +671,18 @@ local exception AlreadyRegisteredException
 
 /**
  *
- * This exception is raised if an attempt is made to remove
- * a servant, servant locator, facet, object factory, plug-in, object
- * adapter, or user exception factory that is not currently registered.
+ * This exception is raised if an attempt is made to remove a servant,
+ * servant locator, facet, object factory, plug-in, object adapter,
+ * object, or user exception factory that is not currently registered.
+ *
  **/
 local exception NotRegisteredException
 {
     /**
      *
      * The kind of object that could not be removed: "servant",
-     * "servant locator", "facet", "object factory", "plug-in", "object
-     * adapter", or "user exception factory".
+     * "servant locator", "facet", "object factory", "plug-in",
+     * "object adapter", "object", or "user exception factory".
      *
      **/
     string kindOfObject;

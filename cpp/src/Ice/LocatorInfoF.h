@@ -30,10 +30,10 @@ void incRef(LocatorInfo*);
 void decRef(LocatorInfo*);
 typedef Handle<LocatorInfo> LocatorInfoPtr;
 
-class LocatorAdapterTable;
-void incRef(LocatorAdapterTable*);
-void decRef(LocatorAdapterTable*);
-typedef Handle<LocatorAdapterTable> LocatorAdapterTablePtr;
+class LocatorTable;
+void incRef(LocatorTable*);
+void decRef(LocatorTable*);
+typedef Handle<LocatorTable> LocatorTablePtr;
 
 }
 

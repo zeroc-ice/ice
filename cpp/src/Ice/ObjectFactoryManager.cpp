@@ -75,8 +75,8 @@ IceInternal::ObjectFactoryManager::remove(const string& id)
 
     if(p == _factoryMapHint)
     {
-	_factoryMap.erase(p);
-	_factoryMapHint = ++p;
+	_factoryMap.erase(p++);
+	_factoryMapHint = p;
     }
     else
     {

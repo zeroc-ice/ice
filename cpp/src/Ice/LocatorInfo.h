@@ -44,31 +44,36 @@ private:
     std::map< ::Ice::LocatorPrx, LocatorInfoPtr> _table;
     std::map< ::Ice::LocatorPrx, LocatorInfoPtr>::iterator _tableHint;
 
-    std::map< ::Ice::Identity, LocatorAdapterTablePtr> _adapterTables;
+    std::map< ::Ice::Identity, LocatorTablePtr> _locatorTables;
 };
 
-class LocatorAdapterTable : public ::IceUtil::Shared, public ::IceUtil::Mutex
+class LocatorTable : public ::IceUtil::Shared, public ::IceUtil::Mutex
 {
 public:
 
-    LocatorAdapterTable();
+    LocatorTable();
 
     void clear();
     
-    bool get(const std::string&, ::std::vector<EndpointPtr>&) const;
-    void add(const std::string&, const ::std::vector<EndpointPtr>&);
-    ::std::vector<EndpointPtr> remove(const std::string&);
+    bool getAdapterEndpoints(const std::string&, ::std::vector<EndpointPtr>&) const;
+    void addAdapterEndpoints(const std::string&, const ::std::vector<EndpointPtr>&);
+    ::std::vector<EndpointPtr> removeAdapterEndpoints(const std::string&);
+
+    bool getProxy(const ::Ice::Identity&, ::Ice::ObjectPrx&) const;
+    void addProxy(const ::Ice::Identity&, const Ice::ObjectPrx&);
+    Ice::ObjectPrx removeProxy(const ::Ice::Identity&);
     
 private:
 
     std::map<std::string, std::vector<EndpointPtr> > _adapterEndpointsMap;
+    std::map<Ice::Identity, Ice::ObjectPrx > _objectMap;
 };
 
 class LocatorInfo : public ::IceUtil::Shared, public ::IceUtil::Mutex
 {
 public:
 
-    LocatorInfo(const ::Ice::LocatorPrx&, const LocatorAdapterTablePtr&);
+    LocatorInfo(const ::Ice::LocatorPrx&, const LocatorTablePtr&);
 
     void destroy();
 
@@ -81,12 +86,15 @@ public:
 
     std::vector<EndpointPtr> getEndpoints(const ReferencePtr&, bool&);
     void clearCache(const ReferencePtr&);
+    void clearObjectCache(const ReferencePtr&);
 
 private:
 
+    void trace(const std::string&, const ReferencePtr&, const std::vector<EndpointPtr>&);
+
     ::Ice::LocatorPrx _locator; // Immutable.
     ::Ice::LocatorRegistryPrx _locatorRegistry;
-    LocatorAdapterTablePtr _adapterTable; // Immutable.
+    LocatorTablePtr _table; // Immutable.
 };
 
 }

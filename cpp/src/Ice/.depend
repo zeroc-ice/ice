@@ -92,5 +92,5 @@ Router.cpp: ../../slice/Ice/Router.ice
 RouterF.cpp: ../../slice/Ice/RouterF.ice
 Plugin.cpp: ../../slice/Ice/Plugin.ice
 PluginF.cpp: ../../slice/Ice/PluginF.ice
-Locator.cpp: ../../slice/Ice/Locator.ice
+Locator.cpp: ../../slice/Ice/Locator.ice ../../slice/Ice/Identity.ice
 LocatorF.cpp: ../../slice/Ice/LocatorF.ice

@@ -35,8 +35,8 @@ void IceInternal::decRef(LocatorManager* p) { p->__decRef(); }
 void IceInternal::incRef(LocatorInfo* p) { p->__incRef(); }
 void IceInternal::decRef(LocatorInfo* p) { p->__decRef(); }
 
-void IceInternal::incRef(LocatorAdapterTable* p) { p->__incRef(); }
-void IceInternal::decRef(LocatorAdapterTable* p) { p->__decRef(); }
+void IceInternal::incRef(LocatorTable* p) { p->__incRef(); }
+void IceInternal::decRef(LocatorTable* p) { p->__decRef(); }
 
 IceInternal::LocatorManager::LocatorManager() :
     _tableHint(_table.end())
@@ -53,7 +53,7 @@ IceInternal::LocatorManager::destroy()
     _table.clear();
     _tableHint = _table.end();
 
-    _adapterTables.clear();
+    _locatorTables.clear();
 }
 
 LocatorInfoPtr
@@ -92,11 +92,11 @@ IceInternal::LocatorManager::get(const LocatorPrx& locator)
 	// have only one table per locator (not one per locator
 	// proxy).
 	//
-	map<Identity, LocatorAdapterTablePtr>::iterator t = _adapterTables.find(locator->ice_getIdentity());
-	if(t == _adapterTables.end())
+	map<Identity, LocatorTablePtr>::iterator t = _locatorTables.find(locator->ice_getIdentity());
+	if(t == _locatorTables.end())
 	{
-	    t = _adapterTables.insert(_adapterTables.begin(),
-				      make_pair(locator->ice_getIdentity(), new LocatorAdapterTable()));
+	    t = _locatorTables.insert(_locatorTables.begin(),
+				      make_pair(locator->ice_getIdentity(), new LocatorTable()));
 	}
 
 	_tableHint = _table.insert(_tableHint, make_pair(locator, new LocatorInfo(locator, t->second)));
@@ -109,16 +109,25 @@ IceInternal::LocatorManager::get(const LocatorPrx& locator)
     return _tableHint->second;
 }
 
-IceInternal::LocatorAdapterTable::LocatorAdapterTable()
+IceInternal::LocatorTable::LocatorTable()
 {
 }
 
+void
+IceInternal::LocatorTable::clear()
+{
+     IceUtil::Mutex::Lock sync(*this);
+
+     _adapterEndpointsMap.clear();
+     _objectMap.clear();
+}
+
 bool
-IceInternal::LocatorAdapterTable::get(const string& adapter, ::std::vector<EndpointPtr>& endpoints) const
+IceInternal::LocatorTable::getAdapterEndpoints(const string& adapter, vector<EndpointPtr>& endpoints) const
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    std::map<std::string, std::vector<EndpointPtr> >::const_iterator p = _adapterEndpointsMap.find(adapter);
+    map<string, vector<EndpointPtr> >::const_iterator p = _adapterEndpointsMap.find(adapter);
     
     if(p != _adapterEndpointsMap.end())
     {
@@ -132,46 +141,81 @@ IceInternal::LocatorAdapterTable::get(const string& adapter, ::std::vector<Endpo
 }
 
 void
-IceInternal::LocatorAdapterTable::clear()
-{
-     IceUtil::Mutex::Lock sync(*this);
-
-     _adapterEndpointsMap.clear();
-}
-
-void
-IceInternal::LocatorAdapterTable::add(const string& adapter, const ::std::vector<EndpointPtr>& endpoints)
+IceInternal::LocatorTable::addAdapterEndpoints(const string& adapter, const vector<EndpointPtr>& endpoints)
 {
     IceUtil::Mutex::Lock sync(*this);
     
     _adapterEndpointsMap.insert(make_pair(adapter, endpoints));
 }
 
-::std::vector<EndpointPtr>
-IceInternal::LocatorAdapterTable::remove(const string& adapter)
+vector<EndpointPtr>
+IceInternal::LocatorTable::removeAdapterEndpoints(const string& adapter)
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    std::map<std::string, std::vector<EndpointPtr> >::iterator p = _adapterEndpointsMap.find(adapter);
+    map<string, vector<EndpointPtr> >::iterator p = _adapterEndpointsMap.find(adapter);
     if(p == _adapterEndpointsMap.end())
     {
-	return std::vector<EndpointPtr>();
+	return vector<EndpointPtr>();
     }
 
-    std::vector<EndpointPtr> endpoints = p->second;
+    vector<EndpointPtr> endpoints = p->second;
 
     _adapterEndpointsMap.erase(p);
     
     return endpoints;
 }
 
+bool 
+IceInternal::LocatorTable::getProxy(const Identity& id, ObjectPrx& proxy) const
+{
+    IceUtil::Mutex::Lock sync(*this);
+    
+    map<Identity, ObjectPrx>::const_iterator p = _objectMap.find(id);
+    
+    if(p != _objectMap.end())
+    {
+	proxy = p->second;
+	return true;
+    }
+    else
+    {
+	return false;
+    }
+}
 
-IceInternal::LocatorInfo::LocatorInfo(const LocatorPrx& locator, const LocatorAdapterTablePtr& adapterTable) :
+void 
+IceInternal::LocatorTable::addProxy(const Identity& id, const ObjectPrx& proxy)
+{
+    IceUtil::Mutex::Lock sync(*this);
+    
+    _objectMap.insert(make_pair(id, proxy));
+}
+
+ObjectPrx 
+IceInternal::LocatorTable::removeProxy(const Identity& id)
+{
+    IceUtil::Mutex::Lock sync(*this);
+    
+    map<Identity, ObjectPrx>::iterator p = _objectMap.find(id);
+    if(p == _objectMap.end())
+    {
+	return 0;
+    }
+
+    ObjectPrx proxy = p->second;
+
+    _objectMap.erase(p);
+    
+    return proxy;
+}
+
+IceInternal::LocatorInfo::LocatorInfo(const LocatorPrx& locator, const LocatorTablePtr& table) :
     _locator(locator),
-    _adapterTable(adapterTable)
+    _table(table)
 {
     assert(_locator);
-    assert(_adapterTable);
+    assert(_table);
 }
 
 void
@@ -181,7 +225,7 @@ IceInternal::LocatorInfo::destroy()
 
     _locator = 0;
     _locatorRegistry = 0;
-    _adapterTable->clear();
+    _table->clear();
 }
 
 bool
@@ -224,91 +268,125 @@ IceInternal::LocatorInfo::getLocatorRegistry()
     return _locatorRegistry;
 }
 
-std::vector<EndpointPtr>
+vector<EndpointPtr>
 IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, bool& cached)
 {
-    ::std::vector<EndpointPtr> endpoints;
+    assert(ref->endpoints.empty());
 
-    if(!ref->adapterId.empty())
+    vector<EndpointPtr> endpoints;
+    ObjectPrx object;
+    cached = true;    
+
+    try
     {
-	cached = true;
-
-	if(!_adapterTable->get(ref->adapterId, endpoints))
+	if(!ref->adapterId.empty())
 	{
-	    cached = false;
-
-	    //
-	    // Search the adapter in the location service if we didn't
-	    // find it in the cache.
-	    //
-	    try
+	    if(!_table->getAdapterEndpoints(ref->adapterId, endpoints))
 	    {
-		ObjectPrx object = _locator->findAdapterById(ref->adapterId);
+		cached = false;
+	    
+		object = _locator->findAdapterById(ref->adapterId);
 		if(object)
 		{
 		    endpoints = object->__reference()->endpoints;
+		
+		    if(!endpoints.empty())
+		    {
+			_table->addAdapterEndpoints(ref->adapterId, endpoints);
+		    }
 		}
-	    }
-	    catch(const AdapterNotRegisteredException&)
-	    {
-		if(ref->instance->traceLevels()->location >= 1)
-		{
-		    Trace out(ref->instance->logger(), ref->instance->traceLevels()->locationCat);
-		    out << "adapter `" << ref->adapterId << "' is not registered";
-		}
-	    }
-	    catch(const LocalException& ex)
-	    {
-		//
-		// Just trace the failure. The proxy will most likely get empty
-		// endpoints and raise a NoEndpointException().
-		//
-		if(ref->instance->traceLevels()->location >= 1)
-		{
-		    Trace out(ref->instance->logger(), ref->instance->traceLevels()->locationCat);
-		    out << "couldn't contact the locator to retrieve adapter endpoints\n";
-		    out << "adapter = " << ref->adapterId << "\n";
-		    out << "reason = " << ex;
-		}
-	    }
-
-	    //
-	    // Add to the cache.
-	    //
-	    if(!endpoints.empty())
-	    {
-		_adapterTable->add(ref->adapterId, endpoints);
 	    }
 	}
-
-	if(!endpoints.empty())
+	else
 	{
-	    if(ref->instance->traceLevels()->location >= 1)
+	    if(!_table->getProxy(ref->identity, object))
 	    {
-		Trace out(ref->instance->logger(), ref->instance->traceLevels()->locationCat);
-		if(cached)
+		cached = false;
+		
+		object = _locator->findObjectById(ref->identity);
+	    }
+
+	    if(object)
+	    {
+		if(!object->__reference()->endpoints.empty())
 		{
-		    out << "found endpoints in locator table\n";
+		    endpoints = object->__reference()->endpoints;
 		}
-		else
+		else if(!object->__reference()->adapterId.empty())
 		{
-		    out << "retrieved endpoints from locator, adding to locator table\n";
+		    endpoints = getEndpoints(object->__reference(), cached);
 		}
-		out << "adapter = " << ref->adapterId << "\n";
-		const char* sep = endpoints.size() > 1 ? ":" : "";
-		ostringstream o;
-		transform(endpoints.begin(), endpoints.end(), ostream_iterator<string>(o, sep),
-			  ::Ice::constMemFun(&Endpoint::toString));
-		out << "endpoints = " << o.str();
+	    }
+
+	    if(!cached && !endpoints.empty())
+	    {
+		_table->addProxy(ref->identity, object);
 	    }
 	}
     }
-    else
+    catch(const AdapterNotFoundException&)
     {
-	cached = false;
+	NotRegisteredException ex(__FILE__, __LINE__);
+	ex.kindOfObject = "object adapter";
+	ex.id = ref->adapterId;
+	throw ex;
+    }
+    catch(const ObjectNotFoundException&)
+    {
+	NotRegisteredException ex(__FILE__, __LINE__);
+	ex.kindOfObject = "object";
+	ex.id = identityToString(ref->identity);
+	throw ex;
+    }
+    catch(const NotRegisteredException&)
+    {
+	throw;
+    }
+    catch(const LocalException& ex)
+    {
+	if(ref->instance->traceLevels()->location >= 1)
+	{
+	    Trace out(ref->instance->logger(), ref->instance->traceLevels()->locationCat);
+	    out << "couldn't contact the locator to retrieve adapter endpoints\n";
+	    if(ref->adapterId.empty())
+	    {
+		out << "object = " << identityToString(ref->identity) << "\n";
+	    }
+	    else
+	    {
+		out << "adapter = " << ref->adapterId << "\n";
+	    }
+	    out << "reason = " << ex;
+	}
+    }
+    
+    if(ref->instance->traceLevels()->location >= 1 && !endpoints.empty())
+    {
+	if(cached)
+	{
+	    trace("found endpoints in locator table", ref, endpoints);
+	}
+	else
+	{
+	    trace("retrieved endpoints from locator, adding to locator table", ref, endpoints);
+	}
     }
 
     return endpoints;
+}
+
+void
+IceInternal::LocatorInfo::clearObjectCache(const ReferencePtr& ref)
+{
+    if(ref->adapterId.empty() && ref->endpoints.empty())
+    {
+	ObjectPrx object = _table->removeProxy(ref->identity);
+
+	if(ref->instance->traceLevels()->location >= 2 && object && !object->__reference()->endpoints.empty())
+	{
+	    trace("removed endpoints from locator table", ref, object->__reference()->endpoints);
+	}
+    }
 }
 
 void 
@@ -316,21 +394,50 @@ IceInternal::LocatorInfo::clearCache(const ReferencePtr& ref)
 {
     if(!ref->adapterId.empty())
     {
-	std::vector<EndpointPtr> endpoints = _adapterTable->remove(ref->adapterId);
-	if(!endpoints.empty())
+	vector<EndpointPtr> endpoints = _table->removeAdapterEndpoints(ref->adapterId);
+	assert(!endpoints.empty());
+	if(ref->instance->traceLevels()->location >= 2)
 	{
-	    if(ref->instance->traceLevels()->location >= 1)
+	    trace("removed endpoints from locator table", ref, endpoints);
+	}
+    }
+    else if(ref->endpoints.empty())
+    {
+	ObjectPrx object = _table->removeProxy(ref->identity);
+	if(object)
+	{
+	    if(!object->__reference()->adapterId.empty())
 	    {
-		Trace out(ref->instance->logger(), ref->instance->traceLevels()->locationCat);
-		out << "removed endpoints from locator table\n";
-		out << "adapter = "  << ref->adapterId;
-		const char* sep = endpoints.size() > 1 ? ":" : "";
-		ostringstream o;
-		transform(endpoints.begin(), endpoints.end(), ostream_iterator<string>(o, sep),
-			  ::Ice::constMemFun(&Endpoint::toString));
-		out << "endpoints = " << o.str();
+		clearCache(object->__reference());
+	    }
+	    else if(!object->__reference()->endpoints.empty())
+	    {
+		if(ref->instance->traceLevels()->location >= 2)
+		{
+		    trace("removed endpoints from locator table", ref, object->__reference()->endpoints);
+		}
 	    }
 	}
     }
 }
 
+void
+IceInternal::LocatorInfo::trace(const string& msg, const ReferencePtr& ref, const vector<EndpointPtr>& endpoints)
+{
+    Trace out(ref->instance->logger(), ref->instance->traceLevels()->locationCat);
+    out << msg << '\n';
+    if(ref->adapterId.empty())
+    {
+	out << "object = "  << identityToString(ref->identity) << '\n';
+    }
+    else
+    {
+	out << "adapter = "  << ref->adapterId << '\n';
+    }
+
+    const char* sep = endpoints.size() > 1 ? ":" : "";
+    ostringstream o;
+    transform(endpoints.begin(), endpoints.end(), ostream_iterator<string>(o, sep),
+	      Ice::constMemFun(&Endpoint::toString));
+    out << "endpoints = " << o.str();
+}

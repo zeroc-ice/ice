@@ -85,7 +85,7 @@ Ice::ObjectAdapterI::activate()
 	    {
 		_locatorInfo->getLocatorRegistry()->setAdapterDirectProxy(_id, newDirectProxy(ident));
 	    }
-	    catch(const Ice::AdapterNotRegisteredException&)
+	    catch(const Ice::AdapterNotFoundException&)
 	    {
 		NotRegisteredException ex(__FILE__, __LINE__);
 		ex.kindOfObject = "object adapter";
@@ -94,8 +94,7 @@ Ice::ObjectAdapterI::activate()
 	    }
 	    catch(const Ice::AdapterAlreadyActiveException&)
 	    {
-		AlreadyRegisteredException ex(__FILE__, __LINE__);
-		ex.kindOfObject = "object adapter";
+		ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
 		ex.id = _id;
 		throw ex;
 	    }
@@ -313,8 +312,8 @@ Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
 
     if(p == _locatorMapHint)
     {
-	_locatorMap.erase(p);
-	_locatorMapHint = ++p;
+	_locatorMap.erase(p++);
+	_locatorMapHint = p;
     }
     else
     {

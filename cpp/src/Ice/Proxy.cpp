@@ -576,6 +576,11 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 	_delegate = 0;
     }
 
+    if(_reference->locatorInfo)
+    {
+	_reference->locatorInfo->clearObjectCache(_reference);
+    }
+
     ++cnt;
     
     TraceLevelsPtr traceLevels = _reference->instance->traceLevels();
@@ -633,6 +638,11 @@ IceProxy::Ice::Object::__rethrowException(const LocalException& ex)
     IceUtil::Mutex::Lock sync(*this);
 
     _delegate = 0;
+
+    if(_reference->locatorInfo)
+    {
+	_reference->locatorInfo->clearObjectCache(_reference);
+    }
 
     ex.ice_throw();
 }

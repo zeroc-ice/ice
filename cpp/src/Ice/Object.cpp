@@ -334,8 +334,8 @@ Ice::Object::ice_removeFacet(const string& name)
 
     if(p == _activeFacetMapHint)
     {
-	_activeFacetMap.erase(p);
-	_activeFacetMapHint = ++p;
+	_activeFacetMap.erase(p++);
+	_activeFacetMapHint = p;
     }
     else
     {

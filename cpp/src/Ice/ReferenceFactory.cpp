@@ -496,9 +496,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 
             if(!decodeString(s, beg, end, adapter) || adapter.size() == 0)
             {
-	ProxyParseException ex(__FILE__, __LINE__);
-	ex.str = str;
-	throw ex;
+		ProxyParseException ex(__FILE__, __LINE__);
+		ex.str = str;
+		throw ex;
             }
 	}
     }
