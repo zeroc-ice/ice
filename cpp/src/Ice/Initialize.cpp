@@ -73,6 +73,16 @@ Ice::getDefaultProperties()
 }
 
 PropertiesPtr
+Ice::getDefaultProperties(StringSeq& args)
+{
+    if (!defaultProperties)
+    {
+	defaultProperties = createProperties(args);
+    }
+    return defaultProperties;
+}
+
+PropertiesPtr
 Ice::getDefaultProperties(int& argc, char* argv[])
 {
     if (!defaultProperties)
@@ -86,6 +96,12 @@ PropertiesPtr
 Ice::createProperties()
 {
     return new PropertiesI();
+}
+
+PropertiesPtr
+Ice::createProperties(StringSeq& args)
+{
+    return new PropertiesI(args);
 }
 
 PropertiesPtr

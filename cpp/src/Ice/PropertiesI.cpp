@@ -175,6 +175,46 @@ Ice::PropertiesI::PropertiesI()
     }
 }
 
+Ice::PropertiesI::PropertiesI(StringSeq& args)
+{
+    StringSeq::iterator q = args.begin();
+    while (q != args.end())
+    {
+        string s = *q;
+        if (s.find("--Ice.Config") == 0)
+        {
+            if (s.find('=') == string::npos)
+            {
+                s += "=1";
+            }
+            parseLine(s.substr(2));
+            args.erase(q);
+        }
+        else
+        {
+            ++q;
+        }
+    }
+
+    string file = getProperty("Ice.Config");
+
+    if (file.empty() || file == "1")
+    {
+        const char* s = getenv("ICE_CONFIG");
+        if (s && *s != '\0')
+        {
+            file = s;
+        }
+    }
+
+    if (!file.empty())
+    {
+        load(file);
+    }
+
+    setProperty("Ice.Config", file);
+}
+
 Ice::PropertiesI::PropertiesI(int& argc, char* argv[])
 {
     for (int i = 1; i < argc; ++i)
