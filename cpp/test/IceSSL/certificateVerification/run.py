@@ -29,23 +29,14 @@ if TestUtil.protocol != "ssl":
     print "This test may only be run with SSL enabled."
     sys.exit(0)
 
-testOptions = " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "test", "IceSSL", "certs") + \
-              " --IceSSL.Client.Config= " + \
-              " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "test", "IceSSL", "certs") + \
-              " --IceSSL.Server.Config= "
-
 oldClientOptions = TestUtil.clientOptions
 oldServerOptions = TestUtil.serverOptions
 oldClientServerOptions = TestUtil.clientServerOptions
 
-TestUtil.clientOptions += " --TestSSL.Client.CertPath=" + \
-                          os.path.join(toplevel, "test", "IceSSL", "certs")
-TestUtil.serverOptions += " --TestSSL.Server.CertPath=" + \
-                          os.path.join(toplevel, "test", "IceSSL", "certs")
-TestUtil.clientServerOptions += " --TestSSL.Client.CertPath=" + \
-                                os.path.join(toplevel, "test", "IceSSL", "certs") + \
-                                " --TestSSL.Server.CertPath=" + \
-                                os.path.join(toplevel, "test", "IceSSL", "certs")
+TestUtil.clientOptions += " --TestSSL.Client.CertPath=" + os.path.join(toplevel, "test", "IceSSL", "certs")
+TestUtil.serverOptions += " --TestSSL.Server.CertPath=" + os.path.join(toplevel, "test", "IceSSL", "certs")
+TestUtil.clientServerOptions += " --TestSSL.Client.CertPath=" + os.path.join(toplevel, "test", "IceSSL", "certs") + \
+                                " --TestSSL.Server.CertPath=" + os.path.join(toplevel, "test", "IceSSL", "certs")
 
 name = os.path.join("IceSSL", "certificateVerification")
 testdir = os.path.join(toplevel, "test", name)

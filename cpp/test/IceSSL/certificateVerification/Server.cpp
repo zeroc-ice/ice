@@ -163,6 +163,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     properties->setProperty("KeyManagerAdapter.Endpoints", "tcp -p 12344 -t 10000");
+    bool printAdapterReady = properties->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
+    properties->setProperty("Ice.PrintAdapterReady", "0");
     Ice::ObjectAdapterPtr kmAdapter = communicator->createObjectAdapter("KeyManagerAdapter");
     kmAdapter->add(object, Ice::stringToIdentity("keyManager"));
     kmAdapter->activate();
@@ -173,6 +175,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	":ssl -p 12347 -t 10000"
 	":ssl -p 12348 -t 10000"
 	":ssl -p 12349 -t 10000";
+    if(printAdapterReady)
+    {
+	properties->setProperty("Ice.PrintAdapterReady", "1");
+    }
     properties->setProperty("PingerAdapter.Endpoints", pingerEndpoints);
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("PingerAdapter");
     adapter->add(new PingerI(), Ice::stringToIdentity("pinger"));
