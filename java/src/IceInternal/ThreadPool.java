@@ -419,30 +419,14 @@ public final class ThreadPool
                 }
 
                 //
-                // The Selector implementation works differently on Unix and
-                // Windows. On Unix, calling select() always returns the
-                // current number of channels with pending events. However,
-                // on Windows, select() returns the number of channels
-                // that have *new* events pending since the last call to
-                // select(). Once a channel has been reported as ready, the
-                // Windows implementation will not report it again until the
-                // channel has been processed (i.e., accepted or read).
-                //
-                // A future version of the JDK may correct this discrepancy.
-                //
-                // Meanwhile, it is the set of selected keys that we are most
-                // interested in. We must process each of the channels in the
-                // set, because those keys will not be reported again (on
-                // Windows) until we've done that.
-                //
                 // First, we call selectNonBlocking(). This is necessary to
                 // ensure that the selected key set is updated (i.e., new
                 // channels added, closed channels removed, etc.). If no keys
                 // are present in the key set, then we'll call select() to
                 // block until a new event is ready.
                 //
-                selectNonBlocking();
-                if(_keys.size() == 0)
+                //selectNonBlocking();
+                //if(_keys.size() == 0)
                 {
                     int ret = select();
                     if(ret == 0) // Timeout.
@@ -628,25 +612,13 @@ public final class ThreadPool
                     //
                     // If the handler is "readable", try to read a message.
                     //
-                    // NOTE: On Win32 platforms, select may report a channel
-                    // as readable although nothing can be read.  We want to
-                    // ignore the event in this case.
-                    //
                     try
                     {
                         if(handler.readable())
                         {
                             try
                             {
-                                if(!read(handler)) // No data available.
-                                {
-                                    if(TRACE_SELECT)
-                                    {
-                                        trace("no input");
-                                    }
-
-                                    continue repeatSelect;
-                                }
+                                read(handler);
                             }
                             catch(Ice.TimeoutException ex) // Expected
                             {
@@ -682,7 +654,7 @@ public final class ThreadPool
         }
     }
 
-    private boolean
+    private void
     read(EventHandler handler)
     {
         BasicStream stream = handler._stream;
@@ -695,21 +667,7 @@ public final class ThreadPool
 
         if(stream.pos() != stream.size())
         {
-            //
-            // On Win32 platforms, the selector may select a channel for
-            // reading even though no data is available. Therefore, we
-            // first try to read non-blocking; if we don't get any
-            // data, we ignore the read event.
-            //
-            boolean doRead = handler.tryRead(stream);
-            if(stream.pos() == 0)
-            {
-                return false;
-            }
-            if(doRead)
-            {
-                handler.read(stream);
-            }
+            handler.read(stream);
             assert(stream.pos() == stream.size());
         }
 
@@ -747,8 +705,6 @@ public final class ThreadPool
             handler.read(stream);
             assert(stream.pos() == stream.size());
         }
-
-        return true;
     }
 
     private void
@@ -794,10 +750,12 @@ public final class ThreadPool
                 // for that special case here and ignore it.
                 // Hopefully we're not masking something important!
                 //
+/*
                 if(ex.getMessage().indexOf("Interrupted system call") != -1)
                 {
                     continue;
                 }
+*/
 
                 Ice.SocketException se = new Ice.SocketException();
                 se.initCause(ex);
@@ -811,16 +769,6 @@ public final class ThreadPool
     {
         int ret = 0;
 
-        //
-        // On Win32 platforms, select() occasionally returns 0 when it
-        // is supposed to block indefinitely. As a workaround, we only
-        // treat this occurrence as a timeout if we have a timeout value,
-        // and if the proper amount of time has elapsed.
-        //
-        long nextTimeout = 0;
-
-        int timeoutMillis = _timeoutMillis;
-
         while(true)
         {
             try
@@ -830,12 +778,7 @@ public final class ThreadPool
                     trace("select on " + _selector.keys().size() + " keys, thread id = " + Thread.currentThread());
                 }
 
-                if(_timeout > 0 && nextTimeout == 0)
-                {
-                    nextTimeout = System.currentTimeMillis() + _timeoutMillis;
-                }
-
-                ret = _selector.select(timeoutMillis);
+                ret = _selector.select(_timeoutMillis);
             }
             catch(java.io.InterruptedIOException ex)
             {
@@ -849,10 +792,12 @@ public final class ThreadPool
                 // for that special case here and ignore it.
                 // Hopefully we're not masking something important!
                 //
+/*
                 if(ex.getMessage().indexOf("Interrupted system call") != -1)
                 {
                     continue;
                 }
+*/
 
                 Ice.SocketException se = new Ice.SocketException();
                 se.initCause(ex);
@@ -862,26 +807,6 @@ public final class ThreadPool
             if(TRACE_SELECT)
             {
                 trace("select() returned " + ret + ", _keys.size() = " + _keys.size());
-            }
-
-            if(ret == 0) // Potential timeout.
-            {
-                if(_timeout > 0)
-                {
-                    long now = System.currentTimeMillis();
-                    if(now >= nextTimeout) // Timeout.
-                    {
-                        break;
-                    }
-                    timeoutMillis -= (nextTimeout - now);
-
-                    if(TRACE_SELECT)
-                    {
-                        trace("timeout workaround");
-                    }
-                }
-
-                continue;
             }
 
             break;
