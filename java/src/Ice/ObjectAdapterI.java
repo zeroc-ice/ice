@@ -39,6 +39,23 @@ public class ObjectAdapterI implements ObjectAdapter
                 (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
             factory.activate();
         }
+
+	if (!_printAdapterReadyDone)
+	{
+	    try
+	    {
+		String value = _instance.properties().getProperty("Ice.PrintAdapterReady");
+		if (Integer.parseInt(value) >= 1)
+		{
+		    System.out.println(_name + " ready");
+		}
+	    }
+	    catch (NumberFormatException ex)
+	    {
+	    }
+
+	    _printAdapterReadyDone = true;
+	}
     }
 
     public synchronized void
@@ -300,6 +317,7 @@ public class ObjectAdapterI implements ObjectAdapter
     {
         _instance = instance;
         _deactivated = false;
+	_printAdapterReadyDone = false;
         _name = name;
 
         String s = endpts.toLowerCase();
@@ -360,19 +378,6 @@ public class ObjectAdapterI implements ObjectAdapter
             throw new EndpointParseException();
         }
 */
-
-        try
-        {
-            String value = _instance.properties().getProperty("Ice.PrintAdapterReady");
-            if (Integer.parseInt(value) >= 1)
-            {
-                System.out.println(_name + " ready");
-            }
-        }
-        catch (NumberFormatException ex)
-        {
-            // TODO: Do anything?
-        }
     }
 
     protected void
@@ -468,10 +473,10 @@ public class ObjectAdapterI implements ObjectAdapter
 
     private IceInternal.Instance _instance;
     private boolean _deactivated;
+    private boolean _printAdapterReadyDone;
     private String _name;
     private java.util.HashMap _activeServantMap = new java.util.HashMap();
     private java.util.HashMap _locatorMap = new java.util.HashMap();
-    private java.util.ArrayList _incomingConnectionFactories =
-        new java.util.ArrayList();
+    private java.util.ArrayList _incomingConnectionFactories = new java.util.ArrayList();
     private java.util.ArrayList _routerEndpoints = new java.util.ArrayList();
 }
