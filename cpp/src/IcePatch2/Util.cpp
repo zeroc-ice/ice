@@ -140,12 +140,29 @@ IcePatch2::lastError()
 string
 IcePatch2::bytesToString(const ByteSeq& bytes)
 {
+/*
     ostringstream s;
+
     for(ByteSeq::const_iterator p = bytes.begin(); p != bytes.end(); ++p)
     {
 	s << setw(2) << setfill('0') << hex << static_cast<int>(*p);
     }
+
     return s.str();
+*/
+
+    static const char* toHex = "0123456789abcdef";
+
+    string s;
+    s.resize(bytes.size() * 2);
+
+    for(unsigned int i = 0; i < bytes.size(); ++i)
+    {
+	s[i * 2] = toHex[(bytes[i] >> 4) & 0xf];
+	s[i * 2 + 1] = toHex[bytes[i] & 0xf];
+    }
+
+    return s;
 }
 
 ByteSeq
@@ -156,29 +173,35 @@ IcePatch2::stringToBytes(const string& str)
 
     for(unsigned int i = 0; i + 1 < str.size(); i += 2)
     {
-//	istringstream is(str.substr(i, 2));
-//      int byte;
-//	is >> hex >> byte;
+/*
+	istringstream is(str.substr(i, 2));
+	int byte;
+	is >> hex >> byte;
+*/
 
 	int byte = 0;
 
-	for(unsigned int j = 0; j < 2; ++j)
+	for(int j = 0; j < 2; ++j)
 	{
-	    char c = str[i];
-	    if(i >= '0' && i <= '9')
+	    char c = str[i + j];
+
+	    if(c >= '0' && c <= '9')
 	    {
 		byte |= c - '0';
 	    }
-	    else if(i >= 'a' && i <= 'f')
+	    else if(c >= 'a' && c <= 'f')
 	    {
-		byte |= c - 'a';
+		byte |= 10 + c - 'a';
 	    }
-	    else if(i >= 'A' && i <= 'F')
+	    else if(c >= 'A' && c <= 'F')
 	    {
-		byte |= c - 'A';
+		byte |= 10 + c - 'A';
 	    }
 
-	    byte <<= 4;
+	    if(j == 0)
+	    {
+		byte <<= 4;
+	    }
 	}
 
 	bytes.push_back(static_cast<Byte>(byte));
@@ -765,7 +788,6 @@ IcePatch2::getFileInfoSeq(const string& pa, FileInfoSeq& infoSeq, bool size, boo
 void
 IcePatch2::saveFileInfoSeq(const string& pa, const FileInfoSeq& infoSeq)
 {
-    cout << "+++ 6 +++" << endl;
     {
 	const string path = normalize(pa + ".sum");
 	
@@ -781,7 +803,6 @@ IcePatch2::saveFileInfoSeq(const string& pa, const FileInfoSeq& infoSeq)
 	}
     }
 
-    cout << "+++ 7 +++" << endl;
     {
 	const string pathLog = normalize(pa + ".log");
 
@@ -793,13 +814,11 @@ IcePatch2::saveFileInfoSeq(const string& pa, const FileInfoSeq& infoSeq)
 	{
 	}
     }
-    cout << "+++ 8 +++" << endl;
 }
 
 void
 IcePatch2::loadFileInfoSeq(const string& pa, FileInfoSeq& infoSeq)
 {
-    cout << "+++ 1 +++" << endl;
     {
 	const string path = normalize(pa + ".sum");
 
@@ -821,7 +840,6 @@ IcePatch2::loadFileInfoSeq(const string& pa, FileInfoSeq& infoSeq)
 	}
     }
 
-    cout << "+++ 2 +++" << endl;
     bool save = false;
 
     {
@@ -845,11 +863,8 @@ IcePatch2::loadFileInfoSeq(const string& pa, FileInfoSeq& infoSeq)
 	}
     }
     
-    cout << "+++ 3 +++" << endl;
     sort(infoSeq.begin(), infoSeq.end(), FileInfoLess());
-    cout << "+++ 4 +++" << endl;
     infoSeq.erase(unique(infoSeq.begin(), infoSeq.end(), FileInfoEqual()), infoSeq.end());
-    cout << "+++ 5 +++" << endl;
 
     //
     // If we merged the sequence with a log file, we save this new
@@ -887,7 +902,7 @@ IcePatch2::getFileTree0(const FileInfoSeq& infoSeq, FileTree0& tree0)
 		tree1.files.push_back(*p);
 	    }
 	}
-	
+
 	ByteSeq allChecksums1;
 	allChecksums1.resize(tree1.files.size() * 20);
 	ByteSeq::iterator c1 = allChecksums1.begin();

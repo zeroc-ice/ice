@@ -226,6 +226,11 @@ IcePatch2::Client::run(int argc, char* argv[])
         }
     }
 
+    if(properties->getPropertyAsInt("IcePatch2.Thorough") > 0)
+    {
+	cout << "Calculating checksums -- please wait, this might take awhile..." << endl;
+    }
+
     bool patchComplete = false;
 
     try
