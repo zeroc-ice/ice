@@ -6,4 +6,8 @@
   <!-- =========================================================== -->
   <service name="Service1" descriptor="service.xml"/>
 
+  <properties>
+    <property name="Ice.ThreadPool.Server.Size" value="5"/>
+  </properties>
+
 </server>
