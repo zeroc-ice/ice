@@ -58,19 +58,10 @@ public class Client
 
         menu();
 
-        java.io.BufferedReader in = null;
-        try
-        {
-            in = new java.io.BufferedReader(
-                new java.io.InputStreamReader(System.in));
-        }
-        catch(java.io.IOException ex)
-        {
-            ex.printStackTrace();
-            return 1;
-        }
+        java.io.BufferedReader in = new java.io.BufferedReader(
+            new java.io.InputStreamReader(System.in));
 
-        String line;
+        String line = null;
         do
         {
             try
@@ -174,7 +165,11 @@ public class Client
                     menu();
                 }
             }
-            catch(Ice.LocalException ex)
+            catch (java.io.IOException ex)
+            {
+                ex.printStackTrace();
+            }
+            catch (Ice.LocalException ex)
             {
                 ex.printStackTrace();
             }
@@ -197,7 +192,7 @@ public class Client
             communicator = Ice.Util.initializeWithProperties(properties);
             status = run(args, communicator);
         }
-        catch(Ice.LocalException ex)
+        catch (Ice.LocalException ex)
         {
             ex.printStackTrace();
             status = 1;
@@ -209,7 +204,7 @@ public class Client
             {
                 communicator.destroy();
             }
-            catch(Ice.LocalException ex)
+            catch (Ice.LocalException ex)
             {
                 ex.printStackTrace();
                 status = 1;
