@@ -14,12 +14,6 @@
 
 public class HelloI extends Hello
 {
-    public
-    HelloI(Ice.Communicator communicator)
-    {
-        _communicator = communicator;
-    }
-
     public void
     sayHello(Ice.Current current)
     {
@@ -30,8 +24,6 @@ public class HelloI extends Hello
     shutdown(Ice.Current current)
     {
         System.out.println("Shutting down...");
-        _communicator.shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
-
-    private Ice.Communicator _communicator;
 }
