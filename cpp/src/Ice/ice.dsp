@@ -140,6 +140,10 @@ SOURCE=.\Current.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\DefaultsAndOverwrites.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Direct.cpp
 # End Source File
 # Begin Source File
@@ -320,10 +324,6 @@ SOURCE=.\TraceLevels.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\DefaultsAndOverwrites.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\TraceUtil.cpp
 # End Source File
 # Begin Source File
@@ -421,6 +421,14 @@ SOURCE=.\ConnectorF.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\Current.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\DefaultsAndOverwrites.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\DefaultsAndOverwritesF.h
 # End Source File
 # Begin Source File
 
@@ -737,14 +745,6 @@ SOURCE=.\TraceLevels.h
 # Begin Source File
 
 SOURCE=.\TraceLevelsF.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\DefaultsAndOverwrites.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\DefaultsAndOverwritesF.h
 # End Source File
 # Begin Source File
 
