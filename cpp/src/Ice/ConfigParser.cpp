@@ -176,6 +176,14 @@ IceSSL::ConfigParser::process()
 
         configEx._message = errStr.str();
 
+        string reporterErrors = errReporter->getErrors();
+
+        if (!reporterErrors.empty())
+        {
+            configEx._message += "\n";
+            configEx._message += reporterErrors;
+        }
+
         throw configEx;
     }
 }

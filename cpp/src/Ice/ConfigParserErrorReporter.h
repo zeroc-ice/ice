@@ -25,7 +25,6 @@ namespace IceSSL
 class ConfigParserErrorReporter : public ErrorHandler, public IceUtil::Shared
 {
 public:
-
      ConfigParserErrorReporter(const IceInternal::TraceLevelsPtr&, const Ice::LoggerPtr&);
 
     ~ConfigParserErrorReporter();
@@ -37,15 +36,15 @@ public:
     void resetErrors();
 
     bool getSawErrors() const;
+    std::string getErrors() const;
 
 private:
-
-    // This is set if we get any errors, and is queryable via a getter method.
-    // It's used by the main code to suppress output if there are errors.
-    bool _sawErrors;
-
     IceInternal::TraceLevelsPtr _traceLevels;
     Ice::LoggerPtr _logger;
+
+    // Any errors that are encountered will be output to this stream.
+    std::ostringstream _errors;
+    int _errorCount;
 };
 
 typedef IceInternal::Handle<ConfigParserErrorReporter> ConfigParserErrorReporterPtr;

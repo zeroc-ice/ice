@@ -34,6 +34,8 @@ public:
 
     virtual bool isConfigured(ContextType) = 0;
 
+    virtual void configure() = 0;
+
     virtual void configure(ContextType) = 0;
 
     virtual void loadConfig(ContextType, const ::std::string&, const ::std::string&) = 0;

@@ -56,6 +56,7 @@ public:
     virtual IceSSL::ConnectionPtr createConnection(ContextType, int);
 
     virtual bool isConfigured(ContextType);
+    virtual void configure();
     virtual void configure(ContextType);
     virtual void loadConfig(ContextType, const ::std::string&, const ::std::string&);
 

@@ -26,10 +26,10 @@ void ::IceInternal::decRef(::IceSSL::ConfigParserErrorReporter* p) { p->__decRef
 
 IceSSL::ConfigParserErrorReporter::ConfigParserErrorReporter(const IceInternal::TraceLevelsPtr& traceLevels,
                                                              const Ice::LoggerPtr& logger) :
-                                  _sawErrors(false),
                                   _traceLevels(traceLevels),
                                   _logger(logger)
 {
+    _errorCount = 0;
 }
 
 IceSSL::ConfigParserErrorReporter::~ConfigParserErrorReporter()
@@ -43,10 +43,11 @@ IceSSL::ConfigParserErrorReporter::warning(const SAXParseException& toCatch)
     {
 	ostringstream s;
 
-        s << "ssl configuration file parse warning\n";
-        s << "xerces-c init exception: warning at file \"" << DOMString(toCatch.getSystemId())
-	  << "\", line " << toCatch.getLineNumber() << ", column " << toCatch.getColumnNumber() << '\n';
-        s << "message: " << DOMString(toCatch.getMessage());
+        s << "ssl configuration file parse error" << endl;
+        s << DOMString(toCatch.getSystemId());
+        s << ", line " << toCatch.getLineNumber();
+        s << ", column " << toCatch.getColumnNumber() << endl;
+        s << "Message " << DOMString(toCatch.getMessage()) << endl;
 
         _logger->trace(_traceLevels->securityCat, "PWN " + s.str());
     }
@@ -55,37 +56,25 @@ IceSSL::ConfigParserErrorReporter::warning(const SAXParseException& toCatch)
 void
 IceSSL::ConfigParserErrorReporter::error(const SAXParseException& toCatch)
 {
-    _sawErrors = true;
+    _errorCount++;
 
-    if (_traceLevels->security >= IceSSL::SECURITY_PARSE_WARNINGS)
-    {
-	ostringstream s;
-
-        s << "ssl configuration file parse error\n";
-        s << "xerces-c init exception: error at file \"" << DOMString(toCatch.getSystemId())
-	  << "\", line " << toCatch.getLineNumber() << ", column " << toCatch.getColumnNumber() << '\n';
-        s << "message: " << DOMString(toCatch.getMessage());
-	
-        _logger->trace(_traceLevels->securityCat, "PWN " + s.str());
-    }
+    _errors << "ssl configuration file parse error" << endl;
+    _errors << "  " << DOMString(toCatch.getSystemId());
+    _errors << ", line " << toCatch.getLineNumber();
+    _errors << ", column " << toCatch.getColumnNumber() << endl;
+    _errors << "  " << "Message " << DOMString(toCatch.getMessage()) << endl;
 }
 
 void
 IceSSL::ConfigParserErrorReporter::fatalError(const SAXParseException& toCatch)
 {
-    _sawErrors = true;
+    _errorCount++;
 
-    if (_traceLevels->security >= IceSSL::SECURITY_PARSE_WARNINGS)
-    {
-	ostringstream s;
-
-        s << "ssl configuration file parse error\n";
-        s << "xerces-c init exception: fatal error at file \"" << DOMString(toCatch.getSystemId())
-	  << "\", line " << toCatch.getLineNumber() << ", column " << toCatch.getColumnNumber() << '\n';
-        s << "message: " << DOMString(toCatch.getMessage()) << endl;
-
-        _logger->trace(_traceLevels->securityCat, "PWN " + s.str());
-    }
+    _errors << "ssl configuration file parse error" << endl;
+    _errors << "  " << DOMString(toCatch.getSystemId());
+    _errors << ", line " << toCatch.getLineNumber();
+    _errors << ", column " << toCatch.getColumnNumber() << endl;
+    _errors << "  " << "Message " << DOMString(toCatch.getMessage()) << endl;
 }
 
 void
@@ -97,7 +86,13 @@ IceSSL::ConfigParserErrorReporter::resetErrors()
 bool
 IceSSL::ConfigParserErrorReporter::getSawErrors() const
 {
-    return _sawErrors;
+    return (_errorCount == 0 ? false : true);
+}
+
+string
+IceSSL::ConfigParserErrorReporter::getErrors() const
+{
+    return _errors.str();
 }
 
 std::ostream&

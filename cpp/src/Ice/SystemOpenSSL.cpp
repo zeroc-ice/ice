@@ -114,6 +114,29 @@ IceSSL::OpenSSL::System::isConfigured(ContextType contextType)
 }
 
 void
+IceSSL::OpenSSL::System::configure()
+{
+    string clientConfigFile = _properties->getProperty("Ice.SSL.Client.Config");
+    string serverConfigFile = _properties->getProperty("Ice.SSL.Server.Config");
+    
+    bool clientConfig = (clientConfigFile.empty() ? false : true);
+    bool serverConfig = (serverConfigFile.empty() ? false : true);
+
+    if (clientConfig && serverConfig)
+    {
+        configure(ClientServer);
+    }
+    else if (clientConfig)
+    {
+        configure(Client);
+    }
+    else if (serverConfig)
+    {
+        configure(Server);
+    }
+}
+
+void
 IceSSL::OpenSSL::System::configure(ContextType contextType)
 {
     IceUtil::RecMutex::Lock sync(_configMutex);

@@ -335,6 +335,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 
         // Get our instance of the SSL System
         _sslSystem = IceSSL::Factory::getSystem(this);
+
+        // Get the SSL system to configure itself
+        // _sslSystem->configure();
     }
     catch(...)
     {
@@ -355,6 +358,7 @@ IceInternal::Instance::~Instance()
     assert(!_objectAdapterFactory);
     assert(!_threadPool);
     assert(!_routerManager);
+    assert(!_sslSystem);
 
     if (_globalStateMutex != 0)
     {
@@ -454,6 +458,12 @@ IceInternal::Instance::destroy()
 	    _routerManager->destroy();
 	    _routerManager = 0;
 	}
+
+        if (_sslSystem)
+        {
+            // No destroy method defined.
+            _sslSystem = 0;
+        }
 	
 	//
 	// We destroy the thread pool outside the thread
