@@ -88,7 +88,7 @@ To use Ice for Python, the PYTHONPATH environment variable must be
 updated so that the interpreter can load the Ice extension and
 supporting Python files:
 
-$ export PYTHONPATH=/usr/lib/Ice-@ver@/python:$PYTHONPATH
+$ export PYTHONPATH=/usr/lib/Ice-@ver@/python:/usr/lib:$PYTHONPATH
 
 
 Mono
