@@ -30,7 +30,6 @@ includes the following components:
   you to execute Ice applications.
 - Tools and libraries for developing Ice applications.
 
-
 ======================================================================
 Requirements
 ======================================================================
@@ -38,22 +37,16 @@ Requirements
 This binary distribution was compiled on Solaris 9 using Sun CC 
 version 5.4.
 
-This distribution was built using the following Solaris 9 binary 
-packages from www.sunfreeware.com:
-
+The following Solaris 9 binary packages, available from 
+http://www.sunfreeware.com, are required to use this distribution:
 - expat 1.95.5
 - openssl 0.9.7e
 - libgcc 3.3
 
-We recommend that you install these packages to use Ice.
-
-You also need to install bzip2, available in the Solaris 9
-distribution as part of the SUNWbzip package. Apply Sun patch 
-114586-01 to obtain bzip2 1.0.2. 
-
-This distribution includes Berkeley DB 4.2.52, configured with
---enable-cxx and --enable-java, and built with Sun CC 5.4.
-
+You also need the bzip2 library version 1.0.2:
+ - install the SUNWbzip package from the Solaris 9 distribution
+   (it may already be installed)
+ - apply Sun patch #114586-01 to obtain bzip2 1.0.2. 
 
 Java
 ----
@@ -71,6 +64,13 @@ from http://www.sunfreeware.com. If you prefer to use Python 2.4,
 you can download the Ice for Python source code from the ZeroC web
 site at http://www.zeroc.com/download.html.
 
+======================================================================
+Berkeley DB
+======================================================================
+
+This distribution includes the C++ and Java run time for Berkeley DB
+4.2.52. The C++ runtime was built using Sun CC version 5.4. 
+The Berkeley DB license is provided in the file THIRD_PARTY_LICENSE.
 
 ======================================================================
 64 bit builds
@@ -118,17 +118,10 @@ such as IcePack or Glacier2.
 Java
 ----
 
-To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar to your
-CLASSPATH, as shown below:
+To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar and 
+$ICE_HOME/lib/db.jar to your CLASSPATH, as shown below:
 
-$ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$CLASSPATH
-
-Note that the Freeze component of Ice for Java requires Berkeley DB.
-In order to use Freeze, you must add db.jar to your CLASSPATH. In
-addition, the JVM requires the directory containing the Berkeley DB
-libraries to be listed in java.library.path, therefore you must add
-this directory to your LD_LIBRARY_PATH (even if the libraries reside
-in a default directory like /usr/lib).
+$ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$ICE_HOME/lib/db.jar:$CLASSPATH
 
 
 Python
