@@ -766,7 +766,7 @@ IceInternal::BasicStream::write(const ObjectPtr& v)
 	{
 	    Int num = _currentWriteEncaps->objectsWritten.size();
 	    _currentWriteEncaps->objectsWritten[v.get()] = num;
-	    write(v->__getClassIds()[0]);
+	    write(v->ice_id());
 	    v->__write(this);
 	}
 	else

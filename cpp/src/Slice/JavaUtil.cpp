@@ -572,7 +572,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             ClassDefPtr def = cl->definition();
             if (def && !def->isAbstract())
             {
-                out << nl << v << " = (" << typeS << ')' << stream << ".readObject(" << typeS << ".__classIds[0], "
+                out << nl << v << " = (" << typeS << ')' << stream << ".readObject(" << typeS << ".ice_staticId(), "
                     << typeS << "._factory);";
             }
             else
@@ -963,7 +963,7 @@ Slice::JavaGenerator::writeGenericMarshalUnmarshalCode(Output& out,
             if (def && !def->isAbstract())
             {
                 out << nl << v << " = (" << typeS << ')' << stream << ".readObject(" << name << ", " << typeS
-                    << ".__classIds[0], " << typeS << "._factory);";
+                    << ".ice_staticId(), " << typeS << "._factory);";
             }
             else
             {

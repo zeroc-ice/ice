@@ -1179,7 +1179,7 @@ public class StreamI implements Ice.Stream
             // Convert the type-id to the equivalent schema type
             // definition name.
             //
-            typeId = obj.__getClassIds()[0];
+            typeId = obj.ice_id(null);
 
             final String xsdPrefix = "_internal.";
             final String xsdSuffix = "Type";

@@ -1889,48 +1889,20 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	other.sort();
 	ids.merge(other);
 	ids.unique();
-	
-	ClassList allBaseClasses;
-	ClassDefPtr cl;
-	if (!bases.empty())
-	{
-	    cl = bases.front();
-	}
-	else
-	{
-	    cl = 0;
-	}
-	while (cl && !cl->isInterface())
-	{
-	    allBaseClasses.push_back(cl);
-	    ClassList baseBases = cl->bases();
-	    if (!baseBases.empty())
-	    {
-		cl = baseBases.front();
-	    }
-	    else
-	    {
-		cl = 0;
-	    }
-	}
-	StringList classIds;
-	transform(allBaseClasses.begin(), allBaseClasses.end(), back_inserter(classIds),
-		  ::IceUtil::memFun(&ClassDef::scoped));
-	if (!p->isInterface())
-	{
-	    classIds.push_front(scoped);
-	}
-	classIds.push_back("::Ice::Object");
+        StringList::const_iterator firstIter = ids.begin();
+        StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
+        assert(scopedIter != ids.end());
+        int scopedPos = distance(firstIter, scopedIter);
 
 	StringList::const_iterator q;
 
 	H << sp;
 	H << nl << exp2 << "static const ::std::string __ids[" << ids.size() << "];";
-	H << nl << exp2 << "static const ::std::string __classIds[" << classIds.size() << "];";
 	H << nl << exp2 << "virtual bool ice_isA(const ::std::string&, const ::Ice::Current& = ::Ice::Current());";
-	H << nl << exp2 << "virtual const ::std::string* __getClassIds() const;";
 	H << nl << exp2 << "virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Current& = ::Ice::Current());";
 	H << nl << exp2 << "virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::Current());";
+	H << nl << exp2 << "static const ::std::string& ice_staticId();";
+
 	if (!p->isAbstract())
 	{
 	    H << sp << nl << exp2 << "static ::Ice::ObjectFactoryPtr _factory;";
@@ -1949,28 +1921,11 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    }
 	}
 	C << eb << ';';
-	C << sp;
-	C << nl << "const ::std::string " << scoped.substr(2) << "::__classIds[" << classIds.size() << "] =";
-	C << sb;
-	q = classIds.begin();
-	while (q != classIds.end())
-	{
-	    C << nl << '"' << *q << '"';
-	    if (++q != classIds.end())
-	    {
-		C << ',';
-	    }
-	}
-	C << eb << ';';
+
 	C << sp;
 	C << nl << "bool" << nl << scoped.substr(2) << "::ice_isA(const ::std::string& s, const ::Ice::Current&)";
 	C << sb;
 	C << nl << "return ::std::binary_search(__ids, __ids + " << ids.size() << ", s);";
-	C << eb;
-	C << sp;
-	C << nl << "const ::std::string*" << nl << scoped.substr(2) << "::__getClassIds() const";
-	C << sb;
-	C << nl << "return __classIds;";
 	C << eb;
 
 	C << sp;
@@ -1982,7 +1937,13 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << sp;
 	C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_id(const ::Ice::Current&)";
 	C << sb;
-	C << nl << "return __classIds[0];";
+	C << nl << "return __ids[" << scopedPos << "];";
+	C << eb;
+
+	C << sp;
+	C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
+	C << sb;
+	C << nl << "return __ids[" << scopedPos << "];";
 	C << eb;
     }
 
@@ -2085,9 +2046,6 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	H << nl << exp2 << "static void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&, "
 	  << scoped << "Ptr&);";
 
-	H << sp;
-	H << nl << exp2 << "static const ::std::string& ice_staticId();";
-
 	TypeStringList memberList;
 	DataMemberList dataMembers = p->dataMembers();
 	for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -2129,12 +2087,6 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	writeGenericMarshalUnmarshalCode(C, p->declaration(), "value", false, "__name");
 	C << eb;
 
-	C << sp;
-	C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
-	C << sb;
-	C << nl << "return __classIds[0];";
-	C << eb;
-
 	if (!p->isAbstract())
 	{
 	    string name = p->name();
@@ -2148,7 +2100,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C.inc();
 	    C << sp << nl << "virtual ::Ice::ObjectPtr" << nl << "create(const ::std::string& type)";
 	    C << sb;
-	    C << nl << "assert(type == " << scoped << "::__classIds[0]);";
+	    C << nl << "assert(type == " << scoped << "::ice_staticId());";
 	    C << nl << "return new " << scoped << ";";
 	    C << eb;
 	    C << sp << nl << "virtual void" << nl << "destroy()";

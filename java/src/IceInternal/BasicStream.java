@@ -833,7 +833,7 @@ public class BasicStream
                 }
                 int num = _writeEncapsStack.objectsWritten.size();
                 _writeEncapsStack.objectsWritten.put(v, new Integer(num));
-                writeString(v.__getClassIds()[0]);
+                writeString(v.ice_id(null));
                 v.__write(this);
             }
             else

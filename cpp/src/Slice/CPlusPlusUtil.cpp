@@ -300,7 +300,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    }
 	    else
 	    {
-		out << nl << stream << deref << func << "::Ice::Object::__classIds[0], 0, " << param << ");";
+		out << nl << stream << deref << func << "::Ice::Object::ice_staticId(), 0, " << param << ");";
 	    }
 	    return;
 	}
@@ -331,7 +331,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		factory = cl->scoped();
 		factory += "::_factory";
 		type = cl->scoped();
-		type += "::__classIds[0]";
+		type += "::ice_staticId()";
 	    }
 	    else
 	    {
@@ -504,7 +504,7 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
 	    else
 	    {
 		out << nl << param << " = " << stream << deref << streamFunc << "(" << tagName
-                    << ", ::Ice::Object::__classIds[0], 0);";
+                    << ", ::Ice::Object::ice_staticId(), 0);";
 	    }
 	    return;
 	}
@@ -544,7 +544,7 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
 		factory = cl->scoped();
 		factory += "::_factory";
 		type = cl->scoped();
-		type += "::__classIds[0]";
+		type += "::ice_staticId()";
 	    }
 	    else
 	    {

@@ -1373,7 +1373,7 @@ IceXML::StreamI::writeObjectData(const string& name, const string& id, const Ice
 	// Convert the type-id to the equivalent schema type
 	// definition name.
 	//
-	typeId = obj->__getClassIds()[0];
+	typeId = obj->ice_id();
 
 	static const string xsdPrefix = "_internal.";
 	static const string xsdSuffix = "Type";

@@ -59,21 +59,15 @@ Ice::Object::ice_hash() const
     return reinterpret_cast<Int>(this) >> 4;
 }
 
-const string Ice::Object::__classIds[] =
+const string Ice::Object::__ids[] =
 {
     "::Ice::Object"
 };
 
-const string*
-Ice::Object::__getClassIds() const
-{
-    return __classIds;
-}
-
 bool
 Ice::Object::ice_isA(const string& s, const Current&)
 {
-    return s == "::Ice::Object";
+    return s == __ids[0];
 }
 
 void
@@ -85,17 +79,13 @@ Ice::Object::ice_ping(const Current&)
 vector<string>
 Ice::Object::ice_ids(const Current&)
 {
-    //
-    // Note in general this must be __ids, not __classIds since
-    // __classIds is only classes and not interfaces.
-    //
-    return vector<string>(&__classIds[0], &__classIds[1]);
+    return vector<string>(&__ids[0], &__ids[1]);
 }
 
 const string&
 Ice::Object::ice_id(const Current&)
 {
-    return __classIds[0];
+    return __ids[0];
 }
 
 vector<string>
@@ -113,7 +103,7 @@ Ice::Object::ice_facets(const Current&)
 const ::std::string&
 Ice::Object::ice_staticId()
 {
-    return __classIds[0];
+    return __ids[0];
 }
 
 DispatchStatus

@@ -37,21 +37,15 @@ public class Object
         return hashCode();
     }
 
-    public static String[] __classIds =
+    public static String[] __ids =
     {
         "::Ice::Object"
     };
 
-    public String[]
-    __getClassIds()
-    {
-        return __classIds;
-    }
-
     public boolean
     ice_isA(String s, Current current)
     {
-        return s.equals("::Ice::Object");
+        return s.equals(__ids[0]);
     }
 
     public static IceInternal.DispatchStatus
@@ -81,11 +75,7 @@ public class Object
     public String[]
     ice_ids(Current current)
     {
-        //
-        // Note in general this must be __ids, not __classIds since
-        // __classIds is only classes and not interfaces.
-        //
-        return __classIds;
+        return __ids;
     }
 
     public static IceInternal.DispatchStatus
@@ -100,7 +90,7 @@ public class Object
     public String
     ice_id(Current current)
     {
-        return __classIds[0];
+        return __ids[0];
     }
 
     public static IceInternal.DispatchStatus
@@ -133,7 +123,7 @@ public class Object
     public static String
     ice_staticId()
     {
-        return __classIds[0];
+        return __ids[0];
     }
 
     private static String[] __all =

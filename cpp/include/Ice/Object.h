@@ -67,8 +67,7 @@ public:
     virtual bool operator<(const Object&) const;
     virtual ::Ice::Int ice_hash() const;
 
-    static const ::std::string __classIds[];
-    virtual const ::std::string* __getClassIds() const;
+    static const ::std::string __ids[];
 
     virtual bool ice_isA(const ::std::string&, const Current& = Current());
     ::IceInternal::DispatchStatus ___ice_isA(::IceInternal::Incoming&, const Current&);

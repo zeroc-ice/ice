@@ -285,36 +285,10 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     other.sort();
     ids.merge(other);
     ids.unique();
-
-    ClassList allBaseClasses;
-    ClassDefPtr cl;
-    if (!bases.empty())
-    {
-        cl = bases.front();
-    }
-    else
-    {
-        cl = 0;
-    }
-    while (cl && !cl->isInterface())
-    {
-        allBaseClasses.push_back(cl);
-        ClassList baseBases = cl->bases();
-        if (!baseBases.empty())
-        {
-            cl = baseBases.front();
-        }
-        else
-        {
-            cl = 0;
-        }
-    }
-    StringList classIds;
-    transform(allBaseClasses.begin(), allBaseClasses.end(),
-              back_inserter(classIds),
-              ::IceUtil::memFun(&ClassDef::scoped));
-    classIds.push_front(scoped);
-    classIds.push_back("::Ice::Object");
+    StringList::const_iterator firstIter = ids.begin();
+    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
+    assert(scopedIter != ids.end());
+    int scopedPos = distance(firstIter, scopedIter);
 
     StringList::const_iterator q;
 
@@ -331,19 +305,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     }
     out << eb << ';';
 
-    out << sp << nl << "public static final String[] __classIds =";
-    out << sb;
-    q = classIds.begin();
-    while (q != classIds.end())
-    {
-        out << nl << '"' << *q << '"';
-        if (++q != classIds.end())
-        {
-            out << ',';
-        }
-    }
-    out << eb << ';';
-
     //
     // ice_isA
     //
@@ -351,14 +312,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         << nl << "ice_isA(String s, Ice.Current current)";
     out << sb;
     out << nl << "return java.util.Arrays.binarySearch(__ids, s) >= 0;";
-    out << eb;
-
-    //
-    // __getClassIds
-    //
-    out << sp << nl << "public String[]" << nl << "__getClassIds()";
-    out << sb;
-    out << nl << "return __classIds;";
     out << eb;
 
     //
@@ -376,7 +329,15 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     out << sp << nl << "public String"
         << nl << "ice_id(Ice.Current current)";
     out << sb;
-    out << nl << "return __classIds[0];";
+    out << nl << "return __ids[" << scopedPos << "];";
+    out << eb;
+
+    //
+    // ice_staticId
+    //
+    out << sp << nl << "public static String" << nl << "ice_staticId()";
+    out << sb;
+    out << nl << "return __ids[" << scopedPos << "];";
     out << eb;
 
     //
@@ -829,7 +790,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
         out << nl << "public Ice.Object" << nl << "create(String type)";
         out << sb;
-        out << nl << "assert(type.equals(__classIds[0]));";
+        out << nl << "assert(type.equals(ice_staticId()));";
         out << nl << "return new " << name << "();";
         out << eb;
         out << sp << nl << "public void" << nl << "destroy()";
@@ -864,8 +825,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         iter = 0;
         for (d = members.begin(); d != members.end(); ++d)
         {
-            writeMarshalUnmarshalCode(out, scope, (*d)->type(),
-                                      fixKwd((*d)->name()), true, iter, false);
+            writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), true, iter, false);
         }
         out << nl << "super.__write(__os);";
         out << eb;
@@ -879,9 +839,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         iter = 0;
         for (d = members.begin(); d != members.end(); ++d)
         {
-            writeMarshalUnmarshalCode(out, scope, (*d)->type(),
-                                      fixKwd((*d)->name()), false, iter,
-                                      false);
+            writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), false, iter, false);
         }
         out << nl << "super.__read(__is);";
         out << eb;
@@ -923,14 +881,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         iter = 0;
         writeGenericMarshalUnmarshalCode(out, scope, p->declaration(), "__name", "__val", false, iter, false);
         out << nl << "return __val;";
-        out << eb;
-
-        //
-        // ice_staticId
-        //
-        out << sp << nl << "public static String" << nl << "ice_staticId()";
-        out << sb;
-        out << nl << "return __classIds[0];";
         out << eb;
     }
 
