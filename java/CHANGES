@@ -1,6 +1,13 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Fixed the slice2java compiler for operations with multiple exceptions
+  in an exception specification: if an exception was a base of one or
+  more other exceptions in the same exception specification, the code
+  generator sometimes emitted the catch blocks in the marshaling and
+  dispatch code in the wrong order. (This applied only to interfaces
+  with an ["amd"] metadata directive.)
+
 - The documentation has always stated that same-named constructs
   cannot be directly nested inside each other. (For example, a
   module `M' cannot contain a constant named `M'. The slice2java
