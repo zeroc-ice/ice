@@ -42,6 +42,62 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
+class RegistrationThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    RegistrationThread(const NodeRegistryPrx& registry, const string& name, const NodePrx& node, 
+		       const LoggerPtr& logger) :
+	_registry(registry), _name(name), _node(node), _logger(logger), _shutdown(false)
+    {
+    }
+
+    virtual void
+    run()
+    {
+	Lock sync(*this);
+	while(!_shutdown)
+	{
+	    try
+	    {
+		_registry->add(_name, _node);
+		break;
+	    }
+	    catch(const NodeActiveException& ex)
+	    {
+		_logger->error("a node with the same name is already registered and active");
+	    }
+	    catch(const Ice::LocalException& ex)
+	    {
+		_logger->warning("couldn't contact the IceGrid registry");
+	    }
+
+	    timedWait(IceUtil::Time::seconds(30));
+	}
+    }
+
+    virtual void
+    terminate()
+    {
+	{
+	    Lock(*this);
+	    _shutdown = true;
+	    notifyAll();
+	}
+
+	getThreadControl().join();
+    }
+
+private:
+
+    const NodeRegistryPrx _registry;
+    const string _name;
+    const NodePrx _node;
+    const Ice::LoggerPtr _logger;
+    bool _shutdown;
+};
+typedef IceUtil::Handle<RegistrationThread> RegistrationThreadPtr;
+
 class NodeService : public Service
 {
 public:
@@ -64,6 +120,7 @@ private:
     ActivatorPtr _activator;
     WaitQueuePtr _waitQueue;
     RegistryPtr _registry;
+    RegistrationThreadPtr _registrationThread;
 };
 
 class CollocatedRegistry : public Registry
@@ -388,10 +445,20 @@ NodeService::start(int argc, char* argv[])
     //
     // Register this node with the node registry.
     //
+    NodeRegistryPrx nodeRegistry = NodeRegistryPrx::uncheckedCast(
+	communicator()->stringToProxy("IceGrid/NodeRegistry@IceGrid.Registry.Internal"));
     try
     {
-	ObjectPrx nodeRegistry = communicator()->stringToProxy("IceGrid/NodeRegistry@IceGrid.Registry.Internal");
-	NodeRegistryPrx::uncheckedCast(nodeRegistry)->add(name, nodeProxy);
+	nodeRegistry->add(name, nodeProxy);
+
+	//
+	// Check the consistency of the databases, only do it if we
+	// could register the node.
+	//
+	if(checkdb)
+	{
+	    serverFactory->checkConsistency();
+	}
     }
     catch(const NodeActiveException&)
     {
@@ -400,16 +467,16 @@ NodeService::start(int argc, char* argv[])
     }
     catch(const LocalException&)
     {
-        error("couldn't contact the IceGrid registry");
-        return false;
-    }
-
-    //
-    // Check the consistency of the databases.
-    //
-    if(checkdb)
-    {
-	serverFactory->checkConsistency();
+	if(properties->getPropertyAsInt("IceGrid.Node.BackgroundRegistration") > 0)
+	{
+	    _registrationThread = new RegistrationThread(nodeRegistry, name, nodeProxy, communicator()->getLogger());
+	    _registrationThread->start();
+	}
+	else
+	{
+	    error("couldn't contact the IceGrid registry");
+	    return false;
+	}
     }
 
     //
@@ -510,6 +577,14 @@ NodeService::stop()
     }
     catch(...)
     {
+    }
+
+    //
+    // Terminate the registration thread if it was started.
+    //
+    if(_registrationThread)
+    {
+	_registrationThread->terminate();
     }
 
     //
