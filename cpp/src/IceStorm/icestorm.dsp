@@ -58,7 +58,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy Release\icepack001.* ..\..\lib
+PostBuild_Cmds=copy Release\icestorm001.* ..\..\lib
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "IceStorm - Win32 Debug"
