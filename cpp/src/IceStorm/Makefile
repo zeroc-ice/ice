@@ -78,7 +78,7 @@ $(VERSIONED_SNAME): $(SERVICE_OBJS)
 
 $(ADMIN): $(AOBJS) $(NAME)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(LIBS) $(XERCESC_LIBS) -lreadline -lcurses
+	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(LIBS) $(XERCESC_LIBS) -lreadline -lncurses
 
 StringBoolDict.h StringBoolDict.cpp: $(SLICE2FREEZE)
 	rm -f StringBoolDict.h StringBoolDict.cpp

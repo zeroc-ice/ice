@@ -55,7 +55,7 @@ CPPFLAGS	:= -I. $(DB_FLAGS) $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS) -lreadline -lcurses
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS) -lreadline -lncurses
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@

@@ -106,7 +106,7 @@ $(VERSIONED_NAME): $(LIB_OBJS)
 
 $(ADMIN): $(ADMIN_OBJS) $(NAME)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lIcePack -lIceBox $(LIBS) -lreadline -lcurses
+	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lIcePack -lIceBox $(LIBS) -lreadline -lncurses
 
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(NAME)
 	rm -f $@
