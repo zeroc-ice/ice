@@ -49,6 +49,7 @@ public:
     bool operator!=(const Time&) const;
 
     operator timeval() const;
+    operator float() const;
     operator double() const;
 
 private:

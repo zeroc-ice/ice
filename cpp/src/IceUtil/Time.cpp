@@ -136,6 +136,11 @@ IceUtil::Time::operator double() const
     return _usec / 1000000.0L;
 }
 
+IceUtil::Time::operator float() const
+{
+    return _usec / 1000000.0f;
+}
+
 Time::Time(LongLong usec) :
     _usec(usec)
 {
