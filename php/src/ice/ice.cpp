@@ -42,7 +42,7 @@ function_entry ice_functions[] =
 zend_module_entry ice_module_entry =
 {
     STANDARD_MODULE_HEADER,
-    "Ice",
+    "ice",
     ice_functions,
     ZEND_MINIT(ice),
     ZEND_MSHUTDOWN(ice),
