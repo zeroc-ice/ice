@@ -21,22 +21,12 @@ public class Incoming
     }
 
     public void
-    invoke()
+    invoke(boolean response)
     {
         Ice.Current current = new Ice.Current();
-        boolean gotProxy = _is.readBool();
-        if (gotProxy)
-        {
-            current.proxy = _is.readProxy();
-            current.identity = current.proxy.ice_getIdentity();
-            current.facet = current.proxy.ice_getFacet();
-        }
-        else
-        {
-            current.identity = new Ice.Identity();
-            current.identity.__read(_is);
-            current.facet = _is.readString();
-        }
+        current.identity = new Ice.Identity();
+        current.identity.__read(_is);
+        current.facet = _is.readString();
         current.operation = _is.readString();
         current.nonmutating = _is.readBool();
         int sz = _is.readInt();
@@ -51,16 +41,23 @@ public class Incoming
             current.context.put(first, second);
         }
 
-        int statusPos = _os.size();
-        _os.writeByte((byte)0);
+        int statusPos = 0;
+        if (response)
+        {
+            statusPos = _os.size();
+            _os.writeByte((byte)0);
+        }
 
         //
         // Input and output parameters are always sent in an
-        // encapsulation, which makes it possible to forward oneway
-        // requests as blobs.
+        // encapsulation, which makes it possible to forward requests as
+        // blobs.
         //
         _is.startReadEncaps();
-        _os.startWriteEncaps();
+        if (response)
+        {
+            _os.startWriteEncaps();
+        }
 
         Ice.Object servant = null;
         Ice.ServantLocator locator = null;
@@ -126,20 +123,23 @@ public class Incoming
             }
 
             _is.endReadEncaps();
-            _os.endWriteEncaps();
+            if (response)
+            {
+                _os.endWriteEncaps();
 
-            if (status != DispatchStatus.DispatchOK &&
-                status != DispatchStatus.DispatchUserException)
-            {
-                _os.resize(statusPos, false);
-                _os.writeByte((byte)status.value());
-            }
-            else
-            {
-                int save = _os.pos();
-                _os.pos(statusPos);
-                _os.writeByte((byte)status.value());
-                _os.pos(save);
+                if (status != DispatchStatus.DispatchOK &&
+                    status != DispatchStatus.DispatchUserException)
+                {
+                    _os.resize(statusPos, false);
+                    _os.writeByte((byte)status.value());
+                }
+                else
+                {
+                    int save = _os.pos();
+                    _os.pos(statusPos);
+                    _os.writeByte((byte)status.value());
+                    _os.pos(save);
+                }
             }
         }
         catch (Ice.LocationForward ex)
@@ -151,14 +151,15 @@ public class Incoming
             }
 
             _is.endReadEncaps();
-            _os.endWriteEncaps();
-
-            _os.resize(statusPos, false);
-            _os.writeByte((byte)DispatchStatus._DispatchLocationForward);
-            _os.writeProxy(ex._prx);
+            if (response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(statusPos, false);
+                _os.writeByte((byte)DispatchStatus._DispatchLocationForward);
+                _os.writeProxy(ex._prx);
+            }
         }
-        /*
-        catch (Ice.ProxyRequested ex)
+        catch (Ice.ObjectNotExistException ex)
         {
             if (locator != null && servant != null)
             {
@@ -167,12 +168,45 @@ public class Incoming
             }
 
             _is.endReadEncaps();
-            _os.endWriteEncaps();
-
-            _os.resize(statusPos, false);
-            _os.writeByte((byte)DispatchStatus._DispatchProxyRequested);
+            if (response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(statusPos, false);
+                _os.writeByte((byte)DispatchStatus._DispatchObjectNotExist);
+            }
         }
-        */
+        catch (Ice.FacetNotExistException ex)
+        {
+            if (locator != null && servant != null)
+            {
+                assert(_adapter != null);
+                locator.finished(_adapter, current, servant, cookie.value);
+            }
+
+            _is.endReadEncaps();
+            if (response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(statusPos, false);
+                _os.writeByte((byte)DispatchStatus._DispatchFacetNotExist);
+            }
+        }
+        catch (Ice.OperationNotExistException ex)
+        {
+            if (locator != null && servant != null)
+            {
+                assert(_adapter != null);
+                locator.finished(_adapter, current, servant, cookie.value);
+            }
+
+            _is.endReadEncaps();
+            if (response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(statusPos, false);
+                _os.writeByte((byte)DispatchStatus._DispatchOperationNotExist);
+            }
+        }
         catch (Ice.LocalException ex)
         {
             if (locator != null && servant != null)
@@ -182,10 +216,13 @@ public class Incoming
             }
 
             _is.endReadEncaps();
-            _os.endWriteEncaps();
-
-            _os.resize(statusPos, false);
-            _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
+            if (response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(statusPos, false);
+                _os.writeByte(
+                    (byte)DispatchStatus._DispatchUnknownLocalException);
+            }
 
             throw ex;
         }
@@ -199,10 +236,13 @@ public class Incoming
             }
 
             _is.endReadEncaps();
-            _os.endWriteEncaps();
-
-            _os.resize(statusPos, false);
-            _os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
+            if (response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(statusPos, false);
+                _os.writeByte(
+                    (byte)DispatchStatus._DispatchUnknownUserException);
+            }
 
             throw ex;
         }
@@ -216,10 +256,12 @@ public class Incoming
             }
 
             _is.endReadEncaps();
-            _os.endWriteEncaps();
-
-            _os.resize(statusPos, false);
-            _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
+            if (response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(statusPos, false);
+                _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
+            }
 
             Ice.UnknownException ue = new Ice.UnknownException();
             ue.initCause(ex);

@@ -12,75 +12,6 @@ package IceInternal;
 
 public final class Connection extends EventHandler
 {
-    // DestructionReason
-    public final static int ObjectAdapterDeactivated = 0;
-    public final static int CommunicatorDestroyed = 1;
-
-    Connection(Instance instance, Transceiver transceiver, Endpoint endpoint,
-               Ice.ObjectAdapter adapter)
-    {
-        super(instance);
-        _transceiver = transceiver;
-        _endpoint = endpoint;
-        _adapter = adapter;
-        _threadPool = instance.threadPool();
-        _logger = instance.logger();
-        _traceLevels = instance.traceLevels();
-        _nextRequestId = 1;
-        _batchStream = new BasicStream(instance);
-        _responseCount = 0;
-        _state = StateHolding;
-
-        try
-        {
-            String val =
-                _instance.properties().getProperty("Ice.ConnectionWarnings");
-            _warn = Integer.parseInt(val) > 0 ? true : false;
-        }
-        catch (NumberFormatException ex)
-        {
-            _warn = false;
-        }
-    }
-
-    protected void
-    finalize()
-        throws Throwable
-    {
-        assert(_state == StateClosed);
-
-        super.finalize();
-    }
-
-    public void
-    destroy(int reason)
-    {
-        _mutex.lock();
-        try
-        {
-            switch (reason)
-            {
-                case ObjectAdapterDeactivated:
-                {
-                    setState(StateClosing,
-                             new Ice.ObjectAdapterDeactivatedException());
-                    break;
-                }
-
-                case CommunicatorDestroyed:
-                {
-                    setState(StateClosing,
-                             new Ice.CommunicatorDestroyedException());
-                    break;
-                }
-            }
-        }
-        finally
-        {
-            _mutex.unlock();
-        }
-    }
-
     public boolean
     destroyed()
     {
@@ -295,7 +226,43 @@ public final class Connection extends EventHandler
     public int
     timeout()
     {
+        // No mutex protection necessary, _endpoint is immutable.
         return _endpoint.timeout();
+    }
+
+    public Endpoint
+    endpoint()
+    {
+        // No mutex protection necessary, _endpoint is immutable.
+        return _endpoint;
+    }
+
+    public void
+    setAdapter(Ice.ObjectAdapter adapter)
+    {
+        _mutex.lock();
+        try
+        {
+            _adapter = adapter;
+        }
+        finally
+        {
+            _mutex.unlock();
+        }
+    }
+
+    public Ice.ObjectAdapter
+    getAdapter()
+    {
+        _mutex.lock();
+        try
+        {
+            return _adapter;
+        }
+        finally
+        {
+            _mutex.unlock();
+        }
     }
 
     //
@@ -304,7 +271,15 @@ public final class Connection extends EventHandler
     public boolean
     server()
     {
-        return _adapter != null;
+        _mutex.lock();
+        try
+        {
+            return _adapter != null;
+        }
+        finally
+        {
+            _mutex.unlock();
+        }
     }
 
     public boolean
@@ -477,7 +452,7 @@ public final class Connection extends EventHandler
                 {
                     try
                     {
-                        in.invoke();
+                        in.invoke(response);
                     }
                     catch (Ice.LocalException ex)
                     {
@@ -609,6 +584,75 @@ public final class Connection extends EventHandler
         }
     }
     */
+
+    Connection(Instance instance, Transceiver transceiver, Endpoint endpoint,
+               Ice.ObjectAdapter adapter)
+    {
+        super(instance);
+        _transceiver = transceiver;
+        _endpoint = endpoint;
+        _adapter = adapter;
+        _threadPool = instance.threadPool();
+        _logger = instance.logger();
+        _traceLevels = instance.traceLevels();
+        _nextRequestId = 1;
+        _batchStream = new BasicStream(instance);
+        _responseCount = 0;
+        _state = StateHolding;
+
+        try
+        {
+            String val =
+                _instance.properties().getProperty("Ice.ConnectionWarnings");
+            _warn = Integer.parseInt(val) > 0 ? true : false;
+        }
+        catch (NumberFormatException ex)
+        {
+            _warn = false;
+        }
+    }
+
+    protected void
+    finalize()
+        throws Throwable
+    {
+        assert(_state == StateClosed);
+
+        super.finalize();
+    }
+
+    // DestructionReason
+    public final static int ObjectAdapterDeactivated = 0;
+    public final static int CommunicatorDestroyed = 1;
+
+    public void
+    destroy(int reason)
+    {
+        _mutex.lock();
+        try
+        {
+            switch (reason)
+            {
+                case ObjectAdapterDeactivated:
+                {
+                    setState(StateClosing,
+                             new Ice.ObjectAdapterDeactivatedException());
+                    break;
+                }
+
+                case CommunicatorDestroyed:
+                {
+                    setState(StateClosing,
+                             new Ice.CommunicatorDestroyedException());
+                    break;
+                }
+            }
+        }
+        finally
+        {
+            _mutex.unlock();
+        }
+    }
 
     private static final int StateActive = 0;
     private static final int StateHolding = 1;

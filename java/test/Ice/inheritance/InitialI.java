@@ -15,21 +15,21 @@ public final class InitialI extends _InitialDisp
     {
         _adapter = adapter;
         _ca = M_A.C_APrxHelper.uncheckedCast(
-            _adapter.addTemporary(new C_A_I()));
+            _adapter.addWithUUID(new C_A_I()));
         _cb = M_B.C_BPrxHelper.uncheckedCast(
-            _adapter.addTemporary(new C_B_I()));
+            _adapter.addWithUUID(new C_B_I()));
         _cc = M_A.C_CPrxHelper.uncheckedCast(
-            _adapter.addTemporary(new C_C_I()));
+            _adapter.addWithUUID(new C_C_I()));
         _cd = M_A.C_DPrxHelper.uncheckedCast(
-            _adapter.addTemporary(new C_D_I()));
+            _adapter.addWithUUID(new C_D_I()));
         _ia = M_A.I_APrxHelper.uncheckedCast(
-            _adapter.addTemporary(new I_A_I()));
+            _adapter.addWithUUID(new I_A_I()));
         _ib1 = M_B.I_B1PrxHelper.uncheckedCast(
-            _adapter.addTemporary(new I_B1_I()));
+            _adapter.addWithUUID(new I_B1_I()));
         _ib2 = M_B.I_B2PrxHelper.uncheckedCast(
-            _adapter.addTemporary(new I_B2_I()));
+            _adapter.addWithUUID(new I_B2_I()));
         _ic = M_A.I_CPrxHelper.uncheckedCast(
-            _adapter.addTemporary(new I_C_I()));
+            _adapter.addWithUUID(new I_C_I()));
     }
 
     public M_A.C_APrx

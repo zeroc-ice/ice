@@ -99,7 +99,7 @@ class TcpAcceptor implements Acceptor
         return Network.addrToString(_addr);
     }
 
-    boolean
+    final boolean
     equivalent(String host, int port)
     {
         java.net.InetSocketAddress addr = Network.getAddress(host, port);

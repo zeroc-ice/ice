@@ -42,6 +42,32 @@ public class Instance
         return _traceLevels;
     }
 
+    public String
+    defaultProtocol()
+    {
+        // No synchronization necessary
+        return _defaultProtocol;
+    }
+
+    public String
+    defaultHost()
+    {
+        // No synchronization necessary
+        return _defaultHost;
+    }
+
+    public synchronized RouterManager
+    routerManager()
+    {
+        return _routerManager;
+    }
+
+    public synchronized ReferenceFactory
+    referenceFactory()
+    {
+        return _referenceFactory;
+    }
+
     public synchronized ProxyFactory
     proxyFactory()
     {
@@ -78,20 +104,6 @@ public class Instance
         return _threadPool;
     }
 
-    public String
-    defaultProtocol()
-    {
-        // No synchronization necessary
-        return _defaultProtocol;
-    }
-
-    public String
-    defaultHost()
-    {
-        // No synchronization necessary
-        return _defaultHost;
-    }
-
     //
     // TODO: This should be synchronized, but it causes a deadlock
     // on shutdown if a BasicStream is created while the Instance
@@ -116,12 +128,6 @@ public class Instance
         {
             _logger = new Ice.LoggerI();
             _traceLevels = new TraceLevels(_properties);
-            _proxyFactory = new ProxyFactory(this);
-            _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
-            _servantFactoryManager = new ObjectFactoryManager();
-            _userExceptionFactoryManager = new UserExceptionFactoryManager();
-            _objectAdapterFactory = new ObjectAdapterFactory(this);
-            _threadPool = new ThreadPool(this);
             _defaultProtocol = _properties.getProperty("Ice.DefaultProtocol");
             if (_defaultProtocol == null)
             {
@@ -132,6 +138,21 @@ public class Instance
             {
                 _defaultHost = Network.getLocalHost(true);
             }
+            _routerManager = new RouterManager();
+            _referenceFactory = new ReferenceFactory(this);
+            _proxyFactory = new ProxyFactory(this);
+            String value = _properties.getProperty("Ice.DefaultRouter");
+            if (value != null)
+            {
+                _referenceFactory.setDefaultRouter(
+                    Ice.RouterPrxHelper.uncheckedCast(
+                        _proxyFactory.stringToProxy(value)));
+            }
+            _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
+            _servantFactoryManager = new ObjectFactoryManager();
+            _userExceptionFactoryManager = new UserExceptionFactoryManager();
+            _objectAdapterFactory = new ObjectAdapterFactory(this);
+            _threadPool = new ThreadPool(this);
             _bufferManager = new BufferManager();
         }
         catch (Ice.LocalException ex)
@@ -149,6 +170,8 @@ public class Instance
         assert(_properties == null);
         assert(_logger == null);
         assert(_traceLevels == null);
+        assert(_routerManager == null);
+        assert(_referenceFactory == null);
         assert(_proxyFactory == null);
         assert(_outgoingConnectionFactory == null);
         assert(_servantFactoryManager == null);
@@ -173,8 +196,60 @@ public class Instance
         if (_communicator != null)
         {
             // Don't destroy the communicator -- the communicator destroys
-            // this object, not the other way
+            // this object, not the other way.
             _communicator = null;
+        }
+
+        if (_objectAdapterFactory != null)
+        {
+            _objectAdapterFactory.shutdown(); // ObjectAdapterFactory has
+                                              // shutdown(), not destroy()
+            _objectAdapterFactory = null;
+        }
+
+        if (_servantFactoryManager != null)
+        {
+            _servantFactoryManager.destroy();
+            _servantFactoryManager = null;
+        }
+
+        if (_userExceptionFactoryManager != null)
+        {
+            _userExceptionFactoryManager.destroy();
+            _userExceptionFactoryManager = null;
+        }
+
+        if (_referenceFactory != null)
+        {
+            _referenceFactory.destroy();
+            _referenceFactory = null;
+        }
+
+        if (_proxyFactory != null)
+        {
+            // No destroy function defined
+            // _proxyFactory.destroy();
+            _proxyFactory = null;
+        }
+
+        if (_outgoingConnectionFactory != null)
+        {
+            _outgoingConnectionFactory.destroy();
+            _outgoingConnectionFactory = null;
+        }
+
+        if (_routerManager != null)
+        {
+            _routerManager.destroy();
+            _routerManager = null;
+        }
+
+        if (_threadPool != null)
+        {   
+            _threadPool.waitUntilFinished();
+            _threadPool.destroy();
+            _threadPool.joinWithAllThreads();
+            _threadPool = null;
         }
 
         if (_properties != null)
@@ -197,46 +272,6 @@ public class Instance
             _traceLevels = null;
         }
 
-        if (_proxyFactory != null)
-        {
-            // No destroy function defined
-            // _proxyFactory.destroy();
-            _proxyFactory = null;
-        }
-
-        if (_outgoingConnectionFactory != null)
-        {
-            _outgoingConnectionFactory.destroy();
-            _outgoingConnectionFactory = null;
-        }
-
-        if (_servantFactoryManager != null)
-        {
-            _servantFactoryManager.destroy();
-            _servantFactoryManager = null;
-        }
-
-        if (_userExceptionFactoryManager != null)
-        {
-            _userExceptionFactoryManager.destroy();
-            _userExceptionFactoryManager = null;
-        }
-
-        if (_objectAdapterFactory != null)
-        {
-            _objectAdapterFactory.shutdown(); // ObjectAdapterFactory has
-                                              // shutdown(), not destroy()
-            _objectAdapterFactory = null;
-        }
-
-        if (_threadPool != null)
-        {   
-            _threadPool.waitUntilFinished();
-            _threadPool.destroy();
-            _threadPool.joinWithAllThreads();
-            _threadPool = null;
-        }
-
         if (_bufferManager != null)
         {
             _bufferManager.destroy();
@@ -248,6 +283,8 @@ public class Instance
     private Ice.Properties _properties;
     private Ice.Logger _logger;
     private TraceLevels _traceLevels;
+    private RouterManager _routerManager;
+    private ReferenceFactory _referenceFactory;
     private ProxyFactory _proxyFactory;
     private OutgoingConnectionFactory _outgoingConnectionFactory;
     private ObjectFactoryManager _servantFactoryManager;

@@ -34,6 +34,12 @@ public final class TcpEndpoint extends Endpoint
         int i = 0;
         while (i < arr.length)
         {
+            if (arr[i].length() == 0)
+            {
+                i++;
+                continue;
+            }
+
             String option = arr[i++];
             if (option.length() != 2 || option.charAt(0) != '-')
             {
@@ -141,7 +147,12 @@ public final class TcpEndpoint extends Endpoint
     public String
     toString()
     {
-        return "tcp -h " + _host + " -p " + _port + " -t " + _timeout;
+        String s = "tcp -h " + _host + " -p " + _port;
+        if (_timeout != -1)
+        {
+            s += " -t " + _timeout;
+        }
+        return s;
     }
 
     //
@@ -262,7 +273,6 @@ public final class TcpEndpoint extends Endpoint
     public boolean
     equivalent(Acceptor acceptor)
     {
-        /* TODO - implement
         TcpAcceptor tcpAcceptor = null;
         try
         {
@@ -273,15 +283,19 @@ public final class TcpEndpoint extends Endpoint
             return false;
         }
         return tcpAcceptor.equivalent(_host, _port);
-        */
-        return false;
     }
-    
+
     //
     // Compare endpoints for sorting purposes
     //
     public boolean
     equals(java.lang.Object obj)
+    {
+        return compareTo(obj) == 0;
+    }
+
+    public int
+    compareTo(java.lang.Object obj) // From java.lang.Comparable
     {
         TcpEndpoint p = null;
 
@@ -291,44 +305,58 @@ public final class TcpEndpoint extends Endpoint
         }
         catch (ClassCastException ex)
         {
-            return false;
+            return 1;
         }
 
         if (this == p)
         {
-            return true;
+            return 0;
         }
 
-        if (_port != p._port)
+        if (_port < p._port)
         {
-            return false;
+            return -1;
+        }
+        else if (p._port < _port)
+        {
+            return 1;
         }
 
-        if (_timeout != p._timeout)
+        if (_timeout < p._timeout)
         {
-            return false;
+            return -1;
+        }
+        else if (p._timeout < _timeout)
+        {
+            return 1;
         }
 
         if (!_host.equals(p._host))
         {
-            try
+            //
+            // We do the most time-consuming part of the comparison last.
+            //
+            java.net.InetSocketAddress laddr;
+            java.net.InetSocketAddress raddr;
+            laddr = Network.getAddress(_host, _port);
+            raddr = Network.getAddress(p._host, p._port);
+            byte[] larr = laddr.getAddress().getAddress();
+            byte[] rarr = raddr.getAddress().getAddress();
+            assert(larr.length == rarr.length);
+            for (int i = 0; i < larr.length; i++)
             {
-                java.net.InetAddress addr1 =
-                    java.net.InetAddress.getByName(_host);
-
-                java.net.InetAddress addr2 =
-                    java.net.InetAddress.getByName(p._host);
-
-                if(!addr1.equals(addr2))
-                    return false;
-            }
-            catch(java.net.UnknownHostException ex)
-            {
-                return false;
+                if (larr[i] < rarr[i])
+                {
+                    return -1;
+                }
+                else if (rarr[i] < larr[i])
+                {
+                    return 1;
+                }
             }
         }
 
-        return true;
+        return 0;
     }
 
     private Instance _instance;

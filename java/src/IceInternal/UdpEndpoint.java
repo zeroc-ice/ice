@@ -18,6 +18,7 @@ public final class UdpEndpoint extends Endpoint
         _instance = instance;
         _host = ho;
         _port = po;
+        _connect = false;
     }
 
     public
@@ -26,12 +27,19 @@ public final class UdpEndpoint extends Endpoint
         _instance = instance;
         _host = null;
         _port = 0;
+        _connect = false;
 
         String[] arr = str.split("[ \t\n\r]+");
 
         int i = 0;
         while (i < arr.length)
         {
+            if (arr[i].length() == 0)
+            {
+                i++;
+                continue;
+            }
+
             String option = arr[i++];
             if (option.length() != 2 || option.charAt(0) != '-')
             {
@@ -76,6 +84,17 @@ public final class UdpEndpoint extends Endpoint
                     break;
                 }
 
+                case 'c':
+                {
+                    if (argument != null)
+                    {
+                        throw new Ice.EndpointParseException();
+                    }
+
+                    _connect = true;
+                    break;
+                }
+
                 default:
                 {
                     throw new Ice.EndpointParseException();
@@ -96,6 +115,9 @@ public final class UdpEndpoint extends Endpoint
         s.startReadEncaps();
         _host = s.readString();
         _port = s.readInt();
+        // Not transmitted.
+        //_connect = s.readBool();
+        _connect = false;
         s.endReadEncaps();
     }
 
@@ -109,6 +131,8 @@ public final class UdpEndpoint extends Endpoint
         s.startWriteEncaps();
         s.writeString(_host);
         s.writeInt(_port);
+        // Not transmitted.
+        //s.writeBool(_connect);
         s.endWriteEncaps();
     }
 
@@ -118,7 +142,12 @@ public final class UdpEndpoint extends Endpoint
     public String
     toString()
     {
-        return "udp -h " + _host + " -p " + _port;
+        String s = "udp -h " + _host + " -p " + _port;
+        if (_connect)
+        {
+            s += " -c";
+        }
+        return s;
     }
 
     //
@@ -189,7 +218,7 @@ public final class UdpEndpoint extends Endpoint
     public Transceiver
     serverTransceiver(EndpointHolder endpoint)
     {
-        UdpTransceiver p = new UdpTransceiver(_instance, _port);
+        UdpTransceiver p = new UdpTransceiver(_instance, _port, _connect);
         endpoint.value = new UdpEndpoint(_instance, _host, p.effectivePort());
         return p;
     }
@@ -249,6 +278,12 @@ public final class UdpEndpoint extends Endpoint
     public boolean
     equals(java.lang.Object obj)
     {
+        return compareTo(obj) == 0;
+    }
+
+    public int
+    compareTo(java.lang.Object obj) // From java.lang.Comparable
+    {
         UdpEndpoint p = null;
 
         try
@@ -257,42 +292,62 @@ public final class UdpEndpoint extends Endpoint
         }
         catch (ClassCastException ex)
         {
-            return false;
+            return 1;
         }
 
         if (this == p)
         {
-            return true;
+            return 0;
         }
 
-        if (_port != p._port)
+        if (_port < p._port)
         {
-            return false;
+            return -1;
+        }
+        else if (p._port < _port)
+        {
+            return 1;
+        }
+
+        if (!_connect && p._connect)
+        {
+            return -1;
+        }
+        else if (!p._connect && _connect)
+        {
+            return 1;
         }
 
         if (!_host.equals(p._host))
         {
-            try
+            //
+            // We do the most time-consuming part of the comparison last.
+            //
+            java.net.InetSocketAddress laddr;
+            java.net.InetSocketAddress raddr;
+            laddr = Network.getAddress(_host, _port);
+            raddr = Network.getAddress(p._host, p._port);
+            byte[] larr = laddr.getAddress().getAddress();
+            byte[] rarr = raddr.getAddress().getAddress();
+            assert(larr.length == rarr.length);
+            for (int i = 0; i < larr.length; i++)
             {
-                java.net.InetAddress addr1 =
-                    java.net.InetAddress.getByName(_host);
-
-                java.net.InetAddress addr2 =
-                    java.net.InetAddress.getByName(p._host);
-
-                if(!addr1.equals(addr2))
-                    return false;
-            }
-            catch(java.net.UnknownHostException ex)
-            {
-                return false;
+                if (larr[i] < rarr[i])
+                {
+                    return -1;
+                }
+                else if (rarr[i] < larr[i])
+                {
+                    return 1;
+                }
             }
         }
 
-        return true;
+        return 0;
     }
 
     private Instance _instance;
     private String _host;
     private int _port;
+    private boolean _connect;
 }

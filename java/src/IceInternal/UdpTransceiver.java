@@ -23,15 +23,7 @@ final class UdpTransceiver implements Transceiver
     {
         if (_traceLevels.network >= 1)
         {
-            String s;
-            if (_sender)
-            {
-                s = "stopping to send udp packets to " + toString();
-            }
-            else
-            {
-                s = "stopping to receive udp packets at " + toString();
-            }
+            String s = "closing udp connection\n" + toString();
             _logger.trace(_traceLevels.networkCat, s);
         }
 
@@ -57,7 +49,6 @@ final class UdpTransceiver implements Transceiver
     {
         java.nio.ByteBuffer buf = stream.prepareWrite();
 
-        assert(_sender);
         assert(buf.position() == 0);
         final int packetSize = 64 * 1024; // TODO: configurable
         assert(packetSize >= buf.limit()); // TODO: exception
@@ -70,8 +61,7 @@ final class UdpTransceiver implements Transceiver
 
                 if (_traceLevels.network >= 3)
                 {
-                    String s = "sent " + ret + " bytes via udp to " +
-                        toString();
+                    String s = "sent " + ret + " bytes via " + _protocolName + "\n" + toString();
                     _logger.trace(_traceLevels.networkCat, s);
                 }
 
@@ -94,57 +84,87 @@ final class UdpTransceiver implements Transceiver
     public void
     read(BasicStream stream, int timeout)
     {
-        assert(!_sender);
         assert(stream.pos() == 0);
         final int packetSize = 64 * 1024; // TODO: configurable
         stream.resize(packetSize, true);
-
         java.nio.ByteBuffer buf = stream.prepareRead();
         buf.position(0);
+
+        int ret = 0;
         while (true)
         {
-            try
+            if (_connect)
             {
-                java.net.SocketAddress source = _fd.receive(buf);
-                int tot = buf.position();
-
-                if (_traceLevels.network >= 3)
+                //
+                // If we must connect, then we connect to the first peer that
+                // sends us a packet.
+                //
+                try
                 {
-                    String s = "received " + tot + " bytes via udp at " +
-                        toString();
-                    _logger.trace(_traceLevels.networkCat, s);
-                }
+                    java.net.InetSocketAddress peerAddr = (java.net.InetSocketAddress)_fd.receive(buf);
+                    ret = buf.position();
+                    Network.doConnect(_fd, peerAddr, -1);
+                    _connect = false; // We're connected now
 
-                stream.resize(tot, true);
-                stream.pos(tot);
-                break;
+                    if (_traceLevels.network >= 1)
+                    {
+                        String s = "connected " + _protocolName + "socket\n" + toString();
+                        _logger.trace(_traceLevels.networkCat, s);
+                    }
+                }
+                catch (java.io.InterruptedIOException ex)
+                {
+                    continue;
+                }
+                catch (java.io.IOException ex)
+                {
+                    Ice.SocketException se = new Ice.SocketException();
+                    se.initCause(ex);
+                    throw se;
+                }
             }
-            catch (java.io.InterruptedIOException ex)
+            else
             {
-                continue;
+                try
+                {
+                    _fd.receive(buf);
+                    ret = buf.position();
+                }
+                catch (java.io.InterruptedIOException ex)
+                {
+                    continue;
+                }
+                catch (java.io.IOException ex)
+                {
+                    Ice.SocketException se = new Ice.SocketException();
+                    se.initCause(ex);
+                    throw se;
+                }
             }
-            catch (java.io.IOException ex)
-            {
-                Ice.SocketException se = new Ice.SocketException();
-                se.initCause(ex);
-                throw se;
-            }
+
+            break;
         }
+
+        if (_traceLevels.network >= 3)
+        {
+            String s = "received " + ret + " bytes via " + _protocolName + "\n" + toString();
+            _logger.trace(_traceLevels.networkCat, s);
+        }
+
+        stream.resize(ret, true);
+        stream.pos(ret);
     }
 
     public String
     toString()
     {
-        return Network.addrToString(_addr);
+        return Network.fdToString(_fd);
     }
 
-    public boolean
+    public final boolean
     equivalent(String host, int port)
     {
-        if (_sender)
-        {
-            return false;
-        }
+        assert(_incoming); // This equivalence test is only valid for incoming connections.
 
         java.net.InetSocketAddress addr = Network.getAddress(host, port);
         if (addr.getAddress().isLoopbackAddress())
@@ -163,25 +183,47 @@ final class UdpTransceiver implements Transceiver
         return _addr.getPort();
     }
 
+    public final void
+    setProtocolName(String protocolName)
+    {
+        _protocolName = protocolName;
+    }
+
     //
     // Only for use by UdpEndpoint
     //
-    UdpTransceiver(Instance instance, String host, int port)
+    UdpTransceiver(Instance instance,
+                   String host,
+                   int port)
+    {
+        this(instance, host, port, "udp");
+    }
+
+    //
+    // Only for use by UdpEndpoint
+    //
+    UdpTransceiver(Instance instance,
+                   String host,
+                   int port,
+                   String protocolName)
     {
         _instance = instance;
         _traceLevels = instance.traceLevels();
         _logger = instance.logger();
-        _sender = true;
+        _incoming = false;
+        _connect = true;
+        _protocolName = protocolName;
 
         try
         {
             _addr = Network.getAddress(host, port);
             _fd = Network.createUdpSocket();
             Network.doConnect(_fd, _addr, -1);
+            _connect = false; // We're connected now
 
             if (_traceLevels.network >= 1)
             {
-                String s = "starting to send udp packets to " + toString();
+                String s = "starting to send " + _protocolName + " packets\n" + toString();
                 _logger.trace(_traceLevels.networkCat, s);
             }
         }
@@ -195,12 +237,27 @@ final class UdpTransceiver implements Transceiver
     //
     // Only for use by UdpEndpoint
     //
-    UdpTransceiver(Instance instance, int port)
+    UdpTransceiver(Instance instance,
+                   int port,
+                   boolean connect)
+    {
+        this(instance, port, connect, "udp");
+    }
+
+    //
+    // Only for use by UdpEndpoint
+    //
+    UdpTransceiver(Instance instance,
+                   int port,
+                   boolean connect,
+                   String protocolName)
     {
         _instance = instance;
         _traceLevels = instance.traceLevels();
         _logger = instance.logger();
-        _sender = false;
+        _incoming = true;
+        _connect = connect;
+        _protocolName = protocolName;
 
         try
         {
@@ -210,7 +267,7 @@ final class UdpTransceiver implements Transceiver
 
             if (_traceLevels.network >= 1)
             {
-                String s = "starting to receive udp packets at " + toString();
+                String s = "starting to receive " + _protocolName + " packets\n" + toString();
                 _logger.trace(_traceLevels.networkCat, s);
             }
         }
@@ -232,7 +289,9 @@ final class UdpTransceiver implements Transceiver
     private Instance _instance;
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
-    private boolean _sender;
+    private boolean _incoming;
+    private boolean _connect;
     private java.nio.channels.DatagramChannel _fd;
     private java.net.InetSocketAddress _addr;
+    private String _protocolName;
 }

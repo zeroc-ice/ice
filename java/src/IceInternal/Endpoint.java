@@ -10,7 +10,7 @@
 
 package IceInternal;
 
-public abstract class Endpoint
+public abstract class Endpoint implements java.lang.Comparable
 {
     public static final short UnknownEndpointType = 0;
     public static final short TcpEndpointType = 1;
@@ -186,4 +186,5 @@ public abstract class Endpoint
     // Compare endpoints for sorting purposes
     //
     public abstract boolean equals(java.lang.Object obj);
+    public abstract int compareTo(java.lang.Object obj); // From java.lang.Comparable
 }

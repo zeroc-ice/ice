@@ -156,6 +156,12 @@ public final class UnknownEndpoint extends Endpoint
     public boolean
     equals(java.lang.Object obj)
     {
+        return compareTo(obj) == 0;
+    }
+
+    public int
+    compareTo(java.lang.Object obj) // From java.lang.Comparable
+    {
         UnknownEndpoint p = null;
 
         try
@@ -164,20 +170,35 @@ public final class UnknownEndpoint extends Endpoint
         }
         catch (ClassCastException ex)
         {
-            return false;
+            return 1;
         }
 
         if (this == p)
         {
-            return true;
+            return 0;
         }
 
-        if (!java.util.Arrays.equals(_rawBytes, p._rawBytes))
+        if (_rawBytes.length < p._rawBytes.length)
         {
-            return false;
+            return -1;
+        }
+        else if (p._rawBytes.length < _rawBytes.length)
+        {
+            return 1;
+        }
+        for (int i = 0; i < _rawBytes.length; i++)
+        {
+            if (_rawBytes[i] < p._rawBytes[i])
+            {
+                return -1;
+            }
+            else if (p._rawBytes[i] < _rawBytes[i])
+            {
+                return 1;
+            }
         }
 
-        return true;
+        return 0;
     }
 
     private Instance _instance;

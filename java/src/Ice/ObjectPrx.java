@@ -20,6 +20,9 @@ public interface ObjectPrx
     public void ice_ping();
     public void ice_ping(java.util.Map __context);
 
+    //public String[] ice_ids();
+    //public String[] ice_ids(java.util.Map __context);
+
     public byte[] ice_invoke(String operation, boolean nonmutating,
                              byte[] inParams);
     public byte[] ice_invoke(String operation, boolean nonmutating,
@@ -46,6 +49,10 @@ public interface ObjectPrx
     public ObjectPrx ice_secure(boolean b);
 
     public ObjectPrx ice_timeout(int t);
+
+    public ObjectPrx ice_router(Ice.RouterPrx router);
+
+    public ObjectPrx ice_default();
 
     public void ice_flush();
 

@@ -13,8 +13,8 @@ package IceInternal;
 public final class Outgoing
 {
     public
-    Outgoing(Connection connection, Reference ref, boolean sendProxy,
-             String operation, boolean nonmutating, java.util.Map context)
+    Outgoing(Connection connection, Reference ref, String operation,
+             boolean nonmutating, java.util.Map context)
     {
         _connection = connection;
         _reference = ref;
@@ -40,18 +40,8 @@ public final class Outgoing
             }
         }
 
-        _os.writeBool(sendProxy);
-        if (sendProxy)
-        {
-            Ice.ObjectPrx proxy = _reference.instance.proxyFactory().
-                referenceToProxy(_reference);
-            _os.writeProxy(proxy);
-        }
-        else
-        {
-            _reference.identity.__write(_os);
-            _os.writeString(_reference.facet);
-        }
+        _reference.identity.__write(_os);
+        _os.writeString(_reference.facet);
         _os.writeString(operation);
         _os.writeBool(nonmutating);
         if (context == null)
@@ -76,8 +66,8 @@ public final class Outgoing
 
         //
         // Input and output parameters are always sent in an
-        // encapsulation, which makes it possible to forward oneway
-        // requests as blobs.
+        // encapsulation, which makes it possible to forward requests as
+        // blobs.
         //
         _os.startWriteEncaps();
     }

@@ -289,6 +289,38 @@ public class ObjectPrxHelper implements ObjectPrx
         }
     }
 
+    public final ObjectPrx
+    ice_router(Ice.RouterPrx router)
+    {
+        IceInternal.Reference ref = _reference.changeRouter(router);
+        if (ref.equals(_reference))
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelper proxy = new ObjectPrxHelper();
+            proxy.setup(ref);
+            return proxy;
+        }
+    }
+
+    public final ObjectPrx
+    ice_default()
+    {
+        IceInternal.Reference ref = _reference.changeDefault();
+        if (ref.equals(_reference))
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelper proxy = new ObjectPrxHelper();
+            proxy.setup(ref);
+            return proxy;
+        }
+    }
+
     public final void
     ice_flush()
     {
@@ -313,7 +345,34 @@ public class ObjectPrxHelper implements ObjectPrx
     __copyFrom(ObjectPrx from)
     {
         ObjectPrxHelper h = (ObjectPrxHelper)from;
-        setup(h.__reference());
+        IceInternal.Reference ref = null;
+        _ObjectDelM delegateM = null;
+
+        synchronized(from)
+        {
+            ref = h._reference;
+            try
+            {
+                delegateM = (_ObjectDelM)h._delegate;
+            }
+            catch (ClassCastException ex)
+            {
+            }
+        }
+
+        //
+        // No need to synchronize "*this", as this operation is only
+        // called upon initialization.
+        //
+
+        _reference = ref;
+
+        if (delegateM != null)
+        {
+            _ObjectDelM delegate = __createDelegateM();
+            delegate.__copyFrom(delegateM);
+            _delegate = delegate;
+        }
     }
 
     public final synchronized int
@@ -419,12 +478,12 @@ public class ObjectPrxHelper implements ObjectPrx
         */
     }
 
-    protected final synchronized _ObjectDel
+    public final synchronized _ObjectDel
     __getDelegate()
     {
         if (_delegate == null)
         {
-            /* TODO: Server
+            /* TODO: Collocated
             ObjectAdapter adapter = _reference.instance.objectAdapterFactory().
                 findObjectAdapter(this);
             if (adapter != null)
@@ -439,6 +498,16 @@ public class ObjectPrxHelper implements ObjectPrx
                 _ObjectDelM delegate = __createDelegateM();
                 delegate.setup(_reference);
                 _delegate = delegate;
+
+                //
+                // If this proxy is for a non-local object, and we are
+                // using a router, then add this proxy to the router info
+                // object.
+                //
+                if (_reference.routerInfo != null)
+                {
+                    _reference.routerInfo.addProxy(this);
+                }
             }
         }
 

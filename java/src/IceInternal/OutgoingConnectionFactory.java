@@ -12,41 +12,6 @@ package IceInternal;
 
 public class OutgoingConnectionFactory
 {
-    //
-    // Only for use by Instance
-    //
-    OutgoingConnectionFactory(Instance instance)
-    {
-        _instance = instance;
-    }
-
-    protected void
-    finalize()
-        throws Throwable
-    {
-        assert(_instance == null);
-
-        super.finalize();
-    }
-
-    public synchronized void
-    destroy()
-    {
-        if (_instance == null)
-        {
-            return;
-        }
-
-        java.util.Iterator p = _connections.values().iterator();
-        while (p.hasNext())
-        {
-            Connection connection = (Connection)p.next();
-            connection.destroy(Connection.CommunicatorDestroyed);
-        }
-        _connections.clear();
-        _instance = null;
-    }
-
     public synchronized Connection
     create(Endpoint[] endpoints)
     {
@@ -58,7 +23,7 @@ public class OutgoingConnectionFactory
         assert(endpoints.length > 0);
 
         //
-        // First reap destroyed connections
+        // Reap destroyed connections
         //
         java.util.Iterator p = _connections.values().iterator();
         while (p.hasNext())
@@ -151,6 +116,92 @@ public class OutgoingConnectionFactory
         }
 
         return connection;
+    }
+
+    public synchronized void
+    setRouter(Ice.RouterPrx router)
+    {
+        if (_instance == null)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
+
+        RouterInfo routerInfo = _instance.routerManager().get(router);
+        if (routerInfo != null)
+        {
+            //
+            // Search for connections to the router's client proxy
+            // endpoints, and update the object adapter for such
+            // connections, so that callbacks from the router can be
+            // received over such connections.
+            //
+            Ice.ObjectPrx proxy = routerInfo.getClientProxy();
+            Ice.ObjectAdapter adapter = routerInfo.getAdapter();
+            Endpoint[] endpoints = ((Ice.ObjectPrxHelper)proxy).__reference().endpoints;
+            for (int i = 0; i < endpoints.length; i++)
+            {
+                Connection connection =
+                    (Connection)_connections.get(endpoints[i]);
+                if (connection != null)
+                {
+                    connection.setAdapter(adapter);
+                }
+            }
+        }
+    }
+
+    public synchronized void
+    removeAdapter(Ice.ObjectAdapter adapter)
+    {
+        if (_instance == null)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
+
+        java.util.Iterator p = _connections.values().iterator();
+        while (p.hasNext())
+        {
+            Connection connection = (Connection)p.next();
+            if (connection.getAdapter() == adapter)
+            {
+                connection.setAdapter(null);
+            }
+        }
+    }
+
+    //
+    // Only for use by Instance
+    //
+    OutgoingConnectionFactory(Instance instance)
+    {
+        _instance = instance;
+    }
+
+    protected void
+    finalize()
+        throws Throwable
+    {
+        assert(_instance == null);
+
+        super.finalize();
+    }
+
+    public synchronized void
+    destroy()
+    {
+        if (_instance == null)
+        {
+            return;
+        }
+
+        java.util.Iterator p = _connections.values().iterator();
+        while (p.hasNext())
+        {
+            Connection connection = (Connection)p.next();
+            connection.destroy(Connection.CommunicatorDestroyed);
+        }
+        _connections.clear();
+        _instance = null;
     }
 
     private Instance _instance;

@@ -12,69 +12,6 @@ package IceInternal;
 
 public class IncomingConnectionFactory extends EventHandler
 {
-    public
-    IncomingConnectionFactory(Instance instance, Endpoint endpoint,
-                              Ice.ObjectAdapter adapter)
-    {
-        super(instance);
-        _endpoint = endpoint;
-        _adapter = adapter;
-        _state = StateHolding;
-
-        try
-        {
-            String val =
-                _instance.properties().getProperty("Ice.ConnectionWarnings");
-            _warn = Integer.parseInt(val) > 0 ? true : false;
-        }
-        catch (NumberFormatException ex)
-        {
-            _warn = false;
-        }
-
-        try
-        {
-            EndpointHolder h = new EndpointHolder();
-            h.value = _endpoint;
-            _transceiver = _endpoint.serverTransceiver(h);
-            if (_transceiver != null)
-            {
-                _endpoint = h.value;
-                Connection connection = new Connection(_instance, _transceiver,
-                                                       _endpoint, _adapter);
-                _connections.add(connection);
-            }
-            else
-            {
-                h.value = _endpoint;
-                _acceptor = _endpoint.acceptor(h);
-                _endpoint = h.value;
-                assert(_acceptor != null);
-                _acceptor.listen();
-                _threadPool = _instance.threadPool();
-            }
-        }
-        catch (RuntimeException ex)
-        {
-            setState(StateClosed);
-            throw ex;
-        }
-    }
-
-    protected void
-    finalize()
-        throws Throwable
-    {
-        assert(_state == StateClosed);
-        super.finalize();
-    }
-
-    public synchronized void
-    destroy()
-    {
-        setState(StateClosed);
-    }
-
     public synchronized void
     hold()
     {
@@ -90,6 +27,7 @@ public class IncomingConnectionFactory extends EventHandler
     public Endpoint
     endpoint()
     {
+        // No mutex protection necessary, _endpoint is immutable.
         return _endpoint;
     }
 
@@ -103,6 +41,27 @@ public class IncomingConnectionFactory extends EventHandler
 
         assert(_acceptor != null);
         return endp.equivalent(_acceptor);
+    }
+
+    public synchronized Connection[]
+    connections()
+    {
+        //
+        // Reap destroyed connections
+        //
+        java.util.ListIterator iter = _connections.listIterator();
+        while (iter.hasNext())
+        {
+            Connection connection = (Connection)iter.next();
+            if (connection.destroyed())
+            {
+                iter.remove();
+            }
+        }
+
+        Connection[] arr = new Connection[_connections.size()];
+        _connections.toArray(arr);
+        return arr;
     }
 
     //
@@ -137,7 +96,7 @@ public class IncomingConnectionFactory extends EventHandler
         }
 
         //
-        // First reap destroyed connections
+        // Reap destroyed connections
         //
         java.util.ListIterator iter = _connections.listIterator();
         while (iter.hasNext())
@@ -211,6 +170,69 @@ public class IncomingConnectionFactory extends EventHandler
         return false;
     }
     */
+
+    public
+    IncomingConnectionFactory(Instance instance, Endpoint endpoint,
+                              Ice.ObjectAdapter adapter)
+    {
+        super(instance);
+        _endpoint = endpoint;
+        _adapter = adapter;
+        _state = StateHolding;
+
+        try
+        {
+            String val =
+                _instance.properties().getProperty("Ice.ConnectionWarnings");
+            _warn = Integer.parseInt(val) > 0 ? true : false;
+        }
+        catch (NumberFormatException ex)
+        {
+            _warn = false;
+        }
+
+        try
+        {
+            EndpointHolder h = new EndpointHolder();
+            h.value = _endpoint;
+            _transceiver = _endpoint.serverTransceiver(h);
+            if (_transceiver != null)
+            {
+                _endpoint = h.value;
+                Connection connection = new Connection(_instance, _transceiver,
+                                                       _endpoint, _adapter);
+                _connections.add(connection);
+            }
+            else
+            {
+                h.value = _endpoint;
+                _acceptor = _endpoint.acceptor(h);
+                _endpoint = h.value;
+                assert(_acceptor != null);
+                _acceptor.listen();
+                _threadPool = _instance.threadPool();
+            }
+        }
+        catch (RuntimeException ex)
+        {
+            setState(StateClosed);
+            throw ex;
+        }
+    }
+
+    protected void
+    finalize()
+        throws Throwable
+    {
+        assert(_state == StateClosed);
+        super.finalize();
+    }
+
+    public synchronized void
+    destroy()
+    {
+        setState(StateClosed);
+    }
 
     private static final int StateActive = 0;
     private static final int StateHolding = 1;

@@ -184,22 +184,26 @@ class PropertiesI implements Properties
         s = s.trim();
 
         final char[] arr = s.toCharArray();
-        int pos = -1;
+        int end = -1;
         for (int i = 0; i < arr.length; i++)
         {
             if (arr[i] == ' ' || arr[i] == '\t' || arr[i] == '=')
             {
-                pos = i;
+                end = i;
                 break;
             }
         }
-        if (pos == -1 || pos == s.length() - 1)
+        if (end == -1)
         {
             return;
         }
 
-        String key = s.substring(0, pos);
-        String value = s.substring(pos + 1).trim();
+        String key = s.substring(0, end);
+        String value = "";
+        if (end < s.length())
+        {
+            value = s.substring(end + 1).trim();
+        }
         setProperty(key, value);
     }
 

@@ -83,5 +83,38 @@ public final class Util
         }
     }
 
+    public static synchronized String
+    generateUUID()
+    {
+        java.rmi.server.UID uid = new java.rmi.server.UID();
+
+        if (_localAddress == null)
+        {
+            java.net.InetAddress addr = null;
+            try
+            {
+                addr = java.net.InetAddress.getLocalHost();
+            }
+            catch (java.net.UnknownHostException ex)
+            {
+                throw new DNSException();
+            }
+            byte[] ip = addr.getAddress();
+            _localAddress = "";
+            for (int i = 0; i < ip.length; i++)
+            {
+                if (i > 0)
+                {
+                    _localAddress += ":";
+                }
+                int n = ip[i] < 0 ? ip[i] + 256 : ip[i];
+                _localAddress += Integer.toHexString(n);
+            }
+        }
+
+        return _localAddress + ":" + uid;
+    }
+
     private static Properties _defaultProperties = null;
+    private static String _localAddress = null;
 }

@@ -179,26 +179,26 @@ public final class ThreadPool
             }
         }
 
-        try
+        _threadNum = 10;
+        value = _instance.properties().getProperty("Ice.ThreadPool.Size");
+        if (value != null)
         {
-            _threadNum = 10;
-            value = _instance.properties().getProperty("Ice.ThreadPool.Size");
-            if (value != null)
+            try
             {
-                try
+                _threadNum = Integer.parseInt(value);
+                if (_threadNum < 1)
                 {
-                    _threadNum = Integer.parseInt(value);
-                    if (_threadNum < 1)
-                    {
-                        _threadNum = 1;
-                    }
-                }
-                catch (NumberFormatException ex)
-                {
-                    // TODO: Error?
+                    _threadNum = 1;
                 }
             }
+            catch (NumberFormatException ex)
+            {
+                // TODO: Error?
+            }
+        }
 
+        try
+        {
             _threads = new EventHandlerThread[_threadNum];
             for (int i = 0; i < _threadNum; i++)
             {
@@ -474,53 +474,50 @@ public final class ThreadPool
     {
         BasicStream stream = handler._stream;
 
-        if (stream.size() < Protocol.headerSize) // Read header?
+        if (stream.size() == 0)
         {
-            if (stream.size() == 0)
-            {
-                stream.resize(Protocol.headerSize, true);
-                stream.pos(0);
-            }
-
-            handler.read(stream);
-            if (stream.pos() != stream.size())
-            {
-                return;
-            }
-        }
-
-        if (stream.size() >= Protocol.headerSize) // Interpret header?
-        {
-            int pos = stream.pos();
+            stream.resize(Protocol.headerSize, true);
             stream.pos(0);
-            byte protVer = stream.readByte();
-            if (protVer != Protocol.protocolVersion)
-            {
-                throw new Ice.UnsupportedProtocolException();
-            }
-            byte encVer = stream.readByte();
-            if (encVer != Protocol.encodingVersion)
-            {
-                throw new Ice.UnsupportedEncodingException();
-            }
-            byte messageType = stream.readByte();
-            int size = stream.readInt();
-            if (size < Protocol.headerSize)
-            {
-                throw new Ice.IllegalMessageSizeException();
-            }
-            if (size > 1024 * 1024) // TODO: Configurable
-            {
-                throw new Ice.MemoryLimitException();
-            }
-            stream.resize(size, true);
-            stream.pos(pos);
         }
 
-        if (stream.size() > Protocol.headerSize &&
-            stream.pos() != stream.size())
+        if (stream.pos() != stream.size())
         {
             handler.read(stream);
+            assert(stream.pos() != stream.size());
+        }
+
+        int pos = stream.pos();
+        stream.pos(0);
+        byte protVer = stream.readByte();
+        if (protVer != Protocol.protocolVersion)
+        {
+            throw new Ice.UnsupportedProtocolException();
+        }
+        byte encVer = stream.readByte();
+        if (encVer != Protocol.encodingVersion)
+        {
+            throw new Ice.UnsupportedEncodingException();
+        }
+        byte messageType = stream.readByte();
+        int size = stream.readInt();
+        if (size < Protocol.headerSize)
+        {
+            throw new Ice.IllegalMessageSizeException();
+        }
+        if (size > 1024 * 1024) // TODO: Configurable
+        {
+            throw new Ice.MemoryLimitException();
+        }
+        if (size > stream.size())
+        {
+            stream.resize(size, true);
+        }
+        stream.pos(pos);
+
+        if (stream.pos() != stream.size())
+        {
+            handler.read(stream);
+            assert(stream.pos() != stream.size());
         }
     }
 

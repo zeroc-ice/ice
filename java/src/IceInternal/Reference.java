@@ -17,266 +17,12 @@ public final class Reference
     public final static int ModeBatchOneway = 2;
     public final static int ModeDatagram = 3;
     public final static int ModeBatchDatagram = 4;
-    public final static int ModeBatchLast = ModeBatchDatagram;
+    public final static int ModeLast = ModeBatchDatagram;
 
-    public
-    Reference(Instance inst, Ice.Identity ident, String fac, int md,
-              boolean sec, Endpoint[] origEndpts, Endpoint[] endpts)
+    public int
+    hashCode()
     {
-        instance = inst;
-        identity = ident;
-        facet = fac;
-        mode = md;
-        secure = sec;
-        origEndpoints = origEndpts;
-        endpoints = endpts;
-        hashValue = 0;
-
-        calcHashValue();
-    }
-
-    public
-    Reference(Instance inst, String str)
-    {
-        instance = inst;
-        mode = ModeTwoway;
-        secure = false;
-        hashValue = 0;
-        facet = "";
-
-        String s = str.trim();
-        if (s.length() == 0)
-        {
-            throw new Ice.ReferenceParseException();
-        }
-
-        int colon = s.indexOf(':');
-        String init;
-        if (colon == -1)
-        {
-            init = s;
-        }
-        else
-        {
-            init = s.substring(0, colon);
-        }
-
-        String[] arr = init.split("[ \t\n\r]+");
-        identity = Ice.Util.stringToIdentity(arr[0]);
-
-        int i = 1;
-        while (i < arr.length)
-        {
-            String option = arr[i++];
-            if (option.length() != 2 || option.charAt(0) != '-')
-            {
-                throw new Ice.ReferenceParseException();
-            }
-
-            String argument = null;
-            if (i < arr.length && arr[i].charAt(0) != '-')
-            {
-                argument = arr[i++];
-            }
-
-            switch (option.charAt(1))
-            {
-                case 'f':
-                {
-                    if (argument == null)
-                    {
-                        throw new Ice.EndpointParseException();
-                    }
-
-                    facet = argument;
-                    break;
-                }
-
-                case 't':
-                {
-                    if (argument != null)
-                    {
-                        throw new Ice.EndpointParseException();
-                    }
-
-                    mode = ModeTwoway;
-                    break;
-                }
-
-                case 'o':
-                {
-                    if (argument != null)
-                    {
-                        throw new Ice.EndpointParseException();
-                    }
-
-                    mode = ModeOneway;
-                    break;
-                }
-
-                case 'O':
-                {
-                    if (argument != null)
-                    {
-                        throw new Ice.EndpointParseException();
-                    }
-
-                    mode = ModeBatchOneway;
-                    break;
-                }
-
-                case 'd':
-                {
-                    if (argument != null)
-                    {
-                        throw new Ice.EndpointParseException();
-                    }
-
-                    mode = ModeDatagram;
-                    break;
-                }
-
-                case 'D':
-                {
-                    if (argument != null)
-                    {
-                        throw new Ice.EndpointParseException();
-                    }
-
-                    mode = ModeBatchDatagram;
-                    break;
-                }
-
-                case 's':
-                {
-                    if (argument != null)
-                    {
-                        throw new Ice.EndpointParseException();
-                    }
-
-                    secure = true;
-                    break;
-                }
-
-                default:
-                {
-                    if (argument != null)
-                    {
-                        throw new Ice.EndpointParseException();
-                    }
-
-                    throw new Ice.ReferenceParseException();
-                }
-            }
-        }
-
-        java.util.LinkedList origEndpointList = new java.util.LinkedList();
-        java.util.LinkedList endpointList = new java.util.LinkedList();
-        boolean orig = true;
-        final int len = s.length();
-        int end = colon;
-        while (end < len && s.charAt(end) == ':')
-        {
-            int beg = end + 1;
-
-            end = s.indexOf(':', beg);
-            if (end == -1)
-            {
-                end = len;
-            }
-
-            if (beg == end) // "::"
-            {
-                if (!orig)
-                {
-                    throw new Ice.ReferenceParseException();
-                }
-
-                orig = false;
-                continue;
-            }
-
-            String es = s.substring(beg, end);
-            Endpoint endp = Endpoint.endpointFromString(instance, es);
-
-            if (orig)
-            {
-                origEndpointList.add(endp);
-            }
-            else
-            {
-                endpointList.add(endp);
-            }
-        }
-
-        origEndpoints = new Endpoint[origEndpointList.size()];
-        origEndpointList.toArray(origEndpoints);
-
-        if (orig)
-        {
-            endpoints = origEndpoints;
-        }
-        else
-        {
-            endpoints = new Endpoint[endpointList.size()];
-            endpointList.toArray(endpoints);
-        }
-
-        if (origEndpoints.length == 0 || endpoints.length == 0)
-        {
-            throw new Ice.ReferenceParseException();
-        }
-
-        calcHashValue();
-    }
-
-    public
-    Reference(Ice.Identity ident, BasicStream s)
-    {
-        instance = s.instance();
-        identity = ident;
-        mode = ModeTwoway;
-        secure = false;
-        hashValue = 0;
-
-        //
-        // Don't read the identity here. Operations calling this
-        // constructor read the identity, and pass it as a parameter.
-        //
-
-        facet = s.readString();
-
-        mode = (int)s.readByte();
-        if (mode < 0 || mode > ModeBatchLast)
-        {
-            throw new Ice.ProxyUnmarshalException();
-        }
-
-        secure = s.readBool();
-
-        int sz = s.readInt();
-        origEndpoints = new Endpoint[sz];
-        for (int i = 0; i < sz; i++)
-        {
-            origEndpoints[i] = Endpoint.streamRead(s);
-        }
-
-        boolean same = s.readBool();
-        if (same) // origEndpoints == endpoints
-        {
-            endpoints = origEndpoints;
-        }
-        else
-        {
-            sz = s.readInt();
-            endpoints = new Endpoint[sz];
-            for (int i = 0; i < sz; i++)
-            {
-                endpoints[i] = Endpoint.streamRead(s);
-            }
-        }
-
-        calcHashValue();
+        return hashValue;
     }
 
     public boolean
@@ -320,6 +66,22 @@ public final class Reference
         }
 
         if (!compare(endpoints, r.endpoints))
+        {
+            return false;
+        }
+
+        if (routerInfo != r.routerInfo)
+        {
+            return false;
+        }
+
+        if (routerInfo != null && r.routerInfo != null &&
+            !routerInfo.equals(r.routerInfo))
+        {
+            return false;
+        }
+
+        if (reverseAdapter != r.reverseAdapter)
         {
             return false;
         }
@@ -372,7 +134,51 @@ public final class Reference
     toString()
     {
         StringBuffer s = new StringBuffer();
-        s.append(identity);
+        s.append(Ice.Util.identityToString(identity));
+
+        if (facet.length() > 0)
+        {
+            s.append(" -f ");
+            s.append(facet);
+        }
+
+        switch (mode)
+        {
+            case ModeTwoway:
+            {
+                s.append(" -t");
+                break;
+            }
+
+            case ModeOneway:
+            {
+                s.append(" -o");
+                break;
+            }
+
+            case ModeBatchOneway:
+            {
+                s.append(" -O");
+                break;
+            }
+
+            case ModeDatagram:
+            {
+                s.append(" -d");
+                break;
+            }
+
+            case ModeBatchDatagram:
+            {
+                s.append(" -D");
+                break;
+            }
+        }
+
+        if (secure)
+        {
+            s.append(" -s");
+        }
 
         for (int i = 0; i < origEndpoints.length; i++)
         {
@@ -401,8 +207,10 @@ public final class Reference
     public String facet;
     public int mode;
     public boolean secure;
-    public Endpoint[] origEndpoints; // Original endpoints
-    public Endpoint[] endpoints; // Actual endpoints (set by a loc fwd)
+    public Endpoint[] origEndpoints; // Original endpoints.
+    public Endpoint[] endpoints; // Actual endpoints, changed by a location forward.
+    public RouterInfo routerInfo; // Null if no router is used.
+    public Ice.ObjectAdapter reverseAdapter; // For reverse communications using the adapter's incoming connections.
     public int hashValue;
 
     //
@@ -418,8 +226,9 @@ public final class Reference
         }
         else
         {
-            return new Reference(instance, newIdentity, facet, mode, secure,
-                                 origEndpoints, endpoints);
+            return instance.referenceFactory().create(newIdentity, facet, mode, secure,
+                                                      origEndpoints, endpoints,
+                                                      routerInfo, reverseAdapter);
         }
     }
 
@@ -432,14 +241,18 @@ public final class Reference
         }
         else
         {
-            return new Reference(instance, identity, newFacet, mode, secure,
-                                 origEndpoints, endpoints);
+            return instance.referenceFactory().create(identity, newFacet, mode, secure,
+                                                      origEndpoints, endpoints,
+                                                      routerInfo, reverseAdapter);
         }
     }
 
     public Reference
     changeTimeout(int timeout)
     {
+        //
+        // We change the timeout settings in all endpoints.
+        //
         Endpoint[] newOrigEndpoints = new Endpoint[origEndpoints.length];
         for (int i = 0; i < origEndpoints.length; i++)
         {
@@ -452,15 +265,30 @@ public final class Reference
             newEndpoints[i] = endpoints[i].timeout(timeout);
         }
 
-        Reference ref = new Reference(instance, identity, facet, mode, secure,
-                                      newOrigEndpoints, newEndpoints);
-
-        if (ref.equals(this))
+        //
+        // If we have a router, we also change the timeout settings on the
+        // router and the router's client proxy.
+        //
+        RouterInfo newRouterInfo = null;
+        if (routerInfo != null)
         {
-            return this;
+            try
+            {
+                Ice.RouterPrx newRouter =
+                    Ice.RouterPrxHelper.uncheckedCast(routerInfo.getRouter().ice_timeout(timeout));
+                Ice.ObjectPrx newClientProxy = routerInfo.getClientProxy().ice_timeout(timeout);
+                newRouterInfo = instance.routerManager().get(newRouter);
+                newRouterInfo.setClientProxy(newClientProxy);
+            }
+            catch (Ice.NoEndpointException ex)
+            {
+                // Ignore non-existing client proxies.
+            }
         }
 
-        return ref;
+        return instance.referenceFactory().create(identity, facet, mode, secure,
+                                                  newOrigEndpoints, newEndpoints,
+                                                  newRouterInfo, reverseAdapter);
     }
 
     public Reference
@@ -472,8 +300,9 @@ public final class Reference
         }
         else
         {
-            return new Reference(instance, identity, facet, newMode, secure,
-                                 origEndpoints, endpoints);
+            return instance.referenceFactory().create(identity, facet, newMode, secure,
+                                                      origEndpoints, endpoints,
+                                                      routerInfo, reverseAdapter);
         }
     }
 
@@ -486,8 +315,9 @@ public final class Reference
         }
         else
         {
-            return new Reference(instance, identity, facet, mode, newSecure,
-                                 origEndpoints, endpoints);
+            return instance.referenceFactory().create(identity, facet, mode, newSecure,
+                                                      origEndpoints, endpoints,
+                                                      routerInfo, reverseAdapter);
         }
     }
 
@@ -500,9 +330,62 @@ public final class Reference
         }
         else
         {
-            return new Reference(instance, identity, facet, mode, secure,
-                                 origEndpoints, newEndpoints);
+            return instance.referenceFactory().create(identity, facet, mode, secure,
+                                                      origEndpoints, newEndpoints,
+                                                      routerInfo, reverseAdapter);
         }
+    }
+
+    public Reference
+    changeRouter(Ice.RouterPrx newRouter)
+    {
+        RouterInfo newRouterInfo = instance.routerManager().get(newRouter);
+
+        if (newRouterInfo.equals(routerInfo))
+        {
+            return this;
+        }
+        else
+        {
+            return instance.referenceFactory().create(identity, facet, mode, secure,
+                                                      origEndpoints, endpoints,
+                                                      newRouterInfo, reverseAdapter);
+        }
+    }
+
+    public Reference
+    changeDefault()
+    {
+        return instance.referenceFactory().create(identity, "", ModeTwoway, false,
+                                                  origEndpoints, origEndpoints,
+                                                  null, null);
+    }
+
+    //
+    // Only for use by ReferenceFactory
+    //
+    Reference(Instance inst,
+              Ice.Identity ident,
+              String fac,
+              int md,
+              boolean sec,
+              Endpoint[] origEndpts,
+              Endpoint[] endpts,
+              RouterInfo rtrInfo,
+              Ice.ObjectAdapter rvAdapter)
+    {
+        instance = inst;
+        identity = ident;
+        facet = fac;
+        mode = md;
+        secure = sec;
+        origEndpoints = origEndpts;
+        endpoints = endpts;
+        routerInfo = rtrInfo;
+        reverseAdapter = rvAdapter;
+        hashValue = 0;
+
+        calcHashValue();
     }
 
     private void

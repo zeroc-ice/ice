@@ -229,25 +229,10 @@ final class TraceUtil
     {
         try
         {
-            Ice.Identity identity = null;
-            String facet = null;
-            boolean gotProxy = stream.readBool();
-            out.write("\naddressing = " + gotProxy);
-            if (gotProxy)
-            {
-                out.write(" (proxy)");
-                Ice.ObjectPrx proxy = stream.readProxy();
-                identity = proxy.ice_getIdentity();
-                facet = proxy.ice_getFacet();
-            }
-            else
-            {
-                out.write(" (identity)");
-                identity = new Ice.Identity();
-                identity.__read(stream);
-                facet = stream.readString();
-            }
+            Ice.Identity identity = new Ice.Identity();
+            identity.__read(stream);
             out.write("\nidentity = " + Ice.Util.identityToString(identity));
+            String facet = stream.readString();
             out.write("\nfacet = " + facet);
             String operation = stream.readString();
             out.write("\noperation = " + operation);

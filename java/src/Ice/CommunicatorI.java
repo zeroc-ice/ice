@@ -17,6 +17,7 @@ class CommunicatorI implements Communicator
     {
         if (_instance != null)
         {
+            _instance.objectAdapterFactory().shutdown();
             _instance.destroy();
             _instance = null;
         }
@@ -64,8 +65,19 @@ class CommunicatorI implements Communicator
     public ObjectAdapter
     createObjectAdapter(String name)
     {
-        return createObjectAdapterFromProperty(name, "Ice.Adapter." + name +
-                                               ".Endpoints");
+        ObjectAdapter adapter =
+            createObjectAdapterFromProperty(name, "Ice.Adapter." + name +
+                                            ".Endpoints");
+        String router =
+            _instance.properties().getProperty("Ice.Adapter." + name +
+                                               ".Router");
+        if (router != null)
+        {
+            adapter.addRouter(
+                RouterPrxHelper.uncheckedCast(
+                    _instance.proxyFactory().stringToProxy(router)));
+        }
+        return adapter;
     }
 
     public synchronized ObjectAdapter
@@ -180,15 +192,10 @@ class CommunicatorI implements Communicator
         _instance.logger(logger);
     }
 
-    public Stream
-    createStream()
+    public void
+    setDefaultRouter(RouterPrx router)
     {
-        if (_instance == null)
-        {
-            throw new CommunicatorDestroyedException();
-        }
-
-        return null;
+        _instance.referenceFactory().setDefaultRouter(router);
     }
 
     CommunicatorI(Properties properties)

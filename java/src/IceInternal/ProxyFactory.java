@@ -13,17 +13,31 @@ package IceInternal;
 public final class ProxyFactory
 {
     public Ice.ObjectPrx
-    stringToProxy(String s)
+    stringToProxy(String str)
     {
-        Reference reference = new Reference(_instance, s);
-        return referenceToProxy(reference);
+        if (str.length() == 0)
+        {
+            return null;
+        }
+        else
+        {
+            Reference ref = _instance.referenceFactory().create(str);
+            return referenceToProxy(ref);
+        }
     }
 
     public String
     proxyToString(Ice.ObjectPrx proxy)
     {
-        Ice.ObjectPrxHelper h = (Ice.ObjectPrxHelper)proxy;
-        return h.__reference().toString();
+        if (proxy != null)
+        {
+            Ice.ObjectPrxHelper h = (Ice.ObjectPrxHelper)proxy;
+            return h.__reference().toString();
+        }
+        else
+        {
+            return "";
+        }
     }
 
     public Ice.ObjectPrx
@@ -38,8 +52,8 @@ public final class ProxyFactory
         }
         else
         {
-            Reference reference = new Reference(ident, s);
-            return referenceToProxy(reference);
+            Reference ref = _instance.referenceFactory().create(ident, s);
+            return referenceToProxy(ref);
         }
     }
 

@@ -15,7 +15,6 @@ public class Object
     public
     Object()
     {
-        _dispatcher = null;
     }
 
     public boolean
@@ -55,30 +54,59 @@ public class Object
         return s.equals("::Ice::Object");
     }
 
+    public static IceInternal.DispatchStatus
+    ___ice_isA(Ice.Object __obj, IceInternal.Incoming __in, Current __current)
+    {
+        IceInternal.BasicStream __is = __in.is();
+        IceInternal.BasicStream __os = __in.os();
+        String __id = __is.readString();
+        boolean __ret = __obj.ice_isA(__id, __current);
+        __os.writeBool(__ret);
+        return IceInternal.DispatchStatus.DispatchOK;
+    }
+
     public void
     ice_ping(Current current)
     {
         // Nothing to do.
     }
 
-    public Dispatcher
-    __dispatcher()
+    public static IceInternal.DispatchStatus
+    ___ice_ping(Ice.Object __obj, IceInternal.Incoming __in, Current __current)
     {
-        return new _ObjectDisp(this);
+        __obj.ice_ping(__current);
+        return IceInternal.DispatchStatus.DispatchOK;
     }
 
-    public final IceInternal.DispatchStatus
+    private static String[] __all =
+    {
+        "ice_isA",
+        "ice_ping"
+    };
+
+    public IceInternal.DispatchStatus
     __dispatch(IceInternal.Incoming in, Current current)
     {
-        synchronized (this)
+        int pos = java.util.Arrays.binarySearch(__all, current.operation);
+        if (pos < 0)
         {
-            if (_dispatcher == null)
+            return IceInternal.DispatchStatus.DispatchOperationNotExist;
+        }
+
+        switch (pos)
+        {
+            case 0:
             {
-                _dispatcher = __dispatcher();
+                return ___ice_isA(this, in, current);
+            }
+            case 1:
+            {
+                return ___ice_ping(this, in, current);
             }
         }
 
-        return _dispatcher.__dispatch(in, current);
+        assert(false);
+        return IceInternal.DispatchStatus.DispatchOperationNotExist;
     }
 
     public void
@@ -157,5 +185,4 @@ public class Object
 
     private java.util.HashMap _activeFacetMap = new java.util.HashMap();
     private java.lang.Object _activeFacetMapMutex = new java.lang.Object();
-    private Dispatcher _dispatcher;
 }

@@ -629,6 +629,7 @@ public class BasicStream
             writeInt(len);
             if (len > 0)
             {
+                /*
                 if (_currentWriteEncaps.stringsWritten == null)
                 {
                     _currentWriteEncaps.stringsWritten =
@@ -637,6 +638,7 @@ public class BasicStream
                 int num = _currentWriteEncaps.stringsWritten.size();
                 _currentWriteEncaps.stringsWritten.put(
                     v, new Integer(-(num + 1)));
+                */
                 final char[] arr = v.toCharArray();
                 expand(len);
                 for (int i = 0; i < len; i++)
@@ -734,122 +736,6 @@ public class BasicStream
     }
 
     public void
-    writeWString(String v)
-    {
-        if (_currentWriteEncaps == null) // Lazy initialization
-        {
-            _currentWriteEncaps = new WriteEncaps();
-            _writeEncapsStack.add(_currentWriteEncaps);
-        }
-
-        Integer pos = null;
-        if (_currentWriteEncaps.wstringsWritten != null) // Lazy creation
-        {
-            pos = (Integer)_currentWriteEncaps.wstringsWritten.get(v);
-        }
-        if (pos != null)
-        {
-            writeInt(pos.intValue());
-        }
-        else
-        {
-            final int len = v.length();
-            writeInt(len);
-            if (len > 0)
-            {
-                if (_currentWriteEncaps.wstringsWritten == null)
-                {
-                    _currentWriteEncaps.wstringsWritten =
-                        new java.util.HashMap();
-                }
-                int num = _currentWriteEncaps.wstringsWritten.size();
-                _currentWriteEncaps.wstringsWritten.put(
-                    v, new Integer(-(num + 1)));
-                final int sz = len * 2;
-                expand(sz);
-                java.nio.CharBuffer charBuf = _buf.asCharBuffer();
-                charBuf.put(v);
-                _buf.position(_buf.position() + sz);
-            }
-        }
-    }
-
-    public void
-    writeWStringSeq(String[] v)
-    {
-        writeInt(v.length);
-        for (int i = 0; i < v.length; i++)
-        {
-            writeWString(v[i]);
-        }
-    }
-
-    public String
-    readWString()
-    {
-        final int len = readInt();
-
-        if (_currentReadEncaps == null) // Lazy initialization
-        {
-            _currentReadEncaps = new ReadEncaps();
-            _readEncapsStack.add(_currentReadEncaps);
-        }
-
-        if (len < 0)
-        {
-            if (_currentReadEncaps.wstringsRead == null || // Lazy creation
-                -(len + 1) >= _currentReadEncaps.wstringsRead.size())
-            {
-                throw new Ice.IllegalIndirectionException();
-            }
-            return (String)_currentReadEncaps.wstringsRead.get(-(len + 1));
-        }
-        else
-        {
-            if (len == 0)
-            {
-                return "";
-            }
-            else
-            {
-                try
-                {
-                    char[] arr = new char[len];
-                    java.nio.CharBuffer charBuf = _buf.asCharBuffer();
-                    charBuf.get(arr);
-                    String v = new String(arr);
-                    if (_currentReadEncaps.wstringsRead == null)
-                    {
-                        _currentReadEncaps.wstringsRead =
-                            new java.util.ArrayList(10);
-                    }
-                    _currentReadEncaps.wstringsRead.add(v);
-                    _buf.position(_buf.position() + len * 2);
-                    return v;
-                }
-                catch (java.nio.BufferUnderflowException ex)
-                {
-                    throw new Ice.UnmarshalOutOfBoundsException();
-                }
-            }
-        }
-    }
-
-    public String[]
-    readWStringSeq()
-    {
-        final int sz = readInt();
-        // Don't use resize(sz) or reserve(sz) here, as it cannot be
-        // checked whether sz is a reasonable value
-        String[] v = new String[sz];
-        for (int i = 0; i < sz; i++)
-        {
-            v[i] = readWString();
-        }
-        return v;
-    }
-
-    public void
     writeProxy(Ice.ObjectPrx v)
     {
         _instance.proxyFactory().proxyToStream(v, this);
@@ -888,7 +774,7 @@ public class BasicStream
                 if (_currentWriteEncaps.objectsWritten == null)
                 {
                     _currentWriteEncaps.objectsWritten =
-                        new java.util.HashMap();
+                        new java.util.IdentityHashMap();
                 }
                 int num = _currentWriteEncaps.objectsWritten.size();
                 _currentWriteEncaps.objectsWritten.put(v, new Integer(num));
@@ -1073,7 +959,6 @@ public class BasicStream
         int start;
         byte encoding;
         java.util.ArrayList stringsRead;
-        java.util.ArrayList wstringsRead;
         java.util.ArrayList objectsRead;
     }
 
@@ -1082,8 +967,7 @@ public class BasicStream
         int start;
         byte encoding;
         java.util.HashMap stringsWritten;
-        java.util.HashMap wstringsWritten;
-        java.util.HashMap objectsWritten;
+        java.util.IdentityHashMap objectsWritten;
     }
 
     private java.util.LinkedList _readEncapsStack = new java.util.LinkedList();

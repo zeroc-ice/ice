@@ -25,6 +25,7 @@
                 <pathelement path="${slice.dir}" />
             </includepath>
             <fileset dir="${slice.dir}/Ice">
+                <include name="BuiltinSequences.ice" />
                 <include name="Communicator.ice" />
                 <include name="Current.ice" />
                 <include name="Identity.ice" />
@@ -33,6 +34,7 @@
                 <include name="ObjectAdapter.ice" />
                 <include name="ObjectFactory.ice" />
                 <include name="Properties.ice" />
+                <include name="Router.ice" />
                 <include name="ServantLocator.ice" />
                 <include name="Stream.ice" />
             </fileset>
