@@ -13,7 +13,6 @@
 // **********************************************************************
 
 #include <Ice/DynamicLibrary.h>
-#include <IceUtil/Unicode.h>
 
 #ifndef _WIN32
 #   include <dlfcn.h>
@@ -113,12 +112,7 @@ bool
 IceInternal::DynamicLibrary::load(const string& lib)
 {
 #ifdef _WIN32
-#   if _MSC_VER > 1200
-    wstring wlib = IceUtil::stringToWstring(lib);
-    _hnd = LoadLibrary(wlib.c_str());
-#   else
     _hnd = LoadLibrary(lib.c_str());
-#   endif
 #else
     _hnd = dlopen(lib.c_str(), RTLD_NOW);
     if(_hnd == 0)

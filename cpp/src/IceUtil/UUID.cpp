@@ -13,7 +13,6 @@
 // **********************************************************************
 
 #include <IceUtil/UUID.h>
-#include <IceUtil/Unicode.h>
 
 // On Windows, we use Windows's RPC UUID generator.
 // On other platforms, we use a high quality random number generator 
@@ -87,21 +86,11 @@ IceUtil::generateUUID()
     UUID uuid;
     UuidCreate(&uuid);
 
-#if _MSC_VER > 1200
-    wchar_t* str;
-#else
     unsigned char* str;
-#endif
 
     UuidToString(&uuid, &str);
 
-    string result;
-
-#if _MSC_VER > 1200
-    result = wstringToString(wstring(str));
-#else
-    result = reinterpret_cast<char*>(str);
-#endif
+    string result = reinterpret_cast<char*>(str);
 
     RpcStringFree(&str);
     return result;
