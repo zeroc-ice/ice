@@ -567,6 +567,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_579716F10D1C49438B60B78FF5DFA539"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:glacier2cs_b33327d3267ff62c8d0c523750fee183"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_5880D591E98F4697B288EFB811643409"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\GLACIER\\SESSION\\SESSIONC.VBPROJ"
@@ -700,13 +706,13 @@
         "Entry"
         {
         "MsmKey" = "8:_68BC530B842D49D435340ABD6E8260BA"
-        "OwnerKey" = "8:_956FD2DC2C815B3B4A9DABD77204AAA7"
+        "OwnerKey" = "8:_DEF190B5C30987DB306C6CBCEC2BDEC7"
         "MsmSig" = "8:system.xml_3e5fe87b0e28b717e6c8ac9b88cac515"
         }
         "Entry"
         {
         "MsmKey" = "8:_68BC530B842D49D435340ABD6E8260BA"
-        "OwnerKey" = "8:_DEF190B5C30987DB306C6CBCEC2BDEC7"
+        "OwnerKey" = "8:_956FD2DC2C815B3B4A9DABD77204AAA7"
         "MsmSig" = "8:system.xml_3e5fe87b0e28b717e6c8ac9b88cac515"
         }
         "Entry"
@@ -714,6 +720,12 @@
         "MsmKey" = "8:_69707D2073CC41DE9CCAE7684A389673"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\CALLBACK\\CLIENT.VB"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_69A6D209BB114D548161FF15750C0BB9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:glaciercs_259a9c94e3c9a8e54a3d56f9be27fd8d"
         }
         "Entry"
         {
@@ -1366,13 +1378,31 @@
         "Entry"
         {
         "MsmKey" = "8:_DDF44A3AC5C8852A2984659C75D6ABE4"
-        "OwnerKey" = "8:_FA028B296971423EBFC83A624EA5DE6E"
+        "OwnerKey" = "8:_69A6D209BB114D548161FF15750C0BB9"
+        "MsmSig" = "8:icecs_b33370c4cb366887549130fb29e43224"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DDF44A3AC5C8852A2984659C75D6ABE4"
+        "OwnerKey" = "8:_579716F10D1C49438B60B78FF5DFA539"
+        "MsmSig" = "8:icecs_b33370c4cb366887549130fb29e43224"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DDF44A3AC5C8852A2984659C75D6ABE4"
+        "OwnerKey" = "8:_F1A098A33CA24C04A3C1B0D112F64942"
         "MsmSig" = "8:icecs_b33370c4cb366887549130fb29e43224"
         }
         "Entry"
         {
         "MsmKey" = "8:_DDF44A3AC5C8852A2984659C75D6ABE4"
         "OwnerKey" = "8:_BD65D73F044441279352A3B78123CEF9"
+        "MsmSig" = "8:icecs_b33370c4cb366887549130fb29e43224"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DDF44A3AC5C8852A2984659C75D6ABE4"
+        "OwnerKey" = "8:_FA028B296971423EBFC83A624EA5DE6E"
         "MsmSig" = "8:icecs_b33370c4cb366887549130fb29e43224"
         }
         "Entry"
@@ -1420,43 +1450,25 @@
         "Entry"
         {
         "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
-        "OwnerKey" = "8:_DDF44A3AC5C8852A2984659C75D6ABE4"
+        "OwnerKey" = "8:_69A6D209BB114D548161FF15750C0BB9"
         "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
         }
         "Entry"
         {
         "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
-        "OwnerKey" = "8:_154A5F014EF4470DBACADE7BD42F571D"
+        "OwnerKey" = "8:_579716F10D1C49438B60B78FF5DFA539"
         "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
         }
         "Entry"
         {
         "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
-        "OwnerKey" = "8:_22932D412D0BAB574C43975351666FFE"
+        "OwnerKey" = "8:_F1A098A33CA24C04A3C1B0D112F64942"
         "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
         }
         "Entry"
         {
         "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
-        "OwnerKey" = "8:_956FD2DC2C815B3B4A9DABD77204AAA7"
-        "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
-        "OwnerKey" = "8:_0232A661AEED4138B4ECAE6EBFA86646"
-        "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
-        "OwnerKey" = "8:_AE78B8BE7B02432BBA50D2472A989CD9"
-        "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
-        "OwnerKey" = "8:_BD65D73F044441279352A3B78123CEF9"
+        "OwnerKey" = "8:_FA028B296971423EBFC83A624EA5DE6E"
         "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
         }
         "Entry"
@@ -1468,7 +1480,43 @@
         "Entry"
         {
         "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
-        "OwnerKey" = "8:_FA028B296971423EBFC83A624EA5DE6E"
+        "OwnerKey" = "8:_BD65D73F044441279352A3B78123CEF9"
+        "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
+        "OwnerKey" = "8:_AE78B8BE7B02432BBA50D2472A989CD9"
+        "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
+        "OwnerKey" = "8:_0232A661AEED4138B4ECAE6EBFA86646"
+        "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
+        "OwnerKey" = "8:_956FD2DC2C815B3B4A9DABD77204AAA7"
+        "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
+        "OwnerKey" = "8:_22932D412D0BAB574C43975351666FFE"
+        "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
+        "OwnerKey" = "8:_154A5F014EF4470DBACADE7BD42F571D"
+        "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
+        "OwnerKey" = "8:_DDF44A3AC5C8852A2984659C75D6ABE4"
         "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
         }
         "Entry"
@@ -1572,6 +1620,12 @@
         "MsmKey" = "8:_F19969F321E74E4C85CADAA2B89382C9"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICEPACK\\README"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F1A098A33CA24C04A3C1B0D112F64942"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:icepackcs_6f04873e8c155aaa01e6938b4f49c4b5"
         }
         "Entry"
         {
@@ -3594,6 +3648,37 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{C7BF5952-4B9D-11D3-8E24-00C04F6837D0}:_579716F10D1C49438B60B78FF5DFA539"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:glacier2cs, Version=2.0.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381"
+                "ScatterAssemblies"
+                {
+                    "_579716F10D1C49438B60B78FF5DFA539"
+                    {
+                    "Name" = "8:glacier2cs.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\bin\\glacier2cs.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_35813370D74044E5B6B38AC562AE1AC5"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5880D591E98F4697B288EFB811643409"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Glacier\\session\\sessionCD.vbproj"
@@ -4020,6 +4105,37 @@
             "TargetName" = "8:Client.vb"
             "Tag" = "8:"
             "Folder" = "8:_D99D2A9A96F9493E931A0A96DA3212A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{C7BF5952-4B9D-11D3-8E24-00C04F6837D0}:_69A6D209BB114D548161FF15750C0BB9"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:glaciercs, Version=2.0.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381"
+                "ScatterAssemblies"
+                {
+                    "_69A6D209BB114D548161FF15750C0BB9"
+                    {
+                    "Name" = "8:glaciercs.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\bin\\glaciercs.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_35813370D74044E5B6B38AC562AE1AC5"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6695,6 +6811,37 @@
             "TargetName" = "8:README"
             "Tag" = "8:"
             "Folder" = "8:_753DD64E42664BC28049BB53F8436D22"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{C7BF5952-4B9D-11D3-8E24-00C04F6837D0}:_F1A098A33CA24C04A3C1B0D112F64942"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:icepackcs, Version=2.0.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381"
+                "ScatterAssemblies"
+                {
+                    "_F1A098A33CA24C04A3C1B0D112F64942"
+                    {
+                    "Name" = "8:icepackcs.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\bin\\icepackcs.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_35813370D74044E5B6B38AC562AE1AC5"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
