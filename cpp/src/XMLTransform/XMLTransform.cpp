@@ -1336,19 +1336,20 @@ XMLTransform::TransformFactory::create(DOMDocument* fromDoc, DOMDocument* toDoc,
 void
 XMLTransform::TransformFactory::load(DocumentMap& documents, const string& path, const Ice::StringSeq& paths)
 {
-    struct stat buf;
-    if(::stat(path.c_str(), &buf) == -1)
-    {
-        InvalidSchema ex(__FILE__, __LINE__);
-        ex.reason = "cannot stat `" + path + "': " + strerror(errno);
-        throw ex;
-    }
-
-    if(S_ISREG(buf.st_mode) && path.rfind(".xsd") != string::npos)
+    //
+    // If the path ends in ".xsd", then assume it's a schema file
+    // which we should import. We don't try to stat() the file,
+    // because it may be relative to a directory in paths.
+    //
+    // If the path doesn't in ".xsd", we assume it's a directory
+    // and attempt to recursively import all schema files in the
+    // directory.
+    //
+    if(path.rfind(".xsd") != string::npos)
     {
         import(documents, "", path, paths);
     }
-    else if(S_ISDIR(buf.st_mode))
+    else
     {
 #ifdef _WIN32
 
@@ -1366,6 +1367,7 @@ XMLTransform::TransformFactory::load(DocumentMap& documents, const string& path,
             string name = data.name;
             assert(!name.empty());
 
+            struct stat buf;
             string fullPath = path + '/' + name;
             if(::stat(fullPath.c_str(), &buf) == -1)
             {
@@ -1420,6 +1422,7 @@ XMLTransform::TransformFactory::load(DocumentMap& documents, const string& path,
 
             free(namelist[i]);
 
+            struct stat buf;
             string fullPath = path + '/' + name;
             if(::stat(fullPath.c_str(), &buf) == -1)
             {
@@ -1444,12 +1447,6 @@ XMLTransform::TransformFactory::load(DocumentMap& documents, const string& path,
         free(namelist);
 
 #endif
-    }
-    else
-    {
-        InvalidSchema ex(__FILE__, __LINE__);
-        ex.reason = "cannot load schema from `" + path + "'";
-        throw ex;
     }
 }
 
