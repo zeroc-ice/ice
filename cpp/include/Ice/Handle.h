@@ -102,12 +102,9 @@ public:
 
     T* get() const { return ptr_; }
 
-    T& operator*() { return *ptr_; }
-    const T& operator*() const { return *ptr_; }
-    T* operator->() { return ptr_; }
-    const T* operator->() const { return ptr_; }
-    operator T*() { return ptr_; }
-    operator const T*() const { return ptr_; }
+    T& operator*() const { return *ptr_; }
+    T* operator->() const { return ptr_; }
+    operator T*() const { return ptr_; }
 
     void swap(Handle<T>& other) { std::swap(ptr_, other.ptr_); }
 

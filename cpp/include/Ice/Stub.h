@@ -12,7 +12,7 @@
 #define ICE_STUB_H
 
 #include <Ice/StubF.h>
-#include <Ice/InstanceF.h>
+#include <Ice/ReferenceF.h>
 #include <Ice/ObjectFactoryF.h>
 #include <Ice/Shared.h>
 
@@ -26,25 +26,23 @@ public:
     bool operator==(const ObjectI&) const;
     bool operator!=(const ObjectI&) const;
 
+    ::_Ice::Reference reference() const;
+
 protected:
 
     ObjectI();
     virtual ~ObjectI();
+    friend class ::_Ice::ObjectFactoryI; // May create ObjectIs
 
 private:
 
     ObjectI(const ObjectI&);
     void operator=(const ObjectI&);
-    friend class ::_Ice::ObjectFactoryI; // May create ObjectIs
 
+    void setup(const ::_Ice::Reference&);
     ::_IceStub::Ice::Object _getStub();
 
-    ::_Ice::Instance instance_;
-
-    // TODO: Only for getting started...
-    std::string host_;
-    int port_;
-    std::string identity_;
+    ::_Ice::Reference reference_;
 };
 
 } }

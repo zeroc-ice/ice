@@ -31,10 +31,12 @@ private:
     ObjectFactoryI(const ObjectFactoryI&);
     void operator=(const ObjectFactoryI&);
 
-    ObjectFactoryI();
+    ObjectFactoryI(const Instance&);
     virtual ~ObjectFactoryI();
     void destroy();
     friend class InstanceI; // May create and destroy ObjectFactoryIs
+
+    Instance instance_;
 };
 
 }
