@@ -19,15 +19,14 @@
         <ant dir="faultTolerance"/>
         <ant dir="inheritance"/>
         <ant dir="location"/>
-        <ant dir="objects"/>
         <ant dir="operations"/>
         <ant dir="operationsAMD"/>
-        <ant dir="slicing"/>
+	<ant dir="slicing"/> 
         <ant dir="custom"/>
         <ant dir="translator"/>
         <ant dir="checksum"/>
+        <ant dir="stream"/>
         <ant dir="package"/>
-       <ant dir="stream"/>
     </target>
 
     <target name="clean">
@@ -38,10 +37,10 @@
         <ant dir="faultTolerance" target="clean"/>
         <ant dir="inheritance" target="clean"/>
         <ant dir="location" target="clean"/>
-        <ant dir="objects" target="clean"/>
+ 
         <ant dir="operations" target="clean"/>
         <ant dir="operationsAMD" target="clean"/>
-        <ant dir="slicing" target="clean"/>
+	<ant dir="slicing" target="clean"/> 
         <ant dir="custom" target="clean"/>
         <ant dir="translator" target="clean"/>
         <ant dir="checksum" target="clean"/>

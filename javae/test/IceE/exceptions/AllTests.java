@@ -737,35 +737,6 @@ public class AllTests
 	    System.out.println("ok");
 	}
 
-	{
-	    System.out.print("testing object factory registration exceptions... ");
-	    Ice.ObjectFactory of = new ObjectFactoryI();
-	    communicator.addObjectFactory(of, "::x");
-	    boolean gotException = false;
-	    try
-            {
-		communicator.addObjectFactory(of, "::x");
-	    }
-	    catch(Ice.AlreadyRegisteredException ex)
-	    {
-		gotException = true;
-	    }
-	    test(gotException);
-
-	    gotException = false;
-	    communicator.removeObjectFactory("::x");
-	    try
-            {
-		communicator.removeObjectFactory("::x");
-	    }
-	    catch(Ice.NotRegisteredException ex)
-	    {
-		gotException = true;
-	    }
-	    test(gotException);
-	    System.out.println("ok");
-	}
-
         System.out.print("testing stringToProxy... ");
         System.out.flush();
         String ref = "thrower:default -p 12345 -t 10000";
