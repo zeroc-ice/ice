@@ -253,9 +253,9 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& entryPoint, co
     {
         Error out(_instance->logger());
         out << "PluginManager: exception in factory function `" << funcName << "': " << ex.ice_name();
-        SystemException ex(__FILE__, __LINE__);
-        ex.error = 0;
-        throw ex;
+        SystemException e(__FILE__, __LINE__);
+        e.error = 0;
+        throw e;
     }
 
     _plugins[name] = info;
