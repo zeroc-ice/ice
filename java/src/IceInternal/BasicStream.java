@@ -1241,11 +1241,7 @@ public class BasicStream
             //
             // Look for a factory for this ID.
             //
-	    UserExceptionFactory factory = _instance.userExceptionFactoryManager().find(id);
-	    if(factory == null)
-	    {
-		factory = loadUserExceptionFactory(id);
-	    }
+	    UserExceptionFactory factory = getUserExceptionFactory(id);
 
 	    if(factory != null)
 	    {
@@ -1644,31 +1640,57 @@ public class BasicStream
     }
 
     private UserExceptionFactory
-    loadUserExceptionFactory(String id)
+    getUserExceptionFactory(String id)
     {
-        UserExceptionFactory factory = null;
+        UserExceptionFactory factory = _instance.userExceptionFactoryManager().find(id);
 
-        try
+        while(factory == null)
         {
-            Class c = Class.forName(typeToClass(id));
-            //
-            // Ensure the class is instantiable. The constants are
-            // defined in the JVM specification (0x200 = interface,
-            // 0x400 = abstract).
-            //
-            int modifiers = c.getModifiers();
-            assert((modifiers & 0x200) == 0 && (modifiers & 0x400) == 0);
-            factory = new DynamicUserExceptionFactory(c);
-            _instance.userExceptionFactoryManager().add(factory, id);
-        }
-        catch(ClassNotFoundException ex)
-        {
-            // Ignore
-        }
-        catch(Exception ex)
-        {
-	    ex.printStackTrace();
-	    throw new Ice.UnknownUserException();
+            if(factory == null)
+            {
+                String className = typeToClass(id);
+                Class c = null;
+                try
+                {
+                    c = Class.forName(className);
+                }
+                catch(ClassNotFoundException ex)
+                {
+                    break;
+                }
+                catch(LinkageError ex)
+                {
+                    Ice.MarshalException e = new Ice.MarshalException();
+                    e.initCause(ex);
+                    throw e;
+                }
+
+                assert(c != null);
+
+                //
+                // Ensure the class is instantiable. The constants are
+                // defined in the JVM specification (0x200 = interface,
+                // 0x400 = abstract).
+                //
+                int modifiers = c.getModifiers();
+                if((modifiers & 0x200) == 0 && (modifiers & 0x400) == 0)
+                {
+                    DynamicUserExceptionFactory f = new DynamicUserExceptionFactory(c);
+                    try
+                    {
+                        _instance.userExceptionFactoryManager().add(f, id);
+                        factory = f;
+                    }
+                    catch(Ice.AlreadyRegisteredException ex)
+                    {
+                        factory = _instance.userExceptionFactoryManager().find(id);
+                    }
+                }
+                else
+                {
+                    throw new Ice.MarshalException();
+                }
+            }
         }
 
         return factory;
