@@ -4421,157 +4421,174 @@ close a map iterator. The default value is 1. (Java only)
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>&IcePatch; Properties</title>
+<section><title>&IcePatch2; Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>IcePatch.Endpoints</title>
+<section><title>IcePatch2.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePatch.Endpoints=<replaceable>endpoints</replaceable>
+IcePatch2.Endpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Specifies the endpoints of the IcePatch server. This property is required
-by both the IcePatch server and client.
+Specifies the endpoints of the &IcePatch2; server. This property is required
+by both the IcePatch2 server and client.
 </para>
 </section>
 </section>
 
-<section><title>IcePatch.PublishedEndpoints</title>
+<section><title>IcePatch2.Admin.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePatch.PublishedEndpoints=<replaceable>endpoints</replaceable>
+IcePatch2.Admin.Endpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Specifies the published endpoints of the IcePatch server.
-Refer to the description of the object adapter property
-<link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
-for more information.
+If this property is set, the &IcePatch2; server creates
+an additional object of type <literal>IcePatch2::Admin</literal>.
+The <literal>shutdown</literal> operation on this interface can be used
+to remotely shut down the server. The endpoints specified by this
+property should be secured against access from potentially
+hostile clients.
 </para>
 </section>
 </section>
 
-<section><title>IcePatch.Directory</title>
+<section><title>IcePatch2.Identity</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePatch.Directory=<replaceable>dir</replaceable>
+IcePatch2.Identity=<replaceable>identity</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Sets the IcePatch data directory to <replaceable>dir</replaceable>. If not
-defined, the current working directory is used.
+This property determines the object ID of the <literal>IcePatch2::FileServer</literal>
+singleton object offered by the &IcePatch2; server. The default
+value is <literal>IcePatch2/server</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePatch.UpdatePeriod</title>
+<section><title>IcePatch2.AdminIdentity</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePatch.UpdatePeriod=<replaceable>num</replaceable>
+IcePatch2.AdminIdentity=<replaceable>identity</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Sets the IcePatch server's update period to <replaceable>num</replaceable> seconds.
-Updates are executed in a background thread during which the server descends the data
-directory and performs a number of tasks, including compressing files and computing
-unique signatures. If not defined, the default value is 60. Automatic updates are
-disabled if this property is set to zero.
+This property determines the object ID of the <literal>IcePatch2::Admin</literal>
+singleton object offered by the &IcePatch2; server. The default
+value is <literal>IcePatch2/admin</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePatch.BusyTimeout</title>
+<section><title>IcePatch2.Directory</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePatch.BusyTimeout=<replaceable>num</replaceable>
+IcePatch2.Directory=<replaceable>dir</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the number of seconds <replaceable>num</replaceable> the server should wait
-when attempting to acquire an internal lock on a file or directory. A lock is held
-whenever a file or directory is being updated, such as when a file is being compressed
-or a unique signature is being computed. If the server is unable to acquire a lock after
-the specified timeout period, an IcePatch::BusyException is returned. If not specified,
-the default value is 10.
+The &IcePatch2; server uses this property to determine the data
+directory if no data directory is specified on the command line.
+</para>
+<para>
+This property is also read by the <literal>IcePatch2::Patcher</literal>
+utility class to determine the data directory. The property
+must be set before the class is instantiated.
 </para>
 </section>
 </section>
 
-<section><title>IcePatch.Trace.Files</title>
+<section><title>IcePatch2.MaxReadSize</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePatch.Trace.Files=<replaceable>num</replaceable>
+IcePatch2.MaxReadSize=<replaceable>kilobytes</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-If <replaceable>num</replaceable> is set to a value larger than zero,
-the server emits diagnostic information to its configured logger.
-The default value is 0.
+The &IcePatch2; server uses this property to limit the amount
+of data that is returned by the <literal>getFileCompressed</literal>
+operation. The default value is <literal>256</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePatch.RemoveOrphaned</title>
+<section><title>IcePatch2.ChunkSize</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePatch.RemoveOrphaned=<replaceable>num</replaceable>
+IcePatch2.ChunkSize=<replaceable>kilobytes</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-If <replaceable>num</replaceable> is set to a value larger than zero,
-the IcePatch client automatically removes files from its local data
-directory that are no longer present in the server's data directory.
-The default value is 0.
+The &IcePatch2; client uses this property to determine
+how many kilobytes are retrieved with each call to
+<literal>getFileCompressed</literal>.
+</para>
+<para>
+This property is also read by the <literal>IcePatch2::Patcher</literal>
+utility class. The property must be set before the class is instantiated.
+</para>
+<para>
+The default value is <literal>100</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePatch.Thorough</title>
+<section><title>IcePatch2.Remove</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePatch.Thorough=<replaceable>num</replaceable>
+IcePatch2.Remove=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-If <replaceable>num</replaceable> is set to a value larger than zero,
-the IcePatch client performs a thorough comparison of each local
-directory to that of the server. The default value of 0 causes the
-client to skip a directory if its unique signature matches the server's.
+This property determines whether the &IcePatch2; client deletes
+files that exist locally, but not on the server. A negative or
+zero value prevents removal of files. A value of <literal>1</literal>
+enables removal and causes the client to halt with an error if
+removal of a file fails. A value of <literal>2</literal> or greater
+also enables removal, but causes the client to silently ignore errors
+during removal.
+</para>
+<para>
+This property is also read by the <literal>IcePatch2::Patcher</literal>
+utility class. The property must be set before the class is instantiated.
+</para>
+<para>
+The default value is <literal>1</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePatch.Dynamic</title>
+<section><title>IcePatch2.Thorough</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePatch.Dynamic=<replaceable>num</replaceable>
+IcePatch2.Thorough=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-If <replaceable>num</replaceable> is set to a value larger than zero,
-the IcePatch client dynamically calculates the unique signatures of
-local files rather than caching the signatures. This reduces the
-number of local cache files at the expense of more processing when
-comparing directories with the server. The default value is 1.
+This property determines whether <literal>IcePatch2::Patcher</literal>
+utility class recomputes checksums. Any value greater than zero is interpreted as true.
+The property must be set before the class is instantiated.
+The default value is <literal>0</literal> (false).
 </para>
 </section>
 </section>
