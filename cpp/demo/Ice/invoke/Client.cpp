@@ -213,6 +213,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
                 c->s.name = "blue";
                 c->s.value = Demo::blue;
                 Demo::ice_writeC(out, c);
+                out->writePendingObjects();
                 out->finished(inParams);
 
                 //
@@ -242,7 +243,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
                 Demo::CPtr c;
                 Demo::ice_readC(in, c);
                 string str = in->readString();
-                in->finished();
+                in->readPendingObjects();
                 cout << "Got string `" << str << "' and class: s.name=" << c->s.name
                      << ", s.value=" << c->s.value << endl;
             }

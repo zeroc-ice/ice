@@ -44,14 +44,12 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
     if(current.operation == "printString")
     {
         string message = in->readString();
-        in->finished();
         cout << "Printing string `" << message << "'" << endl;
         return true;
     }
     else if(current.operation == "printStringSequence")
     {
         Demo::StringSeq seq = in->readStringSeq();
-        in->finished();
         cout << "Printing string sequence {";
         for(Demo::StringSeq::iterator p = seq.begin(); p != seq.end(); ++p)
         {
@@ -68,7 +66,6 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
     {
         Demo::StringDict dict;
         Demo::ice_readStringDict(in, dict);
-        in->finished();
         cout << "Printing dictionary {";
         for(Demo::StringDict::iterator p = dict.begin(); p != dict.end(); ++p)
         {
@@ -85,7 +82,6 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
     {
         Demo::Color c;
         Demo::ice_readColor(in, c);
-        in->finished();
         cout << "Printing enum " << c << endl;
         return true;
     }
@@ -93,7 +89,6 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
     {
         Demo::Structure s;
         Demo::ice_readStructure(in, s);
-        in->finished();
         cout << "Printing struct: name=" << s.name << ", value=" << s.value << endl;
         return true;
     }
@@ -101,7 +96,6 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
     {
         Demo::StructureSeq seq;
         Demo::ice_readStructureSeq(in, seq);
-        in->finished();
         cout << "Printing struct sequence: {";
         for(Demo::StructureSeq::iterator p = seq.begin(); p != seq.end(); ++p)
         {
@@ -118,7 +112,7 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
     {
         Demo::CPtr c;
         Demo::ice_readC(in, c);
-        in->finished();
+        in->readPendingObjects();
         cout << "Printing class: s.name=" << c->s.name << ", s.value=" << c->s.value << endl;
         return true;
     }
@@ -130,6 +124,7 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
         Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
         Demo::ice_writeC(out, c);
         out->writeString("hello");
+        out->writePendingObjects();
         out->finished(outParams);
         return true;
     }
