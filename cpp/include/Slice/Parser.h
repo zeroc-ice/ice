@@ -676,7 +676,7 @@ private:
     std::map<std::string, ContainedList > _contentMap;
 };
 
-extern Unit* unit; // The current parser for bison/flex
+extern SLICE_API Unit* unit; // The current parser for bison/flex
 
 }
 
