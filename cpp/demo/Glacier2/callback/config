@@ -15,13 +15,13 @@ Callback.Client.Endpoints=
 # The proxy to Glacier2 router for the client's object adapter with
 # the name Callback.Client. This must correspond to
 # Glacier2.Client.Endpoints. Glacier2 only supports one connection per
-# client, and no UDP. Therefore we have only one single TCP endpoint.
+# client, and no UDP. Therefore we have only one single SSL endpoint.
 #
 Callback.Client.Router=Glacier2/router:ssl -p 10005
 
 #
-# The proxy to Glacier2 router for all outgoing connections. This must
-# correspond to Glacier2.Client.Endpoints.
+# The proxy to the Glacier2 router for all outgoing connections. This
+# must correspond to Glacier2.Client.Endpoints.
 #
 Ice.Default.Router=Glacier2/router:ssl -p 10005
 
