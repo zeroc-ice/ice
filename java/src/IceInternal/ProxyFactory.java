@@ -107,7 +107,16 @@ public final class ProxyFactory
 
 	    for(int i = 0; i < arr.length; i++)
 	    {
-		int v = Integer.parseInt(arr[i]);
+		int v;
+
+		try
+		{
+		    v = Integer.parseInt(arr[i]);
+		}
+		catch(NumberFormatException ex)
+		{
+		    v = 0;
+		}
 
 		//
 		// If -1 is the first value, no retry and wait intervals.
