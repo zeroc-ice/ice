@@ -1086,10 +1086,10 @@ Slice::Container::hasOtherConstructedOrExceptions() const
 }
 
 string
-Slice::Container::thisScope()
+Slice::Container::thisScope() const
 {
     string s;
-    ContainedPtr contained = ContainedPtr::dynamicCast(this);
+    ContainedPtr contained = ContainedPtr::dynamicCast(const_cast<Container*>(this));
     if(contained)
     {
 	s = contained->scoped();

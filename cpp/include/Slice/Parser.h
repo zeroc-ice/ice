@@ -314,7 +314,7 @@ public:
     bool hasClassDecls() const;
     bool hasClassDefs() const;
     bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
-    std::string thisScope();
+    std::string thisScope() const;
     void mergeModules();
     void sort();
     void sortContents();
