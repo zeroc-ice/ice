@@ -48,4 +48,3 @@ clean::
 	rm -f Hello.h Hello.cpp
 
 include .depend
-include .slicedepend

@@ -158,4 +158,3 @@ clean::
 
 
 include .depend
-include .slicedepend
