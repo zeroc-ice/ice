@@ -76,6 +76,18 @@ public final class Network
         return false;
     }
 
+    public static boolean
+    notConnected(java.net.SocketException ex)
+    {
+	String msg = ex.getMessage().toLowerCase();
+	if(msg.indexOf("transport endpoint is not connected") != -1)
+	{
+	    return true;
+	}
+
+	return false;
+    }
+
     public static java.nio.channels.SocketChannel
     createTcpSocket()
     {

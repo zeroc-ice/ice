@@ -62,8 +62,7 @@ final class TcpTransceiver implements Transceiver
 	    //
 	    // Ignore errors indicating that we are shutdown already.
 	    //
-	    String msg = ex.getMessage().toLowerCase();
-	    if(msg.indexOf("transport endpoint is not connected") != -1)
+	    if(Network.notConnected(ex))
 	    {
 		return;
 	    }
