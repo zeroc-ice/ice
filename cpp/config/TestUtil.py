@@ -14,8 +14,8 @@
 # protocol. Otherwise TCP is used.
 #
 
-protocol = "ssl"
-#protocol = ""
+#protocol = "ssl"
+protocol = ""
 
 #
 # Set the host to the host name the test servers are running on. If not

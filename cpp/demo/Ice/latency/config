@@ -1,6 +1,4 @@
-Latency.Ping=ping:tcp -p 10000 -h localhost
-Ice.Adapter.LatencyAdapter.Endpoints=tcp -p 10000
-# Latency.Ping=ping -s :ssl -p 10000 -h localhost
-# Ice.Adapter.LatencyAdapter.Endpoints=ssl -p 10000
+Latency.Ping=ping:default -p 10000 -h localhost
+Ice.Adapter.LatencyAdapter.Endpoints=default -p 10000
 Ice.Security.Ssl.CertPath=../../../certs
-Ice.Security.Ssl.Config=./client_sslconfig.xml
+Ice.Security.Ssl.Config=./sslconfig.xml
