@@ -59,6 +59,7 @@ IcePack::Parser::usage()
 	"                            deployed.\n"
 	"server describe NAME        Get server NAME description.\n"
 	"server state NAME           Get server NAME state.\n"
+	"server pid NAME             Get server NAME pid.\n"
 	"server start NAME           Starts server NAME.\n"
 	"server stop NAME            Stop server NAME.\n"
         "server remove NAME          Remove server NAME.\n"
@@ -396,6 +397,27 @@ IcePack::Parser::stateServer(const list<string>& args)
 	default:
 	    assert(false);
 	}
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::pidServer(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	error("`server pid' requires exactly one argument\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	cout << _admin->getServerPid(args.front()) << endl;
     }
     catch(const Exception& ex)
     {

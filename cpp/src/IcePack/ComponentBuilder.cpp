@@ -679,8 +679,8 @@ IcePack::ComponentBuilder::undo()
 	catch(const DeploymentException& ex)
 	{
 	    ostringstream os;
-	    os << "exception while removing component " << _componentPath << ":\n";
-	    os << ex << ": " << ex.reason;
+	    os << "exception while removing component " << (ex.component.empty() ? _componentPath : ex.component);
+	    os << ":\n" << ex << ": " << ex.reason;
 
 	    _communicator->getLogger()->warning(os.str());
 	}

@@ -49,6 +49,7 @@ yyerror(const char* s)
 %token ICE_PACK_STOP
 %token ICE_PACK_DESCRIBE
 %token ICE_PACK_STATE
+%token ICE_PACK_PID
 %token ICE_PACK_ENDPOINTS
 
 %%
@@ -125,6 +126,10 @@ command
 | ICE_PACK_SERVER ICE_PACK_STATE strings ';'
 {
     parser->stateServer($3);
+}
+| ICE_PACK_SERVER ICE_PACK_PID strings ';'
+{
+    parser->pidServer($3);
 }
 | ICE_PACK_SERVER ICE_PACK_REMOVE strings ';'
 {

@@ -51,44 +51,101 @@ exception NodeNotExistException
 
 /**
  *
- * These exceptions are raised when the deployment of the server failed.
+ * A generic exception base for all kind of deployment error
+ * exception.
  *
  **/
 exception DeploymentException
 {
+    /**
+     *
+     * The path of the component which cause the deployment to
+     * fail. The path is a dot separated list of component names. It
+     * always starts with the node name is followed by the server name
+     * and eventually the service name.
+     *
+     **/
     string component;
+    
+    /**
+     *
+     * The reason for the failure.
+     *
+     **/
     string reason;
 };
 
-// TODO: ML: Documentation.
+/**
+ *
+ * This exception is raised when an error occured while parsing the
+ * XML descriptor of a component.
+ *
+ **/
 exception ParserDeploymentException extends DeploymentException
 {
 };
 
-// TODO: ML: Documentation.
+/**
+ *
+ * This exception is raised when an error occured during the adapter
+ * regsitration.
+ *
+ **/
 exception AdapterDeploymentException extends DeploymentException
 {
-// TODO: ML: Documentation.
+    /**
+     *
+     * The name of the adapter which couldn't be registered.
+     *
+     **/
     string adapter;
 };
 
-// TODO: ML: Documentation.
+/**
+ * 
+ * This exception is raised when an error occured during the
+ * registration of a Yellow offer.
+ *
+ **/
 exception OfferDeploymentException extends DeploymentException
 {
-// TODO: ML: Documentation.
+    /**
+     *
+     * The Yellow interface which couldn't be registered with the
+     * Yellow service.
+     *
+     **/
     string intf;
-// TODO: ML: Documentation.
+    
+    /**
+     *
+     * The proxy which couldn't be registered with the Yellow service.
+     *
+     **/
     Object* proxy;
 };
 
-// TODO: ML: Documentation.
+/**
+ * 
+ * This exception is raised if an error occured when deploying a
+ * server.
+ *
+ **/
 exception ServerDeploymentException extends DeploymentException
 {
-// TODO: ML: Documentation.
+    /**
+     *
+     * The name of the server which couldn't be deployed.
+     *
+     **/
     string server;
 };
 
-// TODO: ML: Documentation.
+/**
+ *
+ * This exception is raised if a node couldn't be reach.
+ *
+ **/
 exception NodeUnreachableException
 {
 };
@@ -102,7 +159,7 @@ sequence<string> Args;
 
 /**
  *
- * A vector of strings representing targets.
+ * A vector of strings representing deployment targets.
  *
  **/
 sequence<string> Targets;
@@ -114,24 +171,80 @@ sequence<string> Targets;
  **/
 enum ServerState
 {
-    // TODO: ML: Documentation for each individual element.
+    /**
+     *
+     * The server is not running.
+     *
+     **/
     Inactive,
+
+    /**
+     *
+     * The server is being activated and will change to the Active
+     * state if the server fork succeed or to the Inactive state if it
+     * failed.
+     *
+     **/
     Activating,
+
+    /**
+     *
+     * The server is running.
+     *
+     **/
     Active,
+    
+    /**
+     *
+     * The server is being deactivated.
+     *
+     **/
     Deactivating,
+
+    /**
+     *
+     * The server is being destroyed.
+     *
+     **/
     Destroying,
+
+    /**
+     *
+     * The server is destroyed.
+     *
+     **/
     Destroyed
 };
 
-// TODO: ML: Documentation.
+/**
+ *
+ * The server activation mode.
+ *
+ **/
 enum ServerActivation
 {
-    // TODO: ML: Documentation for each individual element.
+    /**
+     *
+     * The server is activated on demand when a client requests one of
+     * the adapter endpoints and if the server isn't already running.
+     *
+     **/
     OnDemand,
+
+    /**
+     *
+     * The server is activated manually through the administrative
+     * interface.
+     *
+     **/
     Manual
 };
 
-// TODO: ML: Documentation.
+/**
+ *
+ * The server description.
+ *
+ **/
 struct ServerDescription
 {
     /**
@@ -150,7 +263,8 @@ struct ServerDescription
 
     /**
      *
-     * Deployment descriptor.
+     * The path of the deployment descriptor used to deploy the
+     * server.
      *
      **/
     string descriptor;
@@ -171,10 +285,7 @@ struct ServerDescription
 
     /**
      *
-     * The optional server path. If none is given, no automatic
-     * activation will be performed. This path can be an absolute or
-     * relative path (be aware of security risks if you use a relative
-     * path).
+     * The server path.
      *
      * @see args
      * @see pwd

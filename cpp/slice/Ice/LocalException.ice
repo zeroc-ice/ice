@@ -95,6 +95,29 @@ local exception ObjectAdapterDeactivatedException
 
 /**
  *
+ * This exception is raised only if the [ObjectAdapter] [Locator] is
+ * set and if the [ObjectAdapter] activation failed because it's not
+ * already registered with the [Locator].
+ *
+ **/
+local exception ObjectAdapterNotRegisteredException
+{
+};
+
+/**
+ *
+ * This exception is raised only if the [ObjectAdapter] [Locator] is
+ * set and if the [ObjectAdapter] can't be activated because the
+ * [Locator] detected another active [ObjectAdapter] with the same
+ * name.
+ *
+ **/
+local exception ObjectAdapterActiveException
+{
+};
+
+/**
+ *
  * This exception is raised if not suitable endpoint is available.
  *
  **/

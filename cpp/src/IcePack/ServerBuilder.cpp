@@ -359,7 +359,12 @@ IcePack::ServerBuilder::parse(const std::string& descriptor)
 
     Ice::PropertiesPtr props = _nodeInfo->getCommunicator()->getProperties();
     _properties->setProperty("Ice.ProgramName", _variables["name"]);
-    _properties->setProperty("Yellow.Query", props->getProperty("IcePack.Yellow.Query"));
+
+    //
+    // TODO: Shall we really generate yellow configuration here?
+    //
+    _properties->setProperty("Yellow.Query", 
+			     _nodeInfo->getCommunicator()->proxyToString(_nodeInfo->getYellowQuery()));
 
     //
     // TODO: we shouldn't generate this in the configuration. See

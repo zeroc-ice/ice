@@ -22,7 +22,7 @@ IcePack::LocatorRegistryI::LocatorRegistryI(const AdapterRegistryPtr& registry, 
 }
 
 void 
-IcePack::LocatorRegistryI::addAdapter(const string& name, const Ice::ObjectPrx& proxy, const Ice::Current&)
+IcePack::LocatorRegistryI::setAdapterDirectProxy(const string& name, const Ice::ObjectPrx& proxy, const Ice::Current&)
 {
     while(true)
     {
@@ -39,13 +39,7 @@ IcePack::LocatorRegistryI::addAdapter(const string& name, const Ice::ObjectPrx& 
 	}
 	catch(const AdapterActiveException&)
 	{
-	    //
-	    // TODO: we have to do something here.  We can't just let
-	    // the server try to override the direct proxy of an
-	    // active adapter without saying anything. We need to
-	    // throw here to prevent the server from starting.
-	    //
-	    return;
+	    throw Ice::AdapterAlreadyActive();
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
@@ -60,7 +54,7 @@ IcePack::LocatorRegistryI::addAdapter(const string& name, const Ice::ObjectPrx& 
 	    // is possibly because the IcePack node is down and
 	    // the server is started manually for example. We
 	    // should probably throw here to prevent the server
-	    // from starting.
+	    // from starting?
 	    //
 	    return;
 	}
@@ -83,14 +77,22 @@ IcePack::LocatorRegistryI::addAdapter(const string& name, const Ice::ObjectPrx& 
 	// didn't previously registered its object adapters (using the
 	// IcePack deployment mechanism).
 	//
-	AdapterPrx adapter = AdapterPrx::uncheckedCast(_adapter->addWithUUID(new StandaloneAdapterI()));
-	try
+	Ice::PropertiesPtr properties = _adapter->getCommunicator()->getProperties();
+	if(properties->getPropertyAsInt("IcePack.Registry.AllowNotRegisteredAdapters") > 0)
 	{
-	    _registry->add(name, adapter);
+	    AdapterPrx adapter = AdapterPrx::uncheckedCast(_adapter->addWithUUID(new StandaloneAdapterI()));
+	    try
+	    {
+		_registry->add(name, adapter);
+	    }
+	    catch(const AdapterExistsException&)
+	    {
+		_adapter->remove(adapter->ice_getIdentity());
+	    }
 	}
-	catch(const AdapterExistsException&)
+	else
 	{
-	    _adapter->remove(adapter->ice_getIdentity());
+	    throw Ice::AdapterNotRegistered();
 	}
     }
 }

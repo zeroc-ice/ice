@@ -78,7 +78,18 @@ Ice::ObjectAdapterI::activate()
 	    // activate operation instead of a non obvious network
 	    // exception?
 	    //
-	    _locatorInfo->getLocatorRegistry()->addAdapter(_name, newDirectProxy(ident));
+	    try
+	    {
+		_locatorInfo->getLocatorRegistry()->setAdapterDirectProxy(_name, newDirectProxy(ident));
+	    }
+	    catch(const Ice::AdapterNotRegistered&)
+	    {
+		throw ObjectAdapterNotRegisteredException(__FILE__, __LINE__);
+	    }
+	    catch(const Ice::AdapterAlreadyActive&)
+	    {
+		throw ObjectAdapterActiveException(__FILE__, __LINE__);
+	    }
 	}
     }
 

@@ -324,32 +324,43 @@ IcePack::ServerI::stopInternal()
     // manager to shutdown the server.
     //
     bool deactivate = true;
+    
+    //
+    // TODO: use the service manager to shutdown icebox servers. The
+    // following code should work once it's possible to set an
+    // activation mode on a per adapter basis -- we really don't want
+    // to activate the icebox in this method if it's already
+    // deactivated.
+    //
 
-    if(description.serviceManager)
-    {
-	try
-	{
-	    //
-	    // Set a timeout on the service manager proxy and try to
-	    // shutdown the icebox.
-	    //
-	    IceBox::ServiceManagerPrx serviceManager = 
-		IceBox::ServiceManagerPrx::uncheckedCast(description.serviceManager->ice_timeout(_waitTime));
-
-	    serviceManager->shutdown();
-
-	    deactivate = false;
-	}
-	catch(const Ice::LocalException& ex)
-	{
-	    if(_traceLevels->server > 1)
-	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-		out << "couldn't contact the IceBox `" << description.name << "' service manager:\n";
-		out << ex;
-	    }
-	}
-    }
+//     if(description.serviceManager)
+//     {
+// 	if(_state == Deactivating)
+// 	{
+// 	    try
+// 	    {
+// 		//
+// 		// Set a timeout on the service manager proxy and try to
+// 		// shutdown the icebox.
+// 		//
+// 		IceBox::ServiceManagerPrx serviceManager = 
+// 		    IceBox::ServiceManagerPrx::uncheckedCast(description.serviceManager->ice_timeout(_waitTime));
+		
+// 		serviceManager->shutdown();
+		
+// 		deactivate = false;
+// 	    }
+// 	    catch(const Ice::LocalException& ex)
+// 	    {
+// 		if(_traceLevels->server > 1)
+// 		{
+// 		    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
+// 		    out << "couldn't contact the IceBox `" << description.name << "' service manager:\n";
+// 		    out << ex;
+// 		}
+// 	    }
+// 	}
+//     }
 
     if(deactivate)
     {

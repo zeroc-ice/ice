@@ -20,9 +20,10 @@ class AddServer : public Task
 {
 public:
     
-    AddServer(const ServerDeployerPrx& deployer, const string& name, const string& descriptor, const string& binpath,
-	      const string& libpath, const Targets& targets) :
+    AddServer(const ServerDeployerPrx& deployer, const string& node, const string& name, const string& descriptor,
+	      const string& binpath, const string& libpath, const Targets& targets) :
 	_deployer(deployer),
+	_node(node),
 	_name(name),
 	_descriptor(descriptor),
 	_binpath(binpath),
@@ -46,6 +47,7 @@ public:
 	    ServerDeploymentException ex;
 	    ex.server = _name;
 	    ex.reason = os.str();
+	    ex.component = _node + "." + _name;
 	    throw ex;
 	}
     }
@@ -65,6 +67,7 @@ public:
 	    ServerDeploymentException ex;
 	    ex.server = _name;
 	    ex.reason = os.str();
+	    ex.component = _node + "." + _name;
 	    throw ex;
 	}
 	catch(const Ice::LocalException& lex)
@@ -75,6 +78,7 @@ public:
 	    ServerDeploymentException ex;
 	    ex.server = _name;
 	    ex.reason = os.str();
+	    ex.component = _node + "." + _name;
 	    throw ex;
 	}
     }
@@ -82,6 +86,7 @@ public:
 private:
 
     ServerDeployerPrx _deployer;
+    string _node;
     string _name;
     string _descriptor;
     string _binpath;
@@ -237,7 +242,7 @@ IcePack::ApplicationBuilder::addServer(const string& name,
     try
     {
 	ServerDeployerPrx deployer = node->getServerDeployer();	    
-	_tasks.push_back(new AddServer(deployer, name, descriptor, binpath, libpath, _targets));
+	_tasks.push_back(new AddServer(deployer, nodeName, name, descriptor, binpath, libpath, _targets));
     }
     catch(::Ice::LocalException&)
     {

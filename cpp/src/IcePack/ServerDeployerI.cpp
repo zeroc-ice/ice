@@ -59,6 +59,12 @@ IcePack::ServerDeployerI::remove(const string& name, const Ice::Current&)
 {
     ServerRegistryPrx registry = _nodeInfo->getServerRegistry();
 
+    //
+    // Component path is used to identify the component. For example:
+    // node1.server1.service3
+    //
+    string componentPath = _nodeInfo->getNode()->getName() + "." + name;
+
     ServerPrx server;
     try
     {
@@ -69,6 +75,7 @@ IcePack::ServerDeployerI::remove(const string& name, const Ice::Current&)
 	ServerDeploymentException ex;
 	ex.server = name;
 	ex.reason = "server doesn't exist";
+	ex.component = componentPath;
 	throw ex;
     }
 
@@ -83,6 +90,7 @@ IcePack::ServerDeployerI::remove(const string& name, const Ice::Current&)
 	ServerDeploymentException ex;
 	ex.server = name;
 	ex.reason = "server doesn't exist";
+	ex.component = componentPath;
 	throw ex;
     }
 
@@ -93,20 +101,15 @@ IcePack::ServerDeployerI::remove(const string& name, const Ice::Current&)
     {
 	ServerDeploymentException ex;
 	ex.server = name;
-	ex.reason = "server is not from this node";
-	throw ex;	
+	ex.reason = "server is not managed by this node";
+	ex.component = componentPath;
+	throw ex;
     }
 
     map<string, string> variables;
     variables["name"] = name;
     variables["binpath"] = desc.path; // Required for parsing to succeed.
     variables["libpath"] = "";
-
-    //
-    // Component path is used to identify the component. For example:
-    // node1.server1.service3
-    //
-    string componentPath = _nodeInfo->getNode()->getName() + "." + name;
 
     ServerBuilder builder(_nodeInfo, variables, componentPath, desc.targets);
 

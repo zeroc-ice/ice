@@ -20,7 +20,7 @@ public:
 
     ServerLocatorRegistry();
     
-    virtual void addAdapter(const ::std::string&, const ::Ice::ObjectPrx&, const ::Ice::Current&);
+    virtual void setAdapterDirectProxy(const ::std::string&, const ::Ice::ObjectPrx&, const ::Ice::Current&);
 
     //
     // Internal method

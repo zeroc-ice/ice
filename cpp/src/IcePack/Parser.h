@@ -79,6 +79,7 @@ public:
     void stopServer(const std::list<std::string>&);
     void describeServer(const std::list<std::string>&);
     void stateServer(const std::list<std::string>&);
+    void pidServer(const std::list<std::string>&);
     void removeServer(const std::list<std::string>&);
     void listAllServers();
 

@@ -287,12 +287,20 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 void
 IcePack::ActivatorI::deactivate(const ServerPtr& server)
 {
-    pid_t pid = static_cast<pid_t>(server->getPid());
-    
+    Ice::Int pid = server->getPid();
+
+    if(pid == 0)
+    {
+	//
+	// Server is already deactivated.
+	//
+	return;
+    }
+
     //
     // Send a SIGTERM to the process.
     //
-    if(::kill(pid, SIGTERM))
+    if(::kill(static_cast<pid_t>(pid), SIGTERM))
     {
 	SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
@@ -309,12 +317,20 @@ IcePack::ActivatorI::deactivate(const ServerPtr& server)
 void
 IcePack::ActivatorI::kill(const ServerPtr& server)
 {
-    pid_t pid = static_cast<pid_t>(server->getPid());
+    Ice::Int pid = server->getPid();
     
+    if(pid == 0)
+    {
+	//
+	// Server is already deactivated.
+	//
+	return;
+    }
+
     //
     // Send a SIGKILL to the process.
     //
-    if(::kill(pid, SIGKILL))
+    if(::kill(static_cast<pid_t>(pid), SIGKILL))
     {
 	SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();

@@ -53,8 +53,28 @@ interface Locator
 
 /**
  *
+ * This exception is raised if the server tries to set endpoints for
+ * an adapter which is not registered with the locator.
+ *
+ **/
+exception AdapterNotRegistered
+{
+};
+
+/**
+ *
+ * This exception is raised if the server tries to set endpoints for
+ * an adapter which is already active.
+ *
+ **/
+exception AdapterAlreadyActive
+{
+};
+
+/**
+ *
  * The &Ice; locator registry interface. This interface is used by
- * servers to register adapters with the locator.
+ * servers to register adapter endpoints with the locator.
  *
  * <note><para> The [LocatorRegistry] interface is intended to be used
  * by &Ice; internals and by locator implementations. Regular user
@@ -66,15 +86,24 @@ interface LocatorRegistry
 {
     /**
      *
-     * Add the adapter and its endpoints to the locator registry.
+     * Set the adapter endpoints with the locator registry.
      *
      * @param name The adapter name.
      *
      * @param proxy The adapter proxy (a dummy direct proxy created
-     * with the adapter).
+     * with the adapter). The direct proxy contains the adapter
+     * endpoints.
+     *
+     * @throws AdapterNotRegistered Raised if the locator only allows
+     * registered adapters to set their active proxy and if the
+     * adapter is not registered with the locator.
+     *
+     * @throws AdapterAlreadyActive Raised if an adapter with the same
+     * name is already active.
      *
      */
-    idempotent void addAdapter(string name, Object* proxy);
+    idempotent void setAdapterDirectProxy(string name, Object* proxy)
+	throws AdapterNotRegistered, AdapterAlreadyActive;
 };
 
 };

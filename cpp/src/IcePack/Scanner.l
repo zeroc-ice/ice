@@ -132,6 +132,10 @@ NL	[\n]
     return ICE_PACK_STATE;
 }
 
+"pid" {
+    return ICE_PACK_PID;
+}
+
 "endpoints" {
     return ICE_PACK_ENDPOINTS;
 }

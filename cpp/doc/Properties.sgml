@@ -165,7 +165,7 @@ router. </para></note>
 <section><title>Ice.Adapter.<replaceable>name</replaceable>.Locator</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.Adapter.<replaceable>name</replaceable>.Locator=<replaceable>num</replaceable>
+Ice.Adapter.<replaceable>name</replaceable>.Locator=<replaceable>locator</replaceable>
 </synopsis>
 </section>
 <section>
@@ -175,7 +175,9 @@ Specifies a locator (as stringified proxy to the &Ice; locator
 interface) for the object adapter with the name
 <replaceable>name</replaceable>. By doing so, the object adapter will
 register itself and its endpoints with the locator registry from this
-locator.
+locator. To prevent the object adapter to register its endpoints with
+the locator registry you can set <replaceable>locator</replaceable> to
+0.
 </para>
 </section>
 </section>
@@ -929,6 +931,22 @@ Defines the path of the &IcePack; registry data directory.
 </section>
 </section>
 
+<section><title>IcePack.Registry.AllowNotRegisteredAdapters</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Registry.AllowNotRegisteredAdapters=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the locator registry will allow &Ice; servers to set endpoints for
+adapters which haven't been registered.
+</para>
+</section>
+</section>
+
 <section><title>IcePack.Registry.Trace.ServerRegistry</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -1084,6 +1102,23 @@ the client.</para>
 detect the server deactivation during this time interval, &IcePack;
 will kill the server.</para>
 <note><para>The default value is 60 seconds.</para></note>
+</section>
+</section>
+
+<section><title>IcePack.Node.CollocateRegistry</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Node.CollocateRegistry=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the node will also collocate the &IcePack; registry.
+</para>
+<note><para>The collocated registry is configured with the same
+properties as the standalone &IcePack; registry.</para></note>
 </section>
 </section>
 

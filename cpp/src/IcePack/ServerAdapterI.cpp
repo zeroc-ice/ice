@@ -99,7 +99,10 @@ IcePack::ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Cu
     // null. We don't allow to overide an existing proxy by another
     // non null proxy.
     //
-    assert(!(prx && _proxy));
+    if(prx && _proxy)
+    {
+	throw AdapterActiveException();
+    }
 
     _proxy = prx;
     _notified = true;

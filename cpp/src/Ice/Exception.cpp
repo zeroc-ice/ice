@@ -75,6 +75,20 @@ Ice::ObjectAdapterDeactivatedException::ice_print(ostream& out) const
 }
 
 void
+Ice::ObjectAdapterActiveException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nobject adapter already active";
+}
+
+void
+Ice::ObjectAdapterNotRegisteredException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nobject adapter not registered with the locator";
+}
+
+void
 Ice::NoEndpointException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

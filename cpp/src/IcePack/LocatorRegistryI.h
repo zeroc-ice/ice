@@ -24,7 +24,7 @@ public:
 
     LocatorRegistryI(const AdapterRegistryPtr&, const Ice::ObjectAdapterPtr&);
     
-    virtual void addAdapter(const ::std::string&, const ::Ice::ObjectPrx&, const ::Ice::Current&);
+    virtual void setAdapterDirectProxy(const ::std::string&, const ::Ice::ObjectPrx&, const ::Ice::Current&);
 
 private:
     
