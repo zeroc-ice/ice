@@ -596,11 +596,7 @@ TestApp::Struct1ObjectMapTest()
     Class1Ptr c1 = new Class1();
     Class2Ptr c2 = new Class2();
 
-    //
-    // ******* TODO ****** temporarily commented out
-    //
-    // c2->rec = c2;
-    
+    c2->rec = c2;
     c2->obj = c1;
     int i;
     _watch.start();
@@ -647,10 +643,7 @@ TestApp::Struct1ObjectMapTest()
 	    Class2Ptr nc2 = Class2Ptr::dynamicCast(o);
 	    test(nc2);
 
-	    //
-	    // ******* TODO ****** temporarily commented out
-	    //
-	    // test(nc2->rec == nc2);
+	    test(nc2->rec == nc2);
 	    nc1 = Class1Ptr::dynamicCast(nc2->obj);
 	}
 	else
