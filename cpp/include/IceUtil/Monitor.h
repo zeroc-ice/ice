@@ -104,6 +104,15 @@ IceUtil::Monitor<T>::lock() const
 template <class T> inline void
 IceUtil::Monitor<T>::unlock() const
 {
+    if(_mutex.willUnlock())
+    {
+	//
+	// Perform any pending notifications.
+	//
+	notifyImpl(_nnotify);
+    }
+    _mutex.unlock();
+/*
     int nnotify = _nnotify;
     if(_mutex.unlock())
     {
@@ -112,6 +121,7 @@ IceUtil::Monitor<T>::unlock() const
 	//
 	notifyImpl(nnotify);
     }
+*/
 }
 
 template <class T> inline void

@@ -190,3 +190,9 @@ IceUtil::RecMutex::lock(LockState& state) const
 }
 
 #endif
+
+bool
+IceUtil::RecMutex::willUnlock() const
+{
+    return _count == 1;
+}

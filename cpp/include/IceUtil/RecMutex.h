@@ -74,6 +74,13 @@ public:
     //
     bool unlock() const;
 
+    //
+    // Returns true if the mutex will unlock when calling unlock()
+    // (false otherwise). For non-recursive mutexes, this will always
+    // return true.
+    //
+    bool willUnlock() const;
+
 private:
 
     // noncopyable

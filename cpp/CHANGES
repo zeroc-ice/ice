@@ -1,6 +1,12 @@
 Changes since version 1.0.1
 ---------------------------
 
+- A monitor now holds the mutex lock while signaling a condition
+  variable. Otherwise it's possible that that the condition variable
+  is destroyed before the signaling call returns, resulting in
+  undefined behavior. The performance difference is minimal, hardly
+  measurable.
+
 - Further performance improvements with respect to latency.
 
 - Added demo/Ice/throughput, which can be used to measure the transfer
