@@ -130,6 +130,11 @@ exceptionInfoDealloc(ExceptionInfoObject* self)
 static void
 addClassInfo(const string& id, const ClassInfoPtr& info)
 {
+    //
+    // Do not assert. An application may load statically-
+    // translated definitions and then dynamically load
+    // duplicate definitions.
+    //
 //    assert(_classInfoMap.find(id) == _classInfoMap.end());
     _classInfoMap.insert(ClassInfoMap::value_type(id, info));
 }
@@ -140,6 +145,11 @@ addClassInfo(const string& id, const ClassInfoPtr& info)
 static void
 addProxyInfo(const string& id, const ProxyInfoPtr& info)
 {
+    //
+    // Do not assert. An application may load statically-
+    // translated definitions and then dynamically load
+    // duplicate definitions.
+    //
 //    assert(_proxyInfoMap.find(id) == _proxyInfoMap.end());
     _proxyInfoMap.insert(ProxyInfoMap::value_type(id, info));
 }
@@ -164,6 +174,11 @@ lookupProxyInfo(const string& id)
 static void
 addExceptionInfo(const string& id, const ExceptionInfoPtr& info)
 {
+    //
+    // Do not assert. An application may load statically-
+    // translated definitions and then dynamically load
+    // duplicate definitions.
+    //
 //    assert(_exceptionInfoMap.find(id) == _exceptionInfoMap.end());
     _exceptionInfoMap.insert(ExceptionInfoMap::value_type(id, info));
 }
