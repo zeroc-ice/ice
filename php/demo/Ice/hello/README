@@ -1,5 +1,5 @@
 This directory contains a PHP/HTML implementation of the Ice hello
-client.  The procedure for installing this script depends on your Web
+client. The procedure for installing this script depends on your Web
 server environment. For example, if you're using PHP as a Web server
 module, then you'll need to install this script in your document root
 directory.
@@ -7,16 +7,15 @@ directory.
 Alternatively, if you're using CGI, then you will need to make this
 script executable, add a line at the top of the script to indicate the
 path to the PHP CGI binary, and copy the script to your cgi-bin
-directory.  On Linux or Solaris, the line at the top of the file
+directory. On Linux or Solaris, the line at the top of the file
 should look something like this, where /opt/php5 is the PHP5
 installation directory:
 
 #! /opt/php5/bin/php
 
-Note that if you haven't installed the IceSSL and Xerces shared
-libraries in order to use them from the Ice extension, you will also
-need to modify the script to remove the SSL endpoint from the
-stringified proxy.
+Note that if you haven't installed the IceSSL shared library in order
+to use it from the Ice extension, you will also need to modify the
+script to remove the SSL endpoint from the stringified proxy.
 
 Next, the PHP configuration must be modified to load the Slice
 definitions required by this example. In php.ini, set this directive:
