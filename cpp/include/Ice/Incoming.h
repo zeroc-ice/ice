@@ -26,6 +26,7 @@ public:
 
     void invoke(Stream&);
 
+    Stream* is();
     Stream* os();
 
 private:
@@ -35,6 +36,7 @@ private:
 
     ::Ice::ObjectAdapter adapter_;
 
+    Stream is_;
     Stream os_;
 };
 
