@@ -1568,10 +1568,28 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         }
         else
         {
-            out << nl << "if(!" << memberName << ".equals(_r." << memberName << "))";
-            out << sb;
-            out << nl << "return false;";
-            out << eb;
+            //
+            // We treat sequences differently because the native equals() method for
+            // a Java array not perform a deep comparison, therefore we use the helper
+            // method java.util.Arrays.equals() instead.
+            //
+            // For all other types, we can use the native equals() method.
+            //
+            SequencePtr seq = SequencePtr::dynamicCast((*d)->type());
+            if(seq)
+            {
+                out << nl << "if(!java.util.Arrays.equals(" << memberName << ", _r." << memberName << "))";
+                out << sb;
+                out << nl << "return false;";
+                out << eb;
+            }
+            else
+            {
+                out << nl << "if(!" << memberName << ".equals(_r." << memberName << "))";
+                out << sb;
+                out << nl << "return false;";
+                out << eb;
+            }
         }
     }
     out << sp << nl << "return true;";

@@ -1,6 +1,12 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Changed the generated equals() method to use the helper
+  java.util.Arrays.equals() when comparing sequences, rather
+  than the native array equals() method. This means the equals()
+  method for a type containing a sequence member will perform
+  a deep comparison of the sequence.
+
 - Added timestamps to the default Ice logger. You can enable
   timestamps by setting the `Ice.Logger.Timestamp' property to a value
   larger than zero. By default timestamps are disabled.
