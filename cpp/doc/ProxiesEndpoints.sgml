@@ -90,23 +90,23 @@ are mutually exclusive.
 The object identity <replaceable>identity</replaceable> is structured
 as <literal>[<replaceable>category</replaceable>/]<replaceable>name
 </replaceable></literal>, where the <replaceable>category</replaceable>
-component and slash separator are optional. If the identity as a whole
-contains whitespace or either of the characters <literal>:</literal> or
-<literal>@</literal>, it must be enclosed in single or double quotes. The
-<replaceable>category</replaceable> and <replaceable>name</replaceable>
-components are UTF8 strings that use the encoding described below. Any
-occurrence of a slash (<literal>/</literal>) character in
-<replaceable>category</replaceable> or <replaceable>name</replaceable>
+component and slash separator are optional. If
+<replaceable>identity</replaceable> contains whitespace or either of the
+characters <literal>:</literal> or <literal>@</literal>, it must be enclosed
+in single or double quotes. The <replaceable>category</replaceable> and
+<replaceable>name</replaceable> components are UTF8 strings that use the
+encoding described below. Any occurrence of a slash (<literal>/</literal>)
+in <replaceable>category</replaceable> or <replaceable>name</replaceable>
 must be escaped with a backslash (i.e., <literal>\/</literal>).
 </para>
 <para>
 The <replaceable>facet</replaceable> argument of the <literal>-f</literal>
-option is a facet path consisting of one or more facets separated by a slash
-(<literal>/</literal>) character. If <replaceable>facet</replaceable>
+option represents a facet path comprising one or more facets separated by
+a slash (<literal>/</literal>). If <replaceable>facet</replaceable>
 contains whitespace, it must be enclosed in single or double quotes. Each
 component of the facet path is a UTF8 string that uses the encoding described
-below. Any occurrence of a slash (<literal>/</literal>) character in a facet
-path component must be escaped with a backslash (i.e., <literal>\/</literal>).
+below. Any occurrence of a slash (<literal>/</literal>) in a facet path
+component must be escaped with a backslash (i.e., <literal>\/</literal>).
 </para>
 <para>
 The object adapter identifier <replaceable>adapter_id</replaceable>
@@ -126,11 +126,11 @@ as can the backslash itself (<literal>\\</literal>).
 <para>
 If endpoints are specified, they must be separated with a colon
 (<literal>:</literal>) and formatted as described in
-<link linkend='endpoints' endterm="endpoints.title"></link>. When a
-stringified proxy is converted into a proxy instance, the endpoint
-list is randomized for binding purposes, therefore the order of the
+<link linkend='endpoints' endterm="endpoints.title"></link>. The order of
 endpoints in the stringified proxy is not necessarily the order in
-which connections are attempted.
+which connections are attempted during binding: when a stringified proxy is
+converted into a proxy instance, the endpoint list is randomized as a form
+of load balancing.
 </para>
 <para>
 If the <literal>-s</literal> option is specified, only those endpoints that
@@ -146,8 +146,9 @@ non-secure endpoints before any secure endpoints are attempted.
 </para>
 <para>
 If an unknown option is specified, or the stringified proxy is malformed,
-the application receives <literal>Ice::ProxyParseException</literal>.
-An invalid endpoint raises <literal>Ice::EndpointParseException</literal>.
+the application receives <literal>Ice::ProxyParseException</literal>. If
+an endpoint is malformed, the application receives
+<literal>Ice::EndpointParseException</literal>.
 </para>
 </section>
 
@@ -166,9 +167,8 @@ An invalid endpoint raises <literal>Ice::EndpointParseException</literal>.
 
 <section><title>Description</title>
 <para>
-An endpoint list consists of one or more endpoints separated by a
-colon (<literal>:</literal>) character. An endpoint has the
-following format:
+An endpoint list comprises one or more endpoints separated by a colon
+(<literal>:</literal>). An endpoint has the following format:
 <cmdsynopsis>
 <arg choice=plain><replaceable>protocol</replaceable></arg>
 <arg rep=repeat><replaceable>option</replaceable></arg>
