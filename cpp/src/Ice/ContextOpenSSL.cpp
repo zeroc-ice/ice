@@ -69,12 +69,30 @@ void
 IceSSL::OpenSSL::Context::setRSAKeysBase64(const std::string& privateKey,
                                            const std::string& publicKey)
 {
+    if (privateKey.empty())
+    {
+        IceSSL::PrivateKeyException privateKeyEx(__FILE__, __LINE__);
+
+        privateKeyEx._message = "Empty private key supplied.";
+
+        throw privateKeyEx;
+    }
+
     addKeyCert(privateKey, publicKey);
 }
 
 void
 IceSSL::OpenSSL::Context::setRSAKeys(const Ice::ByteSeq& privateKey, const Ice::ByteSeq& publicKey)
 {
+    if (privateKey.empty())
+    {
+        IceSSL::PrivateKeyException privateKeyEx(__FILE__, __LINE__);
+
+        privateKeyEx._message = "Empty private key supplied.";
+
+        throw privateKeyEx;
+    }
+
     addKeyCert(privateKey, publicKey);
 }
 
