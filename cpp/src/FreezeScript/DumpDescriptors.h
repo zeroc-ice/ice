@@ -111,6 +111,8 @@ private:
     EntityNodePtr _target;
     NodePtr _key;
     std::string _keyStr;
+    NodePtr _index;
+    std::string _indexStr;
     NodePtr _value;
     std::string _valueStr;
     bool _convert;
@@ -132,6 +134,8 @@ private:
     EntityNodePtr _target;
     NodePtr _key;
     std::string _keyStr;
+    NodePtr _index;
+    std::string _indexStr;
 };
 
 class FailDescriptor : public Descriptor

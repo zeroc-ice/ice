@@ -424,11 +424,16 @@ FreezeScript::AddDescriptor::AddDescriptor(const DescriptorPtr& parent, int line
     target = p->second;
 
     p = attributes.find("key");
-    if(p == attributes.end())
+    if(p != attributes.end())
     {
-        _errorReporter->error("required attribute `key' is missing");
+        _keyStr = p->second;
     }
-    _keyStr = p->second;
+
+    p = attributes.find("index");
+    if(p != attributes.end())
+    {
+        _indexStr = p->second;
+    }
 
     p = attributes.find("value");
     if(p != attributes.end())
@@ -449,8 +454,25 @@ FreezeScript::AddDescriptor::AddDescriptor(const DescriptorPtr& parent, int line
         _errorReporter->error("`target' attribute is not an entity: `" + target + "'");
     }
 
-    assert(!_keyStr.empty());
-    _key = parse(_keyStr);
+    if(!_keyStr.empty() && !_indexStr.empty())
+    {
+        _errorReporter->error("attributes `key' and `index' are mutually exclusive");
+    }
+
+    if(_keyStr.empty() && _indexStr.empty())
+    {
+        _errorReporter->error("one of attributes `key' or `index' is required");
+    }
+
+    if(!_keyStr.empty())
+    {
+        _key = parse(_keyStr);
+    }
+
+    if(!_indexStr.empty())
+    {
+        _index = parse(_indexStr);
+    }
 
     if(!_valueStr.empty())
     {
@@ -483,64 +505,128 @@ FreezeScript::AddDescriptor::execute(const SymbolTablePtr& sym, ExecuteInfo*)
         _errorReporter->error("target `" + ostr.str() + "' cannot be modified");
     }
 
-    DictionaryDataPtr dict = DictionaryDataPtr::dynamicCast(data);
-    if(!dict)
+    if(_key)
     {
-        ostringstream ostr;
-        ostr << _target;
-        _errorReporter->error("target `" + ostr.str() + "' is not a dictionary");
-    }
+        DictionaryDataPtr dict = DictionaryDataPtr::dynamicCast(data);
+        if(!dict)
+        {
+            ostringstream ostr;
+            ostr << _target;
+            _errorReporter->error("target `" + ostr.str() + "' is not a dictionary");
+        }
 
-    Slice::DictionaryPtr type = Slice::DictionaryPtr::dynamicCast(dict->getType());
-    assert(type);
+        Slice::DictionaryPtr type = Slice::DictionaryPtr::dynamicCast(dict->getType());
+        assert(type);
 
-    DataPtr key;
-    Destroyer<DataPtr> keyDestroyer;
-    try
-    {
-        DataPtr v = _key->evaluate(sym);
-        key = _factory->create(type->keyType(), false);
-        keyDestroyer.set(key);
-        AssignVisitor visitor(v, _factory, _errorReporter, _convert);
-        key->visit(visitor);
-    }
-    catch(const EvaluateException& ex)
-    {
-        _errorReporter->error("evaluation of key `" + _keyStr + "' failed:\n" + ex.reason());
-    }
-
-    if(dict->getElement(key))
-    {
-        ostringstream ostr;
-        printData(key, ostr);
-        _errorReporter->error("key " + ostr.str() + " already exists in dictionary");
-    }
-
-    DataPtr elem = _factory->create(type->valueType(), false);
-    Destroyer<DataPtr> elemDestroyer(elem);
-
-    DataPtr value;
-    if(_value)
-    {
+        DataPtr key;
+        Destroyer<DataPtr> keyDestroyer;
         try
         {
-            value = _value->evaluate(sym);
+            DataPtr v = _key->evaluate(sym);
+            key = _factory->create(type->keyType(), false);
+            keyDestroyer.set(key);
+            AssignVisitor visitor(v, _factory, _errorReporter, _convert);
+            key->visit(visitor);
         }
         catch(const EvaluateException& ex)
         {
-            _errorReporter->error("evaluation of value `" + _valueStr + "' failed:\n" + ex.reason());
+            _errorReporter->error("evaluation of key `" + _keyStr + "' failed:\n" + ex.reason());
         }
-    }
 
-    if(value)
-    {
-        AssignVisitor visitor(value, _factory, _errorReporter, _convert);
-        elem->visit(visitor);
+        if(dict->getElement(key))
+        {
+            ostringstream ostr;
+            printData(key, ostr);
+            _errorReporter->error("key " + ostr.str() + " already exists in dictionary");
+        }
+
+        DataPtr elem = _factory->create(type->valueType(), false);
+        Destroyer<DataPtr> elemDestroyer(elem);
+
+        DataPtr value;
+        if(_value)
+        {
+            try
+            {
+                value = _value->evaluate(sym);
+            }
+            catch(const EvaluateException& ex)
+            {
+                _errorReporter->error("evaluation of value `" + _valueStr + "' failed:\n" + ex.reason());
+            }
+        }
+
+        if(value)
+        {
+            AssignVisitor visitor(value, _factory, _errorReporter, _convert);
+            elem->visit(visitor);
+        }
+        DataMap& map = dict->getElements();
+        map.insert(DataMap::value_type(key, elem));
+        keyDestroyer.release();
+        elemDestroyer.release();
     }
-    DataMap& map = dict->getElements();
-    map.insert(DataMap::value_type(key, elem));
-    keyDestroyer.release();
-    elemDestroyer.release();
+    else
+    {
+        assert(_index);
+
+        SequenceDataPtr seq = SequenceDataPtr::dynamicCast(data);
+        if(!seq)
+        {
+            ostringstream ostr;
+            ostr << _target;
+            _errorReporter->error("target `" + ostr.str() + "' is not a sequence");
+        }
+
+        Slice::SequencePtr type = Slice::SequencePtr::dynamicCast(seq->getType());
+        assert(type);
+
+        DataPtr index;
+        Destroyer<DataPtr> indexDestroyer;
+        try
+        {
+            index = _index->evaluate(sym);
+            indexDestroyer.set(index);
+        }
+        catch(const EvaluateException& ex)
+        {
+            _errorReporter->error("evaluation of index `" + _indexStr + "' failed:\n" + ex.reason());
+        }
+
+        DataList& elements = seq->getElements();
+        Ice::Long l = index->integerValue();
+        DataList::size_type i = static_cast<DataList::size_type>(l);
+        if(l < 0 || l > INT_MAX || i > elements.size())
+        {
+            _errorReporter->error("sequence index " + index->toString() + " is out of range");
+        }
+
+        DataPtr elem = _factory->create(type->type(), false);
+        Destroyer<DataPtr> elemDestroyer(elem);
+
+        DataPtr value;
+        if(_value)
+        {
+            try
+            {
+                value = _value->evaluate(sym);
+            }
+            catch(const EvaluateException& ex)
+            {
+                _errorReporter->error("evaluation of value `" + _valueStr + "' failed:\n" + ex.reason());
+            }
+        }
+
+        if(value)
+        {
+            AssignVisitor visitor(value, _factory, _errorReporter, _convert);
+            elem->visit(visitor);
+        }
+
+        elements.insert(elements.begin() + i, elem);
+        indexDestroyer.release();
+        elemDestroyer.release();
+    }
 }
 
 //
@@ -564,11 +650,26 @@ FreezeScript::RemoveDescriptor::RemoveDescriptor(const DescriptorPtr& parent, in
     target = p->second;
 
     p = attributes.find("key");
-    if(p == attributes.end())
+    if(p != attributes.end())
     {
-        _errorReporter->error("required attribute `key' is missing");
+        _keyStr = p->second;
     }
-    _keyStr = p->second;
+
+    p = attributes.find("index");
+    if(p != attributes.end())
+    {
+        _indexStr = p->second;
+    }
+
+    if(!_keyStr.empty() && !_indexStr.empty())
+    {
+        _errorReporter->error("attributes `key' and `index' are mutually exclusive");
+    }
+
+    if(_keyStr.empty() && _indexStr.empty())
+    {
+        _errorReporter->error("one of attributes `key' or `index' is required");
+    }
 
     NodePtr node = parse(target);
     _target = EntityNodePtr::dynamicCast(node);
@@ -577,7 +678,15 @@ FreezeScript::RemoveDescriptor::RemoveDescriptor(const DescriptorPtr& parent, in
         _errorReporter->error("`target' attribute is not an entity: `" + target + "'");
     }
 
-    _key = parse(_keyStr);
+    if(!_keyStr.empty())
+    {
+        _key = parse(_keyStr);
+    }
+
+    if(!_indexStr.empty())
+    {
+        _index = parse(_indexStr);
+    }
 }
 
 void
@@ -597,16 +706,6 @@ FreezeScript::RemoveDescriptor::execute(const SymbolTablePtr& sym, ExecuteInfo*)
 {
     DescriptorErrorContext ctx(_errorReporter, "remove", _line);
 
-    DataPtr key;
-    try
-    {
-        key = _key->evaluate(sym);
-    }
-    catch(const EvaluateException& ex)
-    {
-        _errorReporter->error("evaluation of key `" + _keyStr + "' failed:\n" + ex.reason());
-    }
-
     DataPtr data = sym->getValue(_target);
     if(data->readOnly())
     {
@@ -615,21 +714,67 @@ FreezeScript::RemoveDescriptor::execute(const SymbolTablePtr& sym, ExecuteInfo*)
         _errorReporter->error("target `" + ostr.str() + "' cannot be modified");
     }
 
-    DictionaryDataPtr dict = DictionaryDataPtr::dynamicCast(data);
-    if(!dict)
+    if(_key)
     {
-        ostringstream ostr;
-        ostr << _target;
-        _errorReporter->error("target `" + ostr.str() + "' is not a dictionary");
-    }
+        DataPtr key;
+        try
+        {
+            key = _key->evaluate(sym);
+        }
+        catch(const EvaluateException& ex)
+        {
+            _errorReporter->error("evaluation of key `" + _keyStr + "' failed:\n" + ex.reason());
+        }
 
-    DataMap& map = dict->getElements();
-    DataMap::iterator p = map.find(key);
-    if(p != map.end())
+        DictionaryDataPtr dict = DictionaryDataPtr::dynamicCast(data);
+        if(!dict)
+        {
+            ostringstream ostr;
+            ostr << _target;
+            _errorReporter->error("target `" + ostr.str() + "' is not a dictionary");
+        }
+
+        DataMap& map = dict->getElements();
+        DataMap::iterator p = map.find(key);
+        if(p != map.end())
+        {
+            p->first->destroy();
+            p->second->destroy();
+            map.erase(p);
+        }
+    }
+    else
     {
-        p->first->destroy();
-        p->second->destroy();
-        map.erase(p);
+        assert(_index);
+
+        DataPtr index;
+        try
+        {
+            index = _index->evaluate(sym);
+        }
+        catch(const EvaluateException& ex)
+        {
+            _errorReporter->error("evaluation of index `" + _indexStr + "' failed:\n" + ex.reason());
+        }
+
+        SequenceDataPtr seq = SequenceDataPtr::dynamicCast(data);
+        if(!seq)
+        {
+            ostringstream ostr;
+            ostr << _target;
+            _errorReporter->error("target `" + ostr.str() + "' is not a sequence");
+        }
+
+        DataList& elements = seq->getElements();
+        Ice::Long l = index->integerValue();
+        DataList::size_type i = static_cast<DataList::size_type>(l);
+        if(l < 0 || l > INT_MAX || i >= elements.size())
+        {
+            _errorReporter->error("sequence index " + index->toString() + " is out of range");
+        }
+
+        elements[i]->destroy();
+        elements.erase(elements.begin() + i);
     }
 }
 

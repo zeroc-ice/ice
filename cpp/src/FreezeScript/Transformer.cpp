@@ -99,7 +99,7 @@ protected:
 
 private:
 
-    typedef std::map<std::string, InitDescriptorPtr> InitMap;
+    typedef map<string, InitDescriptorPtr> InitMap;
     InitMap _initMap;
     bool _enabled;
 };
@@ -122,9 +122,9 @@ protected:
 
     Descriptor(const DescriptorPtr&, int, const TransformInfoIPtr&);
 
-    NodePtr parse(const std::string&) const;
+    NodePtr parse(const string&) const;
 
-    Slice::TypePtr findType(const Slice::UnitPtr&, const std::string&);
+    Slice::TypePtr findType(const Slice::UnitPtr&, const string&);
 
     DescriptorPtr _parent;
     int _line;
@@ -148,10 +148,10 @@ private:
 
     EntityNodePtr _target;
     NodePtr _value;
-    std::string _valueStr;
-    std::string _type;
+    string _valueStr;
+    string _type;
     NodePtr _length;
-    std::string _lengthStr;
+    string _lengthStr;
     bool _convert;
 };
 
@@ -170,9 +170,9 @@ public:
 
 private:
 
-    std::string _name;
+    string _name;
     NodePtr _value;
-    std::string _valueStr;
+    string _valueStr;
     Slice::TypePtr _type;
     bool _convert;
 };
@@ -194,10 +194,12 @@ private:
 
     EntityNodePtr _target;
     NodePtr _key;
-    std::string _keyStr;
+    string _keyStr;
+    NodePtr _index;
+    string _indexStr;
     NodePtr _value;
-    std::string _valueStr;
-    std::string _type;
+    string _valueStr;
+    string _type;
     bool _convert;
 };
 
@@ -218,7 +220,9 @@ private:
 
     EntityNodePtr _target;
     NodePtr _key;
-    std::string _keyStr;
+    string _keyStr;
+    NodePtr _index;
+    string _indexStr;
 };
 
 //
@@ -251,8 +255,8 @@ public:
 private:
 
     NodePtr _test;
-    std::string _testStr;
-    std::string _message;
+    string _testStr;
+    string _message;
 };
 
 //
@@ -270,9 +274,9 @@ public:
 
 private:
 
-    std::string _message;
+    string _message;
     NodePtr _value;
-    std::string _valueStr;
+    string _valueStr;
 };
 
 //
@@ -283,7 +287,7 @@ class ExecutableContainerDescriptor : public Descriptor
 public:
 
     ExecutableContainerDescriptor(const DescriptorPtr&, int, const TransformInfoIPtr&, const IceXML::Attributes&,
-                                  const std::string&);
+                                  const string&);
 
     virtual void addChild(const DescriptorPtr&);
     virtual void validate();
@@ -291,11 +295,11 @@ public:
 
 protected:
 
-    std::vector<DescriptorPtr> _children;
+    vector<DescriptorPtr> _children;
 
 private:
 
-    std::string _name;
+    string _name;
 };
 
 //
@@ -312,7 +316,7 @@ public:
 private:
 
     NodePtr _test;
-    std::string _testStr;
+    string _testStr;
 };
 
 //
@@ -329,10 +333,10 @@ public:
 private:
 
     EntityNodePtr _target;
-    std::string _key;
-    std::string _value;
-    std::string _element;
-    std::string _index;
+    string _key;
+    string _value;
+    string _element;
+    string _index;
 };
 
 //
@@ -345,9 +349,9 @@ public:
     TransformDescriptor(const DescriptorPtr&, int, const TransformInfoIPtr&, const IceXML::Attributes&);
 
     Slice::TypePtr type() const;
-    std::string typeName() const;
+    string typeName() const;
     Slice::TypePtr renameType() const;
-    std::string renameTypeName() const;
+    string renameTypeName() const;
     bool doDefaultTransform() const;
     bool doBaseTransform() const;
 
@@ -371,7 +375,7 @@ public:
 
     void initialize(const DataPtr&);
 
-    std::string typeName() const;
+    string typeName() const;
 
 private:
 
@@ -433,7 +437,7 @@ public:
 private:
 
     DatabaseDescriptorPtr _database;
-    std::vector<DescriptorPtr> _children;
+    vector<DescriptorPtr> _children;
 };
 typedef IceUtil::Handle<TransformDBDescriptor> TransformDBDescriptorPtr;
 
@@ -518,10 +522,10 @@ public:
 
     DescriptorHandler(const TransformInfoIPtr&);
 
-    virtual void startElement(const std::string&, const IceXML::Attributes&, int, int);
-    virtual void endElement(const std::string&, int, int);
-    virtual void characters(const std::string&, int, int);
-    virtual void error(const std::string&, int, int);
+    virtual void startElement(const string&, const IceXML::Attributes&, int, int);
+    virtual void endElement(const string&, int, int);
+    virtual void characters(const string&, int, int);
+    virtual void error(const string&, int, int);
 
     TransformDBDescriptorPtr descriptor() const;
 
@@ -927,11 +931,16 @@ FreezeScript::AddDescriptor::AddDescriptor(const DescriptorPtr& parent, int line
     target = p->second;
 
     p = attributes.find("key");
-    if(p == attributes.end())
+    if(p != attributes.end())
     {
-        _info->errorReporter->error("required attribute `key' is missing");
+        _keyStr = p->second;
     }
-    _keyStr = p->second;
+
+    p = attributes.find("index");
+    if(p != attributes.end())
+    {
+        _indexStr = p->second;
+    }
 
     p = attributes.find("value");
     if(p != attributes.end())
@@ -951,9 +960,19 @@ FreezeScript::AddDescriptor::AddDescriptor(const DescriptorPtr& parent, int line
         _convert = p->second == "true";
     }
 
+    if(!_keyStr.empty() && !_indexStr.empty())
+    {
+        _info->errorReporter->error("attributes `key' and `index' are mutually exclusive");
+    }
+
+    if(_keyStr.empty() && _indexStr.empty())
+    {
+        _info->errorReporter->error("one of attributes `key' or `index' is required");
+    }
+
     if(!_valueStr.empty() && !_type.empty())
     {
-        _info->errorReporter->error("attributes `value' and 'type' are mutually exclusive");
+        _info->errorReporter->error("attributes `value' and `type' are mutually exclusive");
     }
 
     NodePtr node = parse(target);
@@ -963,8 +982,15 @@ FreezeScript::AddDescriptor::AddDescriptor(const DescriptorPtr& parent, int line
         _info->errorReporter->error("`target' attribute is not an entity: `" + target + "'");
     }
 
-    assert(!_keyStr.empty());
-    _key = parse(_keyStr);
+    if(!_keyStr.empty())
+    {
+        _key = parse(_keyStr);
+    }
+
+    if(!_indexStr.empty())
+    {
+        _index = parse(_indexStr);
+    }
 
     if(!_valueStr.empty())
     {
@@ -997,75 +1023,151 @@ FreezeScript::AddDescriptor::execute(const SymbolTablePtr& sym)
         _info->errorReporter->error("target `" + ostr.str() + "' cannot be modified");
     }
 
-    DictionaryDataPtr dict = DictionaryDataPtr::dynamicCast(data);
-    if(!dict)
+    if(_key)
     {
-        ostringstream ostr;
-        ostr << _target;
-        _info->errorReporter->error("target `" + ostr.str() + "' is not a dictionary");
-    }
+        DictionaryDataPtr dict = DictionaryDataPtr::dynamicCast(data);
+        if(!dict)
+        {
+            ostringstream ostr;
+            ostr << _target;
+            _info->errorReporter->error("target `" + ostr.str() + "' is not a dictionary");
+        }
 
-    Slice::DictionaryPtr type = Slice::DictionaryPtr::dynamicCast(dict->getType());
-    assert(type);
+        Slice::DictionaryPtr type = Slice::DictionaryPtr::dynamicCast(dict->getType());
+        assert(type);
 
-    DataPtr key;
-    Destroyer<DataPtr> keyDestroyer;
-    try
-    {
-        DataPtr v = _key->evaluate(sym);
-        key = _info->factory->create(type->keyType(), false);
-        keyDestroyer.set(key);
-        assignOrTransform(key, v, _convert, _info);
-    }
-    catch(const EvaluateException& ex)
-    {
-        _info->errorReporter->error("evaluation of key `" + _keyStr + "' failed:\n" + ex.reason());
-    }
-
-    if(dict->getElement(key))
-    {
-        ostringstream ostr;
-        printData(key, ostr);
-        _info->errorReporter->error("key " + ostr.str() + " already exists in dictionary");
-    }
-
-    DataPtr elem = _info->factory->create(type->valueType(), false);
-    Destroyer<DataPtr> elemDestroyer(elem);
-
-    DataPtr value;
-    if(_value)
-    {
+        DataPtr key;
+        Destroyer<DataPtr> keyDestroyer;
         try
         {
-            value = _value->evaluate(sym);
+            DataPtr v = _key->evaluate(sym);
+            key = _info->factory->create(type->keyType(), false);
+            keyDestroyer.set(key);
+            assignOrTransform(key, v, _convert, _info);
         }
         catch(const EvaluateException& ex)
         {
-            _info->errorReporter->error("evaluation of value `" + _valueStr + "' failed:\n" + ex.reason());
+            _info->errorReporter->error("evaluation of key `" + _keyStr + "' failed:\n" + ex.reason());
         }
-    }
 
-    Destroyer<DataPtr> valueDestroyer;
-    if(!_type.empty())
-    {
-        assert(!value);
-        Slice::TypePtr type = sym->lookupType(_type);
-        if(!type)
+        if(dict->getElement(key))
         {
-            _info->errorReporter->error("type `" + _type + "' not found");
+            ostringstream ostr;
+            printData(key, ostr);
+            _info->errorReporter->error("key " + ostr.str() + " already exists in dictionary");
         }
-        value = _info->factory->createObject(type, false);
-        valueDestroyer.set(value);
-    }
 
-    if(value)
-    {
-        assignOrTransform(elem, value, _convert, _info);
+        DataPtr elem = _info->factory->create(type->valueType(), false);
+        Destroyer<DataPtr> elemDestroyer(elem);
+
+        DataPtr value;
+        if(_value)
+        {
+            try
+            {
+                value = _value->evaluate(sym);
+            }
+            catch(const EvaluateException& ex)
+            {
+                _info->errorReporter->error("evaluation of value `" + _valueStr + "' failed:\n" + ex.reason());
+            }
+        }
+
+        Destroyer<DataPtr> valueDestroyer;
+        if(!_type.empty())
+        {
+            assert(!value);
+            Slice::TypePtr type = sym->lookupType(_type);
+            if(!type)
+            {
+                _info->errorReporter->error("type `" + _type + "' not found");
+            }
+            value = _info->factory->createObject(type, false);
+            valueDestroyer.set(value);
+        }
+
+        if(value)
+        {
+            assignOrTransform(elem, value, _convert, _info);
+        }
+        DataMap& map = dict->getElements();
+        map.insert(DataMap::value_type(key, elem));
+        keyDestroyer.release();
+        elemDestroyer.release();
     }
-    DataMap& map = dict->getElements();
-    map.insert(DataMap::value_type(key, elem));
-    keyDestroyer.release();
-    elemDestroyer.release();
+    else
+    {
+        assert(_index);
+
+        SequenceDataPtr seq = SequenceDataPtr::dynamicCast(data);
+        if(!seq)
+        {
+            ostringstream ostr;
+            ostr << _target;
+            _info->errorReporter->error("target `" + ostr.str() + "' is not a sequence");
+        }
+
+        Slice::SequencePtr type = Slice::SequencePtr::dynamicCast(seq->getType());
+        assert(type);
+
+        DataPtr index;
+        Destroyer<DataPtr> indexDestroyer;
+        try
+        {
+            index = _index->evaluate(sym);
+            indexDestroyer.set(index);
+        }
+        catch(const EvaluateException& ex)
+        {
+            _info->errorReporter->error("evaluation of index `" + _indexStr + "' failed:\n" + ex.reason());
+        }
+
+        DataList& elements = seq->getElements();
+        Ice::Long l = index->integerValue();
+        DataList::size_type i = static_cast<DataList::size_type>(l);
+        if(l < 0 || l > INT_MAX || i > elements.size())
+        {
+            _info->errorReporter->error("sequence index " + index->toString() + " is out of range");
+        }
+
+        DataPtr elem = _info->factory->create(type->type(), false);
+        Destroyer<DataPtr> elemDestroyer(elem);
+
+        DataPtr value;
+        if(_value)
+        {
+            try
+            {
+                value = _value->evaluate(sym);
+            }
+            catch(const EvaluateException& ex)
+            {
+                _info->errorReporter->error("evaluation of value `" + _valueStr + "' failed:\n" + ex.reason());
+            }
+        }
+
+        Destroyer<DataPtr> valueDestroyer;
+        if(!_type.empty())
+        {
+            assert(!value);
+            Slice::TypePtr type = sym->lookupType(_type);
+            if(!type)
+            {
+                _info->errorReporter->error("type `" + _type + "' not found");
+            }
+            value = _info->factory->createObject(type, false);
+            valueDestroyer.set(value);
+        }
+
+        if(value)
+        {
+            assignOrTransform(elem, value, _convert, _info);
+        }
+
+        elements.insert(elements.begin() + i, elem);
+        indexDestroyer.release();
+        elemDestroyer.release();
+    }
 }
 
 //
@@ -1088,11 +1190,16 @@ FreezeScript::RemoveDescriptor::RemoveDescriptor(const DescriptorPtr& parent, in
     target = p->second;
 
     p = attributes.find("key");
-    if(p == attributes.end())
+    if(p != attributes.end())
     {
-        _info->errorReporter->error("required attribute `key' is missing");
+        _keyStr = p->second;
     }
-    _keyStr = p->second;
+
+    p = attributes.find("index");
+    if(p != attributes.end())
+    {
+        _indexStr = p->second;
+    }
 
     NodePtr node = parse(target);
     _target = EntityNodePtr::dynamicCast(node);
@@ -1101,7 +1208,25 @@ FreezeScript::RemoveDescriptor::RemoveDescriptor(const DescriptorPtr& parent, in
         _info->errorReporter->error("`target' attribute is not an entity: `" + target + "'");
     }
 
-    _key = parse(_keyStr);
+    if(!_keyStr.empty() && !_indexStr.empty())
+    {
+        _info->errorReporter->error("attributes `key' and `index' are mutually exclusive");
+    }
+
+    if(_keyStr.empty() && _indexStr.empty())
+    {
+        _info->errorReporter->error("one of attributes `key' or `index' is required");
+    }
+
+    if(!_keyStr.empty())
+    {
+        _key = parse(_keyStr);
+    }
+
+    if(!_indexStr.empty())
+    {
+        _index = parse(_indexStr);
+    }
 }
 
 void
@@ -1121,16 +1246,6 @@ FreezeScript::RemoveDescriptor::execute(const SymbolTablePtr& sym)
 {
     DescriptorErrorContext ctx(_info->errorReporter, "remove", _line);
 
-    DataPtr key;
-    try
-    {
-        key = _key->evaluate(sym);
-    }
-    catch(const EvaluateException& ex)
-    {
-        _info->errorReporter->error("evaluation of key `" + _keyStr + "' failed:\n" + ex.reason());
-    }
-
     DataPtr data = sym->getValue(_target);
     if(data->readOnly())
     {
@@ -1139,21 +1254,67 @@ FreezeScript::RemoveDescriptor::execute(const SymbolTablePtr& sym)
         _info->errorReporter->error("target `" + ostr.str() + "' cannot be modified");
     }
 
-    DictionaryDataPtr dict = DictionaryDataPtr::dynamicCast(data);
-    if(!dict)
+    if(_key)
     {
-        ostringstream ostr;
-        ostr << _target;
-        _info->errorReporter->error("target `" + ostr.str() + "' is not a dictionary");
-    }
+        DataPtr key;
+        try
+        {
+            key = _key->evaluate(sym);
+        }
+        catch(const EvaluateException& ex)
+        {
+            _info->errorReporter->error("evaluation of key `" + _keyStr + "' failed:\n" + ex.reason());
+        }
 
-    DataMap& map = dict->getElements();
-    DataMap::iterator p = map.find(key);
-    if(p != map.end())
+        DictionaryDataPtr dict = DictionaryDataPtr::dynamicCast(data);
+        if(!dict)
+        {
+            ostringstream ostr;
+            ostr << _target;
+            _info->errorReporter->error("target `" + ostr.str() + "' is not a dictionary");
+        }
+
+        DataMap& map = dict->getElements();
+        DataMap::iterator p = map.find(key);
+        if(p != map.end())
+        {
+            p->first->destroy();
+            p->second->destroy();
+            map.erase(p);
+        }
+    }
+    else
     {
-        p->first->destroy();
-        p->second->destroy();
-        map.erase(p);
+        assert(_index);
+
+        DataPtr index;
+        try
+        {
+            index = _index->evaluate(sym);
+        }
+        catch(const EvaluateException& ex)
+        {
+            _info->errorReporter->error("evaluation of index `" + _indexStr + "' failed:\n" + ex.reason());
+        }
+
+        SequenceDataPtr seq = SequenceDataPtr::dynamicCast(data);
+        if(!seq)
+        {
+            ostringstream ostr;
+            ostr << _target;
+            _info->errorReporter->error("target `" + ostr.str() + "' is not a sequence");
+        }
+
+        DataList& elements = seq->getElements();
+        Ice::Long l = index->integerValue();
+        DataList::size_type i = static_cast<DataList::size_type>(l);
+        if(l < 0 || l > INT_MAX || i >= elements.size())
+        {
+            _info->errorReporter->error("sequence index " + index->toString() + " is out of range");
+        }
+
+        elements[i]->destroy();
+        elements.erase(elements.begin() + i);
     }
 }
 
@@ -2707,19 +2868,19 @@ FreezeScript::DescriptorHandler::startElement(const string& name, const IceXML::
 }
 
 void
-FreezeScript::DescriptorHandler::endElement(const std::string& name, int, int)
+FreezeScript::DescriptorHandler::endElement(const string& name, int, int)
 {
     assert(_current);
     _current = _current->parent();
 }
 
 void
-FreezeScript::DescriptorHandler::characters(const std::string&, int, int)
+FreezeScript::DescriptorHandler::characters(const string&, int, int)
 {
 }
 
 void
-FreezeScript::DescriptorHandler::error(const std::string& msg, int line, int col)
+FreezeScript::DescriptorHandler::error(const string& msg, int line, int col)
 {
     _info->errorReporter->descriptorError(msg, line);
 }
