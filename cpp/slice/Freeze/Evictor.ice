@@ -56,6 +56,7 @@ local interface ServantInitializer
     void initialize(Ice::ObjectAdapter adapter, Ice::Identity identity, Object servant);
 };
 
+
 /**
  *
  * This exception is raised if there are no further elements in the iteration.
@@ -67,17 +68,7 @@ local exception NoSuchElementException
 
 /**
  *
- * This exception is raised when attempting to use a destroyed iterator.
- *
- **/
-local exception IteratorDestroyedException
-{
-};
-
-
-/**
- *
- * An iterator for the identities managed by the evictor.
+ * An iterator for the objects managed by the evictor.
  * Note that an EvictorIterator is not thread-safe: the application needs to
  * serialize access to a given EvictorIterator, for example by using it
  * in just one thread.
@@ -94,15 +85,8 @@ local interface EvictorIterator
      * @return True if the iterator has more elements, false
      * otherwise.
      *
-     * @throws IteratorDestroyedException Raised if the iterator was destroyed.
-     *
-     * @throws DeadlockException Raised if a deadlock occured, due to
-     * lock conflicts with another transaction or iterator.
-     * In this case, you need to destroy the iterator and retry 
-     * your iteration.
-     *
-     * @throws DatabaseException Raised if any other database failure
-     * occurred.
+     * @throws DatabaseException Raised if a database failure
+     * occurs while retrieving a batch of objects.
      *
      **/
     bool hasNext();
@@ -113,32 +97,13 @@ local interface EvictorIterator
      *
      * @returns The next identity in the iteration.
      *
-     * @throws IteratorDestroyedException Raised if the iterator was destroyed.
-     *
      * @throws NoSuchElementException Raised if there is no further
      * elements in the iteration.
      *
-     * @throws DeadlockException Raised if a deadlock occured, due to 
-     * lock conflicts with another transaction or iterator.
-     * In this case, you need to destroy the iterator and retry 
-     * your iteration.
-     *
-     * @throws DatabaseException Raised if any other database failure
-     * occurred.
-     *
+     * @throws DatabaseException Raised if a database failure
+     * occurs while retrieving a batch of objects.
      **/
     Ice::Identity next();
-
-    /**
-     *
-     * Destroy the iterator. Once the iterator has been destroyed it
-     * may no longer be accessed.
-     *
-     * @throws IteratorDestroyedException Raised if the iterator was already 
-     *  destroyed.
-     *
-     **/
-    void destroy();
 };
 
 /**
@@ -345,13 +310,21 @@ local interface Evictor extends Ice::ServantLocator
      *
      * Get an iterator for the identities managed by the evictor.
      *
+     * @param batchSize Internally, the Iterator retrieves the
+     * identities in batches of size batchSize. Selecting a small batchSize
+     * can have an adverse effect on performance.
+     *
+     * @param loadServants If true, attempt to load the corresponding 
+     * servants in the Evictor. The servants may not be loaded if a
+     * save occurs while the batch is retrieved.
+     *
      * @return A new iterator.
      *
      * @throws EvictorDeactivatedException Raised if a the evictor has
      * been deactivated.
      *
      **/
-    EvictorIterator getIterator();
+    EvictorIterator getIterator(int batchSize, bool loadServants);
 
     /**
      *

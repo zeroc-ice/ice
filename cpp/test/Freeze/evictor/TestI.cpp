@@ -241,13 +241,17 @@ Test::RemoteEvictorI::deactivate(const Current& current)
 void
 Test::RemoteEvictorI::destroyAllServants(const Current&)
 {
-    Freeze::EvictorIteratorPtr p = _evictor->getIterator();
+    //
+    // Don't use such a small value in real applications!
+    //
+    Ice::Int batchSize = 1;
+
+    Freeze::EvictorIteratorPtr p = _evictor->getIterator(batchSize, true);
     while(p->hasNext())
     {
 	_evictor->destroyObject(p->next());
+	_evictor->saveNow();
     }
-    p->destroy();
-    _evictor->saveNow();
 }
 
 void

@@ -51,6 +51,13 @@ struct Identity
  **/
 local dictionary<Identity, Object> ObjectDict;
 
+/**
+ *
+ * A sequence of identities.
+ *
+ **/
+local sequence<Identity> IdentitySeq;
+
 };
 
 #endif

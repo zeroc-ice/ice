@@ -35,21 +35,25 @@ class EvictorIteratorI : public EvictorIterator
 {
 public:
 
-    EvictorIteratorI(Db&, const CommunicatorPtr&);
-
-    virtual ~EvictorIteratorI();
+    EvictorIteratorI(EvictorI&, Int, bool);
 
     virtual bool hasNext();
     virtual Identity next();
-    virtual void destroy();
 
 private:
 
-    Dbc* _dbc;
-    Freeze::EvictorStorageKey _current;
-    bool _currentSet;
-    CommunicatorPtr _communicator;
+    vector<Identity>::const_iterator
+    nextBatch();
+
+    EvictorI& _evictor;
+    Int _batchSize;
+    bool _loadServants;
+    vector<Identity>::const_iterator _batchIterator;
+
     Key _key;
+    Value _value;
+    vector<Identity> _batch;
+    bool _more;
 };
 
 }
@@ -78,6 +82,62 @@ initializeOutDbt(vector<Byte>& v, Dbt& dbt)
     dbt.set_dlen(0);
     dbt.set_doff(0);
     dbt.set_flags(DB_DBT_USERMEM);
+}
+
+void
+handleMemoryException(const DbMemoryException& dx, Key& key, Dbt& dbKey)
+{
+    if(dbKey.get_size() > dbKey.get_ulen())
+    {
+	//
+	// Keep the old key size in case it's used as input
+	//
+	size_t oldKeySize = key.size();
+
+	key.resize(dbKey.get_size());
+	initializeOutDbt(key, dbKey);
+	dbKey.set_size(oldKeySize);
+    }
+    else
+    {
+	//
+	// Real problem
+	//
+	DatabaseException ex(__FILE__, __LINE__);
+	ex.message = dx.what();
+	throw ex;
+    }
+}
+
+void
+handleMemoryException(const DbMemoryException& dx, Key& key, Dbt& dbKey, Value& value, Dbt& dbValue)
+{
+    bool resized = false;
+    if(dbKey.get_size() > dbKey.get_ulen())
+    {
+	size_t oldKeySize = key.size();
+	key.resize(dbKey.get_size());
+	initializeOutDbt(key, dbKey);
+	dbKey.set_size(oldKeySize);
+	resized = true;
+    }
+    
+    if(dbValue.get_size() > dbValue.get_ulen())
+    {
+	value.resize(dbValue.get_size());
+	initializeOutDbt(value, dbValue);
+	resized = true;
+    }
+    
+    if(!resized)
+    {
+	//
+	// Real problem
+	//
+	DatabaseException ex(__FILE__, __LINE__);
+	ex.message = dx.what();
+	throw ex;
+    }
 }
 
 inline bool startWith(Key key, Key root)
@@ -221,6 +281,17 @@ Freeze::EvictorI::init(const string& envName, const string& dbName, bool createD
 
     _savePeriod = IceUtil::Time::milliSeconds(savePeriod);
    
+    //
+    // By default, we save at most 10 * SaveSizeTrigger objects per transaction
+    //
+    _maxTxSize = _communicator->getProperties()->
+	getPropertyAsIntWithDefault(propertyPrefix + ".MaxTxSize", 10 * _saveSizeTrigger);
+    
+    if(_maxTxSize <= 0)
+    {
+	_maxTxSize = 100;
+    }	
+
     try
     {
 	_db.reset(new Db(_dbEnv, 0));
@@ -231,7 +302,7 @@ Freeze::EvictorI::init(const string& envName, const string& dbName, bool createD
 	}
 	_db->open(0, dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
     }
-    catch(const ::DbException& dx)
+    catch(const DbException& dx)
     {
 	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
@@ -800,7 +871,7 @@ Freeze::EvictorI::installServantInitializer(const ServantInitializerPtr& initial
 }
 
 EvictorIteratorPtr
-Freeze::EvictorI::getIterator()
+Freeze::EvictorI::getIterator(Int batchSize, bool loadServants)
 {
     {
 	Lock sync(*this);
@@ -811,7 +882,7 @@ Freeze::EvictorI::getIterator()
 	saveNowNoSync();
     }
     
-    return new EvictorIteratorI(*_db, _communicator);
+    return new EvictorIteratorI(*this, batchSize, loadServants);
 }
 
 bool
@@ -1074,7 +1145,7 @@ Freeze::EvictorI::deactivate(const string&)
 	{
 	    _db->close(0);
 	}
-	catch(const ::DbException& dx)
+	catch(const DbException& dx)
 	{
 	    DatabaseException ex(__FILE__, __LINE__);
 	    ex.message = dx.what();
@@ -1281,6 +1352,10 @@ Freeze::EvictorI::run()
 	// per transaction
 	//
 	size_t txSize = streamedObjectQueue.size();
+	if(txSize > static_cast<size_t>(_maxTxSize))
+	{
+	    txSize = static_cast<size_t>(_maxTxSize);
+	}
 	bool tryAgain;
 	
 	do
@@ -1345,7 +1420,9 @@ Freeze::EvictorI::run()
 			throw;
 		    }
 		    tx->commit(0);
-		    streamedObjectQueue.erase(streamedObjectQueue.begin(), streamedObjectQueue.begin() + txSize);
+		    streamedObjectQueue.erase
+			(streamedObjectQueue.begin(), 
+			 streamedObjectQueue.begin() + txSize);
 		    
 		    if(_trace >= 1)
 		    {
@@ -1356,18 +1433,18 @@ Freeze::EvictorI::run()
 			saveStart = now;
 		    }
 		}
-		catch(const ::DbDeadlockException&)
+		catch(const DbDeadlockException&)
 		{
 		    tryAgain = true;
 		    txSize = (txSize + 1)/2;
 		}
-		catch(const ::DbException& dx)
+		catch(const DbException& dx)
 		{
 		    DatabaseException ex(__FILE__, __LINE__);
 		    ex.message = dx.what();
 		    throw ex;
 		}
-	} 
+	    } 
 	}
         while(tryAgain);
 	
@@ -1394,6 +1471,173 @@ Freeze::EvictorI::run()
 	_lastSave = IceUtil::Time::now();
     }
 }
+
+
+bool
+Freeze::EvictorI::load(const Identity& ident, Dbc* dbc, 
+		       Key& key, Value& value, vector<EvictorElementPtr>& evictorElements)
+{
+    Key root;
+    marshalRoot(ident, root, _communicator);
+
+    Dbt dbKey;
+    Dbt dbValue;
+
+    EvictorElementPtr elt = new EvictorElement;
+    int rs = 0;
+    do
+    {
+	//
+	// Unmarshal key and data and insert it into elt's facet map
+	//
+	EvictorStorageKey esk;
+	unmarshal(esk, key, _communicator);
+       
+	if(_trace >= 3)
+	{
+	    Trace out(_communicator->getLogger(), "Freeze.Evictor");
+	    out << "reading facet identity = \"" << esk.identity << "\" ";
+	    if(esk.facet.size() == 0)
+	    {
+		out << "(main object)";
+	    }
+	    else
+	    {
+		out << "facet = \"";
+		for(size_t i = 0; i < esk.facet.size(); i++)
+		{
+		    out << esk.facet[i];
+		    if(i != esk.facet.size() - 1)
+		    {
+			out << ".";
+		    }
+		    else
+		    {
+			out << "\"";
+		    }
+		}
+	    }
+	}
+
+	FacetPtr facet = new Facet(elt.get());
+	facet->status = clean;
+	unmarshal(facet->rec, value, _communicator);
+	
+	pair<FacetMap::iterator, bool> pair;
+	pair = elt->facets.insert(FacetMap::value_type(esk.facet, facet));
+	assert(pair.second);
+	
+	if(esk.facet.size() == 0)
+	{
+	    elt->mainObject = facet;
+	}
+	
+	initializeOutDbt(key, dbKey);
+	initializeOutDbt(value, dbValue);
+
+	for(;;)
+	{
+	    try
+	    {
+		rs = dbc->get(&dbKey, &dbValue, DB_NEXT);
+		if(rs == 0)
+		{
+		    //
+		    // Key may be used as input of a DB_SET_RANGE call, so we
+		    // need to write its exact size
+		    //
+		    key.resize(dbKey.get_size());
+		}
+		break; // for(;;)
+	    }
+	    catch(const DbMemoryException& dx)
+	    {
+		handleMemoryException(dx, key, dbKey, value, dbValue);
+	    }   
+	}
+    }
+    while(rs == 0 && startWith(key, root));
+    
+    buildFacetMap(elt->facets);	
+    evictorElements.push_back(elt);
+    return (rs == 0);
+}
+
+bool
+Freeze::EvictorI::skipFacets(const Identity& ident, Dbc* dbc, Key& key)
+{
+    Key root;
+    marshalRoot(ident, root, _communicator);
+
+    Dbt dbKey;
+    Dbt dbValue;
+  
+    int rs = 0;
+    do
+    {
+	initializeOutDbt(key, dbKey);
+	dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
+
+	for(;;)
+	{
+	    try
+	    {
+		rs = dbc->get(&dbKey, &dbValue, DB_NEXT);
+		if(rs == 0)
+		{
+		    key.resize(dbKey.get_size());
+		}
+		break; // for (;;)
+	    }
+	    catch(const DbMemoryException& dx)
+	    {
+		handleMemoryException(dx, key, dbKey);
+	    }
+	}
+    }
+    while(rs == 0 && startWith(key, root));
+    return (rs == 0);
+}
+
+void
+Freeze::EvictorI::insert(const vector<Identity>& identities, 
+			 const vector<EvictorElementPtr>& evictorElements,
+			 int loadedGeneration)
+{
+    assert(identities.size() == evictorElements.size());
+	
+    size_t size = identities.size();
+	
+    if(size > 0)
+    {
+	Lock sync(*this);
+
+	if(_deactivated)
+	{
+	    throw EvictorDeactivatedException(__FILE__, __LINE__);
+	}
+	
+	if(_generation == loadedGeneration)
+	{
+	    for(size_t i = 0; i < size; ++i)
+	    {
+		const Identity& ident = identities[i];
+		
+		EvictorMap::iterator p = _evictorMap.find(ident);
+		if(p == _evictorMap.end())
+		{
+		    p = insertElement(0, ident, evictorElements[i]);
+		}
+	    }
+	}
+	//
+	// Otherwise we don't insert anything
+	//
+	    
+    }
+}
+
+
 
 void
 Freeze::EvictorI::evict()
@@ -1481,13 +1725,13 @@ Freeze::EvictorI::dbHasObject(const Identity& ident)
 		throw DatabaseException(__FILE__, __LINE__);
 	    }
 	}
-	catch(const ::DbDeadlockException&)
+	catch(const DbDeadlockException&)
 	{
 	    //
 	    // Ignored, try again
 	    //
 	}
-	catch(const ::DbException& dx)
+	catch(const DbException& dx)
 	{
 	    DatabaseException ex(__FILE__, __LINE__);
 	    ex.message = dx.what();
@@ -1614,48 +1858,11 @@ Freeze::EvictorI::load(const Identity& ident)
 		try
 		{
 		    rs = dbc->get(&dbKey, &dbValue, DB_SET_RANGE);
-
-		    if(rs == 0)
-		    {
-			key.resize(dbKey.get_size());
-			value.resize(dbValue.get_size());
-		    } 
 		    break;
 		}
-		catch(const ::DbMemoryException& dx)
+		catch(const DbMemoryException& dx)
 		{
-		    bool resized = false;
-		    if(dbKey.get_size() > dbKey.get_ulen())
-		    {
-			assert(startWith(key, root));
-			key.resize(dbKey.get_size());
-			initializeOutDbt(key, dbKey);
-
-			//
-			// Not really necessary, as a sequence of n bytes each containing 0 
-			// is smaller or equal than any sequence of bytes with the same length.
-			// But this is cleaner.
-			//
-			dbKey.set_size(root.size());
-			resized = true;
-		    }
-		   
-		    if(dbValue.get_size() > dbValue.get_ulen())
-		    {
-			value.resize(dbValue.get_size());
-			initializeOutDbt(value, dbValue);
-			resized = true;
-		    }
-
-		    if(!resized)
-		    {
-			//
-			// Real problem
-			//
-			DatabaseException ex(__FILE__, __LINE__);
-			ex.message = dx.what();
-			throw ex;
-		    }
+		    handleMemoryException(dx, key, dbKey, value, dbValue);
 		}
 	    }
 
@@ -1723,47 +1930,21 @@ Freeze::EvictorI::load(const Identity& ident)
 		    try
 		    {
 			rs = dbc->get(&dbKey, &dbValue, DB_NEXT);
-			if(rs == 0)
-			{
-			    key.resize(dbKey.get_size());
-			    value.resize(dbValue.get_size());
-			}
 			break; // for(;;)
 		    }
-		    catch(const ::DbMemoryException& dx)
+		    catch(const DbMemoryException& dx)
 		    {
-			bool resized = false;
-			if(dbKey.get_size() > dbKey.get_ulen())
-			{
-			    key.resize(dbKey.get_size());
-			    initializeOutDbt(key, dbKey);
-			    resized = true;
-			}
-
-			if(dbValue.get_size() > dbValue.get_ulen())
-			{
-			    value.resize(dbValue.get_size());
-			    initializeOutDbt(value, dbValue);
-			    resized = true;
-			}
-			
-			if(!resized)
-			{
-			    //
-			    // Real problem
-			    //
-			    DatabaseException ex(__FILE__, __LINE__);
-			    ex.message = dx.what();
-			    throw ex;
-			}
+			handleMemoryException(dx, key, dbKey, value, dbValue);
 		    }
 		}
 	    }
 
-	    dbc->close();
+	    Dbc* toClose = dbc;
+	    dbc = 0;
+	    toClose->close();
 	    break; // for (;;)
 	}
-	catch(const ::DbDeadlockException&)
+	catch(const DbDeadlockException&)
 	{
 	    if(dbc != 0)
 	    {
@@ -1780,7 +1961,7 @@ Freeze::EvictorI::load(const Identity& ident)
 	    // Try again
 	    //
 	}
-	catch(const ::DbException& dx)
+	catch(const DbException& dx)
 	{
 	    if(dbc != 0)
 	    {
@@ -1819,32 +2000,7 @@ Freeze::EvictorI::load(const Identity& ident)
 	return 0;
     }
 
-    //
-    // Let's fix-up the facets tree in result
-    //
-    for(FacetMap::iterator q = result->facets.begin(); q != result->facets.end(); q++)
-    {
-	const FacetPath& facetPath = q->first;
-
-	if(facetPath.size() > 0)
-	{
-	    FacetPath parent(facetPath);
-	    parent.pop_back();
-	    FacetMap::iterator r = result->facets.find(parent);
-	    if(r == result->facets.end())
-	    {
-		// 
-		// TODO: log warning for this orphan facet
-		//
-		assert(0);
-	    }
-	    else
-	    {
-		r->second->rec.servant->ice_addFacet(q->second->rec.servant, facetPath[facetPath.size() - 1]); 
-	    }
-	}
-    }
-
+    buildFacetMap(result->facets);
     return result;
 }
 
@@ -1869,7 +2025,8 @@ Freeze::EvictorI::insertElement(const ObjectAdapterPtr& adapter, const Identity&
 
 
 void
-Freeze::EvictorI::addFacetImpl(EvictorElementPtr& element, const ObjectPtr& servant, const FacetPath& facetPath, bool replacing)
+Freeze::EvictorI::addFacetImpl(EvictorElementPtr& element, const ObjectPtr& servant, 
+			       const FacetPath& facetPath, bool replacing)
 {
     FacetMap& facets = element->facets;
 
@@ -2044,6 +2201,36 @@ Freeze::EvictorI::destroyFacetImpl(Freeze::EvictorI::FacetMap::iterator& q, cons
     return facet->rec.servant;
 }
 
+void
+Freeze::EvictorI::buildFacetMap(const FacetMap& facets)
+{
+    for(FacetMap::const_iterator q = facets.begin(); q != facets.end(); q++)
+    {
+	const FacetPath& facetPath = q->first;
+
+	if(facetPath.size() > 0)
+	{
+	    FacetPath parent(facetPath);
+	    parent.pop_back();
+	    FacetMap::const_iterator r = facets.find(parent);
+	    if(r == facets.end())
+	    {
+		// 
+		// TODO: log warning for this orphan facet
+		//
+		assert(0);
+	    }
+	    else
+	    {
+		r->second->rec.servant->ice_addFacet(q->second->rec.servant, facetPath[facetPath.size() - 1]); 
+	    }
+	}
+    }
+
+
+}
+
+
 Freeze::EvictorI::Facet::Facet(EvictorElement* elt) :
     status(dead),
     element(elt)
@@ -2061,111 +2248,32 @@ Freeze::EvictorI::EvictorElement::~EvictorElement()
 {
 }
 
-Freeze::EvictorIteratorI::EvictorIteratorI(Db& db, const CommunicatorPtr& communicator) :
-    _dbc(0),
-    _currentSet(false),
-    _communicator(communicator),
-    _key(1024)
+Freeze::EvictorIteratorI::EvictorIteratorI(EvictorI& evictor, Int batchSize, bool loadServants) :
+    _evictor(evictor),
+    _batchSize(batchSize),
+    _loadServants(loadServants),
+    _key(1024),
+    _more(true)
 {
-    try
+    if(loadServants)
     {
-	db.cursor(0, &_dbc, 0);
+	_value.resize(1024);
     }
-    catch(const ::DbException& dx)
-    {
-	DatabaseException ex(__FILE__, __LINE__);
-	ex.message = dx.what();
-	throw ex;
-    }
+    _batchIterator = _batch.end();
 }
 
-Freeze::EvictorIteratorI::~EvictorIteratorI()
-{
-    if(_dbc != 0)
-    {
-	destroy();
-    }
-}
 
 bool
 Freeze::EvictorIteratorI::hasNext()
 {
-    if(_dbc == 0)
-    {
-	throw Freeze::IteratorDestroyedException(__FILE__, __LINE__);
-    }
-
-    if(_currentSet)
+    if(_batchIterator != _batch.end()) 
     {
 	return true;
     }
     else
-    {	
-	//
-	// Keep 0 length since we're not interested in the data
-	//
-	Dbt dbValue;
-	dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
-	
-	for(;;)
-	{
-	    Dbt dbKey;
-	    initializeOutDbt(_key, dbKey);
-
-	    try
-	    {
-		if(_dbc->get(&dbKey, &dbValue, DB_NEXT) == 0)
-		{
-		    _key.resize(dbKey.get_size());
-		    unmarshal(_current, _key, _communicator);
-		    
-		    if(_current.facet.size() == 0)
-		    {
-			_currentSet = true;
-			return true;
-		    }
-		    //
-		    // Otherwise loop
-		    //
-		}
-		else
-		{
-		    return false;
-		}
-	    }
-	    catch(const ::DbMemoryException dx)
-	    {
-		if(dbKey.get_size() > dbKey.get_ulen())
-		{
-		    //
-		    // Let's resize _key
-		    //
-		    _key.resize(dbKey.get_size());
-		    initializeOutDbt(_key, dbKey);
-		}
-		else
-		{
-		    //
-		    // Real problem
-		    //
-		    DatabaseException ex(__FILE__, __LINE__);
-		    ex.message = dx.what();
-		    throw ex;
-		}
-	    }
-	    catch(const ::DbDeadlockException& dx)
-	    {
-		DeadlockException ex(__FILE__, __LINE__);
-		ex.message = dx.what();
-		throw ex;
-	    }
-	    catch(const ::DbException& dx)
-	    {
-		DatabaseException ex(__FILE__, __LINE__);
-		ex.message = dx.what();
-		throw ex;
-	    }
-	}
+    {
+	_batchIterator = nextBatch();
+	return (_batchIterator != _batch.end());
     }
 }
 
@@ -2174,8 +2282,7 @@ Freeze::EvictorIteratorI::next()
 {
     if(hasNext())
     {
-	_currentSet = false;
-	return _current.identity;
+	return *_batchIterator++;
     }
     else
     {
@@ -2183,32 +2290,189 @@ Freeze::EvictorIteratorI::next()
     }
 }
 
-void
-Freeze::EvictorIteratorI::destroy()
+
+vector<Identity>::const_iterator
+Freeze::EvictorIteratorI::nextBatch()
 {
-    if(_dbc == 0)
+    _batch.clear();
+
+    if(!_more)
     {
-	throw Freeze::IteratorDestroyedException(__FILE__, __LINE__);
+	return _batch.end();
+    }
+
+    vector<EvictorI::EvictorElementPtr> evictorElements;
+    evictorElements.reserve(_batchSize);
+     
+    Key previousKey = _key;
+    int loadedGeneration = 0;
+
+    try
+    {
+	for(;;)
+	{
+	    _batch.clear();
+	    evictorElements.clear();
+	    
+	    Int count = _batchSize;
+	    
+	    Dbt dbKey;
+	    initializeOutDbt(_key, dbKey);
+
+	    Dbt dbValue;
+	    if(_loadServants)
+	    {
+		initializeOutDbt(_value, dbValue);
+	    }
+	    else
+	    {
+		dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
+	    }
+
+	    Dbc* dbc = 0;
+	    try
+	    {
+		//
+		// Move to the first record
+		// 
+		uint32_t flags = DB_NEXT;
+		if(_key.size() > 0)
+		{
+		    //
+		    // _key represents the next element not yet returned
+		    // if it has been deleted, we want the one after
+		    //
+		    flags = DB_SET_RANGE;
+
+		    //
+		    // Will be used as input as well
+		    //
+		    dbKey.set_size(previousKey.size());
+		}
+		
+		if(_loadServants)
+		{
+		    loadedGeneration = _evictor.currentGeneration();
+		}
+
+		_evictor.db()->cursor(0, &dbc, 0);
+		
+		for(;;)
+		{
+		    try
+		    {
+			_more = (dbc->get(&dbKey, &dbValue, flags) == 0);
+			if(_more)
+			{
+			    _key.resize(dbKey.get_size());
+			    //
+			    // No need to resize data as we never use it as input
+			    //
+			}
+			break;
+		    }
+		    catch(const DbMemoryException& dx)
+		    {
+			handleMemoryException(dx, _key, dbKey, _value, dbValue);
+		    }
+		}
+		
+		while(count > 0 && _more)
+		{
+		    EvictorStorageKey esk;
+		    unmarshal(esk, _key, _evictor.communicator());
+		    
+		    //
+		    // Because of the Ice encoding and default binary comparison, records with
+		    // facet length = 0 are before records with facet length > 0 (for a given
+		    // identity).
+		    //
+		    assert(esk.facet.size() == 0);
+		    
+		    const Identity& ident = esk.identity;
+		    _batch.push_back(ident);
+		    count--;
+		    
+		    //
+		    // Even when count is 0, we read one more record (unless we reach the end)
+		    //
+		    if(_loadServants)
+		    {
+			_more = _evictor.load(ident, dbc, _key, _value, evictorElements);
+		    }
+		    else
+		    {
+			_more = _evictor.skipFacets(ident, dbc, _key);
+		    }
+		}
+		
+		Dbc* toClose = dbc;
+		dbc = 0;
+		toClose->close();
+		break; // for (;;)
+	    }
+	    catch(const DbDeadlockException&)
+	    {
+		if(dbc != 0)
+		{
+		    try
+		    {
+			dbc->close();
+		    }
+		    catch(const DbDeadlockException&)
+		    {
+			//
+			// Ignored
+			//
+		    }
+		}
+		_key = previousKey;
+		//
+		// Retry
+		//
+	    }
+	    catch(...)
+	    {
+		if(dbc != 0)
+		{
+		    try
+		    {
+			dbc->close();
+		    }
+		    catch(const DbDeadlockException&)
+		    {
+			//
+			// Ignored
+			//
+		    }
+		}
+		throw;
+	    }
+	}
+    }
+    catch(const DbException& dx)
+    {
+	DatabaseException ex(__FILE__, __LINE__);
+	ex.message = dx.what();
+	throw ex;
+    }
+    
+    if(_batch.size() == 0)
+    {
+	return _batch.end();
     }
     else
     {
-	try
+	if(_loadServants)
 	{
-	    _dbc->close();
+	    _evictor.insert(_batch, evictorElements, loadedGeneration);
 	}
-	catch(const ::DbDeadlockException&)
-	{
-	    // Ignored
-	}
-	catch(const ::DbException& dx)
-	{
-	    DatabaseException ex(__FILE__, __LINE__);
-	    ex.message = dx.what();
-	    throw ex;
-	}
-	_dbc = 0;
+	return _batch.begin();
     }
 }
+
+
+
 
 //
 // Print for the various exception types.
@@ -2226,13 +2490,6 @@ Freeze::NoSuchElementException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nno such element";
-}
-
-void
-Freeze::IteratorDestroyedException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\niterator destroyed";
 }
 
 void

@@ -588,7 +588,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     }
 
     public EvictorIterator
-    getIterator()
+    getIterator(int batchSize, boolean loadServants)
     {
 	synchronized(this)
 	{
@@ -599,7 +599,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    saveNowNoSync();
 	}
 
-	return new EvictorIteratorI(_db, _communicator, _errorPrefix);
+	return new EvictorIteratorI(this, batchSize, loadServants);
     }
 
     public boolean
@@ -1093,6 +1093,11 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    // per transaction
 	    //
 	    int txSize = streamedObjectQueue.size();
+	    if(txSize > _maxTxSize)
+	    {
+		txSize = _maxTxSize;
+	    }
+
 	    boolean tryAgain;
 	    
 	    do
@@ -1217,6 +1222,118 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	}
     }
 
+    Ice.Communicator
+    communicator()
+    {
+	return _communicator;
+    }
+
+    com.sleepycat.db.Db
+    db()
+    {
+	return _db;
+    }
+
+    synchronized int
+    currentGeneration()
+    {
+	return _generation;
+    }
+
+    String
+    errorPrefix()
+    {
+	return _errorPrefix;
+    }
+    
+    boolean
+    load(Ice.Identity ident, com.sleepycat.db.Dbc dbc, 
+	 com.sleepycat.db.Dbt key, com.sleepycat.db.Dbt value, java.util.List evictorElements)
+	throws com.sleepycat.db.DbException
+    {
+	byte[] root = marshalRootKey(ident, _communicator);
+	EvictorElement elt = new EvictorElement();
+	int rs = 0;
+	do
+	{
+	    //
+	    // Unmarshal key and data and insert it into elt's facet map
+	    //
+	    EvictorStorageKey esk = unmarshalKey(key.get_data(), _communicator);
+	    
+	    Facet facet = new Facet(elt);
+	    facet.status = clean;
+	    facet.rec = unmarshalValue(value.get_data(), _communicator);
+	    facet.path = esk.facet;
+	    assert(facet.path != null);
+	    elt.facets.put(new StringArray(esk.facet), facet);
+	    if(esk.facet.length == 0)
+	    {
+		elt.mainObject = facet;
+	    }
+
+	    rs = dbc.get(key, value, com.sleepycat.db.Db.DB_NEXT);
+	}
+	while(rs == 0 && startWith(key.get_data(), root));
+
+	buildFacetMap(elt.facets);	
+	evictorElements.add(elt);
+	return (rs == 0);
+    }
+
+    boolean
+    skipFacets(Ice.Identity ident, com.sleepycat.db.Dbc dbc, 
+	       com.sleepycat.db.Dbt key, com.sleepycat.db.Dbt value)
+	throws com.sleepycat.db.DbException
+    {
+	byte[] root = marshalRootKey(ident, _communicator);
+	int rs = 0;
+	do
+	{
+	    rs = dbc.get(key, value, com.sleepycat.db.Db.DB_NEXT);
+	}
+	while(rs == 0 && startWith(key.get_data(), root));
+	return (rs == 0);
+    }
+
+
+    void
+    insert(java.util.List identities, java.util.List evictorElements, int loadedGeneration)
+    {
+	assert(identities.size() == evictorElements.size());
+	
+	int size = identities.size();
+	
+	if(size > 0)
+	{
+	    synchronized(this)
+	    {
+		if(_deactivated)
+		{
+		    throw new EvictorDeactivatedException();
+		}
+
+		if(_generation == loadedGeneration)
+		{
+		    for(int i = 0; i < size; ++i)
+		    {
+			Ice.Identity ident = (Ice.Identity) identities.get(i);
+			
+			EvictorElement element = (EvictorElement)_evictorMap.get(ident);
+			
+			if(element == null)
+			{
+			    element = insertElement(null, ident, (EvictorElement) evictorElements.get(i));
+			}
+		    }
+		}
+		//
+		// Otherwise we don't insert them
+		//
+	    }
+	}
+    }
+
     static byte[]
     marshalRootKey(Ice.Identity v, Ice.Communicator communicator)
     {
@@ -1335,6 +1452,17 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 
 	_savePeriod = _communicator.getProperties().getPropertyAsIntWithDefault(
 	    propertyPrefix + ".SavePeriod", 60 * 1000);
+
+	//
+	// By default, we save at most 10 * SaveSizeTrigger objects per transaction
+	//
+	_maxTxSize = _communicator.getProperties().getPropertyAsIntWithDefault(
+	    propertyPrefix + ".MaxTxSize", 10 * _saveSizeTrigger);
+
+	if(_maxTxSize <= 0)
+	{
+	    _maxTxSize = 100;
+	}
 	
 	try
 	{
@@ -1497,6 +1625,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     private void
     saveNowNoSync()
     {
+	checkSavingThread();
+	
 	Thread myself = Thread.currentThread();
 
 	_saveNowThreads.add(myself);
@@ -1505,12 +1635,28 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	{
 	    try
 	    {
-		wait();
+		//
+		// The timeout is to wake up in the event the saving thread
+		// dies.
+		//
+		wait(15 * 1000);
 	    }
 	    catch(InterruptedException ex)
 	    {
 	    }
+	    checkSavingThread();
 	} while(_saveNowThreads.contains(myself));
+    }
+
+    private void
+    checkSavingThread()
+    {
+	if(!_thread.isAlive())
+	{
+	    DatabaseException ex = new DatabaseException();
+	    ex.message = _errorPrefix + "saving thread is dead";
+	    throw ex;
+	}
     }
     
     private byte[]
@@ -1639,7 +1785,15 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	//
 	// Let's fix-up the facets tree in result
 	//
-	java.util.Iterator p = result.facets.entrySet().iterator();
+	buildFacetMap(result.facets);
+	
+	return result;
+    }
+
+    private void
+    buildFacetMap(java.util.Map facets)
+    {
+	java.util.Iterator p = facets.entrySet().iterator();
 	
 	while(p.hasNext())
 	{
@@ -1651,7 +1805,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    {
 		String[] parent = new String[path.length - 1];
 		System.arraycopy(path, 0, parent, 0, path.length - 1);
-		Facet parentFacet = (Facet) result.facets.get(new StringArray(parent));
+		Facet parentFacet = (Facet) facets.get(new StringArray(parent));
 		if(parentFacet == null)
 		{
 		    //
@@ -1666,8 +1820,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		}
 	    }
 	}
-
-	return result;
     }
     
     private EvictorElement
@@ -2030,6 +2182,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     private java.util.List _saveNowThreads = new java.util.ArrayList();
 
     private int _saveSizeTrigger;
+    private int _maxTxSize;
+
     private long _savePeriod;
     private long _lastSave;
 

@@ -83,13 +83,18 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
     public void
     destroyAllServants(Ice.Current current)
     {
-	Freeze.EvictorIterator p = _evictor.getIterator();
+	//
+	// Only for test purpose: don't use such a small value in 
+	// a real application!
+	//
+	int batchSize = 2;
+
+	Freeze.EvictorIterator p = _evictor.getIterator(batchSize, false);
 	while(p.hasNext())
 	{
-	    _evictor.destroyObject(p.next());
+	    _evictor.destroyObject((Ice.Identity) p.next());
+	    _evictor.saveNow();
 	}
-	p.destroy();
-	_evictor.saveNow();
     }
 
     void

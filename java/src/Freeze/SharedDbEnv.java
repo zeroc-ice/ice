@@ -97,7 +97,8 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 
 		if(_trace >= 1)
 		{
-		    _key.communicator.getLogger().trace("Freeze.DbEnv", "closing database environment \"" + _key.envName + "\"");
+		    _key.communicator.getLogger().trace
+			("Freeze.DbEnv", "closing database environment \"" + _key.envName + "\"");
 		}
 
 		//
@@ -208,7 +209,8 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
     public void 
     errcall(String errorPrefix, String message)
     {
-	_key.communicator.getLogger().error("Freeze database error in DbEnv \"" + _key.envName + "\": " + message);
+	_key.communicator.getLogger().error
+	    ("Freeze database error in DbEnv \"" + _key.envName + "\": " + message);
     }
 
     protected void 
@@ -227,7 +229,8 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 	
 	if(_trace >= 1)
 	{
-	    _key.communicator.getLogger().trace("Freeze.DbEnv", "opening database environment \"" + _key.envName + "\"");
+	    _key.communicator.getLogger().trace
+		("Freeze.DbEnv", "opening database environment \"" + _key.envName + "\"");
 	}
 
 	String propertyPrefix = "Freeze.DbEnv." + _key.envName;

@@ -220,6 +220,12 @@ Changes since version 1.1.1
        wakes up every SavePeriod ms and saves any created, modified or
        destroyed object. When set to 0, there is no periodic wake up.
        Defaults to 1 minute (60,000 ms).
+
+     - Freeze.Evictor.<envName>.<dbName>.MaxTxSize: the saving thread
+       saves objects (facets) using transactions. MaxTxSize sets the 
+       maximum number of objects saved by a single transaction.
+       Defaults to 10 * SaveSizeTrigger; if the provided or default
+       value is negative, the actual value is set to 100.
  
     And instead of saving full objects, Freeze now saves on a per facet
     basis -- but still loads complete objects (with all their facets).
@@ -248,6 +254,14 @@ Changes since version 1.1.1
     synchronization is performed: it is recommended to only use this
     feature with explict saves (SaveSizeTrigger set to -1 and
     SavePeriod set to 0). NoSyncAllowed defaults to 0.
+ 
+    The EvictorIterator also changed slightly: the destroy operation
+    has been removed. More importantly, identities are now retrieved
+    in batch (internally) and the application can request that
+    the corresponding servants be loaded. This is achieved with
+    the new parameters of Evictor::getIterator:
+
+      EvictorIterator getIterator(int batchSize, bool loadServants);
 
  - Freeze now requires Berkeley DB 4.1. It no longer compiles with older
    Berkeley DB releases.

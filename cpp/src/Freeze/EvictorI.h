@@ -51,7 +51,7 @@ public:
     virtual void removeAllFacets(const Ice::Identity&);
 
     virtual void installServantInitializer(const ServantInitializerPtr&);
-    virtual EvictorIteratorPtr getIterator();
+    virtual EvictorIteratorPtr getIterator(Ice::Int, bool);
     virtual bool hasObject(const Ice::Identity&);
 
     virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
@@ -62,6 +62,19 @@ public:
     // Thread
     //
     virtual void run();
+
+
+    //
+    // For the iterator:
+    //
+    const Ice::CommunicatorPtr&
+    communicator() const;
+
+    Db*
+    db() const;
+
+    int
+    currentGeneration() const;
 
     //
     // Should be private, but the Sun C++ compiler forces us to
@@ -94,6 +107,19 @@ public:
 	const Ice::Identity* identity;
 	FacetPtr mainObject;
     };
+
+    //
+    // For the iterator:
+    //
+    bool
+    load(const Ice::Identity&, Dbc*, Key&, Value&, std::vector<EvictorElementPtr>&);
+
+    bool
+    skipFacets(const Ice::Identity&, Dbc*, Key&);
+
+    void 
+    insert(const std::vector<Ice::Identity>&, const std::vector<EvictorElementPtr>&, int);
+
 
     //
     // Streamed objects
@@ -160,10 +186,12 @@ private:
 
     EvictorElementPtr load(const Ice::Identity&);
     EvictorMap::iterator insertElement(const Ice::ObjectAdapterPtr&, const Ice::Identity&, const EvictorElementPtr&);
-
+  
     void addFacetImpl(EvictorElementPtr&, const Ice::ObjectPtr&, const Ice::FacetPath&, bool);
     void removeFacetImpl(FacetMap&,  const Ice::FacetPath&);
     Ice::ObjectPtr destroyFacetImpl(FacetMap::iterator&, const FacetPtr& facet);
+
+    void buildFacetMap(const FacetMap&);
     
     inline void writeObjectRecordToValue(Ice::Long, ObjectRecord&, Value&);
 
@@ -206,6 +234,7 @@ private:
     std::deque<IceUtil::ThreadControl> _saveNowThreads;
 
     Ice::Int _saveSizeTrigger;
+    Ice::Int _maxTxSize;
     IceUtil::Time _savePeriod;
     IceUtil::Time _lastSave;
 
@@ -223,6 +252,25 @@ private:
     //
     int _generation;
 };
+
+inline const Ice::CommunicatorPtr&
+EvictorI::communicator() const
+{
+    return _communicator;
+}
+
+inline Db*
+EvictorI::db() const
+{
+    return _db.get();
+}
+
+inline int
+EvictorI::currentGeneration() const
+{
+    Lock sync(*this);
+    return _generation;
+}
 
 }
 
