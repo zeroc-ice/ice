@@ -64,7 +64,7 @@ IceInternal::Emitter::sendRequest(Outgoing* out, bool oneway)
 
     if (_exception.get())
     {
-	_exception->raise();
+	_exception->_throw();
     }
     assert(_state == StateActive);
     
@@ -99,7 +99,7 @@ IceInternal::Emitter::sendRequest(Outgoing* out, bool oneway)
     catch(const LocalException& ex)
     {
 	setState(StateClosed, ex);
-	ex.raise();
+	ex._throw();
     }
     
     //
@@ -120,7 +120,7 @@ IceInternal::Emitter::prepareBatchRequest(Outgoing* out)
     if (_exception.get())
     {
 	unlock();
-	_exception->raise();
+	_exception->_throw();
     }
     assert(_state == StateActive);
 
@@ -150,7 +150,7 @@ IceInternal::Emitter::finishBatchRequest(Outgoing* out)
     if (_exception.get())
     {
 	unlock();
-	_exception->raise();
+	_exception->_throw();
     }
     assert(_state == StateActive);
 
@@ -172,7 +172,7 @@ IceInternal::Emitter::flushBatchRequest()
 
     if (_exception.get())
     {
-	_exception->raise();
+	_exception->_throw();
     }
     assert(_state == StateActive);
     
@@ -206,7 +206,7 @@ IceInternal::Emitter::flushBatchRequest()
     catch(const LocalException& ex)
     {
 	setState(StateClosed, ex);
-	ex.raise();
+	ex._throw();
     }
 }
 
@@ -405,7 +405,7 @@ IceInternal::Emitter::setState(State state, const LocalException& ex)
     
     if (!_exception.get())
     {
-	_exception = auto_ptr<LocalException>(ex.clone());
+	_exception = auto_ptr<LocalException>(ex._clone());
     }
 
     for (std::map< ::Ice::Int, Outgoing*>::iterator p = _requests.begin(); p != _requests.end(); ++p)
@@ -487,11 +487,11 @@ IceInternal::EmitterFactory::create(const vector<EndpointPtr>& endpoints)
 	}
 	catch (const SocketException& ex)
 	{
-	    exception = auto_ptr<LocalException>(ex.clone());
+	    exception = auto_ptr<LocalException>(ex._clone());
 	}
 	catch (const DNSException& ex)
 	{
-	    exception = auto_ptr<LocalException>(ex.clone());
+	    exception = auto_ptr<LocalException>(ex._clone());
 	}
 
 	++q;
@@ -516,7 +516,7 @@ IceInternal::EmitterFactory::create(const vector<EndpointPtr>& endpoints)
     if (!emitter)
     {
 	assert(exception.get());
-	exception -> raise();
+	exception->_throw();
     }
 
     return emitter;

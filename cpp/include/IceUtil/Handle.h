@@ -41,17 +41,22 @@ public:
 	return *this;
     }
 
-    virtual std::string toString() const
+    virtual std::string _name() const
     {
-	return debugInfo() + "operation call on null handle";
+	return "IceUtil::NullHandleException";
     }
 
-    virtual NullHandleException* clone() const
+    virtual std::string _description() const
+    {
+	return "operation call on null handle";
+    }
+
+    virtual NullHandleException* _clone() const
     {
 	return new NullHandleException(*this);
     }
 
-    virtual void raise() const
+    virtual void _throw() const
     {
 	throw *this;
     }

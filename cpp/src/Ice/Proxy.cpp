@@ -279,7 +279,7 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 
     try
     {
-	ex.raise();
+	ex._throw();
     }
     catch (const CloseConnectionException&)
     {
@@ -309,7 +309,7 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 	    s << "cannot retry operation call because retry limit has been exceeded\n" << ex;
 	    logger->trace(traceLevels->retryCat, s.str());
 	}
-	ex.raise();
+	ex._throw();
     }
 
     if (traceLevels->retry >= 1)
@@ -359,7 +359,7 @@ IceProxy::Ice::Object::__rethrowException(const LocalException& ex)
 
     _delegate = 0;
 
-    ex.raise();
+    ex._throw();
 }
 
 IceProxy::Ice::Object::Object()

@@ -20,12 +20,12 @@ using namespace IceInternal;
 
 IceInternal::NonRepeatable::NonRepeatable(const NonRepeatable& ex)
 {
-    _ex = auto_ptr<LocalException>(ex.get()->clone());
+    _ex = auto_ptr<LocalException>(ex.get()->_clone());
 }
 
 IceInternal::NonRepeatable::NonRepeatable(const ::Ice::LocalException& ex)
 {
-    _ex = auto_ptr<LocalException>(ex.clone());
+    _ex = auto_ptr<LocalException>(ex._clone());
 }
 
 const ::Ice::LocalException*
@@ -134,7 +134,7 @@ IceInternal::Outgoing::invoke()
 		//
 		if(dynamic_cast<const CloseConnectionException*>(_exception.get()))
 		{
-		    _exception->raise();
+		    _exception->_throw();
 		}
 		
 		//
@@ -258,7 +258,7 @@ IceInternal::Outgoing::finished(const LocalException& ex)
     if (_state == StateInProgress)
     {
 	_state = StateLocalException;
-	_exception = auto_ptr<LocalException>(ex.clone());
+	_exception = auto_ptr<LocalException>(ex._clone());
 	notify();
     }
 }

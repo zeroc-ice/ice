@@ -33,20 +33,25 @@ Ice::UnknownException::operator=(const UnknownException& ex)
 }
 
 string
-Ice::UnknownException::toString() const
+Ice::UnknownException::_name() const
 {
-    string s = debugInfo() + "unknown exception";
-    return s;
+    return "Ice::UnknownException";
+}
+
+string
+Ice::UnknownException::_description() const
+{
+    return "unknown exception";
 }
 
 LocalException*
-Ice::UnknownException::clone() const
+Ice::UnknownException::_clone() const
 {
     return new UnknownException(*this);
 }
 
 void
-Ice::UnknownException::raise() const
+Ice::UnknownException::_throw() const
 {
     throw *this;
 }
@@ -69,20 +74,25 @@ Ice::UnknownUserException::operator=(const UnknownUserException& ex)
 }
 
 string
-Ice::UnknownUserException::toString() const
+Ice::UnknownUserException::_name() const
 {
-    string s = debugInfo() + "unknown user exception";
-    return s;
+    return "Ice::UnknownUserException";
+}
+
+string
+Ice::UnknownUserException::_description() const
+{
+    return "unknown user exception";
 }
 
 LocalException*
-Ice::UnknownUserException::clone() const
+Ice::UnknownUserException::_clone() const
 {
     return new UnknownUserException(*this);
 }
 
 void
-Ice::UnknownUserException::raise() const
+Ice::UnknownUserException::_throw() const
 {
     throw *this;
 }
@@ -105,20 +115,25 @@ Ice::VersionMismatchException::operator=(const VersionMismatchException& ex)
 }
 
 string
-Ice::VersionMismatchException::toString() const
+Ice::VersionMismatchException::_name() const
 {
-    string s = debugInfo() + "Ice library version mismatch";
-    return s;
+    return "Ice::VersionMismatchException";
+}
+
+string
+Ice::VersionMismatchException::_description() const
+{
+    return "Ice library version mismatch";
 }
 
 LocalException*
-Ice::VersionMismatchException::clone() const
+Ice::VersionMismatchException::_clone() const
 {
     return new VersionMismatchException(*this);
 }
 
 void
-Ice::VersionMismatchException::raise() const
+Ice::VersionMismatchException::_throw() const
 {
     throw *this;
 }
@@ -141,20 +156,25 @@ Ice::CommunicatorDestroyedException::operator=(const CommunicatorDestroyedExcept
 }
 
 string
-Ice::CommunicatorDestroyedException::toString() const
+Ice::CommunicatorDestroyedException::_name() const
 {
-    string s = debugInfo() + "communicator object destroyed";
-    return s;
+    return "Ice::CommunicatorDestroyedException";
+}
+
+string
+Ice::CommunicatorDestroyedException::_description() const
+{
+    return "communicator object destroyed";
 }
 
 LocalException*
-Ice::CommunicatorDestroyedException::clone() const
+Ice::CommunicatorDestroyedException::_clone() const
 {
     return new CommunicatorDestroyedException(*this);
 }
 
 void
-Ice::CommunicatorDestroyedException::raise() const
+Ice::CommunicatorDestroyedException::_throw() const
 {
     throw *this;
 }
@@ -177,20 +197,25 @@ Ice::ObjectAdapterDeactivatedException::operator=(const ObjectAdapterDeactivated
 }
 
 string
-Ice::ObjectAdapterDeactivatedException::toString() const
+Ice::ObjectAdapterDeactivatedException::_name() const
 {
-    string s = debugInfo() + "object adapter deactivated";
-    return s;
+    return "Ice::ObjectAdapterDeactivatedException";
+}
+
+string
+Ice::ObjectAdapterDeactivatedException::_description() const
+{
+    return "object adapter deactivated";
 }
 
 LocalException*
-Ice::ObjectAdapterDeactivatedException::clone() const
+Ice::ObjectAdapterDeactivatedException::_clone() const
 {
     return new ObjectAdapterDeactivatedException(*this);
 }
 
 void
-Ice::ObjectAdapterDeactivatedException::raise() const
+Ice::ObjectAdapterDeactivatedException::_throw() const
 {
     throw *this;
 }
@@ -213,20 +238,25 @@ Ice::NoEndpointException::operator=(const NoEndpointException& ex)
 }
 
 string
-Ice::NoEndpointException::toString() const
+Ice::NoEndpointException::_name() const
 {
-    string s = debugInfo() + "no suitable endpoint available";
-    return s;
+    return "Ice::NoEndpointException";
+}
+
+string
+Ice::NoEndpointException::_description() const
+{
+    return "no suitable endpoint available";
 }
 
 LocalException*
-Ice::NoEndpointException::clone() const
+Ice::NoEndpointException::_clone() const
 {
     return new NoEndpointException(*this);
 }
 
 void
-Ice::NoEndpointException::raise() const
+Ice::NoEndpointException::_throw() const
 {
     throw *this;
 }
@@ -249,20 +279,25 @@ Ice::EndpointParseException::operator=(const EndpointParseException& ex)
 }
 
 string
-Ice::EndpointParseException::toString() const
+Ice::EndpointParseException::_name() const
 {
-    string s = debugInfo() + "error while parsing endpoint";
-    return s;
+    return "Ice::EndpointParseException";
+}
+
+string
+Ice::EndpointParseException::_description() const
+{
+    return "error while parsing endpoint";
 }
 
 LocalException*
-Ice::EndpointParseException::clone() const
+Ice::EndpointParseException::_clone() const
 {
     return new EndpointParseException(*this);
 }
 
 void
-Ice::EndpointParseException::raise() const
+Ice::EndpointParseException::_throw() const
 {
     throw *this;
 }
@@ -285,20 +320,25 @@ Ice::ReferenceParseException::operator=(const ReferenceParseException& ex)
 }
 
 string
-Ice::ReferenceParseException::toString() const
+Ice::ReferenceParseException::_name() const
 {
-    string s = debugInfo() + "error while parsing reference";
-    return s;
+    return "Ice::ReferenceParseException";
+}
+
+string
+Ice::ReferenceParseException::_description() const
+{
+    return "error while parsing reference";
 }
 
 LocalException*
-Ice::ReferenceParseException::clone() const
+Ice::ReferenceParseException::_clone() const
 {
     return new ReferenceParseException(*this);
 }
 
 void
-Ice::ReferenceParseException::raise() const
+Ice::ReferenceParseException::_throw() const
 {
     throw *this;
 }
@@ -321,20 +361,25 @@ Ice::ReferenceIdentityException::operator=(const ReferenceIdentityException& ex)
 }
 
 string
-Ice::ReferenceIdentityException::toString() const
+Ice::ReferenceIdentityException::_name() const
 {
-    string s = debugInfo() + "reference identity mismatch in location forward";
-    return s;
+    return "Ice::ReferenceIdentityException";
+}
+
+string
+Ice::ReferenceIdentityException::_description() const
+{
+    return "reference identity mismatch in location forward";
 }
 
 LocalException*
-Ice::ReferenceIdentityException::clone() const
+Ice::ReferenceIdentityException::_clone() const
 {
     return new ReferenceIdentityException(*this);
 }
 
 void
-Ice::ReferenceIdentityException::raise() const
+Ice::ReferenceIdentityException::_throw() const
 {
     throw *this;
 }
@@ -357,20 +402,25 @@ Ice::ObjectNotExistException::operator=(const ObjectNotExistException& ex)
 }
 
 string
-Ice::ObjectNotExistException::toString() const
+Ice::ObjectNotExistException::_name() const
 {
-    string s = debugInfo() + "object does not exist";
-    return s;
+    return "Ice::ObjectNotExistException";
+}
+
+string
+Ice::ObjectNotExistException::_description() const
+{
+    return "object does not exist";
 }
 
 LocalException*
-Ice::ObjectNotExistException::clone() const
+Ice::ObjectNotExistException::_clone() const
 {
     return new ObjectNotExistException(*this);
 }
 
 void
-Ice::ObjectNotExistException::raise() const
+Ice::ObjectNotExistException::_throw() const
 {
     throw *this;
 }
@@ -393,20 +443,25 @@ Ice::OperationNotExistException::operator=(const OperationNotExistException& ex)
 }
 
 string
-Ice::OperationNotExistException::toString() const
+Ice::OperationNotExistException::_name() const
 {
-    string s = debugInfo() + "operation does not exist";
-    return s;
+    return "Ice::OperationNotExistException";
+}
+
+string
+Ice::OperationNotExistException::_description() const
+{
+    return "operation does not exist";
 }
 
 LocalException*
-Ice::OperationNotExistException::clone() const
+Ice::OperationNotExistException::_clone() const
 {
     return new OperationNotExistException(*this);
 }
 
 void
-Ice::OperationNotExistException::raise() const
+Ice::OperationNotExistException::_throw() const
 {
     throw *this;
 }
@@ -429,20 +484,25 @@ Ice::NoServantFactoryException::operator=(const NoServantFactoryException& ex)
 }
 
 string
-Ice::NoServantFactoryException::toString() const
+Ice::NoServantFactoryException::_name() const
 {
-    string s = debugInfo() + "no servant factory found for the requested servant type";
-    return s;
+    return "Ice::NoServantFactoryException";
+}
+
+string
+Ice::NoServantFactoryException::_description() const
+{
+    return "no servant factory found for the requested servant type";
 }
 
 LocalException*
-Ice::NoServantFactoryException::clone() const
+Ice::NoServantFactoryException::_clone() const
 {
     return new NoServantFactoryException(*this);
 }
 
 void
-Ice::NoServantFactoryException::raise() const
+Ice::NoServantFactoryException::_throw() const
 {
     throw *this;
 }
@@ -469,27 +529,32 @@ Ice::SystemException::operator=(const SystemException& ex)
     LocalException::operator=(ex);
 
     if (this != &ex)
+    {
 	_error = ex._error;
+    }
 
     return *this;
 }
 
 string
-Ice::SystemException::toString() const
+Ice::SystemException::_name() const
 {
-    string s = debugInfo() + "system exception: ";
-    s += errorToString(_error);
-    return s;
+    return "Ice::SystemException";
+}
+string
+Ice::SystemException::_description() const
+{
+    return "system exception: " + errorToString(_error);
 }
 
 LocalException*
-Ice::SystemException::clone() const
+Ice::SystemException::_clone() const
 {
     return new SystemException(*this);
 }
 
 void
-Ice::SystemException::raise() const
+Ice::SystemException::_throw() const
 {
     throw *this;
 }
@@ -519,21 +584,25 @@ Ice::SocketException::operator=(const SocketException& ex)
 }
 
 string
-Ice::SocketException::toString() const
+Ice::SocketException::_name() const
 {
-    string s = debugInfo() + "socket exception: ";
-    s += errorToString(_error);
-    return s;
+    return "Ice::SocketException";
+}
+
+string
+Ice::SocketException::_description() const
+{
+    return "system exception: " + errorToString(_error);
 }
 
 LocalException*
-Ice::SocketException::clone() const
+Ice::SocketException::_clone() const
 {
     return new SocketException(*this);
 }
 
 void
-Ice::SocketException::raise() const
+Ice::SocketException::_throw() const
 {
     throw *this;
 }
@@ -556,19 +625,25 @@ Ice::TimeoutException::operator=(const TimeoutException& ex)
 }
 
 string
-Ice::TimeoutException::toString() const
+Ice::TimeoutException::_name() const
 {
-    return debugInfo() + "timeout while sending or receiving data";
+    return "Ice::TimeoutException";
+}
+
+string
+Ice::TimeoutException::_description() const
+{
+    return "timeout while sending or receiving data";
 }
 
 LocalException*
-Ice::TimeoutException::clone() const
+Ice::TimeoutException::_clone() const
 {
     return new TimeoutException(*this);
 }
 
 void
-Ice::TimeoutException::raise() const
+Ice::TimeoutException::_throw() const
 {
     throw *this;
 }
@@ -591,19 +666,25 @@ Ice::ConnectTimeoutException::operator=(const ConnectTimeoutException& ex)
 }
 
 string
-Ice::ConnectTimeoutException::toString() const
+Ice::ConnectTimeoutException::_name() const
 {
-    return debugInfo() + "timeout while establishing a connection";
+    return "Ice::ConnectTimeoutException";
+}
+
+string
+Ice::ConnectTimeoutException::_description() const
+{
+    return "timeout while establishing a connection";
 }
 
 LocalException*
-Ice::ConnectTimeoutException::clone() const
+Ice::ConnectTimeoutException::_clone() const
 {
     return new ConnectTimeoutException(*this);
 }
 
 void
-Ice::ConnectTimeoutException::raise() const
+Ice::ConnectTimeoutException::_throw() const
 {
     throw *this;
 }
@@ -626,21 +707,25 @@ Ice::ConnectFailedException::operator=(const ConnectFailedException& ex)
 }
 
 string
-Ice::ConnectFailedException::toString() const
+Ice::ConnectFailedException::_name() const
 {
-    string s = debugInfo() + "connect failed: ";
-    s += errorToString(_error);
-    return s;
+    return "Ice::ConnectFailedException";
+}
+
+string
+Ice::ConnectFailedException::_description() const
+{
+    return "connect failed: " + errorToString(_error);
 }
 
 LocalException*
-Ice::ConnectFailedException::clone() const
+Ice::ConnectFailedException::_clone() const
 {
     return new ConnectFailedException(*this);
 }
 
 void
-Ice::ConnectFailedException::raise() const
+Ice::ConnectFailedException::_throw() const
 {
     throw *this;
 }
@@ -663,24 +748,34 @@ Ice::ConnectionLostException::operator=(const ConnectionLostException& ex)
 }
 
 string
-Ice::ConnectionLostException::toString() const
+Ice::ConnectionLostException::_name() const
 {
-    string s = debugInfo() + "connection lost: ";
+    return "Ice::ConnectionLostException";
+}
+
+string
+Ice::ConnectionLostException::_description() const
+{
+    string s = "connection lost: ";
     if (_error == 0)
+    {
 	s += "recv() returned zero";
+    }
     else
+    {
 	s += errorToString(_error);
+    }
     return s;
 }
 
 LocalException*
-Ice::ConnectionLostException::clone() const
+Ice::ConnectionLostException::_clone() const
 {
     return new ConnectionLostException(*this);
 }
 
 void
-Ice::ConnectionLostException::raise() const
+Ice::ConnectionLostException::_throw() const
 {
     throw *this;
 }
@@ -706,21 +801,25 @@ Ice::DNSException::operator=(const DNSException& ex)
 }
 
 string
-Ice::DNSException::toString() const
+Ice::DNSException::_name() const
 {
-    string s = debugInfo() + "DNS error: ";
-    s += errorToStringDNS(_error);
-    return s;
+    return "Ice::DNSException";
+}
+
+string
+Ice::DNSException::_description() const
+{
+    return "DNS error: " + errorToStringDNS(_error);
 }
 
 LocalException*
-Ice::DNSException::clone() const
+Ice::DNSException::_clone() const
 {
     return new DNSException(*this);
 }
 
 void
-Ice::DNSException::raise() const
+Ice::DNSException::_throw() const
 {
     throw *this;
 }
@@ -760,19 +859,25 @@ Ice::UnmarshalOutOfBoundsException::operator=(const UnmarshalOutOfBoundsExceptio
 }
 
 string
-Ice::UnmarshalOutOfBoundsException::toString() const
+Ice::UnmarshalOutOfBoundsException::_name() const
 {
-    return debugInfo() + "protocol error: out of bounds during unmarshaling";
+    return "Ice::UnmarshalOutOfBoundsException";
+}
+
+string
+Ice::UnmarshalOutOfBoundsException::_description() const
+{
+    return "protocol error: out of bounds during unmarshaling";
 }
 
 LocalException*
-Ice::UnmarshalOutOfBoundsException::clone() const
+Ice::UnmarshalOutOfBoundsException::_clone() const
 {
     return new UnmarshalOutOfBoundsException(*this);
 }
 
 void
-Ice::UnmarshalOutOfBoundsException::raise() const
+Ice::UnmarshalOutOfBoundsException::_throw() const
 {
     throw *this;
 }
@@ -795,19 +900,25 @@ Ice::ServantUnmarshalException::operator=(const ServantUnmarshalException& ex)
 }
 
 string
-Ice::ServantUnmarshalException::toString() const
+Ice::ServantUnmarshalException::_name() const
 {
-    return debugInfo() + "protocol error: servant type does not match signature";
+    return "Ice::ServantUnmarshalException";
+}
+
+string
+Ice::ServantUnmarshalException::_description() const
+{
+    return "protocol error: servant type does not match signature";
 }
 
 LocalException*
-Ice::ServantUnmarshalException::clone() const
+Ice::ServantUnmarshalException::_clone() const
 {
     return new ServantUnmarshalException(*this);
 }
 
 void
-Ice::ServantUnmarshalException::raise() const
+Ice::ServantUnmarshalException::_throw() const
 {
     throw *this;
 }
@@ -830,19 +941,25 @@ Ice::StringEncodingException::operator=(const StringEncodingException& ex)
 }
 
 string
-Ice::StringEncodingException::toString() const
+Ice::StringEncodingException::_name() const
 {
-    return debugInfo() + "protocol error: string encoding error";
+    return "Ice::StringEncodingException";
+}
+
+string
+Ice::StringEncodingException::_description() const
+{
+    return "protocol error: string encoding error";
 }
 
 LocalException*
-Ice::StringEncodingException::clone() const
+Ice::StringEncodingException::_clone() const
 {
     return new StringEncodingException(*this);
 }
 
 void
-Ice::StringEncodingException::raise() const
+Ice::StringEncodingException::_throw() const
 {
     throw *this;
 }
@@ -865,19 +982,25 @@ Ice::MemoryLimitException::operator=(const MemoryLimitException& ex)
 }
 
 string
-Ice::MemoryLimitException::toString() const
+Ice::MemoryLimitException::_name() const
 {
-    return debugInfo() + "protocol error: memory limit exceeded";
+    return "Ice::MemoryLimitException";
+}
+
+string
+Ice::MemoryLimitException::_description() const
+{
+    return "protocol error: memory limit exceeded";
 }
 
 LocalException*
-Ice::MemoryLimitException::clone() const
+Ice::MemoryLimitException::_clone() const
 {
     return new MemoryLimitException(*this);
 }
 
 void
-Ice::MemoryLimitException::raise() const
+Ice::MemoryLimitException::_throw() const
 {
     throw *this;
 }
@@ -900,19 +1023,25 @@ Ice::EncapsulationException::operator=(const EncapsulationException& ex)
 }
 
 string
-Ice::EncapsulationException::toString() const
+Ice::EncapsulationException::_name() const
 {
-    return debugInfo() + "protocol error: illegal encapsulation";
+    return "Ice::EncapsulationException";
+}
+
+string
+Ice::EncapsulationException::_description() const
+{
+    return "protocol error: illegal encapsulation";
 }
 
 LocalException*
-Ice::EncapsulationException::clone() const
+Ice::EncapsulationException::_clone() const
 {
     return new EncapsulationException(*this);
 }
 
 void
-Ice::EncapsulationException::raise() const
+Ice::EncapsulationException::_throw() const
 {
     throw *this;
 }
@@ -935,19 +1064,25 @@ Ice::UnsupportedProtocolException::operator=(const UnsupportedProtocolException&
 }
 
 string
-Ice::UnsupportedProtocolException::toString() const
+Ice::UnsupportedProtocolException::_name() const
 {
-    return debugInfo() + "protocol error: unsupported protocol version";
+    return "Ice::UnsupportedProtocolException";
+}
+
+string
+Ice::UnsupportedProtocolException::_description() const
+{
+    return "protocol error: unsupported protocol version";
 }
 
 LocalException*
-Ice::UnsupportedProtocolException::clone() const
+Ice::UnsupportedProtocolException::_clone() const
 {
     return new UnsupportedProtocolException(*this);
 }
 
 void
-Ice::UnsupportedProtocolException::raise() const
+Ice::UnsupportedProtocolException::_throw() const
 {
     throw *this;
 }
@@ -970,19 +1105,25 @@ Ice::UnsupportedEncodingException::operator=(const UnsupportedEncodingException&
 }
 
 string
-Ice::UnsupportedEncodingException::toString() const
+Ice::UnsupportedEncodingException::_name() const
 {
-    return debugInfo() + "protocol error: unsupported encoding version";
+    return "Ice::UnsupportedEncodingException";
+}
+
+string
+Ice::UnsupportedEncodingException::_description() const
+{
+    return "protocol error: unsupported encoding version";
 }
 
 LocalException*
-Ice::UnsupportedEncodingException::clone() const
+Ice::UnsupportedEncodingException::_clone() const
 {
     return new UnsupportedEncodingException(*this);
 }
 
 void
-Ice::UnsupportedEncodingException::raise() const
+Ice::UnsupportedEncodingException::_throw() const
 {
     throw *this;
 }
@@ -1005,19 +1146,25 @@ Ice::InvalidMessageException::operator=(const InvalidMessageException& ex)
 }
 
 string
-Ice::InvalidMessageException::toString() const
+Ice::InvalidMessageException::_name() const
 {
-    return debugInfo() + "protocol error: invalid message type";
+    return "Ice::InvalidMessageException";
+}
+
+string
+Ice::InvalidMessageException::_description() const
+{
+    return "protocol error: invalid message type";
 }
 
 LocalException*
-Ice::InvalidMessageException::clone() const
+Ice::InvalidMessageException::_clone() const
 {
     return new InvalidMessageException(*this);
 }
 
 void
-Ice::InvalidMessageException::raise() const
+Ice::InvalidMessageException::_throw() const
 {
     throw *this;
 }
@@ -1040,19 +1187,25 @@ Ice::UnknownMessageException::operator=(const UnknownMessageException& ex)
 }
 
 string
-Ice::UnknownMessageException::toString() const
+Ice::UnknownMessageException::_name() const
 {
-    return debugInfo() + "protocol error: unknown message type";
+    return "Ice::UnknownMessageException";
+}
+
+string
+Ice::UnknownMessageException::_description() const
+{
+    return "protocol error: unknown message type";
 }
 
 LocalException*
-Ice::UnknownMessageException::clone() const
+Ice::UnknownMessageException::_clone() const
 {
     return new UnknownMessageException(*this);
 }
 
 void
-Ice::UnknownMessageException::raise() const
+Ice::UnknownMessageException::_throw() const
 {
     throw *this;
 }
@@ -1075,19 +1228,25 @@ Ice::UnknownRequestIdException::operator=(const UnknownRequestIdException& ex)
 }
 
 string
-Ice::UnknownRequestIdException::toString() const
+Ice::UnknownRequestIdException::_name() const
 {
-    return debugInfo() + "protocol error: unknown request id";
+    return "Ice::UnknownRequestIdException";
+}
+
+string
+Ice::UnknownRequestIdException::_description() const
+{
+    return "protocol error: unknown request id";
 }
 
 LocalException*
-Ice::UnknownRequestIdException::clone() const
+Ice::UnknownRequestIdException::_clone() const
 {
     return new UnknownRequestIdException(*this);
 }
 
 void
-Ice::UnknownRequestIdException::raise() const
+Ice::UnknownRequestIdException::_throw() const
 {
     throw *this;
 }
@@ -1110,19 +1269,25 @@ Ice::UnknownReplyStatusException::operator=(const UnknownReplyStatusException& e
 }
 
 string
-Ice::UnknownReplyStatusException::toString() const
+Ice::UnknownReplyStatusException::_name() const
 {
-    return debugInfo() + "protocol error: unknown reply status";
+    return "Ice::UnknownReplyStatusException";
+}
+
+string
+Ice::UnknownReplyStatusException::_description() const
+{
+    return "protocol error: unknown reply status";
 }
 
 LocalException*
-Ice::UnknownReplyStatusException::clone() const
+Ice::UnknownReplyStatusException::_clone() const
 {
     return new UnknownReplyStatusException(*this);
 }
 
 void
-Ice::UnknownReplyStatusException::raise() const
+Ice::UnknownReplyStatusException::_throw() const
 {
     throw *this;
 }
@@ -1145,19 +1310,25 @@ Ice::CloseConnectionException::operator=(const CloseConnectionException& ex)
 }
 
 string
-Ice::CloseConnectionException::toString() const
+Ice::CloseConnectionException::_name() const
 {
-    return debugInfo() + "protocol error: connection closed by server";
+    return "Ice::CloseConnectionException";
+}
+
+string
+Ice::CloseConnectionException::_description() const
+{
+    return "protocol error: connection closed by server";
 }
 
 LocalException*
-Ice::CloseConnectionException::clone() const
+Ice::CloseConnectionException::_clone() const
 {
     return new CloseConnectionException(*this);
 }
 
 void
-Ice::CloseConnectionException::raise() const
+Ice::CloseConnectionException::_throw() const
 {
     throw *this;
 }
@@ -1180,19 +1351,25 @@ Ice::AbortBatchRequestException::operator=(const AbortBatchRequestException& ex)
 }
 
 string
-Ice::AbortBatchRequestException::toString() const
+Ice::AbortBatchRequestException::_name() const
 {
-    return debugInfo() + "protocol error: batch request was aborted";
+    return "Ice::AbortBatchRequestException";
+}
+
+string
+Ice::AbortBatchRequestException::_description() const
+{
+    return "protocol error: batch request was aborted";
 }
 
 LocalException*
-Ice::AbortBatchRequestException::clone() const
+Ice::AbortBatchRequestException::_clone() const
 {
     return new AbortBatchRequestException(*this);
 }
 
 void
-Ice::AbortBatchRequestException::raise() const
+Ice::AbortBatchRequestException::_throw() const
 {
     throw *this;
 }

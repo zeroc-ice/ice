@@ -73,7 +73,9 @@ Parser::addContacts(const list<string>& args)
     }
     catch(const LocalException& ex)
     {
-	error(ex.toString());
+	ostringstream s;
+	s << ex;
+	error(s.str());
     }
 }
 
@@ -99,7 +101,9 @@ Parser::findContacts(const list<string>& args)
     }
     catch(const LocalException& ex)
     {
-	error(ex.toString());
+	ostringstream s;
+	s << ex;
+	error(s.str());
     }
 }
 
@@ -136,7 +140,9 @@ Parser::printCurrent()
     }
     catch(const LocalException& ex)
     {
-	error(ex.toString());
+	ostringstream s;
+	s << ex;
+	error(s.str());
     }
 }
 
@@ -167,7 +173,9 @@ Parser::setCurrentName(const list<string>& args)
     }
     catch(const LocalException& ex)
     {
-	error(ex.toString());
+	ostringstream s;
+	s << ex;
+	error(s.str());
     }
 }
 
@@ -198,7 +206,9 @@ Parser::setCurrentAddress(const list<string>& args)
     }
     catch(const LocalException& ex)
     {
-	error(ex.toString());
+	ostringstream s;
+	s << ex;
+	error(s.str());
     }
 }
 
@@ -229,7 +239,9 @@ Parser::setCurrentPhone(const list<string>& args)
     }
     catch(const LocalException& ex)
     {
-	error(ex.toString());
+	ostringstream s;
+	s << ex;
+	error(s.str());
     }
 }
 
@@ -254,7 +266,9 @@ Parser::removeCurrent()
     }
     catch(const LocalException& ex)
     {
-	error(ex.toString());
+	ostringstream s;
+	s << ex;
+	error(s.str());
     }
 }
 
@@ -277,7 +291,9 @@ Parser::setEvictorSize(const list<string>& args)
     }
     catch(const LocalException& ex)
     {
-	error(ex.toString());
+	ostringstream s;
+	s << ex;
+	error(s.str());
     }
 }
 
@@ -294,7 +310,9 @@ Parser::shutdown()
     }
     catch(const LocalException& ex)
     {
-	error(ex.toString());
+	ostringstream s;
+	s << ex;
+	error(s.str());
     }
 }
 

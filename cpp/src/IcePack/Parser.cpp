@@ -76,7 +76,9 @@ IcePack::Parser::add(const list<string>& args)
     }
     catch(const LocalException& ex)
     {
-	error(ex.toString());
+	ostringstream s;
+	s << ex;
+	error(s.str());
     }
 }
 
@@ -95,7 +97,9 @@ IcePack::Parser::remove(const list<string>& args)
     }
     catch(const LocalException& ex)
     {
-	error(ex.toString());
+	ostringstream s;
+	s << ex;
+	error(s.str());
     }
 }
 
@@ -127,7 +131,9 @@ IcePack::Parser::listAll()
     }
     catch(const LocalException& ex)
     {
-	error(ex.toString());
+	ostringstream s;
+	s << ex;
+	error(s.str());
     }
 }
 
@@ -140,7 +146,9 @@ IcePack::Parser::shutdown()
     }
     catch(const LocalException& ex)
     {
-	error(ex.toString());
+	ostringstream s;
+	s << ex;
+	error(s.str());
     }
 }
 

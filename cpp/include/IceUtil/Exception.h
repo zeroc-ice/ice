@@ -20,6 +20,12 @@ class Exception
 {
 public:
 
+    Exception() :
+	_file(0),
+	_line(0)
+    {
+    }
+    
     Exception(const char* file, int line) :
 	_file(file),
 	_line(line)
@@ -40,49 +46,49 @@ public:
     {
 	if (this != &ex)
 	{
-	    _line = ex._line;
 	    _file = ex._file;
+	    _line = ex._line;
 	}
 	
 	return *this;
     }
 
-    virtual std::string toString() const
+    virtual std::string _name() const
     {
-	return debugInfo() + "unknown Ice exception";
+	return "IceUtil::Exception";
     }
 
-    virtual Exception* clone() const
+    virtual std::string _description() const
+    {
+	return "unknown Ice exception";
+    }
+
+    virtual Exception* _clone() const
     {
 	return new Exception(*this);
     }
 
-    virtual void raise() const
+    virtual void _throw() const
     {
 	throw *this;
     }
-
-
-protected:
-
-    std::string debugInfo() const
-    {
-	std::ostringstream s;
-	s << _file << ':' << _line << ": ";
-	return s.str();
-    }
-
+    
 private:
-
+    
     const char* _file;
     int _line;
+    friend std::ostream& operator<<(std::ostream&, const Exception&);
 };
 
 inline std::ostream&
 operator<<(std::ostream& out, const Exception& ex)
 {
-    std::string s = ex.toString();
-    return out << s;
+    if (ex._file && ex._line > 0)
+    {
+	out << ex._file << ':' << ex._line << ": ";
+    }
+    out << ex._name() << ": " << ex._description();
+    return out;
 }
 
 }
