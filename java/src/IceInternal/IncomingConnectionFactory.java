@@ -344,8 +344,6 @@ public class IncomingConnectionFactory extends EventHandler
                 }
                 _connections.clear();
 
-		notifyAll(); // For waitUntilFinished().
-
                 break;
             }
         }
