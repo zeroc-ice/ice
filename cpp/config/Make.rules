@@ -17,7 +17,7 @@
 # if it does not exist.
 #
 
-prefix			= /opt/Ice-$(VERSION)
+prefix			= /home/bernard/test-install/Ice-$(VERSION)
 
 #
 # Define OPTIMIZE as yes if you want to build with

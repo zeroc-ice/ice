@@ -35,14 +35,15 @@ Third-party libraries
   http://www.sleepycat.com
   
   We recommend to configure and build Berkeley DB with:
-  $ export CXXOPTS="-AA"
+  $ export CXXOPTS="-AA -mt"
+  $ export CCOPTS="-mt"
   $ ../dist/configure --enable-cxx
   (plus --prefix=<dir> and/or --enable-java if you like)
   $ gmake
 
   For 64 bit builds, use:
-  $ export CXXOPTS="-AA +DD64"
-  $ export CCOPTS="+DD64"
+  $ export CXXOPTS="-AA +DD64 -mt"
+  $ export CCOPTS="+DD64 -mt"
   $ ../dist/configure --enable-cxx 
   (plus --prefix=<dir> and/or --enable-java if you like)
   $ gmake

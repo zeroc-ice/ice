@@ -46,14 +46,6 @@ environment while client is running:
 
 Freeze.DbEnv.db.DbPrivate=0
 
---------------
-RedHat 9 note:
-You can't use the Berkeley DB that comes with RedHat 9 with both
-DbPrivate=0 and LD_ASSUME_KERNEL=2.4.1. To run this demo, you need to
-rebuild (re-configure) Berkeley DB with LD_ASSUME_KERNEL set to 2.4.1.
-Ref: http://www.zeroc.com/vbulletin/showthread.php?threadid=127
---------------
-
 The db/DB_CONFIG file is used to put the data files and log files in
 different sub-directories, which simplifies archiving.
 
