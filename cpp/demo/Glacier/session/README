@@ -3,7 +3,7 @@ start the server:
 
 $ ./server
 
-In the second window, run the Glacier starter:
+In the second window, run the Glacier starter (see NOTE below):
 
 $ ../../../bin/glacierstarter --Ice.Config=config
 
@@ -19,3 +19,7 @@ If no data is received from the client for a period of 60 seconds
 (this timeout is configurable) the glacier session will be terminated.
 In order for more data to be sent it is required that a new session be
 created by restarting the client and logging in again.
+
+NOTE: The glacierstarter executable is not currently available on
+Windows. You can still use this demo if you have a supported platform
+on which to run glacierstarter.
