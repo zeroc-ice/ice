@@ -12,19 +12,23 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../..
+top_srcdir	= ../../..
+
+CLIENT		= client
+
+TARGETS		= $(CLIENT)
+
+OBJS		= Client.o
+
+
+SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= thread \
-		  unicode \
-		  inputUtil \
-                  uuid \
-                  ctrlCHandler
+CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
+$(CLIENT): $(OBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(BASELIBS)
+
+include .depend

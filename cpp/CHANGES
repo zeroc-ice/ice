@@ -1,11 +1,29 @@
 Changes since version 1.0.1
 ---------------------------
 
-- Updated Mutex, RecMutex and RWRecMutex APIs: lock and unlock now return
-  void, and trylock returns a bool that indicates whether the mutex was
-  acquired or not. Also added new member functions to LockT, TryLockT,
-  RLockT, TryLockT, WLockT, TryWLockT: acquire(), tryAcquire(), release(),
-  acquired() and more.
+- New Ice.Nohup property: when its value is >0, shutdownOnInterrupt()
+  in Application will ignore SIGHUP on Unix and CTRL_LOGOFF_EVENT on 
+  Windows.
+
+- Updated Application: 
+  - the default behavior is now shutdownOnInterrupt().
+  - removed the member function defaultInterrupt().
+ 
+- Removed Communicator::signalShutdown(): Ice is not using signal 
+  handlers anymore, so Communicator::shutdown() can be used all the
+  time.
+
+- Added IceUtil::CtrlCHandler: a class that provides portable handling 
+  of CTRL+C and CTRL+C-like signals,
+
+- Added IceUtil::StaticMutex, for simple, non-recursive, statically 
+  allocated and initialized mutexes.
+
+- Updated Mutex, RecMutex and RWRecMutex APIs: lock and unlock now 
+  return void, and trylock returns a bool that indicates whether the 
+  mutex was acquired or not. Also added new member functions to LockT,
+  TryLockT, RLockT, TryLockT, WLockT, TryWLockT: acquire(), 
+  tryAcquire(), release(), acquired() and more.
 
 - Removed dependency on E2FSPROGS for UUID generation. On Unix,
   UUIDs are now generated directly with /dev/urandom.

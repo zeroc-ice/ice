@@ -26,6 +26,8 @@ OBJS		= Exception.o \
 		  Cond.o \
 		  Thread.o \
 		  ThreadException.o \
+                  StaticMutex.o \
+                  CtrlCHandler.o \
 		  Time.o \
 		  InputUtil.o \
 		  OutputUtil.o \

@@ -48,11 +48,11 @@ public:
     void _register(SOCKET, const EventHandlerPtr&);
     void unregister(SOCKET);
     void promoteFollower();
-    void initiateShutdown(); // Signal-safe shutdown initiation.
     void joinWithAllThreads();
     
 private:
 
+    void initiateShutdown(); // Signal-safe shutdown initiation.
     bool clearInterrupt();
     void setInterrupt(char);
 

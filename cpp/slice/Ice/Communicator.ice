@@ -87,28 +87,6 @@ local interface Communicator
 
     /**
      *
-     * A signal-safe variant of [shutdown]. For systems that support
-     * Unix-style signals, this is the only operation that may be
-     * called from a signal handler. No other &Ice; function is
-     * signal-safe. For systems that do not have Unix-style signals,
-     * this operation is equivalent to [shutdown].
-     *
-     * <important><para> The signal-safe variant for [shutdown] is not
-     * immediate, i.e., after [signalShutdown] returns, the server
-     * functionality of this communicator may remain active for some
-     * time, and process new requests. You can use [waitForShutdown]
-     * to wait until shutdown is complete. </para></important>
-     *
-     * @see destroy
-     * @see shutdown
-     * @see waitForShutdown
-     * @see ObjectAdapter::deactivate
-     *
-     **/
-    void signalShutdown();
-
-    /**
-     *
      * Wait until this communicator's server functionality has shut
      * down completely. Calling [shutdown] initiates shutdown, and
      * [waitForShutdown] only returns when all outstanding requests

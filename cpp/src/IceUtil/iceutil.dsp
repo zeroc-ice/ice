@@ -114,6 +114,10 @@ SOURCE=.\Cond.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\CtrlCHandler.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Exception.cpp
 # End Source File
 # Begin Source File
@@ -131,6 +135,10 @@ SOURCE=.\RecMutex.cpp
 # Begin Source File
 
 SOURCE=.\RWRecMutex.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\StaticMutex.cpp
 # End Source File
 # Begin Source File
 
@@ -167,6 +175,10 @@ SOURCE=..\..\include\IceUtil\Cond.h
 # Begin Source File
 
 SOURCE=..\..\include\IceUtil\Config.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\CtrlCHandler.h
 # End Source File
 # Begin Source File
 
@@ -215,6 +227,10 @@ SOURCE=..\..\include\IceUtil\RWRecMutex.h
 # Begin Source File
 
 SOURCE=..\..\include\IceUtil\Shared.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\StaticMutex.h
 # End Source File
 # Begin Source File
 

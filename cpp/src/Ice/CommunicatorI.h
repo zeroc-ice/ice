@@ -17,7 +17,6 @@
 
 #include <IceUtil/RecMutex.h>
 
-#include <Ice/ThreadPoolF.h>
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
@@ -31,7 +30,6 @@ public:
     
     virtual void destroy();
     virtual void shutdown();
-    virtual void signalShutdown();
     virtual void waitForShutdown();
 
     virtual ObjectPrx stringToProxy(const std::string&);
@@ -79,15 +77,6 @@ private:
 
     bool _destroyed;
     ::IceInternal::InstancePtr _instance;
-
-    //
-    // We need _serverThreadPool directly in CommunicatorI. That's
-    // because the shutdown() operation is signal-safe, and thus must
-    // not access any mutex locks or _instance. It may only access
-    // _serverThreadPool->initiateShutdown(), which is signal-safe as
-    // well.
-    //
-    ::IceInternal::ThreadPoolPtr _serverThreadPool;
 
     //
     // We don't want the dynamic libraries to be unloaded until the

@@ -13,33 +13,102 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
-
-#ifndef _WIN32
-#include <signal.h>
-#endif
+#include <IceUtil/StaticMutex.h>
+#include <IceUtil/CtrlCHandler.h>
+#include <IceUtil/Cond.h>
+#include <memory>
 
 using namespace std;
 using namespace Ice;
+using namespace IceUtil;
 
-const char* Application::_appName = 0;
-CommunicatorPtr Application::_communicator;
+static const char* _appName = 0;
+static CommunicatorPtr _communicator;
 
-bool Application::_interrupted = false;
+static bool _interrupted = false;
+static StaticMutex _mutex = ICE_STATIC_MUTEX_INITIALIZER;
 
-#ifndef _WIN32
-const int Application::signals[] = { SIGHUP, SIGINT, SIGTERM };
-sigset_t Application::signalSet;
+static bool _released = false;
+static auto_ptr<Cond> _condVar;
+static auto_ptr<IceUtil::CtrlCHandler> _ctrlCHandler;
+static IceUtil::CtrlCHandlerCallback _previousCallback = 0;
+static bool _nohup = false;
+
+#ifdef _WIN32
+const DWORD SIGHUP = CTRL_LOGOFF_EVENT;
+#else
+#   include <csignal>
 #endif
+
+
+// CtrlCHandler callbacks
+//
+
+static void holdInterruptCallback(int signal)
+{
+    {
+	StaticMutex::Lock lock(_mutex);
+	while(!_released)
+	{
+	    _condVar->wait(lock);
+	}
+    }
+
+    // Use the current callback to process this (old) signal
+    //
+    CtrlCHandlerCallback callback = _ctrlCHandler->getCallback();
+    if(callback != 0)
+    {
+	callback(signal);
+    }
+}
+
+static void shutdownOnInterruptCallback(int signal)
+{
+    if(_nohup && signal == SIGHUP)
+    {
+	return;
+    }
+	
+    {
+	StaticMutex::Lock lock(_mutex);
+	_interrupted = true;
+    }
+
+    try
+    {
+	_communicator->shutdown();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+	cerr << _appName << " (while shutting down in response to signal " << signal 
+	     << "): " << ex << endl;
+    }
+    catch(const std::exception& ex)
+    {
+	cerr << _appName << " (while shutting down in response to signal " << signal 
+	     << "): std::exception: " << ex.what() << endl;
+    }
+    catch(const std::string& msg)
+    {
+	cerr << _appName << " (while shutting down in response to signal " << signal
+	     << "): " << msg << endl;
+    }
+    catch(const char * msg)
+    {
+	cerr << _appName << " (while shutting down in response to signal " << signal
+	     << "): " << msg << endl;
+    }
+    catch(...)
+    {
+	cerr << _appName << " (while shutting down in response to signal " << signal 
+	     << "): unknown exception" << endl;
+    }
+}
+
 
 Ice::Application::Application()
 {
-#ifndef _WIN32
-    sigemptyset(&signalSet);
-    for (unsigned i = 0; i < sizeof(signals) / sizeof(*signals); ++i)
-    {
-	sigaddset(&signalSet, signals[i]);
-    }
-#endif
 }
 
 Ice::Application::~Application()
@@ -55,8 +124,17 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	return EXIT_FAILURE;
     }
 
-    Application::_interrupted = false;
+    _interrupted = false;
     _appName = argv[0];
+    if(_condVar.get() == 0)
+    {
+	_condVar.reset(new Cond);
+    }
+
+
+    // Ignore signals for a little while
+    //
+    _ctrlCHandler.reset(new IceUtil::CtrlCHandler);
 
     int status;
 
@@ -72,6 +150,15 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	{
 	    _communicator = initialize(argc, argv);
 	}
+
+	// Used by shutdownOnInterruptCallback
+	//
+	_nohup = (_communicator->getProperties()->getPropertyAsInt("Ice.Nohup") > 0);
+	
+	// The default is to shutdown when a signal is received:
+	//
+	shutdownOnInterrupt();
+
 	status = run(argc, argv);
     }
     catch(const Exception& ex)
@@ -102,6 +189,11 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 
     if(_communicator)
     {
+	// We don't want to handle signals anymore
+	//
+	ignoreInterrupt(); // will release any signal still held
+	_ctrlCHandler.reset();
+       
 	try
 	{
 	    _communicator->destroy();
@@ -149,164 +241,83 @@ Ice::Application::communicator()
     return _communicator;
 }
 
-#ifdef _WIN32
-
-BOOL WINAPI
-Ice::interruptHandler(DWORD)
-{
-    Application::_interrupted = true;
-
-    //
-    // Don't use Application::communicator(), this is not signal-safe.
-    //
-    assert(Application::_communicator);
-    Application::_communicator->signalShutdown();
-    return TRUE;
-}
-
-enum InterruptDisposition { Shutdown, Ignore, Default };
-static InterruptDisposition currentDisposition = Default;
-
 void
 Ice::Application::shutdownOnInterrupt()
 {
-    SetConsoleCtrlHandler(NULL, FALSE);
-    SetConsoleCtrlHandler(interruptHandler, TRUE);
-    currentDisposition = Shutdown;
-}
-
-void
-Ice::Application::ignoreInterrupt()
-{
-    SetConsoleCtrlHandler(interruptHandler, FALSE);
-    SetConsoleCtrlHandler(NULL, TRUE);
-    currentDisposition = Ignore;
-}
-
-void
-Ice::Application::defaultInterrupt()
-{
-    SetConsoleCtrlHandler(interruptHandler, FALSE);
-    SetConsoleCtrlHandler(NULL, FALSE);
-    currentDisposition = Default;
-}
-
-void
-Ice::Application::holdInterrupt()
-{
-    //
-    // With Windows, we can't block signals and
-    // remember them the way we can with UNIX,
-    // so "holding" an interrupt is the same as
-    // ignoring it.
-    //
-    SetConsoleCtrlHandler(interruptHandler, FALSE);
-    SetConsoleCtrlHandler(NULL, TRUE);
-}
-
-void
-Ice::Application::releaseInterrupt()
-{
-    //
-    // Restore current signal disposition.
-    //
-    switch(currentDisposition)
+    assert(_ctrlCHandler.get() != 0);
+    
+    StaticMutex::Lock lock(_mutex);
+    if(_ctrlCHandler->getCallback() == holdInterruptCallback)
     {
-	case Shutdown:
-	{
-	    shutdownOnInterrupt();
-	    break;
-	}
-	case Ignore:
-	{
-	    ignoreInterrupt();
-	    break;
-	}
-	case Default:
-	{
-	    defaultInterrupt();
-	    break;
-	}
-	default:
-	{
-	    assert(false);
-	    break;
-	}
+	_released = true;
+	_ctrlCHandler->setCallback(shutdownOnInterruptCallback);
+	lock.release();
+	_condVar->signal();
     }
-}
-
-#else
-
-void
-Ice::interruptHandler(int)
-{
-    Application::_interrupted = true;
-
-    //
-    // Don't use Application::communicator(), this is not signal-safe.
-    //
-    assert(Application::_communicator);
-    Application::_communicator->signalShutdown();
-}
-
-void
-Ice::Application::shutdownOnInterrupt()
-{
-    struct sigaction action;
-    memset(&action, 0, sizeof(action));
-    action.sa_handler = interruptHandler;
-    action.sa_mask = signalSet;
-    action.sa_flags = SA_RESTART;
-    for (unsigned i = 0; i < sizeof(signals) / sizeof(*signals); ++i)
+    else
     {
-	sigaction(signals[i], &action, 0);
+	_ctrlCHandler->setCallback(shutdownOnInterruptCallback);
     }
 }
 
 void
 Ice::Application::ignoreInterrupt()
 {
-    struct sigaction action;
-    memset(&action, 0, sizeof(action));
-    action.sa_handler = SIG_IGN;
-    action.sa_mask = signalSet;
-    action.sa_flags = SA_RESTART;
-    for (unsigned i = 0; i < sizeof(signals) / sizeof(*signals); ++i)
-    {
-	sigaction(signals[i], &action, 0);
-    }
-}
+    assert(_ctrlCHandler.get() != 0);
 
-void
-Ice::Application::defaultInterrupt()
-{
-    struct sigaction action;
-    memset(&action, 0, sizeof(action));
-    action.sa_handler = SIG_DFL;
-    action.sa_mask = signalSet;
-    action.sa_flags = SA_RESTART;
-    for (unsigned i = 0; i < sizeof(signals) / sizeof(*signals); ++i)
+    StaticMutex::Lock lock(_mutex);
+    if(_ctrlCHandler->getCallback() == holdInterruptCallback)
     {
-	sigaction(signals[i], &action, 0);
+	_released = true;
+	_ctrlCHandler->setCallback(0);
+	lock.release();
+	_condVar->signal();
+    }
+    else
+    {
+	_ctrlCHandler->setCallback(0);
     }
 }
 
 void
 Ice::Application::holdInterrupt()
 {
-    sigprocmask(SIG_BLOCK, &signalSet, 0);
+    assert(_ctrlCHandler.get() != 0);
+  
+    StaticMutex::Lock lock(_mutex);
+    if(_ctrlCHandler->getCallback() != holdInterruptCallback)
+    {
+	_previousCallback = _ctrlCHandler->getCallback();
+	_released = false;
+	_ctrlCHandler->setCallback(holdInterruptCallback);
+    }
+    // else, we were already holding signals
 }
 
 void
 Ice::Application::releaseInterrupt()
 {
-    sigprocmask(SIG_UNBLOCK, &signalSet, 0);
-}
+    assert(_ctrlCHandler.get() != 0);
 
-#endif
+    StaticMutex::Lock lock(_mutex);
+    if(_ctrlCHandler->getCallback() == holdInterruptCallback)
+    {
+	// Note that it's very possible no signal is held;
+	// in this case the callback is just replaced and
+	// setting _released to true and signalling _condVar
+	// do no harm.
+
+	_released = true;
+	_ctrlCHandler->setCallback(_previousCallback);
+	lock.release();
+	_condVar->signal();
+    }
+    // else nothing to release
+}
 
 bool
 Ice::Application::interrupted()
 {
-    return Application::_interrupted;
+    StaticMutex::Lock lock(_mutex);
+    return _interrupted;
 }

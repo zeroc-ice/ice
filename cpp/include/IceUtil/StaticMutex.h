@@ -1,0 +1,231 @@
+// **********************************************************************
+//
+// Copyright (c) 2003
+// ZeroC, Inc.
+// Billerica, MA, USA
+//
+// All Rights Reserved.
+//
+// Ice is free software; you can redistribute it and/or modify it under
+// the terms of the GNU General Public License version 2 as published by
+// the Free Software Foundation.
+//
+// **********************************************************************
+
+#ifndef ICE_UTIL_STATIC_MUTEX_H
+#define ICE_UTIL_STATIC_MUTEX_H
+
+#include <IceUtil/Config.h>
+#include <IceUtil/Lock.h>
+#include <IceUtil/ThreadException.h>
+
+namespace IceUtil
+{
+
+//
+// Forward declaration for friend.
+//
+class Cond;
+
+//
+// Simple non-recursive Mutex implementation.
+// These mutexes are POD types (see ISO C++ 9(4) and 8.5.1) and must be
+// initialized statically using ICE_STATIC_MUTEX_INITIALIZER.
+//
+
+//
+class ICE_UTIL_API StaticMutex
+{
+public:
+
+    //
+    // Lock & TryLock typedefs.
+    //
+    typedef LockT<StaticMutex> Lock;
+    typedef TryLockT<StaticMutex> TryLock;
+
+    //
+    // Note that lock/trylock & unlock in general should not be used
+    // directly. Instead use Lock & TryLock.
+    //
+ 
+    void lock() const;
+
+    //
+    // Returns true if the lock was acquired, and false otherwise.
+    //
+    bool trylock() const;
+
+    void unlock() const;
+
+
+#ifdef _WIN32
+    mutable bool             _mutexInitialized;
+    mutable CRITICAL_SECTION _mutex;
+#else
+    mutable pthread_mutex_t _mutex;
+#endif
+
+
+
+#ifndef _MSC_VER
+// COMPILERBUG
+// VC++ considers that aggregates should not have private members ...
+// even if it's just functions.
+private:
+#endif
+
+    //
+    // LockState and the lock/unlock variations are for use by the
+    // Condition variable implementation.
+    //
+#ifdef _WIN32
+    struct LockState
+    {
+    };
+#else
+    struct LockState
+    {
+	pthread_mutex_t* mutex;
+    };
+#endif
+
+    void unlock(LockState&) const;
+    void lock(LockState&) const;
+
+#ifdef _WIN32
+    void initialize() const;
+#endif
+
+#ifndef _MSC_VER
+    friend class Cond;
+#endif
+
+};
+
+#ifdef _WIN32
+#   define ICE_STATIC_MUTEX_INITIALIZER { false }
+#else
+#   define ICE_STATIC_MUTEX_INITIALIZER { PTHREAD_MUTEX_INITIALIZER }
+#endif
+
+
+// A "shared" global mutex that can be used for very simple tasks
+// which should not lock any other mutexes.
+//
+extern ICE_UTIL_API StaticMutex globalMutex;
+
+//
+// For performance reasons the following functions are inlined.
+//
+
+#ifdef _WIN32
+
+inline void
+StaticMutex::lock() const
+{
+    if (!_mutexInitialized)
+    {
+	initialize();
+    }
+    EnterCriticalSection(&_mutex);
+    //
+    // If necessary this can be removed and replaced with a _count
+    // member (like the UNIX implementation of RecStaticMutex).
+    //
+    assert(_mutex.RecursionCount == 1);
+}
+
+inline bool
+StaticMutex::trylock() const
+{
+    if (!_mutexInitialized)
+    {
+	initialize();
+    }
+    if(!TryEnterCriticalSection(&_mutex))
+    {
+	return false;
+    }
+    if(_mutex.RecursionCount > 1)
+    {
+	LeaveCriticalSection(&_mutex);
+	return false;
+    }
+    return true;
+}
+
+inline void
+StaticMutex::unlock() const
+{
+    assert(_mutexInitialized);
+    assert(_mutex.RecursionCount == 1);
+    LeaveCriticalSection(&_mutex);
+}
+
+inline void
+StaticMutex::unlock(LockState& state) const
+{
+    assert(_mutexInitialized);
+    LeaveCriticalSection(&_mutex);
+}
+
+inline void
+StaticMutex::lock(LockState&) const
+{
+    if (!_mutexInitialized)
+    {
+	initialize();
+    }
+    EnterCriticalSection(&_mutex);
+}
+
+#else
+
+inline void
+StaticMutex::lock() const
+{
+    int rc = pthread_mutex_lock(&_mutex);
+    if(rc != 0)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+    }
+}
+
+inline bool
+StaticMutex::trylock() const
+{
+    int rc = pthread_mutex_trylock(&_mutex);
+    if(rc != 0 && rc != EBUSY)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+    }
+    return (rc == 0);
+}
+
+inline void
+StaticMutex::unlock() const
+{
+    int rc = pthread_mutex_unlock(&_mutex);
+    if(rc != 0)
+    {
+	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+    }
+}
+
+inline void
+StaticMutex::unlock(LockState& state) const
+{
+    state.mutex = &_mutex;
+}
+
+inline void
+StaticMutex::lock(LockState&) const
+{
+}
+
+#endif    
+
+} // End namespace IceUtil
+
+#endif

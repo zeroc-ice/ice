@@ -17,7 +17,6 @@
 #include <Ice/Properties.h>
 #include <Ice/ReferenceFactory.h>
 #include <Ice/ProxyFactory.h>
-#include <Ice/ThreadPool.h>
 #include <Ice/ObjectFactoryManager.h>
 #include <Ice/UserExceptionFactoryManager.h>
 #include <Ice/ObjectAdapterFactory.h>
@@ -40,7 +39,6 @@ Ice::CommunicatorI::destroy()
 	if(!_destroyed) // Don't destroy twice.
 	{
 	    _destroyed = true;
-	    _serverThreadPool = 0;
 	    instance = _instance;
 	}
     }
@@ -71,18 +69,6 @@ Ice::CommunicatorI::shutdown()
     // shutdown.
     //
     objectAdapterFactory->shutdown();
-}
-
-void
-Ice::CommunicatorI::signalShutdown()
-{
-    //
-    // No mutex locking here! This operation must be signal-safe.
-    //
-    if(_serverThreadPool)
-    {
-	_serverThreadPool->initiateShutdown();
-    }
 }
 
 void
@@ -139,11 +125,6 @@ Ice::CommunicatorI::createObjectAdapter(const string& name)
     }
     
     ObjectAdapterPtr adapter = _instance->objectAdapterFactory()->createObjectAdapter(name);
-
-    if(!_serverThreadPool) // Lazy initialization of _serverThreadPool.
-    {
-	_serverThreadPool = _instance->serverThreadPool();
-    }
 
     return adapter;
 }

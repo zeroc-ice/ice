@@ -81,6 +81,5 @@ Freeze::Application::run(int argc, char* argv[])
 	dbEnv = 0;
     }
 
-    defaultInterrupt();
     return status;
 }

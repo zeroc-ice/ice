@@ -654,6 +654,9 @@ Package=<4>
     Project_Dep_Name uuid
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name ctrlCHandler
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name slice2wsdl
     End Project Dependency
     Begin Project Dependency
@@ -2351,6 +2354,21 @@ Package=<4>
 ###############################################################################
 
 Project: "uuid"=.\test\IceUtil\uuid\uuid.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "ctrlCHandler"=.\test\IceUtil\ctrlCHandler\ctrlCHandler.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

@@ -20,13 +20,15 @@
 #include <IceUtil/ThreadException.h>
 
 #ifdef _WIN32
-//
-// Needed for implementation under WIN32.
-//
 #    include <IceUtil/Mutex.h>
+#endif
+
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
 //
+// Needed for implementation with VC++ 6.0
 // See member-template note for waitImpl & timedWaitImpl.
 //
+#    include <IceUtil/StaticMutex.h>
 #    include <IceUtil/RecMutex.h>
 #endif
 
@@ -134,56 +136,13 @@ private:
     //
 #ifdef _WIN32
 
+#   if defined(_MSC_VER) && (_MSC_VER < 1300)
+
     //
     // For some reason under WIN32 with VC6 using a member-template
     // for waitImpl & timedWaitImpl results in a link error for
     // RecMutex.
     //
-/*
-    template <typename M> void
-    waitImpl(const M& mutex) const
-    {
-        preWait();
-
-        typedef typename M::LockState LockState;
-
-        LockState state;
-        mutex.unlock(state);
-
-        try
-        {
-            dowait(-1);
-            mutex.lock(state);
-        }
-        catch(...)
-        {
-            mutex.lock(state);
-            throw;
-        }
-    }
-    template <typename M> bool
-    timedWaitImpl(const M& mutex, const Time& timeout) const
-    {
-        preWait();
-
-        typedef typename M::LockState LockState;
-
-        LockState state;
-        mutex.unlock(state);
-
-        try
-        {
-            bool rc = dowait(timeout);
-            mutex.lock(state);
-            return rc;
-        }
-        catch(...)
-        {
-            mutex.lock(state);
-            throw;
-        }
-    }
- */
 
     void
     waitImpl(const RecMutex& mutex) const
@@ -224,6 +183,29 @@ private:
 	    throw;
 	}
     }
+
+    
+    void
+    waitImpl(const StaticMutex& mutex) const
+    {
+	preWait();
+
+	StaticMutex::LockState state;
+	mutex.unlock(state);
+
+	try
+	{
+	    dowait();
+	    mutex.lock(state);
+	}
+	catch(...)
+	{
+	    mutex.lock(state);
+	    throw;
+	}
+    }
+
+
     
     bool
     timedWaitImpl(const RecMutex& mutex, const Time& timeout) const
@@ -267,6 +249,76 @@ private:
 	}
     }
 
+    bool
+    timedWaitImpl(const StaticMutex& mutex, const Time& timeout) const
+    {
+	preWait();
+
+	StaticMutex::LockState state;
+	mutex.unlock(state);
+
+	try
+	{
+	    bool rc = timedDowait(timeout);
+	    mutex.lock(state);
+	    return rc;
+	}
+	catch(...)
+	{
+	    mutex.lock(state);
+	    throw;
+	}
+    }
+
+
+#   else
+
+    template <typename M> void
+    waitImpl(const M& mutex) const
+    {
+        preWait();
+
+        typedef typename M::LockState LockState;
+
+        LockState state;
+        mutex.unlock(state);
+
+        try
+        {
+            dowait();
+            mutex.lock(state);
+        }
+        catch(...)
+        {
+            mutex.lock(state);
+            throw;
+        }
+    }
+    template <typename M> bool
+    timedWaitImpl(const M& mutex, const Time& timeout) const
+    {
+        preWait();
+
+        typedef typename M::LockState LockState;
+
+        LockState state;
+        mutex.unlock(state);
+
+        try
+        {
+            bool rc = timedDowait(timeout);
+            mutex.lock(state);
+            return rc;
+        }
+        catch(...)
+        {
+            mutex.lock(state);
+            throw;
+        }
+    }
+
+#   endif
+    
 #else
 
     template <typename M> void waitImpl(const M&) const;
