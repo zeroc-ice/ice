@@ -26,7 +26,8 @@ OBJS		= Scanner.o \
 		  Grammar.o \
 		  Parser.o \
 		  CPlusPlusUtil.o \
-		  JavaUtil.o
+		  JavaUtil.o \
+		  Preprocessor.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

@@ -12,8 +12,8 @@
 //
 // **********************************************************************
 
+#include <Slice/Preprocessor.h>
 #include <Slice/JavaUtil.h>
-#include <fstream>
 
 using namespace std;
 using namespace Slice;
@@ -435,7 +435,7 @@ usage(const char* n)
 int
 main(int argc, char* argv[])
 {
-    string cpp("cpp");
+    string cppArgs;
     vector<string> includePaths;
     string include;
     bool binary = false;
@@ -451,8 +451,8 @@ main(int argc, char* argv[])
     {
         if(strncmp(argv[idx], "-I", 2) == 0)
         {
-            cpp += ' ';
-            cpp += argv[idx];
+            cppArgs += ' ';
+            cppArgs += argv[idx];
 
             string path = argv[idx] + 2;
             if(path.length())
@@ -468,8 +468,8 @@ main(int argc, char* argv[])
         }
         else if(strncmp(argv[idx], "-D", 2) == 0 || strncmp(argv[idx], "-U", 2) == 0)
         {
-            cpp += ' ';
-            cpp += argv[idx];
+            cppArgs += ' ';
+            cppArgs += argv[idx];
 
             for(int i = idx ; i + 1 < argc ; ++i)
             {
@@ -643,74 +643,33 @@ main(int argc, char* argv[])
 
     UnitPtr unit = Unit::createUnit(true, false, ice, caseSensitive);
 
-    StringList includes;
-
     int status = EXIT_SUCCESS;
 
     for(idx = 1 ; idx < argc ; ++idx)
     {
-        string base(argv[idx]);
-        string suffix;
-        string::size_type pos = base.rfind('.');
-        if(pos != string::npos)
-        {
-            suffix = base.substr(pos);
-            transform(suffix.begin(), suffix.end(), suffix.begin(), ::tolower);
-        }
-        if(suffix != ".ice")
-        {
-            cerr << argv[0] << ": input files must end with `.ice'" << endl;
-            return EXIT_FAILURE;
-        }
-
-        ifstream test(argv[idx]);
-        if(!test)
-        {
-            cerr << argv[0] << ": can't open `" << argv[idx] << "' for reading: " << strerror(errno) << endl;
-            return EXIT_FAILURE;
-        }
-        test.close();
-
 	if(depend)
 	{
-	    string::size_type pos = base.rfind('/');
-	    if(pos != string::npos)
-	    {
-		base.erase(0, pos + 1);
-	    }
-
-	    string cmd = cpp + " -M " + argv[idx];
-
-#ifdef _WIN32
-	    FILE* cppHandle = _popen(cmd.c_str(), "w");
-	    _pclose(cppHandle);
-#else
-	    FILE* cppHandle = popen(cmd.c_str(), "w");
-	    pclose(cppHandle);
-#endif
+	    Preprocessor icecpp(argv[0], argv[idx], cppArgs);
+	    icecpp.printMakefileDependencies();
 	}
 	else
 	{
-	    string cmd = cpp + " " + argv[idx];
-#ifdef _WIN32
-	    FILE* cppHandle = _popen(cmd.c_str(), "r");
-#else
-	    FILE* cppHandle = popen(cmd.c_str(), "r");
-#endif
+	    Preprocessor icecpp(argv[0], argv[idx], cppArgs);
+	    FILE* cppHandle = icecpp.preprocess(false);
+
 	    if(cppHandle == 0)
 	    {
-		cerr << argv[0] << ": can't run C++ preprocessor: " << strerror(errno) << endl;
 		unit->destroy();
 		return EXIT_FAILURE;
 	    }
 	    
 	    status = unit->parse(cppHandle, debug);
-	    
-#ifdef _WIN32
-	    _pclose(cppHandle);
-#else
-	    pclose(cppHandle);
-#endif
+
+	    if(!icecpp.close())
+	    {
+		unit->destroy();
+		return EXIT_FAILURE;
+	    }	    
 	}
     }
 
