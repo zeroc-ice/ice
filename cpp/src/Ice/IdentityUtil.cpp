@@ -28,7 +28,7 @@ Ice::stringToIdentity(const string& s)
     if (pos != string::npos)
     {
 	ident.category = s.substr(0, pos);
-	ident.name = s.substr(pos);
+	ident.name = s.substr(pos+1);
     }
     else
     {

@@ -46,9 +46,9 @@ interface Topic
     /**
      *
      * Get a proxy to a publisher object for this Topic.  To publish
-     * data to a Topic the publisher * calls [getPublisher] and then
-     * casts to the appropriate type (at * present the cast must be
-     * unchecked since the type is not * validated).
+     * data to a Topic the publisher calls [getPublisher] and then
+     * casts to the appropriate type (at present the cast must be
+     * unchecked since the type is not validated).
      *
      * @return A proxy to publish data on this Topic.
      *
@@ -169,8 +169,8 @@ interface TopicManager
      *
      * @param id The identity of the subscriber. Each unique
      * subscriber must use a unique identity string. To receive events
-     * the subscriber must register a servant with the id
-     * "&lt;id&gt;#&lt;topic&gt;".
+     * the subscriber must register a servant with the identity
+     * category=id name=topic.
      *
      * @param qos The quality of service parameters for this
      * subscription. The only currently supported QoS is

@@ -140,7 +140,7 @@ public:
 	// (see Meyers for details). If this is fixed then fix Flusher
 	// also.
 	//
-	// remove_if doesn't work with handle types. remove_if also //
+	// remove_if doesn't work with handle types. remove_if also
 	// isn't present in the STLport implementation
 	//
         // _subscribers.remove_if(IceUtil::constMemFun(&Subscriber::invalid));
@@ -152,7 +152,10 @@ public:
 	{
 	    (*i)->publish(op, nonmutating, blob);
 	}
-	//for_each(_subscribers.begin(), _subscribers.end(), Ice::memFun(&Subscriber::publish));
+	//
+	// TODO:
+	// for_each(_subscribers.begin(), _subscribers.end(), Ice::memFun(&Subscriber::publish));
+	//
     }
 
 private:
@@ -186,8 +189,8 @@ TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& trace
 
     //
     // Create a servant per Topic to receive event data. The servants
-    // object-id is <topic>#publish. Active the object and save a
-    // reference to give to publishers.
+    // Identity is category=<topicname>, name=publish. Activate the
+    // object and save a reference to give to publishers.
     //
     _publisher = new BlobjectI(_subscribers);
     
@@ -218,6 +221,10 @@ TopicI::destroy(const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(_destroyedMutex);
 
+    //
+    // See the comment in the constructor for the derevation of the
+    // Identity.
+    //
     Ice::Identity id;
     id.category = _name;
     id.name = "publish";

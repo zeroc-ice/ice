@@ -62,6 +62,9 @@ TopicManagerI::create(const string& name, const Ice::Current&)
     installTopic("create", name);
     _topics.insert(make_pair(name, true));
 
+    //
+    // The identity is the name of the Topic.
+    //
     Ice::Identity id;
     id.name = name;
     return TopicPrx::uncheckedCast(_adapter->createProxy(id));
@@ -263,6 +266,10 @@ TopicManagerI::installTopic(const std::string& message, const std::string& name)
     // Create topic implementation
     //
     TopicIPtr topicI = new TopicI(_adapter, _traceLevels, _communicator->getLogger(), name, _flusher);
+
+    //
+    // The identity is the name of the Topic.
+    //
     Ice::Identity id;
     id.name = name;
     _adapter->add(topicI, id);
