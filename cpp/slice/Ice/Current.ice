@@ -66,7 +66,7 @@ local struct Current
      * Set to true if the operation is nonmutating.
      *
      **/
-    bool nonmutating;
+    bool isNonmutating;
 
     /**
      *

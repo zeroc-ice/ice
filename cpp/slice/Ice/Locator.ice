@@ -39,7 +39,7 @@ interface Locator
      * @return The adapter proxy or null if the adapter is not found.
      *
      **/
-    ["nonmutating"] Object* findAdapterByName(string name);
+    nonmutating Object* findAdapterByName(string name);
 
     /**
      *
@@ -48,7 +48,7 @@ interface Locator
      * @return The locator registry.
      *
      **/
-    ["nonmutating"] LocatorRegistry* getRegistry();
+    nonmutating LocatorRegistry* getRegistry();
 };
 
 /**

@@ -1276,9 +1276,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     C << nl << "catch(const ::IceInternal::NonRepeatable& __ex)";
     C << sb;
-    list<string> metaData = p->getMetaData();
-    bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
-    if(nonmutating)
+    if(p->nonmutating())
     {
 	C << nl << "__handleException(*__ex.get(), __cnt);";
     }
@@ -1548,10 +1546,8 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << sp << nl << retS << nl << "IceDelegateM" << scoped << paramsDecl;
     C << sb;
     C << nl << "static const ::std::string __operation(\"" << p->name() << "\");";
-    list<string> metaData = p->getMetaData();
-    bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
     C << nl << "::IceInternal::Outgoing __out(__connection, __reference, __operation, "
-      << (nonmutating ? "true" : "false") << ", __context);";
+      << (p->nonmutating() ? "true" : "false") << ", __context);";
     if(ret || !outParams.empty() || !throws.empty())
     {
 	C << nl << "::IceInternal::BasicStream* __is = __out.is();";
@@ -1736,9 +1732,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     C << sp << nl << retS << nl << "IceDelegateD" << scoped << paramsDecl;
     C << sb;
     C << nl << "::Ice::Current __current;";
-    list<string> metaData = p->getMetaData();
-    bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
-    C << nl << "__initCurrent(__current, \"" << p->name() << "\", " << (nonmutating ? "true" : "false")
+    C << nl << "__initCurrent(__current, \"" << p->name() << "\", " << (p->nonmutating() ? "true" : "false")
       << ", __context);";
     C << nl << "while(true)";
     C << sb;
@@ -2286,8 +2280,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	}
     }
 
-    list<string> metaData = p->getMetaData();
-    bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
+    bool nonmutating = p->nonmutating();
 
     H << sp;
     H << nl << exp2 << "virtual " << retS << ' ' << name << params << (nonmutating ? " const" : "") << " = 0;";
@@ -2839,8 +2832,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         H.restoreIndent();
 
-	list<string> metaData = op->getMetaData();
-	bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
+	bool nonmutating = op->nonmutating();
 
         H << ")" << (nonmutating ? " const" : "") << ";";
 

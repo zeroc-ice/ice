@@ -1258,7 +1258,7 @@ IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, boo
     current.id = __reference->identity;
     current.facet = __reference->facet;
     current.operation = op;
-    current.nonmutating = nonmutating;
+    current.isNonmutating = nonmutating;
     current.ctx = context;
 }
 

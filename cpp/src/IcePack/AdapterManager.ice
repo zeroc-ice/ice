@@ -107,7 +107,7 @@ class Adapter
 
     /**
      * 
-     * The description of this objet adapter. 
+     * The description of this object adapter. 
      *
      */
     AdapterDescription description;

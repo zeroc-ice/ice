@@ -2067,9 +2067,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
         out << nl << "catch(IceInternal.NonRepeatable __ex)";
         out << sb;
-	list<string> metaData = op->getMetaData();
-	bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
-        if(nonmutating)
+        if(op->nonmutating())
         {
             out << nl << "__cnt = __handleException(__ex.get(), __cnt);";
         }
@@ -3006,9 +3004,8 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeDelegateThrowsClause(scope, throws);
         out << sb;
 	list<string> metaData = op->getMetaData();
-	bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
         out << nl << "IceInternal.Outgoing __out = getOutgoing(\"" << op->name() << "\", "
-            << (nonmutating ? "true" : "false") << ", __context);";
+            << (op->nonmutating() ? "true" : "false") << ", __context);";
         out << nl << "try";
         out << sb;
         if(!inParams.empty())
@@ -3172,9 +3169,8 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeDelegateThrowsClause(scope, throws);
         out << sb;
 	list<string> metaData = op->getMetaData();
-	bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
         out << nl << "Ice.Current __current = new Ice.Current();";
-        out << nl << "__initCurrent(__current, \"" << op->name() << "\", " << (nonmutating ? "true" : "false")
+        out << nl << "__initCurrent(__current, \"" << op->name() << "\", " << (op->nonmutating() ? "true" : "false")
             << ", __context);";
         out << nl << "while(true)";
         out << sb;

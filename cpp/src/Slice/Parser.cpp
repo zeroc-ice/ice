@@ -1763,7 +1763,8 @@ Slice::ClassDef::destroy()
 
 OperationPtr
 Slice::ClassDef::createOperation(const string& name,
-				 const TypePtr& returnType)
+				 const TypePtr& returnType,
+				 bool nonmutating)
 {
     checkPrefix(name);
 
@@ -1864,7 +1865,7 @@ Slice::ClassDef::createOperation(const string& name,
 	_unit->error(msg);
     }
     
-    OperationPtr op = new Operation(this, name, returnType);
+    OperationPtr op = new Operation(this, name, returnType, nonmutating);
     _contents.push_back(op);
     return op;
 }
@@ -3157,6 +3158,12 @@ Slice::Operation::throws() const
     return _throws;
 }
 
+bool
+Slice::Operation::nonmutating() const
+{
+    return _nonmutating;
+}
+
 void
 Slice::Operation::setExceptionList(const ExceptionList& el)
 {
@@ -3262,16 +3269,15 @@ Slice::Operation::visit(ParserVisitor* visitor)
     visitor->visitOperation(this);
 }
 
-Slice::Operation::Operation(const ContainerPtr& container, const string& name, const TypePtr& returnType) :
-			    //const TypeStringList& inParams, const TypeStringList& outParams,
-			    //const ExceptionList& throws) :
+Slice::Operation::Operation(const ContainerPtr& container,
+	                    const string& name,
+			    const TypePtr& returnType,
+			    bool nonmutating) :
     Contained(container, name),
     Container(container->unit()),
     SyntaxTreeBase(container->unit()),
-    _returnType(returnType)
-    //_inParams(inParams),
-    //_outParams(outParams),
-    //_throws(throws)
+    _returnType(returnType),
+    _nonmutating(nonmutating)
 {
 }
 

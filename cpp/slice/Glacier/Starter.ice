@@ -94,7 +94,7 @@ interface PasswordVerifier
      * @return True if the password is valid, or false otherwise.
      *
      **/
-    ["nonmutating"]
+    nonmutating
     bool checkPassword(string userId, string password);
 };
 

@@ -310,7 +310,7 @@ class Admin
      * @see getAllServerNames
      *
      **/
-    ["nonmutating"] ServerDescription getServerDescription(string name)
+    nonmutating ServerDescription getServerDescription(string name)
 	throws ServerNotExistException;
     
     /**
@@ -329,7 +329,7 @@ class Admin
      * @see getAllServerNames
      *
      **/
-    ["nonmutating"] ServerState getServerState(string name)
+    nonmutating ServerState getServerState(string name)
 	throws ServerNotExistException;
     
     /**
@@ -350,7 +350,7 @@ class Admin
      * @see getAllServerNames
      *
      **/
-    ["nonmutating"] int getServerPid(string name)
+    nonmutating int getServerPid(string name)
 	throws ServerNotExistException;
     
     /**
@@ -400,7 +400,7 @@ class Admin
      * @see getServerState
      *
      **/
-    ["nonmutating"] ServerNames getAllServerNames();
+    nonmutating ServerNames getAllServerNames();
 
     /**
      *
@@ -444,7 +444,7 @@ class Admin
      * found.
      *
      **/
-    ["nonmutating"] string getAdapterEndpoints(string name)
+    nonmutating string getAdapterEndpoints(string name)
 	throws AdapterNotExistException;
 
     /**
@@ -454,7 +454,7 @@ class Admin
      * @return The adapter names.
      *
      **/
-    ["nonmutating"] AdapterNames getAllAdapterNames();
+    nonmutating AdapterNames getAllAdapterNames();
 
     /**
      *

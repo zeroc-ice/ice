@@ -13,7 +13,7 @@
 
 class Hello
 {
-    ["nonmutating"] void sayHello();
+    nonmutating void sayHello();
     void shutdown();
 };
 

@@ -464,7 +464,7 @@ class SLICE_API ClassDef : virtual public Container, virtual public Contained
 public:
 
     virtual void destroy();
-    OperationPtr createOperation(const std::string&, const TypePtr&);
+    OperationPtr createOperation(const std::string&, const TypePtr&, bool);
     DataMemberPtr createDataMember(const std::string&, const TypePtr&);
     ClassDeclPtr declaration() const;
     ClassList bases() const;
@@ -701,6 +701,7 @@ public:
     ParamDeclPtr createParamDecl(const std::string&, const TypePtr&, bool);
     ParamDeclList parameters() const;
     ExceptionList throws() const;
+    bool nonmutating() const;
     void setExceptionList(const ExceptionList&);
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
@@ -709,11 +710,12 @@ public:
 
 protected:
 
-    Operation(const ContainerPtr&, const std::string&, const TypePtr&);
+    Operation(const ContainerPtr&, const std::string&, const TypePtr&, bool);
     friend class SLICE_API ClassDef;
 
     TypePtr _returnType;
     ExceptionList _throws;
+    bool _nonmutating;
 };
 
 // ----------------------------------------------------------------------

@@ -33,6 +33,14 @@ yyerror(const char* s)
 %pure_parser
 
 //
+// Need precedence declarations to avoid shift/reduce conflicts for nonmutating qualifier.
+// By default, we'd get a shift, but we want a reduce. (Note: excess line length is
+// necessary here because bison doesn't recognize backslash-newline as a continuation sequence.)
+//
+%nonassoc ICE_BYTE ICE_BOOL ICE_SHORT ICE_INT ICE_LONG ICE_FLOAT ICE_DOUBLE ICE_STRING ICE_OBJECT ICE_LOCAL_OBJECT ICE_SCOPE_DELIMITER ICE_IDENTIFIER
+%nonassoc ICE_NONMUTATING
+
+//
 // All keyword tokens. Make sure to modify the "keyword" rule in this
 // file if the list of keywords is changed. Also make sure to add the
 // keyword to the keyword table in Scanner.l.
@@ -64,6 +72,7 @@ yyerror(const char* s)
 %token ICE_CONST
 %token ICE_FALSE
 %token ICE_TRUE
+%token ICE_NONMUTATING
 
 //
 // Other tokens.
@@ -569,12 +578,9 @@ class_exports
 // ----------------------------------------------------------------------
 class_export
 // ----------------------------------------------------------------------
-: operation
+: nonmutating_qualifier type_id
 {
-}
-| type_id
-{
-    TypeStringTokPtr tsp = TypeStringTokPtr::dynamicCast($1);
+    TypeStringTokPtr tsp = TypeStringTokPtr::dynamicCast($2);
     TypePtr type = tsp->v.first;
     string ident = tsp->v.second;
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
@@ -583,18 +589,48 @@ class_export
     cl->checkIntroduced(ident, dm);
     $$ = dm;
 }
-| type keyword
+| operation_preamble '(' parameters ')'
 {
-    TypePtr type = TypePtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    unit->popContainer();
+    $$ = $1;
+}
+throws
+{
+    OperationPtr op = OperationPtr::dynamicCast($5);
+    ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast($6);
+    assert(el);
+    if(op)
+    {
+        op->setExceptionList(el->v);
+    }
+}
+| operation_preamble '(' error ')'
+{
+    unit->popContainer();
+    yyerrok;
+}
+throws
+{
+    OperationPtr op = OperationPtr::dynamicCast($5);
+    ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast($6);
+    assert(el);
+    if(op)
+    {
+        op->setExceptionList(el->v);
+    }
+}
+| nonmutating_qualifier type keyword
+{
+    TypePtr type = TypePtr::dynamicCast($2);
+    StringTokPtr ident = StringTokPtr::dynamicCast($3);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
     unit->error("keyword `" + ident->v + "' cannot be used as data member name");
     $$ = cl->createDataMember(ident->v, type);
 }
-| type
+| nonmutating_qualifier type
 {
-    TypePtr type = TypePtr::dynamicCast($1);
+    TypePtr type = TypePtr::dynamicCast($2);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
     unit->error("missing data member name");
@@ -771,8 +807,35 @@ interface_exports
 // ----------------------------------------------------------------------
 interface_export
 // ----------------------------------------------------------------------
-: operation
+: operation_preamble '(' parameters ')'
 {
+    unit->popContainer();
+    $$ = $1;
+}
+throws
+{
+    OperationPtr op = OperationPtr::dynamicCast($5);
+    ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast($6);
+    assert(el);
+    if(op)
+    {
+        op->setExceptionList(el->v);
+    }
+}
+| operation_preamble '(' error ')'
+{
+    unit->popContainer();
+    yyerrok;
+}
+throws
+{
+    OperationPtr op = OperationPtr::dynamicCast($5);
+    ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast($6);
+    assert(el);
+    if(op)
+    {
+        op->setExceptionList(el->v);
+    }
 }
 ;
 
@@ -951,6 +1014,23 @@ enumerator
 ;
 
 // ----------------------------------------------------------------------
+nonmutating_qualifier
+// ----------------------------------------------------------------------
+: ICE_NONMUTATING
+{
+    BoolTokPtr nonmutating = new BoolTok;
+    nonmutating->v = true;
+    $$ = nonmutating;
+}
+| %prec ICE_NONMUTATING
+{
+    BoolTokPtr nonmutating = new BoolTok;
+    nonmutating->v = false;
+    $$ = nonmutating;
+}
+;
+
+// ----------------------------------------------------------------------
 type_id
 // ----------------------------------------------------------------------
 : type ICE_IDENTIFIER
@@ -966,86 +1046,53 @@ type_id
 // ----------------------------------------------------------------------
 operation_preamble
 // ----------------------------------------------------------------------
-: type_id
+: nonmutating_qualifier type_id
 {
-    TypeStringTokPtr tsp = TypeStringTokPtr::dynamicCast($1);
+    BoolTokPtr nonmutating = BoolTokPtr::dynamicCast($1);
+    TypeStringTokPtr tsp = TypeStringTokPtr::dynamicCast($2);
     TypePtr returnType = tsp->v.first;
     string name = tsp->v.second;
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
-    OperationPtr op = cl->createOperation(name, returnType);
+    OperationPtr op = cl->createOperation(name, returnType, nonmutating->v);
     cl->checkIntroduced(name, op);
     unit->pushContainer(op);
     $$ = op;
 }
-| ICE_VOID ICE_IDENTIFIER
+| nonmutating_qualifier ICE_VOID ICE_IDENTIFIER
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    BoolTokPtr nonmutating = BoolTokPtr::dynamicCast($1);
+    StringTokPtr ident = StringTokPtr::dynamicCast($3);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
-    OperationPtr op = cl->createOperation(ident->v, 0);
+    OperationPtr op = cl->createOperation(ident->v, 0, nonmutating->v);
     unit->currentContainer()->checkIntroduced(ident->v, op);
     unit->pushContainer(op);
     $$ = op;
 }
-| type keyword
+| nonmutating_qualifier type keyword
 {
-    TypePtr returnType = TypePtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    TypePtr returnType = TypePtr::dynamicCast($2);
+    StringTokPtr ident = StringTokPtr::dynamicCast($3);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
     unit->error("keyword `" + ident->v + "' cannot be used as operation name");
-    OperationPtr op = cl->createOperation(ident->v, returnType);
+    OperationPtr op = cl->createOperation(ident->v, returnType, false);
     unit->pushContainer(op);
     $$ = op;
 }
-| ICE_VOID keyword
+| nonmutating_qualifier ICE_VOID keyword
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    StringTokPtr ident = StringTokPtr::dynamicCast($3);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
     unit->error("keyword `" + ident->v + "' cannot be used as operation name");
-    OperationPtr op = cl->createOperation(ident->v, 0);
+    OperationPtr op = cl->createOperation(ident->v, 0, false);
     unit->pushContainer(op);
     $$ = op;
 }
 ;
 
-// ----------------------------------------------------------------------
-operation
-// ----------------------------------------------------------------------
-: operation_preamble '(' parameters ')'
-{
-    unit->popContainer();
-    $$ = $1;
-}
-throws
-{
-    OperationPtr op = OperationPtr::dynamicCast($5);
-    ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast($6);
-    assert(el);
-    if(op)
-    {
-        op->setExceptionList(el->v);
-    }
-}
-| operation_preamble '(' error ')'
-{
-    unit->popContainer();
-    yyerrok;
-}
-throws
-{
-    OperationPtr op = OperationPtr::dynamicCast($5);
-    ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast($6);
-    assert(el);
-    if(op)
-    {
-        op->setExceptionList(el->v);
-    }
-}
-;
- 
 // ----------------------------------------------------------------------
 out_qualifier
 // ----------------------------------------------------------------------
@@ -1485,6 +1532,9 @@ keyword
 {
 }
 | ICE_TRUE
+{
+}
+| ICE_NONMUTATING
 {
 }
 ;

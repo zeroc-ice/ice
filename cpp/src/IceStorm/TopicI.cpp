@@ -294,7 +294,7 @@ PublisherProxyI::ice_invoke(const vector< Ice::Byte>& inParams, vector< Ice::Byt
 	event.cost = 0; // TODO: Default comes from property?
     }
     event.op = current.operation;
-    event.nonmutating = current.nonmutating;
+    event.nonmutating = current.isNonmutating;
     event.data = inParams;
     event.context = context;
 
