@@ -233,6 +233,11 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	    }
 	}
 
+	//
+	// We're done, we can now throw away all the servant locators.
+	//
+	_locatorMap.clear();
+
 	synchronized(this)
 	{
 	    //

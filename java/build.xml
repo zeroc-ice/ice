@@ -90,9 +90,6 @@ the Free Software Foundation.
             <fileset dir="${slice.dir}/IceStorm">
                 <include name="IceStorm.ice" />
             </fileset>
-            <fileset dir="${slice.dir}/Yellow">
-                <include name="Yellow.ice" />
-            </fileset>
         </slice2java>
         <slice2freezej outputdir="${generated.dir}">
             <includepath>

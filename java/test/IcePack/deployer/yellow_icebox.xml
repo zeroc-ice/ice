@@ -1,7 +1,0 @@
-<server kind="cpp-icebox" endpoints="default">
- 
-  <services>
-    <service name="Yellow" descriptor="yellow_service.xml"/>
-  </services>
-
-</server>

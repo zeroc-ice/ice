@@ -1,9 +1,0 @@
-<service kind="freeze" entry="YellowService:create" endpoints="default">
-
-  <adapters>
-    <adapter name="${name}.Query" endpoints="default" id="Yellow.Query"/>
-    <adapter name="${name}.Admin" endpoints="default" id="Yellow.Admin"/>
-  </adapters>
-
-
-</service>
