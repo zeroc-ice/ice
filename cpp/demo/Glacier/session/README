@@ -3,7 +3,7 @@ start the server:
 
 $ ./server
 
-In the second window, run the Glacier starter (see NOTE below):
+In the second window, run the Glacier starter:
 
 $ ../../../bin/glacierstarter --Ice.Config=config
 
