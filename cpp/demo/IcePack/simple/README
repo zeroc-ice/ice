@@ -7,12 +7,8 @@ ICE_LICENSE file included in this distribution.
 
 **********************************************************************
 
-The IcePack configuration for this example includes an IceBox
-service, which requires that you add the current directory to your
-your shared library search path (such as LD_LIBRARY_PATH on Unix
-or PATH on Windows). Alternatively, you can copy the shared library
-for the example IceBox service (i.e., the file libHelloService.so or
-HelloService.dll) to a directory that is already in your search path.
+Users of Unix platforms should read "Unix Note" at the end of this
+file before continuing.
 
 To run the demo, first start the IcePack service:
 
@@ -21,9 +17,18 @@ $ icepacknode --Ice.Config=config --warn
 In a separate window:
 
 $ icepackadmin --Ice.Config=config -e "application add 'application.xml'"
-$ ./client
+$ client
 
 This will deploy the servers described in the file "application.xml"
 and start the client.
 
 Messages will be displayed in the IcePack service window.
+
+Unix Note:
+
+In order to allow the node to start the IceBox service included in
+this example, you must add the current directory to your shared
+library search path (e.g., LD_LIBRARY_PATH on Linux, SHLIB_PATH on
+HP-UX, etc.). Alternatively, you can copy the shared library for the
+example IceBox service (i.e., the file libHelloService.so) to a
+directory that is already in your search path.
