@@ -352,7 +352,7 @@ def getDBfiles(dbLocation):
     pipe_stdin.close()
     pipe_stdout.close()
    
-    fileList = []
+    fileList = ['lib/db.jar']
     fileList.extend(lines)
 
     pipe_stdin, pipe_stdout = os.popen2('find lib -name "*'  + getPlatformLibExtension() + '" -type f')
@@ -669,8 +669,8 @@ def main():
 	#
 	dbLocation = buildEnvironment['DB_HOME']
 	dbFiles = getDBfiles(dbLocation)
-	for f in dbFiles.strip():
-	    shutil.copy(dbLocation + '/' + f, 'Ice-' + version + '/' + f)
+	for f in dbFiles:
+	    shutil.copy(dbLocation + '/' + f.strip(), 'Ice-' + version + '/' + f.strip())
 	
 
     uname = getuname()
