@@ -58,8 +58,6 @@ void
 IcePack::AdminI::removeServer(const string& name, const Current&)
 {
     ServerPrx server = _serverRegistry->findByName(name);
-    cout << _communicator->proxyToString(server) << endl;
-
     try
     {
 	ServerDescription desc = server->getServerDescription();

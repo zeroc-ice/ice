@@ -30,35 +30,28 @@ void
 IcePack::ServerDeployerI::add(const string& name, const string& descriptor, const string& binPath, 
 			      const string& libPath, const Targets& targets, const Ice::Current&)
 {
-    try
-    {
-	map<string, string> variables;
-	variables["name"] = name;
-	variables["binpath"] = binPath;
-	variables["libpath"] = libPath;
+    map<string, string> variables;
+    variables["name"] = name;
+    variables["binpath"] = binPath;
+    variables["libpath"] = libPath;
 	
-	//
-	// Component path is used to identify the component. For example:
-	// node1.server1.service3
-	//
-	string componentPath = _nodeInfo->getNode()->getName() + "." + name;
+    //
+    // Component path is used to identify the component. For example:
+    // node1.server1.service3
+    //
+    string componentPath = _nodeInfo->getNode()->getName() + "." + name;
 
-	ServerBuilder builder(_nodeInfo, variables, componentPath, targets);
+    ServerBuilder builder(_nodeInfo, variables, componentPath, targets);
 
-	//
-	// Parse the server deployment descriptors.
-	//
-	builder.parse(descriptor);
+    //
+    // Parse the server deployment descriptors.
+    //
+    builder.parse(descriptor);
 
-	//
-	// Execute the builder tasks.
-	//
-	builder.execute();
-    }
-    catch(const Ice::LocalException& ex)
-    {
-	cout << "uknown local exception: " << ex << endl;
-    }
+    //
+    // Execute the builder tasks.
+    //
+    builder.execute();
 }
 
 void
