@@ -42,21 +42,35 @@ namespace Generate
 	    const string slicePat = @"*.ice";
 	    string sliceDir = projDir;
 	    string[] sliceFiles = Directory.GetFiles(projDir, slicePat);
+
 	    string includes = "";
+	    if(Directory.Exists(Path.Combine(solDir, "slice")))
+	    {
+		includes = "-I" + Path.Combine(solDir, "slice");
+	    }
+	    else if(iceHome != null)
+	    {
+		if(Directory.Exists(Path.Combine(iceHome, "slice")))
+		{
+		    includes = "-I" + Path.Combine(iceHome, "slice");
+		}
+	    }
+
 	    if(sliceFiles.Length == 0)
 	    {
 		sliceDir = Path.Combine(Path.Combine(solDir, "slice"), projName);
 		if(Directory.Exists(sliceDir))
 		{
 		    sliceFiles = Directory.GetFiles(sliceDir, slicePat);
-		    includes = "-I" + Path.Combine(solDir, "slice");
 		    if(sliceFiles.Length == 0)
 		    {
 			if(iceHome != null)
 			{
 			    sliceDir = Path.Combine(Path.Combine(iceHome, "slice"), projName);
-			    sliceFiles = Directory.GetFiles(sliceDir, slicePat);
-			    includes = "-I" + Path.Combine(iceHome, "slice");
+			    if(Directory.Exists(sliceDir))
+			    {
+				sliceFiles = Directory.GetFiles(sliceDir, slicePat);
+			    }
 			}
 		    }	    
 		}

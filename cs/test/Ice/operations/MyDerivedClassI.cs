@@ -291,11 +291,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 	return r;
     }
     
-    public override Test.StringStringD opStringStringD(Test.StringStringD p1, Test.StringStringD p2,
-                                                       out Test.StringStringD p3, Ice.Current current)
+    public override Ice.Context opStringStringD(Ice.Context p1, Ice.Context p2,
+                                                       out Ice.Context p3, Ice.Current current)
     {
 	p3 = p1;
-	Test.StringStringD r = new Test.StringStringD();
+	Ice.Context r = new Ice.Context();
 	r.AddRange(p1);
 	r.AddRange(p2);
 	return r;

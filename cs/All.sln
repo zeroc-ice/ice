@@ -9,16 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ice", "src\Ice\Ice.csproj",
 		{4ACBB09B-D203-4A37-A529-16BCF49A02BE} = {4ACBB09B-D203-4A37-A529-16BCF49A02BE}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "operationsC", "test\Ice\operations\operationsC.csproj", "{E94E8517-9ACF-4A42-8895-B446B8ED0F00}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C3630502-8F67-42BF-B4CA-A21D2EA8049E} = {C3630502-8F67-42BF-B4CA-A21D2EA8049E}
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "operationsS", "test\Ice\operations\operationsS.csproj", "{E94E8517-9ACF-4A42-8895-B446B8ED0F00}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C3630502-8F67-42BF-B4CA-A21D2EA8049E} = {C3630502-8F67-42BF-B4CA-A21D2EA8049E}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "generate", "generate\generate.csproj", "{6851468D-426E-4260-986C-244F278F3526}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -103,10 +93,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adapterDeactivationC", "tes
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "operationsCOL", "test\Ice\operations\operationsCOL.csproj", "{E94E8517-9ACF-4A42-8895-B446B8ED0F00}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adapterDeactivationS", "test\Ice\adapterDeactivation\adapterDeactivationS.csproj", "{E94E8517-9ACF-4A42-8895-B446B8ED0F00}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -116,6 +102,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "faultToleranceC", "test\Ice
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "faultToleranceS", "test\Ice\faultTolerance\faultToleranceS.csproj", "{E94E8517-9ACF-4A42-8895-B446B8ED0F00}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "operationsC", "test\Ice\operations\operationsC.csproj", "{B7C003ED-6973-47CE-AF63-16E3B423B550}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "operationsCOL", "test\Ice\operations\operationsCOL.csproj", "{9CC4F073-3EAF-4F4E-962D-5395D04822E9}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "operationsS", "test\Ice\operations\operationsS.csproj", "{5DDAE875-BFC4-4E76-8B70-D16F46048C23}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -133,14 +131,6 @@ Global
 		{C3630502-8F67-42BF-B4CA-A21D2EA8049E}.Debug.Build.0 = Debug|.NET
 		{C3630502-8F67-42BF-B4CA-A21D2EA8049E}.Release.ActiveCfg = Release|.NET
 		{C3630502-8F67-42BF-B4CA-A21D2EA8049E}.Release.Build.0 = Release|.NET
-		{E94E8517-9ACF-4A42-8895-B446B8ED0F00}.Debug.ActiveCfg = Debug|.NET
-		{E94E8517-9ACF-4A42-8895-B446B8ED0F00}.Debug.Build.0 = Debug|.NET
-		{E94E8517-9ACF-4A42-8895-B446B8ED0F00}.Release.ActiveCfg = Release|.NET
-		{E94E8517-9ACF-4A42-8895-B446B8ED0F00}.Release.Build.0 = Release|.NET
-		{E94E8517-9ACF-4A42-8895-B446B8ED0F00}.Debug.ActiveCfg = Debug|.NET
-		{E94E8517-9ACF-4A42-8895-B446B8ED0F00}.Debug.Build.0 = Debug|.NET
-		{E94E8517-9ACF-4A42-8895-B446B8ED0F00}.Release.ActiveCfg = Release|.NET
-		{E94E8517-9ACF-4A42-8895-B446B8ED0F00}.Release.Build.0 = Release|.NET
 		{6851468D-426E-4260-986C-244F278F3526}.Debug.ActiveCfg = Debug|.NET
 		{6851468D-426E-4260-986C-244F278F3526}.Debug.Build.0 = Debug|.NET
 		{6851468D-426E-4260-986C-244F278F3526}.Release.ActiveCfg = Release|.NET
@@ -233,10 +223,18 @@ Global
 		{E94E8517-9ACF-4A42-8895-B446B8ED0F00}.Debug.Build.0 = Debug|.NET
 		{E94E8517-9ACF-4A42-8895-B446B8ED0F00}.Release.ActiveCfg = Release|.NET
 		{E94E8517-9ACF-4A42-8895-B446B8ED0F00}.Release.Build.0 = Release|.NET
-		{E94E8517-9ACF-4A42-8895-B446B8ED0F00}.Debug.ActiveCfg = Debug|.NET
-		{E94E8517-9ACF-4A42-8895-B446B8ED0F00}.Debug.Build.0 = Debug|.NET
-		{E94E8517-9ACF-4A42-8895-B446B8ED0F00}.Release.ActiveCfg = Release|.NET
-		{E94E8517-9ACF-4A42-8895-B446B8ED0F00}.Release.Build.0 = Release|.NET
+		{B7C003ED-6973-47CE-AF63-16E3B423B550}.Debug.ActiveCfg = Debug|.NET
+		{B7C003ED-6973-47CE-AF63-16E3B423B550}.Debug.Build.0 = Debug|.NET
+		{B7C003ED-6973-47CE-AF63-16E3B423B550}.Release.ActiveCfg = Release|.NET
+		{B7C003ED-6973-47CE-AF63-16E3B423B550}.Release.Build.0 = Release|.NET
+		{9CC4F073-3EAF-4F4E-962D-5395D04822E9}.Debug.ActiveCfg = Debug|.NET
+		{9CC4F073-3EAF-4F4E-962D-5395D04822E9}.Debug.Build.0 = Debug|.NET
+		{9CC4F073-3EAF-4F4E-962D-5395D04822E9}.Release.ActiveCfg = Release|.NET
+		{9CC4F073-3EAF-4F4E-962D-5395D04822E9}.Release.Build.0 = Release|.NET
+		{5DDAE875-BFC4-4E76-8B70-D16F46048C23}.Debug.ActiveCfg = Debug|.NET
+		{5DDAE875-BFC4-4E76-8B70-D16F46048C23}.Debug.Build.0 = Debug|.NET
+		{5DDAE875-BFC4-4E76-8B70-D16F46048C23}.Release.ActiveCfg = Release|.NET
+		{5DDAE875-BFC4-4E76-8B70-D16F46048C23}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
