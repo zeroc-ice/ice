@@ -11,6 +11,7 @@
 #include <Ice/SUdpClient.h>
 #include <Ice/CryptKey.h>
 #include <Ice/MessageAuthenticator.h>
+#include <Ice/SecureUdp.h>
 
 using Ice::Long;
 using IceSecurity::SecureUdp::CryptKeyPtr;
@@ -20,12 +21,14 @@ void ::IceInternal::incRef(::IceSecurity::SecureUdp::SUdpClient* p) { p->__incRe
 void ::IceInternal::decRef(::IceSecurity::SecureUdp::SUdpClient* p) { p->__decRef(); }
 
 IceSecurity::SecureUdp::SUdpClient::SUdpClient(Long clientID,
-                                               const ClientChannelPtr& clientChannel,
+                                               const ClientChannelPrx& clientChannel,
                                                const MessageAuthenticatorPtr& messageAuthenticator) :
                                    _clientID(clientID),
                                    _clientChannel(clientChannel),
                                    _messageAuthenticator(messageAuthenticator)
 {
+    assert(_clientChannel);
+    assert(_messageAuthenticator);
 }
 
 IceSecurity::SecureUdp::SUdpClient::~SUdpClient()
@@ -35,18 +38,21 @@ IceSecurity::SecureUdp::SUdpClient::~SUdpClient()
 void
 IceSecurity::SecureUdp::SUdpClient::serverHello(const CryptKeyPtr& key)
 {
+    assert(_clientChannel);
     _clientChannel->serverHello(_clientID, key->toByteSeq());
 }
 
 void
 IceSecurity::SecureUdp::SUdpClient::serverKeyChange(const CryptKeyPtr& key)
 {
+    assert(_clientChannel);
     _clientChannel->serverKeyChange(key->toByteSeq());
 }
 
 void
 IceSecurity::SecureUdp::SUdpClient::serverGoodbye()
 {
+    assert(_clientChannel);
     _clientChannel->serverGoodbye();
 }
 

@@ -15,7 +15,8 @@
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/SUdpControlChannelF.h>
-#include <Ice/SecureUdp.h>
+#include <Ice/SecureUdpF.h>
+#include <Ice/Stream.h>
 #include <Ice/UdpTransceiver.h>
 #include <Ice/SUdpTransceiverF.h>
 #include <map>

@@ -11,7 +11,8 @@
 #ifndef ICE_SUDP_CLIENT_H
 #define ICE_SUDP_CLIENT_H
 
-#include <Ice/SecureUdp.h>
+#include <Ice/SecureUdpF.h>
+#include <Ice/Stream.h>
 #include <IceUtil/Shared.h>
 #include <Ice/SUdpClientF.h>
 #include <Ice/MessageAuthenticatorF.h>
@@ -31,7 +32,7 @@ class SUdpClient : public Shared
 {
 
 public:
-    SUdpClient(Long, const ClientChannelPtr&, const MessageAuthenticatorPtr&);
+    SUdpClient(Long, const ClientChannelPrx&, const MessageAuthenticatorPtr&);
     virtual ~SUdpClient();
 
     void serverHello(const CryptKeyPtr&);
@@ -51,7 +52,7 @@ public:
 
 protected:
     Long _clientID;
-    ClientChannelPtr _clientChannel;
+    ClientChannelPrx _clientChannel;
     MessageAuthenticatorPtr _messageAuthenticator;
     CryptKeyPtr _cryptKey;
 

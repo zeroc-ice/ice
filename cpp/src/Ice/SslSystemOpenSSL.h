@@ -18,7 +18,6 @@
 #include <Ice/LoggerF.h>
 #include <Ice/SslFactory.h>
 #include <Ice/SslSystem.h>
-#include <Ice/SslConnection.h>
 
 namespace IceSecurity
 {
@@ -108,7 +107,7 @@ public:
 
 protected:
 
-    System(string&);
+    System();
     ~System();
     
 private:

@@ -14,7 +14,7 @@
 #include <openssl/ssl.h>
 #include <IceUtil/Mutex.h>
 #include <Ice/SslConnection.h>
-#include <Ice/SslSystem.h>
+#include <Ice/SslSystemF.h>
 
 namespace IceSecurity
 {
@@ -26,6 +26,7 @@ namespace OpenSSL
 {
 
 using namespace Ice;
+using namespace std;
 
 class SafeFlag
 {
@@ -110,7 +111,7 @@ class Connection : public IceSecurity::Ssl::Connection
 {
 public:
 
-    Connection(SSL*, string&);
+    Connection(SSL*, const SystemPtr&);
     virtual ~Connection();
 
     virtual void shutdown();
@@ -166,6 +167,7 @@ protected:
 
     // Pointer to the OpenSSL Connection structure.
     SSL* _sslConnection;
+    SystemPtr _system;
 
     int _lastError;
 
@@ -179,8 +181,6 @@ protected:
 
     TraceLevelsPtr _traceLevels;
     LoggerPtr _logger;
-
-    System* _system;
 
     SafeFlag _handshakeFlag;
     int _initWantRead;

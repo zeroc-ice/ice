@@ -80,6 +80,7 @@ OBJS		= Initialize.o \
                   SslCertificateDesc.o \
                   SslConfig.o \
                   SslConfigErrorReporter.o \
+                  SslConnection.o \
                   SslConnectionOpenSSLClient.o \
                   SslConnectionOpenSSL.o \
                   SslConnectionOpenSSLServer.o \
@@ -216,6 +217,15 @@ $(HDIR)/SecureUdp.h SecureUdp.cpp: $(SDIR)/SecureUdp.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/SecureUdp.h SecureUdp.cpp
+
+$(HDIR)/SecureUdpF.h: $(SDIR)/SecureUdpF.ice $(SLICE2CPP)
+	rm -f $(HDIR)/SecureUdpF.h SecureUdpF.cpp
+	$(SLICECMD) $(SDIR)/SecureUdpF.ice
+	mv SecureUdpF.h $(HDIR)
+	rm -f SecureUdpF.cpp
+
+clean::
+	rm -f $(HDIR)/SecureUdpF.h
 
 $(HDIR)/ServantLocator.h ServantLocator.cpp: $(SDIR)/ServantLocator.ice $(SLICE2CPP)
 	rm -f $(HDIR)/ServantLocator.h ServantLocator.cpp

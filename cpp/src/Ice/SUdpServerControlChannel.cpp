@@ -8,6 +8,7 @@
 //
 // **********************************************************************
 
+#include <Ice/Security.h>
 #include <Ice/Buffer.h>
 #include <Ice/SUdpServerControlChannel.h>
 #include <Ice/SUdpClient.h>
@@ -19,6 +20,8 @@
 #include <Ice/MessageAuthenticator.h>
 #include <Ice/Cryptor.h>
 #include <Ice/BasicStream.h>
+#include <Ice/TraceLevels.h>
+#include <Ice/Logger.h>
 #include <sstream>
 
 using namespace std;
@@ -28,23 +31,37 @@ using IceInternal::Buffer;
 using IceInternal::BasicStream;
 
 void
-IceSecurity::SecureUdp::ServerControlChannel::clientHello(const ClientChannelPtr& client,
+IceSecurity::SecureUdp::ServerControlChannel::clientHello(const ClientChannelPrx& client,
                                                           const ByteSeq& MACkey,
                                                           const Current&)
 {
     IceUtil::Mutex::Lock sync(_mutex);
 
+    ICE_METHOD_INV("ServerControlChannel::clientHello()");
+
     Long clientID = getNewClientID();
 
     MessageAuthenticatorPtr messageAuthenticator = new MessageAuthenticator(MACkey);
 
+    ICE_DEV_DEBUG("Creating new SUdpClient()");
+
     SUdpClientPtr sudpClient = new SUdpClient(clientID, client, messageAuthenticator);
+
+    ICE_DEV_DEBUG("Creating new CryptKey()");
+
+    assert(_cryptor);
 
     CryptKeyPtr cryptKey = _cryptor->getNewKey();
 
+    ICE_DEV_DEBUG("Sending serverHello()");
+
     sudpClient->serverHello(cryptKey);
 
+    ICE_DEV_DEBUG("adding new SUdpClient() to map.");
+
     newSUdpClient(sudpClient);
+
+    ICE_METHOD_RET("ServerControlChannel::clientHello()");
 }
 
 void
@@ -55,11 +72,15 @@ IceSecurity::SecureUdp::ServerControlChannel::clientKeyAcknowledge(Long clientID
 {
     IceUtil::Mutex::Lock sync(_mutex);
 
+    ICE_METHOD_INV("ServerControlChannel::clientKeyAcknowledge()");
+
     SUdpClientPtr sudpClient = getSUdpClient(clientID);
 
     CryptKeyPtr cryptKey = _cryptor->getKey(key);
 
     sudpClient->setNewCryptKey(msgID, cryptKey);
+
+    ICE_METHOD_RET("ServerControlChannel::clientKeyAcknowledge()");
 }
 
 void
@@ -67,11 +88,15 @@ IceSecurity::SecureUdp::ServerControlChannel::clientKeyRequest(Long clientID, co
 {
     IceUtil::Mutex::Lock sync(_mutex);
 
+    ICE_METHOD_INV("ServerControlChannel::clientKeyRequest()");
+
     SUdpClientPtr sudpClient = getSUdpClient(clientID);
 
     CryptKeyPtr cryptKey = _cryptor->getNewKey();
 
     sudpClient->serverKeyChange(cryptKey);
+
+    ICE_METHOD_RET("ServerControlChannel::clientKeyRequest()");
 }
 
 void
@@ -79,14 +104,21 @@ IceSecurity::SecureUdp::ServerControlChannel::clientGoodbye(Long clientID, const
 {
     IceUtil::Mutex::Lock sync(_mutex);
 
+    ICE_METHOD_INV("ServerControlChannel::clientGoodbye()");
+
     deleteSUdpClient(clientID);
+
+    ICE_METHOD_RET("ServerControlChannel::clientGoodbye()");
 }
 
-IceSecurity::SecureUdp::ServerControlChannel::ServerControlChannel(const SUdpTransceiverPtr& transceiver,
+// IceSecurity::SecureUdp::ServerControlChannel::ServerControlChannel(const SUdpTransceiverPtr& transceiver,
+IceSecurity::SecureUdp::ServerControlChannel::ServerControlChannel(SUdpTransceiver* transceiver,
                                                                    const InstancePtr& instance,
                                                                    int port) :
                                              ControlChannel(transceiver, instance)
 {
+    ICE_METHOD_INV("ServerControlChannel::ServerControlChannel()");
+
     _clientIDGenerator = 0L;
 
     // Create the Server Channel's name
@@ -95,7 +127,7 @@ IceSecurity::SecureUdp::ServerControlChannel::ServerControlChannel(const SUdpTra
 
     // This MUST be an SSL endpoint - secure handshake take place over this.
     ostringstream endpt;
-    endpt << "ssl -p " << dec << port;
+    endpt << "ssl -p " << dec << port << " -h 127.0.0.1";
 
     // Create the ObjectAdapter's name
     ostringstream objectAdapterName;
@@ -103,16 +135,30 @@ IceSecurity::SecureUdp::ServerControlChannel::ServerControlChannel(const SUdpTra
 
     Ice::CommunicatorPtr communicator = _instance->communicator();
 
+    ICE_DEV_DEBUG("Creating ObjectAdapter.");
+
     // Create our ObjectAdapter
     _adapter = communicator->createObjectAdapterWithEndpoints(objectAdapterName.str(), endpt.str());
+
+    ICE_DEV_DEBUG("ObjectAdapter created.");
 
     // The server control channel is the implemenation.
     ServerChannelPtr serverChannel = this;
 
+    ICE_DEV_DEBUG("Adding serverChannel to ObjectAdapter.");
+
     _adapter->add(serverChannel, Ice::stringToIdentity(objectName.str()));
+
+    ICE_DEV_DEBUG("Added serverChannel named: " + objectName.str());
+
+    ICE_DEV_DEBUG("Activating ObjectAdapter.");
 
     // Okay, allow the object to begin accepting requests
     _adapter->activate();
+
+    ICE_DEV_DEBUG("ObjectAdapter activated.");
+
+    ICE_METHOD_RET("ServerControlChannel::ServerControlChannel()");
 }
 
 IceSecurity::SecureUdp::ServerControlChannel::~ServerControlChannel()

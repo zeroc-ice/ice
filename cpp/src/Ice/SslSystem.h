@@ -12,8 +12,12 @@
 #define ICE_SSL_SYSTEM_H
 
 #include <string>
-#include <Ice/SslConnection.h>
+#include <IceUtil/Shared.h>
+#include <Ice/SslConnectionF.h>
 #include <Ice/Properties.h>
+#include <Ice/SslSystemF.h>
+#include <Ice/TraceLevels.h>
+#include <Ice/LoggerF.h>
 
 namespace IceSecurity
 {
@@ -23,18 +27,15 @@ namespace Ssl
 
 using std::string;
 using Ice::LoggerPtr;
+using IceInternal::TraceLevelsPtr;
 using Ice::PropertiesPtr;
+using IceUtil::Shared;
 
 class Factory;
 
-// TODO: Can we derive this from Shared? How hard would that be?
-// TODO: <ml>Absolutely. Please do not add yet another reference counting mechanism.</ml>
-
-class System
+class System : public Shared
 {
 public:
-
-    string getSystemID() const { return _systemID; };
 
     virtual bool isConfigLoaded() = 0;
     virtual void loadConfig() = 0;
@@ -54,16 +55,8 @@ public:
 
 protected:
 
-    System(string&);
+    System();
     virtual ~System();
-
-    // Reference counting.
-    // TODO: Remove this, use IceUtil::Shared or Ice::Shared.
-    void incRef() { _refCount++; };
-    bool decRef() { return (--_refCount ? true : false); };
-
-    string _systemID;
-    int _refCount;
 
     TraceLevelsPtr _traceLevels;
     LoggerPtr _logger;

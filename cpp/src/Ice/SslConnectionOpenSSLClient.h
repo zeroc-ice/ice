@@ -24,11 +24,13 @@ namespace OpenSSL
 
 using namespace Ice;
 
+using IceSecurity::Ssl::SystemPtr;
+
 class ClientConnection : public Connection
 {
 
 public:
-    ClientConnection(SSL*, string&);
+    ClientConnection(SSL*, const SystemPtr&);
     virtual ~ClientConnection();
     virtual void shutdown();
     virtual int init(int timeout = 0);

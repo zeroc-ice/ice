@@ -17,7 +17,7 @@
 #include <Ice/SslConnector.h>
 #include <Ice/SslTransceiver.h>
 #include <Ice/UdpTransceiver.h>
-//#include <Ice/SUdpTransceiver.h>
+#include <Ice/SUdpTransceiver.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Exception.h>
 #include <Ice/Instance.h>
@@ -70,8 +70,7 @@ IceInternal::Endpoint::endpointFromString(const InstancePtr& instance, const str
 
     if (protocol == "sudp")
     {
-//	return new SUdpEndpoint(instance, str.substr(end));
-	return new UdpEndpoint(instance, str.substr(end));
+	return new SUdpEndpoint(instance, str.substr(end));
     }
 
     throw EndpointParseException(__FILE__, __LINE__);
@@ -105,8 +104,7 @@ IceInternal::Endpoint::streamRead(BasicStream* s, EndpointPtr& v)
 
 	case SUdpEndpointType:
 	{
-	    v = new UdpEndpoint(s);
-//	    v = new SUdpEndpoint(s);
+	    v = new SUdpEndpoint(s);
 	    break;
 	}
 
@@ -535,12 +533,10 @@ IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
 	    return false; // tcp is not "less than" udp
 	}
 
-/*
 	if (dynamic_cast<const SUdpEndpoint*>(&r))
 	{
 	    return false; // tcp is not "less than" sudp
 	}
-*/
 
 	if (dynamic_cast<const UnknownEndpoint*>(&r))
 	{
@@ -871,12 +867,10 @@ IceInternal::SslEndpoint::operator<(const Endpoint& r) const
 	    return false; // ssl is not "less than" udp
 	}
 
-/*
 	if (dynamic_cast<const SUdpEndpoint*>(&r))
 	{
 	    return false; // ssl is not "less than" sudp
 	}
-*/
 
 	if (dynamic_cast<const UnknownEndpoint*>(&r))
 	{
@@ -1202,12 +1196,10 @@ IceInternal::UdpEndpoint::operator<(const Endpoint& r) const
 	    return true; // udp is "less than" tcp
 	}
 
-/*
 	if (dynamic_cast<const SUdpEndpoint*>(&r))
 	{
 	    return false; // udp is not "less than" sudp
 	}
-*/
 
 	if (dynamic_cast<const UnknownEndpoint*>(&r))
 	{
@@ -1428,15 +1420,13 @@ IceInternal::SUdpEndpoint::secure() const
 TransceiverPtr
 IceInternal::SUdpEndpoint::clientTransceiver() const
 {
-//    return new SUdpTransceiver(_instance, _host, _port);
-    return new UdpTransceiver(_instance, _host, _port);
+    return new SUdpTransceiver(_instance, _host, _port);
 }
 
 TransceiverPtr
 IceInternal::SUdpEndpoint::serverTransceiver(EndpointPtr& endp) const
 {
-//    SUdpTransceiver* p = new SUdpTransceiver(_instance, _port, _connect);
-    UdpTransceiver* p = new UdpTransceiver(_instance, _port, _connect);
+    SUdpTransceiver* p = new SUdpTransceiver(_instance, _port, _connect);
     endp = new SUdpEndpoint(_instance, _host, p->effectivePort());
     return p;
 }
@@ -1457,9 +1447,7 @@ IceInternal::SUdpEndpoint::acceptor(EndpointPtr& endp) const
 bool
 IceInternal::SUdpEndpoint::equivalent(const TransceiverPtr& transceiver) const
 {
-//    const SUdpTransceiver* sudpTransceiver = dynamic_cast<const SUdpTransceiver*>(transceiver.get());
-//    if (!sudpTransceiver)
-    const UdpTransceiver* sudpTransceiver = dynamic_cast<const UdpTransceiver*>(transceiver.get());
+    const SUdpTransceiver* sudpTransceiver = dynamic_cast<const SUdpTransceiver*>(transceiver.get());
     if (!sudpTransceiver)
     {
 	return false;

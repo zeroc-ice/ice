@@ -22,6 +22,8 @@ using IceSecurity::Ssl::ShutdownException;
 using namespace IceInternal;
 using namespace std;
 
+using IceSecurity::Ssl::SystemPtr;
+
 ////////////////////////////////////////////////
 ////////// SslConnectionOpenSSLClient //////////
 ////////////////////////////////////////////////
@@ -30,8 +32,8 @@ using namespace std;
 // Public Methods
 //
 
-IceSecurity::Ssl::OpenSSL::ClientConnection::ClientConnection(SSL* connection, string& systemID) :
-                                            Connection(connection, systemID)
+IceSecurity::Ssl::OpenSSL::ClientConnection::ClientConnection(SSL* connection, const SystemPtr& system) :
+                                            Connection(connection, system)
 {
 }
 

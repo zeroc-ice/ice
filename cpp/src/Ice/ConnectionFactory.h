@@ -11,7 +11,7 @@
 #ifndef ICE_CONNECTION_FACTORY_H
 #define ICE_CONNECTION_FACTORY_H
 
-#include <IceUtil/Mutex.h>
+#include <IceUtil/RecMutex.h>
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ConnectionF.h>
 #include <Ice/InstanceF.h>
@@ -34,7 +34,7 @@ class ObjectAdapterI;
 namespace IceInternal
 {
 
-class OutgoingConnectionFactory : public ::IceUtil::Shared, public ::IceUtil::Mutex
+class OutgoingConnectionFactory : public ::IceUtil::Shared, public ::IceUtil::RecMutex
 {
 public:
 

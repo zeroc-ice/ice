@@ -17,13 +17,6 @@
 #include <Ice/CryptKeyF.h>
 #include <Ice/MessageAuthenticatorF.h>
 
-namespace IceInternal
-{
-
-// class SUdpTransceiverPtr;
-
-}
-
 namespace IceSecurity
 {
 
@@ -50,11 +43,12 @@ public:
 
 protected:
 
-    ClientControlChannel(const SUdpTransceiverPtr&, const InstancePtr&, const std::string&, int);
+    // ClientControlChannel(const SUdpTransceiverPtr&, const InstancePtr&, const std::string&, int);
+    ClientControlChannel(SUdpTransceiver*, const InstancePtr&, const std::string&, int);
 
     virtual ~ClientControlChannel();
 
-    void serverKeyChange(const ByteSeq&);
+    void serverKeyChangeMessage(const ByteSeq&);
     void clientHello();
 
 
@@ -66,6 +60,7 @@ protected:
 
 
     Ice::ObjectAdapterPtr _adapter;
+    ClientChannelPrx _clientProxy;
     ServerChannelPrx _serverChannel;
 
     Long _msgID;

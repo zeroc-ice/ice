@@ -32,22 +32,21 @@ IceSecurity::SecureUdp::Cryptor::getNewKey()
 {
     // Gotta return a newly generated key here.
     ByteSeq byteSeq;
-    int i = 0;
 
     // Bogus key - gotta fix this.
-    byteSeq[i++] = 'A';
-    byteSeq[i++] = 'n';
-    byteSeq[i++] = 't';
-    byteSeq[i++] = 'h';
-    byteSeq[i++] = 'o';
-    byteSeq[i++] = 'n';
-    byteSeq[i++] = 'y';
-    byteSeq[i++] = 'D';
-    byteSeq[i++] = 'a';
-    byteSeq[i++] = 'r';
-    byteSeq[i++] = 'i';
-    byteSeq[i++] = 'u';
-    byteSeq[i++] = 's';
+    byteSeq.push_back('A');
+    byteSeq.push_back('n');
+    byteSeq.push_back('t');
+    byteSeq.push_back('h');
+    byteSeq.push_back('o');
+    byteSeq.push_back('n');
+    byteSeq.push_back('y');
+    byteSeq.push_back('D');
+    byteSeq.push_back('a');
+    byteSeq.push_back('r');
+    byteSeq.push_back('i');
+    byteSeq.push_back('u');
+    byteSeq.push_back('s');
 
     CryptKeyPtr cryptKey = new CryptKey(byteSeq);
 

@@ -11,7 +11,7 @@
 #ifndef ICE_SSL_TRANSCEIVER_H
 #define ICE_SSL_TRANSCEIVER_H
 
-#include <Ice/SslConnection.h>
+#include <Ice/SslConnectionF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
@@ -19,8 +19,6 @@
 
 namespace IceInternal
 {
-
-using IceSecurity::Ssl::Connection;
 
 class SslConnector;
 class SslAcceptor;
@@ -38,7 +36,7 @@ public:
 
 private:
 
-    SslTransceiver(const InstancePtr&, SOCKET, Connection*);
+    SslTransceiver(const InstancePtr&, SOCKET, const ::IceSecurity::Ssl::ConnectionPtr&);
 
     virtual ~SslTransceiver();
     friend class SslConnector;
@@ -51,7 +49,7 @@ private:
     fd_set _rFdSet;
     fd_set _wFdSet;
 
-    Connection* _sslConnection;
+    ::IceSecurity::Ssl::ConnectionPtr _sslConnection;
 };
 
 }

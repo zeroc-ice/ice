@@ -18,21 +18,20 @@ void ::IceInternal::decRef(::IceSecurity::SecureUdp::MessageAuthenticator* p) { 
 IceSecurity::SecureUdp::MessageAuthenticator::MessageAuthenticator()
 {
     // TODO: Should generate a random MAC key here
-    int i = 0;
 
     // Bogus MAC - gotta fix this.
-    _macKeyBytes[i++] = 2;
-    _macKeyBytes[i++] = 0;
-    _macKeyBytes[i++] = 0;
-    _macKeyBytes[i++] = 2;
-    _macKeyBytes[i++] = 0;
-    _macKeyBytes[i++] = 1;
-    _macKeyBytes[i++] = 1;
-    _macKeyBytes[i++] = 7;
-    _macKeyBytes[i++] = 1;
-    _macKeyBytes[i++] = 0;
-    _macKeyBytes[i++] = 2;
-    _macKeyBytes[i++] = 2;
+    _macKeyBytes.push_back(2);
+    _macKeyBytes.push_back(0);
+    _macKeyBytes.push_back(0);
+    _macKeyBytes.push_back(2);
+    _macKeyBytes.push_back(0);
+    _macKeyBytes.push_back(1);
+    _macKeyBytes.push_back(1);
+    _macKeyBytes.push_back(7);
+    _macKeyBytes.push_back(1);
+    _macKeyBytes.push_back(0);
+    _macKeyBytes.push_back(2);
+    _macKeyBytes.push_back(2);
 }
 
 IceSecurity::SecureUdp::MessageAuthenticator::MessageAuthenticator(const ByteSeq& macKey)
@@ -49,21 +48,20 @@ IceSecurity::SecureUdp::MessageAuthenticator::computeMAC(const ByteSeq& message)
 {
     // TODO: Should generate a REAL MAC here.
     ByteSeq bytes;
-    int i = 0;
 
     // Bogus MAC - gotta fix this.
-    bytes[i++] = 2;
-    bytes[i++] = 0;
-    bytes[i++] = 0;
-    bytes[i++] = 2;
-    bytes[i++] = 0;
-    bytes[i++] = 1;
-    bytes[i++] = 1;
-    bytes[i++] = 7;
-    bytes[i++] = 1;
-    bytes[i++] = 0;
-    bytes[i++] = 2;
-    bytes[i++] = 2;
+    bytes.push_back(2);
+    bytes.push_back(0);
+    bytes.push_back(0);
+    bytes.push_back(2);
+    bytes.push_back(0);
+    bytes.push_back(1);
+    bytes.push_back(1);
+    bytes.push_back(7);
+    bytes.push_back(1);
+    bytes.push_back(0);
+    bytes.push_back(2);
+    bytes.push_back(2);
 
     return bytes;
 }

@@ -7,6 +7,12 @@
 // All Rights Reserved
 //
 // **********************************************************************
+
+// Note: This pragma is used to disable spurious warning messages having
+//       to do with the length of debug symbols exceeding 255 characters.
+//       This is due to STL template identifiers expansion.
+//       The MSDN Library recommends that you put this pragma directive
+//       in place to avoid the warnings.
 #ifdef WIN32
 #pragma warning(disable:4786)
 #endif
@@ -17,6 +23,7 @@
 #include <Ice/Network.h>
 #include <Ice/Security.h>
 #include <Ice/SecurityException.h>
+#include <Ice/SslFactory.h>
 #include <Ice/SslConnection.h>
 #include <Ice/SslConnectionOpenSSL.h>
 #include <Ice/SslSystemOpenSSL.h>
@@ -29,6 +36,9 @@ using namespace IceInternal;
 
 using std::endl;
 
+using IceSecurity::Ssl::Factory;
+using IceSecurity::Ssl::SystemPtr;
+
 ////////////////////////////////
 ////////// Connection //////////
 ////////////////////////////////
@@ -37,14 +47,13 @@ using std::endl;
 // Public Methods
 //
 
-IceSecurity::Ssl::OpenSSL::Connection::Connection(SSL* sslConnection, string& systemID)
+IceSecurity::Ssl::OpenSSL::Connection::Connection(SSL* sslConnection, const SystemPtr& system) :
+                                      _sslConnection(sslConnection),
+                                      _system(system)
 {
     assert(sslConnection);
 
-    // Get the system we were generated from
-    _system = IceSecurity::Ssl::Factory::getSystem(systemID);
-
-    _sslConnection = sslConnection;
+    Factory::addSystemHandle(sslConnection, system);
 
     _lastError = SSL_ERROR_NONE;
 
@@ -61,11 +70,10 @@ IceSecurity::Ssl::OpenSSL::Connection::~Connection()
 
     if (_sslConnection != 0)
     {
+        Factory::removeSystemHandle(_sslConnection);
         SSL_free(_sslConnection);
         _sslConnection = 0;
     }
-
-    IceSecurity::Ssl::Factory::releaseSystem(_system);
 
     ICE_METHOD_RET("OpenSSL::Connection::~Connection()");
 }

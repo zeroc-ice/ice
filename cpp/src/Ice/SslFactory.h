@@ -14,7 +14,7 @@
 #include <string>
 #include <map>
 #include <IceUtil/Mutex.h>
-#include <Ice/SslSystem.h>
+#include <Ice/SslSystemF.h>
 
 namespace IceSecurity
 {
@@ -25,8 +25,8 @@ namespace Ssl
 using std::string;
 using std::map;
 
-typedef map<string,System*> SystemMap;
-typedef map<void*,System*> SslHandleSystemMap;
+typedef map<string, SystemPtr> SystemMap;
+typedef map<void*, SystemPtr> SslHandleSystemMap;
 
 // This is defined as a class so as to ensure encapsulation.  We don't
 // want just anybody creating System instances - when all this is moved
@@ -38,17 +38,20 @@ class Factory
 {
 
 public:
-    static System* getSystem(string&);
-    static void releaseSystem(System*);
+    static SystemPtr getSystem(string&);
 
-    static void addSystemHandle(void*, System*);
-    static System* getSystemFromHandle(void*);
-    static void releaseSystemFromHandle(void*, System*);
+    // System Handle related methods
+    static void addSystemHandle(void*, const SystemPtr&);
+    static void removeSystemHandle(void*);
+    static SystemPtr getSystemFromHandle(void*);
 
 private:
     static SslHandleSystemMap _sslHandleSystemRepository;
     static SystemMap _systemRepository;
     static ::IceUtil::Mutex _systemRepositoryMutex;
+    static int _evict;
+
+    static void reapSystems();
 };
 
 }

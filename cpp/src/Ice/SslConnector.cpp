@@ -8,6 +8,11 @@
 //
 // **********************************************************************
 
+// Note: This pragma is used to disable spurious warning messages having
+//       to do with the length of debug symbols exceeding 255 characters.
+//       This is due to STL template identifiers expansion.
+//       The MSDN Library recommends that you put this pragma directive
+//       in place to avoid the warnings.
 #ifdef WIN32
 #pragma warning(disable:4786)
 #endif
@@ -33,7 +38,7 @@ using std::ostringstream;
 using std::string;
 using IceSecurity::Ssl::Connection;
 using IceSecurity::Ssl::Factory;
-using IceSecurity::Ssl::System;
+using IceSecurity::Ssl::SystemPtr;
 
 TransceiverPtr
 IceInternal::SslConnector::connect(int timeout)
@@ -62,7 +67,7 @@ IceInternal::SslConnector::connect(int timeout)
     string configFile = properties->getProperty("Ice.Ssl.Config");
 
     // Get an instance of the SslOpenSSL singleton.
-    System* sslSystem = Factory::getSystem(configFile);
+    SystemPtr sslSystem = Factory::getSystem(configFile);
 
     if (!sslSystem->isTraceSet())
     {
@@ -85,25 +90,7 @@ IceInternal::SslConnector::connect(int timeout)
         sslSystem->loadConfig();
     }
 
-    Connection* sslConnection = 0;
-
-    try
-    {
-        sslConnection = sslSystem->createClientConnection(fd);
-    }
-    catch (...)
-    {
-        Factory::releaseSystem(sslSystem);
-        sslSystem = 0;
-
-        // Shutdown the connection.
-        throw;
-    }
-
-    TransceiverPtr transPtr = new SslTransceiver(_instance, fd, sslConnection);
-
-    Factory::releaseSystem(sslSystem);
-    sslSystem = 0;
+    TransceiverPtr transPtr = new SslTransceiver(_instance, fd, sslSystem->createClientConnection(fd));
 
     return transPtr;
 }

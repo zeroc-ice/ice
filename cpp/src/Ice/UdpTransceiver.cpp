@@ -32,7 +32,7 @@ IceInternal::UdpTransceiver::close()
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
-	s << "closing udp connection\n" << toString();
+	s << "closing " << _protocolName << " connection\n" << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
@@ -110,7 +110,7 @@ repeat:
 	    if (_traceLevels->network >= 1)
 	    {
 		ostringstream s;
-		s << "connected udp socket\n" << toString();
+		s << "connected " << _protocolName << " socket\n" << toString();
 		_logger->trace(_traceLevels->networkCat, s.str());
 	    }
 	}

@@ -23,6 +23,8 @@ using IceSecurity::Ssl::ProtocolException;
 using namespace IceInternal;
 using namespace std;
 
+using IceSecurity::Ssl::SystemPtr;
+
 //////////////////////////////////////
 ////////// ServerConnection //////////
 //////////////////////////////////////
@@ -31,8 +33,8 @@ using namespace std;
 // Public Methods
 //
 
-IceSecurity::Ssl::OpenSSL::ServerConnection::ServerConnection(SSL* connection, string& systemID) :
-                                            Connection(connection, systemID)
+IceSecurity::Ssl::OpenSSL::ServerConnection::ServerConnection(SSL* connection, const SystemPtr& system) :
+                                            Connection(connection, system)
 {
 }
 

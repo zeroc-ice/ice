@@ -22,6 +22,7 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
+using IceSecurity::Ssl::ConnectionPtr;
 
 SOCKET
 IceInternal::SslTransceiver::fd()
@@ -101,7 +102,9 @@ IceInternal::SslTransceiver::toString() const
     return fdToString(_fd);
 }
 
-IceInternal::SslTransceiver::SslTransceiver(const InstancePtr& instance, SOCKET fd, Connection* sslConnection) :
+IceInternal::SslTransceiver::SslTransceiver(const InstancePtr& instance,
+                                            SOCKET fd,
+                                            const ConnectionPtr& sslConnection) :
     _instance(instance),
     _fd(fd),
     _traceLevels(instance->traceLevels()),
@@ -117,10 +120,4 @@ IceInternal::SslTransceiver::SslTransceiver(const InstancePtr& instance, SOCKET 
 IceInternal::SslTransceiver::~SslTransceiver()
 {
     assert(_fd == INVALID_SOCKET);
-
-    if (_sslConnection != 0)
-    {
-        delete _sslConnection;
-        _sslConnection = 0;
-    }
 }

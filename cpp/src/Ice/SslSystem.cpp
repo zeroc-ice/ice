@@ -13,13 +13,14 @@
 
 using namespace std;
 
+void ::IceInternal::incRef(::IceSecurity::Ssl::System* p) { p->__incRef(); }
+void ::IceInternal::decRef(::IceSecurity::Ssl::System* p) { p->__decRef(); }
+
 //
 // Protected Methods
 //
 
-IceSecurity::Ssl::System::System(string& systemID) :
-                         _systemID(systemID),
-                         _refCount(0)
+IceSecurity::Ssl::System::System()
 {
 }
 

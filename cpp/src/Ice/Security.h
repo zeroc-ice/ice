@@ -35,6 +35,8 @@ typedef enum
 
 }
 
+#define ICE_SECURITY_DEBUG
+
 #ifdef WIN32
 #define GETTHREADID GetCurrentThreadId()
 #else

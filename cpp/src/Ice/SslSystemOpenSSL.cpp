@@ -8,8 +8,13 @@
 //
 // **********************************************************************
 
+// Note: This pragma is used to disable spurious warning messages having
+//       to do with the length of debug symbols exceeding 255 characters.
+//       This is due to STL template identifiers expansion.
+//       The MSDN Library recommends that you put this pragma directive
+//       in place to avoid the warnings.
 #ifdef WIN32
-#   pragma warning(disable:4786) // TODO: Comment about what this warning disables.
+#   pragma warning(disable:4786)
 #endif
 
 //
@@ -85,6 +90,7 @@ Ice::LoggerPtr System::_globalLogger = 0;
 }
 
 using IceSecurity::Ssl::OpenSSL::ContextException;
+using IceSecurity::Ssl::SystemPtr;
 
 //
 // NOTE: The following (mon, getGeneralizedTime, getUTCTime and getASN1time are routines that
@@ -244,13 +250,11 @@ extern "C"
 RSA*
 tmpRSACallback(SSL *s, int isExport, int keyLength)
 {
-    IceSecurity::Ssl::System* sslSystem = IceSecurity::Ssl::Factory::getSystemFromHandle(s);
+    IceSecurity::Ssl::SystemPtr sslSystem = IceSecurity::Ssl::Factory::getSystemFromHandle(s);
 
-    IceSecurity::Ssl::OpenSSL::System* openSslSystem = dynamic_cast<IceSecurity::Ssl::OpenSSL::System*>(sslSystem);
+    IceSecurity::Ssl::OpenSSL::System* openSslSystem = dynamic_cast<IceSecurity::Ssl::OpenSSL::System*>(sslSystem.get());
 
     RSA* rsaKey = openSslSystem->getRSAKey(s, isExport, keyLength);
-
-    IceSecurity::Ssl::Factory::releaseSystemFromHandle(s, sslSystem);
 
     return rsaKey;
 }
@@ -258,13 +262,11 @@ tmpRSACallback(SSL *s, int isExport, int keyLength)
 DH*
 tmpDHCallback(SSL *s, int isExport, int keyLength)
 {
-    IceSecurity::Ssl::System* sslSystem = IceSecurity::Ssl::Factory::getSystemFromHandle(s);
+    IceSecurity::Ssl::SystemPtr sslSystem = IceSecurity::Ssl::Factory::getSystemFromHandle(s);
 
-    IceSecurity::Ssl::OpenSSL::System* openSslSystem = dynamic_cast<IceSecurity::Ssl::OpenSSL::System*>(sslSystem);
+    IceSecurity::Ssl::OpenSSL::System* openSslSystem = dynamic_cast<IceSecurity::Ssl::OpenSSL::System*>(sslSystem.get());
 
     DH* dh = openSslSystem->getDHParams(s, isExport, keyLength);
-
-    IceSecurity::Ssl::Factory::releaseSystemFromHandle(s, sslSystem);
 
     return dh;
 }
@@ -501,7 +503,7 @@ IceSecurity::Ssl::OpenSSL::System::printContextInfo(SSL_CTX* context)
 
         s << "read_ahead:   " << context->read_ahead << endl;
         s << "verify_mode:  0x" << hex << context->verify_mode << endl;
-        s << "verify_depth: " << Int(context->verify_depth) << endl;
+        s << "verify_depth: " << dec << Int(context->verify_depth) << endl;
 
         ICE_PROTOCOL(s.str());
     }
@@ -529,7 +531,7 @@ IceSecurity::Ssl::OpenSSL::System::createServerConnection(int socket)
     // Set the Accept Connection state for this connection.
     SSL_set_accept_state(sslConnection);
 
-    Connection* connection = new ServerConnection(sslConnection, _systemID);
+    Connection* connection = new ServerConnection(sslConnection, SystemPtr(this));
 
     commonConnectionSetup(connection);
 
@@ -560,7 +562,7 @@ IceSecurity::Ssl::OpenSSL::System::createClientConnection(int socket)
     // Set the Connect Connection state for this connection.
     SSL_set_connect_state(sslConnection);
 
-    Connection* connection = new ClientConnection(sslConnection, _systemID);
+    Connection* connection = new ClientConnection(sslConnection, SystemPtr(this));
 
     commonConnectionSetup(connection);
 
@@ -831,8 +833,7 @@ IceSecurity::Ssl::OpenSSL::System::getDHParams(SSL *s, int isExport, int keyLeng
 // Protected
 //
 
-IceSecurity::Ssl::OpenSSL::System::System(string& systemID) :
-                                  IceSecurity::Ssl::System(systemID)
+IceSecurity::Ssl::OpenSSL::System::System()
 {
     _configLoaded = false;
 
@@ -1253,7 +1254,7 @@ IceSecurity::Ssl::OpenSSL::System::createConnection(SSL_CTX* sslContext, int soc
     // Map the SSL Connection to this SslSystem
     // This is required for the OpenSSL callbacks
     // to work properly.
-    Factory::addSystemHandle(sslConnection, this);
+    // Factory::addSystemHandle(sslConnection, this);
 
     ICE_METHOD_RET("OpenSSL::System::createConnection()");
 

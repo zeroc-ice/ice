@@ -18,13 +18,6 @@
 #include <Ice/SUdpClientF.h>
 #include <map>
 
-namespace IceInternal
-{
-
-// class SUdpTransceiverPtr;
-
-}
-
 namespace IceSecurity
 {
 
@@ -53,14 +46,15 @@ class ServerControlChannel : public ControlChannel, public ServerChannel
 public:
 
     // Messages received from Client
-    virtual void clientHello(const ClientChannelPtr&, const ByteSeq&, const Current&);
+    virtual void clientHello(const ClientChannelPrx&, const ByteSeq&, const Current&);
     virtual void clientKeyAcknowledge(Long, Long, const ByteSeq&, const Current&);
     virtual void clientKeyRequest(Long, const Current&);
     virtual void clientGoodbye(Long, const Current&);
 
 protected:
 
-    ServerControlChannel(const SUdpTransceiverPtr&, const InstancePtr&, int);
+    // ServerControlChannel(const SUdpTransceiverPtr&, const InstancePtr&, int);
+    ServerControlChannel(SUdpTransceiver*, const InstancePtr&, int);
 
     virtual ~ServerControlChannel();
 

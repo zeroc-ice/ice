@@ -39,7 +39,7 @@ void IceInternal::decRef(IncomingConnectionFactory* p) { p->__decRef(); }
 ConnectionPtr
 IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoints)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if (!_instance)
     {
@@ -151,7 +151,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
 void
 IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if (!_instance)
     {
@@ -184,7 +184,7 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 void
 IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& adapter)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
     
     if (!_instance)
     {
@@ -213,7 +213,7 @@ IceInternal::OutgoingConnectionFactory::~OutgoingConnectionFactory()
 void
 IceInternal::OutgoingConnectionFactory::destroy()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if (!_instance)
     {
