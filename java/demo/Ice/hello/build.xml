@@ -1,0 +1,40 @@
+<project name="Ice-demo-hello" default="all" basedir=".">
+
+    <!-- install slice2java task -->
+    <taskdef name="slice2java" classname="Slice2JavaTask" />
+
+    <!-- set global properties for this build -->
+    <property name="slice.dir" value="../ice/slice"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="generated.dir" value="generated"/>
+    <property name="tags.dir" value="${generated.dir}/.tags"/>
+    <property name="classes.dir" value="classes"/>
+
+    <target name="init">
+        <!-- Create the time stamp -->
+        <tstamp/>
+    </target>
+
+    <target name="generate" depends="init">
+        <!-- Create the output directory for generated code -->
+        <mkdir dir="${generated.dir}"/>
+        <mkdir dir="${tags.dir}"/>
+        <slice2java tagdir="${tags.dir}" outputdir="${generated.dir}">
+            <fileset dir="." includes="Hello.ice" />
+        </slice2java>
+    </target>
+
+    <target name="compile" depends="generate">
+        <mkdir dir="${classes.dir}" />
+        <javac classpath="${lib.dir}" srcdir="." destdir="${classes.dir}"/>
+    </target>
+
+    <target name="all" depends="compile"/>
+
+    <target name="clean">
+        <delete dir="${tags.dir}"/>
+        <delete dir="${generated.dir}"/>
+        <delete dir="${classes.dir}"/>
+    </target>
+
+</project>
