@@ -94,9 +94,12 @@ public abstract class Application
             _communicator = null;
         }
 
-        if(_shutdownHook != null)
+        synchronized(this)
         {
-            _shutdownHook.done();
+            if(_shutdownHook != null)
+            {
+                _shutdownHook.done();
+            }
         }
 
         return status;
@@ -160,6 +163,7 @@ public abstract class Application
 	    try
 	    {
 		Runtime.getRuntime().removeShutdownHook(_shutdownHook);
+                _shutdownHook = null;
 	    }
 	    catch(java.lang.IllegalStateException ex)
 	    {
@@ -167,9 +171,6 @@ public abstract class Application
 		// Expected if we are in the process of shutting down.
 		//
 	    }
-
-            _shutdownHook.done();
-	    _shutdownHook = null;
 	}
     }
 
