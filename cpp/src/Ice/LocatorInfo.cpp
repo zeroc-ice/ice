@@ -57,12 +57,14 @@ IceInternal::LocatorManager::destroy()
 }
 
 LocatorInfoPtr
-IceInternal::LocatorManager::get(const LocatorPrx& locator)
+IceInternal::LocatorManager::get(const LocatorPrx& loc)
 {
-    if(!locator)
+    if(!loc)
     {
 	return 0;
     }
+
+    LocatorPrx locator = LocatorPrx::uncheckedCast(loc->ice_locator(0)); // The locator can't be located.
 
     //
     // TODO: reap unused locator info objects?
@@ -263,6 +265,11 @@ IceInternal::LocatorInfo::getLocatorRegistry()
     if(!_locatorRegistry) // Lazy initialization.
     {
 	_locatorRegistry = _locator->getRegistry();
+
+	//
+	// The locator registry can't be located.
+	//
+	_locatorRegistry = LocatorRegistryPrx::uncheckedCast(_locatorRegistry->ice_locator(0));
     }
     
     return _locatorRegistry;
