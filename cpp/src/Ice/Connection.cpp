@@ -274,7 +274,7 @@ IceInternal::Connection::flushBatchRequest(bool comp)
 	    //
 	    // Change message type.
 	    //
-	    _batchStream.b[2] = compressedRequestMsg;
+	    _batchStream.b[2] = compressedRequestBatchMsg;
 
 	    //
 	    // Do compression.

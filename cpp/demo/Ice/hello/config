@@ -66,4 +66,4 @@ Glacier.Router.Trace.RoutingTable=1
 #
 # Uncomment the following lines if you want to run this demo with Glacier
 #
-Ice.Default.Router=Glacier/router:default -p 10005
+#Ice.Default.Router=Glacier/router:default -p 10005
