@@ -30,9 +30,9 @@ x509_extensions  = certificate_extensions
 
 
 [ ca_policy ]
-countryName            = match
-stateOrProvinceName    = match
-organizationName       = match
+countryName            = optional
+stateOrProvinceName    = optional
+organizationName       = optional
 organizationalUnitName = optional
 emailAddress           = optional
 commonName             = supplied
@@ -48,9 +48,9 @@ authorityKeyIdentifier = keyid:always,issuer:always
 
 [ req ]
 default_bits        = 1024
-default_keyfile     = $ENV::ICE_HOME/certs/c_rsa1024_priv.pem
+default_keyfile     = $ENV::ICE_HOME/certs/newkey.pem
 default_md          = md5
-prompt              = no
+prompt              = yes
 distinguished_name  = root_ca_distinguished_name
 x509_extensions     = root_ca_extensions
 
