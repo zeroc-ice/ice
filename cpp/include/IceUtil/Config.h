@@ -24,23 +24,6 @@
 #   define _STLP_DEBUG
 #endif
 
-//
-// For some reason setting _STLP_USE_NEWALLOC together with
-// _STLP_DEBUG makes GCC 3.2 compiled programs seg fault on program
-// exit.
-//
-#if !defined(__GNUC__) || __GNUC__ < 3
-//
-// For STLport. If we compile in debug mode, we want to use the debug
-// memory allocation, so that purify doesn't report bogus memory
-// leaks. This is done by setting _STLP_USE_NEWALLOC before any
-// STLport header files are included.
-//
-#   if !defined(NDEBUG) && !defined(_STLP_USE_NEWALLOC)
-#       define _STLP_USE_NEWALLOC
-#   endif
-#endif
-
 #if defined(_WIN32)
 
 // Necessary for TryEnterCriticalSection.
