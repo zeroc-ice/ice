@@ -40,18 +40,43 @@ void IceInternal::incRef(::IceDelegateD::Ice::Object* p) { p->__incRef(); }
 void IceInternal::decRef(::IceDelegateD::Ice::Object* p) { p->__decRef(); }
 
 void
-IceInternal::checkedCast(::IceProxy::Ice::Object* b, const string& f, ::IceProxy::Ice::Object*& d)
+IceInternal::checkedCast(const ObjectPrx& b, const string& f, ObjectPrx& d)
 {
-    // TODO: Check facet
-    d = new ::IceProxy::Ice::Object;
-    d->__copyFromWithFacet(b, f);
+    d = 0;
+    if (b)
+    {
+	if (f == b->_getFacet())
+	{
+	    d = b;
+	}
+	else
+	{
+	    ObjectPrx bb = b->_newFacet(f);
+	    try
+	    {
+#ifdef NDEBUG
+		bb->_isA("::Ice::Object");
+#else
+		bool ok = bb->_isA("::Ice::Object");
+		assert(ok);
+#endif
+		d = bb;
+	    }
+	    catch (const FacetNotExistException&)
+	    {
+	    }
+	}
+    }
 }
 
 void
-IceInternal::uncheckedCast(::IceProxy::Ice::Object* b, const string& f, ::IceProxy::Ice::Object*& d)
+IceInternal::uncheckedCast(const ObjectPrx& b, const string& f, ObjectPrx& d)
 {
-    d = new ::IceProxy::Ice::Object;
-    d->__copyFromWithFacet(b, f);
+    d = 0;
+    if (b)
+    {
+	d = b->_newFacet(f);
+    }
 }
 
 bool
@@ -64,32 +89,6 @@ IceProxy::Ice::Object::_isA(const string& s)
 	{
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->_isA(s);
-	}
-	catch (const LocationForward& __ex)
-	{
-	    __locationForward(__ex);
-	}
-	catch (const NonRepeatable& __ex)
-	{
-	    __handleException(*__ex.get(), __cnt);
-	}
-	catch (const LocalException& __ex)
-	{
-	    __handleException(__ex, __cnt);
-	}
-    }
-}
-
-bool
-IceProxy::Ice::Object::_hasFacet(const string& s)
-{
-    int __cnt = 0;
-    while (true)
-    {
-	try
-	{
-	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    return __del->_hasFacet(s);
 	}
 	catch (const LocationForward& __ex)
 	{
@@ -325,12 +324,6 @@ IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
 }
 
 void
-IceProxy::Ice::Object::__copyFromWithFacet(const ObjectPrx& from, const string& facet)
-{
-    setup(from->__reference()->changeFacet(facet));
-}
-
-void
 IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 {
     JTCSyncT<JTCMutex> sync(*this);
@@ -491,23 +484,6 @@ IceDelegateM::Ice::Object::_isA(const string& s)
     return __ret;
 }
 
-bool
-IceDelegateM::Ice::Object::_hasFacet(const string& s)
-{
-    Outgoing __out(__emitter, __reference);
-    BasicStream* __is = __out.is();
-    BasicStream* __os = __out.os();
-    __os->write("_hasFacet");
-    __os->write(s);
-    if (!__out.invoke())
-    {
-	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
-    }
-    bool __ret;
-    __is->read(__ret);
-    return __ret;
-}
-
 void
 IceDelegateM::Ice::Object::_ping()
 {
@@ -584,13 +560,6 @@ IceDelegateD::Ice::Object::_isA(const string& s)
 {
     Direct __direct(__adapter, __reference, "_isA");
     return __direct.servant()->_isA(s);
-}
-
-bool
-IceDelegateD::Ice::Object::_hasFacet(const string& s)
-{
-    Direct __direct(__adapter, __reference, "_hasFacet");
-    return __direct.servant()->_hasFacet(s);
 }
 
 void

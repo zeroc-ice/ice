@@ -168,17 +168,17 @@ public:
     template<class Y>
     static ProxyHandle checkedCast(const ProxyHandle<Y>& r, const std::string& f = "")
     {
-	T* p;
-	::IceInternal::checkedCast(r._ptr, f, p);
-	return ProxyHandle(p);
+	ProxyHandle p;
+	::IceInternal::checkedCast(r, f, p);
+	return p;
     }
 
     template<class Y>
     static ProxyHandle uncheckedCast(const ProxyHandle<Y>& r, const std::string& f = "")
     {
-	T* p;
-	::IceInternal::uncheckedCast(r._ptr, f, p);
-	return ProxyHandle(p);
+	ProxyHandle p;
+	::IceInternal::uncheckedCast(r, f, p);
+	return p;
     }
 };
 

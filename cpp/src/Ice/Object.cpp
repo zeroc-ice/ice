@@ -28,24 +28,10 @@ Ice::LocationForward::LocationForward(const ObjectPrx& p) :
 {
 }
 
-Ice::Object::Object()
-{
-}
-
-Ice::Object::~Object()
-{
-}
-
 bool
 Ice::Object::_isA(const string& s)
 {
     return s == "::Ice::Object";
-}
-
-bool
-Ice::Object::_hasFacet(const string& s)
-{
-    return false; // TODO
 }
 
 void
@@ -67,18 +53,6 @@ Ice::Object::____isA(Incoming& __in)
 }
 
 DispatchStatus
-Ice::Object::____hasFacet(Incoming& __in)
-{
-    BasicStream* __is = __in.is();
-    BasicStream* __os = __in.os();
-    string s;
-    __is->read(s);
-    bool __ret = _hasFacet(s);
-    __os->write(__ret);
-    return DispatchOK;
-}
-
-DispatchStatus
 Ice::Object::____ping(Incoming&)
 {
     _ping();
@@ -87,7 +61,6 @@ Ice::Object::____ping(Incoming&)
 
 const char* Ice::Object::__all[] =
 {
-    "_hasFacet"
     "_isA"
     "_ping"
 };
@@ -107,13 +80,9 @@ Ice::Object::__dispatch(Incoming& in, const string& s)
     {
 	case 0:
 	{
-	    return ____hasFacet(in);
-	}
-	case 1:
-	{
 	    return ____isA(in);
 	}
-	case 2:
+	case 1:
 	{
 	    return ____ping(in);
 	}
@@ -131,4 +100,79 @@ Ice::Object::__isMutating(const std::string& s)
     // is mutating.
     //
     return false;
+}
+
+void
+Ice::Object::_addFacet(const ObjectPtr& facet, const string& name)
+{
+    JTCSyncT<JTCMutex> sync(_activeFacetMapMutex);
+
+    _activeFacetMapHint = _activeFacetMap.insert(_activeFacetMapHint, make_pair(name, facet));
+}
+
+void
+Ice::Object::_removeFacet(const string& name)
+{
+    JTCSyncT<JTCMutex> sync(_activeFacetMapMutex);
+
+    map<string, ObjectPtr>::iterator p = _activeFacetMap.end();
+    
+    if (_activeFacetMapHint != _activeFacetMap.end())
+    {
+	if (_activeFacetMapHint->first == name)
+	{
+	    p = _activeFacetMapHint;
+	}
+    }
+    
+    if (p == _activeFacetMap.end())
+    {
+	p = _activeFacetMap.find(name);
+    }
+    
+    if (p != _activeFacetMap.end())
+    {
+	_activeFacetMap.erase(p);
+	_activeFacetMapHint = _activeFacetMap.end();
+    }
+}
+
+void
+Ice::Object::_removeAllFacets(const string& name)
+{
+    JTCSyncT<JTCMutex> sync(_activeFacetMapMutex);
+
+    _activeFacetMap.clear();
+    _activeFacetMapHint = _activeFacetMap.end();
+}
+
+ObjectPtr
+Ice::Object::_findFacet(const string& name)
+{
+    JTCSyncT<JTCMutex> sync(_activeFacetMapMutex);
+    
+    map<string, ObjectPtr>::iterator p = _activeFacetMap.end();
+    
+    if (_activeFacetMapHint != _activeFacetMap.end())
+    {
+	if (_activeFacetMapHint->first == name)
+	{
+	    p = _activeFacetMapHint;
+	}
+    }
+    
+    if (p == _activeFacetMap.end())
+    {
+	p = _activeFacetMap.find(name);
+    }
+    
+    if (p != _activeFacetMap.end())
+    {
+	_activeFacetMapHint = p;
+	return p->second;
+    }
+    else
+    {
+	return 0;
+    }
 }

@@ -35,7 +35,6 @@ class ICE_API Object : public ::IceUtil::Shared, JTCMutex
 public:
 
     bool _isA(const std::string&);
-    bool _hasFacet(const std::string&);
     void _ping();
 
     bool operator==(const Object&) const;
@@ -60,7 +59,6 @@ public:
 
     ::IceInternal::ReferencePtr __reference() const;
     void __copyFrom(const ::Ice::ObjectPrx&);
-    void __copyFromWithFacet(const ::Ice::ObjectPrx&, const std::string&);
     void __handleException(const ::Ice::LocalException&, int&);
     void __rethrowException(const ::Ice::LocalException&);
     void __locationForward(const ::Ice::LocationForward&);
@@ -90,7 +88,6 @@ class ICE_API Object : public ::IceUtil::Shared
 public:
 
     virtual bool _isA(const std::string&) = 0;
-    virtual bool _hasFacet(const std::string&) = 0;
     virtual void _ping() = 0;
     virtual void _flush() = 0;
 };
@@ -105,7 +102,6 @@ class ICE_API Object : virtual public ::IceDelegate::Ice::Object
 public:
 
     virtual bool _isA(const std::string&);
-    virtual bool _hasFacet(const std::string&);
     virtual void _ping();
     virtual void _flush();
 
@@ -130,7 +126,6 @@ class ICE_API Object : virtual public ::IceDelegate::Ice::Object
 public:
 
     virtual bool _isA(const std::string&);
-    virtual bool _hasFacet(const std::string&);
     virtual void _ping();
     virtual void _flush();
 

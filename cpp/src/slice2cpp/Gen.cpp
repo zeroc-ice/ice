@@ -1617,7 +1617,6 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    StringList allOpNames;
 	    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::memFun(&Operation::name));
 	    allOpNames.push_back("_isA");
-	    allOpNames.push_back("_hasFacet");
 	    allOpNames.push_back("_ping");
 	    allOpNames.sort();
 	    allOpNames.unique();
@@ -1628,7 +1627,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    StringList allMutatingOpNames;
 	    transform(allMutatingOps.begin(), allMutatingOps.end(), back_inserter(allMutatingOpNames),
 		      ::IceUtil::memFun(&Operation::name));
-	    // Don't add _isA, _hasFacet, and _ping. These operations are non-mutating.
+	    // Don't add _isA and _ping. These operations are non-mutating.
 	    allMutatingOpNames.sort();
 	    allMutatingOpNames.unique();
 	    
@@ -1953,10 +1952,10 @@ Slice::Gen::IceVisitor::visitClassDecl(const ClassDeclPtr& p)
 	H << nl << _dllExport << "void incRef(::IceProxy" << scoped << "*);";
 	H << nl << _dllExport << "void decRef(::IceProxy" << scoped << "*);";
 	H << sp;
-	H << nl << _dllExport << "void checkedCast(::IceProxy::Ice::Object*, const ::std::string&, ::IceProxy"
-	  << scoped << "*&);";
-	H << nl << _dllExport << "void uncheckedCast(::IceProxy::Ice::Object*, const ::std::string&, ::IceProxy"
-	  << scoped << "*&);";
+	H << nl << _dllExport << "void checkedCast(const ::Ice::ObjectPrx&, const ::std::string&, "
+	  << "ProxyHandle< ::IceProxy" << scoped << ">&);";
+	H << nl << _dllExport << "void uncheckedCast(const ::Ice::ObjectPrx&, const ::std::string&, "
+	  << "ProxyHandle< ::IceProxy" << scoped << ">&);";
     }
 }
 
@@ -1987,25 +1986,60 @@ Slice::Gen::IceVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << "p->__decRef();";
 	C << eb;
 	C << sp;
-	C << nl << "void" << nl << "IceInternal::checkedCast(::IceProxy::Ice::Object* b, const ::std::string& f, "
-	  << "::IceProxy" << scoped << "*& d)";
+	C << nl << "void" << nl << "IceInternal::checkedCast(const ::Ice::ObjectPrx& b, const ::std::string& f, "
+	  << scoped << "Prx& d)";
 	C << sb;
-	C << nl << "d = dynamic_cast< ::IceProxy" << scoped << "*>(b);";
+	C << nl << "d = 0;";
+	C << nl << "if (b)";
+	C << sb;
+	C << nl << "if (f == b->_getFacet())";
+	C << sb;
+	C << nl << "d = dynamic_cast< ::IceProxy" << scoped << "*>(b.get());";
 	C << nl << "if (!d && b->_isA(\"" << scoped << "\"))";
 	C << sb;
-	C << nl << "d = new ::IceProxy" << scoped << ';';
-	C << nl << "d->__copyFromWithFacet(b, f);";
+	C << nl << "d = new ::IceProxy" << scoped << ";";
+	C << nl << "d->__copyFrom(b);";
+	C << eb;
+	C << eb;
+	C << nl << "else";
+	C << sb;
+	C << nl << "::Ice::ObjectPrx bb = b->_newFacet(f);";
+	C << nl << "try";
+	C << sb;
+	C << nl << "if (bb->_isA(\"" << scoped << "\"))";
+	C << sb;
+	C << nl << "d = new ::IceProxy" << scoped << ";";
+	C << nl << "d->__copyFrom(bb);";
+	C << eb;
+	C << eb;
+	C << nl << "catch (const ::Ice::FacetNotExistException&)";
+	C << sb;
+	C << eb;
+	C << eb;
 	C << eb;
 	C << eb;
 	C << sp;
-	C << nl << "void" << nl << "IceInternal::uncheckedCast(::IceProxy::Ice::Object* b, const ::std::string& f, "
-	  << "::IceProxy" << scoped << "*& d)";
+	C << nl << "void" << nl << "IceInternal::uncheckedCast(const ::Ice::ObjectPrx& b, const ::std::string& f, "
+	  << scoped << "Prx& d)";
 	C << sb;
-	C << nl << "d = dynamic_cast< ::IceProxy" << scoped << "*>(b);";
+	C << nl << "d = 0;";
+	C << nl << "if (b)";
+	C << sb;
+	C << nl << "if (f == b->_getFacet())";
+	C << sb;
+	C << nl << "d = dynamic_cast< ::IceProxy" << scoped << "*>(b.get());";
 	C << nl << "if (!d)";
 	C << sb;
-	C << nl << "d = new ::IceProxy" << scoped << ';';
-	C << nl << "d->__copyFromWithFacet(b, f);";
+	C << nl << "d = new ::IceProxy" << scoped << ";";
+	C << nl << "d->__copyFrom(b);";
+	C << eb;
+	C << eb;
+	C << nl << "else";
+	C << sb;
+	C << nl << "::Ice::ObjectPrx bb = b->_newFacet(f);";
+	C << nl << "d = new ::IceProxy" << scoped << ";";
+	C << nl << "d->__copyFrom(bb);";
+	C << eb;
 	C << eb;
 	C << eb;
     }

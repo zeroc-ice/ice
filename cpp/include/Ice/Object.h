@@ -57,14 +57,9 @@ class ICE_API Object : virtual public ::IceUtil::Shared
 {
 public:
 
-    Object();
-    virtual ~Object();
-
     virtual bool _isA(const std::string&);
-    virtual bool _hasFacet(const std::string&);
     virtual void _ping();
     ::IceInternal::DispatchStatus ____isA(::IceInternal::Incoming&);
-    ::IceInternal::DispatchStatus ____hasFacet(::IceInternal::Incoming&);
     ::IceInternal::DispatchStatus ____ping(::IceInternal::Incoming&);
     virtual const char** __getClassIds() = 0;
 
@@ -74,6 +69,17 @@ public:
 
     virtual void __write(::IceInternal::BasicStream*) const = 0;
     virtual void __read(::IceInternal::BasicStream*) = 0;
+
+    void _addFacet(const ObjectPtr&, const ::std::string&);
+    void _removeFacet(const ::std::string&);
+    void _removeAllFacets(const ::std::string&);
+    ObjectPtr _findFacet(const ::std::string&);
+
+private:
+
+    std::map<std::string, ObjectPtr> _activeFacetMap;
+    std::map<std::string, ObjectPtr>::iterator _activeFacetMapHint;
+    JTCMutex _activeFacetMapMutex;
 };
 
 }
