@@ -1009,22 +1009,22 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
             RETURN_NULL();
         }
 
+        Ice::ObjectPrx prx = _this->getProxy();
+        if(facet)
+        {
+            prx = prx->ice_appendFacet(facet);
+        }
+
         if(check)
         {
             //
             // Verify that the object supports the requested type. We don't use id here,
             // because it might contain a proxy type (e.g., "::MyClass*").
             //
-            if(!_this->getProxy()->ice_isA(decl->scoped()))
+            if(!prx->ice_isA(decl->scoped()))
             {
                 RETURN_NULL();
             }
-        }
-
-        Ice::ObjectPrx prx = _this->getProxy();
-        if(facet)
-        {
-            prx = prx->ice_appendFacet(facet);
         }
 
         if(!Ice_ObjectPrx_create(return_value, prx, decl TSRMLS_CC))
@@ -1483,7 +1483,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_call)
     Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     OperationPtr op = _this->getOperation(get_active_function_name(TSRMLS_C));
-    assert(op); // get_method should have already verified the operation's existence.
+    assert(op); // handleGetethod should have already verified the operation's existence.
 
     op->invoke(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
