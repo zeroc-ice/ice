@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../../..
+top_srcdir	= ../..
 
 BASE		= libSlice.so
 VERSIONED_BASE	= $(BASE).$(VERSION)
@@ -29,7 +29,7 @@ SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. $(CPPFLAGS)
+CPPFLAGS	:= -I. -I.. $(CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
@@ -52,9 +52,9 @@ clean::
 	-rm -f Grammer.cpp Grammer.h Grammer.output
 	-rm -f Scanner.cpp lex.yy.c
 
-Shared.cpp: ../../Ice/Shared.cpp
+Shared.cpp: ../Ice/Shared.cpp
 	rm -f $@
-	ln -s ../../Ice/Shared.cpp $@
+	ln -s ../Ice/Shared.cpp $@
 
 clean::
 	-rm -f Shared.cpp

@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Functional.h>
-#include <Parser.h>
+#include <Slice/Parser.h>
 
 using namespace std;
 using namespace Slice;

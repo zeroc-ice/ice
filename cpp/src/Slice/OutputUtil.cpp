@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Config.h>
-#include <OutputUtil.h>
+#include <Slice/OutputUtil.h>
 
 using namespace std;
 using namespace Slice;

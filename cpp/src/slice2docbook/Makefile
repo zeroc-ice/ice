@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../../..
+top_srcdir	= ../..
 
 NAME		= $(top_srcdir)/bin/slice2docbook
 
@@ -21,7 +21,7 @@ SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. -I../parser $(CPPFLAGS)
+CPPFLAGS	:= -I. $(CPPFLAGS)
 
 $(NAME): $(OBJS)
 	rm -f $@

@@ -11,8 +11,8 @@
 #ifndef GEN_UTIL_H
 #define GEN_UTIL_H
 
-#include <Parser.h>
-#include <OutputUtil.h>
+#include <Slice/Parser.h>
+#include <Slice/OutputUtil.h>
 
 namespace Slice
 {

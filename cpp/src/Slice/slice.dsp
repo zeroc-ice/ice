@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="parser" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="Slice" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Dynamic-Link Library" 0x0102
 
-CFG=parser - Win32 Debug
+CFG=Slice - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "parser.mak".
+!MESSAGE NMAKE /f "Slice.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "parser.mak" CFG="parser - Win32 Debug"
+!MESSAGE NMAKE /f "Slice.mak" CFG="Slice - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "parser - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
-!MESSAGE "parser - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "Slice - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "Slice - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE 
 
 # Begin Project
@@ -29,7 +29,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "parser - Win32 Release"
+!IF  "$(CFG)" == "Slice - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "PARSER_EXPORTS" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "." /I "../../../include" /I "dummyinclude" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "ICE_API_EXPORTS" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I ".." /I "../../include" /I "dummyinclude" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "ICE_API_EXPORTS" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -57,10 +57,10 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy Release\slice001.* ..\..\..\lib
+PostBuild_Cmds=copy Release\slice001.* ..\..\lib
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "parser - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Slice - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -74,7 +74,7 @@ PostBuild_Cmds=copy Release\slice001.* ..\..\..\lib
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "PARSER_EXPORTS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "." /I "../../../include" /I "dummyinclude" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "ICE_API_EXPORTS" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I ".." /I "../../include" /I "dummyinclude" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "ICE_API_EXPORTS" /YX /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -88,15 +88,15 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy Debug\slice001d.* ..\..\..\lib
+PostBuild_Cmds=copy Debug\slice001d.* ..\..\lib
 # End Special Build Tool
 
 !ENDIF 
 
 # Begin Target
 
-# Name "parser - Win32 Release"
-# Name "parser - Win32 Debug"
+# Name "Slice - Win32 Release"
+# Name "Slice - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -122,7 +122,7 @@ SOURCE=.\Scanner.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\Ice\Shared.cpp
+SOURCE=..\Ice\Shared.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -138,11 +138,11 @@ SOURCE=.\GrammerUtil.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\OutputUtil.h
+SOURCE=..\..\incluce\Slice\OutputUtil.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Parser.h
+SOURCE=..\..\include\Slice\Parser.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -153,7 +153,7 @@ SOURCE=.\Parser.h
 
 SOURCE=.\Grammer.y
 
-!IF  "$(CFG)" == "parser - Win32 Release"
+!IF  "$(CFG)" == "Slice - Win32 Release"
 
 # Begin Custom Build
 InputPath=.\Grammer.y
@@ -171,7 +171,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "parser - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Slice - Win32 Debug"
 
 # Begin Custom Build
 InputPath=.\Grammer.y
@@ -196,7 +196,7 @@ BuildCmds= \
 
 SOURCE=.\Scanner.l
 
-!IF  "$(CFG)" == "parser - Win32 Release"
+!IF  "$(CFG)" == "Slice - Win32 Release"
 
 # Begin Custom Build
 InputPath=.\Scanner.l
@@ -207,7 +207,7 @@ InputPath=.\Scanner.l
 	
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "parser - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Slice - Win32 Debug"
 
 # Begin Custom Build
 InputPath=.\Scanner.l

@@ -11,7 +11,7 @@
 #ifndef GRAMMER_UTIL_H
 #define GRAMMER_UTIL_H
 
-#include <Parser.h>
+#include <Slice/Parser.h>
 
 namespace Slice
 {

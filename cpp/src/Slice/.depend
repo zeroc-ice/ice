@@ -1,0 +1,6 @@
+Shared.o: Shared.cpp ../../include/Ice/Shared.h ../../include/Ice/Config.h
+Scanner.o: Scanner.cpp ../Slice/GrammerUtil.h ../../include/Slice/Parser.h ../../include/Ice/Shared.h ../../include/Ice/Config.h ../../include/Ice/Handle.h ../Slice/Grammer.h
+Grammer.o: Grammer.cpp ../Slice/GrammerUtil.h ../../include/Slice/Parser.h ../../include/Ice/Shared.h ../../include/Ice/Config.h ../../include/Ice/Handle.h
+GrammerUtil.o: GrammerUtil.cpp ../Slice/GrammerUtil.h ../../include/Slice/Parser.h ../../include/Ice/Shared.h ../../include/Ice/Config.h ../../include/Ice/Handle.h
+Parser.o: Parser.cpp ../../include/Ice/Functional.h ../../include/Ice/Handle.h ../../include/Ice/Config.h ../../include/Slice/Parser.h ../../include/Ice/Shared.h
+OutputUtil.o: OutputUtil.cpp ../../include/Ice/Config.h ../../include/Slice/OutputUtil.h

@@ -12,7 +12,9 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= slice \
+SUBDIRS		= Slice \
+		  slice2cpp \
+		  slice2docbook \
 		  Ice \
 		  IcePack
 
