@@ -545,6 +545,10 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 	// We always retry on a close connection exception, as this
 	// indicates graceful server shutdown.
 	//
+	// TODO: ML: Perhaps we should have a limit on this too?
+	// Otherwise a rogue server could let the client retry
+	// forever.
+	//
     }
     catch(const SocketException&)
     {
@@ -563,7 +567,8 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
     LoggerPtr logger = _reference->instance->logger();
     
     const std::vector<int>& retryIntervals = _reference->instance->proxyFactory()->getRetryIntervals();
-    
+
+    // TODO: ML: Loose C-style cast.
     if(cnt > (int)retryIntervals.size())
     {
 	if(traceLevels->retry >= 1)
@@ -580,7 +585,7 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 	out << "re-trying operation call";
 	if(cnt > 0 && retryIntervals[cnt - 1] > 0)
 	{
-	    out << " in " << retryIntervals[cnt - 1] << " (ms)";
+	    out << " in " << retryIntervals[cnt - 1] << "ms";
 	}
 	out << " because of exception\n" << ex;
     }
@@ -589,7 +594,7 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
     {
 	//
 	// Sleep before retrying. TODO: is it safe to sleep here
-	// with the mutex locked?
+	// with the mutex locked? TODO: ML: Why not sleep outside the mutex lock?</ml>
 	//
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(retryIntervals[cnt - 1]));
     }
@@ -887,10 +892,14 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	    }
 	    else if(__reference->locatorInfo)
 	    {
+		//
+		// TODO: ML: This call is confusing. It should be:
+		// endpoints = __reference->locatorInfo->getEndpoints(__reference, cached);
+		// Please change the signature accordingly.
+		//
 		cached = __reference->locatorInfo->getEndpoints(__reference, endpoints);
 	    }
 
-	    
 	    vector<EndpointPtr> filteredEndpoints = filterEndpoints(endpoints);
 	    if(filteredEndpoints.empty())
 	    {
@@ -911,11 +920,11 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 		    TraceLevelsPtr traceLevels = __reference->instance->traceLevels();
 		    LoggerPtr logger = __reference->instance->logger();
 		    
-		    if(traceLevels->retry >= 1)
+		    if(traceLevels->retry >= 2)
 		    {
 			Trace out(logger, traceLevels->retryCat);
-			out << "connection to cached endpoint failed, removing endpoint from cache\n"
-			    << "and trying one more time\n" << ex;
+			out << "connection to cached endpoints failed\n"
+			    << "removing endpoints from cache and trying one more time\n" << ex;
 		    }
 		    
 		    assert(__reference->locatorInfo);
