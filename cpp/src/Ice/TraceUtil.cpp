@@ -71,7 +71,7 @@ printRequestHeader(ostream& s, BasicStream& stream)
 {
     string identity;
     string facet;
-    Byte gotProxy;
+    bool gotProxy;
     stream.read(gotProxy);
     s << "\naddressing = " << static_cast<int>(gotProxy);
     if (gotProxy)
@@ -93,6 +93,9 @@ printRequestHeader(ostream& s, BasicStream& stream)
     string operation;
     stream.read(operation);
     s << "\noperation = " << operation;
+    bool nonmutating;
+    stream.read(nonmutating);
+    s << "\nnonmutating = " << (nonmutating ? "true" : "false");
     Int sz;
     stream.read(sz);
     s << "\ncontext = ";
