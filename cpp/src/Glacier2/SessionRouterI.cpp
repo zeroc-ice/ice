@@ -78,13 +78,15 @@ private:
 
 Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
 					 const ObjectAdapterPtr& serverAdapter,
-					 const PermissionsVerifierPrx& verifier) :
+					 const PermissionsVerifierPrx& verifier,
+					 const SessionManagerPrx& sessionManager) :
     _properties(clientAdapter->getCommunicator()->getProperties()),
     _logger(clientAdapter->getCommunicator()->getLogger()),
     _traceLevel(_properties->getPropertyAsInt("Glacier2.Trace.Session")),
     _clientAdapter(clientAdapter),
     _serverAdapter(serverAdapter),
     _verifier(verifier),
+    _sessionManager(sessionManager),
     _sessionTimeout(IceUtil::Time::seconds(_properties->getPropertyAsInt("Glacier2.SessionTimeout"))),
     _sessionThread(_sessionTimeout > IceUtil::Time() ? new SessionThread(this) : 0),
     _routersByConnectionHint(_routersByConnection.end()),

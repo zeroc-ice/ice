@@ -32,7 +32,7 @@ SessionServer::run(int argc, char* argv[])
 {
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("SessionServer");
     adapter->add(new DummyPermissionsVerifierI, Ice::stringToIdentity("verifier"));
-//    adapter->add(new SessionManagerI, Ice::stringToIdentity("sessionmanager"));
+    adapter->add(new SessionManagerI, Ice::stringToIdentity("sessionmanager"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

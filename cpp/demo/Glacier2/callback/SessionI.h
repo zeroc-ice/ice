@@ -21,4 +21,24 @@ public:
     virtual bool checkPermissions(const std::string&, const std::string&, std::string&, const Ice::Current&) const;
 };
 
+class SessionI : public Glacier2::Session
+{
+public:
+
+    SessionI(const std::string&);
+
+    virtual void destroy(const Ice::Current&);
+
+private:
+
+    const std::string _userId;
+};
+
+class SessionManagerI : public Glacier2::SessionManager
+{
+public:
+
+    virtual Glacier2::SessionPrx create(const std::string&, const Ice::Current&);
+};
+
 #endif

@@ -9,6 +9,7 @@
 
 #include <IceUtil/UUID.h>
 #include <Ice/Service.h>
+#include <Glacier2/Session.h>
 #include <Glacier2/SessionRouterI.h>
 #include <Glacier2/CryptPermissionsVerifierI.h>
 
@@ -153,11 +154,26 @@ Glacier2::RouterService::start(int argc, char* argv[])
     }
 
     //
+    // Get the session manager if specified.
+    //
+    string sessionManagerProperty = properties->getProperty("Glacier2.SessionManager");
+    SessionManagerPrx sessionManager;
+    if(!sessionManagerProperty.empty())
+    {
+	sessionManager = SessionManagerPrx::checkedCast(communicator()->stringToProxy(sessionManagerProperty));
+	if(!sessionManager)
+	{
+	    error("session manager `" + sessionManagerProperty + "' is invalid");
+	    return false;
+	}
+    }
+
+    //
     // Create the session router. The session router registers itself
     // and all required servant locators, so no registration has to be
     // done here.
     //
-    SessionRouterIPtr _sessionRouter = new SessionRouterI(clientAdapter, serverAdapter, verifier);
+    _sessionRouter = new SessionRouterI(clientAdapter, serverAdapter, verifier, sessionManager);
 
     //
     // Everything ok, let's go.
@@ -174,8 +190,11 @@ Glacier2::RouterService::start(int argc, char* argv[])
 bool
 Glacier2::RouterService::stop()
 {
-    _sessionRouter->destroy();
-    _sessionRouter = 0;
+    if(_sessionRouter)
+    {
+	_sessionRouter->destroy();
+	_sessionRouter = 0;
+    }
     return true;
 }
 

@@ -17,6 +17,26 @@ bool
 DummyPermissionsVerifierI::checkPermissions(const string& userId, const string& password, string&,
 					    const Current&) const
 {
-    cout << "verified user-id `" << userId << "' with password `" << password << "'" << endl;
+    cout << "verified user `" << userId << "' with password `" << password << "'" << endl;
     return true;
+}
+
+SessionI::SessionI(const string& userId) :
+    _userId(userId)
+{
+}
+
+void
+SessionI::destroy(const Ice::Current& current)
+{
+    cout << "destroying session for user `" << _userId << "'";
+    current.adapter->remove(current.id);
+}
+
+Glacier2::SessionPrx
+SessionManagerI::create(const string& userId, const Ice::Current& current)
+{
+    cout << "creating session for user `" << userId << "'";
+    Glacier2::SessionPtr session = new SessionI(userId);
+    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
 }

@@ -14,6 +14,12 @@ Glacier2.Client.Endpoints=ssl -p 10005
 Glacier2.Server.Endpoints=tcp -h 127.0.0.1
 
 # 
+# The configures session manager. If no externals session manager is
+# used, sessions are only handled Glacier2 internally.
+#
+Glacier2.SessionManager=sessionmanager:tcp -h 127.0.0.1 -p 10001
+
+# 
 # For this demo, we use a dummy permissions verifier that is
 # collocated with the session server process. This dummy permissions
 # verfier allows any user-id / password combination.

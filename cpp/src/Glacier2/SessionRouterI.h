@@ -29,7 +29,8 @@ class SessionRouterI : public Router, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    SessionRouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const PermissionsVerifierPrx&);
+    SessionRouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&,
+		   const PermissionsVerifierPrx&, const SessionManagerPrx&);
     virtual ~SessionRouterI();
     void destroy();
 
