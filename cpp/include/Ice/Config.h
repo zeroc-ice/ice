@@ -13,6 +13,8 @@
 
 #if defined(WIN32)
 
+// '...' : forcing value to bool 'true' or 'false' (performance warning)
+#   pragma warning( disable : 4800 )
 // ... identifier was truncated to '255' characters in the debug information
 #   pragma warning( disable : 4786 )
 // 'this' : used in base member initializer list
