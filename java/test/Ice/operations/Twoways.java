@@ -142,19 +142,19 @@ class Twoways
 
 
         {
-            Test.Struct si1 = new Test.Struct();
+            Test.Structure si1 = new Test.Structure();
             si1.p = p;
             si1.e = Test.MyEnum.enum3;
             si1.s = new Test.AnotherStruct();
             si1.s.s = "abc";
-            Test.Struct si2 = new Test.Struct();
+            Test.Structure si2 = new Test.Structure();
             si2.p = null;
             si2.e = Test.MyEnum.enum2;
             si2.s = new Test.AnotherStruct();
             si2.s.s = "def";
 
-            Test.StructHolder so = new Test.StructHolder();
-            Test.Struct rso = p.opStruct(si1, si2, so);
+            Test.StructureHolder so = new Test.StructureHolder();
+            Test.Structure rso = p.opStruct(si1, si2, so);
             test(rso.p == null);
             test(rso.e == Test.MyEnum.enum2);
             test(rso.s.s.equals("def"));

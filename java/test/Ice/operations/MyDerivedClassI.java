@@ -316,8 +316,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return r;
     }
 
-    public Test.Struct
-    opStruct(Test.Struct p1, Test.Struct p2, Test.StructHolder p3,
+    public Test.Structure
+    opStruct(Test.Structure p1, Test.Structure p2, Test.StructureHolder p3,
              Ice.Current current)
     {
         p3.value = p1;

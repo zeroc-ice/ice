@@ -28,7 +28,7 @@ struct AnotherStruct
     string s;
 };
 
-struct Struct
+struct Structure
 {
     MyClass* p;
     MyEnum e;
@@ -90,8 +90,8 @@ class MyClass
 
     MyClass* opMyClass(MyClass* p1, out MyClass* p2, out MyClass* p3);
 
-    Struct opStruct(Struct p1, Struct p2,
-		    out Struct p3);
+    Structure opStruct(Structure p1, Structure p2,
+		       out Structure p3);
 
     ByteS opByteS(ByteS p1, ByteS p2,
 		  out ByteS p3);
