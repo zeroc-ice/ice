@@ -201,6 +201,9 @@ final class TraceUtil
         }
     }
 
+/*
+    private static java.util.Set slicingIds = new java.util.HashSet();
+
     synchronized static void
     traceSlicing(String kind, String typeId, Ice.Logger logger, TraceLevels tl)
     {
@@ -214,6 +217,7 @@ final class TraceUtil
 	    }
 	}
     }
+*/
 
     public static void
     dumpStream(BasicStream stream)
@@ -439,6 +443,4 @@ final class TraceUtil
             assert(false);
         }
     }
-
-    private static java.util.Set slicingIds = new java.util.HashSet();
 }

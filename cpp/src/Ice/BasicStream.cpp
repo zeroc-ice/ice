@@ -1112,7 +1112,7 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
 	    }
 	    if(!v)
 	    {
-		traceSlicing("class", id, _instance->logger(), _instance->traceLevels());
+//		traceSlicing("class", id, _instance->logger(), _instance->traceLevels());
 		skipSlice();	// Slice off this derived part -- we don't understand it.
 		continue;
 	    }
@@ -1180,7 +1180,7 @@ IceInternal::BasicStream::throwException()
 	}
 	else
 	{
-	    traceSlicing("exception", id, _instance->logger(), _instance->traceLevels());
+//	    traceSlicing("exception", id, _instance->logger(), _instance->traceLevels());
 	    skipSlice();	// Slice off what we don't understand
 	    read(id);		// Read type id for next slice
 	}

@@ -184,7 +184,7 @@ printHeader(ostream& s, BasicStream& stream)
 }
 
 void
-IceInternal::traceHeader(const char* heading, const BasicStream& str, const ::Ice::LoggerPtr& logger,
+IceInternal::traceHeader(const char* heading, const BasicStream& str, const LoggerPtr& logger,
 			 const TraceLevelsPtr& tl)
 {
     if(tl->protocol >= 1)
@@ -203,7 +203,7 @@ IceInternal::traceHeader(const char* heading, const BasicStream& str, const ::Ic
 }
 
 void
-IceInternal::traceRequest(const char* heading, const BasicStream& str, const ::Ice::LoggerPtr& logger,
+IceInternal::traceRequest(const char* heading, const BasicStream& str, const LoggerPtr& logger,
 			  const TraceLevelsPtr& tl)
 {
     if(tl->protocol >= 1)
@@ -232,7 +232,7 @@ IceInternal::traceRequest(const char* heading, const BasicStream& str, const ::I
 }
 
 void
-IceInternal::traceBatchRequest(const char* heading, const BasicStream& str, const ::Ice::LoggerPtr& logger,
+IceInternal::traceBatchRequest(const char* heading, const BasicStream& str, const LoggerPtr& logger,
 			       const TraceLevelsPtr& tl)
 {
     if(tl->protocol >= 1)
@@ -262,7 +262,7 @@ IceInternal::traceBatchRequest(const char* heading, const BasicStream& str, cons
 }
 
 void
-IceInternal::traceReply(const char* heading, const BasicStream& str, const ::Ice::LoggerPtr& logger,
+IceInternal::traceReply(const char* heading, const BasicStream& str, const LoggerPtr& logger,
 			const TraceLevelsPtr& tl)
 {
     if(tl->protocol >= 1)
@@ -380,12 +380,13 @@ IceInternal::traceReply(const char* heading, const BasicStream& str, const ::Ice
     }
 }
 
+/*
 static IceUtil::StaticMutex slicingMutex;
 static set<string> slicingIds;
 
 void
 IceInternal::traceSlicing(const char* kind, const string& typeId,
-	                  const ::Ice::LoggerPtr& logger, const TraceLevelsPtr& tl)
+	                  const LoggerPtr& logger, const TraceLevelsPtr& tl)
 {
     if(tl->slicing >= 1)
     {
@@ -399,3 +400,4 @@ IceInternal::traceSlicing(const char* kind, const string& typeId,
 	}
     }
 }
+*/
