@@ -750,7 +750,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 SliceChecksumDict
 Glacier::StarterI::getSliceChecksums(const Current&) const
 {
-    return sliceChecksums;
+    return sliceChecksums();
 }
 
 Glacier::CryptPasswordVerifierI::CryptPasswordVerifierI(const map<string, string>& passwords) :

@@ -156,7 +156,8 @@ Client::run(int argc, char* argv[])
     }
 
     Ice::SliceChecksumDict serverChecksums = manager->getSliceChecksums();
-    for(Ice::SliceChecksumDict::const_iterator q = Ice::sliceChecksums.begin(); q != Ice::sliceChecksums.end(); ++q)
+    Ice::SliceChecksumDict localChecksums = Ice::sliceChecksums();
+    for(Ice::SliceChecksumDict::const_iterator q = localChecksums.begin(); q != localChecksums.end(); ++q)
     {
         Ice::SliceChecksumDict::const_iterator r = serverChecksums.find(q->first);
         if(r == serverChecksums.end() || q->second != r->second)

@@ -15,7 +15,7 @@
 namespace Ice
 {
 
-extern ICE_API const SliceChecksumDict sliceChecksums;
+ICE_API SliceChecksumDict sliceChecksums();
 
 }
 

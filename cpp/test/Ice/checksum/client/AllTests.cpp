@@ -30,7 +30,8 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     // Verify that no checksums are present for local types.
     //
     cout << "testing checksums... " << flush;
-    for(p = Ice::sliceChecksums.begin(); p != Ice::sliceChecksums.end(); ++p)
+    Ice::SliceChecksumDict localChecksums = Ice::sliceChecksums();
+    for(p = localChecksums.begin(); p != localChecksums.end(); ++p)
     {
         string::size_type pos = p->first.find("Local");
         test(pos == string::npos);
@@ -55,8 +56,8 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             n = atoi(p->first.c_str() + pos);
         }
 
-        Ice::SliceChecksumDict::const_iterator q = Ice::sliceChecksums.find(p->first);
-        test(q != Ice::sliceChecksums.end());
+        Ice::SliceChecksumDict::const_iterator q = localChecksums.find(p->first);
+        test(q != localChecksums.end());
 
         if(n <= 1)
         {

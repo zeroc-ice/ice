@@ -19,7 +19,7 @@ ChecksumI::ChecksumI(const Ice::ObjectAdapterPtr& adapter) :
 Ice::SliceChecksumDict
 ChecksumI::getSliceChecksums(const Ice::Current&) const
 {
-    return Ice::sliceChecksums;
+    return Ice::sliceChecksums();
 }
 
 void

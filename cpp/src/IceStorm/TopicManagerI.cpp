@@ -134,7 +134,7 @@ TopicManagerI::retrieveAll(const Ice::Current&) const
 Ice::SliceChecksumDict
 TopicManagerI::getSliceChecksums(const Ice::Current&) const
 {
-    return Ice::sliceChecksums;
+    return Ice::sliceChecksums();
 }
 
 void

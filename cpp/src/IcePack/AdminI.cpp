@@ -1477,5 +1477,5 @@ IcePack::AdminI::shutdown(const Current&)
 SliceChecksumDict
 IcePack::AdminI::getSliceChecksums(const Current&) const
 {
-    return sliceChecksums;
+    return sliceChecksums();
 }

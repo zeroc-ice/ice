@@ -36,7 +36,7 @@ IcePatch::FileI::FileI(const ObjectAdapterPtr& adapter, const string& dir) :
 SliceChecksumDict
 IcePatch::FileI::getSliceChecksums(const Current&) const
 {
-    return sliceChecksums;
+    return sliceChecksums();
 }
 
 ByteSeq

@@ -41,7 +41,7 @@ IceBox::ServiceManagerI::~ServiceManagerI()
 SliceChecksumDict
 IceBox::ServiceManagerI::getSliceChecksums(const Current&) const
 {
-    return sliceChecksums;
+    return sliceChecksums();
 }
 
 void
