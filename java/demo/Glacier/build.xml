@@ -1,0 +1,11 @@
+<project name="demo_Glacier" default="all" basedir=".">
+
+    <target name="all">
+        <ant dir="session"/>
+    </target>
+
+    <target name="clean">
+        <ant dir="session" target="clean"/>
+    </target>
+
+</project>
