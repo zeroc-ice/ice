@@ -95,11 +95,11 @@ Make from the "Software Porting And Archive Centre for HP-UX",
 http://hpux.cs.utah.edu.
 
 
-Python 2.2 or 2.3
------------------
+Python 2.2, 2.3 or 2.4
+----------------------
 
-To run the automated test suite, you will need Python 2.2 or 2.3. If
-you have no interest in running the test scripts, Python is not
+To run the automated test suite, you will need Python 2.2, 2.3, or 2.4.
+If you have no interest in running the test scripts, Python is not
 required.
 
 You can download Python from http://hpux.cs.utah.edu.

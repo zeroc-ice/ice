@@ -21,7 +21,7 @@ contact sales@zeroc.com for more information about licensing Ice.
 About this distribution
 ======================================================================
 
-This distribution is a binary release of Ice 2.1.0 for AIX 5.2 and
+This distribution is a binary release of Ice 2.1.0 for AIX 5.2, and 
 includes the following components:
 
 - The Ice run time, including executables for the Ice services, HTML
@@ -38,31 +38,30 @@ Requirements
 This binary distribution was compiled on AIX 5.2 using IBM VisualAge 
 version 6 with the April 2004 PTF.
 
-This distribution was built using the following AIX binary packages:
+The following binary RPMs, available from 
+http://www.ibm.com/servers/aix/products/aixos/linux/ezinstall.html,
+are required to use this distribution:
 
 - bzip2-1.0.2-2.aix4.3.ppc.rpm
 - expat-1.95.7-1.aix5.1.ppc.rpm 
-- expat-devel-1.95.7-1.aix5.1.ppc.rpm (not required to use Ice)
 - openssl-0.9.7d-1.aix5.1.ppc.rpm
-- openssl-devel-0.9.7d-1.aix5.1.ppc.rpm
-
-We recommend that you install these packages to use Ice. They can
-be downloaded from
-
-http://www.ibm.com/servers/aix/products/aixos/linux/ezinstall.html
-
-This distribution includes Berkeley DB 4.2.52 binaries. Berkeley DB
-was configured with --enable-cxx and --enable-java, and built using
-IBM VisualAge 6.
-
+- openssl-devel-0.9.7d-1.aix5.1.ppc.rpm (only required when
+  building C++ applications)
 
 Java
 ----
 
 Ice for Java requires J2SE 1.4.2 or 1.5.0. Java for AIX is available 
-from IBM at:
+from IBM at http://www-128.ibm.com/developerworks/java/jdk/aix
 
-http://www-128.ibm.com/developerworks/java/jdk/aix/
+
+======================================================================
+Berkeley DB
+======================================================================
+
+This distribution includes the C++ and Java run time for Berkeley DB
+4.2.52. The C++ runtime was built using IBM VisualAge 6. The
+Berkeley DB license is provided in the file THIRD_PARTY_LICENSE.
 
 
 ======================================================================
@@ -111,17 +110,11 @@ such as IcePack or Glacier2.
 Java
 ----
 
-To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar to your
-CLASSPATH, as shown below:
+To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar and 
+$ICE_HOME/lib/db.jar to your CLASSPATH, as shown below:
 
-$ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$CLASSPATH
+$ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$ICE_HOME/lib/db.jar:$CLASSPATH
 
-Note that the Freeze component of Ice for Java requires Berkeley DB.
-In order to use Freeze, you must add db.jar to your CLASSPATH. In
-addition, the JVM requires the directory containing the Berkeley DB
-libraries to be listed in java.library.path, therefore you must add
-this directory to your LIBPATH (even if the libraries reside in a
-default directory such as /usr/lib).
 
 
 ======================================================================
