@@ -751,7 +751,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	try {
 	    communicator->removeObjectFactory("x");
 	}
-	catch(const Ice::NotRegisteredException&e)
+	catch(const Ice::NotRegisteredException&)
 	{
 	    gotException = true;
 	}
